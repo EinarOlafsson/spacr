@@ -3,7 +3,9 @@ GENERATE MASKS SAYS PERCENTILE WHERE THE USER MEANS INTENSITY, AND THE LIVE
 VIEW STILL DRAWS A STRAY FIELD OVER THE PATH
 ================================================================================
 
-Status:    OPEN AND ACTIONABLE, filed 2026-09-10. Nothing gates it.
+Status:    PARTLY DONE, 2026-09-11. Parts FOUR, FIVE and SIX are closed;
+           Parts ONE, TWO and THREE are open and are the bulk of the work.
+           See PROGRESS at the foot of this file.
 Requested: 2026-09-10, verbatim -- "in generate masks, the intensity
            threshold is a quantile, cahnge it to an absolut intensity
            threshold. remove these settings: Max intensity pct, Min intensity
@@ -312,3 +314,80 @@ HOW TO KNOW IT WORKED
     removal on visibly changes the displayed image and not only the masks --
     and a test asserts the display path and the worker path reach the same
     decision from the same settings.
+
+--------------------------------------------------------------------------------
+PROGRESS, 2026-09-11
+--------------------------------------------------------------------------------
+
+PART SIX WAS ALREADY DONE AND THIS FILE WAS WRONG ABOUT IT. The item claims
+the display gates on a global `remove_background` while the worker gates on
+`remove_background_{obj}`. Both actually read the SAME common widget:
+`_background_for_channel` reads `_common_widgets["remove_background"]`
+directly, and the settings fan-out writes that widget's value into
+`remove_background_{obj}` for every selected object type -- so they cannot
+disagree. `tests/qt/test_live_preview_remove_background.py` already covers
+it, including the display/worker agreement the item asks for. 9 passed.
+Nothing was changed. Recorded because a stale item is a trap for whoever
+picks this up next.
+
+PART FIVE IS DONE. Six decimals on all three percentile pairs that carried
+Qt's default two:
+
+    spacr/qt/widgets/live_preview.py      _lo_pct / _hi_pct   (reported)
+    spacr/qt/widgets/measure_preview.py   _lo_pct / _hi_pct
+    spacr/qt/screens/annotate.py          _pct_lo / _pct_hi
+
+`percentile_pair.DECIMALS` and `make_masks.PERCENTILE_DECIMALS` had ALREADY
+settled on six, and a test already pins them equal -- so this is the same
+decision applied to the three pairs that were missed, not a fourth opinion.
+The step stays coarse (0.01), which is make_masks' answer: 1e-6 would need a
+million clicks to cross a percent, so the fine end is typed and the coarse
+end is scrolled. No adaptive-step widget was written.
+
+`setDecimals` goes BEFORE `setRange`/`setValue` in all six cases. The box
+rounds to the precision it holds at the time, so the other order stores
+100.0 and the control looks broken rather than imprecise.
+
+The annotator's pair had a second cost the item does not mention: it edits
+`AnnotateSettings` IN PLACE, and `percentiles` is a plain float pair on disk.
+Two decimals rounded a stored 99.9999 on the way IN, and the dialog wrote
+the rounded value back on OK -- so opening the dialog and pressing OK lost
+precision the user never touched.
+
+  tests/qt/test_a_percentile_keeps_every_decimal_the_user_typed.py, 7 tests.
+  Verified to FAIL on the three panel assertions with the fix reverted.
+
+PART FOUR IS DONE, AND THE CLASS IS CLOSED, NOT THE INSTANCE.
+`LivePreviewPanel._stow_free_widgets()` runs last in `__init__` and moves
+every direct child that is in no layout into `_offscreen_controls`. Measured
+on the worktree: 113 direct children, 95 in no layout before; 18 and 0 after,
+and a second call moves 0.
+
+The other half was `LiveSettingsDialog.closeEvent`, which re-parented every
+borrowed control back onto the PANEL -- necessary, since Qt destroys a
+dialog's children with it, but it put each one back at (0, 0) held off
+screen by nothing but `hide()`. It now returns them to `_offscreen_controls`.
+So the reported state was reachable by opening live settings once and
+closing it.
+
+The sweep is deliberately blunt -- it moves what it finds rather than naming
+widgets -- so a control added later is covered without anyone remembering.
+ONE EXCLUSION, and it was found by the test's own control rather than
+reasoned out: a widget carrying Qt::Window is placed by the window manager
+and never paints inside the panel. Without that clause the check reported
+the open settings dialog as a widget drawn over the path label, and the
+production sweep would have re-parented a live dialog into a hidden
+container -- a worse bug than the one being fixed.
+
+The widget reading "3" was never identified and does not need to be. It was
+one of 66 spin boxes, all of which now live somewhere that cannot be drawn.
+
+  tests/qt/test_no_live_preview_control_can_land_on_the_path_label.py,
+  5 tests, including a planted stray that the check must catch.
+
+STILL OPEN: PARTS ONE, TWO AND THREE -- the absolute intensity threshold,
+the five removals and the two renames. Deliberately not started in the same
+change: they touch `settings.py` keys, the 364 generated tables and ten
+runtime catalogs, which is the lane that can freeze the public docs site
+(only main deploys to Pages). Sequenced after the pending nightly -> main
+merge rather than during it.

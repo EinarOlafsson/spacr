@@ -118,6 +118,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ..widgets.percentile_pair import (
+    DECIMALS as PERCENTILE_DECIMALS)
 from ..widgets.toggle import Toggle
 from ..i18n import tr
 from ..bridge import drain_thread
@@ -1820,11 +1822,20 @@ class _SettingsDialog(QDialog):
         self._norm_channels.setPlaceholderText("r, g, b (blank = off)")
         form.addRow("Normalize channels", self._norm_channels)
 
+        # Six decimals, set BEFORE the range and the value, matching
+        # `percentile_pair.DECIMALS`. `settings.percentiles` can already hold
+        # 99.9999 -- it is a plain float on disk -- so the two-decimal default
+        # these carried rounded a stored value on the way IN, and the
+        # annotator then wrote the rounded one back on the next save.
         self._pct_lo = QDoubleSpinBox()
+        self._pct_lo.setDecimals(PERCENTILE_DECIMALS)
         self._pct_lo.setRange(0.0, 100.0)
+        self._pct_lo.setSingleStep(0.01)
         self._pct_lo.setValue(float(settings.percentiles[0]))
         self._pct_hi = QDoubleSpinBox()
+        self._pct_hi.setDecimals(PERCENTILE_DECIMALS)
         self._pct_hi.setRange(0.0, 100.0)
+        self._pct_hi.setSingleStep(0.01)
         self._pct_hi.setValue(float(settings.percentiles[1]))
         pct_row = QHBoxLayout(); pct_row.setContentsMargins(0, 0, 0, 0)
         pct_row.addWidget(self._pct_lo); pct_row.addWidget(QLabel("–"))

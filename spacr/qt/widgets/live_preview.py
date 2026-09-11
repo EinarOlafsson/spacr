@@ -65,6 +65,7 @@ from .preview_contract import (
     PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, PREVIEW_RUNNING_MESSAGE,
     LivePreviewContract, preview_cellpose_model, preview_failure_message,
 )
+from .percentile_pair import DECIMALS as PERCENTILE_DECIMALS
 from .toggle import Toggle
 from ..i18n import set_translatable_items, tr
 from ..job_runner import JobRunner
@@ -1438,6 +1439,89 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
+        # LAST, so it sees every control this constructor made. See the
+        # method: the panel's settings controls belong to the panel but are
+        # laid out by `LiveSettingsDialog`, so between dialogs they are
+        # parented here with no layout -- which is the top-left corner.
+        self._stow_free_widgets()
+
+    def _stow_free_widgets(self) -> int:
+        """Put every free-floating child in the container that never shows.
+
+        A ``QWidget`` parented to this panel but in NO layout occupies
+        ``(0, 0, 100, 30)`` -- the top left, exactly where the loaded-path
+        label sits. Only ``setVisible(False)`` keeps it off screen, and a
+        single stray ``show()`` puts a combo box or a spin box over the path.
+
+        THAT HAS NOW BEEN REPORTED THREE TIMES, and the first two fixes each
+        moved ONE widget: the path label's eliding, then ``_fov_box`` and
+        ``_channel_box`` into :attr:`_offscreen_controls`. Neither addressed
+        the class. Measured on a headless build before this method existed:
+        113 direct children, **95 of them in no layout at all** -- 45 spin
+        boxes, 21 double spin boxes, 17 toggles and 12 combo boxes, every one
+        of them one ``show()`` from the same defect. The third report was a
+        black field reading "3", which is a spin box, and there were 66 spin
+        boxes it could have been.
+
+        The panel's settings controls are *supposed* to be homeless: they
+        belong to the panel so their values outlive the dialog, and
+        :class:`LiveSettingsDialog` lays them out only while it is open. So
+        the fix is not to lay them out here -- it is to give them somewhere
+        to wait that cannot be drawn, which is what
+        :attr:`_offscreen_controls` already was for two of them.
+
+        Blunt on purpose: it moves whatever it finds rather than naming the
+        widgets, so a control added later is covered without anyone
+        remembering this. A child that genuinely wants free geometry must be
+        created after this runs, or parented somewhere other than the panel.
+
+        :returns: how many widgets were moved, which is what the test asserts
+            on -- it must reach zero on a second call.
+        """
+        container = getattr(self, "_offscreen_controls", None)
+        if container is None:
+            return 0
+        laid_out = set()
+        stack = [self.layout()]
+        while stack:
+            layout = stack.pop()
+            if layout is None:
+                continue
+            for index in range(layout.count()):
+                item = layout.itemAt(index)
+                child = item.widget()
+                if child is not None:
+                    laid_out.add(id(child))
+                stack.append(item.layout())
+        moved = 0
+        for child in self.findChildren(
+                QWidget, options=Qt.FindDirectChildrenOnly):
+            if child is container or id(child) in laid_out:
+                continue
+            # A WINDOW IS NOT A STRAY. `LiveSettingsDialog` is parented to
+            # the panel and is in no layout, but it carries Qt::Window, so
+            # the window manager places it and it never paints inside the
+            # panel at all. Stowing it would re-parent a live dialog into a
+            # hidden container, which is a worse bug than the one being
+            # fixed here.
+            if child.isWindow():
+                continue
+            # Parented, NOT added to the container's layout: these are not
+            # meant to be seen in it, only to have a home that is never
+            # painted. Adding them would also fight the dialog, which takes
+            # them out of whatever layout holds them each time it opens.
+            # PARENT ONLY, NO setVisible(False). The container is never
+            # shown, so its children cannot paint -- that is the whole
+            # mechanism, and an explicit hide adds nothing to it. What an
+            # explicit hide DOES add is `WA_WState_ExplicitShowHide`, which
+            # makes the widget stay hidden when a layout later takes it:
+            # `LiveSettingsDialog` shows the widgets it borrows, but only
+            # the ones `_managed_widgets()` names, and the rest arrived in
+            # their rows already hidden for good. It cost one settings row
+            # its hover help, which is how it was found.
+            child.setParent(container)
+            moved += 1
+        return moved
 
     # -- drag & drop -------------------------------------------------------
 
@@ -1572,13 +1656,35 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._normalise_check = Toggle("Normalise", self)
         self._normalise_check.setChecked(True)
         self._normalise_check.toggled.connect(self._refresh_canvases)
+        # setDecimals BEFORE setRange/setValue. A QDoubleSpinBox rounds both
+        # to the precision it holds at the time, so ordering these the other
+        # way stores 100.0 for a 99.9999 default and the box looks broken
+        # rather than imprecise -- the same note make_masks.py carries.
+        #
+        # SIX DECIMALS, not Qt's default two. Nobody chose two; it is what
+        # QDoubleSpinBox ships with and neither box ever overrode it. The cap
+        # does not merely round the DISPLAY -- the box stores what it shows,
+        # so a user typing 99.995 got 100.0, the top of the range, and the
+        # stretch they asked for silently became no stretch at all. On a 4 MP
+        # field 99.9 spares 4,000 pixels, 99.99 spares 400 and 99.999 spares
+        # 40; two decimals cannot express the difference between the last two,
+        # and those are the ones that decide whether a hot pixel pins the
+        # display range. Matches `percentile_pair.DECIMALS` rather than being
+        # a third opinion about the same quantity.
         self._lo_pct = QDoubleSpinBox(self)
+        self._lo_pct.setDecimals(PERCENTILE_DECIMALS)
         self._lo_pct.setRange(0, 50); self._lo_pct.setValue(2.0)
         self._lo_pct.setSuffix(" %")
+        # The step stays coarse on purpose. A step of 1e-6 would need a
+        # million clicks to cross a percent; the fine end is typed, the
+        # coarse end is scrolled, which is what make_masks settled on.
+        self._lo_pct.setSingleStep(0.01)
         self._lo_pct.valueChanged.connect(self._refresh_canvases)
         self._hi_pct = QDoubleSpinBox(self)
+        self._hi_pct.setDecimals(PERCENTILE_DECIMALS)
         self._hi_pct.setRange(50, 100); self._hi_pct.setValue(98.0)
         self._hi_pct.setSuffix(" %")
+        self._hi_pct.setSingleStep(0.01)
         self._hi_pct.valueChanged.connect(self._refresh_canvases)
 
         # Outline appearance
@@ -1636,9 +1742,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._normalise_check.setToolTip(
             "(bool) Percentile-normalise the image for display + segmentation.")
         self._lo_pct.setToolTip(
-            "(float, %) Lower percentile for normalisation.")
+            "(float, %) Lower percentile for normalisation. Six decimals, so "
+            "0.0001 clips only the darkest few pixels of a megapixel field.")
         self._hi_pct.setToolTip(
-            "(float, %) Upper percentile for normalisation.")
+            "(float, %) Upper percentile for normalisation. Six decimals, so "
+            "99.9999 clips a handful of hot pixels where 99.99 clips 400.")
         self._outline_colour.setToolTip(
             "(str) Overlay outline colour. 'auto' uses one colour per "
             "compartment; 'color (random)' gives every segmented object a "
@@ -4390,11 +4498,16 @@ class LiveSettingsDialog(QDialog):
 
     def closeEvent(self, event):
         """Re-hide the state widgets so the compact layout stays clean."""
+        stow = getattr(self._panel, "_offscreen_controls", None)
         for w in self._managed_widgets():
             w.hide()
-            # Re-parent back to the panel so the widget survives dialog
-            # deletion (Qt would otherwise destroy children).
-            w.setParent(self._panel)
+            # Re-parent so the widget survives dialog deletion -- Qt would
+            # otherwise destroy its children -- but into the container that
+            # is never shown rather than onto the panel itself. Parented to
+            # the panel with no layout, each of these sits at (0, 0) over the
+            # loaded-path label, held off screen by nothing but the `hide()`
+            # above. See `LivePreviewPanel._stow_free_widgets`.
+            w.setParent(stow if stow is not None else self._panel)
         super().closeEvent(event)
 
 

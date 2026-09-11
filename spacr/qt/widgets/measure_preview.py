@@ -52,6 +52,7 @@ from .preview_contract import (
     PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, LivePreviewContract,
 )
 from .channel_mapping import ChannelMappingWidget
+from .percentile_pair import DECIMALS as PERCENTILE_DECIMALS
 from .toggle import Toggle
 from ..hidpi import logical_size, scaled_for
 from ..job_runner import JobRunner
@@ -564,12 +565,19 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._buffer = self._spin(0, 200, 10, parent=self)
         self._normalise = Toggle(parent=self)
         self._normalise.setChecked(True)
+        # Six decimals, and set BEFORE the range and the value -- see the
+        # same pair in `live_preview.py`. These carried Qt's default two,
+        # which stores what it shows: 99.995 became 100.0.
         self._lo_pct = QDoubleSpinBox(self)
+        self._lo_pct.setDecimals(PERCENTILE_DECIMALS)
         self._lo_pct.setRange(0.0, 50.0)
+        self._lo_pct.setSingleStep(0.01)
         self._lo_pct.setValue(1.0)
         self._lo_pct.setSuffix(" %")
         self._hi_pct = QDoubleSpinBox(self)
+        self._hi_pct.setDecimals(PERCENTILE_DECIMALS)
         self._hi_pct.setRange(50.0, 100.0)
+        self._hi_pct.setSingleStep(0.01)
         self._hi_pct.setValue(99.0)
         self._hi_pct.setSuffix(" %")
         self._normalize_by = QComboBox(self)

@@ -1917,14 +1917,33 @@ class TestLiveSettingsDialog:
         assert _pixmap_pixel(p._mask_view, 10, 10) == (240, 240, 240)
 
     def test_widgets_are_returned_to_the_panel_on_close(self, qtbot):
+        """Returned to the panel, and specifically to its stow container.
+
+        The requirement this has always encoded is that closing the dialog
+        must not DESTROY the controls -- Qt deletes a dialog's children with
+        it, so they have to be re-parented out first, and their values have
+        to survive.
+
+        It used to assert ``parent() is p``, which met that requirement and
+        created another: a control parented straight to the panel and in no
+        layout sits at (0, 0), over the loaded-path label, held off screen
+        by nothing but the ``hide()`` on the line above. That is the bug
+        reported three times. They now go back to ``_offscreen_controls``,
+        which is still inside the panel -- the ownership this test is about
+        -- but cannot be painted.
+        """
         p = _panel(qtbot)
         p.open_live_settings()
         dlg = p._live_settings_dialog
         assert p._model_box.parent() is not p
         p._diameter.setValue(44.0)
         dlg.close()
-        assert p._model_box.parent() is p
-        assert p._diameter.parent() is p
+        stow = p._offscreen_controls
+        assert p._model_box.parent() is stow
+        assert p._diameter.parent() is stow
+        # Still the panel's, which is what "returned to the panel" means.
+        assert stow.parent() is p
+        assert p._diameter.window() is p.window()
         assert p._diameter.value() == pytest.approx(44.0)   # value survives
 
     def test_changing_the_object_regates_an_open_dialog(self, qtbot):
