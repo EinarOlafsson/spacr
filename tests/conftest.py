@@ -929,6 +929,21 @@ def qt_things_that_outlive_the_session():
     # too, not only stopping and deleting. Read-only is not the same as
     # safe when the objects are already half gone.
     widgets, windows = _LAST_LIVE_WIDGET_COUNT
+    if widgets < 0:
+        # NOTHING REMEMBERED, SO ASK -- and this is the case where asking is
+        # safe. The remembered count is filled between tests, so a run that
+        # has none is one where no Qt test ran to fill it: the subprocess
+        # probe in `tests/test_teardown_watchdog_arming.py`, which builds a
+        # tree of its own and needs this report to name it. There is no long
+        # suite's worth of half-torn-down Qt behind it.
+        try:
+            from PySide6.QtWidgets import QApplication
+            live = QApplication.instance()
+            if live is not None:
+                widgets = len(live.allWidgets())
+                windows = len(live.topLevelWidgets())
+        except Exception:                                        # noqa: BLE001
+            widgets = windows = -1
     if widgets >= 0:
         if widgets >= RETAINED_WIDGETS_WORTH_SAYING:
             said.append(
