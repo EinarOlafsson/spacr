@@ -378,6 +378,67 @@ def _the_app_registry_is_left_as_the_session_found_it(_registry_baseline):
         _restore_app_registry_to(app_mod, _registry_baseline)
 
 
+#: The environment names spaCR reads at runtime and tests set. Restored
+#: around every test; see the fixture below for why monkeypatch is not
+#: enough on its own.
+_SPACR_ENVIRONMENT_PREFIX = "SPACR_"
+_OTHER_WATCHED_ENVIRONMENT = (
+    "QT_QPA_PLATFORM", "DISPLAY", "WAYLAND_DISPLAY", "QT_SCALE_FACTOR",
+)
+
+
+@pytest.fixture(autouse=True)
+def _the_spacr_environment_is_left_as_it_was_found():
+    """Put back any ``SPACR_*`` or platform variable the test changed.
+
+    MONKEYPATCH DOES NOT COVER THIS CASE, and that is the whole reason the
+    fixture exists. `monkeypatch.delenv(name, raising=False)` on a name that
+    is ALREADY ABSENT records nothing, because there is nothing to put back
+    -- so when the code under test then SETS that name, monkeypatch has no
+    entry for it and the value survives the test.
+
+    Measured: `test_safespacr_gets_in_when_a_preference_breaks_it.py::
+    test_the_launcher_disarms_gl_and_timing_before_qt` deletes
+    `SPACR_NO_GL`, calls the launcher, and the launcher sets it to "1" --
+    exactly what that test is checking. Two tests later, in the same file,
+    `test_safe_mode_refuses_a_gl_canvas` asserts
+    `platform_can_do_opengl() is True` and gets False, because the first
+    line of that function is `if os.environ.get("SPACR_NO_GL")`. Green in
+    file order, red under seed 288.
+
+    The same shape appears in `test_crash_recovery_drops_the_backdrop.py`
+    and `test_cov_wf_qt_crash_recovery.py`, both of which delete the name
+    and then assert the production code set it. Neither is wrong; what was
+    missing was anywhere to put it back. `test_cov_r6_screens_forms_and_
+    masks.py` already saves and restores these two by hand, with a note
+    saying why -- this generalises that to every test rather than to the
+    one file that remembered.
+    """
+    import os
+
+    watched = tuple(name for name in os.environ
+                    if name.startswith(_SPACR_ENVIRONMENT_PREFIX))
+    watched += _OTHER_WATCHED_ENVIRONMENT
+    before = {name: os.environ.get(name) for name in set(watched)}
+    try:
+        yield
+    finally:
+        for name, value in before.items():
+            if os.environ.get(name) == value:
+                continue
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
+        # A name that did not exist at setup and was not watched above --
+        # `SPACR_NO_GL` is exactly that -- is caught here rather than by the
+        # snapshot, because a snapshot cannot hold what did not exist yet.
+        for name in [n for n in os.environ
+                     if n.startswith(_SPACR_ENVIRONMENT_PREFIX)
+                     and n not in before]:
+            os.environ.pop(name, None)
+
+
 @pytest.fixture(autouse=True)
 def _restore_console_level_policy():
     """Put the in-app console's level gate back the way the test found it.
