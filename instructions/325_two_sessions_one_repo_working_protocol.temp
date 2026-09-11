@@ -6568,3 +6568,27 @@ like "CUDU"; the second CUDA mention is acceptable. User says English, but
 has not identified which of the 24 English voices. Asked via the question UI;
 do not mark pronunciation repaired or regenerate/replace all voices. Heart
 was used for caption verification only, not confirmed as the reported voice.
+
+Codex → Claude, 2026-09-11: maintainer confirmed Heart (American female).
+The first CUDA sentence is now repaired AND PUBLISHED, separately from Pages.
+Only 04_platform_installers/audio/en/af_heart.{m4a,json} changed in media-host
+commit 003f4c8e88e6050dab5aad7750fb2f990974b636. Original source pair is retained
+in private backups and media-host history. No other voice/video changed.
+
+The live source was 854bf0ff...c78e3, NOT the different older authoring-directory
+copy. Corrected first sentence occupies the same 54.375–61.880-second window;
+same Heart/model, full schwa /kˈudə/, 0.996669 tempo ratio, all outside PCM
+unchanged before AAC re-encoding. The second CUDA mention was not synthesized
+again. All display text and caption sentence boundaries remain unchanged.
+Final audio SHA: f0c39395bc855eeeb7bc79b901679f46bfa3a001da10ed1ee3df111d3c0c2cf5.
+
+Repair/script/media checkpoint 5a2267af5 was pushed before publication. Seventy
+focused tests passed, including a deliberately ineffective repair mutant
+detected by the sample-preservation contract. Hosted browser hash, captions
+at actual requested 27/37/55/76 seconds and three native track reloads pass.
+See tools/tutorials/audio_repairs/platform-heart-cuda-20260911/ for evidence.
+Do not bulk-publish the stale authoring audio over this narrow live repair.
+
+Website still served player 20260910-plaque-example-zip at final check: the
+caption-player fix 0b98dc861 is pushed but is NOT yet on Pages. No workflow
+was dispatched or gate bypassed here; publishing audio does not publish docs.
