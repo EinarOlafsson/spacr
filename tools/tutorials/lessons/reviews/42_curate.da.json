@@ -1,0 +1,30 @@
+{
+  "lesson": "42_curate",
+  "english_sha256": "064305fd604528a3de59c402499f10a17c0a8a5f0c4fa990609c9132c73f17af",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "da",
+  "title": "Curate: øv rettelser og bevar deres historik",
+  "description": "Øv ændring af masker og spor med syntetiske data og eksterne sikkerhedskopier ved den nuværende fejl i maskernes historik.",
+  "objectives": [
+    "Åbn Curate i Make Masks med arbejdskopier.",
+    "Mal, fortryd og gem uden at kalde øvelsen en biologisk rettelse.",
+    "Gem maske og log uden for appen før genåbning.",
+    "Del og saml spor, og kassér en ikke-gemt sletning."
+  ],
+  "prerequisite": "Pak Curate_SYNTHETIC_practice.zip ud og brug kopier. TIFF: etiketplan 2 fra syntetisk Timelapse, 256 × 256 pixels, seksten etiketter 2–17. CSV: seksten spor, 128 rækker, otte frames. Ikke optagne biologiske data. NPY-indlæsning fejlede; TIFF bevarer heltalsetiketter. Radius 8 og etiket 18 er øvelser. Alle pixels og CSV-værdier er kontrolleret. Save mask overskriver den valgte fil og gemmer .curation.json. Genåbning nulstiller tre logposter i hukommelsen; næste gemning erstatter sidefilen med én ny post. Fejlen er ikke rettet. Kør først curate_checkpoint.py med den gemte maske og en NY mappe: begge filer kopieres præcist, men apphistorik gendannes eller sammenflettes ikke. Genåbning tilføjer også et visningslag; lysstyrke er ikke etiketidentitet. Del spor 2 ved frame 4 for at skabe 18; samling af halvdelene gendanner 128 rækker. 2 og 3 kan ikke samles på grund af overlappende frames. Sporhistorik bevares ved genindlæsning. API: spacr.curation.MaskCuration og TrackCuration. Ingen GPU, AI, ny segmentering, biologisk validering, appændring eller offentliggørelse.",
+  "scenes": [
+    "Åbn Make Masks og derefter det indlejrede Curate. I tutorials hører Curate under Make Masks' undermoduler, ikke til en separat Home-flise. Det redigerer etiketmasker og spor. Lektionen bruger syntetiske Timelapse-output, ikke biologiske observationer eller dokumentation for, at manuelle rettelser øger nøjagtigheden.",
+    "Hent det tilknyttede øvelsesarkiv og arbejd på kopier. Åbn heltalsmaskens TIFF: seksten oprindelige etiketter ligger i et kvadrat på 256 pixels. Vælgeren tilbyder også NPY, men den indlæsning fejlede. TIFF bevarer det præcise etiketplan; erstat ikke etiketter med et farvet skærmbillede.",
+    "Sæt penselradius til otte og klik New for at vælge etiket atten. Mal én gang i det tomme øvelsesområde. Cirklen er opfundet for at lære kontrollen, ikke en manglende celle. Penslen ændrer pixels i hukommelsen; den gemte fil er uændret indtil Save mask.",
+    "Undo stroke gendanner alle oprindelige pixels i øvelsen. Mal igen og undersøg før gemning. Loggen indeholder maling, fortryd og maling; fortryd er også historik. Musens præcise position kan ændre pixelantallet, så vores øvelsesaftryk er ikke et biologisk mål.",
+    "Save mask skriver tilbage til den valgte arbejds-TIFF og gemmer dens rettelseslog. Før genåbning køres det separate sikkerhedskopiscript fra downloadet med den gemte maske og en ny mappe. Det kopierer begge filer præcist. Dette er en udtrykkelig ekstern backup, ikke en skjult appfunktion.",
+    "Her er begrænsningen: Genåbning nulstiller maskeloggen i hukommelsen, og næste gemning erstatter sidefilen med den nye sessions rettelse. Vores tidligere backup bevarer de tre oprindelige poster. Behold separate kopier og noter; scriptet reparerer ikke apphistorik. Genåbning tilføjer også et visningslag, så lysstyrke ikke er etiketidentitet.",
+    "Åbn sporenes arbejds-CSV. Den har seksten spor over otte frames, i alt 128 rækker. Valg af spor to og tre med Join afvises, fordi begge findes i samme frames. Læs beskeden; at tvinge uvedkommende baner sammen ville ikke være en gyldig rettelse.",
+    "Vælg spor to, sæt Split at frame til fire og klik Split. Frames fire til syv flyttes til nyt spor atten, mens nul til tre forbliver i to. Koordinater og oprindelige etiketter ændres ikke. Dette er en kontrolleret redigeringsøvelse, ikke bevis på en virkelig celledeling.",
+    "Vælg to og atten sammen og klik Join. De ikke-overlappende halvdele samles og gendanner alle oprindelige rækker. Save tracks gemmer CSV og dens egen log. Den uafhængige kontrol sammenligner hver frame, identifikator og koordinat, ikke kun sporantallet. Hold maske- og sporhistorik adskilt.",
+    "Sletning af spor tre fjerner dets otte rækker i hukommelsen. Gem ikke denne øvelsessletning. Genåbn den gemte CSV for at kassere ændringen. Det viser forskellen på aktuelle rettelser og diskindhold; sletning af virkelige spor kræver en dokumenteret grund, ikke bare et uønsket resultat.",
+    "Alle 128 rækker og den gemte delings- og samlingshistorik kommer tilbage. Modsat masker i denne version bevarer genåbning af spor historikken i testen. Behold originaler, sikkerhedskopier og begrundelser. Python tilbyder MaskCuration og TrackCuration; GPU og AI-udbyder er unødvendige, og vellykket redigering er ikke videnskabelig validering."
+  ]
+}

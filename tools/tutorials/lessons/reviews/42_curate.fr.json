@@ -1,0 +1,30 @@
+{
+  "lesson": "42_curate",
+  "english_sha256": "064305fd604528a3de59c402499f10a17c0a8a5f0c4fa990609c9132c73f17af",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "fr",
+  "title": "Curate : pratiquer les corrections et préserver leur historique",
+  "description": "Pratiquer les modifications de masques et de trajectoires dans Curate, avec des données explicitement synthétiques et des sauvegardes externes face à la perte actuelle d’historique des masques.",
+  "objectives": [
+    "Ouvrir Curate dans Make Masks avec des copies de travail.",
+    "Peindre, annuler et enregistrer sans présenter l’exercice comme une correction biologique.",
+    "Sauvegarder masque et journal hors de l’application avant réouverture.",
+    "Séparer et réunir des trajectoires, puis abandonner une suppression non enregistrée."
+  ],
+  "prerequisite": "Extraire Curate_SYNTHETIC_practice.zip et travailler sur des copies. TIFF : plan d’étiquettes 2 de Timelapse synthétique, 256 × 256 pixels, seize étiquettes 2 à 17. CSV : seize trajectoires, 128 lignes, huit images temporelles. Pas de données biologiques acquises. Le chargement NPY a échoué ; le TIFF conserve les étiquettes entières. Rayon 8 et étiquette 18 servent seulement à l’exercice. Chaque pixel et valeur du tableau est contrôlé. Save mask remplace le fichier choisi et écrit .curation.json. Réouvrir le masque réinitialise les trois entrées en mémoire ; l’enregistrement suivant remplace le journal par une seule nouvelle entrée. Défaut non corrigé. Avant réouverture, lancer curate_checkpoint.py avec le masque enregistré et un NOUVEAU dossier ; les deux fichiers sont copiés exactement. Ce script ne restaure ni ne fusionne l’historique. Réouvrir ajoute aussi une couche : sa luminosité ne prouve pas une nouvelle identité. Séparer la trajectoire 2 à l’image 4 crée 18 ; réunir les deux moitiés restaure 128 lignes. La réunion de 2 et 3 est refusée car leurs images se chevauchent. Le journal des trajectoires est conservé au rechargement. API : spacr.curation.MaskCuration et TrackCuration. Aucun GPU, appel IA, segmentation, validation biologique, changement de l’application ou publication.",
+  "scenes": [
+    "Ouvrez Make Masks, puis son outil imbriqué Curate. Dans les tutoriels, Curate appartient aux sous-modules de Make Masks, pas à une tuile d’accueil séparée. Il modifie masques d’étiquettes et trajectoires. Cette leçon utilise des sorties synthétiques de Timelapse, pas des observations biologiques ni une preuve qu’une correction manuelle améliore la précision.",
+    "Téléchargez l’archive liée et travaillez sur des copies. Ouvrez le TIFF d’étiquettes entières : seize étiquettes originales occupent ce carré de deux cent cinquante-six pixels de côté. Le sélecteur propose aussi NPY, mais cette route a échoué. Le TIFF préserve le plan exact ; ne remplacez pas les étiquettes par une capture colorée.",
+    "Fixez le rayon à huit et cliquez sur New pour choisir l’étiquette dix-huit. Peignez une fois dans la zone vide. Ce disque est inventé pour apprendre la commande, pas pour ajouter une cellule manquante. Le pinceau change les pixels en mémoire ; le fichier reste intact jusqu’à Save mask.",
+    "Undo stroke restaure chaque pixel original dans cet exercice. Peignez à nouveau, puis inspectez avant d’enregistrer. Le journal contient peinture, annulation et peinture : l’annulation fait partie de l’historique. Votre position de souris peut changer le nombre de pixels ; notre empreinte d’exercice n’est donc pas une cible biologique.",
+    "Save mask réécrit le TIFF de travail sélectionné et son journal de curation. Avant de rouvrir, lancez le script de sauvegarde séparé fourni, avec ce masque et un nouveau dossier. Il copie exactement les deux fichiers. C’est une sauvegarde externe explicite, pas une fonction cachée de l’application.",
+    "Voici la limite actuelle : rouvrir le masque réinitialise son journal en mémoire ; enregistrer ensuite remplace le fichier annexe par la nouvelle modification. Notre sauvegarde conserve les trois entrées originales. Gardez sauvegardes et notes séparées ; le script ne répare ni ne restaure l’historique. La réouverture ajoute aussi une couche : luminosité et identité d’étiquette sont distinctes.",
+    "Ouvrez la copie de travail du CSV de trajectoires. Il contient seize trajectoires sur huit images temporelles, soit cent vingt-huit lignes. Sélectionner deux et trois puis Join est refusé, car elles existent dans les mêmes images. Lisez le message ; réunir de force des trajectoires sans rapport ne serait pas une correction valide.",
+    "Choisissez la trajectoire deux, réglez Split at frame sur quatre et cliquez sur Split. Les images quatre à sept passent à la nouvelle trajectoire dix-huit ; zéro à trois restent dans deux. Coordonnées et étiquettes originales ne changent pas. C’est un exercice contrôlé, pas la preuve d’une division cellulaire.",
+    "Sélectionnez ensemble deux et dix-huit, puis Join. Leurs moitiés sans chevauchement se réunissent et restaurent toutes les lignes originales. Save tracks enregistre le CSV et son propre journal. Le contrôle indépendant compare chaque image, identifiant et coordonnée, pas seulement le nombre de trajectoires. Distinguez les historiques du masque et des trajectoires.",
+    "Supprimer la trajectoire trois enlève ses huit lignes en mémoire. N’enregistrez pas cette suppression de démonstration. Rouvrez le CSV enregistré pour abandonner cette modification. Cela distingue édition courante et contenu du disque ; supprimer une trajectoire réelle exige une raison documentée, pas simplement un résultat indésirable.",
+    "Les cent vingt-huit lignes et l’historique de séparation puis réunion reviennent. Contrairement aux masques dans cette version, les trajectoires retrouvent ici leur historique. Gardez originaux, sauvegardes et motifs des modifications. Python propose MaskCuration et TrackCuration ; ni GPU ni fournisseur IA ne sont nécessaires, et modifier avec succès ne constitue pas une validation scientifique."
+  ]
+}

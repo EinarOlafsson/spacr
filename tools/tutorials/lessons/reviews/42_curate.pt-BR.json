@@ -1,0 +1,30 @@
+{
+  "lesson": "42_curate",
+  "english_sha256": "064305fd604528a3de59c402499f10a17c0a8a5f0c4fa990609c9132c73f17af",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "pt-BR",
+  "title": "Curate: praticar edições e preservar seu histórico",
+  "description": "Editar máscaras e trajetórias em Curate com dados sintéticos e backups externos diante da perda atual do histórico de máscaras.",
+  "objectives": [
+    "Abrir Curate dentro de Make Masks usando cópias de trabalho.",
+    "Pintar, desfazer e salvar sem chamar a prática de correção biológica.",
+    "Preservar máscara e registro fora do aplicativo antes de reabrir.",
+    "Dividir e unir trajetórias e descartar uma exclusão não salva."
+  ],
+  "prerequisite": "Extraia Curate_SYNTHETIC_practice.zip e trabalhe com cópias. TIFF: plano de rótulos 2 do Timelapse sintético, 256 × 256 pixels, dezesseis rótulos de 2 a 17. CSV: dezesseis trajetórias, 128 linhas, oito quadros. Não são dados biológicos adquiridos. O carregamento NPY falhou; TIFF preserva os rótulos inteiros. Raio 8 e rótulo 18 são apenas prática. Todos os pixels e valores CSV são verificados. Save mask sobrescreve o arquivo escolhido e grava .curation.json. Reabrir zera as três entradas na memória; salvar depois substitui o registro por uma entrada nova. Defeito não corrigido. Antes execute curate_checkpoint.py com a máscara salva e uma pasta NOVA: cópia exata dos dois arquivos, sem restaurar ou mesclar históricos. Reabrir adiciona uma camada; brilho não é identidade. Dividir trajetória 2 no quadro 4 cria 18; reunir as metades restaura 128 linhas. Unir 2 e 3 é recusado por sobreposição temporal. O histórico de trajetórias sobrevive ao recarregamento. API: spacr.curation.MaskCuration e TrackCuration. Sem GPU, IA, nova segmentação, validação biológica, alteração do aplicativo ou publicação.",
+  "scenes": [
+    "Abra Make Masks e sua ferramenta aninhada Curate. Nos tutoriais, Curate fica entre os submódulos de Make Masks, não em um bloco separado de Home. Ela edita máscaras de rótulos e trajetórias. Usamos saídas sintéticas de Timelapse, não observações biológicas nem prova de que editar manualmente melhora a precisão.",
+    "Baixe o arquivo vinculado e trabalhe em cópias. Abra o TIFF de rótulos inteiros: dezesseis rótulos originais ocupam este quadrado de duzentos e cinquenta e seis pixels. O seletor também oferece NPY, mas essa rota falhou. TIFF preserva o plano exato; não substitua rótulos por uma captura colorida.",
+    "Defina o raio do pincel como oito e clique em New para selecionar o rótulo dezoito. Pinte uma vez na área vazia. Esse disco foi inventado para aprender o controle, não representa uma célula ausente. O pincel muda pixels na memória; o arquivo permanece intacto até Save mask.",
+    "Undo stroke restaura cada pixel original neste exercício. Pinte novamente e examine antes de salvar. O registro contém pintura, desfazer e pintura: desfazer também faz parte do histórico. A posição exata do mouse pode alterar a contagem de pixels; a marca da prática não é um alvo biológico.",
+    "Save mask sobrescreve o TIFF de trabalho selecionado e salva seu registro de curadoria. Antes de reabrir, execute o script externo incluído com essa máscara salva e uma pasta nova. Ele copia exatamente os dois arquivos. É uma etapa explícita de backup externo, não uma função escondida do aplicativo.",
+    "A limitação atual é esta: reabrir a máscara reinicia o registro em memória, e salvar novamente substitui o arquivo auxiliar pela edição da nova sessão. Nosso backup conserva as três entradas originais. Mantenha cópias e notas separadas; o script não repara nem restaura o histórico. Reabrir também adiciona uma camada: brilho não é identidade de rótulo.",
+    "Abra o CSV de trabalho das trajetórias. São dezesseis trajetórias em oito quadros, cento e vinte e oito linhas. Selecionar dois e três e clicar em Join é recusado porque ambos existem nos mesmos quadros. Leia a mensagem; forçar trajetórias sem relação a se unirem não seria uma correção válida.",
+    "Selecione a trajetória dois, defina Split at frame como quatro e clique em Split. Os quadros quatro a sete passam à nova trajetória dezoito; zero a três permanecem em dois. Coordenadas e rótulos originais não mudam. É um exercício controlado, não evidência de divisão celular real.",
+    "Selecione dois e dezoito juntos e clique em Join. As metades sem sobreposição se combinam, restaurando todas as linhas originais. Save tracks grava o CSV e seu próprio registro. A verificação independente compara cada quadro, identificador e coordenada, não apenas o total de trajetórias. Mantenha os históricos separados.",
+    "Excluir a trajetória três remove suas oito linhas na memória. Não salve essa exclusão de demonstração. Reabra o CSV salvo para descartar a mudança. Isso distingue edições atuais do conteúdo em disco; excluir uma trajetória real exige um motivo documentado, não apenas um resultado indesejado.",
+    "Voltam todas as cento e vinte e oito linhas e o histórico salvo de divisão e união. Diferentemente das máscaras nesta versão, as trajetórias recuperam esse histórico no teste. Preserve originais, backups e motivos das edições. Python oferece MaskCuration e TrackCuration; não precisa de GPU ou IA, e editar com sucesso não é validação científica."
+  ]
+}
