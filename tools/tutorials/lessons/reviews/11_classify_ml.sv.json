@@ -1,0 +1,28 @@
+{
+  "lesson": "11_classify_ml",
+  "english_sha256": "a6ecbf0577a4a51b13206840d8914da097584eecf2fc0f3b8107ca17648528cf",
+  "review_type": "source-pinned editorial caption translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "sv",
+  "title": "Classify: maskininlärning med tabelldata",
+  "description": "Använd Classify med nedladdningsbara cellmätningar, tydliga metadataetiketter, en liten random forest, riktig konsolutmatning och sparade prediktioner.",
+  "objectives": [
+    "Välj den tabulära familjen och läs in det uppmätta exemplet via dataväljaren.",
+    "Definiera klasser efter plattkolumn och skilj önskad andel från faktiskt undanhållna brunnar.",
+    "Granska figurer, saknade poäng och resultat utan att likställa demonstrationsnoggrannhet med biologisk validering."
+  ],
+  "prerequisite": "Välj Load test data och därefter Load i Classify, inte Stream. Exemplet har 2 341 objekt i fyra brunnar; 2 153 behålls och 188 saknar poäng eftersom motsvarande kärndata saknas. c1 är klass noll och c2 klass ett: plattkolumner, inte verifierade fenotyper. Inställningar: random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False, plot=True. Låt test_size=0.1 stämma med test_split=0.1: nuvarande normalisering tar bort ett avvikande ML-värde; felet är rapporterat. Två brunnar och 1 035 objekt hålls undan, utan gemensamma brunnar mellan träning och test. Egenskapsfiltrering sker före uppdelningen; permutationsbetydelse använder träningsdata. Noggrannhet: 0.6202898551; majoritetsklassens referens: 0.5632850242. Nio mått och 2 153 sparade prediktioner har kontrollerats oberoende. API: spacr.classify.classify anropar spacr.ml.generate_ml_scores. Utdata: results/random_forest/channel_1; predictions är den binära klassen, ml_pred sannolikheten för klass ett. Endast tre verkliga figurer visas; inga påståenden om SHAP, kalibrering, orsakssamband eller biologisk validering. Ingen AI-fråga skickades.",
+  "scenes": [
+    "Öppna Classify från Home och välj Tabular Machine Learning som klassificerarfamilj. Detta är den sammanslagna Classify-vyn, inte en separat ML-app. Den lär sig från sparade mätningar per objekt. Inställningar för datorseende kan fortfarande visas men vara nedtonade, eftersom de tillhör den andra familjen.",
+    "Klicka på Load test data och välj Load. Det uppmätta exemplet laddas ned och dess sökvägar förbereds; Stream är en annan väg. För ditt eget projekt ska du först slutföra Measure och välja projektmappen. Anta inte att en godtycklig bildmapp redan innehåller den mätdatabas som behövs.",
+    "Använd metadata som grund och definiera två Classes från columnID: c1 och c2. Här är de etiketter för plattkolumner för att lära ut arbetsflödet, inte oberoende bekräftade friska och påverkade celler. Träning utifrån annoteringar kräver äkta etiketter från Annotate. Gör aldrig saknade annoteringar till påhittade facitetiketter.",
+    "Channel of interest väljer de uppmätta egenskaperna. Vi använder kanal ett utan att ge den en obekräftad biologisk betydelse. Kontrollera inställningarna för bildinsamling och mätning innan du väljer kanal för egna data. Att välja en egenskapskanal här segmenterar eller mäter inte bilderna igen.",
+    "Välj Random Forest och sexton estimatorer för denna lilla demonstration, med två arbetsprocesser. Det är ingen rekommendation av en optimerad modell. Vi lämnar övervakat egenskapsurval och korsvalidering avstängda. Avstängd korsvalidering tar inte bort den separata testmängd som hålls undan i denna körning.",
+    "Sätt teststorleken till en tiondel och behåll gruppering per brunn. En önskad andel är inte ett exakt antal objekt: detta exempel med fyra brunnar håller undan två hela brunnar, ungefär fyrtioåtta procent av de behållna objekten. Båda klasserna finns på vardera sidan och ingen faktisk brunn finns i både träning och test.",
+    "Aktivera Plot, rensa sökningen och tryck på Run. Konsolen registrerar de upplösta inställningarna, filtreringen, uppdelningen och modellrapporten. Spara loggen med resultaten. En klarmarkering visar inte att etiketterna, valideringsupplägget eller den biologiska tolkningen var lämpliga.",
+    "Denna körning ger poäng till två tusen etthundrafemtiotre objekt. Etthundraåttioåtta saknar motsvarande kärndata och förblir utan poäng, inte negativa. Den sparade testnoggrannheten är omkring sextiotvå procent, jämfört med femtiosex procent för majoritetsklassen. Fyra brunnar på en platta visar inte generalisering till ett nytt experiment.",
+    "Tre figurer finns: permutationsbetydelse, trädens egenskapsbetydelse och denna värmekarta över plattan. Med Predictions och medelvärdesgruppering visar kartan medelvärdet av binära predikterade klasser, inte deras sannolikheter. Betydelse är inte orsakssamband; permutation använder träningsdata. Granska de sparade tabellerna innan du drar slutsatser av en färgglad figur.",
+    "AI-reglaget möjliggör frågor om arbetsflödet med hjälp av en leverantör. Detta är ett oskickat utkast, inte ett genererat svar. Spara resultaten med inställningarna och kontrollera alla råd. Underverktygen har egna indatakrav: Explain-handledningen använder datorseendepoäng, inte dessa ML-utdata. AI ersätter inte kontroll av etiketter och identiteter i uppdelningen."
+  ]
+}
