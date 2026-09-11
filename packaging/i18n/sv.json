@@ -55,5 +55,11 @@
   "unsupported_platform_value": "Plattformsvärdet stöds inte: %s",
   "usage": "Användning: install_spacr_unix.sh [alternativ]",
   "uv_missing": "uv installerades inte på den förväntade sökvägen: %s",
-  "validating_install": "Validerar installationen innan den aktiveras..."
+  "validating_install": "Validerar installationen innan den aktiveras...",
+  "old_install_found": "Hittade spaCR %s redan installerat i %s. Det här installationsprogrammet installerar %s.",
+  "old_install_remove": "Vill du ta bort den installationen helt innan den här installeras?",
+  "old_install_removed": "Den tidigare installationen togs bort.",
+  "old_install_kept": "Behåller den. Miljön ersätts ändå; cacher och inställningar blir kvar.",
+  "old_install_noninteractive": "Ingen terminal, så inget frågades. Miljön ersätts; cacher och inställningar blir kvar.",
+  "old_install_same": "Det är samma version som det här installationsprogrammet innehåller."
 }

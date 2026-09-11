@@ -55,5 +55,11 @@
   "unsupported_platform_value": "Óstutt gildi fyrir stýrikerfi: %s",
   "usage": "Notkun: install_spacr_unix.sh [valkostir]",
   "uv_missing": "uv var ekki sett upp á væntum stað: %s",
-  "validating_install": "Staðfesti uppsetninguna áður en hún er virkjuð..."
+  "validating_install": "Staðfesti uppsetninguna áður en hún er virkjuð...",
+  "old_install_found": "spaCR %s er þegar uppsett í %s. Þetta uppsetningarforrit setur upp %s.",
+  "old_install_remove": "Á að fjarlægja þá uppsetningu alveg áður en þessi er sett upp?",
+  "old_install_removed": "Fyrri uppsetningin var fjarlægð.",
+  "old_install_kept": "Henni er haldið. Umhverfið er endurnýjað hvort sem er; skyndiminni og stillingar haldast.",
+  "old_install_noninteractive": "Ekki skjáhermir, svo ekkert var spurt. Umhverfið er endurnýjað; skyndiminni og stillingar haldast.",
+  "old_install_same": "Það er sama útgáfa og þetta uppsetningarforrit ber."
 }

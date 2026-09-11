@@ -51,7 +51,28 @@ jobs:
   build:
     name: Build Sphinx
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    # 60, RAISED FROM 30 ON 2026-09-11 BECAUSE THE JOB HAD GROWN INTO ITS
+    # OWN LIMIT. Run 34559204118 was killed at exactly 30m15s with the
+    # Sphinx read at 100% and both audits already GREEN -- so the build was
+    # correct and the deploy was lost to the clock. GitHub reports a
+    # timeout kill as "cancelled", which is why this looked like a
+    # superseded run rather than a failure for as long as it did.
+    #
+    # WHERE THE TIME ACTUALLY GOES, measured from that run's log rather than
+    # assumed -- the obvious suspect, pip, is not the problem:
+    #
+    #     checkout + Python + system deps      0.8 min
+    #     install spacr + Sphinx tooling       1.4 min
+    #     AUDIT LOCALIZATION CATALOGS         24.2 min
+    #     build docs                           3.8 min
+    #
+    # The audit is the cost: ten API catalogs of 10,337 symbols and ten
+    # runtime catalogs, every one verified on every docs build. That is
+    # 30 minutes of work against a 30 minute budget, so the job was going to
+    # be flaky even on the runs it survived. Raising the ceiling is the fix
+    # for today; making the audit cheaper is a separate piece of work and
+    # should not be attempted by guessing at it.
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v7

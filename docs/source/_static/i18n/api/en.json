@@ -3890,6 +3890,95 @@
       "source_sha256": "2aedf54fc556b40763631903713e765837ab2ecbc9ef5d4cd39420dcbd57c300",
       "text": "How many workers this machine can actually feed.\n\nThe rule, in order:\n\n1. Never more than ``cores``. More workers than cores is contention.\n2. Never more than ``available memory - reserve`` divided by what ONE\n   worker measurably needed. This is the term the core-count defaults\n   omit, and it is usually the binding one.\n3. Never fewer than 1, and never more than ``maximum``.\n\n:param reserve_bytes: memory left for everything that is not a worker --\n    the GUI, the page cache the readers depend on, and the operating\n    system. Defaults to 2 GiB.\n:returns: a :class:`Recommendation` carrying the reason, so a number a\n    user disagrees with can be argued with rather than just overridden."
     },
+    "spacr.bystanders": {
+      "source_blocks_sha256": [
+        "0104d4cfda5052959441e1e18b4672a1161751acec8f112a2cd6bf39180c3e8e",
+        "64eec22513bbf4bec521ca20fc1d35850587d33f7eda9eec0e9f706b7f1baf2e",
+        "f0b303b5608ab71ade5ea230861ae71d3cee95bb49fa9a852775f1b3fc2ef4f2",
+        "94d7e78f7165592ff2235af9d9f4f946cfaf966d5484f5119a623dbd4e4e41b0",
+        "9273d06cdc254a763c8d9a3fb4097232aa117811cffaad44ec5f573cca3c1dcf"
+      ],
+      "source_sha256": "fae99684314471b5bb7a79e26fb26cbb01d9294586b66e3c66ac5063fd453f0a",
+      "text": "Which uninfected cells are next to an infected one, and which are not.\n\nTHE COLUMN THAT DOES NOT EXIST YET. spaCR measures each cell on its own,\nand the biology of an intracellular pathogen is not confined to the cell it\nis in: an infected cell changes what its neighbours do. Right now an\nuninfected cell touching an infected one and an uninfected cell on the far\nside of the well are the same row.\n\nTWO CONSEQUENCES, and the second is the one that costs results. A genuine\nbystander phenotype cannot be found, because no column separates a\nbystander from a distant uninfected cell. And every uninfected control is\nquietly diluted: if bystanders are phenotypically shifted and they are\npooled into \"uninfected\", the control population is a mixture, its variance\nis inflated, and the effect size of every infection comparison shrinks\ntowards nothing. That is a confound in results the package already\nproduces, not a missing feature.\n\nDISTANCE IS ALREADY SOLVED AND NOTHING HERE RE-IMPLEMENTS IT.\n:mod:`spacr.object_distances` computes a Euclidean distance transform per\nobject type once, at O(image pixels) rather than O(pairs), and this module\nreads that field. The work here is a threshold and a label.\n\nTHE THRESHOLD IS A LENGTH, NOT A PIXEL COUNT. It is expressed as a\nmultiple of the measured cell diameter, so it means the same thing on a\n20x and a 63x acquisition and on a plate whose cells are simply larger.\nA hard-coded micron count would be right for one dataset and silently\nwrong for the next."
+    },
+    "spacr.bystanders.classify": {
+      "source_blocks_sha256": [
+        "03418798489bef5b0e120eb885d7ed19131ac453698b5cc23aa17c94b759b2c1",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "225c109f9116ccd1ce7022244dd429872872b1a64d05984e23b07657f98964f9",
+        "029d0f46a932fd08830dfdb6959a8670fcf64a1d9137935c0baa9037fe813f4d",
+        "d7c42abf53f993d196d9cb0ee65c5b1d27c2f4ebac421326a95ceff65bfdfcc3",
+        "7c026167cab09bd2f77c36c6e21081f24b6d64dddb763927711f4c67d2423013",
+        "805b9d4e7b5a4af97465b112d1de623fbfa17045b66ed8379affe68105622a50"
+      ],
+      "source_sha256": "d7b35198ca1aa985f81e8cdc222542914511923812d7abf75e3ed26504d070a6",
+      "text": "Label every cell infected, bystander or distal.\n\n:param cell_mask: the cell label image.\n:param infected_labels: labels of the cells carrying a pathogen.\n:param reach: how close an uninfected cell must be to count as a\n    bystander, in the same units as ``spacing``. See\n    :func:`reach_from_diameter`.\n:param spacing: voxel size.\n:returns: ``label``, ``distance_to_infected`` and ``neighbourhood``.\n\nA NON-POSITIVE REACH MAKES EVERY UNINFECTED CELL DISTAL, which is the\nbehaviour that lets a user turn the split off without a second setting\n-- and the behaviour a mis-parsed setting falls back to, since it\ncannot invent bystanders.\n\nTHE ACCEPTANCE TEST THIS HAS TO PASS is that a well with no parasites\nreports no bystanders. It follows from `distance_to_infected` being\ninfinite there rather than from a special case, which is why that\nfunction returns infinity."
+    },
+    "spacr.bystanders.compare": {
+      "source_blocks_sha256": [
+        "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
+        "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
+        "58a42b7a4ff0342b7bccd6e0da61e49e941ae0078ea8a63bd998d032ae34259a",
+        "7c3070058d100636e17b322bebd1e717debcf620c0a406b6969208ff7d1dc7ce",
+        "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
+        "07a26349bbb3b787b623fe63e13ee541cf585eff23a25427213be9aea57ef173",
+        "1f4f4e540c9f7372a3abee7334c5202c260733258a2fed82b8cb2f13815d5b82",
+        "dfdf3364dc675516fe537d24466ecd2063ddd41d1402746db1821aaef4dbc514"
+      ],
+      "source_sha256": "f6fdd7ba7fcebabe48cd956d3fd925a31bf76c542277312b65cad527cad8cd12",
+      "text": "One row per neighbourhood, for one measured feature.\n\n:param frame: measurements carrying a ``neighbourhood`` column, as\n    :func:`classify` produces it, joined to the feature table.\n:param feature: the column to summarise.\n:param statuses: which neighbourhoods to report, in order.\n:returns: ``neighbourhood``, ``n``, ``mean``, ``std`` and ``median``.\n\nTHE COMPARISON THE WHOLE ITEM IS FOR, and the reason it is worth having\nis subtraction rather than addition: the package can already compare\ninfected against uninfected. What it cannot do is notice that\n\"uninfected\" was two populations, so a bystander effect shows up as\nnothing more than a wider control.\n\nEVERY REQUESTED STATUS IS A ROW, at ``n = 0`` where the well has none.\nA caller comparing plates needs the same three rows every time; a\nmissing row silently changes what a downstream join means.\n\nNO TEST STATISTIC HERE, deliberately. Summarising is safe on any\ncolumn; choosing a test is a decision about the design -- paired or\nnot, how the wells nest, what the null is -- and belongs where those\nare known. This gives the regression layer three named groups to be\nhanded, which is what instruction 388 asks for."
+    },
+    "spacr.bystanders.counts": {
+      "source_blocks_sha256": [
+        "49d43bbc587b8cae8eb9d2dec6146df4dd8d2190260626c65f349ea886240004",
+        "37e6f98b6f3d62f56089b571827301d1a8eab8bc77ca449cdb5240eb4690a8e5",
+        "75337e6f3e52f4226f0a29a479a1d7063ded22d828aba9aade5dfe600a7a0997",
+        "1c78383afde58ac6082970041f6e01d674f2fe6c3199017880ddca4cd302e972"
+      ],
+      "source_sha256": "208fc59be9975d4515892fb68bbd13dc74f72fd7bcf473f032f75937bfab0cd4",
+      "text": "How many cells landed in each state, including the empty ones.\n\n:param frame: the output of :func:`classify`.\n:returns: every name in :data:`STATUSES`, zero where absent.\n\nEVERY KEY ALWAYS PRESENT. A caller comparing wells needs a zero rather\nthan a missing key, because \"no bystanders in this well\" is a result\nand a KeyError is not."
+    },
+    "spacr.bystanders.distance_to_infected": {
+      "source_blocks_sha256": [
+        "a5f8b3e5595972370cc58767f013faa63f76c210ab3a6c9c9abf07c009f8245b",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "8df49611f792d2e15d9add6a865a2b7785b02a36f5b77b1bd7faa7765e7c946b",
+        "fa779394d767337ee84b9e53cd4aba59104d63a6150b11c019baee66099bdbf9",
+        "a3204c3e72fbf553148b54c9aa30f51ec5aea0db7a9ea834c3bcb7dbe1817c0a",
+        "5447e660d19afe866ed6f7513df6339e54c3bf79ff90255f7307bb73d8957ae8",
+        "41e6b6c3af27f08038ead1d36872fba9f12542c732718ffb419e2bba8fc46c06"
+      ],
+      "source_sha256": "28b64218ec1c932e0689c53129bd85fe6ff2740781f1e3a0f6a27af826e06ed7",
+      "text": "How far each cell's surface is from the nearest INFECTED cell.\n\n:param cell_mask: the cell label image.\n:param infected_labels: labels of the cells carrying a pathogen.\n:param spacing: voxel size, so the distances carry physical units.\n:returns: ``label`` and ``distance_to_infected``, one row per cell.\n\nZERO FOR AN INFECTED CELL, ONE PIXEL FOR ITS IMMEDIATE NEIGHBOUR, and\nthe distinction is worth stating because the obvious reading is wrong.\nThe field is zero on any INFECTED pixel and grows outward, so a cell\nthat shares a border with an infected one has its own nearest pixel one\nstep away: the minimum over that cell is 1, not 0. Only a cell whose\nown pixels are infected reads 0.\n\n`surface_distance_transform`'s docstring says \"two touching objects\ncome out at 0\", and that is true of the case it describes -- reading\nthe field at a point INSIDE the other object, which is what an\noverlapping or contained object gives. Two disjoint labels that merely\nabut do not overlap, so they do not. A threshold expressed in cell\ndiameters is far larger than one pixel either way; the note is here so\nnobody reads a 1 as a bug.\n\n``inf`` WHEN THERE IS NOTHING TO BE NEAR. A well with no infected cell\nhas no distances, and the honest value is infinity rather than 0 or\nNaN: every cell is arbitrarily far from a population that is not there,\nand infinity is the only value that keeps `distance <= reach` False for\nevery finite reach."
+    },
+    "spacr.bystanders.neighbourhood": {
+      "source_blocks_sha256": [
+        "c722c2f89ba482fb1c18679b999ac29f11c33c2b8f72758d0626bfc8050d4a0e",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "7de8eceae966a59e98fd82a282eb56f690fb35e85ed4135460ca651c9da008e0",
+        "b5449833a3d4e08891192965000737f815dda29aa0c363b36375c7f6d45831d6",
+        "8a585770752e6ca2a967e09e63871699737bc4258a64f19cd723c9d007a698a6",
+        "733fc84845e6aeb3979848c89aa3f8f2ab82320ba047a32451f4207d4647df03",
+        "15e7e1d0659ec5f35c3bf7b28c9db8fb8518654a19b9a38d989b542ef34f363c",
+        "f32e480fd432e8e394cba24bb150a161d2be4971464f9b48e516d9608025c423"
+      ],
+      "source_sha256": "40993069ffe0dc66dbbcc99cf195a2cd4fe499afe4658234f7da883bffb5beaa",
+      "text": "What fraction of each cell's nearest neighbours are infected.\n\n:param cell_mask: the cell label image.\n:param infected_labels: labels of the cells carrying a pathogen.\n:param k: how many neighbours to count, EXCLUDING the cell itself.\n:param spacing: voxel size, so \"nearest\" means nearest in real space\n    rather than in pixels on an anisotropic stack.\n:returns: ``label``, ``neighbours_counted``, ``neighbours_infected``\n    and ``local_infected_fraction``.\n\nTHE SECOND HALF OF THE BYSTANDER QUESTION. :func:`classify` answers\n\"is there an infected cell near this one\", which is a threshold on one\ndistance. This answers \"how infected is this cell's neighbourhood\",\nwhich is the quantity that separates a cell at the edge of a focus\nfrom one in the middle of it -- both are bystanders and they are not in\nthe same place.\n\nTHE CELL ITSELF IS NEVER ITS OWN NEIGHBOUR, and an INFECTED cell still\ngets a fraction: \"this infected cell sits among uninfected ones\" is a\ndifferent observation from \"this one sits in a cluster\", and dropping\nthe infected rows would throw the second away.\n\n`neighbours_counted` IS REPORTED RATHER THAN ASSUMED TO BE ``k``. A\nfield with fewer than ``k + 1`` cells cannot supply k neighbours, and a\nfraction computed against an assumed denominator would be wrong in\nexactly the sparse fields where a bystander analysis matters most. The\ncolumn says what the fraction was actually divided by."
+    },
+    "spacr.bystanders.reach_from_diameter": {
+      "source_blocks_sha256": [
+        "06459f8dddc13a96b5e7061862cca300742bf7591710859ae7228f37599a64ee",
+        "1236082db544e25134afacca8ba2fb5438cedcfcacc6b59c48d6377270599923",
+        "a25103bf9e47236d5327b123822e28751d706c7b84363808790f540930e7e412",
+        "f401147dbcf7725dbefe05ccc68b4168ef108236ddd4bbd068a1832e5c9592dc",
+        "8c7f992cc8ece98cb4051688a66c94f204adcf3fd8466cca1112a88eacd2a549"
+      ],
+      "source_sha256": "5b793945ae5f535284fab8928c0a4045033ecfdb7a3540b6c68f076a0f0d287f",
+      "text": "The bystander reach in the units ``cell_diameter`` is measured in.\n\n:param cell_diameter: the plate's measured cell diameter, from\n    :mod:`spacr.diameter`.\n:param diameters: how many diameters count as neighbouring.\n:returns: a distance in the same units, never negative.\n\nKept as its own function so the conversion is visible in one place and\na caller can see that the reach is derived rather than chosen."
+    },
     "spacr.cancellation": {
       "source_blocks_sha256": [
         "3f84354a540370637d573e4799537b53d19d83e1bcb3c7200c3c4aecba4faabe",
@@ -11097,6 +11186,101 @@
       ],
       "source_sha256": "ccfd2a7fd44a860ed9d78898cdc40f6854cec46336f1735ad7e302f51696bd06",
       "text": "Download spaCR's optional model files on first use.\n\nThe implementation is imported only when called, keeping ``import spacr``\nand wildcard imports lightweight."
+    },
+    "spacr.embeddings": {
+      "source_blocks_sha256": [
+        "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
+        "f6a0d1ff19c83f9b6178284e18ced132c6085641279b6e5775d2e877d8eb7124",
+        "fbc298648f6ed0ccddd9d18e2ca373aa3422925b6eff0ce3ace7ce303526ac97",
+        "790db17b58b1a85fca18a912cacd6e751b1734058f48ab8f0f1d48ce67634452",
+        "e23ae31fedfc3f2132115b196d41064d7a52a61234ac92f1cbd5e763681170db",
+        "d8fa2e50bb5a67d188fb1b71c091d9234aa2b3354c53aad2ff04e0397fe70072",
+        "67f83d85affbae7d6873e220cf473f0d7f57ba6cd2d91d2751bad6b26c64bd04"
+      ],
+      "source_sha256": "0c1c5740e725f981946ecb658ad7e6634651de20660183f521668a130a8ac0a8",
+      "text": "A label-free embedding for every object, beside the measured features.\n\nWHY THIS EXISTS. spaCR's two existing ways of turning an image into numbers\nboth require you to already know what you are looking for. The measured panel\nin :mod:`spacr.measure` computes a fixed, hand-designed set -- intensity,\nshape, texture, distances -- so it finds only what somebody thought to name.\nThe supervised path in :mod:`spacr.deep_spacr` fine-tunes a backbone against\nannotations, so it finds only what somebody thought to annotate. A screen\nwhose real hit is \"the vacuole is subtly mislocalised in a way we have no\ncolumn for\" returns nothing, and returns it confidently. The cost of that gap\nis invisible, which is exactly why it is worth a module.\n\nTHE CHANNEL DECISION, SETTLED HERE RATHER THAN IMPLICITLY. Pretrained\nencoders expect three channels. spaCR images routinely have four or five,\nwith no RGB meaning at all -- a DAPI channel is not \"red\". Two ways out, and\ninstruction 386 asks for the choice to be recorded rather than inherited from\nwhatever the first backbone wanted:\n\n  PER-CHANNEL, THEN CONCATENATE (:data:`CHANNEL_PER_CHANNEL`, the default).\n  Each channel is encoded on its own and the vectors are joined. Channel\n  identity SURVIVES: dimension 517 belongs to channel 2 and to nothing else,\n  so :mod:`spacr.attribution_columns` can say which stain a hit came from and\n  a reader can drop a channel without re-embedding. Costs N forward passes.\n\n  PROJECT TO THREE (:data:`CHANNEL_PROJECT`). One pass over a fixed\n  channel-to-RGB mapping. Cheaper, and irreversible: once channels are mixed,\n  no downstream column can be attributed to a stain, and a screen cannot ask\n  \"was this the parasite channel or the host one?\".\n\nThe default is per-channel because THE ATTRIBUTION IS THE POINT. An embedding\nthat finds an unnamed phenotype and cannot say which stain carried it has\nmoved the problem rather than solved it. Projection stays available for the\ncase where forward passes actually bind.\n\nWHAT THIS MODULE DOES NOT DO. It does not crop -- it takes the crops\n:mod:`spacr.crops` already produces. It does not write to the database. It\nreturns a float32 matrix keyed by object id, which is exactly the shape the\ndownstream already consumes: UMAP, the regression family, hit calling and\nthe AnnData export do not care where a numeric column came from."
+    },
+    "spacr.embeddings.EmbeddingError": {
+      "source_blocks_sha256": [
+        "7497ce0623550f2b40099a87f1a7627229ed03eb6f1aa2f8ceb9d08046cb9b30"
+      ],
+      "source_sha256": "7497ce0623550f2b40099a87f1a7627229ed03eb6f1aa2f8ceb9d08046cb9b30",
+      "text": "Raised when embedding is refused, with the reason a caller can show."
+    },
+    "spacr.embeddings.EmbeddingResult": {
+      "source_blocks_sha256": [
+        "b7a9d77f595ad8468f7f689f0424becd1f9d571af63f2bcf71bf4f8391ea61f0",
+        "c115042af15d1f567474ff502877fbc0c9a2f920faab9b955a0b20e033243816",
+        "6c0d104b409be5467200247c7f5b71ae3442fc794067429ea316b57cf1d49824",
+        "3363b70f84abfef1a0fdb1005fbd5ef4edbc8d08dc7b322037891539efe7977d",
+        "7fd8f5229a87626c15c6e81812dbe100d7ba1be8d05bb4e24cdfaf3174474d67",
+        "be7ca861f54c73fc76e5f6647693809332bc074756720021b504fc7b46617d57"
+      ],
+      "source_sha256": "b40ec3bf0ed5bb1a5e66a28375d82dac1f84ecd3fc26c1e157c82350377d3122",
+      "text": "The matrix, its column names, and how it was made.\n\n:param values: ``(n_objects, n_dims)`` float32.\n:param columns: one name per column, all starting with\n    :data:`EMBEDDING_PREFIX`.\n:param spec: the :class:`EmbeddingSpec` that produced it.\n:param n_channels: how many channels were encoded.\n:param per_channel_dims: dimensions contributed by ONE channel."
+    },
+    "spacr.embeddings.EmbeddingResult.to_frame": {
+      "source_blocks_sha256": [
+        "d03ade633bbf684fe9420bc506822f312505f2f1064de227ee772eea60db0892",
+        "d232df1d0dafdd484b12d797115b49bbf6b30489069e635b7489b013096daf19",
+        "a4243fce2632a2b2f60fde931c764a935f24ad5ccf659b7e3aae0746cc85f6f0"
+      ],
+      "source_sha256": "cd5f661c4475ab6ec25f7e5eda68f69b5ae658634492444c96942409684be9c5",
+      "text": "A DataFrame keyed by object id, ready to join to measurements.\n\n:param object_ids: one id per row, in the order the crops were given.\n:raises EmbeddingError: when the count does not match the matrix,\n    because a silent misalignment here corrupts every downstream\n    join and is unrecoverable afterwards."
+    },
+    "spacr.embeddings.EmbeddingSpec": {
+      "source_blocks_sha256": [
+        "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
+        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
+        "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
+        "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
+        "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
+        "c9bc5ad94d8c3f67656191905edd02e7d37454a6233ddd0da233b3b44896f5b4"
+      ],
+      "source_sha256": "21494b889f3fefbf854713581e7a6f15e34c39f2dcd96e3df6de01b158847924",
+      "text": "How to embed, recorded so a matrix can say where it came from.\n\n:param backbone: encoder name, resolved through timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or\n    :data:`CHANNEL_PROJECT`.\n:param channels: which channel indices to encode, in order. ``None``\n    means every channel the array has.\n:param batch_size: crops per forward pass.\n:param device: torch device string, or ``None`` to choose one.\n:param normalize: divide each channel by its own 99th percentile before\n    encoding. Microscopy dynamic range varies by orders of magnitude\n    between stains, and an encoder trained on photographs will otherwise\n    see one channel as noise."
+    },
+    "spacr.embeddings.EmbeddingSpec.fingerprint": {
+      "source_blocks_sha256": [
+        "b3f73c01375ab9b68a716e0416b39e74d31ec9284a4051de8b35dda19743ced7",
+        "d2d4b81d0648f3b9aa27909b8699ffaa011710b5dd2743997f2acef9b5f2a33c"
+      ],
+      "source_sha256": "97c654834fb5174e6980c7f519c1a37535b120de2e7f4d69ba6072a90a8a223c",
+      "text": "A short digest of everything that changes the numbers.\n\nTwo matrices with the same fingerprint were produced the same way.\nA scorecard can quote it, and a cached matrix can be invalidated by\nit rather than by a timestamp."
+    },
+    "spacr.embeddings.channel_of_column": {
+      "source_blocks_sha256": [
+        "2961df030b860edb454e16f87eea9eb3282450fee2318c316cf7b080f663ffd2",
+        "1a36439a4649da480c1c21cc86423ecb57cee3caebf532dde3a28d30b845dc8a",
+        "59987484b75bf17470d612c235d9f24ffa6f8a699c6b918e7679aef61a88e4f6"
+      ],
+      "source_sha256": "f836c7f7e07aafffe14c85758cecf45376ba2b59d82a53ab4913f884db4e8462",
+      "text": "Which channel a column came from, or ``None`` if it cannot be said.\n\n``None`` for a projected column is the honest answer rather than a\nguess: the channels were mixed and no dimension belongs to one stain.\n\n:param column: an embedding column name."
+    },
+    "spacr.embeddings.embed_array": {
+      "source_blocks_sha256": [
+        "bdea2d4d935fdada62dc3f44c8b2456c622173b79320fd5a7cf4e8a0e178deb1",
+        "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
+        "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
+        "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
+        "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
+        "c33304be14f5205cfcab60bf9406330aecc2b72939a1529a874386802b128acf"
+      ],
+      "source_sha256": "9e90f089952fc770b53a0f5290a65d2483079279bee14335b43f7ef8233f4217",
+      "text": "Embed a stack of crops.\n\n:param crops: ``(n, height, width, channels)``, the shape\n    :mod:`spacr.crops` already produces.\n:param spec: how to embed; the default is per-channel resnet18.\n:param encoder: a callable taking ``(n, height, width, 3)`` float32 in\n    [0, 1] and returning ``(n, dims)``. Injected by the tests so the\n    wiring can be exercised without downloading a backbone; production\n    callers leave it ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: on a shape or channel problem, before any model\n    is loaded -- a download is a slow way to find out the array was\n    wrong."
+    },
+    "spacr.embeddings.embedding_column_names": {
+      "source_blocks_sha256": [
+        "0597559bc7dca6be066f787d1dc5d10b43c9c3129bc088cbdd300357c89e5b66",
+        "881cc168e4f9f399d9ca3906d79bc7afd1318df6d0a0378725f95318fd51b6ef",
+        "806e14136d857b7371ff9c0d9420f0aa74f4667bbffd90698028fd3585aaed75",
+        "223ff9707a47a320ee09c365c59afea15e352add02436a0fe56995862105c87e",
+        "5bcca463fa4d82166118b1b046f2b0816586f5ef49374abc0038dade7717f693",
+        "928073e539616cd63dd8a9ce9c4d0f256692e183331308537220419973bac15d"
+      ],
+      "source_sha256": "0db4568255e5390d3e35eed2ac6a6d2d3abea038288e4f7ee4556eac2c431622",
+      "text": "Names for the columns a run produces.\n\nTHE CHANNEL IS IN THE NAME under the per-channel policy -- ``emb_c2_017``\n-- which is what makes attribution possible later without carrying a\nseparate map beside the matrix. Under projection there is no channel to\nname, and the name says so rather than implying one.\n\n:param per_channel_dims: dimensions one forward pass produces.\n:param channels: channel indices, in encoding order.\n:param policy: which channel policy produced them.\n:returns: column names, in matrix order."
     },
     "spacr.errors": {
       "source_blocks_sha256": [
@@ -19284,6 +19468,17 @@
       "source_sha256": "561bb501cc7e2552e9fbb74d226515dd8fa6bb7000fbe01c0228909e5e28a27f",
       "text": "Every host cell, with how many parasites it contains -- ZERO INCLUDED.\n\nTHE ZEROES ARE THE POINT. The relationship between a cell and its\nparasites is stored on the parasite, so a cell containing none appears\nnowhere in the pathogen table. Any count taken from that table alone is a\ncount of infected cells wearing the name of a cell count.\n\n:param db_path: path to a ``measurements.db``.\n:returns: one row per cell, with the identity columns, ``object_label``\n    and ``pathogen_count``. Empty when there is no cell table."
     },
+    "spacr.infection.uninfected_cells_were_measured": {
+      "source_blocks_sha256": [
+        "4f28952c2e2cba09cafd86fb49e96a5bde7f984c6008233ae9e2a4d37060e614",
+        "3e47bf50eeb0728f22edb444d83390e096cd04991abfa3fcfb285ee340ebe411",
+        "327e9988e62d63086f1bf285d1d345f6715a09dc93775fd43135efed0ba7a3f0",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "7fce868e321be6f4dea6b9efbe620aed41ba368cb5eb5d309930da90d46b24f5"
+      ],
+      "source_sha256": "7d807123273cc24f1c1693d2e395a0e3bc8ce0ec553bc7b84f295c58db460d7e",
+      "text": "Whether the Measure run that wrote ``db_path`` kept uninfected cells.\n\nTHE ANSWER CHANGES WHAT THE CELL TABLE IS. `include_uninfected=False` --\nthe default for a screen that only crops infected cells, and what the\nTSG101 plates were measured with -- means Measure wrote no row for a cell\nwith no parasite. The cell table is then a selection of infected cells\nrather than the segmented population, and `infected / cells` is 1.0 for\nevery well no matter what the biology did.\n\nThat is not a rounding problem to note in a docstring. A reader handed a\ncolumn of 1.000 reads 100% infection as a RESULT, and nothing in the\ntable says otherwise, so this module refuses the rate instead of\nprinting it.\n\n:param db_path: path to a ``measurements.db``.\n:returns: ``True`` or ``False`` when the run recorded the setting,\n    ``None`` when it did not -- an older database, where the honest\n    answer is that we cannot tell."
+    },
     "spacr.install_profile": {
       "source_blocks_sha256": [
         "5a8f874f6cbe2a575f82705f1a68eaa042921d5e1bd3226d108f894b7b44566e",
@@ -24396,8 +24591,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "46073a24662a675d055b08cd58f9f272b3308584d21af5f932a725ed6615b883",
-      "text": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.\n\nReads the ``measurements.db`` produced by\n:func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/\ncytoplasm feature tables, uses the wells marked as\n``positive_control`` / ``negative_control`` (or an annotation column)\nas training labels, delegates fitting to :func:`ml_analysis`, and\nwrites per-object predictions, permutation and feature-importance\ntables plus a plate heatmap into ``results/`` next to the source DB.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_default_analyze_screen`. Key entries:\n\n    - ``src`` (str or list) — folder(s) containing\n      ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-based channel for the recruitment\n      ratio feature; also drives table selection.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,\n      ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — well IDs (e.g.\n      ``'c2'`` / ``'c1'``) used as training labels.\n    - ``annotation_column`` — override controls with a PNG-level\n      annotation column.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — feature plotted on the plate heatmap.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``,\n      ``reg_alpha``, ``reg_lambda``, ``learning_rate``,\n      ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``,\n      ``remove_highly_correlated_features``, ``prune_features``,\n      ``cross_validation``, ``verbose``.\n\n:returns: The two-element list ``[output, plate_heatmap]``, where\n    ``output`` is the 10-element result list of :func:`ml_analysis`\n    and ``plate_heatmap`` is the plate-heatmap ``matplotlib``\n    figure. The CSVs and figures are written to ``results/`` as a\n    side effect; their paths are not returned.\n:raises ValueError: if ``annotation_column`` is set but the\n    ``png_list`` table lacks ``prcfo`` / that column, its object IDs do\n    not join to the measurements, it contains fewer than two observed\n    classes, or if ``heatmap_feature`` is not among the trained features.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSee Also:\n    :func:`ml_analysis` — the underlying fit/evaluate routine.\n    :func:`perform_regression` — mixed-effects regression on\n    per-well ML scores."
+      "source_sha256": "14f78345f1b8f4bb4e4569568248751fa676cefbd91d97b4228ccb1cdc9cb1d6",
+      "text": "Train a classical ML classifier (XGBoost / logistic / RF) on per-object features and score every well of a screen.\n\nReads the ``measurements.db`` produced by\n:func:`spacr.measure.measure_crop`, merges cell/nucleus/pathogen/\ncytoplasm feature tables, uses the wells marked as\n``positive_control`` / ``negative_control`` (or an annotation column)\nas training labels, delegates fitting to :func:`ml_analysis`, and\nwrites per-object predictions, permutation and feature-importance\ntables plus a plate heatmap into ``results/`` next to the source DB.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_default_analyze_screen`. Key entries:\n\n    - ``src`` (str or list) — folder(s) containing\n      ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-based channel for the recruitment\n      ratio feature; also drives table selection.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,\n      ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — well IDs (e.g.\n      ``'c2'`` / ``'c1'``) used as training labels.\n    - ``annotation_column`` — override controls with a PNG-level\n      annotation column.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — feature plotted on the plate heatmap.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``,\n      ``reg_alpha``, ``reg_lambda``, ``learning_rate``,\n      ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``,\n      ``remove_highly_correlated_features``, ``prune_features``,\n      ``cross_validation``, ``verbose``.\n\n:returns: The two-element list ``[output, plate_heatmap]``, where\n    ``output`` is the 10-element result list of :func:`ml_analysis`\n    and ``plate_heatmap`` is the plate-heatmap ``matplotlib``\n    figure. The CSVs and figures are written to ``results/`` as a\n    side effect; their paths are not returned.\n:raises ValueError: if ``annotation_column`` is set but the\n    ``png_list`` table lacks ``prcfo`` / that column, its object IDs do\n    not join to the measurements, it contains fewer than two observed\n    classes, or if ``heatmap_feature`` is not among the trained features.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSee Also:\n    :func:`ml_analysis` — the underlying fit/evaluate routine.\n    :func:`perform_regression` — mixed-effects regression on\n    per-well ML scores."
     },
     "spacr.ml.interpret_vision_model": {
       "source_blocks_sha256": [
@@ -24457,9 +24652,9 @@
     "spacr.ml.minimum_cell_simulation": {
       "source_blocks_sha256": [
         "bf88fa240a6ba75a54b0b42b953433cf4058629eb066d53cb4fc20861a420bf9",
-        "eacc5ff6904d33ff778518de01a26b8a997e50e0dc45e0861eab4b399ed9e010",
+        "0157bcb8b6079058d04bfb384547564585eeaf95c7dc62565ecd5dc522668f56",
         "605dfcb6fc96142312d8bab1567cb86cafc47579bbc12a575e41088c413fc160",
-        "1fe991a66ac8c9632fb45aa5fab46569407931cfc1f72e2fc64468cb5878c486",
+        "07e8971343bf0a154007c96282383d5d6a981b750b92f68ba89d8586ec4a554e",
         "1af32583ad5dca4fa2e805f6fdca573560fdabd4214305b6632eaec8ca88223f",
         "f8c63794b8a10487eef71a243d078f76c52670a8418f1d0a2762e841484d9a56",
         "8f6abc5d0343a6bbf37492f9b9c9aa00abee372059c48085274af727f928aad3",
@@ -24469,8 +24664,8 @@
         "b1e5363ac979b55298ed0f9bfc2c16ebdecc3d99666923ca41f13a9352153556",
         "4194d53b16e88772fd34c396f9ee65c87ecac2daeb8c00bd0b447ec9378ac2e8"
       ],
-      "source_sha256": "f9729401957f2e0ffb193c923bd0dac66afaa2423d359461c0b24758008e02bd",
-      "text": "Estimate the minimum number of cells per well needed for a stable well mean.\n\nFor the wells with the most objects, repeatedly subsamples cells at\nincreasing sample sizes and records the mean absolute difference from\nthe well's full mean. Plots the smoothed curve with a ±1 s.d. band,\nmarks the elbow point (or ``settings['min_cell_count']`` when it is\nset) and writes ``cell_min_threshold.pdf`` into ``dst``.\n\nPass ``dst`` to keep the figure in a specific run folder. When omitted,\nthe function uses the screen-level ``results`` folder derived from\n``count_data`` for compatibility with direct notebook and script calls.\n\n:param settings: Requires ``score_data`` (CSV path or list of paths),\n    ``dependent_variable``, ``tolerance`` (int percent or float\n    fraction) and\n    ``min_cell_count``. ``count_data`` is needed only when ``dst`` is\n    left unset, and only to locate the figure.\n:param num_repeats: Subsamples drawn per sample size. Default ``10``.\n:param sample_size: Number of wells, taken largest-first by cell\n    count, to simulate. Default ``100``.\n:param tolerance: Unused; the tolerance applied is\n    ``settings['tolerance']``.\n:param smoothing: Rolling-window width used to smooth the curve.\n:param increment: Step between the simulated sample sizes.\n:param dst: Folder for ``cell_min_threshold.pdf``, created if missing.\n    Default ``None``: ``<folder of settings['count_data'][0]>/results``.\n:returns: The elbow point's sample size, i.e. the minimum cell count\n    per well, for passing to :func:`process_scores`.\n:raises ValueError: if ``settings['tolerance']`` is neither an int nor\n    a float."
+      "source_sha256": "c8cdf39e428dadbbafb95e032ba62262b6971a2f1a921a9bd7c4c0810b5c8e03",
+      "text": "Estimate the minimum number of cells per well needed for a stable well mean.\n\nFor the wells with the most objects, repeatedly subsamples cells at\nincreasing sample sizes and records the mean absolute difference from\nthe well's full mean. Plots the smoothed curve with a ±1 s.d. band,\nmarks the elbow point (or ``settings['min_cells_per_well']`` when it is\nset) and writes ``cell_min_threshold.pdf`` into ``dst``.\n\nPass ``dst`` to keep the figure in a specific run folder. When omitted,\nthe function uses the screen-level ``results`` folder derived from\n``count_data`` for compatibility with direct notebook and script calls.\n\n:param settings: Requires ``score_data`` (CSV path or list of paths),\n    ``dependent_variable``, ``tolerance`` (int percent or float\n    fraction) and\n    ``min_cells_per_well``. ``count_data`` is needed only when ``dst`` is\n    left unset, and only to locate the figure.\n:param num_repeats: Subsamples drawn per sample size. Default ``10``.\n:param sample_size: Number of wells, taken largest-first by cell\n    count, to simulate. Default ``100``.\n:param tolerance: Unused; the tolerance applied is\n    ``settings['tolerance']``.\n:param smoothing: Rolling-window width used to smooth the curve.\n:param increment: Step between the simulated sample sizes.\n:param dst: Folder for ``cell_min_threshold.pdf``, created if missing.\n    Default ``None``: ``<folder of settings['count_data'][0]>/results``.\n:returns: The elbow point's sample size, i.e. the minimum cell count\n    per well, for passing to :func:`process_scores`.\n:raises ValueError: if ``settings['tolerance']`` is neither an int nor\n    a float."
     },
     "spacr.ml.ml_analysis": {
       "source_blocks_sha256": [
@@ -24618,7 +24813,7 @@
     "spacr.ml.process_scores": {
       "source_blocks_sha256": [
         "35b916ccf9b4406743ffad54921075a077e86a215822486b18fb50b7c58edeee",
-        "15b26e610f96e944d1e6d284b3aecf0ddd17a0af535fcfb508e5b36f3f0fc547",
+        "979e14f51d8fee7316ae43ed686804844a2f7171941b83bf98e1f130ea2d6ddb",
         "b6170e0f90001e24ad9564b33d4a1fefb9c2814b6984af712c7d3d99d10e7725",
         "8dbf4648c3398730f8b682e76897500d70698516972b378b20e7f5a0e8508e33",
         "c53d0606c4978f2313cee25c5f9ddc9b6237a1b00e3a67672b31cc25085773ba",
@@ -24630,8 +24825,8 @@
         "c4442659591710803ca222e05d541137d05fa8f7eedab0f6bbc8b5ea6dfd0871",
         "51a3d36f4c6a1cbde7363a28c824ca69e085af19496d41d85832d91dd7598218"
       ],
-      "source_sha256": "9e1d41677f5c5a283805d147242926e83295a84efb5b87e0961e5f4828f56b66",
-      "text": "Aggregate per-object model scores to per-well summaries, ready for regression.\n\nEnsures ``plateID/rowID/columnID/prc`` columns exist, applies an\noptional inversion of the raw response, aggregates by well according\nto ``agg_type`` (or with ``sum`` for the count models\n``'poisson'`` and ``'horseshoe'``), enforces\n``min_cell_count`` and optionally transforms the aggregated response.\n\n:param df: Per-object score DataFrame.\n:param dependent_variable: Column being aggregated.\n:param plate: Plate identifier to stamp when the frame is\n    single-plate; ignored (with warning) when multiple plates exist.\n:param min_cell_count: Wells with fewer objects are dropped.\n    Default ``25``.\n:param agg_type: ``'mean'``, ``'median'``, ``'quantile'`` or None.\n:param transform: Optional post-aggregation transform name\n    (see :func:`apply_transformation`).\n:param regression_type: If ``'poisson'`` or ``'horseshoe'``, aggregation\n    uses ``sum`` - both model a per-well count, not a per-well average.\n:param invert_dependent_variable: ``False``/``0`` = no inversion;\n    ``True``/``1`` = ``1 - x``; ``-1`` = ``1 / x``.\n:returns: ``(dependent_df, dependent_variable)`` — the per-well\n    DataFrame and the (possibly transformed) response column name.\n:raises ValueError: on missing identifiers, unsupported ``agg_type``\n    or unrecognised ``invert_dependent_variable``."
+      "source_sha256": "37545e6672072568adf667960125f99694272a13ff3ca992712aaba8defe46e8",
+      "text": "Aggregate per-object model scores to per-well summaries, ready for regression.\n\nEnsures ``plateID/rowID/columnID/prc`` columns exist, applies an\noptional inversion of the raw response, aggregates by well according\nto ``agg_type`` (or with ``sum`` for the count models\n``'poisson'`` and ``'horseshoe'``), enforces\n``min_cells_per_well`` and optionally transforms the aggregated response.\n\n:param df: Per-object score DataFrame.\n:param dependent_variable: Column being aggregated.\n:param plate: Plate identifier to stamp when the frame is\n    single-plate; ignored (with warning) when multiple plates exist.\n:param min_cells_per_well: Wells with fewer objects are dropped.\n    Default ``25``.\n:param agg_type: ``'mean'``, ``'median'``, ``'quantile'`` or None.\n:param transform: Optional post-aggregation transform name\n    (see :func:`apply_transformation`).\n:param regression_type: If ``'poisson'`` or ``'horseshoe'``, aggregation\n    uses ``sum`` - both model a per-well count, not a per-well average.\n:param invert_dependent_variable: ``False``/``0`` = no inversion;\n    ``True``/``1`` = ``1 - x``; ``-1`` = ``1 / x``.\n:returns: ``(dependent_df, dependent_variable)`` — the per-well\n    DataFrame and the (possibly transformed) response column name.\n:raises ValueError: on missing identifiers, unsupported ``agg_type``\n    or unrecognised ``invert_dependent_variable``."
     },
     "spacr.ml.regression": {
       "source_blocks_sha256": [
@@ -25609,6 +25804,30 @@
       ],
       "source_sha256": "ae2fa48a52b625186483a5aadeeeeb3b75f0e8b51f0d214123a027a51d2072e5",
       "text": "True when this model says what it was trained on."
+    },
+    "spacr.model_zoo.ModelEntry.scorecard_holdout": {
+      "source_blocks_sha256": [
+        "292f7343b9797971ac4e2f38035a59719e08ffd72119d45b18070d154971ff6c",
+        "e0502c455f710bdf567c6573c65544488d95bfd342bb564653bb1c10e8b59772"
+      ],
+      "source_sha256": "eac89f1c4310893a7416ecb54f257613e7669085496521365e44386f790b8450",
+      "text": "``name @ version`` of the hold-out set, or ``\"\"``.\n\nA SCORECARD WITHOUT ITS SET IS A NUMBER WITHOUT A UNIT. Two people\nquoting an F1 for the same model have said nothing to each other\nunless they scored the same masks, so the set travels with the\nnumbers into every surface that shows them."
+    },
+    "spacr.model_zoo.ModelEntry.scorecard_known": {
+      "source_blocks_sha256": [
+        "23b1b33c89156b9d4d3c80db83abfd263a17b900e48aab4cc3e6e1acd9bcabc1",
+        "a0a2744885206b3267b585e44abb89231743b05fbc2c8473b04d42657b849043"
+      ],
+      "source_sha256": "ab96087a6769b2222613fb49c788c9fa45f5868260fc9340b94bc380d3dc9cf3",
+      "text": "True when this model says how accurate it is.\n\nThe accuracy twin of :attr:`provenance_known`, which 370 asks for by\nname. A model with no numbers did not score zero, and a table of\nempty cells reads as the second -- so the absence is a state to\nreport rather than a gap to render."
+    },
+    "spacr.model_zoo.ModelEntry.scorecard_lines": {
+      "source_blocks_sha256": [
+        "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
+        "2dea166ba3501ef378c92617a6dfd8f87a57cbf4e68e5505b0ad65555da32eb0"
+      ],
+      "source_sha256": "7d0f2c7f181a66a82cedd8ba1aa2abc8f46337cf102b3cce9b694d9607b72842",
+      "text": "The scorecard as display lines, or the sentence saying there is none.\n\nONE SOURCE, FOUR RENDERINGS. The tooltip, the API page, the Zoo screen\nand the Hugging Face table all render THIS, so they cannot disagree --\n366 found six README tiles pointing at three different API pages, and\nthat is what happens when a number is written down in more than one\nplace."
     },
     "spacr.model_zoo.ModelEntry.summary_line": {
       "source_blocks_sha256": [
@@ -28606,19 +28825,103 @@
       "source_sha256": "46e27ca23bb0fc58a24672bc85bf96b966921c7b1f49db4825cecef3ee76a85f",
       "text": "For each row of ``source``, the closest row of ``target``.\n\nCHUNKED, ALWAYS. A well can carry a hundred thousand nuclei, and the\nfull distance matrix between two such sets is 40 GB -- more than the\ncard and more than the host. Chunking the first set bounds the working\nset at ``chunk x M`` however large the well is, which is the same\nargument PART 5 makes about the mosaic: the ceiling must not depend on\nhow much data there is.\n\nTies go to the lower index, on every backend, so a caller that pairs\nmutual nearest neighbours gets the same pairs whatever ran.\n\n:param source: ``(N, D)`` points.\n:param target: ``(M, D)`` points.\n:param gpu: False keeps it on the CPU.\n:param backend: force one.\n:param chunk: rows of ``source`` per pass.\n:returns: ``(indices, distances)``, both length N."
     },
+    "spacr.ops_compose": {
+      "source_blocks_sha256": [
+        "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
+        "2f3c97f71967690e34c8067c8f5217cb132e4fc98344c5ebb238e04f37a71cbe",
+        "9c604370eea684a67c7b138357c4e26ea2eac6f640d836c2b3d723c7e0d8242c",
+        "c359f9f720dab72b58a7a3f83dbd326f91738bf99a87988d1e4d944359b5bc69"
+      ],
+      "source_sha256": "ff12a12fa8bc3baa6272f70d57759b77bb457e1471bdb8d39ffcf9a791653cd6",
+      "text": "The canonical nuclear map, composed one window at a time.\n\nPHASE B1 OF INSTRUCTION 372. `ops_stitch` solves where every tile sits and\ndeliberately does not hold the pixels -- well A1 is 26,855 x 26,865, which is\n1.4 GB as uint16 for ONE channel, and every later phase would read through it.\nThis module composes the same well WINDOW BY WINDOW instead, which is what\nB2 asks segmentation to do anyway: \"segment once, on the composite, window by\nwindow\".\n\n    THE MEMORY PROBLEM AND THE SEGMENTATION PLAN HAVE THE SAME ANSWER. A\n    window that a segmenter can hold is also a window a composer can build,\n    so nothing ever materialises the whole canvas. The join key B4 needs --\n    a plate-level object number in the WELL frame -- survives because every\n    window carries its own offset into that frame.\n\nWHY AVERAGE THE OVERLAPS AT ALL. PART 15 measured it: the gain is about\n1.15x on the exact channel segmentation runs on, not the 3.3x an earlier\ndraft claimed from averaging across cycles. There is only one DAPI\nacquisition, so the eleven-sample argument does not apply -- what is left is\nthe raster's own 14% overlap, where two tiles saw the same nuclei twice.\n1.15x is worth having and is not worth overstating, which is why the number\nis here rather than the adjective."
+    },
+    "spacr.ops_compose.ComposeError": {
+      "source_blocks_sha256": [
+        "a754bddd5fa5df0ee543244e10ac037b13cc24d4c5523e31a3d7b4db119f1522"
+      ],
+      "source_sha256": "a754bddd5fa5df0ee543244e10ac037b13cc24d4c5523e31a3d7b4db119f1522",
+      "text": "Raised when a window cannot be composed, with the reason."
+    },
+    "spacr.ops_compose.Window": {
+      "source_blocks_sha256": [
+        "c8adc791935a617cad89cac0d9e616bf02d53a4ae034e7f993128fe102d0e312",
+        "c39b34c0f041747399470afb67399d0498f9bfaafbc96d14732c1fae0cfd550a",
+        "446ea6f125bb90cbdd7497ce6acd5ba240f330ed27ed923168aabcafa91fd423",
+        "88da8229ed0577065ba78933b6e1001568edd23b39280ae95cbeadfc139b230e",
+        "6a308b5c47639ee6385971a1b778abf53b80bdc73b3850b61ca52d7523085865"
+      ],
+      "source_sha256": "1ea4381f857fe67ee803eb2380c81b2e24e63479591ba5e626d2a5866197c781",
+      "text": "A rectangle of the well frame, and where it sits in it.\n\n:param top: first row in well pixels.\n:param left: first column in well pixels.\n:param height: rows.\n:param width: columns."
+    },
+    "spacr.ops_compose.Window.bottom": {
+      "source_blocks_sha256": [
+        "ecc3724fe01763738dc8e1f6cb78bfd6be14c4773afcfdca3ba6bf711d840930"
+      ],
+      "source_sha256": "ecc3724fe01763738dc8e1f6cb78bfd6be14c4773afcfdca3ba6bf711d840930",
+      "text": "One past the last row."
+    },
+    "spacr.ops_compose.Window.offset": {
+      "source_blocks_sha256": [
+        "e3a4bfc6b86f0a4580550c5456fceced420e85d783d7a44e1bef073ed7470d59"
+      ],
+      "source_sha256": "e3a4bfc6b86f0a4580550c5456fceced420e85d783d7a44e1bef073ed7470d59",
+      "text": "``(top, left)`` -- what a local coordinate adds to reach the well."
+    },
+    "spacr.ops_compose.Window.right": {
+      "source_blocks_sha256": [
+        "efda55c447879de45385f2e52a1de292bdff3b764090c1f19fee8ea6382ef29c"
+      ],
+      "source_sha256": "efda55c447879de45385f2e52a1de292bdff3b764090c1f19fee8ea6382ef29c",
+      "text": "One past the last column."
+    },
+    "spacr.ops_compose.compose_window": {
+      "source_blocks_sha256": [
+        "87bdb396643a477bb627e2d4642b38d75f7bd3cfa8f7c25a35ad84cb9fbd50a8",
+        "97689de92764a30001f6ea74634b67de08e7e0eeed88b9c76236f8ab757fd5ed",
+        "ac2abf6417d5790e55dd5746790c064aa3f1b887543dfcfee4df4f1ca224891c",
+        "3e0cd1e32892e661af7193a5083d0c8bbbd94930c4968d51ef536f438d8c1915",
+        "79655d6fc8f7dbd9cafad49704e10dcc2189baf70bae979af20a706085af8367",
+        "d7ce9174385c9756b107097d86928744ce14e7d1a4d0a98890db2064e8409d3a",
+        "3a0a5e4856e93fc4a1d6db1c06f137b9156c0bded5b78b756ffa3267ed56112e"
+      ],
+      "source_sha256": "c1df9c8a9e62f7d06ccded8bedaf529dbdebb7db4d8e8caf1ebce67063eb730b",
+      "text": "Average every tile that overlaps ``window`` into one image.\n\nAVERAGED, NOT LAST-WRITER-WINS. A tile pasted over its neighbour keeps a\nseam exactly where two tiles disagree, and a seam is a gradient a\nsegmenter will happily find an edge in. Averaging removes the seam AND is\nwhere the 1.15x comes from; they are the same operation.\n\n:param window: the rectangle of the well frame to build.\n:param placements: ``site -> (y, x)`` from the solve, in well pixels.\n:param read_tile: called with a site number, returns that tile. Called\n    ONLY for tiles that actually touch the window, so a well of 333 tiles\n    costs a handful of reads per window rather than 333.\n:param tile_shape: ``(height, width)``; read from the first tile when\n    omitted.\n:returns: ``(image, coverage)`` -- the averaged window and how many tiles\n    contributed to each pixel. COVERAGE IS RETURNED RATHER THAN DISCARDED\n    because a pixel no tile reached is not a black pixel, and only the\n    count tells them apart."
+    },
+    "spacr.ops_compose.overlap_gain": {
+      "source_blocks_sha256": [
+        "c4476aa947979d92f771dacbea950dee646f536433a763ca11d1a36b0dc9715d",
+        "89ca015b2d5aa50547c622a414c459be744e23c64da564eb88522158f93514c8",
+        "d03e4bcb5edd4c5347a14599a8953b221e5caff17efc1da89c886b4cc7d7d7bb",
+        "4802cc79e512cb5d3c19046eb9c357f0e916736c1a017a339d55de61c610051c"
+      ],
+      "source_sha256": "bd21234417e94b00787c4156218f4d2b517e68675aee3e5270ada719116a06e5",
+      "text": "The noise gain averaging bought, over pixels a tile actually reached.\n\nsqrt of the mean coverage: averaging n independent samples of one signal\ndivides the noise by sqrt(n). Reported over COVERED pixels only, because\na well's corners are reached by one tile and including the uncovered\nbackground would report a gain for pixels nothing measured.\n\nPART 15 measured 1.15x for well A1 at a 14% raster overlap. A composer\nthat reports much more than that on the same geometry is averaging\nsomething twice.\n\n:param count: the coverage array from :func:`compose_window`."
+    },
+    "spacr.ops_compose.windows_over": {
+      "source_blocks_sha256": [
+        "d09520c0f1100b5706041dffba94e97b464724d398a47796fac909616e1d18e3",
+        "d58cc12c06301003643d33b1697964bb2fd465183d74b8b2e0448dc9df11d3d0",
+        "5fd2da00e9ba4dccea7b96d40f9e7c5f1571ad527aa282cd625ee79eec663344",
+        "7446032b6fb00a83a0a8f3f580218756645806d129e7f196c786388bce4e876c",
+        "53747ea6692116a69328604abfec580c74bbdaf5a2795b48887b0d399d987251",
+        "0127f37f3eef338fcd6c711bd0cce0b880dd9be69f3a463a99ab86702250c50b"
+      ],
+      "source_sha256": "d94324d86aec939ca54a63a292216fdba17fdc24b17abcc8e68a5f8f53338c27",
+      "text": "Tile a canvas into overlapping windows, in raster order.\n\nTHE WINDOWS OVERLAP ON PURPOSE and B3 is the reason: an object straddling\na window boundary is one object, and it can only be matched across the\nseam if both windows saw all of it. The overlap has to exceed the largest\nobject, not merely touch.\n\n:param canvas: ``(height, width)`` of the well frame.\n:param size: window edge in pixels.\n:param overlap: how much neighbouring windows share.\n:raises ComposeError: when the overlap is not smaller than the window,\n    which would make the stride zero and the iteration infinite."
+    },
     "spacr.ops_cycles": {
       "source_blocks_sha256": [
         "fe31e9bfe3333ee8779a4ec8407f1e89c9ee49f6db75491a7964ae5f7f89ae74",
         "59eba82e68561e13220794fd3a3318f848654998412cc57c0fbfd0ee0bb6e516",
-        "b5c2a3301612b0237721e7e027c5fcef9356ad279043251c629ffc9785e9294b",
+        "90315e3fd156e29559e43e7d3ee383dc8ceb030c0829dfc288910ecc091380dd",
         "7096248994d74057fe4c683729f92aa3f77532af0f3a151aecc1c3392cb5557a",
         "249061af88ef246039fe588712acd9cfcbb86b67e741dc3b8a73428c7d380608",
         "e307f8e489de0b346aecb63071c668c463ae5ab6261b7e819d07a3457d249492",
         "fc0202df87d042b6351dfea6e31dc398fe8ec41de8dbb0fd9f5f2f601680cbbb",
         "346b886d87b02facc49c1c17a06ed7561d4217a5268f15213c7ac6dffb08bc28"
       ],
-      "source_sha256": "1bcc5138b1fbf4b4f51a4a7d1a8e66ee39cbc6568a14ae31851e08214ed08b4c",
-      "text": "Registering one field across the sequencing cycles that imaged it.\n\nTHE CYCLE AXIS IS NOT THE TILE AXIS, and the difference decides everything\nin this module. :mod:`spacr.ops_register` places two DIFFERENT fields that\noverlap by a fraction of a tile; here the same field is imaged eleven times\nand the stage returns to it, so the displacement is a handful of pixels\nrather than a pitch.\n\nAND IT CANNOT USE HOECHST. Instruction 372 PART 10 measured this\nacquisition: cycle 1 holds one five-channel ``DAPI-CY3-A594-CY5-CY7`` stack\nper site and cycles 2 to 11 hold four separate base-channel files with NO\nDAPI at all. So the channel every tile-axis registration runs on does not\nexist on this axis after the first cycle, and PART 7's plan to average\nHoechst across cycles cannot run either.\n\nWHAT REPLACES IT IS THE REFERENCE IMPLEMENTATION'S OWN ANSWER.\n``ops/firesnake.py:_align_SBS`` offers ``method='SBS_mean'`` for exactly\nthis case: the maximum across the base channels, normalised by a high\npercentile and clipped, which turns four sparse spot channels into one\ndense target. Measured on well A1 at two sites, cycles 2 to 11 against\ncycle 1:\n\n    site 100   peak/mean 169 to 236   shift (-6..-27,  0..10)\n    site 200   peak/mean 218 to 281   shift (-4..-25, 11..21)\n\n    20 of 20 cycles registered.\n\nIT IS NOT A FALLBACK, IT IS THE BETTER CHANNEL. The tile axis on DAPI peaks\nat 23 to 85; this peaks at 169 to 281. Spots are punctate and abundant and\nnuclei are smooth and few, so losing the Hoechst costs nothing here.\n\nAND THE OFFSET BELONGS TO THE SITE, NOT THE CYCLE. Site 100 sits at x = 0\nto 10 across the eleven cycles and site 200 at x = 11 to 21. One rigid\ntransform per cycle for a whole well would carry that difference into every\nfield, so each site is registered against its own reference -- which is\nalso what the reference implementation does, one field's cycle stack at a\ntime."
+      "source_sha256": "8afd13aa2ad6f2f40d67d1353f44032f9ad172b15c491e5aef6a08495e13f604",
+      "text": "Registering one field across the sequencing cycles that imaged it.\n\nTHE CYCLE AXIS IS NOT THE TILE AXIS, and the difference decides everything\nin this module. :mod:`spacr.ops_register` places two DIFFERENT fields that\noverlap by a fraction of a tile; here the same field is imaged eleven times\nand the stage returns to it, so the displacement is a handful of pixels\nrather than a pitch.\n\nAND IT CANNOT USE HOECHST. Measured on the reference acquisition: cycle 1\nholds one five-channel ``DAPI-CY3-A594-CY5-CY7`` stack per site, and\ncycles 2 to 11 hold four separate base-channel files with NO DAPI at all.\nSo the channel every tile-axis registration runs on does not exist on this\naxis after the first cycle, and averaging Hoechst across cycles is not\navailable here either.\n\nWHAT REPLACES IT IS THE REFERENCE IMPLEMENTATION'S OWN ANSWER.\n``ops/firesnake.py:_align_SBS`` offers ``method='SBS_mean'`` for exactly\nthis case: the maximum across the base channels, normalised by a high\npercentile and clipped, which turns four sparse spot channels into one\ndense target. Measured on well A1 at two sites, cycles 2 to 11 against\ncycle 1:\n\n    site 100   peak/mean 169 to 236   shift (-6..-27,  0..10)\n    site 200   peak/mean 218 to 281   shift (-4..-25, 11..21)\n\n    20 of 20 cycles registered.\n\nIT IS NOT A FALLBACK, IT IS THE BETTER CHANNEL. The tile axis on DAPI peaks\nat 23 to 85; this peaks at 169 to 281. Spots are punctate and abundant and\nnuclei are smooth and few, so losing the Hoechst costs nothing here.\n\nAND THE OFFSET BELONGS TO THE SITE, NOT THE CYCLE. Site 100 sits at x = 0\nto 10 across the eleven cycles and site 200 at x = 11 to 21. One rigid\ntransform per cycle for a whole well would carry that difference into every\nfield, so each site is registered against its own reference -- which is\nalso what the reference implementation does, one field's cycle stack at a\ntime."
     },
     "spacr.ops_cycles.accepted_cycles": {
       "source_blocks_sha256": [
@@ -28826,7 +29129,7 @@
     "spacr.ops_phenotype": {
       "source_blocks_sha256": [
         "de198eeeda9310f7d14e7b526c7b2ebe778d17a6e78c6ad7bd31eb90105d460f",
-        "234152f444ed13a4ca3b088c4e4e7ab701e99acd84c438adb0c7ba9248bc34e6",
+        "15b6ba8f0b8f4b7dc07dc8d214e10edeaa924f5a0458a3323b632135776f44cf",
         "aba66c01e9fd3ca1e4f3ee03f851444b1e73a9b7277187cc7e89d4d43f1f054c",
         "1e905db470b8f54f7dac6b8d239145f7797eb95d1dc45337bcc4d0c5ddcbf816",
         "40c611e4715926fb05dd18ff797a6e94eba87558f101cbec42bdfecd9129dc9f",
@@ -28834,8 +29137,8 @@
         "5607acd4c2f46376cf0c7b7ee4acf752e2b1b62a47a212c2da3330ce1393c2ac",
         "bf4cd9bd465d330b3e27b08bfa7134ca5f33b3b171e37f0f5104bba8681abe12"
       ],
-      "source_sha256": "d89e59c264803f17d46f2750cca9a3c9b633042c3fb3c30f75e54d64579d1e1e",
-      "text": "Phase A4: putting the phenotype acquisition on the sequencing one.\n\nWHAT THIS STEP IS. The phenotype images are 2960x2960 at 20X and the\nsequencing images are 1480x1480 at 10X, of the same round well. Phase A4 of\ninstruction 372 asks for one transform per phenotype field into the\nsequencing frame, aligned on the nuclear stain, \"and do not resample one\ninto the other -- aligned, not averaged\".\n\nWHY IT IS NOT A PIXEL PROBLEM. Across a magnification change and two\ndifferent acquisitions a pixel neighbourhood means nothing, but a nucleus is\na nucleus at both scales. So the alignment runs on NUCLEAR CENTROIDS, and\n:func:`spacr.ops_merge.align_by_triangles` proposes the transform from their\narrangement alone.\n\nWHY THAT PROPOSAL IS NOT THE ANSWER. Measured on the real plate, the\ntriangle consensus is biased and the bias grows as the correspondence\nthins. Synthetic controls built from 593 real nuclei, transform known\nexactly:\n\n    what was asked for              scale returned    inliers\n    identity                            0.9878          56 %\n    scale 0.25                          0.2469         100 %\n    scale 0.25, 1 px of jitter          0.2065          53 %\n    scale 0.25, half the points kept    0.2916          23 %\n    scale 0.25, a third kept            0.3596          15 %\n\nA 1.2 % scale error is 18 px of displacement across a 1480 px field, which\nis why an EXACT copy of a point set scores 56 % rather than 100. And the\nlast two rows are the shape of every real pair this module was first tried\non -- two tiles that partially overlap, imaged twice, are exactly \"some of\nthe points, moved a little\".\n\nSO THE CONSENSUS IS A SEED AND NOT A RESULT. This module takes it, finds the\ncorrespondences it implies, and RE-SOLVES the similarity from those\ncorrespondences in closed form; then does it again on the correspondences\nthe better transform implies. That is the same argument\n:func:`align_by_triangles` already makes for its translation -- \"not a\nrefinement, it is the difference between working and not\" -- applied to the\nscale and the rotation as well.\n\nAND IT REPORTS HOW MANY NUCLEI AGREE, which the triangle consensus does not.\n`align_by_triangles` returned a transform for every pair it was ever handed,\nincluding phenotype tiles and sequencing tiles from opposite sides of the\nwell, because three coincidentally similar triangles can always be found in\ntwo sets of a few hundred points. An alignment with no inlier count is not\nevidence, and PART 6-A of 372 records the same lesson about placements: a\ncount of things attempted is not a measure of anything succeeding."
+      "source_sha256": "abb267fa0f26aa14ac7fe73dd99d993e671396ee1d294579c58cf32f28a63bcf",
+      "text": "Phase A4: putting the phenotype acquisition on the sequencing one.\n\nWHAT THIS STEP IS. The phenotype images are 2960x2960 at 20X and the\nsequencing images are 1480x1480 at 10X, of the same round well. This step\nproduces one transform per phenotype field into the sequencing frame,\naligned on the nuclear stain. IT DOES NOT RESAMPLE either acquisition into\nthe other: the transform is stored and the pixels are left where they were,\nbecause resampling a field to compare it is a lossy way to say where it is.\n\nWHY IT IS NOT A PIXEL PROBLEM. Across a magnification change and two\ndifferent acquisitions a pixel neighbourhood means nothing, but a nucleus is\na nucleus at both scales. So the alignment runs on NUCLEAR CENTROIDS, and\n:func:`spacr.ops_merge.align_by_triangles` proposes the transform from their\narrangement alone.\n\nWHY THAT PROPOSAL IS NOT THE ANSWER. Measured on the real plate, the\ntriangle consensus is biased and the bias grows as the correspondence\nthins. Synthetic controls built from 593 real nuclei, transform known\nexactly:\n\n    what was asked for              scale returned    inliers\n    identity                            0.9878          56 %\n    scale 0.25                          0.2469         100 %\n    scale 0.25, 1 px of jitter          0.2065          53 %\n    scale 0.25, half the points kept    0.2916          23 %\n    scale 0.25, a third kept            0.3596          15 %\n\nA 1.2 % scale error is 18 px of displacement across a 1480 px field, which\nis why an EXACT copy of a point set scores 56 % rather than 100. And the\nlast two rows are the shape of every real pair this module was first tried\non -- two tiles that partially overlap, imaged twice, are exactly \"some of\nthe points, moved a little\".\n\nSO THE CONSENSUS IS A SEED AND NOT A RESULT. This module takes it, finds the\ncorrespondences it implies, and RE-SOLVES the similarity from those\ncorrespondences in closed form; then does it again on the correspondences\nthe better transform implies. That is the same argument\n:func:`align_by_triangles` already makes for its translation -- \"not a\nrefinement, it is the difference between working and not\" -- applied to the\nscale and the rotation as well.\n\nAND IT REPORTS HOW MANY NUCLEI AGREE, which the triangle consensus does not.\n`align_by_triangles` returned a transform for every pair it was ever handed,\nincluding phenotype tiles and sequencing tiles from opposite sides of the\nwell, because three coincidentally similar triangles can always be found in\ntwo sets of a few hundred points. An alignment with no inlier count is not\nevidence, and PART 6-A of 372 records the same lesson about placements: a\ncount of things attempted is not a measure of anything succeeding."
     },
     "spacr.ops_phenotype.Alignment": {
       "source_blocks_sha256": [
@@ -31992,6 +32295,77 @@
       "source_sha256": "d53e17e842b927bd143deb369781ef569416e23efe896e478e6a39298db467de",
       "text": "Add the locations and labels required to cut ``png_list`` objects.\n\n``png_list`` records where a crop was *written* and which object it came\nfrom (``<object>_id``), but not which merged array produced it. This joins\nthe object table on plate/row/column/field to recover ``path_name``, and\nturns ``'o12'`` into ``12``.\n\nRows whose object id is ``'omulti'`` / ``'onone'`` (a crop overlapping\nseveral objects or none) cannot be cut from a single label and are\ndropped, with a count, rather than silently producing the wrong object.\n\n:param db_path: path to the ``measurements.db`` that contains ``png_df``.\n:param png_df: rows read from ``png_list`` or a compatible object table.\n:param object_type: crop mode used to select the object-id column. The\n    default is ``'cell'``; supported names are the keys of\n    :data:`PNG_LIST_ID_COLUMNS`.\n:param verbose: print the number of unusable rows when ``True``.\n:returns: a copy of ``png_df`` with ``path_name``, ``object_label``,\n    ``object_type`` and ``object_label_type`` columns, minus the rows\n    that cannot be cut. ``object_type`` is what was ASKED for and is what\n    the crop cutter reads to choose a mask plane; ``object_label_type``\n    is which object's labels were actually available, and the two differ\n    when a png_list written for one crop mode is read for another.\n:raises ValueError: if ``object_type`` is unsupported, or if its ID column\n    is absent while multiple other object-ID columns make fallback\n    ambiguous."
     },
+    "spacr.point_patterns": {
+      "source_blocks_sha256": [
+        "5e6d40b8da1045db5738e70bf648b08ad15aa3ec8e515bbdfc7abe2ab5aa75a0",
+        "1cccded9482cef56b40d46a1b1929f08fb2208f40ffbd5c305feeca7e5333cf0",
+        "e88794e50fe16f12388be9a54aac50ce37aa29faac35c72584d4d8fa204c11e9",
+        "54ff3b1ba900429ec02fddf04631a956ef3df389bbfda5186c28a26a9de31dc7",
+        "c03cc5582cb00ef98dd144d0b7bd246bcafd7e3f1db320c2fb5b5591b501c18f"
+      ],
+      "source_sha256": "f6d369d32b71671fb501459da9f5e6ab7d64b61d554dcb54b4b1237b7928b5a2",
+      "text": "Is this well clustered, dispersed, or neither -- against the right null.\n\nWHAT THE PACKAGE COULD NOT ASK. :mod:`spacr.object_distances` says how far\none object is from another, and :mod:`spacr.bystanders` says whether a cell\nhas an infected neighbour. Neither answers the question a focus of\ninfection actually poses: are the infected cells in this well arranged more\ntightly than chance would put them? That is Ripley's K, and it is the\nstatistic that turns \"these two cells are close\" into \"this well is\nclustered\".\n\nTHE NULL IS THE WHOLE STATISTIC. K is meaningless without something to\ncompare it against, and the comparison has to respect the shape the cells\nwere allowed to occupy. A well is not a rectangle, a field with a torn\nmonolayer is not a rectangle, and a null that scatters points over the\nbounding box will call every mask with a concave edge \"clustered\" -- the\npoints are crowded into the tissue because there is nowhere else to be.\nEverything here takes a mask and both the estimator and the simulated null\nstay inside it.\n\nEDGE CORRECTION IS NOT OPTIONAL AND IT IS THE PART THAT GETS SKIPPED. A\npoint near the boundary has part of its neighbourhood outside the window,\nso it finds fewer neighbours than it has; uncorrected, that deficit reads\nas dispersion, and it is worst at exactly the radii anyone cares about.\n:func:`ripley_k` applies the reduced-sample (border) correction by\ndefault: at radius r, only points at least r inside the boundary\ncontribute. It costs precision at large r -- honestly, by reporting how\nmany points were left -- and it is exact for any window shape, which the\nanalytic isotropic corrections are not.\n\nTHE FRAME EDGE IS A BOUNDARY TOO. The distance-to-boundary field is\ncomputed on a mask padded with one row of background all round, so a mask\nthat runs to the edge of the image is treated as cut off there, because it\nis. Without the pad, cells at the top of the image would be scored as\nthough the monolayer continued past it."
+    },
+    "spacr.point_patterns.csr_envelope": {
+      "source_blocks_sha256": [
+        "29267a55cb1deef4d1e809795f588b9149163163bd54132f7ec1a06b2a17ce66",
+        "06b5820b5719e3d05af6732d816556e187d0a789c445f97c49e20aa7963a5dea",
+        "b064ddcb01991f9fe465136407bb75ced605ac807b29712bd595317de10dcb68",
+        "1ff22b8a6e7bfff76d47790b1d1e562fa53f83ef0cc77b377f316c2fed2a2f8f",
+        "c5849ece58ef1b9fc72dbd130d4e1515f5f1411197c214ba422381937bd278ab",
+        "18e8616620a92eef60303c1b216b7f388a86187606999e1e208c536eb6fdc08a",
+        "27c87cd4610abfadc0280892a86667baf0044aa391e0ac65a44784c11d1243e8",
+        "2f7714219d876a8717d56475202b43b81bbee7287661969a12befebd72d51d80",
+        "ec1858dd53ea3338064d46aadd8ae5972c136cb59ac3e037fee99e77d440ec76",
+        "21dc32574b16c0ec8a0791ccb2e35aabc5624638beff72e5f37ac21ad0a445bc",
+        "88e2bd06b1f67fd1c68cedfea279f26c6d7e91b756b7f680ed0a749873979df5"
+      ],
+      "source_sha256": "e7846b22e2547ed9b8eae5d571f68e3c30706b5fcf48ab54d88c68fd16292b44",
+      "text": "The spread of L - r for ``n_points`` scattered at random in ``mask``.\n\n:param mask: the same window the observed pattern was measured in.\n:param n_points: how many points to scatter -- the observed count.\n:param radii: the same radii.\n:param spacing: the same pixel size.\n:param simulations: how many random patterns.\n:param seed: fixed, so an envelope is reproducible.\n:param correction: the same correction as the observation used.\n:returns: ``r``, ``lo``, ``hi`` and ``mean`` of ``l_minus_r``.\n\nTHE POINTS ARE SCATTERED IN THE MASK, NOT IN ITS BOUNDING BOX. That is\nthe entire reason this function exists rather than a lookup of the\nanalytic CSR variance: the analytic result assumes a rectangle, and a\nwell is a disc with holes in it.\n\nSAME CORRECTION ON BOTH SIDES. An observation corrected against an\nenvelope that was not -- or the reverse -- compares two different\nestimators and the difference between them will look like biology."
+    },
+    "spacr.point_patterns.ripley_k": {
+      "source_blocks_sha256": [
+        "90257b05e0ad694bc72388ba4faa4b3362f2e642f3476864050d13a86f318119",
+        "0c7ff1f0acd906eab5f3382b470e9c37bac3a2d762e1af1cee803a8d5418f52b",
+        "487d49c4e04bee008b1b630511c0b94e66bcde08fb52b79f225fff99ba1bfb7c",
+        "1f90e4330cfa61e0b3c9e20ebc9a2a2bab57cdf86b37475f8ccd39f150779640",
+        "d4a69a29160046b7b88634bdaad5bf8d147c00174d3063fe80fbe88712464ba4",
+        "cf1474cd52f60d7e7ddfa9e31e132a8d87f3e07028d5cad8180c943166579872",
+        "9793425f3a3dd9d8db93b02b6b16d79d2502d601303a1d2fe8553af3bba32620",
+        "5d91064f893b652c8c8dba10435bf459391842b9dd74f9cf38a4181269e61cb8",
+        "4e78fd9e2255bad7aaa84912b30bd1d9691312ecc593ccf30ff2c0f981cb4cd2"
+      ],
+      "source_sha256": "6bcd283db0dee0c3cccf4e115c39f9e90617463ea81ec469806776fc4298478a",
+      "text": "Ripley's K and L for one point pattern in one window.\n\n:param points: ``(n, 2)`` centroids in array (row, column) order, as\n    :func:`spacr.object_distances._centroids` returns them.\n:param mask: boolean array, true where a point could have been.\n:param radii: the radii to evaluate, in the same units as ``spacing``.\n:param spacing: pixel size; ``None`` means the radii are in pixels.\n:param correction: ``\"border\"`` for the reduced-sample correction, or\n    ``\"none\"`` to see what the correction is worth.\n:returns: ``r``, ``k``, ``l``, ``l_minus_r`` and ``n_contributing``.\n\n``l_minus_r`` IS THE COLUMN TO READ. K grows as r squared, so two\ncurves are impossible to compare by eye; L is its variance-stabilised\nsquare root, and under complete spatial randomness L(r) = r exactly, so\nL(r) - r is a flat line at zero whatever the density. Above zero is\nclustering, below is dispersion, and the size of the departure is in\nthe units of the image.\n\n``n_contributing`` IS NOT DECORATION. It is the number of points the\nborder correction kept at that radius, and when it falls into single\nfigures the row is arithmetic, not evidence."
+    },
+    "spacr.point_patterns.ripley_test": {
+      "source_blocks_sha256": [
+        "bf0749879abc9c73c58808a237c9bc3768770792896fddfd1dc3a2dfc477db13",
+        "9e1511bdfae77575a990934e224a8191fb02696e0328ac31b450d4d37b03339e",
+        "c59789adca4517cc91848b7ac307dfe7042d24ae35f011380a3d2cbeb0e192fa",
+        "5ebeb6e9c0c36b4d30c13247cfd5950ee4eef69b4426e7fff70849c287e5064c",
+        "9a06215fbf7df071551676da612420248a70da832769a1c167549ace236b88ab",
+        "9af72fcdd2ece7a834c8b2a157cf5f0869ad268ad89e96edea243e2fd8ff651e",
+        "b6fb730a253f866acab796a3f83e23806791a67142ec7068f870a5761097b9bb",
+        "06682b9f7d3b4adfa8d1719994b4349a0f0b744cbe40737a64baa07a9129e778",
+        "63be92f0c819714bf810c191d189ea29754b7a22a22bb15f7ee87b6bfc050b86",
+        "2f352cbe7ea9bbc4f55e3f37350296e88b868974e1e708847bb35df7a19fc383"
+      ],
+      "source_sha256": "e8350fe2b38c6cafe6f7bbceedc64aa7b86893be99b86b2cb99dad0eda89f8df",
+      "text": "Observed K against a null that respects the mask.\n\n:param points: the observed centroids.\n:param mask: the window.\n:param radii: ``None`` asks :func:`suggest_radii`.\n:param spacing: pixel size.\n:param simulations: how many random patterns behind the envelope.\n:param seed: fixed, so the answer is reproducible.\n:param correction: applied to both the observation and the null.\n:returns: the columns of :func:`ripley_k`, plus ``lo``, ``hi``,\n    ``clustered`` and ``dispersed``.\n\n``clustered`` AND ``dispersed`` ARE PER RADIUS AND THAT IS NOT ONE\nTEST. Twenty radii give twenty chances to leave a 2% envelope, so a\nsingle excursion is close to meaningless; a run of them at adjacent\nradii is the thing to believe. The columns are deliberately named for\nwhat they are -- an excursion at this r -- rather than \"significant\"."
+    },
+    "spacr.point_patterns.suggest_radii": {
+      "source_blocks_sha256": [
+        "2b483c72d469e0b49bd391d4f7ce50b539c6f1e329f261f8c7a20c4b4b20157f",
+        "c92fda213f284d2d89fca90262e540efb6f0cef614921dd8b636d82a4cca909d",
+        "b24fb5313c0b5b7d7aa0697d909bfe7ac391fb97a0727299b1feb4a1ad75d4c9",
+        "c5d4d83593a1ac3bab87de551c580e86733b96f50f03350bd2e8f733136e24b5",
+        "91413c7923c98b081f3b83fd21aef61e939bd8ab133d66aab78106a778071d65",
+        "83d08d62437c6b9946e317ec569b83d28ee06c4071b80e75536977506c1835b7"
+      ],
+      "source_sha256": "120c2a81e9cfc6d500b2e4d025da6e95120a3c23718127caeb249993f401fe8d",
+      "text": "Radii worth computing K at, for this window.\n\n:param mask: boolean array of where a point was allowed to be.\n:param spacing: pixel size, so the radii come back as real lengths.\n:param count: how many radii.\n:returns: ``count`` radii, evenly spaced, ending at\n    :data:`MAX_RADIUS_FRACTION` of the window's shorter side.\n\nNOT STARTING AT ZERO. K(0) is 0 by construction and carries no\ninformation; including it only puts a point where every curve agrees."
+    },
     "spacr.portable_paths": {
       "source_blocks_sha256": [
         "3572011e229dac9e9401a111bd863f9df90a554f9aae244edfe7de6811feea3a",
@@ -35141,18 +35515,6 @@
       "source_sha256": "445bb10784569128e6ae512bc662d8a45dbb44a7168a38bd4f3854d691f699f6",
       "text": "Build the Home page exactly as the running app builds it.\n\nThe grouping, the stages, the notes and the icon provider are four\narguments that have to agree, and a test that assembles its own\nHomePage is testing a page that does not ship — which is the exact\nclass of bug #16i was: Home grouped by one table and the tabs by\nanother. One constructor call, used by :class:`MainWindow` and by\nthe suite."
     },
-    "spacr.qt.app.open_at_the_measured_width": {
-      "source_blocks_sha256": [
-        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
-        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
-        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
-        "dd6d8d5c179974bfa18f2585de6fa8dfc8726f8cadf4a646303c07a12aaa7b3a",
-        "c50fd5fc2f6e8cdaa9676759561050f59964a77a513216fe890fb5d59ec3e458",
-        "ba32767c53bd1731c30104e54a07b8e8a6bca71ea5f5cc028c641fc5f617cc84"
-      ],
-      "source_sha256": "1f9f1b85f54d8840bd44e00847fb6bd8a947710b4e995a475ae3f3803d79af1a",
-      "text": "Widen a fresh window to what the modules were measured to need.\n\n:returns: True when the window was resized.\n\nINSTRUCTION 359: \"every module must initially open wide enough that\nthe right side of its settings is not cut off\". The width comes from\n`spacr.qt.layout_policy`, which reads a GENERATED artifact -- every\nnumber in it measured by building each module offscreen and asking\nwhether its settings column is holding more than it can show.\n\nIT ONLY EVER GROWS, and that is deliberate rather than cautious. The\ncomment above `win.show()` records why this window does not maximise:\nover X11 forwarding, VNC or a virtual framebuffer the \"available\ngeometry\" is whatever the remote session claims, and it is frequently\na stub. A policy allowed to shrink would take that claim seriously and\nopen a window smaller than the one the user has been getting for a\nyear. Growing on a bad number is bounded by the clamp; shrinking on\none is not bounded by anything.\n\nWITHOUT THE ARTIFACT NOTHING HAPPENS. `layout_policy` falls back to\n1200 px -- the width the text-fit sweep builds every screen at -- and\nthis window already opens at 1200, so a wheel that does not carry the\nfile behaves exactly as it did.\n\nNever raises. An opening size is not worth failing a launch over."
-    },
     "spacr.qt.app.register_app": {
       "source_blocks_sha256": [
         "9bc38753de7dbb6d67fb69b992412a81f71a211fb305e9574f305fc809208793",
@@ -35214,18 +35576,6 @@
       ],
       "source_sha256": "357c82920205bd6ca003ec9b4be48ff7d5ff1287da8f8c7357a94d8d457f68ed",
       "text": "The ``APPS`` rows a category's tab shows, in registry order.\n\nTILELESS APPS ARE NOT MEMBERS. This is what the tab DRAWS and what\nits label COUNTS, so a module with no tile must be out of both --\notherwise the label reads \"Results & QC (7)\" over three tiles, which\nis a count of something the user cannot see.\n\nAn explicit ``apps`` list is filtered too. A caller passing its own\nrows is asking \"which of these belong to this section\", and a\ntileless one does not belong to any tab whichever list it arrives in."
-    },
-    "spacr.qt.app.the_missing_pip_escape": {
-      "source_blocks_sha256": [
-        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
-        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
-        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
-        "47a7f8f7b1ad99bb60930a938eb3654570d00ef5ed087c84f5f0c19f0e0a0bcb",
-        "c803138323dab9e1deb1bba8797f0fe29d5dd9fc36c14e9367f4191aac354a48",
-        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
-      ],
-      "source_sha256": "d313befba800c8ae28b095049b751f7806434f91fc1839b2475818a65b1e4d78",
-      "text": "The command that WOULD work, when the upgrade failed for want of pip.\n\n:param output: everything the upgrade wrote, as the worker captured it.\n:returns: a command line to show the user, or None when this failure\n    was not the missing-pip one.\n\nTHE ONE FAILURE THE APPLICATION CAN ANSWER, and instruction 01 asks it\nto. The desktop installers build their environment with ``uv venv``,\nwhich does not seed pip, so an install whose updater still runs\n``python -m pip`` fails before it starts -- and it is a BOOTSTRAP TRAP:\nthe fix cannot arrive by the route it fixes. A dialog that names the\nexact command is the only escape that reaches a user who has already\nhit it.\n\nEvery other exit code gets the output and nothing else. Guessing at a\nremedy for a failure this cannot recognise would send a user to run a\ncommand that is not their problem.\n\nDerived the way :func:`spacr.updater.find_uv` derives it, and it falls\nback to the path the installers WRITE rather than returning nothing:\non the affected machine `find_uv` is what the installed build is too\nold to have, so a name the user can check is worth more than silence."
     },
     "spacr.qt.app.tile_sort_key": {
       "source_blocks_sha256": [
@@ -40053,59 +40403,6 @@
       ],
       "source_sha256": "3666c51598cff42889538f84b340a42b55c55f330bd435acf0305c5f602b0082",
       "text": "Build a stack from an image file and/or a label-mask file.\n\nLoading goes through\n:func:`spacr.qt.widgets.live_preview.load_preview_image`, which already\nknows to read TIFFs with ``tifffile`` so a 16-bit field keeps its bit\ndepth, and channel order through\n:func:`spacr.qt.widgets.timelapse_preview.frame_channel`, which resolves\nchannels-first against channels-last the same way the timelapse preview\ndoes. Neither is re-implemented here.\n\n:param spacing: the world spacing both layers share. Defaults to one\n    world unit per pixel — correct for a single field, and the thing to\n    override the moment a z-stack or a µm-calibrated mosaic is involved."
-    },
-    "spacr.qt.layout_policy": {
-      "source_blocks_sha256": [
-        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
-        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
-        "778fe8aa440f16608cb7d28e6c5549613b3dcc411afedeb21c36adbc1e43a1a3",
-        "5b5ac30ad8a6d61adf597096f9860ebd7581c16cc1cecaddf587be4e262f1f0b",
-        "80c210c88962926c6f8eec8053855f6e41e29863dcae267419d0deec90418ed4"
-      ],
-      "source_sha256": "d2c795823f32cb0e2cf0ebb7c792fa739ab478aed31feea53b9409d2d243309e",
-      "text": "The measured window width a module needs, and what to open on first run.\n\nINSTRUCTION 359. The report was that \"every module must initially open wide\nenough that the right side of its settings is not cut off\", and that the\nsame pixel dimensions can describe three different machines -- so a static\n``resolution -> font size`` table would choose wrongly on exactly the M4 Mac\nthat prompted it.\n\nWHAT THIS MODULE IS. The reader of a GENERATED artifact,\n``spacr/resources/layout_policy.json``, produced by\n``tools/measure_the_layout_matrix.py``. Every number in it was measured by\nbuilding each module offscreen in a container that cannot grow and reading\nwhat was clipped -- the same rule instruction 350's sweep asserts, not a\nsecond opinion about it.\n\nWHAT IT IS NOT. Not telemetry, and 359 says so explicitly: \"capture\" means\nreading Qt screen metrics into local preferences, not sending hardware\ndetails anywhere. Nothing here leaves the machine.\n\nIT IMPORTS NOTHING HEAVY, which the item requires of the artifact's\nloader: ``json`` and ``importlib.resources``, no Qt, no numpy. The Qt\nmetrics arrive as ARGUMENTS, so the policy can be read and tested on a\nmachine with no display at all."
-    },
-    "spacr.qt.layout_policy.minimum_width_for": {
-      "source_blocks_sha256": [
-        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
-        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
-        "361aea896d05923f7d1b8c504faec19374c38bb865e00c9183ec3de62c203592",
-        "5d96633cf9f2b4b82249ced9a457a5ddebaa3206a80211d34fc8ea673d99e868"
-      ],
-      "source_sha256": "fc6bf6f7351db0578d86c5885402087d2a8c7ebde50776514d7c17a1efefb598",
-      "text": "The widest measured requirement at ``font_scale``.\n\n:param font_scale: the preference, 1.0 being 100 %.\n:param policy: an artifact to read instead of the bundled one.\n:returns: logical pixels, or None when nothing was measured.\n\nTHE WORST CASE ACROSS MODULES, NOT THE MEDIAN. A window opens once and\nevery module is reached from inside it, so a width that suits most of\nthem still cuts off the widest one -- which is the report.\n\nBETWEEN TWO MEASURED SCALES IT TAKES THE HIGHER, because the artifact\nmeasures a ladder and the requirement rises with the scale. Rounding\ntoward the smaller one would open a window that fits the scale below\nthe user's."
-    },
-    "spacr.qt.layout_policy.read_policy": {
-      "source_blocks_sha256": [
-        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
-        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
-        "ec42036af7a1e345780978cedd24ce714264e793111254d13445663aa6398163",
-        "61573f865052f0f56164e7ec15517d756cd8215fce1b7cbdea006b0f9ec5b6f4"
-      ],
-      "source_sha256": "4a4d9eb173efac57897940d15e6db0629016705c05be890eaf36b223fe9d57a9",
-      "text": "The bundled policy, or ``{}``.\n\n:param refresh: re-read the file instead of answering from the cache.\n:returns: the artifact as a dict, or an empty one on ANY failure.\n\nDegrades to empty rather than raising, for the reason the release-notes\npanel does: an application must not fail to open a window because a\nresource file is absent from a wheel."
-    },
-    "spacr.qt.layout_policy.recommended_window_size": {
-      "source_blocks_sha256": [
-        "c76cab9648d2bd616507770dbafb29afe05b9c61e431d77120c3b4dfbc3c1931",
-        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
-        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
-        "0e880777f4a661f7d67b0cffb7229ed9882ce8ec03d0eb2ca922f4ce88832c30"
-      ],
-      "source_sha256": "790ea4853507e5a491134de5c65c32092eb07a5001b7fd138e3816a1651f3bed",
-      "text": "What to open the main window at, given what the screen has.\n\n:param available: the screen's AVAILABLE geometry as ``(w, h)`` --\n    available, not total, because a dock or a menu bar owns the\n    difference and a window sized to the total opens partly underneath\n    one.\n:param font_scale: the font-scale preference in force.\n:param policy: an artifact to read instead of the bundled one.\n:returns: ``(width, height)`` in logical pixels.\n\nCLAMPED TO THE SCREEN, ALWAYS, and that ordering is the whole contract:\na measured requirement wider than the display is a statement that this\nmodule cannot be shown whole here, not permission to open a window\noff the edge of it. The user can still scroll; a window they cannot\nreach the corner of to resize is a worse answer."
-    },
-    "spacr.qt.layout_policy.why": {
-      "source_blocks_sha256": [
-        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
-        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
-      ],
-      "source_sha256": "3e0a31a2a24df4d96fff2f23fc00c375ca290885d222c864e4bb0c8ee132a5a9",
-      "text": "One sentence naming the evidence, for a log line or a hint.\n\nA recommendation a user cannot trace is one they cannot argue with,\nand this item's whole history is a layout decision nobody could check."
     },
     "spacr.qt.linked_selection": {
       "source_blocks_sha256": [
@@ -56018,7 +56315,7 @@
     "spacr.qt.synthetic.synthetic_read": {
       "source_blocks_sha256": [
         "72e217d9dfa8f16b7e4f2a130a739814133bbce971bc2ed8b9effad86c26f340",
-        "b3541daab6f36ca042a1c4cbad1506b6d7d97aeb5dfff466b619bf024d4a09d9",
+        "f9b994cac5568e70139b2d1c9a3c51a010b651a168471696d91eb531d8ba5a6e",
         "84e888a703f938e500801697db5312861580bdd5b3d85034682975cb928b51aa",
         "a0d2eb0ccac7b344c687c23b38001f6e6938952a4f56ad5e3bae8645acd1a7ac",
         "93834d567039b8cec829485f787e7b66f997e5d45fff9f0cd6f2c378d1e87eeb",
@@ -56026,8 +56323,8 @@
         "8df11bc512c0660d8683c14b2f5b40e4731b53399f875cf5753fc1890de62b54",
         "403cfb7a8e9fd5e1ea0f76011ce8f4caacbebfd374762fa2c4182aae135c398c"
       ],
-      "source_sha256": "637dc173bf0d4c73d71f9be528f0bd5decfb687d2adeea3c2052aa39c6590384",
-      "text": "Build one 150-base read carrying a (column, gRNA, row) triplet.\n\nThe layout is the one documented above :data:`SEQ_TARGET`; a read built\nhere is recovered exactly by the shipped ``regex`` / ``target_sequence``\n/ ``offset_start`` / ``expected_end`` defaults.\n\n:param column_barcode: 8-base column barcode.\n:param grna: 21-base gRNA barcode.\n:param row_barcode: 8-base row barcode.\n:param prefix: stagger placed before the anchor window.\n:returns: a 150-base read.\n:raises ValueError: when a barcode is the wrong length — a silently\n    mis-sized barcode would shift every downstream field by that many\n    bases and map to nothing, which is far harder to see than a stop."
+      "source_sha256": "e281fa54535921a76848dea1db2ad21a4ff0f764d0bfb4500c28cdb1ec471c90",
+      "text": "Build one 150-base read carrying a (column, gRNA, row) triplet.\n\nThe layout is the one documented above :data:`SEQ_TARGET`; a read built\nhere is recovered exactly by the shipped ``regex`` / ``target_sequence``\n/ ``offset_start`` / ``window_length`` defaults.\n\n:param column_barcode: 8-base column barcode.\n:param grna: 21-base gRNA barcode.\n:param row_barcode: 8-base row barcode.\n:param prefix: stagger placed before the anchor window.\n:returns: a 150-base read.\n:raises ValueError: when a barcode is the wrong length — a silently\n    mis-sized barcode would shift every downstream field by that many\n    bases and map to nothing, which is far harder to see than a stop."
     },
     "spacr.qt.terms": {
       "source_blocks_sha256": [
@@ -63502,6 +63799,31 @@
       "source_sha256": "453dd3731ae186e8c8859b40e9a6c26c0678f339dfb719c1a69968ea975c7a80",
       "text": "The row this level gets in the results table, refusal included."
     },
+    "spacr.qt.widgets.dose_response.InteractionSurface": {
+      "source_blocks_sha256": [
+        "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
+        "c57a6b8302096558675756514531d43ef228029373925ad18354b845ee8c35e7",
+        "a8838e93eede86dbc0c5a189c9ac2a3167d3711c3bbe6a913c3ab91da0834f1c",
+        "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
+        "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
+        "dc87a52b87497f07dab4b0a7dc74309ff15ffe9ffff279f5827aa8fb89754592",
+        "7ffbc8a22d999cd0dd65066bec3f3ec59601de4d05d4e9db9fd0e81d0e180354",
+        "c84372f8412a63e564e962d034f6efb9a2c5fb1dfe45dc5781328309a63b96a8",
+        "fb87c6ca7155ca45f85d003363793c48048edfa1096e980c9de1d1d794cd58ec",
+        "d4b3538b72dcbb496a9de7d8a838ac4efe1f7d9d2a9d65689682d8e84b93d374",
+        "566706bfe73b5edb78b39f74240ba0aa2d6d613e74fc9425b8c412f1ee79936c"
+      ],
+      "source_sha256": "0773bb216a286909306218de334b749cee7621d406f721f590b79aba0a47ac70",
+      "text": "A checkerboard's interaction, per cell, with its own axes.\n\nTHE SURFACE IS THE RESULT AND A SINGLE INDEX IS NOT, which is what\ninstruction 387 asks for in as many words: \"one number for a whole\ncheckerboard hides exactly the concentration-dependent structure that\nmakes synergy interesting\". Real combinations are frequently synergistic\nin one corner of the grid and additive or antagonistic in another, and a\nmean over the grid reports neither.\n\nSIGN CONVENTION, stated because every paper states a different one:\nPOSITIVE MEANS MORE EFFECT THAN EXPECTED -- synergy for an inhibition\nassay. The expected surface is what the model predicts from the two\nsingle-agent curves; ``excess`` is observed minus expected.\n\n:param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.\n:param dose_a: the unique concentrations of agent A, ascending.\n:param dose_b: the unique concentrations of agent B, ascending.\n:param observed: ``(len(dose_a), len(dose_b))`` effect, 0 to 1.\n:param expected: what ``model`` predicts for each cell.\n:param excess: ``observed - expected``. NaN where a cell was not tested.\n:param n_cells: cells with an observation.\n:param note: what could not be computed, and why."
+    },
+    "spacr.qt.widgets.dose_response.InteractionSurface.summary": {
+      "source_blocks_sha256": [
+        "dae1148ef92f3875abf20438daceb9f78c15d49d38a94b7df0488373adc13b63",
+        "b20dcc6953d0e0df9c2887afdbd967eeaed74630ed22bd677592c3c9ab026043"
+      ],
+      "source_sha256": "1dd9a976b2df7070a52b825921d3bcc45072d6ea1f4a0746f3cd42127c3facdd",
+      "text": "Headline numbers, each said to be over the grid rather than of it.\n\nDeliberately NOT a synergy index. The strongest cell and where it sits\nare reportable; a mean over the whole grid is the number this class\nexists to avoid, so it is absent rather than provided-with-a-warning."
+    },
     "spacr.qt.widgets.dose_response.MonotonicityCheck": {
       "source_blocks_sha256": [
         "e305f1817cd6815fcfdd0b4251ed5ceb70d122df49ecbbed8bc10d1a8331d7ab",
@@ -63526,6 +63848,45 @@
       ],
       "source_sha256": "502e408f926ce8c7a8bf60759f79c56ae4b2c15a2170a33c12fbeef43b69e332",
       "text": "One line, for a caption or an error message."
+    },
+    "spacr.qt.widgets.dose_response.SelectivityIndex": {
+      "source_blocks_sha256": [
+        "0cd154a814626f83465aa310d3501bc41b02f081ccdfc87d035be2681e44ac18",
+        "c295d337c8e80461c16bd4e70f53c1a31f105a387961c92efc435f3b43fedc62",
+        "cc5282c28dbce6c63528d2cba66b30c6002281e5b0b12c82c98ade2bd15bf0d9",
+        "b4e890de78da1c8b3c611e240d94bc7c8249d34ce1da7d0c009f66008b704619",
+        "52a6da885923f4c8729b68bd5d639283dd1b28d563c3ae10740e2943d381ef8b",
+        "2c8045fe4c0ba6e12b532ce475e20ecf0176e7e4535f223dede2af338198bba0",
+        "50718f23642c94afd6607103e1e3566aa417eb6a1097c80f7feb88a5fce8f4e2",
+        "9966001dfd490fcaaae65d0bbba9e4365d15c62047b28f78ef398ecb6549608e",
+        "a71bcd81e1dd053d8e0b09fcb252813e8d37f8d2d0595797863cde0e97c24f82",
+        "6a320402739d9d64be52a1ce72c65e66ed91e12e99730e1718d03868f495aeba",
+        "c8db2ac4637c30e2a49e514deefd3570c19da17698cb60a99d03ffd24f65b9a1"
+      ],
+      "source_sha256": "e86707c06b4def0bc9e47b35ff50b59d38cfe886a3bf8aadea7a898b1133643f",
+      "text": "Host toxicity over parasite killing, with the interval it deserves.\n\nTHE NUMBER THAT DECIDES WHETHER ANYBODY CARES about an anti-parasitic\ncompound is not the EC50, it is this ratio. A compound that kills the\nparasite at 1 uM and the host monolayer at 1.2 uM is not a hit, and an\nEC50 quoted with a clean confidence interval says nothing about that.\n\nQUOTED WITH ITS INTERVAL OR NOT AT ALL, for the same reason this module\nalready refuses a naked EC50: a ratio of two uncertain numbers is more\nuncertain than either of them, and a selectivity index without its\ninterval invites a reader to treat 1.2 and 12 as the same kind of claim.\n\n:param status: :data:`STATUS_FITTED`, :data:`STATUS_UNBOUNDED` or\n    :data:`STATUS_REFUSED`, reusing the vocabulary the single-curve fits\n    already speak rather than inventing a second one.\n:param index: the quotable ratio, or ``None`` when it is not quotable.\n:param index_low: lower end of the interval, or ``None`` for an open side.\n:param index_high: upper end, or ``None`` for an open side.\n:param log10_index: the difference of the two log10 midpoints, always\n    present when both curves fitted. An extrapolation when either EC50 is\n    unbounded, exactly as :attr:`DoseResponseResult.ec50_unconstrained`\n    is.\n:param host: the host-viability fit.\n:param pathogen: the parasite fit.\n:param note: why, when the index is refused or one-sided."
+    },
+    "spacr.qt.widgets.dose_response.SelectivityIndex.summary_row": {
+      "source_blocks_sha256": [
+        "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ],
+      "source_sha256": "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772",
+      "text": "One row for the results table, refusal included."
+    },
+    "spacr.qt.widgets.dose_response.bliss_surface": {
+      "source_blocks_sha256": [
+        "c9c4744244fd44d68e52f0bd1d0f99513f03fc28616d4c42d020a5bb99ed115a",
+        "0e2c964c20df2a03ce703161a7a7f3cf0045ac428b69681232ad8693d010c6d8",
+        "bb2505bd60d09931c9b581b54206cd3ec47d83d630ae1f13d9c62e16a6c8d857",
+        "1f5bf89e7f59d2663c98256a03812ff1cbbbc81dcb49358b5fdad5b84fc14715",
+        "3cc4270ecfa214937033785467fd5fa813ae27879a47a56643ec41f238335dfd",
+        "f73592b75990af0dc101db048416650f6020f123f24584f17d459ae9361901d3",
+        "5295b259b8e40e3038690f68e0a6660427ebb503edc555b27ef3898c049ee9da",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25",
+        "ad0fe7d5da434acb96352d196219d593ed85679cf13b9f2b7dd06481e87edd78"
+      ],
+      "source_sha256": "c3e67acdf1a2fe240bb150995c7fb0a4d9c2d6b7b3ac9aa661f5702a1fca1b95",
+      "text": "Bliss independence over a checkerboard.\n\nTHE MODEL IN ONE LINE: if two agents act independently, the fraction\nsurviving both is the product of the fractions surviving each, so the\nexpected effect is ``Ea + Eb - Ea*Eb``. Excess over that is synergy.\n\nBLISS NEEDS NOTHING FROM THE COMBINATION FITS, which is why it is the\ncheaper of the two and the one to reach for first: both single-agent\ncurves already give an effect at every concentration on the grid.\n\n:param dose_a: agent A concentration per well.\n:param dose_b: agent B concentration per well.\n:param response: measured response per well, same length.\n:param fit_a: the single-agent fit for A (B held at zero).\n:param fit_b: the single-agent fit for B.\n:returns: an :class:`InteractionSurface`."
     },
     "spacr.qt.widgets.dose_response.candidate_concentration_columns": {
       "source_blocks_sha256": [
@@ -63581,6 +63942,21 @@
       "source_sha256": "c090d30d046a3b7b2af69fee1f881c1e7c4dc2e841ce0cd0e8d94dac514bf71c",
       "text": "The 4PL curve, parameterised in ``log10(EC50)``.\n\n``y = bottom + (top - bottom) / (1 + 10 ** ((log10_ec50 - log10 x) *\nhill))``.\n\nAt ``x == EC50`` the exponent is zero and the response is exactly halfway\nbetween the plateaus, which is the definition the EC50 is quoted under.\n\n:param x: concentration(s), in the user's units. ``0`` is evaluated at\n    its limit (the low-dose plateau) rather than raising, because the\n    clipped exponent below makes ``log10(0) = -inf`` well behaved; the\n    fit itself never sees a zero — see :func:`fit_dose_response`.\n:param bottom: the smaller plateau, after canonicalisation.\n:param top: the larger plateau.\n:param log10_ec50: base-10 log of the half-maximal concentration.\n:param hill: slope. Negative is inhibition, positive is activation.\n:returns: the modelled response, same shape as ``x``."
     },
+    "spacr.qt.widgets.dose_response.loewe_surface": {
+      "source_blocks_sha256": [
+        "b6875849a496e4d7d2cd6b7d588da39f6bbdced0d9f14fbb1e8a5b928f23c445",
+        "6173b3e24dd36612fa27562b37ec704b99dc246d8d421d62a6a904ce2d3158fe",
+        "8a11e9ab1f56960a5f091b99167eda6ca0f1cb9c9fa27a0f60c602ac5219b63a",
+        "298020726ba8bf6d675d4bf5c1f941299177e4b5374adb6eff6bc7c21be59767",
+        "1f5bf89e7f59d2663c98256a03812ff1cbbbc81dcb49358b5fdad5b84fc14715",
+        "3cc4270ecfa214937033785467fd5fa813ae27879a47a56643ec41f238335dfd",
+        "b29c79765643c09f0675f80da78c010836017ae4fe3cfab09d39e666e9c6d7e2",
+        "190dd3dea69e85f1fb7e113ae8d1b5f10ef14e033fa578a4c07e99c895155252",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25"
+      ],
+      "source_sha256": "bb87239d6a923e3eba1fa83235bc23d9995d9ca6379a8acf142244204f20ac4d",
+      "text": "Loewe additivity over a checkerboard, as a combination index.\n\nTHE MODEL IN ONE LINE: if two agents are dilutions of one another, then\nreaching an effect costs a constant total dose, so\n``a/Da + b/Db = 1`` where ``Da`` and ``Db`` are the single-agent doses\ngiving that same effect. Below 1 is synergy.\n\nREPORTED AS EXCESS RATHER THAN AS THE INDEX ITSELF, so that the sign\nconvention matches Bliss and a reader comparing the two surfaces is not\nalso flipping a comparison in their head: ``excess = 1 - CI``, positive\nfor synergy.\n\nWHY IT CAN BE NaN WHERE BLISS IS NOT: Loewe needs the INVERSE curve --\nthe dose achieving an observed effect -- and that dose does not exist\nwhen the observed effect lies outside a single agent's own plateaus. A\ncombination that kills more than either agent can alone has no Loewe\nanswer, and NaN is the honest one.\n\n:param dose_a: agent A concentration per well.\n:param dose_b: agent B concentration per well.\n:param response: measured response per well.\n:param fit_a: the single-agent fit for A.\n:param fit_b: the single-agent fit for B."
+    },
     "spacr.qt.widgets.dose_response.monotonicity": {
       "source_blocks_sha256": [
         "e899114fec1c02dd77aac8f733cc37baf8546d4193ff38bc8486d6c50c53e546",
@@ -63593,6 +63969,20 @@
       ],
       "source_sha256": "125b379e762fe5dc1c1eabd54530218562f8f36fd9c7d15d404c11601da0e74a",
       "text": "Is this concentration series consistent with a single sigmoid?\n\nA 4PL is monotone by construction. Data that is not monotone is not\ndescribed by one, and fitting it anyway returns a confident EC50 for a\ncurve of the wrong shape — the specific failure this module exists to\nprevent.\n\nThe test is an excursion test rather than a sign-change count, because a\nsign-change count cannot tell a 5% wobble on a plateau from a collapse at\nthe top dose, and on a ten-point series with replicates the wobbles are\nguaranteed. Both numbers are reported; only the excursion decides.\n\n:param doses: positive concentrations, one per observation. Replicates\n    allowed and expected.\n:param responses: the matching responses.\n:param max_reversal: the fraction of the response span an excursion\n    against the trend may reach. See :data:`MAX_REVERSAL`.\n:returns: a :class:`MonotonicityCheck`; read :attr:`~MonotonicityCheck.\n    is_monotone`."
+    },
+    "spacr.qt.widgets.dose_response.selectivity_index": {
+      "source_blocks_sha256": [
+        "1497211117435b18036f0702999275af2c8ec0b0636ec19115d8de0a8d176c5f",
+        "749ce4f281813b1a673276573c081402ad27edcd6d32c8725182f942abffe797",
+        "73aafe54b717168fee4478bd645251d2aa462ecb3251d670844137ca84e96b76",
+        "f18ada2d68e23869328772dd26637734dac0cc147cb758f9433811d2f459d365",
+        "de0190cdf9b4a72928684de3555d4df4348866f61fd2de4db815bb62f3afcb96",
+        "73a6acd5db1ffb90c0ba0824452315b3ea284fef5de7716e3b692e4726cca94f",
+        "a1f99e676171c2732f3ddfab848b55c68cb7a96b430729b7d5f7907cd936619f",
+        "4b684930a8515146495ee5ed75ef2dd2fb9b191a93376e71b3531753c8e9e4cc"
+      ],
+      "source_sha256": "1251a31cd077db3a8878f1f2b7d896a754c06de3e22eceb0b68690f82283ef88",
+      "text": "Divide a host EC50 by a parasite EC50, and carry the uncertainty.\n\nTHE TWO FITS COME OFF ONE PLATE, which is the argument for computing this\nhere rather than in a spreadsheet. spaCR segments host cell and pathogen\nas separate object types from the same image, so host viability and\nparasite burden are measured at the same doses in the same run. Most\nselectivity indices divide two numbers from two experiments and hope the\nconditions matched; these cannot fail to match.\n\nTHE INTERVAL IS PROPAGATED IN LOG SPACE, where the fit lives and where a\nratio is a difference: ``log10 SI = log10 CC50 - log10 EC50``, and the\ntwo variances add. Back-transforming at the end gives an interval that is\nasymmetric in linear space, which is the honest shape for a ratio.\n\nREFUSAL PROPAGATES TOO. If either curve was refused the index is refused;\nif either EC50 is unbounded the index is unbounded, and whichever side of\nthe interval the data still supports is reported rather than dropped --\n\"at least 8-fold\" is a useful sentence and this returns it.\n\n:param pathogen: the parasite-burden fit, or ``None`` if it was refused.\n:param host: the host-viability fit, or ``None`` if it was refused.\n:param confidence: overrides the level carried by the fits.\n:returns: a :class:`SelectivityIndex`, never an exception, because a\n    refusal is a result the caller has to show."
     },
     "spacr.qt.widgets.dot_link": {
       "source_blocks_sha256": [
@@ -69081,50 +69471,6 @@
       ],
       "source_sha256": "5e2394d417ec24ba6274f2045e18548062f6957309b5ada3517f953a30473764",
       "text": "A copy with every field inside the range the renderers accept.\n\nClamped rather than refused: this is a backdrop, and a preferences\nfile with a silly number in it must not stop the application from\ndrawing one."
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot": {
-      "source_blocks_sha256": [
-        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
-        "01e13cf524d636f02bbb9e980d914410ae32dea593e13dd8ddd2a723b103616c",
-        "0e437a99d6f73b24755fc3e761e99ee5794f97674abdc8e5fca9a24a714740fb",
-        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
-        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
-      ],
-      "source_sha256": "ca861097dbced01493f12704ef0bd3a4f669312bbbef032bed5dee541cb29063",
-      "text": "Points a steering camera at the twenty regions, frame by frame.\n\nTHE TOUR WAS BUILT AND NOTHING CALLED IT. :class:`RegionTour` and\n:data:`spacr.qt.widgets.fractal_regions.REGIONS` shipped with tests and\nno caller, so the coordinates worth looking at were never on screen.\nThis is the wire, and it is a PLAIN OBJECT ON PURPOSE -- the same\nreason :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera` is\none. The GPU canvas needs a GL context to exist, and every claim about\nhow this moves would otherwise come from a simulation written beside\nthe code rather than from the code that runs.\n\nIT SETS THE TARGET AND NOTHING ELSE. The camera's own exponential\nfollow is what moves it, so the tour's smoothstep between regions and\nthe camera's approach to wherever the target currently is compose into\none motion with no start and no stop -- which is the whole of\ninstruction 327's \"gently and smoothely mooving between points\".\n\n:param tour: the tour to fly, or None for the committed regions.\nFly `tour`, or the committed regions when none is given."
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.dragged": {
-      "source_blocks_sha256": [
-        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
-      ],
-      "source_sha256": "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1",
-      "text": "The user took the camera. The tour does not argue."
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.flying": {
-      "source_blocks_sha256": [
-        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
-      ],
-      "source_sha256": "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343",
-      "text": "Whether the tour is still steering."
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.restarted": {
-      "source_blocks_sha256": [
-        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
-      ],
-      "source_sha256": "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633",
-      "text": "Ctrl+R sent the dive back to the surface; fly again."
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.steer": {
-      "source_blocks_sha256": [
-        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
-        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
-        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
-        "8b22048a819450e4bfcc509cbf9ffac89d5b0504aaec5fd3f2836f6c90e67b88",
-        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
-        "c29ebc93e06f44fb3235eac9ca3c582a2a45fdfd4aee69e0610721fe3feaa029"
-      ],
-      "source_sha256": "cae97c1dc739b592e6d17360a2914faedb9f2dc9bc12d4c98743fd9bf11552e9",
-      "text": "Aim `camera` at wherever the tour is at `seconds`.\n\n:param camera: a :class:`SteeringCamera`; only its ``target`` is\n    written.\n:param seconds: the simulation clock.\n:param span: the viewport half-height, in the complex plane. The\n    tour is a SURFACE itinerary -- every region carries the\n    half-width it stays interesting down to -- so once the view is\n    narrower than the region it arrived at, steering off toward\n    the next one would fly the picture past at a scale where\n    nothing is recognisable. Below that the camera keeps what it\n    has.\n:returns: True when a target was written.\n\nNever raises: this is on the frame path of a backdrop, and a tour\nthat cannot answer must cost a frame's decision rather than the\npicture."
     },
     "spacr.qt.widgets.fractal_travel.apply_saved_controls": {
       "source_blocks_sha256": [
@@ -89962,6 +90308,17 @@
       "source_sha256": "3c68d0815a7d44755ed8fa3b1441a4a1838fe33dc8ac05ac45187eb1dcf6297e",
       "text": "Match predicted objects to labelled ones, one to one and optimally.\n\n:param threshold: minimum IoU for a pair to count as the same object.\n\nUses ``linear_sum_assignment`` rather than a greedy pass so the result\ncannot depend on label order -- see this module's docstring."
     },
+    "spacr.scorecard.read_scorecard_csv": {
+      "source_blocks_sha256": [
+        "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
+        "19b0f7bbd79e0147c47c029772c014d50a09da539741fb495ff6909223e9bbe0",
+        "356e3be8d4186479bf3eb01c3e923f97c44578a2b9c2a1d0983845628920e20d",
+        "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
+        "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"
+      ],
+      "source_sha256": "0f7f7a9a6f5671e664002f7e9e33bbc010ea0b5dac98331b04b23b2590a52d7c",
+      "text": "Parse a published scorecard CSV back into an entry's ``metrics``.\n\nTHE CSV IS THE SOURCE AND THE OTHER SURFACES RENDER IT, which is what\ninstruction 370 asks for: the Hugging Face artifact, the tooltip, the API\npage and the Zoo screen must not be able to disagree, and they cannot if\nonly one of them holds numbers. This is the reader that makes the other\nthree derived.\n\nDEPENDENCY-FREE ON PURPOSE. The Model Zoo imports without torch and a test\nasserts it, so browsing models and reading a scorecard has to work on a\nmachine with neither torch nor cellpose. Only RE-RUNNING an evaluation\nneeds them. That rules out pandas here too -- csv is in the standard\nlibrary.\n\n:param text: the CSV as written by :func:`scorecard_csv`.\n:returns: ``{metric: {\"finetuned\": ..., \"vanilla\": ..., \"delta\": ...}}``\n    plus ``holdout`` and ``holdout_version`` when the rows carry them.\n    Empty when the text has no rows."
+    },
     "spacr.scorecard.score_classifier": {
       "source_blocks_sha256": [
         "e784dddb8faf0f4706a2925f1ba06aaf8e7373edb838981daa432e3ee1ed7d3c",
@@ -90007,6 +90364,15 @@
       ],
       "source_sha256": "87bcd7ae3436d22c25baa47a42e5b276e0808f1a1826ce565f8c566d6329c62c",
       "text": "The rows as CSV text. Written by the caller, wherever it belongs."
+    },
+    "spacr.scorecard.scorecard_is_present": {
+      "source_blocks_sha256": [
+        "2524a468d1319c202ad3273658f626ab1f2ae11964d087b0ff45db43cb0d6cf6",
+        "07c815ac626087828a82314ee82ac42f41b8ad40a36363c00db176e57a22e9ec",
+        "68fb5eb21d425645906c9b44c1caae8d61bebe4191c535878a8ac971719b5bed"
+      ],
+      "source_sha256": "dd8a32636e452663c482e17827899ab647222a76c1d13d4fd0b2eb0ad47c6a8e",
+      "text": "Whether ``metrics`` actually carries a scorecard.\n\nA MISSING SCORECARD MUST SAY SO RATHER THAN SHOW BLANKS, which 370 asks\nfor by name and which `ModelEntry.provenance_known` already does for\ntraining provenance. A model with no numbers is not a model that scored\nzero, and a table of empty cells reads as the second.\n\n:param metrics: an entry's metrics mapping."
     },
     "spacr.scorecard.scorecard_rows": {
       "source_blocks_sha256": [
@@ -93871,8 +94237,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "2f24168c22ccf8d4b303286cb8dd014d203b40863c8c33071cbe8c53d9f4f062"
       ],
-      "source_sha256": "e253a79682bf135a6a23d35fa66e9782c1a6e62858544f49ecf6c129e2e318f1",
-      "text": "Invasion assay: score every parasite attached or invaded and report efficiency per well.\n\nThe red/green invasion assay stains twice. Before permeabilisation an\nantibody reaches only the parasites still **outside** the host cell, so\nthose are positive in both channels; the cells are then permeabilised and\na second antibody stains **all** parasites, so a parasite positive only in\nthe post-permeabilisation channel was inside. Hence:\n\n* **attached / outside** = present in the outside-stain channel;\n* **invaded / inside** = *absent* from the outside-stain channel.\n\nRead that asymmetry carefully, because the whole design follows from it.\n\"Inside\" is defined by an absence, and absence is the unreliable\ndirection. Poor antibody penetration, a focal plane off the parasite's\nequator, photobleaching, a low-expressing parasite — every one of them\nremoves outside signal from a parasite that is genuinely outside, and\nevery one of them therefore *inflates* invasion efficiency. Nothing\nplausible pushes the error the other way. The threshold on the outside\nchannel is the single number the assay rests on, so it is derived from the\ndata, reported per field in ``fields``, cross-checked against a\ncontrol-derived cut when one exists, and bracketed by a sensitivity pair\nthat says how much of the answer is the threshold.\n\nThree design decisions worth stating outright:\n\n* **The threshold is per field.** Illumination and staining vary field to\n  field, and a plate-wide cut turns an illumination gradient into an\n  invasion gradient. See :func:`_invasion_field_thresholds`.\n* **Controls beat any automatic method.** ``control_wells`` names wells\n  whose parasites are known to carry no outside stain; the threshold is\n  then a high quantile of that honest negative distribution\n  (``control_quantile``), the control wells are excluded from the results,\n  and ``threshold_source`` says ``'control'`` so the report cannot be\n  mistaken for an automatic run.\n* **A threshold without two populations is arbitrary.** Otsu will happily\n  split a single smear of signal down the middle and return a confident\n  number. ``bimodality_coefficient`` and ``qc_flag_unimodal`` say when\n  that has happened, per field and per well, instead of letting it pass\n  silently. See :func:`_bimodality_coefficient`.\n\n``invasion_efficiency = n_invaded / (n_invaded + n_attached)`` and it is\nalways reported next to ``n_total``: 90% from ten parasites and 90% from\nfour thousand are not the same result. A well that scored nothing gets\nNaN, not 0.0.\n\n**Statistics use the well as the unit of replication.** Parasites within a\nwell share a coverslip, an antibody bath and a focal plane, so they are\nnot independent; the reported test is a Mann-Whitney U on the per-well\nefficiencies. A pooled-parasite chi-squared is reported beside it purely\nso its inflation is visible. See :func:`_invasion_compare_conditions`.\n\n:param settings: dict of invasion settings; see\n    ``set_analyze_invasion_defaults``. Key entries:\n\n    - ``src`` — plate directory (or list) holding\n      ``measurements/measurements.db``.\n    - ``parasite_table`` / ``compartment`` — table and column prefix with\n      one row per segmented parasite. Default ``'pathogen'``.\n    - ``outside_channel`` / ``total_channel`` — the pre- and\n      post-permeabilisation stain channels.\n    - ``intensity_statistic`` — which per-object statistic of the outside\n      channel to threshold; ``'auto'`` prefers the boundary-restricted\n      one. See :func:`_resolve_invasion_intensity_column`.\n    - ``background_correction`` — optional per-object local background.\n    - ``outside_threshold_method`` / ``outside_threshold`` — automatic method, or\n      a fixed cut that overrides it.\n    - ``control_wells`` / ``control_quantile`` / ``min_control_objects``.\n    - ``min_objects_for_threshold`` / ``min_objects_for_bimodality`` /\n      ``bimodality_cutoff`` / ``threshold_agreement_tolerance`` /\n      ``threshold_sensitivity`` / ``inflation_warn`` /\n      ``min_parasites_per_well`` — the QC thresholds.\n    - ``extracellular_class`` — how parasites with no host cell are scored.\n    - ``cell_types`` / ``pathogen_types`` / ``treatments`` and their\n      ``*_plate_metadata`` well maps, plus ``group_column`` and ``level``.\n    - ``save`` — write the CSVs and figures under\n      ``<src>/results/analyze_invasion``.\n\n:returns: dict with ``parasites`` (per-object classification), ``fields``\n    (per-field thresholds and QC), ``wells`` (per-well efficiency,\n    denominators and QC flags), ``summary`` (per condition),\n    ``comparisons`` (per-well statistics), ``chi_squared`` /\n    ``chi_squared_pairwise`` (the shared proportion-bar omnibus tests),\n    ``controls`` (the control-well objects, if any),\n    ``control_thresholds``, ``intensity_column``, ``intensity_statistic``\n    and ``figures``.\n:raises ValueError: when the parasite table holds no usable rows.\n:raises KeyError: when the requested statistic or group column is absent.\n\nExample:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_invasion\n        out = analyze_invasion({\n            'src': '/data/plate1',\n            'outside_channel': 1,\n            'total_channel': 0,\n            'control_wells': ['c12'],\n            'pathogen_types': ['dmso', 'inhibitor'],\n            'pathogen_plate_metadata': [['c1'], ['c2']],\n        })\n        print(out['wells'][['prc', 'n_total', 'invasion_efficiency',\n                            'qc_flags']])\n\nSee Also:\n    :func:`analyze_replication` — the parasites-per-vacuole assay, whose\n    table reading, condition annotation and output layout this follows."
+      "source_sha256": "2ab334769004b282614d42d312f989943c6e9e626bb3ce4ef819c4664dbbda82",
+      "text": "Invasion assay: score every parasite attached or invaded and report efficiency per well.\n\nThe red/green invasion assay stains twice. Before permeabilisation an\nantibody reaches only the parasites still **outside** the host cell, so\nthose are positive in both channels; the cells are then permeabilised and\na second antibody stains **all** parasites, so a parasite positive only in\nthe post-permeabilisation channel was inside. Hence:\n\n* **attached / outside** = present in the outside-stain channel;\n* **invaded / inside** = *absent* from the outside-stain channel.\n\nRead that asymmetry carefully, because the whole design follows from it.\n\"Inside\" is defined by an absence, and absence is the unreliable\ndirection. Poor antibody penetration, a focal plane off the parasite's\nequator, photobleaching, a low-expressing parasite — every one of them\nremoves outside signal from a parasite that is genuinely outside, and\nevery one of them therefore *inflates* invasion efficiency. Nothing\nplausible pushes the error the other way. The threshold on the outside\nchannel is the single number the assay rests on, so it is derived from the\ndata, reported per field in ``fields``, cross-checked against a\ncontrol-derived cut when one exists, and bracketed by a sensitivity pair\nthat says how much of the answer is the threshold.\n\nThree design decisions worth stating outright:\n\n* **The threshold is per field.** Illumination and staining vary field to\n  field, and a plate-wide cut turns an illumination gradient into an\n  invasion gradient. See :func:`_invasion_field_thresholds`.\n* **Controls beat any automatic method.** ``control_wells`` names wells\n  whose parasites are known to carry no outside stain; the threshold is\n  then a high quantile of that honest negative distribution\n  (``control_quantile``), the control wells are excluded from the results,\n  and ``threshold_source`` says ``'control'`` so the report cannot be\n  mistaken for an automatic run.\n* **A threshold without two populations is arbitrary.** Otsu will happily\n  split a single smear of signal down the middle and return a confident\n  number. ``bimodality_coefficient`` and ``qc_flag_unimodal`` say when\n  that has happened, per field and per well, instead of letting it pass\n  silently. See :func:`_bimodality_coefficient`.\n\n``invasion_efficiency = n_invaded / (n_invaded + n_attached)`` and it is\nalways reported next to ``n_total``: 90% from ten parasites and 90% from\nfour thousand are not the same result. A well that scored nothing gets\nNaN, not 0.0.\n\n**Statistics use the well as the unit of replication.** Parasites within a\nwell share a coverslip, an antibody bath and a focal plane, so they are\nnot independent; the reported test is a Mann-Whitney U on the per-well\nefficiencies. A pooled-parasite chi-squared is reported beside it purely\nso its inflation is visible. See :func:`_invasion_compare_conditions`.\n\n:param settings: dict of invasion settings; see\n    ``set_analyze_invasion_defaults``. Key entries:\n\n    - ``src`` — plate directory (or list) holding\n      ``measurements/measurements.db``.\n    - ``parasite_table`` / ``compartment`` — table and column prefix with\n      one row per segmented parasite. Default ``'pathogen'``.\n    - ``outside_channel`` / ``total_channel`` — the pre- and\n      post-permeabilisation stain channels.\n    - ``intensity_statistic`` — which per-object statistic of the outside\n      channel to threshold; ``'auto'`` prefers the boundary-restricted\n      one. See :func:`_resolve_invasion_intensity_column`.\n    - ``background_correction`` — optional per-object local background.\n    - ``outside_threshold_method`` / ``outside_threshold`` — automatic method, or\n      a fixed cut that overrides it.\n    - ``control_wells`` / ``control_quantile`` / ``min_control_objects``.\n    - ``min_objects_for_threshold`` / ``min_objects_for_bimodality`` /\n      ``bimodality_cutoff`` / ``threshold_agreement_tolerance`` /\n      ``threshold_sensitivity`` / ``inflation_warn`` /\n      ``min_parasites_per_well`` — the QC thresholds.\n    - ``extracellular_class`` — how parasites with no host cell are scored.\n    - ``cell_types`` / ``pathogen_types`` / ``treatments`` and their\n      ``*_plate_metadata`` well maps, plus ``group_column`` and ``level``.\n    - ``save`` — write the CSVs and figures under\n      ``<src>/results/analyze_invasion``.\n\n:returns: dict with ``parasites`` (per-object classification), ``fields``\n    (per-field thresholds and QC), ``wells`` (per-well efficiency,\n    denominators and QC flags), ``summary`` (per condition),\n    ``comparisons`` (per-well statistics), ``chi_squared`` /\n    ``chi_squared_pairwise`` (the shared proportion-bar omnibus tests),\n    ``controls`` (the control-well objects, if any),\n    ``control_thresholds``, ``intensity_column``, ``intensity_statistic``\n    and ``figures``.\n:raises ValueError: when the parasite table holds no usable rows.\n:raises KeyError: when the requested statistic or group column is absent.\n\nExample:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_invasion\n        out = analyze_invasion({\n            'src': '/data/plate1',\n            'outside_channel': 1,\n            'total_channel': 0,\n            'stain_baseline_wells': ['c12'],\n            'pathogen_types': ['dmso', 'inhibitor'],\n            'pathogen_plate_metadata': [['c1'], ['c2']],\n        })\n        print(out['wells'][['prc', 'n_total', 'invasion_efficiency',\n                            'qc_flags']])\n\nSee Also:\n    :func:`analyze_replication` — the parasites-per-vacuole assay, whose\n    table reading, condition annotation and output layout this follows."
     },
     "spacr.submodules.analyze_percent_positive": {
       "source_blocks_sha256": [

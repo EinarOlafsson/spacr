@@ -42,9 +42,10 @@ include SECURITY.md
 # Recursively include specific folders and file types
 #
 # docs/SOURCE only, never `docs` itself. deploy_docs.sh's old workflow copied
-# `docs/build/html/*` into the root of `docs/`, and that build output is still
+# `docs/build/html/*` into the root of `docs/`, and that build output WAS
 # committed there (docs/_modules, docs/_static, docs/_sources, docs/api,
-# docs/searchindex.js, ...). A `recursive-include docs *.html *.js *.css *.png`
+# docs/searchindex.js, ...) until it was removed; the script itself is gone as
+# of 1.5.0.5. A `recursive-include docs *.html *.js *.css *.png`
 # swept all 29 MB of it back into the sdist, straight past the "built docs are
 # not a distribution artefact" prunes at the bottom of this file -- those name
 # docs/_build, a directory this layout has never had. Anchoring the include on
@@ -106,9 +107,12 @@ prune spacr/notebooks/old
 prune spacr/resources/icons/backup_icons
 prune spacr/resources/home
 
-# Unreferenced spinner variants: 21.5 MB of the wheel between them, and
-# `grep -r` finds zero references to any of the three. Only
-# loading_spinner.gif is used (gui_core.py:69). Kept in git, not shipped.
+# Unreferenced spinner variants: 21.5 MB between them, and `grep -r` found
+# zero references to any of the three. DELETED from the tree in 1.5.0.5 --
+# these excludes stay as defence in depth, so a variant that comes back
+# cannot reach a wheel before someone notices. Only loading_spinner.gif is
+# used, by spacr/qt/widgets/activity_spinner.py; the old citation here named
+# gui_core.py, which the Qt rewrite deleted.
 exclude spacr/resources/icons/loading_spinner_1.gif
 # One glob is intentional: distutils splits manifest arguments on spaces, so
 # spelling ``loading_spinner_logo (1).gif`` literally treated it as two
@@ -118,8 +122,9 @@ exclude spacr/resources/icons/loading_spinner_logo*
 # ---------------------------------------------------------------------------
 # The built docs are not a distribution artefact. Docs live at
 # https://einarolafsson.github.io/spacr/ and are rebuilt from docs/source by
-# .github/workflows/docs.yml; the copy committed under docs/ is history from
-# deploy_docs.sh.
+# .github/workflows/docs.yml, which publishes through actions/deploy-pages.
+# The copy that used to sit under docs/ came from deploy_docs.sh; both the
+# copy and the script are gone now, and nothing recreates them.
 #
 # These prunes are defence in depth behind the docs/source-anchored include
 # above, and they now remove nothing: `python -m build` prints "no

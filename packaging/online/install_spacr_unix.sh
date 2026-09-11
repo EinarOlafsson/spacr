@@ -262,6 +262,54 @@ printf '  %s: %s\n' "$(spacr_say pytorch_backend)" "$TORCH_BACKEND"
 printf '  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU; hardware varies.\n'
 printf '  %s: %s\n' "$(spacr_say resolver_guards)" "${RESOLVER_GUARDS[*]}"
 
+# WHAT IS ALREADY THERE, SAID OUT LOUD BEFORE ANYTHING IS WRITTEN.
+#
+# A machine can carry two spaCRs -- this private environment, and one the user
+# installed themselves into a conda or venv environment -- and neither can see
+# the other. When they
+# disagree, a reinstall looks like it did nothing: the app keeps launching its
+# own venv at the old version while `pip show spacr` reports the new one, and
+# there is no message anywhere naming both. That cost a maintainer an evening
+# on 2026-09-10, so the installer now says which version it FOUND and which it
+# is ABOUT TO INSTALL, in one line, before it touches anything.
+#
+# INSTALLER ONLY, NEVER THE UPDATER. The in-app upgrade path goes through
+# `spacr.updater.upgrade_command` and never runs this script, so an update
+# stays silent as the maintainer asked. `-t 0` keeps it out of the way of an
+# unattended run, and a dry run says nothing at all.
+existing_spacr_version() {
+    local python="$1/venv/bin/python"
+    [[ -x "$python" ]] || return 1
+    "$python" -c 'import importlib.metadata as m; print(m.version("spacr"))' \
+        2>/dev/null
+}
+
+if [[ "$DRY_RUN" != "1" ]]; then
+    FOUND_VERSION="$(existing_spacr_version "$INSTALL_ROOT" || true)"
+    if [[ -n "$FOUND_VERSION" ]]; then
+        printf '\n'
+        spacr_say old_install_found \
+            "$FOUND_VERSION" "$INSTALL_ROOT" "$PACKAGE_SPEC"
+        if [[ "$FOUND_VERSION" == "$DEFAULT_SPACR_VERSION" ]]; then
+            spacr_say old_install_same
+        fi
+        if [[ -t 0 ]]; then
+            if ask_yes_no "$(spacr_say old_install_remove)"; then
+                # The venv, the private Python and the download cache. Not
+                # the install log or the profile: they are the record of what
+                # happened here and a fresh install rewrites them anyway.
+                rm -rf "$VENV_DIR" "$PYTHON_DIR" "$CACHE_DIR"
+                spacr_say old_install_removed
+            else
+                spacr_say old_install_kept
+            fi
+        else
+            spacr_say old_install_noninteractive
+        fi
+        printf '\n'
+    fi
+fi
+
 if [[ "$DRY_RUN" == "1" ]]; then
     spacr_say dry_download "$UV_INSTALL_URL"
     spacr_say dry_create "$VENV_DIR"

@@ -6379,6 +6379,156 @@
         "95acc186608059dca558b06739fdbc92817a54826a7a5b032e81bc4e3cf283ac"
       ]
     },
+    "spacr.bystanders": {
+      "source_blocks_sha256": [
+        "0104d4cfda5052959441e1e18b4672a1161751acec8f112a2cd6bf39180c3e8e",
+        "64eec22513bbf4bec521ca20fc1d35850587d33f7eda9eec0e9f706b7f1baf2e",
+        "f0b303b5608ab71ade5ea230861ae71d3cee95bb49fa9a852775f1b3fc2ef4f2",
+        "94d7e78f7165592ff2235af9d9f4f946cfaf966d5484f5119a623dbd4e4e41b0",
+        "9273d06cdc254a763c8d9a3fb4097232aa117811cffaad44ec5f573cca3c1dcf"
+      ],
+      "source_sha256": "fae99684314471b5bb7a79e26fb26cbb01d9294586b66e3c66ac5063fd453f0a",
+      "text": "哪些不感染的细胞在感染的旁边,而哪些不。\n\n目前尚未存在的列 spaCR 测量每个细胞本身,而细胞内病原体的生物学并不局限于它所处的细胞:感染的细胞改变其邻居所做的事情。\n\n两个结果,第二个是费用的结果. 一个真实的基因类型无法找到,因为没有列分离一个基因与一个遥远的未感染的细胞。 \"uninfected\",控制人口是混合物,它的变量是膨胀的,每个感染的效果大小对比缩短到什么。\n\n距离已经解决了,没有什么在这里重新实施它。 :mod:`spacr.object_distances` 计算一个 Euclidean 距离转换为对象类型一次,在 O(图像像像素) 而不是 O(对),这个模块读到这个显微镜的视野。\n\n边界是长度,而不是像素数,它被表达为测量细胞直径的多倍,所以它意味着在20x和63x收购和一个板上,其细胞只是更大。",
+      "translation_source_blocks_sha256": [
+        "0104d4cfda5052959441e1e18b4672a1161751acec8f112a2cd6bf39180c3e8e",
+        "5236c1c8114f4fc380bca1f4b42924ec25011a86d00b303174de0ba3ca6ed387",
+        "f92bc40dd1c944d22b65799e447a45f4d3f7806bca09345c3110a85d7b29e93d",
+        "d558462d24bfba095002aaf51ae4e989e848a49ef88e064fdbd40e9dba218064",
+        "ac141e8ca96b18a24d79f5067ddb78e8af37181df84a68cd202c02c9b3f00e0c"
+      ]
+    },
+    "spacr.bystanders.classify": {
+      "source_blocks_sha256": [
+        "03418798489bef5b0e120eb885d7ed19131ac453698b5cc23aa17c94b759b2c1",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "225c109f9116ccd1ce7022244dd429872872b1a64d05984e23b07657f98964f9",
+        "029d0f46a932fd08830dfdb6959a8670fcf64a1d9137935c0baa9037fe813f4d",
+        "d7c42abf53f993d196d9cb0ee65c5b1d27c2f4ebac421326a95ceff65bfdfcc3",
+        "7c026167cab09bd2f77c36c6e21081f24b6d64dddb763927711f4c67d2423013",
+        "805b9d4e7b5a4af97465b112d1de623fbfa17045b66ed8379affe68105622a50"
+      ],
+      "source_sha256": "d7b35198ca1aa985f81e8cdc222542914511923812d7abf75e3ed26504d070a6",
+      "text": "标记感染的每一个细胞,分裂或分裂。\n\n:param cell_mask: 细胞标签图像。\n:param infected_labels: 带有病原体的细胞的标签。\n:param reach: 一个未感染的细胞应该是多么接近,以便在同一单位与``spacing``相同的分数计算。 看:func:`reach_from_diameter`。\n:param spacing: voxel 尺寸\n:returns: ``label``、 ``distance_to_infected`` 和 ``neighbourhood``。\n\n一个不积极的触摸会使每个未感染的细胞分散,这就是允许用户在没有第二个设置的情况下转动分裂的行为 - 并且错误的设置的行为会落后,因为它无法发明分裂。\n\n这必须通过的接受测试是,没有寄生虫的微板样本位置报告没有异常。 它源于`distance_to_infected`在那里是无限的,而不是一个特殊的案例,这就是为什么这个功能返回无限。",
+      "translation_source_blocks_sha256": [
+        "03418798489bef5b0e120eb885d7ed19131ac453698b5cc23aa17c94b759b2c1",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "225c109f9116ccd1ce7022244dd429872872b1a64d05984e23b07657f98964f9",
+        "029d0f46a932fd08830dfdb6959a8670fcf64a1d9137935c0baa9037fe813f4d",
+        "d7c42abf53f993d196d9cb0ee65c5b1d27c2f4ebac421326a95ceff65bfdfcc3",
+        "3354b8db37095a449b00474ec3dc32f31cef09e40f541050dae1103e1c559889",
+        "a55e8e9e4981949c48ec281214b1e16420d2d24667a7ad71eaf91a2e996df86d"
+      ]
+    },
+    "spacr.bystanders.compare": {
+      "source_blocks_sha256": [
+        "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
+        "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
+        "58a42b7a4ff0342b7bccd6e0da61e49e941ae0078ea8a63bd998d032ae34259a",
+        "7c3070058d100636e17b322bebd1e717debcf620c0a406b6969208ff7d1dc7ce",
+        "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
+        "07a26349bbb3b787b623fe63e13ee541cf585eff23a25427213be9aea57ef173",
+        "1f4f4e540c9f7372a3abee7334c5202c260733258a2fed82b8cb2f13815d5b82",
+        "dfdf3364dc675516fe537d24466ecd2063ddd41d1402746db1821aaef4dbc514"
+      ],
+      "source_sha256": "f6fdd7ba7fcebabe48cd956d3fd925a31bf76c542277312b65cad527cad8cd12",
+      "text": "每个邻居一行,为一个测量特点。\n\n:param frame: 具有 ``neighbourhood`` 列的测量,因为 :func:`classify` 产生它,加入了函数表。\n:param feature: 列要总结。\n:param statuses: 哪个区域要报告,顺序。\n:returns: ``neighbourhood``,``n``,``mean``,``std``和``median``。\n\n相比之下,整个项目是为了, 它值得拥有的原因是补充而不是补充。: 该包已经可以比较感染者与未感染者. 它不能做的是注意到 \"uninfected\" 是两个人口, 因此,一个不稳定的效果似乎没有什么比更广泛的控制。\n\n每个要求的状态都是顺序,在 ``n = 0`` 中,微板样本位置没有。 比较实验室微板的呼叫器每次都需要相同的三行; 缺失的顺序沉默地改变下流结合的意义。\n\n没有测试统计在这里,故意. 总结是安全的任何列; 选择一个测试是关于设计的决定 - 包装或不,如何微板样本位置,什么是零 - 并属于他们知道的地方。",
+      "translation_source_blocks_sha256": [
+        "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
+        "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
+        "58a42b7a4ff0342b7bccd6e0da61e49e941ae0078ea8a63bd998d032ae34259a",
+        "7c3070058d100636e17b322bebd1e717debcf620c0a406b6969208ff7d1dc7ce",
+        "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
+        "76e48a9b7b0f86f522c73aab1303dbceaa984363a9314e62c723537130b53bf2",
+        "cff150bbb6cc0e91c555067db206901e20bffce8b1eae527fe3dd03396f54419",
+        "cbf49479f9fbbb3d3318fc10d91e2f24557152dfde87bf55e53b88977e367d7a"
+      ]
+    },
+    "spacr.bystanders.counts": {
+      "source_blocks_sha256": [
+        "49d43bbc587b8cae8eb9d2dec6146df4dd8d2190260626c65f349ea886240004",
+        "37e6f98b6f3d62f56089b571827301d1a8eab8bc77ca449cdb5240eb4690a8e5",
+        "75337e6f3e52f4226f0a29a479a1d7063ded22d828aba9aade5dfe600a7a0997",
+        "1c78383afde58ac6082970041f6e01d674f2fe6c3199017880ddca4cd302e972"
+      ],
+      "source_sha256": "208fc59be9975d4515892fb68bbd13dc74f72fd7bcf473f032f75937bfab0cd4",
+      "text": "每个州有多少细胞着陆,包括空细胞。\n\n:param frame: 输出为 :func:`classify`。\n:returns: 每个名称在 :data:`STATUSES`,零在缺席。\n\n比较微板样本位置的呼叫器需要一个零而不是一个缺失的密钥,因为“这个微板模型位置的没有分数”是结果,而一个KeyError是不存在的。",
+      "translation_source_blocks_sha256": [
+        "49d43bbc587b8cae8eb9d2dec6146df4dd8d2190260626c65f349ea886240004",
+        "37e6f98b6f3d62f56089b571827301d1a8eab8bc77ca449cdb5240eb4690a8e5",
+        "75337e6f3e52f4226f0a29a479a1d7063ded22d828aba9aade5dfe600a7a0997",
+        "95e7d924f4ce69ddfb9d04756959774ae5960a226937c063df3645d6b89b7d94"
+      ]
+    },
+    "spacr.bystanders.distance_to_infected": {
+      "source_blocks_sha256": [
+        "a5f8b3e5595972370cc58767f013faa63f76c210ab3a6c9c9abf07c009f8245b",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "8df49611f792d2e15d9add6a865a2b7785b02a36f5b77b1bd7faa7765e7c946b",
+        "fa779394d767337ee84b9e53cd4aba59104d63a6150b11c019baee66099bdbf9",
+        "a3204c3e72fbf553148b54c9aa30f51ec5aea0db7a9ea834c3bcb7dbe1817c0a",
+        "5447e660d19afe866ed6f7513df6339e54c3bf79ff90255f7307bb73d8957ae8",
+        "41e6b6c3af27f08038ead1d36872fba9f12542c732718ffb419e2bba8fc46c06"
+      ],
+      "source_sha256": "28b64218ec1c932e0689c53129bd85fe6ff2740781f1e3a0f6a27af826e06ed7",
+      "text": "每个细胞的表面距离最接近的感染细胞有多远?\n\n:param cell_mask: 细胞标签图像。\n:param infected_labels: 带有病原体的细胞的标签。\n:param spacing: voxel 尺寸,所以距离携带物理单位。\n:returns: ``label`` 和 ``distance_to_infected``,每个细胞一行。\n\n对感染细胞的零,对其即时邻居的一个像素,而区别是值得指出的,因为显而易见的阅读是错误的。\n\n`surface_distance_transform`的 docstring 说“两个触摸的对象在 0 出发”,这是事实,它描述的情况 - 阅读显微镜的视野在一个点 INSIDE 另一个对象,这是一个超越或包含对象给什么。\n\n``inf`` 一个没有感染细胞的微板样本位置没有距离,而诚实的值是无限,而不是0或0。 NaN 每个细胞都自愿远离一个不存在的人口,无限是唯一持续的价值。 `distance <= reach` False 到达每一个终点。",
+      "translation_source_blocks_sha256": [
+        "a5f8b3e5595972370cc58767f013faa63f76c210ab3a6c9c9abf07c009f8245b",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "8df49611f792d2e15d9add6a865a2b7785b02a36f5b77b1bd7faa7765e7c946b",
+        "fa779394d767337ee84b9e53cd4aba59104d63a6150b11c019baee66099bdbf9",
+        "c6554255c5500858d2f0f33cbee7b08f6e126ea15488f74415c1141af3d6cbbd",
+        "5d8d3c3fcb5d11be435469eb2a6b136040ffdbe81b0d0fdfc42d83bb6d6cffa4",
+        "4d2417c22a92008343be46284ce848126b63db6f34c700dbf25da3394fe611e7"
+      ]
+    },
+    "spacr.bystanders.neighbourhood": {
+      "source_blocks_sha256": [
+        "c722c2f89ba482fb1c18679b999ac29f11c33c2b8f72758d0626bfc8050d4a0e",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "7de8eceae966a59e98fd82a282eb56f690fb35e85ed4135460ca651c9da008e0",
+        "b5449833a3d4e08891192965000737f815dda29aa0c363b36375c7f6d45831d6",
+        "8a585770752e6ca2a967e09e63871699737bc4258a64f19cd723c9d007a698a6",
+        "733fc84845e6aeb3979848c89aa3f8f2ab82320ba047a32451f4207d4647df03",
+        "15e7e1d0659ec5f35c3bf7b28c9db8fb8518654a19b9a38d989b542ef34f363c",
+        "f32e480fd432e8e394cba24bb150a161d2be4971464f9b48e516d9608025c423"
+      ],
+      "source_sha256": "40993069ffe0dc66dbbcc99cf195a2cd4fe499afe4658234f7da883bffb5beaa",
+      "text": "每个细胞最接近的邻居的哪个部分被感染。\n\n:param cell_mask: 细胞标签图像。\n:param infected_labels: 带有病原体的细胞的标签。\n:param k: 数多少邻居,排除细胞本身。\n:param spacing: voxel 尺寸,所以 \"nearest\" 是指在现实空间中最接近的,而不是在 anisotropic 板上的像素。\n:returns: ``label``、``neighbours_counted``、 ``neighbours_infected`` 和 ``local_infected_fraction``。\n\n第2半章 无情的问答 :func:`classify`回答“附近有一个感染的细胞”,这是一个距离的边界。 这些答案是“如何感染这个细胞的邻居”,这就是在焦点边缘的细胞与中间的一个细胞分开的数量 - 两者都是附属物,而它们并不在同一个地方。\n\n细胞本身从来不是自己的邻居,而一个感染的细胞仍然得到了一个分裂:“这个感染细胞在未感染的中间坐着”是与“这个一个坐在一个集群”的不同观察,并将感染的行落将把第二个扔掉。\n\n`neighbours_counted` 是肯定而不是假设是 ``k``. 一个较少的 ``k + 1`` 细胞的字段不能提供 k 邻居,而对一个假设的名称计算的分数将是错误的,正是在分数分析最重要的地方。",
+      "translation_source_blocks_sha256": [
+        "c722c2f89ba482fb1c18679b999ac29f11c33c2b8f72758d0626bfc8050d4a0e",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "7de8eceae966a59e98fd82a282eb56f690fb35e85ed4135460ca651c9da008e0",
+        "b5449833a3d4e08891192965000737f815dda29aa0c363b36375c7f6d45831d6",
+        "8a585770752e6ca2a967e09e63871699737bc4258a64f19cd723c9d007a698a6",
+        "3bdcb2d570c79798c0446e509a11e64d0d0b6f3d32dd5caeb59f056f08c50696",
+        "353e2b0b1604a5e805399da0ced359f389e0c00feb3b56d756b96ce07c862ced",
+        "d05465030f8b6ec0df76cf02c052783f2b208ef74763a63c426f794174fb681e"
+      ]
+    },
+    "spacr.bystanders.reach_from_diameter": {
+      "source_blocks_sha256": [
+        "06459f8dddc13a96b5e7061862cca300742bf7591710859ae7228f37599a64ee",
+        "1236082db544e25134afacca8ba2fb5438cedcfcacc6b59c48d6377270599923",
+        "a25103bf9e47236d5327b123822e28751d706c7b84363808790f540930e7e412",
+        "f401147dbcf7725dbefe05ccc68b4168ef108236ddd4bbd068a1832e5c9592dc",
+        "8c7f992cc8ece98cb4051688a66c94f204adcf3fd8466cca1112a88eacd2a549"
+      ],
+      "source_sha256": "5b793945ae5f535284fab8928c0a4045033ecfdb7a3540b6c68f076a0f0d287f",
+      "text": "在 ``cell_diameter`` 单元中测量的分数范围。\n\n:param cell_diameter: 板的测量细胞直径,从 :mod:`spacr.diameter`。\n:param diameters: 多少个直径计算为邻居。\n:returns: 相同单位的距离,从来没有负面。\n\n它作为自己的功能,所以转换在一个地方是可见的,一个呼叫者可以看到,接口是衍生的,而不是选择的。",
+      "translation_source_blocks_sha256": [
+        "06459f8dddc13a96b5e7061862cca300742bf7591710859ae7228f37599a64ee",
+        "1236082db544e25134afacca8ba2fb5438cedcfcacc6b59c48d6377270599923",
+        "a25103bf9e47236d5327b123822e28751d706c7b84363808790f540930e7e412",
+        "f401147dbcf7725dbefe05ccc68b4168ef108236ddd4bbd068a1832e5c9592dc",
+        "8c7f992cc8ece98cb4051688a66c94f204adcf3fd8466cca1112a88eacd2a549"
+      ]
+    },
     "spacr.cancellation": {
       "source_blocks_sha256": [
         "3f84354a540370637d573e4799537b53d19d83e1bcb3c7200c3c4aecba4faabe",
@@ -18041,6 +18191,160 @@
       "translation_source_blocks_sha256": [
         "d0e503ddd4211e0947a9a828f139dd5c2399e30bb91dab598c1d2aa06a42b904",
         "dcd08951ca90816f7dd96d53fe6936290eee8db2725255121fbe1ea75b845894"
+      ]
+    },
+    "spacr.embeddings": {
+      "source_blocks_sha256": [
+        "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
+        "f6a0d1ff19c83f9b6178284e18ced132c6085641279b6e5775d2e877d8eb7124",
+        "fbc298648f6ed0ccddd9d18e2ca373aa3422925b6eff0ce3ace7ce303526ac97",
+        "790db17b58b1a85fca18a912cacd6e751b1734058f48ab8f0f1d48ce67634452",
+        "e23ae31fedfc3f2132115b196d41064d7a52a61234ac92f1cbd5e763681170db",
+        "d8fa2e50bb5a67d188fb1b71c091d9234aa2b3354c53aad2ff04e0397fe70072",
+        "67f83d85affbae7d6873e220cf473f0d7f57ba6cd2d91d2751bad6b26c64bd04"
+      ],
+      "source_sha256": "0c1c5740e725f981946ecb658ad7e6634651de20660183f521668a130a8ac0a8",
+      "text": "每个对象的标签免费插入,除了测量特性之外。\n\n的存在。  spaCR 将图像转换为数字的两种现有方法都要求您已经知道要查找什么。  :mod:`spacr.measure` 中的测量面板计算一个固定的、手工设计的集合 — — 强度、形状、纹理、距离 — — 因此它只能找到某人想要命名的东西。  :mod:`spacr.deep_spacr` 中的监督路径根据注释对主干进行微调,因此它只会找到有人想要注释的内容。 击中\"空泡在我们没有列的情况下微妙地错误定位\"的筛选不会返回任何内容,并且自信地返回它。 ,这就是为什么它是值得一个模块。\n\n的图像数据通道决定,在这里解决,而不是隐含的。 编码器预期有三个图像数据通道。  spaCR 图像通常有四个或五个,RGB 根本没有意义 — — 一个 DAPI 的图像数据通道不是 \"red\"。 ,指令 386 要求记录选择,而不是从第一个骨干中继承:\n\n  图像数据通道,然后连接(:data:`CHANNEL_PER_CHANNEL`,默认值 ) 。 编码每个图像数据通道,并连接矢量。 : 维度517属于图像数据通道2,而不属于其他任何通道,因此:mod:`spacr.attribution_columns`可以判断哪个命中来自哪个斑点,读取器可以丢弃图像信息通道而无需重新嵌入。  费用 N 次传球。\n\n  投影到三个通道（:data:`CHANNEL_PROJECT`）。对固定的图像数据通道到 RGB 的映射只做一次前向传播。更省算力，但不可逆：图像数据通道一旦混合，任何下游列都无法再归因到某一种染色，筛选也就无法追问“这来自寄生虫的图像数据通道还是宿主的图像数据通道”。\n\n默认情况是 per-image 数据渠道 因为分配是点,一个发现一个未知的现象,不能说它携带了哪个斑点移动了问题而不是解决了它。\n\n该模块不做什么. 它不提取图像区域 - 它需要提取的图像区 :mod:`spacr.crops` 已经产生. 不会写到数据库. 返回一个 float32 矩阵由对象ID 键,这正是下流已经消耗的形状: UMAP,退缩家庭,打电话和 AnnData 出口不关心一个数字列从哪里来。",
+      "translation_source_blocks_sha256": [
+        "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
+        "2536a1844d718e23674275ad1ec155de826962166d1a8abe5d1ef2ed56e0f11f",
+        "46238bafbf36780d30e7b5a73224abbd1572cbd6586c2fcd675bbdc89767679c",
+        "97d5fca860e212188551dc446c546433067c1142445655ef2b7f3d9460b59ad0",
+        "6872180310dc77e7563785b1beaa1504a76435dddafbe84103d9531217c50412",
+        "d00c1dc075fee112b0000f0f81dd655f2aa1c23bb8e5d661457319ae9272d210",
+        "ad744613652ad1a014654bef386e2459bc987abf3c8b4158f655238d31a46770"
+      ]
+    },
+    "spacr.embeddings.EmbeddingError": {
+      "source_blocks_sha256": [
+        "7497ce0623550f2b40099a87f1a7627229ed03eb6f1aa2f8ceb9d08046cb9b30"
+      ],
+      "source_sha256": "7497ce0623550f2b40099a87f1a7627229ed03eb6f1aa2f8ceb9d08046cb9b30",
+      "text": "使用的例外,当嵌入被拒绝时,一个召唤者可以显示的原因。",
+      "translation_source_blocks_sha256": [
+        "d4d752b2998adfafd152231f76f5129d376a20df0c34c02f4c78d20675d59497"
+      ]
+    },
+    "spacr.embeddings.EmbeddingResult": {
+      "source_blocks_sha256": [
+        "b7a9d77f595ad8468f7f689f0424becd1f9d571af63f2bcf71bf4f8391ea61f0",
+        "c115042af15d1f567474ff502877fbc0c9a2f920faab9b955a0b20e033243816",
+        "6c0d104b409be5467200247c7f5b71ae3442fc794067429ea316b57cf1d49824",
+        "3363b70f84abfef1a0fdb1005fbd5ef4edbc8d08dc7b322037891539efe7977d",
+        "7fd8f5229a87626c15c6e81812dbe100d7ba1be8d05bb4e24cdfaf3174474d67",
+        "be7ca861f54c73fc76e5f6647693809332bc074756720021b504fc7b46617d57"
+      ],
+      "source_sha256": "b40ec3bf0ed5bb1a5e66a28375d82dac1f84ecd3fc26c1e157c82350377d3122",
+      "text": "矩阵,其列名称,以及它是如何制作的。\n\n:param values: ``(n_objects, n_dims)`` float32. 飞行器。\n:param columns: 每个列都有一个名称,全部以 :data:`EMBEDDING_PREFIX` 开始。\n:param spec: :class:`EmbeddingSpec` 是由此产生的。\n:param n_channels: 有多少频道被编码?\n:param per_channel_dims: 由一个频道提供的尺寸。",
+      "translation_source_blocks_sha256": [
+        "b7a9d77f595ad8468f7f689f0424becd1f9d571af63f2bcf71bf4f8391ea61f0",
+        "c115042af15d1f567474ff502877fbc0c9a2f920faab9b955a0b20e033243816",
+        "6c0d104b409be5467200247c7f5b71ae3442fc794067429ea316b57cf1d49824",
+        "3363b70f84abfef1a0fdb1005fbd5ef4edbc8d08dc7b322037891539efe7977d",
+        "7fd8f5229a87626c15c6e81812dbe100d7ba1be8d05bb4e24cdfaf3174474d67",
+        "be7ca861f54c73fc76e5f6647693809332bc074756720021b504fc7b46617d57"
+      ]
+    },
+    "spacr.embeddings.EmbeddingResult.to_frame": {
+      "source_blocks_sha256": [
+        "d03ade633bbf684fe9420bc506822f312505f2f1064de227ee772eea60db0892",
+        "d232df1d0dafdd484b12d797115b49bbf6b30489069e635b7489b013096daf19",
+        "a4243fce2632a2b2f60fde931c764a935f24ad5ccf659b7e3aae0746cc85f6f0"
+      ],
+      "source_sha256": "cd5f661c4475ab6ec25f7e5eda68f69b5ae658634492444c96942409684be9c5",
+      "text": "用对象ID键为 DataFrame,准备加入测量。\n\n:param object_ids: 1个序列的ID,按序列提取的图像区域被授予。\n:raises EmbeddingError: 当计算不匹配矩阵时,因为这里的一个沉默的误导破坏了每一个下流的加入,后来无法恢复。",
+      "translation_source_blocks_sha256": [
+        "d03ade633bbf684fe9420bc506822f312505f2f1064de227ee772eea60db0892",
+        "28e96ea9f1e06fcecb536ab8d87121f3059db624347b539a342e0ce7d4ccbdc8",
+        "a4243fce2632a2b2f60fde931c764a935f24ad5ccf659b7e3aae0746cc85f6f0"
+      ]
+    },
+    "spacr.embeddings.EmbeddingSpec": {
+      "source_blocks_sha256": [
+        "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
+        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
+        "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
+        "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
+        "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
+        "c9bc5ad94d8c3f67656191905edd02e7d37454a6233ddd0da233b3b44896f5b4"
+      ],
+      "source_sha256": "21494b889f3fefbf854713581e7a6f15e34c39f2dcd96e3df6de01b158847924",
+      "text": "如何嵌入,记录,这样一个矩阵可以说它从哪里来。\n\n:param backbone: 编码名称,通过时间解决。\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.\n:param channels: 指定要编码的图像数据通道索引。  ``None`` 表示数组中的每个图像数据通道。\n:param batch_size: 提取图像区域以前进通道。\n:param device: torch 设备行,或 ``None`` 选择一个。\n:param normalize: 在编码前将每个图像数据通道分割为其自身的 99 百分位数。 显微镜动态范围在染色之间有数量级的差异,对照片进行训练的编码器会将一个图像数据通道视为噪声。",
+      "translation_source_blocks_sha256": [
+        "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
+        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
+        "bfceff41558220573fedc999b4fbdbf09e3949963ee7cbab02d6bd18bb30812c",
+        "ffa122dd219abf4f2be9e2ec816cef63c6495a3dc89241110d7f4bbfab37465a",
+        "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
+        "c63929f86e8d344a85d73180d981921751bbbf037fed7b7ef0e32a7d75a5bac2"
+      ]
+    },
+    "spacr.embeddings.EmbeddingSpec.fingerprint": {
+      "source_blocks_sha256": [
+        "b3f73c01375ab9b68a716e0416b39e74d31ec9284a4051de8b35dda19743ced7",
+        "d2d4b81d0648f3b9aa27909b8699ffaa011710b5dd2743997f2acef9b5f2a33c"
+      ],
+      "source_sha256": "97c654834fb5174e6980c7f519c1a37535b120de2e7f4d69ba6072a90a8a223c",
+      "text": "一个短暂的消化,改变数字的一切。\n\n两个具有相同指纹的矩阵是以相同的方式制作的,一个分数图可以引用它,而一个隐藏式矩阵可以通过它而不是时间标记被破坏。",
+      "translation_source_blocks_sha256": [
+        "b3f73c01375ab9b68a716e0416b39e74d31ec9284a4051de8b35dda19743ced7",
+        "d2d4b81d0648f3b9aa27909b8699ffaa011710b5dd2743997f2acef9b5f2a33c"
+      ]
+    },
+    "spacr.embeddings.channel_of_column": {
+      "source_blocks_sha256": [
+        "2961df030b860edb454e16f87eea9eb3282450fee2318c316cf7b080f663ffd2",
+        "1a36439a4649da480c1c21cc86423ecb57cee3caebf532dde3a28d30b845dc8a",
+        "59987484b75bf17470d612c235d9f24ffa6f8a699c6b918e7679aef61a88e4f6"
+      ],
+      "source_sha256": "f836c7f7e07aafffe14c85758cecf45376ba2b59d82a53ab4913f884db4e8462",
+      "text": "一个列来自哪个频道,或者``None``,如果不能说。\n\n``None``对于一个投影列,这是一个诚实的答案,而不是一个猜测:图像数据渠道是混合的,没有尺寸属于一个模块。\n\n:param column: 包含列名称。",
+      "translation_source_blocks_sha256": [
+        "2961df030b860edb454e16f87eea9eb3282450fee2318c316cf7b080f663ffd2",
+        "52b30c5040f2377aed3de7567a6ae850e357a20b9448db8291f67fa87d22cb4d",
+        "59987484b75bf17470d612c235d9f24ffa6f8a699c6b918e7679aef61a88e4f6"
+      ]
+    },
+    "spacr.embeddings.embed_array": {
+      "source_blocks_sha256": [
+        "bdea2d4d935fdada62dc3f44c8b2456c622173b79320fd5a7cf4e8a0e178deb1",
+        "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
+        "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
+        "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
+        "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
+        "c33304be14f5205cfcab60bf9406330aecc2b72939a1529a874386802b128acf"
+      ],
+      "source_sha256": "9e90f089952fc770b53a0f5290a65d2483079279bee14335b43f7ef8233f4217",
+      "text": "插入一堆提取的图像区域。\n\n:param crops: ``(n, height, width, channels)``,形状 :mod:`spacr.crops` 已经产生。\n:param spec: 如何插入;默认情况为 per-channel resnet18。\n:param encoder: 一个呼叫器采取 ``(n, height, width, 3)`` float32 在 [0, 1] 并返回 ``(n, dims)``. 通过测试注射,以便电缆可以进行,而无需下载一个背部; 生产呼叫者留下它 ``None``。\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: 在形状或图像数据通道问题上,在加载任何模型之前 — — 下载是发现数组错误的缓慢方式。",
+      "translation_source_blocks_sha256": [
+        "414f2d1719a77b29f99b0afea94418b6d92cb1c87873bc1694abff536ec22aba",
+        "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
+        "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
+        "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
+        "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
+        "d54d0beaa547fd8a2d266327462d03b5e4b7bccc3b06e7845cd13b2f58b9851c"
+      ]
+    },
+    "spacr.embeddings.embedding_column_names": {
+      "source_blocks_sha256": [
+        "0597559bc7dca6be066f787d1dc5d10b43c9c3129bc088cbdd300357c89e5b66",
+        "881cc168e4f9f399d9ca3906d79bc7afd1318df6d0a0378725f95318fd51b6ef",
+        "806e14136d857b7371ff9c0d9420f0aa74f4667bbffd90698028fd3585aaed75",
+        "223ff9707a47a320ee09c365c59afea15e352add02436a0fe56995862105c87e",
+        "5bcca463fa4d82166118b1b046f2b0816586f5ef49374abc0038dade7717f693",
+        "928073e539616cd63dd8a9ce9c4d0f256692e183331308537220419973bac15d"
+      ],
+      "source_sha256": "0db4568255e5390d3e35eed2ac6a6d2d3abea038288e4f7ee4556eac2c431622",
+      "text": "列的名称一个运行产生。\n\n该频道在每个频道的政策下名为 ``emb_c2_017`` - 这就是后来没有在矩阵旁边携带一个单独的地图的情况下可能的分配。\n\n:param per_channel_dims: 尺寸1前进输出。\n:param channels: 频道指数,编码顺序。\n:param policy: 哪个频道政策制作了它们?\n:returns: 列名称,按矩阵顺序。",
+      "translation_source_blocks_sha256": [
+        "0597559bc7dca6be066f787d1dc5d10b43c9c3129bc088cbdd300357c89e5b66",
+        "ef4f2537f02acd686658ed25bb5a5a20436877a49a696fe984bf959a1e009781",
+        "806e14136d857b7371ff9c0d9420f0aa74f4667bbffd90698028fd3585aaed75",
+        "223ff9707a47a320ee09c365c59afea15e352add02436a0fe56995862105c87e",
+        "5bcca463fa4d82166118b1b046f2b0816586f5ef49374abc0038dade7717f693",
+        "928073e539616cd63dd8a9ce9c4d0f256692e183331308537220419973bac15d"
       ]
     },
     "spacr.errors": {
@@ -31231,6 +31535,24 @@
         "edc2b4aea10fa96e142ffb32a161b4a31084fdd204cd3a58c5537eb7dbaeca76"
       ]
     },
+    "spacr.infection.uninfected_cells_were_measured": {
+      "source_blocks_sha256": [
+        "4f28952c2e2cba09cafd86fb49e96a5bde7f984c6008233ae9e2a4d37060e614",
+        "3e47bf50eeb0728f22edb444d83390e096cd04991abfa3fcfb285ee340ebe411",
+        "327e9988e62d63086f1bf285d1d345f6715a09dc93775fd43135efed0ba7a3f0",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "7fce868e321be6f4dea6b9efbe620aed41ba368cb5eb5d309930da90d46b24f5"
+      ],
+      "source_sha256": "7d807123273cc24f1c1693d2e395a0e3bc8ce0ec553bc7b84f295c58db460d7e",
+      "text": "无论是编写``db_path``的测量是否运行,保持不感染的细胞。\n\n答案改变了细胞表是什么。 `include_uninfected=False` - 仅提取图像区域感染细胞的筛选的默认值,以及 TSG101 实验室微板的测量值 - 意味着测量没有对没有寄生虫的细胞进行序列。 细胞表是感染细胞的选择,而不是分区人口,每个微板样本位置的`infected / cells`为1.0,无论生物学如何。\n\n一位读者交给了一个1000列的列,读到100%的感染作为一个结果,并且表中的任何东西都说不一样,所以这个模块拒绝了速度而不是打印它。\n\n:param db_path: 走向 ``measurements.db`` 的路径。\n:returns: ``True``或 ``False``当处理会记录了设置时, ``None``当它没有时 - 一个更古老的数据库,在那里诚实的答案是,我们不能说。",
+      "translation_source_blocks_sha256": [
+        "4f28952c2e2cba09cafd86fb49e96a5bde7f984c6008233ae9e2a4d37060e614",
+        "43200159fd58e5c2a8cd1a79b227fafb7548a4bc2a31d205e6ee5cc33813bcf4",
+        "327e9988e62d63086f1bf285d1d345f6715a09dc93775fd43135efed0ba7a3f0",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "65c1d875834933dcd14841b526d28362886760f94d3fc32463c6231a57b77331"
+      ]
+    },
     "spacr.install_profile": {
       "source_blocks_sha256": [
         "5a8f874f6cbe2a575f82705f1a68eaa042921d5e1bd3226d108f894b7b44566e",
@@ -39396,8 +39718,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "46073a24662a675d055b08cd58f9f272b3308584d21af5f932a725ed6615b883",
-      "text": "使用每个对象的特征训练经典 ML 分类器（XGBoost / logistic / RF），并为筛选中的每个孔位评分。\n\n读取 ``measurements.db``（由 :func:`spacr.measure.measure_crop` 生成），合并细胞/细胞核/病原体/细胞质特征表，将标记为 ``positive_control`` / ``negative_control`` 的孔位（或注释列）用作训练标签，把拟合交给 :func:`ml_analysis`，并在源 DB 旁的 ``results/`` 中写入逐对象预测、置换表、特征重要性表和微孔板热图。\n\n:param settings: 设置字典，经 :func:`spacr.settings.set_default_analyze_screen` 规范化。主要条目：\n\n    - ``src``（str 或列表）— 包含 ``measurements/measurements.db`` 的文件夹。\n    - ``channel_of_interest`` — 从 0 开始计数的通道，用于招募比率特征；同时决定表选择。\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — 用作训练标签的孔位 ID（例如 ``'c2'`` / ``'c1'``）。\n    - ``annotation_column`` — 用 PNG 级注释列覆盖对照。\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — 在微孔板热图上绘制的特征。\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: 二元素列表 ``[output, plate_heatmap]``，其中 ``output`` 是 :func:`ml_analysis` 的 10 元素结果列表，``plate_heatmap`` 是微孔板热图的 ``matplotlib`` 图。CSV 和图形会作为副作用写入 ``results/``；不返回其路径。\n:raises ValueError: 当设置了 ``annotation_column``，但 ``png_list`` 表缺少 ``prcfo`` / 该列、其中的对象 ID 无法与测量数据联接，或其中观测到的类别少于两个；或者 ``heatmap_feature`` 不在已训练特征中时。\n\n示例：\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\n另请参阅：:func:`ml_analysis` — 底层拟合/评估例程。:func:`perform_regression` — 对各孔位 ML 得分执行混合效应回归。",
+      "source_sha256": "14f78345f1b8f4bb4e4569568248751fa676cefbd91d97b4228ccb1cdc9cb1d6",
+      "text": "使用每个对象的特征训练经典 ML 分类器（XGBoost / logistic / RF），并为筛选中的每个孔位评分。\n\n读取 ``measurements.db``（由 :func:`spacr.measure.measure_crop` 生成），合并细胞/细胞核/病原体/细胞质特征表，将标记为 ``positive_control`` / ``negative_control`` 的孔位（或注释列）用作训练标签，把拟合交给 :func:`ml_analysis`，并在源 DB 旁的 ``results/`` 中写入逐对象预测、置换表、特征重要性表和微孔板热图。\n\n:param settings: 设置字典，经 :func:`spacr.settings.set_default_analyze_screen` 规范化。主要条目：\n\n    - ``src``（str 或列表）— 包含 ``measurements/measurements.db`` 的文件夹。\n    - ``channel_of_interest`` — 从 0 开始计数的通道，用于招募比率特征；同时决定表选择。\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — 用作训练标签的孔位 ID（例如 ``'c2'`` / ``'c1'``）。\n    - ``annotation_column`` — 用 PNG 级注释列覆盖对照。\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — 在微孔板热图上绘制的特征。\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: 二元素列表 ``[output, plate_heatmap]``，其中 ``output`` 是 :func:`ml_analysis` 的 10 元素结果列表，``plate_heatmap`` 是微孔板热图的 ``matplotlib`` 图。CSV 和图形会作为副作用写入 ``results/``；不返回其路径。\n:raises ValueError: 当设置了 ``annotation_column``，但 ``png_list`` 表缺少 ``prcfo`` / 该列、其中的对象 ID 无法与测量数据联接，或其中观测到的类别少于两个；或者 ``heatmap_feature`` 不在已训练特征中时。\n\n示例：\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\n另请参阅：:func:`ml_analysis` — 底层拟合/评估例程。:func:`perform_regression` — 对各孔位 ML 得分执行混合效应回归。",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
         "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",
@@ -39514,9 +39836,9 @@
     "spacr.ml.minimum_cell_simulation": {
       "source_blocks_sha256": [
         "bf88fa240a6ba75a54b0b42b953433cf4058629eb066d53cb4fc20861a420bf9",
-        "eacc5ff6904d33ff778518de01a26b8a997e50e0dc45e0861eab4b399ed9e010",
+        "0157bcb8b6079058d04bfb384547564585eeaf95c7dc62565ecd5dc522668f56",
         "605dfcb6fc96142312d8bab1567cb86cafc47579bbc12a575e41088c413fc160",
-        "1fe991a66ac8c9632fb45aa5fab46569407931cfc1f72e2fc64468cb5878c486",
+        "07e8971343bf0a154007c96282383d5d6a981b750b92f68ba89d8586ec4a554e",
         "1af32583ad5dca4fa2e805f6fdca573560fdabd4214305b6632eaec8ca88223f",
         "f8c63794b8a10487eef71a243d078f76c52670a8418f1d0a2762e841484d9a56",
         "8f6abc5d0343a6bbf37492f9b9c9aa00abee372059c48085274af727f928aad3",
@@ -39526,13 +39848,13 @@
         "b1e5363ac979b55298ed0f9bfc2c16ebdecc3d99666923ca41f13a9352153556",
         "4194d53b16e88772fd34c396f9ee65c87ecac2daeb8c00bd0b447ec9378ac2e8"
       ],
-      "source_sha256": "f9729401957f2e0ffb193c923bd0dac66afaa2423d359461c0b24758008e02bd",
-      "text": "估计每个微板样本位置所需的细胞的最低数量为一个稳定的微板模型位置的平均值。\n\n对于最多对象的微板样本位置,在增加样本尺寸的细胞重复下样,并记录中间绝对差异与微板模型位置的整体平均差异。 用 ±1 s.d. 带插滑曲线,标记着排点(或 ``settings['min_cell_count']`` 当设置时)并将 ``cell_min_threshold.pdf`` 写入 ``dst``。\n\n护照 ``dst`` 将图像保存在特定处理会议文件夹中,当错过时,函数使用应用程序视图级别 ``results`` 文件夹由 ``count_data`` 可与直接笔记本和脚本通话兼容。\n\n:param settings: 需要 ``score_data`` (CSV 路径或路径列表), ``dependent_variable``, ``tolerance`` (int 百分比或浮动分裂) 和 ``min_cell_count``. ``count_data`` 只需要当 ``dst`` 留下不设置时,并且只需要找到数字。\n:param num_repeats: 按样品尺寸绘制的子样品. 默认 ``10``。\n:param sample_size: 模拟的微板样本位置的数量,根据细胞数的最大第一,默认 ``100``。\n:param tolerance: 未使用;适用的宽容为 ``settings['tolerance']``。\n:param smoothing: 旋转窗的宽度用于平滑曲线。\n:param increment: 模拟样品尺寸之间的步骤。\n:param dst: 文件夹为 ``cell_min_threshold.pdf``,如果缺席,则创建. 默认 ``None``: ``<folder of settings['count_data'][0]>/results``。\n:returns: Elbow 点的样品大小,即每个微板样品位置的最低细胞计算,可转移到 :func:`process_scores`。\n:raises ValueError: 如果 ``settings['tolerance']`` 不是 int 或 float。",
+      "source_sha256": "c8cdf39e428dadbbafb95e032ba62262b6971a2f1a921a9bd7c4c0810b5c8e03",
+      "text": "估计每个微板样本位置所需的细胞的最低数量为一个稳定的微板模型位置的平均值。\n\n对于最多对象的微板样本位置,在增加样本尺寸的细胞重复下样,并记录中间绝对差异与微板模型位置的整体平均差异。 用 ±1 s.d. 带插滑曲线,标记着排点(或 ``settings['min_cells_per_well']`` 当设置时)并将 ``cell_min_threshold.pdf`` 写入 ``dst``。\n\n护照 ``dst`` 将图像保存在特定处理会议文件夹中,当错过时,函数使用应用程序视图级别 ``results`` 文件夹由 ``count_data`` 可与直接笔记本和脚本通话兼容。\n\n:param settings: 需要 ``score_data`` (CSV 路径或路径列表), ``dependent_variable``, ``tolerance`` (int 百分比或浮动分裂) 和 ``min_cells_per_well``. ``count_data`` 只需要当 ``dst`` 留下不设置时,并且只需要找到数字。\n:param num_repeats: 按样品尺寸绘制的子样品. 默认 ``10``。\n:param sample_size: 模拟的微板样本位置的数量,根据细胞数的最大第一,默认 ``100``。\n:param tolerance: 未使用;适用的宽容为 ``settings['tolerance']``。\n:param smoothing: 旋转窗的宽度用于平滑曲线。\n:param increment: 模拟样品尺寸之间的步骤。\n:param dst: 文件夹为 ``cell_min_threshold.pdf``,如果缺席,则创建. 默认 ``None``: ``<folder of settings['count_data'][0]>/results``。\n:returns: Elbow 点的样品大小,即每个微板样品位置的最低细胞计算,可转移到 :func:`process_scores`。\n:raises ValueError: 如果 ``settings['tolerance']`` 不是 int 或 float。",
       "translation_source_blocks_sha256": [
         "a10b1aa3dfee39de671a7ed089f90cb944b9698e09e25b275eda78bb65fb650f",
-        "91136dfdb856c11d56a8330f10e63e60a968d02319210da2f5476e3f91717d3a",
+        "df2426729156f31b4d2cff984d266f8924f17017d1d348e29668c5193667dbe2",
         "7cfe7e8f10f9d39eaf743e977349f5b3ab035b1ea642cdb300667c9262bb7d8c",
-        "1fe991a66ac8c9632fb45aa5fab46569407931cfc1f72e2fc64468cb5878c486",
+        "07e8971343bf0a154007c96282383d5d6a981b750b92f68ba89d8586ec4a554e",
         "1af32583ad5dca4fa2e805f6fdca573560fdabd4214305b6632eaec8ca88223f",
         "70af0236a4816acd5e92460f1b468513d28cb10d441e005146e65222c356fbc6",
         "8f6abc5d0343a6bbf37492f9b9c9aa00abee372059c48085274af727f928aad3",
@@ -39800,7 +40122,7 @@
     "spacr.ml.process_scores": {
       "source_blocks_sha256": [
         "35b916ccf9b4406743ffad54921075a077e86a215822486b18fb50b7c58edeee",
-        "15b26e610f96e944d1e6d284b3aecf0ddd17a0af535fcfb508e5b36f3f0fc547",
+        "979e14f51d8fee7316ae43ed686804844a2f7171941b83bf98e1f130ea2d6ddb",
         "b6170e0f90001e24ad9564b33d4a1fefb9c2814b6984af712c7d3d99d10e7725",
         "8dbf4648c3398730f8b682e76897500d70698516972b378b20e7f5a0e8508e33",
         "c53d0606c4978f2313cee25c5f9ddc9b6237a1b00e3a67672b31cc25085773ba",
@@ -39812,11 +40134,11 @@
         "c4442659591710803ca222e05d541137d05fa8f7eedab0f6bbc8b5ea6dfd0871",
         "51a3d36f4c6a1cbde7363a28c824ca69e085af19496d41d85832d91dd7598218"
       ],
-      "source_sha256": "9e1d41677f5c5a283805d147242926e83295a84efb5b87e0961e5f4828f56b66",
-      "text": "将每对象模型分数集成到每微型样品位置总结,准备退缩。\n\n确保 ``plateID/rowID/columnID/prc`` 列存在,应用原始反应的可选逆转,根据 ``agg_type``(或对 ``sum`` 计算模型 ``'poisson'`` 和 ``'horseshoe'``)进行合并,强制 ``min_cell_count``,并可选地转换合并反应。\n\n:param df: 每个对象的分数为 DataFrame。\n:param dependent_variable: 列集合。\n:param plate: 板标识到印刷时,框架是单板;忽略(警告)当有多个微孔板存在。\n:param min_cell_count: 少数对象的微板样本位置被放下. 默认 ``25``。\n:param agg_type: ``'mean'``, ``'median'``, ``'quantile'`` or None.\n:param transform: 可选的后组合转换名称(参见 :func:`apply_transformation`)。\n:param regression_type: 如果 ``'poisson'`` 或 ``'horseshoe'``,集合使用 ``sum`` - 两种模型均为微型样品的位置计算,而不是微型的样品位置平均值。\n:param invert_dependent_variable: ``False``/``0`` = 没有逆转; ``True``/ ``1`` = ``1 - x``; ``-1`` =``1 / x``。\n:returns: ``(dependent_df, dependent_variable)`` — 每微型样品位置 DataFrame 和答案列名称(可能转换)。\n:raises ValueError: 缺少的标识符,未支持的 ``agg_type`` 或未认可的 ``invert_dependent_variable``。",
+      "source_sha256": "37545e6672072568adf667960125f99694272a13ff3ca992712aaba8defe46e8",
+      "text": "将每对象模型分数集成到每微型样品位置总结,准备退缩。\n\n确保 ``plateID/rowID/columnID/prc`` 列存在,应用原始反应的可选逆转,根据 ``agg_type``(或 ``sum`` 计算模型 ``'poisson'`` 和 ``'horseshoe'``),强制 ``min_cells_per_well`` 并可选转换集成反应。\n\n:param df: 每个对象的分数为 DataFrame。\n:param dependent_variable: 列集合。\n:param plate: 板标识到印刷时,框架是单板;忽略(警告)当有多个微孔板存在。\n:param min_cells_per_well: 少数对象的微板样本位置被放下. 默认 ``25``。\n:param agg_type: ``'mean'``, ``'median'``, ``'quantile'`` or None.\n:param transform: 可选的后组合转换名称(参见 :func:`apply_transformation`)。\n:param regression_type: 如果 ``'poisson'`` 或 ``'horseshoe'``,集合使用 ``sum`` - 两种模型均为微型样品的位置计算,而不是微型的样品位置平均值。\n:param invert_dependent_variable: ``False``/``0`` = 没有逆转; ``True``/ ``1`` = ``1 - x``; ``-1`` =``1 / x``。\n:returns: ``(dependent_df, dependent_variable)`` — 每微型样品位置 DataFrame 和答案列名称(可能转换)。\n:raises ValueError: 缺少的标识符,未支持的 ``agg_type`` 或未认可的 ``invert_dependent_variable``。",
       "translation_source_blocks_sha256": [
         "e12df5e956bb8eb31eeea9b3823f4e25e19b05aef1522830dbf2fe278258c963",
-        "15b26e610f96e944d1e6d284b3aecf0ddd17a0af535fcfb508e5b36f3f0fc547",
+        "979e14f51d8fee7316ae43ed686804844a2f7171941b83bf98e1f130ea2d6ddb",
         "b6170e0f90001e24ad9564b33d4a1fefb9c2814b6984af712c7d3d99d10e7725",
         "8dbf4648c3398730f8b682e76897500d70698516972b378b20e7f5a0e8508e33",
         "c53d0606c4978f2313cee25c5f9ddc9b6237a1b00e3a67672b31cc25085773ba",
@@ -41441,6 +41763,42 @@
       "text": "True 当这个模型说明它是如何训练的。",
       "translation_source_blocks_sha256": [
         "ae2fa48a52b625186483a5aadeeeeb3b75f0e8b51f0d214123a027a51d2072e5"
+      ]
+    },
+    "spacr.model_zoo.ModelEntry.scorecard_holdout": {
+      "source_blocks_sha256": [
+        "292f7343b9797971ac4e2f38035a59719e08ffd72119d45b18070d154971ff6c",
+        "e0502c455f710bdf567c6573c65544488d95bfd342bb564653bb1c10e8b59772"
+      ],
+      "source_sha256": "eac89f1c4310893a7416ecb54f257613e7669085496521365e44386f790b8450",
+      "text": "``name @ version`` 的 hold-out 设置,或 ``\"\"``。\n\n没有其组的分数是没有单位的数字,两个人引用F1为相同的模型没有对彼此说什么,除非他们得分相同掩膜,所以组旅行的数字到每个表面显示它们。",
+      "translation_source_blocks_sha256": [
+        "292f7343b9797971ac4e2f38035a59719e08ffd72119d45b18070d154971ff6c",
+        "cf7dae60c15ba55cfdfddcabf5a14fd4f4ad04d142b78ddda4b24d5a85d50f8f"
+      ]
+    },
+    "spacr.model_zoo.ModelEntry.scorecard_known": {
+      "source_blocks_sha256": [
+        "23b1b33c89156b9d4d3c80db83abfd263a17b900e48aab4cc3e6e1acd9bcabc1",
+        "a0a2744885206b3267b585e44abb89231743b05fbc2c8473b04d42657b849043"
+      ],
+      "source_sha256": "ab96087a6769b2222613fb49c788c9fa45f5868260fc9340b94bc380d3dc9cf3",
+      "text": "True 当这个模型说明它是多么准确。\n\n准确性双重为:attr:`provenance_known`,由370以名称要求。 一个没有数字的模型没有得分为零,而一个空细胞的表则是第二个 - 因此,缺席是要报告的状态而不是要发出的差距。",
+      "translation_source_blocks_sha256": [
+        "23b1b33c89156b9d4d3c80db83abfd263a17b900e48aab4cc3e6e1acd9bcabc1",
+        "a0a2744885206b3267b585e44abb89231743b05fbc2c8473b04d42657b849043"
+      ]
+    },
+    "spacr.model_zoo.ModelEntry.scorecard_lines": {
+      "source_blocks_sha256": [
+        "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
+        "2dea166ba3501ef378c92617a6dfd8f87a57cbf4e68e5505b0ad65555da32eb0"
+      ],
+      "source_sha256": "7d0f2c7f181a66a82cedd8ba1aa2abc8f46337cf102b3cce9b694d9607b72842",
+      "text": "标志图作为显示线,或句子说没有。\n\n工具提示, API 页面, 动物园筛选和 Hugging Face 表面都显示了这一点,所以他们不能不同意 - 366 发现六个 README 标志在三个不同的 API 侧面,这是当一个数字写在一个以上的地方发生的事情。",
+      "translation_source_blocks_sha256": [
+        "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
+        "30cc2a5c7b3e2531e24491ddec8b1de9f690cf13091a2f3f5be69372a8cdc76a"
       ]
     },
     "spacr.model_zoo.ModelEntry.summary_line": {
@@ -46367,23 +46725,155 @@
         "4e34f910f108c2819bfe523d9133c11544a209f0fe253984b6330618755ab609"
       ]
     },
+    "spacr.ops_compose": {
+      "source_blocks_sha256": [
+        "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
+        "2f3c97f71967690e34c8067c8f5217cb132e4fc98344c5ebb238e04f37a71cbe",
+        "9c604370eea684a67c7b138357c4e26ea2eac6f640d836c2b3d723c7e0d8242c",
+        "c359f9f720dab72b58a7a3f83dbd326f91738bf99a87988d1e4d944359b5bc69"
+      ],
+      "source_sha256": "ff12a12fa8bc3baa6272f70d57759b77bb457e1471bdb8d39ffcf9a791653cd6",
+      "text": "原子能地图,由一个窗口同时组成。\n\n指令 372 的 B1 阶段。`ops_stitch` 只求解每个图块的位置，并刻意不保留像素——孔位 A1 为 26,855 x 26,865，单个通道以 uint16 存储即为 1.4 GB，而后续每个阶段都要通读它。本模块改为逐窗口合成同一个孔位，这也正是 B2 要求分割所做的：“在合成图上分割一次，逐窗口进行”。\n\n    记忆问题和分区计划有相同的答案. 一个分区器可以保持的窗口也是一个窗口,一个组合器可以构建,所以什么都没有物质化整个管道. 连接关键B4需要 - 实验室微板级对象号在微板样本位置框中 - 生存,因为每个窗口携带自己的折扣到这个框架。\n\n为什么平均超越? 部分 15 测量它:收益是正确的图像数据渠道分区的 1.15x 进行,而不是 3.3x 一个以前的草案从平均跨周期主张. 只有一个 DAPI 收购,所以十一个示例论点不适用 - 剩下的是拉斯特的 14% 超越,在那里两个微镜图像字段看到相同的核心两次。",
+      "translation_source_blocks_sha256": [
+        "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
+        "99870ea0030eecbff2b2677f1f8c4e345eefee934aa9108309b8d34a48fcb159",
+        "2bebe95857e6c51de5035aa67c37dc4e5dfda86de8ca5fde1f2f72c7dbc36147",
+        "c1a39eddb74fd17659348ddccf73892cd984ce92636648bec865e0fa30c59960"
+      ]
+    },
+    "spacr.ops_compose.ComposeError": {
+      "source_blocks_sha256": [
+        "a754bddd5fa5df0ee543244e10ac037b13cc24d4c5523e31a3d7b4db119f1522"
+      ],
+      "source_sha256": "a754bddd5fa5df0ee543244e10ac037b13cc24d4c5523e31a3d7b4db119f1522",
+      "text": "例外是使用的,当一个窗口不能组成,有理由。",
+      "translation_source_blocks_sha256": [
+        "4e5e85bcc49fe63a3cb6a7995381eb5a5b62caa66913927c5ce1d1d9140fe897"
+      ]
+    },
+    "spacr.ops_compose.Window": {
+      "source_blocks_sha256": [
+        "c8adc791935a617cad89cac0d9e616bf02d53a4ae034e7f993128fe102d0e312",
+        "c39b34c0f041747399470afb67399d0498f9bfaafbc96d14732c1fae0cfd550a",
+        "446ea6f125bb90cbdd7497ce6acd5ba240f330ed27ed923168aabcafa91fd423",
+        "88da8229ed0577065ba78933b6e1001568edd23b39280ae95cbeadfc139b230e",
+        "6a308b5c47639ee6385971a1b778abf53b80bdc73b3850b61ca52d7523085865"
+      ],
+      "source_sha256": "1ea4381f857fe67ee803eb2380c81b2e24e63479591ba5e626d2a5866197c781",
+      "text": "一个直角的微板样本位置框,在哪里它坐在它。\n\n:param top: 第一行在好像素中。\n:param left: 第一列在好像素中。\n:param height: 轮子。\n:param width: 列。",
+      "translation_source_blocks_sha256": [
+        "43fd999eb9712e70013041d5955cd316694ad4fd603ba629d4a2e2eff6493748",
+        "c39b34c0f041747399470afb67399d0498f9bfaafbc96d14732c1fae0cfd550a",
+        "446ea6f125bb90cbdd7497ce6acd5ba240f330ed27ed923168aabcafa91fd423",
+        "88da8229ed0577065ba78933b6e1001568edd23b39280ae95cbeadfc139b230e",
+        "6a308b5c47639ee6385971a1b778abf53b80bdc73b3850b61ca52d7523085865"
+      ]
+    },
+    "spacr.ops_compose.Window.bottom": {
+      "source_blocks_sha256": [
+        "ecc3724fe01763738dc8e1f6cb78bfd6be14c4773afcfdca3ba6bf711d840930"
+      ],
+      "source_sha256": "ecc3724fe01763738dc8e1f6cb78bfd6be14c4773afcfdca3ba6bf711d840930",
+      "text": "一个走过最后一行。",
+      "translation_source_blocks_sha256": [
+        "ecc3724fe01763738dc8e1f6cb78bfd6be14c4773afcfdca3ba6bf711d840930"
+      ]
+    },
+    "spacr.ops_compose.Window.offset": {
+      "source_blocks_sha256": [
+        "e3a4bfc6b86f0a4580550c5456fceced420e85d783d7a44e1bef073ed7470d59"
+      ],
+      "source_sha256": "e3a4bfc6b86f0a4580550c5456fceced420e85d783d7a44e1bef073ed7470d59",
+      "text": "``(top, left)`` - 一个地方坐标添加什么来达到微板样本位置。",
+      "translation_source_blocks_sha256": [
+        "161512282d08391dec0547dceb1f18b37cc779145bb2d75838e1c72c857c3808"
+      ]
+    },
+    "spacr.ops_compose.Window.right": {
+      "source_blocks_sha256": [
+        "efda55c447879de45385f2e52a1de292bdff3b764090c1f19fee8ea6382ef29c"
+      ],
+      "source_sha256": "efda55c447879de45385f2e52a1de292bdff3b764090c1f19fee8ea6382ef29c",
+      "text": "一个走过最后一个列。",
+      "translation_source_blocks_sha256": [
+        "efda55c447879de45385f2e52a1de292bdff3b764090c1f19fee8ea6382ef29c"
+      ]
+    },
+    "spacr.ops_compose.compose_window": {
+      "source_blocks_sha256": [
+        "87bdb396643a477bb627e2d4642b38d75f7bd3cfa8f7c25a35ad84cb9fbd50a8",
+        "97689de92764a30001f6ea74634b67de08e7e0eeed88b9c76236f8ab757fd5ed",
+        "ac2abf6417d5790e55dd5746790c064aa3f1b887543dfcfee4df4f1ca224891c",
+        "3e0cd1e32892e661af7193a5083d0c8bbbd94930c4968d51ef536f438d8c1915",
+        "79655d6fc8f7dbd9cafad49704e10dcc2189baf70bae979af20a706085af8367",
+        "d7ce9174385c9756b107097d86928744ce14e7d1a4d0a98890db2064e8409d3a",
+        "3a0a5e4856e93fc4a1d6db1c06f137b9156c0bded5b78b756ffa3267ed56112e"
+      ],
+      "source_sha256": "c1df9c8a9e62f7d06ccded8bedaf529dbdebb7db4d8e8caf1ebce67063eb730b",
+      "text": "平均每个微观图像字段将 ``window`` 转换为一个图像。\n\n被打破,而不是最后的作家获胜. 一个在邻居上挂着的绳子保持着一个绳子,在那里两条绳子不同意,而绳子是分裂的,一个分裂者会幸福地找到一个边缘。\n\n:param window: 建造微板样本位置框的直角。\n:param placements: ``site -> (y, x)`` 从溶液中,在好像素中。\n:param read_tile: 被称为微镜图像字段,实际上触摸窗口,所以一个微板样本位置的333微镜图片字段花费了一些阅读每个窗口而不是333。\n:param tile_shape: ``(height, width)``;在被忽略时从第一卷中阅读。\n:returns: ``(image, coverage)`` - 平均窗口和每个像素有多少插件,覆盖被返回,而不是被排除,因为没有插件的像素不是黑色像素,只有计算分开它们。",
+      "translation_source_blocks_sha256": [
+        "0d33849209cc0a5b96b90b7f0a718734b0fe587a276ac33f53f52e27e955257b",
+        "f8f12f1f60c86ac626e0e396a83e4218be85852d10d2d66b1ea1dd20fca15fe1",
+        "56e855c037a2910c7a50483d27c0936aae1d96a69550736022b35c5eedc3d208",
+        "3e0cd1e32892e661af7193a5083d0c8bbbd94930c4968d51ef536f438d8c1915",
+        "0e1055380e037ae180fc185cba016c90c03ce129c6f9031f73bff2933f2335af",
+        "d7ce9174385c9756b107097d86928744ce14e7d1a4d0a98890db2064e8409d3a",
+        "2010fb9707fec5ab45e6e5a7fa0c0b62b90c304b72051227b900c460caa0bc62"
+      ]
+    },
+    "spacr.ops_compose.overlap_gain": {
+      "source_blocks_sha256": [
+        "c4476aa947979d92f771dacbea950dee646f536433a763ca11d1a36b0dc9715d",
+        "89ca015b2d5aa50547c622a414c459be744e23c64da564eb88522158f93514c8",
+        "d03e4bcb5edd4c5347a14599a8953b221e5caff17efc1da89c886b4cc7d7d7bb",
+        "4802cc79e512cb5d3c19046eb9c357f0e916736c1a017a339d55de61c610051c"
+      ],
+      "source_sha256": "bd21234417e94b00787c4156218f4d2b517e68675aee3e5270ada719116a06e5",
+      "text": "噪音收益平均购买,超过像素,一个字母实际上达到。\n\n平均覆盖的 sqrt:一个信号的平均 n 独立样本分为 sqrt(n) 的噪音。 仅在 COVERED 像素上报告,因为微板样本位置的角落通过一个显微镜图像字段达到,包括未透露的背景会报告像素没有测量的收益。\n\n部分 15 测量 1.15x 为 A1 在 14% 拉斯特上方, 一个比同一地质上报告的组合器平均为两倍。\n\n:param count: 覆盖范围从 :func:`compose_window`。",
+      "translation_source_blocks_sha256": [
+        "c4476aa947979d92f771dacbea950dee646f536433a763ca11d1a36b0dc9715d",
+        "93253a00e1608ccd75fc307d14beb905524e9e48d88a5107bd81c9f6365ca7fc",
+        "d03e4bcb5edd4c5347a14599a8953b221e5caff17efc1da89c886b4cc7d7d7bb",
+        "4802cc79e512cb5d3c19046eb9c357f0e916736c1a017a339d55de61c610051c"
+      ]
+    },
+    "spacr.ops_compose.windows_over": {
+      "source_blocks_sha256": [
+        "d09520c0f1100b5706041dffba94e97b464724d398a47796fac909616e1d18e3",
+        "d58cc12c06301003643d33b1697964bb2fd465183d74b8b2e0448dc9df11d3d0",
+        "5fd2da00e9ba4dccea7b96d40f9e7c5f1571ad527aa282cd625ee79eec663344",
+        "7446032b6fb00a83a0a8f3f580218756645806d129e7f196c786388bce4e876c",
+        "53747ea6692116a69328604abfec580c74bbdaf5a2795b48887b0d399d987251",
+        "0127f37f3eef338fcd6c711bd0cce0b880dd9be69f3a463a99ab86702250c50b"
+      ],
+      "source_sha256": "d94324d86aec939ca54a63a292216fdba17fdc24b17abcc8e68a5f8f53338c27",
+      "text": "微镜图像字段一个插入窗口,在拉斯特顺序。\n\n窗户上滑的目的和B3是原因:一个窗户边界的对象是一个对象,它只能在窗口上相匹配,如果两个窗户看到所有的。\n\n:param canvas: ``(height, width)`` 微板样品位置框。\n:param size: 窗口边缘在像素中。\n:param overlap: 邻居的窗户共享多少\n:raises ComposeError: 当超层不小于窗户时,这将使冲击零和 iteration 无限。",
+      "translation_source_blocks_sha256": [
+        "bb6ecb963eef28edd2ef7de3e30fe53f993022036fa9af983e73800ed31bc169",
+        "b3a8d32f1bc7fb3f7c33078ea72962296c8a0fe923e3e0125b1c6444ed7e49cc",
+        "3469ef7518f7877a9cf13d7144be25a1367b74879e0187fabb24f50e69dc0d57",
+        "7446032b6fb00a83a0a8f3f580218756645806d129e7f196c786388bce4e876c",
+        "53747ea6692116a69328604abfec580c74bbdaf5a2795b48887b0d399d987251",
+        "0127f37f3eef338fcd6c711bd0cce0b880dd9be69f3a463a99ab86702250c50b"
+      ]
+    },
     "spacr.ops_cycles": {
       "source_blocks_sha256": [
         "fe31e9bfe3333ee8779a4ec8407f1e89c9ee49f6db75491a7964ae5f7f89ae74",
         "59eba82e68561e13220794fd3a3318f848654998412cc57c0fbfd0ee0bb6e516",
-        "b5c2a3301612b0237721e7e027c5fcef9356ad279043251c629ffc9785e9294b",
+        "90315e3fd156e29559e43e7d3ee383dc8ceb030c0829dfc288910ecc091380dd",
         "7096248994d74057fe4c683729f92aa3f77532af0f3a151aecc1c3392cb5557a",
         "249061af88ef246039fe588712acd9cfcbb86b67e741dc3b8a73428c7d380608",
         "e307f8e489de0b346aecb63071c668c463ae5ab6261b7e819d07a3457d249492",
         "fc0202df87d042b6351dfea6e31dc398fe8ec41de8dbb0fd9f5f2f601680cbbb",
         "346b886d87b02facc49c1c17a06ed7561d4217a5268f15213c7ac6dffb08bc28"
       ],
-      "source_sha256": "1bcc5138b1fbf4b4f51a4a7d1a8e66ee39cbc6568a14ae31851e08214ed08b4c",
-      "text": "记录一个字段在图像中的序列周期。\n\n循环轴不是显微镜图像字段轴,而差异决定了这个模块的一切。 :mod:`spacr.ops_register` 设有两个不同的显微镜视野,覆盖一个显微镜图像字段的一部分; 在这里,相同的显微镜视野被图像十一次,舞台返回它,所以转移是几点像素而不是一个字段。\n\n也不能使用hoechst。 指令 372 PART 10 测量了这种采集:循环 1 持有每个站点的一个 5 个图像数据通道 ``DAPI-CY3-A594-CY5-CY7`` 堆栈,而周期 2 到 11 则持有四个独立的基础图像资料通道文件,根本没有 DAPI。 ,每个显微镜图像场-轴配准运行的图像数据通道在第一个周期后不存在于此轴上,PART 7的计划也无法运行。\n\n什么取代它是参考实施本身的答案. ``ops/firesnake.py:_align_SBS`` 提供 ``method='SBS_mean'`` 正是这个情况:基频道的最大,通过一个高百分比和剪辑,将四个分裂点频道转化为一个密集的目标。\n\n    位置 100 峰/中 169 到 236 转(-6..-27, 0..10) 位置 200 峰 / 中 218 到 281 转 (-4..-25, 11..21)\n\n    注册20个学期中有20个。\n\n这不是退而求其次，而是更好的通道。 DAPI 上的拼图轴峰值为 23 到 85；这里则是 169 到 281。斑点是点状且数量众多的，而细胞核平滑且稀少，所以在这里失去 Hoechst 没有任何代价。\n\n网站100座位在x = 0 到 10 在十一个周期和网站200 到 x = 11 到 21. 一个固体转换每个周期为一个整个好将携带这个差异到每个显微镜的视野,所以每个网站是注册自己的参考 - 这也是参考实施做什么,一个显微镜的视图周期在一个时刻。",
+      "source_sha256": "8afd13aa2ad6f2f40d67d1353f44032f9ad172b15c491e5aef6a08495e13f604",
+      "text": "记录一个字段在图像中的序列周期。\n\n循环轴不是显微镜图像字段轴,而差异决定了这个模块的一切。 :mod:`spacr.ops_register` 设有两个不同的显微镜视野,覆盖一个显微镜图像字段的一部分; 在这里,相同的显微镜视野被图像十一次,舞台返回它,所以转移是几点像素而不是一个字段。\n\n也不能使用hoechst。 在参考采集上测量:循环 1 持有每个站点的一个 5 图像数据通道 ``DAPI-CY3-A594-CY5-CY7`` 堆栈,而周期 2 到 11 则持有四个独立的基础图像资料通道文件,根本没有 DAPI。 ,所以每个显微镜图像场轴配准运行的图像数据通道在第一个周期后不存在于此轴上,并且在这里也不提供跨周期的Hoechst平均值。\n\n什么取代它是参考实施本身的答案. ``ops/firesnake.py:_align_SBS`` 提供 ``method='SBS_mean'`` 正是这个情况:基频道的最大,通过一个高百分比和剪辑,将四个分裂点频道转化为一个密集的目标。\n\n    位置 100 峰/中 169 到 236 转(-6..-27, 0..10) 位置 200 峰 / 中 218 到 281 转 (-4..-25, 11..21)\n\n    注册20个学期中有20个。\n\n这不是退而求其次，而是更好的通道。 DAPI 上的拼图轴峰值为 23 到 85；这里则是 169 到 281。斑点是点状且数量众多的，而细胞核平滑且稀少，所以在这里失去 Hoechst 没有任何代价。\n\n网站100座位在x = 0 到 10 在十一个周期和网站200 到 x = 11 到 21. 一个固体转换每个周期为一个整个好将携带这个差异到每个显微镜的视野,所以每个网站是注册自己的参考 - 这也是参考实施做什么,一个显微镜的视图周期在一个时刻。",
       "translation_source_blocks_sha256": [
         "fe31e9bfe3333ee8779a4ec8407f1e89c9ee49f6db75491a7964ae5f7f89ae74",
         "adf1e305ae9dba79b070d83b2f725902c8a06d9df956a8efd987d42d8c981c67",
-        "172c1dd510b62b029e4078701df69973133b62439ab1bd59041689aa10406209",
+        "2db46412854c56e2f0df91b959a9ff7fbd62aa4fb99b6e19327b24f77bb0dccd",
         "36253605dd997bcb78170c81396384029bcbdcbb1091448a58c07a6a0747de18",
         "249061af88ef246039fe588712acd9cfcbb86b67e741dc3b8a73428c7d380608",
         "e307f8e489de0b346aecb63071c668c463ae5ab6261b7e819d07a3457d249492",
@@ -46724,7 +47214,7 @@
     "spacr.ops_phenotype": {
       "source_blocks_sha256": [
         "de198eeeda9310f7d14e7b526c7b2ebe778d17a6e78c6ad7bd31eb90105d460f",
-        "234152f444ed13a4ca3b088c4e4e7ab701e99acd84c438adb0c7ba9248bc34e6",
+        "15b6ba8f0b8f4b7dc07dc8d214e10edeaa924f5a0458a3323b632135776f44cf",
         "aba66c01e9fd3ca1e4f3ee03f851444b1e73a9b7277187cc7e89d4d43f1f054c",
         "1e905db470b8f54f7dac6b8d239145f7797eb95d1dc45337bcc4d0c5ddcbf816",
         "40c611e4715926fb05dd18ff797a6e94eba87558f101cbec42bdfecd9129dc9f",
@@ -46732,11 +47222,11 @@
         "5607acd4c2f46376cf0c7b7ee4acf752e2b1b62a47a212c2da3330ce1393c2ac",
         "bf4cd9bd465d330b3e27b08bfa7134ca5f33b3b171e37f0f5104bba8681abe12"
       ],
-      "source_sha256": "d89e59c264803f17d46f2750cca9a3c9b633042c3fb3c30f75e54d64579d1e1e",
-      "text": "阶段A4:将现象收购放在序列上。\n\n什么是这个步骤? 现象图像是 2960x2960 在 20X 和序列图像为 1480x1480 在 10X, 相同的圆板. 步骤 A4 指示 372 要求一个转换每个现象显微镜视野到序列框, 调整在核斑点上, “并不要模拟一个在另一个 - 调整,不平均。\n\n为什么这不是像素问题 在大化变化和两种不同的收购中,一个像素邻居并不意味着什么,但一个核是两层核。 因此,调整在核中心上运行,而 :func:`spacr.ops_merge.align_by_triangles` 仅仅从其安排中提出转型。\n\n为什么这项提议不是答案? 测量在实际板上,三角共识是双重的,并且双重成长,随著相同的薄度。\n\n    什么被要求的尺寸返回的入口身份 0.9878 56 % 尺寸 0.25 0.2469 100 % 规模 0.25, 1 px 滑板 0.2065 53 % 范围 0.25, 半点保持 0.2916 23 % 程度 0.25, 三分之一保持 0.3596 15 %\n\n一个 1.2 % 规模错误是 1480 倍的显微镜视野中移动的 18 倍,这就是为什么一个点组的准确副本得分为 56 % 而不是 100. 最后两行是每对实体模块的形状,这是第一次尝试的 - 两个显微镜图像字段部分覆盖,图像两次,是正确的“一些点,移动一点”。\n\n因此,共识是种子,而不是结果。 该模块采取它,发现它所涉及的相似之处,并在封闭形式中重新解决相似性; 接下来,它再次在邮件上带来了更好的转变。 这是同样的论点 :func:`align_by_triangles` 已经为其翻译 - “不是精制,这是工作与不之间的差异” - 适用于规模和旋转也。\n\n它报告了多少核同意,三角共识不行。 `align_by_triangles`返回了一个转换为每对它曾经交付,包括现象微镜图像字段和序列微镜图片字段从微板样本位置的相反侧面,因为三偶然相似的三角总是可以找到两个组数几百点。",
+      "source_sha256": "abb267fa0f26aa14ac7fe73dd99d993e671396ee1d294579c58cf32f28a63bcf",
+      "text": "阶段A4:将现象收购放在序列上。\n\n这个步骤是什么? 现象图像是 2960x2960 在 20X 和序列图像为 1480x1480 在 10X, 相同的圆形好. 这一步骤产生一个转换每个现象显微镜视野到序列框, 与核滑板相匹配. 它不像任何收购到另一个: 转换存储和像素留在他们所在的地方, 因为重新模拟一个显微镜视野来比较它是一个失去的方式说它在哪里。\n\n为什么这不是像素问题 在大化变化和两种不同的收购中,一个像素邻居并不意味着什么,但一个核是两层核。 因此,调整在核中心上运行,而 :func:`spacr.ops_merge.align_by_triangles` 仅仅从其安排中提出转型。\n\n为什么这项提议不是答案? 测量在实际板上,三角共识是双重的,并且双重成长,随著相同的薄度。\n\n    什么被要求的尺寸返回的入口身份 0.9878 56 % 尺寸 0.25 0.2469 100 % 规模 0.25, 1 px 滑板 0.2065 53 % 范围 0.25, 半点保持 0.2916 23 % 程度 0.25, 三分之一保持 0.3596 15 %\n\n一个 1.2 % 规模错误是 1480 倍的显微镜视野中移动的 18 倍,这就是为什么一个点组的准确副本得分为 56 % 而不是 100. 最后两行是每对实体模块的形状,这是第一次尝试的 - 两个显微镜图像字段部分覆盖,图像两次,是正确的“一些点,移动一点”。\n\n因此,共识是种子,而不是结果。 该模块采取它,发现它所涉及的相似之处,并在封闭形式中重新解决相似性; 接下来,它再次在邮件上带来了更好的转变。 这是同样的论点 :func:`align_by_triangles` 已经为其翻译 - “不是精制,这是工作与不之间的差异” - 适用于规模和旋转也。\n\n它报告了多少核同意,三角共识不行。 `align_by_triangles`返回了一个转换为每对它曾经交付,包括现象微镜图像字段和序列微镜图片字段从微板样本位置的相反侧面,因为三偶然相似的三角总是可以找到两个组数几百点。",
       "translation_source_blocks_sha256": [
         "de198eeeda9310f7d14e7b526c7b2ebe778d17a6e78c6ad7bd31eb90105d460f",
-        "7cd5a5b42e496ee2815fb08a2435cbc801e461e914bb6e331896ad464af218f3",
+        "311080909e99ed33416e5d7a765da1e9d9db40af976fdab48a0250e8de6fd15b",
         "2a5bf43216a2c6f0047419ee44c50da1cfadfee8b5ee404cd4346d442da6e06d",
         "7b5d35684483202edc44ae2b4d5baca74a2815aa0a77f2736664002df39f5545",
         "40c611e4715926fb05dd18ff797a6e94eba87558f101cbec42bdfecd9129dc9f",
@@ -51935,6 +52425,128 @@
         "8c03003db283db3762624391d4608b341bf7df06efea695d16289affadac0db2"
       ]
     },
+    "spacr.point_patterns": {
+      "source_blocks_sha256": [
+        "5e6d40b8da1045db5738e70bf648b08ad15aa3ec8e515bbdfc7abe2ab5aa75a0",
+        "1cccded9482cef56b40d46a1b1929f08fb2208f40ffbd5c305feeca7e5333cf0",
+        "e88794e50fe16f12388be9a54aac50ce37aa29faac35c72584d4d8fa204c11e9",
+        "54ff3b1ba900429ec02fddf04631a956ef3df389bbfda5186c28a26a9de31dc7",
+        "c03cc5582cb00ef98dd144d0b7bd246bcafd7e3f1db320c2fb5b5591b501c18f"
+      ],
+      "source_sha256": "f6d369d32b71671fb501459da9f5e6ab7d64b61d554dcb54b4b1237b7928b5a2",
+      "text": "这个微板样本的位置是否分裂,分散,或者没有 - 反对右零。\n\n什么包不能问. :mod:`spacr.object_distances` 说一个对象是从另一个,和 :mod:`spacr.bystanders`说一个细胞是否有感染的邻居. 也不回答一个问题一个焦点的感染实际上立场: 这个微板样本位置的感染细胞安排更紧密,比机会会把它们? 这是里普利的K,这是统计数据,转变“这两个细胞是接近”到 \"this well is clustered\"。\n\n一个微板样本位置不是直角,一个微镜的视野与一个旋转单曲器不是直径,一个零,将点在边缘框上将呼叫每个掩膜与一个阴道边缘 \"clustered\" - 点在组织中积累,因为没有别的地方。\n\n边缘纠正不是可选的,它是得到的部分 SKIPPED. 边界附近的一个点在窗外有它的邻居的一部分,所以它发现的邻居比它有少; 不纠正,这个缺陷被称为分散,而且最糟糕的是,谁都关心的射线。 :func:`ripley_k` 适用于减少样品(边界)纠正默认:在射线r,只有点至少在边界内部的贡献。\n\n框边缘也是边缘的. 距离到边缘显微镜的视野是计算在一个掩膜包装一个序列的背景整环,所以走到图像边缘的一个掩膜被视为切断在那里,因为它是。",
+      "translation_source_blocks_sha256": [
+        "b3ab9e20b2684aaf7b4e0a81b26904ccb19d6c9151d13a98ab0f7387a1013dde",
+        "019d13cc2dd4383a7c971afc4aa87f74d893d4214171670580e7ce575ce2d40a",
+        "f9a19c412579ac24bd94ab5a72df3d8971e6402b72dba0a03f6ca62ce90c62dd",
+        "ec9c24b5f1edb98008505dfdc8dfc497973961ccbf1a6fd6a442eda36058ad7f",
+        "b63398c934a85785025f317fef0f7e82afb452ac0a7de4159c8604b33a236b4a"
+      ]
+    },
+    "spacr.point_patterns.csr_envelope": {
+      "source_blocks_sha256": [
+        "29267a55cb1deef4d1e809795f588b9149163163bd54132f7ec1a06b2a17ce66",
+        "06b5820b5719e3d05af6732d816556e187d0a789c445f97c49e20aa7963a5dea",
+        "b064ddcb01991f9fe465136407bb75ced605ac807b29712bd595317de10dcb68",
+        "1ff22b8a6e7bfff76d47790b1d1e562fa53f83ef0cc77b377f316c2fed2a2f8f",
+        "c5849ece58ef1b9fc72dbd130d4e1515f5f1411197c214ba422381937bd278ab",
+        "18e8616620a92eef60303c1b216b7f388a86187606999e1e208c536eb6fdc08a",
+        "27c87cd4610abfadc0280892a86667baf0044aa391e0ac65a44784c11d1243e8",
+        "2f7714219d876a8717d56475202b43b81bbee7287661969a12befebd72d51d80",
+        "ec1858dd53ea3338064d46aadd8ae5972c136cb59ac3e037fee99e77d440ec76",
+        "21dc32574b16c0ec8a0791ccb2e35aabc5624638beff72e5f37ac21ad0a445bc",
+        "88e2bd06b1f67fd1c68cedfea279f26c6d7e91b756b7f680ed0a749873979df5"
+      ],
+      "source_sha256": "e7846b22e2547ed9b8eae5d571f68e3c30706b5fcf48ab54d88c68fd16292b44",
+      "text": "L - r 为 ``n_points`` 分散随机为 ``mask``。\n\n:param mask: 在相同的窗口中,观察到的模式被测量。\n:param n_points: 要分散多少点 - 观察的计算。\n:param radii: 相同的无线电\n:param spacing: 相同的像素尺寸。\n:param simulations: 有多少偶然的模型\n:param seed: 固定,所以一个包装是可重复的。\n:param correction: 与使用的观察相同的纠正。\n:returns: ``r``、``lo``、 ``hi`` 和 ``mean`` 的 ``l_minus_r``。\n\n点分散在掩膜中,而不是在边缘盒子里,这就是为什么这个功能存在而不是分析 CSR 变量的观点:分析结果占据了一个直角,而一个微板样本位置则是一个磁盘,里面有洞。\n\n对一个没有 - 或相反的 - 包容的观察将两个不同的估计,它们之间的差异将看起来像生物学。",
+      "translation_source_blocks_sha256": [
+        "29267a55cb1deef4d1e809795f588b9149163163bd54132f7ec1a06b2a17ce66",
+        "06b5820b5719e3d05af6732d816556e187d0a789c445f97c49e20aa7963a5dea",
+        "b064ddcb01991f9fe465136407bb75ced605ac807b29712bd595317de10dcb68",
+        "1ff22b8a6e7bfff76d47790b1d1e562fa53f83ef0cc77b377f316c2fed2a2f8f",
+        "c5849ece58ef1b9fc72dbd130d4e1515f5f1411197c214ba422381937bd278ab",
+        "18e8616620a92eef60303c1b216b7f388a86187606999e1e208c536eb6fdc08a",
+        "27c87cd4610abfadc0280892a86667baf0044aa391e0ac65a44784c11d1243e8",
+        "2f7714219d876a8717d56475202b43b81bbee7287661969a12befebd72d51d80",
+        "ec1858dd53ea3338064d46aadd8ae5972c136cb59ac3e037fee99e77d440ec76",
+        "8a4024c0410fcc38162b2ce8a5817be02baa7eea0fa88f88ba01f1edc6421b86",
+        "906bc5e85acb9a19af89652c9ee902ffd44aad5c27d27e594ffa8b505f034896"
+      ]
+    },
+    "spacr.point_patterns.ripley_k": {
+      "source_blocks_sha256": [
+        "90257b05e0ad694bc72388ba4faa4b3362f2e642f3476864050d13a86f318119",
+        "0c7ff1f0acd906eab5f3382b470e9c37bac3a2d762e1af1cee803a8d5418f52b",
+        "487d49c4e04bee008b1b630511c0b94e66bcde08fb52b79f225fff99ba1bfb7c",
+        "1f90e4330cfa61e0b3c9e20ebc9a2a2bab57cdf86b37475f8ccd39f150779640",
+        "d4a69a29160046b7b88634bdaad5bf8d147c00174d3063fe80fbe88712464ba4",
+        "cf1474cd52f60d7e7ddfa9e31e132a8d87f3e07028d5cad8180c943166579872",
+        "9793425f3a3dd9d8db93b02b6b16d79d2502d601303a1d2fe8553af3bba32620",
+        "5d91064f893b652c8c8dba10435bf459391842b9dd74f9cf38a4181269e61cb8",
+        "4e78fd9e2255bad7aaa84912b30bd1d9691312ecc593ccf30ff2c0f981cb4cd2"
+      ],
+      "source_sha256": "6bcd283db0dee0c3cccf4e115c39f9e90617463ea81ec469806776fc4298478a",
+      "text": "里普利的K和L为一个点模式在一个窗口。\n\n:param points: ``(n, 2)`` 以序列为序列(岩,列)的序列,因为 :func:`spacr.object_distances._centroids` 将其返回。\n:param mask: 数组, 真值在一个点可能是.\n:param radii: 以 ``spacing`` 的相同单位进行评估。\n:param spacing: 像素大小; ``None`` 意味着光线在像素中。\n:param correction: ``\"border\"`` 为减少样品修复,或 ``\"none\"`` 查看修复的价值。\n:returns: ``r``,``k``,``l``,``l_minus_r``和``n_contributing``。\n\n``l_minus_r`` 是要阅读的列. K 成长为 r 方形,所以两个曲线是不可能通过眼睛比较的; L 是其变异稳定的方形根,在完整的空间随机性下 L(r) = r 准确,所以 L (r) - r 是平线在零 无论密度。\n\n``n_contributing`` 不是装饰,它是边界纠正保持在那个射线的点数,当它落入单个数字时,序列是算法,而不是证据。",
+      "translation_source_blocks_sha256": [
+        "90257b05e0ad694bc72388ba4faa4b3362f2e642f3476864050d13a86f318119",
+        "0c7ff1f0acd906eab5f3382b470e9c37bac3a2d762e1af1cee803a8d5418f52b",
+        "487d49c4e04bee008b1b630511c0b94e66bcde08fb52b79f225fff99ba1bfb7c",
+        "1f90e4330cfa61e0b3c9e20ebc9a2a2bab57cdf86b37475f8ccd39f150779640",
+        "d4a69a29160046b7b88634bdaad5bf8d147c00174d3063fe80fbe88712464ba4",
+        "cf1474cd52f60d7e7ddfa9e31e132a8d87f3e07028d5cad8180c943166579872",
+        "9793425f3a3dd9d8db93b02b6b16d79d2502d601303a1d2fe8553af3bba32620",
+        "3656d2c174312852a20c3003e09028b103c2db0a7e3099edbfb33e239ad3272c",
+        "315c963c75c332c99a1f59359be6db00dd8deb93a7a5e9ad73949b4468bae852"
+      ]
+    },
+    "spacr.point_patterns.ripley_test": {
+      "source_blocks_sha256": [
+        "bf0749879abc9c73c58808a237c9bc3768770792896fddfd1dc3a2dfc477db13",
+        "9e1511bdfae77575a990934e224a8191fb02696e0328ac31b450d4d37b03339e",
+        "c59789adca4517cc91848b7ac307dfe7042d24ae35f011380a3d2cbeb0e192fa",
+        "5ebeb6e9c0c36b4d30c13247cfd5950ee4eef69b4426e7fff70849c287e5064c",
+        "9a06215fbf7df071551676da612420248a70da832769a1c167549ace236b88ab",
+        "9af72fcdd2ece7a834c8b2a157cf5f0869ad268ad89e96edea243e2fd8ff651e",
+        "b6fb730a253f866acab796a3f83e23806791a67142ec7068f870a5761097b9bb",
+        "06682b9f7d3b4adfa8d1719994b4349a0f0b744cbe40737a64baa07a9129e778",
+        "63be92f0c819714bf810c191d189ea29754b7a22a22bb15f7ee87b6bfc050b86",
+        "2f352cbe7ea9bbc4f55e3f37350296e88b868974e1e708847bb35df7a19fc383"
+      ],
+      "source_sha256": "e8350fe2b38c6cafe6f7bbceedc64aa7b86893be99b86b2cb99dad0eda89f8df",
+      "text": "观察K对一个尊重掩膜的零。\n\n:param points: 观察的中心。\n:param mask: 窗口。\n:param radii: ``None`` 要求 :func:`suggest_radii`。\n:param spacing: 像素大小\n:param simulations: 封面背后有多少偶然的模型。\n:param seed: 固定,所以答案是可重复的。\n:param correction: 它适用于观察和零。\n:returns: 列为 :func:`ripley_k` , 加上 ``lo`` , ``hi``, ``clustered`` 和 ``dispersed``。\n\n``clustered`` 和 ``dispersed`` 是每个射线,这不是一个测试. 二十个射线给了二十个机会离开一个2%的包围,所以一个单一的游览是接近无意义的;在附近的射线上进行它们是值得相信的事情. 列是故意命名为它们是什么 - 一个游览这个r - 而不是 \"significant\"。",
+      "translation_source_blocks_sha256": [
+        "bf0749879abc9c73c58808a237c9bc3768770792896fddfd1dc3a2dfc477db13",
+        "9e1511bdfae77575a990934e224a8191fb02696e0328ac31b450d4d37b03339e",
+        "c59789adca4517cc91848b7ac307dfe7042d24ae35f011380a3d2cbeb0e192fa",
+        "5ebeb6e9c0c36b4d30c13247cfd5950ee4eef69b4426e7fff70849c287e5064c",
+        "9a06215fbf7df071551676da612420248a70da832769a1c167549ace236b88ab",
+        "9af72fcdd2ece7a834c8b2a157cf5f0869ad268ad89e96edea243e2fd8ff651e",
+        "b6fb730a253f866acab796a3f83e23806791a67142ec7068f870a5761097b9bb",
+        "06682b9f7d3b4adfa8d1719994b4349a0f0b744cbe40737a64baa07a9129e778",
+        "63be92f0c819714bf810c191d189ea29754b7a22a22bb15f7ee87b6bfc050b86",
+        "852c2c0b81bd925217d7dc713b4d4281d8b58d22f53f37606bab58548d55c0f4"
+      ]
+    },
+    "spacr.point_patterns.suggest_radii": {
+      "source_blocks_sha256": [
+        "2b483c72d469e0b49bd391d4f7ce50b539c6f1e329f261f8c7a20c4b4b20157f",
+        "c92fda213f284d2d89fca90262e540efb6f0cef614921dd8b636d82a4cca909d",
+        "b24fb5313c0b5b7d7aa0697d909bfe7ac391fb97a0727299b1feb4a1ad75d4c9",
+        "c5d4d83593a1ac3bab87de551c580e86733b96f50f03350bd2e8f733136e24b5",
+        "91413c7923c98b081f3b83fd21aef61e939bd8ab133d66aab78106a778071d65",
+        "83d08d62437c6b9946e317ec569b83d28ee06c4071b80e75536977506c1835b7"
+      ],
+      "source_sha256": "120c2a81e9cfc6d500b2e4d025da6e95120a3c23718127caeb249993f401fe8d",
+      "text": "Radii 值得计算 K 在,为此窗口。\n\n:param mask: 布莱恩的序列,一个点被允许在哪里。\n:param spacing: 像素尺寸,所以放射回来作为真正的长度。\n:param count: 放射能多少\n:returns: ``count`` radii,平等的空间,结束在窗口更短的侧面 :data:`MAX_RADIUS_FRACTION`。\n\nK(0) 是 0 根据构建,并且不提供任何信息;包括它只设置一个点,每个曲线同意。",
+      "translation_source_blocks_sha256": [
+        "2b483c72d469e0b49bd391d4f7ce50b539c6f1e329f261f8c7a20c4b4b20157f",
+        "c92fda213f284d2d89fca90262e540efb6f0cef614921dd8b636d82a4cca909d",
+        "b24fb5313c0b5b7d7aa0697d909bfe7ac391fb97a0727299b1feb4a1ad75d4c9",
+        "c5d4d83593a1ac3bab87de551c580e86733b96f50f03350bd2e8f733136e24b5",
+        "91413c7923c98b081f3b83fd21aef61e939bd8ab133d66aab78106a778071d65",
+        "b0237ca97524fd4b858b983345113d2c568231eda1bd48e562721a745fcc6515"
+      ]
+    },
     "spacr.portable_paths": {
       "source_blocks_sha256": [
         "3572011e229dac9e9401a111bd863f9df90a554f9aae244edfe7de6811feea3a",
@@ -57021,26 +57633,6 @@
         "74e322d56a3471f873222108388f97f88dc115412194b4438d8dfd239c50ce23"
       ]
     },
-    "spacr.qt.app.open_at_the_measured_width": {
-      "source_blocks_sha256": [
-        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
-        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
-        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
-        "dd6d8d5c179974bfa18f2585de6fa8dfc8726f8cadf4a646303c07a12aaa7b3a",
-        "c50fd5fc2f6e8cdaa9676759561050f59964a77a513216fe890fb5d59ec3e458",
-        "ba32767c53bd1731c30104e54a07b8e8a6bca71ea5f5cc028c641fc5f617cc84"
-      ],
-      "source_sha256": "1f9f1b85f54d8840bd44e00847fb6bd8a947710b4e995a475ae3f3803d79af1a",
-      "text": "将新鲜的窗口扩展到测量模块需要什么。\n\n:returns: True 当窗口重新调整时。\n\n指示 359: “每个模块首先必须开放足够宽,以免其设置的右侧被切断”。 宽度来自 `spacr.qt.layout_policy`,读取一个发明的文物 - 每个数字在它中测量,通过构建每一个模块的屏幕外,并询问它的设置列是否持有超过它可以显示的。\n\n它只会不断增长,而不是谨慎。 上面的 `win.show()` 评论记录了为什么这个窗口不会最大化:在 X11 转换,VNC 或虚拟框架上, \"available geometry\" 是远程会议所要求的,而且它往往是一个固体。 一个允许缩短的政策会认真对待这个要求,并打开一个窗口比用户已经获得的一年更小。 生长在一个糟糕的数字是由粘贴束缚的; 把它放在一边,不受任何东西的束缚。\n\n没有论文,什么都不会发生. `layout_policy` 落后到 1200 px - 文本合适的插图的宽度在每个应用程序视图上构建 - 这个窗口已经在 1200 开启,所以不携带文件的轮子正如它所做的那样行事。\n\n永远不会扔掉,一个开幕式的尺寸不值得失败的发射。",
-      "translation_source_blocks_sha256": [
-        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
-        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
-        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
-        "ab452d9958b7b0be8c607ac3462bb2e5cc3297391ec42616f5f8ec96efd3aca0",
-        "4319b5fa4215fac451983af05a97ff1717786e5c95810ad6313b4924909bb8f4",
-        "827774a19140ce4a6c7efbb88bc64f3012844b82a7021bd835a46728747ade94"
-      ]
-    },
     "spacr.qt.app.register_app": {
       "source_blocks_sha256": [
         "9bc38753de7dbb6d67fb69b992412a81f71a211fb305e9574f305fc809208793",
@@ -57143,26 +57735,6 @@
         "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
         "4b67ff0258ffafcb4c1932f082e553d500fe768c1dddc6d9d4bf8b4e15b1ec52",
         "99761f9f1dc0fc63ff45dc583f97058276b00ec569a92d72d1388b589dc4d53a"
-      ]
-    },
-    "spacr.qt.app.the_missing_pip_escape": {
-      "source_blocks_sha256": [
-        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
-        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
-        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
-        "47a7f8f7b1ad99bb60930a938eb3654570d00ef5ed087c84f5f0c19f0e0a0bcb",
-        "c803138323dab9e1deb1bba8797f0fe29d5dd9fc36c14e9367f4191aac354a48",
-        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
-      ],
-      "source_sha256": "d313befba800c8ae28b095049b751f7806434f91fc1839b2475818a65b1e4d78",
-      "text": "命令 WOULD 工作,当升级失败了,因为想要的管道。\n\n:param output: 所有升级写的,当工作进程抓住它。\n:returns: 命令行显示用户,或 None 当此故障不是错过的芯片一个。\n\n一个失败的应用程序可以回复,指示01要求它。桌面安装者构建他们的环境与``uv venv``,这不是种子管,所以一个安装,其更新程序仍然运行``python -m pip``在它开始之前失败 - 这是一个启动陷阱:修复不能通过路径它修复。\n\n任何其他输出代码都会得到输出,没有别的东西。 寻找一个解决一个失败的解决方案,这不能识别会发送一个用户执行一个命令,这不是他们的问题。\n\n衍生方式 :func:`spacr.updater.find_uv` 取出它,它落回到安装器的路径 WRITE 而不是返回任何东西:在受影响的机器 `find_uv` 是安装的构建太老了,所以一个用户可以检查的名称比沉默更值得。",
-      "translation_source_blocks_sha256": [
-        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
-        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
-        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
-        "fc8dc15f427246d1d9c5b86c338320884cf6c62b25b971894f667b253a7f4fae",
-        "a2ccc11891aaa33a743f0be0e159ab9d6bc63b9a1ca011fb83d12b9906064923",
-        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
       ]
     },
     "spacr.qt.app.tile_sort_key": {
@@ -64649,92 +65221,6 @@
         "d40ff48d92e06cfe7afc9e307654b77ebf81d3c12ba934292b8ba195f5bb66c5",
         "a742fa3eb9f4e983a4f72e4d7b3accd3a5a0b45f2d6610ba6437abfdc1ff57c0",
         "cb37d1db9d0733ddc9ab9985f2e93f503c1db9948f1e9f5d872db91e6ac10597"
-      ]
-    },
-    "spacr.qt.layout_policy": {
-      "source_blocks_sha256": [
-        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
-        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
-        "778fe8aa440f16608cb7d28e6c5549613b3dcc411afedeb21c36adbc1e43a1a3",
-        "5b5ac30ad8a6d61adf597096f9860ebd7581c16cc1cecaddf587be4e262f1f0b",
-        "80c210c88962926c6f8eec8053855f6e41e29863dcae267419d0deec90418ed4"
-      ],
-      "source_sha256": "d2c795823f32cb0e2cf0ebb7c792fa739ab478aed31feea53b9409d2d243309e",
-      "text": "测量的窗口宽度需要一个模块,并在第一次运行时打开什么。\n\n报告是“每个模块首先必须开放足够宽,以免其设置的右侧被切断”,并且相同的像素尺寸可以描述三个不同的机器 - 因此,一个静态 ``resolution -> font size`` 表将错误地选择正确的 M4 Mac 引发它。\n\n这个模块是什么 创建的艺术品,``spacr/resources/layout_policy.json``,由``tools/measure_the_layout_matrix.py``制作的读者。 它中的每一个数字都是通过在容器中构建每个模块外屏,无法生长并阅读被剪辑的东西来测量 - 相同的规则指令350的声明,而不是关于它的第二个观点。\n\n不是电信,而359这样明确地说: \"capture\" 意味着在本地偏好中阅读 Qt 应用程序视图测量,而不是向任何地方发送硬件细节。\n\n它不进口任何重量,该项目需要从字体的加载器: ``json`` 和 ``importlib.resources``,没有 Qt,也没有 numpy. Qt 测量作为论点,所以政策可以阅读和测试在没有显示的机器上。",
-      "translation_source_blocks_sha256": [
-        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
-        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
-        "74834f62d2528dfa207c2257dde36ad2c9dce65c3e5df80fee0514e3099d5192",
-        "fc9ae75949d8e14f1704c45ba53486ede15b2ac0518f1ef0bdd3b41723c55fbd",
-        "74b221edbcd574f0e809e1c454a658b96bb4d5e5cbda3b29db747d1e4fcd7300"
-      ]
-    },
-    "spacr.qt.layout_policy.minimum_width_for": {
-      "source_blocks_sha256": [
-        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
-        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
-        "361aea896d05923f7d1b8c504faec19374c38bb865e00c9183ec3de62c203592",
-        "5d96633cf9f2b4b82249ced9a457a5ddebaa3206a80211d34fc8ea673d99e868"
-      ],
-      "source_sha256": "fc6bf6f7351db0578d86c5885402087d2a8c7ebde50776514d7c17a1efefb598",
-      "text": "最广泛的测量要求为 ``font_scale``。\n\n:param font_scale: 优先, 1.0 是 100%。\n:param policy: 一个可以阅读的作品,而不是一个包装的作品。\n:returns: 逻辑像素,或 None 当没有测量。\n\n最糟糕的情况是模块之间,而不是中间的,一个窗口一旦打开,每个模块从内部到达,所以适合大多数模块的宽度仍然从最宽的中间中切断 - 这是报告。\n\n在两个测量尺寸之间,它需要更高的尺寸,因为建筑物测量一个阶段,并且要求与尺寸上升。",
-      "translation_source_blocks_sha256": [
-        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
-        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
-        "e04974a8721ab4069fad30368e7788152af93b5f3197d3f02611d365743eede1",
-        "f48501b0657e2c96842bee6afcba9e285160f14fff368864979bb291af293b78"
-      ]
-    },
-    "spacr.qt.layout_policy.read_policy": {
-      "source_blocks_sha256": [
-        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
-        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
-        "ec42036af7a1e345780978cedd24ce714264e793111254d13445663aa6398163",
-        "61573f865052f0f56164e7ec15517d756cd8215fce1b7cbdea006b0f9ec5b6f4"
-      ],
-      "source_sha256": "4a4d9eb173efac57897940d15e6db0629016705c05be890eaf36b223fe9d57a9",
-      "text": "包装政策,或 ``{}``。\n\n:param refresh: 重新阅读文件而不是从缓存中回复。\n:returns: 作为一个关键值地图,或一个空白的任何失败。\n\n度到空而不是扔,因为释放笔记板的原因:一个应用程序不应该错过打开一个窗口,因为一个资源文件不在一个轮子。",
-      "translation_source_blocks_sha256": [
-        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
-        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
-        "ed48adc532056133b17bdd3e9164a1a3cd2fe1fffaef56a18fca37b389704469",
-        "e6a0f107131a9c60dc9597ab3a4275ea8a38a7598748fde3072b6c9baeae9ba0"
-      ]
-    },
-    "spacr.qt.layout_policy.recommended_window_size": {
-      "source_blocks_sha256": [
-        "c76cab9648d2bd616507770dbafb29afe05b9c61e431d77120c3b4dfbc3c1931",
-        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
-        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
-        "0e880777f4a661f7d67b0cffb7229ed9882ce8ec03d0eb2ca922f4ce88832c30"
-      ],
-      "source_sha256": "790ea4853507e5a491134de5c65c32092eb07a5001b7fd138e3816a1651f3bed",
-      "text": "如何打开主窗口,考虑到应用程序视图是什么。\n\n:param available: 筛选的 AVAILABLE 地质为 ``(w, h)`` - 可用,而不是总,因为一个插槽或菜单栏拥有差异,而一个大于总的窗口部分在一个底部打开。\n:param font_scale: 字体规模优先考虑。\n:param policy: 一个可以阅读的作品,而不是一个包装的作品。\n:returns: ``(width, height)`` 在逻辑像素中。\n\n粘在筛选上,总是,这个订单是整个合同:一个测量要求比显示器更宽的是一个声明,这个模块不能在这里显示完整,不允许打开一个窗口在它的边缘。",
-      "translation_source_blocks_sha256": [
-        "5d5e6cef400bf88105678fc9388750c3c0022c5d74aeed0c5a70eeebacc5a7b3",
-        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
-        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
-        "5b5f175f525959ab4709565910b4fbd05ac6bc2dc7c14d732eb0a2f0e973472b"
-      ]
-    },
-    "spacr.qt.layout_policy.why": {
-      "source_blocks_sha256": [
-        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
-        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
-      ],
-      "source_sha256": "3e0a31a2a24df4d96fff2f23fc00c375ca290885d222c864e4bb0c8ee132a5a9",
-      "text": "一个句子命名证据,为日志线或提示。\n\n一个用户无法跟踪的建议是他们无法争论的一个,这个项目的整个历史是一个安排决策,没有人可以检查。",
-      "translation_source_blocks_sha256": [
-        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
-        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
       ]
     },
     "spacr.qt.linked_selection": {
@@ -89264,7 +89750,7 @@
     "spacr.qt.synthetic.synthetic_read": {
       "source_blocks_sha256": [
         "72e217d9dfa8f16b7e4f2a130a739814133bbce971bc2ed8b9effad86c26f340",
-        "b3541daab6f36ca042a1c4cbad1506b6d7d97aeb5dfff466b619bf024d4a09d9",
+        "f9b994cac5568e70139b2d1c9a3c51a010b651a168471696d91eb531d8ba5a6e",
         "84e888a703f938e500801697db5312861580bdd5b3d85034682975cb928b51aa",
         "a0d2eb0ccac7b344c687c23b38001f6e6938952a4f56ad5e3bae8645acd1a7ac",
         "93834d567039b8cec829485f787e7b66f997e5d45fff9f0cd6f2c378d1e87eeb",
@@ -89272,11 +89758,11 @@
         "8df11bc512c0660d8683c14b2f5b40e4731b53399f875cf5753fc1890de62b54",
         "403cfb7a8e9fd5e1ea0f76011ce8f4caacbebfd374762fa2c4182aae135c398c"
       ],
-      "source_sha256": "637dc173bf0d4c73d71f9be528f0bd5decfb687d2adeea3c2052aa39c6590384",
-      "text": "建立一个150基列,携带一个(列, gRNA,行)三重。\n\n配置是上述文档的 :data:`SEQ_TARGET`;这里构建的阅读正是由发送的 ``regex`` / ``target_sequence`` / ``offset_start`` / ``expected_end`` 默认版本恢复。\n\n:param column_barcode: 8 基列字符串代码。\n:param grna: 字符串编码为21base gRNA。\n:param row_barcode: 8 基序列条码。\n:param prefix: 安克斯窗前放置的停车场。\n:returns: 阅读基于150。\n:raises ValueError: 当条码是错误的长度时,一个沉默不大小的条码会将每个下流字段转移到许多基础和地图中,而这比停车更难看到。",
+      "source_sha256": "e281fa54535921a76848dea1db2ad21a4ff0f764d0bfb4500c28cdb1ec471c90",
+      "text": "建立一个150基列,携带一个(列, gRNA,行)三重。\n\n布局是上面文档的 :data:`SEQ_TARGET`;在这里构建的阅读正是由发送的 ``regex`` / ``target_sequence`` /  ``offset_start`` / ``window_length`` 默认版本恢复。\n\n:param column_barcode: 8 基列字符串代码。\n:param grna: 字符串编码为21base gRNA。\n:param row_barcode: 8 基序列条码。\n:param prefix: 安克斯窗前放置的停车场。\n:returns: 阅读基于150。\n:raises ValueError: 当条码是错误的长度时,一个沉默不大小的条码会将每个下流字段转移到许多基础和地图中,而这比停车更难看到。",
       "translation_source_blocks_sha256": [
         "72e217d9dfa8f16b7e4f2a130a739814133bbce971bc2ed8b9effad86c26f340",
-        "b3541daab6f36ca042a1c4cbad1506b6d7d97aeb5dfff466b619bf024d4a09d9",
+        "f9b994cac5568e70139b2d1c9a3c51a010b651a168471696d91eb531d8ba5a6e",
         "84e888a703f938e500801697db5312861580bdd5b3d85034682975cb928b51aa",
         "a0d2eb0ccac7b344c687c23b38001f6e6938952a4f56ad5e3bae8645acd1a7ac",
         "93834d567039b8cec829485f787e7b66f997e5d45fff9f0cd6f2c378d1e87eeb",
@@ -100867,6 +101353,48 @@
         "453dd3731ae186e8c8859b40e9a6c26c0678f339dfb719c1a69968ea975c7a80"
       ]
     },
+    "spacr.qt.widgets.dose_response.InteractionSurface": {
+      "source_blocks_sha256": [
+        "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
+        "c57a6b8302096558675756514531d43ef228029373925ad18354b845ee8c35e7",
+        "a8838e93eede86dbc0c5a189c9ac2a3167d3711c3bbe6a913c3ab91da0834f1c",
+        "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
+        "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
+        "dc87a52b87497f07dab4b0a7dc74309ff15ffe9ffff279f5827aa8fb89754592",
+        "7ffbc8a22d999cd0dd65066bec3f3ec59601de4d05d4e9db9fd0e81d0e180354",
+        "c84372f8412a63e564e962d034f6efb9a2c5fb1dfe45dc5781328309a63b96a8",
+        "fb87c6ca7155ca45f85d003363793c48048edfa1096e980c9de1d1d794cd58ec",
+        "d4b3538b72dcbb496a9de7d8a838ac4efe1f7d9d2a9d65689682d8e84b93d374",
+        "566706bfe73b5edb78b39f74240ba0aa2d6d613e74fc9425b8c412f1ee79936c"
+      ],
+      "source_sha256": "0773bb216a286909306218de334b749cee7621d406f721f590b79aba0a47ac70",
+      "text": "一个检查板的相互作用,每个细胞,与自己的轴。\n\n表面是结果,一个单一的指数不是,这就是指示387要求的几句话:“一个整个检查板的数字隐藏了完全的集中依赖的结构,使协同作用有趣。\n\n标志条约,因为每张论文都表明一个不同的:积极的意味着比预期的更多的效果 - 对抑制测试的协同作用。 预计表面是模型从两个单元素曲线预测的; ``excess`` 被观察到 minus 预期。\n\n:param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.\n:param dose_a: 能量A的独特浓度,上升。\n:param dose_b: 单一的物质B的浓度,上升。\n:param observed: ``(len(dose_a), len(dose_b))`` 效果, 0 到 1.\n:param expected: 什么是``model``预测每个细胞。\n:param excess: ``observed - expected``. NaN 在未测试的细胞中。\n:param n_cells: 细胞与观察。\n:param note: 什么不能计算,为什么?",
+      "translation_source_blocks_sha256": [
+        "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
+        "2cd6e8fb27d5fb38beef1d09119ed68ab186b1400ecf4c54e14b3d87f03fd486",
+        "21f3efc8807251951dc0a8b54ad2ae83db78e1a11144d472ea4a7429e75b73b4",
+        "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
+        "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
+        "dc87a52b87497f07dab4b0a7dc74309ff15ffe9ffff279f5827aa8fb89754592",
+        "7ffbc8a22d999cd0dd65066bec3f3ec59601de4d05d4e9db9fd0e81d0e180354",
+        "c84372f8412a63e564e962d034f6efb9a2c5fb1dfe45dc5781328309a63b96a8",
+        "fb87c6ca7155ca45f85d003363793c48048edfa1096e980c9de1d1d794cd58ec",
+        "d4b3538b72dcbb496a9de7d8a838ac4efe1f7d9d2a9d65689682d8e84b93d374",
+        "566706bfe73b5edb78b39f74240ba0aa2d6d613e74fc9425b8c412f1ee79936c"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.InteractionSurface.summary": {
+      "source_blocks_sha256": [
+        "dae1148ef92f3875abf20438daceb9f78c15d49d38a94b7df0488373adc13b63",
+        "b20dcc6953d0e0df9c2887afdbd967eeaed74630ed22bd677592c3c9ab026043"
+      ],
+      "source_sha256": "1dd9a976b2df7070a52b825921d3bcc45072d6ea1f4a0746f3cd42127c3facdd",
+      "text": "标题号码,每个人都说要在网络上,而不是它。\n\n最强的细胞和它的位置是可报告的;整个网络的平均值是这个类的数量是要避免的,所以它是缺席的,而不是提供的警告。",
+      "translation_source_blocks_sha256": [
+        "dae1148ef92f3875abf20438daceb9f78c15d49d38a94b7df0488373adc13b63",
+        "b20dcc6953d0e0df9c2887afdbd967eeaed74630ed22bd677592c3c9ab026043"
+      ]
+    },
     "spacr.qt.widgets.dose_response.MonotonicityCheck": {
       "source_blocks_sha256": [
         "e305f1817cd6815fcfdd0b4251ed5ceb70d122df49ecbbed8bc10d1a8331d7ab",
@@ -100907,6 +101435,72 @@
       "text": "一个行,为标签或错误消息。",
       "translation_source_blocks_sha256": [
         "502e408f926ce8c7a8bf60759f79c56ae4b2c15a2170a33c12fbeef43b69e332"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.SelectivityIndex": {
+      "source_blocks_sha256": [
+        "0cd154a814626f83465aa310d3501bc41b02f081ccdfc87d035be2681e44ac18",
+        "c295d337c8e80461c16bd4e70f53c1a31f105a387961c92efc435f3b43fedc62",
+        "cc5282c28dbce6c63528d2cba66b30c6002281e5b0b12c82c98ade2bd15bf0d9",
+        "b4e890de78da1c8b3c611e240d94bc7c8249d34ce1da7d0c009f66008b704619",
+        "52a6da885923f4c8729b68bd5d639283dd1b28d563c3ae10740e2943d381ef8b",
+        "2c8045fe4c0ba6e12b532ce475e20ecf0176e7e4535f223dede2af338198bba0",
+        "50718f23642c94afd6607103e1e3566aa417eb6a1097c80f7feb88a5fce8f4e2",
+        "9966001dfd490fcaaae65d0bbba9e4365d15c62047b28f78ef398ecb6549608e",
+        "a71bcd81e1dd053d8e0b09fcb252813e8d37f8d2d0595797863cde0e97c24f82",
+        "6a320402739d9d64be52a1ce72c65e66ed91e12e99730e1718d03868f495aeba",
+        "c8db2ac4637c30e2a49e514deefd3570c19da17698cb60a99d03ffd24f65b9a1"
+      ],
+      "source_sha256": "e86707c06b4def0bc9e47b35ff50b59d38cfe886a3bf8aadea7a898b1133643f",
+      "text": "主持毒性在寄生虫杀死,与间隔它值得。\n\n决定是否有任何人关心抗寄生虫化合物的数字不是 EC50 一个化合物杀死寄生虫在1 uM和主机单元在1.2 uM不是一个打击,而一个 EC50 引用一个纯粹的信任间隔,就不会说什么。\n\n引用与其间隔或根本没有,因为同样的原因,这个模块已经拒绝一个裸体 EC50 两个不确定数字的比例比其中一个更不确定,而没有间隔的选择性指数邀请读者将 1.2 和 12 视为相同的索赔。\n\n:param status: :data:`STATUS_FITTED`, :data:`STATUS_UNBOUNDED`或 :data:`STATUS_REFUSED`,重复使用单曲合适的词汇已经说话,而不是发明第二个。\n:param index: 定量比例,或 ``None`` 如果它不定量。\n:param index_low: 间隔的底部,或 ``None`` 为一个开放的侧面。\n:param index_high: 上端,或 ``None`` 为一个开放的侧面。\n:param log10_index: 两个 log10 中间点的差异,当两个曲线固定时,总是存在。 一个抽象,当 EC50 是无限的,正如 :attr:`DoseResponseResult.ec50_unconstrained` 一样。\n:param host: 主持人可行性合适。\n:param pathogen: 寄生虫适合。\n:param note: 为什么,当指数被拒绝或单边。",
+      "translation_source_blocks_sha256": [
+        "0cd154a814626f83465aa310d3501bc41b02f081ccdfc87d035be2681e44ac18",
+        "eb93d0de00c2ab5861fc7cd7695665e72c275235a567cdfc733a1751289eadd8",
+        "e32e19e660f5bbcd43e9c4aaba7b843e6781e9e1dc96d71c998f5e8d2fdbc327",
+        "b4e890de78da1c8b3c611e240d94bc7c8249d34ce1da7d0c009f66008b704619",
+        "52a6da885923f4c8729b68bd5d639283dd1b28d563c3ae10740e2943d381ef8b",
+        "2c8045fe4c0ba6e12b532ce475e20ecf0176e7e4535f223dede2af338198bba0",
+        "50718f23642c94afd6607103e1e3566aa417eb6a1097c80f7feb88a5fce8f4e2",
+        "9966001dfd490fcaaae65d0bbba9e4365d15c62047b28f78ef398ecb6549608e",
+        "a71bcd81e1dd053d8e0b09fcb252813e8d37f8d2d0595797863cde0e97c24f82",
+        "6a320402739d9d64be52a1ce72c65e66ed91e12e99730e1718d03868f495aeba",
+        "c8db2ac4637c30e2a49e514deefd3570c19da17698cb60a99d03ffd24f65b9a1"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.SelectivityIndex.summary_row": {
+      "source_blocks_sha256": [
+        "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ],
+      "source_sha256": "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772",
+      "text": "结果表的一个顺序,拒绝包括。",
+      "translation_source_blocks_sha256": [
+        "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.bliss_surface": {
+      "source_blocks_sha256": [
+        "c9c4744244fd44d68e52f0bd1d0f99513f03fc28616d4c42d020a5bb99ed115a",
+        "0e2c964c20df2a03ce703161a7a7f3cf0045ac428b69681232ad8693d010c6d8",
+        "bb2505bd60d09931c9b581b54206cd3ec47d83d630ae1f13d9c62e16a6c8d857",
+        "1f5bf89e7f59d2663c98256a03812ff1cbbbc81dcb49358b5fdad5b84fc14715",
+        "3cc4270ecfa214937033785467fd5fa813ae27879a47a56643ec41f238335dfd",
+        "f73592b75990af0dc101db048416650f6020f123f24584f17d459ae9361901d3",
+        "5295b259b8e40e3038690f68e0a6660427ebb503edc555b27ef3898c049ee9da",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25",
+        "ad0fe7d5da434acb96352d196219d593ed85679cf13b9f2b7dd06481e87edd78"
+      ],
+      "source_sha256": "c3e67acdf1a2fe240bb150995c7fb0a4d9c2d6b7b3ac9aa661f5702a1fca1b95",
+      "text": "祝福独立在支票板上。\n\n模型在一行:如果两个代理人独立行动,剩余的分裂是剩余分裂的产物,所以预期的效果是``Ea + Eb - Ea*Eb``。\n\nBliss 不需要任何相结合的匹配,这就是为什么它是最便宜的两个和一个到达的第一:两个单元素曲线已经在每个集中在网络上给了一个效果。\n\n:param dose_a: 代理 每微板样本位置的浓度。\n:param dose_b: 基于微板样本位置的B元素浓度。\n:param response: 按微板样本位置测量答案,相同长度。\n:param fit_a: 单元代理适合A(B保持在零)。\n:param fit_b: 单元代理适合B。\n:returns: an :class:`InteractionSurface`.",
+      "translation_source_blocks_sha256": [
+        "c9c4744244fd44d68e52f0bd1d0f99513f03fc28616d4c42d020a5bb99ed115a",
+        "db50d416d8f9ef73a7f5869bc6599eaa6be20d3aff4bdbf7db1b16d511e91994",
+        "ba431a78c7889ebeefbfc54a01c78bd328079c2b28ba9931a5f5d510ae93ab86",
+        "3d1c512d470718fd96f7a200a9632a06aaee95bcb6f413f2d17dd86f74144ecb",
+        "da858afcbeac612afb7ec069f330c44f1ee62d0b71d44d1e0467ec873e086aa7",
+        "d13d29e11eeed55af0e8e4bd7ae61c24bdd48df52a3b59dbc8d12d0403a97c65",
+        "5295b259b8e40e3038690f68e0a6660427ebb503edc555b27ef3898c049ee9da",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25",
+        "ad0fe7d5da434acb96352d196219d593ed85679cf13b9f2b7dd06481e87edd78"
       ]
     },
     "spacr.qt.widgets.dose_response.candidate_concentration_columns": {
@@ -100997,6 +101591,32 @@
         "b108add4d625f24ebe4ab73ba065fdbe104ed3e65dd0ca2672105e39548b48c1"
       ]
     },
+    "spacr.qt.widgets.dose_response.loewe_surface": {
+      "source_blocks_sha256": [
+        "b6875849a496e4d7d2cd6b7d588da39f6bbdced0d9f14fbb1e8a5b928f23c445",
+        "6173b3e24dd36612fa27562b37ec704b99dc246d8d421d62a6a904ce2d3158fe",
+        "8a11e9ab1f56960a5f091b99167eda6ca0f1cb9c9fa27a0f60c602ac5219b63a",
+        "298020726ba8bf6d675d4bf5c1f941299177e4b5374adb6eff6bc7c21be59767",
+        "1f5bf89e7f59d2663c98256a03812ff1cbbbc81dcb49358b5fdad5b84fc14715",
+        "3cc4270ecfa214937033785467fd5fa813ae27879a47a56643ec41f238335dfd",
+        "b29c79765643c09f0675f80da78c010836017ae4fe3cfab09d39e666e9c6d7e2",
+        "190dd3dea69e85f1fb7e113ae8d1b5f10ef14e033fa578a4c07e99c895155252",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25"
+      ],
+      "source_sha256": "bb87239d6a923e3eba1fa83235bc23d9995d9ca6379a8acf142244204f20ac4d",
+      "text": "Loewe 加法在棋盘上,作为组合指数。\n\n模型在一行:如果两个物质是彼此的溶解,那么达到一个效果的成本是稳定的总剂量,所以``a/Da + b/Db = 1``在那里``Da``和``Db``是单物质剂量给出相同的效果。\n\n报告为过量而不是指数本身,所以符号协议匹配Bliss和一个比较两个表面的读者也没有在他们的头部闪烁一个比较: ``excess = 1 - CI``,积极的协同作用。\n\n为什么它可以是 NaN WHERE 祝福是 没有: 路易需要逆转曲线。 -- 达到观察到效果的剂量 -- 而这种剂量不存在,当观察到的效果在一个单一的药物本身的平板外。, NaN 是真诚的。\n\n:param dose_a: 代理 每微板样本位置的浓度。\n:param dose_b: 基于微板样本位置的B元素浓度。\n:param response: 按微板样本位置测量答案。\n:param fit_a: 单元代理适合A。\n:param fit_b: 单元代理适合B。",
+      "translation_source_blocks_sha256": [
+        "b6875849a496e4d7d2cd6b7d588da39f6bbdced0d9f14fbb1e8a5b928f23c445",
+        "8448e42949be1a2fbff440ff9fadc621ebe4e0cc44ebf9fc6105bc90092d8ec6",
+        "dd60482a65ff674cd77a7b93064e3fe511ffbd931f3eb8c9f864bdcf87d2d5ca",
+        "9e8473409063b5a977bf08ff98c6a6567d91cf3a4236de49ab359e4c3f831836",
+        "3d1c512d470718fd96f7a200a9632a06aaee95bcb6f413f2d17dd86f74144ecb",
+        "da858afcbeac612afb7ec069f330c44f1ee62d0b71d44d1e0467ec873e086aa7",
+        "ed05af2525346dd224ab9a4c3737e58153e02e8abecef2c5def557f9cc1b977e",
+        "190dd3dea69e85f1fb7e113ae8d1b5f10ef14e033fa578a4c07e99c895155252",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25"
+      ]
+    },
     "spacr.qt.widgets.dose_response.monotonicity": {
       "source_blocks_sha256": [
         "e899114fec1c02dd77aac8f733cc37baf8546d4193ff38bc8486d6c50c53e546",
@@ -101017,6 +101637,30 @@
         "b13bb11c822ea7bbf03a5659c452a6043025d17dac68e5e2c6b63f95bd34dc1e",
         "701ad55dac01b316e6353702e03136af3e9c1b004efeb1fc00fdcfa97d1d6c16",
         "4d3aab37c61947f0b7b11fb0716734271d5de31b9f17a5a0e2b091aa702c7acf"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.selectivity_index": {
+      "source_blocks_sha256": [
+        "1497211117435b18036f0702999275af2c8ec0b0636ec19115d8de0a8d176c5f",
+        "749ce4f281813b1a673276573c081402ad27edcd6d32c8725182f942abffe797",
+        "73aafe54b717168fee4478bd645251d2aa462ecb3251d670844137ca84e96b76",
+        "f18ada2d68e23869328772dd26637734dac0cc147cb758f9433811d2f459d365",
+        "de0190cdf9b4a72928684de3555d4df4348866f61fd2de4db815bb62f3afcb96",
+        "73a6acd5db1ffb90c0ba0824452315b3ea284fef5de7716e3b692e4726cca94f",
+        "a1f99e676171c2732f3ddfab848b55c68cb7a96b430729b7d5f7907cd936619f",
+        "4b684930a8515146495ee5ed75ef2dd2fb9b191a93376e71b3531753c8e9e4cc"
+      ],
+      "source_sha256": "1251a31cd077db3a8878f1f2b7d896a754c06de3e22eceb0b68690f82283ef88",
+      "text": "通过寄生虫 EC50 将主机 EC50 分开,并携带不确定性。\n\n两个适合来自一个板,这是论点来计算这一点,而不是在一个传播表。 spaCR 部分主机细胞和病原体是从相同的图像分开的对象类型,所以主机可行性和寄生虫负担在相同处理会程中测量在相样的剂量。\n\n间隔散布在日志空间,在那里合适的生活和一个比例是差异: ``log10 SI = log10 CC50 - log10 EC50``,并添加两个变量。\n\n拒绝也传播。 如果任何曲线都被拒绝,则指数被拒否。 如果 EC50 是无限的,则指数是无限制的,而数据仍然支持的间隔的任何侧面都被报道,而不是落下 - \"at least 8-fold\" 是一种有用的句子,这将其返回。\n\n:param pathogen: 寄生虫负载合适,或者如果被拒绝,则``None``。\n:param host: 主持人可行性符合,或者如果被拒绝,则 ``None``。\n:param confidence: 超越所带来的水平。\n:returns: 一个 :class:`SelectivityIndex`,从来不是一个例外,因为拒绝是召唤者必须显示的结果。",
+      "translation_source_blocks_sha256": [
+        "1497211117435b18036f0702999275af2c8ec0b0636ec19115d8de0a8d176c5f",
+        "d93f5cb7f8ec20b28884b734c4799d1709b6314a2d74fa4a97f6a91bce2a3056",
+        "6af2ace189356e71ce0fc659a898b74f18e902f7806ff959165043b3a2cda378",
+        "289810e6174e84df6837ef90e84ca25d98717ded385e7d8a478824a78aad24a6",
+        "de0190cdf9b4a72928684de3555d4df4348866f61fd2de4db815bb62f3afcb96",
+        "73a6acd5db1ffb90c0ba0824452315b3ea284fef5de7716e3b692e4726cca94f",
+        "a1f99e676171c2732f3ddfab848b55c68cb7a96b430729b7d5f7907cd936619f",
+        "4b684930a8515146495ee5ed75ef2dd2fb9b191a93376e71b3531753c8e9e4cc"
       ]
     },
     "spacr.qt.widgets.dot_link": {
@@ -109561,74 +110205,6 @@
       "translation_source_blocks_sha256": [
         "fb0f31a4e8750b11ff6a66125a3987d2e52f3cda4f194a78b2e211ca6bd52cd4",
         "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot": {
-      "source_blocks_sha256": [
-        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
-        "01e13cf524d636f02bbb9e980d914410ae32dea593e13dd8ddd2a723b103616c",
-        "0e437a99d6f73b24755fc3e761e99ee5794f97674abdc8e5fca9a24a714740fb",
-        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
-        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
-      ],
-      "source_sha256": "ca861097dbced01493f12704ef0bd3a4f669312bbbef032bed5dee541cb29063",
-      "text": "点击20个区域的控制摄像头,框架为框架。\n\n巡回演出是建造的,没有什么叫它。 :class:`RegionTour` 和 :data:`spacr.qt.widgets.fractal_regions.REGIONS` 发送了测试和没有呼叫器,所以值得观看的坐标从来没有在应用程序视图上。 这是线条,并且是目的上的平面对象 - 同样的原因 :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera` 是一个。 GPU 通道需要一个 GL 背景来存在,而每一个关于这种动作的方式的说法都会来自编写的模拟,而不是运行的代码。\n\n相机的独特的曝光跟踪是它所移动的,所以巡回赛的区域之间的顺利步骤和相机对目前目标的任何位置的接近都构成一个没有开始和没有停止的动作 - 这是指示327的全部“顺利和顺利地在点之间移动”。\n\n:param tour: 飞行之旅,或 None 为承诺的地区。\n飞`tour`,或当没有被授予的承诺区域。",
-      "translation_source_blocks_sha256": [
-        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
-        "a0c54b8bd2d2d19cdce3e8c52760d0b95d97e24437a06dcd2272e0a775b09b0a",
-        "fd0cfcf4a87c74f7742eb68e4c46a395dc36ad58d247cffa9c2cbc32979e493b",
-        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
-        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.dragged": {
-      "source_blocks_sha256": [
-        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
-      ],
-      "source_sha256": "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1",
-      "text": "用户拿到了相机,巡回演出没有争论。",
-      "translation_source_blocks_sha256": [
-        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.flying": {
-      "source_blocks_sha256": [
-        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
-      ],
-      "source_sha256": "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343",
-      "text": "不管巡回演出是否正在进行中。",
-      "translation_source_blocks_sha256": [
-        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.restarted": {
-      "source_blocks_sha256": [
-        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
-      ],
-      "source_sha256": "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633",
-      "text": "Ctrl+R 将潜水器送回表面;再次飞行。",
-      "translation_source_blocks_sha256": [
-        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.steer": {
-      "source_blocks_sha256": [
-        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
-        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
-        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
-        "8b22048a819450e4bfcc509cbf9ffac89d5b0504aaec5fd3f2836f6c90e67b88",
-        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
-        "c29ebc93e06f44fb3235eac9ca3c582a2a45fdfd4aee69e0610721fe3feaa029"
-      ],
-      "source_sha256": "cae97c1dc739b592e6d17360a2914faedb9f2dc9bc12d4c98743fd9bf11552e9",
-      "text": "Aim `camera` 在任何地方的旋转是 `seconds`。\n\n:param camera: 一个 :class:`SteeringCamera`;只有它的 ``target`` 是写的。\n:param seconds: 模拟时钟。\n:param span: 景端半高度,在复杂的图像层。 游览是一个SURFACE路线 - 每个区域携带它的半宽它留下有趣的 - 所以一旦景观是狭窄的区域它到达,向下方将飞过图像在一个规模,在那里什么都无法识别。\n:returns: True 当一个目标被写下时。\n\n永远不会扔:这是一个背景的框架路径,一个无法回应的巡回演出必须花费一个框架的决定而不是图像。",
-      "translation_source_blocks_sha256": [
-        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
-        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
-        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
-        "c06bcab5ad7b25a60fe7f661daa5fda0c4d6956b733af6ac4c03c57176a27aa7",
-        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
-        "1201fa29f457b5313f97f16c703bd053f41f7adfa134be365981149eed019796"
       ]
     },
     "spacr.qt.widgets.fractal_travel.apply_saved_controls": {
@@ -142295,6 +142871,24 @@
         "1d05288be921120a4e144fe8d22c0a78bc5e547fcb19979e5bf46d998a0fc5fa"
       ]
     },
+    "spacr.scorecard.read_scorecard_csv": {
+      "source_blocks_sha256": [
+        "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
+        "19b0f7bbd79e0147c47c029772c014d50a09da539741fb495ff6909223e9bbe0",
+        "356e3be8d4186479bf3eb01c3e923f97c44578a2b9c2a1d0983845628920e20d",
+        "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
+        "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"
+      ],
+      "source_sha256": "0f7f7a9a6f5671e664002f7e9e33bbc010ea0b5dac98331b04b23b2590a52d7c",
+      "text": "将发布的 CSV 点击返回输入中的 ``metrics``。\n\nCSV 是源头,其余表面使其, 第370章 请求什么: Hugging Face 字体、工具提示、 API 页面和动物园筛选不得不同意。, 他们不能,如果只有一个持有数字,这就是读者使其他三个衍生。\n\n目的的无依赖性。 模型 Zoo 导入时没有 torch 并且测试声明了它,所以浏览模型和读取记分卡必须在既没有 torch 也没有 cellpose 的机器上工作。  只有RE-RUNNING 评估需要它们。 在标准函数库中,这里也排除了 pandas — — csv。\n\n:param text: CSV 如 :func:`scorecard_csv` 所写的。\n:returns: ``{metric: {\"finetuned\": ..., \"vanilla\": ..., \"delta\": ...}}`` 加上 ``holdout`` 和 ``holdout_version`` 当行携带它们时 空白当文本没有行。",
+      "translation_source_blocks_sha256": [
+        "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
+        "78680efd543e384c701d173732dde3d3dffe443d9ea6cd34f3e598d37fdd209b",
+        "ffa3eb180c7973a8d39d9ea8b89bb140089a4c031ed328ecd6c25a8dd63dabfa",
+        "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
+        "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"
+      ]
+    },
     "spacr.scorecard.score_classifier": {
       "source_blocks_sha256": [
         "e784dddb8faf0f4706a2925f1ba06aaf8e7373edb838981daa432e3ee1ed7d3c",
@@ -142365,6 +142959,20 @@
       "text": "字符串为 CSV 文本. 由召唤者写的,无论它属于哪里。",
       "translation_source_blocks_sha256": [
         "87bcd7ae3436d22c25baa47a42e5b276e0808f1a1826ce565f8c566d6329c62c"
+      ]
+    },
+    "spacr.scorecard.scorecard_is_present": {
+      "source_blocks_sha256": [
+        "2524a468d1319c202ad3273658f626ab1f2ae11964d087b0ff45db43cb0d6cf6",
+        "07c815ac626087828a82314ee82ac42f41b8ad40a36363c00db176e57a22e9ec",
+        "68fb5eb21d425645906c9b44c1caae8d61bebe4191c535878a8ac971719b5bed"
+      ],
+      "source_sha256": "dd8a32636e452663c482e17827899ab647222a76c1d13d4fd0b2eb0ad47c6a8e",
+      "text": "是否 ``metrics`` 实际上携带一个分数卡。\n\n一个失去的分数必须这样说,而不是显示字符串,其中370要求名称,而`ModelEntry.provenance_known`已经为训练来源做。\n\n:param metrics: 一个输入的地图。",
+      "translation_source_blocks_sha256": [
+        "2524a468d1319c202ad3273658f626ab1f2ae11964d087b0ff45db43cb0d6cf6",
+        "54c97cf270def82695a56e29f1f932183e67beb81dd14af7981f99d93aa183a9",
+        "68fb5eb21d425645906c9b44c1caae8d61bebe4191c535878a8ac971719b5bed"
       ]
     },
     "spacr.scorecard.scorecard_rows": {
@@ -148674,8 +149282,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "2f24168c22ccf8d4b303286cb8dd014d203b40863c8c33071cbe8c53d9f4f062"
       ],
-      "source_sha256": "e253a79682bf135a6a23d35fa66e9782c1a6e62858544f49ecf6c129e2e318f1",
-      "text": "侵入测试:分数每个寄生虫粘贴或侵入,并报告每个微板样本位置的效率。\n\n红/绿入侵试验染色两次。 前抗体只到达寄生虫仍然**outside**宿主细胞,所以这些在两个图像数据通道为阳性; ,然后细胞被渗透,第二种抗体染色**all**寄生虫,因此只有在渗透后的图像数据通道中才能检测到内部的寄生虫。 ：\n\n* **附加 / 外部** = 在外部图像数据渠道中存在;\n* **插入 / 内部** = *缺席* 从外部图像数据渠道。\n\n请仔细理解这种不对称性，因为整个设计都由此而来。\"Inside\" 由信号缺失来定义，而缺失是最不可靠的方向。抗体渗透不足、焦平面偏离寄生虫赤道、光漂白、低表达寄生虫——每一种情况都会从真正位于外部的寄生虫上去除外部信号，因此都会*夸大*侵袭效率。没有合理误差会把结果推向相反方向。整个实验依赖外部图像数据通道上的一个阈值，因此该阈值由数据推导，按显微镜视野记录在 ``fields`` 中；若有来自对照的截断值，则与之交叉检查；同时还用一对敏感性结果界定范围，以说明答案中有多少取决于该阈值。\n\n三个设计决策值得明确地说:\n\n* **边界是微镜视野** 照明和闪烁的微观视野与微镜的视野不同,而实验室微板宽切割将一个照明格拉迪安变成一个侵略格拉里安。 看:func:`_invasion_field_thresholds`。\n* **控制器击败任何自动方法.** ``control_wells`` 命名微板样本位置,其寄生虫已知不携带任何外部斑点; 边界是那个诚实的负分配(``control_quantile``),控制微板模型位置被排除在结果中, ``threshold_source`` 说 ``'control'`` 所以报告不能错误的自动运行。\n* **A 没有两个人口的边界是自愿的.** Otsu 会幸运地将一个单一的信号切割到中间,并返回一个可靠的号码。 ``bimodality_coefficient`` 和 ``qc_flag_unimodal`` 表示什么时候发生,按显微镜视野和显微板样本位置,而不是让它沉默地通过。 看:func:`_bimodality_coefficient`。\n\n``invasion_efficiency = n_invaded / (n_invaded + n_attached)`` 和它总是报告附近的 ``n_total``:90%的十个寄生虫和90%从四千不是相同的结果. 一个微板样本位置,没有得分什么得到 NaN,而不是0。\n\n**统计使用微板样本位置作为复制单位** 微板模型位置内的寄生虫共享覆盖点、抗体浴和焦点图像层,因此它们不独立。 报告的测试是Mann-Whitney U在每微型样品位置效率。 一个合并的寄生虫Chi-squared在它旁边是纯粹的,所以它的通货膨胀是可见的。 看:func:`_invasion_compare_conditions`。\n\n:param settings: 关键值地图侵入设置; 见 ``set_analyze_invasion_defaults``. 结构数据输入:\n\n    - ``src`` — 持有 ``measurements/measurements.db`` 的板目录(或列表)。\n    - ``parasite_table`` / ``compartment`` — 表和列预定,每个分区寄生虫一行。 ``'pathogen'``.\n    - ``outside_channel`` / ``total_channel`` - 提前和后可行的图像数据渠道。\n    - ``intensity_statistic`` 对外频道的每对象统计到边界; ``'auto'`` 更喜欢边界限制的一个。 :func:`_resolve_invasion_intensity_column`.\n    - ``background_correction`` - 可选的对象地点背景。\n    - ``outside_threshold_method`` / ``outside_threshold`` - 自动方法,或固定切割,超越它。\n    - ``control_wells`` / ``control_quantile`` / ``min_control_objects``.\n    - ``min_objects_for_threshold`` / ``min_objects_for_bimodality`` / ``bimodality_cutoff`` / ``threshold_agreement_tolerance`` / ``threshold_sensitivity`` / ``inflation_warn`` / ``min_parasites_per_well`` ──The QC 边界。\n    - ``extracellular_class`` - 没有主细胞的寄生虫如何被记录。\n    - ``cell_types`` / ``pathogen_types``/ ``treatments`` 和它们的 ``*_plate_metadata`` 好地图,加上 ``group_column``和 ``level``。\n    - ``save`` - 写下 CSV 和数字在 ``<src>/results/analyze_invasion``。\n\n:returns: 关键值地图与 ``parasites`` (每对象分类) ``fields`` (微观视野的视野边界和 QC), ``wells`` (每微型样品位置效率,名称和 QC 旗帜 ) ``summary`` (根据条件) ``comparisons`` (每微型样品位置统计数据) ``chi_squared`` / ``chi_squared_pairwise`` (共享比例 - 酒吧 omnibus 测试), ``controls`` (控制微型样品位置对象,如果有), ``control_thresholds``, ``intensity_column``, ``intensity_statistic`` 和 ``figures``.\n:raises ValueError: 当寄生虫桌上没有可用的行。\n:raises KeyError: 如果所需的统计或组列不存在。\n\n示例：\n    .. code-block:: python\n\n        from spacr.submodules import analyze_invasion\n        out = analyze_invasion({\n            'src': '/data/plate1',\n            'outside_channel': 1,\n            'total_channel': 0,\n            'control_wells': ['c12'],\n            'pathogen_types': ['dmso', 'inhibitor'],\n            'pathogen_plate_metadata': [['c1'], ['c2']],\n        })\n        print(out['wells'][['prc', 'n_total', 'invasion_efficiency',\n                            'qc_flags']])\n\n此外,请参见: :func:`analyze_replication` - 寄生虫每个真空的估计,其表阅读、条件标记和输出布局如下。",
+      "source_sha256": "2ab334769004b282614d42d312f989943c6e9e626bb3ce4ef819c4664dbbda82",
+      "text": "侵入测试:分数每个寄生虫粘贴或侵入,并报告每个微板样本位置的效率。\n\n红/绿入侵试验染色两次。 前抗体只到达寄生虫仍然**outside**宿主细胞,所以这些在两个图像数据通道为阳性; ,然后细胞被渗透,第二种抗体染色**all**寄生虫,因此只有在渗透后的图像数据通道中才能检测到内部的寄生虫。 ：\n\n* **附加 / 外部** = 在外部图像数据渠道中存在;\n* **插入 / 内部** = *缺席* 从外部图像数据渠道。\n\n请仔细理解这种不对称性，因为整个设计都由此而来。\"Inside\" 由信号缺失来定义，而缺失是最不可靠的方向。抗体渗透不足、焦平面偏离寄生虫赤道、光漂白、低表达寄生虫——每一种情况都会从真正位于外部的寄生虫上去除外部信号，因此都会*夸大*侵袭效率。没有合理误差会把结果推向相反方向。整个实验依赖外部图像数据通道上的一个阈值，因此该阈值由数据推导，按显微镜视野记录在 ``fields`` 中；若有来自对照的截断值，则与之交叉检查；同时还用一对敏感性结果界定范围，以说明答案中有多少取决于该阈值。\n\n三个设计决策值得明确地说:\n\n* **边界是微镜视野** 照明和闪烁的微观视野与微镜的视野不同,而实验室微板宽切割将一个照明格拉迪安变成一个侵略格拉里安。 看:func:`_invasion_field_thresholds`。\n* **控制器击败任何自动方法.** ``control_wells`` 命名微板样本位置,其寄生虫已知不携带任何外部斑点; 边界是那个诚实的负分配(``control_quantile``),控制微板模型位置被排除在结果中, ``threshold_source`` 说 ``'control'`` 所以报告不能错误的自动运行。\n* **A 没有两个人口的边界是自愿的.** Otsu 会幸运地将一个单一的信号切割到中间,并返回一个可靠的号码。 ``bimodality_coefficient`` 和 ``qc_flag_unimodal`` 表示什么时候发生,按显微镜视野和显微板样本位置,而不是让它沉默地通过。 看:func:`_bimodality_coefficient`。\n\n``invasion_efficiency = n_invaded / (n_invaded + n_attached)`` 和它总是报告附近的 ``n_total``:90%的十个寄生虫和90%从四千不是相同的结果. 一个微板样本位置,没有得分什么得到 NaN,而不是0。\n\n**统计使用微板样本位置作为复制单位** 微板模型位置内的寄生虫共享覆盖点、抗体浴和焦点图像层,因此它们不独立。 报告的测试是Mann-Whitney U在每微型样品位置效率。 一个合并的寄生虫Chi-squared在它旁边是纯粹的,所以它的通货膨胀是可见的。 看:func:`_invasion_compare_conditions`。\n\n:param settings: 关键值地图侵入设置; 见 ``set_analyze_invasion_defaults``. 结构数据输入:\n\n    - ``src`` — 持有 ``measurements/measurements.db`` 的板目录(或列表)。\n    - ``parasite_table`` / ``compartment`` - 表和列预定,分区寄生虫一行。 默认 ``'pathogen'``。\n    - ``outside_channel`` / ``total_channel`` - 提前和后可行的图像数据渠道。\n    - ``intensity_statistic`` - 对外频道的每对象统计到边界; ``'auto'`` 更喜欢边界限制。 看:func:`_resolve_invasion_intensity_column`。\n    - ``background_correction`` - 可选的对象地点背景。\n    - ``outside_threshold_method`` / ``outside_threshold`` - 自动方法,或固定切割,超越它。\n    - ``control_wells`` / ``control_quantile`` / ``min_control_objects``.\n    - ``min_objects_for_threshold`` / ``min_objects_for_bimodality`` / ``bimodality_cutoff`` / ``threshold_agreement_tolerance`` / ``threshold_sensitivity`` / ``inflation_warn`` / ``min_parasites_per_well`` - QC 边界。\n    - ``extracellular_class`` - 没有主细胞的寄生虫如何被记录。\n    - ``cell_types`` / ``pathogen_types``/ ``treatments`` 和它们的 ``*_plate_metadata`` 好地图,加上 ``group_column``和 ``level``。\n    - ``save`` - 写下 CSV 和数字在 ``<src>/results/analyze_invasion``。\n\n:returns: 关键值地图与 ``parasites`` (每对象分类) ``fields`` (微观视野的视野边界和 QC), ``wells`` (每微型样品位置效率,名称和 QC 旗帜 ) ``summary`` (根据条件) ``comparisons`` (每微型样品位置统计数据) ``chi_squared`` / ``chi_squared_pairwise`` (共享比例 - 酒吧 omnibus 测试), ``controls`` (控制微型样品位置对象,如果有), ``control_thresholds``, ``intensity_column``, ``intensity_statistic`` 和 ``figures``.\n:raises ValueError: 当寄生虫桌上没有可用的行。\n:raises KeyError: 如果所需的统计或组列不存在。\n\n示例：\n    .. code-block:: python\n\n        from spacr.submodules import analyze_invasion\n        out = analyze_invasion({\n            'src': '/data/plate1',\n            'outside_channel': 1,\n            'total_channel': 0,\n            'stain_baseline_wells': ['c12'],\n            'pathogen_types': ['dmso', 'inhibitor'],\n            'pathogen_plate_metadata': [['c1'], ['c2']],\n        })\n        print(out['wells'][['prc', 'n_total', 'invasion_efficiency',\n                            'qc_flags']])\n\n此外,请参见: :func:`analyze_replication` - 寄生虫每个真空的估计,其表阅读、条件标记和输出布局如下。",
       "translation_source_blocks_sha256": [
         "69c025a38bc0aaa69478f030902fde227087b77e5c872244fc2a2f9ddbcf3318",
         "f4d5b72a9e83054cbd40e15e42063f7f6b4609410dd870cd202788a8d568919f",

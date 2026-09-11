@@ -984,3 +984,87 @@ def headline(metrics: Mapping[str, object], *,
     if counted:
         lines.append("on " + ", ".join(counted))
     return lines
+
+
+def read_scorecard_csv(text: str) -> Dict[str, Any]:
+    """Parse a published scorecard CSV back into an entry's ``metrics``.
+
+    THE CSV IS THE SOURCE AND THE OTHER SURFACES RENDER IT, which is what
+    instruction 370 asks for: the Hugging Face artifact, the tooltip, the API
+    page and the Zoo screen must not be able to disagree, and they cannot if
+    only one of them holds numbers. This is the reader that makes the other
+    three derived.
+
+    DEPENDENCY-FREE ON PURPOSE. The Model Zoo imports without torch and a test
+    asserts it, so browsing models and reading a scorecard has to work on a
+    machine with neither torch nor cellpose. Only RE-RUNNING an evaluation
+    needs them. That rules out pandas here too -- csv is in the standard
+    library.
+
+    :param text: the CSV as written by :func:`scorecard_csv`.
+    :returns: ``{metric: {"finetuned": ..., "vanilla": ..., "delta": ...}}``
+        plus ``holdout`` and ``holdout_version`` when the rows carry them.
+        Empty when the text has no rows.
+    """
+    import csv
+    import io
+
+    rows = list(csv.DictReader(io.StringIO(str(text))))
+    if not rows:
+        return {}
+
+    def number(value):
+        """A cell as a number, or the raw string when it is not one.
+
+        A WHOLE NUMBER COMES BACK AS AN int. The CSV cannot distinguish a
+        count from a measurement, and reading everything as float renders
+        "on 12517.0 objects" in a tooltip -- a count with a decimal point
+        reads as a rounding, which it is not.
+        """
+        text = str(value).strip()
+        if not text:
+            return None
+        try:
+            parsed = float(text)
+        except ValueError:
+            return text
+        return int(parsed) if parsed.is_integer() else parsed
+
+    metrics: Dict[str, Any] = {}
+    for row in rows:
+        name = str(row.get("metric") or "").strip()
+        if not name:
+            continue
+        metrics[name] = {
+            "finetuned": number(row.get("finetuned")),
+            "vanilla": number(row.get("vanilla")),
+            "delta": number(row.get("delta")),
+        }
+    first = rows[0]
+    for carried in ("holdout", "holdout_version", "n_fields", "n_objects"):
+        value = str(first.get(carried) or "").strip()
+        if value:
+            metrics[carried] = number(value)
+    return metrics
+
+
+def scorecard_is_present(metrics: Mapping[str, Any]) -> bool:
+    """Whether ``metrics`` actually carries a scorecard.
+
+    A MISSING SCORECARD MUST SAY SO RATHER THAN SHOW BLANKS, which 370 asks
+    for by name and which `ModelEntry.provenance_known` already does for
+    training provenance. A model with no numbers is not a model that scored
+    zero, and a table of empty cells reads as the second.
+
+    :param metrics: an entry's metrics mapping.
+    """
+    if not metrics:
+        return False
+    return any(isinstance(value, Mapping) and value.get("finetuned") is not None
+               for value in metrics.values())
+
+
+#: What to say when there is no scorecard. The sentence 370 asks for, in the
+#: voice `provenance_known` already uses for the training set.
+NO_SCORECARD = ("This model does not carry a scorecard, so nothing here "
+                "tells you how accurate it is on data it was not trained on.")

@@ -583,6 +583,59 @@ class ModelEntry:
         return self.trained_on != UNKNOWN
 
     @property
+    def scorecard_known(self) -> bool:
+        """True when this model says how accurate it is.
+
+        The accuracy twin of :attr:`provenance_known`, which 370 asks for by
+        name. A model with no numbers did not score zero, and a table of
+        empty cells reads as the second -- so the absence is a state to
+        report rather than a gap to render.
+        """
+        from .scorecard import scorecard_is_present
+
+        return scorecard_is_present(self.metrics or {})
+
+    @property
+    def scorecard_holdout(self) -> str:
+        """``name @ version`` of the hold-out set, or ``""``.
+
+        A SCORECARD WITHOUT ITS SET IS A NUMBER WITHOUT A UNIT. Two people
+        quoting an F1 for the same model have said nothing to each other
+        unless they scored the same masks, so the set travels with the
+        numbers into every surface that shows them.
+        """
+        metrics = self.metrics or {}
+        name = str(metrics.get("holdout") or "").strip()
+        version = str(metrics.get("holdout_version") or "").strip()
+        if not name:
+            return ""
+        return f"{name} @ {version}" if version else name
+
+    def scorecard_lines(self) -> List[str]:
+        """The scorecard as display lines, or the sentence saying there is none.
+
+        ONE SOURCE, FOUR RENDERINGS. The tooltip, the API page, the Zoo screen
+        and the Hugging Face table all render THIS, so they cannot disagree --
+        366 found six README tiles pointing at three different API pages, and
+        that is what happens when a number is written down in more than one
+        place.
+        """
+        from .scorecard import NO_SCORECARD, headline
+
+        if not self.scorecard_known:
+            return [NO_SCORECARD]
+        metrics = self.metrics or {}
+        finetuned = {k: v.get("finetuned") for k, v in metrics.items()
+                     if isinstance(v, dict)}
+        baseline = {k: v.get("vanilla") for k, v in metrics.items()
+                    if isinstance(v, dict)}
+        lines = list(headline(finetuned, baseline=baseline))
+        holdout = self.scorecard_holdout
+        if holdout:
+            lines.append(f"hold-out set {holdout}")
+        return lines
+
+    @property
     def checksum_state(self) -> str:
         """What the checksum column says, in one word.
 

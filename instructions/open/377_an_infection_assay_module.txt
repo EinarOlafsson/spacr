@@ -5,9 +5,21 @@ AN INFECTION ASSAY MODULE: INFECTION RATE, AND EVERYTHING ELSE INFECTION MEANS
 Status:    BUILT AS (c), A REPORT -- `spacr/infection.py`, 2026-09-06.
            The maintainer answered 357's 377-A that day: "(c) A report, not a
            pipeline". The three metrics PART 0-A found were NOT derivable are
-           deliberately absent rather than approximated. What it has never
-           seen is a real measurements.db; the fixture is synthetic with
-           chosen answers. Filed 2026-09-04.
+           deliberately absent rather than approximated. Filed 2026-09-04.
+
+           IT HAS NOW SEEN A REAL measurements.db, 2026-09-10, and the first
+           one broke it. Against tsg101_screen/plate1 -- 60,816 cells, 2,052
+           report rows -- every well came back with infection_rate = 1.000000.
+           That plate was measured with `include_uninfected False`, so the
+           cell table holds only infected cells and the rate is 1.0 by
+           construction. The rate is now REFUSED when the setting says the
+           population was never written, with the reason in the denominator
+           column; the counts survive, relabelled to say what they counted.
+           See `uninfected_cells_were_measured` and the six tests in
+           tests/test_infection_rate_is_refused_when_uninfected_were_not_
+           measured.py. The synthetic fixtures could not have caught it: they
+           carry no settings table, which is the shape of the case that
+           already worked.
 Requested: 2026-09-04 -- "We should add an assay module that measures
            infection rate and everything infection related it can come up
            with things it could measure"

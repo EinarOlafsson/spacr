@@ -71,6 +71,58 @@ WELL_KEYS: Tuple[str, ...] = ("plateID", "rowID", "columnID")
 #: Added to the well keys when the spread across fields is wanted.
 FIELD_KEY = "fieldID"
 
+#: The Measure setting that decides whether the cell table is a POPULATION or
+#: a SELECTION. With it false, Measure writes no row for a cell that had no
+#: parasite, so `cell` holds only infected cells and every infection rate
+#: computed from it is 1.0 by construction.
+INCLUDE_UNINFECTED_KEY = "include_uninfected"
+
+#: What `denominator` says instead of a population, when the population is not
+#: in the database to be counted.
+NOT_DERIVABLE = ("not derivable: the Measure run set include_uninfected=False, "
+                 "so uninfected cells were never written")
+
+
+def uninfected_cells_were_measured(db_path: str) -> Optional[bool]:
+    """Whether the Measure run that wrote ``db_path`` kept uninfected cells.
+
+    THE ANSWER CHANGES WHAT THE CELL TABLE IS. `include_uninfected=False` --
+    the default for a screen that only crops infected cells, and what the
+    TSG101 plates were measured with -- means Measure wrote no row for a cell
+    with no parasite. The cell table is then a selection of infected cells
+    rather than the segmented population, and `infected / cells` is 1.0 for
+    every well no matter what the biology did.
+
+    That is not a rounding problem to note in a docstring. A reader handed a
+    column of 1.000 reads 100% infection as a RESULT, and nothing in the
+    table says otherwise, so this module refuses the rate instead of
+    printing it.
+
+    :param db_path: path to a ``measurements.db``.
+    :returns: ``True`` or ``False`` when the run recorded the setting,
+        ``None`` when it did not -- an older database, where the honest
+        answer is that we cannot tell.
+    """
+    try:
+        db = _connect_read_only(db_path)
+    except sqlite3.Error:
+        return None
+    try:
+        if "settings" not in {
+                r[0] for r in db.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'")}:
+            return None
+        row = db.execute(
+            "SELECT setting_value FROM settings WHERE setting_key = ?",
+            (INCLUDE_UNINFECTED_KEY,)).fetchone()
+    except sqlite3.Error:
+        return None
+    finally:
+        db.close()
+    if row is None or row[0] is None:
+        return None
+    return str(row[0]).strip().lower() in {"true", "1", "yes"}
+
 
 def _present_columns(db: sqlite3.Connection, table: str) -> List[str]:
     """The columns ``table`` actually has, or an empty list if it has none.
@@ -216,6 +268,17 @@ def infection_report(db_path: str, *,
         return pd.DataFrame(columns=["metric", "value", "denominator",
                                      "n_denominator"])
 
+    # WHETHER THE CELL TABLE IS A POPULATION OR A SELECTION, asked once per
+    # report rather than per group. False means Measure never wrote the
+    # uninfected cells, so the rate below has no denominator to be a rate
+    # over; the counts are still true and are relabelled to say what they
+    # actually counted.
+    measured_uninfected = uninfected_cells_were_measured(db_path)
+    cells_are_all_infected = measured_uninfected is False
+    cell_population = ("infected host cells (uninfected excluded by the "
+                       "Measure run)" if cells_are_all_infected
+                       else "segmented host cells")
+
     keys = [c for c in per_cell.columns
             if c in {_canonical(per_cell.columns, k) for k in WELL_KEYS}]
     if by_field:
@@ -247,15 +310,23 @@ def infection_report(db_path: str, *,
             rows.append({**identity, "metric": metric, "value": value,
                          "denominator": denominator, "n_denominator": n})
 
-        add("infection_rate", infected / cells if cells else float("nan"),
-            "segmented host cells", cells)
+        # REFUSED, NOT PRINTED AS 1.000. Measured on the TSG101 plates, which
+        # were run with include_uninfected=False: every well reported an
+        # infection rate of exactly 1.0, which is what `infected / cells`
+        # must give when the only cells in the table are the infected ones.
+        # A reader sees a column of 1.000 and reads 100% infection.
+        if cells_are_all_infected:
+            add("infection_rate", float("nan"), NOT_DERIVABLE, cells)
+        else:
+            add("infection_rate", infected / cells if cells else float("nan"),
+                "segmented host cells", cells)
         add("infection_index", parasites / cells if cells else float("nan"),
-            "segmented host cells", cells)
+            cell_population, cells)
         add("parasites_per_infected",
             parasites / infected if infected else float("nan"),
             "infected host cells", infected)
-        add("cell_count", float(cells), "segmented host cells", cells)
-        add("infected_count", float(infected), "segmented host cells", cells)
+        add("cell_count", float(cells), cell_population, cells)
+        add("infected_count", float(infected), cell_population, cells)
         add("parasite_count", float(parasites), "parasites with a host cell",
             parasites)
     return pd.DataFrame(rows)

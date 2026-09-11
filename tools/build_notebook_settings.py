@@ -1053,6 +1053,10 @@ _STATUS_OVERRIDES = {
         # no `positive_control` to mark conditional, so eight notebooks
         # documented both controls as "optional" when a Classify (ML) run
         # requires them unless annotation_column is set.
+        #
+        # Nothing raises on a miss like this. Both files stay internally
+        # consistent and only a test comparing the generated notebook
+        # against the CLI requirements can see the disagreement.
         "positive_control_id": "conditional",
         "negative_control_id": "conditional",
         "annotation_column": "conditional",

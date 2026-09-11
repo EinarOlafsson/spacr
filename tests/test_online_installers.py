@@ -644,9 +644,17 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert 'find dist/online -name \'*macOS*Online.pkg\'' in macos_job
     assert "packaging/release.py version" not in macos_job
     collect_job = workflow[workflow.index("  collect:"):]
-    assert "github.event_name == 'workflow_call' && inputs.publish_to_repository" in (
-        collect_job
-    )
+    # THE GATE IS THE INPUT ALONE, and this assertion is re-pointed rather
+    # than relaxed. It used to require
+    # `github.event_name == 'workflow_call' && inputs.publish_to_repository`,
+    # which pinned a condition that could never be true: inside a reusable
+    # workflow github.event_name is the CALLER's event, so release.yml's call
+    # reports `workflow_dispatch` or `push`. collect was skipped on every
+    # release, release_commit came back empty, and the tag step ran
+    # `git tag -a <tag> ""`. The test agreed with the workflow and both were
+    # wrong, which is why 1.5.0.5 was the release that found it.
+    assert "if: ${{ inputs.publish_to_repository }}" in collect_job
+    assert "github.event_name == 'workflow_call'" not in collect_job
     assert "github.event_name == 'workflow_dispatch' ||" not in collect_job
 
 

@@ -23,6 +23,8 @@ concern.
 """
 from __future__ import annotations
 
+import sys as _sys
+
 import os
 import shutil
 import subprocess
@@ -311,9 +313,21 @@ class ClaudeCliProvider(ChatProvider):
     name = "claude"
     label = "Claude (via Claude Code)"
     cli_name = "claude"
+    # ONE COMMAND, WHOLE, PER PLATFORM. It was a single line carrying both
+    # forms joined by "# or", which pastes correctly -- the shell comments the
+    # rest away -- and copies badly: the maintainer took the curl half without
+    # `| bash` on 2026-09-10, and curl then printed the installer to the
+    # terminal instead of running it. Nothing failed and nothing installed,
+    # which is the worst shape a copied command can have.
+    #
+    # NOT JUST THE curl FORM, which is what was asked for: install.sh refuses
+    # Windows outright ("Windows is not supported by this script"), so the npm
+    # form is the only one that works there. Choosing by platform gives every
+    # reader exactly one command that is whole and correct for them.
     install_hint = (
-        "curl -fsSL https://claude.ai/install.sh | bash   # or "
         "npm install -g @anthropic-ai/claude-code"
+        if _sys.platform.startswith("win")
+        else "curl -fsSL https://claude.ai/install.sh | bash"
     )
     login_command = "claude setup-token"
 

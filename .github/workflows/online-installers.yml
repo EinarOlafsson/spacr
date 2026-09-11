@@ -262,8 +262,17 @@ jobs:
 
   collect:
     name: Store installers and update README
-    if: >-
-      github.event_name == 'workflow_call' && inputs.publish_to_repository
+    # `inputs.publish_to_repository` ALONE, because github.event_name is the
+    # CALLER's event inside a reusable workflow -- `workflow_dispatch` or
+    # `push` when release.yml calls this, never 'workflow_call'. The old
+    # condition could therefore never be true: this job was skipped on every
+    # release, `release_commit` came back empty, and "Publish GitHub release"
+    # ran `git tag -a <tag> ""` against it. v1.5.0.4 shipped only because it
+    # was cut from tutorial-deploy-20260814, a branch that predates 7f8aff9f1
+    # and still had the old `workflow_dispatch ||` form. main and nightly have
+    # carried the broken form since 2026-07-29, and 1.5.0.5 is the first
+    # release cut from either.
+    if: ${{ inputs.publish_to_repository }}
     needs: [linux, windows, macos]
     runs-on: ubuntu-24.04
     outputs:

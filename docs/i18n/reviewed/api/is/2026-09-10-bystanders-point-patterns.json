@@ -1,0 +1,27 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "The acceptance test this has to pass is that a microplate sample position with no parasites reports no bystanders. It follows from `distance_to_infected` being infinite there rather than from a special case, which is why that function returns infinity.",
+      "label": "spacr.bystanders.classify#7",
+      "source": "THE ACCEPTANCE TEST THIS HAS TO PASS is that a well with no parasites reports no bystanders. It follows from `distance_to_infected` being infinite there rather than from a special case, which is why that function returns infinity.",
+      "source_sha256": "805b9d4e7b5a4af97465b112d1de623fbfa17045b66ed8379affe68105622a50",
+      "translation": "VIÐTÖKUPRÓFIÐ SEM ÞETTA VERÐUR AÐ STANDAST er að brunnur án sníkjudýra tilkynni enga nágranna. Það leiðir af því að `distance_to_infected` er óendanlegt þar, fremur en af sértilviki, og það er ástæðan fyrir því að sú aðgerð skilar óendanleika."
+    },
+    {
+      "context": "`surface_distance_transform`'s docstring says \"two touching objects come out at 0\", and that is true of the case it describes -- reading the microscope field of view at a point INSIDE the other object, which is what an overlapping or contained object gives. Two disjoint labels that merely abut do not overlap, so they do not. A threshold expressed in cell diameters is far larger than one pixel either way; the note is here so nobody reads a 1 as a bug.",
+      "label": "spacr.bystanders.distance_to_infected#6",
+      "source": "`surface_distance_transform`'s docstring says \"two touching objects come out at 0\", and that is true of the case it describes -- reading the field at a point INSIDE the other object, which is what an overlapping or contained object gives. Two disjoint labels that merely abut do not overlap, so they do not. A threshold expressed in cell diameters is far larger than one pixel either way; the note is here so nobody reads a 1 as a bug.",
+      "source_sha256": "5447e660d19afe866ed6f7513df6339e54c3bf79ff90255f7307bb73d8957ae8",
+      "translation": "Skjalastrengur `surface_distance_transform` segir \"two touching objects come out at 0\", og það á við um tilvikið sem hann lýsir -- að lesa sviðið í punkti INNAN hins hlutarins, sem er það sem skarandi eða innihaldinn hlutur gefur. Tveir aðskildir merkimiðar sem einungis snertast skarast ekki, og því gera þeir það ekki."
+    },
+    {
+      "context": "The frame edge is a boundary too. The distance-to-boundary microscope field of view is computed on a mask padded with one row of background all round, so a mask that runs to the edge of the image is treated as cut off there, because it is. Without the pad, cells at the top of the image would be scored as though the monolayer continued past it.",
+      "label": "spacr.point_patterns#4",
+      "source": "THE FRAME EDGE IS A BOUNDARY TOO. The distance-to-boundary field is computed on a mask padded with one row of background all round, so a mask that runs to the edge of the image is treated as cut off there, because it is. Without the pad, cells at the top of the image would be scored as though the monolayer continued past it.",
+      "source_sha256": "c03cc5582cb00ef98dd144d0b7bd246bcafd7e3f1db320c2fb5b5591b501c18f",
+      "translation": "RAMMABRÚNIN ER LÍKA MÖRK. Fjarlægðin-að-mörkum sviðið er reiknað á grímu sem er fyllt með einni röð af bakgrunni allan hringinn, þannig að gríma sem nær að brún myndarinnar er meðhöndluð sem afskorin þar, því það er hún. Án fyllingarinnar yrðu frumur efst í myndinni metnar eins og einlagið héldi áfram fram hjá henni."
+    }
+  ],
+  "schema": 1
+}
