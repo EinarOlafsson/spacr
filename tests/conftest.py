@@ -883,6 +883,11 @@ def _threads_that_outlive_the_session_report(threads):
 #: reason this process is still working".
 RETAINED_WIDGETS_WORTH_SAYING = 5000
 
+#: ``(widgets, top-level windows)`` as the last test that could ask saw them.
+#: Filled by `_count_what_this_test_left_running`, read by
+#: `qt_things_that_outlive_the_session`, which must not ask Qt itself.
+_LAST_LIVE_WIDGET_COUNT = (-1, -1)
+
 
 def qt_things_that_outlive_the_session():
     """Everything Qt owns that can keep a finished run from exiting.
@@ -905,18 +910,26 @@ def qt_things_that_outlive_the_session():
     """
     said = []
 
-    app = None
-    try:
-        from PySide6.QtWidgets import QApplication
-        app = QApplication.instance()
-    except Exception:                                            # noqa: BLE001
-        app = None
-    if app is not None:
-        try:
-            widgets = len(app.allWidgets())
-            windows = len(app.topLevelWidgets())
-        except Exception:                                        # noqa: BLE001
-            widgets = windows = -1
+    # ASKED DURING THE LAST TEST, NOT HERE. `app.allWidgets()` at session
+    # finish SEGFAULTS -- reproducible on its own, eight passing tests in
+    # `tests/test_cov_w2_4_metadata_mapper.py` and then
+    #
+    #     Fatal Python error: Segmentation fault
+    #     Current thread ...:
+    #       File "tests/conftest.py", line 916 in
+    #                                   qt_things_that_outlive_the_session
+    #
+    # and a chunk of forty files reports exit 139 with no summary, which the
+    # sweep reads as a dead chunk rather than as a green one.
+    #
+    # THE `try/except` ABOVE THIS WAS NEVER GOING TO HELP: a segfault is not
+    # an exception. This file's own warning -- "the one fixture in this
+    # suite's history that reached across live widgets during teardown
+    # crashed the run three different ways" -- turns out to cover reading
+    # too, not only stopping and deleting. Read-only is not the same as
+    # safe when the objects are already half gone.
+    widgets, windows = _LAST_LIVE_WIDGET_COUNT
+    if widgets >= 0:
         if widgets >= RETAINED_WIDGETS_WORTH_SAYING:
             said.append(
                 f"    a QApplication is still alive holding {widgets} "
@@ -1097,6 +1110,35 @@ def _count_what_this_test_left_running(request):
         THREAD_LEAKS_BY_TEST[request.node.nodeid] = grew
     if after[0] > 0:
         _drain_live_runners()
+    _remember_the_live_widget_count()
+
+
+def _remember_the_live_widget_count() -> None:
+    """Ask Qt how big the retained tree is WHILE IT IS STILL SAFE TO ASK.
+
+    `qt_things_that_outlive_the_session` used to call `app.allWidgets()`
+    itself, from `pytest_sessionfinish`, and segfaulted -- see the note
+    there. Here the application is between tests and fully alive, which is
+    the same question asked at a moment that answers it.
+
+    IMPORTED ONLY IF IT IS ALREADY IMPORTED, for the reason
+    `_drain_live_runners` gives: a test that has never touched Qt has no
+    widgets, and pulling PySide6 in to discover that would put it into
+    thousands of processes that do not want it.
+    """
+    global _LAST_LIVE_WIDGET_COUNT
+
+    module = sys.modules.get("PySide6.QtWidgets")
+    if module is None:
+        return
+    try:
+        app = module.QApplication.instance()
+        if app is None:
+            return
+        _LAST_LIVE_WIDGET_COUNT = (len(app.allWidgets()),
+                                   len(app.topLevelWidgets()))
+    except Exception:                                            # noqa: BLE001
+        _LAST_LIVE_WIDGET_COUNT = (-1, -1)
 
 
 def _drain_live_runners():

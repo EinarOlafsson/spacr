@@ -14,6 +14,15 @@ plate table:
   so the answer given in the dialog is the answer that lands in the frame,
   and so a cancelled dialog is still an explicit stop rather than a run
   that quietly continues without its plate column.
+
+EVERY TEST HERE ASKS FOR ``qtbot``, INCLUDING THE TWO THAT ONLY LOOK LIKE
+RESOLVER TESTS. `resolve_metadata_with_dialog` builds a real
+`MetadataColumnDialog`; stubbing its `exec` does not stop it being
+constructed, and constructing a QWidget with no QApplication does not raise
+-- Qt writes "Must construct a QApplication before a QWidget" and ABORTS
+THE PROCESS. Under an ordering that put one of those two first, the whole
+chunk of forty files died with exit 134 and no summary, and the two tests
+that caused it are not in the traceback.
 """
 from __future__ import annotations
 
@@ -126,7 +135,7 @@ def test_a_column_with_no_example_values_says_so(qtbot):
 # The round trip through the real resolver
 # ---------------------------------------------------------------------------
 
-def test_an_accepted_dialog_resolves_the_frame(monkeypatch):
+def test_an_accepted_dialog_resolves_the_frame(qtbot, monkeypatch):
     """The answer given in the dialog is the answer that reaches the frame.
 
     Every well here parses: ``_derive_well_columns`` is all-or-nothing, so a
@@ -162,7 +171,8 @@ def test_an_accepted_dialog_resolves_the_frame(monkeypatch):
     assert result.frame.loc[0, "rowID"] == "r1"
 
 
-def test_a_cancelled_dialog_stops_the_run(plate_frame, monkeypatch):
+def test_a_cancelled_dialog_stops_the_run(qtbot, plate_frame,
+                                         monkeypatch):
     """Cancel must raise, not return a frame that is missing its identity."""
     monkeypatch.setattr(MetadataColumnDialog, "exec",
                         lambda self: QDialog.DialogCode.Rejected)
