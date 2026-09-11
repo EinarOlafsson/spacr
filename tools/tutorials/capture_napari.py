@@ -11,13 +11,18 @@ from build_evaluation_example import sha
 from curate_evidence import check_mask
 
 
-def record_napari(app,window,stage,captures,capture,settle,write_json,timeout):
+def record_napari(app,window,stage,captures,capture,settle,write_json,timeout,*,reopen_each_edit=False):
     from PySide6.QtCore import Qt,QTimer,QPoint
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QAbstractButton,QPushButton,QFileDialog,QLineEdit,QDialogButtonBox
     from spacr.qt.screens.make_masks import NapariBridgeScreen
     from spacr.qt.widgets.fold_strip import FoldButton
     import napari
+    # The recorder has already isolated XDG_CONFIG_HOME. Use napari's real
+    # appearance preference so its controls are readable in the native 4K
+    # viewer, not enlarged from a low-resolution screenshot afterwards.
+    from napari.settings import get_settings
+    get_settings().appearance.font_size = 20
 
     stage=Path(stage)
     source=stage/'timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_1.npy'
@@ -36,6 +41,9 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout):
         original_source=str(source),original_sha256=original_sha,private_folder=str(work),
         napari_version=napari.__version__,app_source_modified=False,published=False,
         biological_corrections_validated=False,checks={})
+    proof['explicit_reopen_between_edits']=reopen_each_edit
+    proof['native_napari_font_size']=20
+    proof['unrestricted_workflow_verified']=False
     write_json(captures/'scientific_acceptance.json',proof)
     deadline=time.monotonic()+timeout;panel=None;viewer=None
 
@@ -166,22 +174,27 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout):
         # The first import must not turn the saved baseline into the editable
         # napari array. Exercise another real edit before closing that viewer.
         proof['baseline_alias_after_first_import']=np.shares_memory(layers().data,panel._handoff.mask)
-        same_session=fill_object(3,19,after,'12b_same_viewer_new_edit')
-        front_spacr();click(panel.take_button)
-        disk=tifffile.imread(mask_path)
-        saved_second=np.array_equal(disk,same_session)
-        if not saved_second:check_mask(disk,after)
+        saved_second=None
+        if not reopen_each_edit:
+            same_session=fill_object(3,19,after,'12b_same_viewer_new_edit')
+            front_spacr();click(panel.take_button)
+            disk=tifffile.imread(mask_path)
+            saved_second=np.array_equal(disk,same_session)
+            if not saved_second:check_mask(disk,after)
+            snapshot('12c_same_viewer_import_result',status=panel.status.toPlainText(),
+                requested_pixels=int(np.count_nonzero(same_session!=after)),
+                pixels_not_saved=int(np.count_nonzero(disk!=same_session)),
+                saved_second_edit=saved_second,ledger=json.loads(log_path.read_text()))
+            if saved_second:after=same_session
         proof['same_session_second_edit_saved']=saved_second
-        snapshot('12c_same_viewer_import_result',status=panel.status.toPlainText(),
-            requested_pixels=int(np.count_nonzero(same_session!=after)),
-            pixels_not_saved=int(np.count_nonzero(disk!=same_session)),
-            saved_second_edit=saved_second,ledger=json.loads(log_path.read_text()))
-        if saved_second:after=same_session
         click(panel.close_button)
         if panel._viewer is not None or panel.take_button.isEnabled():raise ValueError('Close viewer did not release the bridge')
+        snapshot('12d_closed_before_next_edit',status=panel.status.toPlainText(),viewer_released=True)
         click(panel.open_button);viewer=panel._viewer
         if viewer is None:raise ValueError('The saved corrected field did not reopen')
         check_mask(layers().data,after)
+        if np.shares_memory(layers().data,panel._handoff.mask):
+            raise ValueError('Reopening did not separate the editable labels from the saved baseline')
         again=fill_object(4,20,after,'13_reopened_second_correction')
         front_spacr();click(panel.take_button)
         second=json.loads(log_path.read_text());check_mask(tifffile.imread(mask_path),again)
@@ -194,10 +207,18 @@ def record_napari(app,window,stage,captures,capture,settle,write_json,timeout):
             raise ValueError('Reopened correction ledger differs from the actual pixel edit')
         snapshot('14_history_preserved_after_reopen',status=panel.status.toPlainText(),mask=check_mask(tifffile.imread(mask_path),again),ledger=second)
         click(panel.close_button);snapshot('15_viewer_closed',status=panel.status.toPlainText())
-        proof.update(accepted=bool(saved_second),acceptance_scope='synthetic editing, exact pixels and correction history only',
+        proof.update(accepted=bool(saved_second or reopen_each_edit),acceptance_scope=(
+            'Explicit close/reopen between edits; synthetic exact pixels and correction history only'
+            if reopen_each_edit else 'synthetic editing, exact pixels and correction history only'),
             corrected_signals=corrected,original_image_unchanged=sha(image_path)==original_image_sha,
             originals_preserved=sha(source)==original_sha,final_mask_sha256=sha(mask_path),final_ledger_sha256=sha(log_path))
-        if not saved_second:
+        if reopen_each_edit:
+            proof['known_limitation']='Repeated edits in one viewer remain unverified here and previously lost the second change. Close and reopen after each imported edit; this recording does not claim that application defect is fixed.'
+            from napari_example import verify_reopen_capture
+            proof['accepted']=False
+            verify_reopen_capture(proof)
+            proof['accepted']=True
+        elif not saved_second:
             proof['hold']='The first import aliases the saved baseline to the editable labels. A second edit in the same viewer is reported unchanged and is not saved; close/reopen avoids this, but the unrestricted workflow is not accepted.'
     finally:
         proof['originals_preserved']=sha(source)==original_sha

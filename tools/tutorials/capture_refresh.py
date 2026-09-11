@@ -51,6 +51,8 @@ def main() -> int:
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
+    parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
+    parser.add_argument('--napari-reopen-each-edit', action='store_true', help='Record the explicit close/reopen-between-imports workflow; does not certify repeated edits in one viewer')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
     parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
@@ -58,6 +60,10 @@ def main() -> int:
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
         parser.error('--preview-variants requires --preview')
+    if args.measure_full_example and (args.module != 'measure' or not args.run):
+        parser.error('--measure-full-example requires --module measure --run')
+    if args.napari_reopen_each_edit and args.module != 'napari_bridge':
+        parser.error('--napari-reopen-each-edit requires --module napari_bridge')
     if args.settings_tour and (args.module not in {'regression', 'classify_merged', 'umap', 'recruitment'} or not args.run):
         parser.error('--settings-tour requires --module regression/classify_merged/umap/recruitment --run')
     if args.annotation_tour and args.module != 'annotate':
@@ -312,7 +318,8 @@ def main() -> int:
     elif args.module == 'napari_bridge':
         from capture_napari import record_napari
         record_napari(app, window, stage, captures, capture,
-                      settle, write_json, args.timeout)
+                      settle, write_json, args.timeout,
+                      reopen_each_edit=args.napari_reopen_each_edit)
     elif args.module == 'explain_cv':
         from capture_explain_cv import record_explain
         record_explain(app, window, stage, captures, capture,
@@ -935,6 +942,8 @@ def main() -> int:
                     'guide_min_wells': [2], 'guide_permutation_seed': 0,
                     'level': 'both', 'annotation_source': 'none',
                 }
+            if args.measure_full_example:
+                presets['measure']['test_mode'] = False
             if args.module == 'classify_merged' and args.classifier_family == 'ml':
                 from capture_classify_ml import bounded_settings
                 presets['classify_merged'] = bounded_settings()

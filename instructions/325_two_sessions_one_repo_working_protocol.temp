@@ -5912,3 +5912,28 @@ focused helper tests and five deliberately broken source-string checks
 have been observed green/red respectively. Four wells can still produce
 a 50% group / 48.1% object holdout for a 10% request; that distinction will
 be explained, not silently rounded into an exact split guarantee.
+
+CODEX TUTORIAL LANE — 2026-09-10, CLASSIFY ML 11 COMPLETE.
+
+88abc232c completes the technical matrix for the tabular Classify lesson:
+ten native scenes, 471 English words, thirteen source-pinned editorial
+translations, fifty checked voice tracks, fourteen browser cases, complete
+4K/30 decode and all ten decoded scene samples inspected. The accepted
+native request is 0.1, matching both settings spellings; the rejected 0.5
+capture and its mismatch report remain intact. No application edit.
+
+Independent saved-data checks: 2,153 object predictions agree with the
+database; 188 missing-nucleus objects remain NULL, not negative. Nine test
+metrics agree within 1.2e-16. Actual held-out accuracy is 0.62029 against a
+0.56329 majority baseline; only four wells, no biological validation claim.
+The heatmap averages binary class, not probability. Permutation importance
+uses training data, and feature filtering precedes the split; both limits
+are documented. The AI question was an unsent draft.
+
+Total: 53/75 existing lessons technically complete, 2,650 checked tracks
+(100 retained), 742 browser cases. Twenty-two originals plus held OPS
+remain. Fourteen catalogs agree on 75 lessons / 874 scenes, with 23
+unselected entries unchanged. Still private staging, not published or
+human-listening/native-speaker approved. Next is Measure on a fresh private
+download, including live crop/filter propagation and the earlier stale
+successor warning check. Application/Qt/ledger lanes remain untouched.
