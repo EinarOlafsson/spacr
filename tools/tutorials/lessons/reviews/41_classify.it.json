@@ -1,0 +1,30 @@
+{
+  "lesson": "41_classify",
+  "english_sha256": "e43e44b60b64b42341211784c1d115f8c7131a2d9af4d18c05a9ac318129560a",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "it",
+  "title": "Classify: il modulo principale e gli strumenti annidati",
+  "description": "Scegli la classificazione di immagini o misure, usa esempi scaricabili, osserva risultati reali e trova i cinque strumenti integrati in Classify.",
+  "objectives": [
+    "Scegliere la famiglia nel modulo unificato di Home.",
+    "Usare le lezioni CV e tabulari su dati reali con i loro limiti espliciti.",
+    "Trovare Classifier Evaluation, Explain CV, Activation, Training Runs e Feature Explorer in Classify.",
+    "Conservare le prove salvate e distinguere assistenza AI e analisi verificata."
+  ],
+  "prerequisite": "Registrato con spaCR 1.5.0.6. Questa panoramica è fra i moduli principali; lezioni specializzate e annidate restano sotto Classify nella sezione sottomoduli. Riutilizza registrazioni CV e ML reali già verificate senza riaddestrare. Etichette e sottoinsiemi sono DIVERSI: NON è un confronto diretto. Esempio tabulare: Load test data → Load, cellule misurate, classi columnID=c1/c2, foresta casuale, Plot attivo, 2153 oggetti valutati e 188 non valutati per dati nucleari mancanti; pozzetti di test separati sulla stessa piastra. Esempio CV: preparazione esplicita di 64 ritagli annotati intatti con nomi canonici del database, Generate training dataset disattivato, ResNet18 una epoca, 16 addestramento/16 validazione/32 test, pozzetti distinti su una piastra, accuratezza 0.5 pari al riferimento maggioritario. Il parser dei vecchi nomi non è corretto. Le lezioni dedicate riportano parametri, percorsi e limiti. Percorsi: classifier_evaluation, explain_cv, activation, train_compare, feature_explorer. Explain CV adatta misure a predizioni CV esistenti; non prova causalità. Activation visualizza risposte del modello di immagini. Nessuna richiesta AI, nuova affermazione di qualità, validazione biologica o confronto diretto fra famiglie. API: spacr.classify.classify → spacr.deep_spacr.train_test_model oppure spacr.ml.generate_ml_scores secondo classifier_family.",
+  "scenes": [
+    "Classify è uno dei moduli principali di Home. Aprilo qui, poi scegli la famiglia di classificazione all’interno. Il lettore dei tutorial segue la stessa struttura: questa panoramica appartiene ai moduli principali; procedure specializzate e strumenti annidati sono raggruppati sotto Classify nella sezione sottomoduli.",
+    "Computer Vision usa immagini degli oggetti; Tabular Machine Learning usa misure salvate. Scegli in base ai dati e alla domanda scientifica, non al nome che sembra più potente. Cambiare famiglia non ripete la segmentazione. Le lezioni Mask e Measure spiegano i propri controlli dal vivo per immagini e ritagli.",
+    "Per l’esempio tabulare, premi Load test data e scegli Load, non Stream. Conserva insieme progetto scaricato e database delle misure. Per immagini tue, completa prima le misurazioni. La lezione tabulare dettagliata mostra download reale, etichette, parametri ed esecuzione completa della foresta casuale.",
+    "Questi sono grafici e console di quell’esecuzione reale, con Plot attivo. Le etichette didattiche sono colonne della piastra, non fenotipi validati indipendentemente. Gli oggetti senza dati nucleari richiesti restano non valutati, non negativi. Ispeziona predizioni salvate e pozzetti riservati: grafici colorati non dimostrano generalizzazione a un altro esperimento.",
+    "La lezione separata di visione artificiale usa una preparazione alternativa esplicita dei nomi e sessantaquattro ritagli scaricati invariati. Il modello di una sola epoca raggiunge soltanto il riferimento maggioritario. I due esempi usano etichette e sottoinsiemi diversi: non confrontarne l’accuratezza come benchmark. Segui la lezione prima di preparare la tua suddivisione.",
+    "Le icone in alto a destra aprono strumenti annidati, non riquadri separati su Home. Passaci sopra per identificarli. Classifier Evaluation ispeziona un pacchetto di valutazione salvato, incluse predizioni e informazioni sulla contaminazione fra gruppi. La sua lezione spiega i file richiesti e perché una metrica visibile necessita comunque di una validazione ben progettata.",
+    "Explain CV usa caratteristiche misurate per modellare predizioni esistenti di visione artificiale. È un modello esplicativo separato, non la rete di immagini originale né una spiegazione causale. Il tutorial mostra le predizioni corrette in ingresso e i risultati disponibili. Non presumere che l’output del classificatore tabulare soddisfi quel requisito.",
+    "Activation apre l’interpretazione del modello di immagini. Usa checkpoint, canali e preelaborazione corrispondenti. La lezione collegata mostra vere mappe di salienza salvate e spiega la soluzione con un visualizzatore esterno. Una regione evidenziata non prova un meccanismo biologico né buone prestazioni del classificatore.",
+    "Training Runs confronta cronologie di addestramento e impostazioni salvate. Affiancare due curve non crea prove indipendenti. Conserva le esecuzioni in cartelle distinte e preservate, confrontando metriche e suddivisioni compatibili. Il tutorial dedicato spiega i controlli senza ripeterli in questa panoramica del modulo principale.",
+    "Feature Explorer si apre dall’ultima icona. Può ordinare caratteristiche misurate per un confronto scelto prima di addestrare un classificatore. La sua lezione usa misure scaricate reali e filtri dal vivo. Ricontrolla il confronto selezionato dopo il filtraggio: una graduatoria non è causalità né un modello di immagini addestrato.",
+    "La console offre anche l’assistenza facoltativa di spaCR AI. Qui la domanda non è inviata: non si dimostrano risposte del fornitore o risultati analitici. Conserva output, impostazioni e prove della suddivisione, e verifica i consigli. In Python, classify richiama l’implementazione per immagini o tabulare secondo la famiglia selezionata."
+  ]
+}

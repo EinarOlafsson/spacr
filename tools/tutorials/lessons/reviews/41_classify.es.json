@@ -1,0 +1,30 @@
+{
+  "lesson": "41_classify",
+  "english_sha256": "e43e44b60b64b42341211784c1d115f8c7131a2d9af4d18c05a9ac318129560a",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "Classify: el módulo principal y sus herramientas anidadas",
+  "description": "Elija clasificación por imágenes o mediciones, use ejemplos descargables, examine resultados reales y encuentre las cinco herramientas ahora integradas en Classify.",
+  "objectives": [
+    "Elegir la familia de clasificación desde el módulo unificado de Home.",
+    "Usar las lecciones de CV y datos tabulares con datos reales y límites explícitos.",
+    "Encontrar Classifier Evaluation, Explain CV, Activation, Training Runs y Feature Explorer dentro de Classify.",
+    "Conservar pruebas guardadas y distinguir asistencia AI de análisis verificado."
+  ],
+  "prerequisite": "Grabado con spaCR 1.5.0.6. Este resumen está en módulos principales; las lecciones especializadas y anidadas quedan bajo Classify en submódulos. Reutiliza grabaciones reales verificadas de CV y ML sin volver a entrenar. Usan etiquetas y subconjuntos DIFERENTES: NO son una comparación directa. Ejemplo tabular: Load test data → Load, células medidas, clases columnID=c1/c2, bosque aleatorio, Plot activado, 2153 objetos puntuados y 188 sin puntuar por falta de datos nucleares; pocillos de prueba separados en una misma placa. Ejemplo CV: preparación explícita de 64 recortes anotados e intactos con nombres canónicos de base, Generate training dataset desactivado, ResNet18 una época, 16 entrenamiento/16 validación/32 prueba, pocillos distintos de una placa, exactitud 0.5 igual al valor mayoritario. El analizador de nombres antiguos no está corregido. Consulte ajustes, rutas y límites en las lecciones especializadas. Rutas: classifier_evaluation, explain_cv, activation, train_compare, feature_explorer. Explain CV ajusta mediciones a predicciones CV existentes; no prueba causalidad. Activation visualiza respuestas del modelo de imágenes. Sin pregunta AI enviada, nueva afirmación de calidad, validación biológica ni comparación directa entre familias. API: spacr.classify.classify → spacr.deep_spacr.train_test_model o spacr.ml.generate_ml_scores según classifier_family.",
+  "scenes": [
+    "Classify es uno de los módulos principales de Home. Ábralo aquí y elija dentro la familia de clasificación. El reproductor de tutoriales sigue la misma estructura: este resumen pertenece a módulos principales; los flujos especializados y las herramientas anidadas se agrupan bajo Classify en la sección de submódulos.",
+    "Computer Vision usa imágenes de objetos; Tabular Machine Learning utiliza mediciones guardadas. Elija según sus datos y pregunta científica, no por el nombre que parezca más potente. Cambiar de familia no repite la segmentación. Las lecciones enlazadas de Mask y Measure explican sus propios controles de imágenes y recortes en vivo.",
+    "Para el ejemplo tabular, pulse Load test data y elija Load, no Stream. Conserve juntos el proyecto descargado y la base de mediciones. Para imágenes propias, complete primero las mediciones. La lección tabular detallada registra la descarga real, etiquetas, ajustes y ejecución completa del bosque aleatorio.",
+    "Estas son las figuras y la consola de esa ejecución real, con Plot activado. Las etiquetas didácticas son columnas de placa, no fenotipos validados independientemente. Los objetos sin datos nucleares requeridos quedan sin puntuar, no negativos. Revise predicciones guardadas y pocillos reservados; una figura colorida no demuestra generalización a otro experimento.",
+    "La lección separada de visión por computador usa una preparación alternativa explícita de nombres y sesenta y cuatro recortes descargados sin modificar. Su modelo de una época solo alcanza la referencia mayoritaria. Los dos ejemplos usan etiquetas y subconjuntos diferentes: no compare sus exactitudes como un benchmark. Siga la lección antes de preparar su partición.",
+    "Los iconos superiores derechos abren herramientas anidadas, no mosaicos separados en Home. Pase el cursor para identificarlos. Classifier Evaluation inspecciona un paquete de evaluación guardado, con predicciones e información de fuga. Su lección explica los archivos necesarios y por qué una métrica visible sigue necesitando un diseño de validación sólido.",
+    "Explain CV usa mediciones para modelar predicciones existentes de visión por computador. Es un modelo explicativo separado, no la red de imágenes original ni una explicación causal. Su tutorial muestra la entrada de predicciones correcta y los resultados disponibles. No suponga que las salidas del clasificador tabular cumplen ese requisito.",
+    "Activation abre la interpretación del modelo de imágenes. Use el punto de control, canales y preprocesamiento correspondientes. La lección enlazada demuestra mapas de saliencia reales guardados y explica la alternativa con visor externo. Una región resaltada no prueba un mecanismo biológico ni un clasificador de buen rendimiento.",
+    "Training Runs compara historiales de entrenamiento y ajustes guardados. Poner dos curvas juntas no crea evidencia independiente. Conserve ejecuciones en directorios separados y preservados, comparando métricas y particiones compatibles. Su tutorial específico explica los controles sin repetirlos en este resumen del módulo principal.",
+    "Feature Explorer se abre desde el último icono. Puede ordenar características medidas para una comparación elegida antes de entrenar un clasificador. Su lección usa mediciones descargadas reales y filtros en vivo. Compruebe de nuevo la comparación tras filtrar: una clasificación de rasgos no es causalidad ni un modelo de imágenes entrenado.",
+    "La consola ofrece además asistencia opcional de spaCR AI. Aquí la pregunta no se envía; no se demuestra respuesta de proveedor ni resultado analítico. Conserve salidas, ajustes y pruebas de la partición, y contraste los consejos. En Python, classify dirige a la implementación de imágenes o tabular según la familia elegida."
+  ]
+}
