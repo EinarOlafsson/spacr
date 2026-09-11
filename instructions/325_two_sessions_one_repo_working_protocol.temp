@@ -5740,3 +5740,41 @@ NEXT CLAIM: Explain CV Model 70, native Classify fold, original recorded
 prediction CSV plus matching real measurements, bounded surrogate run and
 independent fidelity/table/split checks. Not a retraining or independent
 classifier-validation claim. No application or other-session edits.
+
+CODEX TUTORIAL LANE — 2026-09-10, EXPLAIN CV 70 NATIVE CHECKPOINT.
+
+9f1199b12 pushed. Sixteen real Classify > Explain CV frames use byte-identical
+copies of the recorded 234 CV predictions and matching measurements. The
+actual Random Forest surrogate completes in 493 s under two-core affinity;
+peak observed RSS about 1.7 GB, system guard 110 GiB. No retraining of the CV
+model, no synthetic labels, and no original/private input changes.
+
+234 rows join; only 89 have finite values in all 1,126 selected features.
+The complete-case partition is 68 training / 21 held-out objects, two wells
+versus one, no shared well. The unfitted application join is reused and its
+finite-row accounting checked separately; NOT an independent feature-join
+implementation. All 21 surrogate calls are class 1: 17 agree, four disagree,
+fidelity 17/21, balanced accuracy .5, macro F1 .447368. The displayed baseline
+is 81/89 across ALL complete cases, not the held-out subset. The ranking is
+correctly withheld. This will be a failure-aware workflow tutorial, not a
+validated biological explanation. Eleven real artifacts; 32,935 GUI cells
+match their saved CSVs. Correlations show 1,000/1,087 rows and distributions
+1,000/2,252; the lesson will explicitly point to full exports.
+
+27 numerical helper tests and nine red mutations, helper alone 64 statements
+/32 branches at 100%. Two CSV-reader tests plus a red precision mutation:
+the round-trip parser is necessary at the real 4049.4500000000003 display
+rounding boundary. No extra fit was used to check the saved numbers.
+
+PROTECTED-APP NOTES: choosing the predictions CSV via Browse leaves both
+column dropdowns at their defaults; an explicit Enter in the actual path
+field refreshes them. The recording then chooses filename/predicted_label.
+The automatic leakage heuristic excludes eighteen legitimate measurement
+names containing cv_intensity (coefficient of variation); its warning alone
+does not establish that those columns leak labels. Per-cell SHAP remains
+visible despite failed fidelity; the lesson will not interpret it as the
+classifier's mechanism. Open held-out objects remains disabled because no
+Annotate opener is initialized. No application edits from this session.
+
+Receipt: tools/tutorials/evidence/2026-09-10_explain_cv_native_checks.json.
+Continuing 70 narration/translations/media. Still 49 completed matrices.
