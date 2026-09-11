@@ -2458,10 +2458,24 @@ included. If those reach a LATER, freshly built Mask screen, every
 assertion about "an object with no channel" is being made against a panel
 that has one.
 
+  AND THE WHOLE SEQUENCE NARROWS IT FURTHER. Printing every pass for that
+  panel rather than the last few:
+
+      [None, None, None, None, None, None,
+       '2', '2', '2', '2', '2', '2', '2', '2']
+
+  SIX PASSES WITH NO CHANNEL, THEN EIGHT WITH ONE. The panel is built
+  correctly and is changed while it settles -- inside the fixture's own
+  `_on_nav_selected("mask")` and the `processEvents()` after it, before the
+  test body runs. So it is not a bad default and not a shared dict: it is a
+  write that lands on a fresh screen during its first turns of the event
+  loop.
+
   SO THE QUESTION FOR WHOEVER TAKES IT IS NOT "why is the row shown". It
-  is "what carries a channel from an example load into the next fresh
-  screen", and the candidates are the settings store the conftest sandboxes
-  per test and whatever the example writer touches that it does not.
+  is "what writes `nucleus_channel` onto a mask screen while it is
+  settling, in this ordering and not in others", and the candidates are the
+  settings store the conftest sandboxes per test and whatever the example
+  path touches that it does not.
 
   AND THE TEST IS ARGUABLY RIGHT TO FAIL. It says "an object with no
   channel brings no settings"; in that ordering the object HAS a channel.
