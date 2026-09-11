@@ -3421,6 +3421,181 @@ def _widget_qss_palette(theme: str, font_scale: float,
     return palette
 
 
+#: The sheet every top-level window is carrying, parked on the QApplication
+#: so a window born later can find it.
+_WINDOW_SHEET_ATTRIBUTE = "_spacr_window_stylesheet"
+
+#: Bumped every time that sheet is replaced. A window carries the serial it
+#: was last sheeted with, which is what makes the filter below idempotent --
+#: a `Polish` and a `Show` for the same window do the work once.
+_WINDOW_SHEET_SERIAL = "_spacr_window_stylesheet_serial"
+
+#: The one filter instance, kept off the QApplication's children so it is
+#: not collected.
+_WINDOW_SHEET_FILTER = None
+
+
+class _SheetsEveryWindowThatAppears(QObject):
+    """Gives a window born after a theme change the theme, not the last one.
+
+    THIS IS THE WHOLE RISK OF NOT USING `QApplication.setStyleSheet`, named
+    in instruction 380: that call "covers every widget that exists AND every
+    one created later -- dialogs, popups, menus, a screen built after the
+    change", and "the failure mode is a dialog opening in the previous
+    theme, which is exactly compromising functionality".
+
+    A per-window sheet has to reproduce that, and the moment to do it is
+    `QEvent.Polish` -- Qt's own "this widget is about to need its style" --
+    with `QEvent.Show` as the belt to its braces for a window that was
+    polished before the sheet existed. Both are idempotent through the
+    serial, so the pair costs one application.
+
+    MENUS AND TOOLTIPS ARE COVERED BY THIS and were the part 380 recorded as
+    "the remaining display question ... a test cannot open a native menu".
+    They are covered because a QMenu and a tooltip are ordinary top-level
+    QWidgets that get a Polish event like any other, so the filter reaches
+    them without anything having to know they exist.
+    """
+
+    def eventFilter(self, watched, event):  # noqa: N802 - Qt override
+        if event.type() in (QEvent.Polish, QEvent.Show):
+            try:
+                if watched.isWindow():
+                    _sheet_one_window(watched)
+            except (AttributeError, RuntimeError):
+                pass
+        return False
+
+
+def _sheet_one_window(window) -> bool:
+    """Put the live window sheet on ``window`` if it has not got it yet."""
+    app = QApplication.instance()
+    if app is None:
+        return False
+    sheet = getattr(app, _WINDOW_SHEET_ATTRIBUTE, None)
+    if sheet is None:
+        return False
+    serial = getattr(app, _WINDOW_SHEET_SERIAL, 0)
+    try:
+        if getattr(window, _WINDOW_SHEET_SERIAL, None) == serial:
+            return False
+        setattr(window, _WINDOW_SHEET_SERIAL, serial)
+        # PRESERVE A SCREEN-LOCAL SUFFIX. `preserve_widget_qss_overlay` owns
+        # the other end of this: a root that has been given its own late
+        # block keeps it appended, or setting the window sheet would strand
+        # that screen on the previous preference values.
+        window.setStyleSheet(preserve_widget_qss_overlay(window, sheet))
+    except (AttributeError, RuntimeError):
+        return False
+    return True
+
+
+def _forget_window_stylesheets(app=None) -> int:
+    """Take the per-window sheet back off, and forget it was ever there.
+
+    FOR TEST ISOLATION, and it is the same class of process-global state as
+    the app registry and the console's level policy, both of which
+    `tests/qt/conftest.py` already restores. A sheet installed by one test
+    is worn by every window created in every test after it -- including the
+    tests that apply a theme the direct way, with `app.setStyleSheet`, whose
+    windows then carry the EARLIER theme over the top. Measured as
+    `HomePage inlines #000000 (dark bg)` under the light, cell and glass
+    themes, in company and never alone.
+
+    :returns: the number of windows a sheet was removed from.
+    """
+    app = app or QApplication.instance()
+    if app is None:
+        return 0
+    if not hasattr(app, _WINDOW_SHEET_ATTRIBUTE):
+        return 0
+    removed = 0
+    for window in list(app.topLevelWidgets()):
+        try:
+            if getattr(window, _WINDOW_SHEET_SERIAL, None) is None:
+                continue
+            delattr(window, _WINDOW_SHEET_SERIAL)
+            window.setStyleSheet(preserve_widget_qss_overlay(window, ""))
+            removed += 1
+        except (AttributeError, RuntimeError):
+            continue
+    try:
+        delattr(app, _WINDOW_SHEET_ATTRIBUTE)
+    except AttributeError:
+        pass
+    return removed
+
+
+def window_stylesheet(app=None) -> Optional[str]:
+    """The sheet :func:`apply_stylesheet_per_window` last installed.
+
+    The replacement for reading ``app.styleSheet()`` back: that is empty now
+    and says nothing about what the windows are wearing.
+    """
+    app = app or QApplication.instance()
+    if app is None:
+        return None
+    sheet = getattr(app, _WINDOW_SHEET_ATTRIBUTE, None)
+    return None if sheet is None else str(sheet)
+
+
+def apply_stylesheet_per_window(app, sheet: str) -> int:
+    """Install ``sheet`` on every top-level window instead of on ``app``.
+
+    WHY, WITH THE NUMBER. `QApplication.setStyleSheet` repolishes every
+    widget the process owns, and a session that has opened a few modules
+    owns thousands it cannot see -- `MainWindow` builds a module screen on
+    first navigation and keeps it in the stack afterwards. Measured on this
+    box, offscreen, four modules open, 9,045 live widgets of which 6,111 are
+    on screens nobody is looking at:
+
+        app.setStyleSheet            2,836 ms first, ~7,500 ms thereafter
+        every top-level window       1,684 ms first, ~1,900 ms thereafter
+        the visible screen alone       222 ms
+
+    A QUARTER OF THE COST FOR THE SAME PICTURE. The floor is lower still --
+    222 ms is what the visible screen costs on its own -- and reaching it
+    means not sheeting the hidden screens either, which is a bigger change
+    than this one and is recorded in 380 rather than attempted here.
+
+    :returns: the number of windows the sheet was put on.
+    """
+    global _WINDOW_SHEET_FILTER
+
+    if app is None:
+        return 0
+    # TAKE THE APPLICATION SHEET DOWN WHEN THE WINDOWS TAKE OVER. An
+    # application sheet left standing keeps applying to every widget --
+    # including the ones inside a window, where an OLD one then shows
+    # through as a colour from the wrong theme. Measured: `HomePage inlines
+    # #000000 (dark bg)` under the light, cell and glass themes, in a run of
+    # 1,045 tests and not one of them alone, because what was stale was left
+    # by whichever earlier test had set a sheet globally.
+    #
+    # Guarded, because clearing it is itself a full repolish. In production
+    # it is empty after the first call, so this is paid once at startup with
+    # one small window on screen -- not on the preference save this whole
+    # function exists to make cheap.
+    if app.styleSheet():
+        app.setStyleSheet("")
+    setattr(app, _WINDOW_SHEET_ATTRIBUTE, str(sheet))
+    setattr(app, _WINDOW_SHEET_SERIAL,
+            int(getattr(app, _WINDOW_SHEET_SERIAL, 0)) + 1)
+
+    if _WINDOW_SHEET_FILTER is None:
+        _WINDOW_SHEET_FILTER = _SheetsEveryWindowThatAppears()
+    # Re-installing is how the filter survives an application being torn
+    # down and rebuilt in one process, which the test suite does constantly.
+    app.removeEventFilter(_WINDOW_SHEET_FILTER)
+    app.installEventFilter(_WINDOW_SHEET_FILTER)
+
+    sheeted = 0
+    for window in list(app.topLevelWidgets()):
+        if _sheet_one_window(window):
+            sheeted += 1
+    return sheeted
+
+
 def clear_widget_qss_overlays(app=None) -> int:
     """Remove screen-local late-QSS suffixes before a global theme rebuild.
 

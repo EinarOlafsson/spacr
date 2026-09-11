@@ -34,9 +34,10 @@ pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
 
+from PySide6.QtCore import Qt                                # noqa: E402
 from PySide6.QtGui import QPalette                           # noqa: E402
 from PySide6.QtWidgets import (QApplication, QDialog, QLabel,  # noqa: E402
-                               QMainWindow, QWidget)
+                               QMainWindow, QMenu, QWidget)
 
 #: Two sheets that differ only in a colour nothing else uses, so a widget
 #: reading the wrong one is unambiguous rather than a near-miss.
@@ -149,3 +150,131 @@ def test_it_catches_a_sheet_that_reached_only_one_window(app, qtbot):
     assert _resolved(second_label) != SECOND_HEX, (
         "the second window somehow got the sheet; this negative case is "
         "what makes the four tests above meaningful")
+
+
+# ---------------------------------------------------------------------------
+# The change itself, 2026-09-11. Everything above holds the PROPERTY; what
+# follows exercises the implementation that has to keep it.
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def per_window(qtbot):
+    """A clean application with the per-window sheet installed and removed."""
+    from spacr.qt import theme
+
+    app = QApplication.instance()
+    app.setStyleSheet("")
+    yield theme.apply_stylesheet_per_window
+    theme.apply_stylesheet_per_window(app, "")
+    app.setStyleSheet("")
+
+
+def test_the_sheet_reaches_a_window_that_already_exists(per_window, qtbot):
+    """The control for this half: without it the rest prove nothing."""
+    app = QApplication.instance()
+    window = QWidget()
+    qtbot.addWidget(window)
+    label = QLabel(window)
+    window.show()
+
+    assert per_window(app, FIRST) >= 1
+    assert _resolved(label) == FIRST_HEX
+
+
+def test_a_theme_change_reaches_a_window_that_lived_across_it(per_window,
+                                                              qtbot):
+    app = QApplication.instance()
+    window = QWidget()
+    qtbot.addWidget(window)
+    label = QLabel(window)
+    window.show()
+
+    per_window(app, FIRST)
+    assert _resolved(label) == FIRST_HEX
+    per_window(app, SECOND)
+    assert _resolved(label) == SECOND_HEX
+
+
+@pytest.mark.parametrize("make", [
+    pytest.param(lambda: QDialog(), id="a dialog"),
+    pytest.param(lambda: QMainWindow(), id="a whole window"),
+    pytest.param(lambda: QMenu(), id="a menu"),
+    pytest.param(lambda: QWidget(None, Qt.ToolTip), id="a tooltip"),
+])
+def test_a_window_born_after_the_change_is_not_in_the_previous_theme(
+        per_window, qtbot, make):
+    """380's NAMED RISK, and the two it recorded as needing a display.
+
+    "`app.setStyleSheet` covers every widget that exists AND every one
+    created later -- dialogs, popups, menus, a screen built after the
+    change. Per-window application has to reproduce that, and the failure
+    mode is a dialog opening in the previous theme."
+
+    A MENU AND A TOOLTIP ARE ORDINARY TOP-LEVEL WIDGETS, which is why they
+    are here rather than in the "needs a display" note they were left in.
+    Qt creates them itself and a test cannot open a NATIVE menu, but the
+    property at stake is not how the menu looks -- it is whether the
+    widget Qt creates gets the sheet, and a `QMenu` constructed directly
+    answers that with the same Polish event the real one gets.
+    """
+    app = QApplication.instance()
+    per_window(app, FIRST)
+    per_window(app, SECOND)
+
+    window = make()
+    qtbot.addWidget(window)
+    label = QLabel(window)
+    window.show()
+    app.processEvents()
+
+    assert _resolved(label) == SECOND_HEX, (
+        "a window created after the theme change opened in the previous "
+        "theme, which is exactly what 380 says must not happen")
+
+
+def test_the_application_sheet_is_left_empty(per_window, qtbot):
+    """Where the saving comes from, stated as a property.
+
+    `QApplication.setStyleSheet` repolishes every widget the process owns,
+    including the thousands on module screens nobody is looking at. If this
+    starts failing, the sheet is being set globally again and the cost is
+    back whether or not anything looks different.
+    """
+    from spacr.qt.theme import window_stylesheet
+
+    app = QApplication.instance()
+    per_window(app, SECOND)
+    assert app.styleSheet() == ""
+    assert window_stylesheet(app) == SECOND
+
+
+def test_applying_the_same_sheet_twice_does_not_re_sheet_a_window(
+        per_window, qtbot):
+    """The serial is what makes Polish and Show cost one application, not two.
+
+    Without it every `Show` event on every top-level would set the sheet
+    again -- a full repolish of that window's tree, which is the cost this
+    change exists to avoid, paid on every popup.
+    """
+    app = QApplication.instance()
+    window = QWidget()
+    qtbot.addWidget(window)
+    window.show()
+
+    assert per_window(app, FIRST) >= 1
+    calls = []
+    real = QWidget.setStyleSheet
+
+    def counting(self, sheet):
+        calls.append(self)
+        return real(self, sheet)
+
+    QWidget.setStyleSheet = counting
+    try:
+        for _ in range(5):
+            window.show()
+            app.processEvents()
+    finally:
+        QWidget.setStyleSheet = real
+    assert window not in calls

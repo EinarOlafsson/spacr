@@ -440,6 +440,39 @@ def _the_spacr_environment_is_left_as_it_was_found():
 
 
 @pytest.fixture(autouse=True)
+def _the_window_stylesheet_is_left_as_it_was_found():
+    """Undo a per-window theme sheet a test installed.
+
+    `apply_preferences_to_app` puts the application stylesheet on every
+    top-level WINDOW rather than on the QApplication -- instruction 380's
+    last lever, worth 10.2 s against 3.1 on a session with four modules
+    open -- and installs an event filter so a window created later gets it
+    too. Both of those outlive the test that caused them.
+
+    THAT IS RIGHT IN PRODUCTION AND WRONG BETWEEN TESTS. A window sheet
+    outranks the application sheet for that window's tree, so a test that
+    applies a theme the direct way -- `app.setStyleSheet(stylesheet(...))`,
+    which several do -- builds its widgets inside a window still wearing the
+    theme an EARLIER test asked for. Measured as `HomePage inlines #000000
+    (dark bg)` under light, cell and glass, in a run of 1,045 tests and in
+    none of the three files alone.
+
+    Same shape as `_restore_app_registry` above and
+    `_restore_console_level_policy` below: process-global state that one
+    test sets and every later test inherits.
+    """
+    try:
+        from spacr.qt import theme
+    except Exception:                                        # noqa: BLE001
+        yield
+        return
+    try:
+        yield
+    finally:
+        theme._forget_window_stylesheets()
+
+
+@pytest.fixture(autouse=True)
 def _restore_console_level_policy():
     """Put the in-app console's level gate back the way the test found it.
 

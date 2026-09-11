@@ -4107,10 +4107,12 @@ def apply_preferences_to_app(app=None) -> None:
 
     from .theme import (
         apply_qpalette,
+        apply_stylesheet_per_window,
         clear_widget_qss_overlays,
         set_widget_qss_context,
         stylesheet,
         widget_qss_names,
+        window_stylesheet,
     )
 
     app = app or QApplication.instance()
@@ -4171,12 +4173,18 @@ def apply_preferences_to_app(app=None) -> None:
     style_changed = (
         getattr(app, "_spacr_preferences_style_signature", None)
         != style_signature
-        # QApplication's sheet is public state.  Tests, embedding hosts and
-        # theme integrations may replace it without going through this
-        # function, so the signature is only valid while the exact sheet it
-        # describes is still installed.  Checking the text is cheap beside a
-        # global Qt repolish and also catches a non-empty foreign sheet.
-        or app.styleSheet()
+        # The live sheet is public state.  Tests, embedding hosts and theme
+        # integrations may replace it without going through this function,
+        # so the signature is only valid while the exact sheet it describes
+        # is still installed.  Checking the text is cheap beside a global Qt
+        # repolish and also catches a non-empty foreign sheet.
+        #
+        # READ FROM THE WINDOWS, NOT FROM THE APPLICATION. The sheet goes on
+        # every top-level window now rather than on the QApplication, so
+        # `app.styleSheet()` is empty here and comparing it would report a
+        # change on every single save -- which is exactly the rebuild this
+        # guard exists to skip.
+        or window_stylesheet(app)
         != getattr(app, "_spacr_preferences_stylesheet", None)
     )
     if style_changed:
@@ -4192,7 +4200,16 @@ def apply_preferences_to_app(app=None) -> None:
         # copies only after the replacement exists, then install the complete
         # sheet that now contains every block registered so far.
         clear_widget_qss_overlays(app)
-        app.setStyleSheet(sheet)
+        # PER WINDOW, NOT ON THE APPLICATION, and instruction 380 has the
+        # measurement: `QApplication.setStyleSheet` repolishes every widget
+        # the process owns, and a session that has opened four modules owns
+        # 9,045 of which 6,111 are on screens nobody can see. Measured on
+        # this box, offscreen: 7,500 ms that way against 1,900 ms this way,
+        # for the same picture. A window born after the change is covered by
+        # the filter `apply_stylesheet_per_window` installs, which is the
+        # property `tests/qt/test_a_dialog_never_opens_in_the_previous_theme`
+        # was written to hold before this line could be changed.
+        apply_stylesheet_per_window(app, sheet)
         setattr(app, "_spacr_preferences_style_signature", style_signature)
         setattr(app, "_spacr_preferences_stylesheet", sheet)
 

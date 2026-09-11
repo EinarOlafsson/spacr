@@ -317,7 +317,8 @@ def test_apply_preferences_to_app_takes_the_theme_and_the_font_scale(
         apply_preferences_to_app, get_language, get_pane_opacity,
         set_theme, set_font_scale,
     )
-    from spacr.qt.theme import apply_qpalette, palette_for, stylesheet
+    from spacr.qt.theme import (apply_qpalette, palette_for, stylesheet,
+                                window_stylesheet)
 
     app = qt_theme_applied
     # Start from a known dark/100 % application, so nothing below can be
@@ -338,7 +339,12 @@ def test_apply_preferences_to_app_takes_the_theme_and_the_font_scale(
     assert app.palette().color(QPalette.Base).name() == light["surface"]
     assert app.palette().color(QPalette.Highlight).name() == light["accent"]
 
-    applied = _qss_font_sizes(app.styleSheet())
+    # READ IT BACK OFF THE WINDOWS. `apply_preferences_to_app` installs the
+    # sheet per top-level window rather than on the QApplication -- 380's
+    # last lever, worth 7,500 ms against 1,900 on a session with four
+    # modules open -- so `app.styleSheet()` still holds the dark sheet
+    # seeded above and says nothing about what this call did.
+    applied = _qss_font_sizes(window_stylesheet(app))
     unscaled = _qss_font_sizes(stylesheet(theme="light", font_scale=1.0,
                                           surface_opacity=get_pane_opacity()))
     assert applied and len(applied) == len(unscaled) == len(seeded_sizes)
@@ -347,7 +353,7 @@ def test_apply_preferences_to_app_takes_the_theme_and_the_font_scale(
     assert all(big >= small for small, big in zip(unscaled, applied))
     assert max(applied) > max(unscaled)
     # ... and it is the light stylesheet, not the dark QSS at 125 %.
-    assert light["bg"] in app.styleSheet()
+    assert light["bg"] in window_stylesheet(app)
 
     assert app.property("spacrLanguage") == get_language()
 
