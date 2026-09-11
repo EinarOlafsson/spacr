@@ -1,0 +1,31 @@
+{
+  "language": "it",
+  "title": "Esplorazione dei parametri",
+  "description": "Eseguire due prove in Regression distinguendo il completamento del calcolo dalla validità dell’inferenza.",
+  "objectives": [
+    "Selezionare quattro coppie ordinate di file di punteggi e conteggi.",
+    "Limitare la griglia a due prove e un processo, poi leggere risultati salvati.",
+    "Separare le famiglie di coefficienti e segnalare i controlli d’inferenza falliti."
+  ],
+  "prerequisite": "Usare le quattro coppie di piastre scaricate nella lezione Regression e una nuova cartella di output. Entrambe le prove ridge falliscono i controlli d’inferenza: non sono risultati biologici validati. Varia solo alpha, 0.01 e 0.1; inferenza parametrica, medie per pozzetto e nessuna trasformazione sono impostate esplicitamente. Non tutte le impostazioni del modulo principale vengono ereditate. n_rows_fitted conta 1174 coefficienti, non 620 pozzetti o 2955 righe preparate. Controllare sweep_results.csv e le impostazioni effettive: la tabella omette alpha e i giudizi di qualità. API: spacr.parameter_sweep.SweepSpace e run_sweep_parallel. Nessun benchmark GPU, richiesta esterna all’IA, approvazione madrelingua o pubblicazione.",
+  "scenes": [
+    "Aprite Regression, poi Parameter sweep in basso a destra. Questo flusso si trova dentro Regression, non in un riquadro Home separato. La lezione Regression spiega come scaricare le quattro coppie di file di punteggi e conteggi riutilizzate qui.",
+    "Controllate le liste d’ingresso del pannello di esplorazione. All’inizio sono vuote anche se il modulo principale contiene dati appaiati. Aggiungete quattro file di punteggi e quattro di conteggi nello stesso ordine delle piastre. Scegliete una nuova cartella di output per non sovrascrivere un’analisi precedente.",
+    "Spuntate soltanto alpha, con zero virgola zero uno e zero virgola uno. Anche le righe non spuntate forniscono impostazioni fisse. Qui scegliamo esplicitamente ridge, inferenza parametrica, medie per pozzetto e nessuna trasformazione. Questa ricetta limitata dimostra il funzionamento; non è una raccomandazione per il vostro esperimento.",
+    "Impostate grid, un massimo di due prove e un solo processo, poi fate clic su Estimate. Due combinazioni valide significa che le impostazioni sono ammesse, non che le conclusioni statistiche siano valide. La stima assume un minuto per prova: non è un benchmark. Leggete i limiti delle risorse prima di iniziare.",
+    "Fate clic su Start sweep, non sul pulsante Run del modulo principale. Ogni prova scrive nella propria cartella. Queste due prove reali vengono eseguite in sequenza; più processi richiedono più risorse. L’esempio usa regressione su CPU, non accelerazione GPU, e non richiede chiamate a spaCR AI.",
+    "Entrambe le righe indicano ok perché il calcolo è terminato. Ma entrambi i controlli d’inferenza salvati indicano fail. La tabella omette questi giudizi e l’alpha variabile: controllate il file completo dei risultati e le impostazioni di ogni prova. Non scegliete un modello soltanto perché produce più valori P aggiustati piccoli.",
+    "Selezionate la prima riga e fate clic su Show figures for selected row. Si leggono risultati salvati senza riadattare il modello. La vista delle guide contiene settecentonovantadue righe di coefficienti, inclusa un’intercetta; il grafico esclude quel termine e mostra settecentonovantuno guide. L’altezza rappresenta il logaritmo decimale negativo del valore P grezzo.",
+    "Passate Level a Gene. La tabella contiene ora trecentottantadue righe, inclusa la propria intercetta, e il grafico mostra trecentottantuno geni. Guide e geni sono famiglie di coefficienti separate. Cambiare vista non rende valida l’inferenza fallita e non crea evidenza indipendente.",
+    "Tornate alle guide: ricompaiono righe e punti originali, mentre i file salvati restano invariati. Il campo rows fitted del riepilogo è fuorviante qui: conta righe di coefficienti, non pozzetti. Distinguete numerosità dei campioni, coefficienti prodotti e famiglia rappresentata quando riportate un’analisi.",
+    "Consultate insieme impostazioni, riepilogo e file di controllo qualità salvati. Un grafico o una spiegazione dell’IA non certifica un disegno sperimentale. Regression Diagnostics illustra ulteriori verifiche; il riferimento API documenta l’esecuzione. Questo esempio insegna un flusso riproducibile e i suoi limiti, non risultati biologici validati."
+  ],
+  "lesson": "73_parameter_sweep",
+  "english_sha256": "2b6898d74bd7929cc6bf8b5c6e405457ee2e14e57608d9fd649a32b88106f307",
+  "review": {
+    "kind": "Editorial translation of frozen English; actual failed inference and recorded numerical limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}

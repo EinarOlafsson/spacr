@@ -511,7 +511,7 @@ def test_a_fit_whose_coefficients_carry_no_p_value_corrects_nothing(capsys):
     construction; running BH over an empty family raised rather than reporting
     a screen with nothing in it.
     """
-    settings = {'controls': None, 'multiple_testing_method': 'fdr_bh',
+    settings = {'nontargeting_control_grnas': None, 'multiple_testing_method': 'fdr_bh',
                 'fdr_alpha': 0.05}
 
     coef_df, significant, threshold, rule = ml._call_level_hits(
@@ -1438,15 +1438,21 @@ def test_the_refusal_names_only_the_control_that_matched_nothing():
         ml.ml_analysis(frame, positive_control='c2', negative_control='nope',
                        **COMMON)
     message = str(caught.value)
-    assert "negative_control='nope'" in message
-    assert 'positive_control=' not in message
+    # THE MESSAGE NAMES THE SETTING, not this function's parameter. The
+    # parameter is still `negative_control=`; the knob a user turns is
+    # `negative_control_id`, and the remedy sentence has to name the one
+    # they can act on.
+    assert "negative_control_id='nope'" in message
+    assert "positive_control_id='" not in message, (
+        "only the arm that matched nothing should be named")
 
     with pytest.raises(ValueError) as caught:
         ml.ml_analysis(frame, positive_control='nope', negative_control='c1',
                        **COMMON)
     other = str(caught.value)
-    assert "positive_control='nope'" in other
-    assert 'negative_control=' not in other
+    assert "positive_control_id='nope'" in other
+    assert "negative_control_id='" not in other, (
+        "only the arm that matched nothing should be named")
 
 
 def test_a_fold_that_cannot_hold_both_classes_is_refused_by_name():

@@ -1,0 +1,30 @@
+{
+  "lesson": "38_distributed_jobs",
+  "english_sha256": "66bdff910bb343adabad62ef2e4536473e84b69671eb0419a199537ffb0d7100",
+  "review": {
+    "kind": "Editorial translation of frozen English; configuration-only boundary and native control behavior preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Trabalhos distribuídos",
+  "description": "Preparar um perfil real em Help e distinguir configuração salva de execução remota verificada.",
+  "objectives": [
+    "Abrir Distributed jobs em Help e salvar um perfil.",
+    "Distinguir mapeamento de caminhos, cópia de dados e autenticação.",
+    "Preparar SSH, Slurm ou comandos personalizados sem afirmar uma execução não testada."
+  ],
+  "prerequisite": "Apenas configuração, com armazenamento local isolado e sem conexão ou envio de trabalho. researcher@workstation.invalid e os diretórios são exemplos, não destinos funcionais. Antes de enviar, providencie acesso autorizado, spaCR e dependências compatíveis e dados existentes no destino. Use as configurações exportadas pelo módulo, não este perfil como configuração experimental. API: spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager. Perfis não armazenam senhas; autentique-se fora do spaCR. As raízes substituem prefixos absolutos sem copiar imagens. Verificamos salvar, reabrir e cancelar alterações, não o agendador, resultados remotos ou validade do modelo.",
+  "scenes": [
+    "Abra Help e depois Distributed jobs. Esse utilitário é acessado pelo Help, não por um bloco principal separado na Home. Preparamos um perfil real e examinamos os controles atuais. Não demonstramos conexão ou envio de trabalho remoto; salvar um perfil não comprova que seu destino funciona.",
+    "Este painel envia as configurações de um módulo para outro destino de execução. Antes de enviar, providencie acesso autorizado, uma instalação compatível do spaCR e os dados disponíveis nesse destino. Perfis guardam configurações de conexão, não senhas. Configure chaves SSH ou a autenticação da ferramenta de nuvem fora do spaCR.",
+    "Escolha New profile. Salvar o formulário vazio é recusado com uma mensagem no próprio formulário. Dê um nome claro e escolha o backend. Nosso exemplo é chamado explicitamente NOT CONNECTED, para não ser confundido com uma estação testada ou um trabalho concluído com sucesso.",
+    "Para SSH, informe o host, o diretório de trabalho remoto e o executável do spaCR. O host terminado em ponto invalid e os diretórios são exemplos, não credenciais utilizáveis nem locais verificados. Salvamos e reabrimos o perfil; os valores visíveis correspondem exatamente à configuração armazenada.",
+    "As raízes local e remota descrevem os mesmos dados com prefixos absolutos diferentes. Defina ambas, ou deixe ambas vazias quando os caminhos forem idênticos. Isso mapeia caminhos nas configurações, sem copiar a coleção de imagens para o servidor. Providencie separadamente o armazenamento compartilhado ou a transferência.",
+    "Slurm habilita opções do agendador e mantém os controles de host e caminhos. Partições, limites de tempo e solicitações de aceleradores devem corresponder à sua alocação no cluster. A partição mostrada é apenas um marcador. Mudar essa seleção não reserva uma GPU nem verifica se o agendador está acessível.",
+    "Cloud or custom command habilita modelos separados de argumentos para envio, consulta de estado e cancelamento, com recuperação opcional de logs. Use os marcadores obrigatórios de configurações e identificador externo. São argumentos divididos em tokens, não um script de shell. Os controles de conexão desabilitados pertencem aos outros backends; nenhum comando personalizado é executado nesta aula.",
+    "Cancel fecha nossas alterações de backend não salvas e preserva o perfil SSH original byte por byte. Save mantém as alterações desejadas. Poll interval sugere a frequência de monitoramento, não a velocidade do cálculo. Um destino salvo continua sendo apenas configuração até que um trabalho real e autorizado seja verificado.",
+    "Para uma execução real, selecione o módulo correspondente e suas configurações exportadas antes de Submit. Comece com uma pequena verificação autorizada e examine estado, logs e registro local. Cancel job atua sobre um trabalho selecionado; excluir um perfil é diferente. Nossa tabela permanece vazia porque não enviamos nada nem afirmamos ter resultados remotos."
+  ]
+}

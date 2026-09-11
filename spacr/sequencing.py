@@ -621,7 +621,7 @@ def process_chunk(chunk_data):
         r2_chunk = None
 
     if int(expected_end) <= 0:
-        raise ValueError("expected_end must be a positive integer.")
+        raise ValueError("window_length must be a positive integer.")
 
     if r2_chunk is None:
         consensus_sequences, columns, grnas, rows = single_find_sequence_in_chunk_reads(r1_chunk, target_sequence, offset_start, expected_end, regex)

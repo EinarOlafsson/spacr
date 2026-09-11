@@ -3365,6 +3365,64 @@ def set_setting_animations_enabled(on: bool) -> None:
 # Font scale
 # ---------------------------------------------------------------------------
 
+#: Where the first-run layout decision is recorded.
+#:
+#: PRIVATE, deliberately, though the rest of this module's accessors are
+#: public. Each has exactly one caller -- `app._open_at_the_measured_width`
+#: -- and a public pair would put two more symbols on the documented API
+#: surface, which means another nine-language catalog pass for a record
+#: nothing outside this module reads.
+#:
+#: RESOLVED ONCE AND RECORDED WITH ITS EVIDENCE, rather than recomputed on
+#: every launch. The value is a
+#: JSON object holding the width chosen AND the measurements that justified
+#: it, so a later launch can tell whether the answer still applies rather
+#: than re-deriving it and hoping it matches.
+_KEY_LAYOUT_DECISION = "layout/first_run_decision"
+
+
+def _get_layout_decision() -> dict:
+    """The recorded first-run layout decision, or ``{}``.
+
+    :returns: the stored object, or an empty dict when nothing has been
+        recorded or what is stored cannot be read.
+
+    NEVER RAISES AND NEVER RETURNS A PARTIAL RECORD. A decision that cannot
+    be parsed is the same as no decision: the caller re-derives one. A
+    half-read record is worse than none, because it would be compared
+    against current metrics and could match by accident.
+    """
+    import json
+
+    try:
+        raw = _settings().value(_KEY_LAYOUT_DECISION, "")
+        if not raw:
+            return {}
+        found = json.loads(raw)
+    except (TypeError, ValueError):
+        return {}
+    if not isinstance(found, dict):
+        return {}
+    required = {"width", "available", "font_scale"}
+    return found if required <= set(found) else {}
+
+
+def _set_layout_decision(record: dict) -> None:
+    """Record the first-run layout decision and the metrics behind it.
+
+    :param record: what was chosen and what it was chosen from.
+
+    Storing is best-effort: a launch is not worth failing over a
+    preference that only makes the NEXT launch cheaper.
+    """
+    import json
+
+    try:
+        _settings().setValue(_KEY_LAYOUT_DECISION, json.dumps(record))
+    except (TypeError, ValueError):
+        return
+
+
 def get_font_scale() -> float:
     """Return the saved UI font scale, clamped to supported bounds."""
     try:
@@ -4049,10 +4107,12 @@ def apply_preferences_to_app(app=None) -> None:
 
     from .theme import (
         apply_qpalette,
+        apply_stylesheet_per_window,
         clear_widget_qss_overlays,
         set_widget_qss_context,
         stylesheet,
         widget_qss_names,
+        window_stylesheet,
     )
 
     app = app or QApplication.instance()
@@ -4113,13 +4173,26 @@ def apply_preferences_to_app(app=None) -> None:
     style_changed = (
         getattr(app, "_spacr_preferences_style_signature", None)
         != style_signature
-        # QApplication's sheet is public state.  Tests, embedding hosts and
-        # theme integrations may replace it without going through this
-        # function, so the signature is only valid while the exact sheet it
-        # describes is still installed.  Checking the text is cheap beside a
-        # global Qt repolish and also catches a non-empty foreign sheet.
-        or app.styleSheet()
+        # The live sheet is public state.  Tests, embedding hosts and theme
+        # integrations may replace it without going through this function,
+        # so the signature is only valid while the exact sheet it describes
+        # is still installed.  Checking the text is cheap beside a global Qt
+        # repolish and also catches a non-empty foreign sheet.
+        #
+        # READ FROM THE WINDOWS, NOT FROM THE APPLICATION. The sheet goes on
+        # every top-level window now rather than on the QApplication, so
+        # `app.styleSheet()` is empty here and comparing it would report a
+        # change on every single save -- which is exactly the rebuild this
+        # guard exists to skip.
+        or window_stylesheet(app)
         != getattr(app, "_spacr_preferences_stylesheet", None)
+        # AND A NON-EMPTY APPLICATION SHEET IS FOREIGN BY CONSTRUCTION.
+        # `apply_stylesheet_per_window` clears it every time, so anything
+        # there was put there by somebody else -- a test, an embedding host,
+        # a theme integration -- and it applies to every widget including
+        # the ones inside our windows. That is the case this guard was
+        # written for and the window comparison above cannot see it.
+        or bool(app.styleSheet())
     )
     if style_changed:
         # Record the exact inputs any screen-local late block must share with
@@ -4134,7 +4207,16 @@ def apply_preferences_to_app(app=None) -> None:
         # copies only after the replacement exists, then install the complete
         # sheet that now contains every block registered so far.
         clear_widget_qss_overlays(app)
-        app.setStyleSheet(sheet)
+        # PER WINDOW, NOT ON THE APPLICATION, and instruction 380 has the
+        # measurement: `QApplication.setStyleSheet` repolishes every widget
+        # the process owns, and a session that has opened four modules owns
+        # 9,045 of which 6,111 are on screens nobody can see. Measured on
+        # this box, offscreen: 7,500 ms that way against 1,900 ms this way,
+        # for the same picture. A window born after the change is covered by
+        # the filter `apply_stylesheet_per_window` installs, which is the
+        # property `tests/qt/test_a_dialog_never_opens_in_the_previous_theme`
+        # was written to hold before this line could be changed.
+        apply_stylesheet_per_window(app, sheet)
         setattr(app, "_spacr_preferences_style_signature", style_signature)
         setattr(app, "_spacr_preferences_stylesheet", sheet)
 

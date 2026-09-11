@@ -46,16 +46,60 @@ def main() -> int:
     parser.add_argument('--editor-detect', action='store_true', help='Also run actual Cellpose once on the small recropped example')
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
+    parser.add_argument('--methods-review-export', action='store_true', help='Record unchanged Methods export plus explicit review findings; never approve its draft')
+    parser.add_argument('--hit-list-companion', action='store_true', help='Explicit external Hit List window after showing the hidden native panel; not a shortcut fix')
+    parser.add_argument('--graph-review-handoff', action='store_true', help='Verify native graphs and explicitly record the broken annotation handoff, without repairing it')
+    parser.add_argument('--mask-bounded-recapture', action='store_true', help='Use explicit 0.4 flow thresholds in a fresh two-field Mask recording; not a quality claim')
+    parser.add_argument('--mask-saved-plots', action='store_true', help='Show verified per-file API overlays in the external image viewer; no model rerun')
+    parser.add_argument('--cellpose-training-review', action='store_true', help='Show the native source-import defect and a separately verified API training figure; never start GUI training')
     parser.add_argument('--plaque-zoo-model', action='store_true', help='Try the actual plaque Model Zoo download and preview in private staging')
     parser.add_argument('--motility-screen-export-probe', action='store_true', help='Diagnose the real Screen PDF export preference; not a production tutorial workaround')
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
+    parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
+    parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
+    parser.add_argument('--classify-overview', action='store_true', help='Record only native family choices and nested Classify navigation; never start a model')
+    parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
+    parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
+    parser.add_argument('--anndata-api-introduction', action='store_true', help='Record only the AnnData GUI route/settings before the separately verified API workaround')
+    parser.add_argument('--barcode-saved-plots', action='store_true', help='Show independently verified Barcode QC PNGs in the actual external viewer; no claim of GUI figure repair')
+    parser.add_argument('--activation-saved-plots', action='store_true', help='Show independently verified Activation PNG grids in the real external viewer; does not certify GUI figures')
+    parser.add_argument('--napari-reopen-each-edit', action='store_true', help='Record the explicit close/reopen-between-imports workflow; does not certify repeated edits in one viewer')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
+    parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
         parser.error('--preview-variants requires --preview')
+    if args.hit_list_companion and args.module != 'hit_list':
+        parser.error('--hit-list-companion requires --module hit_list')
+    if args.graph_review_handoff and args.module != 'graph_builder':
+        parser.error('--graph-review-handoff requires --module graph_builder')
+    if args.methods_review_export and (args.module != 'methods_export' or args.run or args.download):
+        parser.error('--methods-review-export requires methods_export without a run or download')
+    if args.mask_bounded_recapture and (args.module != 'mask' or not args.run or not args.download):
+        parser.error('--mask-bounded-recapture requires mask with --download and --run')
+    if args.mask_saved_plots and (args.module != 'mask' or args.run or args.download or args.preview):
+        parser.error('--mask-saved-plots requires mask without a new run, download or preview')
+    if args.cellpose_training_review and (args.module != 'train_cellpose' or args.run or args.download or args.preview):
+        parser.error('--cellpose-training-review requires train_cellpose without a new run, download or preview')
+    if args.measure_full_example and (args.module != 'measure' or not args.run):
+        parser.error('--measure-full-example requires --module measure --run')
+    if args.measure_preview_controls and (args.module != 'measure' or not args.download or args.preview or args.run):
+        parser.error('--measure-preview-controls requires --module measure --download without --preview/--run')
+    if args.classifier_existing_split and (args.module != 'classify_merged' or args.classifier_family != 'cv' or not args.run):
+        parser.error('--classifier-existing-split requires --module classify_merged --classifier-family cv --run')
+    if args.classify_overview and (args.module != 'classify_merged' or args.run or args.download or args.classifier_existing_split):
+        parser.error('--classify-overview requires classify_merged without a run or download')
+    if args.anndata_api_introduction and args.module != 'anndata_export':
+        parser.error('--anndata-api-introduction requires --module anndata_export')
+    if args.barcode_saved_plots and args.module != 'barcode_qc':
+        parser.error('--barcode-saved-plots requires --module barcode_qc')
+    if args.activation_saved_plots and args.module != 'activation':
+        parser.error('--activation-saved-plots requires --module activation')
+    if args.napari_reopen_each_edit and args.module != 'napari_bridge':
+        parser.error('--napari-reopen-each-edit requires --module napari_bridge')
     if args.settings_tour and (args.module not in {'regression', 'classify_merged', 'umap', 'recruitment'} or not args.run):
         parser.error('--settings-tour requires --module regression/classify_merged/umap/recruitment --run')
     if args.annotation_tour and args.module != 'annotate':
@@ -134,6 +178,7 @@ def main() -> int:
             queue_binds = ['--bind', str(queue_state), str(Path.home() / '.spacr')]
         os.environ['SPACR_TUTORIAL_CACHE_ISOLATED'] = '1'
         os.execvp('bwrap', ['bwrap', '--die-with-parent', '--bind', '/', '/',
+                          *(['--unshare-net'] if args.module == 'distributed_jobs' else []),
                           '--dev-bind', '/dev', '/dev',
                           *queue_binds,
                           *manager_binds,
@@ -153,6 +198,12 @@ def main() -> int:
         'MKL_NUM_THREADS': '2', 'NUMEXPR_NUM_THREADS': '2',
     }.items():
         os.environ[key] = value
+    if args.module == 'distributed_jobs':
+        remote_state = stage / 'distributed_state' / (args.capture_name or args.module)
+        remote_state.mkdir(parents=True, exist_ok=True)
+        if (remote_state / 'profiles.json').exists() or (remote_state / 'jobs.json').exists():
+            raise RuntimeError('Use a fresh capture name for isolated distributed profiles')
+        os.environ['SPACR_REMOTE_STATE_DIR'] = str(remote_state)
     sys.path.insert(0, str(REPO))
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtGui import QPainter
@@ -181,7 +232,7 @@ def main() -> int:
     set_preload_policy('on_demand')
     set_theme('dark')
     set_font_scale(args.font_scale)
-    if args.module in ('regression', 'queue'):
+    if args.module in ('regression', 'queue', 'train_cellpose'):
         from spacr.qt.preferences import set_figure_format
         set_figure_format('png')
     apply_preferences_to_app(app)
@@ -285,6 +336,9 @@ def main() -> int:
         from capture_database import record_database
         screen = record_database(app, window, None, stage, captures, capture,
                                  settle, write_json, args.timeout)
+    elif args.module == 'distributed_jobs':
+        from capture_distributed import record_distributed
+        record_distributed(app, window, stage, captures, capture, settle, write_json)
     elif args.module == 'curate':
         from capture_curate import record_curate
         record_curate(app, window, stage, captures, capture,
@@ -293,10 +347,31 @@ def main() -> int:
         from capture_cellpose_masks import record_apply
         record_apply(app, window, stage, captures, capture,
                      settle, write_json, args.timeout)
+    elif args.module == 'train_cellpose':
+        if args.cellpose_training_review:
+            from capture_cellpose_training_review import record
+            record(app, window, stage, captures, capture, settle, write_json, args.timeout)
+        else:
+            from capture_cellpose_training import record_training
+            record_training(app, window, stage, captures, capture,
+                            settle, write_json, args.timeout)
+    elif args.module == 'napari_bridge':
+        from capture_napari import record_napari
+        record_napari(app, window, stage, captures, capture,
+                      settle, write_json, args.timeout,
+                      reopen_each_edit=args.napari_reopen_each_edit)
+    elif args.module == 'explain_cv':
+        from capture_explain_cv import record_explain
+        record_explain(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
+    elif args.module == 'profiler':
+        from capture_profiler import record_profiler
+        record_profiler(app, window, stage, captures, capture,
+                        settle, write_json, args.timeout)
     elif args.module == 'parameter_sweep':
         from capture_parameter_sweep import record_sweep
         record_sweep(app, window, stage, captures, capture,
-                     settle, write_json, args.timeout)
+                     settle, write_json, args.timeout, existing=args.sweep_from)
     elif args.module == 'feature_dict':
         from capture_feature_dictionary import record_dictionary
         record_dictionary(app, window, stage, captures, capture,
@@ -313,6 +388,9 @@ def main() -> int:
         from capture_run_history import record_history
         record_history(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'run_compare':
+        from capture_run_compare import record
+        record(app, window, stage, captures, capture, settle, write_json, args.timeout)
     elif args.module == 'data_manager':
         from capture_data_manager import record_manager
         record_manager(app, window, stage, captures, capture,
@@ -340,11 +418,11 @@ def main() -> int:
     elif args.module == 'hit_list':
         from capture_hit_list import record_hits
         record_hits(app, window, stage, captures, capture,
-                    settle, write_json, args.timeout)
+                    settle, write_json, args.timeout, companion=args.hit_list_companion)
     elif args.module == 'methods_export':
         from capture_methods import record_methods
         record_methods(app, window, stage, captures, capture,
-                       settle, write_json, args.timeout)
+                       settle, write_json, args.timeout, review_export=args.methods_review_export)
     elif args.module == 'timelapse':
         from capture_timelapse import record_timelapse
         record_timelapse(app, window, stage, captures, capture,
@@ -371,11 +449,11 @@ def main() -> int:
     elif args.module == 'barcode_qc':
         from capture_barcode_qc import record_barcode_qc
         record_barcode_qc(app, window, stage, captures, capture,
-                         settle, write_json, args.timeout)
+                      settle, write_json, args.timeout, saved_plots=args.barcode_saved_plots)
     elif args.module == 'activation':
         from capture_activation import record_activation
         record_activation(app, window, stage, captures, capture,
-                          settle, write_json, args.timeout)
+                          settle, write_json, args.timeout, saved_plots=args.activation_saved_plots)
     elif args.module == 'image_scatter':
         from capture_image_scatter import record_scatter
         record_scatter(app, window, stage, captures, capture,
@@ -383,7 +461,7 @@ def main() -> int:
     elif args.module == 'anndata_export':
         from capture_anndata import record_anndata
         record_anndata(app, window, stage, captures, capture,
-                      settle, write_json, args.timeout)
+                      settle, write_json, args.timeout, route_only=args.anndata_api_introduction)
     elif args.module == 'pca':
         from capture_pca import record_pca
         record_pca(app, window, stage, captures, capture,
@@ -404,6 +482,9 @@ def main() -> int:
         from capture_feature_explorer import record_explorer
         record_explorer(app, window, stage, captures, capture,
                         settle, write_json, args.timeout)
+    elif args.classify_overview:
+        from capture_classify_overview import record_overview
+        record_overview(app, window, captures, capture, settle, write_json)
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'agreement': 'annotate',
@@ -477,7 +558,8 @@ def main() -> int:
         if args.module == 'graph_builder':
             from capture_graph import record_graph
             record_graph(app, window, screen, stage, captures, capture,
-                         settle, write_json, args.timeout)
+                         settle, write_json, args.timeout,
+                         review_handoff=args.graph_review_handoff)
         if args.module == 'qc_dashboard':
             from capture_qc import record_qc
             record_qc(app, window, screen, stage, captures, capture,
@@ -526,6 +608,9 @@ def main() -> int:
             from capture_control_chart import record_control_chart
             record_control_chart(app, window, screen, stage, captures, capture,
                                  settle, write_json, args.timeout)
+        if args.mask_saved_plots:
+            from capture_mask_saved_plots import record
+            record(app, window, stage, captures, capture, settle, write_json)
         if args.download:
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)
@@ -615,8 +700,17 @@ def main() -> int:
                 write_json(captures / 'dataset.json', {
                     'image_count': len(images), 'images': [p.name for p in images],
                     'bytes': sum(p.stat().st_size for p in images)})
+        if args.measure_preview_controls:
+            from capture_measure_controls import record_controls
+            record_controls(app, window, screen, captures, capture, settle,
+                            write_json, args.timeout)
         if args.preview and args.module == 'measure':
             import numpy as np
+            # Native panel resizing, not screenshot enlargement: leave enough
+            # vertical space to see the live crop categories and their images.
+            if screen._usage_card.body.isVisible():
+                QTest.mouseClick(screen._usage_card.title_label, Qt.LeftButton)
+            screen._runtime_splitter.setSizes([1400, 300])
             panel = screen._measure_preview
             screen._preview_switch.setChecked(True)
             settle()
@@ -627,6 +721,7 @@ def main() -> int:
                 settle(0.2)
             if not panel._crops:
                 raise RuntimeError(f'Measure preview has no visible crops: {panel._status.text()}')
+            settle(2)  # Crop metadata can arrive before the queued thumbnail paint.
             capture('04_live_crops')
             QTest.mouseClick(panel._settings_btn, Qt.LeftButton)
             settle()
@@ -639,6 +734,22 @@ def main() -> int:
             tabs.setCurrentIndex(1)
             settle()
             capture('06_crop_options')
+            # The current dialog can exceed the desktop because its Crop modes
+            # list includes every organelle. Move the genuine window, never
+            # hide/reparent controls or paint a replacement panel. Keep evidence
+            # of this limitation rather than imply the dialog fits normally.
+            def expose_dialog_control(control):
+                origin = control.mapToGlobal(QPoint(0, 0))
+                available = app.primaryScreen().availableGeometry()
+                if not available.contains(control.mapToGlobal(control.rect().bottomRight())) or origin.y() < available.top():
+                    dialog.move(dialog.x(), dialog.y() + available.center().y() - origin.y())
+                    settle()
+                if not available.contains(control.mapToGlobal(control.rect().center())):
+                    raise RuntimeError('Crop control remains outside the actual desktop')
+                return {'dialog_position': [dialog.x(), dialog.y()],
+                        'dialog_size': [dialog.width(), dialog.height()],
+                        'control_screen_y': control.mapToGlobal(QPoint(0, 0)).y()}
+            normalization_geometry = expose_dialog_control(panel._normalise)
             # The archived example has normalization off and its low-valued
             # channels are nearly black. Show the actual crop control making
             # them inspectable; this is not brightness editing of an image.
@@ -652,6 +763,7 @@ def main() -> int:
                     settle(0.2)
             capture('06_normalised_crops')
             tabs.setCurrentIndex(2)
+            dialog.move(window.mapToGlobal(QPoint(60, 110)))
             settle()
             capture('07_crops_before')
             def crop_rows():
@@ -686,16 +798,20 @@ def main() -> int:
                     raise RuntimeError('The live filter did not visibly reduce the nonempty crop grid')
                 if screen._settings_model.collect()['cell_min_size'] != main_before:
                     raise RuntimeError('Preview changed batch settings while propagation was off')
+                propagation_geometry = expose_dialog_control(panel._propagate_btn)
                 QTest.mouseClick(panel._propagate_btn, Qt.LeftButton)
                 settle()
                 if screen._settings_model.collect()['cell_min_size'] != threshold:
                     raise RuntimeError('Propagate settings did not reach the real batch form')
                 capture('09_crops_propagated')
+                dialog.move(window.mapToGlobal(QPoint(60, 110)))
                 set_area(original)
                 restored = crop_rows()
                 if restored != before:
                     raise RuntimeError('Restoring the filter did not restore the same crops')
+                expose_dialog_control(panel._propagate_btn)
                 QTest.mouseClick(panel._propagate_btn, Qt.LeftButton)
+                dialog.move(window.mapToGlobal(QPoint(60, 110)))
                 capture('10_crops_restored')
                 if hashlib.sha256(panel._data.tobytes()).hexdigest() != source_hash:
                     raise RuntimeError('Filtering unexpectedly modified the loaded array')
@@ -705,6 +821,11 @@ def main() -> int:
                     'minimum_area_after': threshold, 'before': before, 'after': after,
                     'restored': restored, 'source_unchanged': True,
                     'propagation_off_preserved_batch': True, 'propagation_on_updated_batch': True})
+                write_json(captures / 'preview_dialog_framing.json', {
+                    'normalization': normalization_geometry,
+                    'propagation': propagation_geometry,
+                    'actual_window_moved': True, 'application_layout_fixed': False,
+                    'controls_hidden_or_reparented': False})
             dialog.close()
             settle()
         elif args.preview:
@@ -907,6 +1028,33 @@ def main() -> int:
                     'guide_min_wells': [2], 'guide_permutation_seed': 0,
                     'level': 'both', 'annotation_source': 'none',
                 }
+            if args.measure_full_example:
+                presets['measure']['test_mode'] = False
+            if args.mask_bounded_recapture:
+                # The downloaded settings use 100, which the real console says
+                # disables flow filtering. Show explicit bounded example values
+                # instead, never silently teach 100 as a recommended default.
+                presets['mask'].update(cell_flow_threshold=.4,
+                    nucleus_flow_threshold=.4, pathogen_flow_threshold=.4)
+            if args.module == 'classify_merged' and args.classifier_family == 'ml':
+                from capture_classify_ml import bounded_settings
+                presets['classify_merged'] = bounded_settings()
+                write_json(captures / 'scientific_acceptance.json', {
+                    'accepted': False, 'reason': 'Actual ML output identities not yet checked'})
+            if args.classifier_existing_split:
+                from classify_split_evidence import inspect_inputs
+                input_proof = inspect_inputs(args.classifier_existing_split)
+                write_json(captures / 'canonical_input_checks.json', input_proof)
+                from capture_classify_existing import choose_existing_folder
+                choose_existing_folder(app, screen, args.classifier_existing_split,
+                                       capture, settle)
+                write_json(captures / 'scientific_acceptance.json', {
+                    'accepted': False, 'reason': 'The prepared split has not completed a verified native run'})
+                presets['classify_merged'].pop('gradient_accumulation', None)
+                presets['classify_merged'].update(
+                    src=[str(args.classifier_existing_split.resolve())],
+                    generate_training_dataset=False, n_jobs=0, val_split=0.5,
+                    test_split=0.5, train_channels=['r', 'g', 'b'])
             if args.module == 'recruitment':
                 from recruitment_data import prepare_subset
                 source = WORKSPACE.parent / 'test_datasets/spacr/tutorials'
@@ -945,7 +1093,9 @@ def main() -> int:
             write_json(captures / 'batch_settings.json', settings)
             if args.settings_tour:
                 from capture_settings import record_settings
-                record_settings(screen, captures, capture, settle, write_json)
+                record_settings(screen, captures, capture, settle, write_json,
+                    extra_keys=('src', 'generate_training_dataset', 'val_split', 'train_channels')
+                    if args.classifier_existing_split else ())
             if getattr(screen, '_preview_switch', None) is not None:
                 screen._preview_switch.setChecked(False)
             settle()
@@ -1016,6 +1166,28 @@ def main() -> int:
                 queue.show_index(queue.count() - 1)
                 settle()
                 capture('24_batch_figure')
+            if args.module == 'measure':
+                from capture_settings import require_unchanged_settings
+                before_tour = screen._settings_model.collect()
+                if screen._usage_card.body.isVisible():
+                    QTest.mouseClick(screen._usage_card.title_label, Qt.LeftButton)
+                screen._runtime_splitter.setSizes([1400, 300])
+                for index in (0, 1, 2):
+                    queue.show_index(index)
+                    settle()
+                    capture(f'25_measure_figure_{index:02d}')
+                screen._runtime_splitter.setSizes([300, 1400])
+                screen._console._split.setSizes([1200, 100])
+                for block, _, _ in screen._console._pipeline_console_blocks():
+                    block.setFocus()
+                    QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
+                screen._console.jump_to_the_end()
+                settle()
+                capture('26_measure_console_complete')
+                require_unchanged_settings(before_tour, screen._settings_model.collect())
+                write_json(captures / 'readable_results_tour.json', {
+                    'display_only': True, 'settings_unchanged': True,
+                    'figure_indices': [0, 1, 2], 'console_complete_shown': True})
             if args.module == 'recruitment':
                 # Preserve the genuine overlay and every calculated chart.
                 # The archived masks are NOT asserted to be the postprocessed
@@ -1083,7 +1255,12 @@ def main() -> int:
             if not final_acceptance['accepted']:
                 raise RuntimeError('The completed result tour exposed an error: '
                                    + '; '.join(final_acceptance['reasons']))
-            if args.module == 'classify_merged':
+            if args.classifier_existing_split:
+                from classify_split_evidence import inspect_finished, inspect_metrics
+                proof = inspect_finished(args.classifier_existing_split)
+                proof['independent_test_metrics'] = inspect_metrics(args.classifier_existing_split)
+                write_json(captures / 'scientific_acceptance.json', proof)
+            elif args.module == 'classify_merged' and args.classifier_family == 'cv':
                 from capture_classify import inspect_database_split
                 generated = [line.partition('Generated Train set: ')[2]
                              for block in blocks for line in block.splitlines()
@@ -1096,6 +1273,18 @@ def main() -> int:
                 write_json(captures / 'scientific_acceptance.json', proof)
                 if not proof['accepted']:
                     raise RuntimeError(proof['reason'])
+            if args.module == 'classify_merged' and args.classifier_family == 'ml':
+                from capture_classify_ml import inspect_output
+                sources = settings['src']
+                source = Path(sources[0] if isinstance(sources, list) else sources)
+                outputs = list((source / 'results/random_forest').glob('*/results.csv'))
+                if len(outputs) != 1:
+                    raise RuntimeError(f'Expected one fresh actual ML result, found {outputs}')
+                proof = inspect_output(source / 'measurements/measurements.db', outputs[0],
+                                       requested_fraction=settings['test_size'])
+                write_json(captures / 'scientific_acceptance.json', proof)
+                if not proof['accepted']:
+                    raise RuntimeError('; '.join(proof['reasons']))
             if args.module == 'recruitment':
                 from recruitment_evidence import inspect_results
                 from recruitment_data import _sha256

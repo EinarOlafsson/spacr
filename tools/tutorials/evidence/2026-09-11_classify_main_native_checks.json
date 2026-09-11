@@ -1,0 +1,70 @@
+{
+  "lesson": "41_classify",
+  "status": "Native navigation and reused result recordings checked; multilingual production in progress",
+  "canonical_english_sha256": "e43e44b60b64b42341211784c1d115f8c7131a2d9af4d18c05a9ac318129560a",
+  "scene_count": 11,
+  "narrated_words": 512,
+  "native": {
+    "accepted": true,
+    "scope": "Native navigation and family choices only; no model or dataset operation",
+    "family_restored": "cv",
+    "folds": [
+      {
+        "key": "classifier_evaluation",
+        "tooltip": "Classifier Evaluation\nHeld-out predictions, nested CV, calibration, leakage and per-plate metrics",
+        "displayed_tooltip": "Classifier Evaluation\nHeld-out predictions, nested CV, calibration, leakage and per-plate metrics",
+        "simulated_native_help_event": true,
+        "x": 3533
+      },
+      {
+        "key": "explain_cv",
+        "tooltip": "Explain CV Model\nReproduce CV decisions from measured features, then inspect gain, held-out permutation importance and SHAP",
+        "displayed_tooltip": "Explain CV Model\nReproduce CV decisions from measured features, then inspect gain, held-out permutation importance and SHAP",
+        "simulated_native_help_event": true,
+        "x": 3593
+      },
+      {
+        "key": "activation",
+        "tooltip": "Activation\nGenerate class activation maps for image-classifier predictions",
+        "displayed_tooltip": "Activation\nGenerate class activation maps for image-classifier predictions",
+        "simulated_native_help_event": true,
+        "x": 3653
+      },
+      {
+        "key": "train_compare",
+        "tooltip": "Training Runs\nCompare training curves and settings across multiple runs",
+        "displayed_tooltip": "Training Runs\nCompare training curves and settings across multiple runs",
+        "simulated_native_help_event": true,
+        "x": 3713
+      },
+      {
+        "key": "feature_explorer",
+        "tooltip": "Feature Explorer\nRank measured features by their ability to distinguish classes",
+        "displayed_tooltip": "Feature Explorer\nRank measured features by their ability to distinguish classes",
+        "simulated_native_help_event": true,
+        "x": 3773
+      }
+    ],
+    "nested_feature_explorer_opened": true,
+    "model_started": false,
+    "provider_contacted": false,
+    "app_source_modified": false,
+    "published": false
+  },
+  "composition": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/classify_main_verified_overview_v2",
+  "genuine_combo_popup_captured_on_private_desktop": true,
+  "initial_window_only_popup_omission_not_used": true,
+  "tooltip_text_not_supplied_by_recorder": true,
+  "tooltip_source_and_actual_text_matched": true,
+  "models_retrained": false,
+  "comparison_between_different_examples_claimed": false,
+  "focused_tests_passed": 5,
+  "source_mutations_observed_red": [
+    "stale_tooltip_comparison_removed",
+    "model_started_guard_removed"
+  ],
+  "application_source_modified": false,
+  "published": false,
+  "native_speaker_signoff": false,
+  "human_listening_review": false
+}

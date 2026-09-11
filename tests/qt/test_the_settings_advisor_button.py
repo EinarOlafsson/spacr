@@ -296,7 +296,12 @@ class TestTheQuestionsPage:
         got = page.answers()
 
         assert isinstance(got["hits_per_thousand"], int)
-        assert isinstance(got["controls"], str)
+        # RENAMED BY 364, and this line was missed: `controls` became
+        # `nontargeting_control_grnas`, which is what the page has answered
+        # with ever since. The rename's survey greps the identifier as a
+        # reference and as a keyword argument; this is a dict SUBSCRIPT in
+        # a test, and it failed alone from the day the rename landed.
+        assert isinstance(got["nontargeting_control_grnas"], str)
 
     def test_a_question_the_data_answers_is_not_on_the_page(self, qtbot):
         from spacr.qt.widgets.settings_advisor_dialog import QuestionsPage

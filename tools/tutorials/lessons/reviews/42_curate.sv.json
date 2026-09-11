@@ -1,0 +1,30 @@
+{
+  "lesson": "42_curate",
+  "english_sha256": "064305fd604528a3de59c402499f10a17c0a8a5f0c4fa990609c9132c73f17af",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "sv",
+  "title": "Curate: öva redigering och bevara historiken",
+  "description": "Redigera masker och spår med syntetiska data och externa säkerhetskopior för den aktuella bristen i maskhistoriken.",
+  "objectives": [
+    "Öppna Curate i Make Masks med arbetskopior.",
+    "Måla, ångra och spara utan att kalla övningen en biologisk rättelse.",
+    "Säkra mask och logg utanför appen innan de öppnas igen.",
+    "Dela och sammanfoga spår och kasta en osparad borttagning."
+  ],
+  "prerequisite": "Packa upp Curate_SYNTHETIC_practice.zip och använd kopior. TIFF: etikettplan 2 från syntetisk Timelapse, 256 × 256 pixlar, sexton etiketter 2–17. CSV: sexton spår, 128 rader, åtta bildrutor. Inte insamlade biologiska data. NPY-inläsning misslyckades; TIFF bevarar heltalsetiketterna. Radie 8 och etikett 18 är övning. Alla pixlar och CSV-värden kontrolleras. Save mask skriver över vald fil och sparar .curation.json. Öppna igen nollställer tre loggposter i minnet; nästa sparning ersätter sidofilen med en ny post. Felet är inte rättat. Kör först curate_checkpoint.py med sparad mask och en NY mapp: båda filerna kopieras exakt, men apphistoriken återställs eller slås inte ihop. Återöppning lägger till ett visningslager; ljusstyrka är inte etikettidentitet. Dela spår 2 vid bildruta 4 skapar 18; sammanfogning återställer 128 rader. 2 och 3 kan inte sammanfogas på grund av överlappande bildrutor. Spårhistorik bevaras vid omladdning. API: spacr.curation.MaskCuration och TrackCuration. Ingen GPU, AI, ny segmentering, biologisk validering, appändring eller publicering.",
+  "scenes": [
+    "Öppna Make Masks och dess inbäddade Curate-verktyg. I handledningarna hör Curate till Make Masks undermoduler, inte till en separat Home-ruta. Det redigerar etikettmasker och spår. Lektionen använder syntetiska Timelapse-utdata, inte biologiska observationer eller bevis för att handredigering förbättrar noggrannheten.",
+    "Ladda ner det länkade övningsarkivet och arbeta på kopior. Öppna TIFF-masken med heltalsetiketter: sexton ursprungliga etiketter ligger i en kvadrat på 256 pixlar. Väljaren erbjuder även NPY, men den vägen misslyckades. TIFF bevarar exakt etikettplan; ersätt inte etiketter med en färgad skärmbild.",
+    "Sätt penselradien till åtta och klicka New för att välja etikett arton. Måla en gång i den tomma övningsytan. Cirkeln är påhittad för att lära kontrollen, inte en saknad cell. Penseln ändrar etikettpixlar i minnet; filen förblir oförändrad fram till Save mask.",
+    "Undo stroke återställer varje originalpixel i övningen. Måla igen och granska före sparning. Loggen innehåller målning, ångra och målning; ångra ingår också i historiken. Musens exakta position kan ändra pixelantalet, så vårt övningsavtryck är inget biologiskt målvärde.",
+    "Save mask skriver tillbaka till vald arbets-TIFF och sparar kurateringsloggen. Innan den öppnas igen kör du det separata säkerhetskopieringsskriptet med sparad mask och en ny mapp. Det kopierar båda filerna exakt. Detta är ett uttryckligt externt säkerhetskopieringssteg, inte en dold appfunktion.",
+    "Här är begränsningen: Att öppna masken igen nollställer loggen i minnet, och nästa sparning ersätter sidofilen med den nya sessionens ändring. Vår tidigare kopia bevarar de tre originalposterna. Behåll separata kopior och anteckningar; skriptet reparerar inte apphistorik. Återöppning lägger också till ett lager, så ljusstyrka är inte etikettidentitet.",
+    "Öppna spårens arbets-CSV. Den har sexton spår över åtta bildrutor, totalt 128 rader. Att välja två och tre och klicka Join nekas eftersom båda finns i samma bildrutor. Läs meddelandet; att tvinga ihop orelaterade banor vore ingen giltig rättelse.",
+    "Välj spår två, sätt Split at frame till fyra och klicka Split. Bildrutorna fyra till sju flyttas till nya spår arton, medan noll till tre stannar i två. Koordinater och ursprungliga etiketter är oförändrade. Detta är en kontrollerad redigeringsövning, inte bevis för verklig celldelning.",
+    "Välj två och arton tillsammans och klicka Join. Halvorna utan överlappning kombineras och återställer alla originalrader. Save tracks skriver CSV och egen logg. Den oberoende kontrollen jämför varje bildruta, identifierare och koordinat, inte bara spårantalet. Håll mask- och spårhistorik åtskilda.",
+    "Att ta bort spår tre tar bort dess åtta rader i minnet. Spara inte denna övningsborttagning. Öppna sparad CSV igen för att kasta ändringen. Det skiljer aktuell redigering från diskinnehåll; verkliga banor får inte tas bort bara för att resultatet är oönskat, utan kräver ett dokumenterat skäl.",
+    "Alla 128 rader och den sparade delnings- och sammanfogningshistoriken återkommer. Till skillnad från masker i denna version behåller spår historiken i testet. Bevara original, säkerhetskopior och ändringsskäl. Python erbjuder MaskCuration och TrackCuration; GPU och AI-leverantör behövs inte, och lyckad redigering är ingen vetenskaplig validering."
+  ]
+}

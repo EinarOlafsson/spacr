@@ -1,0 +1,36 @@
+{
+  "lesson": "07_mask",
+  "english_sha256": "7f8ea6e13af64e34ac9829822434445ea17429666a9d38b1a45aa4ba756084fe",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "nb",
+  "title": "Mask: livefiltre, en reell kjøring og kontrollert overlay-eksport",
+  "description": "Bruk de faktiske eksempeldataene, sammenlign areal og diameter direkte, kjør to felt med Plot på, og eksporter et manglende overlay via et tydelig Python-trinn.",
+  "objectives": [
+    "Finn Mask på Home og de innebygde Live-, Time- og 3D-kontrollene.",
+    "Kontroller metadata og kanalidentiteter før segmentering.",
+    "Skill et reversibelt filter fra en ny modellkjøring.",
+    "Undersøk reelle resultater, behold advarselen og eksporter begge arrayene eksplisitt.",
+    "Skill QC-begrensninger, originaldata og et usendt AI-spørsmål fra vitenskapelig validering."
+  ],
+  "prerequisite": "Bruk den ekte Mask-nedlastingen og behold kanalidentiteter og filnavnmetadata. live_preview.py og preview_contract.py er byteidentiske med den bevarte opptaksversjonen. Lagrede masker gjenskaper uavhengig 51→25→51 ved minsteareal 5642 og 42 etter diameter 30→60. Den nye batchen med to felt er et eget eksempel, ikke en direkte antallssammenligning: Plot=True, test_images=2, batch_size=2, n_jobs=2, diametre 30/30/15 og tre flytgrenser 0.4. Arkivets 100 slår av flytfiltrering og anbefales ikke som standard. Den innebygde overlay-løkken feiler FORTSATT på .spacr_plane_layout.json: ett av to bilder mangler selv med Finished. Ikke slett layouten eller aktiver pickle. Hjelperen kaller spacr.plot.plot_image_mask_overlay bare for vanlige .npy-filer og krever fire intensitetsplan samt celle/kjerne/patogen på 4/5/6. Den lagrer PNG med ugjennomsiktig bakgrunn i en ny mappe uten å endre kildene eller reparere GUI. Kildehashene matcher den opprinnelige journalen. Sluttantall: 25/19/8 og 52/50/58; første felts patogen-QC varsler near_empty_field. Celle-QC er før maskejustering. 95,424,864 kanal-RGB-verdier og 7,952,072 kombinerte forgrunnspiksler er kontrollert uavhengig, ikke biologisk nøyaktighet. Tidligere feil og transparente plottforsøk beholdes, men fremstilles ikke som fullførte. Ingen AI-forespørsel, trening, vitenskapelig godkjenning eller publisering. API: spacr.core.preprocess_generate_masks og spacr.plot.plot_image_mask_overlay. OPS er uprøvd og undervises ikke her.",
+  "scenes": [
+    "Åpne Mask fra Home. Det er en hovedmodul; Live, Time og tredimensjonale innstillinger ligger inni den. Time har en egen lenket veiledning under Mask i undermoduldelen. Her viser vi et todimensjonalt eksempel, live-sammenligninger og en omvei for plotting, ikke automatisk validert segmentering.",
+    "Klikk Load test data og vent til de ekte mikroskopidataene er lastet ned. Behold mappestruktur og originalbilder. Opptaket bruker en ny privat kopi, slik at en tidligere kjøring ikke gir gamle resultater. For egne data: kontroller filnavnmetadata og kanalidentiteter før eksempelinnstillinger kopieres.",
+    "Her er kjerneintensitet kanal null, celleintensitet kanal én og patogenintensitet kanal to. Eksemplet har også kanal tre. Dette er intensitetskanalene, ikke maskeplanenes numre i et sammenslått resultat. Kontroller selve bildene, og behold layoutmetadata når resultater flyttes.",
+    "Slå på Live og velg et felt. Forhåndsvisningen sammenligner bildet med foreslåtte masker før en større kjøring. Det bevarte opptaket bruker et annet felt enn batchens to felt senere. Antallet i forhåndsvisningen kan ikke sammenlignes direkte med en batchtotal.",
+    "Åpne Live settings og undersøk cellekontrollene. Opptaket bruker den installerte CPSAM-modellen; tilgjengelige modeller avhenger av installasjonen. Kjør forhåndsvisningen før konturene tolkes. Diameter og filtrering er ulike handlinger; verken modellnavn eller fargerik maske garanterer nøyaktighet.",
+    "Utgangspunktet inneholder 51 celleetiketter. Å øke minstearealet til 5642 piksler gir 25 synlige etiketter. Dette er et reversibelt filter på eksisterende resultat: råmasken er uendret, og modellen kjøres ikke igjen. Grensen demonstrerer kontrollen, ikke en optimal biologisk terskel.",
+    "Gjenopprett den opprinnelige arealgrensen, så kommer alle 51 etikettene tilbake. Undersøk hvilke objekter som forsvinner og hvorfor før et filter velges. Små objekter kan være ekte eller segmenteringsfeil; fjerning avgjør ikke det. Behold råresultat og valgte filterverdier separat identifiserbare.",
+    "Å endre diameter fra 30 til 60 piksler og kjøre igjen sammenligner en modellparameter, ikke bare et visningsfilter. Det gir 42 etiketter i det registrerte feltet. Sammenlign grenser med bildet, ikke bare antall. Færre etiketter beviser ikke en bedre modell, og innstillingene er ikke universelle anbefalinger.",
+    "Bruk to testbilder i den separate batchen og behold Plot på. Alle tre flytgrenser er uttrykkelig 0,4. Nedlastede innstillinger hadde 100, som slår av flytfiltrering; dette anbefales ikke som standard. Les konsollens enhets- og behandlingsmeldinger i stedet for å anta hvordan kjøringen foregikk.",
+    "Les hele konsollen. Arbeideren sier Finished, men overlay-oversikten melder ett av to plott manglende: layout-JSON ble forsøkt lastet som bilde. Sammenslåtte maskearrayer finnes, men innebygd plotting er ikke fullført. Behold advarselen og ikke kall dette en suksess i stillhet.",
+    "Omveien er et eksplisitt eksternt trinn. Behold layout-JSON: den beskriver intensitets- og maskeplanene og er ikke et bilde. Aktiver aldri pickle-innlasting for å skjule feilen. Last ned og undersøk den lenkede hjelperen; bruk merged-mappen fra akkurat denne kjøringen, ikke eldre resultater.",
+    "Kjør hjelperen med merged-kilden og en ny destinasjon. Den kaller det ekte plotting-API-et for hvert numeriske array og lagrer begge overlays. Et annet planoppsett eller en eksisterende utdatamappe avvises. Dette omgår feil mappeskanning for eksporten, men reparerer ikke programmets plotting-løkke.",
+    "Disse lagrede plottene vises i en ekstern bildeviser, ikke satt inn i spaCR. Første felt har etter justering 25 celle-, 19 kjerne- og 8 patogenetiketter. Patogen-QC advarer fortsatt om at åtte objekter er for få til feltets størrelseskontroller. Et lesbart overlay fjerner ikke begrensningen.",
+    "Andre felt har 52 celle-, 50 kjerne- og 58 patogenetiketter. De første fire panelene viser intensitetskanaler og konturer; det siste kombinerer objektmaskene. Persentilnormalisering er her bare for visning. Kildearrayene er uendret, og antallene måler ikke nøyaktighet mot en fasit.",
+    "Behold utdatakontroller, originaljournal, innstillinger og QC-filer samlet. Vi kontrollerte uavhengig de plottede kanalarrayene, kombinert forgrunnsdekning og uendrede kildehasher. Celle-QC ble registrert før maskejustering, så antallene trenger ikke være like sluttresultatet. Undersøk segmenteringskvaliteten selv før Measure.",
+    "Konsollens valgfrie spaCR AI kan hjelpe med å diskutere innstillinger, men eksempelspørsmålet er usendt og intet leverandørsvar vises. Kontroller råd mot de faktiske filene og advarslene. Python-pipelinen og filvis plotting følger de samme datakravene; lenkede leksjoner dekker måling og den innebygde Time-arbeidsflyten."
+  ]
+}

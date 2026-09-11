@@ -1,0 +1,31 @@
+{
+  "lesson": "58_graph_builder",
+  "english_sha256": "0cafbb000a43518dec4abf97d95a12a28d3db265fc707f4caf2d681e26617f72",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Graph Builder: raunverulegar mælingar, lifandi síur og takmörkun á yfirfærslu",
+  "description": "Búa til gröf úr mæligildum, skipta eftir lýsigögnum myndatöku og þekkja villuna við yfirfærslu vals í Annotate.",
+  "objectives": [
+    "Opna raunverulega gagnagrunninn og velja cell.",
+    "Búa til tíðnirit, dreifirit, litahópa og reiti eftir röðum.",
+    "Athuga þýðið eftir síun og endurheimt.",
+    "Greina innri miðlun vals frá virkri yfirfærslu."
+  ],
+  "prerequisite": "Sæktu og afþjappaðu tengda mæligagnagrunninum eða notaðu niðurhalaða Annotate-dæmið. Safnið inniheldur mælingar en ekki myndbúta; ekki þarf að keyra nýtt líkan.",
+  "scenes": [
+    "Graph Builder skoðar fyrirliggjandi töflu. Opnaðu það frá Home. Þetta er aðaleining sem inniheldur Plate Viewer og Small Multiples. Við notum raunverulegar dæmimælingar, þjálfum ekki líkan og biðjum enga gervigreindarþjónustu um að búa til niðurstöður.",
+    "Veldu Load table og opnaðu measurements.db úr tengda safninu eða niðurhalaða Annotate-dæminu. Veldu cell: 2.341 lína. Safnið varðveitir nákvæmlega gagnagrunninn úr upptökunni, en inniheldur ekki myndir sem aðrar töflur vísa í.",
+    "Leitaðu að cell_area og dragðu dálkinn á X. Sjálfvirk teikning býr til tíðnirit með 30 bilum. Hver súla telur frumur á flatarmálsbili; þetta er hvorki samanburður meðferða né marktæknipróf. Vistaðar einingar haldast án nýrrar eðlisfræðilegrar kvörðunar.",
+    "Dragðu cell_channel_1_mean_intensity á Y. Hver punktur sýnir flatarmál frumu og meðalstyrk hennar í rás eitt. Punktar sem skarast geta hulið hver annan þótt allar línur séu sýndar hér. Lestu línufjöldann; stærri gagnasöfn geta verið teiknuð með öðrum hætti.",
+    "Settu columnID á Colour og lestu litaskýringuna. Litir greina dálka myndatöku, ekki áætlaða flokka eða þekktar meðferðir. Sýnilegur aðskilnaður er lýsandi athugun, ekki sönnun fyrir áhrifum. Hnit og litir voru borin saman við upprunalínurnar.",
+    "Settu rowID á skiptingarrásina með ör niður til að fá reiti eftir röðum plötunnar. Þeir innihalda 1.140 og 1.201 frumu. Sameiginlegir ásar auðvelda samanburð, en frumur í sama brunni eru ekki óháðar tilraunaendurtekningar.",
+    "Bættu cell_area við síuna hægra megin og settu lágmarkið á 21.925. Grafið breytist strax í 1.171 línu. Miðgildið, námundað upp, sýnir virkni síunnar; það er ekki ráðlagður líffræðilegur þröskuldur. Taktu eftir að ásamörkin breytast líka.",
+    "Veldu Clear all í síunni til að endurheimta allar 2.341 frumurnar. Það er annað en Clear all channels vinstra megin, sem fjarlægir dálkatengingar grafsins. Athugaðu fjölda og ása aftur; breytt þýði er ekki ný mæling.",
+    "Fjarlægðu skiptinguna eftir röðum með litla krossinum og dragðu rétthyrning á dreifiritið. Þessi útgáfa hefur villu: hreyfingin í upptökunni miðlar 653 hlutalyklum innanhúss, en sýnir ekkert val og Open selection in Annotate er óvirkt. Ekki gera ráð fyrir að merkingar hafi opnast eða verið búnar til.",
+    "Venjulegur smellur hreinsar líka innra valið. Kennsluefnið staðfestir endurheimtina en lagar ekki yfirfærsluna. Síun og það að benda á hluti eru ólíkar aðgerðir; aðrir gluggar geta deilt stöðunni. Athugaðu virka þýðið í stað þess að gera ráð fyrir að grafið sýni alltaf allan gagnagrunninn.",
+    "Flýtileiðir í hausnum opna undireiningarnar Plate Viewer og Small Multiples, sem hafa eigið kennsluefni. Þessi skjár hefur engan hnapp til að flytja út graf eða lýsingu þess. Tengda gagnasafnið er ytra niðurhal kennsluefnis, ekki útflutningur úr Graph Builder.",
+    "Í Python les read_table gögn, GraphSpec lýsir rásum og skiptingu, og val-API greinir síur frá skýrt tilgreindum hlutalyklum. Geymdu uppruna, stillingar og útgáfu með túlkuninni. Þessi API staðfesta ekki líffræðilega niðurstöðu og laga ekki yfirfærsluna í Annotate."
+  ]
+}

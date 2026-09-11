@@ -1,0 +1,31 @@
+{
+  "lesson": "16_activation",
+  "english_sha256": "6f8189daab03810cf6b72012611016b44e86beba9c6a8071253598284399188f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Activation Maps: raunveruleg næmniskort og takmarkanir þeirra",
+  "description": "Opnaðu Activation Maps í Classify, tengdu traust líkan við raunverulega myndbúta og berðu saman tvö úttök án þess að rugla saman framlagi líkans og staðfestingu.",
+  "objectives": [
+    "Finna innbyggða verkfærið og varðveita inntakskröfur líkansins.",
+    "Greina á milli forvinnslu, birtuskila og reiknaðs framlags.",
+    "Skoða vistaðar skrár þegar Figures er tómt.",
+    "Aðgreina tölulega sannprófun, spár og vísindalegt réttmæti."
+  ],
+  "prerequisite": "Fjórir óbreyttir RGB-frumumyndbútar úr niðurhalaða Annotate-dæminu og traust staðbundið ResNet18-líkan þjálfað eina umferð. Fyrra dæmið deilir holum milli gagnaskipta: ENGIN fullyrðing um óháða spánákvæmni. Geyma sniðmerki 3/RGB og líkanaspjald. Stærð 128, bunki 4, rásir [1,2,3], normalize_input/normalize/Plot/Save virkt, shuffle/correlation óvirkt, eitt CPU-vinnsluferli. saliency_channel með yfirlagi, saliency_image án þess. 196608 inntaksgildi og 262144 kortshlutar sannreyndir með mest einu átta bita námundunarþrepi. Auðkenni og frumrit óbreytt. src-viðvörun og tómt Figures EKKI löguð; PNG birt í raunverulegum ytri myndskoðara. Fjögur ónotuð sæti eru tóm. Engin staðfesting framlags, óháð spánákvæmni, AI-fyrirspurn, líffræðileg staðfesting eða birting. API: spacr.deep_spacr.generate_activation_maps og spacr.utils.SaliencyMapGenerator.",
+  "scenes": [
+    "Opnaðu Classify og síðan innbyggða verkfærið Activation Maps. Þessi verkferill skoðar hvernig spá þjálfaðs líkans bregst við mynddílum. Hann þjálfar ekki flokkara og staðfestir ekki orsök svipgerðar sem sést. Við sýnum tvær raunverulegar næmniskortakeyrslur, keyrslugluggann og skýra leið til að skoða vistaðar skrár.",
+    "Notaðu raunverulega myndbútaarkífið, ekki sýndarmöppu. Litla arkífið okkar inniheldur fjóra óbreytta RGB-frumumyndbúta úr niðurhalaða Annotate-dæminu ásamt sniðmerki. Við varðveitum upprunaskrár og vinnum í einkaverkefni. Fjórar hentugar myndir sýna virkni; þær eru ekki dæmigerður sannprófunarhópur.",
+    "Veldu samsvarandi traust líkan og geymdu líkanaspjaldið. Þetta er ResNet18-varðveislupunktur þjálfaður aðeins eina umferð í fyrri sýningu. Gagnaskiptingin deildi holum, svo við fullyrðum ekki óháða spánákvæmni. Sannfærandi framlagsmynd bjargar ekki líkani sem er illa sannreynt. Ekki hlaða ótraustum varðveislupunkti til hægðarauka.",
+    "Passaðu inntakskröfur þjálfunarinnar: stærð 128 og yfirlýsta RGB-rásaröð. Hér notar raunverulegi rásarvalkosturinn 1, 2, 3. Ekki víxla rásum vegna þess að annað verkfæri telur frá núlli. Við bárum miðjuskorin og umbreytt inntaksgildi óháð saman við þjálfunarinnlesarann áður en næmniskort voru borin saman.",
+    "Greindu á milli stöðlunar inntaks og stöðlunar birtingar. Inntakið verður að samsvara þjálfun; hér er skráð samhverf forvinnsla virk. Birtingarstöðlun breytir útliti inntaksmyndar undir yfirlagi, ekki spánákvæmni líkans eða merkingu litar. Geymdu báðar stillingar í samanburði og ruglaðu ekki saman bjartari mynd og sterkari sönnun.",
+    "Veldu saliency channel með Overlay virkt og haltu Plot og Save virkum. Við notum eitt vinnsluferli, fjórar myndir í bunka og CPU í þessari litlu sýningu. Skjárinn hefur enga lifandi forskoðun; breytt aðferð krefst nýrrar keyrslu. Rásarnæmni heldur inntaksrásum aðskildum þegar afleiðukortin eru vistuð.",
+    "Lestu raunverulega keyrslugluggann. Útreikningi lýkur en þessi útgáfa kvartar ranglega yfir að src vanti þótt Activation noti Dataset. Figures-spjaldið er líka tómt. Við sannreyndum inntak, vistuð kort og gagnagrunnsauðkenni óháð; við löguðum ekki GUI-villurnar. Aðrar villur þurfa enn rannsókn.",
+    "Opnaðu vistaða bunkareitinn í myndskoðara. Þetta er raunverulegur ytri skoðari, ekki mynd sett inn í spaCR. Fjórir fylltir reitir samsvara myndbútunum okkar; hinir fjórir eru ónotaðir. Hornmerkingarnar núll og einn eru spár líkans, ekki rétt svör. Yfirlagið sýnir næmni, ekki myndhlutunargrímu.",
+    "Veldu nú saliency image, slökktu á Overlay og keyrðu aftur á sömu inntökum. Aðferðin sameinar algildi afleiða yfir rásir áður en vistaða grátónakortið er endurskalað. Þetta er ekki skyggingaraðferð eða heildaðir stiglar. Haltu úttökum aðferða aðskildum svo seinni keyrsla ruglist ekki við þá fyrri.",
+    "Seinni vistaði reiturinn sýnir kortin án undirliggjandi mynda. Litirnir sýna birtan næmnikvarða, ekki flokkssannlíkur eða sönnun líffræðilegs mikilvægis. Óháðar athuganir bera hvern vistaðan þátt saman við sérstaklega reiknaðan stigul og leyfa mest eitt átta bita námundunarþrep. Það sannreynir útfærsluna, ekki gagnsemi skýringarinnar.",
+    "Magnmæling korta er óvirk. Við höfum ekki keyrt eyðingar-, innsetningar-, slembunarpróf líkans eða aðra sannprófun framlags; tvær sjónrænt ólíkar aðferðir koma ekki í staðinn. Notaðu dæmigerð mistök og réttar spár, marktæk viðmið og óháð frátekin gögn áður en ályktað er. Líttu á þessa takmörkuðu sýningu sem verkferilspróf.",
+    "Geymdu auðkenni myndbúta, upprunamyndir, líkan og spjald, stillingar, annála, kort og gagnagrunn saman. Upprunaskrár voru óbreyttar og báðar aðferðir varðveittu öll fjögur auðkennin. AI-aðstoð er valfrjáls; engin fyrirspurn var send hér. Berðu síðari ráð saman við raunverulegt API og gögn, í stað þess að jafna lipra skýringu við sannprófun."
+  ]
+}

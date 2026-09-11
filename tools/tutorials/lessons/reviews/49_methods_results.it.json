@@ -1,0 +1,28 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "d2163a967fc43b378f61bc985a7f3c18c1652600a63cbdb34d21a9aa583dc210",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "it",
+  "title": "Methods & Results: creare, verificare ed esportare una bozza",
+  "description": "Apri lo strumento integrato, usa la vera esecuzione di Regression, identifica tre problemi di revisione e conserva un Markdown esplicitamente non approvato.",
+  "objectives": [
+    "Trovare lo strumento in Regression e scegliere le fonti dell’esecuzione conclusa.",
+    "Distinguere fatti registrati, valori predefiniti dedotti e formulazioni sui candidati.",
+    "Copiare ed esportare la bozza invariata con il riepilogo strutturato.",
+    "Distinguere esportazione e controlli numerici dall’approvazione scientifica."
+  ],
+  "prerequisite": "Completa prima l’esempio scaricato di Regression, conservando progetto, diario e risultati guide_permutation originali. È una lezione di verifica ed esportazione, non un manoscritto approvato né una correzione dell’app. Il diario dichiara guide_permutation_seed=0, non un seme globale; la bozza risolve separatamente seed=42. I generatori non sono intercambiabili e il seme globale applicato non è verificato. L’analisi registra spaCR 1.5.0.4, mentre la bozza cita l’esportatore 1.5.0.5. Tutti i 325 valori BH sono verificati indipendentemente: nessun q<0.05, minimo 0.2708333333333333. Effetti/p/q di dieci candidati corrispondono, ma non sono certificati tutti i conteggi delle guide o gli assunti scientifici. Copy sections e Export Markdown preservano testo e riepilogo esatti; nuovo file UNREVIEWED_methods_results.md. Input invariati; nessun fornitore, nuova regressione, approvazione o pubblicazione. API: spacr.methods_export.build_digest, render_methods, render_results. Il precedente blocco per accuratezza scientifica resta conservato.",
+  "scenes": [
+    "Apri Regression da Home, poi lo strumento integrato Methods and Results. Questo tutorial è sotto Regression nella sezione dei sottomoduli. Usa il vero esempio concluso della lezione Regression, non risultati inventati. Qui vogliamo creare, esaminare e conservare una bozza, non approvare automaticamente un manoscritto.",
+    "Scegli la cartella del progetto, il diario della specifica esecuzione e la relativa cartella dei risultati. Lascia Classifier vuoto: questo esempio descrive una regressione, non un checkpoint di classificazione. Conserva intatti gli originali. Nomi simili non bastano: verifica che diario e risultati descrivano la stessa esecuzione conclusa.",
+    "Fai clic su Build digest. Methods, Results, Caveats e Run digest vengono generati senza contattare un fornitore di intelligenza artificiale. Sono un punto di partenza per la revisione. Qui il testo cita la versione dell’esportatore, mentre il diario originale registra una versione di analisi diversa. Riporta quella che ha realmente prodotto l’analisi.",
+    "Leggi le avvertenze: una generazione riuscita non equivale a validazione. Qui la frase generica sul seme dice quarantadue. Il diario originale dichiara esplicitamente zero per le permutazioni, ma non un seme globale. Non sostituire ogni quarantadue con zero: distingui prima i generatori e la loro provenienza registrata.",
+    "La scheda Run digest mostra questi dati strutturati. Confronta impostazioni dichiarate e ambiente salvato con il testo. Un valore predefinito dedotto durante l’esportazione non dimostra l’esecuzione storica. Conserva avvertenze e dubbi, incluse le informazioni mancanti sul controllo qualità: un rapporto assente non dimostra che il controllo sia passato.",
+    "La tabella dei geni salvata contiene trecentoventicinque test e nessuno è significativo alla soglia q di zero virgola zero cinque. Il q minimo è circa zero virgola ventisette. Il titolo strongest hits è quindi fuorviante: sono candidati ordinati, non scoperte. Verifica tutta la famiglia corretta, non solo le prime righe attraenti.",
+    "Copy sections copia insieme Methods e Results visualizzati. Non corregge la formulazione, non certifica i numeri e non include l’appendice strutturata. Conserva una copia intatta prima di revisioni documentate separatamente. Risolvi con le fonti i problemi di seme, versione e linguaggio sui candidati prima di usare il testo in un rapporto.",
+    "Export Markdown salva entrambe le sezioni con il riepilogo dell’esecuzione in appendice. Scegli un nome nuovo, qui esplicitamente contrassegnato come non revisionato. L’azione reale Save crea il file; il nostro controllo conferma che testo e riepilogo corrispondono allo schermo. Esportare correttamente non significa approvazione scientifica.",
+    "Draft with AI è facoltativo e qui non viene usato. Invia il riepilogo al fornitore configurato: prima controlla contenuto e riservatezza. Un controllo numerico non stabilisce se una frase abbia il significato corretto. Python offre build_digest, render_methods e render_results per lo stesso flusso, con la stessa necessità di revisione."
+  ]
+}

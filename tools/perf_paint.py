@@ -216,6 +216,39 @@ def measure_theme_change(app_key: str = "mask") -> List[dict]:
     return rows
 
 
+def _drain_until_quiet(app, rounds: int = 50, pause: float = 0.01) -> None:
+    """Let everything the build POSTED actually run, before timing anything.
+
+    THIS IS THE DIFFERENCE BETWEEN 146 ms AND 0.5 ms, and it is a defect in
+    this harness rather than in the application. `AppScreen` translates
+    arriving subtrees from an event filter that defers the work "a turn
+    later" -- `AppScreen._on_arrivals_in` says so in its own docstring. One
+    `processEvents()` after the build returns therefore leaves that queue
+    full, and the next thing timed pays for it.
+
+    MEASURED, because this file's whole argument is that a number without a
+    method is not a measurement. Expanding a settings section on a freshly
+    built Mask panel:
+
+        one processEvents() after the build   146.3 ms, "2 frames dropped"
+        drained until quiet                     0.5 ms first, 0.1 ms after
+
+    The 146 ms is four `retranslate_widget_tree` passes over 18,307 widgets
+    making 88,388 property() calls, posted by the BUILD and collected by
+    whatever ran next. It is real work and it deserves its own line in the
+    report -- but it is the cost of building the panel, not of the
+    interaction that happened to follow it, and reporting it as the latter
+    sends someone to optimise a toggle that already takes a fifth of a
+    millisecond.
+    """
+    import time as _time
+
+    for _ in range(rounds):
+        app.processEvents()
+        _time.sleep(pause)
+        app.processEvents()
+
+
 def measure_interaction(app_key: str = "mask") -> List[dict]:
     """Input latency for the interactions the request names.
 
@@ -237,7 +270,7 @@ def measure_interaction(app_key: str = "mask") -> List[dict]:
     screen = AppScreen(app_key=app_key)
     screen.resize(1600, 1000)
     screen.show()
-    app.processEvents()
+    _drain_until_quiet(app)
 
     rows: List[dict] = []
 
@@ -245,11 +278,20 @@ def measure_interaction(app_key: str = "mask") -> List[dict]:
         """Time an interaction cold and then warm.
 
         BOTH NUMBERS, because they are different questions and the first
-        one is the one a user meets. Typing the first character into a
-        freshly built Mask panel measured 39 ms -- two dropped frames --
-        and the second character 0.1. Recording only the repeat would have
-        reported a keystroke as free; recording only the first would blame
-        every later keystroke for work done once.
+        one is the one a user meets.
+
+        THE EXAMPLE THAT USED TO BE HERE WAS AN ARTEFACT OF THIS FUNCTION.
+        It said "typing the first character into a freshly built Mask panel
+        measured 39 ms -- two dropped frames -- and the second character
+        0.1", and that 39 ms was the BUILD's deferred translation passes
+        landing on whatever was timed first. With `_drain_until_quiet` in
+        front of it the same keystroke measures 0.07 ms cold and 0.01 warm,
+        and nothing drops a frame.
+
+        The principle survives the example: a cold number and a warm one
+        are different questions, and work done once per widget is real. But
+        a "first" measured before the build has settled is not that work,
+        it is the build.
         """
         taken = []
         for _ in range(max(1, repeats)):

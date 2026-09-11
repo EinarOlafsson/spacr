@@ -1514,7 +1514,8 @@ kbd {
 
 .prerequisite {
   display: grid;
-  grid-template-columns: 21px 1fr;
+  grid-template-columns: 21px minmax(0, 1fr);
+  overflow-wrap: anywhere;
   gap: 11px;
   padding: 14px;
   border: 1px solid var(--info-border);

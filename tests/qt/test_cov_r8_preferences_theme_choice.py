@@ -121,12 +121,33 @@ class TestTheSpaceArmsThatNoLongerHaveAThemeBehindThem:
             assert '== "space"' not in code
             assert 'startswith("space:")' not in code
 
-    def test_the_space_artwork_kept_its_variant_accessors(self):
-        """Because the backdrop still uses them.
+    def test_the_variant_accessors_went_too_and_nothing_missed_them(self):
+        """This test used to assert the OPPOSITE, and it was wrong.
 
-        Guards the over-broad half of the deletion: removing these would
-        take the `spaceout` backdrop's variant with them.
+        It said the accessors had to stay "because the backdrop still uses
+        them", guarding "the over-broad half of the deletion". The
+        retirement note in `preferences.py` investigated exactly that claim
+        and refuted it: "spaceout is the fractal dressing, and the 'space'
+        fractal PATTERN is `widgets/fractal_space.py`, a starfield shader
+        that reads neither key. `set_space_variant` and `set_space_seed`
+        were called from nowhere at all."
+
+        So the accessors went with the theme under 364, this test kept
+        asserting they had not, and it failed ALONE from the day they left
+        -- found by the full sweep of 2026-09-10 rather than by anyone
+        running this file.
+
+        THE POSITIVE FACT IS WHAT IS ASSERTED, not the absence: the space
+        shader reads neither key, which is the reason the pair could go.
+        The three tests above drive the rest -- "space" cannot be set, no
+        token is offered, and one is refused before reaching any arm.
         """
-        assert callable(P.get_space_variant)
-        assert callable(P.set_space_variant)
-        assert P.space_variants()
+        import pathlib
+
+        shader = pathlib.Path(
+            P.__file__).resolve().parent / "widgets" / "fractal_space.py"
+        source = shader.read_text(encoding="utf-8")
+        assert "space_variant" not in source
+        assert "space_seed" not in source, (
+            "the space shader reads a preference again; the accessors were "
+            "retired because it read neither")

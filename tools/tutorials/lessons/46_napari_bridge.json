@@ -1,0 +1,73 @@
+{
+  "id": "46_napari_bridge",
+  "number": 46,
+  "slug": "napari_bridge",
+  "title": "Napari Bridge: edit, import and reopen safely",
+  "series": 5,
+  "app_key": "napari_bridge",
+  "host_app_key": "make_masks",
+  "section": "Mask correction",
+  "description": "Practise a pixel-checked round trip with synthetic image and label files, explicit backups, native Fill and Undo controls, and close/reopen between imported edits.",
+  "objectives": [
+    "Open Napari Bridge inside Make Masks with separate image and label files.",
+    "Distinguish viewer edits, Undo, importing to disk and the correction history.",
+    "Close and reopen between imports, then verify both saved corrections without claiming the same-viewer defect is fixed."
+  ],
+  "example_files": ["SYNTHETIC_napari_example.zip"],
+  "prerequisite": "Extract the supplied explicitly SYNTHETIC example into a NEW folder and retain an untouched backup. It contains a 256x256 uint16 image and label mask with sixteen objects; no biological corrections or segmentation accuracy are validated. The optional napari dependency is required; the recording uses napari 0.9.1 and its supported font-size preference of 20. Choose mask.tif and image.tif in Napari Bridge, nested inside Make Masks. Use native Fill to replace label 2 with 18, Undo, repeat and Take the mask back. This overwrites the working mask and records 2,197 changed pixels in mask.tif.curation.json. CLOSE and REOPEN the viewer before the next edit: an earlier check showed that a second edit in the same viewer was falsely reported unchanged and not saved. The application defect is NOT claimed fixed. After reopening, replace label 4 with 20 and import; 1,288 pixels change and both history entries remain. Both saved masks were checked across all 65,536 pixels; original synthetic source and image intensities were preserved. Added/removed label IDs do not imply an extra or missing cell. API: spacr.napari_bridge.load_handoff, open_in_napari and write_back. No model training, biological validation, unrestricted repeated-edit acceptance, publication or listening approval is claimed.",
+  "scenes": [
+    {
+      "visual": "02_actual_bridge",
+      "narration": "Open Napari Bridge inside Make Masks. It passes an image and label mask to the optional napari viewer, then imports corrected labels. This lesson uses a clearly marked synthetic practice example, not a biological experiment. Keep an untouched backup: importing corrections overwrites the selected working mask.",
+      "focus": [460, 235, 3350, 510],
+      "related_lessons": ["14_make_masks"],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_ready_to_open",
+      "narration": "Download the example and extract it into a new folder. Browse to mask dot tif, then image dot tif, and press Open in napari. These are different inputs: integer object labels belong in Mask, while the intensity image is the visual reference. The example contains sixteen synthetic objects.",
+      "focus": [460, 365, 3350, 370],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_actual_napari_layers",
+      "narration": "Napari opens with an image layer and a mask Labels layer. Select the mask layer for editing; leave the image intensities unchanged. Label zero is background. The colours distinguish object identities, not biological classes or confidence. We enlarged the real interface font for this recording, not the source image.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_unchanged_round_trip",
+      "narration": "Return to spaCR and click Take the mask back before changing anything. The status reports that the mask is unchanged, and nothing is written. Importing is a separate action from editing in the viewer. This unchanged check does not prove that a later correction was saved; inspect that result too.",
+      "focus": [460, 445, 3350, 295],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_fill_one_synthetic_object",
+      "narration": "In napari, select label eighteen, choose Fill, and click the practice object labelled two. Only that object's label changes. This is a controlled relabelling exercise, not an improvement to a biological segmentation. The working file on disk has not changed yet.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_actual_napari_undo",
+      "narration": "Use Undo to restore the original label; this recording uses Control Z. Then repeat the same Fill operation before importing. Undo acts on the viewer's edit history. Do not confuse it with recovering an earlier file after an import: keep backups for that purpose.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_imported_and_recorded",
+      "narration": "Click Take the mask back. The status reports two thousand one hundred ninety-seven changed pixels and a correction-history file. One label was added and one removed because two became eighteen; there are still sixteen objects. Verify the saved mask and history, not just the colour displayed in napari.",
+      "focus": [460, 445, 3350, 295],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12d_closed_before_next_edit",
+      "narration": "Click Close viewer now, before making another edit, then reopen it. This step is essential in the tested version: a second edit in the same viewer could be reported unchanged and lost. We demonstrate the verified close-and-reopen workflow, not a fix for that application defect.",
+      "focus": [460, 445, 3350, 295],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_history_preserved_after_reopen",
+      "narration": "After reopening, replace label four with twenty and import again. This changes one thousand two hundred eighty-eight pixels, and the earlier history entry remains. Close the viewer when finished. Keep the original image and corrected mask with their provenance, and rerun affected measurements rather than reusing results tied to old labels.",
+      "focus": [460, 445, 3350, 295],
+      "related_lessons": ["08_measure", "06_api"],
+      "hold_after": 0.7
+    }
+  ]
+}

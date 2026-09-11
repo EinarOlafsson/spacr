@@ -1,0 +1,30 @@
+{
+  "lesson": "42_curate",
+  "english_sha256": "064305fd604528a3de59c402499f10a17c0a8a5f0c4fa990609c9132c73f17af",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Curate: æfa breytingar og varðveita feril þeirra",
+  "description": "Breyta grímum og ferlum með tilbúnum gögnum og taka ytri öryggisafrit vegna núverandi taps á breytingasögu gríma.",
+  "objectives": [
+    "Opna Curate í Make Masks með vinnuafritum.",
+    "Mála, afturkalla og vista án þess að kalla æfinguna líffræðilega leiðréttingu.",
+    "Varðveita grímu og annál utan appsins fyrir enduropnun.",
+    "Skipta og sameina ferla og hafna óvistaðri eyðingu."
+  ],
+  "prerequisite": "Afþjappið Curate_SYNTHETIC_practice.zip og notið afrit. TIFF: merkiplan 2 úr tilbúnu Timelapse, 256 × 256 mynddílar, sextán merki 2–17. CSV: sextán ferlar, 128 línur, átta rammar. Ekki mæld líffræðileg gögn. NPY-hleðsla mistókst; TIFF varðveitir heiltölumerki. Radíus 8 og merki 18 eru æfing. Allir mynddílar og CSV-gildi eru könnuð. Save mask yfirskrifar valda skrá og vistar .curation.json. Enduropnun núllstillir þrjár færslur í minni; næsta vistun skiptir fylgiskránni út fyrir eina nýja færslu. Villan er óleiðrétt. Keyrið fyrst curate_checkpoint.py með vistaðri grímu og NÝRRI möppu: báðar skrár eru afritaðar nákvæmlega, en saga appsins er hvorki endurheimt né sameinuð. Enduropnun bætir við birtingarlagi; birta er ekki auðkenni merkis. Skipting ferils 2 við ramma 4 býr til 18; sameining endurheimtir 128 línur. 2 og 3 sameinast ekki vegna skörunar ramma. Ferlasaga varðveitist við endurhleðslu. API: spacr.curation.MaskCuration og TrackCuration. Engin GPU, gervigreind, ný myndskipting, líffræðileg staðfesting, appbreyting eða birting.",
+  "scenes": [
+    "Opnið Make Masks og innbyggða Curate-verkfærið. Í kennslunum tilheyrir Curate undireiningum Make Masks, ekki sérstakri Home-flís. Það breytir merkigrímum og ferlum. Kennslan notar tilbúið Timelapse-úttak, ekki líffræðilegar athuganir eða sönnun þess að handvirkar breytingar bæti nákvæmni.",
+    "Sækið tengda æfingasafnið og vinnið á afritum. Opnið heiltölugrímuna á TIFF-sniði: sextán upprunaleg merki eru í 256 mynddíla ferningi. Valskjárinn býður líka NPY, en sú hleðsla mistókst. TIFF varðveitir nákvæma merkiplanið; litað skjáskot kemur ekki í stað merkja.",
+    "Stillið radíus pensils á átta og veljið New til að velja merki átján. Málið einu sinni á tóma æfingasvæðið. Þessi hringur er búinn til til að læra stjórnunina, ekki fruma sem vantar. Pensillinn breytir mynddílum í minni; vistaða skráin helst óbreytt þar til Save mask er valið.",
+    "Undo stroke endurheimtir hvern upprunalegan mynddíl í æfingunni. Málið aftur og skoðið áður en vistað er. Annállinn geymir málun, afturköllun og málun; afturköllun er líka saga. Nákvæm músarstaða getur breytt dílafjölda, svo æfingaför okkar eru ekki líffræðilegt markmið.",
+    "Save mask skrifar aftur í valda vinnu-TIFF-skrá og vistar breytingaannálinn. Fyrir enduropnun skal keyra aðskilda afritunarskriftuna með vistaðri grímu og nýrri möppu. Hún afritar báðar skrár nákvæmlega. Þetta er skýrt ytra öryggisafrit, ekki falinn eiginleiki appsins.",
+    "Hér er takmörkunin: Enduropnun grímu núllstillir annál í minni og næsta vistun skiptir fylgiskránni út fyrir nýju breytinguna. Fyrra afritið varðveitir upprunalegu þrjár færslurnar. Haldið aðskildum afritum og athugasemdum; skriftan lagar ekki appsöguna. Enduropnun bætir líka við birtingarlagi, svo birta er ekki auðkenni merkis.",
+    "Opnið vinnu-CSV-skrá ferlanna. Hún inniheldur sextán ferla yfir átta ramma, alls 128 línur. Að velja ferla tvö og þrjú og Join er hafnað því báðir eru í sömu römmum. Lesið skilaboðin; að þvinga óskylda ferla saman væri ekki gild leiðrétting.",
+    "Veljið feril tvö, stillið Split at frame á fjóra og veljið Split. Rammar fjögur til sjö færast í nýjan feril átján; núll til þrjú verða áfram í tveimur. Hnit og upprunaleg merki eru óbreytt. Þetta er stýrð breytingaæfing, ekki sönnun um raunverulega frumuskiptingu.",
+    "Veljið tvo og átján saman og Join. Helmingarnir án skörunar sameinast og allar upprunalegar línur koma aftur. Save tracks vistar CSV og eigin annál. Óháða prófið ber saman hvern ramma, auðkenni og hnit, ekki aðeins ferlafjölda. Aðgreinið sögu grímunnar og ferlanna.",
+    "Að eyða ferli þrjú fjarlægir átta línur hans í minni. Ekki vista þessa æfingaeyðingu. Opnið vistaða CSV-skrána aftur til að fleygja breytingunni. Þetta greinir á milli núverandi breytinga og diskgagna; eyðing raunverulegs ferils krefst skráðrar ástæðu, ekki aðeins óæskilegrar niðurstöðu.",
+    "Allar 128 línur og vistuð skiptingar- og sameiningarsaga koma aftur. Ólíkt grímum í þessari útgáfu varðveitir enduropnun ferla söguna í prófinu. Geymið frumgögn, afrit og ástæður breytinga. Python býður MaskCuration og TrackCuration; GPU eða gervigreindarþjónusta er óþörf og vel heppnuð breyting er ekki vísindaleg staðfesting."
+  ]
+}

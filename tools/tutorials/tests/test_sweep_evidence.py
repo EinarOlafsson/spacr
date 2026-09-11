@@ -4,7 +4,7 @@ import sys
 import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from sweep_evidence import same_value,check_display,count_result_rows
+from sweep_evidence import same_value,check_display,count_result_rows,check_result_family
 
 
 def fixture():
@@ -56,3 +56,44 @@ def test_bad_adjusted_probability_after_positive_counterpart(value):
 def test_bad_threshold_after_positive_counterpart():
     assert count_result_rows([])==dict(n_results=0,n_below_alpha=0)
     with pytest.raises(ValueError,match='fractional'):count_result_rows([],5)
+
+
+def family_fixture():
+    saved=[dict(feature='Intercept',coefficient='0',p_value='1',level='grna'),
+           dict(feature='guide_A',coefficient='2',p_value='.01',level='grna'),
+           dict(feature='guide_B',coefficient='3',p_value='0',level='grna'),
+           dict(feature='gene_A',coefficient='4',p_value='.1',level='gene')]
+    for row,value in zip(saved,('0','2','inf','1')):row['-log10(p_value)']=value
+    snapshot=dict(level='grna',p_axis='raw',headers=list(saved[0]),
+        rows=[list(r.values()) for r in saved[:3]],keys=['guide_A','guide_B'],
+        points=[[2.,2.,0],[3.,5.,1]])
+    return snapshot,saved
+
+
+def test_whole_family_cells_and_points_not_just_number_of_dots():
+    snapshot,saved=family_fixture()
+    result=check_result_family(snapshot,saved,'grna')
+    assert result['table']['cells']==15 and result['plotted_points']==2
+    assert result['maximum_coordinate_error']==0
+    assert not result['inference_validated']
+    snapshot['points'].reverse()
+    assert check_result_family(snapshot,saved,'grna')==result
+
+
+@pytest.mark.parametrize('case',['level','axis','columns','cell','keys','count','duplicate_index','bad_index','x','y','log_inf'])
+def test_family_corruption_fails_after_positive_counterpart(case):
+    snapshot,saved=family_fixture();assert check_result_family(snapshot,saved,'grna')['passed']
+    if case=='level':snapshot['level']='gene'
+    elif case=='axis':snapshot['p_axis']='adjusted'
+    elif case=='columns':
+        snapshot['headers'].pop(2)
+        for row in snapshot['rows']:row.pop(2)
+    elif case=='cell':snapshot['rows'][1][1]='999'
+    elif case=='keys':snapshot['keys'].reverse()
+    elif case=='count':snapshot['points'].pop()
+    elif case=='duplicate_index':snapshot['points'][1]=snapshot['points'][0].copy()
+    elif case=='bad_index':snapshot['points'][1][2]=9
+    elif case=='x':snapshot['points'][1][0]=999.
+    elif case=='log_inf':snapshot['rows'][2][-1]='999'
+    else:snapshot['points'][1][1]=999.
+    with pytest.raises(ValueError):check_result_family(snapshot,saved,'grna')

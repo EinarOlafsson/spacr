@@ -1,0 +1,36 @@
+{
+  "lesson": "07_mask",
+  "english_sha256": "7f8ea6e13af64e34ac9829822434445ea17429666a9d38b1a45aa4ba756084fe",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Mask: lifandi síur, raunveruleg keyrsla og yfirfarinn útflutningur yfirlagamynda",
+  "description": "Notaðu raunveruleg dæmigögn, berðu saman flatarmál og þvermál í forskoðun, keyrðu tvö myndsvið með Plot virkt og búðu til myndina sem vantar með skýru Python-skrefi.",
+  "objectives": [
+    "Finna Mask á Home og Live-, Time- og 3D-stýringar innan þess.",
+    "Athuga lýsigögn og auðkenni rása fyrir sundurgreiningu.",
+    "Greina afturkræfa síu frá endurkeyrslu líkans.",
+    "Skoða raunverulegar niðurstöður, varðveita viðvörun og flytja báðar fylkjamyndir út sérstaklega.",
+    "Aðgreina QC-takmarkanir, frumgögn og ósenda AI-spurningu frá vísindalegri staðfestingu."
+  ],
+  "prerequisite": "Notaðu raunverulega Mask-niðurhalið og varðveittu auðkenni rása og lýsigögn skráarnafna. live_preview.py og preview_contract.py eru bæti fyrir bæti eins og í varðveittu forskoðunarupptökunni. Vistuð grímufylki endurskapa sjálfstætt 51→25→51 við lágmarksflatarmál 5642 og 42 eftir þvermál 30→60. Nýja keyrslan með tveimur myndsviðum er annað dæmi, ekki beinn samanburður talninga: Plot=True, test_images=2, batch_size=2, n_jobs=2, þvermál 30/30/15 og þrjú flæðimörk 0.4. Gildið 100 úr niðurhalinu slekkur á flæðisíun og er ekki ráðlagt sjálfgefið gildi. Innbyggða myndalykkjan bilar ENN á .spacr_plane_layout.json: eina af tveimur myndum vantar þrátt fyrir Finished. Ekki eyða lýsingunni eða virkja pickle. Hjálparforritið kallar aðeins spacr.plot.plot_image_mask_overlay á venjulegar .npy-skrár; það krefst fjögurra styrkplana og frumu-/kjarna-/sýklagríma á 4/5/6. Það skrifar PNG með ógegnsæjum bakgrunni í nýja möppu án þess að breyta fylkjum eða laga GUI. Tætigildi fylkja samsvara upprunalegri keyrsluskrá. Lokafjöldar: 25/19/8 og 52/50/58; sýkla-QC fyrsta myndsviðs varar við near_empty_field. Frumu-QC fer fram fyrir grímuaðlögun. 95,424,864 RGB-gildi rása og 7,952,072 forgrunnsdílar samsettrar myndar voru athuguð sjálfstætt, ekki líffræðileg nákvæmni. Fyrri mistök og gagnsæjar tilraunamyndir eru varðveitt en ekki sögð fullgerð. Engin AI-beiðni, þjálfun, vísindalegt samþykki eða birting. API: spacr.core.preprocess_generate_masks og spacr.plot.plot_image_mask_overlay. OPS er óreynt og ekki kennt hér.",
+  "scenes": [
+    "Opnaðu Mask frá Home. Þetta er aðaleining; Live, Time og þrívíddarstillingar eru inni í henni. Time hefur eigin tengda kennslu undir Mask í kaflanum um undireiningar. Hér er sýnt tvívítt dæmi, samanburður í forskoðun og leið fram hjá myndunarvillu, ekki sjálfvirkt staðfest sundurgreining.",
+    "Smelltu á Load test data og bíddu þar til raunverulegu smásjárgögnin eru komin niður. Varðveittu möppuskipan og frumyndir. Upptakan notar nýtt einkaeintak svo eldri keyrsla skili ekki úreltum niðurstöðum. Fyrir eigin gögn skaltu staðfesta lýsigögn skráarnafna og rása áður en dæmisstillingar eru afritaðar.",
+    "Hér er kjarnastyrkur á rás núll, frumustyrkur á rás eitt og sýklastyrkur á rás tvö. Dæmið inniheldur einnig rás þrjú. Þetta eru auðkenni styrkrása, ekki númer grímuplana í sameinuðu fylki. Skoðaðu myndirnar sjálfar og varðveittu lýsigögn planaskipunar þegar niðurstöður eru fluttar.",
+    "Virkjaðu Live og veldu myndsvið til skoðunar. Forskoðun ber saman myndina og fyrirhugaðar grímur fyrir stærri keyrslu. Varðveitta upptakan notar annað myndsvið en þau tvö sem sjást síðar í lotunni. Ekki má bera forskoðunartalningu beint saman við heildarfjölda lotu.",
+    "Opnaðu Live settings og skoðaðu frumustýringarnar. Upptakan notar uppsetta CPSAM-líkanið; tiltæk líkön ráðast af uppsetningunni. Keyrðu forskoðun áður en útlínur eru túlkaðar. Þvermál og síun eru ólíkar aðgerðir; hvorki líkananafn né litrík gríma tryggir nákvæmni.",
+    "Grunnniðurstaðan hefur 51 frumumerkingu. Hækkun lágmarksflatarmáls í 5642 mynddíla skilur eftir 25 sýnilegar merkingar. Þetta er afturkræf sía á fyrirliggjandi niðurstöðu: hrágríman breytist ekki og líkanið er ekki endurkeyrt. Mörkin sýna virkni stýringar, ekki bestu líffræðilegu viðmiðun.",
+    "Endurstilltu upprunaleg flatarmálsmörk og allar 51 merkingarnar koma aftur. Áður en sía er tekin upp skaltu skoða hvaða hlutir hverfa og hvers vegna. Litlir hlutir geta verið raunverulegir eða sundurgreiningarvillur; eyðing svarar því ekki. Haltu hrániðurstöðu og völdum síugildum aðgreinanlegum.",
+    "Að breyta þvermáli úr 30 í 60 mynddíla og keyra aftur er samanburður líkanastika, ekki aðeins birtingarsía. Það gefur 42 merkingar á skráða myndsviðinu. Berðu mörk saman við myndina, ekki aðeins fjölda. Færri merkingar sanna ekki betra líkan og gildin eru ekki almenn ráðlegging.",
+    "Notaðu tvær prófunarmyndir í sérstöku lotunni og hafðu Plot virkt. Öll þrjú flæðimörkin eru sérstaklega 0,4. Niðurhalið hafði 100, sem slekkur á flæðisíun; það er ekki ráðlagt sjálfgefið. Lestu skilaboð stjórnborðs um tæki og vinnslu í stað þess að gera ráð fyrir framkvæmdinni.",
+    "Lestu allt stjórnborðið. Vinnsluferlið segir Finished en yfirlagskráin segir eina af tveimur myndum vanta: reynt var að lesa planalýsingar-JSON sem mynd. Sameinuðu grímufylkin eru til en innbyggð myndagerð er ólokið. Varðveittu viðvörunina og kallaðu þetta ekki þegjandi árangur.",
+    "Hjáleiðin er skýrt ytra skref. Varðveittu planalýsingar-JSON: það lýsir styrk- og grímuplönum en er ekki mynd. Aldrei virkja pickle-lestur til að þagga niður þessa villu. Sæktu og skoðaðu tengda hjálparforritið; notaðu merged-möppu þessarar keyrslu en ekki eldri niðurstöður.",
+    "Keyrðu hjálparforritið með merged-uppruna og nýrri áfangamöppu. Það kallar raunverulegt teikni-API sérstaklega fyrir hvert talnafylki og vistar báðar yfirlagamyndir. Önnur planaskipan eða fyrirliggjandi úttaksmappa er höfnuð. Þetta sneiðir hjá gölluðum möppulestri fyrir útflutninginn en lagar ekki myndalykkju forritsins.",
+    "Vistuðu myndirnar sjást í ytri myndskoðara, ekki settar inn í spaCR. Fyrsta myndsvið hefur eftir aðlögun 25 frumu-, 19 kjarna- og 8 sýklamerkingar. Sýkla-QC varar enn við að átta hlutir séu of fáir fyrir stærðarathuganir innan myndsviðs. Læsileg yfirlagamynd afnemur ekki þá takmörkun.",
+    "Annað myndsvið hefur 52 frumu-, 50 kjarna- og 58 sýklamerkingar. Fyrstu fjórir reitir sýna styrkrásir og útlínur; sá síðasti sameinar hlutagrímur. Hundraðshlutamarkastöðlun er hér aðeins til birtingar. Upprunafylki eru óbreytt og fjöldarnir eru ekki nákvæmnismæling gegn staðfestum viðmiðum.",
+    "Varðveittu úttaksathuganir, upprunalega keyrsluskrá, stillingar og QC-skrár saman. Við athuguðum sjálfstætt teiknuð rásafylki, sameinaða forgrunnsþekju og óbreytt tætigildi frumgagna. Frumu-QC var skráð fyrir grímuaðlögun svo fjöldarnir geta verið aðrir en lokafjöldar. Skoðaðu sundurgreiningargæði sjálf áður en haldið er í Measure.",
+    "Valfrjálsa spaCR AI í stjórnborðinu getur hjálpað við umræðu um stillingar, en dæmispurningin er ósend og ekkert svar þjónustuaðila sést. Staðfestu ráð gagnvart raunverulegum skrám og viðvörunum. Python-ferlið og teikni-API hafa sömu gagnakröfur; tengdar kennslur fjalla um mælingar og innbyggða Time-ferlið."
+  ]
+}

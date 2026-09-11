@@ -1,0 +1,28 @@
+{
+  "lesson": "11_classify_ml",
+  "english_sha256": "a6ecbf0577a4a51b13206840d8914da097584eecf2fc0f3b8107ca17648528cf",
+  "review_type": "source-pinned editorial caption translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Classify: vélanám á töflugögnum",
+  "description": "Notaðu Classify með niðurhalanlegum frumumælingum, skýrum lýsigagnamerkingum, litlum slembiskógi, raunverulegu úttaki í stjórnborði og vistuðum spám.",
+  "objectives": [
+    "Velja töflugagnaflokkinn og hlaða mælda dæminu inn með gagnavalinu.",
+    "Skilgreina flokka eftir plötudálki og greina á milli umbeðins hlutfalls og brunna sem eru í raun teknir frá.",
+    "Skoða myndrit, ómetin viðföng og niðurstöður án þess að túlka sýninákvæmni sem líffræðilega staðfestingu."
+  ],
+  "prerequisite": "Veldu Load test data og síðan Load í Classify, ekki Stream. Dæmið inniheldur 2.341 viðfang í fjórum brunnum; 2.153 eru varðveitt en 188 fá ekkert mat vegna þess að samsvarandi kjarnagögn vantar. c1 er flokkur núll og c2 flokkur eitt: plötudálkar, ekki staðfestar svipgerðir. Stillingar: random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False, plot=True. Láttu test_size=0.1 samsvara test_split=0.1: núverandi samræming fellir burt annað ML-gildi; gallinn hefur verið tilkynntur. Tveir brunnar og 1.035 viðföng eru tekin frá og enginn brunnur er sameiginlegur þjálfun og prófun. Síun eiginleika fer fram fyrir skiptingu; mikilvægi samkvæmt umraðunum notar þjálfunargögn. Nákvæmni: 0.6202898551; viðmið meirihlutaflokks: 0.5632850242. Níu mæligildi og 2.153 vistaðar spár voru sannreynd sjálfstætt. API: spacr.classify.classify kallar á spacr.ml.generate_ml_scores. Úttak: results/random_forest/channel_1; predictions geymir tvígildan flokk og ml_pred líkur á flokki eitt. Aðeins þrjú raunveruleg myndrit eru sýnd; engar fullyrðingar um SHAP, kvörðun, orsakasamband eða líffræðilega staðfestingu. Engin AI-fyrirspurn var send.",
+  "scenes": [
+    "Opnaðu Classify frá Home og veldu Tabular Machine Learning sem flokkunarlíkanahóp. Þetta er sameinaði Classify-skjárinn, ekki sérstakt ML-forrit. Hann lærir af vistuðum mælingum fyrir hvert viðfang. Stillingar fyrir tölvusjón geta enn verið sýnilegar en óvirkar, því þær tilheyra hinum hópnum.",
+    "Smelltu á Load test data og veldu Load. Mælda dæminu er hlaðið niður og skráarslóðir þess undirbúnar; Stream er önnur leið. Í eigin verkefni skaltu fyrst ljúka Measure og velja verkefnismöppuna. Ekki gera ráð fyrir að hvaða myndamappa sem er innihaldi þegar nauðsynlegan mæligagnagrunn.",
+    "Notaðu lýsigögn sem grunn og skilgreindu tvo Classes úr columnID: c1 og c2. Hér eru þetta merkingar plötudálka til að kenna verkferlið, ekki sjálfstætt staðfestar heilbrigðar og áhrifaorðnar frumur. Þjálfun byggð á merkingum krefst raunverulegra merkinga úr Annotate. Breyttu aldrei merkingum sem vantar í tilbúnar sannleikamerkingar.",
+    "Channel of interest velur mældu eiginleikana. Við notum rás eitt án þess að gefa henni óstaðfesta líffræðilega merkingu. Athugaðu stillingar myndatöku og mælinga áður en þú velur rás fyrir eigin gögn. Val á eiginleikarás hér endurtekur hvorki myndgreiningarskiptingu né mælingu myndanna.",
+    "Veldu Random Forest og sextán matslíkön fyrir þetta litla sýnidæmi, með tveimur vinnsluverkum. Þetta er ekki ráðlegging um besta líkanið. Við höfum stýrt eiginleikaval og krossprófun slökkt. Slökkt krossprófun fjarlægir ekki sérstaka prófunarhlutann sem þessi keyrsla tekur frá.",
+    "Stilltu prófunarstærð á einn tíunda og haltu hópun eftir brunni. Umbeðið hlutfall er ekki nákvæmur fjöldi viðfanga: þetta fjögurra brunna dæmi tekur tvo heila brunna frá, um fjörutíu og átta prósent varðveittra viðfanga. Báðir flokkar eru hvorum megin og enginn raunverulegur brunnur er bæði í þjálfun og prófun.",
+    "Kveiktu á Plot, hreinsaðu leitina og ýttu á Run. Stjórnborðið skráir endanlegar stillingar, síun, skiptingu og líkanaskýrslu. Geymdu skráninguna með niðurstöðunum. Lokamerki sannar ekki að merkingar, staðfestingaráætlun eða líffræðileg túlkun hafi verið viðeigandi.",
+    "Þessi keyrsla metur tvö þúsund eitt hundrað fimmtíu og þrjú viðföng. Eitt hundrað áttatíu og átta hafa engin samsvarandi kjarnagögn og eru áfram ómetin, ekki neikvæð. Vistuð prófunarnákvæmni er um sextíu og tvö prósent, samanborið við fimmtíu og sex prósent fyrir meirihlutaflokkinn. Fjórir brunnar á einni plötu sýna ekki alhæfingu yfir á nýja tilraun.",
+    "Þrjú myndrit eru tiltæk: mikilvægi samkvæmt umraðunum, mikilvægi eiginleika trjánna og þetta hitakort plötunnar. Með Predictions og meðaltalshópun sýnir kortið meðaltal tvígildra spáðra flokka, ekki líkurnar á þeim. Mikilvægi er ekki orsakasamband; umraðanir nota þjálfunargögn. Skoðaðu vistuðu töflurnar áður en þú dregur ályktanir af litríkri mynd.",
+    "AI-rofinn gerir kleift að spyrja um verkferlið með aðstoð þjónustuveitanda. Þetta eru ósend drög, ekki myndað svar. Geymdu niðurstöður með stillingum og sannreyndu öll ráð. Undirverkfæri hafa eigin inntakskröfur: Explain-leiðbeiningarnar nota tölvusjónarskor, ekki þetta ML-úttak. AI kemur ekki í stað þess að athuga merkingar og auðkenni í skiptingunni."
+  ]
+}

@@ -29,6 +29,8 @@ def check_related_links(actual, expected):
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
+    web_lesson = None
+
     def log_message(self, *args):
         pass
 
@@ -38,6 +40,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if candidate.is_relative_to(player):
             return str(REPO / 'docs/source/_extra/tutorials' / candidate.relative_to(player))
         staged_media = DEFAULT_STAGE / 'production'
+        if self.web_lesson:
+            relative = Path(self.web_lesson) / 'video' / f'{self.web_lesson}_silent.mp4'
+            if candidate == staged_media / relative:
+                return str(DEFAULT_STAGE / 'web-renditions' / relative)
         if candidate.is_relative_to(staged_media) and not candidate.is_file():
             return str(WORKSPACE / 'production' / candidate.relative_to(staged_media))
         return str(candidate)
@@ -95,6 +101,8 @@ def main():
     parser.add_argument('--caption-language', help='Independently test a staged caption language with this voice')
     parser.add_argument('--retained-media', action='store_true',
                         help='Require unchanged original catalogs and media, with no staged override')
+    parser.add_argument('--web-rendition', action='store_true',
+                        help='Check the verified private 1440p copy, preserving original browser reports')
     args = parser.parse_args()
     retained = None
     if args.retained_media:
@@ -121,14 +129,24 @@ def main():
     production = '/' + str(DEFAULT_STAGE.relative_to(WORKSPACE)) + '/production'
     for attribute in ('production-root', 'audio-root', 'video4k-root'):
         source = re.sub(rf'data-{attribute}="[^"]*"', f'data-{attribute}="{production}"', source)
+    rendition = None
+    if args.web_rendition:
+        from check_completed_matrix import digest
+        folder = DEFAULT_STAGE / 'web-renditions' / args.lesson
+        rendition = read(folder / 'rendition-checks.json')
+        if (rendition.get('accepted') is not True or rendition.get('lesson') != args.lesson
+                or digest(folder / 'video' / f'{args.lesson}_silent.mp4') != rendition.get('rendition_sha256')):
+            raise ValueError('Web rendition is missing or changed since verification')
+        source = re.sub(r'data-video4k-root="[^"]*"', 'data-video4k-root=""', source)
     tag = f'{args.language}-{args.voice}'
     if args.caption_language:
         tag += f'-captions-{args.caption_language}'
-    output = DEFAULT_STAGE / 'browser' / args.lesson / tag
+    output = DEFAULT_STAGE / ('browser-web' if args.web_rendition else 'browser') / args.lesson / tag
     output.mkdir(parents=True, exist_ok=True)
     errors = []
+    handler = type('WebRenditionHandler', (Handler,), {'web_lesson': args.lesson}) if args.web_rendition else Handler
     server = http.server.ThreadingHTTPServer(('127.0.0.1', 0),
-                functools.partial(Handler, directory=str(WORKSPACE)))
+                functools.partial(handler, directory=str(WORKSPACE)))
     threading.Thread(target=server.serve_forever, daemon=True).start()
     evidence = {'lesson': args.lesson, 'scope': f'{args.language}/{args.voice} playback and scene links only',
                 'uploaded': False, 'translation_or_listening_review': False}
@@ -251,6 +269,16 @@ def main():
             assert not clock['mediaError'], clock
             assert abs(clock['video'] - clock['expectedVideo']) < 0.5, clock
             evidence['seek_playback_clocks'] = clock
+            if rendition:
+                video = page.evaluate('''async () => {
+                    const bytes = await (await fetch(elements.video.currentSrc)).arrayBuffer();
+                    const hash = await crypto.subtle.digest('SHA-256', bytes);
+                    return {sha256: [...new Uint8Array(hash)].map(x => x.toString(16).padStart(2, '0')).join(''),
+                            width: elements.video.videoWidth, height: elements.video.videoHeight};
+                }''')
+                assert video['sha256'] == rendition['rendition_sha256'], video
+                assert [video['width'], video['height']] == [2560, 1440], video
+                evidence['checked_web_rendition'] = video
             page.evaluate('elements.audio.pause(); elements.video.pause()')
             page.screenshot(path=str(output / 'desktop.png'), full_page=True)
             page.locator('#transcript-tab').click()
@@ -259,7 +287,19 @@ def main():
             check_related_links(transcript_links, expected)
             evidence['chapter_and_transcript_links'] = expected
             page.set_viewport_size({'width': 390, 'height': 844})
-            assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
+            mobile_geometry = page.evaluate('''() => ({
+                viewport: window.innerWidth, width: document.documentElement.scrollWidth,
+                overflowing: [...document.querySelectorAll('body *')].filter(node => {
+                    const r = node.getBoundingClientRect();
+                    return r.width > 0 && (r.right > window.innerWidth + 1 || r.left < -1);
+                }).slice(0, 30).map(node => ({tag: node.tagName, id: node.id,
+                    className: String(node.className), text: node.textContent.slice(0, 160),
+                    width: node.getBoundingClientRect().width}))
+            })''')
+            if mobile_geometry['width'] > mobile_geometry['viewport']:
+                write(output / 'mobile-overflow.json', mobile_geometry)
+                page.screenshot(path=str(output / 'mobile-overflow.png'), full_page=True)
+                raise AssertionError(f'Mobile overflow: {mobile_geometry}')
             page.screenshot(path=str(output / 'mobile.png'), full_page=True)
             assert not errors, errors
             evidence['passed'] = True

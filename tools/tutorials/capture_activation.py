@@ -2,10 +2,10 @@
 from pathlib import Path
 import time
 
-from activation_evidence import prepare, reference, verify_saved, preserved, check_native_runs
+from activation_evidence import prepare, reference, verify_saved, preserved, check_native_runs, check_saved_runs
 
 
-def record_activation(app, window, stage, captures, capture, settle, write_json, timeout):
+def record_activation(app, window, stage, captures, capture, settle, write_json, timeout, *, saved_plots=False):
     from PySide6.QtCore import Qt, QTimer, QPoint
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QAbstractButton, QLineEdit, QComboBox, QCheckBox, QMessageBox
@@ -113,6 +113,20 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
                         gui_figure_count=queue.count(), figures_card_visible=screen._figures_card.isVisible(),
                         settings_errors=[line for line in lines if '[settings] ERROR' in line])
         proof['runs'].append(evidence);write_json(captures/'activation-workflow.json',proof)
+        if saved_plots:
+            from capture_saved_plots import check_saved_file_run, show_saved_plots
+            check_saved_file_run(evidence)
+            archive = Path(prepared['archive'])
+            grid = archive.parent / archive.stem / method / 'batch_grids' / 'batch_0_grid.png'
+            evidence['external_viewer'] = show_saved_plots(
+                app, window, stage,
+                lambda name, **kwargs: capture(prefix + '_' + name, **kwargs), settle, [grid])
+            # Recheck the raw maps and complete source identities after viewing.
+            if verify_saved(prepared, method, oracle) != {
+                    key: evidence[key] for key in ('method', 'maps', 'database',
+                        'database_rows', 'independent_saved_pixels_checked')}:
+                raise ValueError('Viewing changed the independently verified Activation outputs')
+            write_json(captures/'activation-workflow.json',proof)
 
     try:
         from spacr.deep_spacr import pick_device
@@ -148,7 +162,12 @@ def record_activation(app, window, stage, captures, capture, settle, write_json,
         proof['live_preview_control_present']=bool(getattr(screen,'_preview_switch',None) is not None)
         run('saliency_channel',True,'04_channel_saliency')
         run('saliency_image',False,'05_image_saliency')
-        check_native_runs(proof['runs'])
+        if saved_plots:
+            check_saved_runs(proof['runs'])
+            proof.update(scope='Verified saved maps and real external viewer; GUI defects remain',
+                         application_figures_fixed=False, src_preflight_fixed=False)
+        else:
+            check_native_runs(proof['runs'])
         proof['accepted']=True
     finally:
         if screen is not None and screen._worker_thread_is_running():

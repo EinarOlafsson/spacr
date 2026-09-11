@@ -1,0 +1,30 @@
+{
+  "lesson": "41_classify",
+  "english_sha256": "e43e44b60b64b42341211784c1d115f8c7131a2d9af4d18c05a9ac318129560a",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "sv",
+  "title": "Classify: huvudmodulen och dess underverktyg",
+  "description": "Välj bild- eller mätbaserad klassificering, använd nedladdningsbara exempel, granska verkliga resultat och hitta de fem verktygen i Classify.",
+  "objectives": [
+    "Välj klassificerarfamiljen i den gemensamma Home-modulen.",
+    "Använd CV- och tabelllektionerna med verkliga data och tydliga begränsningar.",
+    "Hitta Classifier Evaluation, Explain CV, Activation, Training Runs och Feature Explorer under Classify.",
+    "Bevara sparade underlag och skilj AI-hjälp från kontrollerad analys."
+  ],
+  "prerequisite": "Inspelat med spaCR 1.5.0.6. Översikten finns under huvudmoduler; specialiserade och inbäddade lektioner ligger under Classify i undermoduler. Verkliga, tidigare kontrollerade CV-/ML-inspelningar återanvänds utan ny träning. OLIKA etiketter och delmängder: INTE en direkt jämförelse. Tabellexempel: Load test data → Load, uppmätta celler, klasser columnID=c1/c2, random forest, Plot på, 2153 bedömda objekt och 188 utan poäng på grund av saknade kärndata; separata testbrunnar på samma platta. CV-exempel: uttrycklig förberedelse av 64 oförändrade annoterade utsnitt med kanoniska databasnamn, Generate training dataset av, ResNet18 en epok, 16 träning/16 validering/32 test, åtskilda brunnar på en platta, träffsäkerhet 0.5 lika med majoritetsbaslinjen. Den gamla filnamnstolkningen är inte reparerad. Se speciallektionerna för inställningar, sökvägar och gränser. Vägar: classifier_evaluation, explain_cv, activation, train_compare, feature_explorer. Explain CV anpassar mätta egenskaper till befintliga CV-prediktioner, inte bevis för orsak. Activation visar bildmodellens respons. Ingen AI-förfrågan, nytt kvalitetspåstående, biologisk validering eller direkt familjejämförelse. API: spacr.classify.classify → spacr.deep_spacr.train_test_model eller spacr.ml.generate_ml_scores efter classifier_family.",
+  "scenes": [
+    "Classify är en av huvudmodulerna på Home. Öppna den här och välj sedan klassificerarfamiljen inne i modulen. Tutorialspelaren följer samma struktur: denna översikt hör till huvudmoduler, medan specialiserade arbetsflöden och underverktyg grupperas under Classify i undermodulsdelen.",
+    "Computer Vision använder objektbilder; Tabular Machine Learning använder sparade mätvärden. Välj efter dina indata och din vetenskapliga fråga, inte det namn som låter kraftfullast. Ett familjebyte gör inte om segmenteringen. De länkade Mask- och Measure-lektionerna beskriver sina egna direktkontroller för bilder och utsnitt.",
+    "För tabellexemplet klickar du Load test data och väljer Load, inte Stream. Håll det nedladdade projektet och mätdatabasen tillsammans. För egna bilder måste mätningen först vara klar. Den detaljerade tabelllektionen visar verklig nedladdning, etiketter, inställningar och den avslutade random-forest-körningen.",
+    "Det här är den verkliga körningens figurer och konsol, med Plot på. Undervisningsetiketterna är plattkolumner, inte oberoende validerade fenotyper. Objekt utan nödvändiga kärndata förblir utan poäng, inte negativa. Granska sparade prediktioner och undanhållna brunnar; färgstarka figurer visar inte ensamma generalisering till ett annat försök.",
+    "Den separata datorseendelektionen använder en uttrycklig filnamnsförberedelse som kringgår ett problem och sextiofyra oförändrade nedladdade utsnitt. Modellen med en epok når bara majoritetsbaslinjen. Exemplen använder olika etiketter och delmängder: jämför inte träffsäkerheten som ett prestandatest. Följ lektionen före din egen uppdelning.",
+    "Ikonerna uppe till höger öppnar underverktyg, inte separata Home-paneler. Håll pekaren över för att identifiera dem. Classifier Evaluation granskar ett sparat utvärderingspaket med prediktioner och läckageinformation. Lektionen förklarar nödvändiga filer och varför ett visat mått fortfarande behöver en välplanerad validering.",
+    "Explain CV använder mätta egenskaper för att modellera befintliga datorseendeprediktioner. Det är en separat förklaringsmodell, inte det ursprungliga bildnätverket eller en kausal förklaring. Tutorialen visar rätt prediktionsindata och tillgängliga resultat. Anta inte att utdata från den tabulära klassificeraren uppfyller samma krav.",
+    "Activation öppnar bildmodellens tolkningsflöde. Använd motsvarande kontrollpunkt, bildkanaler och förbehandling. Den länkade lektionen visar verkliga sparade salienskartor och förklarar lösningen med extern bildvisare. Ett markerat område bevisar varken biologisk mekanism eller en välfungerande klassificerare.",
+    "Training Runs jämför sparade träningshistoriker och inställningar. Två kurvor bredvid varandra skapar inte oberoende bevis. Bevara körningar i separata kataloger och jämför kompatibla mått och datauppdelningar. Den särskilda lektionen går igenom kontrollerna utan att upprepa dem i denna huvudmodulöversikt.",
+    "Feature Explorer öppnas från sista ikonen. Det kan rangordna mätta egenskaper för en vald jämförelse före träning av en klassificerare. Lektionen använder verkliga nedladdade mätningar och direktverkande filter. Kontrollera jämförelsen igen efter filtrering: en rangordning är varken kausalitet eller en tränad bildmodell.",
+    "Konsolen erbjuder även valfri spaCR AI-hjälp. Här är frågan oskickad; inget leverantörssvar eller analysresultat visas. Bevara modellutdata, inställningar och underlag för uppdelningen, och kontrollera råd mot dem. I Python skickar classify vidare till bild- eller tabellimplementeringen utifrån vald familj."
+  ]
+}

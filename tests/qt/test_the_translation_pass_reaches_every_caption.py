@@ -132,8 +132,7 @@ def test_a_full_pass_over_a_built_screen_changes_nothing(qtbot, code):
     """
     from PySide6.QtWidgets import QAbstractButton, QGroupBox, QLabel, QWidget
 
-    from spacr.qt.i18n import (forget_translation_marks,
-                               retranslate_widget_tree)
+    from spacr.qt.i18n import retranslate_widget_tree
 
     def snapshot(root):
         out = {}
@@ -152,12 +151,12 @@ def test_a_full_pass_over_a_built_screen_changes_nothing(qtbot, code):
         screen = _screen(qtbot)
         qtbot.wait(5)
         before = snapshot(screen)
-        # THE MARKS ARE CLEARED FIRST, and without this line the test is
-        # worthless. The build's passes leave every widget they handled
-        # marked as current, so a second pass would skip the whole tree and
-        # report no movement whether or not anything had been stranded --
-        # the check would pass by construction rather than by evidence.
-        forget_translation_marks(screen)
+        # A FULL PASS, NOT A DEDUPLICATED ONE, and that distinction is what
+        # makes this test mean anything. The build's passes stamp every
+        # widget they handled; a pass that honoured those stamps would skip
+        # the whole tree and report no movement whether or not anything had
+        # been stranded. `retranslate_widget_tree` defaults to only_new=False
+        # -- a full pass -- which is exactly what is wanted here.
         retranslate_widget_tree(screen, code)
         qtbot.wait(1)
         after = snapshot(screen)

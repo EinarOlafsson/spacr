@@ -1,0 +1,28 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "d2163a967fc43b378f61bc985a7f3c18c1652600a63cbdb34d21a9aa583dc210",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "Methods & Results: crear, revisar y exportar un borrador",
+  "description": "Abra la herramienta integrada, use la ejecución real de Regression, identifique tres problemas de revisión y conserve un Markdown explícitamente sin revisar.",
+  "objectives": [
+    "Encontrar la herramienta dentro de Regression y elegir las fuentes de una ejecución terminada.",
+    "Distinguir hechos registrados, valores predeterminados inferidos y lenguaje sobre candidatos.",
+    "Copiar y exportar el borrador intacto con su registro estructurado.",
+    "Distinguir exportación correcta y comprobación numérica de aprobación científica."
+  ],
+  "prerequisite": "Complete primero el ejemplo descargado de Regression y conserve proyecto, diario y resultados guide_permutation originales. Esta lección enseña revisión y exportación, no aprueba un manuscrito ni repara la aplicación. El diario declara guide_permutation_seed=0, no una semilla global; el borrador resuelve por separado seed=42. No son generadores intercambiables y no se verificó la semilla global aplicada. El análisis registra spaCR 1.5.0.4, pero el borrador nombra al exportador 1.5.0.5. Se comprobaron independientemente los 325 valores BH: ninguno q<0.05; mínimo 0.2708333333333333. Los efectos/p/q de diez candidatos coinciden, sin certificar todos los recuentos de guías ni los supuestos científicos. Copy sections y Export Markdown conservan texto y registro exactos; el archivo nuevo se llama UNREVIEWED_methods_results.md. Entradas intactas, sin proveedor, nueva regresión, aprobación ni publicación. API: spacr.methods_export.build_digest, render_methods, render_results. Se conserva la anterior retención por exactitud científica.",
+  "scenes": [
+    "Abra Regression desde Home y después su herramienta integrada Methods and Results. Este tutorial está bajo Regression en la sección de submódulos. Usa el ejemplo real terminado de la lección de Regression, no resultados inventados. Aquí buscamos construir, examinar y conservar un borrador, no aprobar automáticamente un manuscrito.",
+    "Elija la carpeta del proyecto, el diario de esa ejecución y su carpeta de resultados de regresión. Deje Classifier vacío: aquí se informa una regresión, no un checkpoint de clasificador. Mantenga intactos los originales. No basta con nombres parecidos: confirme que diario y resultados corresponden a la misma ejecución terminada.",
+    "Pulse Build digest. Methods, Results, Caveats y Run digest se generan sin contactar con un proveedor de inteligencia artificial. Son un punto de partida para revisar. En esta grabación el texto nombra la versión del exportador, mientras el registro original indica otra versión de análisis. Informe la versión que realmente produjo el análisis.",
+    "Lea las advertencias; una compilación correcta no es validación. Aquí la frase genérica sobre la semilla dice cuarenta y dos. El diario original declara explícitamente cero para las permutaciones, pero no declara una semilla global. No cambie cada cuarenta y dos por cero: primero distinga los generadores y su procedencia registrada.",
+    "La pestaña Run digest permite examinar esos registros estructurados. Compare ajustes declarados y entorno guardado con el texto. Un valor predeterminado inferido al exportar no demuestra la ejecución histórica. Conserve advertencias y dudas, incluida la información de control de calidad ausente; que falte un informe no demuestra que el control se superó.",
+    "La tabla de genes guardada contiene trescientas veinticinco pruebas y ninguna es significativa con un umbral de q de cero coma cero cinco. El menor q es aproximadamente cero coma veintisiete. Por eso strongest hits resulta engañoso aquí: son candidatos ordenados, no descubrimientos. Revise toda la familia corregida, no solo las primeras filas atractivas.",
+    "Copy sections copia conjuntamente los Methods y Results visibles. No corrige su redacción, certifica sus cifras ni incluye el apéndice estructurado. Conserve una copia sin editar antes de hacer revisiones documentadas por separado. Resuelva las cuestiones de semilla, versión y lenguaje de candidatos con los registros originales antes de usar el texto en un informe.",
+    "Export Markdown guarda ambas secciones y el registro de ejecución como apéndice. Elija un nombre nuevo; aquí se marca explícitamente como no revisado. La acción real Save crea el archivo, y nuestra comprobación confirma que texto y registro estructurado coinciden con la pantalla. Exportar correctamente no es aprobar científicamente.",
+    "Draft with AI es opcional y no se usa en esta grabación. Envía el registro al proveedor configurado; revise antes contenido y privacidad. Una comprobación numérica no decide si una frase significa lo correcto. Python ofrece build_digest, render_methods y render_results para el mismo flujo, con la misma necesidad de revisión."
+  ]
+}

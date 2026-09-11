@@ -1,0 +1,27 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "8180c52bcd1a656cd226c81a64977114b2690a9c09fa4bd3c8a85893c4537460",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "da",
+  "title": "Napari Bridge: redigér, importér og genåbn sikkert",
+  "description": "Et pixelkontrolleret forløb med syntetiske billed- og labelfiler, sikkerhedskopier, Fill og Undo samt lukning og genåbning mellem importer.",
+  "objectives": [
+    "Åbn Napari Bridge under Make Masks med separate billed- og labelfiler.",
+    "Skeln mellem redigering, Undo, import til disk og korrektionshistorik.",
+    "Luk og genåbn mellem importer, og kontrollér begge gemte rettelser uden at kalde fejlen i samme fremviser løst."
+  ],
+  "prerequisite": "Pak det tydeligt SYNTHETIC-mærkede eksempel ud i en NY mappe, og behold en urørt sikkerhedskopi. Billede og maske er256x256 uint16 med16 syntetiske objekter; ingen biologisk validering. Optagelsen bruger valgfri napari0.9.1 og skriftstørrelse20. Vælg mask.tif og image.tif i Make Masks → Napari Bridge. Fill:2→18, Undo, gentag, Take the mask back; arbejdsmasken overskrives, og2.197 pixels registreres i mask.tif.curation.json. LUK og GENÅBN før næste rettelse: en anden redigering i samme fremviser blev fejlagtigt meldt uændret og tabt. Fejlen er IKKE erklæret løst. Genåbn,4→20, importér:1.288 pixels ændres, og begge historikposter bevares. Alle65.536 pixels i hver gemt maske er kontrolleret; kilde og billedintensiteter er bevaret. Tilføjede/fjernede labels betyder ikke flere/færre celler. API: spacr.napari_bridge.load_handoff, open_in_napari, write_back. Ingen påstand om træning, biologisk validering, ubegrænset gentagen redigering, udgivelse eller lyttegodkendelse.",
+  "scenes": [
+    "Åbn Napari Bridge inde i Make Masks. Funktionen sender et billede og en labelmaske til den valgfrie napari-fremviser og importerer derefter rettede labels. Lektionen bruger et tydeligt syntetisk øvelseseksempel, ikke et biologisk forsøg. Behold en urørt sikkerhedskopi: Import af rettelser overskriver den valgte arbejdsmaske.",
+    "Hent eksemplet, og pak det ud i en ny mappe. Vælg mask.tif, derefter image.tif, og tryk Open in napari. Det er forskellige input: Heltalslabels for objekterne hører til i Mask, mens intensitetsbilledet er visuel reference. Eksemplet indeholder seksten syntetiske objekter.",
+    "Napari åbner et billedlag og et Labels-lag med navnet mask. Vælg mask til redigering; lad billedintensiteterne være uændrede. Label nul er baggrund. Farverne adskiller objekternes identitet, ikke biologiske klasser eller sikkerhed. Vi har forstørret den faktiske grænseflades skrift til optagelsen, ikke kildebilledet.",
+    "Gå tilbage til spaCR, og klik Take the mask back, før du ændrer noget. Status siger, at masken er uændret, og intet skrives. Import er en anden handling end redigering i fremviseren. Denne kontrol uden ændringer beviser ikke, at en senere rettelse blev gemt; kontrollér også dét resultat.",
+    "Vælg label atten i napari, vælg Fill, og klik på øvelsesobjektet med label to. Kun dette objekts label ændres. Det er en kontrolleret ommærkning, ikke en forbedring af biologisk segmentering. Arbejdsfilen på disken er endnu ikke ændret.",
+    "Brug Undo til at gendanne den oprindelige label; optagelsen bruger Control Z. Gentag derefter samme Fill før import. Undo virker på fremviserens redigeringshistorik. Det er ikke det samme som at gendanne en tidligere fil efter import: Behold sikkerhedskopier til det formål.",
+    "Klik Take the mask back. Status viser to tusind et hundrede syvoghalvfems ændrede pixels og en korrektionshistorik. Én label er tilføjet og én fjernet, fordi to blev til atten; der er stadig seksten objekter. Kontrollér den gemte maske og historik, ikke kun farven i napari.",
+    "Klik nu Close viewer, før du redigerer igen, og åbn fremviseren på ny. Dette er vigtigt i den testede version: En anden redigering i samme fremviser kunne blive meldt uændret og gå tabt. Vi viser det kontrollerede luk-og-genåbn-forløb, ikke en rettelse af programfejlen.",
+    "Efter genåbning erstatter du label fire med tyve og importerer igen. Det ændrer et tusind to hundrede otteogfirs pixels, og den tidligere historikpost bevares. Luk fremviseren til sidst. Gem originalbillede, rettet maske og deres oprindelsesoplysninger, og kør berørte målinger igen frem for at genbruge resultater knyttet til gamle labels."
+  ]
+}

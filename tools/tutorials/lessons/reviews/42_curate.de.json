@@ -1,0 +1,30 @@
+{
+  "lesson": "42_curate",
+  "english_sha256": "064305fd604528a3de59c402499f10a17c0a8a5f0c4fa990609c9132c73f17af",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "de",
+  "title": "Curate: Änderungen üben und ihre Historie bewahren",
+  "description": "Masken und Spuren mit synthetischen Daten bearbeiten und wegen des aktuellen Masken-Historienverlusts externe Sicherungen anlegen.",
+  "objectives": [
+    "Curate in Make Masks mit Arbeitskopien öffnen.",
+    "Malen, rückgängig machen und speichern, ohne die Übung als biologische Korrektur auszugeben.",
+    "Gespeicherte Maske und Protokoll vor erneutem Öffnen extern sichern.",
+    "Spuren teilen und verbinden sowie ungespeichertes Löschen verwerfen."
+  ],
+  "prerequisite": "Curate_SYNTHETIC_practice.zip entpacken und Kopien verwenden. TIFF: Label-Ebene 2 aus synthetischem Timelapse, 256 × 256 Pixel, sechzehn Labels 2–17. CSV: sechzehn Spuren, 128 Zeilen, acht Frames. Keine aufgenommenen biologischen Daten. NPY-Laden scheiterte; TIFF bewahrt ganzzahlige Labels. Radius 8 und Label 18 dienen der Übung. Alle Pixel und CSV-Werte sind geprüft. Save mask überschreibt die gewählte Datei und schreibt .curation.json. Erneutes Öffnen setzt drei Protokolleinträge im Speicher zurück; das nächste Speichern ersetzt die Begleitdatei durch einen neuen Eintrag. Fehler nicht behoben. Vorher curate_checkpoint.py mit gespeicherter Maske und NEUEM Zielordner ausführen: beide Dateien werden exakt kopiert, die App-Historie aber weder wiederhergestellt noch zusammengeführt. Erneutes Öffnen fügt eine Anzeigeebene hinzu; Helligkeit ist keine Labelidentität. Spur 2 bei Frame 4 teilen erzeugt 18; Verbinden beider Hälften stellt 128 Zeilen wieder her. 2 und 3 werden wegen Frame-Überlappung nicht verbunden. Spurhistorie bleibt beim Neuladen erhalten. API: spacr.curation.MaskCuration und TrackCuration. Keine GPU, KI, neue Segmentierung, biologische Validierung, App-Änderung oder Veröffentlichung.",
+  "scenes": [
+    "Öffnen Sie Make Masks und das darin verschachtelte Curate. Im Tutorial gehört Curate zu den Untermodulen von Make Masks, nicht zu einer eigenen Home-Kachel. Es bearbeitet Labelmasken und Spuren. Diese Lektion nutzt synthetische Timelapse-Ausgaben, keine biologischen Beobachtungen oder Belege, dass Handkorrekturen die Genauigkeit verbessern.",
+    "Laden Sie das verlinkte Übungsarchiv herunter und arbeiten Sie mit Kopien. Öffnen Sie das ganzzahlige Masken-TIFF: Sechzehn ursprüngliche Labels liegen in einem 256 Pixel breiten Quadrat. Der Dialog bietet auch NPY, doch dieser Pfad scheiterte. TIFF bewahrt die exakte Label-Ebene; ein farbiger Screenshot ist kein Ersatz.",
+    "Setzen Sie den Pinselradius auf acht und wählen Sie mit New Label 18. Malen Sie einmal in die freie Übungsfläche. Diese Scheibe ist zum Lernen erfunden, keine fehlende Zelle. Der Pinsel ändert Labelpixel im Arbeitsspeicher; die gespeicherte Datei bleibt bis Save mask unverändert.",
+    "Undo stroke stellt hier jedes ursprüngliche Pixel wieder her. Malen Sie erneut und prüfen Sie vor dem Speichern. Im Protokoll stehen Malen, Rückgängig und Malen; auch Rückgängig gehört zur Historie. Ihre genaue Mausposition kann die Pixelzahl ändern. Unser Übungsabdruck ist kein biologischer Zielwert.",
+    "Save mask überschreibt das gewählte Arbeits-TIFF und speichert die Curation-Begleitdatei. Führen Sie vor dem erneuten Öffnen das separate Sicherungsskript aus dem Download mit dieser Maske und einem neuen Ordner aus. Es kopiert beide Dateien exakt. Dies ist ein ausdrücklicher externer Sicherungsschritt, keine versteckte App-Funktion.",
+    "Der aktuelle Fehler: Erneutes Öffnen setzt das Maskenprotokoll im Speicher zurück; weiteres Speichern ersetzt die Begleitdatei durch die neue Sitzungsänderung. Unsere frühere Sicherung bewahrt die ursprünglichen drei Einträge. Behalten Sie separate Backups und Notizen; das Skript repariert keine App-Historie. Wiederöffnen fügt zudem eine Anzeigeebene hinzu: Helligkeit ist keine Labelidentität.",
+    "Öffnen Sie die Arbeits-CSV der Spuren. Sie enthält sechzehn Spuren über acht Frames, insgesamt 128 Zeilen. Spur zwei und drei zusammen mit Join zu verbinden wird abgewiesen, weil beide in denselben Frames vorkommen. Lesen Sie die Meldung; fremde Trajektorien zwangsweise zusammenzuführen wäre keine gültige Korrektur.",
+    "Wählen Sie Spur zwei, setzen Sie Split at frame auf vier und klicken Sie Split. Frames vier bis sieben wechseln zur neuen Spur 18; null bis drei bleiben bei zwei. Koordinaten und ursprüngliche Labels bleiben unverändert. Dies ist eine kontrollierte Bearbeitungsübung, kein Beleg für eine echte Zellteilung.",
+    "Wählen Sie zwei und 18 gemeinsam und klicken Sie Join. Die nicht überlappenden Hälften werden verbunden und alle ursprünglichen Zeilen wiederhergestellt. Save tracks schreibt CSV und eigenes Protokoll. Die unabhängige Prüfung vergleicht jeden Frame, jede Kennung und Koordinate, nicht nur die Spurzahl. Trennen Sie Masken- und Spurhistorien.",
+    "Das Löschen von Spur drei entfernt deren acht Zeilen im Speicher. Speichern Sie diese Übungslöschung nicht. Öffnen Sie die gespeicherte CSV erneut, um sie zu verwerfen. So unterscheiden sich aktuelle Änderungen und Festplatteninhalt. Das Löschen echter Trajektorien verlangt einen dokumentierten Grund, nicht bloß ein unerwünschtes Ergebnis.",
+    "Alle 128 Zeilen und die gespeicherte Teilungs- und Verbindungshistorie kehren zurück. Anders als beim Maskenöffnen bleibt die Spurhistorie in diesem Test erhalten. Bewahren Sie Originale, Sicherungen und Änderungsgründe. Python bietet MaskCuration und TrackCuration; GPU oder KI-Anbieter sind unnötig, und erfolgreiche Bearbeitung ist keine wissenschaftliche Validierung."
+  ]
+}

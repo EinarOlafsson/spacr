@@ -224,7 +224,34 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # solve over one well and reports the count, the residual AND the
     # canvas together, because the first two look perfect on a uniformly
     # wrong stitch).
-    assert len(shipped) == 551
+    # 551 -> 556 on 2026-09-10, +5/-0, and all five are named because a
+    # denominator that moves by a number nobody can list is a denominator
+    # nobody can check:
+    #   `spacr/bystanders.py`      which uninfected cells are next to an
+    #                              infected one, and the three-way contrast
+    #   `spacr/point_patterns.py`  Ripley's K and L with a null that
+    #                              respects the mask rather than a rectangle
+    #   `spacr/ops_cycles.py`      registering the SBS cycles to each other
+    #                              without a nuclear stain
+    #   `spacr/ops_phenotype.py`   landing the phenotype acquisition on the
+    #                              sequencing one
+    #   `spacr/qt/_layout_policy.py`  the reader for the generated layout
+    #                              artifact -- private, and STILL SHIPPED:
+    #                              the leading underscore takes a module off
+    #                              the documented API surface and not out of
+    #                              the wheel, which is why it counts here
+    #                              and does not count in the docstring
+    #                              ratchets.
+    # 556 -> 558 on 2026-09-11 with the merge from main, +2/-0, named on the
+    # same principle:
+    #   `spacr/embeddings.py`      the self-supervised feature source: a
+    #                              pretrained backbone per channel, with the
+    #                              channel decision recorded rather than
+    #                              inherited
+    #   `spacr/ops_compose.py`     the canonical nuclear map, composed one
+    #                              window at a time instead of held as one
+    #                              1.4 GB array per channel
+    assert len(shipped) == 558
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the

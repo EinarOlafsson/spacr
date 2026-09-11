@@ -1,0 +1,31 @@
+{
+  "lesson": "19_train_cellpose",
+  "english_sha256": "524f011def972d4ba17df823927da3ab8f2c84e0301df7903737e67717246384",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "de",
+  "title": "Train Cellpose: geprüfte Paare und ausdrücklicher API-Umweg",
+  "description": "Train in Cellpose Workbench finden, den aktuellen Quellimportfehler erkennen und einen echten Python-Trainingslauf mit zwei Epochen auf sechs herunterladbaren Zellbild-/Maskenpaaren nachvollziehen.",
+  "objectives": [
+    "Train und Apply in Make Masks statt als eigene Home-Kacheln finden.",
+    "Passende Dateinamen prüfen und vorhandene Labels von geprüfter Referenz unterscheiden.",
+    "Teilimport erkennen und API-Umweg von defekter GUI trennen.",
+    "Eingaben, Aufwärmraten, veränderte Gewichte und überprüften Pfad untersuchen.",
+    "Trainingsverlust, Testplatzhalter und Gewichtslesen von unabhängiger Genauigkeit unterscheiden."
+  ],
+  "prerequisite": "Das Sechs-Paar-Paket mit aufgezeichnetem Helfer und Quellenmanifest verwenden. Echte Felder bewahren Zellintensität Kanal 1 und Zellmaske Ebene 4; Ebene 6 ist Pathogen. Bestehende Labels und angeschnittene Objekte sind KEINE unabhängig geprüfte Referenz. Train verliert weiter src und behält model_name=new_model trotz Zahlenimport; kein GUI-Training startet. spacr.submodules.train_cellpose nutzt neues Ziel, zwei Epochen, Minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512, ohne zusätzliche spaCR-Augmentation. normalize=False deaktiviert spaCR-Perzentile, nicht Maximumskalierung oder Cellpose-Normalisierung. Cellpose rotiert/skaliert weiter und nutzt intern 256-Pixel-Patches. Startseed 19, interne Zufallsprozesse bleiben. CUDA auf RTX 3090 auf 65% begrenzt; RAM-Wächter 100 GiB gilt nur für diese Workstation. 3,145,728 Eingabewerte und zwölf dargestellte Arrays geprüft; alle sechs Paare bleiben im Training. Raten 0 und 1.1111111111111112e-6; 345 von 347 trainierbaren Parametertensoren verändert. Verlust stieg von 1.496740683913231 auf 1.5215517828861873. Kein Testdatensatz, Nullwerte sind Platzhalter. Checkpoint unter models/cellpose_model/models mit weights_only=True gelesen; Konsolenresümee lässt zweites models aus. Lesen ist keine Inferenz oder Genauigkeitsprüfung. Echte Abbildung im externen Betrachter, nicht in die GUI eingefügt. Originale, Fehlschläge und vorheriger GUI-Stopp bleiben erhalten. Keine AI-Anfrage, Anbieterantwort, wissenschaftliche Freigabe oder Veröffentlichung.",
+  "scenes": [
+    "Make Masks öffnen, dann den eingebetteten Cellpose Workbench. Train und Apply sind Register darin, keine separaten Home-Kacheln. Die Lektion zeigt den aktuellen Weg, einen Importfehler und einen ausdrücklichen Python-Umweg. Die verlinkte Make Masks-Lektion erklärt Maskenprüfung und -bearbeitung vor jedem Training.",
+    "Unter Train Ausgangspunkt und Trainingsplan prüfen. Initiale Epochenzahl oder Lernrate nicht als Empfehlung übernehmen. Training braucht passende Bilder und Instanzmasken, einen Quellordner und einen Ausgabenamen. Ein sichtbares Formular bedeutet nicht, dass diese Voraussetzungen erfüllt sind.",
+    "Der echte Import settings-Dialog öffnet eine CSV mit begrenzten Beispielwerten. Danach erscheinen zwei Epochen, Minibatch eins und eine kleine Lernrate. Aber die erforderliche Quelle fehlt, und der gewünschte Modellname bleibt new model. Das ist ein Teilimport, keine fertige Konfiguration: Run nicht drücken.",
+    "Der folgende Python-Weg ist vom GUI-Fehler getrennt. Er setzt keine versteckte Quelle und repariert nicht das Formular. Das verlinkte Paket in einem neuen Ordner nutzen. Der Helfer lehnt vorhandene Ziele ab, erhält Originalpaare und protokolliert die tatsächlich verwendete API-Implementierung und Eingaben.",
+    "Es gibt sechs echte 512-Pixel-Bild-/Maskenpaare mit passenden Dateinamen. Originale Einstellungen weisen Zellintensität Kanal eins und Zellmasken Ebene vier zu; Ebene sechs ist Pathogen. Vorhandene Labels sind keine unabhängig geprüfte Referenz. Grenzen und angeschnittene Objekte vor Produktionstraining prüfen.",
+    "Diese echte Abbildung der sechs Paare wurde vom API-Lauf gespeichert und in einem externen Betrachter geöffnet, nicht in spaCR eingefügt. Jedes obere Bild gehört zur Maske darunter. Alle Eingabewerte und zwölf dargestellten Arrays wurden gegen die Quellen geprüft. Das bestätigt Zuordnung, nicht Annotationsqualität.",
+    "Den Helfer mit Datenquelle und neuem Ziel ausführen. Das begrenzte CUDA-Beispiel verwendet sechs Paare, zwei Epochen und Minibatch eins. Das Eingabeziel beträgt 512 Pixel; Cellpose trainiert intern auf 256-Pixel-Patches. Deaktivierte spaCR-Zusatzaugmentation schaltet Cellposes eigene Normalisierung, Rotation und Größenänderung nicht aus.",
+    "Die erste Aufwärmepoche hat Lernrate null. Die zweite nutzt eine kleine positive Rate und erlaubt echte Gewichtsänderungen. Der Checkpoint wurde mit den anfänglichen trainierbaren Gewichten verglichen: 345 von 347 Parametertensoren änderten sich. Nur ein geänderter Durchmesser würde die Prüfung nicht bestehen. Geänderte Gewichte belegen trotzdem kein gutes Modell.",
+    "Der Trainingsverlust stieg leicht von etwa 1,497 auf 1,522. Es wurde kein Testdatensatz übergeben. Die Nullwerte beim Testverlust sind Platzhalter, keine perfekte Leistung. Das ist eine kurze Funktionsdemonstration, keine Konvergenz, bessere Segmentierung oder unabhängige Genauigkeit. Unabhängige Bewertung vom Training trennen.",
+    "Den Checkpointpfad aus der geprüften Kontrolldatei verwenden. Er enthält ein zweites models-Verzeichnis, das im generischen Konsolenresümee fehlt. Checkpoint, Einstellungen, Manifest und Prüfungen zusammen aufbewahren. Sicheres Tensorlesen bestätigt Lesbarkeit, keine Inferenz; das Paket enthält Paare und Helfer, kein zertifiziertes Modell.",
+    "Apply hat eine eigene Quelle, ein Feld für ein benutzerdefiniertes Modell und Live-Vorschau. Das Öffnen wählt weder unseren externen Checkpoint noch startet es Inferenz. Der verlinkten Lektion folgen und unabhängige Bilder validieren. spaCR AI bleibt ungenutzt; keine Frage oder Anbieterantwort ersetzt die Prüfung echter Belege."
+  ]
+}

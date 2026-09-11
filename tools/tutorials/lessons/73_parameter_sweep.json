@@ -1,0 +1,78 @@
+{
+  "id": "73_parameter_sweep",
+  "number": 73,
+  "slug": "parameter_sweep",
+  "title": "Parameter Sweep",
+  "series": 5,
+  "app_key": "parameter_sweep",
+  "section": "Results and quality control",
+  "host_app_key": "regression",
+  "description": "Run two bounded trials inside Regression, inspect saved guide and gene results, and distinguish execution success from valid inference.",
+  "objectives": [
+    "Find the nested sweep and select four ordered score/count pairs from Regression’s test data.",
+    "Limit a grid to two trials and one worker, then inspect saved results without refitting.",
+    "Keep failed inference checks and separate coefficient families visible when comparing outputs."
+  ],
+  "prerequisite": "Use the four downloaded plate score/count pairs from the Regression lesson and a new output folder. This is a computational demonstration, not a validated hit-discovery analysis: both recorded ridge trials fail inference QC. The full recipe is visible in the sweep form; only alpha varies, 0.01 and 0.1. Parametric inference, well aggregation, mean response and no transform are fixed explicitly. Other parent settings are not automatically inherited. Do not use the displayed n_rows_fitted as sample size: it counts 1174 coefficient rows here, not 620 wells or 2955 prepared long-form rows. The trial table omits alpha and the saved QC verdicts; inspect sweep_results.csv and each trial’s actual settings. API: spacr.parameter_sweep.SweepSpace and run_sweep_parallel. No GPU acceleration benchmark, external AI request, native-speaker sign-off or publication is claimed.",
+  "scenes": [
+    {
+      "visual": "01_regression_with_four_existing_pairs",
+      "narration": "Open Regression, then Parameter sweep at the bottom right. This workflow lives inside Regression, not on a separate Home tile. The Regression lesson explains downloading the four example score and count pairs that we reuse here.",
+      "focus": [3380, 1880, 440, 150],
+      "related_lessons": ["13_regression"],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_count_file_picker",
+      "narration": "Check the sweep’s own input lists. They are initially empty even when the parent form contains paired data. Add the four score files and four count files in matching plate order. Choose a new output folder so this demonstration cannot overwrite an earlier analysis.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_two_trials_one_worker_budget",
+      "narration": "Only tick alpha: the values are zero point zero one and zero point one. Unticked rows still supply fixed settings. Here we explicitly choose ridge, parametric inference, well-level mean aggregation and no transform. This bounded recipe demonstrates operation; it is not a recommendation for your experiment.",
+      "focus": [850, 490, 680, 680],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_actual_estimate",
+      "narration": "Set grid sampling, maximum trials two, and one worker, then click Estimate. Two valid combinations means the settings combinations are allowed, not that the statistical conclusions are valid. The time estimate assumes a minute per trial; it is not a benchmark. Read the available resource limits before starting.",
+      "focus": [850, 1190, 680, 375],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_actual_sweep_running",
+      "narration": "Click Start sweep, not the parent Regression Run button. Each trial writes into its own folder. These two real trials run sequentially; adding workers increases resource demand. This example demonstrates CPU regression, not GPU acceleration, and no request to spaCR AI is needed.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_actual_sweep_finished",
+      "narration": "Both rows report ok because computation finished. Crucially, both saved inference quality checks report fail. The table omits those verdicts and the varied alpha, so inspect the full sweep results file and each trial’s settings. Do not select a model just because it produces more small adjusted P values.",
+      "focus": [1550, 205, 2215, 290],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_saved_guide_family",
+      "narration": "Select the first row and click Show figures for selected row. This reads its saved results without refitting. The guide view contains seven hundred ninety-two coefficient rows, including an intercept; the plot excludes that nuisance term and shows seven hundred ninety-one guides. Height represents negative log ten of the raw P value.",
+      "focus": [1545, 510, 2255, 1040],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_saved_gene_family",
+      "narration": "Switch Level to Gene. The table now contains three hundred eighty-two rows, including its intercept, and the plot shows three hundred eighty-one genes. Guides and genes are separate coefficient families. Changing this view does not make the failed inference valid or create independent evidence.",
+      "focus": [1545, 555, 2255, 995],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_saved_guide_family_restored",
+      "narration": "Switch back to guides: the original rows and points return, and the saved files are unchanged. The summary’s rows fitted field is misleading here: it reports coefficient rows, not wells. Keep the input sample count, output coefficient count and plotted family distinct when reporting an analysis.",
+      "focus": [1545, 555, 2255, 995],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_actual_saved_model_summary",
+      "narration": "Use the saved settings, summary and quality-control files together. A plot or an AI explanation cannot certify a study design. Regression Diagnostics explains further inspection, while the API reference documents sweep execution. This example teaches a reproducible workflow and its limitations, not validated biological hits.",
+      "related_lessons": ["75_regression_diagnostics", "06_api"],
+      "hold_after": 0.7
+    }
+  ]
+}

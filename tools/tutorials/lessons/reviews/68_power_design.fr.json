@@ -1,0 +1,29 @@
+{
+  "lesson": "68_power_design",
+  "english_sha256": "c70c0ea4d037c92883296dfc5b72dcc4e9cf5e7c331311afabbe1c56618147b6",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "fr",
+  "title": "Power / Design : lire le simulateur et ses limites",
+  "description": "Comprendre les réglages, courbes simulées et avertissements sans prendre une petite démonstration ou un résumé contradictoire pour un conseil de planification validé.",
+  "objectives": [
+    "Distinguer hypothèses de simulation et données expérimentales acquises.",
+    "Lire correctement ajustements utilisables, fractions de détection et incertitude.",
+    "Reconnaître la recommandation erronée sur le même plan et préserver les preuves."
+  ],
+  "prerequisite": "Lecture critique du simulateur enregistré, pas puissance statistique calibrée ni conseil de taille d’échantillon. Power_recorded_simulation_review.zip conserve le JSON original et son analyse ; ce n’est ni une exécution importable ni un export de l’interface. L’écran, l’adaptateur, le simulateur et le code d’ajustement enregistrés avec spaCR 1.5.0.4 restent identiques au code actuel. Deux balayages marginaux ont produit 18 ajustements et neuf points, deux répétitions par point ; quatre ajustements non convergents restent au dénominateur. Deux simulations ont écrêté des probabilités. Le même plan nominal, avec des tirages différents, donne 1/2 et 2/2 détections. Le conseil d’augmenter jusqu’au nombre de puits déjà présent est rejeté et reste non corrigé. Certaines étiquettes d’extrémité sont coupées ; la table vérifiée contient neuf coordonnées. Aucune nouvelle simulation, donnée acquise, calibration biologique, tâche GPU, requête IA ou publication n’est revendiquée. API : spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve et spacr.qt.screens.power.run_power_sweep ; spacr.power_simulate et spacr.power_model simulent et ajustent.",
+  "scenes": [
+    "Power et Design explore des hypothèses avec des données simulées. Il ne charge pas une expérience acquise et ne démontre pas que ses hypothèses correspondent aux vôtres. Nous lisons une véritable exécution enregistrée, avertissements et recommandation trompeuse compris. Cette petite démonstration n’est pas un conseil validé de taille d’échantillon.",
+    "Commencez par la bibliothèque et l’unité évaluée. Passer du guide au gène change ce que le modèle évalue : quarante gènes et quatre guides par gène donnent cent soixante unités en mode guide. Le mode gène regroupe les informations des guides. Ce sont des hypothèses pédagogiques, pas de nouvelles mesures biologiques.",
+    "Les réglages de plaque et d’effet décrivent le plan supposé. Le taux d’appels positifs est une probabilité de classification simulée, pas un nombre d’organismes ni un taux d’infection mesuré. Examinez ensemble fond, effet et prévalence ; les hypothèses affichées ne valident pas le modèle.",
+    "Un effet inférieur à un déclenche l’avertissement natif de direction non prise en charge et désactive Run. L’enregistrement rétablit ensuite une valeur acceptée et les contrôles redeviennent disponibles. C’est une protection logicielle, pas une impossibilité biologique. Ne contournez pas cet avertissement pour obtenir une courbe commode.",
+    "Cette démonstration utilise seulement deux répétitions par point. Une détection exige un ajustement utilisable atteignant le seuil choisi d’aire sous la courbe ROC. Ce n’est pas un seuil P de test d’hypothèse. La graine et le moteur sont enregistrés ; sélectionner Torch ne prouve pas une exécution sur GPU.",
+    "Run lance le véritable simulateur dans un fil de travail. Il varie séparément les axes du nombre de cellules et de puits, sans tester toutes leurs combinaisons. Dix-huit ajustements ont été réalisés sur neuf points. Gardez paramètres et répétitions brutes ensemble pour relier chaque fraction tracée aux ajustements qui l’ont produite.",
+    "Les détections se comptent sur toutes les répétitions demandées. Quatre ajustements non convergents restent au dénominateur comme non-détections ; ils ne sont pas écartés silencieusement. Ici, cent pour cent signifie seulement deux sur deux. Un échantillon aussi petit ne donne pas une probabilité de détection précise.",
+    "La table distingue fractions de détection et performances moyennes des ajustements utilisables. Une moyenne indisponible n’est pas zéro. La précision moyenne exige aussi la référence de prévalence. Lisez la table lorsqu’une étiquette d’extrémité est coupée, et examinez les non-convergences au lieu de juger uniquement la ligne bleue.",
+    "Le résumé contient une erreur. Les deux estimations de référence utilisent déjà quatre-vingt-seize puits, mais des tirages différents donnent une détection sur deux dans un balayage et deux sur deux dans l’autre. Passer aux mêmes quatre-vingt-seize puits n’améliore pas le plan. Rejetez ce conseil ; le tutoriel ne le corrige pas.",
+    "Développez les autres réserves. Deux criblages simulés ont écrêté des probabilités supérieures à un ; leur occupation réalisée diffère donc de celle demandée. Le modèle a d’autres hypothèses et limites : les énumérer ne le valide pas. Examinez avertissements et ajustements échoués avant toute conclusion.",
+    "L’archive liée conserve la spécification enregistrée, les répétitions, courbes, table et résumé erroné. C’est un téléchargement externe de preuves, pas un export natif ni un résultat importé. L’adaptateur et les API Python exposent le même parcours, mais une vraie planification exige une validation distincte des hypothèses et de l’incertitude."
+  ]
+}

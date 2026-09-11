@@ -33,6 +33,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
+import spacr.settings as S
 from spacr.qt.screens.settings_model import (            # noqa: E402
     _APP_CATEGORY_SPECS,
     _APP_COMBO_OPTIONS,
@@ -145,8 +146,37 @@ def test_the_hidden_set_names_runtime_keys_this_module_does_not_declare():
 
 
 def test_the_derived_control_well_union_is_not_an_extra_choice():
-    """Regression exposes the three typed control groups, not their union."""
-    assert "control_wells" in _APP_HIDDEN_KEYS["regression"]
+    """Regression exposes the TYPED control groups; the union is gone.
+
+    This asserted `"control_wells" in _APP_HIDDEN_KEYS["regression"]`, which
+    stopped meaning anything when 364 split that setting into
+    `positive_control_wells`, `negative_control_wells` and
+    `analysis_excluded_wells` -- "one setting with two meanings" became
+    three with one each. Hiding a key that no longer exists hides nothing,
+    so the test passed no judgement and then failed outright when the key
+    left `_APP_HIDDEN_KEYS` too.
+
+    THE INTENT SURVIVES THE KEY and is what is asserted now: there is no
+    union setting to offer, and the typed groups regression actually uses
+    are on its panel. Written as positive facts so that a union
+    reappearing under any name has to get past the first assertion.
+    """
+    from spacr.validate import RETIRED_SETTINGS
+
+    assert "control_wells" not in S.expected_types, (
+        "the control-well union is a declared setting again")
+    assert "control_wells" in RETIRED_SETTINGS, (
+        "a withdrawn setting has to stay named in RETIRED_SETTINGS, or a "
+        "settings file carrying it loads with no word about where it went")
+
+    offered = set(resolve_default_settings("regression"))
+    hidden = _APP_HIDDEN_KEYS["regression"]
+    for key in ("positive_control_wells", "negative_control_wells"):
+        assert key in offered and key not in hidden, key
+    # The excluded-wells list is DERIVED for this module and deliberately
+    # not a third box on the panel; it stays declared so a settings file
+    # can carry it.
+    assert "analysis_excluded_wells" in hidden
 
 
 def test_the_new_settings_are_placed_where_the_instruction_says():

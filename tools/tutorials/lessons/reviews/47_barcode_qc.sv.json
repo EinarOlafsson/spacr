@@ -1,0 +1,30 @@
+{
+  "lesson": "47_barcode_qc",
+  "english_sha256": "faf91389430d4f90d8e26b9c30c08ad98cbfe88bcd20364cd1a3a6eb25887c6f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "sv",
+  "title": "Barcode QC: verkliga räknedata, tröskelavvägningar och sparade figurer",
+  "description": "Granska den publicerade räknedatatabellen, kör Barcode QC och jämför läsdjup och trösklar i de faktiskt sparade figurerna.",
+  "objectives": [
+    "Hitta Barcode QC i Map Barcodes och välj verkliga räknedata.",
+    "Skilj ett illustrativt mål från ett experimentellt motiverat val.",
+    "Granska varningar, sparade figurer och oberoende kontrollerade tabeller.",
+    "Skilj brunnar med få läsningar, brunnar över målet och sekvenskollisioner."
+  ],
+  "prerequisite": "Använd en kopia av plate_1_unique_combinations.csv från det nedladdade Regression-exemplet och en ny utmatningsmapp. Tabellen kommer inte från vårt misslyckade FASTQ-försök. Den innehåller 172756 rader, 49464341 mappade läsningar, 384 brunnar och 1379 observerade guider. Mål 5/median är bara illustrativt, lågläsningsandel 0.1, Plot/Save/Verbose aktiverade. Valfria QC- och referensindata utelämnas. 2884 fält kontrollerade utan numeriskt fel. src-varningen och den tomma Figures-panelen är inte åtgärdade; PNG visas i den riktiga externa bildvisaren. Ingen direktförhandsvisning, GPU-beräkning, AI-förfrågan, biologisk validering eller publicering. API: spacr.sequencing_qc.barcode_qc, derive_threshold, threshold_sweep.",
+  "scenes": [
+    "Öppna Map Barcodes och därefter det nästlade verktyget Barcode QC. Arbetsflödet granskar räknedata efter mappning; det mappar inte FASTQ-läsningar igen. Vi använder den publicerade exempeltabellen från den länkade Regression-lektionen. Den är inte resultatet av vårt tidigare misslyckade försök att mappa råa läsningar.",
+    "Välj en kopia av plate one unique combinations under Count data. Kontrollera den valda filen i stället för att lämna en platshållarsökväg. Den verkliga tabellen innehåller ungefär 49,5 miljoner mappade läsningar från 384 brunnar. Bevara originalet oförändrat och välj en ny destination för QC-resultaten.",
+    "Target gRNAs per well anger målet som används för att härleda en tröskel för läsningarnas relativa mängd. Här behåller vi det illustrativa värdet fem och använder medianen. Det är varken en rekommenderad försöksdesign eller bevis för tilldelning till en enda guide. Välj utifrån din design och granska avvägningarna, inte bara den föreslagna siffran.",
+    "Andelen för läsfattiga brunnar identifierar brunnar med ovanligt få läsningar jämfört med plattans median. Här är den 0,1 och ingen av de 384 brunnarna hamnar under den beräknade gränsen. Det är en markör för läsdjup, inte en garanti för att varje brunn, guide eller biologisk mätning är tillförlitlig.",
+    "Aktivera Plot och Save, ange destinationen och tryck Run. Detta är en liten tabellanalys, inte GPU-segmentering, och skärmen har ingen direktförhandsvisning. Vi lämnar de valfria indatafälten för mappnings-QC och streckkodsreferenser tomma. Slutsatser som kräver dessa filer kan inte dras från räknedatatabellen ensam.",
+    "Läs den faktiska konsolen, inklusive varningarna. Beräkningen avslutas, men den här versionen klagar felaktigt på att src saknas trots att modulen använder Count data. Vi kontrollerade verkliga indata och sparade tabeller; vi har inte reparerat förkontrollen. Den diagnostiserade skillnaden ger inte tillåtelse att ignorera andra fel.",
+    "Den här versionen lämnar även Figures-panelen tom fast två PNG-figurer sparades. Öppna barcode_qc.png och threshold_sweep.png från utmatningsmappen i en bildvisare. Nästa scener visar systemets riktiga bildvisare, inte figurer som lagts in i spaCR eller ett påstående om att gränssnittet är reparerat.",
+    "Granska läsdjup, rad- och kolumneffekter och fördelningen i det observerade biblioteket. Den streckade djupgränsen markerar brunnar med få läsningar; staplarna jämför rad- eller kolumnmedianer med plattans median. Bibliotekskurvan visar ojämn representation bland observerade guider. Utan ett referensbibliotek visar den inte vilka förväntade guider som saknas helt.",
+    "Granska tröskelsvepet i stället för att blint acceptera en gräns. Här är den härledda tröskeln cirka 0,0121, alltså 1,21 procent av en brunns läsningar. Den ger en median på fem guider, behåller alla brunnar och ungefär 58 procent av de mappade läsningarna, medan cirka 40 procent av brunnarna fortfarande överstiger målet.",
+    "Den röda kurvan räknar brunnar över målet på fem guider. Den mäter inte likhet mellan streckkodssekvenser, och att ligga under målet bevisar inte heller tilldelning till en enda guide. En lättare gräns ökar här andelen över målet utan att fler brunnar tillkommer. Jämför den sparade tabellen och motivera valet för analysen, inte som en universell tröskel.",
+    "Bevara ursprungliga räknedata, inställningar, konsollogg, rekommendation, tabeller och figurer tillsammans. Oberoende kontroller återskapade sparad brunns-, positions- och svepstatistik utan numerisk avvikelse. Det verifierar beräkningen, inte den biologiska tolkningen. AI-hjälp är valfri och ingen förfrågan skickades här; kontrollera senare råd mot faktiska data och API."
+  ]
+}

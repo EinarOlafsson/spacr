@@ -5024,7 +5024,7 @@ UI = {
     'power': 'tölfræðilegur styrkur',
     'pred': 'fyrir',
     'prediction': 'fyrirspurn',
-    'press Escape to close': 'Leiðsla flýja til að loka',
+    'press Escape to close': 'ýttu á Escape til að loka',
     'print': 'Fyrirtæki',
     'product': 'vörur',
     'project or plate folder': 'Hugbúnaður eða plötu',

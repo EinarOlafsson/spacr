@@ -1,0 +1,27 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "8180c52bcd1a656cd226c81a64977114b2690a9c09fa4bd3c8a85893c4537460",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "nb",
+  "title": "Napari Bridge: rediger, importer og åpne igjen på en trygg måte",
+  "description": "Et pikselkontrollert forløp med syntetiske bilde- og etikettfiler, sikkerhetskopier, Fill og Undo, og lukking og gjenåpning mellom importer.",
+  "objectives": [
+    "Åpne Napari Bridge i Make Masks med separate bilde- og etikettfiler.",
+    "Skill mellom redigering, Undo, import til disk og korrigeringshistorikk.",
+    "Lukk og åpne igjen mellom importer, og kontroller begge lagrede rettelser uten å si at feilen i samme viser er løst."
+  ],
+  "prerequisite": "Pakk ut det tydelig SYNTHETIC-merkede eksemplet i en NY mappe, og behold en urørt sikkerhetskopi. Bildet og masken er256x256 uint16 med16 syntetiske objekter; ingen biologisk validering. Opptaket bruker valgfri napari0.9.1 og skriftstørrelse20. Velg mask.tif og image.tif i Make Masks → Napari Bridge. Fill:2→18, Undo, gjenta, Take the mask back; arbeidsmasken overskrives og2 197 piksler registreres i mask.tif.curation.json. LUKK og ÅPNE IGJEN før neste endring: en andre redigering i samme viser ble feilaktig meldt uendret og gikk tapt. Feilen er IKKE erklært løst. Åpne igjen,4→20, importer:1 288 piksler endres, og begge historikkposter beholdes. Alle65 536 piksler i hver lagrede maske er kontrollert; kilde og bildeintensiteter er bevart. Nye/fjernede etiketter betyr ikke flere/færre celler. API: spacr.napari_bridge.load_handoff, open_in_napari, write_back. Ingen påstand om trening, biologisk validering, ubegrenset gjentatt redigering, publisering eller lyttegodkjenning.",
+  "scenes": [
+    "Åpne Napari Bridge inne i Make Masks. Den sender et bilde og en etikettmaske til den valgfrie napari-viseren og importerer deretter korrigerte etiketter. Leksjonen bruker et tydelig syntetisk øvingseksempel, ikke et biologisk forsøk. Behold en urørt sikkerhetskopi: Import av rettelser overskriver den valgte arbeidsmasken.",
+    "Last ned eksemplet og pakk det ut i en ny mappe. Velg mask.tif, så image.tif, og trykk Open in napari. Dette er ulike inndata: Objektenes heltallsetiketter hører til i Mask, mens intensitetsbildet er en visuell referanse. Eksemplet inneholder seksten syntetiske objekter.",
+    "Napari åpner et bildelag og et Labels-lag som heter mask. Velg mask for redigering; la bildeintensitetene være uendret. Etikett null er bakgrunn. Fargene skiller objektidentiteter, ikke biologiske klasser eller konfidens. Vi har forstørret skriften i det faktiske grensesnittet for opptaket, ikke kildebildet.",
+    "Gå tilbake til spaCR og klikk Take the mask back før du endrer noe. Status sier at masken er uendret, og ingenting skrives. Import og redigering i viseren er ulike handlinger. Denne uendret-kontrollen beviser ikke at en senere rettelse ble lagret; kontroller også det resultatet.",
+    "Velg etikett atten i napari, velg Fill, og klikk på øvingsobjektet med etikett to. Bare dette objektets etikett endres. Dette er kontrollert ommerking, ikke en forbedring av biologisk segmentering. Arbeidsfilen på disken er ennå ikke endret.",
+    "Bruk Undo til å gjenopprette den opprinnelige etiketten; opptaket bruker Control Z. Gjenta deretter samme Fill før import. Undo virker på viserens redigeringshistorikk. Ikke bland dette med gjenoppretting av en eldre fil etter import: Behold sikkerhetskopier til det.",
+    "Klikk Take the mask back. Status viser to tusen ett hundre og nittisju endrede piksler og en korrigeringshistorikk. Én etikett er lagt til og én fjernet fordi to ble atten; det er fortsatt seksten objekter. Kontroller lagret maske og historikk, ikke bare fargen i napari.",
+    "Klikk nå Close viewer før du gjør en ny endring, og åpne viseren igjen. Dette er nødvendig i den testede versjonen: En andre redigering i samme viser kunne bli meldt uendret og gå tapt. Vi viser det kontrollerte lukk-og-åpne-forløpet, ikke en løsning på programfeilen.",
+    "Etter gjenåpning erstatter du etikett fire med tjue og importerer igjen. Det endrer ett tusen to hundre og åttiåtte piksler, og den tidligere historikkposten beholdes. Lukk viseren når du er ferdig. Behold originalbilde, korrigert maske og opphavsinformasjon; kjør berørte målinger på nytt i stedet for å gjenbruke resultater knyttet til gamle etiketter."
+  ]
+}

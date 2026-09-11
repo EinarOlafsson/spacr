@@ -1,0 +1,31 @@
+{
+  "language": "zh-CN",
+  "title": "参数扫描",
+  "description": "在 Regression 中运行两个试验，区分计算完成与统计推断有效。",
+  "objectives": [
+    "从 Regression 测试数据中选择顺序对应的四组评分和计数文件。",
+    "将网格限制为两个试验、一个工作进程，并检查已保存的结果。",
+    "区分系数族，并明确说明推断质量检查失败。"
+  ],
+  "prerequisite": "使用 Regression 课程下载的四组板数据和新的输出文件夹。两个 ridge 试验的推断质量检查均失败；这不是经过验证的生物学命中分析。只改变 alpha，取 0.01 和 0.1，显式固定参数推断、按孔取均值、不变换响应。父表单的其他设置不会自动继承。此处 n_rows_fitted 计数的是1174行系数，不是620个孔或预处理后的2955行。表中没有 alpha 和质量判定，需检查 sweep_results.csv 及实际设置。API：spacr.parameter_sweep.SweepSpace 和 run_sweep_parallel。未进行GPU性能测试、外部AI请求、母语审核批准或发布。",
+  "scenes": [
+    "打开 Regression，再点击右下角的 Parameter sweep。这个流程嵌套在 Regression 中，不是独立的 Home 入口。Regression 课程说明了如何下载四组评分与计数文件，这里将重复使用这些数据。",
+    "检查扫描面板自己的输入列表。即使父表单已有配对数据，这些列表最初仍为空。按一致的板顺序添加四个评分文件和四个计数文件。选择新的输出文件夹，避免此次演示覆盖以前的分析。",
+    "只勾选 alpha，值为零点零一和零点一。未勾选的行仍提供固定设置。这里明确选择 ridge、参数推断、按孔取均值以及不做变换。这组有限设置用于演示操作，并非对你的实验提出的推荐方案。",
+    "将采样设为 grid，最多两个试验，一个工作进程，然后点击 Estimate。两个有效组合只表示设置组合被允许，不表示统计结论有效。时间估计假设每个试验一分钟，并不是性能测试。开始前请阅读可用的资源限制。",
+    "点击 Start sweep，而不是父表单的 Run。每个试验写入自己的文件夹。这两个真实试验依次运行，增加工作进程会提高资源需求。本例使用CPU回归，不演示GPU加速，也不需要向 spaCR AI 发出请求。",
+    "两行都显示 ok，因为计算已经完成。但关键是，两个已保存的推断质量检查都显示 fail。表格省略了这些判定和变化的 alpha，因此应检查完整的扫描结果文件及每个试验的设置。不要仅因为某个模型产生更多小的校正后P值就选择它。",
+    "选择第一行，点击 Show figures for selected row。这会读取保存结果，不会重新拟合。向导RNA视图含七百九十二行系数，其中包括截距；图中排除这个辅助项，显示七百九十一个向导RNA。纵向高度表示原始P值以十为底的负对数。",
+    "将 Level 切换为 Gene。表格现在包含三百八十二行，包括该模型的截距；图中显示三百八十一个基因。向导RNA与基因是不同的系数族。切换视图不会让失败的推断变得有效，也不会产生独立证据。",
+    "切回向导RNA，原始行和点会恢复，保存文件保持不变。这里概要中的 rows fitted 容易误导：它统计系数行，而不是孔数。报告分析时，应区分输入样本数、输出系数数目和当前绘制的系数族。",
+    "结合已保存的设置、概要和质量控制文件进行检查。一幅图或AI解释不能为研究设计作保证。Regression Diagnostics 介绍进一步检查的方法，API参考说明扫描执行方式。本例教授可复现的流程及其限制，而不是经过验证的生物学命中。"
+  ],
+  "lesson": "73_parameter_sweep",
+  "english_sha256": "2b6898d74bd7929cc6bf8b5c6e405457ee2e14e57608d9fd649a32b88106f307",
+  "review": {
+    "kind": "Editorial translation of frozen English; actual failed inference and recorded numerical limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}

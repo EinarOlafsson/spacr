@@ -167,15 +167,35 @@ def _open_at_the_measured_width(window) -> bool:
     """
     try:
         from ._layout_policy import recommended_window_size, why
-        from .preferences import get_font_scale
+        from .preferences import (_get_layout_decision,
+                                  _set_layout_decision, get_font_scale)
 
         handle = window.screen() or QApplication.primaryScreen()
         if handle is None:
             return False
         available = handle.availableGeometry()
         scale = float(get_font_scale() or 1.0)
-        wanted, _height = recommended_window_size(
-            (available.width(), available.height()), scale)
+        metrics = {"available": [available.width(), available.height()],
+                   "font_scale": round(scale, 4)}
+
+        # RESOLVED ONCE, NOT RE-DERIVED EVERY LAUNCH (instruction 359). The
+        # answer is reused only while the evidence behind it still holds --
+        # the same available geometry and the same font scale. Move to
+        # another monitor or change the font size and the record stops
+        # matching, which is the point: it is a decision ABOUT those
+        # numbers, so it expires when they do.
+        recorded = _get_layout_decision()
+        if recorded and all(recorded.get(k) == v for k, v in metrics.items()):
+            wanted = int(recorded.get("width") or 0)
+        else:
+            wanted, _height = recommended_window_size(
+                (available.width(), available.height()), scale)
+            # RECORDED WITH THE EVIDENCE, not just the answer. A width on
+            # its own cannot be checked later; a width beside the geometry
+            # and scale it came from can be, and `reason` says in words
+            # what the artifact said in numbers.
+            _set_layout_decision({**metrics, "width": int(wanted),
+                                 "reason": why(scale)})
         if wanted <= window.width():
             return False
         window.resize(min(int(wanted), available.width()), window.height())
@@ -5191,17 +5211,31 @@ class MainWindow(QMainWindow):
         was "i get a black background when the blobs theme is active", and
         1.5.0.1 -- the last desktop install -- measures 38.9%.
 
-        SO THE DEDUP IS OFF UNTIL THE WINDOW'S BACKDROP IS ACTUALLY VISIBLE
-        THROUGH THE SCREENS. That is the real fix and it is not this
-        function's to make: the containers above it have to stop painting
-        an opaque `bg`, which the window-chrome work owns rather than this.
-        Turning the second backdrop back on costs what the docstring above
-        measured; showing the user a black window costs the theme. The
-        second is worse, and a fix that trades a visible feature for idle
-        CPU should have been measured on screen before it shipped.
+        IT WAS OFF FROM 2026-09-07 UNTIL 2026-09-11, waiting for the
+        window's backdrop to be actually visible through the screens --
+        "the containers above it have to stop painting an opaque `bg`".
+        They have. `theme._window_block` now gives an opaque theme the
+        transparent window block whenever an animated backdrop is running,
+        so a plain `QWidget` no longer paints over it.
+
+        MEASURED BEFORE TURNING IT BACK ON, from X, on the maintainer's
+        display, home screen at 1600x1000:
+
+            theme   this off         this on, old QSS   this on, new QSS
+            dark    58.8% chromatic  3.0% chromatic     60.1% chromatic
+                    0.0% black       20.4% PURE BLACK   0.0% black
+            cell    93.5% / 0.3%     93.5% / 0.2%       95.7% / 0.1%
+            glass   61.7% / 0.0%     67.3% / 0.0%       72.8% / 0.0%
+
+        The middle column is the regression this function caused, on
+        demand. The right-hand column is it fixed, with dark better than it
+        was with this function disabled entirely.
+
+        `tools/measure_the_home_screen_is_not_black.py` is that
+        measurement, and `tools/can_this_display_be_measured.py` must pass
+        first -- an unraised or unsettled grab returns a convincing
+        near-black that looks exactly like the bug.
         """
-        return
-        # -- unreachable until the paragraph above is resolved --------------
         if self.window_backdrop() is None:
             # NOT A BARE RETURN, WHICH IS WHAT IT WAS AND WHAT WAS WRONG.
             # The flag is a claim about the window as it stands NOW, and it

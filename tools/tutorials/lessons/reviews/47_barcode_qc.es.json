@@ -1,0 +1,30 @@
+{
+  "lesson": "47_barcode_qc",
+  "english_sha256": "faf91389430d4f90d8e26b9c30c08ad98cbfe88bcd20364cd1a3a6eb25887c6f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "Barcode QC: recuentos reales, compromisos de umbral y gráficos guardados",
+  "description": "Examine el ejemplo publicado de recuentos, ejecute Barcode QC y compare profundidad de lectura y umbrales usando sus gráficos reales guardados.",
+  "objectives": [
+    "Encontrar Barcode QC dentro de Map Barcodes y seleccionar recuentos reales.",
+    "Distinguir un objetivo ilustrativo de una decisión experimental justificada.",
+    "Revisar avisos, gráficos guardados y tablas comprobadas independientemente.",
+    "Distinguir pozos con pocas lecturas, pozos por encima del objetivo y colisiones de secuencias."
+  ],
+  "prerequisite": "Use una copia de plate_1_unique_combinations.csv del ejemplo descargado de Regression y un destino nuevo. No procede de nuestro intento fallido de mapear FASTQ. Contiene 172756 filas, 49464341 lecturas mapeadas, 384 pozos y 1379 guías observadas. Objetivo 5/mediana solo ilustrativo; fracción de escasez 0.1, Plot/Save/Verbose activados. Se omiten entradas opcionales de QC y referencias. Se comprobaron 2884 campos sin error numérico. El aviso src y el panel Figures vacío siguen sin repararse: mostramos los PNG en el visor externo real. Sin vista previa, cálculo GPU, solicitud AI, validación biológica ni publicación. API: spacr.sequencing_qc.barcode_qc, derive_threshold, threshold_sweep.",
+  "scenes": [
+    "Abra Map Barcodes y después su herramienta anidada Barcode QC. Este flujo examina recuentos después del mapeo; no vuelve a mapear lecturas FASTQ. Usamos el ejemplo publicado de recuentos de la lección enlazada de Regression. No es el resultado de nuestro anterior intento fallido de mapear lecturas crudas.",
+    "En Count data, seleccione una copia de plate one unique combinations. Compruebe el archivo elegido, sin dejar una ruta de ejemplo. Esta tabla real contiene unos cuarenta y nueve coma cinco millones de lecturas mapeadas en trescientos ochenta y cuatro pozos. Conserve el original y elija un destino nuevo para los resultados de QC.",
+    "Target gRNAs per well indica el objetivo utilizado para derivar un umbral de abundancia de lecturas. Aquí dejamos el valor ilustrativo cinco y usamos la mediana. No es una recomendación de diseño experimental ni prueba de atribución a una sola guía. Elija según su diseño y examine los compromisos resultantes, no solo el número sugerido.",
+    "La fracción de lecturas escasas identifica pozos con pocas lecturas respecto a la mediana de la placa. Aquí vale cero coma uno y ninguno de los trescientos ochenta y cuatro pozos queda por debajo del umbral resultante. Es un indicador de profundidad de lectura, no garantía de fiabilidad de cada pozo, guía o medición biológica.",
+    "Active Plot y Save, indique el destino y pulse Run. Es un pequeño análisis tabular, no segmentación con GPU, y esta pantalla no tiene vista previa en vivo. Dejamos vacías las entradas opcionales de QC del mapeo y referencias de códigos; la tabla de recuentos sola no permite conclusiones que requieran esos archivos.",
+    "Lea la consola real, incluidos los avisos. El proceso termina, pero esta versión se queja incorrectamente de que falta src aunque el módulo usa Count data. Verificamos la entrada y las tablas guardadas; no reparamos la comprobación previa. Este desajuste diagnosticado no autoriza a ignorar otros errores.",
+    "Esta versión también deja vacío el panel Figures aunque guarda dos gráficos PNG. Abra barcode guion bajo qc punto png y threshold guion bajo sweep punto png de la carpeta de salida en un visor de imágenes. Las siguientes escenas muestran el visor real del sistema, no gráficos insertados en spaCR ni una interfaz reparada.",
+    "Examine profundidad de lectura, efectos de filas y columnas y distribución de la biblioteca observada. El umbral discontinuo señala pozos con pocas lecturas; las barras comparan medianas de filas o columnas con la de la placa. La curva muestra representación desigual entre guías observadas. Sin biblioteca de referencia no identifica guías esperadas totalmente ausentes.",
+    "Examine el barrido en vez de aceptar ciegamente un umbral. Aquí el umbral derivado es aproximadamente cero coma cero uno dos uno, o uno coma veintiuno por ciento de las lecturas de un pozo. Da una mediana de cinco guías, conserva todos los pozos y cerca del cincuenta y ocho por ciento de las lecturas, aunque alrededor del cuarenta por ciento de los pozos supera el objetivo.",
+    "La curva roja cuenta pozos por encima del objetivo de cinco guías. No mide similitud de secuencias de códigos, y quedar por debajo tampoco demuestra atribución a una sola guía. Relajar el umbral aumenta aquí esa fracción sin ganar pozos. Compare la tabla guardada y justifique la elección para su análisis; no es un umbral universal.",
+    "Conserve juntos recuentos originales, ajustes, consola, recomendación, tablas y gráficos. Las comprobaciones independientes reprodujeron las estadísticas guardadas de pozos, posiciones y barrido sin discrepancias numéricas. Esto verifica el cálculo, no su interpretación biológica. La asistencia AI es opcional y aquí no enviamos solicitudes; contraste cualquier consejo posterior con los datos reales y la API."
+  ]
+}

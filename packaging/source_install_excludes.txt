@@ -30,7 +30,6 @@
 !/proposals/
 !/tools/
 !/data/
-!/*.pdf
 
 # --- Inside the package, but fetched or regenerated on demand -------------
 

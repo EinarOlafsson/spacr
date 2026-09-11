@@ -1,0 +1,31 @@
+{
+  "lesson": "10_classify_cv",
+  "english_sha256": "5476aa94e678d9a21ae51c2d1c5f59a6831e8d1a3af0bbb83acacf04a55b8328",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Classify: yfirfarið dæmi um tölvusjón",
+  "description": "Undirbúðu óbreytt myndútsnið úr niðurhalinu með skýrum auðkennum brunna og skoðaðu lítið líkan án þess að ýkja árangurinn.",
+  "objectives": [
+    "Finna tölvusjón innan aðaleiningarinnar Classify.",
+    "Undirbúa fyrirfram skilgreinda skiptingu úr sóttum merkingum án þess að breyta frummyndum eða merkjum.",
+    "Halda raunverulegum brunnum aðskildum, sýna myndrit og greina á milli lokinnar keyrslu og gagnlegra spáa.",
+    "Finna vistuð líkön, spár og undireiningar."
+  ],
+  "prerequisite": "Fylgdu Annotate: Load test data → Load, ekki Stream. Varðveittu plate1/measurements/measurements.db og png-myndútsniðin. Upptakan notar spaCR 1.5.0.6. Afþjappaðu ZIP og keyrðu prepare_classify_split.py í spaCR-umhverfinu: --source vísar á plate1 og --destination á NÝJA möppu. Hjálparskriftan er aðeins fyrir þetta fjögurra brunna dæmi: átta fyrirliggjandi infected=1 og átta infected=2 merkingar úr hverjum brunni, val með föstum reglum fyrir þjálfun, 64 RGB-myndir með óbreyttum bætum. Afrit fá prcfo-auðkenni gagnagrunnsins sem nöfn; þáttun eldri skráarheita er EKKI lagfærð. Jafna úrtakið varðveitir EKKI flokkahlutföll þýðisins. Veldu tilbúna möppu, Computer Vision (Torch), Generate training dataset óvirkt. Stillingar: ResNet18, epochs=1, batch_size=8, image_size=128, n_jobs=0, init_weights=False, augment=False, val_split=0.5, test_split=0.5, cv_group_by=well, random_seed=42, train_channels=['r','g','b'], train/test/plot=True; allar lekavarnir virkar. train inniheldur 32 myndir sem skiptast í 16 þjálfunar- og 16 staðfestingarmyndir; test inniheldur 32. Brunnar skarast ekki en deila plötu. Allar prófunarspár eru flokkur núll: hlutfall réttra spáa=0.5, meirihlutaviðmið=0.5, makró-F1=1/3. Öll 32 auðkennin, merkin, líkindasummur, hlutfall réttra spáa, flokkatölur og makró-F1 voru athuguð sjálfstætt, ekki allir mælikvarðar. Úttak: model/resnet18/rgb/epochs_1. API: spacr.classify.classify → spacr.deep_spacr.train_test_model. Ekki er fullyrt um notagildi líkans, líffræðilegt réttmæti eða alhæfingu yfir á nýjar tilraunir. Engin AI-spurning send.",
+  "scenes": [
+    "Opnaðu Classify á Home og veldu Computer Vision, Torch. Tölvusjón lærir af myndum af hlutum; töflugagnafjölskyldan notar vistaðar mælingar. Báðar eru nú í sömu aðaleiningu. Þetta litla, yfirfarna dæmi notar sérstaka undirbúningsleið sem lagfærir ekki þáttun eldri skráarheita í forritinu.",
+    "Fylgdu tengda Annotate-kennsluefninu og sæktu raunverulega dæmið með Load. Varðveittu mæligagnagrunninn og myndútsniðin. Skipanalínan sýnir fyrirliggjandi merkingar úr fjórum raunverulegum brunnum. Við varðveitum merkin en þau eru ekki sjálfstætt staðfestur líffræðilegur sannleikur. Upprunaverkefnið helst óbreytt alla sýnikennsluna.",
+    "Sæktu hjálparskriftuna og keyrðu hana í spaCR-umhverfinu. Source er platamappan úr niðurhalinu; destination verður að vera ný mappa. Átta myndir úr hvorum tveggja flokka eru afritaðar úr hverjum brunni: samtals sextíu og fjórar. Valið fylgir föstum reglum fyrir þjálfun, ekki eftir að árangur líkansins er skoðaður.",
+    "Lestu yfirlitsskrána áður en þú heldur áfram. Afritin fá stöðluð hlutauðkenni gagnagrunnsins sem nöfn og hver mynd heldur upprunalegum bætum. Tveir heilir brunnar fara í þjálfunarmöppuna og tveir í prófun. Þetta vísvitandi jafna kennsluúrtak breytir flokkahlutföllum og er ekki dæmigert fyrir upprunalega þýðið.",
+    "Veldu tilbúnu gagnasafnsmöppuna í Classify, ekki upprunaverkefnið eða undirmöppu eins flokks. Hún inniheldur train og test, hvort um sig með tveimur flokkamöppum. Upprunaval opnar þetta fyrirliggjandi gagnasafn. Ekki yfirskrifa upprunaverkefnið eða endurnýta áfangastað með niðurstöðum úr fyrri keyrslu.",
+    "Slökktu á Generate training dataset því skiptingin er þegar tilbúin. Train og Test haldast virk; notkun líkans á allt gagnasafnið er óvirk. Flokkamöppur varðveita merki eitt og tvö en líkanið notar flokknúmer núll og eitt. Þetta eru ólík númerakerfi, ekki mótsögn.",
+    "Veldu ResNet18 í þessu afmarkaða dæmi: eina þjálfunarumferð, átta myndir í hópi, myndstærð hundrað tuttugu og átta og enga hleðsluvinnsluferla. Notaðu allar þrjár RGB-rásir án forþjálfaðra vægja eða gagnastækkunar. Stillingarnar halda sýnikennslunni lítilli; þær eru ekki ráðlögð uppskrift að nákvæmum flokkara.",
+    "Haltu hópun eftir brunni og öllum lekavörnum virkum. Staðfestingarhlutfallið helmingur skiptir þrjátíu og tveimur myndum úr þjálfunarmöppu í sextán til þjálfunar og sextán til staðfestingar, einn heilan brunn í hvorum hópi. Hinar þrjátíu og tvær eru aðeins til prófunar. Allir deila plötu: þetta er ekki staðfesting í óháðri tilraun.",
+    "Kveiktu á Plot, hreinsaðu stillingaleit og ýttu á Run. Fylgstu með raunverulegri skiptingu, lekaprófunum, þjálfun og vistunarleiðum í stjórnborðinu. Báðar athuganir á aðskilnaði brunnhópa standast hér. Hugbúnaðarpróf hefur aðeins gildi ef nöfn passa við raunveruleg sýnaauðkenni; það athuguðum við sérstaklega.",
+    "Figures sýnir tap, hlutfall réttra spáa og árangur staðfestingar eftir flokki. Ein þjálfunarumferð gefur staka punkta, ekki sönnun um samleitni. Sjálfstæð prófunarathugun finnur allar myndir spáð sem flokki núll: fimmtíu prósent rétt, nákvæmlega jafna meirihlutaviðmiðið. Lokin keyrsla skilaði ekki gagnlegum flokkara.",
+    "Varðveittu líkanamöppuna með varðveislupunkti, líkanakorti, lekaprófunum og niðurstöðutöflum. Hér er hún undir model, resnet18, rgb, epochs undirstrik eitt. Berðu saman vistuð spáauðkenni og flokkamerki, ekki aðeins árangurstölu. Rangt flokkaðar myndir afritaðar til yfirferðar eru úttak, ekki ný sjálfstæð þjálfunar- eða prófunarsýni.",
+    "AI-stýringin gerir kleift að spyrja um stillingar eða úttak eftir að þjónustuveita hefur verið stillt. Þetta er ósend spurning, ekki svar eða greiningarniðurstaða. Í Python vísar classify þessari fjölskyldu til train_test_model. Varðveittu skiptingaryfirlitið og sannreyndu ráð áður en stærri, sjálfstætt staðfest tilraun er skipulögð."
+  ]
+}

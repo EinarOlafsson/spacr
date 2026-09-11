@@ -1,0 +1,32 @@
+{
+  "lesson": "72_volcano_explorer",
+  "english_sha256": "5f627353196b1e89c1f3953c924df4914b8aff572e09d847b8dab82d8556ebcd",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "sv",
+  "title": "Volcano Explorer: granska befintliga resultat och exportera en figur",
+  "description": "Utforska det verkliga Regression-exemplet, synkronisera kontroller, skilj visuella gränser från tester och spara stilar och exporter.",
+  "objectives": [
+    "Öppna det inbäddade verktyget med en enda guidefamilj.",
+    "Synkronisera startvärden med Save style och Load style.",
+    "Läs identiteter, axlar, färger och linjer utan påhittade nya fynd.",
+    "Återställ en stil och granska PDF och PNG."
+  ],
+  "prerequisite": "Packa upp Volcano_real_guide_family.zip och öppna results. Oförändrade utdata från Regression-exemplet, inte ny analys eller komplett arkiv. En familj: 434 guider, log_pred, minimum_wells_threshold=2, plus-ett permutations-P och BH-korrigering. Minsta råa P=.005, justerade P=.39454545454545453; inga signifikanta vid ursprungligt alpha=.05. Standardiserade marginaleffekter är inte simultant anpassade koefficienter eller log2-förändringar. Startfelet kvarstår: kontroller 1e-6/0/False mot ritning .05/3/True. Spara och ladda samma stil före ändring; senare återställs alla 67 fält. Alpha .5 lägger 19 värden under gränsen utan nya signifikansflaggor. Återställ .05 och adjusted_p_value. Effektgräns .1 gånger 3 ger linjer +/-0.3. Identiteter, punkter, färger och källor kontrollerade. Nominellt 7×5 tum, 150 DPI; tätt beskuren PDF 492.536×348.485 punkter, PNG 1026×726 pixlar. Inbäddade typsnitt, inga rasterbilder i PDF, läsbarhet återkontrollerad. Vissa GUI-etiketter är klippta; varning för vita konturer på ljust papper. Annotationskopplingar, brutna axlar och MAD-regler ligger utanför exemplet. Inspelning spaCR 1.5.0.4; tre relevanta källfiler är oförändrade. Inget nytt test, GPU, AI, appändring, biologisk validering eller publicering. API: spacr.volcano_style.VolcanoStyle och render_volcano.",
+  "scenes": [
+    "Öppna Regression och det inbäddade Volcano Explorer. Lektionen hör till Regressions undermoduler. Verktyget läser färdiga resultat och kör inte om analysen. Vi använder det verkliga nedladdningsexemplet; arkivet innehåller exakta resultattabeller och registrerade figurstilar.",
+    "Välj Open results och den uppackade results-mappen. Varje punkt är en guide ur en enda familj med 434 tester, samma utfall och minsta brunnsregel. Blanda inte korrigeringsfamiljer. Ingen guide är signifikant vid den ursprungliga justerade P-gränsen 0,05.",
+    "Innan något ändras sparar du den faktiskt ritade stilen med Save style och laddar samma fil med Load style. Startkontrollerna stämmer inte med figuren i denna version; direkt redigering kan föra in felaktiga standardvärden. Den vanliga spara-ladda-omvägen synkroniserar dem men rättar inte appen.",
+    "Bekräfta sedan alfa 0,05, multiplikator tre och negativ logtransformering. Vissa etiketter är fortfarande klippta, så kontrollera värden och JSON. Den vågräta axeln är standardiserad marginaleffekt, inte log-två-faldig förändring eller koefficient i en simultant anpassad multivariabel modell.",
+    "Klicka på en befintlig punkt för att läsa källraden. Den valda guiden har rått P=0,005 men justerat P ungefär 0,39. Stor marginaleffekt och fyra stödjande brunnar gör den inte signifikant. Använd identitet och källfält i stället för att gissa från punktens läge.",
+    "Att byta lodrät kolumn till rått permutations-P ändrar det som ritas, inte analysen. Små råvärden ersätter inte familjejusterade värden. Återställ justerat P efteråt. Ursprungliga signifikansflaggor är oförändrade: verktyget läser och ritar, det kör inget nytt test.",
+    "Reglaget för negativ tiologaritm ändrar P-visningen. På visas små P högre; av visas originalvärden. Här återställer vi transformerat justerat P. Läs alltid axeln och förväxla inte transformeringen med en annan korrigering för multipla tester.",
+    "För demonstration flyttas alfa till 0,5 och referenslinjen följer med. Nitton justerade värden ligger under den nya P-gränsen, men ingen får en ny signifikansflagga. Det är inte nitton upptäckter. Återställ ursprungliga 0,05 före export eller tolkning.",
+    "En uttrycklig effektgräns 0,1 tillsammans med multiplikator tre placerar lodräta linjer vid minus och plus 0,3. Kontrollera multiplikatorn, inte bara gränsfältet. En effektgräns ersätter inte statistisk korrigering. Återställ Auto; inga värden i resultattabellen skrivs om.",
+    "Färg efter wells with guide visar faktiskt stöd från källtabellen. Det är inget förtroendemått eller noggrannhetsbevis. Återgå till ursprungliga signifikansfärger före export. Valfria annotationskopplingar och andra layouter behöver egen validering och ligger utanför exemplet.",
+    "Ställ in figurstorlek, typsnitt och upplösning och granska resultatet. Här är nominell storlek sju gånger fem tum vid 150 punkter per tum. Tät beskärning ändrar slutmåtten. En läsbar export betyder inte att alla inbyggda inställningsetiketter ryms i fönstret.",
+    "Spara slutstilen som JSON. Efter en tillfällig markörstorleksändring återställer Load style varje registrerat fält. Behåll filen med originaltabellen för att återskapa utseendet. Stil beskriver presentation, inte att en annan regression eller ett nytt test har körts.",
+    "Export PDF och PNG ritar om figuren, inte en skärmbild. PDF:en har vektormärken och inbäddade typsnitt; kontrollera etiketter, kontrast och varningen för vita konturer på ljust papper. Originaldata är oförändrade. Python erbjuder VolcanoStyle och render_volcano utan GPU eller AI-leverantör."
+  ]
+}

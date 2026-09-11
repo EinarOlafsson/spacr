@@ -5657,3 +5657,846 @@ Receipt: tools/tutorials/evidence/
 NEXT CLAIM: Parameter Sweep 73, current Regression fold and a bounded
 one-worker/two-trial demonstration, with independent saved-table checks.
 No Qt, scientific-module, global-translation or ledger edits.
+
+CODEX TUTORIAL LANE — 2026-09-10, SWEEP 73 READABLE NATIVE CHECKPOINT.
+
+3de4523e6 pushed after rebasing on 87c4fbf52. Two real one-worker ridge
+trials use the four existing Regression score/count pairs copied privately.
+The 0.01 / 0.1 penalties match actual saved settings. Both computations
+finish, but BOTH inference QC verdicts FAIL; this is not a validated hit
+discovery example. The native font-1.0 saved-results replay makes both rows
+readable without refitting. Its guide -> gene -> guide interaction matches
+21,626 displayed cells and 1,963 plot points, max coordinate error <2e-13.
+All source inputs are unchanged. 28 numerical helper tests, five additional
+red guard mutations (nine earlier); helper alone 63 statements / 38 branches
+at 100%. Four replay-isolation tests and three red guards also pass.
+
+PROTECTED-APP HANDOFF, no application edits:
+* Parameter Sweep does not inherit Regression's paired_data: its seam reads
+  legacy score_data/count_data, leaving both lists empty. The recording uses
+  the actual multi-file pickers to provide four ordered pairs explicitly.
+* The first diagnostic trial requested alpha=1, but actual regression
+  defaults rewrite 1 to 'auto'; the sweep row still advertises alpha=1.
+  The final recorded pair avoids this by using explicit 0.01 and 0.1.
+* The trial table omits its varied alpha AND saved qc_inference/qc_verdict,
+  showing 'ok' while both inferential verdicts are 'fail'.
+* n_rows_fitted=1174 counts output coefficient rows, not the actual 2955
+  prepared long-form rows / 620 wells. Do not narrate it as sample size.
+
+Receipt: tools/tutorials/evidence/
+2026-09-10_sweep_readable_family_checks.json. Verification is complete;
+the refreshed 73 lesson is NOT counted in the 48 completed media matrices.
+Continuing its narration/media with explicit computational/QC limits.
+
+CODEX TUTORIAL LANE — 2026-09-10, SWEEP 73 TECHNICAL MATRIX COMPLETE.
+
+9414366a5 pushed. Ten scenes / 453 English narration words show the actual
+Regression > Parameter sweep, two bounded one-worker trials, saved-result
+inspection and guide -> gene -> guide changes. The final fresh trials
+reproduce the earlier result CSV hashes exactly. Both inference verdicts
+remain FAIL and are explicit in all thirteen source-pinned translations;
+this is not biological validation or a recommendation to maximise hits.
+All fifty tracks fully decode and match current pronunciation/runtime pins.
+The final Hindi wording correction was re-rendered in all four voices, then
+its audio and browser checks rerun. Fourteen browser language cases pass.
+Shared 4K/30 master: 5,752 frames, 191.733333 s, 13,351,594 bytes; all ten
+decoded scene samples visually inspected. No publication/listening approval.
+Receipt: tools/tutorials/evidence/
+2026-09-10_sweep_multilingual_technical_checks.json.
+Totals: 49 technical lessons, 2,450 tracks (100 retained), 686 browser cases;
+14 catalogs / 75 lessons / 861 scenes. 26 originals remain plus held OPS.
+
+NEXT CLAIM: Napari Bridge 46, tutorial-only capture and exact private-copy
+mask round-trip/undo/no-op/history checks. The base environment has no napari;
+installed the declared optional dependency in STAGE/.napari-venv only, using
+the existing PySide6 backend. Resolved napari 0.9.1. Base environment unchanged.
+pip check reports the same pre-existing torchcam<NumPy2 conflict in BOTH
+base and private environments; no app dependency changes or compatibility
+claim. No Qt, scientific-module, global-translation or ledger edits.
+
+CODEX TUTORIAL LANE — 2026-09-10, NAPARI 46 REPEAT-IMPORT HOLD.
+
+4bb3adf5d pushed. Eighteen real GUI frames use private synthetic 256-square
+uint16 mask/image TIFFs and napari 0.9.1 in the isolated optional environment.
+No-op import writes nothing; filling label 2 -> 18 changes 2,197 exact pixels;
+native Undo restores all 65,536 pixels; refilling and importing saves correctly.
+The exact added/removed labels and pixel counts match the correction ledger.
+
+PROTECTED-APP HANDOFF: after that first save, NapariBridgeScreen._reloaded
+uses dataclasses.replace(self._handoff, mask=result.mask) without copying.
+The new baseline shares memory with the editable napari labels. A SECOND
+native fill (3 -> 19, 1,261 pixels) then reports "The mask came back unchanged;
+nothing was written." ALL 1,261 changed pixels remain unsaved, and there is
+no second ledger entry. Reproduced twice, including a full-size real viewer.
+Closing/reopening before another edit avoids the alias: 4 -> 20 saves all
+1,288 pixels and appends history without losing the first entry. Please
+detach the saved baseline from the editable viewer and exercise two edits
+with two imports in ONE viewer session. No Qt or backend changes from me.
+Original source and private background image retain their hashes. Receipt:
+tools/tutorials/evidence/2026-09-10_napari_second_import_hold.json.
+46 held; no production narration/audio; total remains 49 completed lessons.
+
+NEXT CLAIM: Explain CV Model 70, native Classify fold, original recorded
+prediction CSV plus matching real measurements, bounded surrogate run and
+independent fidelity/table/split checks. Not a retraining or independent
+classifier-validation claim. No application or other-session edits.
+
+CODEX TUTORIAL LANE — 2026-09-10, EXPLAIN CV 70 NATIVE CHECKPOINT.
+
+9f1199b12 pushed. Sixteen real Classify > Explain CV frames use byte-identical
+copies of the recorded 234 CV predictions and matching measurements. The
+actual Random Forest surrogate completes in 493 s under two-core affinity;
+peak observed RSS about 1.7 GB, system guard 110 GiB. No retraining of the CV
+model, no synthetic labels, and no original/private input changes.
+
+234 rows join; only 89 have finite values in all 1,126 selected features.
+The complete-case partition is 68 training / 21 held-out objects, two wells
+versus one, no shared well. The unfitted application join is reused and its
+finite-row accounting checked separately; NOT an independent feature-join
+implementation. All 21 surrogate calls are class 1: 17 agree, four disagree,
+fidelity 17/21, balanced accuracy .5, macro F1 .447368. The displayed baseline
+is 81/89 across ALL complete cases, not the held-out subset. The ranking is
+correctly withheld. This will be a failure-aware workflow tutorial, not a
+validated biological explanation. Eleven real artifacts; 32,935 GUI cells
+match their saved CSVs. Correlations show 1,000/1,087 rows and distributions
+1,000/2,252; the lesson will explicitly point to full exports.
+
+27 numerical helper tests and nine red mutations, helper alone 64 statements
+/32 branches at 100%. Two CSV-reader tests plus a red precision mutation:
+the round-trip parser is necessary at the real 4049.4500000000003 display
+rounding boundary. No extra fit was used to check the saved numbers.
+
+PROTECTED-APP NOTES: choosing the predictions CSV via Browse leaves both
+column dropdowns at their defaults; an explicit Enter in the actual path
+field refreshes them. The recording then chooses filename/predicted_label.
+The automatic leakage heuristic excludes eighteen legitimate measurement
+names containing cv_intensity (coefficient of variation); its warning alone
+does not establish that those columns leak labels. Per-cell SHAP remains
+visible despite failed fidelity; the lesson will not interpret it as the
+classifier's mechanism. Open held-out objects remains disabled because no
+Annotate opener is initialized. No application edits from this session.
+
+Receipt: tools/tutorials/evidence/2026-09-10_explain_cv_native_checks.json.
+Continuing 70 narration/translations/media. Still 49 completed matrices.
+
+CODEX TUTORIAL LANE — 2026-09-10, INVESTIGATE HIT 71 INPUT HOLD.
+
+7f53a1ae8 pushed. A read-only call to hit_investigation._read_cells with
+the same real measurements and 234 recorded predictions accepted by Explain
+CV fails at the final cells.merge with KeyError('prcfo'). The measured join
+has 2,341 rows and png_path, but no prcfo column or named index. png_list has
+2,341 unique prcfo and unique crop basenames; all 234 unique prediction
+basenames match. The reader joins the scores successfully, then asks the
+measured frame for the absent object key. Source/private hashes unchanged.
+Receipt: tools/tutorials/evidence/2026-09-10_investigate_hit_input_join_hold.json.
+No Qt/backend changes, invented regression associations or success narration.
+This is a backend preflight, NOT a completed GUI investigation. Please fix
+the real measurement-reader join in the protected application lane; a full
+matched regression/fractions example is still required afterward.
+
+Focused tutorial release audit: eight pass; the sole failure is still the
+explicitly held, unproven OPS route. No weakening of that test from me.
+Explain CV final capture and independent 32,935-cell verification pass;
+master rendering and final playback checks continue. All 50 voices pass.
+
+NEXT NON-BLOCKED CAPTURE: Distributed Jobs 38 profile preparation, with an
+isolated local profile store and no remote connections or submitted jobs.
+The lesson will distinguish configuration from verified remote execution.
+
+CODEX TUTORIAL LANE — 2026-09-10, TWO MORE COMPLETE TECHNICAL MATRICES.
+
+36dc9ee81 completes Explain CV 70: ten scenes, 475 English words, all fifty
+voices and fourteen browser cases, full silent 4K/30 decode and all ten
+decoded scene samples inspected. Native column drags remove the clipped
+headings; all 32,935 displayed values still match saved results. Failed
+surrogate fidelity, complete-case exclusions and validation limits remain
+explicit in every language. This is not a biological mechanism claim.
+
+91cab73f0 completes Distributed Jobs 38: nine scenes, 410 English words,
+all fifty voices and fourteen browser cases, full 4K/30 decode and all nine
+decoded scenes inspected. It is a configuration-only lesson via Help, not
+a pretend remote execution. A private profile is saved and reopened exactly;
+cancelled backend edits preserve the saved bytes. Native SSH/Slurm/custom
+controls, illustrative dot-invalid host and paths, no credentials, no job.
+The old narration's claims about data copying and credentials in the form
+are corrected: path mapping does not transfer images; authenticate outside
+spaCR. Recorder runs in a private network namespace with isolated storage.
+
+Total: 51/75 existing lessons technically complete, 2,550 checked voice
+tracks (100 retained), 714 browser cases; 24 originals and held OPS remain.
+14 staged catalogs / 75 lessons / 870 scenes, 25 unselected lessons remain
+byte-preserved in each catalog (includes already-complete retained 33).
+No native-speaker/listening signoff, upload, publication or release claimed.
+Source/evidence pushed; production assets remain in private staging.
+
+NEXT: tutorial 19's data-preparation script still calls plane 6 cell masks,
+despite the earlier recorded-settings/pixel proof that cells use plane 4.
+I will correct the tutorial-owned preparation path, retain the old data,
+and verify every new image/mask pair before attempting bounded training.
+No application, Qt, global translation or ledger edits from me.
+
+CODEX TUTORIAL LANE — 2026-09-10, TRAIN 19 PREPARATION FIX / GUI HOLD.
+
+b658674af fixes the tutorial-owned generator: image channel 1 + cell plane
+4, checked against the original recorded settings. Six newly written pairs
+match every one of 3,145,728 image/mask pixels, differ from pathogen plane 6,
+and preserve every original and historical file hash. Five focused tests
+and five source-string red mutations. Existing destinations are refused.
+Corrected examples live separately under refresh_2026-09-09/derived/
+train_cellpose_corrected; old authoring data remains untouched and untrusted
+as cell labels. No independent label review or held-out accuracy claim.
+
+1f4a8d097 captures a PROTECTED-APP BLOCKER through the actual Train tab and
+Import settings CSV picker. The form has sixteen widgets and no src widget
+or default. Importing the real private training folder applies n_epochs=2,
+batch_size=2, learning_rate=.01 and target_size=256 (positive counterparts),
+but silently drops src. The console says sixteen settings loaded. The
+requested output name tutorial_cells_two_epoch_demo also remains new_model.
+Receipt: tools/tutorials/evidence/2026-09-10_train_cellpose_native_source_hold.json.
+No Run was started, no private/default settings injection to bypass this,
+and no application edit. Please expose and preserve Train's required source
+folder and its user-chosen output model name through native import/edit/drop.
+
+The installed Cellpose schedule also starts np.linspace(0, learning_rate,10):
+epoch zero has zero LR. The planned bounded demonstration uses TWO epochs,
+then checks actual checkpoint tensors; a one-epoch save alone cannot be
+called evidence of learning. GPU training is NOT running while this is held.
+Total remains 51 complete matrices; continuing CPU-side tutorial work.
+
+CODEX TUTORIAL LANE — 2026-09-10, PROFILER 53 TECHNICALLY COMPLETE.
+
+bcec17156 completes lesson 53 without relabelling permutation effects as a
+predictive model. It now uses an explicitly SYNTHETIC 121-row teaching
+example, genuinely fitted with statsmodels OLS before the native CSV import.
+Independent least-squares coefficients agree within 5.2e-15; all 338 native
+curve values and twelve ranking values are checked. The GUI assumes 0..1
+ranges, does not read the original observations and does not refit. Its
+ranking uses 0.05..0.95 while the curve uses the whole 0..1 interval; the
+lesson explains that distinction and the auto-rescaled vertical axis.
+
+Ten scenes, 476 English words, thirteen editorial translations, fifty
+checked voices, fourteen browser cases, full 4K/30 decode and all ten scene
+samples inspected. A 6,231-byte reproducible example ZIP is linked from the
+staged lesson. Eight focused helper tests; four source-string mutations
+were observed red for the numerical/preservation checks. No native-speaker
+or listening signoff, biological validation, publication or release claimed.
+
+Total is now 52/75 existing lessons technically complete, 2,600 checked voice
+tracks (100 retained), 728 browser cases. 23 originals plus held OPS remain.
+All fourteen catalogs agree on 75 lessons / 875 scenes; 24 unselected
+catalog entries, including retained lesson 33, remain unchanged.
+
+Run Compare input preflight: the staged example_data/plate1 registry has
+two Measure run IDs, but one has only a resource log; the other's registered
+measurements.db is currently a 4-KiB empty database (zero-byte WAL). Other
+scoped private registries have only one run each. No invented pair or
+registry entry was made. Next: the current merged Classify tabular-ML
+workflow, using genuine measured example data and native controls only.
+Application/Qt/ledger ownership remains unchanged; tutorial files only.
+
+CODEX TUTORIAL LANE — 2026-09-10, CLASSIFY ML REQUEST MISMATCH.
+
+Native merged Classify ran a 16-tree random forest on fresh downloadable
+Annotate/Classify data: 2,153 objects, three genuine GUI figures, actual
+database train/test wells disjoint. However, native ML test_size=0.5 is
+silently replaced by the simultaneously present test_split=0.1 during
+training_basis normalization. Saved metrics explicitly say requested 0.1.
+Receipt: tools/tutorials/evidence/2026-09-10_classify_ml_request_mismatch.json.
+No application changes here. Please preserve the ML family-owned split
+request just as classify.classify already preserves model_type_ml.
+
+The first capture is retained but held, not narrated as a 50% request. A
+fresh bounded native run uses test_size=0.1, matching the shared default,
+and a new acceptance guard compares recorded versus saved request. Eleven
+focused helper tests and five deliberately broken source-string checks
+have been observed green/red respectively. Four wells can still produce
+a 50% group / 48.1% object holdout for a 10% request; that distinction will
+be explained, not silently rounded into an exact split guarantee.
+
+CODEX TUTORIAL LANE — 2026-09-10, CLASSIFY ML 11 COMPLETE.
+
+88abc232c completes the technical matrix for the tabular Classify lesson:
+ten native scenes, 471 English words, thirteen source-pinned editorial
+translations, fifty checked voice tracks, fourteen browser cases, complete
+4K/30 decode and all ten decoded scene samples inspected. The accepted
+native request is 0.1, matching both settings spellings; the rejected 0.5
+capture and its mismatch report remain intact. No application edit.
+
+Independent saved-data checks: 2,153 object predictions agree with the
+database; 188 missing-nucleus objects remain NULL, not negative. Nine test
+metrics agree within 1.2e-16. Actual held-out accuracy is 0.62029 against a
+0.56329 majority baseline; only four wells, no biological validation claim.
+The heatmap averages binary class, not probability. Permutation importance
+uses training data, and feature filtering precedes the split; both limits
+are documented. The AI question was an unsent draft.
+
+Total: 53/75 existing lessons technically complete, 2,650 checked tracks
+(100 retained), 742 browser cases. Twenty-two originals plus held OPS
+remain. Fourteen catalogs agree on 75 lessons / 874 scenes, with 23
+unselected entries unchanged. Still private staging, not published or
+human-listening/native-speaker approved. Next is Measure on a fresh private
+download, including live crop/filter propagation and the earlier stale
+successor warning check. Application/Qt/ledger lanes remain untouched.
+
+CODEX TUTORIAL LANE — 2026-09-10, NAPARI 46 COMPLETE IN REOPEN SCOPE.
+
+The verified workflow explicitly closes and reopens between imported
+edits. It does NOT claim the same-viewer second-edit loss is fixed; the
+original hold and reproduction remain preserved. Both saved 65,536-pixel
+masks and both history entries are checked. Native napari 0.9.1 uses its
+supported font size 20, with no image alteration; the separately hashed
+synthetic TIFF practice ZIP is committed for download.
+
+Nine scenes, 422 English words, all thirteen editorial translations,
+fifty checked voices and fourteen browser cases now pass the final-source
+matrix. Full master decode and all nine midpoint samples were inspected.
+Total: 54/75 originals technically complete, 2,700 checked voice tracks
+(100 retained), 756 browser cases; 21 originals plus held OPS remain.
+Fourteen catalogs agree on 75 lessons / 878 scenes; 22 unselected entries
+remain unchanged. Private staging only, no human listening/native-speaker
+signoff and no publication. Measure's full 16-field native run has just
+finished successfully; its database and artifact warnings are being
+checked before narration. No application/Qt edits here.
+
+CODEX → APPLICATION OWNERS — MEASURE NATIVE OUTPUT / CHAINING EVIDENCE.
+
+Full normal-mode Measure succeeded on all 16 downloaded fields: 601 cells,
+622 nuclei, 373 pathogen objects, 601 cytoplasms and 601 decoded RGB crops;
+48 real Plot figures. 5,409 independent raw-pixel area/sum/mean checks pass.
+Five explicit source-label unions are backed by shared child labels; the
+other 596 cell identities agree directly. This does not validate all
+measurement columns or the biological segmentation. Fifteen small tests
+pass and six deliberately broken guard variants were observed RED.
+
+Two application issues remain, without any application edit here:
+1. Test mode actually wrote plate1/test/measurements/measurements.db (15
+   cells), but registered plate1/measurements/measurements.db as complete
+   while that root database had 4096 bytes and no tables. The subsequent
+   full run now populates root; it does not repair that old artifact.
+2. Full run d86c136e7261 is successful, and the visible settings mapping
+   is byte-for-value unchanged, yet the successor strip says stale. The
+   only material differences from the registered settings are runtime
+   _intensity_rescale_plan and hash_inputs=True. Adding exactly these to
+   an in-memory copy reconciles the hash; nothing was patched to hide it.
+   Registry metadata also says 1.5.0.5 while the native app is 1.5.0.6.
+
+Durable receipt: tools/tutorials/evidence/
+2026-09-10_measure_full_native_output_checks.json. Native full capture is
+preserved under refresh_2026-09-09/measure_fresh/captures/measure_full_native.
+A fresh production recapture uses real splitter resizing for larger crop
+grids/figures, under the same 110-GiB guard and one Measure worker. It does
+not hide warnings, alter app source, or claim automatic handoff acceptance.
+
+CODEX → APPLICATION OWNERS — 2026-09-11, ANNDATA API WORKAROUND PROVED.
+
+The GUI failure on all-None object-typed obs columns remains unchanged.
+The real build_anndata API plus EXPLICIT empty categorical encoding of
+entirely missing object metadata now writes and reloads all six planned
+exports: joined/keep, cell/keep, cell/mean, cell/drop_features,
+cell/drop_objects and nucleus/keep. Source database hash is unchanged.
+This is a storage workaround in tutorial code, NOT an app patch; unknown
+voxel calibration remains unknown, and no annotation/zero is invented.
+
+Every exported X value, full object/feature identity, parent links, raw
+and final missingness counts, annotation boundaries and gzip encoding pass
+the independent SQLite oracle. Twelve focused tests and five deliberately
+broken variants prove the guards. Durable six-file receipts are in
+tools/tutorials/evidence/2026-09-11_anndata_api_workaround_checks.json.
+The old failed GUI capture/partial file is preserved, and lesson 59 is NOT
+yet marked technically complete. No GUI repair, listening approval or
+publication is claimed. Measure's readable full run is on its final field;
+all thirteen Measure editorial translations are committed already.
+
+CODEX → QT OWNERS — 2026-09-11, MEASURE TUTORIAL VISUAL HOLD.
+
+All fifty Measure voices and fourteen browser cases pass, but visual review
+rejects the Crop settings scenes. Object crops constructs every organelle
+crop-mode toggle in an unscrolled group: the real dialog measures 1350 by
+18415 pixels on the 3840 by 2160 desktop. Normalise crops and Propagate
+settings are far offscreen. A diagnostic moved the actual window to Y about
+-17000 to expose them; this is NOT a normal-user workflow or an app repair.
+Please apply the declared organelle count to crop-mode entries and keep the
+dialog within the screen with accessible scrolling. No Qt code changed here.
+Receipt: tools/tutorials/evidence/2026-09-11_measure_crop_dialog_visual_hold.json.
+The later diagnostic chose a different field, so it is NOT substituted into
+the narrated 27-to-13 example. The 54/75 completed-lesson count has not moved.
+
+AnnData's separate API workaround is now actually terminal-recorded for all
+six exports, independently checked against SQLite. The native GUI capture
+only shows route/settings and explicitly claims no successful GUI export.
+English lesson and helper are committed in 8e9ec6fbf; multilingual production
+is running. Its original GUI failure remains untouched. Both source trees
+and application ownership boundaries remain separate.
+
+CODEX TUTORIAL LANE — 2026-09-11, ANNDATA 59 TECHNICAL MATRIX COMPLETE.
+
+99222e35f records twelve genuine GUI/terminal scenes, 619 English words,
+thirteen editorial translations, fifty checked voice tracks, fourteen browser
+cases and a fully decoded 4K/30 master with every scene visually inspected.
+All six actual exported matrices pass the independent SQLite comparison;
+the original database is unchanged. The downloadable ZIP contains the exact
+recorded helper and reproducible commands, not invented measurements.
+This is an EXPLICIT API workaround: the GUI export defect is not fixed.
+
+Total: 55/75 originals technically complete, 2750 completed-lesson tracks
+(100 retained), 770 browser cases. Twenty originals plus held OPS remain.
+The catalog audit covers 75 lessons / 888 scenes in fourteen catalogs and
+preserves twenty unselected entries. Its refreshed set ALSO contains the
+in-flight Measure draft; that is NOT an additional completed lesson. Measure
+is held by the offscreen crop controls despite fifty rendered voices.
+No publication or human listening/native-speaker approval is claimed.
+
+Next: test a real external image viewer for Barcode QC's saved plots. The
+application's empty Figures card and false src preflight error will remain
+explicit limitations, not be hidden or called repaired. Only an independently
+verified saved-file workflow can support a narrowly scoped tutorial.
+
+CODEX TUTORIAL LANE — 2026-09-11, BARCODE QC 47 TECHNICALLY COMPLETE.
+
+37154dcc0 records eleven genuine GUI/external-viewer scenes, 582 English
+words, thirteen editorial translations, all fifty verified voices, fourteen
+browser cases and a fully decoded/visually inspected 4K master. The published
+example count table, independent 2884-field check and original saved PNGs are
+preserved. This is NOT output from the failed raw-FASTQ mapping demonstration.
+Neither the false src preflight nor the empty Figures panel is called fixed.
+
+fe3af503f fixes a tutorial-player mobile overflow: long prerequisite hashes
+forced a 390px page to 487px. The text now wraps without clipping. Four actual
+browser viewport tests pass; restoring the original CSS makes the test fail.
+No application/Qt source changed. All checkpoints are pushed to nightly.
+
+Total: 56/75 originals technically complete, 2800 completed-lesson tracks
+(100 retained), 784 browser cases. Nineteen originals plus held OPS remain.
+Fourteen catalogs agree on 75 lessons / 894 scenes; nineteen unselected
+entries are preserved. The refreshed catalog also contains held Measure 08,
+which is NOT counted complete. No publication or human language/listening
+approval is claimed. Next: verify Activation's real saved-file viewer route.
+
+CODEX TUTORIAL LANE — 2026-09-11, ACTIVATION 16 TECHNICALLY COMPLETE.
+
+edb320374 records twelve native GUI/viewer scenes, 618 English words,
+thirteen editorial translations, fifty verified voices and fourteen passing
+browser cases. Both actual CPU saliency runs preserve all four source crop
+identities; 196608 transformed input values and 262144 saved map components
+are independently checked. The four unused grid slots remain visibly blank.
+The one-epoch model shares wells across its earlier split, so no independent
+accuracy or biological-validity claim is made. Empty GUI figures and the
+false src warning remain explicit, not repaired. 4e61041ac corrects the
+model-selection scene to the later REAL ResNet18 frame, with every spoken
+scene unchanged; the final master was re-rendered, decoded and checked.
+
+Total: 57/75 originals technically complete, 2850 completed-lesson tracks
+(100 retained), 798 browser cases. Eighteen originals plus held OPS remain.
+Fourteen catalogs agree on 75 lessons / 896 scenes; eighteen unselected
+entries remain unchanged. Measure 08 is still an in-flight draft, not an
+extra completion. Nothing is published or human-listening approved.
+
+Run Compare preflight still cannot provide an honest historical count pair:
+measure_fresh's 00e39117ad83 and d86c136e7261 both register the SAME mutable
+root measurements.db. The first was the redirected test-mode run; the later
+full run populated the root. Reading today's file twice is not a historical
+comparison. measure_production has only caa0bf7ca2ce; the new Activation pair
+has no artifact registry. No record/path was invented to fill the gap.
+
+Next: Measure's usable preview controls, to avoid making its oversized Crop
+settings dialog a prerequisite. The existing full-run outputs and original
+failed-layout evidence remain untouched; no application code is in scope.
+
+CODEX TUTORIAL LANE — 2026-09-11, MEASURE 08 TECHNICALLY COMPLETE.
+
+555f08642 records thirteen native scenes, 668 English words, thirteen
+editorial translations, all fifty checked voices and fourteen passing browser
+cases. Every scene was visually inspected and the final 4K master fully decoded.
+c315d2f41 records a reachable preview route: main Normalize on BEFORE first
+Live, inspect 27 candidates in E02_1_1, show channel zero without identity/area
+changes, restore identical colour pixels, select E02_9_1's 15 candidates,
+then turn Live off and restore Normalize off BEFORE any batch. Both arrays
+match the original verified batch byte-for-byte. The full sixteen-field run,
+5409 independent value checks and all 48 saved PDFs were revalidated unchanged.
+
+This does NOT fix the oversized Crop settings dialog, certify bare True for
+the batch API, remove the QC warning, or certify the 47-item GUI figure queue
+as complete. The new narrative explicitly says the larger 52-field mask
+download has 3 failed and 16 warned object/field records among 156; the
+sixteen measured merged fields are a subset, not a clean-data certification.
+Old offscreen-control scenes remain preserved but are not in the final lesson.
+AnnData's separate API-workaround lesson is now linked rather than called held.
+
+Total: 58/75 originals technically complete, 2900 completed-lesson tracks
+(100 retained), 812 browser cases. Seventeen originals plus held OPS remain.
+Nothing is published or human-listening/native-speaker approved. The remaining
+Classify CV pair is next for a bounded preflight against its known database-well
+overlap; no app source or leakage guard will be changed in this lane.
+
+CODEX TUTORIAL LANE — 2026-09-11, CLASSIFY CV 10 TECHNICALLY COMPLETE.
+
+6f99bba58 records twelve genuine terminal/GUI scenes, 597 English words,
+thirteen editorial translations, all fifty verified voices, fourteen browser
+cases and a fully decoded 4K master with every scene inspected. afc0eb6ee
+records an EXPLICIT preparation workaround: 64 unchanged downloaded crops,
+existing annotations retained, copies named from canonical database prcfo
+identities. The helper is shipped with the exact recorded settings in
+Classify_existing_split_example.zip; it is specific to this four-well example.
+No original source, application module or leakage guard was changed.
+
+Both native well-grouped audits pass: 16 train, 16 validation, 32 test, with
+actual disjoint wells but the SAME plate. All 32 test predictions are class
+zero: accuracy 0.5 equals the balanced majority baseline; macro F1 is 1/3.
+Those metrics, labels and identities were independently checked, not every
+reported metric or biological validity. This is not a useful trained model,
+not a repair of the legacy filename parser and not a representative class
+prevalence estimate. The earlier failed-split capture remains preserved.
+The fresh source choice uses the real folder picker; no empty-state banner
+was programmatically hidden. Twenty-one focused tests pass, with two earlier
+deliberate source mutations observed RED.
+
+Total: 59/75 originals technically complete, 2950 checked voice tracks
+(100 retained), 826 browser cases. Sixteen originals plus held OPS remain.
+Nothing is published or human-listening/native-speaker approved. Next is the
+main Classify overview and its five current nested tools, reusing the verified
+CV/ML result footage without another training job or any app edits.
+
+CODEX TUTORIAL LANE — 2026-09-11, MAIN CLASSIFY 41 TECHNICALLY COMPLETE.
+
+b5c9af02e records eleven genuine GUI scenes, 512 English words, thirteen
+editorial translations, fifty checked voices and fourteen passing browser
+cases. Every scene was inspected and the complete 4K master decoded.
+The real Home entry, both classifier families and all five nested tools are
+shown; each recorded native tooltip was checked against the actual button
+text, and Feature Explorer was opened through its real nested button.
+Five focused tests pass, with stale-tooltip and unexpected-model-start
+mutations observed RED. Existing verified CV/ML result footage is reused;
+the narration explicitly forbids comparing their different subsets as a
+benchmark. No new training run or application change was needed.
+
+Total: 60/75 originals technically complete, 3000 checked voice tracks
+(100 retained), 840 browser cases. Fifteen originals plus held OPS remain.
+Nothing is published or human-listening/native-speaker approved. Methods &
+Results is next: inspect the original run's seed provenance and draft wording
+before deciding whether an explicit reviewed-copy workflow is defensible.
+
+CODEX TUTORIAL LANE — 2026-09-11, METHODS & RESULTS 49 TECHNICAL MATRIX.
+
+791411d47 records nine real GUI scenes, 459 English words, thirteen editorial
+translations, fifty checked voices and fourteen passing browser cases. The
+master fully decodes and every scene was inspected. Copy sections matches the
+visible text; the genuine Export Markdown picker writes a new, explicitly
+UNREVIEWED file with unchanged prose and an exactly matching JSON appendix.
+Nine focused tests pass; removing the BH check or appendix equality made tests
+fail. All 325 saved gene-family BH values and ten displayed effects/p/q were
+independently checked: no significant gene at q<0.05, minimum q=0.2708333333.
+
+IMPORTANT: this is a REVIEW-AND-EXPORT tutorial, NOT an approved manuscript or
+an app fix. It explicitly teaches three defects/uncertainties. The journal
+declares permutation seed 0, not a global seed; the generic draft resolves 42,
+which must NOT be blindly replaced with 0 across different generators. Ranked
+nonsignificant candidates are still called strongest hits. The newly generated
+draft additionally names exporter version 1.5.0.5 whereas the original analysis
+environment records 1.5.0.4. The prior strict scientific-accuracy hold is kept;
+no draft was rewritten, provider contacted, or historical source changed.
+Please keep these application issues distinct from tutorial media completion.
+
+Total: 61/75 originals technically complete, 3050 checked voice tracks
+(100 retained), 854 browser cases. Fourteen originals plus held OPS remain.
+No publication, human-listening approval or native-speaker signoff. Mask is
+next; its genuine live-filter footage exists but the partial overlay output
+must not be portrayed as a successful complete run.
+
+CODEX TUTORIAL LANE — 2026-09-11, MASK 07 TECHNICAL MATRIX COMPLETE.
+
+2f5c65b63 records sixteen scenes, 813 English words, thirteen editorial
+translations, fifty checked voice tracks and fourteen passing browser cases.
+The full 4K master decodes and every scene midpoint was inspected. Live
+preview footage is reused after byte-identical implementation checks; saved
+masks independently reproduce 51 -> 25 -> 51 at area 5642 and 42 after the
+diameter 30 -> 60 rerun. These are demonstrations, not optimal settings.
+
+The fresh two-field native run uses Plot=True and explicit flow thresholds
+0.4, not the archive's filter-disabling 100. It STILL fails on the layout
+JSON in the overlay directory scan: the native acceptance check correctly
+rejects one missing overlay despite Finished. Nothing in this lane fixes or
+exempts that failure. The lesson now openly shows the warning, preserves the
+layout and original arrays, and records a separate real per-array plotting
+API export followed by a real external image viewer. No figures are injected
+into spaCR. Mask_overlay_API_workaround.zip contains the exact recorded helper
+and requires the demonstrated four-intensity/three-mask plane layout.
+
+Final labels are 25/19/8 and 52/50/58, not ground-truth accuracy. First-field
+pathogen QC still warns near_empty_field; cell QC predates mask adjustment.
+Independent checks cover 95,424,864 channel RGB values and 7,952,072 combined
+foreground pixels, with unchanged source hashes matching the native journal.
+Thirteen focused tests passed; four deliberately removed guards failed tests.
+Earlier failures and transparent plotting probes remain preserved. The AI
+question is unsent, with no provider answer or scientific approval claimed.
+
+Total: 62/75 originals technically complete, 3100 checked voice tracks
+(100 retained), 868 browser cases. Thirteen originals plus held OPS remain.
+No publication, human-listening review or native-speaker signoff. Next is
+Train Cellpose's already-scoped missing source control: a bounded explicit
+API path will be assessed without altering the app or hiding the GUI defect.
+
+CODEX TUTORIAL LANE — 2026-09-11, TRAIN CELLPOSE 19 TECHNICAL MATRIX.
+
+b4f321e99 completes eleven recorded scenes, thirteen editorial translations,
+fifty verified voices and fourteen browser cases. The whole 4K master decodes
+and all eleven scene midpoints were inspected. Seven focused tests pass;
+three deliberately removed guards made their tests fail.
+
+The fresh native CSV import still drops src and keeps model_name=new_model;
+no GUI training was started or fixed. The lesson discloses this and records
+the actual public training API on six preserved real cell-image/label pairs.
+Two bounded warm-up epochs reached all six images; 345/347 trainable parameter
+tensors changed, but loss rose from 1.497 to 1.522. There is no held-out set:
+zero test-loss placeholders are not accuracy. The actual checkpoint path has
+a second models directory omitted by the generic console message. The saved
+pair figure is displayed in a real external viewer, not inserted into spaCR.
+Train_Cellpose_API_example.zip contains the exact helper and unchanged pairs,
+not a certified model. Existing labels still require independent review.
+
+Total: 63/75 originals technically complete, 3150 checked tracks (100 retained),
+882 browser cases. Twelve originals plus held OPS remain. Nothing published,
+native-speaker approved or human-listening approved. Continuing Apply Cellpose:
+its batch result is verified, but its preview preprocessing differs and must
+be explained rather than presented as an equivalent batch prediction.
+
+CODEX TUTORIAL LANE — 2026-09-11, APPLY CELLPOSE 20 TECHNICAL MATRIX.
+
+19dd413ce closes eleven scenes, 533 English words, thirteen editorial
+translations, fifty checked voices and fourteen browser cases. The corrected
+4K master fully decodes and all eleven final scene midpoints were inspected.
+Visual inspection caught a recorder error: reopening Live settings created a
+new dialog, while the recorder closed the old reference. 00ede6ea9 fixes only
+the recorder; a new guard rejects that real bad recording and fails under a
+deliberate removed-guard mutation. Fifteen focused tests pass (eleven existing
+arithmetic tests, four scope tests); four new mutations and seven earlier
+arithmetic mutations were observed RED. Earlier captures remain preserved.
+
+The actual stock-CPSAM CUDA run saves three masks with 9/94/46 objects and
+three real GUI figures. Independent direct calls reproduce every saved mask
+pixel and the original/contour/flow arrays. Live preview on image02 still gives
+95 rather than the batch's 94: raw-image Cellpose defaults differ from the
+Apply preprocessing/resampling path. This is explicitly narrated, NOT fixed
+or waived as equivalent. Area 1838 gives 95 -> 47 -> 95 without another model
+run; original labels and saved batch TIFFs stay unchanged. Native wheel zoom
+is synchronized but crops the detail and does not fix the narrow preview card.
+Apply_Cellpose_stock_example.zip contains the exact three unchanged inputs
+and recorded settings; no custom training checkpoint or accuracy claim.
+
+Total: 64/75 originals technically complete, 3200 checked tracks (100 retained),
+896 browser cases. Eleven originals plus held OPS remain; no publication or
+human-listening/native-speaker signoff. Run Compare is next: two independent
+Measure databases still exactly match their original full fingerprints and
+object identities. I am assessing a clearly labelled relocated comparison
+index, preserving real run IDs/settings/versions/times rather than fabricating
+a rerun or pretending two historical entries point at different current bytes.
+
+Codex tutorial lane, 2026-09-11: Run Compare 50 technically complete.
+Native/download foundation 3e3ee9d64, thirteen translations 8b5fdf7df,
+final fifty-voice reconciliation 621232d79; all pushed. Nine final 4K scenes
+visually inspected, full decode passed, all 50 audio tracks and 14 browser
+cases passed. Two real Measure snapshots match their original complete SHA-256
+fingerprints and all object identities. An explicitly labelled relocation
+helper preserves historical run/artifact IDs, versions, timestamps and settings;
+only copied index project/path and relocation notes change. A second fresh
+portable installation reproduced both records exactly and refused overwrite.
+This is unchanged-count consistency, NOT improved accuracy or full-feature
+equality; no regression outputs are invented. Original snapshots unchanged.
+
+Total: 65/75 originals technically complete, 3250 checked tracks (100 retained),
+910 browser cases. Ten originals plus held OPS remain; no publication or
+native-speaker/listening signoff. Curate is next: its existing mask-history
+hold stays intact. I am adding an explicit external checkpoint procedure to
+preserve mask plus ledger before reopening, not fixing or hiding the app defect.
+
+Codex tutorial lane, 2026-09-11: Curate 42 technically complete.
+External checkpoint helper 3033f8884; native/example/script foundation d99716e74;
+thirteen translations 975918459; final matrix eb4dc03a3. All pushed. Eleven
+final 4K scene midpoints visually inspected, full decode passed, all 50 voice
+tracks and 14 browser/download cases passed. Twenty-four focused tests pass;
+six new deliberate mutations observed RED. The data are explicitly SYNTHETIC
+Timelapse teaching outputs, not acquired biological observations. Exact label
+TIFF and 128-row/16-track CSV are downloadable with the checkpoint companion.
+
+Mask history is NOT FIXED: native reopen loses three memory entries and a
+second save replaces the sidecar with one new entry. Explicit external copies
+preserve both sessions' mask plus ledger bytes; the helper is not an app feature
+or history restoration. Paint/undo/save/reload pixels and split/join/delete/
+reload table values are independently checked. Track history is preserved;
+mask/track semantics are not conflated. Original inputs remain unchanged.
+
+Run Compare download-link omission also corrected in 98598da1a: all fourteen
+localized players now download the exact archive; audio/video unchanged and
+final source-pinned reconciliation rerun. Its final English hash is
+3d7c880e6031605c7d7f8b4ae578c37f8e09eafd791ec541aea6c85e8f39f078.
+
+Total: 66/75 originals technically complete, 3300 checked tracks (100 retained),
+924 browser cases. Nine originals plus held OPS remain; no publication or human
+listening/native-speaker signoff. Volcano Explorer 72 next: previous native
+Save/Load-style workaround was already verified, not an unresolved execution
+blocker. Relevant three application files are byte-identical to that recording;
+I am reusing it, rechecking exports, then producing the language/voice matrix.
+
+Codex tutorial lane, 2026-09-11: Volcano Explorer 72 technically complete.
+Foundation 53c89e410, thirteen translations 25cf1d028, final matrix e9e48b9c6;
+all pushed. Fifty audio tracks, fourteen browser/download cases and full 4K
+decode pass; all thirteen final scene midpoints were visually inspected.
+The original recording is reused after byte-identical checks of its three
+relevant implementation files. Native Save/Load synchronizes the initially
+misleading controls; this is an explicit workaround, NOT an application fix.
+All 434 original guide results remain nonsignificant at adjusted P <= .05.
+Changing the reference line to .5 is NOT a new analysis or nineteen discoveries.
+PDF/PNG exports and all original data hashes were checked; no source altered.
+
+Total: 67/75 originals technically complete, 3350 checked tracks (100 retained),
+938 browser cases. Eight originals plus held OPS remain; no publication or
+native-speaker/listening signoff. Continuing Hit List 48 using its existing
+hidden-container diagnosis; no Qt/application file will be edited in this lane.
+
+Codex tutorial lane, 2026-09-11: Hit List 48 technically complete.
+Native/companion foundation e78a21bc8, English 7c820e0f7, translations f87dc0b8b,
+final matrix eeb78ac16; all pushed. Eleven scenes, 484 English words, thirteen
+editorial translations, fifty checked tracks and fourteen browser/download
+cases. Full 4K decode passed and every final scene midpoint was inspected.
+Thirty-four focused tests pass; five new deliberate mutations observed RED.
+
+The Regression > Hits shortcut remains BROKEN and the original hold remains.
+The lesson shows that failure, then explicitly launches a downloadable external
+companion wrapping the unmodified, threaded HitListScreen. A persistent visible
+banner identifies the workaround; no widget was injected into Regression and
+Investigate is not connected. Main bootstrap and clean shutdown were checked.
+Normal header-boundary double-clicks make actual table values readable. All
+source bytes stay unchanged. The gene family is 325 rows, 434 guide rows, and
+zero q<=.05 discoveries. Actual filters give 117 -> 57 -> 56 rows, with recovery;
+all CSV 1083 values, Markdown 513 and HTML 513 values match the same 57-row
+subset. n_obs=0 is explicitly NOT true well support; source support is 2..48.
+
+Total: 68/75 originals technically complete, 3400 checked tracks (100 retained),
+952 browser cases. Seven originals plus held OPS remain; no publication or
+native-speaker/listening signoff. Continuing Power / Design as a critical
+reading of its actual simulator output, NOT calibrated sample-size advice.
+Its four relevant source files remain byte-identical to the preserved recording.
+The contradictory same-96-wells recommendation will remain explicitly rejected.
+
+Codex tutorial lane, 2026-09-11: Power / Design 68 technically complete.
+Foundation be116be41, English 27d0ceae6, translations 4c04d170b, final matrix
+32bea3698; all pushed. Eleven scenes, thirteen editorial translations, fifty
+checked tracks, fourteen browser/download cases and a fully decoded 4K master.
+All eleven final scene midpoints inspected; fifteen focused tests passed and
+three new deliberate mutations observed RED. Original scientific-advice hold
+remains: this lesson critically reads genuine simulator output, rejects its
+same-96-wells recommendation and does NOT validate sample-size planning.
+No application source, simulation result, calibration or original footage altered.
+The unsupported-effect guard is verified natively; its warning text is not
+legible in the captured frame. Plot-end labels are clipped; the complete table
+is shown and independently checked instead.
+
+Total: 69/75 originals technically complete, 3450 checked tracks (100 retained),
+966 browser cases. Six originals plus held OPS remain; no publication or
+native-speaker/listening signoff. Continuing Graph Builder 58: reuse its known
+native-drag/filter scope, verify actual chart data, explicitly disclose the
+broken annotation handoff rather than patching Qt or claiming it works.
+
+Codex tutorial lane, 2026-09-11: Graph Builder 58 technically complete.
+Foundation/English 7e43f72d2, translations d118929db, final matrix b8c04547b;
+all pushed. Twelve scenes, thirteen editorial translations, fifty verified
+tracks, fourteen browser/download cases and a fully decoded 4K master. All
+twelve final scene midpoints visually inspected. Five focused tests pass;
+four deliberate source mutations observed RED. No native/listening signoff.
+
+Fresh native recording on 1.5.0.6 independently verifies all histogram counts,
+scatter coordinates and colour assignments, facet identities and counts, and
+the complete rendered table. Real cell rows: 2341 -> 1171 -> 2341. Source DB
+unchanged, exact copy downloadable; no synthetic data, model or AI call.
+The brush publishes exactly 653 expected keys but displays zero selected and
+keeps Annotate disabled. The plain click clears internal publication too.
+This defect remains UNFIXED and the old hold remains; it is explicitly taught.
+
+Total: 70/75 originals technically complete, 3500 checked tracks (100 retained),
+980 browser cases. Five originals plus held OPS remain. Lineage 56 next:
+fresh capture lineage_current_review_v1 completed, twenty-one focused oracle
+tests pass, all original/private data preserved and zero remaining workers.
+Current family-crop fallback is still wrong; parent-only double-click works.
+The lesson will distinguish verified containment and parent-only crops from
+the unsafe child substitution. No Qt or application repairs in this lane.
+
+Codex tutorial lane, 2026-09-11: Lineage 56 technically complete.
+Foundation/English 46df8923b, translations 61e574ec7, final checks 2841a2b29;
+all pushed. Fourteen scenes, thirteen editorial translations, fifty checked
+tracks, fourteen browser/download cases, fully decoded 4K master and all
+fourteen final scene midpoints visually inspected. Twenty-one focused tests
+passed; six deliberate source mutations observed RED. No listening/native
+speaker approval and no publication.
+
+Fresh native capture verifies 7201 source nodes, 2341 parent cells, a 2000-
+family display cap, all containment edges and zero orphan nodes. All source
+database and 2341 crop bytes remain unchanged. Actual family Open crops still
+substitutes unrelated cell images for requested children: NOT fixed, original
+hold retained. Parent-only double-click yields the verified image; Shift-click
+opens its existing preview and Escape restores it without labelling. The
+downloadable CSV is explicitly an API export, not a native GUI export button.
+
+Total: 71/75 originals technically complete, 3550 checked tracks (100 retained),
+994 browser cases. Four originals remain: 12 Map Barcodes (unmatched real
+example references), 21/22 Model Compare/Zoo (current Cellpose incompatibility
+plus incorrect old video assembly), and 71 Investigate Hit (reader join failure
+and no complete matched input established). OPS 76 remains separately held.
+No fabricated successful run, source repair, backend override or publication.
+Continuing tutorial-side checks and repairable media work within those limits.
+
+Codex tutorial lane, 2026-09-11: whole-library final-byte checkpoint pushed
+as bb924fdfb. All 71 accepted originals reconcile: 3550 tracks, 994 browser
+cases, fourteen structurally matching catalogs and no changed unselected media.
+This now includes fifteen early lessons under the same final checker; Home's
+fourteen browser cases were freshly rerun. Sixteen focused tests pass, and
+four source guard mutations were observed RED. Not a new GUI/listening review.
+
+Current blocker rechecks pushed as a12c941e5. Cellpose 4.2.1.1 still refuses
+the default invert keyword from the unchanged model_compare backend; inert
+signature binding confirms this without loading weights. Model Zoo has new
+source changes but still shares that backend. Investigate Hit still raises
+KeyError('prcfo') with the unchanged DB and 234 predictions, whose unique
+basenames all match existing metadata. A complete matched investigation input
+set is NOT thereby established. App owners must resolve these; no application
+source was edited here. Map reference provenance and real OPS evidence remain
+held as before. No fabricated success or historical-result substitution.
+
+Tutorial-only work continuing: private 1440p web renditions of the verified
+4K masters, using the existing publisher encoder with two encoder/filter
+threads, serially under the 100-GiB total-RAM guard. No GPU required for this
+step, no live upload, no changed original master/audio. The existing moved-only
+Plate Viewer web copy is retained byte-for-byte rather than re-encoded.
+
+Codex tutorial lane, 2026-09-11: maintainer-approved placeholder scope COMPLETE
+as an unpublished release candidate. The maintainer explicitly requested
+Coming soon screens for unfinished workflows, superseding the old no-OPS-
+placeholder constraint for this release. Underlying application/data defects
+are NOT fixed or claimed as successful demonstrations.
+
+Catalog transformation eb7ad3eda; complete candidate 03014d1c6. Both pushed.
+71 real tutorial packages + five unavailable screens: Map Barcodes, Model
+Compare, Model Zoo, Investigate Hit, OPS. All fourteen catalogs are aligned;
+OPS is under Mask and retained lessons have current parent-route metadata
+without regenerating their scenes/audio. All 71 private 1440p copies completed.
+Current full-library reconciliation: 3550 checked tracks, 994 original browser
+cases. Final candidate: 71 English playback/seek/transition cases plus 70
+placeholder/language cases PASS. Twenty-eight focused tests PASS; two catalog
+and two browser source mutants observed RED. No native/listening signoff.
+
+Web payload 333.74 MiB against 700 MiB ceiling; 6.5 GiB media-host package.
+All 7358 copied file hashes verified. RAM stayed well below the 100-GiB guard;
+no GPU or full coverage run used for final packaging. All owned workers ended.
+
+Exact player, fourteen catalogs, current hierarchy and media hashes are in
+tools/tutorials/release_candidate/. Complete local preview/media package:
+/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/release-candidate-dg6kuzsm
+See its committed README and checkpoint.json for verification/preview commands.
+Original held recordings, source catalogs and existing live media are intact.
+
+LIVE PUBLICATION HOLD REMAINS. Nothing uploaded, no live/docs media replaced,
+no application source changed. The old published route gate still sees the
+old collection; the NEW candidate route/structure gate passes all 76 entries.
+Do not claim deployed tutorials or full GitHub CI green from candidate checks.
+Do not run the legacy publisher against its stale authoring catalogs: candidate
+deployment needs separately approved hosted roots, inventory/cache updates and
+the exact live-byte check described in the candidate README. App repairs and
+the eventual full demonstrations for the five placeholders remain later work.

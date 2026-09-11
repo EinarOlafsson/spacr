@@ -1,0 +1,82 @@
+{
+  "id": "70_explain_cv",
+  "number": 70,
+  "slug": "explain_cv",
+  "title": "Explain CV Model",
+  "series": 5,
+  "app_key": "explain_cv",
+  "section": "Results and quality control",
+  "host_app_key": "classify_merged",
+  "description": "Inspect a real surrogate fit inside Classify, verify its held-out fidelity and recognise when feature explanations must not be interpreted.",
+  "objectives": [
+    "Select matching measurements and existing classifier predictions through the nested workbench.",
+    "Distinguish surrogate agreement from independent classifier validation.",
+    "Inspect failed fidelity, class errors, table limits and complete saved artifacts."
+  ],
+  "prerequisite": "Use a measurements database and predictions CSV from the same cropped objects. This recording reuses 234 genuine saved predictions from the one-epoch Annotate/Classify example, not the separate portable Evaluation inspector bundle. Original filename and predicted_label columns are preserved. The earlier classifier split shares wells with training, so this is not independent classifier validation. The surrogate uses 89 complete cases and 1126 features; 145 joined rows are excluded for nonfinite features. It fits 68 objects from two wells and tests 21 from a third. All surrogate calls are class 1: fidelity 17/21, balanced accuracy 0.5. The displayed majority baseline is 81/89 across all complete cases. Importance is withheld; visible SHAP values are not a faithful account of the CV model. Eighteen cv_intensity measurement names are excluded by the name heuristic, which does not prove actual leakage. GUI correlations and distributions stop at 1000 rows; inspect full CSV exports. API: spacr.surrogate.explain_classifier, fit_surrogate and write_surrogate_result. No GUI controls for permutation repeats, feature exclusions or SHAP budget are claimed. CPU demonstration only; no new training, external AI request, native-listening approval or publication.",
+  "scenes": [
+    {
+      "visual": "01_classify_host",
+      "narration": "Open Classify, then the Explain CV Model icon at the upper right. It opens a nested workbench, not another Home module. We reuse existing image-classifier predictions and the matching measurements from the example workflow. Explaining those predictions does not validate the classifier itself.",
+      "focus": [3579, 100, 80, 80],
+      "related_lessons": ["09_annotate", "39_classifier_evaluation"],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_recorded_predictions_picker",
+      "narration": "Choose the matching measurements database and saved predictions CSV. The file must identify the same cropped objects, not just use similar well names. Here we use unchanged copies of two hundred thirty-four real saved predictions. This is not a new training run or a newly validated dataset.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_ready_existing_predictions_not_retraining",
+      "narration": "If Browse leaves the old column choices, confirm the prediction path with Enter. Select filename for the crop path and predicted underscore label for the model's class calls, not the true labels or a continuous probability. Choose Random Forest, well grouping and a new output folder.",
+      "focus": [462, 463, 2680, 459],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_actual_fitting",
+      "narration": "Click Explain model. The surrogate learns from measured features to imitate existing class calls; it does not rerun the vision model. This example uses CPU processing. The GUI offers backend and grouping choices; permutation repeats, feature exclusions and the SHAP budget are API options, not controls on this form.",
+      "focus": [462, 678, 2200, 365],
+      "related_lessons": ["06_api"],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_result_tab_0",
+      "narration": "Read Fidelity first. All predictions joined, but only eighty-nine rows had complete features. The surrogate fits sixty-eight objects from two wells and tests twenty-one from a third. Fidelity is about eighty-one percent, below the displayed ninety-one percent majority baseline. That baseline uses all complete cases, not only the held-out well.",
+      "focus": [474, 1010, 2900, 890],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_result_tab_1",
+      "narration": "Importance is withheld because the fidelity gate failed. Do not turn this fit into a claim about what the vision classifier recognises. Also review automatic exclusions: the warning calls eighteen measurement names leaky, but names containing coefficient-of-variation intensity do not by themselves establish label leakage.",
+      "focus": [465, 937, 2420, 810],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_result_tab_3",
+      "narration": "Confusion compares the original model's class calls with the surrogate's calls, not biological truth. Here the surrogate calls every held-out object class one: seventeen agreements and four errors. Balanced accuracy is one half. A high-looking overall percentage can hide failure on the smaller class.",
+      "focus": [465, 948, 2000, 650],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_result_tab_4",
+      "narration": "Per-cell SHAP is still visible even though fidelity failed. These values describe this surrogate; they do not rescue its explanation of the vision model or establish a biological mechanism. Keep this limitation attached to exported attribution tables. Activation maps answer a different, spatial question, covered in their own lesson.",
+      "focus": [465, 948, 2700, 1050],
+      "related_lessons": ["16_activation"],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_result_tab_6",
+      "narration": "Inspect Correlations and Feature distributions as data summaries, not proof of causation. Each GUI table stops at a thousand rows. The full exports here contain one thousand eighty-seven correlation pairs and two thousand two hundred fifty-two distribution rows. Read the saved files before reporting totals or missing features.",
+      "focus": [465, 948, 2910, 1050],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_result_tab_7",
+      "narration": "Held-out cells retains the object identities and both sets of predictions. Open held-out objects is disabled in this recording, so no crop handoff is demonstrated. Keep the eleven saved artifacts, settings and fidelity warning together. The Evaluation lesson explains classifier validation limits; a plot, SHAP table or spaCR AI response cannot certify a classifier.",
+      "focus": [465, 865, 2910, 1150],
+      "related_lessons": ["39_classifier_evaluation", "06_api"],
+      "hold_after": 0.7
+    }
+  ]
+}

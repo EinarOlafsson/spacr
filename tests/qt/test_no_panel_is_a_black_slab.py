@@ -61,11 +61,25 @@ def test_the_parameter_sweep_is_not_a_slab(qtbot, qt_theme_applied):
         "the sweep's splitter paints a black rectangle")
 
 
-def test_the_flowview_splitter_is_not_a_slab(qtbot, qt_theme_applied):
-    """FlowView's panel was always transparent; its splitter was not."""
+def test_the_flowview_splitter_is_not_a_slab(qtbot, qapp, monkeypatch):
+    """FlowView's panel was always transparent; its splitter was not.
+
+    WITH THE BACKDROP OFF, DELIBERATELY. 381's fix gives an opaque theme the
+    transparent window block whenever an animated backdrop is running, so
+    `QWidget` no longer fills and this test's premise -- that the splitter
+    paints a slab which `clear_container_surfaces` then clears -- is gone
+    before it starts. It is the premise that had to move, not the property:
+    with the backdrop off the opaque block still applies, the splitter still
+    fills, and clearing it is still what stops it.
+    """
+    from spacr.qt import preferences
     from spacr.flowview.panel import FlowViewPanel
     from spacr.flowview.trace import get_collector
-    from spacr.qt.theme import clear_container_surfaces
+    from spacr.qt.theme import apply_qpalette, clear_container_surfaces, stylesheet
+
+    monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: False)
+    apply_qpalette(qapp)
+    qapp.setStyleSheet(stylesheet())
 
     panel = FlowViewPanel(get_collector(), None, auto_start=False,
                           embedded=True)
@@ -82,6 +96,38 @@ def test_the_flowview_splitter_is_not_a_slab(qtbot, qt_theme_applied):
     clear_container_surfaces(panel)
     assert _fills(splitter) == MARKER, (
         "clearing the container surfaces did not stop the splitter filling")
+
+
+def test_the_backdrop_alone_stops_the_splitter_filling(qtbot, qapp,
+                                                       monkeypatch):
+    """And with the backdrop ON, nothing has to clear anything.
+
+    The other half of the test above, and the property 381 bought: an
+    opaque theme running an animated backdrop takes the transparent window
+    block, so a plain container does not paint over the animation in the
+    first place. `clear_container_surfaces` stays for the backdrop-off case
+    and for screens that embed the panel; it is no longer the only thing
+    standing between the user and a black rectangle.
+    """
+    from spacr.qt import preferences
+    from spacr.flowview.panel import FlowViewPanel
+    from spacr.flowview.trace import get_collector
+    from spacr.qt.theme import apply_qpalette, stylesheet
+
+    monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: True)
+    apply_qpalette(qapp)
+    qapp.setStyleSheet(stylesheet())
+
+    panel = FlowViewPanel(get_collector(), None, auto_start=False,
+                          embedded=True)
+    qtbot.addWidget(panel)
+    panel.resize(500, 380)
+
+    splitter = panel.findChild(QSplitter)
+    assert splitter is not None
+    assert _fills(splitter) == MARKER, (
+        "a container still paints an opaque slab over a running backdrop, "
+        "which is the whole of instruction 381")
 
 
 def test_classify_clears_the_flowview_it_embeds():

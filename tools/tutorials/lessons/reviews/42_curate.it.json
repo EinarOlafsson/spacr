@@ -1,0 +1,30 @@
+{
+  "lesson": "42_curate",
+  "english_sha256": "064305fd604528a3de59c402499f10a17c0a8a5f0c4fa990609c9132c73f17af",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "it",
+  "title": "Curate: esercitarsi e conservare la cronologia delle modifiche",
+  "description": "Modificare maschere e tracce in Curate con dati sintetici e backup esterni per il limite attuale della cronologia delle maschere.",
+  "objectives": [
+    "Aprire Curate in Make Masks con copie di lavoro.",
+    "Dipingere, annullare e salvare senza confondere l’esercizio con correzioni biologiche.",
+    "Conservare maschera e registro fuori dall’app prima della riapertura.",
+    "Dividere e unire tracce e scartare una cancellazione non salvata."
+  ],
+  "prerequisite": "Estrarre Curate_SYNTHETIC_practice.zip e lavorare su copie. TIFF: piano etichette 2 del Timelapse sintetico, 256 × 256 pixel, sedici etichette da 2 a 17. CSV: sedici tracce, 128 righe, otto fotogrammi. Non sono dati biologici acquisiti. Il caricamento NPY è fallito; TIFF conserva etichette intere. Raggio 8 ed etichetta 18 sono esercizi. Tutti i pixel e i valori CSV sono controllati. Save mask sovrascrive il file scelto e salva .curation.json. Riaprire azzera le tre voci in memoria; il salvataggio successivo sostituisce il registro con una nuova voce. Difetto non corretto. Prima eseguire curate_checkpoint.py con la maschera salvata e una NUOVA cartella: copia esatta di entrambi i file, non ripristino o fusione della cronologia. La riapertura aggiunge un livello: luminosità e identità sono diverse. Dividere traccia 2 al fotogramma 4 crea 18; riunire le metà ripristina 128 righe. Unire 2 e 3 è rifiutato per sovrapposizione temporale. La cronologia delle tracce viene mantenuta al ricaricamento. API: spacr.curation.MaskCuration e TrackCuration. Nessuna GPU, IA, segmentazione nuova, validazione biologica, modifica dell’app o pubblicazione.",
+  "scenes": [
+    "Apri Make Masks e il suo strumento annidato Curate. Nei tutorial, Curate appartiene ai sottomoduli di Make Masks, non a una tessera Home separata. Modifica maschere di etichette e tracce. Usiamo output sintetici di Timelapse, non osservazioni biologiche o prove che una modifica manuale migliori l’accuratezza.",
+    "Scarica l’archivio collegato e lavora su copie. Apri il TIFF di etichette intere: sedici etichette originali occupano questo quadrato di duecentocinquantasei pixel. Il selettore offre anche NPY, ma quel percorso è fallito. TIFF conserva il piano esatto; non sostituire le etichette con una schermata colorata.",
+    "Imposta il raggio a otto e premi New per scegliere l’etichetta diciotto. Dipingi una volta nell’area vuota. Questo disco è inventato per imparare il controllo, non rappresenta una cellula mancante. Il pennello modifica i pixel in memoria; il file resta invariato fino a Save mask.",
+    "Undo stroke ripristina ogni pixel originale nell’esercizio. Dipingi di nuovo e controlla prima di salvare. Il registro contiene pittura, annullamento e pittura: annullare fa parte della cronologia. La posizione precisa del mouse può cambiare il numero di pixel; l’impronta dell’esercizio non è un obiettivo biologico.",
+    "Save mask riscrive il TIFF di lavoro selezionato e salva il registro associato. Prima di riaprire, esegui lo script di backup separato incluso, indicando quella maschera e una nuova cartella. Copia esattamente entrambi i file. È un backup esterno esplicito, non una funzione nascosta dell’applicazione.",
+    "Il limite attuale è questo: riaprire azzera il registro della maschera in memoria, e salvare ancora sostituisce il file associato con la modifica della nuova sessione. Il backup conserva le tre voci originali. Mantieni copie e note separate; lo script non ripara o ripristina la cronologia. La riapertura aggiunge un livello: la luminosità non è l’identità.",
+    "Apri il CSV di lavoro delle tracce. Contiene sedici tracce su otto fotogrammi, per centoventotto righe. Scegliere due e tre e premere Join è rifiutato perché coesistono negli stessi fotogrammi. Leggi il messaggio: forzare l’unione di traiettorie non correlate non sarebbe una correzione valida.",
+    "Seleziona traccia due, imposta Split at frame a quattro e premi Split. I fotogrammi da quattro a sette passano alla nuova traccia diciotto; da zero a tre restano in due. Coordinate ed etichette originali non cambiano. È un esercizio controllato, non la prova di una divisione cellulare.",
+    "Seleziona insieme due e diciotto e premi Join. Le metà senza sovrapposizione si combinano, ripristinando tutte le righe originali. Save tracks scrive il CSV e il proprio registro. Il controllo indipendente confronta ogni fotogramma, identificativo e coordinata, non soltanto il numero di tracce. Tieni separate le due cronologie.",
+    "Eliminare traccia tre rimuove le sue otto righe in memoria. Non salvare questa cancellazione dimostrativa. Riapri il CSV salvato per scartarla. Questo distingue le modifiche correnti dal contenuto su disco; eliminare una traiettoria reale richiede un motivo documentato, non semplicemente un risultato indesiderato.",
+    "Ritornano tutte le centoventotto righe e la cronologia salvata di divisione e unione. A differenza delle maschere in questa versione, le tracce conservano qui quella cronologia. Mantieni originali, backup e motivazioni. Python offre MaskCuration e TrackCuration; non servono GPU o IA, e modificare con successo non equivale a validazione scientifica."
+  ]
+}

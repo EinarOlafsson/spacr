@@ -1168,7 +1168,13 @@ class TestStylesheet:
         qtbot.addWidget(window)
         preferences.apply_preferences_to_app(qapp)
         window.refresh_theme()          # must not raise
-        assert qapp.styleSheet()
+        # THE SHEET IS ON THE WINDOW, NOT ON THE APPLICATION. 380's last
+        # lever moved it there -- a preference save with four modules open
+        # went from 10.2 s to 3.1 s -- so `qapp.styleSheet()` is empty by
+        # design and asserting it would now be asserting the opposite of
+        # what this test means.
+        assert theme.window_stylesheet(qapp)
+        assert window.styleSheet()
 
 
 # ---------------------------------------------------------------------------

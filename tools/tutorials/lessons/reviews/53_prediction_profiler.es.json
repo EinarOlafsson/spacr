@@ -1,0 +1,31 @@
+{
+  "lesson": "53_prediction_profiler",
+  "english_sha256": "e79348e5af21ca603ddc91a2de7b689558863b2ea4b34ff4f36533af1c54b34f",
+  "review": {
+    "kind": "Editorial translation from frozen English; synthetic-data, no-refitting, range and noncausal boundaries preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Perfil de predicciones",
+  "description": "Importe un modelo ajustado con datos sintéticos, varíe una entrada y examine cómo los valores fijos y las opciones del gráfico afectan a sus predicciones.",
+  "objectives": [
+    "Abrir Prediction Profiler dentro de Regression e importar una tabla de coeficientes adecuada.",
+    "Distinguir ajuste, enlace inverso, rangos supuestos y resolución del gráfico.",
+    "Comparar ambas entradas, modificar los valores fijos y restablecer el punto medio."
+  ],
+  "prerequisite": "Extraiga el ejemplo SYNTHETIC en una carpeta nueva. Incluye 121 observaciones construidas, coeficientes de un ajuste OLS real con statsmodels, manifiesto y script reproducible. No hay validación biológica ni con datos reservados. La interfaz importa feature/coefficient e Intercept, pero no ajusta el modelo ni carga las observaciones. Use identity. Supone dos filas con rangos 0..1 y valores fijos de 0.5. La clasificación usa 0.05..0.95; la curva, 0..1. Se comprobaron 338 valores de curvas y doce valores de clasificación. Los efectos marginales de pruebas de permutación no sustituyen un modelo predictivo conjunto. API: spacr.profiler.from_coefficients, profile, sensitivity. ProfilerScreen.set_model/set_design son interfaces programáticas, no selectores de archivos. No se afirman intervalos de confianza, causalidad, publicación ni aprobación de la escucha.",
+  "scenes": [
+    "Abra Regression y después Prediction Profiler entre sus herramientas anidadas. Esta lección usa un ejemplo didáctico claramente identificado como sintético, no resultados de un cribado biológico. Examinamos un modelo ajustado variando una entrada y manteniendo fija la otra. El perfilador lee el modelo; no entrena otro.",
+    "Descargue y extraiga el ejemplo adjunto; después use Browse para abrir su archivo de coeficientes OLS sintéticos. Contiene un intercepto y dos coeficientes de entrada ajustados. El archivo comprimido también incluye las observaciones y el script de preparación. Los coeficientes proceden de un ajuste real por mínimos cuadrados a datos construidos, no de resultados de regresión inventados.",
+    "Mantenga Link en identity porque este ejemplo se ajustó mediante mínimos cuadrados ordinarios. Otros enlaces corresponden a otras familias de modelos; cambiar este selector no convierte ni vuelve a entrenar el modelo original. Una curva plausible en una escala de respuesta incorrecta sigue siendo incorrecta. Use siempre el enlace del ajuste.",
+    "Lea el mensaje de estado: no se proporcionó una matriz de diseño, por lo que la importación del archivo supone que cada entrada varía entre cero y uno. Nuestros datos sintéticos tienen ese rango, pero los suyos podrían no tenerlo. La clasificación usa los percentiles cinco y noventa y cinco; Moves by no muestra la diferencia entre los extremos completos de la curva.",
+    "La entrada A está seleccionada para el barrido. Mueva el deslizador de B desde el punto medio hasta uno. La respuesta predicha baja porque B tiene un coeficiente ajustado negativo. Cambia el escenario con valores fijos, no los datos de entrenamiento ni los coeficientes. Lea los extremos numéricos además de observar la forma de la línea.",
+    "Mueva B a cero y vuelva a comparar. La respuesta sube. El gráfico reajusta su escala vertical, por lo que líneas aparentemente paralelas pueden representar niveles distintos de respuesta. Son predicciones de un modelo supuesto, no pruebas de que modificar B causaría un efecto experimental.",
+    "Reset held values devuelve los deslizadores al punto medio de los rangos supuestos: un medio en este caso. No vuelve a ajustar el modelo. Al importar solo el archivo de coeficientes, ese punto medio no es una mediana medida en sus datos originales: esos datos nunca se cargaron en el perfilador.",
+    "Seleccione B en la lista ordenada. Ahora B recorre el eje horizontal y A permanece fijo en un medio. La curva descendente concuerda con el coeficiente negativo de B. La lista clasifica la sensibilidad del modelo; no es una prueba de significación, un intervalo de confianza ni una lista de hallazgos biológicos validados.",
+    "Cambie Points de sesenta y uno a once. Esto determina cuántas posiciones se evalúan para dibujar la curva; no cambia el tamaño de la muestra ni la calidad del ajuste. Nuestro ejemplo lineal conserva los mismos extremos. Más puntos de dibujo no añaden observaciones, no reducen la incertidumbre ni mejoran un modelo ya ajustado.",
+    "Con B aún seleccionado, mueva A a uno y examine los nuevos extremos de la respuesta; después restablezca los valores. Para su trabajo, use coeficientes de un modelo ajustado adecuado y compruebe su enlace, intercepto, codificación y rangos. No sustituya un modelo predictivo ajustado conjuntamente por efectos separados de pruebas de permutación."
+  ]
+}

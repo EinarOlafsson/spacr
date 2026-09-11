@@ -275,3 +275,356 @@ wrong, the per-file measurement is wrong pessimistically, and what is left
 at the end is guards over invariants plus the occasional real behaviour
 that a test touched without exercising. THE LIST AT THE TOP OF THIS FILE
 SHOULD NOT BE TRUSTED FOR ANY MODULE -- re-measure before writing a test.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- A COMPLETE SWEEP, WHICH THIS ITEM ASKS FOR AND HAS NOT HAD
+--------------------------------------------------------------------------------
+
+"A fresh complete batched measurement, with its statement and file counts
+matching the previous run, recorded with its date and commit." Done.
+
+    commit          2e9e8a907 (frozen for the whole run)
+    files           2,738, CI's seven measurement-file ignores honoured
+    marker          not gpu and not gui   (CI's coverage marker, plus this
+                                           box's standing rule)
+    chunks          69 of ~40 files, one process each, never xdist
+    processes       151 -- 69 chunks plus 82 file-by-file recoveries
+    wall clock      about four and a half hours
+
+    statements      219,082    missing   2,206
+    branches         65,948    partial     704
+    TOTAL                                       98.86 %
+
+    modules measured   560
+    at 100 %           408
+    something left     152
+    below 80 %           9
+
+NO MODULE REPORTS 0 %, and that is the check that matters most: a module
+that was never imported would look like untested code rather than like a
+collection gap, and 510 of them were reachable in the last full run against
+561 today.
+
+THE NINE BELOW 80 %, which are where the reasons are owed:
+
+    spacr/ops_phenotype.py              52.16 %   78 missing
+    spacr/qt/terms_i18n/__init__.py     52.94 %    6
+    spacr/qt/hf_download.py             56.19 %  149
+    spacr/qt/ai/issue_preview.py        72.73 %   31
+    spacr/qt/widgets/sra_picker.py      73.63 %   38
+    spacr/qt/widgets/height_grip.py     73.68 %   34
+    spacr/ops_accel.py                  76.85 %   30
+    spacr/qt/gc_policy.py               79.45 %   12
+    spacr/regression_layout.py          79.45 %   15
+
+    SEVERAL OF THESE ARE EXPECTED AND NOT DEBT. `hf_download` and
+    `sra_picker` reach the network; `ops_accel` is the GPU path and this
+    run excluded `gpu`; `height_grip` is a mouse-drag widget. Each still
+    needs the reason WRITTEN here rather than assumed -- that is this
+    item's rule and the next session's job, module by module, by the same
+    method the three already done used.
+
+TWO CAVEATS ON THE RUN ITSELF, recorded because a number without its
+method is not a measurement:
+
+  1. THE COMBINE READ 324 DATA FILES AND SKIPPED 112. 151 processes wrote
+     more than 151 files because `.coveragerc` sets `patch = subprocess`.
+     The skipped ones are almost certainly the empty SQLite shells that
+     `tools/run_coverage_batches.py` documents and discards by hand -- "a
+     process killed while coverage is opening its database can leave
+     behind a valid SQLite shell with no coverage metadata". ALMOST
+     CERTAINLY IS NOT MEASURED: `coverage combine` deletes what it reads
+     AND what it skips, so by the time the number was read there was
+     nothing left to inspect.
+
+     THE FIX FOR NEXT TIME, and it is one I had already learned tonight
+     and failed to apply to this script: copy the raw files aside before
+     combining. The sweep script does not, and should.
+
+  2. TWO CHUNKS DIED -- one segfault and one 40-minute timeout -- and both
+     were re-run file by file, which is why there are 151 processes and
+     not 69. No file was silently dropped.
+
+AND 27 OF THE 69 CHUNKS REPORTED FAILURES. 345 and 346, the two recorded
+"red only in company" items, are both CLOSED, so these are current and
+unnamed. The sweep records counts and not names by design -- `--tb=no` and
+one reused output file is what keeps it fast -- so naming them is a
+separate no-coverage re-run over those 27 chunks, and it is the next thing
+this item needs. That is 288's blocker as much as this one's.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE NINE BELOW 80 %, EACH WITH ITS REASON READ RATHER THAN GUESSED
+--------------------------------------------------------------------------------
+
+This item's rule: "Every module either at a coverage the reader agrees is
+reasonable, or NAMED HERE WITH THE REASON it stops short." The nine from
+the complete sweep, with the reason taken from the UNCOVERED LINE NUMBERS
+in each case rather than from the module's name.
+
+  MY FIRST GUESSES WERE WRONG FOR TWO OF THEM, which is why this section
+  exists in this form. `ops_accel` and `sra_picker` have no `requests.`,
+  no `http`, no `torch.cuda` anywhere in them -- I grepped for those, got
+  zero, and would have written "network" and "GPU" from the module names
+  if I had stopped there. Reading the uncovered lines gave a different and
+  better answer for both.
+
+  spacr/ops_phenotype.py            52.16 %   NOT A REASON -- A CRASH.
+    `src[:, 0].ptp()` at line 531, removed by NumPy 2.0. Seven tests could
+    not get past it. Fixed, and RE-MEASURED: 52.16 % -> 87.06 %, 18
+    statements missing instead of 78. It leaves the below-80 set entirely
+    on one line of repair. IT IS THE WARNING FOR THIS WHOLE SECTION: a low
+    number is a question, not an answer, and the first question is whether
+    the module runs at all. Read as "ops_phenotype needs tests", the tests
+    would have been written against a function that raises.
+
+  spacr/qt/hf_download.py           56.19 %   149 of 368 statements, in
+    three large blocks (477-517, 583-637, 674-732). They are the download
+    itself. Exercising them means either reaching Hugging Face from a test
+    or mocking the transport so thoroughly that what is measured is the
+    mock. REASONABLE AS IS.
+
+  spacr/qt/terms_i18n/__init__.py   52.94 %   FIFTEEN STATEMENTS, six
+    uncovered (40-43, 48, 59-60): `register()`'s validation arm and the
+    accessors' answers for a language with no presentation. The percentage
+    is small because the DENOMINATOR is small; six lines in a fifteen-line
+    module is not the same kind of gap as 149 in 368, and a ratio alone
+    cannot tell them apart. Worth a test, and it is small.
+
+  spacr/qt/ai/issue_preview.py      72.73 %   `_check_for_diagnosis`
+    (224-249) polls for an answer from a live AI console thread and gives
+    up on a timer. Driving it needs a real `_ai_thread`. REASONABLE AS IS.
+
+  spacr/qt/widgets/sra_picker.py    73.63 %   NOT THE WIDGET -- THE WORKER.
+    60-64 and 78-98 are the download worker's constructor and `run()`,
+    which calls `fetch_reads`. Network, reached through a helper rather
+    than through `requests` in this file, which is why grepping the file
+    for network symbols says nothing. REASONABLE AS IS.
+
+  spacr/qt/widgets/height_grip.py   73.68 %   `enterEvent`,
+    `mousePressEvent` and the drag arithmetic behind them (182-285). A
+    grip is a mouse gesture; offscreen Qt will synthesise the events but
+    what is then measured is the synthesis. REASONABLE AS IS, and the same
+    argument 327 makes about the pointer.
+
+  spacr/ops_accel.py                76.85 %   THE CUPY AND GPU-DEVICE ARMS
+    (69-70, 77, 90-91, 106-108, 331-343). `_torch(gpu=True)`'s device
+    selection, `_cupy()`'s availability probe, and the entire CuPy
+    nearest-neighbour branch. This box runs `-m "not gpu"` and has no
+    cupy. REASONABLE AS IS -- and the honest note is that it is untested
+    ANYWHERE until CI grows a GPU runner, not merely untested here.
+
+  spacr/qt/gc_policy.py             79.45 %   The INSTALL path (104-120):
+    it calls `gc.disable()` and starts a QTimer that collects on the GUI
+    thread. Running it inside the suite changes garbage collection for
+    every later test in that process. DELIBERATELY NOT EXERCISED, and this
+    is the one where testing it would be worse than not.
+
+  spacr/regression_layout.py        79.45 %   Fifteen statements and
+    FIFTEEN PARTIAL BRANCHES over 100 statements -- the widest
+    branch-to-statement ratio of the nine. Not a single feature left out
+    but a scatter of layout arms. The only one here that looks like
+    ordinary missing coverage rather than a reason.
+
+SO THE LIST IS: one crash (fixed), five reasonable-as-is, one deliberately
+never to be tested, and TWO worth writing tests for. BOTH ARE NOW DONE:
+
+    spacr/qt/terms_i18n/__init__.py     52.94 % -> 100.00 %   10 tests
+    spacr/regression_layout.py          79.45 % -> 100.00 %   18 tests
+                                        (100 statements, 46 branches, all)
+
+  AND THE SECOND ONE TURNED OUT TO BE A PROMISE NOBODY HAD CHECKED. Its
+  gap was not a scatter of layout arms as the line numbers suggested from
+  a distance -- it was EIGHT REFUSALS, which is the whole of what the
+  module's opening sentence claims: "a value is never silently selected
+  when duplicate rows disagree". Every one of them is now exercised,
+  including the two that matter most: a (well, gRNA) pair carrying
+  conflicting counts, and a metadata column that is not constant within
+  one observation. A refusal nobody has run is a promise nobody has
+  checked, and the risk was never that the arm was missing -- it was that
+  it might not fire.
+
+  The control cases went in beside them, because eight refusals with no
+  positive case is a module that might be refusing everything: a
+  well-formed wide frame converts, and the SAME pair twice with the SAME
+  value is explicitly not a disagreement.
+
+So the nine are: one fixed, five reasoned, one deliberately untested, two
+at 100 %. Nothing below 80 % is now unexplained.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE SECOND HALF STARTS: WHAT IS ACTUALLY RED ON GITHUB
+--------------------------------------------------------------------------------
+
+"after that make sure github tests are clean" is the other half of this item
+and it was blocked on the merge from main, which landed today. So the
+question is now askable, and the answer is not what the branch protection
+implies.
+
+THREE WORKFLOWS RUN ON A PUSH TO NIGHTLY: `tests`, `docs`, `compat-matrix`.
+Read on run 34582823707 and its neighbours.
+
+  1. `compat-matrix` / PACKAGING METADATA -- RED, AND THE DIAGNOSIS BELOW
+     IS HALF RIGHT. See the 2026-09-11 correction at the end of this item:
+     the home session root-caused it further and fixed it better.
+     `tests/test_packaging_metadata.py::test_the_citation_version_doi_is_
+     the_one_for_the_version_it_claims` arrived with main's CITATION work
+     and reads `CITATION.cff`, which is YAML. The job installs "packaging
+     tooling only" -- build, twine, pytest, packaging -- deliberately, so
+     that a metadata bug cannot hide behind a resolver failure. It does not
+     install PyYAML, and the job failed on
+
+         ModuleNotFoundError: No module named 'yaml'
+
+     A METADATA TEST REPORTING A MISSING TEST DEPENDENCY READS AS A
+     PACKAGING DEFECT AND IS NOT ONE, which is the worst kind of red: it
+     costs a reader the time to find out it means nothing. PyYAML is added
+     to that job's install list, which is the honest place -- reading the
+     citation file IS packaging tooling.
+
+  2. `compat-matrix` / 3.15 INSTALLS FROM WHEELS ONLY -- RED, AND CORRECTLY
+     SO. `pandas` has no cp315 wheel on PyPI yet:
+
+         ERROR: Could not find a version that satisfies the requirement
+         pandas<4.0,>=2.2.1 (from spacr) (from versions: none)
+
+     The cell is ALREADY `continue-on-error: ${{ matrix.python-version ==
+     '3.15' }}` and its comment already says why it is expected to fail --
+     "PySide6 6.11.2 declares <3.15, so this cell is expected to fail at the
+     dependency resolve until a compatible Qt release appears; its weekly
+     run tells us when that blocker has moved". NOTHING TO FIX. Worth
+     recording only because the blocker the comment names is no longer the
+     one that fires first: pandas gets there before PySide6 does, so a
+     future reader watching for "Qt admits 3.15" will be reading the wrong
+     line. The cell's own purpose -- noticing when upstream wheels arrive --
+     is intact either way.
+
+  3. A CANCELLATION STORM ON NIGHTLY, and it is not this item's to fix.
+     Eight of the last ten runs are `cancelled`, because tutorial commits
+     are landing every two minutes and every workflow here is in a
+     newest-wins concurrency group. Both `tests.yml` and `compat-matrix.yml`
+     already carry long comments about exactly this and have already been
+     split by event because of it. A green run needs a gap in the pushes,
+     not another workflow change.
+
+         SO "GREEN ACTIONS" CANNOT BE DEMONSTRATED WHILE ANOTHER SESSION IS
+         PUSHING EVERY TWO MINUTES, and saying so is more useful than
+         reporting whatever the last uncancelled run happened to say.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE ONE CI FIX THIS SESSION COULD NOT PUSH
+--------------------------------------------------------------------------------
+
+The PyYAML line above is written, tested and correct, and it is NOT on
+nightly. GitHub refused the push:
+
+    ! [remote rejected] HEAD -> nightly (refusing to allow an OAuth App to
+      create or update workflow `.github/workflows/compat-matrix.yml`
+      without `workflow` scope)
+
+`gh auth status` reports scopes 'gist', 'read:org', 'repo' -- no `workflow`.
+So no session authenticated this way can change any file under
+`.github/workflows/`, whatever the change is. Worth knowing before the next
+one is written: a workflow fix from here needs either the scope added or the
+maintainer to apply it.
+
+THE CHANGE, so it does not have to be rediscovered. In
+`.github/workflows/compat-matrix.yml`, the `Install packaging tooling only`
+step of the `metadata` job:
+
+        run: |
+          python -m pip install --upgrade pip
+    -     python -m pip install build twine pytest packaging
+    +     python -m pip install build twine pytest packaging PyYAML
+
+with this comment above the `run:`, which is the part worth keeping:
+
+    # PyYAML IS PACKAGING TOOLING HERE. `CITATION.cff` is YAML, and the
+    # test that asks whether its version DOI belongs to the version it
+    # claims has to read it. Without this the job fails on
+    # `ModuleNotFoundError: No module named 'yaml'` -- a metadata test
+    # reporting a missing test dependency, which reads as a packaging
+    # defect and is not one.
+
+Everything else in this item's 2026-09-11 note is pushed.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE PACKAGING-METADATA RED IS FIXED, AND NOT BY THE FIX ABOVE
+--------------------------------------------------------------------------------
+
+FROM THE HOME SESSION, verified here before recording. The note above reads
+the failure as a standing gap between a "tooling only" install and a
+`CITATION.cff` that happens to be YAML, and adds PyYAML to close it. THE GAP
+DID NOT EXIST UNTIL THAT TEST DID.
+
+    `import yaml` appears ZERO times in `tests/test_packaging_metadata.py`
+    before 2daa622d4 and once after -- checked with `git show`. The DOI
+    guard introduced it.
+
+So the job was not missing a dependency; a new test was demanding one that
+job deliberately does not install. Fixed in b6095ab3d with
+`pytest.importorskip("yaml", ...)`, and the PyYAML line is NOT taken.
+
+WHY THAT IS THE BETTER FIX, and it is the reasoning rather than the diff
+that matters here: the metadata job exists to prove the distribution's
+metadata is right WITHOUT the full dependency graph, so that a resolver
+failure cannot hide a metadata bug. Every package added to a
+"tooling only" install makes the next omission harder to notice. The DOI
+guard still runs everywhere the real suite runs, which is where a stale DOI
+would be caught anyway.
+
+  A TEST THAT NEEDS A PACKAGE A JOB DELIBERATELY OMITS IS THE TEST'S
+  PROBLEM, NOT THE JOB'S. Adding the package passes the job and quietly
+  spends the property the job was built to hold.
+
+SO STRIKE "BLOCKED ON EINAR" FOR THIS ONE. The workflow-scope limit is real
+and still applies to any future change under `.github/workflows/` from this
+session -- `gh auth status` here reports gist/read:org/repo and no
+`workflow` -- but it is no longer blocking anything. The PyYAML diff
+recorded above is superseded; it is left in the file because the SCOPE
+finding is worth keeping and the diff is what makes it concrete.
+
+--------------------------------------------------------------------------------
+2026-09-11, LATER -- THE `tests` WORKFLOW HAS NEVER PRODUCED A VERDICT ON
+NIGHTLY, AND THE FILE ALREADY KNEW HOW TO GET ONE
+--------------------------------------------------------------------------------
+
+Asked GitHub for the last twenty-five `tests` runs on nightly:
+
+    Counter({'cancelled': 23, '': 2})
+
+TWENTY-THREE CANCELLED, TWO STILL RUNNING, ZERO DECIDED. Not one has been
+allowed to finish. So "are the tests green on nightly" has not had an answer
+at any point in this item's life -- the runs were being destroyed by the next
+push before they could give one, and a cancelled run reports nothing.
+
+  A WORKFLOW THAT NEVER COMPLETES IS NOT RED AND IS NOT GREEN. It is
+  absent, and an absent signal reads as "no news" to everyone looking at
+  the branch. That is worse than a red one.
+
+`docs` is the counter-example and is SUCCESS on run 34612507409, because it
+is slower to be superseded. `compat-matrix` completes because its grid
+outlives the gaps.
+
+THE FILE ALREADY SOLVED THIS AND NOBODY HAD USED IT:
+
+    concurrency:
+      group: tests-${{ github.ref }}-${{ github.event_name }}
+      cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+A DISPATCHED RUN IS EXEMPT FROM CANCELLATION, by that second line, and is in
+its own group by the first. So the way to get a verdict on a branch under a
+push storm is to ask for one by hand rather than to wait for a gap that is
+not coming. Dispatched: run 34618149518.
+
+  THAT IS ALSO THE ANSWER TO "when is nightly green". Not "when the pushes
+  stop" -- they will not, tutorials land every few minutes by design -- but
+  "dispatch a run and read it". Worth doing before any release gate, and
+  worth knowing before anybody spends another hour reading cancellation
+  storms as failures.
+
+AND THE PACKAGING JOB IS FIXED ON NIGHTLY AT LAST. The home session's
+`pytest.importorskip` (b6095ab3d) was written ten hours ago on
+`feat/372-phase-b` and had not reached nightly; run 34615609288 was still
+red on `ModuleNotFoundError: No module named 'yaml'`. Cherry-picked
+unchanged. compat-matrix should now carry only the 3.15 cell, which is
+`continue-on-error` and waiting on pandas wheels.

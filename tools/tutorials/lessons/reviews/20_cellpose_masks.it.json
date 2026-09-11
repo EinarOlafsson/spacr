@@ -1,0 +1,31 @@
+{
+  "lesson": "20_cellpose_masks",
+  "english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "it",
+  "title": "Applicare Cellpose: maschere salvate e filtri live",
+  "description": "Applica CPSAM a tre immagini reali scaricabili nel Workbench annidato, controlla figure e console e prova i filtri distinguendo anteprima e batch.",
+  "objectives": [
+    "Trovare Apply in Make Masks e Cellpose Workbench.",
+    "Usare copie conservate e impostazioni registrate del modello standard.",
+    "Controllare tre maschere e figure di immagine, contorni e flusso.",
+    "Mostrare filtri reversibili e zoom sincronizzato.",
+    "Riconoscere la differenza tra anteprima e batch senza dichiarare accuratezza."
+  ],
+  "prerequisite": "Estrai le tre immagini in una cartella nuova e imposta src su images. recorded_settings.json contiene valori storici, non dimostra un'importazione GUI portatile. I ritagli cellulari reali uint16 di 512 pixel per lato non sono verità di riferimento. Si usa CPSAM standard, non il modello Train. Impostazioni: channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True, verbose=True; rescale, resample, resize, fill_in, invert e remove_background sono False. Il batch CUDA salva 9/94/46 oggetti e tre figure native. Chiamate indipendenti riproducono tutti i pixel delle maschere e le matrici delle figure. I contorni esterni non separano ogni istanza a contatto; il flusso è un canale di visualizzazione, non moto misurato. L'anteprima dell'immagine 02 dà 95, non 94: usa i valori Cellpose predefiniti sull'immagine grezza, non il preprocessing e ricampionamento del batch. I valori visibili 2/99 non provano equivalenza. La soglia d'area 1838 produce 95→47→95 senza nuova inferenza; ogni pixel ripristinato è verificato e i TIFF restano invariati. Lo zoom sincronizza le viste ma ritaglia l'immagine senza correggere il pannello stretto. Dati e precedenti blocchi sono conservati. Nessuna certificazione biologica, richiesta IA, pubblicazione o modifica dell'app.",
+  "scenes": [
+    "Da Make Masks apri il Cellpose Workbench annidato e scegli Apply. Train e Apply condividono questo pannello; Apply non è un riquadro separato nella Home. Qui usiamo il modello standard su tre immagini reali, non il checkpoint dimostrativo della lezione Train collegata.",
+    "Estrai l'esempio collegato in una cartella nuova. Imposta come origine la sua directory images e conserva il download originale. Sono tre immagini cellulari monocanale, ciascuna di cinquecentododici pixel per lato. Sono esempi, non verità di riferimento. Consulta le impostazioni registrate sostituendo il percorso storico con il tuo.",
+    "Seleziona CPSAM e lascia vuoto il modello personalizzato. Per queste immagini il canale è zero, la normalizzazione usa il secondo e il novantanovesimo percentile, il diametro è trenta, la soglia di flusso zero virgola quattro e la probabilità cellulare zero. Sono scelte dimostrative, non consigli universali.",
+    "Attiva Save e Verbose, imposta una immagine per batch ed esegui Apply. Questa procedura crea figure senza un interruttore Plot separato. La console identifica una RTX trenta novanta con CUDA e completa le tre immagini. Controlla origine e impostazioni: Finished da solo non misura accuratezza.",
+    "Nella sottocartella masks dell'origine vengono salvati tre TIFF con gli stessi nomi. I conteggi sono nove, novantaquattro e quarantasei. Le figure reali mostrano l'immagine, i contorni esterni rossi e il flusso. I contorni non separano tutte le istanze adiacenti e i colori non misurano moto fisico o accuratezza.",
+    "Attiva Live preview e scegli cell pair zero due con il selettore reale. Comprimi Console e System per liberare spazio. L'anteprima ha controlli propri: verifica canale zero e percentili visibili in Live settings senza presumere che ogni opzione di Apply sia stata copiata.",
+    "L'anteprima trova novantacinque oggetti, mentre la maschera batch della stessa immagine ne contiene novantaquattro. Controlli indipendenti riproducono entrambi: l'anteprima usa le impostazioni Cellpose predefinite sull'immagine grezza, non il preprocessing e ricampionamento espliciti del batch. È esplorativa, non garantisce maschere salvate identiche.",
+    "Il pannello di anteprima rimane stretto in questa versione. La rotella ingrandisce un dettaglio in entrambe le viste insieme; non allarga il pannello e ora ritaglia l'immagine completa. È utile per i contorni locali, ma non sostituisce l'esame dell'intero campo.",
+    "Apri Live settings e imposta l'area cellulare minima a milleottocentotrentotto pixel. È una soglia dimostrativa, non un ottimo biologico. Chiudi il dialogo per vedere il risultato. Il filtro elimina quarantotto oggetti, lasciandone quarantasette, senza rieseguire Cellpose o modificare la segmentazione grezza.",
+    "Ecco l'anteprima filtrata con il dialogo chiuso e lo zoom riapplicato. L'immagine originale non cambia, mentre spariscono gli oggetti piccoli della maschera. Il contatore indica quarantasette. Le modifiche riguardano l'anteprima e non riscrivono i tre TIFF batch già salvati.",
+    "Riporta l'area minima a zero, chiudi il dialogo e controlla di nuovo. Tornano novantacinque oggetti e ogni pixel di etichetta coincide con il risultato iniziale. Conserva input, impostazioni e identità del modello insieme alle maschere. Qui spaCR AI non viene usato; serve una validazione indipendente prima di trarre conclusioni scientifiche."
+  ]
+}

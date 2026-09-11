@@ -140,31 +140,45 @@ class TestTheBackdropHoldsStillUnderAPopup:
 
         assert a_popup_is_on_screen() is False
 
-    def test_a_tooltip_on_screen_stops_the_tick(self, qtbot, monkeypatch):
-        """THE UNCOVERED ARC.
+    def test_a_tooltip_on_screen_does_NOT_stop_the_tick(self, qtbot):
+        """The opposite of what this test used to assert, and deliberately.
 
-        The repaint burst a popup causes over a moving backdrop is what
-        the dock flickering was: a menu or a tooltip composites over the
-        native GL surface, and every frame the backdrop draws underneath
-        it forces the whole stack to be recomposited.
+        It guarded `if a_popup_is_on_screen():` in `_on_tick` and the clock
+        restart behind it. That guard WAS the backdrop freeze: it stopped
+        the animation whenever a menu or tooltip was up, and the animation
+        did not always start again.
 
-        Holding still costs nothing -- the clock is not read, so no time
-        is lost and the animation resumes exactly where it was.
+        THE HOLD WAS REMOVING A BURST THE POPUP DID NOT CAUSE. Widget
+        repaints over 1.2 s, an ambient backdrop behind forty labels and
+        twelve buttons:
+
+            menu open, hold ON        2      (the animation is stopped)
+            menu open, hold OFF   1,592
+            NO menu,   hold ON    1,590
+            NO menu,   hold OFF   1,590
+
+        The last two lines are the finding: a moving backdrop repaints
+        everything above it whether or not a popup is on screen, and the
+        popup adds 2 repaints in 1,592. So the guard was not sparing the
+        compositor anything -- it was switching the backdrop off, which is
+        a different feature and one nobody asked for.
+
+        Asserted on the SOURCE, exactly as the old test did, because the
+        thing being held is the absence of a branch and the positive fact
+        under it is the frame counts above, which live in the instruction
+        file rather than in a unit test.
         """
         pytest.importorskip("PySide6")
         from spacr.qt.widgets import ambient
-        from spacr.qt.widgets import popup_state
-
-        monkeypatch.setattr(popup_state, "a_popup_is_on_screen",
-                            lambda: True)
-        monkeypatch.setattr(ambient, "a_popup_is_on_screen", lambda: True)
 
         source = inspect.getsource(ambient)
-        assert "if a_popup_is_on_screen():" in source
-        guard = source.index("if a_popup_is_on_screen():")
-        assert "self._clock.restart()" in source[guard:guard + 200], (
-            "the popup guard no longer precedes the clock read, so a held "
-            "frame now loses the time it held for")
+        assert "if a_popup_is_on_screen():" not in source, (
+            "the popup hold is back in _on_tick; it stops the animation "
+            "rather than sparing the compositor, and it is what the "
+            "backdrop-freeze report was about")
+        assert not hasattr(ambient, "a_popup_is_on_screen"), (
+            "ambient imports the popup check again, which is how the guard "
+            "came back last time")
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,27 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "8180c52bcd1a656cd226c81a64977114b2690a9c09fa4bd3c8a85893c4537460",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "it",
+  "title": "Napari Bridge: modifica, importa e riapri in sicurezza",
+  "description": "Esegui un passaggio verificato pixel per pixel con immagine e maschera sintetiche, backup, Fill e Undo nativi, chiudendo e riaprendo tra le importazioni.",
+  "objectives": [
+    "Aprire Napari Bridge dentro Make Masks con file separati per immagine ed etichette.",
+    "Distinguere modifica nel visualizzatore, Undo, scrittura su disco e cronologia delle correzioni.",
+    "Chiudere e riaprire tra le importazioni, verificando entrambe le correzioni senza dichiarare risolto il difetto della stessa sessione."
+  ],
+  "prerequisite": "Estrai l’esempio esplicitamente SINTETICO in una cartella NUOVA e conserva un backup intatto. Immagine e maschera uint16 sono di 256x256 e contengono sedici oggetti; non si valida alcuna correzione biologica. È richiesto napari; la registrazione usa napari 0.9.1 e carattere di dimensione 20. In Napari Bridge, dentro Make Masks, scegli mask.tif e image.tif. Con Fill cambia 2 in 18, annulla, ripeti e premi Take the mask back: la maschera di lavoro viene sovrascritta e 2.197 pixel sono registrati in mask.tif.curation.json. CHIUDI e RIAPRI prima di un’altra modifica: una verifica precedente ha perso la seconda modifica nello stesso visualizzatore, dichiarandola invariata. Non si afferma che il difetto sia corretto. Dopo la riapertura cambia 4 in 20 e importa: cambiano 1.288 pixel ed entrambe le voci restano. Sono stati verificati tutti i 65.536 pixel di ciascuna maschera salvata; sorgente e intensità originali sono preservate. ID aggiunti/rimossi non significano cellule in più o in meno. API: spacr.napari_bridge.load_handoff, open_in_napari, write_back. Nessuna dichiarazione di addestramento, validazione biologica, uso senza restrizioni, pubblicazione o approvazione dell’ascolto.",
+  "scenes": [
+    "Apri Napari Bridge dentro Make Masks. Passa un’immagine e una maschera di etichette al visualizzatore opzionale napari, poi importa le etichette corrette. Questa lezione usa un esempio di esercizio chiaramente sintetico, non un esperimento biologico. Conserva un backup intatto: importare le correzioni sovrascrive la maschera di lavoro selezionata.",
+    "Scarica l’esempio ed estrailo in una cartella nuova. Seleziona mask punto tif, poi image punto tif, e premi Open in napari. Sono input diversi: le etichette intere degli oggetti vanno in Mask, mentre l’immagine di intensità è il riferimento visivo. L’esempio contiene sedici oggetti sintetici.",
+    "Napari si apre con un livello immagine e un livello Labels chiamato mask. Seleziona mask per modificare le etichette; lascia invariate le intensità dell’immagine. L’etichetta zero è lo sfondo. I colori distinguono le identità degli oggetti, non classi biologiche o confidenza. Per la registrazione abbiamo ingrandito il carattere reale dell’interfaccia, non l’immagine sorgente.",
+    "Torna a spaCR e fai clic su Take the mask back prima di modificare qualcosa. Lo stato segnala che la maschera è invariata e non viene scritto nulla. Importare è un’azione distinta dal modificare nel visualizzatore. Questo controllo senza modifiche non dimostra che una correzione successiva sia stata salvata: controlla anche quel risultato.",
+    "In napari seleziona l’etichetta diciotto, scegli Fill e fai clic sull’oggetto di esercizio etichettato due. Cambia soltanto l’etichetta di quell’oggetto. È un esercizio controllato di rietichettatura, non un miglioramento di una segmentazione biologica. Il file di lavoro sul disco non è ancora cambiato.",
+    "Usa Undo per ripristinare l’etichetta originale; questa registrazione usa Control Z. Poi ripeti lo stesso riempimento prima di importare. Undo agisce sulla cronologia delle modifiche del visualizzatore. Non confonderlo con il recupero di un file precedente dopo un’importazione: a quello servono i backup.",
+    "Fai clic su Take the mask back. Lo stato riporta duemilacentonovantasette pixel modificati e un file della cronologia. Un’etichetta è stata aggiunta e una rimossa perché due è diventato diciotto; gli oggetti sono ancora sedici. Verifica la maschera salvata e la cronologia, non soltanto il colore mostrato in napari.",
+    "Fai clic su Close viewer adesso, prima di un’altra modifica, quindi riaprilo. Questo passaggio è essenziale nella versione provata: una seconda modifica nello stesso visualizzatore poteva essere dichiarata invariata e andare persa. Mostriamo il procedimento verificato con chiusura e riapertura, non una correzione di quel difetto dell’applicazione.",
+    "Dopo la riapertura sostituisci l’etichetta quattro con venti e importa di nuovo. Cambiano milleduecentottantotto pixel e la voce precedente della cronologia resta presente. Chiudi il visualizzatore al termine. Conserva immagine originale, maschera corretta e provenienza, poi riesegui le misure interessate invece di riutilizzare risultati legati alle vecchie etichette."
+  ]
+}

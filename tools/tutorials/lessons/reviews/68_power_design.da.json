@@ -1,0 +1,29 @@
+{
+  "lesson": "68_power_design",
+  "english_sha256": "c70c0ea4d037c92883296dfc5b72dcc4e9cf5e7c331311afabbe1c56618147b6",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "da",
+  "title": "Power / Design: forstå simulatoren og dens begrænsninger",
+  "description": "Læs de faktiske kontroller, simulerede kurver og advarsler uden at tage en lille demonstration eller modstridende tekst for valideret designrådgivning.",
+  "objectives": [
+    "Skelne mellem simulationsantagelser og indsamlede forsøgsdata.",
+    "Læse brugbare modeltilpasninger, detektionsandele og usikkerhed korrekt.",
+    "Genkende det forkerte råd om samme design og bevare dokumentationen."
+  ],
+  "prerequisite": "Kritisk læsning af den optagede simulator, ikke kalibreret statistisk styrke eller råd om stikprøvestørrelse. Power_recorded_simulation_review.zip bevarer original JSON og gennemgang; det er hverken en importérbar kørsel eller en GUI-eksport. Skærm, adapter, simulator og tilpasningskode optaget med spaCR 1.5.0.4 er stadig byte-identiske med den aktuelle kode. To marginale scanninger gav 18 tilpasninger og ni punkter med to gentagelser hver; fire ikke-konvergerede tilpasninger forbliver i nævneren. To simulationer begrænsede sandsynligheder. Samme nominelle design med forskellige tilfældige træk giver 1/2 og 2/2 detektioner. Rådet om at øge til det allerede eksisterende brøndantal afvises og er ikke rettet. Nogle endemærkater er beskåret; den kontrollerede tabel har alle ni koordinater. Ingen ny simulation, indsamlede data, biologisk kalibrering, GPU-opgave, AI-forespørgsel eller publicering påstås. API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve og spacr.qt.screens.power.run_power_sweep; spacr.power_simulate og spacr.power_model simulerer og tilpasser.",
+  "scenes": [
+    "Power og Design undersøger antagelser med simulerede data. Det indlæser ikke et indsamlet forsøg og fastslår ikke, at antagelserne passer til dit. Lektionen gennemgår en faktisk optaget kørsel, inklusive advarsler og et misvisende råd. Brug ikke denne lille demonstration som valideret rådgivning om stikprøvestørrelse.",
+    "Start med biblioteket og den enhed, der vurderes. Skift mellem guide og gen ændrer vurderingsenheden: 40 gener og fire guider per gen giver 160 enheder ved guidescoring. Genscoring samler guideinformationen. Det er undervisningsantagelser, ikke nye biologiske målinger.",
+    "Plade- og effektkontrollerne beskriver det antagne design. Andelen af positive klassifikationer er en simuleret sandsynlighed, ikke et antal organismer eller en målt infektionsrate. Læs baggrund, effekt og prævalens samlet; viste antagelser validerer ikke modellen.",
+    "En effekt under én udløser den faktiske advarsel om en ikke-understøttet retning og deaktiverer Run. Optagelsen gendanner derefter en understøttet værdi og aktive kontroller. Det er en softwarebeskyttelse, ikke biologisk umulighed. Omgå ikke advarslen for at få en bekvem kurve.",
+    "Demonstrationen bruger kun to gentagelser per punkt. Detektion kræver en brugbar modeltilpasning, der når den valgte grænse for areal under ROC-kurven. Det er ikke en P-værdigrænse for hypotesetest. Seed og backend registreres; Torch alene beviser ikke GPU-kørsel.",
+    "Run starter den rigtige simulator på en arbejdstråd. Celleantal og brøndantal varieres hver for sig, ikke i alle kombinationer. Optagelsen gennemførte 18 tilpasninger på ni punkter. Gem indstillinger og rå gentagelser sammen, så hver tegnet andel kan spores til de tilpasninger, den bygger på.",
+    "Detektioner tælles over alle bestilte gentagelser. Fire tilpasninger konvergerede ikke og bliver i nævneren som ikke-detektioner; de droppes ikke skjult. Hundrede procent betyder her kun to af to. Så lille en stikprøve giver ikke en præcis detektionssandsynlighed.",
+    "Tabellen skelner mellem detektionsandele og gennemsnitlig præstation blandt brugbare tilpasninger. Et utilgængeligt gennemsnit er ikke nul. Average precision kræver også prævalensens referenceværdi. Læs tabellen ved beskårne endemærkater, og undersøg manglende konvergens frem for kun den blå linje.",
+    "Resuméet indeholder en fejl. Begge basisestimater bruger allerede 96 brønde, men forskellige tilfældige træk giver én af to detektioner i den ene scanning og to af to i den anden. At gå til de samme 96 brønde forbedrer ikke designet. Afvis rådet; tutorialen reparerer det ikke.",
+    "Udvid resten af forbeholdene. To simulerede screeninger begrænsede sandsynligheder over én, så den realiserede belægning afviger fra den ønskede. Modellen har flere antagelser og begrænsninger; at opregne dem er ikke validering. Læs advarsler og mislykkede tilpasninger før konklusioner.",
+    "Det linkede arkiv bevarer den faktiske specifikation, gentagelser, kurver, tabel og forkerte tekst. Det er ekstern dokumentation, ikke en indbygget GUI-eksport eller et importeret resultat. Pythons designadapter og simulations-API'er giver samme forløb, men reel planlægning kræver særskilt validering af antagelser og usikkerhed."
+  ]
+}

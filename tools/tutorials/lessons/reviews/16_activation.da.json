@@ -1,0 +1,31 @@
+{
+  "lesson": "16_activation",
+  "english_sha256": "6f8189daab03810cf6b72012611016b44e86beba9c6a8071253598284399188f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "da",
+  "title": "Activation Maps: reelle salienskort og deres begrænsninger",
+  "description": "Åbn Activation Maps i Classify, match en betroet model med reelle billedudsnit, og sammenlign to resultater uden at forveksle attribution med validering.",
+  "objectives": [
+    "Find det indlejrede værktøj, og bevar modellens inputkrav.",
+    "Skeln mellem forbehandling, visningskontrast og attribution.",
+    "Undersøg gemte filer, når Figures er tomt.",
+    "Adskil numerisk kontrol, forudsigelser og videnskabelig gyldighed."
+  ],
+  "prerequisite": "Fire uændrede RGB-celleudsnit fra Annotates downloadede eksempel og et betroet lokalt ResNet18-checkpoint trænet én epoke. Det tidligere eksempel deler brønde mellem datasplit: INGEN påstand om uafhængig nøjagtighed. Bevar formatmarkør 3/RGB og modelkort. Størrelse 128, batch 4, kanaler [1,2,3], normalize_input/normalize/Plot/Save til, shuffle/correlation fra, én CPU-proces. saliency_channel med overlejring og saliency_image uden. 196608 inputværdier og 262144 kortkomponenter kontrolleret med højst ét 8-bit afrundingsniveau. Identiteter og originaler uændrede. src-advarsel og tomt Figures IKKE rettet; ægte PNG-filer vises eksternt. Fire ubrugte pladser er tomme. Ingen attributionsvalidering, uafhængig nøjagtighed, AI-forespørgsel, biologisk validering eller publicering. API: spacr.deep_spacr.generate_activation_maps og spacr.utils.SaliencyMapGenerator.",
+  "scenes": [
+    "Åbn Classify og derefter det indlejrede værktøj Activation Maps. Denne arbejdsgang undersøger, hvordan en trænet models forudsigelse reagerer på billedpixels. Den træner ikke en klassifikator og fastslår ikke årsagen til en observeret fænotype. Vi viser to reelle salienskørsler, konsollen og en udtrykkelig vej til at se gemte filer.",
+    "Brug det faktiske udsnitsarkiv, ikke en eksempelmappe. Vores lille arkiv indeholder fire uændrede RGB-celleudsnit fra Annotates downloadede eksempel samt formatmarkøren. Vi bevarer kilderne og arbejder i et privat projekt. Fire bekvemt valgte billeder illustrerer funktionen; de er ikke en repræsentativ valideringsgruppe.",
+    "Vælg den tilsvarende betroede model, og bevar modelkortet. Dette er et ResNet18-checkpoint trænet i kun én epoke i den tidligere demonstration. Dets datasplit delte brønde, så vi hævder ingen uafhængig nøjagtighed. Et overbevisende attributionsbillede redder ikke en utilstrækkeligt valideret model. Indlæs ikke et ubekræftet checkpoint af bekvemmelighed.",
+    "Match træningens inputkrav: størrelse 128 og den deklarerede RGB-kanalrækkefølge. Her bruger den faktiske kanalvælger 1, 2, 3. Byt ikke kanaler, fordi et andet værktøj bruger indeks fra nul. Vi kontrollerede uafhængigt de centrerede udsnit og transformerede inputværdier mod træningens indlæser, før saliens blev sammenlignet.",
+    "Skeln mellem inputnormalisering og visningsnormalisering. Input skal matche træningen; her er den registrerede symmetriske forbehandling slået til. Visningsnormalisering ændrer den overlejrede inputvisning, ikke modellens nøjagtighed eller betydningen af en farve. Bevar begge indstillinger ved sammenligning, og forveksl ikke et lysere billede med stærkere evidens.",
+    "Vælg saliency channel med Overlay aktiveret, og behold Plot og Save. Vi bruger én arbejdsproces, fire billeder pr. batch og CPU til denne lille demonstration. Skærmen har ingen livevisning; et metodeskift kræver en ny kørsel. Kanalsaliens holder inputkanalerne adskilt, når de afledningsbaserede kort gemmes.",
+    "Læs den faktiske konsol. Beregningen afsluttes, men denne version klager fejlagtigt over manglende src, selvom Activation bruger Dataset. Figures-panelet forbliver også tomt. Vi kontrollerede uafhængigt input, gemte kort og databaseidentiteter; vi rettede ikke GUI-fejlene. Andre fejl skal stadig undersøges.",
+    "Åbn det gemte batchgitter i en billedfremviser. Dette er den rigtige eksterne fremviser, ikke en figur indsat i spaCR. Fire udfyldte pladser svarer til de fire udsnit; de øvrige fire er ubrugte. Hjørnetallene nul og ét er modelforudsigelser, ikke facit. Overlejringen viser følsomhed, ikke en segmenteringsmaske.",
+    "Vælg nu saliency image, slå Overlay fra, og kør igen på de samme input. Metoden kombinerer absolutte afledte på tværs af kanaler, før det gemte gråtonekort skaleres igen. Det er ikke okklusion eller integrerede gradienter. Hold metodespecifikke resultater adskilt, så anden kørsel ikke forveksles med første.",
+    "Det andet gemte gitter viser kortene uden de underliggende billeder. Farverne viser den viste saliensskala, ikke klassesandsynligheder eller bevis for biologisk betydning. Uafhængige kontroller sammenligner hver gemt komponent med en separat beregnet gradient og tillader højst ét afrundingsniveau i otte bit. Det kontrollerer implementeringen, ikke forklaringens nytte.",
+    "Kortkvantificering er slået fra. Vi har ikke kørt sletning, indsættelse, modelrandomisering eller andre attributionsvalideringer; to visuelt forskellige metoder erstatter dem ikke. Brug repræsentative fejl og succeser, meningsfulde kontroller og uafhængigt tilbageholdte data, før du konkluderer. Betragt denne begrænsede demonstration som en kontrol af arbejdsgangen.",
+    "Bevar udsnitsidentiteter, originalbilleder, model og kort, indstillinger, logs, salienskort og database samlet. Kilderne forblev uændrede, og begge metoder bevarede alle fire identiteter. AI-hjælp er valgfri; ingen forespørgsel blev sendt her. Kontrollér senere råd mod den faktiske API og evidensen, frem for at tage en flydende forklaring for validering."
+  ]
+}

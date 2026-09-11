@@ -170,7 +170,10 @@ class TestWhatIsRefused:
         with pytest.raises(ValueError) as caught:
             S.process_chunk(_chunk([], references, end=0))
 
-        assert "expected_end must be a positive integer" in str(caught.value)
+        # NAMED FOR THE SETTING THE USER HAS, not for the parameter this
+        # function happens to call it. 364 renamed `expected_end` to
+        # `window_length`, and the message went with it; the test did not.
+        assert "window_length must be a positive integer" in str(caught.value)
 
     def test_a_regex_without_the_named_groups_is_refused(self, references):
         column_csv, grna_csv, row_csv = references

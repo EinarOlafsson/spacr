@@ -868,6 +868,17 @@ setup(
         # `pip install spacr[headless]` could resolve a different opencv
         # than `pip install spacr`.
         'headless': ['opencv-python-headless>=4.9.0.80,<5.0'],
+        # `pip install spacr[embeddings]` — the self-supervised feature
+        # source in `spacr/embeddings.py`. timm is the backbone registry the
+        # encoder resolves `DEFAULT_BACKBONE` through; torch is already a
+        # core dependency, so this extra is one package.
+        #
+        # AN EXTRA RATHER THAN A CORE DEPENDENCY because the import is
+        # function-local and already refuses in a way the user can act on:
+        # `_timm_encoder` raises `EmbeddingError("self-supervised embeddings
+        # need torch and timm; install the `spacr[torch]` extra")`. Every
+        # other surface in the package imports and runs without it.
+        'embeddings': ['timm>=0.9,<2.0'],
         # `pip install spacr[trackastra]` — transformer-based object tracking
         # (timelapse_mode='trackastra'). Optional because it pulls its own
         # pretrained weights on first use; trackpy/btrack/iou stay available

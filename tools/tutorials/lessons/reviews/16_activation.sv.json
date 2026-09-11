@@ -1,0 +1,31 @@
+{
+  "lesson": "16_activation",
+  "english_sha256": "6f8189daab03810cf6b72012611016b44e86beba9c6a8071253598284399188f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "sv",
+  "title": "Activation Maps: verkliga salienskartor och deras begränsningar",
+  "description": "Öppna Activation Maps i Classify, matcha en betrodd modell med riktiga bildutsnitt och jämför två resultat utan att förväxla attribution med validering.",
+  "objectives": [
+    "Hitta det nästlade verktyget och bevara modellens indatakrav.",
+    "Skilj förbehandling, visningskontrast och attribution.",
+    "Granska sparade filer när Figures är tomt.",
+    "Skilj numerisk kontroll, förutsägelser och vetenskaplig giltighet."
+  ],
+  "prerequisite": "Fyra oförändrade RGB-cellutsnitt från Annotates nedladdade exempel och en betrodd lokal ResNet18-kontrollpunkt tränad en epok. Det tidigare exemplet delar brunnar mellan delmängder: INGEN oberoende träffsäkerhet påstås. Bevara formatmarkör 3/RGB och modellkort. Storlek 128, batch 4, kanaler [1,2,3], normalize_input/normalize/Plot/Save på, shuffle/correlation av, en CPU-process. saliency_channel med överlagring och saliency_image utan. 196608 indatavärden och 262144 kartkomponenter kontrollerade, högst ett åttabitars avrundningssteg tillåtet. Identiteter och original oförändrade. src-varning och tomt Figures INTE lagade; verkliga PNG-filer visas externt. Fyra oanvända platser är tomma. Ingen attributionsvalidering, oberoende träffsäkerhet, AI-förfrågan, biologisk validering eller publicering. API: spacr.deep_spacr.generate_activation_maps och spacr.utils.SaliencyMapGenerator.",
+  "scenes": [
+    "Öppna Classify och därefter det nästlade verktyget Activation Maps. Arbetsflödet undersöker hur en tränad modells förutsägelse reagerar på bildpixlar. Det tränar ingen klassificerare och fastställer inte orsaken till en observerad fenotyp. Vi visar två verkliga salienskörningar, konsolen och en uttryckligen filbaserad visningsväg.",
+    "Använd det faktiska utsnittsarkivet, inte en platshållarmapp. Vårt lilla arkiv innehåller fyra oförändrade RGB-cellutsnitt från Annotates nedladdade exempel och deras formatmarkör. Vi bevarar källorna och arbetar i ett privat projekt. Fyra praktiskt valda bilder illustrerar funktionen; de är ingen representativ valideringsgrupp.",
+    "Välj den matchande betrodda modellen och bevara modellkortet. Detta är en ResNet18-kontrollpunkt som tränades en enda epok i föregående demonstration. Dess uppdelning delade brunnar, så vi hävdar ingen oberoende träffsäkerhet. En övertygande attributionsbild räddar inte en otillräckligt validerad modell. Ladda inte en opålitlig kontrollpunkt av bekvämlighet.",
+    "Matcha träningens indatakrav: storlek 128 och deklarerad RGB-kanalordning. Här använder den faktiska kanalväljaren 1, 2, 3. Byt inte kanaler för att ett annat verktyg använder nollbaserade index. Vi kontrollerade oberoende de centralt utskurna och transformerade indatavärdena mot träningsinläsaren innan saliens jämfördes.",
+    "Skilj indatanormalisering från visningsnormalisering. Indata måste matcha träningen; här används den registrerade symmetriska förbehandlingen. Visningsnormalisering ändrar hur den överlagrade indatabilden ser ut, inte modellens träffsäkerhet eller betydelsen av en färg. Bevara båda inställningarna vid jämförelser; en ljusare bild är inte starkare evidens.",
+    "Välj saliency channel med Overlay aktiverat och behåll Plot och Save. Vi använder en arbetsprocess, en batch om fyra och CPU för denna lilla demonstration. Skärmen saknar direktförhandsvisning; en metodändring kräver en ny körning. Kanalsaliens behåller indatakanalerna separata när de derivatbaserade kartorna sparas.",
+    "Läs den faktiska konsolen. Beräkningen slutförs men denna version klagar felaktigt på saknat src trots att Activation använder Dataset. Figures-panelen förblir också tom. Vi kontrollerade oberoende indata, sparade kartor och databasidentiteter; vi lagade inte GUI-felen. Andra fel behöver fortfarande undersökas.",
+    "Öppna det sparade batchrutnätet i en bildvisare. Detta är den riktiga externa visaren, inte en figur insatt i spaCR. Fyra fyllda platser motsvarar våra utsnitt; de övriga fyra är oanvända. Hörnetiketterna noll och ett är modellförutsägelser, inte facit. Överlagringen visar känslighet, inte en segmenteringsmask.",
+    "Välj nu saliency image, stäng av Overlay och kör igen med samma indata. Metoden kombinerar absoluta derivator över kanalerna innan den sparade gråskalekartan skalas om. Det är inte ocklusion eller integrerade gradienter. Håll metodernas utdata separata så att den andra körningen inte förväxlas med den första.",
+    "Det andra sparade rutnätet visar kartorna utan underliggande bilder. Färgerna visar den presenterade saliensskalan, inte klassannolikheter eller bevis för biologisk betydelse. Oberoende kontroller jämför varje sparad komponent med en separat beräknad gradient och tillåter högst ett åttabitars avrundningssteg. Det kontrollerar implementationen, inte förklaringens nytta.",
+    "Kartkvantifieringen är avstängd. Vi har inte kört borttagning, insättning, modellrandomisering eller andra attributionsvalideringar; två visuellt olika metoder ersätter inte dem. Använd representativa fel och framgångar, meningsfulla kontroller och oberoende undanhållna data innan du drar slutsatser. Den här begränsade demonstrationen kontrollerar arbetsflödet.",
+    "Bevara utsnittsidentiteter, originalbilder, modell och kort, inställningar, loggar, kartor och databas tillsammans. Källfilerna var oförändrade och båda metoderna bevarade alla fyra identiteter. AI-hjälp är valfri; ingen förfrågan skickades här. Kontrollera senare råd mot faktisk API och evidens i stället för att betrakta en flytande förklaring som validering."
+  ]
+}

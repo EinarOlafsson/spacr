@@ -240,6 +240,23 @@ def record_lineage(app,window,stage,captures,capture,settle,write_json,timeout):
             actual_crop_sha256=record['sha256'],note=annotate._request_note,shown=1,missing=0,
             cell_crop_loaded=True,child_crops_in_source=False,labels_edited=False,gesture='double-click parent only')
         capture('22_verified_parent_only_real_cell_crop')
+        # Native inspection gesture, not a plain click that would assign a class.
+        # Preserve the actual thumbnail and check the overlay displays that slot.
+        original_pixmap = annotate._thumb_pixmaps[0].cacheKey()
+        QTest.mouseClick(annotate._thumbs[0],Qt.LeftButton,Qt.ShiftModifier)
+        settle(.4)
+        if not annotate._zoom_is_open() or annotate._zoom_overlay.slot != 0:
+            raise ValueError('Native Shift-click did not open the verified parent crop')
+        if annotate._thumb_pixmaps[0].cacheKey() != original_pixmap:
+            raise ValueError('Zoom unexpectedly replaced the verified thumbnail')
+        capture('22a_zoom_parent_without_labelling')
+        QTest.keyClick(annotate._zoom_overlay,Qt.Key_Escape);settle(.4)
+        if annotate._zoom_is_open():
+            raise ValueError('Native Escape did not dismiss the crop zoom')
+        proof['crop_zoom'] = dict(native_shift_click=True,slot=0,
+            same_thumbnail_preserved=True,escape_restored_grid=True,
+            new_image_resolution_created=False)
+        capture('22b_parent_grid_restored')
         database_route('23_return_for_reload');click(screen._reload);check('24_rebuild_preserves_full_containment')
         # Explicit API-only export, never described as a nonexistent GUI button.
         path=work/'lineage_api_export.csv';lin.lineage_frame(screen._forest).to_csv(path,index=False)

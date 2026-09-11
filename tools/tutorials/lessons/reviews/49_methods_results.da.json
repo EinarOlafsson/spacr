@@ -1,0 +1,28 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "d2163a967fc43b378f61bc985a7f3c18c1652600a63cbdb34d21a9aa583dc210",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "da",
+  "title": "Methods & Results: opret, gennemgå og eksportér et udkast",
+  "description": "Åbn det indlejrede værktøj, brug den virkelige Regression-kørsel, find tre gennemgangsproblemer og bevar en Markdown-eksport markeret som ikke gennemgået.",
+  "objectives": [
+    "Find værktøjet i Regression og vælg kilder fra den afsluttede kørsel.",
+    "Skeln mellem registrerede fakta, udledte standarder og kandidatbetegnelser.",
+    "Kopiér og eksportér det uændrede udkast med strukturerede data.",
+    "Skeln mellem eksport og talkontrol på den ene side og videnskabelig godkendelse på den anden."
+  ],
+  "prerequisite": "Afslut først Regression-eksemplet med downloadede data; bevar originalt projekt, kørselsjournal og guide_permutation-resultater. Lektionen gennemgår og eksporterer, men godkender ikke et manuskript eller retter appen. Journalen angiver guide_permutation_seed=0, ikke et globalt seed; udkastet udleder separat seed=42. Generatorerne er ikke udskiftelige, og det anvendte globale seed er ikke verificeret. Analyseversion spaCR 1.5.0.4; udkastet nævner eksportør 1.5.0.5. Alle 325 BH-værdier kontrolleret uafhængigt: ingen q<0.05, minimum 0.2708333333333333. Ti kandidaters effekt/p/q stemmer, men ikke alle guideantal eller videnskabelige antagelser er godkendt. Copy sections og Export Markdown bevarer tekst og præcise data i UNREVIEWED_methods_results.md. Input uændret; ingen udbyder, ny regression, godkendelse eller offentliggørelse. API: spacr.methods_export.build_digest, render_methods, render_results. Det tidligere forbehold om videnskabelig nøjagtighed bevares.",
+  "scenes": [
+    "Åbn Regression fra Home og derefter det indlejrede Methods and Results-værktøj. Denne lektion står under Regression i undermodulsektionen. Den bruger det virkelige afsluttede eksempel fra Regression-lektionen, ikke opdigtede resultater. Målet er at oprette, undersøge og bevare et udkast, ikke automatisk godkende et manuskript.",
+    "Vælg projektmappen, journalen for netop denne kørsel og dens mappe med regressionsresultater. Lad Classifier være tom: Eksemplet beskriver en regression, ikke et klassifikator-checkpoint. Bevar originalerne uændret. Enslydende navne er ikke nok: Bekræft, at journal og resultater tilhører samme afsluttede kørsel.",
+    "Klik på Build digest. Methods, Results, Caveats og Run digest dannes uden kontakt til en AI-udbyder. Afsnittene er udgangspunkt for gennemgang. Her nævner teksten eksportørens version, mens den oprindelige journal angiver en anden analyseversion. Rapportér den version, der faktisk udførte analysen.",
+    "Læs forbeholdene frem for at opfatte vellykket opbygning som validering. Her siger den generelle seed-sætning toogfyrre. Originaljournalen angiver udtrykkeligt nul for permutationerne, men ikke et globalt seed. Erstat ikke alle toogfyrre med nul: Skeln først mellem generatorerne og deres registrerede oprindelse.",
+    "Fanen Run digest viser de strukturerede oplysninger. Sammenlign angivne indstillinger og gemt miljø med teksten. En standardværdi udledt ved eksport beviser ikke tidligere udførelse. Bevar advarsler og åbne spørgsmål, herunder manglende kvalitetskontroloplysninger; en manglende rapport beviser ikke bestået kontrol.",
+    "Den gemte gentabel rummer tre hundrede femogtyve test, og ingen er signifikant ved q-grænsen nul komma nul fem. Mindste q er cirka nul komma syvogtyve. Derfor er overskriften strongest hits misvisende: Det er rangerede kandidater, ikke opdagelser. Kontrollér hele den korrigerede testfamilie, ikke kun interessante øverste rækker.",
+    "Copy sections kopierer de viste Methods og Results sammen. Det retter ikke formuleringer, godkender ikke tallene og medtager ikke det strukturerede bilag. Bevar en uredigeret kopi før særskilt dokumenterede ændringer. Afklar seed, version og kandidatbetegnelser med kilderne, før teksten bruges i en rapport.",
+    "Export Markdown gemmer begge afsnit og kørselsdata som bilag. Vælg et nyt filnavn, her udtrykkeligt markeret som ikke gennemgået. Den rigtige Save-handling opretter filen, og vores kontrol bekræfter, at tekst og strukturerede data svarer til skærmen. Vellykket eksport er ikke videnskabelig godkendelse.",
+    "Draft with AI er valgfrit og bruges ikke her. Det sender dataoversigten til den konfigurerede udbyder; gennemgå først indhold og privatliv. En talkontrol kan ikke afgøre, om en sætning betyder det rigtige. Python tilbyder build_digest, render_methods og render_results til samme forløb med samme behov for gennemgang."
+  ]
+}

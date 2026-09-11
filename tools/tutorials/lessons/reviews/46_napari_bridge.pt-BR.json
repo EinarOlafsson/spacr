@@ -1,0 +1,27 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "8180c52bcd1a656cd226c81a64977114b2690a9c09fa4bd3c8a85893c4537460",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "pt-BR",
+  "title": "Napari Bridge: edite, importe e reabra com segurança",
+  "description": "Pratique uma ida e volta verificada pixel a pixel com imagem e máscara sintéticas, backups, Fill e Undo nativos e fechamento e reabertura entre importações.",
+  "objectives": [
+    "Abrir Napari Bridge dentro de Make Masks com arquivos separados de imagem e rótulos.",
+    "Distinguir edição no visualizador, Undo, gravação em disco e histórico de correções.",
+    "Fechar e reabrir entre importações, verificando ambas as correções sem alegar que o defeito da mesma sessão foi corrigido."
+  ],
+  "prerequisite": "Extraia o exemplo explicitamente SINTÉTICO para uma pasta NOVA e mantenha um backup intacto. A imagem e a máscara uint16 têm 256x256 e dezesseis objetos; nenhuma correção biológica é validada. napari é necessário; a gravação usa napari 0.9.1 e fonte de tamanho 20. Em Napari Bridge, dentro de Make Masks, escolha mask.tif e image.tif. Com Fill, troque 2 por 18, desfaça, repita e clique em Take the mask back: a máscara de trabalho é sobrescrita e 2.197 pixels são registrados em mask.tif.curation.json. FECHE e REABRA antes de editar novamente: uma verificação anterior perdeu a segunda edição no mesmo visualizador, declarando-a inalterada. Não se afirma que o defeito foi corrigido. Após reabrir, troque 4 por 20 e importe: 1.288 pixels mudam e as duas entradas permanecem. Todos os 65.536 pixels de cada máscara salva foram verificados; fonte e intensidades originais foram preservadas. IDs adicionados/removidos não significam células extras ou ausentes. API: spacr.napari_bridge.load_handoff, open_in_napari, write_back. Sem alegar treinamento, validação biológica, uso irrestrito, publicação ou aprovação auditiva.",
+  "scenes": [
+    "Abra Napari Bridge dentro de Make Masks. Ele passa uma imagem e uma máscara de rótulos para o visualizador opcional napari e depois importa os rótulos corrigidos. Esta aula usa um exemplo de prática claramente sintético, não um experimento biológico. Mantenha um backup intacto: importar correções sobrescreve a máscara de trabalho selecionada.",
+    "Baixe o exemplo e extraia-o para uma pasta nova. Selecione mask ponto tif, depois image ponto tif, e pressione Open in napari. São entradas diferentes: os rótulos inteiros dos objetos vão em Mask, enquanto a imagem de intensidade é a referência visual. O exemplo contém dezesseis objetos sintéticos.",
+    "Napari abre com uma camada de imagem e uma camada Labels chamada mask. Selecione mask para editar; mantenha as intensidades da imagem inalteradas. O rótulo zero é o fundo. As cores distinguem identidades dos objetos, não classes biológicas nem confiança. Aumentamos a fonte real da interface para a gravação, não a imagem original.",
+    "Volte ao spaCR e clique em Take the mask back antes de mudar qualquer coisa. O status informa que a máscara não mudou e nada é gravado. Importar é uma ação separada de editar no visualizador. Essa verificação sem mudanças não prova que uma correção posterior foi salva; confira também esse resultado.",
+    "No napari, selecione o rótulo dezoito, escolha Fill e clique no objeto de prática rotulado como dois. Só o rótulo desse objeto muda. É um exercício controlado de troca de rótulos, não uma melhoria de uma segmentação biológica. O arquivo de trabalho em disco ainda não mudou.",
+    "Use Undo para restaurar o rótulo original; esta gravação usa Control Z. Depois repita o mesmo preenchimento antes de importar. Undo atua no histórico de edição do visualizador. Não confunda isso com recuperar um arquivo anterior depois de uma importação: mantenha backups para essa finalidade.",
+    "Clique em Take the mask back. O status informa dois mil cento e noventa e sete pixels alterados e um arquivo de histórico. Um rótulo foi adicionado e outro removido porque dois virou dezoito; ainda há dezesseis objetos. Verifique a máscara salva e o histórico, não apenas a cor exibida no napari.",
+    "Clique em Close viewer agora, antes de outra edição, e reabra o visualizador. Esse passo é essencial na versão testada: uma segunda edição no mesmo visualizador podia ser declarada inalterada e perdida. Demonstramos o fluxo verificado de fechar e reabrir, não uma correção desse defeito do aplicativo.",
+    "Depois de reabrir, substitua o rótulo quatro por vinte e importe novamente. Isso altera mil duzentos e oitenta e oito pixels, e a entrada anterior do histórico permanece. Feche o visualizador ao terminar. Guarde a imagem original, a máscara corrigida e sua procedência, e refaça as medições afetadas em vez de reutilizar resultados ligados a rótulos antigos."
+  ]
+}

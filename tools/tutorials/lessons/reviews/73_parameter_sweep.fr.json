@@ -1,0 +1,31 @@
+{
+  "language": "fr",
+  "title": "Balayage de paramètres",
+  "description": "Exécuter deux essais dans Regression et distinguer réussite du calcul et validité de l’inférence.",
+  "objectives": [
+    "Sélectionner quatre paires ordonnées de fichiers de scores et de comptages.",
+    "Limiter la grille à deux essais et un processus, puis lire les résultats enregistrés.",
+    "Distinguer les familles de coefficients et signaler les contrôles d’inférence en échec."
+  ],
+  "prerequisite": "Utilisez les quatre paires de plaques téléchargées dans la leçon Regression et un nouveau dossier de sortie. Les deux essais ridge échouent aux contrôles d’inférence : ce n’est pas une analyse de découvertes validée. Seul alpha varie, 0.01 et 0.1 ; inférence paramétrique, moyennes par puits et absence de transformation sont fixées. Les autres réglages du parent ne sont pas tous hérités. n_rows_fitted compte 1174 coefficients, pas 620 puits ni 2955 lignes préparées. Consultez sweep_results.csv et les réglages réels : la table omet alpha et les verdicts de qualité. API : spacr.parameter_sweep.SweepSpace et run_sweep_parallel. Aucun benchmark GPU, appel externe à l’IA, accord de locuteur natif ou publication.",
+  "scenes": [
+    "Ouvrez Regression, puis Parameter sweep en bas à droite. Ce workflow se trouve dans Regression, pas sur une tuile Home distincte. La leçon Regression explique le téléchargement des quatre paires de fichiers de scores et de comptages réutilisées ici.",
+    "Vérifiez les listes d’entrée propres au balayage. Elles sont initialement vides même si le formulaire parent contient des données appariées. Ajoutez les quatre fichiers de scores et les quatre fichiers de comptages dans le même ordre de plaques. Choisissez un nouveau dossier de sortie pour ne pas écraser une analyse antérieure.",
+    "Cochez seulement alpha, avec zéro virgule zéro un et zéro virgule un. Les lignes non cochées fournissent tout de même des réglages fixes. Nous choisissons explicitement ridge, une inférence paramétrique, des moyennes par puits et aucune transformation. Cette recette limitée illustre le fonctionnement ; ce n’est pas une recommandation expérimentale.",
+    "Choisissez grid, deux essais au maximum et un seul processus, puis cliquez sur Estimate. Deux combinaisons valides signifie que les réglages sont autorisés, pas que les conclusions statistiques sont valides. L’estimation suppose une minute par essai ; ce n’est pas un benchmark. Lisez les limites de ressources avant de démarrer.",
+    "Cliquez sur Start sweep, pas sur Run dans le formulaire parent. Chaque essai écrit dans son propre dossier. Ces deux essais réels s’exécutent successivement ; davantage de processus demandent davantage de ressources. L’exemple utilise une régression sur CPU, pas une accélération GPU, et ne nécessite aucun appel à spaCR AI.",
+    "Les deux lignes indiquent ok parce que le calcul est terminé. Point essentiel : les deux contrôles d’inférence enregistrés indiquent fail. La table omet ces verdicts et l’alpha variable : consultez le fichier complet des résultats et les réglages de chaque essai. Ne choisissez pas un modèle simplement parce qu’il produit davantage de petites valeurs P ajustées.",
+    "Sélectionnez la première ligne et cliquez sur Show figures for selected row. Les résultats enregistrés sont lus sans nouvel ajustement. La vue des guides contient sept cent quatre-vingt-douze lignes de coefficients, dont une constante ; le graphique exclut ce terme et montre sept cent quatre-vingt-onze guides. La hauteur représente moins le logarithme décimal de la valeur P brute.",
+    "Passez Level à Gene. La table contient maintenant trois cent quatre-vingt-deux lignes, dont sa constante, et le graphique montre trois cent quatre-vingt-un gènes. Guides et gènes constituent des familles de coefficients distinctes. Changer de vue ne valide pas l’inférence en échec et ne crée pas de preuve indépendante.",
+    "Revenez aux guides : les lignes et points d’origine réapparaissent sans modifier les fichiers enregistrés. Le champ rows fitted du résumé est trompeur ici : il compte les lignes de coefficients, pas les puits. Distinguez effectif d’entrée, nombre de coefficients et famille représentée lorsque vous rapportez une analyse.",
+    "Consultez ensemble les réglages, le résumé et les fichiers de contrôle qualité enregistrés. Un graphique ou une explication d’IA ne certifie pas un plan expérimental. Regression Diagnostics présente d’autres vérifications ; la référence API documente l’exécution des balayages. Cet exemple enseigne un workflow reproductible et ses limites, pas des découvertes biologiques validées."
+  ],
+  "lesson": "73_parameter_sweep",
+  "english_sha256": "2b6898d74bd7929cc6bf8b5c6e405457ee2e14e57608d9fd649a32b88106f307",
+  "review": {
+    "kind": "Editorial translation of frozen English; actual failed inference and recorded numerical limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}

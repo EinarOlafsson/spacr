@@ -5024,7 +5024,7 @@ UI = {
     'power': 'सांख्यिकीय शक्ति',
     'pred': 'पहले',
     'prediction': 'भविष्यवाणी',
-    'press Escape to close': 'प्रेस बंद करने से बचें',
+    'press Escape to close': 'बंद करने के लिए Escape दबाएँ',
     'print': 'प्रिंट',
     'product': 'उत्पाद',
     'project or plate folder': 'प्रोजेक्ट या प्लेट फ़ोल्डर',

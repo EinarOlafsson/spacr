@@ -1,0 +1,31 @@
+{
+  "lesson": "59_anndata_export",
+  "english_sha256": "9023fb5acff23af9a0eacb7757aca45fd4c4d4cccf8f64227a5874d7df2b1864",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "it",
+  "title": "AnnData Export: percorso attuale e soluzione API verificata",
+  "description": "Trova l’esportatore integrato, comprendi l’errore dei metadati mancanti ed esporta l’esempio reale con una soluzione Python esplicita e verificata.",
+  "objectives": [
+    "Trovare AnnData Export in Measure e il database sorgente.",
+    "Distinguere l’errore della GUI dalla soluzione API senza inventare metadati.",
+    "Confrontare matrici unite, cellulari e nucleari e quattro criteri per i valori mancanti.",
+    "Riaprire i file preservando identità, annotazioni, immagini e provenienza."
+  ],
+  "prerequisite": "Usa una COPIA di measurements.db dell’esempio scaricato in Annotate, mantenendo originali e immagini. Metti lo script collegato accanto alla copia nell’ambiente spaCR. Richiama spacr.anndata_export.build_anndata e codifica solo colonne oggetto di obs interamente mancanti come categorie vuote. I valori rimangono mancanti, senza inventare calibrazione o etichette né modificare X in questa codifica. NON ripara la GUI. Rifiuta destinazioni esistenti, salva un nuovo file e ne verifica la rilettura. Controlli SQLite: unito/keep 2341x1136; cell/keep e cell/mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341. Nessun UMAP, calcolo GPU, immagine incorporata, richiesta AI, validazione biologica o pubblicazione. L’errore originale resta conservato.",
+  "scenes": [
+    "Apri Measure, poi il suo strumento integrato AnnData Export. AnnData contiene una matrice oggetti per caratteristiche, insieme ai metadati delle osservazioni e ai nomi delle caratteristiche. Mostriamo il percorso attuale della GUI, ma le esportazioni riuscite usano una soluzione esplicita in Python. Non affermiamo che il difetto dell’esportazione dalla GUI sia risolto.",
+    "Usa una copia del vero database di misure scaricato, non una tabella inventata. Conserva immagini e database originale senza modifiche. La GUI accetta la cartella del progetto; il nostro esempio da riga di comando accetta il file del database stesso. Disattiva la proiezione opzionale per questo confronto. Esportare una matrice non richiede una GPU.",
+    "Osserva prima l’errore dello scrittore originale. Alcune colonne delle osservazioni contengono solo valori mancanti con tipo oggetto, che questo scrittore non sa serializzare. La calibrazione sconosciuta dei voxel è un esempio. Codice di uscita uno e file parziale non indicano successo. Non sostituire valori sconosciuti con zero o con il testo None per nascondere l’errore.",
+    "Scarica lo script collegato ed esamina la soluzione di memorizzazione. Usa la vera funzione build_anndata, poi codifica soltanto metadati oggetto interamente mancanti come colonne categoriche vuote. I mancanti rimangono mancanti; metadati noti e matrice delle caratteristiche non cambiano durante questa codifica. Ciò non rende la calibrazione fisica una grandezza scientifica categorica.",
+    "Esegui lo script con il database sorgente, un nuovo percorso di uscita e il criterio keep. L’esempio unito contiene duemilatrecentoquarantuno cellule e millecentotrentasei caratteristiche. Le misure di nuclei e patogeni collegati vengono aggregate sulle cellule. Quattrocentomilatrecentoventi valori delle caratteristiche restano mancanti, non diventano zeri.",
+    "Per le misure proprie di un tipo di oggetto, aggiungi single-table cell e conserva i mancanti. Il file mantiene duemilatrecentoquarantuno cellule ma solo duecentosessantuno caratteristiche. Mancano ventotto valori. Confronta nomi delle caratteristiche e identità delle righe, non soltanto dimensioni del file o numero di colonne.",
+    "Il criterio mean è una scelta analitica distinta, non parte della soluzione di memorizzazione. Qui riempie ventotto valori mancanti con le medie osservate delle colonne. Il livello dei valori mancanti esportato ne registra le posizioni originali. Verifica che l’imputazione sia appropriata: una matrice completa non è automaticamente migliore o priva di distorsioni.",
+    "Il criterio drop-features elimina colonne contenenti valori mancanti. Qui vengono tolte quattro colonne, lasciando duecentocinquantasette caratteristiche e tutte le cellule. Controlla quali misure sono state eliminate e perché. Questo criterio cambia le caratteristiche disponibili e può perdere informazioni utili; non è una raccomandazione universale di pulizia.",
+    "Il criterio drop-objects elimina invece righe con caratteristiche mancanti. Qui si eliminano sette cellule, lasciando duemilatrecentotrentaquattro righe e tutte le duecentosessantuno caratteristiche. La mancanza può dipendere da fenotipo, acquisizione o segmentazione. Esamina le esclusioni prima di considerare rappresentative le cellule rimaste.",
+    "Scegli single-table nucleus per avere una riga per nucleo, anziché caratteristiche nucleari aggregate sulle righe cellulari. L’esempio contiene duemilaseicentottantadue nuclei e trecentoquarantuno caratteristiche. Mantieni collegamenti parentali e identità degli oggetti. Più nuclei che cellule non significa che durante l’esportazione siano comparse cellule aggiuntive.",
+    "Riapri ogni file salvato. Lo script confronta l’intera matrice, l’ordine delle identità di oggetti e caratteristiche, i mancanti e i metadati; anche i controlli SQLite indipendenti passano per tutti e sei i file. Le annotazioni restano metadati, non caratteristiche di addestramento aggiunte alla matrice. Le immagini non sono incorporate: conserva sorgenti e percorsi insieme all’esportazione.",
+    "Usa un nome di uscita nuovo per ogni criterio e conserva script, impostazioni e versioni. Lo script rifiuta una destinazione esistente invece di sovrascriverla. I controlli dimostrano la conservazione dei dati di questo esempio, non validità biologica o riparazione della GUI. Consulta le lezioni collegate su API e misure per il flusso completo."
+  ]
+}

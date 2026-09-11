@@ -438,3 +438,495 @@ visual changed, and it already clears and reinstalls screen-local QSS
 overlays around the global call. Whoever does the per-window version
 inherits both, and the overlay mechanism is the half that already knows how
 to give one screen its own sheet.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- FINDING 3 WAS THE HARNESS, NOT THE APPLICATION. WITHDRAWN.
+--------------------------------------------------------------------------------
+
+"EXPANDING A SECTION DROPS TWO FRAMES THE FIRST TIME AND NONE AFTERWARDS"
+is not true, and this item's own rule -- write the harness first and prove
+it catches a defect that is already there -- is what caught it, one step
+late.
+
+WHAT THE 47.6 ms WAS. `AppScreen` translates arriving subtrees from an
+event filter that defers the work A TURN LATER; `_on_arrivals_in` says so
+in its own docstring. `tools/perf_paint.py` built the screen, called
+`app.processEvents()` ONCE, and started timing. That single call does not
+drain a queue whose entries are posted for the next turn, so the build's
+own deferred passes ran inside the first interaction measured and were
+billed to it.
+
+MEASURED BOTH WAYS, on the same panel, same machine, minutes apart:
+
+    one processEvents() after the build   146.3 ms   "2 frames dropped"
+    drained until quiet                     0.5 ms first, 0.1 ms after
+
+    and through the corrected harness, which alternates collapse/expand:
+
+    action                        first_ms  repeat_ms  frames
+    expand a section                  4.23       3.80       0
+    collapse a section                3.62       2.75       0
+    type one character                0.07       0.01       0
+    scroll the settings column        0.01       0.00       0
+
+THE 146 ms IS REAL WORK AND IT IS NOT THE INTERACTION'S. Profiled, it is
+four `retranslate_widget_tree` passes over 18,307 widgets making 88,388
+`QObject.property()` calls -- the cost of BUILDING the panel, collected by
+whatever ran next. Reporting it as the cost of expanding a section sends
+someone to optimise a toggle that already takes a fifth of a millisecond,
+which is exactly the "fix by symptom" this file forbids.
+
+THE HARNESS IS FIXED, not worked around: `_drain_until_quiet` runs before
+the first timed interaction, and its docstring carries both numbers so the
+next reader can see why it exists. The `timed()` docstring's own example --
+"typing the first character measured 39 ms, two dropped frames" -- was the
+same artefact and is corrected in place; the same keystroke measures 0.07 ms
+cold once the queue is drained.
+
+  THE PRINCIPLE SURVIVES THE EXAMPLE. A cold number and a warm one are
+  different questions and work done once per widget is real. But a "first"
+  measured before the build has settled is not that work, it is the build.
+
+WHAT THIS CHANGES ABOUT THE ITEM. Interaction latency is NOT a defect on
+this screen -- nothing a user does to a settings panel costs a frame. The
+two findings that survive the first run are the ones already recorded: the
+theme change repolishing the whole application (a third of a second), and
+the backdrop shading four times the pixels at 4K for the same frame rate.
+BUILDING the panel is now a third candidate, with a number attached: 146 ms
+of deferred translation, four full-tree walks, on a panel whose widgets were
+already translated once as they were constructed.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE BUILD'S 146 ms, LOCATED: THE TREE IS TRANSLATED THREE TIMES
+--------------------------------------------------------------------------------
+
+Following the number the correction above freed up. Instrumented
+`_LateCaptionTranslator._translate` and counted every pass and every
+descendant it walked, building one Measure screen:
+
+    pass  batch  root                 descendants
+      0      1   AmbientWidget                  1
+      1      1   ModuleHeader                   6
+      2      1   Divider                        0
+      3      1   QSplitter                  8,034
+      4      6   QWidget                    7,389
+      5      6   QScrollArea                  641
+      6      6   QSplitterHandle                0
+      7      6   QSplitterHandle                0
+      8      7   QSplitter                  7,327
+      9      7   Card                          31
+     10      7   QWidget                       20
+     11      7   QLabel                         5
+     12      7   QLabel                         0
+
+    13 passes, 23,454 widget visits, of which THREE PASSES ARE 22,750.
+
+THE THREE BIG ONES ARE NESTED AND IN DIFFERENT BATCHES -- 1, 6 and 7. Each
+is a near-root walk triggered when another large container is parented in,
+so the tree is translated roughly three times over as it is assembled, and
+every widget in it was already translated once as it was constructed.
+
+WHY THE OBVIOUS FIX DOES NOT WORK. Deduplicating roots WITHIN one
+`_on_arrivals_in` batch would save nothing: the three expensive passes are
+in three different batches, an event turn apart. The saving needs a marker
+that survives between turns -- "this subtree was translated at generation
+N" -- so a later overlapping pass skips what is already done and redoes it
+only when the language actually changes.
+
+NOT ATTEMPTED TONIGHT, and the reason is the risk rather than the work. The
+failure mode of getting it wrong is a widget left in English in one of nine
+locales, which is invisible on this machine and to this test suite. It IS
+verifiable headlessly -- capture every translated widget's text after a
+build, apply the change, compare the sets -- and that verification is the
+first half of the job, not an afterthought.
+
+    WHOEVER TAKES IT: the cost is build-time only. Interaction latency is
+    now measured as clean (4 ms to expand, 0.07 ms to type, no dropped
+    frames), so this is about how long a module screen takes to appear, not
+    about smoothness once it is there.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE GUARD FOR THE PER-WINDOW STYLESHEET, WRITTEN FIRST
+--------------------------------------------------------------------------------
+
+This item's own method is "WRITE THE HARNESS FIRST, and prove it catches a
+defect that is already there". The remaining lever -- setting the sheet per
+top-level window instead of on the QApplication -- has not been written
+because of a named risk: "the failure mode is a dialog opening in the
+previous theme, which is exactly compromising functionality", and "it needs
+a display to verify and a session that can watch it happen".
+
+THE SECOND HALF OF THAT IS TRUE OF BEAUTY AND NOT OF THIS. Whether a theme
+LOOKS right needs a display. Whether a widget created after a theme change
+is painting the PREVIOUS theme does not: a stylesheet colour resolves into
+the widget's palette, and an offscreen widget reports it.
+
+    QLabel { color: rgb(200,100,50) }  ->  palette WindowText #c86432
+
+measured on this box, offscreen, after `ensurePolished()` and one
+`processEvents()`.
+
+SO THE GUARD IS IN, BEFORE THE CHANGE:
+`tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py`. Five cases,
+holding exactly one property and nothing about aesthetics -- a widget
+created AFTER a theme change resolves to the SAME theme as one created
+before it:
+
+  * a plain widget made after the change;
+  * one that existed across it;
+  * A DIALOG opened after it, which is 380's own sentence for the risk and
+    is its own top-level window -- precisely what a per-window sheet has to
+    remember;
+  * a whole QMainWindow built after it, which is the module screen the fix
+    would mark dirty and re-sheet on `showEvent`.
+
+AND A NEGATIVE CASE THAT MAKES THE OTHER FOUR MEAN SOMETHING. Under
+`app.setStyleSheet` all four pass for free, because a global sheet covers
+widgets that do not exist yet -- so on their own they would pass for ever
+and prove nothing about the change they exist to protect. The fifth does
+the wrong thing ON PURPOSE: sets the sheet on ONE window's tree, the way a
+per-window implementation looks when it forgets a window, and asserts a
+second top-level does NOT get it.
+
+WHAT IS STILL NOT DONE, and now for a smaller reason. The change itself:
+`apply_preferences_to_app` already has a signature guard that skips the
+rebuild when nothing visual changed, and already clears and reinstalls
+screen-local QSS overlays around the global call, so the overlay mechanism
+is the half that already knows how to give one screen its own sheet.
+Whoever writes it now has a test that fails the moment a window is
+forgotten, which is the part that made writing it unsafe.
+
+  MENUS AND TOOLTIPS ARE STILL UNCOVERED BY THIS GUARD and are the
+  remaining display question: they are top-level windows Qt creates
+  itself, and a test cannot open a native menu. That is a narrower thing
+  to ask someone to look at than "does the theme still work".
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE TRIPLE TRANSLATION IS FIXED. 67-74% OF THE BUILD'S
+TRANSLATION WORK REMOVED, AND THE STRINGS ARE BYTE-IDENTICAL
+--------------------------------------------------------------------------------
+
+The 2026-09-10 note above located the defect and stopped, for a stated
+reason: "the failure mode of getting it wrong is a widget left in English in
+one of nine locales, which is invisible on this machine and to this test
+suite. It IS verifiable headlessly -- capture every translated widget's text
+after a build, apply the change, compare the sets -- and that verification is
+the first half of the job, not an afterthought."
+
+THE VERIFICATION WAS DONE FIRST AND IT IS WHAT MAKES THIS LANDABLE.
+`tools/translate_census.py` builds a module screen exactly as `MainWindow`
+does, lets the deferred passes run, and records every visible string on every
+widget keyed by its structural path -- text, tooltip, window title,
+placeholder, group title, accessible name and description. Four modules, two
+locales, before and after:
+
+    module           lang   strings   only-before  only-after  changed
+    measure          sv       3,777         0           0         0
+    measure          ko       3,777         0           0         0
+    mask             sv         532         0           0         0
+    mask             ko         532         0           0         0
+    classify         sv         272         0           0         0
+    classify         ko         271         0           0         0
+    analyze_plaques  sv         110         0           0         0
+    analyze_plaques  ko         110         0           0         0
+
+BYTE-IDENTICAL, with this much of the work gone:
+
+    module           per-widget translation calls    reduction
+    measure              72,139  ->  18,457            74.4 %
+    mask                 13,211  ->   3,840            70.9 %
+    classify              8,256  ->   2,557            69.0 %
+    analyze_plaques       3,376  ->   1,116            66.9 %
+
+THE CHANGE, which is the marker the 2026-09-10 note said was needed --
+"a marker that survives between turns, so a later overlapping pass skips what
+is already done and redoes it only when the language actually changes":
+
+  * `retranslate_widget_tree` stamps every widget it visits with
+    `<language>@<catalog generation>`, as a Qt dynamic property so it
+    survives the Python wrapper being collected and recreated.
+  * A new keyword-only `only_new=` skips widgets whose stamp still matches.
+  * `_LateCaptionTranslator._translate` -- the three near-root passes, an
+    event turn apart, that were the whole defect -- is the ONE caller that
+    asks for it.
+  * `add_translation` moves the generation, because apps hand their display
+    name to the catalogs as they register and that happens while screens
+    already exist. A stamp that did not move with the catalog would leave
+    that name in English for the life of the process.
+
+OFF BY DEFAULT, and that is the safety argument rather than caution.
+`_translate_qt_text` detects a caption replaced by application code by
+comparing what it last rendered, and a skipped widget is not compared -- so
+every caller that has just set a caption itself keeps the full walk. Only the
+build-time passes, where nothing has run between them, opt in.
+
+WHY THE STAMP CARRIES THE LANGUAGE rather than being a boolean. A boolean
+"already translated" flag would pin the first language a process ever
+rendered, and there is a test for exactly that.
+
+AND ONE MEASUREMENT MISTAKE WORTH RECORDING, because it cost an hour and
+would have been reported as "the change does nothing". The census script
+lives outside the worktree, and a Python SCRIPT puts its own directory on
+`sys.path` -- not the working directory. So it imported the INSTALLED spacr
+and measured 72,085 calls before and 72,088 after, from the same unchanged
+copy. The tell was in the output all along: the line numbers it attributed
+the calls to did not exist in the file being edited.
+
+    A HARNESS THAT REPORTS NO CHANGE MAY NOT BE LOOKING AT THE CHANGE.
+    Check which file it loaded before concluding anything about the edit.
+
+AND THE FIRST VERSION OF IT WAS WRONG, caught by the suite rather than by
+the census, which is why both exist. A `QTabWidget` renders its TABS, and a
+tab can arrive without the strip itself changing at all -- so a stamped
+strip meant the second fold opened on the Classify screen got an English tab
+over a Swedish page (`test_activation_folds_into_classify::
+test_the_second_fold_opened_is_translated_as_well`). Combo items and table
+and tree headers are the same shape: a caption CACHE keyed on a length that
+can grow.
+
+  A WIDGET WHOSE CAPTIONS ARE A COLLECTION IS NEVER "ALREADY DONE". Those
+  four classes are exempt from the skip, which costs one isinstance per
+  widget and is why the saving is 74.4% rather than 74.5%.
+
+  THE CENSUS COULD NOT HAVE FOUND IT. It builds a screen ONCE; the defect
+  needs a second subtree arriving on a strip that a previous pass already
+  saw. A whole-output comparison is necessary and is not sufficient.
+
+THE GUARD: `tests/qt/test_the_tree_is_translated_once_not_three_times.py`.
+Six tests, five of which hold the OUTPUT and one the cost:
+
+  * the build renders what a full pass renders -- built with the skip, then
+    walked again with it off, and nothing changes;
+  * a language change after the build reaches every widget;
+  * a row catalogued after a pass is not missed;
+  * a strip that gains a tab is not already done;
+  * `only_new` is off by default;
+  * and the ceiling: at most two widget visits per widget in the tree.
+
+CALIBRATED AGAINST THE DEFECT, per this file's own rule. With the change
+taken back out the ceiling test reports "852 widget visits to translate 252
+widgets (3.4 passes over the tree)" and fails; the other four pass in both
+states, which is what a safety property should do.
+
+WHAT THIS DOES NOT FIX. The cost is build-time only. Interaction latency was
+already measured clean, so this is about how long a module screen takes to
+appear, not about smoothness once it is there.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE THEME CHANGE IS NOT A THIRD OF A SECOND. IT IS TEN SECONDS,
+AND FOUR FIFTHS OF THE WORK IS ON SCREENS NOBODY CAN SEE
+--------------------------------------------------------------------------------
+
+The 2026-09-09 baseline recorded "THE THEME CHANGE IS STILL A THIRD OF A
+SECOND ... 299-340 ms over 1,050 widgets". THAT WAS MEASURED ON A FRESH
+SESSION WITH ONE SCREEN BUILT, and it is the best case rather than the
+typical one. `MainWindow` builds a module screen on FIRST NAVIGATION
+(`app.py:4950`, `if key not in self._screens`) and keeps it in `_screens`
+and in the stack afterwards, so the cost grows with every module the user
+opens and never comes down.
+
+MEASURED, offscreen, one module opened at a time, each number the best of
+several alternating dark/light applications:
+
+    modules   live      on      hidden   hidden   app.setStyleSheet
+    opened    widgets   screen              %
+      1        1,693    1,278        0     0.0 %       721 ms
+      2        5,833    4,138    1,278    21.9 %     5,350 ms
+      3        6,529      695    5,416    83.0 %     5,914 ms
+      4        9,041    1,488    6,111    67.6 %     8,000 ms
+      5        9,354      312    7,599    81.2 %     7,635 ms
+      6       10,009      654    7,911    79.0 %     8,560 ms
+
+FOUR FIFTHS OF EVERY THEME CHANGE IS SPENT REPOLISHING SCREENS THAT ARE NOT
+ON SCREEN. A user who has opened six modules and then changes a preference
+waits eight and a half seconds, offscreen and unloaded, for a picture in
+which 79 % of the work is invisible by construction.
+
+--------------------------------------------------------------------------------
+AND THE PER-WINDOW FIX WORKS -- 10.2 s -> 3.1 s THROUGH THE REAL PATH
+--------------------------------------------------------------------------------
+
+The 2026-09-10 note left this as "NOT ATTEMPTED HERE ... it needs a display
+to verify and a session that can watch it happen", and the 2026-09-10 guard
+note narrowed that to menus and tooltips. Both are now answered.
+
+FOUR LEVERS, EACH IN ITS OWN INTERPRETER. The first version of this
+measurement ran them in one process and reported the do-nothing baseline at
+2,836 ms and two levers at 7,400 -- which says more about the order than
+about the levers, because a lever measured after three others have already
+re-sheeted the application is not the same measurement as the first.
+Four modules open, 9,045 widgets, 6,111 of them hidden:
+
+    lever                          first      steady
+    app.setStyleSheet            2,836 ms   ~7,500 ms
+    every top-level window       1,684 ms   ~1,900 ms
+    app + updates disabled       2,854 ms   ~8,000 ms   NO HELP
+    the visible screen alone       222 ms     ~230 ms   the floor
+
+  `setUpdatesEnabled(False)` AROUND THE CALL DOES NOTHING, which is worth
+  recording because it is the first thing anybody tries. So does parking
+  hidden screens out of the stack for the duration -- and that one also
+  crashed the process, so it is ruled out twice.
+
+AND THROUGH `apply_preferences_to_app`, WHICH IS WHAT THE PREFERENCES
+DIALOG ACTUALLY RUNS -- palette, overlays, field fade, button roles and
+ambient preferences included, six alternating saves:
+
+    before   3,641 ms first,  10,165 ms median
+    after    2,352 ms first,   3,057 ms median
+
+A PREFERENCE SAVE WENT FROM TEN SECONDS TO THREE. Not a benchmark of one
+Qt call: the whole thing the user waits for.
+
+THE CHANGE. `theme.apply_stylesheet_per_window(app, sheet)` puts the sheet
+on every top-level window instead of on the QApplication, records it on the
+application so a window born later can find it, and installs ONE event
+filter that sheets any window that appears afterwards. The serial the filter
+stamps makes `Polish` and `Show` cost one application rather than two, and
+`preserve_widget_qss_overlay` keeps a screen's own late block appended, so
+the overlay mechanism this file already pointed at keeps working unchanged.
+`apply_preferences_to_app`'s signature guard now reads the sheet back with
+`window_stylesheet(app)` -- `app.styleSheet()` is empty now and comparing it
+would report a change on every save, which is the rebuild that guard exists
+to skip.
+
+MENUS AND TOOLTIPS ARE COVERED, and that was recorded here as "the
+remaining display question ... a test cannot open a native menu". True, and
+beside the point: a QMenu and a tooltip are ORDINARY TOP-LEVEL QWIDGETS, so
+they get the same `Polish` event as anything else and the filter reaches
+them without knowing they exist. Verified offscreen alongside a dialog and
+a whole QMainWindow -- all four resolve to the theme in force when they were
+created, not the previous one.
+
+THE GUARD WAS WRITTEN FIRST AND IS WHY THIS WAS SAFE TO DO.
+`tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py` grew from 5
+tests to 13: the original five hold the PROPERTY under any implementation,
+including the negative case that makes them mean something, and eight new
+ones exercise this implementation -- a window that lived across the change,
+four kinds of window born after it, the application sheet staying empty
+(which is where the saving comes from, stated as a property so it cannot
+quietly come back), and the serial not re-sheeting a window on every Show.
+
+WHAT IT COSTS, BECAUSE A FIX WITH NO COST RECORDED IS A FIX NOBODY CAN
+JUDGE. `QCoreApplication::installEventFilter` is the special one -- it
+receives EVERY event sent to EVERY object in the thread, not only events
+for the application object -- so a Python callback goes on the path of
+every keystroke, every mouse move and every paint. Measured by delivering
+4,000 key events to a field on a 1,043-widget Mask screen, twice each way
+in fresh interpreters:
+
+    filter absent      8.6-8.9 us per delivered event
+    filter installed  11.3-11.5 us per delivered event
+
++2.7 us. Against a keystroke this file already measures at 60 us end to
+end, that is 4.5 %, and against a 16 ms frame it is nothing. Interaction
+latency through `tools/perf_paint.py` is unchanged: 3.6 ms to expand a
+section, 0.06 ms to type, no dropped frames.
+
+AND THE APPLICATION SHEET IS TAKEN DOWN when the windows take it over,
+once, guarded -- because an application sheet left standing goes on
+applying to every widget and an OLD one shows through as a colour from the
+wrong theme. In production that clear is paid at startup with one small
+window on screen, never on the preference save this change exists to make
+cheap. Between TESTS it is a different matter, and
+`tests/qt/conftest.py::_the_window_stylesheet_is_left_as_it_was_found`
+undoes the whole mechanism after each one: a window sheet outranks the
+application sheet for its tree, so a test that applies a theme the direct
+way was building its widgets inside a window still wearing an earlier
+test's theme. Measured as `HomePage inlines #000000 (dark bg)` under the
+light, cell and glass themes, in a run of 1,045 and in none of the three
+files alone.
+
+AND THE CHANGE HAD A REAL BUG IN IT, FOUND BY THE SWEEP RATHER THAN BY THE
+GUARD. A PARENTLESS WIDGET IS A WINDOW -- Qt says so -- and several of them
+set their own rules. Under `QApplication.setStyleSheet` those rules were
+MERGED with the global ones by Qt; replacing the window's sheet outright
+threw them away.
+
+    NOT A TEST ARTEFACT. It cost `test_field_fade::
+    test_the_text_stays_fully_opaque_all_the_way_across` an alpha of 254
+    where it demands 255 -- DETERMINISTICALLY, which is what makes it
+    evidence. Six runs each, same command: 6/6 red with the fix disabled,
+    6/6 green with it, 6/6 green before the per-window change existed.
+
+    AND A CLAIM MADE HERE FIRST TIME ROUND WAS WRONG, corrected rather
+    than quietly dropped. This note originally also blamed the change for
+    `test_provider_marks_uncovered_paths`, on "10/10 green before, 8/10
+    after, 8/8 after the fix". Those were three small samples of a test
+    that is INHERENTLY FLAKY, and fifteen runs each say so:
+
+        before the change   11/15
+        after the fix       13/15
+
+    The pre-change tree is the flakier of the two. The change did not
+    cause it and the fix did not cure it; three runs of ten looked like a
+    signal because the sample was too small to be one.
+
+      A TEST THAT PASSES TEN TIMES IS NOT A DETERMINISTIC TEST, and the
+      sweep read this one as ORDER-DEPENDENCE for the same reason. It is
+      an open flake in its own right -- two identically built
+      `ProviderMark` widgets render differently about a fifth of the time
+      -- and it belongs to whoever next touches that widget.
+
+The window's own sheet is now remembered the first time and appended AFTER
+the global one, where it still wins. Remembered rather than re-read,
+because by the second pass the widget is wearing ours and reading it back
+would fold the global rules into "its own" and grow the sheet at every
+theme change. Both properties are pinned in the guard file, which is now
+15 tests.
+
+  WHAT IT SAYS ABOUT THE SWEEP: a change whose blast radius is public Qt
+  state does not show up in the tests written for it. Seven tests moved,
+  and only one of the seven was about theming.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE LAST LEVER IS PRICED AND PROVEN REACHABLE, AND NOT TAKEN
+--------------------------------------------------------------------------------
+
+"Not sheeting the hidden screens either" was recorded as a bigger change
+with a number attached. It now has a shape as well, measured rather than
+sketched, because the question it turned on was whether the set to sheet
+can be enumerated at all.
+
+WHY THE WINDOW CANNOT BE THE TARGET. Qt cascades a window's sheet to every
+descendant, and with four modules open the window holds 8,002 widgets of
+which 7,595 are inside screens -- 95 %, of which one screen is visible.
+Sheeting the window necessarily repolishes every hidden screen, which is
+the whole of the remaining cost.
+
+THE CHROME IS 407 WIDGETS AND IS NOT WHERE ONE WOULD GUESS. It is not
+reachable from the central widget's children: of those 407, exactly TWO are.
+The rest hang off the window directly -- the dock, the sidebar, the status
+strip -- so an implementation that walked the central widget would leave
+405 widgets unstyled and look almost right.
+
+    ENUMERATED PROPERLY -- the window's direct children except the central
+    widget, the central widget's direct children except the stack, and the
+    stack's CURRENT page -- it is 27 targets reaching 1,525 of the 8,002.
+
+MEASURED, four modules open, alternating dark and light:
+
+    sheeting the whole window          945 ms first, ~1,479 ms steady
+    chrome + the visible screen        300 ms first,  ~310 ms steady
+
+4.8x, on top of the 4x the per-window change already banked.
+
+NOT TAKEN, and the reason is the failure mode rather than the work. Every
+widget that is not reached is unstyled, and the thing that makes this
+cheap -- touching 1,525 widgets instead of 8,002 -- is exactly what makes a
+missed root invisible until somebody opens the screen it was on. The
+per-window change was a quarter of this size and moved seven tests, one of
+which was a real regression that only a pixel assertion caught.
+
+    WHOEVER TAKES IT NEEDS TWO THINGS THAT DO NOT EXIST YET: a test that
+    every widget in the window resolves to the CURRENT theme (the dialog
+    guard does this for windows and would generalise), and the dirty-mark
+    on hidden screens so a screen shown later is sheeted on its
+    `showEvent`. The event filter that already catches new windows is the
+    natural home for the second.
+
+WHAT IS STILL ON THE TABLE. 3,057 ms is not 222 ms. The floor is not
+sheeting the hidden screens either, which needs a per-SCREEN sheet plus a
+dirty mark applied on `showEvent` -- a bigger change than this one, and one
+this measurement now makes it possible to judge: it is worth another ~2.8 s
+of a preference save on a six-module session.

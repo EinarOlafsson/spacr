@@ -176,10 +176,17 @@ def record_apply(app, window, stage, captures, capture, settle, write_json, time
 
 
 def record_preview(app,window,screen,work,captures,capture,settle,write_json,timeout,proof):
-    from PySide6.QtCore import Qt,QTimer
+    from PySide6.QtCore import Qt,QTimer,QPoint,QPointF
+    from PySide6.QtGui import QWheelEvent
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QFileDialog,QLineEdit,QDialogButtonBox
 
+    # Use the native fold controls, not hidden widgets or changed size limits.
+    for folder,heading in ((screen._usage_card.folder,screen._usage_card.title_label),
+                           (screen._console_folder,screen._console_header)):
+        if not folder.shut:
+            QTest.mouseClick(heading,Qt.LeftButton);settle(.3)
+        if not folder.shut:raise ValueError('The real runtime fold did not close')
     host=screen._registry_preview
     QTest.mouseClick(host.toggle,Qt.LeftButton);settle(.5)
     panel=host.panel
@@ -240,6 +247,24 @@ def record_preview(app,window,screen,work,captures,capture,settle,write_json,tim
         objects=int(np.count_nonzero(np.unique(raw))),params=panel.current_params(),
         batch_mask_equal=np.array_equal(raw,tifffile.imread(work/'masks/cell_pair_02.tif')))
     write_json(captures/'scientific_acceptance.json',proof)
+    def zoom_detail(name):
+        # Deliver actual wheel gestures through the viewport event path.
+        # The narrow native card remains narrow; zooming is not a layout fix.
+        view=panel._mask_view;viewport=view.viewport()
+        point=viewport.rect().center()
+        for _ in range(4):
+            event=QWheelEvent(QPointF(point),QPointF(viewport.mapToGlobal(point)),
+                QPoint(),QPoint(0,120),Qt.NoButton,Qt.NoModifier,Qt.NoScrollPhase,False)
+            app.sendEvent(viewport,event)
+        settle(.3)
+        if not np.isclose(view.scale_factor(),1.2**4) or not np.isclose(
+                panel._src_view.scale_factor(),view.scale_factor()):
+            raise ValueError('Actual wheel zoom did not synchronise the two canvases')
+        proof.setdefault('native_zoom',[]).append(dict(scene=name,
+            factor=view.scale_factor(),viewport_height=viewport.height(),
+            viewport_width=viewport.width(),both_canvases_match=True))
+        capture(name)
+    zoom_detail('20a_actual_zoomed_preview')
     panel.open_live_settings();settle(.3)
     dialog=panel._live_settings_dialog;dialog.resize(1850,1250);settle(.3)
     minimum=panel._compartment_widgets['cell']['min_area']
@@ -253,8 +278,22 @@ def record_preview(app,window,screen,work,captures,capture,settle,write_json,tim
     proof['filter']=dict(before=int(np.count_nonzero(np.unique(baseline))),
         cutoff=cutoff,after=int(np.count_nonzero(np.unique(expected))),
         checked_pixels=int(raw.size),raw_unchanged=True)
-    capture('22_native_filter_reduces_objects');fill(minimum,original)
+    capture('22_native_filter_reduces_objects')
+    np.save(captures/'preview_cell_filtered.npy',panel._masks['cell'],allow_pickle=False)
+    dialog.close();settle(.3);capture('22a_filtered_preview_dialog_closed')
+    zoom_detail('22b_actual_zoomed_filtered_preview')
+    panel.open_live_settings();settle(.3)
+    # Opening again constructs a new dialog. Closing the old reference leaves
+    # the real current dialog covering the restored image.
+    dialog=panel._live_settings_dialog
+    dialog.resize(1850,1250);settle(.2)
+    fill(minimum,original)
     if not np.array_equal(panel._masks['cell'],baseline):raise ValueError('Restoring the filter did not restore every pixel')
     proof['filter']['restored']=True
     capture('23_native_filter_restored');dialog.close();settle(.3)
+    if panel._live_settings_dialog is not None and panel._live_settings_dialog.isVisible():
+        raise ValueError('The current Live settings dialog did not close')
+    np.save(captures/'preview_cell_restored.npy',panel._masks['cell'],allow_pickle=False)
+    capture('23a_restored_preview_dialog_closed')
+    zoom_detail('23b_actual_zoomed_restored_preview')
     proof['hold']='Native batch and preview recorded; independent reference/figure and narration checks remain.'

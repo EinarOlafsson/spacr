@@ -108,15 +108,51 @@ COMPACT_CAPTION_SHA256 = (
 #
 # The disjointness itself still holds and is still worth stating: a caption
 # belongs to the reviewed compact layer or the generated one, never both.
+#
+# MOVED DOWN 2026-09-11, and this is the first time these counts have gone
+# DOWN. 1,077 -> 1,073 and 1,072 -> 1,068, net -4 across 15 removals and 11
+# additions, every one of them 364's settings audit or 388's new pair.
+# Reviewed one at a time, as this file's own message demands, by computing
+# the canonical identities at 69fd34e44 -- the commit that last moved these
+# numbers -- and at the merge, and diffing the sets:
+#
+#   RENAMED, so one removal and one addition each and no net change:
+#     negative_control     -> negative_control_id
+#     positive_control     -> positive_control_id
+#     controls             -> nontargeting_control_grnas
+#     min_cell_count       -> min_cells_per_well
+#     min_n                -> min_observations_per_hit
+#     expected_end         -> window_length
+#     control_wells        -> analysis_excluded_wells, stain_baseline_wells
+#                             (one setting that meant two things, split)
+#
+#   ADDED: bystander_measurements, bystander_reach_in_diameters (388),
+#     and ops_gpu.
+#
+#   REMOVED OUTRIGHT, eight settings 364 judged redundant: denoise,
+#     load_path_regex, mask_array, normalization, normalization_scope,
+#     normalize_plots, save_to_db, visualize.
+#
+# CATEGORY_HELP 201 -> 200 is one record and it is the same event: the help
+# text that belonged to `save_to_db`, which no longer exists.
+#
+# NOT A MERGE ARTEFACT, which is what this failure had been recorded as.
+# `canonical_sources()` returns 1,073/1,068/200 on origin/main as well, so
+# the pin was unsatisfiable on BOTH branches and the merge was never going
+# to fix it. The English catalog already agrees with the sources exactly --
+# live and reviewed sets are identical, 0 either way -- so the catalogs were
+# regenerated correctly and only the ratchet was left behind, which is the
+# right way round for this file's "catalogs first, ratchet second" rule.
 EXTERNAL_SOURCE_COUNTS = {
-    "SETTING_LABELS": 1077,
-    "SETTING_TOOLTIPS": 1072,
+    "SETTING_LABELS": 1073,
+    "SETTING_TOOLTIPS": 1068,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
     # tooltip says nothing about the settings under it, which costs the
-    # reader the hover and tells them nothing.
-    "CATEGORY_HELP": 201,
+    # reader the hover and tells them nothing. 201 -> 200 on 2026-09-11
+    # with `save_to_db`, whose help text was one of them.
+    "CATEGORY_HELP": 200,
     "UI": 2841,
     "MODULE_SUMMARIES": 67,
 }
@@ -130,8 +166,13 @@ EXTERNAL_SOURCE_COUNTS = {
 #
 # Moved again on 2026-09-08 with the CATEGORY_HELP count above: nine new
 # section headings are nine new record identities.
+#
+# Moved again on 2026-09-11 with the counts above: 26 record identities
+# change, which is more than the net -4 suggests because seven of the
+# removals are renames and arrive back under a new key. Enumerated in the
+# note over EXTERNAL_SOURCE_COUNTS.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "807c8a94de06ea3c1a8580b2c1eb318cc19f2e0951d85569fccaecbd10e97e5d"
+    "c4e294ac9abb2d36faea603f026e941a96f919dbfd5dc13a80ba71024085950b"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

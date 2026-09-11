@@ -5162,7 +5162,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                   f"as its distance from {nc!r}.")
         else:
             print(f"Intercept left as fitted: no rows match "
-                  f"negative_control={nc!r}, so there is no control level to "
+                  f"negative_control_id={nc!r}, so there is no control level to "
                   f"centre on.")
     elif intercept_mode == 'value':
         # PINNED, NOT NUDGED. Shifting the response by the number and
@@ -11157,8 +11157,8 @@ def ml_analysis(
               f"the training set and are SCORED by a model that never saw "
               f"them: {untrained[:10]}"
               f"{'...' if len(untrained) > 10 else ''}. This fit is binary: "
-              f"one arm is negative_control={negative_control!r} and the "
-              f"other positive_control={positive_control!r}. Both take a "
+              f"one arm is negative_control_id={negative_control!r} and the "
+              f"other positive_control_id={positive_control!r}. Both take a "
               f"list, so name several values to pool them into one arm.")
     
     # REFUSE HERE, NAMING WHAT IS ACTUALLY IN THE COLUMN.
@@ -11195,16 +11195,16 @@ def ml_analysis(
             shown += f", ... ({len(present)} distinct values)"
         missing = []
         if df1.empty:
-            missing.append(f"negative_control={negative_control!r}")
+            missing.append(f"negative_control_id={negative_control!r}")
         if df2.empty:
-            missing.append(f"positive_control={positive_control!r}")
+            missing.append(f"positive_control_id={positive_control!r}")
         raise ValueError(
             f"no rows matched {' and '.join(missing)} in column "
             f"{location_column!r}, so there is nothing to train on.\n"
             f"  {location_column!r} contains: {shown}\n"
-            f"  Set positive_control and negative_control to values that "
-            f"appear there, or set location_column to the column that holds "
-            f"your controls.")
+            f"  Set positive_control_id and negative_control_id to values "
+            f"that appear there, or set location_column to the column that "
+            f"holds your controls.")
 
     X = combined_df[features]
     y = combined_df['target']

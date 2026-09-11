@@ -1,0 +1,30 @@
+{
+  "lesson": "41_classify",
+  "english_sha256": "e43e44b60b64b42341211784c1d115f8c7131a2d9af4d18c05a9ac318129560a",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "zh-CN",
+  "title": "Classify：主模块及其嵌套工具",
+  "description": "选择基于图像或测量值的分类，使用可下载示例，检查真实结果，并找到Classify内的五个嵌套工具。",
+  "objectives": [
+    "从统一的Home模块选择分类方式。",
+    "结合明确限制学习真实数据的CV与表格分类教程。",
+    "找到Classify内的Classifier Evaluation、Explain CV、Activation、Training Runs和Feature Explorer。",
+    "保存证据，区分AI辅助与已验证的分析。"
+  ],
+  "prerequisite": "录制版本为spaCR 1.5.0.6。本概览属于主模块区；专门流程与嵌套工具教程位于子模块区的Classify类别。本课复用已核查的真实CV和ML录制，不重新训练模型。两例使用不同标签和子集，不是直接性能对比。表格示例：Load test data → Load，已测量细胞，columnID=c1/c2类别，随机森林，Plot开启，2153个对象有评分，188个因缺少核数据未评分；测试孔独立但同板。CV示例：明确准备64张未修改的已注释裁剪图，以数据库标准身份命名，Generate training dataset关闭，ResNet18一轮，训练16/验证16/测试32，同板孔位互不重叠，准确率0.5等于多数类基线。旧文件名解析器未修复。可复现设置、保存路径与限制请参阅专门课程。嵌套路径：classifier_evaluation、explain_cv、activation、train_compare、feature_explorer。Explain CV用测量特征拟合已有CV预测，不证明因果。Activation可视化图像模型响应。不发送AI请求，不新增模型质量或生物学有效性主张，不直接比较两种方式。API：spacr.classify.classify根据classifier_family分发到spacr.deep_spacr.train_test_model或spacr.ml.generate_ml_scores。",
+  "scenes": [
+    "Classify是Home上的主模块之一。从这里打开，再在模块内选择分类方式。教程播放器使用相同结构：本概览属于主模块区，专门流程与嵌套工具则归入子模块区的Classify类别。",
+    "Computer Vision使用对象图像，Tabular Machine Learning使用已保存的测量值。请根据输入和科学问题选择，而不是哪个名称听起来更强大。切换方式不会重新分割图像。链接中的Mask和Measure课程介绍各自的实时图像与裁剪控制。",
+    "表格示例中，点击Load test data，选择Load而不是Stream。将下载项目与测量数据库一起保存。处理自己的图像时先完成测量。详细表格教程录制了真实下载、标签选择、设置和完成的随机森林运行。",
+    "这是那次真实运行的图和控制台，Plot已开启。教学标签是板的列号，不是独立验证的表型。缺少必需核数据的对象保持未评分，不等于阴性。检查保存预测与留出的孔位；彩色图本身不能证明对另一实验的泛化。",
+    "独立的计算机视觉课程使用明确的文件名准备变通方案，以及六十四张未修改的下载裁剪图。单轮训练模型仅达到多数类基线。这两个例子使用不同标签和子集，不要把准确率当作直接性能比较。准备自己的划分前请先学习链接课程。",
+    "右上角图标打开嵌套工具，不是Home上的独立入口块。悬停可识别名称。Classifier Evaluation用于检查已保存的评估文件包，包括预测和泄漏信息。专门课程说明所需文件，以及为什么显示出的指标仍需要合理的验证设计。",
+    "Explain CV用测量特征来建模已有的计算机视觉预测。它是独立的解释模型，不是原图像网络，也不是因果解释。其教程展示正确的预测输入与可用结果。不要假定表格分类器输出也满足该输入要求。",
+    "Activation打开图像模型解释流程。请匹配检查点、图像通道和预处理。链接教程展示真实保存的显著性图，并说明使用外部查看器的变通方案。高亮区域不能证明生物学机制，也不能证明分类器表现良好。",
+    "Training Runs比较保存的训练历史与设置。把两条曲线放在一起并不会产生独立证据。将运行保存在各自独立目录，比较相容的指标和数据划分。专门教程介绍具体控件，本主模块概览不再重复。",
+    "Feature Explorer从最后一个图标打开。它可以在分类器训练前，针对选定比较为测量特征排序。其课程使用真实下载测量值并演示实时筛选。筛选后再次核对选定的比较；特征排名既不是因果关系，也不是已训练的图像模型。",
+    "控制台还提供可选的spaCR AI辅助。这里的问题未发送，不演示服务方回答或分析结果。保存模型输出、设置和划分证据，并据此核查建议。Python中，classify根据分类方式将任务交给图像或表格实现。"
+  ]
+}

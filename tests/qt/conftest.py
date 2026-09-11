@@ -243,39 +243,22 @@ def _restore_app_registry():
     it tomorrow is covered without anyone remembering. Driven off
     ``_META_TARGETS`` so a new side table is undone without this being edited.
     """
-    import sys
-
     try:
         from spacr.qt import app as app_mod
     except Exception:
         yield
         return
 
-    apps = list(app_mod.APPS)
-    factories = dict(app_mod.APP_FACTORIES)
-    stages = dict(app_mod.APP_STAGE)
-    meta = dict(app_mod.APP_META)
-    side = []
-    for module_name, attribute, _field in app_mod._META_TARGETS:
-        module = sys.modules.get(module_name)
-        table = getattr(module, attribute, None) if module else None
-        if isinstance(table, dict):
-            side.append((table, dict(table)))
+    # TAKEN AT FUNCTION SETUP, so it cannot see past a module- or
+    # session-scoped fixture that registered first: putting it back would
+    # re-install that registration rather than remove it. That half is
+    # `_the_app_registry_is_left_as_the_session_found_it` below, which holds
+    # the session's own state and gives it back when the file ends.
+    snapshot = _app_registry_snapshot(app_mod)
     try:
         yield
     finally:
-        if list(app_mod.APPS) != apps:
-            app_mod.APPS[:] = apps
-            app_mod._refresh_sections()
-        app_mod.APP_FACTORIES.clear()
-        app_mod.APP_FACTORIES.update(factories)
-        app_mod.APP_STAGE.clear()
-        app_mod.APP_STAGE.update(stages)
-        app_mod.APP_META.clear()
-        app_mod.APP_META.update(meta)
-        for table, saved in side:
-            table.clear()
-            table.update(saved)
+        _restore_app_registry_to(app_mod, snapshot)
         # A side table that was only imported DURING the test is restored on
         # the next test instead; the snapshot above cannot hold what did not
         # exist yet, and re-snapshotting every teardown would defeat the point.
@@ -297,6 +280,196 @@ def _sandbox_remote_execution_state(monkeypatch, tmp_path):
     monkeypatch.setenv(
         "SPACR_REMOTE_STATE_DIR", str(tmp_path / "remote-execution-state")
     )
+
+
+@pytest.fixture(scope="session")
+def _registry_baseline():
+    """The app registry as the SESSION found it, captured once.
+
+    ``_restore_app_registry`` above is the right fixture for a leak a test
+    makes itself, and the wrong one for a leak made by a fixture with a
+    broader scope: it snapshots at function-setup time, which is AFTER any
+    module- or session-scoped fixture has already run, so its "restore"
+    puts the registration back rather than taking it out. Measured --
+    ``tests/qt/test_home_variants.py``'s module-scoped ``gen`` runs
+    ``common.bootstrap()``, the registry goes 39 -> 44 during that file's
+    first setup, and the count stays 44 for the rest of the session.
+
+    A session-start capture is the only fixed point available.
+    """
+    try:
+        from spacr.qt import app as app_mod
+    except Exception:                                        # noqa: BLE001
+        return None
+    return _app_registry_snapshot(app_mod)
+
+
+def _app_registry_snapshot(app_mod):
+    """Everything ``register_self_registering_modules()`` writes to.
+
+    The same shape ``_restore_app_registry`` saves, in one place so the
+    per-test restore and the per-module one cannot drift apart. Driven off
+    ``_META_TARGETS`` so a new side table is covered without an edit here.
+    """
+    import sys
+
+    side = []
+    for module_name, attribute, _field in app_mod._META_TARGETS:
+        module = sys.modules.get(module_name)
+        table = getattr(module, attribute, None) if module else None
+        if isinstance(table, dict):
+            side.append((table, dict(table)))
+    return (list(app_mod.APPS), dict(app_mod.APP_FACTORIES),
+            dict(app_mod.APP_STAGE), dict(app_mod.APP_META), side)
+
+
+def _restore_app_registry_to(app_mod, snapshot):
+    """Put ``snapshot`` back. ``APPS`` is rebuilt only if it actually moved."""
+    apps, factories, stages, meta, side = snapshot
+    if list(app_mod.APPS) != apps:
+        app_mod.APPS[:] = apps
+        app_mod._refresh_sections()
+    app_mod.APP_FACTORIES.clear()
+    app_mod.APP_FACTORIES.update(factories)
+    app_mod.APP_STAGE.clear()
+    app_mod.APP_STAGE.update(stages)
+    app_mod.APP_META.clear()
+    app_mod.APP_META.update(meta)
+    for table, saved in side:
+        table.clear()
+        table.update(saved)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _the_app_registry_is_left_as_the_session_found_it(_registry_baseline):
+    """Undo a registration a module-scoped fixture made, when that module ends.
+
+    PER MODULE RATHER THAN PER TEST, and the scope is the whole point. A
+    module-scoped fixture registers once and the rest of that file is
+    entitled to see it -- ``test_home_variants`` has 89 tests that read the
+    registry ``gen`` built. Wiping after the first of them would break the
+    other 88. What must not happen is the registration outliving the file,
+    and that is what this stops.
+
+    THE FAILURE IT CLOSES. ``test_home_v2``'s
+    ``test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for`` finds
+    ``feature_explorer``, ``trellis``, ``outliers`` and ``control_chart`` in
+    the alpha set and fails -- in a full run, under some orderings only,
+    with the blame landing on whichever file drew the short straw. It is the
+    same hazard ``tests/qt/test_layout_drops.py`` writes out in full in its
+    own ``_app_keys``: "calling it here would register rows globally for the
+    whole test session -- including the ones a screen's own test asserts are
+    still switched off."
+
+    A FUNCTION-SCOPED VERSION OF THIS DOES NOT WORK and the reason is worth
+    keeping. Teardown runs in reverse setup order, so a function-scoped
+    restore tears down BEFORE ``_restore_app_registry`` -- which then puts
+    its own post-registration snapshot back over the top. Two fixtures
+    restoring to two different fixed points, and the later one wins.
+    """
+    if _registry_baseline is None:
+        yield
+        return
+    from spacr.qt import app as app_mod
+
+    try:
+        yield
+    finally:
+        _restore_app_registry_to(app_mod, _registry_baseline)
+
+
+#: The environment names spaCR reads at runtime and tests set. Restored
+#: around every test; see the fixture below for why monkeypatch is not
+#: enough on its own.
+_SPACR_ENVIRONMENT_PREFIX = "SPACR_"
+_OTHER_WATCHED_ENVIRONMENT = (
+    "QT_QPA_PLATFORM", "DISPLAY", "WAYLAND_DISPLAY", "QT_SCALE_FACTOR",
+)
+
+
+@pytest.fixture(autouse=True)
+def _the_spacr_environment_is_left_as_it_was_found():
+    """Put back any ``SPACR_*`` or platform variable the test changed.
+
+    MONKEYPATCH DOES NOT COVER THIS CASE, and that is the whole reason the
+    fixture exists. `monkeypatch.delenv(name, raising=False)` on a name that
+    is ALREADY ABSENT records nothing, because there is nothing to put back
+    -- so when the code under test then SETS that name, monkeypatch has no
+    entry for it and the value survives the test.
+
+    Measured: `test_safespacr_gets_in_when_a_preference_breaks_it.py::
+    test_the_launcher_disarms_gl_and_timing_before_qt` deletes
+    `SPACR_NO_GL`, calls the launcher, and the launcher sets it to "1" --
+    exactly what that test is checking. Two tests later, in the same file,
+    `test_safe_mode_refuses_a_gl_canvas` asserts
+    `platform_can_do_opengl() is True` and gets False, because the first
+    line of that function is `if os.environ.get("SPACR_NO_GL")`. Green in
+    file order, red under seed 288.
+
+    The same shape appears in `test_crash_recovery_drops_the_backdrop.py`
+    and `test_cov_wf_qt_crash_recovery.py`, both of which delete the name
+    and then assert the production code set it. Neither is wrong; what was
+    missing was anywhere to put it back. `test_cov_r6_screens_forms_and_
+    masks.py` already saves and restores these two by hand, with a note
+    saying why -- this generalises that to every test rather than to the
+    one file that remembered.
+    """
+    import os
+
+    watched = tuple(name for name in os.environ
+                    if name.startswith(_SPACR_ENVIRONMENT_PREFIX))
+    watched += _OTHER_WATCHED_ENVIRONMENT
+    before = {name: os.environ.get(name) for name in set(watched)}
+    try:
+        yield
+    finally:
+        for name, value in before.items():
+            if os.environ.get(name) == value:
+                continue
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
+        # A name that did not exist at setup and was not watched above --
+        # `SPACR_NO_GL` is exactly that -- is caught here rather than by the
+        # snapshot, because a snapshot cannot hold what did not exist yet.
+        for name in [n for n in os.environ
+                     if n.startswith(_SPACR_ENVIRONMENT_PREFIX)
+                     and n not in before]:
+            os.environ.pop(name, None)
+
+
+@pytest.fixture(autouse=True)
+def _the_window_stylesheet_is_left_as_it_was_found():
+    """Undo a per-window theme sheet a test installed.
+
+    `apply_preferences_to_app` puts the application stylesheet on every
+    top-level WINDOW rather than on the QApplication -- instruction 380's
+    last lever, worth 10.2 s against 3.1 on a session with four modules
+    open -- and installs an event filter so a window created later gets it
+    too. Both of those outlive the test that caused them.
+
+    THAT IS RIGHT IN PRODUCTION AND WRONG BETWEEN TESTS. A window sheet
+    outranks the application sheet for that window's tree, so a test that
+    applies a theme the direct way -- `app.setStyleSheet(stylesheet(...))`,
+    which several do -- builds its widgets inside a window still wearing the
+    theme an EARLIER test asked for. Measured as `HomePage inlines #000000
+    (dark bg)` under light, cell and glass, in a run of 1,045 tests and in
+    none of the three files alone.
+
+    Same shape as `_restore_app_registry` above and
+    `_restore_console_level_policy` below: process-global state that one
+    test sets and every later test inherits.
+    """
+    try:
+        from spacr.qt import theme
+    except Exception:                                        # noqa: BLE001
+        yield
+        return
+    try:
+        yield
+    finally:
+        theme._forget_window_stylesheets()
 
 
 @pytest.fixture(autouse=True)
@@ -344,16 +517,38 @@ def _restore_console_level_policy():
         current = vl._handler
         if current is not None:
             # A handler that is not the one we measured — created during the
-            # test, or swapped for a new one — carries a policy that is
+            # test, or swapped for a new one — carries a POLICY that is
             # entirely the test's, so "before" for it is no gate at all.
             # The handler object itself is left attached; detaching it is a
             # different concern and tests hold references to it.
             restorable = current is handler and saved is not None
             filters, level = saved if restorable else ([], 0)
+
+            # ONLY THE POLICY FILTERS COME OFF, NOT EVERY FILTER. This used
+            # to strip the lot, and `_NotAlreadyShownByTheRootSink` is not a
+            # policy: `_ensure_handler` installs it at construction and no
+            # test chooses it. It is the de-duplication that stops one
+            # record being rendered by BOTH console sinks.
+            #
+            # So the first Qt test to cause the forwarder to be created —
+            # `_handler` is None at setup, `saved` is None, "before" is no
+            # gate at all — used to remove it for the rest of the process,
+            # and every later test got a forwarder that renders everything.
+            # `test_a_qt_warning_reaches_the_console_once` then failed in a
+            # full run and passed alone; measured on chunk_002 of the
+            # 2026-09-10 sweep, where the forwarder reached it with
+            # `filters == []`.
+            keep = tuple(
+                existing for existing in current.filters
+                if type(existing).__name__ == "_NotAlreadyShownByTheRootSink"
+            )
             for existing in list(current.filters):
                 current.removeFilter(existing)
-            for existing in filters:
+            for existing in keep:
                 current.addFilter(existing)
+            for existing in filters:
+                if existing not in keep:
+                    current.addFilter(existing)
             current.setLevel(level)
 
 

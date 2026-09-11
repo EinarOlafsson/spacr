@@ -1,0 +1,29 @@
+{
+  "lesson": "68_power_design",
+  "english_sha256": "c70c0ea4d037c92883296dfc5b72dcc4e9cf5e7c331311afabbe1c56618147b6",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "de",
+  "title": "Power / Design: Simulator und Grenzen richtig lesen",
+  "description": "Tatsächliche Einstellungen, simulierte Kurven und Warnungen verstehen, ohne eine kleine Demonstration oder widersprüchliche Zusammenfassung als validierte Planungsberatung zu behandeln.",
+  "objectives": [
+    "Simulationsannahmen von erhobenen Versuchsdaten unterscheiden.",
+    "Brauchbare Fits, Detektionsanteile und Unsicherheit richtig lesen.",
+    "Die falsche Empfehlung zum unveränderten Design erkennen und Belege erhalten."
+  ],
+  "prerequisite": "Kritische Prüfung des aufgezeichneten Simulators, keine kalibrierte statistische Power oder Stichprobenberatung. Power_recorded_simulation_review.zip erhält das ursprüngliche JSON und seine Prüfung; kein importierbarer Lauf oder nativer GUI-Export. Die mit spaCR 1.5.0.4 aufgezeichneten Bildschirm-, Adapter-, Simulations- und Fit-Dateien sind mit dem aktuellen Code byte-identisch. Zwei marginale Scans erzeugten 18 Fits und neun Punkte mit je zwei Wiederholungen; vier nicht konvergierte Fits bleiben im Nenner. Zwei Simulationen begrenzten Wahrscheinlichkeiten. Dasselbe nominale Design liefert bei verschiedenen Zufallsziehungen 1/2 und 2/2 Detektionen. Der Rat, auf die bereits vorhandene Well-Zahl zu erhöhen, wird ausdrücklich verworfen und bleibt unrepariert. Einige Randbeschriftungen sind abgeschnitten; die geprüfte Tabelle enthält alle neun Koordinaten. Keine neue Simulation, erhobenen Daten, biologische Kalibrierung, GPU-Aufgabe, KI-Anfrage oder Veröffentlichung werden behauptet. API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve und spacr.qt.screens.power.run_power_sweep; spacr.power_simulate und spacr.power_model simulieren und fitten.",
+  "scenes": [
+    "Power und Design untersucht Annahmen mit simulierten Daten. Es lädt kein erhobenes Experiment und beweist nicht, dass die Annahmen zu Ihrem Versuch passen. Diese Lektion liest einen echten aufgezeichneten Lauf einschließlich Warnungen und irreführender Empfehlung. Verwenden Sie diese kleine Demonstration nicht als validierte Stichprobenberatung.",
+    "Beginnen Sie mit Bibliothek und Bewertungseinheit. Der Wechsel zwischen Guide und Gen ändert die bewertete Einheit: 40 Gene mit je vier Guides ergeben 160 Einheiten bei Guide-Bewertung. Die Gen-Bewertung bündelt Guide-Informationen. Das sind Lehrannahmen, keine neuen biologischen Messungen.",
+    "Platten- und Effektregler beschreiben das angenommene Design. Eine Positivklassifikationsrate ist eine simulierte Klassifikationswahrscheinlichkeit, weder eine Organismenzahl noch eine gemessene Infektionsrate. Prüfen Sie Hintergrund, Effekt und Prävalenz gemeinsam. Die angezeigten Annahmen validieren das Modell nicht.",
+    "Ein Effekt unter eins löst die native Warnung zur nicht unterstützten Richtung aus und deaktiviert Run. Die Aufnahme stellt anschließend einen unterstützten Wert und die Bedienbarkeit wieder her. Das ist eine Software-Schutzfunktion, keine biologische Unmöglichkeit. Umgehen Sie die Warnung nicht für eine bequemere Kurve.",
+    "Die begrenzte Demonstration verwendet nur zwei Wiederholungen pro Punkt. Eine Detektion verlangt einen brauchbaren Fit, der den gewählten Schwellenwert der Fläche unter der ROC-Kurve erreicht. Das ist keine P-Wert-Grenze eines Hypothesentests. Seed und Backend werden aufgezeichnet; Torch auszuwählen beweist keine GPU-Ausführung.",
+    "Run startet den echten Simulator in einem Arbeits-Thread. Zellzahl und Well-Zahl werden getrennt variiert, nicht in sämtlichen Kombinationen. Der Lauf umfasst 18 Fits an neun Punkten. Bewahren Sie Einstellungen und rohe Wiederholungsdaten zusammen auf, damit jeder gezeichnete Anteil zu seinen Fits zurückverfolgt werden kann.",
+    "Detektionen werden durch alle angeforderten Wiederholungen geteilt. Vier nicht konvergierte Fits bleiben als Nichtdetektionen im Nenner und verschwinden nicht stillschweigend. Hundert Prozent bedeutet hier lediglich zwei von zwei. Eine so kleine Stichprobe belegt keine präzise Detektionswahrscheinlichkeit.",
+    "Die Tabelle trennt Detektionsanteile von mittlerer Leistung brauchbarer Fits. Ein nicht verfügbarer Mittelwert ist nicht null. Average Precision benötigt auch die Prävalenzreferenz. Lesen Sie die Tabelle bei abgeschnittenen Randbeschriftungen und prüfen Sie Nichtkonvergenz, statt das Design nur nach der blauen Linie zu beurteilen.",
+    "Die Zusammenfassung enthält einen Fehler. Beide Basisschätzungen nutzen bereits 96 Wells, aber unterschiedliche Zufallsziehungen ergeben in einem Scan eine von zwei Detektionen und im anderen zwei von zwei. Zu denselben 96 Wells zu wechseln verbessert das Design nicht. Verwerfen Sie den Rat; das Tutorial repariert ihn nicht.",
+    "Öffnen Sie die übrigen Einschränkungen. Zwei simulierte Screens begrenzten Wahrscheinlichkeiten über eins; ihre realisierte Belegung weicht deshalb von der angeforderten ab. Das Modell hat weitere Annahmen und Grenzen. Sie aufzulisten ist keine Validierung. Prüfen Sie Warnungen und fehlgeschlagene Fits vor Schlussfolgerungen.",
+    "Das verlinkte Archiv bewahrt die aufgezeichnete Spezifikation, Wiederholungen, Kurven, Tabelle und falsche Zusammenfassung. Es ist ein externer Beleg-Download, kein nativer GUI-Export oder importiertes Ergebnis. Python-Adapter und Simulations-APIs bieten denselben Ablauf; echte Planung benötigt eine gesonderte Prüfung von Annahmen und Unsicherheit."
+  ]
+}

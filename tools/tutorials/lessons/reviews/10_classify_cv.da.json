@@ -1,0 +1,31 @@
+{
+  "lesson": "10_classify_cv",
+  "english_sha256": "5476aa94e678d9a21ae51c2d1c5f59a6831e8d1a3af0bbb83acacf04a55b8328",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "da",
+  "title": "Classify: et kontrolleret eksempel med computer vision",
+  "description": "Forbered uændrede downloadede billedudsnit med entydige brøndidentiteter, og vurder en lille model uden at overdrive dens ydeevne.",
+  "objectives": [
+    "Find computer-vision-familien i hovedmodulet Classify.",
+    "Forbered en eksisterende opdeling fra downloadede annotationer uden at ændre originalbilleder eller etiketter.",
+    "Hold faktiske brønde adskilt, vis figurer, og skeln mellem vellykket kørsel og nyttig forudsigelse.",
+    "Find gemte modeller, forudsigelser og indlejrede værktøjer."
+  ],
+  "prerequisite": "Annotate: Load test data → Load, ikke Stream. Bevar plate1/measurements/measurements.db og png-udsnit. Optaget med spaCR 1.5.0.6. Pak ZIP ud og kør prepare_classify_split.py i spaCR-miljøet: --source er plate1, --destination en NY mappe. Hjælperen gælder kun dette eksempel med fire brønde: otte eksisterende infected=1 og otte infected=2 pr. brønd, deterministisk udvalg før træning, 64 byte-identiske RGB-udsnit. Kopier får databasens prcfo-navne; fortolkningen af gamle filnavne er IKKE rettet. Det balancerede udvalg bevarer IKKE populationens klassefordeling. Vælg den forberedte mappe, Computer Vision (Torch), Generate training dataset slået fra. Indstillinger: ResNet18, epochs=1, batch_size=8, image_size=128, n_jobs=0, init_weights=False, augment=False, val_split=0.5, test_split=0.5, cv_group_by=well, random_seed=42, train_channels=['r','g','b'], train/test/plot=True; alle lækagekontroller til. train har 32 billeder, som bliver til 16 trænings- og 16 valideringsbilleder; test har 32. Adskilte brønde, samme plade. Alle testforudsigelser er klasse nul: nøjagtighed=0.5, flertalsbaseline=0.5, makro-F1=1/3. De 32 identiteter, etiketter, sandsynlighedssummer, nøjagtighed, klasseantal og makro-F1 er uafhængigt kontrolleret, ikke alle måltal. Output: model/resnet18/rgb/epochs_1. API: spacr.classify.classify → spacr.deep_spacr.train_test_model. Ingen påstand om nyttig model, biologisk gyldighed eller generalisering til nye forsøg. Ingen AI-forespørgsel sendt.",
+  "scenes": [
+    "Åbn Classify fra Home og vælg Computer Vision, Torch. Computer vision lærer fra objektbilleder; den tabulære familie lærer fra gemte målinger. Begge ligger nu i samme hovedmodul. Dette lille, kontrollerede eksempel bruger en særskilt forberedelsesløsning, som ikke retter appens fortolkning af gamle filnavne.",
+    "Følg det tilknyttede Annotate-kursus og indlæs det rigtige eksempel med Load. Bevar måledatabasen og billedudsnittene. Terminalen viser eksisterende annotationer fra fire faktiske brønde. Vi bevarer etiketterne, men de er ikke uafhængigt valideret biologisk sandhed. Kildeprojektet forbliver uændret under hele demonstrationen.",
+    "Download hjælpescriptet og kør det i spaCR-miljøet. Source er den downloadede plademappe; destination skal være en ny mappe. Der kopieres otte billeder fra hver af to eksisterende klasser i hver brønd: fireogtres i alt. Udvælgelsen er deterministisk og sker før træning, ikke efter vurdering af modellens resultater.",
+    "Læs manifestet først. Kopiernes navne bruger databasens kanoniske objektidentiteter, og alle billedbytes bevares. To hele brønde går til træningsmappen og to til test. Dette bevidst balancerede undervisningsudvalg ændrer klassefordelingen; det er ikke repræsentativt for den oprindelige population.",
+    "Vælg det forberedte datasæts mappe i Classify, ikke originalprojektet eller en klasseundermappe. Den indeholder train og test med to klassemapper i hver. Kildevælgeren åbner dette eksisterende datasæt. Overskriv ikke kildeprojektet, og genbrug ikke en destination med tidligere resultater.",
+    "Slå Generate training dataset fra, fordi opdelingen allerede er forberedt. Train og Test forbliver til; anvendelse på hele datasættet er fra. Klassemapperne bevarer etiketterne et og to, mens modellen bruger indeks nul og et. Det er forskellige nummereringer, ikke en modsigelse.",
+    "Vælg ResNet18 til det afgrænsede eksempel: én epoke, batches på otte, billedstørrelse hundredeotteogtyve og nul indlæsningsprocesser. Brug alle tre RGB-kanaler, uden fortrænede vægte og dataforøgelse. Indstillingerne holder demonstrationen lille; de er ikke en anbefalet opskrift på en præcis klassifikator.",
+    "Bevar gruppering efter brønd og alle lækagekontroller. En valideringsandel på halvdelen deler træningsmappens toogtredive billeder i seksten til træning og seksten til validering, én hel brønd i hver. De øvrige toogtredive er kun til test. Alle fire brønde deler plade, så dette er ikke validering i et uafhængigt forsøg.",
+    "Slå Plot til, ryd indstillingssøgningen, og tryk Run. Følg faktisk opdeling, lækagekontroller, træning og gemte stier i konsollen. Begge brøndbaserede grænsekontroller består her. Et softwaretjek giver kun mening, hvis navnene matcher de faktiske prøveidentiteter; det har vi kontrolleret særskilt.",
+    "Figures viser tab, nøjagtighed og valideringsnøjagtighed pr. klasse. Én epoke giver enkelte punkter, ikke bevis for konvergens. Vores separate testkontrol finder alle billeder forudsagt som klasse nul: halvtreds procent nøjagtighed, præcis den balancerede flertalsbaseline. En vellykket kørsel gav ikke en nyttig klassifikator.",
+    "Bevar modelmappen med checkpoint, modelkort, lækagekontroller og resultattabeller. Her ligger den under model, resnet18, rgb, epochs understregning et. Sammenlign gemte forudsigelsesidentiteter og etiketter, ikke kun nøjagtighed. Fejlklassificerede billeder kopieret til gennemgang er output, ikke yderligere uafhængige trænings- eller testprøver.",
+    "AI-kontrollen kan bruges til spørgsmål om indstillinger og output, når en udbyder er konfigureret. Dette er et usendt spørgsmål, ikke et svar eller analyseresultat. I Python sender classify denne familie videre til train_test_model. Bevar manifestet og kontrollér råd før planlægning af et større, uafhængigt valideret forsøg."
+  ]
+}

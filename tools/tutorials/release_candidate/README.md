@@ -1,0 +1,63 @@
+# Tutorial release candidate — 11 September 2026
+
+This is the **unpublished, maintainer-approved candidate**, not the current
+live tutorial site. `checkpoint.json` identifies the complete on-disk package;
+`release-manifest.json` records every web/media file and its SHA-256 hash.
+
+| Contents | Count |
+| --- | ---: |
+| Fully produced tutorial packages | 71 |
+| Coming soon screens | 5 |
+| Catalog languages | 14 |
+| Narration languages / voices per ready lesson | 8 / 50 |
+| Verified narration tracks, including retained tracks | 3,550 |
+
+The five unavailable workflows are Map Barcodes, Model Compare, Model Zoo,
+Investigate Hit and OPS. They remain reachable through the correct Main modules
+or parent-grouped Submodules navigation, but do not load old media, claim a
+successful run, offer completion, or inflate the available count. The underlying
+application/data issues remain for their owners; the user approved these screens
+instead of waiting for those fixes.
+
+All original held recordings and catalogs are preserved. The candidate only
+adds availability and current-parent metadata; ready narration and visual
+masters are not regenerated for this change. Complete text sources, scripts,
+catalogs and evidence are in Git; large recordings/audio remain in the original
+workspace and the separately copied candidate, indexed by the committed hashes.
+
+## Verification and preview
+
+Use the existing isolated tutorial environment, not a new application install:
+
+```bash
+/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/.venv/bin/python \
+  tools/tutorials/verify_release_candidate.py \
+  /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/release-candidate-dg6kuzsm
+```
+
+For an interactive local preview, add `--serve`. It binds only to localhost,
+prints the URL, supports media seeking and serves the complete candidate.
+Stop it with Ctrl-C. The small Git text checkpoint alone has no media.
+
+## Release hold
+
+**Do not publish yet.** The candidate index deliberately uses local relative
+media roots. After the maintainer clears the hold:
+
+1. Recheck the manifest and confirm the intended app version still matches
+   the recordings. Check the current GUI route inventory again.
+2. Upload the candidate's `media_host/` to a new versioned media location,
+   preserving the currently live files. Verify all uploaded bytes and pin the
+   deployed player to that exact media revision; do not use stale legacy audio.
+3. Stage this candidate's `web/` as the tutorial docs payload, replace its two
+   local media roots with the verified hosted roots, and update the deployment
+   catalog/cache/inventory pins and bundled tutorial index together. Retain
+   unrelated tracked historical assets unless separately authorized to remove
+   them; measure the actual documentation build, not only this payload.
+4. Run the exact deployment's tutorial tests and live verifier before declaring
+   it published. Keep the previous media revision available for rollback.
+
+The current live-route test still describes the older published collection;
+passing candidate checks is not a claim that the live site or all GitHub CI
+is green. Technical validation also does not constitute native-speaker listening
+approval or repair the application defects disclosed in the tutorials.

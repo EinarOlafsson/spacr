@@ -1,0 +1,27 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "8180c52bcd1a656cd226c81a64977114b2690a9c09fa4bd3c8a85893c4537460",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "Napari Bridge: editar, importar y reabrir con seguridad",
+  "description": "Practique un recorrido verificado píxel a píxel con imagen y máscara sintéticas, copias de seguridad, Fill y Undo nativos, y cierre y reapertura entre importaciones.",
+  "objectives": [
+    "Abrir Napari Bridge dentro de Make Masks con archivos separados de imagen y etiquetas.",
+    "Distinguir edición en el visor, Undo, escritura en disco e historial de correcciones.",
+    "Cerrar y reabrir entre importaciones y verificar ambas correcciones sin afirmar que el defecto del mismo visor esté resuelto."
+  ],
+  "prerequisite": "Extraiga el ejemplo explícitamente SINTÉTICO en una carpeta NUEVA y conserve una copia intacta. La imagen y la máscara uint16 son de 256x256 y contienen dieciséis objetos; no se valida ninguna corrección biológica. Se requiere napari; la grabación usa napari 0.9.1 y tamaño de fuente 20. Seleccione mask.tif e image.tif en Napari Bridge, dentro de Make Masks. Con Fill cambie 2 por 18, deshaga, repita y pulse Take the mask back: se sobrescribe la máscara de trabajo y se registran 2.197 píxeles en mask.tif.curation.json. CIERRE y REABRA antes de otra edición: una comprobación anterior perdió la segunda edición del mismo visor al declararla sin cambios. No se afirma que el defecto esté arreglado. Tras reabrir, cambie 4 por 20 e importe: cambian 1.288 píxeles y se conservan ambas entradas. Se verificaron los 65.536 píxeles de cada máscara guardada; la fuente y la imagen original no cambiaron. IDs añadidos/eliminados no significan células adicionales o ausentes. API: spacr.napari_bridge.load_handoff, open_in_napari, write_back. Sin entrenamiento, validación biológica, aprobación del flujo sin restricciones, publicación ni revisión auditiva.",
+  "scenes": [
+    "Abra Napari Bridge dentro de Make Masks. Envía una imagen y una máscara de etiquetas al visor opcional napari y después importa las etiquetas corregidas. Esta lección usa un ejemplo de práctica claramente sintético, no un experimento biológico. Conserve una copia intacta: importar correcciones sobrescribe la máscara de trabajo seleccionada.",
+    "Descargue el ejemplo y extráigalo en una carpeta nueva. Busque mask punto tif, después image punto tif, y pulse Open in napari. Son entradas diferentes: las etiquetas enteras de objetos van en Mask y la imagen de intensidad es la referencia visual. El ejemplo contiene dieciséis objetos sintéticos.",
+    "Napari se abre con una capa de imagen y una capa Labels llamada mask. Seleccione la capa mask para editar; no cambie las intensidades de la imagen. La etiqueta cero es el fondo. Los colores distinguen identidades de objetos, no clases biológicas ni confianza. Para grabar ampliamos la fuente real de la interfaz, no la imagen original.",
+    "Vuelva a spaCR y pulse Take the mask back antes de modificar nada. El estado indica que la máscara no cambió y no se escribe nada. Importar es una acción distinta de editar en el visor. Esta comprobación sin cambios no demuestra que una corrección posterior se haya guardado; examine también ese resultado.",
+    "En napari, seleccione la etiqueta dieciocho, elija Fill y pulse el objeto de práctica etiquetado como dos. Solo cambia la etiqueta de ese objeto. Es un ejercicio controlado de cambio de identidad, no una mejora de una segmentación biológica. El archivo de trabajo en disco todavía no ha cambiado.",
+    "Use Undo para restaurar la etiqueta original; esta grabación utiliza Control Z. Después repita el mismo relleno antes de importar. Undo actúa sobre el historial de edición del visor. No lo confunda con recuperar un archivo anterior después de importar: para eso conserve copias de seguridad.",
+    "Pulse Take the mask back. El estado informa de dos mil ciento noventa y siete píxeles modificados y un archivo de historial. Se añadió una etiqueta y se eliminó otra porque dos pasó a dieciocho; siguen existiendo dieciséis objetos. Verifique la máscara guardada y el historial, no solo el color mostrado en napari.",
+    "Pulse Close viewer ahora, antes de otra edición, y vuelva a abrirlo. Este paso es esencial en la versión probada: una segunda edición en el mismo visor podía declararse sin cambios y perderse. Mostramos el procedimiento verificado de cerrar y reabrir, no una solución del defecto de la aplicación.",
+    "Tras reabrir, sustituya la etiqueta cuatro por veinte e importe otra vez. Cambian mil doscientos ochenta y ocho píxeles y permanece la entrada anterior del historial. Cierre el visor al terminar. Conserve la imagen original, la máscara corregida y su procedencia, y repita las mediciones afectadas en lugar de reutilizar resultados asociados a etiquetas antiguas."
+  ]
+}

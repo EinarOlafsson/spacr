@@ -1604,7 +1604,7 @@ def _set_classifier_evaluation_defaults(settings):
     return settings
 
 
-#: ``old name -> new name`` for the settings instruction 364 renamed.
+#: ``old name -> new name`` for every setting that has been renamed.
 #:
 #: THE FOLD IS WHAT KEEPS OLD SETTINGS FILES WORKING, and it is the whole
 #: reason a rename is safe to make at all: every CSV anyone has saved names

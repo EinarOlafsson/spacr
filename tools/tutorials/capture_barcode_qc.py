@@ -8,7 +8,7 @@ import time
 from barcode_qc_evidence import read_counts, verify_outputs, check_native_run
 
 
-def record_barcode_qc(app, window, stage, captures, capture, settle, write_json, timeout):
+def record_barcode_qc(app, window, stage, captures, capture, settle, write_json, timeout, *, saved_plots=False):
     from PySide6.QtCore import Qt, QTimer, QPoint
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import (QAbstractButton, QLineEdit, QComboBox,
@@ -175,7 +175,20 @@ def record_barcode_qc(app, window, stage, captures, capture, settle, write_json,
             figures=figures,settings_errors=[line for line in lines if '[settings] ERROR' in line])
         proof['independent_csv_check']=verify_outputs(project/'results',oracle)
         proof['saved_files']={str(p.relative_to(project)):snapshot(p) for p in sorted(project.rglob('*')) if p.is_file() and p!=source}
-        check_native_run(proof['run']);proof['accepted']=True
+        if saved_plots:
+            from capture_saved_plots import check_saved_file_run, show_saved_plots
+            check_saved_file_run(proof['run'])
+            proof['saved_plot_viewer'] = show_saved_plots(app, window, stage, capture, settle,
+                [project/'results/barcode_qc.png', project/'results/threshold_sweep.png'])
+            proof['scope'] = 'Verified CSV outputs and real external plot viewer; GUI defects remain'
+            proof['gui_figure_workflow_accepted'] = False
+            proof['settings_preflight_fixed'] = False
+            if {str(p.relative_to(project)):snapshot(p) for p in sorted(project.rglob('*'))
+                    if p.is_file() and p != source} != proof['saved_files']:
+                raise ValueError('Viewing unexpectedly changed saved output files')
+        else:
+            check_native_run(proof['run'])
+        proof['accepted']=True
     finally:
         if screen is not None and screen._worker_thread_is_running():
             QTest.mouseClick(screen._btn_stop,Qt.LeftButton);until=time.monotonic()+20

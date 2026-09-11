@@ -1,0 +1,33 @@
+{
+  "lesson": "56_lineage",
+  "english_sha256": "5e8321bb39a3d97f13c9985bccdd5cdb7e21c17c56b975c191d92b6b01ede092",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "it",
+  "title": "Lineage: identità di contenimento e ritagli del genitore verificati",
+  "description": "Esaminare relazioni salvate, limite della vista e ritaglio del solo genitore, rifiutando la sostituzione errata delle immagini figlie.",
+  "objectives": [
+    "Aprire Lineage dentro Database Browser e costruire l’albero reale.",
+    "Distinguere conteggi completi, famiglie visibili e identità tipizzate.",
+    "Riconoscere la sostituzione errata e ispezionare il genitore verificato.",
+    "Usare lo zoom nativo e distinguere l’export Python dai controlli grafici."
+  ],
+  "prerequisite": "Usare l’esempio scaricato di Annotate con misure e ritagli cellulari corrispondenti. L’archivio Graph Builder contiene il database esatto senza immagini; quello Lineage contiene CSV API e revisione, non un database sostitutivo. Non usare il ripiego attuale per identificare o etichettare figli senza immagine.",
+  "scenes": [
+    "Trovate Database Browser in Help e aprite il suo strumento annidato Lineage. Qui lineage indica il contenimento salvato: quali oggetti appartengono a quali cellule. Non è una storia di divisioni, un’ascendenza genetica o una nuova segmentazione. I controlli del database circostanti appartengono al modulo ospitante.",
+    "Aprite measurements punto db dell’esempio reale di Annotate e costruite l’albero. Usiamo una copia privata invariata. Allargate Object e il divisore se le etichette sono strette. I numeri si ripetono fra campi e tipi di oggetto: un numero da solo non è un’identità.",
+    "La fonte completa contiene duemilatrecentoquarantuno cellule, duemilaseicentoottantadue nuclei e duemilacentosettantotto oggetti nella tabella pathogen. L’albero mostra solo duemila famiglie: trecentoquarantuno sono escluse dalla vista, non cancellate dal database.",
+    "Il riepilogo dice che nessuna cellula è vuota perché anche un nucleo conta come figlio. Non significa che tutte contengano un oggetto della tabella pathogen: millecentosessantotto non ne hanno. Nessun figlio non associato significa che ogni genitore registrato esiste, non che la segmentazione sia biologicamente corretta.",
+    "Espandete un genitore per vedere i figli. In questo campo la cellula tre contiene il nucleo cinque e l’oggetto pathogen uno secondo i collegamenti salvati. Sono identità tipizzate, non numeri intercambiabili. Selezionare un solo figlio è diverso dal selezionare tutta la famiglia.",
+    "Select with contents pubblica genitore e figli. Selezionare insieme un genitore e un suo figlio non richiede di duplicare il figlio. Le chiavi mantengono campo e tipo, ma la loro colonna è nascosta. Pubblicare un’identità non prova che esista il ritaglio corrispondente.",
+    "Una grande famiglia merita ispezione, non un’interpretazione biologica automatica. L’esempio ne include una con trentatré oggetti totali. Il contenimento può riflettere errori di segmentazione o acquisizione. L’albero riporta relazioni salvate, senza validare numeri insoliti come scoperte.",
+    "Un clic sull’intestazione ordina le famiglie visibili senza cambiarne il contenimento. Resta il limite di duemila genitori. Abbiamo verificato ogni identità visibile, ogni relazione parentale e la gerarchia completa. Una vista riordinata o troncata non è una tabella di misure modificata.",
+    "Open crops richiede Annotate, che fornisce il visualizzatore. Il messaggio chiede di aprire prima Annotate. Un visualizzatore assente è diverso da un’immagine mancante. Caricate il progetto corrispondente prima di richiedere ritagli, non un’altra esecuzione con numeri casualmente simili.",
+    "Il progetto scaricato offre ritagli cellulari reali. L’archivio del solo database non fornisce queste immagini. Usiamo l’esempio completo corrispondente e preserviamo tutti i ritagli originali. Aprire la fonte non addestra un classificatore e non stabilisce nuove etichette.",
+    "Questa versione ha una limitazione grave. Aprire la famiglia di tre oggetti mostra la cellula tre e poi le cellule cinque e uno, non pertinenti, invece del nucleo e dell’oggetto pathogen richiesti. La fonte ha soltanto ritagli cellulari. Rifiutate la sostituzione: non etichettateli come figli mancanti. Il tutorial non ripara il difetto.",
+    "L’alternativa verificata è più limitata: tornate a Lineage e fate doppio clic sul solo genitore cellulare. A differenza di Open crops, invia soltanto il genitore, non la famiglia. Annotate mostra esattamente quel ritaglio. Abbiamo verificato identità e byte originali, senza implicare supporto alle immagini figlie.",
+    "Tenete premuto Maiusc e cliccate sulla miniatura del genitore per ingrandire l’anteprima senza assegnare una classe. Esc ripristina la griglia. Questo aiuta l’ispezione, ma non crea risoluzione aggiuntiva. Usate il gesto corretto: un normale clic sinistro annota, non esegue lo zoom mostrato.",
+    "Build tree aggiorna la vista. In Python, read_object_tables, build_forest e lineage_frame espongono la stessa struttura. Il CSV collegato contiene tutti i settemiladuecentouno nodi, comprese le famiglie escluse dalla vista. È stato scritto dall’API, non da un pulsante di export Lineage, e non è validazione biologica."
+  ]
+}

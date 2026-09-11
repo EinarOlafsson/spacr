@@ -1,0 +1,67 @@
+{
+  "lesson": "08_measure",
+  "status": "Usable native preview and preserved full-run composition verified; multilingual refresh in progress",
+  "canonical_english_sha256": "6ff85bcfb26101dbec22349f6e4bb42f70baeb6bde11f98dd4d29cb32d1cb186",
+  "scene_count": 13,
+  "narrated_words": 668,
+  "preview_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_controls/captures/measure_visible_controls_v2",
+  "composition": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/measure_usable_preview_verified_batch",
+  "native_actions": {
+    "main_normalize_before_first_preview": true,
+    "initial_preview_percentiles": [
+      1,
+      99
+    ],
+    "initial_field": "plate1_E02_1_1",
+    "initial_objects": 27,
+    "display_channel": 0,
+    "single_channel_objects": 27,
+    "single_channel_preserved_identity_area_category": true,
+    "all_channels_restored_identical_pixels": true,
+    "second_field": "plate1_E02_9_1",
+    "second_field_objects": 15,
+    "live_off_before_restoration": true,
+    "main_normalize_restored": false,
+    "complete_batch_settings_restored": true,
+    "batch_started_by_preview_recorder": false,
+    "crop_dialog_opened": false
+  },
+  "source_arrays_match_verified_batch": true,
+  "batch_outputs_revalidated": {
+    "fields": 16,
+    "values": 5409,
+    "cell_records": 601,
+    "decoded_rgb_crops": 601,
+    "saved_pdfs": 48,
+    "gui_figure_queue": 47,
+    "original_receipt": "2026-09-11_measure_readable_native_checks.json"
+  },
+  "qc_context": {
+    "downloaded_mask_fields": 52,
+    "object_field_records": 156,
+    "failed": 3,
+    "warned": 16,
+    "measured_merged_fields": 16,
+    "clean_data_claimed": false
+  },
+  "focused_tests_passed": 14,
+  "mutations_observed_red": [
+    "identity_changed",
+    "not_restored"
+  ],
+  "visual_review": {
+    "preview_setup": true,
+    "all_channels": true,
+    "single_channel": true,
+    "second_field": true,
+    "normalization_restored": true
+  },
+  "limits": {
+    "application_layout_fixed": false,
+    "hidden_crop_controls_taught_as_usable": false,
+    "preview_only_setting_true_certified_for_batch": false,
+    "biological_validation": false,
+    "native_language_or_listening_review": false,
+    "published": false
+  }
+}

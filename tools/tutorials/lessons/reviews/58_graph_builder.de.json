@@ -1,0 +1,31 @@
+{
+  "lesson": "58_graph_builder",
+  "english_sha256": "0cafbb000a43518dec4abf97d95a12a28d3db265fc707f4caf2d681e26617f72",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "de",
+  "title": "Graph Builder: echte Messwerte, Live-Filter und eine Übergabegrenze",
+  "description": "Messspalten zu Diagrammen zusammenstellen, nach Aufnahmemetadaten aufteilen und den aktuellen Fehler bei der Übergabe an Annotate erkennen.",
+  "objectives": [
+    "Die echte Beispieldatenbank und cell öffnen.",
+    "Histogramm, Streudiagramm, Farben und Zeilenfacetten erstellen.",
+    "Gefilterte und wiederhergestellte Populationen prüfen.",
+    "Interne Veröffentlichung einer Auswahl von funktionierender Übergabe unterscheiden."
+  ],
+  "prerequisite": "Verknüpfte Messdatenbank herunterladen und entpacken oder das heruntergeladene Annotate-Beispiel verwenden. Das Archiv enthält Messwerte, keine Bildausschnitte; kein neuer Modelllauf ist nötig.",
+  "scenes": [
+    "Graph Builder untersucht eine vorhandene Tabelle. Öffnen Sie es über Home. Es ist ein Hauptmodul mit den untergeordneten Werkzeugen Plate Viewer und Small Multiples. Wir verwenden echte Beispielmesswerte, trainieren kein Modell und lassen keinen KI-Dienst Ergebnisse erzeugen.",
+    "Wählen Sie Load table und öffnen Sie measurements.db aus dem verknüpften Archiv oder dem heruntergeladenen Annotate-Beispiel. Wählen Sie cell: 2.341 Zeilen. Das Archiv enthält die aufgezeichnete Datenbank unverändert, nicht aber die Bilder, auf die andere Tabellen verweisen.",
+    "Suchen Sie cell_area und ziehen Sie die Spalte auf X. Die automatische Darstellung erzeugt ein Histogramm mit 30 Klassen. Jeder Balken zählt Zellzeilen in einem Flächenintervall; dies ist weder ein Behandlungsvergleich noch ein Signifikanztest. Gespeicherte Einheiten bleiben ohne neue physikalische Kalibrierung erhalten.",
+    "Ziehen Sie cell_channel_1_mean_intensity auf Y. Jeder Punkt zeigt Zellfläche und mittlere Intensität in Kanal eins. Überlagerte Punkte können sich verdecken, obwohl hier alle Zeilen vertreten sind. Prüfen Sie den Zeilenhinweis; große Datensätze können anders dargestellt werden.",
+    "Legen Sie columnID auf Colour und lesen Sie die Legende. Farben unterscheiden Aufnahmespalten, keine vorhergesagten Klassen oder bekannten Behandlungen. Eine sichtbare Trennung ist beschreibend und beweist keinen Effekt. Koordinaten und Farbzuordnungen wurden mit den Quellzeilen verglichen.",
+    "Legen Sie rowID auf den Facettenkanal mit dem Abwärtspfeil. Die Plattenzeilen erscheinen in getrennten Feldern mit 1.140 und 1.201 Zellen. Gemeinsame Achsen erleichtern den Vergleich, aber Zellen desselben Wells sind keine unabhängigen experimentellen Wiederholungen.",
+    "Fügen Sie rechts im Filter cell_area hinzu und setzen Sie das Minimum auf 21.925. Das Diagramm zeigt sofort 1.171 Zeilen. Der aufgerundete Median demonstriert den Filter und ist kein empfohlener biologischer Grenzwert. Auch die Achsengrenzen ändern sich.",
+    "Clear all im Filter stellt alle 2.341 Zellen wieder her. Das ist nicht Clear all channels links: Letzteres entfernt die Spaltenzuordnungen des Diagramms. Prüfen Sie Anzahl und Achsen erneut. Eine andere Population ist keine neue Messung.",
+    "Entfernen Sie die Zeilenfacette mit ihrem kleinen Kreuz und ziehen Sie ein Rechteck im Streudiagramm. Diese Version hat einen Fehler: Die aufgezeichnete Geste veröffentlicht intern 653 Objektschlüssel, zeigt aber null ausgewählte Objekte und lässt Open selection in Annotate deaktiviert. Nehmen Sie nicht an, dass Annotationen geöffnet oder erstellt wurden.",
+    "Ein einfacher Klick löscht auch diese interne Auswahl. Das Tutorial prüft die Rückkehr, repariert aber die Übergabe nicht. Filtern und auf Objekte zeigen sind verschiedene Vorgänge; andere Ansichten können ihren Zustand teilen. Prüfen Sie die aktive Population, statt jedes Diagramm automatisch als ganze Datenbank zu lesen.",
+    "Über die Kopfzeile erreichen Sie Plate Viewer und Small Multiples; eigene Tutorials erklären diese Unterwerkzeuge. Hier gibt es keine Schaltfläche zum Export von Diagramm oder Spezifikation. Das Datenbankarchiv ist ein externer Tutorial-Download, kein Export von Graph Builder.",
+    "In Python lädt read_table die Daten, GraphSpec beschreibt Kanäle und Facetten, und die Auswahl-API trennt Filter von expliziten Objektschlüsseln. Bewahren Sie Quelle, Einstellungen und Version mit Ihrer Interpretation auf. Diese APIs validieren keine biologische Schlussfolgerung und reparieren keine Annotate-Übergabe."
+  ]
+}

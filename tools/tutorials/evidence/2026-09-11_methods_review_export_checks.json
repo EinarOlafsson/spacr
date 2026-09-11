@@ -1,0 +1,48 @@
+{
+  "lesson": "49_methods_results",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/methods_review_export_v1",
+  "native_export_verified": true,
+  "review": {
+    "scope": "Native export identity plus seed provenance and gene-family numerical checks only",
+    "family": {
+      "n_genes": 325,
+      "alpha": 0.05,
+      "n_significant": 0,
+      "min_q": 0.2708333333333333,
+      "all_bh_values_checked": true
+    },
+    "declared_permutation_seed": 0,
+    "displayed_generic_seed": 42,
+    "recorded_analysis_version": "1.5.0.4",
+    "displayed_exporter_version": "1.5.0.5",
+    "global_seed_recorded": false,
+    "global_seed_actual_use_verified": false,
+    "issues": [
+      "The journal declares the permutation seed, not a global run seed; the generic seed sentence needs review.",
+      "The displayed ranked candidates are not significant at the stated threshold; calling them hits needs review.",
+      "The exporter version differs from the recorded analysis version; do not report it as the analysis version."
+    ],
+    "original_draft_scientifically_approved": false,
+    "automated_numeric_check_is_semantic_approval": false,
+    "export_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/methods_runs/real-regression-digest-t6_o2_he/UNREVIEWED_methods_results.md",
+    "export_sha256": "4f5ad83cf1a6829cdc26a5c2e73584265f369ec4413bce1161a1a243d0f0382b",
+    "source_hashes": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/methods_runs/real-regression-digest-t6_o2_he/run_dir/manifest.json": "16a6df7200ba0c409440953a3adbddab8401eb93d016035af9a741dc5baae03d",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/methods_runs/real-regression-digest-t6_o2_he/project/results/guide_permutation/results_gene.csv": "e2296313e6666092336fcedd968db6dd35632460dd6fa014d643af7782593132"
+    },
+    "published": false
+  },
+  "english_sha256": "d2163a967fc43b378f61bc985a7f3c18c1652600a63cbdb34d21a9aa583dc210",
+  "all_originals_unchanged": true,
+  "all_private_inputs_unchanged": true,
+  "focused_tests_passed": 9,
+  "mutations_observed_red": [
+    "BH q comparison removed",
+    "exported JSON equality removed"
+  ],
+  "previous_accuracy_hold_preserved": true,
+  "app_source_modified": false,
+  "provider_contacted": false,
+  "original_draft_scientifically_approved": false,
+  "published": false
+}

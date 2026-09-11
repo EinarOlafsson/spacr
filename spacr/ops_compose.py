@@ -1,6 +1,6 @@
 """The canonical nuclear map, composed one window at a time.
 
-PHASE B1 OF INSTRUCTION 372. `ops_stitch` solves where every tile sits and
+`ops_stitch` solves where every tile sits and
 deliberately does not hold the pixels -- well A1 is 26,855 x 26,865, which is
 1.4 GB as uint16 for ONE channel, and every later phase would read through it.
 This module composes the same well WINDOW BY WINDOW instead, which is what

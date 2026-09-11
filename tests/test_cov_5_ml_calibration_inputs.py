@@ -116,7 +116,7 @@ def test_a_design_that_names_no_control_block_cannot_be_calibrated(tmp_path):
 
 def test_a_design_with_no_positive_guide_cannot_be_calibrated(tmp_path):
     with pytest.raises(ValueError, match="no gRNA"):
-        ML._calibration_inputs(_settings(tmp_path, positive_control=""))
+        ML._calibration_inputs(_settings(tmp_path, positive_control_id=""))
 
 
 def test_control_blocks_that_match_no_well_are_refused(tmp_path):

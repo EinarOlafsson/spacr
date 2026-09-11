@@ -1,0 +1,32 @@
+{
+  "lesson": "72_volcano_explorer",
+  "english_sha256": "5f627353196b1e89c1f3953c924df4914b8aff572e09d847b8dab82d8556ebcd",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "it",
+  "title": "Volcano Explorer: esaminare risultati ed esportare una figura",
+  "description": "Esplorare l’esempio reale Regression, sincronizzare i controlli, distinguere soglie visive e test statistici, salvare stili ed esportazioni.",
+  "objectives": [
+    "Aprire lo strumento annidato con una sola famiglia di guide.",
+    "Sincronizzare i controlli con Save style e Load style.",
+    "Leggere identità, assi, colori e linee senza inventare nuovi risultati significativi.",
+    "Ripristinare uno stile e verificare PDF e PNG."
+  ],
+  "prerequisite": "Estrarre Volcano_real_guide_family.zip e aprire results. Output invariati dell’esempio Regression, non nuova analisi o archivio completo. Una famiglia: 434 guide, log_pred, minimum_wells_threshold=2, P di permutazione con correzione più-uno e BH. P grezzo minimo 0.005, P corretto minimo 0.39454545454545453; nessuno significativo ad alpha=0.05. Effetti marginali standardizzati, non coefficienti simultanei o variazioni log2. Difetto iniziale mantenuto: controlli 1e-6/0/False contro rendering .05/3/True. Prima di modificare, Save style e Load dello stesso file sincronizzano i valori. Tutti i 67 campi si ripristinano nel ciclo successivo. Alpha .5 mette 19 valori sotto la soglia senza cambiare gli indicatori; ripristinare .05 e adjusted_p_value. Soglia d’effetto .1 per 3 dà linee +/-0.3. Identità, punti, colori e fonti verificati. Dimensione nominale 7×5 pollici, 150 DPI; ritaglio finale PDF 492.536×348.485 punti, PNG 1026×726 pixel. Font incorporati, nessuna immagine raster nel PDF, leggibilità ricontrollata. Alcune etichette GUI restano tagliate; avviso sui bordi bianchi su fondo chiaro. Unioni di annotazioni, assi interrotti e regole MAD fuori dall’esempio. Registrato con spaCR 1.5.0.4; tre sorgenti pertinenti invariate. Nessun nuovo test, GPU, IA, modifica app o validazione biologica. API: spacr.volcano_style.VolcanoStyle e render_volcano. Non pubblicato.",
+  "scenes": [
+    "Apri Regression e il Volcano Explorer annidato. Questa lezione appartiene ai sottomoduli di Regression. L’esploratore legge risultati completati, senza rieseguire l’analisi. Usiamo l’esempio reale con dati scaricabili; l’archivio associato contiene tabelle esatte e stili registrati.",
+    "Scegli Open results e la cartella results estratta. Ogni punto è una guida di un’unica famiglia di quattrocentotrentaquattro test, con la stessa variabile e regola dei pozzetti minimi. Non mescolare famiglie di correzione. Nessuna guida è significativa alla soglia corretta originale di zero virgola zero cinque.",
+    "Prima di cambiare impostazioni, usa Save style per salvare lo stile realmente renderizzato, poi Load style sullo stesso file. I controlli iniziali non corrispondono alla figura; modificarli subito può applicare valori predefiniti errati. Questo normale ciclo sincronizza i controlli, senza riparare l’applicazione.",
+    "Dopo il caricamento, conferma alfa zero virgola zero cinque, moltiplicatore tre e trasformazione logaritmica negativa. Alcune etichette restano tagliate: verifica valori e JSON. L’asse orizzontale è l’effetto marginale standardizzato, non una variazione log due né un coefficiente di un modello multivariabile stimato simultaneamente.",
+    "Clicca un punto esistente per leggere la riga sorgente. La guida selezionata ha P grezzo zero virgola zero zero cinque, ma P corretto circa zero virgola trentanove. Un effetto grande e quattro pozzetti di supporto non la rendono significativa. Usa identità e campi sorgente, non soltanto la posizione del punto.",
+    "Passare l’asse verticale al P grezzo di permutazione cambia la quantità disegnata, non l’analisi. Piccoli valori grezzi non sostituiscono quelli corretti sulla famiglia. Ripristina poi il P corretto. Gli indicatori originali restano invariati: l’esploratore legge e disegna, non esegue un nuovo test.",
+    "L’interruttore meno logaritmo decimale cambia la rappresentazione dei P. Attivo, colloca più in alto i P piccoli; disattivo, mostra i valori originali. Qui ripristiniamo il P corretto trasformato. Leggi sempre l’asse e non confondere la trasformazione con una diversa correzione dei test multipli.",
+    "Per dimostrazione, portare alfa a zero virgola cinque sposta la linea di riferimento. Diciannove valori corretti sono sotto questa nuova soglia, ma nessuno acquisisce un nuovo indicatore significativo. Non sono diciannove scoperte. Ripristina zero virgola zero cinque prima di esportare o interpretare l’esempio.",
+    "Una soglia d’effetto esplicita di zero virgola uno con moltiplicatore tre pone linee verticali a meno e più zero virgola tre. Controlla il moltiplicatore, non solo il campo di soglia. L’effetto non sostituisce la correzione statistica. Ripristina Auto; nessun valore della tabella viene riscritto.",
+    "Colorare per wells with guide mostra il supporto reale nella tabella. Non è un punteggio di fiducia o prova di accuratezza. Torna ai colori originali di significatività prima dell’esportazione. Unioni di annotazioni e altri layout richiedono validazione propria e sono fuori da questo esempio.",
+    "Imposta dimensioni, font e risoluzione e controlla la figura. Qui la dimensione nominale è sette per cinque pollici a centocinquanta punti per pollice. Il ritaglio stretto cambia le dimensioni finali. Un export leggibile non garantisce che tutte le etichette dei controlli entrino nella finestra.",
+    "Salva lo stile finale in JSON. Dopo una variazione temporanea della dimensione dei marcatori, Load style ripristina ogni campo. Conserva il file con i risultati originali per riprodurre l’aspetto. Lo stile descrive la presentazione, non dimostra l’esecuzione di un’altra regressione o di un nuovo test.",
+    "Export PDF e PNG renderizzano di nuovo, senza catturare lo schermo. Il PDF contiene segni vettoriali e font incorporati; controlla etichette, contrasto e avviso sui bordi bianchi su carta chiara. Gli originali restano invariati. Python offre VolcanoStyle e render_volcano per lo stesso rendering, senza GPU o provider IA."
+  ]
+}

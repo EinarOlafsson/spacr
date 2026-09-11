@@ -6429,10 +6429,10 @@
         "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
         "07a26349bbb3b787b623fe63e13ee541cf585eff23a25427213be9aea57ef173",
         "1f4f4e540c9f7372a3abee7334c5202c260733258a2fed82b8cb2f13815d5b82",
-        "dfdf3364dc675516fe537d24466ecd2063ddd41d1402746db1821aaef4dbc514"
+        "81ca1a1deb3499fe5511636a4460ee7595bfdb985dbe58f494144091618467d4"
       ],
-      "source_sha256": "f6fdd7ba7fcebabe48cd956d3fd925a31bf76c542277312b65cad527cad8cd12",
-      "text": "Eine Reihe pro Nachbarschaft, für ein gemessenes Feature.\n\n:param frame: Messungen, die eine ``neighbourhood``-Säule tragen, wie :func:`classify` sie erzeugt, werden mit der Funktionstabelle verbunden.\n:param feature: die zu zusammenfassende Spalte.\n:param statuses: die Nachbarschaften, um zu berichten, in Ordnung.\n:returns: ``neighbourhood``, ``n``, ``mean``, ``std`` und ``median``.\n\nDer Vergleich, für den das ganze Element ist, und der Grund, warum es sich lohnt, ist Subtraktion statt Addition: das Paket kann bereits mit infizierten mit nicht infizierten vergleichen. Was es nicht tun kann, ist zu bemerken, dass \"uninfected\" zwei Populationen waren, so dass ein Zuschauereffekt als nichts anderes als eine breitere Kontrolle auftaucht.\n\nJeder gewünschte Status ist eine Zeile, bei ``n = 0`` wo die Mikroplatten-Probenposition keine hat. Ein Anrufer, der Labor-Mikroplatten vergleicht, benötigt jedes Mal die gleichen drei Zeilen; eine fehlende Zeile ändert stillschweigend, was ein nachgeschalteter Anschluss bedeutet.\n\nKeine Teststatistik hier, absichtlich. Summieren ist auf jeder Spalte sicher; die Auswahl eines Tests ist eine Entscheidung über das Design -- paart oder nicht, wie die Mikroplattenprobe positioniert Nest, was die Null ist -- und gehört dorthin, wo diese bekannt sind. Dies gibt der Regressionsschicht drei benannte Gruppen übergeben werden, was Anweisung 388 verlangt.",
+      "source_sha256": "3abe4e8fc6b284f2df85440d46c57ddd826e9e9ac5f0afbade71323ebfe668ba",
+      "text": "Eine Reihe pro Nachbarschaft, für ein gemessenes Feature.\n\n:param frame: Messungen, die eine ``neighbourhood``-Säule tragen, wie :func:`classify` sie erzeugt, werden mit der Funktionstabelle verbunden.\n:param feature: die zu zusammenfassende Spalte.\n:param statuses: die Nachbarschaften, um zu berichten, in Ordnung.\n:returns: ``neighbourhood``, ``n``, ``mean``, ``std`` und ``median``.\n\nDer Vergleich, für den das ganze Element ist, und der Grund, warum es sich lohnt, ist Subtraktion statt Addition: das Paket kann bereits mit infizierten mit nicht infizierten vergleichen. Was es nicht tun kann, ist zu bemerken, dass \"uninfected\" zwei Populationen waren, so dass ein Zuschauereffekt als nichts anderes als eine breitere Kontrolle auftaucht.\n\nJeder gewünschte Status ist eine Zeile, bei ``n = 0`` wo die Mikroplatten-Probenposition keine hat. Ein Anrufer, der Labor-Mikroplatten vergleicht, benötigt jedes Mal die gleichen drei Zeilen; eine fehlende Zeile ändert stillschweigend, was ein nachgeschalteter Anschluss bedeutet.\n\nKeine Teststatistik hier, absichtlich. Summieren ist auf jeder Spalte sicher; die Auswahl eines Tests ist eine Entscheidung über das Design -- gepaart oder nicht, wie die Mikroplattenprobe Positionen nisten, was die Null ist -- und gehört dorthin, wo diese bekannt sind.",
       "translation_source_blocks_sha256": [
         "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
         "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
@@ -6441,7 +6441,7 @@
         "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
         "76e48a9b7b0f86f522c73aab1303dbceaa984363a9314e62c723537130b53bf2",
         "cff150bbb6cc0e91c555067db206901e20bffce8b1eae527fe3dd03396f54419",
-        "cbf49479f9fbbb3d3318fc10d91e2f24557152dfde87bf55e53b88977e367d7a"
+        "b3954257983adc4e757e039f42118924f1412c16277c5c7194dd4c13faa05edc"
       ]
     },
     "spacr.bystanders.counts": {
@@ -18196,18 +18196,18 @@
       "source_blocks_sha256": [
         "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
         "f6a0d1ff19c83f9b6178284e18ced132c6085641279b6e5775d2e877d8eb7124",
-        "fbc298648f6ed0ccddd9d18e2ca373aa3422925b6eff0ce3ace7ce303526ac97",
+        "3b21c4e9406460fb6839adf048ea68473d6bda154df45001a2e4287c40ab66f7",
         "790db17b58b1a85fca18a912cacd6e751b1734058f48ab8f0f1d48ce67634452",
         "e23ae31fedfc3f2132115b196d41064d7a52a61234ac92f1cbd5e763681170db",
         "d8fa2e50bb5a67d188fb1b71c091d9234aa2b3354c53aad2ff04e0397fe70072",
         "67f83d85affbae7d6873e220cf473f0d7f57ba6cd2d91d2751bad6b26c64bd04"
       ],
-      "source_sha256": "0c1c5740e725f981946ecb658ad7e6634651de20660183f521668a130a8ac0a8",
-      "text": "Eine etikettenfreie Einbettung für jedes Objekt, neben den gemessenen Eigenschaften.\n\nWarum dies existiert. Die beiden bestehenden Möglichkeiten von spaCR, ein Bild in Zahlen zu verwandeln, erfordern beide, dass Sie bereits wissen, wonach Sie suchen. Das gemessene Panel in :mod:`spacr.measure` berechnet ein festes, von Hand entworfenes Set -- Intensität, Form, Textur, Entfernungen -- also findet es nur das, was jemand dachte zu benennen. Der überwachte Pfad in :mod:`spacr.deep_spacr` stimmt ein Rückgrat gegen Anmerkungen, also findet er nur das, was jemand für Anmerkungen hielt. Ein Screening, dessen wirklicher Hit \"die Vakuole ist subtil falsch lokalisiert in einer Weise haben wir keine Spalte für\" liefert nichts, und gibt es zuversichtlich. Die Kosten für diese Lücke sind unsichtbar, weshalb sie ein Modul wert ist.\n\nDie Entscheidung des Bilddatenkanals wurde hier entschieden und nicht implizit. Prätrainierte Encoder erwarten drei Bilddatenkanäle. spaCR Bilder haben routinemäßig vier oder fünf, ohne RGB Bedeutung überhaupt -- ein DAPI Bilddatenchannel ist nicht \"red\". Zwei Wege heraus, und Anweisung 386 bittet um die Wahl, aufgenommen zu werden, anstatt von was auch immer das erste Rückgrat wollte vererbt:\n\n  PER-Image-Datenkanal, dann verkettet (:data:`CHANNEL_PER_CHANNEL`, der Standard). Jeder Bilddatenkanal wird selbst kodiert und die Vektoren werden miteinander verbunden. Bilddatenkanalidentität SURVIVES: Dimension 517 gehört zum Bilddatenchannel 2 und zu nichts anderem, so kann :mod:`spacr.attribution_columns` sagen, von welchem Fleck ein Treffer kam und ein Leser einen Bilddaten-Kanal ohne Umbettung fallen lassen kann. Kosten für N-Vorbeitritte.\n\n  Projekt auf drei (:data:`CHANNEL_PROJECT`). Man übergibt einen festen Bilddatenkanal-zu-RGB-Mapping. Billiger und irreversibel: Sobald Bilddatenkanäle gemischt sind, kann keine nachgelagerte Spalte einem Fleck zugeschrieben werden, und ein Screening kann nicht fragen \"war dies der Parasitenbilddatenkanal oder der Host einer?\".\n\nDie Standardeinstellung ist der Per-Image-Datenkanal, da die Attribution der Punkt ist. Eine Einbettung, die einen unbenannten Phänotyp findet und nicht sagen kann, welcher Fleck es getragen hat, hat das Problem verschoben, anstatt es zu lösen.\n\nWas dieses Modul nicht macht. Es extrahiert keine Bildregion -- es benötigt die extrahierten Bildregionen :mod:`spacr.crops`, die bereits erzeugt werden. Es schreibt nicht in die Datenbank. Es gibt eine float32-Matrix mit Objekt-ID zurück, die genau die Form ist, die der nachgeschaltete bereits verbraucht: UMAP, Regressionsfamilie, Hit-Calling und der AnnData-Export sind egal, woher eine numerische Spalte kam.",
+      "source_sha256": "040d4d3a2882c0b592870afa6bdd79b4a5840a997ceea82222fe95f9f72f9b16",
+      "text": "Eine etikettenfreie Einbettung für jedes Objekt, neben den gemessenen Eigenschaften.\n\nWarum dies existiert. Die beiden bestehenden Möglichkeiten von spaCR, ein Bild in Zahlen zu verwandeln, erfordern beide, dass Sie bereits wissen, wonach Sie suchen. Das gemessene Panel in :mod:`spacr.measure` berechnet ein festes, von Hand entworfenes Set -- Intensität, Form, Textur, Entfernungen -- also findet es nur das, was jemand dachte zu benennen. Der überwachte Pfad in :mod:`spacr.deep_spacr` stimmt ein Rückgrat gegen Anmerkungen, also findet er nur das, was jemand für Anmerkungen hielt. Ein Screening, dessen wirklicher Hit \"die Vakuole ist subtil falsch lokalisiert in einer Weise haben wir keine Spalte für\" liefert nichts, und gibt es zuversichtlich. Die Kosten für diese Lücke sind unsichtbar, weshalb sie ein Modul wert ist.\n\nDie Entscheidung über den Bilddatenkanal wurde hier entschieden und nicht implizit. Prätrainierte Encoder erwarten drei Bilddatenkanäle. spaCR Bilder haben routinemäßig vier oder fünf, ohne RGB Bedeutung überhaupt -- ein DAPI Bilddatenchannel ist nicht \"red\". Zwei Wege nach draußen, und die Wahl wird hier aufgenommen, anstatt von dem zu vererben, was auch immer das erste Rückgrat wollte:\n\n  PER-Image-Datenkanal, dann verkettet (:data:`CHANNEL_PER_CHANNEL`, der Standard). Jeder Bilddatenkanal wird selbst kodiert und die Vektoren werden miteinander verbunden. Bilddatenkanalidentität SURVIVES: Dimension 517 gehört zum Bilddatenchannel 2 und zu nichts anderem, so kann :mod:`spacr.attribution_columns` sagen, von welchem Fleck ein Treffer kam und ein Leser einen Bilddaten-Kanal ohne Umbettung fallen lassen kann. Kosten für N-Vorbeitritte.\n\n  Projekt auf drei (:data:`CHANNEL_PROJECT`). Man übergibt einen festen Bilddatenkanal-zu-RGB-Mapping. Billiger und irreversibel: Sobald Bilddatenkanäle gemischt sind, kann keine nachgelagerte Spalte einem Fleck zugeschrieben werden, und ein Screening kann nicht fragen \"war dies der Parasitenbilddatenkanal oder der Host einer?\".\n\nDie Standardeinstellung ist der Per-Image-Datenkanal, da die Attribution der Punkt ist. Eine Einbettung, die einen unbenannten Phänotyp findet und nicht sagen kann, welcher Fleck es getragen hat, hat das Problem verschoben, anstatt es zu lösen.\n\nWas dieses Modul nicht macht. Es extrahiert keine Bildregion -- es benötigt die extrahierten Bildregionen :mod:`spacr.crops`, die bereits erzeugt werden. Es schreibt nicht in die Datenbank. Es gibt eine float32-Matrix mit Objekt-ID zurück, die genau die Form ist, die der nachgeschaltete bereits verbraucht: UMAP, Regressionsfamilie, Hit-Calling und der AnnData-Export sind egal, woher eine numerische Spalte kam.",
       "translation_source_blocks_sha256": [
         "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
         "2536a1844d718e23674275ad1ec155de826962166d1a8abe5d1ef2ed56e0f11f",
-        "46238bafbf36780d30e7b5a73224abbd1572cbd6586c2fcd675bbdc89767679c",
+        "482cd9525b00dfcbeb9c78a5b075b0599874ae9d6a10af5a7fb11dba818a210c",
         "97d5fca860e212188551dc446c546433067c1142445655ef2b7f3d9460b59ad0",
         "6872180310dc77e7563785b1beaa1504a76435dddafbe84103d9531217c50412",
         "d00c1dc075fee112b0000f0f81dd655f2aa1c23bb8e5d661457319ae9272d210",
@@ -41764,6 +41764,42 @@
         "ae2fa48a52b625186483a5aadeeeeb3b75f0e8b51f0d214123a027a51d2072e5"
       ]
     },
+    "spacr.model_zoo.ModelEntry.scorecard_holdout": {
+      "source_blocks_sha256": [
+        "292f7343b9797971ac4e2f38035a59719e08ffd72119d45b18070d154971ff6c",
+        "e0502c455f710bdf567c6573c65544488d95bfd342bb564653bb1c10e8b59772"
+      ],
+      "source_sha256": "eac89f1c4310893a7416ecb54f257613e7669085496521365e44386f790b8450",
+      "text": "``name @ version`` des Hold-out-Sets oder ``\"\"``.\n\nEine Scorecard ohne Set ist eine Zahl ohne Einheit. Zwei Personen, die einen F1 für das gleiche Modell zitieren, haben sich nichts gesagt, es sei denn, sie haben die gleichen Masken erzielt, so dass der Satz mit den Zahlen in jede Oberfläche, die sie zeigt, reist.",
+      "translation_source_blocks_sha256": [
+        "292f7343b9797971ac4e2f38035a59719e08ffd72119d45b18070d154971ff6c",
+        "cf7dae60c15ba55cfdfddcabf5a14fd4f4ad04d142b78ddda4b24d5a85d50f8f"
+      ]
+    },
+    "spacr.model_zoo.ModelEntry.scorecard_known": {
+      "source_blocks_sha256": [
+        "23b1b33c89156b9d4d3c80db83abfd263a17b900e48aab4cc3e6e1acd9bcabc1",
+        "a0a2744885206b3267b585e44abb89231743b05fbc2c8473b04d42657b849043"
+      ],
+      "source_sha256": "ab96087a6769b2222613fb49c788c9fa45f5868260fc9340b94bc380d3dc9cf3",
+      "text": "True wenn dieses Modell sagt, wie genau es ist.\n\nDer Genauigkeits-Zwilling von :attr:`provenance_known`, nach dem 370 beim Namen fragt. Ein Modell ohne Zahlen hat nicht Null gepunktet, und eine Tabelle leerer Zellen liest sich als die zweite -- also ist die Abwesenheit ein Zustand, der zu berichten anstatt eine Lücke zu rendern ist.",
+      "translation_source_blocks_sha256": [
+        "23b1b33c89156b9d4d3c80db83abfd263a17b900e48aab4cc3e6e1acd9bcabc1",
+        "a0a2744885206b3267b585e44abb89231743b05fbc2c8473b04d42657b849043"
+      ]
+    },
+    "spacr.model_zoo.ModelEntry.scorecard_lines": {
+      "source_blocks_sha256": [
+        "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
+        "2dea166ba3501ef378c92617a6dfd8f87a57cbf4e68e5505b0ad65555da32eb0"
+      ],
+      "source_sha256": "7d0f2c7f181a66a82cedd8ba1aa2abc8f46337cf102b3cce9b694d9607b72842",
+      "text": "Die Scorecard als Anzeigezeilen oder der Satz, der besagt, dass es keine gibt.\n\nEine Quelle, vier Renderings. Der Tooltip, die API-Seite, der Zoo-Screening und die Hugging Face-Tabelle alle rendern DIES, so dass sie nicht widersprechen können -- 366 fanden sechs README-Fliesen, die auf drei verschiedene API-Seiten zeigen, und das geschieht, wenn eine Zahl an mehr als einem Ort niedergeschrieben wird.",
+      "translation_source_blocks_sha256": [
+        "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
+        "30cc2a5c7b3e2531e24491ddec8b1de9f690cf13091a2f3f5be69372a8cdc76a"
+      ]
+    },
     "spacr.model_zoo.ModelEntry.summary_line": {
       "source_blocks_sha256": [
         "813c2248be4037ddba14afcf67dca6950124f2bf836a75480dba1fb17547fd19"
@@ -46686,6 +46722,138 @@
         "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
         "74d2febe588d2cafbe26efa0707278ed4f160bab85acf8de5f2154f308937981",
         "4e34f910f108c2819bfe523d9133c11544a209f0fe253984b6330618755ab609"
+      ]
+    },
+    "spacr.ops_compose": {
+      "source_blocks_sha256": [
+        "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
+        "b553a737ed987dd13aa8b0d0546b00b8702cdd3a760ed269af776739ff6f47ca",
+        "9c604370eea684a67c7b138357c4e26ea2eac6f640d836c2b3d723c7e0d8242c",
+        "c359f9f720dab72b58a7a3f83dbd326f91738bf99a87988d1e4d944359b5bc69"
+      ],
+      "source_sha256": "d08359f950419f445268ec864e6f252b341154417e4c596d3edf07d9360b36c3",
+      "text": "Die kanonische Atomkarte, die ein Fenster nach dem anderen zusammengesetzt hat.\n\n`ops_stitch` löst, wo jedes Mikroskop-Bildfeld sitzt und hält bewusst nicht die Pixel -- nun A1 ist 26.855 x 26.865, das ist 1.4 GB als uint16 für EINEN Kanal, und jede spätere Phase würde durch sie lesen. Dieses Modul komponiert das gleiche gut Fenster für Fenster statt, was B2 verlangt Segmentierung sowieso zu tun: \"Segment einmal, auf dem Composite, Fenster für Wind\".\n\n    Das Speicherproblem und der Segmentierungsplan haben die gleiche Antwort. Ein Fenster, das ein Segmentierer halten kann, ist auch ein Fenster, welches ein Komponist bauen kann, so dass nichts jemals die ganze Leinwand materialisiert. Der Join-Key B4 benötigt -- eine Labor-Mikroplatten-Level-Objektnummer im Microplate-Beispielpositionsrahmen -- überlebt, weil jedes Fenster seinen eigenen Offset in diesen Rahmen trägt.\n\nWarum die Überlappungen überhaupt durchschnittlich sind. Teil 15 hat sie gemessen: Der Gewinn liegt bei etwa 1,15x auf der exakten Bilddatenkanalsegmentierung, nicht auf dem 3,3x, ein früherer Entwurf, der aus einer durchschnittlich über Zyklen hinweg beansprucht wird. Es gibt nur einen DAPI-Erwerb, so dass das elf-Proben-Argument nicht gilt -- was übrig bleibt, ist die eigene 14%-Überlappung des Rasters, bei der zwei Mikroskop-Bildfelder die gleichen Kerne zweimal sahen. 1.15x ist es wert und ist es nicht wert zu überstatieren, weshalb die Zahl hier ist, anstatt das Adjektiv.",
+      "translation_source_blocks_sha256": [
+        "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
+        "df9f3ca80ca6f7dc0d5c5c5e70c16a9c37718a39ce6ed65f6f88c7abbdb49ede",
+        "2bebe95857e6c51de5035aa67c37dc4e5dfda86de8ca5fde1f2f72c7dbc36147",
+        "c1a39eddb74fd17659348ddccf73892cd984ce92636648bec865e0fa30c59960"
+      ]
+    },
+    "spacr.ops_compose.ComposeError": {
+      "source_blocks_sha256": [
+        "a754bddd5fa5df0ee543244e10ac037b13cc24d4c5523e31a3d7b4db119f1522"
+      ],
+      "source_sha256": "a754bddd5fa5df0ee543244e10ac037b13cc24d4c5523e31a3d7b4db119f1522",
+      "text": "Ausnahme verwendet, wenn ein Fenster nicht zusammengesetzt werden kann, mit dem Grund.",
+      "translation_source_blocks_sha256": [
+        "4e5e85bcc49fe63a3cb6a7995381eb5a5b62caa66913927c5ce1d1d9140fe897"
+      ]
+    },
+    "spacr.ops_compose.Window": {
+      "source_blocks_sha256": [
+        "c8adc791935a617cad89cac0d9e616bf02d53a4ae034e7f993128fe102d0e312",
+        "c39b34c0f041747399470afb67399d0498f9bfaafbc96d14732c1fae0cfd550a",
+        "446ea6f125bb90cbdd7497ce6acd5ba240f330ed27ed923168aabcafa91fd423",
+        "88da8229ed0577065ba78933b6e1001568edd23b39280ae95cbeadfc139b230e",
+        "6a308b5c47639ee6385971a1b778abf53b80bdc73b3850b61ca52d7523085865"
+      ],
+      "source_sha256": "1ea4381f857fe67ee803eb2380c81b2e24e63479591ba5e626d2a5866197c781",
+      "text": "Ein Rechteck des Mikroplattenmuster-Positionsrahmens, und wo es in ihm sitzt.\n\n:param top: erste Reihe in gut Pixeln.\n:param left: erste Spalte in gut Pixeln.\n:param height: Zeilen.\n:param width: Spalten.",
+      "translation_source_blocks_sha256": [
+        "43fd999eb9712e70013041d5955cd316694ad4fd603ba629d4a2e2eff6493748",
+        "c39b34c0f041747399470afb67399d0498f9bfaafbc96d14732c1fae0cfd550a",
+        "446ea6f125bb90cbdd7497ce6acd5ba240f330ed27ed923168aabcafa91fd423",
+        "88da8229ed0577065ba78933b6e1001568edd23b39280ae95cbeadfc139b230e",
+        "6a308b5c47639ee6385971a1b778abf53b80bdc73b3850b61ca52d7523085865"
+      ]
+    },
+    "spacr.ops_compose.Window.bottom": {
+      "source_blocks_sha256": [
+        "ecc3724fe01763738dc8e1f6cb78bfd6be14c4773afcfdca3ba6bf711d840930"
+      ],
+      "source_sha256": "ecc3724fe01763738dc8e1f6cb78bfd6be14c4773afcfdca3ba6bf711d840930",
+      "text": "Einer hinter der letzten Reihe.",
+      "translation_source_blocks_sha256": [
+        "ecc3724fe01763738dc8e1f6cb78bfd6be14c4773afcfdca3ba6bf711d840930"
+      ]
+    },
+    "spacr.ops_compose.Window.offset": {
+      "source_blocks_sha256": [
+        "e3a4bfc6b86f0a4580550c5456fceced420e85d783d7a44e1bef073ed7470d59"
+      ],
+      "source_sha256": "e3a4bfc6b86f0a4580550c5456fceced420e85d783d7a44e1bef073ed7470d59",
+      "text": "``(top, left)`` -- was eine lokale Koordinate hinzufügt, um die Mikroplatten-Probenposition zu erreichen.",
+      "translation_source_blocks_sha256": [
+        "161512282d08391dec0547dceb1f18b37cc779145bb2d75838e1c72c857c3808"
+      ]
+    },
+    "spacr.ops_compose.Window.right": {
+      "source_blocks_sha256": [
+        "efda55c447879de45385f2e52a1de292bdff3b764090c1f19fee8ea6382ef29c"
+      ],
+      "source_sha256": "efda55c447879de45385f2e52a1de292bdff3b764090c1f19fee8ea6382ef29c",
+      "text": "Einer hinter der letzten Kolumne.",
+      "translation_source_blocks_sha256": [
+        "efda55c447879de45385f2e52a1de292bdff3b764090c1f19fee8ea6382ef29c"
+      ]
+    },
+    "spacr.ops_compose.compose_window": {
+      "source_blocks_sha256": [
+        "87bdb396643a477bb627e2d4642b38d75f7bd3cfa8f7c25a35ad84cb9fbd50a8",
+        "97689de92764a30001f6ea74634b67de08e7e0eeed88b9c76236f8ab757fd5ed",
+        "ac2abf6417d5790e55dd5746790c064aa3f1b887543dfcfee4df4f1ca224891c",
+        "3e0cd1e32892e661af7193a5083d0c8bbbd94930c4968d51ef536f438d8c1915",
+        "79655d6fc8f7dbd9cafad49704e10dcc2189baf70bae979af20a706085af8367",
+        "d7ce9174385c9756b107097d86928744ce14e7d1a4d0a98890db2064e8409d3a",
+        "3a0a5e4856e93fc4a1d6db1c06f137b9156c0bded5b78b756ffa3267ed56112e"
+      ],
+      "source_sha256": "c1df9c8a9e62f7d06ccded8bedaf529dbdebb7db4d8e8caf1ebce67063eb730b",
+      "text": "Durchschnittlich jedes Mikroskopbildfeld, das ``window`` in ein Bild überlappt.\n\nDURCHSCHNITT, nicht zuletzt-writer-wins. Eine Fliese, die über seinen Nachbarn geklebt wird, hält eine Naht genau dort, wo zwei Fliesen nicht übereinstimmen, und eine Flöze ist ein Gradient, in dem ein Segmentierer glücklich einen Rand findet.\n\n:param window: das Rechteck des zu erstellenden Mikroplattenmusterpositionsrahmens.\n:param placements: ``site -> (y, x)`` aus der Lösung, in gut Pixeln.\n:param read_tile: mit einer Standortnummer aufgerufen, gibt das Mikroskop Bildfeld. NUR für Mikroskop Bildfelder, die tatsächlich das Fenster berühren aufgerufen, so dass eine Mikroplatten-Probenposition von 333 Mikroskop Bildfeldern kostet eine Handvoll Lesungen pro Fenster statt 333.\n:param tile_shape: ``(height, width)``; von der ersten Kachel lesen, wenn sie weggelassen wird.\n:returns: ``(image, coverage)`` -- das gemittelte Fenster und wie viele Kacheln zu jedem Pixel beigetragen haben. Coverage wird eher zurückgegeben als verworfen, weil ein Pixel, das keine Kachel erreicht, kein schwarzer Pixel ist, und nur die Anzahl sagt sie auseinander.",
+      "translation_source_blocks_sha256": [
+        "0d33849209cc0a5b96b90b7f0a718734b0fe587a276ac33f53f52e27e955257b",
+        "f8f12f1f60c86ac626e0e396a83e4218be85852d10d2d66b1ea1dd20fca15fe1",
+        "56e855c037a2910c7a50483d27c0936aae1d96a69550736022b35c5eedc3d208",
+        "3e0cd1e32892e661af7193a5083d0c8bbbd94930c4968d51ef536f438d8c1915",
+        "0e1055380e037ae180fc185cba016c90c03ce129c6f9031f73bff2933f2335af",
+        "d7ce9174385c9756b107097d86928744ce14e7d1a4d0a98890db2064e8409d3a",
+        "2010fb9707fec5ab45e6e5a7fa0c0b62b90c304b72051227b900c460caa0bc62"
+      ]
+    },
+    "spacr.ops_compose.overlap_gain": {
+      "source_blocks_sha256": [
+        "c4476aa947979d92f771dacbea950dee646f536433a763ca11d1a36b0dc9715d",
+        "89ca015b2d5aa50547c622a414c459be744e23c64da564eb88522158f93514c8",
+        "d03e4bcb5edd4c5347a14599a8953b221e5caff17efc1da89c886b4cc7d7d7bb",
+        "4802cc79e512cb5d3c19046eb9c357f0e916736c1a017a339d55de61c610051c"
+      ],
+      "source_sha256": "bd21234417e94b00787c4156218f4d2b517e68675aee3e5270ada719116a06e5",
+      "text": "Das Rauschen gewinnt durchschnittlich gekauft, über Pixel eine Fliese tatsächlich erreicht.\n\nsqrt der mittleren Abdeckung: durchschnittlich n unabhängige Proben eines Signals dividiert das Rauschen durch skrt(n). Gemeldet nur über COVERED Pixel, weil die Ecken einer Mikroplatten-Probenposition durch ein Mikroskopbildfeld erreicht werden und inklusive des ungedeckten Hintergrunds einen Gewinn für Pixel nichts gemessen melden würde.\n\nTeil 15 misste 1,15x für gut A1 bei einer 14% Rasterüberlappung. Ein Komponist, der viel mehr als das auf der gleichen Geometrie berichtet, durchschnittlich etwas zweimal.\n\n:param count: das Abdeckungsfeld von :func:`compose_window`.",
+      "translation_source_blocks_sha256": [
+        "c4476aa947979d92f771dacbea950dee646f536433a763ca11d1a36b0dc9715d",
+        "93253a00e1608ccd75fc307d14beb905524e9e48d88a5107bd81c9f6365ca7fc",
+        "d03e4bcb5edd4c5347a14599a8953b221e5caff17efc1da89c886b4cc7d7d7bb",
+        "4802cc79e512cb5d3c19046eb9c357f0e916736c1a017a339d55de61c610051c"
+      ]
+    },
+    "spacr.ops_compose.windows_over": {
+      "source_blocks_sha256": [
+        "d09520c0f1100b5706041dffba94e97b464724d398a47796fac909616e1d18e3",
+        "d58cc12c06301003643d33b1697964bb2fd465183d74b8b2e0448dc9df11d3d0",
+        "5fd2da00e9ba4dccea7b96d40f9e7c5f1571ad527aa282cd625ee79eec663344",
+        "7446032b6fb00a83a0a8f3f580218756645806d129e7f196c786388bce4e876c",
+        "53747ea6692116a69328604abfec580c74bbdaf5a2795b48887b0d399d987251",
+        "0127f37f3eef338fcd6c711bd0cce0b880dd9be69f3a463a99ab86702250c50b"
+      ],
+      "source_sha256": "d94324d86aec939ca54a63a292216fdba17fdc24b17abcc8e68a5f8f53338c27",
+      "text": "Mikroskop Bild Feld eine Leinwand in überlappende Fenster, in Rasterreihenfolge.\n\nDie Fenster überlappen sich absichtlich, und B3 ist der Grund: Ein Objekt, das eine Fenstergrenze spannt, ist ein Objekt, und es kann nur über die Naht abgestimmt werden, wenn beide Fenster sie alle gesehen haben. Die Überlappung muss das größte Objekt überschreiten, nicht nur berühren.\n\n:param canvas: ``(height, width)`` des Mikroplattenmusterpositionsrahmens.\n:param size: Fensterrand in Pixeln.\n:param overlap: wie viel benachbarte Fenster teilen.\n:raises ComposeError: wenn die Überlappung nicht kleiner ist als das Fenster, was den Schritt Null und die Iteration unendlich machen würde.",
+      "translation_source_blocks_sha256": [
+        "bb6ecb963eef28edd2ef7de3e30fe53f993022036fa9af983e73800ed31bc169",
+        "b3a8d32f1bc7fb3f7c33078ea72962296c8a0fe923e3e0125b1c6444ed7e49cc",
+        "3469ef7518f7877a9cf13d7144be25a1367b74879e0187fabb24f50e69dc0d57",
+        "7446032b6fb00a83a0a8f3f580218756645806d129e7f196c786388bce4e876c",
+        "53747ea6692116a69328604abfec580c74bbdaf5a2795b48887b0d399d987251",
+        "0127f37f3eef338fcd6c711bd0cce0b880dd9be69f3a463a99ab86702250c50b"
       ]
     },
     "spacr.ops_cycles": {
@@ -63400,14 +63568,18 @@
       "source_blocks_sha256": [
         "aee7339fe71c1d90ae5d9804e0db93e562bdbe13ffe7bd3114293e04f86b12df",
         "397a7daab4c62df3cee86d9239ae247a79c15f642d40c311036b9007e4fffe9b",
-        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628"
+        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628",
+        "66df66ad2b4e3ddc451d83f6e3a4db3a633420cf4acf3e0babcd52bbc9fc42cc",
+        "8d24333e9beb211f31c79172036c849b7ca3eed66ac1da3d39b71aa39dd9531d"
       ],
-      "source_sha256": "9aa8410fe27e2a2b1eab912536835bed408972cc9c3478adc858348a38efe93d",
-      "text": "Retranslate statischen Text in ``root`` und alle vorhandenen Nachkommen.\n\nDie Funktion ist absichtlich best-effort und idempotent. Sie bearbeitet niemals Zeilen-Bearbeiten, Texteditoren, Tabellenzellen, Modelldaten, Dateinamen oder Konsolenausgabe.\n\nDer OWN-Text von Qt folgt auch -- siehe :func:`_follow_qt_own_catalogs` -- also erreicht eine nach dem Start gewählte Sprache das Rechtsklickmenü jedes Textfeldes, nicht nur die Beschriftungen spaCR geschrieben.",
+      "source_sha256": "21760110c4f8407ae154477c64a74f3d993268b26a5d9b41fb9bd36e0c32b368",
+      "text": "Retranslate statischen Text in ``root`` und alle vorhandenen Nachkommen.\n\nDie Funktion ist absichtlich best-effort und idempotent. Sie bearbeitet niemals Zeilen-Bearbeiten, Texteditoren, Tabellenzellen, Modelldaten, Dateinamen oder Konsolenausgabe.\n\nDer OWN-Text von Qt folgt auch -- siehe :func:`_follow_qt_own_catalogs` -- also erreicht eine nach dem Start gewählte Sprache das Rechtsklickmenü jedes Textfeldes, nicht nur die Beschriftungen spaCR geschrieben.\n\n``only_new`` überspringt Widgets dieser Pass würde genau das übersetzen, was sie bereits sagen. Jedes besuchte Widget wird mit der Sprache gestempelt, die es übersetzt wurde und die Katalog-Generierung, die aktuell war; ein späterer Pass fragte nach ``only_new`` überspringen die, deren Stempel noch passt. Eine Sprache ändert den Stempel, und ebenso ein Katalog gewinnt eine Reihe, so kann auch nicht verpasst werden.\n\nEin Anrufer, der gerade eine Bildunterschrift selbst ersetzt hat, will den vollen Pass -- `_translate_qt_text` erkennt einen Außensetter, indem er den gerenderten Wert vergleicht, und ein übersprungenes Widget wird nicht verglichen. Der eine Anrufer der danach fragt ist `_LateCaptionTranslator`, wobei drei Nah-Wurzeln ein Ereignis passieren, das auseinander geht, den gleichen Baum wieder laufen, während eine Modulanwendungsansicht zusammengebaut wird.",
       "translation_source_blocks_sha256": [
         "aee7339fe71c1d90ae5d9804e0db93e562bdbe13ffe7bd3114293e04f86b12df",
         "397a7daab4c62df3cee86d9239ae247a79c15f642d40c311036b9007e4fffe9b",
-        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628"
+        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628",
+        "66df66ad2b4e3ddc451d83f6e3a4db3a633420cf4acf3e0babcd52bbc9fc42cc",
+        "813bf3e4fd317ce358b7702413f1ba123f7cb6fe1c86a57cb01d45f810196b2a"
       ]
     },
     "spacr.qt.i18n.set_translatable_items": {
@@ -88660,12 +88832,16 @@
     },
     "spacr.qt.shortcuts.installed": {
       "source_blocks_sha256": [
-        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+        "dadfea33e27175b029ad7c1af01f7dea7db981eea118ca17351d93867e718acd",
+        "5dd3becff65649f0fd77f84e84735a246505a189c375df637d4bc0545c4e3acb",
+        "0b460258a16578b29dbb6c7723105c6da3de158327562a9fd31dc581702fcffd"
       ],
-      "source_sha256": "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a",
-      "text": "Die fensterweiten Tasten `install()` sind für die Bindung verantwortlich.",
+      "source_sha256": "cb3481b6218ac0b616f356599421d82cab95d5d445f30ee5004c82fa34406e9a",
+      "text": "Die fensterweiten Tasten, die :func:`install` für die Bindung verantwortlich ist.\n\nGesten sind nicht unter ihnen. Eine Geste ist ein Modifikator, der gehalten wird, während das Mausrad dreht, und es wird von einem Ereignisfilter anstatt von einer Schlüsselsequenz gefangen, so dass kein Kurzbefehl Objekt es ausdrücken kann und kein für es erstellt wird. Listing man hier würde eine Bindung versprechen, die nicht gemacht werden kann.\n\nJede Geste ist immer noch auf der Verknüpfungskarte aufgeführt. :func:`mapped` gibt zurück, was die Hände tun können, und dies gibt zurück was die Verknüpfungsobjekte besitzen.",
       "translation_source_blocks_sha256": [
-        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+        "dadfea33e27175b029ad7c1af01f7dea7db981eea118ca17351d93867e718acd",
+        "5dd3becff65649f0fd77f84e84735a246505a189c375df637d4bc0545c4e3acb",
+        "0b460258a16578b29dbb6c7723105c6da3de158327562a9fd31dc581702fcffd"
       ]
     },
     "spacr.qt.shortcuts.mapped": {
@@ -89860,6 +90036,28 @@
         "09f07c638a6b891340ffe6073ca365500f6b8dc36563d8fbd07f5c290fe9c280"
       ]
     },
+    "spacr.qt.theme.apply_stylesheet_per_window": {
+      "source_blocks_sha256": [
+        "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
+        "56ff2c0606a7dd38a1b96fce3b253a279b71cb65746b88a2faf0531b46653765",
+        "c364bcfda35b5cc35cfde280296d9a10050df74921bb2449ff1be88df4d5a9da",
+        "4ed48e0f23bbdb8b4a0b2bac57ab1fcda353b3522c51fbbb2491d643e9265add",
+        "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
+        "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
+        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd"
+      ],
+      "source_sha256": "1bf87c6cc181f53bc66a6851e9fe7cd5615fc2692f329a9caae2df326d4d5ff3",
+      "text": "Installieren Sie ``sheet`` auf jedem Top-Level-Fenster statt auf ``app``.\n\nWARUM, mit der Nummer. `QApplication.setStyleSheet` repolishes jedes Widget, das der Prozess besitzt, und eine Sitzung, die einige Module geöffnet hat, besitzt Tausende, die es nicht sehen kann -- `MainWindow` baut eine Modul-Anwendungsansicht auf der ersten Navigation und hält sie im Stack danach. Gemessen an dieser Box, Offscreen, vier Module offen, 9.045 Live-Widgets, von denen 6.111 auf Anwendungsansichten sind, die niemand betrachtet:\n\n    app.setStyleSheet 2.836 ms zuerst, ~7.500 ms danach jedes obere Fenster 1.684 ms zunächst, ~1.900 ms später der sichtbare Screening allein 222 ms\n\nEin Viertel der Kosten für das gleiche Bild. Der Boden ist immer noch niedriger -- 222 ms ist, was der sichtbare Screening allein kostet -- und es zu erreichen bedeutet, die versteckten Screenings auch nicht zu folien, was eine größere Veränderung als dieser ist.\n\n:param app: die ``QApplication``, deren Fenster das Blatt tragen, und wo das Blatt selbst geparkt ist, so dass ein später erstelltes Fenster es finden kann. ``None`` wird akzeptiert und tut nichts, also muss ein Anrufer, der ohne eine Anwendung läuft, nicht zuerst überprüfen.\n:param sheet: das vollständige Anwendungs-Stylesheet, wie :func:`stylesheet` es komponiert.\n:returns: die Anzahl der Fenster, auf die das Blatt gelegt wurde.",
+      "translation_source_blocks_sha256": [
+        "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
+        "b010a6f9c65980ef40e9f0e337e14d43cb0d63ec4cb9be1e4bf51ae7302926bc",
+        "c364bcfda35b5cc35cfde280296d9a10050df74921bb2449ff1be88df4d5a9da",
+        "fa85d6fe6ebad42a2c3a2dd6ee9b6128d15817c4b318532a9bf02da79bfd27c7",
+        "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
+        "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
+        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd"
+      ]
+    },
     "spacr.qt.theme.block_surface": {
       "source_blocks_sha256": [
         "94f9029bbcc7af6497b004637dea038664078a079ab971990d6314ddccadefde",
@@ -90922,6 +91120,22 @@
       "text": "Jeder registrierte Blockname, in der Reihenfolge der Registrierung.",
       "translation_source_blocks_sha256": [
         "89057496ea8d1bdd9773545540f18ca786b819ccf5f9ea23e3bbd2d3987b105e"
+      ]
+    },
+    "spacr.qt.theme.window_stylesheet": {
+      "source_blocks_sha256": [
+        "b81c886a6bd104f2b6d748e8d524a060760be02727bae394e13941f42032f4c7",
+        "04b835e36bfeba6c9bd53ef4654db7aa27281e5c8019d36ab752f56c2984ebca",
+        "317809790273c484a95e4a0850605ed7ffe2fba2b9beffc11d079db8cec68025",
+        "eac346082cd67a31571b59b5fa3570426b7af1c81111b522183e14fa5d65cad5"
+      ],
+      "source_sha256": "c236240281cce6372b032e34a4c22e847435caaf4bcca5e15878f04fe5544cd2",
+      "text": "Das zuletzt installierte Blatt :func:`apply_stylesheet_per_window`.\n\nDer Ersatz für das Lesen ``app.styleSheet()`` zurück: Das ist jetzt leer und sagt nichts darüber aus, was die Fenster tragen.\n\n:param app: die Anwendung zum Auslesen; die Ausführung per Voreinstellung.\n:returns: das Blatt oder ``None``, wenn keine pro Fensterblatt installiert ist.",
+      "translation_source_blocks_sha256": [
+        "b81c886a6bd104f2b6d748e8d524a060760be02727bae394e13941f42032f4c7",
+        "04b835e36bfeba6c9bd53ef4654db7aa27281e5c8019d36ab752f56c2984ebca",
+        "317809790273c484a95e4a0850605ed7ffe2fba2b9beffc11d079db8cec68025",
+        "eac346082cd67a31571b59b5fa3570426b7af1c81111b522183e14fa5d65cad5"
       ]
     },
     "spacr.qt.thread_guard": {
@@ -101184,6 +101398,48 @@
         "453dd3731ae186e8c8859b40e9a6c26c0678f339dfb719c1a69968ea975c7a80"
       ]
     },
+    "spacr.qt.widgets.dose_response.InteractionSurface": {
+      "source_blocks_sha256": [
+        "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
+        "1b051192b6eed29b908106cf4826885192943cb75160f35a08e4aae2b5080970",
+        "a8838e93eede86dbc0c5a189c9ac2a3167d3711c3bbe6a913c3ab91da0834f1c",
+        "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
+        "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
+        "dc87a52b87497f07dab4b0a7dc74309ff15ffe9ffff279f5827aa8fb89754592",
+        "7ffbc8a22d999cd0dd65066bec3f3ec59601de4d05d4e9db9fd0e81d0e180354",
+        "c84372f8412a63e564e962d034f6efb9a2c5fb1dfe45dc5781328309a63b96a8",
+        "fb87c6ca7155ca45f85d003363793c48048edfa1096e980c9de1d1d794cd58ec",
+        "d4b3538b72dcbb496a9de7d8a838ac4efe1f7d9d2a9d65689682d8e84b93d374",
+        "566706bfe73b5edb78b39f74240ba0aa2d6d613e74fc9425b8c412f1ee79936c"
+      ],
+      "source_sha256": "d96dc26d70b1d31ef133df596fdcb0d5e0b65843cff1382ef30cae34cc52b509",
+      "text": "Die Interaktion eines Schachbretts pro Zelle mit seinen eigenen Achsen.\n\nDie Oberfläche ist das Ergebnis und ein einzelner Index ist es nicht. Eine Zahl für ein ganzes Schachbrett verbirgt genau die konzentrationsabhängige Struktur, die Synergie interessant macht. Reale Kombinationen sind häufig synergistisch in einer Ecke des Gitters und additive oder antagonistische in einer anderen, und ein Mittel über dem Gitter berichtet auch nicht.\n\nSign convention, erklärt, weil jedes Papier eine andere besagt: positiv bedeutet mehr Wirkung als erwartet -- Synergie für eine Hemmung Assay. Die erwartete Oberfläche ist, was das Modell aus den beiden Single-Agent-Kurven vorhergesagt; ``excess`` wird beobachtet minus erwartet.\n\n:param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.\n:param dose_a: die einzigartigen Konzentrationen des Wirkstoffs A, aufsteigend.\n:param dose_b: die einzigartigen Konzentrationen des Wirkstoffs B, aufsteigend.\n:param observed: ``(len(dose_a), len(dose_b))`` Wirkung, 0 bis 1.\n:param expected: was ``model`` für jede Zelle voraussagt.\n:param excess: ``observed - expected``. NaN wo keine Zelle getestet wurde.\n:param n_cells: Zellen mit einer Beobachtung.\n:param note: was nicht berechnet werden konnte, und warum.",
+      "translation_source_blocks_sha256": [
+        "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
+        "2ac395b6317a0db690bb6680944a9b0ef7a3cd1a194d591751e2b9d6e6047871",
+        "21f3efc8807251951dc0a8b54ad2ae83db78e1a11144d472ea4a7429e75b73b4",
+        "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
+        "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
+        "dc87a52b87497f07dab4b0a7dc74309ff15ffe9ffff279f5827aa8fb89754592",
+        "7ffbc8a22d999cd0dd65066bec3f3ec59601de4d05d4e9db9fd0e81d0e180354",
+        "c84372f8412a63e564e962d034f6efb9a2c5fb1dfe45dc5781328309a63b96a8",
+        "fb87c6ca7155ca45f85d003363793c48048edfa1096e980c9de1d1d794cd58ec",
+        "d4b3538b72dcbb496a9de7d8a838ac4efe1f7d9d2a9d65689682d8e84b93d374",
+        "566706bfe73b5edb78b39f74240ba0aa2d6d613e74fc9425b8c412f1ee79936c"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.InteractionSurface.summary": {
+      "source_blocks_sha256": [
+        "dae1148ef92f3875abf20438daceb9f78c15d49d38a94b7df0488373adc13b63",
+        "b20dcc6953d0e0df9c2887afdbd967eeaed74630ed22bd677592c3c9ab026043"
+      ],
+      "source_sha256": "1dd9a976b2df7070a52b825921d3bcc45072d6ea1f4a0746f3cd42127c3facdd",
+      "text": "Headline-Nummern, jede sagte, über dem Gitter zu sein, anstatt von ihm.\n\nDie stärkste Zelle und wo sie sitzt, sind meldepflichtig; ein Mittel über dem gesamten Gitter ist die Zahl, die diese Klasse zu vermeiden hat, also fehlt sie eher, als dass sie mit einer Warnung versehen wird.",
+      "translation_source_blocks_sha256": [
+        "dae1148ef92f3875abf20438daceb9f78c15d49d38a94b7df0488373adc13b63",
+        "b20dcc6953d0e0df9c2887afdbd967eeaed74630ed22bd677592c3c9ab026043"
+      ]
+    },
     "spacr.qt.widgets.dose_response.MonotonicityCheck": {
       "source_blocks_sha256": [
         "e305f1817cd6815fcfdd0b4251ed5ceb70d122df49ecbbed8bc10d1a8331d7ab",
@@ -101264,6 +101520,32 @@
       "text": "Eine Zeile für die Ergebnistabelle, Ablehnung enthalten.",
       "translation_source_blocks_sha256": [
         "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.bliss_surface": {
+      "source_blocks_sha256": [
+        "c9c4744244fd44d68e52f0bd1d0f99513f03fc28616d4c42d020a5bb99ed115a",
+        "0e2c964c20df2a03ce703161a7a7f3cf0045ac428b69681232ad8693d010c6d8",
+        "bb2505bd60d09931c9b581b54206cd3ec47d83d630ae1f13d9c62e16a6c8d857",
+        "1f5bf89e7f59d2663c98256a03812ff1cbbbc81dcb49358b5fdad5b84fc14715",
+        "3cc4270ecfa214937033785467fd5fa813ae27879a47a56643ec41f238335dfd",
+        "f73592b75990af0dc101db048416650f6020f123f24584f17d459ae9361901d3",
+        "5295b259b8e40e3038690f68e0a6660427ebb503edc555b27ef3898c049ee9da",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25",
+        "ad0fe7d5da434acb96352d196219d593ed85679cf13b9f2b7dd06481e87edd78"
+      ],
+      "source_sha256": "c3e67acdf1a2fe240bb150995c7fb0a4d9c2d6b7b3ac9aa661f5702a1fca1b95",
+      "text": "Bliss Unabhängigkeit über ein Schachbrett.\n\nDas Modell in einer Zeile: Wenn zwei Agenten unabhängig handeln, ist die Fraktion, die beide überleben, das Produkt der Fraktionen, die jeweils überleben, so dass der erwartete Effekt ``Ea + Eb - Ea*Eb`` ist.\n\nBliss braucht nichts aus der Kombination passt, weshalb es die billiger von den beiden und die erste zu erreichen ist: beide Single-Agent-Kurven schon einen Effekt bei jeder Konzentration auf das Netz.\n\n:param dose_a: Wirkstoff Konzentration pro Mikroplatten-Probenposition.\n:param dose_b: Konzentration des Wirkstoffs B je Mikroplattenprobenposition.\n:param response: gemessene Ansprechrate pro Mikroplattenprobenposition, gleiche Länge.\n:param fit_a: Der Einzelagent passt für A (B bei Null gehalten).\n:param fit_b: der für B geeignete Einzelagent.\n:returns: an :class:`InteractionSurface`.",
+      "translation_source_blocks_sha256": [
+        "c9c4744244fd44d68e52f0bd1d0f99513f03fc28616d4c42d020a5bb99ed115a",
+        "db50d416d8f9ef73a7f5869bc6599eaa6be20d3aff4bdbf7db1b16d511e91994",
+        "ba431a78c7889ebeefbfc54a01c78bd328079c2b28ba9931a5f5d510ae93ab86",
+        "3d1c512d470718fd96f7a200a9632a06aaee95bcb6f413f2d17dd86f74144ecb",
+        "da858afcbeac612afb7ec069f330c44f1ee62d0b71d44d1e0467ec873e086aa7",
+        "d13d29e11eeed55af0e8e4bd7ae61c24bdd48df52a3b59dbc8d12d0403a97c65",
+        "5295b259b8e40e3038690f68e0a6660427ebb503edc555b27ef3898c049ee9da",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25",
+        "ad0fe7d5da434acb96352d196219d593ed85679cf13b9f2b7dd06481e87edd78"
       ]
     },
     "spacr.qt.widgets.dose_response.candidate_concentration_columns": {
@@ -101352,6 +101634,32 @@
         "91c3ad5b8fd1e74b220bde6be222dd582fe36c9aed8cbab699e56aa73b5909ed",
         "fd80341b192f2c2311a4cb0dca4857fbfa4cb74bbf6ae842a4e149f205eb0eaf",
         "b108add4d625f24ebe4ab73ba065fdbe104ed3e65dd0ca2672105e39548b48c1"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.loewe_surface": {
+      "source_blocks_sha256": [
+        "b6875849a496e4d7d2cd6b7d588da39f6bbdced0d9f14fbb1e8a5b928f23c445",
+        "6173b3e24dd36612fa27562b37ec704b99dc246d8d421d62a6a904ce2d3158fe",
+        "8a11e9ab1f56960a5f091b99167eda6ca0f1cb9c9fa27a0f60c602ac5219b63a",
+        "298020726ba8bf6d675d4bf5c1f941299177e4b5374adb6eff6bc7c21be59767",
+        "1f5bf89e7f59d2663c98256a03812ff1cbbbc81dcb49358b5fdad5b84fc14715",
+        "3cc4270ecfa214937033785467fd5fa813ae27879a47a56643ec41f238335dfd",
+        "b29c79765643c09f0675f80da78c010836017ae4fe3cfab09d39e666e9c6d7e2",
+        "190dd3dea69e85f1fb7e113ae8d1b5f10ef14e033fa578a4c07e99c895155252",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25"
+      ],
+      "source_sha256": "bb87239d6a923e3eba1fa83235bc23d9995d9ca6379a8acf142244204f20ac4d",
+      "text": "Loewe additivity über ein checkerboard, als Kombinationsindex.\n\nDas Modell in einer Zeile: Wenn zwei Wirkstoffe Verdünnungen voneinander sind, dann ein Effekt zu erreichen kostet eine konstante Gesamtdosis, so ``a/Da + b/Db = 1`` wo ``Da`` und ``Db`` die Einzelagenten-Dosen sind, die diesen Effekt. Unter 1 ist Synergie.\n\nAls Überschuß anstatt als Index selbst gemeldet, so dass die Zeichenkonvention mit Bliss übereinstimmt und ein Leser, der die beiden Oberflächen vergleicht, nicht auch einen Vergleich in ihrem Kopf umdreht: ``excess = 1 - CI``, positiv für Synergie.\n\nWARUM ES SEIN KANN NaN WHERE Glückseligkeit ist nicht: Loewe braucht die INVERSE-Kurve -- die Dosis, die einen beobachteten Effekt erreicht -- und diese Dosis existiert nicht, wenn der beobachtete Effekt außerhalb der eigenen Plateaus eines einzelnen Agenten liegt. Eine Kombination, die mehr tötet, als jeder Agent allein kann, hat keine Loewei-Antwort, und NaN ist die ehrliche.\n\n:param dose_a: Wirkstoff Konzentration pro Mikroplatten-Probenposition.\n:param dose_b: Konzentration des Wirkstoffs B je Mikroplattenprobenposition.\n:param response: gemessene Ansprechrate pro Mikroplattenprobenposition.\n:param fit_a: Der Single-Agent passt zu A.\n:param fit_b: der für B geeignete Einzelagent.",
+      "translation_source_blocks_sha256": [
+        "b6875849a496e4d7d2cd6b7d588da39f6bbdced0d9f14fbb1e8a5b928f23c445",
+        "8448e42949be1a2fbff440ff9fadc621ebe4e0cc44ebf9fc6105bc90092d8ec6",
+        "dd60482a65ff674cd77a7b93064e3fe511ffbd931f3eb8c9f864bdcf87d2d5ca",
+        "9e8473409063b5a977bf08ff98c6a6567d91cf3a4236de49ab359e4c3f831836",
+        "3d1c512d470718fd96f7a200a9632a06aaee95bcb6f413f2d17dd86f74144ecb",
+        "da858afcbeac612afb7ec069f330c44f1ee62d0b71d44d1e0467ec873e086aa7",
+        "ed05af2525346dd224ab9a4c3737e58153e02e8abecef2c5def557f9cc1b977e",
+        "190dd3dea69e85f1fb7e113ae8d1b5f10ef14e033fa578a4c07e99c895155252",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25"
       ]
     },
     "spacr.qt.widgets.dose_response.monotonicity": {
@@ -142608,6 +142916,24 @@
         "1d05288be921120a4e144fe8d22c0a78bc5e547fcb19979e5bf46d998a0fc5fa"
       ]
     },
+    "spacr.scorecard.read_scorecard_csv": {
+      "source_blocks_sha256": [
+        "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
+        "7510d0174bc234c714e6cfb1566b846c455205e87cab68ca8e0383ed4802a071",
+        "356e3be8d4186479bf3eb01c3e923f97c44578a2b9c2a1d0983845628920e20d",
+        "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
+        "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"
+      ],
+      "source_sha256": "f03a9f1f3a52b23ef2f482ad4ef5ed225835d51141c3044d98d0fb004e23ef76",
+      "text": "Parse eine veröffentlichte Scorecard CSV zurück in die ``metrics`` eines Eintrags.\n\nDer CSV ist die Quelle, und die anderen Oberflächen rendern sie: das Hugging Face Artefakt, das Tooltip, die API Seite und der Zoo-Screening dürfen nicht widersprechen, und sie können nicht, wenn nur eine von ihnen Nummern hält. Dies ist der Leser, der die anderen drei abgeleitet macht.\n\nAbhängigkeitsfrei mit Absicht. Der Model Zoo importiert ohne torch und ein Test behauptet es, so Surfen Modelle und das Lesen einer Scorecard muss auf einer Maschine mit weder torch noch cellpose arbeiten. Nur RE-RUNNING eine Bewertung benötigt sie. Das schließt auch hier pandas aus -- csv ist in der Standardbibliothek.\n\n:param text: das CSV wie von :func:`scorecard_csv` geschrieben.\n:returns: ``{metric: {\"finetuned\": ..., \"vanilla\": ..., \"delta\": ...}}`` plus ``holdout`` und ``holdout_version`` wenn die Zeilen sie tragen. Leer, wenn der Text keine Zeilen hat.",
+      "translation_source_blocks_sha256": [
+        "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
+        "da520b4bb3249195e7308aaedb42ae6434ad61f701ad26d1d400df3c8d3773b5",
+        "ffa3eb180c7973a8d39d9ea8b89bb140089a4c031ed328ecd6c25a8dd63dabfa",
+        "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
+        "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"
+      ]
+    },
     "spacr.scorecard.score_classifier": {
       "source_blocks_sha256": [
         "e784dddb8faf0f4706a2925f1ba06aaf8e7373edb838981daa432e3ee1ed7d3c",
@@ -142678,6 +143004,20 @@
       "text": "Die Zeilen als CSV Text. Geschrieben vom Anrufer, wo immer er hingehört.",
       "translation_source_blocks_sha256": [
         "87bcd7ae3436d22c25baa47a42e5b276e0808f1a1826ce565f8c566d6329c62c"
+      ]
+    },
+    "spacr.scorecard.scorecard_is_present": {
+      "source_blocks_sha256": [
+        "2524a468d1319c202ad3273658f626ab1f2ae11964d087b0ff45db43cb0d6cf6",
+        "07c815ac626087828a82314ee82ac42f41b8ad40a36363c00db176e57a22e9ec",
+        "68fb5eb21d425645906c9b44c1caae8d61bebe4191c535878a8ac971719b5bed"
+      ],
+      "source_sha256": "dd8a32636e452663c482e17827899ab647222a76c1d13d4fd0b2eb0ad47c6a8e",
+      "text": "Ob ``metrics`` tatsächlich eine Scorecard trägt.\n\nEine fehlende Scorecard muss so sagen, anstatt Leerzeichen zu zeigen, die 370 nach Namen fragt und die `ModelEntry.provenance_known` bereits für die Ausbildung Provenienz tut. Ein Modell ohne Zahlen ist kein Modell, das Null erzielte, und eine Tabelle mit leeren Zellen liest als die zweite.\n\n:param metrics: die Mapping-Metriken eines Eintrags.",
+      "translation_source_blocks_sha256": [
+        "2524a468d1319c202ad3273658f626ab1f2ae11964d087b0ff45db43cb0d6cf6",
+        "54c97cf270def82695a56e29f1f932183e67beb81dd14af7981f99d93aa183a9",
+        "68fb5eb21d425645906c9b44c1caae8d61bebe4191c535878a8ac971719b5bed"
       ]
     },
     "spacr.scorecard.scorecard_rows": {

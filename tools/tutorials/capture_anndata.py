@@ -7,7 +7,7 @@ from capture_database import prepare_database_copy, require_unchanged_source, _d
 from anndata_evidence import read_source, verify_file
 
 
-def record_anndata(app, window, stage, captures, capture, settle, write_json, timeout):
+def record_anndata(app, window, stage, captures, capture, settle, write_json, timeout, *, route_only=False):
     from PySide6.QtCore import Qt, QTimer, QPoint
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QAbstractButton, QLineEdit, QComboBox, QCheckBox, QMessageBox
@@ -150,15 +150,19 @@ def record_anndata(app, window, stage, captures, capture, settle, write_json, ti
         proof['default_tables']=screen._settings_model.collect().get('anndata_tables')
         if proof['default_tables']!=['cell','cytoplasm','nucleus','pathogen','png_list']:
             raise ValueError('Unexpected requested default tables')
-        run('05_joined_keep','','keep',(2341,1136))
-        run('06_cell_keep','cell','keep',(2341,261))
-        run('07_cell_mean','cell','mean',(2341,261))
-        run('08_cell_drop_features','cell','drop_features',(2341,257))
-        run('09_cell_drop_objects','cell','drop_objects',(2334,261))
-        run('10_nucleus_keep','nucleus','keep',(2682,341))
-        proof['gui_exports_completed']=True
-        proof['accepted']=len(proof['exports'])==6 and all(
-            r['independent_matrix_validation'] for r in proof['exports'])
+        if route_only:
+            proof.update(accepted=True, gui_exports_completed=False,
+                         gui_defect_fixed=False, scope='Navigation/settings only; no GUI export requested')
+        else:
+            run('05_joined_keep','','keep',(2341,1136))
+            run('06_cell_keep','cell','keep',(2341,261))
+            run('07_cell_mean','cell','mean',(2341,261))
+            run('08_cell_drop_features','cell','drop_features',(2341,257))
+            run('09_cell_drop_objects','cell','drop_objects',(2334,261))
+            run('10_nucleus_keep','nucleus','keep',(2682,341))
+            proof['gui_exports_completed']=True
+            proof['accepted']=len(proof['exports'])==6 and all(
+                r['independent_matrix_validation'] for r in proof['exports'])
     finally:
         if screen is not None and screen._worker_thread_is_running():
             QTest.mouseClick(screen._btn_stop,Qt.LeftButton)

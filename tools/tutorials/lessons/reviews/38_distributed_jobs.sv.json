@@ -1,0 +1,30 @@
+{
+  "lesson": "38_distributed_jobs",
+  "english_sha256": "66bdff910bb343adabad62ef2e4536473e84b69671eb0419a199537ffb0d7100",
+  "review": {
+    "kind": "Editorial translation of frozen English; configuration-only boundary and native control behavior preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Distribuerade jobb",
+  "description": "Förbered en verklig körprofil via Help och skilj sparad konfiguration från verifierad fjärrkörning.",
+  "objectives": [
+    "Öppna Distributed jobs via Help och spara en profil.",
+    "Skilja sökvägsmappning från datakopiering och autentisering.",
+    "Förbereda SSH, Slurm eller egna kommandon utan att påstå en oprövad körning."
+  ],
+  "prerequisite": "Endast konfiguration med isolerad lokal lagring, ingen anslutning och inget inskickat jobb. researcher@workstation.invalid och katalogerna är exempel, inte fungerande mål. Före körning behövs behörig åtkomst, kompatibel spaCR med beroenden och data på målet. Använd modulens exporterade inställningar, inte denna profil som försökskonfiguration. API: spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager. Profiler sparar inte lösenord; autentisering sker utanför spaCR. Datarötter ersätter absoluta sökvägsprefix utan att kopiera bilder. Sparande, återöppning och avbrutna ändringar har kontrollerats, inte schemaläggarens framgång, fjärrresultat eller modellens giltighet.",
+  "scenes": [
+    "Öppna Help och sedan Distributed jobs. Verktyget nås via Help, inte genom en separat kärnmodulruta på Home. Vi förbereder en verklig körprofil och granskar de aktuella kontrollerna. Ingen fjärranslutning eller inskickad uppgift demonstreras; en sparad profil bevisar inte att målet fungerar.",
+    "Den här arbetsytan skickar modulinställningar till ett annat körmål. Ordna först behörig åtkomst, en kompatibel spaCR-installation och data tillgängliga på målet. Profiler sparar anslutningsinställningar, inte lösenord. Konfigurera SSH-nycklar eller autentisering för molnets kommandoradsverktyg utanför spaCR.",
+    "Välj New profile. Ett tomt formulär kan inte sparas och visar ett meddelande. Ge profilen ett tydligt namn och välj backend. Exemplet heter uttryckligen NOT CONNECTED, så att det inte förväxlas med en testad arbetsstation eller ett lyckat jobb.",
+    "För SSH anger du värd, fjärrarbetskatalog och spaCR-program. Värden som slutar med punkt invalid och katalogerna är exempel, inte användbara inloggningsuppgifter eller verifierade platser. Vi sparade och öppnade profilen igen; de synliga värdena överensstämmer exakt med den lagrade konfigurationen.",
+    "Lokala och fjärranslutna datarötter beskriver samma data med olika absoluta sökvägsprefix. Ange båda eller lämna båda tomma när sökvägarna är identiska. Detta mappar sökvägar i inställningarna; det kopierar inte bildsamlingen till servern. Ordna delad lagring eller överföring separat.",
+    "Slurm aktiverar schemaläggaralternativ och behåller kontrollerna för värd och sökvägar. Partitionsnamn, tidsgränser och acceleratorbegäranden måste stämma med din tilldelning på klustret. Partitionen som visas är en platshållare. Valet reserverar ingen GPU och kontrollerar inte att schemaläggaren går att nå.",
+    "Cloud or custom command aktiverar separata argumentmallar för att skicka in, läsa status och avbryta, med valfri logghämtning. Använd de nödvändiga platshållarna för inställningar och externt ID. Det är argument uppdelade i token, inte ett skalskript. Nedtonade anslutningskontroller hör till andra backender; inget eget kommando körs här.",
+    "Cancel stänger våra osparade backendändringar och bevarar den ursprungliga SSH-profilen byte för byte. Save behåller avsedda ändringar. Poll interval föreslår övervakningsfrekvens, inte beräkningshastighet. Ett sparat mål är fortfarande bara konfiguration tills ett verkligt, behörigt jobb har kontrollerats.",
+    "För en verklig körning väljer du rätt modul och dess exporterade inställningar före Submit. Börja med ett litet behörigt test och kontrollera sedan status, loggar och lokal post. Cancel job gäller ett valt jobb; att radera en profil är något annat. Tabellen är tom eftersom vi inte skickar in något och inte påstår några fjärrresultat."
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "lesson": "59_anndata_export",
+  "english_sha256": "9023fb5acff23af9a0eacb7757aca45fd4c4d4cccf8f64227a5874d7df2b1864",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "pt-BR",
+  "title": "AnnData Export: caminho atual e alternativa verificada pela API",
+  "description": "Localize o exportador integrado, entenda a falha de metadados ausentes e exporte o exemplo real com uma alternativa explícita e verificada em Python.",
+  "objectives": [
+    "Encontrar AnnData Export no Measure e o banco de medições.",
+    "Distinguir a falha da interface da alternativa pela API sem inventar metadados.",
+    "Comparar matrizes combinadas, celulares e nucleares e quatro políticas de valores ausentes.",
+    "Reabrir arquivos preservando identidades, anotações, imagens e proveniência."
+  ],
+  "prerequisite": "Use uma CÓPIA de measurements.db do exemplo baixado no Annotate; preserve o original e as imagens. Coloque o script vinculado junto da cópia no ambiente spaCR. Ele chama spacr.anndata_export.build_anndata e codifica apenas colunas de obs do tipo objeto inteiramente ausentes como categorias vazias. Continuam ausentes, sem inventar calibração ou rótulos nem alterar X nessa codificação. NÃO corrige a interface. Recusa destinos existentes, grava um arquivo novo e verifica a releitura. Comparações SQLite: combinado/keep 2341x1136; cell/keep e cell/mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341. Sem UMAP, cálculo GPU, imagens incorporadas, chamada AI, validação biológica ou publicação. A falha original foi preservada.",
+  "scenes": [
+    "Abra Measure e depois a ferramenta integrada AnnData Export. AnnData armazena uma matriz de objetos por características, junto com metadados das observações e nomes das características. Mostramos o caminho atual da interface, mas as exportações bem-sucedidas usam uma alternativa explícita em Python. Não afirmamos que a falha de exportação da interface foi corrigida.",
+    "Use uma cópia do banco real de medições baixado, não uma tabela inventada. Preserve as imagens e o banco original sem alterações. A interface recebe a pasta do projeto; nosso exemplo de linha de comando recebe o próprio arquivo do banco. Desative a projeção opcional nesta comparação. Exportar uma matriz não exige GPU.",
+    "Primeiro observe a falha do gravador original. Algumas colunas de observação contêm apenas valores ausentes com tipo objeto, que esse gravador não consegue serializar. A calibração desconhecida dos voxels é um exemplo. Código de saída um e arquivo parcial não significam sucesso. Não substitua desconhecidos por zero nem pelo texto None para esconder o erro.",
+    "Baixe o script vinculado e examine a alternativa de armazenamento. Ele usa a função real build_anndata e depois codifica somente metadados do tipo objeto totalmente ausentes como colunas categóricas vazias. Ausências continuam ausências; essa codificação não altera metadados conhecidos nem a matriz. Isso não torna a calibração física uma grandeza científica categórica.",
+    "Execute o script com seu banco de origem, um caminho de saída novo e a política keep. O exemplo combinado contém duas mil trezentas e quarenta e uma células e mil cento e trinta e seis características. Medidas de núcleos e patógenos relacionados são agregadas por célula. Quatrocentos mil trezentos e vinte valores continuam ausentes, não viram zeros.",
+    "Para medidas próprias de um tipo de objeto, acrescente single-table cell e mantenha os valores ausentes. O arquivo conserva duas mil trezentas e quarenta e uma células, mas apenas duzentas e sessenta e uma características. Faltam vinte e oito valores. Compare nomes das características e identidades das linhas, não apenas tamanho do arquivo ou quantidade de colunas.",
+    "A política mean é uma escolha analítica separada, não parte da alternativa de armazenamento. Aqui ela preenche vinte e oito valores ausentes com as médias observadas das colunas. A camada exportada de valores ausentes registra as posições originais. Verifique se a imputação é adequada; uma matriz completa não é automaticamente melhor nem livre de viés.",
+    "A política drop-features remove colunas com valores ausentes. Neste exemplo quatro colunas são removidas, restando duzentas e cinquenta e sete características e todas as células. Veja quais medidas foram removidas e por quê. Essa política altera as características disponíveis e pode descartar informação útil; não é uma recomendação universal de limpeza.",
+    "A política drop-objects remove, em vez disso, linhas com características ausentes. Aqui sete células são retiradas, restando duas mil trezentas e trinta e quatro linhas e todas as duzentas e sessenta e uma características. A ausência pode depender do fenótipo, aquisição ou segmentação. Examine as exclusões antes de considerar representativas as células restantes.",
+    "Escolha single-table nucleus para ter uma linha por núcleo, em vez de características nucleares agregadas nas linhas das células. O exemplo contém dois mil seiscentos e oitenta e dois núcleos e trezentas e quarenta e uma características. Preserve vínculos parentais e identidades dos objetos. Mais núcleos que células não significa que a exportação criou células extras.",
+    "Reabra cada arquivo salvo. O script compara a matriz inteira, a ordem e identidade dos objetos e características, as ausências e os metadados; as verificações SQLite independentes também passaram nos seis arquivos. Anotações continuam como metadados, não como variáveis de treinamento inseridas na matriz. As imagens não são incorporadas: conserve as fontes e seus caminhos.",
+    "Use um nome de saída novo para cada política e mantenha script, configurações e versões. O script recusa um destino existente em vez de sobrescrevê-lo. Essas verificações demonstram preservação dos dados deste exemplo, não validade biológica nem correção da interface. Consulte as aulas vinculadas de API e medições para entender o fluxo completo."
+  ]
+}

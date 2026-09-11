@@ -263,7 +263,21 @@ def test_a_real_class_at_the_offset_stops_suggest_rather_than_being_eaten(
         suggest.write_suggestions(db_path, "test", result.frame)
     message = str(caught.value)
     assert str(suggest.SUGGESTION_OFFSET) in message
-    assert "379-C" in message, "the refusal has to say which decision it waits on"
+    # THE REFUSAL HAS TO SAY WHAT TO DO, and this asserted `"379-C" in
+    # message` -- an instruction code in text a user reads. The code is in
+    # the COMMENTS beside the guard, where it belongs and where
+    # `test_user_facing_docstrings` leaves it alone; it came out of the
+    # message, and this assertion went on requiring it.
+    #
+    # What a user needs is the remedy and the numbers, so that is what is
+    # asserted: the column that holds the collision, and both halves of
+    # the way out -- clear the outstanding suggestions, or move the offset
+    # above the real answers.
+    assert "test" in message, "the refusal has to name the column"
+    assert "Resolve any outstanding suggestions" in message
+    assert "offset would have to move" in message, (
+        "the refusal has to give the way out for a column whose real "
+        "answers sit above the offset")
 
     # AND IT WROTE NOTHING. A refusal that had already written half the rows
     # would be worse than the collision it is preventing.

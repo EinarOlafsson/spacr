@@ -1,0 +1,30 @@
+{
+  "lesson": "41_classify",
+  "english_sha256": "e43e44b60b64b42341211784c1d115f8c7131a2d9af4d18c05a9ac318129560a",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "nb",
+  "title": "Classify: hovedmodulen og de innebygde underverktøyene",
+  "description": "Velg bilde- eller målingsbasert klassifisering, bruk nedlastbare eksempler, se virkelige resultater og finn de fem verktøyene i Classify.",
+  "objectives": [
+    "Velg klassifikatorfamilien i den samlede Home-modulen.",
+    "Bruk CV- og tabellveiledningene med ekte data og tydelige begrensninger.",
+    "Finn Classifier Evaluation, Explain CV, Activation, Training Runs og Feature Explorer under Classify.",
+    "Bevar lagrede bevis og skill AI-hjelp fra kontrollert analyse."
+  ],
+  "prerequisite": "Opptak med spaCR 1.5.0.6. Oversikten er under hovedmoduler; spesialiserte og innebygde veiledninger ligger under Classify i undermoduler. Ekte, tidligere kontrollerte CV-/ML-opptak gjenbrukes uten ny trening. FORSKJELLIGE etiketter og delmengder: IKKE en direkte sammenligning. Tabelleksempel: Load test data → Load, målte celler, klasser columnID=c1/c2, random forest, Plot på, 2153 vurderte objekter og 188 uten skår fordi kjernedata mangler; egne testbrønner på samme plate. CV-eksempel: eksplisitt klargjøring av 64 uendrede annoterte utsnitt med kanoniske databasenavn, Generate training dataset av, ResNet18 én epoke, 16 trening/16 validering/32 test, adskilte brønner på én plate, nøyaktighet 0.5 lik flertallsreferansen. Tolkeren for gamle filnavn er ikke rettet. Se fagveiledningene for innstillinger, stier og begrensninger. Ruter: classifier_evaluation, explain_cv, activation, train_compare, feature_explorer. Explain CV tilpasser målte egenskaper til eksisterende CV-prediksjoner, ikke bevis for årsak. Activation viser bildemodellens respons. Ingen AI-forespørsel, ny kvalitetspåstand, biologisk validering eller direkte familiesammenligning. API: spacr.classify.classify → spacr.deep_spacr.train_test_model eller spacr.ml.generate_ml_scores etter classifier_family.",
+  "scenes": [
+    "Classify er en av hovedmodulene på Home. Åpne den her, og velg deretter klassifikatorfamilien inne i modulen. Veiledningsspilleren følger samme struktur: denne oversikten tilhører hovedmoduler, mens spesialiserte arbeidsflyter og underverktøy er gruppert under Classify i delen for undermoduler.",
+    "Computer Vision bruker objektbilder; Tabular Machine Learning bruker lagrede målinger. Velg etter inndata og vitenskapelig spørsmål, ikke navnet som høres kraftigst ut. Familieskifte gjentar ikke segmenteringen. De tilknyttede Mask- og Measure-veiledningene dekker sine egne sanntidskontroller for bilder og utsnitt.",
+    "Klikk Load test data for tabelleksemplet og velg Load, ikke Stream. Hold det nedlastede prosjektet og måledatabasen samlet. For egne bilder må målingene først være fullført. Den detaljerte tabellveiledningen viser den ekte nedlastingen, etiketter, innstillinger og en fullført random-forest-kjøring.",
+    "Dette er den virkelige kjøringens figurer og konsoll, med Plot på. Undervisningsetikettene er platekolonner, ikke uavhengig validerte fenotyper. Objekter uten nødvendige kjernedata forblir uten skår, ikke negative. Se lagrede prediksjoner og tilbakeholdte brønner; fargerike figurer alene viser ikke generalisering til et annet forsøk.",
+    "Den separate datasynsveiledningen bruker en eksplisitt løsning for filnavn og sekstifire uendrede nedlastede utsnitt. Modellen med én epoke når bare flertallsreferansen. Eksemplene bruker ulike etiketter og delmengder: ikke sammenlign nøyaktighetene som en direkte ytelsestest. Følg veiledningen før egen oppdeling.",
+    "Ikonene øverst til høyre åpner underverktøy, ikke egne Home-fliser. Hold pekeren over for å identifisere dem. Classifier Evaluation undersøker en lagret evalueringspakke med prediksjoner og lekkasjeinformasjon. Veiledningen forklarer nødvendige filer og hvorfor et vist måltall fortsatt trenger et solid valideringsdesign.",
+    "Explain CV bruker målte egenskaper til å modellere eksisterende datasynsprediksjoner. Det er en separat forklaringsmodell, ikke det opprinnelige bildenettverket eller en årsaksforklaring. Veiledningen viser riktig prediksjonsinngang og resultater. Ikke anta at utdata fra den tabulære klassifikatoren oppfyller samme inngangskrav.",
+    "Activation åpner tolkning av bildemodellen. Bruk tilhørende sjekkpunkt, bildekanaler og forbehandling. Veiledningen viser ekte lagrede salienskart og forklarer løsningen med en ekstern bildeviser. Et fremhevet område beviser verken biologisk mekanisme eller en god klassifikator.",
+    "Training Runs sammenligner lagrede treningshistorikker og innstillinger. To kurver ved siden av hverandre skaper ikke uavhengige bevis. Bevar kjøringer i atskilte mapper og sammenlign kompatible måltall og dataoppdelinger. Den egne veiledningen dekker kontrollene uten å gjenta dem i denne hovedmoduloversikten.",
+    "Feature Explorer åpnes fra det siste ikonet. Det kan rangere målte egenskaper for en valgt sammenligning før en klassifikator trenes. Veiledningen bruker ekte nedlastede målinger og sanntidsfiltre. Sjekk sammenligningen igjen etter filtrering: en rangering er verken årsakssammenheng eller en trent bildemodell.",
+    "Konsollen tilbyr også valgfri spaCR AI-hjelp. Her er spørsmålet usendt; ingen leverandørrespons eller analyse vises. Bevar modellutdata, innstillinger og dokumentasjon av oppdelingen, og kontroller råd mot dem. I Python videresender classify til bilde- eller tabellimplementeringen etter valgt familie."
+  ]
+}

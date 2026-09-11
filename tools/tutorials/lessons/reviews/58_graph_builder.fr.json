@@ -1,0 +1,31 @@
+{
+  "lesson": "58_graph_builder",
+  "english_sha256": "0cafbb000a43518dec4abf97d95a12a28d3db265fc707f4caf2d681e26617f72",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "fr",
+  "title": "Graph Builder : mesures réelles, filtres interactifs et limite du transfert",
+  "description": "Construire des graphiques à partir des mesures, comparer les métadonnées d’acquisition et reconnaître le défaut actuel de transfert vers Annotate.",
+  "objectives": [
+    "Charger la base réelle et sélectionner la table cell.",
+    "Créer histogramme, nuage de points, couleurs et panneaux par ligne.",
+    "Vérifier les populations filtrées puis restaurées.",
+    "Distinguer publication interne de la sélection et transfert fonctionnel."
+  ],
+  "prerequisite": "Téléchargez et décompressez la base liée, ou utilisez l’exemple téléchargé d’Annotate. L’archive contient des mesures, pas les images ; aucun nouveau modèle n’est nécessaire.",
+  "scenes": [
+    "Graph Builder explore une table existante. Ouvrez-le depuis Home : c’est un module principal, qui contient Plate Viewer et Small Multiples. Nous utilisons de vraies mesures d’exemple, sans entraîner de modèle ni demander à un service d’intelligence artificielle de générer des résultats.",
+    "Choisissez Load table et ouvrez measurements point db depuis l’archive liée ou l’exemple téléchargé d’Annotate. Sélectionnez cell : deux mille trois cent quarante et une lignes. L’archive conserve exactement la base enregistrée, sans les images référencées dans les autres tables.",
+    "Recherchez cell_area et faites glisser cette colonne sur X. Le tracé automatique crée un histogramme de trente classes. Chaque barre compte les cellules dans un intervalle d’aire ; ce n’est ni une comparaison de traitements ni un test de signification. Les unités stockées restent inchangées, sans nouvelle calibration physique.",
+    "Faites glisser cell_channel_1_mean_intensity sur Y. Chaque point représente maintenant l’aire et l’intensité moyenne du canal un d’une cellule. Des points superposés peuvent se masquer, bien que toutes les lignes soient représentées ici. Vérifiez le compteur : de grandes tables peuvent utiliser un autre mode de tracé.",
+    "Placez columnID sur Colour et lisez la légende. Les couleurs distinguent les colonnes d’acquisition, pas des classes prédites ni des traitements connus. Une séparation visuelle est descriptive, pas une preuve d’effet. Nous avons vérifié coordonnées et couleurs par rapport aux lignes sources.",
+    "Placez rowID sur le canal de facettes orienté vers le bas pour créer des panneaux par ligne de plaque. Ils contiennent mille cent quarante et mille deux cent une cellules. Des axes partagés facilitent la comparaison, mais les cellules d’un même puits ne sont pas des répétitions expérimentales indépendantes.",
+    "Dans le panneau de droite, ajoutez cell_area et fixez le minimum à vingt et un mille neuf cent vingt-cinq. Le graphique passe immédiatement à mille cent soixante et onze lignes. Cette médiane arrondie illustre le filtre, sans recommander un seuil biologique. Les limites des axes changent aussi.",
+    "Choisissez Clear all dans le filtre pour retrouver les deux mille trois cent quarante et une cellules. Ce n’est pas Clear all channels à gauche, qui enlève les affectations du graphique. Vérifiez compte et axes : une population différente n’est pas une nouvelle mesure.",
+    "Retirez la facette de ligne avec sa petite croix, puis tracez un rectangle dans le nuage. Cette version a un défaut : le geste enregistré publie six cent cinquante-trois identifiants d’objets en interne, mais affiche zéro sélection et désactive Open selection in Annotate. Ne supposez pas que des annotations ont été ouvertes ou créées.",
+    "Un simple clic efface aussi cette sélection interne. Le tutoriel vérifie ce retour à l’état initial, sans réparer le transfert. Filtrer et désigner des objets sont différents ; d’autres vues peuvent partager cet état. Vérifiez la population active au lieu de supposer que le graphique montre toujours toute la base.",
+    "Les raccourcis de l’en-tête ouvrent Plate Viewer et Small Multiples, couverts par leurs propres tutoriels. Cet écran n’a pas de bouton d’export du graphique ou de sa spécification. L’archive de base liée est un téléchargement externe du tutoriel, pas un export de Graph Builder.",
+    "En Python, read_table charge les données, GraphSpec décrit canaux et facettes, et l’API de sélection distingue filtres et identifiants explicites. Conservez source, réglages et version avec votre interprétation. Ces API ne valident pas une conclusion biologique et ne réparent pas le transfert vers Annotate."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "lesson": "48_hit_list",
+  "english_sha256": "0739d12c16e4f2cbf17c485b4f84447f95f7d1c3c7a6dffdd2cf8c8ecfb206e8",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "Hit List: examinar candidatos con una ventana auxiliar explícita",
+  "description": "Explore los filtros y las exportaciones reales de Hit List con resultados de Regression sin modificar, usando explícitamente una alternativa al panel oculto.",
+  "objectives": [
+    "Distinguir el acceso nativo defectuoso del programa auxiliar externo.",
+    "Interpretar candidatos ordenados sin afirmar descubrimientos significativos.",
+    "Filtrar, restaurar y exportar las filas reales."
+  ],
+  "prerequisite": "Extraiga Hit_List_real_results_companion.zip. Active el entorno spaCR, ejecute python hit_list_companion.py y seleccione results con Browse. El programa abre HitListScreen sin modificarlo; no repara la navegación ni conecta Investigate. El archivo contiene resultados originales, no un proyecto completo: 325 genes, 434 filas de guías y ningún gen con q <= .05. Los efectos marginales estandarizados no son coeficientes multivariables ajustados simultáneamente. Los intervalos ausentes no están disponibles. n_obs=0 no indica el apoyo real: wells_with_gene de results_gene.csv varía entre 2 y 48. Uniones de metadatos, clasificación penalizada e Investigate quedan fuera. No se necesitan entrenamiento, nueva regresión, GPU ni solicitudes a proveedores de IA. API: spacr.hits.build_hit_list y HitList.filter/write_csv/to_markdown/to_html.",
+  "scenes": [
+    "Hit List pertenece a Regression. En esta versión, pulsar Hits selecciona una página dentro de un panel oculto y la lista no aparece. El tutorial muestra esta limitación. La siguiente ventana es un programa auxiliar externo, no una prueba de que el acceso nativo esté reparado.",
+    "Extraiga el ejemplo enlazado, active su entorno spaCR y ejecute el programa auxiliar Hit List incluido. La ventana identificada abre el componente existente de spaCR sin cambiar sus cálculos. Pulse Browse y seleccione results. No se repite la regresión y la integración con Investigate no está conectada.",
+    "El ejemplo original carga trescientos veinticinco genes. Haga doble clic en los bordes de las columnas si los valores se recortan. Lea por separado la dirección del efecto, P sin corregir, q corregido y concordancia de guías. Los intervalos ausentes no están disponibles. Son efectos marginales estandarizados; el cero exportado como número de observaciones no es el número real de pocillos.",
+    "Establezca Max q en cero coma cero cinco. No queda ningún gen porque el menor q génico es aproximadamente cero coma dos siete uno. Una tabla filtrada vacía no significa que fallara la importación. Restablezca Max q a uno para recuperar los candidatos, sin declararlos descubrimientos.",
+    "Minimum guides dos conserva ciento diecisiete genes con al menos dos filas de guías analizadas. Cuenta la evidencia disponible, no todas las guías diseñadas originalmente. El filtro cambia el subconjunto mostrado sin recalcular la corrección original por pruebas múltiples.",
+    "Minimum agreement uno conserva además cincuenta y siete genes cuyas guías analizadas comparten el signo del efecto génico. La concordancia no demuestra significancia ni causalidad. El resumen sigue indicando cero genes significativos corroborados, aunque estas filas candidatas tengan guías concordantes.",
+    "Hide controls elimina una fila de control y deja cincuenta y seis candidatos. Restáurela antes de exportar. Ocultar controles no vuelve a ajustar el modelo ni cambia la familia de corrección; conserve sus identidades al interpretar el análisis.",
+    "Con los demás filtros borrados, Direction up muestra efectos positivos. Un efecto absoluto mínimo de cero coma uno deja dieciséis filas. Son ejemplos de visualización, no umbrales recomendados. Restablezca dirección y efecto antes de buscar o comparar otro subconjunto.",
+    "Busque un identificador registrado para examinar una fila real. Una consulta sin coincidencias vacía la tabla; volver al identificador conocido la restaura y borrar la búsqueda recupera la población. El filtrado es reversible. Las anotaciones y el flujo Investigate requieren comprobaciones propias.",
+    "Para exportar, restablezca dos guías, concordancia completa, controles incluidos y búsqueda vacía. Las tres exportaciones contienen los mismos cincuenta y siete candidatos en este ejemplo. Markdown y HTML redondean los números; CSV conserva el detalle numérico. Guarde los filtros aparte: los archivos no registran todas las opciones.",
+    "Borre los filtros para recuperar los trescientos veinticinco genes. Separe los subconjuntos exportados de los originales sin modificar y no describa candidatos no significativos como hallazgos validados. Python ofrece el mismo lector y filtros, pero compruebe los límites de filas de cada formato para listas mayores."
+  ]
+}

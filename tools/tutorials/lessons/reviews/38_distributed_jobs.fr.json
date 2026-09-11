@@ -1,0 +1,30 @@
+{
+  "lesson": "38_distributed_jobs",
+  "english_sha256": "66bdff910bb343adabad62ef2e4536473e84b69671eb0419a199537ffb0d7100",
+  "review": {
+    "kind": "Editorial translation of frozen English; configuration-only boundary and native control behavior preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Tâches distribuées",
+  "description": "Préparer un profil réel depuis Help et distinguer configuration enregistrée et exécution distante vérifiée.",
+  "objectives": [
+    "Ouvrir Distributed jobs depuis Help et enregistrer un profil.",
+    "Distinguer correspondance des chemins et copie des données, authentification et paramètres.",
+    "Préparer SSH, Slurm ou des commandes personnalisées sans prétendre avoir testé une exécution."
+  ],
+  "prerequisite": "Configuration uniquement : stockage local isolé, aucune connexion ni tâche soumise. researcher@workstation.invalid et les dossiers affichés sont illustratifs. Avant soumission, prévoir un accès autorisé, spaCR et ses dépendances compatibles et les données sur la cible. Utiliser les paramètres exportés du module, pas ce profil comme configuration expérimentale. API : spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager. Les profils ne stockent pas les mots de passe ; l’authentification se fait hors de spaCR. Les racines remplacent des préfixes absolus sans copier les images. Enregistrement, réouverture et annulation sont vérifiés, pas le planificateur, les résultats distants ou la validité du modèle.",
+  "scenes": [
+    "Ouvrez Help, puis Distributed jobs. Cet utilitaire est accessible depuis Help, pas depuis une tuile principale distincte de Home. Nous préparons un véritable profil et examinons les contrôles actuels. Aucune connexion ni tâche distante n’est démontrée ; enregistrer un profil ne prouve pas que sa cible fonctionne.",
+    "Cet espace envoie les paramètres d’un module vers une autre cible d’exécution. Avant toute soumission, prévoyez un accès autorisé, une installation compatible de spaCR et les données disponibles sur cette cible. Les profils stockent les paramètres de connexion, pas les mots de passe. Configurez les clés SSH ou l’authentification de votre outil cloud hors de spaCR.",
+    "Choisissez New profile. Enregistrer un formulaire vide est refusé avec un message intégré. Donnez un nom clair et choisissez le backend. Notre exemple s’appelle explicitement NOT CONNECTED, pour ne pas le confondre avec une station testée ou une tâche réussie.",
+    "Pour SSH, renseignez l’hôte, le répertoire distant et l’exécutable spaCR. L’hôte se terminant par point invalid et les dossiers sont illustratifs, pas des identifiants utilisables ou des emplacements vérifiés. Nous avons enregistré puis rouvert ce profil ; les valeurs visibles correspondent exactement à la configuration stockée.",
+    "Les racines locale et distante représentent les mêmes données avec différents préfixes de chemins absolus. Renseignez les deux, ou laissez les deux vides si les chemins sont identiques. Cela adapte les chemins des paramètres, sans copier les images sur le serveur. Organisez séparément le stockage partagé ou le transfert.",
+    "Slurm active les options du planificateur tout en conservant les contrôles d’hôte et de chemins. Partitions, durées limites et demandes d’accélérateurs doivent correspondre à votre allocation sur le cluster. La partition affichée est un exemple à remplacer. Cette sélection ne réserve aucun GPU et ne vérifie pas l’accès au planificateur.",
+    "Cloud or custom command active des modèles d’arguments distincts pour soumettre, consulter l’état et annuler, avec récupération facultative des logs. Utilisez les paramètres de substitution obligatoires pour les réglages et l’identifiant externe. Ce sont des arguments découpés en éléments, pas un script shell. Les contrôles de connexion grisés appartiennent aux autres backends ; aucune commande personnalisée n’est exécutée ici.",
+    "Cancel ferme nos changements de backend non enregistrés et conserve le profil SSH original octet pour octet. Save retient les modifications voulues. Poll interval indique une fréquence de suivi suggérée, pas une vitesse de calcul. Une cible enregistrée reste une configuration tant qu’une tâche réelle et autorisée n’a pas été vérifiée.",
+    "Pour une véritable exécution, choisissez le module correspondant et ses paramètres exportés avant Submit. Commencez par un petit essai autorisé, puis consultez l’état, les logs et le dossier local. Cancel job vise une tâche sélectionnée ; supprimer un profil est différent. Notre tableau reste vide : nous ne soumettons rien et ne revendiquons aucun résultat distant."
+  ]
+}

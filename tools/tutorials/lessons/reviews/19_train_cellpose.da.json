@@ -1,0 +1,31 @@
+{
+  "lesson": "19_train_cellpose",
+  "english_sha256": "524f011def972d4ba17df823927da3ab8f2c84e0301df7903737e67717246384",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "da",
+  "title": "Train Cellpose: kontrollerede par og en eksplicit API-omvej",
+  "description": "Find Train i Cellpose Workbench, genkend den aktuelle kildeimportfejl, og følg en rigtig Python-træning over to epoker med seks downloadbare cellebillede-/maskepar.",
+  "objectives": [
+    "Find Train og Apply i Make Masks, ikke som egne Home-fliser.",
+    "Kontrollér parrede filnavne og skeln eksisterende labels fra gennemgået facit.",
+    "Genkend delvis import og adskil API-omvejen fra den defekte GUI.",
+    "Undersøg input, opvarmningsrater, ændrede vægte og den verificerede sti.",
+    "Skeln træningstab, pladsholdere og vægtindlæsning fra uafhængig nøjagtighed."
+  ],
+  "prerequisite": "Brug seksparspakken med den optagne hjælper og kildemanifestet. Rigtige felter bevarer celleintensitet kanal 1 og cellemaske plan 4; plan 6 er patogen. Eksisterende labels og kantafskårne objekter er IKKE uafhængigt gennemgået facit. Train taber stadig src og beholder model_name=new_model, selv om tal importeres; ingen GUI-træning starter. spacr.submodules.train_cellpose bruger ny destination, to epoker, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512 og ingen ekstra spaCR-augmentation. normalize=False fjerner spaCR-percentiler, ikke maksimumskalering eller Cellposes normalisering. Cellpose roterer/skalerer stadig og bruger interne 256-pixeludsnit. Seed 19 ved start; intern tilfældighed består. CUDA begrænset til 65% på RTX 3090; RAM-vagt 100 GiB gælder kun denne arbejdsstation. 3,145,728 inputværdier og tolv figurarrays kontrolleret; alle seks par forblev i træning. Rater 0 og 1.1111111111111112e-6; 345 af 347 trænbare parametertensorer ændredes. Tab steg fra 1.496740683913231 til 1.5215517828861873. Ingen testdata: nulværdier er pladsholdere. Checkpoint under models/cellpose_model/models læst med weights_only=True; konsolresuméet mangler andet models. Indlæsning er ikke inferens eller nøjagtighed. Rigtig figur i ekstern fremviser, ikke indsat i GUI. Originaler, mislykkede optagelser og tidligere GUI-stop bevares. Ingen AI-anmodning, udbydersvar, videnskabelig godkendelse eller publicering.",
+  "scenes": [
+    "Åbn Make Masks og det indlejrede Cellpose Workbench. Train og Apply er faner her, ikke separate Home-fliser. Lektionen viser den aktuelle rute, et importproblem og en eksplicit Python-omvej. Den linkede Make Masks-lektion handler om at undersøge og rette masker før træning.",
+    "Undersøg udgangspunkt og træningsplan på Train. Kopiér ikke det oprindelige epoketal eller læringsraten som anbefaling. Træning kræver parrede billeder og instansmasker, en kildemappe og et outputnavn. At formularen vises, betyder ikke, at kravene er opfyldt.",
+    "Den rigtige Import settings-dialog åbner en CSV med begrænsede indstillinger. Efter import ses to epoker, minibatch ét og en lille læringsrate. Men den påkrævede kilde droppes, og modelnavnet forbliver new model. Det er delvis import, ikke en klar opsætning; tryk ikke Run.",
+    "Python-ruten nedenfor er adskilt fra GUI-fejlen. Den sætter ikke skjult en kilde og reparerer ikke formularen. Brug den linkede pakke i en ny mappe. Hjælperen afviser eksisterende destinationer, bevarer originalparrene og registrerer den faktiske API-implementering og dens input.",
+    "Der er seks rigtige 512-pixel billede-/maskepar med matchende filnavne. Oprindelige indstillinger angiver celleintensitet kanal 1 og cellemasker plan 4; plan 6 er patogen. Eksisterende labels er ikke uafhængigt gennemgået facit. Kontrollér grænser og kantafskårne objekter før produktionstræning.",
+    "Dette er den rigtige figur med seks par, gemt af API-kørslen og åbnet i en ekstern fremviser, ikke indsat i spaCR. Hvert øverste billede svarer til masken nedenunder. Alle inputværdier og tolv viste arrays blev kontrolleret mod kilderne. Det bekræfter parring, ikke annotationskvalitet.",
+    "Kør hjælperen med datakilden og en ny destination. Det begrænsede CUDA-eksempel bruger seks par, to epoker og minibatch ét. Inputmålet er 512 pixel; Cellpose træner internt på 256-pixeludsnit. Fravalg af spaCR's ekstra augmentation stopper ikke Cellposes egen normalisering, rotation og størrelsesændring.",
+    "Første opvarmningsepoke har læringsrate nul. Den næste har en lille positiv rate og muliggør vægtændringer. Checkpointet blev sammenlignet med de oprindelige trænbare vægte: 345 af 347 parametertensorer ændredes. Kun en ændret diameter ville ikke bestå kontrollen. Ændrede vægte beviser stadig ikke en god model.",
+    "Træningstabet steg lidt fra cirka 1,497 til 1,522. Der blev ikke leveret testdata. Testtabsfelternes nuller er pladsholdere, ikke perfekt testydelse. Dette demonstrerer mekanikken, ikke konvergens, bedre segmentering eller uafhængig nøjagtighed. Hold uafhængig evaluering adskilt fra træning.",
+    "Brug checkpointstien i den verificerede kontrolfil. Den indeholder endnu en models-mappe, som det generiske konsolresumé udelader. Gem checkpoint, indstillinger, manifest og kontroller sammen. Sikker tensorindlæsning bekræfter et læseligt checkpoint, ikke inferens; pakken indeholder par og hjælper, ikke en certificeret model.",
+    "Apply har egen kildemappe, eget modelfelt og livepreview. At åbne fanen vælger ikke vores eksterne checkpoint og starter ikke inferens. Følg den linkede lektion, og valider på uafhængige billeder. Valgfri spaCR AI bruges ikke her; spørgsmål eller udbydersvar erstatter ikke undersøgelse af de faktiske beviser."
+  ]
+}

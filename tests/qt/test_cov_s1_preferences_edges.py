@@ -494,7 +494,12 @@ def test_every_optional_step_of_a_preferences_save_may_fail_on_its_own(
         prefs.apply_preferences_to_app(qapp)
 
     assert qapp.property("spacrLanguage") == prefs.get_language()
-    assert qapp.styleSheet()
+    from spacr.qt import theme as _theme
+    # THE SHEET IS ON THE WINDOWS, NOT ON THE APPLICATION, since 380's
+    # last lever moved it there -- a preference save with four modules
+    # open went from 10.2 s to 3.1 s. `qapp.styleSheet()` is empty by
+    # design now.
+    assert _theme.window_stylesheet(qapp)
 
 
 # ---------------------------------------------------------------------------

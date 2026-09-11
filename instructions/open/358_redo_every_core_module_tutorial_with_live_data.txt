@@ -254,3 +254,39 @@ is wrong the moment 372 lands.
 
 `import_images` and `regression_diagnostics` carry no such constraint and
 are the two that close 288's last failing test.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THREE REDS THE FULL SWEEP LEFT IN CODEX'S HALF, UNTOUCHED
+--------------------------------------------------------------------------------
+
+A full-suite run of 2,754 files at `ae8bdb417` -- 61,904 passed, 28 distinct
+failures -- left exactly three in tutorial-owned files. Recorded here rather
+than fixed, because this file says 358 IS CODEX'S and because two of the
+three are judgements about what a lesson claims, not typos.
+
+  1. `tests/test_the_name_is_spaCR.py::test_no_file_mis_cases_the_name`
+
+         tools/tutorials/authoring/tools/capture_install_web.py:331  SpaCR
+         tools/tutorials/authoring/tools/translate_pre_app.py:264    SPACR
+         tools/tutorials/authoring/tools/translate_pre_app.py:265    SPACR
+
+     The project is spelled spaCR. Three occurrences, two files, no
+     judgement required -- but they are in Codex's tree.
+
+  2. `tests/test_docs_media_budget.py::test_narration_is_the_stable_mobile
+     _clock` expects `app_v2.js?v=20260910-example-downloads` and the
+     player page carries `app_v2.js?v=20260910-plaque-example-zip`. One of
+     the two is stale and only the session that changed the cache-buster
+     knows which.
+
+  3. `tests/test_tutorial_release_audit.py::test_every_module_and_fold_has
+     _exactly_one_current_tutorial_route`.
+
+THE CLAUDE SESSION'S HALF OF THAT RUN IS CLOSED. Of the 28, the ones that
+were not tutorial-shaped are fixed: the caption ratchet, four docstring
+ratchets, two segfaults, an abort, a teardown error, two stale message
+expectations, the module denominator, an undeclared dependency, a phantom
+`__all__` export, an assertion-free test, the French reviewed count, a dead
+packaging exclusion, three archived installers, and the environment and
+app-registry leaks. What is left is these three plus the API catalogs,
+which are rebuilding.

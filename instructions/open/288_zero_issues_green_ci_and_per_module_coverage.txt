@@ -1916,3 +1916,559 @@ That is not the same as CI green and this file should not pretend it is.
 What it IS: every failure mode `docs.yml` has exhibited in the last hundred
 runs is now accounted for, and the only untested step left is the artifact
 upload.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- 69 FAILURES NAMED AND CLASSIFIED. THE SUITE WAS NOT ORDER-DEPENDENT.
+--------------------------------------------------------------------------------
+
+This item's standing belief was that `tests/qt` has no clean full-suite
+signal because the suite carries state between tests -- the crash, the
+deceleration, and the caption that measures as clipped only after 700
+other tests. The complete sweep of 2026-09-10 tested that belief against
+the whole suite for the first time, and it is largely WRONG.
+
+    2,738 files, 69 chunks, one process each, frozen at 2e9e8a907.
+    27 chunks reported failures. Re-run WITHOUT coverage to name them:
+    69 failures across 30 chunks, in 37 files.
+    Every one of those 37 files then run ALONE.
+
+    ALONE-RED    27 files   real, and red on nightly right now
+    ALONE-GREEN  10 files   pass by themselves
+
+AND THE TEN ARE NOT TEN. Nine of them were files I had already FIXED before
+the classification ran, so they passed alone because they were repaired,
+not because they are order-dependent. The genuine order-dependent set from
+this sweep is ONE file: `tests/qt/test_home_v2.py`, whose
+`test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for` passes in
+a run of 163 and fails in company.
+
+    SO THE SUITE'S PROBLEM WAS NOT ORDER. It was 27 files that had been red
+    on nightly for days with nobody running them -- which is exactly what
+    an item called "zero issues, green CI" exists to find, and what no
+    amount of running `tests/qt` alone could have shown.
+
+WHAT THE 69 WERE, by cause rather than by file:
+
+  364'S RENAME, IN BOTH DIRECTIONS -- the single largest cause.
+    OVER-REACHED: `spacr/core.py` (the pathogen CONDITION list, which is
+      not the regression setting), and the plate-layout ROLE names
+      `positive_control` / `negative_control`, which are well roles and
+      not settings at all.
+    MISSED: dict literals in test settings (`"controls": []` -- twelve
+      failures from one key), dict SUBSCRIPTS, KEYWORD ARGUMENTS to test
+      helpers, and FIVE user-facing messages.
+    THE MESSAGES ARE THE WORST OF IT because they break nothing: the
+      identifiers are PROSE inside f-strings, so nothing imports them,
+      nothing subscripts them, and the only test that noticed was the one
+      that happened to assert the wording.
+
+  A NUMPY 2 REMOVAL. `ops_phenotype.py` called `ndarray.ptp()`, removed in
+    NumPy 2.0. It is why that module measured 52.16 %, the lowest of 560 --
+    not untested code, a crash. No other NumPy 2 removal is left in the
+    package.
+
+  CONTRACTS THAT HAD DRIFTED FROM THEIR OWN DOCSTRINGS. `installed()`
+    promised to bind a mouse gesture; `_calibration_inputs` refused
+    something that could no longer be refused.
+
+  TESTS ASSERTING THE OPPOSITE OF THE TRUTH. The popup-hold guard 385
+    deleted; the space accessors 364 retired; a `control_wells` union that
+    no longer exists; `"379-C"` required inside a user-facing message.
+
+  A LEDGER GUARD THAT COULD NOT MODEL A REOPENED ITEM, which nearly cost
+    the home session's live instruction 83.
+
+WHAT IS LEFT, and none of it is a defect in this lane:
+
+  * TWELVE FILES ARE MERGE-PENDING. nightly is 41 commits behind main,
+    including the nine-language catalog rebuild (20 files, +9,414/-6,704).
+    Every i18n failure on nightly is that gap -- Swedish 115 against 118,
+    97 against 99. Counts, not defects.
+  * THREE FILES ARE THE TUTORIAL LANE'S: `test_docs_media_budget`,
+    `test_the_name_is_spaCR` (spellings in
+    `tools/tutorials/authoring/tools/capture_install_web.py` and
+    `translate_pre_app.py`) and `test_tutorial_release_audit`.
+  * ONE ORDER-DEPENDENT FILE, `test_home_v2.py`, which is the only
+    survivor of this item's original suspicion and the one thing here
+    still worth bisecting.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE ONE ORDER-DEPENDENT FAILURE IS FOUND, FIXED AND CONFIRMED
+--------------------------------------------------------------------------------
+
+The sweep left exactly one genuinely order-dependent failure:
+`tests/qt/test_home_v2.py::test_the_alpha_and_beta_lists_are_the_ones_that
+_were_asked_for`, green in a run of 163 and red in company. It is the last
+survivor of this item's long-held suspicion that the Qt suite carries state
+between tests, and the suspicion was RIGHT about this one.
+
+THE CAUSE. `register_app()` writes TWO module-level globals -- it appends to
+`APPS` and it sets `APP_STAGE[key]`.
+`tests/test_cov_5_screen_factories.py::test_registering_a_screen_twice_adds
+_one_row` registered a screen, then restored `APPS` by removing its row and
+left `APP_STAGE[key]` behind. The failing test reads both:
+
+    for key, _name, _desc, _section in APPS:
+        by_stage.setdefault(app_stage(key), set()).add(key)
+    assert by_stage["alpha"] == ALPHA_MODULES
+
+so a stage left in the dict for a key no longer in `APPS` is a module the
+lists do not know about, whenever the two files land in the same process
+and in that order.
+
+HOW IT WAS FOUND, and the method is the transferable part. The bisect had
+to start by reproducing, and the first attempt FAILED TO: running the
+chunk's first nine files in file order gave 255 passed. The reason is that
+the naming run did not pass `-p no:randomly`, so `pytest-randomly` had
+shuffled the order and "the files before it" was not a fixed set.
+Re-running the whole chunk with FIXED SEEDS reproduced it on 1, 2 and 3.
+
+    A BISECT THAT CANNOT REPRODUCE IS MEASURING THE WRONG THING, and the
+    seed is part of the reproduction. Record it.
+
+CONFIRMED AFTER THE FIX, not assumed. Same chunk, same three seeds:
+
+    before   2 failed, 1154 passed
+    after    1 failed, 1155 passed   (seeds 1, 2 and 3 alike)
+
+and the one that remains is named:
+`test_i18n_caption_ratchet::test_external_caption_layer_is_complete_
+exclusive_and_pinned`, which is catalog staleness waiting on the merge from
+main and has nothing to do with ordering.
+
+AND A DETECTOR, so this class cannot come back quietly:
+`tests/qt/test_zz_the_app_registry_is_left_as_it_was_found.py` asserts every
+key with a STAGE still has a ROW. Proven against the real leak rather than
+a synthetic one -- with the restore taken back out it reports
+`['curate'] have a stage but no row in APPS`.
+
+SO THE SUITE'S ORDER-DEPENDENCE, AS OF TODAY, IS ZERO. One file, one cause,
+one line of restore, and a guard. That closes the question this item has
+carried since 345 and 346.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE DOCS DEPLOY, AND FOUR STACKED BLOCKERS EACH HIDING THE NEXT
+--------------------------------------------------------------------------------
+
+FROM THE HOME SESSION. The API site deployed -- run 34564787492, Sphinx
+success and Pages success, the first successful docs deploy since
+2026-08-10. Recorded here because three of the four blockers are traps in
+the CI pipeline this item owns, and because the fourth is a lesson about
+diagnosis that cost most of the time.
+
+  1. `ops_compose` had no API catalog entries at all, so the audit failed
+     closed. One module, 328 docs commits stuck behind it.
+
+  2. THE RUNTIME LANE WAS FAILING INDEPENDENTLY, on something unrelated --
+     instruction 388's bystander settings had reached main's CODE and not
+     main's runtime catalogs. `docs.yml` audits BOTH lanes and green on
+     one says nothing about the other. A half-fix was one command from
+     being pushed. (Also recorded in 83.)
+
+  3. THE JOB WAS HITTING ITS 30-MINUTE TIMEOUT, AND GITHUB REPORTS A
+     TIMEOUT KILL AS "cancelled" -- which reads exactly like a run
+     superseded by a newer push. Hours went into diagnosing it as the
+     cancellation storm this file already describes.
+
+         BEFORE BLAMING CONCURRENCY, CHECK WHETHER THE JOB'S DURATION
+         EQUALS ITS `timeout-minutes`. A cancelled run at 30:0x is a
+         timeout wearing a cancellation's label.
+
+     Raised to 60, and the time is measured rather than guessed: audit
+     24.2 min, build 3.8 min, install 1.4 min. PIP IS INNOCENT. Making the
+     audit cheaper is real open work and belongs to whoever next touches
+     the catalogs.
+
+  4. FOUR DUPLICATE IMPORTS broke `sphinx -W`, pre-existing from a merge
+     and only visible once the first three cleared. `diameter.py` imports
+     `SEGMENTED_ROLES` twice; `batch.py` imports from `.cancellation`
+     three times. AutoAPI records every local `from X import Y` as a
+     placeholder and resolves it later; a duplicate cannot register under
+     a full_name that already exists, survives to `create_class`, and
+     warns -- and that warning "intentionally has no (sub-)type", so it
+     cannot be suppressed narrowly. Only by silencing all of autoapi,
+     which would hide real breakage.
+
+STACKED BLOCKERS ARE THE SHAPE TO EXPECT HERE, and this item has met it
+before: "the audit runs FIRST and was failing on its own, so the Sphinx
+step never ran to report the other two". Fixing one and declaring the
+pipeline fixed is how a two-hour job becomes four.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- A COUNT THAT LINES UP IS NOT A CAUSE
+--------------------------------------------------------------------------------
+
+The methodological half of the above, and it nearly cost the fix.
+
+The first hypothesis MATCHED THE EVIDENCE PERFECTLY: `diameter.py` has
+exactly one module-level `Tuple[str, ...]` annotation and `batch.py`
+exactly three, against one and three warnings. Package-wide there are 457
+such annotations and four warnings.
+
+    IT WAS WRONG. The cause was duplicate imports, which happen to occur
+    the same number of times in the same two files.
+
+What found it was reading `autoapi/_mapper.py` and then PATCHING ITS
+LOGGER LOCALLY to print the offending names -- patch reverted afterwards
+and diffed against a backup.
+
+  THIS IS THE SAME LESSON THIS SESSION LEARNED FROM THE OTHER END TONIGHT.
+  Five hypotheses about a duplicated console line each fitted what was
+  visible -- the sink detached, a second forwarder, a second handler, a
+  stale singleton, a mis-set level -- and every one was wrong. The answer
+  was `filters == []`, found by printing the filter list rather than by
+  reasoning about the levels.
+
+  WHEN A THEORY FITS, THE NEXT STEP IS TO MEASURE THE THING IT PREDICTS,
+  NOT TO ACT ON IT. Both diagnoses turned on making the program say what
+  it actually held.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- "ORDER-DEPENDENCE IS ZERO" WAS TRUE OF ONE ORDERING. SEED 4 WAS
+NOT IT, AND THE SECOND CAUSE WAS IN THE FIRST FIX
+--------------------------------------------------------------------------------
+
+The 2026-09-10 note above closes with "SO THE SUITE'S ORDER-DEPENDENCE, AS
+OF TODAY, IS ZERO", confirmed on seeds 1, 2 and 3. SEED 4 FAILS THE SAME
+TEST, and did so immediately when it was tried. Three seeds agreeing is
+evidence about three orderings; the claim was about all of them.
+
+  A FIX CONFIRMED ON THE ORDERINGS THAT FOUND THE BUG IS CONFIRMED ON THE
+  ORDERINGS THAT FOUND THE BUG. Widening the seed set costs one command.
+
+THE SECOND CAUSE, and it is a different one. `APP_STAGE` left behind was
+real and is fixed. What seed 4 finds is the WHOLE REGISTRY GROWING: `APPS`
+goes from 39 rows to 44 and stays there, so `by_stage["alpha"]` gains
+`feature_explorer`, `trellis`, `outliers` and `control_chart`.
+
+THE REGISTRAR IS A MODULE-SCOPED FIXTURE.
+`tests/qt/test_home_variants.py::gen` runs the home-screen generators'
+`common.bootstrap()`, which registers. That file is entitled to the grown
+registry -- 89 of its tests read it -- and the growth must not outlive the
+file.
+
+AND `conftest`'s `_restore_app_registry` ALREADY EXISTED TO CATCH THIS AND
+STRUCTURALLY COULD NOT. It is function-scoped and snapshots at its own
+setup, which runs AFTER any module- or session-scoped fixture. So its
+snapshot already contains the registration and putting it back RE-INSTALLS
+it. The fixture is not wrong about anything it can see; it cannot see past
+its own scope.
+
+    A SAVE/RESTORE FIXTURE CANNOT UNDO WORK DONE BY A BROADER SCOPE THAN
+    ITS OWN. The same shape as `_widget_qss_registrars_loaded` in the same
+    file, which exists because two sandbox fixtures snapshot a lazily
+    filled global and restoring one DELETES entries. Written down there
+    for QSS and reproduced here for the app registry.
+
+THREE WRONG FIXES BEFORE THE RIGHT ONE, recorded because each looked
+finished:
+
+  1. A per-file fixture in the two files that call
+     `register_self_registering_modules()` directly. Fixed those two
+     pairs; seed 4 still failed. There was a third registrar.
+  2. The same fixture moved to `tests/qt/conftest.py`, function-scoped.
+     Still seed 4. Diagnosed by the detector PASSING IN THE SAME RUN where
+     `test_home_v2` failed -- the registry was clean when the detector
+     looked and grown when the alpha/beta lists did.
+  3. Function-scoped again, restoring to a SESSION-scoped baseline. Still
+     seed 4, and this one is the interesting failure: teardown runs in
+     reverse setup order, so it tore down BEFORE `_restore_app_registry`,
+     which then put its own post-registration snapshot back over the top.
+     TWO FIXTURES RESTORING TO TWO DIFFERENT FIXED POINTS, AND THE LATER
+     ONE WINS.
+
+WHAT FOUND IT, after three rounds of reasoning produced three wrong
+answers: a twenty-line pytest plugin that prints the registry length around
+every test's protocol, setup and teardown. It named the test in one run.
+
+    REGWATCH 39 -> 44 tests/qt/test_home_variants.py::test_every_categor...
+    SETUP-IN (39) ... SETUP-OUT (44) ... TEAR-IN (44) ... TEAR-OUT (44)
+
+  The same lesson as the duplicated console line and the autoapi warning,
+  for the third time in two days: PRINT THE STATE. Every hypothesis fitted
+  what was visible.
+
+THE FIX. `tests/qt/conftest.py` keeps `_restore_app_registry` for what it
+is good at -- a test that registers -- and gains
+`_the_app_registry_is_left_as_the_session_found_it`, MODULE-scoped and
+autouse, restoring to a session-start baseline when each file ends. Per
+module rather than per test because a module-scoped registrar's own file is
+entitled to see it; what must not happen is the registration outliving the
+file. Both drive off one `_app_registry_snapshot` / `_restore_app_registry_to`
+pair so the two fixed points cannot drift.
+
+CONFIRMED. chunk_014, seeds 4 and 1:
+
+    before   seed 4: 2 failed   seed 1: 1 failed
+    after    seed 4: 1 failed   seed 1: 1 failed
+
+and the one that remains on both is
+`test_i18n_caption_ratchet::test_external_caption_layer_is_complete_
+exclusive_and_pinned` -- the catalog staleness waiting on the merge from
+main, confirmed by running it against HEAD's own files.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE FULL SUITE, 2,754 FILES: 61,904 PASSED AND 28 FAILURES, AND
+WHAT EACH OF THEM WAS
+--------------------------------------------------------------------------------
+
+Run at `ae8bdb417`, the merge from main, in a DETACHED WORKTREE pinned to
+that commit -- because this file's own method says "nothing in spacr/ or
+tests/ may be touched until it finishes" and a night of work cannot honour
+that in the tree being worked in. Three chunks at a time, seed 288 recorded
+so any red chunk reproduces exactly. 69 chunks, about fifty minutes.
+
+    61,904 passed        28 distinct failing tests
+    2 chunks dead        exit 139 and exit 134, both crashes
+
+NOT ONE OF THE 28 WAS ORDER-DEPENDENCE, which is the headline. Two looked
+like it and were not:
+
+  * `test_provider_marks_uncovered_paths` is FLAKY, not order-dependent.
+    Two identically built `ProviderMark` widgets render differently about
+    a fifth of the time; fifteen runs of the same command, alone:
+
+        at ae8bdb417, before that night's Qt work   11/15
+        at the end of it                            13/15
+
+    A TEST THAT FAILS IN COMPANY AND PASSES ALONE IS NOT EVIDENCE OF
+    ORDERING, and ten runs are not enough to say which it is. This was
+    first blamed on the per-window stylesheet change on samples of ten,
+    and the larger sample says the pre-change tree is if anything the
+    flakier of the two. An open flake, and it belongs with that widget
+    rather than with this item.
+  * `test_the_count_controls_the_categories` went green with the registry
+    and environment fixtures and needed nothing of its own.
+
+THE TWO DEAD CHUNKS WERE ONE BUG EACH AND BOTH REPRODUCE ALONE.
+
+  exit 139: `qt_things_that_outlive_the_session` called `app.allWidgets()`
+  from `pytest_sessionfinish` and segfaulted. Forty files report as a dead
+  chunk with no summary; the `try/except` around it was never going to
+  help, because a segfault is not an exception. The count is taken between
+  tests now and the diagnostic reports the remembered number.
+
+  exit 134: two tests built a real `MetadataColumnDialog` without asking for
+  `qtbot`. Stubbing `exec` does not stop the dialog being CONSTRUCTED, and
+  constructing a QWidget with no QApplication does not raise -- Qt aborts.
+
+AND A THIRD CRASH THE CHUNKS DID NOT SHOW, found while fixing the second:
+`test_reading_a_scorecard_imports_neither_torch_nor_cellpose` pops `torch`
+out of `sys.modules` and never puts it back. That drops the last reference,
+and the garbage collector runs a C extension's teardown while the process
+is still using it -- a segfault inside `ast.parse`, in a different FILE,
+minutes later, in a test that has nothing to do with torch.
+
+    THREE CRASHES, THREE DIFFERENT MECHANISMS, AND EVERY ONE OF THEM
+    REPORTS AS SOMEBODY ELSE'S PROBLEM. That is the argument for running
+    the whole suite in one sweep rather than per file: none of the three
+    is visible from the file that contains it.
+
+THE OTHER 25, BY WHAT THEY WERE:
+
+  RATCHETS NOBODY HAD RUN (9). The docstring inventory, the callable count,
+  the category counter, the rendered count, the variant counts, the
+  parameter counts, the signature digest, the documentation symbol count,
+  the shipped-module denominator. Every one of them was last moved at
+  `d9f02e709`, 144 commits before main's tip, so every one failed on main
+  too. Reviewed by building the inventory at both commits and diffing:
+  45 symbols added, 0 removed, all nine attributable to a named item.
+
+  CATALOG AND EVIDENCE (6). The caption ratchet's counts went DOWN for the
+  first time; the French reviewed count moved with 364's deleted settings;
+  `press Escape to close` had lost the key name in eight of nine locales;
+  the coverage report and the review-scope table were stale; one Icelandic
+  block came back as English because the docstring it renders named a test
+  and quoted a comment.
+
+  STALE EXPECTATIONS AGAINST FIXED CODE (3). Two tests still expecting
+  `expected_end must be a positive integer` after 364 renamed it, and one
+  expecting `positive_control=` after the same rename.
+
+  REAL DEFECTS FROM MAIN (4). `timm` imported and declared nowhere;
+  `dose_response.__all__` exporting a function that does not exist; a test
+  that asserts nothing; four published docstrings naming an instruction.
+
+  LEAKS (2). The app registry, and `SPACR_NO_GL` -- `monkeypatch.delenv`
+  on an absent name records nothing to put back.
+
+  ARTEFACTS (1). Three archived installers a release commit removed as a
+  side effect.
+
+LEFT RED, AND NAMED: three in Codex's tutorial tree (see 358), and the API
+catalogs, which are rebuilding as this is written.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE ONE GENUINELY ORDER-SENSITIVE FAILURE LEFT, WITH ITS
+REPRODUCTION AND THE MECHANISM THAT EXPLAINS IT
+--------------------------------------------------------------------------------
+
+`tests/qt/test_the_count_controls_the_categories.py::
+test_an_object_with_no_channel_brings_no_settings`
+
+    E  AssertionError: nucleus brought 3 settings unasked
+    E  assert ['nucleus_background', 'nucleus_min_area', ...] == []
+
+REPRODUCTION, and the seed is part of it: chunk_020 of the 40-file split of
+`find tests -name "test_*.py" | sort`, `-p randomly --randomly-seed=288`.
+Fails there every time. 6/6 green alone, 17/17 green as a whole file.
+
+PRE-DATES TONIGHT'S Qt WORK. Present at `ae8bdb417` -- the merge from main,
+before the per-window stylesheet and the translation change -- in the same
+chunk at the same seed. Not caused by either.
+
+A BISECT BY HALVES DID NOT REPRODUCE IT, and the reason is this file's own
+rule, which I broke again: both halves plus the target passed, because both
+runs used `-p no:randomly` and the failure needs seed 288's shuffle.
+Halving the file list changes the shuffle anyway, so a seeded bisect of a
+SUBSET is not the same ordering either. A different method is needed for
+this one.
+
+A MECHANISM WAS PROPOSED HERE AND MEASURED FALSE, which is recorded
+because the measurement left a better lead than the guess did.
+
+THE GUESS. `SettingsWidgets._set_row_visible` has an early return -- "NOT
+UNTIL THE SCREEN HAS TAKEN THE WIDGET ... if widget.parentWidget() is None:
+return" -- so a row not yet parented when the object rule runs is silently
+left visible. A timing-sensitive no-op, and timing is what an ordering
+changes. It fits perfectly.
+
+IT IS NOT THE CAUSE. Counted with a plugin that wraps that method, the
+early return fires in the PASSING run too:
+
+    failing (chunk_020, seed 288)   parentless 6,228   row 15,179
+    passing (the file alone)        parentless 1,442   row  7,260
+
+It is ordinary, it happens constantly, and it does not discriminate.
+
+WHAT THE SAME COUNT DID FIND, and this is the lead. The two runs do not
+handle the same SET of nucleus keys. Three appear in the failing run and in
+neither the passing one nor its panel:
+
+    nucleus_mask_dim     nucleus_max_size     nucleus_min_size
+
+So the failing panel is built from a DIFFERENT SETTINGS SHAPE, not from the
+same shape mis-hidden. That points at the defaults or the settings
+dictionary the panel is built from being mutated by something earlier in
+the process -- process-global state of the kind this item has now found
+four times tonight -- rather than at the visibility rule at all.
+
+  WHOEVER TAKES IT: instrument what the panel is BUILT FROM, not what the
+  rule does to it. The rule has been ruled out by measurement.
+
+--------------------------------------------------------------------------------
+2026-09-11, LATER -- FOUR MECHANISMS PROPOSED, FOUR MEASURED FALSE, AND WHAT
+IS ACTUALLY KNOWN
+--------------------------------------------------------------------------------
+
+Recorded at this length because the NEGATIVE results are the useful part:
+each one is a plausible story somebody else would otherwise spend the same
+hours on.
+
+  1. A parentless early return in `_set_row_visible` silently leaves a row
+     visible. FALSE: it fires 1,442 times in the passing run and 6,228 in
+     the failing one. Ordinary, and not a discriminator.
+
+  2. The panel is built from a different settings shape.  FALSE:
+     `resolve_default_settings("mask")` returns the identical 193-key dict
+     in both, with `has_registered_defaults` False both times. Verified
+     that it is a FRESH dict each call and that mutating one does not
+     reach the next.
+
+  3. `CHANNELLED_OBJECTS` or `object_of_setting` has been mutated, so the
+     rule cannot recognise a nucleus key. FALSE: at the moment of a wrong
+     show it reads `('cell', 'nucleus', 'pathogen')` and resolves
+     `nucleus_background` to `'nucleus'` correctly.
+
+  4. The role's switch is not on the panel when the rule runs, so
+     `if not switches: continue` skips it -- which the rule does on purpose,
+     "hiding a row whose switch lives on another screen would leave the
+     user a control they cannot bring back". FALSE for the mask panel:
+     `channel_on_panel=True`, `switches_on_panel=['nucleus_channel']`.
+
+AND THE OBSERVATION THAT LOOKED LIKE A SMOKING GUN IS CONTAMINATED, which
+is the part most worth writing down. A probe on `_set_row_visible` reported
+27 nucleus rows SHOWN while `nucleus_channel` read None, zero such in the
+passing run -- a perfect discriminator. IT IS NOT EVIDENCE: the probe
+re-reads `_object_visibility_settings()` at show time, which is not the
+snapshot the rule decided on. A channel that read `'1'` when the rule ran
+and `None` a moment later produces exactly that reading, and the rule was
+right both times.
+
+    MEASURING THE INPUT AT THE WRONG MOMENT IS THE SAME CLASS OF MISTAKE AS
+    MEASURING THE WRONG TREE, and it produced a cleaner-looking signal than
+    any of the four wrong mechanisms did. A discriminator that separates
+    pass from fail perfectly is still worthless if the quantity was sampled
+    after the decision it claims to explain.
+
+WHAT IS SOLIDLY KNOWN, and it is all a next session should rely on:
+
+  * it reproduces every time at chunk_020 of the 40-file split, seed 288;
+  * 6/6 green alone and 17/17 green as a whole file;
+  * it pre-dates the 2026-09-11 Qt work -- present at `ae8bdb417`;
+  * the failure is three nucleus rows visible that the rule should have
+    hidden, `nucleus_background` and `nucleus_min_area` among them;
+  * every wrong show goes through `refresh_object_visibility` itself. No
+    foreign caller shows those rows.
+
+  THE NEXT PROBE TO WRITE wraps `keys_hidden_by_their_object` and records
+  the `settings` mapping it was HANDED together with the set it RETURNED.
+  That is the only pair that cannot be contaminated by a later re-read, and
+  it answers in one run whether the rule decided wrongly or was decided
+  wrongly for.
+
+--------------------------------------------------------------------------------
+2026-09-11, LATER STILL -- IT IS A STALE PASS, NOT A WRONG ONE. THE RULE IS
+NEVER ASKED AGAIN AFTER THE CHANNEL EMPTIES
+--------------------------------------------------------------------------------
+
+The probe above was written and run, and then one more that reads the
+FAILING TEST'S OWN PANEL through `item.funcargs` rather than any aggregate.
+Together they settle it.
+
+  `keys_hidden_by_their_object`, asked 279 times in the failing run:
+
+      wrong answers: 0
+      ('None', 19 gated, 0 still shown) x50
+      ('1',    19 gated, 19 still shown) x25
+      ('2',    19 gated, 19 still shown) x8
+
+  THE RULE IS NEVER WRONG. With no channel it hides all nineteen, every
+  time. With a channel it shows all nineteen, correctly.
+
+  Every hide it orders also LANDS. Watching each hide attempt through to
+  the widget, in the failing run: 437 through a form row and 190 through
+  the parentless path, and in all 627 the widget is hidden afterwards.
+  So mechanism 1 above is dead twice over.
+
+  AND THE TEST'S OWN PANEL SAYS WHY:
+
+      the test's panel id=... nucleus_channel=True
+      shown_now=['nucleus_background', 'nucleus_intensity_merge',
+                 'nucleus_min_area']
+      decisions recorded for THIS panel: 266
+      last decision for each shown row: [(...,True), (...,True), (...,True)]
+
+  THE LAST DECISION FOR ALL THREE WAS *SHOW*. Not a missed hide, not a
+  dropped hide -- a deliberate show, ordered by a pass that ran while the
+  channel HELD A VALUE, and never revisited after it emptied.
+
+SO THE DEFECT IS A STALE PASS. The object rule is correct, is applied, and
+is simply not asked again between the channel being cleared and the panel
+being read. `refresh_object_visibility` early-returns while
+`_applying_settings` is set -- deliberately, because a half-poured settings
+file would narrow a slot to the wrong morphology and then narrow it again --
+and relies on `_refresh_setting_dependencies` running at the end of the bulk
+apply to catch up. A bulk apply that ends without that call, or leaves the
+flag set, leaves exactly this: nineteen rows decided against a channel that
+no longer has a value.
+
+  WHERE TO LOOK, and it is a small target now: every path that clears an
+  object's channel, and whether `_applying_settings` is still True when it
+  does. Not the rule, not `_set_row_visible`, not the defaults, and not the
+  ordering except as the thing that changes which path runs.
+
+  WHY THE ORDERING MATTERS AT ALL: the three rows that survive are the ones
+  whose last pass happened to be a channel-set one. Under a different
+  ordering the last pass is a channel-empty one and the test passes, which
+  is why this looks like order-dependence and is really a missing refresh.

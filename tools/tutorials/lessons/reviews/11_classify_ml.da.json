@@ -1,0 +1,28 @@
+{
+  "lesson": "11_classify_ml",
+  "english_sha256": "a6ecbf0577a4a51b13206840d8914da097584eecf2fc0f3b8107ca17648528cf",
+  "review_type": "source-pinned editorial caption translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "da",
+  "title": "Classify: maskinlæring på tabeldata",
+  "description": "Brug Classify med målte celler, der kan downloades, tydelige metadatalabels, en lille random forest, den faktiske konsol og gemte forudsigelser.",
+  "objectives": [
+    "Vælg tabelfamilien, og indlæs det målte eksempel gennem datavælgeren.",
+    "Definér klasser efter pladekolonne, og skeln mellem den ønskede andel og de faktisk tilbageholdte brønde.",
+    "Undersøg figurer, manglende scorer og resultater uden at gøre demonstrationsnøjagtighed til biologisk validering."
+  ],
+  "prerequisite": "Vælg Load test data og derefter Load i Classify, ikke Stream. Eksemplet har 2.341 objekter i fire brønde; 2.153 beholdes, og 188 mangler score, fordi der ikke findes tilsvarende kernedata. c1 er klasse nul og c2 klasse ét: pladekolonner, ikke verificerede fænotyper. Indstillinger: random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False, plot=True. Sæt test_size=0.1 svarende til test_split=0.1: den aktuelle normalisering kasserer en anden ML-værdi; fejlen er rapporteret. To brønde og 1.035 objekter holdes tilbage, uden fælles brønde i træning og test. Egenskabsfiltrering sker før opdelingen; permutationsvigtighed bruger træningsdata. Nøjagtighed: 0.6202898551; flertalsklassens reference: 0.5632850242. Ni måleværdier og 2.153 gemte forudsigelser er kontrolleret uafhængigt. API: spacr.classify.classify kalder spacr.ml.generate_ml_scores. Resultater: results/random_forest/channel_1; predictions er den binære klasse, ml_pred sandsynligheden for klasse ét. Kun tre faktiske figurer vises; ingen påstand om SHAP, kalibrering, årsagssammenhæng eller biologisk validering. Intet AI-spørgsmål blev sendt.",
+  "scenes": [
+    "Åbn Classify fra Home, og vælg Tabular Machine Learning som klassifikatorfamilie. Dette er den samlede Classify-skærm, ikke en separat ML-app. Den lærer fra gemte målinger for hvert objekt. Indstillinger til computervision kan stadig være synlige, men nedtonede, fordi de tilhører den anden familie.",
+    "Klik på Load test data, og vælg Load. Det målte eksempel downloades, og dets stier klargøres; Stream er en anden mulighed. I dit eget projekt skal du først gennemføre Measure og vælge projektmappen. Antag ikke, at en vilkårlig billedmappe allerede indeholder den nødvendige måledatabase.",
+    "Brug metadata som grundlag, og definér to Classes fra columnID: c1 og c2. Her er de labels for pladekolonner, der bruges til at forklare arbejdsgangen, ikke uafhængigt bekræftede raske og påvirkede celler. Annotationsbaseret træning kræver rigtige labels fra Annotate. Gør aldrig manglende annotationer til opdigtede facitlabels.",
+    "Channel of interest vælger de målte egenskaber. Vi bruger kanal ét uden at tilskrive den en ubekræftet biologisk betydning. Kontrollér optagelses- og måleindstillinger, før du vælger en kanal i dine egne data. Valget af en egenskabskanal her segmenterer eller måler ikke billederne igen.",
+    "Vælg Random Forest og seksten estimatorer til denne lille demonstration med to arbejdsprocesser. Det er ikke en anbefaling af en optimeret model. Vi slår superviseret egenskabsudvælgelse og krydsvalidering fra. Deaktivering af krydsvalidering fjerner ikke det særskilte testsæt, der holdes tilbage i denne kørsel.",
+    "Sæt teststørrelsen til en tiendedel, og behold gruppering efter brønd. En ønsket andel er ikke et nøjagtigt antal objekter: dette eksempel med fire brønde tilbageholder to hele brønde, cirka otteogfyrre procent af de bevarede objekter. Begge klasser findes på hver side, og ingen faktisk brønd indgår både i træning og test.",
+    "Slå Plot til, ryd søgningen, og tryk Run. Konsollen registrerer de afklarede indstillinger, filtreringen, opdelingen og modellens rapport. Gem loggen sammen med resultaterne. En færdigmarkering dokumenterer ikke, at dine labels, dit valideringsdesign eller din biologiske fortolkning var passende.",
+    "Denne kørsel giver en score til to tusind et hundrede treoghalvtreds objekter. Et hundrede otteogfirs mangler tilsvarende kernedata og forbliver uden score, ikke negative. Den gemte testnøjagtighed er cirka toogtres procent mod seksoghalvtreds procent for flertalsklassen. Fire brønde på én plade dokumenterer ikke generalisering til et nyt forsøg.",
+    "Der er tre figurer: permutationsvigtighed, træernes egenskabsvigtighed og dette varmekort over pladen. Med Predictions og middelværdigruppering beregner kortet gennemsnittet af binære forudsagte klasser, ikke deres sandsynligheder. Vigtighed er ikke årsagssammenhæng; permutation bruger træningsdata. Undersøg de gemte tabeller, før du drager konklusioner fra en farverig figur.",
+    "AI-kontakten giver mulighed for spørgsmål om arbejdsgangen med hjælp fra en udbyder. Dette er en kladde, der ikke er sendt, ikke et genereret svar. Gem resultater med indstillinger, og kontrollér alle råd. De underordnede værktøjer har egne inputkrav: Explain-vejledningen bruger computervisionsscorer, ikke disse ML-resultater. AI erstatter ikke kontrol af labels og opdelingens identiteter."
+  ]
+}

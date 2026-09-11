@@ -1,0 +1,31 @@
+{
+  "lesson": "53_prediction_profiler",
+  "english_sha256": "e79348e5af21ca603ddc91a2de7b689558863b2ea4b34ff4f36533af1c54b34f",
+  "review": {
+    "kind": "Editorial caption translation from frozen English; quantitative and synthetic-data caveats preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Prediktionsprofil",
+  "description": "Importera en modell anpassad till syntetiska data och kontrollera hur fasta värden och diagraminställningar påverkar prediktionerna.",
+  "objectives": [
+    "Öppna Prediction Profiler i Regression och importera lämpliga koefficienter.",
+    "Skilj på modellanpassning, invers länk, antagna intervall och diagramupplösning.",
+    "Jämför båda indata, ändra fasta värden och återställ mittpunkterna."
+  ],
+  "prerequisite": "Packa upp SYNTHETIC-exemplet i en ny mapp. Det innehåller 121 konstruerade observationer, koefficienter från en verklig OLS-anpassning med statsmodels, manifest och reproducerbart skript. Ingen biologisk validering eller validering på undanhållna data påstås. GUI läser feature/coefficient och Intercept, inte observationerna, och anpassar inte modellen. Behåll identity. Filvägen antar två rader med intervallen 0..1 och fasta värden 0.5. Rangordningen använder 0.05..0.95; kurvan täcker 0..1. 338 kurvvärden och tolv rangordningsvärden är oberoende kontrollerade. Separata marginella permutationseffekter ersätter inte en gemensamt anpassad prediktionsmodell. API: spacr.profiler.from_coefficients, profile, sensitivity; ProfilerScreen.set_model/set_design är programmeringsgränssnitt, inte filväljare. Inga konfidensintervall, kausala slutsatser, publicering eller godkännande efter avlyssning påstås.",
+  "scenes": [
+    "Öppna Regression och sedan Prediction Profiler bland dess underordnade verktyg. Lektionen använder ett tydligt märkt syntetiskt undervisningsexempel, inte biologiska screeningresultat. Vi undersöker en anpassad modell genom att variera en indata och hålla den andra fast. Profileraren läser modellen; den tränar inte en ny.",
+    "Ladda ned och packa upp exemplet och använd Browse för att öppna filen med syntetiska OLS-koefficienter. Den innehåller en interceptterm och två anpassade indatakoefficienter. Arkivet innehåller också observationerna och förberedelseskriptet. Koefficienterna kommer från en verklig minsta-kvadratanpassning till konstruerade data, inte påhittade regressionsresultat.",
+    "Behåll Link på identity eftersom exemplet anpassades med ordinära minsta kvadratmetoden. Andra länkar hör till andra modellfamiljer; väljaren omvandlar eller tränar inte om originalmodellen. En rimligt utseende kurva på fel responsskala är fortfarande fel. Använd länken från anpassningen.",
+    "Läs statusmeddelandet: ingen designmatris har lämnats, så filimporten antar att varje indata varierar från noll till ett. Våra syntetiska indata har det intervallet, men dina behöver inte ha det. Rangordningen använder femte och nittiofemte percentilen; Moves by är inte skillnaden mellan kurvans fullständiga ändpunkter.",
+    "Indata A är vald för svepet. Flytta reglaget för B från mittpunkten till ett. Den predikterade responsen sjunker eftersom B har en negativ anpassad koefficient. Det ändrar scenariot med fasta värden, inte träningsdata eller koefficienter. Läs även de numeriska ändpunkterna, inte bara linjens form.",
+    "Flytta B till noll och jämför igen. Responsen stiger. Diagrammet skalar om sin vertikala axel, så parallella linjer kan motsvara olika responsnivåer. Detta är prediktioner inom en antagen modell, inte belägg för att en ändring av B skulle orsaka en experimentell effekt.",
+    "Reset held values återställer reglagen till mittpunkterna i de antagna intervallen, här en halv. Modellen anpassas inte på nytt. När bara koefficientfilen importeras är mittpunkten inte en median uppmätt i originaldata: dessa data laddades aldrig i profileraren.",
+    "Välj B i den rangordnade listan. Nu varierar B längs den horisontella axeln medan A hålls vid en halv. Den fallande kurvan motsvarar B:s negativa koefficient. Listan rangordnar modellkänslighet; den är inget signifikanstest, konfidensintervall eller lista över validerade biologiska träffar.",
+    "Ändra Points från sextioett till elva. Det väljer hur många positioner som beräknas för kurvan, inte stickprovsstorlek eller anpassningens kvalitet. Vårt linjära exempel behåller ändpunkterna. Fler ritpunkter lägger inte till observationer, minskar inte osäkerheten och förbättrar inte en redan anpassad modell.",
+    "Med B fortfarande vald, flytta A till ett och läs de nya responsändpunkterna. Återställ sedan värdena. För egna analyser behövs koefficienter från en lämplig anpassad modell; kontrollera länk, intercept, kodning och intervall. Ersätt inte en gemensamt anpassad prediktionsmodell med separata effekter från permutationstest."
+  ]
+}

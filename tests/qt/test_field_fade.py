@@ -480,7 +480,11 @@ def test_applying_preferences_installs_the_hook_and_the_block(prefs_sandbox,
 
     _apply(qapp)
     assert "FieldFade" in theme_mod.widget_qss_names()
-    assert "registered widget QSS: FieldFade" in qapp.styleSheet()
+    # THE SHEET IS ON THE WINDOWS, NOT ON THE APPLICATION, since 380's
+    # last lever moved it there -- a preference save with four modules
+    # open went from 10.2 s to 3.1 s. `qapp.styleSheet()` is empty by
+    # design now.
+    assert "registered widget QSS: FieldFade" in theme_mod.window_stylesheet(qapp)
     assert ff._filter is not None
 
     # Idempotent: applying preferences again does not stack filters.

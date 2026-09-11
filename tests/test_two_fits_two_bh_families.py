@@ -390,7 +390,7 @@ def test_two_fits_write_their_figures_to_separate_folders(tmp_path):
 
 def _settings(**over):
     base = {
-        "controls": [],
+        "nontargeting_control_grnas": [],
         "threshold_method": "std",
         "threshold_multiplier": 3.0,
         "multiple_testing_method": "fdr_bh",

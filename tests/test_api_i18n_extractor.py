@@ -957,7 +957,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # old and had never shipped, which is the case the note calls cheap,
     # and they were withdrawn because none of the four symbols behind
     # them was API -- each has exactly one caller inside the package.
-    expected = 10_294
+    # 10,294 -> 10,339 on 2026-09-11, +45/-0. A RISE, which this comment's
+    # own warning says is the ordinary direction, and every one of the
+    # forty-five is a public symbol a named item added: 386's embedding
+    # engine, 372's composed OPS window, 388's bystanders and point
+    # patterns, 387's selectivity and synergy surfaces, 370's scorecard,
+    # 377's infection guard, and 380's two per-window stylesheet helpers.
+    # Four are new MODULES and bring their own module docstring with them.
+    # The nine catalogs were regenerated against this inventory first.
+    expected = 10_339
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -975,7 +983,22 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # ALIASES ARE ZERO NOW, so this equals `expected`. The assertion is kept
     # rather than collapsed: the day an alias is legitimately added, this is
     # what fails separately from the surface count and says so.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_294
+    # 10,294 -> 10,339 on 2026-09-11, +45/-0, with the merge from main and
+    # one night's Qt work. Reviewed by building the inventory at
+    # `d9f02e709` -- where these numbers were last moved -- and at the
+    # merge, and diffing the SETS rather than trusting the arithmetic:
+    #
+    #     9  spacr.embeddings          386     3  spacr.model_zoo      370
+    #     9  spacr.ops_compose         372     2  spacr.scorecard      370
+    #     7  spacr.bystanders          388     2  spacr.qt.theme       380
+    #     7  qt.widgets.dose_response  387     1  spacr.infection      377
+    #     5  spacr.point_patterns      388
+    #
+    # Four of those are new MODULES, so each brings its own module
+    # docstring as well. The nine catalogs were regenerated against this
+    # inventory before the number was touched, which is the order this
+    # file's own message asks for.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_339
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1097,7 +1120,9 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # `app.py` -- none of the four was API, and twelve entries were
     # about to be translated into nine languages for helpers nobody
     # outside the package calls.
-    assert 10_519 - len(docs) == 225
+    # 225 -> 180 with the same +45: the boundary itself did not move,
+    # so the difference shrinks by exactly what the surface gained.
+    assert 10_519 - len(docs) == 180
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

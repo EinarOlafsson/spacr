@@ -1,0 +1,31 @@
+{
+  "lesson": "19_train_cellpose",
+  "english_sha256": "524f011def972d4ba17df823927da3ab8f2c84e0301df7903737e67717246384",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "pt-BR",
+  "title": "Train Cellpose: pares verificados e alternativa explícita pela API",
+  "description": "Encontre Train no Cellpose Workbench, reconheça a falha de importação da origem e acompanhe um treinamento Python real de duas épocas com seis pares baixáveis de imagem e máscara celular.",
+  "objectives": [
+    "Encontrar Train e Apply dentro de Make Masks, não como blocos Home separados.",
+    "Conferir nomes pareados e distinguir rótulos existentes de referência revisada.",
+    "Reconhecer importação parcial e separar a API da GUI defeituosa.",
+    "Inspecionar entradas, aquecimento, pesos alterados e caminho confirmado.",
+    "Distinguir perda de treino, campos de teste vazios e leitura dos pesos de acurácia independente."
+  ],
+  "prerequisite": "Use os seis pares, script gravado e manifesto do pacote. Os recortes preservam intensidade celular no canal 1 e máscara celular no plano 4 de campos reais; plano 6 é patógeno. Rótulos e objetos cortados NÃO são referência revisada independentemente. Train ainda descarta src e mantém model_name=new_model apesar da importação numérica; nenhum treino GUI começa. A chamada spacr.submodules.train_cellpose usa destino novo, duas épocas, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512 e nenhum aumento extra spaCR. normalize=False desliga os percentis spaCR, não a divisão pelo máximo nem a normalização Cellpose. Rotação e redimensionamento internos continuam, com recortes de 256. Semente 19 na entrada; aleatoriedade interna mantida. CUDA limitado a 65% na RTX 3090, guarda de RAM 100 GiB adequada só a esta estação. Conferidos 3,145,728 valores e doze painéis; seis pares permaneceram no treino. Taxas 0 e 1.1111111111111112e-6; mudaram 345 de 347 tensores treináveis. Perda subiu de 1.496740683913231 a 1.5215517828861873. Sem teste: zeros são campos reservados. Checkpoint em models/cellpose_model/models lido com weights_only=True; resumo omite o segundo models. Leitura não é inferência nem validação de acurácia. Figura real em visualizador externo, sem inserção GUI. Originais, falhas e bloqueio GUI anterior preservados. Sem pedido AI, resposta, aprovação científica ou publicação.",
+  "scenes": [
+    "Abra Make Masks e depois seu Cellpose Workbench integrado. Train e Apply são abas internas, não blocos separados no Home. A lição mostra o caminho atual, um problema de importação e uma alternativa Python explícita. A lição Make Masks vinculada ensina a inspecionar e editar máscaras antes de treinar.",
+    "Em Train, confira ponto de partida e programação do treinamento. Não copie épocas ou taxa iniciais como recomendação. São necessárias imagens e máscaras de instâncias pareadas, pasta de origem e nome de saída. Ver um formulário não significa que esses requisitos estejam atendidos.",
+    "O seletor real Import settings abre um CSV com ajustes limitados. Depois aparecem duas épocas, minibatch um e taxa pequena. Porém, a origem obrigatória é descartada e o nome solicitado continua new model. É uma importação parcial, não uma configuração pronta: não pressione Run.",
+    "A rota Python seguinte é separada dessa falha GUI. Ela não preenche uma origem oculta nem conserta o formulário. Use o pacote vinculado em uma pasta nova. O script recusa destinos existentes, preserva os pares originais e registra exatamente a implementação da API e as entradas usadas.",
+    "São seis pares reais de imagem e máscara de quinhentos e doze pixels, com nomes correspondentes. Os ajustes originais identificam intensidade celular no canal um e máscara no plano quatro; seis é patógeno. Esses rótulos não são referência revisada independentemente. Confira limites e objetos cortados antes de treinar para produção.",
+    "Esta é a figura real dos seis pares salva pela API e aberta em visualizador externo, não inserida no spaCR. Cada imagem superior corresponde à máscara abaixo. Conferimos todos os valores de entrada e os doze arrays exibidos com as fontes. Isso verifica correspondência, não qualidade da anotação.",
+    "Execute o script com a origem e um destino novo. O exemplo CUDA limitado usa seis pares, duas épocas e minibatch um. O alvo de entrada tem quinhentos e doze pixels; Cellpose treina internamente com recortes de duzentos e cinquenta e seis. Desligar aumentos extras do spaCR não desliga normalização, rotação e redimensionamento internos do Cellpose.",
+    "A primeira época de aquecimento tem taxa zero. A segunda usa uma taxa positiva pequena, permitindo atualização real. Comparando checkpoint e pesos iniciais, mudaram trezentos e quarenta e cinco de trezentos e quarenta e sete tensores treináveis. Só mudar o diâmetro não passaria nessa verificação. Pesos alterados ainda não provam um bom modelo.",
+    "A perda de treino subiu um pouco, de aproximadamente um vírgula quatro nove sete para um vírgula cinco dois dois. Não foi fornecido conjunto de teste. Seus campos de perda zero são reservados, não desempenho perfeito. É uma demonstração mecânica, não convergência, segmentação melhor ou acurácia independente. Separe avaliação e treinamento.",
+    "Use o caminho do checkpoint no arquivo de verificações. Ele contém um segundo diretório models omitido pelo resumo genérico. Guarde checkpoint, ajustes, manifesto e verificações juntos. Carregar seus tensores com segurança confirma um arquivo legível, não uma inferência; o pacote fornece pares e script, não um modelo certificado.",
+    "Apply tem origem própria, campo de modelo personalizado e prévia ao vivo. Abrir a aba não seleciona nosso checkpoint externo nem executa inferência. Siga a lição vinculada e valide com imagens independentes. spaCR AI não é usado aqui: nenhuma pergunta ou resposta substitui examinar as evidências reais."
+  ]
+}

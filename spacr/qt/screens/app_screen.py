@@ -982,7 +982,15 @@ class _LateCaptionTranslator(QObject):
         try:
             from ..i18n import retranslate_widget_tree
 
-            retranslate_widget_tree(widget)
+            # ONLY WHAT IS NEW. A module screen is assembled over several
+            # event turns and each large container parented in triggers
+            # another near-root pass, so the tree was being translated
+            # roughly three times over: measured at 13 passes and 23,454
+            # widget visits for one Measure screen, of which three passes
+            # were 22,750. The stamp `retranslate_widget_tree` leaves
+            # carries the language and the catalog generation, so a language
+            # change or a newly catalogued row still reaches every widget.
+            retranslate_widget_tree(widget, only_new=True)
             # AND THE HELP GOES BACK ONTO THE NAMES. The pass above walks
             # every widget carrying a `settingKey` and re-applies its
             # tooltip, which is what kept putting the help back on the

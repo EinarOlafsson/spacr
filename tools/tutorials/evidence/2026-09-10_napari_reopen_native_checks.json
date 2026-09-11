@@ -1,0 +1,404 @@
+{
+  "native": {
+    "lesson": "46_napari_bridge",
+    "accepted": true,
+    "synthetic": true,
+    "original_source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_1.npy",
+    "original_sha256": "efb9f56a60cd27a3dd7b789daf95db2f73269b5670070eb234a9b267678e75a1",
+    "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/napari_runs/SYNTHETIC-private-round-trip-d7du8c6y",
+    "napari_version": "0.9.1",
+    "app_source_modified": false,
+    "published": false,
+    "biological_corrections_validated": false,
+    "checks": {
+      "01_make_masks_host": {},
+      "02_actual_bridge": {},
+      "05_ready_to_open": {
+        "status": "mask.tif: 16 object(s), 256x256"
+      },
+      "06_actual_napari_layers": {
+        "mask": {
+          "passed": true,
+          "pixels": 65536,
+          "labels": [
+            0,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ]
+        },
+        "names": [
+          "image",
+          "mask"
+        ]
+      },
+      "07_unchanged_round_trip": {
+        "status": "The mask came back unchanged; nothing was written.",
+        "no_writes": true
+      },
+      "08_fill_one_synthetic_object": {
+        "mask": {
+          "passed": true,
+          "pixels": 65536,
+          "labels": [
+            0,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ]
+        },
+        "old_label": 2,
+        "new_label": 18,
+        "changed_pixels": 2197,
+        "native_click": [
+          753,
+          274
+        ],
+        "data_pixel": [
+          29,
+          13
+        ]
+      },
+      "09_actual_napari_undo": {
+        "mask": {
+          "passed": true,
+          "pixels": 65536,
+          "labels": [
+            0,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ]
+        }
+      },
+      "10_refill_before_import": {
+        "mask": {
+          "passed": true,
+          "pixels": 65536,
+          "labels": [
+            0,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ]
+        },
+        "old_label": 2,
+        "new_label": 18,
+        "changed_pixels": 2197,
+        "native_click": [
+          753,
+          274
+        ],
+        "data_pixel": [
+          29,
+          13
+        ]
+      },
+      "11_imported_and_recorded": {
+        "status": "mask.tif: 2,197 pixel(s), 1 object(s) added, 1 removed. Recorded in mask.tif.curation.json.",
+        "mask": {
+          "passed": true,
+          "pixels": 65536,
+          "labels": [
+            0,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ]
+        },
+        "ledger": {
+          "artifact": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/napari_runs/SYNTHETIC-private-round-trip-d7du8c6y/mask.tif",
+          "edits": [
+            {
+              "detail": {
+                "added": [
+                  18
+                ],
+                "altered": [],
+                "removed": [
+                  2
+                ],
+                "via": "napari"
+              },
+              "kind": "napari",
+              "n_changed": 2197,
+              "target": [
+                18
+              ],
+              "when": "2026-09-11T03:24:43+00:00",
+              "who": "olafsson"
+            }
+          ],
+          "schema_version": 1,
+          "source": "spacr napari bridge"
+        }
+      },
+      "12_second_import_is_noop": {
+        "status": "The mask came back unchanged; nothing was written.",
+        "no_writes": true
+      },
+      "12d_closed_before_next_edit": {
+        "status": "The mask came back unchanged; nothing was written.",
+        "viewer_released": true
+      },
+      "13_reopened_second_correction": {
+        "mask": {
+          "passed": true,
+          "pixels": 65536,
+          "labels": [
+            0,
+            3,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            20
+          ]
+        },
+        "old_label": 4,
+        "new_label": 20,
+        "changed_pixels": 1288,
+        "native_click": [
+          1504,
+          244
+        ],
+        "data_pixel": [
+          25,
+          111
+        ]
+      },
+      "14_history_preserved_after_reopen": {
+        "status": "mask.tif: 1,288 pixel(s), 1 object(s) added, 1 removed. Recorded in mask.tif.curation.json.",
+        "mask": {
+          "passed": true,
+          "pixels": 65536,
+          "labels": [
+            0,
+            3,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            20
+          ]
+        },
+        "ledger": {
+          "artifact": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/napari_runs/SYNTHETIC-private-round-trip-d7du8c6y/mask.tif",
+          "edits": [
+            {
+              "detail": {
+                "added": [
+                  18
+                ],
+                "altered": [],
+                "removed": [
+                  2
+                ],
+                "via": "napari"
+              },
+              "kind": "napari",
+              "n_changed": 2197,
+              "target": [
+                18
+              ],
+              "when": "2026-09-11T03:24:43+00:00",
+              "who": "olafsson"
+            },
+            {
+              "detail": {
+                "added": [
+                  20
+                ],
+                "altered": [],
+                "removed": [
+                  4
+                ],
+                "via": "napari"
+              },
+              "kind": "napari",
+              "n_changed": 1288,
+              "target": [
+                20
+              ],
+              "when": "2026-09-11T03:24:49+00:00",
+              "who": "olafsson"
+            }
+          ],
+          "schema_version": 1,
+          "source": "spacr napari bridge"
+        }
+      },
+      "15_viewer_closed": {
+        "status": "mask.tif: 1,288 pixel(s), 1 object(s) added, 1 removed. Recorded in mask.tif.curation.json."
+      }
+    },
+    "explicit_reopen_between_edits": true,
+    "native_napari_font_size": 20,
+    "unrestricted_workflow_verified": false,
+    "baseline_alias_after_first_import": true,
+    "same_session_second_edit_saved": null,
+    "acceptance_scope": "Explicit close/reopen between edits; synthetic exact pixels and correction history only",
+    "corrected_signals": [
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/napari_runs/SYNTHETIC-private-round-trip-d7du8c6y/mask.tif",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/napari_runs/SYNTHETIC-private-round-trip-d7du8c6y/mask.tif"
+    ],
+    "original_image_unchanged": true,
+    "originals_preserved": true,
+    "final_mask_sha256": "a8ef3e3b6d0bbbc0b738afff08e789220fb6f3bd0771dd6c3d96721196d8785a",
+    "final_ledger_sha256": "b205f1bdbee0f1e6a49ac092b221df589077b1bc85333b9e2e44526e7f23abfd",
+    "known_limitation": "Repeated edits in one viewer remain unverified here and previously lost the second change. Close and reopen after each imported edit; this recording does not claim that application defect is fixed."
+  },
+  "verification": {
+    "accepted": true,
+    "saved_masks_checked": 2,
+    "pixels_per_mask": 65536,
+    "correction_entries": 2,
+    "unrestricted_workflow_accepted": false
+  },
+  "provenance": {
+    "commit": "88abc232cbd50fef9b8f0bdd192cf6c1f13bb64e",
+    "version": "1.5.0.6",
+    "module": "napari_bridge",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "example": {
+    "archive": "docs/source/_extra/tutorials/examples/SYNTHETIC_napari_example.zip",
+    "sha256": "22bcb651b1836a8df3430926970e279ba2f65d1dea8018a4f2ab265ed245cb6c",
+    "bytes": 132405,
+    "images_verified": 2,
+    "pixels_verified": 131072,
+    "source_unchanged": true,
+    "manifest": {
+      "synthetic": true,
+      "source_sha256": "efb9f56a60cd27a3dd7b789daf95db2f73269b5670070eb234a9b267678e75a1",
+      "shape": [
+        256,
+        256
+      ],
+      "dtype": "uint16",
+      "image_plane": 1,
+      "mask_plane": 2,
+      "labels": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "biological_validation": false,
+      "requires_reopen_after_import": true,
+      "files": {
+        "image.tif": "fdd9edbfdf20f5ba6ba653057f45e44a5bdd57abfc54763c0d0e68a97a3dfd8c",
+        "mask.tif": "48563341144b67d8b0982ed85cc4d7323503e74161944cdd4aa4512f78e0c678",
+        "README.txt": "f82e5e984e9b140eec1bb0c5b9092bdce2b31d89d1592f1084e2a5968d4ac309"
+      }
+    }
+  },
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/napari_reopen_font20",
+  "tests": {
+    "focused_package_and_workflow_tests_passed": 14,
+    "existing_pixel_evidence_tests_passed": 14,
+    "source_string_mutations_observed_red": 5
+  }
+}

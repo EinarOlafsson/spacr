@@ -1900,8 +1900,8 @@ class TestLoadSearchDataFromDb:
     def test_ml_gets_labels_from_the_control_columns(self, measurements_src):
         data = load_search_data(
             "ml_analyze",
-            self._settings(measurements_src, positive_control="c2",
-                           negative_control="c1", location_column="columnID"))
+            self._settings(measurements_src, positive_control_id="c2",
+                           negative_control_id="c1", location_column="columnID"))
         assert data.features.shape == (40, 3)
         assert sorted(np.bincount(data.labels).tolist()) == [20, 20]
         assert data.groups is not None
@@ -1952,8 +1952,8 @@ class TestLoadSearchDataFromDb:
         with pytest.raises(ValueError) as e:
             load_search_data(
                 "ml_analyze",
-                self._settings(measurements_src, positive_control="zzz",
-                               negative_control="c1",
+                self._settings(measurements_src, positive_control_id="zzz",
+                               negative_control_id="c1",
                                location_column="columnID"))
         assert "Only one class survived" in str(e.value)
 

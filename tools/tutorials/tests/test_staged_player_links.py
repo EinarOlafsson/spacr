@@ -30,6 +30,29 @@ def test_server_uses_committed_player_not_stale_authoring_copy(tmp_path, monkeyp
     assert Path(handler.translate_path('/refresh/production/old.mp4')) == workspace/'production/old.mp4'
 
 
+def test_web_rendition_mode_changes_only_the_selected_video(tmp_path, monkeypatch):
+    workspace = tmp_path/'authoring'
+    stage = workspace/'refresh'
+    monkeypatch.setattr(staged, 'WORKSPACE', workspace)
+    monkeypatch.setattr(staged, 'DEFAULT_STAGE', stage)
+    monkeypatch.setattr(staged, 'REPO', tmp_path/'repo')
+    master = stage/'production/example/video/example_silent.mp4'
+    web = stage/'web-renditions/example/video/example_silent.mp4'
+    audio = stage/'production/example/audio/en/voice.m4a'
+    other = stage/'production/other/video/other_silent.mp4'
+    for path, content in [(master,b'MASTER'),(web,b'WEB'),(audio,b'AUDIO'),(other,b'OTHER')]:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+    handler = staged.Handler.__new__(staged.Handler)
+    handler.directory = str(workspace)
+    url = '/refresh/production/example/video/example_silent.mp4'
+    assert Path(handler.translate_path(url)).read_bytes() == b'MASTER'
+    handler.web_lesson = 'example'
+    assert Path(handler.translate_path(url)).read_bytes() == b'WEB'
+    assert Path(handler.translate_path('/refresh/production/example/audio/en/voice.m4a')).read_bytes() == b'AUDIO'
+    assert Path(handler.translate_path('/refresh/production/other/video/other_silent.mp4')).read_bytes() == b'OTHER'
+
+
 @pytest.mark.parametrize('actual,expected', [([], []), (['a'], ['a']),
     (['b', 'a', 'a'], ['a', 'b'])])
 def test_exact_authored_link_set_passes(actual, expected):

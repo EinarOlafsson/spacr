@@ -1,0 +1,55 @@
+{
+  "lesson": "53_prediction_profiler",
+  "status": "Native capture and independent numerical checks complete; multilingual media pending",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/profiler_synthetic_ols_native",
+  "provenance": {
+    "commit": "826ddba022bc01c1089f78ebf783a9e31181c494",
+    "version": "1.5.0.6",
+    "module": "profiler",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "synthetic": true,
+  "biological_claim": false,
+  "observations": 121,
+  "coefficients": {
+    "Intercept": 2.002039801654857,
+    "input_a": 3.9979892397681986,
+    "input_b": -1.4960050950280943
+  },
+  "independent_fit_error": 5.10702591327572e-15,
+  "native_curve_values_checked": 338,
+  "native_curve_maximum_error": 1.7763568394002505e-15,
+  "ranking_checks": [
+    {
+      "input": "input_a",
+      "values_checked": 6,
+      "maximum_error": 4.440892098500626e-16
+    },
+    {
+      "input": "input_b",
+      "values_checked": 6,
+      "maximum_error": 0.0
+    }
+  ],
+  "input_bytes_preserved": true,
+  "scientific_acceptance_sha256": "8e33965556b3a26f1a44815a0ff685ff85609c01890b8a0901eb93beb75bde60",
+  "limitations": [
+    "Synthetic controls demonstration; not a biological screening result or held-out validation.",
+    "OLS fit performed before import with statsmodels; the profiler only reads coefficients.",
+    "GUI file route uses an assumed two-row 0..1 design, not the 121 original observations.",
+    "Ranking uses 5th/95th quantiles (0.05..0.95); displayed curve spans 0..1.",
+    "No confidence interval or causal claim."
+  ],
+  "focused_tests": 7,
+  "source_string_mutations_red": [
+    "all curve values",
+    "range",
+    "held value",
+    "preservation"
+  ],
+  "published": false
+}

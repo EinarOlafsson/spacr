@@ -501,7 +501,12 @@ class TestRuntimeSwitch:
             monkeypatch.setattr(preferences, "resolve_effective_theme",
                                 lambda name=name: name)
             preferences.apply_preferences_to_app(qapp)
-            assert qapp.styleSheet()
+            from spacr.qt import theme as _theme
+            # THE SHEET IS ON THE WINDOWS, NOT ON THE APPLICATION, since 380's
+            # last lever moved it there -- a preference save with four modules
+            # open went from 10.2 s to 3.1 s. `qapp.styleSheet()` is empty by
+            # design now.
+            assert _theme.window_stylesheet(qapp)
             holder.style().unpolish(holder)
             holder.style().polish(holder)
 

@@ -1,0 +1,27 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "8180c52bcd1a656cd226c81a64977114b2690a9c09fa4bd3c8a85893c4537460",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "de",
+  "title": "Napari Bridge: sicher bearbeiten, übernehmen und neu öffnen",
+  "description": "Ein pixelweise geprüfter Durchlauf mit synthetischem Bild und Labelmaske, Sicherungen, Fill und Undo sowie Schließen und erneutem Öffnen zwischen den Übernahmen.",
+  "objectives": [
+    "Napari Bridge unter Make Masks mit getrennten Bild- und Labeldateien öffnen.",
+    "Bearbeiten im Viewer, Undo, Übernehmen auf die Festplatte und Korrekturhistorie unterscheiden.",
+    "Zwischen Übernahmen schließen und neu öffnen; beide gespeicherten Korrekturen prüfen, ohne den Fehler als behoben darzustellen."
+  ],
+  "prerequisite": "Das ausdrücklich SYNTHETISCHE Beispiel in einen NEUEN Ordner entpacken und eine unveränderte Sicherung behalten. Bild und Maske: 256x256, uint16, sechzehn künstliche Objekte; keine biologische Validierung. Aufnahme: optionales napari 0.9.1, Schriftgröße20. In Make Masks → Napari Bridge mask.tif und image.tif wählen. Mit Fill 2 durch18 ersetzen, Undo, wiederholen und Take the mask back: Arbeitsmaske überschrieben, 2.197 Pixel in mask.tif.curation.json protokolliert. Vor der nächsten Bearbeitung SCHLIESSEN und NEU ÖFFNEN: eine zweite Bearbeitung im selben Viewer wurde zuvor fälschlich als unverändert gemeldet und nicht gespeichert. Der Fehler gilt NICHT als behoben. Nach erneutem Öffnen4 durch20 ersetzen und übernehmen:1.288 Pixel ändern sich, beide Historieneinträge bleiben. Alle65.536 Pixel beider gespeicherten Masken wurden geprüft; Quelle und Bildintensitäten blieben erhalten. Neue/entfernte Labelnummern bedeuten keine zusätzlichen/fehlenden Zellen. API: spacr.napari_bridge.load_handoff, open_in_napari, write_back. Keine Behauptung von Training, biologischer Validierung, uneingeschränkter Wiederholbarkeit, Veröffentlichung oder Hörfreigabe.",
+  "scenes": [
+    "Öffnen Sie Napari Bridge unter Make Masks. Es übergibt ein Bild und eine Labelmaske an den optionalen napari-Viewer und übernimmt anschließend korrigierte Labels. Diese Lektion verwendet ein ausdrücklich synthetisches Übungsbeispiel, kein biologisches Experiment. Bewahren Sie eine unveränderte Sicherung auf: Die Übernahme überschreibt die ausgewählte Arbeitsmaske.",
+    "Laden Sie das Beispiel herunter und entpacken Sie es in einen neuen Ordner. Wählen Sie mask.tif, dann image.tif und drücken Sie Open in napari. Das sind unterschiedliche Eingaben: Ganzzahlige Objektlabels gehören in Mask; das Intensitätsbild dient als visuelle Referenz. Das Beispiel enthält sechzehn synthetische Objekte.",
+    "Napari öffnet eine Bildebene und eine Labels-Ebene namens mask. Wählen Sie mask zum Bearbeiten; lassen Sie die Bildintensitäten unverändert. Label null ist Hintergrund. Farben unterscheiden Objektidentitäten, nicht biologische Klassen oder Konfidenz. Für diese Aufnahme wurde die echte Oberflächenschrift vergrößert, nicht das Quellbild.",
+    "Kehren Sie vor jeder Änderung zu spaCR zurück und klicken Sie Take the mask back. Der Status meldet eine unveränderte Maske; nichts wird geschrieben. Übernehmen und Bearbeiten im Viewer sind getrennte Aktionen. Diese Prüfung ohne Änderung beweist nicht, dass eine spätere Korrektur gespeichert wurde. Prüfen Sie auch deren Ergebnis.",
+    "Wählen Sie in napari Label achtzehn, dann Fill, und klicken Sie das Übungsobjekt mit Label zwei an. Nur dessen Label ändert sich. Das ist kontrolliertes Umetikettieren, keine Verbesserung einer biologischen Segmentierung. Die Arbeitsdatei auf der Festplatte hat sich noch nicht geändert.",
+    "Stellen Sie mit Undo das ursprüngliche Label wieder her; diese Aufnahme verwendet Steuerung Z. Wiederholen Sie dann dieselbe Fill-Aktion vor der Übernahme. Undo wirkt auf die Bearbeitungshistorie des Viewers. Verwechseln Sie das nicht mit der Wiederherstellung einer früheren Datei nach einer Übernahme: Dafür brauchen Sie Sicherungen.",
+    "Klicken Sie Take the mask back. Der Status nennt zweitausendeinhundertsiebenundneunzig geänderte Pixel und eine Korrekturhistorie. Ein Label wurde hinzugefügt und eines entfernt, weil aus zwei achtzehn wurde; es bleiben sechzehn Objekte. Prüfen Sie gespeicherte Maske und Historie, nicht nur die Farbe in napari.",
+    "Klicken Sie jetzt Close viewer, bevor Sie erneut bearbeiten, und öffnen Sie den Viewer neu. Das ist in der geprüften Version wesentlich: Eine zweite Bearbeitung im selben Viewer konnte als unverändert gemeldet werden und verloren gehen. Wir zeigen den geprüften Ablauf mit Schließen und Neuöffnen, keine Fehlerbehebung der Anwendung.",
+    "Ersetzen Sie nach dem Neuöffnen Label vier durch zwanzig und übernehmen Sie erneut. Dabei ändern sich eintausendzweihundertachtundachtzig Pixel; der frühere Historieneintrag bleibt. Schließen Sie den Viewer anschließend. Behalten Sie Originalbild, korrigierte Maske und Herkunftsnachweise; berechnen Sie betroffene Messungen neu, statt Ergebnisse zu alten Labels weiterzuverwenden."
+  ]
+}

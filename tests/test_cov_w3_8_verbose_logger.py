@@ -421,12 +421,25 @@ def test_console_levels_reports_what_the_gate_was_set_to(vlog):
 
 
 def test_console_levels_is_empty_when_the_handler_carries_no_gate(vlog):
-    """A handler built but never gated is not showing a filtered set."""
+    """A handler built but never gated is not showing a filtered set.
+
+    THE STRIP IS PUT BACK, and it has to be. `handler.filters[:] = []`
+    removes the LevelSetFilter this test is asking about AND
+    `_NotAlreadyShownByTheRootSink`, which is the de-duplication that stops
+    one record being rendered by both console sinks. The forwarder is a
+    module singleton, so a strip that is not undone leaves every later test
+    in the process with a forwarder that renders everything -- and
+    `test_a_qt_warning_reaches_the_console_once` then fails in a full run
+    while passing on its own. Measured: that is exactly what happened.
+    """
     vlog._handler = None
     handler = vlog._ensure_handler()
+    saved = list(handler.filters)
     handler.filters[:] = []
-
-    assert vlog.console_levels() == frozenset()
+    try:
+        assert vlog.console_levels() == frozenset()
+    finally:
+        handler.filters[:] = saved
 
 
 def test_is_verbose_follows_the_handler_level(vlog):

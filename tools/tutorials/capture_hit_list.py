@@ -7,8 +7,8 @@ from capture_database import _digest
 from hit_list_evidence import expected_hits, filtered, check_screen, check_rows, read_rows
 
 
-def record_hits(app, window, stage, captures, capture, settle, write_json, timeout):
-    from PySide6.QtCore import Qt, QTimer
+def record_hits(app, window, stage, captures, capture, settle, write_json, timeout, *, companion=False):
+    from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QAbstractButton, QPushButton, QFileDialog, QLineEdit, QDialogButtonBox
     from spacr.qt.widgets.fold_strip import FoldButton
@@ -33,7 +33,15 @@ def record_hits(app, window, stage, captures, capture, settle, write_json, timeo
     proof = dict(lesson='48_hit_list', accepted=False, source_folder=str(source), source_files=originals,
                  private_folder=str(work), private_input_hashes=copies, synthetic_results=False,
                  app_source_modified=False, regression_recomputed=False, published=False)
-    screen = None; deadline = time.monotonic() + timeout
+    screen = None; companion_window = None; deadline = time.monotonic() + timeout
+    base_capture = capture
+
+    def capture(name, **kwargs):
+        # The companion is a real, separately labelled top-level window.
+        # Capture the desktop; never paste it into the hidden Regression panel.
+        if companion_window is not None:
+            kwargs['desktop'] = True
+        return base_capture(name, **kwargs)
 
     def click(widget):
         if time.monotonic() > deadline:
@@ -116,12 +124,38 @@ def record_hits(app, window, stage, captures, capture, settle, write_json, timeo
             capture('01b_hit_list_route_failure', desktop=True)
             proof['route_failure'] = [dict(type=type(w).__name__, visible=w.isVisible(),
                 title=w.windowTitle()) for w in app.topLevelWidgets()]
-            raise ValueError('No actual visible Hit List')
+            if not companion:
+                raise ValueError('No actual visible Hit List')
+            if (len(found) != 0 or proof['native_fold_state']['hits_visible']
+                    or not proof['native_fold_state']['hits_selected']):
+                raise ValueError('Companion requires the specifically observed hidden-panel failure')
+            from hit_list_companion import create_window, TITLE
+            companion_window, companion_screen = create_window()
+            companion_window.resize(3840, 2160)
+            companion_window.show(); settle(.8)
+            found = [w for w in app.allWidgets() if isinstance(w, HitListScreen) and w.isVisible()]
+            if found != [companion_screen] or companion_window.windowTitle() != TITLE:
+                raise ValueError('Require the actual disclosed companion window')
+            proof['companion'] = dict(explicit_external_launcher=True,
+                launcher_sha256=_digest(Path(__file__).with_name('hit_list_companion.py')),
+                title=TITLE, native_shortcut_fixed=False, app_widget_modified=False)
+            capture('01c_explicit_companion_not_native_route')
         screen = found[0]
         picker(screen._browse_button, data, '02_choose_completed_results_folder')
         while screen.is_busy() or screen.active_jobs():
             if time.monotonic() > deadline: raise TimeoutError('Hit List worker did not finish')
             settle(.1)
+        header = screen._table.header()
+        for column in (1, 3, 5, 6, 9):
+            edge = header.sectionViewportPosition(column) + header.sectionSize(column) - 1
+            QTest.mouseDClick(header.viewport(), Qt.LeftButton,
+                             pos=QPoint(edge, header.height() // 2)); settle(.2)
+            widest = max(screen._table.fontMetrics().horizontalAdvance(
+                screen._table.topLevelItem(row).text(column))
+                for row in range(screen._table.topLevelItemCount()))
+            if header.sectionSize(column) < widest + 6:
+                raise ValueError('Native header autosize still clips a result value')
+        proof['native_header_autosize_columns'] = [1, 3, 5, 6, 9]
         check('03_all_325_ranked_genes_not_discoveries')
         proof['family'] = dict(genes=325, guides=434, mixed_result_rows=len(read_rows(data / 'results.csv')),
                               min_gene_q=min(r['q_value'] for r in expected),
@@ -159,6 +193,7 @@ def record_hits(app, window, stage, captures, capture, settle, write_json, timeo
         proof['accepted'] = True
     finally:
         if screen is not None: screen.close()
+        if companion_window is not None: companion_window.close()
         window.close(); settle(.3)
         proof['all_originals_unchanged'] = all(Path(p).is_file() and _digest(p) == h for p, h in originals.items())
         proof['all_private_inputs_unchanged'] = all(_digest(data / p) == h for p, h in copies.items())

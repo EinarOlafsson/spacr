@@ -1,0 +1,29 @@
+{
+  "lesson": "68_power_design",
+  "english_sha256": "c70c0ea4d037c92883296dfc5b72dcc4e9cf5e7c331311afabbe1c56618147b6",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "it",
+  "title": "Power / Design: leggere il simulatore e i suoi limiti",
+  "description": "Comprendi controlli, curve simulate e avvisi senza scambiare una piccola dimostrazione o un riepilogo contraddittorio per consigli di progettazione validati.",
+  "objectives": [
+    "Distinguere ipotesi simulate e dati sperimentali acquisiti.",
+    "Leggere correttamente fit utilizzabili, frazioni di rilevamento e incertezza.",
+    "Riconoscere il consiglio errato sullo stesso disegno e conservare le evidenze."
+  ],
+  "prerequisite": "Revisione critica del simulatore registrato, non potenza statistica calibrata o consiglio sulla numerosità campionaria. Power_recorded_simulation_review.zip conserva JSON originale e revisione; non è un'esecuzione importabile né una dimostrazione di esportazione GUI. Schermata, adattatore, simulatore e codice di fit registrati con spaCR 1.5.0.4 sono identici al codice attuale. Due scansioni marginali hanno prodotto 18 fit e nove punti, due repliche ciascuno; quattro fit non convergenti rimangono nel denominatore. Due simulazioni hanno troncato probabilità. Lo stesso disegno nominale con estrazioni diverse produce 1/2 e 2/2 rilevamenti. Il consiglio di aumentare fino al numero di pozzetti già presente è respinto e resta irrisolto. Alcune etichette finali sono tagliate; la tabella verificata ha tutte le nove coordinate. Nessuna nuova simulazione, dato acquisito, calibrazione biologica, attività GPU, richiesta IA o pubblicazione è dichiarata. API: spacr.qt.widgets.power_design.DesignSpec/simulator_kwargs/power_curve e spacr.qt.screens.power.run_power_sweep; spacr.power_simulate e spacr.power_model simulano ed eseguono i fit.",
+  "scenes": [
+    "Power e Design esplora ipotesi con dati simulati. Non carica un esperimento acquisito e non stabilisce che le ipotesi corrispondano alle tue. La lezione esamina una vera esecuzione registrata, inclusi avvisi e un consiglio fuorviante. Non usare questa piccola dimostrazione come consiglio validato sulla numerosità campionaria.",
+    "Inizia dalla libreria e dall'unità valutata. Passare da guida a gene cambia ciò che il modello valuta: quaranta geni con quattro guide ciascuno danno centosessanta unità in modalità guida. La modalità gene raggruppa le informazioni delle guide. Sono ipotesi didattiche, non nuove misure biologiche.",
+    "I controlli di piastra ed effetto descrivono il disegno ipotizzato. Il tasso di classificazioni positive è una probabilità simulata, non un conteggio di organismi né un tasso d'infezione misurato. Esamina insieme fondo, effetto e prevalenza; le ipotesi mostrate non validano il modello.",
+    "Un effetto inferiore a uno attiva l'avviso nativo di direzione non supportata e disabilita Run. La registrazione ripristina poi un valore supportato e i controlli recuperano. È una protezione software, non un'affermazione di impossibilità biologica. Non aggirare l'avviso per ottenere una curva conveniente.",
+    "La dimostrazione usa solo due repliche per punto. Il rilevamento richiede un fit utilizzabile che raggiunga la soglia scelta dell'area sotto la curva ROC. Non è una soglia P per un test d'ipotesi. Seme e backend sono registrati; scegliere Torch non prova l'esecuzione su GPU.",
+    "Run avvia il vero simulatore in un thread di lavoro. Varia separatamente gli assi del numero di cellule e pozzetti, non tutte le combinazioni. La registrazione ha completato diciotto fit su nove punti. Conserva impostazioni e repliche grezze insieme per collegare ogni frazione tracciata ai fit che l'hanno prodotta.",
+    "Leggi i rilevamenti rispetto a tutte le repliche richieste. Quattro fit non convergenti rimangono nel denominatore come mancati rilevamenti, senza esclusioni nascoste. Qui cento per cento significa solo due su due. Un campione così piccolo non stabilisce una probabilità di rilevamento precisa.",
+    "La tabella separa frazioni di rilevamento e prestazioni medie dei fit utilizzabili. Una media indisponibile non è zero. La precisione media richiede anche il riferimento di prevalenza. Leggi la tabella quando un'etichetta finale è tagliata e controlla le mancate convergenze, non soltanto la linea blu.",
+    "Il riepilogo contiene un errore. Entrambe le stime di riferimento usano già novantasei pozzetti, ma estrazioni casuali diverse producono uno su due rilevamenti in una scansione e due su due nell'altra. Passare agli stessi novantasei pozzetti non migliora il disegno. Rifiuta il consiglio; il tutorial non lo ripara.",
+    "Espandi gli altri avvertimenti. Due screening simulati hanno troncato probabilità maggiori di uno, quindi l'occupazione realizzata differisce da quella richiesta. Il modello ha altre ipotesi e limitazioni: elencarle non equivale a validarlo. Esamina avvisi e fit falliti prima di trarre conclusioni.",
+    "L'archivio collegato conserva specifica registrata, repliche, curve, tabella e riepilogo errato. È un download esterno di evidenze, non un'esportazione nativa né un risultato importato. Adattatore e API Python espongono lo stesso flusso, ma la pianificazione reale richiede una validazione separata di ipotesi e incertezza."
+  ]
+}

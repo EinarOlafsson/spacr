@@ -46,7 +46,9 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 #: 10,296 -> 10,306 on merging origin/nightly the same night: the other
 #: session's `layout_policy`, `TourPilot` and two `qt.app` helpers, less the
 #: two tour helpers written here that TourPilot replaced.
-REAL_SYMBOL_COUNT = 10_306
+#: 10,306 -> 10,339 on 2026-09-11 with the merge from main, +45/-0,
+#: decomposed in tests/test_api_i18n_extractor.py beside the same move.
+REAL_SYMBOL_COUNT = 10_339
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

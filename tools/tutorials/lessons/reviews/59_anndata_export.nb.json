@@ -1,0 +1,31 @@
+{
+  "lesson": "59_anndata_export",
+  "english_sha256": "9023fb5acff23af9a0eacb7757aca45fd4c4d4cccf8f64227a5874d7df2b1864",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "nb",
+  "title": "AnnData Export: gjeldende vei og kontrollert API-omvei",
+  "description": "Finn den innebygde eksportøren, forstå feilen med manglende metadata, og eksporter det virkelige eksempelet med en uttrykkelig, kontrollert Python-omvei.",
+  "objectives": [
+    "Finne AnnData Export i Measure og måledatabasen.",
+    "Skille GUI-feilen fra API-omveien uten å finne på metadata.",
+    "Sammenligne sammenføyde, celle- og kjernematriser og fire strategier for manglende verdier.",
+    "Åpne filer på nytt og bevare identiteter, annoteringer, bilder og opphav."
+  ],
+  "prerequisite": "Bruk en KOPI av measurements.db fra det nedlastede Annotate-eksempelet; behold original og bilder. Pakk ut den lenkede ZIP-filen og legg skriptet ved kopien i spaCR-miljøet. Det bruker spacr.anndata_export.build_anndata og koder bare helt manglende object-kolonner i obs som tomme kategorier. Manglende verdier forblir manglende; ingen kalibrering eller etiketter finnes på, og kodingen endrer ikke X. GUI-feilen er IKKE rettet. Eksisterende mål avvises; nye filer leses inn igjen og kontrolleres. SQLite-kontroller: sammenføyd/keep 2341x1136; cell/keep og mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341. Ingen UMAP, GPU-kjøring, innebygde bilder, AI-forespørsel, biologisk validering eller publisering. Den opprinnelige GUI-feilen bevares.",
+  "scenes": [
+    "Åpne Measure og deretter det innebygde AnnData Export. AnnData lagrer en matrise med objekter som rader og egenskaper som kolonner, sammen med observasjonsmetadata og egenskapsnavn. Leksjonen viser den gjeldende GUI-veien, men de vellykkede eksportene bruker en uttrykkelig Python-omvei. Vi hevder ikke at GUI-eksportfeilen er rettet.",
+    "Bruk en kopi av den faktisk nedlastede måledatabasen, ikke en oppdiktet tabell. Bevar bilder og originaldatabase uendret. GUI tar prosjektmappen; kommandolinjeeksempelet tar selve måledatabasefilen. Slå av den valgfrie innbyggingsberegningen for denne sammenligningen. Matriseeksport krever ingen GPU.",
+    "Se først at den uendrede skriveren feiler. Noen observasjonskolonner inneholder bare manglende verdier med datatypen object, som skriveren ikke kan serialisere. Ukjent vokselkalibrering er ett eksempel. Avslutningskode én og en delvis fil er ikke suksess. Ikke erstatt ukjente verdier med null eller teksten None for å skjule feilen.",
+    "Last ned hjelpeskriptet og undersøk lagringsomveien. Det bruker den virkelige funksjonen build_anndata og koder deretter bare fullstendig manglende object-metadata som tomme kategoriske kolonner. Manglende verdier forblir manglende; kjente metadata og egenskapsmatrisen endres ikke av kodingen. Fysisk kalibrering blir ikke dermed en vitenskapelig kategorisk størrelse.",
+    "Kjør skriptet med kildedatabasen, en ny utdatafil og strategien keep. Det sammenføyde eksempelet har to tusen tre hundre og førtien cellerader og ett tusen ett hundre og trettiseks egenskaper. Tilknyttede kjerne- og patogenmålinger samles per celle. Fire hundre tusen tre hundre og tjue manglende egenskapsverdier forblir manglende, ikke null.",
+    "For én objekttypes egne målinger legger du til single-table cell og beholder manglende verdier. Filen har de samme to tusen tre hundre og førtien celleradene, men bare to hundre og sekstien egenskaper. Tjueåtte verdier mangler. Sammenlign egenskapsnavn og radidentiteter, ikke bare filstørrelse eller antall kolonner.",
+    "Strategien mean er et eget analytisk valg, ikke del av lagringsomveien. Her fylles tjueåtte manglende verdier med kolonnenes observerte gjennomsnitt. Det eksporterte laget for manglende verdier registrerer de opprinnelige posisjonene. Sjekk at imputering passer analysen; en komplett matrise er ikke automatisk bedre eller uten skjevhet.",
+    "Strategien drop-features fjerner kolonner med manglende verdier. Her fjernes fire kolonner, slik at to hundre og femtisju egenskaper og alle cellerader beholdes. Undersøk hvilke målinger som ble fjernet og hvorfor. Strategien endrer egenskapssettet og kan fjerne nyttig informasjon; den er ingen universell anbefaling for datarensing.",
+    "Strategien drop-objects fjerner i stedet rader med manglende egenskapsverdier. Her fjernes sju celler; to tusen tre hundre og trettifire rader og alle to hundre og sekstien egenskaper gjenstår. Mangler kan henge sammen med fenotype, bildeopptak eller segmentering. Undersøk utelatelsene før de gjenværende cellene anses som representative.",
+    "Velg single-table nucleus for én rad per kjerne i stedet for aggregerte kjerneegenskaper på cellerader. Eksempelet har to tusen seks hundre og åttito kjerner og tre hundre og førtien egenskaper. Bevar koblinger til overordnede objekter og objektidentiteter. Flere kjerner enn celler betyr ikke at eksporten skapte ekstra celler.",
+    "Åpne hver lagrede fil på nytt. Skriptet sammenligner hele matrisen, ordnede objekt- og egenskapsidentiteter, manglende verdier og observasjonsmetadata; uavhengige SQLite-kontroller besto også for alle seks filene. Annoteringer forblir metadata, ikke treningsvariabler lagt inn i matrisen. Bilder er ikke innebygd: behold kildefiler og stier sammen med eksporten.",
+    "Bruk et nytt utdatanavn for hver strategi, og behold skript, innstillinger og pakkeversjoner. Skriptet avviser et eksisterende mål fremfor å overskrive det. Kontrollene viser databevaring for dette eksempelet, ikke biologisk gyldighet eller reparert GUI. Se de lenkede API- og måleleksjonene for hele arbeidsflyten."
+  ]
+}

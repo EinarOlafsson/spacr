@@ -1,0 +1,28 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "d2163a967fc43b378f61bc985a7f3c18c1652600a63cbdb34d21a9aa583dc210",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "zh-CN",
+  "title": "Methods & Results：生成、审查和导出草稿",
+  "description": "打开Regression内的工具，使用真实的已完成运行，识别三个审查问题，并保存明确标为未审查的Markdown。",
+  "objectives": [
+    "在Regression中找到工具，选择已完成运行的正确来源。",
+    "区分已记录事实、推断的默认值和候选项措辞。",
+    "原样复制草稿并连同结构化记录导出。",
+    "区分导出成功、数值检查和科学认可。"
+  ],
+  "prerequisite": "先完成使用下载数据的Regression示例，保留原始项目、运行日志和guide_permutation结果。本课介绍审查与导出，不代表稿件获得科学认可，也不修复应用。日志声明guide_permutation_seed=0，却未声明全局随机种子；草稿另行解析出seed=42。两者并非同一生成器，实际使用的全局种子未经验证。原分析记录spaCR 1.5.0.4，草稿却注明导出器1.5.0.5。独立核对了全部325个BH值：没有q<0.05，最小值0.2708333333333333。十个候选项的效应值、p和q一致，但并未认证所有向导计数或科学假设。Copy sections及Export Markdown保留原文和准确记录；新文件名为UNREVIEWED_methods_results.md。所有输入不变；未联系提供者、重跑回归、批准或发布。API：spacr.methods_export.build_digest、render_methods、render_results。此前因科学准确性而暂停的记录仍保留。",
+  "scenes": [
+    "从Home打开Regression，再打开其中的Methods and Results工具。本教程位于子模块部分的Regression类别下。它使用Regression课程中实际完成的示例，不编造结果。这里的目标是生成、检查并保存草稿，而不是自动批准一篇稿件。",
+    "选择项目文件夹、对应那次运行的日志，以及该次运行的回归结果文件夹。Classifier留空，因为此例报告的是回归运行，而不是分类器检查点。保持原始文件不变。名称相似还不够：要确认日志和结果描述的是同一次已完成运行。",
+    "点击Build digest。Methods、Results、Caveats和Run digest在不联系AI提供者的情况下生成。这些内容是审查的起点。本次录制中，正文写的是导出器版本，而原日志记录了另一个分析版本。应报告真正产生分析结果的版本。",
+    "阅读注意事项，不要把生成成功当作验证通过。这里的通用种子句子写着四十二。原始日志明确声明置换种子为零，却未声明全局运行种子。不要把所有四十二替换为零：应先区分不同生成器及其记录来源。",
+    "Run digest标签页可以查看这些结构化记录。请将声明的设置和保存的环境与正文核对。导出时推断出的默认值，不能证明历史运行情况。保留警告和未解决的问题，包括缺失的质量控制信息；没有报告，并不意味着质量控制通过。",
+    "保存的基因表有三百二十五项检验，在q值阈值零点零五下没有显著项。最小q值约为零点二七。因此，strongest hits这个标题在这里具有误导性：这些只是排序后的候选项，不是发现。应检查经过校正的完整检验族，而不只看吸引人的前几行。",
+    "Copy sections将屏幕上的Methods与Results一起复制。它不会修正措辞、认证数字，也不包含结构化附录。在另行记录修改之前，保留未编辑副本。用于报告前，应根据来源记录解决种子、版本和候选项措辞问题。",
+    "Export Markdown保存两个部分，并把运行记录作为附录。选择一个新文件名；这里明确标为未审查。真实的Save操作创建文件，我们核对了正文和结构化记录与屏幕一致。文件成功导出不等于科学认可。",
+    "Draft with AI是可选功能，本次录制未使用。它会将记录发送给配置的提供者，因此请先审查内容和隐私。数字检查无法判断一句话的含义是否正确。Python提供build_digest、render_methods和render_results实现同类报告流程，但同样需要审查。"
+  ]
+}

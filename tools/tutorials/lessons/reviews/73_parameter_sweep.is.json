@@ -1,0 +1,31 @@
+{
+  "language": "is",
+  "title": "Prófun á stikum",
+  "description": "Keyrðu tvær prófanir í Regression og greindu á milli lokinnar útreikningskeyrslu og gildrar ályktunar.",
+  "objectives": [
+    "Velja fjögur pör skráa með skor og talningar í sömu röð.",
+    "Takmarka leitina við tvær prófanir og eitt vinnsluferli og skoða vistaðar niðurstöður.",
+    "Halda stuðlafjölskyldum aðskildum og taka fram að ályktunarprófanir standist ekki."
+  ],
+  "prerequisite": "Notaðu fjögur niðurhöluð plötupör úr Regression-kennslunni og nýja úttaksmöppu. Báðar ridge-keyrslurnar falla á gæðaprófun ályktana; þetta er ekki staðfest líffræðileg niðurstaða. Aðeins alpha breytist, 0.01 og 0.1. Stikabundin ályktun, meðaltal á hvern brunn og engin umbreyting eru valin sérstaklega. Aðrar stillingar yfirskipaða formsins erfast ekki sjálfkrafa. n_rows_fitted telur hér 1174 stuðlaraðir, ekki 620 brunna eða 2955 undirbúnar gagnaraðir. Skoðaðu sweep_results.csv og raunverulegar stillingar; taflan sleppir alpha og gæðaniðurstöðum. API: spacr.parameter_sweep.SweepSpace og run_sweep_parallel. Engin GPU-hraðamæling, ytri AI-fyrirspurn, samþykki móðurmálshafa eða birting.",
+  "scenes": [
+    "Opnaðu Regression og síðan Parameter sweep neðst til hægri. Þetta verkflæði er inni í Regression, ekki á sérstökum Home-reit. Regression-kennslan sýnir hvernig fjögur pör skráa með skor og talningar eru sótt; þau eru notuð aftur hér.",
+    "Athugaðu eigin inntakslista stikaprófunarinnar. Þeir eru upphaflega tómir þótt yfirskipaða formið innihaldi pöruð gögn. Bættu við fjórum skorskrám og fjórum talningarskrám í sömu plöturöð. Veldu nýja úttaksmöppu svo sýnidæmið skrifi ekki yfir eldri greiningu.",
+    "Merktu aðeins alpha, með núll komma núll einum og núll komma einum. Ómerktar raðir gefa samt fastar stillingar. Hér veljum við sérstaklega ridge, stikabundna ályktun, meðaltal á hvern brunn og enga umbreytingu. Þessi afmarkaða uppskrift sýnir notkun, ekki ráðleggingu fyrir þína tilraun.",
+    "Veldu grid, að hámarki tvær prófanir og eitt vinnsluferli, og smelltu á Estimate. Tvær gildar samsetningar merkir að stillingarnar séu leyfðar, ekki að tölfræðilegar ályktanir séu gildar. Tímaáætlunin gerir ráð fyrir mínútu á prófun; hún er ekki hraðamæling. Lestu auðlindamörkin áður en þú byrjar.",
+    "Smelltu á Start sweep, ekki Run í yfirskipaða Regression-forminu. Hver prófun skrifar í eigin möppu. Þessar tvær raunverulegu prófanir keyra í röð; fleiri vinnsluferli auka auðlindaþörf. Dæmið sýnir aðhvarf á CPU, ekki GPU-hröðun, og þarf enga fyrirspurn til spaCR AI.",
+    "Báðar raðir sýna ok því útreikningum er lokið. En báðar vistaðar gæðaprófanir ályktana sýna fail. Taflan sleppir þessum niðurstöðum og breytilega alpha: skoðaðu alla niðurstöðuskrána og stillingar hverrar prófunar. Veldu ekki líkan aðeins vegna þess að það gefur fleiri lítil leiðrétt P-gildi.",
+    "Veldu fyrstu röð og smelltu á Show figures for selected row. Vistaðar niðurstöður eru lesnar án nýrrar líkanaðlögunar. Leiðsögusýnin hefur 792 stuðlaraðir, þar á meðal skurðpunkt; myndin sleppir þessum hjálparlið og sýnir 791 leiðsögur. Hæðin er neikvæður tuglogri hráa P-gildisins.",
+    "Breyttu Level í Gene. Taflan hefur nú 382 raðir með sínum skurðpunkti og myndin sýnir 381 gen. Leiðsögur og gen eru aðskildar stuðlafjölskyldur. Breytt sýn gerir fallna ályktunarprófun ekki gilda og skapar ekki óháðar sannanir.",
+    "Farðu aftur í leiðsögur: upphaflegar raðir og punktar koma aftur og vistuðu skrárnar eru óbreyttar. Reiturinn rows fitted í samantektinni er villandi hér: hann telur stuðlaraðir, ekki brunna. Greindu á milli fjölda inntakssýna, úttaksstuðla og fjölskyldunnar sem birtist þegar þú skýrir frá greiningu.",
+    "Lestu vistaðar stillingar, samantekt og gæðaeftirlitsskrár saman. Mynd eða AI-skýring getur ekki staðfest rannsóknarsnið. Regression Diagnostics fjallar um frekari skoðun, en API-heimildin lýsir keyrslu stikaprófana. Dæmið kennir endurtakanlegt verkflæði og takmarkanir þess, ekki staðfestar líffræðilegar niðurstöður."
+  ],
+  "lesson": "73_parameter_sweep",
+  "english_sha256": "2b6898d74bd7929cc6bf8b5c6e405457ee2e14e57608d9fd649a32b88106f307",
+  "review": {
+    "kind": "Editorial translation of frozen English; actual failed inference and recorded numerical limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}

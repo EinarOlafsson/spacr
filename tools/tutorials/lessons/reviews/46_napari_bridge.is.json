@@ -1,0 +1,27 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "8180c52bcd1a656cd226c81a64977114b2690a9c09fa4bd3c8a85893c4537460",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Napari Bridge: breyta, flytja inn og opna aftur á öruggan hátt",
+  "description": "Æfing með tilbúinni mynd og merkingagrímu, afritum, Fill og Undo og lokun og enduropnun milli innflutninga; niðurstöður sannreyndar mynddíl fyrir mynddíl.",
+  "objectives": [
+    "Opna Napari Bridge innan Make Masks með aðskildum mynd- og merkingaskrám.",
+    "Greina á milli breytinga í skoðara, Undo, vistunar á disk og breytingasögu.",
+    "Loka og opna aftur milli innflutninga og sannreyna báðar vistaðar breytingar án þess að fullyrða að villa við endurteknar breytingar sé lagfærð."
+  ],
+  "prerequisite": "Afþjappaðu dæminu sem er skýrt merkt SYNTHETIC í NÝJA möppu og geymdu óbreytt afrit. Mynd og gríma eru 256x256 uint16 með sextán tilbúnum hlutum; engin líffræðileg staðfesting. Upptakan notar valkvætt napari 0.9.1 og leturstærð 20. Veldu mask.tif og image.tif í Make Masks → Napari Bridge. Fill: 2→18, Undo, endurtaka, Take the mask back; vinnugríman er yfirskrifuð og 2.197 breyttir mynddílar skráðir í mask.tif.curation.json. LOKAÐU og OPNAÐU AFTUR fyrir næstu breytingu: önnur breyting í sama skoðara var ranglega talin óbreytt og tapaðist. EKKI er fullyrt að villan sé lagfærð. Eftir enduropnun: 4→20, flytja inn; 1.288 mynddílar breytast og báðar sögufærslur haldast. Allir 65.536 mynddílar beggja vistaðra gríma voru sannreyndir; frumgögn og styrkgildi myndar héldust óbreytt. Viðbætt/fjarlægt merki þýðir ekki nýja/týnda frumu. API: spacr.napari_bridge.load_handoff, open_in_napari, write_back. Engin fullyrðing um þjálfun, líffræðilega staðfestingu, ótakmarkaða endurtekna vinnslu, útgáfu eða hlustunarsamþykki.",
+  "scenes": [
+    "Opnaðu Napari Bridge innan Make Masks. Það sendir mynd og merkingagrímu í valkvæða napari-skoðarann og flytur svo leiðréttar merkingar inn. Þessi kennsla notar skýrt merkt, tilbúið æfingadæmi, ekki líffræðilega tilraun. Geymdu óbreytt afrit: Innflutningur leiðréttinga yfirskrifar valda vinnugrímu.",
+    "Sæktu dæmið og afþjappaðu því í nýja möppu. Veldu mask.tif, síðan image.tif, og ýttu á Open in napari. Þetta eru ólík inntök: Heiltölumerkingar hlutanna eiga heima í Mask, en styrkgildamyndin er sjónræn viðmiðun. Dæmið inniheldur sextán tilbúna hluti.",
+    "Napari opnar myndlag og Labels-lag sem heitir mask. Veldu mask til að breyta merkingum; láttu styrkgildi myndarinnar óbreytt. Merking núll er bakgrunnur. Litirnir greina auðkenni hluta, ekki líffræðilega flokka eða öryggi spár. Við stækkuðum letur raunverulega viðmótsins fyrir upptökuna, ekki frummyndina.",
+    "Farðu aftur í spaCR og smelltu á Take the mask back áður en þú breytir nokkru. Staðan segir að gríman sé óbreytt og ekkert er skrifað. Innflutningur er önnur aðgerð en breyting í skoðaranum. Þessi athugun án breytinga sannar ekki að síðari leiðrétting hafi vistast; skoðaðu þá niðurstöðu líka.",
+    "Veldu merkingu átján í napari, veldu Fill og smelltu á æfingahlutinn sem er merktur tveimur. Aðeins merking þess hlutar breytist. Þetta er stýrð æfing í endurmerkingu, ekki bætt líffræðileg myndskipting. Vinnuskráin á diskinum hefur ekki breyst enn.",
+    "Notaðu Undo til að endurheimta upphaflegu merkinguna; upptakan notar Control Z. Endurtaktu svo sömu Fill-aðgerð áður en þú flytur inn. Undo verkar á breytingasögu skoðarans. Ekki rugla því saman við að endurheimta eldri skrá eftir innflutning: Geymdu afrit til þess.",
+    "Smelltu á Take the mask back. Staðan sýnir tvö þúsund eitt hundrað níutíu og sjö breytta mynddíla og skrá með leiðréttingasögu. Ein merking bættist við og ein hvarf því tvö varð átján; hlutirnir eru enn sextán. Sannreyndu vistuðu grímuna og söguna, ekki aðeins litinn í napari.",
+    "Smelltu nú á Close viewer áður en þú breytir aftur og opnaðu skoðarann á ný. Þetta er nauðsynlegt í prófuðu útgáfunni: Önnur breyting í sama skoðara gat verið ranglega talin óbreytt og tapast. Við sýnum sannreynda lokun og enduropnun, ekki lagfæringu á forritsvillunni.",
+    "Eftir enduropnun skaltu skipta merkingu fjögur út fyrir tuttugu og flytja inn aftur. Það breytir eitt þúsund tvö hundruð áttatíu og átta mynddílum og eldri sögufærslan helst. Lokaðu skoðaranum þegar þú ert búinn. Geymdu frummynd, leiðrétta grímu og upprunaupplýsingar; keyrðu áhrifaðar mælingar aftur í stað þess að endurnýta niðurstöður tengdar gömlum merkingum."
+  ]
+}

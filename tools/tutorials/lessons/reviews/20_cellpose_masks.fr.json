@@ -1,0 +1,31 @@
+{
+  "lesson": "20_cellpose_masks",
+  "english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "fr",
+  "title": "Appliquer Cellpose : masques enregistrés et filtres en direct",
+  "description": "Appliquer CPSAM à trois images réelles téléchargeables dans le Workbench imbriqué, examiner figures et console, puis tester les filtres sans confondre aperçu et traitement par lots.",
+  "objectives": [
+    "Trouver Apply dans Make Masks et Cellpose Workbench.",
+    "Employer les copies conservées et les réglages enregistrés du modèle standard.",
+    "Examiner les trois masques, les images, les contours et le flux.",
+    "Montrer les filtres réversibles et le zoom synchronisé.",
+    "Reconnaître l'écart mesuré entre aperçu et lot sans prétendre valider la précision."
+  ],
+  "prerequisite": "Extraire les trois images dans un nouveau dossier et régler src sur images. recorded_settings.json contient les valeurs historiques, pas la preuve d'un import GUI portable. Ces vrais recadrages cellulaires uint16 de 512 pixels de côté ne sont pas une vérité terrain. Utiliser CPSAM standard, pas le modèle Train. Réglages : channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True, verbose=True ; rescale, resample, resize, fill_in, invert et remove_background sont False. Le calcul CUDA produit 9/94/46 objets et trois figures natives. Des appels indépendants reproduisent tous les pixels des masques et toutes les matrices des figures. Les contours externes ne séparent pas chaque instance contiguë ; le flux est un canal de visualisation, pas un mouvement mesuré. L'aperçu de l'image 02 donne 95, pas 94 : valeurs Cellpose par défaut sur l'image brute, et non prétraitement/rééchantillonnage du lot. Les valeurs affichées 2/99 ne prouvent pas l'équivalence. Le seuil d'aire 1838 donne 95→47→95 sans nouvelle inférence ; chaque pixel restauré est vérifié, les TIFF restent intacts. Le zoom synchronise les deux vues mais recadre l'image sans réparer la carte étroite. Données et blocages antérieurs conservés. Aucune certification biologique, requête IA, publication ou modification de l'application.",
+  "scenes": [
+    "Depuis Make Masks, ouvrez le Cellpose Workbench imbriqué et choisissez Apply. Train et Apply partagent ce panneau ; Apply n'est pas une tuile distincte de l'accueil. Cette leçon utilise le modèle standard sur trois images réelles, pas le modèle de démonstration de la leçon Train liée.",
+    "Extrayez l'exemple lié dans un nouveau dossier. Indiquez son répertoire images comme source et conservez le téléchargement original. Ce sont trois images cellulaires monocanal de cinq cent douze pixels de côté, pas une vérité terrain. Consultez les réglages enregistrés et remplacez l'ancien chemin par le vôtre.",
+    "Sélectionnez CPSAM et laissez le modèle personnalisé vide. Pour ces images, le canal est zéro, la normalisation utilise les deuxième et quatre-vingt-dix-neuvième percentiles, le diamètre vaut trente, le seuil de flux zéro virgule quatre et la probabilité cellulaire zéro. Ces choix limités à l'exemple ne sont pas universels.",
+    "Activez Save et Verbose, choisissez une image par lot et lancez Apply. Cette route crée des figures sans bouton Plot distinct. La console indique une RTX trente quatre-vingt-dix utilisant CUDA et termine les trois images. Vérifiez la source et les réglages : Finished ne mesure pas la précision.",
+    "Trois TIFF de masques portant les mêmes noms sont enregistrés dans le sous-dossier masks de la source. Les comptes sont neuf, quatre-vingt-quatorze et quarante-six. Les figures montrent l'entrée, les contours externes rouges et le flux. Les contours ne séparent pas toutes les instances contiguës ; les couleurs ne représentent ni mouvement physique ni précision.",
+    "Activez Live preview et choisissez cell pair zéro deux avec son véritable sélecteur. Repliez Console et System pour dégager de l'espace. L'aperçu possède ses propres contrôles : vérifiez le canal zéro et les percentiles affichés dans Live settings, sans supposer que toutes les options Apply ont été copiées.",
+    "L'aperçu trouve quatre-vingt-quinze objets, contre quatre-vingt-quatorze dans le masque enregistré de la même image. Des contrôles indépendants reproduisent les deux : l'aperçu utilise les valeurs Cellpose par défaut sur l'image brute, pas le prétraitement et le rééchantillonnage explicites du lot. C'est une exploration, pas une garantie de masques identiques.",
+    "La carte d'aperçu reste étroite dans cette version. La molette agrandit un détail simultanément dans les deux vues ; elle n'agrandit pas la carte et l'image entière est désormais recadrée. Cela aide à inspecter les contours locaux, sans remplacer l'examen du champ complet.",
+    "Ouvrez Live settings et fixez l'aire cellulaire minimale à mille huit cent trente-huit pixels. C'est un seuil de démonstration, pas un optimum biologique. Fermez le dialogue pour voir le résultat. Le filtre enlève quarante-huit objets et en conserve quarante-sept, sans relancer Cellpose ni modifier sa segmentation brute.",
+    "Voici l'aperçu filtré, dialogue fermé et zoom réappliqué. L'image d'origine est inchangée, tandis que les petits objets du masque disparaissent. Le compteur affiche quarante-sept. Cela modifie l'aperçu, pas les trois TIFF du lot déjà enregistrés.",
+    "Remettez l'aire minimale à zéro, fermez le dialogue et examinez à nouveau. Les quatre-vingt-quinze objets reviennent et chaque pixel d'étiquette correspond au résultat initial. Gardez entrées, réglages et identité du modèle avec les masques. La console facultative spaCR AI n'est pas utilisée ; une validation indépendante reste nécessaire avant toute conclusion scientifique."
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "language": "nb",
+  "title": "Parametersveip",
+  "description": "Kjør to forsøk i Regression, og skill fullført beregning fra gyldig inferens.",
+  "objectives": [
+    "Velg fire ordnede par med skår- og tellefiler.",
+    "Begrens rutenettet til to forsøk og én arbeidsprosess, og les lagrede resultater.",
+    "Skill koeffisientfamilier og synliggjør underkjente inferenskontroller."
+  ],
+  "prerequisite": "Bruk de fire nedlastede plateparene fra Regression-leksjonen og en ny utdatamappe. Begge ridge-forsøkene stryker på inferenskontrollen; dette er ingen validert treffanalyse. Bare alpha varierer, 0.01 og 0.1. Parametrisk inferens, gjennomsnitt per brønn og ingen transformasjon er valgt eksplisitt. Andre overordnede innstillinger arves ikke automatisk. n_rows_fitted teller 1174 koeffisienter, ikke 620 brønner eller 2955 klargjorte rader. Kontroller sweep_results.csv og faktiske innstillinger; tabellen utelater alpha og QC-vurderingene. API: spacr.parameter_sweep.SweepSpace og run_sweep_parallel. Ingen GPU-ytelsesmåling, ekstern KI-forespørsel, morsmålsinnlesergodkjenning eller publisering.",
+  "scenes": [
+    "Åpne Regression og deretter Parameter sweep nederst til høyre. Arbeidsflyten ligger i Regression, ikke på en egen Home-flis. Regression-leksjonen forklarer nedlasting av de fire parene med skår- og tellefiler som vi bruker igjen her.",
+    "Kontroller sveipets egne inndatalister. De er først tomme selv om det overordnede skjemaet inneholder parede data. Legg til fire skårfiler og fire tellefiler i samme platerekkefølge. Velg en ny utdatamappe, slik at demonstrasjonen ikke overskriver en tidligere analyse.",
+    "Kryss bare av for alpha, med null komma null én og null komma én. Rader uten avkrysning gir fortsatt faste innstillinger. Her velger vi ridge, parametrisk inferens, gjennomsnitt per brønn og ingen transformasjon eksplisitt. Denne begrensede oppskriften viser betjeningen, ikke en anbefaling for forsøket ditt.",
+    "Velg grid, maksimalt to forsøk og én arbeidsprosess, og trykk Estimate. To gyldige kombinasjoner betyr tillatte innstillinger, ikke gyldige statistiske konklusjoner. Tidsanslaget antar ett minutt per forsøk og er ingen ytelsesmåling. Les ressursgrensene før du starter.",
+    "Trykk Start sweep, ikke Run i det overordnede Regression-skjemaet. Hvert forsøk skriver i sin egen mappe. Disse to virkelige forsøkene kjører etter hverandre; flere arbeidsprosesser krever mer ressurser. Eksemplet viser CPU-regresjon, ikke GPU-akselerasjon, og trenger ingen forespørsel til spaCR AI.",
+    "Begge radene viser ok fordi beregningen er fullført. Men begge lagrede inferenskontroller viser fail. Tabellen utelater vurderingene og alpha-verdien som ble variert: les hele resultatfilen og innstillingene for hvert forsøk. Ikke velg modell bare fordi den gir flere små justerte P-verdier.",
+    "Velg første rad og trykk Show figures for selected row. Lagrede resultater leses uten ny modelltilpasning. Guidevisningen har 792 koeffisientrader, inkludert et konstantledd; plottet utelater dette leddet og viser 791 guider. Høyden er den negative tierlogaritmen av den rå P-verdien.",
+    "Bytt Level til Gene. Tabellen har nå 382 rader, inkludert sitt konstantledd, og plottet viser 381 gener. Guider og gener er separate koeffisientfamilier. Et visningsbytte gjør ikke den underkjente inferensen gyldig og skaper ingen uavhengig evidens.",
+    "Bytt tilbake til guider: de opprinnelige radene og punktene kommer tilbake, og filene er uendret. Feltet rows fitted er misvisende her: det teller koeffisientrader, ikke brønner. Skill mellom antall inndataprøver, utdatakoeffisienter og den viste familien i analyserapporten.",
+    "Les lagrede innstillinger, sammendrag og kvalitetskontrollfiler samlet. Et plott eller en KI-forklaring kan ikke godkjenne et studiedesign. Regression Diagnostics viser flere kontroller, mens API-referansen dokumenterer sveipkjøringen. Eksemplet lærer bort en reproduserbar arbeidsflyt og dens begrensninger, ikke validerte biologiske treff."
+  ],
+  "lesson": "73_parameter_sweep",
+  "english_sha256": "2b6898d74bd7929cc6bf8b5c6e405457ee2e14e57608d9fd649a32b88106f307",
+  "review": {
+    "kind": "Editorial translation of frozen English; actual failed inference and recorded numerical limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}

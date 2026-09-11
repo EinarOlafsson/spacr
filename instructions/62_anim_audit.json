@@ -692,12 +692,11 @@
       "scene": "normalization",
       "settings": [
         "normalization_percentiles",
-        "normalize",
-        "normalize_plots"
+        "normalize"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0316,
-      "note": "Three objects gain contrast as the percentile stretch is applied."
+      "note": "Three objects gain contrast as the percentile stretch is applied. NOT RE-WATCHED: the settings list lost normalize_plots because that setting was RETIRED, not because the animation changed, so the GOOD verdict is carried forward on the two that remain. Re-watch if the scene itself is ever edited."
     },
     {
       "slug": "organelle_clahe",

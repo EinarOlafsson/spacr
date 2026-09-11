@@ -21,11 +21,45 @@ The user confirmed these requirements on 9 September:
   from their current hosts.
 - Commit and push coherent checkpoints regularly. Do not publish to `main` or
   replace live remote media while the refreshed set is incomplete.
-- Run substantial commands through `tools/run_memory_guarded.py --limit-gib 110`
+- Run substantial commands through `tools/run_memory_guarded.py --limit-gib 100`
   and limit thread counts. Do not overlap another session's full coverage run.
+  The 100-GiB threshold is approximately 107 GB, below the maintainer's latest
+  110-GB ceiling. It watches total system usage and stops only the guarded job.
 - No further questions while the user is away; proceed with these choices.
 
 ## Checkpoints
+
+### Maintainer-approved completion scope — 11 September
+
+The maintainer explicitly approved **Coming soon screens for unfinished
+workflows**, superseding the earlier no-placeholder rule for this release.
+The candidate therefore contains 71 complete tutorial packages and five
+unavailable screens: Map Barcodes, Model Compare, Model Zoo, Investigate Hit,
+and OPS. These screens are not successful workflow demonstrations and do not
+close the underlying application/data defects. OPS is under Mask.
+
+`coming_soon.py` supplies text in all fourteen catalog languages. It only
+transforms release copies; held recordings and original catalogs are preserved.
+Screens have no narration/video, cannot be marked complete, and do not count
+as available tutorials. The fifty-voice selection remains intact for all 71
+ready lessons. Parent routing is generated from the live registry, including
+for unchanged lessons whose media and narration are retained byte-for-byte.
+
+`build_release_candidate.py` creates a new private candidate, rechecks the
+existing full-library evidence and copies verified media without uploading it.
+`verify_release_candidate.py <candidate>` checks the candidate in Chromium,
+including all five screens in fourteen languages, mobile text visibility,
+each ready English video/audio pair, seeking, and ready/unavailable transitions.
+`checkpoint_release_candidate.py <candidate>` saves its exact player, fourteen
+catalogs, route metadata, browser evidence and all media hashes under
+`tools/tutorials/release_candidate/`. Large media remain in the private candidate
+and original authoring workspace, not duplicated into Git.
+
+The candidate is an **offline preview**: its narration and 4K roots are relative
+to its sibling `media_host/`. Do not copy that index directly into live docs or
+run the legacy publisher against the old authoring catalogs. The version-update
+and live-publication hold remains in force; release requires a separately
+approved deployment with final hosted roots and live-byte verification.
 
 1. Preserve and reconcile authoring/published sources; measure the live registry.
 2. Capture the current Home/navigation and rebuild each runtime Core lesson using
@@ -39,6 +73,31 @@ The user confirmed these requirements on 9 September:
 
 An inventory or passing structural test is not a completed tutorial. Only
 validated recordings, narration, captions, and links close a lesson.
+
+### Final library and web-copy checkpoints
+
+`verify_library_checkpoint.py --held 12_map_barcodes 21_model_compare
+22_model_zoo 71_investigate_hit --output <private-report.json>` reconciles
+every other staged lesson, including the explicit whole-media retention path.
+It checks final bytes against existing audio/browser reports, all fourteen
+catalogs, and the current navigation registry. Listed holds and missing routes
+(including OPS) remain visible; passing the checked subset is not whole-library
+or publication approval. No model, synthesis or full-suite coverage run occurs.
+
+`stage_web_renditions.py --all-verified` consumes the private
+`library-checkpoint-2026-09-11.json` and uses the existing publisher encoder to
+prepare 1440p copies under `web-renditions/`, never in the live docs/media tree.
+Use the 100-GiB memory guard. Encoding is serial with two encoder/filter threads;
+frame counts, every presentation timestamp and full decoding are checked.
+Matching completed copies are reused on restart. Plate Viewer's moved-only
+1440p file is copied byte-for-byte from the existing docs asset, not re-encoded.
+
+`verify_staged_lesson.py --lesson <id> --web-rendition` tests the actual private
+1440p bytes in the unchanged player, with independent `browser-web/` evidence.
+For whole-media retention also pass `--retained-media`. It checks the loaded
+video hash and decoded dimensions, narration/scene synchronization, links and
+mobile layout without replacing the original 4K browser reports. This does not
+replace visual review, listening approval, or the whole-set publication hold.
 
 ### Visual-only refresh with retained narration
 

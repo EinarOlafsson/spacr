@@ -1,0 +1,31 @@
+{
+  "lesson": "58_graph_builder",
+  "english_sha256": "0cafbb000a43518dec4abf97d95a12a28d3db265fc707f4caf2d681e26617f72",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "pt-BR",
+  "title": "Graph Builder: medidas reais, filtros ao vivo e limite de transferência",
+  "description": "Criar gráficos com medidas reais, separar metadados de aquisição e reconhecer a falha atual na transferência para Annotate.",
+  "objectives": [
+    "Carregar o banco real e escolher cell.",
+    "Criar histograma, dispersão, cores e painéis por linha.",
+    "Verificar populações filtradas e restauradas.",
+    "Distinguir publicação interna e transferência funcional."
+  ],
+  "prerequisite": "Baixe e descompacte o banco vinculado ou use o exemplo baixado de Annotate. O arquivo contém medidas, não recortes de imagens; não é preciso executar outro modelo.",
+  "scenes": [
+    "Graph Builder explora uma tabela existente. Abra-o em Home: é um módulo principal com Plate Viewer e Small Multiples aninhados. Usaremos medidas reais do exemplo, sem treinar modelos nem pedir a um serviço de inteligência artificial para gerar resultados.",
+    "Escolha Load table e abra measurements ponto db do arquivo vinculado ou do exemplo baixado de Annotate. Selecione cell: duas mil trezentas e quarenta e uma linhas. O arquivo preserva exatamente o banco gravado, mas não inclui as imagens referenciadas em outras tabelas.",
+    "Busque cell_area e arraste a coluna para X. O gráfico automático cria um histograma com trinta intervalos. Cada barra conta células em um intervalo de área; não compara tratamentos nem testa significância. Os valores mantêm suas unidades armazenadas, sem nova calibração física.",
+    "Arraste cell_channel_1_mean_intensity para Y. Cada ponto representa a área e a intensidade média do canal um de uma célula. Pontos sobrepostos podem se esconder visualmente, embora todas as linhas estejam representadas aqui. Confira o contador: conjuntos maiores podem usar outra política de desenho.",
+    "Coloque columnID em Colour e leia a legenda. As cores distinguem colunas de aquisição, não classes inferidas nem tratamentos conhecidos. Uma separação visual é descritiva, não prova um efeito. Conferimos coordenadas e cores com as linhas de origem.",
+    "Coloque rowID no canal de facetas com seta para baixo para criar painéis por linha da placa. Eles contêm mil cento e quarenta e mil duzentas e uma células. Eixos compartilhados ajudam na comparação, mas células do mesmo poço não são réplicas experimentais independentes.",
+    "No filtro à direita, adicione cell_area e defina o mínimo como vinte e um mil novecentos e vinte e cinco. O gráfico muda imediatamente para mil cento e setenta e uma linhas. Essa mediana arredondada ilustra o filtro, não recomenda um limiar biológico. Os limites dos eixos também mudam.",
+    "Escolha Clear all no filtro para restaurar as duas mil trezentas e quarenta e uma células. Isso difere de Clear all channels à esquerda, que remove os mapeamentos do gráfico. Confira novamente a contagem e os eixos: outra população não é uma nova medida.",
+    "Remova a faceta de linha pela pequena cruz e arraste um retângulo na dispersão. Esta versão tem uma falha: o gesto gravado publica seiscentas e cinquenta e três chaves de objetos internamente, mas mostra zero selecionados e mantém Open selection in Annotate desativado. Não suponha que anotações foram abertas ou criadas.",
+    "Um clique simples também limpa essa seleção interna. O tutorial verifica a recuperação, mas não corrige a transferência. Filtrar e apontar objetos são operações distintas; outras visualizações podem compartilhar esse estado. Confira a população ativa, sem presumir que o gráfico sempre representa o banco inteiro.",
+    "Os atalhos do cabeçalho abrem Plate Viewer e Small Multiples, explicados em seus próprios tutoriais. Esta tela não tem botão para exportar o gráfico ou sua especificação. O banco vinculado é um download externo do tutorial, não uma exportação de Graph Builder.",
+    "Em Python, read_table carrega os dados, GraphSpec descreve canais e facetas, e a API de seleção distingue filtros de chaves explícitas. Guarde fonte, configurações e versão junto com sua interpretação. Essas APIs não validam conclusões biológicas nem corrigem a transferência para Annotate."
+  ]
+}

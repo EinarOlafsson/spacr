@@ -989,10 +989,9 @@ def headline(metrics: Mapping[str, object], *,
 def read_scorecard_csv(text: str) -> Dict[str, Any]:
     """Parse a published scorecard CSV back into an entry's ``metrics``.
 
-    THE CSV IS THE SOURCE AND THE OTHER SURFACES RENDER IT, which is what
-    instruction 370 asks for: the Hugging Face artifact, the tooltip, the API
-    page and the Zoo screen must not be able to disagree, and they cannot if
-    only one of them holds numbers. This is the reader that makes the other
+    THE CSV IS THE SOURCE AND THE OTHER SURFACES RENDER IT: the Hugging Face
+    artifact, the tooltip, the API page and the Zoo screen must not be able
+    to disagree, and they cannot if only one of them holds numbers. This is the reader that makes the other
     three derived.
 
     DEPENDENCY-FREE ON PURPOSE. The Model Zoo imports without torch and a test

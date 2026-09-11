@@ -13,8 +13,8 @@ is invisible, which is exactly why it is worth a module.
 THE CHANNEL DECISION, SETTLED HERE RATHER THAN IMPLICITLY. Pretrained
 encoders expect three channels. spaCR images routinely have four or five,
 with no RGB meaning at all -- a DAPI channel is not "red". Two ways out, and
-instruction 386 asks for the choice to be recorded rather than inherited from
-whatever the first backbone wanted:
+the choice is recorded here rather than inherited from whatever the first
+backbone happened to want:
 
   PER-CHANNEL, THEN CONCATENATE (:data:`CHANNEL_PER_CHANNEL`, the default).
   Each channel is encoded on its own and the vectors are joined. Channel
@@ -80,8 +80,8 @@ CHANNEL_POLICIES: Tuple[str, ...] = (CHANNEL_PER_CHANNEL, CHANNEL_PROJECT)
 EMBEDDING_PREFIX = "emb_"
 
 #: Small, ImageNet-pretrained and widely benchmarked. Named rather than
-#: hardcoded so a scorecard (instruction 370) can pin which one produced a
-#: given matrix.
+#: hardcoded so a model's scorecard can pin which one produced a given
+#: matrix.
 DEFAULT_BACKBONE = "resnet18"
 
 #: Global average pooling over the final feature map.
@@ -306,7 +306,7 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     except ImportError as exc:                       # pragma: no cover
         raise EmbeddingError(
             "self-supervised embeddings need torch and timm; install the "
-            "`spacr[torch]` extra") from exc
+            "`spacr[embeddings]` extra") from exc
 
     device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
     model = timm.create_model(spec.backbone, pretrained=True, num_classes=0)

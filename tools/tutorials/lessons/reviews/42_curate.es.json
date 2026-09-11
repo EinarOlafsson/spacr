@@ -1,0 +1,30 @@
+{
+  "lesson": "42_curate",
+  "english_sha256": "064305fd604528a3de59c402499f10a17c0a8a5f0c4fa990609c9132c73f17af",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "Curate: practicar ediciones y conservar su historial",
+  "description": "Practicar cambios de máscaras y trayectorias en Curate con datos sintéticos y copias externas ante la pérdida actual del historial de máscaras.",
+  "objectives": [
+    "Abrir Curate en Make Masks con copias de trabajo.",
+    "Pintar, deshacer y guardar sin presentar la práctica como corrección biológica.",
+    "Conservar máscara y registro fuera de la aplicación antes de reabrir.",
+    "Dividir y unir trayectorias y descartar una eliminación sin guardar."
+  ],
+  "prerequisite": "Extraiga Curate_SYNTHETIC_practice.zip y trabaje con copias. TIFF: plano de etiquetas 2 del Timelapse sintético, 256 × 256 píxeles, dieciséis etiquetas del 2 al 17. CSV: dieciséis trayectorias, 128 filas, ocho fotogramas. No son observaciones biológicas adquiridas. La carga NPY falló; TIFF conserva las etiquetas enteras. Radio 8 y etiqueta 18 son práctica. Se comprueban todos los píxeles y valores del CSV. Save mask sobrescribe el archivo elegido y crea .curation.json. Reabrir reinicia sus tres entradas en memoria; guardar después reemplaza el registro por una entrada nueva. Defecto no corregido. Antes ejecute curate_checkpoint.py con la máscara guardada y una carpeta NUEVA: copia ambos archivos exactamente, sin restaurar ni combinar historiales. Reabrir añade otra capa; su brillo no prueba cambio de identidad. Dividir la trayectoria 2 en el fotograma 4 crea 18; reunir ambas mitades restaura 128 filas. Unir 2 y 3 se rechaza por solapamiento temporal. El historial de trayectorias sí vuelve al recargar. API: spacr.curation.MaskCuration y TrackCuration. Sin GPU, IA, nueva segmentación, validación biológica, cambios en la aplicación ni publicación.",
+  "scenes": [
+    "Abra Make Masks y su herramienta anidada Curate. En los tutoriales, Curate pertenece a los submódulos de Make Masks, no a una casilla separada de Home. Edita máscaras de etiquetas y trayectorias. Usamos salidas sintéticas de Timelapse, no observaciones biológicas ni pruebas de que editar manualmente mejore la precisión.",
+    "Descargue el archivo enlazado y trabaje sobre copias. Abra el TIFF de etiquetas enteras: dieciséis etiquetas originales ocupan este cuadrado de doscientos cincuenta y seis píxeles. El selector también ofrece NPY, pero esa ruta falló. TIFF conserva el plano exacto; no sustituya etiquetas por una captura coloreada.",
+    "Fije el radio del pincel en ocho y pulse New para elegir la etiqueta dieciocho. Pinte una vez en la zona vacía. Este disco se inventa para aprender el control, no representa una célula ausente. Cambian los píxeles en memoria; el archivo permanece intacto hasta Save mask.",
+    "Undo stroke restaura cada píxel original en este ejercicio. Pinte otra vez y examine antes de guardar. El registro contiene pintar, deshacer y pintar: deshacer también forma parte del historial. Su posición exacta puede cambiar el número de píxeles; no interprete nuestra huella de práctica como objetivo biológico.",
+    "Save mask sobrescribe el TIFF de trabajo seleccionado y guarda su archivo de registro. Antes de reabrir, ejecute el script externo incluido con esa máscara y una carpeta nueva. Copia exactamente ambos archivos. Es una copia de seguridad externa explícita, no una función oculta de la aplicación.",
+    "La limitación actual es esta: reabrir la máscara reinicia su registro en memoria, y guardar de nuevo sustituye el archivo adjunto por la edición de la nueva sesión. Nuestra copia conserva las tres entradas originales. Mantenga copias y notas separadas; el script no repara ni restaura el historial. Reabrir añade otra capa: brillo e identidad no son lo mismo.",
+    "Abra la copia de trabajo del CSV de trayectorias. Contiene dieciséis trayectorias en ocho fotogramas, ciento veintiocho filas. Seleccionar dos y tres y pulsar Join se rechaza porque ambas existen en los mismos fotogramas. Lea el mensaje; unir por fuerza trayectorias sin relación no sería una corrección válida.",
+    "Elija la trayectoria dos, ponga Split at frame en cuatro y pulse Split. Los fotogramas cuatro a siete pasan a la nueva trayectoria dieciocho; cero a tres permanecen en dos. Coordenadas y etiquetas originales no cambian. Es una práctica controlada, no evidencia de división celular real.",
+    "Seleccione dos y dieciocho juntas y pulse Join. Sus mitades sin solapamiento se combinan y restauran todas las filas originales. Save tracks escribe el CSV y su propio registro. La comprobación independiente compara cada fotograma, identificador y coordenada, no solo el total de trayectorias. Mantenga separados ambos historiales.",
+    "Eliminar la trayectoria tres quita sus ocho filas en memoria. No guarde esta eliminación de práctica. Reabra el CSV guardado para descartar el cambio. Así se distingue la edición actual del contenido en disco; eliminar una trayectoria real requiere una razón documentada, no simplemente un resultado no deseado.",
+    "Regresan las ciento veintiocho filas y el historial guardado de división y unión. A diferencia de las máscaras en esta versión, las trayectorias recuperan ese historial en la prueba. Conserve originales, copias y razones de edición. Python ofrece MaskCuration y TrackCuration; no necesita GPU ni IA, y editar correctamente no equivale a validación científica."
+  ]
+}

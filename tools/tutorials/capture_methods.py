@@ -19,10 +19,10 @@ def check_recorded_seed(declared, digest, methods):
         raise ValueError(f'Draft seed {actual} contradicts recorded permutation seed {declared} or its prose')
 
 
-def record_methods(app, window, stage, captures, capture, settle, write_json, timeout):
-    from PySide6.QtCore import Qt
+def record_methods(app, window, stage, captures, capture, settle, write_json, timeout, *, review_export=False):
+    from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QAbstractButton
+    from PySide6.QtWidgets import QAbstractButton, QFileDialog, QLineEdit, QDialogButtonBox
     from spacr.qt.widgets.fold_strip import FoldButton
     from spacr.qt.screens.methods_export import MethodsExportScreen
 
@@ -102,7 +102,43 @@ def record_methods(app, window, stage, captures, capture, settle, write_json, ti
         capture('07_copy_sections_is_not_scientific_approval',desktop=True)
         actual=proof['digest']['run'].get('seed')
         proof['resolved_seed']=actual; proof['seed_matches_run']=actual==declared
-        check_recorded_seed(declared, proof['digest'], proof['methods'])
+        if review_export:
+            # This is a distinct review/export lesson, not a relaxation of the
+            # original scientific-accuracy hold. Never change the visible draft.
+            from methods_review_evidence import inspect_review
+            target = work / 'UNREVIEWED_methods_results.md'
+            failures = []; chosen = []
+            def choose_export():
+                dialog = app.activeModalWidget()
+                try:
+                    if not isinstance(dialog, QFileDialog):
+                        raise ValueError('Expected the genuine native export picker')
+                    fill(dialog.findChild(QLineEdit, 'fileNameEdit'), target)
+                    capture('08_export_unreviewed_markdown_picker', desktop=True)
+                    box = dialog.findChild(QDialogButtonBox)
+                    buttons = [b for b in box.buttons() if box.buttonRole(b) == QDialogButtonBox.AcceptRole]
+                    if len(buttons) != 1:
+                        raise ValueError('No unique visible Save action')
+                    click(buttons[0]); chosen.append(str(target))
+                except Exception as exc:
+                    failures.append(str(exc))
+                    if dialog is not None: dialog.reject()
+            watch = QTimer(window); watch.setSingleShot(True)
+            def expired():
+                failures.append('Export picker timed out')
+                dialog = app.activeModalWidget()
+                if dialog is not None: dialog.reject()
+            watch.timeout.connect(expired)
+            QTimer.singleShot(400, choose_export); watch.start(15000)
+            click(screen._export_button); watch.stop(); settle(.5)
+            if failures or chosen != [str(target)] or not target.is_file():
+                raise ValueError(f'Actual export did not finish: {failures}')
+            proof['review'] = inspect_review(proof, target)
+            proof['original_draft_scientifically_approved'] = False
+            proof['scope'] = 'Recorded review and unchanged export, NOT a scientifically approved manuscript'
+            capture('09_actual_export_completed_not_approved', desktop=True)
+        else:
+            check_recorded_seed(declared, proof['digest'], proof['methods'])
         proof['accepted']=True
     finally:
         if screen is not None: screen.close()
@@ -113,3 +149,5 @@ def record_methods(app, window, stage, captures, capture, settle, write_json, ti
         write_json(captures/'methods-workflow.json',proof)
     if not proof['all_originals_unchanged'] or not proof['all_private_inputs_unchanged']:
         raise ValueError('Methods inputs changed')
+    if review_export:
+        write_json(captures/'scientific_acceptance.json', proof)
