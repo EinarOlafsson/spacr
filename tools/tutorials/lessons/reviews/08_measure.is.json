@@ -1,0 +1,32 @@
+{
+  "lesson": "08_measure",
+  "english_sha256": "c44bc8ede4d1631dac27be2b6e5c539230497b37a8d237a0d494c982008fa79f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Measure: lifandi síur, raunverulegar mælingar og vistaðar niðurstöður",
+  "description": "Notaðu niðurhalanlegt dæmi með sextán myndsviðum til að skoða úrklippur, stjórna yfirfærslu stillinga, varðveita styrkgildi, keyra Plot og sannreyna vistaðar mælingar.",
+  "objectives": [
+    "Hlaða dæminu og greina styrkrásir frá grímuplönum.",
+    "Prófa síur í forskoðun, stjórna yfirfærslu og aðgreina stöðlun birtingar og vistaðra skráa.",
+    "Keyra allt dæmið, skoða raunverulegar myndir og stjórnborð og finna gagnagrunn og úrklippur.",
+    "Finna undirverkfærin og skilja takmarkanir AI og viðvörunar um úreltar niðurstöður."
+  ],
+  "prerequisite": "Home/Core → Measure → Load test data: sextán 1994x1994 uint16-fylki; styrkgildi 0–3 og frumu-/kjarna-/sýklagrímur 4/5/6. Plot á, Test mode af, einn vinnsluþráður, save_measurements/save_png á, normalize af, RGB-úrklippur 224x224. Engin rúmkvörðun: flatarmál í mynddílum í öðru veldi. E02-sían gefur 27→13→27 möguleg fyrirbæri við 8.000→22.650→8.000; ekki loforð um endanlega frumufjölda. Óháð sannprófun nær til flatarmáls og summa/meðaltala fjögurra rása, með fimm sameiningum studdum af frumgrímum; ekki allra eiginleika eða líffræðilegrar réttmætingar. Heildarkeyrsla: 601 fruma og úrklippa, 622 kjarnar, 373 sýklahlutir, 48 myndir. Runtime-lyklarnir hash_inputs og _intensity_rescale_plan valda hér rangri úreldingarviðvörun; sjálfvirk afhending er ekki staðfest. Sérstakt próf skrifaði undir test/ en skráði rótargrunninn. Kennslan notar venjulega keyrslu og sannreynir raunverulega rótarútkomu. API: spacr.measure.measure_crop. Illumination og Motility hafa eigin kennslu; AnnData Export er enn í bið vegna endurtekinnar útflutningsvillu. Engin AI-spurning send; engin líffræðileg staðfesting, hlustunarsamþykki eða útgáfa.",
+  "scenes": [
+    "Opnaðu Measure undir Core. Það breytir fyrirliggjandi myndfylkjum og hlutagrímum í mælingar og úrklippur; það býr ekki til nýja myndskiptingu. Illumination, AnnData Export og Motility eru undirverkflæði þessa aðaleiningar. Sérstök kennsla þeirra er flokkuð undir Measure í yfirliti kennsluefnis.",
+    "Veldu Load test data og bíddu eftir raunverulegri innhleðslu. Niðurhalið inniheldur sextán sameinuð myndsvið. Athugaðu upprunamöppu og rásaval: styrkrásir núll til þrjú, frumugríma fjögur, kjarnagríma fimm og sýklagríma sex. Merkingar gríma eru ekki styrkmælingar.",
+    "Kveiktu á Live til að skoða úrklippur fyrir lotukeyrslu. Veldu sameinað fylki og skoðaðu reiti og flokka. Fyrirbæri sem birtast geta verið útilokuð af síum síðar. Flokkanöfn lýsa tengslum gríma, ekki óháð yfirförnum líffræðilegum merkingum.",
+    "Opnaðu Crop settings og Object crops. Frumstyrkgildi dæmisins virðast dökk; raunverulega stöðlunarstýringin gerir forskoðun skýrari. Bjartari sýn þýðir ekki betri gögn. Yfirfærsla þessa vals getur einnig breytt vistun úrklippa; við varðveitum óstaðlaða lotuútkomu.",
+    "Í Filter settings breytirðu Cell minimum area úr átta þúsund í tuttugu og tvö þúsund sex hundruð og fimmtíu. Sýnin fer úr tuttugu og sjö hlutum í þrettán án þess að breyta frumfylkinu. Þetta er flatarmál í mynddílum, ekki kvörðuðum fermíkrómetrum. Prófaðu dæmigerð myndsvið, ekki aðeins fallegustu myndina.",
+    "Þegar yfirfærsla er óvirk eru forskoðunarbreytingar aðskildar frá aðalstillingum lotunnar. Virkjaðu hana aðeins til að færa valið til baka. Við sannreyndum bæði tilvikin. Endurstilltu upphaflegt lágmarksflatarmál, staðfestu að tuttugu og sjö fyrirbæri snúi aftur og slökktu aftur á yfirfærslu.",
+    "Forritið varar við vistun staðlaðra úrklippa: Endurskölun hverrar úrklippu getur eytt styrkmun sem ekki er hægt að endurheimta úr skránum. Við veljum No; engin vinnsla hefst. Síðan slökkvum við á stöðlun vistaðra úrklippa. Geymdu frumfylkin fyrir lestur eftir þörfum, birtingu og endurtakanlega endurgreiningu.",
+    "Hafðu Plot virkt, vistaðu mælingar og úrklippur og notaðu eina vinnslu hér. Test mode er óvirkt: Öll sextán myndsviðin fara í aðalúttak verkefnisins. Stutt próf notar sérstaka test-möppu í þessari útgáfu; ekki rugla þeim gagnagrunni saman við heildarniðurstöðuna.",
+    "Ýttu á Run og fylgstu með stjórnborðinu. Athugaðu fjölda tilrauna, heppnaðra sviða og mistaka, ekki aðeins lokaskilaboð. Hér heppnuðust öll sextán sviðin. Stórar myndir geta kallað fram skýr mörk á útflutningsupplausn; lestu þá viðvörun líka. Vel heppnaður útreikningur er ekki líffræðilegt gæðavottorð.",
+    "Skoðaðu raunverulegar myndir fyrir og eftir síun í myndalistanum. Dragðu skilrúmið til að gefa myndunum pláss. Stærðarsíur og sameining foreldra og barna geta breytt merkingunum sem eru mældar. Hér sameina fimm vistaðir frumuhlutir frummerkingar sem tengjast með sameiginlegri kjarna- eða sýklagrímu.",
+    "Skoðaðu úrklippumyndina líka og geymdu mæligagnagrunn og myndslóðir saman. Keyrslan vistaði sex hundruð og eina frumufærslu og samsvarandi úrklippur. Óháð mynddílaprófun staðfesti flatarmál, summur og meðaltöl fjögurra rása, þar með taldar sameiningar; ekki alla eiginleika eða líffræðilega réttmætingu myndskiptingarinnar.",
+    "Þessi útgáfa getur enn sagt niðurstöður úreltar eftir heppnaða keyrslu með óbreyttum sýnilegum stillingum. Við raktum dæmið til lýsigagna sem bættust við við keyrslu en löguðum ekki forritið. Athugaðu vistaða keyrslu og stillingar áður en þú heldur áfram; ekki hunsa aðrar viðvaranir eða telja sjálfvirka afhendingu staðfesta.",
+    "Stjórnborðið býður einnig valkvæða spaCR AI-aðstoð. Hér kveikjum við á rofanum og undirbúum spurningu án þess að senda hana; ekkert svar eða ytri greining er sýnd. Líttu á síðari svör sem ráð sem þarf að sannreyna með stillingum, API og vistuðum niðurstöðum. Notaðu sérstaka kennslu undirverkflæðanna fyrir næsta verkefni."
+  ]
+}

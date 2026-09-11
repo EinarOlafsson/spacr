@@ -1,0 +1,32 @@
+{
+  "lesson": "08_measure",
+  "english_sha256": "c44bc8ede4d1631dac27be2b6e5c539230497b37a8d237a0d494c982008fa79f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "nb",
+  "title": "Measure: livefiltre, faktiske målinger og lagrede resultater",
+  "description": "Bruk eksemplet med seksten bildefelt til å undersøke utsnitt, styre overføring av innstillinger, bevare intensiteter, kjøre Plot og kontrollere lagrede målinger.",
+  "objectives": [
+    "Last inn eksemplet og skill intensitetskanaler fra maskeplan.",
+    "Test livefiltre, styr overføring og skill visningsnormalisering fra normalisering av lagrede filer.",
+    "Kjør hele eksemplet, se faktiske figurer og konsoll, og finn database og utsnitt.",
+    "Finn de underordnede verktøyene og forstå grensene for AI og foreldelsesvarselet."
+  ],
+  "prerequisite": "Home/Core → Measure → Load test data: seksten 1994x1994 uint16-arrayer; intensitet 0–3 og celle-/kjerne-/patogenmasker 4/5/6. Plot på, Test mode av, én arbeidsprosess, save_measurements/save_png på, normalize av, RGB-utsnitt 224x224. Ingen voxelkalibrering: arealer i kvadratpiksler. E02-filteret gir 27→13→27 kandidater ved 8 000→22 650→8 000; dette er ikke endelig målt celletall. Uavhengig kontrollert: areal og fire kanalers summer/gjennomsnitt med fem kildeunderstøttede sammenslåinger, ikke alle egenskaper eller biologisk riktighet. Hele kjøringen: 601 celler og utsnitt, 622 kjerner, 373 patogenobjekter, 48 figurer. Runtime-nøklene hash_inputs og _intensity_rescale_plan gir her et falskt foreldelsesvarsel; automatisk overføring er ikke godkjent. En egen test skrev under test/, men registrerte rotdatabasen. Leksjonen bruker normalmodus og kontrollerer faktisk rotutdata. API: spacr.measure.measure_crop. Illumination og Motility har egne leksjoner; AnnData Export er fortsatt holdt tilbake etter en reprodusert feil. Ingen AI-spørsmål sendt, biologisk validering, lyttegodkjenning eller publisering.",
+  "scenes": [
+    "Åpne Measure under Core. Det gjør eksisterende bildearrayer og objektmasker om til målinger og utsnitt; det lager ikke ny segmentering. Illumination, AnnData Export og Motility er underordnede arbeidsflyter i dette hovedmodulet. Deres egne leksjoner ligger under Measure i tutorialnavigasjonen.",
+    "Velg Load test data og vent til den faktiske innlastingen er ferdig. Nedlastingen gir seksten sammensatte bildefelt. Kontroller kildemappe og kanalkobling: intensiteter null til tre, cellemaske fire, kjernemaske fem og patogenmaske seks. Maskeetiketter er ikke intensitetsmålinger.",
+    "Slå på Live for å se utsnitt før en batchkjøring. Velg en sammensatt array og undersøk rutenett og kategorier. De viste kandidatene kan senere bli utelukket av filtre. Kategoriene beskriver forhold mellom masker, ikke uavhengig vurderte biologiske annotasjoner.",
+    "Åpne Crop settings og Object crops. Eksemplets rå intensiteter ser mørke ut; det faktiske normaliseringsvalget gjør forhåndsvisningen tydeligere. Lysere betyr ikke bedre data. Overføring av valget kan også endre lagringen av utsnitt; vi bevarer batchresultatet uten normalisering.",
+    "Under Filter settings endrer du Cell minimum area fra åtte tusen til tjueto tusen seks hundre og femti. Rutenettet går fra tjuesju til tretten objekter uten å endre kildearrayen. Dette er pikselarealer, ikke kalibrerte kvadratmikrometer. Test representative felt, ikke bare det peneste bildet.",
+    "Med overføring av blir forhåndsvisningen holdt atskilt fra hovedskjemaet. Slå på overføring bare når du vil kopiere valgene tilbake. Vi har kontrollert begge forløpene. Gjenopprett det opprinnelige minstearealet, bekreft at de tjuesju kandidatene er tilbake, og slå overføring av igjen.",
+    "Programmet advarer før normaliserte utsnitt lagres: Individuell skalering kan fjerne intensitetsforskjeller som ikke kan gjenopprettes fra filene. Vi velger No; ingen arbeidsprosess starter. Så slår vi av normalisering av lagrede utsnitt. Behold originalarrayene for behovsstyrt lesing, visning og reproduserbar ny analyse.",
+    "Behold Plot på, lagre målinger og utsnitt, og bruk én arbeidsprosess her. Test mode er av: Alle seksten felt behandles i prosjektets hovedutdata. En kort test bruker en egen test-mappe i denne versjonen; ikke forveksle databasen der med det fullstendige resultatet.",
+    "Trykk Run og følg konsollen. Kontroller forsøk, vellykkede felt og feil, ikke bare en ferdigmelding. Her lyktes alle seksten felt. Store figurer kan utløse en uttrykkelig grense for eksportoppløsning; les også dette varselet. Vellykket beregning er ikke et biologisk kvalitetsstempel.",
+    "Bruk figurlisten til å undersøke de faktiske visningene før og etter filtrering. Dra delelinjen for mer plass. Størrelsesfiltre og sammenslåing av forelder/barn kan endre hvilke etiketter som måles. Her samler fem lagrede celleobjekter kildeetiketter forbundet gjennom en felles kjerne- eller patogenmaske.",
+    "Se også på utsnittsfiguren og behold måledatabase og bildestier sammen. Kjøringen lagret seks hundre og én celleposter med tilsvarende utsnitt. Uavhengige pikselkontroller bekreftet areal, summer og gjennomsnitt for fire kanaler, inkludert sammenslåingene; ikke alle egenskaper eller segmenteringens biologiske riktighet.",
+    "Denne versjonen kan fortsatt varsle om utdaterte resultater etter vellykket kjøring uten endrede synlige innstillinger. Vi sporet dette eksemplet til runtime-metadata, men har ikke rettet programmet. Kontroller lagret kjøring og innstillinger før du fortsetter; ikke avvis andre varsler eller anta at automatisk overføring er validert.",
+    "Konsollen tilbyr også valgfri spaCR AI-hjelp. Her slår vi på bryteren og forbereder et spørsmål uten å sende det; ingen svar eller ekstern analyse demonstreres. Se senere svar som råd som må kontrolleres mot innstillinger, API og lagrede resultater. Bruk de egne leksjonene om underordnede arbeidsflyter til neste oppgave."
+  ]
+}
