@@ -393,6 +393,35 @@ def phase_correlate(first: np.ndarray, second: np.ndarray, *,
     height_px, width_px = first.shape
     dy = unwrap(peak_y, height_px, expected[0])
     dx = unwrap(peak_x, width_px, expected[1])
+    # THE DANGEROUS DEFAULT, SAID OUT LOUD. `unwrap`'s docstring is emphatic
+    # that `about=0` is right only when the true shift is under half the
+    # axis, and silent when it is not: a raster pitch of 1,267 px on a 1,480
+    # px tile folds to -213, which is "both wrong and plausible" in that
+    # docstring's own words. It cost an afternoon on the first real
+    # acquisition -- every measurement taken at -213 said the tiles did not
+    # overlap, and the tiles overlap by 14.3%.
+    #
+    # Warned rather than refused: a pair genuinely centred near zero is a
+    # legitimate call (two cycles of the SAME field), and only the caller
+    # knows which it has. The raw peak beyond half the axis is the signal.
+    # THE TEST IS THE SIZE OF THE ANSWER, not where the raw peak sat. With
+    # about=0 the result always lands in [-extent/2, extent/2), so a
+    # SUBSTANTIAL folded shift means the other representative is a plausible
+    # raster pitch and the caller has not said which they meant. A genuinely
+    # small shift -- two cycles of one field, a few pixels of drift -- is
+    # unambiguous and stays quiet.
+    if expected == (0, 0):
+        for shift, extent, axis in ((dy, height_px, "rows"),
+                                    (dx, width_px, "columns")):
+            if extent and abs(int(shift)) > extent // 16:
+                other = int(shift) + extent if shift < 0 else int(shift) - extent
+                LOG.warning(
+                    "phase_correlate: %s shift %d with the default "
+                    "expected=(0, 0), which folds to the half nearest zero. "
+                    "If these are raster NEIGHBOURS rather than two views of "
+                    "one field, the answer is probably %d -- pass "
+                    "expected=<pitch> to choose. See unwrap().",
+                    axis, int(shift), other)
     # (0, 0) IS WHAT TWO FIELDS THAT DO NOT TOUCH PRODUCE. Never accepted,
     # however strong the peak: there is no such thing as two adjacent
     # fields of a raster occupying the same place.

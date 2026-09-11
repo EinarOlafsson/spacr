@@ -360,3 +360,92 @@ def test_every_pair_a_layout_offers_is_registered_and_recorded(tiles):
                             expected_overlap=OVERLAP, gpu=False)
     assert {key: one.shift for key, one in lazily.items()} == \
            {key: one.shift for key, one in found.items()}
+
+
+def test_the_dangerous_unwrap_default_warns_and_names_the_alternative(caplog):
+    """372, learned the hard way on the first real acquisition.
+
+    `unwrap`'s docstring already says `about=0` is right only when the true
+    shift is under half the axis. It was still silent when it was not, and a
+    raster pitch of 1,267 px on a 1,480 px tile folds to -213 -- a number that
+    docstring itself calls "both wrong and plausible". Every measurement taken
+    at -213 said the tiles did not overlap. They overlap by 14.3%.
+
+    So the default now says so, and names the other representative, which is
+    the thing a caller needs in order to act.
+    """
+    import logging
+
+    import numpy as np
+
+    from spacr.ops_register import phase_correlate
+
+    rng = np.random.default_rng(0)
+    field = rng.random((256, 256)).astype(np.float32)
+    # A neighbour 200 px down: more than an eighth of the axis, so the fold
+    # is ambiguous and the caller should be told.
+    shifted = np.roll(field, 200, axis=0)
+
+    with caplog.at_level(logging.WARNING, logger="spacr.ops_register"):
+        result = phase_correlate(field, shifted)
+
+    assert any("expected=<pitch>" in r.message or "expected=<pitch>" in r.getMessage()
+               for r in caplog.records), caplog.text
+    # and it names the OTHER representative, not just the complaint
+    assert any(str(result.dy + 256) in r.getMessage()
+               or str(result.dy - 256) in r.getMessage()
+               for r in caplog.records), caplog.text
+
+
+def test_a_small_shift_does_not_warn(caplog):
+    """Two cycles of ONE field are unambiguous, and must stay quiet.
+
+    A warning that fires on the legitimate case is a warning people learn to
+    ignore, which would cost more than the one it exists to prevent.
+    """
+    import logging
+
+    import numpy as np
+
+    from spacr.ops_register import phase_correlate
+
+    rng = np.random.default_rng(1)
+    field = rng.random((256, 256)).astype(np.float32)
+    drifted = np.roll(field, 3, axis=1)
+
+    with caplog.at_level(logging.WARNING, logger="spacr.ops_register"):
+        phase_correlate(field, drifted)
+
+    assert not [r for r in caplog.records if "expected=<pitch>" in r.getMessage()], \
+        caplog.text
+
+
+def test_passing_the_pitch_silences_it(caplog):
+    """A caller who has said what they meant should not be nagged."""
+    import logging
+
+    import numpy as np
+
+    from spacr.ops_register import phase_correlate
+
+    rng = np.random.default_rng(2)
+    field = rng.random((256, 256)).astype(np.float32)
+    shifted = np.roll(field, 200, axis=0)
+
+    # DERIVED, NOT ASSUMED. np.roll's sense and this module's shift sign are
+    # not the same question, and hard-coding one made this test assert 200
+    # against a correct 312. Ask for the default answer, then ask for the
+    # other representative of it -- which is exactly what a caller does once
+    # the warning has told them the two candidates.
+    default = phase_correlate(field, shifted)
+    other = default.dy + 256 if default.dy < 0 else default.dy - 256
+
+    # caplog accumulates for the whole test, and the probe call above warns
+    # on purpose. Clear it, or this asserts against the warning it asked for.
+    caplog.clear()
+    with caplog.at_level(logging.WARNING, logger="spacr.ops_register"):
+        result = phase_correlate(field, shifted, expected=(other, 0))
+
+    assert result.dy == other
+    assert not [r for r in caplog.records if "expected=<pitch>" in r.getMessage()], \
+        caplog.text
