@@ -127,7 +127,12 @@ class TestTranslatingAPanelThatArrivedLate:
         """The pass is queued; the user can shut the panel before it runs."""
         import spacr.qt.i18n as i18n
 
-        def already_gone(_widget):
+        # THE STUB TAKES WHAT THE REAL ONE TAKES. `_translate` asks for
+        # `only_new=True` -- the build-time skip 380 added -- and a stub that
+        # accepts one positional argument raises TypeError instead, which is
+        # not the failure this test is about and is logged rather than
+        # swallowed.
+        def already_gone(_widget, _language=None, *, only_new=False):
             raise RuntimeError("Internal C++ object already deleted.")
 
         monkeypatch.setattr(i18n, "retranslate_widget_tree", already_gone)
@@ -146,7 +151,7 @@ class TestTranslatingAPanelThatArrivedLate:
         """
         import spacr.qt.i18n as i18n
 
-        def broken(_widget):
+        def broken(_widget, _language=None, *, only_new=False):
             raise ValueError("the catalog is malformed")
 
         monkeypatch.setattr(i18n, "retranslate_widget_tree", broken)
