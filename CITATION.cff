@@ -29,13 +29,13 @@ contact:
   - family-names: "Olafsson"
     given-names: "Einar B."
     orcid: "https://orcid.org/0000-0002-3388-061X"
-version: "1.5.0.5"
+version: "1.5.0.6"
 date-released: "2026-09-10"
-doi: "10.5281/zenodo.22692340"
+doi: "10.5281/zenodo.22695045"
 identifiers:
   - type: doi
-    value: "10.5281/zenodo.22692340"
-    description: "Version DOI: this release, spaCR 1.5.0.5. Cite this to point at the exact code a result came from."
+    value: "10.5281/zenodo.22695045"
+    description: "Version DOI: this release, spaCR 1.5.0.6. Cite this to point at the exact code a result came from."
   - type: doi
     value: "10.5281/zenodo.21343316"
     description: "Concept DOI: all versions of spaCR. Resolves to the most recent release."
