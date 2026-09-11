@@ -1,0 +1,31 @@
+{
+  "lesson": "19_train_cellpose",
+  "english_sha256": "524f011def972d4ba17df823927da3ab8f2c84e0301df7903737e67717246384",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "it",
+  "title": "Train Cellpose: coppie verificate e procedura esplicita tramite API",
+  "description": "Trova Train nel Cellpose Workbench, riconosci il difetto di importazione della sorgente e segui un vero addestramento Python di due epoche su sei coppie scaricabili immagine/maschera cellulare.",
+  "objectives": [
+    "Trovare Train e Apply dentro Make Masks, non come tessere Home separate.",
+    "Verificare nomi abbinati e distinguere etichette esistenti da riferimenti revisionati.",
+    "Riconoscere l’importazione parziale e separare API e GUI difettosa.",
+    "Esaminare input, riscaldamento, pesi modificati e percorso verificato.",
+    "Distinguere perdita, valori di test segnaposto e lettura dei pesi dall’accuratezza indipendente."
+  ],
+  "prerequisite": "Usa sei coppie, script registrato e manifesto collegati. I ritagli conservano intensità cellulare canale 1 e maschera cellulare piano 4 da campi reali; piano 6 significa patogeno. Etichette e oggetti tagliati NON sono riferimenti revisionati indipendentemente. Train perde ancora src e mantiene model_name=new_model pur importando i numeri; nessun training GUI parte. La chiamata spacr.submodules.train_cellpose usa destinazione nuova, due epoche, minibatch 1, learning_rate=1e-5, weight_decay=1e-5, target_size=512, senza aumento extra spaCR. normalize=False disattiva i percentili spaCR, non la divisione per il massimo né la normalizzazione Cellpose. Cellpose ruota/ridimensiona e usa patch interne di 256. Seed 19 iniziale, casualità interna conservata. CUDA al 65% su RTX 3090 e guardia RAM 100 GiB adatta soltanto a questa macchina. Verificati 3,145,728 valori e dodici pannelli; tutte le sei coppie restano nel training. Tassi 0 e 1.1111111111111112e-6; 345 di 347 tensori addestrabili modificati. Perdita salita da 1.496740683913231 a 1.5215517828861873. Nessun test, quindi gli zeri sono segnaposto. Checkpoint sotto models/cellpose_model/models letto con weights_only=True; il riepilogo omette il secondo models. Leggere non significa inferenza o accuratezza. Figura reale in visualizzatore esterno, mai inserita nella GUI. Originali, tentativi falliti e blocco GUI conservati. Nessuna richiesta AI, risposta, approvazione scientifica o pubblicazione.",
+  "scenes": [
+    "Apri Make Masks e poi il Cellpose Workbench integrato. Train e Apply sono schede interne, non tessere Home separate. Questa lezione mostra il percorso attuale, un problema di importazione e una procedura Python esplicita. La lezione Make Masks collegata spiega ispezione e modifica delle maschere prima dell’addestramento.",
+    "In Train controlla punto di partenza e programma di addestramento. Non copiare epoche o tasso iniziali come raccomandazione. Servono immagini e maschere di istanze abbinate, cartella sorgente e nome di output. Vedere un modulo non significa che tutti questi requisiti siano soddisfatti.",
+    "Il vero selettore Import settings apre un CSV con parametri limitati. Dopo l’importazione compaiono due epoche, minibatch uno e un tasso piccolo. Ma la sorgente obbligatoria viene scartata e il nome richiesto resta new model. È un’importazione parziale, non una configurazione pronta: non premere Run.",
+    "Il percorso Python seguente è separato dal difetto GUI. Non imposta di nascosto una sorgente né ripara il modulo. Usa il pacchetto collegato in una cartella nuova. Lo script rifiuta destinazioni esistenti, conserva le coppie originali e registra esattamente implementazione API e input impiegati.",
+    "Ci sono sei coppie reali di immagini e maschere da cinquecentododici pixel, con nomi corrispondenti. I parametri originari identificano intensità cellulare nel canale uno e maschere nel piano quattro; il sei è patogeno. Le etichette non sono riferimenti revisionati indipendentemente. Controlla bordi e oggetti tagliati prima dell’addestramento di produzione.",
+    "Questa è la vera figura delle sei coppie salvata dall’API e aperta in un visualizzatore esterno, non inserita in spaCR. Ogni immagine superiore corrisponde alla maschera sottostante. Abbiamo verificato tutti i valori di input e i dodici array mostrati rispetto alle sorgenti. Si verifica la corrispondenza, non la qualità delle annotazioni.",
+    "Esegui lo script con la sorgente e una destinazione nuova. L’esempio CUDA limitato usa sei coppie, due epoche e minibatch uno. Il target di input è cinquecentododici pixel; Cellpose usa internamente patch da duecentocinquantasei. Disattivare gli aumenti extra di spaCR non disattiva normalizzazione, rotazione e ridimensionamento interni di Cellpose.",
+    "La prima epoca di riscaldamento ha tasso zero. La seconda usa un piccolo tasso positivo e consente aggiornamenti reali. Confrontando il checkpoint con i pesi iniziali, sono cambiati trecentoquarantacinque tensori addestrabili su trecentoquarantasette. Cambiare soltanto il diametro non supererebbe la verifica. Pesi diversi non dimostrano comunque un buon modello.",
+    "La perdita di training è salita leggermente, da circa uno virgola quattro nove sette a uno virgola cinque due due. Non è stato fornito un insieme di test. Le caselle di perdita zero sono segnaposto, non prestazioni perfette. È una dimostrazione meccanica, non convergenza, segmentazione migliore o accuratezza indipendente. Separa valutazione e addestramento.",
+    "Usa il percorso del checkpoint nel file verificato. Include una seconda directory models omessa dal riepilogo generico. Conserva checkpoint, parametri, manifesto e verifiche insieme. Caricare i tensori in sicurezza verifica un file leggibile, non un’inferenza; il pacchetto contiene coppie e script, non un modello certificato.",
+    "Apply ha sorgente separata, campo per modello personalizzato e anteprima dal vivo. Aprire la scheda non seleziona il nostro checkpoint esterno né avvia inferenza. Segui la lezione collegata e valida su immagini indipendenti. spaCR AI qui non viene usato: nessuna domanda o risposta sostituisce l’ispezione delle prove reali."
+  ]
+}
