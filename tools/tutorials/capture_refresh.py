@@ -298,6 +298,10 @@ def main() -> int:
         from capture_napari import record_napari
         record_napari(app, window, stage, captures, capture,
                       settle, write_json, args.timeout)
+    elif args.module == 'explain_cv':
+        from capture_explain_cv import record_explain
+        record_explain(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
     elif args.module == 'parameter_sweep':
         from capture_parameter_sweep import record_sweep
         record_sweep(app, window, stage, captures, capture,
