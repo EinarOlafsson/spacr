@@ -2,6 +2,7 @@
   "id": "50_run_compare", "number": 50, "slug": "run_compare",
   "title": "Run Compare: inspect two real Measure snapshots",
   "series": 5, "app_key": "run_compare", "section": "Data",
+  "example_files": ["Run_Compare_real_snapshots.zip"],
   "description": "Compare two preserved real Measure outputs, inspect equal settings and counts, and distinguish missing results from a negative scientific finding.",
   "objectives": [
     "Open Run Compare from the Home Data section and prepare the downloadable real-snapshot example.",

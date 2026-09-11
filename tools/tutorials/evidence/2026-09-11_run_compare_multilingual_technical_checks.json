@@ -1,7 +1,7 @@
 {
   "lesson": "50_run_compare",
   "status": "Complete staged technical matrix, not published",
-  "canonical_english_sha256": "d2ec203015682d6ea5e04b5605223c99f248880c2aa529986668ce1186fe9c00",
+  "canonical_english_sha256": "3d7c880e6031605c7d7f8b4ae578c37f8e09eafd791ec541aea6c85e8f39f078",
   "scene_count": 9,
   "narrated_words": 461,
   "native_verification": {
@@ -261,7 +261,7 @@
   "final_artifact_checks": {
     "lesson": "50_run_compare",
     "passed": true,
-    "canonical_english_sha256": "d2ec203015682d6ea5e04b5605223c99f248880c2aa529986668ce1186fe9c00",
+    "canonical_english_sha256": "3d7c880e6031605c7d7f8b4ae578c37f8e09eafd791ec541aea6c85e8f39f078",
     "scene_count": 9,
     "unique_final_tracks": 50,
     "tracks": [
@@ -519,59 +519,59 @@
     "browser_reports": [
       {
         "case": "en-af_heart",
-        "report_sha256": "f4ab70ae0f97971e45d825b626508f35b6f9ab14fba88d453b5ba06a75270271"
+        "report_sha256": "6589049ea523a24d427cfb75664054eab8f08c16bb176a8023109f885d57a8ec"
       },
       {
         "case": "es-ef_dora",
-        "report_sha256": "3a11c425026377bdab3882575e55976f77113c2d11fbf4a9c8e5fb6ed4cf2652"
+        "report_sha256": "e517389831f50a64c492b868ef4aaaedd72b7d2724b7f57e2297a121975dadb0"
       },
       {
         "case": "fr-ff_siwis",
-        "report_sha256": "ce2a76a4a2989abbd67a2e8395d8e93b89c47c65de29cc2128321f139708c1af"
+        "report_sha256": "cc284945e9c4011ab2ae9b64c395e72bccf5e5888b885b143e231a85ea6d720b"
       },
       {
         "case": "hi-hf_alpha",
-        "report_sha256": "ad32ebf0a0882a5ac1c5549e4c472a33c917df11bd1534964bee56ecec83d011"
+        "report_sha256": "13c86cb7f80d397ddcf90c65d32a589878e9529a1d31144e59d575db657ee4ef"
       },
       {
         "case": "it-if_sara",
-        "report_sha256": "cd5249358e1ccf2e22e7e414a5012bb290cb10333f0dc06fb81edbedd7dc47a3"
+        "report_sha256": "f063c41fd085e0d67eb75acd9127ee5c837d7929ab55b7d7e1e2edea5200d4b9"
       },
       {
         "case": "pt-BR-pf_dora",
-        "report_sha256": "c58eaa70dd15a1425fefa39bdff6c725998a708b989fd3df428bf604bcabfbe5"
+        "report_sha256": "92146bb31e4dc9776c5f5ead59e142f2fe0ebd5d4864f58c4c7cdb696980f06d"
       },
       {
         "case": "ja-jf_alpha",
-        "report_sha256": "9143237d1397c167253a3f9ba67e419ef376560cd59260309cbb09d1518be230"
+        "report_sha256": "42282316e619eb2ae36dbf25ed708452b57d02e7f343e6db187591500d260d56"
       },
       {
         "case": "zh-CN-zf_xiaobei",
-        "report_sha256": "cdafc08c85a78c7a76bfb5fb8523310d082dc9703bb91af1ae455c6cfd0c085b"
+        "report_sha256": "577f748f6a35eb29f7ec7cce55172434771097f1dfcf5663a7898616cbc012b5"
       },
       {
         "case": "en-af_heart-captions-da",
-        "report_sha256": "e00d2158ce5bdb704b0e273f88c788f3abf274a7b86c4c7b6c1428bc569d09e1"
+        "report_sha256": "f41ec03bd0b451a10e9e7901b29a6097f45e76bbfb60f92e1fc6c894b878e8e4"
       },
       {
         "case": "en-af_heart-captions-de",
-        "report_sha256": "f9aed09b770c59e936d464477e2f19714b6d089ff0226072e8353b65a0fe9ae8"
+        "report_sha256": "8951f46a1508565b6381ff7236023640a61193cac516f7a25bf24b22ee16e6c0"
       },
       {
         "case": "en-af_heart-captions-is",
-        "report_sha256": "038a9419a3adca5f62c3b338e710733d810cc41df2a6b3bb0541d388b5dc3da9"
+        "report_sha256": "ff570ea7905e43fb87f8ffcd93e0bb1a286b10811328a9077502fa6d3427efb5"
       },
       {
         "case": "en-af_heart-captions-ko",
-        "report_sha256": "910dba65a944be9e71cb8743d4f6209e8f2e03bfa29f5c6af3d35bca868e3e3c"
+        "report_sha256": "04ce77b263dc0e92fa699dfac9b0d1453c51f1692bbaa546af4402a07d85dd0f"
       },
       {
         "case": "en-af_heart-captions-nb",
-        "report_sha256": "556765ed790e98f2971fc43621857e76720e56b9242a7a131d083df2c5b55f5e"
+        "report_sha256": "654d03947dcde3640a5cff1b4b121b9b974c5ce6459add961d577e2137596031"
       },
       {
         "case": "en-af_heart-captions-sv",
-        "report_sha256": "55b9e4da1df5e9b031ccc7af35abb24dd625c4b6345fa50dc32acd220e4412c9"
+        "report_sha256": "0a3ead6085089ed05c3275da7727c79a90d21cf1d71b12b6c4f2e6f7308fa79a"
       }
     ],
     "master_sha256": "c54199f972597d5b3c5845c63d36e908ef0e26e2f055b1c10aaded8b9461ac0f",
@@ -603,5 +603,8 @@
   "editorial_translations": 13,
   "native_speaker_reviewed": false,
   "listening_reviewed": false,
-  "published": false
+  "published": false,
+  "download_link_added": true,
+  "all_fourteen_browsers_download_exact_archive": true,
+  "narration_and_video_unchanged": true
 }
