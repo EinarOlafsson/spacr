@@ -48,6 +48,7 @@ def main() -> int:
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
     parser.add_argument('--methods-review-export', action='store_true', help='Record unchanged Methods export plus explicit review findings; never approve its draft')
     parser.add_argument('--mask-bounded-recapture', action='store_true', help='Use explicit 0.4 flow thresholds in a fresh two-field Mask recording; not a quality claim')
+    parser.add_argument('--mask-saved-plots', action='store_true', help='Show verified per-file API overlays in the external image viewer; no model rerun')
     parser.add_argument('--plaque-zoo-model', action='store_true', help='Try the actual plaque Model Zoo download and preview in private staging')
     parser.add_argument('--motility-screen-export-probe', action='store_true', help='Diagnose the real Screen PDF export preference; not a production tutorial workaround')
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
@@ -72,6 +73,8 @@ def main() -> int:
         parser.error('--methods-review-export requires methods_export without a run or download')
     if args.mask_bounded_recapture and (args.module != 'mask' or not args.run or not args.download):
         parser.error('--mask-bounded-recapture requires mask with --download and --run')
+    if args.mask_saved_plots and (args.module != 'mask' or args.run or args.download or args.preview):
+        parser.error('--mask-saved-plots requires mask without a new run, download or preview')
     if args.measure_full_example and (args.module != 'measure' or not args.run):
         parser.error('--measure-full-example requires --module measure --run')
     if args.measure_preview_controls and (args.module != 'measure' or not args.download or args.preview or args.run):
@@ -588,6 +591,9 @@ def main() -> int:
             from capture_control_chart import record_control_chart
             record_control_chart(app, window, screen, stage, captures, capture,
                                  settle, write_json, args.timeout)
+        if args.mask_saved_plots:
+            from capture_mask_saved_plots import record
+            record(app, window, stage, captures, capture, settle, write_json)
         if args.download:
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)

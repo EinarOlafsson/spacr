@@ -101,11 +101,16 @@ def export(source, destination):
             try:
                 check = check_figure(stack, fig)
                 output = destination / (path.stem + '.png')
-                fig.savefig(output, dpi=100)
+                # A transparent plot inherits the viewer's checkerboard and
+                # can make the real white panel titles illegible. Specify the
+                # export background, not a bitmap edit or a change to data.
+                fig.savefig(output, dpi=100, transparent=False, facecolor='black')
                 with Image.open(output) as image:
                     image.load()
                     if min(image.size) < 500:
                         raise ValueError('Saved plot is unexpectedly small')
+                    if image.convert('RGBA').getchannel('A').getextrema() != (255, 255):
+                        raise ValueError('The saved figure background must be opaque')
                 reports.append(dict(source=str(path), output=str(output),
                     png_sha256=hashlib.sha256(output.read_bytes()).hexdigest(), **check))
             finally:
