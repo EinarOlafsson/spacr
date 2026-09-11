@@ -1,0 +1,31 @@
+{
+  "lesson": "58_graph_builder",
+  "english_sha256": "0cafbb000a43518dec4abf97d95a12a28d3db265fc707f4caf2d681e26617f72",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "sv",
+  "title": "Graph Builder: verkliga mätvärden, livefilter och en överföringsbegränsning",
+  "description": "Bygg diagram från mätkolumner, dela upp efter insamlingsmetadata och identifiera felet vid överföring till Annotate.",
+  "objectives": [
+    "Öppna den verkliga databasen och välj cell.",
+    "Bygg histogram, spridningsdiagram, färggrupper och radpaneler.",
+    "Kontrollera populationen vid filtrering och återställning.",
+    "Skilj intern publicering av urval från fungerande överföring."
+  ],
+  "prerequisite": "Ladda ned och packa upp den länkade mätdatabasen eller använd Annotates nedladdade exempel. Arkivet innehåller mätvärden, inte bildutsnitt; ingen ny modellkörning behövs.",
+  "scenes": [
+    "Graph Builder utforskar en befintlig tabell. Öppna det från Home. Det är en huvudmodul med Plate Viewer och Small Multiples inuti. Vi använder verkliga exempelmätningar, utan att träna en modell eller be en AI-tjänst skapa resultat.",
+    "Välj Load table och öppna measurements.db från arkivet eller det nedladdade Annotate-exemplet. Välj cell: 2 341 rader. Arkivet bevarar exakt den inspelade databasen men innehåller inte bilderna som andra tabeller hänvisar till.",
+    "Sök efter cell_area och dra kolumnen till X. Automatisk ritning ger ett histogram med 30 intervall. Varje stapel räknar celler i ett areaintervall; det är ingen behandlingsjämförelse eller signifikanstest. Lagrade enheter behålls utan ny fysisk kalibrering.",
+    "Dra cell_channel_1_mean_intensity till Y. Varje punkt visar en cells area och medelintensitet i kanal ett. Överlappande punkter kan dölja varandra, även om alla rader representeras här. Läs radantalet; större dataset kan ritas på annat sätt.",
+    "Lägg columnID på Colour och läs teckenförklaringen. Färgerna skiljer insamlingskolumner åt, inte förutsagda klasser eller kända behandlingar. Synlig separation är beskrivande, inte bevis för en effekt. Koordinater och färgtilldelningar har kontrollerats mot källraderna.",
+    "Lägg rowID på facettkanalen med nedåtpil för separata paneler per plattrad. De innehåller 1 140 och 1 201 celler. Gemensamma axlar hjälper jämförelsen, men celler i samma brunn är inte oberoende experimentella replikat.",
+    "Lägg till cell_area i filterpanelen till höger och sätt minimum till 21 925. Diagrammet ändras direkt till 1 171 rader. Den uppåtrundade medianen demonstrerar filtret, inte en rekommenderad biologisk gräns. Lägg märke till att axelgränserna också ändras.",
+    "Välj Clear all i filtret för att återställa samtliga 2 341 celler. Det skiljer sig från Clear all channels till vänster, som tar bort diagrammets kolumnkopplingar. Kontrollera antal och axlar igen; en ändrad population är ingen ny mätning.",
+    "Ta bort radfacetten med dess lilla kryss och dra en rektangel i spridningsdiagrammet. Denna version har ett fel: den inspelade gesten publicerar 653 objektnycklar internt men visar noll markerade, och Open selection in Annotate förblir inaktiverad. Anta inte att annoteringar öppnats eller skapats.",
+    "Ett vanligt klick rensar också det interna urvalet. Tutorialen verifierar återställningen men reparerar inte överföringen. Filtrering och utpekning är olika operationer; andra vyer kan dela tillståndet. Kontrollera den aktiva populationen i stället för att automatiskt läsa diagrammet som hela databasen.",
+    "Genvägarna i sidhuvudet öppnar Plate Viewer och Small Multiples, som beskrivs i egna tutorials. Den här skärmen har ingen knapp för att exportera diagrammet eller dess specifikation. Databasarkivet är en extern tutorialnedladdning, inte en Graph Builder-export.",
+    "I Python läser read_table in data, GraphSpec beskriver kanaler och facetter, och urvals-API:t skiljer filter från uttryckliga objektnycklar. Spara källa, inställningar och version med tolkningen. API:erna validerar inte biologiska slutsatser och reparerar inte överföringen till Annotate."
+  ]
+}
