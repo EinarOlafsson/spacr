@@ -1,8 +1,8 @@
 {
   "scope": "Partial private 1440p checkpoint; batch remains running",
-  "checked_web_copies": 21,
+  "checked_web_copies": 41,
   "expected_web_copies": 71,
-  "checked_bytes": 92235178,
+  "checked_bytes": 176689522,
   "lessons": [
     {
       "lesson": "01_pypi_github",
@@ -192,29 +192,189 @@
       "master_sha256": "0d6c4d13b9cb6e0ac37c6d467877c016a0298f84e3e33c7448731a069dcca5e0",
       "rendition_receipt_sha256": "4ef5833ca5ad0708c3c01ff49633a12fa7ba5624ffdec7b5f8c2eda1744a4bdf",
       "browser_report_sha256": "53126188659d0bd3df1b20904c9b371916301622dec29b447e8799ed3444ee85"
+    },
+    {
+      "lesson": "23_agreement",
+      "bytes": 2408825,
+      "frames": 5381,
+      "rendition_sha256": "304497247be5855719990ee1f34596b0b7f2a78044e4099f01235cd9068fb303",
+      "master_sha256": "62f8926733a03335da452e3d0494b8392d992d48389ab2a5f39ae3b695c447ac",
+      "rendition_receipt_sha256": "b489836cfc47d4048b4dd50764f26deebbde68767fac8928c164915635c41ded",
+      "browser_report_sha256": "654bdcb02fcf326dbcce499fa3b57c4e1a3b79811b1deb2a25961b728b6b909f"
+    },
+    {
+      "lesson": "24_plaque",
+      "bytes": 4056806,
+      "frames": 8672,
+      "rendition_sha256": "485a98e4c28ef54fc5d785e9f757d5beb2e1c86b4f48f4db3d89fb586f77940b",
+      "master_sha256": "12ae62f1bc144eb9b8338c4a89512523a285719b05c87cbe7d1d5eb717fde343",
+      "rendition_receipt_sha256": "5a2161112b8bf0a77df855ffb9654676173681e957d1e2bb34ebbf67fd69147f",
+      "browser_report_sha256": "91fe1cafc2189510f4f373bd986a3d26ce3f07ebe7b29587e56628315d004bd4"
+    },
+    {
+      "lesson": "25_recruitment",
+      "bytes": 7157417,
+      "frames": 12672,
+      "rendition_sha256": "a2be5b5c8b4dd9e21879f6a6c3777afbb9118698f8e379b984ab0112d7c4751a",
+      "master_sha256": "821dc7739fa3f6cd428ccabc9e04334bf36a40153ad9b75cef7f6d1520a223fa",
+      "rendition_receipt_sha256": "797f6b069ce22622990848261a013657ba52dbae40e096667450a7a1c34cbe45",
+      "browser_report_sha256": "81fcc66284a235a4f3942842f4ddf7d4483b1e60529f42dc66f267bf9b401119"
+    },
+    {
+      "lesson": "26_invasion",
+      "bytes": 3420198,
+      "frames": 7936,
+      "rendition_sha256": "e8b42084f804301c37953df82d9e148abfd77a342b14be69e561bce226f7020d",
+      "master_sha256": "603e3a4a5acb63e02866556c265e150a70af73c8d08adc6887de85abbbff8f02",
+      "rendition_receipt_sha256": "d9c712859e1739fb36043f58c14c4ff5f49d198759222d7d7c965ee612dc692b",
+      "browser_report_sha256": "7a3af0ba748dce821249c7545ede6c316c73d9c0fc672d1779b9123d77345236"
+    },
+    {
+      "lesson": "27_replication",
+      "bytes": 2832283,
+      "frames": 6598,
+      "rendition_sha256": "f70f52934a255938f53a06677ade66ee50d88a4715eb1d07777fec5a1a5180b5",
+      "master_sha256": "fb2073f9350c9159f56ad4843c5fd786c0e2091991e0b4dc97f92be69fe2320e",
+      "rendition_receipt_sha256": "2892243d3c51bf658aacac490393e467d79f49a5c3250594df2cd15db533d7e5",
+      "browser_report_sha256": "f7a3e3e150eecfc85d301f1189356d2b67c4f386dc9a323aadf7d8c93f1ff1e8"
+    },
+    {
+      "lesson": "28_training_runs",
+      "bytes": 5852080,
+      "frames": 10184,
+      "rendition_sha256": "89946934d4c699c649a840a5937525ef57c99fe91694bc4eff94fa35d34e3b39",
+      "master_sha256": "dcf0b1937a64393277bed730a45e807e5e8c2f90cc044004d76bfa4d0b47324b",
+      "rendition_receipt_sha256": "f447ac578d676312045151bdd461295c4f3e5639da56ec217f557fdca1b440ff",
+      "browser_report_sha256": "1e78dfc784eaf49e129cac85800e9d244a85c2df0d3f953f75315b0dca53e85f"
+    },
+    {
+      "lesson": "29_report",
+      "bytes": 3934634,
+      "frames": 7756,
+      "rendition_sha256": "555b53af3a0c8a20874759496ef1df451b4abf49244f94aaa18a70fcedf9eb42",
+      "master_sha256": "c5f989e8791c3a5365f14e351a979073fbf3f546249ac56b77f0351445d2ecf2",
+      "rendition_receipt_sha256": "78b6b32364111f2d360b0d5f5b2fdf262a0a239233f97372253f23ae2a24867c",
+      "browser_report_sha256": "6b548ef2ab6d86402300e3c14ae1d2c32f1291ac42c38750e5360e2bf512e669"
+    },
+    {
+      "lesson": "30_plate_queue",
+      "bytes": 2630187,
+      "frames": 5634,
+      "rendition_sha256": "75ce8bb5bc624947d377cb88890a42b860c0002814a63c6c02b4906791f1231d",
+      "master_sha256": "928519c3135108e141affdf3f176018874e6a10eb4246b9586b27aaaf708aa3d",
+      "rendition_receipt_sha256": "b01c50e8a329a59a1bd2484615fe72d06efb170ed3e9d839129ec9e92575d6ca",
+      "browser_report_sha256": "28b921c99fcb117a08c8b973cbfb0203b97bc4f4ff4f4cfb9a8c68c1278e8a7b"
+    },
+    {
+      "lesson": "31_external_masks",
+      "bytes": 8299602,
+      "frames": 14190,
+      "rendition_sha256": "0d83ea89474999006d1942ac0f604d75b2faa250a9ff108806cce891ef3f095a",
+      "master_sha256": "d6be51180ff31d9891063c98ff0c9f4139077b6b40612428e308f4b8377a21a5",
+      "rendition_receipt_sha256": "93f05dfde59a644ca0c3ee6d5f92067473739c015ffe9aaf4030f431da266b60",
+      "browser_report_sha256": "de83d31c11385df0352d0d4762f882a83cd6440a947bdc7e279a7f6b4b530abe"
+    },
+    {
+      "lesson": "32_align_stitch",
+      "bytes": 3778720,
+      "frames": 6198,
+      "rendition_sha256": "2c39d07bbe70b487d6ac3612aab651e912b33012d8224ab1dc376675fd6c562c",
+      "master_sha256": "1f19cc955d7ee6fbf7ef0be980d4e144605a37273936562f661aff040f247880",
+      "rendition_receipt_sha256": "64822d52a703381e8f87311cca70d5b519b6bb9c538823c0cb060f38b924f413",
+      "browser_report_sha256": "d557b809f8d1460517ec7b14dad2336d247a1ee0c35d3479222c0d242509d505"
+    },
+    {
+      "lesson": "34_database",
+      "bytes": 1554135,
+      "frames": 1382,
+      "rendition_sha256": "158653767eb12cbf3f408493094fe1d55bc8600e444cb70e390df8e480a3ed8a",
+      "master_sha256": "58ebf130880b1ee61dd209c3728ed33001475ab51bf9a7a10e5dc1968c3261da",
+      "rendition_receipt_sha256": "0a6b1f22dcbb4e4c98def3da7fb3d68fd57bd8f12038fdce429e4d6b000046c7",
+      "browser_report_sha256": "9e0370f9da9a3889ce5c143f0d88bf4913e41f35b83519c5ff4684beb63358eb"
+    },
+    {
+      "lesson": "35_converter",
+      "bytes": 6140477,
+      "frames": 9230,
+      "rendition_sha256": "1ab22cc9400766b8d36b7e8375b42bbf90e83e839a1900b8baa6cb7572138453",
+      "master_sha256": "4b122a528a72208904de14f37c46483fffbb88558a27a2852ac71e82245543b8",
+      "rendition_receipt_sha256": "58c68198420838ebb3b30c7fa88f776e05e18de3e770a0955e8c3b1370e97315",
+      "browser_report_sha256": "72096211d545e2aee0b3d2018f838df08019430edbdec4b7face04ba9403ecc5"
+    },
+    {
+      "lesson": "36_import",
+      "bytes": 5775682,
+      "frames": 8990,
+      "rendition_sha256": "d9cfce2d043d106671a2fc5f1b7e053363c2a4188e3ea5783c7f91ea0fd9f967",
+      "master_sha256": "5f9cee3a80f45281ed088e93eccd87e5f12f315eea16004090d0c79cce7bd26e",
+      "rendition_receipt_sha256": "ac8225d297212d4d94da5364ab523ff5e801c13fe7f147a794062061ba37f8a9",
+      "browser_report_sha256": "27c6ba3e3acb874617c8ea084cfe975d7ce48cae1ea17f91c68e2135c0bc48a3"
+    },
+    {
+      "lesson": "37_batch",
+      "bytes": 5215616,
+      "frames": 7360,
+      "rendition_sha256": "3a809f3631874ca5d969b1b748020c9fa6f340984b3e10785cccd4e776af40d8",
+      "master_sha256": "a890b80e4478a14e754e814a01a54a671705165f3db52f461cb90a04cfae8062",
+      "rendition_receipt_sha256": "470c728dd7199542fb15b4e14ff516b9c9e5b739b133ba0b345ef341c4a21421",
+      "browser_report_sha256": "297c851adf68df176ead4d0b3a1bbcc07dcc1a7de00d6923a33ff54643364166"
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "bytes": 2506171,
+      "frames": 5275,
+      "rendition_sha256": "3db9425dd8318831499b5417becade49495623c194a40648d2b84a8744911d6e",
+      "master_sha256": "5fce4e5d2daef6fcbd8a5821299657bec23f23f44aa2d27dc20a464719ff90d6",
+      "rendition_receipt_sha256": "c87f71c1452eab167ed75866eacf0dd55d9d6ed2c9d9268dcaeb7181d392e0cd",
+      "browser_report_sha256": "bcb1e500a92c8067256dde199eec3e451954105fd008d6255696ad83d8670bbd"
+    },
+    {
+      "lesson": "39_classifier_evaluation",
+      "bytes": 5400180,
+      "frames": 7884,
+      "rendition_sha256": "35bbe231002e92a5e6ab7d73d6abb3822f21266254e2353a8cbf430c41c16a36",
+      "master_sha256": "0158df1d1a628dc12b3f8c8e0a03ce1ac363cd9c5eb46537d2c854efa5cc6909",
+      "rendition_receipt_sha256": "f2bee51c3c9915693eb3883d344050ab9fd44393a0189cb44f123f3e469eed6d",
+      "browser_report_sha256": "8980ccd91c143332c8d44897f13333766b30d9638d73f3b6883dc6933ee6c11e"
+    },
+    {
+      "lesson": "40_run_history",
+      "bytes": 3842819,
+      "frames": 7581,
+      "rendition_sha256": "6a18cd9c5616adbda370d5bd27227e8a0bee201583cfb034b13caf4d726eecaa",
+      "master_sha256": "d31fc41c744253d482eccdf24de8eef9c3444bd473f07ea84914c64adda54240",
+      "rendition_receipt_sha256": "e86dd16cf69231225370783d65ee2effeac8c0eb56b390072a11e7d849c595a2",
+      "browser_report_sha256": "de1af4994654daa19efe9f7b4a766c32b475ff713949a691613093e32905bd05"
+    },
+    {
+      "lesson": "41_classify",
+      "bytes": 3272085,
+      "frames": 6926,
+      "rendition_sha256": "7fb11188e0fb5254ba80e6aee97c27b47bbdb5de66ade08131a489229b734a2f",
+      "master_sha256": "d30f18ee5858ed78fedf8a28223221fc9c50fd9be530fa1ca7e177e284ecc3fc",
+      "rendition_receipt_sha256": "e4ddbafb24bb66b2dac206dac6a8f128920c7ee1c5598b4e4dc564b94af16464",
+      "browser_report_sha256": "ac940d904407601ab1634e4643577d907fed61317d996a80814b6552ecdd90b6"
+    },
+    {
+      "lesson": "42_curate",
+      "bytes": 3166552,
+      "frames": 6899,
+      "rendition_sha256": "f8aac742062210d129c0943662d734fdb4aff4344c0222ac3bfc1fae739afd28",
+      "master_sha256": "2638f329c84827cf02046c30439e9a0b25eff7ecdf7a87c4a1ecee42d2bc5e35",
+      "rendition_receipt_sha256": "6142d0bab21ec52edf196112d252210c609085acdda9d4d3534f84bb4f342bf0",
+      "browser_report_sha256": "97e6a96f83aee2c58fce5729bf0f2af8b5c22107a94451c335c8439d44f7bd11"
+    },
+    {
+      "lesson": "43_illumination",
+      "bytes": 3209875,
+      "frames": 7137,
+      "rendition_sha256": "d331c73efde6966d5490df652be39b08b012440cd3874ced7564265428352be6",
+      "master_sha256": "111aca42e2b85810b2cc10044ab0bd8a50efd30039c05ff8d9ab3b0028e91273",
+      "rendition_receipt_sha256": "c18ed532a983c6dd472789539eca957932a21c86c9f3b03c16826f366d829753",
+      "browser_report_sha256": "d3cbe82f4439d80b25bc1e63639ec42361ff951ba2bd1405d35892fed9f7101b"
     }
   ],
   "remaining": [
-    "23_agreement",
-    "24_plaque",
-    "25_recruitment",
-    "26_invasion",
-    "27_replication",
-    "28_training_runs",
-    "29_report",
-    "30_plate_queue",
-    "31_external_masks",
-    "32_align_stitch",
-    "34_database",
-    "35_converter",
-    "36_import",
-    "37_batch",
-    "38_distributed_jobs",
-    "39_classifier_evaluation",
-    "40_run_history",
-    "41_classify",
-    "42_curate",
-    "43_illumination",
     "44_data_manager",
     "45_project_browser",
     "46_napari_bridge",
@@ -286,6 +446,53 @@
       }
     ],
     "scope": "Four additional decoded 1440p scene midpoints, not a complete-frame audit",
+    "published": false
+  },
+  "result_view_samples": {
+    "samples": [
+      {
+        "lesson": "13_regression",
+        "scene": 16,
+        "at_seconds": 278.1591645129063,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/web-renditions/13_regression/review-results.jpg",
+        "text": "Open the p-values view to inspect the result distribution. Interpret it together with the selected testing family, permutation resolution and diagnostics, not as automatic evidence of an effect. The separate Diagnostics tutorial explains the saved design and inference panels in detail.",
+        "sha256": "a7d43f4fce4314874d78e70798f9ec30035bd68b12839dd15ebb917afe98e07d",
+        "visually_inspected": true
+      },
+      {
+        "lesson": "15_image_umap",
+        "scene": 13,
+        "at_seconds": 200.0470712367256,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/web-renditions/15_image_umap/review-results.jpg",
+        "text": "Turn on Interactive to explore the already fitted map. This is not a live refit of changing settings. Clicking points, zooming and selecting regions helps inspect the current result; changing the analysis still requires another run.",
+        "sha256": "f0d5f5d80042081020e4c9e21432dc86ad83ba28611e337462c88e88e8963e78",
+        "visually_inspected": true
+      },
+      {
+        "lesson": "24_plaque",
+        "scene": 9,
+        "at_seconds": 159.2459183450608,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/web-renditions/24_plaque/review-results.jpg",
+        "text": "In Live settings, raise Min area to twenty-six thousand two hundred eleven pixels. This removes the two smaller predicted objects. The filtering reuses cached masks rather than running the model again. Change one setting at a time so you can see which objects it removes.",
+        "sha256": "be14f5ac64b4bdb2577b60dcce31793e32831fd7a4d1f5f3b98176fb6fbbf0a6",
+        "visually_inspected": true
+      },
+      {
+        "lesson": "25_recruitment",
+        "scene": 14,
+        "at_seconds": 259.48328539469475,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/web-renditions/25_recruitment/review-results.jpg",
+        "text": "Inspect the real archived image and its stored mask overlay. Its label areas differ from the measurement table. Recorded filtering and merging can explain that difference, but we have not reconstructed the exact historical masks. The overlay is context, not proof that an individual displayed boundary produced a particular recruitment ratio.",
+        "sha256": "b95a5409a450961176db21df084d64ed17cc094e5a84b474558a8d231d857e3c",
+        "visually_inspected": true
+      }
+    ],
+    "scope": "Four decoded 1440p result/control scene midpoints; native UI defects are not repaired by encoding",
+    "limitations": [
+      "Image UMAP points are dark purple against the native dark background; axes and controls remain visible, but no contrast/accessibility fix is claimed.",
+      "Regression secondary thumbnails are crowded and partly clipped in the recorded native panel; the selected p-value histogram remains visible.",
+      "Plaque preview controls cover part of the image while the changed area threshold is shown; the remaining lower preview shows the filtered objects."
+    ],
     "published": false
   },
   "original_media_replaced": false,
