@@ -29,6 +29,38 @@ The user confirmed these requirements on 9 September:
 
 ## Checkpoints
 
+### Maintainer-approved completion scope — 11 September
+
+The maintainer explicitly approved **Coming soon screens for unfinished
+workflows**, superseding the earlier no-placeholder rule for this release.
+The candidate therefore contains 71 complete tutorial packages and five
+unavailable screens: Map Barcodes, Model Compare, Model Zoo, Investigate Hit,
+and OPS. These screens are not successful workflow demonstrations and do not
+close the underlying application/data defects. OPS is under Mask.
+
+`coming_soon.py` supplies text in all fourteen catalog languages. It only
+transforms release copies; held recordings and original catalogs are preserved.
+Screens have no narration/video, cannot be marked complete, and do not count
+as available tutorials. The fifty-voice selection remains intact for all 71
+ready lessons. Parent routing is generated from the live registry, including
+for unchanged lessons whose media and narration are retained byte-for-byte.
+
+`build_release_candidate.py` creates a new private candidate, rechecks the
+existing full-library evidence and copies verified media without uploading it.
+`verify_release_candidate.py <candidate>` checks the candidate in Chromium,
+including all five screens in fourteen languages, mobile text visibility,
+each ready English video/audio pair, seeking, and ready/unavailable transitions.
+`checkpoint_release_candidate.py <candidate>` saves its exact player, fourteen
+catalogs, route metadata, browser evidence and all media hashes under
+`tools/tutorials/release_candidate/`. Large media remain in the private candidate
+and original authoring workspace, not duplicated into Git.
+
+The candidate is an **offline preview**: its narration and 4K roots are relative
+to its sibling `media_host/`. Do not copy that index directly into live docs or
+run the legacy publisher against the old authoring catalogs. The version-update
+and live-publication hold remains in force; release requires a separately
+approved deployment with final hosted roots and live-byte verification.
+
 1. Preserve and reconcile authoring/published sources; measure the live registry.
 2. Capture the current Home/navigation and rebuild each runtime Core lesson using
    real test-data controls, a bounded operation, and inspectable output.
