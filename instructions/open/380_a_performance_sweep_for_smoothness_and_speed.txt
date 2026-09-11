@@ -1281,3 +1281,84 @@ call rather than to optimise anything.
   an environment flag rather than trying to reach in from outside. The
   benchmark already has six such flags and this is the seventh.
 
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE CAUSE, NAMED AND PRICED: 135,800 EVENTS PER MODULE OPEN,
+MULTIPLIED BY EVERY APPLICATION-WIDE EVENT FILTER
+--------------------------------------------------------------------------------
+
+The section above leaves the 8x gap as an open question and says the next
+attempt should put the watchdog INSIDE `launch` rather than reach in from
+outside. Done -- `spacr/qt/stall_watch.py`, behind `SPACR_WATCH_GUI_STALLS`,
+one `os.environ.get` when off -- and it answered.
+
+FIRST IT EXPOSED A FLAW IN ITSELF, which is worth recording because it is
+the same shape as the evening's other instrument errors. One snapshot per
+stall gave FOUR STALLS WITH FOUR DIFFERENT LAST FRAMES: an event filter, a
+screen constructor, a settings-search install, another event filter.
+
+  ONE SNAPSHOT NAMES WHERE THE THREAD WAS, NOT WHERE THE TIME WENT, and
+  those are different questions whenever the stall is a LOOP rather than a
+  single blocking call. A list of four suspects reads like an answer.
+
+So the watch now samples for as long as the stall lasts and counts the
+innermost frames. Six stalls, 63 samples, aggregated:
+
+    IN AN APPLICATION-WIDE EVENT FILTER   32 of 63 = 50.8 %
+
+       14   22.2 %  live_zoom.py:192 eventFilter
+        5    7.9 %  dialogs.py:800 eventFilter
+        4    6.3 %  field_fade.py:231 eventFilter
+        3    4.8 %  feature_dictionary.py:858 eventFilter
+        2    3.2 %  i18n.py:4491 eventFilter
+        2    3.2 %  module_hints.py:142 eventFilter
+        1    1.6 %  button_roles.py:247 eventFilter
+        1    1.6 %  theme.py:3540 eventFilter
+
+EIGHT DISTINCT FILTERS, and an application-level filter sees EVERY event
+for EVERY object in the thread. That also explains the 8x: an in-process
+`MainWindow` installs TWO of them, because the other six are installed by
+`launch`.
+
+THEN THE CONTROLLED VERSION, because the above is a correlation. One
+process, one screen, the NUMBER of filters as the only variable, each
+extra filter doing nothing but counting and returning False:
+
+    + 0 filters   measure opens in   2.53 s
+    + 6 filters                      2.60 s
+    +24 filters                      4.86 s
+    +96 filters                     14.65 s
+
+    135,800 EVENTS ARE DELIVERED DURING ONE MODULE OPEN -- counted, not
+    estimated: each passenger filter saw 135,776-135,867 of them.
+
+That is ~126 ms per application-wide filter per module open, or 0.93 us
+per event per filter, for a filter that does NOTHING. The real eight do
+work.
+
+  THE DEFECT IS NOT ANY ONE FILTER. It is that opening a screen delivers a
+  hundred and thirty-five thousand events, and every one of them is
+  multiplied by the length of a chain that only ever grows. Eight filters
+  is ~1 s of pure dispatch before any of them does anything useful, and
+  nothing in the code says the chain has a cost, so the ninth will be added
+  the same way the eighth was.
+
+AND IT IS AREA 4 AS WELL AS AREA 3. The request judges "smoothness" by
+typing, scrolling and hovering, and every one of those events pays the same
+multiplier. A filter chain is a tax on input latency that does not show up
+in any per-screen measurement.
+
+WHAT TO DO ABOUT IT, in the order this file's method requires -- measure,
+then fix by cause:
+
+  1. THE EVENT COUNT IS THE BIGGER HALF. 135,800 events to build one
+     screen is the number to attack first; halving it halves every
+     filter's bill at once. Nobody has yet asked WHICH events those are,
+     and the same sampling hook can answer it.
+  2. THEN THE CHAIN. Several of the eight are narrow enough to be
+     installed on a widget rather than on the application -- `field_fade`
+     and `feature_dictionary` both filter for one widget's benefit --
+     and a filter installed on the widget it serves costs the application
+     nothing.
+  3. `live_zoom` IS 22.2 % ON ITS OWN and is the one to read first.
+
