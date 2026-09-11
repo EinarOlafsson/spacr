@@ -1,0 +1,30 @@
+{
+  "lesson": "38_distributed_jobs",
+  "english_sha256": "66bdff910bb343adabad62ef2e4536473e84b69671eb0419a199537ffb0d7100",
+  "review": {
+    "kind": "Editorial translation of frozen English; configuration-only boundary and native control behavior preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Processi distribuiti",
+  "description": "Preparare un profilo reale da Help e distinguere la configurazione salvata da un’esecuzione remota verificata.",
+  "objectives": [
+    "Aprire Distributed jobs da Help e salvare un profilo.",
+    "Distinguere mappatura dei percorsi, copia dei dati e autenticazione.",
+    "Preparare SSH, Slurm o comandi personalizzati senza dichiarare esecuzioni non provate."
+  ],
+  "prerequisite": "Solo configurazione, con archivio locale isolato e nessuna connessione o invio. researcher@workstation.invalid e le cartelle sono esempi, non destinazioni funzionanti. Prima dell’invio servono accesso autorizzato, spaCR e dipendenze compatibili e dati presenti sulla destinazione. Usare le impostazioni esportate dal modulo, non questo profilo come configurazione sperimentale. API: spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager. I profili non conservano password; autenticarsi fuori da spaCR. Le radici sostituiscono prefissi assoluti senza copiare immagini. Sono verificati salvataggio, riapertura e annullamento, non scheduler, risultati remoti o validità del modello.",
+  "scenes": [
+    "Apri Help, poi Distributed jobs. Questa utilità si raggiunge da Help, non da un riquadro principale separato di Home. Prepariamo un profilo reale ed esaminiamo i controlli attuali. Non mostriamo connessioni o processi remoti inviati: salvare un profilo non dimostra che la destinazione funzioni.",
+    "Questo pannello invia le impostazioni di un modulo a un’altra destinazione di esecuzione. Prima dell’invio, predisponi accesso autorizzato, un’installazione compatibile di spaCR e i dati sulla destinazione. I profili memorizzano impostazioni di connessione, non password. Configura le chiavi SSH o l’autenticazione dello strumento cloud fuori da spaCR.",
+    "Scegli New profile. Il salvataggio del modulo vuoto viene rifiutato con un messaggio. Assegna un nome chiaro e scegli il backend. Il nostro esempio si chiama esplicitamente NOT CONNECTED, così non può essere confuso con una workstation verificata o un processo riuscito.",
+    "Per SSH, inserisci host, cartella di lavoro remota ed eseguibile spaCR. L’host che termina con punto invalid e le cartelle sono esempi, non credenziali utilizzabili o posizioni verificate. Abbiamo salvato e riaperto il profilo; i valori visibili corrispondono esattamente alla configurazione memorizzata.",
+    "Le radici locale e remota descrivono gli stessi dati con prefissi assoluti diversi. Imposta entrambe, oppure lasciale entrambe vuote se i percorsi coincidono. Questo adatta i percorsi nelle impostazioni, senza copiare le immagini sul server. Predisponi separatamente l’archiviazione condivisa o il trasferimento.",
+    "Slurm abilita le opzioni dello scheduler mantenendo i controlli di host e percorsi. Partizioni, limiti di tempo e richieste di acceleratori devono corrispondere alle risorse assegnate sul cluster. La partizione mostrata è un segnaposto. Cambiare questa scelta non riserva una GPU e non verifica l’accessibilità dello scheduler.",
+    "Cloud or custom command abilita modelli separati di argomenti per invio, stato e annullamento, con recupero facoltativo dei log. Usa i segnaposto obbligatori per impostazioni e identificatore esterno. Sono argomenti suddivisi in token, non uno script shell. I controlli di connessione disattivati appartengono agli altri backend; qui non viene eseguito alcun comando personalizzato.",
+    "Cancel chiude le modifiche al backend non salvate e conserva il profilo SSH originale byte per byte. Save serve a conservare le modifiche desiderate. Poll interval suggerisce la frequenza di monitoraggio, non la velocità di calcolo. Una destinazione salvata resta solo configurazione finché non viene verificato un processo reale e autorizzato.",
+    "Per un’esecuzione reale, seleziona il modulo corretto e le sue impostazioni esportate prima di Submit. Inizia con una piccola verifica autorizzata, poi esamina stato, log e registrazione locale. Cancel job riguarda un processo selezionato; eliminare un profilo è diverso. La nostra tabella resta vuota perché non inviamo nulla e non dichiariamo risultati remoti."
+  ]
+}

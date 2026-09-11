@@ -1,0 +1,30 @@
+{
+  "lesson": "38_distributed_jobs",
+  "english_sha256": "66bdff910bb343adabad62ef2e4536473e84b69671eb0419a199537ffb0d7100",
+  "review": {
+    "kind": "Editorial translation of frozen English; configuration-only boundary and native control behavior preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "分布式任务",
+  "description": "从Help准备真实的执行配置，区分保存配置与经过验证的远程执行。",
+  "objectives": [
+    "从Help打开Distributed jobs并保存配置。",
+    "区分路径映射、数据复制和身份认证。",
+    "准备SSH、Slurm或自定义命令，不把未经测试的执行说成成功。"
+  ],
+  "prerequisite": "本课仅演示配置，使用隔离的本地存储，不连接远程主机，也不提交任务。researcher@workstation.invalid和所示目录均为示例，不是可用目标。提交前请准备经授权的访问、兼容的spaCR及依赖项，以及目标上已有的数据。应使用模块导出的设置，不要把此执行配置当作实验设置。API: spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager。配置不保存密码；请在spaCR外完成认证。数据根目录替换匹配的绝对路径前缀，不会复制图像。本课验证保存、重新打开和取消修改，不验证调度器成功、远程输出或模型有效性。",
+  "scenes": [
+    "打开Help，再选择Distributed jobs。这个工具位于Help中，并不是Home上的独立核心模块磁贴。我们将准备真实的执行配置，查看当前控件。本课不演示远程连接或任务提交；保存配置并不能证明目标可用。",
+    "此界面可将模块设置发送到另一个执行目标。提交前，请准备经授权的访问、兼容的spaCR安装环境，以及目标上可用的数据。配置保存的是连接设置，不是密码。SSH密钥或云命令行工具的认证应在spaCR外完成。",
+    "选择New profile。保存空表单会被拒绝，并显示内嵌提示。请设置清晰的名称并选择后端。我们明确将示例命名为NOT CONNECTED，以免把它误认为经过测试的工作站或已成功完成的任务。",
+    "对于SSH，请输入主机、远程工作目录和spaCR运行程序。以点invalid结尾的主机以及显示的目录都是示例，不是可用凭据或已验证位置。我们保存后重新打开了配置，界面值与存储内容完全一致。",
+    "本地和远程数据根目录用不同的绝对路径前缀表示同一批数据。应同时设置两者；路径相同时，也可以同时留空。这只是映射设置中的路径，不会把图像集合复制到服务器。共享存储或数据传输需要另行安排。",
+    "选择Slurm会启用调度器选项，同时保留主机和路径控件。分区名称、时间限制和加速器请求必须符合集群分配给您的资源。显示的分区只是占位示例。改变这个选项既不会预留GPU，也不会验证调度器能否访问。",
+    "Cloud or custom command会启用独立的提交、状态查询和取消命令参数模板，并可选取回日志。请使用设置和外部任务标识所需的占位符。这些内容按参数拆分，不是shell脚本。灰色连接控件属于其他后端；本课不会执行自定义命令。",
+    "Cancel会关闭尚未保存的后端修改，并逐字节保留原始SSH配置。需要保留的修改应使用Save。Poll interval表示建议的监控频率，而不是计算速度。在实际且经授权的任务通过检查前，已保存的执行目标仍然只是配置。",
+    "真正运行时，请在Submit前选择对应模块及其导出的设置。先进行小规模、经授权的检查，再查看任务状态、日志和本地记录。Cancel job针对选中的任务，与删除配置不同。这里没有提交任何任务，也没有声称获得远程输出，所以任务表保持为空。"
+  ]
+}

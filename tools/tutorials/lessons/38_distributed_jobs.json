@@ -1,0 +1,129 @@
+{
+  "id": "38_distributed_jobs",
+  "number": 38,
+  "slug": "distributed_jobs",
+  "title": "Distributed Jobs",
+  "series": 5,
+  "app_key": "distributed_jobs",
+  "section": "Data and batch runs",
+  "description": "Prepare a real execution profile from Help, understand backend and path choices, and distinguish saved configuration from verified remote execution.",
+  "objectives": [
+    "Find Distributed Jobs in Help and save a reusable execution profile.",
+    "Distinguish path mapping from copying data and credentials from profile settings.",
+    "Prepare SSH, Slurm or custom-command settings without claiming an untested remote run."
+  ],
+  "prerequisite": "This lesson records configuration only, with an isolated local profile store and no submitted job or remote connection. researcher@workstation.invalid and the displayed local/shared directories are illustrative, not working targets. Before submission, arrange authorised access, compatible spaCR/dependencies and existing data on the target. Use the actual module's exported settings, not this example profile as an experiment configuration. API: spacr.remote_execution.ExecutionProfile, ProfileStore and RemoteJobManager. Profiles do not store passwords; authenticate outside spaCR. Dataset roots rewrite matching absolute path prefixes; images are not automatically copied. The recording proves save/reopen and cancelled-edit preservation, not scheduler success, remote outputs or model validity.",
+  "scenes": [
+    {
+      "visual": "01_help_route",
+      "narration": "Open Help, then Distributed jobs. This utility is reached from Help, not a separate core Home tile. We prepare a real execution profile and inspect the current controls. No remote connection or submitted job is demonstrated; saving a profile does not prove that its target works.",
+      "focus": [
+        80,
+        0,
+        1200,
+        1500
+      ],
+      "related_lessons": [
+        "05_home"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_empty_actual_workbench",
+      "narration": "Use this workbench to send a module's settings to another execution target. Before submitting, arrange authorised access, a compatible spaCR installation and data available on that target. Profiles store connection settings, not passwords. Configure SSH keys or your cloud command-line authentication outside spaCR.",
+      "focus": [
+        455,
+        155,
+        3350,
+        430
+      ],
+      "related_lessons": [
+        "06_api",
+        "37_batch"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_empty_profile_refused",
+      "narration": "Choose New profile. Saving an empty form is refused with an inline message. Give the profile a clear name and choose its backend. Our example is explicitly named NOT CONNECTED, so it cannot be mistaken for a tested workstation or a successful job.",
+      "focus": [
+        695,
+        195,
+        2210,
+        1220
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_saved_profile_reopened",
+      "narration": "For SSH, enter the host, remote work directory and spaCR runner. The displayed dot-invalid host and directories are examples, not usable credentials or verified locations. We saved this profile and reopened it; the visible values match the stored configuration exactly.",
+      "focus": [
+        695,
+        380,
+        2210,
+        390
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_saved_profile_reopened",
+      "narration": "Local and remote dataset roots describe the same data through different absolute path prefixes. Set both, or leave both blank when paths are identical. This maps settings paths; it does not copy an image collection to the server. Arrange the actual shared storage or transfer separately.",
+      "focus": [
+        695,
+        595,
+        2210,
+        170
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_slurm_controls_not_submitted",
+      "narration": "Choosing Slurm enables scheduler options while keeping the host and path controls. Partition names, time limits and accelerator requests must match your cluster's allocation. The displayed partition is a placeholder. Changing this selector neither reserves a GPU nor verifies that the scheduler is reachable.",
+      "focus": [
+        695,
+        450,
+        2210,
+        430
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_custom_argument_templates",
+      "narration": "Cloud or custom command enables separate submit, status and cancel argument templates, with optional log retrieval. Use the required settings and external-ID placeholders. These are tokenised arguments, not a shell script. The greyed connection controls belong to the other backends; no custom command runs in this lesson.",
+      "focus": [
+        695,
+        805,
+        2210,
+        350
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_profile_saved_not_connected",
+      "narration": "Cancel closes our unsaved backend changes and preserves the original SSH profile byte for byte. Save is for changes you intend to retain. Poll interval controls suggested monitoring frequency, not computation speed. A saved execution target is still only configuration until a real, authorised job has been checked.",
+      "focus": [
+        455,
+        220,
+        3350,
+        205
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_submission_controls_no_job",
+      "narration": "For an actual run, select the matching module and its exported settings before Submit. Begin with a small authorised check, then inspect job status, logs and the local record. Cancel job targets a selected job; deleting a profile is different. Our table stays empty because we submit nothing and claim no remote outputs.",
+      "focus": [
+        455,
+        220,
+        3350,
+        1510
+      ],
+      "related_lessons": [
+        "37_batch",
+        "40_run_history",
+        "06_api"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

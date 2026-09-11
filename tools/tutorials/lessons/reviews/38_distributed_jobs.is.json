@@ -1,0 +1,30 @@
+{
+  "lesson": "38_distributed_jobs",
+  "english_sha256": "66bdff910bb343adabad62ef2e4536473e84b69671eb0419a199537ffb0d7100",
+  "review": {
+    "kind": "Editorial translation of frozen English; configuration-only boundary and native control behavior preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Dreifð keyrsla",
+  "description": "Undirbúðu raunverulega keyrslustillingu í Help og greindu vistaða uppsetningu frá staðfestri fjarkeyrslu.",
+  "objectives": [
+    "Opna Distributed jobs í Help og vista keyrslustillingu.",
+    "Greina á milli vörpunar skráarslóða, gagnaafritunar og auðkenningar.",
+    "Undirbúa SSH, Slurm eða eigin skipanir án þess að fullyrða um óprófaða keyrslu."
+  ],
+  "prerequisite": "Aðeins uppsetning, með aðskilinni staðbundinni geymslu; engin tenging og ekkert verk sent inn. researcher@workstation.invalid og möppurnar eru dæmi, ekki virkir áfangastaðir. Áður en verk er sent þarf heimilaðan aðgang, samhæft spaCR ásamt háðum hugbúnaði og gögn á keyrslustað. Notaðu útfluttar stillingar einingarinnar, ekki þessa keyrslustillingu sem tilraunauppsetningu. API: spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager. Lykilorð eru ekki vistuð; auðkenning er sett upp utan spaCR. Gagnarætur skipta út forskeytum algildra slóða en afrita ekki myndir. Vistun, enduropnun og afturköllun breytinga eru staðfest, ekki árangur verkstýringar, fjarlægar niðurstöður eða gildi líkans.",
+  "scenes": [
+    "Opnaðu Help og síðan Distributed jobs. Þetta verkfæri er í Help en ekki sérstök kjarnareining á Home. Við undirbúum raunverulega keyrslustillingu og skoðum núverandi stýringar. Engin fjartenging eða innsending verks er sýnd. Vistuð uppsetning sannar ekki að áfangastaðurinn virki.",
+    "Þessi vinnusíða sendir stillingar einingar á annan keyrslustað. Áður en þú sendir skaltu tryggja heimilaðan aðgang, samhæfa spaCR-uppsetningu og að gögnin séu tiltæk þar. Uppsetningin geymir tengistillingar, ekki lykilorð. Settu SSH-lykla eða auðkenningu skipanalínuverkfæris skýjaþjónustu upp utan spaCR.",
+    "Veldu New profile. Ekki er hægt að vista tómt eyðublað; skilaboð birtast í því. Gefðu uppsetningunni skýrt heiti og veldu bakenda. Dæmið heitir sérstaklega NOT CONNECTED svo því verði ekki ruglað saman við prófaða vinnustöð eða heppnaða keyrslu.",
+    "Fyrir SSH skráirðu hýsil, vinnumöppu á fjartölvu og spaCR-keyrsluforrit. Hýsillinn sem endar á punkti invalid og möppurnar eru dæmi, ekki nothæfar aðgangsupplýsingar eða staðfestir staðir. Við vistuðum og opnuðum uppsetninguna aftur; sýnilegu gildin samsvara vistuðu stillingunum nákvæmlega.",
+    "Staðbundin og fjarlæg gagnarót vísa á sömu gögn með ólíkum forskeytum algildra skráarslóða. Fylltu út báðar eða skildu báðar eftir auðar ef slóðirnar eru eins. Þetta varpar slóðum í stillingunum en afritar ekki myndasafn á þjóninn. Sameiginleg geymsla eða gagnaflutningur þarf að vera tilbúinn sérstaklega.",
+    "Slurm virkjar stillingar verkstýringar og heldur reitum fyrir hýsil og slóðir virkum. Heiti skiptingar, tímamörk og beiðnir um hraðla þurfa að samræmast úthlutun þinni á klasanum. Skiptingin sem sést er staðgengill. Þetta val tekur engan GPU frá og staðfestir ekki að verkstýringin sé aðgengileg.",
+    "Cloud or custom command virkjar sérstök viðfangasnið fyrir innsendingu, stöðufyrirspurn og afturköllun ásamt valfrjálsri sækningu annáls. Notaðu nauðsynlega staðgengla fyrir stillingar og ytra auðkenni. Þetta eru viðföng sem eru brotin upp, ekki skeljuforrit. Óvirku tengireitirnir tilheyra öðrum bakendum; engin eigin skipun er keyrð hér.",
+    "Cancel lokar óvistuðum breytingum okkar á bakenda og varðveitir upprunalegu SSH-stillinguna bæti fyrir bæti. Save vistar breytingar sem þú vilt halda. Poll interval leggur til tíðni stöðufyrirspurna en ekki reiknihraða. Vistaður keyrslustaður er enn aðeins uppsetning þar til raunverulegt, heimilað verk hefur verið athugað.",
+    "Fyrir raunverulega keyrslu velurðu rétta einingu og útfluttar stillingar hennar áður en þú velur Submit. Byrjaðu á lítilli heimilaðri prófun og skoðaðu síðan stöðu, annála og staðbundna skráningu. Cancel job á við valið verk; að eyða keyrslustillingu er annað. Taflan er tóm því við sendum ekkert og fullyrðum ekki um fjarlægar niðurstöður."
+  ]
+}

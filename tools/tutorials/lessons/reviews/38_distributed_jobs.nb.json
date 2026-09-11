@@ -1,0 +1,30 @@
+{
+  "lesson": "38_distributed_jobs",
+  "english_sha256": "66bdff910bb343adabad62ef2e4536473e84b69671eb0419a199537ffb0d7100",
+  "review": {
+    "kind": "Editorial translation of frozen English; configuration-only boundary and native control behavior preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Distribuerte jobber",
+  "description": "Forbered en virkelig kjøreprofil fra Help, og skill lagret oppsett fra bekreftet fjernkjøring.",
+  "objectives": [
+    "Åpne Distributed jobs fra Help og lagre en profil.",
+    "Skille mellom stitilordning, datakopiering og autentisering.",
+    "Forberede SSH, Slurm eller egne kommandoer uten å påstå en uprøvd kjøring."
+  ],
+  "prerequisite": "Bare oppsett, med isolert lokal lagring og ingen forbindelse eller innsendt jobb. researcher@workstation.invalid og mappene er eksempler, ikke fungerende mål. Før innsending trengs autorisert tilgang, kompatibel spaCR med avhengigheter og data på målet. Bruk modulens eksporterte innstillinger, ikke denne profilen som forsøksoppsett. API: spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager. Profiler lagrer ikke passord; autentiser utenfor spaCR. Datarøtter erstatter absolutte stiprefikser uten å kopiere bilder. Lagring, gjenåpning og avbrutte endringer er kontrollert, ikke køsystemets suksess, eksterne resultater eller modellgyldighet.",
+  "scenes": [
+    "Åpne Help og deretter Distributed jobs. Verktøyet åpnes fra Help, ikke fra en egen kjernemodulflis på Home. Vi forbereder en virkelig kjøreprofil og ser på dagens kontroller. Vi demonstrerer ingen fjernforbindelse eller innsendt jobb; en lagret profil beviser ikke at målet fungerer.",
+    "Dette panelet sender modulinnstillinger til et annet kjøremål. Sørg før innsending for autorisert tilgang, en kompatibel spaCR-installasjon og data tilgjengelig på målet. Profiler lagrer tilkoblingsinnstillinger, ikke passord. Sett opp SSH-nøkler eller autentisering for skyens kommandolinjeverktøy utenfor spaCR.",
+    "Velg New profile. Lagring av et tomt skjema avvises med en melding i skjemaet. Gi profilen et tydelig navn og velg backend. Eksemplet heter uttrykkelig NOT CONNECTED, slik at det ikke forveksles med en testet arbeidsstasjon eller en vellykket jobb.",
+    "For SSH fyller du inn vert, ekstern arbeidsmappe og spaCR-program. Verten som slutter med punktum invalid og mappene er eksempler, ikke brukbare påloggingsopplysninger eller bekreftede steder. Vi lagret profilen og åpnet den igjen; synlige verdier stemmer nøyaktig med det lagrede oppsettet.",
+    "Lokale og eksterne datarøtter beskriver de samme dataene med ulike absolutte stiprefikser. Angi begge, eller la begge være tomme når stiene er like. Dette tilordner stier i innstillingene; det kopierer ikke bildesamlingen til serveren. Ordne delt lagring eller overføring separat.",
+    "Slurm aktiverer køsystemets valg og beholder kontrollene for vert og stier. Partisjonsnavn, tidsgrenser og akseleratorbehov må samsvare med ressursene du er tildelt på klyngen. Den viste partisjonen er en plassholder. Valget reserverer ingen GPU og kontrollerer ikke at køsystemet er tilgjengelig.",
+    "Cloud or custom command aktiverer separate argumentmaler for innsending, status og avbrytelse, med valgfri henting av logg. Bruk de nødvendige plassholderne for innstillinger og ekstern ID. Dette er argumenter delt i tokens, ikke et skallskript. Grå tilkoblingskontroller hører til andre backender; ingen egen kommando kjøres her.",
+    "Cancel lukker de ulagrede backendendringene våre og bevarer den opprinnelige SSH-profilen byte for byte. Save beholder endringer du ønsker å lagre. Poll interval foreslår overvåkingshyppighet, ikke beregningshastighet. Et lagret mål er fortsatt bare oppsett før en virkelig, autorisert jobb er kontrollert.",
+    "For en virkelig kjøring velger du riktig modul og dens eksporterte innstillinger før Submit. Start med en liten autorisert kontroll, og se deretter status, logger og lokal registrering. Cancel job gjelder en valgt jobb; å slette en profil er noe annet. Tabellen er tom fordi vi ikke sender inn noe og ikke hevder å ha eksterne resultater."
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "lesson": "38_distributed_jobs",
+  "english_sha256": "66bdff910bb343adabad62ef2e4536473e84b69671eb0419a199537ffb0d7100",
+  "review": {
+    "kind": "Editorial translation of frozen English; configuration-only boundary and native control behavior preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Verteilte Aufträge",
+  "description": "Ein echtes Ausführungsprofil über Help vorbereiten und gespeicherte Konfiguration von geprüfter Fernausführung unterscheiden.",
+  "objectives": [
+    "Distributed jobs über Help öffnen und ein Profil speichern.",
+    "Pfadzuordnung, Datenkopie und Authentifizierung unterscheiden.",
+    "SSH, Slurm oder eigene Befehle vorbereiten, ohne ungeprüfte Ausführung als Erfolg darzustellen."
+  ],
+  "prerequisite": "Nur Konfiguration mit isoliertem lokalen Speicher; keine Verbindung und kein eingereichter Auftrag. researcher@workstation.invalid und die Verzeichnisse sind Beispiele, keine funktionierenden Ziele. Vor dem Einreichen sind berechtigter Zugriff, kompatibles spaCR samt Abhängigkeiten und vorhandene Daten am Ziel nötig. Exportierte Moduleinstellungen verwenden, nicht dieses Profil als Versuchskonfiguration. API: spacr.remote_execution.ExecutionProfile, ProfileStore, RemoteJobManager. Profile speichern keine Passwörter; Authentifizierung außerhalb von spaCR einrichten. Datenwurzeln ersetzen absolute Pfadpräfixe, kopieren aber keine Bilder. Speichern, Wiederöffnen und Verwerfen wurden geprüft, nicht Scheduler-Erfolg, entfernte Ausgaben oder Modellgültigkeit.",
+  "scenes": [
+    "Öffnen Sie Help und dann Distributed jobs. Dieses Werkzeug wird über Help aufgerufen, nicht über eine eigene Kernmodul-Kachel auf Home. Wir bereiten ein echtes Ausführungsprofil vor und betrachten die aktuellen Bedienelemente. Weder eine Fernverbindung noch ein eingereichter Auftrag werden demonstriert. Ein gespeichertes Profil beweist nicht, dass sein Ziel funktioniert.",
+    "Diese Oberfläche sendet Moduleinstellungen an ein anderes Ausführungsziel. Sorgen Sie vor dem Einreichen für berechtigten Zugriff, eine kompatible spaCR-Installation und verfügbare Daten am Ziel. Profile speichern Verbindungseinstellungen, keine Passwörter. SSH-Schlüssel oder die Anmeldung Ihres Cloud-Kommandozeilenprogramms richten Sie außerhalb von spaCR ein.",
+    "Wählen Sie New profile. Ein leeres Formular lässt sich nicht speichern; eine Meldung erscheint im Formular. Geben Sie einen eindeutigen Namen ein und wählen Sie das Backend. Unser Beispiel heißt ausdrücklich NOT CONNECTED, damit es nicht mit einem geprüften Rechner oder einem erfolgreichen Auftrag verwechselt wird.",
+    "Für SSH tragen Sie Host, entferntes Arbeitsverzeichnis und spaCR-Programm ein. Der Host mit der Endung Punkt invalid und die Verzeichnisse sind Beispiele, keine nutzbaren Zugangsdaten oder geprüften Orte. Wir haben das Profil gespeichert und erneut geöffnet; die angezeigten Werte entsprechen exakt der gespeicherten Konfiguration.",
+    "Lokale und entfernte Datenwurzeln beschreiben dieselben Daten mit unterschiedlichen absoluten Pfadpräfixen. Setzen Sie beide, oder lassen Sie beide leer, wenn die Pfade identisch sind. Das ordnet Einstellungspfade zu, kopiert aber keine Bildsammlung auf den Server. Gemeinsamen Speicher oder die Übertragung müssen Sie separat bereitstellen.",
+    "Slurm aktiviert Scheduler-Optionen und behält Host- und Pfadfelder bei. Partitionsnamen, Zeitlimits und Beschleunigeranforderungen müssen zur Ressourcenzuteilung Ihres Clusters passen. Die angezeigte Partition ist ein Platzhalter. Diese Auswahl reserviert keine GPU und prüft nicht die Erreichbarkeit des Schedulers.",
+    "Cloud or custom command aktiviert getrennte Argumentvorlagen für Einreichen, Statusabfrage und Abbrechen, ergänzt um optionalen Logabruf. Nutzen Sie die erforderlichen Platzhalter für Einstellungen und externe Kennung. Es handelt sich um zerlegte Argumente, nicht um ein Shell-Skript. Ausgegraute Verbindungsfelder gehören zu anderen Backends; hier wird kein eigener Befehl ausgeführt.",
+    "Cancel schließt unsere ungespeicherten Backend-Änderungen und erhält das ursprüngliche SSH-Profil Byte für Byte. Save übernimmt beabsichtigte Änderungen. Poll interval beschreibt die vorgeschlagene Überwachungshäufigkeit, nicht die Rechengeschwindigkeit. Ein gespeichertes Ziel bleibt Konfiguration, bis ein echter, autorisierter Auftrag geprüft wurde.",
+    "Wählen Sie für einen echten Lauf vor Submit das passende Modul und dessen exportierte Einstellungen. Beginnen Sie mit einem kleinen autorisierten Prüflauf und kontrollieren Sie Status, Logs und lokalen Datensatz. Cancel job betrifft einen ausgewählten Auftrag; ein Profil zu löschen ist etwas anderes. Unsere Tabelle bleibt leer: Wir reichen nichts ein und behaupten keine entfernten Ausgaben."
+  ]
+}
