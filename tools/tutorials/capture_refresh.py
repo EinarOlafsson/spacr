@@ -46,6 +46,7 @@ def main() -> int:
     parser.add_argument('--editor-detect', action='store_true', help='Also run actual Cellpose once on the small recropped example')
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
+    parser.add_argument('--methods-review-export', action='store_true', help='Record unchanged Methods export plus explicit review findings; never approve its draft')
     parser.add_argument('--plaque-zoo-model', action='store_true', help='Try the actual plaque Model Zoo download and preview in private staging')
     parser.add_argument('--motility-screen-export-probe', action='store_true', help='Diagnose the real Screen PDF export preference; not a production tutorial workaround')
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
@@ -66,6 +67,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
         parser.error('--preview-variants requires --preview')
+    if args.methods_review_export and (args.module != 'methods_export' or args.run or args.download):
+        parser.error('--methods-review-export requires methods_export without a run or download')
     if args.measure_full_example and (args.module != 'measure' or not args.run):
         parser.error('--measure-full-example requires --module measure --run')
     if args.measure_preview_controls and (args.module != 'measure' or not args.download or args.preview or args.run):
@@ -397,7 +400,7 @@ def main() -> int:
     elif args.module == 'methods_export':
         from capture_methods import record_methods
         record_methods(app, window, stage, captures, capture,
-                       settle, write_json, args.timeout)
+                       settle, write_json, args.timeout, review_export=args.methods_review_export)
     elif args.module == 'timelapse':
         from capture_timelapse import record_timelapse
         record_timelapse(app, window, stage, captures, capture,
