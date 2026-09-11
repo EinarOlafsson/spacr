@@ -840,3 +840,39 @@ is environment, ordering within its shard, or already fixed between
 it is; it records which ones cannot be reproduced from their own file, so
 the next step for them is the shard rather than the test.
 
+TRIAGED, THE TWELVE UNATTRIBUTED FILES, EACH RUN HERE RATHER THAN GUESSED AT:
+
+  FIVE ARE 386's EMBEDDINGS SCREEN and every one names the file, so none of
+  them was ever unattributed -- only unread:
+
+      "these views are built without install_sorting():"
+          ['screens/embeddings.py: self._table']
+      "these build a plain Qt cell instead of the shared one:"
+          ['screens/embeddings.py:286']
+      "hover help is on the FIELD instead of the setting's name in:"
+          ['embeddings.EmbeddingsScreen: 3 (QComboBox, QSpinBox)']
+      test_current_packaging_denominator_is_532...   assert 562 == 558
+      "conversational registered-app copy returned: ['somebody']"
+
+  THREE DO NOT REPRODUCE AND ALL THREE ARE TIMING ASSERTIONS --
+  `the_magic_wand_is_bounded_by_work` (two "returns promptly" tests),
+  `the_download_buttons_sit_over_their_columns`, and
+  `regression_results_panel::test_it_is_fast_enough_to_recolour_interactively`.
+
+    A CI BOX RUNNING TWELVE COVERAGE SHARDS CONCURRENTLY IS NOT THE MACHINE
+    THOSE CEILINGS WERE CALIBRATED ON. That is not an argument for raising
+    them; it is a reason not to read them as defects without a second run.
+
+  THREE PASS HERE with their whole files -- `preferences_tabs`,
+  `the_memory_budget`, `opening_things_does_not_hang`, `cov_r5_app_screen`
+  (80 tests, all green) -- so each needs its SHARD to reproduce, not its
+  file.
+
+  AND ONE WAS THIS SESSION'S OWN, caught by the suite rather than by the
+  author. `test_no_new_failure_swallowing_skips` named four handlers
+  written the same evening: `except Exception: pytest.skip(...)` around
+  `window._on_nav_selected(...)` in the new theme guards, which turns a
+  module that will not open -- a bug -- into a green run. Removed rather
+  than ratcheted, on that test's own reasoning: a skip must never be
+  reachable from a bug in spaCR.
+
