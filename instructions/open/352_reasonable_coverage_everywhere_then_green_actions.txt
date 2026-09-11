@@ -628,3 +628,54 @@ AND THE PACKAGING JOB IS FIXED ON NIGHTLY AT LAST. The home session's
 red on `ModuleNotFoundError: No module named 'yaml'`. Cherry-picked
 unchanged. compat-matrix should now carry only the 3.15 cell, which is
 `continue-on-error` and waiting on pandas wheels.
+
+
+--------------------------------------------------------------------------------
+2026-09-11, LATER STILL -- "DISPATCH A RUN AND READ IT" IS RIGHT FOR `tests`
+AND PUBLISHES THE PUBLIC SITE IF CARRIED TO `docs`
+--------------------------------------------------------------------------------
+
+The rule the section above lands on -- under a push storm, dispatch a run
+rather than wait for a gap -- is correct for `tests.yml` and MUST NOT be
+applied uniformly. Raised by a peer session, then checked here against the
+file rather than taken on trust.
+
+`.github/workflows/docs.yml` gates everything that can touch production
+Pages on the branch, WITH ONE DELIBERATE EXCEPTION for a dispatch:
+
+    # Upload Pages artifact / Configure Pages / the deploy job
+    if: >-
+      github.ref == 'refs/heads/main' ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/nightly')
+
+and the file's own header says what that means in as many words: a push to
+nightly used to republish https://einarolafsson.github.io/spacr/ FROM
+nightly, "overwriting whatever main had last deployed", so the public site
+documented unreviewed work. The push trigger was narrowed to fix that. The
+dispatch exemption is the remaining door, and it is intentional -- "a
+deliberately dispatched nightly run is the one narrow exception: it may
+publish only after this same workflow has audited the exact nightly catalogs
+and built the site successfully."
+
+  SO THE TWO WORKFLOWS ANSWER A DISPATCH DIFFERENTLY, AND OPPOSITELY.
+  `tests.yml` treats a dispatch as "give me a verdict nobody can cancel".
+  `docs.yml` treats a dispatch on nightly as "publish this". Someone
+  reaching for the first and reading the second's trigger list as
+  equivalent changes the public documentation site as a side effect of
+  wanting an uncancelled test run.
+
+357 reserves that specific action for the maintainer -- it is the one thing
+on its list visible outside the repository -- and it is still unanswered. So
+the rule, stated so it cannot be over-generalised:
+
+    DISPATCH `tests.yml` FREELY. NEVER DISPATCH `docs.yml` ON NIGHTLY TO
+    GET A CLEAN GATE. `compat-matrix.yml` completes on its own and does not
+    need dispatching either way.
+
+AND A RED `docs` RUN IS NOT EVIDENCE ABOUT WHATEVER WAS JUST PUSHED. It is
+red for the catalog migration 83 owns -- 82 records 196 `sv` failures with
+five of nine languages at schema 2, fr/hi/is still at schema 1, `sv` at
+schema 2 with stale symbols, and none of the nine carrying the API symbols
+from `benchmark`, `column_groups`, `gate_library` or `gpu_reduce`. Anyone
+reading a docs verdict for a code change is reading 83's backlog.
+

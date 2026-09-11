@@ -2,12 +2,14 @@
 A PERFORMANCE SWEEP: STARTUP, THEMES, MODULES, WIDGETS AND SETTINGS
 ================================================================================
 
-Status:    THE HARNESS EXISTS AND IS CALIBRATED, 2026-09-09. Two of the five
-           areas were already covered by tooling nobody had connected to
-           this item; the two the request judges "smoothness" by were not,
-           and are now. First baseline recorded. No fixes yet -- the
-           defects the harness names are below and they are the next work.
-           Filed 2026-09-07.
+Status:    THE HARNESS EXISTS AND IS CALIBRATED, 2026-09-09; THE THEME
+           DEFECT IT NAMED IS FIXED, 2026-09-11. Two of the five areas
+           were already covered by tooling nobody had connected to this
+           item; the two the request judges "smoothness" by were not, and
+           are now. The largest single defect the harness found -- a
+           preference save repolishing every widget in every hidden
+           screen -- went 10.2 s -> 3.1 s -> 1.7 s in two steps, both
+           recorded below. Filed 2026-09-07.
 Requested: 2026-09-07, verbatim -- "do an in depth performance sweep to check
            and fix any performance defects in starting spacr, running the
            themes, or starting the moduals and handelling the widgets and
@@ -880,7 +882,7 @@ theme change. Both properties are pinned in the guard file, which is now
   and only one of the seven was about theming.
 
 --------------------------------------------------------------------------------
-2026-09-11 -- THE LAST LEVER IS PRICED AND PROVEN REACHABLE, AND NOT TAKEN
+2026-09-11 -- THE LAST LEVER IS PRICED AND PROVEN REACHABLE
 --------------------------------------------------------------------------------
 
 "Not sheeting the hidden screens either" was recorded as a bigger change
@@ -911,16 +913,16 @@ MEASURED, four modules open, alternating dark and light:
 
 4.8x, on top of the 4x the per-window change already banked.
 
-NOT TAKEN, and the reason is the failure mode rather than the work. Every
-widget that is not reached is unstyled, and the thing that makes this
-cheap -- touching 1,525 widgets instead of 8,002 -- is exactly what makes a
-missed root invisible until somebody opens the screen it was on. The
-per-window change was a quarter of this size and moved seven tests, one of
-which was a real regression that only a pixel assertion caught.
+THE HESITATION IS THE FAILURE MODE, NOT THE WORK. Every widget that is
+not reached is unstyled, and the thing that makes this cheap -- touching
+1,525 widgets instead of 8,002 -- is exactly what makes a missed root
+invisible until somebody opens the screen it was on. The per-window change
+was a quarter of this size and moved seven tests, one of which was a real
+regression that only a pixel assertion caught.
 
-    WHOEVER TAKES IT NEEDED TWO THINGS THAT DID NOT EXIST. THE FIRST NOW
-    DOES: `tests/qt/test_every_widget_wears_the_current_theme.py`, six
-    tests, written before the change per this file's own method.
+    SO IT NEEDED TWO THINGS THAT DID NOT EXIST, AND THE FIRST IS THIS:
+    `tests/qt/test_every_widget_wears_the_current_theme.py`, seven tests,
+    written before the change per this file's own method.
 
       * every widget in a synthetic window wears the sheet, at depth;
       * a widget parented in AFTER the change wears it too, which is the
@@ -949,13 +951,67 @@ which was a real regression that only a pixel assertion caught.
         They are excluded by asking whether the host's own stylesheet
         mentions a colour.
 
-    WHAT IS STILL MISSING is the second thing: the dirty-mark on hidden
-    screens, so a screen shown later is sheeted on its `showEvent`. The
-    event filter that already catches new windows is the natural home for
-    it, and the guard above is what makes writing it safe.
+    THE SECOND THING is the dirty-mark on hidden screens, so a screen
+    shown later is sheeted on its `showEvent`. The event filter that
+    already catches new windows is the natural home for it, and the guard
+    above is what makes writing it safe. Both now exist; the section below
+    is what happened when they were used.
 
-WHAT IS STILL ON THE TABLE. 3,057 ms is not 222 ms. The floor is not
-sheeting the hidden screens either, which needs a per-SCREEN sheet plus a
-dirty mark applied on `showEvent` -- a bigger change than this one, and one
-this measurement now makes it possible to judge: it is worth another ~2.8 s
-of a preference save on a six-module session.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE LAST LEVER, TAKEN
+--------------------------------------------------------------------------------
+
+`MainWindow.stylesheet_roots()` now names the widgets that carry the
+application sheet instead of the window, and `theme._roots_for` asks every
+window for that list. A window that does not answer -- every dialog, menu,
+tooltip and test double -- is sheeted whole, exactly as before, which is
+why this is a change to ONE window rather than to the theme engine.
+
+MEASURED END TO END, same process, same window, four modules open, the two
+arms differing in one decision and nothing else: `stylesheet_roots`
+answering its real list, against the same function answering `[self]`,
+which is the fallback any non-nominating window already takes.
+
+    8,008 widgets, 6,432 of them inside screens that are not on show
+
+    nominated roots      1,323 ms first, ~1,700 ms steady
+    the whole window     ~3,930 ms steady
+
+`apply_preferences_to_app` end to end, not the `setStyleSheet` call alone,
+so it includes the palette, the overlays and the language pass. 2.3x, on
+top of the 4x the per-window change banked: a preference save on this
+session went 10.2 s -> 3.1 s -> 1.7 s.
+
+THE ONE THING THE GUARD FOUND, AND IT WOULD NOT HAVE BEEN FOUND BY READING.
+The obvious implementation sheets the stack's PAGES -- `stack.widget(i)`
+for the current index. The sidebar's `EdgeDrawer` is parented to the stack
+and is NOT one of its pages, so that loop misses it and every dock row
+inside it. The guard sampled 207 widgets of a real two-module window and
+reported exactly one genuinely unsheeted host, with its ancestry; the fix
+is `findChildren(..., FindDirectChildrenOnly)` over the stack rather than a
+loop over indices, and the visibility test is `is current or isVisible()`
+for the same reason -- the drawer is on screen BESIDE the page, and "the
+one the stack would raise" is a different question from "the one the user
+can see".
+
+    Reach after the fix, same sampler: 207 sampled, 161 sheeted, 46 inside
+    a hidden page, 0 genuinely missed.
+
+HIDDEN PAGES ARE MARKED, NOT SHEETED. `mark_as_a_sheet_target` sets a
+property; the event filter that already sheets every new window now also
+sheets a marked widget on its `Polish` or `Show`, which is before its first
+paint. That is what makes leaving 6,432 widgets alone safe rather than
+merely cheap.
+
+WHAT MOVED IN THE TESTS, and neither was a regression:
+
+  * `test_photo_themes.py::test_windows_are_repainted_for_the_new_theme`
+    asserted the WINDOW carries a sheet. It deliberately does not any more,
+    so it asks its roots instead.
+  * `test_home_layout.py` ratcheted 29 -> 30 apps. NOT this change: it
+    fails identically without it, and the 30th is `embeddings` from 386.
+
+WHAT IS LEFT. Nothing on this lever. The remaining ~1.7 s is the palette,
+the overlays and the 1,525 widgets that genuinely do need repolishing, and
+cutting into that is a different item from this one.
