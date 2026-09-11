@@ -1189,3 +1189,95 @@ WHAT IS NEXT HERE, in order, and the first is not the fix:
   3. THEN `measure`, with the breakdown area 3 asks for: registry lookup,
      screen construction, settings build, first paint.
 
+
+--------------------------------------------------------------------------------
+2026-09-11 -- `measure` IS THE AREA 3 DEFECT: 13 SECONDS, ONE STALL, AND SIX
+EXPLANATIONS MEASURED FALSE
+--------------------------------------------------------------------------------
+
+CONFIRMED ON A SETTLED BOX, load 4.0, with the driver's second door open so
+nothing errors and all 45 modules are timed:
+
+    run   __home__            measure
+    1     2.84 s, stall 503ms    13.36 s, stall 13,017 ms   OVER 10 s
+    2     1.66 s, stall 507ms    13.27 s, stall 12,939 ms   OVER 10 s
+
+and 13.01 / 12.87 on the previous pair. Four measurements, two sessions,
+12.9-13.4 s every time.
+
+IT IS ONE STALL, NOT MANY STEPS. `worst_event_loop_stall_ms` is ~13,000
+against a total of ~13,300: the GUI thread does not answer for essentially
+the whole open. `mask` (5,722 ms) and `regression` (8,194 ms) have the same
+shape, so EVERY module open freezes the interface for its duration. That is
+the 315 class -- "the desktop offering to kill spaCR" -- one report away.
+
+WHERE IT IS, FROM THE SUITE'S OWN TIMING LOG:
+
+    build screen  [measure]        7,067.9 ms
+      build widgets [67 settings]    307.3 ms
+
+so 6.8 s of the construction is NOT the settings, and the remaining ~6.3 s
+of the 13.4 is after the build, between construction and a painted usable
+state. THE COST IS NOT PROPORTIONAL TO SETTINGS, which is the first thing
+anyone would assume:
+
+    screen             build      widgets   settings
+    measure            7,068 ms     307 ms      67
+    regression         4,475 ms     638 ms      88
+    mask               3,436 ms     460 ms     193
+    classify_merged    3,042 ms     615 ms     108
+
+`mask` builds three times the widgets in half the time. `measure` has the
+FEWEST settings of the heavy screens and the longest build.
+
+SIX EXPLANATIONS TESTED AND EACH ELIMINATED, because this file's method is
+that a cause is measured rather than argued:
+
+  * NOT IMPORTS. Re-run with `SPACR_TIMING_IMPORTS=1` -- which the driver
+    hard-codes to 0, so a lazy import inside a build is billed to
+    `build screen` and named nothing. 208 timed imports, 7.13 s total, and
+    filtering them by timestamp: ZERO fall inside the measure build window,
+    0.000 s.
+  * NOT THE BACKDROP. 1.21 s with ambient on against 1.71 s off at
+    1400x900, and 1.57 s against 2.10 s at 3840x2160. Off is SLOWER, which
+    also disposes of the obvious follow-up.
+  * NOT THE ISOLATED HOME. The driver's worker runs with `HOME`,
+    `XDG_CACHE_HOME`, `XDG_CONFIG_HOME`, `SPACR_NO_SETUP`, `SPACR_TIMING`,
+    `MPLBACKEND` and `PYTHONDONTWRITEBYTECODE` all set; applying every one
+    of them to an in-process probe gives 1.28 s cold and 1.15 s warm.
+  * NOT LOAD. The 1-minute average was 19.8 for the first pair and 4.0 for
+    the second; the numbers moved by 3 %.
+  * NOT THE DEGRADED-SHUTDOWN STATE. Killing experiments tripped spaCR's
+    own "did not shut down cleanly 2 times running, so this start has no
+    animated background". Cleared by one clean run; the figure is
+    unchanged.
+  * NOT THE INOTIFY EXHAUSTION this machine reports. `max_user_instances`
+    is 128 with 87 in use, filled by concurrent Qt processes of my own --
+    and `QFileSystemWatcher` appears NOWHERE in `spacr/`, so the watches
+    are Qt's own and not something spaCR waits on.
+
+    THE INSTRUMENT WAS CHECKED BEFORE THE FINDING WAS KEPT, and two of the
+    six confounds were of my own making. A number measured on a machine
+    the measurer has disturbed is a number about the disturbance.
+
+WHAT IS ACTUALLY LEFT, STATED AS THE OPEN QUESTION IT IS. Building
+`MainWindow` directly in-process and pressing `mask` then `measure` gives
+`_build_screen` at 0.85 s for the same screen -- AN 8x GAP THAT APPEARS
+ONLY THROUGH `spacr.qt.run()`'s full launch. So the cost is state the
+launch sets up, not the screen, and the next step is to name the blocking
+call rather than to optimise anything.
+
+  WHAT WAS TRIED AND DID NOT WORK, so nobody repeats it. The suite has the
+  right instrument -- `tools/watch_the_gui_thread.py` dumps the GUI
+  thread's stack whenever it stops answering, and the last frame IS the
+  blocking call -- but it could not be pointed at the benchmark. Driving
+  `qt.run()` in-process with the watchdog attached makes Home itself time
+  out at 30 s, so the launch is sensitive to being hosted. Injecting the
+  watchdog into the driver's `python -c` worker through a `sitecustomize`
+  on its `PYTHONPATH` runs (the marker file proves it) but the patched
+  `QApplication` is never constructed, so nothing attaches.
+
+  THE NEXT PERSON SHOULD PUT THE WATCHDOG INSIDE `spacr.qt.launch` behind
+  an environment flag rather than trying to reach in from outside. The
+  benchmark already has six such flags and this is the seventh.
+
