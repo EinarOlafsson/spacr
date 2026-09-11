@@ -193,7 +193,7 @@ def test_a_penalised_fit_without_its_bootstrap_cannot_call_hits(capsys):
         'grna': ['g1_1'], 'condition': ['other'],
     })
     with pytest.raises(ValueError, match='needs perform_regression'):
-        ml._call_level_hits(coef_df, 'grna', {'controls': None}, 'lasso',
+        ml._call_level_hits(coef_df, 'grna', {'nontargeting_control_grnas': None}, 'lasso',
                             pd.DataFrame(), 'score')
     assert 'no control gRNAs were named' in capsys.readouterr().out
 
