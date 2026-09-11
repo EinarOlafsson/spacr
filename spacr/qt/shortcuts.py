@@ -188,9 +188,37 @@ BOUND_ELSEWHERE = frozenset({
 })
 
 
+def _is_a_gesture(keys: str) -> bool:
+    """Whether ``keys`` describes a hand movement rather than a key sequence.
+
+    RECOGNISED BY SHAPE, NOT BY A LIST OF EXCEPTIONS. A real accelerator is
+    "Ctrl+Shift+A" with no spaces; a gesture is prose -- "Z + scroll" -- and
+    the spaces around the plus are what say so. A second gesture therefore
+    needs no edit here, and a mistyped sequence still fails rather than
+    being quietly excused as a gesture.
+
+    The same rule is asserted from the other side in
+    `tests/qt/test_shortcut_overlay.py`, which refuses any gesture it has
+    not been told about.
+    """
+    return " + " in str(keys)
+
+
 def installed() -> List[ShortcutSpec]:
-    """The window-wide keys `install()` is responsible for binding."""
-    return [s for s in SHORTCUTS if s.keys not in BOUND_ELSEWHERE]
+    """The window-wide keys `install()` is responsible for binding.
+
+    GESTURES ARE NOT AMONG THEM, and leaving them in contradicted this
+    function's own sentence. `Z + scroll` is a modifier held while the
+    wheel turns, caught in an event filter; the spec's own comment says
+    "there is no QKeySequence that can express it". Returning it here
+    promised that `install()` binds something it cannot, and
+    `test_install_binds_every_key_it_is_responsible_for` was right to fail.
+
+    The cheat sheet still shows it: `mapped()` is the MAP of what the hands
+    can do, and this is the list of what `QShortcut` owns.
+    """
+    return [s for s in SHORTCUTS
+            if s.keys not in BOUND_ELSEWHERE and not _is_a_gesture(s.keys)]
 
 
 def mapped() -> List[ShortcutSpec]:
