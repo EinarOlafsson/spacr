@@ -6335,3 +6335,19 @@ listening/native-speaker signoff. Volcano Explorer 72 next: previous native
 Save/Load-style workaround was already verified, not an unresolved execution
 blocker. Relevant three application files are byte-identical to that recording;
 I am reusing it, rechecking exports, then producing the language/voice matrix.
+
+Codex tutorial lane, 2026-09-11: Volcano Explorer 72 technically complete.
+Foundation 53c89e410, thirteen translations 25cf1d028, final matrix e9e48b9c6;
+all pushed. Fifty audio tracks, fourteen browser/download cases and full 4K
+decode pass; all thirteen final scene midpoints were visually inspected.
+The original recording is reused after byte-identical checks of its three
+relevant implementation files. Native Save/Load synchronizes the initially
+misleading controls; this is an explicit workaround, NOT an application fix.
+All 434 original guide results remain nonsignificant at adjusted P <= .05.
+Changing the reference line to .5 is NOT a new analysis or nineteen discoveries.
+PDF/PNG exports and all original data hashes were checked; no source altered.
+
+Total: 67/75 originals technically complete, 3350 checked tracks (100 retained),
+938 browser cases. Eight originals plus held OPS remain; no publication or
+native-speaker/listening signoff. Continuing Hit List 48 using its existing
+hidden-container diagnosis; no Qt/application file will be edited in this lane.
