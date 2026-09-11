@@ -89,7 +89,6 @@ read_the_exclusions() {
 !/proposals/
 !/tools/
 !/data/
-!/*.pdf
 !/spacr/resources/models/
 !/spacr/resources/home/versions/
 !/spacr/resources/icons/backup_icons/
