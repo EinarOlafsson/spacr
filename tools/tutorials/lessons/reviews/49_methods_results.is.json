@@ -1,0 +1,28 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "d2163a967fc43b378f61bc985a7f3c18c1652600a63cbdb34d21a9aa583dc210",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Methods & Results: búa til, yfirfara og flytja út drög",
+  "description": "Opnaðu innbyggða tólið, notaðu raunverulegu Regression-keyrsluna, greindu þrjú yfirferðaratriði og varðveittu Markdown-útflutning merktan óyfirfarinn.",
+  "objectives": [
+    "Finna tólið innan Regression og réttar heimildir úr lokinni keyrslu.",
+    "Aðgreina skráðar staðreyndir, ályktaðar sjálfgefnar stillingar og orðalag um möguleg viðfangsefni.",
+    "Afrita og flytja út óbreytt drög með skipulögðum gögnum.",
+    "Greina árangursríkan útflutning og talnaathugun frá vísindalegu samþykki."
+  ],
+  "prerequisite": "Ljúktu fyrst Regression-dæminu með niðurhaluðum gögnum; varðveittu upprunalegt verkefni, keyrsluskrá og guide_permutation-niðurstöður. Kennslan snýst um yfirferð og útflutning, ekki samþykkt handrit eða viðgerð á forriti. Skráin tilgreinir guide_permutation_seed=0, ekki almennt slembifræ; drögin ákvarða seed=42 sérstaklega. Slembigjafarnir eru ekki sami hluturinn og almenna fræið sem var notað hefur ekki verið sannreynt. Greiningarútgáfa spaCR 1.5.0.4, útflutningsútgáfa í drögum 1.5.0.5. Öll 325 BH-gildi voru athuguð óháð: ekkert q<0.05, lágmark 0.2708333333333333. Áhrif/p/q tíu raðaðra gena samsvara upprunanum, en ekki allar leiðsögu-RNA-talningar eða vísindalegar forsendur eru staðfestar. Copy sections og Export Markdown varðveita texta og nákvæm gögn í UNREVIEWED_methods_results.md. Inntak óbreytt; enginn þjónustuaðili, ný aðhvarfsgreining, samþykkt eða birting. API: spacr.methods_export.build_digest, render_methods, render_results. Eldri fyrirvari um vísindalega nákvæmni er varðveittur.",
+  "scenes": [
+    "Opnaðu Regression frá Home og síðan innbyggða tólið Methods and Results. Þessi kennsla er undir Regression í undireiningahlutanum. Hún notar raunverulega lokna dæmið úr Regression-kennslunni, ekki uppspunnar niðurstöður. Markmiðið er að búa til, skoða og varðveita drög, ekki samþykkja handrit sjálfkrafa.",
+    "Veldu verkefnamöppu, skrá viðkomandi keyrslu og möppu aðhvarfsniðurstaðna hennar. Hafðu Classifier autt: Hér er lýst aðhvarfsgreiningu, ekki varðveittu flokkunarlíkani. Varðveittu frumskrár óbreyttar. Svipuð nöfn nægja ekki: Staðfestu að keyrsluskrá og niðurstöður lýsi sömu loknu keyrslunni.",
+    "Smelltu á Build digest. Methods, Results, Caveats og Run digest verða til án sambands við gervigreindarþjónustu. Kaflarnir eru upphaf yfirferðar. Hér nefnir textinn útgáfu útflutningsforritsins, en frumskráin tilgreinir aðra greiningarútgáfu. Greindu frá útgáfunni sem framkvæmdi greininguna í raun.",
+    "Lestu fyrirvarana í stað þess að jafna vel heppnaða myndun við staðfestingu. Hér segir almenna setningin um slembifræ fjörutíu og tveir. Frumskráin tilgreinir núll fyrir umröðun, en ekkert almennt fræ. Ekki skipta öllum fjörutíu og tveimur út fyrir núll: Aðgreindu fyrst slembigjafana og skráðan uppruna þeirra.",
+    "Í Run digest-flipanum má skoða skipulögðu gögnin. Berðu tilgreindar stillingar og varðveitt umhverfi saman við textann. Sjálfgefið gildi ályktað við útflutning sannar ekki fyrri framkvæmd. Varðveittu viðvaranir og óleyst atriði, líka skort á gæðaeftirlitsupplýsingum; skortur á skýrslu sannar ekki að eftirlit hafi staðist.",
+    "Varðveitta genataflan inniheldur þrjú hundruð tuttugu og fimm próf og ekkert er marktækt við q-mörkin núll komma núll fimm. Lægsta q er um núll komma tuttugu og sjö. Fyrirsögnin strongest hits er því villandi: Þetta eru raðaðir möguleikar, ekki uppgötvanir. Athugaðu allan leiðrétta prófaflokkinn, ekki aðeins áhugaverðar efstu línur.",
+    "Copy sections afritar sýnilega Methods og Results saman. Það leiðréttir ekki orðalag, staðfestir ekki tölur og tekur ekki skipulagða viðaukann með. Varðveittu óbreytt afrit áður en sérstaklega skráðar breytingar eru gerðar. Leystu spurningar um fræ, útgáfu og orðalag með frumgögnunum áður en textinn fer í skýrslu.",
+    "Export Markdown vistar báða kafla og keyrslugögn sem viðauka. Veldu nýtt skráarnafn, hér sérstaklega merkt óyfirfarið. Raunverulega Save-aðgerðin býr til skrána og athugun okkar staðfestir að texti og skipulögð gögn samsvari skjánum. Vel heppnaður útflutningur er ekki vísindalegt samþykki.",
+    "Draft with AI er valfrjálst og er ekki notað hér. Það sendir samantektina til stillts þjónustuaðila; yfirfarðu fyrst innihald og persónuvernd. Talnaathugun sker ekki úr um hvort setning merki réttan hlut. Python býður build_digest, render_methods og render_results fyrir sama verkferli, með sömu þörf fyrir yfirferð."
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "d2163a967fc43b378f61bc985a7f3c18c1652600a63cbdb34d21a9aa583dc210",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "de",
+  "title": "Methods & Results: einen Entwurf erstellen, prüfen und exportieren",
+  "description": "Öffnen Sie das eingebettete Werkzeug, verwenden Sie den echten Regression-Lauf, erkennen Sie drei Prüfprobleme und bewahren Sie einen ausdrücklich ungeprüften Markdown-Export.",
+  "objectives": [
+    "Das Werkzeug in Regression und die richtigen Quellen des abgeschlossenen Laufs finden.",
+    "Aufgezeichnete Fakten, abgeleitete Standardwerte und Kandidatenformulierungen unterscheiden.",
+    "Den unveränderten Entwurf mit strukturiertem Datensatz kopieren und exportieren.",
+    "Erfolgreichen Export und Zahlenprüfung von wissenschaftlicher Freigabe unterscheiden."
+  ],
+  "prerequisite": "Zuerst das Regression-Beispiel mit heruntergeladenen Daten abschließen; Originalprojekt, Laufjournal und guide_permutation-Ergebnisse behalten. Diese Lektion prüft und exportiert, sie genehmigt kein Manuskript und repariert keine App. Das Journal deklariert guide_permutation_seed=0, keinen globalen Seed; der Entwurf löst separat seed=42 auf. Generatoren sind nicht austauschbar, der tatsächlich angewandte globale Seed ist ungeprüft. Analyseversion spaCR 1.5.0.4, im Entwurf Exporterversion 1.5.0.5. Alle 325 BH-Werte unabhängig geprüft: kein q<0.05, Minimum 0.2708333333333333. Effekte/p/q von zehn Kandidaten stimmen überein; nicht sämtliche Guide-Zahlen oder wissenschaftlichen Annahmen sind zertifiziert. Copy sections und Export Markdown bewahren Text und exakten Datensatz in UNREVIEWED_methods_results.md. Eingaben unverändert; kein Anbieter, neuer Lauf, Freigabe oder Veröffentlichung. API: spacr.methods_export.build_digest, render_methods, render_results. Der frühere Genauigkeitsvorbehalt bleibt erhalten.",
+  "scenes": [
+    "Öffnen Sie Regression auf Home und anschließend das eingebettete Werkzeug Methods and Results. Dieses Tutorial steht im Untermodulbereich unter Regression. Es nutzt das echte abgeschlossene Beispiel der Regression-Lektion, keine erfundenen Ergebnisse. Ziel ist, einen Entwurf zu erstellen, zu prüfen und aufzubewahren, nicht ein Manuskript automatisch freizugeben.",
+    "Wählen Sie Projektordner, Journal des konkreten Laufs und dessen Regression-Ergebnisordner. Lassen Sie Classifier leer: Hier wird ein Regressionslauf beschrieben, kein Klassifikator-Checkpoint. Bewahren Sie die Originaldateien unverändert auf. Ähnliche Namen reichen nicht: Prüfen Sie, ob Journal und Ergebnisse denselben abgeschlossenen Lauf beschreiben.",
+    "Klicken Sie auf Build digest. Methods, Results, Caveats und Run digest entstehen ohne Kontakt zu einem AI-Anbieter. Diese Abschnitte sind ein Ausgangspunkt zur Prüfung. Hier nennt der Text die Exporterversion, während das ursprüngliche Journal eine andere Analyseversion verzeichnet. Berichten Sie die Version, die die Analyse tatsächlich erzeugt hat.",
+    "Lesen Sie die Vorbehalte, statt erfolgreichen Aufbau als Validierung zu verstehen. Hier nennt der allgemeine Seed-Satz zweiundvierzig. Das Originaljournal deklariert ausdrücklich null für Permutationen, aber keinen globalen Lauf-Seed. Ersetzen Sie nicht jede Zweiundvierzig durch null: Unterscheiden Sie zunächst die Generatoren und ihre aufgezeichnete Herkunft.",
+    "Im Tab Run digest können Sie diese strukturierten Datensätze prüfen. Vergleichen Sie deklarierte Einstellungen und gespeicherte Umgebung mit dem Text. Ein beim Export abgeleiteter Standardwert beweist keinen historischen Ablauf. Bewahren Sie Warnungen und offene Fragen einschließlich fehlender Qualitätskontrolldaten. Ein fehlender Bericht beweist keine bestandene Kontrolle.",
+    "Die gespeicherte Gentabelle enthält dreihundertfünfundzwanzig Tests; keiner ist beim q-Schwellenwert null Komma null fünf signifikant. Das kleinste q liegt bei ungefähr null Komma siebenundzwanzig. Daher ist strongest hits hier irreführend: Es sind geordnete Kandidaten, keine Entdeckungen. Prüfen Sie die gesamte korrigierte Testfamilie, nicht nur attraktive Spitzenzeilen.",
+    "Copy sections kopiert die angezeigten Methods und Results zusammen. Es korrigiert weder Formulierungen noch zertifiziert es Zahlen oder fügt den strukturierten Anhang hinzu. Bewahren Sie vor separat dokumentierten Änderungen eine unbearbeitete Kopie. Klären Sie Seed, Version und Kandidatensprache anhand der Quellen, bevor Sie den Text in einem Bericht verwenden.",
+    "Export Markdown speichert beide Abschnitte und den Laufdatensatz als Anhang. Wählen Sie einen neuen Namen, hier ausdrücklich als ungeprüft gekennzeichnet. Die echte Save-Aktion erzeugt die Datei; unsere Prüfung bestätigt, dass Text und strukturierter Datensatz der Anzeige entsprechen. Erfolgreicher Export ist keine wissenschaftliche Freigabe.",
+    "Draft with AI ist optional und wird hier nicht benutzt. Es sendet den Datensatz an den konfigurierten Anbieter; prüfen Sie vorher Inhalt und Datenschutz. Eine Zahlenprüfung entscheidet nicht, ob ein Satz das Richtige bedeutet. Python bietet build_digest, render_methods und render_results für denselben Ablauf mit demselben Prüfbedarf."
+  ]
+}

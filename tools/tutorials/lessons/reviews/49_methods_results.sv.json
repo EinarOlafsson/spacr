@@ -1,0 +1,28 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "d2163a967fc43b378f61bc985a7f3c18c1652600a63cbdb34d21a9aa583dc210",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "sv",
+  "title": "Methods & Results: skapa, granska och exportera ett utkast",
+  "description": "Öppna det inbyggda verktyget, använd den verkliga Regression-körningen, identifiera tre granskningsproblem och bevara en Markdown-export uttryckligen märkt som ogranskad.",
+  "objectives": [
+    "Hitta verktyget i Regression och välja källorna från en avslutad körning.",
+    "Skilja registrerade fakta, härledda standardvärden och kandidatbenämningar.",
+    "Kopiera och exportera oförändrat utkast med strukturerade data.",
+    "Skilja lyckad export och sifferkontroll från vetenskapligt godkännande."
+  ],
+  "prerequisite": "Slutför först Regression-exemplet med nedladdade data; behåll originalprojekt, körjournal och guide_permutation-resultat. Lektionen granskar och exporterar, men godkänner inget manuskript och lagar inte appen. Journalen anger guide_permutation_seed=0, inget globalt seed; utkastet härleder separat seed=42. Generatorerna är inte utbytbara och använt globalt seed är inte verifierat. Analysversion spaCR 1.5.0.4, utkastets exportör 1.5.0.5. Alla 325 BH-värden oberoende kontrollerade: inget q<0.05, minimum 0.2708333333333333. Effekt/p/q för tio kandidater stämmer, men inte alla guideantal eller vetenskapliga antaganden är certifierade. Copy sections och Export Markdown bevarar text och exakt struktur i UNREVIEWED_methods_results.md. Indata oförändrade; ingen leverantörskontakt, ny regression, godkännande eller publicering. API: spacr.methods_export.build_digest, render_methods, render_results. Det tidigare förbehållet om vetenskaplig korrekthet bevaras.",
+  "scenes": [
+    "Öppna Regression från Home och sedan det inbyggda verktyget Methods and Results. Den här lektionen ligger under Regression i undermodulsektionen. Den använder det verkliga avslutade exemplet från Regression-lektionen, inte påhittade resultat. Målet är att skapa, undersöka och bevara ett utkast, inte att automatiskt godkänna ett manuskript.",
+    "Välj projektmappen, journalen för just den körningen och dess mapp med regressionsresultat. Lämna Classifier tomt: Här beskrivs en regressionskörning, inte en klassificerares checkpoint. Behåll originalen oförändrade. Liknande namn räcker inte: Kontrollera att journal och resultat beskriver samma avslutade körning.",
+    "Klicka på Build digest. Methods, Results, Caveats och Run digest skapas utan kontakt med en AI-leverantör. Avsnitten är en utgångspunkt för granskning. Här anger texten exportörens version, medan originaljournalen registrerar en annan analysversion. Rapportera den version som faktiskt producerade analysen.",
+    "Läs förbehållen i stället för att se lyckat skapande som validering. Här säger den allmänna seed-meningen fyrtiotvå. Originaljournalen anger uttryckligen noll för permutationerna, men inget globalt seed. Ersätt inte alla fyrtiotvå med noll: Skilj först mellan generatorerna och deras registrerade ursprung.",
+    "Fliken Run digest visar de strukturerade uppgifterna. Jämför deklarerade inställningar och sparad miljö med texten. Ett standardvärde härlett vid export bevisar inte historisk körning. Bevara varningar och öppna frågor, inklusive saknad kvalitetskontrollinformation; en saknad rapport bevisar inte godkänd kontroll.",
+    "Den sparade gentabellen har trehundratjugofem tester, inget signifikant vid q-gränsen noll komma noll fem. Minsta q är ungefär noll komma tjugosju. Rubriken strongest hits är därför missvisande: Det är rangordnade kandidater, inte upptäckter. Kontrollera hela den korrigerade testfamiljen, inte bara lockande topprader.",
+    "Copy sections kopierar visade Methods och Results tillsammans. Det rättar inte formuleringar, certifierar inte siffror och inkluderar inte den strukturerade bilagan. Bevara en oredigerad kopia före separat dokumenterade ändringar. Red ut seed, version och kandidatbenämningar mot källorna innan texten används i en rapport.",
+    "Export Markdown sparar båda avsnitten och körningsdata som bilaga. Välj ett nytt filnamn, här uttryckligen märkt som ogranskat. Den riktiga Save-handlingen skapar filen, och vår kontroll bekräftar att text och strukturerade data motsvarar skärmen. Lyckad export är inget vetenskapligt godkännande.",
+    "Draft with AI är valfritt och används inte här. Det skickar datasammanställningen till den konfigurerade leverantören; granska innehåll och integritet först. Sifferkontroll avgör inte om en mening betyder rätt sak. Python erbjuder build_digest, render_methods och render_results för samma arbetsflöde med samma granskningsbehov."
+  ]
+}
