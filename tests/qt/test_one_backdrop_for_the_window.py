@@ -48,11 +48,15 @@ def test_home_still_has_a_backdrop_the_user_can_see(qtbot, qt_theme_applied):
     ``#000000``. Counting widgets could not see that, because the widget
     that was counted was the one being covered up.
 
-    So the assertion is now the property the maintainer actually reported
-    on: the home screen HAS an animated field that reaches the glass. One
-    or two is no longer the question; the old question is what shipped a
-    black window. Restore the exact-one assertion only together with a
-    measurement that the remaining backdrop is visible -- see 327 and 380.
+    THE EXACT-ONE ASSERTION IS BACK, 2026-09-11, AND SO IS THE
+    MEASUREMENT IT WAS MADE CONDITIONAL ON -- that was the condition this
+    docstring set and it has been met, not waived. The containers stopped
+    painting an opaque `bg` over the window's backdrop
+    (`theme._window_block` takes the transparent shape when an animated
+    backdrop is running), the dedup is on again, and
+    `test_the_home_screen_is_not_black_on_a_real_display` below reads the
+    pixels from X. Counting alone shipped a black window; counting beside a
+    picture does not.
     """
     from spacr.qt.app import MainWindow
 
@@ -64,8 +68,12 @@ def test_home_still_has_a_backdrop_the_user_can_see(qtbot, qt_theme_applied):
 
     if window.window_backdrop() is None:
         pytest.skip("the ambient backdrop is off in this configuration")
-    assert _visible_backdrops(window), (
-        "the home screen has no visible animated backdrop at all")
+    visible = _visible_backdrops(window)
+    assert visible, "the home screen has no visible animated backdrop at all"
+    assert len(visible) == 1, (
+        f"{len(visible)} animated backdrops are visible on Home; two "
+        f"full-size fields shaded and blitted per frame was 950 paints/s "
+        f"and 393 Mpx/s for a picture nobody could see")
 
 
 def test_opening_a_module_keeps_a_backdrop_too(qtbot, qt_theme_applied):
@@ -179,3 +187,87 @@ def test_the_screen_stops_deferring_once_the_window_backdrop_goes(
     finally:
         prefs.set_ambient_enabled(was_enabled)
         prefs.apply_preferences_to_app(QApplication.instance())
+
+
+@pytest.mark.gui
+def test_the_home_screen_is_not_black_on_a_real_display(qtbot):
+    """THE MEASUREMENT THE EXACT-ONE ASSERTION ABOVE IS CONDITIONAL ON.
+
+    MARKED `gui` BECAUSE IT CANNOT BE FAKED. The offscreen platform does
+    not composite, and `QWidget.grab()` cannot capture the GL-backed
+    `AmbientWidget` at all -- it renders a WORKING backdrop as black, which
+    is how a green suite shipped a black window in the first place. The
+    only honest reading is `QScreen.grabWindow` on a raised, settled window
+    under a real display, and the suite runs `-m "not gui"`, so this costs
+    nothing where it could only lie.
+
+    THE THRESHOLDS COME FROM MEASUREMENTS, not from taste. Home screen,
+    dark theme, the maintainer's display, five runs with this fix in:
+
+        chromatic  46.9  51.9  52.6  64.1  65.2 %
+        pure black  0.0   0.0   0.0   0.0   0.0 %
+
+    and the same configuration with the window block left opaque, which is
+    the regression: 3.0 % chromatic and 20.4 % pure black. The backdrop is
+    ANIMATED, so the chromatic figure moves with whichever frame the grab
+    catches -- hence a floor at 25 %, well under the lowest reading and
+    well over the broken one, rather than a number near either.
+    """
+    from PySide6.QtCore import QElapsedTimer, Qt
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt import preferences
+    from spacr.qt.app import MainWindow
+
+    if not preferences.get_ambient_enabled():
+        pytest.skip("the ambient backdrop is off in this configuration")
+
+    app = QApplication.instance()
+    # THROUGH THE REAL PATH, or this measures an unthemed window. The
+    # stylesheet is what makes the containers transparent over the
+    # backdrop, and without it parts of the window paint their default
+    # black -- 5.4 % of the frame, measured, which is a fact about the
+    # test rather than about the product.
+    preferences.apply_preferences_to_app(app)
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1200, 800)
+    window.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+    window.show()
+    window.raise_()
+    window.activateWindow()
+    # NOT `processEvents()` IN A COUNTED LOOP. Forty calls take
+    # microseconds; a compositing window manager needs milliseconds to map
+    # and composite, and a grab fired before the window is on screen
+    # returns whatever is stacked above it -- which on a dark desktop is a
+    # convincing near-black that looks exactly like the bug this asserts
+    # against. That mistake cost a session's worth of wrong conclusions.
+    clock = QElapsedTimer()
+    clock.start()
+    while clock.elapsed() < 2500:
+        app.processEvents()
+
+    image = window.screen().grabWindow(window.winId()).toImage()
+    assert not image.isNull() and image.width() > 100, (
+        "the grab came back empty; run "
+        "tools/can_this_display_be_measured.py first")
+
+    chromatic = black = total = 0
+    for y in range(0, image.height(), 3):
+        for x in range(0, image.width(), 3):
+            colour = image.pixelColor(x, y)
+            red, green, blue = colour.red(), colour.green(), colour.blue()
+            total += 1
+            if red == green == blue == 0:
+                black += 1
+            if max(red, green, blue) - min(red, green, blue) >= 12:
+                chromatic += 1
+
+    black_share = 100.0 * black / total
+    chromatic_share = 100.0 * chromatic / total
+    assert black_share < 5.0, (
+        f"{black_share:.1f}% of the home screen is pure black; the "
+        f"regression this guards measured 20.4%")
+    assert chromatic_share > 25.0, (
+        f"only {chromatic_share:.1f}% of the home screen is coloured; the "
+        f"regression this guards measured 3.0% and the fix measures 47-65%")

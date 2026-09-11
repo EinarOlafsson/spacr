@@ -238,18 +238,52 @@ is guarded: a build without preferences -- a test composing a sheet, a docs
 run -- gets the opaque block it had before.
 
 --------------------------------------------------------------------------------
-WHAT IS LEFT, WHICH IS STEP 3 AND ONLY STEP 3
+STEP 3 IS DONE. THE DEDUP IS BACK ON AND THE EXACT-ONE ASSERTION WITH IT
 --------------------------------------------------------------------------------
 
-Re-enable `_drop_a_redundant_screen_backdrop` (currently a bare `return`
-with the reasoning above it), and restore the exact-one assertion in
-`tests/qt/test_one_backdrop_for_the_window.py` TOGETHER WITH a pixel
-assertion, never before it -- this file's own instruction, and the reason
-the 2026-09-05 commit shipped a black window with a green suite.
+`_drop_a_redundant_screen_backdrop` was a bare `return` from 2026-09-07.
+The condition it was waiting for -- "until the window's backdrop is actually
+visible through the screens" -- is met, so it runs again, and the whole of
+the measurement it cost is back: one full-size animated field per window
+instead of two, which was 950 paints/s and 393 Mpx/s of picture nobody
+could see, and ~16 % of a core at idle instead of ~10 %.
 
-  THE PIXEL ASSERTION NEEDS A DISPLAY AND THEREFORE CANNOT BE AN ORDINARY
-  TEST. The offscreen platform cannot see the GL-backed widget at all.
-  Either it is marked `gui` and runs only where there is a display, or the
-  measurement lives in a tool and the ratchet records its number. That
-  choice is the remaining design decision, and it is the last thing
-  between this item and done.
+MEASURED WITH IT ON, from X, after the window block change:
+
+    theme   chromatic          pure black
+    dark    46.9 - 65.2 %      0.0 % in every one of five runs
+    cell    93.7 %             0.3 %
+    glass   67.4 %             0.0 %
+
+against 3.0 % chromatic and 20.4 % pure black for the same configuration
+with the old opaque window block.
+
+`tests/qt/test_one_backdrop_for_the_window.py` now carries BOTH halves, in
+the order this file demanded and never the other way round:
+
+  * `test_home_still_has_a_backdrop_the_user_can_see` asserts EXACTLY ONE
+    visible backdrop again, which is the assertion that was withdrawn on
+    2026-09-07 because counting widgets shipped a black window;
+  * `test_the_home_screen_is_not_black_on_a_real_display` reads the pixels
+    from the X server and is marked `gui`, so it runs only where it can
+    tell the truth. The suite runs `-m "not gui"` and therefore never
+    pretends to have checked.
+
+  THE THRESHOLDS COME FROM THE FIVE RUNS ABOVE, not from taste: black under
+  5 % (measured 0.0, regression 20.4) and chromatic over 25 % (measured
+  46.9-65.2, regression 3.0). The backdrop is ANIMATED, so the chromatic
+  figure moves with whichever frame the grab catches, which is why the
+  floor sits well under the lowest reading rather than near it.
+
+CALIBRATED AGAINST THE DEFECT, which is this file's own rule and the one
+7508d8dfb skipped. With the window block forced back to opaque, the pixel
+test reports "35.5% of the home screen is pure black" and fails. With the
+fix it passes. It can tell the two apart, which is the only thing that
+makes it worth having.
+
+507 offscreen tests pass across the backdrop, black-page, panel-slab,
+ambient and home files with the dedup on.
+
+WHAT IS LEFT OF THIS ITEM: nothing. The remaining backdrop question --
+whether fullscreen is choppy and why -- is 327's, and 327 now has the GPU
+numbers saying the shaders are not the cause.
