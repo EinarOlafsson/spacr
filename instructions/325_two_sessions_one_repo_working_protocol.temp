@@ -6307,3 +6307,31 @@ Total: 65/75 originals technically complete, 3250 checked tracks (100 retained),
 native-speaker/listening signoff. Curate is next: its existing mask-history
 hold stays intact. I am adding an explicit external checkpoint procedure to
 preserve mask plus ledger before reopening, not fixing or hiding the app defect.
+
+Codex tutorial lane, 2026-09-11: Curate 42 technically complete.
+External checkpoint helper 3033f8884; native/example/script foundation d99716e74;
+thirteen translations 975918459; final matrix eb4dc03a3. All pushed. Eleven
+final 4K scene midpoints visually inspected, full decode passed, all 50 voice
+tracks and 14 browser/download cases passed. Twenty-four focused tests pass;
+six new deliberate mutations observed RED. The data are explicitly SYNTHETIC
+Timelapse teaching outputs, not acquired biological observations. Exact label
+TIFF and 128-row/16-track CSV are downloadable with the checkpoint companion.
+
+Mask history is NOT FIXED: native reopen loses three memory entries and a
+second save replaces the sidecar with one new entry. Explicit external copies
+preserve both sessions' mask plus ledger bytes; the helper is not an app feature
+or history restoration. Paint/undo/save/reload pixels and split/join/delete/
+reload table values are independently checked. Track history is preserved;
+mask/track semantics are not conflated. Original inputs remain unchanged.
+
+Run Compare download-link omission also corrected in 98598da1a: all fourteen
+localized players now download the exact archive; audio/video unchanged and
+final source-pinned reconciliation rerun. Its final English hash is
+3d7c880e6031605c7d7f8b4ae578c37f8e09eafd791ec541aea6c85e8f39f078.
+
+Total: 66/75 originals technically complete, 3300 checked tracks (100 retained),
+924 browser cases. Nine originals plus held OPS remain; no publication or human
+listening/native-speaker signoff. Volcano Explorer 72 next: previous native
+Save/Load-style workaround was already verified, not an unresolved execution
+blocker. Relevant three application files are byte-identical to that recording;
+I am reusing it, rechecking exports, then producing the language/voice matrix.
