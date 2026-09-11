@@ -918,12 +918,41 @@ missed root invisible until somebody opens the screen it was on. The
 per-window change was a quarter of this size and moved seven tests, one of
 which was a real regression that only a pixel assertion caught.
 
-    WHOEVER TAKES IT NEEDS TWO THINGS THAT DO NOT EXIST YET: a test that
-    every widget in the window resolves to the CURRENT theme (the dialog
-    guard does this for windows and would generalise), and the dirty-mark
-    on hidden screens so a screen shown later is sheeted on its
-    `showEvent`. The event filter that already catches new windows is the
-    natural home for the second.
+    WHOEVER TAKES IT NEEDED TWO THINGS THAT DID NOT EXIST. THE FIRST NOW
+    DOES: `tests/qt/test_every_widget_wears_the_current_theme.py`, six
+    tests, written before the change per this file's own method.
+
+      * every widget in a synthetic window wears the sheet, at depth;
+      * a widget parented in AFTER the change wears it too, which is the
+        half a dirty-mark has to cover;
+      * a real `MainWindow` with two modules open, sampled at ~200 of its
+        widgets;
+      * and TWO negative cases, because without them the rest would pass
+        under any implementation that sheets the window and say nothing
+        about one that does not. The second does the narrow
+        implementation's mistake ON THE REAL WINDOW -- sheets the central
+        widget's tree only -- and asserts the probe notices the chrome it
+        left behind.
+
+    TWO INSTRUMENT ERRORS WORTH KEEPING, because both produced confident
+    wrong numbers on the way:
+
+      * reading the colour of the labels ALREADY in the window said 146 of
+        480 were unstyled. They were not: they carry their own colour --
+        `ElidingLabel`, `HomeSectionNote` -- so "not wearing the sentinel"
+        means "overridden" as often as "never reached". A FRESH label
+        parented under a widget resolves purely from the cascade there,
+        which is the actual question.
+      * even then 4 of 204 hosts reported stale, and those four SET THEIR
+        OWN COLOUR: their rule is appended after the global sheet and wins
+        for their subtree, so a probe under them cannot answer either way.
+        They are excluded by asking whether the host's own stylesheet
+        mentions a colour.
+
+    WHAT IS STILL MISSING is the second thing: the dirty-mark on hidden
+    screens, so a screen shown later is sheeted on its `showEvent`. The
+    event filter that already catches new windows is the natural home for
+    it, and the guard above is what makes writing it safe.
 
 WHAT IS STILL ON THE TABLE. 3,057 ms is not 222 ms. The floor is not
 sheeting the hidden screens either, which needs a per-SCREEN sheet plus a
