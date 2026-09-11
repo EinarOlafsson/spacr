@@ -1,0 +1,28 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "d2163a967fc43b378f61bc985a7f3c18c1652600a63cbdb34d21a9aa583dc210",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "fr",
+  "title": "Methods & Results : construire, vérifier et exporter un brouillon",
+  "description": "Ouvrez l’outil intégré, utilisez l’exécution réelle de Regression, repérez trois problèmes de vérification et conservez un Markdown explicitement non validé.",
+  "objectives": [
+    "Trouver l’outil dans Regression et choisir les sources d’une exécution terminée.",
+    "Distinguer faits enregistrés, valeurs par défaut déduites et formulation des candidats.",
+    "Copier et exporter le brouillon intact avec son registre structuré.",
+    "Distinguer export réussi et contrôle numérique d’une validation scientifique."
+  ],
+  "prerequisite": "Terminez d’abord l’exemple téléchargé de Regression ; conservez projet, journal et résultats guide_permutation originaux. Cette leçon vérifie et exporte, sans approuver un manuscrit ni réparer l’application. Le journal déclare guide_permutation_seed=0, pas de graine globale ; le brouillon résout séparément seed=42. Ces générateurs ne sont pas interchangeables ; la graine globale appliquée n’est pas vérifiée. L’analyse indique spaCR 1.5.0.4, le brouillon l’exportateur 1.5.0.5. Les 325 valeurs BH ont été vérifiées indépendamment : aucun q<0.05, minimum 0.2708333333333333. Les effets/p/q de dix candidats correspondent, sans certifier tous les nombres de guides ni les hypothèses scientifiques. Copy sections et Export Markdown préservent texte et registre exacts dans UNREVIEWED_methods_results.md. Entrées inchangées ; aucun fournisseur contacté, nouvelle régression, approbation ou publication. API : spacr.methods_export.build_digest, render_methods, render_results. Le précédent blocage pour exactitude scientifique reste conservé.",
+  "scenes": [
+    "Ouvrez Regression depuis Home, puis son outil intégré Methods and Results. Cette leçon se trouve sous Regression dans les sous-modules. Elle utilise l’exemple réel terminé de la leçon Regression, pas des résultats inventés. Le but est de construire, examiner et conserver un brouillon, non d’approuver automatiquement un manuscrit.",
+    "Choisissez le dossier du projet, le journal de l’exécution précise et son dossier de résultats de régression. Laissez Classifier vide : nous décrivons une régression, pas un checkpoint de classificateur. Gardez les originaux intacts. Des noms semblables ne suffisent pas : vérifiez que journal et résultats concernent la même exécution terminée.",
+    "Cliquez sur Build digest. Methods, Results, Caveats et Run digest sont produits sans contacter de fournisseur d’intelligence artificielle. Ils constituent un point de départ pour la vérification. Ici, le texte nomme la version de l’exportateur, tandis que le journal original indique une autre version d’analyse. Rapportez la version ayant réellement produit l’analyse.",
+    "Lisez les réserves : une construction réussie ne vaut pas validation. Ici, la phrase générique sur la graine indique quarante-deux. Le journal original déclare explicitement zéro pour les permutations, mais aucune graine globale. Ne remplacez pas tous les quarante-deux par zéro : distinguez d’abord les générateurs et leur provenance enregistrée.",
+    "L’onglet Run digest permet d’examiner ces données structurées. Comparez paramètres déclarés et environnement enregistré au texte. Une valeur par défaut déduite lors de l’export ne prouve pas l’exécution historique. Conservez avertissements et questions ouvertes, dont les informations de contrôle qualité manquantes ; l’absence de rapport ne prouve pas la réussite du contrôle.",
+    "La table de gènes enregistrée contient trois cent vingt-cinq tests ; aucun n’est significatif au seuil de q de zéro virgule zéro cinq. Le plus petit q est d’environ zéro virgule vingt-sept. Le titre strongest hits est donc trompeur : ce sont des candidats classés, pas des découvertes. Vérifiez toute la famille corrigée, pas seulement les premières lignes séduisantes.",
+    "Copy sections copie ensemble les Methods et Results affichés. Cela ne corrige pas leur formulation, ne certifie pas leurs chiffres et n’inclut pas l’annexe structurée. Conservez une copie intacte avant des révisions documentées séparément. Résolvez les questions de graine, de version et de formulation des candidats avec les sources avant d’utiliser ce texte dans un rapport.",
+    "Export Markdown enregistre les deux sections avec le registre d’exécution en annexe. Choisissez un nouveau nom, ici explicitement marqué non vérifié. L’action réelle Save crée le fichier ; notre contrôle confirme que texte et registre correspondent à l’écran. Un export réussi ne constitue pas une validation scientifique.",
+    "Draft with AI est facultatif et n’est pas utilisé ici. Il envoie le registre au fournisseur configuré : examinez d’abord son contenu et la confidentialité. Un contrôle numérique ne décide pas si une phrase a le bon sens. Python propose build_digest, render_methods et render_results pour le même travail, avec la même nécessité de vérification."
+  ]
+}
