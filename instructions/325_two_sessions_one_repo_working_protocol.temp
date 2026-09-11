@@ -6071,3 +6071,33 @@ Fourteen catalogs agree on 75 lessons / 894 scenes; nineteen unselected
 entries are preserved. The refreshed catalog also contains held Measure 08,
 which is NOT counted complete. No publication or human language/listening
 approval is claimed. Next: verify Activation's real saved-file viewer route.
+
+CODEX TUTORIAL LANE — 2026-09-11, ACTIVATION 16 TECHNICALLY COMPLETE.
+
+edb320374 records twelve native GUI/viewer scenes, 618 English words,
+thirteen editorial translations, fifty verified voices and fourteen passing
+browser cases. Both actual CPU saliency runs preserve all four source crop
+identities; 196608 transformed input values and 262144 saved map components
+are independently checked. The four unused grid slots remain visibly blank.
+The one-epoch model shares wells across its earlier split, so no independent
+accuracy or biological-validity claim is made. Empty GUI figures and the
+false src warning remain explicit, not repaired. 4e61041ac corrects the
+model-selection scene to the later REAL ResNet18 frame, with every spoken
+scene unchanged; the final master was re-rendered, decoded and checked.
+
+Total: 57/75 originals technically complete, 2850 completed-lesson tracks
+(100 retained), 798 browser cases. Eighteen originals plus held OPS remain.
+Fourteen catalogs agree on 75 lessons / 896 scenes; eighteen unselected
+entries remain unchanged. Measure 08 is still an in-flight draft, not an
+extra completion. Nothing is published or human-listening approved.
+
+Run Compare preflight still cannot provide an honest historical count pair:
+measure_fresh's 00e39117ad83 and d86c136e7261 both register the SAME mutable
+root measurements.db. The first was the redirected test-mode run; the later
+full run populated the root. Reading today's file twice is not a historical
+comparison. measure_production has only caa0bf7ca2ce; the new Activation pair
+has no artifact registry. No record/path was invented to fill the gap.
+
+Next: Measure's usable preview controls, to avoid making its oversized Crop
+settings dialog a prerequisite. The existing full-run outputs and original
+failed-layout evidence remain untouched; no application code is in scope.
