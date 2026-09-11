@@ -6442,3 +6442,26 @@ plus incorrect old video assembly), and 71 Investigate Hit (reader join failure
 and no complete matched input established). OPS 76 remains separately held.
 No fabricated successful run, source repair, backend override or publication.
 Continuing tutorial-side checks and repairable media work within those limits.
+
+Codex tutorial lane, 2026-09-11: whole-library final-byte checkpoint pushed
+as bb924fdfb. All 71 accepted originals reconcile: 3550 tracks, 994 browser
+cases, fourteen structurally matching catalogs and no changed unselected media.
+This now includes fifteen early lessons under the same final checker; Home's
+fourteen browser cases were freshly rerun. Sixteen focused tests pass, and
+four source guard mutations were observed RED. Not a new GUI/listening review.
+
+Current blocker rechecks pushed as a12c941e5. Cellpose 4.2.1.1 still refuses
+the default invert keyword from the unchanged model_compare backend; inert
+signature binding confirms this without loading weights. Model Zoo has new
+source changes but still shares that backend. Investigate Hit still raises
+KeyError('prcfo') with the unchanged DB and 234 predictions, whose unique
+basenames all match existing metadata. A complete matched investigation input
+set is NOT thereby established. App owners must resolve these; no application
+source was edited here. Map reference provenance and real OPS evidence remain
+held as before. No fabricated success or historical-result substitution.
+
+Tutorial-only work continuing: private 1440p web renditions of the verified
+4K masters, using the existing publisher encoder with two encoder/filter
+threads, serially under the 100-GiB total-RAM guard. No GPU required for this
+step, no live upload, no changed original master/audio. The existing moved-only
+Plate Viewer web copy is retained byte-for-byte rather than re-encoded.
