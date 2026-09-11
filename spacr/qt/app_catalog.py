@@ -862,6 +862,48 @@ DECLARED_APPS = (
         ),
     ),
     DeclaredApp(
+        module='spacr.qt.screens.embeddings',
+        key='embeddings',
+        name='Embeddings',
+        desc=(
+            'Encode every object with a self-supervised model and keep the '
+            'channel each dimension came from'
+        ),
+        section='Data',
+        factory='make_embeddings_screen',
+        stage='alpha',
+        intro=(
+            'Turns each segmented object into a vector using a pretrained '
+            'image encoder, alongside the measured panel rather than instead '
+            'of it. The measured features answer questions somebody thought '
+            'to ask; an embedding carries whatever the encoder found useful, '
+            'which is what makes it worth having when the phenotype has no '
+            'name yet. Per-channel encoding is the default so a dimension '
+            'still knows which stain it came from, and a projection onto '
+            'three channels is offered for speed. The columns land in the '
+            'emb_ family, grouped beside the measured ones in every picker. '
+            'A single dimension means nothing on its own -- read them as a '
+            'vector, through a reduction or a retrieval.'
+        ),
+        cli_note=(
+            'For headless use, call spacr.embeddings.embed_array() on the '
+            'crops spacr.crops produces; it returns a float32 matrix keyed '
+            'by object id with the same column names this screen writes.'
+        ),
+        api_module='qt/screens/embeddings',
+        translations=(
+            'Inbäddningar',
+            'Einbettungen',
+            'Incrustaciones',
+            '嵌入',
+            'Incorporações',
+            'एम्बेडिंग',
+            '임베딩',
+            'Innfellingar',
+            'Plongements',
+        ),
+    ),
+    DeclaredApp(
         module='spacr.qt.screens.control_chart',
         key='control_chart',
         name='Control Charts',

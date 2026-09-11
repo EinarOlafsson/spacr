@@ -751,6 +751,11 @@ _NAME_TO_GLYPH = {
     "classify_merged": "fa5s.sitemap",
     "classify":        "fa5s.layer-group",
     "umap":            "fa5s.project-diagram",
+    # A vector per object, not a graph of them -- `project-diagram` is
+    # already UMAP's and two identical icons in the sidebar is a worse
+    # affordance than a missing one. `vector-square` reads as "the thing
+    # itself is a vector", which is what this module produces.
+    "embeddings":      "fa5s.vector-square",
     "ml_analyze":      "fa5s.chart-line",
     "regression":      "fa5s.wave-square",
     "recruitment":     "fa5s.crosshairs",
