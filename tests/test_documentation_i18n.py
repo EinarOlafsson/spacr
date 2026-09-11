@@ -64,7 +64,27 @@ TOOLS = ROOT / "tools"
 #: numbers out of published text, which changed their English and staled
 #: their hashes in every locale. This makes the one pass smaller instead of
 #: adding a sixth.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_299
+#:
+#: 10,299 -> 10,339 on 2026-09-11, +40/-0, with the merge from main. The
+#: same arrivals `tests/test_docstring_correctness.py` decomposes against
+#: its own baseline of 10,294 -- five of those forty-five were already on
+#: this side of the count when it was last moved, which is why the two
+#: baselines differ by five and the two deltas by the same five:
+#:
+#:     spacr.embeddings          386, the embedding engine
+#:     spacr.ops_compose         372, the composed OPS window
+#:     spacr.bystanders          388, the infected cell's neighbours
+#:     qt.widgets.dose_response  387, selectivity and the two surfaces
+#:     spacr.point_patterns      388, Ripley's K and L
+#:     spacr.model_zoo           370, the scorecard on a model row
+#:     spacr.scorecard           370, reading one back
+#:     spacr.qt.theme            380, the per-window stylesheet
+#:     spacr.infection           377
+#:
+#: The nine locales were repaired against this inventory before the number
+#: was touched, which is the order this file's own rule asks for: catalogs
+#: first, ratchet second.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_339
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

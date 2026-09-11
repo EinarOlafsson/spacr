@@ -205,17 +205,16 @@ def _is_a_gesture(keys: str) -> bool:
 
 
 def installed() -> List[ShortcutSpec]:
-    """The window-wide keys `install()` is responsible for binding.
+    """The window-wide keys that :func:`install` is responsible for binding.
 
-    GESTURES ARE NOT AMONG THEM, and leaving them in contradicted this
-    function's own sentence. `Z + scroll` is a modifier held while the
-    wheel turns, caught in an event filter; the spec's own comment says
-    "there is no QKeySequence that can express it". Returning it here
-    promised that `install()` binds something it cannot, and
-    `test_install_binds_every_key_it_is_responsible_for` was right to fail.
+    Gestures are not among them. A gesture is a modifier held while the
+    mouse wheel turns, and it is caught by an event filter rather than by a
+    key sequence, so no shortcut object can express it and none is created
+    for it. Listing one here would promise a binding that cannot be made.
 
-    The cheat sheet still shows it: `mapped()` is the MAP of what the hands
-    can do, and this is the list of what `QShortcut` owns.
+    The cheat sheet still shows every gesture, because :func:`mapped`
+    describes what the hands can do and this describes what the shortcut
+    objects own.
     """
     return [s for s in SHORTCUTS
             if s.keys not in BOUND_ELSEWHERE and not _is_a_gesture(s.keys)]

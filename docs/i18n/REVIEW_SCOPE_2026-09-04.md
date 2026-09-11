@@ -43,7 +43,7 @@ Every mechanical gate now passes. `tests/qt/test_external_i18n_catalogs.py` is
 
 Source-bound records under `docs/i18n/reviewed/runtime/<locale>/` and
 `docs/i18n/reviewed/api/<locale>/`, against the LIVE denominators rather than a
-remembered one: 5,260 runtime entries and 10,306 public API docstrings. As before,
+remembered one: 5,249 runtime entries and 10,339 public API docstrings. As before,
 repeated source strings mean this is not a unique-string percentage, and the
 proportion is small by design: the evidence is defect-driven.
 
@@ -51,17 +51,27 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,260 | Remainder | Reviewed API blocks | Of 10,306 | Remainder |
+| Language | Reviewed runtime records | Of 5,249 | Remainder | Reviewed API blocks | Of 10,339 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.24% | 5,142 | 468 | 4.54% | 9,838 |
-| German | 86 | 1.63% | 5,174 | 424 | 4.11% | 9,882 |
-| Spanish | 114 | 2.17% | 5,146 | 287 | 2.78% | 10,019 |
-| Simplified Chinese | 268 | 5.10% | 4,992 | 504 | 4.89% | 9,802 |
-| Portuguese | 108 | 2.05% | 5,152 | 449 | 4.36% | 9,857 |
-| Hindi | 124 | 2.36% | 5,136 | 461 | 4.47% | 9,845 |
-| Korean | 256 | 4.87% | 5,004 | 453 | 4.40% | 9,853 |
-| Icelandic | 150 | 2.85% | 5,110 | 1,020 | 9.90% | 9,286 |
-| French | 99 | 1.88% | 5,161 | 466 | 4.52% | 9,840 |
+| Swedish | 118 | 2.25% | 5,131 | 468 | 4.53% | 9,871 |
+| German | 85 | 1.62% | 5,164 | 424 | 4.10% | 9,915 |
+| Spanish | 114 | 2.17% | 5,135 | 287 | 2.78% | 10,052 |
+| Simplified Chinese | 266 | 5.07% | 4,983 | 506 | 4.89% | 9,833 |
+| Portuguese | 107 | 2.04% | 5,142 | 448 | 4.33% | 9,891 |
+| Hindi | 126 | 2.40% | 5,123 | 461 | 4.46% | 9,878 |
+| Korean | 250 | 4.76% | 4,999 | 453 | 4.38% | 9,886 |
+| Icelandic | 151 | 2.88% | 5,098 | 1,025 | 9.91% | 9,314 |
+| French | 98 | 1.87% | 5,151 | 465 | 4.50% | 9,874 |
+
+*Regenerated 2026-09-11 against the tree after the merge from `main`. Both
+denominators moved -- the runtime one DOWN, 5,260 to 5,249, because 364
+deleted settings and their captions went with them, and the API one UP,
+10,306 to 10,339, with the modules 370, 372, 377, 386, 387 and 388 added.
+Several locales lose a record or two for the same reason a setting's caption
+left: a reviewed record whose source is no longer in the catalog is not
+evidence about anything. The one addition is `press Escape to close`, claimed
+in all nine after a rebuild had replaced the key name with a verb in eight of
+them.*
 
 ## Who reviewed what, and what that claim means
 
