@@ -6465,3 +6465,38 @@ Tutorial-only work continuing: private 1440p web renditions of the verified
 threads, serially under the 100-GiB total-RAM guard. No GPU required for this
 step, no live upload, no changed original master/audio. The existing moved-only
 Plate Viewer web copy is retained byte-for-byte rather than re-encoded.
+
+Codex tutorial lane, 2026-09-11: maintainer-approved placeholder scope COMPLETE
+as an unpublished release candidate. The maintainer explicitly requested
+Coming soon screens for unfinished workflows, superseding the old no-OPS-
+placeholder constraint for this release. Underlying application/data defects
+are NOT fixed or claimed as successful demonstrations.
+
+Catalog transformation eb7ad3eda; complete candidate 03014d1c6. Both pushed.
+71 real tutorial packages + five unavailable screens: Map Barcodes, Model
+Compare, Model Zoo, Investigate Hit, OPS. All fourteen catalogs are aligned;
+OPS is under Mask and retained lessons have current parent-route metadata
+without regenerating their scenes/audio. All 71 private 1440p copies completed.
+Current full-library reconciliation: 3550 checked tracks, 994 original browser
+cases. Final candidate: 71 English playback/seek/transition cases plus 70
+placeholder/language cases PASS. Twenty-eight focused tests PASS; two catalog
+and two browser source mutants observed RED. No native/listening signoff.
+
+Web payload 333.74 MiB against 700 MiB ceiling; 6.5 GiB media-host package.
+All 7358 copied file hashes verified. RAM stayed well below the 100-GiB guard;
+no GPU or full coverage run used for final packaging. All owned workers ended.
+
+Exact player, fourteen catalogs, current hierarchy and media hashes are in
+tools/tutorials/release_candidate/. Complete local preview/media package:
+/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/release-candidate-dg6kuzsm
+See its committed README and checkpoint.json for verification/preview commands.
+Original held recordings, source catalogs and existing live media are intact.
+
+LIVE PUBLICATION HOLD REMAINS. Nothing uploaded, no live/docs media replaced,
+no application source changed. The old published route gate still sees the
+old collection; the NEW candidate route/structure gate passes all 76 entries.
+Do not claim deployed tutorials or full GitHub CI green from candidate checks.
+Do not run the legacy publisher against its stale authoring catalogs: candidate
+deployment needs separately approved hosted roots, inventory/cache updates and
+the exact live-byte check described in the candidate README. App repairs and
+the eventual full demonstrations for the five placeholders remain later work.
