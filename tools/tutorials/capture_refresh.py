@@ -382,6 +382,9 @@ def main() -> int:
         from capture_run_history import record_history
         record_history(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'run_compare':
+        from capture_run_compare import record
+        record(app, window, stage, captures, capture, settle, write_json, args.timeout)
     elif args.module == 'data_manager':
         from capture_data_manager import record_manager
         record_manager(app, window, stage, captures, capture,
