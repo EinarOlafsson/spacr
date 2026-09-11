@@ -1,0 +1,31 @@
+{
+  "lesson": "20_cellpose_masks",
+  "english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Nota Cellpose: vistaðar grímur og lifandi síur",
+  "description": "Notaðu CPSAM á þrjár raunverulegar myndir sem hægt er að sækja, skoðaðu myndrit og keyrsluskilaboð og greindu forskoðun frá lotuvinnslu.",
+  "objectives": [
+    "Finna Apply í Make Masks og Cellpose Workbench.",
+    "Nota varðveitt myndafrit og skráðar stillingar staðallíkans.",
+    "Skoða þrjár grímur og myndir af frumgögnum, útlínum og flæði.",
+    "Sýna afturkræfar síur og samstilltan aðdrátt.",
+    "Þekkja mældan mun á forskoðun og lotu án fullyrðinga um nákvæmni."
+  ],
+  "prerequisite": "Afþjappaðu myndunum þremur í nýja möppu og settu src á images. recorded_settings.json geymir söguleg gildi, ekki sönnun á flytjanlegum innflutningi í viðmóti. Raunverulegir eins-rása frumumyndbútar, uint16, 512×512; ekki viðmiðun um rétta skiptingu. Staðlað CPSAM, ekki Train-líkanið. channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True, verbose=True; rescale, resample, resize, fill_in, invert og remove_background eru False. CUDA vistar 9/94/46 hluti og þrjú myndrit. Óháð köll endurskapa alla grímupunkta og myndafylki. Ytri útlínur skilja ekki öll aðliggjandi tilvik; flæði er ein birtingarrás, ekki mæld hreyfing. Forskoðun myndar 02 gefur 95, ekki 94: sjálfgefin Cellpose-vinnsla hrámyndar, ekki forvinnsla og endursýnataka lotunnar. Sýnileg 2/99 sanna ekki jafngildi. Lágmarksflatarmál 1838 gefur 95→47→95 án nýrrar líkanakeyrslu; allir endurheimtir myndpunktar eru staðfestir og vistaðar TIFF-skrár óbreyttar. Samstilltur aðdráttur skerðir sjónsviðið og lagar ekki mjóa forskoðunarkortið. Eldri stöðvanir og frumgögn varðveitt. Engin staðfesting á líffræðilegri nákvæmni, gervigreindarbeiðni, útgáfa eða breyting á forriti.",
+  "scenes": [
+    "Opnaðu Cellpose Workbench innan Make Masks og veldu Apply. Train og Apply eru flipar í sömu vinnuaðstöðu; Apply er ekki sérstakur reitur á heimaskjá. Hér er staðallíkanið notað á þrjár raunverulegar myndir, ekki sýnilíkanið úr tengdu Train-kennslunni.",
+    "Afþjappaðu tengda dæminu í nýja möppu. Veldu images-möppuna sem uppruna og varðveittu upprunalega niðurhalið. Þetta eru þrjár eins-rása frumumyndir, 512 myndpunktar á hlið, ekki viðmiðun um rétta skiptingu. Notaðu skráðu stillingarnar til hliðsjónar og skiptu sögulegu slóðinni út fyrir þína eigin.",
+    "Veldu CPSAM og hafðu sérsniðið líkan autt. Fyrir þessar myndir er rásin 0, stöðlun notar 2. og 99. hundraðshlutamark, þvermál er 30, flæðisþröskuldur 0,4 og frumulíkur 0. Þetta eru afmörkuð dæmisgildi, ekki ráðleggingar fyrir allar tilraunir.",
+    "Kveiktu á Save og Verbose, veldu lotustærð 1 og keyrðu Apply. Þessi leið býr til myndrit án sérstaks Plot-rofa. Raunverulegu skilaboðin sýna RTX 3090 með CUDA og ljúka myndunum þremur. Athugaðu uppruna og vistaðar stillingar; Finished eitt og sér mælir ekki nákvæmni.",
+    "Þrjár samnefndar grímu-TIFF-skrár vistast í undirmöppunni masks. Fjöldarnir eru 9, 94 og 46. Myndritin sýna inntak, rauðar ytri forgrunnsútlínur og flæði. Útlínurnar aðskilja ekki öll snertandi tilvik; flæðislitir tákna hvorki líkamlega hreyfingu né nákvæmni skiptingar.",
+    "Kveiktu á Live preview og veldu cell_pair_02 með raunverulega myndavalinu. Felldu Console og System saman til að fá meira pláss. Forskoðun hefur eigin stjórntæki: Athugaðu rás 0 og birt hundraðshlutamörk í Live settings, ekki gera ráð fyrir að allar Apply-stillingar hafi verið afritaðar.",
+    "Forskoðunin finnur 95 hluti en vistuð lotugríma sömu myndar hefur 94. Óháðar athuganir endurskapa hvort tveggja: Forskoðun notar sjálfgefin Cellpose-gildi á hrámynd, ekki skýra forvinnslu og endursýnatöku lotunnar. Hún er til könnunar, ekki trygging fyrir eins vistuðum grímum.",
+    "Forskoðunarkortið er enn mjótt í þessari útgáfu. Músarhjólið stækkar smáatriði í báðum sýnum samtímis, ekki kortið sjálft; heildarmyndin er nú skorin. Þetta hjálpar við staðbundnar útlínur en kemur ekki í stað skoðunar alls myndsviðsins.",
+    "Opnaðu Live settings og settu lágmarksflatarmál frumu á 1838 myndpunkta. Þetta er sýniþröskuldur, ekki líffræðilegt kjörgildi. Lokaðu glugganum til að sjá niðurstöðuna. Sían fjarlægir 48 hluti og skilur 47 eftir án þess að keyra Cellpose aftur eða breyta hráu skiptingunni.",
+    "Hér er síuð forskoðun með glugganum lokuðum og aðdrætti beitt aftur. Frummyndin er óbreytt en litlir grímuhlutir hverfa. Teljarinn sýnir 47. Breytingarnar eiga við forskoðunina og yfirskrifa ekki þrjár lotu-TIFF-skrár sem þegar eru vistaðar.",
+    "Settu lágmarksflatarmál aftur á 0, lokaðu glugganum og skoðaðu aftur. 95 hlutir koma til baka og hver endurheimtur merkimiðapunktur samsvarar upphafinu. Varðveittu inntak, stillingar og auðkenni líkans með grímunum. Valfrjálsa spaCR AI-stjórnlínan er ekki notuð hér; óháð sannprófun þarf áður en vísindalegar ályktanir eru dregnar."
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "lesson": "20_cellpose_masks",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "nb",
+  "title": "Bruk Cellpose: lagrede masker og livefiltre",
+  "description": "Bruk CPSAM på tre nedlastbare, virkelige bilder i den nøstede Workbench, kontroller figurer og konsoll, og skill forhåndsvisning fra batchkjøring.",
+  "objectives": [
+    "Finn Apply i Make Masks og Cellpose Workbench.",
+    "Bruk bevarte bildekopier og registrerte innstillinger for standardmodellen.",
+    "Undersøk tre masker med original-, kontur- og flytfigurer.",
+    "Vis reversible filtre og synkronisert zoom.",
+    "Gjenkjenn den målte forskjellen mellom forhåndsvisning og batch uten nøyaktighetspåstander."
+  ],
+  "prerequisite": "Pakk ut tre bilder i en ny mappe og sett src til images. recorded_settings.json inneholder historiske verdier, ikke dokumentert portabel GUI-import. Ekte énkanals celleutsnitt i uint16,512×512; ikke segmenteringsfasit. Standard-CPSAM, ikke Train-modellen. channels=[0],normalize=True,percentiles=[2,99],diameter=30,CP_prob=0,flow_threshold=0.4,batch_size=1,save=True,verbose=True; rescale,resample,resize,fill_in,invert,remove_background er False. CUDA lagrer 9/94/46 objekter og tre native figurer. Uavhengige kall gjenskaper alle maskepiksler og figurmatriser. Ytterkonturer skiller ikke hver berørende instans; flytvisningen er én visualiseringskanal, ikke målt bevegelse. Forhåndsvisning av bilde 02 gir 95, ikke 94: Cellpose-standarder på råbildet, ikke batchens forbehandling/resampling. Viste 2/99 beviser ikke samsvar. Minsteareal 1838 gir 95→47→95 uten ny inferens; alle gjenopprettede piksler er kontrollert og lagrede TIFF-er er uendret. Synkron zoom beskjærer bildet og reparerer ikke det smale kortet. Tidligere stopp og originaldata beholdes. Ingen biologisk godkjenning, KI-forespørsel, publisering eller appendring.",
+  "scenes": [
+    "Åpne den nøstede Cellpose Workbench fra Make Masks og velg Apply. Train og Apply deler denne arbeidsbenken; Apply er ikke en egen flis på startsiden. Her bruker vi standardmodellen på tre virkelige bilder, ikke demonstrasjonsmodellen fra den lenkede Train-leksjonen.",
+    "Pakk ut eksemplet i en ny mappe. Sett images-mappen som kilde og behold den opprinnelige nedlastingen. Det er tre énkanals cellebilder med 512 piksler per side, ikke segmenteringsfasit. Bruk de registrerte innstillingene som referanse og erstatt den historiske kildebanen med din egen.",
+    "Velg CPSAM og la egendefinert modell være tom. Her er kanalen 0, normaliseringen bruker 2. og 99. persentil, diameteren 30, flytterskelen 0,4 og cellesannsynligheten 0. Dette er avgrensede eksempelvalg, ikke anbefalinger for alle forsøk.",
+    "Slå på Save og Verbose, velg batchstørrelse 1 og kjør Apply. Denne veien lager figurer uten egen Plot-bryter. Den virkelige konsollen viser en RTX 3090 med CUDA og fullfører tre bilder. Kontroller kilden og lagrede innstillinger; Finished alene måler ikke nøyaktighet.",
+    "Tre maske-TIFF-er med samme navn lagres i kildens undermappe masks. Antallene er 9,94 og 46. Figurene viser inngangsbildet, røde ytre forgrunnskonturer og flyt. Konturene skiller ikke alle berørende instanser; flytfargene er ikke fysisk bevegelse eller segmenteringsnøyaktighet.",
+    "Slå på Live preview og velg cell_pair_02 med den ekte bildevelgeren. Fold sammen Console og System for mer plass. Forhåndsvisningen har egne kontroller: Kontroller kanal 0 og viste persentiler i Live settings uten å anta at alle Apply-valg er kopiert.",
+    "Forhåndsvisningen finner 95 objekter, men den lagrede batchmasken for samme bilde har 94. Uavhengige kontroller gjenskaper begge: Forhåndsvisningen bruker Cellpose-standarder på råbildet, ikke batchens eksplisitte forbehandling og resampling. Den er utforskende, ikke en garanti for identiske lagrede masker.",
+    "Forhåndsvisningskortet er fortsatt smalt i denne versjonen. Musehjulet forstørrer en detalj i begge visninger sammen, ikke selve kortet; hele bildet blir beskåret. Dette hjelper med lokale konturer, men erstatter ikke gjennomgang av hele bildefeltet.",
+    "Åpne Live settings og sett minste celleareal til 1838 piksler. Dette er en demonstrasjonsterskel, ikke et biologisk optimum. Lukk dialogen for å se resultatet. Filteret fjerner 48 objekter og beholder 47 uten å kjøre Cellpose på nytt eller endre råsegmenteringen.",
+    "Her er den filtrerte forhåndsvisningen med dialogen lukket og hjulzoom brukt på nytt. Originalbildet er uendret, mens små maskeobjekter forsvinner. Telleren viser 47. Endringene gjelder forhåndsvisningen og overskriver ikke de tre batch-TIFF-ene som allerede er lagret.",
+    "Sett minstearealet tilbake til 0, lukk dialogen og kontroller igjen. 95 objekter kommer tilbake, og hver gjenopprettet etikettpiksel matcher utgangspunktet. Behold innganger, innstillinger og modellidentitet sammen med maskene. Den valgfrie spaCR AI-konsollen brukes ikke her; uavhengig validering trengs før vitenskapelige konklusjoner."
+  ],
+  "english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f"
+}
