@@ -355,3 +355,75 @@ and this session has no display. (1) and (2) are small and (3) is not, but
 the reason they are not attempted is the same one this file gives for the
 policy artifact: a layout change measured only offscreen is a change nobody
 has seen.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE MAINTAINER LOOKED. THE COLUMN IS NOT TOO THIN.
+--------------------------------------------------------------------------------
+
+Asked narrowly, with the arithmetic above in front of him -- the settings
+column takes exactly a third of the window at every width, and Regression
+would need a 2,910 px window to give its content the 970 px it asks for.
+His answer, on the Mac:
+
+    "the settings container contents are not to thin. they now have a
+     minimum width it seems and if the container goes below this width the
+     contents stay and a horizontal scroll bar apears."
+
+SO THE FIRST OF THE FOUR REMAINING POINTS IS ANSWERED AND CLOSED. The
+content is NOT being squeezed: it keeps its minimum width and the container
+scrolls sideways instead. That is the behaviour the field-growth policy and
+the scroll area were built to produce, and it is acceptable to the person
+who filed the complaint.
+
+    WHAT THAT MEANS FOR THE THREE OPTIONS in the note above -- derive the
+    split from content, give the column a floor, or make
+    `PairedFileTableWidget` narrower -- IS THAT NONE OF THEM IS NEEDED.
+    They were three ways to stop a squeeze that is not happening.
+
+    AND WHAT IT MEANS FOR THE MATRIX: the 192-case harness counts a
+    sideways-scrolling settings column as an offender, and 28 cases are
+    recorded as `unfixable`. Those are now known to be a REPORTED
+    BEHAVIOUR rather than a defect. The harness is still worth having --
+    it is how anyone would notice the day content stops fitting its own
+    minimum -- but its offender count is not a bug count, and this file
+    should not be read as asking for it to reach zero.
+
+WHAT REMAINS AFTER THIS
+  * The DPI/device-pixel-ratio axis. Unchanged: an offscreen platform will
+    not let a test set `devicePixelRatio` per case, and faking it would
+    measure the fake.
+  * The real M4 smoke test, which no simulation closes. Partly served by
+    the answer above, which IS an M4 observation.
+  * First-run selection -- DONE TODAY, below.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE FIRST-RUN WIDTH IS NOW DECIDED ONCE, WITH ITS EVIDENCE
+--------------------------------------------------------------------------------
+
+"First-run selection stores nothing yet: the width is recomputed each launch
+rather than resolved once and recorded with the metrics that justified it."
+Done.
+
+`preferences.get_layout_decision` / `set_layout_decision` store a small JSON
+record -- the width chosen, the available geometry and the font scale it was
+chosen from, and the artifact's own `why` in words.
+`app._open_at_the_measured_width` reads it and re-derives ONLY when the
+evidence no longer holds.
+
+  A WIDTH ON ITS OWN CANNOT BE CHECKED LATER; a width beside the numbers it
+  came from can be, and it can be seen to have EXPIRED. Move to another
+  monitor or change the font scale and the record stops matching, which is
+  the point: it is a decision ABOUT those numbers, so it expires when they
+  do.
+
+  A RECORD MISSING ITS EVIDENCE IS TREATED AS NO RECORD, at the storage
+  boundary and at the caller. A half-read record is worse than none,
+  because it would be compared against current metrics and could match by
+  accident.
+
+  THE "ONLY EVER GROWS" RULE IS UNCHANGED and still tested: a window
+  already wider than the policy asks for is left alone.
+
+Seven tests in `tests/qt/test_the_first_run_layout_is_decided_once.py`,
+including that the second launch does not call `recommended_window_size` at
+all.

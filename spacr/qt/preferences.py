@@ -3365,6 +3365,64 @@ def set_setting_animations_enabled(on: bool) -> None:
 # Font scale
 # ---------------------------------------------------------------------------
 
+#: Where the first-run layout decision is recorded.
+#:
+#: PRIVATE, deliberately, though the rest of this module's accessors are
+#: public. Each has exactly one caller -- `app._open_at_the_measured_width`
+#: -- and a public pair would put two more symbols on the documented API
+#: surface, which means another nine-language catalog pass for a record
+#: nothing outside this module reads.
+#:
+#: RESOLVED ONCE AND RECORDED WITH ITS EVIDENCE, which is what instruction
+#: 359 asks for and what "recomputed each launch" was not. The value is a
+#: JSON object holding the width chosen AND the measurements that justified
+#: it, so a later launch can tell whether the answer still applies rather
+#: than re-deriving it and hoping it matches.
+_KEY_LAYOUT_DECISION = "layout/first_run_decision"
+
+
+def _get_layout_decision() -> dict:
+    """The recorded first-run layout decision, or ``{}``.
+
+    :returns: the stored object, or an empty dict when nothing has been
+        recorded or what is stored cannot be read.
+
+    NEVER RAISES AND NEVER RETURNS A PARTIAL RECORD. A decision that cannot
+    be parsed is the same as no decision: the caller re-derives one. A
+    half-read record is worse than none, because it would be compared
+    against current metrics and could match by accident.
+    """
+    import json
+
+    try:
+        raw = _settings().value(_KEY_LAYOUT_DECISION, "")
+        if not raw:
+            return {}
+        found = json.loads(raw)
+    except (TypeError, ValueError):
+        return {}
+    if not isinstance(found, dict):
+        return {}
+    required = {"width", "available", "font_scale"}
+    return found if required <= set(found) else {}
+
+
+def _set_layout_decision(record: dict) -> None:
+    """Record the first-run layout decision and the metrics behind it.
+
+    :param record: what was chosen and what it was chosen from.
+
+    Storing is best-effort: a launch is not worth failing over a
+    preference that only makes the NEXT launch cheaper.
+    """
+    import json
+
+    try:
+        _settings().setValue(_KEY_LAYOUT_DECISION, json.dumps(record))
+    except (TypeError, ValueError):
+        return
+
+
 def get_font_scale() -> float:
     """Return the saved UI font scale, clamped to supported bounds."""
     try:

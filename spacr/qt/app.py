@@ -167,15 +167,35 @@ def _open_at_the_measured_width(window) -> bool:
     """
     try:
         from ._layout_policy import recommended_window_size, why
-        from .preferences import get_font_scale
+        from .preferences import (_get_layout_decision,
+                                  _set_layout_decision, get_font_scale)
 
         handle = window.screen() or QApplication.primaryScreen()
         if handle is None:
             return False
         available = handle.availableGeometry()
         scale = float(get_font_scale() or 1.0)
-        wanted, _height = recommended_window_size(
-            (available.width(), available.height()), scale)
+        metrics = {"available": [available.width(), available.height()],
+                   "font_scale": round(scale, 4)}
+
+        # RESOLVED ONCE, NOT RE-DERIVED EVERY LAUNCH (instruction 359). The
+        # answer is reused only while the evidence behind it still holds --
+        # the same available geometry and the same font scale. Move to
+        # another monitor or change the font size and the record stops
+        # matching, which is the point: it is a decision ABOUT those
+        # numbers, so it expires when they do.
+        recorded = _get_layout_decision()
+        if recorded and all(recorded.get(k) == v for k, v in metrics.items()):
+            wanted = int(recorded.get("width") or 0)
+        else:
+            wanted, _height = recommended_window_size(
+                (available.width(), available.height()), scale)
+            # RECORDED WITH THE EVIDENCE, not just the answer. A width on
+            # its own cannot be checked later; a width beside the geometry
+            # and scale it came from can be, and `reason` says in words
+            # what the artifact said in numbers.
+            _set_layout_decision({**metrics, "width": int(wanted),
+                                 "reason": why(scale)})
         if wanted <= window.width():
             return False
         window.resize(min(int(wanted), available.width()), window.height())
