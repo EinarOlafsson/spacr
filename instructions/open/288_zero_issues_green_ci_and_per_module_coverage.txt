@@ -2355,3 +2355,64 @@ four times tonight -- rather than at the visibility rule at all.
 
   WHOEVER TAKES IT: instrument what the panel is BUILT FROM, not what the
   rule does to it. The rule has been ruled out by measurement.
+
+--------------------------------------------------------------------------------
+2026-09-11, LATER -- FOUR MECHANISMS PROPOSED, FOUR MEASURED FALSE, AND WHAT
+IS ACTUALLY KNOWN
+--------------------------------------------------------------------------------
+
+Recorded at this length because the NEGATIVE results are the useful part:
+each one is a plausible story somebody else would otherwise spend the same
+hours on.
+
+  1. A parentless early return in `_set_row_visible` silently leaves a row
+     visible. FALSE: it fires 1,442 times in the passing run and 6,228 in
+     the failing one. Ordinary, and not a discriminator.
+
+  2. The panel is built from a different settings shape.  FALSE:
+     `resolve_default_settings("mask")` returns the identical 193-key dict
+     in both, with `has_registered_defaults` False both times. Verified
+     that it is a FRESH dict each call and that mutating one does not
+     reach the next.
+
+  3. `CHANNELLED_OBJECTS` or `object_of_setting` has been mutated, so the
+     rule cannot recognise a nucleus key. FALSE: at the moment of a wrong
+     show it reads `('cell', 'nucleus', 'pathogen')` and resolves
+     `nucleus_background` to `'nucleus'` correctly.
+
+  4. The role's switch is not on the panel when the rule runs, so
+     `if not switches: continue` skips it -- which the rule does on purpose,
+     "hiding a row whose switch lives on another screen would leave the
+     user a control they cannot bring back". FALSE for the mask panel:
+     `channel_on_panel=True`, `switches_on_panel=['nucleus_channel']`.
+
+AND THE OBSERVATION THAT LOOKED LIKE A SMOKING GUN IS CONTAMINATED, which
+is the part most worth writing down. A probe on `_set_row_visible` reported
+27 nucleus rows SHOWN while `nucleus_channel` read None, zero such in the
+passing run -- a perfect discriminator. IT IS NOT EVIDENCE: the probe
+re-reads `_object_visibility_settings()` at show time, which is not the
+snapshot the rule decided on. A channel that read `'1'` when the rule ran
+and `None` a moment later produces exactly that reading, and the rule was
+right both times.
+
+    MEASURING THE INPUT AT THE WRONG MOMENT IS THE SAME CLASS OF MISTAKE AS
+    MEASURING THE WRONG TREE, and it produced a cleaner-looking signal than
+    any of the four wrong mechanisms did. A discriminator that separates
+    pass from fail perfectly is still worthless if the quantity was sampled
+    after the decision it claims to explain.
+
+WHAT IS SOLIDLY KNOWN, and it is all a next session should rely on:
+
+  * it reproduces every time at chunk_020 of the 40-file split, seed 288;
+  * 6/6 green alone and 17/17 green as a whole file;
+  * it pre-dates the 2026-09-11 Qt work -- present at `ae8bdb417`;
+  * the failure is three nucleus rows visible that the rule should have
+    hidden, `nucleus_background` and `nucleus_min_area` among them;
+  * every wrong show goes through `refresh_object_visibility` itself. No
+    foreign caller shows those rows.
+
+  THE NEXT PROBE TO WRITE wraps `keys_hidden_by_their_object` and records
+  the `settings` mapping it was HANDED together with the set it RETURNED.
+  That is the only pair that cannot be contaminated by a later re-read, and
+  it answers in one run whether the rule decided wrongly or was decided
+  wrongly for.
