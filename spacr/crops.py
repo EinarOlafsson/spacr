@@ -69,6 +69,7 @@ from __future__ import annotations
 
 import ast
 import datetime
+import hashlib
 import json
 import os
 import re
@@ -965,8 +966,52 @@ def _ensure_cache_budget_sweep() -> None:
         install()
 
 
-def _cache_key(path: str) -> Tuple[str, int, int]:
-    """Return absolute path, nanosecond mtime, and size as a cache key.
+#: How much of a merged file the cache key fingerprints, from each end.
+#:
+#: THE MTIME IS NOT ENOUGH AND THE FIELD NAME SAYS OTHERWISE. `st_mtime_ns`
+#: reports nanoseconds and no filesystem provides them: the kernel stamps
+#: from a coarse clock, so two writes a fraction of a millisecond apart get
+#: the SAME value. Measured on this box, /tmp, 200 rewrites of one file:
+#: 192 landed on an identical `st_mtime_ns`. Two merged fields of the same
+#: shape also have the same size, so a regenerated file could be served
+#: from the cache with the previous field's pixels --
+#: `test_field_cache_is_keyed_on_file_contents` reproduced exactly that, 8
+#: times in 20 runs, and it is a wrong-pixels bug rather than a slow one.
+#:
+#: 64 KiB from each end, NOT the whole file. A merged field is hundreds of
+#: megabytes and is about to be read anyway; hashing all of it to decide
+#: whether to read it would cost more than the read. The head carries the
+#: `.npy` header and the first rows, the tail the last -- a regeneration
+#: that changes neither is possible in principle and has never been seen,
+#: and this is the bound worth stating rather than hiding.
+_CACHE_FINGERPRINT_BYTES = 64 * 1024
+
+
+def _content_fingerprint(path: str, size: int) -> str:
+    """A cheap digest of ``path``'s first and last bytes.
+
+    :param path: the file to sample.
+    :param size: its size in bytes, already stat-ed by the caller.
+    :returns: a hex digest, or ``""`` if the file cannot be read -- an
+        unreadable file is left for :class:`MergedField` to report, because
+        raising a different error from the cache key would change which
+        exception every caller sees.
+    """
+    window = min(int(size), _CACHE_FINGERPRINT_BYTES)
+    digest = hashlib.blake2b(digest_size=16)
+    try:
+        with open(path, "rb") as handle:
+            digest.update(handle.read(window))
+            if size > _CACHE_FINGERPRINT_BYTES * 2:
+                handle.seek(-window, os.SEEK_END)
+                digest.update(handle.read(window))
+    except OSError:
+        return ""
+    return digest.hexdigest()
+
+
+def _cache_key(path: str) -> Tuple[str, int, int, str]:
+    """Return absolute path, mtime, size and a content fingerprint.
 
     :raises MergedFileMissing: If the path cannot be inspected.
     """
@@ -974,7 +1019,9 @@ def _cache_key(path: str) -> Tuple[str, int, int]:
         st = os.stat(path)
     except OSError as exc:
         raise MergedFileMissing(f"merged array not found: {path}") from exc
-    return (os.path.abspath(path), int(st.st_mtime_ns), int(st.st_size))
+    size = int(st.st_size)
+    return (os.path.abspath(path), int(st.st_mtime_ns), size,
+            _content_fingerprint(path, size))
 
 
 def open_merged_field(path: str, mask_dims: Optional[Mapping[str, int]] = None,

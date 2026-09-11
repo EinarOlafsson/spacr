@@ -2683,3 +2683,61 @@ note is not claiming it is -- it is recording that four of them cannot be
 reproduced from their own file, so the next step for them is the chunk, not
 the test.
 
+
+--------------------------------------------------------------------------------
+2026-09-11 -- A CACHE KEYED ON A NANOSECOND NO FILESYSTEM PROVIDES, FOUND BY
+RUNNING ONE CI SHARD LOCALLY
+--------------------------------------------------------------------------------
+
+CI shard 5 was reproduced here with its own file list and marker -- 238
+files, 5,114 passed, 1h23m -- to find what the shard list could not say.
+Four of its five failures matched CI exactly. THE FIFTH DID NOT APPEAR ON CI
+AT ALL: `tests/test_crops.py::test_field_cache_is_keyed_on_file_contents`.
+
+    alone, 20 runs:   12 passed, 8 failed
+
+`spacr.crops._cache_key` is `(abspath, st_mtime_ns, st_size)` and its
+docstring says "nanosecond mtime". NO FILESYSTEM PROVIDES NANOSECONDS. The
+kernel stamps from a coarse clock, so two writes a fraction of a
+millisecond apart get the same value:
+
+    measured, /tmp, 200 rewrites of one file:
+    192 landed on an IDENTICAL st_mtime_ns
+
+Two merged fields of the same shape also have the same size. So the whole
+key rested on a field that does not vary, and a regenerated
+`merged/<fov>.npy` could be served from the cache WITH THE PREVIOUS FIELD'S
+PIXELS. That is a wrong-answer bug in analysis output, not a slow one, and
+the test that reproduces it was written for exactly it -- its name says
+"keyed on file CONTENTS" and the code keyed on a timestamp.
+
+  SO THE FIX IS IN THE CODE. Weakening the test to match what the cache
+  actually does would have been the move this ledger refused twice tonight
+  in other lanes -- bumping a ratchet instead of documenting the
+  parameters, admitting an omission instead of fixing it.
+
+THE FIX, AND THE BOUND IT KEEPS. The key now carries a `blake2b` digest of
+64 KiB from each end of the file. NOT the whole file: a merged field is
+hundreds of megabytes and is about to be read anyway, so hashing all of it
+to decide whether to read it would cost more than the read.
+
+    field 50 MB
+      cache key with the fingerprint   0.112 ms
+      mmap + read one plane            0.4 ms
+
+    20 runs of the test: 20 green. 99 tests across `test_crops.py` and
+    `test_cov_r6_io.py`: green.
+
+  A REGENERATION THAT CHANGES NEITHER END AND KEEPS THE SIZE WOULD STILL BE
+  SERVED STALE. That is the bound and it is written into the constant's own
+  comment rather than left for someone to discover; the head carries the
+  `.npy` header and the first rows, which no real regeneration leaves
+  untouched.
+
+WHAT THE METHOD SAYS. This was not on any failure list: CI's shard 5 named
+four tests and this was not one of them, because on that runner the two
+writes straddled a granule. RUNNING THE SHARD RATHER THAN READING ITS
+REPORT is what found it -- a 40 % flake on one filesystem and a pass on
+another is invisible to both, and the difference between the machines is
+the thing the test is sensitive to.
+
