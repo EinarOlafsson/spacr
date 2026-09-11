@@ -29,11 +29,17 @@ pytestmark = pytest.mark.qt
 
 
 def _pixels(widget) -> np.ndarray:
-    """The widget's own render as an (H, W, 3) RGB array."""
+    """The widget's own render as an (H, W, 3) RGB array.
+
+    THE COPY IS LOAD-BEARING: `constBits()` is a view of the QImage's buffer
+    and `image` is local, so without it this returns a window onto memory Qt
+    has already taken back. See the same helper in
+    `tests/qt/test_provider_marks_uncovered_paths.py` for what that cost.
+    """
     image = widget.grab().toImage().convertToFormat(QImage.Format_RGB32)
     raw = np.frombuffer(memoryview(image.constBits()), dtype=np.uint8)
     rows = raw.reshape(image.height(), image.bytesPerLine() // 4, 4)
-    return rows[:, :image.width(), :3][:, :, ::-1]
+    return rows[:, :image.width(), :3][:, :, ::-1].copy()
 
 
 # --------------------------------------------------------------------------

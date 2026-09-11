@@ -27,11 +27,27 @@ def _left_click():
 
 
 def _pixels(widget) -> np.ndarray:
-    """The widget's own render as an (H, W, 3) RGB array."""
+    """The widget's own render as an (H, W, 3) RGB array.
+
+    THE COPY IS THE POINT, AND WITHOUT IT THIS HELPER RETURNED A WINDOW ONTO
+    FREED MEMORY. `constBits()` hands back a view of the QImage's own buffer;
+    `image` is local, so it is destroyed as this function returns and Qt
+    reuses what it was holding. The array then changes under whoever is
+    reading it. Measured: an array taken from this helper and compared to a
+    copy of ITSELF on the very next line already disagreed.
+
+    That is what made `test_a_failed_paint_latches_nothing_and_the_next_one_draws`
+    fail about a fifth of the time and pass when run alone -- it compares two
+    of these, and whether the second grab lands on the first's memory is up
+    to the allocator. It was recorded in 288 as "two identically built
+    `ProviderMark` widgets render differently", which is not what was
+    happening: the widgets always agreed, and the arrays did not own what
+    they were showing.
+    """
     image = widget.grab().toImage().convertToFormat(QImage.Format_RGB32)
     raw = np.frombuffer(memoryview(image.constBits()), dtype=np.uint8)
     rows = raw.reshape(image.height(), image.bytesPerLine() // 4, 4)
-    return rows[:, :image.width(), :3][:, :, ::-1]
+    return rows[:, :image.width(), :3][:, :, ::-1].copy()
 
 
 def test_a_mark_that_cannot_paint_still_renders_and_still_answers(qapp):

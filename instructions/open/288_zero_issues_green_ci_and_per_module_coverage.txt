@@ -2235,8 +2235,13 @@ like it and were not:
     ORDERING, and ten runs are not enough to say which it is. This was
     first blamed on the per-window stylesheet change on samples of ten,
     and the larger sample says the pre-change tree is if anything the
-    flakier of the two. An open flake, and it belongs with that widget
-    rather than with this item.
+    flakier of the two.
+
+    ROOT-CAUSED AND FIXED LATER THE SAME DAY, and the description above is
+    wrong about the widget: the two marks always agreed. The helper both
+    files use returned a NumPy view of a QImage's `constBits()` after the
+    QImage had gone, so the array changed under the comparison. See the
+    last section of this file. `.copy()`, 30 runs green.
   * `test_the_count_controls_the_categories` went green with the registry
     and environment fixtures and needed nothing of its own.
 
@@ -2564,3 +2569,67 @@ probe -- read the failing test's own fixture through `item.funcargs` -- is
 the one that should have been written first. Aggregate counters over a
 whole run told me five different stories; the object under test told me the
 truth in one line.
+
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE PROVIDER-MARK "FLAKE" WAS A TEST READING FREED MEMORY, AND
+THE WIDGETS NEVER DISAGREED
+--------------------------------------------------------------------------------
+
+The full-suite note above leaves `test_provider_marks_uncovered_paths` open
+as a flake belonging "with that widget rather than with this item", described
+as "two identically built `ProviderMark` widgets render differently about a
+fifth of the time". THAT DESCRIPTION IS WRONG IN THE ONLY WAY THAT MATTERS:
+the widgets agree every time. The arrays being compared did not own the
+pixels they were showing.
+
+    def _pixels(widget):
+        image = widget.grab().toImage().convertToFormat(QImage.Format_RGB32)
+        raw = np.frombuffer(memoryview(image.constBits()), dtype=np.uint8)
+        rows = raw.reshape(image.height(), image.bytesPerLine() // 4, 4)
+        return rows[:, :image.width(), :3][:, :, ::-1]      # <-- no copy
+
+`constBits()` is a VIEW of the QImage's own buffer. `image` is local, so it
+is destroyed as the helper returns, and Qt reuses the memory. The failing
+assertion compares two of these -- a recovered mark against a fresh one --
+so whether they agree is up to the allocator.
+
+MEASURED, and the measurement is what settles it rather than the reading:
+
+  * the failing test ALONE: 10 runs, 10 passes. It needs a second grab in
+    the same process to land on the first one's memory.
+  * the file: 12 runs, 3 failures. With `-p no:randomly`: 10 runs, 1
+    failure -- so NOT the plugin's ordering, which was the obvious suspect.
+  * an array from this helper compared against a copy of ITSELF, taken on
+    the next line, with no Qt call in between: NOT EQUAL. That is the whole
+    proof. A correct array cannot disagree with its own copy.
+  * the first probe written for this DID reproduce nothing, twenty-five
+    times, because the probe had a `.copy()` in it. The probe passing was
+    the answer and it took a while to notice.
+
+THE FIX IS `.copy()`, in two files -- `tests/qt/test_provider_marks_uncovered_paths.py`
+and `tests/test_cov_w3_8_provider_marks.py`, which carry the same helper.
+
+    30 runs of both files after the fix: 30 green.
+
+AND THE SWEEP, because one bad helper is a habit and two is a pattern. All
+41 `constBits()` sites in `spacr/`, `tests/` and `tools/` were read and
+classified by ONE question -- does a view outlive the QImage it reads?
+
+  * the two above: it did. Fixed.
+  * `test_ambient_motion.py`, `test_make_masks_canvas.py`,
+    `test_make_masks_draw_divide.py`: a view is taken and REDUCED inside
+    the function -- `.astype(float)`, a `.sum()` -- so nothing escapes.
+  * `test_the_white_band_in_the_live_canvas.py` returns
+    `raw[..., [2, 1, 0, 3]]`, and NumPy fancy indexing copies. Safe by
+    accident rather than by intent, which is worth knowing if anyone
+    simplifies that line to a slice.
+  * `tools/icon_generators/logo_spacr_v2.py` does `bytes(img.constBits())`,
+    which copies.
+  * the rest read the array while their QImage is still a live local.
+
+  A TEST THAT COMPARES TWO RENDERS MUST OWN BOTH OF THEM. The failure mode
+  is not a wrong answer, it is an answer that changes while you look at it,
+  and it presents as flakiness in whichever test happens to compare rather
+  than in the one that built the view.
+
