@@ -1,0 +1,27 @@
+{
+  "lesson": "50_run_compare",
+  "english_sha256": "d2ec203015682d6ea5e04b5605223c99f248880c2aa529986668ce1186fe9c00",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "Run Compare: examinar dos instantáneas reales de Measure",
+  "description": "Comparar salidas conservadas de Measure, sus ajustes y recuentos, sin confundir resultados ausentes con una conclusión científica negativa.",
+  "objectives": [
+    "Abrir Run Compare desde Data y preparar el ejemplo descargable.",
+    "Comparar ejecuciones históricas distintas conservando sus metadatos.",
+    "Interpretar ajustes, recuentos y advertencias sin exagerar la evidencia."
+  ],
+  "prerequisite": "Extraiga Run_Compare_real_snapshots.zip. En el entorno spaCR ejecute prepare_run_compare_download.py con una carpeta NUEVA y selecciónela con Browse. Es un traslado explícito de dos bases y sus registros históricos, no una importación GUI, análisis nuevo ni archivo completo. Los SHA-256 integrales coinciden con los originales. Solo cambian proyecto, rutas y nota de traslado. Las ejecuciones reales de spaCR 1.5.0.5 son del 11 de septiembre de 2026, 03:37:56 y 04:05:56 UTC. Cada una contiene 601 células, 622 núcleos, 373 objetos patógenos, 601 citoplasmas y 601 filas png_list, en una placa, cuatro pocillos y dieciséis campos. Coinciden identidades y ajustes; los bytes de las bases difieren. No se certifican igualdad de todas las características, precisión ni mejora. No se incluyen resultados de regresión. API: spacr.run_compare.runs_in y compare_runs con spacr.artifacts.Registry. Sin GPU, proveedor de IA, análisis nuevo ni publicación.",
+  "scenes": [
+    "Abra Home, elija Data y luego Run Compare. Es un módulo principal, no una herramienta anidada en Regression. Lee las salidas registradas de dos ejecuciones. El ejemplo usa dos instantáneas reales de Measure procedentes del flujo con datos descargables; no inventa un cambio para hacer más interesante la comparación.",
+    "Descargue y extraiga el archivo complementario. En su entorno spaCR ejecute el script de preparación con una carpeta de destino nueva, siguiendo el readme. Este traslada explícitamente dos bases intactas y sus registros históricos. No es un botón de importación automática, un análisis nuevo ni una copia completa de los proyectos originales.",
+    "Pulse Browse y seleccione la carpeta preparada. El script conserva identificadores, ajustes, versiones, horas y hashes de contenido originales. Solo cambian las direcciones del índice copiado y su nota de traslado. Mantenga intactos los proyectos originales: una entrada histórica que apunta a una base sobrescrita después no es una instantánea conservada.",
+    "Seleccione la ejecución anterior de Measure como referencia A y la posterior como B; pulse Compare. Ambas se produjeron con spaCR versión uno punto cinco punto cero punto cinco. Un visor más reciente no cambia ese historial. Aquí coinciden ajustes y recuentos: es una demostración de consistencia, no evidencia de mejora del modelo.",
+    "Active Show unchanged settings para examinar los valores registrados. El cero de Settings significa que no hay diferencias, no que no se guardaron ajustes. Expanda las entradas y compare los valores. Estas ejecuciones usaron ajustes registrados idénticos; por tanto, este ejemplo no puede mostrar el efecto de cambiar un parámetro.",
+    "Counts muestra seiscientas una células y seiscientos veintidós núcleos por ejecución, en dieciséis campos y cuatro pocillos. Delta es B menos A; todos los deltas son cero. La comprobación independiente también cotejó identidades. Unos totales iguales no bastan para demostrar que coinciden los objetos o todos los valores medidos.",
+    "Hits indica que no se registraron resultados de regresión. Estas instantáneas solo contienen mediciones, así que no hay una comparación de resultados ordenados. Esto no significa que una regresión no encontrara resultados significativos: aquí no está su resultado. Los tutoriales Regression y Run History explican cómo localizar las salidas necesarias.",
+    "Elegir la misma ejecución en ambos lados produce una advertencia. Léala en lugar de considerar la comparación una validación automática. Vuelva a dos ejecuciones distintas y compruebe su origen, versión y alcance antes de concluir. Una advertencia invita a investigar, no a forzar un resultado.",
+    "Se ha restablecido la pareja distinta y los archivos originales siguen intactos. Run Compare lee y compara; no vuelve a ejecutar Measure ni necesita GPU o proveedor de IA. Python ofrece runs_in y compare_runs para la misma comparación. Conserve instantáneas reales y documente su procedencia antes de comparar sus propias ejecuciones."
+  ]
+}

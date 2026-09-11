@@ -1,0 +1,27 @@
+{
+  "lesson": "50_run_compare",
+  "english_sha256": "d2ec203015682d6ea5e04b5605223c99f248880c2aa529986668ce1186fe9c00",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "da",
+  "title": "Run Compare: undersøg to ægte Measure-øjebliksbilleder",
+  "description": "Sammenlign bevarede Measure-resultater, indstillinger og antal uden at forveksle manglende resultater med en negativ videnskabelig konklusion.",
+  "objectives": [
+    "Åbn Run Compare via Home og Data, og forbered eksemplet til download.",
+    "Sammenlign forskellige historiske kørsler uden at ændre deres metadata.",
+    "Læs indstillinger, antal og advarsler inden for evidensens grænser."
+  ],
+  "prerequisite": "Pak Run_Compare_real_snapshots.zip ud. Kør prepare_run_compare_download.py i spaCR-miljøet med en NY destinationsmappe, og vælg den med Browse. Dette flytter udtrykkeligt to databaser og historiske poster; det er ikke GUI-import, en ny analyse eller et komplet projektarkiv. De fulde SHA-256-værdier matcher originalerne. Kun projekt, stier og flyttenote ændres. De ægte kørsler blev lavet med spaCR 1.5.0.5 den 11. september 2026 kl. 03:37:56 og 04:05:56 UTC. Hver har 601 celler, 622 kerner, 373 patogenobjekter, 601 cytoplasmaobjekter og 601 png_list-rækker: én plade, fire brønde, seksten billedfelter. Identiteter og indstillinger matcher; databasebytes er forskellige. Ingen garanti for alle egenskabsværdier, nøjagtighed eller forbedring. Ingen regressionsresultater medfølger. API: spacr.run_compare.runs_in og compare_runs med spacr.artifacts.Registry. Ingen GPU, AI-udbyder, ny analyse eller offentliggørelse.",
+  "scenes": [
+    "Åbn Home, vælg Data og derefter Run Compare. Det er et hovedmodul, ikke et indlejret værktøj i Regression. Det læser registrerede output fra to kørsler. Eksemplet bruger to ægte Measure-øjebliksbilleder fra arbejdsgangen med data til download; der opfindes ikke en ændring for at gøre sammenligningen spændende.",
+    "Hent og udpak det tilhørende arkiv. Kør forberedelsesscriptet i dit spaCR-miljø med en ny destinationsmappe efter readme-vejledningen. Det flytter udtrykkeligt to uændrede databaser og deres historiske poster. Det er hverken en automatisk importknap, en ny analyse eller en fuldstændig kopi af de oprindelige projekter.",
+    "Klik Browse, og vælg den forberedte sammenligningsmappe. Scriptet bevarer oprindelige kørsels-id'er, indstillinger, versioner, tidspunkter og indholdshash. Kun adresserne i det kopierede indeks og flyttenoten ændres. Bevar originalprojekterne: En historisk post, der peger på en senere overskrevet database, er ikke et bevaret øjebliksbillede.",
+    "Vælg den tidligere Measure-kørsel som reference A og den senere som B, og klik Compare. Begge blev lavet med spaCR-version 1.5.0.5. En nyere fremviser ændrer ikke historikken. Her matcher indstillinger og antal; det demonstrerer konsistens, ikke at en model er blevet bedre.",
+    "Slå Show unchanged settings til for at undersøge registrerede værdier. Nullet på Settings betyder ingen forskelle, ikke at ingen indstillinger blev gemt. Fold poster ud, og sammenlign værdierne. De to kørsler brugte identiske registrerede indstillinger; eksemplet kan derfor ikke vise virkningen af at ændre en parameter.",
+    "Counts viser 601 celler og 622 kerner pr. kørsel fordelt på seksten billedfelter og fire brønde. Delta er B minus A; alle viste deltaer er nul. Den uafhængige kontrol sammenlignede også objektidentiteter. Ens totaler alene beviser ikke, at objekterne eller alle målte egenskabsværdier er identiske.",
+    "Hits siger, at ingen regressionsresultater blev registreret. Disse øjebliksbilleder indeholder kun målinger, så der er ingen rangordnet hitliste at sammenligne. Det betyder ikke, at en regression ikke fandt signifikante hits: Resultatet er slet ikke til stede her. Se Regression og Run History for at spore de nødvendige output.",
+    "At vælge samme kørsel på begge sider giver en advarsel. Læs den frem for at opfatte sammenligningen som automatisk validering. Vælg igen to forskellige kørsler, og undersøg kilde, version og omfang før konklusioner. En advarsel er grund til at undersøge, ikke til at gennemtvinge et resultat.",
+    "Parret af forskellige kørsler er genoprettet, og originalfilerne er uændrede. Run Compare læser og sammenligner; det genkører ikke Measure og kræver hverken GPU eller AI-udbyder. Python har runs_in og compare_runs til samme sammenligning. Bevar faktiske outputsnapshots og dokumentér deres oprindelse, før du sammenligner egne kørsler."
+  ]
+}

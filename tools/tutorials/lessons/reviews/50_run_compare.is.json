@@ -1,0 +1,27 @@
+{
+  "lesson": "50_run_compare",
+  "english_sha256": "d2ec203015682d6ea5e04b5605223c99f248880c2aa529986668ce1186fe9c00",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Run Compare: skoða tvö raunveruleg Measure-afrit",
+  "description": "Bera saman varðveitt Measure-gögn, stillingar og fjölda án þess að túlka niðurstöður sem vantar sem neikvæða vísindalega niðurstöðu.",
+  "objectives": [
+    "Opna Run Compare í Home og Data og undirbúa niðurhalanlega dæmið.",
+    "Bera saman ólíkar eldri keyrslur með óbreyttum lýsigögnum.",
+    "Túlka stillingar, fjölda og viðvaranir án þess að ofmeta gögnin."
+  ],
+  "prerequisite": "Afþjappið Run_Compare_real_snapshots.zip. Keyrið prepare_run_compare_download.py í spaCR-umhverfinu með NÝRRI áfangamöppu og veljið hana með Browse. Þetta er skýr flutningur tveggja gagnagrunna og sögulegra færslna, ekki innflutningur í viðmóti, ný greining eða heildarsafn verkefnis. Full SHA-256-gildi passa við frumritin. Aðeins verkefnisstaðsetning, slóðir og flutningsskýring breytast. Raunverulegu keyrslurnar voru gerðar með spaCR 1.5.0.5 þann 11. september 2026 kl. 03:37:56 og 04:05:56 UTC. Hvor hefur 601 frumu, 622 kjarna, 373 sýkilsviðföng, 601 umfrymisviðfang og 601 png_list-færslu: eina plötu, fjóra brunna, sextán myndsvið. Auðkenni og stillingar passa, en bæti gagnagrunnanna eru ólík. Ekki er staðfest að öll mæligildi séu eins, að nákvæmni sé góð eða líkan hafi batnað. Engar aðhvarfsniðurstöður fylgja. API: spacr.run_compare.runs_in og compare_runs með spacr.artifacts.Registry. Engin GPU, gervigreindarþjónusta, ný greining eða birting.",
+  "scenes": [
+    "Opnið Home, veljið Data og síðan Run Compare. Þetta er aðaleining, ekki verkfæri inni í Regression. Hún les skráð úttak tveggja keyrslna. Dæmið notar tvö raunveruleg Measure-afrit úr vinnuferlinu með niðurhalanlegum gögnum; breyting er ekki búin til til að gera samanburðinn áhugaverðari.",
+    "Sækið og afþjappið meðfylgjandi safni. Í spaCR-umhverfinu skal keyra undirbúningsskriftuna með nýrri áfangamöppu samkvæmt readme. Hún flytur skýrt tvo óbreytta gagnagrunna og sögulegar færslur þeirra. Þetta er hvorki sjálfvirkur innflutningshnappur, ný greining né heildarafrit upprunaverkefnanna.",
+    "Smellið á Browse og veljið undirbúna samanburðarmöppu. Skriftan varðveitir upprunaleg keyrsluauðkenni, stillingar, útgáfur, tíma og efnisgátsummur. Aðeins slóðir í afrituðu skránni og flutningsskýring breytast. Varðveitið frumverkefnin: Gömul færsla sem vísar í gagnagrunn sem síðar var yfirskrifaður er ekki varðveitt afrit.",
+    "Veljið fyrri Measure-keyrsluna sem viðmið A og þá síðari sem B, síðan Compare. Báðar voru gerðar með spaCR-útgáfu 1.5.0.5. Nýrra skoðunarforrit breytir ekki sögunni. Hér passa stillingar og fjöldi; það sýnir samræmi, ekki að líkan hafi batnað.",
+    "Kveikið á Show unchanged settings til að skoða skráð gildi. Núllið á Settings merkir engan mun, ekki að stillingar hafi ekki verið vistaðar. Opnið færslurnar og berið gildin saman. Keyrslurnar notuðu sömu skráðu stillingar, svo dæmið getur ekki sýnt áhrif þess að breyta stika.",
+    "Counts sýnir 601 frumu og 622 kjarna í hvorri keyrslu, á sextán myndsviðum og í fjórum brunnum. Delta er B mínus A; öll sýnd frávik eru núll. Óháða athugunin bar líka saman auðkenni viðfanga. Jafnar heildartölur einar sanna ekki að viðföngin eða öll mæld eigindagildi séu eins.",
+    "Hits segir að engar aðhvarfsniðurstöður hafi verið skráðar. Afritin innihalda aðeins mælingar, svo enginn raðaður niðurstöðulisti er til samanburðar. Það þýðir ekki að aðhvarf hafi fundið engar marktækar niðurstöður: Úttakið vantar hér. Kennslurnar Regression og Run History sýna hvernig má rekja nauðsynlegt úttak.",
+    "Að velja sömu keyrslu báðum megin gefur viðvörun. Lesið hana í stað þess að líta á samanburð sem sjálfvirka staðfestingu. Veljið aftur tvær ólíkar keyrslur og athugið uppruna, útgáfu og umfang áður en ályktað er. Viðvörun er ástæða til að rannsaka, ekki til að þvinga fram niðurstöðu.",
+    "Ólíku keyrslurnar eru aftur valdar og frumskrár eru óbreyttar. Run Compare les og ber saman; það endurkeyrir ekki Measure og þarf hvorki GPU né gervigreindarþjónustu. Python býður runs_in og compare_runs fyrir sama samanburð. Varðveitið raunveruleg úttaksafrit og skráið uppruna þeirra áður en eigin keyrslur eru bornar saman."
+  ]
+}

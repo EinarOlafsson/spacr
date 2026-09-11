@@ -1,0 +1,27 @@
+{
+  "lesson": "50_run_compare",
+  "english_sha256": "d2ec203015682d6ea5e04b5605223c99f248880c2aa529986668ce1186fe9c00",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "de",
+  "title": "Run Compare: zwei echte Measure-Snapshots prüfen",
+  "description": "Gesicherte Measure-Ausgaben, Einstellungen und Anzahlen vergleichen, ohne fehlende Ergebnisse als wissenschaftlichen Negativbefund zu deuten.",
+  "objectives": [
+    "Run Compare unter Home und Data öffnen und das Downloadbeispiel vorbereiten.",
+    "Verschiedene historische Läufe mit unveränderten Metadaten vergleichen.",
+    "Einstellungen, Anzahlen und Warnungen innerhalb ihrer Aussagegrenzen lesen."
+  ],
+  "prerequisite": "Run_Compare_real_snapshots.zip entpacken. In der spaCR-Umgebung prepare_run_compare_download.py mit einem NEUEN Zielordner ausführen und diesen mit Browse wählen. Das ist ein ausdrücklicher Transport zweier Datenbanken samt historischen Einträgen, kein GUI-Import, neuer Lauf oder vollständiges Projektarchiv. Die vollständigen SHA-256-Werte stimmen mit den Originalen überein. Nur Projekt, Pfade und Umzugshinweis ändern sich. Die echten Läufe stammen aus spaCR 1.5.0.5 vom 11. September 2026, 03:37:56 und 04:05:56 UTC. Jeweils 601 Zellen, 622 Kerne, 373 Pathogenobjekte, 601 Zytoplasmaobjekte, 601 png_list-Zeilen; eine Platte, vier Wells, sechzehn Bildfelder. Objektidentitäten und Einstellungen stimmen überein, die Datenbankbytes nicht. Keine Aussage über sämtliche Merkmalswerte, Genauigkeit oder Verbesserung. Keine Regressionsergebnisse enthalten. API: spacr.run_compare.runs_in und compare_runs mit spacr.artifacts.Registry. Kein GPU- oder KI-Anbieterbedarf, keine neue Analyse oder Veröffentlichung.",
+  "scenes": [
+    "Öffnen Sie Home, dann Data und Run Compare. Dies ist ein Hauptmodul, kein in Regression verschachteltes Werkzeug. Es liest gespeicherte Ausgaben zweier Läufe. Das Beispiel verwendet zwei echte Measure-Snapshots aus dem Ablauf mit herunterladbaren Daten; es erfindet keine Änderung, um den Vergleich interessanter zu machen.",
+    "Laden Sie das zugehörige Archiv herunter und entpacken Sie es. Führen Sie in Ihrer spaCR-Umgebung das Vorbereitungsskript mit einem neuen Zielordner gemäß readme aus. Es transportiert ausdrücklich zwei unveränderte Datenbanken und ihre historischen Einträge. Das ist weder automatischer Importknopf noch neue Analyse oder vollständige Kopie der ursprünglichen Projekte.",
+    "Klicken Sie Browse und wählen Sie den vorbereiteten Vergleichsordner. Das Skript bewahrt ursprüngliche Laufkennungen, Einstellungen, Versionen, Zeiten und Inhaltshashes. Nur Adressen des kopierten Index und der Umzugshinweis ändern sich. Lassen Sie Originalprojekte unverändert: Ein historischer Eintrag zu einer inzwischen überschriebenen Datenbank ist kein gesicherter Snapshot.",
+    "Wählen Sie den früheren Measure-Lauf als Referenz A, den späteren als B, dann Compare. Beide entstanden mit spaCR-Version 1.5.0.5. Ein neuerer Betrachter ändert diese Historie nicht. Einstellungen und Anzahlen stimmen hier überein: Das zeigt Konsistenz, nicht die Verbesserung eines Modells.",
+    "Aktivieren Sie Show unchanged settings, um gespeicherte Werte zu prüfen. Die Null im Settings-Tab bedeutet keine Unterschiede, nicht keine gespeicherten Einstellungen. Klappen Sie Einträge auf und vergleichen Sie die Werte. Beide Läufe verwendeten identische aufgezeichnete Einstellungen; daher zeigt dieses Beispiel keine Wirkung einer Parameteränderung.",
+    "Counts zeigt pro Lauf 601 Zellen und 622 Kerne über sechzehn Bildfelder und vier Wells. Delta ist B minus A; sämtliche angezeigten Deltas sind null. Die unabhängige Prüfung verglich auch Objektidentitäten. Gleiche Summen allein beweisen weder identische Objekte noch die Gleichheit sämtlicher gemessener Merkmalswerte.",
+    "Hits meldet, dass keine Regressionsergebnisse registriert wurden. Diese Snapshots enthalten nur Messungen, also keine Ranglisten zum Vergleichen. Das bedeutet nicht, dass eine Regression keine signifikanten Treffer fand: Ihr Ergebnis fehlt hier. Die Tutorials Regression und Run History helfen beim Nachverfolgen der benötigten Ausgaben.",
+    "Derselbe Lauf auf beiden Seiten erzeugt eine Warnung. Lesen Sie sie, statt das Vergleichsergebnis als automatische Validierung zu betrachten. Wählen Sie wieder zwei verschiedene Läufe und prüfen Sie vor Schlussfolgerungen Herkunft, Version und Umfang. Eine Warnung fordert zur Untersuchung auf, nicht zum Erzwingen eines Ergebnisses.",
+    "Das unterschiedliche Laufpaar ist wiederhergestellt, die Originaldateien sind unverändert. Run Compare liest und vergleicht; es startet Measure nicht erneut und benötigt weder GPU noch KI-Anbieter. Python stellt runs_in und compare_runs für denselben Vergleich bereit. Sichern Sie echte Ausgabesnapshots und dokumentieren Sie deren Herkunft, bevor Sie eigene Läufe vergleichen."
+  ]
+}
