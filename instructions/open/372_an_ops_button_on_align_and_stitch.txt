@@ -165,12 +165,38 @@ Status:    BEING REBUILT ON THE MEASURED PLAN, 2026-09-09. The maintainer
            hyperstack tags), so the pitch is measured rather than read -- and
            measuring it is what the library is for.
 
-           ONE CHANGE WORTH MAKING FIRST, and it is small: `phase_correlate`
-           lets a caller take the dangerous default silently. `unwrap`'s
-           docstring is emphatic about when `about=0` is wrong, but nothing
-           warns at the call site. A whole-tile pair whose peak lands beyond
-           half the axis should say so -- the shift it is about to return is
-           the one case the docstring names as both "wrong and plausible".
+           DONE 2026-09-11 -- `phase_correlate` now warns when it takes the
+           dangerous default and NAMES the other representative, so the next
+           caller gets a second call instead of an afternoon.
+
+           GEOMETRY MEASURED ON WELL A1, c1, and it is clean:
+
+               pitch            dy 1267 px, dx 9 px (skew)
+               repeatability    MAD 0.0 over 22 accepted pairs of 24
+               rejected         2 pairs, at the disc edges
+               two clusters     (1267, +9) x14 and (1693, -9) x8
+
+           THE SECOND CLUSTER IS THE SERPENTINE, not a second pitch:
+           1693 = -1267 mod 1480, so it is the reverse direction forced to
+           the wrong representative by a single fixed `expected`. A solver
+           must pass `expected` PER PAIR with the direction the layout says,
+           not one constant for the well -- which is the practical rule this
+           exercise produced.
+
+           B1 RUN ON REAL TILES FOR THE FIRST TIME, composing a 2000x1480
+           window from sites 0-4 at the measured placements:
+
+               imaged            99.5% of the window
+               1 sample          78.8%
+               2 samples         21.2%
+               mean samples      1.212
+               OVERLAP GAIN      1.101x
+
+           CONSISTENT WITH PART 15's 1.15x RATHER THAN CONTRADICTING IT. That
+           number came from 333 placements over a full 2-D well, where tile
+           corners are four-sampled; this strip is a single 1-D column run,
+           so it has no corners and only two-sampling. Lower gain, same
+           mechanism, and the composer handled real data unmodified.
 
            ORIGINAL STATUS FOLLOWS, and PART 5's memory work stands: it
            replaced PART 4's order-of-magnitude guess with the real
