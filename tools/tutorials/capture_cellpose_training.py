@@ -16,7 +16,8 @@ from build_evaluation_example import sha
 from capture_acceptance import assess_pipeline
 
 
-def record_training(app, window, stage, captures, capture, settle, write_json, timeout):
+def record_training(app, window, stage, captures, capture, settle, write_json, timeout,
+                    *, settings_override=None, source_check_only=False):
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QAbstractButton, QMessageBox, QFileDialog, QDialogButtonBox, QLineEdit
@@ -67,6 +68,8 @@ def record_training(app, window, stage, captures, capture, settle, write_json, t
         panel=panels[0];screen=panel.train_screen;capture('02_actual_train_tab')
         requested=json.loads((source/'tutorial_settings.json').read_text())
         requested.update(src=str(work),model_name='tutorial_cells_two_epoch_demo',n_epochs=2)
+        if settings_override:
+            requested.update({k:v for k,v in settings_override.items() if k!='src'})
         settings_csv=work/'tutorial_settings.csv'
         with settings_csv.open('w',newline='') as stream:
             writer=csv.writer(stream);writer.writerow(['Key','Value'])
@@ -97,11 +100,13 @@ def record_training(app, window, stage, captures, capture, settle, write_json, t
             'console':[text for _,_,text in screen._console._pipeline_console_blocks()]}
         capture('02b_actual_imported_values')
         if imported.get('src')!=str(work):
-            if (imported.get('n_epochs')!=2 or imported.get('batch_size')!=2
-                    or imported.get('learning_rate')!=.01 or imported.get('target_size')!=256):
+            if any(imported.get(key)!=requested[key] for key in
+                   ('n_epochs','batch_size','learning_rate','target_size')):
                 raise ValueError('The positive counterpart settings did not import either')
             proof['hold']='Native CSV import applies epochs, batch size, learning rate and target size, but drops required src; no source widget/default exists. The requested output model name also remains new_model. No training started.'
             return
+        if source_check_only:
+            raise ValueError('The native source now imports; review the route instead of reusing the source-defect workaround')
         for key,value in requested.items():
             if not screen._settings_model.set_value_for_key(key,value):
                 raise ValueError('The actual Train form has no '+key)

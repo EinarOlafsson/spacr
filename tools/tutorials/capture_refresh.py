@@ -49,6 +49,7 @@ def main() -> int:
     parser.add_argument('--methods-review-export', action='store_true', help='Record unchanged Methods export plus explicit review findings; never approve its draft')
     parser.add_argument('--mask-bounded-recapture', action='store_true', help='Use explicit 0.4 flow thresholds in a fresh two-field Mask recording; not a quality claim')
     parser.add_argument('--mask-saved-plots', action='store_true', help='Show verified per-file API overlays in the external image viewer; no model rerun')
+    parser.add_argument('--cellpose-training-review', action='store_true', help='Show the native source-import defect and a separately verified API training figure; never start GUI training')
     parser.add_argument('--plaque-zoo-model', action='store_true', help='Try the actual plaque Model Zoo download and preview in private staging')
     parser.add_argument('--motility-screen-export-probe', action='store_true', help='Diagnose the real Screen PDF export preference; not a production tutorial workaround')
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
@@ -75,6 +76,8 @@ def main() -> int:
         parser.error('--mask-bounded-recapture requires mask with --download and --run')
     if args.mask_saved_plots and (args.module != 'mask' or args.run or args.download or args.preview):
         parser.error('--mask-saved-plots requires mask without a new run, download or preview')
+    if args.cellpose_training_review and (args.module != 'train_cellpose' or args.run or args.download or args.preview):
+        parser.error('--cellpose-training-review requires train_cellpose without a new run, download or preview')
     if args.measure_full_example and (args.module != 'measure' or not args.run):
         parser.error('--measure-full-example requires --module measure --run')
     if args.measure_preview_controls and (args.module != 'measure' or not args.download or args.preview or args.run):
@@ -339,9 +342,13 @@ def main() -> int:
         record_apply(app, window, stage, captures, capture,
                      settle, write_json, args.timeout)
     elif args.module == 'train_cellpose':
-        from capture_cellpose_training import record_training
-        record_training(app, window, stage, captures, capture,
-                        settle, write_json, args.timeout)
+        if args.cellpose_training_review:
+            from capture_cellpose_training_review import record
+            record(app, window, stage, captures, capture, settle, write_json, args.timeout)
+        else:
+            from capture_cellpose_training import record_training
+            record_training(app, window, stage, captures, capture,
+                            settle, write_json, args.timeout)
     elif args.module == 'napari_bridge':
         from capture_napari import record_napari
         record_napari(app, window, stage, captures, capture,

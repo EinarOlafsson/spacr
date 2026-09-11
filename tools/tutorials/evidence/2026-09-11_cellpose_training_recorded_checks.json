@@ -1,0 +1,253 @@
+{
+  "lesson": "19_train_cellpose",
+  "status": "Recorded GUI refusal, real API training and external pair viewer; translations pending",
+  "english_sha256": "524f011def972d4ba17df823927da3ab8f2c84e0301df7903737e67717246384",
+  "scene_count": 11,
+  "narrated_words": 576,
+  "native_gui_hold": {
+    "lesson": "19_train_cellpose",
+    "accepted": false,
+    "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_training_runs/REAL-corrected-cell-pairs-m9ztsd4v",
+    "original_inputs": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/derived/train_cellpose_corrected/train/images/cell_pair_01.tif": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/derived/train_cellpose_corrected/train/images/cell_pair_02.tif": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/derived/train_cellpose_corrected/train/images/cell_pair_03.tif": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/derived/train_cellpose_corrected/train/images/cell_pair_04.tif": "96e40ea70ae40729e3b9245a94a44491224a6036fe2d2e51be782e32bf29458a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/derived/train_cellpose_corrected/train/images/cell_pair_05.tif": "a5f92c58f2c703ff6e5e8c38d8fca9990eae8bf24de3fcff98da6500abb15f6b",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/derived/train_cellpose_corrected/train/images/cell_pair_06.tif": "14f9d1bef4be77841e08a5cacb46b6c19de57230e0ee9018141764532c23bdeb",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/derived/train_cellpose_corrected/train/masks/cell_pair_01.tif": "de6f73949e30d51891fe042723f5dfbbb0fc85f32dc1df589b00485e498e93f4",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/derived/train_cellpose_corrected/train/masks/cell_pair_02.tif": "27d3dafd8e912f8df0ace809d47747f8c024343e62e729437672cb7619cfd6f9",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/derived/train_cellpose_corrected/train/masks/cell_pair_03.tif": "9f00b0b29390fc1f80c19b1cf6084ce62c35f9ac711df438c60203ccbeba66e4",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/derived/train_cellpose_corrected/train/masks/cell_pair_04.tif": "9664ca40297f8ead006c52e4cf5c4999c67a7a727215db51c52b2caa6262e190",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/derived/train_cellpose_corrected/train/masks/cell_pair_05.tif": "c025e06b794f4b183442112ede4ff52debe3a65b9483cfa4ecdc138c96b39aa6",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/derived/train_cellpose_corrected/train/masks/cell_pair_06.tif": "d520ab0e604bd29429b71122313ff4a4fca474b5fbfdf6b7ff9f21adeeb64711"
+    },
+    "compartment_manifest": {
+      "source_root": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged",
+      "image_channel": 1,
+      "mask_plane": 4,
+      "recorded_settings_sha256": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/settings/measure_crop_settings.csv": "8c832a379abcbfc1b22c6476bed23542be6f5d98e954dff0267dd62fb50252a8",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/settings/gen_mask_settings.csv": "888e59ae5c79d7cb7fd044256bb3df06b29558e86d084812816b9a005a281c38"
+      },
+      "crop_size": 512,
+      "pairs": [
+        {
+          "file": "cell_pair_01.tif",
+          "source": "plate1_B01_1_1.npy",
+          "source_sha256": "b1f99edb2de42868e236b3ebf5dad5439c724639c53d62bcdc89d13f84ea40ba",
+          "image_sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+          "mask_sha256": "de6f73949e30d51891fe042723f5dfbbb0fc85f32dc1df589b00485e498e93f4",
+          "origin_yx": [
+            120,
+            180
+          ],
+          "objects": 11,
+          "image_range": [
+            92,
+            3101
+          ]
+        },
+        {
+          "file": "cell_pair_02.tif",
+          "source": "plate1_B01_2_1.npy",
+          "source_sha256": "16563ba733b38e7ac7fcb39602620cdcbf3f1bb920921db0f5d436a3fb4fff5d",
+          "image_sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+          "mask_sha256": "27d3dafd8e912f8df0ace809d47747f8c024343e62e729437672cb7619cfd6f9",
+          "origin_yx": [
+            520,
+            240
+          ],
+          "objects": 95,
+          "image_range": [
+            103,
+            4847
+          ]
+        },
+        {
+          "file": "cell_pair_03.tif",
+          "source": "plate1_B01_3_1.npy",
+          "source_sha256": "a528034c4fc4bed387323770c4f555eb94ff9360e4acc17d910c548637ed6672",
+          "image_sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+          "mask_sha256": "9f00b0b29390fc1f80c19b1cf6084ce62c35f9ac711df438c60203ccbeba66e4",
+          "origin_yx": [
+            940,
+            520
+          ],
+          "objects": 51,
+          "image_range": [
+            98,
+            4866
+          ]
+        },
+        {
+          "file": "cell_pair_04.tif",
+          "source": "plate1_B02_1_1.npy",
+          "source_sha256": "c517aa5525f075df0778a41767761604c94e4257204cb53c13a4f0243e760005",
+          "image_sha256": "96e40ea70ae40729e3b9245a94a44491224a6036fe2d2e51be782e32bf29458a",
+          "mask_sha256": "9664ca40297f8ead006c52e4cf5c4999c67a7a727215db51c52b2caa6262e190",
+          "origin_yx": [
+            180,
+            980
+          ],
+          "objects": 84,
+          "image_range": [
+            97,
+            4737
+          ]
+        },
+        {
+          "file": "cell_pair_05.tif",
+          "source": "plate1_B02_2_1.npy",
+          "source_sha256": "446e44430fab93e5f67e28acd53b7f15e1df587dc91d8063332cccc3571ceae5",
+          "image_sha256": "a5f92c58f2c703ff6e5e8c38d8fca9990eae8bf24de3fcff98da6500abb15f6b",
+          "mask_sha256": "c025e06b794f4b183442112ede4ff52debe3a65b9483cfa4ecdc138c96b39aa6",
+          "origin_yx": [
+            700,
+            1080
+          ],
+          "objects": 52,
+          "image_range": [
+            97,
+            7106
+          ]
+        },
+        {
+          "file": "cell_pair_06.tif",
+          "source": "plate1_B02_3_1.npy",
+          "source_sha256": "fe92ac46a6905bdb282d93569805847b6f1f40e5e6b3ddb9e8b6bc4cf418a92c",
+          "image_sha256": "14f9d1bef4be77841e08a5cacb46b6c19de57230e0ee9018141764532c23bdeb",
+          "mask_sha256": "d520ab0e604bd29429b71122313ff4a4fca474b5fbfdf6b7ff9f21adeeb64711",
+          "origin_yx": [
+            1120,
+            900
+          ],
+          "objects": 46,
+          "image_range": [
+            97,
+            4195
+          ]
+        }
+      ],
+      "target_compartment": "cell, according to original recorded settings",
+      "independent_annotation_review": false,
+      "held_out_accuracy_validated": false,
+      "edge_cut_instances_present": "possible; source labels are preserved exactly",
+      "purpose": "workflow demonstration; independently review labels before production training"
+    },
+    "independent_annotation_review": false,
+    "held_out_accuracy_validated": false,
+    "application_modified": false,
+    "published": false,
+    "requested_epochs": 2,
+    "first_warmup_epoch_learning_rate": 0,
+    "gpu_memory_fraction_limit": 0.4,
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "actual_import": {
+      "requested": {
+        "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_training_runs/REAL-corrected-cell-pairs-m9ztsd4v",
+        "model_name": "tutorial_cells_two_epoch_API_demo",
+        "model_type": "cpsam",
+        "Signal_to_noise": 10,
+        "background": 200,
+        "remove_background": false,
+        "learning_rate": 1e-05,
+        "weight_decay": 1e-05,
+        "batch_size": 1,
+        "n_epochs": 2,
+        "from_scratch": false,
+        "diameter": 30,
+        "resize": false,
+        "width_height": [
+          1000,
+          1000
+        ],
+        "target_size": 512,
+        "augment": false,
+        "verbose": true,
+        "normalize": false,
+        "max_train_images": null
+      },
+      "collected": {
+        "model_name": "new_model",
+        "model_type": "cpsam",
+        "Signal_to_noise": 10,
+        "background": 200.0,
+        "remove_background": false,
+        "learning_rate": 1e-05,
+        "weight_decay": 1e-05,
+        "batch_size": 1,
+        "n_epochs": 2,
+        "from_scratch": false,
+        "diameter": 30,
+        "resize": false,
+        "width_height": [
+          1000,
+          1000
+        ],
+        "target_size": 512,
+        "augment": false,
+        "verbose": true
+      },
+      "rendered_keys": [
+        "Signal_to_noise",
+        "augment",
+        "background",
+        "batch_size",
+        "diameter",
+        "from_scratch",
+        "learning_rate",
+        "model_name",
+        "model_type",
+        "n_epochs",
+        "remove_background",
+        "resize",
+        "target_size",
+        "verbose",
+        "weight_decay",
+        "width_height"
+      ],
+      "console": [
+        "Loaded 16 settings from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_training_runs/REAL-corrected-cell-pairs-m9ztsd4v/tutorial_settings.csv\n"
+      ]
+    },
+    "hold": "Native CSV import applies epochs, batch size, learning rate and target size, but drops required src; no source widget/default exists. The requested output model name also remains new_model. No training started.",
+    "original_inputs_preserved": true,
+    "private_inputs_preserved": true
+  },
+  "external_viewer": {
+    "accepted": true,
+    "saved_plots": [
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_training_runs/explicit_api_two_epoch_v1/actual_training_pairs.png",
+        "sha256": "b78d79667273ce61061e6de1294d2828346023212a604d8949d089277fd97685",
+        "dimensions": [
+          3600,
+          1200
+        ],
+        "window_title": "actual_training_pairs.png",
+        "viewer": "eog",
+        "actual_desktop_capture": true
+      }
+    ],
+    "saved_files_unchanged": true,
+    "application_figures_fixed": false,
+    "scope": "External system viewer, not spaCR Figures"
+  },
+  "api_receipt": {
+    "path": "tools/tutorials/evidence/2026-09-11_cellpose_explicit_training_checks.json",
+    "sha256": "2059a7f87521cda0c33c1ff7e529d7b0961bb5940a67ab477f7ad60dccbdca5f"
+  },
+  "bundle": {
+    "path": "docs/source/_extra/tutorials/examples/Train_Cellpose_API_example.zip",
+    "sha256": "0b1fe69c5d5c569afb9eb4fbc53e78a43b01e03c469825b2c4f547c97fcee469"
+  },
+  "focused_tests_passed": 7,
+  "mutations_observed_red": 3,
+  "source_import_failure_preserved": true,
+  "actual_pair_figure_visually_inspected": true,
+  "gui_source_control_fixed": false,
+  "held_out_accuracy_validated": false,
+  "application_source_modified": false,
+  "published": false
+}
