@@ -5024,7 +5024,7 @@ UI = {
     'power': 'Teststärke',
     'pred': 'Vorhergehende',
     'prediction': 'Vorhersage',
-    'press Escape to close': 'drücken Escape to close',
+    'press Escape to close': 'zum Schließen Escape drücken',
     'print': 'drucken',
     'product': 'Erzeugnis',
     'project or plate folder': 'Projekt- oder Plattenordner',

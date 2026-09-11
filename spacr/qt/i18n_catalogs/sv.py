@@ -5024,7 +5024,7 @@ UI = {
     'power': 'statistisk styrka',
     'pred': 'Före',
     'prediction': 'förutsägelse',
-    'press Escape to close': 'Tryck på Flykten för att stänga',
+    'press Escape to close': 'tryck på Escape för att stänga',
     'print': 'tryck',
     'product': 'produkt',
     'project or plate folder': 'projekt- eller plåtmapp',

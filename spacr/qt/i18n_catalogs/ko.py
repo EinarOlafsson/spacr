@@ -5024,7 +5024,7 @@ UI = {
     'power': '통계적 검정력',
     'pred': '앞서',
     'prediction': '예측',
-    'press Escape to close': '프레스 탈출 닫기',
+    'press Escape to close': '닫으려면 Escape를 누르세요',
     'print': '프린트',
     'product': '제품',
     'project or plate folder': '프로젝트 또는 플레이트 폴더',

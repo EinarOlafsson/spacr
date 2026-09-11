@@ -5024,7 +5024,7 @@ UI = {
     'power': 'potencia estadística',
     'pred': 'pred.',
     'prediction': 'predicción',
-    'press Escape to close': 'Presione Escapar para cerrar',
+    'press Escape to close': 'pulse Escape para cerrar',
     'print': 'imprimir',
     'product': 'producto',
     'project or plate folder': 'carpeta de proyecto o placa',

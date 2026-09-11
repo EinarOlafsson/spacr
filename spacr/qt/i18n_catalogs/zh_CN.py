@@ -5025,7 +5025,7 @@ UI = {
     'power': '统计功效',
     'pred': '之前',
     'prediction': '预测',
-    'press Escape to close': '新闻 逃避 关闭',
+    'press Escape to close': '按 Escape 关闭',
     'print': '印刷',
     'product': '产品',
     'project or plate folder': '项目或板文件夹',

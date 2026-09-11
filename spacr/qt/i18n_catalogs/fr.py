@@ -5024,7 +5024,7 @@ UI = {
     'power': 'puissance statistique',
     'pred': 'préd',
     'prediction': 'prévision',
-    'press Escape to close': 'Appuyez sur Échapper pour fermer',
+    'press Escape to close': 'appuyez sur Échap pour fermer',
     'print': 'imprimer',
     'product': 'Produit',
     'project or plate folder': 'dossier projet ou plaque',
