@@ -3744,16 +3744,31 @@ def window_stylesheet(app=None) -> Optional[str]:
 
 
 def _the_windows_own_stylesheet(window) -> str:
-    """What ``window`` had set on itself before spaCR sheeted it.
+    """What ``window`` has set on itself, as opposed to what we set on it.
 
-    Captured once. On the second pass the widget is wearing our sheet, so
-    reading it back would fold the global rules into "its own" and they
-    would accumulate at every theme change.
+    NOT CAPTURED ONCE ANY MORE, and the reason it was is still true: on the
+    second pass the widget is wearing our sheet, and reading that back would
+    fold the global rules into "its own" so they accumulate at every theme
+    change. The digest is what tells the two apart. When the widget's
+    current sheet is the text we last gave it, the remembered answer stands;
+    when it is NOT, somebody has set their own rules since and those rules
+    are the answer.
+
+    WHY THAT MATTERS. A dialog is a window and therefore a sheet root, and
+    several screens set a dialog's own stylesheet from a theme-refresh path
+    -- `WalkAxesDialog` and `UmapSearchSettingsDialog` say so in their own
+    docstrings, "after the application stylesheet has been composed".
+    Remembering only the first answer meant their rule was dropped at the
+    next theme change: measured, a dialog that set
+    `QDialog#X { background: #123456 }` after being sheeted came back from
+    the next theme change carrying the full sheet and none of its own rule.
     """
-    own = window.property(_WINDOW_OWN_SHEET)
-    if own is not None:
-        return str(own)
+    remembered = window.property(_WINDOW_OWN_SHEET)
+    ours = getattr(window, _WINDOW_SHEET_DIGEST, None)
     current = str(window.styleSheet() or "")
+    if remembered is not None and (
+            ours is None or ours == _sheet_digest(current)):
+        return str(remembered)
     suffix = getattr(window, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")
     if suffix and current.endswith(suffix):
         # The late screen block belongs to `preserve_widget_qss_overlay`,

@@ -484,3 +484,60 @@ def test_a_screen_that_repaints_its_page_keeps_the_theme(sheeted, qtbot):
     assert "#123456" in page.styleSheet(), (
         "the screen's own page-colour rule was lost, which is the other "
         "way for this to be wrong")
+
+
+def test_a_window_that_sets_its_own_rule_keeps_the_theme(sheeted, qtbot):
+    """A DIALOG IS A WINDOW AND THEREFORE A SHEET ROOT.
+
+    Two dialogs in `hyperparam.py` set their own stylesheet from a
+    theme-refresh path -- their docstrings say "after the application
+    stylesheet has been composed", which is exactly the moment that
+    matters. Under per-window sheeting a plain `setStyleSheet` there
+    replaces the ~73 KB the dialog is carrying rather than adding to it.
+
+    MEASURED BEFORE THE FIX, on a bare `QDialog`::
+
+        after show:           sheet 71900 chars, ink #c86432
+        after its own rule:   sheet    44 chars, ink #000000
+        after the next theme: sheet 71900 chars, own rule GONE
+
+    So it lost the theme immediately and its own rule at the next theme
+    change -- the second because `_the_windows_own_stylesheet` remembered
+    only the first answer it ever got. It now re-reads whenever the digest
+    says the current sheet is not the text we last set, which is precisely
+    the case where somebody else has written one.
+    """
+    from PySide6.QtWidgets import QDialog, QVBoxLayout
+
+    from spacr.qt.theme import set_a_sheeted_widgets_own_rule
+
+    app = QApplication.instance()
+    sheeted(app, FIRST)
+
+    dialog = QDialog()
+    dialog.setObjectName("OwnRuleProbe")
+    QVBoxLayout(dialog).addWidget(QLabel("hello", dialog))
+    qtbot.addWidget(dialog)
+    dialog.show()
+    for _ in range(20):
+        app.processEvents()
+    assert _resolved(QLabel(dialog)) == FIRST_HEX, "the dialog opened bare"
+
+    own = "QDialog#OwnRuleProbe { background: #123456; }"
+    set_a_sheeted_widgets_own_rule(dialog, own)
+    for _ in range(20):
+        app.processEvents()
+    assert _resolved(QLabel(dialog)) == FIRST_HEX, (
+        "setting the dialog's own rule replaced the theme it was carrying")
+    assert "#123456" in dialog.styleSheet(), "its own rule did not land"
+
+    # And the rule survives the next theme change rather than being
+    # dropped in favour of whatever it happened to own the first time.
+    sheeted(app, SECOND)
+    for _ in range(20):
+        app.processEvents()
+    assert _resolved(QLabel(dialog)) == SECOND_HEX, (
+        "the dialog did not follow the theme change")
+    assert "#123456" in dialog.styleSheet(), (
+        "the theme change dropped the dialog's own rule, which is the "
+        "other half of remembering only the first answer")
