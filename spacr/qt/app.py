@@ -5218,7 +5218,7 @@ class MainWindow(QMainWindow):
         transparent window block whenever an animated backdrop is running,
         so a plain `QWidget` no longer paints over it.
 
-        MEASURED BEFORE TURNING IT BACK ON, from X, on the maintainer's
+        MEASURED BEFORE TURNING IT BACK ON, from X, on a real
         display, home screen at 1600x1000:
 
             theme   this off         this on, old QSS   this on, new QSS

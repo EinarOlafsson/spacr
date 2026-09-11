@@ -1,6 +1,7 @@
 """Every other channel, sampled at the object coordinates B4 assigned.
 
-PHASE C OF INSTRUCTION 372, the part that can be built and checked without a
+SAMPLING EVERY OTHER CHANNEL at the object coordinates the numbering step
+assigned -- the part that can be built and checked without a
 real cycle stack. B4 produced a plate-level object id and a well-frame
 centroid for every nucleus; this is what reads the remaining channels AT
 those coordinates and keys the result to those ids.

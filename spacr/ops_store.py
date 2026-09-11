@@ -1,7 +1,7 @@
 """Where an OPS run's tables live, and the gate that says B4 finished.
 
-PHASE D OF INSTRUCTION 372, and the B5 gate that depends on it. 372 states
-the contract:
+THE STORAGE CONTRACT for an OPS run, and the gate that says the object pass
+finished. The contract is:
 
     IN measurements.db, authoritative:
         ops_geometry, ops_objects, ops_reads, ops_barcodes

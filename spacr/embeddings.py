@@ -404,9 +404,10 @@ def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
                   scorecard: Optional[Mapping[str, Any]] = None):
     """This encoder as a :class:`spacr.model_zoo.ModelEntry`.
 
-    386 STEP 3: "Register the encoder in `spacr/model_zoo.py` like any other
-    published model, with its checksum. Instruction 370's scorecard applies:
-    an embedding that ships without one is a black box twice over."
+    AN ENCODER IS A PUBLISHED MODEL like any other, so it belongs in the zoo
+    with its checksum and its scorecard. An embedding that ships without one
+    is a black box twice over: opaque in what it encodes, and unmeasured in
+    how well it does it.
 
     WHAT AN ENCODER'S PROVENANCE ACTUALLY IS. It has no spaCR checkpoint --
     the weights are ImageNet or a public self-supervised run, resolved by

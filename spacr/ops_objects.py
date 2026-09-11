@@ -1,6 +1,7 @@
 """One object list for a well, sewn across window seams and numbered once.
 
-PHASES B2, B3 AND B4 OF INSTRUCTION 372. B1 gave a composite that is built a
+SEGMENT, SEW, NUMBER -- the three steps between a composite and an object
+table. The compose step gives a mosaic that is built a
 window at a time and never materialised whole; this is what segmentation and
 numbering do on top of it:
 

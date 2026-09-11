@@ -7,6 +7,7 @@ which is where the same mistakes used to surface.
 """
 from __future__ import annotations
 
+import inspect
 import re
 
 import dataclasses
@@ -84,7 +85,17 @@ def _documents(doc, field):
     for three -- which is why this matches a name within the heading
     rather than a whole line.
     """
-    block = re.search(r"(?ms)^Parameters\n-+\n(.*)", doc or "")
+    # DEDENTED FIRST. A class docstring keeps the indentation of its source,
+    # so `^Parameters` anchored at column 0 never matched one and this helper
+    # answered False for EVERY field of every config -- including the twelve
+    # that are documented. The failure named `test_mode` only because it is
+    # checked first, which reads like one missing field rather than a helper
+    # that cannot see the block at all.
+    #
+    # Same class of mistake the note above records for `:param`: the
+    # documentation moved and the check was still looking for the old shape.
+    block = re.search(r"(?ms)^Parameters\n-+\n(.*)",
+                      inspect.cleandoc(doc or ""))
     if block is None:
         return False
     return any(
