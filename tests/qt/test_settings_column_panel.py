@@ -651,23 +651,47 @@ def test_the_probe_can_see_the_black_pane(qtbot, app_theme_restored,
                                           monkeypatch):
     """Guards the guard, for the strip.
 
-    Put the unstyled container back — drop the block that tells the pane
-    and the strip to paint nothing — and the categories must go black
-    again, which is the state that was reported.
+    Paint the container the WINDOW colour — the state that was reported —
+    and the categories in front of it must go black, because what shows
+    through a translucent panel is then a black rectangle rather than the
+    page.
+
+    **This used to stage the fault by removing the block instead**, on the
+    reasoning that an unstyled ``QWidget#SettingsSearchPane`` falls through
+    to a blanket ``QWidget {{ background-color: bg }}`` and paints the
+    window colour by itself. That is what :func:`_bar_qss` records, and it
+    is no longer how the sheet reads: the blanket rule is
+    ``background-color: transparent``, so a named widget with no rule of
+    its own now paints NOTHING and the column measured a perfectly correct
+    0.700 with the block gone.
+
+    Which is a better sheet and a worse guard. Removing the rule stopped
+    reproducing the fault, so the guard stopped proving the probe can see
+    it — it passed for a year on a defect it could no longer stage, and
+    then failed the day the blanket rule changed under it. Staging the
+    fill explicitly does not depend on any other rule in the sheet, and
+    it still lands on the 0.000 the report recorded.
+
+    The block stays where it is. It is no longer the only thing keeping
+    the pane clear, but it is the thing that SAYS the pane is clear, and
+    :func:`test_the_strip_and_the_banner_paint_nothing` measures the rest
+    of what it does.
     """
     from spacr.qt import theme as theme_mod
-    from spacr.qt.settings_search import BAR_NAME
+    from spacr.qt.settings_search import BAR_NAME, PANE_NAME
 
-    monkeypatch.setitem(theme_mod._WIDGET_QSS, BAR_NAME,
-                        lambda palette, opacity: "")
+    def opaque_pane(palette, opacity):
+        return f"QWidget#{PANE_NAME} {{ background-color: {palette['bg']}; }}"
+
+    monkeypatch.setitem(theme_mod._WIDGET_QSS, BAR_NAME, opaque_pane)
     _window, screen = _show(qtbot, "illumination", LOW, with_strip=True)
     first = _sections(screen)[0]
     measured = _surface(_transmission(screen),
                         _clip(_viewport(screen), _rect(screen, first)))
     assert measured < OPAQUE_ENOUGH, (
-        f"with the strip's block removed a settings category still passes "
-        f"{measured:.3f} of the backdrop, so this file is not measuring what "
-        "made the running app black")
+        f"with the container painting the window colour a settings category "
+        f"still passes {measured:.3f} of the backdrop, so this file is not "
+        "measuring what made the running app black")
 
 
 def test_a_late_registered_block_reaches_its_screen_before_first_paint(
