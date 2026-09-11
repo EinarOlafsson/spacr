@@ -351,3 +351,79 @@ unnamed. The sweep records counts and not names by design -- `--tb=no` and
 one reused output file is what keeps it fast -- so naming them is a
 separate no-coverage re-run over those 27 chunks, and it is the next thing
 this item needs. That is 288's blocker as much as this one's.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE NINE BELOW 80 %, EACH WITH ITS REASON READ RATHER THAN GUESSED
+--------------------------------------------------------------------------------
+
+This item's rule: "Every module either at a coverage the reader agrees is
+reasonable, or NAMED HERE WITH THE REASON it stops short." The nine from
+the complete sweep, with the reason taken from the UNCOVERED LINE NUMBERS
+in each case rather than from the module's name.
+
+  MY FIRST GUESSES WERE WRONG FOR TWO OF THEM, which is why this section
+  exists in this form. `ops_accel` and `sra_picker` have no `requests.`,
+  no `http`, no `torch.cuda` anywhere in them -- I grepped for those, got
+  zero, and would have written "network" and "GPU" from the module names
+  if I had stopped there. Reading the uncovered lines gave a different and
+  better answer for both.
+
+  spacr/ops_phenotype.py            52.16 %   NOT A REASON -- A CRASH.
+    `src[:, 0].ptp()` at line 531, removed by NumPy 2.0. Seven tests could
+    not get past it. Fixed; re-measured separately, and this number is
+    stale the moment that fix landed. IT IS THE WARNING FOR THIS WHOLE
+    SECTION: a low number is a question, not an answer, and the first
+    question is whether the module runs at all.
+
+  spacr/qt/hf_download.py           56.19 %   149 of 368 statements, in
+    three large blocks (477-517, 583-637, 674-732). They are the download
+    itself. Exercising them means either reaching Hugging Face from a test
+    or mocking the transport so thoroughly that what is measured is the
+    mock. REASONABLE AS IS.
+
+  spacr/qt/terms_i18n/__init__.py   52.94 %   FIFTEEN STATEMENTS, six
+    uncovered (40-43, 48, 59-60): `register()`'s validation arm and the
+    accessors' answers for a language with no presentation. The percentage
+    is small because the DENOMINATOR is small; six lines in a fifteen-line
+    module is not the same kind of gap as 149 in 368, and a ratio alone
+    cannot tell them apart. Worth a test, and it is small.
+
+  spacr/qt/ai/issue_preview.py      72.73 %   `_check_for_diagnosis`
+    (224-249) polls for an answer from a live AI console thread and gives
+    up on a timer. Driving it needs a real `_ai_thread`. REASONABLE AS IS.
+
+  spacr/qt/widgets/sra_picker.py    73.63 %   NOT THE WIDGET -- THE WORKER.
+    60-64 and 78-98 are the download worker's constructor and `run()`,
+    which calls `fetch_reads`. Network, reached through a helper rather
+    than through `requests` in this file, which is why grepping the file
+    for network symbols says nothing. REASONABLE AS IS.
+
+  spacr/qt/widgets/height_grip.py   73.68 %   `enterEvent`,
+    `mousePressEvent` and the drag arithmetic behind them (182-285). A
+    grip is a mouse gesture; offscreen Qt will synthesise the events but
+    what is then measured is the synthesis. REASONABLE AS IS, and the same
+    argument 327 makes about the pointer.
+
+  spacr/ops_accel.py                76.85 %   THE CUPY AND GPU-DEVICE ARMS
+    (69-70, 77, 90-91, 106-108, 331-343). `_torch(gpu=True)`'s device
+    selection, `_cupy()`'s availability probe, and the entire CuPy
+    nearest-neighbour branch. This box runs `-m "not gpu"` and has no
+    cupy. REASONABLE AS IS -- and the honest note is that it is untested
+    ANYWHERE until CI grows a GPU runner, not merely untested here.
+
+  spacr/qt/gc_policy.py             79.45 %   The INSTALL path (104-120):
+    it calls `gc.disable()` and starts a QTimer that collects on the GUI
+    thread. Running it inside the suite changes garbage collection for
+    every later test in that process. DELIBERATELY NOT EXERCISED, and this
+    is the one where testing it would be worse than not.
+
+  spacr/regression_layout.py        79.45 %   Fifteen statements and
+    FIFTEEN PARTIAL BRANCHES over 100 statements -- the widest
+    branch-to-statement ratio of the nine. Not a single feature left out
+    but a scatter of layout arms. The only one here that looks like
+    ordinary missing coverage rather than a reason.
+
+SO THE LIST IS: one crash (fixed), five reasonable-as-is, one deliberately
+never to be tested, and TWO worth writing tests for -- `terms_i18n` because
+it is six lines, and `regression_layout` because its gap is genuinely
+untested branches. Neither is release-blocking.
