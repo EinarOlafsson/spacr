@@ -41764,6 +41764,42 @@
         "ae2fa48a52b625186483a5aadeeeeb3b75f0e8b51f0d214123a027a51d2072e5"
       ]
     },
+    "spacr.model_zoo.ModelEntry.scorecard_holdout": {
+      "source_blocks_sha256": [
+        "292f7343b9797971ac4e2f38035a59719e08ffd72119d45b18070d154971ff6c",
+        "e0502c455f710bdf567c6573c65544488d95bfd342bb564653bb1c10e8b59772"
+      ],
+      "source_sha256": "eac89f1c4310893a7416ecb54f257613e7669085496521365e44386f790b8450",
+      "text": "``name @ version`` में hold-out सेट, या ``\"\"``।\n\nदो लोग एक ही मॉडल के लिए एक फॉर्मूला 1 को उद्धृत करते हुए एक-दूसरे को कुछ भी नहीं कहते हैं जब तक कि वे एक ही मास्क को स्कोर नहीं करते हैं, इसलिए सेट संख्याओं के साथ प्रत्येक सतह में यात्रा करता है जो उन्हें दिखाता है।",
+      "translation_source_blocks_sha256": [
+        "292f7343b9797971ac4e2f38035a59719e08ffd72119d45b18070d154971ff6c",
+        "cf7dae60c15ba55cfdfddcabf5a14fd4f4ad04d142b78ddda4b24d5a85d50f8f"
+      ]
+    },
+    "spacr.model_zoo.ModelEntry.scorecard_known": {
+      "source_blocks_sha256": [
+        "23b1b33c89156b9d4d3c80db83abfd263a17b900e48aab4cc3e6e1acd9bcabc1",
+        "a0a2744885206b3267b585e44abb89231743b05fbc2c8473b04d42657b849043"
+      ],
+      "source_sha256": "ab96087a6769b2222613fb49c788c9fa45f5868260fc9340b94bc380d3dc9cf3",
+      "text": "True जब यह मॉडल बताता है कि यह कितना सटीक है।\n\nसटीकता जुड़वां :attr:`provenance_known`, जिसके लिए 370 नाम से पूछता है. संख्याओं के बिना एक मॉडल ने शून्य नहीं रिकॉर्ड किया, और खाली कोशिकाओं की एक तालिका दूसरी के रूप में पढ़ी जाती है - इसलिए अनुपस्थिति रिपोर्ट करने के लिए एक स्थिति है, न कि एक अंतर है।",
+      "translation_source_blocks_sha256": [
+        "23b1b33c89156b9d4d3c80db83abfd263a17b900e48aab4cc3e6e1acd9bcabc1",
+        "a0a2744885206b3267b585e44abb89231743b05fbc2c8473b04d42657b849043"
+      ]
+    },
+    "spacr.model_zoo.ModelEntry.scorecard_lines": {
+      "source_blocks_sha256": [
+        "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
+        "2dea166ba3501ef378c92617a6dfd8f87a57cbf4e68e5505b0ad65555da32eb0"
+      ],
+      "source_sha256": "7d0f2c7f181a66a82cedd8ba1aa2abc8f46337cf102b3cce9b694d9607b72842",
+      "text": "स्कोरकार्ड प्रदर्शित लाइनों के रूप में, या वाक्यांश कहता है कि कोई नहीं है।\n\nएक स्रोत, चार रेंडिंग. टूल टिप, API पृष्ठ, चिड़ियाघर स्क्रीनिंग और Hugging Face तालिका सभी इस बात से असहमत नहीं हैं - 366 तीन अलग API पृष्ठों पर संकेत देने वाले छह README टाइलों को पाया, और यह तब होता है जब एक संख्या एक से अधिक स्थान पर नीचे लिखी जाती है।",
+      "translation_source_blocks_sha256": [
+        "327404cd50a0a6d00badad4e8704788893893a720b1d8e4c9149f663209762ed",
+        "30cc2a5c7b3e2531e24491ddec8b1de9f690cf13091a2f3f5be69372a8cdc76a"
+      ]
+    },
     "spacr.model_zoo.ModelEntry.summary_line": {
       "source_blocks_sha256": [
         "813c2248be4037ddba14afcf67dca6950124f2bf836a75480dba1fb17547fd19"
@@ -46686,6 +46722,138 @@
         "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
         "74d2febe588d2cafbe26efa0707278ed4f160bab85acf8de5f2154f308937981",
         "4e34f910f108c2819bfe523d9133c11544a209f0fe253984b6330618755ab609"
+      ]
+    },
+    "spacr.ops_compose": {
+      "source_blocks_sha256": [
+        "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
+        "2f3c97f71967690e34c8067c8f5217cb132e4fc98344c5ebb238e04f37a71cbe",
+        "9c604370eea684a67c7b138357c4e26ea2eac6f640d836c2b3d723c7e0d8242c",
+        "c359f9f720dab72b58a7a3f83dbd326f91738bf99a87988d1e4d944359b5bc69"
+      ],
+      "source_sha256": "ff12a12fa8bc3baa6272f70d57759b77bb457e1471bdb8d39ffcf9a791653cd6",
+      "text": "कैननिक परमाणु नक्शा, एक ही समय में एक खिड़की बनाया।\n\nचरण b1 निर्देश 372. `ops_stitch` जहां प्रत्येक माइक्रोस्कोप छवि फ़ील्ड बैठता है और जानबूझकर पिक्सेल नहीं रखता है - ठीक है A1 26,855 x 26,865, जो ONE चैनल के लिए uint16 के रूप में 1.4 जीबी है, और प्रत्येक बाद के चरण के माध्यम से पढ़ेगा. इस मॉड्यूल के बजाय वही अच्छी खिड़की बनाता है, जो कि यह है कि B2 किसी भी तरह से करने के लिए विभाजन का अनुरोध करता है: \"सेगमेंट एक बार, कॉम्प्शन पर, विंडो के लिए\".\n\n    स्मृति समस्या और विभाजन योजना का एक ही जवाब है. एक विंडो जिसे एक सेगमेंटर पकड़ सकता है वह भी एक खिड़की है जो एक कॉम्पोजर बना सकता है, इसलिए कुछ भी कभी भी पूरे कैनवास को सामग्री नहीं बनाता है. जोड़ने की कुंजी B4 की जरूरतें - माइक्रोप्लेट नमूना स्थिति फ्रेम में एक प्रयोगशाला माइकप्लेट स्तर वस्तु संख्या - जीवित रहती हैं क्योंकि प्रत्येक खिड़का उस फ्रेमा में अपना ऑफ़सेट लाता है।\n\nक्यों औसत ओवरलाप पूरी तरह से. भाग 15 इसे मापा: लाभ के बारे में 1.15x पर सटीक छवि डेटा चैनल सेगमेंटेशन चल रहा है, नहीं 3.3x एक पिछले डिज़ाइन का दावा है कि औसत से चक्रों के माध्यम से. वहाँ केवल एक DAPI अधिग्रहण है, इसलिए 11 नमूना तर्क लागू नहीं होता है - क्या छोड़ दिया है रस्टर के अपने 14% ओवरलैप है, जहां दो माइक्रोस्कोप छवि फ़ील्ड एक ही कोर को दो बार देखा है. 1.15 x के लायक है और ओवरस्टेट करने के लिए लायक नहीं है, यही कारण है कि संख्या यहाँ है के बजाय एडेक्टिव.",
+      "translation_source_blocks_sha256": [
+        "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
+        "99870ea0030eecbff2b2677f1f8c4e345eefee934aa9108309b8d34a48fcb159",
+        "2bebe95857e6c51de5035aa67c37dc4e5dfda86de8ca5fde1f2f72c7dbc36147",
+        "c1a39eddb74fd17659348ddccf73892cd984ce92636648bec865e0fa30c59960"
+      ]
+    },
+    "spacr.ops_compose.ComposeError": {
+      "source_blocks_sha256": [
+        "a754bddd5fa5df0ee543244e10ac037b13cc24d4c5523e31a3d7b4db119f1522"
+      ],
+      "source_sha256": "a754bddd5fa5df0ee543244e10ac037b13cc24d4c5523e31a3d7b4db119f1522",
+      "text": "अपवाद का उपयोग तब किया जाता है जब एक खिड़की बनाया नहीं जा सकता है, कारण के साथ।",
+      "translation_source_blocks_sha256": [
+        "4e5e85bcc49fe63a3cb6a7995381eb5a5b62caa66913927c5ce1d1d9140fe897"
+      ]
+    },
+    "spacr.ops_compose.Window": {
+      "source_blocks_sha256": [
+        "c8adc791935a617cad89cac0d9e616bf02d53a4ae034e7f993128fe102d0e312",
+        "c39b34c0f041747399470afb67399d0498f9bfaafbc96d14732c1fae0cfd550a",
+        "446ea6f125bb90cbdd7497ce6acd5ba240f330ed27ed923168aabcafa91fd423",
+        "88da8229ed0577065ba78933b6e1001568edd23b39280ae95cbeadfc139b230e",
+        "6a308b5c47639ee6385971a1b778abf53b80bdc73b3850b61ca52d7523085865"
+      ],
+      "source_sha256": "1ea4381f857fe67ee803eb2380c81b2e24e63479591ba5e626d2a5866197c781",
+      "text": "माइक्रोप्लेट नमूना स्थिति फ्रेम का एक सीधा कोने, और जहां यह इसमें बैठता है।\n\n:param top: अच्छी तरह से पिक्सेल में पहली पंक्ति।\n:param left: पहला स्तंभ अच्छे पिक्सेल में है।\n:param height: रैली\n:param width: स्तंभों",
+      "translation_source_blocks_sha256": [
+        "43fd999eb9712e70013041d5955cd316694ad4fd603ba629d4a2e2eff6493748",
+        "c39b34c0f041747399470afb67399d0498f9bfaafbc96d14732c1fae0cfd550a",
+        "446ea6f125bb90cbdd7497ce6acd5ba240f330ed27ed923168aabcafa91fd423",
+        "88da8229ed0577065ba78933b6e1001568edd23b39280ae95cbeadfc139b230e",
+        "6a308b5c47639ee6385971a1b778abf53b80bdc73b3850b61ca52d7523085865"
+      ]
+    },
+    "spacr.ops_compose.Window.bottom": {
+      "source_blocks_sha256": [
+        "ecc3724fe01763738dc8e1f6cb78bfd6be14c4773afcfdca3ba6bf711d840930"
+      ],
+      "source_sha256": "ecc3724fe01763738dc8e1f6cb78bfd6be14c4773afcfdca3ba6bf711d840930",
+      "text": "एक आखिरी पंक्ति से गुजरता है।",
+      "translation_source_blocks_sha256": [
+        "ecc3724fe01763738dc8e1f6cb78bfd6be14c4773afcfdca3ba6bf711d840930"
+      ]
+    },
+    "spacr.ops_compose.Window.offset": {
+      "source_blocks_sha256": [
+        "e3a4bfc6b86f0a4580550c5456fceced420e85d783d7a44e1bef073ed7470d59"
+      ],
+      "source_sha256": "e3a4bfc6b86f0a4580550c5456fceced420e85d783d7a44e1bef073ed7470d59",
+      "text": "``(top, left)`` - माइक्रोप्लेट नमूना स्थिति तक पहुंचने के लिए एक स्थानीय समन्वय क्या जोड़ता है।",
+      "translation_source_blocks_sha256": [
+        "161512282d08391dec0547dceb1f18b37cc779145bb2d75838e1c72c857c3808"
+      ]
+    },
+    "spacr.ops_compose.Window.right": {
+      "source_blocks_sha256": [
+        "efda55c447879de45385f2e52a1de292bdff3b764090c1f19fee8ea6382ef29c"
+      ],
+      "source_sha256": "efda55c447879de45385f2e52a1de292bdff3b764090c1f19fee8ea6382ef29c",
+      "text": "एक अंतिम स्तंभ से गुजरता है।",
+      "translation_source_blocks_sha256": [
+        "efda55c447879de45385f2e52a1de292bdff3b764090c1f19fee8ea6382ef29c"
+      ]
+    },
+    "spacr.ops_compose.compose_window": {
+      "source_blocks_sha256": [
+        "87bdb396643a477bb627e2d4642b38d75f7bd3cfa8f7c25a35ad84cb9fbd50a8",
+        "97689de92764a30001f6ea74634b67de08e7e0eeed88b9c76236f8ab757fd5ed",
+        "ac2abf6417d5790e55dd5746790c064aa3f1b887543dfcfee4df4f1ca224891c",
+        "3e0cd1e32892e661af7193a5083d0c8bbbd94930c4968d51ef536f438d8c1915",
+        "79655d6fc8f7dbd9cafad49704e10dcc2189baf70bae979af20a706085af8367",
+        "d7ce9174385c9756b107097d86928744ce14e7d1a4d0a98890db2064e8409d3a",
+        "3a0a5e4856e93fc4a1d6db1c06f137b9156c0bded5b78b756ffa3267ed56112e"
+      ],
+      "source_sha256": "c1df9c8a9e62f7d06ccded8bedaf529dbdebb7db4d8e8caf1ebce67063eb730b",
+      "text": "औसतन प्रत्येक माइक्रोस्कोप छवि फ़ील्ड जो ``window`` को एक छवि में पार करता है।\n\nएक टाइल अपने पड़ोसी के ऊपर लगाए गए एक सीम रखता है जहां दो टाइल असहमत हैं, और एक सीएम एक ग्रेडिएंट है एक सेगमेंटर खुशी से एक किनारे में मिल जाएगा. औसत सीम को हटा देता है और जहां 1.15x से आता है; वे एक ही ऑपरेशन हैं.\n\n:param window: बनाने के लिए माइक्रोप्लेट नमूना स्थिति फ्रेम के सीधे कोने।\n:param placements: ``site -> (y, x)`` समाधान से, अच्छे पिक्सेल में।\n:param read_tile: केवल माइक्रोस्कोप छवि फ़ील्डों के लिए कहा जाता है जो वास्तव में खिड़की को छूता है, इसलिए एक माईक्रोप्लेट नमूना स्थिति 333 माइकल छवि फील्ड की लागत के बजाय विंडो के लिए एक टुकड़ा पढ़ने के लिए 333 है।\n:param tile_shape: ``(height, width)``; पहली पंक्ति से पढ़ा जब अनदेखा किया जाता है।\n:returns: ``(image, coverage)`` - औसत विंडो और प्रत्येक पिक्सेल में कितने टाइलों को योगदान दिया गया है. कवरेज वापस नहीं किया जाता है क्योंकि कोई टाइल तक नहीं पहुंचने वाला पिक्केल एक काला पिक्क्सल नहीं है, और केवल गिनती उन्हें अलग बताती है।",
+      "translation_source_blocks_sha256": [
+        "0d33849209cc0a5b96b90b7f0a718734b0fe587a276ac33f53f52e27e955257b",
+        "f8f12f1f60c86ac626e0e396a83e4218be85852d10d2d66b1ea1dd20fca15fe1",
+        "56e855c037a2910c7a50483d27c0936aae1d96a69550736022b35c5eedc3d208",
+        "3e0cd1e32892e661af7193a5083d0c8bbbd94930c4968d51ef536f438d8c1915",
+        "0e1055380e037ae180fc185cba016c90c03ce129c6f9031f73bff2933f2335af",
+        "d7ce9174385c9756b107097d86928744ce14e7d1a4d0a98890db2064e8409d3a",
+        "2010fb9707fec5ab45e6e5a7fa0c0b62b90c304b72051227b900c460caa0bc62"
+      ]
+    },
+    "spacr.ops_compose.overlap_gain": {
+      "source_blocks_sha256": [
+        "c4476aa947979d92f771dacbea950dee646f536433a763ca11d1a36b0dc9715d",
+        "89ca015b2d5aa50547c622a414c459be744e23c64da564eb88522158f93514c8",
+        "d03e4bcb5edd4c5347a14599a8953b221e5caff17efc1da89c886b4cc7d7d7bb",
+        "4802cc79e512cb5d3c19046eb9c357f0e916736c1a017a339d55de61c610051c"
+      ],
+      "source_sha256": "bd21234417e94b00787c4156218f4d2b517e68675aee3e5270ada719116a06e5",
+      "text": "ध्वनि कमाई औसतन खरीदा, पिक्सेल से अधिक एक टाइल वास्तव में पहुंच गया।\n\nमध्य कवरेज का sqrt: एक सिग्नल के औसत n स्वतंत्र नमूनों में शोर को sqrt(n) द्वारा विभाजित किया जाता है. केवल कवर किए गए पिक्सेल पर रिपोर्ट की जाती है, क्योंकि एक माइक्रोप्लेट नमूना स्थिति के कोनों को एक मिक्रोस्कोप छवि फ़ील्ड द्वारा पहुंचाया जाता है और अज्ञात पृष्ठभूमि को शामिल करते हुए, पिक्के के लिए कोई लाभ नहीं मापा जाता है।\n\nभाग 15 एक 14% रस्टर पर अच्छी तरह से A1 के लिए 1.15x मापा. एक कॉम्प्लेयर जो एक ही भूमेट्री पर की तुलना में बहुत अधिक रिपोर्ट करता है, दो बार कुछ का औसत है.\n\n:param count: कवरेज को :func:`compose_window` से रखा गया है।",
+      "translation_source_blocks_sha256": [
+        "c4476aa947979d92f771dacbea950dee646f536433a763ca11d1a36b0dc9715d",
+        "93253a00e1608ccd75fc307d14beb905524e9e48d88a5107bd81c9f6365ca7fc",
+        "d03e4bcb5edd4c5347a14599a8953b221e5caff17efc1da89c886b4cc7d7d7bb",
+        "4802cc79e512cb5d3c19046eb9c357f0e916736c1a017a339d55de61c610051c"
+      ]
+    },
+    "spacr.ops_compose.windows_over": {
+      "source_blocks_sha256": [
+        "d09520c0f1100b5706041dffba94e97b464724d398a47796fac909616e1d18e3",
+        "d58cc12c06301003643d33b1697964bb2fd465183d74b8b2e0448dc9df11d3d0",
+        "5fd2da00e9ba4dccea7b96d40f9e7c5f1571ad527aa282cd625ee79eec663344",
+        "7446032b6fb00a83a0a8f3f580218756645806d129e7f196c786388bce4e876c",
+        "53747ea6692116a69328604abfec580c74bbdaf5a2795b48887b0d399d987251",
+        "0127f37f3eef338fcd6c711bd0cce0b880dd9be69f3a463a99ab86702250c50b"
+      ],
+      "source_sha256": "d94324d86aec939ca54a63a292216fdba17fdc24b17abcc8e68a5f8f53338c27",
+      "text": "माइक्रोस्कोप छवि फ़ील्ड एक कैनवास में ओवरलैप विंडो, रैस्टर क्रम में।\n\nविंडो को उद्देश्य पर और B3 कारण है: एक वस्तु जो एक खिड़की की सीमा को छूती है वह एक ही वस्तु है, और यह केवल तार के माध्यम से फिट किया जा सकता है यदि दोनों खिड़कियां सब कुछ देखती हैं।\n\n:param canvas: ``(height, width)`` माइक्रोप्लेट नमूना स्थिति फ्रेम।\n:param size: पिक्सेल में खिड़की के किनारे।\n:param overlap: कितने पड़ोसी विंडो साझा करते हैं।\n:raises ComposeError: जब ओवरलाप खिड़की से छोटा नहीं होता, जिससे स्ट्रिड शून्य और इटेरेशन अंतहीन हो जाता है।",
+      "translation_source_blocks_sha256": [
+        "bb6ecb963eef28edd2ef7de3e30fe53f993022036fa9af983e73800ed31bc169",
+        "b3a8d32f1bc7fb3f7c33078ea72962296c8a0fe923e3e0125b1c6444ed7e49cc",
+        "3469ef7518f7877a9cf13d7144be25a1367b74879e0187fabb24f50e69dc0d57",
+        "7446032b6fb00a83a0a8f3f580218756645806d129e7f196c786388bce4e876c",
+        "53747ea6692116a69328604abfec580c74bbdaf5a2795b48887b0d399d987251",
+        "0127f37f3eef338fcd6c711bd0cce0b880dd9be69f3a463a99ab86702250c50b"
       ]
     },
     "spacr.ops_cycles": {
@@ -101184,6 +101352,48 @@
         "453dd3731ae186e8c8859b40e9a6c26c0678f339dfb719c1a69968ea975c7a80"
       ]
     },
+    "spacr.qt.widgets.dose_response.InteractionSurface": {
+      "source_blocks_sha256": [
+        "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
+        "c57a6b8302096558675756514531d43ef228029373925ad18354b845ee8c35e7",
+        "a8838e93eede86dbc0c5a189c9ac2a3167d3711c3bbe6a913c3ab91da0834f1c",
+        "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
+        "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
+        "dc87a52b87497f07dab4b0a7dc74309ff15ffe9ffff279f5827aa8fb89754592",
+        "7ffbc8a22d999cd0dd65066bec3f3ec59601de4d05d4e9db9fd0e81d0e180354",
+        "c84372f8412a63e564e962d034f6efb9a2c5fb1dfe45dc5781328309a63b96a8",
+        "fb87c6ca7155ca45f85d003363793c48048edfa1096e980c9de1d1d794cd58ec",
+        "d4b3538b72dcbb496a9de7d8a838ac4efe1f7d9d2a9d65689682d8e84b93d374",
+        "566706bfe73b5edb78b39f74240ba0aa2d6d613e74fc9425b8c412f1ee79936c"
+      ],
+      "source_sha256": "0773bb216a286909306218de334b749cee7621d406f721f590b79aba0a47ac70",
+      "text": "एक चेकरबोर्ड की बातचीत, प्रत्येक कोशिका के साथ, अपने स्वयं के ध्रुवों के साथ।\n\nसतह परिणाम है और एक एकल सूचकांक नहीं है, जो कि निर्देश 387 के लिए इतने सारे शब्दों में पूछता है: \"एक पूरे चेकरबोर्ड के लिए एक संख्या बिल्कुल उस एकाग्रता-निर्भर संरचना को छिपाती है जो सिनेर्जी को दिलचस्प बनाती है।\n\nसिग्नल कॉन्फ्रेंस, यह कहा जाता है क्योंकि प्रत्येक कागज एक अलग का वर्णन करता है: सकारात्मक उम्मीद की तुलना में अधिक प्रभाव का मतलब है - एक अवरोध मूल्यांकन के लिए सहानुभूति. उम्मीद की सतह यह है कि मॉडल दो एकल एजेंट कवरेज से भविष्यवाणी करता है; ``excess`` न्यूनतम उम्मीद की जाती है।\n\n:param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.\n:param dose_a: एजेंट ए के अद्वितीय एकाग्रताओं, उभरते।\n:param dose_b: एजेंट बी के अद्वितीय एकाग्रताओं, उभरते।\n:param observed: ``(len(dose_a), len(dose_b))`` प्रभाव, 0 से 1 तक।\n:param expected: प्रत्येक सेल के लिए ``model`` क्या भविष्यवाणी करता है।\n:param excess: ``observed - expected``. NaN जहां एक कोशिका का परीक्षण नहीं किया गया था।\n:param n_cells: एक निरीक्षण के साथ कोशिकाओं।\n:param note: क्या गणना नहीं की जा सकती है, और क्यों?",
+      "translation_source_blocks_sha256": [
+        "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
+        "2cd6e8fb27d5fb38beef1d09119ed68ab186b1400ecf4c54e14b3d87f03fd486",
+        "21f3efc8807251951dc0a8b54ad2ae83db78e1a11144d472ea4a7429e75b73b4",
+        "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
+        "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
+        "dc87a52b87497f07dab4b0a7dc74309ff15ffe9ffff279f5827aa8fb89754592",
+        "7ffbc8a22d999cd0dd65066bec3f3ec59601de4d05d4e9db9fd0e81d0e180354",
+        "c84372f8412a63e564e962d034f6efb9a2c5fb1dfe45dc5781328309a63b96a8",
+        "fb87c6ca7155ca45f85d003363793c48048edfa1096e980c9de1d1d794cd58ec",
+        "d4b3538b72dcbb496a9de7d8a838ac4efe1f7d9d2a9d65689682d8e84b93d374",
+        "566706bfe73b5edb78b39f74240ba0aa2d6d613e74fc9425b8c412f1ee79936c"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.InteractionSurface.summary": {
+      "source_blocks_sha256": [
+        "dae1148ef92f3875abf20438daceb9f78c15d49d38a94b7df0488373adc13b63",
+        "b20dcc6953d0e0df9c2887afdbd967eeaed74630ed22bd677592c3c9ab026043"
+      ],
+      "source_sha256": "1dd9a976b2df7070a52b825921d3bcc45072d6ea1f4a0746f3cd42127c3facdd",
+      "text": "शीर्षक संख्याओं, प्रत्येक ने कहा कि नेटवर्क के बजाय उस पर है।\n\nसबसे मजबूत कोशिका और जहां यह बैठता है रिपोर्ट करने योग्य है; पूरे नेटवर्क पर एक औसत संख्या इस वर्ग से बचने के लिए मौजूद है, इसलिए यह अनुपस्थित है-एक चेतावनी के साथ प्रदान करने के बजाय।",
+      "translation_source_blocks_sha256": [
+        "dae1148ef92f3875abf20438daceb9f78c15d49d38a94b7df0488373adc13b63",
+        "b20dcc6953d0e0df9c2887afdbd967eeaed74630ed22bd677592c3c9ab026043"
+      ]
+    },
     "spacr.qt.widgets.dose_response.MonotonicityCheck": {
       "source_blocks_sha256": [
         "e305f1817cd6815fcfdd0b4251ed5ceb70d122df49ecbbed8bc10d1a8331d7ab",
@@ -101264,6 +101474,32 @@
       "text": "परिणाम तालिका के लिए एक पंक्ति, अस्वीकृति शामिल है।",
       "translation_source_blocks_sha256": [
         "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.bliss_surface": {
+      "source_blocks_sha256": [
+        "c9c4744244fd44d68e52f0bd1d0f99513f03fc28616d4c42d020a5bb99ed115a",
+        "0e2c964c20df2a03ce703161a7a7f3cf0045ac428b69681232ad8693d010c6d8",
+        "bb2505bd60d09931c9b581b54206cd3ec47d83d630ae1f13d9c62e16a6c8d857",
+        "1f5bf89e7f59d2663c98256a03812ff1cbbbc81dcb49358b5fdad5b84fc14715",
+        "3cc4270ecfa214937033785467fd5fa813ae27879a47a56643ec41f238335dfd",
+        "f73592b75990af0dc101db048416650f6020f123f24584f17d459ae9361901d3",
+        "5295b259b8e40e3038690f68e0a6660427ebb503edc555b27ef3898c049ee9da",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25",
+        "ad0fe7d5da434acb96352d196219d593ed85679cf13b9f2b7dd06481e87edd78"
+      ],
+      "source_sha256": "c3e67acdf1a2fe240bb150995c7fb0a4d9c2d6b7b3ac9aa661f5702a1fca1b95",
+      "text": "एक चेकबोर्ड पर स्वतंत्रता का आशीर्वाद।\n\nएक लाइन में मॉडल: यदि दो एजेंट स्वतंत्र रूप से कार्य करते हैं, तो दोनों जीवित फ्रैक्शन प्रत्येक जीवित फ़्रैक्शन का उत्पाद है, इसलिए अपेक्षित प्रभाव ``Ea + Eb - Ea*Eb`` है।\n\nBliss को संयोजन फिट से कुछ भी की जरूरत नहीं है, यही कारण है कि यह दोनों में से सबसे सस्ता है और पहले पहुंचने के लिए एक है: दोनों एकल एजेंट कोर पहले से ही नेटवर्क पर प्रत्येक एकाग्रता पर एक प्रभाव देते हैं।\n\n:param dose_a: एजेंट एक एकाग्रता माइक्रोप्लेट नमूना स्थिति के लिए।\n:param dose_b: एजेंट बी एकाग्रता माइक्रोप्लेट नमूना स्थिति के लिए।\n:param response: मापने के लिए प्रतिक्रिया मापा माइक्रोप्लेट नमूना स्थिति, एक ही लंबाई।\n:param fit_a: एकल एजेंट A के लिए फिट होता है (B को शून्य पर रखा जाता है)।\n:param fit_b: एकल एजेंट बी के लिए फिट है।\n:returns: an :class:`InteractionSurface`.",
+      "translation_source_blocks_sha256": [
+        "c9c4744244fd44d68e52f0bd1d0f99513f03fc28616d4c42d020a5bb99ed115a",
+        "db50d416d8f9ef73a7f5869bc6599eaa6be20d3aff4bdbf7db1b16d511e91994",
+        "ba431a78c7889ebeefbfc54a01c78bd328079c2b28ba9931a5f5d510ae93ab86",
+        "3d1c512d470718fd96f7a200a9632a06aaee95bcb6f413f2d17dd86f74144ecb",
+        "da858afcbeac612afb7ec069f330c44f1ee62d0b71d44d1e0467ec873e086aa7",
+        "d13d29e11eeed55af0e8e4bd7ae61c24bdd48df52a3b59dbc8d12d0403a97c65",
+        "5295b259b8e40e3038690f68e0a6660427ebb503edc555b27ef3898c049ee9da",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25",
+        "ad0fe7d5da434acb96352d196219d593ed85679cf13b9f2b7dd06481e87edd78"
       ]
     },
     "spacr.qt.widgets.dose_response.candidate_concentration_columns": {
@@ -101352,6 +101588,32 @@
         "91c3ad5b8fd1e74b220bde6be222dd582fe36c9aed8cbab699e56aa73b5909ed",
         "fd80341b192f2c2311a4cb0dca4857fbfa4cb74bbf6ae842a4e149f205eb0eaf",
         "b108add4d625f24ebe4ab73ba065fdbe104ed3e65dd0ca2672105e39548b48c1"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.loewe_surface": {
+      "source_blocks_sha256": [
+        "b6875849a496e4d7d2cd6b7d588da39f6bbdced0d9f14fbb1e8a5b928f23c445",
+        "6173b3e24dd36612fa27562b37ec704b99dc246d8d421d62a6a904ce2d3158fe",
+        "8a11e9ab1f56960a5f091b99167eda6ca0f1cb9c9fa27a0f60c602ac5219b63a",
+        "298020726ba8bf6d675d4bf5c1f941299177e4b5374adb6eff6bc7c21be59767",
+        "1f5bf89e7f59d2663c98256a03812ff1cbbbc81dcb49358b5fdad5b84fc14715",
+        "3cc4270ecfa214937033785467fd5fa813ae27879a47a56643ec41f238335dfd",
+        "b29c79765643c09f0675f80da78c010836017ae4fe3cfab09d39e666e9c6d7e2",
+        "190dd3dea69e85f1fb7e113ae8d1b5f10ef14e033fa578a4c07e99c895155252",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25"
+      ],
+      "source_sha256": "bb87239d6a923e3eba1fa83235bc23d9995d9ca6379a8acf142244204f20ac4d",
+      "text": "एक चेकरबोर्ड के ऊपर additivity, एक संयोजन सूचकांक के रूप में।\n\nएक लाइन में मॉडल: यदि दो एजेंट एक-दूसरे के विसर्जन हैं, तो एक प्रभाव प्राप्त करने के लिए एक निरंतर कुल खुराक की लागत होती है, तो ``a/Da + b/Db = 1`` जहां ``Da`` और ``Db`` एक-एजेंट खुराकों हैं जो एक ही प्रभाव देते हैं।\n\nसूचकांक के बजाय एक अतिरिक्त के रूप में रिपोर्ट किया गया है, इसलिए चिह्न कन्वेंशन Bliss के साथ मेल खाता है और दो सतहों की तुलना करने वाले पाठक भी उनके सिर में एक तुलना नहीं करते हैं: ``excess = 1 - CI``, सिंरेज के लिए सकारात्मक।\n\nक्यों यह हो सकता है NaN WHERE आशीर्वाद नहीं है: Loewe को INVERSE कोर की जरूरत है - एक अवलोकन प्रभाव प्राप्त करने वाली खुराक - और यह खुराक़ तब मौजूद नहीं है जब एक एजेंट के स्वयं के प्लेआउस के बाहर स्थित है. एक संयोजन जो किसी भी एजेंड की तुलना में अधिक मारता है, अकेले कोई Loewe का जवाब नहीं है, और NaN ईमानदार है.\n\n:param dose_a: एजेंट एक एकाग्रता माइक्रोप्लेट नमूना स्थिति के लिए।\n:param dose_b: एजेंट बी एकाग्रता माइक्रोप्लेट नमूना स्थिति के लिए।\n:param response: मापने की प्रतिक्रिया माइक्रोप्लेट नमूना स्थिति के अनुसार।\n:param fit_a: एकल एजेंट ए के लिए फिट है।\n:param fit_b: एकल एजेंट बी के लिए फिट है।",
+      "translation_source_blocks_sha256": [
+        "b6875849a496e4d7d2cd6b7d588da39f6bbdced0d9f14fbb1e8a5b928f23c445",
+        "8448e42949be1a2fbff440ff9fadc621ebe4e0cc44ebf9fc6105bc90092d8ec6",
+        "dd60482a65ff674cd77a7b93064e3fe511ffbd931f3eb8c9f864bdcf87d2d5ca",
+        "9e8473409063b5a977bf08ff98c6a6567d91cf3a4236de49ab359e4c3f831836",
+        "3d1c512d470718fd96f7a200a9632a06aaee95bcb6f413f2d17dd86f74144ecb",
+        "da858afcbeac612afb7ec069f330c44f1ee62d0b71d44d1e0467ec873e086aa7",
+        "ed05af2525346dd224ab9a4c3737e58153e02e8abecef2c5def557f9cc1b977e",
+        "190dd3dea69e85f1fb7e113ae8d1b5f10ef14e033fa578a4c07e99c895155252",
+        "09309e7907632cb9fb406ec488bfeec1d7f6c58add34ea8907c80890667beb25"
       ]
     },
     "spacr.qt.widgets.dose_response.monotonicity": {
@@ -142608,6 +142870,24 @@
         "1d05288be921120a4e144fe8d22c0a78bc5e547fcb19979e5bf46d998a0fc5fa"
       ]
     },
+    "spacr.scorecard.read_scorecard_csv": {
+      "source_blocks_sha256": [
+        "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
+        "19b0f7bbd79e0147c47c029772c014d50a09da539741fb495ff6909223e9bbe0",
+        "356e3be8d4186479bf3eb01c3e923f97c44578a2b9c2a1d0983845628920e20d",
+        "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
+        "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"
+      ],
+      "source_sha256": "0f7f7a9a6f5671e664002f7e9e33bbc010ea0b5dac98331b04b23b2590a52d7c",
+      "text": "एक प्रकाशित स्कोरकार्ड CSV को एक इनपुट ``metrics`` में वापस डालें।\n\nCSV स्रोत है और अन्य सतह इसे प्रस्तुत करते हैं, जो कि निर्देश 370 के लिए क्या पूछता है: Hugging Face आर्टिफैक्ट, टूल टिप, API पृष्ठ और चिड़ियाघर स्क्रीनिंग को असहमत नहीं होना चाहिए, और वे नहीं कर सकते यदि केवल उनमें से एक संख्या रखता है।\n\nमॉडल चिड़ियाघर बिना torch आयात करता है और एक परीक्षण यह पुष्टि करता है, इसलिए मॉडल ब्राउज़ करने और एक स्कोरकार्ड पढ़ने के लिए एक मशीन पर काम करना चाहिए जिसमें न तो torch और न ही cellpose है. केवल RE-RUNNING एक मूल्यांकन की जरूरत है. यह यहाँ भी pandas को बाहर निकालता है - csv मानक पुस्तकालय में है.\n\n:param text: CSV जैसा कि :func:`scorecard_csv` द्वारा लिखा गया है।\n:returns: ``{metric: {\"finetuned\": ..., \"vanilla\": ..., \"delta\": ...}}`` प्लस ``holdout`` और ``holdout_version`` जब पंक्तियां उन्हें ले जाती हैं. खाली जब पाठ में कोई पंक्ति नहीं होती है.",
+      "translation_source_blocks_sha256": [
+        "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
+        "78680efd543e384c701d173732dde3d3dffe443d9ea6cd34f3e598d37fdd209b",
+        "ffa3eb180c7973a8d39d9ea8b89bb140089a4c031ed328ecd6c25a8dd63dabfa",
+        "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
+        "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"
+      ]
+    },
     "spacr.scorecard.score_classifier": {
       "source_blocks_sha256": [
         "e784dddb8faf0f4706a2925f1ba06aaf8e7373edb838981daa432e3ee1ed7d3c",
@@ -142678,6 +142958,20 @@
       "text": "पाठ CSV के रूप में पंक्तियां. कॉलर द्वारा लिखी गई, जहां भी यह है.",
       "translation_source_blocks_sha256": [
         "87bcd7ae3436d22c25baa47a42e5b276e0808f1a1826ce565f8c566d6329c62c"
+      ]
+    },
+    "spacr.scorecard.scorecard_is_present": {
+      "source_blocks_sha256": [
+        "2524a468d1319c202ad3273658f626ab1f2ae11964d087b0ff45db43cb0d6cf6",
+        "07c815ac626087828a82314ee82ac42f41b8ad40a36363c00db176e57a22e9ec",
+        "68fb5eb21d425645906c9b44c1caae8d61bebe4191c535878a8ac971719b5bed"
+      ],
+      "source_sha256": "dd8a32636e452663c482e17827899ab647222a76c1d13d4fd0b2eb0ad47c6a8e",
+      "text": "क्या ``metrics`` वास्तव में एक स्कोरकार्ड लेता है।\n\nएक अनुपस्थित स्कोरकार्ड को यह कहने के बजाय दिखाना चाहिए, जो 370 नाम से पूछता है और जो `ModelEntry.provenance_known` पहले से ही प्रशिक्षण उत्पत्ति के लिए करता है।\n\n:param metrics: एक आउटपुट का मेट्रिक मैपिंग।",
+      "translation_source_blocks_sha256": [
+        "2524a468d1319c202ad3273658f626ab1f2ae11964d087b0ff45db43cb0d6cf6",
+        "54c97cf270def82695a56e29f1f932183e67beb81dd14af7981f99d93aa183a9",
+        "68fb5eb21d425645906c9b44c1caae8d61bebe4191c535878a8ac971719b5bed"
       ]
     },
     "spacr.scorecard.scorecard_rows": {
