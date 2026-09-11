@@ -314,11 +314,12 @@ def test_a_screen_shown_later_arrives_wearing_the_theme(sheeted, qtbot):
     window.show()
     for _ in range(60):
         app.processEvents()
+    # NO try/except HERE, AND THAT IS DELIBERATE. A module that will not
+    # open is a bug in spaCR, and a skip reachable from a bug reports the
+    # suite as green on a broken application --
+    # `tests/test_test_suite_hygiene.py` owns that rule and caught these.
     for key in ("mask", "measure"):
-        try:
-            window._on_nav_selected(key)
-        except Exception:                                    # noqa: BLE001
-            pytest.skip(f"{key} would not open here")
+        window._on_nav_selected(key)
         for _ in range(60):
             app.processEvents()
 
@@ -380,10 +381,7 @@ def test_a_module_opened_after_the_theme_change_wears_it(sheeted, qtbot):
     window.show()
     for _ in range(60):
         app.processEvents()
-    try:
-        window._on_nav_selected("mask")
-    except Exception:                                        # noqa: BLE001
-        pytest.skip("mask would not open here")
+    window._on_nav_selected("mask")
     for _ in range(60):
         app.processEvents()
 
@@ -394,10 +392,7 @@ def test_a_module_opened_after_the_theme_change_wears_it(sheeted, qtbot):
         app.processEvents()
 
     before = {id(page) for page in window._stack.children()}
-    try:
-        window._on_nav_selected("regression")
-    except Exception:                                        # noqa: BLE001
-        pytest.skip("regression would not open here")
+    window._on_nav_selected("regression")
     for _ in range(90):
         app.processEvents()
 
@@ -447,10 +442,7 @@ def test_a_screen_that_repaints_its_page_keeps_the_theme(sheeted, qtbot):
     window.show()
     for _ in range(60):
         app.processEvents()
-    try:
-        window._on_nav_selected("mask")
-    except Exception:                                        # noqa: BLE001
-        pytest.skip("mask would not open here")
+    window._on_nav_selected("mask")
     for _ in range(60):
         app.processEvents()
 
