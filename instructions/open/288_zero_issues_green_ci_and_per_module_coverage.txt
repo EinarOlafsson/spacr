@@ -2206,3 +2206,87 @@ and the one that remains on both is
 `test_i18n_caption_ratchet::test_external_caption_layer_is_complete_
 exclusive_and_pinned` -- the catalog staleness waiting on the merge from
 main, confirmed by running it against HEAD's own files.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE FULL SUITE, 2,754 FILES: 61,904 PASSED AND 28 FAILURES, AND
+WHAT EACH OF THEM WAS
+--------------------------------------------------------------------------------
+
+Run at `ae8bdb417`, the merge from main, in a DETACHED WORKTREE pinned to
+that commit -- because this file's own method says "nothing in spacr/ or
+tests/ may be touched until it finishes" and a night of work cannot honour
+that in the tree being worked in. Three chunks at a time, seed 288 recorded
+so any red chunk reproduces exactly. 69 chunks, about fifty minutes.
+
+    61,904 passed        28 distinct failing tests
+    2 chunks dead        exit 139 and exit 134, both crashes
+
+NOT ONE OF THE 28 WAS ORDER-DEPENDENCE, which is the headline. Two looked
+like it and were not:
+
+  * `test_provider_marks_uncovered_paths` was FLAKY, not order-dependent --
+    and flaky because of a change landed the same night (see 380: the
+    per-window sheet was replacing each window's own stylesheet). Ten runs
+    of the same command: 10/10 green before that change, 8/10 after, 8/8
+    after the fix. A test that fails in company and passes alone is not
+    evidence of ordering until you have run it alone TEN times.
+  * `test_the_count_controls_the_categories` went green with the registry
+    and environment fixtures and needed nothing of its own.
+
+THE TWO DEAD CHUNKS WERE ONE BUG EACH AND BOTH REPRODUCE ALONE.
+
+  exit 139: `qt_things_that_outlive_the_session` called `app.allWidgets()`
+  from `pytest_sessionfinish` and segfaulted. Forty files report as a dead
+  chunk with no summary; the `try/except` around it was never going to
+  help, because a segfault is not an exception. The count is taken between
+  tests now and the diagnostic reports the remembered number.
+
+  exit 134: two tests built a real `MetadataColumnDialog` without asking for
+  `qtbot`. Stubbing `exec` does not stop the dialog being CONSTRUCTED, and
+  constructing a QWidget with no QApplication does not raise -- Qt aborts.
+
+AND A THIRD CRASH THE CHUNKS DID NOT SHOW, found while fixing the second:
+`test_reading_a_scorecard_imports_neither_torch_nor_cellpose` pops `torch`
+out of `sys.modules` and never puts it back. That drops the last reference,
+and the garbage collector runs a C extension's teardown while the process
+is still using it -- a segfault inside `ast.parse`, in a different FILE,
+minutes later, in a test that has nothing to do with torch.
+
+    THREE CRASHES, THREE DIFFERENT MECHANISMS, AND EVERY ONE OF THEM
+    REPORTS AS SOMEBODY ELSE'S PROBLEM. That is the argument for running
+    the whole suite in one sweep rather than per file: none of the three
+    is visible from the file that contains it.
+
+THE OTHER 25, BY WHAT THEY WERE:
+
+  RATCHETS NOBODY HAD RUN (9). The docstring inventory, the callable count,
+  the category counter, the rendered count, the variant counts, the
+  parameter counts, the signature digest, the documentation symbol count,
+  the shipped-module denominator. Every one of them was last moved at
+  `d9f02e709`, 144 commits before main's tip, so every one failed on main
+  too. Reviewed by building the inventory at both commits and diffing:
+  45 symbols added, 0 removed, all nine attributable to a named item.
+
+  CATALOG AND EVIDENCE (6). The caption ratchet's counts went DOWN for the
+  first time; the French reviewed count moved with 364's deleted settings;
+  `press Escape to close` had lost the key name in eight of nine locales;
+  the coverage report and the review-scope table were stale; one Icelandic
+  block came back as English because the docstring it renders named a test
+  and quoted a comment.
+
+  STALE EXPECTATIONS AGAINST FIXED CODE (3). Two tests still expecting
+  `expected_end must be a positive integer` after 364 renamed it, and one
+  expecting `positive_control=` after the same rename.
+
+  REAL DEFECTS FROM MAIN (4). `timm` imported and declared nowhere;
+  `dose_response.__all__` exporting a function that does not exist; a test
+  that asserts nothing; four published docstrings naming an instruction.
+
+  LEAKS (2). The app registry, and `SPACR_NO_GL` -- `monkeypatch.delenv`
+  on an absent name records nothing to put back.
+
+  ARTEFACTS (1). Three archived installers a release commit removed as a
+  side effect.
+
+LEFT RED, AND NAMED: three in Codex's tutorial tree (see 358), and the API
+catalogs, which are rebuilding as this is written.
