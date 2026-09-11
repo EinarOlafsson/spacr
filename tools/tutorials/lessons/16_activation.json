@@ -1,0 +1,91 @@
+{
+  "id": "16_activation",
+  "number": 16,
+  "slug": "activation",
+  "title": "Activation Maps: real saliency outputs and their limits",
+  "series": 1,
+  "app_key": "activation",
+  "host_app_key": "classify_merged",
+  "section": "Classify",
+  "description": "Open Activation Maps inside Classify, match a trusted model to real example crops, compare two saliency outputs and inspect their actual saved grids without mistaking attribution for validation.",
+  "objectives": [
+    "Find the current Classify fold and preserve the model's input contract.",
+    "Distinguish input preprocessing, display contrast and attribution methods.",
+    "Inspect actual saved outputs when the GUI figure panel is empty.",
+    "Separate numerical verification, model predictions and scientific validity."
+  ],
+  "prerequisite": "Use four unchanged RGB crops from Annotate's downloaded example and the trusted local one-epoch ResNet18 checkpoint from the earlier Classify demonstration. That demonstration shares wells across its split and provides NO independent accuracy claim. The private TAR contains the original crop bytes and .spacr_crop_format.json declaring format 3 and RGB order. Copy the checkpoint and its model card; never load an untrusted artifact merely to follow this example. Actual settings: image_size=128, batch_size=4, channels=[1,2,3], normalize_input=True, normalize=True, shuffle=False, correlation=False, n_jobs=1, Plot/Save on. CPU is deliberately used for both recorded runs; no live preview or AI request. saliency_channel/overlay=True and saliency_image/overlay=False each complete on four crops. Independent differentiation of predicted-class logits verifies 196608 transformed input values and 262144 saved saliency pixel components across both methods, with at most one 8-bit level rounding tolerance. Full source identities and map database rows match. Original database, crops, model, card and private inputs remain unchanged. The false src warning and empty GUI Figures card are NOT repaired; actual saved PNG grids are opened in the real external viewer. Four unused slots remain blank in the fixed eight-column layout. No deletion/insertion, randomization, integrated-gradient, occlusion, biological-validation or publication claim. API: spacr.deep_spacr.generate_activation_maps and spacr.utils.SaliencyMapGenerator.",
+  "scenes": [
+    {
+      "visual": "02_activation_fold",
+      "narration": "Open Classify, then its nested Activation Maps tool. This workflow examines how a trained model's prediction responds to image pixels. It does not train a classifier or establish what caused an observed phenotype. We will show two real saliency runs, their console output, and an explicit saved-file viewing route.",
+      "related_lessons": [
+        "09_annotate",
+        "70_explain_cv"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_00_dataset",
+      "narration": "Use the actual crop archive, not a folder placeholder. Our small archive contains four unchanged RGB cell crops from Annotate's downloaded example, plus their crop-format marker. We preserve the source files and work in a private project. Four convenient images illustrate operation; they are not a representative validation cohort.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_01_model_path",
+      "narration": "Choose the matching trusted model and retain its model card. This is a ResNet eighteen checkpoint trained for only one epoch in the earlier demonstration. Its split shared wells, so we make no independent accuracy claim. A convincing attribution picture cannot rescue an inadequately validated model. Do not load an untrusted checkpoint for convenience.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_05_channels",
+      "narration": "Match the training input contract: size one hundred twenty-eight and the declared RGB channel order. Here the actual channel selector uses one, two, three. Do not swap channels because another tool uses zero-based indices. We independently checked the center-cropped, transformed input values against the training loader before comparing any saliency output.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_06_normalize_input",
+      "narration": "Distinguish input normalization from display normalization. Input normalization must match training; here it is enabled with the recorded symmetric preprocessing. Display normalization changes how the overlaid input looks, not the model's accuracy or the meaning of a color. Preserve both settings when comparing runs, and do not confuse a brighter picture with stronger evidence.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_channel_saliency_method_and_overlay",
+      "narration": "Choose saliency channel with Overlay enabled, and keep Plot and Save on. We use one worker, a batch of four and CPU for this small demonstration. The screen has no live-preview control; changing a method requires another run. Channel saliency keeps the input channels separate when saving the derivative-based maps.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_channel_saliency_finished_console",
+      "narration": "Read the actual console. The calculation completes, but this build incorrectly complains about missing src even though Activation uses Dataset. Its Figures panel also stays empty. We independently checked the input, saved maps and database identities; we did not repair those GUI defects. Other errors still require investigation.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_channel_saliency_09_saved_batch_0_grid",
+      "narration": "Open the saved batch grid in an image viewer. This is the real external viewer, not a figure inserted into spaCR. Four occupied slots correspond to our four crops; the remaining four slots are unused. Corner labels zero and one are model predictions, not ground truth. The overlay is a sensitivity visualization, not a segmentation mask.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_image_saliency_method_and_overlay",
+      "narration": "Now choose saliency image, disable Overlay and run again on the same inputs. This method combines the absolute derivatives across channels before the saved grayscale map is rescaled. It is not occlusion or integrated gradients. Keep method-specific outputs separate so a second run cannot be mistaken for the first.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_image_saliency_09_saved_batch_0_grid",
+      "narration": "The second saved grid shows the maps without the underlying images. Its colors show the displayed saliency scale, not class probabilities or proof of biological importance. Independent checks compare every saved map component with a separately computed gradient, allowing at most one eight-bit rounding level. That checks implementation, not whether the explanation is useful.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_11_correlation",
+      "narration": "Map quantification is off in this example. We have not run deletion, insertion, model-randomization or other attribution-validation tests, and two visually different methods do not substitute for them. Before drawing conclusions, use representative failures and successes, meaningful controls, and independently held-out data. Treat this limited demonstration as a workflow check.",
+      "related_lessons": [
+        "39_classifier_evaluation",
+        "70_explain_cv"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_image_saliency_11_back_to_actual_gui",
+      "narration": "Keep the crop identities, original images, model and card, settings, logs, maps and database together. The source files stayed unchanged and both methods retained all four identities. AI assistance is optional; no request was submitted here. Check any later advice against the actual API and evidence, rather than treating a fluent explanation as validation.",
+      "related_lessons": [
+        "06_api"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}
