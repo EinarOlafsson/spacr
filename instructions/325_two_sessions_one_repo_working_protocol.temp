@@ -6395,3 +6395,26 @@ Total: 69/75 originals technically complete, 3450 checked tracks (100 retained),
 native-speaker/listening signoff. Continuing Graph Builder 58: reuse its known
 native-drag/filter scope, verify actual chart data, explicitly disclose the
 broken annotation handoff rather than patching Qt or claiming it works.
+
+Codex tutorial lane, 2026-09-11: Graph Builder 58 technically complete.
+Foundation/English 7e43f72d2, translations d118929db, final matrix 1c2558d80;
+all pushed. Twelve scenes, thirteen editorial translations, fifty verified
+tracks, fourteen browser/download cases and a fully decoded 4K master. All
+twelve final scene midpoints visually inspected. Five focused tests pass;
+four deliberate source mutations observed RED. No native/listening signoff.
+
+Fresh native recording on 1.5.0.6 independently verifies all histogram counts,
+scatter coordinates and colour assignments, facet identities and counts, and
+the complete rendered table. Real cell rows: 2341 -> 1171 -> 2341. Source DB
+unchanged, exact copy downloadable; no synthetic data, model or AI call.
+The brush publishes exactly 653 expected keys but displays zero selected and
+keeps Annotate disabled. The plain click clears internal publication too.
+This defect remains UNFIXED and the old hold remains; it is explicitly taught.
+
+Total: 70/75 originals technically complete, 3500 checked tracks (100 retained),
+980 browser cases. Five originals plus held OPS remain. Lineage 56 next:
+fresh capture lineage_current_review_v1 completed, twenty-one focused oracle
+tests pass, all original/private data preserved and zero remaining workers.
+Current family-crop fallback is still wrong; parent-only double-click works.
+The lesson will distinguish verified containment and parent-only crops from
+the unsafe child substitution. No Qt or application repairs in this lane.
