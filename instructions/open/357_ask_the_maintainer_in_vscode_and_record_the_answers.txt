@@ -180,6 +180,52 @@ HOW TO KNOW THIS ITEM WORKED
   because this intake item itself is complete.
 
 --------------------------------------------------------------------------------
+2026-09-11 — ANSWERS, 391. ASKED AND ANSWERED THE SAME NIGHT.
+--------------------------------------------------------------------------------
+
+Both were asked through AskUserQuestion the moment 391 was filed, because
+each decides work that is expensive to redo and cheap to settle first.
+
+391-A  ANSWERED: "Raw image intensity".
+       The absolute intensity threshold replacing the quantile is in the
+       numbers the TIFF holds -- what a pixel inspector shows and a user can
+       type in. Chosen over a normalised 0-1 scale KNOWING the cost: a raw
+       threshold does not carry between acquisitions at different exposure
+       or gain. AUTHORISES: writing the setting in raw units, and requires
+       the tooltip to say it does not travel rather than let a user assume
+       it does. Does not authorise a unit selector -- that is the method
+       dropdown 391 removes, wearing a different hat.
+
+391-B  ANSWERED: "Labels and keys" -- the more expensive option, taken
+       deliberately over relabelling alone.
+       AUTHORISES: renaming `{obj}_min_distance` to
+       `{obj}_min_watershed_distance` and `{obj}_min_split_area` to
+       `{obj}_minimum_area_to_split`, four objects each. AND BUYS TWO
+       OBLIGATIONS that the label-only option would not have: the full 364
+       checklist (a rename strands four generated tables, which is how four
+       settings went missing from the API), and a migration for every
+       settings CSV already in the field -- the maintainer's own working
+       data. An unrecognised key must not be silently dropped: a settings
+       file that quietly loses a value the user set is worse than one that
+       refuses to load.
+
+WHAT THIS SHEET SHOULD CARRY NEXT, when he is back and only if still true:
+
+  * THREE TUTORIAL-LANE FAILURES that are neither session's to fix --
+    `test_docs_media_budget`, `test_the_name_is_spaCR` and
+    `test_tutorial_release_audit`, all failing inside `tools/tutorials/`.
+    The name one is two spellings: `capture_install_web.py:331` says
+    "SpaCR" and `translate_pre_app.py:264-265` says "SPACR". Codex's lane,
+    and there is a standing instruction not to work on tutorials. This is a
+    RELAY, not a question -- it needs routing, not a decision.
+
+  * NIGHTLY AND MAIN HAVE DIVERGED, not merely drifted: each carries
+    catalog work the other lacks, and the caption ratchet (1077) matches
+    nightly's inventory while main's code declares 1073. That is a merge
+    somebody has to time rather than a question anybody can answer cold, so
+    it goes on this sheet only if it is still unresolved when he reads it.
+
+--------------------------------------------------------------------------------
 2026-09-02 — ANSWERS, ROUND ONE. ASKED IN VS CODE, RECORDED VERBATIM.
 --------------------------------------------------------------------------------
 
