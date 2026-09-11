@@ -3030,6 +3030,28 @@ def _window_block(theme: str, P: dict, background, body_px: int,
     The picture is the difference between a theme and a black window. The
     window still paints the theme's own ground rather than an image, so
     nothing here depends on a cached master existing.
+
+    WHAT THE BLANKET RULE ACTUALLY SAYS NOW, because a great many comments
+    in `tests/` state the pre-2026-09-11 half of it in the present tense::
+
+        theme    backdrop off    backdrop on
+        dark     #000000         transparent
+        light    #fafafa         transparent
+        space    #04060d         transparent
+        cell     transparent     transparent
+        glass    transparent     transparent
+
+    and the backdrop is ON by default.
+
+      SO "REMOVE A WIDGET'S RULE AND IT FALLS THROUGH TO AN OPAQUE `bg`"
+      IS NO LONGER A WAY TO STAGE A BLACK SLAB. It was, for every opaque
+      theme, and a guard in `tests/qt/test_settings_column_panel.py` was
+      written on it -- it stopped reproducing the fault the day this
+      branch changed, passed for as long as nobody looked, and then failed
+      on a defect it could no longer produce. A test that wants an opaque
+      container has to PAINT ONE, which does not depend on any other rule
+      in the sheet. Swept 2026-09-11: that guard is the only one that had
+      the shape, and it is repaired.
     """
     if theme not in IMAGE_THEMES and not backdrop:
         return f"""QWidget {{
@@ -3539,6 +3561,10 @@ def mark_as_a_sheet_target(widget) -> None:
     A marked widget is sheeted when the sheet changes IF IT IS VISIBLE, and
     on its next `showEvent` otherwise -- which is what makes not sheeting
     it now safe.
+
+    :param widget: the widget to sheet in its own right. A window may be
+        passed and the mark is then redundant -- the event filter sheets
+        every window on sight -- but it is not an error.
     """
     try:
         widget.setProperty(_SHEET_TARGET, True)

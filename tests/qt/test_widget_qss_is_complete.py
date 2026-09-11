@@ -6,6 +6,14 @@ blanket ``QWidget { background-color: bg }``. ``bg`` is the WINDOW colour
 -- ``#000000`` on the dark theme -- so an unstyled container is not
 slightly off, it is a solid black rectangle.
 
+NOTE, 2026-09-11: the blanket rule is ``bg`` only while the window is NOT
+running a backdrop, and the backdrop is on by default -- see the truth
+table in ``spacr.qt.theme._window_block``. The history below is accurate
+and the sentence "an unstyled widget paints the window colour" now has a
+condition on it. It still holds for the case this file is about, because
+the reported defect was seen with the backdrop OFF. What no longer works
+is staging that defect by REMOVING a rule.
+
 Thirty-one modules register a block at import time. The application
 stylesheet is composed and applied at launch, before most of them have
 been imported, so the rules arrived only as screens happened to be opened

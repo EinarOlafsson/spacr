@@ -316,3 +316,79 @@ distinguishes anything for them. The test failed with
 WHAT IS LEFT OF THIS ITEM: nothing. The remaining backdrop question --
 whether fullscreen is choppy and why -- is 327's, and 327 now has the GPU
 numbers saying the shaders are not the cause.
+
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE SILENT-GREEN SWEEP: ONE GUARD HAD THE SHAPE, IT WAS ALREADY
+REPAIRED, AND THE PREMISE IS WRITTEN IN THE PRESENT TENSE IN FIFTEEN PLACES
+--------------------------------------------------------------------------------
+
+THE WORRY, raised by the other session and worth taking seriously: this
+item turned the blanket `QWidget { background-color: bg }` rule transparent
+whenever a window runs a backdrop, and a guard that STAGED ITS FAULT BY
+REMOVING A QSS BLOCK was relying on that rule to supply the wrong colour.
+With nothing opaque to fall through to, such a guard stops reproducing
+anything and passes on a defect it can no longer produce -- green, and
+measuring nothing.
+
+WHAT THE RULE SAYS NOW, measured rather than read:
+
+    theme    backdrop off    backdrop on
+    dark     #000000         transparent
+    light    #fafafa         transparent
+    space    #04060d         transparent
+    cell     transparent     transparent
+    glass    transparent     transparent
+
+and the backdrop is ON by default. So the premise is not false, it is
+CONDITIONAL, and the condition is the case nobody runs.
+
+THE SWEEP, and the instrument first because it decides what the answer is
+worth. A pytest plugin re-registers every widget QSS block as EMPTY --
+`register_widget_qss(name, lambda palette, opacity: "")` for all of them,
+including the ones registered at import time. That stages "the block is
+gone" for every block at once. The twelve guards whose own text cites the
+blanket rule were run with it and without it:
+
+    without the plugin      1 failed, 346 passed
+    with it                26 failed, 321 passed
+
+  A GUARD THAT NOTICES IS A GUARD THAT IS MEASURING. The 26 are in four
+  files -- `test_page_panels_backdrop` (17), `test_widget_qss_is_complete`
+  (3), `test_settings_column_panel` (3), `test_qc_surfaces_have_no_black_boxes`
+  (3). The other eight files have NO test that changes verdict, which is
+  not a finding about them: their subjects' surfaces come from built-in
+  rules in `stylesheet()` rather than from registered blocks, so there was
+  never a block to remove.
+
+THEN THE NARROW QUESTION, since the broad one cannot distinguish "not about
+blocks" from "silently green". Which tests STAGE something by touching the
+block registry at all? Six, found by parsing each test's source for
+`_WIDGET_QSS` / `register_widget_qss`:
+
+    test_a_fresh_stylesheet_carries_every_registered_block     sensitive
+    test_the_column_block_is_subtractive                       sensitive
+    test_a_late_registered_block_reaches_its_screen...         sensitive
+    test_the_tab_strips_are_styled_like_home (x2)              sensitive
+    test_the_probe_can_see_a_container_behind_the_categories   survives
+    test_the_probe_can_see_the_black_pane                      survives
+
+  AND BOTH SURVIVORS SURVIVE FOR THE RIGHT REASON. Each stages its fault by
+  ADDING an opaque rule with `monkeypatch.setitem`, not by removing one, so
+  emptying every block cannot affect them -- their own rule wins either
+  way. `test_the_probe_can_see_the_black_pane` is the guard that HAD the
+  bad shape; its docstring records the repair and the day it failed.
+
+SO: NO SECOND INSTANCE. The residue is not a broken guard, it is a stale
+sentence. Fifteen files state "an unstyled widget falls through to the
+blanket rule and paints the window colour" in the present tense, which is
+how the first one got written. The truth table now lives in
+`_window_block`'s own docstring with the staging warning attached, and the
+two guards whose OPENING CLAIM is present-tense -- `test_widget_qss_is_complete`
+and `test_no_panel_is_a_black_slab` -- carry a note pointing at it.
+
+  A COMMENT THAT WAS TRUE WHEN WRITTEN IS THE HARDEST KIND OF WRONG TO
+  FIND, because nothing fails and the reader has no reason to doubt it.
+  The only reason this one was caught is that a guard built on it failed
+  LOUDLY rather than passing quietly -- which was luck, not design.
+

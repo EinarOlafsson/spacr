@@ -13,6 +13,14 @@ not tagged out of it paints the WINDOW colour -- which is not a surface, so no
 value of the page-opacity preference can reach it, and the panel sits as a
 slab over the animated backdrop.
 
+NOTE, 2026-09-11: the blanket rule is ``bg`` only while the window is NOT
+running a backdrop, and the backdrop is on by default -- see the truth
+table in ``spacr.qt.theme._window_block``. The history below is accurate
+and the sentence "an unstyled widget paints the window colour" now has a
+condition on it. It still holds for the case this file is about, because
+the reported defect was seen with the backdrop OFF. What no longer works
+is staging that defect by REMOVING a rule.
+
 MEASURED, each widget rendered over magenta so anything it fills is obvious:
 
     FlowViewPanel                     #ff00ff   (already transparent)
