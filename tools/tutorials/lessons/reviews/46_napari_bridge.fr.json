@@ -1,0 +1,27 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "8180c52bcd1a656cd226c81a64977114b2690a9c09fa4bd3c8a85893c4537460",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "fr",
+  "title": "Napari Bridge : modifier, importer et rouvrir en sécurité",
+  "description": "Pratiquez un aller-retour vérifié pixel par pixel avec une image et un masque synthétiques, des sauvegardes, Fill et Undo natifs, puis fermeture et réouverture entre les imports.",
+  "objectives": [
+    "Ouvrir Napari Bridge dans Make Masks avec des fichiers d’image et d’étiquettes distincts.",
+    "Distinguer modification dans le visualiseur, Undo, écriture sur disque et historique des corrections.",
+    "Fermer et rouvrir entre les imports et vérifier les deux corrections sans prétendre corriger le défaut d’édition dans un même visualiseur."
+  ],
+  "prerequisite": "Extrayez l’exemple explicitement SYNTHÉTIQUE dans un NOUVEAU dossier et gardez une sauvegarde intacte. L’image et le masque uint16 mesurent 256x256 et contiennent seize objets ; aucune correction biologique n’est validée. napari est requis ; la capture utilise napari 0.9.1 et une police de taille 20. Choisissez mask.tif et image.tif dans Napari Bridge, sous Make Masks. Avec Fill, remplacez 2 par 18, annulez, recommencez puis cliquez sur Take the mask back : le masque de travail est écrasé et 2 197 pixels sont consignés dans mask.tif.curation.json. FERMEZ et ROUVREZ avant toute autre modification : un contrôle antérieur a perdu la deuxième modification dans le même visualiseur en la déclarant inchangée. Ce défaut n’est pas annoncé comme corrigé. Après réouverture, remplacez 4 par 20 et importez : 1 288 pixels changent et les deux entrées restent présentes. Les 65 536 pixels de chaque masque enregistré ont été vérifiés ; source et intensités d’origine sont préservées. Des identifiants ajoutés/supprimés ne signifient pas des cellules supplémentaires/manquantes. API : spacr.napari_bridge.load_handoff, open_in_napari, write_back. Aucune revendication d’entraînement, de validation biologique, d’édition sans restriction, de publication ou de validation d’écoute.",
+  "scenes": [
+    "Ouvrez Napari Bridge dans Make Masks. Il transmet une image et un masque d’étiquettes au visualiseur optionnel napari, puis importe les étiquettes corrigées. Cette leçon utilise un exemple d’exercice clairement synthétique, pas une expérience biologique. Gardez une sauvegarde intacte : l’importation écrase le masque de travail sélectionné.",
+    "Téléchargez l’exemple et extrayez-le dans un nouveau dossier. Sélectionnez mask point tif, puis image point tif, et cliquez sur Open in napari. Ce sont deux entrées différentes : les étiquettes entières des objets vont dans Mask, tandis que l’image d’intensité sert de référence visuelle. L’exemple contient seize objets synthétiques.",
+    "Napari s’ouvre avec une couche image et une couche Labels nommée mask. Sélectionnez mask pour modifier les étiquettes ; laissez les intensités de l’image intactes. L’étiquette zéro représente le fond. Les couleurs distinguent les objets, pas des classes biologiques ni la confiance. Nous avons agrandi la police réelle de l’interface pour la capture, pas l’image source.",
+    "Revenez dans spaCR et cliquez sur Take the mask back avant de modifier quoi que ce soit. Le statut indique que le masque est inchangé, et rien n’est écrit. Importer est distinct de modifier dans le visualiseur. Ce contrôle sans changement ne prouve pas qu’une correction ultérieure a été enregistrée ; vérifiez aussi ce résultat.",
+    "Dans napari, sélectionnez l’étiquette dix-huit, choisissez Fill et cliquez sur l’objet d’exercice étiqueté deux. Seule l’étiquette de cet objet change. C’est un exercice contrôlé de réétiquetage, pas une amélioration d’une segmentation biologique. Le fichier de travail sur disque n’a pas encore changé.",
+    "Utilisez Undo pour rétablir l’étiquette initiale ; cette capture utilise Contrôle Z. Répétez ensuite le même remplissage avant d’importer. Undo agit sur l’historique des modifications du visualiseur. Ne le confondez pas avec la récupération d’un fichier antérieur après un import : gardez des sauvegardes pour cela.",
+    "Cliquez sur Take the mask back. Le statut annonce deux mille cent quatre-vingt-dix-sept pixels modifiés et un fichier d’historique. Une étiquette a été ajoutée et une supprimée parce que deux est devenu dix-huit ; il reste seize objets. Vérifiez le masque enregistré et l’historique, pas seulement la couleur affichée dans napari.",
+    "Cliquez maintenant sur Close viewer, avant toute nouvelle modification, puis rouvrez-le. Cette étape est essentielle dans la version testée : une deuxième modification dans le même visualiseur pouvait être déclarée inchangée et perdue. Nous montrons le parcours vérifié avec fermeture et réouverture, pas une correction de ce défaut de l’application.",
+    "Après réouverture, remplacez l’étiquette quatre par vingt et importez à nouveau. Mille deux cent quatre-vingt-huit pixels changent, et la première entrée d’historique est conservée. Fermez le visualiseur une fois terminé. Conservez image originale, masque corrigé et provenance, puis relancez les mesures concernées au lieu de réutiliser des résultats liés aux anciennes étiquettes."
+  ]
+}
