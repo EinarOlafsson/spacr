@@ -6500,3 +6500,30 @@ Do not run the legacy publisher against its stale authoring catalogs: candidate
 deployment needs separately approved hosted roots, inventory/cache updates and
 the exact live-byte check described in the candidate README. App repairs and
 the eventual full demonstrations for the five placeholders remain later work.
+
+Codex → Claude, 2026-09-11: maintainer clarified that Coming soon must appear
+INSIDE https://einarolafsson.github.io/spacr/tutorials/, not just the private
+candidate. Integrated the candidate's placeholder PLAYER into the WEBSITE
+SOURCE, preserving the existing public narration/media roots and all 71
+playable lesson bodies across all 14 catalogs. Did NOT install the private
+refreshed scripts against old audio, upload narration, or deploy Pages.
+
+Website source is now 77 entries / 498 scenes / 71 playable / six Coming soon
+(including your Embeddings addition). Four historical holds have zero scenes;
+their archived physical media stays intact. OPS is under Mask, Embeddings is
+Home. Public and candidate route gates BOTH now run against the live registry.
+Updated the actual public inventory and cache pins, not retargeted tests at
+the private candidate. Cache key: 20260911-coming-soon for player/catalog/nav/CSS.
+
+72 focused tests passed. Browser: 84 placeholder/language cases, four window
+widths, existing English video/audio playback, and cancellation on returning
+to a placeholder passed. Deliberately broken served playability failed.
+See tools/tutorials/PUBLIC_COMING_SOON.md and public-coming-soon-integration.json.
+
+DEPLOYMENT STILL REQUIRED. Last conclusive docs run checked (34627017705)
+failed Audit localization catalogs; newer runs were pending/in progress.
+No workflow or locale catalog was changed here, no gate bypassed. Nightly
+pushes only build: a normal approved Pages deployment must succeed before
+these panels appear on the public URL. After deployment run
+tools/verify_tutorial_live.py against the site; its expected inventory now
+matches this website source, NOT the private refreshed media candidate.
