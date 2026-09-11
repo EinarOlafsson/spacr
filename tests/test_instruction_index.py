@@ -48,12 +48,47 @@ def test_every_open_instruction_appears():
 
 
 def test_a_done_instruction_is_not_listed_as_open():
-    tool = _tool()
+    """A CLOSED item never appears under OPEN -- unless it was REOPENED.
+
+    An item number can come back. 59, 82 and 83 were each closed and then
+    opened again with fresh content -- "the maintainer reordered the
+    release ahead of the rewrite" is the commit that did it for 82 -- so
+    the same filename legitimately exists in both folders, the done copy
+    being the earlier closure and the open copy the live item.
+
+    THE GUARD USED TO READ THAT AS A STALE INDEX and failed. What it is
+    actually for is catching an index that still advertises work already
+    finished, which is a file present ONLY in `done/`. A file present in
+    both is a reopening, and the honest index entry for it is the OPEN one
+    -- which is what `test_a_reopened_instruction_is_listed_once_and_open`
+    below now asserts, so the pair is no weaker than the single rule was.
+    """
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
     open_block = text.split("OPEN")[1].split("DONE")[0]
     for path in (INSTRUCTIONS / "done").glob("*.txt"):
+        if (INSTRUCTIONS / "open" / path.name).exists():
+            continue
         assert path.name not in open_block, (
             f"{path.name} is done but listed under OPEN")
+
+
+def test_a_reopened_instruction_is_listed_once_and_open():
+    """The other half: a reopened item is OPEN in the index and not DONE.
+
+    Listing it in both blocks would make the count wrong and would let a
+    reader take the closure for the current state -- which is the failure
+    the rule above exists to prevent, in the one case that rule now skips.
+    """
+    text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
+    open_block = text.split("OPEN")[1].split("DONE")[0]
+    done_block = text.split("DONE")[1]
+    reopened = [path.name for path in (INSTRUCTIONS / "done").glob("*.txt")
+                if (INSTRUCTIONS / "open" / path.name).exists()]
+    for name in reopened:
+        assert name in open_block, f"{name} was reopened but is not under OPEN"
+        assert name not in done_block, (
+            f"{name} is under DONE as well as OPEN; a reader cannot tell "
+            "which of the two describes the current state")
 
 
 def test_the_counts_are_the_real_counts():

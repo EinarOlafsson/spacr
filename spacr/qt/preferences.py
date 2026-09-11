@@ -3373,8 +3373,8 @@ def set_setting_animations_enabled(on: bool) -> None:
 #: surface, which means another nine-language catalog pass for a record
 #: nothing outside this module reads.
 #:
-#: RESOLVED ONCE AND RECORDED WITH ITS EVIDENCE, which is what instruction
-#: 359 asks for and what "recomputed each launch" was not. The value is a
+#: RESOLVED ONCE AND RECORDED WITH ITS EVIDENCE, rather than recomputed on
+#: every launch. The value is a
 #: JSON object holding the width chosen AND the measurements that justified
 #: it, so a later launch can tell whether the answer still applies rather
 #: than re-deriving it and hoping it matches.
