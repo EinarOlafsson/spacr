@@ -5349,6 +5349,15 @@ class MainWindow(QMainWindow):
         # every dock row inside it -- found by the guard, which reported
         # exactly one genuinely unsheeted widget out of 207 sampled and
         # named its ancestry.
+        # A DIRECT CHILD IN NO LAYOUT CAN BE A WINDOW, and a sibling
+        # session was bitten by exactly that category today -- a `QDialog`
+        # parented to a panel is a direct child, is in no layout, and
+        # carries `Qt::Window`, so a sweep that re-parented such children
+        # would have swallowed a live dialog. Nothing is re-parented here:
+        # a dialog that lands in this list is merely SHEETED, which is
+        # what the event filter does to it anyway the moment it is shown.
+        # The double application is idempotent. Recorded because the
+        # category is the trap, not this use of it.
         current = stack.currentWidget()
         for page in stack.findChildren(QWidget,
                                        options=Qt.FindDirectChildrenOnly):
