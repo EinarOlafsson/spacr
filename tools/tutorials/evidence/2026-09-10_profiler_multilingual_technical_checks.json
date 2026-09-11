@@ -1,0 +1,648 @@
+{
+  "lesson": "53_prediction_profiler",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "canonical_english_sha256": "e79348e5af21ca603ddc91a2de7b689558863b2ea4b34ff4f36533af1c54b34f",
+  "scene_count": 10,
+  "narrated_words": 476,
+  "native_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/profiler_synthetic_ols_native",
+  "native_font_scale": 2,
+  "native_verification": {
+    "lesson": "53_prediction_profiler",
+    "status": "Native capture and independent numerical checks complete; multilingual media pending",
+    "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/profiler_synthetic_ols_native",
+    "provenance": {
+      "commit": "826ddba022bc01c1089f78ebf783a9e31181c494",
+      "version": "1.5.0.6",
+      "module": "profiler",
+      "download_requested": false,
+      "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+      "app_source_modified": false,
+      "cache_isolated_with_bind_mount": true,
+      "completed_capture": true
+    },
+    "synthetic": true,
+    "biological_claim": false,
+    "observations": 121,
+    "coefficients": {
+      "Intercept": 2.002039801654857,
+      "input_a": 3.9979892397681986,
+      "input_b": -1.4960050950280943
+    },
+    "independent_fit_error": 5.10702591327572e-15,
+    "native_curve_values_checked": 338,
+    "native_curve_maximum_error": 1.7763568394002505e-15,
+    "ranking_checks": [
+      {
+        "input": "input_a",
+        "values_checked": 6,
+        "maximum_error": 4.440892098500626e-16
+      },
+      {
+        "input": "input_b",
+        "values_checked": 6,
+        "maximum_error": 0
+      }
+    ],
+    "input_bytes_preserved": true,
+    "scientific_acceptance_sha256": "8e33965556b3a26f1a44815a0ff685ff85609c01890b8a0901eb93beb75bde60",
+    "limitations": [
+      "Synthetic controls demonstration; not a biological screening result or held-out validation.",
+      "OLS fit performed before import with statsmodels; the profiler only reads coefficients.",
+      "GUI file route uses an assumed two-row 0..1 design, not the 121 original observations.",
+      "Ranking uses 5th/95th quantiles (0.05..0.95); displayed curve spans 0..1.",
+      "No confidence interval or causal claim."
+    ],
+    "focused_tests": 7,
+    "source_string_mutations_red": [
+      "all curve values",
+      "range",
+      "held value",
+      "preservation"
+    ],
+    "published": false
+  },
+  "full_master_decode_exit_code": 0,
+  "all_50_voices_decoded_and_fingerprints_checked": true,
+  "decoded_scene_samples": [
+    {
+      "scene": 1,
+      "sha256": "e2f5520690c56b5e0670bee664241b9ed4d670fcbaee43ee09b0861db0d3e9a3"
+    },
+    {
+      "scene": 2,
+      "sha256": "a51d43457913fb5b5449648ec156c37e904718823b1acf01e7a14fd792dfe4ce"
+    },
+    {
+      "scene": 3,
+      "sha256": "22014aea1ef9b261f354824e911bdce596c872c412e920a4376b9e1f4ebdc585"
+    },
+    {
+      "scene": 4,
+      "sha256": "bbec5404fc48e7a014de7ce68049bc6af80845149dd115c7c35f2ac337a3fe8d"
+    },
+    {
+      "scene": 5,
+      "sha256": "7ce4d70d47f567d4a3979124a36fe8c1cbfe6cbe1aa3111536e90c441eb767f3"
+    },
+    {
+      "scene": 6,
+      "sha256": "faeba3c3d3a5451dc78ed0ff32aff9e3b8319e631902d9fb9cbf12c8f80aef5e"
+    },
+    {
+      "scene": 7,
+      "sha256": "1db4da2bc90eafcfd1028d27c977f7de51f915792e400db3d1de4c6e2a8ef7e5"
+    },
+    {
+      "scene": 8,
+      "sha256": "7ce6b89bd4292087ecd8748d2d3a56173339ab472ef1a3ab3864553bf69cb0d4"
+    },
+    {
+      "scene": 9,
+      "sha256": "2f1d8cb791124bbd5a68fb0a0de5647c1590fca94ec6e92378f73a8221ccde55"
+    },
+    {
+      "scene": 10,
+      "sha256": "0843f38e80b625863dc29aa901bc0dc4b217090a9ddd712e204255dc9ce132fe"
+    }
+  ],
+  "visually_inspected_decoded_scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "final_artifact_reconciliation": {
+    "lesson": "53_prediction_profiler",
+    "passed": true,
+    "canonical_english_sha256": "e79348e5af21ca603ddc91a2de7b689558863b2ea4b34ff4f36533af1c54b34f",
+    "scene_count": 10,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "2a9fef6dd46426e5257b439a8e367143fe66822de5e387d6f7a62d9ad17faeca"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "54689f3d28b5a06c853dc1812d13d9ce7e7c5bac2b0f845b00323928f2bd2257"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "9f07b5987abd53890e15b929eac8266e8ff5a6d614863eda075ddd2f972d9a94"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "e2775a82e0890af3ddc504269bd80af0a33a4db950beff48c4abc591fdc88f40"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "05cf7dc4fa672a6fa15e5d59e0c097d674ddc93a97f3880a8a1993a17ff808e8"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "0777de5227299774244b0656db549a023ddf97f01f02a9941f384835e9f507b5"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "6aca4f6ee770a71698d6465daf5be62c20b5d61762e3cc6aa6838eb546540e14"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "e8b4fe2edf53be85ad346db6a72dba190243385d2da89a1a8e23df8b6ad46777"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "e0d396e970aed8f40a00e6c02e0d427bccd104d4dca8be9d1fb14b84c2471dee"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "9626e466031c31e6520e1f9fccae58cf4360b1bf6a3a97f2d430c1ac34db1494"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "8c89c1b901eb5d39e29ab5f4c447f06d3771a7ad57f7de7617fab5b3fe626cfd"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "7496f3f5b3462e5e209eb38200ecddb2a8dfe87d8d892118bf9536d2c996c593"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "2fca7aeae980de478c94bb6f5b8dc47a6936d7c747e74d57a4ff890d806d0206"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "504387f456c48bc0ee1ea17d5a79ed591a5d0c4aa6601d889a7efdcb317e7cd2"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "bb48b11994776622b5efc1fd5eef671056461a79350f8974ed95bf93e0f7b256"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "6342b285b75aa44a68d51e29fca8fdf1f926f5b0955b1430ef628d0b340f6bb1"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "7b447043e40a6b72be706a0dbdd7f725ceb82c1f0bb08da340659840a920a274"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "dc3887fdbc169abc433f11f71d504d287494af03d2582b64384bbb70d9617d12"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "00b55beca21819473df41e7109732ff756aa57c96581da0176a92b0bf4958a61"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "0d04032b4ca99afac20fd024f77cc052350b467edda5976391c70ac9d03c4f0e"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "557ff2e27f5109a3541b064802f8bae01793becb3bc4dcf4d454048f20cbbc3b"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "3f3a076ef77a2f513bb8bcff94aee5b031a876f1b896e95fc08bd1c25f6dfb1e"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "19bf289c948800d4cc2ca542e77080cedf99ebf0079b53515d1e38f0cef184d0"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "46b3776625bf6e6bf9d1ba3a1be1d3ab5e8cee4966914838ba827f07df3564c6"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "25fb47d92cf5cb46cf2846227bb4fa425a6b04deb4d39aff64805d8592e2f661"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "2599f9d639b6d5ba7d16d980e18130b8baeb7f2508e1eb691c283cf6362521a4"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "cbff8f92f9d0df546082b0e3c8688b8aa3b13291108bbb2d46599a1c2bfb1124"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "4f6173393e84f21e037c7f5069bca92ac7e4680aa61e63e9d0cbea1d5b5c538e"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "904558f07f4dd6e5121c031803145a7e645bd9d16af98fe9798c635559759ced"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "51672b45aa4791371c8a4f867e76ba9b04b8966da96e2c9a9e5d7a228d1e3587"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "4ab5ead4c45c91d5781240f84b6b4f4b2078e4db17091d66374a11a24b77f8bd"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "3ff3095bd35954304796e181c189cfea0e6ef6507e8a21cf91c9b27bfb6d65f3"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "e79745649dfcc64674b444078d9a592eae232285289d89e7969d756e16ffe07c"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "cc6e795823bd4fba47ad49f2e6889604465d734434baa5457b540ba0560c66c0"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "0ce62e26e0e1394a30820facebeff0460b4727dd012042d2634de374798183d0"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "97b38e1a5364dcbed5e4a0c9f522fca8e44df8f961a9612edee6531b2765c437"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "6d6fe80ef2512fd8b1d4e89f8cecde55027a5b173d39b35e2abca0bdad654871"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "f637bb9ae3c4f7c132e8e06109d52696702d38d555f45f7aef73ed53871a4495"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "d47fdda083f4a01ff97f5428eabb3f5e2320c6ee0d0535ecd1a74ccca586bcb8"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "9aa3af45182919757dd52e711c691ee366bb38ebfd1673f9f74472fd25f6ca03"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "9c4ed5699f544657576acb54271330b59f4f148378dd86a8504388688d2384c8"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "447eb01f0b816f99ba467a14d7103761d933cc299584b7896f938a304b454f60"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "6fa0978feb0d76441ecbf121dc1c5f804aaf74f821d6b579781b30149eca4f48"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "ec639e5919adbfa96f0446d92c90ad7f4fbd7f610cc57160fbf1d9cffa663236"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "156cee44f3f38721ef53bb9add6d6c4502501ea49907eb2344f7477b59fd259b"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "dc9142e7b2db6a4b40ebfdda2e835471c0f176b611a99114b0cd20046b209ba8"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "65b4d137f6e1f107e0ef2ea47cfed76205fcf61ba290e97a7e56f83ee6399dfc"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "ace44bf081b67420695096204a58ab9def96b6f0ea158f63e66c8547c08e4e2e"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "6fc1b8e27df186f0e695f205e012e855590b79bc16aff0a0b40416b92cb7df33"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "9020a4daa373a83289c53662da2caf7b679f5481a476a0cf910bcb83c996aed9"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "a1fc260525cd251cb06021e99a38f2236d4f46592c7eb376069f18b0d4f8aeff"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "8c0e41b829af9812877a9af40d1afee42a4051c631f3b132a4cd85ef37caf4e5"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "3ac0973146bfe1d8747a569f7053459f8df496570af85f1c42a54c685e94ae4c"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "5e0a205fa5337966138a613af5621f9534391861da9f4f118af4e97554f26a6a"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "39bc8873d3df361abaa4481e19344e966e281180f69e4d778cfe3a3581ab1cb0"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "512acbb06c0461b7cb2fb502224c7ad256f4df3a93d60a33e2d5bbbbb0aac6bf"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "2c8d617a0a3fcabd347f17442ff3d28db4de7642a4aa885269dfecba4d9a2622"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "e30b969f4e72f1c2ef14d3dd2447c8a98459265dcd6b75df5f80ee0ef484131c"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "36f8dfc9fb99c62398f117c5263a8de80611e784673d649b0d8a37e854255f08"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "7b41e667aaca6b23eaf4fc7623e4a68188a8ab4573b9101a953ff903efad9979"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "e3c6161352f0a2e39f7733d2bae06a8d72d76d023399f24c08e591bc241c54df"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "0fc1ff84e1ce2e30735856a6ccc230b336f3cc72ac6215670acbca792b7078d6"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "1e4daed130e204c6426bb520bd7444b2b04d6ef717cfd9aff3e1c73b47bc723b"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "ba26810dc772d6a386766774b6017f087060f6858dfa58f292d8a7b41839a96a"
+      }
+    ],
+    "master_sha256": "d48c115f2e75014fd0a4a78f160432e6540e1d4cee9b0b80b5225adf59951f58",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "5714"
+        }
+      ],
+      "format": {
+        "duration": "190.466667",
+        "size": "6409388"
+      }
+    },
+    "poster_sha256": "e2f5520690c56b5e0670bee664241b9ed4d670fcbaee43ee09b0861db0d3e9a3",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "catalog_preservation": {
+    "passed": true,
+    "catalog_count": 14,
+    "lesson_count": 75,
+    "scene_count": 875,
+    "refreshed_lesson_ids": [
+      "01_pypi_github",
+      "02_conda_install",
+      "03_pip_install",
+      "04_platform_installers",
+      "05_home",
+      "06_api",
+      "09_annotate",
+      "13_regression",
+      "14_make_masks",
+      "15_image_umap",
+      "17_timelapse",
+      "18_motility",
+      "23_agreement",
+      "24_plaque",
+      "25_recruitment",
+      "26_invasion",
+      "27_replication",
+      "28_training_runs",
+      "29_report",
+      "30_plate_queue",
+      "31_external_masks",
+      "32_align_stitch",
+      "34_database",
+      "35_converter",
+      "36_import",
+      "37_batch",
+      "38_distributed_jobs",
+      "39_classifier_evaluation",
+      "40_run_history",
+      "43_illumination",
+      "44_data_manager",
+      "45_project_browser",
+      "51_control_charts",
+      "52_pipeline_graph",
+      "53_prediction_profiler",
+      "54_qc_dashboard",
+      "55_image_scatter",
+      "57_layer_viewer",
+      "60_pca",
+      "61_tabulate",
+      "62_feature_dictionary",
+      "63_small_multiples",
+      "64_gate_editor",
+      "65_feature_explorer",
+      "66_outliers",
+      "67_experiment_design",
+      "69_dose_response",
+      "70_explain_cv",
+      "73_parameter_sweep",
+      "74_import_images",
+      "75_regression_diagnostics"
+    ],
+    "retained_lesson_ids": [
+      "07_mask",
+      "08_measure",
+      "10_classify_cv",
+      "11_classify_ml",
+      "12_map_barcodes",
+      "16_activation",
+      "19_train_cellpose",
+      "20_cellpose_masks",
+      "21_model_compare",
+      "22_model_zoo",
+      "33_plate_viewer",
+      "41_classify",
+      "42_curate",
+      "46_napari_bridge",
+      "47_barcode_qc",
+      "48_hit_list",
+      "49_methods_results",
+      "50_run_compare",
+      "56_lineage",
+      "58_graph_builder",
+      "59_anndata_export",
+      "68_power_design",
+      "71_investigate_hit",
+      "72_volcano_explorer"
+    ],
+    "visual_only_lesson_ids": [
+      "34_database"
+    ],
+    "retained_count": 24,
+    "catalog_checks": [
+      {
+        "catalog": "lessons_en.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "c88dfaab7dee7deb37ebc62c159e1e6610cdf6691aa4622fdc04b050806b6a15"
+      },
+      {
+        "catalog": "lessons_es.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "ed82e9568ee5737f819dda7b7f17fba77f0f7460de1780ea32bc5d24d1a9a1df"
+      },
+      {
+        "catalog": "lessons_fr.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "08130da04c14e1070ec800cf1c5f66a7bd2adc2b09355db0baf4cd300d739fac"
+      },
+      {
+        "catalog": "lessons_hi.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "2cb0a3e5f470b08ebc140a26cf789197d6bcd34b0677c4055913158247681d49"
+      },
+      {
+        "catalog": "lessons_it.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "1b8dd338e713d83a3bd52ebc128eb8f4bb9672f671189ace26a89e7fbdb64a74"
+      },
+      {
+        "catalog": "lessons_ja.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "3697cb075b9f15a0e8d984ccb05a46f425f641acad8cc3914ec481c8d802cea9"
+      },
+      {
+        "catalog": "lessons_pt-BR.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "ce19f90e2e51645b0e09abce9357ada00eaca44835c9fc36cdc6a32dbcbfdd90"
+      },
+      {
+        "catalog": "lessons_zh-CN.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "0a85f8b480758e3cc12a7bc8f44080d9369411644b8ba185d373c904cafe07c9"
+      },
+      {
+        "catalog": "captions_da.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "176ba10c3a0b88061f6b7629767240f79fa9f7d0cfa0c39175efa12cbaf8ed89"
+      },
+      {
+        "catalog": "captions_de.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "48bf866ef8587d3eb419602c80c456517bc0ded9a8fd35bb902f5f322231afda"
+      },
+      {
+        "catalog": "captions_is.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "c92e36a1069e731020ab218d62d56924e420244e38982987f1fd8df4356cf661"
+      },
+      {
+        "catalog": "captions_ko.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "91399a9cc3842d40ba7482ee02f3a18037b8ad458d225d17839d0475d8a88df9"
+      },
+      {
+        "catalog": "captions_nb.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "12fefa3f6a06ce10a70cd43ff6316cb469c1f9e21986dd98eee6e60d58c33209"
+      },
+      {
+        "catalog": "captions_sv.json",
+        "retained_lessons": 24,
+        "retained_content_sha256": "ff7a7e05370833d83e34f72dd8c7120262a2d01d8fa7baea4ebeac3af0cc0f29"
+      }
+    ],
+    "unselected_replacement_media_staged": false,
+    "old_lesson_semantic_or_live_media_approval": false,
+    "published": false
+  },
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false,
+  "course_progress": {
+    "existing_lessons_technically_complete": 52,
+    "existing_lessons_total": 75,
+    "existing_lessons_remaining": 23,
+    "additional_ops_lesson_held": true,
+    "checked_voice_tracks": 2600,
+    "retained_tracks": 100,
+    "browser_cases": 728
+  },
+  "limitations": [
+    "Synthetic controls demonstration; not a biological screening result or held-out validation.",
+    "OLS fit performed before import with statsmodels; the profiler only reads coefficients.",
+    "GUI file route uses an assumed two-row 0..1 design, not the 121 original observations.",
+    "Ranking uses 5th/95th quantiles (0.05..0.95); displayed curve spans 0..1.",
+    "No confidence interval or causal claim."
+  ],
+  "download": {
+    "file": "SYNTHETIC_profiler_example.zip",
+    "bytes": 6231,
+    "sha256": "165ccd6a1bfd09f29b411c001c2722e82435fffeb9d40e930d3eb299551eec83"
+  }
+}
