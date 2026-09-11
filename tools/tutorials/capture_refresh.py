@@ -294,6 +294,10 @@ def main() -> int:
         from capture_cellpose_masks import record_apply
         record_apply(app, window, stage, captures, capture,
                      settle, write_json, args.timeout)
+    elif args.module == 'napari_bridge':
+        from capture_napari import record_napari
+        record_napari(app, window, stage, captures, capture,
+                      settle, write_json, args.timeout)
     elif args.module == 'parameter_sweep':
         from capture_parameter_sweep import record_sweep
         record_sweep(app, window, stage, captures, capture,
