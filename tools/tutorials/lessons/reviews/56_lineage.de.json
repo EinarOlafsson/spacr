@@ -1,0 +1,33 @@
+{
+  "lesson": "56_lineage",
+  "english_sha256": "5e8321bb39a3d97f13c9985bccdd5cdb7e21c17c56b975c191d92b6b01ede092",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "de",
+  "title": "Lineage: enthaltene Objekte und verifizierte Elternzellbilder",
+  "description": "Gespeicherte Eltern-Kind-Beziehungen, Anzeigegrenzen und das korrekte Elternzellbild untersuchen; falsche Ersatzbilder fehlender Kinder zurückweisen.",
+  "objectives": [
+    "Lineage in Database Browser öffnen und den echten Baum aufbauen.",
+    "Gesamtzahlen, sichtbare Familien und typisierte Identitäten unterscheiden.",
+    "Falsche Kindbilder erkennen und nur den verifizierten Elternknoten ansehen.",
+    "Nativen Zoom und vollständigen Python-Export von GUI-Steuerelementen unterscheiden."
+  ],
+  "prerequisite": "Das heruntergeladene Annotate-Beispiel mit passenden Messungen und Zellbildern verwenden. Das Graph-Builder-Archiv enthält dieselbe Datenbank ohne Bilder; das Lineage-Archiv enthält geprüfte API-CSV und Review, keine Ersatzdatenbank. Fehlende Kindbilder nicht durch den aktuellen falschen Rückfall identifizieren oder beschriften.",
+  "scenes": [
+    "Öffnen Sie Database Browser unter Help und darin Lineage. Hier bedeutet lineage gespeicherte Enthaltenseinsbeziehungen: Welche Objekte liegen in welchen Zellen? Es ist keine Zellteilungsgeschichte, genetische Abstammung oder neue Segmentierung. Die umgebenden Datenbank-Steuerelemente gehören zum Hauptmodul.",
+    "Wählen Sie measurements.db des echten Annotate-Beispiels und bauen Sie den Baum. Wir verwenden eine unveränderte private Kopie. Verbreitern Sie Object und den Trenner bei engen Beschriftungen. Nummern wiederholen sich zwischen Bildfeldern und Objekttypen; eine Zahl allein ist keine Identität.",
+    "Die vollständige Quelle enthält 2.341 Zellen, 2.682 Zellkerne und 2.178 Objekte der Tabelle pathogen. Nur 2.000 Elternfamilien erscheinen im Baum. 341 fehlen in der Anzeige, wurden aber nicht aus der Datenbank gelöscht.",
+    "Laut Zusammenfassung ist keine Zelle leer, weil auch ein Zellkern als Kind zählt. Das bedeutet nicht, dass jede Zelle ein Objekt aus pathogen enthält: 1.168 tun dies nicht. Keine unverbundenen Kinder heißt nur, dass alle gespeicherten Eltern existieren, nicht dass die Segmentierung biologisch richtig ist.",
+    "Klappen Sie einen Elternknoten auf. In diesem Feld enthält Zelle drei laut gespeicherten Beziehungen Zellkern fünf und pathogen eins. Das sind typisierte Identitäten, keine austauschbaren Zahlen. Ein einzelnes Kind auszuwählen ist nicht dasselbe wie die gesamte Familie auszuwählen.",
+    "Select with contents veröffentlicht Eltern- und Kindschlüssel. Werden Elternknoten und ein Kind gemeinsam ausgewählt, muss das Kind nicht dupliziert werden. Die Schlüssel behalten Bildfeld und Typ; ihre Spalte ist hier verborgen. Eine veröffentlichte Identität beweist kein vorhandenes passendes Bild.",
+    "Große Familien brauchen eine Prüfung, keine automatische biologische Deutung. Eine Familie dieses Beispiels umfasst 33 Objekte. Beziehungen können Segmentierungs- oder Aufnahmefehler widerspiegeln. Der Baum berichtet gespeicherte Beziehungen und validiert ungewöhnliche Zahlen nicht als Entdeckung.",
+    "Ein Klick auf die Kopfzeile sortiert sichtbare Familien ohne ihre Beziehungen zu ändern. Die Grenze von 2.000 Eltern bleibt. Wir haben jede sichtbare Identität, jede Elternkante und die vollständige Hierarchie geprüft. Eine sortierte oder gekürzte Ansicht ist keine bearbeitete Messtabelle.",
+    "Open crops braucht Annotate als Bildbetrachter. Die tatsächliche Meldung verlangt, Annotate zuerst zu öffnen. Ein fehlender Betrachter ist etwas anderes als ein fehlendes Bild. Laden Sie vor Bildanforderungen das passende Projekt, keinen anderen Lauf mit zufällig ähnlichen Nummern.",
+    "Das heruntergeladene Projekt liefert echte Zellbildausschnitte. Das reine Datenbankarchiv enthält sie nicht. Wir verwenden das vollständige passende Beispiel und erhalten alle Originalbilder. Das Öffnen der Quelle trainiert keinen Klassifikator und legt keine neuen Beschriftungen fest.",
+    "Diese Version hat eine ernste Grenze: Die Dreierfamilie zeigt Zelle drei und anschließend die unzugehörigen Zellen fünf und eins statt des angeforderten Zellkerns und pathogen-Objekts. Die Quelle hat nur Zellbilder. Weisen Sie den Ersatz zurück und beschriften Sie diese Bilder nicht als fehlende Kinder. Das Tutorial repariert den Fehler nicht.",
+    "Die geprüfte Alternative ist enger: Zurück in Lineage doppelklicken Sie nur auf die Elternzelle. Anders als Open crops sendet das nur den Elternknoten statt der Familie. Annotate zeigt genau sein Bild. Identität und Originalbytes wurden geprüft; Unterstützung für Kindbilder folgt daraus nicht.",
+    "Umschalt-Klick auf das Elternvorschaubild vergrößert die vorhandene Vorschau ohne Klassenzuweisung. Escape stellt das Raster wieder her. Das hilft der Betrachtung, erzeugt aber keine zusätzliche Auflösung. Verwenden Sie die richtige Geste: Ein normaler Linksklick annotiert und ist nicht der gezeigte Zoom.",
+    "Build tree aktualisiert die Ansicht. In Python bieten read_object_tables, build_forest und lineage_frame dieselbe Struktur. Die verknüpfte CSV enthält alle 7.201 Knoten einschließlich nicht angezeigter Familien. Sie wurde per API geschrieben, nicht über einen Lineage-Exportknopf, und ist keine biologische Validierung."
+  ]
+}
