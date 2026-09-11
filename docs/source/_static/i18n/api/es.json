@@ -6429,10 +6429,10 @@
         "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
         "07a26349bbb3b787b623fe63e13ee541cf585eff23a25427213be9aea57ef173",
         "1f4f4e540c9f7372a3abee7334c5202c260733258a2fed82b8cb2f13815d5b82",
-        "dfdf3364dc675516fe537d24466ecd2063ddd41d1402746db1821aaef4dbc514"
+        "81ca1a1deb3499fe5511636a4460ee7595bfdb985dbe58f494144091618467d4"
       ],
-      "source_sha256": "f6fdd7ba7fcebabe48cd956d3fd925a31bf76c542277312b65cad527cad8cd12",
-      "text": "Una fila por barrio, para una característica medida.\n\n:param frame: mediciones que llevan una columna ``neighbourhood``, ya que :func:`classify` la produce, unidas a la tabla de características.\n:param feature: la columna a resumir.\n:param statuses: qué barrios informar, en orden.\n:returns: ``neighbourhood``, ``n``, ``mean``, ``std`` y ``median``.\n\nLa comparación de todo el elemento es para, y la razón por la que vale la pena tener es restar en lugar de añadir: el paquete ya puede comparar infectados contra no infectados. Lo que no puede hacer es notar que \"uninfected\" fue dos poblaciones, por lo que un efecto transeúnte se muestra como nada más que un control más amplio.\n\nCada estado solicitado es una fila, en ``n = 0`` donde la posición de la muestra de microplaca no tiene ninguna. Un llamante que compara microplacas de laboratorio necesita las mismas tres filas cada vez; una fila faltante cambia silenciosamente lo que significa una unión hacia abajo.\n\nNo hay estadística de prueba aquí, deliberadamente. Resumir es seguro en cualquier columna; elegir una prueba es una decisión sobre el diseño -- emparejado o no, cómo la microplaca muestra posiciones nido, lo que es el null -- y pertenece a donde se conocen. Esto da a la capa de regresión tres grupos nombrados a ser entregados, que es lo que la instrucción 388 pide.",
+      "source_sha256": "3abe4e8fc6b284f2df85440d46c57ddd826e9e9ac5f0afbade71323ebfe668ba",
+      "text": "Una fila por barrio, para una característica medida.\n\n:param frame: mediciones que llevan una columna ``neighbourhood``, ya que :func:`classify` la produce, unidas a la tabla de características.\n:param feature: la columna a resumir.\n:param statuses: qué barrios informar, en orden.\n:returns: ``neighbourhood``, ``n``, ``mean``, ``std`` y ``median``.\n\nLa comparación de todo el elemento es para, y la razón por la que vale la pena tener es restar en lugar de añadir: el paquete ya puede comparar infectados contra no infectados. Lo que no puede hacer es notar que \"uninfected\" fue dos poblaciones, por lo que un efecto transeúnte se muestra como nada más que un control más amplio.\n\nCada estado solicitado es una fila, en ``n = 0`` donde la posición de la muestra de microplaca no tiene ninguna. Un llamante que compara microplacas de laboratorio necesita las mismas tres filas cada vez; una fila faltante cambia silenciosamente lo que significa una unión hacia abajo.\n\nNo hay estadística de prueba aquí, deliberadamente. Resumir es seguro en cualquier columna; elegir una prueba es una decisión sobre el diseño -- emparejado o no, cómo la microplaca muestra posiciones nido, lo que es el null -- y pertenece a donde se conocen. Lo que esta mano la capa de regresión es tres grupos llamados que puede contrastar.",
       "translation_source_blocks_sha256": [
         "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
         "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
@@ -6441,7 +6441,7 @@
         "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
         "76e48a9b7b0f86f522c73aab1303dbceaa984363a9314e62c723537130b53bf2",
         "cff150bbb6cc0e91c555067db206901e20bffce8b1eae527fe3dd03396f54419",
-        "cbf49479f9fbbb3d3318fc10d91e2f24557152dfde87bf55e53b88977e367d7a"
+        "b3954257983adc4e757e039f42118924f1412c16277c5c7194dd4c13faa05edc"
       ]
     },
     "spacr.bystanders.counts": {
@@ -18196,18 +18196,18 @@
       "source_blocks_sha256": [
         "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
         "f6a0d1ff19c83f9b6178284e18ced132c6085641279b6e5775d2e877d8eb7124",
-        "fbc298648f6ed0ccddd9d18e2ca373aa3422925b6eff0ce3ace7ce303526ac97",
+        "3b21c4e9406460fb6839adf048ea68473d6bda154df45001a2e4287c40ab66f7",
         "790db17b58b1a85fca18a912cacd6e751b1734058f48ab8f0f1d48ce67634452",
         "e23ae31fedfc3f2132115b196d41064d7a52a61234ac92f1cbd5e763681170db",
         "d8fa2e50bb5a67d188fb1b71c091d9234aa2b3354c53aad2ff04e0397fe70072",
         "67f83d85affbae7d6873e220cf473f0d7f57ba6cd2d91d2751bad6b26c64bd04"
       ],
-      "source_sha256": "0c1c5740e725f981946ecb658ad7e6634651de20660183f521668a130a8ac0a8",
-      "text": "Una incrustación libre de etiquetas para cada objeto, junto a las características medidas.\n\nPor qué existe esto. spaCR's dos formas existentes de convertir una imagen en números ambos requieren que usted sepa ya lo que está buscando. El panel medido en :mod:`spacr.measure` calcula un conjunto fijo, diseñado a mano -- intensidad, forma, textura, distancias -- por lo que sólo encuentra lo que alguien pensó nombrar. :mod:`spacr.deep_spacr` Afinar una columna vertebral contra las anotaciones, por lo que sólo encuentra lo que alguien pensó para anotar. Una cribado cuyo verdadero éxito es \"la vacuole está sutilmente mal localizada de una manera que no tenemos columna para\" No devuelve nada, y lo devuelve con confianza. El costo de esa brecha es invisible, que es exactamente por lo que vale la pena un módulo.\n\nLos codificadores preentrenados esperan tres canales de datos de imagen. Las imágenes spaCR rutinariamente tienen cuatro o cinco, sin ningún significado RGB, un canal de datos DAPI no es \"red\". Dos maneras de salir, y la instrucción 386 pide que la elección sea grabada en lugar de heredada de lo que la primera columna vertebral quería:\n\n  Canal de datos de imagen PER, luego concatenar (:data:`CHANNEL_PER_CHANNEL`, el valor predeterminado). Cada canal de datos de imagen está codificado por su cuenta y los vectores se unen. identidad del canal de datos de imagen VIDA: dimensión 517 pertenece al canal de información de imagen 2 y a nada más, por lo que :mod:`spacr.attribution_columns` puede decir de qué mancha vino un golpe y un lector puede soltar un canal de los datos de la imagen sin volver a insertar. Cuesta los pases de N hacia adelante.\n\n  Proyecto a tres (:data:`CHANNEL_PROJECT`). Una pasada sobre un canal de datos de imagen fija-a-RGB mapping. Más barato e irreversible: una vez que los canales de datos se mezclan, ninguna columna aguas abajo puede ser atribuida a una mancha, y una cribado no puede preguntar \"¿era este el canal de información de imagen parasitaria o el host uno?\".\n\nEl valor predeterminado es el canal de datos por imagen porque la atribución es el punto. Una integración que encuentra un fenotipo sin nombre y no puede decir qué mancha llevó ha movido el problema en lugar de resolverlo. La proyección permanece disponible para el caso donde pase hacia adelante realmente enlazar.\n\nLo que este módulo no hace. No extrae región de imagen -- toma las regiones de imagen extraídas :mod:`spacr.crops` ya produce. No escribe a la base de datos. Devuelve una matriz float32 claveda por el id de objeto, que es exactamente la forma que el río abajo ya consume: UMAP, la familia de regresión, llamada de acierto y la exportación AnnData no les importa de dónde vino una columna numérica.",
+      "source_sha256": "040d4d3a2882c0b592870afa6bdd79b4a5840a997ceea82222fe95f9f72f9b16",
+      "text": "Una incrustación libre de etiquetas para cada objeto, junto a las características medidas.\n\nPor qué existe esto. spaCR's dos formas existentes de convertir una imagen en números ambos requieren que usted sepa ya lo que está buscando. El panel medido en :mod:`spacr.measure` calcula un conjunto fijo, diseñado a mano -- intensidad, forma, textura, distancias -- por lo que sólo encuentra lo que alguien pensó nombrar. :mod:`spacr.deep_spacr` Afinar una columna vertebral contra las anotaciones, por lo que sólo encuentra lo que alguien pensó para anotar. Una cribado cuyo verdadero éxito es \"la vacuole está sutilmente mal localizada de una manera que no tenemos columna para\" No devuelve nada, y lo devuelve con confianza. El costo de esa brecha es invisible, que es exactamente por lo que vale la pena un módulo.\n\nLos codificadores preentrenados esperan tres canales de datos de imagen. Las imágenes spaCR rutinariamente tienen cuatro o cinco, sin ningún significado RGB, un canal de datos DAPI no es \"red\". Dos formas de salida, y la elección se registra aquí en lugar de heredarse de lo que la primera columna vertebral haya querido:\n\n  Canal de datos de imagen PER, luego concatenar (:data:`CHANNEL_PER_CHANNEL`, el valor predeterminado). Cada canal de datos de imagen está codificado por su cuenta y los vectores se unen. identidad del canal de datos de imagen VIDA: dimensión 517 pertenece al canal de información de imagen 2 y a nada más, por lo que :mod:`spacr.attribution_columns` puede decir de qué mancha vino un golpe y un lector puede soltar un canal de los datos de la imagen sin volver a insertar. Cuesta los pases de N hacia adelante.\n\n  Proyecto a tres (:data:`CHANNEL_PROJECT`). Una pasada sobre un canal de datos de imagen fija-a-RGB mapping. Más barato e irreversible: una vez que los canales de datos se mezclan, ninguna columna aguas abajo puede ser atribuida a una mancha, y una cribado no puede preguntar \"¿era este el canal de información de imagen parasitaria o el host uno?\".\n\nEl valor predeterminado es el canal de datos por imagen porque la atribución es el punto. Una integración que encuentra un fenotipo sin nombre y no puede decir qué mancha llevó ha movido el problema en lugar de resolverlo. La proyección permanece disponible para el caso donde pase hacia adelante realmente enlazar.\n\nLo que este módulo no hace. No extrae región de imagen -- toma las regiones de imagen extraídas :mod:`spacr.crops` ya produce. No escribe a la base de datos. Devuelve una matriz float32 claveda por el id de objeto, que es exactamente la forma que el río abajo ya consume: UMAP, la familia de regresión, llamada de acierto y la exportación AnnData no les importa de dónde vino una columna numérica.",
       "translation_source_blocks_sha256": [
         "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
         "2536a1844d718e23674275ad1ec155de826962166d1a8abe5d1ef2ed56e0f11f",
-        "46238bafbf36780d30e7b5a73224abbd1572cbd6586c2fcd675bbdc89767679c",
+        "482cd9525b00dfcbeb9c78a5b075b0599874ae9d6a10af5a7fb11dba818a210c",
         "97d5fca860e212188551dc446c546433067c1142445655ef2b7f3d9460b59ad0",
         "6872180310dc77e7563785b1beaa1504a76435dddafbe84103d9531217c50412",
         "d00c1dc075fee112b0000f0f81dd655f2aa1c23bb8e5d661457319ae9272d210",
@@ -46727,15 +46727,15 @@
     "spacr.ops_compose": {
       "source_blocks_sha256": [
         "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
-        "2f3c97f71967690e34c8067c8f5217cb132e4fc98344c5ebb238e04f37a71cbe",
+        "b553a737ed987dd13aa8b0d0546b00b8702cdd3a760ed269af776739ff6f47ca",
         "9c604370eea684a67c7b138357c4e26ea2eac6f640d836c2b3d723c7e0d8242c",
         "c359f9f720dab72b58a7a3f83dbd326f91738bf99a87988d1e4d944359b5bc69"
       ],
-      "source_sha256": "ff12a12fa8bc3baa6272f70d57759b77bb457e1471bdb8d39ffcf9a791653cd6",
-      "text": "El mapa nuclear canónico, compuesto por una ventana a la vez.\n\nLa fase b1 de la instrucción 372. `ops_stitch` resuelve dónde se asienta cada campo de imagen del microscopio y deliberadamente no sostiene los píxeles -- bueno A1 es 26.855 x 26.865, que es 1.4 GB como uint16 para un canal, y cada fase posterior lo leería a través de él. Este módulo compone la misma ventana del pozo por ventana, que en cambio es lo que B2 pide que la segmentación haga de todos modos: \"segmento una vez, en el compuesto, ventana por ventana\".\n\n    El problema de memoria y el plan de segmentación tienen la misma respuesta. Una ventana que un segmentador puede sostener es también una ventana que el compositor puede construir, así que nada se materializa en todo el lienzo. La clave de unión B4 necesita -- un número de objeto a nivel de microplaca de laboratorio en el cuadro de posición de muestra Microplate -- sobrevive porque cada ventana lleva su propio desplazamiento en ese marco.\n\n¿Por qué mediar los solapamientos en absoluto. PARTE 15 lo midió: la ganancia es alrededor de 1.15x en la segmentación exacta del canal de datos de imagen se ejecuta en, no el 3.3x un borrador anterior reclamado de promedio a través de ciclos. Hay sólo una adquisición DAPI, por lo que el argumento de once muestras no se aplica -- lo que queda es la propia superposición del 14% del raster, donde dos campos de imágenes del microscopio vieron los mismos núcleos dos veces. 1.15X vale la pena tener y no vale la importancia exagerada, por eso el número está aquí en lugar del adjetivo.",
+      "source_sha256": "d08359f950419f445268ec864e6f252b341154417e4c596d3edf07d9360b36c3",
+      "text": "El mapa nuclear canónico, compuesto por una ventana a la vez.\n\n`ops_stitch` resuelve donde cada campo de imagen del microscopio se sienta y deliberadamente no sostiene los píxeles -- bueno A1 es 26,855 x 26,865, que es 1,4 GB como uint16 para un canal, y cada fase posterior leería a través de él. Este módulo compone la misma ventana del pozo por ventana en su lugar, que es lo que B2 pide la segmentación para hacer de todos modos: \"segmento una vez, en el compuesto, ventana por ventana\".\n\n    El problema de memoria y el plan de segmentación tienen la misma respuesta. Una ventana que un segmentador puede sostener es también una ventana que el compositor puede construir, así que nada se materializa en todo el lienzo. La clave de unión B4 necesita -- un número de objeto a nivel de microplaca de laboratorio en el cuadro de posición de muestra Microplate -- sobrevive porque cada ventana lleva su propio desplazamiento en ese marco.\n\n¿Por qué mediar los solapamientos en absoluto. PARTE 15 lo midió: la ganancia es alrededor de 1.15x en la segmentación exacta del canal de datos de imagen se ejecuta en, no el 3.3x un borrador anterior reclamado de promedio a través de ciclos. Hay sólo una adquisición DAPI, por lo que el argumento de once muestras no se aplica -- lo que queda es la propia superposición del 14% del raster, donde dos campos de imágenes del microscopio vieron los mismos núcleos dos veces. 1.15X vale la pena tener y no vale la importancia exagerada, por eso el número está aquí en lugar del adjetivo.",
       "translation_source_blocks_sha256": [
         "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
-        "99870ea0030eecbff2b2677f1f8c4e345eefee934aa9108309b8d34a48fcb159",
+        "df9f3ca80ca6f7dc0d5c5c5e70c16a9c37718a39ce6ed65f6f88c7abbdb49ede",
         "2bebe95857e6c51de5035aa67c37dc4e5dfda86de8ca5fde1f2f72c7dbc36147",
         "c1a39eddb74fd17659348ddccf73892cd984ce92636648bec865e0fa30c59960"
       ]
@@ -63568,14 +63568,18 @@
       "source_blocks_sha256": [
         "aee7339fe71c1d90ae5d9804e0db93e562bdbe13ffe7bd3114293e04f86b12df",
         "397a7daab4c62df3cee86d9239ae247a79c15f642d40c311036b9007e4fffe9b",
-        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628"
+        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628",
+        "66df66ad2b4e3ddc451d83f6e3a4db3a633420cf4acf3e0babcd52bbc9fc42cc",
+        "8d24333e9beb211f31c79172036c849b7ca3eed66ac1da3d39b71aa39dd9531d"
       ],
-      "source_sha256": "9aa8410fe27e2a2b1eab912536835bed408972cc9c3478adc858348a38efe93d",
-      "text": "Retranslate texto estático en ``root`` y todos los descendientes existentes.\n\nLa función es intencionadamente el mejor esfuerzo e idempotente. Nunca edita contenidos de edición de línea, editores de texto, celdas de tabla, datos de modelos, nombres de archivos o salida de consola.\n\nEl texto OWN de Qt también sigue -- véase :func:`_follow_qt_own_catalogs` -- por lo que un idioma elegido después del lanzamiento llega al menú del clic derecho de cada campo de texto, no sólo los subtítulos spaCR escritos.",
+      "source_sha256": "21760110c4f8407ae154477c64a74f3d993268b26a5d9b41fb9bd36e0c32b368",
+      "text": "Retranslate texto estático en ``root`` y todos los descendientes existentes.\n\nLa función es intencionadamente el mejor esfuerzo e idempotente. Nunca edita contenidos de edición de línea, editores de texto, celdas de tabla, datos de modelos, nombres de archivos o salida de consola.\n\nEl texto OWN de Qt también sigue -- véase :func:`_follow_qt_own_catalogs` -- por lo que un idioma elegido después del lanzamiento llega al menú del clic derecho de cada campo de texto, no sólo los subtítulos spaCR escritos.\n\n``only_new`` omite widgets este pase se traduciría a exactamente lo que ya dicen. Cada widget visitado se estampa con el idioma en el que fue traducido y la generación de catálogo que era actual; un pase posterior pide ``only_new`` omita aquellos cuyo sello todavía coincide. Un cambio de idioma cambia el sello, y también lo hace un catálogo ganando una fila, por lo que no se puede perder ninguno.\n\nEstá desactivada por defecto y eso es deliberado. Un llamante que acaba de reemplazar un título en sí mismo quiere que el pase completo -- `_translate_qt_text` detecte un setter externo comparando el valor renderizado, y no se compara un widget omitido. El que llama que lo pide es `_LateCaptionTranslator`, donde tres casi-root pasa un evento vuelven a separarse del mismo árbol mientras se monta una vista de aplicación de módulo.",
       "translation_source_blocks_sha256": [
         "aee7339fe71c1d90ae5d9804e0db93e562bdbe13ffe7bd3114293e04f86b12df",
         "397a7daab4c62df3cee86d9239ae247a79c15f642d40c311036b9007e4fffe9b",
-        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628"
+        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628",
+        "66df66ad2b4e3ddc451d83f6e3a4db3a633420cf4acf3e0babcd52bbc9fc42cc",
+        "813bf3e4fd317ce358b7702413f1ba123f7cb6fe1c86a57cb01d45f810196b2a"
       ]
     },
     "spacr.qt.i18n.set_translatable_items": {
@@ -88828,12 +88832,16 @@
     },
     "spacr.qt.shortcuts.installed": {
       "source_blocks_sha256": [
-        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+        "dadfea33e27175b029ad7c1af01f7dea7db981eea118ca17351d93867e718acd",
+        "5dd3becff65649f0fd77f84e84735a246505a189c375df637d4bc0545c4e3acb",
+        "0b460258a16578b29dbb6c7723105c6da3de158327562a9fd31dc581702fcffd"
       ],
-      "source_sha256": "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a",
-      "text": "Las teclas de la ventana `install()` son responsables de la unión.",
+      "source_sha256": "cb3481b6218ac0b616f356599421d82cab95d5d445f30ee5004c82fa34406e9a",
+      "text": "Las teclas de ventana que :func:`install` es responsable de la unión.\n\nLos gestos no están entre ellos. Un gesto es un modificador mantenido mientras la rueda del ratón gira, y está atrapado por un filtro de eventos en lugar de por una secuencia de claves, por lo que ningún objeto de atajo puede expresarlo y no se crea para él. Listar uno aquí prometería una unión que no se puede hacer.\n\nCada gesto sigue enlistado en el mapa de acceso directo. :func:`mapped` devuelve lo que las manos pueden hacer, y esto devuelve los objetos de acceso rápido propios.",
       "translation_source_blocks_sha256": [
-        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+        "dadfea33e27175b029ad7c1af01f7dea7db981eea118ca17351d93867e718acd",
+        "5dd3becff65649f0fd77f84e84735a246505a189c375df637d4bc0545c4e3acb",
+        "0b460258a16578b29dbb6c7723105c6da3de158327562a9fd31dc581702fcffd"
       ]
     },
     "spacr.qt.shortcuts.mapped": {
@@ -90028,6 +90036,28 @@
         "09f07c638a6b891340ffe6073ca365500f6b8dc36563d8fbd07f5c290fe9c280"
       ]
     },
+    "spacr.qt.theme.apply_stylesheet_per_window": {
+      "source_blocks_sha256": [
+        "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
+        "56ff2c0606a7dd38a1b96fce3b253a279b71cb65746b88a2faf0531b46653765",
+        "c364bcfda35b5cc35cfde280296d9a10050df74921bb2449ff1be88df4d5a9da",
+        "4ed48e0f23bbdb8b4a0b2bac57ab1fcda353b3522c51fbbb2491d643e9265add",
+        "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
+        "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
+        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd"
+      ],
+      "source_sha256": "1bf87c6cc181f53bc66a6851e9fe7cd5615fc2692f329a9caae2df326d4d5ff3",
+      "text": "Instale ``sheet`` en cada ventana de nivel superior en lugar de en ``app``.\n\nPOR QUÉ, con el número. `QApplication.setStyleSheet` repolishes cada widget del proceso posee, y una sesión que ha abierto algunos módulos posee miles que no puede ver -- `MainWindow` construye una vista de aplicación de módulo en la primera navegación y lo mantiene en la pila después. Medido en esta caja, offscreen, cuatro módulos abiertos, 9.045 widgets en vivo de los cuales 6.111 están en vistas de aplicación nadie está mirando:\n\n    app.setStyleSheet 2.836 ms primero, ~7.500 ms después de cada ventana de nivel superior 1.684 ms antes, =1.900 ms luego de la cribado visible solo 222 ms\n\nUna cuarta parte del costo de la misma imagen. El piso es aún más bajo -- 222 ms es lo que cuesta la cribado visible por sí solo -- y alcanzarla significa no cubrir las cribados ocultas tampoco, lo cual es un cambio más grande que éste.\n\n:param app: el ``QApplication`` cuyas ventanas llevan la hoja, y donde la hoja en sí está estacionada para que una ventana creada más tarde pueda encontrarla. ``None`` es aceptado y no hace nada, por lo que un llamante que se ejecuta sin una aplicación no tiene que comprobar primero.\n:param sheet: la hoja de estilos de la aplicación completa, ya que :func:`stylesheet` la compone.\n:returns: el número de ventanas en las que se puso la sábana.",
+      "translation_source_blocks_sha256": [
+        "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
+        "b010a6f9c65980ef40e9f0e337e14d43cb0d63ec4cb9be1e4bf51ae7302926bc",
+        "c364bcfda35b5cc35cfde280296d9a10050df74921bb2449ff1be88df4d5a9da",
+        "fa85d6fe6ebad42a2c3a2dd6ee9b6128d15817c4b318532a9bf02da79bfd27c7",
+        "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
+        "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
+        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd"
+      ]
+    },
     "spacr.qt.theme.block_surface": {
       "source_blocks_sha256": [
         "94f9029bbcc7af6497b004637dea038664078a079ab971990d6314ddccadefde",
@@ -91090,6 +91120,22 @@
       "text": "Cada nombre de bloque registrado, en orden de registro.",
       "translation_source_blocks_sha256": [
         "89057496ea8d1bdd9773545540f18ca786b819ccf5f9ea23e3bbd2d3987b105e"
+      ]
+    },
+    "spacr.qt.theme.window_stylesheet": {
+      "source_blocks_sha256": [
+        "b81c886a6bd104f2b6d748e8d524a060760be02727bae394e13941f42032f4c7",
+        "04b835e36bfeba6c9bd53ef4654db7aa27281e5c8019d36ab752f56c2984ebca",
+        "317809790273c484a95e4a0850605ed7ffe2fba2b9beffc11d079db8cec68025",
+        "eac346082cd67a31571b59b5fa3570426b7af1c81111b522183e14fa5d65cad5"
+      ],
+      "source_sha256": "c236240281cce6372b032e34a4c22e847435caaf4bcca5e15878f04fe5544cd2",
+      "text": "La hoja :func:`apply_stylesheet_per_window` se ha instalado por última vez.\n\nEl reemplazo para leer ``app.styleSheet()`` atrás: que está vacío ahora y no dice nada sobre lo que las ventanas están usando.\n\n:param app: la aplicación para leerlo; la que se ejecuta por defecto.\n:returns: la hoja, o ``None`` si no está instalada por ventana.",
+      "translation_source_blocks_sha256": [
+        "b81c886a6bd104f2b6d748e8d524a060760be02727bae394e13941f42032f4c7",
+        "04b835e36bfeba6c9bd53ef4654db7aa27281e5c8019d36ab752f56c2984ebca",
+        "317809790273c484a95e4a0850605ed7ffe2fba2b9beffc11d079db8cec68025",
+        "eac346082cd67a31571b59b5fa3570426b7af1c81111b522183e14fa5d65cad5"
       ]
     },
     "spacr.qt.thread_guard": {
@@ -101355,7 +101401,7 @@
     "spacr.qt.widgets.dose_response.InteractionSurface": {
       "source_blocks_sha256": [
         "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
-        "c57a6b8302096558675756514531d43ef228029373925ad18354b845ee8c35e7",
+        "1b051192b6eed29b908106cf4826885192943cb75160f35a08e4aae2b5080970",
         "a8838e93eede86dbc0c5a189c9ac2a3167d3711c3bbe6a913c3ab91da0834f1c",
         "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
         "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
@@ -101366,11 +101412,11 @@
         "d4b3538b72dcbb496a9de7d8a838ac4efe1f7d9d2a9d65689682d8e84b93d374",
         "566706bfe73b5edb78b39f74240ba0aa2d6d613e74fc9425b8c412f1ee79936c"
       ],
-      "source_sha256": "0773bb216a286909306218de334b749cee7621d406f721f590b79aba0a47ac70",
-      "text": "La interacción de un tablero de ajedrez, por célula, con sus propios ejes.\n\nLa superficie es el resultado y un único índice no lo es, que es lo que la instrucción 387 pide en tantas palabras: \"un número para un tablero de ajedrez entero oculta exactamente la estructura dependiente de la concentración que hace interesante la sinergia\".Las combinaciones reales son frecuentemente sinérgicas en un rincón de la red y aditiva o antagónica en otro, y una media sobre la cuadrícula no reporta nada.\n\nConvention de la firma, declarado porque cada documento indica una diferente: positivo significa más efecto de lo esperado -- sinergia para un ensayo de inhibición. La superficie esperada es lo que el modelo predice de las dos curvas de un solo agente; ``excess`` se observa menos esperada.\n\n:param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.\n:param dose_a: las concentraciones únicas del agente A, ascendente.\n:param dose_b: las concentraciones únicas del agente B, ascendente.\n:param observed: ``(len(dose_a), len(dose_b))`` efecto, 0 a 1.\n:param expected: lo que ``model`` predice para cada célula.\n:param excess: ``observed - expected``. NaN donde una célula no fue probada.\n:param n_cells: células con una observación.\n:param note: lo que no se podía calcular, y por qué.",
+      "source_sha256": "d96dc26d70b1d31ef133df596fdcb0d5e0b65843cff1382ef30cae34cc52b509",
+      "text": "La interacción de un tablero de ajedrez, por célula, con sus propios ejes.\n\nLa superficie es el resultado y un único índice no lo es. Un número para un tablero de ajedrez entero oculta exactamente la estructura dependiente de la concentración que hace interesante la sinergia. Las combinaciones reales son frecuentemente sinérgicas en un rincón de la red y aditivo o antagonista en otro, y una media sobre la red no reporta ninguno.\n\nConvention de la firma, declarado porque cada documento indica una diferente: positivo significa más efecto de lo esperado -- sinergia para un ensayo de inhibición. La superficie esperada es lo que el modelo predice de las dos curvas de un solo agente; ``excess`` se observa menos esperada.\n\n:param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.\n:param dose_a: las concentraciones únicas del agente A, ascendente.\n:param dose_b: las concentraciones únicas del agente B, ascendente.\n:param observed: ``(len(dose_a), len(dose_b))`` efecto, 0 a 1.\n:param expected: lo que ``model`` predice para cada célula.\n:param excess: ``observed - expected``. NaN donde una célula no fue probada.\n:param n_cells: células con una observación.\n:param note: lo que no se podía calcular, y por qué.",
       "translation_source_blocks_sha256": [
         "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
-        "2cd6e8fb27d5fb38beef1d09119ed68ab186b1400ecf4c54e14b3d87f03fd486",
+        "2ac395b6317a0db690bb6680944a9b0ef7a3cd1a194d591751e2b9d6e6047871",
         "21f3efc8807251951dc0a8b54ad2ae83db78e1a11144d472ea4a7429e75b73b4",
         "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
         "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
@@ -142873,16 +142919,16 @@
     "spacr.scorecard.read_scorecard_csv": {
       "source_blocks_sha256": [
         "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
-        "19b0f7bbd79e0147c47c029772c014d50a09da539741fb495ff6909223e9bbe0",
+        "7510d0174bc234c714e6cfb1566b846c455205e87cab68ca8e0383ed4802a071",
         "356e3be8d4186479bf3eb01c3e923f97c44578a2b9c2a1d0983845628920e20d",
         "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
         "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"
       ],
-      "source_sha256": "0f7f7a9a6f5671e664002f7e9e33bbc010ea0b5dac98331b04b23b2590a52d7c",
-      "text": "Analice una tarjeta de puntuación publicada CSV en la entrada ``metrics`` de una entrada.\n\nEl CSV es la fuente y las otras superficies lo renderizan, que es lo que pide la instrucción 370: el artefacto Hugging Face, la punta de herramienta, la página API y la cribado del Zoo no deben ser capaces de discrepar, y no pueden si sólo uno de ellos contiene números. Este es el lector que hace que los otros tres derivados.\n\nSin dependencia a propósito. El Zoo Modelo importa sin torch y una prueba lo afirma, por lo que navegar por modelos y leer una tarjeta de puntuación tiene que funcionar en una máquina con ni torch ni cellpose. Sólo RE-RUNNING una evaluación los necesita. Eso descarta pandas aquí también -- csv está en la biblioteca estándar.\n\n:param text: el CSV escrito por :func:`scorecard_csv`.\n:returns: ``{metric: {\"finetuned\": ..., \"vanilla\": ..., \"delta\": ...}}`` plus ``holdout`` y ``holdout_version`` cuando las filas las llevan. Vacía cuando el texto no tiene filas.",
+      "source_sha256": "f03a9f1f3a52b23ef2f482ad4ef5ed225835d51141c3044d98d0fb004e23ef76",
+      "text": "Analice una tarjeta de puntuación publicada CSV en la entrada ``metrics`` de una entrada.\n\nEl CSV es la fuente y las otras superficies lo renderizan: el artefacto Hugging Face, la punta de herramienta, la página API y la cribado Zoo no deben ser capaces de discrepar, y no pueden si sólo uno de ellos contiene números. Este es el lector que hace que los otros tres derivados.\n\nSin dependencia a propósito. El Zoo Modelo importa sin torch y una prueba lo afirma, por lo que navegar por modelos y leer una tarjeta de puntuación tiene que funcionar en una máquina con ni torch ni cellpose. Sólo RE-RUNNING una evaluación los necesita. Eso descarta pandas aquí también -- csv está en la biblioteca estándar.\n\n:param text: el CSV escrito por :func:`scorecard_csv`.\n:returns: ``{metric: {\"finetuned\": ..., \"vanilla\": ..., \"delta\": ...}}`` plus ``holdout`` y ``holdout_version`` cuando las filas las llevan. Vacía cuando el texto no tiene filas.",
       "translation_source_blocks_sha256": [
         "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
-        "78680efd543e384c701d173732dde3d3dffe443d9ea6cd34f3e598d37fdd209b",
+        "da520b4bb3249195e7308aaedb42ae6434ad61f701ad26d1d400df3c8d3773b5",
         "ffa3eb180c7973a8d39d9ea8b89bb140089a4c031ed328ecd6c25a8dd63dabfa",
         "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
         "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"

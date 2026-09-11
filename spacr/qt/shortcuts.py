@@ -212,8 +212,8 @@ def installed() -> List[ShortcutSpec]:
     key sequence, so no shortcut object can express it and none is created
     for it. Listing one here would promise a binding that cannot be made.
 
-    The cheat sheet still shows every gesture, because :func:`mapped`
-    describes what the hands can do and this describes what the shortcut
+    Every gesture is still listed on the shortcut map. :func:`mapped`
+    returns what the hands can do, and this returns what the shortcut
     objects own.
     """
     return [s for s in SHORTCUTS

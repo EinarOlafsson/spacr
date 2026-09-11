@@ -6429,10 +6429,10 @@
         "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
         "07a26349bbb3b787b623fe63e13ee541cf585eff23a25427213be9aea57ef173",
         "1f4f4e540c9f7372a3abee7334c5202c260733258a2fed82b8cb2f13815d5b82",
-        "dfdf3364dc675516fe537d24466ecd2063ddd41d1402746db1821aaef4dbc514"
+        "81ca1a1deb3499fe5511636a4460ee7595bfdb985dbe58f494144091618467d4"
       ],
-      "source_sha256": "f6fdd7ba7fcebabe48cd956d3fd925a31bf76c542277312b65cad527cad8cd12",
-      "text": "이웃에 한 줄, 한 측정된 특징을 위해.\n\n:param frame: ``neighbourhood`` 열을 가진 측정, :func:`classify`이 그것을 생성하기 때문에, 기능 테이블에 연결되어 있습니다.\n:param feature: 요약하기 위한 컬러입니다.\n:param statuses: 어떤 이웃에 보고해야 하는지, 순서대로.\n:returns: ``neighbourhood``, ``n``, ``mean``, ``std`` 및 ``median``\n\n전체 항목을 비교하는 것은, 그리고 그것이 가치가있는 이유는 추가 대신 삭감입니다 : 패키지는 이미 감염되지 않은 것과 비교할 수 있습니다. 그것이 할 수없는 것은 \"uninfected\"이 두 인구였다는 것을 알 수 있습니다, 그래서 부정적인 효과는 더 광범위한 통제 이외에 아무것도 나타납니다.\n\n각 요청된 상태는 ``n = 0``에서 마이크로 플레이트 샘플 위치가 없습니다. 실험실 마이크를 비교하는 호출자는 매번 동일한 세 줄이 필요합니다.\n\n여기에 테스트 통계가 없습니다, 의도적으로. 요약은 모든 열에 안전합니다; 테스트를 선택하는 것은 디자인에 대한 결정입니다 - 파이어 또는 아니면, 마이크로 플레이트 샘플의 위치가 어떻게 둥지, 무엇이 0입니다 - 그리고 그들이 알려진 곳에 속합니다.",
+      "source_sha256": "3abe4e8fc6b284f2df85440d46c57ddd826e9e9ac5f0afbade71323ebfe668ba",
+      "text": "이웃에 한 줄, 한 측정된 특징을 위해.\n\n:param frame: ``neighbourhood`` 열을 가진 측정, :func:`classify`이 그것을 생성하기 때문에, 기능 테이블에 연결되어 있습니다.\n:param feature: 요약하기 위한 컬러입니다.\n:param statuses: 어떤 이웃에 보고해야 하는지, 순서대로.\n:returns: ``neighbourhood``, ``n``, ``mean``, ``std`` 및 ``median``\n\n전체 항목을 비교하는 것은, 그리고 그것이 가치가있는 이유는 추가 대신 삭감입니다 : 패키지는 이미 감염되지 않은 것과 비교할 수 있습니다. 그것이 할 수없는 것은 \"uninfected\"이 두 인구였다는 것을 알 수 있습니다, 그래서 부정적인 효과는 더 광범위한 통제 이외에 아무것도 나타납니다.\n\n각 요청된 상태는 ``n = 0``에서 마이크로 플레이트 샘플 위치가 없습니다. 실험실 마이크를 비교하는 호출자는 매번 동일한 세 줄이 필요합니다.\n\n여기에 테스트 통계가 없습니다, 의도적으로. 요약은 모든 열에 안전합니다; 테스트를 선택하는 것은 디자인에 대한 결정입니다 - 패어 또는 아니면, 마이크로 플레이트 샘플의 위치가 어떻게 둥지, 무엇이 0입니다 - 그리고 그들이 알고있는 곳에 속합니다.",
       "translation_source_blocks_sha256": [
         "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
         "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
@@ -6441,7 +6441,7 @@
         "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
         "76e48a9b7b0f86f522c73aab1303dbceaa984363a9314e62c723537130b53bf2",
         "cff150bbb6cc0e91c555067db206901e20bffce8b1eae527fe3dd03396f54419",
-        "cbf49479f9fbbb3d3318fc10d91e2f24557152dfde87bf55e53b88977e367d7a"
+        "b3954257983adc4e757e039f42118924f1412c16277c5c7194dd4c13faa05edc"
       ]
     },
     "spacr.bystanders.counts": {
@@ -18196,18 +18196,18 @@
       "source_blocks_sha256": [
         "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
         "f6a0d1ff19c83f9b6178284e18ced132c6085641279b6e5775d2e877d8eb7124",
-        "fbc298648f6ed0ccddd9d18e2ca373aa3422925b6eff0ce3ace7ce303526ac97",
+        "3b21c4e9406460fb6839adf048ea68473d6bda154df45001a2e4287c40ab66f7",
         "790db17b58b1a85fca18a912cacd6e751b1734058f48ab8f0f1d48ce67634452",
         "e23ae31fedfc3f2132115b196d41064d7a52a61234ac92f1cbd5e763681170db",
         "d8fa2e50bb5a67d188fb1b71c091d9234aa2b3354c53aad2ff04e0397fe70072",
         "67f83d85affbae7d6873e220cf473f0d7f57ba6cd2d91d2751bad6b26c64bd04"
       ],
-      "source_sha256": "0c1c5740e725f981946ecb658ad7e6634651de20660183f521668a130a8ac0a8",
-      "text": "각 개체, 측정된 기능 이외에 표지판이 없는 삽입.\n\n왜 이것이 존재하는가. spaCR 이미지를 숫자로 변환하는 두 가지 기존 방법 모두 당신이 찾고있는 것을 이미 알고 있어야합니다. :mod:`spacr.measure` 그것은 고정된, 수동으로 설계된 세트를 계산합니다 - 강도, 모양, 구조, 거리 - 그래서 그것은 누군가가 이름을 생각하는 것을 찾을 수 있습니다. :mod:`spacr.deep_spacr` fin-tunes는 노트에 대한 뒷면, 그래서 그것은 단지 누군가가 노트를 생각하는 것을 찾을 수 있습니다. \"진공은 우리가 열을 가지고 있지 않은 방식으로 부드럽게 잘못 위치하고 있습니다.\" 그 격차의 비용은 보이지 않으며, 이것이 바로 모듈 가치가있는 이유입니다.\n\n이미지 데이터 채널 결정, 여기에서 지적 대신 정의. 훈련 된 암호화는 3 개의 이미지 데이터 채널을 기대합니다. spaCR 이미지는 일상적으로 4 또는 5 개를 가지고 있으며, RGB 의미는 전혀 없습니다 - DAPI 이미지 데이터 채널은 \"red\"이 아닙니다. 두 가지 방법, 그리고 지침 386은 첫 번째 척추가 원하는 것을 상속하는 대신 기록 될 수있는 선택을 요구합니다 :\n\n  PER 이미지 데이터 채널, 그 다음 콘케테네이트 (:data:`CHANNEL_PER_CHANNEL`, 기본). 각 이미지 데이터 채널은 자체로 암호화되고 벡터가 연결됩니다. 이미지 데이터 채널 정체성 SURVIVES : 차원 517은 이미지 데이터채널 2에 속하고 다른 아무것도 없으므로 :mod:`spacr.attribution_columns`은 어떤 히트가 나왔는지 말할 수 있으며, 독자는 다시 삽입하지 않고 이미지 데이터를 떨어 뜨릴 수 있습니다. 비용 N 앞으로 통과합니다.\n\n  프로젝트에서 3까지 (:data:`CHANNEL_PROJECT`) 하나는 고정 이미지 데이터 채널을-RGB 지도로 통과합니다. 저렴하고 돌이킬 수 없습니다 : 이미지 데이터 채널이 혼합되면, 아래로 흐르는 열은 벽돌에 기인 할 수 없으며, 스크린은 \"이것이 기생충 이미지 데이터채널 또는 호스트 하나입니까?\"라고 물을 수 없습니다.\n\n기본적으로 데이터 채널은 매출이 점이기 때문입니다. 이름없는 현상형을 발견하고 그것이 옮겨 놓은 벽돌이 문제를 해결하는 대신 움직이는 것을 말할 수없는 삽입.\n\n이 모듈은 무엇을하지 않습니다.그것은 이미지 지역을 추출하지 않습니다 - 그것은 이미 생산 된 이미지 지역 :mod:`spacr.crops`을 필요로합니다.이 데이터베이스에 글을 쓰지 않습니다.이것은 객체 ID에 의해 키를 둔 float32 매트릭스를 반환합니다, 그것은 정확히 아래 흐름이 이미 소비하는 형태입니다 : UMAP, 회복 가족, 히트 호출 및 AnnData 수출은 숫자 열이 어디에서 왔는지 신경 쓰지 않는다.",
+      "source_sha256": "040d4d3a2882c0b592870afa6bdd79b4a5840a997ceea82222fe95f9f72f9b16",
+      "text": "각 개체, 측정된 기능 이외에 표지판이 없는 삽입.\n\n왜 이것이 존재하는가. spaCR 이미지를 숫자로 변환하는 두 가지 기존 방법 모두 당신이 찾고있는 것을 이미 알고 있어야합니다. :mod:`spacr.measure` 그것은 고정된, 수동으로 설계된 세트를 계산합니다 - 강도, 모양, 구조, 거리 - 그래서 그것은 누군가가 이름을 생각하는 것을 찾을 수 있습니다. :mod:`spacr.deep_spacr` fin-tunes는 노트에 대한 뒷면, 그래서 그것은 단지 누군가가 노트를 생각하는 것을 찾을 수 있습니다. \"진공은 우리가 열을 가지고 있지 않은 방식으로 부드럽게 잘못 위치하고 있습니다.\" 그 격차의 비용은 보이지 않으며, 이것이 바로 모듈 가치가있는 이유입니다.\n\n이미지 데이터 채널 결정, 여기에서 지적 대신 정의. 훈련 된 암호화는 3 개의 이미지 데이터 채널을 기대합니다. spaCR 이미지는 일상적으로 4 또는 5 개를 가지고 있으며, RGB 의미는 전혀 없습니다 - DAPI 이미지 데이터 채널은 \"red\"이 아닙니다. 두 가지 방법이 나왔고, 선택은 첫 번째 척추가 원하는 것을 상속하는 대신 여기에 기록되어 있습니다 :\n\n  PER 이미지 데이터 채널, 그 다음 콘케테네이트 (:data:`CHANNEL_PER_CHANNEL`, 기본). 각 이미지 데이터 채널은 자체로 암호화되고 벡터가 연결됩니다. 이미지 데이터 채널 정체성 SURVIVES : 차원 517은 이미지 데이터채널 2에 속하고 다른 아무것도 없으므로 :mod:`spacr.attribution_columns`은 어떤 히트가 나왔는지 말할 수 있으며, 독자는 다시 삽입하지 않고 이미지 데이터를 떨어 뜨릴 수 있습니다. 비용 N 앞으로 통과합니다.\n\n  프로젝트에서 3까지 (:data:`CHANNEL_PROJECT`) 하나는 고정 이미지 데이터 채널을-RGB 지도로 통과합니다. 저렴하고 돌이킬 수 없습니다 : 이미지 데이터 채널이 혼합되면, 아래로 흐르는 열은 벽돌에 기인 할 수 없으며, 스크린은 \"이것이 기생충 이미지 데이터채널 또는 호스트 하나입니까?\"라고 물을 수 없습니다.\n\n기본적으로 데이터 채널은 매출이 점이기 때문입니다. 이름없는 현상형을 발견하고 그것이 옮겨 놓은 벽돌이 문제를 해결하는 대신 움직이는 것을 말할 수없는 삽입.\n\n이 모듈은 무엇을하지 않습니다.그것은 이미지 지역을 추출하지 않습니다 - 그것은 이미 생산 된 이미지 지역 :mod:`spacr.crops`을 필요로합니다.이 데이터베이스에 글을 쓰지 않습니다.이것은 객체 ID에 의해 키를 둔 float32 매트릭스를 반환합니다, 그것은 정확히 아래 흐름이 이미 소비하는 형태입니다 : UMAP, 회복 가족, 히트 호출 및 AnnData 수출은 숫자 열이 어디에서 왔는지 신경 쓰지 않는다.",
       "translation_source_blocks_sha256": [
         "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
         "2536a1844d718e23674275ad1ec155de826962166d1a8abe5d1ef2ed56e0f11f",
-        "46238bafbf36780d30e7b5a73224abbd1572cbd6586c2fcd675bbdc89767679c",
+        "482cd9525b00dfcbeb9c78a5b075b0599874ae9d6a10af5a7fb11dba818a210c",
         "97d5fca860e212188551dc446c546433067c1142445655ef2b7f3d9460b59ad0",
         "6872180310dc77e7563785b1beaa1504a76435dddafbe84103d9531217c50412",
         "d00c1dc075fee112b0000f0f81dd655f2aa1c23bb8e5d661457319ae9272d210",
@@ -46727,15 +46727,15 @@
     "spacr.ops_compose": {
       "source_blocks_sha256": [
         "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
-        "2f3c97f71967690e34c8067c8f5217cb132e4fc98344c5ebb238e04f37a71cbe",
+        "b553a737ed987dd13aa8b0d0546b00b8702cdd3a760ed269af776739ff6f47ca",
         "9c604370eea684a67c7b138357c4e26ea2eac6f640d836c2b3d723c7e0d8242c",
         "c359f9f720dab72b58a7a3f83dbd326f91738bf99a87988d1e4d944359b5bc69"
       ],
-      "source_sha256": "ff12a12fa8bc3baa6272f70d57759b77bb457e1471bdb8d39ffcf9a791653cd6",
-      "text": "캐논 핵지도는 한 번에 하나의 창을 구성했다.\n\n단계 b1의 지침 372. `ops_stitch` 각 미크로스코프 이미지 필드가 앉아 의도적으로 픽셀을 잡지 않는 곳을 해결합니다 - A1은 26,855 x 26,865, 이는 ONE 채널의 uint16으로 1.4 GB이며, 각 후기 단계는 그것을 통해 읽을 것입니다.이 모듈은 대신 창에 따라 동일한 창을 구성합니다.\n\n    메모리 문제와 분할 계획은 동일한 대답을 가지고 있습니다. 분할자가 붙잡을 수있는 창은 또한 창으로 구성할 수 있으므로 결코 아무것도 전체 캔버스를 물질화하지 않습니다. 합류 키 B4 필요 - 마이크로 플레이트 샘플 위치 프레임에있는 실험실 미생물 수준의 개체 번호 - 각 창이 그 프레드에 자신의 옵션을 가지고 있기 때문에 생존합니다.\n\n왜 평균은 전반적으로.PART 15 그것을 측정 : 이익은 정확한 이미지 데이터 채널 분할에 대해 약 1.15x 진행되지 않습니다 3.3x 이전 프로젝트는 사이클 간의 평균에서 주장.그것은 단 하나 DAPI 인수, 그래서 11 샘플 논쟁은 적용되지 않습니다 - 남아있는 것은 라스터 자체의 14 % 과잉, 두 마이크로스코프 이미지 필드는 같은 핵을 두 번 보았다.1.15x 가치가 있고 과잉 가치 없습니다, 그래서 숫자는 여기 대신 첨가제입니다.",
+      "source_sha256": "d08359f950419f445268ec864e6f252b341154417e4c596d3edf07d9360b36c3",
+      "text": "캐논 핵지도는 한 번에 하나의 창을 구성했다.\n\n`ops_stitch` 각 마이크로스코프 이미지 필드가 앉아 의도적으로 픽셀을 잡지 않는 곳을 해결합니다 - A1은 26,855 x 26,865, 이는 ONE 채널의 uint16으로 1.4 GB이며, 각 후기 단계는 그것을 통해 읽을 것입니다.이 모듈은 대신 창에 따라 동일한 창을 구성합니다.\n\n    메모리 문제와 분할 계획은 동일한 대답을 가지고 있습니다. 분할자가 붙잡을 수있는 창은 또한 창으로 구성할 수 있으므로 결코 아무것도 전체 캔버스를 물질화하지 않습니다. 합류 키 B4 필요 - 마이크로 플레이트 샘플 위치 프레임에있는 실험실 미생물 수준의 개체 번호 - 각 창이 그 프레드에 자신의 옵션을 가지고 있기 때문에 생존합니다.\n\n왜 평균은 전반적으로.PART 15 그것을 측정 : 이익은 정확한 이미지 데이터 채널 분할에 대해 약 1.15x 진행되지 않습니다 3.3x 이전 프로젝트는 사이클 간의 평균에서 주장.그것은 단 하나 DAPI 인수, 그래서 11 샘플 논쟁은 적용되지 않습니다 - 남아있는 것은 라스터 자체의 14 % 과잉, 두 마이크로스코프 이미지 필드는 같은 핵을 두 번 보았다.1.15x 가치가 있고 과잉 가치 없습니다, 그래서 숫자는 여기 대신 첨가제입니다.",
       "translation_source_blocks_sha256": [
         "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
-        "99870ea0030eecbff2b2677f1f8c4e345eefee934aa9108309b8d34a48fcb159",
+        "df9f3ca80ca6f7dc0d5c5c5e70c16a9c37718a39ce6ed65f6f88c7abbdb49ede",
         "2bebe95857e6c51de5035aa67c37dc4e5dfda86de8ca5fde1f2f72c7dbc36147",
         "c1a39eddb74fd17659348ddccf73892cd984ce92636648bec865e0fa30c59960"
       ]
@@ -63568,14 +63568,18 @@
       "source_blocks_sha256": [
         "aee7339fe71c1d90ae5d9804e0db93e562bdbe13ffe7bd3114293e04f86b12df",
         "397a7daab4c62df3cee86d9239ae247a79c15f642d40c311036b9007e4fffe9b",
-        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628"
+        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628",
+        "66df66ad2b4e3ddc451d83f6e3a4db3a633420cf4acf3e0babcd52bbc9fc42cc",
+        "8d24333e9beb211f31c79172036c849b7ca3eed66ac1da3d39b71aa39dd9531d"
       ],
-      "source_sha256": "9aa8410fe27e2a2b1eab912536835bed408972cc9c3478adc858348a38efe93d",
-      "text": "``root`` 및 모든 기존 후손으로 정적 텍스트를 다시 번역합니다.\n\n이 기능은 의도적으로 최선의 노력을 하고 강력합니다.그것은 결코 라인 편집 콘텐츠, 텍스트 편집기, 테이블 셀, 모델 데이터, 파일 이름 또는 콘솔 출력을 편집하지 않습니다.\n\nQt's OWN 텍스트는 또한 따릅니다 - 참조 :func:`_follow_qt_own_catalogs` - 시작 후 선택한 언어가 각 텍스트 필드의 오른쪽 클릭 메뉴에 도달합니다. spaCR 글을 썼다.",
+      "source_sha256": "21760110c4f8407ae154477c64a74f3d993268b26a5d9b41fb9bd36e0c32b368",
+      "text": "``root`` 및 모든 기존 후손으로 정적 텍스트를 다시 번역합니다.\n\n이 기능은 의도적으로 최선의 노력을 하고 강력합니다.그것은 결코 라인 편집 콘텐츠, 텍스트 편집기, 테이블 셀, 모델 데이터, 파일 이름 또는 콘솔 출력을 편집하지 않습니다.\n\nQt's OWN 텍스트는 또한 따릅니다 - 참조 :func:`_follow_qt_own_catalogs` - 시작 후 선택한 언어가 각 텍스트 필드의 오른쪽 클릭 메뉴에 도달합니다. spaCR 글을 썼다.\n\n``only_new`` 스키 윈도우 이 패스는 이미 말한 것과 정확하게 번역 할 것입니다. 각 방문 된 비젯은 그것이 번역 된 언어와 현재 카탈로그 세대와 함께 인쇄됩니다. ``only_new`` 후속 패스는 여전히 일치하는 스키를 요청합니다. 언어 변경은 인쇄를 변경하고, 그래서 카탈로가 순서를 얻으므로 놓칠 수 없습니다.\n\n그것은 기본적으로 꺼져 있고 그것은 의도적입니다. 제목 자체를 대체 한 호출자는 완전한 통과를 원합니다 - `_translate_qt_text`는 제시 된 값을 비교하여 외부 세터를 감지하고, 스키피드 비게트는 비교되지 않습니다. 그것을 요청하는 하나의 호출은 `_LateCaptionTranslator`입니다.",
       "translation_source_blocks_sha256": [
         "aee7339fe71c1d90ae5d9804e0db93e562bdbe13ffe7bd3114293e04f86b12df",
         "397a7daab4c62df3cee86d9239ae247a79c15f642d40c311036b9007e4fffe9b",
-        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628"
+        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628",
+        "66df66ad2b4e3ddc451d83f6e3a4db3a633420cf4acf3e0babcd52bbc9fc42cc",
+        "813bf3e4fd317ce358b7702413f1ba123f7cb6fe1c86a57cb01d45f810196b2a"
       ]
     },
     "spacr.qt.i18n.set_translatable_items": {
@@ -88828,12 +88832,16 @@
     },
     "spacr.qt.shortcuts.installed": {
       "source_blocks_sha256": [
-        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+        "dadfea33e27175b029ad7c1af01f7dea7db981eea118ca17351d93867e718acd",
+        "5dd3becff65649f0fd77f84e84735a246505a189c375df637d4bc0545c4e3acb",
+        "0b460258a16578b29dbb6c7723105c6da3de158327562a9fd31dc581702fcffd"
       ],
-      "source_sha256": "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a",
-      "text": "창 넓은 열쇠 `install()`는 묶음에 대한 책임이 있습니다.",
+      "source_sha256": "cb3481b6218ac0b616f356599421d82cab95d5d445f30ee5004c82fa34406e9a",
+      "text": "창 넓은 열쇠 :func:`install`는 묶음에 대한 책임이 있습니다.\n\n게스트는 마우스 바퀴가 회전하는 동안 유지되는 변형이며, 키 순서가 아닌 이벤트 필터에 의해 잡혀 있으므로 짧은 개체가 그것을 표현할 수 없으며 그것을 위해 만들어지지 않습니다.\n\n:func:`mapped`은 손이 할 수있는 것을 반환하고 이것은 짧은 개체가 소유 한 것을 반복합니다.",
       "translation_source_blocks_sha256": [
-        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+        "dadfea33e27175b029ad7c1af01f7dea7db981eea118ca17351d93867e718acd",
+        "5dd3becff65649f0fd77f84e84735a246505a189c375df637d4bc0545c4e3acb",
+        "0b460258a16578b29dbb6c7723105c6da3de158327562a9fd31dc581702fcffd"
       ]
     },
     "spacr.qt.shortcuts.mapped": {
@@ -90028,6 +90036,28 @@
         "09f07c638a6b891340ffe6073ca365500f6b8dc36563d8fbd07f5c290fe9c280"
       ]
     },
+    "spacr.qt.theme.apply_stylesheet_per_window": {
+      "source_blocks_sha256": [
+        "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
+        "56ff2c0606a7dd38a1b96fce3b253a279b71cb65746b88a2faf0531b46653765",
+        "c364bcfda35b5cc35cfde280296d9a10050df74921bb2449ff1be88df4d5a9da",
+        "4ed48e0f23bbdb8b4a0b2bac57ab1fcda353b3522c51fbbb2491d643e9265add",
+        "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
+        "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
+        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd"
+      ],
+      "source_sha256": "1bf87c6cc181f53bc66a6851e9fe7cd5615fc2692f329a9caae2df326d4d5ff3",
+      "text": "설치 ``sheet`` 상단 수준의 모든 창에서 대신 ``app``.\n\n왜, 숫자와 함께. `QApplication.setStyleSheet`는 프로세스가 소유하는 모든 위젯을 복제하고, 몇 개의 모듈을 열은 세션은 수천을 소유하고 그것은 볼 수 없습니다 -- `MainWindow`는 첫 번째 탐색에서 모듈 응용 프로그램 전망을 구축하고 그 후에 스택에 보관합니다.이 상자에서 측정, 오프 스크린, 네 모듈이 열리고, 9,045 라이브 위젯 중 6,111은 애플리케이션 전망에 아무도 보지 않습니다 :\n\n    app.setStyleSheet 2.836 ms 처음, ~7,500 ms 다음 각 상단 수준의 창 1.684 ms 먼저, ~1,900 ms 다음 눈에 띄는 스크린만 222 ms\n\n바닥은 여전히 낮습니다 - 222 ms는 눈에 띄는 스크린 자체 비용입니다 - 그리고 그것을 달성하는 것은 숨겨진 스크립트도 녹지 않는 것을 의미합니다, 이것은이보다 더 큰 변화입니다.\n\n:param app: ``QApplication`` 창이 잎을 착용하고, 잎 자체가 주차되어 창이 나중에 생성되면 그것을 찾을 수 있습니다. ``None``는 받아 들여지고 아무것도하지 않습니다, 그래서 응용 프로그램없이 실행하는 호출자는 먼저 확인할 필요가 없습니다.\n:param sheet: 전체 응용 프로그램 스타일리스트, :func:`stylesheet`로 그것을 구성합니다.\n:returns: 창의 숫자에 해당되는 글 1건",
+      "translation_source_blocks_sha256": [
+        "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
+        "b010a6f9c65980ef40e9f0e337e14d43cb0d63ec4cb9be1e4bf51ae7302926bc",
+        "c364bcfda35b5cc35cfde280296d9a10050df74921bb2449ff1be88df4d5a9da",
+        "fa85d6fe6ebad42a2c3a2dd6ee9b6128d15817c4b318532a9bf02da79bfd27c7",
+        "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
+        "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
+        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd"
+      ]
+    },
     "spacr.qt.theme.block_surface": {
       "source_blocks_sha256": [
         "94f9029bbcc7af6497b004637dea038664078a079ab971990d6314ddccadefde",
@@ -91090,6 +91120,22 @@
       "text": "모든 등록된 블록 이름, 등록 명령에 따라.",
       "translation_source_blocks_sha256": [
         "89057496ea8d1bdd9773545540f18ca786b819ccf5f9ea23e3bbd2d3987b105e"
+      ]
+    },
+    "spacr.qt.theme.window_stylesheet": {
+      "source_blocks_sha256": [
+        "b81c886a6bd104f2b6d748e8d524a060760be02727bae394e13941f42032f4c7",
+        "04b835e36bfeba6c9bd53ef4654db7aa27281e5c8019d36ab752f56c2984ebca",
+        "317809790273c484a95e4a0850605ed7ffe2fba2b9beffc11d079db8cec68025",
+        "eac346082cd67a31571b59b5fa3570426b7af1c81111b522183e14fa5d65cad5"
+      ],
+      "source_sha256": "c236240281cce6372b032e34a4c22e847435caaf4bcca5e15878f04fe5544cd2",
+      "text": ":func:`apply_stylesheet_per_window` 탭이 마지막으로 설치되었습니다.\n\n읽기 ``app.styleSheet()`` 뒤를 대체 : 그것은 지금 텅 비어 있고 창이 무엇을 착용하는지에 대해 아무것도 말하지 않습니다.\n\n:param app: 응용 프로그램은 그것을 읽을 수 있습니다; 기본적으로 하나를 실행합니다.\n:returns: 잎, 또는 ``None`` 창 잎이 설치되지 않은 경우.",
+      "translation_source_blocks_sha256": [
+        "b81c886a6bd104f2b6d748e8d524a060760be02727bae394e13941f42032f4c7",
+        "04b835e36bfeba6c9bd53ef4654db7aa27281e5c8019d36ab752f56c2984ebca",
+        "317809790273c484a95e4a0850605ed7ffe2fba2b9beffc11d079db8cec68025",
+        "eac346082cd67a31571b59b5fa3570426b7af1c81111b522183e14fa5d65cad5"
       ]
     },
     "spacr.qt.thread_guard": {
@@ -101355,7 +101401,7 @@
     "spacr.qt.widgets.dose_response.InteractionSurface": {
       "source_blocks_sha256": [
         "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
-        "c57a6b8302096558675756514531d43ef228029373925ad18354b845ee8c35e7",
+        "1b051192b6eed29b908106cf4826885192943cb75160f35a08e4aae2b5080970",
         "a8838e93eede86dbc0c5a189c9ac2a3167d3711c3bbe6a913c3ab91da0834f1c",
         "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
         "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
@@ -101366,11 +101412,11 @@
         "d4b3538b72dcbb496a9de7d8a838ac4efe1f7d9d2a9d65689682d8e84b93d374",
         "566706bfe73b5edb78b39f74240ba0aa2d6d613e74fc9425b8c412f1ee79936c"
       ],
-      "source_sha256": "0773bb216a286909306218de334b749cee7621d406f721f590b79aba0a47ac70",
-      "text": "체커 보드의 상호 작용은, 세포에 따라, 자신의 좌석.\n\n표면은 결과이며 단일 지수는 아닙니다, 이것은 지침 387이 많은 단어로 요구하는 것입니다 : \"전체 체커 보드에 대한 하나의 숫자는 집중력에 의존하는 구조를 정확히 숨기고있다.\n\n신호 컨벤션은 각 종이마다 다른 하나를 지적하기 때문에 말한다 : 긍정적 인 효과는 예상보다 더 많은 효과를 의미합니다 - 억제 측정에 대한 상호 작용. 예상 표면은 모델이 두 개의 단일 에이전트 곡선에서 예측하는 것입니다; ``excess`` 예상 미소가 관찰됩니다.\n\n:param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.\n:param dose_a: A 에이전트의 독특한 농도, 상승.\n:param dose_b: 에이전트 B의 독특한 농도, 상승.\n:param observed: ``(len(dose_a), len(dose_b))`` 효과, 0에서 1까지.\n:param expected: ``model``은 각 세포에 대해 무엇을 예측하는가.\n:param excess: ``observed - expected``. NaN 세포가 테스트되지 않은 경우.\n:param n_cells: 관찰을 가진 세포.\n:param note: 무엇을 계산할 수 없고, 왜?",
+      "source_sha256": "d96dc26d70b1d31ef133df596fdcb0d5e0b65843cff1382ef30cae34cc52b509",
+      "text": "체커 보드의 상호 작용은, 세포에 따라, 자신의 좌석.\n\n표면은 결과이며 단일 지수는 아닙니다. 전체 체커보드에 대한 하나의 숫자는 집중력에 의존하는 구조를 정확히 숨기고, 이는 상호 작용을 흥미롭게 만듭니다. 실제 조합은 종종 네트워크의 한 구석에서 상호작용적이며 다른 구석에서는 추가적이거나 반대적이며, 네트워드 보고서 위의 중간도 없습니다.\n\n신호 컨벤션은 각 종이마다 다른 하나를 지적하기 때문에 말한다 : 긍정적 인 효과는 예상보다 더 많은 효과를 의미합니다 - 억제 측정에 대한 상호 작용. 예상 표면은 모델이 두 개의 단일 에이전트 곡선에서 예측하는 것입니다; ``excess`` 예상 미소가 관찰됩니다.\n\n:param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.\n:param dose_a: A 에이전트의 독특한 농도, 상승.\n:param dose_b: 에이전트 B의 독특한 농도, 상승.\n:param observed: ``(len(dose_a), len(dose_b))`` 효과, 0에서 1까지.\n:param expected: ``model``은 각 세포에 대해 무엇을 예측하는가.\n:param excess: ``observed - expected``. NaN 세포가 테스트되지 않은 경우.\n:param n_cells: 관찰을 가진 세포.\n:param note: 무엇을 계산할 수 없고, 왜?",
       "translation_source_blocks_sha256": [
         "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
-        "2cd6e8fb27d5fb38beef1d09119ed68ab186b1400ecf4c54e14b3d87f03fd486",
+        "2ac395b6317a0db690bb6680944a9b0ef7a3cd1a194d591751e2b9d6e6047871",
         "21f3efc8807251951dc0a8b54ad2ae83db78e1a11144d472ea4a7429e75b73b4",
         "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
         "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
@@ -142873,16 +142919,16 @@
     "spacr.scorecard.read_scorecard_csv": {
       "source_blocks_sha256": [
         "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
-        "19b0f7bbd79e0147c47c029772c014d50a09da539741fb495ff6909223e9bbe0",
+        "7510d0174bc234c714e6cfb1566b846c455205e87cab68ca8e0383ed4802a071",
         "356e3be8d4186479bf3eb01c3e923f97c44578a2b9c2a1d0983845628920e20d",
         "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
         "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"
       ],
-      "source_sha256": "0f7f7a9a6f5671e664002f7e9e33bbc010ea0b5dac98331b04b23b2590a52d7c",
-      "text": "게시된 CSV 점수 카드를 ``metrics`` 입력으로 돌려보세요.\n\n그들의 CSV 그것은 출처이며 다른 표면이 그것을 제공하는 것입니다, 이것은 지침 370이 요구하는 것입니다 : Hugging Face 아티팩트, 도구 타이프, API 페이지와 동물원 화면은 동의하지 않을 수 없으며, 그들 중 하나만 숫자를 가지고 있다면 할 수 없습니다.\n\n의존성 무료 목적.모델 동물원 수입 없이 torch 그리고 테스트가 그것을 주장하므로 모델을 탐색하고 점수 카드를 읽는 것은 아무것도없는 기계에서 작동해야합니다. torch 또한 cellpose 오직 재-RUNNING 평가가 필요합니다.이 규칙은 pandas 여기 또한 - CSV는 표준 도서관에 있습니다.\n\n:param text: 그분의 CSV 글을 쓰는 것처럼 :func:`scorecard_csv`.\n:returns: ``{metric: {\"finetuned\": ..., \"vanilla\": ..., \"delta\": ...}}`` 플러스 ``holdout`` 및 ``holdout_version`` 라인이 그들을 가지고있을 때.",
+      "source_sha256": "f03a9f1f3a52b23ef2f482ad4ef5ed225835d51141c3044d98d0fb004e23ef76",
+      "text": "게시된 CSV 점수 카드를 ``metrics`` 입력으로 돌려보세요.\n\n그들의 CSV 그것은 출처이며 다른 표면은 그것을 만듭니다 : Hugging Face 아티팩트, 도구 타이프, API 페이지와 동물원 화면은 동의하지 않을 수 없으며, 그들 중 하나만 숫자를 가지고 있다면 할 수 없습니다.\n\n의존성 무료 목적.모델 동물원 수입 없이 torch 그리고 테스트가 그것을 주장하므로 모델을 탐색하고 점수 카드를 읽는 것은 아무것도없는 기계에서 작동해야합니다. torch 또한 cellpose 오직 재-RUNNING 평가가 필요합니다.이 규칙은 pandas 여기 또한 - CSV는 표준 도서관에 있습니다.\n\n:param text: 그분의 CSV 글을 쓰는 것처럼 :func:`scorecard_csv`.\n:returns: ``{metric: {\"finetuned\": ..., \"vanilla\": ..., \"delta\": ...}}`` 플러스 ``holdout`` 및 ``holdout_version`` 라인이 그들을 가지고있을 때.",
       "translation_source_blocks_sha256": [
         "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
-        "78680efd543e384c701d173732dde3d3dffe443d9ea6cd34f3e598d37fdd209b",
+        "da520b4bb3249195e7308aaedb42ae6434ad61f701ad26d1d400df3c8d3773b5",
         "ffa3eb180c7973a8d39d9ea8b89bb140089a4c031ed328ecd6c25a8dd63dabfa",
         "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
         "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"

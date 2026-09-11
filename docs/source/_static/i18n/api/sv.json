@@ -6429,10 +6429,10 @@
         "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
         "07a26349bbb3b787b623fe63e13ee541cf585eff23a25427213be9aea57ef173",
         "1f4f4e540c9f7372a3abee7334c5202c260733258a2fed82b8cb2f13815d5b82",
-        "dfdf3364dc675516fe537d24466ecd2063ddd41d1402746db1821aaef4dbc514"
+        "81ca1a1deb3499fe5511636a4460ee7595bfdb985dbe58f494144091618467d4"
       ],
-      "source_sha256": "f6fdd7ba7fcebabe48cd956d3fd925a31bf76c542277312b65cad527cad8cd12",
-      "text": "En rad per område, för en uppmätt funktion.\n\n:param frame: Mätningar med en ``neighbourhood``-kolonn, som :func:`classify` producerar den, sammanfogade till funktionstabellen.\n:param feature: Kolumnen att sammanfatta.\n:param statuses: Vilka stadsdelar att rapportera, i ordning.\n:returns: ``neighbourhood``, ``n``, ``mean``, ``std`` och ``median``.\n\nJämförelsen hela objektet är för, och anledningen till att det är värt att ha är subtraktion snarare än addition: paketet kan redan jämföra infekterade mot icke-infekterade. Vad det inte kan göra är att märka att \"uninfected\" var två populationer, så en förbipasserande effekt visar upp som ingenting mer än en bredare kontroll.\n\nVarje begärd status är en rad, på ``n = 0`` där mikroplattans provposition inte har någon. En anropare som jämför laboratoriemikroplattor behöver samma tre rader varje gång; en saknad rad ändrar tyst vad en nedströmsanslutning innebär.\n\nIngen teststatistik här, avsiktligt. Att sammanfatta är säkert på vilken kolumn som helst. Att välja ett test är ett beslut om konstruktionen -- parad eller inte, hur mikroplattans provpositioner bo, vad nullen är -- och hör hemma där dessa är kända. Detta ger regressionslagret tre namngivna grupper att lämnas, vilket är vad instruktion 388 ber om.",
+      "source_sha256": "3abe4e8fc6b284f2df85440d46c57ddd826e9e9ac5f0afbade71323ebfe668ba",
+      "text": "En rad per område, för en uppmätt funktion.\n\n:param frame: Mätningar med en ``neighbourhood``-kolonn, som :func:`classify` producerar den, sammanfogade till funktionstabellen.\n:param feature: Kolumnen att sammanfatta.\n:param statuses: Vilka stadsdelar att rapportera, i ordning.\n:returns: ``neighbourhood``, ``n``, ``mean``, ``std`` och ``median``.\n\nJämförelsen hela objektet är för, och anledningen till att det är värt att ha är subtraktion snarare än addition: paketet kan redan jämföra infekterade mot icke-infekterade. Vad det inte kan göra är att märka att \"uninfected\" var två populationer, så en förbipasserande effekt visar upp som ingenting mer än en bredare kontroll.\n\nVarje begärd status är en rad, på ``n = 0`` där mikroplattans provposition inte har någon. En anropare som jämför laboratoriemikroplattor behöver samma tre rader varje gång; en saknad rad ändrar tyst vad en nedströmsanslutning innebär.\n\nIngen teststatistik här, avsiktligt. Att sammanfatta är säkert på vilken kolumn som helst. Att välja ett test är ett beslut om konstruktionen -- parad eller inte, hur mikroplattans provpositioner bo, vad nullen är -- och hör hemma där dessa är kända. Vad detta händer regressionslagret är tre namngivna grupper det kan kontrastera.",
       "translation_source_blocks_sha256": [
         "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
         "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
@@ -6441,7 +6441,7 @@
         "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
         "76e48a9b7b0f86f522c73aab1303dbceaa984363a9314e62c723537130b53bf2",
         "cff150bbb6cc0e91c555067db206901e20bffce8b1eae527fe3dd03396f54419",
-        "cbf49479f9fbbb3d3318fc10d91e2f24557152dfde87bf55e53b88977e367d7a"
+        "b3954257983adc4e757e039f42118924f1412c16277c5c7194dd4c13faa05edc"
       ]
     },
     "spacr.bystanders.counts": {
@@ -18196,18 +18196,18 @@
       "source_blocks_sha256": [
         "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
         "f6a0d1ff19c83f9b6178284e18ced132c6085641279b6e5775d2e877d8eb7124",
-        "fbc298648f6ed0ccddd9d18e2ca373aa3422925b6eff0ce3ace7ce303526ac97",
+        "3b21c4e9406460fb6839adf048ea68473d6bda154df45001a2e4287c40ab66f7",
         "790db17b58b1a85fca18a912cacd6e751b1734058f48ab8f0f1d48ce67634452",
         "e23ae31fedfc3f2132115b196d41064d7a52a61234ac92f1cbd5e763681170db",
         "d8fa2e50bb5a67d188fb1b71c091d9234aa2b3354c53aad2ff04e0397fe70072",
         "67f83d85affbae7d6873e220cf473f0d7f57ba6cd2d91d2751bad6b26c64bd04"
       ],
-      "source_sha256": "0c1c5740e725f981946ecb658ad7e6634651de20660183f521668a130a8ac0a8",
-      "text": "En etikettfri inbäddning för varje objekt, bredvid de uppmätta funktionerna.\n\nVarför detta existerar. spaCR: s två befintliga sätt att förvandla en bild till siffror kräver båda att du redan vet vad du letar efter. Den uppmätta panelen i :mod:`spacr.measure` beräknar en fast, handdesignad uppsättning -- intensitet, form, textur, avstånd -- så den hittar bara vad någon tyckte att namnge. Den övervakade sökvägen i :mod:`spacr.deep_spacr` finjusterar en ryggrad mot kommentarer, så den finner bara vad nån trodde att kommentera. En screening vars verkliga träff är \"vakuolen är subtilt fellokaliserad på ett sätt vi har ingen kolumn för\" returnerar ingenting, och returnerar den säkert. Kostnaden för den klyftan är osynlig, vilket är exakt varför det är värt en modul.\n\nBeslutet om bilddatakanal, som avgörs här snarare än implicit. Förtränade kodare förväntar sig tre bilddatakanaler. spaCR bilder har rutinmässigt fyra eller fem, med ingen RGB mening alls -- en DAPI bilddata kanal är inte \"red\". Två vägar ut, och instruktion 386 begär att valet ska registreras snarare än ärvs från vad den första ryggraden ville:\n\n  PER-image datakanal, sedan konkatenat (:data:`CHANNEL_PER_CHANNEL`, standard). Varje bild datakanal är kodad på egen hand och vektorerna är sammanfogade. bilddata kanal identitet ÖVERLEVER: dimension 517 tillhör bilddatakanal 2 och ingenting annat, så :mod:`spacr.attribution_columns` kan säga vilken fläck en träff kom från och en läsare kan släppa en bild data kanal utan att återinbädda. Kostnader N framåt passerar.\n\n  Projektera till tre (:data:`CHANNEL_PROJECT`). Man passerar över en fast bilddatakanal- till- RGB kartläggning. Billigare och irreversibel: när bilddatakanalerna är blandade, kan ingen kolumn nedströms tillskrivas en fläck, och en screening kan inte fråga \"var detta den parasitiska bilddatakanalen eller värddatorn?\".\n\nStandarden är datakanal per bild eftersom tillskrivningen är punkten. En inbäddning som hittar en onamngiven fenotyp och inte kan säga vilken fläck som bärs den har flyttat problemet snarare än löst det. Projektion förblir tillgänglig för fallet där framåt passerar faktiskt binda.\n\nVad modulen inte gör. Den extraherar inte bildregion – den tar de extraherade bildregionerna :mod:`spacr.crops` producerar redan. Den skriver inte till databasen. Den returnerar en flöt32- matris som är nyckelad av objekt- id, vilket är exakt den form som nedströms redan förbrukar: UMAP, regressionsfamiljen, tryck på anrop och exporten AnnData bryr sig inte om var en numeriska kolumn kommer ifrån.",
+      "source_sha256": "040d4d3a2882c0b592870afa6bdd79b4a5840a997ceea82222fe95f9f72f9b16",
+      "text": "En etikettfri inbäddning för varje objekt, bredvid de uppmätta funktionerna.\n\nVarför detta existerar. spaCR: s två befintliga sätt att förvandla en bild till siffror kräver båda att du redan vet vad du letar efter. Den uppmätta panelen i :mod:`spacr.measure` beräknar en fast, handdesignad uppsättning -- intensitet, form, textur, avstånd -- så den hittar bara vad någon tyckte att namnge. Den övervakade sökvägen i :mod:`spacr.deep_spacr` finjusterar en ryggrad mot kommentarer, så den finner bara vad nån trodde att kommentera. En screening vars verkliga träff är \"vakuolen är subtilt fellokaliserad på ett sätt vi har ingen kolumn för\" returnerar ingenting, och returnerar den säkert. Kostnaden för den klyftan är osynlig, vilket är exakt varför det är värt en modul.\n\nBeslutet om bilddatakanal, som regleras här snarare än implicit. Förtränade kodare förväntar sig tre bilddatakanaler. spaCR bilder har rutinmässigt fyra eller fem, med ingen RGB mening alls -- en DAPI bilddata kanal är inte \"red\". Två vägar ut, och valet registreras här istället för ärvt från vad den första ryggraden råkade vilja:\n\n  PER-image datakanal, sedan konkatenat (:data:`CHANNEL_PER_CHANNEL`, standard). Varje bild datakanal är kodad på egen hand och vektorerna är sammanfogade. bilddata kanal identitet ÖVERLEVER: dimension 517 tillhör bilddatakanal 2 och ingenting annat, så :mod:`spacr.attribution_columns` kan säga vilken fläck en träff kom från och en läsare kan släppa en bild data kanal utan att återinbädda. Kostnader N framåt passerar.\n\n  Projektera till tre (:data:`CHANNEL_PROJECT`). Man passerar över en fast bilddatakanal- till- RGB kartläggning. Billigare och irreversibel: när bilddatakanalerna är blandade, kan ingen kolumn nedströms tillskrivas en fläck, och en screening kan inte fråga \"var detta den parasitiska bilddatakanalen eller värddatorn?\".\n\nStandarden är datakanal per bild eftersom tillskrivningen är punkten. En inbäddning som hittar en onamngiven fenotyp och inte kan säga vilken fläck som bärs den har flyttat problemet snarare än löst det. Projektion förblir tillgänglig för fallet där framåt passerar faktiskt binda.\n\nVad modulen inte gör. Den extraherar inte bildregion – den tar de extraherade bildregionerna :mod:`spacr.crops` producerar redan. Den skriver inte till databasen. Den returnerar en flöt32- matris som är nyckelad av objekt- id, vilket är exakt den form som nedströms redan förbrukar: UMAP, regressionsfamiljen, tryck på anrop och exporten AnnData bryr sig inte om var en numeriska kolumn kommer ifrån.",
       "translation_source_blocks_sha256": [
         "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
         "2536a1844d718e23674275ad1ec155de826962166d1a8abe5d1ef2ed56e0f11f",
-        "46238bafbf36780d30e7b5a73224abbd1572cbd6586c2fcd675bbdc89767679c",
+        "482cd9525b00dfcbeb9c78a5b075b0599874ae9d6a10af5a7fb11dba818a210c",
         "97d5fca860e212188551dc446c546433067c1142445655ef2b7f3d9460b59ad0",
         "6872180310dc77e7563785b1beaa1504a76435dddafbe84103d9531217c50412",
         "d00c1dc075fee112b0000f0f81dd655f2aa1c23bb8e5d661457319ae9272d210",
@@ -46727,15 +46727,15 @@
     "spacr.ops_compose": {
       "source_blocks_sha256": [
         "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
-        "2f3c97f71967690e34c8067c8f5217cb132e4fc98344c5ebb238e04f37a71cbe",
+        "b553a737ed987dd13aa8b0d0546b00b8702cdd3a760ed269af776739ff6f47ca",
         "9c604370eea684a67c7b138357c4e26ea2eac6f640d836c2b3d723c7e0d8242c",
         "c359f9f720dab72b58a7a3f83dbd326f91738bf99a87988d1e4d944359b5bc69"
       ],
-      "source_sha256": "ff12a12fa8bc3baa6272f70d57759b77bb457e1471bdb8d39ffcf9a791653cd6",
-      "text": "Den kanoniska kärnvapenkartan, som består av ett fönster i taget.\n\nFas b1 av instruktion 372. `ops_stitch` löser där varje mikroskop bildfält sitter och avsiktligt inte håller pixlarna -- väl A1 är 26.855 x 26.865, vilket är 1,4 GB som uint16 för EN kanal, och varje senare fas skulle läsa igenom det. Denna modul komponerar samma brunn fönster för fönster istället, vilket är vad B2 ber segmentering att göra ändå: \"segment en gång, på kompositen, fönster för ruta\".\n\n    Minnesproblemet och segmenteringsplanen har samma svar. Ett fönster som en segmenterare kan hålla i är också ett fönster som kompositören kan bygga, så ingenting materialiserar hela duken. Sammanfogningsnyckeln B4 behöver – ett laboratorieobjektnummer på mikroplattanivå i Microplate-läget – överlever eftersom varje fönster bär sin egen offset in i den ramen.\n\nVarför genomsnittliga överlappningar alls. DEL 15 mätte det: vinsten är ungefär 1,15x på den exakta bilddatakanal segmentering körs, inte 3,3x ett tidigare utkast hävdade från medelvärde över cykler. Det finns bara en DAPI förvärv, så elva-prov argumentet inte gäller - vad som finns kvar är raster eget 14% överlappning, där två mikroskop bildfält såg samma nuklei två gånger. 1.15x är värt att ha och är inte värt överskattning, vilket är varför antalet är här snarare än adjektivet.",
+      "source_sha256": "d08359f950419f445268ec864e6f252b341154417e4c596d3edf07d9360b36c3",
+      "text": "Den kanoniska kärnvapenkartan, som består av ett fönster i taget.\n\n`ops_stitch` löser var varje mikroskop bildfält sitter och avsiktligt inte håller pixlarna -- väl A1 är 26.855 x 26.865, vilket är 1,4 GB som uint16 för en kanal, och varje senare fas skulle läsa igenom det. Denna modul komponerar samma brunn fönster för fönster istället, vilket är vad B2 ber segmentering att göra ändå: \"segment en gång, på kompositen, fönster för ruta\".\n\n    Minnesproblemet och segmenteringsplanen har samma svar. Ett fönster som en segmenterare kan hålla i är också ett fönster som kompositören kan bygga, så ingenting materialiserar hela duken. Sammanfogningsnyckeln B4 behöver – ett laboratorieobjektnummer på mikroplattanivå i Microplate-läget – överlever eftersom varje fönster bär sin egen offset in i den ramen.\n\nVarför genomsnittliga överlappningar alls. DEL 15 mätte det: vinsten är ungefär 1,15x på den exakta bilddatakanal segmentering körs, inte 3,3x ett tidigare utkast hävdade från medelvärde över cykler. Det finns bara en DAPI förvärv, så elva-prov argumentet inte gäller - vad som finns kvar är raster eget 14% överlappning, där två mikroskop bildfält såg samma nuklei två gånger. 1.15x är värt att ha och är inte värt överskattning, vilket är varför antalet är här snarare än adjektivet.",
       "translation_source_blocks_sha256": [
         "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
-        "99870ea0030eecbff2b2677f1f8c4e345eefee934aa9108309b8d34a48fcb159",
+        "df9f3ca80ca6f7dc0d5c5c5e70c16a9c37718a39ce6ed65f6f88c7abbdb49ede",
         "2bebe95857e6c51de5035aa67c37dc4e5dfda86de8ca5fde1f2f72c7dbc36147",
         "c1a39eddb74fd17659348ddccf73892cd984ce92636648bec865e0fa30c59960"
       ]
@@ -63568,14 +63568,18 @@
       "source_blocks_sha256": [
         "aee7339fe71c1d90ae5d9804e0db93e562bdbe13ffe7bd3114293e04f86b12df",
         "397a7daab4c62df3cee86d9239ae247a79c15f642d40c311036b9007e4fffe9b",
-        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628"
+        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628",
+        "66df66ad2b4e3ddc451d83f6e3a4db3a633420cf4acf3e0babcd52bbc9fc42cc",
+        "8d24333e9beb211f31c79172036c849b7ca3eed66ac1da3d39b71aa39dd9531d"
       ],
-      "source_sha256": "9aa8410fe27e2a2b1eab912536835bed408972cc9c3478adc858348a38efe93d",
-      "text": "Omöversätt statisk text i ``root`` och alla existerande ättlingar.\n\nFunktionen är avsiktligt bäst-ansträngning och idepotent. Den redigerar aldrig line-edit innehåll, textredigerare, tabellceller, modelldata, filnamn eller konsolutmatning.\n\nQt egen text följer också -- se :func:`_follow_qt_own_catalogs` -- så ett språk som valts efter lanseringen når höger-klick-menyn i varje textfält, inte bara de texttexter spaCR som skrevs.",
+      "source_sha256": "21760110c4f8407ae154477c64a74f3d993268b26a5d9b41fb9bd36e0c32b368",
+      "text": "Omöversätt statisk text i ``root`` och alla existerande ättlingar.\n\nFunktionen är avsiktligt bäst-ansträngning och idepotent. Den redigerar aldrig line-edit innehåll, textredigerare, tabellceller, modelldata, filnamn eller konsolutmatning.\n\nQt egen text följer också -- se :func:`_follow_qt_own_catalogs` -- så ett språk som valts efter lanseringen når höger-klick-menyn i varje textfält, inte bara de texttexter spaCR som skrevs.\n\n``only_new`` hoppar över grafiska komponenter detta pass skulle översätta till exakt vad de redan säger. Varje besökt widget är stämplad med språket som den översatts till och kataloggenerationen som var aktuell; ett senare pass frågades för ``only_new`` hoppar över dem vars stämpel fortfarande matchar. Ett språk ändrar stämpeln, och så gör en katalog få en rad, så inte heller kan missas.\n\nDet är avstängt som standard och det är avsiktligt. En uppringare som just har ersatt en bildtext själv vill ha hela passet -- `_translate_qt_text` detekterar en utvändig inställning genom att jämföra det utgivna värdet, och en överhoppad komponent jämförs inte. Den ena anroparen som ber om det är `_LateCaptionTranslator`, där tre nära rot passerar en händelse vrider isär gång tillbaka samma träd medan en modulprogramvy monteras ihop.",
       "translation_source_blocks_sha256": [
         "aee7339fe71c1d90ae5d9804e0db93e562bdbe13ffe7bd3114293e04f86b12df",
         "397a7daab4c62df3cee86d9239ae247a79c15f642d40c311036b9007e4fffe9b",
-        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628"
+        "f98c16587254ad661e7e67a3d9cd10da32c2d912311f28f71b6d199a2bdb4628",
+        "66df66ad2b4e3ddc451d83f6e3a4db3a633420cf4acf3e0babcd52bbc9fc42cc",
+        "813bf3e4fd317ce358b7702413f1ba123f7cb6fe1c86a57cb01d45f810196b2a"
       ]
     },
     "spacr.qt.i18n.set_translatable_items": {
@@ -88828,12 +88832,16 @@
     },
     "spacr.qt.shortcuts.installed": {
       "source_blocks_sha256": [
-        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+        "dadfea33e27175b029ad7c1af01f7dea7db981eea118ca17351d93867e718acd",
+        "5dd3becff65649f0fd77f84e84735a246505a189c375df637d4bc0545c4e3acb",
+        "0b460258a16578b29dbb6c7723105c6da3de158327562a9fd31dc581702fcffd"
       ],
-      "source_sha256": "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a",
-      "text": "De fönsteromfattande tangenterna `install()` ansvarar för bindningen.",
+      "source_sha256": "cb3481b6218ac0b616f356599421d82cab95d5d445f30ee5004c82fa34406e9a",
+      "text": "De fönsteromfattande tangenterna som :func:`install` ansvarar för bindningen.\n\nGester är inte bland dem. En gest är en modifierare som hålls medan mushjulet snurrar, och den fångas av ett händelsefilter snarare än av en nyckelsekvens, så inget genvägsobjekt kan uttrycka det och ingen skapas för det. Att lista en här skulle lova en bindning som inte kan göras.\n\nVarje gest är fortfarande listad på genvägskartan. :func:`mapped` returnerar vad händerna kan göra, och detta returnerar det som genvägsobjekten äger.",
       "translation_source_blocks_sha256": [
-        "85768c2a9f1dfea2148a9f900d3702e18c4bdf622ef7e1a7ff54dd4928c2cb9a"
+        "dadfea33e27175b029ad7c1af01f7dea7db981eea118ca17351d93867e718acd",
+        "5dd3becff65649f0fd77f84e84735a246505a189c375df637d4bc0545c4e3acb",
+        "0b460258a16578b29dbb6c7723105c6da3de158327562a9fd31dc581702fcffd"
       ]
     },
     "spacr.qt.shortcuts.mapped": {
@@ -90028,6 +90036,28 @@
         "09f07c638a6b891340ffe6073ca365500f6b8dc36563d8fbd07f5c290fe9c280"
       ]
     },
+    "spacr.qt.theme.apply_stylesheet_per_window": {
+      "source_blocks_sha256": [
+        "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
+        "56ff2c0606a7dd38a1b96fce3b253a279b71cb65746b88a2faf0531b46653765",
+        "c364bcfda35b5cc35cfde280296d9a10050df74921bb2449ff1be88df4d5a9da",
+        "4ed48e0f23bbdb8b4a0b2bac57ab1fcda353b3522c51fbbb2491d643e9265add",
+        "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
+        "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
+        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd"
+      ],
+      "source_sha256": "1bf87c6cc181f53bc66a6851e9fe7cd5615fc2692f329a9caae2df326d4d5ff3",
+      "text": "Installera ``sheet`` på varje fönster på toppnivå istället för på ``app``.\n\nVARFÖR, med numret. `QApplication.setStyleSheet` återerövrar varje widget processen äger, och en session som har öppnat några moduler äger tusentals det kan inte se -- `MainWindow` bygger en modulprogramvy på första navigeringen och håller den i stacken efteråt. Mätt på denna ruta, offscreen, fyra moduler öppna, 9,045 levande widges varav 6,111 är på programvyer ingen tittar på:\n\n    app.setStyleSheet 2,836 ms först, ~7,500 ms därefter varje toppnivå fönster 1.684 ms första, ~1,900 ms senare endast den synliga skärmen 222 ms\n\nEn fjärdedel av kostnaden för samma bild. Golvet är lägre fortfarande -- 222 ms är vad den synliga skärmen kostar på egen hand -- och nå det innebär att inte plåta de dolda skärmarna heller, vilket är en större förändring än denna.\n\n:param app: Den ``QApplication`` vars fönster bär arket, och där själva arket står parkerat så att ett fönster som skapats senare kan hitta det. ``None`` accepteras och gör ingenting, så en uppringare som kör utan ett program behöver inte kontrollera först.\n:param sheet: Det fullständiga formatmallen för tillämpning, som :func:`stylesheet` komponerar den.\n:returns: Antalet fönster som lakanet sattes på.",
+      "translation_source_blocks_sha256": [
+        "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
+        "b010a6f9c65980ef40e9f0e337e14d43cb0d63ec4cb9be1e4bf51ae7302926bc",
+        "c364bcfda35b5cc35cfde280296d9a10050df74921bb2449ff1be88df4d5a9da",
+        "fa85d6fe6ebad42a2c3a2dd6ee9b6128d15817c4b318532a9bf02da79bfd27c7",
+        "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
+        "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
+        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd"
+      ]
+    },
     "spacr.qt.theme.block_surface": {
       "source_blocks_sha256": [
         "94f9029bbcc7af6497b004637dea038664078a079ab971990d6314ddccadefde",
@@ -91090,6 +91120,22 @@
       "text": "Varje registrerat blocknamn, i registreringsordning.",
       "translation_source_blocks_sha256": [
         "89057496ea8d1bdd9773545540f18ca786b819ccf5f9ea23e3bbd2d3987b105e"
+      ]
+    },
+    "spacr.qt.theme.window_stylesheet": {
+      "source_blocks_sha256": [
+        "b81c886a6bd104f2b6d748e8d524a060760be02727bae394e13941f42032f4c7",
+        "04b835e36bfeba6c9bd53ef4654db7aa27281e5c8019d36ab752f56c2984ebca",
+        "317809790273c484a95e4a0850605ed7ffe2fba2b9beffc11d079db8cec68025",
+        "eac346082cd67a31571b59b5fa3570426b7af1c81111b522183e14fa5d65cad5"
+      ],
+      "source_sha256": "c236240281cce6372b032e34a4c22e847435caaf4bcca5e15878f04fe5544cd2",
+      "text": "Lakanet :func:`apply_stylesheet_per_window` senast installerat.\n\nErsättningen för att läsa ``app.styleSheet()`` tillbaka: det är tomt nu och säger ingenting om vad fönstren har på sig.\n\n:param app: programmet för att läsa av det; det körande som standard.\n:returns: arket, eller ``None`` om inget per fönster-ark är installerat.",
+      "translation_source_blocks_sha256": [
+        "b81c886a6bd104f2b6d748e8d524a060760be02727bae394e13941f42032f4c7",
+        "04b835e36bfeba6c9bd53ef4654db7aa27281e5c8019d36ab752f56c2984ebca",
+        "317809790273c484a95e4a0850605ed7ffe2fba2b9beffc11d079db8cec68025",
+        "eac346082cd67a31571b59b5fa3570426b7af1c81111b522183e14fa5d65cad5"
       ]
     },
     "spacr.qt.thread_guard": {
@@ -101355,7 +101401,7 @@
     "spacr.qt.widgets.dose_response.InteractionSurface": {
       "source_blocks_sha256": [
         "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
-        "c57a6b8302096558675756514531d43ef228029373925ad18354b845ee8c35e7",
+        "1b051192b6eed29b908106cf4826885192943cb75160f35a08e4aae2b5080970",
         "a8838e93eede86dbc0c5a189c9ac2a3167d3711c3bbe6a913c3ab91da0834f1c",
         "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
         "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
@@ -101366,11 +101412,11 @@
         "d4b3538b72dcbb496a9de7d8a838ac4efe1f7d9d2a9d65689682d8e84b93d374",
         "566706bfe73b5edb78b39f74240ba0aa2d6d613e74fc9425b8c412f1ee79936c"
       ],
-      "source_sha256": "0773bb216a286909306218de334b749cee7621d406f721f590b79aba0a47ac70",
-      "text": "En checkerboards interaktion, per cell, med sina egna axlar.\n\nYtan är resultatet och ett enda index är inte, vilket är vad instruktion 387 ber om med så många ord: \"ett tal för en hel checkerboard döljer exakt den koncentrationsberoende struktur som gör synergi intressant\". Verkliga kombinationer är ofta synergistiska i ett hörn av rutnätet och additiv eller antagonistisk i ett annat, och ett medelvärde över rutnät rapporterar varken.\n\nSign convention, som anges eftersom varje papper anger en annan: positivt betyder mer effekt än förväntat -- synergi för en hämningsanalys. Den förväntade ytan är vad modellen förutspår från de två enkelagentkurvorna; ``excess`` observeras minus förväntat.\n\n:param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.\n:param dose_a: De unika koncentrationerna av agens A, stigande.\n:param dose_b: De unika koncentrationerna av agens B, stigande.\n:param observed: ``(len(dose_a), len(dose_b))`` effekt, 0 till 1.\n:param expected: vad ``model`` förutsäger för varje cell.\n:param excess: ``observed - expected``. NaN där en cell inte testades.\n:param n_cells: celler med en observation.\n:param note: vad som inte kunde beräknas, och varför.",
+      "source_sha256": "d96dc26d70b1d31ef133df596fdcb0d5e0b65843cff1382ef30cae34cc52b509",
+      "text": "En checkerboards interaktion, per cell, med sina egna axlar.\n\nYtan är resultatet och ett enda index är inte det. Ett nummer för en hel checkerboard döljer exakt den koncentrationsberoende struktur som gör synergi intressant. Verkliga kombinationer är ofta synergistiska i ett hörn av rutnätet och additiv eller antagonistisk i ett annat, och ett medelvärde över rutnät rapporterar varken.\n\nSign convention, som anges eftersom varje papper anger en annan: positivt betyder mer effekt än förväntat -- synergi för en hämningsanalys. Den förväntade ytan är vad modellen förutspår från de två enkelagentkurvorna; ``excess`` observeras minus förväntat.\n\n:param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.\n:param dose_a: De unika koncentrationerna av agens A, stigande.\n:param dose_b: De unika koncentrationerna av agens B, stigande.\n:param observed: ``(len(dose_a), len(dose_b))`` effekt, 0 till 1.\n:param expected: vad ``model`` förutsäger för varje cell.\n:param excess: ``observed - expected``. NaN där en cell inte testades.\n:param n_cells: celler med en observation.\n:param note: vad som inte kunde beräknas, och varför.",
       "translation_source_blocks_sha256": [
         "b38d1c9c6a5775165fe3e8b5701fb45b6f251fe50a060dd3f3883caf142877db",
-        "2cd6e8fb27d5fb38beef1d09119ed68ab186b1400ecf4c54e14b3d87f03fd486",
+        "2ac395b6317a0db690bb6680944a9b0ef7a3cd1a194d591751e2b9d6e6047871",
         "21f3efc8807251951dc0a8b54ad2ae83db78e1a11144d472ea4a7429e75b73b4",
         "d1b4c50ea2f555529a06217f7b64313f36e45e09c276c55ecc3f061e87f81e7e",
         "fb82fdb0f8b52787f5c7ca4d0e23ef914e4f90472f0dde79092c16904bd3a537",
@@ -142873,16 +142919,16 @@
     "spacr.scorecard.read_scorecard_csv": {
       "source_blocks_sha256": [
         "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
-        "19b0f7bbd79e0147c47c029772c014d50a09da539741fb495ff6909223e9bbe0",
+        "7510d0174bc234c714e6cfb1566b846c455205e87cab68ca8e0383ed4802a071",
         "356e3be8d4186479bf3eb01c3e923f97c44578a2b9c2a1d0983845628920e20d",
         "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
         "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"
       ],
-      "source_sha256": "0f7f7a9a6f5671e664002f7e9e33bbc010ea0b5dac98331b04b23b2590a52d7c",
-      "text": "Tolkning av ett publicerat scorecard CSV tillbaka till en post ``metrics``.\n\nDen CSV är källan och de andra ytorna återger den, vilket är vad instruktion 370 ber om: artefakten Hugging Face, verktygstipset, sidan API och Zooskärmen får inte vara oense, och de kan inte om bara en av dem har siffror. Detta är läsaren som gör de andra tre härledda.\n\nBeroendefri med avsikt. Modellzoo importerar utan torch och ett test hävdar det, så att bläddra modeller och läsa ett poängkort måste arbeta på en maskin med varken torch eller cellpose. Endast RE- RUNNING en utvärdering behöver dem. Det utesluter pandas här också -- csv finns i standardbiblioteket.\n\n:param text: CSV som skrivits av :func:`scorecard_csv`.\n:returns: ``{metric: {\"finetuned\": ..., \"vanilla\": ..., \"delta\": ...}}`` plus ``holdout`` och ``holdout_version`` när raderna bär dem. Töm när texten inte har några rader.",
+      "source_sha256": "f03a9f1f3a52b23ef2f482ad4ef5ed225835d51141c3044d98d0fb004e23ef76",
+      "text": "Tolkning av ett publicerat scorecard CSV tillbaka till en post ``metrics``.\n\nDen CSV är källan och de andra ytorna återger den: artefakten Hugging Face, verktygstipset, sidan API och Zooskärmen får inte vara oense, och de kan inte om bara en av dem har siffror. Detta är läsaren som gör de andra tre härledda.\n\nBeroendefri med avsikt. Modellzoo importerar utan torch och ett test hävdar det, så att bläddra modeller och läsa ett poängkort måste arbeta på en maskin med varken torch eller cellpose. Endast RE- RUNNING en utvärdering behöver dem. Det utesluter pandas här också -- csv finns i standardbiblioteket.\n\n:param text: CSV som skrivits av :func:`scorecard_csv`.\n:returns: ``{metric: {\"finetuned\": ..., \"vanilla\": ..., \"delta\": ...}}`` plus ``holdout`` och ``holdout_version`` när raderna bär dem. Töm när texten inte har några rader.",
       "translation_source_blocks_sha256": [
         "ee98b2c04a1c7ef58982f147c2cca4669f5a98710195f4e3fcc00af51942655c",
-        "78680efd543e384c701d173732dde3d3dffe443d9ea6cd34f3e598d37fdd209b",
+        "da520b4bb3249195e7308aaedb42ae6434ad61f701ad26d1d400df3c8d3773b5",
         "ffa3eb180c7973a8d39d9ea8b89bb140089a4c031ed328ecd6c25a8dd63dabfa",
         "6804dab5263b0b01b4f7b8adc290eaeb5d815ec4b0324991cd3040266e47c7f6",
         "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"
