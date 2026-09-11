@@ -344,16 +344,38 @@ def _restore_console_level_policy():
         current = vl._handler
         if current is not None:
             # A handler that is not the one we measured — created during the
-            # test, or swapped for a new one — carries a policy that is
+            # test, or swapped for a new one — carries a POLICY that is
             # entirely the test's, so "before" for it is no gate at all.
             # The handler object itself is left attached; detaching it is a
             # different concern and tests hold references to it.
             restorable = current is handler and saved is not None
             filters, level = saved if restorable else ([], 0)
+
+            # ONLY THE POLICY FILTERS COME OFF, NOT EVERY FILTER. This used
+            # to strip the lot, and `_NotAlreadyShownByTheRootSink` is not a
+            # policy: `_ensure_handler` installs it at construction and no
+            # test chooses it. It is the de-duplication that stops one
+            # record being rendered by BOTH console sinks.
+            #
+            # So the first Qt test to cause the forwarder to be created —
+            # `_handler` is None at setup, `saved` is None, "before" is no
+            # gate at all — used to remove it for the rest of the process,
+            # and every later test got a forwarder that renders everything.
+            # `test_a_qt_warning_reaches_the_console_once` then failed in a
+            # full run and passed alone; measured on chunk_002 of the
+            # 2026-09-10 sweep, where the forwarder reached it with
+            # `filters == []`.
+            keep = tuple(
+                existing for existing in current.filters
+                if type(existing).__name__ == "_NotAlreadyShownByTheRootSink"
+            )
             for existing in list(current.filters):
                 current.removeFilter(existing)
-            for existing in filters:
+            for existing in keep:
                 current.addFilter(existing)
+            for existing in filters:
+                if existing not in keep:
+                    current.addFilter(existing)
             current.setLevel(level)
 
 
