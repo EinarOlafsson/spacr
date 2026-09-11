@@ -5862,3 +5862,34 @@ epoch zero has zero LR. The planned bounded demonstration uses TWO epochs,
 then checks actual checkpoint tensors; a one-epoch save alone cannot be
 called evidence of learning. GPU training is NOT running while this is held.
 Total remains 51 complete matrices; continuing CPU-side tutorial work.
+
+CODEX TUTORIAL LANE — 2026-09-10, PROFILER 53 TECHNICALLY COMPLETE.
+
+bcec17156 completes lesson 53 without relabelling permutation effects as a
+predictive model. It now uses an explicitly SYNTHETIC 121-row teaching
+example, genuinely fitted with statsmodels OLS before the native CSV import.
+Independent least-squares coefficients agree within 5.2e-15; all 338 native
+curve values and twelve ranking values are checked. The GUI assumes 0..1
+ranges, does not read the original observations and does not refit. Its
+ranking uses 0.05..0.95 while the curve uses the whole 0..1 interval; the
+lesson explains that distinction and the auto-rescaled vertical axis.
+
+Ten scenes, 476 English words, thirteen editorial translations, fifty
+checked voices, fourteen browser cases, full 4K/30 decode and all ten scene
+samples inspected. A 6,231-byte reproducible example ZIP is linked from the
+staged lesson. Eight focused helper tests; four source-string mutations
+were observed red for the numerical/preservation checks. No native-speaker
+or listening signoff, biological validation, publication or release claimed.
+
+Total is now 52/75 existing lessons technically complete, 2,600 checked voice
+tracks (100 retained), 728 browser cases. 23 originals plus held OPS remain.
+All fourteen catalogs agree on 75 lessons / 875 scenes; 24 unselected
+catalog entries, including retained lesson 33, remain unchanged.
+
+Run Compare input preflight: the staged example_data/plate1 registry has
+two Measure run IDs, but one has only a resource log; the other's registered
+measurements.db is currently a 4-KiB empty database (zero-byte WAL). Other
+scoped private registries have only one run each. No invented pair or
+registry entry was made. Next: the current merged Classify tabular-ML
+workflow, using genuine measured example data and native controls only.
+Application/Qt/ledger ownership remains unchanged; tutorial files only.
