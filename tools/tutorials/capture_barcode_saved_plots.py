@@ -8,9 +8,8 @@ import tempfile
 from stage_lesson import DEFAULT_STAGE
 
 
-def main():
+def launch(module, name, option, timeout):
     stage = DEFAULT_STAGE.resolve()
-    name = 'barcode_qc_saved_plot_viewer'
     if (stage / 'captures' / name).exists():
         raise FileExistsError('Preserve the previous recording; use a new named run')
     env = dict(os.environ); root = stage / 'desktop' / name
@@ -27,9 +26,13 @@ def main():
                OMP_NUM_THREADS='2', OPENBLAS_NUM_THREADS='2', MKL_NUM_THREADS='2')
     command = ['xvfb-run','-a','-s','-screen 0 3840x2160x24','dbus-run-session','--',
                sys.executable,str(Path(__file__).with_name('capture_refresh.py')),
-               '--module','barcode_qc','--capture-name',name,'--barcode-saved-plots',
-               '--stage',str(stage),'--platform','xcb','--timeout','200']
-    return subprocess.run(command, env=env, timeout=260).returncode
+               '--module',module,'--capture-name',name,option,
+               '--stage',str(stage),'--platform','xcb','--timeout',str(timeout)]
+    return subprocess.run(command, env=env, timeout=timeout + 60).returncode
+
+
+def main():
+    return launch('barcode_qc', 'barcode_qc_saved_plot_viewer', '--barcode-saved-plots', 200)
 
 
 if __name__ == '__main__':

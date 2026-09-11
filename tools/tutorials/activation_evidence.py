@@ -76,6 +76,28 @@ def check_native_runs(runs):
         raise ValueError('Activation outputs exist but native figures or settings validation failed')
 
 
+def check_saved_runs(runs):
+    """Certify the narrow external-viewer route, never the broken GUI panel."""
+    from capture_saved_plots import check_saved_file_run
+
+    if len(runs) != 2 or {r['method'] for r in runs} != {'saliency_image', 'saliency_channel'}:
+        raise ValueError('Both distinct saliency runs must be recorded')
+    for run in runs:
+        check_saved_file_run(run)
+        per_map = 128 * 128 * (3 if run['method'] == 'saliency_channel' else 1)
+        maps = run['maps']
+        if (len(maps) != 4 or run['independent_saved_pixels_checked'] != 4 * per_map
+                or any(row['pixels'] != per_map or not 0 <= row['max_absolute_error'] <= 1
+                       for row in maps)):
+            raise ValueError('All four saved maps need their independent pixel comparison')
+        viewer = run['external_viewer']
+        if (viewer.get('accepted') is not True or viewer.get('saved_files_unchanged') is not True
+                or viewer.get('application_figures_fixed') is not False
+                or len(viewer.get('saved_plots', [])) != 1
+                or viewer['saved_plots'][0].get('actual_desktop_capture') is not True):
+            raise ValueError('The real unchanged grid must be shown in the external viewer')
+
+
 def prepare(stage):
     stage = Path(stage); base = stage/'annotate_fresh/example_data'
     database = base/'plate1/measurements/measurements.db'; bundle = file_bundle(database)
