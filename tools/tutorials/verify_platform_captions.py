@@ -12,7 +12,7 @@ from stage_lesson import REPO, write
 from verify_staged_lesson import Handler
 
 
-def verify(output):
+def verify(output, media_override=None):
     web = REPO / 'docs/source/_extra/tutorials'
     server = http.server.ThreadingHTTPServer(('127.0.0.1', 0),
         functools.partial(Handler, directory=str(web)))
@@ -23,6 +23,15 @@ def verify(output):
         with sync_playwright() as engine:
             browser = engine.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True)
             context = browser.new_context(viewport={'width': 1440, 'height': 1000})
+            if media_override:
+                # Serve real staged bytes through the unchanged production
+                # URLs; do not mock audio clocks, transcripts or native cues.
+                for suffix, content_type in (('.m4a', 'audio/mp4'), ('.json', 'application/json')):
+                    path = media_override / ('af_heart' + suffix)
+                    context.route('https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/main/'
+                        + '04_platform_installers/audio/en/af_heart' + suffix,
+                        lambda route, request, p=path, kind=content_type: route.fulfill(
+                            path=str(p), content_type=kind, headers={'Access-Control-Allow-Origin':'*'}))
             context.add_init_script('''
                 localStorage.setItem('spacr-tutorial-language-v2', 'en');
                 localStorage.setItem('spacr-tutorial-voice-v2', 'af_heart');
@@ -81,7 +90,8 @@ def verify(output):
                 }''')
                 assert sample['expectedText'] and sample['expectedText'] in sample['activeCues'], sample
                 cases.append(sample)
-            result = {'scope':'Local fixed player with current hosted Heart audio; not deployment or pronunciation review',
+            result = {'scope':'Local fixed player with ' + ('staged' if media_override else 'current hosted')
+                          + ' Heart audio; not deployment or human pronunciation review',
                       'player_sha256':hashlib.sha256((web/'app_v2.js').read_bytes()).hexdigest(),
                       'audio_identity':identity, 'native_track_reload_checks':3,
                       'reported_timestamp_checks':cases, 'passed':True}
@@ -96,4 +106,6 @@ def verify(output):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
-    verify(parser.parse_args().output)
+    parser.add_argument('--media-override', type=Path)
+    args = parser.parse_args()
+    verify(args.output, args.media_override)

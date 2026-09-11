@@ -1,0 +1,73 @@
+{
+  "repair": {
+    "kind": "one_sentence_pronunciation_repair",
+    "source_revision": "222abdcb5835a75e6f92e7144e249d5ad4d64214",
+    "source_audio_sha256": "854bf0ff5e881e449b7bbfb7da1d1da629d9a91437ac296f91c611ebc32c78e3",
+    "source_metadata_sha256": "690e088417e2560c0dcc927f1f7c491146788570d7dac9884aa8ac9b36cbad06",
+    "scene": 5,
+    "sentence": 2,
+    "start": 54.375000000000014,
+    "end": 61.88000000000001,
+    "old_phonemes": "/kˈuːdᵊ/",
+    "new_phonemes": "/kˈudə/",
+    "tempo_ratio": 0.9966688874083944,
+    "rms_gain": 2.3113632202148438,
+    "seed": 20260911,
+    "outside_interval_pcm_identical_before_encoding": true,
+    "all_caption_text_and_sentence_boundaries_unchanged": true,
+    "whole_track_reencoded": true,
+    "movie_changed": false,
+    "decoded_sample_peak_dbfs": -2.51041841506958,
+    "runtime": {
+      "model": {
+        "repository": "hexgrad/Kokoro-82M",
+        "snapshot": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+        "config": {
+          "role": "kokoro_config",
+          "name": "14a726edd3718279eac426630879ff743955b16a",
+          "bytes": 2351,
+          "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f"
+        },
+        "weights": {
+          "role": "kokoro_weights",
+          "name": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+          "bytes": 327212226,
+          "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4"
+        }
+      },
+      "voice_pack": {
+        "role": "kokoro_voice_pack",
+        "name": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "bytes": 523425,
+        "sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b",
+        "loaded_tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b"
+      },
+      "software": {
+        "kokoro": "0.9.4",
+        "misaki": "0.9.4",
+        "torch": "2.13.0",
+        "soundfile": "0.13.1",
+        "python": "3.12.13",
+        "implementation": "cpython"
+      },
+      "inference": {
+        "device": "cpu"
+      },
+      "mastering_tool": {
+        "version": "ffmpeg version 6.1.1-3ubuntu5+esm13 Copyright (c) 2000-2023 the FFmpeg developers",
+        "version_output_sha256": "1b302b8d4ef78f6694217011ce8af39e91b3548ab9a4903e170ada970fbf0b16",
+        "executable": {
+          "role": "ffmpeg_executable",
+          "name": "ffmpeg",
+          "bytes": 342488,
+          "sha256": "1d5081bc88516c140712a2a6eddd86b0922681bd114f5b3c481cb360634acbe3"
+        }
+      }
+    },
+    "repair_script_sha256": "4eb550414174e77e9d5f3b5caad0fdb647ac452202cfdbeb3f1ccf0a5b78bcae"
+  },
+  "media_sha256": "f0c39395bc855eeeb7bc79b901679f46bfa3a001da10ed1ee3df111d3c0c2cf5",
+  "metadata_sha256": "62d932445b75191911ca9210fae0b9379dce8c37e95b97fa04f108bcea797b03",
+  "published": false
+}
