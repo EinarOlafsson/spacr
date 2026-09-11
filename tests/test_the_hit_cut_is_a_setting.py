@@ -42,7 +42,7 @@ def _settings(**over):
     base = {"multiple_testing_method": "fdr_bh", "fdr_alpha": 0.05,
             "threshold_method": "none", "threshold_multiplier": 1.0,
             "min_observations_per_hit": 0, "negative_control_id": "", "positive_control_id": "",
-            "controls": []}
+            "nontargeting_control_grnas": []}
     base.update(over)
     return base
 
