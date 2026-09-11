@@ -679,3 +679,31 @@ schema 2 with stale symbols, and none of the nine carrying the API symbols
 from `benchmark`, `column_groups`, `gate_library` or `gpu_reduce`. Anyone
 reading a docs verdict for a code change is reading 83's backlog.
 
+
+--------------------------------------------------------------------------------
+2026-09-11 -- A GREEN-ACTIONS FAILURE MODE THAT IS NOT THIS ITEM'S TO FIX: 393
+--------------------------------------------------------------------------------
+
+POINTER ONLY. `test_readme_presentation.py` asserts that committed PNG
+tiles equal a fresh `render_module_tile()` byte for byte
+(`ImageChops.difference(...).getbbox() is None`), so the Pillow version
+that rendered them is part of the contract and nothing declares it. CI
+installs 12.3.0; a contributor on 10.3.0 -- inside `setup.py`'s own
+`pillow>=10.2.0,<13` -- regenerates the artwork, the antialiasing differs
+(measured 834 px on `align`, 1756 on `mask`, 3263 on `dose_response`), and
+the gate goes red for everyone else while the diff reads as routine
+regenerated artwork.
+
+Filed by the other session as **393**. Recorded here because 352 is where
+anyone looking for "why did Actions go red" will look, and this one cannot
+be found from the failure: the workflow reports a picture comparison, not a
+dependency mismatch.
+
+  AND THE CONTROL IS THE PART WORTH COPYING. A regeneration script with no
+  control cannot tell "this artefact is stale" from "my toolchain is not
+  the one that made it" -- the diff is identical in both cases. 393's
+  answer is to reproduce three ALREADY-COMMITTED artefacts byte-identically
+  before writing anything, and refuse to write if they do not come back.
+  Any future script that rewrites committed binary output wants that,
+  including the icon generators under `tools/`.
+
