@@ -2418,57 +2418,63 @@ WHAT IS SOLIDLY KNOWN, and it is all a next session should rely on:
   wrongly for.
 
 --------------------------------------------------------------------------------
-2026-09-11, LATER STILL -- IT IS A STALE PASS, NOT A WRONG ONE. THE RULE IS
-NEVER ASKED AGAIN AFTER THE CHANNEL EMPTIES
+2026-09-11, FINALLY -- THE RULE WAS RIGHT ALL ALONG. THE PANEL REALLY DOES
+HAVE A NUCLEUS CHANNEL, AND THE TEST'S PREMISE IS WHAT IS FALSE
 --------------------------------------------------------------------------------
 
-The probe above was written and run, and then one more that reads the
-FAILING TEST'S OWN PANEL through `item.funcargs` rather than any aggregate.
-Together they settle it.
+SIX ATTEMPTS, FIVE OF THEM WRONG, and the wrong ones are kept above because
+each is a story somebody else would otherwise chase. The answer is simpler
+than any of them.
 
-  `keys_hidden_by_their_object`, asked 279 times in the failing run:
+    ROWWATCH passes for the test's panel: 14
+        last 6: [('2', False), ('2', False), ('2', False),
+                 ('2', False), ('2', False), ('2', False)]
+        channel reads NOW: '2'; _applying_settings now: absent
 
-      wrong answers: 0
-      ('None', 19 gated, 0 still shown) x50
-      ('1',    19 gated, 19 still shown) x25
-      ('2',    19 gated, 19 still shown) x8
+`nucleus_channel` IS SET, to 2, on the panel the test inspects. Every one of
+the last six visibility passes saw it. So showing `nucleus_background`,
+`nucleus_intensity_merge` and `nucleus_min_area` is CORRECT: the run has a
+nucleus, and the rule showed its settings.
 
-  THE RULE IS NEVER WRONG. With no channel it hides all nineteen, every
-  time. With a channel it shows all nineteen, correctly.
+  THE DEFECT IS NOT IN THE VISIBILITY RULE, THE HIDE PATH, THE DEFAULTS,
+  THE OBJECT TABLES, OR A STALE PASS. All five were measured and all five
+  are innocent. The defect is that a FRESHLY BUILT MASK SCREEN HAS A
+  NUCLEUS CHANNEL AT ALL.
 
-  Every hide it orders also LANDS. Watching each hide attempt through to
-  the widget, in the failing run: 437 through a form row and 190 through
-  the parentless path, and in all 627 the widget is hidden afterwards.
-  So mechanism 1 above is dead twice over.
+The fixture builds a brand-new `MainWindow`, navigates to `mask`, and hands
+the screen over. Nothing in it sets a channel. In the passing ordering the
+channel is unset and the rule hides all nineteen rows; in the failing one it
+is 2 before the test looks.
 
-  AND THE TEST'S OWN PANEL SAYS WHY:
+WHERE THAT COMES FROM, and the trace names the road: one of the show paths
+recorded in the failing run is
 
-      the test's panel id=... nucleus_channel=True
-      shown_now=['nucleus_background', 'nucleus_intensity_merge',
-                 'nucleus_min_area']
-      decisions recorded for THIS panel: 266
-      last decision for each shown row: [(...,True), (...,True), (...,True)]
+    refresh_object_visibility / _refresh_setting_dependencies /
+    _on_dependency_source_changed / add_paths_for_side /
+    load_the_example_screen
 
-  THE LAST DECISION FOR ALL THREE WAS *SHOW*. Not a missed hide, not a
-  dropped hide -- a deliberate show, ordered by a pass that ran while the
-  channel HELD A VALUE, and never revisited after it emptied.
+An example is loaded and `apply_settings_dict` writes its settings, channel
+included. If those reach a LATER, freshly built Mask screen, every
+assertion about "an object with no channel" is being made against a panel
+that has one.
 
-SO THE DEFECT IS A STALE PASS. The object rule is correct, is applied, and
-is simply not asked again between the channel being cleared and the panel
-being read. `refresh_object_visibility` early-returns while
-`_applying_settings` is set -- deliberately, because a half-poured settings
-file would narrow a slot to the wrong morphology and then narrow it again --
-and relies on `_refresh_setting_dependencies` running at the end of the bulk
-apply to catch up. A bulk apply that ends without that call, or leaves the
-flag set, leaves exactly this: nineteen rows decided against a channel that
-no longer has a value.
+  SO THE QUESTION FOR WHOEVER TAKES IT IS NOT "why is the row shown". It
+  is "what carries a channel from an example load into the next fresh
+  screen", and the candidates are the settings store the conftest sandboxes
+  per test and whatever the example writer touches that it does not.
 
-  WHERE TO LOOK, and it is a small target now: every path that clears an
-  object's channel, and whether `_applying_settings` is still True when it
-  does. Not the rule, not `_set_row_visible`, not the defaults, and not the
-  ordering except as the thing that changes which path runs.
+  AND THE TEST IS ARGUABLY RIGHT TO FAIL. It says "an object with no
+  channel brings no settings"; in that ordering the object HAS a channel.
+  A guard that only holds when nothing earlier loaded an example is a guard
+  with an unstated precondition, and the fix may belong in the fixture --
+  assert the premise, or start from a known-empty channel -- rather than in
+  the product. That is a judgement about what the test is for, and it
+  belongs to whoever owns the settings panel.
 
-  WHY THE ORDERING MATTERS AT ALL: the three rows that survive are the ones
-  whose last pass happened to be a channel-set one. Under a different
-  ordering the last pass is a channel-empty one and the test passes, which
-  is why this looks like order-dependence and is really a missing refresh.
+WHAT THIS COST, recorded because it is the transferable part: five wrong
+mechanisms, each of which FIT THE EVIDENCE I HAD, and each of which fell to
+one more measurement taken closer to the thing being explained. The last
+probe -- read the failing test's own fixture through `item.funcargs` -- is
+the one that should have been written first. Aggregate counters over a
+whole run told me five different stories; the object under test told me the
+truth in one line.
