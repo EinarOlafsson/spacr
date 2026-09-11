@@ -1,0 +1,31 @@
+{
+  "lesson": "59_anndata_export",
+  "english_sha256": "9023fb5acff23af9a0eacb7757aca45fd4c4d4cccf8f64227a5874d7df2b1864",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "sv",
+  "title": "AnnData Export: aktuell väg och verifierad API-lösning",
+  "description": "Hitta den inbyggda exportören, förstå felet med saknade metadata och exportera det verkliga exemplet med en uttrycklig, kontrollerad Python-lösning.",
+  "objectives": [
+    "Hitta AnnData Export i Measure och mätdatabasen.",
+    "Skilja GUI-felet från API-lösningen utan att hitta på metadata.",
+    "Jämföra sammanfogade, cell- och kärnmatriser samt fyra strategier för saknade värden.",
+    "Öppna filer igen och bevara identiteter, annoteringar, bilder och ursprung."
+  ],
+  "prerequisite": "Använd en KOPIA av measurements.db från det nedladdade Annotate-exemplet; behåll original och bilder. Packa upp länkad ZIP och placera skriptet bredvid kopian i spaCR-miljön. Det anropar spacr.anndata_export.build_anndata och kodar bara helt saknade object-kolumner i obs som tomma kategorier. Saknade värden förblir saknade; ingen kalibrering eller etikett hittas på, och kodningen ändrar inte X. GUI-felet är INTE löst. Befintliga mål avvisas; nya filer skrivs och kontrolleras efter återinläsning. Oberoende SQLite-kontroller: sammanfogad/keep 2341x1136; cell/keep och mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341. Ingen UMAP, GPU-körning, inbäddad bild, AI-förfrågan, biologisk validering eller publicering. Ursprungligt GUI-fel bevaras.",
+  "scenes": [
+    "Öppna Measure och därefter det inbyggda arbetsflödet AnnData Export. AnnData lagrar en matris med objekt som rader och egenskaper som kolumner, tillsammans med observationsmetadata och egenskapsnamn. Lektionen visar den aktuella GUI-vägen, men de lyckade exporterna använder en uttrycklig Python-lösning. Vi påstår inte att GUI-exportfelet är åtgärdat.",
+    "Använd en kopia av den verkliga nedladdade mätdatabasen, inte en påhittad tabell. Bevara bilder och originaldatabas oförändrade. GUI tar projektmappen; kommandoradsexemplet tar själva mätdatabasfilen. Stäng av den valfria inbäddningsberäkningen för jämförelsen. Matrisexport kräver ingen GPU.",
+    "Se först hur den oförändrade skrivaren misslyckas. Vissa observationskolumner innehåller enbart saknade värden med datatypen object, som skrivaren inte kan serialisera. Okänd voxelkalibrering är ett exempel. Avslutningskod ett och en ofullständig fil är inte framgång. Ersätt inte okända värden med noll eller texten None för att dölja felet.",
+    "Ladda ned hjälpskriptet och granska dess lagringslösning. Det använder den riktiga funktionen build_anndata och kodar sedan enbart helt saknade object-metadata som tomma kategoriska kolumner. Saknade värden förblir saknade; kända metadata och egenskapsmatrisen ändras inte av kodningen. Det gör inte fysisk kalibrering till en vetenskapligt kategorisk storhet.",
+    "Kör skriptet med källdatabasen, en ny utmatningssökväg och strategin keep. Det sammanfogade exemplet har tvåtusentrehundrafyrtioen cellrader och ettusenetthundratrettiosex egenskaper. Relaterade kärn- och patogenmätningar sammanställs per cell. Fyrahundratusentrehundratjugo saknade egenskapsvärden förblir saknade, inte noll.",
+    "Lägg till single-table cell för en objekttyps egna mätningar och behåll saknade värden. Filen har samma tvåtusentrehundrafyrtioen cellrader men bara tvåhundrasextioen egenskaper. Tjugoåtta värden saknas. Jämför egenskapsnamn och radidentiteter, inte bara filstorlek eller kolumnantal.",
+    "Strategin mean är ett separat analytiskt val, inte en del av lagringslösningen. Här fylls tjugoåtta saknade värden med kolumnernas observerade medelvärden. Det exporterade lagret för saknade värden registrerar de ursprungliga positionerna. Kontrollera att imputering passar analysen; en komplett matris är inte automatiskt bättre eller fri från snedvridning.",
+    "Strategin drop-features tar bort kolumner med saknade värden. Här tas fyra kolumner bort, så tvåhundrafemtiosju egenskaper och alla cellrader återstår. Granska vilka mätningar som togs bort och varför. Strategin ändrar egenskapsuppsättningen och kan förlora användbar information; den är ingen allmän rengöringsrekommendation.",
+    "Strategin drop-objects tar i stället bort rader med saknade egenskapsvärden. Sju celler tas bort här; tvåtusentrehundratrettiofyra rader och alla tvåhundrasextioen egenskaper återstår. Saknade värden kan hänga ihop med fenotyp, bildinsamling eller segmentering. Granska uteslutningarna innan återstående celler betraktas som representativa.",
+    "Välj single-table nucleus för en rad per kärna i stället för sammanställda kärnegenskaper på cellrader. Exemplet har tvåtusensexhundraåttiotvå kärnor och trehundrafyrtioen egenskaper. Bevara föräldralänkar och objektidentiteter. Fler kärnor än celler betyder inte att exporten skapade extra celler.",
+    "Öppna varje sparad fil igen. Skriptet jämför hela matrisen, ordnade objekt- och egenskapsidentiteter, saknade värden och observationsmetadata; oberoende SQLite-kontroller godkände också alla sex filer. Annoteringar förblir metadata, inte träningsvariabler som lagts in i matrisen. Bilder bäddas inte in: behåll källfilerna och deras sökvägar.",
+    "Använd ett nytt utmatningsnamn för varje strategi och behåll skript, inställningar och paketversioner. Skriptet avvisar ett befintligt mål i stället för att skriva över det. Kontrollerna visar databevarande i detta exempel, inte biologisk giltighet eller en reparerad GUI. Se de länkade API- och mätlektionerna för hela arbetsflödet."
+  ]
+}

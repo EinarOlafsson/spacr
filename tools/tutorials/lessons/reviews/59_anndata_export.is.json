@@ -1,0 +1,31 @@
+{
+  "lesson": "59_anndata_export",
+  "english_sha256": "9023fb5acff23af9a0eacb7757aca45fd4c4d4cccf8f64227a5874d7df2b1864",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "AnnData Export: núverandi leið og sannreynd API-hjáleið",
+  "description": "Finndu innbyggða útflutninginn, skildu villuna vegna lýsigagna sem vantar og flyttu út raunverulega dæmið með skýrri, prófaðri Python-hjáleið.",
+  "objectives": [
+    "Finna AnnData Export í Measure og mæligagnagrunninn.",
+    "Aðgreina GUI-villu frá API-hjáleið án þess að búa til lýsigögn.",
+    "Bera saman sameinuð, frumu- og kjarnagagnafylki og fjórar leiðir til meðferðar vöntunar.",
+    "Opna skrár aftur og varðveita auðkenni, merkingar, myndir og uppruna."
+  ],
+  "prerequisite": "Notaðu AFRIT af measurements.db úr niðurhalaða Annotate-dæminu; varðveittu frumrit og myndir. Afþjappaðu tengdu ZIP-skránni og settu skriftuna við afritið í spaCR-umhverfinu. Hún notar spacr.anndata_export.build_anndata og kóðar aðeins object-dálka í obs þar sem öll gildi vantar sem tóma flokkadálka. Vöntun helst; engin kvörðun eða merki eru búin til og þessi kóðun breytir ekki X. GUI-villan er EKKI lagfærð. Fyrirliggjandi úttaksskrám er hafnað; nýjar skrár eru skrifaðar og lesnar aftur til athugunar. Óháður SQLite-samanburður: sameinað/keep 2341x1136; cell/keep og mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341. Engin UMAP, GPU-keyrsla, innfelld mynd, AI-fyrirspurn, líffræðileg staðfesting eða útgáfa. Upprunalega GUI-bilunin er varðveitt.",
+  "scenes": [
+    "Opnaðu Measure og síðan innbyggða AnnData Export. AnnData geymir fylki með hlutum í röðum og eiginleikum í dálkum, ásamt lýsigögnum athugana og heitum eiginleika. Kennslan sýnir núverandi GUI-leið, en útflutningurinn sem tekst notar skýra Python-hjáleið. Við fullyrðum ekki að GUI-útflutningsvillan sé löguð.",
+    "Notaðu afrit af raunverulega niðurhalaða mæligagnagrunninum, ekki uppspunna töflu. Varðveittu myndir og frumgagnagrunn óbreytt. GUI tekur við verkefnismöppu; skipanalínudæmið tekur við mæligagnagrunnsskránni sjálfri. Slökktu á valfrjálsum innfellingarútreikningi fyrir samanburðinn. Útflutningur fylkis krefst ekki GPU.",
+    "Sjáðu fyrst óbreytta skrifarann bregðast. Sumir athugunardálkar innihalda aðeins gildi sem vantar með gagnagerðinni object, sem skrifarinn getur ekki raðvætt. Óþekkt kvörðun rúmmyndeininga er eitt dæmi. Lokakóði einn og hálfskrifuð skrá eru ekki árangur. Ekki skipta óþekktum gildum út fyrir núll eða textann None til að fela villuna.",
+    "Sæktu tengdu hjálparskriftuna og skoðaðu geymsluhjáleiðina. Hún notar raunverulega fallið build_anndata og kóðar aðeins object-lýsigögn þar sem öll gildi vantar sem tóma flokkadálka. Vöntun helst; þekkt lýsigögn og eiginleikafylkið breytast ekki við kóðunina. Þetta þýðir ekki að eðlisfræðileg kvörðun sé vísindalega flokkunarstærð.",
+    "Keyrðu skriftuna með frumgagnagrunninum, nýrri úttaksslóð og keep-stefnunni. Sameinaða dæmið hefur 2341 frumuröð og 1136 eiginleika. Tengdar kjarna- og sýklamælingar eru teknar saman fyrir hverja frumu. 400320 eiginleikagildi sem vantar eru áfram óþekkt, ekki núll.",
+    "Bættu við single-table cell fyrir eigin mælingar einnar hlutategundar og haltu vöntun. Skráin hefur sömu 2341 frumuraðir en aðeins 261 eiginleika. 28 gildi vantar. Berðu saman heiti eiginleika og auðkenni raða, ekki aðeins skráarstærð eða dálkafjölda.",
+    "Stefnan mean er sjálfstætt greiningarval, ekki hluti geymsluhjáleiðarinnar. Hér fyllir hún 28 vöntunargildi með meðaltölum mældra gilda í dálkunum. Útflutta vöntunarlagið skráir upprunalegu staðsetningarnar. Athugaðu hvort ísetning henti greiningunni; fullkomið fylki er ekki sjálfkrafa betra eða óbjagað.",
+    "Stefnan drop-features fjarlægir dálka með gildum sem vantar. Hér hverfa fjórir dálkar, svo 257 eiginleikar og allar frumuraðir haldast. Skoðaðu hvaða mælingar voru fjarlægðar og hvers vegna. Þetta breytir eiginleikasafninu og getur hent gagnlegum upplýsingum; þetta er ekki almenn ráðlegging um gagnahreinsun.",
+    "Stefnan drop-objects fjarlægir í staðinn raðir með eiginleikagildum sem vantar. Hér eru sjö frumur fjarlægðar, svo 2334 raðir og allir 261 eiginleikarnir haldast. Vöntun getur tengst svipgerð, myndöflun eða hlutaskiptingu. Skoðaðu útilokanir áður en litið er á frumurnar sem eftir eru sem dæmigerðar.",
+    "Veldu single-table nucleus fyrir eina röð á kjarna í stað samantekinna kjarnaeiginleika á frumuröðum. Dæmið hefur 2682 kjarna og 341 eiginleika. Varðveittu tengingar við yfirskipaða hluti og hlutauðkenni. Fleiri kjarnar en frumur þýða ekki að útflutningurinn hafi búið til fleiri frumur.",
+    "Opnaðu hverja vistaða skrá aftur. Skriftan ber saman allt fylkið, röðuð auðkenni hluta og eiginleika, vöntun og lýsigögn athugana; allar sex skrár stóðust líka óháðan SQLite-samanburð. Merkingar eru áfram lýsigögn, ekki þjálfunareiginleikar settir í fylkið. Myndir eru ekki innfelldar: haltu frumskrám og slóðum með útflutningnum.",
+    "Notaðu nýtt úttaksheiti fyrir hverja stefnu og varðveittu skriftu, stillingar og pakkaútgáfur. Skriftan hafnar fyrirliggjandi úttaki í stað þess að yfirskrifa það. Prófanirnar sýna gagnavarðveislu í þessu dæmi, ekki líffræðilegt gildi eða lagfærða GUI. Sjáðu tengdu API- og mælikennsluna fyrir heildarverkferlið."
+  ]
+}

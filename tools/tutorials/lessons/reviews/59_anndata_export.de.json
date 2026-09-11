@@ -1,0 +1,31 @@
+{
+  "lesson": "59_anndata_export",
+  "english_sha256": "9023fb5acff23af9a0eacb7757aca45fd4c4d4cccf8f64227a5874d7df2b1864",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "de",
+  "title": "AnnData Export: aktueller Zugang und geprüfter API-Umweg",
+  "description": "Den eingebetteten Exporter, den Fehler bei fehlenden Metadaten und einen ausdrücklich geprüften Python-Umweg mit dem echten Beispiel kennenlernen.",
+  "objectives": [
+    "AnnData Export in Measure und die Messdatenbank finden.",
+    "GUI-Fehler und API-Umweg unterscheiden, ohne Metadaten zu erfinden.",
+    "Verbundene, Zell- und Kernmatrizen sowie vier Fehlwertstrategien vergleichen.",
+    "Dateien erneut öffnen und Identitäten, Annotationen, Bilder und Herkunft erhalten."
+  ],
+  "prerequisite": "Eine KOPIE von measurements.db aus dem heruntergeladenen Annotate-Beispiel verwenden; Original und Bilder behalten. Das verlinkte ZIP entpacken und das Skript neben die Kopie legen; im spaCR-Umfeld ausführen. Es nutzt spacr.anndata_export.build_anndata und kodiert ausschließlich vollständig fehlende object-Spalten in obs als leere Kategorien. Fehlwerte bleiben fehlend; keine Kalibrierung oder Labels werden erfunden und X bleibt bei dieser Kodierung gleich. Die GUI wird NICHT repariert. Vorhandene Ziele werden abgelehnt, neue Dateien nach dem Schreiben erneut geprüft. SQLite-Vergleiche: verbunden/keep 2341x1136; cell/keep und mean 2341x261; cell/drop_features 2341x257; cell/drop_objects 2334x261; nucleus/keep 2682x341. Kein UMAP, GPU-Lauf, eingebettetes Bild, AI-Aufruf, biologischer Gültigkeitsnachweis oder Veröffentlichung. Der ursprüngliche GUI-Fehler bleibt dokumentiert.",
+  "scenes": [
+    "Öffnen Sie Measure und darin AnnData Export. AnnData speichert eine Objekt-mal-Merkmal-Matrix mit Beobachtungsmetadaten und Merkmalsnamen. Diese Lektion zeigt den aktuellen GUI-Zugang, doch die erfolgreichen Exporte verwenden einen ausdrücklichen Python-Umweg. Wir behaupten nicht, dass der GUI-Exportfehler behoben ist.",
+    "Verwenden Sie eine Kopie der tatsächlich heruntergeladenen Messdatenbank, keine erfundene Tabelle. Lassen Sie Bilder und Originaldatenbank unverändert. Die GUI erwartet den Projektordner; unser Kommandozeilenbeispiel erwartet die Messdatenbankdatei selbst. Deaktivieren Sie die optionale Einbettungsberechnung für diesen Vergleich. Ein Matrixexport benötigt keine GPU.",
+    "Beobachten Sie zunächst den unveränderten Writer beim Scheitern. Einige Beobachtungsspalten enthalten ausschließlich Fehlwerte vom Datentyp object, die dieser Writer nicht serialisieren kann. Unbekannte Voxelkalibrierung ist ein Beispiel. Exitstatus eins und eine teilweise geschriebene Datei sind kein Erfolg. Ersetzen Sie Unbekanntes nicht durch null oder den Text None, um die Fehlermeldung zu unterdrücken.",
+    "Laden Sie das verlinkte Hilfsskript herunter und prüfen Sie seinen Speicherumweg. Es verwendet die echte Funktion build_anndata und kodiert nur vollständig fehlende object-Metadaten als leere kategorische Spalten. Fehlwerte bleiben fehlend; bekannte Metadaten und Merkmalsmatrix werden durch diese Kodierung nicht verändert. Physikalische Kalibrierung wird dadurch nicht wissenschaftlich zu einer kategorialen Größe.",
+    "Starten Sie das Skript mit Quelldatenbank, neuem Ausgabepfad und der Strategie keep. Das verbundene Beispiel hat zweitausenddreihunderteinundvierzig Zellzeilen und eintausendeinhundertsechsunddreißig Merkmale. Zugehörige Kern- und Pathogenmessungen werden auf Zellen aggregiert. Vierhunderttausenddreihundertzwanzig fehlende Merkmalswerte bleiben fehlend statt null.",
+    "Für die eigenen Messungen eines Objekttyps ergänzen Sie single-table cell und behalten Fehlwerte. Die Datei hat dieselben zweitausenddreihunderteinundvierzig Zellzeilen, aber nur zweihunderteinundsechzig Merkmale. Achtundzwanzig Werte fehlen. Vergleichen Sie Merkmalsnamen und Zeilenidentitäten, nicht nur Dateigröße oder Spaltenzahl.",
+    "Die Strategie mean ist eine eigenständige analytische Entscheidung, kein Teil des Speicherumwegs. Hier ersetzt sie achtundzwanzig Fehlwerte durch beobachtete Spaltenmittelwerte. Die exportierte Fehlwertebene hält die ursprünglichen Positionen fest. Prüfen Sie, ob Imputation zur Analyse passt; eine vollständige Matrix ist nicht automatisch besser oder unverzerrt.",
+    "Die Strategie drop-features entfernt Spalten mit Fehlwerten. Hier entfallen vier Spalten; zweihundertsiebenundfünfzig Merkmale und alle Zellzeilen bleiben. Prüfen Sie, welche Messungen warum entfernt wurden. Diese Strategie ändert den Merkmalsumfang und kann nützliche Information verwerfen; sie ist keine allgemeine Bereinigungsempfehlung.",
+    "Die Strategie drop-objects entfernt dagegen Zeilen mit fehlenden Merkmalswerten. Hier entfallen sieben Zellen; zweitausenddreihundertvierunddreißig Zeilen und alle zweihunderteinundsechzig Merkmale bleiben. Fehlwerte können mit Phänotyp, Aufnahme oder Segmentierung zusammenhängen. Prüfen Sie die Ausschlüsse, bevor Sie die verbleibenden Zellen als repräsentativ betrachten.",
+    "Wählen Sie single-table nucleus für eine Zeile je Kern statt aggregierter Kernmerkmale auf Zellzeilen. Das Beispiel enthält zweitausendsechshundertzweiundachtzig Kerne und dreihunderteinundvierzig Merkmale. Bewahren Sie Elternverknüpfungen und Objektidentitäten. Mehr Kerne als Zellen bedeutet nicht, dass beim Export zusätzliche Zellen entstanden.",
+    "Öffnen Sie jede gespeicherte Datei erneut. Das Skript vergleicht die ganze Matrix, geordnete Objekt- und Merkmalsidentitäten, Fehlwerte und Beobachtungsmetadaten; unabhängige SQLite-Prüfungen bestanden ebenfalls für alle sechs Dateien. Annotationen bleiben Metadaten, keine eingefügten Trainingsmerkmale. Bilder sind nicht eingebettet: Behalten Sie Originaldateien und Pfade beim Export.",
+    "Verwenden Sie je Strategie einen neuen Ausgabenamen und behalten Sie Skript, Einstellungen und Paketversionen. Das Skript lehnt ein vorhandenes Ziel ab, statt es zu überschreiben. Die Prüfungen belegen Datenerhalt für dieses Beispiel, keine biologische Gültigkeit oder GUI-Reparatur. Die verlinkten API- und Messlektionen erklären den umgebenden Ablauf."
+  ]
+}
