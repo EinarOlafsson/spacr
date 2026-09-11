@@ -2045,3 +2045,80 @@ a synthetic one -- with the restore taken back out it reports
 SO THE SUITE'S ORDER-DEPENDENCE, AS OF TODAY, IS ZERO. One file, one cause,
 one line of restore, and a guard. That closes the question this item has
 carried since 345 and 346.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE DOCS DEPLOY, AND FOUR STACKED BLOCKERS EACH HIDING THE NEXT
+--------------------------------------------------------------------------------
+
+FROM THE HOME SESSION. The API site deployed -- run 34564787492, Sphinx
+success and Pages success, the first successful docs deploy since
+2026-08-10. Recorded here because three of the four blockers are traps in
+the CI pipeline this item owns, and because the fourth is a lesson about
+diagnosis that cost most of the time.
+
+  1. `ops_compose` had no API catalog entries at all, so the audit failed
+     closed. One module, 328 docs commits stuck behind it.
+
+  2. THE RUNTIME LANE WAS FAILING INDEPENDENTLY, on something unrelated --
+     instruction 388's bystander settings had reached main's CODE and not
+     main's runtime catalogs. `docs.yml` audits BOTH lanes and green on
+     one says nothing about the other. A half-fix was one command from
+     being pushed. (Also recorded in 83.)
+
+  3. THE JOB WAS HITTING ITS 30-MINUTE TIMEOUT, AND GITHUB REPORTS A
+     TIMEOUT KILL AS "cancelled" -- which reads exactly like a run
+     superseded by a newer push. Hours went into diagnosing it as the
+     cancellation storm this file already describes.
+
+         BEFORE BLAMING CONCURRENCY, CHECK WHETHER THE JOB'S DURATION
+         EQUALS ITS `timeout-minutes`. A cancelled run at 30:0x is a
+         timeout wearing a cancellation's label.
+
+     Raised to 60, and the time is measured rather than guessed: audit
+     24.2 min, build 3.8 min, install 1.4 min. PIP IS INNOCENT. Making the
+     audit cheaper is real open work and belongs to whoever next touches
+     the catalogs.
+
+  4. FOUR DUPLICATE IMPORTS broke `sphinx -W`, pre-existing from a merge
+     and only visible once the first three cleared. `diameter.py` imports
+     `SEGMENTED_ROLES` twice; `batch.py` imports from `.cancellation`
+     three times. AutoAPI records every local `from X import Y` as a
+     placeholder and resolves it later; a duplicate cannot register under
+     a full_name that already exists, survives to `create_class`, and
+     warns -- and that warning "intentionally has no (sub-)type", so it
+     cannot be suppressed narrowly. Only by silencing all of autoapi,
+     which would hide real breakage.
+
+STACKED BLOCKERS ARE THE SHAPE TO EXPECT HERE, and this item has met it
+before: "the audit runs FIRST and was failing on its own, so the Sphinx
+step never ran to report the other two". Fixing one and declaring the
+pipeline fixed is how a two-hour job becomes four.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- A COUNT THAT LINES UP IS NOT A CAUSE
+--------------------------------------------------------------------------------
+
+The methodological half of the above, and it nearly cost the fix.
+
+The first hypothesis MATCHED THE EVIDENCE PERFECTLY: `diameter.py` has
+exactly one module-level `Tuple[str, ...]` annotation and `batch.py`
+exactly three, against one and three warnings. Package-wide there are 457
+such annotations and four warnings.
+
+    IT WAS WRONG. The cause was duplicate imports, which happen to occur
+    the same number of times in the same two files.
+
+What found it was reading `autoapi/_mapper.py` and then PATCHING ITS
+LOGGER LOCALLY to print the offending names -- patch reverted afterwards
+and diffed against a backup.
+
+  THIS IS THE SAME LESSON THIS SESSION LEARNED FROM THE OTHER END TONIGHT.
+  Five hypotheses about a duplicated console line each fitted what was
+  visible -- the sink detached, a second forwarder, a second handler, a
+  stale singleton, a mis-set level -- and every one was wrong. The answer
+  was `filters == []`, found by printing the filter list rather than by
+  reasoning about the levels.
+
+  WHEN A THEORY FITS, THE NEXT STEP IS TO MEASURE THE THING IT PREDICTS,
+  NOT TO ACT ON IT. Both diagnoses turned on making the program say what
+  it actually held.
