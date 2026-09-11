@@ -198,6 +198,33 @@ Status:    BEING REBUILT ON THE MEASURED PLAN, 2026-09-09. The maintainer
            so it has no corners and only two-sampling. Lower gain, same
            mechanism, and the composer handled real data unmodified.
 
+           AND THEN THE WHOLE OF PHASE B RAN ON IT -- B1 -> B2 -> B3 -> B4,
+           on a real acquisition, for the first time:
+
+               4 real tiles, canvas 5281 x 1507
+               3 windows
+               1,840 segmented observations
+               1,707 plate objects after sewing
+                 133 of them seen by more than one window
+
+           1840 - 1707 = 133 EXACTLY, which is the check that matters: every
+           observation is either a new object or a second sighting of one,
+           and the seam-sewing accounted for all of them. Ids 1..1707, all
+           unique, raster ordered.
+
+           THE SEGMENTER WAS A STAND-IN and the numbers reflect that: a 97th
+           percentile threshold with a 40 px floor, injected through B2's
+           `segment` callable exactly as the design intends. Median area is
+           59 px where a 10X nucleus should be nearer 180, so it is
+           UNDER-SEGMENTING -- which says nothing about the pipeline and
+           everything about the threshold. What is demonstrated is the
+           plumbing: compose window by window, segment each, sew the seams,
+           number once. Cellpose in the same slot changes the masks and
+           nothing else.
+
+           WHAT THIS LEAVES: the full 333-tile A1 solve with direction-aware
+           `expected`, and the same run with a real segmenter.
+
            ORIGINAL STATUS FOLLOWS, and PART 5's memory work stands: it
            replaced PART 4's order-of-magnitude guess with the real
            acquisition's numbers and carries the maintainer's design. The
