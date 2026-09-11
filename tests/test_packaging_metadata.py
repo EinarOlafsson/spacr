@@ -1479,3 +1479,104 @@ def test_the_layout_policy_reader_imports_nothing_heavy():
             f"the layout-policy reader imports {heavy!r}; the Qt metrics "
             "are supposed to arrive as arguments so this can be read "
             "without a display")
+
+
+def test_the_citation_version_doi_is_the_one_for_the_version_it_claims():
+    """A bump moves `version:` and leaves `doi:` behind. Catch that here.
+
+    `packaging/release.py` rewrites exactly two fields in CITATION.cff --
+    `version` and `date-released` -- so a release bumps the version and
+    silently keeps the PREVIOUS release's Zenodo DOI. `packaging/README.md`
+    names that exact failure ("never substitute an older release's version
+    DOI") and, until this test, nothing enforced it.
+
+    The check is offline and needs no Zenodo call: the version DOI's own
+    description states which release it belongs to, so the file is asked
+    whether it agrees with itself.
+
+    THE CONCEPT DOI IS NOT THE VERSION DOI and the two must not be swapped.
+    The concept DOI resolves to whatever is newest, which is the right thing
+    for a README badge and the wrong thing for a citation that is supposed to
+    name the code a result came from.
+    """
+    import re
+
+    import yaml
+
+    citation = yaml.safe_load(
+        (REPO_ROOT / "CITATION.cff").read_text(encoding="utf-8"))
+    version = str(citation["version"])
+    identifiers = citation.get("identifiers") or []
+
+    version_dois = [
+        entry for entry in identifiers
+        if entry.get("type") == "doi"
+        and re.search(r"\bspaCR\s+\d[\d.]*", str(entry.get("description", "")))
+    ]
+    assert len(version_dois) == 1, (
+        "CITATION.cff should carry exactly one version DOI, whose description "
+        f"names the release it belongs to; found {len(version_dois)}")
+
+    entry = version_dois[0]
+    named = re.search(r"\bspaCR\s+(\d[\d.]*)",
+                      str(entry["description"])).group(1).rstrip(".")
+    assert named == version, (
+        f"CITATION.cff says version {version!r} but its version DOI "
+        f"{entry['value']!r} is described as belonging to spaCR {named!r}. A "
+        f"release bumped the version without minting the new Zenodo DOI into "
+        f"this file -- see packaging/README.md.")
+
+    assert str(citation.get("doi")) == str(entry["value"]), (
+        "the top-level `doi:` is what GitHub's citation widget shows, so it "
+        "must be the version DOI, not the concept DOI")
+
+    concept = [one for one in identifiers
+               if one.get("type") == "doi" and one is not entry]
+    assert concept, (
+        "CITATION.cff should also carry the concept DOI, which resolves to "
+        "the latest release and is what README.rst cites")
+    assert str(concept[0]["value"]) != str(entry["value"]), (
+        "the concept DOI and the version DOI are different identifiers; "
+        "listing the same value twice defeats the point of having both")
+
+
+def test_the_conda_recipe_names_the_version_this_repo_ships():
+    """59: a recipe pinned to an older release publishes that older release.
+
+    The recipe carries a version AND the sha256 of that version's sdist, and
+    nothing updates either when `packaging/release.py bump` runs -- the same
+    shape as the CITATION.cff DOI trap next door. Left alone it drifts
+    silently, and the failure is not a broken build: conda-forge would
+    cheerfully publish 1.5.0.4 as the current package while PyPI served
+    1.5.0.6.
+
+    Checked offline. The sha256 cannot be verified without the network, so
+    this asserts only what it can: that the version matches, and that the
+    URL the recipe fetches names that same version. A stale sha beside a
+    fresh version fails the conda-forge build loudly, which is the safe
+    direction.
+    """
+    import re
+
+    recipe_path = REPO_ROOT / "conda-forge" / "recipe" / "recipe.yaml"
+    if not recipe_path.exists():                       # recipe is optional
+        pytest.skip("no conda-forge recipe in this checkout")
+
+    recipe = recipe_path.read_text(encoding="utf-8")
+    declared = re.search(r'version:\s*"([^"]+)"', recipe)
+    assert declared, "the recipe declares no version"
+
+    setup = (REPO_ROOT / "setup.py").read_text(encoding="utf-8")
+    shipped = re.search(r'VERSION\s*=\s*"([^"]+)"', setup).group(1)
+    assert declared.group(1) == shipped, (
+        f"the conda-forge recipe builds {declared.group(1)!r} but this repo "
+        f"ships {shipped!r}. Bump the recipe and replace its sha256 with the "
+        f"new sdist's, or conda-forge publishes the older release as current.")
+
+    # To end-of-line, not \S+: the URL contains "${{ version }}", whose
+    # spaces would truncate the match and make this assertion fail on a
+    # recipe that is doing exactly the right thing.
+    url = re.search(r"url:[ \t]*(.+)", recipe)
+    assert url and "${{ version }}" in url.group(1), (
+        "the recipe's source URL should interpolate ${{ version }} so the "
+        "version and the file fetched cannot disagree")
