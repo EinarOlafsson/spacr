@@ -186,9 +186,23 @@ def _ensure_file_handler() -> RotatingFileHandler:
     """
     global _file_handler
     if _file_handler is not None:
-        # Already attached — but ensure the file target matches today's
-        # date (post-midnight the rotate would otherwise keep the old
-        # filename).
+        # ALREADY BUILT IS NOT ALREADY ATTACHED. This returned here
+        # unconditionally, and the console sink does not: `_ensure_handler`
+        # continues past its own `is None` block and re-adds itself when it
+        # is missing from the sink logger. So the two functions promised the
+        # same thing -- "attach a handler at the package root, idempotent" --
+        # and only one of them kept it if anything had detached the handler
+        # since.
+        #
+        # Nothing in the application detaches it, which is why this never
+        # showed in a run; a test that restores `spacr`'s handler list does,
+        # and `test_it_attaches_at_the_package_root` then failed depending on
+        # which sibling ran first (seeds 3-7 of eight, and not 1, 2 or 8).
+        #
+        # Re-attaching costs one list membership test and makes the pair
+        # consistent.
+        if _file_handler not in logging.getLogger(_SINK_LOGGER).handlers:
+            logging.getLogger(_SINK_LOGGER).addHandler(_file_handler)
         return _file_handler
     try:
         handler = RotatingFileHandler(
