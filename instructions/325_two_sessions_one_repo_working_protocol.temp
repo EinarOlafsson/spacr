@@ -6234,3 +6234,27 @@ Total: 62/75 originals technically complete, 3100 checked voice tracks
 No publication, human-listening review or native-speaker signoff. Next is
 Train Cellpose's already-scoped missing source control: a bounded explicit
 API path will be assessed without altering the app or hiding the GUI defect.
+
+CODEX TUTORIAL LANE — 2026-09-11, TRAIN CELLPOSE 19 TECHNICAL MATRIX.
+
+b4f321e99 completes eleven recorded scenes, thirteen editorial translations,
+fifty verified voices and fourteen browser cases. The whole 4K master decodes
+and all eleven scene midpoints were inspected. Seven focused tests pass;
+three deliberately removed guards made their tests fail.
+
+The fresh native CSV import still drops src and keeps model_name=new_model;
+no GUI training was started or fixed. The lesson discloses this and records
+the actual public training API on six preserved real cell-image/label pairs.
+Two bounded warm-up epochs reached all six images; 345/347 trainable parameter
+tensors changed, but loss rose from 1.497 to 1.522. There is no held-out set:
+zero test-loss placeholders are not accuracy. The actual checkpoint path has
+a second models directory omitted by the generic console message. The saved
+pair figure is displayed in a real external viewer, not inserted into spaCR.
+Train_Cellpose_API_example.zip contains the exact helper and unchanged pairs,
+not a certified model. Existing labels still require independent review.
+
+Total: 63/75 originals technically complete, 3150 checked tracks (100 retained),
+882 browser cases. Twelve originals plus held OPS remain. Nothing published,
+native-speaker approved or human-listening approved. Continuing Apply Cellpose:
+its batch result is verified, but its preview preprocessing differs and must
+be explained rather than presented as an equivalent batch prediction.
