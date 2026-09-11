@@ -1,20 +1,20 @@
 {
-  "schema": 1,
-  "language": "is",
-  "records": [
-    {
-      "label": "spacr.scorecard.read_scorecard_csv#1",
-      "context": "The CSV is the source and the other surfaces render it, which is what instruction 370 asks for: the Hugging Face artifact, the tooltip, the API page and the Zoo screen must not be able to disagree, and they cannot if only one of them holds numbers. This is the reader that makes the other three derived.",
-      "source": "THE CSV IS THE SOURCE AND THE OTHER SURFACES RENDER IT, which is what instruction 370 asks for: the Hugging Face artifact, the tooltip, the API page and the Zoo screen must not be able to disagree, and they cannot if only one of them holds numbers. This is the reader that makes the other three derived.",
-      "source_sha256": "19b0f7bbd79e0147c47c029772c014d50a09da539741fb495ff6909223e9bbe0",
-      "translation": "CSV-SKRÁIN ER UPPSPRETTAN OG HIN VIÐMÓTIN BIRTA HANA, sem er það sem fyrirmæli 370 fara fram á: Hugging Face gripurinn, ábendingin, API síðan og Zoo skjárinn mega ekki geta verið ósammála, og það geta þau ekki ef aðeins eitt þeirra geymir tölur. Þetta er lesarinn sem gerir hin þrjú afleidd."
-    },
-    {
-      "label": "spacr.scorecard.read_scorecard_csv#2",
-      "context": "Dependency-free on purpose. The Model Zoo imports without torch and a test asserts it, so browsing models and reading a scorecard has to work on a machine with neither torch nor cellpose. Only RE-RUNNING an evaluation needs them. That rules out pandas here too -- csv is in the standard library.",
-      "source": "DEPENDENCY-FREE ON PURPOSE. The Model Zoo imports without torch and a test asserts it, so browsing models and reading a scorecard has to work on a machine with neither torch nor cellpose. Only RE-RUNNING an evaluation needs them. That rules out pandas here too -- csv is in the standard library.",
-      "source_sha256": "356e3be8d4186479bf3eb01c3e923f97c44578a2b9c2a1d0983845628920e20d",
-      "translation": "VÍSVITANDI ÁN HÁÐRA PAKKA. Model Zoo flyst inn án torch og próf staðfestir það, svo að fletta í gegnum líkön og lesa árangursskýrslu verður að virka á vél þar sem hvorki torch né cellpose er til staðar. Aðeins RE-RUNNING (endurkeyrsla) á mati þarfnast þeirra. Það útilokar pandas hér líka -- csv er í staðalsafninu."
-    }
-  ]
+ "schema": 1,
+ "language": "is",
+ "records": [
+  {
+   "label": "spacr.scorecard.read_scorecard_csv#1",
+   "context": "The CSV is the source and the other surfaces render it: the Hugging Face artifact, the tooltip, the API page and the Zoo screen must not be able to disagree, and they cannot if only one of them holds numbers. This is the reader that makes the other three derived.",
+   "source": "THE CSV IS THE SOURCE AND THE OTHER SURFACES RENDER IT: the Hugging Face artifact, the tooltip, the API page and the Zoo screen must not be able to disagree, and they cannot if only one of them holds numbers. This is the reader that makes the other three derived.",
+   "source_sha256": "7510d0174bc234c714e6cfb1566b846c455205e87cab68ca8e0383ed4802a071",
+   "translation": "CSV-SKRÁIN ER UPPSPRETTAN OG HIN VIÐMÓTIN BIRTA HANA: Hugging Face gripurinn, ábendingin, API síðan og Zoo skjárinn mega ekki geta verið ósammála, og það geta þau ekki ef aðeins eitt þeirra geymir tölur. Þetta er lesarinn sem gerir hin þrjú afleidd."
+  },
+  {
+   "label": "spacr.scorecard.read_scorecard_csv#2",
+   "context": "Dependency-free on purpose. The Model Zoo imports without torch and a test asserts it, so browsing models and reading a scorecard has to work on a machine with neither torch nor cellpose. Only RE-RUNNING an evaluation needs them. That rules out pandas here too -- csv is in the standard library.",
+   "source": "DEPENDENCY-FREE ON PURPOSE. The Model Zoo imports without torch and a test asserts it, so browsing models and reading a scorecard has to work on a machine with neither torch nor cellpose. Only RE-RUNNING an evaluation needs them. That rules out pandas here too -- csv is in the standard library.",
+   "source_sha256": "356e3be8d4186479bf3eb01c3e923f97c44578a2b9c2a1d0983845628920e20d",
+   "translation": "VÍSVITANDI ÁN HÁÐRA PAKKA. Model Zoo flyst inn án torch og próf staðfestir það, svo að fletta í gegnum líkön og lesa árangursskýrslu verður að virka á vél þar sem hvorki torch né cellpose er til staðar. Aðeins RE-RUNNING (endurkeyrsla) á mati þarfnast þeirra. Það útilokar pandas hér líka -- csv er í staðalsafninu."
+  }
+ ]
 }
