@@ -5687,3 +5687,29 @@ Receipt: tools/tutorials/evidence/
 2026-09-10_sweep_readable_family_checks.json. Verification is complete;
 the refreshed 73 lesson is NOT counted in the 48 completed media matrices.
 Continuing its narration/media with explicit computational/QC limits.
+
+CODEX TUTORIAL LANE — 2026-09-10, SWEEP 73 TECHNICAL MATRIX COMPLETE.
+
+9414366a5 pushed. Ten scenes / 453 English narration words show the actual
+Regression > Parameter sweep, two bounded one-worker trials, saved-result
+inspection and guide -> gene -> guide changes. The final fresh trials
+reproduce the earlier result CSV hashes exactly. Both inference verdicts
+remain FAIL and are explicit in all thirteen source-pinned translations;
+this is not biological validation or a recommendation to maximise hits.
+All fifty tracks fully decode and match current pronunciation/runtime pins.
+The final Hindi wording correction was re-rendered in all four voices, then
+its audio and browser checks rerun. Fourteen browser language cases pass.
+Shared 4K/30 master: 5,752 frames, 191.733333 s, 13,351,594 bytes; all ten
+decoded scene samples visually inspected. No publication/listening approval.
+Receipt: tools/tutorials/evidence/
+2026-09-10_sweep_multilingual_technical_checks.json.
+Totals: 49 technical lessons, 2,450 tracks (100 retained), 686 browser cases;
+14 catalogs / 75 lessons / 861 scenes. 26 originals remain plus held OPS.
+
+NEXT CLAIM: Napari Bridge 46, tutorial-only capture and exact private-copy
+mask round-trip/undo/no-op/history checks. The base environment has no napari;
+installed the declared optional dependency in STAGE/.napari-venv only, using
+the existing PySide6 backend. Resolved napari 0.9.1. Base environment unchanged.
+pip check reports the same pre-existing torchcam<NumPy2 conflict in BOTH
+base and private environments; no app dependency changes or compatibility
+claim. No Qt, scientific-module, global-translation or ledger edits.
