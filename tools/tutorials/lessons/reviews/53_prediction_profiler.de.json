@@ -1,0 +1,31 @@
+{
+  "lesson": "53_prediction_profiler",
+  "english_sha256": "e79348e5af21ca603ddc91a2de7b689558863b2ea4b34ff4f36533af1c54b34f",
+  "review": {
+    "kind": "Editorial caption translation from frozen English; quantitative and synthetic-data caveats preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Vorhersageprofil",
+  "description": "Ein an synthetische Daten angepasstes Modell importieren und den Einfluss festgehaltener Werte und der Darstellung prüfen.",
+  "objectives": [
+    "Prediction Profiler in Regression öffnen und geeignete Koeffizienten importieren.",
+    "Modellanpassung, inverse Linkfunktion, angenommene Bereiche und Darstellungsauflösung unterscheiden.",
+    "Beide Eingaben vergleichen, feste Werte ändern und Mittelpunkte wiederherstellen."
+  ],
+  "prerequisite": "Das SYNTHETIC-Beispiel in einen neuen Ordner entpacken. Enthalten sind 121 konstruierte Beobachtungen, ein tatsächlich mit statsmodels angepasstes OLS-Modell als Koeffizienten-CSV, Manifest und reproduzierbares Skript. Keine biologische oder unabhängige Testdatenvalidierung. Die GUI liest feature/coefficient und Intercept, passt kein Modell an und lädt keine Beobachtungen. identity beibehalten. Der Dateiweg nimmt zwei Zeilen mit Bereichen 0..1 und festen Werten 0.5 an. Rangfolge: 0.05..0.95; Kurven: 0..1. 338 Kurvenwerte und zwölf Rangfolgenwerte wurden unabhängig geprüft. Einzelne marginale Permutationseffekte ersetzen kein gemeinsam angepasstes Vorhersagemodell. API: spacr.profiler.from_coefficients, profile, sensitivity; ProfilerScreen.set_model/set_design sind Programmierschnittstellen, keine Dateiauswahl. Keine Konfidenzintervalle, Kausalitätsaussagen, Veröffentlichung oder Hörfreigabe.",
+  "scenes": [
+    "Öffnen Sie Regression und darin Prediction Profiler. Diese Lektion verwendet ein ausdrücklich synthetisches Lehrbeispiel, keine biologischen Screening-Ergebnisse. Wir untersuchen ein angepasstes Modell, indem wir eine Eingabe verändern und die andere festhalten. Der Profiler liest das Modell; er trainiert kein neues.",
+    "Laden Sie das beigefügte Beispiel herunter, entpacken Sie es und öffnen Sie über Browse die Datei mit den synthetischen OLS-Koeffizienten. Sie enthält einen Achsenabschnitt und zwei angepasste Eingabekoeffizienten. Beobachtungen und Vorbereitungsskript liegen ebenfalls bei. Die Koeffizienten stammen aus einer tatsächlichen Kleinste-Quadrate-Anpassung an konstruierte Daten, nicht aus erfundenen Regressionsergebnissen.",
+    "Lassen Sie Link auf identity, denn dieses Beispiel wurde mit gewöhnlichen kleinsten Quadraten angepasst. Andere Linkfunktionen gehören zu anderen Modellfamilien. Die Auswahl konvertiert oder trainiert das ursprüngliche Modell nicht neu. Auch eine plausible Kurve ist auf der falschen Antwortskala falsch. Verwenden Sie die Linkfunktion der ursprünglichen Anpassung.",
+    "Lesen Sie den Status: Es wurde keine Designmatrix übergeben, daher nimmt der Dateiimport für jede Eingabe null bis eins an. Unsere synthetischen Eingaben haben diesen Bereich, Ihre möglicherweise nicht. Die Rangfolge nutzt das fünfte und fünfundneunzigste Perzentil; Moves by ist nicht die Differenz zwischen den vollständigen Kurvenendpunkten.",
+    "Eingabe A ist für den Verlauf ausgewählt. Schieben Sie B vom Mittelpunkt auf eins. Die vorhergesagte Antwort sinkt, weil der angepasste Koeffizient von B negativ ist. Das ändert das Szenario mit festen Werten, nicht Trainingsdaten oder Koeffizienten. Lesen Sie neben der Linienform auch die numerischen Endpunkte.",
+    "Setzen Sie B auf null und vergleichen Sie erneut. Die Antwort steigt. Der Plot passt seine vertikale Skala an; parallel aussehende Linien können deshalb unterschiedliche Antwortniveaus zeigen. Dies sind Vorhersagen innerhalb eines angenommenen Modells, kein Beleg für einen kausalen experimentellen Effekt einer Änderung von B.",
+    "Reset held values setzt die Regler auf die Mittelpunkte der angenommenen Bereiche zurück, hier jeweils ein halb. Das Modell wird nicht neu angepasst. Beim reinen Koeffizientenimport ist dieser Mittelpunkt kein aus den ursprünglichen Daten gemessener Median: Diese Daten wurden nie in den Profiler geladen.",
+    "Wählen Sie B in der Rangliste. Jetzt variiert B auf der horizontalen Achse, während A bei ein halb bleibt. Die fallende Kurve passt zum negativen Koeffizienten von B. Die Liste ordnet Modellsensitivitäten; sie ist weder Signifikanztest noch Konfidenzintervall noch Liste validierter biologischer Treffer.",
+    "Ändern Sie Points von einundsechzig auf elf. Das bestimmt die Anzahl ausgewerteter Positionen für den Kurvenplot, nicht Stichprobengröße oder Anpassungsgüte. Im linearen Beispiel bleiben die Endpunkte gleich. Mehr Plotpunkte erzeugen keine Beobachtungen, verringern keine Unsicherheit und verbessern kein bereits angepasstes Modell.",
+    "Lassen Sie B ausgewählt, setzen Sie A auf eins und prüfen Sie die neuen Antwortendpunkte. Setzen Sie die Werte anschließend zurück. Verwenden Sie für eigene Analysen Koeffizienten eines geeigneten angepassten Modells und prüfen Sie Linkfunktion, Achsenabschnitt, Kodierung und Bereiche. Einzelne Permutationstesteffekte ersetzen kein gemeinsam angepasstes Vorhersagemodell."
+  ]
+}
