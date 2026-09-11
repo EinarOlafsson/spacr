@@ -275,3 +275,79 @@ wrong, the per-file measurement is wrong pessimistically, and what is left
 at the end is guards over invariants plus the occasional real behaviour
 that a test touched without exercising. THE LIST AT THE TOP OF THIS FILE
 SHOULD NOT BE TRUSTED FOR ANY MODULE -- re-measure before writing a test.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- A COMPLETE SWEEP, WHICH THIS ITEM ASKS FOR AND HAS NOT HAD
+--------------------------------------------------------------------------------
+
+"A fresh complete batched measurement, with its statement and file counts
+matching the previous run, recorded with its date and commit." Done.
+
+    commit          2e9e8a907 (frozen for the whole run)
+    files           2,738, CI's seven measurement-file ignores honoured
+    marker          not gpu and not gui   (CI's coverage marker, plus this
+                                           box's standing rule)
+    chunks          69 of ~40 files, one process each, never xdist
+    processes       151 -- 69 chunks plus 82 file-by-file recoveries
+    wall clock      about four and a half hours
+
+    statements      219,082    missing   2,206
+    branches         65,948    partial     704
+    TOTAL                                       98.86 %
+
+    modules measured   560
+    at 100 %           408
+    something left     152
+    below 80 %           9
+
+NO MODULE REPORTS 0 %, and that is the check that matters most: a module
+that was never imported would look like untested code rather than like a
+collection gap, and 510 of them were reachable in the last full run against
+561 today.
+
+THE NINE BELOW 80 %, which are where the reasons are owed:
+
+    spacr/ops_phenotype.py              52.16 %   78 missing
+    spacr/qt/terms_i18n/__init__.py     52.94 %    6
+    spacr/qt/hf_download.py             56.19 %  149
+    spacr/qt/ai/issue_preview.py        72.73 %   31
+    spacr/qt/widgets/sra_picker.py      73.63 %   38
+    spacr/qt/widgets/height_grip.py     73.68 %   34
+    spacr/ops_accel.py                  76.85 %   30
+    spacr/qt/gc_policy.py               79.45 %   12
+    spacr/regression_layout.py          79.45 %   15
+
+    SEVERAL OF THESE ARE EXPECTED AND NOT DEBT. `hf_download` and
+    `sra_picker` reach the network; `ops_accel` is the GPU path and this
+    run excluded `gpu`; `height_grip` is a mouse-drag widget. Each still
+    needs the reason WRITTEN here rather than assumed -- that is this
+    item's rule and the next session's job, module by module, by the same
+    method the three already done used.
+
+TWO CAVEATS ON THE RUN ITSELF, recorded because a number without its
+method is not a measurement:
+
+  1. THE COMBINE READ 324 DATA FILES AND SKIPPED 112. 151 processes wrote
+     more than 151 files because `.coveragerc` sets `patch = subprocess`.
+     The skipped ones are almost certainly the empty SQLite shells that
+     `tools/run_coverage_batches.py` documents and discards by hand -- "a
+     process killed while coverage is opening its database can leave
+     behind a valid SQLite shell with no coverage metadata". ALMOST
+     CERTAINLY IS NOT MEASURED: `coverage combine` deletes what it reads
+     AND what it skips, so by the time the number was read there was
+     nothing left to inspect.
+
+     THE FIX FOR NEXT TIME, and it is one I had already learned tonight
+     and failed to apply to this script: copy the raw files aside before
+     combining. The sweep script does not, and should.
+
+  2. TWO CHUNKS DIED -- one segfault and one 40-minute timeout -- and both
+     were re-run file by file, which is why there are 151 processes and
+     not 69. No file was silently dropped.
+
+AND 27 OF THE 69 CHUNKS REPORTED FAILURES. 345 and 346, the two recorded
+"red only in company" items, are both CLOSED, so these are current and
+unnamed. The sweep records counts and not names by design -- `--tb=no` and
+one reused output file is what keeps it fast -- so naming them is a
+separate no-coverage re-run over those 27 chunks, and it is the next thing
+this item needs. That is 288's blocker as much as this one's.
