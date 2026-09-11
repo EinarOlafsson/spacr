@@ -6155,3 +6155,22 @@ Total: 59/75 originals technically complete, 2950 checked voice tracks
 Nothing is published or human-listening/native-speaker approved. Next is the
 main Classify overview and its five current nested tools, reusing the verified
 CV/ML result footage without another training job or any app edits.
+
+CODEX TUTORIAL LANE — 2026-09-11, MAIN CLASSIFY 41 TECHNICALLY COMPLETE.
+
+b5c9af02e records eleven genuine GUI scenes, 512 English words, thirteen
+editorial translations, fifty checked voices and fourteen passing browser
+cases. Every scene was inspected and the complete 4K master decoded.
+The real Home entry, both classifier families and all five nested tools are
+shown; each recorded native tooltip was checked against the actual button
+text, and Feature Explorer was opened through its real nested button.
+Five focused tests pass, with stale-tooltip and unexpected-model-start
+mutations observed RED. Existing verified CV/ML result footage is reused;
+the narration explicitly forbids comparing their different subsets as a
+benchmark. No new training run or application change was needed.
+
+Total: 60/75 originals technically complete, 3000 checked voice tracks
+(100 retained), 840 browser cases. Fifteen originals plus held OPS remain.
+Nothing is published or human-listening/native-speaker approved. Methods &
+Results is next: inspect the original run's seed provenance and draft wording
+before deciding whether an explicit reviewed-copy workflow is defensible.
