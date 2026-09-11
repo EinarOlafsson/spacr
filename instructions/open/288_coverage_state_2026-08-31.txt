@@ -1134,6 +1134,17 @@ A batch wrapper that reads the pipeline's status sees success and records a
 measurement that never happened. That is the same shape as the spacr12
 failure the older note describes, from the opposite cause.
 
+AND IT HAPPENED AGAIN THE SAME NIGHT, IN ANOTHER TOOL. The home session
+ran `python tools/build_i18n_catalogs.py --audit | tail`, printed "RUNTIME
+AUDIT EXIT=0" over output visibly full of failures, and caught it only
+because the text above the line contradicted the number.
+
+    TWO SESSIONS, TWO TOOLS, ONE SHELL BEHAVIOUR. That makes it a rule and
+    not an anecdote: NEVER READ AN EXIT CODE THROUGH A PIPE. Redirect,
+    echo $?, then look at the file. `set -o pipefail` fixes it inside a
+    script and does nothing for the interactive one-liner, which is where
+    both of these happened.
+
 WHAT TO RUN INSTEAD. The plugin is a convenience; the library is the
 measurement, and it needs no plugin:
 
