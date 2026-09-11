@@ -313,9 +313,26 @@ class TestMakeTransparent:
         theme.make_transparent(scroll)
         assert scroll.property(theme.TRANSPARENT_PROPERTY) is True
 
-    def test_tagged_widgets_paint_nothing_in_the_opaque_themes(self, qapp):
+    def test_tagged_widgets_paint_nothing_in_the_opaque_themes(
+            self, qapp, monkeypatch):
         """The actual regression: under dark, an untagged container is a
-        solid `bg` and buries whatever is behind the page."""
+        solid `bg` and buries whatever is behind the page.
+
+        WITH THE BACKDROP OFF, and that qualifier is new rather than a
+        weakening. Instruction 381 gives an opaque theme the TRANSPARENT
+        window block whenever an animated backdrop is running, so with one
+        on there is no such thing as an untagged container that paints
+        `bg` -- the premise of this test disappears before it starts, and
+        `make_transparent` has nothing left to distinguish.
+
+        The property it guards is still real and still needs a guard: with
+        no backdrop the opaque block applies, an untagged container does
+        bury what is behind it, and tagging is what stops it. The
+        companion below pins the other half.
+        """
+        from spacr.qt import preferences
+
+        monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: False)
         for name in ("dark", "light"):
             qapp.setStyleSheet(theme.stylesheet(name))
             # The host stands in for the backdrop: it is tagged too, so
@@ -340,6 +357,41 @@ class TestMakeTransparent:
             assert QColor(image.pixel(30, 30)).rgb() == \
                 QColor("#ff00ff").rgb(), \
                 f"{name}: a tagged container must paint nothing at all"
+        qapp.setStyleSheet(theme.stylesheet("dark"))
+
+    def test_the_backdrop_makes_every_container_transparent(
+            self, qapp, monkeypatch):
+        """And with a backdrop running, tagging is not what decides it.
+
+        381's window block turns `QWidget` transparent for an opaque theme
+        whenever an animated backdrop is on, because a plain container
+        painting `bg` over the animation is the whole of that item -- on
+        the dark theme `bg` is `#000000`, and the home screen measured 3.0 %
+        chromatic and 20.4 % pure black before it was fixed.
+
+        SO `make_transparent` IS REDUNDANT FOR A PLAIN CONTAINER IN THIS
+        CONFIGURATION, and that is worth asserting rather than leaving for
+        somebody to discover while debugging a scrim. It is NOT redundant
+        with the backdrop off, which the test above still holds, and it
+        still carries the tag that other code reads.
+        """
+        from spacr.qt import preferences
+
+        monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: True)
+        qapp.setStyleSheet(theme.stylesheet("dark"))
+        host = QWidget()
+        host.resize(60, 40)
+        theme.make_transparent(host)
+        plain = QWidget(host)
+        plain.setGeometry(0, 0, 60, 20)
+
+        image = QImage(QSize(60, 40), QImage.Format_RGB32)
+        image.fill(QColor("#ff00ff"))
+        host.render(image)
+
+        assert QColor(image.pixel(30, 10)).rgb() == QColor("#ff00ff").rgb(), (
+            "an untagged container still paints over a running backdrop, "
+            "which is the defect instruction 381 exists to close")
         qapp.setStyleSheet(theme.stylesheet("dark"))
 
 

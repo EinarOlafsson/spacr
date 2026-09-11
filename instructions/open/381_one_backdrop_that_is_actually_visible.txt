@@ -284,6 +284,35 @@ makes it worth having.
 507 offscreen tests pass across the backdrop, black-page, panel-slab,
 ambient and home files with the dedup on.
 
+--------------------------------------------------------------------------------
+A CONSEQUENCE WORTH KNOWING: `make_transparent` IS REDUNDANT FOR A PLAIN
+CONTAINER WHILE A BACKDROP IS RUNNING
+--------------------------------------------------------------------------------
+
+Found by the home session in a CI run and confirmed here. The scrim solver
+exists to tag individual widgets so they paint nothing, and
+`test_scrim_solver.py` states the contract it was built on: "under dark, an
+untagged container is a solid `bg` and buries whatever is behind the page".
+
+With the window block turned transparent that is no longer true -- EVERY
+plain container is transparent, tagged or not, so the tag no longer
+distinguishes anything for them. The test failed with
+`4294902015 == 4278190080`: magenta where it demanded opaque black.
+
+  THE CONTRACT IS NOT WRONG, IT IS CONDITIONAL. With no backdrop the
+  opaque block still applies, an untagged container still buries what is
+  behind it, and tagging is still what stops it. Both halves are pinned
+  now: the original test keeps its premise by turning the backdrop OFF, and
+  a companion asserts that with it ON an untagged container paints nothing
+  either. Calibrated -- with the window block forced back to opaque the
+  companion fails with "an untagged container still paints over a running
+  backdrop".
+
+  WHY IT MATTERS BEYOND THE TEST: anyone debugging a scrim in a screenshot
+  with the backdrop on will find `make_transparent` apparently doing
+  nothing, and it is doing nothing, correctly. The tag it sets is still
+  read by other code and still matters with the backdrop off.
+
 WHAT IS LEFT OF THIS ITEM: nothing. The remaining backdrop question --
 whether fullscreen is choppy and why -- is 327's, and 327 now has the GPU
 numbers saying the shaders are not the cause.
