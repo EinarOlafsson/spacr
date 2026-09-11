@@ -192,11 +192,13 @@ __all__ = [
     "SelectivityIndex", "selectivity_index",
     "SYNERGY_BLISS", "SYNERGY_LOEWE", "SYNERGY_MODELS",
     "InteractionSurface", "bliss_surface", "loewe_surface",
-    "checkerboard_from_frame",
+    "Checkerboard", "checkerboard_from_frame",
     "NORMALISE_NONE", "NORMALISE_PERCENT", "NORMALISATIONS",
     "PERCENT_COLUMN", "ZPRIME_MARGINAL",
     "PlateSpec", "PlateReport",
     "normalise_to_controls", "plate_reports",
+    "MAX_HETEROGENEITY", "MIN_PLATES",
+    "PooledFit", "pool_across_plates", "pool_frame",
     "candidate_concentration_columns", "candidate_response_columns",
 ]
 
@@ -2199,6 +2201,89 @@ def _grid(dose_a, dose_b, response) -> Tuple[np.ndarray, np.ndarray, np.ndarray]
     return ua, ub, observed
 
 
+@dataclass(frozen=True)
+class Checkerboard:
+    """A two-agent dose grid pulled out of a well table, with its two axes.
+
+    The three surface functions take parallel arrays; a plate reader hands
+    you a table. This is the join between them, and it keeps the single-agent
+    rows -- the row where B is zero and the column where A is zero -- because
+    :func:`bliss_surface` and :func:`loewe_surface` are both calibrated
+    against those axes and a caller who filtered them out would silently get
+    a surface with no reference.
+
+    :param dose_a: agent A concentration per well, combination wells included.
+    :param dose_b: agent B concentration per well.
+    :param response: the measured response per well.
+    :param a_alone: ``(dose, response)`` for the wells where B is zero.
+    :param b_alone: ``(dose, response)`` for the wells where A is zero.
+    """
+
+    dose_a: np.ndarray
+    dose_b: np.ndarray
+    response: np.ndarray
+    a_alone: Tuple[np.ndarray, np.ndarray]
+    b_alone: Tuple[np.ndarray, np.ndarray]
+
+    @property
+    def shape(self) -> Tuple[int, int]:
+        """How many distinct A doses by how many distinct B doses."""
+        return (int(np.unique(self.dose_a).size),
+                int(np.unique(self.dose_b).size))
+
+
+def checkerboard_from_frame(frame: pd.DataFrame, *, dose_a: str, dose_b: str,
+                            response: str) -> Checkerboard:
+    """Read a checkerboard off a well table, single-agent axes and all.
+
+    :param frame: one row per well.
+    :param dose_a: column holding agent A's concentration.
+    :param dose_b: column holding agent B's.
+    :param response: column holding the measurement.
+    :returns: a :class:`Checkerboard` ready for :func:`bliss_surface`,
+        :func:`loewe_surface` and the single-agent fits they need.
+    :raises DoseResponseError: when a column is missing, when either agent
+        has no single-agent wells -- without them there is no curve to
+        predict the combination from, and a surface computed against the
+        combination wells themselves would be comparing the data to itself --
+        or when no well has both agents present, which is a pair of dose
+        series and not a checkerboard.
+    """
+    for column in (dose_a, dose_b, response):
+        if column not in frame.columns:
+            raise DoseResponseError(
+                f"column {column!r} is not in the table; it has "
+                f"{', '.join(map(str, frame.columns[:12]))}"
+                f"{' ...' if len(frame.columns) > 12 else ''}")
+
+    a = pd.to_numeric(frame[dose_a], errors="coerce").to_numpy(float)
+    b = pd.to_numeric(frame[dose_b], errors="coerce").to_numpy(float)
+    y = pd.to_numeric(frame[response], errors="coerce").to_numpy(float)
+    keep = np.isfinite(a) & np.isfinite(b) & np.isfinite(y)
+    a, b, y = a[keep], b[keep], y[keep]
+
+    alone_a = (b == 0) & (a > 0)
+    alone_b = (a == 0) & (b > 0)
+    both = (a > 0) & (b > 0)
+    for present, name, other in ((alone_a, dose_a, dose_b),
+                                 (alone_b, dose_b, dose_a)):
+        if not present.any():
+            raise DoseResponseError(
+                f"no well has {name} alone (with {other} at zero), so there "
+                f"is no single-agent curve for it. Both surfaces predict the "
+                f"combination FROM the single agents; without that row the "
+                f"surface would be comparing the data to itself.")
+    if not both.any():
+        raise DoseResponseError(
+            f"no well has both {dose_a} and {dose_b} above zero, so this is "
+            f"two dose series rather than a checkerboard and there is no "
+            f"interaction to measure")
+
+    return Checkerboard(dose_a=a, dose_b=b, response=y,
+                        a_alone=(a[alone_a], y[alone_a]),
+                        b_alone=(b[alone_b], y[alone_b]))
+
+
 def bliss_surface(dose_a, dose_b, response, *,
                   fit_a: DoseResponseResult,
                   fit_b: DoseResponseResult) -> InteractionSurface:
@@ -2696,3 +2781,268 @@ def plate_reports(frame: pd.DataFrame, spec: PlateSpec, *,
     """
     _, reports = _scan_plates(frame, spec, response)
     return reports
+
+
+# ---------------------------------------------------------------------------
+# Replicate plates: one EC50, with plate as a random effect
+# ---------------------------------------------------------------------------
+
+#: Above this share of the spread being real rather than sampling noise, a
+#: pooled EC50 is refused. I-squared is the fraction of the between-plate
+#: variance that the plates' own uncertainty does NOT explain, so 0.9 means
+#: nine tenths of the disagreement is the plates genuinely disagreeing.
+MAX_HETEROGENEITY = 0.9
+
+#: Fewest plates a pooled fit will accept. Two plates give a pooled estimate
+#: whose between-plate variance is estimated from one degree of freedom, which
+#: is a number but not a measurement of anything.
+MIN_PLATES = 2
+
+
+@dataclass(frozen=True)
+class PooledFit:
+    """One EC50 across replicate plates, with plate as a random effect.
+
+    THREE EC50s AND AN EYEBALL is what this replaces. A user with three
+    replicate plates today fits three curves and averages the numbers by
+    hand, which throws away how well each one was determined and says
+    nothing about whether the three agreed.
+
+    TWO-STAGE, NOT ONE. Each plate is fitted on its own -- by the same
+    :func:`fit_dose_response` that fits everything else, with the same
+    refusals -- and the per-plate log10 EC50s are then combined with a
+    random-effects weight. One joint nonlinear mixed model would be the other
+    way to do it; it would also mean a second fitting path with a second set
+    of failure modes, and a plate that :func:`fit_dose_response` refuses would
+    have to be refused again, differently, inside it. This way a refusal on
+    one plate stays exactly the refusal this module already speaks.
+
+    RANDOM, NOT FIXED. Fixed-effect pooling assumes the plates share one true
+    EC50 and differ only by sampling noise, so three tight plates that
+    disagree produce an impossibly narrow interval around a value none of
+    them support. The DerSimonian--Laird estimate of the between-plate
+    variance is added to each plate's own, so real plate-to-plate variation
+    widens the answer instead of being weighted away.
+
+    :param status: :data:`STATUS_FITTED`, or :data:`STATUS_REFUSED` when too
+        few plates fitted or the plates disagree beyond what their own
+        uncertainty explains.
+    :param ec50: the pooled EC50, or ``None`` when refused.
+    :param tau: the between-plate SD on the log10 scale -- the number that
+        says how reproducible this compound is from plate to plate, which no
+        average of three EC50s can report.
+    :param i_squared: the share of the observed spread that is real rather
+        than sampling noise, in ``[0, 1]``.
+    :param q: Cochran's Q, and :param q_p: its p-value against the null that
+        every plate measured the same EC50.
+    :param per_plate: the individual fits, kept so the pooled number can
+        always be taken apart again.
+    :param note: why, when refused or when the plates sit uneasily together.
+    """
+
+    status: str
+    ec50: Optional[float]
+    ec50_low: Optional[float]
+    ec50_high: Optional[float]
+    log10_ec50: Optional[float]
+    log10_se: Optional[float]
+    tau: Optional[float]
+    i_squared: Optional[float]
+    q: Optional[float]
+    q_p: Optional[float]
+    per_plate: Tuple[Tuple[str, DoseResponseResult], ...] = ()
+    n_plates: int = 0
+    n_used: int = 0
+    confidence: float = DEFAULT_CONFIDENCE
+    unit: str = ""
+    note: str = ""
+
+    @property
+    def reproducible(self) -> bool:
+        """Whether the plates agreed well enough for the pooled number."""
+        return self.status == STATUS_FITTED
+
+    def summary_row(self) -> Dict[str, Any]:
+        """One row for the results table, refusal included."""
+        blank = float("nan")
+        def num(value):
+            return blank if value is None else float(value)
+        return {
+            "metric": "pooled_ec50",
+            "status": self.status,
+            "ec50": num(self.ec50),
+            "ec50_low": num(self.ec50_low),
+            "ec50_high": num(self.ec50_high),
+            "tau_log10": num(self.tau),
+            "i_squared": num(self.i_squared),
+            "q": num(self.q),
+            "q_p": num(self.q_p),
+            "n_plates": self.n_plates,
+            "n_used": self.n_used,
+            "unit": self.unit,
+            "note": self.note,
+        }
+
+
+def _refused_pool(note: str, per_plate, n_plates, n_used,
+                  confidence, unit, **extra) -> "PooledFit":
+    """A :class:`PooledFit` that carries only the reason it is not one."""
+    fields = dict(ec50=None, ec50_low=None, ec50_high=None, log10_ec50=None,
+                  log10_se=None, tau=None, i_squared=None, q=None, q_p=None)
+    fields.update(extra)
+    return PooledFit(status=STATUS_REFUSED, per_plate=tuple(per_plate),
+                     n_plates=n_plates, n_used=n_used,
+                     confidence=confidence, unit=unit, note=note, **fields)
+
+
+def pool_across_plates(fits: Mapping[str, DoseResponseResult], *,
+                       confidence: float = DEFAULT_CONFIDENCE,
+                       max_heterogeneity: float = MAX_HETEROGENEITY,
+                       ) -> PooledFit:
+    """Combine per-plate fits into one EC50 with plate as a random effect.
+
+    POOLED ON THE LOG10 SCALE, because that is the scale the EC50 is
+    estimated on and the scale its interval is symmetric on. Averaging three
+    EC50s of 1, 10 and 100 uM arithmetically gives 37 uM; pooling their
+    logarithms gives 10, which is the middle of the three in the only sense
+    that matters for a concentration.
+
+    :param fits: plate label to that plate's fit. Only fits that are
+        :data:`STATUS_FITTED` with a closed interval can carry a weight; the
+        rest are counted, named in the note and left out of the arithmetic,
+        because a plate whose EC50 is unbounded has no variance to weight by
+        and dropping it silently would make the pooled interval look better
+        than the experiment was.
+    :param confidence: coverage for the pooled interval.
+    :param max_heterogeneity: refuse above this I-squared.
+    :returns: a :class:`PooledFit`, refused rather than empty when the plates
+        cannot support a single number.
+    :raises DoseResponseError: when ``max_heterogeneity`` is not in ``(0, 1]``.
+    """
+    if not 0.0 < float(max_heterogeneity) <= 1.0:
+        raise DoseResponseError(
+            "max_heterogeneity is a share of the spread and must be in "
+            f"(0, 1], not {max_heterogeneity}")
+
+    ordered = tuple((str(plate), result) for plate, result in fits.items())
+    n_plates = len(ordered)
+    unit = next((r.unit for _, r in ordered if r.unit), "")
+
+    usable, dropped = [], []
+    for plate, result in ordered:
+        se = _log10_standard_error(result)
+        if result.status != STATUS_FITTED or se is None or se <= 0:
+            dropped.append(plate)
+            continue
+        usable.append((plate, float(result.log10_ec50), float(se)))
+
+    if len(usable) < MIN_PLATES:
+        missing = (f" ({', '.join(dropped)} did not fit to a closed interval)"
+                   if dropped else "")
+        return _refused_pool(
+            f"pooling needs at least {MIN_PLATES} plates with a bounded EC50 "
+            f"and this has {len(usable)} of {n_plates}{missing}. One plate is "
+            f"not a replicate; report its own fit instead.",
+            ordered, n_plates, len(usable), confidence, unit)
+
+    effects = np.asarray([value for _, value, _ in usable], dtype=float)
+    variances = np.asarray([se ** 2 for _, _, se in usable], dtype=float)
+
+    # Stage one: fixed-effect weights, only to measure the disagreement.
+    fixed_w = 1.0 / variances
+    fixed_mean = float(np.sum(fixed_w * effects) / np.sum(fixed_w))
+    q = float(np.sum(fixed_w * (effects - fixed_mean) ** 2))
+    dof = len(usable) - 1
+    q_p = float(stats.chi2.sf(q, dof)) if dof > 0 else float("nan")
+
+    # DerSimonian--Laird: the spread the plates' own uncertainty cannot explain.
+    c = float(np.sum(fixed_w) - np.sum(fixed_w ** 2) / np.sum(fixed_w))
+    tau_squared = max(0.0, (q - dof) / c) if c > 0 else 0.0
+    tau = float(np.sqrt(tau_squared))
+    i_squared = float(max(0.0, (q - dof) / q)) if q > 0 else 0.0
+
+    if i_squared > float(max_heterogeneity):
+        spread = 10.0 ** (float(effects.max()) - float(effects.min()))
+        return _refused_pool(
+            f"the {len(usable)} plates disagree beyond what their own "
+            f"uncertainty explains (I-squared {i_squared:.0%}, Q={q:.3g} on "
+            f"{dof} df, p={q_p:.3g}): their EC50s span a factor of "
+            f"{spread:.3g}. One pooled number would hide that, and the "
+            f"disagreement is the finding -- look for a plate effect before "
+            f"averaging it away.",
+            ordered, n_plates, len(usable), confidence, unit,
+            tau=tau, i_squared=i_squared, q=q, q_p=q_p)
+
+    weights = 1.0 / (variances + tau_squared)
+    pooled = float(np.sum(weights * effects) / np.sum(weights))
+    pooled_se = float(np.sqrt(1.0 / np.sum(weights)))
+    quantile = float(stats.norm.ppf(0.5 + float(confidence) / 2.0))
+    low = pooled - quantile * pooled_se
+    high = pooled + quantile * pooled_se
+
+    note = ""
+    if dropped:
+        note = (f"{len(dropped)} of {n_plates} plates carried no weight "
+                f"({', '.join(dropped)}): an EC50 the plate does not bound "
+                f"has no variance to weight by.")
+    if tau > 0.0:
+        spacing = "; " if note else ""
+        note += (f"{spacing}plate-to-plate SD is {tau:.3g} on log10, a factor "
+                 f"of {10.0 ** tau:.3g} in EC50, and is included in the "
+                 f"interval rather than weighted away.")
+
+    return PooledFit(
+        status=STATUS_FITTED,
+        ec50=10.0 ** pooled, ec50_low=10.0 ** low, ec50_high=10.0 ** high,
+        log10_ec50=pooled, log10_se=pooled_se,
+        tau=tau, i_squared=i_squared, q=q, q_p=q_p,
+        per_plate=ordered, n_plates=n_plates, n_used=len(usable),
+        confidence=confidence, unit=unit, note=note)
+
+
+def pool_frame(frame: pd.DataFrame, spec: DoseResponseSpec, *,
+               plate: str,
+               max_heterogeneity: float = MAX_HETEROGENEITY,
+               ) -> PooledFit:
+    """Fit each plate in ``frame`` on its own, then pool them.
+
+    The convenience over :func:`pool_across_plates` for the common case: one
+    table, one compound, a plate column. A plate that raises
+    :class:`DoseResponseError` is kept out of the pool and named in the note,
+    exactly as :func:`fit_frame` keeps one bad compound from taking a plate
+    down.
+
+    :param plate: the column identifying the replicate.
+    :raises DoseResponseError: when ``plate`` is not a column, or when no
+        plate produced a fit at all -- there is nothing to pool and a refusal
+        with no plates in it would say nothing about why.
+    """
+    if plate not in frame.columns:
+        raise DoseResponseError(
+            f"column {plate!r} is not in the table, so there are no "
+            f"replicates to pool across")
+
+    fits: Dict[str, DoseResponseResult] = {}
+    failures: List[str] = []
+    for label, rows in frame.groupby(frame[plate].astype(str), sort=False):
+        try:
+            fits[str(label)] = fit_dose_response(
+                rows[spec.concentration], rows[spec.response], spec,
+                group=str(label))
+        except DoseResponseError as failure:
+            failures.append(f"{label}: {failure}")
+
+    if not fits:
+        raise DoseResponseError(
+            "no plate in this table produced a fit, so there is nothing to "
+            "pool. " + (" | ".join(failures) if failures else
+                        f"column {plate!r} held no groups."))
+
+    pooled = pool_across_plates(fits, confidence=spec.confidence,
+                                max_heterogeneity=max_heterogeneity)
+    if failures:
+        extra = (f"{len(failures)} plate(s) did not fit at all: "
+                 f"{' | '.join(failures)}")
+        pooled = replace(pooled,
+                         note=f"{pooled.note}; {extra}" if pooled.note else extra)
+    return pooled

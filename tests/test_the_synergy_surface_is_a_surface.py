@@ -19,11 +19,13 @@ board it is defined on rather than against each other.
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from spacr.qt.widgets.dose_response import (
-    SYNERGY_BLISS, SYNERGY_LOEWE, bliss_surface, fit_dose_response,
-    four_parameter_logistic, loewe_surface)
+    SYNERGY_BLISS, SYNERGY_LOEWE, DoseResponseError, bliss_surface,
+    checkerboard_from_frame, fit_dose_response, four_parameter_logistic,
+    loewe_surface)
 
 DOSES = np.array([0.0, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0, 30.0])
 
@@ -127,3 +129,83 @@ def test_repeated_wells_are_averaged_not_dropped():
     response = np.array([0.4, 0.6, 0.5])
     surface = bliss_surface(a, b, response, fit_a=_fit(1.0, 4), fit_b=_fit(3.0, 5))
     assert surface.observed.shape == (2, 1)
+
+
+# ---------------------------------------------------------------------------
+# Reading a checkerboard off a well table
+# ---------------------------------------------------------------------------
+
+BOARD = (0.0, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0)
+
+
+def _board_frame(a_doses=BOARD, b_doses=BOARD):
+    """Every combination of two dose series, including both single-agent axes."""
+    rows = []
+    for a in a_doses:
+        for b in b_doses:
+            effect = 1.0 - (1.0 / (1.0 + a)) * (1.0 / (1.0 + b))
+            rows.append({"tmp": a, "pyr": b, "burden": 100.0 * (1.0 - effect)})
+    return pd.DataFrame(rows)
+
+
+def test_the_module_exports_everything_it_names():
+    """`__all__` is a promise, and a star import is how it gets tested.
+
+    A name listed in `__all__` with no symbol behind it makes
+    ``from ... import *`` raise AttributeError -- which no test that imports
+    by name will ever notice. This one does.
+    """
+    import spacr.qt.widgets.dose_response as module
+
+    missing = [name for name in module.__all__ if not hasattr(module, name)]
+    assert missing == [], f"named in __all__ but absent: {missing}"
+
+
+def test_a_checkerboard_keeps_its_single_agent_axes():
+    """Both surfaces are calibrated against those rows, so they must survive.
+
+    A caller who filtered the single-agent wells out would get a surface with
+    no reference -- the combination predicted from the combination.
+    """
+    board = checkerboard_from_frame(_board_frame(), dose_a="tmp",
+                                    dose_b="pyr", response="burden")
+
+    assert board.shape == (len(BOARD), len(BOARD))
+    a_dose, a_response = board.a_alone
+    b_dose, b_response = board.b_alone
+    assert sorted(a_dose) == list(BOARD[1:])
+    assert sorted(b_dose) == list(BOARD[1:])
+    assert len(a_response) == len(a_dose)
+    assert len(b_response) == len(b_dose)
+
+
+def test_a_checkerboard_feeds_the_surfaces_it_was_read_for():
+    """The join is only useful if what comes out goes straight in."""
+    board = checkerboard_from_frame(_board_frame(), dose_a="tmp",
+                                    dose_b="pyr", response="burden")
+    fit_a = fit_dose_response(*board.a_alone, group="tmp")
+    fit_b = fit_dose_response(*board.b_alone, group="pyr")
+
+    surface = bliss_surface(board.dose_a, board.dose_b, board.response,
+                            fit_a=fit_a, fit_b=fit_b)
+    assert surface.excess.shape == board.shape
+
+
+def test_a_pair_of_dose_series_is_not_a_checkerboard():
+    """No well has both agents, so there is no interaction to measure."""
+    board = _board_frame()
+    frame = board.loc[(board["tmp"] == 0) | (board["pyr"] == 0)].reset_index(
+        drop=True)
+    with pytest.raises(DoseResponseError, match="two dose series"):
+        checkerboard_from_frame(frame, dose_a="tmp", dose_b="pyr",
+                                response="burden")
+
+
+def test_a_board_with_no_single_agent_row_is_refused_by_name():
+    """Without agent B alone there is no curve for B to predict from."""
+    frame = _board_frame()
+    frame = frame.loc[frame["tmp"] > 0].reset_index(drop=True)
+
+    with pytest.raises(DoseResponseError, match="no well has pyr alone"):
+        checkerboard_from_frame(frame, dose_a="tmp", dose_b="pyr",
+                                response="burden")
