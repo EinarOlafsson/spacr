@@ -40,10 +40,25 @@ Status:    ENGINE BUILT 2026-09-10 -- steps 1, 2 and half of 4. The hold is
            inspects the family of what it aggregates. Seven tests now hold
            that, and will name the consumer if it ever stops being true.
 
-           STILL OPEN: step 6, the GUI, which the instruction puts last
-           deliberately -- and which its own step 6 argues is the single
-           largest adoption argument in this file, since no GUI platform
-           exposes any foundation-model embedding today.
+           STEP 6 IS DONE TOO, 2026-09-11 -- ALL SIX STEPS ARE COMPLETE.
+           `spacr/qt/screens/embeddings.py`, registered from the catalog
+           under Data with its nine translations and its own glyph. The two
+           engine decisions that had to reach the surface did: the channel
+           policy is the FIRST control with its cost in the caption, and the
+           "a dimension is not a phenotype" caveat sits under the table
+           rather than in a tooltip. The preview shows eight dimensions on
+           purpose -- the whole matrix is the result and is not readable.
+           The run summary names backbone, policy and weight digest, because
+           two runs' dimension 17 are the same number and not the same thing
+           unless all three match. Fourteen tests; verified end to end
+           through the real backbone at 6 objects x 1024 dimensions.
+
+           WHAT 386 HAS NOT HAD is its own "HOW TO KNOW IT WORKED": the
+           retrieval measurement. That section asks for kNN accuracy on gene
+           identity, embeddings against the measured panel, on a plate with a
+           known-phenotype positive control. Every piece needed to run it now
+           exists and no one has run it. THAT is the remaining work on this
+           item, and it needs labelled data rather than code.
 
            THE HOLD LIFTED at 1.5.0.5, which spacr/_version.py reached
            on 2026-09-10 in merge 82918f29d. Filed 2026-09-09, held at the
