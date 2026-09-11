@@ -164,55 +164,92 @@ WHAT THE NEXT SESSION WITH A DISPLAY SHOULD DO, in order:
      assertion, never before it.
 
 --------------------------------------------------------------------------------
-2026-09-11 -- A DISPLAY IS NOT THE SAME THING AS A MEASURABLE DISPLAY
+2026-09-11 -- THE PROBE WAS THE BUG, AND WITH IT FIXED STEPS 0, 1 AND 2 ARE
+DONE WITH NUMBERS
 --------------------------------------------------------------------------------
 
-The 2026-09-09 note says "this session has no display". That was imprecise
-and the correction matters, because the precise version is a trap rather
-than an absence.
+THIS SECTION FIRST SAID THE SESSION WAS LOCKED. It was not, and the
+correction matters more than the claim did.
 
-THERE IS A DISPLAY. `DISPLAY=:0`, `/tmp/.X11-unix/X0`, libGL present, and a
-Qt xcb window opens on it without complaint. What there is not is a display
-whose pixels are the ones you asked for.
+Written here on 2026-09-11: `tools/can_this_display_be_measured.py` painted
+a marker colour, grabbed its own window and got back 0.0% marker and 73%
+rgb~(16,16,16), and I concluded the maintainer's session was locked and
+`QScreen.grabWindow` was returning the locker's pixels. The home session
+checked the live session -- LockedHint=no, DPMS on with all timeouts 0,
+"Monitor is On", idle 0 ms -- reproduced the same near-black, and found the
+probe wrong in two ways:
 
-MEASURED, by painting a colour nothing on a desktop paints and asking for it
-back:
+  * IT NEVER RAISED ITS WINDOW. grabWindow returns what is in FRONT of the
+    rectangle, so an unraised probe measures whatever is stacked above it.
+  * `for _ in range(40): app.processEvents()` IS NOT A WAIT. Forty calls
+    take microseconds; a compositing window manager needs milliseconds to
+    map and composite. The grab fired before the window was on screen.
 
-    grab 240x160, 0.0% of sampled pixels are the marker colour
-      what came back instead: rgb~(16,16,16) 73%, rgb~(0,0,0) 8%,
-                              rgb~(80,80,80) 2%
+  SO THE TOOL WRITTEN TO ESCAPE THIS FILE'S `QWidget.grab()` TRAP HAD THE
+  SAME TRAP ONE LAYER OUT, and returned exactly what a real bug returns.
+  Fixed in ef0896f7a with `raise_()`, `WindowStaysOnTopHint` and a real
+  1.5 s spin on a `QElapsedTimer`: 100.0% marker, USABLE. Step 0 stands and
+  is worth keeping -- it is what turns "the picture is black" into "the
+  picture is black AND the instrument is honest".
 
-The window opened. The grab succeeded. It returned NEAR-BLACK, because the
-maintainer's session is locked and the X server hands back what is actually
-in front of that rectangle.
+--------------------------------------------------------------------------------
+STEP 2 FIRST, WHICH IS THIS FILE'S OWN RULE: PROVE THE MEASUREMENT CATCHES
+THE DEFECT BEFORE TRUSTING IT ABOUT THE FIX
+--------------------------------------------------------------------------------
 
-  AND NEAR-BLACK IS THIS FILE'S FAILURE SIGNATURE. The regression is
-  recorded here as "2.5 % chromatic, 31.7 % pure black" against "29.6 %
-  chromatic, no pure black" for the good commit. A run of step 2 on a
-  locked session reports the bug WHETHER OR NOT IT IS THERE, and goes on
-  reporting it after it has been fixed.
+Home screen, the maintainer's display, 1600x1000, grabbed through
+`QScreen.grabWindow` on a raised window after a real settle. "Chromatic"
+here is max(r,g,b) - min(r,g,b) >= 12, which is NOT the definition behind
+this file's earlier 29.6%/2.5% figures -- so compare within this table
+only, never across.
 
-    THE SAME SHAPE AS THE `QWidget.grab()` TRAP THIS FILE ALREADY WARNS
-    ABOUT, one layer further out. Both produce a black picture from a
-    working backdrop; one because the grab cannot see GL, the other
-    because the grab is not looking at your window. The existing warning
-    would not have caught this one -- `QScreen.grabWindow` is the
-    RECOMMENDED tool here.
+    theme   dedup OFF (today)      dedup ON, no QSS change
+    dark    58.8% chromatic        3.0% chromatic
+            0.0% pure black        20.4% pure black
+    cell    93.5% / 0.3%           93.5% / 0.2%
+    glass   61.7% / 0.0%           67.3% / 0.0%
 
-SO THERE IS A THIRD THING IN THE ORDER, BEFORE STEP 1:
+THE MIDDLE COLUMN IS THIS FILE'S FAILURE SIGNATURE -- recorded here as
+"2.5% chromatic, 31.7% pure black" -- reproduced on demand. And it is
+DARK-THEME-ONLY: cell and glass are `IMAGE_THEMES` and already take the
+transparent window block, so they were never affected. That is new: the
+2026-09-07 report named the blobs theme, and the measurement says the
+opaque themes are the ones that break.
 
-    0. `DISPLAY=:0 QT_QPA_PLATFORM=xcb python
-       tools/can_this_display_be_measured.py`
+--------------------------------------------------------------------------------
+STEP 1, AND IT WORKS
+--------------------------------------------------------------------------------
 
-    Exit 0 means the display can be measured. Exit 2 means anything
-    measured on it is about something else, and steps 1-3 must not be
-    started. It takes about five seconds and it is the difference between
-    a measurement and a number.
+`_window_block` now takes the transparent shape for an opaque theme when an
+animated backdrop is running -- `QWidget` transparent so the animation is
+not covered, the window itself opaque so a compositor-less desktop does not
+show through, popups re-opaqued by name, and the window painting THE
+THEME'S OWN GROUND rather than a picture, so nothing depends on a cached
+master existing. Exactly the recipe the 2026-09-09 note worked out.
 
-WHY IT IS STILL NOT DONE. Unchanged and now precisely stated: not "no
-display" but "no display whose pixels can be trusted while the session is
-locked". A session with the screen unlocked -- which means the maintainer's
-own, awake -- can run steps 0 through 3 straight through. Everything else
-this file asks for is already worked out: the QSS change is named at
-`theme.py:_window_block`, the recipe is the image-theme branch's three
-rules, and the numbers to check against are above.
+    theme   dedup ON + this change
+    dark    60.1% chromatic, 0.0% pure black
+    cell    95.7% / 0.1%
+    glass   72.8% / 0.0%
+
+Dark comes back BETTER than it is today with the dedup off (60.1% against
+58.8%), and no theme has any pure black. The `get_ambient_enabled()` read
+is guarded: a build without preferences -- a test composing a sheet, a docs
+run -- gets the opaque block it had before.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT, WHICH IS STEP 3 AND ONLY STEP 3
+--------------------------------------------------------------------------------
+
+Re-enable `_drop_a_redundant_screen_backdrop` (currently a bare `return`
+with the reasoning above it), and restore the exact-one assertion in
+`tests/qt/test_one_backdrop_for_the_window.py` TOGETHER WITH a pixel
+assertion, never before it -- this file's own instruction, and the reason
+the 2026-09-05 commit shipped a black window with a green suite.
+
+  THE PIXEL ASSERTION NEEDS A DISPLAY AND THEREFORE CANNOT BE AN ORDINARY
+  TEST. The offscreen platform cannot see the GL-backed widget at all.
+  Either it is marked `gui` and runs only where there is a display, or the
+  measurement lives in a tool and the ratchet records its number. That
+  choice is the remaining design decision, and it is the last thing
+  between this item and done.

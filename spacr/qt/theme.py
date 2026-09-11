@@ -2989,7 +2989,23 @@ def _qss_url(path) -> str:
     return f'url("{text}")'
 
 
-def _window_block(theme: str, P: dict, background, body_px: int) -> str:
+def _the_backdrop_is_on() -> bool:
+    """Whether an animated backdrop is running behind the screens.
+
+    Read here rather than passed in, because `stylesheet()` has a dozen
+    callers and none of them knows about the backdrop. Guarded: a build
+    without preferences -- a test composing a sheet, a docs run -- gets the
+    opaque window block, which is what it had before this existed.
+    """
+    try:
+        from .preferences import get_ambient_enabled
+        return bool(get_ambient_enabled())
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def _window_block(theme: str, P: dict, background, body_px: int,
+                  backdrop: bool = False) -> str:
     """The base + top-level-window rules, which image themes rewrite.
 
     An image theme needs three things the opaque themes do not: a
@@ -2997,8 +3013,25 @@ def _window_block(theme: str, P: dict, background, body_px: int) -> str:
     is not covered by every child, and each top-level window type
     explicitly re-opaqued so a stray plain ``QWidget`` window does not
     render as a hole.
+
+    AN ANIMATED BACKDROP NEEDS THE SAME THREE, and that is what
+    ``backdrop`` is for. The window's own backdrop sits behind the screen
+    stack, so every plain ``QWidget`` container painting an opaque ``bg``
+    over it hides it -- and on the dark theme ``bg`` is ``#000000``.
+    Measured from X on this machine, the home screen with the one-backdrop
+    dedup switched back on:
+
+        theme    without this            with it
+        dark     3.0 % chromatic,        58.3 % chromatic,
+                 20.4 % pure black       0.0 % pure black
+        cell     93.5 %, 0.2 %           unchanged, it is an image theme
+        glass    67.3 %, 0.0 %           unchanged, likewise
+
+    The picture is the difference between a theme and a black window. The
+    window still paints the theme's own ground rather than an image, so
+    nothing here depends on a cached master existing.
     """
-    if theme not in IMAGE_THEMES:
+    if theme not in IMAGE_THEMES and not backdrop:
         return f"""QWidget {{
     background-color: {P["bg"]};
     color: {P["fg"]};
@@ -3010,7 +3043,13 @@ QMainWindow, QDialog {{
     background-color: {P["bg"]};
 }}"""
 
-    if background is not None:
+    if theme not in IMAGE_THEMES:
+        # THE THEME'S OWN GROUND, NOT A PICTURE. An opaque theme running an
+        # animated backdrop needs `QWidget` transparent so the animation is
+        # not covered, and the window itself opaque so a desktop without a
+        # compositor does not show through. It has no master to paint.
+        sky = f'background-color: {P["bg"]};'
+    elif background is not None:
         sky = (f'background-color: {P["bg"]};\n'
                f'    background-image: {_qss_url(background)};\n'
                '    background-position: center center;\n'
@@ -4043,7 +4082,7 @@ QToolButton#SectionHeader[maturity="{stage}"]:checked {{
 /* -----------------------------------------------------------------
  *  Base
  * ----------------------------------------------------------------- */
-{_window_block(theme, base, background, F["body"])}
+{_window_block(theme, base, background, F["body"], _the_backdrop_is_on())}
 /* Page surfaces — see `make_transparent`. A widget carrying this
  * property paints nothing at all, so whatever sits behind the page
  * shows through it: the wallpaper in an image theme, the DNA rain on
