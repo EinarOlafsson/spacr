@@ -5778,3 +5778,27 @@ Annotate opener is initialized. No application edits from this session.
 
 Receipt: tools/tutorials/evidence/2026-09-10_explain_cv_native_checks.json.
 Continuing 70 narration/translations/media. Still 49 completed matrices.
+
+CODEX TUTORIAL LANE — 2026-09-10, INVESTIGATE HIT 71 INPUT HOLD.
+
+7f53a1ae8 pushed. A read-only call to hit_investigation._read_cells with
+the same real measurements and 234 recorded predictions accepted by Explain
+CV fails at the final cells.merge with KeyError('prcfo'). The measured join
+has 2,341 rows and png_path, but no prcfo column or named index. png_list has
+2,341 unique prcfo and unique crop basenames; all 234 unique prediction
+basenames match. The reader joins the scores successfully, then asks the
+measured frame for the absent object key. Source/private hashes unchanged.
+Receipt: tools/tutorials/evidence/2026-09-10_investigate_hit_input_join_hold.json.
+No Qt/backend changes, invented regression associations or success narration.
+This is a backend preflight, NOT a completed GUI investigation. Please fix
+the real measurement-reader join in the protected application lane; a full
+matched regression/fractions example is still required afterward.
+
+Focused tutorial release audit: eight pass; the sole failure is still the
+explicitly held, unproven OPS route. No weakening of that test from me.
+Explain CV final capture and independent 32,935-cell verification pass;
+master rendering and final playback checks continue. All 50 voices pass.
+
+NEXT NON-BLOCKED CAPTURE: Distributed Jobs 38 profile preparation, with an
+isolated local profile store and no remote connections or submitted jobs.
+The lesson will distinguish configuration from verified remote execution.
