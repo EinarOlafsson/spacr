@@ -218,8 +218,12 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
     # This count is over the fully registered list shown after launch. It is
     # intentionally ratcheted: signing an app off removes its alpha/beta
     # entry, while adding an unvalidated app increases the count explicitly.
-    assert len(staged) == 29, (
-        f"{len(staged)} apps staged, not 29 — if that is intended, say so "
+    # 29 -> 30 on 2026-09-11, +1/-0, and it IS intended: `embeddings`, the
+    # Embeddings screen 386 added in 067a0a5a7 -- the self-supervised
+    # feature source, registered from its own module. It is staged because
+    # it is new, which is exactly what this count is for.
+    assert len(staged) == 30, (
+        f"{len(staged)} apps staged, not 30 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 

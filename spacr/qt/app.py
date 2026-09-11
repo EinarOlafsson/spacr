@@ -5303,6 +5303,63 @@ class MainWindow(QMainWindow):
         except Exception:                                    # noqa: BLE001
             pass
 
+    def stylesheet_roots(self):
+        """The widgets that carry the application sheet, instead of me.
+
+        WHY NOT THE WINDOW. Setting a stylesheet on a window repolishes
+        every descendant, and a session that has opened four modules owns
+        8,002 widgets of which 7,595 are inside module screens -- ONE of
+        which is on screen. Measured on this box, four modules open,
+        alternating dark and light:
+
+            the whole window            945 ms first, ~1,479 ms steady
+            chrome + the visible page   300 ms first,   ~310 ms steady
+
+        WHAT IS IN THE LIST, and the shape is not the obvious one. The
+        chrome is 407 widgets and only TWO of them are reachable from the
+        central widget -- the dock, the sidebar and the status strip hang
+        off the window itself. An implementation that walked the central
+        widget would leave 405 unstyled and look almost right, which is
+        why `tests/qt/test_every_widget_wears_the_current_theme.py` does
+        exactly that on purpose and asserts it is caught.
+
+        So: every direct child of the window except the central widget,
+        every direct child of the central widget except the stack, and the
+        stack's CURRENT page. The pages that are not showing are marked
+        instead, and sheeted on their own `showEvent` before they are
+        painted.
+        """
+        from PySide6.QtCore import Qt
+
+        from .theme import mark_as_a_sheet_target
+
+        central = self.centralWidget()
+        stack = getattr(self, "_stack", None)
+        if central is None or stack is None:
+            return [self]
+
+        roots = [kid for kid in self.findChildren(
+            QWidget, options=Qt.FindDirectChildrenOnly) if kid is not central]
+        roots.extend(kid for kid in central.findChildren(
+            QWidget, options=Qt.FindDirectChildrenOnly) if kid is not stack)
+
+        # EVERY DIRECT CHILD OF THE STACK, not every indexed PAGE. The
+        # sidebar's `EdgeDrawer` is parented to the stack and is not one of
+        # its pages, so a loop over `stack.widget(i)` misses it and misses
+        # every dock row inside it -- found by the guard, which reported
+        # exactly one genuinely unsheeted widget out of 207 sampled and
+        # named its ancestry.
+        current = stack.currentWidget()
+        for page in stack.findChildren(QWidget,
+                                       options=Qt.FindDirectChildrenOnly):
+            mark_as_a_sheet_target(page)
+            # VISIBLE RATHER THAN CURRENT, for the same reason: the drawer
+            # is on screen beside the page, and "the one the stack would
+            # raise" is not the same question as "the one the user sees".
+            if page is current or page.isVisible():
+                roots.append(page)
+        return roots or [self]
+
     def window_backdrop(self):
         """The one backdrop behind the dock AND the page, or ``None``.
 

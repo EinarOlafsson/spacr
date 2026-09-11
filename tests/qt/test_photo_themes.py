@@ -1174,7 +1174,15 @@ class TestStylesheet:
         # design and asserting it would now be asserting the opposite of
         # what this test means.
         assert theme.window_stylesheet(qapp)
-        assert window.styleSheet()
+        # NOT `window.styleSheet()`. 380's last lever has the window
+        # NOMINATE the widgets that carry the sheet -- its chrome and the
+        # page on show -- because sheeting the window repolishes every
+        # hidden module screen with it, 7,595 widgets of 8,002 with four
+        # modules open. So the window itself is deliberately bare and the
+        # roots are where the sheet landed.
+        roots = window.stylesheet_roots()
+        assert any(root.styleSheet() for root in roots), (
+            "the theme reached neither the window nor any root it named")
 
 
 # ---------------------------------------------------------------------------

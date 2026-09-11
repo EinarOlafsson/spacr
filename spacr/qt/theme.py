@@ -3509,10 +3509,63 @@ class _SheetsEveryWindowThatAppears(QObject):
         if event.type() in (QEvent.Polish, QEvent.Show):
             try:
                 if watched.isWindow():
+                    for root in _roots_for(watched):
+                        _sheet_one_window(root)
+                elif watched.property(_SHEET_TARGET):
+                    # A NOMINATED ROOT COMING BACK ON SCREEN. It was left
+                    # out of the last change on purpose because nobody
+                    # could see it; this is the moment that stops being
+                    # true, and it is before the first paint.
                     _sheet_one_window(watched)
             except (AttributeError, RuntimeError):
                 pass
         return False
+
+
+#: Marks a widget that is NOT a window but is sheeted as if it were: a
+#: module screen that a window has asked to carry its own copy, so the
+#: window's sheet does not have to reach through it.
+_SHEET_TARGET = "_spacr_is_a_sheet_target"
+
+
+def mark_as_a_sheet_target(widget) -> None:
+    """Have ``widget`` carry the application sheet in its own right.
+
+    FOR A WIDGET A WINDOW DOES NOT WANT TO SHEET THROUGH. A module screen
+    is the case: sheeting the window reaches every hidden screen with it,
+    and with four modules open that is 7,595 of the window's 8,002 widgets
+    repolished so that one screen can change colour.
+
+    A marked widget is sheeted when the sheet changes IF IT IS VISIBLE, and
+    on its next `showEvent` otherwise -- which is what makes not sheeting
+    it now safe.
+    """
+    try:
+        widget.setProperty(_SHEET_TARGET, True)
+    except (AttributeError, RuntimeError):
+        pass
+
+
+def _roots_for(window):
+    """What to sheet for ``window``: itself, or the roots it nominates.
+
+    A window that knows its own structure can say which widgets should
+    carry the sheet instead of it -- `MainWindow` nominates its chrome and
+    the screen that is actually on show. Anything that does not answer is
+    sheeted whole, which is every dialog, menu and tooltip.
+
+    THE WINDOW DECIDES, NOT THIS MODULE. Enumerating a main window's
+    furniture from here would put one screen's layout into the theme
+    engine and be wrong the moment either changed.
+    """
+    nominate = getattr(window, "stylesheet_roots", None)
+    if not callable(nominate):
+        return [window]
+    try:
+        roots = [root for root in nominate() if root is not None]
+    except Exception:                                        # noqa: BLE001
+        return [window]
+    return roots or [window]
 
 
 def _sheet_one_window(window) -> bool:
@@ -3675,8 +3728,9 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
 
     sheeted = 0
     for window in list(app.topLevelWidgets()):
-        if _sheet_one_window(window):
-            sheeted += 1
+        for root in _roots_for(window):
+            if _sheet_one_window(root):
+                sheeted += 1
     return sheeted
 
 

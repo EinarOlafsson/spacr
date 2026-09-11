@@ -216,11 +216,32 @@ def test_the_real_window_wears_one_theme_everywhere(sheeted, qtbot):
     sample = [host for host in hosts[::step]
               if "color" not in (host.styleSheet() or "").lower()]
     probes = [(host, QLabel(host)) for host in sample]
-    stale = [type(host).__name__ for host, label in probes
+    stale = [(host, label) for host, label in probes
              if _resolved(label) != SECOND_HEX]
-    assert not stale, (
-        f"{len(stale)} of {len(probes)} sampled widgets did not receive "
-        f"the sheet: {sorted(set(stale))[:8]}")
+
+    # A DEFERRED ROOT IS NOT A MISSED ONE, and this is the contract the
+    # change introduced rather than a softening of the old one. A module
+    # screen that is not on show carries a mark instead of the sheet and
+    # takes it on its own `showEvent`, before it is painted -- which is
+    # what makes leaving it out of the change cheap AND correct. The
+    # companion test below shows one and checks it arrives themed.
+    def deferred(host):
+        node = host
+        while node is not None and node is not window:
+            if node.property("_spacr_is_a_sheet_target") \
+                    and not node.isVisible():
+                return True
+            node = node.parentWidget()
+        return False
+
+    missed = [type(host).__name__ for host, _label in stale
+              if not deferred(host)]
+    assert not missed, (
+        f"{len(missed)} of {len(probes)} sampled widgets are neither "
+        f"sheeted nor deferred: {sorted(set(missed))[:8]}")
+    assert len(stale) - len(missed) > 0, (
+        "nothing was deferred, so this run is not exercising the case the "
+        "deferral exists for")
 
 
 @pytest.mark.slow
@@ -270,3 +291,51 @@ def test_the_guard_catches_the_mistake_the_per_screen_change_would_make(
         "the guard cannot tell a reached widget from a chrome widget the "
         "narrow implementation forgot, so it would pass for a change that "
         "left 405 of them unstyled")
+
+
+@pytest.mark.slow
+def test_a_screen_shown_later_arrives_wearing_the_theme(sheeted, qtbot):
+    """THE OTHER HALF OF LEAVING A HIDDEN SCREEN OUT.
+
+    Not sheeting a screen nobody can see is only safe if it is sheeted the
+    moment that stops being true -- and before its first paint, or the user
+    sees one frame of the previous theme. That is the failure mode
+    instruction 380 names for this whole family of changes: "a dialog
+    opening in the previous theme".
+    """
+    from spacr.qt import register_self_registering_modules
+    from spacr.qt.app import MainWindow
+
+    app = QApplication.instance()
+    register_self_registering_modules()
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1200, 800)
+    window.show()
+    for _ in range(60):
+        app.processEvents()
+    for key in ("mask", "measure"):
+        try:
+            window._on_nav_selected(key)
+        except Exception:                                    # noqa: BLE001
+            pytest.skip(f"{key} would not open here")
+        for _ in range(60):
+            app.processEvents()
+
+    stack = window._stack
+    hidden = [stack.widget(i) for i in range(stack.count())
+              if stack.widget(i) is not stack.currentWidget()]
+    hidden = [page for page in hidden if page is not None]
+    if not hidden:
+        pytest.skip("every page is on show, so nothing was deferred")
+
+    sheeted(app, SECOND)
+    page = hidden[-1]
+    stack.setCurrentWidget(page)
+    for _ in range(30):
+        app.processEvents()
+
+    probe = QLabel(page)
+    assert _resolved(probe) == SECOND_HEX, (
+        "a screen shown after the theme change arrived in the previous "
+        "theme, which is exactly what the deferral must not cost")
