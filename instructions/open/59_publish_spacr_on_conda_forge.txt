@@ -2,7 +2,38 @@
 PUBLISH spaCR ON CONDA-FORGE
 ================================================================================
 
-Status:    not started
+Status:    THE RECIPE IS WRITTEN AND VALIDATED, 2026-09-11. Everything that
+           can be done without an outward-facing action is done; what remains
+           is ONE submission the maintainer makes.
+
+           VALIDATED THIS MORNING, item by item, rather than assumed:
+             * version 1.5.0.6, matching setup.py -- it had been pinned to
+               1.5.0.4 while PyPI served 1.5.0.6, so conda-forge would have
+               published a two-release-old package as current. A test now
+               guards that (`test_the_conda_recipe_names_the_version_this_
+               repo_ships`), because `packaging/release.py bump` rewrites
+               setup.py, _version.py and CITATION.cff and NOT this recipe.
+             * sha256 3654060d... verified by downloading the 46 MB sdist
+               and hashing it, not by trusting PyPI's JSON.
+             * every `about` field conda-forge requires is present:
+               homepage, summary, license, license_file, documentation,
+               repository.
+             * `extra: recipe-maintainers: [EinarOlafsson]` present.
+             * `license_file: LICENSE` does NOT sit beside the recipe, which
+               looks wrong and is not: conda-build resolves it inside the
+               extracted source, and `spacr-1.5.0.6/LICENSE` IS in the
+               published sdist. Checked by listing the tarball.
+             * NO ENTRY-POINT DRIFT. The recipe installs with `pip install .`
+               so all ten console_scripts come from setup.py automatically;
+               the three names in the recipe are its TEST section, not a
+               declaration that could fall out of step.
+
+           WHAT IS LEFT, and it is not code: opening the pull request to
+           conda-forge/staged-recipes. That is a one-time reviewed submission
+           to an external repository -- an outward-facing, hard-to-undo
+           action on a project spaCR does not own -- so it waits for the
+           maintainer rather than being done on his behalf. `conda-forge/
+           README.md` carries the steps.
 Requested: 2026-08-08 — "get spacr published on conda-forge"
 
 --------------------------------------------------------------------------------
