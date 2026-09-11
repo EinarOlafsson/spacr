@@ -1,0 +1,81 @@
+{
+  "id": "53_prediction_profiler",
+  "number": 53,
+  "slug": "prediction_profiler",
+  "title": "Prediction Profiler",
+  "series": 5,
+  "app_key": "profiler",
+  "section": "Explore",
+  "description": "Import a fitted synthetic model, sweep one input, and verify how held values and plotting choices affect its displayed predictions.",
+  "objectives": [
+    "Open Prediction Profiler inside Regression and import a suitable coefficient table.",
+    "Distinguish model fitting, inverse link, assumed input ranges and plot resolution.",
+    "Compare both inputs, move held values and restore the default midpoint."
+  ],
+  "example_files": ["SYNTHETIC_profiler_example.zip"],
+  "prerequisite": "Extract the supplied explicitly SYNTHETIC example into a new folder. It includes 121 constructed observations, a genuine statsmodels OLS fit saved as feature/coefficient CSV, its manifest and a reproducible preparation script. No biological or held-out validation claim is made. The native GUI imports only coefficients, including the Intercept; it does not fit the model or load these observations. Keep the identity link. The file route assumes a two-row 0..1 design and midpoint held values. Ranking uses the 5th/95th quantiles, hence 0.05..0.95 here; plotted curves span 0..1. All 338 recorded curve values and twelve ranking values were checked independently against the saved fitted coefficients. Permutation-test marginal effects are not interchangeable with a jointly fitted predictive model. API: spacr.profiler.from_coefficients, profile, sensitivity; ProfilerScreen.set_model/set_design accept an existing fitted model/design programmatically, but those are not file-picker controls. No confidence intervals, causal effects, publication or listening approval are claimed.",
+  "scenes": [
+    {
+      "visual": "01_regression_host",
+      "narration": "Open Regression, then Prediction Profiler in its nested tools. This lesson uses a clearly labelled synthetic teaching example, not biological screening results. We inspect a fitted model by moving one input while holding the other fixed. The profiler reads the model; it does not train another one.",
+      "focus": [460, 45, 3340, 540],
+      "related_lessons": ["13_regression"],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_explicit_synthetic_coefficients_picker",
+      "narration": "Download and extract the accompanying example, then Browse to its synthetic OLS coefficients file. It contains an intercept and two fitted input coefficients. The archive also supplies the observations and preparation script. These coefficients came from an actual least-squares fit to constructed data, not invented regression output.",
+      "focus": [890, 390, 1920, 1080],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_link_options_keep_identity",
+      "narration": "Keep Link at identity because this example was fitted by ordinary least squares. Other links belong to different model families; changing this selector does not convert or retrain your original model. A plausible curve on the wrong response scale is still wrong. Always use the link from the fit.",
+      "focus": [2910, 465, 900, 610],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_loaded_identity_model",
+      "narration": "Read the status message: no design matrix was supplied, so the file route assumes every input ranges from zero to one. Our synthetic inputs have that range, but yours may not. The ranking uses the fifth and ninety-fifth percentiles; its Moves by value is not the full plotted endpoint difference.",
+      "focus": [470, 530, 3320, 240],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_hold_b_at_one",
+      "narration": "Input A is selected for the sweep. Move the Input B slider from its midpoint to one. The predicted response shifts downward because B has a negative fitted coefficient. This changes the held scenario, not the training data or coefficients. Read the numeric endpoints as well as the line's shape.",
+      "focus": [1480, 590, 2320, 1440],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_hold_b_at_zero",
+      "narration": "Move B to zero and compare again. The response shifts upward. The plot rescales its vertical axis, so parallel-looking lines can represent different response levels. These are predictions within one assumed model, not evidence that changing B would cause an experimental effect.",
+      "focus": [1480, 590, 2320, 1440],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_reset_midpoints",
+      "narration": "Reset held values returns the sliders to the midpoint of the assumed ranges, one half here. It does not refit the model. For this file-only route, the midpoint is not a median measured from your original dataset: that dataset was never loaded into the profiler.",
+      "focus": [1470, 1435, 2330, 660],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_sweep_second_input",
+      "narration": "Select Input B in the ranked list. Now B is swept across the horizontal axis and A is held at one half. The descending curve matches B's negative coefficient. The list is a model-sensitivity ranking, not a significance test, a confidence interval or a list of validated biological hits.",
+      "focus": [470, 590, 3330, 940],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_eleven_grid_points",
+      "narration": "Change Points from sixty-one to eleven. This chooses how many positions are evaluated for the plotted curve; it does not change the sample size or fit quality. Our linear example keeps the same endpoints. More plotting points cannot add observations, reduce uncertainty or improve an already fitted model.",
+      "focus": [1480, 465, 2320, 1040],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_hold_a_at_one",
+      "narration": "With B still selected, move A to one and inspect the new response endpoints, then reset when finished. For your own work, supply coefficients from a suitable fitted model and check its link, intercept, encoding and ranges. Do not substitute separate permutation-test effects for a jointly fitted predictive model.",
+      "focus": [1480, 590, 2320, 1490],
+      "related_lessons": ["06_api", "75_regression_diagnostics"],
+      "hold_after": 0.7
+    }
+  ]
+}

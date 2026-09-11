@@ -51,3 +51,19 @@ def test_prepare_is_fitted_synthetic_and_never_overwrites(tmp_path):
     before = {p.name:p.read_bytes() for p in path.iterdir()}
     with pytest.raises(FileExistsError): example.prepare(path)
     assert {p.name:p.read_bytes() for p in path.iterdir()} == before
+
+
+def test_package_preserves_fit_and_refuses_changed_input(tmp_path):
+    import zipfile
+    source = tmp_path/'source'; example.prepare(source)
+    result = example.package(source, tmp_path/'example.zip')
+    assert result['members'] == 5 and result['source_refitted'] is False
+    with zipfile.ZipFile(tmp_path/'example.zip') as archive:
+        for name in ('SYNTHETIC_OLS_coefficients.csv', 'SYNTHETIC_observations.csv', 'manifest.json'):
+            assert archive.read('SYNTHETIC_profiler/'+name) == (source/name).read_bytes()
+    saved = (tmp_path/'example.zip').read_bytes()
+    with pytest.raises(FileExistsError): example.package(source, tmp_path/'example.zip')
+    assert (tmp_path/'example.zip').read_bytes() == saved
+    (source/'SYNTHETIC_OLS_coefficients.csv').write_text('feature,coefficient\nIntercept,999\n')
+    with pytest.raises(ValueError, match='manifest'): example.package(source, tmp_path/'bad.zip')
+    assert not (tmp_path/'bad.zip').exists()
