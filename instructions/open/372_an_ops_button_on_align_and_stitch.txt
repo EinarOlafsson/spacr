@@ -69,10 +69,28 @@ Status:    BEING REBUILT ON THE MEASURED PLAN, 2026-09-09. The maintainer
            for torch BY NAME exactly as this file demands, so it runs where
            there is no card at all -- the requirement and the code match.
 
-           STILL UNSTARTED: PHASE C ALONE. Reading sequencing and phenotype
-           channels at B4's coordinates, per cycle, through the A2/A3
-           transforms. It is unblocked -- its B5 gate exists and passes --
-           and it is now the only phase between here and a finished OPS run.
+           PHASE C'S SAMPLING HALF IS BUILT, 2026-09-11:
+           `spacr/ops_sample.py` reads any channel at B4's coordinates
+           through an injected transform, stacks the cycles for the decoder,
+           and emits the `ops_reads` and `ops_barcodes` rows Phase D stores.
+           C1's "NEVER averaged across cycles" is ENFORCED rather than
+           documented -- `decode_input` refuses a single cycle, which is what
+           a caller who already averaged hands over and is indistinguishable
+           from a lost cycle axis. The phenotype average is a SEPARATE
+           function, not a flag, because the same operation is right for a
+           phenotype channel and catastrophic for a sequencing one.
+           Seventeen tests on planted barcodes.
+
+           WHAT PHASE C STILL NEEDS, and it is not code: a real cycle stack.
+           The sampling, the stacking, the base calls and the assembly are
+           all written and all checked against planted truth; what none of
+           them has seen is an actual acquisition, which is the same gap
+           PART 3-A names for the whole item. C3's cross-cycle assembly runs
+           through `ops_sbs.call_reads`, which was already validated that
+           way.
+
+           SO EVERY PHASE NOW HAS CODE. What remains for 372 as a whole is
+           the thing it has always been short of: real data through it.
 
            ORIGINAL STATUS FOLLOWS, and PART 5's memory work stands: it
            replaced PART 4's order-of-magnitude guess with the real
