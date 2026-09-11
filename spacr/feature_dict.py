@@ -150,6 +150,17 @@ FEATURE_FAMILIES: dict[str, str] = {
         "measurements, the per-object handle on local density — a dominant "
         "confounder in image screens."
     ),
+    "embedding": (
+        "One dimension of a self-supervised image embedding, from "
+        ":mod:`spacr.embeddings`. NOT a measurement of anything nameable: the "
+        "panel above measures what somebody thought to name, and these "
+        "measure whatever the encoder found useful, which is the point of "
+        "having them. A single dimension means nothing on its own and should "
+        "never be read as a phenotype — they are only interpretable as a "
+        "vector, through a reduction, a retrieval or an attribution. Under "
+        "the default per-channel policy the channel is in the name, so an "
+        "attribution can still say WHICH STAIN carried the signal."
+    ),
     "meta": (
         "Identifiers and bookkeeping — plate/well/field, object labels, file "
         "paths, settings. Not a measurement; never feed these to a model as "
@@ -2859,6 +2870,54 @@ def _parse_organelle_summary(name: str, measurement_units: str | None = None
     )
 
 
+def _parse_embedding(name: str) -> "FeatureEntry | None":
+    """Describe one ``emb_`` column, or ``None`` when it is not one.
+
+    The grammar is :func:`spacr.embeddings.embedding_column_names`'s own::
+
+        emb_c<channel>_<dimension>    per-channel encoding (the default)
+        emb_rgb_<dimension>           after a projection onto three channels
+
+    THE CHANNEL IS RECOVERED, not merely the family, because that is the
+    whole argument for the per-channel default: an attribution that can say
+    "the signal is in channel 2" is worth N forward passes, and it can only
+    say that if the column still knows which channel it came from.
+
+    Imported lazily so this dictionary keeps working when the embedding
+    engine's optional dependencies are absent -- describing a column must
+    never require the machinery that produced it.
+    """
+    if not name.startswith("emb_"):
+        return None
+    try:
+        from .embeddings import channel_of_column
+    except Exception:
+        channel = None
+        rest = name[4:]
+        if rest.startswith("c") and "_" in rest:
+            head = rest.split("_", 1)[0][1:]
+            channel = int(head) if head.isdigit() else None
+    else:
+        channel = channel_of_column(name)
+
+    projected = name.startswith("emb_rgb_")
+    info = PropertyInfo(
+        family="embedding",
+        description=(
+            "One dimension of a self-supervised embedding of this object's "
+            + ("projected three-channel image."
+               if projected else
+               f"channel {channel} crop.")
+            + " Meaningless alone; use the emb_ family as a vector."),
+        unit=None,
+        computed_by="spacr.embeddings.embed_array",
+        notes=("Embedding dimensions are not comparable between runs unless "
+               "the same encoder, weights and channel policy were used. The "
+               "model zoo entry records all three."),
+    )
+    return _entry(name, info, key=name, channel=channel)
+
+
 def parse_column(name: str, measurement_units: str | None = None
                  ) -> FeatureEntry:
     """Decompose one ``measurements.db`` column name into a described feature.
@@ -2899,6 +2958,15 @@ def parse_column(name: str, measurement_units: str | None = None
     info = META_COLUMNS.get(name)
     if info is not None:
         return _entry(name, info, key=name, measurement_units=measurement_units)
+
+    # 1b. embedding dimensions (spacr/embeddings.py). BEFORE the object
+    #     prefix is looked for, because these carry no object prefix at all --
+    #     they are keyed to an object id rather than named for an object type,
+    #     and falling through to the structural parse would classify every one
+    #     of them as "unknown" and hide the whole family from the pickers.
+    embedding = _parse_embedding(name)
+    if embedding is not None:
+        return embedding
 
     # 2. per-parent organelle summaries, before the object prefix is stripped
     #    (the prefix 'organelle_' would otherwise swallow the family name).
