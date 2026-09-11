@@ -3438,11 +3438,11 @@ _WINDOW_SHEET_FILTER = None
 class _SheetsEveryWindowThatAppears(QObject):
     """Gives a window born after a theme change the theme, not the last one.
 
-    THIS IS THE WHOLE RISK OF NOT USING `QApplication.setStyleSheet`, named
-    in instruction 380: that call "covers every widget that exists AND every
-    one created later -- dialogs, popups, menus, a screen built after the
-    change", and "the failure mode is a dialog opening in the previous
-    theme, which is exactly compromising functionality".
+    THIS IS THE WHOLE RISK OF NOT USING `QApplication.setStyleSheet`. That
+    call covers every widget that exists AND every one created later --
+    dialogs, popups, menus, a screen built after the change -- and the
+    failure mode of not reproducing it is a dialog opening in the previous
+    theme.
 
     A per-window sheet has to reproduce that, and the moment to do it is
     `QEvent.Polish` -- Qt's own "this widget is about to need its style" --
@@ -3531,6 +3531,9 @@ def window_stylesheet(app=None) -> Optional[str]:
 
     The replacement for reading ``app.styleSheet()`` back: that is empty now
     and says nothing about what the windows are wearing.
+
+    :param app: the application to read it off; the running one by default.
+    :returns: the sheet, or ``None`` if no per-window sheet is installed.
     """
     app = app or QApplication.instance()
     if app is None:
@@ -3556,8 +3559,14 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
     A QUARTER OF THE COST FOR THE SAME PICTURE. The floor is lower still --
     222 ms is what the visible screen costs on its own -- and reaching it
     means not sheeting the hidden screens either, which is a bigger change
-    than this one and is recorded in 380 rather than attempted here.
+    than this one.
 
+    :param app: the ``QApplication`` whose windows wear the sheet, and where
+        the sheet itself is parked so a window created later can find it.
+        ``None`` is accepted and does nothing, so a caller running without
+        an application does not have to check first.
+    :param sheet: the complete application stylesheet, as
+        :func:`stylesheet` composes it.
     :returns: the number of windows the sheet was put on.
     """
     global _WINDOW_SHEET_FILTER

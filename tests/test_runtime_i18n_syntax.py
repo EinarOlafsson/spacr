@@ -94,7 +94,22 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # live source value and still pass the current syntax, semantic, script
     # and exact-copy gates, so a record that has drifted fails here rather
     # than being absorbed by a looser count.
-    assert len(reviewed) == 99
+    # 99 -> 98 on 2026-09-11, +1/-2, and the number follows the evidence as
+    # this note says it must.
+    #
+    #   GONE, both of them tooltips for settings 364 deleted: the legacy
+    #   Image-UMAP crop selector ("the current workflow always joins
+    #   measurement tables...") and one of the legacy compatibility fields
+    #   ("current plotting paths do not read it"). A reviewed record for a
+    #   source that is no longer in the catalog is not evidence about
+    #   anything, and it left with the setting.
+    #
+    #   ADDED: 'press Escape to close'. The rebuilt catalogs had replaced a
+    #   good row with "Appuyez sur Échapper pour fermer" -- the key name
+    #   translated as the verb -- in eight of the nine languages, and
+    #   nothing claimed the row, so the rebuild was free to. It is claimed
+    #   now.
+    assert len(reviewed) == 98
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

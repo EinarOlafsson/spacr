@@ -233,7 +233,9 @@ def test_process_chunk_rejects_a_non_positive_window(tmp_path):
     with pytest.raises(ValueError) as exc:
         SEQ.process_chunk(([_fastq(_read())], _REGEX, _TARGET, -8, 0,
                            c, g, r, False))
-    assert "expected_end must be a positive integer" in str(exc.value)
+    # 364 renamed `expected_end` to `window_length`, and the message went
+    # with it so it names the setting the user has.
+    assert "window_length must be a positive integer" in str(exc.value)
 
 
 @pytest.mark.parametrize("record,fragment", [
