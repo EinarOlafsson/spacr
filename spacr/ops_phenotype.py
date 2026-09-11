@@ -528,7 +528,13 @@ def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
     # the same noise on a pair a third of the field apart is a fraction of
     # a degree. Short pairs are also where the separation test stops
     # discriminating, because almost any target pair passes it.
-    extent = float(max(src[:, 0].ptp(), src[:, 1].ptp()))
+    # `np.ptp(a)` AND NOT `a.ptp()`: NumPy 2.0 removed the ndarray METHOD
+    # and kept only the function. Every other `ptp` in this package was
+    # already written the surviving way, so this line was the one that
+    # raised AttributeError on any NumPy 2 install -- which is every
+    # install now, and is why this module measured 52% in the coverage
+    # sweep: seven tests could not reach past it.
+    extent = float(max(np.ptp(src[:, 0]), np.ptp(src[:, 1])))
     min_span = 0.2 * extent
     for _ in range(max(1, int(trials))):
         i, j = rng.choice(src.shape[0], size=2, replace=False)

@@ -165,7 +165,7 @@ class TestSeedingWithTheScaleKnown:
         # those two points and approximately elsewhere; what it has to be
         # is in the right basin, which the refinement then closes. The
         # tolerance here is a fraction of the field, not a pixel count.
-        extent = float(max(target[:, 0].ptp(), target[:, 1].ptp()))
+        extent = float(max(np.ptp(target[:, 0]), np.ptp(target[:, 1])))
         assert np.abs(moved - target).max() < 0.15 * extent
 
     def test_a_rotation_outside_the_bound_is_never_proposed(self):
