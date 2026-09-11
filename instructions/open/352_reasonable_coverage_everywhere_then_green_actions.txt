@@ -507,3 +507,40 @@ Read on run 34582823707 and its neighbours.
          SO "GREEN ACTIONS" CANNOT BE DEMONSTRATED WHILE ANOTHER SESSION IS
          PUSHING EVERY TWO MINUTES, and saying so is more useful than
          reporting whatever the last uncancelled run happened to say.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE ONE CI FIX THIS SESSION COULD NOT PUSH
+--------------------------------------------------------------------------------
+
+The PyYAML line above is written, tested and correct, and it is NOT on
+nightly. GitHub refused the push:
+
+    ! [remote rejected] HEAD -> nightly (refusing to allow an OAuth App to
+      create or update workflow `.github/workflows/compat-matrix.yml`
+      without `workflow` scope)
+
+`gh auth status` reports scopes 'gist', 'read:org', 'repo' -- no `workflow`.
+So no session authenticated this way can change any file under
+`.github/workflows/`, whatever the change is. Worth knowing before the next
+one is written: a workflow fix from here needs either the scope added or the
+maintainer to apply it.
+
+THE CHANGE, so it does not have to be rediscovered. In
+`.github/workflows/compat-matrix.yml`, the `Install packaging tooling only`
+step of the `metadata` job:
+
+        run: |
+          python -m pip install --upgrade pip
+    -     python -m pip install build twine pytest packaging
+    +     python -m pip install build twine pytest packaging PyYAML
+
+with this comment above the `run:`, which is the part worth keeping:
+
+    # PyYAML IS PACKAGING TOOLING HERE. `CITATION.cff` is YAML, and the
+    # test that asks whether its version DOI belongs to the version it
+    # claims has to read it. Without this the job fails on
+    # `ModuleNotFoundError: No module named 'yaml'` -- a metadata test
+    # reporting a missing test dependency, which reads as a packaging
+    # defect and is not one.
+
+Everything else in this item's 2026-09-11 note is pushed.
