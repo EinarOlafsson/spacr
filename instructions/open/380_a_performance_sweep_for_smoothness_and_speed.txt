@@ -544,3 +544,59 @@ first half of the job, not an afterthought.
     now measured as clean (4 ms to expand, 0.07 ms to type, no dropped
     frames), so this is about how long a module screen takes to appear, not
     about smoothness once it is there.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE GUARD FOR THE PER-WINDOW STYLESHEET, WRITTEN FIRST
+--------------------------------------------------------------------------------
+
+This item's own method is "WRITE THE HARNESS FIRST, and prove it catches a
+defect that is already there". The remaining lever -- setting the sheet per
+top-level window instead of on the QApplication -- has not been written
+because of a named risk: "the failure mode is a dialog opening in the
+previous theme, which is exactly compromising functionality", and "it needs
+a display to verify and a session that can watch it happen".
+
+THE SECOND HALF OF THAT IS TRUE OF BEAUTY AND NOT OF THIS. Whether a theme
+LOOKS right needs a display. Whether a widget created after a theme change
+is painting the PREVIOUS theme does not: a stylesheet colour resolves into
+the widget's palette, and an offscreen widget reports it.
+
+    QLabel { color: rgb(200,100,50) }  ->  palette WindowText #c86432
+
+measured on this box, offscreen, after `ensurePolished()` and one
+`processEvents()`.
+
+SO THE GUARD IS IN, BEFORE THE CHANGE:
+`tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py`. Five cases,
+holding exactly one property and nothing about aesthetics -- a widget
+created AFTER a theme change resolves to the SAME theme as one created
+before it:
+
+  * a plain widget made after the change;
+  * one that existed across it;
+  * A DIALOG opened after it, which is 380's own sentence for the risk and
+    is its own top-level window -- precisely what a per-window sheet has to
+    remember;
+  * a whole QMainWindow built after it, which is the module screen the fix
+    would mark dirty and re-sheet on `showEvent`.
+
+AND A NEGATIVE CASE THAT MAKES THE OTHER FOUR MEAN SOMETHING. Under
+`app.setStyleSheet` all four pass for free, because a global sheet covers
+widgets that do not exist yet -- so on their own they would pass for ever
+and prove nothing about the change they exist to protect. The fifth does
+the wrong thing ON PURPOSE: sets the sheet on ONE window's tree, the way a
+per-window implementation looks when it forgets a window, and asserts a
+second top-level does NOT get it.
+
+WHAT IS STILL NOT DONE, and now for a smaller reason. The change itself:
+`apply_preferences_to_app` already has a signature guard that skips the
+rebuild when nothing visual changed, and already clears and reinstalls
+screen-local QSS overlays around the global call, so the overlay mechanism
+is the half that already knows how to give one screen its own sheet.
+Whoever writes it now has a test that fails the moment a window is
+forgotten, which is the part that made writing it unsafe.
+
+  MENUS AND TOOLTIPS ARE STILL UNCOVERED BY THIS GUARD and are the
+  remaining display question: they are top-level windows Qt creates
+  itself, and a test cannot open a native menu. That is a narrower thing
+  to ask someone to look at than "does the theme still work".
