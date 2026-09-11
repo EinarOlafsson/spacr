@@ -1,8 +1,8 @@
 {
-  "scope": "Partial private 1440p checkpoint; batch remains running",
-  "checked_web_copies": 41,
+  "scope": "Private 1440p checkpoint; not publication or complete-library approval",
+  "checked_web_copies": 61,
   "expected_web_copies": 71,
-  "checked_bytes": 176689522,
+  "checked_bytes": 260434112,
   "lessons": [
     {
       "lesson": "01_pypi_github",
@@ -372,29 +372,189 @@
       "master_sha256": "111aca42e2b85810b2cc10044ab0bd8a50efd30039c05ff8d9ab3b0028e91273",
       "rendition_receipt_sha256": "c18ed532a983c6dd472789539eca957932a21c86c9f3b03c16826f366d829753",
       "browser_report_sha256": "d3cbe82f4439d80b25bc1e63639ec42361ff951ba2bd1405d35892fed9f7101b"
+    },
+    {
+      "lesson": "44_data_manager",
+      "bytes": 5100367,
+      "frames": 7117,
+      "rendition_sha256": "4136e21d767caf4950280eef6540c508aabce236b02e753c70ae99945542a774",
+      "master_sha256": "e97801111a1f9c2ec56709ca34cc40e166fa4a8c00284a06bca5c9e8ab125891",
+      "rendition_receipt_sha256": "c2f3aa7c90d6af34a7cb12daf6247dec8c8f9c68abc66f90c00aac99da69474f",
+      "browser_report_sha256": "a4b5b2ce4d8f0fb9bb852bded4813c5a4cad946ba1c27ea2f18e36a08bfa5ceb"
+    },
+    {
+      "lesson": "45_project_browser",
+      "bytes": 2995854,
+      "frames": 6437,
+      "rendition_sha256": "64281e048e55d137a65920f664a2fb72ceb6d5a54cb6c5afb9da841495b638e3",
+      "master_sha256": "bd825286577c1d818d9d528bb36103d2abcf354367f9eb061c53de9c5fddca5b",
+      "rendition_receipt_sha256": "18eba7817ee9dfa4c4171995b82cbcb1297f79fbd783c7001dd9097189eeeafb",
+      "browser_report_sha256": "bc0685d97ab669dc66e12138b964c2f223d3d88398ae4291f42b44cef521119e"
+    },
+    {
+      "lesson": "46_napari_bridge",
+      "bytes": 2344207,
+      "frames": 5130,
+      "rendition_sha256": "9bfab3a96d9d12e18baa16c6179b8b80cb6473ec9120a5e1048885e4a66906d1",
+      "master_sha256": "bf8e846450a6e3f2e2735820680bd453783de7a73858bf2545876acd2f04aac9",
+      "rendition_receipt_sha256": "4dc56e84042cc464296f7906b0e931daf3dc03227cab66dd651ecef8f2041f8c",
+      "browser_report_sha256": "02f3d06d2f0f34a26b58e50d05fdc1089921a13ac264336fb04f5a7c23dd2ac6"
+    },
+    {
+      "lesson": "47_barcode_qc",
+      "bytes": 4216842,
+      "frames": 7194,
+      "rendition_sha256": "b51105772ff86da893ae8a2c7c347be6c5e310782db0f9c1894bf2a2e56acd7c",
+      "master_sha256": "9899e509124d36845c668e794c37b57b644124c678cb0cd50c71d9fad2940b89",
+      "rendition_receipt_sha256": "3e48b6cfd32926f252f36a21978caff8f56aeec456cee72c16a6438dc5e777a2",
+      "browser_report_sha256": "d8f470a3e5fac63f0405488b2b60facc347297a7b6e72a2cbe0c8a4858531410"
+    },
+    {
+      "lesson": "48_hit_list",
+      "bytes": 3880779,
+      "frames": 6328,
+      "rendition_sha256": "0ad7ab6e45c038845a0cf7614b235991da8ce9cbf6e9f81f62ac1bd4b4a63619",
+      "master_sha256": "9dab27e36d9d07864a40095871f6f0479248b1912774a5c3f2cd3fb7b67cdb36",
+      "rendition_receipt_sha256": "4c679bcf0bc3b3c6e7a88cb853d3beb3f225d40ef0227c71b4ab237b54389f0c",
+      "browser_report_sha256": "cee033bcbd06c393868b042a03c0ba2a4c5ed94d01ccc8929468607a2d8aba4c"
+    },
+    {
+      "lesson": "49_methods_results",
+      "bytes": 3138279,
+      "frames": 5792,
+      "rendition_sha256": "cc376db51ca57a66b795b96355168da611ced0470fd59b2d31145feaad3647a5",
+      "master_sha256": "85002c6ffb52beefb7673a34fe481378c86f9adfb6eb53efb50bb34736da98cf",
+      "rendition_receipt_sha256": "b0b955a2bc365f685d5527c4212b263f701ad785ef6278c02d8ef9a08859f988",
+      "browser_report_sha256": "9b883408d3b7a12837bf525fd430f9477bd836e79ef49d6d715281c7731e6d7a"
+    },
+    {
+      "lesson": "50_run_compare",
+      "bytes": 2297709,
+      "frames": 5662,
+      "rendition_sha256": "5263b1c8c966e1551ac5e9a675d45e1b3043c51b50a12aed0bead716870d8185",
+      "master_sha256": "c54199f972597d5b3c5845c63d36e908ef0e26e2f055b1c10aaded8b9461ac0f",
+      "rendition_receipt_sha256": "731e0b885ea256859f375ad642c2a00349c7733ea2d5ef2c415b5ba00b3cfb90",
+      "browser_report_sha256": "b0af5d0d24e24e3725554a571ea6d968c54464d0adaa88ec93da5d412ff88114"
+    },
+    {
+      "lesson": "51_control_charts",
+      "bytes": 2970730,
+      "frames": 5440,
+      "rendition_sha256": "3e5645af9bd231006e2bd81f7f3c1697430c1402767504de5ce9cdad0a2e6db7",
+      "master_sha256": "760e1a0e06f9368e54eeef3a3d1b117b6772e8b5daa16756d6332b8d83a06bf8",
+      "rendition_receipt_sha256": "47560c9930a23c81779bbda6218a80f867000015fb49b9dd367f4bc2e05c364a",
+      "browser_report_sha256": "c86bbe05287c370f59073af2ba5aab99ec714b51dea95b95156cb88030fec4e6"
+    },
+    {
+      "lesson": "52_pipeline_graph",
+      "bytes": 2649660,
+      "frames": 6453,
+      "rendition_sha256": "ec37593511f50cece0b9438d025fb53ed7aafe8fc94993aabbd9eac96e28f51a",
+      "master_sha256": "9d1364e806c0797858ac69b49157916924a94010fcc25458d008dfc9d088bd19",
+      "rendition_receipt_sha256": "4c81c7d85f07d8ef8e6117dfef6eea960baa63a5b59cddb73002362c5725103e",
+      "browser_report_sha256": "c9c0460f7994ea027038e7bf5c938d73fd8624185b7ac423b47d916140eb5477"
+    },
+    {
+      "lesson": "53_prediction_profiler",
+      "bytes": 2183080,
+      "frames": 5714,
+      "rendition_sha256": "f3037a458a38fb6270af7dd3f7a1ef6e01500955335735bb6185ca4103b188dc",
+      "master_sha256": "d48c115f2e75014fd0a4a78f160432e6540e1d4cee9b0b80b5225adf59951f58",
+      "rendition_receipt_sha256": "e29001e99a3c76bf690d39661d602429c08b3865d595fe38a853145649585cac",
+      "browser_report_sha256": "e45770e1b070aaabb1965d3f3cc1077adfdd48589f5b2280179987458d710152"
+    },
+    {
+      "lesson": "54_qc_dashboard",
+      "bytes": 4839481,
+      "frames": 6253,
+      "rendition_sha256": "696f971418a28eabee4bbfcb62fa0be41e61ea03a2bc1069a064af800a8acb1f",
+      "master_sha256": "4eea2bd7a8d1a5599b516245e283f57a490ad1eda70b52f6d2560ed139788ebe",
+      "rendition_receipt_sha256": "30e2e9904f73dcb8c20aedf9f0d56f675ca8e1c0032fec1a9e0bf6088645f3db",
+      "browser_report_sha256": "c6ccf54ec150fab102b8993bf327b58adf2d1ca560978278101e7b729939212f"
+    },
+    {
+      "lesson": "55_image_scatter",
+      "bytes": 3636293,
+      "frames": 6789,
+      "rendition_sha256": "cb752ea076268fd4e4cd97f58d644ceaad9eb5be44538927dec22cdac2c543c6",
+      "master_sha256": "dd209175cdca1e5a3ef2a6d3e9135066ed2bafc1eb1595ba4f038006ae6a7206",
+      "rendition_receipt_sha256": "438f39529e24e9ee7a0d92612fb79ebfa756fb1a8f0b15f61d5e5f39bc3994e6",
+      "browser_report_sha256": "4511f09f350fc1db97a1b7c6b0dfee09a872758d586abf490a63b173538d7b4a"
+    },
+    {
+      "lesson": "57_layer_viewer",
+      "bytes": 5591625,
+      "frames": 12463,
+      "rendition_sha256": "662d755cbf3fe8c9cfd5d84a2c20026d1aad88d98c8b34ad089a9fb4fdce0d00",
+      "master_sha256": "cfbb5dacf61d35e3ec73b05a95edee704b162773eebe8b13b1b46aa87801010a",
+      "rendition_receipt_sha256": "7a594b7e2b8278b6426514c7a78daade811d9843efe34288da9b88b389cc57c7",
+      "browser_report_sha256": "4806cb3a5bae786be6cda0744b036a3a27586cd35df6fa259d7a3e8f156e9a59"
+    },
+    {
+      "lesson": "58_graph_builder",
+      "bytes": 3447027,
+      "frames": 6563,
+      "rendition_sha256": "0308b9882d87f5fc5cb1a5688db4570ff73dae85f295ea98c158587b8b8336da",
+      "master_sha256": "e23ca3fd72b002b986be5c273ea558d20a129b29cbb644b322bf476303ec9510",
+      "rendition_receipt_sha256": "a87103b3a53a133e28d91b074f443b9b57c5458049112d84bf212885d2ee1329",
+      "browser_report_sha256": "1e2e56d88168ab1bc5197bad19587ebb84cb384a7e184aa4003b0714a3a4e3a5"
+    },
+    {
+      "lesson": "59_anndata_export",
+      "bytes": 3247771,
+      "frames": 7931,
+      "rendition_sha256": "d3044af8c86dfe11615a1a283b809420d0b93b8e815bb64842e4a2fcdfd59aa7",
+      "master_sha256": "320608d3a4f37a762ddd5dab8d03a633d8d936ead13749765d6fdb86e58836e9",
+      "rendition_receipt_sha256": "12b4975a153af1a8614a324d36eff74e72eae9a5cad002baf5a36abef45dcdbb",
+      "browser_report_sha256": "ef4c278b1a98b25dd940fb909de9828ac879ee5347d05964cc70300329e02281"
+    },
+    {
+      "lesson": "60_pca",
+      "bytes": 5540892,
+      "frames": 9608,
+      "rendition_sha256": "9bfbba881ff8dc0a88304211881f429b75be85d7df1ea512220b1724f08db616",
+      "master_sha256": "c0b372d8daedcca5ab938d2471b67c63ad024bccb38a09076b41d3acc3f8287f",
+      "rendition_receipt_sha256": "acb39e9ccde1d740e0e0b93f1ad7bcbaaeb3ae8b6962e1f1c47ab95a11683cd5",
+      "browser_report_sha256": "1d751133be032bdedab4a7dadc3a3c80025435655b2cb7cec9669abac4a734cb"
+    },
+    {
+      "lesson": "61_tabulate",
+      "bytes": 4644394,
+      "frames": 10805,
+      "rendition_sha256": "790cc7f9da7ada2f4bc76a049fee7266a6e94d7b36e2388c2326f63fbb076b08",
+      "master_sha256": "d7129c1c1f77bb5e3d826d1ab5550a49afffafabb08520ad9cb5f49a962c4e13",
+      "rendition_receipt_sha256": "d3281a09621a4f9452feb842e119d5444b438f4ee472fc73617d61ed451a724b",
+      "browser_report_sha256": "20c1bd89888d3da57bd055e3b9e981e7817fa3894bb2828adfc5c73eaf68ba21"
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "bytes": 6600789,
+      "frames": 4804,
+      "rendition_sha256": "2b02e389a6555f3185ca336410ca3e271d1114c2caa59c69b3d9d38ce379ed61",
+      "master_sha256": "19a4480160b74bc211099c7c58a793c3fe1d53f9f928c1aa901faa344f787be5",
+      "rendition_receipt_sha256": "1d0640a826f7482e7f3174f1077dfddb9def3b8dd709f01b65b2160d17263050",
+      "browser_report_sha256": "d5f5ab23f038c84614e99d365161c337cf09cef17d874dc13f37a6f55148b6b3"
+    },
+    {
+      "lesson": "63_small_multiples",
+      "bytes": 7166879,
+      "frames": 10171,
+      "rendition_sha256": "fc48bffbaf044bf59f7db6e4c37145e13d7aff30c0671d3e9d7514a966acb8d0",
+      "master_sha256": "d4fc0dc67e385851dc90c95b6da28011d763c03b836142683227902d487ac140",
+      "rendition_receipt_sha256": "9b8c03bb73cab0609b798917bdbc5bbb5d7b2059bed2a6c0b957f7dc04e22dd3",
+      "browser_report_sha256": "4be486b3e4486f6770781a54be77d594c8a905c956d66304febba2692f5ddc67"
+    },
+    {
+      "lesson": "64_gate_editor",
+      "bytes": 7251932,
+      "frames": 12027,
+      "rendition_sha256": "ca05d7c4cf7acf183b0b9689b95f68bf8d6f11ec06411a870e87cff09bf9f9de",
+      "master_sha256": "0663f7b4a760bec99a306e30d6c617062bd3a7b6a3e70daed47745e88a0a400a",
+      "rendition_receipt_sha256": "d2aaaa8357679261eabc69fb666cc345f4d5108a179088924cd8844a053eb2a4",
+      "browser_report_sha256": "6d9db1c33d549a536aa0059f4e59fb1fa755e2814eb47afd4d7af9449a953797"
     }
   ],
   "remaining": [
-    "44_data_manager",
-    "45_project_browser",
-    "46_napari_bridge",
-    "47_barcode_qc",
-    "48_hit_list",
-    "49_methods_results",
-    "50_run_compare",
-    "51_control_charts",
-    "52_pipeline_graph",
-    "53_prediction_profiler",
-    "54_qc_dashboard",
-    "55_image_scatter",
-    "57_layer_viewer",
-    "58_graph_builder",
-    "59_anndata_export",
-    "60_pca",
-    "61_tabulate",
-    "62_feature_dictionary",
-    "63_small_multiples",
-    "64_gate_editor",
     "65_feature_explorer",
     "66_outliers",
     "67_experiment_design",
