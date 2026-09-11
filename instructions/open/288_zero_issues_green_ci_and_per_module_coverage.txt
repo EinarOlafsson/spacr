@@ -2297,3 +2297,48 @@ THE OTHER 25, BY WHAT THEY WERE:
 
 LEFT RED, AND NAMED: three in Codex's tutorial tree (see 358), and the API
 catalogs, which are rebuilding as this is written.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE ONE GENUINELY ORDER-SENSITIVE FAILURE LEFT, WITH ITS
+REPRODUCTION AND THE MECHANISM THAT EXPLAINS IT
+--------------------------------------------------------------------------------
+
+`tests/qt/test_the_count_controls_the_categories.py::
+test_an_object_with_no_channel_brings_no_settings`
+
+    E  AssertionError: nucleus brought 3 settings unasked
+    E  assert ['nucleus_background', 'nucleus_min_area', ...] == []
+
+REPRODUCTION, and the seed is part of it: chunk_020 of the 40-file split of
+`find tests -name "test_*.py" | sort`, `-p randomly --randomly-seed=288`.
+Fails there every time. 6/6 green alone, 17/17 green as a whole file.
+
+PRE-DATES TONIGHT'S Qt WORK. Present at `ae8bdb417` -- the merge from main,
+before the per-window stylesheet and the translation change -- in the same
+chunk at the same seed. Not caused by either.
+
+A BISECT BY HALVES DID NOT REPRODUCE IT, and the reason is this file's own
+rule, which I broke again: both halves plus the target passed, because both
+runs used `-p no:randomly` and the failure needs seed 288's shuffle.
+Halving the file list changes the shuffle anyway, so a seeded bisect of a
+SUBSET is not the same ordering either. A different method is needed for
+this one.
+
+THE MECHANISM THAT MAKES IT POSSIBLE, which is the useful part.
+`settings_model`'s per-row visibility has an early return:
+
+    # NOT UNTIL THE SCREEN HAS TAKEN THE WIDGET. ...
+    if widget.parentWidget() is None:
+        return
+
+So a row whose widget is not yet parented when the object rule runs is
+SILENTLY LEFT VISIBLE. That is a timing-sensitive no-op, and timing is
+exactly what an ordering changes: the rule is right, and whether it reaches
+the row is not guaranteed. A test asserting `isHidden()` is therefore
+asserting that the parenting won a race.
+
+  WHERE TO START: not with the ordering. Either the rule has to be re-run
+  once the row has a parent (the comment says "the scheduled pass takes the
+  label once the row has one" -- so there IS a later pass, and the question
+  is whether the FIELD is covered by it or only the label), or the early
+  return has to record what it skipped so the later pass can finish it.
