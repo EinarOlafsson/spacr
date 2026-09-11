@@ -163,10 +163,15 @@ def test_every_lesson_keeps_its_video_and_its_poster(real_plan):
                       if len(p.parts) > 2 and p.parts[1] == "production"})
     catalog = json.loads(
         (_LIBRARY / "tutorials" / "catalog" / "lessons_en.json").read_text())
-    expected = [lesson["id"] for lesson in catalog["lessons"]]
-    assert lessons == expected, (
-        f"published lesson media differs from the {len(expected)}-lesson "
-        "catalog")
+    expected = {lesson["id"] for lesson in catalog["lessons"]
+                if lesson.get("status") != "coming_soon"}
+    known = {lesson["id"] for lesson in catalog["lessons"]}
+    # Text-only Coming soon entries require no fabricated video or poster.
+    # Historical media for held entries may remain archived; no unknown
+    # directory is allowed, and every playable lesson still needs its media.
+    assert expected <= set(lessons) <= known, (
+        f"missing playable media: {sorted(expected - set(lessons))}; "
+        f"unknown media directories: {sorted(set(lessons) - known)}")
 
     for lesson in lessons:
         videos = [p for p in kept
@@ -242,10 +247,11 @@ def test_narration_is_the_stable_mobile_clock():
     # cache-buster is for -- four hours after this assertion pinned the
     # previous one, and the assertion was not moved with it.
     #
-    # THIS IS THE PUBLISHED SOURCE, NOT THE RELEASE CANDIDATE, and the two
-    # carry different keys on purpose:
+    # This tests website SOURCE, not proof that Pages has deployed it.
+    # The Coming soon player is now integrated here too; existing playable
+    # catalogs/media remain distinct from the unpublished refreshed candidate.
     #
-    #     docs/source/_extra/tutorials/        20260910-plaque-example-zip
+    #     docs/source/_extra/tutorials/        20260911-coming-soon
     #     tools/tutorials/release_candidate/   20260911-coming-soon
     #
     # `_LIBRARY` is `budget.extra_root(...)` -- the published collection --
@@ -253,7 +259,7 @@ def test_narration_is_the_stable_mobile_clock():
     # it at the candidate to make something else pass: the two are separate
     # while publication is held, and a deployed-site check pointed at the
     # candidate would report a site that has not been updated as updated.
-    assert 'app_v2.js?v=20260910-plaque-example-zip' in index
+    assert 'app_v2.js?v=20260911-coming-soon' in index
     assert "20260825-folded-routes" not in index
     assert "20260811-audio-end-park-captions" not in index
     assert "20260810-mobile-smooth" not in index
