@@ -11202,9 +11202,9 @@ def ml_analysis(
             f"no rows matched {' and '.join(missing)} in column "
             f"{location_column!r}, so there is nothing to train on.\n"
             f"  {location_column!r} contains: {shown}\n"
-            f"  Set positive_control and negative_control to values that "
-            f"appear there, or set location_column to the column that holds "
-            f"your controls.")
+            f"  Set positive_control_id and negative_control_id to values "
+            f"that appear there, or set location_column to the column that "
+            f"holds your controls.")
 
     X = combined_df[features]
     y = combined_df['target']
