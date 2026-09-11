@@ -48,6 +48,7 @@ def main() -> int:
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
     parser.add_argument('--methods-review-export', action='store_true', help='Record unchanged Methods export plus explicit review findings; never approve its draft')
     parser.add_argument('--hit-list-companion', action='store_true', help='Explicit external Hit List window after showing the hidden native panel; not a shortcut fix')
+    parser.add_argument('--graph-review-handoff', action='store_true', help='Verify native graphs and explicitly record the broken annotation handoff, without repairing it')
     parser.add_argument('--mask-bounded-recapture', action='store_true', help='Use explicit 0.4 flow thresholds in a fresh two-field Mask recording; not a quality claim')
     parser.add_argument('--mask-saved-plots', action='store_true', help='Show verified per-file API overlays in the external image viewer; no model rerun')
     parser.add_argument('--cellpose-training-review', action='store_true', help='Show the native source-import defect and a separately verified API training figure; never start GUI training')
@@ -73,6 +74,8 @@ def main() -> int:
         parser.error('--preview-variants requires --preview')
     if args.hit_list_companion and args.module != 'hit_list':
         parser.error('--hit-list-companion requires --module hit_list')
+    if args.graph_review_handoff and args.module != 'graph_builder':
+        parser.error('--graph-review-handoff requires --module graph_builder')
     if args.methods_review_export and (args.module != 'methods_export' or args.run or args.download):
         parser.error('--methods-review-export requires methods_export without a run or download')
     if args.mask_bounded_recapture and (args.module != 'mask' or not args.run or not args.download):
@@ -555,7 +558,8 @@ def main() -> int:
         if args.module == 'graph_builder':
             from capture_graph import record_graph
             record_graph(app, window, screen, stage, captures, capture,
-                         settle, write_json, args.timeout)
+                         settle, write_json, args.timeout,
+                         review_handoff=args.graph_review_handoff)
         if args.module == 'qc_dashboard':
             from capture_qc import record_qc
             record_qc(app, window, screen, stage, captures, capture,

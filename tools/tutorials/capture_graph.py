@@ -16,8 +16,11 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def record_graph(app, window, screen, stage, captures, capture, settle, write_json, timeout):
+def record_graph(app, window, screen, stage, captures, capture, settle, write_json, timeout, *, review_handoff=False):
     import numpy as np
+    import pandas as pd
+    import sqlite3
+    from graph_evidence import check_points, check_histogram, check_brush
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QFileDialog, QLineEdit, QPushButton, QDialogButtonBox
@@ -29,6 +32,9 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
     if not database.is_file():
         raise RuntimeError('Download the real Annotate example before recording Graph Builder')
     original_hash = digest(database)
+    with sqlite3.connect('file:' + str(database) + '?mode=ro', uri=True) as connection:
+        expected_frame = pd.read_sql_query('SELECT * FROM cell', connection)
+    chart_checks = []
     desktop = PrivateDesktop(stage)
     xtest = ctypes.CDLL('libXtst.so.6')
     xtest.XTestFakeMotionEvent.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_ulong]
@@ -86,6 +92,45 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
         if panel.canvas.render_data is None:
             raise RuntimeError('The actual chart did not render after the drop')
 
+    def check_scatter(name, expected, *, faceted=False):
+        canvas = screen.builder.canvas
+        data = canvas.render_data
+        if data.strategy != 'full' or data.n_total != len(expected) or data.n_shown != len(expected):
+            raise RuntimeError('Unexpected sampled, binned or incomplete chart')
+        pd.testing.assert_frame_equal(data.frame, expected)
+        groups = set(expected['rowID'].unique()) if faceted else {None}
+        counts, seen = [], set()
+        for index in range(len(groups)):
+            axes = canvas.axes_at(index, 0)
+            group = axes.get_title().split('·')[0].strip() if faceted else None
+            if group not in groups or group in seen:
+                raise RuntimeError('Actual facet labels omit or duplicate a source group')
+            seen.add(group)
+            subset = expected if group is None else expected[expected['rowID'] == group]
+            if faceted and axes.get_title().split('n=')[-1] != f'{len(subset):,}':
+                raise RuntimeError('Actual facet label count differs from its source group')
+            actual = axes.collections[0].get_offsets()
+            points = subset[['cell_area', 'cell_channel_1_mean_intensity']].to_numpy()
+            counts.append(check_points(points, actual))
+            if screen.builder.spec.colour == 'columnID':
+                from matplotlib.colors import to_rgb
+                legend = canvas._figure.legends[0]
+                labels = [label.get_text() for label in legend.get_texts()]
+                handles = legend.legend_handles
+                colours = {label:to_rgb(handle.get_markerfacecolor())
+                           for label,handle in zip(labels,handles)}
+                if set(labels) != set(expected_frame.columnID.unique()):
+                    raise RuntimeError('Colour legend differs from source column groups')
+                if not np.array_equal(points,actual):
+                    raise RuntimeError('Colour audit requires the recorded source row order')
+                wanted = [colours[label] for label in subset.columnID]
+                shown = axes.collections[0].get_facecolors()[:,:3]
+                if not np.allclose(wanted,shown,atol=1e-12,rtol=0):
+                    raise RuntimeError('Point colours disagree with their labelled source groups')
+        chart_checks.append({'scene': name, 'panel_point_counts': counts,
+                             'all_rendered_frame_values_match_source': True,
+                             'colour_assignments_checked':screen.builder.spec.colour == 'columnID'})
+
     try:
         for key in FOLDED_APPS:
             buttons = [b for b in screen.findChildren(FoldButton) if b.isVisible() and b.app_key == key]
@@ -121,18 +166,32 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
         if screen._table_picker.currentText() != 'cell':
             raise RuntimeError('Expected the actual cell measurement table')
         frame = screen._frame
+        pd.testing.assert_frame_equal(frame, expected_frame)
         canvas = screen.builder.canvas
         capture('04_real_cell_table')
         drag('cell_area', 'x')
+        axes = canvas.axes_at()
+        edges = canvas.scales.x_edges
+        bars = axes.patches
+        if len(bars) != len(edges)-1:
+            raise RuntimeError('Expected one actual bar for each histogram bin')
+        for i, bar in enumerate(bars):
+            if not np.isclose(bar.get_x()+bar.get_width()/2, (edges[i]+edges[i+1])/2):
+                raise RuntimeError('Actual histogram bar locations differ')
+        histogram = check_histogram(expected_frame.cell_area, edges, [bar.get_height() for bar in bars])
+        chart_checks.append({'scene':'05_area_histogram', 'actual_bar_counts':histogram})
         capture('05_area_histogram')
         drag('cell_channel_1_mean_intensity', 'y')
+        check_scatter('06_real_scatter', expected_frame)
         capture('06_real_scatter')
         drag('columnID', 'colour')
+        check_scatter('07_well_column_colour', expected_frame)
         capture('07_well_column_colour')
         initial_count = canvas.render_data.n_total
         if initial_count != len(frame):
             raise RuntimeError('The initial chart unexpectedly omits measurement rows')
         drag('rowID', 'facet_row')
+        check_scatter('08_acquisition_row_facets', expected_frame, faceted=True)
         capture('08_acquisition_row_facets')
         picker = screen.filters._picker
         picker.setFocus()
@@ -157,11 +216,13 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
         print(f'Actual range {row._low.value()} .. {row._high.value()}: {filtered_count}, expected {expected}', flush=True)
         if filtered_count != expected or not 0 < filtered_count < initial_count:
             raise RuntimeError('The live area filter did not select the expected real rows')
+        check_scatter('09_live_area_filter', expected_frame[expected_frame.cell_area >= cutoff], faceted=True)
         capture('09_live_area_filter')
         QTest.mouseClick(screen.filters._clear, Qt.LeftButton)
         settle(1)
         if canvas.render_data.n_total != initial_count:
             raise RuntimeError('Clearing the live filter did not restore the actual rows')
+        check_scatter('10_filter_cleared', expected_frame, faceted=True)
         capture('10_filter_cleared')
         QTest.mouseClick(screen.builder.zone('facet_row')._clear, Qt.LeftButton)
         settle(1)
@@ -203,6 +264,41 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
         }
         capture('11_actual_brush_state')
         write_json(captures / 'brush_outcome.json', brush_proof)
+        if review_handoff:
+            press = [event for event in events if event['kind'] == 'button_press_event']
+            release = [event for event in events if event['kind'] == 'button_release_event']
+            if len(press) != 1 or len(release) != 1 or not all(e['in_current_axes'] for e in press + release):
+                raise RuntimeError('Expected one genuine rectangle inside the plotted axes')
+            lo_x, hi_x = sorted([press[0]['x'],release[0]['x']])
+            lo_y, hi_y = sorted([press[0]['y'],release[0]['y']])
+            rows = expected_frame[expected_frame.cell_area.between(lo_x,hi_x) &
+                                  expected_frame.cell_channel_1_mean_intensity.between(lo_y,hi_y)]
+            # This source's literal untyped identifiers contain no escaped parts.
+            columns = ['plateID','rowID','columnID','fieldID','object_label']
+            parts = rows[columns].astype(str)
+            if parts.apply(lambda col: col.str.contains('_|%')).any().any():
+                raise RuntimeError('Escaped identities require a separate source audit')
+            expected_keys = parts.agg('_'.join,axis=1).tolist()
+            brush_review = check_brush(expected_keys,canvas.link.selection.keys,selected,screen._to_annotate.isEnabled())
+            # A plain native click clears publication too, not only its stale display.
+            QTest.mouseClick(canvas._canvas, Qt.LeftButton, pos=start)
+            settle(0.8)
+            if len(canvas.link.selection) or canvas.selected_count() or screen._to_annotate.isEnabled():
+                raise RuntimeError('The native click failed to clear the brush state')
+            capture('12_selection_cleared')
+            if digest(database) != original_hash:
+                raise RuntimeError('Chart exploration changed the source database')
+            write_json(captures/'scientific_acceptance.json', {
+                'accepted':True, 'scope':'Actual native charts and reversible filters; annotation handoff explicitly BROKEN',
+                'original_handoff_hold_preserved':True, 'brush_review':brush_review,
+                'database':str(database),'database_sha256':original_hash,'rows':initial_count,
+                'area_filter_cutoff':cutoff,'filtered_rows':filtered_count,'filter_cleared':True,
+                'selection_publication_cleared':True,'chart_checks':chart_checks,
+                'folds':list(FOLDED_APPS),'final_spec':asdict(screen.builder.spec),
+                'source_database_unchanged':True,'app_source_modified':False,
+                'annotation_handoff_fixed':False,'chart_export_button_used':False,'published':False})
+            print('Verified native graph and filter data; annotation handoff remains broken',flush=True)
+            return
         if not 0 < selected < initial_count or not screen._to_annotate.isEnabled():
             write_json(captures / 'scientific_acceptance.json', brush_proof)
             raise RuntimeError('The actual brush did not create a partial linked selection')
