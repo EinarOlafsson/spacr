@@ -17,6 +17,7 @@ def record_explain(app, window, stage, captures, capture, settle, write_json, ti
     from PySide6.QtWidgets import QAbstractButton, QFileDialog, QLineEdit, QDialogButtonBox
     from spacr.qt.screens.model_explanation import ModelExplanationScreen
     from spacr.qt.widgets.fold_strip import FoldButton
+    from tutorial_table_columns import resize_visible_columns
 
     stage = Path(stage)
     source = stage / 'annotate_fresh/example_data/plate1'
@@ -132,9 +133,15 @@ def record_explain(app, window, stage, captures, capture, settle, write_json, ti
             proof['hold'] = panel.status.text()
             return
         result = panel.result
+        table_names={1:'importance',2:'metrics',3:'confusion',4:'shap',5:'correlations',
+                     6:'distributions',7:'held_out'}
+        proof['native_column_drags']={}
         for index in range(panel.results.count()):
             QTest.mouseClick(panel.results.tabBar(), Qt.LeftButton,
                 pos=panel.results.tabBar().tabRect(index).center()); settle(.5)
+            if index in table_names:
+                name=table_names[index]
+                proof['native_column_drags'][name]=resize_visible_columns(getattr(panel,name),settle)
             name = f'{8+index:02d}_result_tab_{index}'
             capture(name)
             proof['snapshots'][name] = dict(tab=panel.results.tabText(index),
