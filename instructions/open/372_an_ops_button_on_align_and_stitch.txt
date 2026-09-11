@@ -89,8 +89,56 @@ Status:    BEING REBUILT ON THE MEASURED PLAN, 2026-09-09. The maintainer
            through `ops_sbs.call_reads`, which was already validated that
            way.
 
-           SO EVERY PHASE NOW HAS CODE. What remains for 372 as a whole is
-           the thing it has always been short of: real data through it.
+           SO EVERY PHASE NOW HAS CODE.
+
+           AND THE REAL DATA WAS ALWAYS THERE -- /nas_mnt/data/ops/, 12 TB,
+           pointed out by the maintainer 2026-09-11 after I had written that
+           this item "needs real data". It does not. What it needed was for
+           somebody to RUN the code against it, and the first hour of doing
+           that has already found something.
+
+           WHAT THE DATA IS: screenA/20200202_6W-LaC024A, ELEVEN sequencing
+           cycles (c1..c11) of ~1,998 tiles each, 5 channels
+           (DAPI-CY3-A594-CY5-CY7), 1480x1480 uint16, several wells of a
+           6-well plate; plus a separate 4-channel phenotype acquisition
+           (DAPI-GFP-A594-AF750). Eleven cycles is exactly what PART 5
+           assumed.
+
+           FIRST FINDING, AND IT IS A REAL ONE: CONSECUTIVE Site NUMBERS ARE
+           NOT SPATIALLY ADJACENT, and `phase_correlate` does not notice.
+
+             * Site-0 -> Site-4 all return dy=-213 dx=+9 EXACTLY, then Site-4
+               -> Site-5 is rejected, then Site-5 -> Site-8 return dy=+213
+               dx=-9 exactly. That looks like a serpentine raster with a row
+               turn, which is why it is convincing.
+             * It is not. High-pass (sigma 8) correlation of the claimed
+               overlap is +0.005 -- indistinguishable from the no-shift
+               control (+0.004) and from an arbitrary wrong shift (-0.006).
+               A true 85% overlap of real nuclei cannot look like that.
+             * Tiles from DIFFERENT WELLS are correctly rejected, so the
+               lock is not a global fixed-pattern artifact; it is something
+               consecutive tiles within a well share.
+
+           A PREVIOUS STITCH ATTEMPT ALREADY FAILED THIS WAY AND NOBODY SAW.
+           `results/overlaps.csv` in that plate records dy=-106.2 dx=+4.4 for
+           Site-1 -> Site-2 with `pearson 0.0109, ncc 0.0109`, and
+           `results/mosaic.tif` is 1587x1486 -- barely bigger than ONE 1480
+           tile. The stitch collapsed every tile onto the same spot. The
+           correlation columns were computed and written and nothing gated on
+           them.
+
+           SO THE DEFECT IS NAMED: acceptance is decided by `peak_ratio`
+           alone, and a peak ratio of 45 sits happily beside a Pearson of
+           0.01. A phase-correlation peak says "this offset is sharper than
+           the others", NOT "these images overlap". The gate needs a
+           correlation check on the claimed overlap before `accepted` can
+           mean anything -- and PART 15's measured overlap gain was computed
+           on the assumption that it did.
+
+           NEXT: find the real site->position mapping (the TIFF metadata is
+           gone -- every file was rewritten by tifffile.py and carries only
+           ImageJ hyperstack tags), then re-measure. Do not trust any stitch
+           from this data until the acceptance gate includes a correlation.
 
            ORIGINAL STATUS FOLLOWS, and PART 5's memory work stands: it
            replaced PART 4's order-of-magnitude guess with the real
