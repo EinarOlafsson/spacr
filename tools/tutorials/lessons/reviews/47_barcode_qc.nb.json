@@ -1,0 +1,30 @@
+{
+  "lesson": "47_barcode_qc",
+  "english_sha256": "faf91389430d4f90d8e26b9c30c08ad98cbfe88bcd20364cd1a3a6eb25887c6f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "nb",
+  "title": "Barcode QC: reelle tellinger, terskelavveininger og lagrede figurer",
+  "description": "Undersøk den publiserte telletabellen, kjør Barcode QC og sammenlign lesedybde og terskler i figurene som faktisk ble lagret.",
+  "objectives": [
+    "Finn Barcode QC inne i Map Barcodes og velg reelle tellinger.",
+    "Skill et illustrerende mål fra et faglig begrunnet forsøksvalg.",
+    "Undersøk advarsler, lagrede figurer og uavhengig kontrollerte tabeller.",
+    "Skill brønner med få avlesninger, brønner over målet og sekvenskollisjoner."
+  ],
+  "prerequisite": "Bruk en kopi av plate_1_unique_combinations.csv fra det nedlastede Regression-eksemplet og en ny utdatamappe. Tabellen kommer ikke fra vårt mislykkede FASTQ-forsøk. Den har 172756 rader, 49464341 kartlagte avlesninger, 384 brønner og 1379 observerte guider. Mål 5/median bare illustrerende, lavlesningsandel 0.1, Plot/Save/Verbose aktivert. Valgfrie QC- og referanseinnganger er utelatt. 2884 felt kontrollert uten numerisk feil. src-varselet og det tomme Figures-panelet er ikke rettet; PNG-filer vises i den virkelige eksterne bildefremviseren. Ingen direkte forhåndsvisning, GPU-beregning, AI-forespørsel, biologisk validering eller publisering. API: spacr.sequencing_qc.barcode_qc, derive_threshold, threshold_sweep.",
+  "scenes": [
+    "Åpne Map Barcodes og deretter det nøstede verktøyet Barcode QC. Arbeidsflyten undersøker tellinger etter kartlegging; den kartlegger ikke FASTQ-avlesninger på nytt. Vi bruker den publiserte telletabellen fra den lenkede Regression-leksjonen. Den er ikke resultatet av vårt tidligere mislykkede forsøk på å kartlegge råavlesninger.",
+    "Velg en kopi av plate one unique combinations under Count data. Kontroller den valgte filen fremfor å beholde en eksempelsti. Denne reelle tabellen inneholder omtrent 49,5 millioner kartlagte avlesninger fra 384 brønner. Behold originalen uendret og velg et nytt mål for QC-resultatene.",
+    "Target gRNAs per well uttrykker målet som brukes til å utlede en terskel for avlesningenes relative mengde. Her beholder vi illustrasjonsverdien fem og bruker medianen. Dette er ikke et anbefalt forsøksdesign eller bevis for tilordning til én guide. Velg ut fra ditt eget design og undersøk avveiningene, ikke bare det foreslåtte tallet.",
+    "Andelen for lesefattige brønner identifiserer brønner med uvanlig få avlesninger i forhold til platens median. Her er den 0,1, og ingen av de 384 brønnene faller under den beregnede grensen. Dette er et lesedybdeflagg, ikke en garanti for at hver brønn, guide eller biologiske måling er pålitelig.",
+    "Slå på Plot og Save, angi målmappen og trykk Run. Dette er en liten tabellanalyse, ikke GPU-segmentering, og skjermen har ingen direkte forhåndsvisning. Vi lar de valgfrie inndataene for kartleggings-QC og strekkodereferanser stå tomme. Konklusjoner som krever disse filene, kan ikke trekkes fra telletabellen alene.",
+    "Les den faktiske konsollen, inkludert advarslene. Beregningen fullføres, men denne versjonen klager feilaktig på manglende src selv om modulen bruker Count data. Vi kontrollerte virkelige inndata og lagrede tabeller; forhåndskontrollen ble ikke reparert. Denne diagnostiserte uoverensstemmelsen gir ikke grunnlag for å ignorere andre feil.",
+    "Denne versjonen lar også Figures-panelet være tomt selv om to PNG-figurer ble lagret. Åpne barcode_qc.png og threshold_sweep.png fra utdatamappen i en bildefremviser. De neste scenene viser systemets virkelige fremviser, ikke figurer satt inn i spaCR eller en påstand om at brukergrensesnittet er rettet.",
+    "Undersøk lesedybde, rad- og kolonneeffekter og fordelingen i det observerte biblioteket. Den stiplede dybdegrensen markerer brønner med få avlesninger; søylene sammenligner rad- eller kolonnemedianer med platens median. Bibliotekskurven viser ulik representasjon av observerte guider. Uten et referansebibliotek kan den ikke vise hvilke forventede guider som mangler helt.",
+    "Undersøk terskelsveipet i stedet for å godta en grense blindt. Her er den utledede terskelen omtrent 0,0121, altså 1,21 prosent av en brønns avlesninger. Det gir en median på fem guider, beholder alle brønner og omtrent 58 prosent av kartlagte avlesninger, mens rundt 40 prosent av brønnene fortsatt overstiger målet.",
+    "Den røde kurven teller brønner over målet på fem guider. Den måler ikke likhet mellom strekkodesekvenser, og å ligge under målet beviser heller ikke tilordning til én guide. En løsere grense øker her andelen over målet uten å få med flere brønner. Sammenlign den lagrede tabellen og begrunn valget for analysen; dette er ingen universell terskel.",
+    "Behold opprinnelige tellinger, innstillinger, konsolllogg, anbefaling, tabeller og figurer samlet. Uavhengige kontroller gjenskapte lagret brønn-, posisjons- og sveipstatistikk uten numeriske avvik. Det bekrefter beregningen, ikke den biologiske tolkningen. AI-hjelp er valgfritt, og ingen forespørsel ble sendt her; kontroller senere råd mot faktiske data og API-et."
+  ]
+}
