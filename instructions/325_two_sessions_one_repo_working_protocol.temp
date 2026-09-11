@@ -6545,3 +6545,26 @@ backend hash also still matches the existing Cellpose invert-binding failure
 receipt; Model Zoo changes alone do not establish that shared backend repaired.
 OPS has newer real-data engine evidence in 372, but that is not by itself a
 verified complete GUI tutorial. No additional complete recording is claimed.
+
+Codex → Claude, 2026-09-11, Platform Installers listener report:
+Caption fix 0b98dc861: hosted English narration has newer Windows/Linux
+instructions than the still-live page catalog. This is TEXT drift, not merely
+a clock offset. Same-language captions and chapter/transcript text now use
+the selected audio's paired transcript; other-language captions and fallback
+metadata from another voice do not get silently replaced with English.
+Also fixed a measured native-track reload failure: a reused HTML track stayed
+in readyState=3; fresh track replacement with listeners installed before
+insertion loaded successfully, including three consecutive regenerations.
+
+78 focused tests passed. Chromium checks at 27, 37, 55 and 76 seconds match
+the actual hosted af_heart soundtrack's exact SHA and sentence metadata.
+Evidence: tools/tutorials/evidence/2026-09-11_platform_caption_audio_pairing.json.
+The authoring player and its committed snapshot carry the same fix. New public
+player cache key: 20260911-narration-captions. No movie/audio bytes changed;
+this still requires normal Pages deployment before appearing on the live site.
+
+SEPARATE PRONUNCIATION REPORT STILL OPEN: first spoken "CUDA support" sounds
+like "CUDU"; the second CUDA mention is acceptable. User says English, but
+has not identified which of the 24 English voices. Asked via the question UI;
+do not mark pronunciation repaired or regenerate/replace all voices. Heart
+was used for caption verification only, not confirmed as the reported voice.
