@@ -871,78 +871,12 @@
       "series": 1,
       "app_key": "map_barcodes",
       "section": "Core",
-      "description": "Decode sequencing reads into plate positions and guide identities, with explicit references and quality-control output.",
-      "objectives": [
-        "Configure read direction, barcode references, and parsing from the library design.",
-        "Validate mapping on a small test chunk.",
-        "Interpret mapping progress and quality-control outputs."
-      ],
-      "prerequisite": "Provide FASTQ reads and verified lookup tables that match the sequencing-library design.",
-      "scenes": [
-        {
-          "narration": "Map Barcodes decodes sequencing reads into plate positions and guide identities. The console reports sample discovery, parser validation, read progress, output paths, and failures.",
-          "visual": "01_console",
-          "hold_after": 0.7,
-          "focus_key": "console",
-          "speech_text": "Map Barcodes decodes sequencing reads into plate positions and guide identities. The console reports sample discovery, parser validation, read progress, output paths, and failures."
-        },
-        {
-          "narration": "Sequencing Input selects the FASTQ folder and whether paired reads are combined or one read direction is processed alone. Confirm the naming pattern before a large run.",
-          "visual": "13_category_01_sequencing_input",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Sequencing Input selects the fast cue folder and whether paired reads are combined or one read direction is processed alone. Confirm the naming pattern before a large run."
-        },
-        {
-          "narration": "Essentials contains the inputs and parsing controls needed for a first run. Use Modified to review library-specific changes, All for advanced controls, and Recipes for a reusable layout.",
-          "visual": "09_all_settings",
-          "hold_after": 0.7,
-          "focus_key": "settings_controls",
-          "speech_text": "Essentials contains the inputs and parsing controls needed for a first run. Use Modified to review library-specific changes, All for advanced controls, and Recipes for a reusable layout."
-        },
-        {
-          "narration": "Barcode References points to lookup tables for guides, plate rows, and plate columns. Each table must pair a unique name with the expected sequence.",
-          "visual": "13_category_02_barcode_references",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Barcode References points to lookup tables for guides, plate rows, and plate columns. Each table must pair a unique name with the expected sequence."
-        },
-        {
-          "narration": "Read Parsing locates a known anchor, extracts the barcode window, and assigns named row, column, and guide groups. Derive this pattern from the library design and verify it on example reads.",
-          "visual": "13_category_03_read_parsing",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Read Parsing locates a known anchor, extracts the barcode window, and assigns named row, column, and guide groups. Derive this pattern from the library design and verify it on example reads."
-        },
-        {
-          "narration": "Runtime and Reliability sets chunk size, workers, and test mode. Start with a small test chunk; reduce the chunk or worker count when memory is constrained.",
-          "visual": "13_category_05_runtime_reliability",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Runtime and Reliability sets chunk size, workers, and test mode. Start with a small test chunk; reduce the chunk or worker count when memory is constrained."
-        },
-        {
-          "narration": "Run validates paths and references, discovers samples, counts reads, and starts chunked mapping. Stop requests an orderly interruption after the current safe point.",
-          "visual": "20_run",
-          "hold_after": 0.7,
-          "focus_key": "actions",
-          "speech_text": "Run validates paths and references, discovers samples, counts reads, and starts chunked mapping. Stop requests an orderly interruption after the current safe point."
-        },
-        {
-          "narration": "Watch the active sample, batch count, matched fraction, and warnings in the progress display and console. Investigate poor mapping before accepting the complete run.",
-          "visual": "21_running",
-          "hold_after": 0.7,
-          "focus_key": "console",
-          "speech_text": "Watch the active sample, batch count, matched fraction, and warnings in the progress display and console. Investigate poor mapping before accepting the complete run."
-        },
-        {
-          "narration": "A successful run writes unique barcode combinations with row, column, guide, and count, plus a quality-control table, settings, and a manifest that make the mapping reproducible.",
-          "visual": "22_output",
-          "hold_after": 0.7,
-          "focus_key": "console",
-          "speech_text": "A successful run writes unique barcode combinations with row, column, guide, and count, plus a quality-control table, settings, and a manifest that make the mapping reproducible."
-        }
-      ]
+      "description": "This tutorial is not available yet. Please explore the other tutorials.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Coming soon"
     },
     {
       "id": "13_regression",
@@ -1675,72 +1609,13 @@
       "series": 2,
       "app_key": "model_compare",
       "section": "Segmentation models",
-      "description": "Run two Cellpose configurations on the same representative fields and compare their masks without assuming either is ground truth.",
-      "objectives": [
-        "Construct a controlled two-model comparison.",
-        "Verify which parameters actually reached each model.",
-        "Interpret agreement metrics together with side-by-side masks."
-      ],
-      "prerequisite": "Choose two compatible models or configurations and a representative bounded image set.",
-      "scenes": [
-        {
-          "narration": "Model Compare combines object counts, foreground agreement, matching, fragmentation, and side-by-side overlays so two segmentation candidates can be evaluated on the same fields.",
-          "visual": "01_overview",
-          "hold_after": 0.7,
-          "focus_key": "screen",
-          "speech_text": "Model Compare combines object counts, foreground agreement, matching, fragmentation, and side-by-side overlays so two segmentation candidates can be evaluated on the same fields."
-        },
-        {
-          "narration": "Choose a small but representative image folder and limit the field count for interactive comparison. Include easy and difficult examples rather than only clean fields.",
-          "visual": "02_fields_loaded",
-          "hold_after": 0.7,
-          "focus_key": "source_controls",
-          "speech_text": "Choose a small but representative image folder and limit the field count for interactive comparison. Include easy and difficult examples rather than only clean fields."
-        },
-        {
-          "narration": "Configure Model A and Model B. Keep channels, scale, preprocessing, and shared thresholds matched unless that setting is the intended difference.",
-          "visual": "03_models",
-          "hold_after": 0.7,
-          "focus_key": "model_panels",
-          "speech_text": "Configure Model A and Model B. Keep channels, scale, pre-processing, and shared thresholds matched unless that setting is the intended difference."
-        },
-        {
-          "narration": "Compare segments every selected field with both resolved configurations. Advanced arguments are recorded, and unsupported parameters are reported instead of silently treated as effective.",
-          "visual": "04_compare",
-          "hold_after": 0.7,
-          "focus_key": "model_panels",
-          "speech_text": "Compare segments every selected field with both resolved configurations. Advanced arguments are recorded, and unsupported parameters are reported instead of silently treated as effective."
-        },
-        {
-          "narration": "Parameters that reached each model separates honored values from deprecated or ignored controls. Confirm that the comparison actually differs in the intended way.",
-          "visual": "06_parameters",
-          "hold_after": 0.7,
-          "focus_key": "parameters",
-          "speech_text": "Parameters that reached each model separates honored values from deprecated or ignored controls. Confirm that the comparison actually differs in the intended way."
-        },
-        {
-          "narration": "The field table reports counts, foreground agreement, matched overlap, splits, merges, unmatched objects, and independent mask-quality checks. No single metric captures every failure mode.",
-          "visual": "07_metrics",
-          "hold_after": 0.7,
-          "focus_key": "metrics",
-          "speech_text": "The field table reports counts, foreground agreement, matched overlap, splits, merges, unmatched objects, and independent mask-quality checks. No single metric captures every failure mode."
-        },
-        {
-          "narration": "Select a row to inspect both previews. Look for new detections, misses, boundary changes, splits, and merges, then repeat across representative fields.",
-          "visual": "08_field_one",
-          "hold_after": 0.7,
-          "focus_key": "previews",
-          "speech_text": "Select a row to inspect both previews. Look for new detections, misses, boundary changes, splits, and merges, then repeat across representative fields."
-        },
-        {
-          "narration": "Choose a model only when the visual differences and metrics improve the errors that matter for the downstream analysis. Equal results are informative and do not demonstrate improvement.",
-          "visual": "09_field_two",
-          "hold_after": 0.7,
-          "focus_key": "previews",
-          "speech_text": "Choose a model only when the visual differences and metrics improve the errors that matter for the downstream analysis. Equal results are informative and do not demonstrate improvement."
-        }
-      ],
-      "host_app_key": "make_masks"
+      "description": "This tutorial is not available yet. Please explore the other tutorials.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "host_app_key": "make_masks",
+      "status": "coming_soon",
+      "availability_title": "Coming soon"
     },
     {
       "id": "22_model_zoo",
@@ -1750,72 +1625,13 @@
       "series": 2,
       "app_key": "model_zoo",
       "section": "Segmentation models",
-      "description": "Browse, verify, download, and benchmark reusable segmentation and classifier models.",
-      "objectives": [
-        "Review model compatibility and provenance.",
-        "Benchmark a model on representative fields.",
-        "Hand two candidates to Model Compare."
-      ],
-      "prerequisite": "Prepare a few representative fields and know their channels, object type, and approximate scale.",
-      "scenes": [
-        {
-          "narration": "Model Zoo lists reusable models available from bundled, local, or declared catalogue sources. Start by matching the task, channels, object scale, and expected preprocessing.",
-          "visual": "01_overview",
-          "hold_after": 0.7,
-          "focus_key": "catalogue",
-          "speech_text": "Model Zoo lists reusable models available from bundled, local, or declared catalogue sources. Start by matching the task, channels, object scale, and expected pre-processing."
-        },
-        {
-          "narration": "Choose a model folder and scan it. The catalogue keeps local paths and remote metadata together while avoiding duplicate entries.",
-          "visual": "02_scanned",
-          "hold_after": 0.7,
-          "focus_key": "scan_controls",
-          "speech_text": "Choose a model folder and scan it. The catalogue keeps local paths and remote metadata together while avoiding duplicate entries."
-        },
-        {
-          "narration": "Select a model to review its provenance, license, checksum, training context, and expected geometry. A model that loads successfully is not automatically suitable for your images.",
-          "visual": "03_provenance",
-          "hold_after": 0.7,
-          "focus_key": "detail",
-          "speech_text": "Select a model to review its provenance, license, checksum, training context, and expected geometry. A model that loads successfully is not automatically suitable for your images."
-        },
-        {
-          "narration": "Choose a small set of representative fields for a bounded benchmark, including difficult examples.",
-          "visual": "04_fields",
-          "hold_after": 0.7,
-          "focus_key": "field_controls",
-          "speech_text": "Choose a small set of representative fields for a bounded benchmark, including difficult examples."
-        },
-        {
-          "narration": "Test one installed model. The benchmark reports speed, object counts, quality flags, and previews without treating those checks as ground-truth accuracy.",
-          "visual": "05_test",
-          "hold_after": 0.7,
-          "focus_key": "test",
-          "speech_text": "Test one installed model. The benchmark reports speed, object counts, quality flags, and previews without treating those checks as ground-truth accuracy."
-        },
-        {
-          "narration": "Review the table and mask preview together. Investigate warnings in the image context before accepting or rejecting a model.",
-          "visual": "07_benchmark",
-          "hold_after": 0.7,
-          "focus_key": "benchmark",
-          "speech_text": "Review the table and mask preview together. Investigate warnings in the image context before accepting or rejecting a model."
-        },
-        {
-          "narration": "Select two compatible local models when you need a controlled side-by-side evaluation.",
-          "visual": "09_two_selected",
-          "hold_after": 0.7,
-          "focus_key": "compare",
-          "speech_text": "Select two compatible local models when you need a controlled side-by-side evaluation."
-        },
-        {
-          "narration": "Model Compare receives both checkpoints and the same fields, so differences in masks and quality metrics can be judged on identical inputs.",
-          "visual": "10_compare_handoff",
-          "hold_after": 0.7,
-          "focus_key": "comparison",
-          "speech_text": "Model Compare receives both checkpoints and the same fields, so differences in masks and quality metrics can be judged on identical inputs."
-        }
-      ],
-      "host_app_key": "make_masks"
+      "description": "This tutorial is not available yet. Please explore the other tutorials.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "host_app_key": "make_masks",
+      "status": "coming_soon",
+      "availability_title": "Coming soon"
     },
     {
       "id": "23_agreement",
@@ -2260,7 +2076,8 @@
           "focus_key": "diff",
           "speech_text": "Use per-fold curves and the settings diff with held-out performance to select a reproducible run."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "29_report",
@@ -2468,7 +2285,8 @@
           "focus_key": "console",
           "speech_text": "Run the reviewed import. The resulting images, masks, measurements, and provenance are ready for downstream annotation."
         }
-      ]
+      ],
+      "host_app_key": "foreign"
     },
     {
       "id": "32_align_stitch",
@@ -2616,7 +2434,8 @@
           "focus_key": "export",
           "speech_text": "Export the current tidy well grid with counts and spatial annotations for audit or replotting."
         }
-      ]
+      ],
+      "host_app_key": "graph_builder"
     },
     {
       "id": "34_database",
@@ -2764,7 +2583,8 @@
           "focus_key": "resume",
           "speech_text": "Resume validates completed field checkpoints before skipping them, so missing or damaged outputs are rebuilt."
         }
-      ]
+      ],
+      "host_app_key": "foreign"
     },
     {
       "id": "36_import",
@@ -3627,7 +3447,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the chart, alerts, and baseline definition can be exported for campaign monitoring."
         }
-      ]
+      ],
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "52_pipeline_graph",
@@ -3723,7 +3544,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the response curve describes model behavior, not causal biological effect, and can be exported with its settings."
         }
-      ]
+      ],
+      "host_app_key": "regression"
     },
     {
       "id": "54_qc_dashboard",
@@ -3868,7 +3690,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the reviewed relationship table helps distinguish biological structure from assignment errors."
         }
-      ]
+      ],
+      "host_app_key": "db_browser"
     },
     {
       "id": "57_layer_viewer",
@@ -3916,7 +3739,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the view and selected regions can be exported without modifying sources unless an edit is explicitly saved."
         }
-      ]
+      ],
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "58_graph_builder",
@@ -4110,7 +3934,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the pivoted table and its specification remain linked to the source selection."
         }
-      ]
+      ],
+      "host_app_key": "db_browser"
     },
     {
       "id": "62_feature_dictionary",
@@ -4206,7 +4031,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the trellis specification and figure can be exported with the selected data."
         }
-      ]
+      ],
+      "host_app_key": "graph_builder"
     },
     {
       "id": "64_gate_editor",
@@ -4321,7 +4147,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, the ranked table and plots describe association with the classes, not causal importance."
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "66_outliers",
@@ -4369,7 +4196,8 @@
           "hold_after": 0.65,
           "speech_text": "When the workflow finishes, spacer writes an outlier flag and diagnostics rather than silently deleting observations."
         }
-      ]
+      ],
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "67_experiment_design",
@@ -4572,45 +4400,13 @@
       "series": 5,
       "app_key": "investigate_hit",
       "section": "Results and quality control",
-      "description": "Return one selected regression finding to candidate cells and quantitative microplate-well evidence without overwriting reviewed annotations.",
-      "objectives": [
-        "Understand when to use Investigate Hit.",
-        "Configure the important inputs and settings.",
-        "Run the workflow and locate its outputs."
-      ],
-      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
-      "scenes": [
-        {
-          "narration": "This tutorial covers Investigate Hit. Return one selected regression finding to candidate cells and quantitative microplate-well evidence without overwriting reviewed annotations.",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "This tutorial covers Investigate Hit. Return one selected regression finding to candidate cells and quantitative microplate-well evidence without overwriting reviewed annotations."
-        },
-        {
-          "narration": "Choose the regression run, selected gene or guide-level finding, phenotype direction, false-discovery threshold, guide support, and matching measurements database.",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Choose the regression run, selected gene or guide-level finding, phenotype direction, false-discovery threshold, guide support, and matching measurements database."
-        },
-        {
-          "narration": "In the main configuration area, review the object table, score column, microplate-well grouping, evidence thresholds, covariates, and the optional cross-fitted hierarchical mixture.",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "In the main configuration area, review the object table, score column, microplate-well grouping, evidence thresholds, covariates, and the optional cross-fitted hierarchical mixture."
-        },
-        {
-          "narration": "Preview the score-ranked candidate cells and microplate-well summaries, then run the cross-fitted model only when the selected finding and evidence contract are correct.",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "Preview the score-ranked candidate cells and microplate-well summaries, then run the cross-fitted model only when the selected finding and evidence contract are correct."
-        },
-        {
-          "narration": "When the workflow finishes, spaCR saves ranked candidate cells, independent-well comparisons, optional probabilities that each cell matches the selected phenotype, uncertainty, and a versioned call that never replaces hand annotations.",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "When the workflow finishes, spacer saves ranked candidate cells, independent-well comparisons, optional probabilities that each cell matches the selected phenotype, uncertainty, and a versioned call that never replaces hand annotations."
-        }
-      ]
+      "description": "This tutorial is not available yet. Please explore the other tutorials.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Coming soon",
+      "host_app_key": "regression"
     },
     {
       "id": "72_volcano_explorer",
@@ -4896,6 +4692,37 @@
           ]
         }
       ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "status": "coming_soon",
+      "availability_title": "Coming soon",
+      "description": "This tutorial is not available yet. Please explore the other tutorials.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
+    },
+    {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "status": "coming_soon",
+      "availability_title": "Coming soon",
+      "description": "This tutorial is not available yet. Please explore the other tutorials.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
     }
   ]
 }

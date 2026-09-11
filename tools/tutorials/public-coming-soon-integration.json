@@ -1,0 +1,103 @@
+{
+  "published": false,
+  "scope": "Website source placeholders only; not refreshed media",
+  "placeholder_ids": [
+    "12_map_barcodes",
+    "21_model_compare",
+    "22_model_zoo",
+    "71_investigate_hit",
+    "76_ops",
+    "77_embeddings"
+  ],
+  "catalogs": [
+    {
+      "catalog": "lessons_en.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "4a367904644fd9862c9688c24b8f3454ed57eaa6711e405f19f8394e621731a1",
+      "after_sha256": "b6a541bbf01d6671403446f74ceefc893f84de9662c0e581d7cc7809e395088e"
+    },
+    {
+      "catalog": "lessons_es.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "2297cebfab0b9503aab5b1778d96cd39f9063c4ec85699488001c1637bfa9b27",
+      "after_sha256": "9a0c2d78e30236083f890fd77bf351cfb3a2a64a518c5e54b2bfff7c771e04bc"
+    },
+    {
+      "catalog": "lessons_fr.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "986b3e9ba81623462c7d29606bf6520410161b3f3a73e0e88de76f7445871089",
+      "after_sha256": "61ccd67a007ba25720f64803a352cbb1bc4e4c3af9fba66a37db86774ea1fff2"
+    },
+    {
+      "catalog": "lessons_hi.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "981ee9c4a215b435a6b950fe6a535d7ffbceaa7862459046bc55de6f8393b4cd",
+      "after_sha256": "c55e4e6d362cc295109e61ef78bbab3461b7d6c83576701282bdd825206bc599"
+    },
+    {
+      "catalog": "lessons_it.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "d98e4ffce0a681ed568c8e32781dad5c85e3eaf790ee1216fbfcb717865c347a",
+      "after_sha256": "b09814244d03f5db2a986bad769c662d5d42818164760db2bc9ce5818e8bcf12"
+    },
+    {
+      "catalog": "lessons_ja.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "c2f1f957b55e5fcf1ea60cb8ed3dce6c88b91dfd12c405d3e2910aadb89e2183",
+      "after_sha256": "e0d666d27196314039d463504caedbdec3001d5865649de1f41a54795691ad63"
+    },
+    {
+      "catalog": "lessons_pt-BR.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "6a2a9ce7b0a9264fa81215df81feb0975357f799cbd420b7f0596f848078c8c6",
+      "after_sha256": "96d4349e53ff97c2dcb0b13ba068630de9b809fc1b78f79368524b6ef10bd15d"
+    },
+    {
+      "catalog": "lessons_zh-CN.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "562a10bd4cacc7688e239cafc11817a92904aece9fa652ee7ef4a4876f455f2c",
+      "after_sha256": "cf63f090885eaf64574024ac2b4beb58e4342ebdd2d7877d237d3d1763dd964e"
+    },
+    {
+      "catalog": "captions_da.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "82a7e431406037b9d4536bf1fe682b700490a9134f8135f8c0731fdfd1ae1fe7",
+      "after_sha256": "c4f6c8895db971a0555dd2d4eaceb49c445e3062bfc5459c6181f3f6e0e5d3ed"
+    },
+    {
+      "catalog": "captions_de.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "504a11b4bb37310a01d503debdd1f00cdb02e2e05e1d6b657147486b68f7819a",
+      "after_sha256": "2b22c6f4dc632ead08d62cd73171b4fa9aedb6128031d1b519521ab54838e2ce"
+    },
+    {
+      "catalog": "captions_is.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "185643bc2d19d34b10f0fff27fc92632309081c8639f9635a2456ab9f6efa7a3",
+      "after_sha256": "9b7bece0801fe6be71dca7a42bf59638afe18266ae5ce1b23edb4bed066b3540"
+    },
+    {
+      "catalog": "captions_ko.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "43dae0b82f9532ab7ea9abd8081fd02e47c40c37af734b10aa5101c6b87d9e9c",
+      "after_sha256": "02bf3473172fd1fd52b4db914ecd0f7b95e618d0d1c3ad98cc4c5bcfb3e740a2"
+    },
+    {
+      "catalog": "captions_nb.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "74f3fb7a85ff2214761dba622c873ba5714953152b5419fd4ad62ccda98671c5",
+      "after_sha256": "99ed2abbae7c80488ab92a8dada7b2c1d9d27795423ed3acb0ae8ee889cf2e74"
+    },
+    {
+      "catalog": "captions_sv.json",
+      "ready_content_preserved": 71,
+      "before_sha256": "28667da66ea3bc988a31d592025f57b0407d6377d1cdfebbc5df45743fd920ec",
+      "after_sha256": "128589882fc2c0355f6b01418a57db99e24f45de1593e836384e9149f7a22e2f"
+    }
+  ],
+  "media_roots_preserved": [
+    "data-production-root=\"production\"",
+    "data-audio-root=\"https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/main\"",
+    "data-video4k-root=\"https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/main\""
+  ]
+}

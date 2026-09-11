@@ -27,7 +27,12 @@
         {
           "narration": "Bruk conda-forge eller PyPI for et administrert Python-miljø, GitHub Releases for et installasjonsprogram til skrivebordet og nightly bare når du trenger endringer som ennå ikke er utgitt. Velg deretter installasjonsveiledningen for din metode."
         }
-      ]
+      ],
+      "number": 1,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "pypi_github"
     },
     {
       "id": "02_conda_install",
@@ -53,7 +58,12 @@
         {
           "narration": "Når spacr-doctor har bestått alle kontrollene, starter du spaCR med kommandoen spacr. Behold miljøet aktivert hver gang du kjører spaCR."
         }
-      ]
+      ],
+      "number": 2,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "conda_install"
     },
     {
       "id": "03_pip_install",
@@ -79,7 +89,12 @@
         {
           "narration": "Miljøet er nå klart. Hold det aktivert når du bruker spaCR, og bruk python -m pip install --upgrade spacr når du bevisst vil oppdatere programmet."
         }
-      ]
+      ],
+      "number": 3,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "pip_install"
     },
     {
       "id": "04_platform_installers",
@@ -108,7 +123,12 @@
         {
           "narration": "Start spaCR fra operativsystemets programstarter etter installasjonen. Det kreves ikke noe separat oppsett av Python eller Conda."
         }
-      ]
+      ],
+      "number": 4,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "platform_installers"
     },
     {
       "id": "05_home",
@@ -128,7 +148,12 @@
         {
           "narration": "Velg en modulflis for å åpne innstillingsskjermen. Modulnavnet og beskrivelsen øverst bekrefter hvilken arbeidsflyt som er aktiv."
         }
-      ]
+      ],
+      "number": 5,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "home"
     },
     {
       "id": "06_api",
@@ -148,7 +173,12 @@
         {
           "narration": "Fjern prøvingsalternativet for full drift. Hodeløse jobber lagrer de samme utgangene, innstillingene, versjonsregistret og logger som skrivebordets arbeidsflyt."
         }
-      ]
+      ],
+      "number": 6,
+      "app_key": null,
+      "series": 1,
+      "section": "spaCR",
+      "slug": "api"
     },
     {
       "id": "07_mask",
@@ -198,7 +228,12 @@
         {
           "narration": "Velg maskene og mellomfilene du trenger i Utgang og Lagring. Gjør en liten test først, deretter behandle hele kilden etter forhåndsvisning og konsolkontroll passerer."
         }
-      ]
+      ],
+      "number": 7,
+      "app_key": "mask",
+      "series": 1,
+      "section": "Core",
+      "slug": "mask"
     },
     {
       "id": "08_measure",
@@ -233,7 +268,12 @@
         {
           "narration": "Etter at testen er vellykket, kjøre hele kilden. Måling lagrer sporbare objektlinjer i målinger dot db og eventuelle forespurte avlinger ved siden av prosjektutstedelsene."
         }
-      ]
+      ],
+      "number": 8,
+      "app_key": "measure",
+      "series": 1,
+      "section": "Core",
+      "slug": "measure"
     },
     {
       "id": "09_annotate",
@@ -268,7 +308,12 @@
         {
           "narration": "Annotasjoner forblir intakte i målinger dot db med objektidentifikatorer og opprinnelse. Fortsette inntil dekningen er tilstrekkelig for den planlagte modellen eller kvalitetskontrollbeslutningen."
         }
-      ]
+      ],
+      "number": 9,
+      "app_key": "annotate",
+      "series": 1,
+      "section": "Core",
+      "slug": "annotate"
     },
     {
       "id": "10_classify_cv",
@@ -309,7 +354,13 @@
         {
           "narration": "Run validerer først etiketter og splits, og deretter trener og evaluerer den konfigurerte modellen. Sjekk utholdte metrisker og eksempler før du bruker den bredt; spaCR lagrer kontrollpunktet, forutsetninger, innstillinger og kjøreopptak."
         }
-      ]
+      ],
+      "number": 10,
+      "app_key": "classify",
+      "host_app_key": "classify_merged",
+      "series": 1,
+      "section": "Core",
+      "slug": "classify_cv"
     },
     {
       "id": "11_classify_ml",
@@ -347,39 +398,27 @@
         {
           "narration": "Run validerer kontroller, forbereder funksjoner, bruker enhver plate korrigering, vurderer klassifikatoren, beregner viktighet og lagrer aktiverte utgang. Undersøk ut- og per-plate atferd før du bruker prognoser biologisk."
         }
-      ]
+      ],
+      "number": 11,
+      "app_key": "ml_analyze",
+      "host_app_key": "classify_merged",
+      "series": 1,
+      "section": "Core",
+      "slug": "classify_ml"
     },
     {
       "id": "12_map_barcodes",
-      "scenes": [
-        {
-          "narration": "Kart Barkoder dekoder sekvensering leses inn i plate posisjoner og guide identiteter. Konsolen rapporterer prøveoppdagelse, analyseringsvalidering, lese fremgang, utgangsveier og feil."
-        },
-        {
-          "narration": "Sequencing Input velger FASTQ-mappen og om parret lesninger kombineres eller en lesning retning behandles alene. Bekreft navngivingsmønsteret før et stort løp."
-        },
-        {
-          "narration": "Essentials inneholder de inngangene og analyseringskontrollene som trengs for en første run. Bruk Modifisert for å gjennomgå bibliotek-spesifikke endringer, Alt for avanserte kontroller, og Resepter for en gjenbrukbar layout."
-        },
-        {
-          "narration": "Barcode Referenser peker på søktabeller for guider, plate rader og plate kolonne. Hver tabell må kombinere et unikt navn med den forventede sekvensen."
-        },
-        {
-          "narration": "Lesing Parsing finner en kjent anker, trekker ut barkodevinduet og tildeler navngitte rad, kolonne og guidergrupper. Avled dette mønsteret fra bibliotekets design og verifisere det på eksempelleser."
-        },
-        {
-          "narration": "Løpetid og pålitelighet setter stykket størrelse, arbeidere, og testmodus. Begynn med en liten teststykke; redusere stykket eller arbeidstakernes antall når minnet er begrenset."
-        },
-        {
-          "narration": "Run validerer veier og referanser, oppdager prøver, teller leser, og starter delkarting. Stopp anmoder om en ordentlig avbrudd etter det nåværende sikre punktet."
-        },
-        {
-          "narration": "Se på den aktive prøven, partial antall, matcherte brøkdel, og advarsler i framgangskjøretøy og konsol. Undersøk dårlig kartlegging før du aksepterer den komplette løpet."
-        },
-        {
-          "narration": "En vellykket run skriver unike stregkode kombinasjoner med rad, kolonne, guide og tall, pluss en kvalitetskontrollbord, innstillinger og en manifest som gjør kartlegging reproducerbar."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Kommer snart",
+      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 12,
+      "app_key": "map_barcodes",
+      "series": 1,
+      "section": "Core",
+      "slug": "map_barcodes"
     },
     {
       "id": "13_regression",
@@ -417,7 +456,12 @@
         {
           "narration": "Det fullførte prosjektet inneholder justerte analysedata, effektestimater på guide- og gennivå, empiriske eller modellbaserte signifikanstabeller, diagnostiske figurer, lagrede innstillinger og et manifest som kan kjøres på nytt."
         }
-      ]
+      ],
+      "number": 13,
+      "app_key": "regression",
+      "series": 1,
+      "section": "Core",
+      "slug": "regression"
     },
     {
       "id": "14_make_masks",
@@ -452,7 +496,12 @@
         {
           "narration": "For et bilde uten etiketter, opprett objekter med Børste eller Wand plus, rengjør grensene, og spare det nye billedmask paret for modell trening."
         }
-      ]
+      ],
+      "number": 14,
+      "app_key": "make_masks",
+      "series": 1,
+      "section": "Segmentation models",
+      "slug": "make_masks"
     },
     {
       "id": "15_image_umap",
@@ -490,7 +539,12 @@
         {
           "narration": "Det fullførte kartet holder UMAP-punktsskyet synlig og overlaper små gjennomsiktige mikroskopiske avlinger på representative posisjoner. Lagre utgang inkluderer koordinater, clusteretiketter, figur, innstillinger og en reproduserbar manifest."
         }
-      ]
+      ],
+      "number": 15,
+      "app_key": "umap",
+      "series": 1,
+      "section": "Results and quality control",
+      "slug": "image_umap"
     },
     {
       "id": "16_activation",
@@ -525,7 +579,13 @@
         {
           "narration": "Gjen gjennomgå kart over korrekte, feil, høytillit og lavtillit eksempler, sammen med validering kontroller. Ta biologiske konklusjoner bare fra en valideret utdannet klassifikator."
         }
-      ]
+      ],
+      "number": 16,
+      "app_key": "activation",
+      "host_app_key": "classify_merged",
+      "series": 1,
+      "section": "Results and quality control",
+      "slug": "activation"
     },
     {
       "id": "17_timelapse",
@@ -566,7 +626,13 @@
         {
           "narration": "Et vellykket prosjekt inneholder tidsindekserte masker, stabile sporidentiteter, kvalitetskontrollrekorder, filmer, sammensatte arrays, lagre innstillinger og en gjenløpelig manifest."
         }
-      ]
+      ],
+      "number": 17,
+      "app_key": "timelapse",
+      "host_app_key": "mask",
+      "series": 2,
+      "section": "Core",
+      "slug": "timelapse"
     },
     {
       "id": "18_motility",
@@ -601,7 +667,13 @@
         {
           "narration": "Gjen gjennomgå tabeller per ramme og per spor sammen med trajektori- og kvalitetskontrolldata. Kontroller sporets kontinuitet, kalibreringsenheter og gruppemerkjeder før du sammenligner forholdene."
         }
-      ]
+      ],
+      "number": 18,
+      "app_key": "motility",
+      "host_app_key": "measure",
+      "series": 2,
+      "section": "Core",
+      "slug": "motility"
     },
     {
       "id": "19_train_cellpose",
@@ -633,7 +705,13 @@
         {
           "narration": "Etter opplæring skal de teste kontrollplassene på utblandet felt og inspisere feil, ikke bare tap. spaCR lagrer kontrollpunktet, innstillingene, kjøre manifest og parede felt forhåndsvisning sammen."
         }
-      ]
+      ],
+      "number": 19,
+      "app_key": "train_cellpose",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "train_cellpose"
     },
     {
       "id": "20_cellpose_masks",
@@ -665,65 +743,43 @@
         {
           "narration": "Inspeksjon av representative originaler, masken omdrifter og strømningsfelt i figurpanelen før nedstrømsmåling. Velg normalisering og tærskler fra disse forhåndsvisningene i stedet for å kopiere tutorial verdier."
         }
-      ]
+      ],
+      "number": 20,
+      "app_key": "cellpose_masks",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "cellpose_masks"
     },
     {
       "id": "21_model_compare",
-      "scenes": [
-        {
-          "narration": "Modell sammenligne kombinerer objekttall, foregående avtale, matching, fragmentering og side-by-side overlays slik at to segmenteringskandidater kan evalueres på de samme feltene."
-        },
-        {
-          "narration": "Velg en liten, men representativ bilde mappe og begrense feltantallet for interaktiv sammenligning. Inkluderer enkle og vanskelige eksempler i stedet for bare rene felt."
-        },
-        {
-          "narration": "Konfigurere modell A og modell B. Hold kanaler, skala, forhåndsbehandling og delt trekkegler likestilte, med mindre denne innstillingen er den tiltenkte forskjellen."
-        },
-        {
-          "narration": "Sammenlign segmenter i hvert valgt felt med begge oppløsede konfigurasjoner. Avancerte argumenter registreres, og ikke-støttede parametre rapporteres i stedet for stille å behandles som effektive."
-        },
-        {
-          "narration": "Parametre som nådde hver modell skiller ærede verdier fra forfalskede eller ignorerte kontroller. Bekreft at sammenligningen faktisk er forskjellig på den planlagte måten."
-        },
-        {
-          "narration": "Feltet tabell rapporter teller, foregående avtale, matchet overlap, splittinger, fusjoner, ulignende objekter, og uavhengige maskekvalitet kontroller. Ingen enkel metriker tar alle feilmodus."
-        },
-        {
-          "narration": "Velg en rad for å sjekke begge forhåndsvisninger. Se etter nye oppdagelser, misser, grenseskift, splittinger og sammenslåinger, og gjenta deretter over representative felt."
-        },
-        {
-          "narration": "Velg en modell bare når visuelle forskjeller og metrisker forbedrer feil som er viktige for nedstrømsanalyse. Likestillende resultater er informative og viser ingen forbedring."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Kommer snart",
+      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 21,
+      "app_key": "model_compare",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "model_compare"
     },
     {
       "id": "22_model_zoo",
-      "scenes": [
-        {
-          "narration": "Model Zoo lister gjenbrukbare modeller tilgjengelig fra bundlede, lokale eller deklarerte katalogkilder. Begynn med å matche oppgaven, kanaler, objekt skala, og forventet forhåndsbehandling."
-        },
-        {
-          "narration": "Velg en modell mappe og skanne den. Kataloget holder lokale veier og fjernmetadata sammen samtidig som man unngår dupliserte innlegg."
-        },
-        {
-          "narration": "Velg en modell for å gjennomgå dens opprinnelse, lisens, sjekksum, opplæringssituasjon og forventet geometri. En modell som laster seg med suksess er ikke automatisk egnet for bildene dine."
-        },
-        {
-          "narration": "Velg et lite sett av representative felt for et begrenset referansepunkt, inkludert vanskelige eksempler."
-        },
-        {
-          "narration": "Test en installert modell. Referensmålen rapporterer hastighet, objekttall, kvalitetsflagger og forhåndsvisninger uten å behandle disse kontrollene som grundig sannhet."
-        },
-        {
-          "narration": "Se over bordet og maskens forhåndsvisning sammen. Undersøk advarsler i bildekonteksten før du aksepterer eller avviser en modell."
-        },
-        {
-          "narration": "Velg to kompatible lokale modeller når du trenger en kontrolleret side-by-side evaluering."
-        },
-        {
-          "narration": "Model Compare mottar både kontrollpunkter og de samme feltene, slik at forskjeller i masker og kvalitetsmetriske kan vurderes på samme innganger."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Kommer snart",
+      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 22,
+      "app_key": "model_zoo",
+      "host_app_key": "make_masks",
+      "series": 2,
+      "section": "Segmentation models",
+      "slug": "model_zoo"
     },
     {
       "id": "23_agreement",
@@ -752,7 +808,13 @@
         {
           "narration": "Inspisjon av representative avlinger før du endrer etiketter eller klasseklassifikasjoner. Samlet statistikk kan ikke forklare hvorfor revisorer var uenige."
         }
-      ]
+      ],
+      "number": 23,
+      "app_key": "agreement",
+      "host_app_key": "annotate",
+      "series": 3,
+      "section": "Results and quality control",
+      "slug": "agreement"
     },
     {
       "id": "24_plaque",
@@ -781,7 +843,12 @@
         {
           "narration": "Undersøk overlappninger og fordelinger av plakker før du sammenligner forholdene. Databasen, oppsummene, statistikken og kvalitetskontrollen er fortsatt knyttet til løpet."
         }
-      ]
+      ],
+      "number": 24,
+      "app_key": "analyze_plaques",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "plaque"
     },
     {
       "id": "25_recruitment",
@@ -810,7 +877,12 @@
         {
           "narration": "Kontroller segmentering overlappinger og kontroll fordelinger før du stoler på tilstand oppsummeringer. Objekt- og velnivåutgangene beholder kildekennene sine."
         }
-      ]
+      ],
+      "number": 25,
+      "app_key": "recruitment",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "recruitment"
     },
     {
       "id": "26_invasion",
@@ -839,7 +911,12 @@
         {
           "narration": "Se på vedlegg, invaderte og usikre eksempler sammen med godt nivå oppsummeringer. Eksporterte resultater beholder analyseringsinnstillingene og kildekennene."
         }
-      ]
+      ],
+      "number": 26,
+      "app_key": "invasion",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "invasion"
     },
     {
       "id": "27_replication",
@@ -868,7 +945,12 @@
         {
           "narration": "Inspisjon av vakuoler over tølområdet og gjennomgå sammensatte eller fragmenterte masker. De lagrede distribusjonene og statistikkene er fortsatt knyttet til objektsnivå bevis."
         }
-      ]
+      ],
+      "number": 27,
+      "app_key": "replication",
+      "series": 3,
+      "section": "Toxoplasma assays",
+      "slug": "replication"
     },
     {
       "id": "28_training_runs",
@@ -897,7 +979,13 @@
         {
           "narration": "Bruk perfold kurver og innstillinger som er forskjellig med utholdt ytelse for å velge en gjenopprettelig run."
         }
-      ]
+      ],
+      "number": 28,
+      "app_key": "train_compare",
+      "series": 4,
+      "section": "Results and quality control",
+      "slug": "training_runs",
+      "host_app_key": "classify_merged"
     },
     {
       "id": "29_report",
@@ -923,7 +1011,12 @@
         {
           "narration": "Se ferdigrapporten forut og verifisere konklusjoner, versjoner og lenker før du deler den."
         }
-      ]
+      ],
+      "number": 29,
+      "app_key": "report",
+      "series": 4,
+      "section": "Results and quality control",
+      "slug": "report"
     },
     {
       "id": "30_plate_queue",
@@ -949,7 +1042,12 @@
         {
           "narration": "Ferdige plate beholder isolerte utganger og kjøreregister; stoppet eller mislykkede elementer forblir identifiserbare og gjenbrukbare."
         }
-      ]
+      ],
+      "number": 30,
+      "app_key": "queue",
+      "series": 4,
+      "section": "Data and batch runs",
+      "slug": "plate_queue"
     },
     {
       "id": "31_external_masks",
@@ -978,7 +1076,13 @@
         {
           "narration": "Kjør den reviderte importen. Bildene, masker, målinger og opprinnelse er klar til nedstrøms annotering."
         }
-      ]
+      ],
+      "number": 31,
+      "app_key": "external_masks",
+      "series": 4,
+      "section": "Data and batch runs",
+      "slug": "external_masks",
+      "host_app_key": "foreign"
     },
     {
       "id": "32_align_stitch",
@@ -1007,7 +1111,12 @@
         {
           "narration": "Skriv først etter at planen er akseptabelt. spaCR lagrer mosaikken, transformerer, koordinater og registreringsrapporten."
         }
-      ]
+      ],
+      "number": 32,
+      "app_key": "align",
+      "series": 4,
+      "section": "Data and batch runs",
+      "slug": "align_stitch"
     },
     {
       "id": "33_plate_viewer",
@@ -1036,7 +1145,13 @@
         {
           "narration": "Eksporter nåværende ordnet brønnett med tall og rumslige annoteringer for revisjon eller omplanlegging."
         }
-      ]
+      ],
+      "number": 33,
+      "app_key": "plate_view",
+      "series": 4,
+      "section": "Results and quality control",
+      "slug": "plate_viewer",
+      "host_app_key": "graph_builder"
     },
     {
       "id": "34_database",
@@ -1065,7 +1180,12 @@
         {
           "narration": "Eksporter hele strømfilteret og synlig kolonneutvalg. Kildedatabasen forblir uendret."
         }
-      ]
+      ],
+      "number": 34,
+      "app_key": "db_browser",
+      "series": 4,
+      "section": "Data",
+      "slug": "database"
     },
     {
       "id": "35_converter",
@@ -1094,7 +1214,13 @@
         {
           "narration": "Resumé validerer ferdig feltkontrollpunkter før du hopper over dem, så manglende eller skadet utgang er gjenoppbygget."
         }
-      ]
+      ],
+      "number": 35,
+      "app_key": "convert",
+      "series": 4,
+      "section": "Data",
+      "slug": "converter",
+      "host_app_key": "foreign"
     },
     {
       "id": "36_import",
@@ -1123,7 +1249,12 @@
         {
           "narration": "Import bare den reviderte planen. spaCR skriver kanoniske bilder, masker, målinger og opprinnelse mens det beholder eksterne identifikatorer."
         }
-      ]
+      ],
+      "number": 36,
+      "app_key": "foreign",
+      "series": 5,
+      "section": "Data",
+      "slug": "import"
     },
     {
       "id": "37_batch",
@@ -1164,7 +1295,12 @@
         {
           "narration": "Alle tre virkelige underprosessjobber fullføres med suksess. Progressbalken når tre av tre, tabellen bevarer hver status og varighet, oppsummingen skiller mellom suksess, feil, hoppe, ikke kjøre og delvis resultater, og den valgte jobben logg inneholder dens nøyaktige kommando og konvertering rapport. Hver bestemmelsessted har fire TIFF og et kart over opprinnelsen; alle kildehascher forblir uendret."
         }
-      ]
+      ],
+      "number": 37,
+      "app_key": "batch",
+      "series": 5,
+      "section": "Data and batch runs",
+      "slug": "batch"
     },
     {
       "id": "38_distributed_jobs",
@@ -1184,7 +1320,12 @@
         {
           "narration": "Når arbeidsflyten er ferdig, lokalregister sporer fjernt jobb identifikatorer, logger, tilstand, overført artefakter, og feil."
         }
-      ]
+      ],
+      "number": 38,
+      "app_key": "distributed_jobs",
+      "series": 5,
+      "section": "Data and batch runs",
+      "slug": "distributed_jobs"
     },
     {
       "id": "39_classifier_evaluation",
@@ -1204,7 +1345,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, produserer spaCR diskriminering, kalibrering, forvirring, lekkasje og robusthet rapporter."
         }
-      ]
+      ],
+      "number": 39,
+      "app_key": "classifier_evaluation",
+      "host_app_key": "classify_merged",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "classifier_evaluation"
     },
     {
       "id": "40_run_history",
@@ -1224,7 +1371,12 @@
         {
           "narration": "Når arbeidsflyten er ferdig, kan du gjenskape, sammenligne, gjenoppta eller rapportere tidligere arbeid uten å gjette hvordan det ble utført."
         }
-      ]
+      ],
+      "number": 40,
+      "app_key": "run_history",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "run_history"
     },
     {
       "id": "41_classify",
@@ -1244,7 +1396,12 @@
         {
           "narration": "Når arbeidsflyten er ferdig, blir modellen, forutsetningene, delt poster, metrisker og innstillinger knyttet til løpet."
         }
-      ]
+      ],
+      "number": 41,
+      "app_key": "classify_merged",
+      "series": 5,
+      "section": "Core",
+      "slug": "classify"
     },
     {
       "id": "42_curate",
@@ -1264,7 +1421,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, lagres korrigerte etiketter og sporendringer med opprinnelse slik at nedstrømsmålingene kan oppdateres."
         }
-      ]
+      ],
+      "number": 42,
+      "app_key": "curate",
+      "host_app_key": "make_masks",
+      "series": 5,
+      "section": "Core",
+      "slug": "curate"
     },
     {
       "id": "43_illumination",
@@ -1284,7 +1447,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, blir godkjent korrigeringsfelt og diagnostikk lagret for gjenopprettelig forhåndsbehandling."
         }
-      ]
+      ],
+      "number": 43,
+      "app_key": "illumination",
+      "host_app_key": "measure",
+      "series": 5,
+      "section": "Data",
+      "slug": "illumination"
     },
     {
       "id": "44_data_manager",
@@ -1304,7 +1473,12 @@
         {
           "narration": "Når arbeidsflyten er ferdig, viser den oppdaterte oppbevarings- og rengjøringsregistret hva som gjenstår og hva som kan gjenopprettes."
         }
-      ]
+      ],
+      "number": 44,
+      "app_key": "data_manager",
+      "series": 5,
+      "section": "Data",
+      "slug": "data_manager"
     },
     {
       "id": "45_project_browser",
@@ -1324,7 +1498,12 @@
         {
           "narration": "Når arbeidsflyten er ferdig, kobler nettleseren deg til de relevante filene og modulene uten å endre prosjektdata."
         }
-      ]
+      ],
+      "number": 45,
+      "app_key": "project_browser",
+      "series": 5,
+      "section": "Data",
+      "slug": "project_browser"
     },
     {
       "id": "46_napari_bridge",
@@ -1344,7 +1523,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, forblir korrigerte masker og kureringspost forbundet med det opprinnelige feltet."
         }
-      ]
+      ],
+      "number": 46,
+      "app_key": "napari_bridge",
+      "host_app_key": "make_masks",
+      "series": 5,
+      "section": "Segmentation models",
+      "slug": "napari_bridge"
     },
     {
       "id": "47_barcode_qc",
@@ -1364,7 +1549,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, registrerer rapporten den valgte overflodsgrensen, støttende diagnostikk og berørte brønner."
         }
-      ]
+      ],
+      "number": 47,
+      "app_key": "barcode_qc",
+      "host_app_key": "map_barcodes",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "barcode_qc"
     },
     {
       "id": "48_hit_list",
@@ -1384,7 +1575,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, beholder den filtrerte trefflisten poeng, bevis, annotasjoner og kildekennere."
         }
-      ]
+      ],
+      "number": 48,
+      "app_key": "hit_list",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "hit_list"
     },
     {
       "id": "49_methods_results",
@@ -1404,7 +1601,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, eksporteres redigerbare metoder og resultatdokumenter med en opprinnelsesoversikt."
         }
-      ]
+      ],
+      "number": 49,
+      "app_key": "methods_export",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "methods_results"
     },
     {
       "id": "50_run_compare",
@@ -1424,7 +1627,12 @@
         {
           "narration": "Når arbeidsflyten er ferdig, kobler sammenligningsrapporten hver forskjell tilbake til begge kildekjøringer."
         }
-      ]
+      ],
+      "number": 50,
+      "app_key": "run_compare",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "run_compare"
     },
     {
       "id": "51_control_charts",
@@ -1444,7 +1652,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, kan diagrammet, varslene og baseline definisjonen eksporteres for kampanjeovervåkning."
         }
-      ]
+      ],
+      "number": 51,
+      "app_key": "control_chart",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "control_charts",
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "52_pipeline_graph",
@@ -1464,7 +1678,12 @@
         {
           "narration": "Når arbeidsflyten er ferdig, identifiserer grafen den nøyaktige modulen som skal gjenlastes for å gjenopprette konsistens."
         }
-      ]
+      ],
+      "number": 52,
+      "app_key": "pipeline_graph",
+      "series": 5,
+      "section": "Explore",
+      "slug": "pipeline_graph"
     },
     {
       "id": "53_prediction_profiler",
@@ -1484,7 +1703,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, beskriver responskurven modellbete som ikke er årsaksbiologisk effekt, og kan eksporteres med innstillingene."
         }
-      ]
+      ],
+      "number": 53,
+      "app_key": "profiler",
+      "series": 5,
+      "section": "Explore",
+      "slug": "prediction_profiler",
+      "host_app_key": "regression"
     },
     {
       "id": "54_qc_dashboard",
@@ -1504,7 +1729,12 @@
         {
           "narration": "Når arbeidsflyten er ferdig, kan den kombinerte dommen bli spores etter til individuelle rapporter i stedet for å erstatte dem."
         }
-      ]
+      ],
+      "number": 54,
+      "app_key": "qc_dashboard",
+      "series": 5,
+      "section": "Explore",
+      "slug": "qc_dashboard"
     },
     {
       "id": "55_image_scatter",
@@ -1524,7 +1754,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, kan utvalgte objekter og plottet eksporteres med stabile kildekennere."
         }
-      ]
+      ],
+      "number": 55,
+      "app_key": "image_scatter",
+      "host_app_key": "umap",
+      "series": 5,
+      "section": "Explore",
+      "slug": "image_scatter"
     },
     {
       "id": "56_lineage",
@@ -1544,7 +1780,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, hjelper den reviderte relasjonstabellen å skille biologisk struktur fra oppdragsfeil."
         }
-      ]
+      ],
+      "number": 56,
+      "app_key": "lineage",
+      "series": 5,
+      "section": "Explore",
+      "slug": "lineage",
+      "host_app_key": "db_browser"
     },
     {
       "id": "57_layer_viewer",
@@ -1564,7 +1806,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, kan visningen og de valgte regionene eksporteres uten å endre kilder, med mindre en redigering er eksplisitt lagret."
         }
-      ]
+      ],
+      "number": 57,
+      "app_key": "layer_viewer",
+      "series": 5,
+      "section": "Explore",
+      "slug": "layer_viewer",
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "58_graph_builder",
@@ -1584,7 +1832,12 @@
         {
           "narration": "Når arbeidsflyten er ferdig, kan diagrammet og datavalget gjenbrukes eller eksporteres."
         }
-      ]
+      ],
+      "number": 58,
+      "app_key": "graph_builder",
+      "series": 5,
+      "section": "Explore",
+      "slug": "graph_builder"
     },
     {
       "id": "59_anndata_export",
@@ -1604,7 +1857,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, bevarer h5ad-filen den valgte matrisen, annotasjonene og opprinnelsen for nedstrømsanalyse."
         }
-      ]
+      ],
+      "number": 59,
+      "app_key": "anndata_export",
+      "host_app_key": "measure",
+      "series": 5,
+      "section": "Explore",
+      "slug": "anndata_export"
     },
     {
       "id": "60_pca",
@@ -1624,7 +1883,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, kan poeng, belastninger, innstillinger og plottesystemer eksporteres til gjenopprettelig utforskning."
         }
-      ]
+      ],
+      "number": 60,
+      "app_key": "pca",
+      "host_app_key": "umap",
+      "series": 5,
+      "section": "Explore",
+      "slug": "pca"
     },
     {
       "id": "61_tabulate",
@@ -1644,7 +1909,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, forblir den roterte tabellen og dens spesifikasjon knyttet til kildekellet."
         }
-      ]
+      ],
+      "number": 61,
+      "app_key": "tabulate",
+      "series": 5,
+      "section": "Explore",
+      "slug": "tabulate",
+      "host_app_key": "db_browser"
     },
     {
       "id": "62_feature_dictionary",
@@ -1664,7 +1935,12 @@
         {
           "narration": "Når arbeidsflyten er ferdig, kan de valgte definisjonene kopieres eller eksporteres sammen med en analyse."
         }
-      ]
+      ],
+      "number": 62,
+      "app_key": "feature_dict",
+      "series": 5,
+      "section": "Explore",
+      "slug": "feature_dictionary"
     },
     {
       "id": "63_small_multiples",
@@ -1684,7 +1960,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, kan trellis-spesifikasjonen og figuren eksporteres med de valgte dataene."
         }
-      ]
+      ],
+      "number": 63,
+      "app_key": "trellis",
+      "series": 5,
+      "section": "Explore",
+      "slug": "small_multiples",
+      "host_app_key": "graph_builder"
     },
     {
       "id": "64_gate_editor",
@@ -1710,7 +1992,12 @@
         {
           "narration": "Cluster Walk søker etter en begrenset sekvens av DBSCAN-radier på de viste målingene og rapporterer den valgte radius, befolkningsantallet og ekskluderte brøkdel. Inspisjon av de resulterende portene, deretter annotere eller eksportere bare etter at populasjonene samsvarer med de synlige dataene."
         }
-      ]
+      ],
+      "number": 64,
+      "app_key": "gate_editor",
+      "series": 5,
+      "section": "Explore",
+      "slug": "gate_editor"
     },
     {
       "id": "65_feature_explorer",
@@ -1730,7 +2017,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, beskriver rangerte tabeller og plott tilknytning til klasser, ikke årsaksvikt."
         }
-      ]
+      ],
+      "number": 65,
+      "app_key": "feature_explorer",
+      "series": 5,
+      "section": "Explore",
+      "slug": "feature_explorer",
+      "host_app_key": "classify_merged"
     },
     {
       "id": "66_outliers",
@@ -1750,7 +2043,13 @@
         {
           "narration": "Når arbeidsflyten er ferdig, skriver spaCR et uvanlig flagg og diagnostikk i stedet for stille å slette observasjoner."
         }
-      ]
+      ],
+      "number": 66,
+      "app_key": "outliers",
+      "series": 5,
+      "section": "Explore",
+      "slug": "outliers",
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "67_experiment_design",
@@ -1770,7 +2069,12 @@
         {
           "narration": "Når arbeidsflyten er fullført, kan det validerte plattekortet og metadata eksporteres til oppkjøp og senere analyse av spaCR."
         }
-      ]
+      ],
+      "number": 67,
+      "app_key": "experiment_design",
+      "series": 5,
+      "section": "Design",
+      "slug": "experiment_design"
     },
     {
       "id": "68_power_design",
@@ -1790,7 +2094,12 @@
         {
           "narration": "Når arbeidsflyten er ferdig, registrerer rapporten antagelser og anbefalt prøveuttagning i stedet for å presentere et tall uten sammenheng."
         }
-      ]
+      ],
+      "number": 68,
+      "app_key": "power",
+      "series": 5,
+      "section": "Design",
+      "slug": "power_design"
     },
     {
       "id": "69_dose_response",
@@ -1810,7 +2119,12 @@
         {
           "narration": "Når arbeidsflyten er ferdig, kan kurvparametre, usikkerhet, diagnostikk og kildedata eksporteres sammen."
         }
-      ]
+      ],
+      "number": 69,
+      "app_key": "dose_response",
+      "series": 5,
+      "section": "Design",
+      "slug": "dose_response"
     },
     {
       "id": "70_explain_cv",
@@ -1830,27 +2144,28 @@
         {
           "narration": "Når arbeidsflyten er fullført, registreres samsvar, permutasjonsbetydning i valideringssettet, SHAP-sammendrag, utelatte kolonner, gruppering, bakende og proveniens. Lavt samsvar rapporteres i stedet for å skjules."
         }
-      ]
+      ],
+      "number": 70,
+      "app_key": "explain_cv",
+      "host_app_key": "classify_merged",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "explain_cv"
     },
     {
       "id": "71_investigate_hit",
-      "scenes": [
-        {
-          "narration": "Denne veiledningen omhandler Investigate Hit. Spor et valgt regresjonsfunn tilbake til kandidatceller og kvantitativ evidens fra mikroplatebrønner uten å overskrive gjennomgåtte annotasjoner."
-        },
-        {
-          "narration": "Velg regresjonskjøringen, det valgte funnet på gen- eller guide-nivå, fenotyperetningen, terskelen for falske funn, guide-støtten og den samsvarende målingsdatabasen."
-        },
-        {
-          "narration": "I hovedkonfigurasjonsområdet gjennomgår du objekttabellen, skårkolonnen, grupperingen etter mikroplatebrønn, evidenstersklene, kovariatene og den valgfrie krysstilpassede hierarkiske blandingsmodellen."
-        },
-        {
-          "narration": "Forhåndsvis kandidatcellene rangert etter skår og sammendragene for mikroplatebrønnene. Kjør den krysstilpassede modellen bare når det valgte funnet og evidenskravene er riktige."
-        },
-        {
-          "narration": "Når arbeidsflyten er fullført, lagrer spaCR rangerte kandidatceller, sammenligninger mellom uavhengige brønner, valgfrie sannsynligheter for at hver celle samsvarer med den valgte fenotypen, usikkerhet og en versjonert avgjørelse som aldri erstatter manuelle annotasjoner."
-        }
-      ]
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "Kommer snart",
+      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
+      "objectives": [],
+      "prerequisite": "",
+      "number": 71,
+      "app_key": "investigate_hit",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "investigate_hit",
+      "host_app_key": "regression"
     },
     {
       "id": "72_volcano_explorer",
@@ -1870,7 +2185,13 @@
         {
           "narration": "Når arbeidsflyten er fullført, gjengis PDF- og PNG-eksportene på nytt fra de registrerte dataene og den registrerte utformingen i ønsket størrelse, mens de opprinnelige regresjonsresultatene forblir uendret."
         }
-      ]
+      ],
+      "number": 72,
+      "app_key": "volcano_explorer",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "volcano_explorer"
     },
     {
       "id": "73_parameter_sweep",
@@ -1890,7 +2211,13 @@
         {
           "narration": "Når arbeidsflyten er fullført, registrerer den gjenopptakbare resultattabellen innstillinger, status, antall funn, rangering av positiv kontroll, varighet, utdatamappe og feilårsak for hvert forsøk."
         }
-      ]
+      ],
+      "number": 73,
+      "app_key": "parameter_sweep",
+      "host_app_key": "regression",
+      "series": 5,
+      "section": "Results and quality control",
+      "slug": "parameter_sweep"
     },
     {
       "id": "74_import_images",
@@ -2078,6 +2405,37 @@
           ]
         }
       ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "status": "coming_soon",
+      "availability_title": "Kommer snart",
+      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
+    },
+    {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "status": "coming_soon",
+      "availability_title": "Kommer snart",
+      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
     }
   ]
 }

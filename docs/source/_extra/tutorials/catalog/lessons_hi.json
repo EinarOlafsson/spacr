@@ -373,7 +373,7 @@
       "title": "मास्क",
       "series": 1,
       "app_key": "mask",
-      "section": "मुख्य मॉड्यूल",
+      "section": "Core",
       "description": "खंडन को कॉन्फ़िगर करें, लाइव पूर्वावलोकन के साथ इसे मान्य करें, और डाउनस्ट्रीम माप के लिए मास्क बनाएं।",
       "objectives": [
         "स्रोत मेटाडेटा और चैनल मैपिंग की जांच करें।",
@@ -495,7 +495,7 @@
       "title": "मापन",
       "series": 1,
       "app_key": "measure",
-      "section": "मुख्य मॉड्यूल",
+      "section": "Core",
       "description": "छवियों और मास्क से ऑब्जेक्ट-स्तरीय फीचर निकालें, फिर बनी हुई क्रॉप गैलरी और डेटाबेस आउटपुट की जाँच करें।",
       "objectives": [
         "इमेज चैनल और मास्क-प्लेन मैपिंग सत्यापित करें।",
@@ -583,7 +583,7 @@
       "title": "एनोटेशन",
       "series": 1,
       "app_key": "annotate",
-      "section": "मुख्य मॉड्यूल",
+      "section": "Core",
       "description": "ऑब्जेक्ट क्रॉप की समीक्षा करें, एकसमान लेबल दें, कवरेज का ऑडिट करें और सहेजे गए लेबल वर्गीकारक को प्रदान करें।",
       "objectives": [
         "एकसमान क्रॉप दृश्य और एनोटेशन कॉलम कॉन्फ़िगर करें।",
@@ -672,7 +672,7 @@
       "series": 1,
       "app_key": "classify",
       "host_app_key": "classify_merged",
-      "section": "मुख्य मॉड्यूल",
+      "section": "Core",
       "description": "एनोटेट किए गए ऑब्जेक्ट क्रॉप से इमेज वर्गीकारक को प्रशिक्षित और मूल्यांकित करें; इसमें समूहित सत्यापन और वैकल्पिक हाइपरपैरामीटर खोज शामिल हैं।",
       "objectives": [
         "सहेजे गए लेबल और ऑब्जेक्ट क्रॉप को डेटा-लीकेज से सुरक्षित डेटासेट में मैप करें।",
@@ -775,7 +775,7 @@
       "series": 1,
       "app_key": "ml_analyze",
       "host_app_key": "classify_merged",
-      "section": "मुख्य मॉड्यूल",
+      "section": "Core",
       "description": "मापे गए ऑब्जेक्ट से फीचर-आधारित वर्गीकारक को प्रशिक्षित और मूल्यांकित करें; इसमें प्लेट-सजग सुधार और वैकल्पिक हाइपरपैरामीटर खोज शामिल हैं।",
       "objectives": [
         "मान्य मापन फीचर और प्लेट-सजग लेबल तैयार करें।",
@@ -870,79 +870,13 @@
       "title": "बारकोड मैप करें",
       "series": 1,
       "app_key": "map_barcodes",
-      "section": "मुख्य मॉड्यूल",
-      "description": "स्पष्ट संदर्भ तालिकाओं और गुणवत्ता-नियंत्रण आउटपुट के साथ अनुक्रमण रीड को प्लेट स्थिति और गाइड आरएनए पहचान में डिकोड करें।",
-      "objectives": [
-        "लाइब्रेरी डिज़ाइन के आधार पर रीड दिशा, बारकोड संदर्भ और पार्सिंग कॉन्फ़िगर करें।",
-        "छोटे परीक्षण चंक पर मैपिंग सत्यापित करें।",
-        "मैपिंग प्रगति और गुणवत्ता-नियंत्रण आउटपुट की व्याख्या करें।"
-      ],
-      "prerequisite": "अनुक्रमण लाइब्रेरी डिज़ाइन से मेल खाने वाले FASTQ रीड और सत्यापित लुकअप तालिकाएँ उपलब्ध कराएँ।",
-      "scenes": [
-        {
-          "narration": "Map Barcodes अनुक्रमण रीड को प्लेट स्थिति और गाइड आरएनए पहचान में डिकोड करता है। कंसोल नमूना खोज, पार्सर सत्यापन, रीड प्रगति, आउटपुट पथ और विफलताएँ बताता है।",
-          "visual": "01_console",
-          "hold_after": 0.7,
-          "focus_key": "console",
-          "speech_text": "Map Barcodes अनुक्रमण रीड को प्लेट स्थिति और गाइड आरएनए पहचान में डिकोड करता है। कंसोल नमूना खोज, पार्सर सत्यापन, रीड प्रगति, आउटपुट पथ और विफलताएँ बताता है।"
-        },
-        {
-          "narration": "Core अनुभाग से Map Barcodes खोलें। Sequencing Input में FASTQ फ़ोल्डर और यह विकल्प चुना जाता है कि पेयर्ड रीड को जोड़ा जाए या केवल एक रीड दिशा संसाधित की जाए। बड़े रन से पहले नामकरण पैटर्न की पुष्टि करें।",
-          "visual": "13_category_01_sequencing_input",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Core अनुभाग से Map Barcodes खोलें। Sequencing Input में FASTQ फ़ोल्डर और यह विकल्प चुना जाता है कि पेयर्ड रीड को जोड़ा जाए या केवल एक रीड दिशा संसाधित की जाए। बड़े रन से पहले नामकरण पैटर्न की पुष्टि करें।"
-        },
-        {
-          "narration": "Essentials में पहले रन के लिए आवश्यक इनपुट और पार्सिंग नियंत्रण हैं। लाइब्रेरी-विशिष्ट बदलावों की समीक्षा के लिए Modified, उन्नत नियंत्रणों के लिए All और दोबारा उपयोग योग्य लेआउट के लिए Recipes चुनें।",
-          "visual": "09_all_settings",
-          "hold_after": 0.7,
-          "focus_key": "settings_controls",
-          "speech_text": "Essentials में पहले रन के लिए आवश्यक इनपुट और पार्सिंग नियंत्रण हैं। लाइब्रेरी-विशिष्ट बदलावों की समीक्षा के लिए Modified, उन्नत नियंत्रणों के लिए All और दोबारा उपयोग योग्य लेआउट के लिए Recipes चुनें।"
-        },
-        {
-          "narration": "Barcode References गाइड आरएनए, प्लेट पंक्तियों और प्लेट स्तंभों की लुकअप तालिकाएँ निर्दिष्ट करता है। हर तालिका में एक अद्वितीय नाम अपेक्षित अनुक्रम से जुड़ा होना चाहिए।",
-          "visual": "13_category_02_barcode_references",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Barcode References गाइड आरएनए, प्लेट पंक्तियों और प्लेट स्तंभों की लुकअप तालिकाएँ निर्दिष्ट करता है। हर तालिका में एक अद्वितीय नाम अपेक्षित अनुक्रम से जुड़ा होना चाहिए।"
-        },
-        {
-          "narration": "Read Parsing ज्ञात एंकर खोजता है, बारकोड विंडो निकालता है और नामित पंक्ति, स्तंभ तथा गाइड आरएनए समूह देता है। यह पैटर्न लाइब्रेरी डिज़ाइन से निर्धारित करें और उदाहरण रीड पर सत्यापित करें।",
-          "visual": "13_category_03_read_parsing",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Read Parsing ज्ञात एंकर खोजता है, बारकोड विंडो निकालता है और नामित पंक्ति, स्तंभ तथा गाइड आरएनए समूह देता है। यह पैटर्न लाइब्रेरी डिज़ाइन से निर्धारित करें और उदाहरण रीड पर सत्यापित करें।"
-        },
-        {
-          "narration": "Runtime and Reliability चंक आकार, वर्कर संख्या और परीक्षण मोड तय करता है। छोटे परीक्षण चंक से शुरू करें; मेमोरी सीमित होने पर चंक या वर्कर संख्या घटाएँ।",
-          "visual": "13_category_05_runtime_reliability",
-          "hold_after": 0.7,
-          "focus_key": "category",
-          "speech_text": "Runtime and Reliability चंक आकार, वर्कर संख्या और परीक्षण मोड तय करता है। छोटे परीक्षण चंक से शुरू करें; मेमोरी सीमित होने पर चंक या वर्कर संख्या घटाएँ।"
-        },
-        {
-          "narration": "Run पथ और संदर्भ सत्यापित करता है, नमूने खोजता है, रीड गिनता है और चंक-आधारित मैपिंग शुरू करता है। Stop अनुरोध वर्तमान सुरक्षित बिंदु पूरा होने के बाद व्यवस्थित रूप से रन रोकता है।",
-          "visual": "20_run",
-          "hold_after": 0.7,
-          "focus_key": "actions",
-          "speech_text": "Run पथ और संदर्भ सत्यापित करता है, नमूने खोजता है, रीड गिनता है और चंक-आधारित मैपिंग शुरू करता है। Stop अनुरोध वर्तमान सुरक्षित बिंदु पूरा होने के बाद व्यवस्थित रूप से रन रोकता है।"
-        },
-        {
-          "narration": "प्रगति डिस्प्ले और कंसोल में सक्रिय नमूना, बैच संख्या, मिलान अंश और चेतावनियाँ देखें। पूरा रन स्वीकार करने से पहले खराब मैपिंग की जाँच करें।",
-          "visual": "21_running",
-          "hold_after": 0.7,
-          "focus_key": "console",
-          "speech_text": "प्रगति डिस्प्ले और कंसोल में सक्रिय नमूना, बैच संख्या, मिलान अंश और चेतावनियाँ देखें। पूरा रन स्वीकार करने से पहले खराब मैपिंग की जाँच करें।"
-        },
-        {
-          "narration": "सफल रन पंक्ति, स्तंभ, गाइड आरएनए और काउंट वाले अद्वितीय बारकोड संयोजन लिखता है। साथ में गुणवत्ता-नियंत्रण तालिका, सेटिंग्स और मैपिंग को पुनरुत्पाद्य बनाने वाला मैनिफेस्ट सहेजा जाता है।",
-          "visual": "22_output",
-          "hold_after": 0.7,
-          "focus_key": "console",
-          "speech_text": "सफल रन पंक्ति, स्तंभ, गाइड आरएनए और काउंट वाले अद्वितीय बारकोड संयोजन लिखता है। साथ में गुणवत्ता-नियंत्रण तालिका, सेटिंग्स और मैपिंग को पुनरुत्पाद्य बनाने वाला मैनिफेस्ट सहेजा जाता है।"
-        }
-      ]
+      "section": "Core",
+      "description": "यह ट्यूटोरियल अभी उपलब्ध नहीं है। तब तक अन्य ट्यूटोरियल देखें।",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "जल्द आ रहा है"
     },
     {
       "id": "13_regression",
@@ -951,7 +885,7 @@
       "title": "प्रतिगमन",
       "series": 1,
       "app_key": "regression",
-      "section": "मुख्य मॉड्यूल",
+      "section": "Core",
       "description": "पूल्ड स्क्रीन में गाइड की प्रचुरता को फीनोटाइप मापों से जोड़ने के लिए ब्लॉक-आधारित परम्युटेशन परीक्षण या समकालिक रिग्रेशन का उपयोग करें, फिर समर्थन, निदान और प्रभाव के अनुमानों की जाँच करें।",
       "objectives": [
         "फीनोटाइप, गाइड-काउंट और नियंत्रण संबंधी जानकारी को सही ढंग से संरेखित करें।",
@@ -1046,7 +980,7 @@
       "title": "मास्क बनाएँ",
       "series": 1,
       "app_key": "make_masks",
-      "section": "सेगमेंटेशन मॉडल",
+      "section": "Segmentation models",
       "description": "गुणवत्ता नियंत्रण या Cellpose प्रशिक्षण जोड़े बनाने के लिए सेगमेंटेशन लेबल को इंटरैक्टिव रूप से बनाएँ और सुधारें।",
       "objectives": [
         "हर मास्क त्रुटि के लिए उपयुक्त संपादन टूल चुनें।",
@@ -1134,7 +1068,7 @@
       "title": "इमेज UMAP",
       "series": 1,
       "app_key": "umap",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "दो आयामों में मापे गए वस्तुओं को एम्बेड करें और उनके वास्तविक सूक्ष्म उपज का उपयोग करके फेनोटाइप पड़ोसों का निरीक्षण करें।",
       "objectives": [
         "जैविक रूप से प्रासंगिक फीचर और बहिष्करण चुनें।",
@@ -1230,7 +1164,7 @@
       "series": 1,
       "app_key": "activation",
       "host_app_key": "classify_merged",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "जाँचें कि प्रशिक्षित विज़न वर्गीकारक की भविष्यवाणी पर इमेज के कौन-से क्षेत्र प्रभाव डालते हैं और क्या वे व्याख्याएँ विश्वसनीय हैं।",
       "objectives": [
         "एट्रिब्यूशन रन को प्रशिक्षित मॉडल और उसके इनपुट से मिलाएँ।",
@@ -1319,7 +1253,7 @@
       "series": 2,
       "app_key": "timelapse",
       "host_app_key": "mask",
-      "section": "मुख्य मॉड्यूल",
+      "section": "Core",
       "description": "समय-श्रृंखला छवियों का सेगमेंटेशन करें, चुने गए ऑब्जेक्ट को ट्रैक में जोड़ें और बनी हुई फ़िल्म तथा ट्रैजेक्टरी सत्यापित करें।",
       "objectives": [
         "अधिग्रहण अक्षों को सही मैप करें और प्रतिनिधि फ़्रेम का एकसमान सेगमेंटेशन करें।",
@@ -1422,7 +1356,7 @@
       "series": 2,
       "app_key": "motility",
       "host_app_key": "measure",
-      "section": "मुख्य मॉड्यूल",
+      "section": "Core",
       "description": "ट्रैक की गई इमेज से अंशांकित गति मापें और संक्रमण या प्रयोगात्मक समूह के अनुसार प्रक्षेपपथों की तुलना करें।",
       "objectives": [
         "ट्रैक किए गए ऑब्जेक्ट और अंशांकन का सही मानचित्रण करें।",
@@ -1511,7 +1445,7 @@
       "series": 2,
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
-      "section": "सेगमेंटेशन मॉडल",
+      "section": "Segmentation models",
       "description": "समीक्षा की गई इमेज और इंस्टेंस-मास्क जोड़ियों से Cellpose या CPSAM-संगत मॉडल को फ़ाइन-ट्यून करें।",
       "objectives": [
         "जोड़ीदार प्रशिक्षण डेटा सत्यापित करें और उचित प्रारंभिक चेकपॉइंट चुनें।",
@@ -1593,7 +1527,7 @@
       "series": 2,
       "app_key": "cellpose_masks",
       "host_app_key": "make_masks",
-      "section": "सेगमेंटेशन मॉडल",
+      "section": "Segmentation models",
       "description": "पैकेज किया हुआ या कस्टम Cellpose मॉडल लागू करें, मास्क और फ्लो जाँचें और हर फ़ील्ड के लिए एक इंस्टेंस-लेबल मास्क सहेजें।",
       "objectives": [
         "इमेज, चैनल, ऑब्जेक्ट स्केल और चेकपॉइंट का मेल सुनिश्चित करें।",
@@ -1675,72 +1609,13 @@
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "section": "सेगमेंटेशन मॉडल",
-      "description": "समान प्रतिनिधि फ़ील्ड पर दो Cellpose कॉन्फ़िगरेशन चलाएँ और किसी को भी ग्राउंड-ट्रुथ माने बिना उनके मास्क की तुलना करें।",
-      "objectives": [
-        "नियंत्रित दो-मॉडल तुलना बनाएँ।",
-        "सत्यापित करें कि कौन-से पैरामीटर वास्तव में हर मॉडल तक पहुँचे।",
-        "सहमति मीट्रिक की व्याख्या साइड-बाय-साइड मास्क के साथ करें।"
-      ],
-      "prerequisite": "दो संगत मॉडल या कॉन्फ़िगरेशन और सीमित आकार का प्रतिनिधि इमेज सेट चुनें।",
-      "scenes": [
-        {
-          "narration": "Model Compare ऑब्जेक्ट संख्या, अग्रभूमि सहमति, मिलान, विखंडन और साइड-बाय-साइड ओवरले को जोड़ता है, ताकि दो सेगमेंटेशन उम्मीदवारों का समान फ़ील्ड पर मूल्यांकन हो सके।",
-          "visual": "01_overview",
-          "hold_after": 0.7,
-          "focus_key": "screen",
-          "speech_text": "Model Compare ऑब्जेक्ट संख्या, अग्रभूमि सहमति, मिलान, विखंडन और साइड-बाय-साइड ओवरले को जोड़ता है, ताकि दो सेगमेंटेशन उम्मीदवारों का समान फ़ील्ड पर मूल्यांकन हो सके।"
-        },
-        {
-          "narration": "Segmentation models अनुभाग से Model Compare खोलें। छोटा लेकिन प्रतिनिधि इमेज फ़ोल्डर चुनें और इंटरैक्टिव तुलना के लिए फ़ील्ड संख्या सीमित करें। केवल साफ फ़ील्ड के बजाय आसान और कठिन दोनों उदाहरण शामिल करें।",
-          "visual": "02_fields_loaded",
-          "hold_after": 0.7,
-          "focus_key": "source_controls",
-          "speech_text": "Segmentation models अनुभाग से Model Compare खोलें। छोटा लेकिन प्रतिनिधि इमेज फ़ोल्डर चुनें और इंटरैक्टिव तुलना के लिए फ़ील्ड संख्या सीमित करें। केवल साफ फ़ील्ड के बजाय आसान और कठिन दोनों उदाहरण शामिल करें।"
-        },
-        {
-          "narration": "Model A और Model B कॉन्फ़िगर करें। जब तक कोई सेटिंग इच्छित अंतर न हो, चैनल, स्केल, प्रीप्रोसेसिंग और साझा थ्रेशोल्ड एकसमान रखें।",
-          "visual": "03_models",
-          "hold_after": 0.7,
-          "focus_key": "model_panels",
-          "speech_text": "Model A और Model B कॉन्फ़िगर करें। जब तक कोई सेटिंग इच्छित अंतर न हो, चैनल, स्केल, प्रीप्रोसेसिंग और साझा थ्रेशोल्ड एकसमान रखें।"
-        },
-        {
-          "narration": "Compare दोनों समाधान किए गए कॉन्फ़िगरेशन के साथ हर चुने गए फ़ील्ड का सेगमेंटेशन करता है। उन्नत आर्ग्युमेंट रिकॉर्ड होते हैं और असमर्थित पैरामीटर को प्रभावी मानने के बजाय स्पष्ट रूप से बताया जाता है।",
-          "visual": "04_compare",
-          "hold_after": 0.7,
-          "focus_key": "model_panels",
-          "speech_text": "Compare दोनों समाधान किए गए कॉन्फ़िगरेशन के साथ हर चुने गए फ़ील्ड का सेगमेंटेशन करता है। उन्नत आर्ग्युमेंट रिकॉर्ड होते हैं और असमर्थित पैरामीटर को प्रभावी मानने के बजाय स्पष्ट रूप से बताया जाता है।"
-        },
-        {
-          "narration": "Parameters that reached each model वास्तव में स्वीकार किए गए मानों को अप्रचलित या उपेक्षित नियंत्रणों से अलग दिखाता है। पुष्टि करें कि तुलना इच्छित तरीके से ही अलग है।",
-          "visual": "06_parameters",
-          "hold_after": 0.7,
-          "focus_key": "parameters",
-          "speech_text": "Parameters that reached each model वास्तव में स्वीकार किए गए मानों को अप्रचलित या उपेक्षित नियंत्रणों से अलग दिखाता है। पुष्टि करें कि तुलना इच्छित तरीके से ही अलग है।"
-        },
-        {
-          "narration": "फ़ील्ड तालिका ऑब्जेक्ट संख्या, अग्रभूमि सहमति, मिलान ओवरलैप, विभाजन, विलय, बिना मिलान वाले ऑब्जेक्ट और स्वतंत्र मास्क-गुणवत्ता जाँच बताती है। कोई एक मीट्रिक हर विफलता प्रकार नहीं पकड़ता।",
-          "visual": "07_metrics",
-          "hold_after": 0.7,
-          "focus_key": "metrics",
-          "speech_text": "फ़ील्ड तालिका ऑब्जेक्ट संख्या, अग्रभूमि सहमति, मिलान ओवरलैप, विभाजन, विलय, बिना मिलान वाले ऑब्जेक्ट और स्वतंत्र मास्क-गुणवत्ता जाँच बताती है। कोई एक मीट्रिक हर विफलता प्रकार नहीं पकड़ता।"
-        },
-        {
-          "narration": "दोनों पूर्वावलोकन जाँचने के लिए एक पंक्ति चुनें। नई पहचान, छूटी पहचान, सीमा परिवर्तन, विभाजन और विलय देखें, फिर प्रतिनिधि फ़ील्ड में यह जाँच दोहराएँ।",
-          "visual": "08_field_one",
-          "hold_after": 0.7,
-          "focus_key": "previews",
-          "speech_text": "दोनों पूर्वावलोकन जाँचने के लिए एक पंक्ति चुनें। नई पहचान, छूटी पहचान, सीमा परिवर्तन, विभाजन और विलय देखें, फिर प्रतिनिधि फ़ील्ड में यह जाँच दोहराएँ।"
-        },
-        {
-          "narration": "मॉडल तभी चुनें जब दृश्य अंतर और मीट्रिक डाउनस्ट्रीम विश्लेषण के लिए महत्वपूर्ण त्रुटियों में सुधार करें। समान परिणाम भी जानकारी देते हैं, लेकिन सुधार प्रदर्शित नहीं करते।",
-          "visual": "09_field_two",
-          "hold_after": 0.7,
-          "focus_key": "previews",
-          "speech_text": "मॉडल तभी चुनें जब दृश्य अंतर और मीट्रिक डाउनस्ट्रीम विश्लेषण के लिए महत्वपूर्ण त्रुटियों में सुधार करें। समान परिणाम भी जानकारी देते हैं, लेकिन सुधार प्रदर्शित नहीं करते।"
-        }
-      ]
+      "section": "Segmentation models",
+      "description": "यह ट्यूटोरियल अभी उपलब्ध नहीं है। तब तक अन्य ट्यूटोरियल देखें।",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "जल्द आ रहा है"
     },
     {
       "id": "22_model_zoo",
@@ -1750,72 +1625,13 @@
       "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "section": "सेगमेंटेशन मॉडल",
-      "description": "दोबारा उपयोग किए जा सकने वाले सेगमेंटेशन और वर्गीकरण मॉडल ब्राउज़ करें, सत्यापित करें, डाउनलोड करें और बेंचमार्क चलाएँ।",
-      "objectives": [
-        "मॉडल की संगतता और उत्पत्ति की जाँच करें।",
-        "प्रतिनिधि फ़ील्ड पर मॉडल का बेंचमार्क चलाएँ।",
-        "दो उम्मीदवार Model Compare को दें।"
-      ],
-      "prerequisite": "कुछ प्रतिनिधि फ़ील्ड तैयार रखें और उनके चैनल, ऑब्जेक्ट प्रकार तथा अनुमानित पैमाने की जानकारी रखें।",
-      "scenes": [
-        {
-          "narration": "Model Zoo बंडल किए गए, स्थानीय या घोषित कैटलॉग स्रोतों में उपलब्ध पुन: उपयोग योग्य मॉडल सूचीबद्ध करता है। कार्य, चैनल, ऑब्जेक्ट पैमाने और अपेक्षित प्रीप्रोसेसिंग से मेल बैठाकर शुरुआत करें।",
-          "visual": "01_overview",
-          "hold_after": 0.7,
-          "focus_key": "catalogue",
-          "speech_text": "Model Zoo बंडल किए गए, स्थानीय या घोषित कैटलॉग स्रोतों में उपलब्ध पुन: उपयोग योग्य मॉडल सूचीबद्ध करता है। कार्य, चैनल, ऑब्जेक्ट पैमाने और अपेक्षित प्रीप्रोसेसिंग से मेल बैठाकर शुरुआत करें।"
-        },
-        {
-          "narration": "मॉडल फ़ोल्डर चुनकर उसे स्कैन करें। कैटलॉग दोहराई गई प्रविष्टियों से बचते हुए स्थानीय पथ और दूरस्थ मेटाडेटा को साथ रखता है।",
-          "visual": "02_scanned",
-          "hold_after": 0.7,
-          "focus_key": "scan_controls",
-          "speech_text": "मॉडल फ़ोल्डर चुनकर उसे स्कैन करें। कैटलॉग दोहराई गई प्रविष्टियों से बचते हुए स्थानीय पथ और दूरस्थ मेटाडेटा को साथ रखता है।"
-        },
-        {
-          "narration": "किसी मॉडल की उत्पत्ति, लाइसेंस, checksum, प्रशिक्षण संदर्भ और अपेक्षित ज्यामिति की जाँच करने के लिए उसे चुनें। सफलतापूर्वक लोड होने वाला मॉडल आपकी इमेज के लिए स्वतः उपयुक्त नहीं होता।",
-          "visual": "03_provenance",
-          "hold_after": 0.7,
-          "focus_key": "detail",
-          "speech_text": "किसी मॉडल की उत्पत्ति, लाइसेंस, checksum, प्रशिक्षण संदर्भ और अपेक्षित ज्यामिति की जाँच करने के लिए उसे चुनें। सफलतापूर्वक लोड होने वाला मॉडल आपकी इमेज के लिए स्वतः उपयुक्त नहीं होता।"
-        },
-        {
-          "narration": "सीमित बेंचमार्क के लिए प्रतिनिधि फ़ील्ड का छोटा समूह चुनें और उसमें कठिन उदाहरण भी शामिल करें।",
-          "visual": "04_fields",
-          "hold_after": 0.7,
-          "focus_key": "field_controls",
-          "speech_text": "सीमित बेंचमार्क के लिए प्रतिनिधि फ़ील्ड का छोटा समूह चुनें और उसमें कठिन उदाहरण भी शामिल करें।"
-        },
-        {
-          "narration": "एक इंस्टॉल किए गए मॉडल का परीक्षण करें। बेंचमार्क गति, ऑब्जेक्ट संख्या, गुणवत्ता संकेत और प्रीव्यू दिखाता है, लेकिन इन जाँचों को वास्तविक लेबल के सापेक्ष सटीकता नहीं मानता।",
-          "visual": "05_test",
-          "hold_after": 0.7,
-          "focus_key": "test",
-          "speech_text": "एक इंस्टॉल किए गए मॉडल का परीक्षण करें। बेंचमार्क गति, ऑब्जेक्ट संख्या, गुणवत्ता संकेत और प्रीव्यू दिखाता है, लेकिन इन जाँचों को वास्तविक लेबल के सापेक्ष सटीकता नहीं मानता।"
-        },
-        {
-          "narration": "तालिका और मास्क प्रीव्यू को साथ जाँचें। किसी मॉडल को स्वीकार या अस्वीकार करने से पहले इमेज के संदर्भ में चेतावनियों की जाँच करें।",
-          "visual": "07_benchmark",
-          "hold_after": 0.7,
-          "focus_key": "benchmark",
-          "speech_text": "तालिका और मास्क प्रीव्यू को साथ जाँचें। किसी मॉडल को स्वीकार या अस्वीकार करने से पहले इमेज के संदर्भ में चेतावनियों की जाँच करें।"
-        },
-        {
-          "narration": "नियंत्रित समानांतर मूल्यांकन की आवश्यकता होने पर दो संगत स्थानीय मॉडल चुनें।",
-          "visual": "09_two_selected",
-          "hold_after": 0.7,
-          "focus_key": "compare",
-          "speech_text": "नियंत्रित समानांतर मूल्यांकन की आवश्यकता होने पर दो संगत स्थानीय मॉडल चुनें।"
-        },
-        {
-          "narration": "Model Compare को दोनों checkpoint और समान फ़ील्ड मिलते हैं, इसलिए मास्क तथा गुणवत्ता मीट्रिक के अंतर को एक जैसे इनपुट पर परखा जा सकता है।",
-          "visual": "10_compare_handoff",
-          "hold_after": 0.7,
-          "focus_key": "comparison",
-          "speech_text": "Model Compare को दोनों checkpoint और समान फ़ील्ड मिलते हैं, इसलिए मास्क तथा गुणवत्ता मीट्रिक के अंतर को एक जैसे इनपुट पर परखा जा सकता है।"
-        }
-      ]
+      "section": "Segmentation models",
+      "description": "यह ट्यूटोरियल अभी उपलब्ध नहीं है। तब तक अन्य ट्यूटोरियल देखें।",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "जल्द आ रहा है"
     },
     {
       "id": "23_agreement",
@@ -1825,7 +1641,7 @@
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "Annotation columns के बीच agreement मापें और disagreement के लिए उत्तरदायी objects की जाँच करें।",
       "objectives": [
         "Labels की निष्पक्ष तुलना के लिए configuration तैयार करना।",
@@ -1899,7 +1715,7 @@
       "title": "प्लाक परीक्षण",
       "series": 3,
       "app_key": "analyze_plaques",
-      "section": "टोक्सोप्लाज़्मा परीक्षण",
+      "section": "Toxoplasma assays",
       "description": "Plaque masks का segmentation करें या existing masks पुनः उपयोग करें, उनकी पुष्टि करें और condition के अनुसार plaque formation का सारांश बनाएँ।",
       "objectives": [
         "नए segmentation और existing masks के पुनः उपयोग में से उपयुक्त विकल्प चुनना।",
@@ -1973,7 +1789,7 @@
       "title": "रिक्रूटमेंट विश्लेषण",
       "series": 3,
       "app_key": "recruitment",
-      "section": "टोक्सोप्लाज़्मा परीक्षण",
+      "section": "Toxoplasma assays",
       "description": "Host-cell background की तुलना में parasite-associated regions पर marker enrichment की मात्रा निर्धारित करें।",
       "objectives": [
         "Channels और masks को सही ढंग से map करना।",
@@ -2047,7 +1863,7 @@
       "title": "आक्रमण परीक्षण",
       "series": 3,
       "app_key": "invasion",
-      "section": "टोक्सोप्लाज़्मा परीक्षण",
+      "section": "Toxoplasma assays",
       "description": "Outside-versus-total staining से attached और invaded parasites में अंतर करें।",
       "objectives": [
         "Stain channels को सही map करना।",
@@ -2121,7 +1937,7 @@
       "title": "प्रतिकृति परीक्षण",
       "series": 3,
       "app_key": "replication",
-      "section": "टोक्सोप्लाज़्मा परीक्षण",
+      "section": "Toxoplasma assays",
       "description": "Parasites को vacuoles से assign करें और condition के अनुसार intracellular replication का सारांश बनाएँ।",
       "objectives": [
         "Vacuole assignment set करना।",
@@ -2195,7 +2011,7 @@
       "title": "प्रशिक्षण रन",
       "series": 4,
       "app_key": "train_compare",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "Curves को overlay और settings को diff करके model-training runs की तुलना करें।",
       "objectives": [
         "Comparable runs load कर उनकी पुष्टि करना।",
@@ -2260,7 +2076,8 @@
           "focus_key": "diff",
           "speech_text": "Reproducible run चुनने के लिए per-fold curves और settings diff को held-out performance के साथ उपयोग करें।"
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "29_report",
@@ -2269,7 +2086,7 @@
       "title": "रिपोर्ट",
       "series": 4,
       "app_key": "report",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "Quality control, figures, statistics, settings और versions का shareable HTML या PDF summary बनाएँ।",
       "objectives": [
         "Report के लिए relevant evidence चुनना।",
@@ -2336,7 +2153,7 @@
       "title": "प्लेट कतार",
       "series": 4,
       "app_key": "queue",
-      "section": "डेटा और बैच रन",
+      "section": "Data and batch runs",
       "description": "एक ही validated pipeline से कई plates चलाएँ और उनकी visible, resumable status बनाए रखें।",
       "objectives": [
         "Multi-plate queue बनाकर उसकी समीक्षा करना।",
@@ -2403,7 +2220,7 @@
       "title": "बाहरी मास्क",
       "series": 4,
       "app_key": "external_masks",
-      "section": "डेटा और बैच रन",
+      "section": "Data and batch runs",
       "description": "Third-party images और label masks को measured, traceable spaCR project के रूप में import करें।",
       "objectives": [
         "External inputs को सही map करना।",
@@ -2468,7 +2285,8 @@
           "focus_key": "console",
           "speech_text": "Reviewed import चलाएँ। Resulting images, masks, measurements और provenance downstream annotation के लिए तैयार होते हैं।"
         }
-      ]
+      ],
+      "host_app_key": "foreign"
     },
     {
       "id": "32_align_stitch",
@@ -2477,7 +2295,7 @@
       "title": "संरेखण और स्टिचिंग",
       "series": 4,
       "app_key": "align",
-      "section": "डेटा और बैच रन",
+      "section": "Data and batch runs",
       "description": "Image tiles को register करें और सीमित memory उपयोग के साथ stitched mosaic लिखें।",
       "objectives": [
         "Tile layout निर्धारित करना।",
@@ -2551,7 +2369,7 @@
       "title": "प्लेट व्यूअर",
       "series": 4,
       "app_key": "plate_view",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "Measurements को plate heatmaps के रूप में देखें और spatial artifacts या edge effects पहचानें।",
       "objectives": [
         "उपयुक्त plate heatmap बनाना।",
@@ -2616,7 +2434,8 @@
           "focus_key": "export",
           "speech_text": "Audit या replotting के लिए counts और spatial annotations सहित वर्तमान tidy well grid export करें।"
         }
-      ]
+      ],
+      "host_app_key": "graph_builder"
     },
     {
       "id": "34_database",
@@ -2625,7 +2444,7 @@
       "title": "डेटाबेस ब्राउज़र",
       "series": 4,
       "app_key": "db_browser",
-      "section": "डेटा",
+      "section": "Data",
       "description": "Command line के बिना spaCR measurement databases browse, filter और export करें।",
       "objectives": [
         "Database सुरक्षित रूप से खोलकर pages देखना।",
@@ -2699,7 +2518,7 @@
       "title": "प्रारूप परिवर्तक",
       "series": 4,
       "app_key": "convert",
-      "section": "डेटा",
+      "section": "Data",
       "description": "Microscopy formats को reviewed provenance map सहित spaCR-compatible TIFF names में convert करें।",
       "objectives": [
         "Information loss को ध्यान में रखकर mapping set करना।",
@@ -2764,7 +2583,8 @@
           "focus_key": "resume",
           "speech_text": "Resume completed field checkpoints को skip करने से पहले validate करता है, इसलिए missing या damaged outputs फिर बनाए जाते हैं।"
         }
-      ]
+      ],
+      "host_app_key": "foreign"
     },
     {
       "id": "36_import",
@@ -2773,7 +2593,7 @@
       "title": "प्रोजेक्ट आयात करें",
       "series": 5,
       "app_key": "foreign",
-      "section": "डेटा",
+      "section": "Data",
       "description": "किसी अन्य laboratory की images, masks और measurements को traceable spaCR project में map करें।",
       "objectives": [
         "External data को स्पष्ट रूप से map करना।",
@@ -2847,7 +2667,7 @@
       "title": "बैच रनर",
       "series": 5,
       "app_key": "batch",
-      "section": "डेटा और बैच रन",
+      "section": "Data and batch runs",
       "description": "निर्भरताओं और अलग-अलग लॉग वाले वास्तविक spaCR मॉड्यूल कार्यों की क्रमबद्ध कतार का सत्यापन करें, उसे सहेजें और चलाएँ।",
       "objectives": [
         "लेबल, निर्भरता और कमांड-लाइन ओवरराइड के साथ सत्यापित मॉड्यूल तथा सेटिंग्स कार्य जोड़ें।",
@@ -2957,7 +2777,7 @@
       "title": "वितरित कार्य",
       "series": 5,
       "app_key": "distributed_jobs",
-      "section": "डेटा और बैच रन",
+      "section": "Data and batch runs",
       "description": "SSH workstations, Slurm clusters या cloud और HPC commands पर spaCR jobs submit और monitor करें।",
       "objectives": [
         "Distributed Jobs के उपयोग का उचित समय समझना।",
@@ -3006,7 +2826,7 @@
       "series": 5,
       "app_key": "classifier_evaluation",
       "host_app_key": "classify_merged",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "Held-out predictions, nested cross-validation, calibration, leakage और per-plate performance का audit करें।",
       "objectives": [
         "Classifier Evaluation के उपयोग का उचित समय समझना।",
@@ -3054,7 +2874,7 @@
       "title": "रन इतिहास",
       "series": 5,
       "app_key": "run_history",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "सभी jobs की settings, files, warnings, failures और performance एक ही स्थान से खोजें।",
       "objectives": [
         "Run History के उपयोग का उचित समय समझना।",
@@ -3102,7 +2922,7 @@
       "title": "वर्गीकरण",
       "series": 5,
       "app_key": "classify_merged",
-      "section": "मुख्य मॉड्यूल",
+      "section": "Core",
       "description": "इमेज क्रॉप या मापी गई फीचर के लिए उपयुक्त classification workflow चुनें और data splits के बीच संबंधित objects को leak किए बिना उसका मूल्यांकन करें।",
       "objectives": [
         "समझें कि Classify का उपयोग कब करना है।",
@@ -3151,7 +2971,7 @@
       "series": 5,
       "app_key": "curate",
       "host_app_key": "make_masks",
-      "section": "मुख्य मॉड्यूल",
+      "section": "Core",
       "description": "प्रत्येक बदलाव का audit योग्य record बनाए रखते हुए segmentation masks और tracks को manual रूप से सुधारें।",
       "objectives": [
         "समझें कि Curate का उपयोग कब करना है।",
@@ -3200,7 +3020,7 @@
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
-      "section": "डेटा",
+      "section": "Data",
       "description": "Intensity features मापने से पहले flat-field correction का अनुमान लगाएँ और उसकी पुष्टि करें।",
       "objectives": [
         "समझें कि Illumination का उपयोग कब करना है।",
@@ -3248,7 +3068,7 @@
       "title": "डेटा प्रबंधक",
       "series": 5,
       "app_key": "data_manager",
-      "section": "डेटा",
+      "section": "Data",
       "description": "मूल acquisition files को बदले बिना project storage की जाँच करें और derived files द्वारा प्रयुक्त स्थान खाली करें।",
       "objectives": [
         "समझें कि Data Manager का उपयोग कब करना है।",
@@ -3296,7 +3116,7 @@
       "title": "प्रोजेक्ट ब्राउज़र",
       "series": 5,
       "app_key": "project_browser",
-      "section": "डेटा",
+      "section": "Data",
       "description": "spaCR projects खोजें और उनकी stage, size, नवीनतम run तथा पुराने outputs एक ही table में देखें।",
       "objectives": [
         "समझें कि Project Browser का उपयोग कब करना है।",
@@ -3345,7 +3165,7 @@
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
-      "section": "सेगमेंटेशन मॉडल",
+      "section": "Segmentation models",
       "description": "napari में mask की समीक्षा करें और सुधारे गए labels को provenance सहित spaCR में वापस लाएँ।",
       "objectives": [
         "समझें कि Napari Bridge का उपयोग कब करना है।",
@@ -3394,7 +3214,7 @@
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "Mapping depth, coverage, collisions, positional effects और evidence आधारित abundance threshold की जाँच करें।",
       "objectives": [
         "समझें कि Barcode QC का उपयोग कब करना है।",
@@ -3443,7 +3263,7 @@
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "Effect size, uncertainty, false-discovery rate और guide agreement के आधार पर screen hits को rank कर उनकी समीक्षा करें।",
       "objectives": [
         "समझें कि Hit List का उपयोग कब करना है।",
@@ -3492,7 +3312,7 @@
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "Settings को स्मृति से दोबारा बनाने के बजाय recorded runs से traceable Methods और Results text का draft तैयार करें।",
       "objectives": [
         "समझें कि Methods & Results का उपयोग कब करना है।",
@@ -3540,7 +3360,7 @@
       "title": "रन तुलना",
       "series": 5,
       "app_key": "run_compare",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "Settings, counts, outputs और hits में हुए बदलाव समझने के लिए दो runs को साथ-साथ तुलना करें।",
       "objectives": [
         "समझें कि Run Compare का उपयोग कब करना है।",
@@ -3588,7 +3408,7 @@
       "title": "कंट्रोल चार्ट",
       "series": 5,
       "app_key": "control_chart",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "Plates के बीच controls का अनुसरण करें और स्पष्ट baseline की तुलना में drift पहचानें।",
       "objectives": [
         "समझें कि Control Charts का उपयोग कब करना है।",
@@ -3627,7 +3447,8 @@
           "hold_after": 0.65,
           "speech_text": "Workflow पूरा होने पर chart, alerts और baseline definition को campaign monitoring के लिए export किया जा सकता है।"
         }
-      ]
+      ],
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "52_pipeline_graph",
@@ -3636,7 +3457,7 @@
       "title": "पाइपलाइन ग्राफ़",
       "series": 5,
       "app_key": "pipeline_graph",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "देखें कि प्रत्येक result किन artifacts से बना और कौन से downstream outputs पुराने या अनुपस्थित हैं।",
       "objectives": [
         "समझें कि Pipeline Graph का उपयोग कब करना है।",
@@ -3684,7 +3505,7 @@
       "title": "पूर्वानुमान प्रोफ़ाइलर",
       "series": 5,
       "app_key": "profiler",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "मॉडल के एक input को बदलें और देखें कि fitted prediction किस प्रकार प्रतिक्रिया करता है।",
       "objectives": [
         "समझें कि Prediction Profiler का उपयोग कब करना है।",
@@ -3723,7 +3544,8 @@
           "hold_after": 0.65,
           "speech_text": "Workflow पूरा होने पर response curve मॉडल का व्यवहार दर्शाता है, causal biological effect नहीं। इसे settings सहित export किया जा सकता है।"
         }
-      ]
+      ],
+      "host_app_key": "regression"
     },
     {
       "id": "54_qc_dashboard",
@@ -3732,7 +3554,7 @@
       "title": "QC डैशबोर्ड",
       "series": 5,
       "app_key": "qc_dashboard",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "Segmentation, units, leakage, plate effects और annotations की जाँच को एक review surface पर संयोजित करें।",
       "objectives": [
         "समझें कि QC Dashboard का उपयोग कब करना है।",
@@ -3781,7 +3603,7 @@
       "series": 5,
       "app_key": "image_scatter",
       "host_app_key": "umap",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "Measurements को plot करें और प्रत्येक point से संबंधित image की जाँच करें।",
       "objectives": [
         "समझें कि Image Scatter का उपयोग कब करना है।",
@@ -3829,7 +3651,7 @@
       "title": "वंशावली",
       "series": 5,
       "app_key": "lineage",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "Cell, nucleus, pathogen और organelle assignments जैसे containment relationships की जाँच करें।",
       "objectives": [
         "समझें कि Lineage का उपयोग कब करना है।",
@@ -3868,7 +3690,8 @@
           "hold_after": 0.65,
           "speech_text": "Workflow पूरा होने पर reviewed relationship table biological structure और assignment errors के बीच अंतर करने में सहायक होती है।"
         }
-      ]
+      ],
+      "host_app_key": "db_browser"
     },
     {
       "id": "57_layer_viewer",
@@ -3877,7 +3700,7 @@
       "title": "लेयर व्यूअर",
       "series": 5,
       "app_key": "layer_viewer",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "Images, masks, points और regions of interest को aligned layers के रूप में जाँचें।",
       "objectives": [
         "समझें कि Layer Viewer का उपयोग कब करना है।",
@@ -3916,7 +3739,8 @@
           "hold_after": 0.65,
           "speech_text": "Workflow पूरा होने पर view और selected regions को source बदले बिना export किया जा सकता है, जब तक कि कोई edit स्पष्ट रूप से save न किया जाए।"
         }
-      ]
+      ],
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "58_graph_builder",
@@ -3925,7 +3749,7 @@
       "title": "ग्राफ़ बिल्डर",
       "series": 5,
       "app_key": "graph_builder",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "Table columns को visual roles देकर exploratory charts बनाएँ।",
       "objectives": [
         "समझें कि Graph Builder का उपयोग कब करना है।",
@@ -3974,7 +3798,7 @@
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "scanpy या scvi-tools में उपयोग के लिए spaCR measurements को AnnData file में लिखें।",
       "objectives": [
         "समझें कि AnnData Export का उपयोग कब करना है।",
@@ -4023,7 +3847,7 @@
       "series": 5,
       "app_key": "pca",
       "host_app_key": "umap",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "Principal components से correlated measurements का सारांश बनाएँ और उन्हें प्रभावित करने वाली features जाँचें।",
       "objectives": [
         "समझें कि PCA का उपयोग कब करना है।",
@@ -4071,7 +3895,7 @@
       "title": "सारणीबद्ध",
       "series": 5,
       "app_key": "tabulate",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "योगदान देने वाली observations की संख्या दिखाते हुए measurements को grouped summaries में pivot करें।",
       "objectives": [
         "समझें कि Tabulate का उपयोग कब करना है।",
@@ -4110,7 +3934,8 @@
           "hold_after": 0.65,
           "speech_text": "Workflow पूरा होने पर pivoted table और उसका specification source selection से जुड़े रहते हैं।"
         }
-      ]
+      ],
+      "host_app_key": "db_browser"
     },
     {
       "id": "62_feature_dictionary",
@@ -4119,7 +3944,7 @@
       "title": "विशेषता शब्दकोश",
       "series": 5,
       "app_key": "feature_dict",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "नाम या अवधारणा से किसी measured feature का अर्थ पता करें।",
       "objectives": [
         "समझें कि Feature Dictionary का उपयोग कब करना है।",
@@ -4167,7 +3992,7 @@
       "title": "स्मॉल मल्टीपल्स",
       "series": 5,
       "app_key": "trellis",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "उचित shared axes वाले grid पर groups के बीच समान chart की तुलना करें।",
       "objectives": [
         "समझें कि Small Multiples का उपयोग कब करना है।",
@@ -4206,7 +4031,8 @@
           "hold_after": 0.65,
           "speech_text": "Workflow पूरा होने पर trellis specification और figure को selected data सहित export किया जा सकता है।"
         }
-      ]
+      ],
+      "host_app_key": "graph_builder"
     },
     {
       "id": "64_gate_editor",
@@ -4215,7 +4041,7 @@
       "title": "गेट संपादक",
       "series": 5,
       "app_key": "gate_editor",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "2D, 3D या एक कम उच्च आयामी दृश्य में जनसंख्या गेट को आकर्षित करें, निरीक्षण करें, घोंसला करें और पुनः उपयोग करें।",
       "objectives": [
         "2D में जनसंख्या गेट को रेखांकित और निरीक्षण करें।",
@@ -4282,7 +4108,7 @@
       "title": "फ़ीचर एक्सप्लोरर",
       "series": 5,
       "app_key": "feature_explorer",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "Selected classes को अलग करने की क्षमता के आधार पर features को rank करें और ranking के evidence की जाँच करें।",
       "objectives": [
         "समझें कि Feature Explorer का उपयोग कब करना है।",
@@ -4321,7 +4147,8 @@
           "hold_after": 0.65,
           "speech_text": "Workflow पूरा होने पर ranked table और plots classes के साथ association दर्शाते हैं, causal importance नहीं।"
         }
-      ]
+      ],
+      "host_app_key": "classify_merged"
     },
     {
       "id": "66_outliers",
@@ -4330,7 +4157,7 @@
       "title": "आउटलायर",
       "series": 5,
       "app_key": "outliers",
-      "section": "अन्वेषण",
+      "section": "Explore",
       "description": "प्रत्येक row को सुरक्षित रखते हुए robust rules से unusual objects या wells को flag करें।",
       "objectives": [
         "समझें कि Outliers का उपयोग कब करना है।",
@@ -4369,7 +4196,8 @@
           "hold_after": 0.65,
           "speech_text": "Workflow पूरा होने पर स्पेकर observations को बिना बताए हटाने के बजाय outlier flag और diagnostics लिखता है।"
         }
-      ]
+      ],
+      "host_app_key": "qc_dashboard"
     },
     {
       "id": "67_experiment_design",
@@ -4378,7 +4206,7 @@
       "title": "प्रयोग डिज़ाइन",
       "series": 5,
       "app_key": "experiment_design",
-      "section": "डिज़ाइन",
+      "section": "Design",
       "description": "Acquisition से पहले conditions, controls और replicates का layout निर्धारित करें।",
       "objectives": [
         "समझें कि Experiment Design का उपयोग कब करना है।",
@@ -4426,7 +4254,7 @@
       "title": "सांख्यिकीय शक्ति / डिज़ाइन",
       "series": 5,
       "app_key": "power",
-      "section": "डिज़ाइन",
+      "section": "Design",
       "description": "स्पष्ट assumptions के अंतर्गत effect पहचानने के लिए आवश्यक cells और wells की संख्या का अनुमान लगाएँ।",
       "objectives": [
         "समझें कि Power / Design का उपयोग कब करना है।",
@@ -4474,7 +4302,7 @@
       "title": "खुराक–अनुक्रिया",
       "series": 5,
       "app_key": "dose_response",
-      "section": "डिज़ाइन",
+      "section": "Design",
       "description": "Uncertainty की सूचना देते हुए dose-response curves fit करें और evidence से असमर्थित EC50 estimates स्वीकार न करें।",
       "objectives": [
         "समझें कि Dose–Response का उपयोग कब करना है।",
@@ -4522,7 +4350,7 @@
       "title": "CV मॉडल समझाएँ",
       "series": 5,
       "app_key": "explain_cv",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "मापी गई विशेषताओं से कंप्यूटर-विज़न की भविष्यवाणियाँ दोबारा तैयार करें और जाँचें कि उनसे मिली व्याख्याएँ विश्वसनीय तथा सूचना-रिसाव से मुक्त हैं।",
       "objectives": [
         "समझें कि Explain CV Model का उपयोग कब करना है।",
@@ -4571,46 +4399,14 @@
       "title": "हिट की जाँच करें",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
-      "description": "चुने गए रिग्रेशन परिणाम को उम्मीदवार कोशिकाओं और माइक्रोप्लेट-वेल के मात्रात्मक प्रमाण से जोड़ें, बिना समीक्षा की गई टिप्पणियों को बदले।",
-      "objectives": [
-        "Investigate Hit का उपयोग कब करना है, समझें।",
-        "महत्वपूर्ण इनपुट और सेटिंग्स को कॉन्फ़िगर करें।",
-        "कार्यप्रवाह चलाएं और इसके आउटपुट का पता लगाएं।"
-      ],
-      "prerequisite": "इस मॉड्यूल को अपस्ट्रीम परिणामों की आवश्यकता होने पर पहले के वर्कफ़्लो पाठों का पालन करें।",
-      "scenes": [
-        {
-          "narration": "यह ट्यूटोरियल Investigate Hit का परिचय देता है। चुने गए रिग्रेशन परिणाम को उम्मीदवार कोशिकाओं और माइक्रोप्लेट-वेल के मात्रात्मक प्रमाण से जोड़ें, बिना समीक्षा की गई टिप्पणियों को बदले।",
-          "visual": "overview",
-          "hold_after": 0.45,
-          "speech_text": "यह ट्यूटोरियल Investigate Hit का परिचय देता है। चुने गए रिग्रेशन परिणाम को उम्मीदवार कोशिकाओं और माइक्रोप्लेट-वेल के मात्रात्मक प्रमाण से जोड़ें, बिना समीक्षा की गई टिप्पणियों को बदले।"
-        },
-        {
-          "narration": "Results and quality control अनुभाग से Investigate Hit खोलें। रिग्रेशन निष्पादन, चुना गया जीन या गाइड-स्तरीय परिणाम, फेनोटाइप की दिशा, गलत खोज की सीमा, गाइडों के बीच समर्थन और संबंधित मापन डेटाबेस चुनें।",
-          "visual": "input",
-          "hold_after": 0.45,
-          "speech_text": "Results and quality control अनुभाग से Investigate Hit खोलें। रिग्रेशन निष्पादन, चुना गया जीन या गाइड-स्तरीय परिणाम, फेनोटाइप की दिशा, गलत खोज की सीमा, गाइडों के बीच समर्थन और संबंधित मापन डेटाबेस चुनें।"
-        },
-        {
-          "narration": "मुख्य कॉन्फ़िगरेशन क्षेत्र में ऑब्जेक्ट तालिका, स्कोर कॉलम, माइक्रोप्लेट-वेल समूह, प्रमाण की सीमाएँ, सहचर चर और वैकल्पिक क्रॉस-फ़िट पदानुक्रमित मिश्रण की समीक्षा करें।",
-          "visual": "settings",
-          "hold_after": 0.45,
-          "speech_text": "मुख्य कॉन्फ़िगरेशन क्षेत्र में ऑब्जेक्ट तालिका, स्कोर कॉलम, माइक्रोप्लेट-वेल समूह, प्रमाण की सीमाएँ, सहचर चर और वैकल्पिक क्रॉस-फ़िट पदानुक्रमित मिश्रण की समीक्षा करें।"
-        },
-        {
-          "narration": "स्कोर के अनुसार क्रमबद्ध उम्मीदवार कोशिकाओं और माइक्रोप्लेट-वेल सारांशों का पूर्वावलोकन करें। क्रॉस-फ़िट मॉडल तभी चलाएँ जब चुना गया परिणाम और प्रमाण का अनुबंध सही हो।",
-          "visual": "run",
-          "hold_after": 0.45,
-          "speech_text": "स्कोर के अनुसार क्रमबद्ध उम्मीदवार कोशिकाओं और माइक्रोप्लेट-वेल सारांशों का पूर्वावलोकन करें। क्रॉस-फ़िट मॉडल तभी चलाएँ जब चुना गया परिणाम और प्रमाण का अनुबंध सही हो।"
-        },
-        {
-          "narration": "कार्यप्रवाह पूरा होने पर spaCR क्रमबद्ध उम्मीदवार कोशिकाएँ, स्वतंत्र वेलों की तुलनाएँ, हर कोशिका के चुने गए फेनोटाइप से मेल खाने की वैकल्पिक संभावनाएँ, अनिश्चितता और संस्करणयुक्त वर्गीकरण सहेजता है। यह वर्गीकरण हाथ से की गई टिप्पणियों को कभी नहीं बदलता।",
-          "visual": "output",
-          "hold_after": 0.65,
-          "speech_text": "कार्यप्रवाह पूरा होने पर स्पेकर क्रमबद्ध उम्मीदवार कोशिकाएँ, स्वतंत्र वेलों की तुलनाएँ, हर कोशिका के चुने गए फेनोटाइप से मेल खाने की वैकल्पिक संभावनाएँ, अनिश्चितता और संस्करणयुक्त वर्गीकरण सहेजता है। यह वर्गीकरण हाथ से की गई टिप्पणियों को कभी नहीं बदलता।"
-        }
-      ]
+      "section": "Results and quality control",
+      "description": "यह ट्यूटोरियल अभी उपलब्ध नहीं है। तब तक अन्य ट्यूटोरियल देखें।",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": [],
+      "status": "coming_soon",
+      "availability_title": "जल्द आ रहा है",
+      "host_app_key": "regression"
     },
     {
       "id": "72_volcano_explorer",
@@ -4619,7 +4415,7 @@
       "title": "वोल्केनो एक्सप्लोरर",
       "series": 5,
       "app_key": "volcano_explorer",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "पूर्ण रिग्रेशन खोलें, प्रत्येक बिंदु की जाँच करें, ग्राफ़ की शैली बदलें और विश्लेषण दोबारा चलाए बिना प्रकाशन आकार की वेक्टर आकृति निर्यात करें।",
       "objectives": [
         "Volcano Explorer का उपयोग कब करना है, समझें।",
@@ -4668,7 +4464,7 @@
       "title": "पैरामीटर स्वीप",
       "series": 5,
       "app_key": "parameter_sweep",
-      "section": "परिणाम और गुणवत्ता नियंत्रण",
+      "section": "Results and quality control",
       "description": "रिग्रेशन कॉन्फ़िगरेशन की सीमित खोज चलाएँ और तुलना करें कि उचित विश्लेषण विकल्पों के बीच कौन-से निष्कर्ष स्थिर रहते हैं।",
       "objectives": [
         "Parameter Sweep का उपयोग कब करना है, समझें।",
@@ -4916,6 +4712,37 @@
           "speech_text": "इनपुट जाँचने या विश्लेषण का कोई विकल्प सोच-समझकर बदलने के लिए Regression पर लौटें। बदलाव के बाद नया रन और नए निदान आवश्यक हैं; फ़ोल्डर खोलने से पुराने परिणाम कभी अपडेट नहीं होते। पूरे डेटासेट, कंसोल, इंटरैक्टिव परिणामों और सहायता प्रक्रिया के लिए Regression ट्यूटोरियल देखें।"
         }
       ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "status": "coming_soon",
+      "availability_title": "जल्द आ रहा है",
+      "description": "यह ट्यूटोरियल अभी उपलब्ध नहीं है। तब तक अन्य ट्यूटोरियल देखें।",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
+    },
+    {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "status": "coming_soon",
+      "availability_title": "जल्द आ रहा है",
+      "description": "यह ट्यूटोरियल अभी उपलब्ध नहीं है। तब तक अन्य ट्यूटोरियल देखें।",
+      "objectives": [],
+      "prerequisite": "",
+      "scenes": []
     }
   ],
   "language": "hi"

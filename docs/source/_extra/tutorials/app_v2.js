@@ -104,6 +104,10 @@ const elements = {
 };
 
 const LESSONS = BASE_CATALOG.lessons;
+const isPlayable = lesson => Boolean(lesson) && lesson.status !== "coming_soon";
+const AVAILABLE_LESSONS = LESSONS.filter(isPlayable);
+const playerToolbar = elements.player.querySelector('.player-toolbar');
+const playerToolbarNext = playerToolbar.nextSibling;
 const localizedCatalogs = new Map([["en", BASE_CATALOG]]);
 const captionCatalogs = new Map([["en", BASE_CATALOG]]);
 let localizedCatalog = BASE_CATALOG;
@@ -604,7 +608,7 @@ function fourKAvailable() {
 // The 4K cut is the same silent master at a higher resolution, published
 // under the same per-lesson path, so only the root changes.
 function videoSource(lesson = activeLesson) {
-  if (!lesson) return "";
+  if (!isPlayable(lesson)) return "";
   if (fourKAvailable() && elements.quality?.value === "4k") {
     return `${VIDEO_4K_ROOT}/${lesson.silent}`;
   }
@@ -616,7 +620,7 @@ function videoSource(lesson = activeLesson) {
 // cuts share one timeline, so the audio element keeps playing underneath and
 // only needs re-syncing to the new video clock.
 async function applyQualityChange() {
-  if (!activeLesson) return;
+  if (!isPlayable(activeLesson)) return;
   try { localStorage.setItem(QUALITY_KEY, elements.quality.value); }
   catch (error) { /* Storage may be disabled. */ }
 
@@ -666,7 +670,7 @@ function setupQualityControl() {
 }
 
 function audioSource(lesson = activeLesson) {
-  if (!lesson || elements.voice.value === "silent") return "";
+  if (!isPlayable(lesson) || elements.voice.value === "silent") return "";
   return `${narrationRoot()}/${lesson.id}/audio/${elements.language.value}/${elements.voice.value}.m4a`;
 }
 
@@ -847,12 +851,12 @@ function makeLessonLink(base) {
   const lesson = localizedLesson(base.id);
   const button = document.createElement("button");
   button.type = "button";
-  button.className = "lesson-link ready";
+  button.className = `lesson-link ${isPlayable(base) ? "ready" : "planned"}`;
   button.dataset.lesson = base.id;
   if (base.id === activeLesson?.id) button.classList.add("active");
-  if (completed.has(base.id)) button.classList.add("complete");
+  if (isPlayable(base) && completed.has(base.id)) button.classList.add("complete");
   button.setAttribute("aria-current", base.id === activeLesson?.id ? "page" : "false");
-  button.innerHTML = `<span class="lesson-number">${String(base.number).padStart(2, "0")}</span><span class="lesson-link-copy"><strong>${escapeHTML(lesson.title)}</strong><small>4K video</small></span><span class="lesson-state-dot" aria-hidden="true"></span>`;
+  button.innerHTML = `<span class="lesson-number">${String(base.number).padStart(2, "0")}</span><span class="lesson-link-copy"><strong>${escapeHTML(lesson.title)}</strong><small>${escapeHTML(isPlayable(base) ? "4K video" : lesson.availability_title || "Coming soon")}</small></span><span class="lesson-state-dot" aria-hidden="true"></span>`;
   button.addEventListener("click", () => selectLesson(base.id));
   return button;
 }
@@ -873,6 +877,35 @@ async function selectLesson(id, options = {}) {
   updatePagination();
   updateCompleteButton();
   closeSidebar();
+  if (!isPlayable(lesson)) {
+    ++narrationRequest;
+    narrationFetchController?.abort();
+    narrationAudioAvailable = false;
+    discardNarrationAudio();
+    elements.video.removeAttribute("src");
+    elements.video.removeAttribute("poster");
+    elements.video.load();
+    if (captionUrl) URL.revokeObjectURL(captionUrl);
+    captionUrl = "";
+    elements.captionTrack.removeAttribute("src");
+    chapterData = [];
+    audioTimings = visualTimings = null;
+    elements.chapters.replaceChildren();
+    elements.transcript.replaceChildren();
+    elements.player.hidden = true;
+    elements.planned.hidden = false;
+    elements.chapterCard.hidden = true;
+    document.querySelector('.lesson-guide').hidden = true;
+    elements.planned.appendChild(playerToolbar);
+    updateComingSoon();
+    if (options.focus) elements.content.focus({ preventScroll: true });
+    return;
+  }
+  elements.player.insertBefore(playerToolbar, playerToolbarNext);
+  document.querySelector('.lesson-guide').hidden = false;
+  elements.voice.disabled = false;
+  elements.voice.customSelect?.setDisabled(false);
+  if (elements.quality) elements.quality.disabled = false;
   elements.player.hidden = false;
   elements.planned.hidden = true;
   elements.chapterCard.hidden = false;
@@ -891,8 +924,8 @@ function updateLessonHeader() {
   elements.seriesLabel.textContent = navigationSection?.title
     || (navLabels ? navLabels[2] : `Series ${activeLesson.series}`);
   elements.position.textContent = `Lesson ${activeLesson.number} of ${LESSONS.length}`;
-  elements.status.textContent = "Ready";
-  elements.status.className = "status-pill ready";
+  elements.status.textContent = isPlayable(activeLesson) ? "Ready" : lesson.availability_title || "Coming soon";
+  elements.status.className = `status-pill ${isPlayable(activeLesson) ? "ready" : "planned"}`;
   elements.title.textContent = lesson.title;
   elements.content.dataset.appKey = route.appKey || "";
   elements.route.replaceChildren();
@@ -918,6 +951,20 @@ function updateLessonHeader() {
   }
   elements.description.textContent = lesson.description;
   document.title = `${lesson.title} · spaCR Learning Path`;
+}
+
+function updateComingSoon() {
+  if (!activeLesson || isPlayable(activeLesson)) return;
+  const lesson = captionSettings.language === "auto"
+    ? localizedLesson(activeLesson.id) : captionLesson(activeLesson.id);
+  $("#planned-title").textContent = lesson.availability_title || "Coming soon";
+  $("#planned-copy").textContent = lesson.description;
+  $("#planned-copy").parentElement.lang = effectiveCaptionLanguage();
+  elements.status.textContent = lesson.availability_title || "Coming soon";
+  elements.voice.disabled = true;
+  elements.voice.customSelect?.setDisabled(true);
+  if (elements.quality) elements.quality.disabled = true;
+  elements.loading.classList.add("hidden");
 }
 
 function tutorialExampleFiles(lesson) {
@@ -1002,6 +1049,7 @@ async function loadReadyLesson() {
 }
 
 async function loadNarration(resume = true, outerCurrent = () => true) {
+  if (!isPlayable(activeLesson)) { updateComingSoon(); return; }
   const request = ++narrationRequest;
   const isCurrent = () => request === narrationRequest && outerCurrent();
   const wasPlaying = resume && !elements.video.paused;
@@ -1560,12 +1608,13 @@ function updateWatchUI() {
 }
 
 function saveWatchPosition() {
-  if (!activeLesson) return;
+  if (!isPlayable(activeLesson)) return;
   watchProgress[activeLesson.id] = elements.video.currentTime || 0;
   localStorage.setItem(WATCH_KEY, JSON.stringify(watchProgress));
 }
 
 function toggleComplete() {
+  if (!isPlayable(activeLesson)) return;
   if (completed.has(activeLesson.id)) { completed.delete(activeLesson.id); showToast("Lesson marked incomplete"); }
   else { completed.add(activeLesson.id); showToast("Lesson complete"); }
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...completed]));
@@ -1573,7 +1622,7 @@ function toggleComplete() {
 }
 
 function markCompleteAtEnd() {
-  if (!activeLesson || completed.has(activeLesson.id)) return;
+  if (!isPlayable(activeLesson) || completed.has(activeLesson.id)) return;
   completed.add(activeLesson.id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...completed]));
   updateCompleteButton(); updateCourseProgress(); renderCurriculum(elements.search.value);
@@ -1582,20 +1631,21 @@ function markCompleteAtEnd() {
 
 function updateCompleteButton() {
   const done = completed.has(activeLesson?.id);
-  elements.complete.hidden = !activeLesson;
+  elements.complete.hidden = !isPlayable(activeLesson);
   elements.complete.classList.toggle("completed", done);
   elements.completeLabel.textContent = done ? "Completed" : "Mark complete";
   elements.complete.setAttribute("aria-pressed", String(done));
 }
 
 function updateCourseProgress() {
-  const count = LESSONS.filter(lesson => completed.has(lesson.id)).length;
-  elements.progressLabel.textContent = `${count} of ${LESSONS.length} complete`;
-  elements.progressBar.style.width = `${count / LESSONS.length * 100}%`;
+  const count = AVAILABLE_LESSONS.filter(lesson => completed.has(lesson.id)).length;
+  elements.progressLabel.textContent = `${count} of ${AVAILABLE_LESSONS.length} complete`;
+  elements.progressBar.style.width = `${count / Math.max(1, AVAILABLE_LESSONS.length) * 100}%`;
 }
 
 function continueCourse() {
-  selectLesson((LESSONS.find(lesson => !completed.has(lesson.id)) || LESSONS.at(-1)).id, { focus: true });
+  const next = AVAILABLE_LESSONS.find(lesson => !completed.has(lesson.id)) || AVAILABLE_LESSONS.at(-1);
+  if (next) selectLesson(next.id, { focus: true });
 }
 
 async function switchVoice() {
@@ -1656,6 +1706,7 @@ async function switchCaptionLanguage() {
     const catalog = await loadCaptionCatalog(requestedLanguage);
     if (!isCurrent()) return;
     captionCatalog = catalog;
+    updateComingSoon();
     rebuildChapterData();
     renderCaptions();
     renderChapters();
@@ -1931,7 +1982,7 @@ window.addEventListener("keydown", event => {
 if (mobileSidebarQuery.addEventListener) mobileSidebarQuery.addEventListener("change", handleSidebarBreakpoint);
 else mobileSidebarQuery.addListener(handleSidebarBreakpoint);
 
-elements.availableCount.textContent = LESSONS.length;
+elements.availableCount.textContent = AVAILABLE_LESSONS.length;
 elements.totalCount.textContent = LESSONS.length;
 applyTheme(document.documentElement.dataset.theme);
 syncSidebarAccessibility();
@@ -1985,8 +2036,10 @@ async function initializeApp() {
     });
   } finally {
     setMediaSelectorsDisabled(false);
+    updateComingSoon();
   }
   await captionTask;
+  updateComingSoon();
 }
 
 initializeApp().catch(error => {
