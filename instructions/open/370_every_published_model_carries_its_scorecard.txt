@@ -348,12 +348,37 @@ the tooltip -- and all three render the same numbers because they render the
 same entry. Only Hugging Face is left, and it is the one that needs the data
 rather than the plumbing.
 
-STILL TO DO:
+VERIFIED END TO END AGAINST THE REAL SCORECARD, 2026-09-11, which the entry
+above asserted and nobody had checked. `scorecard_toxo_pv_v1.csv` from the
+round-3 hold-out was read through `read_scorecard_csv` -> `ModelEntry` ->
+`scorecard_lines`, the exact path the tooltip and the zoo screen use:
+
+    40 metrics parsed, scorecard_known True
+    F1 0.859 (+0.541 vs stock)
+    Dice 0.981 (+0.058 vs stock)
+    AP 0.5-0.9 0.761 (+0.453 vs stock)
+    on 12517 objects
+    hold-out set toxo-pv-round3 @ 2026-09-10
+
+So the three local surfaces render REAL numbers, not just synthetic fixtures,
+and the count prints as 12517 rather than 12517.0 -- the int/float fix holds
+on the real file too.
+
+STILL TO DO, and BOTH NEED AN OUTWARD-FACING ACTION rather than more code:
   1. THE LABELLED IMAGES THEMSELVES, which this file calls the real crux: a named,
      versioned, labelled set published beside the models, so a number is
      comparable between two models, two versions and two days.
-  2. THE REMAINING RENDERINGS -- the CSV on Hugging Face, the tooltip, and
-     the zoo screen -- from the one CSV. The API section is done; see below.
+  2. THE CSV ON HUGGING FACE. The tooltip and the zoo screen are done and now
+     verified; the API section was already done. Hugging Face is the only
+     rendering left.
+
+     A CORRECTION TO AN EARLIER CLAIM OF MINE: I recorded this as blocked on
+     credentials. It is not -- a Hugging Face token IS present on this
+     machine and `HfFolder.get_token()` returns it. It is blocked on
+     AUTHORISATION: publishing to a public repository is outward-facing and
+     hard to undo, so it waits for the maintainer to say go, not for a
+     secret to appear. Saying "no credentials" would have sent somebody
+     looking for the wrong thing.
 
 --------------------------------------------------------------------------------
 2026-09-03: THE API SECTION EXISTS, AND THE TABLE WAS REACHING NOBODY
