@@ -231,3 +231,71 @@ def test_a_deferred_registrar_is_still_reached_before_the_first_sheet():
         "so their rule is absent from the stylesheet built at launch: "
         f"{stranded}"
     )
+
+
+@pytest.mark.slow
+def test_the_late_block_seam_works_when_the_window_carries_the_sheet(qapp):
+    """The seam asks whether a spaCR sheet is in force, not whether the
+    APPLICATION carries one, and for a while those were the same question.
+
+    `ensure_widget_qss_applied` is what puts a block registered at a
+    screen's import onto that screen before it paints. It began with
+
+        app_sheet = app.styleSheet()
+        if not app_sheet:
+            return False
+
+    on the reasoning that a caller who never opted into spaCR styling is not
+    opted in merely by constructing one of its widgets. Per-window sheeting
+    then took the application sheet DOWN on purpose and gave each window its
+    own -- so `app.styleSheet()` is empty in every production run, and that
+    guard read it as "nobody opted in".
+
+      MEASURED: opening one module registers four blocks -- `SettingsBox`,
+      `ClassEditor`, `SettingAlphabetChip`, `TableChip` -- and not one of
+      the four reached the screen that had just imported them. That is the
+      defect this whole file exists for, reintroduced from underneath by a
+      change to who owns the sheet.
+
+    `test_a_late_registered_block_reaches_its_screen_before_first_paint`
+    could not see it: its fixture applies the theme with
+    `app.setStyleSheet`, so the old question still had the old answer
+    there. This one applies it the way the application does.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt import theme
+
+    app = qapp
+    name = "_PerWindowLateBlock"
+    marker = theme._WIDGET_QSS_MARKER.format(name=name)
+    before_app_sheet = app.styleSheet()
+    try:
+        # The application sheet down and a window sheet up: production.
+        app.setStyleSheet("")
+        theme.apply_stylesheet_per_window(
+            app, theme.stylesheet(theme="dark", font_scale=1.0))
+        assert not app.styleSheet(), (
+            "per-window sheeting is supposed to leave the application "
+            "sheet empty; this test has nothing to say if it does not")
+
+        theme.register_widget_qss(
+            name,
+            lambda palette, opacity: "QLabel#%s { color: #ff00ff; }" % name,
+            replace=True)
+        root = QWidget()
+        try:
+            assert theme.ensure_widget_qss_applied(name, root=root), (
+                "the seam did nothing, so a screen importing its own block "
+                "opens without it"
+            )
+            assert marker in (root.styleSheet() or ""), (
+                "the seam ran but the block it exists to install is not on "
+                "the root"
+            )
+        finally:
+            root.deleteLater()
+    finally:
+        theme.unregister_widget_qss(name)
+        theme._forget_window_stylesheets(app)
+        app.setStyleSheet(before_app_sheet)

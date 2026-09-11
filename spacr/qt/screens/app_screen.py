@@ -46,7 +46,9 @@ from ..bridge import make_thread, resolve_pipeline_entry
 from ..hidpi import device_ratio, scaled_for
 from ..i18n import tr
 from ..job_runner import JobRunner
-from ..theme import (SPACING, ensure_widget_qss_applied, register_widget_qss)
+from ..theme import (SPACING, ensure_widget_qss_applied,
+                     register_widget_qss,
+                     set_a_sheeted_widgets_own_rule)
 from ..widgets import ApiHelpLabel, Card, Divider, Section, UsageBar
 from ..widgets.flow import FlowLayout
 from .settings_model import (
@@ -2164,7 +2166,12 @@ class AppScreen(QWidget):
                 # Back to whatever the stylesheet and the app palette say.
                 self.setAutoFillBackground(False)
                 self.setPalette(QPalette())
-                self.setStyleSheet("")
+                # NOT `setStyleSheet("")`. Under per-screen sheeting this
+                # widget may be carrying the whole window sheet, and
+                # clearing it strands the screen with no theme at all --
+                # measured as `#000000` text on the dark theme, for the
+                # life of the screen. Owning no rule is what is meant here.
+                set_a_sheeted_widgets_own_rule(self, "")
             else:
                 palette = QPalette(self.palette())
                 palette.setColor(QPalette.Window, colour)
@@ -2185,8 +2192,8 @@ class AppScreen(QWidget):
                 # panels carry their own surface colour at the page opacity,
                 # and painting the page colour onto them would flatten the
                 # layering the scheme is built on.
-                self.setStyleSheet(
-                    f"AppScreen {{ background-color: {colour.name()}; }}")
+                set_a_sheeted_widgets_own_rule(
+                    self, f"AppScreen {{ background-color: {colour.name()}; }}")
             self._page_applied = wanted
         finally:
             self._syncing_page = False

@@ -707,3 +707,75 @@ dependency mismatch.
   Any future script that rewrites committed binary output wants that,
   including the icon generators under `tools/`.
 
+
+--------------------------------------------------------------------------------
+2026-09-11 -- TWO BLOCKING JOBS HAVE OUTGROWN THEIR BUDGETS AND HAVE NEVER
+PRODUCED A VERDICT, SO NIGHTLY CANNOT BE GREEN WHATEVER THE TESTS SAY
+--------------------------------------------------------------------------------
+
+The note above establishes that a dispatched run is the way to get a verdict
+under a push storm. Dispatch two of them and read the JOBS rather than the
+run, and a second thing appears that cancellation was hiding:
+
+    run 34618149518     Fast / Full suite control   cancelled at 1:30:17
+                        Minimum dependencies        cancelled at 2:01:09
+    run 34639565357     Fast / Full suite control   cancelled at 1:30:32
+
+`.github/workflows/tests.yml` gives `fast` `timeout-minutes: 90` (line 69)
+and `minimum-dependencies` `timeout-minutes: 120` (line 440). Both jobs ran
+to their ceiling and were killed, on two independent dispatched runs a day
+apart. THAT IS NOT A CANCELLATION STORM -- a dispatched run is exempt from
+the concurrency group, and these were killed by their own timeout.
+
+  BOTH ARE BLOCKING, AND THE FILE SAYS SO IN AS MANY WORDS: "Both are
+  blocking, and tests/test_optimal_dependency_versions.py fails if either
+  stops being so." A blocking job that cannot finish inside its budget is a
+  required check that can never pass. So "when is nightly green" has an
+  answer that does not depend on a single test: NEVER, until the budgets or
+  the jobs change.
+
+WHY NOBODY HAD SEEN IT. Every push-triggered run is destroyed by the next
+push long before ninety minutes, so the only runs that live long enough to
+hit a timeout are dispatched ones, and there had been two. The cancellation
+storm was hiding a second, independent reason the branch cannot go green,
+and the first fix -- dispatch a run -- is what made it visible.
+
+WHAT IS NOT KNOWN, and it matters for which fix is right. Whether these jobs
+are slow because the suite has grown (64,315 tests at the last full local
+sweep, up from 46,877 when 288 was filed) or because something in them
+wedges. The Qt job has been bitten by the second before: its own comment
+records a shard that "reached 99%, then sat in silence until the runner
+killed it", cured by a per-test timeout that turns a lost job into one named
+failure. `fast` and `minimum-dependencies` have no such per-test timeout.
+
+  SO THE FIRST CHANGE IS THE DIAGNOSTIC, NOT THE BUDGET. Raising a ceiling
+  on a job that wedges buys nothing and costs an hour of runner per push; a
+  per-test timeout tells you which it is on the next run.
+
+THE TOOL HALF IS DONE AND PUSHED; THE WORKFLOW HALF CANNOT BE.
+`tools/run_pytest_batches.py` did NOT take a per-test ceiling -- checked
+rather than assumed, and the first draft of this note wrongly supposed it
+did. It takes `--per-test-timeout SECONDS` now, passing `--timeout` and
+`--timeout-method thread` to pytest and adding `--max-worker-restart=0`
+whenever xdist is on, for the reason `_pytest-suite.yml` gives: xdist
+otherwise hands the same test to a replacement worker, which wedges again,
+so a deterministic hang pays the ceiling once per restart instead of once.
+Verified against a synthetic `time.sleep(600)` -- the ceiling fires, the
+traceback names the test and its line, and the batch summary names the file.
+
+WHAT IS LEFT IS ONE LINE IN EACH OF TWO JOBS, and this session cannot push
+it: any commit touching `.github/workflows/` is rejected -- `gh auth status`
+reports gist/read:org/repo and no `workflow` scope, which the note above
+already records for `compat-matrix.yml`. In `tests.yml`, the `Run fast
+tests` step of `fast` and the equivalent in `minimum-dependencies`:
+
+        python tools/run_pytest_batches.py \
+          --marker "..." \
+    -     --batch-size 32 --workers 2
+    +     --batch-size 32 --workers 2 --per-test-timeout 1200
+
+Twenty minutes is the value the Qt suite already uses and is far more than
+any test in these jobs should need. IT DOES NOT BY ITSELF MAKE EITHER JOB
+FIT ITS BUDGET -- it makes the next run SAY whether the problem is one
+wedged test or a suite that has outgrown ninety minutes, which is the
+question that decides the real fix.

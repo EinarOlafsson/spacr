@@ -60,6 +60,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--workers", type=int, default=2,
         help="xdist workers within each batch (default: 2).",
     )
+    parser.add_argument(
+        "--per-test-timeout", type=int, default=0, metavar="SECONDS",
+        help=(
+            "Kill any single test that runs longer than SECONDS and report "
+            "it by name (default: 0, no ceiling). Needs pytest-timeout."
+        ),
+    )
     return parser
 
 
@@ -102,6 +109,33 @@ def main(argv: Sequence[str] | None = None) -> int:
             command.extend([
                 "-n", str(args.workers), "--dist", "loadfile",
             ])
+        if args.per_test_timeout > 0:
+            # A JOB THAT IS KILLED BY ITS OWN BUDGET NAMES NOTHING. The Qt
+            # suite learned this the expensive way and its comment records
+            # it: a shard "reached 99%, then sat in silence until the
+            # runner killed it", so the log named neither the test nor a
+            # stack. A per-test ceiling turns a lost job into one named
+            # failure.
+            #
+            # MEASURED HERE, and it is why this flag exists: on two
+            # independent DISPATCHED runs -- which are exempt from the
+            # cancellation storm, so they were not killed by a push --
+            # `Fast / Full suite control` was cancelled at 1:30:17 and
+            # again at 1:30:32 against a 90-minute budget, and `Minimum
+            # dependencies` at 2:01:09 against 120 minutes. Both are
+            # blocking jobs, so the branch could not go green whatever the
+            # tests said, and neither run left a record of where the time
+            # went.
+            command.extend(["--timeout", str(args.per_test_timeout),
+                            "--timeout-method", "thread"])
+            if args.workers > 1:
+                # --max-worker-restart=0 is what keeps the ceiling from
+                # costing MORE than the hang it replaces: xdist otherwise
+                # hands the very same test to a replacement worker, which
+                # wedges again, so a deterministic hang pays the ceiling
+                # once per restart. The same reasoning, and the same flag,
+                # as `_pytest-suite.yml`.
+                command.append("--max-worker-restart=0")
         command.extend(["-v", "--tb=short"])
         result = subprocess.run(command, check=False)
         if result.returncode not in (0, NO_TESTS_COLLECTED):

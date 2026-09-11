@@ -52,7 +52,8 @@ from ...hyperparam import (
     UMAP_WALK_PARAMETERS, umap_walk_axes, walk_neighbourhood,
     run_search_for_app, umap_metrics as _umap_metrics,
 )
-from ..theme import active_palette, css_color, make_transparent
+from ..theme import (active_palette, css_color, make_transparent,
+                     set_a_sheeted_widgets_own_rule)
 
 # THE HOUSE STYLE (136). `figures.style` imports matplotlib
 # only inside its own functions, so naming it here costs
@@ -2581,7 +2582,13 @@ class UmapSearchSettingsDialog(QDialog):
         # Only this popup: every settings surface is the theme's black canvas;
         # editable/value fields alone are lifted to dark gray. Do not alter the
         # application palette.
-        self.setStyleSheet(
+        # NOT `self.setStyleSheet`. A dialog is a window and therefore a
+        # sheet root, so a plain assignment here replaces the theme this
+        # dialog is carrying instead of adding to it -- measured as
+        # `#000000` text on the dark theme for as long as the dialog stays
+        # open, and the rule below lost at the next theme change.
+        set_a_sheeted_widgets_own_rule(
+            self,
             f"""
             QDialog#UmapSearchSettingsDialog,
             QDialog#UmapSearchSettingsDialog QWidget,
@@ -3047,7 +3054,11 @@ class WalkAxesDialog(QDialog):
         bg = css_color(palette["bg"])
         fg = css_color(palette["fg"])
         muted = css_color(palette.get("muted", palette["fg"]))
-        self.setStyleSheet(f"""
+        # See `UmapSearchSettingsDialog` above: a plain assignment on a
+        # window replaces the sheet it carries. This docstring's own
+        # "after the application stylesheet has been composed" is exactly
+        # the moment that matters.
+        set_a_sheeted_widgets_own_rule(self, f"""
             QDialog#WalkAxesDialog,
             QDialog#WalkAxesDialog QWidget#WalkAxesPage,
             QDialog#WalkAxesDialog QScrollArea,

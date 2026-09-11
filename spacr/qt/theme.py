@@ -3491,6 +3491,16 @@ _WINDOW_SHEET_ATTRIBUTE = "_spacr_window_stylesheet"
 #: a `Polish` and a `Show` for the same window do the work once.
 _WINDOW_SHEET_SERIAL = "_spacr_window_stylesheet_serial"
 
+#: A digest of the sheet text this widget was last given. THE SERIAL ALONE
+#: IS NOT ENOUGH: it records that we sheeted a widget, not that the widget
+#: still carries what we gave it. `AppScreen._sync_page_palette` calls
+#: `setStyleSheet("")` on its own root -- correct when the APPLICATION
+#: carried the sheet and the screen's own was a local suffix, and fatal now
+#: that the screen carries the whole thing. Measured: a module opened after
+#: the last theme change had the serial stamped, an empty stylesheet, and a
+#: probe under it resolving to `#000000` on the dark theme.
+_WINDOW_SHEET_DIGEST = "_spacr_window_stylesheet_digest"
+
 #: Whatever stylesheet a window had of its OWN before the application sheet
 #: was put on it. Kept because a parentless widget IS a window -- Qt says so
 #: -- and several of them set their own rules: a 26px field in a render
@@ -3604,7 +3614,14 @@ def _sheet_one_window(window) -> bool:
         return False
     serial = getattr(app, _WINDOW_SHEET_SERIAL, 0)
     try:
-        if getattr(window, _WINDOW_SHEET_SERIAL, None) == serial:
+        # SEEN IT AND STILL WEARING IT, which are two questions. The second
+        # is what catches a widget whose sheet was replaced by somebody
+        # else since -- and re-sheeting is then correct rather than
+        # wasteful, because whoever replaced it did so believing the
+        # application carried the theme.
+        if (getattr(window, _WINDOW_SHEET_SERIAL, None) == serial
+                and getattr(window, _WINDOW_SHEET_DIGEST, None)
+                == _sheet_digest(window.styleSheet())):
             return False
         setattr(window, _WINDOW_SHEET_SERIAL, serial)
         # THE WINDOW'S OWN RULES SURVIVE, AND GO LAST so they still win.
@@ -3616,10 +3633,60 @@ def _sheet_one_window(window) -> bool:
         # the other end of this: a root that has been given its own late
         # block keeps it appended, or setting the window sheet would strand
         # that screen on the previous preference values.
-        window.setStyleSheet(preserve_widget_qss_overlay(window, sheet + own))
+        text = preserve_widget_qss_overlay(window, sheet + own)
+        window.setStyleSheet(text)
+        setattr(window, _WINDOW_SHEET_DIGEST, _sheet_digest(text))
     except (AttributeError, RuntimeError):
         return False
     return True
+
+
+def set_a_sheeted_widgets_own_rule(widget, rule: str) -> None:
+    """Replace ``widget``'s own QSS without losing the sheet it carries.
+
+    FOR A WIDGET THAT IS A SHEET ROOT. Before per-screen sheeting, a module
+    screen's own stylesheet held only its own rules and the APPLICATION
+    carried the theme, so `setStyleSheet` on the screen was a safe, local
+    thing to do. Now the screen may be carrying all ~73 KB of the window
+    sheet, and a plain `setStyleSheet` throws the theme away.
+
+    Measured before this existed: wiping a shown page's sheet the way
+    `AppScreen._sync_page_palette` does left a probe under it resolving to
+    `#000000` on the dark theme, and it stayed that way until the next
+    theme change -- the digest check repairs a wipe at the widget's next
+    polish, and a page already on show does not get one.
+
+    Falls back to a plain assignment when there is no window sheet to
+    preserve, which is every caller that never opted into spaCR styling and
+    every test that does not apply a theme.
+
+    :param widget: the widget whose own rules are being replaced.
+    :param rule: the QSS the widget owns, or ``""`` to own none.
+    """
+    rule = str(rule or "")
+    try:
+        widget.setProperty(_WINDOW_OWN_SHEET, rule)
+        # Force the re-sheet: the serial says we have already dressed this
+        # widget for the current sheet, and what changed is the half that
+        # is appended after it.
+        setattr(widget, _WINDOW_SHEET_SERIAL, None)
+        if _sheet_one_window(widget):
+            return
+        widget.setStyleSheet(preserve_widget_qss_overlay(widget, rule))
+    except (AttributeError, RuntimeError):
+        pass
+
+
+def _sheet_digest(text):
+    """A cheap fingerprint of a stylesheet, for "is this still ours".
+
+    Length and hash rather than the text, because the sheet is ~73 KB and
+    there is one of these per sheeted root. Python's string hash is
+    randomised per process and consistent within one, which is exactly the
+    lifetime this has to be right for.
+    """
+    text = text or ""
+    return (len(text), hash(text))
 
 
 def _forget_window_stylesheets(app=None) -> int:
@@ -3677,16 +3744,31 @@ def window_stylesheet(app=None) -> Optional[str]:
 
 
 def _the_windows_own_stylesheet(window) -> str:
-    """What ``window`` had set on itself before spaCR sheeted it.
+    """What ``window`` has set on itself, as opposed to what we set on it.
 
-    Captured once. On the second pass the widget is wearing our sheet, so
-    reading it back would fold the global rules into "its own" and they
-    would accumulate at every theme change.
+    NOT CAPTURED ONCE ANY MORE, and the reason it was is still true: on the
+    second pass the widget is wearing our sheet, and reading that back would
+    fold the global rules into "its own" so they accumulate at every theme
+    change. The digest is what tells the two apart. When the widget's
+    current sheet is the text we last gave it, the remembered answer stands;
+    when it is NOT, somebody has set their own rules since and those rules
+    are the answer.
+
+    WHY THAT MATTERS. A dialog is a window and therefore a sheet root, and
+    several screens set a dialog's own stylesheet from a theme-refresh path
+    -- `WalkAxesDialog` and `UmapSearchSettingsDialog` say so in their own
+    docstrings, "after the application stylesheet has been composed".
+    Remembering only the first answer meant their rule was dropped at the
+    next theme change: measured, a dialog that set
+    `QDialog#X { background: #123456 }` after being sheeted came back from
+    the next theme change carrying the full sheet and none of its own rule.
     """
-    own = window.property(_WINDOW_OWN_SHEET)
-    if own is not None:
-        return str(own)
+    remembered = window.property(_WINDOW_OWN_SHEET)
+    ours = getattr(window, _WINDOW_SHEET_DIGEST, None)
     current = str(window.styleSheet() or "")
+    if remembered is not None and (
+            ours is None or ours == _sheet_digest(current)):
+        return str(remembered)
     suffix = getattr(window, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")
     if suffix and current.endswith(suffix):
         # The late screen block belongs to `preserve_widget_qss_overlay`,
@@ -3823,9 +3905,19 @@ def ensure_widget_qss_applied(*names: str, root=None) -> bool:
     preference values.  ``names`` remains the caller's documentation of the
     blocks it requires; omitting it is the MainWindow screen-host path.
 
-    It is a no-op with no ``root``, no ``QApplication``, or no application
-    stylesheet.  A caller that never opted into spaCR styling is not opted in
+    It is a no-op with no ``root``, no ``QApplication``, or no spaCR sheet
+    in force.  A caller that never opted into spaCR styling is not opted in
     merely by constructing one of its widgets.
+
+    THE SHEET IN FORCE IS NOT `app.styleSheet()` ANY MORE. Per-window
+    sheeting takes the application sheet DOWN on purpose and gives each
+    window its own, so `app.styleSheet()` is empty in every production run
+    -- and this function read that as "nobody opted in" and returned before
+    doing anything. Measured: opening one module registers four blocks
+    (`SettingsBox`, `ClassEditor`, `SettingAlphabetChip`, `TableChip`) and
+    NONE of the four reached the screen that had just imported them. That
+    is the exact defect this function was written for, reintroduced by the
+    change that made the window the sheet's owner.
 
     :returns: ``True`` only when ``root.setStyleSheet`` was called.
     """
@@ -3834,7 +3926,7 @@ def ensure_widget_qss_applied(*names: str, root=None) -> bool:
     app = QApplication.instance()
     if app is None:
         return False
-    app_sheet = app.styleSheet()
+    app_sheet = app.styleSheet() or window_stylesheet(app)
     if not app_sheet:
         return False
     wanted = tuple(

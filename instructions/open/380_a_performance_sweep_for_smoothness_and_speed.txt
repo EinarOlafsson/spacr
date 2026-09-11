@@ -1015,3 +1015,99 @@ WHAT MOVED IN THE TESTS, and neither was a regression:
 WHAT IS LEFT. Nothing on this lever. The remaining ~1.7 s is the palette,
 the overlays and the 1,525 widgets that genuinely do need repolishing, and
 cutting into that is a different item from this one.
+
+
+--------------------------------------------------------------------------------
+2026-09-11, THE SAME EVENING -- THE LEVER COST THREE DEFECTS, ALL OF ONE KIND,
+AND THE REACH MEASUREMENT COULD NOT HAVE FOUND ANY OF THEM
+--------------------------------------------------------------------------------
+
+The section above records the change as taken and its reach as "207
+sampled, 161 sheeted, 46 inside a hidden page, 0 genuinely missed". THAT
+MEASUREMENT WAS TAKEN THE WRONG WAY ROUND. It opened its modules and THEN
+applied the sheet. spaCR applies the sheet at launch and the user opens
+modules afterwards, so the measurement sampled the one ordering in which
+the change works.
+
+THREE DEFECTS, and they are one defect wearing three coats: CODE THAT
+ASSUMED THE APPLICATION CARRIED THE THEME.
+
+  1. A MODULE OPENED AFTER LAUNCH WORE NO SHEET AT ALL. `stylesheet_roots`
+     marks the pages that exist when it runs, and it runs while a sheet is
+     being applied. A page created later was never marked and the window is
+     deliberately bare, so it inherited nothing. A probe under a newly
+     opened module resolved to `#000000` on the dark theme -- black text on
+     a dark screen, a whole module wide. That is the ordinary path, not an
+     edge.
+
+     Fixed by marking at each of the three places a page joins the stack,
+     so the event filter sheets it on `Polish` or `Show`.
+
+  2. MARKED, SHEETED, AND THEN WIPED. Marking alone did not fix it, and the
+     trace said why in two lines: the filter sheets the screen while it is
+     still PARENTLESS during `__init__` -- a parentless widget is a window --
+     and `AppScreen._sync_page_palette` then calls `setStyleSheet("")` on
+     its own root. Correct when the application carried the theme and a
+     screen's own sheet was a local suffix; fatal now the screen carries
+     the whole 73 KB.
+
+     TWO FIXES, because the two halves fail at different times.
+     `_sheet_one_window` now compares a DIGEST of the text it last applied
+     against the widget's current stylesheet, so a sheet replaced by anyone
+     is repaired at that widget's next polish. And `_sync_page_palette`
+     writes through `set_a_sheeted_widgets_own_rule`, which replaces the
+     screen's OWN rule and re-applies the window sheet under it -- because
+     a page that is already on show never gets another polish, and the
+     digest alone left it black until the next theme change.
+
+       A CACHE KEY THAT RECORDS WHAT WE DID RATHER THAN WHAT IS TRUE WILL
+       EVENTUALLY BE WRONG. Nothing in Qt promises that a stylesheet we set
+       is the stylesheet that is there.
+
+  3. THE LATE-BLOCK SEAM STOPPED WORKING ENTIRELY, and this one was
+     invisible to every test. `ensure_widget_qss_applied` -- the thing that
+     puts a block registered at a screen's import onto that screen before
+     it paints -- began:
+
+         app_sheet = app.styleSheet()
+         if not app_sheet:
+             return False
+
+     on the reasoning that a caller who never opted into spaCR styling is
+     not opted in by constructing one of its widgets. Per-window sheeting
+     takes the application sheet DOWN on purpose. So in every production
+     run that guard read "nobody opted in" and the function did nothing.
+
+       MEASURED: opening one module registers four blocks -- `SettingsBox`,
+       `ClassEditor`, `SettingAlphabetChip`, `TableChip` -- and NOT ONE of
+       the four reached the screen that had just imported them. That is
+       precisely the defect `tests/qt/test_widget_qss_is_complete.py`
+       exists for, reintroduced from underneath by a change to who owns
+       the sheet.
+
+     `test_a_late_registered_block_reaches_its_screen_before_first_paint`
+     could not see it: its fixture applies the theme with
+     `app.setStyleSheet`, so the old question still had the old answer
+     there. The seam now asks `app.styleSheet() or window_stylesheet(app)`,
+     and a new guard applies the theme the way the application does.
+
+WHAT THIS SAYS ABOUT THE SWEEP, and it is the same lesson as the per-window
+step one size up. A change whose blast radius is "who owns a piece of
+global Qt state" is not tested by the tests written for the change. The
+per-window step moved seven tests, one a real regression. This one shipped
+three defects, all found within the hour, all by guards written for it --
+and the first was live on nightly for about an hour before it was found.
+
+  THE GUARD FOUND TWO AND THE THIRD NEEDED A DIFFERENT QUESTION. Asking
+  "does every widget wear the sheet" catches 1 and 2. Nothing about the
+  cascade catches 3, because the block that never arrived was not
+  overridden -- it was never written, and a widget with no rule looks
+  exactly like a widget whose rule says nothing.
+
+STILL WORTH IT, on the numbers, and the numbers are unchanged by the three
+fixes: nominated roots ~1,671 ms against ~3,739 ms for the whole window,
+same process, same window, four modules open. But the honest price of the
+4.8x is an evening of defects in code that had no reason to expect the
+change, and any future step in this direction should budget for that rather
+than for the diff.
+

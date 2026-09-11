@@ -339,3 +339,205 @@ def test_a_screen_shown_later_arrives_wearing_the_theme(sheeted, qtbot):
     assert _resolved(probe) == SECOND_HEX, (
         "a screen shown after the theme change arrived in the previous "
         "theme, which is exactly what the deferral must not cost")
+
+
+@pytest.mark.slow
+def test_a_module_opened_after_the_theme_change_wears_it(sheeted, qtbot):
+    """THE GAP THE DEFERRAL OPENS THAT THE TEST ABOVE DOES NOT COVER.
+
+    `test_a_screen_shown_later_arrives_wearing_the_theme` uses a page that
+    ALREADY EXISTED when the sheet was applied, so it was marked while
+    `stylesheet_roots` ran and the event filter sheets it on show. A module
+    opened for the first time AFTER that point was never marked, because
+    the marking only happens while a sheet is being applied.
+
+    Before per-screen sheeting this could not happen: the window carried
+    the sheet and every descendant added later inherited it by cascade.
+    Now the window is deliberately bare, so a page with no mark and no
+    sheet of its own has nobody to inherit from -- which is a whole module
+    screen in the wrong theme, not a stray widget.
+
+    MEASURED BEFORE THE FIX, one module open, the sheet applied, then a
+    second module opened::
+
+        page                     visible   own sheet   wears the sentinel
+        AppScreen                False     yes         True
+        AppScreen                True      no          False   <-- new
+
+    A SENTINEL AND NOT THE PALETTE, for the reason this file's header
+    gives twice over: `apply_qpalette` sets the text colour independently
+    of the stylesheet, so probing the palette alone reports white on the
+    dark theme whether or not the sheet ever arrived.
+    """
+    from spacr.qt import register_self_registering_modules
+    from spacr.qt.app import MainWindow
+
+    app = QApplication.instance()
+    register_self_registering_modules()
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1200, 800)
+    window.show()
+    for _ in range(60):
+        app.processEvents()
+    try:
+        window._on_nav_selected("mask")
+    except Exception:                                        # noqa: BLE001
+        pytest.skip("mask would not open here")
+    for _ in range(60):
+        app.processEvents()
+
+    # The sheet is applied while `mask` is the only module open, so nothing
+    # about the module below has been seen by the theme engine.
+    sheeted(app, SECOND)
+    for _ in range(20):
+        app.processEvents()
+
+    before = {id(page) for page in window._stack.children()}
+    try:
+        window._on_nav_selected("regression")
+    except Exception:                                        # noqa: BLE001
+        pytest.skip("regression would not open here")
+    for _ in range(90):
+        app.processEvents()
+
+    fresh = [page for page in window._stack.children()
+             if id(page) not in before and isinstance(page, QWidget)]
+    if not fresh:
+        pytest.skip("the second module reused a page that already existed")
+
+    page = fresh[-1]
+    probe = QLabel(page)
+    assert _resolved(probe) == SECOND_HEX, (
+        "a module opened after the theme change is wearing no sheet at "
+        "all: the window is bare by design and the new page was never "
+        "marked, so it inherits nothing")
+
+
+@pytest.mark.slow
+def test_a_screen_that_repaints_its_page_keeps_the_theme(sheeted, qtbot):
+    """A SHEET ROOT'S OWN RULE IS NOW A SUFFIX, NOT A REPLACEMENT.
+
+    `AppScreen._sync_page_palette` writes the page colour into the screen's
+    OWN stylesheet, and clears it when the page has no colour. That was a
+    local, safe thing to do while the APPLICATION carried the theme. Under
+    per-screen sheeting the screen may be carrying all ~73 KB of it, and a
+    plain `setStyleSheet` throws the theme away.
+
+    THE TIMING IS WHY THIS NEEDS ITS OWN TEST. The digest check in
+    `_sheet_one_window` repairs a wiped sheet at the widget's next polish,
+    which covers a wipe during `__init__` because a `Show` follows it. A
+    page already on screen gets no such event, so a wipe there stood until
+    the next theme change. Measured: a probe under the page resolved to
+    `#000000` on the dark theme and stayed there.
+
+    Both branches are exercised, because the colour-setting one is the half
+    that has to keep its own rule as well as the sheet.
+    """
+    from PySide6.QtGui import QColor
+
+    from spacr.qt import register_self_registering_modules
+    from spacr.qt.app import MainWindow
+
+    app = QApplication.instance()
+    register_self_registering_modules()
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1200, 800)
+    window.show()
+    for _ in range(60):
+        app.processEvents()
+    try:
+        window._on_nav_selected("mask")
+    except Exception:                                        # noqa: BLE001
+        pytest.skip("mask would not open here")
+    for _ in range(60):
+        app.processEvents()
+
+    sheeted(app, SECOND)
+    for _ in range(20):
+        app.processEvents()
+
+    page = window._stack.currentWidget()
+    if not hasattr(page, "_sync_page_palette"):
+        pytest.skip("this screen does not paint its own page")
+    assert _resolved(QLabel(page)) == SECOND_HEX, "the page began unsheeted"
+
+    # The clearing branch: no page colour, so the screen owns no rule.
+    page.page_fill = lambda: None
+    page._page_applied = "force a run"
+    page._sync_page_palette()
+    for _ in range(20):
+        app.processEvents()
+    assert _resolved(QLabel(page)) == SECOND_HEX, (
+        "clearing the page colour took the whole window sheet with it")
+
+    # The setting branch: a page colour, which the screen owns AND keeps.
+    page.page_fill = lambda: QColor("#123456")
+    page._page_applied = "force a run"
+    page._sync_page_palette()
+    for _ in range(20):
+        app.processEvents()
+    assert _resolved(QLabel(page)) == SECOND_HEX, (
+        "setting the page colour replaced the window sheet instead of "
+        "being appended to it")
+    assert "#123456" in page.styleSheet(), (
+        "the screen's own page-colour rule was lost, which is the other "
+        "way for this to be wrong")
+
+
+def test_a_window_that_sets_its_own_rule_keeps_the_theme(sheeted, qtbot):
+    """A DIALOG IS A WINDOW AND THEREFORE A SHEET ROOT.
+
+    Two dialogs in `hyperparam.py` set their own stylesheet from a
+    theme-refresh path -- their docstrings say "after the application
+    stylesheet has been composed", which is exactly the moment that
+    matters. Under per-window sheeting a plain `setStyleSheet` there
+    replaces the ~73 KB the dialog is carrying rather than adding to it.
+
+    MEASURED BEFORE THE FIX, on a bare `QDialog`::
+
+        after show:           sheet 71900 chars, ink #c86432
+        after its own rule:   sheet    44 chars, ink #000000
+        after the next theme: sheet 71900 chars, own rule GONE
+
+    So it lost the theme immediately and its own rule at the next theme
+    change -- the second because `_the_windows_own_stylesheet` remembered
+    only the first answer it ever got. It now re-reads whenever the digest
+    says the current sheet is not the text we last set, which is precisely
+    the case where somebody else has written one.
+    """
+    from PySide6.QtWidgets import QDialog, QVBoxLayout
+
+    from spacr.qt.theme import set_a_sheeted_widgets_own_rule
+
+    app = QApplication.instance()
+    sheeted(app, FIRST)
+
+    dialog = QDialog()
+    dialog.setObjectName("OwnRuleProbe")
+    QVBoxLayout(dialog).addWidget(QLabel("hello", dialog))
+    qtbot.addWidget(dialog)
+    dialog.show()
+    for _ in range(20):
+        app.processEvents()
+    assert _resolved(QLabel(dialog)) == FIRST_HEX, "the dialog opened bare"
+
+    own = "QDialog#OwnRuleProbe { background: #123456; }"
+    set_a_sheeted_widgets_own_rule(dialog, own)
+    for _ in range(20):
+        app.processEvents()
+    assert _resolved(QLabel(dialog)) == FIRST_HEX, (
+        "setting the dialog's own rule replaced the theme it was carrying")
+    assert "#123456" in dialog.styleSheet(), "its own rule did not land"
+
+    # And the rule survives the next theme change rather than being
+    # dropped in favour of whatever it happened to own the first time.
+    sheeted(app, SECOND)
+    for _ in range(20):
+        app.processEvents()
+    assert _resolved(QLabel(dialog)) == SECOND_HEX, (
+        "the dialog did not follow the theme change")
+    assert "#123456" in dialog.styleSheet(), (
+        "the theme change dropped the dialog's own rule, which is the "
+        "other half of remembering only the first answer")
