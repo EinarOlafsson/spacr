@@ -1,0 +1,30 @@
+{
+  "lesson": "41_classify",
+  "english_sha256": "e43e44b60b64b42341211784c1d115f8c7131a2d9af4d18c05a9ac318129560a",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "is",
+  "title": "Classify: aðaleiningin og undireiningar hennar",
+  "description": "Veldu flokkun út frá myndum eða mælingum, notaðu niðurhalanleg dæmi, skoðaðu raunverulegar niðurstöður og finndu verkfærin fimm í Classify.",
+  "objectives": [
+    "Velja flokkarafjölskyldu í sameinaðri einingu á Home.",
+    "Nota CV- og töflugagnakennsluna með raunverulegum gögnum og skýrum takmörkunum.",
+    "Finna Classifier Evaluation, Explain CV, Activation, Training Runs og Feature Explorer undir Classify.",
+    "Varðveita vistuð gögn og greina AI-aðstoð frá sannreyndri greiningu."
+  ],
+  "prerequisite": "Upptaka með spaCR 1.5.0.6. Yfirlitið er undir aðaleiningum; sérhæfðar kennslustundir og undireiningar eru undir Classify í undireiningahlutanum. Raunverulegar CV-/ML-upptökur sem voru áður yfirfarnar eru endurnýttar án nýrrar þjálfunar. Mismunandi merki og hlutmengi: EKKI beinn árangurssamanburður. Töflugagnadæmi: Load test data → Load, mældar frumur, flokkar columnID=c1/c2, slembiskógur, Plot virkt, 2153 hlutir metnir og 188 ómetnir vegna skorts á kjarnagögnum; aðskildir prófunarbrunnar á sömu plötu. CV-dæmi: skýr undirbúningur 64 óbreyttra merktra myndútsniða með stöðluðum gagnagrunnsnöfnum, Generate training dataset óvirkt, ResNet18 ein umferð, 16 þjálfun/16 staðfesting/32 prófun, aðskildir brunnar sömu plötu, hlutfall réttra spáa 0.5 jafnt meirihlutaviðmiði. Þáttun eldri skráarheita er ekki lagfærð. Sjá sérkennsluna fyrir stillingar, slóðir og takmarkanir. Leiðir: classifier_evaluation, explain_cv, activation, train_compare, feature_explorer. Explain CV notar mælda eiginleika til að herma eftir fyrirliggjandi CV-spám; það sannar ekki orsakasamband. Activation sýnir viðbrögð myndlíkans. Engin AI-beiðni, ný gæðafull­yrðing, líffræðileg staðfesting eða beinn samanburður fjölskyldna. API: spacr.classify.classify → spacr.deep_spacr.train_test_model eða spacr.ml.generate_ml_scores eftir classifier_family.",
+  "scenes": [
+    "Classify er ein af aðaleiningunum á Home. Opnaðu hana hér og veldu síðan flokkarafjölskyldu innan einingarinnar. Kennsluspilarinn fylgir sömu uppbyggingu: þetta yfirlit er undir aðaleiningum en sérhæfð verkferli og undirverkfæri eru flokkuð undir Classify í undireiningahlutanum.",
+    "Computer Vision notar myndir af hlutum; Tabular Machine Learning notar vistaðar mælingar. Veldu út frá inntakinu og vísindalegu spurningunni, ekki því nafni sem hljómar öflugast. Fjölskylduskipti endurtaka ekki myndskiptingu. Tengdar Mask- og Measure-kennslustundir fjalla um eigin rauntímastýringar fyrir myndir og útsnið.",
+    "Fyrir töflugagnadæmið skaltu smella á Load test data og velja Load, ekki Stream. Haltu niðurhalaða verkefninu og mæligagnagrunninum saman. Ljúktu mælingum fyrst fyrir eigin myndir. Í ítarlegu töflugagnakennslunni eru raunverulegt niðurhal, merkjaval, stillingar og lokin slembiskógskeyrsla sýnd.",
+    "Hér eru raunveruleg myndrit og stjórnborð þeirrar keyrslu með Plot virkt. Kennslumerkin eru dálkar plötunnar, ekki sjálfstætt staðfestar svipgerðir. Hlutir án nauðsynlegra kjarnagagna haldast ómetnir, ekki neikvæðir. Skoðaðu vistaðar spár og frátekna brunna; litrík myndrit sýna ekki ein og sér alhæfingu á aðra tilraun.",
+    "Sérstaka tölvusjónarkennslan notar skýra hjáleið við undirbúning skráarheita og sextíu og fjögur óbreytt myndútsnið úr niðurhali. Líkan einnar umferðar nær aðeins meirihlutaviðmiðinu. Dæmin nota ólík merki og hlutmengi; ekki bera rétt svör þeirra saman sem beint frammistöðupróf. Fylgdu kennslunni áður en eigin skipting er undirbúin.",
+    "Táknin efst til hægri opna undirverkfæri, ekki sérstakar Home-flísar. Haltu bendlinum yfir þeim til að sjá heitin. Classifier Evaluation skoðar vistaðan matsgagnapakka með spám og lekaupplýsingum. Kennslan útskýrir nauðsynlegar skrár og hvers vegna sýndur mælikvarði þarf enn vandaða sannprófunaráætlun.",
+    "Explain CV notar mælda eiginleika til að líkja eftir fyrirliggjandi tölvusjónarspám. Það er sérstakt skýringarlíkan, ekki upprunalega myndnetið eða orsakaútskýring. Kennslan sýnir rétt spáinntak og tiltækar niðurstöður. Ekki gera ráð fyrir að úttak töflugagnaflokkara uppfylli sömu inntaksskilyrði.",
+    "Activation opnar túlkun myndlíkans. Notaðu samsvarandi varðveislupunkt, myndrásir og forvinnslu. Tengda kennslan sýnir raunveruleg vistuð mikilvægiskort og útskýrir hjáleiðina með ytri myndskoðara. Upplýst myndsvæði sannar hvorki líffræðilegt ferli né góðan flokkara.",
+    "Training Runs ber saman vistaða þjálfunarferla og stillingar. Tveir ferlar hlið við hlið skapa ekki sjálfstæðar sannanir. Varðveittu keyrslur í aðskildum möppum og berðu saman samrýmanlega mælikvarða og gagnaskiptingar. Sérkennslan útskýrir stjórntækin án þess að endurtaka þau í þessu aðaleiningayfirliti.",
+    "Feature Explorer opnast með síðasta tákninu. Það getur raðað mældum eiginleikum fyrir valinn samanburð áður en flokkari er þjálfaður. Kennslan notar raunverulegar niðurhalaðar mælingar og rauntímasíur. Athugaðu samanburðinn aftur eftir síun: röðun er hvorki orsakasamband né þjálfað myndlíkan.",
+    "Stjórnborðið býður líka valfrjálsa spaCR AI-aðstoð. Hér er spurningin ósend; ekkert svar þjónustuveitu eða greiningarniðurstaða er sýnd. Varðveittu líkanúttak, stillingar og gögn um skiptingu og sannreyndu ráð gegn þeim. Í Python vísar classify til mynd- eða töflugagnakóðans eftir valinni fjölskyldu."
+  ]
+}
