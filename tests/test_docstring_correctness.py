@@ -1949,7 +1949,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # CALLABLES -- the two module-level helpers, TourPilot and its four
     # members, and three of layout_policy's four functions; the modules
     # themselves are not callables and do not count here.
-    assert len(callables) == len(by_symbol) == 8_498
+    # 8,498 -> 8,535 on 2026-09-11, +37 against a documented surface that
+    # grew by 45. The difference is the eight entries that are not
+    # callables: the four new modules' own docstrings (bystanders,
+    # embeddings, ops_compose, point_patterns) and four dataclass
+    # attributes. Same review as the +45 decomposed below.
+    assert len(callables) == len(by_symbol) == 8_535
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -1960,17 +1965,29 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `.restarted` and `.steer` are the three methods, and `TourPilot`
     # itself is the constructor. `.flying` is a property and lands in
     # neither bucket, which is why the numbers do not sum to twelve.
+    # +24 function, +6 method, +5 dataclass_constructor, +2
+    # exception_constructor on 2026-09-11 -- the same 37 the total above
+    # decomposes. The new modules are mostly module-level functions, which
+    # is why `function` carries two thirds of the move; the five dataclasses
+    # are EmbeddingResult, EmbeddingSpec, Window, InteractionSurface and
+    # SelectivityIndex, and the two exceptions are EmbeddingError and
+    # ComposeError.
     assert Counter(item.category for item in callables) == {
-        "function": 3_672,
-        "method": 3_787,
+        "function": 3_696,
+        "method": 3_793,
         "constructor": 393,
-        "dataclass_constructor": 447,
+        "dataclass_constructor": 452,
         "namedtuple_constructor": 6,
-        "exception_constructor": 137,
+        "exception_constructor": 139,
         "inherited_or_default_constructor": 56,
     }
+    # 8,493 -> 8,530, the same +37: every new callable is rendered by
+    # autoapi, so this tracks the total rather than diverging from it. The
+    # two cli-only and three compatibility entries are unchanged, which is
+    # the part worth asserting -- a new symbol that reached only the CLI
+    # would be a different event.
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_493,
+        "autoapi": 8_530,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -1984,9 +2001,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,515 -> 8,505, the same -10 as every other callable figure: none
     # of the withdrawn ones carried a second prose variant either, so
     # variants keep tracking callables one for one.
-    assert sum(item.variant_count for item in callables) == 8_505
+    # 8,505 -> 8,542, the same +37: none of the new callables carries a
+    # second prose variant either, so variants keep tracking callables one
+    # for one and the seven two-variant entries are unchanged. That last
+    # part is the one worth asserting -- a new overload pair would be a
+    # different event from a new callable.
+    assert sum(item.variant_count for item in callables) == 8_542
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_491,
+        1: 8_528,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2040,8 +2062,16 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # callables: fourteen parameters and seven required ones leave with
     # them. The ratio holds -- these are ordinary helpers, not the tuned
     # numerical entry points the note above describes.
-    assert sum(len(item.parameters) for item in callables) == 16_823
-    assert sum(len(item.required_parameters) for item in callables) == 8_514
+    # 16,823 -> 16,933 on 2026-09-11 with the merge from main and one
+    # night's Qt work: 110 parameters on 37 new callables, three apiece,
+    # which is what a surface of numerical entry points and small
+    # dataclasses looks like. Required rises 8,514 -> 8,584 over the same
+    # span, so 110 new parameters carry 70 required ones -- the same ratio
+    # the OPS note above records, and the reason that ratio is worth
+    # keeping in view: a surface whose new parameters were nearly all
+    # REQUIRED would be one that had stopped taking defaults seriously.
+    assert sum(len(item.parameters) for item in callables) == 16_933
+    assert sum(len(item.required_parameters) for item in callables) == 8_584
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -2051,7 +2081,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "06d04cc86d4577f3e95980d416cb5058c5a0eec4753065525e0d35f5323adc85"
+    # Moved with the counts above, 2026-09-11. The digest covers every
+    # symbol's category, exposure, parameter names and variant counts, so
+    # 37 new callables move it whatever else stays still -- which is the
+    # point: it is the assertion that catches a required parameter becoming
+    # optional without any count changing.
+    ) == "4791927186004fc53ef9be494707be7766a6f013d0a5a1d77502f8dd45e9c440"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2413,7 +2448,31 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # called, so `_layout_policy` and its four functions come back under
     # the new name; only the underscore on a FUNCTION or CLASS removes
     # one. That is why twelve leave and five return.
-    assert len(docs) == 10_294
+    # 10,294 -> 10,339 on 2026-09-11, +45/-0, the merge from main plus one
+    # night's Qt work. THE PIN WAS 144 COMMITS BEHIND, which is the same
+    # observation this file already records once: "THIS FILE'S RATCHETS WERE
+    # SIX DAYS BEHIND ... A ratchet nobody runs is a ratchet nobody updates."
+    # It failed on main as well as here, so the merge revealed it rather than
+    # caused it. Every one of the 45, by the item that asked for it:
+    #
+    #     9  spacr.embeddings          386, the embedding engine
+    #     9  spacr.ops_compose         372, the composed OPS window
+    #     7  spacr.bystanders          388, the infected cell's neighbours
+    #     7  spacr.qt.widgets.dose_response
+    #                                  387, selectivity index and the Bliss
+    #                                  and Loewe surfaces
+    #     5  spacr.point_patterns      388, Ripley's K and L
+    #     3  spacr.model_zoo           370, the scorecard on a model row
+    #     2  spacr.scorecard           370, reading one back
+    #     2  spacr.qt.theme            380, the per-window stylesheet:
+    #                                  apply_stylesheet_per_window and
+    #                                  window_stylesheet
+    #     1  spacr.infection           377, uninfected_cells_were_measured
+    #
+    # A MODULE COUNTS AS ONE ENTRY ON TOP OF ITS SYMBOLS -- bystanders,
+    # embeddings, ops_compose and point_patterns are new files, so each
+    # brings its own module docstring as well.
+    assert len(docs) == 10_339
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -2425,7 +2484,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 8,503 -> 8,493, the same -10 as the callable total above: every
     # withdrawn callable was a rendered one, so this keeps tracking the
     # total rather than diverging from it.
-    assert len(rendered_documented_callables) == 8_493
+    # 8,493 -> 8,530, the same +37 as the callable total: every new
+    # callable is rendered, so this keeps tracking the total rather
+    # than diverging from it.
+    assert len(rendered_documented_callables) == 8_530
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

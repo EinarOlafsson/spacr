@@ -2074,10 +2074,10 @@ SYNERGY_MODELS: Tuple[str, ...] = (SYNERGY_BLISS, SYNERGY_LOEWE)
 class InteractionSurface:
     """A checkerboard's interaction, per cell, with its own axes.
 
-    THE SURFACE IS THE RESULT AND A SINGLE INDEX IS NOT, which is what
-    instruction 387 asks for in as many words: "one number for a whole
-    checkerboard hides exactly the concentration-dependent structure that
-    makes synergy interesting". Real combinations are frequently synergistic
+    THE SURFACE IS THE RESULT AND A SINGLE INDEX IS NOT. One number for a
+    whole checkerboard hides exactly the concentration-dependent structure
+    that makes synergy interesting. Real combinations are frequently
+    synergistic
     in one corner of the grid and additive or antagonistic in another, and a
     mean over the grid reports neither.
 
