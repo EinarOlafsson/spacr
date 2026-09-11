@@ -49,5 +49,6 @@ def test_public_player_keeps_public_media_roots_and_exposes_coming_soon():
     assert index.count('https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/main') == 2
     assert '../media_host' not in index
     assert '<h3 id="planned-title">Coming soon</h3>' in index
-    for name in ('app_v2.js', 'lesson_catalog.js', 'module_navigation.js', 'styles.css'):
+    assert 'app_v2.js?v=20260911-narration-captions' in index
+    for name in ('lesson_catalog.js', 'module_navigation.js', 'styles.css'):
         assert name + '?v=20260911-coming-soon' in index

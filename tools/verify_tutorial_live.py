@@ -21,7 +21,7 @@ LOCAL = ROOT / "docs" / "source" / "_extra" / "tutorials"
 DEFAULT_URL = "https://einarolafsson.github.io/spacr/tutorials/"
 EXPECTED_CACHE_KEY = "20260911-coming-soon"
 EXPECTED_VOICE_KEY = "20260811-50-voices"
-EXPECTED_APP_KEY = "20260911-coming-soon"
+EXPECTED_APP_KEY = "20260911-narration-captions"
 RETIRED_VOICES = {"af_alloy", "af_kore", "af_nicole", "af_nova"}
 
 

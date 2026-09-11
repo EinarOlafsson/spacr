@@ -1318,13 +1318,21 @@ function rebuildChapterData() {
     const timing = audioTimings?.scenes?.[index];
     const start = timing?.speech_start || 0;
     const end = timing?.speech_end || start;
+    // A hosted voice may have a newer script than the page catalog. Its
+    // paired transcript owns same-language captions, not the stale page.
+    // Never replace a requested translation with another language, or use
+    // fallback timing metadata from a different voice as spoken evidence.
+    const followsAudio = audioTimings?.language === effectiveCaptionLanguage()
+      && audioTimings?.voice === elements.voice.value;
+    const text = followsAudio && typeof timing?.text === "string" && timing.text.trim()
+      ? timing.text : scene.narration;
     return {
       index: index + 1,
       start,
       end,
-      text: scene.narration,
+      text,
       related: relatedLessonsForScene(activeLesson, index),
-      label: chapterLabel(scene.narration, index)
+      label: chapterLabel(text, index)
     };
   });
 }
@@ -1451,18 +1459,24 @@ function renderCaptions() {
   });
   captionUrl = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/vtt" }));
   captionTrackLoading = true;
-  elements.captionTrack.src = captionUrl;
+  // Start a fresh native load when replacing a previous/revoked blob.
+  const track = elements.captionTrack.cloneNode(false);
+  track.src = captionUrl;
   const language = effectiveCaptionLanguage();
-  elements.captionTrack.srclang = language;
-  elements.captionTrack.label = captionLanguageById(language).shortLabel;
-  updateCaptionTrackMode();
-  elements.captionTrack.addEventListener("load", () => {
+  track.srclang = language;
+  track.label = captionLanguageById(language).shortLabel;
+  track.addEventListener("load", () => {
+    if (elements.captionTrack !== track) return;
     captionTrackLoading = false;
     updateCaptionTrackMode();
   }, { once: true });
-  elements.captionTrack.addEventListener("error", () => {
+  track.addEventListener("error", () => {
+    if (elements.captionTrack !== track) return;
     captionTrackLoading = false;
   }, { once: true });
+  elements.captionTrack.replaceWith(track);
+  elements.captionTrack = track;
+  updateCaptionTrackMode();
 }
 
 function renderChapters() {

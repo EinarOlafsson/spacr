@@ -251,7 +251,7 @@ def test_narration_is_the_stable_mobile_clock():
     # The Coming soon player is now integrated here too; existing playable
     # catalogs/media remain distinct from the unpublished refreshed candidate.
     #
-    #     docs/source/_extra/tutorials/        20260911-coming-soon
+    #     docs/source/_extra/tutorials/        20260911-narration-captions
     #     tools/tutorials/release_candidate/   20260911-coming-soon
     #
     # `_LIBRARY` is `budget.extra_root(...)` -- the published collection --
@@ -259,7 +259,7 @@ def test_narration_is_the_stable_mobile_clock():
     # it at the candidate to make something else pass: the two are separate
     # while publication is held, and a deployed-site check pointed at the
     # candidate would report a site that has not been updated as updated.
-    assert 'app_v2.js?v=20260911-coming-soon' in index
+    assert 'app_v2.js?v=20260911-narration-captions' in index
     assert "20260825-folded-routes" not in index
     assert "20260811-audio-end-park-captions" not in index
     assert "20260810-mobile-smooth" not in index
