@@ -1,0 +1,31 @@
+{
+  "lesson": "20_cellpose_masks",
+  "english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "Aplicar Cellpose: máscaras guardadas y filtros en vivo",
+  "description": "Aplica CPSAM a tres imágenes reales descargables desde el Workbench anidado, revisa las figuras y la consola, y prueba filtros sin confundir la vista previa con el procesamiento por lotes.",
+  "objectives": [
+    "Encontrar Apply dentro de Make Masks y Cellpose Workbench.",
+    "Usar las imágenes conservadas y los ajustes registrados del modelo estándar.",
+    "Examinar las tres máscaras y sus figuras de imagen, contornos y flujo.",
+    "Mostrar filtros reversibles y zoom sincronizado con la rueda.",
+    "Reconocer la diferencia medida entre vista previa y lote sin afirmar precisión."
+  ],
+  "prerequisite": "Extrae el ejemplo de tres imágenes en una carpeta nueva y apunta src a images. recorded_settings.json conserva valores históricos; no demuestra una importación portátil en la GUI. Son recortes celulares reales uint16 de 512 píxeles por lado, no referencias de segmentación. Se usa CPSAM estándar, no el modelo de Train. Ajustes: channels=[0], normalize=True, percentiles=[2,99], diameter=30, CP_prob=0, flow_threshold=0.4, batch_size=1, save=True, verbose=True; rescale, resample, resize, fill_in, invert y remove_background son False. La ejecución CUDA guarda 9/94/46 objetos y tres figuras. Llamadas independientes reproducen todos los píxeles y matrices de las figuras. Los contornos externos no separan cada instancia en contacto; el flujo es un canal de visualización, no movimiento medido. La vista previa de la imagen 02 produce 95, no 94: sigue los valores predeterminados de Cellpose para la imagen original, no el preprocesamiento y remuestreo del lote. Mostrar 2/99 no prueba equivalencia. El área mínima 1838 produce 95→47→95 sin nueva inferencia; cada píxel restaurado se comprueba y los TIFF guardados permanecen intactos. El zoom sincroniza ambos lienzos, pero recorta la imagen y no arregla la tarjeta estrecha. Se conservan datos y bloqueos anteriores. Sin certificación de precisión biológica, solicitud a la IA, publicación ni cambios en la aplicación.",
+  "scenes": [
+    "Desde Make Masks, abre el Cellpose Workbench anidado y elige Apply. Train y Apply comparten este panel; Apply no es una tarjeta independiente de inicio. Aquí usamos el modelo estándar con tres imágenes reales, no el modelo de demostración de la lección Train enlazada.",
+    "Extrae el ejemplo enlazado en una carpeta nueva. Indica su directorio images como origen y conserva la descarga original. Son tres imágenes celulares de un canal, de quinientos doce píxeles por lado. Son ejemplos, no referencias de segmentación. Consulta los ajustes registrados y sustituye la ruta histórica por la tuya.",
+    "Selecciona CPSAM y deja vacío el modelo personalizado. Para estas imágenes, la lista de canales es cero, la normalización usa los percentiles dos y noventa y nueve, el diámetro es treinta, el umbral de flujo es cero coma cuatro y la probabilidad celular es cero. No son recomendaciones universales.",
+    "Activa Save y Verbose, usa lotes de una imagen y ejecuta Apply. Esta ruta crea figuras sin un interruptor Plot separado. La consola real identifica una RTX treinta noventa usando CUDA y termina las tres imágenes. Comprueba allí el origen y los ajustes guardados: Finished no mide precisión.",
+    "Se guardan tres TIFF de máscaras con los mismos nombres en masks, dentro del directorio de origen. Los recuentos son nueve, noventa y cuatro y cuarenta y seis. Las figuras reales muestran la imagen, contornos rojos externos y flujo. Esos contornos no separan todas las instancias contiguas; los colores no indican movimiento físico ni precisión.",
+    "Activa Live preview y elige cell pair cero dos con su selector real. Pliega Console y System para ganar espacio. La vista previa tiene controles propios: verifica el canal cero y los percentiles visibles en Live settings; no presupongas que todas las opciones de Apply se copiaron.",
+    "La vista previa encuentra noventa y cinco objetos; la máscara guardada para esa misma imagen tiene noventa y cuatro. Las comprobaciones independientes reproducen ambos resultados: la vista previa sigue los valores predeterminados de Cellpose para la imagen original, no las opciones explícitas de preprocesamiento y remuestreo del lote. Es exploratoria, no una garantía de máscaras idénticas.",
+    "La tarjeta de vista previa sigue siendo estrecha en esta versión. La rueda amplía un detalle en ambos lienzos a la vez; no agranda la tarjeta y ahora recorta la imagen completa. Sirve para examinar contornos locales, pero no sustituye la revisión del campo completo.",
+    "Abre Live settings y fija el área celular mínima en mil ochocientos treinta y ocho píxeles. Es un umbral demostrativo, no un óptimo biológico. Cierra el diálogo para ver el resultado. El filtro elimina cuarenta y ocho objetos y deja cuarenta y siete sin volver a ejecutar Cellpose ni cambiar la segmentación original.",
+    "Esta es la vista previa filtrada con el diálogo cerrado y el zoom reaplicado. La imagen original no cambia, pero desaparecen los objetos pequeños de la máscara. El contador indica cuarenta y siete. Estos cambios afectan a la vista previa, no reescriben los tres TIFF ya guardados.",
+    "Devuelve el área mínima a cero, cierra el diálogo y vuelve a examinar. Regresan noventa y cinco objetos, y cada píxel de etiqueta restaurado coincide con la referencia inicial. Conserva entradas, ajustes e identidad del modelo junto a las máscaras. Aquí no usamos la consola opcional spaCR AI; la validación independiente sigue siendo necesaria antes de extraer conclusiones científicas."
+  ]
+}
