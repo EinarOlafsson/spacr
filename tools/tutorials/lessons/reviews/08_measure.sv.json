@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "c44bc8ede4d1631dac27be2b6e5c539230497b37a8d237a0d494c982008fa79f",
+  "english_sha256": "858211309d88216d6430b2073894a7b6c22412103776c678a831b741891a8c58",
   "review_type": "source-pinned editorial translation",
   "native_speaker_reviewed": false,
   "listening_reviewed": false,
@@ -26,7 +26,7 @@
     "Tryck Run och följ konsolen. Kontrollera försök, lyckade fält och fel, inte bara ett färdigmeddelande. Här lyckades alla sexton fält. Stora figurer kan utlösa en uttrycklig gräns för exportupplösning; läs även den varningen. En lyckad beräkning är inget biologiskt kvalitetsintyg.",
     "Granska de verkliga vyerna före och efter filtrering i figurlistan. Dra avdelaren för att ge figurerna plats. Storleksfilter och förälder-barn-sammanslagningar kan ändra vilka etiketter som mäts. Här förenar fem sparade cellobjekt källetiketter som binds ihop av en gemensam kärn- eller patogenmask.",
     "Granska även utsnittsfiguren och behåll mätdatabas och bildsökvägar tillsammans. Körningen sparade sexhundraen cellposter och motsvarande utsnitt. Oberoende pixelkontroller bekräftade area samt summor och medelvärden för fyra kanaler inklusive sammanslagningarna; inte varje egenskap eller segmenteringens biologiska riktighet.",
-    "Den här versionen kan fortfarande varna för inaktuella resultat efter lyckad körning utan ändrade synliga inställningar. Vi spårade exemplet till runtime-metadata men har inte rättat programmet. Kontrollera sparad körning och inställningar innan du fortsätter; avfärda inte andra varningar och förutsätt inte validerad automatisk överlämning.",
+    "Den här versionen kan fortfarande varna för inaktuella resultat efter lyckad körning utan ändrade synliga inställningar. Vi spårade exemplet till runtime-metadata men har inte rättat programmet. Kontrollera sparad körning och inställningar innan du fortsätter; avfärda inte andra varningar och förutsätt inte validerad automatisk överlämning. Kontrollera också filerna: kön visade fyrtiosju av de fyrtioåtta sparade figurerna.",
     "Konsolen erbjuder också valfri spaCR AI-hjälp. Här aktiverar vi reglaget och förbereder en fråga utan att skicka den; inget svar eller extern analys demonstreras. Betrakta senare svar som råd att kontrollera mot inställningar, API och sparade resultat. Använd de egna lektionerna om underordnade arbetsflöden för nästa uppgift."
   ]
 }

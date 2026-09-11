@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "c44bc8ede4d1631dac27be2b6e5c539230497b37a8d237a0d494c982008fa79f",
+  "english_sha256": "858211309d88216d6430b2073894a7b6c22412103776c678a831b741891a8c58",
   "review_type": "source-pinned editorial translation",
   "native_speaker_reviewed": false,
   "listening_reviewed": false,
@@ -26,7 +26,7 @@
     "Premi Run e segui la console. Controlla i conteggi di tentativi, successi e fallimenti, non soltanto il messaggio finale. Qui tutti i sedici campi sono riusciti. Figure grandi possono attivare un limite esplicito alla risoluzione di esportazione: leggi anche quell’avviso. Il completamento del calcolo non certifica la qualità biologica.",
     "Usa l’elenco delle figure per esaminare le vere viste prima e dopo il filtraggio. Trascina il divisore per lasciare più spazio. Filtri dimensionali e fusioni genitore-figlio possono cambiare le etichette misurate. Qui cinque oggetti cellulari salvati uniscono etichette sorgente collegate da una maschera nucleare o patogena condivisa.",
     "Esamina anche la figura dei ritagli e conserva insieme il database delle misure e i percorsi delle immagini. Questa esecuzione ha salvato seicentouno record cellulari con i rispettivi ritagli. Controlli indipendenti dei pixel hanno verificato area, somme e medie dei quattro canali, comprese le fusioni; non tutte le caratteristiche né la correttezza biologica della segmentazione.",
-    "Questa versione può ancora segnalare risultati obsoleti dopo un’esecuzione riuscita senza cambiamenti visibili alle impostazioni. In questo esempio abbiamo individuato metadati aggiunti durante l’esecuzione, ma non abbiamo corretto l’applicazione. Verifica esecuzione salvata e impostazioni prima di proseguire; non ignorare altri avvisi né considerare validato il passaggio automatico.",
+    "Questa versione può ancora segnalare risultati obsoleti dopo un’esecuzione riuscita senza cambiamenti visibili alle impostazioni. In questo esempio abbiamo individuato metadati aggiunti durante l’esecuzione, ma non abbiamo corretto l’applicazione. Verifica esecuzione salvata e impostazioni prima di proseguire; non ignorare altri avvisi né considerare validato il passaggio automatico. Controlla anche i file: la coda mostrava quarantasette delle quarantotto figure salvate.",
     "La console offre anche l’assistenza facoltativa di spaCR AI. Qui attiviamo l’interruttore e prepariamo una domanda senza inviarla: non mostriamo risposte né analisi esterne. Considera ogni risposta futura un consiglio da verificare con impostazioni, API e risultati salvati. Per il prossimo compito usa le lezioni separate dei flussi annidati."
   ]
 }

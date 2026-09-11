@@ -84,7 +84,7 @@
     },
     {
       "visual": "24_batch_figure",
-      "narration": "This build can still display a stale-output warning after a successful run with unchanged visible settings. We traced this example to runtime-added metadata, but have not fixed the application. Verify the actual saved run and settings before continuing; do not dismiss other warnings or assume that automatic handoff has been validated.",
+      "narration": "This build can still display a stale-output warning after a successful run with unchanged visible settings. We traced this example to runtime-added metadata, but have not fixed the application. Verify the actual saved run and settings before continuing; do not dismiss other warnings or assume that automatic handoff has been validated. Also check the files: this recording's figure queue showed forty-seven of forty-eight saved plots.",
       "hold_after": 0.7
     },
     {

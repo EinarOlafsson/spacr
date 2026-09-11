@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "c44bc8ede4d1631dac27be2b6e5c539230497b37a8d237a0d494c982008fa79f",
+  "english_sha256": "858211309d88216d6430b2073894a7b6c22412103776c678a831b741891a8c58",
   "review_type": "source-pinned editorial translation",
   "native_speaker_reviewed": false,
   "listening_reviewed": false,
@@ -26,7 +26,7 @@
     "Appuyez sur Run et suivez la console. Vérifiez les nombres tentés, réussis et échoués, pas seulement un message de fin. Ici, les seize champs ont réussi. De grandes figures peuvent déclencher une limite explicite de résolution d’export ; lisez aussi cet avertissement. Un calcul terminé correctement n’est pas une certification de qualité biologique.",
     "Dans la liste des figures, examinez les vues réelles avant et après filtrage. Déplacez le séparateur pour leur donner de la place. Filtres de taille et fusions parent-enfant peuvent modifier les étiquettes mesurées. Ici, cinq objets cellulaires enregistrés réunissent des étiquettes sources reliées par un même masque nucléaire ou pathogène.",
     "Examinez aussi la figure des recadrages, puis conservez ensemble base de mesures et chemins d’images. Cette exécution a enregistré six cent un objets cellulaires et leurs recadrages. Des contrôles indépendants de pixels ont vérifié surfaces, sommes et moyennes des quatre canaux, y compris les fusions ; pas toutes les caractéristiques ni la justesse biologique de la segmentation.",
-    "Cette version peut encore annoncer des résultats périmés après une exécution réussie sans changement visible des réglages. Nous avons relié cet exemple à des métadonnées ajoutées à l’exécution, mais n’avons pas corrigé l’application. Vérifiez exécution enregistrée et réglages avant de poursuivre ; n’écartez pas d’autres avertissements et ne supposez pas le transfert automatique validé.",
+    "Cette version peut encore annoncer des résultats périmés après une exécution réussie sans changement visible des réglages. Nous avons relié cet exemple à des métadonnées ajoutées à l’exécution, mais n’avons pas corrigé l’application. Vérifiez exécution enregistrée et réglages avant de poursuivre ; n’écartez pas d’autres avertissements et ne supposez pas le transfert automatique validé. Vérifiez aussi les fichiers : la file affichait quarante-sept des quarante-huit figures enregistrées.",
     "La console propose aussi l’aide optionnelle de spaCR AI. Ici nous activons le bouton et préparons une question sans l’envoyer : aucune réponse ni analyse externe n’est démontrée. Considérez toute réponse ultérieure comme un conseil à vérifier avec les réglages, l’API et les résultats enregistrés. Pour la suite, consultez les leçons distinctes des workflows imbriqués."
   ]
 }

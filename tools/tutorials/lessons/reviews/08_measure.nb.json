@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "c44bc8ede4d1631dac27be2b6e5c539230497b37a8d237a0d494c982008fa79f",
+  "english_sha256": "858211309d88216d6430b2073894a7b6c22412103776c678a831b741891a8c58",
   "review_type": "source-pinned editorial translation",
   "native_speaker_reviewed": false,
   "listening_reviewed": false,
@@ -26,7 +26,7 @@
     "Trykk Run og følg konsollen. Kontroller forsøk, vellykkede felt og feil, ikke bare en ferdigmelding. Her lyktes alle seksten felt. Store figurer kan utløse en uttrykkelig grense for eksportoppløsning; les også dette varselet. Vellykket beregning er ikke et biologisk kvalitetsstempel.",
     "Bruk figurlisten til å undersøke de faktiske visningene før og etter filtrering. Dra delelinjen for mer plass. Størrelsesfiltre og sammenslåing av forelder/barn kan endre hvilke etiketter som måles. Her samler fem lagrede celleobjekter kildeetiketter forbundet gjennom en felles kjerne- eller patogenmaske.",
     "Se også på utsnittsfiguren og behold måledatabase og bildestier sammen. Kjøringen lagret seks hundre og én celleposter med tilsvarende utsnitt. Uavhengige pikselkontroller bekreftet areal, summer og gjennomsnitt for fire kanaler, inkludert sammenslåingene; ikke alle egenskaper eller segmenteringens biologiske riktighet.",
-    "Denne versjonen kan fortsatt varsle om utdaterte resultater etter vellykket kjøring uten endrede synlige innstillinger. Vi sporet dette eksemplet til runtime-metadata, men har ikke rettet programmet. Kontroller lagret kjøring og innstillinger før du fortsetter; ikke avvis andre varsler eller anta at automatisk overføring er validert.",
+    "Denne versjonen kan fortsatt varsle om utdaterte resultater etter vellykket kjøring uten endrede synlige innstillinger. Vi sporet dette eksemplet til runtime-metadata, men har ikke rettet programmet. Kontroller lagret kjøring og innstillinger før du fortsetter; ikke avvis andre varsler eller anta at automatisk overføring er validert. Kontroller også filene: køen viste førtisju av de førtiåtte lagrede figurene.",
     "Konsollen tilbyr også valgfri spaCR AI-hjelp. Her slår vi på bryteren og forbereder et spørsmål uten å sende det; ingen svar eller ekstern analyse demonstreres. Se senere svar som råd som må kontrolleres mot innstillinger, API og lagrede resultater. Bruk de egne leksjonene om underordnede arbeidsflyter til neste oppgave."
   ]
 }

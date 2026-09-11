@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "c44bc8ede4d1631dac27be2b6e5c539230497b37a8d237a0d494c982008fa79f",
+  "english_sha256": "858211309d88216d6430b2073894a7b6c22412103776c678a831b741891a8c58",
   "review_type": "source-pinned editorial translation",
   "native_speaker_reviewed": false,
   "listening_reviewed": false,
@@ -26,7 +26,7 @@
     "Pressione Run e acompanhe o console. Confira tentativas, sucessos e falhas, não apenas uma mensagem de conclusão. Aqui os dezesseis campos foram concluídos. Figuras grandes podem acionar um limite explícito de resolução de exportação; leia também esse aviso. Um cálculo concluído com sucesso não certifica qualidade biológica.",
     "Use a lista de figuras para examinar as vistas reais antes e depois da filtragem. Arraste a divisória para dar mais espaço às figuras. Filtros de tamanho e fusões pai-filho podem mudar os rótulos medidos. Neste exemplo, cinco objetos celulares salvos combinam rótulos originais conectados por uma máscara nuclear ou de patógeno compartilhada.",
     "Examine também a figura dos recortes e mantenha juntos o banco de medições e os caminhos das imagens. Esta execução salvou seiscentos e um registros celulares com seus recortes. Verificações independentes dos pixels conferiram área, somas e médias dos quatro canais, incluindo as fusões; isso não valida todas as características nem a correção biológica da segmentação.",
-    "Esta versão ainda pode mostrar um aviso de resultados desatualizados após uma execução bem-sucedida sem alterações visíveis nas configurações. Rastreamos este exemplo até metadados acrescentados durante a execução, mas não corrigimos o aplicativo. Confira execução salva e configurações antes de continuar; não descarte outros avisos nem presuma que o encaminhamento automático foi validado.",
+    "Esta versão ainda pode mostrar um aviso de resultados desatualizados após uma execução bem-sucedida sem alterações visíveis nas configurações. Rastreamos este exemplo até metadados acrescentados durante a execução, mas não corrigimos o aplicativo. Confira execução salva e configurações antes de continuar; não descarte outros avisos nem presuma que o encaminhamento automático foi validado. Confira também os arquivos: a fila exibiu quarenta e sete das quarenta e oito figuras salvas.",
     "O console também oferece assistência opcional do spaCR AI. Aqui ligamos o controle e preparamos uma pergunta sem enviá-la: nenhuma resposta ou análise externa é demonstrada. Considere qualquer resposta futura uma orientação a verificar com configurações, API e resultados salvos. Use as aulas separadas dos fluxos aninhados para a próxima tarefa."
   ]
 }
