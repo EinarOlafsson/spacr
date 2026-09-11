@@ -450,3 +450,60 @@ never to be tested, and TWO worth writing tests for. BOTH ARE NOW DONE:
 
 So the nine are: one fixed, five reasoned, one deliberately untested, two
 at 100 %. Nothing below 80 % is now unexplained.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE SECOND HALF STARTS: WHAT IS ACTUALLY RED ON GITHUB
+--------------------------------------------------------------------------------
+
+"after that make sure github tests are clean" is the other half of this item
+and it was blocked on the merge from main, which landed today. So the
+question is now askable, and the answer is not what the branch protection
+implies.
+
+THREE WORKFLOWS RUN ON A PUSH TO NIGHTLY: `tests`, `docs`, `compat-matrix`.
+Read on run 34582823707 and its neighbours.
+
+  1. `compat-matrix` / PACKAGING METADATA -- RED, AND FIXED HERE.
+     `tests/test_packaging_metadata.py::test_the_citation_version_doi_is_
+     the_one_for_the_version_it_claims` arrived with main's CITATION work
+     and reads `CITATION.cff`, which is YAML. The job installs "packaging
+     tooling only" -- build, twine, pytest, packaging -- deliberately, so
+     that a metadata bug cannot hide behind a resolver failure. It does not
+     install PyYAML, and the job failed on
+
+         ModuleNotFoundError: No module named 'yaml'
+
+     A METADATA TEST REPORTING A MISSING TEST DEPENDENCY READS AS A
+     PACKAGING DEFECT AND IS NOT ONE, which is the worst kind of red: it
+     costs a reader the time to find out it means nothing. PyYAML is added
+     to that job's install list, which is the honest place -- reading the
+     citation file IS packaging tooling.
+
+  2. `compat-matrix` / 3.15 INSTALLS FROM WHEELS ONLY -- RED, AND CORRECTLY
+     SO. `pandas` has no cp315 wheel on PyPI yet:
+
+         ERROR: Could not find a version that satisfies the requirement
+         pandas<4.0,>=2.2.1 (from spacr) (from versions: none)
+
+     The cell is ALREADY `continue-on-error: ${{ matrix.python-version ==
+     '3.15' }}` and its comment already says why it is expected to fail --
+     "PySide6 6.11.2 declares <3.15, so this cell is expected to fail at the
+     dependency resolve until a compatible Qt release appears; its weekly
+     run tells us when that blocker has moved". NOTHING TO FIX. Worth
+     recording only because the blocker the comment names is no longer the
+     one that fires first: pandas gets there before PySide6 does, so a
+     future reader watching for "Qt admits 3.15" will be reading the wrong
+     line. The cell's own purpose -- noticing when upstream wheels arrive --
+     is intact either way.
+
+  3. A CANCELLATION STORM ON NIGHTLY, and it is not this item's to fix.
+     Eight of the last ten runs are `cancelled`, because tutorial commits
+     are landing every two minutes and every workflow here is in a
+     newest-wins concurrency group. Both `tests.yml` and `compat-matrix.yml`
+     already carry long comments about exactly this and have already been
+     split by event because of it. A green run needs a gap in the pushes,
+     not another workflow change.
+
+         SO "GREEN ACTIONS" CANNOT BE DEMONSTRATED WHILE ANOTHER SESSION IS
+         PUSHING EVERY TWO MINUTES, and saying so is more useful than
+         reporting whatever the last uncancelled run happened to say.

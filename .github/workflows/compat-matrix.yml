@@ -91,9 +91,16 @@ jobs:
         # Deliberately NOT `pip install -e .` — this job must prove the
         # metadata is right without the 4 GB of torch that would hide a
         # metadata bug behind a resolver failure.
+        #
+        # PyYAML IS PACKAGING TOOLING HERE. `CITATION.cff` is YAML, and the
+        # test that asks whether its version DOI belongs to the version it
+        # claims has to read it. Without this the job fails on
+        # `ModuleNotFoundError: No module named 'yaml'` -- a metadata test
+        # reporting a missing test dependency, which reads as a packaging
+        # defect and is not one.
         run: |
           python -m pip install --upgrade pip
-          python -m pip install build twine pytest packaging
+          python -m pip install build twine pytest packaging PyYAML
 
       - name: Build sdist and wheel
         run: python -m build --outdir dist .
