@@ -189,7 +189,7 @@ def main() -> int:
     set_preload_policy('on_demand')
     set_theme('dark')
     set_font_scale(args.font_scale)
-    if args.module in ('regression', 'queue'):
+    if args.module in ('regression', 'queue', 'train_cellpose'):
         from spacr.qt.preferences import set_figure_format
         set_figure_format('png')
     apply_preferences_to_app(app)
@@ -304,6 +304,10 @@ def main() -> int:
         from capture_cellpose_masks import record_apply
         record_apply(app, window, stage, captures, capture,
                      settle, write_json, args.timeout)
+    elif args.module == 'train_cellpose':
+        from capture_cellpose_training import record_training
+        record_training(app, window, stage, captures, capture,
+                        settle, write_json, args.timeout)
     elif args.module == 'napari_bridge':
         from capture_napari import record_napari
         record_napari(app, window, stage, captures, capture,
