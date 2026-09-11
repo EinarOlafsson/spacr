@@ -1647,7 +1647,7 @@ def generate_screen_graphs(settings):
         df, _ = _read_and_merge_data(db_loc, settings['tables'], verbose=True, nuclei_limit=settings['nuclei_limit'], pathogen_limit=settings['pathogen_limit'])
         
         # Annotate the data
-        df = annotate_conditions(df, cells=settings['cells'], cell_loc=None, pathogens=settings['nontargeting_control_grnas'], pathogen_loc=settings['controls_loc'], treatments=None, treatment_loc=None)
+        df = annotate_conditions(df, cells=settings['cells'], cell_loc=None, pathogens=settings['controls'], pathogen_loc=settings['controls_loc'], treatments=None, treatment_loc=None)
         
         # Calculate recruitment metric
         df['recruitment'] = _finite_ratio(

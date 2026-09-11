@@ -329,10 +329,53 @@ def test_describe_gui_only_module_explains(capsys):
 
 
 def test_version(capsys):
-    from spacr.version import __version__
+    """Against the source `--version` actually prints, not the other one.
+
+    THERE ARE TWO VERSIONS AND THEY AGREE ONLY AFTER A FRESH INSTALL.
+    `cli.py --version` prints `spacr._version.__version__`, the literal
+    `packaging/release.py bump` keeps in lockstep with `setup.py`, chosen
+    deliberately so the flag costs no `importlib.metadata` import.
+    `spacr.version.__version__` resolves the INSTALLED DISTRIBUTION's
+    metadata instead.
+
+    In a released wheel those are the same string. In an editable checkout
+    the metadata is whatever was last installed, so after a bump they
+    differ -- 1.5.0.4 from the metadata against 1.5.0.5 in the source --
+    and this test failed for that reason alone, on every developer machine
+    between a bump and the next `pip install`.
+
+    Comparing the flag against the module it reads makes the test say
+    something about the program rather than about the checkout.
+    """
+    from spacr._version import __version__
+
     rc = cli.main(["--version"])
     assert rc == cli.EXIT_OK
     assert __version__ in capsys.readouterr().out
+
+
+def test_the_two_version_sources_are_in_lockstep_where_it_matters(capsys):
+    """`setup.py` and `_version.py` are the pair a release has to keep equal.
+
+    The metadata version is not checked here for the reason above -- it
+    describes the INSTALL, not the source -- but these two are both in the
+    tree and `packaging/release.py bump` writes both. A bump that moved one
+    and not the other would ship a package whose own facade disagrees with
+    its distribution, and nothing else in the suite compares them.
+    """
+    import pathlib
+    import re
+
+    from spacr._version import __version__
+
+    setup = (pathlib.Path(__file__).resolve().parents[1] / "setup.py"
+             ).read_text(encoding="utf-8")
+    found = re.search(r'^VERSION\s*=\s*"([^"]+)"', setup, re.MULTILINE)
+    assert found, "setup.py no longer declares VERSION as a plain literal"
+    assert found.group(1) == __version__, (
+        f"setup.py says {found.group(1)} and spacr/_version.py says "
+        f"{__version__}; `packaging/release.py bump` writes both and one "
+        "of them was edited by hand")
 
 
 def test_no_module_exits_2(capsys):
