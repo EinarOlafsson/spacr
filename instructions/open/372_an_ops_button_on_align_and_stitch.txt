@@ -104,70 +104,73 @@ Status:    BEING REBUILT ON THE MEASURED PLAN, 2026-09-09. The maintainer
            (DAPI-GFP-A594-AF750). Eleven cycles is exactly what PART 5
            assumed.
 
-           FIRST FINDING, AND IT IS A REAL ONE: CONSECUTIVE Site NUMBERS ARE
-           NOT SPATIALLY ADJACENT, and `phase_correlate` does not notice.
+           FIRST FINDING RETRACTED IN FULL, 2026-09-11. I recorded, twice
+           and with increasing confidence, that these tiles DO NOT OVERLAP
+           and that `phase_correlate`'s acceptance gate was unsound. Both
+           claims were wrong and the code was right both times.
 
-             * Site-0 -> Site-4 all return dy=-213 dx=+9 EXACTLY, then Site-4
-               -> Site-5 is rejected, then Site-5 -> Site-8 return dy=+213
-               dx=-9 exactly. That looks like a serpentine raster with a row
-               turn, which is why it is convincing.
-             * It is not. High-pass (sigma 8) correlation of the claimed
-               overlap is +0.005 -- indistinguishable from the no-shift
-               control (+0.004) and from an arbitrary wrong shift (-0.006).
-               A true 85% overlap of real nuclei cannot look like that.
-             * Tiles from DIFFERENT WELLS are correctly rejected, so the
-               lock is not a global fixed-pattern artifact; it is something
-               consecutive tiles within a well share.
+           WHAT ACTUALLY HAPPENED: I called `phase_correlate(a, b)` with the
+           DEFAULT `expected=(0, 0)`. `unwrap`'s own docstring says what that
+           does -- "``about`` IS NOT DECORATION AND THE DEFAULT IS THE
+           DANGEROUS CASE ... right only when the true shift is smaller than
+           half the axis". The true raster pitch is 1,267 px on a 1,480 px
+           tile, which is more than half, so it folded to 1267 - 1480 = -213.
+           Every "impossible" number I then measured was measured at a shift
+           the library had already told me not to trust.
 
-           A PREVIOUS STITCH ATTEMPT ALREADY FAILED THIS WAY AND NOBODY SAW.
-           `results/overlaps.csv` in that plate records dy=-106.2 dx=+4.4 for
-           Site-1 -> Site-2 with `pearson 0.0109, ncc 0.0109`, and
-           `results/mosaic.tif` is 1587x1486 -- barely bigger than ONE 1480
-           tile. The stitch collapsed every tile onto the same spot. The
-           correlation columns were computed and written and nothing gated on
-           them.
+           THE TILES OVERLAP, AND BY EXACTLY WHAT THIS FILE ALREADY SAID.
+           Nuclei-mask Dice at the unwrapped shift, well A1, c1:
 
-           SETTLED BY A SELF-CONTROL, after two weaker tests disagreed.
-           Windowed Pearson said 0.005 (no signal); FFT cross-correlation
-           said 0.092 against a 0.018 floor (signal). Both were too blunt.
-           Nuclei-mask Dice with a CONTROL settles it:
+               dy=+1267 dx=+9   overlap 14.3%   Dice 0.678   <- the truth
+               17 px off that                                Dice 0.078
+               dy=-213 (the wrapped value)                   Dice 0.104
+               a tile against ITSELF (chance baseline)       Dice 0.101
 
-               registered shift (-213, 9)         Dice 0.1039
-               same dy, dx wrong by 31 px         Dice 0.1010
-               dy wrong by 37 px                  Dice 0.1022
-               no shift at all                    Dice 0.1001
-               THE TILE AGAINST ITSELF, same shift Dice 0.1014
+           0.678 against a 0.101 chance baseline, collapsing to 0.078 within
+           17 px: sharply peaked, which is what a true registration looks
+           like. And 14.3% linear overlap is the "14% raster overlap" PART 15
+           assumed, so PART 15's 1.15x SNR gain stands unchallenged -- I had
+           called it into doubt and should not have.
 
-           The self-control is the whole argument. A tile against ITSELF at a
-           non-zero shift scores 0.1014 -- that is chance at this nuclei
-           density (top 8% of pixels). The registered shift scores 0.1039,
-           and moving 31 px away costs nothing. THERE IS NO NUCLEI
-           CORRESPONDENCE AT THAT SHIFT. These tiles do not overlap.
+           CALLED CORRECTLY, THE LIBRARY IS EXACTLY RIGHT:
 
-           SO WHAT IS THE ELEVATED CROSS-CORRELATION? Real, and not nuclei.
-           Consecutive sites are acquired seconds apart and share low-level
-           structure -- illumination, fixed-pattern, background state --
-           which different wells (acquired at another time) do not, which is
-           exactly why different wells were correctly rejected. The lock is
-           genuine shared signal that is not image content.
+               phase_correlate(a, b)                      -> dy=-213   (wrapped)
+               phase_correlate(a, b, expected=(1267, 0))  -> dy=+1267  (correct)
 
-           SO THE DEFECT IS NAMED, AND SO IS THE TEST THAT CATCHES IT.
-           Acceptance is decided by `peak_ratio` alone: a peak ratio of 45
-           coexists with chance-level nuclei agreement. The right gate is NOT
-           "is the correlation elevated" -- that passes here -- it is IS THE
-           MATCH SHARPLY PEAKED IN SHIFT SPACE. A true registration collapses
-           within a few pixels of the optimum; this one is flat for 30+ px in
-           both axes. Measure agreement at the optimum AND at the optimum
-           plus a small offset, and refuse when they are the same.
+           Sites 0->1->2->3 all return +1267 / +9 with peak ratios 31-46.
 
-           PART 15's measured overlap gain of 1.142x was computed on the
-           assumption that accepted placements overlap. On this acquisition
-           they do not.
+           WHAT IS ACTUALLY TRUE AND USEFUL FROM THE EXERCISE:
 
-           NEXT: find the real site->position mapping (the TIFF metadata is
-           gone -- every file was rewritten by tifffile.py and carries only
-           ImageJ hyperstack tags), then re-measure. Do not trust any stitch
-           from this data until the acceptance gate includes a correlation.
+             * THE DATA IS REAL AND USABLE: screenA/20200202_6W-LaC024A, 11
+               cycles, 6 wells x 333 tiles, 1480x1480x5 uint16, plus a
+               4-channel phenotype acquisition.
+             * THE RASTER PITCH IS ~1,267 px WITH ~9 px OF SKEW, measured,
+               consistent across consecutive sites, and it is the number a
+               caller must pass as `expected`. 333 tiles is a DISC inside a
+               round well (a ~21x21 bounding grid), not a rectangle, which is
+               why consecutive numbering breaks at the disc edge rather than
+               at a rectangular row end.
+             * THE REAL LESSON IS ABOUT MY METHOD, not the code: I measured
+               at a shift, found chance-level agreement, and concluded the
+               data was wrong rather than that my call was. A self-control
+               (a tile against itself) told me the baseline was 0.101 and I
+               still read 0.104 as a finding instead of as a null result.
+               The instrument was wrong and it had said so in its docstring.
+
+           NEXT, and it is now ordinary work rather than a mystery: solve
+           well A1's 333 placements against the measured pitch, passing
+           `expected` per pair rather than the default, and put the composed
+           Hoechst window through `ops_objects`. The TIFF metadata is gone
+           (every file was rewritten by tifffile.py and carries only ImageJ
+           hyperstack tags), so the pitch is measured rather than read -- and
+           measuring it is what the library is for.
+
+           ONE CHANGE WORTH MAKING FIRST, and it is small: `phase_correlate`
+           lets a caller take the dangerous default silently. `unwrap`'s
+           docstring is emphatic about when `about=0` is wrong, but nothing
+           warns at the call site. A whole-tile pair whose peak lands beyond
+           half the axis should say so -- the shift it is about to return is
+           the one case the docstring names as both "wrong and plausible".
 
            ORIGINAL STATUS FOLLOWS, and PART 5's memory work stands: it
            replaced PART 4's order-of-magnitude guess with the real
