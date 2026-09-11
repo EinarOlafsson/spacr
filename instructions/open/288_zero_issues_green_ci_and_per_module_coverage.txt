@@ -2224,12 +2224,19 @@ so any red chunk reproduces exactly. 69 chunks, about fifty minutes.
 NOT ONE OF THE 28 WAS ORDER-DEPENDENCE, which is the headline. Two looked
 like it and were not:
 
-  * `test_provider_marks_uncovered_paths` was FLAKY, not order-dependent --
-    and flaky because of a change landed the same night (see 380: the
-    per-window sheet was replacing each window's own stylesheet). Ten runs
-    of the same command: 10/10 green before that change, 8/10 after, 8/8
-    after the fix. A test that fails in company and passes alone is not
-    evidence of ordering until you have run it alone TEN times.
+  * `test_provider_marks_uncovered_paths` is FLAKY, not order-dependent.
+    Two identically built `ProviderMark` widgets render differently about
+    a fifth of the time; fifteen runs of the same command, alone:
+
+        at ae8bdb417, before that night's Qt work   11/15
+        at the end of it                            13/15
+
+    A TEST THAT FAILS IN COMPANY AND PASSES ALONE IS NOT EVIDENCE OF
+    ORDERING, and ten runs are not enough to say which it is. This was
+    first blamed on the per-window stylesheet change on samples of ten,
+    and the larger sample says the pre-change tree is if anything the
+    flakier of the two. An open flake, and it belongs with that widget
+    rather than with this item.
   * `test_the_count_controls_the_categories` went green with the registry
     and environment fixtures and needed nothing of its own.
 

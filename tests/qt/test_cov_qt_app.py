@@ -2545,7 +2545,16 @@ def test_launch_opens_the_requested_app(launched, qtbot):
     assert shim.org_name is None
     assert shim.applicationName() == "spaCR"
     assert shim.organizationName() == "Olafsson Lab"
-    assert "QWidget" in (shim.stylesheet or ""), "theme was never applied"
+    # THE THEME GOES ON THE WINDOWS, NOT ON THE APPLICATION. 380's last
+    # lever moved it there -- a preference save with four modules open went
+    # from 10.2 s to 3.1 s -- so this shim's `setStyleSheet`, which exists
+    # to intercept the global re-polish, is no longer the thing that
+    # records it. The sheet is parked on the application object so a window
+    # created later can find it, and that is what says the theme was
+    # applied.
+    from spacr.qt.theme import window_stylesheet
+    assert "QWidget" in (window_stylesheet(shim) or ""), (
+        "theme was never applied")
 
     win = launched["window"]()
     qtbot.addWidget(win, before_close_func=_close_owned_screens)

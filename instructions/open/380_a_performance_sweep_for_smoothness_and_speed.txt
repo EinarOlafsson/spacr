@@ -845,10 +845,28 @@ threw them away.
 
     NOT A TEST ARTEFACT. It cost `test_field_fade::
     test_the_text_stays_fully_opaque_all_the_way_across` an alpha of 254
-    where it demands 255, and made a provider-mark pixel comparison fail
-    two runs in ten -- which read as ORDER-DEPENDENCE in the sweep and was
-    nothing of the kind. Measured both ways, same command, ten runs each:
-    10/10 green before the change, 8/10 after, 8/8 after the fix.
+    where it demands 255 -- DETERMINISTICALLY, which is what makes it
+    evidence. Six runs each, same command: 6/6 red with the fix disabled,
+    6/6 green with it, 6/6 green before the per-window change existed.
+
+    AND A CLAIM MADE HERE FIRST TIME ROUND WAS WRONG, corrected rather
+    than quietly dropped. This note originally also blamed the change for
+    `test_provider_marks_uncovered_paths`, on "10/10 green before, 8/10
+    after, 8/8 after the fix". Those were three small samples of a test
+    that is INHERENTLY FLAKY, and fifteen runs each say so:
+
+        before the change   11/15
+        after the fix       13/15
+
+    The pre-change tree is the flakier of the two. The change did not
+    cause it and the fix did not cure it; three runs of ten looked like a
+    signal because the sample was too small to be one.
+
+      A TEST THAT PASSES TEN TIMES IS NOT A DETERMINISTIC TEST, and the
+      sweep read this one as ORDER-DEPENDENCE for the same reason. It is
+      an open flake in its own right -- two identically built
+      `ProviderMark` widgets render differently about a fifth of the time
+      -- and it belongs to whoever next touches that widget.
 
 The window's own sheet is now remembered the first time and appended AFTER
 the global one, where it still wins. Remembered rather than re-read,
