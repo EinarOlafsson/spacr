@@ -2471,11 +2471,29 @@ that has one.
   write that lands on a fresh screen during its first turns of the event
   loop.
 
+  AND THE REPRODUCTION IS NOW ONE FILE AND TWELVE SECONDS, which is the
+  single most useful thing in this whole entry. It does not need the chunk
+  at all:
+
+      pytest tests/qt/test_the_count_controls_the_categories.py \
+          -p randomly --randomly-seed=288
+
+      seed 288  1 failed, 16 passed      seed 3  17 passed
+      seed 2    1 failed, 16 passed      seed 4  17 passed
+      seed 1    17 passed                seed 5  17 passed
+
+  TWO SEEDS IN SIX. So the leak is INSIDE THIS ONE FILE: no other file in
+  the chunk so much as mentions `nucleus_channel`, and several tests in
+  this one commit a channel deliberately -- `_show_the_objects_the_run_has`
+  and `test_a_committed_channel_brings_its_settings_back` are both in the
+  traces. The `mask` fixture is function-scoped and builds a fresh
+  MainWindow every time, so a channel committed by one test reaching the
+  next one's brand-new screen is the whole bug.
+
   SO THE QUESTION FOR WHOEVER TAKES IT IS NOT "why is the row shown". It
-  is "what writes `nucleus_channel` onto a mask screen while it is
-  settling, in this ordering and not in others", and the candidates are the
-  settings store the conftest sandboxes per test and whatever the example
-  path touches that it does not.
+  is "what carries a committed nucleus channel from one test's window into
+  the next test's freshly built one", and it can be asked with a
+  twelve-second command rather than a four-minute chunk.
 
   AND THE TEST IS ARGUABLY RIGHT TO FAIL. It says "an object with no
   channel brings no settings"; in that ordering the object HAS a channel.
