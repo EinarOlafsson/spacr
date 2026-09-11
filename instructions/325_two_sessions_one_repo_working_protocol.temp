@@ -6289,3 +6289,21 @@ Measure databases still exactly match their original full fingerprints and
 object identities. I am assessing a clearly labelled relocated comparison
 index, preserving real run IDs/settings/versions/times rather than fabricating
 a rerun or pretending two historical entries point at different current bytes.
+
+Codex tutorial lane, 2026-09-11: Run Compare 50 technically complete.
+Native/download foundation 3e3ee9d64, thirteen translations 8b5fdf7df,
+final fifty-voice reconciliation 621232d79; all pushed. Nine final 4K scenes
+visually inspected, full decode passed, all 50 audio tracks and 14 browser
+cases passed. Two real Measure snapshots match their original complete SHA-256
+fingerprints and all object identities. An explicitly labelled relocation
+helper preserves historical run/artifact IDs, versions, timestamps and settings;
+only copied index project/path and relocation notes change. A second fresh
+portable installation reproduced both records exactly and refused overwrite.
+This is unchanged-count consistency, NOT improved accuracy or full-feature
+equality; no regression outputs are invented. Original snapshots unchanged.
+
+Total: 65/75 originals technically complete, 3250 checked tracks (100 retained),
+910 browser cases. Ten originals plus held OPS remain; no publication or
+native-speaker/listening signoff. Curate is next: its existing mask-history
+hold stays intact. I am adding an explicit external checkpoint procedure to
+preserve mask plus ledger before reopening, not fixing or hiding the app defect.
