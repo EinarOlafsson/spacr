@@ -1,0 +1,28 @@
+{
+  "lesson": "11_classify_ml",
+  "english_sha256": "a6ecbf0577a4a51b13206840d8914da097584eecf2fc0f3b8107ca17648528cf",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "Classify: aprendizaje automático tabular",
+  "description": "Utilice Classify con células medidas descargables, etiquetas de metadatos explícitas, un bosque aleatorio pequeño, la consola real y predicciones guardadas.",
+  "objectives": [
+    "Elegir la familia tabular y cargar el ejemplo medido desde el selector de datos.",
+    "Definir clases por columna de placa y distinguir la fracción solicitada de los pocillos realmente reservados.",
+    "Examinar figuras, valores sin puntuación y resultados sin confundir la exactitud de una demostración con validación biológica."
+  ],
+  "prerequisite": "En Classify, elija Load test data y después Load, no Stream. Hay 2.341 objetos en cuatro pocillos; se conservan 2.153 y 188 quedan sin puntuación por falta de datos nucleares. c1 define la clase cero y c2 la clase uno: son columnas de placa, no fenotipos verificados. Configuración: random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False, plot=True. Iguale test_size=0.1 y test_split=0.1: la normalización actual descarta un valor específico de ML diferente; el defecto está documentado. Se reservan dos pocillos y 1.035 objetos, sin solapamiento de pocillos. La selección de características precede a la partición; la importancia por permutación usa datos de entrenamiento. Exactitud: 0.6202898551; referencia de clase mayoritaria: 0.5632850242. Se comprobaron nueve métricas y 2.153 predicciones guardadas. API: spacr.classify.classify llama a spacr.ml.generate_ml_scores. Salidas: results/random_forest/channel_1; predictions contiene la clase binaria y ml_pred la probabilidad de clase uno. Solo se muestran tres figuras reales, sin afirmar resultados SHAP, calibración, causalidad ni validación biológica. No se envió ninguna pregunta a la IA.",
+  "scenes": [
+    "Abra Classify desde Home y elija Tabular Machine Learning como familia del clasificador. Esta es la pantalla unificada de Classify, no una aplicación ML separada. Aprende de mediciones guardadas por objeto. Los ajustes de visión artificial pueden seguir visibles, pero atenuados, porque pertenecen a la otra familia.",
+    "Pulse Load test data y elija Load. Se descarga el ejemplo medido y se preparan sus rutas; Stream es una opción diferente. Para su propio proyecto, complete primero Measure y seleccione la carpeta del proyecto. No suponga que cualquier carpeta de imágenes ya contiene la base de datos de mediciones necesaria.",
+    "Utilice la base de metadatos y defina dos Classes mediante columnID: c1 y c2. Aquí son etiquetas de columnas de placa para enseñar el procedimiento, no células sanas y afectadas verificadas independientemente. El entrenamiento por anotaciones requiere etiquetas auténticas de Annotate. Nunca convierta anotaciones ausentes en etiquetas verdaderas inventadas.",
+    "Channel of interest selecciona las características medidas. Utilizamos el canal uno sin atribuirle un significado biológico no verificado. Revise sus ajustes de adquisición y medición antes de elegir un canal para sus datos. Seleccionar aquí un canal de características no vuelve a segmentar ni a medir las imágenes.",
+    "Elija Random Forest y dieciséis estimadores para esta pequeña demostración, con dos procesos de trabajo. No es una recomendación de modelo optimizado. Dejamos desactivadas la selección supervisada de características y la validación cruzada. Desactivar la validación cruzada no elimina la partición de prueba independiente utilizada en esta ejecución.",
+    "Establezca el tamaño de prueba en una décima parte y mantenga la agrupación por pocillo. Una fracción solicitada no es un número exacto de objetos: este ejemplo de cuatro pocillos reserva dos completos, aproximadamente el cuarenta y ocho por ciento de los objetos conservados. Ambas clases aparecen en cada lado y ningún pocillo real aparece tanto en entrenamiento como en prueba.",
+    "Active Plot, borre la búsqueda y pulse Run. La consola registra los ajustes resueltos, el filtrado, la partición y el informe del modelo. Conserve ese registro con los resultados. Una indicación de finalización no demuestra que sus etiquetas, diseño de validación o interpretación biológica fueran adecuados.",
+    "Esta ejecución puntúa dos mil ciento cincuenta y tres objetos. Ciento ochenta y ocho carecen de datos nucleares coincidentes y quedan sin puntuación, no como negativos. La exactitud de prueba guardada ronda el sesenta y dos por ciento, frente al cincuenta y seis por ciento de la clase mayoritaria. Cuatro pocillos de una placa no demuestran generalización a otro experimento.",
+    "Hay tres figuras: importancia por permutación, importancia de características del bosque y este mapa de calor de la placa. Con Predictions y agrupación por media, el mapa promedia clases predichas binarias, no sus probabilidades. Importancia no significa causalidad; la permutación utiliza datos de entrenamiento. Examine las tablas guardadas antes de sacar conclusiones de una figura colorida.",
+    "El interruptor AI permite preguntas sobre el procedimiento con ayuda de un proveedor. Esto es un borrador sin enviar, no una respuesta generada. Guarde los resultados con sus ajustes y verifique cualquier consejo. Las herramientas anidadas tienen requisitos propios: el tutorial Explain usa puntuaciones de visión artificial, no estas salidas ML. La IA no sustituye comprobar etiquetas e identidades de la partición."
+  ]
+}
