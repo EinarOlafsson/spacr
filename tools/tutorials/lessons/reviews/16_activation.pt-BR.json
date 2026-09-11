@@ -1,0 +1,31 @@
+{
+  "lesson": "16_activation",
+  "english_sha256": "bd0a28eca9222f51fb481f2779bd46d2e3433b118e9505280c4798fe03dffd6a",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "pt-BR",
+  "title": "Activation Maps: saliência real e seus limites",
+  "description": "Abra Activation Maps dentro de Classify, combine um modelo confiável com recortes reais e compare duas saídas sem confundir atribuição com validação.",
+  "objectives": [
+    "Encontrar a ferramenta integrada e preservar o contrato de entrada do modelo.",
+    "Distinguir pré-processamento, contraste visual e atribuição.",
+    "Examinar arquivos salvos quando Figures está vazio.",
+    "Separar verificação numérica, previsões e validade científica."
+  ],
+  "prerequisite": "Quatro recortes RGB originais do exemplo baixado em Annotate e um checkpoint ResNet18 local confiável de uma época. O exemplo anterior compartilha poços entre partições: NÃO demonstra acurácia independente. Preservar marcador de formato 3/RGB e cartão do modelo. Tamanho 128, lote 4, canais [1,2,3], normalize_input/normalize/Plot/Save ativados, shuffle/correlation desativados, um processo CPU. saliency_channel com sobreposição e saliency_image sem. Verificados 196608 valores de entrada e 262144 componentes de mapas, tolerância máxima de um nível de oito bits. Identidades e originais intactos. Aviso src e Figures vazio NÃO corrigidos; PNGs reais no visualizador externo. Quatro posições não usadas ficam vazias. Sem validação de atribuição, acurácia independente, solicitação AI, validação biológica ou publicação. API: spacr.deep_spacr.generate_activation_maps e spacr.utils.SaliencyMapGenerator.",
+  "scenes": [
+    "Abra Classify e depois a ferramenta aninhada Activation Maps. Esse fluxo examina como a previsão de um modelo treinado responde aos pixels. Não treina um classificador nem determina o que causou um fenótipo observado. Mostraremos duas execuções reais de saliência, sua console e uma forma explícita de visualizar arquivos salvos.",
+    "Use o arquivo real de recortes, não uma pasta de exemplo. Nosso arquivo pequeno contém quatro recortes celulares RGB inalterados do exemplo baixado de Annotate e seu marcador de formato. Preservamos as fontes e trabalhamos em um projeto privado. Quatro imagens convenientes ilustram a operação; não são uma coorte representativa de validação.",
+    "Escolha o modelo confiável correspondente e mantenha seu cartão. É um checkpoint ResNet dezoito treinado por uma única época na demonstração anterior. A divisão compartilhava poços, então não afirmamos acurácia independente. Uma imagem de atribuição convincente não resgata um modelo mal validado. Não carregue checkpoint não confiável por conveniência.",
+    "Respeite o contrato de entrada do treinamento: tamanho cento e vinte e oito e ordem RGB declarada. Aqui o seletor real usa um, dois, três. Não troque canais porque outra ferramenta usa índices a partir de zero. Verificamos independentemente os valores recortados no centro e transformados contra o carregador de treinamento antes de comparar saliência.",
+    "Diferencie normalização de entrada e de visualização. A entrada precisa corresponder ao treinamento; aqui ela está ativada com o pré-processamento simétrico registrado. A normalização visual muda a aparência da imagem sobreposta, não a acurácia do modelo ou o significado de uma cor. Preserve ambas as configurações nas comparações; uma imagem mais brilhante não é evidência mais forte.",
+    "Escolha saliency channel com Overlay ativado e mantenha Plot e Save. Usamos um processo, um lote de quatro e CPU nesta pequena demonstração. A tela não tem prévia ao vivo: mudar o método exige outra execução. A saliência por canal mantém separados os canais de entrada ao salvar mapas baseados em derivadas.",
+    "Leia a console real. O cálculo termina, mas essa versão reclama incorretamente da ausência de src, embora Activation use Dataset. O painel Figures também permanece vazio. Verificamos independentemente entrada, mapas salvos e identidades na base; não corrigimos esses defeitos da interface. Outros erros ainda precisam ser investigados.",
+    "Abra a grade salva em um visualizador de imagens. É o visualizador externo real, não uma figura inserida no spaCR. Quatro posições ocupadas correspondem aos nossos quatro recortes; as outras quatro não são usadas. Os rótulos zero e um são previsões, não verdade de referência. A sobreposição visualiza sensibilidade; não é uma máscara de segmentação.",
+    "Agora escolha saliency image, desative Overlay e execute novamente nas mesmas entradas. Esse método combina as derivadas absolutas entre canais antes de reescalar o mapa cinza salvo. Não é oclusão nem gradientes integrados. Separe as saídas por método para não confundir a segunda execução com a primeira.",
+    "A segunda grade mostra os mapas sem as imagens subjacentes. As cores representam a escala de saliência exibida, não probabilidades de classe nem importância biológica comprovada. Checagens independentes comparam cada componente salvo com um gradiente calculado separadamente, aceitando no máximo um nível de arredondamento de oito bits. Verificam a implementação, não a utilidade da explicação.",
+    "A quantificação de mapas está desativada. Não executamos remoção, inserção, aleatorização do modelo nem outros testes de validação da atribuição; dois métodos visualmente diferentes não os substituem. Antes de concluir, use falhas e acertos representativos, controles pertinentes e dados reservados independentemente. Esta demonstração limitada verifica o funcionamento do fluxo.",
+    "Mantenha juntos identidades dos recortes, imagens originais, modelo e cartão, configurações, registros, mapas e base. As fontes ficaram intactas e ambos os métodos preservaram as quatro identidades. A assistência AI é opcional; nenhuma solicitação foi enviada aqui. Confira conselhos posteriores com a API real e as evidências, sem tratar uma explicação fluente como validação."
+  ]
+}

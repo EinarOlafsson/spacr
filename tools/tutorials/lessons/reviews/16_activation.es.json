@@ -1,0 +1,31 @@
+{
+  "lesson": "16_activation",
+  "english_sha256": "bd0a28eca9222f51fb481f2779bd46d2e3433b118e9505280c4798fe03dffd6a",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "language": "es",
+  "title": "Activation Maps: saliencia real y sus límites",
+  "description": "Abra Activation Maps dentro de Classify, combine un modelo confiable con recortes reales y compare dos salidas sin confundir atribución con validación.",
+  "objectives": [
+    "Encontrar la herramienta integrada y conservar el contrato de entrada del modelo.",
+    "Distinguir preprocesamiento, contraste de visualización y atribución.",
+    "Examinar archivos guardados cuando Figures está vacío.",
+    "Separar verificación numérica, predicciones y validez científica."
+  ],
+  "prerequisite": "Cuatro recortes RGB originales del ejemplo descargado en Annotate y un checkpoint ResNet18 local confiable de una sola época. El ejemplo anterior comparte pozos entre particiones: NO demuestra precisión independiente. Conservar marcador de formato 3/RGB y tarjeta del modelo. Tamaño 128, lote 4, canales [1,2,3], normalize_input/normalize/Plot/Save activados, shuffle/correlation desactivados, un proceso CPU. Dos ejecuciones: saliency_channel con superposición y saliency_image sin ella. Se verificaron 196608 valores de entrada y 262144 componentes de mapas, con tolerancia máxima de un nivel de ocho bits. Identidades y originales intactos. Aviso src y Figures vacío NO reparados; los PNG reales se abren en el visor externo. Cuatro espacios sin utilizar quedan vacíos. Sin validación de atribución, precisión independiente, solicitud AI, validación biológica ni publicación. API: spacr.deep_spacr.generate_activation_maps y spacr.utils.SaliencyMapGenerator.",
+  "scenes": [
+    "Abra Classify y después su herramienta integrada Activation Maps. Este flujo examina cómo responde la predicción de un modelo entrenado a los píxeles. No entrena un clasificador ni establece qué causó un fenotipo observado. Mostraremos dos ejecuciones reales de saliencia, su consola y una ruta explícita para ver archivos guardados.",
+    "Use el archivo real de recortes, no una carpeta de ejemplo. Nuestro archivo pequeño contiene cuatro recortes celulares RGB sin modificar del ejemplo descargado de Annotate y su marcador de formato. Conservamos las fuentes y trabajamos en un proyecto privado. Cuatro imágenes convenientes ilustran el funcionamiento; no son una cohorte representativa de validación.",
+    "Elija el modelo confiable correspondiente y conserve su tarjeta. Es un checkpoint ResNet dieciocho entrenado durante una sola época en la demostración anterior. Su partición compartía pozos, así que no afirmamos precisión independiente. Una imagen de atribución convincente no rescata un modelo mal validado. No cargue un checkpoint no confiable por comodidad.",
+    "Respete el contrato de entrada del entrenamiento: tamaño ciento veintiocho y orden RGB declarado. Aquí el selector real de canales usa uno, dos, tres. No intercambie canales porque otra herramienta utilice índices desde cero. Comprobamos independientemente los valores recortados al centro y transformados frente al cargador de entrenamiento antes de comparar saliencia.",
+    "Distinga normalización de entrada y de visualización. La de entrada debe coincidir con el entrenamiento; aquí está activada con el preprocesamiento simétrico registrado. La de visualización cambia el aspecto de la imagen superpuesta, no la precisión del modelo ni el significado de un color. Conserve ambas configuraciones al comparar; una imagen más brillante no es evidencia más fuerte.",
+    "Elija saliency channel con Overlay activado y mantenga Plot y Save. Usamos un proceso, un lote de cuatro y CPU para esta pequeña demostración. No hay control de vista previa en vivo: cambiar de método requiere otra ejecución. La saliencia por canal conserva separados los canales de entrada al guardar los mapas basados en derivadas.",
+    "Lea la consola real. El cálculo termina, pero esta versión reclama incorrectamente que falta src aunque Activation usa Dataset. Su panel Figures también queda vacío. Verificamos independientemente la entrada, los mapas guardados y las identidades de la base; no reparamos esos defectos de interfaz. Otros errores siguen requiriendo investigación.",
+    "Abra la cuadrícula guardada en un visor de imágenes. Es el visor externo real, no una figura insertada en spaCR. Cuatro espacios ocupados corresponden a nuestros cuatro recortes; los otros cuatro no se utilizan. Las etiquetas cero y uno son predicciones, no verdad de referencia. La superposición visualiza sensibilidad; no es una máscara de segmentación.",
+    "Ahora elija saliency image, desactive Overlay y vuelva a ejecutar sobre las mismas entradas. Este método combina las derivadas absolutas entre canales antes de reescalar el mapa gris guardado. No es oclusión ni gradientes integrados. Separe las salidas por método para no confundir la segunda ejecución con la primera.",
+    "La segunda cuadrícula guardada muestra mapas sin las imágenes de fondo. Los colores indican la escala de saliencia mostrada, no probabilidades de clase ni importancia biológica demostrada. Las comprobaciones independientes comparan cada componente guardado con un gradiente calculado por separado, permitiendo como máximo un nivel de redondeo de ocho bits. Verifican la implementación, no la utilidad de la explicación.",
+    "La cuantificación de mapas está desactivada. No ejecutamos pruebas de eliminación, inserción, aleatorización del modelo ni otras validaciones de atribución; dos métodos visualmente distintos no las sustituyen. Antes de concluir, use fallos y aciertos representativos, controles pertinentes y datos reservados independientemente. Considere esta demostración limitada una comprobación del flujo.",
+    "Conserve juntos identidades de recortes, imágenes originales, modelo y tarjeta, ajustes, registros, mapas y base. Las fuentes permanecieron intactas y ambos métodos conservaron las cuatro identidades. La asistencia AI es opcional y aquí no enviamos solicitudes. Compare consejos posteriores con la API real y las pruebas; una explicación fluida no equivale a validación."
+  ]
+}
