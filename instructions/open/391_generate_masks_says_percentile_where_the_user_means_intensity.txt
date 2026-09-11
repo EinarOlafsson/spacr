@@ -50,11 +50,13 @@ WHAT TO DO. Replace the relative scheme with ONE absolute intensity
 threshold, in the image's own intensity units. Remove the method dropdown,
 both percentile bands and the percentile value, per the list below.
 
-  * THE UNIT QUESTION IS NOT SETTLED AND MUST BE ASKED BEFORE THE CODE IS
-    WRITTEN, because it decides whether the setting is portable between
-    plates. Raw camera counts are absolute but depend on exposure; a
-    normalised 0-1 intensity is comparable across acquisitions but is not
-    what a user reads off a raw TIFF. See MAINTAINER QUESTION below.
+  * THE UNITS ARE RAW IMAGE INTENSITY -- answered by the maintainer
+    2026-09-10. The numbers in the TIFF, the ones a pixel inspector shows.
+    Its known cost is accepted: a threshold in raw counts does NOT carry
+    between acquisitions taken at different exposure or gain, and the
+    setting must say so in its tooltip rather than let a user assume it
+    travels. That cost is the price of the thing that was asked for -- a
+    number that can be read off an image and typed in.
   * PER OBJECT TYPE, like everything else here: `cell_`, `nucleus_`,
     `pathogen_`, `organelle_` all carry their own copy. There are four of
     every setting named here, not one.
@@ -107,12 +109,24 @@ split -- and a user reading "Min object area" would reasonably expect small
 objects to be discarded. `min_distance` is the minimum separation between
 watershed seeds and means nothing outside that algorithm.
 
-THE KEYS ALREADY DISAGREE WITH THE LABELS, which is why the label change is
-safe on its own: `min_split_area` already says split. Whether to rename the
-KEYS as well (`min_distance` -> `min_watershed_distance`) is the maintainer's
-call and carries the full 364 cost plus a saved-settings migration -- an
-existing settings CSV names the old key. Renaming the LABEL alone costs ten
-catalog entries and nothing else. DEFAULT TO THE LABEL ONLY unless asked.
+THE KEYS ARE RENAMED TOO -- answered by the maintainer 2026-09-10, who chose
+keys as well as labels over labels alone. So:
+
+    cell_min_distance      ->  cell_min_watershed_distance      (x4 objects)
+    cell_min_split_area    ->  cell_minimum_area_to_split       (x4 objects)
+
+and that choice buys two obligations that the label-only option would not
+have:
+
+  * THE FULL 364 CHECKLIST. A rename strands the notebooks table, the
+    settings_flow page, the settings_flow index and setting_api_targets.
+    Four settings went missing from the API exactly this way. The docs audit
+    must be green before this is called done.
+  * A MIGRATION FOR SAVED SETTINGS. Every settings CSV already written in
+    the field names the old key, and this is the maintainer's own working
+    data. Read the old name, write the new one, and do NOT silently drop an
+    unrecognised key -- a settings file that quietly loses a value the user
+    set is worse than one that refuses to load.
 
 --------------------------------------------------------------------------------
 PART FOUR: THE STRAY FIELD OVER THE PATH -- THE THIRD TIME
@@ -164,24 +178,19 @@ stray show() away from a combo box drawn over the path, which is how this was
 reported twice". Out of the panel, not merely hidden.
 
 --------------------------------------------------------------------------------
-MAINTAINER QUESTION -- ASK BEFORE WRITING PART ONE
+MAINTAINER ANSWERS, 2026-09-10 -- BOTH SETTLED, NOTHING LEFT TO ASK
 --------------------------------------------------------------------------------
 
-What are the units of the absolute intensity threshold?
+Q. What are the units of the absolute intensity threshold?
+A. RAW IMAGE INTENSITY. The numbers in the TIFF. Chosen over a normalised
+   0-1 scale knowing it does not carry between exposures, because a
+   normalised threshold is a relative measure wearing a different name and
+   would re-introduce the objection that prompted the item.
 
-  (a) RAW IMAGE INTENSITY, the numbers in the TIFF. What a user reads off the
-      pixel inspector and types in. Not portable between acquisitions with
-      different exposure or gain.
-  (b) NORMALISED 0-1 against the field's own range. Portable, but it is a
-      relative measure again in everything but name, and re-introduces the
-      objection that prompted this item.
-  (c) BOTH, with a unit selector -- which is the method dropdown this item
-      removes, wearing a different hat.
-
-The reading this file is written against is (a), because the complaint is
-that the number cannot be stated in the units of the image. Confirm before
-the code is written; changing it afterwards changes every saved settings file
-in the field.
+Q. Rename the labels only, or the keys as well?
+A. LABELS AND KEYS. The more expensive option, taken deliberately: it costs
+   the 364 table rebuild and a saved-settings migration, and it leaves the
+   keys saying what the settings actually do.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
