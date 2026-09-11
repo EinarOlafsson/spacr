@@ -1501,7 +1501,16 @@ def test_the_citation_version_doi_is_the_one_for_the_version_it_claims():
     """
     import re
 
-    import yaml
+    # SKIPPED, NOT FAILED, WHERE PyYAML IS ABSENT. compat-matrix's "Packaging
+    # metadata" job installs build tooling ONLY and says why: it exists to
+    # prove the distribution builds without the full dependency graph. This
+    # test introduced the first `import yaml` in the file, which turned that
+    # job red -- so the fix belongs here rather than in the job's dependency
+    # list, where it would erode the thing the job is there to prove. The
+    # guard still runs everywhere the real suite does.
+    yaml = pytest.importorskip(
+        "yaml", reason="PyYAML absent: the packaging-tooling-only job "
+                       "deliberately omits it")
 
     citation = yaml.safe_load(
         (REPO_ROOT / "CITATION.cff").read_text(encoding="utf-8"))
