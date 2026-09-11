@@ -5713,3 +5713,30 @@ the existing PySide6 backend. Resolved napari 0.9.1. Base environment unchanged.
 pip check reports the same pre-existing torchcam<NumPy2 conflict in BOTH
 base and private environments; no app dependency changes or compatibility
 claim. No Qt, scientific-module, global-translation or ledger edits.
+
+CODEX TUTORIAL LANE — 2026-09-10, NAPARI 46 REPEAT-IMPORT HOLD.
+
+4bb3adf5d pushed. Eighteen real GUI frames use private synthetic 256-square
+uint16 mask/image TIFFs and napari 0.9.1 in the isolated optional environment.
+No-op import writes nothing; filling label 2 -> 18 changes 2,197 exact pixels;
+native Undo restores all 65,536 pixels; refilling and importing saves correctly.
+The exact added/removed labels and pixel counts match the correction ledger.
+
+PROTECTED-APP HANDOFF: after that first save, NapariBridgeScreen._reloaded
+uses dataclasses.replace(self._handoff, mask=result.mask) without copying.
+The new baseline shares memory with the editable napari labels. A SECOND
+native fill (3 -> 19, 1,261 pixels) then reports "The mask came back unchanged;
+nothing was written." ALL 1,261 changed pixels remain unsaved, and there is
+no second ledger entry. Reproduced twice, including a full-size real viewer.
+Closing/reopening before another edit avoids the alias: 4 -> 20 saves all
+1,288 pixels and appends history without losing the first entry. Please
+detach the saved baseline from the editable viewer and exercise two edits
+with two imports in ONE viewer session. No Qt or backend changes from me.
+Original source and private background image retain their hashes. Receipt:
+tools/tutorials/evidence/2026-09-10_napari_second_import_hold.json.
+46 held; no production narration/audio; total remains 49 completed lessons.
+
+NEXT CLAIM: Explain CV Model 70, native Classify fold, original recorded
+prediction CSV plus matching real measurements, bounded surrogate run and
+independent fidelity/table/split checks. Not a retraining or independent
+classifier-validation claim. No application or other-session edits.
