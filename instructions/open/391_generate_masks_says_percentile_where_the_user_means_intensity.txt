@@ -1,0 +1,203 @@
+================================================================================
+GENERATE MASKS SAYS PERCENTILE WHERE THE USER MEANS INTENSITY, AND THE LIVE
+VIEW STILL DRAWS A STRAY FIELD OVER THE PATH
+================================================================================
+
+Status:    OPEN AND ACTIONABLE, filed 2026-09-10. Nothing gates it.
+Requested: 2026-09-10, verbatim -- "in generate masks, the intensity
+           threshold is a quantile, cahnge it to an absolut intensity
+           threshold. remove these settings: Max intensity pct, Min intensity
+           pct, Intensity percentile, Intensity threshold, Area multiplier.
+           change this settings: Min object area to minimum area to split.
+           change this settings: Min distance to minimum watershed distance.
+           also in the live view in mask generation i see a field in the top
+           left corner of live view overlapping with a path. the path is
+           supposed to be there but the field (which for me is a black field
+           which has a 3 in it) needs to be removed."
+Owner:     unassigned. `spacr/utils.py` and `spacr/object.py` hold the
+           arithmetic, `spacr/settings.py` the defaults and types,
+           `spacr/qt/widgets/live_preview.py` both the preview's own copy of
+           these fields and the stray widget.
+
+--------------------------------------------------------------------------------
+PART ONE: THE THRESHOLD IS RELATIVE AND THE USER WANTS IT ABSOLUTE
+--------------------------------------------------------------------------------
+
+WHAT IT DOES TODAY. `_merge_by_intensity` in `spacr/utils.py` decides whether
+two touching objects are really one by comparing the mean intensity along
+their shared boundary to a reference taken from the DIMMER of the two
+objects. `intensity_threshold_method` picks which reference:
+
+    'mean'        ref = min(mean of A's interior, mean of B's interior)
+    'percentile'  ref = min(Nth percentile of A, Nth percentile of B),
+                  where N is `intensity_percentile`, default 75
+
+Both are relative to the objects in the field. Neither is a number the user
+can read off an image and type in. That is the complaint: a threshold the
+user cannot state in the units the image is in is a threshold the user cannot
+set deliberately, only tune by trial.
+
+THE SAME IS TRUE OF THE OTHER PAIR. `_filter_objects` takes
+`min_intensity_percentile` / `max_intensity_percentile` (default 0 / 100) and
+drops objects outside that quantile band of the field's own distribution. A
+0/99 setting drops the brightest object in every field WHATEVER its intensity
+-- with two objects in a field it drops one of them, unconditionally. The
+comment already in `live_preview.py` records that this was a live defect once
+(the preview defaulted to 1/99 where the pipeline used 0/100), which is the
+same class of surprise: a quantile always removes something.
+
+WHAT TO DO. Replace the relative scheme with ONE absolute intensity
+threshold, in the image's own intensity units. Remove the method dropdown,
+both percentile bands and the percentile value, per the list below.
+
+  * THE UNIT QUESTION IS NOT SETTLED AND MUST BE ASKED BEFORE THE CODE IS
+    WRITTEN, because it decides whether the setting is portable between
+    plates. Raw camera counts are absolute but depend on exposure; a
+    normalised 0-1 intensity is comparable across acquisitions but is not
+    what a user reads off a raw TIFF. See MAINTAINER QUESTION below.
+  * PER OBJECT TYPE, like everything else here: `cell_`, `nucleus_`,
+    `pathogen_`, `organelle_` all carry their own copy. There are four of
+    every setting named here, not one.
+  * IT MUST BE ABLE TO REFUSE. An absolute threshold set above everything in
+    the field merges nothing and one set below everything merges all of it,
+    and both are silent today. Say which happened.
+
+--------------------------------------------------------------------------------
+PART TWO: THE FIVE SETTINGS TO REMOVE
+--------------------------------------------------------------------------------
+
+Each has four copies (cell/nucleus/pathogen/organelle) in
+`spacr/settings.py`, an entry in the type map around line 4062, a row in
+`COMPARTMENT_FIELDS` in `spacr/qt/widgets/live_preview.py`, and a label and
+tooltip in all ten runtime catalogs.
+
+    GUI label              key suffix                        where it is read
+    ---------------------  --------------------------------  ----------------
+    Max intensity pct      _max_intensity_percentile         _filter_objects
+    Min intensity pct      _min_intensity_percentile         _filter_objects
+    Intensity percentile   _intensity_percentile             _merge_by_intensity
+    Intensity threshold    _intensity_threshold_method       _merge_by_intensity
+    Area multiplier        _area_multiplier                  _split_by_watershed
+
+`_split_by_watershed` computes `threshold = max(area_multiplier *
+median_area, min_object_area)`. REMOVING `area_multiplier` REMOVES THE MEDIAN
+TERM, so the split threshold becomes the absolute `min_split_area` alone.
+That is a behaviour change, not only a settings change, and it is the right
+one for the same reason as Part One -- a multiple of the median means the
+threshold moves when the field changes -- but it must be stated in the
+release notes rather than discovered.
+
+DELETING A SETTING IS NOT DELETING ITS ROW. 364 established that a rename or
+removal strands every generated table keyed by setting name: the notebooks
+table, the settings_flow page, the settings_flow index and
+setting_api_targets. Four settings went missing from the API that way. Run
+the 364 checklist after this, and the docs audit must be green before it is
+called done.
+
+--------------------------------------------------------------------------------
+PART THREE: THE TWO RENAMES
+--------------------------------------------------------------------------------
+
+    "Min object area"  ->  "Minimum area to split"
+    "Min distance"     ->  "Minimum watershed distance"
+
+Both are honest corrections rather than cosmetics. `min_split_area` is NOT a
+minimum object area -- an object smaller than it is kept, it is simply never
+split -- and a user reading "Min object area" would reasonably expect small
+objects to be discarded. `min_distance` is the minimum separation between
+watershed seeds and means nothing outside that algorithm.
+
+THE KEYS ALREADY DISAGREE WITH THE LABELS, which is why the label change is
+safe on its own: `min_split_area` already says split. Whether to rename the
+KEYS as well (`min_distance` -> `min_watershed_distance`) is the maintainer's
+call and carries the full 364 cost plus a saved-settings migration -- an
+existing settings CSV names the old key. Renaming the LABEL alone costs ten
+catalog entries and nothing else. DEFAULT TO THE LABEL ONLY unless asked.
+
+--------------------------------------------------------------------------------
+PART FOUR: THE STRAY FIELD OVER THE PATH -- THE THIRD TIME
+--------------------------------------------------------------------------------
+
+Reported as "a black field which has a 3 in it" at the top left of the live
+view, drawn over the loaded-path label.
+
+THIS EXACT BUG HAS BEEN FIXED TWICE AND IS NOW BACK. Both previous fixes are
+recorded in comments in `live_preview.py` and both were fixes to ONE widget:
+
+  * the path label's own eliding, because a label whose sizeHint is the full
+    path pushes the rest of the row off the panel;
+  * `_fov_box` and `_channel_box`, which were "parented to `self` and never
+    added to a layout, and a widget in that state occupies (0, 0) -- the top
+    left, exactly where the loaded-path label sits". They were moved into a
+    deliberately invisible `_offscreen_controls` container.
+
+THE CLASS IS NOT FIXED, ONLY TWO INSTANCES OF IT. Measured 2026-09-10 on a
+headless build of `LivePreviewPanel`:
+
+    direct children of the panel: 113
+    of those, in no layout at all:  96
+    their classes: QComboBox, QDoubleSpinBox, QSpinBox, QWidget, Toggle
+
+Ninety-six widgets are one stray `show()` away from being drawn at (0, 0).
+Every one of them defaults to geometry (0, 0, 100, 30), which is the size and
+position of what the maintainer is seeing. Several are spin boxes; the one
+reading 3 has not been identified because the offending state does not
+reproduce with no image loaded.
+
+WHAT TO DO, and the first is worth more than the second:
+
+  1. A TEST THAT KILLS THE CLASS. Every QWidget parented to the panel is
+     either in a layout or inside the one container that is deliberately
+     never shown. That invariant is checkable headlessly in a few lines, it
+     fails today on 96 widgets, and it is the only thing that stops a fourth
+     report. Expect to move widgets into `_offscreen_controls` (or delete
+     them) until it passes -- that IS the fix, and the test is how you know
+     you got all of them rather than the one that was visible.
+  2. Identify the one showing 3 by reproducing the maintainer's state: an
+     image loaded in Generate Masks, which is what the headless build lacks.
+     If step 1 is done first this may already be gone, and step 1 should be
+     done first for that reason.
+
+DO NOT "FIX" IT BY HIDING IT. `setVisible(False)` is what the second fix
+already relied on, and the comment says why that was not enough: it is "one
+stray show() away from a combo box drawn over the path, which is how this was
+reported twice". Out of the panel, not merely hidden.
+
+--------------------------------------------------------------------------------
+MAINTAINER QUESTION -- ASK BEFORE WRITING PART ONE
+--------------------------------------------------------------------------------
+
+What are the units of the absolute intensity threshold?
+
+  (a) RAW IMAGE INTENSITY, the numbers in the TIFF. What a user reads off the
+      pixel inspector and types in. Not portable between acquisitions with
+      different exposure or gain.
+  (b) NORMALISED 0-1 against the field's own range. Portable, but it is a
+      relative measure again in everything but name, and re-introduces the
+      objection that prompted this item.
+  (c) BOTH, with a unit selector -- which is the method dropdown this item
+      removes, wearing a different hat.
+
+The reading this file is written against is (a), because the complaint is
+that the number cannot be stated in the units of the image. Confirm before
+the code is written; changing it afterwards changes every saved settings file
+in the field.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * The five settings are gone from `settings.py`, its type map,
+    `COMPARTMENT_FIELDS`, and all ten runtime catalogs, and the API docs
+    audit is green -- which is the 364 check, and the one that was missed
+    last time.
+  * A saved settings CSV written before this change still loads, with the
+    removed keys ignored rather than raising.
+  * The two renamed labels read correctly in all ten locales, with reviewed
+    evidence for any the machine gets wrong. "Watershed" is a term of art and
+    machine translation mangles those -- 388 has just been through this.
+  * An absolute threshold set above every pixel in the field merges nothing
+    AND SAYS SO.
+  * The layout invariant test passes: no widget parented to
+    `LivePreviewPanel` outside a layout except in the one container that is
+    never shown. It fails on 96 widgets today, so a passing run is evidence.
