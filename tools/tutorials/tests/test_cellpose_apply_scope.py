@@ -5,7 +5,7 @@ import sys
 import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from compose_cellpose_apply_capture import require_scope
+from compose_cellpose_apply_capture import require_scope,require_closed_dialogs
 
 
 def observations():
@@ -38,3 +38,13 @@ def test_filtered_result_must_restore_after_a_real_positive_case():
     for key in ('raw_unchanged','restored'):
         broken=deepcopy(proof);broken['filter'][key]=False
         with pytest.raises(ValueError,match='Filtering must'):require_scope(broken,reference)
+
+
+def test_narrated_closed_dialog_is_closed_in_both_captured_results():
+    frames={name:dict(dialogs=[]) for name in (
+        '22b_actual_zoomed_filtered_preview','23b_actual_zoomed_restored_preview')}
+    require_closed_dialogs(frames)
+    for name in frames:
+        broken=deepcopy(frames);broken[name]['dialogs']=[dict(title='Live settings')]
+        with pytest.raises(ValueError,match='dialog covers'):
+            require_closed_dialogs(broken)
