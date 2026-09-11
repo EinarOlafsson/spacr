@@ -2416,3 +2416,59 @@ WHAT IS SOLIDLY KNOWN, and it is all a next session should rely on:
   That is the only pair that cannot be contaminated by a later re-read, and
   it answers in one run whether the rule decided wrongly or was decided
   wrongly for.
+
+--------------------------------------------------------------------------------
+2026-09-11, LATER STILL -- IT IS A STALE PASS, NOT A WRONG ONE. THE RULE IS
+NEVER ASKED AGAIN AFTER THE CHANNEL EMPTIES
+--------------------------------------------------------------------------------
+
+The probe above was written and run, and then one more that reads the
+FAILING TEST'S OWN PANEL through `item.funcargs` rather than any aggregate.
+Together they settle it.
+
+  `keys_hidden_by_their_object`, asked 279 times in the failing run:
+
+      wrong answers: 0
+      ('None', 19 gated, 0 still shown) x50
+      ('1',    19 gated, 19 still shown) x25
+      ('2',    19 gated, 19 still shown) x8
+
+  THE RULE IS NEVER WRONG. With no channel it hides all nineteen, every
+  time. With a channel it shows all nineteen, correctly.
+
+  Every hide it orders also LANDS. Watching each hide attempt through to
+  the widget, in the failing run: 437 through a form row and 190 through
+  the parentless path, and in all 627 the widget is hidden afterwards.
+  So mechanism 1 above is dead twice over.
+
+  AND THE TEST'S OWN PANEL SAYS WHY:
+
+      the test's panel id=... nucleus_channel=True
+      shown_now=['nucleus_background', 'nucleus_intensity_merge',
+                 'nucleus_min_area']
+      decisions recorded for THIS panel: 266
+      last decision for each shown row: [(...,True), (...,True), (...,True)]
+
+  THE LAST DECISION FOR ALL THREE WAS *SHOW*. Not a missed hide, not a
+  dropped hide -- a deliberate show, ordered by a pass that ran while the
+  channel HELD A VALUE, and never revisited after it emptied.
+
+SO THE DEFECT IS A STALE PASS. The object rule is correct, is applied, and
+is simply not asked again between the channel being cleared and the panel
+being read. `refresh_object_visibility` early-returns while
+`_applying_settings` is set -- deliberately, because a half-poured settings
+file would narrow a slot to the wrong morphology and then narrow it again --
+and relies on `_refresh_setting_dependencies` running at the end of the bulk
+apply to catch up. A bulk apply that ends without that call, or leaves the
+flag set, leaves exactly this: nineteen rows decided against a channel that
+no longer has a value.
+
+  WHERE TO LOOK, and it is a small target now: every path that clears an
+  object's channel, and whether `_applying_settings` is still True when it
+  does. Not the rule, not `_set_row_visible`, not the defaults, and not the
+  ordering except as the thing that changes which path runs.
+
+  WHY THE ORDERING MATTERS AT ALL: the three rows that survive are the ones
+  whose last pass happened to be a channel-set one. Under a different
+  ordering the last pass is a channel-empty one and the test passes, which
+  is why this looks like order-dependence and is really a missing refresh.
