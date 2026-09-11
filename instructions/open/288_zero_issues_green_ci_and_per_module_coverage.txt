@@ -2633,3 +2633,53 @@ classified by ONE question -- does a view outlive the QImage it reads?
   and it presents as flakiness in whichever test happens to compare rather
   than in the one that built the view.
 
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE OTHER FIVE NON-i18n FAILURES, RE-RUN: FOUR WERE CONTEXT AND
+ONE WAS A TEST ASSERTING ITS OWN PREMISE
+--------------------------------------------------------------------------------
+
+The full-suite list held thirteen. Seven belong to other lanes -- five to
+83's catalog migration (`test_api_i18n_extractor` x2,
+`test_api_i18n_frontend`, `test_documentation_i18n`,
+`test_i18n_coverage_audit`) and two to the tutorial lane
+(`test_docs_media_budget`, `test_tutorial_release_audit`). `test_provider_marks`
+is fixed above. That leaves five, all re-run here.
+
+    each one alone                          5 passed
+    their five whole FILES together         1 failed, 168 passed
+
+AND THE ONE FAILURE WAS NOT ANY OF THE FIVE. It was a sibling in the same
+file, `test_nothing_is_claimed_when_nothing_is_holding_the_process`, which
+had never appeared in the sweep's list at all.
+
+  IT ASSERTED THAT THE PROCESS WAS CLEAN INSTEAD OF MAKING IT CLEAN.
+  `qt_things_that_outlive_the_session` reads four sources -- the remembered
+  widget count, the bridge registry and its parked threads, the live job
+  runners, and child processes -- and the test stubbed ONE of them. Any Qt
+  file ahead of it in the same process leaves a live `QApplication` with a
+  real widget tree; the diagnostic names it, correctly; and the test fails
+  BECAUSE THE FUNCTION WORKED.
+
+  All four are staged now, so the silent path is built rather than hoped
+  for. It also fails if a fifth source is added and this test is not told,
+  which is the behaviour worth having. Same order after the fix: 169
+  passed.
+
+    THE PATTERN, TWICE IN ONE EVENING. The provider-mark test compared two
+    arrays it did not own; this one asserted a global property it did not
+    stage. Both passed alone, both failed in company, and both were read as
+    order-dependence -- which is a true description and a useless one,
+    because the fix is never "run them in a different order".
+
+WHAT THE OTHER FOUR MEAN. `test_launch_opens_the_requested_app`,
+`test_an_object_with_no_channel_brings_no_settings`,
+`test_the_activation_map_run_says_where_it_is_running`,
+`test_a_big_retained_widget_tree_is_named_with_its_size` and
+`test_no_file_mis_cases_the_name` all pass alone AND in their own files AND
+in the five together. They failed in a 69-chunk sweep, so each is waiting on
+a companion that is not in this set. PASSING ALONE IS NOT FIXED, and this
+note is not claiming it is -- it is recording that four of them cannot be
+reproduced from their own file, so the next step for them is the chunk, not
+the test.
+

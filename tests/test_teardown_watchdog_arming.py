@@ -29,6 +29,7 @@ from pathlib import Path
 
 import pytest
 
+import tests.conftest
 from tests.conftest import (
     REPORT_WATCHDOG_ENV,
     REPORT_WATCHDOG_S,
@@ -219,8 +220,31 @@ def test_nothing_is_claimed_when_nothing_is_holding_the_process(monkeypatch):
 
     Every run of this suite ends with daemon threads and a clean process, and
     a report that always prints teaches the reader to skip it.
+
+    ALL FOUR SOURCES ARE STAGED, AND THAT IS THE FIX RATHER THAN TIDINESS.
+    This used to stage only `multiprocessing.active_children` and take the
+    other three from whatever the process happened to be holding -- so it
+    asserted "nothing is holding the process" by ASSUMING it. Any Qt file
+    running before it in the same process leaves a live `QApplication` with
+    a real widget tree, the diagnostic correctly names it, and the test
+    fails having found the function working.
+
+      Measured: alone, and with its own file, 11 passed. Behind
+      `tests/qt/test_cov_qt_app.py` and three more Qt files it failed on
+      the retained tree. The report was right and the test was wrong.
+
+    A test for the silent path has to BUILD silence. Everything the function
+    reads is stubbed empty here, which also means it now fails if a fifth
+    source is added and this test is not told about it -- which is the
+    behaviour worth having.
     """
+    from spacr.qt import bridge, job_runner
+
     monkeypatch.setattr("multiprocessing.active_children", lambda: [])
+    monkeypatch.setattr(tests.conftest, "_LAST_LIVE_WIDGET_COUNT", (0, 0))
+    monkeypatch.setattr(bridge, "_PARKED_THREADS", [])
+    monkeypatch.setattr(bridge.registry(), "active", lambda: [])
+    monkeypatch.setattr(job_runner, "_LIVE_RUNNERS", [])
     said = qt_things_that_outlive_the_session()
 
     assert said == [], said
