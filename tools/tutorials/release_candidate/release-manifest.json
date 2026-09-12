@@ -14,7 +14,7 @@
   "narration_tracks": 3550,
   "web_bytes": 349959704,
   "ceiling_bytes": 734003200,
-  "media_host_bytes": 6976941444,
+  "media_host_bytes": 6976935580,
   "files": [
     {
       "path": "media_host/01_pypi_github/audio/en/af_aoede.json",
@@ -1553,13 +1553,13 @@
     },
     {
       "path": "media_host/04_platform_installers/audio/en/af_heart.json",
-      "sha256": "37925614c03042fbe616423d3b154ac619f1fc657054744af81a0280fc4eb56e",
-      "bytes": 53027
+      "sha256": "fc93fac11b70227a78a032939e7a6d7e28405abb772d02c4fea428084bc63db5",
+      "bytes": 52909
     },
     {
       "path": "media_host/04_platform_installers/audio/en/af_heart.m4a",
-      "sha256": "2c648f36f3faeff3e97d5c99e81680c633ba7e35a953f05bb6c3c724dd4aa5b3",
-      "bytes": 1343285
+      "sha256": "c682ac3262a2e473083209949f17b66335cc6a8d770b8646938e6b0bfc35dfa2",
+      "bytes": 1337539
     },
     {
       "path": "media_host/04_platform_installers/audio/en/af_jessica.json",
@@ -36083,7 +36083,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "dded720be36d1d20e587672baab9db25b15f558d8ec16939647d2abd20515bae",
+      "sha256": "31ba27663a21e764f262e871559aa8cc147500a723b5186379d9e5aaec957d31",
       "bytes": 14673
     },
     {
@@ -36826,7 +36826,7 @@
     {
       "lesson": "04_platform_installers",
       "rendition_sha256": "99c6997475b9070a4ed2b55981ada47ed22608abf10b722168f09f49ae45cbe9",
-      "browser_report_sha256": "28b0a84aa2ac6afbaf4b1e5a5dd9078409ec0a5e777786e559cf84ff1ee25165"
+      "browser_report_sha256": "f038f6b3fb384033137414b4a3331998429b919e00357c8b62de4d0855eefab6"
     },
     {
       "lesson": "05_home",

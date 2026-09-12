@@ -22,6 +22,27 @@ from validate_candidate import validate
 from verify_staged_lesson import Handler
 
 
+def check_sentence_cues(page):
+    """Observe native captions at each actual narrated sentence's midpoint."""
+    sentences = page.evaluate('audioTimings.scenes.flatMap(scene => scene.sentences)')
+    assert sentences
+    cases = []
+    for sentence in sentences:
+        requested = (sentence['speech_start'] + sentence['speech_end']) / 2
+        page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking')
+        page.evaluate('(seconds) => seekTo(seconds)', requested)
+        page.wait_for_timeout(300)
+        page.evaluate('elements.video.pause()')
+        page.wait_for_timeout(150)
+        actual = page.evaluate('''() => ({audio: elements.audio.currentTime,
+            video: elements.video.currentTime,
+            cues: [...(elements.captionTrack.track.activeCues || [])].map(c => c.text)})''')
+        assert abs(actual['audio'] - requested) < 1, (requested, actual)
+        assert sentence['text'] in actual['cues'], (sentence, actual)
+        cases.append({'requested_audio_time': requested, 'text': sentence['text'], **actual})
+    return cases
+
+
 def verify(root, *, placeholders_only=False):
     root = Path(root).resolve()
     validate(root, include_hosted_media=True)
@@ -148,12 +169,14 @@ def verify(root, *, placeholders_only=False):
                         page.evaluate('renderCaptions()')
                         page.wait_for_function('elements.captionTrack.readyState === 2 && !captionTrackLoading')
                         assert page.locator('#caption-track').count() == 1
+                    sentence_cues = check_sentence_cues(page) if identity == '04_platform_installers' else []
                     # The positive playable counterpart is followed by a real
                     # transition back to unavailable, cancelling active audio.
                     page.evaluate("selectLesson('76_ops')")
                     assert page.evaluate('elements.audio.paused && !elements.audio.getAttribute("src")')
                     playback.append({'lesson': identity, 'audio_sha256': loaded, 'clocks': clocks,
-                                     'chapter_text_matches_audio': True, 'native_caption_reloads': 2, 'passed': True})
+                                     'chapter_text_matches_audio': True, 'native_caption_reloads': 2,
+                                     'sentence_cue_checks': sentence_cues, 'passed': True})
                     print(identity, 'candidate playback PASS', flush=True)
                     assert not errors, errors
                 ctx.close()

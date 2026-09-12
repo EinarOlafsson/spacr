@@ -1,4 +1,4 @@
-# Tutorial release candidate — 11 September 2026
+# Tutorial release candidate — updated 12 September 2026
 
 This is the **unpublished, maintainer-approved candidate**, not the current
 live tutorial site. `checkpoint.json` identifies the complete on-disk package;
@@ -35,7 +35,7 @@ Use the existing isolated tutorial environment, not a new application install:
 ```bash
 /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/.venv/bin/python \
   tools/tutorials/verify_release_candidate.py \
-  /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/release-candidate-vnovojmt
+  /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/release-candidate-6ttmkjq2
 ```
 
 For an interactive local preview, add `--serve`. It binds only to localhost,
@@ -49,7 +49,9 @@ caption-track reload fix. Its exact files passed 71 English playback cases
 transcript and two native caption reloads each), plus 84 Coming soon cases
 across all fourteen languages. Both deliberate placeholder-player mutations
 failed, with the unchanged player passing before and after. These are browser
-checks, not a new native-GUI or listening review.
+checks, not a new native-GUI or listening review. The refreshed Platform
+Installers Heart track additionally passed native-caption checks at all
+36 sentence midpoints, including both CUDA mentions.
 
 `source-verification-summary.json` records the frozen preservation baseline:
 catalogs extracted from Git commit `d2d4c189b`, before the public Coming soon
@@ -60,8 +62,11 @@ test the wrong baseline. The earlier private candidate is preserved unchanged.
 
 The separately published Heart pronunciation repair belongs to the older live
 Platform Installers recording, not this refreshed recording's different script.
-It must not be overwritten by a bulk upload to the live media root. This
-candidate still needs its own pronunciation/listening acceptance.
+This candidate now has its own first-CUDA correction, produced through the
+normal renderer and checked in `audio_repairs/platform-heart-refreshed-20260912`.
+All 49 other installer voice pairs and the shared movie remain byte-identical.
+Do not overwrite the older live repair with this different narration. Technical
+phoneme and playback checks are not human pronunciation/listening acceptance.
 
 ## Release hold
 

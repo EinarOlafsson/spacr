@@ -1,6 +1,6 @@
 {
-  "private_candidate": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/release-candidate-vnovojmt",
-  "manifest_sha256": "94ff75defb05911dfded78f685a0ef86fff66d8c0aec827ca053ee7dbe9a448b",
+  "private_candidate": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/release-candidate-6ttmkjq2",
+  "manifest_sha256": "0a92bf409899d17f4345c1e5e9ef79b5c4ab94627772e2ca00bb585794fb22ad",
   "files": [
     {
       "path": "web/TUTORIAL_MEDIA_NOTICE.md",
@@ -214,7 +214,7 @@
     },
     {
       "path": "web/module_navigation.js",
-      "sha256": "dded720be36d1d20e587672baab9db25b15f558d8ec16939647d2abd20515bae",
+      "sha256": "31ba27663a21e764f262e871559aa8cc147500a723b5186379d9e5aaec957d31",
       "bytes": 14673
     },
     {
@@ -939,13 +939,13 @@
     },
     {
       "path": "release-manifest.json",
-      "sha256": "94ff75defb05911dfded78f685a0ef86fff66d8c0aec827ca053ee7dbe9a448b",
+      "sha256": "0a92bf409899d17f4345c1e5e9ef79b5c4ab94627772e2ca00bb585794fb22ad",
       "bytes": 1384224
     },
     {
       "path": "candidate-browser-checks.json",
-      "sha256": "8763f021e2ac01d0ad757e2ee9d3ca2b5e312296e4ead4830859862d681beb8b",
-      "bytes": 41425
+      "sha256": "5e9cd259663429cd144c2577cf784ca3207282a5e5b9b9bcf037f7b5a0ac22b3",
+      "bytes": 57002
     },
     {
       "path": "source-verification-summary.json",

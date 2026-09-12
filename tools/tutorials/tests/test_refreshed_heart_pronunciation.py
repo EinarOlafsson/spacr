@@ -1,5 +1,6 @@
 """Only the first refreshed Heart CUDA sentence gets the listener's repair."""
 from copy import deepcopy
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -87,3 +88,27 @@ def test_release_verifier_does_not_reuse_a_different_voices_cached_plan(tmp_path
         assert by_voice[voice].scene_plans == plans(lesson(), 'en', voice)
     first = lambda spec: next(s['speech_text'] for p in spec.scene_plans for s in p['sentences'] if s['text'] == TARGET)
     assert first(by_voice['af_heart']) != first(by_voice['am_puck'])
+
+
+def test_candidate_uses_the_verified_refreshed_audio_and_all_native_sentence_cues():
+    repair = ROOT / 'audio_repairs/platform-heart-refreshed-20260912'
+    metadata = json.loads((repair / 'af_heart.json').read_text())
+    audio_hash = hashlib.sha256((repair / 'af_heart.m4a').read_bytes()).hexdigest()
+    assert metadata['media_sha256'] == audio_hash
+    manifest = json.loads((ROOT / 'release_candidate/release-manifest.json').read_text())
+    for suffix in ('m4a', 'json'):
+        path = f'media_host/04_platform_installers/audio/en/af_heart.{suffix}'
+        record = next(item for item in manifest['files'] if item['path'] == path)
+        assert record['sha256'] == hashlib.sha256((repair / f'af_heart.{suffix}').read_bytes()).hexdigest()
+    report = json.loads((ROOT / 'release_candidate/candidate-browser-checks.json').read_text())
+    case = next(item for item in report['ready_playback_cases'] if item['lesson'] == '04_platform_installers')
+    assert case['audio_sha256'] == audio_hash
+    sentences = [s for scene in metadata['scenes'] for s in scene['sentences']]
+    checks = case['sentence_cue_checks']
+    assert sentences and len(checks) == len(sentences)
+    for sentence, observed in zip(sentences, checks):
+        midpoint = (sentence['speech_start'] + sentence['speech_end']) / 2
+        assert observed['requested_audio_time'] == pytest.approx(midpoint)
+        assert abs(observed['audio'] - midpoint) < 1
+        assert observed['text'] == sentence['text']
+        assert sentence['text'] in observed['cues']

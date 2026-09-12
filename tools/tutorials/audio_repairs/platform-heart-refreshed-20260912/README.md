@@ -21,6 +21,9 @@ rerun successfully. `../../evidence/2026-09-12_platform_heart_refresh.json`
 records the 175 protected artifacts, changed speech plan and complete final
 reconciliation; the companion rule-mutation record documents observed failures
 when the correction or voice-specific cache key is removed.
+The final candidate also passed native-caption checks at all 36 sentence
+midpoints, including both CUDA mentions. Its report and media manifest are
+cross-checked against this exact audio pair by the regression test.
 
 The recorded synthesis phonemes confirm that the override was used. These
 technical checks are not a claim of human listening or native-speaker approval.
