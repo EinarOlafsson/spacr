@@ -56,15 +56,40 @@ def test_a_worker_thread_collection_runs_destructors_on_that_worker():
     harmless and no policy would be needed.
     """
     destroyed_on = []
-    for _ in range(20):
-        _RecordsItsDestroyingThread(destroyed_on)
 
-    def worker():
+    # AUTOMATIC COLLECTION IS WHAT MAKES THIS FLAKY, and it failed on CI
+    # 2026-09-12 for exactly this reason. These objects are reachable only
+    # through their own cycle, so ANY collection frees them -- including a
+    # gen-0 sweep the allocator fires on THIS thread somewhere between the
+    # constructor loop and the worker starting. When that happens the
+    # destructors run here, the worker finds nothing left to free, and the
+    # assertion below reports that the premise of gc_policy has been lost
+    # when nothing of the sort has happened. It passes alone and fails
+    # under load, which is the signature.
+    #
+    # Turning automatic collection off makes the worker's explicit
+    # `gc.collect()` the only thing that CAN free them, which is the
+    # condition this test means to set up rather than hope for.
+    was_enabled = gc.isenabled()
+    gc.disable()
+    try:
         gc.collect()
+        for _ in range(20):
+            _RecordsItsDestroyingThread(destroyed_on)
+        assert not destroyed_on, (
+            "something freed these before the worker ran, so this run never "
+            "measured which thread the collector destroys on -- the result "
+            "below would be about nothing")
 
-    thread = threading.Thread(target=worker, name="pretend-preview-worker")
-    thread.start()
-    thread.join()
+        def worker():
+            gc.collect()
+
+        thread = threading.Thread(target=worker, name="pretend-preview-worker")
+        thread.start()
+        thread.join()
+    finally:
+        if was_enabled:
+            gc.enable()
 
     assert "pretend-preview-worker" in destroyed_on, (
         "the collector ran the destructor somewhere other than the collecting "
