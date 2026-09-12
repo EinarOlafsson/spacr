@@ -245,3 +245,89 @@ whole often translates as two: `translatable_blocks` splits on paragraphs, so
 breaking one paragraph into two gives two shorter blocks that each succeed.
 The Embeddings screen's opening paragraph was fixed that way after every
 sentence in it had been shown to translate alone.
+
+
+--------------------------------------------------------------------------------
+2026-09-11: INSTRUCTION LABELS EXPLAIN FOUR BLOCKS, NOT THE CLASS
+--------------------------------------------------------------------------------
+
+The four blocks in the final API audit all carried an instruction label, and
+that is a real, verified, four-of-four signal:
+
+    ops_objects, ops_sample, ops_store     B1-B5, C4, Phase C, Phase D, 372:
+    qt.screens.embeddings#1                "386 STEP 6, AND ITS OWN INSTRUCTION..."
+    scorecard.scorecard_figure#1           '370 asks for the scorecard "in graph form"'
+
+IT WOULD BE A MISTAKE TO BUILD THE CHECK ON THAT ALONE. Those four are what
+survived to the END of a long sequence. Earlier in the same evening the same
+gates failed on blocks with no label anywhere in them, and they were fixed
+three different ways:
+
+  * `--repair-api-blocks` cleared roughly 37 blocks per language in `ko` and
+    `is` without a single source edit. Whatever was wrong with those, it was
+    not an instruction label -- the ENGLISH NEVER CHANGED.
+  * Three runtime rows failed on a token interaction. Measured: "channel" and
+    "stain" in the same row return identity in zh_CN; either word alone is
+    fine; "dye" for "stain" is fine; "spaCR reads the table" is fine while
+    "The screen makes spaCR a route to that embedding" is not. No label, no
+    length rule, no style rule a person could follow.
+  * `EmbeddingsScreen.set_crops#1` leaked the word "builder" into German --
+    from the TOOL'S OWN expansion of `:mod:`spacr.crops`` to "the crop
+    builder", not from anything the author wrote.
+
+SO THERE ARE AT LEAST THREE INDEPENDENT CAUSES, and only one of them is
+visible in the source at all:
+
+    1. instruction labels and other untranslatable tokens mid-sentence
+       -- detectable statically, cheap, and worth a test on its own
+    2. model brittleness on particular token interactions
+       -- NOT detectable statically; only running the model finds it
+    3. the expansion layer injecting a word the model then keeps
+       -- detectable only after `_api_translation_source` has run
+
+A check that only looks for instruction labels would have passed every one of
+the runtime failures and the German one. That is the "signal that sounds
+right and measures nothing" this file already warns about, arrived at from
+the other direction: a signal that is real, and is a minority of the cases.
+
+WHAT THAT MEANS FOR THE FIX. Point 1 above stays a static test and is easy.
+Points 2 and 3 need the model, but not a full build: translating ONE changed
+block in ONE language and checking for residual English is seconds, not an
+hour, and it catches all three causes without needing to know which one
+applies.
+
+
+--------------------------------------------------------------------------------
+A CHECKER THAT SPLITS ITS INPUT DIFFERENTLY FROM THE TOOL IT CHECKS IS
+MEASURING ITS OWN SPLITTER
+--------------------------------------------------------------------------------
+
+Both sessions hit this within hours of each other, on different files, in
+different languages, and neither recognised it as the same bug until they
+compared notes:
+
+  * A checker for stale reviewed API records split docstrings on blank lines
+    where the tool uses `translatable_blocks()`. It reported **1,569 stale
+    records across nine languages**. The true number was **one**. The
+    disagreement with the build -- which had raised on exactly one record --
+    is what caught it; nothing in the checker's own output looked wrong.
+  * A reviewer reading a failing block treated the FIRST LINE of a docstring
+    as block #1, where `translatable_blocks()` returns something else. It
+    concluded "no signal in this text" about a paragraph it had not looked
+    at, and the paragraph it had not looked at carried the signal.
+
+THE GENERAL FORM: any analysis of "which block failed" must use the same
+block function as the thing that reported the failure. Splitting on `\n\n`,
+on sentences, or on lines is a DIFFERENT question wearing the same name, and
+the answer looks plausible either way -- which is why the error survives.
+
+IF THE CHECK IN THIS FILE IS BUILT, it calls `translatable_blocks()` and
+nothing else. Same for anything that reports a block index.
+
+AND THE CHECK MUST NAME ITS OWN BLIND SPOT IN THE ASSERTION TEXT, not in a
+docstring. Only cause 1 above is visible in the English; causes 2 and 3 are
+model-side and expansion-side and NO source-only check can predict them. A
+green local check that reads as "the build will be green" is worse than no
+check, because it is the one somebody trusts on the day it is wrong. The
+sentence saying so is the first thing a future reader will want to delete,
+which is exactly why it belongs where deleting it breaks the test.

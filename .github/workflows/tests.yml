@@ -122,6 +122,14 @@ jobs:
           # spacr/measure.py imports mahotas at module scope, so without
           # `zernike` this whole suite would fail at collection, not degrade.
           python -m pip install -e ".[qt,dev,zernike,attribution,btrack,czi]"
+          # REQUIRED BY `--per-test-timeout` BELOW. The `dev` extra carries
+          # pytest, pytest-qt and pytest-xdist and NOT pytest-timeout, so
+          # passing `--timeout` without this makes pytest exit on
+          # "unrecognized arguments" and the whole job fails before it has
+          # run a test. `_pytest-suite.yml` installs the same pin for the
+          # same reason; this job builds its own environment and has to
+          # repeat it.
+          python -m pip install "pytest-timeout>=2.3,<3"
 
       - name: Show the pins that gate the compatibility matrix
         # One line per dependency whose wheel availability decides which
@@ -302,6 +310,14 @@ jobs:
           python -m pip install --index-url https://download.pytorch.org/whl/cpu \
             "torch>=2.0" torchvision
           python -m pip install -e ".[qt,dev,zernike,attribution,btrack,czi]"
+          # REQUIRED BY `--per-test-timeout` BELOW. The `dev` extra carries
+          # pytest, pytest-qt and pytest-xdist and NOT pytest-timeout, so
+          # passing `--timeout` without this makes pytest exit on
+          # "unrecognized arguments" and the whole job fails before it has
+          # run a test. `_pytest-suite.yml` installs the same pin for the
+          # same reason; this job builds its own environment and has to
+          # repeat it.
+          python -m pip install "pytest-timeout>=2.3,<3"
           python -m pip install \
             "coverage>=7.10,<8" \
             "pytest-cov>=7,<8"
@@ -500,6 +516,12 @@ jobs:
           python -m pip install \
             -c .github/constraints/minimum-py39.txt \
             -e ".[qt,dev,zernike,attribution,btrack,czi]"
+          # See the note in `fast`: `--per-test-timeout` needs this and the
+          # `dev` extra does not provide it. Constrained like everything else
+          # here, so the minimum profile stays the thing this job proves.
+          python -m pip install \
+            -c .github/constraints/minimum-py39.txt \
+            "pytest-timeout>=2.3,<3"
           python -m pip check
 
       - name: Verify installed minimum profile

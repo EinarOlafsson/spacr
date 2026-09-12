@@ -59,10 +59,27 @@ CACHED_TABLES = ("ops_reads", "ops_barcodes")
 OBJECTS_TABLE = "ops_objects"
 
 
+def _resolved(db_path) -> str:
+    """``db_path`` with ``~`` and ``$VARS`` expanded, as the funnel expands it.
+
+    ONE RESOLUTION PER CALL, and it has to be this one. `write_table` now
+    writes through :func:`spacr.tabular.write_database`, which resolves the
+    path itself -- so a caller passing ``~/run/measurements.db`` had the
+    database written to the expanded path while :func:`row_count` opened the
+    literal one and :func:`_sidecar_path` put the parquet cache beside a
+    directory named ``~``. The row-count check then compared a table that
+    existed against one that did not, and the cache it wrote was never read.
+    Nothing raised; the run simply lost its cache and its verification.
+    """
+    from .tabular import resolve_path
+
+    return resolve_path(db_path)
+
+
 def _sidecar_path(db_path: str, table: str) -> str:
     """Where ``table``'s parquet cache sits, beside the database."""
-    directory = os.path.dirname(os.path.abspath(db_path))
-    stem = os.path.splitext(os.path.basename(db_path))[0]
+    directory = os.path.dirname(os.path.abspath(_resolved(db_path)))
+    stem = os.path.splitext(os.path.basename(_resolved(db_path)))[0]
     return os.path.join(directory, f"{stem}.{table}.parquet")
 
 
@@ -82,6 +99,7 @@ def write_table(db_path: str, table: str, frame, *,
     :raises StoreError: on an unknown table, or when the sidecar it just
         wrote does not have the same number of rows as the database.
     """
+    db_path = _resolved(db_path)
     if table not in OPS_TABLES:
         raise StoreError(
             f"{table!r} is not an OPS table; the storage contract names "
@@ -167,6 +185,8 @@ def read_table(db_path: str, table: str, *, prefer_cache: bool = True):
     """
     import pandas as pd
 
+    db_path = _resolved(db_path)
+
     if prefer_cache and table in CACHED_TABLES:
         path = _sidecar_path(db_path, table)
         if os.path.exists(path):
@@ -214,6 +234,7 @@ def row_count(db_path: str, table: str) -> Optional[int]:
     :param db_path: the run's sqlite database.
     :param table: the table to count.
     """
+    db_path = _resolved(db_path)
     if not os.path.exists(db_path):
         return None
     try:
@@ -272,16 +293,19 @@ def objects_ready(db_path: str, *, minimum: int = 1) -> Readiness:
     :param db_path: the run's sqlite database. Its ABSENCE is one of the
         three answers, so this is not required to exist.
     """
+    db_path = _resolved(db_path)
     if not os.path.exists(str(db_path)):
         return Readiness(False, None,
-                         f"there is no database at {db_path}. Phase B writes "
-                         f"it; run the object pass before reading channels.")
+                         f"there is no database at {db_path}. The object "
+                         f"pass writes it; run that before reading "
+                         f"channels.")
     rows = row_count(db_path, OBJECTS_TABLE)
     if rows is None:
         return Readiness(False, None,
-                         f"{db_path} has no {OBJECTS_TABLE} table. the numbering pass writes "
-                         f"the objects and the storage step writes them; neither has "
-                         f"run for this well.")
+                         f"{db_path} has no {OBJECTS_TABLE} table. The "
+                         f"numbering pass assigns the object ids and the "
+                         f"storage step writes them; neither has run for "
+                         f"this well.")
     if rows < minimum:
         return Readiness(False, rows,
                          f"{OBJECTS_TABLE} has {rows} row(s), below the {minimum} "

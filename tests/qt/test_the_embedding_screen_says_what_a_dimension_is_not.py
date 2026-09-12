@@ -216,3 +216,55 @@ def test_register_is_not_called_at_import():
     assert "register_app" in body
     # not invoked anywhere at module level
     assert "\nregister()" not in source
+
+
+def test_a_second_embed_does_not_mix_rows_in_a_sorted_preview(qtbot):
+    """Re-filling a SORTED table at the same shape moved rows under the fill.
+
+    Found by an adversarial review of this screen, reproduced before it was
+    fixed. The table carries `install_sorting`, and `_SortState` suspends the
+    sort during a fill by listening for `rowsInserted`/`rowsRemoved`. A second
+    Embed always repeats the shape -- ``rows`` is ``min(len(frame), 50)`` over
+    the same crops and columns are capped at ``PREVIEW_DIMENSIONS`` -- so
+    `setRowCount`/`setColumnCount` were no-ops, neither signal fired, and the
+    indicator stayed set.
+
+    With an indicator set, each `setItem` into the sorted column does a sorted
+    re-insertion and MOVES the row it was handed. The loop then writes that
+    row's remaining columns at an index holding a different object, so one
+    line showed dimensions from two objects and one object's value survived
+    from the PREVIOUS run. Nothing on screen said so.
+
+    The fix is `setRowCount(0)` first, which makes the refill an insert and
+    arms the guard. This test fills, sorts, and refills at an identical shape
+    with values whose row is recoverable from any cell -- so a mixed row is
+    arithmetic, not eyeballing.
+    """
+    import pandas as pd
+    from PySide6.QtCore import Qt
+    from spacr.qt.screens.embeddings import EmbeddingsScreen
+
+    screen = EmbeddingsScreen()
+    qtbot.addWidget(screen)
+
+    def frame_for(run):
+        # Every cell in row r is r * 100 + run * 10 + column, so the row a
+        # value belongs to is value // 100 whatever column it lands in.
+        return pd.DataFrame(
+            {f"emb_{c}": [r * 100 + run * 10 + c for r in range(6)]
+             for c in range(3)})
+
+    screen._fill_preview(frame_for(0))
+    screen._table.sortByColumn(1, Qt.DescendingOrder)
+    screen._fill_preview(frame_for(1))
+
+    mixed = []
+    for row in range(screen._table.rowCount()):
+        owners = {int(float(screen._table.item(row, col).text())) // 100
+                  for col in range(screen._table.columnCount())}
+        if len(owners) != 1:
+            mixed.append((row, sorted(owners)))
+    assert not mixed, (
+        f"{len(mixed)} row(s) carry values from more than one object after a "
+        f"second fill of a sorted table: {mixed[:3]}. The table must be "
+        "cleared before it is refilled; see _fill_preview.")

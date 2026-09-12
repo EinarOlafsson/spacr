@@ -1079,7 +1079,7 @@ CHART_METRICS: Tuple[str, ...] = ("f1", "precision", "recall",
 
 
 def scorecard_figure(metrics: Mapping[str, object], path, *,
-                     title: str = "", dpi: int = 150):
+                     title: str = "", dpi: Optional[int] = None):
     """Draw finetuned against stock as paired bars, and write it to ``path``.
 
     The scorecard in graph form, for Hugging Face and for the API page,
@@ -1134,6 +1134,13 @@ def scorecard_figure(metrics: Mapping[str, object], path, *,
     # afterwards leaves the spines, ticks and labels at whatever the
     # caller's globals happened to be. A chart published beside a model
     # is the last place to ship a figure in a second visual system.
+    #
+    # `dpi` DEFAULTS TO None, NOT 150, and that is load-bearing rather than
+    # tidy. `save_figure` reads the user's Resolution preference only when
+    # it is handed None; passing a number -- even the old default -- wins
+    # over the preference and the setting silently never reaches this
+    # figure. An explicit dpi from a caller still overrides, which is the
+    # behaviour a caller asking for one expects.
     from .figures.style import figure_style
 
     with figure_style():
@@ -1186,8 +1193,14 @@ def scorecard_figure(metrics: Mapping[str, object], path, *,
         # other kept figure. A bare `savefig` here would hard-code PNG at
         # whatever dpi this function was called with and ignore both.
         #
-        # Imported inside the call: `spacr.plot` pulls in the whole plotting
-        # stack, and this module is importable without it.
+        # THE COST, SAID PLAINLY: `spacr.plot` imports torch, cv2, seaborn
+        # and scipy AT MODULE SCOPE, so DRAWING a scorecard now pulls the
+        # whole plotting stack. Reading one still does not -- the import is
+        # inside this function, which is what
+        # `test_importing_the_module_still_needs_no_plotting_stack` pins --
+        # but a caller who only wanted a picture pays for more than
+        # matplotlib. That is the price of one writer, and the alternative
+        # was a figure that ignores the user's format and resolution.
         from .plot import save_figure
 
         return save_figure(figure, path, dpi=dpi, close=True)

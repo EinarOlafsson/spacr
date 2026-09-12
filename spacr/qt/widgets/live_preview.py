@@ -4497,17 +4497,50 @@ class LiveSettingsDialog(QDialog):
         self._install_api_tooltips()
 
     def closeEvent(self, event):
-        """Re-hide the state widgets so the compact layout stays clean."""
-        stow = getattr(self._panel, "_offscreen_controls", None)
-        for w in self._managed_widgets():
+        """Give back every panel control this dialog borrowed, not just the
+        declared ones.
+
+        Qt destroys a dialog's children with it, so anything of the panel's
+        still parented under this dialog when it goes would go with it. The
+        controls are the PANEL's and outlive the dialog by design -- their
+        values are what the user tuned.
+
+        `_managed_widgets()` is the declared list and it was INCOMPLETE:
+        `_pathogen_channel`, `_organelle_channel` and `_model_zoo_btn` are
+        laid out here too and were not in it, so after one open and close
+        they sat parented to a group box belonging to a closed dialog.
+        Nothing failed -- they survived, because the panel still held Python
+        references -- which is exactly why it went unnoticed.
+
+        So the sweep is by IDENTITY rather than by list: any widget still
+        under this dialog that the panel holds an attribute for goes back.
+        Blunt on purpose, like `LivePreviewPanel._stow_free_widgets`, so a
+        control added to a row later is covered without anyone remembering
+        to add it here as well.
+
+        They go to `_offscreen_controls` and not to the panel: parented to
+        the panel with no layout, each sits at (0, 0) over the loaded-path
+        label, held off screen by nothing but the `hide()`.
+        """
+        panel = self._panel
+        stow = getattr(panel, "_offscreen_controls", None) or panel
+        owned = {id(value) for value in vars(panel).values()
+                 if isinstance(value, QWidget)}
+        for group in getattr(panel, "_compartment_widgets", {}).values():
+            owned.update(id(w) for w in group.values())
+        owned.update(id(w) for w in
+                     getattr(panel, "_common_widgets", {}).values())
+
+        borrowed = list(self._managed_widgets())
+        borrowed += [w for w in self.findChildren(QWidget)
+                     if id(w) in owned]
+        seen = set()
+        for w in borrowed:
+            if id(w) in seen:
+                continue
+            seen.add(id(w))
             w.hide()
-            # Re-parent so the widget survives dialog deletion -- Qt would
-            # otherwise destroy its children -- but into the container that
-            # is never shown rather than onto the panel itself. Parented to
-            # the panel with no layout, each of these sits at (0, 0) over the
-            # loaded-path label, held off screen by nothing but the `hide()`
-            # above. See `LivePreviewPanel._stow_free_widgets`.
-            w.setParent(stow if stow is not None else self._panel)
+            w.setParent(stow)
         super().closeEvent(event)
 
 

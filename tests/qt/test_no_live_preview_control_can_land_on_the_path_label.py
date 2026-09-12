@@ -177,3 +177,44 @@ def test_closing_the_settings_dialog_stows_rather_than_strands(panel, qtbot):
         "layout, at the corner the path label occupies")
     container = panel._offscreen_controls
     assert all(w.parent() is container for w in borrowed)
+
+
+def test_the_dialog_gives_back_everything_it_borrowed(panel, qtbot):
+    """Not just the widgets `_managed_widgets()` names.
+
+    Qt destroys a dialog's children with it, so a panel control still
+    parented under the dialog when it goes would go too. `_managed_widgets()`
+    is the DECLARED list and it was incomplete: `_pathogen_channel`,
+    `_organelle_channel` and `_model_zoo_btn` are laid out in the dialog and
+    were not in it, so one open-and-close left them parented to a group box
+    belonging to a closed dialog.
+
+    NOTHING FAILED WHEN IT HAPPENED, which is why it survived review by eye:
+    the panel still held Python references, so the widgets stayed alive and
+    the next open re-parented them again. The damage is only visible if the
+    dialog is actually destroyed first.
+
+    The sweep is by identity now, so this test asks the question that matters
+    -- is every control the panel owns back under the panel -- rather than
+    re-listing the names, which is the thing that went stale.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt.widgets.live_preview import LiveSettingsDialog
+
+    owned = {id(v) for v in vars(panel).values() if isinstance(v, QWidget)}
+    dialog = LiveSettingsDialog(panel)
+    qtbot.addWidget(dialog)
+    borrowed = [w for w in dialog.findChildren(QWidget) if id(w) in owned]
+    assert len(borrowed) >= 12, (
+        f"the dialog borrowed only {len(borrowed)} panel controls; this test "
+        "is not exercising the case it was written for")
+    dialog.close()
+
+    stranded = [w for w in borrowed
+                if w.parent() is not panel._offscreen_controls]
+    names = {id(v): k for k, v in vars(panel).items()}
+    assert not stranded, (
+        "these panel controls were left under the closed dialog and would be "
+        "destroyed with it: "
+        + ", ".join(names.get(id(w), type(w).__name__) for w in stranded))

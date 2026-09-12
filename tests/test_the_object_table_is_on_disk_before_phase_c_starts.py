@@ -202,3 +202,44 @@ def test_the_object_ids_survive_the_round_trip(tmp_path):
 
     assert list(back["object_id"]) == list(original["object_id"])
     assert back["centroid_x"].tolist() == original["centroid_x"].tolist()
+
+
+def test_a_path_with_a_tilde_means_one_file_to_every_entry_point(tmp_path,
+                                                                 monkeypatch):
+    """`~/run.db` must name the same file to the writer, the counter and the
+    cache.
+
+    Found by review. `write_table` writes through
+    :func:`spacr.tabular.write_database`, which resolves ``~`` and ``$VARS``
+    itself. Nothing else in the module did. So a caller passing
+    ``~/run/measurements.db`` had the database written to the EXPANDED path
+    while `row_count` opened the literal one, `_sidecar_path` put the parquet
+    cache beside a directory actually named ``~``, and `read_table` failed to
+    open a database that existed.
+
+    NOTHING RAISED IN THE OBVIOUS PLACE. The write succeeded, so a run looked
+    healthy; what was lost was the row-count verification that is the whole
+    point of writing both halves in one step, and a cache that could never be
+    read. That is why this is a test and not a docstring: the failure is
+    silent at the moment it happens and expensive much later.
+    """
+    import pandas as pd
+
+    from spacr.ops_store import objects_ready, read_table, row_count, write_table
+
+    monkeypatch.setenv("HOME", str(tmp_path))
+    (tmp_path / "run").mkdir()
+    db = "~/run/measurements.db"
+    frame = pd.DataFrame({"object_id": [1, 2, 3],
+                          "centroid_x": [1.0, 2.0, 3.0]})
+
+    assert write_table(db, "ops_objects", frame) == 3
+    assert row_count(db, "ops_objects") == 3
+    back = read_table(db, "ops_objects")
+    assert len(back) == 3
+    assert list(back.columns) == ["object_id", "centroid_x"]
+    assert bool(objects_ready(db)) is True
+
+    # The expanded file is the real one, and no directory named `~` was made.
+    assert (tmp_path / "run" / "measurements.db").is_file()
+    assert not (tmp_path / "~").exists()

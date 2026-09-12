@@ -308,18 +308,40 @@ class EmbeddingsScreen(QWidget):
         """
         columns = list(frame.columns)[:PREVIEW_DIMENSIONS]
         rows = min(len(frame), 50)
-        self._table.setColumnCount(len(columns))
-        self._table.setHorizontalHeaderLabels(columns)
-        self._table.setRowCount(rows)
-        for row in range(rows):
-            for index, column in enumerate(columns):
-                # The displayed text is rounded to four places; the SORT
-                # KEY is the float, so two dimensions that both print
-                # -0.0000 still order by what they actually are.
-                value = float(frame.iloc[row][column])
-                item = table_item(f"{value:.4f}", key=value)
-                item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-                self._table.setItem(row, index, item)
+        # SORTING OFF ACROSS THE FILL, which is what every other table in
+        # the app does (project_browser.py:427, run_history.py:447) and what
+        # this one was missing.
+        #
+        # The table is sorted, and with a sort active every `setItem` into
+        # the sorted column does a sorted RE-INSERTION -- it moves the row it
+        # was just handed. The loop then writes that row's remaining columns
+        # at an index now holding a different object, so one line ends up
+        # carrying dimensions from two objects, and a cell from the PREVIOUS
+        # run survives where nothing was written. Nothing on screen says so.
+        #
+        # `_SortState` does try to suspend itself during a fill, but only on
+        # `rowsInserted`/`rowsRemoved`, and a second Embed always repeats the
+        # shape -- rows is `min(len(frame), 50)` over the same crops, columns
+        # are capped at PREVIEW_DIMENSIONS -- so those never fire. Clearing
+        # first is not enough either, measured: the sort is re-applied as the
+        # rows go back in. Turning sorting off is the only thing that holds.
+        self._table.setSortingEnabled(False)
+        try:
+            self._table.setRowCount(0)
+            self._table.setColumnCount(len(columns))
+            self._table.setHorizontalHeaderLabels(columns)
+            self._table.setRowCount(rows)
+            for row in range(rows):
+                for index, column in enumerate(columns):
+                    # The displayed text is rounded to four places; the SORT
+                    # KEY is the float, so two dimensions that both print
+                    # -0.0000 still order by what they actually are.
+                    value = float(frame.iloc[row][column])
+                    item = table_item(f"{value:.4f}", key=value)
+                    item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                    self._table.setItem(row, index, item)
+        finally:
+            self._table.setSortingEnabled(True)
 
     def _on_job_failed(self, message: str) -> None:
         """A refusal is a sentence on the screen, never a silent empty table."""
