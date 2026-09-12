@@ -1,0 +1,18 @@
+{
+  "lesson": "21_model_compare", "language": "is", "english_sha256": "225fa51401501fa7e2f3ccdd9491fbdb3cc9b3ca5592ec794df79f955df6d5be",
+  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
+  "title": "Model Compare: núverandi viðmót og samræmi raunverulegra maska",
+  "description": "Opnaðu innbyggða samanburðinn, lestu inn raunveruleg myndsvið og berðu saman vistaðar hlutaskiptingar með API-inu. Samræmi sannar hvorki nákvæmni né að keyrsla líkana í viðmótinu hafi verið lagfærð.",
+  "objectives": ["Finndu Model Compare í Make Masks og lestu inn sýnimyndsviðin.", "Greindu á milli núverandi ósamræmis í Cellpose og virka API-sins fyrir maskasamanburð.", "Túlkaðu fjölda, samsvörun og skörun án þess að kalla aðra niðurstöðuna rétta."],
+  "prerequisite": "spaCR 1.5.0.7 nightly og Cellpose 4.2.1.1. Viðmótið sendir invert-viðfangið sem er ekki stutt. Við lesum aðeins inn myndir, keyrum ekki líkön, setjum ekki inn tilbúnar niðurstöður og breytum ekki forritinu. spacr.model_compare.compare_masks ber saman raunverulega vistaða runuvinnslu og forskoðun úr cell_pair_02.tif í Apply Cellpose: sömu cpsam-vogir en ólík forvinnsla. Hvorugur maskinn er rétt viðmið merkt af sérfræðingum; ekkert líkan er keyrt hér. Varðveittu auðkenni myndsviðs, rúmfræði mynddíla, forvinnslu og tætigildi skráa. Sömu stærðir sanna ekki sömu upprunamynd. Skriptan og gögn sem fylgja henni auðkenna frumskrár. Notaðu nýja úttaksmöppu. Samræmi staðfestir ekki nákvæmni, röðun líkana, líffræðilegt réttmæti eða frammistöðu á óháðum myndum.",
+  "scenes": [
+    "Model Compare er inni í Make Masks og ber saman hlutaskiptingu sömu myndsviða. Kennslan sýnir núverandi viðmót og síðan virkt API fyrir maskasamanburð með tveimur raunverulegum vistuðum niðurstöðum.",
+    "Viðmótið aðskilur stillingar Model A og Model B. Skráðu nákvæmlega vogir og forvinnslu í hverjum samanburði. Ólík nöfn eða fleiri hlutir sanna ekki betri niðurstöðu. Töflur fyrir færibreytur og niðurstöður eru tómar áður en samanburður er keyrður.",
+    "Sláðu inn raunverulegu sýnimöppuna og ýttu á Load. Hér hlaðast þrjú upprunaleg myndsvið inn og Compare verður virkt. Að lesa inn myndir er ekki það sama og að keyra líkön með árangri. Við höfum hvorki búið til maska né fyllt samanburðartöfluna á þessum skjá.",
+    "Uppsetta Cellpose-útgáfan hafnar invert-viðfanginu sem bakendi þessa viðmóts sendir enn. Raunveruleg athugun á skilgreiningu fallsins sýnir ósamræmið án líkanakeyrslu. Við felum það ekki. Næsta dæmi notar compare_masks beint á fyrirliggjandi merktar myndir.",
+    "Báðir maskarnir tilheyra sömu raunverulegu mynd úr Apply Cellpose-kennslunni. Annar er vistað úttak runuvinnslu, hinn vistuð lifandi forskoðun. Þeir nota sama líkan með ólíkri forvinnslu, ekki tvö samkeppnissett af vogum. Hvorugur er þekkt rétt viðmið.",
+    "API-ið sýnir 94 hluti í A og 95 í B, með 91 samsvarandi pari. Meðalskörun para er um 0,96 og leiðréttur Rand-stuðull um 0,961. Þetta lýsir samræmi, ekki nákvæmni eða sigurvegara.",
+    "Skoðaðu yfirlagðar myndir sem voru raunverulega vistaðar. Hægra svæðið merkir mynddíla þar sem flokkun sem forgrunnur er ólík. Það sýnir ekki allan mun á merkjum einstakra hluta. Svipaður fjöldi getur falið ólík mörk, skiptingar eða sameiningar. Skoðaðu því myndirnar líka.",
+    "Skriptan sannreynir hverja samsvarandi skörun óháð út frá upprunalegu mynddílunum og prófar viðmið með eins möskum. Geymdu CSV, mynd, auðkenni frumgagna og forvinnslu saman. Notaðu óháð yfirfarnar merkingar og myndir sem voru teknar frá fyrir mat áður en þú fullyrðir um nákvæmni eða velur líkan."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "lesson": "22_model_zoo", "language": "is", "english_sha256": "8f4b24235c0e8e47ef0c96ea6ecf57b7adae2bae07c4d00514893f128b4e81eb",
+  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
+  "title": "Model Zoo: finndu líkön og skoðaðu uppruna þeirra",
+  "description": "Opnaðu innbyggða líkanasafnið og skannaðu fyrirliggjandi staðbundið skyndiminni. Greindu skráðar þjálfunarupplýsingar frá óþekktum uppruna; núverandi Cellpose-ósamræmi kemur í veg fyrir staðfesta frammistöðuprófun.",
+  "objectives": ["Finndu Model Zoo í Make Masks og skannaðu staðbundna líkanamöppu.", "Lestu uppruna, gerð, gátsummu og þjálfun án þess að rugla óþekktum lýsigögnum við sannprófun.", "Greindu líkanastjórnun frá niðurhali, þjálfun og frammistöðuprófun."],
+  "prerequisite": "spaCR 1.5.0.7 nightly. Upptakan skannar fyrirliggjandi Cellpose-skyndiminni og velur upprunalegu cpsam-skrána án niðurhals, þjálfunar eða líkanakeyrslu. Notaðu eigin möppu, ekki persónulega slóð kynnisins. Valin lýsigögn hafa hvorki birt gátsummu, þjálfunargögn né höfund; ekkert er ályktað út frá nafninu. Sérstakt tætigildi sýnir aðeins að staðbundna skráin breyttist ekki við upptöku, ekki uppruna hennar. Frammistöðuprófun Model Zoo og Model Compare senda invert, sem Cellpose 4.2.1.1 styður ekki. Forritsvillan er hvorki lagfærð né sniðgengin hér. Plaque-kennslan sýnir raunverulegt niðurhal og forskoðun. Ekki er fullyrt um nákvæmnisamanburð eða prófun á óháðum gögnum.",
+  "scenes": [
+    "Model Zoo er líkanasafnið inni í Make Masks. Opnaðu móðureininguna og síðan Model Zoo-stýringuna. Kennslan sýnir raunverulegt safn og leit að staðbundnum líkönum, ekki nýja þjálfun eða prófun á nákvæmni.",
+    "Taflan sameinar birtar færslur og skrár sem finnast á tölvunni. Lestu gerð líkans og uppruna saman. Færsla á lista þýðir ekki að líkani hafi verið hlaðið niður, það prófað á þínum myndum eða staðfest fyrir þína tilraun.",
+    "Sláðu inn fyrirliggjandi líkanamöppu og ýttu á Scan, eða veldu möppu með hnappnum við hliðina. Hér skönnum við raunverulegt Cellpose-skyndiminni. Notaðu eigin slóð. Skönnun finnur skrár og lýsigögn; hún þjálfar ekki líkön og hlutaskiptir ekki myndum.",
+    "Þessi skönnun sýnir átta færslur: birt líkön á neti og staðbundnar vogaskrár. Fjöldinn lýsir þessari tölvu, ekki nauðsynlegri uppsetningu. Veldu nákvæmlega réttu skrána; lík nöfn tryggja ekki sömu vogir.",
+    "Valda staðbundna skráin hefur hvorki birta gátsummu né skráðan þjálfunaruppruna í þessari sýn. Óþekkt merkir óþekkt. Nafnið sannar ekki hvaða þjálfunargögn voru notuð. Tætigildið okkar staðfestir að upptakan breytti ekki skránni, ekki hver bjó hana til eða hversu vel hún virkar.",
+    "Niðurhalssvæðið stýrir hvar tiltækt líkan af netinu er vistað. Þar er einnig val fyrir líkön án birtrar gátsummu. Vantar gátsummu merkir ekki staðfest niðurhal. Þessari staðbundnu skrá er ekki hlaðið niður aftur. Plaque-kennslan sýnir raunverulegt niðurhal og forskoðun.",
+    "Neðra svæðið er fyrir prófun myndsviða og samanburð valinna líkana. Það eru önnur verkefni en skönnun safnsins. Núverandi ósamræmi Cellpose-viðfanga kemur í veg fyrir að við getum lýst árangursríkri frammistöðuprófun hér. Engir maskar eða prófgildi eru tilbúin. Haltu dæmigerðum sannprófunarmyndum aðskildum frá þjálfunardæmum þegar lagfært verkferli er metið."
+  ]
+}
