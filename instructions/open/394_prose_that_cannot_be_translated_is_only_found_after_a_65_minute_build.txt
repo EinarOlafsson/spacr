@@ -549,3 +549,48 @@ ordering is the one the intuition predicted.
     the same mistake in one night, on three different files, in three
     different languages of the problem.
 
+
+--------------------------------------------------------------------------------
+2026-09-12 -- A THIRD FAILURE MODE: VOCABULARY THE MODEL DECLINES, WHICH IS
+NEITHER IDENTITY NOR A LABEL
+--------------------------------------------------------------------------------
+
+The reconciliation above lists three causes and the check covers one. The
+`stall_watch#4` work turned up a fourth, and it matters because it was
+mistaken for one of the others all evening.
+
+The block was assumed to be returning IDENTITY, so it was split and
+shortened. That is not what was happening. The cached Icelandic was a REAL
+TRANSLATION that kept two English words:
+
+    The ``sitecustomize`` móddur er inn af vinnumennum, og hlutinn
+    sem hann patch er aldrei framkvæmdastjórinn.
+
+`The` and `patch` survived into otherwise Icelandic prose. That is the gate's
+"retains ordinary English prose words" verdict, and it is a different failure
+from identity: the model DID translate, and declined two specific words.
+
+  NO AMOUNT OF SPLITTING OR SHORTENING TOUCHES IT. Two rewrites were spent on
+  length before the output was read. The fix was removing `patch` and
+  `worker` -- words the Icelandic model will not take -- and the block came
+  back clean at the same length.
+
+WHAT IT MEANS FOR THE CHECK, precisely:
+
+  * It is INVISIBLE IN THE ENGLISH. "patch" is an ordinary technical word; no
+    property of the source distinguishes it from a word the model accepts.
+  * THE SET IS PER-LANGUAGE. A word Icelandic declines may be fine in German.
+    A static check would need a per-language refusal list, and nothing
+    produces one except running the model.
+  * SO IT JOINS CAUSES 2 AND 3 AS OUT OF REACH, and the count in the check's
+    own failure message -- "ONE of the three causes" -- is now conservative
+    rather than exact. The sentence it exists to carry, that a green run here
+    is not a green build, is unchanged and is the part that matters.
+
+  AND IT IS THE THIRD TIME TONIGHT A THEORY SURVIVED BECAUSE NOBODY READ THE
+  OUTPUT. ALL-CAPS was disproved by reading real Swedish. The pseudo-table
+  was disproved by reading what `_PROTECT_RE` does. This one cost two
+  rewrites to a theory that reading one cached row would have killed.
+  `_looks_degenerate` and the residual-word comparison both already run on
+  the OUTPUT; the habit worth building is reading it first, not last.
+
