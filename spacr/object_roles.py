@@ -324,6 +324,22 @@ RENAMED_SETTING_SUFFIXES: Dict[str, str] = {
     "min_object_area": "min_split_area",
     "min_size": "min_area",
     "max_size": "max_area",
+    # 391, 2026-09-12. Both are honest corrections: `min_split_area` is NOT a
+    # minimum object area -- an object below it is kept, it is simply never
+    # split -- and `min_distance` is the minimum separation between watershed
+    # seeds, which means nothing outside that algorithm.
+    #
+    # NOTE THE CHAIN THIS CREATES, and that it is why the resolver walks to a
+    # fixed point rather than taking one step:
+    #
+    #     <role>_min_object_area  ->  <role>_min_split_area
+    #                             ->  <role>_minimum_area_to_split
+    #
+    # A file written before b7ae412af needs BOTH hops. One hop would leave the
+    # value on `_min_split_area`, which nothing reads any more -- the same
+    # silent loss this table exists to prevent, one rename later.
+    "min_split_area": "minimum_area_to_split",
+    "min_distance": "min_watershed_distance",
 }
 
 

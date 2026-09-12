@@ -1970,7 +1970,7 @@ def _specs() -> List[Spec]:
             f"{kind}_intensity_split", f"{kind.capitalize()} watershed split",
             "Mask repair", "split",
             (f"{kind}_intensity_split", f"{kind}_area_multiplier",
-             f"{kind}_min_distance", f"{kind}_min_split_area"),
+             f"{kind}_min_watershed_distance", f"{kind}_minimum_area_to_split"),
             {"kind": kind},
         ))
 

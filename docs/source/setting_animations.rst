@@ -305,7 +305,7 @@ Cell watershed split
    :alt: Cell watershed split setting animation
    :width: 300px
 
-**Settings:** ``cell_intensity_split``, ``cell_area_multiplier``, ``cell_min_distance``, ``cell_min_split_area``
+**Settings:** ``cell_intensity_split``, ``cell_area_multiplier``, ``cell_min_watershed_distance``, ``cell_minimum_area_to_split``
 
 .. _setting-animation-nucleus-perimeter-fraction:
 
@@ -338,7 +338,7 @@ Nucleus watershed split
    :alt: Nucleus watershed split setting animation
    :width: 300px
 
-**Settings:** ``nucleus_intensity_split``, ``nucleus_area_multiplier``, ``nucleus_min_distance``, ``nucleus_min_split_area``
+**Settings:** ``nucleus_intensity_split``, ``nucleus_area_multiplier``, ``nucleus_min_watershed_distance``, ``nucleus_minimum_area_to_split``
 
 .. _setting-animation-pathogen-perimeter-fraction:
 
@@ -371,7 +371,7 @@ Pathogen watershed split
    :alt: Pathogen watershed split setting animation
    :width: 300px
 
-**Settings:** ``pathogen_intensity_split``, ``pathogen_area_multiplier``, ``pathogen_min_distance``, ``pathogen_min_split_area``
+**Settings:** ``pathogen_intensity_split``, ``pathogen_area_multiplier``, ``pathogen_min_watershed_distance``, ``pathogen_minimum_area_to_split``
 
 .. _setting-animation-organelle-perimeter-fraction:
 
@@ -404,7 +404,7 @@ Organelle watershed split
    :alt: Organelle watershed split setting animation
    :width: 300px
 
-**Settings:** ``organelle_intensity_split``, ``organelle_area_multiplier``, ``organelle_min_distance``, ``organelle_min_split_area``
+**Settings:** ``organelle_intensity_split``, ``organelle_area_multiplier``, ``organelle_min_watershed_distance``, ``organelle_minimum_area_to_split``
 
 .. _setting-animation-fill-in:
 

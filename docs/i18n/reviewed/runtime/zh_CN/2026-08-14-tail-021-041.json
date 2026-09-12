@@ -110,9 +110,9 @@
     {
       "table": "setting_tooltips",
       "key": "pathogen_area_multiplier",
-      "source_sha256": "34efd8898f8de5328d2fab6e6aa73e11e0c7e357566d59e5e2147b247d84e7f6",
-      "source": "Splitting threshold expressed as a multiple of the median pathogen area in the field. Only labels above this threshold and pathogen_min_split_area are processed by watershed segmentation. Lower values, such as 1.5, split more objects; higher values restrict splitting to larger aggregates. Used only when pathogen_intensity_split is True. Default 2.0.",
-      "translation": "拆分阈值表示为该显微镜视野中病原体面积中位数的倍数。只有同时超过该阈值和 pathogen_min_split_area 的标签才会进行分水岭分割。较低的值（如 1.5）会拆分更多对象；较高的值仅拆分较大的聚集体。仅当 pathogen_intensity_split 为 True 时使用。默认值 2.0。"
+      "source_sha256": "ea59091361e2ce7d88863afc4106a4803e3f98cce57b7c79b2a95b0d2ffbeaff",
+      "source": "Splitting threshold expressed as a multiple of the median pathogen area in the field. Only labels above this threshold and pathogen_minimum_area_to_split are processed by watershed segmentation. Lower values, such as 1.5, split more objects; higher values restrict splitting to larger aggregates. Used only when pathogen_intensity_split is True. Default 2.0.",
+      "translation": "拆分阈值表示为该显微镜视野中病原体面积中位数的倍数。只有同时超过该阈值和 pathogen_minimum_area_to_split 的标签才会进行分水岭分割。较低的值（如 1.5）会拆分更多对象；较高的值仅拆分较大的聚集体。仅当 pathogen_intensity_split 为 True 时使用。默认值 2.0。"
     },
     {
       "table": "setting_tooltips",

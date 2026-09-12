@@ -118,7 +118,7 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
     pf = settings.get(f'{object_type}_perimeter_fraction', settings.get(f'{object_type}_perimiter_fraction', 0))
     im = settings.get(f'{object_type}_intensity_merge', False)
     isp = settings.get(f'{object_type}_intensity_split', False)
-    moa = settings.get(f'{object_type}_min_split_area', 0)
+    moa = settings.get(f'{object_type}_minimum_area_to_split', 0)
     mna = settings.get(f'{object_type}_min_area', 0)
     mxa = settings.get(f'{object_type}_max_area', 0)
     rb = settings.get(f'{object_type}_remove_border_objects', False)
@@ -198,7 +198,7 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
             do_intensity_merge=(im and intensity_images is not None),
             perimeter_fraction=pf,
             area_multiplier=settings.get(f'{object_type}_area_multiplier', 2.0),
-            min_distance=settings.get(f'{object_type}_min_distance', 10),
+            min_distance=settings.get(f'{object_type}_min_watershed_distance', 10),
             min_object_area=moa,
             intensity_threshold_method=settings.get(f'{object_type}_intensity_threshold_method', 'mean'),
             intensity_percentile=settings.get(f'{object_type}_intensity_percentile', 75),

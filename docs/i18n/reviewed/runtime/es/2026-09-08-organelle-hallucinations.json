@@ -25,14 +25,14 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "organelle_min_distance",
+      "key": "organelle_min_watershed_distance",
       "source_sha256": "a61874031f1c5d2f2104cb382f34a7cda950ed3a9df8ab96ac81396eb12776cd",
       "source": "Minimum separation in pixels between watershed seeds when splitting oversized organelles; distance-transform peaks closer than this collapse into a single seed. Increase it to prevent excessive fragmentation of a single organelle, or decrease it to separate tightly packed puncta. Default 10. Currently inactive because the organelle mask writer does not run the merge/split stage.",
       "translation": "Separación mínima en píxeles entre las semillas del watershed al dividir orgánulos de tamaño excesivo; los picos de la transformada de distancia más próximos entre sí que este valor se funden en una única semilla. Auméntalo para evitar la fragmentación excesiva de un mismo orgánulo, o redúcelo para separar puncta muy agrupados. Valor predeterminado: 10. Actualmente inactivo porque el escritor de máscaras de orgánulo no ejecuta la etapa de fusión/división."
     },
     {
       "table": "setting_tooltips",
-      "key": "organelled_min_distance",
+      "key": "organelled_min_watershed_distance",
       "source_sha256": "482dcafce24c6590ce2d5906efb3237418bff7032fc82235e1f6c1ffcd7349d6",
       "source": "Minimum separation in pixels between watershed seeds when splitting oversized organelles; distance-transform peaks closer than this collapse into a single seed. Increase it to prevent excessive fragmentation of a single organelle, or decrease it to separate tightly packed puncta. Default 10. Currently inactive because the organelle 4 mask writer does not run the merge/split stage.",
       "translation": "Separación mínima en píxeles entre las semillas del watershed al dividir orgánulos de tamaño excesivo; los picos de la transformada de distancia más próximos entre sí que este valor se funden en una única semilla. Auméntalo para evitar la fragmentación excesiva de un mismo orgánulo, o redúcelo para separar puncta muy agrupados. Valor predeterminado: 10. Actualmente inactivo porque el escritor de máscaras de orgánulo 4 no ejecuta la etapa de fusión/división."
@@ -61,16 +61,16 @@
     {
       "table": "setting_tooltips",
       "key": "organelleb_intensity_split",
-      "source_sha256": "ea556da6999326ce60eff8dc46213c7425b707c4a6a03d1883bb35426c157e34",
-      "source": "Split organelle 2 labels whose area exceeds max(organelleb_area_multiplier times the median object area, organelleb_min_split_area), using a distance-transform watershed seeded by local maxima. Enable when neighbouring puncta are fused into single oversized labels. Default False. Currently inert: the organelle 2 mask writer never runs the merge/split stage.",
-      "translation": "Divide las etiquetas de orgánulo 2 cuya área supera max(organelleb_area_multiplier por el área mediana de los objetos, organelleb_min_split_area), usando un watershed sobre la transformada de distancia sembrado por máximos locales. Actívalo cuando puncta vecinos se fusionan en etiquetas únicas de tamaño excesivo. Valor predeterminado: False. Actualmente inerte: el escritor de máscaras de orgánulo 2 nunca ejecuta la etapa de fusión/división."
+      "source_sha256": "c8441d63541ab3797024ef87583c1abdbc5a20792f02277787eb27928a1216dd",
+      "source": "Split organelle 2 labels whose area exceeds max(organelleb_area_multiplier times the median object area, organelleb_minimum_area_to_split), using a distance-transform watershed seeded by local maxima. Enable when neighbouring puncta are fused into single oversized labels. Default False. Currently inert: the organelle 2 mask writer never runs the merge/split stage.",
+      "translation": "Divide las etiquetas de orgánulo 2 cuya área supera max(organelleb_area_multiplier por el área mediana de los objetos, organelleb_minimum_area_to_split), usando un watershed sobre la transformada de distancia sembrado por máximos locales. Actívalo cuando puncta vecinos se fusionan en etiquetas únicas de tamaño excesivo. Valor predeterminado: False. Actualmente inerte: el escritor de máscaras de orgánulo 2 nunca ejecuta la etapa de fusión/división."
     },
     {
       "table": "setting_tooltips",
       "key": "organelled_intensity_split",
-      "source_sha256": "097348444ba9347a7c79f06a782723d24a2cefc65f3799746b27573091c6d0aa",
-      "source": "Split organelle 4 labels whose area exceeds max(organelled_area_multiplier times the median object area, organelled_min_split_area), using a distance-transform watershed seeded by local maxima. Enable when neighbouring puncta are fused into single oversized labels. Default False. Currently inert: the organelle 4 mask writer never runs the merge/split stage.",
-      "translation": "Divide las etiquetas de orgánulo 4 cuya área supera max(organelled_area_multiplier por el área mediana de los objetos, organelled_min_split_area), usando un watershed sobre la transformada de distancia sembrado por máximos locales. Actívalo cuando puncta vecinos se fusionan en etiquetas únicas de tamaño excesivo. Valor predeterminado: False. Actualmente inerte: el escritor de máscaras de orgánulo 4 nunca ejecuta la etapa de fusión/división."
+      "source_sha256": "9da2367a93d38d66937a2f37192cebcd9cd9540ba1a62efa29fba354e0282b1f",
+      "source": "Split organelle 4 labels whose area exceeds max(organelled_area_multiplier times the median object area, organelled_minimum_area_to_split), using a distance-transform watershed seeded by local maxima. Enable when neighbouring puncta are fused into single oversized labels. Default False. Currently inert: the organelle 4 mask writer never runs the merge/split stage.",
+      "translation": "Divide las etiquetas de orgánulo 4 cuya área supera max(organelled_area_multiplier por el área mediana de los objetos, organelled_minimum_area_to_split), usando un watershed sobre la transformada de distancia sembrado por máximos locales. Actívalo cuando puncta vecinos se fusionan en etiquetas únicas de tamaño excesivo. Valor predeterminado: False. Actualmente inerte: el escritor de máscaras de orgánulo 4 nunca ejecuta la etapa de fusión/división."
     },
     {
       "table": "setting_tooltips",

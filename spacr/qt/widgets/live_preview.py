@@ -237,12 +237,21 @@ ORGANELLE_MORPHOLOGIES = ("spots", "network", "irregular", "ring")
 COMPARTMENT_FIELDS = (
     ("min_area",                   "Min area (px²)",        "int",   (0, 100_000_000, 0)),
     ("max_area",                   "Max area (px²)",        "int",   (0, 100_000_000, 0)),
-    # `min_split_area` since 2026-09-02. Renamed with the rest by
-    # `b7ae412af`, and missed here for the same reason as the two
-    # aliases above: the name is written without its leading
-    # underscore, so a suffix substitution did not see it.
-    ("min_split_area",             "Min object area",       "int",   (0, 100_000_000, 100)),
-    ("min_distance",               "Min distance",          "int",   (0, 100_000, 10)),
+    # BOTH RENAMED 2026-09-12 (391), KEYS AND LABELS, and both are honest
+    # corrections rather than cosmetics:
+    #
+    #   "Min object area" was NOT a minimum object area. An object smaller
+    #   than it is KEPT -- it is simply never split -- so a user reading the
+    #   old name would reasonably expect small objects to be discarded.
+    #   "Min distance" is the minimum separation between watershed seeds and
+    #   means nothing outside that algorithm.
+    #
+    # These are written WITHOUT the leading underscore, which is how the
+    # previous rename (`b7ae412af`) missed them: a suffix substitution
+    # anchored on `_` does not see a bare suffix. Worth remembering for the
+    # next one.
+    ("minimum_area_to_split",      "Minimum area to split", "int",   (0, 100_000_000, 100)),
+    ("min_watershed_distance",     "Minimum watershed distance", "int", (0, 100_000, 10)),
     ("area_multiplier",            "Area multiplier",       "float", (0.0, 1000.0, 2.0)),
     # Defaults MUST match spacr.settings.set_default_settings_preprocess_generate_masks.
     # They are both what the preview filters with and what the Propagate

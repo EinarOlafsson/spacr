@@ -291,9 +291,17 @@ def test_the_mask_factory_keeps_the_values_an_old_file_set():
     })
     assert old_file["cell_flow_threshold"] == 0.42
     assert old_file["cell_cellprob_threshold"] == -0.7
-    assert old_file["cell_min_split_area"] == 123
     assert old_file["nucleus_signal_to_noise"] == 7.5
     assert old_file["organellez_min_area"] == 44
+    # THE TWO-HOP CHAIN, and it is the reason this assertion changed once
+    # already. `cell_min_object_area` became `cell_min_split_area` in
+    # b7ae412af and `cell_minimum_area_to_split` in 391, so the oldest files
+    # need BOTH hops. This asserted the INTERMEDIATE name until 391 landed and
+    # failed the moment it did -- which is the guard working: a resolver that
+    # stopped after one step would leave the value on a key nothing reads.
+    assert old_file["cell_minimum_area_to_split"] == 123
+    assert "cell_min_split_area" not in old_file, (
+        "the value stopped on the intermediate name, which nothing reads")
     for dead in ("cell_FT", "cell_CP_prob", "cell_min_object_area",
                  "nucleus_Signal_to_noise", "organellez_min_size"):
         assert dead not in old_file, f"{dead} was left behind"

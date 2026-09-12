@@ -86,30 +86,37 @@ def test_a_key_rename_is_reported_as_MOVED_not_STALE(monkeypatch, capsys,
     a string nobody touched -- the most confusing possible failure, because
     the obvious diagnosis is wrong. The reporter's job is to say "this moved".
     """
-    renamed = _rename_keys(sources, "_min_distance", "_min_watershed_distance")
+    # A SYNTHETIC TARGET, DELIBERATELY. This used to simulate the real
+    # `_min_distance -> _min_watershed_distance` rename, and then instruction
+    # 391 performed that rename for real -- so the simulation renamed nothing,
+    # found nothing, and the test failed for a reason that had nothing to do
+    # with the reporter. A test that pins a live setting name is a test any
+    # future rename breaks; the suffix below is a live one with 39 reviewed records, renamed
+    # to a spelling nobody will ever ship.
+    renamed = _rename_keys(sources, "_chann_dim", "_chann_dim_ZZSYNTHETIC")
     monkeypatch.setattr(runtime, "canonical_sources", lambda: renamed)
 
     assert reporter.main([]) == 1
     out = capsys.readouterr().out
     assert "MOVED" in out, out
     assert "re-bind" in out
-    assert "_min_watershed_distance" in out, (
+    assert "_chann_dim_ZZSYNTHETIC" in out, (
         "the report has to name the key to re-bind TO, or it is not a work "
         "list")
     moved_block = out.split("MOVED", 1)[1].split("STALE", 1)[0]
-    assert "_min_distance" in moved_block
+    assert "_chann_dim" in moved_block
 
 
 def test_a_removed_setting_is_reported_as_STALE(monkeypatch, capsys, sources):
     """A key that is gone entirely cannot be re-bound, only deleted."""
-    dropped = _drop_keys(sources, "_intensity_percentile")
+    dropped = _drop_keys(sources, "_chann_dim")
     monkeypatch.setattr(runtime, "canonical_sources", lambda: dropped)
 
     assert reporter.main([]) == 1
     out = capsys.readouterr().out
     assert "STALE" in out, out
     stale_block = out.split("STALE", 1)[1]
-    assert "_intensity_percentile" in stale_block
+    assert "_chann_dim" in stale_block
 
 
 def test_the_advice_is_delete_rather_than_retire_in_place(monkeypatch,
@@ -123,7 +130,7 @@ def test_the_advice_is_delete_rather_than_retire_in_place(monkeypatch,
     -- a hard failure, not a retired record.
     """
     monkeypatch.setattr(runtime, "canonical_sources",
-                        lambda: _drop_keys(sources, "_intensity_percentile"))
+                        lambda: _drop_keys(sources, "_chann_dim"))
     reporter.main([])
     out = capsys.readouterr().out
     assert "DELETE" in out, (
@@ -141,7 +148,7 @@ def test_the_reporter_does_not_re_enter_the_loader_it_replaces(monkeypatch,
     holds the loader's own `_REVIEWED_RUNTIME_LOADING` guard.
     """
     monkeypatch.setattr(runtime, "canonical_sources",
-                        lambda: _drop_keys(sources, "_intensity_percentile"))
+                        lambda: _drop_keys(sources, "_chann_dim"))
     try:
         status = reporter.main([])
     except ValueError as exc:  # pragma: no cover - the regression

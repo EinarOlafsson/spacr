@@ -11,14 +11,14 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "organelleb_min_distance",
+      "key": "organelleb_min_watershed_distance",
       "source_sha256": "ffdeab3289b494ff7c472ff3bd4b985937aacaeb04f1dc62e2281a555c5b95bb",
       "source": "Minimum separation in pixels between watershed seeds when splitting oversized organelles; distance-transform peaks closer than this collapse into a single seed. Increase it to prevent excessive fragmentation of a single organelle, or decrease it to separate tightly packed puncta. Default 10. Currently inactive because the organelle 2 mask writer does not run the merge/split stage.",
       "translation": "Separación mínima en píxeles entre las semillas de watershed al dividir orgánulos de tamaño excesivo; los picos de la transformada de distancia más próximos entre sí que este valor se funden en una única semilla. Auméntalo para evitar la fragmentación excesiva de un mismo orgánulo, o redúcelo para separar puncta muy agrupados. Valor predeterminado: 10. Actualmente inactivo porque el escritor de máscaras de orgánulo 2 no ejecuta la etapa de fusión/división."
     },
     {
       "table": "setting_tooltips",
-      "key": "organellec_min_distance",
+      "key": "organellec_min_watershed_distance",
       "source_sha256": "931cd3049cfc7250c05518de1f7158375d57b78888fe464a8192a5fd8e14e43f",
       "source": "Minimum separation in pixels between watershed seeds when splitting oversized organelles; distance-transform peaks closer than this collapse into a single seed. Increase it to prevent excessive fragmentation of a single organelle, or decrease it to separate tightly packed puncta. Default 10. Currently inactive because the organelle 3 mask writer does not run the merge/split stage.",
       "translation": "Separación mínima en píxeles entre las semillas de watershed al dividir orgánulos de tamaño excesivo; los picos de la transformada de distancia más próximos entre sí que este valor se funden en una única semilla. Auméntalo para evitar la fragmentación excesiva de un mismo orgánulo, o redúcelo para separar puncta muy agrupados. Valor predeterminado: 10. Actualmente inactivo porque el escritor de máscaras de orgánulo 3 no ejecuta la etapa de fusión/división."
