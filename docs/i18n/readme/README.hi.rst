@@ -120,16 +120,16 @@ spaCR इंस्टॉल करें
 
 .. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
-   :alt: Windows 10/11 के लिए spaCR 1.5.0.6 डाउनलोड करें
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.6/SpaCR-1.5.0.6-Windows-Online-Setup.exe
+   :alt: Windows 10/11 के लिए spaCR 1.5.0.7 डाउनलोड करें
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.7/SpaCR-1.5.0.7-Windows-Online-Setup.exe
 .. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
-   :alt: macOS 11+ (Intel और Apple Silicon) के लिए spaCR 1.5.0.6 डाउनलोड करें
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.6/SpaCR-1.5.0.6-macOS-Universal-Online.pkg
+   :alt: macOS 11+ (Intel और Apple Silicon) के लिए spaCR 1.5.0.7 डाउनलोड करें
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.7/SpaCR-1.5.0.7-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
-   :alt: 64-बिट Linux के लिए spaCR 1.5.0.6 डाउनलोड करें
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.6/SpaCR-1.5.0.6-Linux-x86_64-Online.run
+   :alt: 64-बिट Linux के लिए spaCR 1.5.0.7 डाउनलोड करें
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.7/SpaCR-1.5.0.7-Linux-x86_64-Online.run
 .. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: spaCR के पुराने इंस्टॉलर

@@ -1,12 +1,33 @@
 spaCR lightweight installers
 ============================
 
-Current version: ``1.5.0.6``
+Current version: ``1.5.0.7``
 
 New releases are added here without removing earlier versions.
 These small online installers download a private Python runtime and
 dependencies during installation. Every installer pins the spaCR
 version in its filename.
+
+spaCR 1.5.0.7 — 64-bit Linux
+----------------------------
+
+* File: ``spaCR-1.5.0.7-Linux-x86_64-Online.run``
+* Size: ``79201`` bytes
+* SHA-256: ``4592c0e88ca4c254a3d6c05411d52af2744ecdd39ef68487725f6c323ccfd020``
+
+spaCR 1.5.0.7 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``spaCR-1.5.0.7-macOS-Universal-Online.pkg``
+* Size: ``343121`` bytes
+* SHA-256: ``73eb2747ab747a28b7d5da956b173fa7f9456ccb61337c35a78e1b3c4398730d``
+
+spaCR 1.5.0.7 — Windows 10/11
+-----------------------------
+
+* File: ``spaCR-1.5.0.7-Windows-Online-Setup.exe``
+* Size: ``205998`` bytes
+* SHA-256: ``f7a27f0c618708d0ad47d5c4fb5a1a36584aff0c11751d6d3002398e0cf38e6e``
 
 spaCR 1.5.0.6 — 64-bit Linux
 ----------------------------
@@ -91,3 +112,24 @@ spaCR 1.5.0.1 — Windows 10/11
 * File: ``SpaCR-1.5.0.1-Windows-Online-Setup.exe``
 * Size: ``171550`` bytes
 * SHA-256: ``2b6b07ad12926288f693c01945f2fc4555b0a37022fd73dce932e2d8b6e4ee76``
+
+spaCR 1.4.9.9 — 64-bit Linux
+----------------------------
+
+* File: ``SpaCR-1.4.9.9-Linux-x86_64-Online.run``
+* Size: ``11117`` bytes
+* SHA-256: ``9418a4e23a0d323eb6ab89c6821ec06336d317dc85c03fdb54a159d894d436a9``
+
+spaCR 1.4.9.9 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``SpaCR-1.4.9.9-macOS-Universal-Online.pkg``
+* Size: ``284112`` bytes
+* SHA-256: ``45b5df51a13fa9906abe6ac9ac75723c266d93db5f7c8f932f1ab45df29f5b6b``
+
+spaCR 1.4.9.9 — Windows 10/11
+-----------------------------
+
+* File: ``SpaCR-1.4.9.9-Windows-Online-Setup.exe``
+* Size: ``171483`` bytes
+* SHA-256: ``28dd8d61cb808ca0d471d0db82901eed2b2aae549082dd7d384bde473ef0c938``
