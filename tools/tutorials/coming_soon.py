@@ -38,7 +38,7 @@ COPY = {
 }
 
 
-def release_catalog(source, language):
+def release_catalog(source, language, *, recording_stage=None):
     """Preserve every ready lesson verbatim and replace only approved holds."""
     result = deepcopy(source)
     ids = [lesson['id'] for lesson in result['lessons']]
@@ -50,10 +50,20 @@ def release_catalog(source, language):
                        and 'host_app_key' not in recorded_embedding
                        and recorded_embedding.get('status') != 'coming_soon'
                        and bool(recorded_embedding.get('scenes')))
+    recorded_ops = next((lesson for lesson in result['lessons'] if lesson['id'] == OPS), None)
+    valid_ops = (recorded_ops is not None
+                 and recorded_ops.get('number') == 76
+                 and recorded_ops.get('app_key') == 'ops'
+                 and recorded_ops.get('host_app_key') == 'mask'
+                 and recorded_ops.get('status') != 'coming_soon'
+                 and bool(recorded_ops.get('scenes')))
     if (len(ids) != len(set(ids)) or not set(HELD) <= set(ids)
-            or OPS in ids or (EMBEDDINGS in ids and not valid_promotion)):
+            or (OPS in ids and not valid_ops) or (EMBEDDINGS in ids and not valid_promotion)):
         raise ValueError('Expected distinct original lessons, four holds, '
-                         'no OPS placeholder, and only a recorded Embeddings promotion')
+                         'a recorded OPS promotion if present, and only a recorded Embeddings promotion')
+    if recorded_ops is not None:
+        from ops_promotion import require_recorded_ops
+        require_recorded_ops(recording_stage, language, recorded_ops)
     title, description = COPY[language]
     for lesson in result['lessons']:
         if lesson['id'] in HELD:
@@ -72,7 +82,8 @@ def release_catalog(source, language):
     # no numeric metadata until write_catalogs copies the English routing.
     # Only the reserved OPS position needs insertion before recorded 77.
     position = ids.index(EMBEDDINGS) if recorded_embedding is not None else len(ids)
-    result['lessons'].insert(position, ops)
+    if recorded_ops is None:
+        result['lessons'].insert(position, ops)
     if recorded_embedding is None:
         result['lessons'].append({
             'id': EMBEDDINGS, 'number': 77, 'slug': 'embeddings',

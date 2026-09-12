@@ -90,3 +90,46 @@ def test_retained_caption_entries_without_numbers_keep_their_content_and_order(c
     assert result['lessons'][-1] == before['lessons'][-1]
     assert [x['id'] for x in result['lessons']] == [
         *[x['id'] for x in before['lessons'][:-1]], OPS, EMBEDDINGS]
+
+
+@pytest.mark.parametrize('language', COPY)
+def test_recorded_ops_keeps_exact_mask_route_and_other_holds(catalog, language, monkeypatch):
+    import ops_promotion
+    calls = []
+    monkeypatch.setattr(ops_promotion, 'require_recorded_ops',
+                        lambda stage, lang, row: calls.append((stage, lang, row)))
+    lesson = {'id': OPS, 'number': 76, 'app_key': 'ops', 'host_app_key': 'mask',
+              'title': 'Four real tiles, not a full pipeline', 'scenes': [{'narration': 'Actual geometry.'}]}
+    # Existing caption records may predate numeric metadata.
+    for item in catalog['lessons']:
+        item.pop('number')
+    catalog['lessons'].append(lesson)
+    before = deepcopy(catalog)
+    result = release_catalog(catalog, language, recording_stage='unit-test-stage')
+    assert calls == [('unit-test-stage', language, lesson)]
+    assert catalog == before
+    assert result['lessons'][:-1] == [
+        *release_catalog({'lessons': before['lessons'][:-1]}, language)['lessons'][:-2], lesson]
+    assert [item['id'] for item in result['lessons'] if item.get('status') == 'coming_soon'] == [*HELD, EMBEDDINGS]
+    assert len({item['id'] for item in result['lessons']}) == len(result['lessons'])
+
+
+@pytest.mark.parametrize('change', [{'app_key': 'wrong'}, {'number': 78},
+                                  {'host_app_key': 'stitch'}, {'scenes': []}, {'status': 'coming_soon'}])
+def test_ops_promotion_rejects_wrong_route_or_unrecorded_placeholder(catalog, change, monkeypatch):
+    import ops_promotion
+    monkeypatch.setattr(ops_promotion, 'require_recorded_ops', lambda *args: None)
+    lesson = {'id': OPS, 'number': 76, 'app_key': 'ops', 'host_app_key': 'mask',
+              'scenes': [{'narration': 'Actual geometry.'}]}
+    catalog['lessons'].append(lesson)
+    release_catalog(catalog, 'en')
+    lesson.update(change)
+    with pytest.raises(ValueError, match='recorded OPS'):
+        release_catalog(catalog, 'en')
+
+
+def test_ops_catalog_metadata_alone_is_never_a_recording(catalog):
+    catalog['lessons'].append({'id': OPS, 'number': 76, 'app_key': 'ops',
+                              'host_app_key': 'mask', 'scenes': [{'narration': 'A promise.'}]})
+    with pytest.raises(ValueError, match='requires verified recording and final media'):
+        release_catalog(catalog, 'en')

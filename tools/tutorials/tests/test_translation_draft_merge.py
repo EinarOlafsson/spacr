@@ -27,6 +27,22 @@ def test_genuinely_missing_translation_still_fails():
         merge_selected({'lessons': [{'id': 'old'}]}, {'lessons': []}, source)
 
 
+def test_only_explicitly_selected_missing_drafts_can_wait_for_translation():
+    source = {'lessons': [{'id': 'old'}, {'id': 'new'}, {'id': 'other'}]}
+    reviewed = {'lessons': [{'id': 'old', 'text': 'reviewed'}]}
+    drafts = {'lessons': [{'id': 'other', 'text': 'existing draft'}]}
+    before = deepcopy((reviewed, drafts))
+    result = merge_selected(reviewed, drafts, source, allow_missing={'new'})
+    assert result['lessons'] == [reviewed['lessons'][0], drafts['lessons'][0]]
+    assert (reviewed, drafts) == before
+    # Deferring one selected identity cannot hide a different missing lesson.
+    with pytest.raises(ValueError, match='Missing translations'):
+        merge_selected(reviewed, {'lessons': []}, source, allow_missing={'new'})
+    # The final merge still requires an actual translation of every identity.
+    with pytest.raises(ValueError, match='Missing translations'):
+        merge_selected(result, {'lessons': []}, source)
+
+
 def test_cli_seeds_new_reviewed_lessons_before_translation(tmp_path, monkeypatch):
     source = {'lessons': [{'id': 'old', 'scenes': [{'narration': 'Old source.'}]},
                           {'id': 'new', 'scenes': [{'narration': 'New source.'}]}]}

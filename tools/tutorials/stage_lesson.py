@@ -45,7 +45,7 @@ def require_append_identity(lesson, current, released):
     if lesson['number'] == expected:
         return
     known = [item for item in released if item['id'] == lesson['id']]
-    if (lesson['number'] <= max(item['number'] for item in current) or len(known) != 1
+    if (any(item['number'] == lesson['number'] for item in current) or len(known) != 1
             or known[0].get('status') != 'coming_soon'
             or any(known[0].get(key) != lesson.get(key)
                    for key in ('number', 'app_key', 'host_app_key'))):

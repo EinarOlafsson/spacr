@@ -18,7 +18,7 @@ import tempfile
 from audit_staged_catalogs import CATALOGS
 from build_navigation import build as navigation
 from check_completed_matrix import digest, voice_matrix
-from coming_soon import EMBEDDINGS, HELD, release_catalog
+from coming_soon import EMBEDDINGS, OPS, HELD, release_catalog
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 from verify_library_checkpoint import verify
 
@@ -51,7 +51,8 @@ def write_catalogs(stage, web):
     catalogs = {}
     for filename in CATALOGS:
         language = filename.split('_', 1)[1].removesuffix('.json')
-        catalogs[filename] = release_catalog(read(stage / 'catalog' / filename), language)
+        catalogs[filename] = release_catalog(read(stage / 'catalog' / filename), language,
+                                             recording_stage=stage)
     nav = navigation(catalogs['lessons_en.json'])
     if nav['missing_tutorials']:
         raise ValueError(f"Unaccounted tutorial routes: {nav['missing_tutorials']}")
@@ -123,7 +124,7 @@ def build(stage=DEFAULT_STAGE, *, baseline=None):
     # Revalidate current sources before creating any release copies.
     proof = verify(stage, set(HELD), baseline=baseline)
     ready_ids = {item['lesson'] for item in proof['lessons']}
-    expected_ready = 71 + (EMBEDDINGS in ready_ids)
+    expected_ready = 71 + (EMBEDDINGS in ready_ids) + (OPS in ready_ids)
     if proof['checked_lessons'] != expected_ready or proof['checked_tracks'] != expected_ready * 50:
         raise ValueError('The approved ready/tutorial partition changed')
     root = Path(tempfile.mkdtemp(prefix='release-candidate-', dir=stage))

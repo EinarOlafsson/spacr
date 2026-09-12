@@ -72,16 +72,16 @@ def rejoin_sentences(translated, partial, counts, language):
     return translated
 
 
-def merge_selected(existing, translated, source):
+def merge_selected(existing, translated, source, *, allow_missing=frozenset()):
     """Preserve every unselected reviewed entry, retaining English identity order."""
     records = {lesson['id']: lesson for lesson in existing['lessons']}
     records.update({lesson['id']: lesson for lesson in translated['lessons']})
     identities = [lesson['id'] for lesson in source['lessons']]
     missing = set(identities) - set(records)
-    if missing:
+    if missing - set(allow_missing):
         raise ValueError(f'Missing translations must be selected too: {sorted(missing)}')
     result = copy.deepcopy(existing)
-    result['lessons'] = [records[identity] for identity in identities]
+    result['lessons'] = [records[identity] for identity in identities if identity in records]
     return result
 
 
@@ -133,7 +133,8 @@ def main():
         # Older draft files may predate safely appended lessons. Seed missing
         # identities from the reviewed catalog before preserving existing drafts;
         # never discover this only after an expensive translation has finished.
-        current = merge_selected(reviewed, read(target), source) if target.exists() else reviewed
+        current = merge_selected(reviewed, read(target), source,
+                                 allow_missing=selected) if target.exists() else reviewed
         if language in spoken.LANGUAGES:
             translated = spoken.translate_language(expanded, language, args.batch_size, args.threads, args.device)
         else:

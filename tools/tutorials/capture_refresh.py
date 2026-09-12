@@ -485,6 +485,9 @@ def main() -> int:
     elif args.module == 'embeddings':
         from capture_embeddings import record_screen
         record_screen(app, window, stage, captures, capture, settle, write_json)
+    elif args.module == 'ops':
+        from capture_ops import record_screen
+        record_screen(app, window, stage, captures, capture, settle, write_json)
     elif args.classify_overview:
         from capture_classify_overview import record_overview
         record_overview(app, window, captures, capture, settle, write_json)
