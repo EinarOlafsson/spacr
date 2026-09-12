@@ -77,6 +77,13 @@ FIELD_KEY = "fieldID"
 #: computed from it is 1.0 by construction.
 INCLUDE_UNINFECTED_KEY = "include_uninfected"
 
+#: The per-object border rules, which are applied at SEGMENTATION time --
+#: `clear_border(mask)` in `utils.py` -- so they decide what is in each table
+#: rather than how it is counted. The cell rule sets the denominator's
+#: population and the pathogen rule sets the numerator's.
+CELL_BORDER_KEY = "cell_remove_border_objects"
+PATHOGEN_BORDER_KEY = "pathogen_remove_border_objects"
+
 #: What `denominator` says instead of a population, when the population is not
 #: in the database to be counted.
 NOT_DERIVABLE = ("not derivable: the Measure run set include_uninfected=False, "
@@ -122,6 +129,78 @@ def uninfected_cells_were_measured(db_path: str) -> Optional[bool]:
     if row is None or row[0] is None:
         return None
     return str(row[0]).strip().lower() in {"true", "1", "yes"}
+
+
+def _setting(db_path: str, key: str) -> Optional[bool]:
+    """One boolean setting the Measure run recorded, or ``None``.
+
+    :param db_path: path to a ``measurements.db``.
+    :param key: the ``settings`` row to read.
+    :returns: the value, or ``None`` when the run did not record it.
+    """
+    try:
+        db = _connect_read_only(db_path)
+    except sqlite3.Error:
+        return None
+    try:
+        if "settings" not in {
+                r[0] for r in db.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'")}:
+            return None
+        row = db.execute(
+            "SELECT setting_value FROM settings WHERE setting_key = ?",
+            (key,)).fetchone()
+    except sqlite3.Error:
+        return None
+    finally:
+        db.close()
+    if row is None or row[0] is None:
+        return None
+    return str(row[0]).strip().lower() in {"true", "1", "yes"}
+
+
+def border_rules_agree(db_path: str) -> Optional[bool]:
+    """Whether cells and parasites were border-filtered the same way.
+
+    THE NUMERATOR AND THE DENOMINATOR MUST OBEY THE SAME RULE, which is what
+    377's PART 1 asks for in as many words: "the infection denominator has to
+    use the same rule or the rate is computed against a different cell count
+    than the numerator".
+
+    `remove_border_objects` is applied at SEGMENTATION time, per object type,
+    so it decides what is in each table rather than how the table is counted.
+    The two settings are independent and default to False together, so they
+    agree unless somebody changed one:
+
+      * pathogens cleared and cells kept -- a host cell whose only parasite
+        touched the edge is still in the cell table, now with a count of
+        zero. It reads as UNINFECTED and deflates the rate.
+      * cells cleared and pathogens kept -- a parasite can name a cell that
+        is no longer in the cell table, so it is counted in neither
+        numerator nor denominator and the infection index drifts.
+
+    THIS IS THE SAME FAILURE AS `include_uninfected`, WHICH ALREADY SHIPPED:
+    a setting that silently changes what a table contains, and therefore what
+    a ratio over it means, with nothing in the output saying so. That one
+    turned every well into 1.000000 on a real plate. This one is quieter,
+    which is worse -- a deflated rate looks like biology.
+
+    :param db_path: path to a ``measurements.db``.
+    :returns: ``True`` when both rules match, ``False`` when they differ,
+        ``None`` when the run recorded neither -- an older database, where
+        the honest answer is that we cannot tell.
+    """
+    cells = _setting(db_path, CELL_BORDER_KEY)
+    pathogens = _setting(db_path, PATHOGEN_BORDER_KEY)
+    if cells is None and pathogens is None:
+        return None
+    # ONE RECORDED AND ONE NOT is not "they agree". The missing one defaults
+    # to False in `settings.py`, but a database that recorded only half of
+    # the pair is one we cannot make that assumption about: it may predate
+    # the other key entirely.
+    if cells is None or pathogens is None:
+        return None
+    return cells == pathogens
 
 
 def _present_columns(db: sqlite3.Connection, table: str) -> List[str]:
@@ -278,6 +357,15 @@ def infection_report(db_path: str, *,
     cell_population = ("infected host cells (uninfected excluded by the "
                        "Measure run)" if cells_are_all_infected
                        else "segmented host cells")
+    # AND WHETHER THE TWO POPULATIONS WERE FILTERED THE SAME WAY. A rate whose
+    # numerator and denominator obeyed different border rules is wrong by an
+    # amount nothing in the table reveals, so the denominator says so rather
+    # than the value being quietly off. See `border_rules_agree`.
+    if border_rules_agree(db_path) is False:
+        cell_population += (" -- WARNING: cells and parasites were filtered "
+                            "differently at the plate border, so this "
+                            "denominator and its numerator are not the same "
+                            "population")
 
     keys = [c for c in per_cell.columns
             if c in {_canonical(per_cell.columns, k) for k in WELL_KEYS}]
@@ -318,8 +406,15 @@ def infection_report(db_path: str, *,
         if cells_are_all_infected:
             add("infection_rate", float("nan"), NOT_DERIVABLE, cells)
         else:
+            # `cell_population`, NOT THE LITERAL IT USED TO REPEAT. This
+            # branch already knows the population is the segmented one, so
+            # the two strings were equal and the duplication was invisible --
+            # until the border warning was appended to the variable and the
+            # ONE ROW THAT MOST NEEDED IT went on saying the old words. Caught
+            # by the test rather than by reading, which is the argument for
+            # naming a value once.
             add("infection_rate", infected / cells if cells else float("nan"),
-                "segmented host cells", cells)
+                cell_population, cells)
         add("infection_index", parasites / cells if cells else float("nan"),
             cell_population, cells)
         add("parasites_per_infected",

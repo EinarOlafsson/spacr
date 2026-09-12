@@ -551,27 +551,80 @@ ordering is the one the intuition predicted.
 
 
 --------------------------------------------------------------------------------
+2026-09-12 -- A THIRD FAILURE MODE: VOCABULARY THE MODEL DECLINES, WHICH IS
+NEITHER IDENTITY NOR A LABEL
+--------------------------------------------------------------------------------
+
+The reconciliation above lists three causes and the check covers one. The
+`stall_watch#4` work turned up a fourth, and it matters because it was
+mistaken for one of the others all evening.
+
+The block was assumed to be returning IDENTITY, so it was split and
+shortened. That is not what was happening. The cached Icelandic was a REAL
+TRANSLATION that kept two English words:
+
+    The ``sitecustomize`` móddur er inn af vinnumennum, og hlutinn
+    sem hann patch er aldrei framkvæmdastjórinn.
+
+`The` and `patch` survived into otherwise Icelandic prose. That is the gate's
+"retains ordinary English prose words" verdict, and it is a different failure
+from identity: the model DID translate, and declined two specific words.
+
+  NO AMOUNT OF SPLITTING OR SHORTENING TOUCHES IT. Two rewrites were spent on
+  length before the output was read. The fix was removing `patch` and
+  `worker` -- words the Icelandic model will not take -- and the block came
+  back clean at the same length.
+
+WHAT IT MEANS FOR THE CHECK, precisely:
+
+  * It is INVISIBLE IN THE ENGLISH. "patch" is an ordinary technical word; no
+    property of the source distinguishes it from a word the model accepts.
+  * THE SET IS PER-LANGUAGE. A word Icelandic declines may be fine in German.
+    A static check would need a per-language refusal list, and nothing
+    produces one except running the model.
+  * SO IT JOINS CAUSES 2 AND 3 AS OUT OF REACH, and the count in the check's
+    own failure message -- "ONE of the three causes" -- is now conservative
+    rather than exact. The sentence it exists to carry, that a green run here
+    is not a green build, is unchanged and is the part that matters.
+
+  AND IT IS THE THIRD TIME TONIGHT A THEORY SURVIVED BECAUSE NOBODY READ THE
+  OUTPUT. ALL-CAPS was disproved by reading real Swedish. The pseudo-table
+  was disproved by reading what `_PROTECT_RE` does. This one cost two
+  rewrites to a theory that reading one cached row would have killed.
+  `_looks_degenerate` and the residual-word comparison both already run on
+  the OUTPUT; the habit worth building is reading it first, not last.
+
+
+--------------------------------------------------------------------------------
 A RESIDUAL-ENGLISH COUNT HAS COGNATE FALSE POSITIVES
 --------------------------------------------------------------------------------
 
 Counting words that appear in BOTH the English source and the translation --
 after masking protected literals -- is the cheapest way to spot a block the
-model left half-English, and it is what found most of the fixes above. It has
-one systematic false positive worth knowing before anyone builds on it.
+model left half-English, and it found most of the fixes recorded above. It
+has one systematic false positive worth knowing before anyone builds on it.
 
-Measured on one sentence across all nine languages:
+Measured on one sentence across all nine targets:
 
-    sv es zh_CN pt hi ko is    residual 0
+    sv es zh_CN hi ko is fr    residual 0
     de                         residual 1   "worker"
-    fr                         residual 1   "module"
+    pt                         residual 1   "benchmark"
 
-Neither is a failure. "Worker" is an ordinary German loanword and "module"
-IS a French word. The count cannot tell a word the model failed to translate
-from a word whose translation is spelled the same, and the Romance and
-Germanic targets will do this constantly for technical vocabulary.
+Neither is a failure. "Worker" and "Benchmark" are ordinary German loanwords
+and "module" IS a French word. The count cannot tell a word the model failed
+to translate from a word whose translation is spelled the same, and the
+Germanic and Romance targets do this constantly with technical vocabulary.
 
 SO THE COUNT IS A TRIAGE SIGNAL, NOT A VERDICT. Zero residual is strong
-evidence the block is fine. A small residual in a language closely related to
-English means look at it, not fix it. The authority is the build's own gate,
-and a cheap check should hand off to it rather than pretend to replace it --
-which is the same conclusion this file reaches about static checks generally.
+evidence the block is fine. A small residual in a language close to English
+means look at it, not fix it. The authority is the build's own gate, and a
+cheap check should hand off to it rather than pretend to replace it -- which
+is the same conclusion this file reaches about static checks generally.
+
+AND THE THIRD FAILURE MODE, distinct from identity output and from
+instruction labels: VOCABULARY THE MODEL DECLINES. `spacr.qt.stall_watch#6`
+came back as real Icelandic that kept `The` and `patch`; `patch` and `worker`
+are words that checkpoint will not take. Splitting and shortening -- which
+fix the identity cases -- do nothing to it. The set is per-language and
+invisible in the English, so only a residual comparison against real output
+finds it.

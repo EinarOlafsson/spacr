@@ -262,3 +262,60 @@ That makes 377 the same shape as 372 PART 0 and 370's held-out set: the
 code is written and what it lacks is the maintainer's data and judgement.
 An agent cannot close it, and should not close it by lowering what
 "believed" means.
+
+
+--------------------------------------------------------------------------------
+2026-09-12 -- THE DENOMINATOR NOW OBEYS THE NUMERATOR'S BORDER RULE
+--------------------------------------------------------------------------------
+
+PART 1's QUALITY AND CONTROLS group has one item that is not a new metric but
+a CORRECTNESS CONDITION, and it was unbuilt: "edge-object exclusion -- already
+implemented for measurement; the infection denominator has to use the same
+rule or the rate is computed against a different cell count than the
+numerator".
+
+WHERE THE RULE ACTUALLY LIVES, which is why this was easy to miss.
+`remove_border_objects` is applied at SEGMENTATION time -- `clear_border(mask)`
+in `utils.py` -- and it is PER OBJECT TYPE: `cell_remove_border_objects` and
+`pathogen_remove_border_objects` are independent settings. They therefore
+decide WHAT IS IN EACH TABLE rather than how a table is counted, and nothing
+downstream can tell that they differed.
+
+  * pathogens cleared, cells kept -- a host cell whose only parasite touched
+    the edge is still in the cell table, now with a count of zero. It reads as
+    UNINFECTED and DEFLATES the rate.
+  * cells cleared, pathogens kept -- a parasite names a cell that is no longer
+    in the cell table, so it is counted in neither numerator nor denominator.
+
+    THE SAME FAILURE AS `include_uninfected`, WHICH THIS FILE ALREADY RECORDS
+    AS HAVING SHIPPED. A setting that silently changes what a table contains,
+    and therefore what a ratio over it means, with nothing in the output
+    saying so. That one turned every well into 1.000000 and was caught only
+    when the module met a real database. THIS ONE IS QUIETER AND THEREFORE
+    WORSE: a deflated rate looks like biology.
+
+`border_rules_agree` answers True, False or None, and `infection_report` puts
+the warning in the DENOMINATOR COLUMN -- this module's existing contract is
+that every value carries the population it was computed over, so that is
+where a reader is already looking. A caveat in a log line is one nobody
+reads.
+
+HALF A PAIR IS NOT AN AGREEMENT. A database that recorded only one of the two
+keys returns None rather than assuming the other. The missing key defaults to
+False in `settings.py`, so assuming would usually be right -- which is the
+trap: a rate reported as trustworthy on an assumption is the exact shape of
+the defect this check exists to stop.
+
+AND A DUPLICATED LITERAL THAT READING WOULD NOT HAVE FOUND. `infection_rate`
+repeated the string "segmented host cells" where every other cell-denominated
+metric used the shared `cell_population` variable. The two were equal, so the
+duplication was invisible -- until the warning was appended to the variable
+and THE ONE ROW THAT MOST NEEDED IT went on saying the old words. The test
+caught it; a reader would not have.
+
+STILL NOT DONE, AND DELIBERATELY. No GUI surface and no `spacr-run` name.
+This file and 357 both record that as a separate decision -- "a button, a
+Report section, or something Measure emits" -- and 357's 377-A authorised THE
+REPORT, not a surface for it. Building one would be answering a question that
+was asked and has not been answered.
+

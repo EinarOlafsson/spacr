@@ -30,11 +30,14 @@ TOOL = ROOT / "tools" / "check_translatable_prose.py"
 #: Said in every failure message rather than in this docstring, because a
 #: docstring is not read by the person whose test just went red.
 NOT_A_GREEN_BUILD = (
-    "NOTE: this test decides ONE of the three causes of a catalog rejection "
+    "NOTE: this test decides ONE of the known causes of a catalog rejection "
     "-- a project label in a slot where a translator expects a name. It "
-    "cannot see the other two (model brittleness on particular token pairs, "
-    "and the expansion layer injecting a word), because neither is present "
-    "in the English. Passing it does NOT predict a green build."
+    "cannot see the others, because none of them is present in the English: "
+    "model brittleness on particular token pairs; the expansion layer "
+    "injecting a word; and specific vocabulary a given language's model "
+    "declines, which produces a real translation with a few English words "
+    "left in it. That last set is PER-LANGUAGE and only running the model "
+    "produces it. Passing this test does NOT predict a green build."
 )
 
 
