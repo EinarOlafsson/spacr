@@ -18,18 +18,16 @@ from playwright.sync_api import sync_playwright
 from check_completed_matrix import digest
 from coming_soon import COPY, PLACEHOLDERS
 from stage_lesson import read, write
+from validate_candidate import validate
 from verify_staged_lesson import Handler
 
 
 def verify(root, *, placeholders_only=False):
     root = Path(root).resolve()
-    manifest = read(root / 'release-manifest.json')
-    for record in manifest['files']:
-        path = root / record['path']
-        if digest(path) != record['sha256'] or path.stat().st_size != record['bytes']:
-            raise ValueError(f"Candidate file changed: {record['path']}")
+    validate(root, include_hosted_media=True)
     server = http.server.ThreadingHTTPServer(('127.0.0.1', 0),
             functools.partial(Handler, directory=str(root)))
+    server.daemon_threads = True
     threading.Thread(target=server.serve_forever, daemon=True).start()
     origin = f'http://127.0.0.1:{server.server_port}'
     output = root / 'checks'
@@ -52,7 +50,7 @@ def verify(root, *, placeholders_only=False):
                 caption_only = language in ('da', 'de', 'is', 'ko', 'nb', 'sv')
                 storage = {'spacr-tutorial-language-v2': 'en' if caption_only else language,
                            'spacr-tutorial-voice-v2': 'af_heart',
-                           'spacr-tutorial-captions-v1': json.dumps({'language': language}),
+                           'spacr-tutorial-captions-v1': json.dumps({'language': language, 'enabled': True}),
                            # Old completion records must not count held entries.
                            'spacr-tutorial-progress-v2': json.dumps(list(PLACEHOLDERS))}
                 ctx.add_init_script('Object.entries(' + json.dumps(storage) +
@@ -74,9 +72,9 @@ def verify(root, *, placeholders_only=False):
                     assert not page.locator('#ready-player').is_visible()
                     assert not page.locator('#complete-button').is_visible()
                     assert page.locator('#planned-copy').inner_text() == COPY[language][1]
-                    assert page.locator('#available-count').inner_text() == '71'
-                    assert page.locator('#total-count').inner_text() == '76'
-                    assert page.locator('#progress-label').inner_text() == '0 of 71 complete'
+                    assert page.locator('#available-count').inner_text() == str(len(ready))
+                    assert page.locator('#total-count').inner_text() == str(len(english['lessons']))
+                    assert page.locator('#progress-label').inner_text() == f'0 of {len(ready)} complete'
                     assert page.evaluate('''() => {
                         const before = [...completed].sort().join();
                         toggleComplete(); markCompleteAtEnd();
@@ -101,7 +99,7 @@ def verify(root, *, placeholders_only=False):
                     if language in ('en', 'de', 'ja') and width in (390, 1440):
                         page.screenshot(path=str(output / f'coming-soon-{language}-{width}.png'), full_page=True)
                 assert not errors, errors
-                print(language, 'five Coming soon screens PASS', flush=True)
+                print(language, len(PLACEHOLDERS), 'Coming soon screens PASS', flush=True)
                 ctx.close()
 
             if not placeholders_only:
@@ -126,20 +124,36 @@ def verify(root, *, placeholders_only=False):
                     }''')
                     expected = digest(root / 'media_host' / identity / 'audio/en/af_heart.m4a')
                     assert loaded == expected, identity
-                    page.evaluate('seekTo(chapterData[Math.min(2, chapterData.length - 1)].start)')
+                    paired = page.evaluate('''() => ({voice: audioTimings.voice,
+                        hash: audioTimings.media_sha256,
+                        chapters: chapterData.map(c => c.text),
+                        spoken: audioTimings.scenes.map(s => s.text)})''')
+                    assert paired['voice'] == 'af_heart' and paired['hash'] == loaded, identity
+                    assert paired['chapters'] == paired['spoken'], identity
+                    page.wait_for_function('!videoClockCorrectionPending && !elements.video.seeking && !elements.audio.seeking')
+                    requested = page.evaluate('chapterData[Math.min(2, chapterData.length - 1)].start')
+                    page.evaluate('(seconds) => seekTo(seconds)', requested)
                     page.wait_for_timeout(1500)
+                    page.wait_for_function('elements.captionTrack.readyState === 2 && !captionTrackLoading')
                     clocks = page.evaluate('''() => ({audio: elements.audio.currentTime,
                         video: elements.video.currentTime, expected: videoTimeFromAudio(elements.audio.currentTime),
                         width: elements.video.videoWidth, height: elements.video.videoHeight,
                         error: elements.video.error?.message || elements.audio.error?.message || null})''')
                     assert clocks['error'] is None and clocks['audio'] > 0, (identity, clocks)
+                    clocks['requested_audio_time'] = requested
+                    assert requested - .25 <= clocks['audio'] < requested + 2.5, (identity, clocks)
                     assert abs(clocks['video'] - clocks['expected']) < .5, (identity, clocks)
                     assert (clocks['width'], clocks['height']) == (2560, 1440), (identity, clocks)
+                    for _ in range(2):
+                        page.evaluate('renderCaptions()')
+                        page.wait_for_function('elements.captionTrack.readyState === 2 && !captionTrackLoading')
+                        assert page.locator('#caption-track').count() == 1
                     # The positive playable counterpart is followed by a real
                     # transition back to unavailable, cancelling active audio.
                     page.evaluate("selectLesson('76_ops')")
                     assert page.evaluate('elements.audio.paused && !elements.audio.getAttribute("src")')
-                    playback.append({'lesson': identity, 'audio_sha256': loaded, 'clocks': clocks, 'passed': True})
+                    playback.append({'lesson': identity, 'audio_sha256': loaded, 'clocks': clocks,
+                                     'chapter_text_matches_audio': True, 'native_caption_reloads': 2, 'passed': True})
                     print(identity, 'candidate playback PASS', flush=True)
                     assert not errors, errors
                 ctx.close()

@@ -42,9 +42,9 @@ def require_retention_receipt(saved, current):
         raise ValueError('Retained audio identities, hashes or decode results differ')
 
 
-def verify(stage, held, *, retained=frozenset({'33_plate_viewer'})):
+def verify(stage, held, *, retained=frozenset({'33_plate_viewer'}), baseline=None):
     stage = Path(stage).resolve()
-    baseline = REPO / 'docs/source/_extra/tutorials/catalog'
+    baseline = Path(baseline) if baseline is not None else REPO / 'docs/source/_extra/tutorials/catalog'
     catalog = read(stage / 'catalog/lessons_en.json')['lessons']
     by_id = {item['id']: item for item in catalog}
     selected = require_partition([item['id'] for item in catalog], held, retained)
@@ -56,7 +56,7 @@ def verify(stage, held, *, retained=frozenset({'33_plate_viewer'})):
     lessons = []
     for identity in selected:
         result = check(stage, identity, stage.parent / 'tools/render_all_voices.py',
-                       retained_narration=identity == '34_database')
+                       retained_narration=identity == '34_database', baseline=baseline)
         lessons.append({'lesson': identity, 'scope': 'staged final bytes',
                         'tracks': result['unique_final_tracks'],
                         'browser_cases': len(result['browser_reports']),
@@ -90,6 +90,8 @@ def verify(stage, held, *, retained=frozenset({'33_plate_viewer'})):
             'browser_cases': sum(item['browser_cases'] for item in lessons),
             'held_lesson_ids': sorted(held), 'lessons': lessons,
             'catalog_preservation': catalog_proof, 'checked_subset_passed': True,
+            'preservation_baseline': {'path': str(baseline.resolve()),
+                'catalog_sha256': {p.name: digest(p) for p in sorted(baseline.glob('*.json'))}},
             'missing_registered_routes': navigation['missing_tutorials'],
             'navigation_source_commit': navigation['source_commit'],
             'whole_library_complete': not held and not navigation['missing_tutorials'],
@@ -104,8 +106,10 @@ if __name__ == '__main__':
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
     parser.add_argument('--held', nargs='*', default=[])
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--baseline', type=Path,
+                        help='Frozen pre-refresh catalog directory; checks remain byte-exact')
     args = parser.parse_args()
-    proof = verify(args.stage, set(args.held))
+    proof = verify(args.stage, set(args.held), baseline=args.baseline)
     write(args.output, proof)
     print(f"Checked {proof['checked_lessons']}/{proof['catalog_lessons']} lessons, "
           f"{proof['checked_tracks']} tracks, {proof['browser_cases']} browser cases; "

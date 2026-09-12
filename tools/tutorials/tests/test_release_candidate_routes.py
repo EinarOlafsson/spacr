@@ -7,8 +7,29 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from audit_staged_catalogs import CATALOGS
 from build_navigation import build
 from coming_soon import COPY, PLACEHOLDERS
+from check_completed_matrix import digest
+from validate_candidate import validate
 
 ROOT = Path(__file__).resolve().parents[1] / 'release_candidate'
+
+
+def test_candidate_manifest_and_browser_evidence_match_the_actual_package():
+    result = validate(ROOT, require_browser=True)
+    assert result['routes'] == 77
+    assert result['ready'] == 71
+    assert result['coming_soon'] == 6
+
+
+def test_checkpoint_records_match_actual_committed_files():
+    checkpoint = json.loads((ROOT / 'checkpoint.json').read_text())
+    assert checkpoint['manifest_sha256'] == digest(ROOT / 'release-manifest.json')
+    assert checkpoint['browser_checks_complete'] is True
+    records = checkpoint['files']
+    assert len(records) == len({record['path'] for record in records})
+    for record in records:
+        path = ROOT / record['path']
+        assert path.stat().st_size == record['bytes'], record['path']
+        assert digest(path) == record['sha256'], record['path']
 
 
 def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
