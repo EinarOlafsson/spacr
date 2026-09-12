@@ -18346,6 +18346,42 @@
         "928073e539616cd63dd8a9ce9c4d0f256692e183331308537220419973bac15d"
       ]
     },
+    "spacr.embeddings.encoder_entry": {
+      "source_blocks_sha256": [
+        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
+        "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
+        "fa7b9bdc8f7c1d08cfaa81508efa8331f8700ea4f941c6ec54e72fef1eb4a458",
+        "cbae75c8399079cd49b93dad3c22254b6f724794204e44c4b7a45f3decbba443",
+        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
+        "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
+        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+      ],
+      "source_sha256": "27cec465dec2129bb455cb0ef6326427e8a4a9cf38dc82177c1d28c27269dbc8",
+      "text": "Dieser Encoder als :class:`spacr.model_zoo.ModelEntry`.\n\nEin Encoder ist ein veröffentlichtes Modell wie jedes andere, also gehört er mit seiner Checksumme und seiner Scorecard in den Zoo. Eine Einbettung, die Schiffe ohne eine schwarze Box zweimal über ist: undurchsichtig in dem, was er kodiert, und ungemessen in, wie gut es tut.\n\nWas eigentlich die Provenienz eines Encoders ist. Es hat keinen spaCR Kontrollpunkt -- die Gewichte sind ImageNet oder ein öffentlicher selbstüberwachter Lauf, der durch ``timm`` aufgelöst und von HuggingFace zwischengespeichert wurde. Der Eintrag zeichnet also das Rückgrat, die Kanalrichtlinie und den Verdau der Gewichte auf dieser Maschine auf. Das ist die Sache, die ein späterer Lauf passen muss, und es ist hier ohne Netzwerkanruf kontrollierbar.\n\nWenn die Gewichte nicht zwischengespeichert werden, existiert der Eintrag noch und sagt so in seinen Notizen, mit einem leeren Verdau -- der :func:`spacr.model_zoo.fetch` bereits als Ablehnung behandelt, anstatt als Pass. Ein Eintrag, der leise behauptete, eine Checksumme, die er nicht berechnet hatte, wäre schlimmer als einer, der es noch nicht zugibt.\n\n:param spec: die zu beschreibende Konfiguration; die Standard-Spezifikation, wenn sie weggelassen wird.\n:param scorecard: Retrieval-Nummern aus 386s \"wie es funktionierte\" -- kNN Genauigkeit auf Gen-Identität, Einbettungen gegenüber dem gemessenen Panel. Angehängt als :attr:`ModelEntry.metrics`, wo 370s ``scorecard_lines`` sie liest.\n:returns: a ``ModelEntry`` der Art ``'encoder'``.",
+      "translation_source_blocks_sha256": [
+        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
+        "dcef17b50e9db4df3490a7d22dac90240e267ba685e2372196478c658cec5c3b",
+        "529ec96d6993086fcf130931258b1b67effd233c1cd09cdaa449191f30dbad53",
+        "277b64bf6391e6e08d2799c8b460fdc75057b00b5d34b8dcd023b3746476abb6",
+        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
+        "51fd59a24157c2d9c6893e3e0c013607a655827b034a63ad331f117cb518b70a",
+        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+      ]
+    },
+    "spacr.embeddings.encoder_key": {
+      "source_blocks_sha256": [
+        "12bb772f55f30f83b669e58fc420626a28d497aef934b29f29c9783fc42160d6",
+        "bd1e531779fc81bcc8f9376f2c6c66b8b4837afec8d8f28d5de660ec06da005d",
+        "fab5d49fae2d09183b19b9511238d368ca5fe8c8bc36eb26210497be97eae714"
+      ],
+      "source_sha256": "036708aabbf1a8f6d0127b135af882092e7959a58e864bed76a212bca6aa54aa",
+      "text": "Die stabile ID für eine Encoder-Konfiguration.\n\nDas gleiche Rückgrat unter :data:`CHANNEL_PER_CHANNEL` und :data:`CHANNEL_PROJECT` erzeugt Spalten, die dieselbe Breite haben, denselben dtype und nicht dieselbe Menge entfernt -- eine ist per-stain, die andere ist eine Mischung. Ein strukturierter Datenname, der nur das Rückgrat genannt wird, würde die beiden schweigend vergleichen lassen.\n\n:param spec: die Konfiguration des Laufs. Nur ``backbone`` und ``channel_policy`` erreichen den Namen der strukturierten Daten: Alles andere auf der Spezifikation -- Batchgröße, Gerät, extrahierte Bildregionsgröße -- ändert, wie lange der Lauf dauert und nicht, was eine Dimension bedeutet.",
+      "translation_source_blocks_sha256": [
+        "12bb772f55f30f83b669e58fc420626a28d497aef934b29f29c9783fc42160d6",
+        "1a089c4da6d9b07b6aee44af0a7d819d7ec8b78ee85bb6781ef74a20bcba1009",
+        "bff66033e30f19d505426a15fbc027febf5b9bf10b46d48b459db2dbf9c4b354"
+      ]
+    },
     "spacr.errors": {
       "source_blocks_sha256": [
         "0a6cfb358bbbf7bf78d602172c2556635f7e8a4f93b0e556166fddbd6f777196",
@@ -46727,16 +46763,16 @@
     "spacr.ops_compose": {
       "source_blocks_sha256": [
         "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
-        "b553a737ed987dd13aa8b0d0546b00b8702cdd3a760ed269af776739ff6f47ca",
-        "9c604370eea684a67c7b138357c4e26ea2eac6f640d836c2b3d723c7e0d8242c",
+        "3615110a457f0a82e8b18b44a172b325f96463a06c911e624a73ed2b008e844b",
+        "453dedcfc41fa1fab68303f91f823dd1c1ac32895709dee1564fbcef53f0e242",
         "c359f9f720dab72b58a7a3f83dbd326f91738bf99a87988d1e4d944359b5bc69"
       ],
-      "source_sha256": "d08359f950419f445268ec864e6f252b341154417e4c596d3edf07d9360b36c3",
-      "text": "Die kanonische Atomkarte, die ein Fenster nach dem anderen zusammengesetzt hat.\n\n`ops_stitch` löst, wo jedes Mikroskop-Bildfeld sitzt und hält bewusst nicht die Pixel -- nun A1 ist 26.855 x 26.865, das ist 1.4 GB als uint16 für EINEN Kanal, und jede spätere Phase würde durch sie lesen. Dieses Modul komponiert das gleiche gut Fenster für Fenster statt, was B2 verlangt Segmentierung sowieso zu tun: \"Segment einmal, auf dem Composite, Fenster für Wind\".\n\n    Das Speicherproblem und der Segmentierungsplan haben die gleiche Antwort. Ein Fenster, das ein Segmentierer halten kann, ist auch ein Fenster, welches ein Komponist bauen kann, so dass nichts jemals die ganze Leinwand materialisiert. Der Join-Key B4 benötigt -- eine Labor-Mikroplatten-Level-Objektnummer im Microplate-Beispielpositionsrahmen -- überlebt, weil jedes Fenster seinen eigenen Offset in diesen Rahmen trägt.\n\nWarum die Überlappungen überhaupt durchschnittlich sind. Teil 15 hat sie gemessen: Der Gewinn liegt bei etwa 1,15x auf der exakten Bilddatenkanalsegmentierung, nicht auf dem 3,3x, ein früherer Entwurf, der aus einer durchschnittlich über Zyklen hinweg beansprucht wird. Es gibt nur einen DAPI-Erwerb, so dass das elf-Proben-Argument nicht gilt -- was übrig bleibt, ist die eigene 14%-Überlappung des Rasters, bei der zwei Mikroskop-Bildfelder die gleichen Kerne zweimal sahen. 1.15x ist es wert und ist es nicht wert zu überstatieren, weshalb die Zahl hier ist, anstatt das Adjektiv.",
+      "source_sha256": "94d15719e8a80f33b482ea275b9407742a7aa8fe3bc19702f877e16e3cc59bbb",
+      "text": "Die kanonische Atomkarte, die ein Fenster nach dem anderen zusammengesetzt hat.\n\n`ops_stitch` löst, wo jedes Mikroskop-Bildfeld sitzt und hält bewusst nicht die Pixel -- nun A1 ist 26.855 x 26.865, das ist 1.4 GB als uint16 für EINEN Kanal, und jede spätere Phase würde durch sie lesen. Dieses Modul komponiert das gleiche gut Fenster für Fenster statt, was Segmentierung sowieso will: Segment einmal, auf dem Composite, ein Fenster zu einer Zeit.\n\n    Das Speicherproblem und der Segmentierungsplan haben die gleiche Antwort. Ein Fenster, das ein Segmentierer halten kann, ist auch ein Fenster, welches ein Komponist erstellen kann, so dass nichts jemals die ganze Leinwand materialisiert. Der Join-Schlüssel, den die Objektnummerierung benötigt -- eine Labor-Mikroplatten-Level-Objektnummer im Microplate-Beispielpositionsrahmen -- überlebt, weil jedes Fenster seinen eigenen Offset in diesen Rahmen trägt.\n\nWarum die Überlappungen überhaupt durchschnittlich sind. Teil 15 hat sie gemessen: Der Gewinn liegt bei etwa 1,15x auf der exakten Bilddatenkanalsegmentierung, nicht auf dem 3,3x, ein früherer Entwurf, der aus einer durchschnittlich über Zyklen hinweg beansprucht wird. Es gibt nur einen DAPI-Erwerb, so dass das elf-Proben-Argument nicht gilt -- was übrig bleibt, ist die eigene 14%-Überlappung des Rasters, bei der zwei Mikroskop-Bildfelder die gleichen Kerne zweimal sahen. 1.15x ist es wert und ist es nicht wert zu überstatieren, weshalb die Zahl hier ist, anstatt das Adjektiv.",
       "translation_source_blocks_sha256": [
         "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
-        "df9f3ca80ca6f7dc0d5c5c5e70c16a9c37718a39ce6ed65f6f88c7abbdb49ede",
-        "2bebe95857e6c51de5035aa67c37dc4e5dfda86de8ca5fde1f2f72c7dbc36147",
+        "33901fe20672fdb6af705edd92b691a616f06106884cd03c79b8f83f3325c257",
+        "8cad79d791c34c963652401c085265b4c374e3400706b8bb6bb079cbe64bd705",
         "c1a39eddb74fd17659348ddccf73892cd984ce92636648bec865e0fa30c59960"
       ]
     },
@@ -46839,17 +46875,17 @@
     "spacr.ops_compose.windows_over": {
       "source_blocks_sha256": [
         "d09520c0f1100b5706041dffba94e97b464724d398a47796fac909616e1d18e3",
-        "d58cc12c06301003643d33b1697964bb2fd465183d74b8b2e0448dc9df11d3d0",
+        "0f6e961eb4c1512796c486f24a855a29d80b95ad3a905a21912d32a7f74ee662",
         "5fd2da00e9ba4dccea7b96d40f9e7c5f1571ad527aa282cd625ee79eec663344",
         "7446032b6fb00a83a0a8f3f580218756645806d129e7f196c786388bce4e876c",
         "53747ea6692116a69328604abfec580c74bbdaf5a2795b48887b0d399d987251",
         "0127f37f3eef338fcd6c711bd0cce0b880dd9be69f3a463a99ab86702250c50b"
       ],
-      "source_sha256": "d94324d86aec939ca54a63a292216fdba17fdc24b17abcc8e68a5f8f53338c27",
-      "text": "Mikroskop Bild Feld eine Leinwand in überlappende Fenster, in Rasterreihenfolge.\n\nDie Fenster überlappen sich absichtlich, und B3 ist der Grund: Ein Objekt, das eine Fenstergrenze spannt, ist ein Objekt, und es kann nur über die Naht abgestimmt werden, wenn beide Fenster sie alle gesehen haben. Die Überlappung muss das größte Objekt überschreiten, nicht nur berühren.\n\n:param canvas: ``(height, width)`` des Mikroplattenmusterpositionsrahmens.\n:param size: Fensterrand in Pixeln.\n:param overlap: wie viel benachbarte Fenster teilen.\n:raises ComposeError: wenn die Überlappung nicht kleiner ist als das Fenster, was den Schritt Null und die Iteration unendlich machen würde.",
+      "source_sha256": "ab1908601706a73e23ddde0e5fb812459be77a0c6a8492704c23e8392afffd4b",
+      "text": "Mikroskop Bild Feld eine Leinwand in überlappende Fenster, in Rasterreihenfolge.\n\nDie Fenster überlappen sich absichtlich, und das Nähen ist der Grund: Ein Objekt, das eine Fenstergrenze spannt, ist ein Objekt, und es kann nur über die Naht abgestimmt werden, wenn beide Fenster sie alle gesehen haben. Die Überlappung muss das größte Objekt überschreiten, nicht nur berühren.\n\n:param canvas: ``(height, width)`` des Mikroplattenmusterpositionsrahmens.\n:param size: Fensterrand in Pixeln.\n:param overlap: wie viel benachbarte Fenster teilen.\n:raises ComposeError: wenn die Überlappung nicht kleiner ist als das Fenster, was den Schritt Null und die Iteration unendlich machen würde.",
       "translation_source_blocks_sha256": [
         "bb6ecb963eef28edd2ef7de3e30fe53f993022036fa9af983e73800ed31bc169",
-        "b3a8d32f1bc7fb3f7c33078ea72962296c8a0fe923e3e0125b1c6444ed7e49cc",
+        "2668eb71b108e607405f740d6f2b0a02d67f05cfdf4f3fcb2ee1a1c77ef22465",
         "3469ef7518f7877a9cf13d7144be25a1367b74879e0187fabb24f50e69dc0d57",
         "7446032b6fb00a83a0a8f3f580218756645806d129e7f196c786388bce4e876c",
         "53747ea6692116a69328604abfec580c74bbdaf5a2795b48887b0d399d987251",
@@ -47208,6 +47244,196 @@
         "4284f7e376c2b415cd2950e14b4a049ac51297de01fea7ca23986df819b2bf90",
         "97c2bed9d6e30ad48a18ebcb280604b6527d89f8c0a56c45bf5da9eb35f16c79",
         "d049bbab3f5ef63d99108ae55d6aff94556ee72a51ad282a085249831158d6fe"
+      ]
+    },
+    "spacr.ops_objects": {
+      "source_blocks_sha256": [
+        "6216ae38b62c08718330501119260cf976d8a4cabb5c3229b884619b6ca18ff9",
+        "670d8fe38a344e153f52bafcab313817550e53f6668839e73d40ccb0b8f29932",
+        "fc9b9d411d973c2bb8ccc764c8ecaebd6a39e541a26602b6bf86ee58f8848f3e",
+        "757a4fbb2a0dffbaea257d6a3a86fe831c8c0b129c3a302ae1ad763c98199705",
+        "990cbd9d468810e23d12c3c6422a96b1e92596d8698621faf418036c8b591785",
+        "97b8148e32b87cf7ab822aa5792267912cd4e0e4cb9ef01a3fe9b1d14e57d483",
+        "bcd8c39db6c093f852d0428af03bd07c6af89f7ae366071127c7a1ff280d4889",
+        "01272912db0ec87950b0a80779bd9ba157f02b306c23a540d72bcc352015eaa5",
+        "c02755472affea9845da91da2662a1c37746a02b0533ee43750418c5f0dfc107"
+      ],
+      "source_sha256": "a3672d1d070cafff1ab522615ed99b112085c5305e9559ae6cf0099fc3605b14",
+      "text": "Eine Objektliste für eine Mikroplatten-Beispielposition, über Fensternähte genäht und einmal nummeriert.\n\nSEGMENT, SEW, NUMMER -- die drei Schritte zwischen einer Komposit- und einer Objekttabelle. Der Komponieren-Schritt gibt ein genähtes Bildraster an, das zu einer Zeit ein Fenster aufgebaut und nie vollständig materialisiert wird; das ist es, was Segmentierung und Numerierung darüber tun:\n\n* Segment einmal, auf dem Composite, Fenster für Fenster.\n* Nähen Sie die Etiketten über Fensternähte. Ein Objekt, das eine Grenze spannt, ist ein Objekt, auf seinen gut gerahmten Zentrioid abgestimmt.\n* Nummer im Microplate Beispiel Position Rahmen, nicht pro Fenster. Pro-Fenster Nummerierung würde zwei Fenster ein Objekt #1 pro Stück geben.\n\nDas Nahtproblem wird bereits durch den Komponierenschritt halb gelöst und sagt, wie es vermieden wird, es neu zu erfinden. :func:`spacr.ops_compose.windows_over` Mikroskopbildfelder mit einem OVERLAP, und sein Vertrag ist, dass die Überlappung das größte Objekt übersteigt. So wird ein Kern in der Nähe einer Naht nicht zwischen zwei Fenstern aufgeteilt -- es wird von mindestens einem von ihnen gesehen, und in der Regel zweimal. Der Job hier ist daher Deduplikation, nicht Rekonstruktion: finden Sie die Beobachtungen, die der gleiche Kern sind und halten die, die alle von ihm gesehen.\n\n    Diese Unterscheidung ist das ganze Design. Das Rekonstruieren eines Objekts aus zwei Teilmasken bedeutet, wie man Pixel über eine Naht vereinigt, die zappelig und verlustig ist. Die Wahl zwischen zwei kompletten Masken ist keines.\n\nWas einen Fehler hinterlässt, der nicht schweigen darf: ein Objekt, das größer ist als die Überlappung, die jedes Fenster clips. :func:`sew` lehnt diese ab, anstatt ein Fragment auszusenden, weil ein Fragstück genau wie ein kleiner Kern aussieht und für den Rest der Verarbeitungssitzung als eins gezählt wird.\n\nDie ids sind ein Join strukturiert-Daten-Name, so dass sie deterministisch zugewiesen werden -- Rasterreihenfolge auf dem Mikroplattenmuster-Positions-Frame Zentrioid -- und nicht durch Iterationsreihenfolge über ein Key-Value-Mapping oder durch welches Fenster auch immer zuerst segmentiert wurde. Der Vertrag lautet: \"Diese ID, und der Zentrioid daneben, ist der Join strukturiert-Daten-Name für jede spätere Phase.\" Zwei läuft über die gleichen Daten müssen die gleichen Zahlen oder nichts nach unten verglichen werden können.",
+      "translation_source_blocks_sha256": [
+        "8c6d8513f13f9bdee29471aa28191262bead1149b24a1bdd2dd9bd006801d1c8",
+        "876023c819960f5827726f2d0a528b5f6695cd8d3cdbbd1e88dbd22dff0fd76e",
+        "340f135c67d6514abe651d9bafa03a82ee342b29880af2fbd4a4b1e585d84335",
+        "c8465868e6b6fb779041505784a0a61b20111c457e043a761fff4bf63e2c79c2",
+        "855db13bbcf05e330503ed4ac4e1e170756ff56ba9bac3624767c9e5658fbdef",
+        "33ccab566faea35efbfc090caa07b8b5f4b383f52dc588eb1af0269939f158ea",
+        "70a26b1a8de4fe228b8bf046da160ff9aa3f7f15b1d4d7ba8f7c420403994e82",
+        "1b5012547632a797799e95c8197cc7dd2a97f1023ae8cc29146fc77bf09cf5b1",
+        "6d6f19c0b5cdcca7dd1892c1089587143faa4afdc9d5216b05b1fd0379f3e81e"
+      ]
+    },
+    "spacr.ops_objects.ObjectsError": {
+      "source_blocks_sha256": [
+        "8711232635ea05e36e26ab72e231fa84cb4a780b92f2ac99bc81c0de439923e2",
+        "21b98ccae9abc7261fb50f18ce4c7ccb99f09dd961be2ab74c6d182c9599f85e"
+      ],
+      "source_sha256": "25d4ff9b154f932da1c0444e74abfb37ffe24cce79f29616dfe67c9cf6ad13d9",
+      "text": "Eine Objektliste, der man nicht trauen kann, mit dem Weg aus dem Text.\n\nErhöht statt leer zurückgegeben aus dem gleichen Grund :class:`spacr.ops_compose.ComposeError` ist: jeder von diesen ist ein Satz, auf den ein Operator handeln kann -- \"das Fenster überlappen über dem größten Kern\" -- und ein Anrufer, der es verschluckt würde weiter mit einer Zählung, die ruhig falsch ist.",
+      "translation_source_blocks_sha256": [
+        "8711232635ea05e36e26ab72e231fa84cb4a780b92f2ac99bc81c0de439923e2",
+        "21b98ccae9abc7261fb50f18ce4c7ccb99f09dd961be2ab74c6d182c9599f85e"
+      ]
+    },
+    "spacr.ops_objects.PlateObject": {
+      "source_blocks_sha256": [
+        "dd14870f427a77beb13b68ed45b483d218419e890c2e93fb8fa3770de0288a70",
+        "617f96dff5915a91f13f109e95842c1b44df36dc77bf6cf9ce00f9da31796eae",
+        "a5eba814db15a79482b0220b9e374d0673825f6c925d6b5834fea1486e36a499",
+        "0454ca39eccc6ea726b1d2c66877657aeef6eeff49ee6787116ac2e9e8377101",
+        "642d2e1a7e1a5a857e204be52b3dc56fd052f4890ab19d05aea9ee7f351e7978",
+        "cd87e7ead28e1ec5f093c3e677e5bea79aebd18f9df37b8d3aaa5abccfdd438d",
+        "6735f044b8d688b14dc0c3f83847692739c1a7714b3a4ccfbfc9e2760f3f8d8c",
+        "015b9666b0dbca7b2fa380d289f46f461a6e3d76dff95fa2d8219f8aa91481a8",
+        "9d6587e77fa9bd5eb5ccd239102f86825c4e32e93aae003b0c1f7214d13fddf2"
+      ],
+      "source_sha256": "3415ac1e8592c5fbaeab6c74544147aa1d667846212d67844976452109302b82",
+      "text": "Ein Kern, nummeriert für den ganzen Wells.\n\nDie Feldnamen sind die ``ops_objects`` Spalten, die der Speichervertrag spezifiziert, so dass die Tabelle ohne Übersetzungsebene aus diesen geschrieben wird.\n\n:param object_id: die weite Zahl. Einzigartig über den ganzen Wells, was der ganze Grund ist, warum dieser Typ existiert -- pro Fenster Nummerierung gibt zwei Fenstern ein Objekt #1 pro Stück.\n:param centroid_x: Spalte des Zentrioids, in Wellframe-Pixel.\n:param centroid_y: Reihe des Zentrioids, gleicher Rahmen.\n:param area: Pixelzahl der Maske, die gehalten wurde, was die UNCLIPPED-Beobachtung ist, wo immer man existiert.\n:param bbox: ``(top, left, bottom, right)`` in Wellframe-Pixel, unten/rechts exklusiv.\n:param window: das Fenster, dessen Beobachtung gehalten wurde, als ``(row, col)``. Aufgenommen, damit ein Verdächtiges Objekt zu den Pixeln zurückverfolgt werden kann, von denen es segmentiert wurde.\n:param n_observations: wie viele Fenster diesen Kern gesehen haben. Größere als eins bedeutet, dass er in einer Überlappung saß und die Beobachtungen genäht wurden.",
+      "translation_source_blocks_sha256": [
+        "dd14870f427a77beb13b68ed45b483d218419e890c2e93fb8fa3770de0288a70",
+        "617f96dff5915a91f13f109e95842c1b44df36dc77bf6cf9ce00f9da31796eae",
+        "a5eba814db15a79482b0220b9e374d0673825f6c925d6b5834fea1486e36a499",
+        "0454ca39eccc6ea726b1d2c66877657aeef6eeff49ee6787116ac2e9e8377101",
+        "642d2e1a7e1a5a857e204be52b3dc56fd052f4890ab19d05aea9ee7f351e7978",
+        "cd87e7ead28e1ec5f093c3e677e5bea79aebd18f9df37b8d3aaa5abccfdd438d",
+        "6735f044b8d688b14dc0c3f83847692739c1a7714b3a4ccfbfc9e2760f3f8d8c",
+        "015b9666b0dbca7b2fa380d289f46f461a6e3d76dff95fa2d8219f8aa91481a8",
+        "9d6587e77fa9bd5eb5ccd239102f86825c4e32e93aae003b0c1f7214d13fddf2"
+      ]
+    },
+    "spacr.ops_objects.PlateObject.row": {
+      "source_blocks_sha256": [
+        "e456b1d04ba53925c6cd89e3bdf19056eb2998a1516beda9850e73d05e958665"
+      ],
+      "source_sha256": "e456b1d04ba53925c6cd89e3bdf19056eb2998a1516beda9850e73d05e958665",
+      "text": "Eine Reihe ``ops_objects``.",
+      "translation_source_blocks_sha256": [
+        "e456b1d04ba53925c6cd89e3bdf19056eb2998a1516beda9850e73d05e958665"
+      ]
+    },
+    "spacr.ops_objects.WindowObject": {
+      "source_blocks_sha256": [
+        "bbe5869f53461fac1f339f4906b81de90bd037d62c2e4a5a9730a390de9ef160",
+        "b19805146c0e651281562808614a7c4d8595a3ed21d97e6a54bdcf6c6ca56b96",
+        "b54e7e0613ded479cdf1952602068302efb28e97e78cab851ac882c474d93cb1",
+        "c531bfa81c783863267ad946371637abfadaa556ba897e1cd80300f122da56a7",
+        "6810b4ba6f97eda44eb8a5bbbbde5f3a1408c99cca3a44836516e98dcb1382f8",
+        "22c94bc7a739e222cb1d8f00a13e848bcf51527ae0bba819bf3418b2ff31b16e",
+        "1a8727fd6d97a011ac4e5e53440b5a0ff83ddfab2e1b838a684a48bb94d61d08",
+        "6735f044b8d688b14dc0c3f83847692739c1a7714b3a4ccfbfc9e2760f3f8d8c"
+      ],
+      "source_sha256": "3938b7641e317740844cf61721b650f2ffde755ef9486f451b5d740e3471aea1",
+      "text": "Ein segmentiertes Objekt als EIN Fenster sah es, in gut gerahmten Koordinaten.\n\n:param window: das Fenster, in dem es segmentiert wurde, so dass eine Meinungsverschiedenheit zu den Pixeln zurückverfolgt werden kann, die es erzeugten.\n:param label: sein Label-Wert innerhalb des Label-Images dieses Fensters.\n:param clipped: ob seine Maske eine Fensterkante berührt, die nicht auch eine Leinwandkante ist - also dieses Fenster sah NICHT alles davon. Eine geclippte Beobachtung wird nie bevorzugt und nie allein ausgestrahlt.\n:param centroid_y: Reihe des Objekts Zentrioid, in WELL-Frame Pixel -- nicht Fensterrahmen. Passend über eine Naht vergleicht Zentriiden aus zwei verschiedenen Fenstern, so dass sie in einem Rahmen beide übereinstimmen.\n:param centroid_x: Spalte des gleichen Zentrioids, gleicher Rahmen.\n:param area: Der Pixel der Maske zählt, wie dieses Fenster es sah. Kleiner als die Wahrheit, wenn ``clipped`` gesetzt wird, was es als Bindebruch zwischen zwei Beobachtungen eines Kerns nutzbar macht.\n:param bbox: ``(top, left, bottom, right)`` in Wellframe-Pixel, unten/rechts exklusiv.",
+      "translation_source_blocks_sha256": [
+        "bbe5869f53461fac1f339f4906b81de90bd037d62c2e4a5a9730a390de9ef160",
+        "b19805146c0e651281562808614a7c4d8595a3ed21d97e6a54bdcf6c6ca56b96",
+        "b54e7e0613ded479cdf1952602068302efb28e97e78cab851ac882c474d93cb1",
+        "c531bfa81c783863267ad946371637abfadaa556ba897e1cd80300f122da56a7",
+        "6810b4ba6f97eda44eb8a5bbbbde5f3a1408c99cca3a44836516e98dcb1382f8",
+        "22c94bc7a739e222cb1d8f00a13e848bcf51527ae0bba819bf3418b2ff31b16e",
+        "1a8727fd6d97a011ac4e5e53440b5a0ff83ddfab2e1b838a684a48bb94d61d08",
+        "6735f044b8d688b14dc0c3f83847692739c1a7714b3a4ccfbfc9e2760f3f8d8c"
+      ]
+    },
+    "spacr.ops_objects.number": {
+      "source_blocks_sha256": [
+        "606f61529473645d8fbd17db2e0b0a0ce56f64e7aef97a67ff116078ec17eda6",
+        "9a93bc57583625008118ded5bf4743b7890b3e250252024c69d6ee1a26c61af0",
+        "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
+        "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
+        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
+        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+      ],
+      "source_sha256": "f8d639df7ef3ce1cd268c560d6e74d298f93194582c5b9bb6de2b4b778e2d4d3",
+      "text": "Eine ID pro Objekt, im Mikroplattenmusterpositionsrahmen zugewiesen, deterministisch.\n\nRasterreihenfolge auf dem Mikroplattenmuster-Positions-Rahmenzentroid -- von oben nach unten, dann von links nach rechts -- anstatt dass die Bestellfenster segmentiert wurden. Die ID ist ein Join-Schlüssel, so dass zwei läuft über die gleichen Daten müssen die gleichen Zahlen produzieren; Bestellung nach allem, was der Scheduler variieren kann, würde dies leise und nur in den Ergebnissen brechen.\n\nIds beginnen bei 1. Zero ist Hintergrund in jedem Label-Image, aus dem das kam, und ein Objekt mit der Nummer 0 wäre für jeden nachgeschalteten Maskenvergleich unsichtbar.\n\n:param groups: von :func:`sew`.\n:param strict: eine Gruppe ohne vollständige Beobachtung abzulehnen. Schalten Sie sie aus, nur um einen schlechten Lauf zu inspizieren - die Objekte, die sie dann aussendet, sind Fragmente mit abgeschnittenen Bereichen.\n:raises ObjectsError: wenn eine Gruppe nur abgekürzte Beobachtungen hält, was bedeutet, dass das Objekt größer ist als die Fensterüberlappung.",
+      "translation_source_blocks_sha256": [
+        "e59d92411ab038dc0eae96f9b50e22d4e209ba7f09ad325f1685cd475ca1f438",
+        "71dd785a95bf433424f8db8a069882a844b988679155e844d35c762c5bc4f10a",
+        "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
+        "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
+        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
+        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+      ]
+    },
+    "spacr.ops_objects.objects_frame": {
+      "source_blocks_sha256": [
+        "a2647c8fa2880da295a546330d0f53fc545fa7146419b926f81074915a45f331",
+        "a3bdb3ee3ce7366d950e77d0d51ae6dc7fe8b98fe4c3c29114a488ff1fd38875",
+        "55fc8b2a9e28565f111ff72dc29fa9449f47c854f412ba834fbfb67865401506"
+      ],
+      "source_sha256": "0a0cdd7ca0c4d5007bb74c9ec2775160b450d43ed893ca81c49bb7527292ae90",
+      "text": "Die ``ops_objects``-Tabelle, als DataFrame.\n\nImportiert lokal, so bleibt dieses Modul nutzbar -- und testbar -- ohne pandas, was der gleiche Grund ist :mod:`spacr.scorecard` erreicht für die Standardbibliothek.\n\n:param objects: die nummerierten Objekte, jeweils eine Zeile in der angegebenen Reihenfolge.",
+      "translation_source_blocks_sha256": [
+        "a2647c8fa2880da295a546330d0f53fc545fa7146419b926f81074915a45f331",
+        "a3bdb3ee3ce7366d950e77d0d51ae6dc7fe8b98fe4c3c29114a488ff1fd38875",
+        "55fc8b2a9e28565f111ff72dc29fa9449f47c854f412ba834fbfb67865401506"
+      ]
+    },
+    "spacr.ops_objects.objects_in_window": {
+      "source_blocks_sha256": [
+        "c576b67a8a47a48b5c6105a7ce804d7cffec0f591cb1659f8a10f4762a22c1fc",
+        "f4bc21a570e5c9e5a25d6489b73230efe969c06fd6ed9830a32462a9992b0f49",
+        "1688aca06fd7b5b44c55efd9b8edf5142d9caa6151b0e6855914222e94baf469",
+        "4e1f9b52febb3cca8ebb69f3c9ec3c836ce9be2894e9850dc25af4dcb89fce3b",
+        "3da708ae70291d0d11a6d8b65f78a043d3b2a1925b9a996b270373ec9a43a222"
+      ],
+      "source_sha256": "73405f3917ca98e2017067f228c3a7cd051107b2f0900dcff2e5aed95663c92d",
+      "text": "Verwandeln Sie das Etikettenbild eines Fensters in gut gerahmte Beobachtungen.\n\n:param window: wo dieses Etikettenbild in der Mikroplatten-Probenposition sitzt.\n:param labels: Integer-Label-Image, Null ist Hintergrund, da ein Segmenter es zurückgibt. Muss der Form des Fensters entsprechen.\n:param canvas: die Mikroplatten-Probenposition ``(height, width)``. Wird nur verwendet, um eine Fensterkante zu sagen, die auch die Mikroplatte-Probepositionskante ist -- wo ein Objekt wirklich endet -- aus einer Innennaht, wo ein berührendes Objekt geclippt wird. Omitiert, wird jede Kante als innen behandelt, was die sichere Richtung ist: sie kann diese Funktion nur vorsichtiger machen.\n:raises ObjectsError: wenn ``labels`` nicht die Form des Fensters ist, da jede Koordinate unten stillschweigend falsch wäre.",
+      "translation_source_blocks_sha256": [
+        "c576b67a8a47a48b5c6105a7ce804d7cffec0f591cb1659f8a10f4762a22c1fc",
+        "82eeffc04bf7ee958e8fcb0b5248edf0b8176b21f0f689fe8f5e8662d9e04673",
+        "1688aca06fd7b5b44c55efd9b8edf5142d9caa6151b0e6855914222e94baf469",
+        "619df9f0664004928cd86d8d29c29db01519c649e6ce2292df3d75ba822c1885",
+        "3da708ae70291d0d11a6d8b65f78a043d3b2a1925b9a996b270373ec9a43a222"
+      ]
+    },
+    "spacr.ops_objects.segment_windows": {
+      "source_blocks_sha256": [
+        "f0ef2a40ee9de0d28442159f43c64fdac35c3f2eaa9845b3fbc2417d0a5a9dfd",
+        "f6d8a5331134113ecfdd88e7486135bf0fe12c1bfe0dfe026aa68ee2cf612e60",
+        "75fb35bff3eb6254fdc7bf22158da0c61ef6bac28c744e6e00188407c128d97f",
+        "ecebc70bda18e3729d15194bf63ed5a83f3dd47b84aad191ee4bbffe6e86a3e6",
+        "e5e102cc8cb400d9d36a197afdf5389581288ca903ee667075a20743a92738ef",
+        "1536007fb225aaa0e1c9ebd7a0a087f2defcbc44748276ac2158e4b9c05584d2"
+      ],
+      "source_sha256": "e7602a72c14edd292bfc58d5d3192f29840f82a5e0f1a5750800d3af599a24bb",
+      "text": "Führen Sie einen Segmenter über jedes Fenster und sammeln Sie die Beobachtungen.\n\nDer Segmenter wird injiziert, genau wie ``compose_window`` seine ``read_tile`` nimmt. Dieses Modul importiert niemals cellpose, wählt nie ein Modell und entscheidet nie einen Durchmesser -- es ist die Geometrie dieses Fensters durch Fenster zu tun, und es ist auf gepflanzten Etiketten ohne Modell vorhanden testbar.\n\n:param windows: von :func:`spacr.ops_compose.windows_over`.\n:param segment: mit einem Fenster aufgerufen, gibt sein Label-Image zurück. Ein Anrufer komponiert die Pixel (``compose_window``) und segmentiert sie innerhalb dieses Callables, so dass das Composite nie als Ganzes gehalten wird.\n:param canvas: die Form der Mikroplattenprobe, die auf :func:`objects_in_window` durchgeht.\n:returns: jede Beobachtung aus jedem Fenster, ungenäht und unnummeriert.",
+      "translation_source_blocks_sha256": [
+        "f0ef2a40ee9de0d28442159f43c64fdac35c3f2eaa9845b3fbc2417d0a5a9dfd",
+        "24bf9efd98341708af031f53aa036edb9981c41239a1d208a9b76145a98821c5",
+        "75fb35bff3eb6254fdc7bf22158da0c61ef6bac28c744e6e00188407c128d97f",
+        "ecebc70bda18e3729d15194bf63ed5a83f3dd47b84aad191ee4bbffe6e86a3e6",
+        "ce028ddc14a34e55b2047bc5f53313505098175f595dde146e6ef7846b715a79",
+        "1536007fb225aaa0e1c9ebd7a0a087f2defcbc44748276ac2158e4b9c05584d2"
+      ]
+    },
+    "spacr.ops_objects.sew": {
+      "source_blocks_sha256": [
+        "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
+        "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
+        "f08633cd3542cbeb32d6a15ddabb0e48d2cb1d93159db10c8da9596e2a06bc61",
+        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
+        "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
+      ],
+      "source_sha256": "0a6524af4792480274feb233863a420748edcbde67f7babf4bcaabc98af6a067",
+      "text": "Gruppenbeobachtungen, die der gleiche Kern sind.\n\nJede Gruppe ist ein physisches Objekt. Ein Kern in einem Fensterüberlappung wird aus zwei (oder vier, an einer Ecke) Beobachtungen gruppiert; einer im Inneren eines Fensters bildet eine Gruppe von einer.\n\nDie abgeschnittenen sind der Punkt. Eine Beobachtung, deren Maske in eine innere Naht lief, sah nicht den ganzen Kern, so dass seine Fläche und Zentrioid sind beide falsch. Es wird nur lange genug gehalten, um auf eine vollständige Beobachtung des gleichen Kerns abgestimmt werden und dann fallen gelassen, um ihn. Eine abgeschnittene Beobachtung, die nichts vollständig bedeutet, kein Fenster sah, dass Kern Ganzes, die :func:`number` verweigert.\n\nPassen einer geclippten Beobachtung verwendet nur den Zentrioid: sein Bereich ist per Definition abgeschnitten, so dass die erforderlichen Bereiche zu vereinbaren würde genau die Übereinstimmung verhindern, die es rettet.\n\n:param observations: jedes Fenster die Ansicht jedes Objekts in einem Wells, bereits in gut gerahmten Koordinaten. Ordnung spielt keine Rolle; die Gruppierung ist nach Geometrie, nicht nach Ankunft.\n:returns: Gruppen, jeweils ein Tupel von Beobachtungen, in keiner bestimmten Reihenfolge -- :func:`number` auferlegt die Reihenfolge, die zählt.",
+      "translation_source_blocks_sha256": [
+        "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
+        "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
+        "86686443e9b66c526106ba99577de6700be0169153c6a27d3a1089230a993d13",
+        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
+        "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
       ]
     },
     "spacr.ops_phenotype": {
@@ -47624,6 +47850,130 @@
         "d0291097f3932c7129ced787a4a0e9b8ce93f74b9680fd50bb64557e28d92b6f",
         "c8efa7e19c8b644a875bbfa2d4105b8fe50c9a3b0010490233585404e143b7b9",
         "3f54d20af058e945ec56bbe3d500b9b92b0a4a9e6d1ed0304caecb0c674c012d"
+      ]
+    },
+    "spacr.ops_sample": {
+      "source_blocks_sha256": [
+        "dc308f703c0ca6de281ff93633809ceb34fd2d60d21c253efc83c7c50e5a93f1",
+        "35770ef9e510496017423ba6f68158c6b99dd1ceaee97100e16c8b1a404ccf6e",
+        "d17356a68d3aeeb7978db29341fa101d00cb70c0d22f6ecd3deb7d8e41397848",
+        "ee5098c670d539fbe1f690d806448ba6e7830c59d6d1b5c0cbbf7bcc81e33d1d",
+        "1a7c609357bde860f3c8f5268e0fd45895ec4cc3731cb9cf1f0dbe2e4e371b0c",
+        "dc785e99606e9d41b8e09c02fe174b95c19f6665e9bcfd194c0b319512de1a36"
+      ],
+      "source_sha256": "fb582fa95db1c116cdd9578c192bbabdf02695a416a54c4aa48236f32d7edb53",
+      "text": "Jeder andere Kanal, abgetastet an den Koordinaten die Nummerierung zugewiesen.\n\nDie Probenahme jedes anderen Kanals am Objekt koordiniert den Nummerierungsschritt, der zugewiesen wird -- den Teil, der ohne einen realen Zyklusstapel gebaut und überprüft werden kann. Der Numerierungsvorgang erzeugte eine Labor-Mikroplatten-Level-Objekt-ID und einen Mikroplatten-Probenpositions-Rahmenzentroid für jeden Kern; das ist es, was die restlichen Kanäle an diesen Koordinaten liest und das Ergebnis zu diesen IDs schlüsselt.\n\n    C1-Sequenzierungskanäle pro Zyklus ... NIEMALS über Zyklen gemittelt -- das ist die eine Operation, die einen Barcode zerstört, während er dekodierbar bleibt.\n\nDieser Satz ist die gesamte Konstruktionsbeschränkung und er wird durchgesetzt, nicht dokumentiert. Ein Mittelwert über Zyklen eines Vier-Bild-Datenkanal-Ausleses sieht immer noch aus wie ein Vier-Bilder-Datenkanäle-Auslesen: ``call_reads`` akzeptiert ihn, gibt einen Barcode der richtigen Länge zurück, und jede nachgeschaltete Tabelle füllt sich ein. Die Verarbeitungssitzung schließt ab, die Zahlen sind plausibel, und die Barcodes sind Rauschen. Es gibt keine spätere Überprüfung, die ihn fangen kann, weil nichts stromabwärts weiß, was die Per-Zyklen-Werte waren. :func:`decode_input` lehnt ein Array ab, dessen Zyklusachse zusammengebrochen ist, und dieses Modul bietet keine Möglichkeit, einen Durchschnitt zu erzielen.\n\n    Der Phänotyp PATH ist der entgegengesetzte Fall, weshalb die beiden eher getrennte Funktionen sind als eine mit einer Flagge. Ein in mehreren Zyklen gemessener Phänomenkanal IST mehrere Proben einer einzigen Menge und durchschnittlich ist er die richtige Sache, und was er aussendet, ist das Schema ``measure``, das bereits emittiert. Dieselbe Labormikroplatte, gleiche Objekte, entgegengesetzte richtige Antwort; eine gemeinsame Flagge würde die Wahl eines Anrufers treffen, und es ist nicht eins.\n\nDie Sampler werden injiziert, wie sie in :mod:`spacr.ops_compose` und :mod:`spacr.ops_objects` sind: Nichts hier öffnet eine Datei oder kennt die Provenienz einer Transformation, so ist alles von ihm auf gepflanzte Wahrheit testbar.",
+      "translation_source_blocks_sha256": [
+        "dc308f703c0ca6de281ff93633809ceb34fd2d60d21c253efc83c7c50e5a93f1",
+        "06ac7bf5f7a452fac2766c28c3b61fcbabeafbdef17bc0ad13514ff5e0c3bac8",
+        "8499222525d034937a6c9ee2b20c07c60940212bd6f8bb43d168339d4ddb3db6",
+        "b3e3cb24901576ca58fc8a2ec17dcb6afaf2a6e326f122050424be7cead2a321",
+        "a143958361f871526d8c85af82edd53e7fc6593e55b091047d857b6ff584a6ce",
+        "dc785e99606e9d41b8e09c02fe174b95c19f6665e9bcfd194c0b319512de1a36"
+      ]
+    },
+    "spacr.ops_sample.SampleError": {
+      "source_blocks_sha256": [
+        "e63cfbe84a10c138011010ab7f7612fcdb0667614012eb384df61663d43abb97"
+      ],
+      "source_sha256": "e63cfbe84a10c138011010ab7f7612fcdb0667614012eb384df61663d43abb97",
+      "text": "Eine Probenahme, die nichts bedeuten kann, mit dem Ausweg im Text.",
+      "translation_source_blocks_sha256": [
+        "e63cfbe84a10c138011010ab7f7612fcdb0667614012eb384df61663d43abb97"
+      ]
+    },
+    "spacr.ops_sample.average_over_cycles": {
+      "source_blocks_sha256": [
+        "46d6b8c205ae9feba4eb93536b0ce2709bdfc6031c6cfb292e86185b011deae9",
+        "9a80c9b50012e60cfa0f9577326ad16757339055099b1bf0c1eeebcab0a85621",
+        "9b85d7a75b7cd29d33e6e6f6133e67c22c65c98de1f5aeee16cefafc5164673f",
+        "999e434c9425c7ce81a9ad676b73d4f43b8c6829c03d4e8effe70347cce92aef",
+        "dc73c4c0969c3fb1d578a8503b31ee009dd102b9c96f70d6b5658e6a659da850"
+      ],
+      "source_sha256": "86d187592b7069bedce39002330ad38b01b6303b1d62318bee22315583fd1f7f",
+      "text": "Mittel eines PHENOTYPE-Kanals über Zyklen hinweg. Korrigieren Sie hier, nur hier.\n\nPhenotyp-Kanäle werden \"bei den gleichen Objekt-IDs\" abgetastet, und ein Phänotyp, der in mehreren Zyklen gemessen wird, ist mehrere Proben einer Quantität -- also erhöht die Durchschnittung seine Präzision, genau wie es der Durchschnitt der Hoechst über Mikroskop-Bildfelder tut, wenn sie sich überlappen.\n\nZweckmäßig von :func:`decode_input` getrennt. Die gleiche Operation ist für einen Phänotypkanal richtig und katastrophal für einen Sequenzierungskanal, also sind es zwei Funktionen und nicht eine mit einer Flagge: Eine Flagge würde die Entscheidung eines Anrufers treffen, und sie ist eine Eigenschaft des Kanals.\n\nNaN-aware, denn :func:`sample_objects` gibt NaN für ein Objekt zurück, das dieser Zyklus nicht abdeckte, und ein Objekt, das in neun Zyklen von elf gemessen wird, sollte den Mittelwert der neun anstatt NaN erhalten.\n\n:param per_cycle: ein Array pro Objektwerte pro Zyklus, jedes Array die gleiche Länge und in der gleichen Objektreihenfolge. Die Reihenfolge ist, dass der Anrufer behalten muss: Hier kann nichts zwei Zyklen erkennen, die an verschiedenen Objekttabellen abgetastet werden.",
+      "translation_source_blocks_sha256": [
+        "46d6b8c205ae9feba4eb93536b0ce2709bdfc6031c6cfb292e86185b011deae9",
+        "56f7a473f0bd018f6e6fe295db12745d828799a895e556b0c162526f7408c8ff",
+        "b3b8b7b342edc8633761536aa8c0163f19a8bcaf1a6be2a41865eeecc6537d47",
+        "999e434c9425c7ce81a9ad676b73d4f43b8c6829c03d4e8effe70347cce92aef",
+        "dc73c4c0969c3fb1d578a8503b31ee009dd102b9c96f70d6b5658e6a659da850"
+      ]
+    },
+    "spacr.ops_sample.barcode_rows": {
+      "source_blocks_sha256": [
+        "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
+        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
+        "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
+        "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
+      ],
+      "source_sha256": "f38075fc6c052a70d7e7a96cea0d846a58c5b84ff01346949306ae77e89eb25e",
+      "text": "``ops_barcodes`` Zeilen: eine pro Objekt, über Zyklen zusammengebaut.\n\nLegt den Aufruf an :func:`spacr.ops_sbs.call_reads` ab, der bereits Cross-Talk ausgleicht und Qualität wie das MINIMUM über Zyklen berichtet -- \"ein Barcode ist nur so vertrauenswürdig wie seine schlechteste Basis\". Wiederholt, dass hier ein zweiter Decoder wäre, der Schritt halten soll.\n\n:param objects: die nummerierten Objekte in der gleichen Reihenfolge wie die erste Achse ``values``.\n:param values: ``(objects, cycles, channels)`` Intensitäten, NIEMALS über Zyklen gemittelt -- siehe :func:`decode_input`, was einen einzigen Zyklus aus dem gleichen Grund ablehnt.\n:param library: wenn gegeben, wird jeder Barcode auf das nächste Bibliotheksmitglied durch :func:`spacr.ops_sbs.correct_to_library` korrigiert, und die Zeile trägt, was sie kartiert.",
+      "translation_source_blocks_sha256": [
+        "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
+        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
+        "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
+        "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
+      ]
+    },
+    "spacr.ops_sample.decode_input": {
+      "source_blocks_sha256": [
+        "0625510160f5879e2a8bff85e4250817ef0c636c0f040b5d23dfc733df251c18",
+        "b71147c9e60d8756d56457f50a234fe630ea967b43928e71dd9c79e45ed4cca3",
+        "45c996e1214ad971ad78bed41a3a02ebb73d386569fcf7f54f5e1f3d2a4ddfa6",
+        "7418e23928d78a9f66540aaba1b027accc57a64165114eb3c5fb16f6ae33da36",
+        "ba72c17bb52bac1520619d52e17b885e5072b8f0f212a7e1077867bfdad4b9dd"
+      ],
+      "source_sha256": "e471b30d6318aa0fa496c988f1381563c494e1ce9234651d2f3594260140bb53",
+      "text": "Stapeln Sie pro Zyklus, pro Kanal Proben in ``call_reads``' Eingang.\n\n:param per_cycle: ``per_cycle[c][k]`` ist :func:`sample_objects`' Ausgabe für Zyklus ``c``, Kanal ``k``. Jeder Eintrag muss die gleiche Länge haben.\n:returns: ``(objects, cycles, channels)`` -- die Form :func:`spacr.ops_sbs.call_reads` erwartet.\n:raises SampleError: wenn ein Zyklus Kanäle fehlt, wenn die Längen nicht übereinstimmen, oder -- der eine, auf den es ankommt -- wenn nur EIN Zyklus angeboten wird, was ein Anrufer, der sie bereits gemittelt hat, übergibt.\n\nEin Zyklus wird abgelehnt und die Ablehnung ist der Punkt. Ein Barcode ist eine Sequenz über Zyklen hinweg; ein einzelner \"cycle\", der hier erreicht, ist entweder ein Lauf, der seine Zyklusachse verloren hat, oder ein Anrufer, der sie zusammengebrochen ist. Beide produzieren einen dekodierbaren Barcode, der aus nichts besteht und weder nach unten sichtbar ist.",
+      "translation_source_blocks_sha256": [
+        "0625510160f5879e2a8bff85e4250817ef0c636c0f040b5d23dfc733df251c18",
+        "b71147c9e60d8756d56457f50a234fe630ea967b43928e71dd9c79e45ed4cca3",
+        "45c996e1214ad971ad78bed41a3a02ebb73d386569fcf7f54f5e1f3d2a4ddfa6",
+        "7418e23928d78a9f66540aaba1b027accc57a64165114eb3c5fb16f6ae33da36",
+        "4f6bc331c66a265db7eb11e562c7645f37af1cd4f51eb58f7b9c907483ec3db3"
+      ]
+    },
+    "spacr.ops_sample.reads_rows": {
+      "source_blocks_sha256": [
+        "5ca9f841278a6e14118261f044b081cd0cf47aa452b26d86ed6577abc2fc11da",
+        "1ecd48e068d7695a1991eb821908ec41269a119586d8f8fcde5faa51b8e93448",
+        "fc03a6bc8a19e36e9503e7c3c89b70749717ac2deda416b7b48c469149937bfc",
+        "47ea3f1890a83b161115d7e15aeec049cf17758147067ef2f8e5e27852e19423",
+        "152e14b0b4e59c52496fe0ee694e39007b0ae8ed852f383d7e4e3f83492bbeef"
+      ],
+      "source_sha256": "e729db8a45379a23eda4b83bc8199e2b0653efa8b4b3a3cb5f006bb0e12ebfdc",
+      "text": "``ops_reads`` Zeilen: ein Objekt pro Zyklus, je Spalten des Speichervertrags.\n\n:param objects: die nummerierten Objekte, bei denen die Werte in der gleichen Reihenfolge wie die erste Achse ``values`` abgetastet wurden.\n:param values: ``(objects, cycles, channels)`` von :func:`decode_input`.\n:param channels: einen Namen pro Kanal, für die Spaltennamen.\n:param bases: der Buchstabe, für den jeder Kanal stimmt; wenn gegeben, trägt jede Zeile die Basis, die dieser Zyklus genannt wird, und seinen Rand.",
+      "translation_source_blocks_sha256": [
+        "5ca9f841278a6e14118261f044b081cd0cf47aa452b26d86ed6577abc2fc11da",
+        "1ecd48e068d7695a1991eb821908ec41269a119586d8f8fcde5faa51b8e93448",
+        "fc03a6bc8a19e36e9503e7c3c89b70749717ac2deda416b7b48c469149937bfc",
+        "47ea3f1890a83b161115d7e15aeec049cf17758147067ef2f8e5e27852e19423",
+        "152e14b0b4e59c52496fe0ee694e39007b0ae8ed852f383d7e4e3f83492bbeef"
+      ]
+    },
+    "spacr.ops_sample.sample_objects": {
+      "source_blocks_sha256": [
+        "e1ee1baa401cacae9d2ee538b8ac1ef592de2c3331f4ecf9bc7794cdf20d0915",
+        "431264817f5ed5fa47976c3de4bcee425881d7a7abd7361741bf778d75f37bfb",
+        "d5ba07deac747a9cce2942f9ef9404576984ab2a08c3ea617f35f6ec45f408c1",
+        "f10430b1704dddfaccefcff5d5349902335f0620d128edfe4c61430a5c2d374f",
+        "364225fae62eb9ffd2aad6610381d7c696a0a9831b8aeddc246521b522245fbb",
+        "9fdce103c4c731d8ed6c60400a1563b58b8bae7a92290296c959a30a6315aa14",
+        "2b4d19aa33dfb71a004e61c78581787c603952d30b1a77db60bc20ec04a20be5"
+      ],
+      "source_sha256": "29c4a347218ac360bd40d5dc0569ca9e849f7a856dc4378d135390ad692bce46",
+      "text": "Lesen Sie ``image`` am Zentrioid jedes Objekts, durch ``transform``.\n\n:param objects: :class:`spacr.ops_objects.PlateObject` Werte, oder irgendetwas mit ``centroid_y`` und ``centroid_x`` im Microplate-Beispielpositionsrahmen.\n:param image: ein Kanal eines Zyklus, im eigenen Rahmen dieses Zyklus.\n:param transform: Karten eines Mikroplatten-Beispiel-Positionsframes ``(y, x)`` in den Rahmen dieses Bildes -- die A2/A3-Transformationen von PART 7. ``None`` bedeutet, dass sich das Bild bereits im Mikroplattenmuster-Positionsrahmen befindet.\n:param radius: Die Standardeinstellung 1 ergibt eine 3x3, was ein beugungsbegrenzter Punkt einnimmt; 0 liest den einzelnen Pixel.\n:returns: ein Schwimmer pro Objekt, NaN wo der Punkt nach außen fällt.\n\nNaN statt eines geklemmten Kantenpixels. Ein Objekt, dessen Koordinaten vom Feld dieses Zyklus abfallen, wurde nicht darin gemessen, und der ehrliche Wert für \"not measured\" ist nicht die Helligkeit des nächsten Randpixel -- das wäre eine Zahl, und eine Zahl wird in einen Barcode gemittelt.",
+      "translation_source_blocks_sha256": [
+        "e1ee1baa401cacae9d2ee538b8ac1ef592de2c3331f4ecf9bc7794cdf20d0915",
+        "b14f117ceb994a3981da516b80b61549cd12b57b677677bc96887fc3151246b2",
+        "d5ba07deac747a9cce2942f9ef9404576984ab2a08c3ea617f35f6ec45f408c1",
+        "3c776b70c5bee056331a5867dbecde0efb2d588b9dca7b264ff119cbcbb95cfc",
+        "364225fae62eb9ffd2aad6610381d7c696a0a9831b8aeddc246521b522245fbb",
+        "9fdce103c4c731d8ed6c60400a1563b58b8bae7a92290296c959a30a6315aa14",
+        "43caf1542f5fe1318cc8ea423687d1fd036ea18929009e4a714572f03f2d15dd"
       ]
     },
     "spacr.ops_sbs": {
@@ -48058,6 +48408,122 @@
         "8db2c073d7a9ece7ca6e300f0290065eb40f39db0cbbf68da5ef0bcd25599f07",
         "252d4644a262472a4e8fbba22aff93a84db091e4ddf5ee34348032398cd3f183",
         "76dee1d5ac609690f186a4a70a6b2f79bae62bb92147885149f24b068378d74a"
+      ]
+    },
+    "spacr.ops_store": {
+      "source_blocks_sha256": [
+        "7159a2ef5f9d165342a4a18f2090a3ddf2babcc495c186f4f9c2dafc862fd94d",
+        "4d46ed8ac943bf4c7198d39319ef0e4e905a8a284fd9c9c94057c2b605fd9b84",
+        "1a9c5980a3d2e0b791d2fa3b2b569641c59dddfd10e28870ecef1230938994a4",
+        "1c711f9c4ef2faf02bf75fde86dea76d0154e1adb77e71de2d6d114800e65abd",
+        "a3038e969629b415c61f67a630292f6af922ad9a4a354fc49e9f4c9ef0010133"
+      ],
+      "source_sha256": "2bf9a0caca9d71b13e2ee88b2a235d72eea6b38084598ebb7e86ed755314bde8",
+      "text": "Wo die Tabellen eines OPS laufen, und die Datenauswahlgrenze, die besagt, dass die Objekte existieren.\n\nDer Lagervertrag hat zwei Hälften. In ``measurements.db``, was maßgeblich ist: ``ops_geometry``, ``ops_objects``, ``ops_reads`` und ``ops_barcodes``. Daneben, als Cache: Parkettkopien von ``ops_reads`` und ``ops_barcodes``, geschrieben in demselben Schritt mit ihren Reihenzahlen, die gleich sind, so dass der Beiwagen nicht unbemerkt von der Autorität abdriften kann.\n\nSqlite ist die Autorität und Parkett ist ein Cache, das ist eine Entscheidung und kein Detail. Die beiden können nicht zustimmen, also muss einer von ihnen per Definition richtig sein - sonst würde ein Leser, der den schnelleren wählte, manchmal die Zahlen von gestern lesen, ohne zu sagen. :func:`write_table` schreibt sowohl in einem Anruf und behauptet, dass die Zählung Übereinstimmung, bevor entweder als vollständig sichtbar ist; :func:`read_table` bevorzugt den Cache und fällt zurück, ohne sich zu beschweren, denn ein fehlender Cache ist eine Performance-Frage und keine Korrektheit.\n\nReadiness ist eine Datenselektionsgrenze, kein Schritt. Es wird kein Sequenzierungs- oder Phänotyp-Kanal gelesen, bis ``ops_objects`` auf der Festplatte ist und die Zeilenzahl überprüft ist. :func:`objects_ready` ist dieser Satz, und er gibt eine REASON zurück, wenn die Antwort nein ist -- eine Daten Selection-Grenze, die nur sagt, \"not yet\" lässt den Operator erraten, welche Hälfte fehlgeschlagen ist.\n\nAndere Messtabellen verwenden die gleichen Objekt-IDs, so dass spätere Schritte keinen speziellen Fall brauchen. Die Nummerierung ist deshalb deterministisch: Diese IDs verbinden Tabellen zu verschiedenen Zeiten geschrieben.",
+      "translation_source_blocks_sha256": [
+        "fe299a3c34e427559810de34750bc76b4e477999b018779bb93db46fe4062ebb",
+        "4d46ed8ac943bf4c7198d39319ef0e4e905a8a284fd9c9c94057c2b605fd9b84",
+        "d593f1545c8d140fca16af2c5c88fd9c3ed07711508bc3a856fd2dd1e64e54fb",
+        "fdb45349b513dc1e3e0ad2a1e7dcf656bca8a50205f3be8d3c120d99a39ef989",
+        "a3038e969629b415c61f67a630292f6af922ad9a4a354fc49e9f4c9ef0010133"
+      ]
+    },
+    "spacr.ops_store.Readiness": {
+      "source_blocks_sha256": [
+        "0c5fba8d60a7525b8eecd488fa414f32b3eaea0b938d2c1b01acd73569080336",
+        "577c68a02b08a65661cc3e265cea36efb7e006267a91300d77a16651ef90ec16",
+        "f7c85820406fb6e82f4f85717bca0c5573f674e81450d802055dd991d43ab47a",
+        "4cacd542e217100bc03696c3d05924a88f8d1e286b86f0bdb7cf7dda84d183d1"
+      ],
+      "source_sha256": "ebdb5e39cdbe5cb25c7be0c6e583b23bd3f3638a822f7dd0211b30d9ff124891",
+      "text": "Ob Objektprobenahme beginnen kann, und warum nicht, wenn sie nicht.\n\n:param ready: das Urteil. Auch was ``bool(readiness)`` antwortet, so dass ein Anrufer ``if not objects_ready(db):`` schreiben kann und immer noch :attr:`reason` erreichen kann, wenn er sagen muss, warum.\n:param rows: wie viele Objekte die Tabelle hält, oder ``None`` wenn es keine Tabelle zu zählen gibt -- das ist ein anderer Fehler als eine Tabelle ohne Zeilen darin, und die beiden werden hier getrennt anstatt vom Anrufer gesagt.\n:param reason: ein Satz mit der Bezeichnung, welche der drei Dinge schief liefen, leer, wenn nichts geschah.",
+      "translation_source_blocks_sha256": [
+        "0c5fba8d60a7525b8eecd488fa414f32b3eaea0b938d2c1b01acd73569080336",
+        "577c68a02b08a65661cc3e265cea36efb7e006267a91300d77a16651ef90ec16",
+        "f7c85820406fb6e82f4f85717bca0c5573f674e81450d802055dd991d43ab47a",
+        "4cacd542e217100bc03696c3d05924a88f8d1e286b86f0bdb7cf7dda84d183d1"
+      ]
+    },
+    "spacr.ops_store.StoreError": {
+      "source_blocks_sha256": [
+        "f3e85a91666765e49c6f168de23ff15b0e60b7b7bbb7c7252ee4737b168058af"
+      ],
+      "source_sha256": "f3e85a91666765e49c6f168de23ff15b0e60b7b7bbb7c7252ee4737b168058af",
+      "text": "Ein Laden, dem man nicht trauen kann, mit dem Weg in den Text.",
+      "translation_source_blocks_sha256": [
+        "f3e85a91666765e49c6f168de23ff15b0e60b7b7bbb7c7252ee4737b168058af"
+      ]
+    },
+    "spacr.ops_store.objects_ready": {
+      "source_blocks_sha256": [
+        "fd827a3c953097c7d503d3e1b80fb899ee70d7b91bc50075d492664b5e6f4d29",
+        "e4ea704c5807e26f9c9eedd5688598779aee1d01a53f7174dbc3f5e6a0d1dfa2",
+        "962236a63825be29d1c41ca751cf9d217ff0fcc239aadd63b5b71080b9f8d192",
+        "6c776d394c38c212d6dcd6b15fbff6f2cfe145dbab5e21ee257d65312808dd12",
+        "def21309b2c223edcfbdb4c073ece0433d1c0d44a45dc1ea3a9662c29c8d4102"
+      ],
+      "source_sha256": "0e9e1e18e8b87f592e9aced91550492209d6f5d4b1f0f071d044a34b5d98a3a0",
+      "text": "Kann schon ein Sequenzierungs- oder Phänotyp-Kanal gelesen werden?\n\nDie Datenselektionsgrenze ist ein Satz -- \"kein Sequenzierungs- oder Phänotypkanal wird gelesen, bis `ops_objects` auf der Festplatte ist und seine Zeilenzahl überprüft\" -- und beide Hälften sind wichtig. Auf der Festplatte ohne Zählprüfung würde eine leere Tabelle übergeben, und ein leeres ops_objects bedeutet, dass jede spätere Phase stilllos nichts erzeugt, während sie zu laufen scheint.\n\nEs gibt einen Grund, nicht nur ein Urteil. \"Not yet\" lässt den Operator erraten, welche von drei Dingen schief gelaufen sind: keine Datenbank, keine Tabelle oder eine Tabelle mit nichts darin. Diese haben unterschiedliche Korrekturen.\n\n:param minimum: die wenigen Objekte, die ein wirklicher Wells haben kann. Einer ist der ehrliche Boden -- ein Wells mit einem einzigen Kern ist ein schlechter Wells, nicht ein unmöglicher -- also existiert dies, um von einem Anrufer angehoben zu werden, der ihre Labormikroplatte kennt, nicht um hier eine Vermutung zu kodieren.\n:param db_path: die sqlite-Datenbank des Runs. Seine ABSENCE ist eine der drei Antworten, so dass dies nicht erforderlich ist, um zu existieren.",
+      "translation_source_blocks_sha256": [
+        "fd827a3c953097c7d503d3e1b80fb899ee70d7b91bc50075d492664b5e6f4d29",
+        "9856232d2776aa7d24ff14edf88f4cca1296e67c30d7f055b5cecbc8716cee15",
+        "29efdb6370ed887320aeb6bf828194adeb267de1d8809cabd24217fbf71afe49",
+        "16315f35e93e779456cfcda5a664b45ddee91ad8ca4867d00c33c2f6a09061f4",
+        "def21309b2c223edcfbdb4c073ece0433d1c0d44a45dc1ea3a9662c29c8d4102"
+      ]
+    },
+    "spacr.ops_store.read_table": {
+      "source_blocks_sha256": [
+        "b869c9d1a5e19a7314cf6981d36010efe238c151c131fc10560e2d06096a8795",
+        "271d870c42fcf7d7ac4a9196684e3dc01320f253dba202c2e0d4d95c9c556ffd",
+        "c004087e2767007b6bc241e38bfca759c6f6d3a501c8f97c8aeace83f81c23c3",
+        "175a69ef07cf381992667d5bc5caff50e05513cbc1f3e6bc55eca89938d07750",
+        "67961b53eb8d5098a0aed3ad962df2b520fa66500f796d4814b3832815f967ac"
+      ],
+      "source_sha256": "d3a1d7ff1aaa338c0ee44513444bc6ace9beb1d5689a46ffa1fde16f8d666a03",
+      "text": "Lies einen OPS-Tisch, bevorzuge seinen Parkett-Cache.\n\nEin fehlender oder nicht lesbarer Cache fällt lautlos auf sqlite zurück, weil das eine Frage der Geschwindigkeit ist. Ein Cache, dessen Zeilenzahl mit der Datenbank nicht übereinstimmt, ist NICHT still - er wird entfernt und die Autorität wird zurückgegeben, da eine Meinungsverschiedenheit der einzige Fehler ist, den diese Anordnung erzeugen kann.\n\n:param db_path: die sqlite-Datenbank des Runs, die die Autorität ist.\n:param table: welche von :data:`OPS_TABLES` zu lesen ist.\n:raises StoreError: wenn sich die Tabelle überhaupt nicht in der Datenbank befindet.",
+      "translation_source_blocks_sha256": [
+        "b869c9d1a5e19a7314cf6981d36010efe238c151c131fc10560e2d06096a8795",
+        "271d870c42fcf7d7ac4a9196684e3dc01320f253dba202c2e0d4d95c9c556ffd",
+        "c004087e2767007b6bc241e38bfca759c6f6d3a501c8f97c8aeace83f81c23c3",
+        "175a69ef07cf381992667d5bc5caff50e05513cbc1f3e6bc55eca89938d07750",
+        "67961b53eb8d5098a0aed3ad962df2b520fa66500f796d4814b3832815f967ac"
+      ]
+    },
+    "spacr.ops_store.row_count": {
+      "source_blocks_sha256": [
+        "787aba4b1186c7703626f3d8525a97122f882ea9f58e3d865b384d56e7405007",
+        "c488bf512539664e4bd8cb267d77d6fb719c14a01f631e6da0e2d9920b71691e",
+        "46a8070a9a172688837269a35ca996e53b6ee3d67e3f5e3f5cfd98cf3474ccf7"
+      ],
+      "source_sha256": "92c476159238fd6866447fe3573dd1ab537d0ff79cfea3afbe8705071121c15c",
+      "text": "Zeilen in einer Tabelle oder ``None``, wenn die Tabelle nicht vorhanden ist.\n\n:param db_path: die sqlite-Datenbank des Runs.\n:param table: Der zu zählende Tisch.",
+      "translation_source_blocks_sha256": [
+        "787aba4b1186c7703626f3d8525a97122f882ea9f58e3d865b384d56e7405007",
+        "c488bf512539664e4bd8cb267d77d6fb719c14a01f631e6da0e2d9920b71691e",
+        "46a8070a9a172688837269a35ca996e53b6ee3d67e3f5e3f5cfd98cf3474ccf7"
+      ]
+    },
+    "spacr.ops_store.write_table": {
+      "source_blocks_sha256": [
+        "cb1f48e23580df19e7c878ae38dcf4956f768f0583a4a0083c9796d0dad5db82",
+        "4bfb03eb8b069fdb1461042e68ab639e1c76d227c04d3e8ef96741a094128b2a",
+        "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864",
+        "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
+        "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
+        "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
+        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
+      ],
+      "source_sha256": "cfb9890ef957af700a97e55a8a682a4efce6ced932903bd5996fc078e26241af",
+      "text": "Schreiben Sie einen OPS-Tisch auf sqlite und seinen Parkett-Cache, wenn er einen hat.\n\nBeides in einem Anruf, weil 372 verlangt, dass die Zeilenzahl gleich ist und zwei Anrufe das nicht tun könnten -- ein Anrufer, der die Datenbank geschrieben hat und dann abgestürzt ist, würde einen Nebenwagen verlassen, der einen anderen Lauf beschreibt, und nichts würde es bemerken, bis ein Leser es stillschweigend bevorzugt.\n\n:param db_path: die Messdatenbank.\n:param table: einer von :data:`OPS_TABLES`.\n:param frame: a DataFrame.\n:returns: Zeilen geschrieben.\n:raises StoreError: auf einem unbekannten Tisch, oder wenn der Sidecar, den er gerade geschrieben hat, nicht die gleiche Anzahl von Zeilen wie die Datenbank hat.",
+      "translation_source_blocks_sha256": [
+        "cb1f48e23580df19e7c878ae38dcf4956f768f0583a4a0083c9796d0dad5db82",
+        "a4b25f82ddbd6a3498f35f4c728d91a7d5c5900e26e5da733646ee6ad77821fd",
+        "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864",
+        "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
+        "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
+        "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
+        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
       ]
     },
     "spacr.organelle_types": {
@@ -57396,6 +57862,24 @@
         "72c9f814a48b376d5b6ab323e9e57dc9bbb169214b7baeee5ae88d860b69e6b1",
         "01b904a163df41486895ca472c56069a7ebe6e118ddbad0b94ebfcbee32fe10c",
         "9cfeea5ab0e28f8d33b24135fd46750fb895b2699182663c0fb3d86d82fc6ba3"
+      ]
+    },
+    "spacr.qt.app.MainWindow.stylesheet_roots": {
+      "source_blocks_sha256": [
+        "c3eb23e4d23e02442798608ac3ac686e5e45886bd5af1f38d57d1432aa95b9db",
+        "32ca1fbc116633fe8b91fc76a079e2015441dc9c163861adb06359ba4de97f0d",
+        "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
+        "aeaef5c37cc830ff43bf7d91e35de1626403f23e63ca5415f16980d98de3bba9",
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
+      ],
+      "source_sha256": "2fb5c2026226033df3e4bf347f2b4453fd4e244c273483cdd855580a508d644f",
+      "text": "Die Widgets, die das Anwendungsblatt tragen, anstelle von mir.\n\nWarum nicht das Fenster. Ein Stylesheet auf einem Fenster repoliert jeden Nachkommen, und eine Sitzung, die vier Module geöffnet hat, besitzt 80002 Widgets, von denen 7.595 in Modul-Anwendungsansichten sind -- eine davon ist in der Anwendungsansicht. Gemessen an dieser Box öffnen sich vier Module, wechselnd dunkel und hell:\n\n    das ganze Fenster 945 ms zuerst, ~1.479 ms steady chrom + die sichtbare Seite 300 ms erst, ~310 ms stetig\n\nWas in der Liste ist, und die Form ist nicht die offensichtliche. Das Chrom ist 407 Widgets und nur ZWEI von ihnen sind vom zentralen Widget erreichbar -- das Dock, die Seitenleiste und der Statusleiste hängen vom Fenster selbst. Eine Implementierung, die das zentrale Widget ging würde 405 unstyled verlassen und fast richtig aussehen, weshalb `tests/qt/test_every_widget_wears_the_current_theme.py` genau das tut Zweck und behauptet, es gefangen wird.\n\nAlso: jedes direkte Kind des Fensters außer dem zentralen Widget, jedes direktes Kind des zentralen Widgets mit Ausnahme des Stacks und die LURRENTE Seite des Stocks. Die Seiten, die nicht angezeigt werden, werden stattdessen markiert und auf eigene Faust `showEvent` geblättert, bevor sie gemalt werden.",
+      "translation_source_blocks_sha256": [
+        "c3eb23e4d23e02442798608ac3ac686e5e45886bd5af1f38d57d1432aa95b9db",
+        "2c3be7cc5e05f5f4d56b22e736c551c5f62be6fdd0f4fb9b70134abe53882004",
+        "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
+        "58e6c2c05ea0d87fa6facbd19aedbfe938ec35d285f8037108d7b72e5e59bace",
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
       ]
     },
     "spacr.qt.app.MainWindow.toggle_app_drawer": {
@@ -76812,6 +77296,132 @@
         "d73e6df6043d2515a12a8cef1d1cce9427e3953aba53e96c7df10b5aaa1e495c"
       ]
     },
+    "spacr.qt.screens.embeddings": {
+      "source_blocks_sha256": [
+        "071d00151ef41115b3f293cfb0a478e02c83fe40f5152f2024bc3092f55c422a",
+        "e60f10981d7a774925210066785643278c6a3c3a1ab6424fe2004f3cf7504a29",
+        "0c1db59bfc4b538bdef0656a6ca3ca6f8122f8f19e043c8aff8a8cdd7a1ec7ad",
+        "06c9eee0bf937dc87b6e7a8bb4125561c4fad49701eacae061e69e494c6d8e3d",
+        "72f5c02992e723806d74bb54ee91ea33ba39a00a5078bedebce7692b11099427",
+        "1ba974723886b6a755d78e5ab325709ab9473b2bac284e92635aa64f81972711",
+        "06e19f883cf20583368b7c5d1d556934daaec1850a71bdfcb4b9ce656d0a2ba1",
+        "c1091df2749f1179d8650482748928d55a05a299179d56992edd7f9e06010ef5",
+        "501bcdd135fb956c98f05ca932bf1a6ecfab1444d9248ddadfa352ede3562a80"
+      ],
+      "source_sha256": "87ec52121563e323bfb09f8251c83e6888a120b6276504524615e08da5bcc580",
+      "text": "Embeddings — ein etikettenfreier Vektor für jedes Objekt, neben dem gemessenen Panel.\n\nEin Screening, kein Skript. Cell-DINO, OpenPhenom und SubCell sind alle Python oder Befehlszeilen. Keine grafische Plattform stellt eines davon frei.\n\nDer Motor bedient dieses Labor. Der Screening bietet die Einbettung ohne Python.\n\nAlle Arithmetik ist in :mod:`spacr.embeddings` und keine ist hier. Dieses Modul ist die Oberfläche, und drei der Entscheidungen des Motors bilden es:\n\n**Die Kanalrichtlinie ist die erste Steuerung, nicht eine versteckte Option.** 386 ruft das Kanalproblem \"the design problem\" auf und warnt davor, dass es implizit durch das Rückgrat entschieden werden kann. Per-Channel-Kodierung hält den Kanal in jedem Spaltennamen und kostet N Forward-Pässe; Projektion mischt die Kanäle in drei und kostet einen. Diese produzieren Spalten von identischer Breite und dtype, die völlig unterschiedliche Dinge bedeuten, so dass der Screening die Wahl explizit macht und sagt, was jeder kostet.\n\n**Eine Dimension ist kein Phänotyp, und das Screening-Experiment sagt so, wo ein Benutzer es lesen wird.** Die Tabelle zeigt die ersten wenigen Dimensionen, weil ein Benutzer sehen muss, dass etwas passiert ist; die Bildunterschrift sagt, sie seien bedeutungslos einzeln. Präsentieren `emb_c2_017 = 0.43` ohne diesen Satz lädt genau das Lesen der Familie nicht überleben.\n\n**Der Encoder ist ein Modell, daher wird er mit seiner Checksumme benannt.** Die Zusammenfassung der Verarbeitungssitzungen trägt den model-zoo-Eintrag von :func:`spacr.embeddings.encoder_entry` -- Rückgrat, Richtlinien und die Verdauung der Gewichte auf dieser Maschine -- denn die Dimension 17 von zwei Verarbeitungssessionen ist dieselbe Zahl und nicht dieselbe Sache, es sei denn, alle drei stimmen überein.\n\nDie Einbettung läuft vom Haupt- GUI-Ausführungspfad durch :class:`spacr.qt.job_runner.JobRunner`, wie jede andere Berechnung in der Qt-Schicht: Eine Platte aus extrahierten Bildregionen durch ein Rückgrat ist Minuten, und ``threaded=False`` führt den identischen Code inline aus, so dass ein Test den ausgelieferten Pfad fährt.\n\n:func:`register` ist **nicht** beim Import aufgerufen; lesen Sie seine Docstring.",
+      "translation_source_blocks_sha256": [
+        "071d00151ef41115b3f293cfb0a478e02c83fe40f5152f2024bc3092f55c422a",
+        "42959b324e8b760515dc65b252fc0c04622650fc0be4266c8cb8c490c95efc91",
+        "0c1db59bfc4b538bdef0656a6ca3ca6f8122f8f19e043c8aff8a8cdd7a1ec7ad",
+        "06c9eee0bf937dc87b6e7a8bb4125561c4fad49701eacae061e69e494c6d8e3d",
+        "1ea8f4e66e1f8ed48bddf77323e0bde844beb75906c80a53f2d45881e252f3d7",
+        "49dac3273f88d91e5c2c76003a553f995033f84c201a66eee471aa4ed1291850",
+        "a14ed5f340fed6169c9c7de2f512dc9c5af34c8153246e0053bdfdc537883b3c",
+        "02d6141c5bed4d2afb244f4f986e4dfc571a4deccd7f92cf3c88aaedd10d30b5",
+        "501bcdd135fb956c98f05ca932bf1a6ecfab1444d9248ddadfa352ede3562a80"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen": {
+      "source_blocks_sha256": [
+        "54544ee15fd790b2753ef6f4930fa39d4dbdfe402502c808b934369cf90de349",
+        "a48b9c4608a2033bf5519bb13b0351c9ecf55b6c5c549dbb7656fdcc6f21db68",
+        "38584775413c16d8996018d9a63c2531c5e8f6b35a47db8431c0002d286d641c",
+        "128fe41d91f1e1aa86f6c114185d5f4d972f115cb8c1329beba95bf1ecbf6e65"
+      ],
+      "source_sha256": "86b7dbd6ba6957da5addb52a826afe97152694b274ecf613d1346e5097b2c676",
+      "text": "Wählen Sie eine extrahierte Bildregionsquelle und eine Kanalrichtlinie aus und betten Sie jedes Objekt ein.\n\n:param parent: das übliche Qt-Eltern.\n:param threaded: ``False`` läuft die Einbettungs-Inline und sendet die gleichen Signale in der gleichen Reihenfolge aus, so dass ein Test den Screening synchron antreibt, ohne dass das Verhalten abweicht.\nErstellen Sie den Screening: die Steuerungen oben, die Vorschau-Tabelle unten.",
+      "translation_source_blocks_sha256": [
+        "f961f282edee26efa68b4aae33cece1b07171ad604fe16c3635e02a80f1789f9",
+        "a48b9c4608a2033bf5519bb13b0351c9ecf55b6c5c549dbb7656fdcc6f21db68",
+        "38584775413c16d8996018d9a63c2531c5e8f6b35a47db8431c0002d286d641c",
+        "128fe41d91f1e1aa86f6c114185d5f4d972f115cb8c1329beba95bf1ecbf6e65"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent": {
+      "source_blocks_sha256": [
+        "4105b719d131be273bcf078a64a419aebd6f148d5e15e6675266a1daa76128de",
+        "39d3c72137f96a440437ef8d2b92b8caca64ff021ab21acc5015cf1498eab95c"
+      ],
+      "source_sha256": "866943ae88147ea7019b21a89d549564b578182606d776d6c506163ffc99e7e1",
+      "text": "Lassen Sie den Job-Runner seinen unabhängigen Ausführungspfad stoppen, bevor das Widget geht.\n\n:param event: Das Schließereignis von Qt wird unverändert an die Basisklasse übergeben. Niemals ignoriert -- eine Anwendungsansicht, die sich weigert, geschlossen zu werden, weil eine Ausführung im Gange ist, würde das Fenster abfangen, sodass die Ausfhrung stattdessen gestoppt wird.",
+      "translation_source_blocks_sha256": [
+        "e0cc3b23651bbe7cc9b9c86694d274085e1ec2e40c0b65bd2987d213d9b40a39",
+        "7f86d6c6668ae0a51a0ccb106ebcb34b3bda682585618dd5a0175e36d9f3a3b4"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.embed": {
+      "source_blocks_sha256": [
+        "a0e312a61dff616127476251124b3917ef1f591679c8922809c3a4a40c41a3df"
+      ],
+      "source_sha256": "a0e312a61dff616127476251124b3917ef1f591679c8922809c3a4a40c41a3df",
+      "text": "Läuft den Encoder im Hintergrund und zeigt das Ergebnis an.",
+      "translation_source_blocks_sha256": [
+        "a0e312a61dff616127476251124b3917ef1f591679c8922809c3a4a40c41a3df"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": {
+      "source_blocks_sha256": [
+        "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316"
+      ],
+      "source_sha256": "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316",
+      "text": "Ob ein Lauf im Flug ist.",
+      "translation_source_blocks_sha256": [
+        "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops": {
+      "source_blocks_sha256": [
+        "41a0d21eae5a04cc5373b15208fb762dd38afd8a468fd538e7994e1597936290",
+        "d28c5ee0438ac4a4bbe888ff0d28b6a51816cf4202621089998ea478827ad76c",
+        "cc50fd87bbbd6c5d94d3463fff4b94178fafbf602e202768035b21ebf405fceb",
+        "1eb3fcc1d8555923dd5735c0140d38252be7d5d1314d30969eebc367cb4698a0",
+        "264f56c18abc2e07d718bffcffac6f177960a684990fb980fd03c00470df3f4d"
+      ],
+      "source_sha256": "55a50b82e1a859e9f76be33580563a531e94a1eb696a53997983723d60587914",
+      "text": "Geben Sie dem Screening einen ``(objects, height, width, channels)`` Stapel.\n\nDie Kanalachse kommt zuletzt. Rückwärts zu gehen wirft hier nicht, sie erreicht das Modell und versagt dort mit einer Meldung über Tensorformen.\n\nDieses Layout ist, was :mod:`spacr.crops` erzeugt und was :func:`spacr.embeddings.embed_array` Dokumente.\n\n:param crops: der Objektstapel, image-channel-last. Nicht kopiert: der Screening hält dieses Array und übergibt es an das Rückgrat, so dass ein Anrufer, der es danach verändert, was eingebettet wird.\n:raises ValueError: wenn der Stapel nicht vierdimensional ist.",
+      "translation_source_blocks_sha256": [
+        "41a0d21eae5a04cc5373b15208fb762dd38afd8a468fd538e7994e1597936290",
+        "4314e9b26ca4961c7e5a79d4c9be721f24513d1b33385a2f8b94e91c19922f71",
+        "cc50fd87bbbd6c5d94d3463fff4b94178fafbf602e202768035b21ebf405fceb",
+        "33c77861eebe896aaca759d4031630822fe8b6abb39369dce01aaedfe1360c5e",
+        "264f56c18abc2e07d718bffcffac6f177960a684990fb980fd03c00470df3f4d"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.spec": {
+      "source_blocks_sha256": [
+        "547c1eb0456778b186623dcc73b36686dfd5077ef3176410bfead2314e02a03b"
+      ],
+      "source_sha256": "547c1eb0456778b186623dcc73b36686dfd5077ef3176410bfead2314e02a03b",
+      "text": "Das :class:`spacr.embeddings.EmbeddingSpec`, das die Steuerelemente beschreiben.",
+      "translation_source_blocks_sha256": [
+        "547c1eb0456778b186623dcc73b36686dfd5077ef3176410bfead2314e02a03b"
+      ]
+    },
+    "spacr.qt.screens.embeddings.make_embeddings_screen": {
+      "source_blocks_sha256": [
+        "fd34cb3cc6b0658a82e6c29ceac433dd0011bc97df79e18fb1f05e6e57a793cd"
+      ],
+      "source_sha256": "fd34cb3cc6b0658a82e6c29ceac433dd0011bc97df79e18fb1f05e6e57a793cd",
+      "text": "Fabrik an :func:`spacr.qt.app.register_app` übergeben.",
+      "translation_source_blocks_sha256": [
+        "fd34cb3cc6b0658a82e6c29ceac433dd0011bc97df79e18fb1f05e6e57a793cd"
+      ]
+    },
+    "spacr.qt.screens.embeddings.register": {
+      "source_blocks_sha256": [
+        "5a8a924167d38167aa168dcac44ee4c9739e63a23f735a10ac12e5b4a4115b7e",
+        "3abdd91d9a4e7408f9534bd3ba349db26195994c501f89ae00c2c421d1627f8b",
+        "6de01753ef3a861589145561d396e2a000b42b661d5232389094270cc0468601"
+      ],
+      "source_sha256": "feea9abcf4253a5558894d0f7ebad123ffae832e95d46fe6d8d14e97497392c3",
+      "text": "Legen Sie Embeddings in der App-Registry. Idempotent.\n\nAus :data:`spacr.qt.SELF_REGISTERING_MODULES` aufgerufen, nicht beim Import, so dass der Import dieses Moduls, um :class:`EmbeddingsScreen` aus einem Test oder einem Notebook zu erreichen, keinen Prozess-weiten Zustand mutiert.\n\n``SECTION_DATA``, neben den anderen Dingen, die eine Tabelle in Zahlen verwandeln. Eine Einbettung ist eine Feature-Quelle, keine Analyse: Es erzeugt Spalten, die die Reduktionen, die Regressionen und die Hit-Aufrufe dann genau verbrauchen, wie sie das gemessene Panel verbrauchen -- das ist der gesamte Punkt von 386 Schritt 5.",
+      "translation_source_blocks_sha256": [
+        "5a8a924167d38167aa168dcac44ee4c9739e63a23f735a10ac12e5b4a4115b7e",
+        "3abdd91d9a4e7408f9534bd3ba349db26195994c501f89ae00c2c421d1627f8b",
+        "6de01753ef3a861589145561d396e2a000b42b661d5232389094270cc0468601"
+      ]
+    },
     "spacr.qt.screens.experiment_design": {
       "source_blocks_sha256": [
         "ff4a955dff3528b48cca2dfdabd9b8764238f78fa411329bde89e21a99dc03fb",
@@ -89394,6 +90004,52 @@
         "966e310d7ffde96d4756f2a60461028622dad157be2ac3516d4cc5fd76d856bf"
       ]
     },
+    "spacr.qt.stall_watch": {
+      "source_blocks_sha256": [
+        "cfe50a1ad8914523aad7b843a49d3f1b2caa9e99d5d9ec91733320bc78be7ff1",
+        "9bf34eb9e3b869e405da5b1f5f8c52493de585f1beed1a27ec02d8508af03bcd",
+        "08e04be723117484fec080b10d7a3e5faf044e0242dc25d3a930b6c0ddd375a0",
+        "3f26e378af3e82198be2f7f626e9ac261b8fb9e00e1facebee95f2baf3ec33ed",
+        "3545ba324827655d566b7eab6f0eeabd24c6cc99853dd3d336a40ccc47982d13",
+        "4c077108e37ec403af371e947b1991a54ac5eb75c1dbdbb51403fe978f4fb149",
+        "b2f4955b62102ad28ac1427fc7384b49e696ef477ab2af5a09759b292d9fe6eb",
+        "f05d7d5f3867afdca252c2ff26c1a9c2b830e4d7bdcc2909470c708be95c64cc",
+        "e5409d4b5d2701d38037ce612a3014c0d2cb7170b809a45eb326f1cd712963f8"
+      ],
+      "source_sha256": "e5f9f412985a2a34c018f12e1cda2eda509b04fa966803bb6f25309139802cc5",
+      "text": "Nennen Sie den Anruf, der die Schnittstelle einfriert.\n\nEin blockierter Hauptausführungspfad GUI hinterlässt kein Traceback. Es ist keine Ausnahme und kein Fehler, also kann ``faulthandler`` es nicht sehen, das Log stoppt einfach, und der einzige Bericht, den jemand geben kann, ist \"spaCR froze\" mit nichts darunter. Die einzige Sache, die den Aufruf benennen kann, ist ein Sample des Stacks des Hauptausführungspfads, das WÄHREND er hängen geblieben ist, von einem anderen unabhängigen Ausführungspfad genommen wird.\n\n    SPACR_WATCH_GUI_STALLS=1 spacr\n\nJedes Mal, wenn die Ereignisschleife länger als :data:`STALL_SECONDS` antwortet, wird der exakte Python Stack des Haupt- GUI-Ausführungspfades auf stderr geschrieben und auf :data:`LOG_PATH` angehängt. **Der letzte Frame dieses Stacks ist der Blockierungsaufruf.**\n\nWarum dies im Paket ist und nicht in ``tools/``. ``tools/watch_the_gui_thread.py`` tut dasselbe und muss das ``QApplication`` selbst bauen, um es anzuhängen, bevor eine Anwendungsansicht existiert. Das hat aufgehört, den Tag zu arbeiten, an dem :func:`spacr.qt.app.launch` seine eigene Konstruktion begann, und Qt lehnt eine Sekunde ab.\n\nDas Erreichen von außen wurde dann zwei weitere Möglichkeiten ausprobiert und zweimal mehr fehlgeschlagen. Hosting ``qt.run()`` innerhalb eines anderen Prozesses macht Home selbst Zeit nach dreißig Sekunden.\n\nDer andere Weg war ein ``sitecustomize`` auf dem Start-Benchmark-Pfad. Es wird importiert, und was es ändert, ist nie das Objekt, das läuft.\n\nEine Flagge, die in ``launch`` gelesen wird, ist der eine Ort, den man nicht verpassen kann, und sie komponiert mit jedem anderen Treiber -- der darin enthaltene Benchmark, wofür dies geschrieben wurde.\n\nWas es kostet, wenn aus: ein ``os.environ.get``. Wenn an: ein 100 ms Timer auf dem Haupt- GUI Ausführungspfad, der eine ganze Zahl erhöht, und ein Daemon unabhängiger Ausführungsweg, der zwei ganze Zahlen viermal pro Sekunde vergleicht.",
+      "translation_source_blocks_sha256": [
+        "cfe50a1ad8914523aad7b843a49d3f1b2caa9e99d5d9ec91733320bc78be7ff1",
+        "dfb9e8b8c0392a7313c3df1f08cc31ad1f8e7282e2c4ad7619a7a8179b71ce86",
+        "08e04be723117484fec080b10d7a3e5faf044e0242dc25d3a930b6c0ddd375a0",
+        "d48d1b2adeb6bbc52823e41eb3d5d0ea600e3c525ac0a7349732afeca1e75050",
+        "131d1df01a04f2bbc1bda05ff15b8a341d21997cf101f9aaf816c6f46b067fb2",
+        "4c077108e37ec403af371e947b1991a54ac5eb75c1dbdbb51403fe978f4fb149",
+        "b2f4955b62102ad28ac1427fc7384b49e696ef477ab2af5a09759b292d9fe6eb",
+        "f05d7d5f3867afdca252c2ff26c1a9c2b830e4d7bdcc2909470c708be95c64cc",
+        "309ec7f30a3340f2257bd16f2fa5d541e8edc8b5168bcc1f8dad727ee70cc4cd"
+      ]
+    },
+    "spacr.qt.stall_watch.watch_this_application": {
+      "source_blocks_sha256": [
+        "50b6fdd9683624e2b8619bfc197281cd29ee4ab99053407585bac085c8db7b1e",
+        "ef0b078ab4298f4e73efd39d6ffd461a937a0deca854e8b020814a9da9a5819b",
+        "ae2849113ff35fbdf717bda7124a25fb8f7aedcd094e14c6cc0449672a8985dd",
+        "4c33dfb348f1589696c5bd5dbc64b18fee4edcce9a74ae25231a40dc675d27f0",
+        "5824d05b82241a009aa1252df4d04580537bd3b7f7d4650a4ab984d05bb6b0d4",
+        "84066182ebf5855a77eced2ee6f6ef9b705b905cc97ba3b6a449baa995f659ba"
+      ],
+      "source_sha256": "18b74968c27029ccdc9f886ecc8f4a4fcfa4c03ddca1608dede782a714a38cb3",
+      "text": "Melden Sie den Stack des Haupt- GUI-Ausführungspfads, wenn er aufhört zu antworten.\n\n:param app: der Live- ``QApplication``. Der Heartbeat-Timer wird damit parented, so dass der Timer genau so lange wie die Anwendung lebt.\n:param stall_seconds: Überschreiben Sie :data:`STALL_SECONDS` für einen Anruf.\n:param echo: schreiben Sie auch jeden Bericht in ``sys.stderr``. Übergeben Sie ``False`` unter einem Harness, das Streams erfasst. Die Datei ist der Datensatz und stderr ist eine Bequemlichkeit: Dies schreibt von einem Daemon-Thread, und ein Thread, der in einen Stream schreibt, unter dem der Harness getauscht wird, stürzte Pytest in seinem eigenen `capture.py` -- nicht in unserem Schreiben, das bewacht wird, sondern in Pyster, der einen Stream liest, der sich während des Lesens bewegt. Ein Tool darf nicht zu einem Stream schreiben, den es nicht besitzt, wenn jemand anderes ihn hält.\n:returns: den unabhängigen Ausführungspfad des Beobachters oder ``None``, wenn Qt nicht erreicht werden konnte.\n\nDer Herzschlag ist die Messung. Ein ``QTimer`` auf dem Haupt- GUI-Exekutionspfad stößt eine ganze Zahl an; ein Daemon-unabhängiger Ausführungspfad beobachtet die ganze Zahl. Wenn er aufhört, den Haupt-GUI-Ausführungspfad zu bewegen, läuft die Ereignisschleife nicht, was genau die Bedingung ist, die gejagt wird -- und der Grund, warum ein Timer ihn selbst nicht melden kann: Eine gekeilte Schleife liefert auch den Timer nicht.",
+      "translation_source_blocks_sha256": [
+        "fc80c64addbdf5ebc44ea7df14dad021340fd37e9497fb43beeeafbd3af7aec5",
+        "ef0b078ab4298f4e73efd39d6ffd461a937a0deca854e8b020814a9da9a5819b",
+        "ae2849113ff35fbdf717bda7124a25fb8f7aedcd094e14c6cc0449672a8985dd",
+        "9793459ab08ed94b2c5dccd9a5467fcbb905a543bdee595f54e40a64632005e4",
+        "84f5e7326f0f91ae6ff7ef0e35ff5424197865d8b8ae7e1a1d3cfa716f44a6da",
+        "83b5dc563aedee7b5385b34a22e7d734bd50c7d4deb7a7a7c1a4e75f343db1d4"
+      ]
+    },
     "spacr.qt.startup_benchmark": {
       "source_blocks_sha256": [
         "91e6ad6e0cb97d98075d490c1ce04ab2df64f3bf20f1dffe7ae868ac5cc9a926",
@@ -90281,18 +90937,20 @@
         "28c8a7af366dc8f22eb9da3ed30b4b13f3c3a6eb2c0cd0d221ed187c9adf9559",
         "124f735d75f252217d9958626840a421b4fbb29ab34ab1e5333ef14927f7addc",
         "94011dcea21690cbbcc998d72ff42af72d6f3bcc146c38e0a70e0ceb0f533078",
-        "c628c212cf20c068e1c9b8b8cfc73b7aa65685817ee22b4c689f77692589f633",
+        "1102845d1636326fc49631641034e7c9cf812c8aa6deb277f43e9a32ac3a317f",
+        "8ffccbc7eb07624045061ff4789c97b87866744a1d1cceab7a0b8d8dac695094",
         "4ad86e4e353789bbd1df808bb361018d23a44be8991bb2e9492e9e4decdd9297"
       ],
-      "source_sha256": "46cb62d3861ca489cb4ea2db2b17553e562d7918babae1ede8b85f13b1d480b9",
-      "text": "Installieren Sie spät registrierte Blöcke auf ``root``, ohne die App zu restylen.\n\nDas Stylesheet der Produktionsanwendung wird vor dem Import von ungeöffneten Bildschirmmodulen zusammengesetzt.\n\nDas Ersetzen dieses ganzen Blatts für jeden Import schließt das erste Malrennen, aber es lässt auch Qt das Blatt parsen und jedes in jeder zwischengespeicherten Anwendungsansicht angesammelte Widget neu polieren.\n\nEin Screen-Root ist ein QSS-Scope: Dort installierte Regeln erreichen diesen Screening und seine Nachkommen, und die Anwendung vor der root angezeigt wird, behält den gleichen First-Paint-Vertrag, ohne zu berühren Home oder ein zuvor geöffnetes Modul.\n\nDas Suffix enthält jeden registrierten Block, der nicht im Applikationsblatt enthalten ist, in Registrierungsreihenfolge und nicht nur ``names``. Dies hält Blöcke, die durch die Abhängigkeiten eines Bildschirms importiert werden, zusammen und bedeutet, dass ein späterer Aufruf ein komplettes Suffex ersetzen kann, anstatt Fragmente mit unterschiedlichen Präferenzwerten zu stapeln. ``names`` bleibt die Dokumentation des Anrufers über die Blöcke, für die er benötigt wird; es ist der MainWindow Bildschirmhostpfad wegzulassen.\n\nEs ist ein No-Op ohne ``root``, kein ``QApplication`` oder kein Anwendungs-Stylesheet. Ein Anrufer, der sich nie für spaCR-Styling entschieden hat, wird nicht nur durch den Bau eines seiner Widgets gewählt.\n\n:returns: ``True`` nur, wenn ``root.setStyleSheet`` aufgerufen wurde.",
+      "source_sha256": "d35304398ffc5465a436f203bfcffc44892c3df9413e28c0054b964b62ffe3f4",
+      "text": "Installieren Sie spät registrierte Blöcke auf ``root``, ohne die App zu restylen.\n\nDas Stylesheet der Produktionsanwendung wird vor dem Import von ungeöffneten Bildschirmmodulen zusammengesetzt.\n\nDas Ersetzen dieses ganzen Blatts für jeden Import schließt das erste Malrennen, aber es lässt auch Qt das Blatt parsen und jedes in jeder zwischengespeicherten Anwendungsansicht angesammelte Widget neu polieren.\n\nEin Screen-Root ist ein QSS-Scope: Dort installierte Regeln erreichen diesen Screening und seine Nachkommen, und die Anwendung vor der root angezeigt wird, behält den gleichen First-Paint-Vertrag, ohne zu berühren Home oder ein zuvor geöffnetes Modul.\n\nDas Suffix enthält jeden registrierten Block, der nicht im Applikationsblatt enthalten ist, in Registrierungsreihenfolge und nicht nur ``names``. Dies hält Blöcke, die durch die Abhängigkeiten eines Bildschirms importiert werden, zusammen und bedeutet, dass ein späterer Aufruf ein komplettes Suffex ersetzen kann, anstatt Fragmente mit unterschiedlichen Präferenzwerten zu stapeln. ``names`` bleibt die Dokumentation des Anrufers über die Blöcke, für die er benötigt wird; es ist der MainWindow Bildschirmhostpfad wegzulassen.\n\nEs ist ein No-Op ohne ``root``, keine ``QApplication`` oder kein spaCR Blatt in Kraft. Ein Anrufer, der nie in spaCR Styling gewählt wird, wird nicht nur durch den Bau eines seiner Widgets gewählt.\n\nDas in Kraft befindliche Blatt ist nicht mehr `app.styleSheet()`. Pro-Fenster-Blatt nimmt das Applikationsblatt DOWN absichtlich und gibt jedem Fenster sein eigenes, also ist `app.styleSheet()` in jedem Produktionslauf leer -- und diese Funktion liest dies als \"nobody opted in\" und kehrt zurück, bevor sie etwas tut. Gemessen: Das Öffnen eines Moduls registriert vier Blöcke (`SettingsBox`, `ClassEditor`, `SettingAlphabetChip`, `TableChip`) und NONE von den vier erreichte den Screening, der sie gerade importiert hatte. Das ist der genaue Fehler, für den diese Funktion geschrieben wurde, wieder eingeführt durch die Änderung, die das Fenster zum Besitzer des Blattes machte.\n\n:returns: ``True`` nur, wenn ``root.setStyleSheet`` aufgerufen wurde.",
       "translation_source_blocks_sha256": [
         "de24d4ee3885281008f920a1bd86e5a87e60332bda55e111f35c86852adcd4e8",
         "1b2df9a017f0a9d247294f8d94d0ce62206f64706d9b4fdd2d264a651a8df877",
         "9d1683c66339204160718950b530883f665447ff6433c5b788cebfdb9acb38f8",
         "124f735d75f252217d9958626840a421b4fbb29ab34ab1e5333ef14927f7addc",
         "94011dcea21690cbbcc998d72ff42af72d6f3bcc146c38e0a70e0ceb0f533078",
-        "c628c212cf20c068e1c9b8b8cfc73b7aa65685817ee22b4c689f77692589f633",
+        "1102845d1636326fc49631641034e7c9cf812c8aa6deb277f43e9a32ac3a317f",
+        "33a665f32f752552891b34a31ea2e75e923cb4ec3bbeaa704c723722788488f0",
         "4ad86e4e353789bbd1df808bb361018d23a44be8991bb2e9492e9e4decdd9297"
       ]
     },
@@ -90496,6 +91154,22 @@
         "b37471f53c62b9c014d428380a8a4206a6bb8dd634f12ea78f213efb6d47db16",
         "80690a329e8d5ab970aed64c3715f5ecc552f639d91459f4408e4a683da72cff",
         "492328b356a80cafe1187a558cdce94db1036258ab64f26fba999c6758c6b24b"
+      ]
+    },
+    "spacr.qt.theme.mark_as_a_sheet_target": {
+      "source_blocks_sha256": [
+        "e840889cc8a7813d6eef57f7c53111f9d7a1d36443bf48d28b11084c8e092c73",
+        "07a7df5cda86a3b6b66690b89dea249ebe02885603df58625d6f887e53df75f8",
+        "c16d69aba65178c84baa9db7bf8406ab9b39e90be2f6e14f454b3154b36430fb",
+        "fd8a820bd563e5a013cbb659471170f65f31ed721f77cb832eb8055c8d1ec0d6"
+      ],
+      "source_sha256": "26f116cd23026731075a5275c81673ed06f698ff5bbb7bc5c50395c2d5d52644",
+      "text": "``widget`` das Applikationsblatt selbst tragen.\n\nFür ein Widget möchte ein Fenster nicht durchblättern. Eine Modul-Anwendungsansicht ist der Fall: Das Fenster wird mit der Anzeige jeder versteckten Anwendungsansicht erreicht, und mit vier geöffneten Modulen, die 7,595 der 8.002 Widgets des Fensters aufpoliert sind, so dass eine Anwendungsansicht die Farbe ändern kann.\n\nEin markiertes Widget wird geblättert, wenn sich das Blatt ändert, wenn es sichtbar ist, und auf seinem nächsten `showEvent` sonst -- was es jetzt sicher macht.\n\n:param widget: das zu sheetierende Widget in seinem eigenen Recht. Ein Fenster kann übergeben werden und die Markierung ist dann redundant -- der Ereignisfilter blättert jedes Fenster auf dem Blick -- aber es ist kein Fehler.",
+      "translation_source_blocks_sha256": [
+        "e840889cc8a7813d6eef57f7c53111f9d7a1d36443bf48d28b11084c8e092c73",
+        "2b70b5ca487c8b3f6fce5cf37b29e011c0dffbd2b39ccbfcdf5130d572b1962b",
+        "f818ff0f4ab85af97a820355bd4dc6fb9b545a696fc2b6aed749155e3bac4231",
+        "fd8a820bd563e5a013cbb659471170f65f31ed721f77cb832eb8055c8d1ec0d6"
       ]
     },
     "spacr.qt.theme.mark_surface": {
@@ -90916,6 +91590,26 @@
         "3f1f86817fb36a4c4ca808a2c25961e0977c590867e37f81e959d7648e5e10bb",
         "93028b38078f27cfb8174d0dfde88c01c5c8cfdbe55c42cf8473768917399619",
         "b8869b8847132f17960dc5ba5c49f5b23fa7922b3c67a60434d834c9a4bd9479"
+      ]
+    },
+    "spacr.qt.theme.set_a_sheeted_widgets_own_rule": {
+      "source_blocks_sha256": [
+        "c0b9382f77b0b08e87ec6dcf3a8ec986ab5f6ace54af59de809165dd022705fe",
+        "3af812c251ba99c674eff7909217506bfea7af3fcab2401908de4e1bc480917f",
+        "c58398228927582306f0a0e0abb8ed93a12a29e50f4d36fa1f3d42388d90ba42",
+        "66671a3e900b6d353c6b96795e944326eddac6a82eb4693d6965716481301d9d",
+        "26041a42e73e23c065e09104d86781fff3f651048d054149f13b9e4b46f20524",
+        "dd9cfdf129f64aaf110f8fa4cf9e675488decd4a6c6ea558eaf198604a84c231"
+      ],
+      "source_sha256": "2f6e6f3b625232cf7fe515f965921fb67fd2735605dcfd25e16b34f1613846fe",
+      "text": "Ersetzen Sie ``widget`` s eigenen QSS, ohne das Blatt zu verlieren, das es trägt.\n\nFür ein Widget, das ein Blatt Root ist. Vor der Pro-Application-Ansichts-Blattung hielt das eigene Stylesheet einer Modulanwendungsansicht nur seine eigenen Regeln und die Anwendung trug das Thema, so dass `setStyleSheet` in der Anwendungsansicht eine sichere, lokale Sache war. Nun kann die Anwendungsansicht alle ~73 KB des Fensterblatts tragen, und ein schlichtes `setStyleSheet` wirft das Theme weg.\n\nGemessen, bevor dies existierte: Abwischen des Blatts einer angezeigten Seite, wie `AppScreen._sync_page_palette` eine Sonde unter ihr lässt Auflösung auf `#000000` auf dem dunklen Thema, und es blieb so, bis das nächste Thema ändern -- der Digest Check repariert ein Wisch beim nächsten polieren des Widgets, und eine Seite, die bereits gezeigt wird, bekommt keins.\n\nWenn kein Fenster zu bewahren ist, fällt dies auf eine einfache Aufgabe zurück, d.h. jeder Anrufer, der sich nie für spaCR-Style entschieden hat, und jeder Test, der kein Thema anwendet.\n\n:param widget: das Widget, dessen eigene Regeln ersetzt werden.\n:param rule: die QSS, die das Widget besitzt, oder ``\"\"``, um keine zu besitzen.",
+      "translation_source_blocks_sha256": [
+        "c0b9382f77b0b08e87ec6dcf3a8ec986ab5f6ace54af59de809165dd022705fe",
+        "c4c099996aee7c3bc190af03e95fc0a1aa20d38fb0522b6a7c20d6611dcf383c",
+        "c58398228927582306f0a0e0abb8ed93a12a29e50f4d36fa1f3d42388d90ba42",
+        "66671a3e900b6d353c6b96795e944326eddac6a82eb4693d6965716481301d9d",
+        "26041a42e73e23c065e09104d86781fff3f651048d054149f13b9e4b46f20524",
+        "dd9cfdf129f64aaf110f8fa4cf9e675488decd4a6c6ea558eaf198604a84c231"
       ]
     },
     "spacr.qt.theme.set_spaceout_drift_seconds": {
@@ -100860,6 +101554,38 @@
         "e2b438f4dad96fe3011296ce0b3c2d3f7152cf0079fb5faa2997c771e8eb3ec5"
       ]
     },
+    "spacr.qt.widgets.dose_response.Checkerboard": {
+      "source_blocks_sha256": [
+        "882761b03ba3cf68dca3e1ddf3d343c83b79d4d112f079f9a6ac365390d11672",
+        "7e35bf407902c8433551bfc0d6ba88ed611f9f85c7499a8b5ccaa960db448400",
+        "13433c959af64d63026f8b01bcbd8fbf0d10b7ac911ba8d637ffbece5477d32b",
+        "3cc4270ecfa214937033785467fd5fa813ae27879a47a56643ec41f238335dfd",
+        "ab174676372e7a3c2d5acbc762824d54ab44c7b7fb7c895dfe5054bcb482706b",
+        "bbb5c87a5b9905f3cc74b40f8645220a54cf79c6d3aa419703d063aeae668efe",
+        "bf2b4a9ccc6f3ed7b4d3cce3af37a3514b12d1b645c8756c1112d12aa6a5e220"
+      ],
+      "source_sha256": "8eb094849c35681c9d55b210a2005afc1322514cc1b995bf160faa2e5a3b9c05",
+      "text": "Ein Zwei-Agenten-Dosiergitter zog aus einer Mikroplatten-Probenpositionstabelle mit seinen beiden Achsen heraus.\n\nDie drei Oberflächenfunktionen nehmen parallele Arrays ein; ein Labor-Mikroplattenleser gibt Ihnen eine Tabelle. Dies ist die Verbindung zwischen ihnen, und es hält die Einzelagentenzeilen -- die Zeile, in der B Null ist und die Spalte, in welcher A Null ist -- weil :func:`bliss_surface` und :func:`loewe_surface` beide an diesen Achsen kalibriert sind und ein Anrufer, der sie herausfiltert, leise eine Oberfläche ohne Referenz erhält.\n\n:param dose_a: Wirkstoff Konzentration pro Mikroplattenprobenposition, kombinierte Mikroplatten-Probenpositionen enthalten.\n:param dose_b: Konzentration des Wirkstoffs B je Mikroplattenprobenposition.\n:param response: die gemessene Ansprechrate pro Mikroplattenprobenposition.\n:param a_alone: ``(dose, response)`` für die Mikroplattenprobenpositionen, in denen B Null ist.\n:param b_alone: ``(dose, response)`` für die Mikroplattenprobenpositionen, in denen A Null ist.",
+      "translation_source_blocks_sha256": [
+        "d7073ef793be9793cd50b3e3823499091a9b48234ec9bc7706a2ba42151b7dcb",
+        "2e35352012974412e3f6bfc5ec848abe1644110b70373a8f5a60d1b1a08f1620",
+        "fcd8ced0e14625514f9e41519ead0d9aa4694b90134de88c196240e26b5fcfe8",
+        "da858afcbeac612afb7ec069f330c44f1ee62d0b71d44d1e0467ec873e086aa7",
+        "c203140c5242006c5444737d684dbe394c566641e2d2afa66e81bc2143eb9a3b",
+        "bd0ce7da8ac578f1279a3c8ac5abc8dca19b87ea012a39b26b5c31baad6338fc",
+        "d4ecfdc8e6a6fe51f84e2cb1f48805ea7b54da555700516eebf312f1b335b7ae"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.Checkerboard.shape": {
+      "source_blocks_sha256": [
+        "c2258637f89e3a839b81c7fad021444d3ade5be3d0f6859acfe309a9d4ca48bb"
+      ],
+      "source_sha256": "c2258637f89e3a839b81c7fad021444d3ade5be3d0f6859acfe309a9d4ca48bb",
+      "text": "Wie viele verschiedene A-Dosen wie viele verschiedene B-Dose.",
+      "translation_source_blocks_sha256": [
+        "c2258637f89e3a839b81c7fad021444d3ade5be3d0f6859acfe309a9d4ca48bb"
+      ]
+    },
     "spacr.qt.widgets.dose_response.DoseResponseError": {
       "source_blocks_sha256": [
         "01ce0de1196aaaa66e5a8da514ca56e631d7bc4fde052b25ddd01878c8d72d8b",
@@ -101482,6 +102208,170 @@
         "502e408f926ce8c7a8bf60759f79c56ae4b2c15a2170a33c12fbeef43b69e332"
       ]
     },
+    "spacr.qt.widgets.dose_response.PlateReport": {
+      "source_blocks_sha256": [
+        "90bcdf4d673b970d6a6a536c4f4b275f55225689a71dbb855f1297cc2de46a0e",
+        "7d0f2afd3a44b86b1492466e3ba0e1d4a469cec85962a47ea6b66ecd699f8273",
+        "3946aa5e97e46a07f28f23a49c25fef5dd513f96bcbb53d0a5afc6eacee27f1d",
+        "d41666c201268576f30d4cdbcaf0e3c909ff540a2bb9e2090f5c8ff825e8757a",
+        "975dea82a39332991af81dff2919ae96817144645c6a43fe657f17d8c39378f8",
+        "e53d770f40a836aeb913237ac9700796d2fa0930369cb9e7e952517c0dac9d3c",
+        "5a8e7e8127c2bebf67a19ce6e042fa4479a42bb5334660ef49a9bc7dc5567a22",
+        "beadc0cffd1468feabcb0be60a07d57246f8e36140a04cfacb323420896744c2"
+      ],
+      "source_sha256": "dd25f2f6efae270c9273c6c34082e100119322027f39607415edf76b7881d243",
+      "text": "Was die Bedienelemente einer Platte sagten, und ob die Platte angebracht werden kann.\n\nEine Reihe pro Labor-Mikroplatte, Ablehnungen enthalten. Ein Labor-Microplatte, die fallen gelassen wird, hinterlässt einen Bericht, der sagt, warum es fallen gelassen wurde, so dass ein Benutzer Vergleich acht Labor-mikroplatten und sehen sechs Kurven finden die anderen beiden ohne erneutes Laufen alles.\n\n:param status: :data:`STATUS_FITTED` wenn die Platte normalisiert wird, oder :data:`STATUS_REFUSED` -- das gleiche Vokabular, das die Kurve passt, spricht.\n:param zprime: der Z-Faktor des Laboratoriums oder ``None``, wenn es kein Z' hat, weil eine Kontrolle weniger als zwei Mikroplattenprobenpositionen hatte. ``None`` ist kein Versagen; es ist das Fehlen einer Zahl und wird als solche gemeldet.\n:param note: den Satz, um den Benutzer zu zeigen. Leeren, wenn nichts falsch ist.\n:param plate: der Labor-Mikroplatten-Identifikator in diesem Bericht, wie er in der Labormikroplatten-Spalte des Rahmens zu sehen ist.\n:param n_positive: wie viele Positiv-Kontroll-Mikroplattenprobenpositionen darauf gefunden wurden. Berichtt auch wenn die Labor-Mikroplatte abgelehnt wird, da \"two\" und \"none\" unterschiedliche Probleme sind und die Note allein sie nicht unterscheidet.\n:param n_negative: Gleiches gilt für negative Kontrollen.",
+      "translation_source_blocks_sha256": [
+        "90bcdf4d673b970d6a6a536c4f4b275f55225689a71dbb855f1297cc2de46a0e",
+        "43784492fa4612c4c4032901ca03dfdb272e60ee90cf1afb22cc75ab5c71457d",
+        "3946aa5e97e46a07f28f23a49c25fef5dd513f96bcbb53d0a5afc6eacee27f1d",
+        "19d0fd09e2007efec28d513a7f663660107299c7ffc6c85dc2aa5e0c7676a5be",
+        "975dea82a39332991af81dff2919ae96817144645c6a43fe657f17d8c39378f8",
+        "12eadf7bc5bab3f04476efca5f8cf00f6f15805bb1eb038fad6af241adf1fba6",
+        "6c3179f303c488530685ec1456af03e46d65c340353336050145469d6b86c2bc",
+        "beadc0cffd1468feabcb0be60a07d57246f8e36140a04cfacb323420896744c2"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PlateReport.summary_row": {
+      "source_blocks_sha256": [
+        "7c83ea6ccb76c6be236765782b0dc637a90220aff5f2b2cbcca78a05bfd9860e"
+      ],
+      "source_sha256": "7c83ea6ccb76c6be236765782b0dc637a90220aff5f2b2cbcca78a05bfd9860e",
+      "text": "Eine Reihe für die Labor-Mikroplatte Tabelle, Ablehnung enthalten.",
+      "translation_source_blocks_sha256": [
+        "283c6af83829541393ea873277cf67d1c2dcdfc8f73ac6b8eb4404121dc0b3d4"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PlateReport.usable": {
+      "source_blocks_sha256": [
+        "f4eccc8908cfe4b22fc1a461490fd48bfb7249ec6c3fe4fee0fe969fb548cc3e"
+      ],
+      "source_sha256": "f4eccc8908cfe4b22fc1a461490fd48bfb7249ec6c3fe4fee0fe969fb548cc3e",
+      "text": "Ob Mikroplattenprobenpositionen auf dieser Labor-Mikroplatte eine normalisierte Reaktion aufweisen.",
+      "translation_source_blocks_sha256": [
+        "830e203bcc6a42aa7cc1b76e3b3b069e830f0d542f8d83273c2b84fc843f56f3"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PlateSpec": {
+      "source_blocks_sha256": [
+        "c8cdd7710b6bedad1c405c5973e8f16ce4419df0e1d5b18fc1450d905e2e827e",
+        "2d9489663e29fa2887497f80d755dac6cee71b8080883299fc4a62bffea7e928",
+        "bda1e330c7b95a9e4baab893ba177f98beb42b1cbb022271e360a842a42304e6",
+        "65bd9a9cb89dc8b570c73dee3cb18cb29fff9cadd83172a4c4832fafb4f371f7",
+        "ba95b0fbaba3c62a244934d6b17ae94f4856097553b3bfefe1f2191c8b5fe1c5",
+        "5214039f762e507168c2807caeac4b5ca515ec7c7c5d48ed821046fea37fc467",
+        "bbfa294f89cf0830f25c92c1bf63c98d0e18cb26313f94d192888de737a0af3d",
+        "69dfe96a62e0fdf1d5ac2c1fce305ac885d0cfb44075dc02d79c150e5fcf9945",
+        "8b1e030de8aac0a602206ea0aca56511bb527c3066549a756f51ea2672c6877e"
+      ],
+      "source_sha256": "f845dc27b1c797a38ccd128acb8e667954777b5d4a641857d5c595ef60d09401",
+      "text": "Welche Säule ist die Labor-Mikroplatte, und welche Mikroplatte Probenpositionen darauf sind die Steuerungen.\n\nDer Motor hatte keine Vorstellung von einer Labor-Mikroplatte, weshalb er eine saubere EC50 auf eine Labor-Microplatte passen konnte, die der Rest des Pakets bereits wusste, war schlecht. Dies ist diese Vorstellung: die Labor- microplate Spalte, die Steuersäule, und die Ebenen darin, die bedeuten \"full effect\" und \"no effect\".\n\nGefroren und JSON runden-Tripping wie :class:`DoseResponseSpec`, so dass die Normalisierung hinter einer Figur reist mit der Passform, die es verwendet.\n\n:param plate: Spalte zur Identifizierung der Labormikroplatte. Erforderlich.\n:param control: Spalte, die die Kontrollrolle jedes Mikroplattenmusters benennt. Erforderlich.\n:param positive: Werte von ``control``, die die positive Kontrolle sind -- die Volleffekt-Mikroplattenprobenpositionen, die sich auf 100 normalisieren.\n:param negative: Niveaus, die die negative Kontrolle sind -- Fahrzeug oder unbehandelt, die sich auf 0 normalisieren.\n:param min_zprime: jede Platte, deren Z' darunter fällt, ablehnen und sagen, das Z' in der Ablehnung. ``None`` (Standard) Datenauswahl grenzt nichts und meldet immer noch die Z' neben jeder Platte. :data:`ZPRIME_MARGINAL` ist die konventionelle 0,5, wenn Sie eine wollen.\n:raises DoseResponseError: wenn eine Säule oder eine Kontrollebene fehlt, wird die Spezifikation an dem Punkt gebaut, anstatt auf halbem Wege durch eine Labormikroplatte.",
+      "translation_source_blocks_sha256": [
+        "a43a46e8b71992f8e9d8743c745486fdaa1325217d8433e5923c14f077d28574",
+        "22f79ef9c424a93339f77d09b0108045ddd44d664292960ed4cb2eab0c79e0ef",
+        "bda1e330c7b95a9e4baab893ba177f98beb42b1cbb022271e360a842a42304e6",
+        "15a31252510e2fc251f7e332d8a0abca2e324de1706f79d61a7e6d4a44b1b7b9",
+        "1d7883f786093d845d8ebb05624afc3a08daa79c90ff5601fc5f73efeb4b06ab",
+        "15fafb0f8b009ca94988a793720caa008f1b89c58856c6afc773c07bc228b12a",
+        "bbfa294f89cf0830f25c92c1bf63c98d0e18cb26313f94d192888de737a0af3d",
+        "a28a86feec4da286279ff3298b510bf1430ff8dbe5dad059a1c6f370e660db3c",
+        "c347bd10dbbec3b45caa2e2caef885ec221eab3f0a609e286050c5556724130d"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PlateSpec.__post_init__": {
+      "source_blocks_sha256": [
+        "af1258fec146ae80e5e0d66ef0cd0f1e823a48f1713f2bed7ef2277cd856f68d",
+        "f8486939cbd31c1ee779ceabbb3ae16725bf0578111fe19c16260f777487eca3"
+      ],
+      "source_sha256": "94e600245962794a71cf2519f9183abd80a448a332ccd8a149ded442e690ec8a",
+      "text": "Normalisieren Sie die Namen und bestehen darauf, dass beide Kontrollen existieren.\n\n:raises DoseResponseError: wenn ``plate`` oder ``control`` leer ist, oder wenn eine Kontrolle keine Werte hat -- die prozentuale Hemmung ist eine Zwei-Punkte-Skala und eine Kontrolle kann sie nicht definieren.",
+      "translation_source_blocks_sha256": [
+        "af1258fec146ae80e5e0d66ef0cd0f1e823a48f1713f2bed7ef2277cd856f68d",
+        "f8486939cbd31c1ee779ceabbb3ae16725bf0578111fe19c16260f777487eca3"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PlateSpec.from_json": {
+      "source_blocks_sha256": [
+        "27d5358f80d276a99052fe1867a50dd9f00e6da04f65cb64c724b45d191ca568",
+        "6e94ebd832c26543a604022793df61e6f991a40473c5f8e6dda28091f2a7e382"
+      ],
+      "source_sha256": "4187ad431b6312aa29550c7b0adebe1d57c79651f0963821633cf4e61f191b00",
+      "text": "Rebuild von :meth:`to_json`, Validierung auf dem Weg in.\n\n:param payload: Das Mapping :meth:`to_json` erzeugt. Fehlende strukturierte Datennamen fallen auf die Feld-Standards zurück, anstatt zu werfen, so dass eine Spezifikation, die von einer älteren Version geschrieben wurde, immer noch geladen wird.",
+      "translation_source_blocks_sha256": [
+        "27d5358f80d276a99052fe1867a50dd9f00e6da04f65cb64c724b45d191ca568",
+        "222888c7d45a21dc63fd5a82ec4c5c5c40a477abb9dcbf49d631324f12ec0189"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PlateSpec.to_json": {
+      "source_blocks_sha256": [
+        "bae5465611e2c0ab0f8b07c72985578786d3f3d4488cd1638a5441a549aa8be2"
+      ],
+      "source_sha256": "bae5465611e2c0ab0f8b07c72985578786d3f3d4488cd1638a5441a549aa8be2",
+      "text": "Ein einfaches Schlüssel-Wert-Mapping, für eine Einstellungsdatei oder einen Methodenabschnitt.",
+      "translation_source_blocks_sha256": [
+        "40495873d83ad7fdd3afff713419371d77c7b19ea59bf67fb1290807b6031056"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PooledFit": {
+      "source_blocks_sha256": [
+        "8d3ea1e67ebd0f87771b901dc0c11217d3fc175967b94810d47235507cb4619c",
+        "a8ae532a9362ace20b35d190cd8cfde0fc9ce5c2d9268451abab0d186d0ce824",
+        "0b615c577509ae1d8c12fcc424d65ec44ce3366e5e7b493fe4387330bf46531f",
+        "479f8a29335d483bf0a082b791b6f00dcdc16e73882c7f56d595c800f4bd35d4",
+        "075d48021f5e74172b344d7d9672872425eee61fdb5ee7367ce1aefa971b9483",
+        "a3668e8a4ba880196d5992e08eb4d99c4ae83f27256c6d8065f596547a77164e",
+        "652844f02fdc7c2be5a310f7fe3436e6d755df1854276465f176da6f67743603",
+        "386ba31bd29172c47141f4a0312750d0183a5943c97dd1312cd9092d1756aa5a",
+        "00e1fe5b343c9761d1af0e23ae96873d0545025713955c202f3aa03bac036287",
+        "b99067d6fca7d0c7f34b40bbc0d8cd5f7777bd78f3ee2e861a482081177892f7",
+        "28abe56e26040c91e2a7bd9804f6b09eb7fc4f728fbddc1507fd1a6960ac22bc",
+        "d479897b4a6f2232a62af6704668e90566af13534d9aff36f98378ddc7ba11d2",
+        "a25dd5a5c44f5ed8e0564f444f7053733073afa23a2ed1e93cd09ba9ab1f9840",
+        "ae4c829964692d8bafc125eeedfa0fad2fb4ec123eff6738a67e46aa5a5d1ea5",
+        "f601857222bd27cec146d6f7bc431f1256f278cf02fc3c68e696ddfb704061a2",
+        "6457a191fed86ccde58b8407298f13db78e315b05179d2079ec0d521cdc75882"
+      ],
+      "source_sha256": "3531e852c1b133e05a5f6b8dc63e14e7cda90b59df73edd47ddad691f674a75d",
+      "text": "Ein EC50 über replizieren Platten, mit Platte als Zufallseffekt.\n\nDREI EC50s und ein Augapfel ist das, was dies ersetzt. Ein Anwender mit drei replizieren Labor-Mikroplatten passt heute drei Kurven und durchschnittlich die Zahlen von Hand, die wegwirft, wie gut jeder ermittelt wurde und sagt nichts darüber, ob die drei vereinbart.\n\nZWEI-STAGE, NICHT EINS. Jede Platte wird auf eigene Faust montiert -- durch das gleiche :func:`fit_dose_response`, das alles andere, mit den gleichen Ablehnungen passt -- und die pro-Plate log10 EC50s werden dann mit einem zufälligen Effektgewicht kombiniert. Ein nichtlineares gemischtes Modell würde die andere Weise sein, es zu tun; es würde auch einen zweiten passenden Pfad mit einem zweiten Satz von Ausfallmodi bedeuten, und eine Platte, die :func:`fit_dose_response` ablehnt, müsste wieder abgelehnt werden, anders, innen. So bleibt eine Ablehnung auf einer Platte genau die Ablehnung, die dieses Modul bereits spricht.\n\nRANDOM, nicht fixiert. Fixed-Effect-Pooling nimmt an, dass jede Platte den gleichen Wert misst und nur durch Geräusche abweicht. Drei enge Platten, die nicht übereinstimmen, geben dann einen engen Abstand um einen Wert, den keiner von ihnen unterstützt. Die DerSimonian-Laird Schätzung der Varianz zwischen den Platten wird zu den eigenen Platten hinzugefügt, so dass reale Variationen zwischen den Blechen die Antwort erweitern, anstatt wegbewertet zu werden.\n\n:param status: :data:`STATUS_FITTED`, oder :data:`STATUS_REFUSED` wenn zu wenige Platten angebracht sind oder die Platten darüber hinausgehen, was ihre eigene Unsicherheit erklärt.\n:param ec50: die gepoolten EC50 oder ``None``, wenn sie abgelehnt werden.\n:param tau: die Zwischenplatte SD auf der log10-Skala -- es zeigt, wie weit die Platten über diese Verbindung einig sind, die kein Durchschnitt von drei EC50-Werten anzeigen kann.\n:param i_squared: der Anteil der beobachteten Streuung, der in ``[0, 1]`` real ist und nicht Stichprobenrauschen aufweist.\n:param q: Cochran's Q gegen die Null, dass jede Platte die gleiche EC50 gemessen.\n:param q_p: Der p-Wert dieses Q.\n:param per_plate: die einzelnen passt, so dass die gepoolte Zahl immer wieder auseinander genommen werden kann.\n:param note: Warum, wenn abgelehnt oder wenn die Platten sitzen unruhig zusammen.\n:param log10_ec50: die gepoolte Schätzung auf der Skala log10, wo das Pooling tatsächlich durchgeführt wird -- EC50s sind log-normal, so dass sie in linearen Einheiten durchschnittlich die hohen Platten mehr wiegt als die Daten garantieren.\n:param log10_se: den Standardfehler dieser Schätzung auf derselben Skala.\n:param ec50_low: das niedrige Ende des Konfidenzintervalls, zurück auf der linearen Skala, die der Benutzer liest.\n:param ec50_high: Sein hohes Ende.",
+      "translation_source_blocks_sha256": [
+        "8d3ea1e67ebd0f87771b901dc0c11217d3fc175967b94810d47235507cb4619c",
+        "2c462aa356eed9595b042700263c0e87339a10892f58bd8dddf9dd8a22beb317",
+        "0b615c577509ae1d8c12fcc424d65ec44ce3366e5e7b493fe4387330bf46531f",
+        "cc3ac929eef54207d4761c40298454ce09f2952b6451432d217351c15c7df6de",
+        "075d48021f5e74172b344d7d9672872425eee61fdb5ee7367ce1aefa971b9483",
+        "a3668e8a4ba880196d5992e08eb4d99c4ae83f27256c6d8065f596547a77164e",
+        "652844f02fdc7c2be5a310f7fe3436e6d755df1854276465f176da6f67743603",
+        "386ba31bd29172c47141f4a0312750d0183a5943c97dd1312cd9092d1756aa5a",
+        "00e1fe5b343c9761d1af0e23ae96873d0545025713955c202f3aa03bac036287",
+        "b99067d6fca7d0c7f34b40bbc0d8cd5f7777bd78f3ee2e861a482081177892f7",
+        "28abe56e26040c91e2a7bd9804f6b09eb7fc4f728fbddc1507fd1a6960ac22bc",
+        "d479897b4a6f2232a62af6704668e90566af13534d9aff36f98378ddc7ba11d2",
+        "a25dd5a5c44f5ed8e0564f444f7053733073afa23a2ed1e93cd09ba9ab1f9840",
+        "ae4c829964692d8bafc125eeedfa0fad2fb4ec123eff6738a67e46aa5a5d1ea5",
+        "f601857222bd27cec146d6f7bc431f1256f278cf02fc3c68e696ddfb704061a2",
+        "6457a191fed86ccde58b8407298f13db78e315b05179d2079ec0d521cdc75882"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PooledFit.reproducible": {
+      "source_blocks_sha256": [
+        "55eff6267ae9d17f7dd1c5647d1124cdf0ccdf3b162683ef1629c4d2fce99e32"
+      ],
+      "source_sha256": "55eff6267ae9d17f7dd1c5647d1124cdf0ccdf3b162683ef1629c4d2fce99e32",
+      "text": "Ob die Labor-Mikroplatten gut genug für die gepoolte Nummer vereinbart.",
+      "translation_source_blocks_sha256": [
+        "8ecf9e4c298ee423d42216d7c1b15c57fac982810ab1a1a1c1c6cfeaad7174ae"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PooledFit.summary_row": {
+      "source_blocks_sha256": [
+        "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ],
+      "source_sha256": "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772",
+      "text": "Eine Zeile für die Ergebnistabelle, Ablehnung enthalten.",
+      "translation_source_blocks_sha256": [
+        "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ]
+    },
     "spacr.qt.widgets.dose_response.SelectivityIndex": {
       "source_blocks_sha256": [
         "0cd154a814626f83465aa310d3501bc41b02f081ccdfc87d035be2681e44ac18",
@@ -101572,6 +102462,28 @@
       "translation_source_blocks_sha256": [
         "e25ea64c88a9666fdc38b4cb1f7ca7f5285cf8306dc356db9c69ad3a9c35b9c3",
         "70b56a89ceb27512900b37d4abd14e676cceea7db9e49389800e366233e13e2b"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.checkerboard_from_frame": {
+      "source_blocks_sha256": [
+        "31a47294d94ec1ed379333d363592ba1779d77476e8d8f7913d9ce20d405adbd",
+        "8dbe2c7071e551c0d6acc431b39943df2903004d0ec0c45c533fd1f4ca3907e6",
+        "0ba8264237c4f26c168f1754317d442f1467e8e35cd6d15944f2363c58d93643",
+        "e3102f42f9b444bd323542013de4876d26550d87acf9d3814826127ac041b0a1",
+        "be753a952a3204a651037e82328179cefbcdf51685bfa70c02577bdae6e1909e",
+        "5d2b147edb5e8299a46bbe671a1537ca2f68db8dcef2a0837bf24bf551eec185",
+        "c8491201e232a82700275181adbb10c65aba9c74d9017ec7ec7a85c18b2bf1ab"
+      ],
+      "source_sha256": "0900deaf492162c25ff6cc6ce5f07496c29e00d280fa920ea352a98a8b68a25d",
+      "text": "Lesen Sie ein Checkerboard von einer Mikroplatten-Beispielpositionstabelle, Einzelagentenachsen und allen.\n\n:param frame: eine Zeile pro Mikroplattenmusterposition.\n:param dose_a: Kolonne, die die Konzentration von A hält.\n:param dose_b: Spalte Holding Agent B.\n:param response: Spalte, die die Messung hält.\n:returns: a :class:`Checkerboard` bereit für :func:`bliss_surface`, :func:`loewe_surface` und der Single-Agent passt, den sie benötigen.\n:raises DoseResponseError: wenn eine Spalte fehlt, wenn jedes Mittel keine Einzelagenten-Mikroplattenprobenpositionen hat -- ohne sie gibt es keine Kurve, aus der die Kombination vorherzusagen ist, und eine Oberfläche, die mit der Kombinations-Mikroplatte berechnet wird, würde selbst die Daten mit sich vergleichen -- oder wenn kein Wells beide Agenten vorhanden ist, das ist ein Paar Dosisreihen und kein Kontrollbrett.",
+      "translation_source_blocks_sha256": [
+        "d8ce36548892e94d799ae098841a0615b4c5ab8722f82109c7826b04fe50c3ce",
+        "09ce211b99587014198cda206c9c66a18368c4f08a86ac779421fed78e02c848",
+        "0ba8264237c4f26c168f1754317d442f1467e8e35cd6d15944f2363c58d93643",
+        "e3102f42f9b444bd323542013de4876d26550d87acf9d3814826127ac041b0a1",
+        "be753a952a3204a651037e82328179cefbcdf51685bfa70c02577bdae6e1909e",
+        "5d2b147edb5e8299a46bbe671a1537ca2f68db8dcef2a0837bf24bf551eec185",
+        "e2bfc416cddfaa13cf71d02460f59b71751df27025449a66e565885d6d54670f"
       ]
     },
     "spacr.qt.widgets.dose_response.fit_dose_response": {
@@ -101682,6 +102594,98 @@
         "b13bb11c822ea7bbf03a5659c452a6043025d17dac68e5e2c6b63f95bd34dc1e",
         "701ad55dac01b316e6353702e03136af3e9c1b004efeb1fc00fdcfa97d1d6c16",
         "4d3aab37c61947f0b7b11fb0716734271d5de31b9f17a5a0e2b091aa702c7acf"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.normalise_to_controls": {
+      "source_blocks_sha256": [
+        "85722c31cd061f15792a533a2d3fcfe9b13c14f554d17056a607ed95f062de12",
+        "eb7efe823954e419067d70d6bdac917179554710d9141740408c9c33996cd013",
+        "d16ef8a0bb4d4ebd1c8a10639949c5968000c22f2139b20120e7e5ee7ebfb1db",
+        "e1361961663b55e5b225a6d258ccfd2f8cda4c80dc3c5e138cb26925df91834b",
+        "31244f3ec817dddad7387553c479b8e9df9663ee60ac93d8d95cb18f2c500bed",
+        "c3a255feeb0aaf28aff8e810a7064f5e69238a15b3b7fbde7faa9856cde47ed3",
+        "ac174b748c0536c0049737589dd48d2d4aa1aef6ef30d81ce00e5724db952807",
+        "9add51b1ece766939bdf8669e1457782e65b6c7be2443b3c6592ceed71b4c327",
+        "75f5800583157e037afe9e6dbe7c2e338180172e18f0b24e72304039288c82a9",
+        "1e20689337b2e9e4d686b5b1651cb08fc38252d44e2c151d55fda5135d567eee",
+        "99d326e5dc56788395683998bc7f8c85deb3d702b052d55d842fc49eca15511f"
+      ],
+      "source_sha256": "2741f4d0be3b037cea9362b4639cded1014aa8eea87c211a024c9c43fcf79dfa",
+      "text": "Prozentige Hemmung gegen die eigenen Bedienelemente jeder Platte.\n\nDie Raw Responses sind nicht über Platten vergleichbar. Zwei an verschiedenen Tagen gelesene Platten unterscheiden sich im absoluten Signal durch mehr als die meisten Verbindungen bewegen es, so dass drei replizierende Platten montiert roh drei EC50s produzieren, deren Ausbreitung meist Instrumentendrift ist. Scaling jede Platte zu seinen eigenen Kontrollen - negative liest 0, positive liest 100 - entfernt genau das und verlässt die Biologie.\n\n``percent = 100 * (value - mean_negative) / (mean_positive - mean_negative)``\n\nDie Formel ist signiert und richtungs-agnostisch mit Absicht: Auf welche Weise auch immer die rohe Auslese läuft, die positive Kontrolle liest 100 durch Konstruktion, so dass eine Durchführbarkeitsauslese und eine Belastungsausleuchtung die gleiche Weise normalisieren und die Passform nach unten nicht zu erfahren ist, was sie erhalten hat.\n\nWenn die beiden Kontrollen einer Labormikroplatte sich nicht voneinander trennen, gibt es kein Analysefenster, und die Trennung durch diesen nahezu Null-Differenz würde das gut-zu-gut-Geräusch in hunderte von Prozent Hemmung und eine zuversichtliche EC50 auf einer Labor-Mikroplatte verwandeln, die nichts gemessen hat. Solche Mikroplattenreihen eines Labors kommen mit einer NaN-Antwort und einem :class:`PlateReport`-Stimmen zurück.\n\n:param frame: eine Zeile pro Mikroplatten-Probenposition, wobei die Labor-Mikroplatten-, Kontroll- und Antwortspalten die Spec und diesen Rufnamen enthalten.\n:param spec: die Mikroplatte des Labors, ihre Kontrollsäule und ihre beiden Kontrollstufen.\n:param response: die rohe Spalte zur Normalisierung.\n:param out: Spalte, um das Prozent zu schreiben. Defaults auf :data:`PERCENT_COLUMN`; übergeben Sie einen anderen Namen, um mehrere Auswertefunktionen (Host-Lebensfähigkeit und Parasitenbelastung, sagen wir) nebeneinander zu halten.\n:returns: ``(frame, reports)`` -- eine Kopie des Rahmens, der ``out`` trägt, und eine :class:`PlateReport` pro Labor-Mikroplatte in der Reihenfolge, in der die Labor-Microplatten zuerst erscheinen. Reihen auf einem abgelehnten Labor-mikroplatte tragen NaN, so dass ein Anrufer, der den ganzen Tisch passt, diese Labor- Mikroplatten fallen lässt, ohne zuerst filtern zu müssen.\n:raises DoseResponseError: wenn eine benannte Spalte fehlt oder wenn keine Labor-Mikroplatte beide Kontrollen hat - es gibt nichts zu normalisieren und ein Rahmen von NaN wäre eine schlechtere Antwort als ein Satz.",
+      "translation_source_blocks_sha256": [
+        "85722c31cd061f15792a533a2d3fcfe9b13c14f554d17056a607ed95f062de12",
+        "c654e1e8d664a71ffbf8a422cd57c84372eb5d29152d0c5c17ccdfa8b32cd074",
+        "d16ef8a0bb4d4ebd1c8a10639949c5968000c22f2139b20120e7e5ee7ebfb1db",
+        "e1361961663b55e5b225a6d258ccfd2f8cda4c80dc3c5e138cb26925df91834b",
+        "59876f77fc28490dde57f314c298b2f690f7578cf16a33c5cf71930542a968f2",
+        "b6ae76f3243ec1b2a8443423c6652952982876c17a5bd362e3ff01d42da851e6",
+        "5d39e92df5aaf0d0d54c63af4125e30d6a087bd283064030337f4797f8320111",
+        "9add51b1ece766939bdf8669e1457782e65b6c7be2443b3c6592ceed71b4c327",
+        "75f5800583157e037afe9e6dbe7c2e338180172e18f0b24e72304039288c82a9",
+        "537401eb0c5bec1dc4c32c0f46b11baccbd187f53c7432fc1bc54a0c33c47d13",
+        "399690e54061f316d3fa4573e8d619eb8cd3bdeed8c51edf3b58c8f89e7a0a48"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.plate_reports": {
+      "source_blocks_sha256": [
+        "20e27db4f402df00b6d1c3c402eed2e5e807fbf3df31cee1bfbd00165be8f379",
+        "c0dbfc88d71a35484ebc98ee9ab49b2a356cec8935e5255857c832fafae1b85e",
+        "81d3b560e92827d8a2421122f2a93f8ff4dd72b9a549033b8523009335a66d2b",
+        "feda3186e6ea66bc11aaebd128fbdac81a580fd3e9063cc1b14148d2c3078aab",
+        "5d5018deef0f06c90dc90b82fb36610bcb492a9f881368110ccba27edfb063a6",
+        "4c470d916c4db50ce9eb2ada0094d3b7bcbd4d0a37e7ba2463e3936220948b6b"
+      ],
+      "source_sha256": "1affa6d25564d77b067313aa93e558629f2e96f7bed0768f10094bd94a3043c1",
+      "text": "Allein das per-Platten-Urteil, ohne etwas zu normalisieren.\n\nFür den Screening, der den Plattentisch zeigen will, bevor der Benutzer eine Auslese gewählt hat, um zu passen, und für einen Anrufer, der nur wissen will, welche Platten fallen gelassen werden. Eine Tabelle, bei der jede Platte abgelehnt wird, gibt seine Ablehnung zurück, anstatt zu werfen - hier sind die Ablehnungen die Antwort.\n\n:param frame: die langformatige Tabelle, eine Zeile pro Mikroplattenmusterposition.\n:param spec: welche Spalte die Labormikroplatte bezeichnet, welche die Steuerung und welche Kontrollwerte die beiden Enden sind.\n:param response: die Auslesespalte, deren Steuerung bedeutet, das Z' der Labormikroplatte zu bestimmen., weil das Urteil eines Labor-Mikroplattens über eine PARTICULAR-Auslesung lautet und es positionell vorgibt, den Bericht allein als Eigentum der Labor-Microplatten zu lesen.\n:raises DoseResponseError: wenn eine benannte Spalte fehlt.",
+      "translation_source_blocks_sha256": [
+        "20e27db4f402df00b6d1c3c402eed2e5e807fbf3df31cee1bfbd00165be8f379",
+        "30eaab899b33107d26285bfaf5d041cff517747967a1bb7b142c9503c78e1117",
+        "bd0d918a5251d0d370b3e21b3518ef28446a2eab9394b93bfb07673bfbe7c997",
+        "9c440ebb52b9e4fa2156816a1f9b0b0da917cf72382eec7f8da7c85c58bc0940",
+        "6839179214a1b4583f578e9c2919b4e8080206da050a0352dbb3e716f73b7912",
+        "4c470d916c4db50ce9eb2ada0094d3b7bcbd4d0a37e7ba2463e3936220948b6b"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.pool_across_plates": {
+      "source_blocks_sha256": [
+        "cc3a352cf44adfe8da3c934e11400d3bf19d9f8537de4fb753d53d866fa46592",
+        "4938756669cc82d0cc9dd67fd362c2ed01871ebca091aff95ab69354b1133a8d",
+        "38599ddd7470fd79d39d0b3cf1908ca284df0fd3953737d9fafdefc5cb5b017e",
+        "9a2e5b8f98c8e14a8ecb3b8adef7742fa7f9b7366654d972bc378ac4fe8fc6a5",
+        "36ad2f7b17a574a3e7a01fe4aa19c2e16e2dadac4f2c20eff3042d7827620511",
+        "5e878e4c93a9186030f21f7c8e6434b3702c8aed4deb7ca51692ef05f1ba964d",
+        "49cf7f44986cfe98ea55a0ad033d9abd55f9b4a463320c6fcbac86bba6451618"
+      ],
+      "source_sha256": "9bb21299424188db7fa93fe5ce0bd32865106cc4ef5addc51432448b1a4d98fc",
+      "text": "Kombinieren Sie pro Platte passt in einem EC50 mit Platte als Zufallseffekt.\n\nGepoolt auf der log10 Skala, weil das ist die Skala der EC50 wird geschätzt und die Skala sein Intervall ist symmetrisch auf. Durchschnittlich drei EC50s von 1, 10 und 100 uM arithmetisch ergibt 37 uM; Bündelung ihrer Logarithmen gibt 10, die die Mitte der drei in dem einzigen Sinn, dass für eine Konzentration wichtig ist.\n\n:param fits: Nur passt, die :data:`STATUS_FITTED` mit einem geschlossenen Intervall sind, kann ein Gewicht tragen; der Rest wird gezählt, in der Note genannt und aus der Arithmetik herausgelassen, weil eine Labor-Mikroplatte, deren EC50 ungebunden ist, keine Varianz zum Gewicht hat und es leise fallen lässt, würde das gepoolte Intervall besser aussehen lassen, als das Experiment war.\n:param confidence: Deckung für das gepoolte Intervall.\n:param max_heterogeneity: über dieser I-Quadrat zu verweigern.\n:returns: a :class:`PooledFit`, abgelehnt, anstatt leer, wenn die Platten nicht eine einzige Nummer unterstützen können.\n:raises DoseResponseError: wenn ``max_heterogeneity`` nicht ``(0, 1]`` ist.",
+      "translation_source_blocks_sha256": [
+        "cc3a352cf44adfe8da3c934e11400d3bf19d9f8537de4fb753d53d866fa46592",
+        "f1e745d1c5571a9e5aa97fffdf463b69ffbbe000e3c29d757534ccaa87bcb53f",
+        "8c590618b13f7dd6f691c75f4fc682828a362b22171726f8a92f81a30fd91f89",
+        "9a2e5b8f98c8e14a8ecb3b8adef7742fa7f9b7366654d972bc378ac4fe8fc6a5",
+        "36ad2f7b17a574a3e7a01fe4aa19c2e16e2dadac4f2c20eff3042d7827620511",
+        "5e878e4c93a9186030f21f7c8e6434b3702c8aed4deb7ca51692ef05f1ba964d",
+        "49cf7f44986cfe98ea55a0ad033d9abd55f9b4a463320c6fcbac86bba6451618"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.pool_frame": {
+      "source_blocks_sha256": [
+        "944a6a47c4332ede1d161f5ae176f11ed513c6f299491be6a772e9e17c632869",
+        "1f13e9b8d0a84b31516f3de7b9382aaee7c3b5aa0d817f82acf503b56d5daeda",
+        "35a30866c9b41b0de63f088349e4a815c24aa9a967dea91296d32d1a028723a5",
+        "08871161f8693e76f5ec1bd5fb2524369ab0e66370eac750810d931f75782083",
+        "e7bad6dc93be4b83a943222eb9aa59b3339a7740d78d4bf5c30be94b6f427731",
+        "47406e29d53249262e6d1e6fbd3ac18a822f8c89dfbb5001cd8efc7386bdffce"
+      ],
+      "source_sha256": "fef13270aca22df7146c79738db2887fb17d10b2006465937695db44d952d040",
+      "text": "Passen Sie jede Platte in ``frame`` auf eigene Faust, dann poolen Sie sie.\n\nDie Bequemlichkeit über :func:`pool_across_plates` für den gemeinsamen Fall: eine Tabelle, eine Verbindung, eine Labor-Mikroplattensäule. Eine Labor-Microplatten, die :class:`DoseResponseError` hebt wird aus dem Pool und in der Notiz benannt, genau wie :func:`fit_frame` hält eine schlechte Verbindung von einem Labor- Mikroplatten zu nehmen.\n\n:param frame: die langformatige Tabelle, eine Zeile pro Mikroplattenprobenposition, wobei jede replizierte Labormikroplatte darin ist.\n:param spec: die Anpassungsspezifikation, die unverändert auf jede Platte angewendet wird -- was das Pro-Plate EC50s in erster Linie vergleichbar macht.\n:param plate: die Spalte zur Identifizierung der Wiederholung.\n:raises DoseResponseError: wenn ``plate`` keine Kolonne ist oder wenn keine Labormikroplatte überhaupt eine Passform erzeugt - es gibt nichts zu bündeln und eine Ablehnung ohne Labormikronplatten darin würde nichts über warum sagen.",
+      "translation_source_blocks_sha256": [
+        "944a6a47c4332ede1d161f5ae176f11ed513c6f299491be6a772e9e17c632869",
+        "a5b03f463ee27253d85d49cb5616b07978bc5557caa3189fad4a389415a4b98d",
+        "b8a4dc503247188aa59bd7e11812b7e9452c82c841ef66f685f8e9604bfeb3f8",
+        "08871161f8693e76f5ec1bd5fb2524369ab0e66370eac750810d931f75782083",
+        "e7bad6dc93be4b83a943222eb9aa59b3339a7740d78d4bf5c30be94b6f427731",
+        "b1074ff833a8b50b8b57179669548721644c1e2a350c659103b0ee74e22ea087"
       ]
     },
     "spacr.qt.widgets.dose_response.selectivity_index": {
@@ -118404,12 +119408,20 @@
     },
     "spacr.qt.widgets.live_preview.LiveSettingsDialog.closeEvent": {
       "source_blocks_sha256": [
-        "e84d2238b6d17d429b5adc9e97a73aa691f0446c5d74959eff6903c233edf99d"
+        "cd9be7bce786f998cf3d5113b814b7afad688532c30d7e20fdf522855a8d6fb2",
+        "e1c67d5df5bdb7d0526672141e8e570fcb66f0bb7ee83150d24a65b1773ee2a3",
+        "f6626d38b22ee0222df8785d8a54345c77850bf6bee1d6f68565c4a7feac60a3",
+        "1ff37d6ac2220b6dde71cb1505e76eb631a4ace37b9323f4ec4586f675626632",
+        "a71d83b14bcb68b723ca4caf9c4035319bb772248b144893190e53d9e7794a0c"
       ],
-      "source_sha256": "e84d2238b6d17d429b5adc9e97a73aa691f0446c5d74959eff6903c233edf99d",
-      "text": "Verstecke die Zustands-Widgets, damit das kompakte Layout sauber bleibt.",
+      "source_sha256": "9d6ba1408da14876bb0501bd4bd200e502449639b54719d031f33e1d5100afa2",
+      "text": "Geben Sie jedes Panel-Steuerelement zurück, das dieser Dialog entlehnt, nicht nur die deklarierten.\n\nQt zerstört die Kinder eines Dialoges damit, so dass alles, was das Panel noch unter diesem Dialog parented, wenn es geht, würde mit ihm gehen. Die Steuerelemente sind die PANEL und überleben den Dialog durch Design -- ihre Werte sind, was der Benutzer gestimmt.\n\n`_managed_widgets()` ist die deklarierte Liste und es war INCOMPLETE: `_pathogen_channel`, `_organelle_channel` und `_model_zoo_btn` sind auch hier angelegt und waren nicht darin, also saßen sie nach einem offenen und schließen zu einer Gruppenbox, die zu einem geschlossenen Dialog gehörte. Nichts scheiterte -- sie überlebten, weil das Panel immer noch Python Referenzen hielt -- genau deshalb wurde es unbemerkt.\n\nDer Sweep ist also von IDENTITY statt von Liste: Jedes Widget, das noch unter diesem Dialog steht, für das das Panel ein Attribut besitzt, geht zurück. Blunt, wie `LivePreviewPanel._stow_free_widgets`, also wird ein Control, das später zu einer Zeile hinzugefügt wird, abgedeckt, ohne dass sich jemand daran erinnert, es auch hier hinzuzufügen.\n\nSie gehen auf `_offscreen_controls` und nicht auf das Panel: gearented auf das Paneel ohne Layout, jeder sitzt bei (0, 0) über dem geladenen Pfad-Label, gehalten vom Screening durch nichts als die `hide()`.",
       "translation_source_blocks_sha256": [
-        "e84d2238b6d17d429b5adc9e97a73aa691f0446c5d74959eff6903c233edf99d"
+        "cd9be7bce786f998cf3d5113b814b7afad688532c30d7e20fdf522855a8d6fb2",
+        "e1c67d5df5bdb7d0526672141e8e570fcb66f0bb7ee83150d24a65b1773ee2a3",
+        "f6626d38b22ee0222df8785d8a54345c77850bf6bee1d6f68565c4a7feac60a3",
+        "1ff37d6ac2220b6dde71cb1505e76eb631a4ace37b9323f4ec4586f675626632",
+        "a71d83b14bcb68b723ca4caf9c4035319bb772248b144893190e53d9e7794a0c"
       ]
     },
     "spacr.qt.widgets.live_preview.LiveSettingsDialog.refresh_visibility": {
@@ -143004,6 +144016,32 @@
       "text": "Die Zeilen als CSV Text. Geschrieben vom Anrufer, wo immer er hingehört.",
       "translation_source_blocks_sha256": [
         "87bcd7ae3436d22c25baa47a42e5b276e0808f1a1826ce565f8c566d6329c62c"
+      ]
+    },
+    "spacr.scorecard.scorecard_figure": {
+      "source_blocks_sha256": [
+        "b51ed42f45918bd5f1dcb6538fc2573a8a129a135f01b23f4b83008c59eae4ec",
+        "35a58d76018b1a4c8aa2c640cac6fbdb99fc44557466207c8e8436121580255e",
+        "1dbb950051ce330a4f0969ba344accd57b26bd9421142ef145a893e73671c0dc",
+        "40bc657a380f4cfe8aa727ae23e60bbb2fd6fdc1ede55480d2c56305ad6fa8b4",
+        "ceed89704e71fb3012b0cad5000d2e394599b186af4593269d64a4bcc2f9c39b",
+        "947e947d9727a06de8e6d0a4301b2c9523bedf71e737f303d5201237b0f1f65f",
+        "142cb89204b9102b838dcb3a92774f5dcd922e96278addc93e0b719357c65f06",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "50f35467e4e367c2f03566e85971fb15dacabc5f3b4bbe326c2157d0e39fd64f"
+      ],
+      "source_sha256": "28f775f2d65a51361b5c4c97c58460137eb58a6e1ef8116777811370b59c9373",
+      "text": "Zeichne feingestimmt auf den Vorrat als gepaarte Balken und schreibe ihn auf ``path``.\n\nDie Scorecard in Graphenform, für Hugging Face und für die API Seite, neben dem CSV und der Tabelle. Sie liest die GLEICH geparsten Metriken des Tooltips und der Zoo-Anwendungsansicht, so dass das Bild nicht mit den neben ihm gedruckten Zahlen einverstanden ist.\n\nMatplotlib wird absichtlich in dieses Modul importiert. Der Vertrag dieses Moduls besteht darin, dass der Model Zoo es weder mit torch noch cellpose importieren kann -- ein Test behauptet es -- und eine Zeichnungsabhängigkeit am Modul-Scope würde das für jeden Anrufer, der nur eine Scorecard lesen wollte, brechen.\n\nNur die Metriken, die die Frage beantworten. Eine Scorecard enthält vierzig Zahlen; ein Diagramm von vierzig Balken ist eine Wand, keine Antwort. Die in :data:`CHART_METRICS`, die tatsächlich die Scorekarte trägt, werden in dieser Reihenfolge gezeichnet, und alles, was nicht vorhanden ist, wird übersprungen, anstatt als Null gezeichnet -- eine fehlende Metrik und eine Metrik, die nichts erzielte, sehen auf einen Blick identisch aus und bedeuten entgegengesetzte Dinge.\n\n:param metrics: als :func:`read_scorecard_csv` zurückgegeben wird.\n:param path: wo die PNG zu schreiben ist.\n:param title: Überschrift; der Name des Modells ist die nützliche Sache zu übergeben.\n:returns: den Pfad geschrieben.\n:raises ValueError: wenn keine der Diagrammmetriken vorhanden sind, da ein neben einem Modell veröffentlichtes leeres Diagramm bedeutet, dass es Null erzielte.",
+      "translation_source_blocks_sha256": [
+        "b51ed42f45918bd5f1dcb6538fc2573a8a129a135f01b23f4b83008c59eae4ec",
+        "6e375a2cf24891986bfbe86ddf5f3bec6725ba807d70677f535d56e23d80843e",
+        "abd7e926695c1b259a5009f70ae3e161b268ee474e727f52a965f0c0115808ff",
+        "d968267594f7488a589271c5d2bd6845d1e3482de02a105aebf35e06104adb7b",
+        "ceed89704e71fb3012b0cad5000d2e394599b186af4593269d64a4bcc2f9c39b",
+        "947e947d9727a06de8e6d0a4301b2c9523bedf71e737f303d5201237b0f1f65f",
+        "142cb89204b9102b838dcb3a92774f5dcd922e96278addc93e0b719357c65f06",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "50f35467e4e367c2f03566e85971fb15dacabc5f3b4bbe326c2157d0e39fd64f"
       ]
     },
     "spacr.scorecard.scorecard_is_present": {

@@ -2,7 +2,7 @@
 
 A STALLED GUI THREAD LEAVES NO TRACEBACK. It is not an exception and not a
 fault, so ``faulthandler`` cannot see it, the log simply stops, and the
-report that reaches the maintainer is "spaCR froze" with nothing under it.
+only report anyone can give is "spaCR froze" with nothing under it.
 The only thing that can name the call is a sample of the main thread's
 stack taken WHILE it is stuck, from another thread.
 
@@ -15,16 +15,20 @@ is the blocking call.**
 
 WHY THIS IS IN THE PACKAGE RATHER THAN IN ``tools/``.
 ``tools/watch_the_gui_thread.py`` does the same thing and has to build the
-``QApplication`` itself to attach before any screen exists -- which stopped
+``QApplication`` itself to attach before any screen exists. That stopped
 working the day :func:`spacr.qt.app.launch` began constructing its own, and
-Qt refuses a second. Reaching in from outside was then tried two more ways
-and failed twice more: hosting ``qt.run()`` inside another process makes
-Home itself time out at thirty seconds, and a ``sitecustomize`` on the
-startup benchmark worker's ``PYTHONPATH`` is imported but the
-``QApplication`` it patches is never the one constructed. A flag read
-inside ``launch`` is the one place that cannot be missed, and it composes
-with every other driver -- the benchmark included, which is what this was
-written for.
+Qt refuses a second.
+
+Reaching in from outside was then tried two more ways and failed twice more.
+Hosting ``qt.run()`` inside another process makes Home itself time out at
+thirty seconds.
+
+The other way was a ``sitecustomize`` on the startup benchmark path. It is
+imported, and what it changes is never the object that runs.
+
+A flag read inside ``launch`` is the one place that cannot be missed, and it
+composes with every other driver -- the benchmark included, which is what
+this was written for.
 
 WHAT IT COSTS WHEN OFF: one ``os.environ.get``. When on: a 100 ms timer on
 the GUI thread that increments an integer, and a daemon thread that

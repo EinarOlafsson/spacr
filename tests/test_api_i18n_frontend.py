@@ -48,7 +48,7 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 #: two tour helpers written here that TourPilot replaced.
 #: 10,306 -> 10,339 on 2026-09-11 with the merge from main, +45/-0,
 #: decomposed in tests/test_api_i18n_extractor.py beside the same move.
-REAL_SYMBOL_COUNT = 10_395
+REAL_SYMBOL_COUNT = 10_397
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

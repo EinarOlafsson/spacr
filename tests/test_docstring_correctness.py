@@ -1972,7 +1972,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     #                                      than pre-written: a ratchet is a
     #                                      measurement of the tree, so
     #                                      whoever merges second re-runs it.
-    assert len(callables) == len(by_symbol) == 8_583
+    assert len(callables) == len(by_symbol) == 8_584
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -1998,7 +1998,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # PlateReport, PooledFit and Checkerboard, and the three exceptions are
     # ObjectsError, SampleError and StoreError.
     assert Counter(item.category for item in callables) == {
-        "function": 3_722,
+        "function": 3_723,
         "method": 3_804,
         "constructor": 394,
         "dataclass_constructor": 459,
@@ -2016,7 +2016,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # unchanged, which is the part worth asserting -- a new symbol reaching
     # only the CLI would be a different event.
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_578,
+        "autoapi": 8_579,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2038,9 +2038,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,542 -> 8,589, the same +47: none of the new callables carries a
     # second prose variant, so variants keep tracking callables one for one
     # and the seven two-variant entries are unchanged.
-    assert sum(item.variant_count for item in callables) == 8_590
+    assert sum(item.variant_count for item in callables) == 8_591
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_576,
+        1: 8_577,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2116,8 +2116,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # new parameters were nearly all REQUIRED would be one that had stopped
     # taking defaults seriously. All 78 are documented, which is why
     # `test_no_new_undocumented_required_public_parameters` does not move.
-    assert sum(len(item.parameters) for item in callables) == 17_060
-    assert sum(len(item.required_parameters) for item in callables) == 8_664
+    assert sum(len(item.parameters) for item in callables) == 17_063
+    assert sum(len(item.required_parameters) for item in callables) == 8_665
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -2132,7 +2132,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 37 new callables move it whatever else stays still -- which is the
     # point: it is the assertion that catches a required parameter becoming
     # optional without any count changing.
-    ) == "29f9b8123b69b719aa742259beeaefcf5e85f2c76f0a4b7960efbe3a1bdcfb7e"
+    ) == "1dfbc784c20d211d8e3e43081fed8cdd135bc81b5094c3543cb1d2a4471c08d0"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2528,7 +2528,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 10,394 -> 10,395 with 380's `set_a_sheeted_widgets_own_rule`, merged
     # after that measurement. Re-measured here rather than carried across:
     # this assertion and the extractor's move together by construction.
-    assert len(docs) == 10_395
+    assert len(docs) == 10_397
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -2546,7 +2546,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 8,530 -> 8,577, the same +47 as the callable total: every new
     # callable is rendered, so this keeps tracking the total rather than
     # diverging from it.
-    assert len(rendered_documented_callables) == 8_578
+    assert len(rendered_documented_callables) == 8_579
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

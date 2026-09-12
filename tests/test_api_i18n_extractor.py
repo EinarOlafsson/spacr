@@ -1014,7 +1014,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # admission. The nine catalogs were regenerated against this inventory
     # before the number was touched, which is the order this file's own
     # message asks for.
-    expected = 10_395
+    expected = 10_397
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1047,7 +1047,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # docstring as well. The nine catalogs were regenerated against this
     # inventory before the number was touched, which is the order this
     # file's own message asks for.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_395
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_397
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1211,7 +1211,7 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # 10,612 -> 10,613 with 380's `set_a_sheeted_widgets_own_rule`, merged
     # after the measurement above. BOTH halves move together, which is the
     # expected shape for a rendered symbol: the boundary stays 218.
-    assert 10_613 - len(docs) == 218
+    assert 10_615 - len(docs) == 218
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

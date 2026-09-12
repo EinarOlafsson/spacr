@@ -549,3 +549,29 @@ ordering is the one the intuition predicted.
     the same mistake in one night, on three different files, in three
     different languages of the problem.
 
+
+--------------------------------------------------------------------------------
+A RESIDUAL-ENGLISH COUNT HAS COGNATE FALSE POSITIVES
+--------------------------------------------------------------------------------
+
+Counting words that appear in BOTH the English source and the translation --
+after masking protected literals -- is the cheapest way to spot a block the
+model left half-English, and it is what found most of the fixes above. It has
+one systematic false positive worth knowing before anyone builds on it.
+
+Measured on one sentence across all nine languages:
+
+    sv es zh_CN pt hi ko is    residual 0
+    de                         residual 1   "worker"
+    fr                         residual 1   "module"
+
+Neither is a failure. "Worker" is an ordinary German loanword and "module"
+IS a French word. The count cannot tell a word the model failed to translate
+from a word whose translation is spelled the same, and the Romance and
+Germanic targets will do this constantly for technical vocabulary.
+
+SO THE COUNT IS A TRIAGE SIGNAL, NOT A VERDICT. Zero residual is strong
+evidence the block is fine. A small residual in a language closely related to
+English means look at it, not fix it. The authority is the build's own gate,
+and a cheap check should hand off to it rather than pretend to replace it --
+which is the same conclusion this file reaches about static checks generally.

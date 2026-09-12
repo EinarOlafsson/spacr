@@ -18347,6 +18347,42 @@
         "928073e539616cd63dd8a9ce9c4d0f256692e183331308537220419973bac15d"
       ]
     },
+    "spacr.embeddings.encoder_entry": {
+      "source_blocks_sha256": [
+        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
+        "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
+        "fa7b9bdc8f7c1d08cfaa81508efa8331f8700ea4f941c6ec54e72fef1eb4a458",
+        "cbae75c8399079cd49b93dad3c22254b6f724794204e44c4b7a45f3decbba443",
+        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
+        "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
+        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+      ],
+      "source_sha256": "27cec465dec2129bb455cb0ef6326427e8a4a9cf38dc82177c1d28c27269dbc8",
+      "text": "此编码为 :class:`spacr.model_zoo.ModelEntry`。\n\n编码器是一款像其他任何人一样发布的模型,所以它属于动物园,其检查室和记录。 一个没有一个的船舶的包装是一个黑盒子两次:它编码的内容是模糊的,并且不衡量它是多么好。\n\n编码器的起源实际上是什么? 它没有 spaCR 检查点 - 重量是 ImageNet 或一个公共自我控制的运行,由 ``timm`` 解决并由 HuggingFace 隐藏。\n\n当重量不被隐藏时,输入仍然存在,并在其笔记中这样说,有一个空虚的消化 - 已经被:func:`spacr.model_zoo.fetch`视为拒绝而不是过渡。\n\n:param spec: 要描述的配置;默认的 spec 当被忽略时。\n:param scorecard: 386的“如何知道它工作” - kNN 基因身份的准确性,嵌入式对测量面板。 加入为 :attr:`ModelEntry.metrics`,这就是370的``scorecard_lines``从那里阅读它们。\n:returns: 以 ``ModelEntry`` 的类型 ``'encoder'``。",
+      "translation_source_blocks_sha256": [
+        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
+        "dcef17b50e9db4df3490a7d22dac90240e267ba685e2372196478c658cec5c3b",
+        "529ec96d6993086fcf130931258b1b67effd233c1cd09cdaa449191f30dbad53",
+        "277b64bf6391e6e08d2799c8b460fdc75057b00b5d34b8dcd023b3746476abb6",
+        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
+        "51fd59a24157c2d9c6893e3e0c013607a655827b034a63ad331f117cb518b70a",
+        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+      ]
+    },
+    "spacr.embeddings.encoder_key": {
+      "source_blocks_sha256": [
+        "12bb772f55f30f83b669e58fc420626a28d497aef934b29f29c9783fc42160d6",
+        "bd1e531779fc81bcc8f9376f2c6c66b8b4837afec8d8f28d5de660ec06da005d",
+        "fab5d49fae2d09183b19b9511238d368ca5fe8c8bc36eb26210497be97eae714"
+      ],
+      "source_sha256": "036708aabbf1a8f6d0127b135af882092e7959a58e864bed76a212bca6aa54aa",
+      "text": "稳定ID为一个编码器配置。\n\n背骨和政策相结合,因为它们是共同的,这使得两个跑步的尺寸意味着相同的东西。 相同的背骨在 :data:`CHANNEL_PER_CHANNEL` 和 :data:`CHANNEL_PROJECT` 产生的列是相同宽度,同样的 d 类型,而不是远程相同数量 - 一个是 per-stain,另一个是混合物。\n\n:param spec: 只有 ``backbone`` 和 ``channel_policy`` 才能到达结构化数据名称:其余的细节 - 包尺寸、设备、提取图像区域尺寸 - 会改变运行需要多长时间,而不是一个尺寸意味着什么。",
+      "translation_source_blocks_sha256": [
+        "12bb772f55f30f83b669e58fc420626a28d497aef934b29f29c9783fc42160d6",
+        "1a089c4da6d9b07b6aee44af0a7d819d7ec8b78ee85bb6781ef74a20bcba1009",
+        "bff66033e30f19d505426a15fbc027febf5b9bf10b46d48b459db2dbf9c4b354"
+      ]
+    },
     "spacr.errors": {
       "source_blocks_sha256": [
         "0a6cfb358bbbf7bf78d602172c2556635f7e8a4f93b0e556166fddbd6f777196",
@@ -46728,16 +46764,16 @@
     "spacr.ops_compose": {
       "source_blocks_sha256": [
         "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
-        "b553a737ed987dd13aa8b0d0546b00b8702cdd3a760ed269af776739ff6f47ca",
-        "9c604370eea684a67c7b138357c4e26ea2eac6f640d836c2b3d723c7e0d8242c",
+        "3615110a457f0a82e8b18b44a172b325f96463a06c911e624a73ed2b008e844b",
+        "453dedcfc41fa1fab68303f91f823dd1c1ac32895709dee1564fbcef53f0e242",
         "c359f9f720dab72b58a7a3f83dbd326f91738bf99a87988d1e4d944359b5bc69"
       ],
-      "source_sha256": "d08359f950419f445268ec864e6f252b341154417e4c596d3edf07d9360b36c3",
-      "text": "原子能地图,由一个窗口同时组成。\n\n`ops_stitch` 只求解每个图块的位置，并刻意不保留像素——孔位 A1 为 26,855 x 26,865，单个通道以 uint16 存储即为 1.4 GB，而后续每个阶段都要通读它。本模块改为逐窗口合成同一个孔位，这也正是 B2 要求分割所做的：“在合成图上分割一次，逐窗口进行”。\n\n    记忆问题和分区计划有相同的答案. 一个分区器可以保持的窗口也是一个窗口,一个组合器可以构建,所以什么都没有物质化整个管道. 连接关键B4需要 - 实验室微板级对象号在微板样本位置框中 - 生存,因为每个窗口携带自己的折扣到这个框架。\n\n为什么平均超越? 部分 15 测量它:收益是正确的图像数据渠道分区的 1.15x 进行,而不是 3.3x 一个以前的草案从平均跨周期主张. 只有一个 DAPI 收购,所以十一个示例论点不适用 - 剩下的是拉斯特的 14% 超越,在那里两个微镜图像字段看到相同的核心两次。",
+      "source_sha256": "94d15719e8a80f33b482ea275b9407742a7aa8fe3bc19702f877e16e3cc59bbb",
+      "text": "原子能地图,由一个窗口同时组成。\n\n`ops_stitch` 只求解每个图块的位置，并刻意不保留像素——孔位 A1 为 26,855 x 26,865，单个通道以 uint16 存储即为 1.4 GB，而后续每个阶段都要通读它。本模块改为逐窗口合成同一个孔位，这也正是分割本身所需要的：在合成图上分割一次，逐窗口进行。\n\n    记忆问题和分区计划有相同的答案. 一个分区器可以保持的窗口也是一个窗口,一个组合器可以构建,所以什么都没有物质化整个管道. 连接关键对象编号需要 - 实验室微板级对象号在微板样本位置框中 - 生存,因为每个窗口携带自己的折扣到这个框架。\n\n为什么平均超越? 部分 15 测量它:收益是正确的图像数据渠道分区的 1.15x 进行,而不是 3.3x 一个以前的草案从平均跨周期主张. 只有一个 DAPI 收购,所以十一个示例论点不适用 - 剩下的是拉斯特的 14% 超越,在那里两个微镜图像字段看到相同的核心两次。",
       "translation_source_blocks_sha256": [
         "e0ffa3fde7d170f91a0ea9f177fbef9ac63dfffc0080ad91de9542fe1b79d875",
-        "df9f3ca80ca6f7dc0d5c5c5e70c16a9c37718a39ce6ed65f6f88c7abbdb49ede",
-        "2bebe95857e6c51de5035aa67c37dc4e5dfda86de8ca5fde1f2f72c7dbc36147",
+        "33901fe20672fdb6af705edd92b691a616f06106884cd03c79b8f83f3325c257",
+        "8cad79d791c34c963652401c085265b4c374e3400706b8bb6bb079cbe64bd705",
         "c1a39eddb74fd17659348ddccf73892cd984ce92636648bec865e0fa30c59960"
       ]
     },
@@ -46840,17 +46876,17 @@
     "spacr.ops_compose.windows_over": {
       "source_blocks_sha256": [
         "d09520c0f1100b5706041dffba94e97b464724d398a47796fac909616e1d18e3",
-        "d58cc12c06301003643d33b1697964bb2fd465183d74b8b2e0448dc9df11d3d0",
+        "0f6e961eb4c1512796c486f24a855a29d80b95ad3a905a21912d32a7f74ee662",
         "5fd2da00e9ba4dccea7b96d40f9e7c5f1571ad527aa282cd625ee79eec663344",
         "7446032b6fb00a83a0a8f3f580218756645806d129e7f196c786388bce4e876c",
         "53747ea6692116a69328604abfec580c74bbdaf5a2795b48887b0d399d987251",
         "0127f37f3eef338fcd6c711bd0cce0b880dd9be69f3a463a99ab86702250c50b"
       ],
-      "source_sha256": "d94324d86aec939ca54a63a292216fdba17fdc24b17abcc8e68a5f8f53338c27",
-      "text": "微镜图像字段一个插入窗口,在拉斯特顺序。\n\n窗户上滑的目的和B3是原因:一个窗户边界的对象是一个对象,它只能在窗口上相匹配,如果两个窗户看到所有的。\n\n:param canvas: ``(height, width)`` 微板样品位置框。\n:param size: 窗口边缘在像素中。\n:param overlap: 邻居的窗户共享多少\n:raises ComposeError: 当超层不小于窗户时,这将使冲击零和 iteration 无限。",
+      "source_sha256": "ab1908601706a73e23ddde0e5fb812459be77a0c6a8492704c23e8392afffd4b",
+      "text": "微镜图像字段一个插入窗口,在拉斯特顺序。\n\n窗户在目的上覆盖,而覆盖是原因:一个窗户边界的对象是一个对象,它只能在覆盖上匹配,如果两个窗户看到所有。\n\n:param canvas: ``(height, width)`` 微板样品位置框。\n:param size: 窗口边缘在像素中。\n:param overlap: 邻居的窗户共享多少\n:raises ComposeError: 当超层不小于窗户时,这将使冲击零和 iteration 无限。",
       "translation_source_blocks_sha256": [
         "bb6ecb963eef28edd2ef7de3e30fe53f993022036fa9af983e73800ed31bc169",
-        "b3a8d32f1bc7fb3f7c33078ea72962296c8a0fe923e3e0125b1c6444ed7e49cc",
+        "2668eb71b108e607405f740d6f2b0a02d67f05cfdf4f3fcb2ee1a1c77ef22465",
         "3469ef7518f7877a9cf13d7144be25a1367b74879e0187fabb24f50e69dc0d57",
         "7446032b6fb00a83a0a8f3f580218756645806d129e7f196c786388bce4e876c",
         "53747ea6692116a69328604abfec580c74bbdaf5a2795b48887b0d399d987251",
@@ -47209,6 +47245,196 @@
         "4284f7e376c2b415cd2950e14b4a049ac51297de01fea7ca23986df819b2bf90",
         "97c2bed9d6e30ad48a18ebcb280604b6527d89f8c0a56c45bf5da9eb35f16c79",
         "d049bbab3f5ef63d99108ae55d6aff94556ee72a51ad282a085249831158d6fe"
+      ]
+    },
+    "spacr.ops_objects": {
+      "source_blocks_sha256": [
+        "6216ae38b62c08718330501119260cf976d8a4cabb5c3229b884619b6ca18ff9",
+        "670d8fe38a344e153f52bafcab313817550e53f6668839e73d40ccb0b8f29932",
+        "fc9b9d411d973c2bb8ccc764c8ecaebd6a39e541a26602b6bf86ee58f8848f3e",
+        "757a4fbb2a0dffbaea257d6a3a86fe831c8c0b129c3a302ae1ad763c98199705",
+        "990cbd9d468810e23d12c3c6422a96b1e92596d8698621faf418036c8b591785",
+        "97b8148e32b87cf7ab822aa5792267912cd4e0e4cb9ef01a3fe9b1d14e57d483",
+        "bcd8c39db6c093f852d0428af03bd07c6af89f7ae366071127c7a1ff280d4889",
+        "01272912db0ec87950b0a80779bd9ba157f02b306c23a540d72bcc352015eaa5",
+        "c02755472affea9845da91da2662a1c37746a02b0533ee43750418c5f0dfc107"
+      ],
+      "source_sha256": "a3672d1d070cafff1ab522615ed99b112085c5305e9559ae6cf0099fc3605b14",
+      "text": "一个对象列表为一个微板样本位置,在窗口的序列上排序,并一次编数。\n\nSEGMENT, SEW, NUMBER - 一组和一个对象表之间的三个步骤. 组合步骤给了一个紧张的图像网络,一个窗口在一个时候建造,从来没有物质化整个; 这是什么分区和数字化在它的顶部:\n\n* 分类一次,在组合上,窗口按窗口。\n* 把标签放在窗口的边缘上,一个围绕边界的对象是一个对象,在其良好的框架中匹配。\n* 微板样本位置框中的数字,而不是每个窗口的数字,将为两个窗口提供一个对象 #1 周围。\n\n:func:`spacr.ops_compose.windows_over`微镜图像字段与一个OVERLAP,其合同是,超层超越最大的对象. 因此,一个核心靠近一个标志不分为两个窗口 - 它被看到 WHOLE 至少其中一个,通常是两次. 工作在这里是因此 deduplication,而不是重建:找到观察是相同的核心,并保持一个谁看到所有它。\n\n    这个区别是整个设计. 从两个部分掩膜重建一个对象意味着决定如何将像素连接到一个掩膜,这是可靠和无损的。\n\n它留下了一个不应该沉默的失败:一个比上层更大的对象,每个窗口都会剪辑。 :func:`sew` 拒绝那些而不是发出一片碎片,因为一个碎片看起来像一个小核,并将被计算为处理部分的剩余。\n\nIDs 是一个合并结构数据名称,所以它们被分配的决定性 - 拉斯特命令在微板样本位置框中心 - 而不是由 iteration 命令上一个关键值地图或任何窗口发生第一次分区。",
+      "translation_source_blocks_sha256": [
+        "8c6d8513f13f9bdee29471aa28191262bead1149b24a1bdd2dd9bd006801d1c8",
+        "876023c819960f5827726f2d0a528b5f6695cd8d3cdbbd1e88dbd22dff0fd76e",
+        "340f135c67d6514abe651d9bafa03a82ee342b29880af2fbd4a4b1e585d84335",
+        "c8465868e6b6fb779041505784a0a61b20111c457e043a761fff4bf63e2c79c2",
+        "855db13bbcf05e330503ed4ac4e1e170756ff56ba9bac3624767c9e5658fbdef",
+        "33ccab566faea35efbfc090caa07b8b5f4b383f52dc588eb1af0269939f158ea",
+        "70a26b1a8de4fe228b8bf046da160ff9aa3f7f15b1d4d7ba8f7c420403994e82",
+        "1b5012547632a797799e95c8197cc7dd2a97f1023ae8cc29146fc77bf09cf5b1",
+        "6d6f19c0b5cdcca7dd1892c1089587143faa4afdc9d5216b05b1fd0379f3e81e"
+      ]
+    },
+    "spacr.ops_objects.ObjectsError": {
+      "source_blocks_sha256": [
+        "8711232635ea05e36e26ab72e231fa84cb4a780b92f2ac99bc81c0de439923e2",
+        "21b98ccae9abc7261fb50f18ce4c7ccb99f09dd961be2ab74c6d182c9599f85e"
+      ],
+      "source_sha256": "25d4ff9b154f932da1c0444e74abfb37ffe24cce79f29616dfe67c9cf6ad13d9",
+      "text": "一个无法信任的对象列表,在文本中出现的路径。\n\n相同原因而不是返回空白的:class:`spacr.ops_compose.ComposeError`是:其中每一个都是一个句子一个运营商可以采取行动――“举起窗口超越最大的核心”――而一个呼叫者吞下它会继续一个静静错误的计算。",
+      "translation_source_blocks_sha256": [
+        "8711232635ea05e36e26ab72e231fa84cb4a780b92f2ac99bc81c0de439923e2",
+        "21b98ccae9abc7261fb50f18ce4c7ccb99f09dd961be2ab74c6d182c9599f85e"
+      ]
+    },
+    "spacr.ops_objects.PlateObject": {
+      "source_blocks_sha256": [
+        "dd14870f427a77beb13b68ed45b483d218419e890c2e93fb8fa3770de0288a70",
+        "617f96dff5915a91f13f109e95842c1b44df36dc77bf6cf9ce00f9da31796eae",
+        "a5eba814db15a79482b0220b9e374d0673825f6c925d6b5834fea1486e36a499",
+        "0454ca39eccc6ea726b1d2c66877657aeef6eeff49ee6787116ac2e9e8377101",
+        "642d2e1a7e1a5a857e204be52b3dc56fd052f4890ab19d05aea9ee7f351e7978",
+        "cd87e7ead28e1ec5f093c3e677e5bea79aebd18f9df37b8d3aaa5abccfdd438d",
+        "6735f044b8d688b14dc0c3f83847692739c1a7714b3a4ccfbfc9e2760f3f8d8c",
+        "015b9666b0dbca7b2fa380d289f46f461a6e3d76dff95fa2d8219f8aa91481a8",
+        "9d6587e77fa9bd5eb5ccd239102f86825c4e32e93aae003b0c1f7214d13fddf2"
+      ],
+      "source_sha256": "3415ac1e8592c5fbaeab6c74544147aa1d667846212d67844976452109302b82",
+      "text": "一个核心,为整个点数。 加入密钥样本。\n\n字段名称是 ``ops_objects`` 列,存储合同所规定的,因此图表从这些字符中写出来,没有翻译层。\n\n:param object_id: 独一无二的整体,这就是这个类型存在的整个原因 - 每个窗口的数字给两个窗口一个对象 #1 周围。\n:param centroid_x: 中央的列,在善框像素中。\n:param centroid_y: 中央的序列,相同的框架。\n:param area: 被保留的掩膜的像素数,即无视的观察,无论在哪里。\n:param bbox: ``(top, left, bottom, right)`` 在良好的框架像素中,底部/右侧专用。\n:param window: 被记录为 ``(row, col)`` 的窗口,可追踪可疑物体返回其分区的像素。\n:param n_observations: 有多少窗户看到了这个核心,大于一个意味着它坐在一个上层,观察被打破了。",
+      "translation_source_blocks_sha256": [
+        "dd14870f427a77beb13b68ed45b483d218419e890c2e93fb8fa3770de0288a70",
+        "617f96dff5915a91f13f109e95842c1b44df36dc77bf6cf9ce00f9da31796eae",
+        "a5eba814db15a79482b0220b9e374d0673825f6c925d6b5834fea1486e36a499",
+        "0454ca39eccc6ea726b1d2c66877657aeef6eeff49ee6787116ac2e9e8377101",
+        "642d2e1a7e1a5a857e204be52b3dc56fd052f4890ab19d05aea9ee7f351e7978",
+        "cd87e7ead28e1ec5f093c3e677e5bea79aebd18f9df37b8d3aaa5abccfdd438d",
+        "6735f044b8d688b14dc0c3f83847692739c1a7714b3a4ccfbfc9e2760f3f8d8c",
+        "015b9666b0dbca7b2fa380d289f46f461a6e3d76dff95fa2d8219f8aa91481a8",
+        "9d6587e77fa9bd5eb5ccd239102f86825c4e32e93aae003b0c1f7214d13fddf2"
+      ]
+    },
+    "spacr.ops_objects.PlateObject.row": {
+      "source_blocks_sha256": [
+        "e456b1d04ba53925c6cd89e3bdf19056eb2998a1516beda9850e73d05e958665"
+      ],
+      "source_sha256": "e456b1d04ba53925c6cd89e3bdf19056eb2998a1516beda9850e73d05e958665",
+      "text": "一个 ``ops_objects`` 序列。",
+      "translation_source_blocks_sha256": [
+        "e456b1d04ba53925c6cd89e3bdf19056eb2998a1516beda9850e73d05e958665"
+      ]
+    },
+    "spacr.ops_objects.WindowObject": {
+      "source_blocks_sha256": [
+        "bbe5869f53461fac1f339f4906b81de90bd037d62c2e4a5a9730a390de9ef160",
+        "b19805146c0e651281562808614a7c4d8595a3ed21d97e6a54bdcf6c6ca56b96",
+        "b54e7e0613ded479cdf1952602068302efb28e97e78cab851ac882c474d93cb1",
+        "c531bfa81c783863267ad946371637abfadaa556ba897e1cd80300f122da56a7",
+        "6810b4ba6f97eda44eb8a5bbbbde5f3a1408c99cca3a44836516e98dcb1382f8",
+        "22c94bc7a739e222cb1d8f00a13e848bcf51527ae0bba819bf3418b2ff31b16e",
+        "1a8727fd6d97a011ac4e5e53440b5a0ff83ddfab2e1b838a684a48bb94d61d08",
+        "6735f044b8d688b14dc0c3f83847692739c1a7714b3a4ccfbfc9e2760f3f8d8c"
+      ],
+      "source_sha256": "3938b7641e317740844cf61721b650f2ffde755ef9486f451b5d740e3471aea1",
+      "text": "一个分区的对象作为一个窗口看到它,在良好的框架坐标。\n\n:param window: 它被分区的窗口,这样一个不一致可以追踪到产生它的像素。\n:param label: 它的标签值在该窗口的标签图像中。\n:param clipped: 它的掩膜是否触摸到一个窗口边缘,这也不是一个管道边缘 - 这意味着这个窗口看不见所有。\n:param centroid_y: 对象的中心线的序列,在WELL框像素 - 不是窗口框。 匹配在两个不同的窗口中的中心线,所以它们必须在一个框架中,两者都同意。\n:param centroid_x: 同一个中心的列,同一个框架。\n:param area: 按摩的像素计算,因为这个窗口看到它,小于真相,每次设置 ``clipped``,这就是使它作为两个观察一个核之间的连接分裂可用。\n:param bbox: ``(top, left, bottom, right)`` 在良好的框架像素中,底部/右侧专用。",
+      "translation_source_blocks_sha256": [
+        "bbe5869f53461fac1f339f4906b81de90bd037d62c2e4a5a9730a390de9ef160",
+        "b19805146c0e651281562808614a7c4d8595a3ed21d97e6a54bdcf6c6ca56b96",
+        "b54e7e0613ded479cdf1952602068302efb28e97e78cab851ac882c474d93cb1",
+        "c531bfa81c783863267ad946371637abfadaa556ba897e1cd80300f122da56a7",
+        "6810b4ba6f97eda44eb8a5bbbbde5f3a1408c99cca3a44836516e98dcb1382f8",
+        "22c94bc7a739e222cb1d8f00a13e848bcf51527ae0bba819bf3418b2ff31b16e",
+        "1a8727fd6d97a011ac4e5e53440b5a0ff83ddfab2e1b838a684a48bb94d61d08",
+        "6735f044b8d688b14dc0c3f83847692739c1a7714b3a4ccfbfc9e2760f3f8d8c"
+      ]
+    },
+    "spacr.ops_objects.number": {
+      "source_blocks_sha256": [
+        "606f61529473645d8fbd17db2e0b0a0ce56f64e7aef97a67ff116078ec17eda6",
+        "9a93bc57583625008118ded5bf4743b7890b3e250252024c69d6ee1a26c61af0",
+        "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
+        "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
+        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
+        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+      ],
+      "source_sha256": "f8d639df7ef3ce1cd268c560d6e74d298f93194582c5b9bb6de2b4b778e2d4d3",
+      "text": "1个对象的ID,在微板样本位置框中分配,定义。\n\n拉斯特命令在微板样本位置框中 - 向上向下,然后向左向右 - 而不是命令窗口被分区到。\n\n零是每个标签图像的背景,这来自,一个数字为0的对象将是不可见的任何下流掩膜比较。\n\n:param groups: 从 :func:`sew`。\n:param strict: 拒绝一个没有完整的观察的团体,只关闭它来检查一个不好的运行 - 它然后发出的对象是碎片,有裂缝的区域。\n:raises ObjectsError: 当一个群体只保留粘贴的观察时,这意味着对象大于窗口覆盖。",
+      "translation_source_blocks_sha256": [
+        "e59d92411ab038dc0eae96f9b50e22d4e209ba7f09ad325f1685cd475ca1f438",
+        "71dd785a95bf433424f8db8a069882a844b988679155e844d35c762c5bc4f10a",
+        "67cce60a231fd881a91415568a392781988eba1b466fde05de906fb6b9830809",
+        "425257115e4a289251e6f6c3f0b58ffbca52e36d1eafb4de929566c0be43713f",
+        "ec256c358ae959acc9960429d4b3d8fea4adb4acb1286937b0acdf8f5b030be1",
+        "6355b20237ec17bcbe95199bf55c7cb581f94c9d93dba6379622398174bab5a5"
+      ]
+    },
+    "spacr.ops_objects.objects_frame": {
+      "source_blocks_sha256": [
+        "a2647c8fa2880da295a546330d0f53fc545fa7146419b926f81074915a45f331",
+        "a3bdb3ee3ce7366d950e77d0d51ae6dc7fe8b98fe4c3c29114a488ff1fd38875",
+        "55fc8b2a9e28565f111ff72dc29fa9449f47c854f412ba834fbfb67865401506"
+      ],
+      "source_sha256": "0a0cdd7ca0c4d5007bb74c9ec2775160b450d43ed893ca81c49bb7527292ae90",
+      "text": "``ops_objects`` 表,如 DataFrame。\n\n进口本地,以便该模块保持可用 - 可测试 - 没有 pandas,这就是为什么 :mod:`spacr.scorecard` 达到标准图书馆。\n\n:param objects: 数字的物品,一个顺序,每个,在所提供的顺序。",
+      "translation_source_blocks_sha256": [
+        "a2647c8fa2880da295a546330d0f53fc545fa7146419b926f81074915a45f331",
+        "a3bdb3ee3ce7366d950e77d0d51ae6dc7fe8b98fe4c3c29114a488ff1fd38875",
+        "55fc8b2a9e28565f111ff72dc29fa9449f47c854f412ba834fbfb67865401506"
+      ]
+    },
+    "spacr.ops_objects.objects_in_window": {
+      "source_blocks_sha256": [
+        "c576b67a8a47a48b5c6105a7ce804d7cffec0f591cb1659f8a10f4762a22c1fc",
+        "f4bc21a570e5c9e5a25d6489b73230efe969c06fd6ed9830a32462a9992b0f49",
+        "1688aca06fd7b5b44c55efd9b8edf5142d9caa6151b0e6855914222e94baf469",
+        "4e1f9b52febb3cca8ebb69f3c9ec3c836ce9be2894e9850dc25af4dcb89fce3b",
+        "3da708ae70291d0d11a6d8b65f78a043d3b2a1925b9a996b270373ec9a43a222"
+      ],
+      "source_sha256": "73405f3917ca98e2017067f228c3a7cd051107b2f0900dcff2e5aed95663c92d",
+      "text": "将一个窗口的标签图像转换为良好的框架观察。\n\n:param window: 这个标签图像位于微板样本位置。\n:param labels: 完整的标签图像,零是背景,因为一个分区器返回它。\n:param canvas: 微板样本位置的 ``(height, width)``. 只用来说一个窗口边缘,这也是微板模型位置边缘 - 一个对象真正结束的地方 - 从一个室内门,一个触摸的对象被粘贴. 忽略,每个边缘被视为室内,这是安全的方向:它只能使这个功能更加谨慎。\n:raises ObjectsError: 当 ``labels`` 不是窗口的形状时,因为下面的每个坐标都会沉默地错误。",
+      "translation_source_blocks_sha256": [
+        "c576b67a8a47a48b5c6105a7ce804d7cffec0f591cb1659f8a10f4762a22c1fc",
+        "82eeffc04bf7ee958e8fcb0b5248edf0b8176b21f0f689fe8f5e8662d9e04673",
+        "1688aca06fd7b5b44c55efd9b8edf5142d9caa6151b0e6855914222e94baf469",
+        "619df9f0664004928cd86d8d29c29db01519c649e6ce2292df3d75ba822c1885",
+        "3da708ae70291d0d11a6d8b65f78a043d3b2a1925b9a996b270373ec9a43a222"
+      ]
+    },
+    "spacr.ops_objects.segment_windows": {
+      "source_blocks_sha256": [
+        "f0ef2a40ee9de0d28442159f43c64fdac35c3f2eaa9845b3fbc2417d0a5a9dfd",
+        "f6d8a5331134113ecfdd88e7486135bf0fe12c1bfe0dfe026aa68ee2cf612e60",
+        "75fb35bff3eb6254fdc7bf22158da0c61ef6bac28c744e6e00188407c128d97f",
+        "ecebc70bda18e3729d15194bf63ed5a83f3dd47b84aad191ee4bbffe6e86a3e6",
+        "e5e102cc8cb400d9d36a197afdf5389581288ca903ee667075a20743a92738ef",
+        "1536007fb225aaa0e1c9ebd7a0a087f2defcbc44748276ac2158e4b9c05584d2"
+      ],
+      "source_sha256": "e7602a72c14edd292bfc58d5d3192f29840f82a5e0f1a5750800d3af599a24bb",
+      "text": "在每个窗口上运行一个分区,并收集观察。\n\n注射器是注射的,正如 ``compose_window`` 采取它的 ``read_tile``这个模块永远不会进口 cellpose,从来不选择一个模型,从来没有决定一个直径 - 这是通过窗口做这个窗口的地质学,它可以测试在没有模型存在的植物标签上。\n\n:param windows: 从 :func:`spacr.ops_compose.windows_over`。\n:param segment: 一个呼叫器组成像素(``compose_window``)并将它们分区到这个呼叫室内,所以组合永远不会保持完整。\n:param canvas: 微板样本位置的形状,通过到 :func:`objects_in_window`。\n:returns: 每个观察,从每个窗口,无数和无数。",
+      "translation_source_blocks_sha256": [
+        "f0ef2a40ee9de0d28442159f43c64fdac35c3f2eaa9845b3fbc2417d0a5a9dfd",
+        "24bf9efd98341708af031f53aa036edb9981c41239a1d208a9b76145a98821c5",
+        "75fb35bff3eb6254fdc7bf22158da0c61ef6bac28c744e6e00188407c128d97f",
+        "ecebc70bda18e3729d15194bf63ed5a83f3dd47b84aad191ee4bbffe6e86a3e6",
+        "ce028ddc14a34e55b2047bc5f53313505098175f595dde146e6ef7846b715a79",
+        "1536007fb225aaa0e1c9ebd7a0a087f2defcbc44748276ac2158e4b9c05584d2"
+      ]
+    },
+    "spacr.ops_objects.sew": {
+      "source_blocks_sha256": [
+        "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
+        "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
+        "f08633cd3542cbeb32d6a15ddabb0e48d2cb1d93159db10c8da9596e2a06bc61",
+        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
+        "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
+      ],
+      "source_sha256": "0a6524af4792480274feb233863a420748edcbde67f7babf4bcaabc98af6a067",
+      "text": "集体观察是相同的核心。\n\n每个集体都是一个物理对象,一个窗口的核心由两个(或四个,在一个角落)的观察组成;一个在窗口内部形成一个集体。\n\n就是这一点。 的观测,其掩模运行到一个内部的缝隙没有看到整个核心,所以其面积和重心都错了。 观测只保留足够长的时间,以便与对同一原子核的完整观测相匹配,然后放弃。 观测匹配不完整意味着没有窗口看到整个核心,这是:func:`number`拒绝的。\n\n匹配一张被剪断的观察只使用中心:它的区域是根据定义折叠的,因此要求区域同意会阻止正确的匹配,拯救它。\n\n:param observations: 每个窗口的每一个对象的视图在一个洞,已经在良好的框架坐标。 顺序并不重要; 组合是由地质学,而不是到达。\n:returns: 各式各样的观察,在任何特定的顺序 - :func:`number` 都会执行所需的顺序。",
+      "translation_source_blocks_sha256": [
+        "97ae5d778d7eef75b3f57ec6f0bc9011c5428c360ec436b4b633a739f72a4a56",
+        "cf4c2c075e8ce7bcfdb5051b06a1daaae1a6ae09165cb7b4903ec3b231d91d79",
+        "86686443e9b66c526106ba99577de6700be0169153c6a27d3a1089230a993d13",
+        "e3ab22df791b539720c3a81589bf82849c963aa67ef7c3c14fe0bf87abd89b7b",
+        "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
+        "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
       ]
     },
     "spacr.ops_phenotype": {
@@ -47625,6 +47851,130 @@
         "d0291097f3932c7129ced787a4a0e9b8ce93f74b9680fd50bb64557e28d92b6f",
         "c8efa7e19c8b644a875bbfa2d4105b8fe50c9a3b0010490233585404e143b7b9",
         "3f54d20af058e945ec56bbe3d500b9b92b0a4a9e6d1ed0304caecb0c674c012d"
+      ]
+    },
+    "spacr.ops_sample": {
+      "source_blocks_sha256": [
+        "dc308f703c0ca6de281ff93633809ceb34fd2d60d21c253efc83c7c50e5a93f1",
+        "35770ef9e510496017423ba6f68158c6b99dd1ceaee97100e16c8b1a404ccf6e",
+        "d17356a68d3aeeb7978db29341fa101d00cb70c0d22f6ecd3deb7d8e41397848",
+        "ee5098c670d539fbe1f690d806448ba6e7830c59d6d1b5c0cbbf7bcc81e33d1d",
+        "1a7c609357bde860f3c8f5268e0fd45895ec4cc3731cb9cf1f0dbe2e4e371b0c",
+        "dc785e99606e9d41b8e09c02fe174b95c19f6665e9bcfd194c0b319512de1a36"
+      ],
+      "source_sha256": "fb582fa95db1c116cdd9578c192bbabdf02695a416a54c4aa48236f32d7edb53",
+      "text": "每个其他频道,在指定的编号的坐标中样本。\n\n对象中的每个其他频道的样本协调了分配的编号步骤 - 可以构建和检查的部分,没有一个实际的循环线。 编号阶段产生了一个实验室微板级对象ID和一个微板样本位置框中心每个核; 这就是读取剩余的频道 AT 这些协调和关键结果到这些ID。\n\n    C1序列频道,每周期......从来没有在周期中平均 - 这是破坏条码的唯一操作,同时让它可解码。\n\n就是整个设计约束,它是强制执行的,而不是文档化的。 四图像数据通道读取的跨周期平均值仍然看起来像四图象数据通路读取:``call_reads`` 接受它,返回正确长度的条形码,并且每个下游表都会填充。 ,这些数字是可信的,条形码是噪声。 ,没有任何后续检查可以抓住它,因为没有任何下游知道每个周期的值是什么。  :func:`decode_input` 拒绝一个循环轴被折叠的数组,而这个模块没有提供平均的方法。\n\n    现象型 PATH 是相反的案例,这就是为什么两个是单独的功能而不是一个与旗帜。 一个现象型频道测量在多个周期IS 几个样本的一个数量和平均它是正确的东西,它发出的是图表 ``measure`` 已经发出。 相同的实验室微板,相同的主体,相反正确的答案; 共享的旗帜会使一个召唤者的选择,而它不是一个。\n\n样品被注射,因为它们在 :mod:`spacr.ops_compose` 和 :mod:`spacr.ops_objects`:这里没有什么打开文件或知道转变的起源,所以所有这些都是可测试的植物真理。",
+      "translation_source_blocks_sha256": [
+        "dc308f703c0ca6de281ff93633809ceb34fd2d60d21c253efc83c7c50e5a93f1",
+        "06ac7bf5f7a452fac2766c28c3b61fcbabeafbdef17bc0ad13514ff5e0c3bac8",
+        "8499222525d034937a6c9ee2b20c07c60940212bd6f8bb43d168339d4ddb3db6",
+        "b3e3cb24901576ca58fc8a2ec17dcb6afaf2a6e326f122050424be7cead2a321",
+        "a143958361f871526d8c85af82edd53e7fc6593e55b091047d857b6ff584a6ce",
+        "dc785e99606e9d41b8e09c02fe174b95c19f6665e9bcfd194c0b319512de1a36"
+      ]
+    },
+    "spacr.ops_sample.SampleError": {
+      "source_blocks_sha256": [
+        "e63cfbe84a10c138011010ab7f7612fcdb0667614012eb384df61663d43abb97"
+      ],
+      "source_sha256": "e63cfbe84a10c138011010ab7f7612fcdb0667614012eb384df61663d43abb97",
+      "text": "一个样本不能意味着任何东西,在文本中走出路。",
+      "translation_source_blocks_sha256": [
+        "e63cfbe84a10c138011010ab7f7612fcdb0667614012eb384df61663d43abb97"
+      ]
+    },
+    "spacr.ops_sample.average_over_cycles": {
+      "source_blocks_sha256": [
+        "46d6b8c205ae9feba4eb93536b0ce2709bdfc6031c6cfb292e86185b011deae9",
+        "9a80c9b50012e60cfa0f9577326ad16757339055099b1bf0c1eeebcab0a85621",
+        "9b85d7a75b7cd29d33e6e6f6133e67c22c65c98de1f5aeee16cefafc5164673f",
+        "999e434c9425c7ce81a9ad676b73d4f43b8c6829c03d4e8effe70347cce92aef",
+        "dc73c4c0969c3fb1d578a8503b31ee009dd102b9c96f70d6b5658e6a659da850"
+      ],
+      "source_sha256": "86d187592b7069bedce39002330ad38b01b6303b1d62318bee22315583fd1f7f",
+      "text": "在周期中使用一个 PHENOTYPE 频道,正确在这里,仅在这里。\n\n型通道采样\"在相同的对象 id \", 并且在几个周期中测量的表型是一个数量的几个样本 — — 因此平均提高了其精度,正如平均显微镜图像场重叠时的Hoechst一样。\n\n以 :func:`decode_input` 的目的分开。 相同的操作对一个现象频道是正确的,对一个序列一个是灾难性的,所以它有两个功能,而不是一个有旗帜:一个旗帜会使召唤者的决定,它是频道的属性。\n\nNaN - 注意,因为 :func:`sample_objects` 返回 NaN 对于一个对象,这个周期没有覆盖,而在九个十个周期中测量的对象应该得到九个的平均值,而不是 NaN。\n\n:param per_cycle: 一个序列每对象值每周期,每个序列相同长度和相同的对象顺序。",
+      "translation_source_blocks_sha256": [
+        "46d6b8c205ae9feba4eb93536b0ce2709bdfc6031c6cfb292e86185b011deae9",
+        "56f7a473f0bd018f6e6fe295db12745d828799a895e556b0c162526f7408c8ff",
+        "b3b8b7b342edc8633761536aa8c0163f19a8bcaf1a6be2a41865eeecc6537d47",
+        "999e434c9425c7ce81a9ad676b73d4f43b8c6829c03d4e8effe70347cce92aef",
+        "dc73c4c0969c3fb1d578a8503b31ee009dd102b9c96f70d6b5658e6a659da850"
+      ]
+    },
+    "spacr.ops_sample.barcode_rows": {
+      "source_blocks_sha256": [
+        "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
+        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
+        "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
+        "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
+      ],
+      "source_sha256": "f38075fc6c052a70d7e7a96cea0d846a58c5b84ff01346949306ae77e89eb25e",
+      "text": "``ops_barcodes`` 行:每对象一行,由周期组成。\n\n代表呼叫本身到 :func:`spacr.ops_sbs.call_reads`,这已经弥补了交谈和报告质量为周期的最小 - “条码仅像其最糟糕的基础一样可靠”。 重复说,这里将是一个第二个解码器保持步骤。\n\n:param objects: 数字化对象,以 ``values`` 的第一轴相同的顺序。\n:param values: ``(objects, cycles, channels)`` 强度,从未平均过周期 - 见 :func:`decode_input`,因为相同原因拒绝单个周期。\n:param library: 当提供时,每条条码都会通过 :func:`spacr.ops_sbs.correct_to_library` 向最接近的图书馆会员进行纠正,并且行将其地图所带到什么。",
+      "translation_source_blocks_sha256": [
+        "7dbb441825afad87a26e7a75470ae8d669b825d1ec555a9580195445c90b6c19",
+        "d53f621fe7b9644784e693e8ea2168644f57ab63ce4698b9b44e956ed3bc8440",
+        "841b15e1e981b66fc6b5d205cb649bd3b84a2975caeff43ad3593b5417db2ad3",
+        "05e4e722fcb82b25d49f63912c48be85e946693005502ba84d77a480ea3c6ce4",
+        "af13f94f8f4ecdb3c7f5cdc5184c2be70396c95ea8b4fb5778ef9e57670764c6"
+      ]
+    },
+    "spacr.ops_sample.decode_input": {
+      "source_blocks_sha256": [
+        "0625510160f5879e2a8bff85e4250817ef0c636c0f040b5d23dfc733df251c18",
+        "b71147c9e60d8756d56457f50a234fe630ea967b43928e71dd9c79e45ed4cca3",
+        "45c996e1214ad971ad78bed41a3a02ebb73d386569fcf7f54f5e1f3d2a4ddfa6",
+        "7418e23928d78a9f66540aaba1b027accc57a64165114eb3c5fb16f6ae33da36",
+        "ba72c17bb52bac1520619d52e17b885e5072b8f0f212a7e1077867bfdad4b9dd"
+      ],
+      "source_sha256": "e471b30d6318aa0fa496c988f1381563c494e1ce9234651d2f3594260140bb53",
+      "text": "将每周,每频道样本插入 ``call_reads``' 输入。\n\n:param per_cycle: ``per_cycle[c][k]`` 是 :func:`sample_objects` 的输出为 ``c`` 周期,频道 ``k``. 每个输入必须相同的长度。\n:returns: ``(objects, cycles, channels)`` - 等待形状 :func:`spacr.ops_sbs.call_reads`。\n:raises SampleError: 当一个循环缺乏频道时,当长度不同意时,或者 - 重要的是 - 只有1个循环被提供时,这是一个呼叫者已经平均了它们的手。\n\n一个循环被拒绝,拒绝是点. 一个条码是循环的序列; 一个单一的 \"cycle\" 到达这里是失去循环轴的跑步或一个打电话者,它崩溃了. 两者都产生一个可解码的条码,由任何东西制成,也没有可见的下流. 如果一个单循环实验有时需要解码它应该说如此明确而不是来看起来像这个错误。",
+      "translation_source_blocks_sha256": [
+        "0625510160f5879e2a8bff85e4250817ef0c636c0f040b5d23dfc733df251c18",
+        "b71147c9e60d8756d56457f50a234fe630ea967b43928e71dd9c79e45ed4cca3",
+        "45c996e1214ad971ad78bed41a3a02ebb73d386569fcf7f54f5e1f3d2a4ddfa6",
+        "7418e23928d78a9f66540aaba1b027accc57a64165114eb3c5fb16f6ae33da36",
+        "4f6bc331c66a265db7eb11e562c7645f37af1cd4f51eb58f7b9c907483ec3db3"
+      ]
+    },
+    "spacr.ops_sample.reads_rows": {
+      "source_blocks_sha256": [
+        "5ca9f841278a6e14118261f044b081cd0cf47aa452b26d86ed6577abc2fc11da",
+        "1ecd48e068d7695a1991eb821908ec41269a119586d8f8fcde5faa51b8e93448",
+        "fc03a6bc8a19e36e9503e7c3c89b70749717ac2deda416b7b48c469149937bfc",
+        "47ea3f1890a83b161115d7e15aeec049cf17758147067ef2f8e5e27852e19423",
+        "152e14b0b4e59c52496fe0ee694e39007b0ae8ed852f383d7e4e3f83492bbeef"
+      ],
+      "source_sha256": "e729db8a45379a23eda4b83bc8199e2b0653efa8b4b3a3cb5f006bb0e12ebfdc",
+      "text": "``ops_reads`` 行:每对象每周期,根据存储合同的列。\n\n:param objects: 数字化对象的值被样本在,在相同的顺序 ``values``' 的第一轴。\n:param values: ``(objects, cycles, channels)`` 从 :func:`decode_input`。\n:param channels: 每个频道的名称,为列名称。\n:param bases: 字母每个频道投票赞成;当给予时,每个行都携带了这个周期所称的基础和其边界。",
+      "translation_source_blocks_sha256": [
+        "5ca9f841278a6e14118261f044b081cd0cf47aa452b26d86ed6577abc2fc11da",
+        "1ecd48e068d7695a1991eb821908ec41269a119586d8f8fcde5faa51b8e93448",
+        "fc03a6bc8a19e36e9503e7c3c89b70749717ac2deda416b7b48c469149937bfc",
+        "47ea3f1890a83b161115d7e15aeec049cf17758147067ef2f8e5e27852e19423",
+        "152e14b0b4e59c52496fe0ee694e39007b0ae8ed852f383d7e4e3f83492bbeef"
+      ]
+    },
+    "spacr.ops_sample.sample_objects": {
+      "source_blocks_sha256": [
+        "e1ee1baa401cacae9d2ee538b8ac1ef592de2c3331f4ecf9bc7794cdf20d0915",
+        "431264817f5ed5fa47976c3de4bcee425881d7a7abd7361741bf778d75f37bfb",
+        "d5ba07deac747a9cce2942f9ef9404576984ab2a08c3ea617f35f6ec45f408c1",
+        "f10430b1704dddfaccefcff5d5349902335f0620d128edfe4c61430a5c2d374f",
+        "364225fae62eb9ffd2aad6610381d7c696a0a9831b8aeddc246521b522245fbb",
+        "9fdce103c4c731d8ed6c60400a1563b58b8bae7a92290296c959a30a6315aa14",
+        "2b4d19aa33dfb71a004e61c78581787c603952d30b1a77db60bc20ec04a20be5"
+      ],
+      "source_sha256": "29c4a347218ac360bd40d5dc0569ca9e849f7a856dc4378d135390ad692bce46",
+      "text": "阅读 ``image`` 在每个对象的中心,通过 ``transform``。\n\n:param objects: :class:`spacr.ops_objects.PlateObject` 值,或在 Microplate 样品位置框中使用 ``centroid_y`` 和 ``centroid_x`` 的任何东西。\n:param image: 一个频道的一个循环,在这个循环的框架内。\n:param transform: 地图一个微板样本位置框 ``(y, x)`` 进入这个图像的框 - A2/A3 转换的部分 7. ``None`` 意味着图像已经在微板模型位置框。\n:param radius: 默认1给了一个3x3,这是一个分离限制点占据的东西;0读到单个像素。\n:returns: 每对象一个浮动, NaN 点落在外面。\n\nNaN 一个对象,其坐标从这个循环的领域降落,没有在它中测量,而诚实的价值 \"not measured\" 不是最接近的边界像素的亮度 - 这将是一个数字,而一个数字被平均化为条码。",
+      "translation_source_blocks_sha256": [
+        "e1ee1baa401cacae9d2ee538b8ac1ef592de2c3331f4ecf9bc7794cdf20d0915",
+        "b14f117ceb994a3981da516b80b61549cd12b57b677677bc96887fc3151246b2",
+        "d5ba07deac747a9cce2942f9ef9404576984ab2a08c3ea617f35f6ec45f408c1",
+        "3c776b70c5bee056331a5867dbecde0efb2d588b9dca7b264ff119cbcbb95cfc",
+        "364225fae62eb9ffd2aad6610381d7c696a0a9831b8aeddc246521b522245fbb",
+        "9fdce103c4c731d8ed6c60400a1563b58b8bae7a92290296c959a30a6315aa14",
+        "43caf1542f5fe1318cc8ea423687d1fd036ea18929009e4a714572f03f2d15dd"
       ]
     },
     "spacr.ops_sbs": {
@@ -48059,6 +48409,122 @@
         "8db2c073d7a9ece7ca6e300f0290065eb40f39db0cbbf68da5ef0bcd25599f07",
         "252d4644a262472a4e8fbba22aff93a84db091e4ddf5ee34348032398cd3f183",
         "76dee1d5ac609690f186a4a70a6b2f79bae62bb92147885149f24b068378d74a"
+      ]
+    },
+    "spacr.ops_store": {
+      "source_blocks_sha256": [
+        "7159a2ef5f9d165342a4a18f2090a3ddf2babcc495c186f4f9c2dafc862fd94d",
+        "4d46ed8ac943bf4c7198d39319ef0e4e905a8a284fd9c9c94057c2b605fd9b84",
+        "1a9c5980a3d2e0b791d2fa3b2b569641c59dddfd10e28870ecef1230938994a4",
+        "1c711f9c4ef2faf02bf75fde86dea76d0154e1adb77e71de2d6d114800e65abd",
+        "a3038e969629b415c61f67a630292f6af922ad9a4a354fc49e9f4c9ef0010133"
+      ],
+      "source_sha256": "2bf9a0caca9d71b13e2ee88b2a235d72eea6b38084598ebb7e86ed755314bde8",
+      "text": "一个 OPS 运行的表居住在哪里,以及数据选择的边界说对象存在。\n\n存储合同有两半. 在 ``measurements.db``,这是有权威的: ``ops_geometry``, ``ops_objects``、 ``ops_reads``和 ``ops_barcodes``. 除此之外,作为一个存储库:``ops_reads``和``ops_barcodes``的配件副本,写在相同的步骤与其序列计算被认为是平等的,所以侧面不能从当局没有注意。\n\nSqlite 是权威,公投是密码,这是一个决定而不是一个细节. 两者可以不同意,所以其中一个必须根据定义是正确的 - 否则,选择最快的读者有时会读到昨天的数字,没有办法说。 :func:`write_table` 写在一个通话中,并声称计算相匹配之前,两个是可见的完整; :func:`read_table` 偏好密码并落后不抱怨,因为一个错过的密码是一个性能问题,而不是准确性一个。\n\n准备是数据选择的边界,而不是一个步骤. 没有序列或现象频道被阅读到 ``ops_objects`` 它在磁盘上,其序列计算已被检查。 :func:`objects_ready` 这是这个句子,它返回一个答案,当答案是没有 - 一个数据选择的边界,只有说 \"not yet\" 让运营商猜测哪一半失败了。\n\n其他测量表使用相同的对象ID,所以以后的步骤不需要任何特殊案例。",
+      "translation_source_blocks_sha256": [
+        "fe299a3c34e427559810de34750bc76b4e477999b018779bb93db46fe4062ebb",
+        "4d46ed8ac943bf4c7198d39319ef0e4e905a8a284fd9c9c94057c2b605fd9b84",
+        "d593f1545c8d140fca16af2c5c88fd9c3ed07711508bc3a856fd2dd1e64e54fb",
+        "fdb45349b513dc1e3e0ad2a1e7dcf656bca8a50205f3be8d3c120d99a39ef989",
+        "a3038e969629b415c61f67a630292f6af922ad9a4a354fc49e9f4c9ef0010133"
+      ]
+    },
+    "spacr.ops_store.Readiness": {
+      "source_blocks_sha256": [
+        "0c5fba8d60a7525b8eecd488fa414f32b3eaea0b938d2c1b01acd73569080336",
+        "577c68a02b08a65661cc3e265cea36efb7e006267a91300d77a16651ef90ec16",
+        "f7c85820406fb6e82f4f85717bca0c5573f674e81450d802055dd991d43ab47a",
+        "4cacd542e217100bc03696c3d05924a88f8d1e286b86f0bdb7cf7dda84d183d1"
+      ],
+      "source_sha256": "ebdb5e39cdbe5cb25c7be0c6e583b23bd3f3638a822f7dd0211b30d9ff124891",
+      "text": "对象样本是否可以开始,为什么不当它可能不会。\n\n:param ready: 还有什么 ``bool(readiness)`` 答案,所以一个呼叫者可以写 ``if not objects_ready(db):`` 并仍然达到 :attr:`reason` 当它需要说为什么。\n:param rows: 桌子里有多少个对象,或者(``None``),当没有桌子可以计算时,这与没有行列的桌子不同,而这两个对象在这里被分开说,而不是由召唤者说。\n:param reason: 一个句子命名哪三件事错了,空了,当什么都没有。",
+      "translation_source_blocks_sha256": [
+        "0c5fba8d60a7525b8eecd488fa414f32b3eaea0b938d2c1b01acd73569080336",
+        "577c68a02b08a65661cc3e265cea36efb7e006267a91300d77a16651ef90ec16",
+        "f7c85820406fb6e82f4f85717bca0c5573f674e81450d802055dd991d43ab47a",
+        "4cacd542e217100bc03696c3d05924a88f8d1e286b86f0bdb7cf7dda84d183d1"
+      ]
+    },
+    "spacr.ops_store.StoreError": {
+      "source_blocks_sha256": [
+        "f3e85a91666765e49c6f168de23ff15b0e60b7b7bbb7c7252ee4737b168058af"
+      ],
+      "source_sha256": "f3e85a91666765e49c6f168de23ff15b0e60b7b7bbb7c7252ee4737b168058af",
+      "text": "一个无法信任的商店,在文本中走出路。",
+      "translation_source_blocks_sha256": [
+        "f3e85a91666765e49c6f168de23ff15b0e60b7b7bbb7c7252ee4737b168058af"
+      ]
+    },
+    "spacr.ops_store.objects_ready": {
+      "source_blocks_sha256": [
+        "fd827a3c953097c7d503d3e1b80fb899ee70d7b91bc50075d492664b5e6f4d29",
+        "e4ea704c5807e26f9c9eedd5688598779aee1d01a53f7174dbc3f5e6a0d1dfa2",
+        "962236a63825be29d1c41ca751cf9d217ff0fcc239aadd63b5b71080b9f8d192",
+        "6c776d394c38c212d6dcd6b15fbff6f2cfe145dbab5e21ee257d65312808dd12",
+        "def21309b2c223edcfbdb4c073ece0433d1c0d44a45dc1ea3a9662c29c8d4102"
+      ],
+      "source_sha256": "0e9e1e18e8b87f592e9aced91550492209d6f5d4b1f0f071d044a34b5d98a3a0",
+      "text": "一个序列或现象频道还可以阅读吗?\n\n数据选择界限是一个句子 -- “没有序列或现象频道被阅读,直到`ops_objects`在磁盘上,其序列计算被检查” -- 在磁盘上没有计算检查会通过一个空的桌子, 一个空虚的 ops_objects 意味着每一个后来的阶段都会在出现时静静地产生任何东西。\n\n它返回一个理由,而不仅仅是一个判决。 \"Not yet\" 让运营商猜测哪三个事情错了:没有数据库,没有表,或者没有任何东西的表。\n\n:param minimum: 一个是诚实的地板 - 一个单一核的孔是坏的孔,而不是不可能的孔 - 因此,这必须由一个称呼者,谁知道他们的实验室微板,不编码一个猜测在这里。\n:param db_path: 它的 ABSENCE 是三个答案之一,所以这不需要存在。",
+      "translation_source_blocks_sha256": [
+        "fd827a3c953097c7d503d3e1b80fb899ee70d7b91bc50075d492664b5e6f4d29",
+        "9856232d2776aa7d24ff14edf88f4cca1296e67c30d7f055b5cecbc8716cee15",
+        "29efdb6370ed887320aeb6bf828194adeb267de1d8809cabd24217fbf71afe49",
+        "16315f35e93e779456cfcda5a664b45ddee91ad8ca4867d00c33c2f6a09061f4",
+        "def21309b2c223edcfbdb4c073ece0433d1c0d44a45dc1ea3a9662c29c8d4102"
+      ]
+    },
+    "spacr.ops_store.read_table": {
+      "source_blocks_sha256": [
+        "b869c9d1a5e19a7314cf6981d36010efe238c151c131fc10560e2d06096a8795",
+        "271d870c42fcf7d7ac4a9196684e3dc01320f253dba202c2e0d4d95c9c556ffd",
+        "c004087e2767007b6bc241e38bfca759c6f6d3a501c8f97c8aeace83f81c23c3",
+        "175a69ef07cf381992667d5bc5caff50e05513cbc1f3e6bc55eca89938d07750",
+        "67961b53eb8d5098a0aed3ad962df2b520fa66500f796d4814b3832815f967ac"
+      ],
+      "source_sha256": "d3a1d7ff1aaa338c0ee44513444bc6ace9beb1d5689a46ffa1fde16f8d666a03",
+      "text": "阅读一个 OPS 表,更喜欢其包装缓存。\n\n一个失踪或不可读的缓存会沉默地返回 sqlite,因为这是一个速度问题。 一个缓存,其序列数与数据库不同意,是不沉默的 - 它被删除,权威被返回,因为一个不同意是唯一的失败,这个安排可以产生。\n\n:param db_path: 运行的 sqlite 数据库,这是权威。\n:param table: 哪个字的:data:`OPS_TABLES`要读。\n:raises StoreError: 当图表根本不在数据库中。",
+      "translation_source_blocks_sha256": [
+        "b869c9d1a5e19a7314cf6981d36010efe238c151c131fc10560e2d06096a8795",
+        "271d870c42fcf7d7ac4a9196684e3dc01320f253dba202c2e0d4d95c9c556ffd",
+        "c004087e2767007b6bc241e38bfca759c6f6d3a501c8f97c8aeace83f81c23c3",
+        "175a69ef07cf381992667d5bc5caff50e05513cbc1f3e6bc55eca89938d07750",
+        "67961b53eb8d5098a0aed3ad962df2b520fa66500f796d4814b3832815f967ac"
+      ]
+    },
+    "spacr.ops_store.row_count": {
+      "source_blocks_sha256": [
+        "787aba4b1186c7703626f3d8525a97122f882ea9f58e3d865b384d56e7405007",
+        "c488bf512539664e4bd8cb267d77d6fb719c14a01f631e6da0e2d9920b71691e",
+        "46a8070a9a172688837269a35ca996e53b6ee3d67e3f5e3f5cfd98cf3474ccf7"
+      ],
+      "source_sha256": "92c476159238fd6866447fe3573dd1ab537d0ff79cfea3afbe8705071121c15c",
+      "text": "在一个表中,或 ``None`` 时,表不存在。\n\n:param db_path: 运行的 sqlite 数据库。\n:param table: 桌子要计算。",
+      "translation_source_blocks_sha256": [
+        "787aba4b1186c7703626f3d8525a97122f882ea9f58e3d865b384d56e7405007",
+        "c488bf512539664e4bd8cb267d77d6fb719c14a01f631e6da0e2d9920b71691e",
+        "46a8070a9a172688837269a35ca996e53b6ee3d67e3f5e3f5cfd98cf3474ccf7"
+      ]
+    },
+    "spacr.ops_store.write_table": {
+      "source_blocks_sha256": [
+        "cb1f48e23580df19e7c878ae38dcf4956f768f0583a4a0083c9796d0dad5db82",
+        "4bfb03eb8b069fdb1461042e68ab639e1c76d227c04d3e8ef96741a094128b2a",
+        "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864",
+        "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
+        "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
+        "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
+        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
+      ],
+      "source_sha256": "cfb9890ef957af700a97e55a8a682a4efce6ced932903bd5996fc078e26241af",
+      "text": "写一个 OPS 表到 sqlite,如果它有一个,将其包装存储。\n\n在一个通话中,因为372请求序列计算被认为是平等的,而两个通话不能这样做 - 写数据库的通话者然后崩溃将留下一个页面图描述一个不同的运行,没有什么会注意到,直到一个读者沉默地偏好它。\n\n:param db_path: 测量数据库。\n:param table: 其中一个是:data:`OPS_TABLES`。\n:param frame: a DataFrame.\n:returns: 字符串写。\n:raises StoreError: 在一个未知的表上,或者当它刚刚写的页面板没有与数据库相同的行数。",
+      "translation_source_blocks_sha256": [
+        "cb1f48e23580df19e7c878ae38dcf4956f768f0583a4a0083c9796d0dad5db82",
+        "a4b25f82ddbd6a3498f35f4c728d91a7d5c5900e26e5da733646ee6ad77821fd",
+        "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864",
+        "93adde12c081ade1ec242b9a13377448f21c0a863963e68e411bb26519bb4fba",
+        "fb13afe53a5fe8312700690bf8a5bce04878a831321ea3cf88d4cff38673c4cb",
+        "0c9ed67a4d37e91a073077d250c76bf46aee16521c2ac66807c99aaa08476eda",
+        "ae25e0be36966994241e95e0b01a2810ffe1ec798d5396b0d05f1e40c4f484cd"
       ]
     },
     "spacr.organelle_types": {
@@ -57397,6 +57863,24 @@
         "72c9f814a48b376d5b6ab323e9e57dc9bbb169214b7baeee5ae88d860b69e6b1",
         "01b904a163df41486895ca472c56069a7ebe6e118ddbad0b94ebfcbee32fe10c",
         "9cfeea5ab0e28f8d33b24135fd46750fb895b2699182663c0fb3d86d82fc6ba3"
+      ]
+    },
+    "spacr.qt.app.MainWindow.stylesheet_roots": {
+      "source_blocks_sha256": [
+        "c3eb23e4d23e02442798608ac3ac686e5e45886bd5af1f38d57d1432aa95b9db",
+        "32ca1fbc116633fe8b91fc76a079e2015441dc9c163861adb06359ba4de97f0d",
+        "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
+        "aeaef5c37cc830ff43bf7d91e35de1626403f23e63ca5415f16980d98de3bba9",
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
+      ],
+      "source_sha256": "2fb5c2026226033df3e4bf347f2b4453fd4e244c273483cdd855580a508d644f",
+      "text": "那些携带应用程序表的 widgets,而不是我。\n\n为什么不是窗口. 将一张风格表放在一个窗口上,每个后裔都会被打破,开启了四个模组的会议拥有 8,002 个 widgets,其中 7,595 个是模组应用程式的内部观点 - 其中一个是应用的观点。\n\n    整个窗口 945 ms 第一, ~1,479 ms 固定Chrome + 可见页面 300 ms 首先, ~310 ms 稳定\n\n什么是列表,形状不是一个显而易见的。Chrome是407 widgets,其中只有两个可以从中央 widget - 插槽,侧栏和状态条挂在窗口本身。 一个实施,走进中央 widgets将留下405不时尚和看起来几乎正确,这就是为什么 `tests/qt/test_every_widget_wears_the_current_theme.py` 做正确的目的,并声称它被抓住。\n\n因此:除了中央 widget 之外,窗口的每一个直接儿童,除了 stack 以外的每个直接儿童和 stack 的 CURRENT 页面,而不是显示的页面则被标记,并在绘画之前按自己的 `showEvent` 表格。",
+      "translation_source_blocks_sha256": [
+        "c3eb23e4d23e02442798608ac3ac686e5e45886bd5af1f38d57d1432aa95b9db",
+        "2c3be7cc5e05f5f4d56b22e736c551c5f62be6fdd0f4fb9b70134abe53882004",
+        "f41cd1df11b44dfff380c8df67c60892061c11f7f4d8f8189d501b556b03ae1d",
+        "58e6c2c05ea0d87fa6facbd19aedbfe938ec35d285f8037108d7b72e5e59bace",
+        "8ba29b525e6f1b50316ebf45724b03ad9ca5376085365017bef8e1da2e3df3b2"
       ]
     },
     "spacr.qt.app.MainWindow.toggle_app_drawer": {
@@ -76813,6 +77297,132 @@
         "d73e6df6043d2515a12a8cef1d1cce9427e3953aba53e96c7df10b5aaa1e495c"
       ]
     },
+    "spacr.qt.screens.embeddings": {
+      "source_blocks_sha256": [
+        "071d00151ef41115b3f293cfb0a478e02c83fe40f5152f2024bc3092f55c422a",
+        "e60f10981d7a774925210066785643278c6a3c3a1ab6424fe2004f3cf7504a29",
+        "0c1db59bfc4b538bdef0656a6ca3ca6f8122f8f19e043c8aff8a8cdd7a1ec7ad",
+        "06c9eee0bf937dc87b6e7a8bb4125561c4fad49701eacae061e69e494c6d8e3d",
+        "72f5c02992e723806d74bb54ee91ea33ba39a00a5078bedebce7692b11099427",
+        "1ba974723886b6a755d78e5ab325709ab9473b2bac284e92635aa64f81972711",
+        "06e19f883cf20583368b7c5d1d556934daaec1850a71bdfcb4b9ce656d0a2ba1",
+        "c1091df2749f1179d8650482748928d55a05a299179d56992edd7f9e06010ef5",
+        "501bcdd135fb956c98f05ca932bf1a6ecfab1444d9248ddadfa352ede3562a80"
+      ],
+      "source_sha256": "87ec52121563e323bfb09f8251c83e6888a120b6276504524615e08da5bcc580",
+      "text": "嵌入式 - 每个对象的无标签 vector,除了测量面板。\n\nCell-DINO、OpenPhenom 和 SubCell 都是 Python 或命令线。\n\n该发动机服务于这个实验室. 筛选提供了没有任何 Python 的插入。\n\n所有的算法都在:mod:`spacr.embeddings`中,没有一个在这里。 这个模块是表面,发动机的三个决定塑造它:\n\n**频道政策是第一个控制,而不是埋葬的选项.** 386 称频道问题 \"the design problem\" 并警告不让它被随意决定,无论背部想要什么。 每频道编码保持频道的每个列名称和成本 N 前进; 投影将频道混合到三个,并花费一个。\n\n**A 尺寸不是一个现象,而扫描实验则说明用户将读到它在哪里.** 表显示了第一几个尺寸,因为用户需要看到发生了什么事; 标签说,他们是个别无意义的。 提交 `emb_c2_017 = 0.43` 没有这个句子邀请正确的阅读,家庭无法生存。\n\n**编码器是一个模型,所以它被命名为其支票数.** 处理会议总结将模型动物园输入从 :func:`spacr.embeddings.encoder_entry` - 背部,政策和这个机器的重量消化 - 因为两个处理会议的尺寸17是相同的数字,而不是相同的东西,除非所有三个相匹配。\n\n嵌入式通过 :class:`spacr.qt.job_runner.JobRunner` 走出主要 GUI 执行路径,就像在 Qt 层中的任何其他计算一样:通过背部提取图像区域的微孔板是分钟,而 ``threaded=False`` 运行相同的代码,以便测试驱动发送路径。\n\n:func:`register` 是 **不** 被称为进口; 阅读其文本。",
+      "translation_source_blocks_sha256": [
+        "071d00151ef41115b3f293cfb0a478e02c83fe40f5152f2024bc3092f55c422a",
+        "42959b324e8b760515dc65b252fc0c04622650fc0be4266c8cb8c490c95efc91",
+        "0c1db59bfc4b538bdef0656a6ca3ca6f8122f8f19e043c8aff8a8cdd7a1ec7ad",
+        "06c9eee0bf937dc87b6e7a8bb4125561c4fad49701eacae061e69e494c6d8e3d",
+        "1ea8f4e66e1f8ed48bddf77323e0bde844beb75906c80a53f2d45881e252f3d7",
+        "49dac3273f88d91e5c2c76003a553f995033f84c201a66eee471aa4ed1291850",
+        "a14ed5f340fed6169c9c7de2f512dc9c5af34c8153246e0053bdfdc537883b3c",
+        "02d6141c5bed4d2afb244f4f986e4dfc571a4deccd7f92cf3c88aaedd10d30b5",
+        "501bcdd135fb956c98f05ca932bf1a6ecfab1444d9248ddadfa352ede3562a80"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen": {
+      "source_blocks_sha256": [
+        "54544ee15fd790b2753ef6f4930fa39d4dbdfe402502c808b934369cf90de349",
+        "a48b9c4608a2033bf5519bb13b0351c9ecf55b6c5c549dbb7656fdcc6f21db68",
+        "38584775413c16d8996018d9a63c2531c5e8f6b35a47db8431c0002d286d641c",
+        "128fe41d91f1e1aa86f6c114185d5f4d972f115cb8c1329beba95bf1ecbf6e65"
+      ],
+      "source_sha256": "86b7dbd6ba6957da5addb52a826afe97152694b274ecf613d1346e5097b2c676",
+      "text": "选择提取的图像区域源和通道策略,并嵌入每个对象。\n\n:param parent: 通常的 Qt 父母。\n:param threaded: ``False``运行嵌入式内线,以同一顺序发出相同的信号,因此测试将筛选同步驱动,而行为不会分开。\n构建筛选:上面的控制器,下面的预览表。",
+      "translation_source_blocks_sha256": [
+        "f961f282edee26efa68b4aae33cece1b07171ad604fe16c3635e02a80f1789f9",
+        "a48b9c4608a2033bf5519bb13b0351c9ecf55b6c5c549dbb7656fdcc6f21db68",
+        "38584775413c16d8996018d9a63c2531c5e8f6b35a47db8431c0002d286d641c",
+        "128fe41d91f1e1aa86f6c114185d5f4d972f115cb8c1329beba95bf1ecbf6e65"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent": {
+      "source_blocks_sha256": [
+        "4105b719d131be273bcf078a64a419aebd6f148d5e15e6675266a1daa76128de",
+        "39d3c72137f96a440437ef8d2b92b8caca64ff021ab21acc5015cf1498eab95c"
+      ],
+      "source_sha256": "866943ae88147ea7019b21a89d549564b578182606d776d6c506163ffc99e7e1",
+      "text": "让工作跑者停止其独立执行路径,直到 widget 离开。\n\n:param event: Qt 未被忽视 - 拒绝关闭的应用程序视图,因为跑步在飞行中会抓住窗口,所以跑步被停止。",
+      "translation_source_blocks_sha256": [
+        "e0cc3b23651bbe7cc9b9c86694d274085e1ec2e40c0b65bd2987d213d9b40a39",
+        "7f86d6c6668ae0a51a0ccb106ebcb34b3bda682585618dd5a0175e36d9f3a3b4"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.embed": {
+      "source_blocks_sha256": [
+        "a0e312a61dff616127476251124b3917ef1f591679c8922809c3a4a40c41a3df"
+      ],
+      "source_sha256": "a0e312a61dff616127476251124b3917ef1f591679c8922809c3a4a40c41a3df",
+      "text": "在背景下运行编码器并显示结果。",
+      "translation_source_blocks_sha256": [
+        "a0e312a61dff616127476251124b3917ef1f591679c8922809c3a4a40c41a3df"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": {
+      "source_blocks_sha256": [
+        "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316"
+      ],
+      "source_sha256": "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316",
+      "text": "无论是跑步还是飞行。",
+      "translation_source_blocks_sha256": [
+        "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops": {
+      "source_blocks_sha256": [
+        "41a0d21eae5a04cc5373b15208fb762dd38afd8a468fd538e7994e1597936290",
+        "d28c5ee0438ac4a4bbe888ff0d28b6a51816cf4202621089998ea478827ad76c",
+        "cc50fd87bbbd6c5d94d3463fff4b94178fafbf602e202768035b21ebf405fceb",
+        "1eb3fcc1d8555923dd5735c0140d38252be7d5d1314d30969eebc367cb4698a0",
+        "264f56c18abc2e07d718bffcffac6f177960a684990fb980fd03c00470df3f4d"
+      ],
+      "source_sha256": "55a50b82e1a859e9f76be33580563a531e94a1eb696a53997983723d60587914",
+      "text": "将筛选用一个 ``(objects, height, width, channels)`` 字符串。\n\n运河轴是最后的,把它带回来,不会在这里扔掉;它到达模型,并在那里失败,传达了一条关于压缩机形状的信息。\n\n这个布局是 :mod:`spacr.crops` 所产生的,以及 :func:`spacr.embeddings.embed_array` 文件。\n\n:param crops: 未复制:筛选保持这个序列,并将其带到背部,因此一个转换它后的呼叫器随后改变了内置的东西。\n:raises ValueError: 但是,当地板没有四维时刻。",
+      "translation_source_blocks_sha256": [
+        "41a0d21eae5a04cc5373b15208fb762dd38afd8a468fd538e7994e1597936290",
+        "4314e9b26ca4961c7e5a79d4c9be721f24513d1b33385a2f8b94e91c19922f71",
+        "cc50fd87bbbd6c5d94d3463fff4b94178fafbf602e202768035b21ebf405fceb",
+        "33c77861eebe896aaca759d4031630822fe8b6abb39369dce01aaedfe1360c5e",
+        "264f56c18abc2e07d718bffcffac6f177960a684990fb980fd03c00470df3f4d"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.spec": {
+      "source_blocks_sha256": [
+        "547c1eb0456778b186623dcc73b36686dfd5077ef3176410bfead2314e02a03b"
+      ],
+      "source_sha256": "547c1eb0456778b186623dcc73b36686dfd5077ef3176410bfead2314e02a03b",
+      "text": ":class:`spacr.embeddings.EmbeddingSpec` 控制器描述。",
+      "translation_source_blocks_sha256": [
+        "547c1eb0456778b186623dcc73b36686dfd5077ef3176410bfead2314e02a03b"
+      ]
+    },
+    "spacr.qt.screens.embeddings.make_embeddings_screen": {
+      "source_blocks_sha256": [
+        "fd34cb3cc6b0658a82e6c29ceac433dd0011bc97df79e18fb1f05e6e57a793cd"
+      ],
+      "source_sha256": "fd34cb3cc6b0658a82e6c29ceac433dd0011bc97df79e18fb1f05e6e57a793cd",
+      "text": "工厂交给:func:`spacr.qt.app.register_app`。",
+      "translation_source_blocks_sha256": [
+        "fd34cb3cc6b0658a82e6c29ceac433dd0011bc97df79e18fb1f05e6e57a793cd"
+      ]
+    },
+    "spacr.qt.screens.embeddings.register": {
+      "source_blocks_sha256": [
+        "5a8a924167d38167aa168dcac44ee4c9739e63a23f735a10ac12e5b4a4115b7e",
+        "3abdd91d9a4e7408f9534bd3ba349db26195994c501f89ae00c2c421d1627f8b",
+        "6de01753ef3a861589145561d396e2a000b42b661d5232389094270cc0468601"
+      ],
+      "source_sha256": "feea9abcf4253a5558894d0f7ebad123ffae832e95d46fe6d8d14e97497392c3",
+      "text": "将插件放入应用程序登记簿. Idempotent。\n\n被称为 :data:`spacr.qt.SELF_REGISTERING_MODULES`,而不是进口,因此从测试或笔记本电脑中进口这个模块达到 :class:`EmbeddingsScreen` 不会改变整个过程的状态。\n\n``SECTION_DATA``,除了将图表变成数字的其他事物之外。 嵌入式是一种功能来源,而不是分析:它产生了减少、退缩和打电话的列,然后就像它们在测量面板中消耗的那样消耗 - 这是386步5的整个点。",
+      "translation_source_blocks_sha256": [
+        "5a8a924167d38167aa168dcac44ee4c9739e63a23f735a10ac12e5b4a4115b7e",
+        "3abdd91d9a4e7408f9534bd3ba349db26195994c501f89ae00c2c421d1627f8b",
+        "6de01753ef3a861589145561d396e2a000b42b661d5232389094270cc0468601"
+      ]
+    },
     "spacr.qt.screens.experiment_design": {
       "source_blocks_sha256": [
         "ff4a955dff3528b48cca2dfdabd9b8764238f78fa411329bde89e21a99dc03fb",
@@ -89395,6 +90005,52 @@
         "966e310d7ffde96d4756f2a60461028622dad157be2ac3516d4cc5fd76d856bf"
       ]
     },
+    "spacr.qt.stall_watch": {
+      "source_blocks_sha256": [
+        "cfe50a1ad8914523aad7b843a49d3f1b2caa9e99d5d9ec91733320bc78be7ff1",
+        "9bf34eb9e3b869e405da5b1f5f8c52493de585f1beed1a27ec02d8508af03bcd",
+        "08e04be723117484fec080b10d7a3e5faf044e0242dc25d3a930b6c0ddd375a0",
+        "3f26e378af3e82198be2f7f626e9ac261b8fb9e00e1facebee95f2baf3ec33ed",
+        "3545ba324827655d566b7eab6f0eeabd24c6cc99853dd3d336a40ccc47982d13",
+        "4c077108e37ec403af371e947b1991a54ac5eb75c1dbdbb51403fe978f4fb149",
+        "b2f4955b62102ad28ac1427fc7384b49e696ef477ab2af5a09759b292d9fe6eb",
+        "f05d7d5f3867afdca252c2ff26c1a9c2b830e4d7bdcc2909470c708be95c64cc",
+        "e5409d4b5d2701d38037ce612a3014c0d2cb7170b809a45eb326f1cd712963f8"
+      ],
+      "source_sha256": "e5f9f412985a2a34c018f12e1cda2eda509b04fa966803bb6f25309139802cc5",
+      "text": "命名接口冻结的通话。\n\n固定的主要 GUI 执行路径不会留下任何追踪。 它不是一个例外,也不是一个错误,所以 ``faulthandler`` 无法看到它,日志只是停止,唯一的报告任何人都可以提供是 \"spaCR froze\" 没有任何东西在它下面。\n\n    SPACR_WATCH_GUI_STALLS=1 spacr\n\n每当事件路径停止响应超过 :data:`STALL_SECONDS` 时,主要 GUI 执行路径的准确 Python 字符被写为 stderr 并添加到 :data:`LOG_PATH`。 **该插槽的最后框架是阻止呼叫**\n\n为什么这是在包里而不是在 ``tools/``. ``tools/watch_the_gui_thread.py`` 做同样的事情,并且必须在任何应用程式观点存在之前建立 ``QApplication`` 本身,这停止工作的那一天 :func:`spacr.qt.app.launch` 开始建立自己的,而 Qt 拒绝一秒钟。\n\n从外面到达,然后尝试了另外两种方式,并且失败了两倍。在另一个过程中托管 ``qt.run()`` 使家庭本身在三十秒钟的时间。\n\n另一种方式是初创指标路径上的``sitecustomize``,它被进口,它所改变的是永远不会运行的对象。\n\n一个旗帜在``launch``是不能错过的一个地方,它与任何其他司机组成 - 包含的参考标志,这是这写的。\n\n什么是开端时的成本:一个 ``os.environ.get``. 什么时候:在主 GUI 执行路径上有一个 100 ms 时间表,增加一个完整的,而一个独立的 Daemon 运行路径,比较两个完整的每秒四次。",
+      "translation_source_blocks_sha256": [
+        "cfe50a1ad8914523aad7b843a49d3f1b2caa9e99d5d9ec91733320bc78be7ff1",
+        "dfb9e8b8c0392a7313c3df1f08cc31ad1f8e7282e2c4ad7619a7a8179b71ce86",
+        "08e04be723117484fec080b10d7a3e5faf044e0242dc25d3a930b6c0ddd375a0",
+        "d48d1b2adeb6bbc52823e41eb3d5d0ea600e3c525ac0a7349732afeca1e75050",
+        "131d1df01a04f2bbc1bda05ff15b8a341d21997cf101f9aaf816c6f46b067fb2",
+        "4c077108e37ec403af371e947b1991a54ac5eb75c1dbdbb51403fe978f4fb149",
+        "b2f4955b62102ad28ac1427fc7384b49e696ef477ab2af5a09759b292d9fe6eb",
+        "f05d7d5f3867afdca252c2ff26c1a9c2b830e4d7bdcc2909470c708be95c64cc",
+        "309ec7f30a3340f2257bd16f2fa5d541e8edc8b5168bcc1f8dad727ee70cc4cd"
+      ]
+    },
+    "spacr.qt.stall_watch.watch_this_application": {
+      "source_blocks_sha256": [
+        "50b6fdd9683624e2b8619bfc197281cd29ee4ab99053407585bac085c8db7b1e",
+        "ef0b078ab4298f4e73efd39d6ffd461a937a0deca854e8b020814a9da9a5819b",
+        "ae2849113ff35fbdf717bda7124a25fb8f7aedcd094e14c6cc0449672a8985dd",
+        "4c33dfb348f1589696c5bd5dbc64b18fee4edcce9a74ae25231a40dc675d27f0",
+        "5824d05b82241a009aa1252df4d04580537bd3b7f7d4650a4ab984d05bb6b0d4",
+        "84066182ebf5855a77eced2ee6f6ef9b705b905cc97ba3b6a449baa995f659ba"
+      ],
+      "source_sha256": "18b74968c27029ccdc9f886ecc8f4a4fcfa4c03ddca1608dede782a714a38cb3",
+      "text": "报告主 GUI 执行路径的列,每当它停止响应时。\n\n:param app: 直播 ``QApplication``. 心跳时间表与它相匹配,所以时间表正活着,只要应用程序这样做。\n:param stall_seconds: 超过 :data:`STALL_SECONDS` 为 1 个呼叫。\n:param echo: 此外,每份报告都写到 ``sys.stderr``. 通过 ``False`` 在捕获流的流域下. 文件是记录和 stderr 是一个方便: 这是从一个 daemon 线上写的, 一个 thread 写到一个流域, 该流域在其自己的 `capture.py` - 不是在我们的写作, 被保留, 但在 pytest 阅读流域移动, 它在阅读时 一个工具不应该写到流域它不属于, 当其他人保持它。\n:returns: 观察员独立执行路径,或 ``None`` 如果 Qt 无法达到。\n\n心跳是测量. 主要的 GUI 执行路径上的 ``QTimer`` 打破一个整体; 一个独立的 Daemon 完成路径观察一个整体. 如果它停止移动的主要 GUI 实施路径不运行事件路径,这正是被狩猎的条件 - 原因是时间表不能自称报告:一个折叠路径也不交付时间表。",
+      "translation_source_blocks_sha256": [
+        "fc80c64addbdf5ebc44ea7df14dad021340fd37e9497fb43beeeafbd3af7aec5",
+        "ef0b078ab4298f4e73efd39d6ffd461a937a0deca854e8b020814a9da9a5819b",
+        "ae2849113ff35fbdf717bda7124a25fb8f7aedcd094e14c6cc0449672a8985dd",
+        "9793459ab08ed94b2c5dccd9a5467fcbb905a543bdee595f54e40a64632005e4",
+        "84f5e7326f0f91ae6ff7ef0e35ff5424197865d8b8ae7e1a1d3cfa716f44a6da",
+        "83b5dc563aedee7b5385b34a22e7d734bd50c7d4deb7a7a7c1a4e75f343db1d4"
+      ]
+    },
     "spacr.qt.startup_benchmark": {
       "source_blocks_sha256": [
         "91e6ad6e0cb97d98075d490c1ce04ab2df64f3bf20f1dffe7ae868ac5cc9a926",
@@ -90282,18 +90938,20 @@
         "28c8a7af366dc8f22eb9da3ed30b4b13f3c3a6eb2c0cd0d221ed187c9adf9559",
         "124f735d75f252217d9958626840a421b4fbb29ab34ab1e5333ef14927f7addc",
         "94011dcea21690cbbcc998d72ff42af72d6f3bcc146c38e0a70e0ceb0f533078",
-        "c628c212cf20c068e1c9b8b8cfc73b7aa65685817ee22b4c689f77692589f633",
+        "1102845d1636326fc49631641034e7c9cf812c8aa6deb277f43e9a32ac3a317f",
+        "8ffccbc7eb07624045061ff4789c97b87866744a1d1cceab7a0b8d8dac695094",
         "4ad86e4e353789bbd1df808bb361018d23a44be8991bb2e9492e9e4decdd9297"
       ],
-      "source_sha256": "46cb62d3861ca489cb4ea2db2b17553e562d7918babae1ede8b85f13b1d480b9",
-      "text": "在 ``root`` 上安装迟到的注册区块,而无需重新启动应用程序。\n\n生产应用程序风格表在未打开的筛选模块进口之前组成。\n\n替换每个进口的整个表关闭了第一画的赛道,但它还会使 Qt 打破表格并重新打破在每个隐藏的应用程序视图中积累的每个 widget。\n\n筛选根是QSS范围:在筛选上安装的规则达到筛选及其后代,并在显示的根之前应用它们保留了相同的第一图合同,而无需触摸Home或任何先前打开的模块。\n\n注册表包含从申请表中缺席的每个注册区块,而不是仅为``names``。 这将由筛选依赖所进口的区块保持在一起,这意味着后来的呼叫可以取代一个完整的补充,而不是用不同的偏好值插入碎片。 ``names``仍然是召唤者所要求的区块的文件; 忽略它是 MainWindow 筛选主机路径。\n\n它是一个没有 ``root``、没有``QApplication``、或没有应用程式风格表的 no-op. 一个从未选择 spaCR 风格的呼叫器,不仅是通过构造其中一个 widgets 而被选择。\n\n:returns: ``True`` 只有当 ``root.setStyleSheet`` 被召唤时。",
+      "source_sha256": "d35304398ffc5465a436f203bfcffc44892c3df9413e28c0054b964b62ffe3f4",
+      "text": "在 ``root`` 上安装迟到的注册区块,而无需重新启动应用程序。\n\n生产应用程序风格表在未打开的筛选模块进口之前组成。\n\n替换每个进口的整个表关闭了第一画的赛道,但它还会使 Qt 打破表格并重新打破在每个隐藏的应用程序视图中积累的每个 widget。\n\n筛选根是QSS范围:在筛选上安装的规则达到筛选及其后代,并在显示的根之前应用它们保留了相同的第一图合同,而无需触摸Home或任何先前打开的模块。\n\n注册表包含从申请表中缺席的每个注册区块,而不是仅为``names``。 这将由筛选依赖所进口的区块保持在一起,这意味着后来的呼叫可以取代一个完整的补充,而不是用不同的偏好值插入碎片。 ``names``仍然是召唤者所要求的区块的文件; 忽略它是 MainWindow 筛选主机路径。\n\n它是一个没有``root``、没有 ``QApplication`` 或没有 spaCR 表的 no-op. 一个从未选择 spaCR 格式的呼叫器,不仅是通过构造其 widgets 之一而选择。\n\n有效的文件夹不再是 `app.styleSheet()` 任何. 每个窗口文件夹采取应用程序文件夹 DOWN 的目的,并给每个窗户自己的,所以 `app.styleSheet()` 是空的每个生产运行 - 这个函数读到它作为 \"nobody opted in\" 并返回之前做任何事情. 测量: 打开一个模块记录四个区块(`SettingsBox`, `ClassEditor`、 `SettingAlphabetChip`、`TableChip`) 和 没有四个到达筛选,刚刚进口它们。\n\n:returns: ``True`` 只有当 ``root.setStyleSheet`` 被召唤时。",
       "translation_source_blocks_sha256": [
         "de24d4ee3885281008f920a1bd86e5a87e60332bda55e111f35c86852adcd4e8",
         "1b2df9a017f0a9d247294f8d94d0ce62206f64706d9b4fdd2d264a651a8df877",
         "9d1683c66339204160718950b530883f665447ff6433c5b788cebfdb9acb38f8",
         "124f735d75f252217d9958626840a421b4fbb29ab34ab1e5333ef14927f7addc",
         "94011dcea21690cbbcc998d72ff42af72d6f3bcc146c38e0a70e0ceb0f533078",
-        "c628c212cf20c068e1c9b8b8cfc73b7aa65685817ee22b4c689f77692589f633",
+        "1102845d1636326fc49631641034e7c9cf812c8aa6deb277f43e9a32ac3a317f",
+        "33a665f32f752552891b34a31ea2e75e923cb4ec3bbeaa704c723722788488f0",
         "4ad86e4e353789bbd1df808bb361018d23a44be8991bb2e9492e9e4decdd9297"
       ]
     },
@@ -90497,6 +91155,22 @@
         "b37471f53c62b9c014d428380a8a4206a6bb8dd634f12ea78f213efb6d47db16",
         "80690a329e8d5ab970aed64c3715f5ecc552f639d91459f4408e4a683da72cff",
         "492328b356a80cafe1187a558cdce94db1036258ab64f26fba999c6758c6b24b"
+      ]
+    },
+    "spacr.qt.theme.mark_as_a_sheet_target": {
+      "source_blocks_sha256": [
+        "e840889cc8a7813d6eef57f7c53111f9d7a1d36443bf48d28b11084c8e092c73",
+        "07a7df5cda86a3b6b66690b89dea249ebe02885603df58625d6f887e53df75f8",
+        "c16d69aba65178c84baa9db7bf8406ab9b39e90be2f6e14f454b3154b36430fb",
+        "fd8a820bd563e5a013cbb659471170f65f31ed721f77cb832eb8055c8d1ec0d6"
+      ],
+      "source_sha256": "26f116cd23026731075a5275c81673ed06f698ff5bbb7bc5c50395c2d5d52644",
+      "text": "有 ``widget`` 携带申请表在自己的右侧。\n\n一个模块应用程序视图是这样的:通过标签窗口到达每个隐藏的应用程序观图与它,并与四个模块开放,这是7,595的窗口的8002 widgets重新聚集,这样一个应用程序见图可以改变颜色。\n\n标记的 widget 是当页面变化,如果它是可见的,并在其下一个 `showEvent` 另一种 - 这是什么使不页面现在安全。\n\n:param widget: 可以通过一个窗口,然后标记是 redundant - 事件过滤器在每个窗口的目光 - 但这不是一个错误。",
+      "translation_source_blocks_sha256": [
+        "e840889cc8a7813d6eef57f7c53111f9d7a1d36443bf48d28b11084c8e092c73",
+        "2b70b5ca487c8b3f6fce5cf37b29e011c0dffbd2b39ccbfcdf5130d572b1962b",
+        "f818ff0f4ab85af97a820355bd4dc6fb9b545a696fc2b6aed749155e3bac4231",
+        "fd8a820bd563e5a013cbb659471170f65f31ed721f77cb832eb8055c8d1ec0d6"
       ]
     },
     "spacr.qt.theme.mark_surface": {
@@ -90917,6 +91591,26 @@
         "3f1f86817fb36a4c4ca808a2c25961e0977c590867e37f81e959d7648e5e10bb",
         "93028b38078f27cfb8174d0dfde88c01c5c8cfdbe55c42cf8473768917399619",
         "b8869b8847132f17960dc5ba5c49f5b23fa7922b3c67a60434d834c9a4bd9479"
+      ]
+    },
+    "spacr.qt.theme.set_a_sheeted_widgets_own_rule": {
+      "source_blocks_sha256": [
+        "c0b9382f77b0b08e87ec6dcf3a8ec986ab5f6ace54af59de809165dd022705fe",
+        "3af812c251ba99c674eff7909217506bfea7af3fcab2401908de4e1bc480917f",
+        "c58398228927582306f0a0e0abb8ed93a12a29e50f4d36fa1f3d42388d90ba42",
+        "66671a3e900b6d353c6b96795e944326eddac6a82eb4693d6965716481301d9d",
+        "26041a42e73e23c065e09104d86781fff3f651048d054149f13b9e4b46f20524",
+        "dd9cfdf129f64aaf110f8fa4cf9e675488decd4a6c6ea558eaf198604a84c231"
+      ],
+      "source_sha256": "2f6e6f3b625232cf7fe515f965921fb67fd2735605dcfd25e16b34f1613846fe",
+      "text": "取代 ``widget`` 的 QSS 而不会失去它携带的表格。\n\n对于一个Widget,这是一个叶子根。 在每个应用程序查看表之前,模块应用程序视图的自己的风格表只保留了自己的规则,应用程序携带了主题,所以应用程序显示的`setStyleSheet`是安全的,当地的事情要做。 现在应用程序视图可能包含所有 ~73 KB 的窗口表,而平板 `setStyleSheet` 将主题抛弃。\n\n在此之前测量:在显示的页面表中删除 `AppScreen._sync_page_palette` 途径将其下方留下一个探测器,在黑暗主题上解决为 `#000000`,直到下一个主题变更 - 消化检查在 widget 接下来的字母上修复一个删除,并且在显示中已经显示的一个页面不会得到一个。\n\n回到一个平坦的任务,当没有窗口存储时,这是每一个从未选择过 spaCR 风格的呼叫者,以及每一个不适用主题的测试。\n\n:param widget: 其自己的规则正在被取代的 widget。\n:param rule: QSS 是 widget 所拥有的,或者 ``\"\"`` 不拥有的。",
+      "translation_source_blocks_sha256": [
+        "c0b9382f77b0b08e87ec6dcf3a8ec986ab5f6ace54af59de809165dd022705fe",
+        "c4c099996aee7c3bc190af03e95fc0a1aa20d38fb0522b6a7c20d6611dcf383c",
+        "c58398228927582306f0a0e0abb8ed93a12a29e50f4d36fa1f3d42388d90ba42",
+        "66671a3e900b6d353c6b96795e944326eddac6a82eb4693d6965716481301d9d",
+        "26041a42e73e23c065e09104d86781fff3f651048d054149f13b9e4b46f20524",
+        "dd9cfdf129f64aaf110f8fa4cf9e675488decd4a6c6ea558eaf198604a84c231"
       ]
     },
     "spacr.qt.theme.set_spaceout_drift_seconds": {
@@ -100861,6 +101555,38 @@
         "e2b438f4dad96fe3011296ce0b3c2d3f7152cf0079fb5faa2997c771e8eb3ec5"
       ]
     },
+    "spacr.qt.widgets.dose_response.Checkerboard": {
+      "source_blocks_sha256": [
+        "882761b03ba3cf68dca3e1ddf3d343c83b79d4d112f079f9a6ac365390d11672",
+        "7e35bf407902c8433551bfc0d6ba88ed611f9f85c7499a8b5ccaa960db448400",
+        "13433c959af64d63026f8b01bcbd8fbf0d10b7ac911ba8d637ffbece5477d32b",
+        "3cc4270ecfa214937033785467fd5fa813ae27879a47a56643ec41f238335dfd",
+        "ab174676372e7a3c2d5acbc762824d54ab44c7b7fb7c895dfe5054bcb482706b",
+        "bbb5c87a5b9905f3cc74b40f8645220a54cf79c6d3aa419703d063aeae668efe",
+        "bf2b4a9ccc6f3ed7b4d3cce3af37a3514b12d1b645c8756c1112d12aa6a5e220"
+      ],
+      "source_sha256": "8eb094849c35681c9d55b210a2005afc1322514cc1b995bf160faa2e5a3b9c05",
+      "text": "一个两个代理的剂量网从一个微板样本位置表中拉出来,它的两个轴。\n\n三个表面功能采取平行线;一个实验室微板阅读器手给你一个桌子. 这是它们之间的连接,它保持单个代理线 - 序列B是零和列A是零 - 因为 :func:`bliss_surface` 和 :func:`loewe_surface` 都是对这些轴的定义,并且一个呼叫者谁过滤它们会安静地获得一个表面没有参考。\n\n:param dose_a: 代理 每个微板样本位置的浓度,包括微板模型位置的组合。\n:param dose_b: 基于微板样本位置的B元素浓度。\n:param response: 按微板样本位置测量答案。\n:param a_alone: ``(dose, response)``为微板样本位置,B为零。\n:param b_alone: ``(dose, response)``对于A为零的微板样本位置。",
+      "translation_source_blocks_sha256": [
+        "d7073ef793be9793cd50b3e3823499091a9b48234ec9bc7706a2ba42151b7dcb",
+        "2e35352012974412e3f6bfc5ec848abe1644110b70373a8f5a60d1b1a08f1620",
+        "fcd8ced0e14625514f9e41519ead0d9aa4694b90134de88c196240e26b5fcfe8",
+        "da858afcbeac612afb7ec069f330c44f1ee62d0b71d44d1e0467ec873e086aa7",
+        "c203140c5242006c5444737d684dbe394c566641e2d2afa66e81bc2143eb9a3b",
+        "bd0ce7da8ac578f1279a3c8ac5abc8dca19b87ea012a39b26b5c31baad6338fc",
+        "d4ecfdc8e6a6fe51f84e2cb1f48805ea7b54da555700516eebf312f1b335b7ae"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.Checkerboard.shape": {
+      "source_blocks_sha256": [
+        "c2258637f89e3a839b81c7fad021444d3ade5be3d0f6859acfe309a9d4ca48bb"
+      ],
+      "source_sha256": "c2258637f89e3a839b81c7fad021444d3ade5be3d0f6859acfe309a9d4ca48bb",
+      "text": "有多少个不同的A剂量,有多少个不同的B剂量。",
+      "translation_source_blocks_sha256": [
+        "c2258637f89e3a839b81c7fad021444d3ade5be3d0f6859acfe309a9d4ca48bb"
+      ]
+    },
     "spacr.qt.widgets.dose_response.DoseResponseError": {
       "source_blocks_sha256": [
         "01ce0de1196aaaa66e5a8da514ca56e631d7bc4fde052b25ddd01878c8d72d8b",
@@ -101483,6 +102209,170 @@
         "502e408f926ce8c7a8bf60759f79c56ae4b2c15a2170a33c12fbeef43b69e332"
       ]
     },
+    "spacr.qt.widgets.dose_response.PlateReport": {
+      "source_blocks_sha256": [
+        "90bcdf4d673b970d6a6a536c4f4b275f55225689a71dbb855f1297cc2de46a0e",
+        "7d0f2afd3a44b86b1492466e3ba0e1d4a469cec85962a47ea6b66ecd699f8273",
+        "3946aa5e97e46a07f28f23a49c25fef5dd513f96bcbb53d0a5afc6eacee27f1d",
+        "d41666c201268576f30d4cdbcaf0e3c909ff540a2bb9e2090f5c8ff825e8757a",
+        "975dea82a39332991af81dff2919ae96817144645c6a43fe657f17d8c39378f8",
+        "e53d770f40a836aeb913237ac9700796d2fa0930369cb9e7e952517c0dac9d3c",
+        "5a8e7e8127c2bebf67a19ce6e042fa4479a42bb5334660ef49a9bc7dc5567a22",
+        "beadc0cffd1468feabcb0be60a07d57246f8e36140a04cfacb323420896744c2"
+      ],
+      "source_sha256": "dd25f2f6efae270c9273c6c34082e100119322027f39607415edf76b7881d243",
+      "text": "一个板的控制器说了什么,以及板是否可以装备。\n\n一张被抛弃的实验室微板留下了一份报告,说明为什么它被推翻,所以一个用户比较八个实验室小板,并看到六个曲线可以找到其他两个没有重新运行任何东西。\n\n:param status: :data:`STATUS_FITTED`当板正常化,或 :data:`STATUS_REFUSED` - 相同的字典曲线适合说话。\n:param zprime: 实验室微板的 Z 因素,或 ``None`` 如果它没有 Z' 因为一个控制器有不到两个微板样本位置. ``None`` 不是一个失败; 这是一个数字的缺席,并被报告为这样。\n:param note: 使用者表示句子. 空白,当什么都没有错。\n:param plate: 实验室微板识别这个报告是关于的,因为它出现在框架的实验室小板列。\n:param n_positive: 即使在实验室微板被拒绝时也报告,因为 \"two\" 和 \"none\" 是不同的问题,而单独的笔记却不区分它们。\n:param n_negative: 与负面控制相同。",
+      "translation_source_blocks_sha256": [
+        "90bcdf4d673b970d6a6a536c4f4b275f55225689a71dbb855f1297cc2de46a0e",
+        "43784492fa4612c4c4032901ca03dfdb272e60ee90cf1afb22cc75ab5c71457d",
+        "3946aa5e97e46a07f28f23a49c25fef5dd513f96bcbb53d0a5afc6eacee27f1d",
+        "19d0fd09e2007efec28d513a7f663660107299c7ffc6c85dc2aa5e0c7676a5be",
+        "975dea82a39332991af81dff2919ae96817144645c6a43fe657f17d8c39378f8",
+        "12eadf7bc5bab3f04476efca5f8cf00f6f15805bb1eb038fad6af241adf1fba6",
+        "6c3179f303c488530685ec1456af03e46d65c340353336050145469d6b86c2bc",
+        "beadc0cffd1468feabcb0be60a07d57246f8e36140a04cfacb323420896744c2"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PlateReport.summary_row": {
+      "source_blocks_sha256": [
+        "7c83ea6ccb76c6be236765782b0dc637a90220aff5f2b2cbcca78a05bfd9860e"
+      ],
+      "source_sha256": "7c83ea6ccb76c6be236765782b0dc637a90220aff5f2b2cbcca78a05bfd9860e",
+      "text": "实验室微板表的一个行,拒绝包括。",
+      "translation_source_blocks_sha256": [
+        "283c6af83829541393ea873277cf67d1c2dcdfc8f73ac6b8eb4404121dc0b3d4"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PlateReport.usable": {
+      "source_blocks_sha256": [
+        "f4eccc8908cfe4b22fc1a461490fd48bfb7249ec6c3fe4fee0fe969fb548cc3e"
+      ],
+      "source_sha256": "f4eccc8908cfe4b22fc1a461490fd48bfb7249ec6c3fe4fee0fe969fb548cc3e",
+      "text": "这个实验室微板上的微板样本位置是否具有正常反应。",
+      "translation_source_blocks_sha256": [
+        "830e203bcc6a42aa7cc1b76e3b3b069e830f0d542f8d83273c2b84fc843f56f3"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PlateSpec": {
+      "source_blocks_sha256": [
+        "c8cdd7710b6bedad1c405c5973e8f16ce4419df0e1d5b18fc1450d905e2e827e",
+        "2d9489663e29fa2887497f80d755dac6cee71b8080883299fc4a62bffea7e928",
+        "bda1e330c7b95a9e4baab893ba177f98beb42b1cbb022271e360a842a42304e6",
+        "65bd9a9cb89dc8b570c73dee3cb18cb29fff9cadd83172a4c4832fafb4f371f7",
+        "ba95b0fbaba3c62a244934d6b17ae94f4856097553b3bfefe1f2191c8b5fe1c5",
+        "5214039f762e507168c2807caeac4b5ca515ec7c7c5d48ed821046fea37fc467",
+        "bbfa294f89cf0830f25c92c1bf63c98d0e18cb26313f94d192888de737a0af3d",
+        "69dfe96a62e0fdf1d5ac2c1fce305ac885d0cfb44075dc02d79c150e5fcf9945",
+        "8b1e030de8aac0a602206ea0aca56511bb527c3066549a756f51ea2672c6877e"
+      ],
+      "source_sha256": "f845dc27b1c797a38ccd128acb8e667954777b5d4a641857d5c595ef60d09401",
+      "text": "哪个列是实验室微板,哪个微板样本位置是控制器。\n\n发动机没有一个实验室微板的概念,这就是为什么它可以适合一个干净的 EC50 在实验室微板上,其余的包已经知道是坏的,这就是这个概念:实验室小板列,控制列,以及它所含的水平。 \"full effect\" 和 \"no effect\".\n\n冷冻和 JSON 像 :class:`DoseResponseSpec` 一样旋转,因此一个数字背后的正常化与它所使用的匹配相同。\n\n:param plate: 标识实验室微板的列。\n:param control: 列命名每个微板样本位置的控制角色。\n:param positive: ``control``的水平是积极的控制 - 全效的微板样本位置,正常化为100。\n:param negative: 负控制的水平 - 车辆或未处理,正常化为0。\n:param min_zprime: 拒绝任何 Z 落在此底下的板,并在拒绝中说 Z 。 ``None``(默认)数据选择界限没有什么,并且仍然报告每个磁盘旁边的Z。 :data:`ZPRIME_MARGINAL` 是普通 0.5 如果你想要一个。\n:raises DoseResponseError: 当一个列或控制级别缺乏时,在这个点上,光谱是通过实验室微板而不是半径建造的。",
+      "translation_source_blocks_sha256": [
+        "a43a46e8b71992f8e9d8743c745486fdaa1325217d8433e5923c14f077d28574",
+        "22f79ef9c424a93339f77d09b0108045ddd44d664292960ed4cb2eab0c79e0ef",
+        "bda1e330c7b95a9e4baab893ba177f98beb42b1cbb022271e360a842a42304e6",
+        "15a31252510e2fc251f7e332d8a0abca2e324de1706f79d61a7e6d4a44b1b7b9",
+        "1d7883f786093d845d8ebb05624afc3a08daa79c90ff5601fc5f73efeb4b06ab",
+        "15fafb0f8b009ca94988a793720caa008f1b89c58856c6afc773c07bc228b12a",
+        "bbfa294f89cf0830f25c92c1bf63c98d0e18cb26313f94d192888de737a0af3d",
+        "a28a86feec4da286279ff3298b510bf1430ff8dbe5dad059a1c6f370e660db3c",
+        "c347bd10dbbec3b45caa2e2caef885ec221eab3f0a609e286050c5556724130d"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PlateSpec.__post_init__": {
+      "source_blocks_sha256": [
+        "af1258fec146ae80e5e0d66ef0cd0f1e823a48f1713f2bed7ef2277cd856f68d",
+        "f8486939cbd31c1ee779ceabbb3ae16725bf0578111fe19c16260f777487eca3"
+      ],
+      "source_sha256": "94e600245962794a71cf2519f9183abd80a448a332ccd8a149ded442e690ec8a",
+      "text": "正常化名称,并坚持两个控制存在。\n\n:raises DoseResponseError: 如果 ``plate`` 或 ``control`` 是白色的,或者如果任何控制都没有水平 - 百分比抑制是一个两点规模,一个控制无法定义它。",
+      "translation_source_blocks_sha256": [
+        "af1258fec146ae80e5e0d66ef0cd0f1e823a48f1713f2bed7ef2277cd856f68d",
+        "f8486939cbd31c1ee779ceabbb3ae16725bf0578111fe19c16260f777487eca3"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PlateSpec.from_json": {
+      "source_blocks_sha256": [
+        "27d5358f80d276a99052fe1867a50dd9f00e6da04f65cb64c724b45d191ca568",
+        "6e94ebd832c26543a604022793df61e6f991a40473c5f8e6dda28091f2a7e382"
+      ],
+      "source_sha256": "4187ad431b6312aa29550c7b0adebe1d57c79651f0963821633cf4e61f191b00",
+      "text": "从 :meth:`to_json` 恢复,在入口途中验证。\n\n:param payload: 地图 :meth:`to_json` 生产。 缺失的结构化数据名称落后于字段默认,而不是扔掉,因此由旧版本写的特征仍然充电。",
+      "translation_source_blocks_sha256": [
+        "27d5358f80d276a99052fe1867a50dd9f00e6da04f65cb64c724b45d191ca568",
+        "222888c7d45a21dc63fd5a82ec4c5c5c40a477abb9dcbf49d631324f12ec0189"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PlateSpec.to_json": {
+      "source_blocks_sha256": [
+        "bae5465611e2c0ab0f8b07c72985578786d3f3d4488cd1638a5441a549aa8be2"
+      ],
+      "source_sha256": "bae5465611e2c0ab0f8b07c72985578786d3f3d4488cd1638a5441a549aa8be2",
+      "text": "一个清晰的关键值地图,为设置文件或方法部分。",
+      "translation_source_blocks_sha256": [
+        "40495873d83ad7fdd3afff713419371d77c7b19ea59bf67fb1290807b6031056"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PooledFit": {
+      "source_blocks_sha256": [
+        "8d3ea1e67ebd0f87771b901dc0c11217d3fc175967b94810d47235507cb4619c",
+        "a8ae532a9362ace20b35d190cd8cfde0fc9ce5c2d9268451abab0d186d0ce824",
+        "0b615c577509ae1d8c12fcc424d65ec44ce3366e5e7b493fe4387330bf46531f",
+        "479f8a29335d483bf0a082b791b6f00dcdc16e73882c7f56d595c800f4bd35d4",
+        "075d48021f5e74172b344d7d9672872425eee61fdb5ee7367ce1aefa971b9483",
+        "a3668e8a4ba880196d5992e08eb4d99c4ae83f27256c6d8065f596547a77164e",
+        "652844f02fdc7c2be5a310f7fe3436e6d755df1854276465f176da6f67743603",
+        "386ba31bd29172c47141f4a0312750d0183a5943c97dd1312cd9092d1756aa5a",
+        "00e1fe5b343c9761d1af0e23ae96873d0545025713955c202f3aa03bac036287",
+        "b99067d6fca7d0c7f34b40bbc0d8cd5f7777bd78f3ee2e861a482081177892f7",
+        "28abe56e26040c91e2a7bd9804f6b09eb7fc4f728fbddc1507fd1a6960ac22bc",
+        "d479897b4a6f2232a62af6704668e90566af13534d9aff36f98378ddc7ba11d2",
+        "a25dd5a5c44f5ed8e0564f444f7053733073afa23a2ed1e93cd09ba9ab1f9840",
+        "ae4c829964692d8bafc125eeedfa0fad2fb4ec123eff6738a67e46aa5a5d1ea5",
+        "f601857222bd27cec146d6f7bc431f1256f278cf02fc3c68e696ddfb704061a2",
+        "6457a191fed86ccde58b8407298f13db78e315b05179d2079ec0d521cdc75882"
+      ],
+      "source_sha256": "3531e852c1b133e05a5f6b8dc63e14e7cda90b59df73edd47ddad691f674a75d",
+      "text": "一个 EC50 在复制板上,与板作为随机效果。\n\n三 EC50s 和眼球是它所取代的。 今天有三个复制的实验室微板的用户匹配了三个曲线,并平均了数字,这表明每一个都确定了多么好,并且没有说明三者是否同意了。\n\n两个阶段,而不是一个. 每个板是自定义的 - 相同的 :func:`fit_dose_response` 适合所有其他,同样的拒绝 - 和每张板的 log10 EC50s 然后与一个偶然的效果重量相结合。 一个合并的非线形混合模型将是另一个方式做到这一点; 它也会意味著第二个适合的路径,第二个组的失败模式,和一个板 :func:`fit_dose_response` 拒绝将不得不再次被拒绝,不同,内在它。\n\n,不是固定的。 效应聚合假定每个板测量相同的值,并且仅因噪声而不同。 三个不一致的紧板,然后给出一个狭窄的区间周围的值,他们都不支持。 板之间方差的 DerSimonian-Laird 估计值被添加到每个板的方差中,因此,板间的真实变异扩大了答案,而不是被减去加权。\n\n:param status: :data:`STATUS_FITTED` 或 :data:`STATUS_REFUSED` 当拟合的板太少或板的不一致超出其自身不确定性解释的范围时。\n:param ec50: EC50 或 ``None`` 被拒绝。\n:param tau: 在 log10 尺寸上的中板 SD - 它显示了磁盘对该化合物的同意程度,其中没有三 EC50 值的平均值可以报告。\n:param i_squared: 观察到的分布的比例是真实的,而不是样品噪音,在 ``[0, 1]``。\n:param q: Cochran's Q 对每个板测量相同 EC50 的零。\n:param q_p: 这个Q的P值。\n:param per_plate: 个别的匹配,保持,以便分配的数字总是可以重新分开。\n:param note: ,或当板子坐在一起不舒服。\n:param log10_ec50: 合并估计在 log10 尺寸上,即合并实际上是在哪里进行的 - EC50s 是 log-normal,因此在线单位中平均重量高板比数据保证更大。\n:param log10_se: 这个估计的标准错误,在相同的规模。\n:param ec50_low: 信任间隔的低端,回到用户阅读的线性规模。\n:param ec50_high: 它的高端。",
+      "translation_source_blocks_sha256": [
+        "8d3ea1e67ebd0f87771b901dc0c11217d3fc175967b94810d47235507cb4619c",
+        "2c462aa356eed9595b042700263c0e87339a10892f58bd8dddf9dd8a22beb317",
+        "0b615c577509ae1d8c12fcc424d65ec44ce3366e5e7b493fe4387330bf46531f",
+        "cc3ac929eef54207d4761c40298454ce09f2952b6451432d217351c15c7df6de",
+        "075d48021f5e74172b344d7d9672872425eee61fdb5ee7367ce1aefa971b9483",
+        "a3668e8a4ba880196d5992e08eb4d99c4ae83f27256c6d8065f596547a77164e",
+        "652844f02fdc7c2be5a310f7fe3436e6d755df1854276465f176da6f67743603",
+        "386ba31bd29172c47141f4a0312750d0183a5943c97dd1312cd9092d1756aa5a",
+        "00e1fe5b343c9761d1af0e23ae96873d0545025713955c202f3aa03bac036287",
+        "b99067d6fca7d0c7f34b40bbc0d8cd5f7777bd78f3ee2e861a482081177892f7",
+        "28abe56e26040c91e2a7bd9804f6b09eb7fc4f728fbddc1507fd1a6960ac22bc",
+        "d479897b4a6f2232a62af6704668e90566af13534d9aff36f98378ddc7ba11d2",
+        "a25dd5a5c44f5ed8e0564f444f7053733073afa23a2ed1e93cd09ba9ab1f9840",
+        "ae4c829964692d8bafc125eeedfa0fad2fb4ec123eff6738a67e46aa5a5d1ea5",
+        "f601857222bd27cec146d6f7bc431f1256f278cf02fc3c68e696ddfb704061a2",
+        "6457a191fed86ccde58b8407298f13db78e315b05179d2079ec0d521cdc75882"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PooledFit.reproducible": {
+      "source_blocks_sha256": [
+        "55eff6267ae9d17f7dd1c5647d1124cdf0ccdf3b162683ef1629c4d2fce99e32"
+      ],
+      "source_sha256": "55eff6267ae9d17f7dd1c5647d1124cdf0ccdf3b162683ef1629c4d2fce99e32",
+      "text": "无论实验室微板是否足够合并了合并的号码。",
+      "translation_source_blocks_sha256": [
+        "8ecf9e4c298ee423d42216d7c1b15c57fac982810ab1a1a1c1c6cfeaad7174ae"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.PooledFit.summary_row": {
+      "source_blocks_sha256": [
+        "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ],
+      "source_sha256": "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772",
+      "text": "结果表的一个顺序,拒绝包括。",
+      "translation_source_blocks_sha256": [
+        "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ]
+    },
     "spacr.qt.widgets.dose_response.SelectivityIndex": {
       "source_blocks_sha256": [
         "0cd154a814626f83465aa310d3501bc41b02f081ccdfc87d035be2681e44ac18",
@@ -101573,6 +102463,28 @@
       "translation_source_blocks_sha256": [
         "e25ea64c88a9666fdc38b4cb1f7ca7f5285cf8306dc356db9c69ad3a9c35b9c3",
         "70b56a89ceb27512900b37d4abd14e676cceea7db9e49389800e366233e13e2b"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.checkerboard_from_frame": {
+      "source_blocks_sha256": [
+        "31a47294d94ec1ed379333d363592ba1779d77476e8d8f7913d9ce20d405adbd",
+        "8dbe2c7071e551c0d6acc431b39943df2903004d0ec0c45c533fd1f4ca3907e6",
+        "0ba8264237c4f26c168f1754317d442f1467e8e35cd6d15944f2363c58d93643",
+        "e3102f42f9b444bd323542013de4876d26550d87acf9d3814826127ac041b0a1",
+        "be753a952a3204a651037e82328179cefbcdf51685bfa70c02577bdae6e1909e",
+        "5d2b147edb5e8299a46bbe671a1537ca2f68db8dcef2a0837bf24bf551eec185",
+        "c8491201e232a82700275181adbb10c65aba9c74d9017ec7ec7a85c18b2bf1ab"
+      ],
+      "source_sha256": "0900deaf492162c25ff6cc6ce5f07496c29e00d280fa920ea352a98a8b68a25d",
+      "text": "阅读一个检查板,从一个微板样本位置表,单代理轴和所有。\n\n:param frame: 每位微板样本位置一行。\n:param dose_a: 列持有代理 A 的浓度。\n:param dose_b: 列持有代理B的。\n:param response: 保持测量的列。\n:returns: 一个 :class:`Checkerboard` 准备为 :func:`bliss_surface`, :func:`loewe_surface` 和单个代理适合他们需要。\n:raises DoseResponseError: 当一个列缺乏时,当任何代理人没有单代理微板样本位置 - 没有它们,没有曲线可以预测组合,而对组合微板模型位置计算的表面本身将是与数据相比较 - 或者当没有两个代理人存在时,这是一对剂量序列,而不是检查板。",
+      "translation_source_blocks_sha256": [
+        "d8ce36548892e94d799ae098841a0615b4c5ab8722f82109c7826b04fe50c3ce",
+        "09ce211b99587014198cda206c9c66a18368c4f08a86ac779421fed78e02c848",
+        "0ba8264237c4f26c168f1754317d442f1467e8e35cd6d15944f2363c58d93643",
+        "e3102f42f9b444bd323542013de4876d26550d87acf9d3814826127ac041b0a1",
+        "be753a952a3204a651037e82328179cefbcdf51685bfa70c02577bdae6e1909e",
+        "5d2b147edb5e8299a46bbe671a1537ca2f68db8dcef2a0837bf24bf551eec185",
+        "e2bfc416cddfaa13cf71d02460f59b71751df27025449a66e565885d6d54670f"
       ]
     },
     "spacr.qt.widgets.dose_response.fit_dose_response": {
@@ -101683,6 +102595,98 @@
         "b13bb11c822ea7bbf03a5659c452a6043025d17dac68e5e2c6b63f95bd34dc1e",
         "701ad55dac01b316e6353702e03136af3e9c1b004efeb1fc00fdcfa97d1d6c16",
         "4d3aab37c61947f0b7b11fb0716734271d5de31b9f17a5a0e2b091aa702c7acf"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.normalise_to_controls": {
+      "source_blocks_sha256": [
+        "85722c31cd061f15792a533a2d3fcfe9b13c14f554d17056a607ed95f062de12",
+        "eb7efe823954e419067d70d6bdac917179554710d9141740408c9c33996cd013",
+        "d16ef8a0bb4d4ebd1c8a10639949c5968000c22f2139b20120e7e5ee7ebfb1db",
+        "e1361961663b55e5b225a6d258ccfd2f8cda4c80dc3c5e138cb26925df91834b",
+        "31244f3ec817dddad7387553c479b8e9df9663ee60ac93d8d95cb18f2c500bed",
+        "c3a255feeb0aaf28aff8e810a7064f5e69238a15b3b7fbde7faa9856cde47ed3",
+        "ac174b748c0536c0049737589dd48d2d4aa1aef6ef30d81ce00e5724db952807",
+        "9add51b1ece766939bdf8669e1457782e65b6c7be2443b3c6592ceed71b4c327",
+        "75f5800583157e037afe9e6dbe7c2e338180172e18f0b24e72304039288c82a9",
+        "1e20689337b2e9e4d686b5b1651cb08fc38252d44e2c151d55fda5135d567eee",
+        "99d326e5dc56788395683998bc7f8c85deb3d702b052d55d842fc49eca15511f"
+      ],
+      "source_sha256": "2741f4d0be3b037cea9362b4639cded1014aa8eea87c211a024c9c43fcf79dfa",
+      "text": "百分比抑制对每个板的自己的控制。\n\n原料答案不能在微孔板上进行比较,两张微孔板在不同的日子读取,在绝对信号上有所不同,因为大多数化合物移动它。, 因此,三张复制板配备原料产生三 EC50s 其分布大多是工具驱动。 -- 阅读 0 阅读 100 阅读 10 阅读 -- 它完全取消了这一点,离开了生物学。\n\n``percent = 100 * (value - mean_negative) / (mean_positive - mean_negative)``\n\n公式是签署的,方向诊断的目的:无论原料回收如何运行,积极的控制阅读100按建设,因此可行性回收和负担回收正常化相同的方式,适合下流不需要告诉它得到什么。\n\n当一个实验室微板的两个控制器不分开时,没有测试窗口,并且通过这种接近零差异分裂会将好到好的噪音转化为百分之百的抑制和自信。 EC50 在实验室微板上测量什么都没有。 这样的实验室小板的行带回来 NaN 答案和A :class:`PlateReport` 这样说。\n\n:param frame: 每个微板样本位置一行,与实验室微板,控制和响应列的特征和这个呼叫名称。\n:param spec: 实验室微板,其控制列和其两个控制级别。\n:param response: 原子列要正常化。\n:param out: 缺点为 :data:`PERCENT_COLUMN`;输入另一个名称,以保持多个重量(主机可行性和寄生虫负担,说)一边。\n:returns: ``(frame, reports)`` - 携带框架的副本 ``out``,和一个 :class:`PlateReport` 按实验室微板,在实验室小板首次出现的顺序中。 NaN 因此,适合整个桌子的呼叫器将这些实验室微板倒下,而无需先过滤。\n:raises DoseResponseError: 当一个名为列缺乏时,或者当没有实验室微板有两个控制器时 - 没有什么可以正常化,而一个 NaN 框架会比一个句子更糟糕的答案。",
+      "translation_source_blocks_sha256": [
+        "85722c31cd061f15792a533a2d3fcfe9b13c14f554d17056a607ed95f062de12",
+        "c654e1e8d664a71ffbf8a422cd57c84372eb5d29152d0c5c17ccdfa8b32cd074",
+        "d16ef8a0bb4d4ebd1c8a10639949c5968000c22f2139b20120e7e5ee7ebfb1db",
+        "e1361961663b55e5b225a6d258ccfd2f8cda4c80dc3c5e138cb26925df91834b",
+        "59876f77fc28490dde57f314c298b2f690f7578cf16a33c5cf71930542a968f2",
+        "b6ae76f3243ec1b2a8443423c6652952982876c17a5bd362e3ff01d42da851e6",
+        "5d39e92df5aaf0d0d54c63af4125e30d6a087bd283064030337f4797f8320111",
+        "9add51b1ece766939bdf8669e1457782e65b6c7be2443b3c6592ceed71b4c327",
+        "75f5800583157e037afe9e6dbe7c2e338180172e18f0b24e72304039288c82a9",
+        "537401eb0c5bec1dc4c32c0f46b11baccbd187f53c7432fc1bc54a0c33c47d13",
+        "399690e54061f316d3fa4573e8d619eb8cd3bdeed8c51edf3b58c8f89e7a0a48"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.plate_reports": {
+      "source_blocks_sha256": [
+        "20e27db4f402df00b6d1c3c402eed2e5e807fbf3df31cee1bfbd00165be8f379",
+        "c0dbfc88d71a35484ebc98ee9ab49b2a356cec8935e5255857c832fafae1b85e",
+        "81d3b560e92827d8a2421122f2a93f8ff4dd72b9a549033b8523009335a66d2b",
+        "feda3186e6ea66bc11aaebd128fbdac81a580fd3e9063cc1b14148d2c3078aab",
+        "5d5018deef0f06c90dc90b82fb36610bcb492a9f881368110ccba27edfb063a6",
+        "4c470d916c4db50ce9eb2ada0094d3b7bcbd4d0a37e7ba2463e3936220948b6b"
+      ],
+      "source_sha256": "1affa6d25564d77b067313aa93e558629f2e96f7bed0768f10094bd94a3043c1",
+      "text": "单独的判决,没有正常化任何东西。\n\n对于筛选想要显示板桌之前,用户选择了适合的重定向,对于一个打电话的人,只想知道哪些板会被扔掉,一个桌子,每个板被拒绝返回它的拒绝,而不是扔掉 - 这里的拒绝是答案。\n\n:param frame: 长格式表,每个微板样本位置一行。\n:param spec: 哪个列命名了实验室微板,哪个控制,以及哪些控制值是两端。\n:param response: 重复列,其控制的意思决定实验室微板的Z。 关键词,因为实验室小板的判决是关于一个特殊的重复,通过它立场邀请阅读报告作为实验室的小板的所有权。\n:raises DoseResponseError: 当一个名为列失踪时。",
+      "translation_source_blocks_sha256": [
+        "20e27db4f402df00b6d1c3c402eed2e5e807fbf3df31cee1bfbd00165be8f379",
+        "30eaab899b33107d26285bfaf5d041cff517747967a1bb7b142c9503c78e1117",
+        "bd0d918a5251d0d370b3e21b3518ef28446a2eab9394b93bfb07673bfbe7c997",
+        "9c440ebb52b9e4fa2156816a1f9b0b0da917cf72382eec7f8da7c85c58bc0940",
+        "6839179214a1b4583f578e9c2919b4e8080206da050a0352dbb3e716f73b7912",
+        "4c470d916c4db50ce9eb2ada0094d3b7bcbd4d0a37e7ba2463e3936220948b6b"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.pool_across_plates": {
+      "source_blocks_sha256": [
+        "cc3a352cf44adfe8da3c934e11400d3bf19d9f8537de4fb753d53d866fa46592",
+        "4938756669cc82d0cc9dd67fd362c2ed01871ebca091aff95ab69354b1133a8d",
+        "38599ddd7470fd79d39d0b3cf1908ca284df0fd3953737d9fafdefc5cb5b017e",
+        "9a2e5b8f98c8e14a8ecb3b8adef7742fa7f9b7366654d972bc378ac4fe8fc6a5",
+        "36ad2f7b17a574a3e7a01fe4aa19c2e16e2dadac4f2c20eff3042d7827620511",
+        "5e878e4c93a9186030f21f7c8e6434b3702c8aed4deb7ca51692ef05f1ba964d",
+        "49cf7f44986cfe98ea55a0ad033d9abd55f9b4a463320c6fcbac86bba6451618"
+      ],
+      "source_sha256": "9bb21299424188db7fa93fe5ce0bd32865106cc4ef5addc51432448b1a4d98fc",
+      "text": "组合每个板合成一个 EC50 与板作为一个随机效果。\n\n基于 log10 尺寸,因为这就是 EC50 的尺寸是估计的,而尺寸的间隔是相同的。 平均三个 EC50s 的 1, 10 和 100 毫米 算法给 37 毫克; 合并他们的 logarithms 给 10 , 这是三分之一的中间,在唯一的意义上,重要的是一个浓度。\n\n:param fits: 实验室微板标签到该实验室小板的合适。 :data:`STATUS_FITTED` 有一个关闭的间隔可以携带重量;其余的被计算,在笔记中命名,并留在算法上,因为一个实验室的微板 EC50 是无限的没有变量到重量,并沉默地放下它会使平衡间隔看起来比实验更好。\n:param confidence: 覆盖合并间隔。\n:param max_heterogeneity: 拒绝超越这四分之一。\n:returns: :class:`PooledFit` 被拒绝,而不是空白,当磁盘无法支持单个数字时。\n:raises DoseResponseError: 如果 ``max_heterogeneity`` 不在 ``(0, 1]`` 中。",
+      "translation_source_blocks_sha256": [
+        "cc3a352cf44adfe8da3c934e11400d3bf19d9f8537de4fb753d53d866fa46592",
+        "f1e745d1c5571a9e5aa97fffdf463b69ffbbe000e3c29d757534ccaa87bcb53f",
+        "8c590618b13f7dd6f691c75f4fc682828a362b22171726f8a92f81a30fd91f89",
+        "9a2e5b8f98c8e14a8ecb3b8adef7742fa7f9b7366654d972bc378ac4fe8fc6a5",
+        "36ad2f7b17a574a3e7a01fe4aa19c2e16e2dadac4f2c20eff3042d7827620511",
+        "5e878e4c93a9186030f21f7c8e6434b3702c8aed4deb7ca51692ef05f1ba964d",
+        "49cf7f44986cfe98ea55a0ad033d9abd55f9b4a463320c6fcbac86bba6451618"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.pool_frame": {
+      "source_blocks_sha256": [
+        "944a6a47c4332ede1d161f5ae176f11ed513c6f299491be6a772e9e17c632869",
+        "1f13e9b8d0a84b31516f3de7b9382aaee7c3b5aa0d817f82acf503b56d5daeda",
+        "35a30866c9b41b0de63f088349e4a815c24aa9a967dea91296d32d1a028723a5",
+        "08871161f8693e76f5ec1bd5fb2524369ab0e66370eac750810d931f75782083",
+        "e7bad6dc93be4b83a943222eb9aa59b3339a7740d78d4bf5c30be94b6f427731",
+        "47406e29d53249262e6d1e6fbd3ac18a822f8c89dfbb5001cd8efc7386bdffce"
+      ],
+      "source_sha256": "fef13270aca22df7146c79738db2887fb17d10b2006465937695db44d952d040",
+      "text": "在``frame``中匹配每个板,然后将它们组合起来。\n\n一般案例的舒适性超过:func:`pool_across_plates`:一张桌子,一张合金,实验室微板列。 一个实验室显微板,提高:class:`DoseResponseError`被保留在游泳池外,并在笔记中命名,正如:func:`fit_frame`保留一个坏化合物从采取实验室顕微板下。\n\n:param frame: 长格式表,每个微板样本位置一行,每个实验室微板复制。\n:param spec: 合适的规格,适用于每个微孔板不变 - 这就是使每微孔板 EC50s 相似的第一位。\n:param plate: 标识复制的列。\n:raises DoseResponseError: 当 ``plate`` 不是一个列,或者当没有实验室显微板产生一个合适的 - 没有什么可包装和一个拒绝没有实体显微盘在它会说什么为什么。",
+      "translation_source_blocks_sha256": [
+        "944a6a47c4332ede1d161f5ae176f11ed513c6f299491be6a772e9e17c632869",
+        "a5b03f463ee27253d85d49cb5616b07978bc5557caa3189fad4a389415a4b98d",
+        "b8a4dc503247188aa59bd7e11812b7e9452c82c841ef66f685f8e9604bfeb3f8",
+        "08871161f8693e76f5ec1bd5fb2524369ab0e66370eac750810d931f75782083",
+        "e7bad6dc93be4b83a943222eb9aa59b3339a7740d78d4bf5c30be94b6f427731",
+        "b1074ff833a8b50b8b57179669548721644c1e2a350c659103b0ee74e22ea087"
       ]
     },
     "spacr.qt.widgets.dose_response.selectivity_index": {
@@ -118405,12 +119409,20 @@
     },
     "spacr.qt.widgets.live_preview.LiveSettingsDialog.closeEvent": {
       "source_blocks_sha256": [
-        "e84d2238b6d17d429b5adc9e97a73aa691f0446c5d74959eff6903c233edf99d"
+        "cd9be7bce786f998cf3d5113b814b7afad688532c30d7e20fdf522855a8d6fb2",
+        "e1c67d5df5bdb7d0526672141e8e570fcb66f0bb7ee83150d24a65b1773ee2a3",
+        "f6626d38b22ee0222df8785d8a54345c77850bf6bee1d6f68565c4a7feac60a3",
+        "1ff37d6ac2220b6dde71cb1505e76eb631a4ace37b9323f4ec4586f675626632",
+        "a71d83b14bcb68b723ca4caf9c4035319bb772248b144893190e53d9e7794a0c"
       ],
-      "source_sha256": "e84d2238b6d17d429b5adc9e97a73aa691f0446c5d74959eff6903c233edf99d",
-      "text": "重新隐藏状态 widgets 以便微型布局保持清洁。",
+      "source_sha256": "9d6ba1408da14876bb0501bd4bd200e502449639b54719d031f33e1d5100afa2",
+      "text": "返回每一个控制面板,这对话被借用,而不仅仅是被宣布的。\n\nQt 摧毁与它对话的孩子,所以在这个对话中,任何面板的父母,当它发生时,都会与它同行。 控制器是面板的,并通过设计进行对话 - 它们的价值观是用户所倾向的。\n\n`_managed_widgets()` 已列出并未完整的名单: `_pathogen_channel`, `_organelle_channel` 和 `_model_zoo_btn` 他们也在这里被放置,并且不在那里,所以在一个开放和关闭之后,他们坐在一个属于一个关闭对话的团体盒子里。 Python 参考 - 这正是为什么它被忽略了。\n\n因此,插曲是由IDENTITY而不是由列表:任何 widget 仍然在这个对话下,该面板持有一个属性为返回。 按目的,如`LivePreviewPanel._stow_free_widgets`,所以一个控制添加到一个行后被覆盖,没有任何人记得添加它在这里也。\n\n它们转到 `_offscreen_controls` 而不是面板:与没有布局的面板相似,每个座位在(0、0)上载路线标签上,除了`hide()`以外的任何东西都关闭筛选。",
       "translation_source_blocks_sha256": [
-        "e84d2238b6d17d429b5adc9e97a73aa691f0446c5d74959eff6903c233edf99d"
+        "cd9be7bce786f998cf3d5113b814b7afad688532c30d7e20fdf522855a8d6fb2",
+        "e1c67d5df5bdb7d0526672141e8e570fcb66f0bb7ee83150d24a65b1773ee2a3",
+        "f6626d38b22ee0222df8785d8a54345c77850bf6bee1d6f68565c4a7feac60a3",
+        "1ff37d6ac2220b6dde71cb1505e76eb631a4ace37b9323f4ec4586f675626632",
+        "a71d83b14bcb68b723ca4caf9c4035319bb772248b144893190e53d9e7794a0c"
       ]
     },
     "spacr.qt.widgets.live_preview.LiveSettingsDialog.refresh_visibility": {
@@ -143005,6 +144017,32 @@
       "text": "字符串为 CSV 文本. 由召唤者写的,无论它属于哪里。",
       "translation_source_blocks_sha256": [
         "87bcd7ae3436d22c25baa47a42e5b276e0808f1a1826ce565f8c566d6329c62c"
+      ]
+    },
+    "spacr.scorecard.scorecard_figure": {
+      "source_blocks_sha256": [
+        "b51ed42f45918bd5f1dcb6538fc2573a8a129a135f01b23f4b83008c59eae4ec",
+        "35a58d76018b1a4c8aa2c640cac6fbdb99fc44557466207c8e8436121580255e",
+        "1dbb950051ce330a4f0969ba344accd57b26bd9421142ef145a893e73671c0dc",
+        "40bc657a380f4cfe8aa727ae23e60bbb2fd6fdc1ede55480d2c56305ad6fa8b4",
+        "ceed89704e71fb3012b0cad5000d2e394599b186af4593269d64a4bcc2f9c39b",
+        "947e947d9727a06de8e6d0a4301b2c9523bedf71e737f303d5201237b0f1f65f",
+        "142cb89204b9102b838dcb3a92774f5dcd922e96278addc93e0b719357c65f06",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "50f35467e4e367c2f03566e85971fb15dacabc5f3b4bbe326c2157d0e39fd64f"
+      ],
+      "source_sha256": "28f775f2d65a51361b5c4c97c58460137eb58a6e1ef8116777811370b59c9373",
+      "text": "将与存储相匹配,如平板字符串,并将其写入 ``path``。\n\n图表格式,为 Hugging Face 和为 API 页面,除了 CSV 和表。, 因此,图像不能与旁边打印的数字不同意。\n\n这个模块的合同是,模型动物园可以进口它与没有 torch 或 cellpose 存在 - 一个测试证实它 - 并在模块范围上的绘画依赖会打破每个呼叫者谁只是想阅读一个分数图。\n\n只有答案的尺寸,一个分数包含四十个数字,一个四十条字符的图表是一个墙壁,而不是一个答案。 :data:`CHART_METRICS`中的尺寸被拖动,在这个顺序中,而无所不在的任何东西都被切断而不是作为零 - 一个缺失的测量和一个没有分数的测量的测量在一眼中看起来相同,并意味着相反的事情。\n\n:param metrics: 如 :func:`read_scorecard_csv` 返回。\n:param path: 在哪里可以写 PNG。\n:param title: 标题;模型的名称是通用的东西。\n:returns: 路是写的。\n:raises ValueError: 当图表中没有一个尺寸存在时,因为在模型旁边发布的空图表意味着它得分为零。",
+      "translation_source_blocks_sha256": [
+        "b51ed42f45918bd5f1dcb6538fc2573a8a129a135f01b23f4b83008c59eae4ec",
+        "6e375a2cf24891986bfbe86ddf5f3bec6725ba807d70677f535d56e23d80843e",
+        "abd7e926695c1b259a5009f70ae3e161b268ee474e727f52a965f0c0115808ff",
+        "d968267594f7488a589271c5d2bd6845d1e3482de02a105aebf35e06104adb7b",
+        "ceed89704e71fb3012b0cad5000d2e394599b186af4593269d64a4bcc2f9c39b",
+        "947e947d9727a06de8e6d0a4301b2c9523bedf71e737f303d5201237b0f1f65f",
+        "142cb89204b9102b838dcb3a92774f5dcd922e96278addc93e0b719357c65f06",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "50f35467e4e367c2f03566e85971fb15dacabc5f3b4bbe326c2157d0e39fd64f"
       ]
     },
     "spacr.scorecard.scorecard_is_present": {
