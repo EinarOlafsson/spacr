@@ -3,14 +3,15 @@ PROSE THAT CANNOT BE TRANSLATED IS ONLY FOUND AFTER A 65-MINUTE BUILD, AND
 THE HOUSE STYLE IS WHAT PRODUCES IT
 ================================================================================
 
-Status:    THE LOCAL CHECK EXISTS, 2026-09-12, and covers ONE of the three
-           causes -- which is all a source-only check can ever cover, and it
-           says so in every failure message it prints.
-           `tools/check_translatable_prose.py` plus
-           `tests/test_prose_that_reaches_a_catalog_can_be_translated.py`:
-           38,352 blocks in ~2 s, 0 flagged, 4 of 4 recovered real failures
-           named. Filed 2026-09-11 after the same failure cost four rebuild
-           cycles in one evening.
+Status:    THE LOCAL CHECK EXISTS AND NOW READS THE RIGHT STRING, 2026-09-12.
+           It DECIDES cause 1 and REPORTS cause 2 from a registry; cause 3 is
+           not a signal of its own, it is which English every signal reads,
+           and that half is now fixed. `tools/check_translatable_prose.py`
+           plus `tests/test_prose_that_reaches_a_catalog_can_be_translated.py`
+           and `tests/test_check_translatable_prose.py`: 38,368 blocks in
+           ~15 s, 0 flagged, 4 of 4 recovered real failures named, 394
+           registry advisories that never gate. Filed 2026-09-11 after the
+           same failure cost four rebuild cycles in one evening.
 Owner:     unassigned. `tools/build_i18n_catalogs.py` holds the gates,
            `tools/build_documentation_i18n.py` the API half.
 
@@ -628,3 +629,142 @@ are words that checkpoint will not take. Splitting and shortening -- which
 fix the identity cases -- do nothing to it. The set is per-language and
 invisible in the English, so only a residual comparison against real output
 finds it.
+
+
+--------------------------------------------------------------------------------
+2026-09-12 -- THE CHECK NOW READS THE EXPANSION, AND PRICING THE REGISTRY IS
+WHAT THE WORK ACTUALLY PRODUCED
+--------------------------------------------------------------------------------
+
+WHAT CHANGED. `tools/check_translatable_prose.py` gained
+`expanded_source()`, `check_block_as_translated()`, a `KNOWN_BAD_TOKENS`
+registry and `--verify-registry`. `check_block()` is unchanged and still
+judges whatever text it is handed, so the runtime lane -- which never goes
+through `_api_translation_source` -- keeps a correct entry point.
+
+CAUSE 3 IS NOT A THIRD SIGNAL. It is which English every signal reads, and
+the old check read the wrong one. `_translate_api_documents` builds its model
+input as `translation_inputs[block] = _api_translation_source(block)` and
+hashes that same string, so the gate's verdict is about the EXPANSION.
+Measured here:
+
+    38,368 blocks, 7,824 of them (20.4%) rewritten before the model sees them
+
+    injected, and nobody wrote any of it:
+        1,382 microplate   1,185 view   1,136 data   1,047 sample
+        1,043 image          760 position   546 extracted   526 laboratory
+    erased:
+          832 screen    384 crop    161 worker
+
+THE GERMAN `builder` EVENT IS ALIVE IN THIS CHECKOUT UNDER ANOTHER WORD.
+`:mod:`spacr.crops`` now expands to "extracted image regions", so nothing
+gains "builder" from the tool any more. `worker` -- which the Icelandic
+checkpoint declines -- has taken its place: the expansion ERASES it from 161
+blocks and INVENTS it in 8.
+
+    Retire spaCR's own idle workers and lower its thread counts.
+      -> ... and lower its worker-count limits.
+    production image loads are threaded.
+      -> production image loads are executed in a worker.
+
+So a token check against the docstring is wrong in both directions on 169
+blocks, and only one of those directions is a false positive.
+
+AND EXPANDING NAIVELY IS ALSO WRONG, WHICH ONLY MEASURING FOUND.
+`_lower_shouted_emphasis` runs INSIDE `_api_translation_source`, so
+"A4 DOES NOT NEED MASKS." reaches the model as "A4 does not need masks." --
+the label-subject defect exactly. Run naively on the expansion the check
+flags two corpus blocks it does not flag on the source:
+
+    spacr.ops_phenotype.nuclear_points[7]     A4 DOES NOT NEED MASKS.
+    spacr.ops_sample[2]                       C1  SEQUENCING CHANNELS, ...
+
+Both were then READ against the cached model output for all nine targets.
+Both translate, and `A4` and `C1` survive verbatim in every one. They are
+false positives. The heading exemption is therefore evaluated on the AUTHOR'S
+text while the signal reads the model's, and a test pins the trap so nobody
+simplifies it away.
+
+THE REGISTRY, AND ITS PRICE, WHICH IS THE PART WORTH KEEPING. Four entries,
+each carrying the observation that produced it AND what believing it costs.
+`--verify-registry` prices them against the build's own checkpoint cache --
+real model output, no model run, about fifteen seconds:
+
+    entry           lang     flagged  cached  confirmed
+    channel+stain   zh_CN         20      16          0
+    patch           is            10       5          4
+    worker          is           316     233          9
+    builder         de            48      24         22
+
+READ THAT TABLE BEFORE BELIEVING ANY OF IT. `channel+stain` confirms nothing
+on this corpus -- it was measured on short RUNTIME rows, which are not here,
+and deleting it would forget an observation nobody can re-derive from the
+English. `worker` is 3.9% and two of its nine are inside proper names.
+`builder` is 22 of 24 and German takes "Builder", "Worker" and "Benchmark" as
+ordinary loanwords, so a kept word there is not automatically a failure. This
+file has already priced one signal out for needing 2,917 false positives to
+catch one true one; a registry that cannot say what it costs is the same
+mistake with a friendlier name. So the registry REPORTS -- 394 advisories on
+the current corpus -- and only the label signal gates.
+
+WHAT IS STILL OUT OF REACH, unchanged and still the important sentence: an
+identity return on a token combination nobody has hit yet, and vocabulary a
+checkpoint declines that is not already in the registry. Both are
+per-language and only running the model produces them. A GREEN RUN IS NOT A
+GREEN BUILD, and that sentence is printed by every run and carried in every
+assertion in both test files.
+
+AND THE CHECKPOINT CACHE IS THE REUSABLE FINDING. `--verify-registry` reads
+`<model_root>/.spacr_translation_cache/<lang>.json`, keyed by
+`API_BLOCK_CACHE_NAMESPACE + "\0" + contextual_source`. That is real
+nine-language model output, already on disk, queryable in seconds. Every
+theory this file records as surviving because nobody read the output --
+ALL-CAPS, the pseudo-table, the length threshold -- was falsifiable from that
+file at any point, for free.
+
+--------------------------------------------------------------------------------
+2026-09-12 -- A FOURTH THEORY, TESTED AND REFUTED BEFORE IT COST ANYTHING
+--------------------------------------------------------------------------------
+
+A LIVE FAILURE ARRIVED WHILE THE CHECK WAS BEING EXTENDED, which is the best
+kind of test data: `spacr.infection.border_rules_agree` landed with 377 after
+the catalogs were built, and blocks 2 and 7 refused to translate in four
+languages -- es, zh_CN, ko, is. The extended check does NOT name it, and says
+so in its own output.
+
+Reading the two blocks suggested an obvious shape. Both have a PROTECTED
+LITERAL AS THE GRAMMATICAL SUBJECT:
+
+    #2  `remove_border_objects` is applied at SEGMENTATION time, ...
+    #7  ``True`` when both rules match, ``False`` when they differ, ...
+
+The model sees a masked token where it expects a noun, which is the same
+argument that makes a bare project label untranslatable -- so the natural
+move was to extend `BARE_LABEL_SUBJECT` to cover it.
+
+MEASURED FIRST, AND IT DOES NOT DISCRIMINATE:
+
+    blocks whose subject is a protected literal    2,543 of 38,386 (6.6%)
+    of those, with literal fraction >= 0.15, that
+      are NOT known failures                       2,040
+    corpus literal fraction                        median 0.000,
+                                                   p90 0.361, p99 0.821
+    the six known failures                         0.00, 0.00, 0.00, 0.09,
+                                                   0.15, 0.31
+
+Two thousand blocks share the shape and translate fine, the failures sit
+BELOW the corpus p90 on the feature, and only two of the six have a literal
+subject at all. Implementing it would have added a check that fires on 5% of
+the corpus and catches two blocks by coincidence.
+
+THAT IS NOW FOUR REFUTED THEORIES ON THIS ONE QUESTION -- ALL-CAPS
+protection, clause density, a 500-character length threshold, and this. The
+common error in all four is the same: a property was read off the failing
+blocks and never checked against the blocks that PASS. The cost of checking
+is one script and about a minute, and it has now been wrong four times out
+of four, so the rule is worth stating as a rule.
+
+WHAT THE LIVE FAILURE ACTUALLY CONFIRMS is the limitation the tool already
+prints: cause 2, a token combination no model has been run against yet. The
+repair pass is what resolves it, which is why the order is BUILD, then
+REPAIR, then AUDIT, and why a build alone never converges.
