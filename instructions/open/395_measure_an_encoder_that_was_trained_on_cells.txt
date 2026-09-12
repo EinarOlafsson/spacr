@@ -1,0 +1,83 @@
+================================================================================
+MEASURE AN ENCODER THAT WAS TRAINED ON CELLS, BECAUSE THE ONE THAT LOST WAS
+TRAINED ON PHOTOGRAPHS
+================================================================================
+
+Status:    OPEN AND ACTIONABLE, filed 2026-09-12. Nothing gates it: the
+           engine, the screen, the column family and the measurement harness
+           all exist and all have been run end to end. What is missing is one
+           line of configuration and a second run.
+Owner:     unassigned. `spacr/embeddings.py` holds `EmbeddingSpec` and
+           `_timm_encoder`; the measurement is the one 386 records.
+
+--------------------------------------------------------------------------------
+WHY THIS EXISTS
+--------------------------------------------------------------------------------
+
+386's retrieval measurement ran on 2026-09-12 and the default encoder LOST to
+the hand-designed panel by about twenty points of balanced accuracy:
+
+    gene retrieval, embeddings          0.695
+    gene retrieval, measured panel      0.894
+    position control, embeddings        0.494
+    position control, panel             0.514
+
+The measurement is sound -- the position control reads chance across all
+twenty adjacent library-column pairs, the shuffled nulls read chance, the
+split is grouped by well, and the obvious excuse was falsified (restricting
+the panel to the encoder's three channels WIDENS the gap rather than closing
+it). So the number is real and it is not an artefact.
+
+WHAT IT IS A NUMBER ABOUT IS THE POINT. It was measured with
+`EmbeddingSpec(backbone='resnet18')` -- ImageNet-supervised weights, a
+network trained to tell a dog from a bicycle, applied to fluorescence crops.
+That is the weakest thing the module can be pointed at and the least
+interesting encoder to have measured. 386 could not say this because it had
+not run anything; now it has, and the honest reading is "this encoder loses",
+not "embeddings lose".
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Point `EmbeddingSpec` at a backbone trained on microscopy and re-run 386's
+measurement UNCHANGED. Candidates, in the order worth trying:
+
+    Cell-DINO / DINOv2 fine-tuned on cells
+    OpenPhenom
+    SubCell
+
+RE-RUN THE MEASUREMENT AS IT STANDS. The harness, the split, the controls and
+the nulls are all recorded in 386 and none of them should move -- changing
+the encoder and the measurement in the same step produces a number nobody can
+attribute. The four figures above are the baseline to beat, and the position
+control must be re-run too: a different encoder is a different chance of
+finding position instead of biology.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * The gene-retrieval balanced accuracy is reported beside 0.695 and 0.894,
+    on the same plate, the same objects and the same folds.
+  * The position control is re-run for the new encoder and still reads
+    chance. Without that the new number means nothing, for the same reason
+    the old one would not have.
+  * Whatever the result, it is written into 386 beside the resnet18 figures
+    rather than replacing them. Two encoders measured the same way is the
+    useful artefact; one number that moved is not.
+
+A RESULT THAT IS STILL BELOW THE PANEL IS A SUCCESS FOR THIS ITEM. The
+question is what a cell-trained encoder scores, not whether it wins, and
+"the panel is better on this task too" is a finding worth having written
+down once rather than assumed either way.
+
+--------------------------------------------------------------------------------
+WHAT THIS DOES NOT COVER
+--------------------------------------------------------------------------------
+
+Not "the interesting result" -- whether an embedding separates something the
+panel does NOT. 386 says plainly that retrieval of a KNOWN phenotype is the
+wrong instrument for that, because the positive control is the screen's top
+hit precisely because the panel already detects it. That needs a different
+design and a human looking at crops, and it is not this item.

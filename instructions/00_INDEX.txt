@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-377 done / 19 open (95%).
+378 done / 19 open (95%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -67,9 +67,6 @@ OPEN
   381  ONE BACKDROP, AND THE PANELS ABOVE IT LET IT THROUGH
        381_one_backdrop_that_is_actually_visible.txt
 
-  386  A LABEL-FREE EMBEDDING FOR EVERY OBJECT, ALONGSIDE THE MEASURED FEATURES
-       386_self_supervised_embeddings_as_a_feature_source.txt
-
   387  WHAT DOSE-RESPONSE STILL CANNOT SAY: SELECTIVITY, SYNERGY, AND THE PLATE
        387_what_the_dose_response_module_still_cannot_say.txt
 
@@ -84,6 +81,9 @@ OPEN
 
   394  PROSE THAT CANNOT BE TRANSLATED IS ONLY FOUND AFTER A 65-MINUTE BUILD, AND
        394_prose_that_cannot_be_translated_is_only_found_after_a_65_minute_build.txt
+
+  395  MEASURE AN ENCODER THAT WAS TRAINED ON CELLS, BECAUSE THE ONE THAT LOST WAS
+       395_measure_an_encoder_that_was_trained_on_cells.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -463,6 +463,7 @@ DONE
   383  A SETTING'S API LINK LANDS ON THAT SETTING, IN THE MODULE THE USER IS IN
   384  THE API PROSE BACKLOG: 358 BLOCKS, AND IT NEEDS A MODEL THIS MACHINE LACKS
   385  THE BACKDROP KEEPS MOVING WHILE PREFERENCES OR HELP IS OPEN
+  386  A LABEL-FREE EMBEDDING FOR EVERY OBJECT, ALONGSIDE THE MEASURED FEATURES
   389  MERGING nightly INTO main, AND THE add/add RECOVERY THAT MADE IT POSSIBLE
   392  THE REGRESSION TABLE SHOULD NOT NEED THE PLATE NAME IN THE FILENAME
   393  A TEST PINS GENERATED PNG BYTES, SO THE BUILD TOOL'S VERSION IS PART OF THE
