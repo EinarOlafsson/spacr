@@ -296,6 +296,64 @@ def role_setting(role: str, suffix: str) -> str:
     return f"{role}_{str(suffix).lstrip('_')}"
 
 
+#: ``old suffix -> new suffix`` for a rename that belongs to a ROLE FAMILY
+#: rather than to one key. 705 roles carry ``_flow_threshold``; writing the
+#: old names out would be 3,522 entries nobody can read and six families
+#: nobody can keep in step. The rename belongs to the SUFFIX, so it is
+#: recorded once here and resolved per role.
+#:
+#: WHICH ROLES A RULE APPLIES TO IS NOT WRITTEN DOWN, and deliberately --
+#: see :func:`spacr.settings.surviving_setting_name`, which applies a rule
+#: only when the old key is NOT a live setting and the new one IS. A written
+#: scope is a second list to keep in step with ``expected_types``, and the
+#: measurement says a wrong one is expensive: seven ``_size`` keys are still
+#: live (``cell_min_size``, ``cell_max_size``, ``nucleus_min_size``,
+#: ``nucleus_max_size``, ``pathogen_min_size``, ``pathogen_max_size``,
+#: ``cytoplasm_min_size``) while no organelle one is. A blanket
+#: ``_size -> _area`` would retire all seven, and they do not even mean the
+#: same thing -- ``cell_min_size`` filters at MEASUREMENT time and
+#: ``cell_min_area`` at SEGMENTATION time, as `cell_min_size`'s own tooltip
+#: says. Deriving the scope cannot make that mistake.
+RENAMED_SETTING_SUFFIXES: Dict[str, str] = {
+    # All six landed in b7ae412af (2026-09-02), "retire organelle's duplicate
+    # size settings, rename four families" -- 90 settings across 26 organelle
+    # slots. None of them got a migration, which is what this table repairs.
+    "FT": "flow_threshold",
+    "CP_prob": "cellprob_threshold",
+    "Signal_to_noise": "signal_to_noise",
+    "min_object_area": "min_split_area",
+    "min_size": "min_area",
+    "max_size": "max_area",
+}
+
+
+def split_role_setting(key: str):
+    """``organellezz_min_split_area`` -> ``("organellezz", "min_split_area")``.
+
+    The inverse of :func:`role_setting`, and the reason a suffix rename can
+    cost six lines instead of 3,522. Every role is a single word with no
+    underscore, so partitioning on the FIRST one separates the role from the
+    suffix without scanning the 702 organelle slots.
+
+    NOT :func:`role_setting`'s validation: this accepts any role in
+    ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than
+    segmented and still declares ``cytoplasm_min_size``. Restricting to
+    segmented roles here would silently skip it.
+
+    A BARE KEY IS NOT A ROLE KEY, and that matters: ``FT``, ``CP_prob``,
+    ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their
+    own right in the standalone apply/test-model submodules. A key with no
+    underscore has no role, so it can never match a suffix rule.
+
+    :param key: a settings key.
+    :returns: ``(role, suffix)``, or ``None`` when ``key`` names no role.
+    """
+    role, separator, suffix = str(key).partition("_")
+    if not separator or not suffix or role not in ALL_ROLES:
+        return None
+    return role, suffix
+
+
 def enabled_organelle_roles(settings: Mapping[str, Any]) -> Tuple[str, ...]:
     """Organelle slots whose ``<role>_channel`` is enabled, in plane order.
 

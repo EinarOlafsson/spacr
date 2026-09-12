@@ -754,11 +754,6 @@ def _theme_wallpaper():
 #: point a dict meets the widgets, rather than in every producer.
 _RENAMED_SETTING_KEYS = {"png_dims": "png_channel_mapping"}
 
-#: ``organelleb_min_size`` -> role ``organelleb``, suffix ``min_size``.
-_ORGANELLE_SLOT_KEY = re.compile(
-    r"^(?P<role>organelle[a-z]*)_(?P<suffix>.+)$")
-
-
 def _translate_legacy_setting_keys(settings: dict) -> dict:
     """Rename retired setting keys so their values still reach a widget.
 
@@ -787,36 +782,47 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
     # to X" about the very file the panel had just dropped the value from.
     for key in list(out):
         replacement = _surviving_name_of(key)
-        if replacement and replacement != key:
-            out.setdefault(replacement, out.pop(key))
+        if not replacement or replacement == key:
+            continue
+        # A SPLIT IS A TUPLE OF NAMES, NOT A NAME. `control_wells` became
+        # `stain_baseline_wells` AND `analysis_excluded_wells`, and passing
+        # the pair straight to `setdefault` stored the value under a TUPLE
+        # key -- which no widget reads, so the value was lost exactly the way
+        # this function exists to prevent. Both halves get it, which is what
+        # the old key meant: a file that set it was setting both at once.
+        value = out.pop(key)
+        for name in ((replacement,) if isinstance(replacement, str)
+                     else tuple(replacement)):
+            out.setdefault(name, value)
     return out
 
 
 def _surviving_name_of(key: str):
     """What a retired setting is called now, or ``None`` if it is current.
 
-    :param key: the key a settings file carries.
-    :returns: the name that is read today, or ``None``.
-    """
-    from spacr.validate import RETIRED_SETTINGS
+    ONE RESOLVER, SHARED. This used to be the only place in spaCR that knew
+    the organelle suffix rule, and it had its own regex to do it -- so the Qt
+    panel migrated `organelleq_min_size` while the run ignored it and the
+    doctor said nothing about it. The rule now lives in
+    `spacr.settings.surviving_setting_name`, which all three consult, and the
+    regex is gone rather than generalised.
 
-    direct = RETIRED_SETTINGS.get(key)
-    if direct:
-        return direct
-    # THE GENERATED ORGANELLE SLOTS. The table names the first slot only --
-    # `organelle_min_size` -- but a run declares as many organelles as it
-    # likes and each slot repeats the same suffix, so a table of literals
-    # would migrate `organelleb` and silently miss `organellez`. The rename
-    # belongs to the SUFFIX, so it is looked up on the first slot's spelling
-    # and put back on the slot the key actually names.
-    match = _ORGANELLE_SLOT_KEY.match(key or "")
-    if match is None:
+    ALSO WHY THIS NO LONGER READS `RETIRED_SETTINGS` DIRECTLY: that table
+    contains withdrawals and one SEMANTIC migration as well as renames.
+    Reading it here folded `gradient_accumulation: False` straight onto
+    `gradient_accumulation_steps`, where `int()` makes it ZERO -- and a step
+    count of zero is not a state the code has. `steps = 1` is the off state,
+    which is what `settings._fold_gradient_accumulation` exists to produce.
+
+    :param key: the key a settings file carries.
+    :returns: the name read today, a tuple for a split, or ``None``.
+    """
+    from spacr.settings import surviving_setting_name
+
+    survivors = surviving_setting_name(key)
+    if not survivors:
         return None
-    suffix = match.group("suffix")
-    renamed = RETIRED_SETTINGS.get(f"organelle_{suffix}")
-    if not renamed or not renamed.startswith("organelle_"):
-        return None
-    return f"{match.group('role')}_{renamed[len('organelle_'):]}"
+    return survivors[0] if len(survivors) == 1 else tuple(survivors)
 
 
 def _elapsed_words(seconds: float) -> str:

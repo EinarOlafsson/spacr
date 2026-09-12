@@ -474,6 +474,16 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     """
     if settings is None:
         settings = {}
+    # THE OLD NAMES MUST MOVE BEFORE ANY DEFAULT IS FILLED IN, and this
+    # factory had no fold at all -- which is the largest half of the defect
+    # 364 recorded. Every `<role>_FT`, `<role>_CP_prob`,
+    # `<role>_Signal_to_noise` and `<role>_min_object_area` is declared here,
+    # and `_set_organelle_defaults` owns `organelle_min_area`/`_max_area`; so
+    # a settings CSV written before b7ae412af (2026-09-02) reached this
+    # function, matched nothing, and had every one of those values replaced
+    # by a default with nothing said. Measured before the fix:
+    # `cell_FT=0.42` came out as `cell_flow_threshold=100`.
+    _fold_renamed_settings(settings)
     # ── pipeline flavour ──────────────────────────────────────────────
     # 'v1' — the original multi-copy chain (rename → channel folders →
     #        npy → npz → mask npy → merged/). Stable, well-tested.
@@ -1157,6 +1167,11 @@ def set_default_umap_image_settings(settings=None):
     """
     if settings is None:
         settings = {}
+    # BEFORE THE DEFAULTS: this factory declares `reduction_method`, so it is
+    # where a file carrying the misspelt `redunction_method` has to be folded.
+    # `RETIRED_SETTINGS` has recorded that rename all along and the run never
+    # performed it.
+    _fold_renamed_settings(settings)
     settings.setdefault('src', 'path')
     settings.setdefault('row_limit', 1000)
     settings.setdefault('tables', ['cell', 'cytoplasm', 'nucleus', 'pathogen'])
@@ -1254,6 +1269,12 @@ def get_measure_crop_settings(settings=None):
     """
     if settings is None:
         settings = {}
+    # BEFORE THE ORGANELLE COUNT IS INFERRED, not merely before the defaults.
+    # A measure-crop CSV carries the organelle `_size` pair exactly as a mask
+    # CSV does, and `organelle_count` reads `organelle_*` keys to decide how
+    # many slots the file asked for -- so folding after it would count the
+    # old spellings as slots.
+    _fold_renamed_settings(settings)
     # Infer a pre-count settings file before defaults add placeholder
     # ``organelle_*`` keys. Once those placeholders exist they cannot be
     # distinguished from a legacy file that genuinely requested slot one.
@@ -1662,7 +1683,149 @@ RENAMED_SETTINGS = {
     # without setting the other. The old value goes to BOTH new names, so a
     # settings file written before the split behaves exactly as it did.
     "control_wells": ("stain_baseline_wells", "analysis_excluded_wells"),
+    # THE FOUR THE DOCTOR ALREADY REPORTED AND THE RUN NEVER PERFORMED.
+    # `spacr.validate.RETIRED_SETTINGS` has named all four as renames since
+    # they landed, so `spacr-doctor` said "renamed to X" about a file whose
+    # value the run then dropped on the floor and replaced with a default.
+    # Measured before adding them: each was absent here, the new key was
+    # never created, and the old key sat in the dict inert.
+    #
+    # NOTHING CHECKED THAT THE TWO TABLES AGREED, which is how four of them
+    # accumulated. `tests/test_the_two_settings_tables_agree.py` now does.
+    "minimum_cell_count": "min_cells_per_well",
+    "redunction_method": "reduction_method",
+    # `organelle_min_size` / `organelle_max_size` ARE DELIBERATELY NOT HERE.
+    # They are the first spelling of a ROLE-FAMILY rename, and
+    # `object_roles.RENAMED_SETTING_SUFFIXES` already carries
+    # `min_size -> min_area` for every slot -- so a literal entry would be a
+    # second route to the same answer for `organelle` and no route at all for
+    # `organelleq`, which is the shape of the bug being fixed. Verified by
+    # deleting them: the agreement test still passes, because the suffix rule
+    # performs them.
 }
+
+#: Retired names whose migration is SEMANTIC and must not be a plain move.
+#:
+#: `gradient_accumulation` was a boolean beside `gradient_accumulation_steps`,
+#: and `steps = 1` already IS the off state -- so the value does not move, it
+#: COLLAPSES: a stored `false` means one step, whatever the step count says.
+#: `_fold_gradient_accumulation` does that. Copying the boolean onto the step
+#: count instead puts `False` where an `int()` is waiting.
+#:
+#: DECLARED HERE RATHER THAN MERELY ABSENT FROM `RENAMED_SETTINGS`, because
+#: absence is a fact with no guard and the agreement test would otherwise read
+#: it as the fifth missing rename and demand it be added. This is also not
+#: hypothetical: the Qt loader reads `RETIRED_SETTINGS` directly, and
+#: `_translate_legacy_setting_keys({'gradient_accumulation': False})` returns
+#: `{'gradient_accumulation_steps': False}` today -- the exact bug, already
+#: shipped in one consumer, and the reason the run's table stays separate.
+SEMANTIC_FOLDS = frozenset({"gradient_accumulation"})
+
+
+#: How many renames one key may pass through before the chain is called a
+#: cycle. 391 already creates a two-hop chain
+#: (``_min_object_area -> _min_split_area -> _minimum_area_to_split``), so a
+#: chain is normal; an unbounded one is not.
+_RENAME_HOP_LIMIT = 8
+
+
+def _renamed_suffix_name(key):
+    """One step of a ROLE-FAMILY rename, or ``None``.
+
+    Built as ``f"{role}_{new}"`` rather than through
+    :func:`spacr.object_roles.role_setting`, which raises for ``cytoplasm``
+    -- derived rather than segmented, and still declaring
+    ``cytoplasm_min_size``.
+    """
+    from .object_roles import RENAMED_SETTING_SUFFIXES, split_role_setting
+
+    parts = split_role_setting(key)
+    if parts is None:
+        return None
+    role, suffix = parts
+    new = RENAMED_SETTING_SUFFIXES.get(suffix)
+    return None if new is None else f"{role}_{new}"
+
+
+def _resolve_rename(key):
+    """Walk ``key`` to the end of its rename chain.
+
+    ONE WALK, used by both the resolver and the collision ordering, because
+    two copies of a fixed-point loop is two chances to disagree about where a
+    key ends up -- which is the bug this whole change exists to fix, in
+    miniature.
+
+    :param key: the key a settings file carries.
+    :returns: ``(names, hops)``. ``names`` is empty when the chain cycles or
+        runs past the hop limit.
+    """
+    names, seen, hops = (str(key),), {str(key)}, 0
+    while hops < _RENAME_HOP_LIMIT:
+        step = ()
+        for name in names:
+            direct = RENAMED_SETTINGS.get(name)
+            if direct is None:
+                direct = _renamed_suffix_name(name)
+            if direct is None:
+                # Already terminal: carry it, so a split whose halves have
+                # different chain lengths does not lose the shorter one.
+                step += (name,)
+            elif isinstance(direct, str):
+                step += (direct,)
+            else:
+                step += tuple(direct)
+        if step == names:
+            return names, hops
+        if any(name in seen for name in step):
+            # A CYCLE LEAVES THE KEY ALONE rather than guessing. The key
+            # keeps its own name and the unknown-key check reports it, which
+            # is much better than migrating it somewhere arbitrary.
+            return (), hops
+        seen.update(step)
+        names, hops = step, hops + 1
+    return (), hops
+
+
+def surviving_setting_name(key):
+    """What ``key`` is called TODAY, following renames to the end.
+
+    ONE RESOLVER FOR ALL THREE CONSUMERS -- the run's fold, the doctor's
+    message and the Qt panel's load. They used to answer this question three
+    different ways: the run knew only `RENAMED_SETTINGS`, the doctor only
+    `RETIRED_SETTINGS`, and the Qt panel alone knew the organelle suffix
+    rule. That is why `organelleq_min_size` was migrated by the panel,
+    ignored by the run and unmentioned by the doctor, all at once.
+
+    A CHAIN IS THE FAILURE THIS EXISTS FOR. 391 renames
+    ``<role>_min_split_area`` to ``<role>_minimum_area_to_split``, and
+    ``<role>_min_object_area`` was already renamed to ``_min_split_area`` --
+    so the oldest files need two hops, and a resolver that takes one leaves
+    the value on a key nothing reads.
+
+    LIVENESS IS CHECKED AT THE TERMINUS ONLY. Checking each hop would refuse
+    the middle of a valid chain, because an intermediate name is by
+    definition no longer live. Refusing when the old key is ITSELF still live
+    is what stops a suffix rule retiring a working setting -- seven ``_size``
+    keys are live and must not be touched.
+
+    :param key: the key a settings file carries.
+    :returns: a tuple of the names read today -- empty when ``key`` is
+        current, withdrawn, unknown, or resolves through a cycle.
+    """
+    key = str(key)
+    if key in SEMANTIC_FOLDS:
+        # Not a move. Its own fold performs it; saying otherwise here would
+        # put a boolean where an int() is waiting.
+        return ()
+    live = expected_types
+    if key in live:
+        return ()
+    names, _hops = _resolve_rename(key)
+    if not names or names == (key,):
+        return ()
+    if not all(name in live for name in names):
+        return ()
+    return names
 
 
 def _fold_renamed_settings(settings):
@@ -1673,23 +1836,58 @@ def _fold_renamed_settings(settings):
     preferring the old one would make a corrected settings file behave
     like the uncorrected one.
 
+    ITERATES THE SETTINGS, NOT THE TABLE. The table is no longer a list of
+    old names -- six suffix rules stand in for 3,522 of them -- so there is
+    nothing to iterate. Reading the ~60 keys a settings file actually has is
+    also cheaper than the 45 table rows this used to walk.
+
+    NEAREST SPELLING WINS ON A COLLISION, by hop distance rather than by
+    whichever the dict happened to yield first. Two old spellings can reach
+    one new name: `min_cell_count` and `minimum_cell_count` both become
+    `min_cells_per_well`, and after 391 `<role>_min_object_area` (two hops)
+    and `<role>_min_split_area` (one hop) both reach
+    `<role>_minimum_area_to_split`. Without an order the winner was whichever
+    column the CSV happened to list first.
+
+    IT SAYS WHAT IT DID. A file that read `cell_FT=0.42` as the default 100
+    yesterday reads it as 0.42 today, and the masks change -- correctly, but
+    a user who is not told will think their data changed. The common case is
+    not a collision, it is one old key taking effect for the first time, so
+    every performed migration gets a line. A current settings file has no old
+    keys and so prints nothing.
+
     :param settings: the settings mapping, edited in place.
     :returns: the same mapping, for chaining.
     """
     if not isinstance(settings, dict):
         return settings
-    for old, new in RENAMED_SETTINGS.items():
-        if old not in settings:
+    # Resolve first, mutate second: `surviving_setting_name` consults
+    # `expected_types`, and editing while resolving would let one migration
+    # change another's answer.
+    moves = []
+    for old in list(settings):
+        if not isinstance(old, str):
             continue
-        value = settings.pop(old)
-        # A TUPLE IS A SPLIT, NOT A RENAME, and the old value goes to BOTH.
-        # `control_wells` meant two different things to two modules; a
-        # settings file that set it was setting both of them at once, so
-        # sending the value to only one half would change what the other
-        # does. Copying it to both preserves exactly what that file did
-        # before the split, and the user can then set whichever they meant.
-        for name in ((new,) if isinstance(new, str) else tuple(new)):
-            settings.setdefault(name, value)
+        targets = surviving_setting_name(old)
+        if targets:
+            _names, hops = _resolve_rename(old)
+            moves.append((hops, old, targets))
+    # NEAREST FIRST, then alphabetically so the answer cannot depend on the
+    # order the CSV happened to list its columns in.
+    for _hops, old, targets in sorted(moves, key=lambda row: (row[0], row[1])):
+        value = settings.pop(old, None)
+        for name in targets:
+            if name in settings:
+                LOG.warning(
+                    "this settings file names both %r and %r. Keeping the "
+                    "value already under %r and ignoring %r=%r.",
+                    old, name, name, old, value)
+                continue
+            settings[name] = value
+            LOG.info(
+                "%s=%r is now applied as %s. It was renamed, this file still "
+                "uses the old name, and until now the value was ignored and "
+                "the default used.", old, value, name)
     return settings
 
 
