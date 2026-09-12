@@ -1980,7 +1980,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # what staled the API catalogs and the other two ratchets -- it landed
     # with 377 AFTER the catalogs were built, which is the mid-batch
     # arrival 288's rule exists to prevent.
-    assert len(callables) == len(by_symbol) == 8_585
+    # 8,585 -> 8,587 on 2026-09-12, +2/-0: 364's migration adds two public
+    # resolvers, `spacr.object_roles.split_role_setting` and
+    # `spacr.settings.surviving_setting_name`. Both are module-level
+    # functions, which is why every bucket below moves by the same two.
+    assert len(callables) == len(by_symbol) == 8_587
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2011,7 +2015,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # WITHOUT the total moving, or the other way round, would mean a
     # symbol changed category rather than arrived.
     assert Counter(item.category for item in callables) == {
-        "function": 3_724,
+        "function": 3_726,
         "method": 3_804,
         "constructor": 394,
         "dataclass_constructor": 459,
@@ -2033,7 +2037,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `cli_only` and `compatibility` are unmoved. Those two are the buckets
     # that would catch a symbol reaching the user by some other route.
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_580,
+        "autoapi": 8_582,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2060,9 +2064,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # variants keep tracking callables one for one and the seven two-variant
     # entries are unchanged. That last part is the one worth asserting -- a
     # new overload pair would be a different event from a new callable.
-    assert sum(item.variant_count for item in callables) == 8_592
+    assert sum(item.variant_count for item in callables) == 8_594
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_578,
+        1: 8_580,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2142,10 +2146,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # parameter, so this moves by one alongside the callable count. A
     # parameter total that moved WITHOUT the callable count moving would
     # mean an existing signature changed, which is a different event.
-    assert sum(len(item.parameters) for item in callables) == 17_064
+    assert sum(len(item.parameters) for item in callables) == 17_066
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
-    assert sum(len(item.required_parameters) for item in callables) == 8_666
+    assert sum(len(item.required_parameters) for item in callables) == 8_668
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -2168,7 +2172,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,585 symbols changed category, exposure, parameter names or variant
     # counts, which is exactly what a bare hash bump cannot tell anybody.
     # That subtraction is cheap and is the right way to move this line.
-    ) == "28dea135c2071385cdfd85742745c5a115a06d32bd5aeb98c701e3d1183663da"
+    #
+    # Moved again 2026-09-12 for 364's two resolvers, and proved the same
+    # way: the digest recomputed without `split_role_setting` and
+    # `surviving_setting_name` returns 28dea135..., the previous pin, byte
+    # for byte. Nothing else among 8,587 symbols moved.
+    ) == "37b9ccc0af40101329f1b6154738d164de9f9c1db5ca6cfc4ad1e0f6cefc537d"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2569,7 +2578,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # for: the two are measured by different code and agreeing is the
     # evidence. One moving alone would mean the two disagree about what the
     # public surface is.
-    assert len(docs) == 10_398
+    assert len(docs) == 10_400
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -2590,7 +2599,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 8,579 -> 8,580, the same single arrival: `border_rules_agree` is
     # rendered AND documented, so it lands in both this set and the
     # extractor's, which is what makes the two halves agree.
-    assert len(rendered_documented_callables) == 8_580
+    assert len(rendered_documented_callables) == 8_582
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

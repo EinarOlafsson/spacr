@@ -111,7 +111,11 @@ TOOLS = ROOT / "tools"
 #: it landed AFTER they were built, which is exactly the mid-batch arrival
 #: 288's rule warns about, and it took nine locales red until the repair
 #: pass cleared it.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_398
+#: 10,398 -> 10,400 on 2026-09-12, +2/-0, and both arrived with 364's
+#: settings migration: `spacr.object_roles.split_role_setting` and
+#: `spacr.settings.surviving_setting_name`. Measured by differencing the
+#: symbol sets against the previous measurement, not by subtracting counts.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_400
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

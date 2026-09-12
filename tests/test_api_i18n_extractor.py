@@ -1018,7 +1018,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # by 377 after the catalogs were built. The nine catalogs were rebuilt
     # and repaired against this inventory before the number was touched,
     # which is the order this file's own message asks for.
-    expected = 10_398
+    # 10,398 -> 10,400 with 364's `split_role_setting` and
+    # `surviving_setting_name`, the two public resolvers its migration adds.
+    expected = 10_400
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1051,7 +1053,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # docstring as well. The nine catalogs were regenerated against this
     # inventory before the number was touched, which is the order this
     # file's own message asks for.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_398
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_400
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1227,7 +1229,12 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # does not. Measuring both is still the only way to know that, because
     # the case where they move in OPPOSITE directions looks identical from
     # either half alone.
-    assert 10_616 - len(docs) == 218
+    # 10,616 -> 10,618 with 364's two, and BOTH halves re-measured in one
+    # run with the filter neutralised rather than either inferred from the
+    # other: pre-filter 10,618, post-filter 10,400, boundary 218 again.
+    # Two more rendered symbols, so again both move and the boundary does
+    # not.
+    assert 10_618 - len(docs) == 218
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
