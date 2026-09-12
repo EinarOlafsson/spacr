@@ -1886,22 +1886,16 @@ def _specs() -> List[Spec]:
             "border": ("cell_remove_border_objects",),
             "minimum": ("cell_min_area", "cell_min_size"),
             "maximum": ("cell_max_area",),
-            "dim": ("cell_min_intensity_percentile",),
-            "bright": ("cell_max_intensity_percentile",),
         },
         "nucleus": {
             "border": ("nucleus_remove_border_objects",),
             "minimum": ("nucleus_min_area", "nucleus_min_size"),
             "maximum": ("nucleus_max_area",),
-            "dim": ("nucleus_min_intensity_percentile",),
-            "bright": ("nucleus_max_intensity_percentile",),
         },
         "pathogen": {
             "border": ("pathogen_remove_border_objects",),
             "minimum": ("pathogen_min_area", "pathogen_min_size"),
             "maximum": ("pathogen_max_area",),
-            "dim": ("pathogen_min_intensity_percentile",),
-            "bright": ("pathogen_max_intensity_percentile",),
         },
         "organelle": {
             "border": (
@@ -1923,8 +1917,6 @@ def _specs() -> List[Spec]:
             # list two times over.
             "minimum": ("organelle_min_area",),
             "maximum": ("organelle_max_area",),
-            "dim": ("organelle_min_intensity_percentile",),
-            "bright": ("organelle_max_intensity_percentile",),
         },
     }
     names = {
@@ -1962,14 +1954,13 @@ def _specs() -> List[Spec]:
         specs.append(Spec(
             f"{kind}_intensity_merge", f"{kind.capitalize()} intensity merge",
             "Mask repair", "merge",
-            (f"{kind}_intensity_merge", f"{kind}_intensity_threshold_method",
-             f"{kind}_intensity_percentile"),
+            (f"{kind}_intensity_merge", f"{kind}_intensity_threshold"),
             {"kind": kind, "intensity": True},
         ))
         specs.append(Spec(
             f"{kind}_intensity_split", f"{kind.capitalize()} watershed split",
             "Mask repair", "split",
-            (f"{kind}_intensity_split", f"{kind}_area_multiplier",
+            (f"{kind}_intensity_split",
              f"{kind}_min_watershed_distance", f"{kind}_minimum_area_to_split"),
             {"kind": kind},
         ))

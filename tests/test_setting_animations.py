@@ -25,7 +25,11 @@ def test_registry_has_complete_unique_exact_key_mapping():
     animations = setting_animations()
     by_setting = animations_by_setting()
 
-    assert len(animations) == 94
+    # 94 -> 86 on 2026-09-12. Instruction 391 removed five relative
+    # settings, and eight animations documented them: the dim/bright
+    # intensity-percentile pair at four object roles. An animation for a
+    # setting that no longer exists is a docs row pointing at nothing.
+    assert len(animations) == 86
     # 143 before 2026-08-11. Six alias entries pointed at settings
     # that were RETIRED that day (all_to_mip, pick_slice and the four
     # remove_border_* spellings); each animation still carries the
@@ -46,8 +50,11 @@ def test_registry_has_complete_unique_exact_key_mapping():
     # rename there is no live key to move the mapping to. The animation
     # itself stays; it illustrates `normalization_percentiles` and
     # `normalize`, which both act.
-    assert len(by_setting) == 134
-    assert len({animation.slug for animation in animations}) == 94
+    # 134 -> 118 on 2026-09-12, and it is -16 rather than -8 because the
+    # eight animations 391 removed each mapped TWO settings: the dim and
+    # bright halves of the intensity-percentile band, at four roles.
+    assert len(by_setting) == 118
+    assert len({animation.slug for animation in animations}) == 86
     assert animation_for_setting("merge_edge_pathogen_cells").slug == (
         "merge_edge_pathogen_cells"
     )
@@ -58,12 +65,12 @@ def test_registry_has_complete_unique_exact_key_mapping():
 
 def test_every_asset_is_square_animated_and_matches_manifest_hash():
     summary = validate_setting_animation_assets(check_hashes=True)
-    assert summary["animations"] == 94
+    assert summary["animations"] == 86
     # 135 -> 134 on 2026-09-09: `normalize_plots` left the
     # `normalization_percentiles` spec when it was retired (357-Q4).
     # Nothing read it, so an animation offered under its name illustrated
     # a control the run does not have.
-    assert summary["setting_keys"] == 134
+    assert summary["setting_keys"] == 118
     assert summary["bytes"] > 0
 
     for animation in setting_animations():

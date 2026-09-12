@@ -391,3 +391,96 @@ change: they touch `settings.py` keys, the 364 generated tables and ten
 runtime catalogs, which is the lane that can freeze the public docs site
 (only main deploys to Pages). Sequenced after the pending nightly -> main
 merge rather than during it.
+
+--------------------------------------------------------------------------------
+2026-09-12 -- PARTS ONE, TWO AND THREE ARE BUILT. ALL SIX PARTS ARE NOW CLOSED
+EXCEPT THE CATALOG REBUILD, WHICH IS DELIBERATELY BATCHED.
+--------------------------------------------------------------------------------
+
+PART THREE first (commit 9fc41242d), because its machinery paid for the rest.
+
+    <role>_min_distance    -> <role>_min_watershed_distance
+    <role>_min_split_area  -> <role>_minimum_area_to_split
+
+Keys and labels, across cell/nucleus/pathogen and all 702 organelle slots. The
+migration cost two lines, because 364's resolver had landed that morning -- and
+these renames created its first real CHAIN:
+
+    <role>_min_object_area -> <role>_min_split_area -> <role>_minimum_area_to_split
+
+A file written before b7ae412af needs BOTH hops. Verified end to end through
+the real factory: `cell_min_object_area=777` arrives at
+`cell_minimum_area_to_split` with no dead key left behind.
+
+  THE TRAP A LITERAL RENAME MISSES caught two files. `object.py` builds these
+  keys with an f-string (`f'{object_type}_min_split_area'`) and
+  `generate_setting_animations.py` did the same, so a role-anchored
+  substitution walks past both. The bare `min_distance=` in `utils.py`,
+  `diameter.py` and `object_distances.py` is skimage's kwarg and is NOT this
+  setting; it stays.
+
+  COMPARTMENT_FIELDS writes its keys WITHOUT the leading underscore, which is
+  exactly how b7ae412af missed them. Noted in place for the next rename.
+
+PARTS ONE AND TWO (commit 750469359). Five relative settings removed at four
+roles -- the method dropdown, the merge percentile, both filter percentiles and
+the area multiplier -- replaced by ONE absolute `<role>_intensity_threshold` in
+raw image units.
+
+  IT REFUSES, AND SAYS WHICH REFUSAL. A threshold above every shared boundary
+  merges nothing; one below every boundary merges the field into one object.
+  Both were silent, and both look like the setting having no effect rather than
+  far too much. `_merge_by_intensity` returns a line naming what happened and
+  the boundary range it measured, so the number to type next is on screen. With
+  no threshold at all it refuses and reports the range -- there is no safe
+  default, because raw counts do not travel between exposures, and the tooltip
+  says so rather than letting a user assume they do.
+
+  THE INTENSITY BAND WAS A QUOTA, NOT A FILTER. It dropped objects outside a
+  quantile of the FIELD'S OWN distribution, so it removed its share however
+  bright the field: 0/99 dropped the brightest object in every field whatever
+  its intensity, and with two objects it dropped one unconditionally. There was
+  no value meaning "do nothing" except the endpoints -- which is how the live
+  preview once defaulted to 1/99 against the pipeline's 0/100 and silently
+  disagreed with it.
+
+  REMOVING `area_multiplier` REMOVES THE MEDIAN TERM. The split threshold was
+  `max(area_multiplier * median_area, min_object_area)` and is now the absolute
+  `<role>_minimum_area_to_split` alone. A BEHAVIOUR CHANGE, FOR THE RELEASE
+  NOTES: the same object used to be split in a dish of small cells and kept in
+  a dish of large ones.
+
+  NOTHING IS DROPPED SILENTLY. A new `WITHDRAWN_SETTING_SUFFIXES` is the
+  parallel of the rename rule and exists for the same reason -- 705 roles carry
+  each, so a literal table would name the first spelling and go quiet for every
+  generated slot beside it. One case was WORSE than silent: the fuzzy matcher
+  pointed `<role>_intensity_threshold_method`, which held 'mean', at the new
+  `<role>_intensity_threshold`, which holds a float. Wrong advice is followed;
+  silence at least gets investigated. Suppressed.
+
+THE 364 CHECKLIST, run rather than assumed: settings_flow.json,
+settings_flow.rst, settings_flow_index.py, setting_consumers.json,
+setting_api_targets.py, the animations manifest and docs page, and all three
+shipped notebooks. Eight animations documented removed settings and are gone
+with them; their GIFs are deleted rather than orphaned. Four count ratchets
+moved, each with its arithmetic written down, because none of them is the
+number a reader would guess: the default-claims census -16/+4 rather than -20,
+and the animation key map -16 rather than -8 because each removed animation
+mapped two settings.
+
+NO REVIEWED TRANSLATION WAS LOST. The runtime reporter written under 394 turned
+part three into a work list of 7 records: 4 MOVED and 3 the tool called STALE.
+Those 3 were stale only because their English CITES a renamed setting -- and an
+identifier is not translated, it appears verbatim in the Spanish and the
+Chinese -- so the same substitution repaired both sides. 4 keys re-bound, 3
+sources and translations renamed, 0 deleted.
+
+WHAT IS LEFT, AND IT IS ONE THING: THE CATALOG REBUILD. `setting_consumers.json`
+and `setting_api_targets.py` still carry rows naming the removed and renamed
+keys. They are not hand-editable: `build_setting_consumer_map.py` unions the EN
+i18n catalog's `SETTING_TOOLTIPS` into its vocabulary, and that catalog has 140
+references to the removed names because it has not been rebuilt since. The fix
+is the rebuild, and it is deliberately BATCHED -- part three and parts one/two
+are paid for in one pass rather than one per commit, at the other session's
+request and at about forty minutes a pass. A green build is not a green audit:
+budget the repair pass after it.

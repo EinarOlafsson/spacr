@@ -14,9 +14,9 @@
       "slug": "cell_remove_border_objects",
       "title": "Cell \u2014 Remove border objects",
       "validation": {
-        "bytes": 131283,
+        "bytes": 117934,
         "frames": 20,
-        "sha256": "e825f2e70f09a0d86978d6306772a1ae58b31f9fd8ec41e9cd3ae945754db7c5",
+        "sha256": "f1d3ba8ea9bf9318c85bc0aff1aeb2e2ecbaf16848ef2d5a0e1b25457b555755",
         "unique_frames": 19
       }
     },
@@ -55,49 +55,9 @@
       "slug": "cell_max_area",
       "title": "Cell \u2014 Maximum object area",
       "validation": {
-        "bytes": 112596,
+        "bytes": 40836,
         "frames": 18,
-        "sha256": "c434d4b1790ce6e65ba6283aea7653873b80f7d3223faa5adcba724575a5e4c8",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask filtering",
-      "file": "gifs/cell_min_intensity_percentile.gif",
-      "params": {
-        "kind": "cell",
-        "variant": "dim"
-      },
-      "scene": "filter",
-      "settings": [
-        "cell_min_intensity_percentile"
-      ],
-      "slug": "cell_min_intensity_percentile",
-      "title": "Cell \u2014 Minimum intensity percentile",
-      "validation": {
-        "bytes": 38108,
-        "frames": 18,
-        "sha256": "c90c464d90d3a5b7d6678fe61d1b27544d9bd3635e43a84116efebd7b102ee93",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask filtering",
-      "file": "gifs/cell_max_intensity_percentile.gif",
-      "params": {
-        "kind": "cell",
-        "variant": "bright"
-      },
-      "scene": "filter",
-      "settings": [
-        "cell_max_intensity_percentile"
-      ],
-      "slug": "cell_max_intensity_percentile",
-      "title": "Cell \u2014 Maximum intensity percentile",
-      "validation": {
-        "bytes": 40021,
-        "frames": 18,
-        "sha256": "6f04c3f62efa6388f662699f490a39f86379a7473ef123885a0a490cb39549c4",
+        "sha256": "a7342f9f69a33b6c7cd51b6c3c4cc749b084b88de740f91da9a42aeeb08f24b2",
         "unique_frames": 17
       }
     },
@@ -115,9 +75,9 @@
       "slug": "nucleus_remove_border_objects",
       "title": "Nucleus \u2014 Remove border objects",
       "validation": {
-        "bytes": 140649,
+        "bytes": 137957,
         "frames": 20,
-        "sha256": "243477fe6ae7ff3b578398e51b6b05fbaf4b70e712aa34fa14e8df500d7ae943",
+        "sha256": "eb6c6e1471d26a1027feaa3a386f40de8643585a48d30210aab205d6b56ef574",
         "unique_frames": 19
       }
     },
@@ -136,9 +96,9 @@
       "slug": "nucleus_min_area",
       "title": "Nucleus \u2014 Minimum object area",
       "validation": {
-        "bytes": 138762,
+        "bytes": 69774,
         "frames": 18,
-        "sha256": "30db6757234a467cc6a95f41b442536645d39a0704cc748894d5c16d09922bc7",
+        "sha256": "6fce1628f0cecd92b011d76b9d4c5d9f83edecc726c878fb0b0a813e28fb250f",
         "unique_frames": 17
       }
     },
@@ -156,49 +116,9 @@
       "slug": "nucleus_max_area",
       "title": "Nucleus \u2014 Maximum object area",
       "validation": {
-        "bytes": 121503,
+        "bytes": 71402,
         "frames": 18,
-        "sha256": "47901959e70804624ad1241fc94920ce3fc63565fe2cf12977330d86318933b6",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask filtering",
-      "file": "gifs/nucleus_min_intensity_percentile.gif",
-      "params": {
-        "kind": "nucleus",
-        "variant": "dim"
-      },
-      "scene": "filter",
-      "settings": [
-        "nucleus_min_intensity_percentile"
-      ],
-      "slug": "nucleus_min_intensity_percentile",
-      "title": "Nucleus \u2014 Minimum intensity percentile",
-      "validation": {
-        "bytes": 67735,
-        "frames": 18,
-        "sha256": "b0684b73479e4c8fb05d7a772b241b1c2f45f48156064ad6571ca237d112f352",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask filtering",
-      "file": "gifs/nucleus_max_intensity_percentile.gif",
-      "params": {
-        "kind": "nucleus",
-        "variant": "bright"
-      },
-      "scene": "filter",
-      "settings": [
-        "nucleus_max_intensity_percentile"
-      ],
-      "slug": "nucleus_max_intensity_percentile",
-      "title": "Nucleus \u2014 Maximum intensity percentile",
-      "validation": {
-        "bytes": 68592,
-        "frames": 18,
-        "sha256": "252a7459a22b8dac1a7ad4084f9005276caebab4d5cc53f8dde8496ea5812a5c",
+        "sha256": "56f8c6f539c41b2207918572ac8133d4aac46e40632a4e9144a9477138b0c9ba",
         "unique_frames": 17
       }
     },
@@ -216,9 +136,9 @@
       "slug": "pathogen_remove_border_objects",
       "title": "Pathogen \u2014 Remove border objects",
       "validation": {
-        "bytes": 218466,
+        "bytes": 215043,
         "frames": 20,
-        "sha256": "2d3f1b448c5f81cd5edde2e9a88c363d60d26589f88ba56b96e83377cd0fbc0a",
+        "sha256": "50479b476492d7f8ab0a4f322f924a5f82b3071d4cafe3a8c2ba4bec42a3d6f2",
         "unique_frames": 19
       }
     },
@@ -257,49 +177,9 @@
       "slug": "pathogen_max_area",
       "title": "Pathogen \u2014 Maximum object area",
       "validation": {
-        "bytes": 173068,
+        "bytes": 127223,
         "frames": 18,
-        "sha256": "70fec62a6155396fad33e73ff962d03d787b86521fa764f37c04b13b4d7903f7",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask filtering",
-      "file": "gifs/pathogen_min_intensity_percentile.gif",
-      "params": {
-        "kind": "pathogen",
-        "variant": "dim"
-      },
-      "scene": "filter",
-      "settings": [
-        "pathogen_min_intensity_percentile"
-      ],
-      "slug": "pathogen_min_intensity_percentile",
-      "title": "Pathogen \u2014 Minimum intensity percentile",
-      "validation": {
-        "bytes": 136919,
-        "frames": 18,
-        "sha256": "f54977eda72d0f072bfabf299efb9bbcdf884dc73a4ccfc3a0c48ccff150cd8f",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask filtering",
-      "file": "gifs/pathogen_max_intensity_percentile.gif",
-      "params": {
-        "kind": "pathogen",
-        "variant": "bright"
-      },
-      "scene": "filter",
-      "settings": [
-        "pathogen_max_intensity_percentile"
-      ],
-      "slug": "pathogen_max_intensity_percentile",
-      "title": "Pathogen \u2014 Maximum intensity percentile",
-      "validation": {
-        "bytes": 155932,
-        "frames": 18,
-        "sha256": "3b5c3df08060fba972b874fe6d06cb0f5d586b74117e8ed3714200f70a2c595f",
+        "sha256": "28bccfc78811883c2a6b1d618ef656f62955b01aa48fb1ed1e035adbd75eecde",
         "unique_frames": 17
       }
     },
@@ -318,9 +198,9 @@
       "slug": "organelle_remove_border_objects",
       "title": "Organelle \u2014 Remove border objects",
       "validation": {
-        "bytes": 274695,
+        "bytes": 273091,
         "frames": 20,
-        "sha256": "f2889e048d622c6750ecd2432cf6ed4863cf50e271b096c8c87d3f1baa72b3ef",
+        "sha256": "5ea1766d03837407afd1611b35b2344cb17bf5125b023dc8be2fe9e05c1f93ba",
         "unique_frames": 19
       }
     },
@@ -358,49 +238,9 @@
       "slug": "organelle_max_area",
       "title": "Organelle \u2014 Maximum object area",
       "validation": {
-        "bytes": 210851,
+        "bytes": 142952,
         "frames": 18,
-        "sha256": "c2d408544dd8f0a0112c16c76d9935294ff5d8733d5eea29c2c8e40a1674bf8e",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask filtering",
-      "file": "gifs/organelle_min_intensity_percentile.gif",
-      "params": {
-        "kind": "organelle",
-        "variant": "dim"
-      },
-      "scene": "filter",
-      "settings": [
-        "organelle_min_intensity_percentile"
-      ],
-      "slug": "organelle_min_intensity_percentile",
-      "title": "Organelle \u2014 Minimum intensity percentile",
-      "validation": {
-        "bytes": 144037,
-        "frames": 18,
-        "sha256": "1268c447c1ea94c5333009336c51123ba5eccf31c5866dcd5fe39ccbf38ce58d",
-        "unique_frames": 17
-      }
-    },
-    {
-      "category": "Mask filtering",
-      "file": "gifs/organelle_max_intensity_percentile.gif",
-      "params": {
-        "kind": "organelle",
-        "variant": "bright"
-      },
-      "scene": "filter",
-      "settings": [
-        "organelle_max_intensity_percentile"
-      ],
-      "slug": "organelle_max_intensity_percentile",
-      "title": "Organelle \u2014 Maximum intensity percentile",
-      "validation": {
-        "bytes": 137771,
-        "frames": 18,
-        "sha256": "cce0014d777288c1a5d75e04778065bd2c50bf3a53864c5fee0362e1535a74bf",
+        "sha256": "7b2b7b9393230523b6f79c04e4a58f214976f63a2ef4f81d5a6ed7609e7af4e0",
         "unique_frames": 17
       }
     },
@@ -415,9 +255,9 @@
       "slug": "merge_edge_pathogen_cells",
       "title": "Merge edge-pathogen cells",
       "validation": {
-        "bytes": 230084,
+        "bytes": 178185,
         "frames": 18,
-        "sha256": "b467082247c4c11303e1e61531e0ace4b702e8680624df07417190852d109049",
+        "sha256": "b9170248840f5b2b1010b522b670e757335a80b4da0058e32675b5de1fae5535",
         "unique_frames": 17
       }
     },
@@ -432,9 +272,9 @@
       "slug": "adjust_cells",
       "title": "Adjust fragmented cells",
       "validation": {
-        "bytes": 192265,
+        "bytes": 143042,
         "frames": 18,
-        "sha256": "1c693d5441433a05a905120aced95cb4d940d5571073bcf0bda6ea84886996c4",
+        "sha256": "3de654bc2e5a3036f5955bde994d68ed2a8dbb1c2e1f0f152c517615560d7610",
         "unique_frames": 17
       }
     },
@@ -467,8 +307,7 @@
       "scene": "merge",
       "settings": [
         "cell_intensity_merge",
-        "cell_intensity_threshold_method",
-        "cell_intensity_percentile"
+        "cell_intensity_threshold"
       ],
       "slug": "cell_intensity_merge",
       "title": "Cell intensity merge",
@@ -488,7 +327,6 @@
       "scene": "split",
       "settings": [
         "cell_intensity_split",
-        "cell_area_multiplier",
         "cell_min_watershed_distance",
         "cell_minimum_area_to_split"
       ],
@@ -530,8 +368,7 @@
       "scene": "merge",
       "settings": [
         "nucleus_intensity_merge",
-        "nucleus_intensity_threshold_method",
-        "nucleus_intensity_percentile"
+        "nucleus_intensity_threshold"
       ],
       "slug": "nucleus_intensity_merge",
       "title": "Nucleus intensity merge",
@@ -551,7 +388,6 @@
       "scene": "split",
       "settings": [
         "nucleus_intensity_split",
-        "nucleus_area_multiplier",
         "nucleus_min_watershed_distance",
         "nucleus_minimum_area_to_split"
       ],
@@ -593,8 +429,7 @@
       "scene": "merge",
       "settings": [
         "pathogen_intensity_merge",
-        "pathogen_intensity_threshold_method",
-        "pathogen_intensity_percentile"
+        "pathogen_intensity_threshold"
       ],
       "slug": "pathogen_intensity_merge",
       "title": "Pathogen intensity merge",
@@ -614,7 +449,6 @@
       "scene": "split",
       "settings": [
         "pathogen_intensity_split",
-        "pathogen_area_multiplier",
         "pathogen_min_watershed_distance",
         "pathogen_minimum_area_to_split"
       ],
@@ -656,8 +490,7 @@
       "scene": "merge",
       "settings": [
         "organelle_intensity_merge",
-        "organelle_intensity_threshold_method",
-        "organelle_intensity_percentile"
+        "organelle_intensity_threshold"
       ],
       "slug": "organelle_intensity_merge",
       "title": "Organelle intensity merge",
@@ -677,7 +510,6 @@
       "scene": "split",
       "settings": [
         "organelle_intensity_split",
-        "organelle_area_multiplier",
         "organelle_min_watershed_distance",
         "organelle_minimum_area_to_split"
       ],
@@ -741,9 +573,9 @@
       "slug": "cell_diameter",
       "title": "Cell diameter",
       "validation": {
-        "bytes": 88601,
+        "bytes": 45215,
         "frames": 18,
-        "sha256": "fd57aa4cf4221d14d2c48964348ab23efbbaaad5ed66f606f78918f34bd32b53",
+        "sha256": "313eafa3a65296ae477954a5bb130f9e4611c9b947cd62e5efb29fd5032af20b",
         "unique_frames": 16
       }
     },
@@ -761,9 +593,9 @@
       "slug": "remove_background_cell",
       "title": "Cell background subtraction",
       "validation": {
-        "bytes": 168955,
+        "bytes": 144717,
         "frames": 18,
-        "sha256": "6771be5fd19eae72f71b1329fbc1fc033418d61928a6bdfe9e5895e773202bd8",
+        "sha256": "dc208db94581db026f8734db5ef991b3ea75a8c3b560e0b826287f8eccfe3a3e",
         "unique_frames": 17
       }
     },
@@ -857,9 +689,9 @@
       "slug": "remove_background_nucleus",
       "title": "Nucleus background subtraction",
       "validation": {
-        "bytes": 161301,
+        "bytes": 118870,
         "frames": 18,
-        "sha256": "7553fa5a5fd0825cf208ff4d48b56e9e580e9dae5ea71dec443d47a3af8aed0f",
+        "sha256": "2044ac22f209226a116a5d60b8f935b9b2427bd542146ec5ccf4b236213a4e9b",
         "unique_frames": 17
       }
     },
@@ -953,9 +785,9 @@
       "slug": "remove_background_pathogen",
       "title": "Pathogen background subtraction",
       "validation": {
-        "bytes": 186751,
+        "bytes": 145710,
         "frames": 18,
-        "sha256": "773f77f5934d6552dd491b797644b6f061b5cd80402d43f2cf18ee515b86222a",
+        "sha256": "807376df1bd216647218f07dcfcdb20b163cf6113100549e45933b845531a0af",
         "unique_frames": 17
       }
     },
@@ -1048,9 +880,9 @@
       "slug": "fill_in",
       "title": "Fill holes in masks",
       "validation": {
-        "bytes": 138851,
+        "bytes": 40686,
         "frames": 18,
-        "sha256": "e36ddc86721717a4e3422b15e3f5f46612a44e48cfb64800c03a3cf323649433",
+        "sha256": "e0e4be4722faaabab3a4b97c06d737c3025150b93abe2ee4c605ce9617188bcb",
         "unique_frames": 16
       }
     },
@@ -1067,9 +899,9 @@
       "slug": "organelle_fill_holes",
       "title": "Fill small organelle holes",
       "validation": {
-        "bytes": 331023,
+        "bytes": 110061,
         "frames": 18,
-        "sha256": "3d6bf20a4c3e97c5aa17702296399f173bc822d1ccbf0c0ee2aa1ab1b08261af",
+        "sha256": "c745dcc340820814823b2cce46bb7afef4d05bacf3d569cdde2d85aff9b92994",
         "unique_frames": 17
       }
     },
@@ -1145,9 +977,9 @@
       "slug": "organelle_clahe",
       "title": "Organelle local contrast (CLAHE)",
       "validation": {
-        "bytes": 149517,
+        "bytes": 106246,
         "frames": 18,
-        "sha256": "fb2a80cbd1ab857b7cb6a2737fc77171ed1f070f814ddac6b3b303e30773dfa1",
+        "sha256": "1cec74792c0a252d4ae6f00269eed71bca80fec3f2c6c4f84b267110f896931f",
         "unique_frames": 17
       }
     },
@@ -1184,9 +1016,9 @@
       "slug": "organelle_log_threshold",
       "title": "Organelle segmentation threshold",
       "validation": {
-        "bytes": 105918,
+        "bytes": 57617,
         "frames": 15,
-        "sha256": "77b45fe07b6afb87ad271b31c3abb8886fac17e7ae7f301ea7d88157df936564",
+        "sha256": "95d253424a2fabd49fa49ea9e0541020ccee0d9007fd437db6f9cc87c3d93efe",
         "unique_frames": 14
       }
     },
@@ -1201,9 +1033,9 @@
       "slug": "outline_thickness",
       "title": "Mask outline thickness",
       "validation": {
-        "bytes": 152109,
+        "bytes": 98696,
         "frames": 18,
-        "sha256": "9897bed274ee719cf7510fbc3d9a79db5143a25ff10b33977770ebccc2636af4",
+        "sha256": "f1067ec04e3fa31cd3de96fbbe4166ba47c6120f3e8a6f7819a6c362457163cb",
         "unique_frames": 17
       }
     },
@@ -1258,9 +1090,9 @@
       "slug": "dialate_pngs",
       "title": "Dilate crop masks",
       "validation": {
-        "bytes": 109928,
+        "bytes": 67197,
         "frames": 18,
-        "sha256": "1b919bcfa5adf8057cee823e31fa53682fdda222d444aa64922a75be4a793bae",
+        "sha256": "a0fee5d1fcc3880c6108cdef99d3b40c9c75fc0b1ec29febee1a1fdf9200acb7",
         "unique_frames": 17
       }
     },
@@ -1277,9 +1109,9 @@
       "slug": "crop_mode",
       "title": "Choose crop target",
       "validation": {
-        "bytes": 75328,
+        "bytes": 51139,
         "frames": 9,
-        "sha256": "14c14cd09e711fc3c02c0fe41d4bafb08d2dbe5794fbfa2b862908b062fcbeb2",
+        "sha256": "ee3884f67d90ea29020e609d6668e086e3133c5d4202566a15a8b07fbb0ad3f5",
         "unique_frames": 4
       }
     },
@@ -1296,9 +1128,9 @@
       "slug": "png_size",
       "title": "Crop canvas size",
       "validation": {
-        "bytes": 156733,
+        "bytes": 83164,
         "frames": 18,
-        "sha256": "2b47a805d5780dba58a4ae21866d1820e53dedaa5bad042c14bce84dc41c385c",
+        "sha256": "15cc9b40649b6093731be787c1bd63956826b37cc67564200e4a41511efba88b",
         "unique_frames": 17
       }
     },
@@ -1331,9 +1163,9 @@
       "slug": "radial_dist",
       "title": "Radial-distance shells",
       "validation": {
-        "bytes": 219768,
+        "bytes": 182811,
         "frames": 18,
-        "sha256": "48dfd63da6ae5f6c0bf14df2159b335ce06ba2ac2247858b29aa61d637cf8ec4",
+        "sha256": "d6dd8589b92c14cc427df28cf842374407e72edb01ce32832c055c7dc06363a4",
         "unique_frames": 16
       }
     },
@@ -1348,9 +1180,9 @@
       "slug": "uninfected",
       "title": "Keep or remove uninfected cells",
       "validation": {
-        "bytes": 155332,
+        "bytes": 93935,
         "frames": 17,
-        "sha256": "38b5da86b514b93f7d77df8dcb08c1429faa07e44886b023636bc836d48d4213",
+        "sha256": "db7c2bb11dc2c2edb7295ddb614a23654be985a3de9fe7b54b5ff2c671b37188",
         "unique_frames": 16
       }
     },
@@ -1368,9 +1200,9 @@
       "slug": "timelapse_remove_transient",
       "title": "Remove transient tracks",
       "validation": {
-        "bytes": 134555,
+        "bytes": 40713,
         "frames": 17,
-        "sha256": "7f89fe8cbe7b84b81cff06837be2ac1d7f4b82482c185145455c006a60f8dafb",
+        "sha256": "17711f5bf326293fc25190d6a52c07f519d405685b456b8641c051ed068b10d5",
         "unique_frames": 15
       }
     },
@@ -1390,9 +1222,9 @@
       "slug": "timelapse_displacement",
       "title": "Maximum linking displacement",
       "validation": {
-        "bytes": 147290,
+        "bytes": 72587,
         "frames": 18,
-        "sha256": "4bb021a02cdcef6a0db4c0ddf1e18cfa320c18039ef656a08a3c32471777910e",
+        "sha256": "aa3669ef7b2c2e914ea733ffaf0050ef53a9ed573a63b73f03f0ef3278324a03",
         "unique_frames": 16
       }
     },
@@ -1409,9 +1241,9 @@
       "slug": "timelapse_memory",
       "title": "Tracking memory",
       "validation": {
-        "bytes": 142088,
+        "bytes": 48126,
         "frames": 17,
-        "sha256": "7e54524ed6c7d874846aec6b20c4f3715b5b1c3b835a65bbd5007af7f95cf5fc",
+        "sha256": "f74c38d043d9ec7cda6c1412e300291da4e690a545506cde1c1b411215bdb12b",
         "unique_frames": 15
       }
     },
@@ -1466,9 +1298,9 @@
       "slug": "z_projection",
       "title": "Z projection",
       "validation": {
-        "bytes": 134101,
+        "bytes": 82225,
         "frames": 18,
-        "sha256": "5f23e847469cf57aaf95b9387a95cf227437e6799b4eedfad2a7cebec8aef18f",
+        "sha256": "465a98193198722e831115a422aafa4d967f13c26d3c64078b2b3edbb7c25d8c",
         "unique_frames": 16
       }
     },
@@ -1485,9 +1317,9 @@
       "slug": "t_project_for_tracking",
       "title": "Project volumes for tracking",
       "validation": {
-        "bytes": 93825,
+        "bytes": 52681,
         "frames": 18,
-        "sha256": "2d2761d376444e3c8652fbc7977dbcb6e6aa2bdd057230a3c18b2460ae3b85a5",
+        "sha256": "c2563750cabb0ff077a4ad90b6d0bb726a0447f41a462bd3ba03ade31998a6b1",
         "unique_frames": 17
       }
     },
@@ -1505,9 +1337,9 @@
       "slug": "straightness_filter",
       "title": "Remove overly straight tracks",
       "validation": {
-        "bytes": 155711,
+        "bytes": 53688,
         "frames": 17,
-        "sha256": "4e8bbc9032d68ca4c323e4d38bd8897a7824cc96da6dd6b5278a3c233dd4c378",
+        "sha256": "c9b612f925c11ca5208ce5e65c6a7f348f8e6f7f100df8cd46554519352c7157",
         "unique_frames": 15
       }
     },
@@ -1524,9 +1356,9 @@
       "slug": "zscore_thresh",
       "title": "Smooth per-track outliers",
       "validation": {
-        "bytes": 117802,
+        "bytes": 38209,
         "frames": 18,
-        "sha256": "3651cf251c43947cdfc4122ad7143055354d7cc79f43ade4dc916ec36977db76",
+        "sha256": "bd01a90b7fbb001b96200d33111e4ac746f0140bd8cc70d860859548fd3b6cb3",
         "unique_frames": 17
       }
     },
@@ -1543,9 +1375,9 @@
       "slug": "ultrack_division_weight",
       "title": "Cell-division linking",
       "validation": {
-        "bytes": 112007,
+        "bytes": 43589,
         "frames": 18,
-        "sha256": "bb5fb299d05f68885e2ed3aaa748a428610799fb52bea124b6e2efea9cb3f363",
+        "sha256": "33bfab655c00f8e0176c0cc1d8067b5b53a60582873944054149acfa884f8a1f",
         "unique_frames": 17
       }
     },
@@ -1562,9 +1394,9 @@
       "slug": "ultrack_contour_sigma",
       "title": "Contour smoothing",
       "validation": {
-        "bytes": 135579,
+        "bytes": 85966,
         "frames": 18,
-        "sha256": "6b7868a5ff4d47290e913a99c4441f490db2fef4bb124051659d403d8c43b34b",
+        "sha256": "199323f9588cd74d198f435df6da217057a5352ef93d6c5135b3bb136e27542a",
         "unique_frames": 17
       }
     },
@@ -1600,9 +1432,9 @@
       "slug": "min_dist",
       "title": "UMAP minimum distance",
       "validation": {
-        "bytes": 151962,
+        "bytes": 129153,
         "frames": 18,
-        "sha256": "dd730445f3309f6b605f9f548e6212b2f5362497c11d63990c26c258b194a8f8",
+        "sha256": "2b8caa351ac958eed526ed8435b08d4d84b2a7fe0b11cee64fbc9b88b5460168",
         "unique_frames": 17
       }
     },
@@ -1676,9 +1508,9 @@
       "slug": "plot_points",
       "title": "Show embedding points",
       "validation": {
-        "bytes": 197614,
+        "bytes": 132049,
         "frames": 18,
-        "sha256": "c529acfe8dd1bc03d2191f454ee87ecb757c5852d2feea74319a4f4284e2eb05",
+        "sha256": "ad313b78f612a8715cfba791c21bf3c206dd7507d7b337635f424a11745d4785",
         "unique_frames": 17
       }
     },
@@ -1695,9 +1527,9 @@
       "slug": "smooth_lines",
       "title": "Smooth cluster outlines",
       "validation": {
-        "bytes": 135290,
+        "bytes": 93124,
         "frames": 18,
-        "sha256": "4f1652b0a83058ba3cd3567cf384ac239483e0e1ee2c9688205552aa431deff1",
+        "sha256": "dbae02d496d23cf57b42a96f29bb5ce792528da358a952223f4e6dbbb40277d6",
         "unique_frames": 16
       }
     },
@@ -1714,9 +1546,9 @@
       "slug": "remove_cluster_noise",
       "title": "Remove cluster noise",
       "validation": {
-        "bytes": 183632,
+        "bytes": 84469,
         "frames": 18,
-        "sha256": "e4ea0cdf2fb7884660c1dbe46cb58dc8a6d462c5a1b74cd7fc65cef95a97bd7e",
+        "sha256": "6fdde774e3a2b1d3fe1425c7b07647d0a0ff26a66cbd72dacb8e628e1005c3f0",
         "unique_frames": 16
       }
     },
@@ -1811,9 +1643,9 @@
       "slug": "overlap",
       "title": "Tile overlap",
       "validation": {
-        "bytes": 132219,
+        "bytes": 95344,
         "frames": 18,
-        "sha256": "70b25609e012ba8119a8efeccc1030e13d97ccaf063caa0e499430067415d79b",
+        "sha256": "316efb3316590b31107d1a80cb337248871e56c77ef80db7cf29cb61c9cb37eb",
         "unique_frames": 17
       }
     },
@@ -1830,9 +1662,9 @@
       "slug": "blend",
       "title": "Tile seam blending",
       "validation": {
-        "bytes": 111953,
+        "bytes": 76925,
         "frames": 18,
-        "sha256": "0b75148fc8cb0bc7b05f78af707b9947fd6b67ed8429d365323f15dd2893fb45",
+        "sha256": "c0c32cc4a96290dd75bf2ff2cddd725017bb50f7fcd830777d27e7fc17f9402a",
         "unique_frames": 17
       }
     }

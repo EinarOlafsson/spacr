@@ -62,28 +62,6 @@ Cell — Maximum object area
 
 **Settings:** ``cell_max_area``
 
-.. _setting-animation-cell-min-intensity-percentile:
-
-Cell — Minimum intensity percentile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/cell_min_intensity_percentile.gif
-   :alt: Cell — Minimum intensity percentile setting animation
-   :width: 300px
-
-**Settings:** ``cell_min_intensity_percentile``
-
-.. _setting-animation-cell-max-intensity-percentile:
-
-Cell — Maximum intensity percentile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/cell_max_intensity_percentile.gif
-   :alt: Cell — Maximum intensity percentile setting animation
-   :width: 300px
-
-**Settings:** ``cell_max_intensity_percentile``
-
 .. _setting-animation-nucleus-remove-border-objects:
 
 Nucleus — Remove border objects
@@ -116,28 +94,6 @@ Nucleus — Maximum object area
    :width: 300px
 
 **Settings:** ``nucleus_max_area``
-
-.. _setting-animation-nucleus-min-intensity-percentile:
-
-Nucleus — Minimum intensity percentile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_min_intensity_percentile.gif
-   :alt: Nucleus — Minimum intensity percentile setting animation
-   :width: 300px
-
-**Settings:** ``nucleus_min_intensity_percentile``
-
-.. _setting-animation-nucleus-max-intensity-percentile:
-
-Nucleus — Maximum intensity percentile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/nucleus_max_intensity_percentile.gif
-   :alt: Nucleus — Maximum intensity percentile setting animation
-   :width: 300px
-
-**Settings:** ``nucleus_max_intensity_percentile``
 
 .. _setting-animation-pathogen-remove-border-objects:
 
@@ -172,28 +128,6 @@ Pathogen — Maximum object area
 
 **Settings:** ``pathogen_max_area``
 
-.. _setting-animation-pathogen-min-intensity-percentile:
-
-Pathogen — Minimum intensity percentile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_min_intensity_percentile.gif
-   :alt: Pathogen — Minimum intensity percentile setting animation
-   :width: 300px
-
-**Settings:** ``pathogen_min_intensity_percentile``
-
-.. _setting-animation-pathogen-max-intensity-percentile:
-
-Pathogen — Maximum intensity percentile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/pathogen_max_intensity_percentile.gif
-   :alt: Pathogen — Maximum intensity percentile setting animation
-   :width: 300px
-
-**Settings:** ``pathogen_max_intensity_percentile``
-
 .. _setting-animation-organelle-remove-border-objects:
 
 Organelle — Remove border objects
@@ -226,28 +160,6 @@ Organelle — Maximum object area
    :width: 300px
 
 **Settings:** ``organelle_max_area``
-
-.. _setting-animation-organelle-min-intensity-percentile:
-
-Organelle — Minimum intensity percentile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/organelle_min_intensity_percentile.gif
-   :alt: Organelle — Minimum intensity percentile setting animation
-   :width: 300px
-
-**Settings:** ``organelle_min_intensity_percentile``
-
-.. _setting-animation-organelle-max-intensity-percentile:
-
-Organelle — Maximum intensity percentile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../spacr/resources/setting_animations/gifs/organelle_max_intensity_percentile.gif
-   :alt: Organelle — Maximum intensity percentile setting animation
-   :width: 300px
-
-**Settings:** ``organelle_max_intensity_percentile``
 
 Mask repair
 -----------
@@ -294,7 +206,7 @@ Cell intensity merge
    :alt: Cell intensity merge setting animation
    :width: 300px
 
-**Settings:** ``cell_intensity_merge``, ``cell_intensity_threshold_method``, ``cell_intensity_percentile``
+**Settings:** ``cell_intensity_merge``, ``cell_intensity_threshold``
 
 .. _setting-animation-cell-intensity-split:
 
@@ -305,7 +217,7 @@ Cell watershed split
    :alt: Cell watershed split setting animation
    :width: 300px
 
-**Settings:** ``cell_intensity_split``, ``cell_area_multiplier``, ``cell_min_watershed_distance``, ``cell_minimum_area_to_split``
+**Settings:** ``cell_intensity_split``, ``cell_min_watershed_distance``, ``cell_minimum_area_to_split``
 
 .. _setting-animation-nucleus-perimeter-fraction:
 
@@ -327,7 +239,7 @@ Nucleus intensity merge
    :alt: Nucleus intensity merge setting animation
    :width: 300px
 
-**Settings:** ``nucleus_intensity_merge``, ``nucleus_intensity_threshold_method``, ``nucleus_intensity_percentile``
+**Settings:** ``nucleus_intensity_merge``, ``nucleus_intensity_threshold``
 
 .. _setting-animation-nucleus-intensity-split:
 
@@ -338,7 +250,7 @@ Nucleus watershed split
    :alt: Nucleus watershed split setting animation
    :width: 300px
 
-**Settings:** ``nucleus_intensity_split``, ``nucleus_area_multiplier``, ``nucleus_min_watershed_distance``, ``nucleus_minimum_area_to_split``
+**Settings:** ``nucleus_intensity_split``, ``nucleus_min_watershed_distance``, ``nucleus_minimum_area_to_split``
 
 .. _setting-animation-pathogen-perimeter-fraction:
 
@@ -360,7 +272,7 @@ Pathogen intensity merge
    :alt: Pathogen intensity merge setting animation
    :width: 300px
 
-**Settings:** ``pathogen_intensity_merge``, ``pathogen_intensity_threshold_method``, ``pathogen_intensity_percentile``
+**Settings:** ``pathogen_intensity_merge``, ``pathogen_intensity_threshold``
 
 .. _setting-animation-pathogen-intensity-split:
 
@@ -371,7 +283,7 @@ Pathogen watershed split
    :alt: Pathogen watershed split setting animation
    :width: 300px
 
-**Settings:** ``pathogen_intensity_split``, ``pathogen_area_multiplier``, ``pathogen_min_watershed_distance``, ``pathogen_minimum_area_to_split``
+**Settings:** ``pathogen_intensity_split``, ``pathogen_min_watershed_distance``, ``pathogen_minimum_area_to_split``
 
 .. _setting-animation-organelle-perimeter-fraction:
 
@@ -393,7 +305,7 @@ Organelle intensity merge
    :alt: Organelle intensity merge setting animation
    :width: 300px
 
-**Settings:** ``organelle_intensity_merge``, ``organelle_intensity_threshold_method``, ``organelle_intensity_percentile``
+**Settings:** ``organelle_intensity_merge``, ``organelle_intensity_threshold``
 
 .. _setting-animation-organelle-intensity-split:
 
@@ -404,7 +316,7 @@ Organelle watershed split
    :alt: Organelle watershed split setting animation
    :width: 300px
 
-**Settings:** ``organelle_intensity_split``, ``organelle_area_multiplier``, ``organelle_min_watershed_distance``, ``organelle_minimum_area_to_split``
+**Settings:** ``organelle_intensity_split``, ``organelle_min_watershed_distance``, ``organelle_minimum_area_to_split``
 
 .. _setting-animation-fill-in:
 
