@@ -1446,3 +1446,38 @@ def test_a_png_list_file_name_resolves_to_the_field_it_was_cut_from(tmp_path):
     assert spec.merged_path == field
     # A field whose real name ends in a number is not mistaken for a crop.
     assert src.resolve_path({"file_name": "plate1_A01_1_1"}) == path
+
+
+def test_a_file_that_goes_unreadable_is_served_not_called_corrupt(tmp_path):
+    """CANNOT VERIFY IS NOT THE SAME AS CHANGED.
+
+    `_content_fingerprint` reads the first and last few kilobytes to tell a
+    regenerated field from the cached one. When that read fails -- a
+    permission flip on a NAS share, a remount, transient fd pressure -- it
+    used to return ``""``, which is not the digest any cached entry carries.
+    The lookup therefore MISSED, `MergedField` was rebuilt, and the same
+    read error came back to the caller as :class:`CorruptMergedFile`.
+
+    The file is not corrupt and the cached mapping is still valid; the only
+    thing that failed was our attempt to re-read a few kilobytes of it. The
+    call used to be a pure cache hit and is one again: an unverifiable
+    fingerprint falls back to path, mtime and size, which is exactly what
+    this cache used before the fingerprint existed.
+    """
+    data = _make_field(seed=83)
+    path = _write_field(tmp_path, data)
+    crops.clear_field_cache()
+    first = open_merged_field(path, MASK_DIMS)
+    assert open_merged_field(path, MASK_DIMS) is first, (
+        "this test means nothing unless the field is cached to begin with")
+
+    os.chmod(path, 0)
+    try:
+        served = open_merged_field(path, MASK_DIMS)
+    finally:
+        os.chmod(path, 0o644)
+
+    assert served is first, (
+        "a file that briefly could not be read was rebuilt rather than "
+        "served from cache, which is how a permission flip becomes a "
+        "CorruptMergedFile for a file that is neither corrupt nor missing")

@@ -1019,10 +1019,11 @@ def _content_fingerprint(path: str, size: int) -> str:
 
     :param path: the file to sample.
     :param size: its size in bytes, already stat-ed by the caller.
-    :returns: a hex digest, or ``""`` if the file cannot be read -- an
-        unreadable file is left for :class:`MergedField` to report, because
-        raising a different error from the cache key would change which
-        exception every caller sees.
+    :returns: a hex digest, or ``None`` if the file cannot be read. ``None``
+        means "cannot verify", which :func:`open_merged_field` answers by
+        reusing a cached field whose path, mtime and size still match --
+        the mapping it holds is unaffected by our failure to re-read the
+        first few kilobytes.
     """
     window = min(int(size), _CACHE_FINGERPRINT_BYTES)
     digest = hashlib.blake2b(digest_size=16)
@@ -1046,7 +1047,14 @@ def _content_fingerprint(path: str, size: int) -> str:
                 handle.seek(-window, os.SEEK_END)
                 digest.update(handle.read(window))
     except OSError:
-        return ""
+        # CANNOT VERIFY IS NOT THE SAME AS CHANGED, and returning a constant
+        # here conflated them. "" is not the digest any cached entry carries,
+        # so the lookup missed, `MergedField` was rebuilt, and the SAME read
+        # error surfaced as `CorruptMergedFile` -- a permission flip on a NAS
+        # share, a remount, or transient fd pressure reported as a corrupt
+        # file, on a call that used to be a pure cache hit against a mapping
+        # that was still perfectly valid.
+        return None
     return digest.hexdigest()
 
 
@@ -1084,6 +1092,16 @@ def open_merged_field(path: str, mask_dims: Optional[Mapping[str, int]] = None,
         return MergedField(path, mask_dims=dims)
     key = _cache_key(path)
     cached = _FIELD_CACHE.get(key)
+    if cached is None and key[3] is None:
+        # THE FINGERPRINT COULD NOT BE READ. Fall back to the part of the
+        # key that stat still answers: a cached entry for the same path,
+        # mtime and size is the best available evidence, and it is exactly
+        # the evidence this cache used before the fingerprint existed.
+        # Rebuilding instead would raise on the same unreadable file.
+        for other, field in _FIELD_CACHE.items():
+            if other[:3] == key[:3]:
+                cached, key = field, other
+                break
     if cached is not None and cached.mask_dims == dims:
         _FIELD_CACHE.move_to_end(key)
         _FIELD_CACHE_USED[key] = time.time()
