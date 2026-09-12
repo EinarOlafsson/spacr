@@ -450,3 +450,46 @@ that evening had no label anywhere in them:
 So: one signal is what a source-only check CAN see, and it is a minority of
 what actually fails. Both statements are true and the second is the one that
 stops a green check being read as a green build.
+
+
+--------------------------------------------------------------------------------
+2026-09-12, A FOURTH NO-LABEL FAILURE, AND IT NARROWS MY OWN NEGATIVE RESULT
+--------------------------------------------------------------------------------
+
+`spacr.qt.stall_watch#4` failed the zh_CN audit the same evening, with NO
+label anywhere in it. One ~700-character paragraph, dense with identifiers;
+the model returned it unchanged and the gate reported "lack target script"
+plus "retain copied English prose sequences". Split into four paragraphs it
+passes, each verified against the model before being written:
+
+    "WHY THIS IS IN THE PACKAGE..."      residual English 0
+    "Reaching in from outside..."        residual English 0
+    the sitecustomize sentence           residual English 7 -> reworded -> 0
+    "A flag read inside launch..."       residual English 0
+
+THE CHECK ABOVE WOULD NOT HAVE CAUGHT IT, and saying so is the point of this
+section. It is a fourth member of the no-label class the reconciliation
+lists, and the most recent.
+
+  IT ALSO NARROWS THE NEGATIVE RESULT I RECORDED. "Length and clause density
+  discriminate nothing" is measured and true FOR THE LABEL CLASS: the `B2`
+  positive sits at the 43rd-60th percentile on every such metric, so no
+  threshold separates those four positives from the corpus. It does NOT
+  follow that length never matters. This block was fixed BY SPLITTING IT,
+  which is a length-or-density effect by construction.
+
+  Both are true and the second does not weaken the first: length is not what
+  distinguishes a label failure, and length may well be exactly what
+  distinguishes an identity-return failure. A measurement over one class is
+  evidence about that class. My own wording invited the broader reading and
+  is corrected here rather than left to be believed.
+
+WHAT WOULD TEST IT, since the idea is now cheap to check rather than argue:
+the runtime lane's length threshold is already recorded in this file, and the
+four measurements above are a labelled set of one long failing paragraph
+against four short passing ones. That is not enough to fit a threshold on --
+four points, one document -- but it is enough to say the question is open and
+what the next measurement should be: the length distribution of blocks that
+returned IDENTITY, against the corpus, in a single language. Nobody has that
+yet, and the check should not grow a length rule until somebody does.
+
