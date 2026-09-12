@@ -277,8 +277,23 @@ population inside them.
 WHAT REMAINS BEFORE THIS FILE CAN MOVE TO done/:
 
   * The reach as a setting (waiting on home's runtime catalog rebuild).
-  * The column family through `spacr/columns.py`, so regression and hit
-    calling pick the labels up with no changes.
+  * ~~The column family through the column grouping~~ DONE 2026-09-12.
+    The three columns parsed as `family="unknown"` with no object at all, so
+    `column_groups.classify` -- which regression selection and hit calling go
+    through -- could not see them. `measure._with_bystanders` names them for
+    what they say rather than for the object they say it about, so they carry
+    no object prefix and `parse_column`'s structural parse gave up on them.
+
+    THE PRECEDENT WAS ALREADY IN `parse_column` AND NAMES THE SAME
+    CONSEQUENCE: embedding dimensions carry no prefix either and have a
+    branch before the structural parse, because "falling through ... would
+    classify every one of them as 'unknown' and hide the whole family from
+    the pickers". Same fix, same place.
+
+    NOT A NEW FAMILY -- `spatial` already says "same-type neighbourhood and
+    touching measurements" in its own description, and all three
+    `KNOWN_PROPERTIES` entries have said `"spatial"` since they were written.
+    The metadata was right and nothing was reading it.
   * THE PAYOFF MEASUREMENT, which needs a real screen: split an existing
     infected-versus-uninfected comparison's uninfected arm and report
     whether the effect size moves. That is the maintainer's data to run,
