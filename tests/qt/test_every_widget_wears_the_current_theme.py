@@ -533,3 +533,152 @@ def test_a_window_that_sets_its_own_rule_keeps_the_theme(sheeted, qtbot):
     assert "#123456" in dialog.styleSheet(), (
         "the theme change dropped the dialog's own rule, which is the "
         "other half of remembering only the first answer")
+
+
+def test_a_page_that_was_never_parentless_is_reached_by_the_mark_alone(
+        sheeted, qtbot):
+    """THE MECHANISM, ISOLATED, BECAUSE THE PAIR OF THEM HID EACH OTHER.
+
+    Two things sheet a page added after the theme changed, and for most
+    pages EITHER is enough:
+
+      * the event filter sheets a PARENTLESS widget, because a parentless
+        widget is a window -- and a screen built by `_build_screen` is
+        parentless for as long as its `__init__` runs;
+      * `_a_page_joined_the_stack` MARKS it, and the filter sheets a marked
+        widget on its `Polish` or `Show`.
+
+    `test_a_module_opened_after_the_theme_change_wears_it` passes with
+    EITHER ONE removed and only fails when both are, so it says "at least
+    one of two redundant mechanisms works" while reading as though it
+    pinned the fix. Measured, neutering one at a time:
+
+        marking removed      10 passed
+        own-rule removed      1 failed (a different test)
+        both removed          2 failed
+
+    A widget CONSTRUCTED WITH ITS PARENT is never a window, so the first
+    mechanism cannot reach it and the mark is the only thing that can.
+    That is the case this pins, and it is not exotic: it is what any screen
+    that takes a parent in its constructor does.
+    """
+    from PySide6.QtWidgets import QStackedWidget
+
+    class _NominatingHost(QStackedWidget):
+        """A host that carries the sheet on its ROOTS, as MainWindow does.
+
+        A BARE `QStackedWidget` WOULD NOT ISOLATE ANYTHING, and the first
+        version of this test used one. A parentless stack is itself a
+        window, so `_roots_for` sheets IT whole and every page inherits by
+        cascade -- which is precisely the mechanism per-screen sheeting
+        removes. The test then passed with the mark neutered, testing the
+        cascade it was written to prove absent.
+        """
+
+        def stylesheet_roots(self):
+            """Nominate a bystander, so the host itself is never sheeted."""
+            return [self._carrier]
+
+    app = QApplication.instance()
+    host = _NominatingHost()
+    host._carrier = QWidget(host)
+    qtbot.addWidget(host)
+    host.resize(400, 300)
+    host.show()
+    for _ in range(20):
+        app.processEvents()
+
+    sheeted(app, FIRST)
+    for _ in range(20):
+        app.processEvents()
+
+    # PARENTED AT CONSTRUCTION, so it is never a window and the parentless
+    # branch of the filter can never see it.
+    page = QWidget(host)
+    assert not page.isWindow(), (
+        "this test means nothing if the page is a window, because then the "
+        "other mechanism would sheet it and the mark would not be tested")
+
+    # MARKED BEFORE THE ADD, which is what production does and is not an
+    # incidental ordering. `QStackedWidget.addWidget` makes the FIRST widget
+    # current and shows it immediately, so a mark applied afterwards arrives
+    # after that page's only `Show` and the filter never sees it marked.
+    # This test found that defect in `_a_page_joined_the_stack` by doing it
+    # in the wrong order and failing.
+    from spacr.qt.theme import mark_as_a_sheet_target
+    mark_as_a_sheet_target(page)
+    host.addWidget(page)
+    host.setCurrentWidget(page)
+    for _ in range(30):
+        app.processEvents()
+
+    probe = QLabel(page)
+    assert _resolved(probe) == FIRST_HEX, (
+        "a page that was never parentless did not get the sheet, so the "
+        "mark is not reaching it and the only other mechanism cannot")
+
+
+def test_a_sheet_does_not_grow_by_a_copy_of_itself_at_every_theme_change(
+        sheeted, qtbot):
+    """THE ACCUMULATION THE CAPTURED-ONCE COMMENT EXISTED TO PREVENT.
+
+    `_the_windows_own_stylesheet` used to capture a window's own rules ONCE,
+    with a comment saying that re-reading would "fold the global rules into
+    its own and they would accumulate at every theme change". Making it
+    re-read -- so a dialog that sets its own rule after being sheeted keeps
+    it -- reintroduced exactly that, because an APPEND changes the digest
+    the same way a REPLACEMENT does.
+
+    `ensure_widget_qss_applied` appends a late widget block. The digest then
+    disagrees, the recorded suffix is stripped, and WHAT IS LEFT IS THE
+    GLOBAL SHEET -- which is adopted as "own" and re-appended under the next
+    global sheet. Measured before the fix, five successive themes with a
+    late block arriving on each:
+
+        1.01x  2.01x  3.01x  4.01x  5.00x
+
+    359 KB where 72 KB was right, and every byte of it is repolished on the
+    next change.
+
+    NO EXISTING GUARD COULD SEE IT. The sibling test asserts a dialog's own
+    rule SURVIVES a theme change, and it survives just as well when the
+    sheet has quadrupled. A test that checks a property is preserved cannot
+    notice that everything else was preserved too.
+    """
+    from spacr.qt import theme
+
+    app = QApplication.instance()
+    widget = QWidget()
+    qtbot.addWidget(widget)
+    widget.resize(80, 60)
+    widget.show()
+    for _ in range(10):
+        app.processEvents()
+
+    worn = []
+    for index in range(4):
+        sheet = theme.stylesheet(theme="dark" if index % 2 else "light",
+                                 font_scale=1.0)
+        theme.apply_stylesheet_per_window(app, sheet)
+        for _ in range(10):
+            app.processEvents()
+        # A late block lands on this root, which is what a screen import
+        # does and is the event that changes the digest without replacing
+        # anything.
+        name = f"_GrowthProbe{index}"
+        theme.register_widget_qss(
+            name,
+            lambda palette, opacity, n=index: "QLabel#_GrowthProbe%d { "
+                                              "color: #ff00ff; }" % n,
+            replace=True)
+        theme.ensure_widget_qss_applied(name, root=widget)
+        for _ in range(10):
+            app.processEvents()
+        worn.append(len(widget.styleSheet() or "") / max(1, len(sheet)))
+        theme.unregister_widget_qss(name)
+
+    assert max(worn) < 1.5, (
+        "the widget's stylesheet is growing at each theme change: it wears "
+        + ", ".join(f"{ratio:.2f}x" for ratio in worn)
+        + " of the global sheet, so the global sheet is being folded into "
+        "the widget's OWN rules and re-appended under itself")

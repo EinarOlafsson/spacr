@@ -99,12 +99,56 @@ def _install(app) -> None:
 
 
 def main() -> int:
+    """Attach the watchdog to the application spaCR builds, then launch.
+
+    THIS TOOL COULD NOT START, and the diagnostic being unavailable when it
+    is wanted is the worst time for that. It used to make a `QApplication`
+    of its own first, "so the watchdog can attach before any screen is
+    built". `spacr.qt.app.launch` now constructs one unconditionally, and
+    Qt refuses the second:
+
+        RuntimeError: libshiboken: Please destroy the QApplication
+        singleton before creating a new QApplication instance
+
+    So the tool raised that before printing anything, on every invocation,
+    including `--help`. Found 2026-09-11 while pointing it at the startup
+    benchmark.
+
+    The fix keeps the property the old comment wanted -- attached before
+    any screen exists -- by wrapping the class `launch` constructs rather
+    than racing it to construct one first. `_install` runs inside
+    `__init__`, which is earlier than anything a pre-made instance could
+    have achieved.
+
+    SYS.PATH, TOO. A script's `sys.path[0]` is its own directory, so
+    `tools/watch_the_gui_thread.py` imported whatever spaCR was INSTALLED
+    rather than the checkout it lives in -- and then reported on a tree
+    nobody was editing. The repository root goes first.
+    """
+    repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if repo not in sys.path:
+        sys.path.insert(0, repo)
+
     from PySide6.QtWidgets import QApplication
 
-    # spaCR builds its own QApplication in `run()`; make one first so the
-    # watchdog can attach before any screen is built.
-    app = QApplication.instance() or QApplication(sys.argv)
-    _install(app)
+    from spacr.qt import app as app_module
+
+    class _WatchedApplication(QApplication):
+        """A ``QApplication`` that starts the stall watchdog on itself."""
+
+        def __init__(self, *args, **kwargs):
+            """Build the application and attach the watchdog to it."""
+            super().__init__(*args, **kwargs)
+            _install(self)
+
+    existing = QApplication.instance()
+    if existing is not None:
+        # Someone already made one -- attach to it and leave the class
+        # alone, because `launch` will reuse the singleton.
+        _install(existing)
+    else:
+        app_module.QApplication = _WatchedApplication
+
     print(f"watching the GUI thread; stalls over {STALL_SECONDS}s go to\n"
           f"  {LOG}\n"
           "Open the module that freezes, then send that file back.",

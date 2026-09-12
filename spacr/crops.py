@@ -978,13 +978,40 @@ def _ensure_cache_budget_sweep() -> None:
 #: `test_field_cache_is_keyed_on_file_contents` reproduced exactly that, 8
 #: times in 20 runs, and it is a wrong-pixels bug rather than a slow one.
 #:
-#: 64 KiB from each end, NOT the whole file. A merged field is hundreds of
-#: megabytes and is about to be read anyway; hashing all of it to decide
-#: whether to read it would cost more than the read. The head carries the
-#: `.npy` header and the first rows, the tail the last -- a regeneration
-#: that changes neither is possible in principle and has never been seen,
-#: and this is the bound worth stating rather than hiding.
-_CACHE_FINGERPRINT_BYTES = 64 * 1024
+#: 4 KiB from each end, NOT the whole file and not 64 KiB either. A merged
+#: field is hundreds of megabytes and is about to be read anyway, so hashing
+#: all of it to decide whether to read it would cost more than the read.
+#:
+#: THE WINDOW IS PRICED, NOT PICKED. This fingerprint runs on every
+#: `open_merged_field` INCLUDING a cache hit, and `MergedCropSource.get` is
+#: the documented one-row-at-a-time path, so the window is a per-crop tax.
+#: Measured on a 59 MB field with a warm page cache:
+#:
+#:     window      per call     per 100,000 crops
+#:        512 B       7.5 us           0.7 s
+#:      4 KiB        14.2 us           1.4 s
+#:      8 KiB        20.8 us           2.1 s
+#:     64 KiB       121.7 us          12.2 s
+#:
+#: About 7 us of that is the open and the seeks and is paid at any size, so
+#: 64 KiB bought 8x the bytes for 9x the time over 4 KiB. The first version
+#: of this used 64 KiB, chosen rather than measured, and took the cache-hit
+#: path from 1.2 us to 128 us -- a 90x regression on the hot path, to fix a
+#: correctness bug that 4 KiB fixes just as well.
+#:
+#: WHAT THE WINDOW IS FOR, which is why 4 KiB is enough: mtime and size
+#: still carry the discrimination. The fingerprint only has to break ties
+#: between two files of THE SAME SIZE written within one clock granule of
+#: each other, and 8 KiB of content settles that for any real field. A
+#: regeneration that changes neither the first nor the last 4 KiB, and keeps
+#: the size, is still served stale -- that is the bound, stated here rather
+#: than left to be discovered.
+#:
+#: STILL EXPENSIVE ON THE PER-ROW PATH at 1.4 s per 100,000 crops. The real
+#: fix there is for `MergedCropSource` to hold its field rather than
+#: re-resolve it by path per row; that is a caller change and is not this
+#: one.
+_CACHE_FINGERPRINT_BYTES = 4 * 1024
 
 
 def _content_fingerprint(path: str, size: int) -> str:
@@ -992,21 +1019,42 @@ def _content_fingerprint(path: str, size: int) -> str:
 
     :param path: the file to sample.
     :param size: its size in bytes, already stat-ed by the caller.
-    :returns: a hex digest, or ``""`` if the file cannot be read -- an
-        unreadable file is left for :class:`MergedField` to report, because
-        raising a different error from the cache key would change which
-        exception every caller sees.
+    :returns: a hex digest, or ``None`` if the file cannot be read. ``None``
+        means "cannot verify", which :func:`open_merged_field` answers by
+        reusing a cached field whose path, mtime and size still match --
+        the mapping it holds is unaffected by our failure to re-read the
+        first few kilobytes.
     """
     window = min(int(size), _CACHE_FINGERPRINT_BYTES)
     digest = hashlib.blake2b(digest_size=16)
     try:
         with open(path, "rb") as handle:
             digest.update(handle.read(window))
-            if size > _CACHE_FINGERPRINT_BYTES * 2:
+            # `> window`, NOT `> window * 2`. The doubled bound left a BLIND
+            # BAND: a file between 64 KiB and 128 KiB read its head and
+            # never its tail, so everything past byte 65,536 was invisible
+            # to the key -- which is the stale-pixels bug this fingerprint
+            # exists to stop, surviving in a size band.
+            #
+            # Measured: a (4, 100, 100) uint16 field is 80,128 bytes, and
+            # changing its LAST pixel left `_cache_key` byte-identical. The
+            # first guard written for this could not catch it either: its
+            # field is (7, 96, 112) = 150,656 bytes, just above the band.
+            #
+            # An overlapping head and tail hashes some bytes twice, which
+            # costs nothing and is why the simple bound is the right one.
+            if size > window:
                 handle.seek(-window, os.SEEK_END)
                 digest.update(handle.read(window))
     except OSError:
-        return ""
+        # CANNOT VERIFY IS NOT THE SAME AS CHANGED, and returning a constant
+        # here conflated them. "" is not the digest any cached entry carries,
+        # so the lookup missed, `MergedField` was rebuilt, and the SAME read
+        # error surfaced as `CorruptMergedFile` -- a permission flip on a NAS
+        # share, a remount, or transient fd pressure reported as a corrupt
+        # file, on a call that used to be a pure cache hit against a mapping
+        # that was still perfectly valid.
+        return None
     return digest.hexdigest()
 
 
@@ -1044,6 +1092,16 @@ def open_merged_field(path: str, mask_dims: Optional[Mapping[str, int]] = None,
         return MergedField(path, mask_dims=dims)
     key = _cache_key(path)
     cached = _FIELD_CACHE.get(key)
+    if cached is None and key[3] is None:
+        # THE FINGERPRINT COULD NOT BE READ. Fall back to the part of the
+        # key that stat still answers: a cached entry for the same path,
+        # mtime and size is the best available evidence, and it is exactly
+        # the evidence this cache used before the fingerprint existed.
+        # Rebuilding instead would raise on the same unreadable file.
+        for other, field in _FIELD_CACHE.items():
+            if other[:3] == key[:3]:
+                cached, key = field, other
+                break
     if cached is not None and cached.mask_dims == dims:
         _FIELD_CACHE.move_to_end(key)
         _FIELD_CACHE_USED[key] = time.time()

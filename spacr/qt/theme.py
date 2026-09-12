@@ -3489,6 +3489,17 @@ _WINDOW_SHEET_ATTRIBUTE = "_spacr_window_stylesheet"
 #: Bumped every time that sheet is replaced. A window carries the serial it
 #: was last sheeted with, which is what makes the filter below idempotent --
 #: a `Polish` and a `Show` for the same window do the work once.
+#: QT DYNAMIC PROPERTIES, NOT PYTHON ATTRIBUTES, for the reason
+#: `_PASS_STAMP` and `_SHEET_TARGET` already are: a Python attribute lives on
+#: the WRAPPER and the stylesheet lives on the C++ object, and PySide6 is free
+#: to collect and recreate a wrapper for an object C++ owns. The two then
+#: disagree -- and a widget whose bookkeeping was lost while its sheet
+#: survived looks UNSHEETED to us, so it is never updated on a theme change
+#: and keeps wearing the previous theme.
+#:
+#: Found as one QMenu out of 28 sheeted widgets that `_forget_window_stylesheets`
+#: could not clear: full sheet, no serial. The per-APPLICATION serial below is
+#: still an attribute, because a QApplication's wrapper is not collected.
 _WINDOW_SHEET_SERIAL = "_spacr_window_stylesheet_serial"
 
 #: A digest of the sheet text this widget was last given. THE SERIAL ALONE
@@ -3500,6 +3511,14 @@ _WINDOW_SHEET_SERIAL = "_spacr_window_stylesheet_serial"
 #: the last theme change had the serial stamped, an empty stylesheet, and a
 #: probe under it resolving to `#000000` on the dark theme.
 _WINDOW_SHEET_DIGEST = "_spacr_window_stylesheet_digest"
+
+#: The length and digest of the GLOBAL part of what we last applied, so an
+#: APPEND can be told from a REPLACEMENT. Without this pair the sheet grows
+#: by a whole copy of itself at every theme change -- measured, a widget on
+#: five successive themes wore 1.01x, 2.01x, 3.01x, 4.01x and 5.00x the
+#: global sheet, 359 KB where 72 KB was correct.
+_WINDOW_SHEET_BASE_LEN = "_spacr_window_stylesheet_base_len"
+_WINDOW_SHEET_BASE_DIGEST = "_spacr_window_stylesheet_base_digest"
 
 #: Whatever stylesheet a window had of its OWN before the application sheet
 #: was put on it. Kept because a parentless widget IS a window -- Qt says so
@@ -3619,11 +3638,11 @@ def _sheet_one_window(window) -> bool:
         # else since -- and re-sheeting is then correct rather than
         # wasteful, because whoever replaced it did so believing the
         # application carried the theme.
-        if (getattr(window, _WINDOW_SHEET_SERIAL, None) == serial
-                and getattr(window, _WINDOW_SHEET_DIGEST, None)
+        if (window.property(_WINDOW_SHEET_SERIAL) == serial
+                and window.property(_WINDOW_SHEET_DIGEST)
                 == _sheet_digest(window.styleSheet())):
             return False
-        setattr(window, _WINDOW_SHEET_SERIAL, serial)
+        window.setProperty(_WINDOW_SHEET_SERIAL, serial)
         # THE WINDOW'S OWN RULES SURVIVE, AND GO LAST so they still win.
         # Remembered the first time, because by the second pass the sheet on
         # the widget is ours and reading it back would fold the global rules
@@ -3635,7 +3654,13 @@ def _sheet_one_window(window) -> bool:
         # that screen on the previous preference values.
         text = preserve_widget_qss_overlay(window, sheet + own)
         window.setStyleSheet(text)
-        setattr(window, _WINDOW_SHEET_DIGEST, _sheet_digest(text))
+        window.setProperty(_WINDOW_SHEET_DIGEST, _sheet_digest(text))
+        # WHERE OUR PART ENDS, remembered so the next pass can tell an
+        # append from a replacement. The app attribute is no use for this:
+        # by the time the next pass reads it, it already holds the NEW
+        # sheet while the widget still wears the OLD one.
+        window.setProperty(_WINDOW_SHEET_BASE_LEN, len(sheet))
+        window.setProperty(_WINDOW_SHEET_BASE_DIGEST, _sheet_digest(sheet))
     except (AttributeError, RuntimeError):
         return False
     return True
@@ -3669,7 +3694,7 @@ def set_a_sheeted_widgets_own_rule(widget, rule: str) -> None:
         # Force the re-sheet: the serial says we have already dressed this
         # widget for the current sheet, and what changed is the half that
         # is appended after it.
-        setattr(widget, _WINDOW_SHEET_SERIAL, None)
+        widget.setProperty(_WINDOW_SHEET_SERIAL, None)
         if _sheet_one_window(widget):
             return
         widget.setStyleSheet(preserve_widget_qss_overlay(widget, rule))
@@ -3709,21 +3734,55 @@ def _forget_window_stylesheets(app=None) -> int:
     if not hasattr(app, _WINDOW_SHEET_ATTRIBUTE):
         return 0
     removed = 0
-    for window in list(app.topLevelWidgets()):
-        try:
-            if getattr(window, _WINDOW_SHEET_SERIAL, None) is None:
-                continue
-            delattr(window, _WINDOW_SHEET_SERIAL)
-            own = str(window.property(_WINDOW_OWN_SHEET) or "")
-            window.setProperty(_WINDOW_OWN_SHEET, None)
-            window.setStyleSheet(preserve_widget_qss_overlay(window, own))
-            removed += 1
-        except (AttributeError, RuntimeError):
-            continue
+    # NOT JUST THE TOP-LEVEL WINDOWS, AND THAT IS THE WHOLE CHANGE. Since
+    # `MainWindow` nominates roots, the sheet lives on widgets that are NOT
+    # top level -- the menu bar, the status bar, the dock, the visible page.
+    # Walking only `topLevelWidgets()` left them wearing it. Measured: of 28
+    # widgets carrying the sheet, this removed 22 and SIX kept it --
+    # QMenuBar, QStatusBar, HomePage and a layout container, every one of
+    # them `isWindow() == False`.
+    #
+    # That is the cross-test contamination this function exists to stop,
+    # reopened by the change that moved where the sheet lives. The stamp is
+    # what identifies our own work, so the stamp is what is searched for.
+    #
+    # `allWidgets()` RATHER THAN A WALK, and the difference from the
+    # segfault this codebase already paid for is WHEN. Calling it from
+    # `pytest_sessionfinish` crashed the interpreter -- Qt was already
+    # tearing objects down and reading a half-destroyed one is not an
+    # exception, it is a fault. This runs BETWEEN tests with a live
+    # application, which is the state the call is defined for. The walk it
+    # replaces missed a `QMenu` that is a window and is a child of nothing
+    # reachable from a top-level widget: 27 of 28 is not isolation.
+    # THE APPLICATION SHEET COMES DOWN FIRST, and the order is the fix
+    # rather than an ordering preference. Clearing a widget's stylesheet is
+    # itself a `setStyleSheet`, which triggers a `Polish` -- and the event
+    # filter, seeing a sheet still installed on the application, RE-SHEETS
+    # the widget we have just cleared. Traced: one QMenu came out of the
+    # loop wearing 72,618 characters again with its stamp gone, so it could
+    # not even be found on a second pass.
     try:
         delattr(app, _WINDOW_SHEET_ATTRIBUTE)
     except AttributeError:
         pass
+    try:
+        candidates = list(app.allWidgets())
+    except (AttributeError, RuntimeError):
+        candidates = []
+    for widget in candidates:
+        try:
+            if widget.property(_WINDOW_SHEET_SERIAL) is None:
+                continue
+            for stamp in (_WINDOW_SHEET_SERIAL, _WINDOW_SHEET_DIGEST,
+                          _WINDOW_SHEET_BASE_LEN,
+                          _WINDOW_SHEET_BASE_DIGEST):
+                widget.setProperty(stamp, None)
+            own = str(widget.property(_WINDOW_OWN_SHEET) or "")
+            widget.setProperty(_WINDOW_OWN_SHEET, None)
+            widget.setStyleSheet(preserve_widget_qss_overlay(widget, own))
+            removed += 1
+        except (AttributeError, RuntimeError):
+            continue
     return removed
 
 
@@ -3764,7 +3823,7 @@ def _the_windows_own_stylesheet(window) -> str:
     the next theme change carrying the full sheet and none of its own rule.
     """
     remembered = window.property(_WINDOW_OWN_SHEET)
-    ours = getattr(window, _WINDOW_SHEET_DIGEST, None)
+    ours = window.property(_WINDOW_SHEET_DIGEST)
     current = str(window.styleSheet() or "")
     if remembered is not None and (
             ours is None or ours == _sheet_digest(current)):
@@ -3774,6 +3833,22 @@ def _the_windows_own_stylesheet(window) -> str:
         # The late screen block belongs to `preserve_widget_qss_overlay`,
         # which re-appends it; keeping it here too would double it.
         current = current[:-len(suffix)]
+    # AN APPEND IS NOT A REPLACEMENT, and telling them apart is the whole
+    # of this. `ensure_widget_qss_applied` appends a late block, which
+    # changes the digest exactly as somebody else's `setStyleSheet` would --
+    # and what is left after stripping the recorded suffix is OUR OWN
+    # GLOBAL SHEET. Adopting that as the widget's "own" rules re-appends it
+    # under the next global sheet, so the text grows by a whole copy of
+    # itself at every theme change. Measured before this check: 1.01x,
+    # 2.01x, 3.01x, 4.01x, 5.00x over five themes -- 359 KB where 72 KB was
+    # right. That is the accumulation the original captured-once comment
+    # existed to prevent, reintroduced by making this re-read.
+    base_len = window.property(_WINDOW_SHEET_BASE_LEN)
+    base_digest = window.property(_WINDOW_SHEET_BASE_DIGEST)
+    if (isinstance(base_len, int) and base_digest is not None
+            and len(current) >= base_len
+            and _sheet_digest(current[:base_len]) == base_digest):
+        current = current[base_len:]
     window.setProperty(_WINDOW_OWN_SHEET, current)
     return current
 

@@ -82,6 +82,13 @@ class BenchmarkController(QObject):
         self.window = window
         self.keys = tuple(str(key) for key in keys)
         self._live_keys = live_keys
+        #: Which door the CURRENT module was opened through -- "sidebar" for
+        #: a row the user can click, "command palette" for a `TILELESS_APPS`
+        #: module that has no row and is reached from a host's button, from
+        #: Help or from Ctrl+K. Recorded on every result, because a number
+        #: that does not say how it was obtained is exactly what let fourteen
+        #: modules go unmeasured while the artifact reported violations.
+        self._door = "sidebar"
         self.output = str(output)
         self.timeout_s = _timeout_seconds() if timeout_s is None else float(
             timeout_s)
@@ -245,6 +252,12 @@ class BenchmarkController(QObject):
             entry["worst_event_loop_stall_ms"] < timing.STALL_BUDGET_MS
         )
         entry["stall_samples"] = len(interval_stalls)
+        # ONLY A MODULE HAS A DOOR. Home is the screen the window opens on
+        # and Preferences is a dialog; stamping either with "sidebar" would
+        # be a field that says how it was reached and is wrong about it,
+        # which is precisely the failure this field was added to stop.
+        if self.phase == "module":
+            entry.setdefault("door", self._door)
         self.results.append(entry)
         self._checkpoint()
         print(
@@ -295,31 +308,61 @@ class BenchmarkController(QObject):
             button for button in getattr(self.window._sidebar, "_items", ())
             if str(button.property("navKey") or "") == key
         ]
-        # NINE KEYS HAVE TWO ROWS, and neither is a mistake. A module that is
-        # folded onto a host's masthead AND keeps its registry row -- profiler,
-        # train_compare, convert, external_masks, layer_viewer, lineage,
-        # tabulate, plate_view, investigate_hit -- is drawn once from the
-        # registry and once as an indented child of its host. Both are hidden
-        # (the registry row because the key is in `TILELESS_APPS`, the child
-        # until its host is expanded), so a user never sees a duplicate.
+        # NINE KEYS ONCE HAD TWO ROWS, and neither was a mistake: a module
+        # folded onto a host's masthead kept its registry row as well, drawn
+        # once from the registry and once as an indented child of its host.
+        # This driver demanded exactly one and errored on all nine, which is
+        # how instruction 284's ratchet stopped measuring nine modules
+        # without anyone noticing -- 314's own suspicion, that "the ratchet
+        # is not running on the path the user actually takes", made
+        # concrete. The fix was to prefer the registry row.
         #
-        # BUT THIS DRIVER DEMANDED EXACTLY ONE AND ERRORED ON ALL NINE, which
-        # is how instruction 284's ratchet stopped measuring nine modules
-        # without anyone noticing -- 314's own suspicion, that "the ratchet is
-        # not running on the path the user actually takes", made concrete.
+        # THAT FIX HAS SINCE STOPPED WORKING, AND SO HAS THE ROW IT PREFERRED.
+        # Measured 2026-09-11 on a real `MainWindow` with the app drawer
+        # open: NO button anywhere in the window carries the `navKey` of
+        # `feature_explorer`, `convert`, `external_masks`, `lineage`,
+        # `layer_viewer`, `tabulate`, `outliers`, `control_chart`,
+        # `train_compare`, `plate_view`, `profiler`, `investigate_hit`,
+        # `feature_dict` or `trellis` -- fourteen of forty-five. The
+        # `isFoldChild` property this branch discriminated on is READ here
+        # and SET NOWHERE in the tree, so the rows are gone and the
+        # preference is guarding nothing. The count of unmeasured modules
+        # went from nine to fourteen and the artifact said `passed: false`
+        # with 463 violations, which reads as a broken application rather
+        # than as a driver that cannot find fourteen doors.
         #
-        # The REGISTRY row is the one to press: it is the module's own
-        # identity, and the fold child is a second door onto the same screen
-        # that resolves through `open_module` rather than plain navigation.
+        #   A RATCHET THAT ERRORS IS NOT A RATCHET THAT FAILED, and the
+        #   difference is invisible from the summary line.
+        #
+        # SO THE SECOND DOOR IS OPENED HERE, and it is a real one rather
+        # than a constructor proxy. Every one of the fourteen is in
+        # `TILELESS_APPS`, reached from a host module's button, from Help,
+        # or from the command palette -- and the palette reaches ALL of
+        # them uniformly: `CommandPalette._nav` is `window._on_nav_selected(key)`,
+        # the same slot `Sidebar.nav_selected` fires into. Pressing the
+        # button stays the primary path and is unchanged; this is what
+        # happens when there is no button to press.
         if len(buttons) > 1:
             registry_rows = [b for b in buttons
                              if not b.property("isFoldChild")]
             if len(registry_rows) == 1:
                 buttons = registry_rows
-        if len(buttons) != 1:
+        if len(buttons) > 1:
             self._record_error(
                 key, f"expected one live sidebar button, found {len(buttons)}")
             return
+        if not buttons:
+            # WHICH DOOR IS RECORDED, because a number that does not say how
+            # it was obtained is the thing this whole comment is about.
+            self._door = "command palette"
+            try:
+                self.window._on_nav_selected(key)
+            except BaseException as error:                   # noqa: BLE001
+                self._record_error(
+                    key, f"{type(error).__name__}: {error}",
+                    already_stopped=True)
+            return
+        self._door = "sidebar"
         button = buttons[0]
         if not button.isEnabled():
             self._record_error(key, "the live sidebar button is disabled")
@@ -463,7 +506,7 @@ class BenchmarkController(QObject):
             (float(row["overlap_ms"]) for row in interval_stalls), default=0.0)
         raw_worst = max(
             (float(row["late_ms"]) for row in interval_stalls), default=0.0)
-        self.results.append({
+        record = {
             "name": (
                 "interactive Home" if self.phase == "home"
                 else "interactive preferences" if self.phase == "preferences"
@@ -484,7 +527,14 @@ class BenchmarkController(QObject):
             "event_loop_stall_budget_met": worst_stall < timing.STALL_BUDGET_MS,
             "stall_samples": len(interval_stalls),
             "error": str(message),
-        })
+        }
+        # SAME RULE AS THE SUCCESS PATH: only a module was reached through a
+        # door, so only a module's record carries one. A refusal for Home or
+        # Preferences stamped with the last module's door would be a field
+        # that is confidently wrong.
+        if self.phase == "module":
+            record["door"] = self._door
+        self.results.append(record)
         self._checkpoint()
         print(f"benchmark failed: {detail}: {message}", flush=True)
         if self.phase == "home":

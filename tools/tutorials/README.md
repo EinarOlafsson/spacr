@@ -33,9 +33,9 @@ The user confirmed these requirements on 9 September:
 
 The maintainer explicitly approved **Coming soon screens for unfinished
 workflows**, superseding the earlier no-placeholder rule for this release.
-The candidate therefore contains 71 complete tutorial packages and five
+The candidate therefore contains 71 complete tutorial packages and six
 unavailable screens: Map Barcodes, Model Compare, Model Zoo, Investigate Hit,
-and OPS. These screens are not successful workflow demonstrations and do not
+OPS and Embeddings. These screens are not successful workflow demonstrations and do not
 close the underlying application/data defects. OPS is under Mask.
 
 `coming_soon.py` supplies text in all fourteen catalog languages. It only
@@ -48,7 +48,7 @@ for unchanged lessons whose media and narration are retained byte-for-byte.
 `build_release_candidate.py` creates a new private candidate, rechecks the
 existing full-library evidence and copies verified media without uploading it.
 `verify_release_candidate.py <candidate>` checks the candidate in Chromium,
-including all five screens in fourteen languages, mobile text visibility,
+including all six screens in fourteen languages, mobile text visibility,
 each ready English video/audio pair, seeking, and ready/unavailable transitions.
 `checkpoint_release_candidate.py <candidate>` saves its exact player, fourteen
 catalogs, route metadata, browser evidence and all media hashes under
@@ -79,12 +79,15 @@ validated recordings, narration, captions, and links close a lesson.
 ### Final library and web-copy checkpoints
 
 `verify_library_checkpoint.py --held 12_map_barcodes 21_model_compare
-22_model_zoo 71_investigate_hit --output <private-report.json>` reconciles
+22_model_zoo 71_investigate_hit --baseline <frozen-pre-refresh-catalogs>
+--output <private-report.json>` reconciles
 every other staged lesson, including the explicit whole-media retention path.
 It checks final bytes against existing audio/browser reports, all fourteen
 catalogs, and the current navigation registry. Listed holds and missing routes
-(including OPS) remain visible; passing the checked subset is not whole-library
+(including OPS and Embeddings) remain visible; passing the checked subset is not whole-library
 or publication approval. No model, synthesis or full-suite coverage run occurs.
+Use the immutable catalog baseline from `d2d4c189b`, before the public Coming
+soon conversion; the current candidate records its exact fourteen hashes.
 
 `stage_web_renditions.py --all-verified` consumes the private
 `library-checkpoint-2026-09-11.json` and uses the existing publisher encoder to

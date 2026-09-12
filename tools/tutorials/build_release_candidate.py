@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Assemble a private, byte-checked tutorial candidate; never deploy or upload.
 
-Ready lessons keep their exact scripts/media. The five maintainer-approved
-unavailable routes are text screens, not successful workflow demonstrations.
+Ready lessons keep their exact scripts/media. Explicitly unavailable routes
+are text screens, not successful workflow demonstrations.
 All copies live in a new directory. Existing catalogs/recordings stay intact.
 """
 from __future__ import annotations
@@ -112,10 +112,10 @@ def refresh_candidate_player(root):
     write(root / 'release-manifest.json', report)
 
 
-def build(stage=DEFAULT_STAGE):
+def build(stage=DEFAULT_STAGE, *, baseline=None):
     stage = Path(stage).resolve()
     # Revalidate current sources before creating any release copies.
-    proof = verify(stage, set(HELD))
+    proof = verify(stage, set(HELD), baseline=baseline)
     if proof['checked_lessons'] != 71 or proof['checked_tracks'] != 3550:
         raise ValueError('The approved ready/tutorial partition changed')
     root = Path(tempfile.mkdtemp(prefix='release-candidate-', dir=stage))
@@ -175,7 +175,8 @@ def build(stage=DEFAULT_STAGE):
     if web_bytes > 700 * 1024**2:
         raise ValueError('Candidate exceeds the tutorial media budget')
     report = {'scope': 'Private release candidate, not a live deployment',
-              'ready_lessons': 71, 'coming_soon': list(PLACEHOLDERS), 'routes': 76,
+              'ready_lessons': len(proof['lessons']), 'coming_soon': list(PLACEHOLDERS),
+              'routes': len(read(web / 'catalog/lessons_en.json')['lessons']),
               'catalog_languages': len(CATALOGS), 'narration_tracks': 3550,
               'web_bytes': web_bytes, 'ceiling_bytes': 700 * 1024**2,
               'media_host_bytes': sum(r['bytes'] for r in records if r['path'].startswith('media_host/')),
@@ -191,5 +192,7 @@ def build(stage=DEFAULT_STAGE):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    parser.add_argument('--baseline', type=Path,
+                        help='Frozen pre-refresh catalogs, before public Coming soon conversion')
     args = parser.parse_args()
-    build(args.stage)
+    build(args.stage, baseline=args.baseline)

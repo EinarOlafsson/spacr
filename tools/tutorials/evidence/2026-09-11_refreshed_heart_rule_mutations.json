@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "mutations": [
+    {
+      "source_function": "track_speech_text",
+      "observed_red": true,
+      "baseline_before_and_after_passed": true
+    },
+    {
+      "source_function": "supported_track_specs",
+      "observed_red": true,
+      "baseline_before_and_after_passed": true
+    }
+  ],
+  "source_files_modified": false,
+  "test_sha256": "9bdf7c5cf784071cd2577d15cc748a2b643563861c6ad9b0064b8eccb485a4bc",
+  "renderer_sha256": "422e2a2cca1155e4344f0aa4b362f6e733d1eb7dcbd3c0f3ae1b752b661206da",
+  "verifier_sha256": "7794b455e2a8dee84af240802b98ab7a70e966b47499d212e270af68cb05fd9c"
+}

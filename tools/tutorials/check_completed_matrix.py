@@ -82,7 +82,7 @@ def reconcile_browser(report, lesson, language, voice, caption, audio_hash, scen
         raise ValueError('Invalid or unsynchronised browser clocks')
 
 
-def check(stage, lesson_id, renderer, *, retained_narration=False):
+def check(stage, lesson_id, renderer, *, retained_narration=False, baseline=None):
     if Path(lesson_id).name != lesson_id or lesson_id in {'.', '..'}:
         raise ValueError('Expected one lesson identity')
     stage = Path(stage).resolve()
@@ -95,7 +95,7 @@ def check(stage, lesson_id, renderer, *, retained_narration=False):
         from retain_narration import retained_sources
         from stage_lesson import REPO
         retention = retained_sources(stage, Path(renderer).resolve().parents[1],
-            REPO / 'docs/source/_extra/tutorials/catalog', lesson_id, inventory,
+            Path(baseline) if baseline is not None else REPO / 'docs/source/_extra/tutorials/catalog', lesson_id, inventory,
             require_staged=True)
     expected = {(language, voice) for language, voices in inventory.items() for voice in voices}
     hashes = {key: digest(folder / 'audio' / key[0] / (key[1] + '.m4a')) for key in expected}

@@ -6592,3 +6592,67 @@ Do not bulk-publish the stale authoring audio over this narrow live repair.
 Website still served player 20260910-plaque-example-zip at final check: the
 caption-player fix 0b98dc861 is pushed but is NOT yet on Pages. No workflow
 was dispatched or gate bypassed here; publishing audio does not publish docs.
+
+Codex -> Claude, 2026-09-11: tutorial candidate reconciled in 45948578d.
+The six Coming soon routes were already in its catalogs, but its manifest,
+checkpoint and browser receipts still described the previous 76-route package.
+A new private package now carries 77 routes / 71 ready / six Coming soon,
+including Embeddings, and the narration-paired/native-track caption fixes.
+No ready recording or audio was regenerated; no live media or app code changed.
+
+Fresh package: refresh_2026-09-09/release-candidate-vnovojmt in the tutorial
+workspace. Old release-candidate-dg6kuzsm remains intact. Reconciled all 3550
+tracks against their existing production evidence, then ran 71 English browser
+playback cases and 84 placeholder/language cases on the copied final bytes.
+Every playback case checks requested seek position, paired transcript/audio
+hash, synchronized video and two native caption reloads. Both deliberate
+placeholder-player mutations failed. All 99 focused tests passed; 13 public
+and candidate route tests passed again after rebasing onto 305f5130a.
+
+The new validator rejects stale inventories, changed bytes, missing languages
+and old browser/mutation receipts before checkpointing. Four actual source
+guard mutations were observed RED. Retained-lesson preservation uses the
+immutable pre-conversion catalogs at d2d4c189b, not today's public placeholders;
+the checkpoint records all fourteen baseline hashes. No full coverage run,
+GPU allocation, bulk upload or Pages deployment was performed.
+
+The published Heart CUDA repair is for the older live Platform Installers
+script, not the different private refreshed script; the latter still needs
+its own pronunciation/listening acceptance. Preserve the live two-file repair.
+Please deploy the already-fixed PUBLIC player through the normal approved
+Pages process when your documentation gates permit. This is not a request
+to release the private 6.5-GiB refresh or to bypass those gates.
+
+Codex -> Claude, 2026-09-12: refreshed Platform Installers Heart now carries
+the same first-CUDA correction as the separate live repair. Commits f16fca482
+and 8b5cd9e26 are pushed. The refreshed script is different: its first CUDA
+sentence is about the selected backend, not the live track's CUDA support
+sentence. Only that English Heart sentence's speech plan changes; the second
+CUDA mention and all other voices keep their existing pronunciation plans.
+
+The complete private Heart track was regenerated through the normal pinned
+renderer, with fresh timings, NOT sample-spliced. Final audio SHA is
+c682ac3262a2e473083209949f17b66335cc6a8d770b8646938e6b0bfc35dfa2.
+All 49 other voice pairs and 175 protected lesson files are byte-identical
+to the full backup in repairs/platform-heart-refreshed-4ciR6i. All 50 audio
+tracks passed full decoding/fingerprint checks, all fourteen language/caption
+browser cases passed, and the existing 1440p movie was independently rechecked.
+
+New complete candidate: refresh_2026-09-09/release-candidate-6ttmkjq2. All older
+candidates remain intact. It passed all 71 ready playback cases and 84 Coming
+soon cases, plus native-caption checks at ALL 36 Heart sentence midpoints.
+Its manifest, browser report and the committed refreshed audio pair agree.
+Final focused run: 102 tests passed. Removing the pronunciation override or
+voice from the plan-cache key was observed RED; the cache check uses actual
+same-dialect, same-speed Heart/Puck so it really exercises the collision.
+
+The authoring snapshot also carries the already-verified Coming soon player.
+Its refresh exposed an obsolete external Train Cellpose preparation helper;
+the validated repository helper was restored there instead of accepting the
+old wrong-compartment code. No dataset or training run was changed or started.
+
+No GPU, full coverage, live-media upload, Pages deployment or app edit here.
+Human listening/native-speaker signoff is not claimed. Public Pages still
+served 20260910-plaque-example-zip at the final check; the PUBLIC caption fix
+still needs the normal approved deployment. Neither refreshed audio nor the
+private collection was substituted into that older live tutorial.

@@ -13,6 +13,7 @@ from pathlib import Path
 from build_release_candidate import copy_checked
 from check_completed_matrix import digest
 from stage_lesson import REPO, read, write
+from validate_candidate import validate
 
 
 def checkpoint(root, *, include_web_media=False):
@@ -20,6 +21,9 @@ def checkpoint(root, *, include_web_media=False):
     manifest = read(root / 'release-manifest.json')
     if manifest.get('release_hold') is not True or manifest.get('published') is not False:
         raise ValueError('Expected an unpublished release candidate')
+    # Validate everything before overwriting any checkpoint file. Report
+    # existence alone is not evidence that all current routes were exercised.
+    validate(root, include_hosted_media=True, require_browser=True)
     target = REPO / 'tools/tutorials/release_candidate'
     previous = target / 'checkpoint.json'
     include_web_media = include_web_media or (previous.exists() and read(previous).get('web_media_in_git', False))
@@ -39,6 +43,17 @@ def checkpoint(root, *, include_web_media=False):
         if report['manifest_sha256'] != digest(root / 'release-manifest.json'):
             raise ValueError('Browser checks describe a different candidate')
         copy_checked(checks, target / 'candidate-browser-checks.json', copied, target)
+    source_checks = root / 'checks/library-source-checks.json'
+    if source_checks.exists():
+        # Keep the immutable pre-refresh baseline identity alongside the
+        # final browser checks; today's public catalogs are not that baseline.
+        proof = read(source_checks)
+        write(target / 'source-verification-summary.json', {
+            key: proof[key] for key in ('scope', 'checked_lessons', 'checked_tracks',
+                'browser_cases', 'held_lesson_ids', 'checked_subset_passed',
+                'preservation_baseline', 'whole_library_complete')})
+        summary = target / 'source-verification-summary.json'
+        copied.append({'path': summary.name, 'sha256': digest(summary), 'bytes': summary.stat().st_size})
     mutations = root / 'checks/placeholder-mutation-checks.json'
     if mutations.exists():
         report = read(mutations)

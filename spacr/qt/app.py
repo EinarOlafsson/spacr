@@ -4635,8 +4635,8 @@ class MainWindow(QMainWindow):
             self._startup._btn_all_apps.clicked.connect(self.toggle_app_drawer)
         except Exception:
             pass
-        self._stack.addWidget(self._startup)
         self._a_page_joined_the_stack(self._startup)
+        self._stack.addWidget(self._startup)
         self._drop_a_redundant_screen_backdrop(self._startup)
 
     def _show_the_screensaver(self) -> bool:
@@ -4887,8 +4887,8 @@ class MainWindow(QMainWindow):
 
         self._screens[key] = fresh
         self._screen_scales[key] = _current_font_scale()
-        self._stack.addWidget(fresh)
         self._a_page_joined_the_stack(fresh)
+        self._stack.addWidget(fresh)
         self._drop_a_redundant_screen_backdrop(fresh)
         self._stack.setCurrentWidget(fresh)
         if old is not None:
@@ -4996,8 +4996,8 @@ class MainWindow(QMainWindow):
             except Exception:
                 # Decoration must never stop a screen from opening.
                 LOG.exception("Could not theme the %s screen", key)
-            self._stack.addWidget(self._screens[key])
             self._a_page_joined_the_stack(self._screens[key])
+            self._stack.addWidget(self._screens[key])
             self._drop_a_redundant_screen_backdrop(self._screens[key])
             try:
                 from .i18n import retranslate_widget_tree
@@ -5331,6 +5331,15 @@ class MainWindow(QMainWindow):
         marked widget on its ``Polish`` or ``Show`` -- which is before its
         first paint, and is also the only moment at which a page that is
         added but not raised should cost anything.
+
+        CALLED BEFORE ``addWidget``, AND THE ORDER IS THE WHOLE POINT.
+        ``QStackedWidget.addWidget`` makes the FIRST widget current and
+        shows it there and then, so a mark applied afterwards arrives after
+        that page's only ``Show`` and the filter never sees it marked. Every
+        later page is unaffected -- the stack is no longer empty, so
+        ``addWidget`` does not raise them -- which is exactly what makes
+        this the kind of defect that ships: it is wrong for one page out of
+        forty-five, and that page is Home.
 
         :param page: the widget that has just been added to the stack.
         """
@@ -6132,6 +6141,31 @@ def launch(argv: Optional[list[str]] = None) -> int:
     _app_name, _app_display_name = name_the_application()
 
     app = QApplication(sys.argv[:1])
+    # NAME THE CALL THAT FREEZES THE INTERFACE, when asked to. A stalled GUI
+    # thread leaves no traceback: it is not an exception and not a fault, so
+    # `faulthandler` cannot see it and the log ends mid-sentence. The only
+    # thing that can name it is a sample of the main thread's stack taken
+    # WHILE it is stuck, from another thread.
+    #
+    # WHY IT IS HERE AND NOT IN A TOOL. `tools/watch_the_gui_thread.py` does
+    # exactly this and has to make the application itself to do it, which
+    # stopped working the day `launch` began constructing its own. Reaching
+    # in from outside was then tried two more ways and failed twice more:
+    # hosting `qt.run()` in another process makes Home time out at 30 s, and
+    # a `sitecustomize` on the benchmark worker's `PYTHONPATH` runs but its
+    # patched `QApplication` is never the one constructed. An environment
+    # flag read HERE is the one place that cannot miss.
+    #
+    # Measured on 2026-09-11: opening Measure is 13.3 s of which a single
+    # event-loop stall is 13.0 s, and `mask` and `regression` have the same
+    # shape -- so this is not a Measure question, it is how every module
+    # opens. See instruction 380.
+    if os.environ.get("SPACR_WATCH_GUI_STALLS"):
+        try:
+            from .stall_watch import watch_this_application
+            watch_this_application(app)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("Could not start the GUI stall watch", exc_info=True)
     # NAME THE CALLER OF AN OFF-THREAD TIMER START, because Qt will not. Its
     # own warning has no file, no function and no thread in it, and the event
     # arrives during a real run and is followed by the process dying -- so

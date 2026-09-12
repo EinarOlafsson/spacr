@@ -579,6 +579,66 @@ def test_field_cache_is_keyed_on_file_contents(tmp_path):
     assert open_merged_field(path, MASK_DIMS) is not first
 
 
+@pytest.mark.parametrize("band", ["under one window",
+                                  "between one and two windows",
+                                  "over two windows"])
+def test_a_field_that_changes_only_in_its_tail_is_not_served_stale(tmp_path,
+                                                                   band):
+    """THE SIZE BANDS THE FINGERPRINT HAS TO COVER, NOT THE ONE IT HAPPENED TO.
+
+    `_content_fingerprint` hashes a window from each end. Its first version
+    read the tail only when the file was larger than TWICE the window,
+    which left a blind band: a file between one and two windows was
+    fingerprinted on its head alone, so everything past the first window
+    was invisible to the cache key -- the stale-pixels defect this exists
+    to stop, surviving at one size. Measured then: an 80,128-byte field
+    whose LAST pixel changed produced a byte-identical key.
+
+    The guard above could not see it, because `_make_field` is one size and
+    a test that picks one size tests one size.
+
+    THE SIZES ARE DERIVED FROM THE WINDOW, NOT WRITTEN DOWN, and that is
+    the second lesson rather than the first. They were written down once --
+    80,128 bytes and two others, straddling a 64 KiB window -- and then the
+    window was re-priced to 4 KiB for unrelated reasons, which put all
+    three on the same side of it. The parametrisation would have gone on
+    reading as though it straddled something while testing one band three
+    times. Deriving them means the next person to price the window keeps
+    the coverage without knowing this happened.
+
+    THE LAST PIXEL, because that is the byte a head-only fingerprint cannot
+    reach, and the mtime is restored so the rest of the key cannot do the
+    work instead -- the kernel stamps mtime from a coarse clock and two
+    quick writes collide anyway, which is what made the fingerprint
+    necessary in the first place.
+    """
+    window = crops._CACHE_FINGERPRINT_BYTES
+    # `.npy` costs a 128-byte header and uint16 is two bytes a value, so
+    # this lands each file in its intended band rather than near it.
+    wanted = {"under one window": window // 2,
+              "between one and two windows": window + window // 2,
+              "over two windows": window * 4}[band]
+    data = np.zeros((1, 1, max(4, (wanted - 128) // 2)), dtype=np.uint16)
+    path = str(tmp_path / "merged" / "plate1_A01_1.npy")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    np.save(path, data)
+    crops.clear_field_cache()
+    before = crops._cache_key(path)
+
+    stat = os.stat(path)
+    changed = data.copy()
+    changed[-1, -1, -1] = 7777
+    np.save(path, changed)
+    os.utime(path, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+
+    assert os.stat(path).st_size == stat.st_size, (
+        "this test only means something while the two files are the same "
+        "size, so size cannot be what distinguishes them")
+    assert crops._cache_key(path) != before, (
+        f"a {stat.st_size:,}-byte field whose LAST pixel changed has the "
+        "same cache key, so the previous field's pixels are served for it")
+
+
 def test_get_many_groups_rows_by_file(tmp_path):
     """MergedCropSource.get_many cuts every object of a field from one open file."""
     data_a = _make_field(seed=67)
@@ -1386,3 +1446,38 @@ def test_a_png_list_file_name_resolves_to_the_field_it_was_cut_from(tmp_path):
     assert spec.merged_path == field
     # A field whose real name ends in a number is not mistaken for a crop.
     assert src.resolve_path({"file_name": "plate1_A01_1_1"}) == path
+
+
+def test_a_file_that_goes_unreadable_is_served_not_called_corrupt(tmp_path):
+    """CANNOT VERIFY IS NOT THE SAME AS CHANGED.
+
+    `_content_fingerprint` reads the first and last few kilobytes to tell a
+    regenerated field from the cached one. When that read fails -- a
+    permission flip on a NAS share, a remount, transient fd pressure -- it
+    used to return ``""``, which is not the digest any cached entry carries.
+    The lookup therefore MISSED, `MergedField` was rebuilt, and the same
+    read error came back to the caller as :class:`CorruptMergedFile`.
+
+    The file is not corrupt and the cached mapping is still valid; the only
+    thing that failed was our attempt to re-read a few kilobytes of it. The
+    call used to be a pure cache hit and is one again: an unverifiable
+    fingerprint falls back to path, mtime and size, which is exactly what
+    this cache used before the fingerprint existed.
+    """
+    data = _make_field(seed=83)
+    path = _write_field(tmp_path, data)
+    crops.clear_field_cache()
+    first = open_merged_field(path, MASK_DIMS)
+    assert open_merged_field(path, MASK_DIMS) is first, (
+        "this test means nothing unless the field is cached to begin with")
+
+    os.chmod(path, 0)
+    try:
+        served = open_merged_field(path, MASK_DIMS)
+    finally:
+        os.chmod(path, 0o644)
+
+    assert served is first, (
+        "a file that briefly could not be read was rebuilt rather than "
+        "served from cache, which is how a permission flip becomes a "
+        "CorruptMergedFile for a file that is neither corrupt nor missing")

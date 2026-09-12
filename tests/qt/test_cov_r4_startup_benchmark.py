@@ -163,18 +163,19 @@ def test_a_run_that_finished_first_keeps_the_settling_record_out(
 # the sidebar
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("nav_keys,found", [(("measure",), 0),
-                                            (("mask", "mask"), 2)])
-def test_a_key_without_exactly_one_live_button_is_recorded(make_controller,
-                                                           window, qtbot,
-                                                           nav_keys, found):
-    """A registry key with no button, or two, is a refusal -- not a skip.
+def test_a_key_with_two_live_buttons_is_recorded(make_controller, window,
+                                                 qtbot):
+    """Two rows for one key is a refusal -- not a skip.
 
     The benchmark exists to press the buttons a user presses. If a key were
     quietly skipped the artifact would report a complete sweep of a registry
     it never touched.
+
+    ZERO ROWS IS NO LONGER THIS CASE and has its own test below: fourteen
+    registry modules legitimately have no sidebar row, so treating that as a
+    refusal is what stopped them being measured at all.
     """
-    window._sidebar._items = [_nav_button(key) for key in nav_keys]
+    window._sidebar._items = [_nav_button("mask"), _nav_button("mask")]
     controller = make_controller(window, keys=("mask",))
 
     controller._ready(_home_entry())
@@ -182,12 +183,54 @@ def test_a_key_without_exactly_one_live_button_is_recorded(make_controller,
     qtbot.waitUntil(lambda: controller._finished, timeout=SETTLE_WAIT_MS)
     failure = controller.results[-1]
     assert failure["detail"] == "mask"
-    assert failure["error"] == (
-        f"expected one live sidebar button, found {found}")
+    assert failure["error"] == "expected one live sidebar button, found 2"
     assert failure["within_budget"] is False
     violations = _artifact(controller)["benchmark"]["violations"]
     assert any("expected one live sidebar button" in line
                for line in violations)
+
+
+def test_a_key_with_no_row_is_opened_through_the_other_door(make_controller,
+                                                            window, qtbot):
+    """FOURTEEN OF FORTY-FIVE MODULES HAVE NO SIDEBAR ROW, BY DESIGN.
+
+    Everything in `TILELESS_APPS` is reached from a host module's button,
+    from Help, or from the command palette. Measured 2026-09-11 on a real
+    `MainWindow` with the drawer open: no button anywhere in the window
+    carries any of those fourteen `navKey`s. Refusing them cost this
+    benchmark a third of the registry while the artifact reported 463
+    violations, which reads as a broken application rather than a driver
+    that cannot find fourteen doors.
+
+    So a key with no row is navigated the way the palette navigates it --
+    `CommandPalette._nav` is `window._on_nav_selected(key)`, the same slot
+    `Sidebar.nav_selected` fires into -- AND THE DOOR IS RECORDED, because
+    a number that does not say how it was obtained is what allowed this.
+    """
+    navigated = []
+    window._sidebar._items = []
+    window._on_nav_selected = navigated.append
+    controller = make_controller(window, keys=("mask",))
+
+    controller._ready(_home_entry())
+    qtbot.waitUntil(lambda: navigated == ["mask"], timeout=SETTLE_WAIT_MS)
+    assert controller._door == "command palette"
+
+
+def test_a_key_with_no_row_and_no_way_in_is_still_a_refusal(make_controller,
+                                                            window, qtbot):
+    """The other door has to EXIST, or this is the skip the file forbids."""
+    window._sidebar._items = []
+    controller = make_controller(window, keys=("mask",))
+
+    controller._ready(_home_entry())
+
+    qtbot.waitUntil(lambda: controller._finished, timeout=SETTLE_WAIT_MS)
+    failure = controller.results[-1]
+    assert failure["detail"] == "mask"
+    assert "AttributeError" in failure["error"]
+    assert failure["within_budget"] is False
+    assert failure["door"] == "command palette"
 
 
 def test_a_disabled_button_is_reported_rather_than_pressed(make_controller,

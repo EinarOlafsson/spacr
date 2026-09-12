@@ -220,11 +220,31 @@ def true_peak_dbfs(path: Path) -> float | None:
     return float(matches[-1])
 
 
+def track_speech_text(lesson_id, language, voice, display_text, speech_text):
+    """Carry the reported Heart CUDA correction into the refreshed script.
+
+    This is a different sentence from the older live recording's repair.
+    Match it explicitly so neither the second CUDA mention nor another voice
+    is silently changed. The resolved speech text enters the fingerprint.
+    """
+    if (lesson_id, language, voice, display_text) == (
+        "04_platform_installers", "en", "af_heart",
+        "Here the request was auto and the selected backend is CUDA on NVIDIA hardware.",
+    ):
+        before = "[CUDA](/kˈuːdᵊ/)"
+        if speech_text.count(before) != 1:
+            raise ValueError("The refreshed Heart CUDA pronunciation premise changed")
+        return speech_text.replace(before, "[CUDA](/kˈudə/)")
+    return speech_text
+
+
 def prepare_scene_plans(
     lesson: dict,
     language: str,
     dialect: str,
     base_speed: float = 1.0,
+    *,
+    voice: str | None = None,
 ) -> list[dict]:
     """Resolve exact sentence-level TTS text before cache validation."""
     plans = []
@@ -239,6 +259,9 @@ def prepare_scene_plans(
         for display_sentence in display_sentences:
             speech_text = spoken_form(
                 display_sentence, language, dialect=dialect
+            )
+            speech_text = track_speech_text(
+                lesson["id"], language, voice, display_sentence, speech_text
             )
             assert_pronunciation_safe(display_sentence, speech_text)
             sentences.append(
@@ -413,7 +436,7 @@ def render_track(
     m4a = audio_dir / f"{voice}.m4a"
     timing_path = audio_dir / f"{voice}.json"
     captions_path = lesson_root / "captions" / language / f"{voice}.vtt"
-    scene_plans = prepare_scene_plans(lesson, language, dialect, speed)
+    scene_plans = prepare_scene_plans(lesson, language, dialect, speed, voice=voice)
     fingerprint, fingerprint_inputs = track_fingerprint(
         lesson,
         language,
