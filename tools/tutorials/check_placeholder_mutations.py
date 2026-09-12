@@ -13,12 +13,14 @@ import threading
 from playwright.sync_api import sync_playwright
 
 from check_completed_matrix import digest
-from stage_lesson import write
+from stage_lesson import read, write
 from verify_staged_lesson import Handler
 
 
 def verify(root):
     source = (root / 'web/app_v2.js').read_text()
+    catalog = read(root / 'web/catalog/lessons_en.json')['lessons']
+    ready_count = sum(lesson.get('status') != 'coming_soon' for lesson in catalog)
     variants = [
         ('availability guard', 'lesson.status !== "coming_soon"', 'true'),
         ('completion guard', 'function toggleComplete() {\n  if (!isPlayable(activeLesson)) return;',
@@ -40,7 +42,7 @@ def verify(root):
                     page.goto(origin + '/web/#lesson=76_ops', wait_until='networkidle')
                     page.wait_for_function('activeLesson?.id === "76_ops"')
                     assert page.locator('#planned-card').is_visible()
-                    assert page.locator('#available-count').inner_text() == '71'
+                    assert page.locator('#available-count').inner_text() == str(ready_count)
                     page.evaluate('toggleComplete()')
                     assert page.evaluate('!completed.has("76_ops")')
                 finally:

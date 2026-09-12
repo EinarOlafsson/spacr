@@ -49,3 +49,27 @@ def test_unexpected_input_cannot_silently_drop_or_duplicate_a_route(catalog, cha
     change(catalog)
     with pytest.raises(ValueError, match='distinct original lessons'):
         release_catalog(catalog, 'en')
+
+
+@pytest.mark.parametrize('language', COPY)
+def test_recorded_embeddings_promotes_only_its_own_route(catalog, language):
+    lesson = {'id': EMBEDDINGS, 'number': 77, 'app_key': 'embeddings',
+              'title': 'Recorded API, not GUI completion', 'scenes': [{'narration': 'Real recording'}]}
+    catalog['lessons'].append(deepcopy(lesson))
+    before = deepcopy(catalog)
+    result = release_catalog(catalog, language)
+    assert catalog == before
+    assert next(x for x in result['lessons'] if x['id'] == EMBEDDINGS) == lesson
+    assert [x['id'] for x in result['lessons'] if x.get('status') == 'coming_soon'] == [*HELD, OPS]
+    assert len({x['id'] for x in result['lessons']}) == len(result['lessons'])
+
+
+@pytest.mark.parametrize('change', [{'app_key': 'wrong'}, {'number': 78},
+                                  {'host_app_key': 'mask'}, {'scenes': []}, {'status': 'coming_soon'}])
+def test_promotion_must_keep_the_actual_home_identity_and_recorded_scenes(catalog, change):
+    lesson = {'id': EMBEDDINGS, 'number': 77, 'app_key': 'embeddings', 'scenes': [{'narration': 'Real'}]}
+    catalog['lessons'].append(lesson)
+    release_catalog(catalog, 'en')
+    lesson.update(change)
+    with pytest.raises(ValueError, match='recorded Embeddings promotion'):
+        release_catalog(catalog, 'en')

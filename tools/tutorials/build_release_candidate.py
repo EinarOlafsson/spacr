@@ -18,7 +18,7 @@ import tempfile
 from audit_staged_catalogs import CATALOGS
 from build_navigation import build as navigation
 from check_completed_matrix import digest, voice_matrix
-from coming_soon import HELD, PLACEHOLDERS, release_catalog
+from coming_soon import EMBEDDINGS, HELD, release_catalog
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 from verify_library_checkpoint import verify
 
@@ -90,6 +90,12 @@ def refresh_candidate_player(root):
     report = read(root / 'release-manifest.json')
     if report.get('release_hold') is not True or report.get('published') is not False:
         raise ValueError('Only an unpublished, held candidate may be refreshed')
+    existing = read(root / 'web/catalog/lessons_en.json')['lessons']
+    proposed = release_catalog(read(root.parent / 'catalog/lessons_en.json'), 'en')['lessons']
+    def disposition(lessons):
+        return [(lesson['id'], lesson.get('status') == 'coming_soon') for lesson in lessons]
+    if disposition(existing) != disposition(proposed):
+        raise ValueError('A newly recorded route needs a new candidate, not a player-only refresh')
     names = ('app_v2.js', 'styles.css')
     records = report['files']
     for name in names:
@@ -116,7 +122,9 @@ def build(stage=DEFAULT_STAGE, *, baseline=None):
     stage = Path(stage).resolve()
     # Revalidate current sources before creating any release copies.
     proof = verify(stage, set(HELD), baseline=baseline)
-    if proof['checked_lessons'] != 71 or proof['checked_tracks'] != 3550:
+    ready_ids = {item['lesson'] for item in proof['lessons']}
+    expected_ready = 71 + (EMBEDDINGS in ready_ids)
+    if proof['checked_lessons'] != expected_ready or proof['checked_tracks'] != expected_ready * 50:
         raise ValueError('The approved ready/tutorial partition changed')
     root = Path(tempfile.mkdtemp(prefix='release-candidate-', dir=stage))
     web, media = root / 'web', root / 'media_host'
@@ -174,10 +182,12 @@ def build(stage=DEFAULT_STAGE, *, baseline=None):
     web_bytes = sum(r['bytes'] for r in records if r['path'].startswith('web/'))
     if web_bytes > 700 * 1024**2:
         raise ValueError('Candidate exceeds the tutorial media budget')
+    unavailable = [item['id'] for item in read(web / 'catalog/lessons_en.json')['lessons']
+                   if item.get('status') == 'coming_soon']
     report = {'scope': 'Private release candidate, not a live deployment',
-              'ready_lessons': len(proof['lessons']), 'coming_soon': list(PLACEHOLDERS),
+              'ready_lessons': len(proof['lessons']), 'coming_soon': unavailable,
               'routes': len(read(web / 'catalog/lessons_en.json')['lessons']),
-              'catalog_languages': len(CATALOGS), 'narration_tracks': 3550,
+              'catalog_languages': len(CATALOGS), 'narration_tracks': proof['checked_tracks'],
               'web_bytes': web_bytes, 'ceiling_bytes': 700 * 1024**2,
               'media_host_bytes': sum(r['bytes'] for r in records if r['path'].startswith('media_host/')),
               'files': sorted(records, key=lambda r: r['path']), 'web_checks': web_checks,

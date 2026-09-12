@@ -42,10 +42,18 @@ def release_catalog(source, language):
     """Preserve every ready lesson verbatim and replace only approved holds."""
     result = deepcopy(source)
     ids = [lesson['id'] for lesson in result['lessons']]
+    recorded_embedding = next((lesson for lesson in result['lessons']
+                               if lesson['id'] == EMBEDDINGS), None)
+    valid_promotion = (recorded_embedding is not None
+                       and recorded_embedding.get('number') == 77
+                       and recorded_embedding.get('app_key') == 'embeddings'
+                       and 'host_app_key' not in recorded_embedding
+                       and recorded_embedding.get('status') != 'coming_soon'
+                       and bool(recorded_embedding.get('scenes')))
     if (len(ids) != len(set(ids)) or not set(HELD) <= set(ids)
-            or OPS in ids or EMBEDDINGS in ids):
+            or OPS in ids or (EMBEDDINGS in ids and not valid_promotion)):
         raise ValueError('Expected distinct original lessons, four holds, '
-                         'and neither generated placeholder already present')
+                         'no OPS placeholder, and only a recorded Embeddings promotion')
     title, description = COPY[language]
     for lesson in result['lessons']:
         if lesson['id'] in HELD:
@@ -60,11 +68,13 @@ def release_catalog(source, language):
         'status': 'coming_soon', 'availability_title': title,
         'description': description, 'objectives': [], 'prerequisite': '', 'scenes': [],
     })
-    result['lessons'].append({
-        'id': EMBEDDINGS, 'number': 77, 'slug': 'embeddings',
-        'title': 'Embeddings', 'series': 2, 'app_key': 'embeddings',
-        'section': 'Data', 'status': 'coming_soon',
-        'availability_title': title, 'description': description,
-        'objectives': [], 'prerequisite': '', 'scenes': [],
-    })
+    if recorded_embedding is None:
+        result['lessons'].append({
+            'id': EMBEDDINGS, 'number': 77, 'slug': 'embeddings',
+            'title': 'Embeddings', 'series': 2, 'app_key': 'embeddings',
+            'section': 'Data', 'status': 'coming_soon',
+            'availability_title': title, 'description': description,
+            'objectives': [], 'prerequisite': '', 'scenes': [],
+        })
+    result['lessons'].sort(key=lambda lesson: lesson['number'])
     return result
