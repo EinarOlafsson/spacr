@@ -9,6 +9,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from coming_soon import COPY, HELD, OPS, EMBEDDINGS, PLACEHOLDERS, release_catalog
 
 
+def test_browser_guard_targets_an_actual_hold_after_ops_is_recorded():
+    from coming_soon import first_placeholder
+    lessons = [{'id': OPS, 'scenes': [{'narration': 'Ready'}]},
+               {'id': HELD[0], 'status': 'coming_soon', 'scenes': []}]
+    assert first_placeholder(lessons) == HELD[0]
+    with pytest.raises(ValueError, match='actually unavailable'):
+        first_placeholder(lessons[:1])
+
+
 @pytest.fixture
 def catalog():
     return {'lessons': [dict(id=identity, number=i, title=identity,

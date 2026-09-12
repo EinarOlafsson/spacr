@@ -60,6 +60,7 @@ def main() -> int:
     parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
     parser.add_argument('--classify-overview', action='store_true', help='Record only native family choices and nested Classify navigation; never start a model')
     parser.add_argument('--model-zoo-inventory', action='store_true', help='Record actual Model Zoo inventory/provenance only; no download, training or benchmark')
+    parser.add_argument('--model-compare-api-introduction', action='store_true', help='Record only the real Model Compare route and field loading before a separately verified mask-comparison API example')
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
     parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
     parser.add_argument('--anndata-api-introduction', action='store_true', help='Record only the AnnData GUI route/settings before the separately verified API workaround')
@@ -71,6 +72,8 @@ def main() -> int:
     parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
+    if args.model_compare_api_introduction and (args.module != 'model_compare' or args.run or args.download or args.preview):
+        parser.error('--model-compare-api-introduction requires model_compare without run/download/preview')
     if args.model_zoo_inventory and (args.module != 'model_zoo' or args.run or args.download or args.preview):
         parser.error('--model-zoo-inventory requires model_zoo without run/download/preview')
     if args.preview_variants and not args.preview:
@@ -497,7 +500,7 @@ def main() -> int:
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'agreement': 'annotate',
-                    'external_masks': 'foreign', 'model_zoo': 'make_masks',
+                    'external_masks': 'foreign', 'model_zoo': 'make_masks', 'model_compare': 'make_masks',
                     'train_compare': 'classify_merged',
                     'plate_view': 'graph_builder',
                     'control_chart': 'qc_dashboard',
@@ -606,6 +609,10 @@ def main() -> int:
                 from capture_model_zoo import record_model_zoo
                 record_model_zoo(app, window, screen, stage, captures, capture,
                                  settle, write_json, args.timeout)
+        if args.model_compare_api_introduction:
+            from capture_model_compare import record_screen
+            record_screen(app, window, screen, stage, captures, capture,
+                          settle, write_json, args.timeout)
         if args.module == 'train_compare':
             from capture_training_runs import record_training_runs
             record_training_runs(app, window, screen, stage, captures, capture,

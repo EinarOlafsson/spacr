@@ -13,6 +13,7 @@ import threading
 from playwright.sync_api import sync_playwright
 
 from check_completed_matrix import digest
+from coming_soon import first_placeholder
 from stage_lesson import read, write
 from verify_staged_lesson import Handler
 
@@ -20,6 +21,7 @@ from verify_staged_lesson import Handler
 def verify(root):
     source = (root / 'web/app_v2.js').read_text()
     catalog = read(root / 'web/catalog/lessons_en.json')['lessons']
+    unavailable = first_placeholder(catalog)
     ready_count = sum(lesson.get('status') != 'coming_soon' for lesson in catalog)
     variants = [
         ('availability guard', 'lesson.status !== "coming_soon"', 'true'),
@@ -39,12 +41,12 @@ def verify(root):
                 context.route('**/app_v2.js*', lambda route: route.fulfill(body=code, content_type='application/javascript'))
                 page = context.new_page()
                 try:
-                    page.goto(origin + '/web/#lesson=76_ops', wait_until='networkidle')
-                    page.wait_for_function('activeLesson?.id === "76_ops"')
+                    page.goto(origin + '/web/#lesson=' + unavailable, wait_until='networkidle')
+                    page.wait_for_function('(identity) => activeLesson?.id === identity', arg=unavailable)
                     assert page.locator('#planned-card').is_visible()
                     assert page.locator('#available-count').inner_text() == str(ready_count)
                     page.evaluate('toggleComplete()')
-                    assert page.evaluate('!completed.has("76_ops")')
+                    assert page.evaluate('(identity) => !completed.has(identity)', unavailable)
                 finally:
                     context.close()
             check(source)
@@ -62,6 +64,7 @@ def verify(root):
         write(root / 'checks/placeholder-mutation-checks.json', {
               'player_sha256': digest(root / 'web/app_v2.js'), 'mutations': observed,
               'baseline_before_and_after_passed': True, 'source_files_modified': False,
+              'tested_placeholder': unavailable,
               'passed': True, 'published': False})
     finally:
         server.shutdown()

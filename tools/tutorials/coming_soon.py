@@ -38,6 +38,14 @@ COPY = {
 }
 
 
+def first_placeholder(lessons):
+    """Choose an actual unavailable route, never an identity that became ready."""
+    for lesson in lessons:
+        if lesson.get('status') == 'coming_soon':
+            return lesson['id']
+    raise ValueError('This placeholder check requires an actually unavailable lesson')
+
+
 def release_catalog(source, language, *, recording_stage=None):
     """Preserve every ready lesson verbatim and replace only approved holds."""
     result = deepcopy(source)
