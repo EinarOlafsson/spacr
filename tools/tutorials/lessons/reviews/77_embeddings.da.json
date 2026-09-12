@@ -1,0 +1,29 @@
+{
+  "title": "Embeddings: den aktuelle skærm og et ægte Python-eksempel",
+  "description": "Se det nye modul og kod virkelige billeder med API’et uden at påstå, at GUI’en er rettet eller en fænotype valideret.",
+  "objectives": [
+    "Skeln mellem den aktuelle GUI og det fungerende API.",
+    "Sammenlign kanalpolitikker på seksten billeder.",
+    "Bevar identiteter og fortolk figurer med omtanke."
+  ],
+  "prerequisite": "spaCR 1.5.0.7 med tilvalget embeddings; optaget med timm 1.0.29 og fortrænet ResNet18 på CPU. Hent Annotate-eksemplet og den tilknyttede ZIP. Brug cell_png-mappen fra README og nye outputmapper. Filnavne er ikke verificerede databasenøgler. Skærmen mangler billedindlæsning; de vellykkede handlinger bruger API’et. Ingen biologisk validering, modersmålsvurdering eller GPU-kørsel hævdes.",
+  "scenes": [
+    "Embeddings er et nyt modul på Home i spaCR. Det omdanner billedudsnit til numeriske vektorer uden træning på dine annoteringer. Lektionen viser den aktuelle skærm og et fungerende Python-eksempel med virkelige downloadede billeder.",
+    "I version ét punkt fem punkt nul punkt syv har skærmen ingen kontrol til indlæsning af billedudsnit, og Embed er deaktiveret. Vi simulerer ikke en vellykket GUI-kørsel. Den faktiske kodning, der vises bagefter, udføres af det understøttede Python-API.",
+    "Per channel koder hver gemt kanal separat og sammenkæder vektorerne. Project to three koder det kombinerede billede. Det ændrer repræsentationen, ikke kun hastigheden. En kanalplads i en PNG er ikke automatisk en verificeret farvningsidentitet.",
+    "Installér det valgfrie tilvalg embeddings i dit spaCR-miljø. Standardmodellens ResNet atten bruger superviserede ImageNet-vægte, ikke en selvsuperviseret model trænet på celler. Dette lille eksempel bruger CPU; hverken GPU eller en ekstern AI-tjeneste er nødvendig.",
+    "Brug Annotates downloadbare eksempel og billedudsnitsmappen i vejledningen. Det tilknyttede script vælger seksten eksisterende billeder sorteret efter filnavn. Hvert billede er to hundrede fireogtyve pixels på hver led med tre gemte kanaler. Der ændres ikke størrelse og segmenteres ikke igen.",
+    "Kør scriptet med en ny outputmappe. Det kalder embed_array med den virkelige fortrænede encoder og batcher på fire. Kodning pr. kanal giver seksten rækker og et tusind fem hundrede seksogtredive dimensioner. Den gemte matrix genåbnes og kontrolleres værdi for værdi.",
+    "Vælg nu project og en anden outputmappe. De samme billeder giver seksten rækker og fem hundrede tolv dimensioner. Disse kombinerede kanalkolonner kan ikke udskiftes med de tidligere kanalvise kolonner. Sammenlign politikker bevidst, og gem indstillingerne for hver kørsel.",
+    "Undersøg montagen af de faktiske inputbilleder i billedviseren. Numrene følger outputrækkernes orden. Kontrollér udsnittenes kvalitet og eksportens kanaltilknytning før fortolkning. Filnavnene identificerer dette eksempel; verificér objektnøglerne før sammenføjning med en måledatabase.",
+    "Denne gemte figur projicerer de kanalvise vektorer på to hovedkomponenter. De nummererede punkter er de samme billedudsnit. Det er en undersøgende visualisering af en meget lille stikprøve, ikke bevis for forskellige fænotyper. Én vektordimension er ikke en biologisk måling.",
+    "Vektorerne med kombinerede kanaler har deres egen projektion. Sammenlign ikke aksekoordinater på tværs af figurerne, som om de delte én tilpasset transformation. Ingen af figurerne måler genfindingsnøjagtighed eller viser, at vektorerne overgår panelet af målte egenskaber.",
+    "Gem vektorer, kildeidentiteter, vægtenes kontrolsum, indstillinger og pakkeversioner. Scriptet kontrollerer, at originalbillederne er uændrede, og afviser eksisterende destinationer. Match inputudsnit, normalisering og kanaltilknytning i sammenligninger. Brug den tilknyttede vejledning til at gentage API-eksemplet."
+  ],
+  "lesson": "77_embeddings",
+  "language": "da",
+  "english_sha256": "f5415671d988cad7353067d0a764a519bf90cb6134d0de803b90d50060678172",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false
+}

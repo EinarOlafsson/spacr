@@ -1,0 +1,29 @@
+{
+  "title": "Embeddings: pantalla actual y ejemplo real en Python",
+  "description": "Explore el nuevo módulo y codifique imágenes reales con la API, sin presentar una ejecución gráfica inexistente ni una validación biológica.",
+  "objectives": [
+    "Distinguir la interfaz actual de la API funcional.",
+    "Comparar las dos políticas de canales con dieciséis imágenes.",
+    "Conservar identidades e interpretar las figuras con cautela."
+  ],
+  "prerequisite": "spaCR 1.5.0.7 con el extra embeddings; grabación con timm 1.0.29 y ResNet18 preentrenado en CPU. Descargue el ejemplo de Annotate y el ZIP enlazado. Use la carpeta cell_png indicada en README y directorios de salida nuevos. Los nombres de archivo no son claves de base de datos verificadas. La pantalla no tiene selector de imágenes; el éxito mostrado corresponde a la API. No se afirma validación biológica, revisión por hablantes nativos ni uso de GPU.",
+  "scenes": [
+    "Embeddings es un nuevo módulo de Home en spaCR. Convierte recortes de imágenes en vectores numéricos sin entrenarse con sus anotaciones. Esta lección muestra la pantalla actual y un ejemplo funcional en Python con imágenes reales descargadas.",
+    "En la versión uno punto cinco punto cero punto siete, esta pantalla no tiene un control para cargar recortes y Embed permanece desactivado. No simularemos una ejecución gráfica exitosa. La API de Python realiza la codificación real que veremos a continuación.",
+    "Per channel codifica cada canal almacenado por separado y concatena los vectores. Project to three codifica la imagen combinada. Cambia la representación, no solo la velocidad. Una posición de canal en un PNG no identifica automáticamente una tinción verificada.",
+    "Instale el extra opcional embeddings en su entorno spaCR. El ResNet dieciocho predeterminado utiliza pesos supervisados de ImageNet, no un modelo autosupervisado entrenado con células. Este ejemplo pequeño usa la CPU; no requiere GPU ni un servicio remoto de inteligencia artificial.",
+    "Use el ejemplo descargable de Annotate y la carpeta de recortes indicada en las instrucciones. El script enlazado selecciona dieciséis imágenes existentes por orden de nombre. Cada una mide doscientos veinticuatro píxeles por lado y tiene tres canales almacenados. No se redimensionan ni se segmentan de nuevo.",
+    "Ejecute el script con un directorio de salida nuevo. Llama a embed_array con el codificador preentrenado real y lotes de cuatro. La codificación por canal produce dieciséis filas y mil quinientas treinta y seis dimensiones. La matriz guardada se vuelve a abrir y se comprueba valor por valor.",
+    "Ahora elija project y otro directorio de salida. Las mismas imágenes producen dieciséis filas y quinientas doce dimensiones. Estas columnas de canales combinados no son intercambiables con las anteriores. Compare las políticas deliberadamente y conserve los ajustes de cada ejecución.",
+    "Inspeccione el mosaico real de entrada en el visor de imágenes. Sus números siguen el orden de las filas de salida. Compruebe la calidad de los recortes y la correspondencia de canales de la exportación antes de interpretar los vectores. Los nombres identifican este ejemplo; valide las claves antes de unir una base de mediciones.",
+    "Esta figura guardada proyecta los vectores por canal sobre dos componentes principales. Los puntos numerados corresponden a esos mismos recortes. Es una visualización exploratoria de una muestra diminuta, no una prueba de fenotipos distintos. Una dimensión de un vector no es una medición biológica.",
+    "Los vectores de canales combinados tienen su propia proyección. No compare las coordenadas de ambos gráficos como si compartieran una transformación ajustada. Ninguna figura mide la precisión de recuperación ni demuestra que los vectores superen el panel de características medidas.",
+    "Conserve los vectores, las identidades, la suma de comprobación de los pesos, los ajustes y las versiones. El script verifica que las imágenes originales no cambien y rechaza destinos existentes. Mantenga iguales los recortes, la normalización y la correspondencia de canales al comparar. Reproduzca el ejemplo con las instrucciones enlazadas."
+  ],
+  "lesson": "77_embeddings",
+  "language": "es",
+  "english_sha256": "f5415671d988cad7353067d0a764a519bf90cb6134d0de803b90d50060678172",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false
+}

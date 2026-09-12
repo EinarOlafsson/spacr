@@ -64,7 +64,8 @@ def terminal_driver(stage):
 
 def capture_terminal(stage, *, driver=None, capture_name='api_terminal',
                      window_title='spaCR Python API', expected_scenes=6,
-                     module='api', pipeline_requested=False):
+                     module='api', pipeline_requested=False,
+                     refocus_terminal_after_capture=False):
     if (Path(capture_name).name != capture_name or capture_name in {'', '.', '..'}
             or expected_scenes < 1):
         raise ValueError('A terminal workflow needs a simple name and positive scene count')
@@ -140,6 +141,12 @@ def capture_terminal(stage, *, driver=None, capture_name='api_terminal',
                 if not ready['accepted']:
                     raise RuntimeError('The actual command did not meet its expected outcome')
                 seen.add(scene)
+                if refocus_terminal_after_capture:
+                    # An explicit figure-viewer driver may place a real viewer
+                    # above the terminal. Capture it first, then send Return
+                    # only to this private terminal, not to the user's desktop.
+                    desktop.x.XSetInputFocus(desktop.display, wid, 1, 0)
+                    desktop.x.XFlush(desktop.display)
                 key(0xff0d)  # Return advances only our private terminal driver.
             settle(0.2)
         if terminal.returncode != 0 or len(seen) != expected_scenes:
