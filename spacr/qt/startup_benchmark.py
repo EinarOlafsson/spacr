@@ -252,7 +252,12 @@ class BenchmarkController(QObject):
             entry["worst_event_loop_stall_ms"] < timing.STALL_BUDGET_MS
         )
         entry["stall_samples"] = len(interval_stalls)
-        entry.setdefault("door", self._door)
+        # ONLY A MODULE HAS A DOOR. Home is the screen the window opens on
+        # and Preferences is a dialog; stamping either with "sidebar" would
+        # be a field that says how it was reached and is wrong about it,
+        # which is precisely the failure this field was added to stop.
+        if self.phase == "module":
+            entry.setdefault("door", self._door)
         self.results.append(entry)
         self._checkpoint()
         print(
@@ -501,8 +506,7 @@ class BenchmarkController(QObject):
             (float(row["overlap_ms"]) for row in interval_stalls), default=0.0)
         raw_worst = max(
             (float(row["late_ms"]) for row in interval_stalls), default=0.0)
-        self.results.append({
-            "door": self._door,
+        record = {
             "name": (
                 "interactive Home" if self.phase == "home"
                 else "interactive preferences" if self.phase == "preferences"
@@ -523,7 +527,14 @@ class BenchmarkController(QObject):
             "event_loop_stall_budget_met": worst_stall < timing.STALL_BUDGET_MS,
             "stall_samples": len(interval_stalls),
             "error": str(message),
-        })
+        }
+        # SAME RULE AS THE SUCCESS PATH: only a module was reached through a
+        # door, so only a module's record carries one. A refusal for Home or
+        # Preferences stamped with the last module's door would be a field
+        # that is confidently wrong.
+        if self.phase == "module":
+            record["door"] = self._door
+        self.results.append(record)
         self._checkpoint()
         print(f"benchmark failed: {detail}: {message}", flush=True)
         if self.phase == "home":
