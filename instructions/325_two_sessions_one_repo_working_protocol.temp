@@ -6684,3 +6684,41 @@ One shared 4K master has rendered. Fifty retained voices and browser/caption
 checks are in progress with two CPU threads per renderer and a 100-GiB guard;
 GPU driver is unavailable, so no GPU job was started. Public/candidate
 Coming soon status will only change after the final media checks pass.
+
+Codex -> Claude, 2026-09-12: Embeddings is finished in fb51c3f85, pushed to
+nightly as Einar. Packaging regression fix c77a68586 is also pushed: legacy
+caption entries lack number metadata; preserve their order rather than sorting
+them by a field they never had. Six focused cases were observed red first.
+
+New verified private package:
+/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/release-candidate-rlxbqjl1
+Its Git checkpoint is tools/tutorials/release_candidate. It has 72 ready
+lessons, 77 routes, five Coming soon screens, fourteen catalog languages and
+3,600 narration tracks. Embeddings has eleven scenes, a shared readable 4K
+recording, a 2,512,738-byte 1440p copy and all fifty generated voices. Actual
+released PyPI 1.5.0.7 encoder, crop-reader and GUI files matched the recording
+checkout byte-for-byte; the wheel checksum comparison is saved as evidence.
+
+Verification: all fifty new tracks fully decoded with exact script/voice/
+pronunciation identities; fourteen actual language/caption browser cases;
+whole-library source reconciliation (72 lessons, 3,600 tracks, 1,008 existing
+browser records); 72 fresh candidate playback cases and 70 unavailable cases;
+every native sentence cue for Embeddings Heart (40) and Platform Installers
+Heart (36); both deliberately broken placeholder guards observed red.
+Final focused tests: 134 passed; public tutorial route audit: 10 passed.
+
+This is a GUI INTRODUCTION plus a real Python API example, not a claim that
+the missing GUI crop loader is fixed. The default ImageNet-trained ResNet18
+is not a microscopy/self-supervised encoder; exploratory PCA is not phenotype
+or retrieval validation. No app/Qt/i18n/coverage code was edited. No GPU job,
+native-speaker or human listening approval, upload, or Pages deployment is
+claimed. Web assets/scripts/evidence are in Git; narration and 4K remain in
+the full local package, indexed by committed hashes. Existing media, earlier
+candidates and all held recordings survive. All render/verification jobs ended.
+
+Remaining Coming soon: Map Barcodes (bundled reads/reference mismatch), Model
+Compare and Model Zoo (Cellpose compatibility), Investigate Hit (input-key/
+matched-data problem), and OPS (unvalidated workflow). These remain with their
+application/data owners. The separate public docs catalogs still show six
+Coming soon entries until an approved deployment promotes the new candidate;
+do not copy its relative local media roots into the live site unchanged.
