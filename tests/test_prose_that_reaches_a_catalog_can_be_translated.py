@@ -109,6 +109,17 @@ def test_the_check_still_names_every_failure_it_was_built_from(check):
 
 
 @pytest.mark.parametrize("prose", [
+    # A PARAGRAPH THAT NAMES A SYMBOL MUST NOT BE FLAGGED FOR THE SYMBOL.
+    # Text inside ``...``, :role:`...` and `...` is protected from the model
+    # by design -- it is SUPPOSED to survive untranslated. The other session
+    # hit this while counting residual English: their first pass counted
+    # words inside those spans and reported 7 and 10 residual words on
+    # paragraphs that were clean. A check that fires on every paragraph
+    # naming a symbol fires on most of them.
+    "``372`` states the contract, as the constant records.",
+    ":func:`B2` is the phase-two entry point for the sweep.",
+    "The `372` reference is kept in the commit message instead.",
+    "See :mod:`spacr.ops_store` for what B5 gates, described below.",
     "A4 DOES NOT NEED MASKS.",
     "B9 - Control Charts:",
     "Phase B segments, once, on the composite.",
