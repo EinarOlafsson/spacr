@@ -493,3 +493,59 @@ what the next measurement should be: the length distribution of blocks that
 returned IDENTITY, against the corpus, in a single language. Nobody has that
 yet, and the check should not grow a length rule until somebody does.
 
+
+--------------------------------------------------------------------------------
+2026-09-12 -- DENSITY, MEASURED: IT SEPARATES ONE SHAPE AND NOT THE OTHER, AND
+NEITHER AT A PRICE WORTH PAYING
+--------------------------------------------------------------------------------
+
+The other session's observation, which is sharper than "the block was too
+long": splitting `stall_watch#4` fixed three of its four paragraphs and the
+fourth needed REWORDING as well, because it was nearly all identifiers with
+almost no prose between them -- the same shape as `ops_store`'s old
+pseudo-table. So TOO LONG and TOO LITTLE PROSE PER IDENTIFIER are separable,
+and only the second is decidable from the source. Tested here because this
+corpus is what can answer it.
+
+    ratio of gate-protected characters to total, over 38,357 blocks
+
+        corpus p50 0.026   p90 0.390   p95 0.538   p99 0.840
+
+        ops_store pseudo-table   0.503   94th percentile
+        the sitecustomize block  0.186   74th percentile
+
+IT SEPARATES THE PSEUDO-TABLE AND NOT THE SENTENCE. A genuine pseudo-table
+really is unusual -- 94th percentile -- which is the intuition confirmed. The
+paragraph that FELT like one is ordinary: three quarters of the corpus is
+less dense, and a quarter of it is denser.
+
+AND THE PRICE IS THE ANSWER. What a threshold costs, measured rather than
+guessed:
+
+    cut 0.400  flags 3,671 blocks ( 9.6%)   catches the pseudo-table
+    cut 0.450  flags 2,917 blocks ( 7.6%)   catches the pseudo-table
+    cut 0.503  flags 2,260 blocks ( 5.9%)   catches neither
+    cut 0.700  flags   898 blocks ( 2.3%)   catches neither
+
+The cheapest cut that catches the ONE block it was built for flags 2,917
+others. The label signal, for comparison, flags 0 of 38,352 and names 4 of 4.
+
+  A SIGNAL THAT NEEDS THOUSANDS OF FALSE POSITIVES TO CATCH ONE TRUE ONE IS
+  NOT A CHECK, IT IS A MOOD. Density is not added, and this is the record of
+  why so the next person does not re-derive the intuition and stop before
+  pricing it.
+
+AND THE FIRST MEASUREMENT OF IT WAS WRONG, in the way this file has now seen
+three times in one night. A backtick regex of my own put the pseudo-table at
+0.150 -- BELOW an ordinary sentence at 0.186 -- because its identifiers are
+BARE (`ops_geometry, ops_objects`) and a backtick pattern cannot see them,
+while the gate's `_PROTECT_RE` protects bare snake_case. The ranking was
+inverted. Re-run against `_PROTECT_RE` the pseudo-table is 0.503 and the
+ordering is the one the intuition predicted.
+
+    MEASURING WITH YOUR OWN SPLITTER MEASURES YOUR OWN SPLITTER. 1,569 stale
+    records where the truth was one; a docstring's first block read as its
+    first line; and now a density ranking inverted. Three sessions-worth of
+    the same mistake in one night, on three different files, in three
+    different languages of the problem.
+
