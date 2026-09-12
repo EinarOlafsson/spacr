@@ -668,14 +668,19 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('nucleus_intensity_merge', False)
     settings.setdefault('pathogen_intensity_merge', False)
     settings.setdefault('organelle_intensity_merge', False)
+    # NO DEFAULT, AND THAT IS THE ANSWER RATHER THAN AN OMISSION (391). The
+    # threshold is in RAW IMAGE UNITS, so any number here would be right for
+    # the one acquisition it was chosen on and wrong for every other exposure
+    # and gain. `None` makes the merge refuse and say what the boundaries in
+    # the field actually were, which is a number the user can then type.
+    settings.setdefault('cell_intensity_threshold', None)
+    settings.setdefault('nucleus_intensity_threshold', None)
+    settings.setdefault('pathogen_intensity_threshold', None)
+    settings.setdefault('organelle_intensity_threshold', None)
     settings.setdefault('cell_intensity_split', False)
     settings.setdefault('nucleus_intensity_split', False)
     settings.setdefault('pathogen_intensity_split', False)
     settings.setdefault('organelle_intensity_split', False)
-    settings.setdefault('cell_area_multiplier',2.0)
-    settings.setdefault('nucleus_area_multiplier', 2.0)
-    settings.setdefault('pathogen_area_multiplier', 2.0)
-    settings.setdefault('organelle_area_multiplier', 2.0)
     settings.setdefault('cell_min_watershed_distance', 10)
     settings.setdefault('nucleus_min_watershed_distance', 10)
     settings.setdefault('pathogen_min_watershed_distance', 10)
@@ -684,14 +689,6 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('nucleus_minimum_area_to_split', 100)
     settings.setdefault('pathogen_minimum_area_to_split', 100)
     settings.setdefault('organelle_minimum_area_to_split', 100)
-    settings.setdefault('cell_intensity_threshold_method', 'mean')
-    settings.setdefault('nucleus_intensity_threshold_method', 'mean')
-    settings.setdefault('pathogen_intensity_threshold_method', 'mean')
-    settings.setdefault('organelle_intensity_threshold_method', 'mean')
-    settings.setdefault('cell_intensity_percentile', 75)
-    settings.setdefault('nucleus_intensity_percentile', 75)
-    settings.setdefault('pathogen_intensity_percentile', 75)
-    settings.setdefault('organelle_intensity_percentile', 75)
     #settings.setdefault(False)
     #settings.setdefault(False)
     #settings.setdefault(False)
@@ -711,14 +708,6 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('nucleus_remove_border_objects', False)
     settings.setdefault('pathogen_remove_border_objects', False)
     settings.setdefault('organelle_remove_border_objects', False)
-    settings.setdefault('cell_min_intensity_percentile', 0)
-    settings.setdefault('nucleus_min_intensity_percentile', 0)
-    settings.setdefault('pathogen_min_intensity_percentile', 0)
-    settings.setdefault('organelle_min_intensity_percentile', 0)
-    settings.setdefault('cell_max_intensity_percentile', 100)
-    settings.setdefault('nucleus_max_intensity_percentile', 100)
-    settings.setdefault('pathogen_max_intensity_percentile', 100)
-    settings.setdefault('organelle_max_intensity_percentile', 100)
     _clone_primary_organelle_values(settings)
     # NOTE: `timelapse`, the `timelapse_*` knobs above and `motility_analysis`
     # are deliberately still defaulted here even though the Mask *module* no
@@ -4219,32 +4208,24 @@ expected_types = {
     'cell_intensity_merge':bool,
     'nucleus_intensity_merge':bool,
     'pathogen_intensity_merge':bool,
+    'cell_intensity_threshold':(float, type(None)),
+    'nucleus_intensity_threshold':(float, type(None)),
+    'pathogen_intensity_threshold':(float, type(None)),
     'cell_intensity_split':bool,
     'nucleus_intensity_split':bool,
     'pathogen_intensity_split':bool,
-    'cell_area_multiplier':float,
-    'nucleus_area_multiplier':float,
-    'pathogen_area_multiplier':float,
     'cell_min_watershed_distance':int,
     'nucleus_min_watershed_distance':int,
     'pathogen_min_watershed_distance':int,
     'cell_minimum_area_to_split':int,
     'nucleus_minimum_area_to_split':int,
     'pathogen_minimum_area_to_split':int,
-    'cell_intensity_threshold_method':str,
-    'nucleus_intensity_threshold_method':str,
-    'pathogen_intensity_threshold_method':str,
-    'cell_intensity_percentile':int,
-    'nucleus_intensity_percentile':int,
-    'pathogen_intensity_percentile':int,
     'organelle_perimeter_fraction':float,
     'organelle_intensity_merge':bool,
+    'organelle_intensity_threshold':(float, type(None)),
     'organelle_intensity_split':bool,
-    'organelle_area_multiplier':float,
     'organelle_min_watershed_distance':int,
     'organelle_minimum_area_to_split':int,
-    'organelle_intensity_threshold_method':str,
-    'organelle_intensity_percentile':int,
     'cell_min_area':int,
     'nucleus_min_area':int,
     'pathogen_min_area':int,
@@ -4257,14 +4238,6 @@ expected_types = {
     'nucleus_remove_border_objects':bool,
     'pathogen_remove_border_objects':bool,
     'organelle_remove_border_objects':bool,
-    'cell_min_intensity_percentile':int,
-    'nucleus_min_intensity_percentile':int,
-    'pathogen_min_intensity_percentile':int,
-    'organelle_min_intensity_percentile':int,
-    'cell_max_intensity_percentile':(int, type(None)),
-    'nucleus_max_intensity_percentile':(int, type(None)),
-    'pathogen_max_intensity_percentile':(int, type(None)),
-    'organelle_max_intensity_percentile':(int, type(None)),
 
     # ------------------------------------------------------------------
     # Keys their module ships AND puts a widget on, but that nothing ever
@@ -5165,35 +5138,27 @@ tooltips = {
     'cell_perimeter_fraction': "(float) - For each touching pair of cell labels, the shared boundary length divided by the smaller object's perimeter; pairs at or above this fraction are merged into one cell. Low values such as 0.1 merge aggressively and can fuse true neighbours, high values only rejoin pieces of the same cell. 0 disables perimeter merging. Default 0.",
     'nucleus_perimeter_fraction': "(float) - Merge two touching nucleus labels when their shared boundary covers at least this fraction of the smaller object's perimeter. Low non-zero values merge aggressively (0.1 joins barely-touching nuclei); high values only fuse objects sharing most of an edge. Range 0-1; 0 (default) disables perimeter merging. Use it when one nucleus is split into fragments.",
     'pathogen_perimeter_fraction': "(float) - Fraction, from 0 to 1, of the smaller label's perimeter that two touching pathogen objects must share before they are merged. The default of 0 disables perimeter-based merging. Values near 0.1 merge most touching objects, whereas values from 0.5 to 0.8 merge only objects with a long shared boundary. Use this setting to join vacuoles that Cellpose divided into multiple labels.",
+    'cell_intensity_threshold': "(float or None) - Absolute intensity, in the image's own raw units, that the mean along a shared boundary must reach before cell_intensity_merge joins two touching cell labels. Read it off the image with a pixel inspector rather than guessing. It does NOT carry between acquisitions taken at different exposure or gain, so re-read it for a new imaging session. Leave unset and the merge refuses and reports the boundary intensities it found, which is the number to type. Ignored unless cell_intensity_merge is True. Default None.",
+    'nucleus_intensity_threshold': "(float or None) - Absolute intensity, in the image's own raw units, that the mean along a shared boundary must reach before nucleus_intensity_merge joins two touching nucleus labels. Read it off the image with a pixel inspector rather than guessing. It does NOT carry between acquisitions taken at different exposure or gain, so re-read it for a new imaging session. Leave unset and the merge refuses and reports the boundary intensities it found, which is the number to type. Ignored unless nucleus_intensity_merge is True. Default None.",
+    'pathogen_intensity_threshold': "(float or None) - Absolute intensity, in the image's own raw units, that the mean along a shared boundary must reach before pathogen_intensity_merge joins two touching pathogen labels. Read it off the image with a pixel inspector rather than guessing. It does NOT carry between acquisitions taken at different exposure or gain, so re-read it for a new imaging session. Leave unset and the merge refuses and reports the boundary intensities it found, which is the number to type. Ignored unless pathogen_intensity_merge is True. Default None.",
+    'organelle_intensity_threshold': "(float or None) - Absolute intensity, in the image's own raw units, that the mean along a shared boundary must reach before organelle_intensity_merge joins two touching organelle labels. Read it off the image with a pixel inspector rather than guessing. It does NOT carry between acquisitions taken at different exposure or gain, so re-read it for a new imaging session. Leave unset and the merge refuses and reports the boundary intensities it found, which is the number to type. Ignored unless organelle_intensity_merge is True. Default None.",
     'cell_intensity_merge': "(bool) - Merge touching cell labels when the mean intensity along their shared boundary is at least as high as the interior intensity of the dimmer label, indicating no detectable membrane boundary between them. This can correct over-segmentation of individual cells. The comparison statistic is set by cell_intensity_threshold_method. Default False.",
     'nucleus_intensity_merge': "(bool) - Merge touching nucleus labels when the mean intensity along their shared boundary is at least as high as the dimmer object's own intensity statistic - i.e. there is no dark seam between them, so the split is spurious. Controlled by nucleus_intensity_threshold_method and nucleus_intensity_percentile. Default False; enable when Cellpose over-segments single nuclei.",
     'pathogen_intensity_merge': "(bool) - Merge two touching pathogen labels when the mean intensity along their shared border is at least as high as the interior intensity of the dimmer label, indicating no detectable intensity minimum between them. This can correct over-segmentation of a single vacuole. Requires an intensity image and is controlled by pathogen_intensity_threshold_method. Default False.",
     'cell_intensity_split': "(bool) - Split oversized cell labels by distance-transform watershed before the merge and filter steps. Objects larger than cell_area_multiplier times the median cell area are seeded at local distance maxima cell_min_watershed_distance apart and cut. Despite the name no intensity is used. Enable when several touching cells share one label. Default False.",
     'nucleus_intensity_split': "(bool) - Enable watershed splitting of over-large nucleus labels: objects bigger than nucleus_area_multiplier times the field's median nucleus area are cut at distance-transform maxima spaced nucleus_min_watershed_distance apart. Despite the name it uses shape and area, not intensity. Default False; enable when clumps of touching nuclei are labelled as one object.",
     'pathogen_intensity_split': "(bool) - Enable watershed splitting of oversized pathogen labels. Despite the name, the split is geometric: objects larger than max(pathogen_area_multiplier x median area, pathogen_minimum_area_to_split) are divided at local maxima of their distance transform. Enable it when several parasites in one vacuole are fused into a single mask. Default False.",
-    'cell_area_multiplier': "(float) - Splitting threshold for cell_intensity_split: only cells whose area exceeds this multiple of the median cell area in the image (or cell_minimum_area_to_split, whichever is larger) are watershed-split. Lower it toward 1.5 to include borderline aggregates; raise it to restrict splitting to larger candidate doublets. Ignored unless cell_intensity_split is True. Default 2.0.",
-    'nucleus_area_multiplier': "(float) - Splitting threshold expressed as a multiple of the median nucleus area in each field: only objects larger than this multiple (and larger than nucleus_minimum_area_to_split) are candidates for watershed splitting. Lower it toward 1.5 to split more aggressively; raise it to restrict splitting to larger nuclear aggregates. Default 2.0; used only when nucleus_intensity_split is True.",
-    'pathogen_area_multiplier': "(float) - Splitting threshold expressed as a multiple of the median pathogen area in the field. Only labels above this threshold and pathogen_minimum_area_to_split are processed by watershed segmentation. Lower values, such as 1.5, split more objects; higher values restrict splitting to larger aggregates. Used only when pathogen_intensity_split is True. Default 2.0.",
     'cell_min_watershed_distance': "(int) - Minimum separation in pixels between watershed seeds when cell_intensity_split divides an oversized cell; seeds are local maxima of the distance transform. Increase it to produce fewer, larger fragments and reduce over-segmentation of individual cells; decrease it to separate tightly packed cells. Ignored unless cell_intensity_split is True. Default 10.",
     'nucleus_min_watershed_distance': "(int) - Minimum separation in pixels between watershed seeds when dividing oversized nucleus labels; seeds are local maxima of the object's distance transform. Set it near the radius of one nucleus: values that are too small over-segment nuclei, while values that are too large yield a single seed and prevent splitting. Default 10; used only when nucleus_intensity_split is True.",
     'pathogen_min_watershed_distance': "(int) - Minimum separation in pixels between watershed seeds when splitting oversized pathogen labels; seeds are local maxima of the distance transform. Raise it for fewer, larger fragments (or none, leaving the object intact); lower it to cut clumps into more pieces. Used only when pathogen_intensity_split is True. Default 10.",
     'cell_minimum_area_to_split': "(int) - Absolute pixel-area floor for splitting: the split threshold is the larger of cell_area_multiplier times the median cell area and this value, so cells at or below it are never cut. Raise it to protect small cells in fields where the median area is low. Ignored unless cell_intensity_split is True. Default 100.",
     'nucleus_minimum_area_to_split': "(int) - Absolute floor in pixels^2 on the watershed split threshold: objects at or below it are never split, even when nucleus_area_multiplier times the field's median area would fall lower. Raise it to protect small nuclei in fields where the median object is tiny. Default 100; used only when nucleus_intensity_split is True.",
     'pathogen_minimum_area_to_split': "(int) - Absolute floor in pixels squared below which a pathogen label is never split, whatever the median area says: the effective split threshold is max(pathogen_area_multiplier x median area, this value). Raise it to protect small parasites from fragmentation in sparse fields. Used only when pathogen_intensity_split is True. Default 100.",
-    'cell_intensity_threshold_method': "(str) - Reference statistic that cell_intensity_merge compares the shared-boundary intensity against: 'mean' uses the mean interior intensity of the dimmer of the two cells, 'percentile' uses its cell_intensity_percentile instead. Any value other than 'mean' is treated as 'percentile'. Choose 'percentile' with a high percentile to make merging rarer. Default 'mean'.",
-    'nucleus_intensity_threshold_method': "(str) - Which statistic of the dimmer of two touching nuclei the shared-boundary intensity is compared against when nucleus_intensity_merge is on. 'mean' (default) uses that object's mean intensity; 'percentile' uses its nucleus_intensity_percentile-th percentile, which at the default 75 is stricter and merges fewer pairs. Ignored when nucleus_intensity_merge is False.",
-    'pathogen_intensity_threshold_method': "(str) - How the reference brightness is computed when pathogen_intensity_merge decides whether two touching labels have a real edge. 'mean' compares the shared-border intensity to the mean interior intensity of the dimmer object; 'percentile' compares it to pathogen_intensity_percentile of that object instead, which is stricter and merges fewer pairs. Default 'mean'.",
-    'cell_intensity_percentile': "(int) - Percentile from 0 to 100 of the dimmer cell's interior intensity used as the merge reference when cell_intensity_threshold_method is 'percentile'. Raising it toward 95 sets a higher bar for the shared boundary to clear, so fewer pairs merge; lowering it merges more. Ignored when the method is 'mean'. Default 75.",
-    'nucleus_intensity_percentile': "(int) - Percentile of each nucleus's own pixel intensities used as the merge reference when nucleus_intensity_threshold_method is 'percentile'. Higher values (90) demand a very bright shared boundary and merge almost nothing; lower values (50) merge readily. Range 0-100, default 75. Ignored when the method is 'mean'.",
-    'pathogen_intensity_percentile': "(int) - Percentile, 0-100, of a pathogen's interior intensity used as the merge reference when pathogen_intensity_threshold_method is 'percentile'. Two touching labels merge only if their shared border is at least this bright inside the dimmer object, so raising it demands a brighter border and merges fewer pairs. Ignored when the method is 'mean'. Default 75.",
     'organelle_perimeter_fraction': "(float) - Merge two touching organelle labels when their shared boundary is at least this fraction of the smaller object's perimeter. Range 0-1; increase it toward 1 to merge only nearly fully fused pairs, or decrease it to merge labels with shorter shared boundaries. Default 0 (disabled). Currently inactive because the organelle mask writer does not run the merge/split stage.",
     'organelle_intensity_merge': "(bool) - Merge two touching organelle labels when the mean intensity along their shared boundary is at least the interior reference of the dimmer object, indicating no dark boundary between them. Use it when thresholding divides one organelle into multiple labels. Default False. This setting is currently inactive because the organelle mask writer does not run the merge/split stage.",
     'organelle_intensity_split': "(bool) - Split organelle labels whose area exceeds max(organelle_area_multiplier times the median object area, organelle_minimum_area_to_split), using a distance-transform watershed seeded by local maxima. Enable when neighbouring puncta are fused into single oversized labels. Default False. Currently inert: the organelle mask writer never runs the merge/split stage.",
-    'organelle_area_multiplier': "(float) - Split trigger for organelle_intensity_split: only objects larger than this multiple of the median organelle area in the same field are candidates for watershed splitting. Lower it toward 1.5 to split more aggressively; raise it to restrict splitting to larger organelle aggregates. Default 2.0. Currently inert: the organelle mask writer never runs the merge/split stage.",
     'organelle_min_watershed_distance': "(int) - Minimum separation in pixels between watershed seeds when splitting oversized organelles; distance-transform peaks closer than this collapse into a single seed. Increase it to prevent excessive fragmentation of a single organelle, or decrease it to separate tightly packed puncta. Default 10. Currently inactive because the organelle mask writer does not run the merge/split stage.",
     'organelle_minimum_area_to_split': "(int) - Absolute area threshold in square pixels for the split step. An object is split only when its area exceeds this value in addition to the median-based threshold, preventing division of small organelles into multiple labels. Default 100. Currently inactive because the organelle mask writer does not execute the merge/split stage.",
-    'organelle_intensity_threshold_method': "(str) - Reference statistic for organelle_intensity_merge: 'mean' compares the shared-boundary intensity to the mean interior intensity of the dimmer object; 'percentile' compares it to that object's organelle_intensity_percentile value instead. A high percentile makes merging much stricter. Default 'mean'. Currently inert: the organelle mask writer never runs the merge/split stage.",
-    'organelle_intensity_percentile': "(int) - Percentile (0-100) of an object's interior intensity used as the merge reference when organelle_intensity_threshold_method='percentile'; ignored for 'mean'. Higher values raise the bar the shared boundary must clear, so fewer pairs merge. Default 75. Currently inert: the organelle mask writer never runs the merge/split stage.",
     'cell_min_area': "(int) - Minimum cell area in pixels^2. Passed to Cellpose as min_size so undersized masks are dropped during segmentation, then re-applied afterwards to delete any object below it. Raise it to clear debris and fragments; set it too high and genuine small cells disappear. 0 disables. Default 0.",
     'nucleus_min_area': "(int) - Minimum nucleus area in pixels^2, applied twice: passed to Cellpose as min_size so small masks are never emitted, then re-applied to the label image so any surviving object below it is deleted and the rest renumbered. Raise it to drop debris and fragments. 0 (default) disables both filters.",
     'pathogen_min_area': "(int) - Minimum pathogen area in pixels squared. Passed to Cellpose as min_size so undersized masks never leave segmentation, then re-applied in the merge/split/filter pass. 0, the default, disables it. Raise it to clear speckle and debris; set it too high and small or newly divided parasites disappear.",
@@ -5206,14 +5171,6 @@ tooltips = {
     'nucleus_remove_border_objects': "(bool) - After segmentation, delete every nucleus label touching any of the four image edges, then renumber the rest. Enable it when measuring nucleus area or total intensity, since clipped nuclei bias those downward; leave it off for counts or positions, as it discards real objects at every field boundary. Default False.",
     'pathogen_remove_border_objects': "(bool) - Delete any pathogen label touching the first or last row or column of the image. Enable it so partially imaged parasites do not enter area and intensity statistics with truncated values; leave it off when parasites are sparse and losing edge objects costs too much data. Default False.",
     'organelle_remove_border_objects': "(bool) - Delete organelle labels touching any image edge during the shared post-segmentation filter (the Qt live preview path). The batch organelle mask writer does the same job from organelle_remove_border, so set that one for a real run. Default False. Enable to keep clipped rim objects out of area and intensity statistics.",
-    'cell_min_intensity_percentile': "(int) - Drops the dimmest cells per field: the mean intensities of all surviving cells are pooled and objects below this percentile (0-100) of that per-image distribution are removed. Being relative, it always removes roughly this share of objects, however bright the field. Use it to shed out-of-focus cells. 0 disables. Default 0.",
-    'nucleus_min_intensity_percentile': "(int) - Drops the dimmest nuclei per field: spaCR takes the mean nucleus-channel intensity of every object surviving the area and border filters and removes those below this percentile of that per-field distribution. Because it is relative, any value above 0 always removes some objects. Range 0-100; 0 (default) disables it.",
-    'pathogen_min_intensity_percentile': "(int) - Relative brightness cutoff, 0-100: within each field the mean intensity of every surviving pathogen is ranked, and objects below this percentile of that distribution are deleted. It is not an absolute intensity, so how many objects go depends on the object count. 0, the default, disables it. Raise it to drop dim false positives.",
-    'organelle_min_intensity_percentile': "(int) - Drops organelles whose mean intensity falls below this percentile of all organelle mean intensities in the same field. It is relative, not absolute, so it always removes roughly this share of the dimmest objects even in a clean image. Range 0-100, 0 disables. Default 0. Use it to cull background-level detections.",
-    'cell_max_intensity_percentile': "(int or None) - Drops the brightest cells per field: objects whose mean intensity is above this percentile (0-100) of the per-image distribution of cell mean intensities are removed. Lower it to about 99 to strip saturated blobs and fluorescent debris. Relative, not an absolute intensity. Use 100 to disable. Default 100.",
-    'nucleus_max_intensity_percentile': "(int) - Drops the brightest nuclei per field: objects whose mean nucleus-channel intensity exceeds this percentile of the per-field distribution of object means are removed. Useful against saturated debris and staining artefacts. Range 0-100; 100 (the default) disables it, and any lower value always removes some objects.",
-    'pathogen_max_intensity_percentile': "(int or None) - Upper end of the same per-field percentile filter: pathogens whose mean intensity exceeds this percentile of the field's pathogen mean intensities are deleted. 100, the default, disables it. Lower it to strip saturated debris and bright artefacts. Any value below 100 forces the intensity image to be loaded during filtering.",
-    'organelle_max_intensity_percentile': "(int or None) - Drops organelle objects whose mean intensity exceeds this percentile of all organelle mean intensities in the same field, so it removes roughly the brightest (100 minus value) percent. Range 0-100; 100 or None disables it (None is read as the default 100, it does not error). Applied by the shared Qt live-preview filter - the batch organelle mask pipeline does not run this filter. Default 100. Use it to reject saturated dust and imaging artefacts.",
     # --- Descriptions filled in for settings that previously had no tooltip ---
     "annotation_column": "(str) - Integer column in the png_list table that stores manual class labels. The Annotate app adds it with ALTER TABLE if it is absent and writes labels to it. This column provides the reference labels when dataset_mode is 'annotation' and is the fallback when annotation_columns is unset. Supplying it while dataset_mode is unset also selects annotation mode for compatibility with older settings files. Default None.",
     'cmap': "(str) - Matplotlib colormap applied to single-channel image previews and plate heatmaps. Perceptually uniform maps ('viridis', 'inferno', 'magma') preserve the relative visibility of intensity differences; 'gray' resembles the raw single-channel microscope image. Any registered matplotlib name is accepted, with an '_r' suffix to reverse it. Default 'inferno' for image plots and 'viridis' for plate heatmaps.",
@@ -5491,7 +5448,7 @@ _organelle_all_settings = [
         # method: unet
         "organelle_unet_model_path", "organelle_unet_threshold",
         # filter the detected objects
-        "organelle_min_area", "organelle_max_area", "organelle_minimum_area_to_split", "organelle_area_multiplier", "organelle_min_watershed_distance", "organelle_perimeter_fraction", "organelle_intensity_merge", "organelle_intensity_split", "organelle_intensity_threshold_method", "organelle_intensity_percentile", "organelle_min_intensity_percentile", "organelle_max_intensity_percentile", "organelle_remove_border", "organelle_remove_border_objects",
+        "organelle_min_area", "organelle_max_area", "organelle_minimum_area_to_split", "organelle_min_watershed_distance", "organelle_perimeter_fraction", "organelle_intensity_merge", "organelle_intensity_threshold", "organelle_intensity_split", "organelle_remove_border", "organelle_remove_border_objects",
         # what to write out
         "summarize_organelles_by",
 ]
@@ -5533,11 +5490,11 @@ categories = {
     "Cellpose": ["custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width", "plaque_model"],
 
 
-    "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_signal_to_noise", "cell_cellprob_threshold", "cell_flow_threshold", "remove_background_cell", "adjust_cells", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_min_intensity_percentile", "cell_max_intensity_percentile", "cell_perimeter_fraction", "cell_intensity_merge", "cell_intensity_split", "cell_area_multiplier", "cell_min_watershed_distance", "cell_minimum_area_to_split", "cell_intensity_threshold_method", "cell_intensity_percentile"],
+    "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_signal_to_noise", "cell_cellprob_threshold", "cell_flow_threshold", "remove_background_cell", "adjust_cells", "cell_max_area", "cell_min_area", "cell_remove_border_objects", "cell_perimeter_fraction", "cell_intensity_merge", "cell_intensity_threshold", "cell_intensity_split", "cell_min_watershed_distance", "cell_minimum_area_to_split"],
 
-    "Nucleus": ["nucleus_model_name", "nucleus_diameter", "nucleus_background", "nucleus_signal_to_noise", "nucleus_cellprob_threshold", "nucleus_flow_threshold", "remove_background_nucleus", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_min_intensity_percentile", "nucleus_max_intensity_percentile", "nucleus_perimeter_fraction", "nucleus_intensity_merge", "nucleus_intensity_split", "nucleus_area_multiplier", "nucleus_min_watershed_distance", "nucleus_minimum_area_to_split", "nucleus_intensity_percentile", "nucleus_intensity_threshold_method"],
+    "Nucleus": ["nucleus_model_name", "nucleus_diameter", "nucleus_background", "nucleus_signal_to_noise", "nucleus_cellprob_threshold", "nucleus_flow_threshold", "remove_background_nucleus", "nucleus_min_area", "nucleus_max_area", "nucleus_remove_border_objects", "nucleus_perimeter_fraction", "nucleus_intensity_merge", "nucleus_intensity_threshold", "nucleus_intensity_split", "nucleus_min_watershed_distance", "nucleus_minimum_area_to_split"],
 
-    "Pathogen": ["pathogen_model_name", "pathogen_diameter", "pathogen_background", "pathogen_signal_to_noise", "pathogen_cellprob_threshold", "pathogen_flow_threshold", "pathogen_model", "remove_background_pathogen", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_min_intensity_percentile", "pathogen_max_intensity_percentile", "pathogen_perimeter_fraction", "pathogen_intensity_merge", "pathogen_intensity_split", "pathogen_area_multiplier", "pathogen_min_watershed_distance", "pathogen_minimum_area_to_split", "pathogen_intensity_threshold_method", "pathogen_intensity_percentile"],
+    "Pathogen": ["pathogen_model_name", "pathogen_diameter", "pathogen_background", "pathogen_signal_to_noise", "pathogen_cellprob_threshold", "pathogen_flow_threshold", "pathogen_model", "remove_background_pathogen", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_perimeter_fraction", "pathogen_intensity_merge", "pathogen_intensity_threshold", "pathogen_intensity_split", "pathogen_min_watershed_distance", "pathogen_minimum_area_to_split"],
 
     # One heading for the whole organelle workflow, ordered the way it is set
     # up: what to detect -> clean the image -> the knobs of the chosen
@@ -5971,14 +5928,12 @@ _ADVANCED_FAMILIES = (
         "remove_background",
     )),
     ("Object filtration", (
-        "min_size", "max_size", "min_area", "max_area", "min_object_area",
-        "area_multiplier", "min_distance", "perimeter_fraction",
-        "remove_border", "remove_border_objects",
+        "min_size", "max_size", "min_area", "max_area",
+        "minimum_area_to_split", "min_watershed_distance",
+        "perimeter_fraction", "remove_border", "remove_border_objects",
     ), ()),
     ("Intensity handling", (
-        "intensity_merge", "intensity_split", "intensity_percentile",
-        "intensity_threshold_method", "min_intensity_percentile",
-        "max_intensity_percentile",
+        "intensity_merge", "intensity_split", "intensity_threshold",
     ), ()),
 )
 

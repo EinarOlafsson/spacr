@@ -122,12 +122,15 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
     mna = settings.get(f'{object_type}_min_area', 0)
     mxa = settings.get(f'{object_type}_max_area', 0)
     rb = settings.get(f'{object_type}_remove_border_objects', False)
-    mni = settings.get(f'{object_type}_min_intensity_percentile', 0)
-    mxi = settings.get(f'{object_type}_max_intensity_percentile', 100)
+    # ONE ABSOLUTE THRESHOLD IN RAW IMAGE UNITS (391), replacing the method
+    # dropdown, the merge percentile and the two filter percentiles. There is
+    # no default: the right number depends on the acquisition, and a default
+    # would be wrong for every image that is not the one it was chosen on.
+    ith = settings.get(f'{object_type}_intensity_threshold', None)
 
     needs_work = (
         pf > 0 or im or isp or moa > 0 or mna > 0 or
-        (mxa and mxa > 0) or rb or mni > 0 or mxi < 100
+        (mxa and mxa > 0) or rb
     )
 
     if not needs_work:
@@ -140,7 +143,7 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
     print(f"merge_split_filter_masks({object_type}): "
           f"perimeter_merge={pf > 0}(frac={pf}), intensity_merge={im}, "
           f"split={isp}, min_area={mna}, max_area={mxa}, "
-          f"remove_border={rb}, intensity_pct=[{mni}, {mxi}]")
+          f"remove_border={rb}, intensity_threshold={ith}")
 
     if isinstance(masks, np.ndarray):
         if masks.ndim == 2:
@@ -197,16 +200,12 @@ def merge_split_filter_masks(masks, intensity_images, settings, object_type, bat
             do_perimeter_merge=(pf > 0),
             do_intensity_merge=(im and intensity_images is not None),
             perimeter_fraction=pf,
-            area_multiplier=settings.get(f'{object_type}_area_multiplier', 2.0),
-            min_distance=settings.get(f'{object_type}_min_watershed_distance', 10),
-            min_object_area=moa,
-            intensity_threshold_method=settings.get(f'{object_type}_intensity_threshold_method', 'mean'),
-            intensity_percentile=settings.get(f'{object_type}_intensity_percentile', 75),
+            min_watershed_distance=settings.get(f'{object_type}_min_watershed_distance', 10),
+            minimum_area_to_split=moa,
+            intensity_threshold=ith,
             min_area=mna,
             max_area=mxa if mxa else 0,
             remove_border_objects=rb,
-            min_intensity_percentile=mni,
-            max_intensity_percentile=mxi,
             progress_callback=_progress,
             fov_index=idx,
             total_fovs=total,

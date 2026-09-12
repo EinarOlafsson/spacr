@@ -607,73 +607,93 @@ def _merge_by_perimeter(label_img, perimeter_fraction, parent):
 
 
 def _merge_by_intensity(label_img, intensity_img, parent,
-                        intensity_threshold_method='mean',
-                        intensity_percentile=75):
-    """Mark label pairs for merging if boundary intensity is high
-    (no real edge between them).
+                        intensity_threshold=None):
+    """Merge touching labels whose shared boundary is brighter than a
+    threshold, i.e. where there is no real edge between them.
 
-    For each touching pair, compare the mean intensity along the shared
-    boundary to the interior intensity of the dimmer object.  If the
-    boundary intensity >= threshold, merge.
+    AN ABSOLUTE THRESHOLD, IN THE IMAGE'S OWN INTENSITY UNITS -- the numbers
+    in the TIFF, the ones a pixel inspector shows. This replaced a pair of
+    RELATIVE schemes (the mean of the dimmer object, or a percentile of it),
+    and the reason is that neither was a number a user could read off an
+    image and type in: they could only be tuned by trial, because the
+    reference moved with whatever else happened to be in the field.
 
-    Parameters
-    ----------
-    intensity_threshold_method : str
-        'mean'  – boundary mean >= mean of dimmer label interior
-        'percentile' – boundary mean >= given percentile of dimmer label
-    intensity_percentile : int
-        Percentile used when method='percentile'.
+    ITS KNOWN COST, accepted deliberately: a threshold in raw counts does NOT
+    carry between acquisitions taken at different exposure or gain. That is
+    the price of a number that can be read off an image, and the setting's
+    tooltip says so rather than letting a user assume it travels.
+
+    :param intensity_threshold: boundary mean at or above which a pair is
+        merged, in raw image units. ``None`` merges nothing and says so --
+        there is no safe default, because the right number depends on the
+        acquisition.
+    :returns: a one-line report of what happened, for the caller to print.
     """
     shared = _compute_shared_boundaries(label_img)
 
-    # Pre-compute per-label intensity stats
-    labels_present = np.unique(label_img)
-    labels_present = labels_present[labels_present > 0]
-    label_stats = {}
-    for l in labels_present:
-        vals = intensity_img[label_img == l]
-        label_stats[int(l)] = {
-            'mean': np.mean(vals),
-            'percentile': np.percentile(vals, intensity_percentile),
-        }
-
+    # EVERY BOUNDARY IS MEASURED EVEN WHEN NONE WILL MERGE, because the
+    # report is the point: a threshold that matches nothing has to be able to
+    # say what the boundaries actually were, or the user has no way to pick a
+    # better number except by guessing again.
+    boundaries = {}
     for (la, lb), _ in shared.items():
         coords = _get_boundary_coords(label_img, la, lb)
         if not coords:
             continue
         ys, xs = zip(*coords)
-        boundary_intensity = np.mean(intensity_img[ys, xs])
+        boundaries[(la, lb)] = float(np.mean(intensity_img[ys, xs]))
 
-        stats_a = label_stats.get(la)
-        stats_b = label_stats.get(lb)
-        if stats_a is None or stats_b is None:
-            continue
+    if not boundaries:
+        return "  Intensity merge: no touching objects, nothing to merge"
 
-        # Compare to the dimmer of the two objects
-        if intensity_threshold_method == 'mean':
-            ref = min(stats_a['mean'], stats_b['mean'])
-        else:
-            ref = min(stats_a['percentile'], stats_b['percentile'])
+    values = list(boundaries.values())
+    low, high = min(values), max(values)
 
-        if boundary_intensity >= ref:
+    if intensity_threshold is None:
+        return (f"  Intensity merge: REFUSED -- no intensity threshold set. "
+                f"Shared boundaries in this field run {low:.1f} to {high:.1f} "
+                f"in raw units; set the threshold within that range to merge "
+                f"anything.")
+
+    merged = 0
+    for (la, lb), boundary_intensity in boundaries.items():
+        if boundary_intensity >= intensity_threshold:
             _union_find_merge(parent, la, lb)
+            merged += 1
+
+    # IT MUST BE ABLE TO REFUSE, AND SAY WHICH REFUSAL IT IS. A threshold
+    # above everything merges nothing and one below everything merges the
+    # field into one object; both were silent before, and both look like the
+    # setting having no effect rather than having far too much.
+    if merged == 0:
+        return (f"  Intensity merge: threshold {intensity_threshold:g} is ABOVE "
+                f"every shared boundary in this field (brightest {high:.1f}), "
+                f"so nothing was merged. Lower it to merge anything.")
+    if merged == len(boundaries):
+        return (f"  Intensity merge: threshold {intensity_threshold:g} is at or "
+                f"BELOW every shared boundary (dimmest {low:.1f}), so all "
+                f"{merged} touching pairs merged. Raise it to merge less.")
+    return (f"  Intensity merge: {merged}/{len(boundaries)} touching pairs "
+            f"merged at threshold {intensity_threshold:g} "
+            f"(boundaries {low:.1f} to {high:.1f})")
 
 
-def _split_by_watershed(label_img, area_multiplier=2.0, min_distance=10,
-                        min_object_area=100):
-    """Split labels whose area exceeds area_multiplier × median object area.
+def _split_by_watershed(label_img, min_watershed_distance=10,
+                        minimum_area_to_split=100):
+    """Split labels larger than an absolute area, by distance-transform
+    watershed seeded at local maxima.
 
-    Uses distance-transform watershed seeded by local maxima.
+    THE THRESHOLD IS ABSOLUTE NOW, AND THAT IS A BEHAVIOUR CHANGE. It used to
+    be ``max(area_multiplier * median_area, min_object_area)`` -- a multiple of
+    the median object area in whatever field happened to be under the lens.
+    That moved with the field: the same object was split in a dish of small
+    cells and kept in a dish of large ones, and no number the user typed could
+    pin it down. Removing ``area_multiplier`` removes the median term, so the
+    threshold is the area the user asked for and nothing else.
 
-    Parameters
-    ----------
-    area_multiplier : float
-        Only split objects with area > multiplier * median area.
-    min_distance : int
-        Minimum pixel distance between watershed seeds.
-    min_object_area : int
-        Absolute minimum area (px) below which objects are never split,
-        regardless of the median multiplier.
+    :param min_watershed_distance: minimum pixel separation between seeds.
+    :param minimum_area_to_split: objects at or below this area are never
+        split. Absolute, in pixels.
     """
     labels_present = np.unique(label_img)
     labels_present = labels_present[labels_present > 0]
@@ -682,8 +702,8 @@ def _split_by_watershed(label_img, area_multiplier=2.0, min_distance=10,
 
     areas = ndimage.sum(np.ones_like(label_img), label_img, labels_present)
     area_map = dict(zip(labels_present.astype(int), areas.astype(int)))
-    median_area = np.median(list(area_map.values()))
-    threshold = max(area_multiplier * median_area, min_object_area)
+    threshold = minimum_area_to_split
+    min_distance = min_watershed_distance
 
     output = label_img.copy()
     next_label = int(label_img.max()) + 1
@@ -737,28 +757,25 @@ def _apply_union_find(label_img, parent):
     return _relabel_sequential(merged.astype(np.uint16))
     
 def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
-                    remove_border=False, min_intensity_percentile=0, 
-                    max_intensity_percentile=100):
-    """Remove objects by area, border contact, and intensity percentile.
+                    remove_border=False):
+    """Remove objects by area and border contact.
+
+    THE INTENSITY-PERCENTILE BAND WAS REMOVED IN 391. ``intensity_img`` is
+    kept in the signature because callers pass it positionally and it costs
+    nothing; nothing here reads it any more.
 
     Parameters
     ----------
     label_img : ndarray (uint16)
         Label image.
     intensity_img : ndarray (float32) or None
-        Corresponding intensity image for intensity filtering.
+        Accepted and unused; see the note above.
     min_area : int
         Remove objects with area < min_area. 0 = disabled.
     max_area : int
         Remove objects with area > max_area. 0 = disabled.
     remove_border : bool
         Remove objects touching any image edge.
-    min_intensity_percentile : float
-        Remove objects whose mean intensity is below this percentile
-        of all object mean intensities. 0 = disabled.
-    max_intensity_percentile : float
-        Remove objects whose mean intensity is above this percentile
-        of all object mean intensities. 100 = disabled.
 
     Returns
     -------
@@ -808,30 +825,17 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
         if len(new_border) > 0:
             print(f"  Border filter: removed {len(new_border)} additional objects")
 
-    # Intensity percentile filter
-    do_intensity_filter = (min_intensity_percentile > 0 or max_intensity_percentile < 100)
-    if do_intensity_filter and intensity_img is not None:
-        # Compute mean intensity per object
-        remaining = [lbl for lbl in labels_present if int(lbl) not in remove]
-        if len(remaining) > 1:
-            mean_intensities = {}
-            for lbl in remaining:
-                mean_intensities[int(lbl)] = float(np.mean(intensity_img[label_img == lbl]))
-            
-            values = list(mean_intensities.values())
-            low_thresh = np.percentile(values, min_intensity_percentile) if min_intensity_percentile > 0 else -np.inf
-            high_thresh = np.percentile(values, max_intensity_percentile) if max_intensity_percentile < 100 else np.inf
-            
-            removed_by_intensity = 0
-            for lbl, mean_val in mean_intensities.items():
-                if mean_val < low_thresh or mean_val > high_thresh:
-                    remove.add(lbl)
-                    removed_by_intensity += 1
-            
-            if removed_by_intensity > 0:
-                print(f"  Intensity filter: removed {removed_by_intensity}/{len(remaining)} objects "
-                      f"(percentile range [{min_intensity_percentile}, {max_intensity_percentile}], "
-                      f"thresholds [{low_thresh:.1f}, {high_thresh:.1f}])")
+    # THE INTENSITY-PERCENTILE BAND IS GONE (391), and it was worse than
+    # merely relative. It dropped objects outside a quantile band of the
+    # FIELD'S OWN distribution, so it always removed roughly its share however
+    # bright the field: a 0/99 setting dropped the brightest object in every
+    # field whatever its intensity, and with two objects in a field it dropped
+    # one of them unconditionally. A filter that cannot decline to fire is not
+    # a filter, it is a quota.
+    #
+    # Nothing replaces it here. Area and border remain, and intensity is now
+    # the merge step's business, where an absolute threshold in raw units can
+    # say what it matched and what it did not.
 
     # Apply removal
     total_removed = len(remove)
@@ -848,11 +852,9 @@ def _filter_objects(label_img, intensity_img=None, min_area=0, max_area=0,
 
 def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
                                   do_split, do_perimeter_merge, do_intensity_merge,
-                                  perimeter_fraction, area_multiplier, min_distance,
-                                  min_object_area, intensity_threshold_method,
-                                  intensity_percentile, min_area, max_area,
-                                  remove_border_objects, min_intensity_percentile, 
-                                  max_intensity_percentile,
+                                  perimeter_fraction, min_watershed_distance,
+                                  minimum_area_to_split, intensity_threshold,
+                                  min_area, max_area, remove_border_objects,
                                   progress_callback=None, fov_index=0, total_fovs=0, op_name=''):
     """Process one field of view in memory: split → merge → filter."""
 
@@ -869,16 +871,15 @@ def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
         return label_img
 
     intensity_img_use = None
-    if (do_intensity_merge or min_intensity_percentile > 0 or max_intensity_percentile < 100) and intensity_img is not None:
+    if do_intensity_merge and intensity_img is not None:
         intensity_img_use = _select_intensity_channel(intensity_img, intensity_channel)
 
     # --- Split phase ---
     if do_split:
         label_img = _split_by_watershed(
             label_img,
-            area_multiplier=area_multiplier,
-            min_distance=min_distance,
-            min_object_area=min_object_area,
+            min_watershed_distance=min_watershed_distance,
+            minimum_area_to_split=minimum_area_to_split,
         )
         label_img = _relabel_sequential(label_img)
         n_after_split = len(np.unique(label_img)) - 1
@@ -897,13 +898,12 @@ def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
             _merge_by_perimeter(label_img, perimeter_fraction, parent)
 
         if do_intensity_merge and intensity_img_use is not None:
-            _merge_by_intensity(
+            print(_merge_by_intensity(
                 label_img,
                 intensity_img_use,
                 parent,
-                intensity_threshold_method=intensity_threshold_method,
-                intensity_percentile=intensity_percentile
-            )
+                intensity_threshold=intensity_threshold,
+            ))
 
         label_img = _apply_union_find(label_img, parent)
         n_after_merge = len(np.unique(label_img)) - 1
@@ -917,8 +917,6 @@ def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
         min_area=min_area,
         max_area=max_area,
         remove_border=remove_border_objects,
-        min_intensity_percentile=min_intensity_percentile,
-        max_intensity_percentile=max_intensity_percentile,
     )
 
     duration = time.time() - start
@@ -929,10 +927,9 @@ def _process_single_fov_in_memory(mask, intensity_img, intensity_channel,
     
 def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None,
                         perimeter_fraction=0.5, intensity_merge=False, intensity_split=False,
-                        area_multiplier=2.0, min_distance=10, min_object_area=100,
-                        intensity_threshold_method='mean', intensity_percentile=75,
+                        min_watershed_distance=10, minimum_area_to_split=100,
+                        intensity_threshold=None,
                         min_area=0, max_area=0, remove_border_objects=False,
-                        min_intensity_percentile=0, max_intensity_percentile=100,
                         n_jobs=1, progress_callback=None, op_name=''):
     """Split, merge, and filter labeled objects across a directory of masks.
 
@@ -945,16 +942,17 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
     :param perimeter_fraction: minimum shared-boundary fraction for perimeter-based merging.
     :param intensity_merge: enable boundary-intensity-based merging.
     :param intensity_split: enable watershed splitting of oversized objects.
-    :param area_multiplier: split objects with area > multiplier * median.
-    :param min_distance: minimum pixel distance between watershed seeds.
-    :param min_object_area: absolute minimum area below which objects are never split.
-    :param intensity_threshold_method: ``'mean'`` or ``'percentile'`` boundary comparison.
-    :param intensity_percentile: percentile used when method is ``'percentile'``.
+    :param min_watershed_distance: minimum pixel distance between watershed seeds.
+    :param minimum_area_to_split: objects at or below this area are never split.
+        ABSOLUTE, in pixels: 391 removed the ``area_multiplier * median_area``
+        term, so the threshold no longer moves with whatever else is in the field.
+    :param intensity_threshold: boundary mean at or above which two touching
+        objects merge, in RAW IMAGE UNITS. ``None`` merges nothing and says so.
+        It does not carry between acquisitions at different exposure or gain --
+        that is the price of a number that can be read off an image.
     :param min_area: remove objects smaller than this (px); 0 disables.
     :param max_area: remove objects larger than this (px); 0 disables.
     :param remove_border_objects: drop objects touching the image border.
-    :param min_intensity_percentile: drop objects below this intensity percentile; 0 disables.
-    :param max_intensity_percentile: drop objects above this intensity percentile; 100 disables.
     :param n_jobs: parallel worker count.
     :param progress_callback: optional callback(fov_index, total, duration, op_name).
     :param op_name: label passed to the progress callback.
@@ -982,11 +980,9 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
         delayed(_process_single_fov)(
             mp, ip, intensity_channel,
             do_split, do_perimeter_merge, do_intensity_merge,
-            perimeter_fraction, area_multiplier, min_distance,
-            min_object_area, intensity_threshold_method,
-            intensity_percentile, min_area, max_area,
-            remove_border_objects, min_intensity_percentile, 
-            max_intensity_percentile,
+            perimeter_fraction, min_watershed_distance,
+            minimum_area_to_split, intensity_threshold,
+            min_area, max_area, remove_border_objects,
             progress_callback, idx, total, op_name,
         )
         for idx, (mp, ip) in enumerate(zip(mask_paths, intensity_paths))
@@ -994,11 +990,9 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
 
 def _process_single_fov(mask_path, intensity_path, intensity_channel,
                         do_split, do_perimeter_merge, do_intensity_merge,
-                        perimeter_fraction, area_multiplier, min_distance,
-                        min_object_area, intensity_threshold_method,
-                        intensity_percentile, min_area, max_area,
-                        remove_border_objects, min_intensity_percentile, 
-                        max_intensity_percentile,
+                        perimeter_fraction, min_watershed_distance,
+                        minimum_area_to_split, intensity_threshold,
+                        min_area, max_area, remove_border_objects,
                         progress_callback=None, fov_index=0, total_fovs=0, op_name=''):
     """Process one field of view: split → merge → filter."""
     import time
@@ -1010,7 +1004,7 @@ def _process_single_fov(mask_path, intensity_path, intensity_channel,
     label_img = label_img.astype(np.uint16)
 
     intensity_img = None
-    if (do_intensity_merge or min_intensity_percentile > 0 or max_intensity_percentile < 100) and intensity_path is not None:
+    if do_intensity_merge and intensity_path is not None:
         raw = _load_image(intensity_path)
         if raw is not None:
             intensity_img = _select_intensity_channel(raw, intensity_channel)
@@ -1018,9 +1012,8 @@ def _process_single_fov(mask_path, intensity_path, intensity_channel,
     if do_split:
         label_img = _split_by_watershed(
             label_img,
-            area_multiplier=area_multiplier,
-            min_distance=min_distance,
-            min_object_area=min_object_area,
+            min_watershed_distance=min_watershed_distance,
+            minimum_area_to_split=minimum_area_to_split,
         )
         label_img = _relabel_sequential(label_img)
 
@@ -1033,17 +1026,14 @@ def _process_single_fov(mask_path, intensity_path, intensity_channel,
             _merge_by_perimeter(label_img, perimeter_fraction, parent)
 
         if do_intensity_merge and intensity_img is not None:
-            _merge_by_intensity(label_img, intensity_img, parent,
-                                intensity_threshold_method=intensity_threshold_method,
-                                intensity_percentile=intensity_percentile)
+            print(_merge_by_intensity(label_img, intensity_img, parent,
+                                      intensity_threshold=intensity_threshold))
 
         label_img = _apply_union_find(label_img, parent)
 
     label_img = _filter_objects(label_img, intensity_img,
                                 min_area=min_area, max_area=max_area,
-                                remove_border=remove_border_objects,
-                                min_intensity_percentile=min_intensity_percentile,
-                                max_intensity_percentile=max_intensity_percentile)
+                                remove_border=remove_border_objects)
 
     _save_image(mask_path, label_img)
     

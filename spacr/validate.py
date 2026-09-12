@@ -1193,6 +1193,19 @@ def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
 
             survivors = surviving_setting_name(key)
             if not survivors:
+                # WITHDRAWN FROM A WHOLE ROLE FAMILY, which the literal table
+                # cannot hold: 705 roles carry each of these, so naming the
+                # first spelling would leave every generated organelle slot
+                # silent -- the `organelleq_min_size` failure again.
+                from .object_roles import withdrawn_setting_reason
+
+                gone = withdrawn_setting_reason(key)
+                if gone:
+                    problems.append(Problem(
+                        WARNING, key,
+                        f"'{key}' is no longer a spaCR setting.",
+                        f"Remove '{key}' — {gone}. As it stands the value is "
+                        f"read by nothing."))
                 continue
             replacement = (survivors[0] if len(survivors) == 1
                            else tuple(survivors))
@@ -1245,9 +1258,14 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
         # `pathogen_signal_to_noise` at the 0.85 cutoff, so the pair differ
         # only in confidence, and two messages about one key reads as two
         # problems.
+        from .object_roles import withdrawn_setting_reason
         from .settings import surviving_setting_name
 
-        if surviving_setting_name(key):
+        if surviving_setting_name(key) or withdrawn_setting_reason(key):
+            # ALREADY ANSWERED BY NAME in _check_retired_keys, and better. For
+            # the withdrawn ones the fuzzy matcher is not merely redundant but
+            # WRONG: it pointed `<role>_intensity_threshold_method`, which held
+            # 'mean', at `<role>_intensity_threshold`, which holds a float.
             continue
         close = difflib.get_close_matches(key, sorted(known), n=1, cutoff=0.85)
         if close:

@@ -204,10 +204,6 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "'cv_predictions'", "''", REPAIRED_TOOLTIP,
         "Hit investigation requires the user to select its score field.",
     ),
-    ("mask", "nucleus_intensity_threshold_method"): DefaultVariant(
-        "75", "'mean'", ACCURATE_SHARED,
-        "The parser sees the adjacent percentile value; the prose says mean.",
-    ),
     ("measure", "normalize"): DefaultVariant(
         "True", "False", REPAIRED_TOOLTIP,
         "Measure starts off and requires a percentile pair when enabled.",
@@ -687,7 +683,15 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # both `measure` AND `external_masks` -- so a new measure setting moves
     # this census by two per app, not by one per setting. Anyone adding the
     # next one and expecting +1 will look for a bug that is not there.
-    assert comparisons == 675
+    #
+    # 675 -> 663 on 2026-09-12, -16/+4, and the arithmetic is worth writing
+    # down because "-20 settings" does not give -12. Instruction 391 removed
+    # five relative settings at four object roles -- twenty keys -- but only
+    # SIXTEEN of them were resolved by an app and carried a parseable
+    # "Default X." claim, so only sixteen were ever in this census. The four
+    # gained are the one absolute setting that replaces them,
+    # `<role>_intensity_threshold`, whose "Default None." parses to None.
+    assert comparisons == 663
     # 44 since 2026-09-02. Instruction 364 unified organelle's duplicated
     # size/area settings, and the surviving tooltip now NAMES its per-app
     # defaults ("Default 10 in Mask; Measure and External Masks start at 0")
@@ -699,7 +703,13 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # Regression derived a list from filter_value, so the drift was two
     # meanings sharing a tooltip rather than a wrong default. Each half now
     # states its own, and neither disagrees with itself.
-    assert len(variants) == 46
+    # 46 -> 45 on 2026-09-12. The entry that went was
+    # ("mask", "nucleus_intensity_threshold_method"), whose whole reason for
+    # existing -- "the parser sees the adjacent percentile value; the prose
+    # says mean" -- was an artefact of a setting whose tooltip had to name a
+    # SECOND setting to explain itself. Instruction 391 removed both, so the
+    # ambiguity is gone rather than newly tolerated.
+    assert len(variants) == 45
     assert variants == expected
     assert {
         classification: sum(
@@ -708,7 +718,12 @@ def test_real_default_claims_have_no_unrecorded_drift():
         )
         for classification in (ACCURATE_SHARED, REPAIRED_TOOLTIP, CONFIG_DEFECT)
     } == {
-        ACCURATE_SHARED: 24,
+        # 24 -> 23 on 2026-09-12, the same one variant as the count above:
+        # ("mask", "nucleus_intensity_threshold_method") was classified
+        # ACCURATE_SHARED because its tooltip was right and only the parser
+        # was confused by the neighbouring percentile. Instruction 391
+        # removed the setting and the neighbour both.
+        ACCURATE_SHARED: 23,
         # 23 -> 22 on 2026-09-09, and it is the same one variant: the
         # `control_wells` split (357-Q6) took its repaired-tooltip entry
         # with it, because the tooltip it repaired documented two meanings

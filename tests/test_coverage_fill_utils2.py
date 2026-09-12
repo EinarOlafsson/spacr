@@ -183,7 +183,7 @@ def test_filter_objects_intensity_percentile():
     intensity[2:6, 2:6] = 10.0     # dim object
     intensity[10:14, 10:14] = 100.0  # bright object
     out = U._filter_objects(m, intensity_img=intensity,
-                            min_intensity_percentile=50)
+                            )
     assert 0 in np.unique(out)
 
 
@@ -279,15 +279,19 @@ def test_merge_by_intensity():
     m = _adjacent_labels()
     intensity = np.ones((16, 16), dtype=np.float32)   # uniform → boundary>=ref
     parent = {1: 1, 2: 2}
-    U._merge_by_intensity(m, intensity, parent,
-                          intensity_threshold_method="mean")
+    said = U._merge_by_intensity(m, intensity, parent, intensity_threshold=0.0)
     assert U._union_find_root(parent, 1) == U._union_find_root(parent, 2)
-    # percentile method path
+    assert "BELOW every shared boundary" in said, said
+
+    # AND THE OTHER SIDE. This used to be "the percentile method path", which
+    # also merged; with an absolute threshold above every boundary the right
+    # answer is that NOTHING merges and the function says so. Asserting a
+    # merge here would have passed only because the old relative rule could
+    # not decline.
     parent2 = {1: 1, 2: 2}
-    U._merge_by_intensity(m, intensity, parent2,
-                          intensity_threshold_method="percentile",
-                          intensity_percentile=50)
-    assert U._union_find_root(parent2, 1) == U._union_find_root(parent2, 2)
+    refused = U._merge_by_intensity(m, intensity, parent2, intensity_threshold=1e9)
+    assert U._union_find_root(parent2, 1) != U._union_find_root(parent2, 2)
+    assert "ABOVE every shared boundary" in refused, refused
 
 
 def test_split_by_watershed():
@@ -297,8 +301,8 @@ def test_split_by_watershed():
     m[(xx - 20) ** 2 + (yy - 20) ** 2 < 150] = 1
     m[(xx - 60) ** 2 + (yy - 20) ** 2 < 150] = 1
     m[18:22, 20:60] = 1   # neck
-    out = U._split_by_watershed(m, area_multiplier=0.1, min_distance=5,
-                                min_object_area=10)
+    out = U._split_by_watershed(m, min_watershed_distance=5,
+                                minimum_area_to_split=10)
     assert out.max() >= 1
 
 

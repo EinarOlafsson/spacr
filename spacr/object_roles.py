@@ -343,6 +343,57 @@ RENAMED_SETTING_SUFFIXES: Dict[str, str] = {
 }
 
 
+#: ``suffix -> why it went``, for settings WITHDRAWN from a whole role family.
+#:
+#: THE PARALLEL OF `RENAMED_SETTING_SUFFIXES`, AND IT EXISTS FOR THE SAME
+#: REASON: 705 roles carry each of these, so a literal table would name the
+#: first spelling and go silent for every generated organelle slot beside it.
+#:
+#: A WITHDRAWAL NEEDS A MESSAGE MORE THAN A RENAME DOES, not less. A renamed
+#: key has somewhere to send its value; a withdrawn one does not, so the only
+#: thing standing between the user and a silently ignored setting is being
+#: told. Instruction 391 is explicit: "do NOT silently drop an unrecognised
+#: key -- a settings file that quietly loses a value the user set is worse
+#: than one that refuses to load."
+#:
+#: AND ONE OF THESE WAS WORSE THAN SILENT. `<role>_intensity_threshold_method`
+#: held 'mean' or 'percentile', and the fuzzy typo-matcher pointed it at the
+#: new `<role>_intensity_threshold`, which holds a NUMBER -- so the advice was
+#: to copy a method name into a float. A wrong suggestion is followed; silence
+#: at least gets investigated.
+WITHDRAWN_SETTING_SUFFIXES: Dict[str, str] = {
+    "area_multiplier": (
+        "the watershed split threshold is now the absolute "
+        "<role>_minimum_area_to_split alone, with no median term"),
+    "intensity_threshold_method": (
+        "merging no longer chooses between a mean and a percentile: set "
+        "<role>_intensity_threshold to an absolute intensity instead"),
+    "intensity_percentile": (
+        "merging now compares the shared boundary against the absolute "
+        "<role>_intensity_threshold, not a percentile of the dimmer object"),
+    "min_intensity_percentile": (
+        "the intensity band was removed: it dropped its share of objects "
+        "however bright the field, which is a quota rather than a filter"),
+    "max_intensity_percentile": (
+        "the intensity band was removed: it dropped its share of objects "
+        "however bright the field, which is a quota rather than a filter"),
+}
+
+
+def withdrawn_setting_reason(key: str):
+    """Why ``key`` is no longer read, or ``None`` if it is not withdrawn.
+
+    :param key: the key a settings file carries.
+    :returns: a sentence naming what replaced it, or ``None``.
+    """
+    parts = split_role_setting(key)
+    if parts is None:
+        return None
+    role, suffix = parts
+    reason = WITHDRAWN_SETTING_SUFFIXES.get(suffix)
+    return None if reason is None else reason.replace("<role>", role)
+
+
 def split_role_setting(key: str):
     """``organellezz_min_split_area`` -> ``("organellezz", "min_split_area")``.
 

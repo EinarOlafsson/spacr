@@ -67,16 +67,12 @@ def _in_memory_kwargs(**overrides):
         do_perimeter_merge=False,
         do_intensity_merge=False,
         perimeter_fraction=0.5,
-        area_multiplier=2.0,
-        min_distance=10,
-        min_object_area=100,
-        intensity_threshold_method="mean",
-        intensity_percentile=75,
+        min_watershed_distance=10,
+        minimum_area_to_split=100,
+        intensity_threshold=None,
         min_area=0,
         max_area=0,
         remove_border_objects=False,
-        min_intensity_percentile=0,
-        max_intensity_percentile=100,
     )
     kw.update(overrides)
     return kw
@@ -84,20 +80,17 @@ def _in_memory_kwargs(**overrides):
 
 def _fov_args(mask_path, intensity_path=None, intensity_channel=None,
               do_split=False, do_perimeter_merge=True, do_intensity_merge=False,
-              perimeter_fraction=0.5, area_multiplier=2.0, min_distance=10,
-              min_object_area=100, intensity_threshold_method="mean",
-              intensity_percentile=75, min_area=0, max_area=0,
-              remove_border_objects=False, min_intensity_percentile=0,
-              max_intensity_percentile=100, **kw):
+              perimeter_fraction=0.5, min_watershed_distance=10,
+              minimum_area_to_split=100, intensity_threshold=None,
+              min_area=0, max_area=0,
+              remove_border_objects=False, **kw):
     """Positional argument tuple for the file-based ``_process_single_fov``."""
     return (
         (mask_path, intensity_path, intensity_channel,
          do_split, do_perimeter_merge, do_intensity_merge,
-         perimeter_fraction, area_multiplier, min_distance,
-         min_object_area, intensity_threshold_method,
-         intensity_percentile, min_area, max_area,
-         remove_border_objects, min_intensity_percentile,
-         max_intensity_percentile),
+         perimeter_fraction, min_watershed_distance,
+         minimum_area_to_split, intensity_threshold,
+         min_area, max_area, remove_border_objects),
         kw,
     )
 
@@ -229,8 +222,14 @@ def test_merge_by_intensity_skips_pair_with_label_missing_from_stats(monkeypatch
     assert parent == {1: 1, 2: 2, 99: 99}
 
 
-def test_merge_by_intensity_percentile_method_keeps_dark_boundary_split():
-    """A genuinely dark boundary is *not* merged under the percentile rule."""
+def test_merge_by_intensity_keeps_a_dark_boundary_split():
+    """A genuinely dark boundary is not merged, and the report says why.
+
+    The percentile METHOD this used to exercise was removed in 391 along with
+    the rest of the relative scheme. The intent survives and is now a number
+    the user could have read off the image: the seam is 0 and the threshold
+    is 50, so nothing merges.
+    """
     from spacr.utils import _merge_by_intensity, _union_find_root
     m = _two_touching_blocks()
     intensity = np.zeros(m.shape, dtype=np.float32)
@@ -238,11 +237,12 @@ def test_merge_by_intensity_percentile_method_keeps_dark_boundary_split():
     intensity[:, 7:9] = 0.0     # dark seam exactly on the shared boundary
 
     parent = {1: 1, 2: 2}
-    _merge_by_intensity(m, intensity, parent,
-                        intensity_threshold_method="percentile",
-                        intensity_percentile=50)
+    said = _merge_by_intensity(m, intensity, parent, intensity_threshold=50.0)
 
     assert _union_find_root(parent, 1) != _union_find_root(parent, 2)
+    # AND IT REFUSES OUT LOUD. A threshold above every boundary used to be
+    # silent, which looks exactly like the setting having no effect.
+    assert "ABOVE every shared boundary" in said, said
 
 
 # ---------------------------------------------------------------------------
@@ -255,8 +255,8 @@ def test_split_by_watershed_skips_small_and_single_peak_objects(capsys):
     from spacr.utils import _split_by_watershed
     m = _big_square_plus_speck()
 
-    out = _split_by_watershed(m, area_multiplier=0.5, min_distance=10,
-                              min_object_area=10)
+    out = _split_by_watershed(m, min_watershed_distance=10,
+                              minimum_area_to_split=10)
 
     # threshold = max(0.5 * median(900, 4), 10) = 226
     #   label 2 (4 px)   -> below threshold, skipped
@@ -270,8 +270,8 @@ def test_split_by_watershed_splits_dumbbell():
     m = _dumbbell()
     assert _n_objects(m) == 1
 
-    out = _split_by_watershed(m, area_multiplier=0.1, min_distance=5,
-                              min_object_area=10)
+    out = _split_by_watershed(m, min_watershed_distance=5,
+                              minimum_area_to_split=10)
 
     assert _n_objects(out) >= 2
     # splitting only re-labels foreground; it never grows or erodes it
@@ -326,9 +326,8 @@ def test_in_memory_split_phase_increases_object_count(capsys):
     out = _process_single_fov_in_memory(**_in_memory_kwargs(
         mask=_dumbbell(),
         do_split=True,
-        area_multiplier=0.1,
-        min_distance=5,
-        min_object_area=10,
+        min_watershed_distance=5,
+        minimum_area_to_split=10,
         fov_index=1,
     ))
 
@@ -343,7 +342,7 @@ def test_in_memory_intensity_merge_2d_intensity(capsys):
     out = _process_single_fov_in_memory(**_in_memory_kwargs(
         mask=m,
         intensity_img=np.full(m.shape, 5.0, dtype=np.float64),
-        do_intensity_merge=True,
+        do_intensity_merge=True, intensity_threshold=0.0,
         fov_index=2,
     ))
 
@@ -358,7 +357,7 @@ def test_in_memory_intensity_channel_last_small_stack():
     raw[..., 1] = 9        # only channel 1 is bright -> uniform -> merge
 
     out = _process_single_fov_in_memory(**_in_memory_kwargs(
-        mask=m, intensity_img=raw, intensity_channel=1, do_intensity_merge=True))
+        mask=m, intensity_img=raw, intensity_channel=1, do_intensity_merge=True, intensity_threshold=0.0))
 
     assert _n_objects(out) == 1
 
@@ -370,7 +369,7 @@ def test_in_memory_intensity_channel_last_out_of_bounds():
             mask=_two_touching_blocks(),
             intensity_img=np.zeros((16, 16, 3), dtype=np.uint16),
             intensity_channel=5,
-            do_intensity_merge=True,
+            do_intensity_merge=True, intensity_threshold=0.0,
         ))
 
 
@@ -381,7 +380,7 @@ def test_in_memory_intensity_channel_first_small_stack():
     raw[1] = 4
 
     out = _process_single_fov_in_memory(**_in_memory_kwargs(
-        mask=m, intensity_img=raw, intensity_channel=1, do_intensity_merge=True))
+        mask=m, intensity_img=raw, intensity_channel=1, do_intensity_merge=True, intensity_threshold=0.0))
 
     assert _n_objects(out) == 1
 
@@ -393,7 +392,7 @@ def test_in_memory_intensity_channel_first_out_of_bounds():
             mask=_two_touching_blocks(),
             intensity_img=np.zeros((3, 16, 16), dtype=np.uint16),
             intensity_channel=5,
-            do_intensity_merge=True,
+            do_intensity_merge=True, intensity_threshold=0.0,
         ))
 
 
@@ -405,7 +404,7 @@ def test_in_memory_intensity_many_channel_stack_uses_last_axis():
     raw[..., 5] = 11
 
     out = _process_single_fov_in_memory(**_in_memory_kwargs(
-        mask=m, intensity_img=raw, intensity_channel=5, do_intensity_merge=True))
+        mask=m, intensity_img=raw, intensity_channel=5, do_intensity_merge=True, intensity_threshold=0.0))
 
     assert _n_objects(out) == 1
 
@@ -417,7 +416,7 @@ def test_in_memory_intensity_many_channel_stack_out_of_bounds():
             mask=_two_touching_blocks(),
             intensity_img=np.zeros((16, 16, 6), dtype=np.uint16),
             intensity_channel=10,
-            do_intensity_merge=True,
+            do_intensity_merge=True, intensity_threshold=0.0,
         ))
 
 
@@ -429,8 +428,7 @@ def test_in_memory_intensity_3d_without_channel_is_passed_through():
     raw = np.ones((3, 16, 16), dtype=np.uint16)      # percentile filter no-ops
 
     out = _process_single_fov_in_memory(**_in_memory_kwargs(
-        mask=m, intensity_img=raw, intensity_channel=None,
-        min_intensity_percentile=5))
+        mask=m, intensity_img=raw, intensity_channel=None))
 
     assert _n_objects(out) == 1
     assert out.shape == (16, 16)
@@ -484,8 +482,8 @@ def test_process_single_fov_split_writes_more_objects(tmp_path):
     path = tmp_path / "mask.tif"
     tifffile.imwrite(str(path), _dumbbell())
     args, kw = _fov_args(str(path), do_split=True, do_perimeter_merge=False,
-                         perimeter_fraction=0.0, area_multiplier=0.1,
-                         min_distance=5, min_object_area=10)
+                         perimeter_fraction=0.0,
+                         min_watershed_distance=5, minimum_area_to_split=10)
 
     _process_single_fov(*args, **kw)
 
@@ -503,7 +501,7 @@ def test_process_single_fov_channel_first_intensity_merge(tmp_path):
     raw[0] = 7.0
     tifffile.imwrite(str(int_path), raw)
     args, kw = _fov_args(str(mask_path), str(int_path), intensity_channel=0,
-                         do_perimeter_merge=False, do_intensity_merge=True,
+                         do_perimeter_merge=False, do_intensity_merge=True, intensity_threshold=0.0,
                          perimeter_fraction=0.0)
 
     _process_single_fov(*args, **kw)
@@ -525,15 +523,18 @@ def test_process_single_fov_intensity_without_channel(tmp_path):
     tifffile.imwrite(str(int_path), intensity)
     args, kw = _fov_args(str(mask_path), str(int_path), intensity_channel=None,
                          do_perimeter_merge=False, perimeter_fraction=0.0,
-                         min_intensity_percentile=50)
+                         do_intensity_merge=True, intensity_threshold=0.0)
 
     _process_single_fov(*args, **kw)
 
     out = tifffile.imread(str(mask_path))
-    # the dim object (label 1) sits below the 50th percentile and is dropped
+    # The whole intensity image was read, so the two touching blocks merged.
+    # NOTHING IS DROPPED ANY MORE: this used to assert the dim object fell
+    # below the 50th percentile and was filtered, which is exactly the
+    # behaviour 391 removed -- a band on the field's own distribution always
+    # removes its share, however bright the field.
     assert sorted(np.unique(out).tolist()) == [0, 1]
-    assert int(np.sum(out > 0)) == 60
-    assert bool(np.all(out[m == 1] == 0))
+    assert int(np.sum(out > 0)) == 120
 
 
 def test_process_single_fov_unreadable_intensity_is_ignored(tmp_path):
@@ -543,7 +544,7 @@ def test_process_single_fov_unreadable_intensity_is_ignored(tmp_path):
     bad_intensity = tmp_path / "intensity.png"
     bad_intensity.write_bytes(b"junk")
     args, kw = _fov_args(str(mask_path), str(bad_intensity), intensity_channel=0,
-                         do_intensity_merge=True, perimeter_fraction=0.5)
+                         do_intensity_merge=True, intensity_threshold=0.0, perimeter_fraction=0.5)
 
     _process_single_fov(*args, **kw)
 
@@ -564,10 +565,10 @@ def test_process_single_fov_2d_intensity_with_channel(tmp_path):
 
     expected = _process_single_fov_in_memory(**_in_memory_kwargs(
         mask=m, intensity_img=intensity, intensity_channel=0,
-        do_intensity_merge=True, perimeter_fraction=0.0))
+        do_intensity_merge=True, intensity_threshold=0.0, perimeter_fraction=0.0))
 
     args, kw = _fov_args(str(mask_path), str(int_path), intensity_channel=0,
-                         do_perimeter_merge=False, do_intensity_merge=True,
+                         do_perimeter_merge=False, do_intensity_merge=True, intensity_threshold=0.0,
                          perimeter_fraction=0.0)
     _process_single_fov(*args, **kw)
 
@@ -587,10 +588,10 @@ def test_process_single_fov_channel_last_intensity(tmp_path):
 
     expected = _process_single_fov_in_memory(**_in_memory_kwargs(
         mask=m, intensity_img=raw, intensity_channel=1,
-        do_intensity_merge=True, perimeter_fraction=0.0))
+        do_intensity_merge=True, intensity_threshold=0.0, perimeter_fraction=0.0))
 
     args, kw = _fov_args(str(mask_path), str(int_path), intensity_channel=1,
-                         do_perimeter_merge=False, do_intensity_merge=True,
+                         do_perimeter_merge=False, do_intensity_merge=True, intensity_threshold=0.0,
                          perimeter_fraction=0.0)
     _process_single_fov(*args, **kw)
 
@@ -648,7 +649,8 @@ def test_merge_split_objects_with_intensity_directory(tmp_path):
 
     merge_split_objects(str(mask_dir), intensity_img_src=str(int_dir),
                         intensity_channel=2, perimeter_fraction=0.0,
-                        intensity_merge=True, n_jobs=1)
+                        intensity_merge=True, intensity_threshold=0.0,
+                        n_jobs=1)
 
     out = tifffile.imread(str(mask_dir / "A01_f01.tif"))
     assert sorted(np.unique(out).tolist()) == [0, 1]
@@ -662,8 +664,8 @@ def test_merge_split_objects_split_and_area_filter(tmp_path):
     tifffile.imwrite(str(mask_dir / "d.tif"), _dumbbell())
 
     merge_split_objects(str(mask_dir), perimeter_fraction=0.0,
-                        intensity_split=True, area_multiplier=0.1,
-                        min_distance=5, min_object_area=10, min_area=20,
+                        intensity_split=True,
+                        min_watershed_distance=5, minimum_area_to_split=10, min_area=20,
                         n_jobs=1)
 
     out = tifffile.imread(str(mask_dir / "d.tif"))
