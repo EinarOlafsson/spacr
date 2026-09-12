@@ -2510,33 +2510,221 @@
     },
     {
       "id": "21_model_compare",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 21,
+      "slug": "model_compare",
+      "title": "Model Compare: gjeldende skjerm og samsvar mellom ekte masker",
+      "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_compare"
+      "description": "Åpne den innebygde sammenligningen, last inn ekte bildefelt og sammenlign lagrede segmenteringer med API-et. Samsvar betyr ikke nøyaktighet eller at inferens i brukergrensesnittet er reparert.",
+      "objectives": [
+        "Finn Model Compare i Make Masks og last inn eksempelfeltene.",
+        "Skill Cellposes nåværende inkompatibilitet fra det fungerende API-et for maskesammenligning.",
+        "Tolk antall, koblinger og overlapp uten å erklære et resultat riktig."
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly og Cellpose 4.2.1.1. Grensesnittet sender invert, som ikke støttes. Vi laster bare bilder, kjører ikke inferens, injiserer ikke resultater og endrer ikke appen. spacr.model_compare.compare_masks sammenligner ekte lagrede batch- og forhåndsvisningsresultater fra cell_pair_02.tif i Apply Cellpose: samme cpsam-vekter, ulik forbehandling. Ingen maske er en ekspertannotert fasit; ingen modell kjøres her. Bevar feltidentitet, pikselgeometri, forbehandling og filhasher. Like dimensjoner beviser ikke samme kildebilde. Skript og dokumentasjon identifiserer originalene. Bruk en ny utdatamappe. Samsvar fastslår ikke nøyaktighet, modellrangering, biologisk gyldighet eller ytelse på uavhengige bilder.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare ligger inne i Make Masks og sammenligner segmenteringer av de samme bildefeltene. Leksjonen viser dagens skjerm og deretter det fungerende API-et for maskesammenligning med to ekte lagrede resultater.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "Skjermen skiller innstillingene for Model A og Model B. Registrer nøyaktige vekter og forbehandling. Ulike navn eller flere objekter beviser ikke et bedre resultat. Parameter- og resultattabellene er tomme før en sammenligning kjøres.",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "Oppgi den virkelige eksempelmappen og trykk Load. Her lastes tre originalfelt inn, og Compare blir tilgjengelig. Lastede bilder betyr ikke en vellykket modellkjøring. Vi har verken laget masker eller fylt sammenligningstabellen på denne skjermen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "Den installerte Cellpose-versjonen avviser invert-argumentet som dette GUI-bakstykket fortsatt sender. Den faktiske kontrollen av funksjonssignaturen viser inkompatibiliteten uten inferens. Vi skjuler ikke feilen. Neste eksempel bruker compare_masks direkte på eksisterende etikettbilder.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "Begge maskene tilhører det samme ekte bildet fra Apply Cellpose-leksjonen. Den ene er lagret batchutdata, den andre lagret live-forhåndsvisning. De bruker samme modell med ulik forbehandling, ikke konkurrerende vekter. Ingen av maskene er en kjent riktig fasit.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "API-et rapporterer 94 objekter i A og 95 i B, med 91 sammenkoblede par. Gjennomsnittlig overlapp blant parene er omtrent 0,96, og justert Rand-indeks omtrent 0,961. Dette beskriver samsvar, ikke nøyaktighet eller en vinner.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "Undersøk de faktisk lagrede overleggene. Høyre panel markerer piksler med ulik forgrunnsstatus. Det viser ikke alle forskjeller mellom instansetiketter. Lignende antall kan skjule ulike grenser, delinger og sammenslåinger. Se derfor også på bildene.",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "Skriptet kontrollerer hvert sammenkoblet overlapp uavhengig med originalpikslene og sjekker kontrollen med identiske masker. Bevar CSV, figur, kildeidentiteter og forbehandling sammen. Bruk uavhengig gjennomgåtte annoteringer og egne evalueringsbilder før du hevder nøyaktighet eller velger modell.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 22,
+      "slug": "model_zoo",
+      "title": "Model Zoo: finn modeller og undersøk opphavet",
+      "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_zoo"
+      "description": "Åpne det innebygde modellbiblioteket, skann en eksisterende lokal hurtigbuffer og skill registrerte treningsopplysninger fra ukjent opphav. Cellposes nåværende inkompatibilitet hindrer en dokumentert ytelsestest.",
+      "objectives": [
+        "Finn Model Zoo i Make Masks og skann en lokal modellmappe.",
+        "Les kilde, type, kontrollsum og trening uten å forveksle ukjente metadata med validering.",
+        "Skill modelladministrasjon fra nedlasting, trening og ytelsestesting."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly. Opptaket skanner en eksisterende Cellpose-hurtigbuffer og velger den originale cpsam-filen uten nedlasting, trening eller inferens. Bruk din egen mappe, ikke presentatørens personlige sti. Valgte metadata mangler offentlig kontrollsum, treningsdatasett og forfatter; ingenting utledes fra navnet. En separat hash viser bare at den lokale filen var uendret under opptaket, ikke opphavet. Model Zoos ytelsestest og Model Compare sender invert, som Cellpose 4.2.1.1 ikke støtter. Appfeilen blir verken reparert eller omgått her. Plaque-leksjonen viser en ekte nedlasting og forhåndsvisning. Ingen nøyaktighetssammenligning eller uavhengig validering påstås.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo er modellbiblioteket inne i Make Masks. Åpne vertsmodulen og deretter Model Zoo-kontrollen. Denne leksjonen viser det ekte biblioteket og skanning av lokale modeller, ikke ny trening eller testing av nøyaktighet.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "Tabellen samler publiserte oppføringer og lokalt oppdagede filer. Les modelltype og kilde sammen. En oppføring betyr ikke at modellen er lastet ned, testet på dine bilder eller validert for forsøket ditt.",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "Oppgi en eksisterende modellmappe og trykk Scan, eller velg den med knappen ved siden av. Her skanner vi den virkelige Cellpose-hurtigbufferen. Bruk din egen sti. Skanning finner filer og metadata; den trener ikke modeller og segmenterer ikke bilder.",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "Denne skanningen viser åtte oppføringer: noen publiserte fjernmodeller og noen lokale vektfiler. Antallet beskriver denne datamaskinen, ikke et obligatorisk oppsett. Velg den nøyaktige filen; lignende navn garanterer ikke samme vekter.",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "Den valgte lokale filen har verken offentlig kontrollsum eller registrert treningsopphav i denne visningen. Ukjent betyr ukjent. Navnet beviser ikke hvilket treningsdatasett som ble brukt. Hashen vår bekrefter at opptaket lot filen være uendret, ikke hvem som laget den eller hvor godt den virker.",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "Nedlastingsområdet bestemmer hvor en tilgjengelig fjernmodell lagres. Det gir også et valg for modeller uten offentlig kontrollsum. Manglende kontrollsum betyr ikke verifisert nedlasting. Denne lokale filen lastes ikke ned igjen. Plaque-leksjonen viser en ekte nedlasting og forhåndsvisning.",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "Det nederste området brukes til å teste bildefelt og sammenligne valgte modeller. Det er andre oppgaver enn biblioteksskanning. Den nåværende Cellpose-argumentkonflikten hindrer oss i å hevde en vellykket ytelsestest her. Ingen masker eller testverdier er oppdiktet. Hold representative valideringsbilder atskilt fra treningseksempler når den reparerte arbeidsflyten vurderes.",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "23_agreement",

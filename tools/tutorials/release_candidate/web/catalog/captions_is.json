@@ -2510,33 +2510,221 @@
     },
     {
       "id": "21_model_compare",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Væntanlegt",
-      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 21,
+      "slug": "model_compare",
+      "title": "Model Compare: núverandi viðmót og samræmi raunverulegra maska",
+      "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_compare"
+      "description": "Opnaðu innbyggða samanburðinn, lestu inn raunveruleg myndsvið og berðu saman vistaðar hlutaskiptingar með API-inu. Samræmi sannar hvorki nákvæmni né að keyrsla líkana í viðmótinu hafi verið lagfærð.",
+      "objectives": [
+        "Finndu Model Compare í Make Masks og lestu inn sýnimyndsviðin.",
+        "Greindu á milli núverandi ósamræmis í Cellpose og virka API-sins fyrir maskasamanburð.",
+        "Túlkaðu fjölda, samsvörun og skörun án þess að kalla aðra niðurstöðuna rétta."
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly og Cellpose 4.2.1.1. Viðmótið sendir invert-viðfangið sem er ekki stutt. Við lesum aðeins inn myndir, keyrum ekki líkön, setjum ekki inn tilbúnar niðurstöður og breytum ekki forritinu. spacr.model_compare.compare_masks ber saman raunverulega vistaða runuvinnslu og forskoðun úr cell_pair_02.tif í Apply Cellpose: sömu cpsam-vogir en ólík forvinnsla. Hvorugur maskinn er rétt viðmið merkt af sérfræðingum; ekkert líkan er keyrt hér. Varðveittu auðkenni myndsviðs, rúmfræði mynddíla, forvinnslu og tætigildi skráa. Sömu stærðir sanna ekki sömu upprunamynd. Skriptan og gögn sem fylgja henni auðkenna frumskrár. Notaðu nýja úttaksmöppu. Samræmi staðfestir ekki nákvæmni, röðun líkana, líffræðilegt réttmæti eða frammistöðu á óháðum myndum.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare er inni í Make Masks og ber saman hlutaskiptingu sömu myndsviða. Kennslan sýnir núverandi viðmót og síðan virkt API fyrir maskasamanburð með tveimur raunverulegum vistuðum niðurstöðum.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "Viðmótið aðskilur stillingar Model A og Model B. Skráðu nákvæmlega vogir og forvinnslu í hverjum samanburði. Ólík nöfn eða fleiri hlutir sanna ekki betri niðurstöðu. Töflur fyrir færibreytur og niðurstöður eru tómar áður en samanburður er keyrður.",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "Sláðu inn raunverulegu sýnimöppuna og ýttu á Load. Hér hlaðast þrjú upprunaleg myndsvið inn og Compare verður virkt. Að lesa inn myndir er ekki það sama og að keyra líkön með árangri. Við höfum hvorki búið til maska né fyllt samanburðartöfluna á þessum skjá.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "Uppsetta Cellpose-útgáfan hafnar invert-viðfanginu sem bakendi þessa viðmóts sendir enn. Raunveruleg athugun á skilgreiningu fallsins sýnir ósamræmið án líkanakeyrslu. Við felum það ekki. Næsta dæmi notar compare_masks beint á fyrirliggjandi merktar myndir.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "Báðir maskarnir tilheyra sömu raunverulegu mynd úr Apply Cellpose-kennslunni. Annar er vistað úttak runuvinnslu, hinn vistuð lifandi forskoðun. Þeir nota sama líkan með ólíkri forvinnslu, ekki tvö samkeppnissett af vogum. Hvorugur er þekkt rétt viðmið.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "API-ið sýnir 94 hluti í A og 95 í B, með 91 samsvarandi pari. Meðalskörun para er um 0,96 og leiðréttur Rand-stuðull um 0,961. Þetta lýsir samræmi, ekki nákvæmni eða sigurvegara.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "Skoðaðu yfirlagðar myndir sem voru raunverulega vistaðar. Hægra svæðið merkir mynddíla þar sem flokkun sem forgrunnur er ólík. Það sýnir ekki allan mun á merkjum einstakra hluta. Svipaður fjöldi getur falið ólík mörk, skiptingar eða sameiningar. Skoðaðu því myndirnar líka.",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "Skriptan sannreynir hverja samsvarandi skörun óháð út frá upprunalegu mynddílunum og prófar viðmið með eins möskum. Geymdu CSV, mynd, auðkenni frumgagna og forvinnslu saman. Notaðu óháð yfirfarnar merkingar og myndir sem voru teknar frá fyrir mat áður en þú fullyrðir um nákvæmni eða velur líkan.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Væntanlegt",
-      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 22,
+      "slug": "model_zoo",
+      "title": "Model Zoo: finndu líkön og skoðaðu uppruna þeirra",
+      "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_zoo"
+      "description": "Opnaðu innbyggða líkanasafnið og skannaðu fyrirliggjandi staðbundið skyndiminni. Greindu skráðar þjálfunarupplýsingar frá óþekktum uppruna; núverandi Cellpose-ósamræmi kemur í veg fyrir staðfesta frammistöðuprófun.",
+      "objectives": [
+        "Finndu Model Zoo í Make Masks og skannaðu staðbundna líkanamöppu.",
+        "Lestu uppruna, gerð, gátsummu og þjálfun án þess að rugla óþekktum lýsigögnum við sannprófun.",
+        "Greindu líkanastjórnun frá niðurhali, þjálfun og frammistöðuprófun."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly. Upptakan skannar fyrirliggjandi Cellpose-skyndiminni og velur upprunalegu cpsam-skrána án niðurhals, þjálfunar eða líkanakeyrslu. Notaðu eigin möppu, ekki persónulega slóð kynnisins. Valin lýsigögn hafa hvorki birt gátsummu, þjálfunargögn né höfund; ekkert er ályktað út frá nafninu. Sérstakt tætigildi sýnir aðeins að staðbundna skráin breyttist ekki við upptöku, ekki uppruna hennar. Frammistöðuprófun Model Zoo og Model Compare senda invert, sem Cellpose 4.2.1.1 styður ekki. Forritsvillan er hvorki lagfærð né sniðgengin hér. Plaque-kennslan sýnir raunverulegt niðurhal og forskoðun. Ekki er fullyrt um nákvæmnisamanburð eða prófun á óháðum gögnum.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo er líkanasafnið inni í Make Masks. Opnaðu móðureininguna og síðan Model Zoo-stýringuna. Kennslan sýnir raunverulegt safn og leit að staðbundnum líkönum, ekki nýja þjálfun eða prófun á nákvæmni.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "Taflan sameinar birtar færslur og skrár sem finnast á tölvunni. Lestu gerð líkans og uppruna saman. Færsla á lista þýðir ekki að líkani hafi verið hlaðið niður, það prófað á þínum myndum eða staðfest fyrir þína tilraun.",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "Sláðu inn fyrirliggjandi líkanamöppu og ýttu á Scan, eða veldu möppu með hnappnum við hliðina. Hér skönnum við raunverulegt Cellpose-skyndiminni. Notaðu eigin slóð. Skönnun finnur skrár og lýsigögn; hún þjálfar ekki líkön og hlutaskiptir ekki myndum.",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "Þessi skönnun sýnir átta færslur: birt líkön á neti og staðbundnar vogaskrár. Fjöldinn lýsir þessari tölvu, ekki nauðsynlegri uppsetningu. Veldu nákvæmlega réttu skrána; lík nöfn tryggja ekki sömu vogir.",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "Valda staðbundna skráin hefur hvorki birta gátsummu né skráðan þjálfunaruppruna í þessari sýn. Óþekkt merkir óþekkt. Nafnið sannar ekki hvaða þjálfunargögn voru notuð. Tætigildið okkar staðfestir að upptakan breytti ekki skránni, ekki hver bjó hana til eða hversu vel hún virkar.",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "Niðurhalssvæðið stýrir hvar tiltækt líkan af netinu er vistað. Þar er einnig val fyrir líkön án birtrar gátsummu. Vantar gátsummu merkir ekki staðfest niðurhal. Þessari staðbundnu skrá er ekki hlaðið niður aftur. Plaque-kennslan sýnir raunverulegt niðurhal og forskoðun.",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "Neðra svæðið er fyrir prófun myndsviða og samanburð valinna líkana. Það eru önnur verkefni en skönnun safnsins. Núverandi ósamræmi Cellpose-viðfanga kemur í veg fyrir að við getum lýst árangursríkri frammistöðuprófun hér. Engir maskar eða prófgildi eru tilbúin. Haltu dæmigerðum sannprófunarmyndum aðskildum frá þjálfunardæmum þegar lagfært verkferli er metið.",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "23_agreement",

@@ -2510,33 +2510,221 @@
     },
     {
       "id": "21_model_compare",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "곧 공개됩니다",
-      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 21,
+      "slug": "model_compare",
+      "title": "Model Compare: 현재 화면과 실제 마스크의 일치도",
+      "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_compare"
+      "description": "중첩된 비교 화면에서 실제 시야를 불러오고 저장된 분할 결과를 API로 비교합니다. 일치도를 정확도와 혼동하거나 GUI 추론 문제가 해결되었다고 설명하지 않습니다.",
+      "objectives": [
+        "Make Masks 안의 Model Compare를 열어 실제 예제 시야를 불러옵니다.",
+        "현재 Cellpose 비호환 문제와 작동하는 마스크 비교 API를 구분합니다.",
+        "어느 결과도 정답으로 단정하지 않고 객체 수, 대응과 겹침을 해석합니다."
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly와 Cellpose 4.2.1.1로 녹화했습니다. GUI는 지원되지 않는 invert 인수를 전달하므로 이미지만 불러오며, 추론 실행, 결과 주입, 앱 수정은 하지 않습니다. spacr.model_compare.compare_masks는 Apply Cellpose의 cell_pair_02.tif에서 실제 저장된 배치 출력과 실시간 미리보기 출력을 비교합니다. 같은 cpsam 가중치에 서로 다른 전처리를 사용합니다. 어느 마스크도 전문가가 만든 정답 참조가 아니며 여기서는 모델을 실행하지 않습니다. 시야 식별 정보, 픽셀 기하, 전처리와 파일 해시를 보존하세요. 같은 크기만으로 같은 이미지에서 나온 마스크임을 증명할 수 없습니다. 스크립트와 증거 기록이 원본을 식별합니다. 새 출력 폴더를 사용하세요. 일치도는 정확도, 모델 순위, 생물학적 타당성 또는 독립 이미지에서의 성능을 증명하지 않습니다.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare는 Make Masks 안에 있으며 같은 시야의 분할 결과를 비교합니다. 이 강의는 현재 화면을 소개한 뒤, 실제 저장된 두 결과로 작동하는 마스크 비교 API를 시연합니다.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "화면은 Model A와 Model B 설정을 분리합니다. 비교마다 정확한 가중치와 전처리를 기록하세요. 이름이 다르거나 객체가 많다고 더 좋은 결과는 아닙니다. 비교를 실행하기 전에는 매개변수 표와 결과 표가 비어 있습니다.",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "실제 예제 폴더를 입력하고 Load를 누릅니다. 원본 시야 세 개가 정상적으로 로드되어 Compare가 활성화됩니다. 이미지 로드는 모델의 성공적인 실행과 다릅니다. 이 화면에서 마스크를 만들거나 비교 표에 결과를 넣지 않았습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "설치된 Cellpose는 이 GUI 백엔드가 아직 전달하는 invert 인수를 거부합니다. 실제 함수 시그니처 검사로 추론 없이 비호환성을 확인합니다. 이 문제를 숨기지 않습니다. 다음 예제는 기존 레이블 이미지에 compare_masks를 직접 적용합니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "두 마스크는 Apply Cellpose 강의의 같은 실제 이미지에서 나왔습니다. 하나는 저장된 배치 출력이고 다른 하나는 저장된 실시간 미리보기 출력입니다. 같은 모델과 다른 전처리를 사용하며, 서로 경쟁하는 두 가중치 세트가 아닙니다. 어느 마스크도 정답 참조가 아닙니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "API 결과는 A에 객체 94개, B에 95개이며 대응 쌍은 91개입니다. 대응 쌍의 평균 겹침은 약 0.96, 조정 랜드 지수는 약 0.961입니다. 이는 일치도를 나타낼 뿐, 정확도나 승자를 뜻하지 않습니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "실제로 저장된 중첩 이미지를 살펴보세요. 오른쪽 패널은 전경 여부가 다른 픽셀을 표시하며 모든 인스턴스 레이블 불일치를 보여주지는 않습니다. 비슷한 객체 수에도 경계 차이, 분할 또는 병합이 숨을 수 있으므로 요약 수치와 함께 이미지를 확인하세요.",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "스크립트는 원본 픽셀로 각 대응 쌍의 겹침을 독립적으로 검산하고 동일 마스크 대조도 확인합니다. CSV, 그림, 원본 식별 정보와 전처리 기록을 함께 보관하세요. 정확도를 주장하거나 모델을 선택하기 전에 독립적으로 검토한 주석과 평가용으로 따로 보관한 이미지를 사용하세요.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "곧 공개됩니다",
-      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 22,
+      "slug": "model_zoo",
+      "title": "Model Zoo: 모델을 찾고 출처 확인하기",
+      "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_zoo"
+      "description": "중첩된 모델 라이브러리를 열어 기존 로컬 캐시를 검색합니다. 기록된 학습 정보와 알 수 없는 출처를 구분하며, 현재 Cellpose 비호환 문제가 남아 있는 동안 벤치마크 성공을 주장하지 않습니다.",
+      "objectives": [
+        "Make Masks 안에서 Model Zoo를 찾아 로컬 모델 폴더를 검색합니다.",
+        "출처, 유형, 체크섬과 학습 정보를 읽고 알 수 없는 메타데이터를 검증과 혼동하지 않습니다.",
+        "모델 관리와 다운로드, 학습, 벤치마크를 구분합니다."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly. 실제 녹화는 기존 Cellpose 캐시를 검색하고 원래 cpsam 파일을 선택할 뿐, 다운로드, 학습, 추론은 하지 않습니다. 발표자의 개인 경로가 아닌 자신의 모델 폴더를 사용하세요. 선택한 메타데이터에는 공개 체크섬, 학습 데이터셋과 작성자가 없으며 이름에서 추측하지 않습니다. 별도 해시는 녹화 중 로컬 파일이 바뀌지 않았다는 사실만 확인하고 출처는 증명하지 않습니다. Model Zoo 벤치마크와 Model Compare는 Cellpose 4.2.1.1이 지원하지 않는 invert를 전달합니다. 앱의 결함을 여기서 수정하거나 우회하지 않습니다. 실제 다운로드와 미리보기는 Plaque 강의를 참조하세요. 정확도 비교나 독립 데이터 검증을 수행했다고 주장하지 않습니다.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo는 Make Masks 안의 모델 라이브러리입니다. 상위 모듈을 열고 Model Zoo 컨트롤을 사용하세요. 이 강의는 실제 라이브러리와 로컬 모델 검색을 시연하며, 새로운 학습이나 정확도 벤치마크를 수행하지 않습니다.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "표는 공개된 항목과 로컬에서 발견한 파일을 한 화면에 모읍니다. 모델 유형과 출처 열을 함께 읽으세요. 목록에 있다고 다운로드되었거나 자신의 이미지에서 시험되었거나 실험에 맞게 검증된 것은 아닙니다.",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "기존 모델 폴더를 입력하고 Scan을 누르거나 옆 버튼으로 폴더를 선택합니다. 여기서는 실제 Cellpose 캐시를 검색합니다. 자신의 경로를 사용하세요. 검색은 파일과 메타데이터를 찾을 뿐 모델 학습이나 이미지 분할을 수행하지 않습니다.",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "이번 검색에는 항목 여덟 개가 표시됩니다. 공개된 원격 모델과 로컬 가중치 파일이 포함됩니다. 이 수는 이 컴퓨터의 상태이지 필수 구성이 아닙니다. 비슷한 이름을 같은 가중치로 생각하지 말고 정확한 파일을 선택하세요.",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "선택한 로컬 파일은 이 화면에 공개 체크섬도 학습 출처도 기록되어 있지 않습니다. 모르는 것은 모르는 상태로 남습니다. 이름은 학습 데이터셋의 증거가 아닙니다. 우리가 계산한 해시는 녹화 중 파일이 바뀌지 않았음을 확인할 뿐 작성자나 성능을 증명하지 않습니다.",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "다운로드 영역은 사용 가능한 원격 모델의 저장 위치를 정합니다. 공개 체크섬이 없는 모델에 대한 선택지도 있지만 체크섬 부재를 검증된 다운로드로 취급하면 안 됩니다. 현재 로컬 파일은 다시 다운로드하지 않습니다. Plaque 강의에서 실제 다운로드와 미리보기를 보여줍니다.",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "아래 영역은 시야를 시험하고 선택한 모델을 비교하는 곳입니다. 라이브러리 검색과는 별개의 작업입니다. 현재 Cellpose 인수 불일치 때문에 여기서 성공적인 벤치마크를 주장할 수 없습니다. 마스크나 점수를 만들어 넣지 않았습니다. 수정된 흐름을 평가할 때 대표적인 검증 이미지를 학습 예제와 분리하세요.",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "23_agreement",

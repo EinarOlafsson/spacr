@@ -2510,33 +2510,221 @@
     },
     {
       "id": "21_model_compare",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Demnächst verfügbar",
-      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 21,
+      "slug": "model_compare",
+      "title": "Model Compare: aktuelle Oberfläche und Übereinstimmung echter Masken",
+      "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_compare"
+      "description": "Öffnen Sie den verschachtelten Vergleich, laden Sie echte Bildfelder und vergleichen Sie gespeicherte Segmentierungen über die funktionierende API. Übereinstimmung belegt weder Richtigkeit noch eine reparierte GUI-Inferenz.",
+      "objectives": [
+        "Model Compare in Make Masks finden und echte Beispielfelder laden.",
+        "Die aktuelle Cellpose-Inkompatibilität von der funktionierenden Maskenvergleichs-API unterscheiden.",
+        "Objektzahlen, Zuordnungen und Überlappungen beurteilen, ohne ein Ergebnis als richtig festzulegen."
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly, Cellpose 4.2.1.1. Die GUI übergibt das nicht unterstützte Argument invert. Wir laden nur Bilder, starten keine Inferenz, schleusen keine Ergebnisse ein und ändern keine Anwendung. spacr.model_compare.compare_masks vergleicht echte Batch- und Vorschauergebnisse von cell_pair_02.tif aus Apply Cellpose: gleiche cpsam-Gewichte, unterschiedliche Vorverarbeitung. Keine Maske ist eine Expertenreferenz; hier läuft kein Modell. Bewahren Sie Feldidentität, Pixelgeometrie, Vorverarbeitung und Datei-Hashes auf. Gleiche Abmessungen beweisen keine gemeinsame Bildquelle. Skript und Belegdateien identifizieren die Originale. Verwenden Sie einen neuen Ausgabeordner. Übereinstimmung beweist weder Genauigkeit, Modellrangfolge, biologische Gültigkeit noch Leistung auf unabhängigen Bildern.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare liegt innerhalb von Make Masks und vergleicht Segmentierungen derselben Bildfelder. Diese Lektion zeigt die aktuelle Oberfläche und danach die funktionierende Maskenvergleichs-API anhand zweier tatsächlich gespeicherter Ergebnisse.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "Die Oberfläche trennt die Einstellungen für Model A und Model B. Dokumentieren Sie die genauen Gewichte und die Vorverarbeitung. Unterschiedliche Namen oder mehr Objekte belegen kein besseres Ergebnis. Parameter- und Ergebnistabellen sind vor einem Vergleich leer.",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "Geben Sie den echten Beispielordner ein und drücken Sie Load. Hier laden drei Originalfelder erfolgreich, und Compare wird verfügbar. Geladene Bilder bedeuten noch keine erfolgreich ausgeführten Modelle. Wir haben auf dieser Oberfläche weder Masken erzeugt noch die Vergleichstabelle gefüllt.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "Die installierte Cellpose-Version lehnt invert ab, das dieses GUI-Backend noch übergibt. Die tatsächliche Signaturprüfung zeigt die Inkompatibilität ohne Inferenz. Wir verbergen sie nicht. Das nächste Beispiel verwendet compare_masks direkt mit vorhandenen Labelbildern.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "Beide Masken gehören zum selben echten Bild aus Apply Cellpose. Eine ist die gespeicherte Batch-Ausgabe, die andere die gespeicherte Live-Vorschau. Sie verwenden dasselbe Modell mit unterschiedlicher Vorverarbeitung, keine konkurrierenden Gewichte. Keine Maske ist eine bekannte richtige Referenz.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "Die API meldet 94 Objekte in A und 95 in B sowie 91 zugeordnete Paare. Die mittlere Überlappung der Paare beträgt etwa 0,96, der adjustierte Rand-Index etwa 0,961. Diese Werte beschreiben Übereinstimmung, nicht Genauigkeit oder einen Sieger.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "Prüfen Sie die tatsächlich gespeicherten Überlagerungen. Rechts sind Pixel markiert, deren Vordergrundstatus abweicht. Das zeigt nicht alle Unterschiede zwischen Instanzlabels. Ähnliche Objektzahlen können andere Grenzen, Aufteilungen oder Verschmelzungen verdecken. Betrachten Sie daher auch die Bilder.",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "Das Skript prüft jede zugeordnete Überlappung unabhängig an den Originalpixeln und kontrolliert identische Masken als Positivkontrolle. Bewahren Sie CSV, Abbildung, Quellidentitäten und Vorverarbeitung zusammen auf. Für Genauigkeitsaussagen oder Modellauswahl brauchen Sie unabhängig geprüfte Annotationen und zurückgehaltene Auswertungsbilder.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Demnächst verfügbar",
-      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 22,
+      "slug": "model_zoo",
+      "title": "Model Zoo: Modelle finden und ihre Herkunft prüfen",
+      "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_zoo"
+      "description": "Öffnen Sie die verschachtelte Modellbibliothek und durchsuchen Sie einen vorhandenen lokalen Cache. Unterscheiden Sie dokumentiertes Training von unbekannter Herkunft; die aktuelle Cellpose-Inkompatibilität verhindert einen nachgewiesenen Benchmark.",
+      "objectives": [
+        "Model Zoo in Make Masks finden und einen lokalen Modellordner durchsuchen.",
+        "Quelle, Typ, Prüfsumme und Trainingsangaben lesen, ohne unbekannte Metadaten mit Validierung gleichzusetzen.",
+        "Modellverwaltung von Download, Training und Benchmark unterscheiden."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly. Die echte Aufnahme durchsucht einen vorhandenen Cellpose-Cache und wählt die ursprüngliche cpsam-Datei. Kein Download, Training oder Inferenzlauf. Verwenden Sie Ihren eigenen Ordner, nicht den persönlichen Pfad des Vortragenden. Die ausgewählten Metadaten enthalten weder veröffentlichte Prüfsumme noch Trainingsdaten oder Autor; dies wird nicht aus dem Namen abgeleitet. Ein separater Hash belegt nur die unveränderte lokale Datei während der Aufnahme, nicht ihre Herkunft. Model Zoo und Model Compare übergeben invert, das Cellpose 4.2.1.1 nicht unterstützt; der Anwendungsfehler wird hier weder repariert noch umgangen. Plaque zeigt einen echten Download samt Vorschau. Keine Genauigkeitsbewertung oder Validierung an unabhängigen Daten wird behauptet.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo ist die Modellbibliothek innerhalb von Make Masks. Öffnen Sie das übergeordnete Modul und dann dessen Model-Zoo-Steuerung. Diese Lektion zeigt die echte Bibliothek und lokale Modellsuche, kein neues Training und keinen Genauigkeitsbenchmark.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "Die Tabelle vereint veröffentlichte Einträge und lokal entdeckte Dateien. Lesen Sie Modelltyp und Quelle zusammen. Ein aufgelistetes Modell ist nicht automatisch heruntergeladen, an Ihren Bildern getestet oder für Ihr Experiment validiert.",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "Geben Sie einen vorhandenen Modellordner ein und drücken Sie Scan, oder wählen Sie ihn mit der benachbarten Schaltfläche. Hier durchsuchen wir den echten Cellpose-Cache. Verwenden Sie Ihren eigenen Pfad. Die Suche findet Dateien und Metadaten; sie trainiert oder segmentiert nicht.",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "Diese Suche zeigt acht Einträge: veröffentlichte entfernte Modelle und lokale Gewichtsdateien. Die Zahl beschreibt diesen Rechner, keine vorgeschriebene Ausstattung. Wählen Sie die genaue Datei; ähnliche Namen garantieren keine identischen Gewichte.",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "Die ausgewählte lokale Datei besitzt in dieser Ansicht weder veröffentlichte Prüfsumme noch dokumentierte Trainingsherkunft. Unbekannt bleibt unbekannt. Der Name beweist keinen Trainingsdatensatz. Unser Hash belegt, dass die Aufnahme die Datei unverändert ließ, nicht wer sie erzeugte oder wie gut sie funktioniert.",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "Der Downloadbereich bestimmt den Speicherort eines verfügbaren entfernten Modells. Er bietet auch eine Wahl für Modelle ohne veröffentlichte Prüfsumme. Eine fehlende Prüfsumme ist keine Verifikation. Diese lokale Auswahl wird nicht erneut heruntergeladen. Die Plaque-Lektion zeigt einen echten Download samt Vorschau.",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "Der untere Bereich dient zum Testen von Bildfeldern und Vergleichen ausgewählter Modelle. Das sind andere Aufgaben als die Bibliothekssuche. Die aktuelle Cellpose-Argumentinkompatibilität verhindert hier einen nachgewiesenen Benchmark. Es werden keine Masken oder Werte erfunden. Halten Sie repräsentative Validierungsbilder vom Training getrennt, wenn Sie den reparierten Ablauf bewerten.",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "23_agreement",

@@ -2534,33 +2534,219 @@
       "id": "21_model_compare",
       "number": 21,
       "slug": "model_compare",
-      "title": "Model Compare",
+      "title": "Model Compare: current screen and real mask agreement",
       "series": 2,
       "app_key": "model_compare",
-      "section": "Segmentation models",
-      "description": "This tutorial is not available yet. Please explore the other tutorials.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
       "host_app_key": "make_masks",
-      "status": "coming_soon",
-      "availability_title": "Coming soon"
+      "section": "Segmentation models",
+      "description": "Find the nested comparison screen, load real fields, and use the working compare_masks API on genuine saved segmentations. Understand agreement without claiming ground truth, competing model weights or repaired GUI inference.",
+      "objectives": [
+        "Find Model Compare inside Make Masks and load the actual example fields.",
+        "Recognize the current Cellpose incompatibility and separate it from the working pure-mask API.",
+        "Interpret object counts, matching, overlap and foreground disagreement without calling either result correct."
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "Recorded on spaCR 1.5.0.7 nightly with Cellpose 4.2.1.1. The current GUI comparison backend sends the unsupported invert argument. We load fields but do not start GUI inference, inject results or patch application code. The successful example calls spacr.model_compare.compare_masks on two actual saved outputs from Apply Cellpose's cell_pair_02.tif: stock cpsam batch preprocessing versus stock cpsam live-preview preprocessing. These use the SAME model weights, not two competing models. Both were independently checked in the Apply recording, but neither is expert ground truth. No model runs in this example. Preserve field identity, pixel geometry, preprocessing and file hashes; a matching shape alone does not establish that two masks describe the same image. The recorded helper and source hashes are in tools/tutorials/model_compare_example.py and its evidence receipt. Example output folders must be new. The agreement measures do not establish accuracy, model ranking, biological validity or out-of-sample performance.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare is nested inside Make Masks. It is designed to compare segmentation results on the same fields. This lesson shows the current screen, then demonstrates its working mask-comparison API with two genuine saved outputs.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "The screen separates Model A and Model B settings. Record the exact weights and preprocessing for each comparison. Different names or a larger object count do not establish that one result is better. The parameter and result tables are empty before a comparison runs.",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "Enter the real example folder and press Load. Here, three original fields load successfully and Compare becomes available. Loading images is not the same as successfully running the models. We have not created masks or filled the comparison table on this screen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "The installed Cellpose version rejects an invert argument still passed by this GUI backend. This real signature check shows the incompatibility without starting inference. We do not hide it. Instead, the next example uses compare_masks directly on existing label images.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "Both masks belong to the same real image from the Apply Cellpose tutorial. One is its saved batch output; the other is its saved live-preview output. They use the same model with different preprocessing, not two competing sets of weights. Neither mask is ground truth.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "The API reports ninety-four objects in A and ninety-five in B, with ninety-one matched pairs. Mean overlap among matched pairs is about zero point nine six. The adjusted Rand index is also about zero point nine six one. These describe agreement, not accuracy or a winner.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "Inspect the actual saved overlays. The right panel marks pixels whose foreground status differs. It does not show every instance-label disagreement. A similar object count can conceal different boundaries, splits or merges, so inspect images as well as summary numbers.",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "The helper independently checks every matched overlap using the original pixels and verifies the identical-mask control. Keep the CSV, figure, source identities and preprocessing records together. Use independent reviewed annotations and held-out images before making accuracy or model-selection claims.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
       "number": 22,
       "slug": "model_zoo",
-      "title": "Model Zoo",
+      "title": "Model Zoo: find models and inspect their provenance",
       "series": 2,
       "app_key": "model_zoo",
-      "section": "Segmentation models",
-      "description": "This tutorial is not available yet. Please explore the other tutorials.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
       "host_app_key": "make_masks",
-      "status": "coming_soon",
-      "availability_title": "Coming soon"
+      "section": "Segmentation models",
+      "description": "Open the nested model library, scan an existing local cache, and distinguish recorded training information from unknown provenance. Benchmarking is not demonstrated as successful while the current Cellpose argument incompatibility remains.",
+      "objectives": [
+        "Find Model Zoo inside Make Masks and scan a local model directory.",
+        "Read source, kind, checksum and training-information fields without confusing unknown metadata with validation.",
+        "Distinguish model management from downloading, training and benchmarking."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly. This real recording scans an existing Cellpose cache and selects the original cpsam checkpoint; it does not download, train or run inference. Use your own model directory rather than copying the presenter's home path. The selected checkpoint's metadata records no published checksum, training dataset or author; the tutorial does not infer those from its filename. A separate checksum establishes only that this local file stayed unchanged during recording, not that its origin is verified. Model Zoo's benchmark and Model Compare currently pass an unsupported invert keyword to Cellpose 4.2.1.1. That app-owned incompatibility is recorded separately and not repaired or bypassed here. See the Plaque tutorial for an actual model download and preview. No accuracy comparison or held-out validation is claimed.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo is the model library inside Make Masks. Open the host module, then use its Model Zoo control. This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "The table brings published entries and locally discovered files into one view. Read the model kind and source columns together. A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment.",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "Enter your existing model directory and press Scan, or choose a folder with the adjacent button. Here we scan the real Cellpose cache. Use your own path. Scanning discovers files and metadata; it does not train a model or run segmentation.",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "This scan displays eight entries. Some are published remote models and others are local checkpoints. The count describes this machine, not a required setup. Select the exact file you intend to use instead of assuming that similar model names identify the same weights.",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "The selected local checkpoint has no published checksum or recorded training provenance in this view. Unknown means unknown. Its name is not evidence of its training dataset. Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs.",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "The download area controls where an available remote model is saved. It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads. This local selection is not downloaded again. The Plaque lesson shows an actual model download and preview.",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "The lower area is for testing fields and comparing selected models. Those jobs are separate from scanning the library. The current Cellpose argument mismatch prevents us from claiming a successful benchmark here. No masks or test scores are fabricated. Keep representative validation images separate from training examples when evaluating a repaired workflow.",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "23_agreement",

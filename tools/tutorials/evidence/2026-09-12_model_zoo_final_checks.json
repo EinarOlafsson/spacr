@@ -1,0 +1,648 @@
+{
+  "lesson": "22_model_zoo",
+  "scope": "Recorded subset only; no successful GUI inference/benchmark claim",
+  "capture": {
+    "accepted": true,
+    "scope": "Actual Model Zoo inventory, scanning and provenance controls only",
+    "route": [
+      "make_masks",
+      "model_zoo"
+    ],
+    "model_path": "/home/olafsson/.cellpose/models/cpsam",
+    "selected_model_fingerprint": {
+      "stat": {
+        "st_dev": 66308,
+        "st_ino": 90975655,
+        "st_size": 1233587898,
+        "st_mtime_ns": 1751399282196356232,
+        "st_ctime_ns": 1751399282196356232,
+        "st_mode": 33152
+      },
+      "sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2"
+    },
+    "provenance": "cpsam  [cellpose · local · v1]\n  path       /home/olafsson/.cellpose/models/cpsam\n  size       1.1 GB\n  sha256     (none published) (none)\n  trained on unknown\n  trained by unknown\n  ! no settings snapshot found beside this model, so what it was trained on is unknown — treat it as untested on your images\n  ! this model does not say what it was trained on, so nothing here tells you whether it suits your images.",
+    "checksum_state": "none",
+    "trained_on": "unknown",
+    "trained_by": "unknown",
+    "displayed_rows": 8,
+    "checkpoint_provenance_independently_validated": false,
+    "original_checkpoint_unchanged": true,
+    "model_directory_unchanged": true,
+    "benchmark_completed": false,
+    "segmentation_performed": false,
+    "model_downloaded": false,
+    "training_performed": false,
+    "download_enabled_for_selected_checkpoint": false,
+    "test_enabled_without_fields": false,
+    "inference_overridden": false,
+    "app_source_modified": false,
+    "published": false
+  },
+  "matrix": {
+    "lesson": "22_model_zoo",
+    "passed": true,
+    "canonical_english_sha256": "8f4b24235c0e8e47ef0c96ea6ecf57b7adae2bae07c4d00514893f128b4e81eb",
+    "scene_count": 7,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "e72d503e9d8354e9a7fe2d433b4b906c27bc2f6d8227fb22fa727a0d6c3f8e61"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "fd5d02c51c7276e86e707c361dbacc51341c471ee9388b68873583c6011e24d5"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "3499f88f3840dbc6094abe738d8190264c92fa75a96b11b9de39afd9902b4037"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "18fe77df77b095d88d9bb10609d95e8972bfadea8d1ef9f80fb7e2749528783b"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "3bbe0c0c5fb27a2e6f1a5fe99058c4a1d7bf8af86f549f111ccdaef956451bd3"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "73352413a180206f197a8ec780f6ca07418bf057117f45190198285a0753de0a"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "ab9acc02e46022c27de586ecb28da088e0f676c8dddf32fa64130ba6a4d37d8c"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "d87055b9dff96551d03941b0b39c16dfab6d2307fefb49008479f30075af9ccf"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "1db5795929f6f3e1a3a675b4cafeca60d1da68dbe0bc70af89728f21926fe5c5"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "faaab3ed690ea13e930bc62dbbab954eaab432449d13a321b67b456283e78b9e"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "ffa69053af93dcf3782a9d06453d5a7f8f5af3ed01d5837692f9e87565aca857"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "802a3f00b82d9687ed542ccd0433aab19794959a69d8c91d7f0b599a7227007f"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "a870ca414a39e0f51cadbcc14997abafacce0d6be7869e4953dfa19b31702d8f"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "18dc3442a2d13306648e44b191c4e4d378304e39d8f93d1a83e5040a174e1978"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "a85773a385d6fd7f23110e450f0d5b204e86d6abde2388b3bfc96fa63f9a6780"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "3bcfc76381f3eba0c42b5c1b41cfc9e2d02a550b35bfaa96ae7e350ef5987387"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "f97c75a1242dae673a592f4ca92a64f915bcf8b67ca9c298e14141b98a68b6ee"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "29a524fd01de52a80773b9236d1e1da6447b221f7220a432139dcd1476baf002"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "6e5cf1579fe7dfa3a71f00a427fd2f7ea5df095debaaa4d4f1532dcc10602139"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "4aa13af7d5ca84a1dd4571ae861a43ee39237ec21aa8a4f78222783e23d830fb"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "7e65827baf9fbe7f8864ee920faf5a1ee11fc00b0725187a68d2d6b4d0db1564"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "27b62b7a57df442b089bf82d63ba4b0803ac810dc6dfa7ee1637a6e975cb0da1"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "1778528c157351128aa6c2d23ead775e9134105a22b824cdbddf8aac8c6fd813"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "ea9ab180a52caebe4a191897f2fb23b827fa4372ee286c948af23891883bd711"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "342f1a2b279517a80e38590c85bc6e6d3edcedbc56939eb27fdc425d86d5e1cc"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "6ac12902c25e2325d60589fdd4dcc12bda0fd67fe1d5cf6d54a90db87bbda889"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "bbdc95cc7513f0dc043d9d80a873bd711c348075e033ac34f6dcb0ee2d9cac10"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "53a51c11bb941618bba3d7ea704df5d035e1ebf78751d262072f62dc1b721916"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "26e5ac6b8610f0a3b61f90fa91f1cb7d2486f6d7fb38c65756f2195b82dadadb"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "9eec6b2fde5321c39a8ec4ad4bbaef2ed99c35fe9130539453f702aee701041a"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "c2b30f054ee08ed42d9f490bdd5d86221d89fac916e273640de1151273186671"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "fefda8c4b4ef3b29904c6363a3834d6940f9555a957c50bee7f8418e8a35ae93"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "7db77482ec3fd2153a6561dfe7048cc24129ea56ede6ff0c6229f8800eb58c17"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "aa2c9d4293092e5840df8a387af076592ceb3c64b219b4f599b12635340afa8f"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "9fec0ecde40fba20f943d85f2761224ad4d8f7db9cc94f37cc86396f670a7e01"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "0a85a0d46091e09ab74b7d3d52e8e453e5f0e5b9e236167a4cb715013307c92e"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "3d1263bcc5736f4782ab75c2656d7cc3e0778a40598b3cb8c1a3d9901e7c2ff0"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "96110c729754bcea3d33644f87cac32c67d3339a20e214f1bd5e3a88e3ce4d01"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "b33808f0f6768bd5d1a055c898ffd7fc5f005928d397b56afef416142dd288ef"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "8db894dc87e56838e4245ecf0f5d941bf15a137bbf6378699484299d93ba0e83"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "004e42176aee59267d098e21f8f159df50fd458d4ab83fe8322799fce7371299"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "699fe576c2f86730ebdad10f76218505c1f68b39de9e9013f75c876fa5ec962b"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "a226f5cc87b6deb348af454d5744c71f9a34b765671fadccacc0efe88d52801d"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "2f4fc54dea2e198d307c7b3b85900f9e54ea40ae73fc02cb6aedc6a834f8b028"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "153e1a78d630dc2cb7f49efd0b48db63ac9e831e22628c9ab2adc2a6d49b4976"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "783c624e8ca6a5df2cb8a6c2106ec39657adc96322a384fd2018b0a0c93ba42e"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "ffd6840a59441ee6e94f686c6680f3934bc6d2f978473583bcbec8064bc7453f"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "6617b10f028ef04d369f2286bc945ab573344c06ef0ad497772a39ba90b88847"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "484a740f8ea5f27e606897c1851c2219ad697f81d83ecd122c3eaf6d11830a8e"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "35c0e69d349951ebd5fe81db8026f9d7a5384df16092a7409e89e2ce59f71ff6"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "47d9eca30f0012fea7c953ac37fa5884d9446fd6b0617d50e07757b11436137c"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "a9e534c37690b41a9e4481739c90ef7bc4436a934a712190e419457c65362348"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "fe64e6bc5a1a8422ecb37ad8a5213305327c2589799535367c07a65fe7d97d7a"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "de71b3423f28e6c049b4112f688a7b85d55b6cc33cd9f7c48157fd1cd4372740"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "0061dbf9bfa12b8ad7c00ef347543ee7267dbf95911fe380b340c3a3aa0aeb4a"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "a7f725a4b45b04b1caa38c5ccbdcc9cc89b286f91e7e5f6303a6e31cf1c62b98"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "74faf4b69b0e43b936f2f5af3d1c7aaf747d9ee6cbe92b0738b12bc09d321930"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "06e2baf2e427bdfc03d82d139d889ee21152e97b9b147e06fc3090b4354ffc65"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "7162259f23eaed91dbb267fdd377795c2c2eff5d9ec70169481aca555b5e807f"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "5b6c626e534e04545ec083575e102544f27dc3cf4971362a062cd2761517352b"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "f314636342d1906eebbfd09114d9d9c123d10046c9559b5e2934f59f2ac23845"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "4067b075a8a96bac087f95a1ba57d4f0a6494469ca204e274423374916269910"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "d7b012e672ee0c09464f8ea1acb62dbf58f0dedbbd6e4360fc2a1615a51441d3"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "30679d6d7c8885eb16768da5cbe5fed635ece9fe0be614614c37837590b8920a"
+      }
+    ],
+    "master_sha256": "3cdfb5689a15c79eab0b5fcb6fde2c7f32998fe2e330267722488d7327003233",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "3698"
+        }
+      ],
+      "format": {
+        "duration": "123.266667",
+        "size": "5854676"
+      }
+    },
+    "poster_sha256": "d0190b05e6918fd8e6de47edee42aabba4050c122d8f25052234c70c50eb42ae",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "candidate_manifest_sha256": "e96da7917abed42c29cfb547f85acae0f39b6340742167e44acc1002b01ec7a3",
+  "heart_timing_sha256": "aefc92430862b0c59c7adb250709ec62c0a0f487a3f1bcd2e546270efd0d3511",
+  "candidate_browser_case": {
+    "lesson": "22_model_zoo",
+    "audio_sha256": "3499f88f3840dbc6094abe738d8190264c92fa75a96b11b9de39afd9902b4037",
+    "clocks": {
+      "audio": 31.19622,
+      "video": 31.061375,
+      "expected": 31.19537651008956,
+      "width": 2560,
+      "height": 1440,
+      "error": null,
+      "requested_audio_time": 29.79
+    },
+    "chapter_text_matches_audio": true,
+    "native_caption_reloads": 2,
+    "sentence_cue_checks": [
+      {
+        "requested_audio_time": 1.6975,
+        "text": "Model Zoo is the model library inside Make Masks.",
+        "audio": 1.932926,
+        "video": 1.932752,
+        "cues": [
+          "Model Zoo is the model library inside Make Masks."
+        ]
+      },
+      {
+        "requested_audio_time": 5.23,
+        "text": "Open the host module, then use its Model Zoo control.",
+        "audio": 5.44979,
+        "video": 5.375178,
+        "cues": [
+          "Open the host module, then use its Model Zoo control."
+        ]
+      },
+      {
+        "requested_audio_time": 10.49,
+        "text": "This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark.",
+        "audio": 10.715207,
+        "video": 10.705125,
+        "cues": [
+          "This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark."
+        ]
+      },
+      {
+        "requested_audio_time": 16.805,
+        "text": "The table brings published entries and locally discovered files into one view.",
+        "audio": 17.014946,
+        "video": 17.018513,
+        "cues": [
+          "The table brings published entries and locally discovered files into one view."
+        ]
+      },
+      {
+        "requested_audio_time": 20.697499999999998,
+        "text": "Read the model kind and source columns together.",
+        "audio": 20.915568,
+        "video": 20.806239,
+        "cues": [
+          "Read the model kind and source columns together."
+        ]
+      },
+      {
+        "requested_audio_time": 25.744999999999997,
+        "text": "A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment.",
+        "audio": 25.954573,
+        "video": 25.945966,
+        "cues": [
+          "A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment."
+        ]
+      },
+      {
+        "requested_audio_time": 32.555,
+        "text": "Enter your existing model directory and press Scan, or choose a folder with the adjacent button.",
+        "audio": 32.77156,
+        "video": 32.798046,
+        "cues": [
+          "Enter your existing model directory and press Scan, or choose a folder with the adjacent button."
+        ]
+      },
+      {
+        "requested_audio_time": 36.522499999999994,
+        "text": "Here we scan the real Cellpose cache.",
+        "audio": 36.724323,
+        "video": 36.658998,
+        "cues": [
+          "Here we scan the real Cellpose cache."
+        ]
+      },
+      {
+        "requested_audio_time": 38.3675,
+        "text": "Use your own path.",
+        "audio": 38.576656,
+        "video": 38.458478,
+        "cues": [
+          "Use your own path."
+        ]
+      },
+      {
+        "requested_audio_time": 41.8625,
+        "text": "Scanning discovers files and metadata; it does not train a model or run segmentation.",
+        "audio": 42.068016,
+        "video": 42.077601,
+        "cues": [
+          "Scanning discovers files and metadata; it does not train a model or run segmentation."
+        ]
+      },
+      {
+        "requested_audio_time": 46.09,
+        "text": "This scan displays eight entries.",
+        "audio": 46.324903,
+        "video": 46.343395,
+        "cues": [
+          "This scan displays eight entries."
+        ]
+      },
+      {
+        "requested_audio_time": 49.0175,
+        "text": "Some are published remote models and others are local checkpoints.",
+        "audio": 49.238721,
+        "video": 49.163255,
+        "cues": [
+          "Some are published remote models and others are local checkpoints."
+        ]
+      },
+      {
+        "requested_audio_time": 52.64,
+        "text": "The count describes this machine, not a required setup.",
+        "audio": 52.874611,
+        "video": 52.721685,
+        "cues": [
+          "The count describes this machine, not a required setup."
+        ]
+      },
+      {
+        "requested_audio_time": 58.010000000000005,
+        "text": "Select the exact file you intend to use instead of assuming that similar model names identify the same weights.",
+        "audio": 58.231537,
+        "video": 58.160718,
+        "cues": [
+          "Select the exact file you intend to use instead of assuming that similar model names identify the same weights."
+        ]
+      },
+      {
+        "requested_audio_time": 65.055,
+        "text": "The selected local checkpoint has no published checksum or recorded training provenance in this view.",
+        "audio": 65.262904,
+        "video": 65.234177,
+        "cues": [
+          "The selected local checkpoint has no published checksum or recorded training provenance in this view."
+        ]
+      },
+      {
+        "requested_audio_time": 68.87,
+        "text": "Unknown means unknown.",
+        "audio": 69.088796,
+        "video": 68.953235,
+        "cues": [
+          "Unknown means unknown."
+        ]
+      },
+      {
+        "requested_audio_time": 71.1875,
+        "text": "Its name is not evidence of its training dataset.",
+        "audio": 71.413479,
+        "video": 71.438014,
+        "cues": [
+          "Its name is not evidence of its training dataset."
+        ]
+      },
+      {
+        "requested_audio_time": 76.83000000000001,
+        "text": "Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs.",
+        "audio": 77.041085,
+        "video": 76.920354,
+        "cues": [
+          "Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs."
+        ]
+      },
+      {
+        "requested_audio_time": 83.5575,
+        "text": "The download area controls where an available remote model is saved.",
+        "audio": 83.783735,
+        "video": 83.70733,
+        "cues": [
+          "The download area controls where an available remote model is saved."
+        ]
+      },
+      {
+        "requested_audio_time": 89.555,
+        "text": "It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads.",
+        "audio": 89.768658,
+        "video": 89.756706,
+        "cues": [
+          "It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads."
+        ]
+      },
+      {
+        "requested_audio_time": 94.88,
+        "text": "This local selection is not downloaded again.",
+        "audio": 95.101197,
+        "video": 94.928524,
+        "cues": [
+          "This local selection is not downloaded again."
+        ]
+      },
+      {
+        "requested_audio_time": 98.29249999999999,
+        "text": "The Plaque lesson shows an actual model download and preview.",
+        "audio": 98.500169,
+        "video": 98.485515,
+        "cues": [
+          "The Plaque lesson shows an actual model download and preview."
+        ]
+      },
+      {
+        "requested_audio_time": 102.7425,
+        "text": "The lower area is for testing fields and comparing selected models.",
+        "audio": 102.962332,
+        "video": 102.808704,
+        "cues": [
+          "The lower area is for testing fields and comparing selected models."
+        ]
+      },
+      {
+        "requested_audio_time": 106.345,
+        "text": "Those jobs are separate from scanning the library.",
+        "audio": 106.55282,
+        "video": 106.546996,
+        "cues": [
+          "Those jobs are separate from scanning the library."
+        ]
+      },
+      {
+        "requested_audio_time": 110.45249999999999,
+        "text": "The current Cellpose argument mismatch prevents us from claiming a successful benchmark here.",
+        "audio": 110.669646,
+        "video": 110.544172,
+        "cues": [
+          "The current Cellpose argument mismatch prevents us from claiming a successful benchmark here."
+        ]
+      },
+      {
+        "requested_audio_time": 114.44749999999999,
+        "text": "No masks or test scores are fabricated.",
+        "audio": 114.674569,
+        "video": 114.655957,
+        "cues": [
+          "No masks or test scores are fabricated."
+        ]
+      },
+      {
+        "requested_audio_time": 119.295,
+        "text": "Keep representative validation images separate from training examples when evaluating a repaired workflow.",
+        "audio": 119.531657,
+        "video": 119.365952,
+        "cues": [
+          "Keep representative validation images separate from training examples when evaluating a repaired workflow."
+        ]
+      }
+    ],
+    "passed": true
+  },
+  "gui_inference_or_benchmark_completed": false,
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false
+}

@@ -831,15 +831,15 @@
     "human_listening_review": false,
     "published": false
   },
-  "candidate_manifest_sha256": "22c8745fd118147473c724cd10c7aecca07e006b3e1c472cd52408e3ca623f66",
+  "candidate_manifest_sha256": "e96da7917abed42c29cfb547f85acae0f39b6340742167e44acc1002b01ec7a3",
   "heart_timing_sha256": "1c95762fe9444a3504fdbe3badd0ee08b5410a368d6c96cebc120b393c63bd90",
   "candidate_browser_case": {
     "lesson": "77_embeddings",
     "audio_sha256": "d8f26e1b3b2eebfced1fe129bec3c44dadeae9da77338278881693d43102d5ca",
     "clocks": {
-      "audio": 31.756051,
-      "video": 31.455444,
-      "expected": 31.757164951341768,
+      "audio": 31.743711,
+      "video": 31.63024,
+      "expected": 31.74482451847436,
       "width": 2560,
       "height": 1440,
       "error": null,
@@ -851,8 +851,8 @@
       {
         "requested_audio_time": 1.3425,
         "text": "Embeddings is a new Home module in spaCR.",
-        "audio": 1.545143,
-        "video": 1.557206,
+        "audio": 1.547059,
+        "video": 1.588438,
         "cues": [
           "Embeddings is a new Home module in spaCR."
         ]
@@ -860,8 +860,8 @@
       {
         "requested_audio_time": 5.2525,
         "text": "It turns image crops into numerical vectors without training on your annotations.",
-        "audio": 5.463032,
-        "video": 5.27811,
+        "audio": 5.462268,
+        "video": 5.352349,
         "cues": [
           "It turns image crops into numerical vectors without training on your annotations."
         ]
@@ -869,8 +869,8 @@
       {
         "requested_audio_time": 11.035,
         "text": "This lesson demonstrates the current screen and a working Python example, using real downloaded images.",
-        "audio": 11.238766,
-        "video": 11.172162,
+        "audio": 11.235341,
+        "video": 11.21425,
         "cues": [
           "This lesson demonstrates the current screen and a working Python example, using real downloaded images."
         ]
@@ -878,8 +878,8 @@
       {
         "requested_audio_time": 18.6075,
         "text": "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled.",
-        "audio": 18.801454,
-        "video": 18.687056,
+        "audio": 18.813746,
+        "video": 18.765108,
         "cues": [
           "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled."
         ]
@@ -887,8 +887,8 @@
       {
         "requested_audio_time": 23.8675,
         "text": "We will not simulate a successful GUI run.",
-        "audio": 24.070933,
-        "video": 24.097733,
+        "audio": 24.059038,
+        "video": 24.12573,
         "cues": [
           "We will not simulate a successful GUI run."
         ]
@@ -896,8 +896,8 @@
       {
         "requested_audio_time": 27.57,
         "text": "The supported Python API performs the actual encoding shown next.",
-        "audio": 27.770805,
-        "video": 27.608669,
+        "audio": 27.779362,
+        "video": 27.704608,
         "cues": [
           "The supported Python API performs the actual encoding shown next."
         ]
@@ -905,8 +905,8 @@
       {
         "requested_audio_time": 32.775,
         "text": "Per channel encodes each stored channel separately, then concatenates the vectors.",
-        "audio": 32.96731,
-        "video": 32.943129,
+        "audio": 32.991964,
+        "video": 33.008422,
         "cues": [
           "Per channel encodes each stored channel separately, then concatenates the vectors."
         ]
@@ -914,8 +914,8 @@
       {
         "requested_audio_time": 36.957499999999996,
         "text": "Project to three encodes the combined image instead.",
-        "audio": 37.161492,
-        "video": 36.958796,
+        "audio": 37.160047,
+        "video": 37.05622,
         "cues": [
           "Project to three encodes the combined image instead."
         ]
@@ -923,8 +923,8 @@
       {
         "requested_audio_time": 40.35,
         "text": "That changes the representation, not just its speed.",
-        "audio": 40.54306,
-        "video": 40.594545,
+        "audio": 40.560471,
+        "video": 40.61298,
         "cues": [
           "That changes the representation, not just its speed."
         ]
@@ -932,8 +932,8 @@
       {
         "requested_audio_time": 44.495000000000005,
         "text": "A saved PNG slot is not automatically a verified stain identity.",
-        "audio": 44.712336,
-        "video": 44.555714,
+        "audio": 44.706583,
+        "video": 44.635571,
         "cues": [
           "A saved PNG slot is not automatically a verified stain identity."
         ]
@@ -941,8 +941,8 @@
       {
         "requested_audio_time": 49.362500000000004,
         "text": "Install the optional embeddings extra in your spaCR environment.",
-        "audio": 49.567671,
-        "video": 49.529292,
+        "audio": 49.584477,
+        "video": 49.57616,
         "cues": [
           "Install the optional embeddings extra in your spaCR environment."
         ]
@@ -950,8 +950,8 @@
       {
         "requested_audio_time": 54.86750000000001,
         "text": "The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model.",
-        "audio": 55.080365,
-        "video": 54.869424,
+        "audio": 55.075743,
+        "video": 54.908826,
         "cues": [
           "The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model."
         ]
@@ -959,8 +959,8 @@
       {
         "requested_audio_time": 61.370000000000005,
         "text": "This small example uses the CPU; no GPU or remote AI service is required.",
-        "audio": 61.579744,
-        "video": 61.380301,
+        "audio": 61.596536,
+        "video": 61.475626,
         "cues": [
           "This small example uses the CPU; no GPU or remote AI service is required."
         ]
@@ -968,8 +968,8 @@
       {
         "requested_audio_time": 67.2575,
         "text": "Use Annotate's downloadable example and the crop folder named in the instructions.",
-        "audio": 67.477062,
-        "video": 67.388849,
+        "audio": 67.46904,
+        "video": 67.442798,
         "cues": [
           "Use Annotate's downloadable example and the crop folder named in the instructions."
         ]
@@ -977,7 +977,7 @@
       {
         "requested_audio_time": 72.1825,
         "text": "The linked helper selects sixteen existing images in sorted filename order.",
-        "audio": 72.39424,
+        "audio": 72.402577,
         "video": 72.185032,
         "cues": [
           "The linked helper selects sixteen existing images in sorted filename order."
@@ -986,8 +986,8 @@
       {
         "requested_audio_time": 76.7425,
         "text": "Each is two hundred twenty-four pixels square, with three stored channels.",
-        "audio": 76.953112,
-        "video": 76.810171,
+        "audio": 76.953742,
+        "video": 76.87904,
         "cues": [
           "Each is two hundred twenty-four pixels square, with three stored channels."
         ]
@@ -995,8 +995,8 @@
       {
         "requested_audio_time": 80.4325,
         "text": "No resizing or new segmentation is performed.",
-        "audio": 80.663794,
-        "video": 80.435321,
+        "audio": 80.653354,
+        "video": 80.450966,
         "cues": [
           "No resizing or new segmentation is performed."
         ]
@@ -1004,8 +1004,8 @@
       {
         "requested_audio_time": 83.75,
         "text": "Run the helper with a new output directory.",
-        "audio": 83.973733,
-        "video": 83.966751,
+        "audio": 83.959766,
+        "video": 83.985312,
         "cues": [
           "Run the helper with a new output directory."
         ]
@@ -1013,8 +1013,8 @@
       {
         "requested_audio_time": 87.39999999999999,
         "text": "It calls embed_array with the real pretrained encoder and batches of four.",
-        "audio": 87.620468,
-        "video": 87.421616,
+        "audio": 87.625643,
+        "video": 87.527308,
         "cues": [
           "It calls embed_array with the real pretrained encoder and batches of four."
         ]
@@ -1022,8 +1022,8 @@
       {
         "requested_audio_time": 92.72,
         "text": "Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions.",
-        "audio": 92.950821,
-        "video": 92.913032,
+        "audio": 92.933097,
+        "video": 92.936117,
         "cues": [
           "Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions."
         ]
@@ -1031,8 +1031,8 @@
       {
         "requested_audio_time": 97.66749999999999,
         "text": "The saved matrix is reopened and checked value by value.",
-        "audio": 97.891379,
-        "video": 97.670926,
+        "audio": 97.890378,
+        "video": 97.713225,
         "cues": [
           "The saved matrix is reopened and checked value by value."
         ]
@@ -1040,8 +1040,8 @@
       {
         "requested_audio_time": 101.5775,
         "text": "Now choose project and a different output directory.",
-        "audio": 101.813579,
-        "video": 101.735399,
+        "audio": 101.791143,
+        "video": 101.770966,
         "cues": [
           "Now choose project and a different output directory."
         ]
@@ -1049,8 +1049,8 @@
       {
         "requested_audio_time": 105.3975,
         "text": "The same images produce sixteen rows and five hundred twelve dimensions.",
-        "audio": 105.623218,
-        "video": 105.42078,
+        "audio": 105.623513,
+        "video": 105.465602,
         "cues": [
           "The same images produce sixteen rows and five hundred twelve dimensions."
         ]
@@ -1058,8 +1058,8 @@
       {
         "requested_audio_time": 110.35749999999999,
         "text": "These combined-channel columns are not interchangeable with the earlier per-channel columns.",
-        "audio": 110.594113,
-        "video": 110.508108,
+        "audio": 110.571387,
+        "video": 110.536306,
         "cues": [
           "These combined-channel columns are not interchangeable with the earlier per-channel columns."
         ]
@@ -1067,8 +1067,8 @@
       {
         "requested_audio_time": 115.12,
         "text": "Compare policies deliberately and retain the settings for each run.",
-        "audio": 115.350853,
-        "video": 115.124038,
+        "audio": 115.343935,
+        "video": 115.138276,
         "cues": [
           "Compare policies deliberately and retain the settings for each run."
         ]
@@ -1076,8 +1076,8 @@
       {
         "requested_audio_time": 119.28,
         "text": "Inspect the actual input montage in the image viewer.",
-        "audio": 119.500712,
-        "video": 119.476411,
+        "audio": 119.514469,
+        "video": 119.498484,
         "cues": [
           "Inspect the actual input montage in the image viewer."
         ]
@@ -1085,8 +1085,8 @@
       {
         "requested_audio_time": 122.24,
         "text": "Its numbers match the output row order.",
-        "audio": 122.472796,
-        "video": 122.260161,
+        "audio": 122.463223,
+        "video": 122.374229,
         "cues": [
           "Its numbers match the output row order."
         ]
@@ -1094,8 +1094,8 @@
       {
         "requested_audio_time": 125.8475,
         "text": "Check crop quality and the export's channel mapping before interpreting vectors.",
-        "audio": 126.095979,
-        "video": 125.851914,
+        "audio": 126.059752,
+        "video": 125.869905,
         "cues": [
           "Check crop quality and the export's channel mapping before interpreting vectors."
         ]
@@ -1103,8 +1103,8 @@
       {
         "requested_audio_time": 131.625,
         "text": "Filenames identify this example; validate the object keys before joining to a measurements database.",
-        "audio": 131.853631,
-        "video": 131.629617,
+        "audio": 131.844806,
+        "video": 131.760602,
         "cues": [
           "Filenames identify this example; validate the object keys before joining to a measurements database."
         ]
@@ -1112,8 +1112,8 @@
       {
         "requested_audio_time": 137.97500000000002,
         "text": "This saved plot projects the per-channel vectors onto two principal components.",
-        "audio": 138.214062,
-        "video": 138.089498,
+        "audio": 138.203135,
+        "video": 138.194748,
         "cues": [
           "This saved plot projects the per-channel vectors onto two principal components."
         ]
@@ -1121,8 +1121,8 @@
       {
         "requested_audio_time": 141.82500000000002,
         "text": "The numbered points refer to those same crops.",
-        "audio": 142.05913,
-        "video": 141.829974,
+        "audio": 142.039974,
+        "video": 141.942406,
         "cues": [
           "The numbered points refer to those same crops."
         ]
@@ -1130,8 +1130,8 @@
       {
         "requested_audio_time": 145.835,
         "text": "It is exploratory visualization of a tiny sample, not proof of distinct phenotypes.",
-        "audio": 146.067046,
-        "video": 145.999985,
+        "audio": 146.059583,
+        "video": 146.065401,
         "cues": [
           "It is exploratory visualization of a tiny sample, not proof of distinct phenotypes."
         ]
@@ -1139,8 +1139,8 @@
       {
         "requested_audio_time": 150.44250000000002,
         "text": "A single embedding dimension is not a biological measurement.",
-        "audio": 150.66718,
-        "video": 150.447777,
+        "audio": 150.659309,
+        "video": 150.551407,
         "cues": [
           "A single embedding dimension is not a biological measurement."
         ]
@@ -1148,8 +1148,8 @@
       {
         "requested_audio_time": 154.37500000000003,
         "text": "The combined-channel vectors have their own projection.",
-        "audio": 154.59251,
-        "video": 154.540908,
+        "audio": 154.600785,
+        "video": 154.592981,
         "cues": [
           "The combined-channel vectors have their own projection."
         ]
@@ -1157,8 +1157,8 @@
       {
         "requested_audio_time": 159.00750000000005,
         "text": "Do not compare axis coordinates across these separate plots as if they shared a fitted transformation.",
-        "audio": 159.237879,
-        "video": 159.013077,
+        "audio": 159.220844,
+        "video": 159.113668,
         "cues": [
           "Do not compare axis coordinates across these separate plots as if they shared a fitted transformation."
         ]
@@ -1166,8 +1166,8 @@
       {
         "requested_audio_time": 165.74250000000004,
         "text": "Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel.",
-        "audio": 165.963179,
-        "video": 165.805409,
+        "audio": 165.965441,
+        "video": 165.884849,
         "cues": [
           "Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel."
         ]
@@ -1175,8 +1175,8 @@
       {
         "requested_audio_time": 172.46750000000003,
         "text": "Keep the vectors, source identities, weights checksum, settings and package versions.",
-        "audio": 172.702544,
-        "video": 172.621011,
+        "audio": 172.701193,
+        "video": 172.681423,
         "cues": [
           "Keep the vectors, source identities, weights checksum, settings and package versions."
         ]
@@ -1184,8 +1184,8 @@
       {
         "requested_audio_time": 177.925,
         "text": "The helper checks that source images remain unchanged and refuses existing destinations.",
-        "audio": 178.15201,
-        "video": 177.931241,
+        "audio": 178.14691,
+        "video": 177.997484,
         "cues": [
           "The helper checks that source images remain unchanged and refuses existing destinations."
         ]
@@ -1193,8 +1193,8 @@
       {
         "requested_audio_time": 183.18500000000003,
         "text": "Match input crops, normalization and channel mapping between comparisons.",
-        "audio": 183.399087,
-        "video": 183.253846,
+        "audio": 183.416318,
+        "video": 183.332873,
         "cues": [
           "Match input crops, normalization and channel mapping between comparisons."
         ]
@@ -1202,8 +1202,8 @@
       {
         "requested_audio_time": 187.59000000000003,
         "text": "Use the linked instructions to reproduce this API example.",
-        "audio": 187.814976,
-        "video": 187.836912,
+        "audio": 187.809207,
+        "video": 187.849998,
         "cues": [
           "Use the linked instructions to reproduce this API example."
         ]

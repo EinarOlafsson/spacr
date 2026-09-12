@@ -1,0 +1,1243 @@
+{
+  "lesson": "21_model_compare",
+  "scope": "Recorded subset only; no successful GUI inference/benchmark claim",
+  "capture": {
+    "accepted": true,
+    "scope": "Real GUI introduction and pure saved-mask comparison API",
+    "gui": {
+      "accepted": true,
+      "scope": "Actual nested GUI route, settings and real field loading only",
+      "route": [
+        "make_masks",
+        "model_compare"
+      ],
+      "fields": [
+        "cell_pair_01",
+        "cell_pair_02",
+        "cell_pair_03"
+      ],
+      "loaded_pixels_equal_originals": true,
+      "source_hashes": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_01.tif": {
+          "stat": {
+            "st_dev": 66306,
+            "st_ino": 33723468,
+            "st_size": 524544,
+            "st_mtime_ns": 1785907813928216000,
+            "st_ctime_ns": 1786209857579713935,
+            "st_mode": 33204
+          },
+          "sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50"
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_02.tif": {
+          "stat": {
+            "st_dev": 66306,
+            "st_ino": 33718853,
+            "st_size": 524544,
+            "st_mtime_ns": 1785907813947216000,
+            "st_ctime_ns": 1786209694851614435,
+            "st_mode": 33204
+          },
+          "sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138"
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_03.tif": {
+          "stat": {
+            "st_dev": 66306,
+            "st_ino": 33704690,
+            "st_size": 524544,
+            "st_mtime_ns": 1785907813965216000,
+            "st_ctime_ns": 1786209347231100074,
+            "st_mode": 33204
+          },
+          "sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e"
+        }
+      },
+      "original_inputs_unchanged": true,
+      "gui_workflow_completed": false,
+      "compare_clicked": false,
+      "inference_performed": false,
+      "results_injected": false,
+      "app_source_modified": false,
+      "published": false
+    },
+    "terminal": {
+      "accepted": true,
+      "scope": "Pure compare_masks API with genuine saved segmentations",
+      "run": {
+        "accepted": true,
+        "scope": "Pure compare_masks API on two genuine saved segmentations",
+        "sources": {
+          "image.tif": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+          "batch.tif": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8",
+          "preview.npy": "7250985b9275b73950031d986ae8b389ded26920eac0af929466c38b3f1253da"
+        },
+        "source_unchanged": true,
+        "helper_sha256": "d5e338408dc8b4943ec21320c4df787c13e62391c7ebf175427eb25d400c7979",
+        "comparison": {
+          "field": "cell_pair_02: batch vs live preview",
+          "n_objects_a": 94,
+          "n_objects_b": 95,
+          "ari": 0.9607499808433018,
+          "iou_matched_fraction": 0.9629629629629629,
+          "mean_matched_iou": 0.9601905822488658,
+          "unmatched_a": 3,
+          "unmatched_b": 4,
+          "split_events": 2,
+          "merge_events": 0,
+          "n_matched": 91,
+          "fragments_from_splits": 2,
+          "merged_away": 0,
+          "new_objects_b": 2,
+          "missing_objects_a": 3,
+          "iou_threshold": 0.5,
+          "matches": [
+            [
+              14,
+              15,
+              0.9970859640602234
+            ],
+            [
+              86,
+              88,
+              0.99617102744097
+            ],
+            [
+              80,
+              82,
+              0.9954713874022232
+            ],
+            [
+              21,
+              22,
+              0.9950295122708915
+            ],
+            [
+              90,
+              92,
+              0.9926945771284068
+            ],
+            [
+              20,
+              21,
+              0.9917098445595854
+            ],
+            [
+              77,
+              78,
+              0.9915899078894673
+            ],
+            [
+              19,
+              20,
+              0.99157134256472
+            ],
+            [
+              43,
+              43,
+              0.9915272648272866
+            ],
+            [
+              78,
+              80,
+              0.9913434903047091
+            ],
+            [
+              85,
+              87,
+              0.9911699779249448
+            ],
+            [
+              89,
+              91,
+              0.9909341742215215
+            ],
+            [
+              4,
+              4,
+              0.9908835904628331
+            ],
+            [
+              75,
+              76,
+              0.9907932011331445
+            ],
+            [
+              84,
+              86,
+              0.9906279287722587
+            ],
+            [
+              8,
+              8,
+              0.9895330112721417
+            ],
+            [
+              71,
+              72,
+              0.9891891891891892
+            ],
+            [
+              16,
+              16,
+              0.9887005649717514
+            ],
+            [
+              25,
+              26,
+              0.9886941775014132
+            ],
+            [
+              28,
+              29,
+              0.9884105960264901
+            ],
+            [
+              5,
+              5,
+              0.9880697460997246
+            ],
+            [
+              88,
+              90,
+              0.9879834772812617
+            ],
+            [
+              37,
+              38,
+              0.9873291925465838
+            ],
+            [
+              40,
+              41,
+              0.986648865153538
+            ],
+            [
+              72,
+              73,
+              0.9865853658536585
+            ],
+            [
+              83,
+              85,
+              0.9861932938856016
+            ],
+            [
+              47,
+              48,
+              0.9857328145265889
+            ],
+            [
+              22,
+              23,
+              0.9857061177815895
+            ],
+            [
+              76,
+              77,
+              0.9855972889014403
+            ],
+            [
+              64,
+              64,
+              0.9847934634589196
+            ],
+            [
+              26,
+              27,
+              0.9839228295819936
+            ],
+            [
+              45,
+              46,
+              0.9836283185840708
+            ],
+            [
+              35,
+              36,
+              0.9830704116968064
+            ],
+            [
+              18,
+              19,
+              0.9827272727272728
+            ],
+            [
+              67,
+              66,
+              0.9827044025157232
+            ],
+            [
+              24,
+              25,
+              0.9806560134566863
+            ],
+            [
+              56,
+              56,
+              0.9796791443850268
+            ],
+            [
+              91,
+              93,
+              0.978220939385988
+            ],
+            [
+              57,
+              57,
+              0.978029294274301
+            ],
+            [
+              23,
+              24,
+              0.9768500197863079
+            ],
+            [
+              27,
+              28,
+              0.9767841788478074
+            ],
+            [
+              49,
+              50,
+              0.9761526232114467
+            ],
+            [
+              31,
+              32,
+              0.9761476147614762
+            ],
+            [
+              44,
+              45,
+              0.9760445682451253
+            ],
+            [
+              69,
+              68,
+              0.9755929081280221
+            ],
+            [
+              9,
+              9,
+              0.9755379388448471
+            ],
+            [
+              33,
+              34,
+              0.9734422880490297
+            ],
+            [
+              46,
+              47,
+              0.9732441471571907
+            ],
+            [
+              92,
+              94,
+              0.972035214914552
+            ],
+            [
+              39,
+              40,
+              0.9719942056977305
+            ],
+            [
+              55,
+              55,
+              0.9718670076726342
+            ],
+            [
+              87,
+              89,
+              0.9716216216216216
+            ],
+            [
+              82,
+              84,
+              0.9708971276730356
+            ],
+            [
+              50,
+              51,
+              0.9707740916271722
+            ],
+            [
+              30,
+              31,
+              0.9706318599822011
+            ],
+            [
+              51,
+              52,
+              0.9705607476635514
+            ],
+            [
+              48,
+              49,
+              0.9693004529441369
+            ],
+            [
+              60,
+              60,
+              0.9681528662420382
+            ],
+            [
+              63,
+              63,
+              0.9674911660777386
+            ],
+            [
+              59,
+              59,
+              0.9672371638141809
+            ],
+            [
+              74,
+              75,
+              0.9666666666666667
+            ],
+            [
+              68,
+              67,
+              0.9663330300272975
+            ],
+            [
+              34,
+              35,
+              0.9661713563073032
+            ],
+            [
+              36,
+              37,
+              0.9661572052401747
+            ],
+            [
+              94,
+              95,
+              0.9642857142857143
+            ],
+            [
+              73,
+              74,
+              0.9640933572710951
+            ],
+            [
+              79,
+              81,
+              0.9622804491793838
+            ],
+            [
+              3,
+              3,
+              0.9612334801762115
+            ],
+            [
+              62,
+              62,
+              0.9606112054329372
+            ],
+            [
+              58,
+              58,
+              0.9581320450885669
+            ],
+            [
+              42,
+              44,
+              0.9571948998178507
+            ],
+            [
+              1,
+              6,
+              0.9570552147239264
+            ],
+            [
+              13,
+              13,
+              0.9550438596491229
+            ],
+            [
+              7,
+              7,
+              0.9531845400108874
+            ],
+            [
+              41,
+              42,
+              0.95
+            ],
+            [
+              2,
+              2,
+              0.9494226327944573
+            ],
+            [
+              54,
+              54,
+              0.9482895783611774
+            ],
+            [
+              38,
+              39,
+              0.9471649484536082
+            ],
+            [
+              29,
+              30,
+              0.94667343829355
+            ],
+            [
+              52,
+              53,
+              0.945424013434089
+            ],
+            [
+              61,
+              61,
+              0.9319654427645788
+            ],
+            [
+              11,
+              11,
+              0.9301745635910225
+            ],
+            [
+              10,
+              10,
+              0.9224137931034483
+            ],
+            [
+              12,
+              12,
+              0.9199507389162561
+            ],
+            [
+              81,
+              83,
+              0.9161603888213852
+            ],
+            [
+              17,
+              18,
+              0.8964401294498382
+            ],
+            [
+              32,
+              33,
+              0.8954918032786885
+            ],
+            [
+              6,
+              1,
+              0.8466165413533835
+            ],
+            [
+              15,
+              14,
+              0.841225626740947
+            ],
+            [
+              70,
+              69,
+              0.6072889550018594
+            ],
+            [
+              66,
+              65,
+              0.5714285714285714
+            ]
+          ],
+          "qc_a": null,
+          "qc_b": null,
+          "note": "A 94 vs B 95 object(s) (+1), 91 matched at IoU>=0.5 (mean 0.960), ARI 0.961; B split 2 of A's object(s) into 4 pieces; 2 object(s) only B found; 3 object(s) only A found."
+        },
+        "independent_checks": {
+          "objects_a": 94,
+          "objects_b": 95,
+          "matched_pairs_pixel_checked": 91,
+          "foreground_disagreement_pixels": 9564
+        },
+        "same_mask_control_passed": true,
+        "ground_truth_used": false,
+        "accuracy_validated": false,
+        "different_model_weights_compared": false,
+        "gui_workflow_completed": false,
+        "inference_performed": false,
+        "published": false,
+        "artifacts": {
+          "comparison.csv": "586d2a9fb420921174dd160e54b11b3c8d002a2b6da1f8a1d202c13ecb097daa",
+          "comparison.png": "5fcaf5839406b60fcd46bacf2f3c2f6f025dd82388a7c63ffb8972e4eba97fb2"
+        }
+      },
+      "figure": {
+        "scene": "04_actual_comparison_figure",
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/model-compare-recorded-0h9nwfcx/comparison/comparison.png",
+        "sha256": "5fcaf5839406b60fcd46bacf2f3c2f6f025dd82388a7c63ffb8972e4eba97fb2",
+        "viewer": "eog",
+        "window_title": "comparison.png"
+      },
+      "private_work": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/model-compare-recorded-0h9nwfcx",
+      "helper_sha256": "d5e338408dc8b4943ec21320c4df787c13e62391c7ebf175427eb25d400c7979",
+      "gui_workflow_completed": false,
+      "inference_performed": false,
+      "results_injected": false,
+      "accuracy_validated": false,
+      "published": false
+    },
+    "source_hashes": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_gui_v2/scientific_acceptance.json": "a69233a3105e8ff4c8c2c756fb025679a0fea35c5ca744a2de5961414c546920",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_api/scientific_acceptance.json": "027048432e9a60392e8cdba8fe3a7ebe2476a022e3affec3d41fc57cd519d532",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_gui_v2/provenance.json": "5062dbae24cc47c33603cc852754e61f8a213ebbb36c27dc5f8f9d99c7d5fa61",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_gui_v2/frames.json": "279bf43b5b831a5cccb5694faa33dd33611e412c174df70f8d342ccb06169679",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_gui_v2/00_home.png": "5f9e76026304726ea675e0fb909196b7e01fcf4d748275fd17952dcf415da267",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_gui_v2/01_module.png": "f22e7a11397625e341d7c514353127e600e6c43c4d1bc4866169885306534f72",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_gui_v2/01_make_masks_host.png": "f22e7a11397625e341d7c514353127e600e6c43c4d1bc4866169885306534f72",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_gui_v2/02_model_parameters.png": "80ca79da6a1e5544d473da82143020313776cac254fdfd3aa65e7fec10a01540",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_gui_v2/03_real_fields_loaded_not_compared.png": "41adf220012c5766b062948b69f52eb503cd015f6bcc89ad750371c95e09cc15",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_api/provenance.json": "b609343465a584905d5d385413f2e83d43ebb50b06b2a09ad40dc112bbae2f39",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_api/frames.json": "c2d8af9bc0af1786933d8b272156076660b98862471ac626f8daa19bb017906d",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_api/00_inputs.png": "c6f777a4c553d4fbf614ddfa8bd0351c059831b48436d88bc1278664d4202bf3",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_api/01_current_gui_limit.png": "ee829aa192b589754c68cc48f434cdbb78e7561ed2717754d7c8d0c2cec855b8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_api/02_actual_comparison.png": "c826bd4759b9e5b391d5248c1cf2697c3fb8a80ff701b0a83436a3931c962a75",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_api/03_outputs.png": "d9194a51e9c9264cf0cdabbeeb696c02c3cff9fb10844f2fe481a41c81344714",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/model_compare_1507_api/04_actual_comparison_figure.png": "19a6366c5187a3f541063e5a7c72138763739fa291cd49e55cc331ae7ea3e876"
+    },
+    "gui_workflow_completed": false,
+    "accuracy_validated": false,
+    "published": false
+  },
+  "matrix": {
+    "lesson": "21_model_compare",
+    "passed": true,
+    "canonical_english_sha256": "225fa51401501fa7e2f3ccdd9491fbdb3cc9b3ca5592ec794df79f955df6d5be",
+    "scene_count": 8,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "0cd7e58d1a5e4b3a1a862b81bf8e4b9d991ccbf74cdc374e319b52386283b8fc"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "77a798eb2dcf574898e88574e449a424c8648b84d5858a0ec5c9f72c3024831b"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "f571869e66b0f3cf225268ccebc8474451e6ea6611231037944b5debde46d069"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "fc0508dcfd4a0fef3e9fe00a27c1a90c8ea26150104e06fe670f63349476b9f3"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "584aede1f9a0fab1dde616458d5e1d5b2210a4557a28bdb91356f1dc4fdf1c15"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "4d649ead531abcbe1c4b26cb43b330439efecf9e22a715f2c675da8da65e4c0b"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "b371194291b4ea38077023d9af2c59a7c13eb36c3a4646ec2f1ab12a41f0236d"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "359e2fae3684c3eeaaca41bb7f268d8b647f1997c40e8e40593b0ec06458528d"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "b6938cffc7e77b2e3e5072365bddd9d41ebe7c196c1f76c63b31aab6ac2b0b22"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "ea8160190f6491ceaceaa3e5822ea16efbbbb49966b5cccae73d98486ec8dbeb"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "5bd4ee216041f41aa98189754c5b80030c2247bf8bc5e8ebfdf1385ec7150085"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "86655ec89c30100eaa66315611e1417ff4d361214d0b9df8759e6f1a631f5744"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "7e4cf9ba97e505f350bb7d448b0d812b534b4e751c6108ebc55432d3a6d895f4"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "b16075b35937bfe9dfb44bb0fab141749984b0e64fb9813926a636d14b9615d6"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "27b3f202ea8b4d3e0aba590fd011e8031e427b32b1543f3e51d241b7f13094a1"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "cf1ead6311b23e64e17d83fbb0af322c6a31ef26cef8227e59870a2be058ac55"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "f5c6a1b7adc03dc43a1bc2d8515f4fdc073683b9be1bd5047787228bcad96f74"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "ecf1789743dcb7c762e8d27457d1e3e9eef9582373b01a744ccce4ee10844ce9"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "57c1eddb172d8c278741fd97d7cb19731d75c8539add5c9b4b2086e6d327bc26"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "f7c4f37dab5bdf9e9ab32adc1a6daf83af6b90e84bd661cd889e11ba2e789237"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "2a370b7684cfe8b5989a04f107c0ea4ef6ec5feccada2ab18034613f0cd64777"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "6ef40dc243ce0f05e7466837b6b272fcf8e75acf250fbcb48b398ea43577d4e4"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "722392786fb8ddf130398755207dbe54b6ccac8c3733018c935c46ebed45d32e"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "70e838f1dcaad0c5f09248ca7379fd3a322b9a14b9e485463232735c919cce63"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "f770936cfd037fa9bdf4cc1c86b69c9d21ff12e722adb08c7f1c07a8b1fbd7f3"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "2c6cb3e991dda676eb684960105813a11c777fce731e275d6b3b161b0ca9e0bc"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "6020234959482e2c490c0527aa1f02b886847b1a25ba9a32887126016e76ce89"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "d0a203e093500b4182c21d024f8dd44223196f0ddc4bfadc80359bf3d0839822"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "6af3a22541822e52e90bc53efc6b082a376e56251499b4804754bf4d1e4d380e"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "37dfdeaff23d16361ec2c829b8e7c0825a74bf9a9bc1d25a7c902b17d5ab242f"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "e2bf7495ae89d7401c4bea8985d98e01215e8c8d5414850a5f57c586db7cfc51"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "84db8cdbc1f6508747a98c3b02925ad1b3ab1b8e8b089994834159a4fcd5bc89"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "f2a3142646c5fc17859975368156330a27f8a4df0c94e0b6197e894c34a65e5d"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "f50de37bf8d3223600630841734a713eff1726ffb14f36bcf0c622d1adb07283"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "11d279a5aab822d7dd28fdd224f47655f09268fa1df887ba28914c9c1a391091"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "efa0e1e55c1bf0523fc7e0add5dab06bee78f3f25ab2545142071b532d2d2189"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "6bf3891e02840b972f779583508aaf44edae7cf77827c36eb483852cfe4b7d81"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "297c4c1039045bba16b05e070e6fed3e1c65688755ebfc1b184c0844f542b2f7"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "b113fb19eb61db8acfda6a5112faa88229fa53a06608c367c89de0172ea0dac3"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "889a48fc79b5a11a09e0e308f24011d01ceee152ad0c1824ebe9f9839a6bfc3a"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "257f22755ce9d23cdd27f427673f374543e5f3e2069a1f04d92e225a4fe52f01"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "fe0e55e2a4976c821c1f54cd3059eefde767eefec38a88cebda4e4d9ff42e58d"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "e7e3a2e057e9eba389d598f72bd267175bf90b14cc11cb5dfff8e4d46ad4d529"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "1ea1b040efa6b5b0c94596811bf95222a0048eb991c14e36ca4a7ace438ba505"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "7b99d0d07b58143c2fd93d5d4479bb5d5f6cdaa9909257052f397cc0f6464ca6"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "3eb01eefd34224c5b89d0daa2057b54fb0d8659972825e88019ae85fbc29cf38"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "fd9660a277145835df26f8d3829581075a13ef60f3ec99a1794db6ba79d349e3"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "c721d3f4f5d254565b4d79018c9b2a818f3bfd0a0ff49bb949032aac6552b436"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "f96795d447caf016ee00773c5ee581f7b437535b870f82614a8ba3aa4c7001c0"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "bae8ea3fb5e6400fba533a7cebfd9d163b3a9c8777cb985a9c062e203b6a2e98"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "fd5c1bb0c599e91f1be836485ee847a11b5347ab9614971d83e3296f619b95be"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "196315a5b71abf3b25f60f21128f37508bd4d2a22bdbc7df4394f73a0bce372b"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "8406c19bfeccbf7ccac593300299082644846dede07d30c031ac78d7004aeb24"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "db25516fcf7a2b150d90128f5173d96d6afb165eef3a50db1bbec384c0480b6f"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "8585967662ed439a2084d671e06d9d43ba7fe2e7f186ff922c2f7b1637615c73"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "2854430bf4e98322d9d2e9bb377f52c7a7e8683c40360ec3906a84a8fe57d1dc"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "220a26ed1660e9d88c031cbbc0273a9810d038dcd7fe586782c02e23ef3e3bbf"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "4d91ae5d3bd6e84f2d342727726f23d97537b9dfb79bd9b7e196c2acd531272b"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "054532f42eaa456f882024f68520df740a74ac4ee7966be9cf7442262516f020"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "14d947b58369637fe27b8f012675ba1a3b574bcdf3eb2ef266c7769e06c0654a"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "7993d575176cd43e6f162b58bec8f5e70c1900bce55a5ec33ae2156cbf00cd43"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "b6d29b31f9c53f25022a5a4239af5f55d1f4bf0d9c846af9c433ebe04a37143c"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "c8677f20c4e8ef2766b275de296703dd67a19f81bb723ab50ad1d503c7b52958"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "0d004119d40280020d345356594ead2478aecfd0624eb5be9774faa17f45d82d"
+      }
+    ],
+    "master_sha256": "c69c3d095d3e4433488480adeb4857d7e4ebd6965052dbb04e158a0e4933f1a7",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "4231"
+        }
+      ],
+      "format": {
+        "duration": "141.033333",
+        "size": "6616726"
+      }
+    },
+    "poster_sha256": "5926a4b05c95be3da91fe78ca046f098635acb968a71c78af9322bb38b69167c",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "candidate_manifest_sha256": "e96da7917abed42c29cfb547f85acae0f39b6340742167e44acc1002b01ec7a3",
+  "heart_timing_sha256": "c0d89207785bf5d00054a7849e44f0a48a3217d0a3c078c6cc3e750aba01ac2d",
+  "candidate_browser_case": {
+    "lesson": "21_model_compare",
+    "audio_sha256": "f571869e66b0f3cf225268ccebc8474451e6ea6611231037944b5debde46d069",
+    "clocks": {
+      "audio": 34.528958,
+      "video": 34.562509,
+      "expected": 34.52732580655853,
+      "width": 2560,
+      "height": 1440,
+      "error": null,
+      "requested_audio_time": 33.115
+    },
+    "chapter_text_matches_audio": true,
+    "native_caption_reloads": 2,
+    "sentence_cue_checks": [
+      {
+        "requested_audio_time": 1.4375,
+        "text": "Model Compare is nested inside Make Masks.",
+        "audio": 1.659907,
+        "video": 1.669095,
+        "cues": [
+          "Model Compare is nested inside Make Masks."
+        ]
+      },
+      {
+        "requested_audio_time": 4.9350000000000005,
+        "text": "It is designed to compare segmentation results on the same fields.",
+        "audio": 5.14298,
+        "video": 5.062092,
+        "cues": [
+          "It is designed to compare segmentation results on the same fields."
+        ]
+      },
+      {
+        "requested_audio_time": 10.935,
+        "text": "This lesson shows the current screen, then demonstrates its working mask-comparison API with two genuine saved outputs.",
+        "audio": 11.152701,
+        "video": 11.120566,
+        "cues": [
+          "This lesson shows the current screen, then demonstrates its working mask-comparison API with two genuine saved outputs."
+        ]
+      },
+      {
+        "requested_audio_time": 17.07,
+        "text": "The screen separates Model A and Model B settings.",
+        "audio": 17.272999,
+        "video": 17.291123,
+        "cues": [
+          "The screen separates Model A and Model B settings."
+        ]
+      },
+      {
+        "requested_audio_time": 20.729999999999997,
+        "text": "Record the exact weights and preprocessing for each comparison.",
+        "audio": 20.93911,
+        "video": 20.84559,
+        "cues": [
+          "Record the exact weights and preprocessing for each comparison."
+        ]
+      },
+      {
+        "requested_audio_time": 25.365000000000002,
+        "text": "Different names or a larger object count do not establish that one result is better.",
+        "audio": 25.570096,
+        "video": 25.594605,
+        "cues": [
+          "Different names or a larger object count do not establish that one result is better."
+        ]
+      },
+      {
+        "requested_audio_time": 30.365,
+        "text": "The parameter and result tables are empty before a comparison runs.",
+        "audio": 30.577119,
+        "video": 30.452306,
+        "cues": [
+          "The parameter and result tables are empty before a comparison runs."
+        ]
+      },
+      {
+        "requested_audio_time": 34.4675,
+        "text": "Enter the real example folder and press Load.",
+        "audio": 34.664585,
+        "video": 34.677514,
+        "cues": [
+          "Enter the real example folder and press Load."
+        ]
+      },
+      {
+        "requested_audio_time": 38.3425,
+        "text": "Here, three original fields load successfully and Compare becomes available.",
+        "audio": 38.546366,
+        "video": 38.45566,
+        "cues": [
+          "Here, three original fields load successfully and Compare becomes available."
+        ]
+      },
+      {
+        "requested_audio_time": 42.790000000000006,
+        "text": "Loading images is not the same as successfully running the models.",
+        "audio": 42.993519,
+        "video": 42.996916,
+        "cues": [
+          "Loading images is not the same as successfully running the models."
+        ]
+      },
+      {
+        "requested_audio_time": 46.875,
+        "text": "We have not created masks or filled the comparison table on this screen.",
+        "audio": 47.087034,
+        "video": 46.974595,
+        "cues": [
+          "We have not created masks or filled the comparison table on this screen."
+        ]
+      },
+      {
+        "requested_audio_time": 52.275000000000006,
+        "text": "The installed Cellpose version rejects an invert argument still passed by this GUI backend.",
+        "audio": 52.473137,
+        "video": 52.448945,
+        "cues": [
+          "The installed Cellpose version rejects an invert argument still passed by this GUI backend."
+        ]
+      },
+      {
+        "requested_audio_time": 57.64000000000001,
+        "text": "This real signature check shows the incompatibility without starting inference.",
+        "audio": 57.854506,
+        "video": 57.902902,
+        "cues": [
+          "This real signature check shows the incompatibility without starting inference."
+        ]
+      },
+      {
+        "requested_audio_time": 60.782500000000006,
+        "text": "We do not hide it.",
+        "audio": 61.006103,
+        "video": 60.960998,
+        "cues": [
+          "We do not hide it."
+        ]
+      },
+      {
+        "requested_audio_time": 64.26000000000002,
+        "text": "Instead, the next example uses compare_masks directly on existing label images.",
+        "audio": 64.471461,
+        "video": 64.346732,
+        "cues": [
+          "Instead, the next example uses compare_masks directly on existing label images."
+        ]
+      },
+      {
+        "requested_audio_time": 69.90750000000001,
+        "text": "Both masks belong to the same real image from the Apply Cellpose tutorial.",
+        "audio": 70.129975,
+        "video": 70.061122,
+        "cues": [
+          "Both masks belong to the same real image from the Apply Cellpose tutorial."
+        ]
+      },
+      {
+        "requested_audio_time": 74.685,
+        "text": "One is its saved batch output; the other is its saved live-preview output.",
+        "audio": 74.914482,
+        "video": 74.939239,
+        "cues": [
+          "One is its saved batch output; the other is its saved live-preview output."
+        ]
+      },
+      {
+        "requested_audio_time": 79.51500000000001,
+        "text": "They use the same model with different preprocessing, not two competing sets of weights.",
+        "audio": 79.73016,
+        "video": 79.63224,
+        "cues": [
+          "They use the same model with different preprocessing, not two competing sets of weights."
+        ]
+      },
+      {
+        "requested_audio_time": 83.04250000000002,
+        "text": "Neither mask is ground truth.",
+        "audio": 83.266307,
+        "video": 83.293603,
+        "cues": [
+          "Neither mask is ground truth."
+        ]
+      },
+      {
+        "requested_audio_time": 87.6925,
+        "text": "The API reports ninety-four objects in A and ninety-five in B, with ninety-one matched pairs.",
+        "audio": 87.932171,
+        "video": 87.81732,
+        "cues": [
+          "The API reports ninety-four objects in A and ninety-five in B, with ninety-one matched pairs."
+        ]
+      },
+      {
+        "requested_audio_time": 93.04249999999999,
+        "text": "Mean overlap among matched pairs is about zero point nine six.",
+        "audio": 93.26943,
+        "video": 93.245977,
+        "cues": [
+          "Mean overlap among matched pairs is about zero point nine six."
+        ]
+      },
+      {
+        "requested_audio_time": 97.305,
+        "text": "The adjusted Rand index is also about zero point nine six one.",
+        "audio": 97.52031,
+        "video": 97.406909,
+        "cues": [
+          "The adjusted Rand index is also about zero point nine six one."
+        ]
+      },
+      {
+        "requested_audio_time": 101.00999999999999,
+        "text": "These describe agreement, not accuracy or a winner.",
+        "audio": 101.236857,
+        "video": 101.226333,
+        "cues": [
+          "These describe agreement, not accuracy or a winner."
+        ]
+      },
+      {
+        "requested_audio_time": 104.1775,
+        "text": "Inspect the actual saved overlays.",
+        "audio": 104.414533,
+        "video": 104.412904,
+        "cues": [
+          "Inspect the actual saved overlays."
+        ]
+      },
+      {
+        "requested_audio_time": 107.26499999999999,
+        "text": "The right panel marks pixels whose foreground status differs.",
+        "audio": 107.488668,
+        "video": 107.416053,
+        "cues": [
+          "The right panel marks pixels whose foreground status differs."
+        ]
+      },
+      {
+        "requested_audio_time": 110.78999999999999,
+        "text": "It does not show every instance-label disagreement.",
+        "audio": 111.021842,
+        "video": 110.852081,
+        "cues": [
+          "It does not show every instance-label disagreement."
+        ]
+      },
+      {
+        "requested_audio_time": 116.32249999999999,
+        "text": "A similar object count can conceal different boundaries, splits or merges, so inspect images as well as summary numbers.",
+        "audio": 116.542346,
+        "video": 116.45339,
+        "cues": [
+          "A similar object count can conceal different boundaries, splits or merges, so inspect images as well as summary numbers."
+        ]
+      },
+      {
+        "requested_audio_time": 124.465,
+        "text": "The helper independently checks every matched overlap using the original pixels and verifies the identical-mask control.",
+        "audio": 124.693075,
+        "video": 124.631997,
+        "cues": [
+          "The helper independently checks every matched overlap using the original pixels and verifies the identical-mask control."
+        ]
+      },
+      {
+        "requested_audio_time": 130.9375,
+        "text": "Keep the CSV, figure, source identities and preprocessing records together.",
+        "audio": 131.152322,
+        "video": 131.162705,
+        "cues": [
+          "Keep the CSV, figure, source identities and preprocessing records together."
+        ]
+      },
+      {
+        "requested_audio_time": 137.0725,
+        "text": "Use independent reviewed annotations and held-out images before making accuracy or model-selection claims.",
+        "audio": 137.295556,
+        "video": 137.130536,
+        "cues": [
+          "Use independent reviewed annotations and held-out images before making accuracy or model-selection claims."
+        ]
+      }
+    ],
+    "passed": true
+  },
+  "gui_inference_or_benchmark_completed": false,
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false
+}

@@ -12,6 +12,24 @@ from stage_lesson import read
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def test_authored_scripts_alone_remain_held_and_cannot_request_promotion():
+    from coming_soon import HELD, release_catalog
+    # Unit catalog only: no fake media or capture is offered as release proof.
+    source = {'lessons': [read(ROOT / 'lessons' / (identity + '.json')) if identity in MODELS
+                          else {'id': identity, 'scenes': []} for identity in HELD]}
+    ordinary = release_catalog(source, 'en')
+    assert all(item['status'] == 'coming_soon' for item in ordinary['lessons'])
+    for identity in MODELS:
+        with pytest.raises(ValueError, match='actual staged media'):
+            release_catalog(source, 'en', model_promotions=[identity])
+
+
+def test_model_promotion_cannot_be_used_to_release_another_workflow(tmp_path):
+    from build_release_candidate import build
+    with pytest.raises(ValueError, match='Unknown model tutorial'):
+        build(tmp_path, model_promotions=['71_investigate_hit'])
+
+
 @pytest.mark.parametrize('identity', MODELS)
 def test_actual_recorded_scope_passes_but_metadata_alone_cannot_promote(identity):
     capture = read(ROOT / 'evidence' / MODELS[identity][1])

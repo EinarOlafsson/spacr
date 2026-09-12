@@ -572,15 +572,15 @@
     "human_listening_review": false,
     "published": false
   },
-  "candidate_manifest_sha256": "22c8745fd118147473c724cd10c7aecca07e006b3e1c472cd52408e3ca623f66",
+  "candidate_manifest_sha256": "e96da7917abed42c29cfb547f85acae0f39b6340742167e44acc1002b01ec7a3",
   "heart_timing_sha256": "4809b211f1305eacb50447e4e791f9bf34fe604dc8815c5cb8963ec63c407a9b",
   "candidate_browser_case": {
     "lesson": "76_ops",
     "audio_sha256": "32792383902b604fac4d9d7e503a3b4ed421c8e970a6b93c5fd027592ec9d50a",
     "clocks": {
-      "audio": 29.713042,
-      "video": 29.593125,
-      "expected": 29.713351060874274,
+      "audio": 29.716706,
+      "video": 29.65834,
+      "expected": 29.717015098985446,
       "width": 2560,
       "height": 1440,
       "error": null,
@@ -592,8 +592,8 @@
       {
         "requested_audio_time": 3.3,
         "text": "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles.",
-        "audio": 3.509743,
-        "video": 3.396911,
+        "audio": 3.521083,
+        "video": 3.485875,
         "cues": [
           "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles."
         ]
@@ -601,8 +601,8 @@
       {
         "requested_audio_time": 8.54,
         "text": "In spaCR, open Mask to find the nested OPS screen.",
-        "audio": 8.757698,
-        "video": 8.800526,
+        "audio": 8.74617,
+        "video": 8.814789,
         "cues": [
           "In spaCR, open Mask to find the nested OPS screen."
         ]
@@ -610,8 +610,8 @@
       {
         "requested_audio_time": 12.91,
         "text": "This lesson shows its location and a small, verified image-alignment example.",
-        "audio": 13.138496,
-        "video": 12.975448,
+        "audio": 13.120295,
+        "video": 13.06901,
         "cues": [
           "This lesson shows its location and a small, verified image-alignment example."
         ]
@@ -619,8 +619,8 @@
       {
         "requested_audio_time": 17.24,
         "text": "Use the OPS toggle in Mask's action row.",
-        "audio": 17.457468,
-        "video": 17.448694,
+        "audio": 17.477929,
+        "video": 17.482505,
         "cues": [
           "Use the OPS toggle in Mask's action row."
         ]
@@ -628,8 +628,8 @@
       {
         "requested_audio_time": 20.2075,
         "text": "It opens a separate page inside the host module.",
-        "audio": 20.413857,
-        "video": 20.295542,
+        "audio": 20.430941,
+        "video": 20.374801,
         "cues": [
           "It opens a separate page inside the host module."
         ]
@@ -637,8 +637,8 @@
       {
         "requested_audio_time": 24.784999999999997,
         "text": "OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files.",
-        "audio": 25.006615,
-        "video": 25.040557,
+        "audio": 24.998713,
+        "video": 25.051421,
         "cues": [
           "OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files."
         ]
@@ -646,8 +646,8 @@
       {
         "requested_audio_time": 31.5375,
         "text": "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings.",
-        "audio": 31.748521,
-        "video": 31.658391,
+        "audio": 31.758765,
+        "video": 31.724481,
         "cues": [
           "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings."
         ]
@@ -655,8 +655,8 @@
       {
         "requested_audio_time": 36.315,
         "text": "Its Run button uses a different, legacy engine.",
-        "audio": 36.540085,
-        "video": 36.315377,
+        "audio": 36.521533,
+        "video": 36.384241,
         "cues": [
           "Its Run button uses a different, legacy engine."
         ]
@@ -664,8 +664,8 @@
       {
         "requested_audio_time": 40.35249999999999,
         "text": "We do not start it here or imply that a complete screening pipeline has been validated.",
-        "audio": 40.56745,
-        "video": 40.432052,
+        "audio": 40.56855,
+        "video": 40.540155,
         "cues": [
           "We do not start it here or imply that a complete screening pipeline has been validated."
         ]
@@ -673,8 +673,8 @@
       {
         "requested_audio_time": 44.5575,
         "text": "The next steps use the geometry APIs directly.",
-        "audio": 44.771068,
-        "video": 44.557963,
+        "audio": 44.768954,
+        "video": 44.619677,
         "cues": [
           "The next steps use the geometry APIs directly."
         ]
@@ -682,8 +682,8 @@
       {
         "requested_audio_time": 50.145,
         "text": "This CPU demonstration registers and composes four real image tiles from an existing acquisition.",
-        "audio": 50.369873,
-        "video": 50.256017,
+        "audio": 50.364673,
+        "video": 50.333223,
         "cues": [
           "This CPU demonstration registers and composes four real image tiles from an existing acquisition."
         ]
@@ -691,8 +691,8 @@
       {
         "requested_audio_time": 55.9225,
         "text": "It does not segment cells, decode barcodes or process a whole plate.",
-        "audio": 56.141781,
-        "video": 56.172586,
+        "audio": 56.149886,
+        "video": 56.178678,
         "cues": [
           "It does not segment cells, decode barcodes or process a whole plate."
         ]
@@ -700,8 +700,8 @@
       {
         "requested_audio_time": 62.212500000000006,
         "text": "The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files.",
-        "audio": 62.431419,
-        "video": 62.213147,
+        "audio": 62.431942,
+        "video": 62.301277,
         "cues": [
           "The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files."
         ]
@@ -709,8 +709,8 @@
       {
         "requested_audio_time": 68.9725,
         "text": "Select sites zero, one, ten and eleven from the first imaging cycle.",
-        "audio": 69.204491,
-        "video": 69.129174,
+        "audio": 69.198875,
+        "video": 69.194846,
         "cues": [
           "Select sites zero, one, ten and eleven from the first imaging cycle."
         ]
@@ -718,8 +718,8 @@
       {
         "requested_audio_time": 73.7775,
         "text": "Each original file has five planes; plane zero contains the nuclear stain.",
-        "audio": 73.99868,
-        "video": 73.778267,
+        "audio": 73.989955,
+        "video": 73.867862,
         "cues": [
           "Each original file has five planes; plane zero contains the nuclear stain."
         ]
@@ -727,8 +727,8 @@
       {
         "requested_audio_time": 78.44,
         "text": "Keep the original three hundred thirty-three-site layout and site numbers.",
-        "audio": 78.657905,
-        "video": 78.538695,
+        "audio": 78.663371,
+        "video": 78.630039,
         "cues": [
           "Keep the original three hundred thirty-three-site layout and site numbers."
         ]
@@ -736,8 +736,8 @@
       {
         "requested_audio_time": 82.465,
         "text": "Four selected tiles do not define a new four-tile well.",
-        "audio": 82.694035,
-        "video": 82.465857,
+        "audio": 82.674643,
+        "video": 82.540576,
         "cues": [
           "Four selected tiles do not define a new four-tile well."
         ]
@@ -745,8 +745,8 @@
       {
         "requested_audio_time": 87.42250000000001,
         "text": "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window.",
-        "audio": 87.641027,
-        "video": 87.544103,
+        "audio": 87.640802,
+        "video": 87.595811,
         "cues": [
           "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window."
         ]
@@ -754,8 +754,8 @@
       {
         "requested_audio_time": 91.0,
         "text": "All four tiles are placed.",
-        "audio": 91.233519,
-        "video": 91.000946,
+        "audio": 91.205491,
+        "video": 91.071603,
         "cues": [
           "All four tiles are placed."
         ]
@@ -763,8 +763,8 @@
       {
         "requested_audio_time": 93.83000000000001,
         "text": "Their patch is two thousand seven hundred fifty-six pixels square.",
-        "audio": 94.052933,
-        "video": 94.027957,
+        "audio": 94.049625,
+        "video": 94.052225,
         "cues": [
           "Their patch is two thousand seven hundred fifty-six pixels square."
         ]
@@ -772,8 +772,8 @@
       {
         "requested_audio_time": 98.72,
         "text": "The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee.",
-        "audio": 98.956336,
-        "video": 98.721026,
+        "audio": 98.948148,
+        "video": 98.810899,
         "cues": [
           "The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee."
         ]
@@ -781,8 +781,8 @@
       {
         "requested_audio_time": 103.00999999999999,
         "text": "Do not trust placement alone.",
-        "audio": 103.236623,
-        "video": 103.245515,
+        "audio": 103.245576,
+        "video": 103.262625,
         "cues": [
           "Do not trust placement alone."
         ]
@@ -790,8 +790,8 @@
       {
         "requested_audio_time": 106.345,
         "text": "Compare actual overlapping pixels independently of the registration score.",
-        "audio": 106.582843,
-        "video": 106.427115,
+        "audio": 106.570391,
+        "video": 106.506706,
         "cues": [
           "Compare actual overlapping pixels independently of the registration score."
         ]
@@ -799,8 +799,8 @@
       {
         "requested_audio_time": 112.91749999999999,
         "text": "Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels.",
-        "audio": 113.144817,
-        "video": 113.097696,
+        "audio": 113.152678,
+        "video": 113.114011,
         "cues": [
           "Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels."
         ]
@@ -808,8 +808,8 @@
       {
         "requested_audio_time": 119.595,
         "text": "Those wrong-offset controls help detect a plausible-looking but incorrect placement.",
-        "audio": 119.833057,
-        "video": 119.837719,
+        "audio": 119.822933,
+        "video": 119.852379,
         "cues": [
           "Those wrong-offset controls help detect a plausible-looking but incorrect placement."
         ]
@@ -817,8 +817,8 @@
       {
         "requested_audio_time": 124.14,
         "text": "Inspect the actual saved image and coverage map.",
-        "audio": 124.367733,
-        "video": 124.337123,
+        "audio": 124.377235,
+        "video": 124.352589,
         "cues": [
           "Inspect the actual saved image and coverage map."
         ]
@@ -826,8 +826,8 @@
       {
         "requested_audio_time": 128.39249999999998,
         "text": "The left panel shows the composed nuclear image; the right counts contributing tiles.",
-        "audio": 128.632504,
-        "video": 128.442034,
+        "audio": 128.619637,
+        "video": 128.457518,
         "cues": [
           "The left panel shows the composed nuclear image; the right counts contributing tiles."
         ]
@@ -835,8 +835,8 @@
       {
         "requested_audio_time": 133.41750000000002,
         "text": "Zero coverage means no acquisition pixel, not biological background.",
-        "audio": 133.644644,
-        "video": 133.600873,
+        "audio": 133.652572,
+        "video": 133.600908,
         "cues": [
           "Zero coverage means no acquisition pixel, not biological background."
         ]
@@ -844,8 +844,8 @@
       {
         "requested_audio_time": 138.3275,
         "text": "This combines spatial neighbors within one plane, never different sequencing cycles.",
-        "audio": 138.569288,
-        "video": 138.32901,
+        "audio": 138.549468,
+        "video": 138.331788,
         "cues": [
           "This combines spatial neighbors within one plane, never different sequencing cycles."
         ]
@@ -853,8 +853,8 @@
       {
         "requested_audio_time": 143.73250000000002,
         "text": "Save the array, coverage, placements, source checksums and run report together.",
-        "audio": 143.962625,
-        "video": 143.934121,
+        "audio": 143.964162,
+        "video": 143.935743,
         "cues": [
           "Save the array, coverage, placements, source checksums and run report together."
         ]
@@ -862,8 +862,8 @@
       {
         "requested_audio_time": 148.7175,
         "text": "The helper reopens its outputs and confirms all four source files are unchanged.",
-        "audio": 148.936203,
-        "video": 148.719046,
+        "audio": 148.937077,
+        "video": 148.755121,
         "cues": [
           "The helper reopens its outputs and confirms all four source files are unchanged."
         ]
@@ -871,8 +871,8 @@
       {
         "requested_audio_time": 152.775,
         "text": "Treat this as a reproducible geometry checkpoint.",
-        "audio": 153.005513,
-        "video": 152.893744,
+        "audio": 153.003857,
+        "video": 152.947107,
         "cues": [
           "Treat this as a reproducible geometry checkpoint."
         ]
@@ -880,8 +880,8 @@
       {
         "requested_audio_time": 157.085,
         "text": "A full optical screening tutorial still needs separately validated downstream stages.",
-        "audio": 157.326044,
-        "video": 157.086633,
+        "audio": 157.306941,
+        "video": 157.122603,
         "cues": [
           "A full optical screening tutorial still needs separately validated downstream stages."
         ]

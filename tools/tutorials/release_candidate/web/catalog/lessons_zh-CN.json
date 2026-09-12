@@ -2785,33 +2785,234 @@
       "id": "21_model_compare",
       "number": 21,
       "slug": "model_compare",
-      "title": "模型比较",
+      "title": "Model Compare：当前界面与真实掩膜的一致性",
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "本教程尚未上线。请先浏览其他教程。",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "即将推出"
+      "description": "打开嵌套的比较界面，加载真实视野，并用可运行的API比较已保存的分割结果。一致性不代表准确性，也不表示GUI推理问题已修复。",
+      "objectives": [
+        "在Make Masks内找到Model Compare并加载真实示例视野。",
+        "区分当前Cellpose不兼容问题与可用的掩膜比较API。",
+        "解读对象数量、匹配和重叠，不把任一结果当成正确答案。"
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "使用spaCR 1.5.0.7 nightly和Cellpose 4.2.1.1录制。GUI传入不支持的invert参数，因此这里只加载图像，不执行GUI推理、不注入结果、不修改应用。spacr.model_compare.compare_masks比较Apply Cellpose教程中cell_pair_02.tif的两个真实保存结果：批处理输出与实时预览输出。两者使用相同cpsam权重，但预处理不同，均不是专家标注的真实参考；此处不运行模型。保留视野身份、像素几何、预处理和文件哈希，相同尺寸不足以证明来自同一图像。脚本及其证据记录标识原始文件。输出目录必须是新的。一致性不能证明准确性、模型排名、生物学有效性或对独立图像的泛化性能。",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare位于Make Masks内部，用于比较相同视野的分割结果。本课先介绍当前界面，再用两个真实保存的输出演示可用的掩膜比较API。",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Model Compare位于Make Masks内部，用于比较相同视野的分割结果。本课先介绍当前界面，再用两个真实保存的输出演示可用的掩膜比较API。"
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "界面将Model A和Model B的设置分开。每次比较都应记录确切的权重和预处理。名称不同或对象更多并不能证明结果更好。执行比较之前，参数表和结果表是空的。",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7,
+          "speech_text": "界面将Model A和Model B的设置分开。每次比较都应记录确切的权重和预处理。名称不同或对象更多并不能证明结果更好。执行比较之前，参数表和结果表是空的。"
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "输入真实示例文件夹，点击Load。这里成功加载三个原始视野，Compare随之可用。加载图像不等于成功运行模型。我们没有在这个界面生成掩膜，也没有填入比较结果。",
+          "hold_after": 0.7,
+          "speech_text": "输入真实示例文件夹，点击Load。这里成功加载三个原始视野，Compare随之可用。加载图像不等于成功运行模型。我们没有在这个界面生成掩膜，也没有填入比较结果。"
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "已安装的Cellpose版本不接受这个GUI后端仍在传入的invert参数。实际的函数签名检查无需启动推理，就能显示这种不兼容。我们不隐瞒问题。接下来的示例直接对现有标签图像调用compare_masks。",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "已安装的塞尔波斯版本不接受这个GUI后端仍在传入的invert参数。实际的函数签名检查无需启动推理，就能显示这种不兼容。我们不隐瞒问题。接下来的示例直接对现有标签图像调用compare_masks。"
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "两个掩膜来自Apply Cellpose教程中的同一张真实图像。一个是保存的批处理输出，另一个是保存的实时预览输出。它们使用同一个模型、不同的预处理，而不是两组相互竞争的权重。任何一个都不是真实参考答案。",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "两个掩膜来自Apply 塞尔波斯教程中的同一张真实图像。一个是保存的批处理输出，另一个是保存的实时预览输出。它们使用同一个模型、不同的预处理，而不是两组相互竞争的权重。任何一个都不是真实参考答案。"
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "API报告A中有九十四个对象，B中有九十五个对象，匹配成功的有九十一对。匹配对的平均重叠约为零点九六，调整兰德指数约为零点九六一。这些数值描述一致性，而非准确性，也不说明谁胜出。",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7,
+          "speech_text": "API报告A中有九十四个对象，B中有九十五个对象，匹配成功的有九十一对。匹配对的平均重叠约为零点九六，调整兰德指数约为零点九六一。这些数值描述一致性，而非准确性，也不说明谁胜出。"
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "检查实际保存的叠加图。右侧面板标出前景归属不同的像素，并不显示所有实例标签分歧。相近的对象数量可能掩盖边界差异、分裂或合并，因此除了汇总数值，还要查看图像。",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7,
+          "speech_text": "检查实际保存的叠加图。右侧面板标出前景归属不同的像素，并不显示所有实例标签分歧。相近的对象数量可能掩盖边界差异、分裂或合并，因此除了汇总数值，还要查看图像。"
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "脚本使用原始像素独立复核每对匹配的重叠，并验证相同掩膜对照。将CSV、图、源文件身份及预处理记录一起保存。声称准确性或选择模型之前，应使用经过独立审查的标注，以及预留用于评估的图像。",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "脚本使用原始像素独立复核每对匹配的重叠，并验证相同掩膜对照。将CSV、图、源文件身份及预处理记录一起保存。声称准确性或选择模型之前，应使用经过独立审查的标注，以及预留用于评估的图像。"
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
       "number": 22,
       "slug": "model_zoo",
-      "title": "模型库",
+      "title": "Model Zoo：查找模型并检查来源",
       "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "本教程尚未上线。请先浏览其他教程。",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "即将推出"
+      "description": "打开嵌套的模型库，扫描现有本地缓存，区分已记录的训练信息与未知来源。当前Cellpose参数不兼容问题尚在，不能声称已成功完成基准测试。",
+      "objectives": [
+        "在Make Masks内找到Model Zoo并扫描本地模型目录。",
+        "解读来源、类型、校验和及训练信息，不将未知元数据视为验证。",
+        "区分模型管理、下载、训练和基准测试。"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly。真实录制只扫描现有Cellpose缓存并选择原始cpsam文件，不下载、不训练、不执行推理。请使用自己的模型目录，不要照搬演示者的个人路径。所选元数据没有公开校验和、训练数据集或作者，不能根据文件名推断。独立计算的哈希只能证明录制期间本地文件未改变，不能证明来源。Model Zoo基准测试和Model Compare传入Cellpose 4.2.1.1不支持的invert参数；这里不修复或绕过应用缺陷。真实下载和预览请参阅Plaque教程。本课不声称进行了准确性比较或独立数据验证。",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo是Make Masks内部的模型库。打开父模块，再使用Model Zoo控件。本课演示真实的模型库和本地模型扫描，不进行新训练或准确性基准测试。",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Model Zoo是Make Masks内部的模型库。打开父模块，再使用Model Zoo控件。本课演示真实的模型库和本地模型扫描，不进行新训练或准确性基准测试。"
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "表格将已发布条目和本地发现的文件放在同一视图中。请结合模型类型和来源两列阅读。出现在列表中不表示模型已下载、已在您的图像上测试，或已针对您的实验验证。",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7,
+          "speech_text": "表格将已发布条目和本地发现的文件放在同一视图中。请结合模型类型和来源两列阅读。出现在列表中不表示模型已下载、已在您的图像上测试，或已针对您的实验验证。"
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "输入现有模型目录并点击Scan，或用旁边的按钮选择文件夹。这里扫描真实的Cellpose缓存。请使用自己的路径。扫描只发现文件和元数据，不训练模型，也不执行分割。",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7,
+          "speech_text": "输入现有模型目录并点击Scan，或用旁边的按钮选择文件夹。这里扫描真实的塞尔波斯缓存。请使用自己的路径。扫描只发现文件和元数据，不训练模型，也不执行分割。"
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "此次扫描显示八个条目，既有公开的远程模型，也有本地权重文件。数量描述的是这台机器，并非必需配置。请选择确切的目标文件，不要认为相似名称就代表相同权重。",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7,
+          "speech_text": "此次扫描显示八个条目，既有公开的远程模型，也有本地权重文件。数量描述的是这台机器，并非必需配置。请选择确切的目标文件，不要认为相似名称就代表相同权重。"
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "在这个视图中，所选本地文件没有公开校验和，也没有记录训练来源。未知就是未知。名称不是训练数据集的证据。我们计算的哈希确认录制未改变文件，却不能证明作者身份或模型性能。",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7,
+          "speech_text": "在这个视图中，所选本地文件没有公开校验和，也没有记录训练来源。未知就是未知。名称不是训练数据集的证据。我们计算的哈希确认录制未改变文件，却不能证明作者身份或模型性能。"
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "下载区域决定将可用的远程模型保存在哪里，也提供处理没有公开校验和的模型的选项。缺少校验和不等于下载已验证。我们不会重新下载当前选中的本地文件。Plaque课程展示真实的模型下载和预览。",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "下载区域决定将可用的远程模型保存在哪里，也提供处理没有公开校验和的模型的选项。缺少校验和不等于下载已验证。我们不会重新下载当前选中的本地文件。Plaque课程展示真实的模型下载和预览。"
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "下方区域用于测试视野和比较所选模型，这些任务与扫描模型库不同。当前Cellpose参数不兼容，因而不能声称这里成功完成了基准测试。我们不编造掩膜或测试分数。评估修复后的流程时，应将有代表性的验证图像与训练示例分开。",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "下方区域用于测试视野和比较所选模型，这些任务与扫描模型库不同。当前塞尔波斯参数不兼容，因而不能声称这里成功完成了基准测试。我们不编造掩膜或测试分数。评估修复后的流程时，应将有代表性的验证图像与训练示例分开。"
+        }
+      ]
     },
     {
       "id": "23_agreement",

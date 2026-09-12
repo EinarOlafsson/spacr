@@ -2785,33 +2785,234 @@
       "id": "21_model_compare",
       "number": 21,
       "slug": "model_compare",
-      "title": "Confronto dei modelli",
+      "title": "Model Compare: schermata attuale e concordanza tra maschere reali",
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Questo tutorial non è ancora disponibile. Nel frattempo, esplora gli altri tutorial.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Prossimamente"
+      "description": "Apri il confronto annidato, carica campi reali e confronta segmentazioni salvate tramite API. La concordanza non prova accuratezza né la riparazione dell’inferenza nell’interfaccia.",
+      "objectives": [
+        "Trovare Model Compare in Make Masks e caricare i campi di esempio.",
+        "Distinguere l’incompatibilità attuale di Cellpose dall’API funzionante per confrontare maschere.",
+        "Interpretare conteggi, abbinamenti e sovrapposizioni senza dichiarare corretto un risultato."
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly, Cellpose 4.2.1.1. L’interfaccia passa invert, non supportato: carichiamo immagini senza inferenza, risultati inseriti artificialmente o modifiche all’applicazione. spacr.model_compare.compare_masks confronta due uscite reali di cell_pair_02.tif dal tutorial Apply Cellpose: elaborazione in batch e anteprima, con gli stessi pesi cpsam ma preelaborazioni diverse. Nessuna maschera è un riferimento annotato da esperti; qui non viene eseguito alcun modello. Conserva identità del campo, geometria, preelaborazione e impronte dei file: dimensioni uguali non provano la stessa origine. Lo script e le prove registrate identificano gli originali. Scegli una nuova cartella di uscita. La concordanza non stabilisce accuratezza, graduatorie dei modelli, validità biologica o prestazioni su immagini indipendenti.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare si trova dentro Make Masks e confronta segmentazioni degli stessi campi. Questa lezione presenta la schermata attuale e poi dimostra l’API funzionante di confronto delle maschere usando due risultati realmente salvati.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Model Compare si trova dentro Make Masks e confronta segmentazioni degli stessi campi. Questa lezione presenta la schermata attuale e poi dimostra l’API funzionante di confronto delle maschere usando due risultati realmente salvati."
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "La schermata separa le impostazioni di Model A e Model B. Registra i pesi esatti e la preelaborazione per ogni confronto. Nomi diversi o più oggetti non dimostrano un risultato migliore. Le tabelle di parametri e risultati sono vuote prima di avviare un confronto.",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7,
+          "speech_text": "La schermata separa le impostazioni di Model A e Model B. Registra i pesi esatti e la preelaborazione per ogni confronto. Nomi diversi o più oggetti non dimostrano un risultato migliore. Le tabelle di parametri e risultati sono vuote prima di avviare un confronto."
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "Inserisci la vera cartella di esempio e premi Load. Qui si caricano correttamente tre campi originali e Compare diventa disponibile. Caricare immagini non equivale a eseguire correttamente i modelli. Non abbiamo creato maschere né compilato la tabella di confronto in questa schermata.",
+          "hold_after": 0.7,
+          "speech_text": "Inserisci la vera cartella di esempio e premi Load. Qui si caricano correttamente tre campi originali e Compare diventa disponibile. Caricare immagini non equivale a eseguire correttamente i modelli. Non abbiamo creato maschere né compilato la tabella di confronto in questa schermata."
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "La versione installata di Cellpose rifiuta l’argomento invert ancora passato da questo motore dell’interfaccia. Il controllo reale della firma mostra l’incompatibilità senza avviare inferenza. Non la nascondiamo. L’esempio seguente usa compare_masks direttamente su immagini di etichette già esistenti.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "La versione installata di sel pòus rifiuta l’argomento invert ancora passato da questo motore dell’interfaccia. Il controllo reale della firma mostra l’incompatibilità senza avviare inferenza. Non la nascondiamo. L’esempio seguente usa compare_masks direttamente su immagini di etichette già esistenti."
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "Entrambe le maschere appartengono alla stessa immagine reale del tutorial Apply Cellpose. Una è l’uscita salvata in batch, l’altra quella dell’anteprima. Usano lo stesso modello con preelaborazioni diverse, non due insiemi di pesi concorrenti. Nessuna è una verità di riferimento.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Entrambe le maschere appartengono alla stessa immagine reale del tutorial Apply sel pòus. Una è l’uscita salvata in batch, l’altra quella dell’anteprima. Usano lo stesso modello con preelaborazioni diverse, non due insiemi di pesi concorrenti. Nessuna è una verità di riferimento."
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "L’API riporta novantaquattro oggetti in A e novantacinque in B, con novantuno coppie abbinate. La sovrapposizione media delle coppie è circa zero virgola novantasei. L’indice di Rand corretto è circa zero virgola nove sei uno. Sono misure di concordanza, non di accuratezza né di un vincitore.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7,
+          "speech_text": "L’API riporta novantaquattro oggetti in A e novantacinque in B, con novantuno coppie abbinate. La sovrapposizione media delle coppie è circa zero virgola novantasei. L’indice di Rand corretto è circa zero virgola nove sei uno. Sono misure di concordanza, non di accuratezza né di un vincitore."
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "Esamina le sovrapposizioni realmente salvate. Il pannello destro segna i pixel che differiscono nell’appartenenza al primo piano. Non mostra ogni disaccordo tra etichette di istanze. Conteggi simili possono nascondere contorni diversi, divisioni o fusioni: guarda anche le immagini.",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Esamina le sovrapposizioni realmente salvate. Il pannello destro segna i pixel che differiscono nell’appartenenza al primo piano. Non mostra ogni disaccordo tra etichette di istanze. Conteggi simili possono nascondere contorni diversi, divisioni o fusioni: guarda anche le immagini."
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "Lo script controlla indipendentemente ogni sovrapposizione sui pixel originali e verifica il controllo con maschere identiche. Conserva insieme CSV, figura, identità degli originali e preelaborazione. Usa annotazioni indipendenti revisionate e immagini riservate alla valutazione prima di affermare accuratezza o scegliere un modello.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Lo script controlla indipendentemente ogni sovrapposizione sui pixel originali e verifica il controllo con maschere identiche. Conserva insieme CSV, figura, identità degli originali e preelaborazione. Usa annotazioni indipendenti revisionate e immagini riservate alla valutazione prima di affermare accuratezza o scegliere un modello."
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
       "number": 22,
       "slug": "model_zoo",
-      "title": "Raccolta dei modelli",
+      "title": "Model Zoo: trovare modelli e controllarne la provenienza",
       "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Questo tutorial non è ancora disponibile. Nel frattempo, esplora gli altri tutorial.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Prossimamente"
+      "description": "Apri la libreria annidata, esplora una cache locale e distingui i dati di addestramento registrati dalla provenienza sconosciuta. L’attuale incompatibilità di Cellpose impedisce di mostrare una valutazione riuscita.",
+      "objectives": [
+        "Trovare Model Zoo in Make Masks ed esplorare una cartella locale.",
+        "Leggere origine, tipo, checksum e addestramento senza confondere metadati sconosciuti e validazione.",
+        "Distinguere gestione dei modelli, download, addestramento e valutazione."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly. La registrazione esplora una cache Cellpose esistente e seleziona il file cpsam originale, senza download, addestramento o inferenza. Usa la tua cartella, non il percorso personale del presentatore. I metadati non indicano checksum pubblicato, dati di addestramento o autore; non li deduciamo dal nome. Un’impronta indipendente dimostra soltanto che il file non è cambiato durante la registrazione, non la sua origine. La valutazione di Model Zoo e Model Compare passano invert, incompatibile con Cellpose 4.2.1.1: qui il difetto non viene riparato né aggirato. Il tutorial Plaque mostra un download e un’anteprima reali. Non affermiamo accuratezza né validazione su dati indipendenti.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo è la libreria di modelli dentro Make Masks. Apri il modulo principale, poi il controllo Model Zoo. La lezione dimostra la libreria reale e la ricerca di modelli locali, non un nuovo addestramento o un confronto di accuratezza.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Model Zoo è la libreria di modelli dentro Make Masks. Apri il modulo principale, poi il controllo Model Zoo. La lezione dimostra la libreria reale e la ricerca di modelli locali, non un nuovo addestramento o un confronto di accuratezza."
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "La tabella riunisce voci pubblicate e file scoperti localmente. Leggi insieme le colonne tipo e origine. Essere elencato non significa che un modello sia scaricato, provato sulle tue immagini o validato per il tuo esperimento.",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7,
+          "speech_text": "La tabella riunisce voci pubblicate e file scoperti localmente. Leggi insieme le colonne tipo e origine. Essere elencato non significa che un modello sia scaricato, provato sulle tue immagini o validato per il tuo esperimento."
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "Inserisci una cartella di modelli esistente e premi Scan, oppure sceglila con il pulsante accanto. Qui esploriamo la vera cache Cellpose. Usa il tuo percorso. La ricerca trova file e metadati; non addestra modelli né esegue segmentazione.",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Inserisci una cartella di modelli esistente e premi Scan, oppure sceglila con il pulsante accanto. Qui esploriamo la vera cache sel pòus. Usa il tuo percorso. La ricerca trova file e metadati; non addestra modelli né esegue segmentazione."
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "Questa ricerca mostra otto voci: alcuni modelli remoti pubblicati e alcuni file locali di pesi. Il numero descrive questo computer, non una configurazione obbligatoria. Seleziona il file esatto: nomi simili non garantiscono gli stessi pesi.",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Questa ricerca mostra otto voci: alcuni modelli remoti pubblicati e alcuni file locali di pesi. Il numero descrive questo computer, non una configurazione obbligatoria. Seleziona il file esatto: nomi simili non garantiscono gli stessi pesi."
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "Il file locale selezionato non ha un checksum pubblicato né una provenienza di addestramento registrata in questa vista. Sconosciuto significa sconosciuto. Il nome non prova i dati usati nell’addestramento. La nostra impronta conferma che il file non è cambiato durante la registrazione, non chi lo ha prodotto o quanto funzioni bene.",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Il file locale selezionato non ha un checksum pubblicato né una provenienza di addestramento registrata in questa vista. Sconosciuto significa sconosciuto. Il nome non prova i dati usati nell’addestramento. La nostra impronta conferma che il file non è cambiato durante la registrazione, non chi lo ha prodotto o quanto funzioni bene."
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "L’area download stabilisce dove salvare un modello remoto disponibile. Offre anche una scelta sui modelli privi di checksum pubblicato: un checksum mancante non equivale a un download verificato. Questa selezione locale non viene scaricata di nuovo. La lezione Plaque mostra un download e un’anteprima reali.",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "L’area download stabilisce dove salvare un modello remoto disponibile. Offre anche una scelta sui modelli privi di checksum pubblicato: un checksum mancante non equivale a un download verificato. Questa selezione locale non viene scaricata di nuovo. La lezione Plaque mostra un download e un’anteprima reali."
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "L’area inferiore serve a provare campi e confrontare modelli selezionati. Sono attività distinte dall’esplorazione della libreria. L’attuale incompatibilità degli argomenti Cellpose impedisce di dichiarare una valutazione riuscita. Non inventiamo maschere né punteggi. Nel valutare il flusso riparato, separa immagini rappresentative di validazione dagli esempi di addestramento.",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "L’area inferiore serve a provare campi e confrontare modelli selezionati. Sono attività distinte dall’esplorazione della libreria. L’attuale incompatibilità degli argomenti sel pòus impedisce di dichiarare una valutazione riuscita. Non inventiamo maschere né punteggi. Nel valutare il flusso riparato, separa immagini rappresentative di validazione dagli esempi di addestramento."
+        }
+      ]
     },
     {
       "id": "23_agreement",

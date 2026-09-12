@@ -11,14 +11,15 @@ from check_completed_matrix import digest
 from validate_candidate import validate
 
 ROOT = Path(__file__).resolve().parents[1] / 'release_candidate'
-REMAINING_HOLDS = [identity for identity in PLACEHOLDERS if identity not in {EMBEDDINGS, OPS}]
+REMAINING_HOLDS = [identity for identity in PLACEHOLDERS
+                   if identity not in {EMBEDDINGS, OPS, '21_model_compare', '22_model_zoo'}]
 
 
 def test_candidate_manifest_and_browser_evidence_match_the_actual_package():
     result = validate(ROOT, require_browser=True)
     assert result['routes'] == 77
-    assert result['ready'] == 73
-    assert result['coming_soon'] == 4
+    assert result['ready'] == 75
+    assert result['coming_soon'] == 2
 
 
 def test_checkpoint_records_match_actual_committed_files():
@@ -39,9 +40,10 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     unavailable = [x for x in lessons if x.get('status') == 'coming_soon']
     ready = [x for x in lessons if x.get('status') != 'coming_soon']
     # Embeddings and OPS are measured API examples, not fictitious GUI runs.
-    # Only verified packages advance the ready count; the other four
+    # Model Compare/Zoo are likewise their explicitly recorded subsets.
+    # Only verified packages advance the ready count; the other two
     # placeholders still must not be counted as completed tutorials.
-    assert len(ready) == 73 and len(lessons) == 77
+    assert len(ready) == 75 and len(lessons) == 77
     assert [x['id'] for x in unavailable] == REMAINING_HOLDS
     embeddings = next(x for x in ready if x['id'] == EMBEDDINGS)
     assert embeddings['app_key'] == 'embeddings'
@@ -66,7 +68,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
                 assert lesson['scenes'] and all(x['narration'].strip() for x in lesson['scenes'])
     manifest = json.loads((ROOT / 'release-manifest.json').read_text())
     assert manifest['published'] is False and manifest['release_hold'] is True
-    assert manifest['narration_tracks'] == 3650
+    assert manifest['narration_tracks'] == 3750
     videos = {Path(r['path']).parts[2] for r in manifest['files']
               if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
     assert videos == {x['id'] for x in ready}

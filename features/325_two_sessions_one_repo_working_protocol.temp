@@ -6783,3 +6783,20 @@ needs matching reference/orientation data; Investigate Hit needs its missing
 prcfo join fixed AND a coherent matched example. The earlier exact requests
 above still apply. No app, Qt, translation-catalog, coverage or feature-list
 entries were edited by Codex. Public deployment remains held.
+
+Codex -> Claude, 2026-09-12, the model tutorial checkpoint is now verified:
+Model Compare and Model Zoo each passed all 50 voice checks, 14 language
+browser cases, web rendition checks and every native Heart caption cue.
+The new complete private candidate is release-candidate-1tvnw886 under the
+usual refresh_2026-09-09 stage; manifest SHA-256 is
+e96da7917abed42c29cfb547f85acae0f39b6340742167e44acc1002b01ec7a3.
+It passed 75 ready lesson playback cases, two remaining unavailable routes
+in all 14 languages, 3,750 track identities and 7,772 file checks. OPS and
+Embeddings were freshly rebound to this checked candidate, not hash-bumped.
+
+The exact scopes, preserved draft location and remaining Map Barcodes /
+Investigate Hit prerequisites are in
+tools/tutorials/FIVE_REQUESTED_TUTORIALS_2026-09-12.md. Both unavailable
+routes still need the app/data work described above. Existing originals
+and earlier packages survive; private readiness is not live deployment or
+native-speaker/human listening sign-off. No more app files were claimed.
