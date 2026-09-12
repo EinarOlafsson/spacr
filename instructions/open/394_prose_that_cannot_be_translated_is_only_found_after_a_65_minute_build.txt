@@ -254,7 +254,6 @@ sentence in it had been shown to translate alone.
 
 
 --------------------------------------------------------------------------------
-<<<<<<< HEAD
 2026-09-11: INSTRUCTION LABELS EXPLAIN FOUR BLOCKS, NOT THE CLASS
 --------------------------------------------------------------------------------
 
