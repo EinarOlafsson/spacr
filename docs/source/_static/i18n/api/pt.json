@@ -31500,6 +31500,30 @@
         "15b49491c4b443504c21af6169100e85f158672c7e38acfe87d325edb0986698"
       ]
     },
+    "spacr.infection.border_rules_agree": {
+      "source_blocks_sha256": [
+        "44cc30204f54b32eff3dff93798a74f2c20bc1470bafd8fc348737dbe7e52311",
+        "7fb634e19fe0163df0d8c2bf382a00a88f797f83f74903b845e64ed2aef8e0fc",
+        "66e2b8bd49a2a5a990ac6e1c108e039d12593a3e335251c750c022cb1cf31faf",
+        "98621a50df070fda6f736b210a3b9767422c0abd235b024942b5d4f72671f011",
+        "029bb670e697280e8897e27eb32e0ced2bbe7a35fffb68200e15f771e5418091",
+        "e6814e3b18bc924d815a55871b135616715dfa0f5cb025c2674f2e06d2334dee",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "bba92b892686c9fe9c90a00a49a60c4859544838a93e12be385f99e8aeef7c7e"
+      ],
+      "source_sha256": "a6983f0c991e6d5122e9c66657fca8eac99c7c1f0780de89c20f8b6d5f1f5f49",
+      "text": "Se as células e parasitas foram filtrados na fronteira da mesma maneira.\n\nO numerador e o denominador devem obedecer à mesma regra, que é o que a Parte 1 de 377 pede em tantas palavras: \"o denominador de infecção tem que usar a mesma regra ou a taxa é calculada contra uma contagem de células diferente do numerado\".\n\n`remove_border_objects` é aplicado no tempo de SEGMENTAO, por tipo de objeto, então ele decide o que está em cada tabela, em vez de como a tabela é contada. As duas configurações são independentes e padrão para  False juntos, então eles concordam, a menos que alguém mudou um:\n\n  * patógenos limpos e células mantidas - uma célula hospedeira cujo único parasita tocou a borda ainda está na tabela celular, agora com uma contagem de zero. Ele lê como infetado e desinfeta a taxa.\n  * células limpas e patógenos mantidos - um parasita pode nomear uma célula que não está mais na tabela celular, por isso é contado em numerador nem denominador e o índice de infecção deriva.\n\nEsta é a mesma falha que `include_uninfected`, que já foi enviada: uma configuração que muda silenciosamente o que uma tabela contém e, portanto, o que significa uma relação sobre ela, sem nada na saída dizendo isso. Essa transformou cada posição de amostra de microplacas em 1,000000 em uma microplaca de laboratório real. Esta é mais silenciosa, o qual é pior - uma taxa desinflada parece biologia.\n\n:param db_path: caminho para um ``measurements.db``.\n:returns: ``True`` quando ambas as regras coincidem,  ``False`` quando diferem, ?``None`` quando a execução não gravou nenhum dos dois -- um banco de dados mais antigo, onde a resposta honesta é que não podemos dizer.",
+      "translation_source_blocks_sha256": [
+        "44cc30204f54b32eff3dff93798a74f2c20bc1470bafd8fc348737dbe7e52311",
+        "ad7218747787ee272ec9c3bb0a38cdeae4b0654b8c757e8b3a127269a3c82e07",
+        "66e2b8bd49a2a5a990ac6e1c108e039d12593a3e335251c750c022cb1cf31faf",
+        "98621a50df070fda6f736b210a3b9767422c0abd235b024942b5d4f72671f011",
+        "029bb670e697280e8897e27eb32e0ced2bbe7a35fffb68200e15f771e5418091",
+        "3d123b52a0de52c4cb26560e58b972091adbac56c638d5881d72957afd21a427",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "bba92b892686c9fe9c90a00a49a60c4859544838a93e12be385f99e8aeef7c7e"
+      ]
+    },
     "spacr.infection.host_contrast": {
       "source_blocks_sha256": [
         "6f190797ef51212c457e8407407bf5f92654dea4aa121a4bb9fae69dfd55cb20",

@@ -31500,6 +31500,30 @@
         "15b49491c4b443504c21af6169100e85f158672c7e38acfe87d325edb0986698"
       ]
     },
+    "spacr.infection.border_rules_agree": {
+      "source_blocks_sha256": [
+        "44cc30204f54b32eff3dff93798a74f2c20bc1470bafd8fc348737dbe7e52311",
+        "7fb634e19fe0163df0d8c2bf382a00a88f797f83f74903b845e64ed2aef8e0fc",
+        "66e2b8bd49a2a5a990ac6e1c108e039d12593a3e335251c750c022cb1cf31faf",
+        "98621a50df070fda6f736b210a3b9767422c0abd235b024942b5d4f72671f011",
+        "029bb670e697280e8897e27eb32e0ced2bbe7a35fffb68200e15f771e5418091",
+        "e6814e3b18bc924d815a55871b135616715dfa0f5cb025c2674f2e06d2334dee",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "bba92b892686c9fe9c90a00a49a60c4859544838a93e12be385f99e8aeef7c7e"
+      ],
+      "source_sha256": "a6983f0c991e6d5122e9c66657fca8eac99c7c1f0780de89c20f8b6d5f1f5f49",
+      "text": "세포와 기생충이 동일한 방식으로 국경 필터링되었는지 여부.\n\n숫자와 명칭자는 동일한 규칙에 순종해야하며, 이는 377의 PART 1이 많은 단어로 요구하는 것입니다 : \"감염 명칭은 같은 규칙을 사용해야하거나 속도가 번호보다 다른 세포 계산에 대해 계산됩니다.\"\n\n`remove_border_objects` 그것은 각 테이블에 무엇이 있는지 결정하는 대신 테이브가 계산되는 방법에 적용됩니다.이 두 설정은 독립적이고 기본적으로 False 함께, 그래서 그들은 누군가가 하나를 변경하지 않는 한 동의합니다 :\n\n  * 병원균이 청소되고 세포가 유지되었습니다 - 유일한 기생충이 가장자리에 접촉 한 호스트 세포는 여전히 세포 테이블에 있으며, 이제는 0의 숫자로 있습니다.\n  * 세포가 청소되고 병원균이 보존됩니다 - 기생충은 더 이상 세포 테이블에 있지 않은 세포를 지정할 수 있으므로 숫자 또는 명칭에 계산되지 않으며 감염 지수가 흐르지 않습니다.\n\n이것은 이미 전송 된 `include_uninfected`과 같은 실패입니다 : 테이블이 포함 된 것을 조용히 바꾸고, 따라서 그것에 대한 비율이 무엇을 의미하는지, 출력에서 그렇게 말하는 것은 아무것도 없습니다.이것은 실제 실험실 마이크로 플레이트에있는 각 마이크 샘플 위치를 1000000로 바꾸었습니다.\n\n:param db_path: ``measurements.db``로 가는 길\n:returns: ``True`` 두 가지 규칙이 일치할 때, ``False`` 그들이 다르면, ``None`` 실행이 기록되지 않을 때 - 오래된 데이터베이스, 정직한 대답은 우리가 말할 수 없다는 것입니다.",
+      "translation_source_blocks_sha256": [
+        "44cc30204f54b32eff3dff93798a74f2c20bc1470bafd8fc348737dbe7e52311",
+        "ad7218747787ee272ec9c3bb0a38cdeae4b0654b8c757e8b3a127269a3c82e07",
+        "66e2b8bd49a2a5a990ac6e1c108e039d12593a3e335251c750c022cb1cf31faf",
+        "98621a50df070fda6f736b210a3b9767422c0abd235b024942b5d4f72671f011",
+        "029bb670e697280e8897e27eb32e0ced2bbe7a35fffb68200e15f771e5418091",
+        "3d123b52a0de52c4cb26560e58b972091adbac56c638d5881d72957afd21a427",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "bba92b892686c9fe9c90a00a49a60c4859544838a93e12be385f99e8aeef7c7e"
+      ]
+    },
     "spacr.infection.host_contrast": {
       "source_blocks_sha256": [
         "6f190797ef51212c457e8407407bf5f92654dea4aa121a4bb9fae69dfd55cb20",
