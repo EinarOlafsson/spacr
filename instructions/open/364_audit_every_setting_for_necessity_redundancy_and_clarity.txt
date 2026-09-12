@@ -1928,3 +1928,96 @@ GENERATED TABLE KEYED BY SETTING NAME JOINS THIS LIST -- that is the rule,
 not the specific five, because the failure is structural: a rename reaches
 the source, every generated file stays internally consistent, nothing
 raises, and the only thing that can see the gap is a comparison.
+
+--------------------------------------------------------------------------------
+2026-09-12 -- THE MISSING MIGRATION IS BUILT, AND IT WAS THREE DEFECTS RATHER
+THAN THE ONE THIS FILE RECORDED
+--------------------------------------------------------------------------------
+
+Commit 15fa72737 on nightly. The 2026-09-05 entry above named the hole
+correctly and understated it twice over.
+
+WHAT THIS FILE SAID: four renames never got their RETIRED_SETTINGS migration,
+so `_translate_legacy_setting_keys` drops a pre-b7ae412af file's flow and
+cellprob thresholds. Correct, and measured again here through the real entry
+point rather than the helper:
+
+    set_default_settings_preprocess_generate_masks({'cell_FT': 0.42})
+        -> cell_flow_threshold == 100      the default, not 0.42
+
+WHAT IT MISSED, FIRST. There are TWO tables, not one, and they answer
+different questions. `validate.RETIRED_SETTINGS` (45 entries) decides what is
+SAID; `settings.RENAMED_SETTINGS` (7) decides what is DONE. Nothing checked
+they agreed. So there are two classes of failure and this file described only
+the quieter one:
+
+    CLASS 1  recorded, never performed -- the doctor says "renamed to X" and
+             the run uses the default anyway. minimum_cell_count,
+             organelle_min_size, organelle_max_size, redunction_method.
+    CLASS 2  recorded NOWHERE -- no migration and no warning at all. The four
+             b7ae412af families. Strictly worse: class 1 at least tells the
+             user.
+
+    An hour was spent disagreeing with the other session about whether class 2
+    was real, because checking RETIRED_SETTINGS for a flow key and finding
+    nothing reads as "no such defect". The absence IS the defect: the value is
+    moved by RENAMED_SETTINGS, and absence from BOTH is the silent case.
+    Settled by running it rather than by arguing.
+
+WHAT IT MISSED, SECOND, AND THIS IS THE LARGEST PART.
+`set_default_settings_preprocess_generate_masks` NEVER CALLED THE FOLD AT ALL.
+`_fold_renamed_settings` ran in four default-setters and none of them was the
+mask pipeline -- so both tables could have been perfect and generate-masks
+would still have lost every value. One line, and most of the fix.
+
+THE SUFFIX RULE HAD TO LEAVE THE Qt PANEL. `_ORGANELLE_SLOT_KEY` there was the
+only code in spaCR that knew a rename can belong to a role FAMILY, which is
+why `organelleq_min_size` was migrated by the panel, ignored by the run and
+unmentioned by the doctor -- three answers to one question. Now one resolver,
+`settings.surviving_setting_name`, and the regex is deleted rather than
+generalised.
+
+MERGING THE TABLES WAS THE OBVIOUS DESIGN AND IT IS WRONG, which a four-way
+design panel established by measurement rather than taste. RETIRED_SETTINGS is
+a SUPERSET: 33 withdrawals and one SEMANTIC migration as well as renames. The
+Qt panel already read it directly, which is merging in miniature, and:
+
+    _translate_legacy_setting_keys({'gradient_accumulation': False})
+        -> {'gradient_accumulation_steps': False}        int() of that is 0
+
+A step count of zero is not a state the code has; `steps = 1` is the off
+state. That bug was shipped, and generalising the "clean" design would have
+spread it to every consumer. Fixed here; `SEMANTIC_FOLDS` now DECLARES the
+exemption, because absence is a fact with no guard.
+
+THE ROLE SCOPE IS DERIVED, NOT WRITTEN DOWN. A suffix rule fires only where
+the old key is not live and the terminal new key is. That gate does real work:
+seven `_size` keys are still live -- cell/nucleus/pathogen `_min_size` and
+`_max_size`, plus `cytoplasm_min_size` -- and they mean something DIFFERENT
+from their `_area` neighbours (`cell_min_size` filters at MEASUREMENT time,
+`cell_min_area` at SEGMENTATION time). A blanket `_size -> _area` eats all
+seven. The RETIRED_SETTINGS comment claiming "cell, nucleus and pathogen only
+ever had `_area`" is stale and should not be trusted by the next reader.
+
+IT IS A BEHAVIOUR CHANGE ON HISTORICAL DATA, and that is the point rather than
+a side effect. Any pre-2026-09-02 file carrying one of these keys STARTS
+SETTING CONTROLS IT HAS BEEN SILENTLY IGNORING -- a file that read
+`cell_FT=0.42` as 100 yesterday reads it as 0.42 today and the masks change.
+So the fold now says what it did, one INFO line per migration naming the old
+key, the new key and the value, because the common case is not a collision but
+one old key taking effect for the first time.
+
+  tests/test_the_two_settings_tables_agree.py -- 42 assertions, each written
+  as a thing that must be IMPOSSIBLE. Verified by reverting each half in
+  memory: without the literals the agreement check names the ones it should,
+  without the suffix table neither `cell_FT` nor `organelleq_min_size` moves.
+  476 passed across settings, validate, doctor and app_screen after rebasing
+  onto 0f3c6dace.
+
+ONE THING THE TESTS TAUGHT ME MID-WRITE: `organellea` IS NOT A ROLE. The slots
+run `organelle`, `organelleaa`, `organelleab`, ... with no single-letter
+spelling, so parametrising on it turned twelve assertions into twelve skips
+that read as passes. `test_every_sample_role_is_real` now fails instead.
+
+STILL OPEN in 364: the organelle preprocessing gap, the two proposals waiting
+on the maintainer, and the generated-table checklist, which 391 will exercise.
