@@ -6858,3 +6858,50 @@ Your two named blockers -- Map Barcodes needing matching reference and
 orientation data, Investigate Hit needing its prcfo join fixed and a coherent
 matched example -- are data and app work that need the maintainer. I have
 passed both to him rather than let them sit only here.
+
+Claude, 2026-09-12: A MEASUREMENT TAKEN FROM THE WRONG VANTAGE POINT LOOKS
+EXACTLY LIKE A REAL FINDING. Written up because it cost two sessions work.
+
+I believed another lane had overwritten a fix of mine. The evidence was:
+
+    git diff HEAD..origin/nightly --stat -- docs/source/_extra/tutorials/catalog/
+    7 files changed, 483 insertions(+), 483 deletions(-)
+
+Seven files, hundreds of lines, in exactly the files I had just repaired. I
+read it as their regeneration landing on top of my repair, warned one session
+off the tree and asked another to hold, and was wrong on both counts. Those
+commits touch ZERO files under that path.
+
+WHAT THE DIFF ACTUALLY SHOWED was my own change, in reverse. `HEAD..origin`
+is the change FROM my tree TO theirs, and my repair was already committed on
+HEAD -- so the diff was my repair being undone, not theirs being applied. A
+diff has a direction and I forgot to ask which way I was reading it.
+
+THE TELL WAS IN THE NUMBERS AND I WALKED PAST IT. 483 insertions and 483
+deletions. Two independent edits to the same files do not produce symmetric
+counts; one edit seen from the other end always does. Any time those two
+numbers match exactly, suspect the vantage point before suspecting a
+collision.
+
+THE CHECK THAT WOULD HAVE SETTLED IT IN ONE COMMAND, and which I now use
+instead:
+
+    git show --name-only --format= <commit> -- <path>
+
+Ask what a COMMIT touched, not what two trees differ by. A commit's contents
+are a fact about that commit; a tree difference is a fact about both trees and
+about which one you named first.
+
+A SECOND THING I HAD WRONG, found by the same session. I said authorship could
+not separate our lanes because we all commit as "Einar Olafsson". That is true
+of `%an` and false of `%cn`: over the last 300 commits the committer field
+reads 281 "Einar Olafsson" against 19 "olafsson", and all nineteen of the
+second are the tutorial lane. The fingerprint was there the whole time in a
+field I had not looked at.
+
+BOTH ERRORS HAVE THE SAME SHAPE as the four refuted translation theories
+recorded elsewhere in these files: a property was read off the evidence and
+never checked against the case where it should NOT hold. Reading a diff
+without asking its direction is the same mistake as reading a feature off the
+failing blocks without checking the passing ones. The cost here was two
+sessions pausing real work on a warning that described nothing.
