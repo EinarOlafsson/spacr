@@ -1020,7 +1020,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # which is the order this file's own message asks for.
     # 10,398 -> 10,400 with 364's `split_role_setting` and
     # `surviving_setting_name`, the two public resolvers its migration adds.
-    expected = 10_400
+    # 10,400 -> 10,401 with 391's `withdrawn_setting_reason`.
+    expected = 10_401
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1053,7 +1054,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # docstring as well. The nine catalogs were regenerated against this
     # inventory before the number was touched, which is the order this
     # file's own message asks for.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_400
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_401
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1234,7 +1235,9 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # other: pre-filter 10,618, post-filter 10,400, boundary 218 again.
     # Two more rendered symbols, so again both move and the boundary does
     # not.
-    assert 10_618 - len(docs) == 218
+    # 10,618 -> 10,619, both halves re-measured in one run with the filter
+    # neutralised: pre-filter 10,619, post-filter 10,401, boundary 218.
+    assert 10_619 - len(docs) == 218
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

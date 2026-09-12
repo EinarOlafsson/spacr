@@ -115,7 +115,11 @@ TOOLS = ROOT / "tools"
 #: settings migration: `spacr.object_roles.split_role_setting` and
 #: `spacr.settings.surviving_setting_name`. Measured by differencing the
 #: symbol sets against the previous measurement, not by subtracting counts.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_400
+#: 10,400 -> 10,401 on 2026-09-12 with 391's
+#: `spacr.object_roles.withdrawn_setting_reason`, the resolver that says why
+#: a setting was withdrawn. Set-differenced against the previous
+#: measurement, not subtracted.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_401
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
