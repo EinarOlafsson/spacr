@@ -46,13 +46,13 @@ def copy_checked(source, target, records, root, expected=None):
                     'sha256': actual, 'bytes': target.stat().st_size})
 
 
-def write_catalogs(stage, web):
+def write_catalogs(stage, web, *, model_promotions=()):
     """Derive parent metadata from today's GUI without altering lesson scenes."""
     catalogs = {}
     for filename in CATALOGS:
         language = filename.split('_', 1)[1].removesuffix('.json')
         catalogs[filename] = release_catalog(read(stage / 'catalog' / filename), language,
-                                             recording_stage=stage)
+                                             recording_stage=stage, model_promotions=model_promotions)
     nav = navigation(catalogs['lessons_en.json'])
     if nav['missing_tutorials']:
         raise ValueError(f"Unaccounted tutorial routes: {nav['missing_tutorials']}")
@@ -119,12 +119,19 @@ def refresh_candidate_player(root):
     write(root / 'release-manifest.json', report)
 
 
-def build(stage=DEFAULT_STAGE, *, baseline=None):
+def build(stage=DEFAULT_STAGE, *, baseline=None, model_promotions=()):
     stage = Path(stage).resolve()
     # Revalidate current sources before creating any release copies.
-    proof = verify(stage, set(HELD), baseline=baseline)
+    from model_promotion import MODELS, require_recorded_model
+    model_promotions = set(model_promotions)
+    if not model_promotions <= set(MODELS):
+        raise ValueError('Unknown model tutorial promotion')
+    english = read(stage / 'catalog/lessons_en.json')['lessons']
+    for identity in sorted(model_promotions):
+        require_recorded_model(stage, 'en', next(item for item in english if item['id'] == identity))
+    proof = verify(stage, set(HELD) - model_promotions, baseline=baseline)
     ready_ids = {item['lesson'] for item in proof['lessons']}
-    expected_ready = 71 + (EMBEDDINGS in ready_ids) + (OPS in ready_ids)
+    expected_ready = 71 + (EMBEDDINGS in ready_ids) + (OPS in ready_ids) + len(model_promotions)
     if proof['checked_lessons'] != expected_ready or proof['checked_tracks'] != expected_ready * 50:
         raise ValueError('The approved ready/tutorial partition changed')
     root = Path(tempfile.mkdtemp(prefix='release-candidate-', dir=stage))
@@ -150,7 +157,7 @@ def build(stage=DEFAULT_STAGE, *, baseline=None):
     (web / 'index.html').write_text(index)
     records[:] = [r for r in records if r['path'] != 'web/index.html']
 
-    write_catalogs(stage, web)
+    write_catalogs(stage, web, model_promotions=model_promotions)
     voices = voice_matrix(stage.parent / 'tools/render_all_voices.py')
     web_checks = []
     for result in proof['lessons']:
