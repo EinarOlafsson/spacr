@@ -153,6 +153,9 @@ def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str], *,
     unused = set(range(len(counts)))
     count_tokens = [_pair_tokens(path) for path in counts]
     rows = []
+    # PASS ONE, BY TOKEN, AND IT KEEPS PRIORITY. A user who named their files
+    # carefully must not have that overridden by arrival order, so every
+    # unambiguous token match is taken before position is consulted at all.
     for score in scores:
         left = _pair_tokens(score)
         match = _best_unique(left, count_tokens, unused)
@@ -161,12 +164,74 @@ def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str], *,
         common = left & (count_tokens[match] if match is not None else set())
         rows.append({"plate": _plate_label(common),
                      "score": os.fspath(score),
-                     "count": os.fspath(counts[match]) if match is not None else None,
+                     "count": os.fspath(counts[match]) if match is not None
+                     else None,
                      "database": None})
+    # PASS TWO, BY POSITION. `scores.csv` and `counts.csv` share no token, so
+    # the token pass leaves both unmatched -- and the user got TWO half-empty
+    # rows with nothing to say the files belonged together. The engine has
+    # always accepted row order as the last resort (`load_regression_input_pairs`
+    # resolves plate identity "without filename guesses ... own column,
+    # partner column, then pair-row order"); it is this proposal step that
+    # never got the memo.
+    leftover = iter(sorted(unused))
+    for row in rows:
+        if row["count"] is not None:
+            continue
+        index = next(leftover, None)
+        if index is None:
+            break
+        unused.discard(index)
+        row["count"] = os.fspath(counts[index])
     for index in sorted(unused):
         rows.append({"plate": "", "score": None,
                      "count": os.fspath(counts[index]), "database": None})
-    return _attach_databases(rows, databases)
+    # NUMBERED LAST, AFTER THE DATABASES HAVE HAD THEIR SAY. A database
+    # folder NAMES a plate -- `_attach_databases` fills an empty plate cell
+    # from the folder it matched -- and that is a parsed fact, where a
+    # generated number is only a default. Numbering first made every cell
+    # truthy and silently took that away: `_attach_databases` fills the cell
+    # only `if not row.get("plate")`, so a database could never name a plate
+    # again. Caught by `test_a_database_names_the_plate_when_the_csvs_could_not`,
+    # which is what that test is for.
+    return _number_unlabelled_plates(_attach_databases(rows, databases))
+
+
+def _number_unlabelled_plates(rows: list[dict]) -> list[dict]:
+    """Give every row without a parsed plate name one generated from its order.
+
+    `plate 1`, `plate 2`, in row order, which is what the maintainer asked
+    for: "if they do share a name it can be used if the files do not the name
+    should be generated, first row plate 1 second row plate 2 and so on".
+
+    NUMBERED BY ROW, NOT BY A COUNTER OVER THE UNLABELLED. A table whose
+    second row is parsed as `plate7` would otherwise run `plate 1`, `plate7`,
+    `plate 2`, which reads as though the middle row were out of sequence. The
+    number is the row's position and nothing else, so a generated label says
+    where the row is rather than how many blank ones preceded it.
+
+    REGENERATED ON EVERY PROPOSAL, which is what makes it safe. A generated
+    label is a default the user is expected to overwrite, and `_repropose`
+    rebuilds every row from scratch -- so a row labelled `plate 2` that ends
+    up first after a deletion is renumbered rather than left asserting a fact
+    about a plate. A label the user has actually typed is pinned by the
+    widget and survives this, exactly as a manually placed database does.
+
+    :param rows: proposed rows, in the order they will be shown.
+    :returns: the same rows, with blank plate cells filled in.
+    """
+    for position, row in enumerate(rows, start=1):
+        # A PAIR, OR NOTHING. The request is about two files that do not share
+        # a name -- "if they do share a name it can be used if the files do
+        # not the name should be generated" -- and "the files" is the pair. A
+        # score still waiting for its partner, or a database waiting for its
+        # CSVs, is not a plate row yet, and numbering it would assert exactly
+        # the fact step 3 of 392 warns about: a label that reads as parsed
+        # when nothing parsed it. Those rows keep a blank cell, which is the
+        # honest state and the one the user is being asked to resolve.
+        if row.get("score") and row.get("count") and not row.get("plate"):
+            row["plate"] = f"plate {position}"
+    return rows
 
 
 def _attach_databases(rows: list[dict], databases: Sequence[str]) -> list[dict]:
@@ -599,9 +664,46 @@ class PairedFileTableWidget(QWidget):
 
     def _repropose(self) -> None:
         """Rebuild every row from tokens, then honour the manual attachments."""
+        typed = self._plate_labels_the_user_typed()
         rows = suggest_file_pairs(self._scores, self._counts,
                                   databases=self._databases)
+        for row in rows:
+            label = typed.get((row.get("score"), row.get("count")))
+            if label:
+                row["plate"] = label
         self.set_value(self._apply_pinned(rows))
+
+    def _plate_labels_the_user_typed(self) -> dict:
+        """Plate labels the table holds that no proposal would have produced.
+
+        A GENERATED LABEL IS A DEFAULT AND A TYPED ONE IS A DECISION, and
+        `_repropose` rebuilds every row from the filenames, so without this it
+        discards the decision. `plate 2` on a row that has become the first
+        row must be renumbered; `Treated, day 3` typed by the user must not.
+
+        Told apart by RE-PROPOSING AND COMPARING rather than by a flag on the
+        row: whatever `suggest_file_pairs` would say for the current files is
+        by definition not a decision, and anything else is. That needs no
+        extra state to go stale, and it stays correct if the proposal rules
+        change -- a label that used to be generated and no longer is becomes
+        a decision automatically, which is the safe direction.
+
+        KEYED ON THE ROW'S FILES, NOT ITS POSITION, because position is
+        exactly what re-proposing is allowed to change.
+
+        :returns: ``{(score, count): label}`` for rows the user has named.
+        """
+        proposed = suggest_file_pairs(self._scores, self._counts,
+                                      databases=self._databases)
+        default = {(row.get("score"), row.get("count")): row.get("plate")
+                   for row in proposed}
+        typed = {}
+        for row in self.get_value():
+            key = (row.get("score"), row.get("count"))
+            label = row.get("plate")
+            if label and label != default.get(key):
+                typed[key] = label
+        return typed
 
     def _apply_pinned(self, rows: list[dict]) -> list[dict]:
         """Move each pinned database back onto the row the user chose."""
