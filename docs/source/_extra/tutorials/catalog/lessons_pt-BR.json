@@ -373,7 +373,7 @@
       "title": "Máscaras",
       "series": 1,
       "app_key": "mask",
-      "section": "Core",
+      "section": "Módulos principais",
       "description": "Configure a segmentação, valida-a com a Visualização ao Vivo e crie máscaras para medição a jusante.",
       "objectives": [
         "Verificar os metadados da fonte e o mapeamento do canal.",
@@ -495,7 +495,7 @@
       "title": "Medição",
       "series": 1,
       "app_key": "measure",
-      "section": "Core",
+      "section": "Módulos principais",
       "description": "Extraia características em nível de objeto a partir de imagens e máscaras e, em seguida, examine a galeria de recortes e o banco de dados produzidos.",
       "objectives": [
         "Verificar os canais das imagens e o mapeamento dos planos de máscaras.",
@@ -583,7 +583,7 @@
       "title": "Anotação",
       "series": 1,
       "app_key": "annotate",
-      "section": "Core",
+      "section": "Módulos principais",
       "description": "Examine recortes de objetos, atribua rótulos consistentes, verifique a cobertura e encaminhe os rótulos salvos a um classificador.",
       "objectives": [
         "Configurar uma visualização consistente dos recortes e uma coluna de anotação.",
@@ -672,7 +672,7 @@
       "series": 1,
       "app_key": "classify",
       "host_app_key": "classify_merged",
-      "section": "Core",
+      "section": "Módulos principais",
       "description": "Treine e avalie um classificador de imagens a partir de recortes de objetos anotados, com validação agrupada e busca opcional de hiperparâmetros.",
       "objectives": [
         "Associar os rótulos salvos e os recortes dos objetos em um conjunto de dados protegido contra vazamento.",
@@ -775,7 +775,7 @@
       "series": 1,
       "app_key": "ml_analyze",
       "host_app_key": "classify_merged",
-      "section": "Core",
+      "section": "Módulos principais",
       "description": "Treine e avalie um classificador baseado em características de objetos medidos, com correção por placa e busca opcional de hiperparâmetros.",
       "objectives": [
         "Preparar características de medição válidas e rótulos que considerem as placas.",
@@ -870,7 +870,7 @@
       "title": "Mapear códigos de barras",
       "series": 1,
       "app_key": "map_barcodes",
-      "section": "Core",
+      "section": "Módulos principais",
       "description": "Este tutorial ainda não está disponível. Enquanto isso, explore os outros tutoriais.",
       "objectives": [],
       "prerequisite": "",
@@ -885,7 +885,7 @@
       "title": "Regressão",
       "series": 1,
       "app_key": "regression",
-      "section": "Core",
+      "section": "Módulos principais",
       "description": "Relacione a abundância de guias de uma triagem agrupada aos fenótipos medidos usando testes de permutação em blocos ou regressão simultânea; depois, examine o suporte, os diagnósticos e as estimativas de efeito.",
       "objectives": [
         "Alinhar corretamente as informações de fenótipos, contagens de guias e controles.",
@@ -980,7 +980,7 @@
       "title": "Criar máscaras",
       "series": 1,
       "app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "Modelos de segmentação",
       "description": "Crie e corrija rótulos de segmentação interativamente para controle de qualidade ou para produzir pares de treinamento do Cellpose.",
       "objectives": [
         "Selecionar a ferramenta de edição adequada a cada erro da máscara.",
@@ -1068,7 +1068,7 @@
       "title": "UMAP de imagens",
       "series": 1,
       "app_key": "umap",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Projete objetos medidos em duas dimensões e examine vizinhanças fenotípicas usando seus recortes reais de microscopia.",
       "objectives": [
         "Selecionar características e exclusões biologicamente relevantes.",
@@ -1164,7 +1164,7 @@
       "series": 1,
       "app_key": "activation",
       "host_app_key": "classify_merged",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Examine quais regiões das imagens influenciam um classificador de visão computacional treinado e avalie se essas explicações são confiáveis.",
       "objectives": [
         "Fazer a execução de atribuição corresponder ao modelo treinado e às entradas.",
@@ -1253,7 +1253,7 @@
       "series": 2,
       "app_key": "timelapse",
       "host_app_key": "mask",
-      "section": "Core",
+      "section": "Módulos principais",
       "description": "Segmente imagens resolvidas no tempo, associe os objetos selecionados em trajetórias e valide os filmes e as trajetórias resultantes.",
       "objectives": [
         "Mapear os eixos de aquisição e segmentar de forma consistente quadros representativos.",
@@ -1356,7 +1356,7 @@
       "series": 2,
       "app_key": "motility",
       "host_app_key": "measure",
-      "section": "Core",
+      "section": "Módulos principais",
       "description": "Meça o movimento calibrado em imagens rastreadas e compare as trajetórias por estado de infecção ou grupo experimental.",
       "objectives": [
         "Mapear corretamente os objetos rastreados e a calibração.",
@@ -1445,7 +1445,7 @@
       "series": 2,
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "Modelos de segmentação",
       "description": "Faça o ajuste fino de um modelo compatível com Cellpose ou CPSAM usando pares revisados de imagens e máscaras de instâncias.",
       "objectives": [
         "Validar os dados de treinamento pareados e selecionar um ponto de verificação inicial adequado.",
@@ -1527,7 +1527,7 @@
       "series": 2,
       "app_key": "cellpose_masks",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "Modelos de segmentação",
       "description": "Aplique um modelo Cellpose distribuído com o programa ou personalizado, examine as máscaras e os fluxos e salve uma máscara de instâncias por campo.",
       "objectives": [
         "Fazer as imagens, os canais, a escala dos objetos e o ponto de verificação corresponderem.",
@@ -1609,7 +1609,7 @@
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "Modelos de segmentação",
       "description": "Este tutorial ainda não está disponível. Enquanto isso, explore os outros tutoriais.",
       "objectives": [],
       "prerequisite": "",
@@ -1625,7 +1625,7 @@
       "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "Modelos de segmentação",
       "description": "Este tutorial ainda não está disponível. Enquanto isso, explore os outros tutoriais.",
       "objectives": [],
       "prerequisite": "",
@@ -1641,7 +1641,7 @@
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Meça a concordância entre colunas de anotação e examine os objetos responsáveis pelas discordâncias.",
       "objectives": [
         "Configurar uma comparação justa entre rótulos.",
@@ -1715,7 +1715,7 @@
       "title": "Ensaio de placas",
       "series": 3,
       "app_key": "analyze_plaques",
-      "section": "Toxoplasma assays",
+      "section": "Ensaios de Toxoplasma",
       "description": "Segmente ou reutilize máscaras de placas de lise, valide-as e resuma a formação de placas por condição.",
       "objectives": [
         "Escolher entre realizar a segmentação e usar máscaras existentes.",
@@ -1789,7 +1789,7 @@
       "title": "Ensaio de recrutamento",
       "series": 3,
       "app_key": "recruitment",
-      "section": "Toxoplasma assays",
+      "section": "Ensaios de Toxoplasma",
       "description": "Quantifique o enriquecimento de um marcador em regiões associadas aos parasitas em relação ao fundo das células hospedeiras.",
       "objectives": [
         "Mapear corretamente os canais e as máscaras.",
@@ -1863,7 +1863,7 @@
       "title": "Ensaio de invasão",
       "series": 3,
       "app_key": "invasion",
-      "section": "Toxoplasma assays",
+      "section": "Ensaios de Toxoplasma",
       "description": "Use uma coloração externa e outra total para distinguir parasitas aderidos de parasitas invadidos.",
       "objectives": [
         "Mapear corretamente os canais das colorações.",
@@ -1937,7 +1937,7 @@
       "title": "Ensaio de replicação",
       "series": 3,
       "app_key": "replication",
-      "section": "Toxoplasma assays",
+      "section": "Ensaios de Toxoplasma",
       "description": "Atribua parasitas a vacúolos e resuma a replicação intracelular por condição.",
       "objectives": [
         "Configurar a atribuição dos vacúolos.",
@@ -2011,7 +2011,7 @@
       "title": "Execuções de treinamento",
       "series": 4,
       "app_key": "train_compare",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Compare execuções de treinamento sobrepondo curvas e examinando diferenças entre configurações.",
       "objectives": [
         "Carregar e validar execuções comparáveis.",
@@ -2086,7 +2086,7 @@
       "title": "Relatório",
       "series": 4,
       "app_key": "report",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Crie um resumo compartilhável em HTML ou PDF com controle de qualidade, figuras, estatísticas, configurações e versões.",
       "objectives": [
         "Selecionar as evidências relevantes para o relatório.",
@@ -2153,7 +2153,7 @@
       "title": "Fila de placas",
       "series": 4,
       "app_key": "queue",
-      "section": "Data and batch runs",
+      "section": "Dados e execuções em lote",
       "description": "Execute várias placas pelo mesmo pipeline validado, com estado visível e possibilidade de retomada.",
       "objectives": [
         "Construir e revisar uma fila com várias placas.",
@@ -2220,7 +2220,7 @@
       "title": "Máscaras externas",
       "series": 4,
       "app_key": "external_masks",
-      "section": "Data and batch runs",
+      "section": "Dados e execuções em lote",
       "description": "Importe imagens e máscaras de rótulos de terceiros como um projeto do spaCR medido e rastreável.",
       "objectives": [
         "Mapear corretamente as entradas externas.",
@@ -2295,7 +2295,7 @@
       "title": "Alinhar e unir",
       "series": 4,
       "app_key": "align",
-      "section": "Data and batch runs",
+      "section": "Dados e execuções em lote",
       "description": "Registre blocos de imagens e grave um mosaico unido usando uma quantidade limitada de memória.",
       "objectives": [
         "Descrever a disposição dos blocos.",
@@ -2369,7 +2369,7 @@
       "title": "Visualizador de placas",
       "series": 4,
       "app_key": "plate_view",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Explore medições como mapas de calor de placas e detecte artefatos espaciais ou efeitos de borda.",
       "objectives": [
         "Construir um mapa de calor de placa adequado.",
@@ -2444,7 +2444,7 @@
       "title": "Navegador de banco de dados",
       "series": 4,
       "app_key": "db_browser",
-      "section": "Data",
+      "section": "Dados",
       "description": "Explore, filtre e exporte bancos de dados de medições do spaCR sem usar a linha de comando.",
       "objectives": [
         "Abrir e percorrer um banco de dados com segurança.",
@@ -2518,7 +2518,7 @@
       "title": "Conversor de formatos",
       "series": 4,
       "app_key": "convert",
-      "section": "Data",
+      "section": "Dados",
       "description": "Converta formatos de microscopia em arquivos TIFF com nomenclatura compatível com o spaCR e um mapa de proveniência revisado.",
       "objectives": [
         "Configurar um mapeamento que explicite perdas.",
@@ -2593,7 +2593,7 @@
       "title": "Importar projeto",
       "series": 5,
       "app_key": "foreign",
-      "section": "Data",
+      "section": "Dados",
       "description": "Mapeie imagens, máscaras e medições de outro laboratório em um projeto rastreável do spaCR.",
       "objectives": [
         "Mapear explicitamente os dados externos.",
@@ -2667,7 +2667,7 @@
       "title": "Executor em lote",
       "series": 5,
       "app_key": "batch",
-      "section": "Data and batch runs",
+      "section": "Dados e execuções em lote",
       "description": "Valide, preserve e execute uma fila ordenada de trabalhos reais de módulos do spaCR, com dependências e logs separados.",
       "objectives": [
         "Adicionar trabalhos validados de módulo e configurações com rótulos, dependências e substituições de linha de comando.",
@@ -2777,7 +2777,7 @@
       "title": "Trabalhos distribuídos",
       "series": 5,
       "app_key": "distributed_jobs",
-      "section": "Data and batch runs",
+      "section": "Dados e execuções em lote",
       "description": "Envie e acompanhe trabalhos do spaCR em estações de trabalho via SSH, clusters Slurm ou comandos de nuvem e computação de alto desempenho.",
       "objectives": [
         "Compreender quando usar Distributed Jobs.",
@@ -2826,7 +2826,7 @@
       "series": 5,
       "app_key": "classifier_evaluation",
       "host_app_key": "classify_merged",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Audite previsões em dados reservados, validação cruzada aninhada, calibração, vazamento de dados e desempenho por placa.",
       "objectives": [
         "Compreender quando usar Classifier Evaluation.",
@@ -2874,7 +2874,7 @@
       "title": "Histórico de execuções",
       "series": 5,
       "app_key": "run_history",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Pesquise em um único local as configurações, os arquivos, os avisos, as falhas e o desempenho de todos os trabalhos.",
       "objectives": [
         "Compreender quando usar Run History.",
@@ -2922,7 +2922,7 @@
       "title": "Classificar",
       "series": 5,
       "app_key": "classify_merged",
-      "section": "Core",
+      "section": "Módulos principais",
       "description": "Selecione um fluxo de classificação para recortes de imagens ou características medidas e avalie-o sem distribuir objetos relacionados entre diferentes conjuntos.",
       "objectives": [
         "Compreender quando usar Classify.",
@@ -2971,7 +2971,7 @@
       "series": 5,
       "app_key": "curate",
       "host_app_key": "make_masks",
-      "section": "Core",
+      "section": "Módulos principais",
       "description": "Corrija manualmente máscaras de segmentação e trajetórias, preservando um registro auditável de todas as edições.",
       "objectives": [
         "Compreender quando usar Curate.",
@@ -3020,7 +3020,7 @@
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
-      "section": "Data",
+      "section": "Dados",
       "description": "Estime e valide a correção de campo plano antes da medição das características de intensidade.",
       "objectives": [
         "Compreender quando usar Illumination.",
@@ -3068,7 +3068,7 @@
       "title": "Gerenciador de dados",
       "series": 5,
       "app_key": "data_manager",
-      "section": "Data",
+      "section": "Dados",
       "description": "Examine o armazenamento dos projetos e recupere espaço ocupado por arquivos derivados sem alterar as aquisições originais.",
       "objectives": [
         "Compreender quando usar Data Manager.",
@@ -3116,7 +3116,7 @@
       "title": "Navegador de projetos",
       "series": 5,
       "app_key": "project_browser",
-      "section": "Data",
+      "section": "Dados",
       "description": "Localize projetos do spaCR e consulte em uma tabela a etapa, o tamanho, a execução mais recente e as saídas desatualizadas.",
       "objectives": [
         "Compreender quando usar Project Browser.",
@@ -3165,7 +3165,7 @@
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "Modelos de segmentação",
       "description": "Examine uma máscara no napari e devolva ao spaCR os rótulos corrigidos com proveniência.",
       "objectives": [
         "Compreender quando usar Napari Bridge.",
@@ -3214,7 +3214,7 @@
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Verifique profundidade de mapeamento, cobertura, colisões, efeitos posicionais e um limiar de abundância fundamentado em evidências.",
       "objectives": [
         "Compreender quando usar Barcode QC.",
@@ -3263,7 +3263,7 @@
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Classifique e examine os resultados positivos da triagem usando tamanho de efeito, incerteza, taxa de descobertas falsas e concordância entre guias.",
       "objectives": [
         "Compreender quando usar Hit List.",
@@ -3312,7 +3312,7 @@
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Redija textos rastreáveis de métodos e resultados a partir das execuções registradas, em vez de reconstruir as configurações de memória.",
       "objectives": [
         "Compreender quando usar Methods & Results.",
@@ -3360,7 +3360,7 @@
       "title": "Comparar execuções",
       "series": 5,
       "app_key": "run_compare",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Coloque duas execuções lado a lado para compreender alterações nas configurações, contagens, saídas e resultados positivos.",
       "objectives": [
         "Compreender quando usar Run Compare.",
@@ -3408,7 +3408,7 @@
       "title": "Cartas de controlo",
       "series": 5,
       "app_key": "control_chart",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Acompanhe os controles entre placas e detecte desvios em relação a uma linha de base especificada.",
       "objectives": [
         "Compreender quando usar Control Charts.",
@@ -3457,7 +3457,7 @@
       "title": "Grafo do pipeline",
       "series": 5,
       "app_key": "pipeline_graph",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Veja quais artefatos produziram cada resultado e quais saídas subsequentes estão desatualizadas ou ausentes.",
       "objectives": [
         "Compreender quando usar Pipeline Graph.",
@@ -3505,7 +3505,7 @@
       "title": "Analisador de previsões",
       "series": 5,
       "app_key": "profiler",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Varie uma entrada do modelo e observe como a previsão ajustada responde.",
       "objectives": [
         "Compreender quando usar Prediction Profiler.",
@@ -3554,7 +3554,7 @@
       "title": "Painel de QC",
       "series": 5,
       "app_key": "qc_dashboard",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Reúna verificações de segmentação, unidade, vazamento, efeito de placa e anotação em uma única área de revisão.",
       "objectives": [
         "Compreender quando usar QC Dashboard.",
@@ -3603,7 +3603,7 @@
       "series": 5,
       "app_key": "image_scatter",
       "host_app_key": "umap",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Represente medições em um gráfico e examine a imagem associada a qualquer ponto.",
       "objectives": [
         "Compreender quando usar Image Scatter.",
@@ -3651,7 +3651,7 @@
       "title": "Linhagem",
       "series": 5,
       "app_key": "lineage",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Examine relações de contenção, como as atribuições de células, núcleos, patógenos e organelas.",
       "objectives": [
         "Compreender quando usar Lineage.",
@@ -3700,7 +3700,7 @@
       "title": "Visualizador de camadas",
       "series": 5,
       "app_key": "layer_viewer",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Examine imagens, máscaras, pontos e regiões de interesse como camadas alinhadas.",
       "objectives": [
         "Compreender quando usar Layer Viewer.",
@@ -3749,7 +3749,7 @@
       "title": "Construtor de gráficos",
       "series": 5,
       "app_key": "graph_builder",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Construa gráficos exploratórios associando colunas da tabela a funções visuais.",
       "objectives": [
         "Compreender quando usar Graph Builder.",
@@ -3798,7 +3798,7 @@
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Grave medições do spaCR em um arquivo AnnData para uso no scanpy ou no scvi-tools.",
       "objectives": [
         "Compreender quando usar AnnData Export.",
@@ -3847,7 +3847,7 @@
       "series": 5,
       "app_key": "pca",
       "host_app_key": "umap",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Resuma medições correlacionadas por componentes principais e examine as características que mais contribuem para eles.",
       "objectives": [
         "Compreender quando usar PCA.",
@@ -3895,7 +3895,7 @@
       "title": "Tabular",
       "series": 5,
       "app_key": "tabulate",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Transforme medições em resumos agrupados, mantendo visível a contagem que contribui para cada valor.",
       "objectives": [
         "Compreender quando usar Tabulate.",
@@ -3944,7 +3944,7 @@
       "title": "Dicionário de características",
       "series": 5,
       "app_key": "feature_dict",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Descubra o significado de uma característica medida pesquisando pelo nome ou pelo conceito.",
       "objectives": [
         "Compreender quando usar Feature Dictionary.",
@@ -3992,7 +3992,7 @@
       "title": "Pequenos múltiplos",
       "series": 5,
       "app_key": "trellis",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Compare o mesmo gráfico entre grupos em uma grade com eixos compartilhados de forma transparente.",
       "objectives": [
         "Compreender quando usar Small Multiples.",
@@ -4041,7 +4041,7 @@
       "title": "Editor de gates",
       "series": 5,
       "app_key": "gate_editor",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Desenhe, examine, aninhe e reutilize portas populacionais em 2D, 3D ou em uma projeção de alta dimensionalidade.",
       "objectives": [
         "Desenhar e examinar uma porta populacional em 2D.",
@@ -4108,7 +4108,7 @@
       "title": "Explorador de características",
       "series": 5,
       "app_key": "feature_explorer",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Classifique características pela capacidade de separar as classes selecionadas e examine as evidências que fundamentam a classificação.",
       "objectives": [
         "Compreender quando usar Feature Explorer.",
@@ -4157,7 +4157,7 @@
       "title": "Valores atípicos",
       "series": 5,
       "app_key": "outliers",
-      "section": "Explore",
+      "section": "Explorar",
       "description": "Sinalize objetos ou poços incomuns por regras robustas, preservando todas as linhas.",
       "objectives": [
         "Compreender quando usar Outliers.",
@@ -4206,7 +4206,7 @@
       "title": "Desenho do experimento",
       "series": 5,
       "app_key": "experiment_design",
-      "section": "Design",
+      "section": "Planejamento",
       "description": "Planeje condições, controles e réplicas antes da aquisição.",
       "objectives": [
         "Compreender quando usar Experiment Design.",
@@ -4254,7 +4254,7 @@
       "title": "Potência / delineamento",
       "series": 5,
       "app_key": "power",
-      "section": "Design",
+      "section": "Planejamento",
       "description": "Estime o número de células e poços necessários para detectar um efeito sob premissas especificadas.",
       "objectives": [
         "Compreender quando usar Power / Design.",
@@ -4302,7 +4302,7 @@
       "title": "Dose–resposta",
       "series": 5,
       "app_key": "dose_response",
-      "section": "Design",
+      "section": "Planejamento",
       "description": "Ajuste curvas de dose-resposta, informe a incerteza e rejeite estimativas de EC50 sem suporte suficiente.",
       "objectives": [
         "Compreender quando usar Dose–Response.",
@@ -4350,7 +4350,7 @@
       "title": "Explicar modelo de VC",
       "series": 5,
       "app_key": "explain_cv",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Reproduza previsões de visão computacional a partir de características medidas e verifique se as explicações resultantes são fiéis e livres de vazamento de informações.",
       "objectives": [
         "Entenda quando utilizar Explain CV Model.",
@@ -4399,7 +4399,7 @@
       "title": "Investigar acerto",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Este tutorial ainda não está disponível. Enquanto isso, explore os outros tutoriais.",
       "objectives": [],
       "prerequisite": "",
@@ -4415,7 +4415,7 @@
       "title": "Explorador de vulcão",
       "series": 5,
       "app_key": "volcano_explorer",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Abra uma regressão concluída, examine cada ponto, altere o estilo do gráfico e exporte uma figura vetorial em tamanho de publicação sem repetir a análise.",
       "objectives": [
         "Compreender quando utilizar Volcano Explorer.",
@@ -4464,7 +4464,7 @@
       "title": "Varredura de parâmetros",
       "series": 5,
       "app_key": "parameter_sweep",
-      "section": "Results and quality control",
+      "section": "Resultados e controle de qualidade",
       "description": "Execute uma exploração limitada das configurações de regressão e compare quais conclusões permanecem diante de escolhas de análise defensáveis.",
       "objectives": [
         "Entenda quando utilizar Parameter Sweep.",
@@ -4721,7 +4721,7 @@
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
-      "section": "Segmentation models",
+      "section": "Modelos de segmentação",
       "status": "coming_soon",
       "availability_title": "Em breve",
       "description": "Este tutorial ainda não está disponível. Enquanto isso, explore os outros tutoriais.",
@@ -4736,7 +4736,7 @@
       "title": "Embeddings",
       "series": 2,
       "app_key": "embeddings",
-      "section": "Data",
+      "section": "Dados",
       "status": "coming_soon",
       "availability_title": "Em breve",
       "description": "Este tutorial ainda não está disponível. Enquanto isso, explore os outros tutoriais.",

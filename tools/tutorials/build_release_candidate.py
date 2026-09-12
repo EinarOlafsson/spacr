@@ -61,12 +61,27 @@ def write_catalogs(stage, web, *, model_promotions=()):
         for lesson in catalog['lessons']:
             # Historical held translations predate app_key metadata. Routing
             # is language-independent; do not copy their old omissions.
+            #
+            # `section` IS NOT ROUTING. It is the heading a reader sees above
+            # the lesson, so overwriting it with the English one replaced
+            # every translated section label with English -- Spanish lost
+            # "Modulos principales" and "Datos" and got "Core" and "Data",
+            # and so did the other six translated locales. It sat in this
+            # list because it looks like the metadata beside it; what it
+            # actually is, is display text.
+            #
+            # Still filled in FROM English when the locale has none of its
+            # own, because a new lesson reaches a locale before its
+            # translation does and a missing heading is worse than an
+            # untranslated one. A locale that HAS a heading keeps it.
             canonical = english_by_id[lesson['id']]
-            for field in ('number', 'app_key', 'host_app_key', 'series', 'section', 'slug'):
+            for field in ('number', 'app_key', 'host_app_key', 'series', 'slug'):
                 if field in canonical:
                     lesson[field] = canonical[field]
                 else:
                     lesson.pop(field, None)
+            if not lesson.get('section') and 'section' in canonical:
+                lesson['section'] = canonical['section']
             route = nav['routes'].get(lesson['id'], {})
             if route.get('kind') == 'submodule':
                 lesson['host_app_key'] = route['host_app_key']

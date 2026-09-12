@@ -373,7 +373,7 @@
       "title": "マスク生成",
       "series": 1,
       "app_key": "mask",
-      "section": "Core",
+      "section": "主要モジュール",
       "description": "パーツを構成し,ライブプレビューで検証し,下流測定のためのマスクを作成します.",
       "objectives": [
         "ソースメタデータとチャンネルマッピングを確認する",
@@ -495,7 +495,7 @@
       "title": "測定",
       "series": 1,
       "app_key": "measure",
-      "section": "Core",
+      "section": "主要モジュール",
       "description": "画像とマスクからオブジェクト単位の特徴量を抽出し、生成されたクロップギャラリーとデータベース出力を確認します。",
       "objectives": [
         "画像チャネルとマスク平面の対応付けを確認する。",
@@ -583,7 +583,7 @@
       "title": "アノテーション",
       "series": 1,
       "app_key": "annotate",
-      "section": "Core",
+      "section": "主要モジュール",
       "description": "オブジェクトクロップを確認して一貫したラベルを付与し、カバレッジを監査して、保存済みラベルを分類器へ渡します。",
       "objectives": [
         "一貫したクロップ表示とアノテーション列を設定する。",
@@ -672,7 +672,7 @@
       "series": 1,
       "app_key": "classify",
       "host_app_key": "classify_merged",
-      "section": "Core",
+      "section": "主要モジュール",
       "description": "アノテーション済みオブジェクトクロップから画像分類器を学習して評価し、グループ化検証と任意のハイパーパラメーター検索を行います。",
       "objectives": [
         "保存済みラベルとオブジェクトクロップを、情報漏洩を防ぐデータセットに対応付ける。",
@@ -775,7 +775,7 @@
       "series": 1,
       "app_key": "ml_analyze",
       "host_app_key": "classify_merged",
-      "section": "Core",
+      "section": "主要モジュール",
       "description": "測定済みオブジェクトから特徴量ベースの分類器を学習して評価し、プレートを考慮した補正と任意のハイパーパラメーター検索を行います。",
       "objectives": [
         "有効な測定特徴量とプレートを考慮したラベルを準備する。",
@@ -870,7 +870,7 @@
       "title": "バーコードマッピング",
       "series": 1,
       "app_key": "map_barcodes",
-      "section": "Core",
+      "section": "主要モジュール",
       "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
       "objectives": [],
       "prerequisite": "",
@@ -885,7 +885,7 @@
       "title": "回帰分析",
       "series": 1,
       "app_key": "regression",
-      "section": "Core",
+      "section": "主要モジュール",
       "description": "プール型スクリーニングのガイド量と測定済み表現型を、ブロック化置換検定または同時回帰で関連付け、支持度、診断結果、効果推定値を確認します。",
       "objectives": [
         "表現型、ガイドカウント、対照情報を正しく対応付ける。",
@@ -980,7 +980,7 @@
       "title": "マスク作成",
       "series": 1,
       "app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "セグメンテーションモデル",
       "description": "品質管理または Cellpose 学習用の画像とマスクの組を作成するため、分割ラベルを対話的に作成して修正します。",
       "objectives": [
         "マスクの誤りに応じた編集ツールを選択する。",
@@ -1068,7 +1068,7 @@
       "title": "画像UMAP",
       "series": 1,
       "app_key": "umap",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "2次元で測定された物体を埋め込み 顕微鏡の実クロップを用いてフェノタイプ近所を検査します",
       "objectives": [
         "生物学的的に関連性のある特徴と排除を選択する.",
@@ -1164,7 +1164,7 @@
       "series": 1,
       "app_key": "activation",
       "host_app_key": "classify_merged",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "学習済み画像分類器の予測に影響する画像領域を確認し、その説明が信頼できるか検証します。",
       "objectives": [
         "アトリビューション実行を学習済みモデルと入力に一致させる。",
@@ -1253,7 +1253,7 @@
       "series": 2,
       "app_key": "timelapse",
       "host_app_key": "mask",
-      "section": "Core",
+      "section": "主要モジュール",
       "description": "時系列画像を分割し、選択したオブジェクトを軌跡として連結して、生成された動画と軌跡を検証します。",
       "objectives": [
         "取得軸を正しく対応付け、代表的なフレームを一貫して分割する。",
@@ -1356,7 +1356,7 @@
       "series": 2,
       "app_key": "motility",
       "host_app_key": "measure",
-      "section": "Core",
+      "section": "主要モジュール",
       "description": "追跡済み画像から較正された運動を測定し、感染状態または実験グループ別に軌跡を比較します。",
       "objectives": [
         "追跡オブジェクトと較正情報を正しく対応付ける。",
@@ -1445,7 +1445,7 @@
       "series": 2,
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "セグメンテーションモデル",
       "description": "確認済みの画像とインスタンスマスクの組を使用し、Cellpose または CPSAM と互換性のあるモデルを微調整します。",
       "objectives": [
         "対応する学習データを検証し、妥当な開始チェックポイントを選択する。",
@@ -1527,7 +1527,7 @@
       "series": 2,
       "app_key": "cellpose_masks",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "セグメンテーションモデル",
       "description": "同梱モデルまたはカスタム Cellpose モデルを適用し、マスクとフローフィールドを確認して、視野ごとにインスタンスラベルマスクを保存します。",
       "objectives": [
         "画像、チャネル、オブジェクト尺度、チェックポイントを一致させる。",
@@ -1609,7 +1609,7 @@
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "セグメンテーションモデル",
       "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
       "objectives": [],
       "prerequisite": "",
@@ -1625,7 +1625,7 @@
       "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "セグメンテーションモデル",
       "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
       "objectives": [],
       "prerequisite": "",
@@ -1641,7 +1641,7 @@
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "アノテーション列間の一致度を測定し、不一致の原因となったオブジェクトを確認します。",
       "objectives": [
         "公平にラベルを比較できるよう設定する。",
@@ -1715,7 +1715,7 @@
       "title": "プラークアッセイ",
       "series": 3,
       "app_key": "analyze_plaques",
-      "section": "Toxoplasma assays",
+      "section": "トキソプラズマアッセイ",
       "description": "プラークマスクをセグメンテーションまたは再利用し、妥当性を確認して、条件別にプラーク形成を要約します。",
       "objectives": [
         "新規セグメンテーションと既存マスクの再利用から適切な方法を選ぶ。",
@@ -1789,7 +1789,7 @@
       "title": "リクルートメント",
       "series": 3,
       "app_key": "recruitment",
-      "section": "Toxoplasma assays",
+      "section": "トキソプラズマアッセイ",
       "description": "宿主細胞の背景に対する、寄生虫関連領域へのマーカー濃縮を定量します。",
       "objectives": [
         "チャネルとマスクを正しく対応付ける。",
@@ -1863,7 +1863,7 @@
       "title": "侵入アッセイ",
       "series": 3,
       "app_key": "invasion",
-      "section": "Toxoplasma assays",
+      "section": "トキソプラズマアッセイ",
       "description": "細胞外染色と総寄生虫染色を用いて、付着した寄生虫と侵入した寄生虫を判別します。",
       "objectives": [
         "染色チャネルを正しく対応付ける。",
@@ -1937,7 +1937,7 @@
       "title": "複製アッセイ",
       "series": 3,
       "app_key": "replication",
-      "section": "Toxoplasma assays",
+      "section": "トキソプラズマアッセイ",
       "description": "寄生虫を液胞に割り当て、条件別に細胞内増殖を要約します。",
       "objectives": [
         "寄生虫の液胞への割り当てを設定する。",
@@ -2011,7 +2011,7 @@
       "title": "学習履歴",
       "series": 4,
       "app_key": "train_compare",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "曲線の重ね合わせと設定差分により、モデル学習の実行結果を比較します。",
       "objectives": [
         "比較可能な実行結果を読み込み、妥当性を確認する。",
@@ -2086,7 +2086,7 @@
       "title": "レポート",
       "series": 4,
       "app_key": "report",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "品質管理、図、統計、設定、バージョンをまとめた共有可能な HTML または PDF レポートを作成します。",
       "objectives": [
         "レポートに適したエビデンスを選択する。",
@@ -2153,7 +2153,7 @@
       "title": "プレートキュー",
       "series": 4,
       "app_key": "queue",
-      "section": "Data and batch runs",
+      "section": "データとバッチ実行",
       "description": "検証済みの同一パイプラインで複数プレートを処理し、再開可能な状態を明示します。",
       "objectives": [
         "複数プレートのキューを構築して確認する。",
@@ -2220,7 +2220,7 @@
       "title": "外部マスク",
       "series": 4,
       "app_key": "external_masks",
-      "section": "Data and batch runs",
+      "section": "データとバッチ実行",
       "description": "外部で作成した画像とラベルマスクを、測定済みで追跡可能な spaCR プロジェクトとしてインポートします。",
       "objectives": [
         "外部入力を正しく対応付ける。",
@@ -2295,7 +2295,7 @@
       "title": "位置合わせとスティッチ",
       "series": 4,
       "app_key": "align",
-      "section": "Data and batch runs",
+      "section": "データとバッチ実行",
       "description": "画像タイルを位置合わせし、メモリ使用量を制限しながら結合モザイクを書き出します。",
       "objectives": [
         "タイル配置を定義する。",
@@ -2369,7 +2369,7 @@
       "title": "プレートビューア",
       "series": 4,
       "app_key": "plate_view",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "測定値をプレートヒートマップとして表示し、空間的アーティファクトやエッジ効果を検出します。",
       "objectives": [
         "目的に適したプレートヒートマップを作成する。",
@@ -2444,7 +2444,7 @@
       "title": "データベースブラウザー",
       "series": 4,
       "app_key": "db_browser",
-      "section": "Data",
+      "section": "データ",
       "description": "コマンドラインを使わずに spaCR の測定データベースを閲覧、絞り込み、エクスポートします。",
       "objectives": [
         "データベースを安全に開き、ページ単位で閲覧する。",
@@ -2518,7 +2518,7 @@
       "title": "形式変換",
       "series": 4,
       "app_key": "convert",
-      "section": "Data",
+      "section": "データ",
       "description": "顕微鏡画像形式を、確認可能な来歴対応表を備えた spaCR 互換の TIFF 名に変換します。",
       "objectives": [
         "情報損失を考慮した対応付けを設定する。",
@@ -2593,7 +2593,7 @@
       "title": "プロジェクトのインポート",
       "series": 5,
       "app_key": "foreign",
-      "section": "Data",
+      "section": "データ",
       "description": "別の研究室で作成された画像、マスク、測定値を、追跡可能な spaCR プロジェクトに対応付けます。",
       "objectives": [
         "外部データを明示的に対応付ける。",
@@ -2667,7 +2667,7 @@
       "title": "バッチ実行",
       "series": 5,
       "app_key": "batch",
-      "section": "Data and batch runs",
+      "section": "データとバッチ実行",
       "description": "依存関係と個別ログを持つ実際の spaCR モジュールジョブを順序付きキューとして検証、保存、実行します。",
       "objectives": [
         "ラベル、依存関係、コマンドライン上書きを指定して、検証済みのモジュールと設定のジョブを追加する。",
@@ -2777,7 +2777,7 @@
       "title": "分散ジョブ",
       "series": 5,
       "app_key": "distributed_jobs",
-      "section": "Data and batch runs",
+      "section": "データとバッチ実行",
       "description": "SSH ワークステーション、Slurm クラスター、クラウドまたは HPC コマンドで spaCR ジョブを投入し、監視します。",
       "objectives": [
         "Distributed Jobs を使用する場面を理解する。",
@@ -2826,7 +2826,7 @@
       "series": 5,
       "app_key": "classifier_evaluation",
       "host_app_key": "classify_merged",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "ホールドアウト予測、ネスト交差検証、較正、データ漏洩、プレート別性能を監査します。",
       "objectives": [
         "Classifier Evaluation を使用する場面を理解する。",
@@ -2874,7 +2874,7 @@
       "title": "実行履歴",
       "series": 5,
       "app_key": "run_history",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "すべてのジョブの設定、ファイル、警告、失敗、性能を一か所から検索します。",
       "objectives": [
         "Run History を使用する場面を理解する。",
@@ -2922,7 +2922,7 @@
       "title": "分類",
       "series": 5,
       "app_key": "classify_merged",
-      "section": "Core",
+      "section": "主要モジュール",
       "description": "画像クロップまたは測定特徴量に適した分類ワークフローを選び、関連オブジェクトがデータ分割間で漏洩しないよう評価します。",
       "objectives": [
         "Classify を使用する場面を理解する。",
@@ -2971,7 +2971,7 @@
       "series": 5,
       "app_key": "curate",
       "host_app_key": "make_masks",
-      "section": "Core",
+      "section": "主要モジュール",
       "description": "分割マスクと軌跡を手作業で修正し、すべての編集について監査可能な記録を保持します。",
       "objectives": [
         "Curate を使用する場面を理解する。",
@@ -3020,7 +3020,7 @@
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
-      "section": "Data",
+      "section": "データ",
       "description": "輝度特徴量を測定する前に、フラットフィールド補正を推定して検証します。",
       "objectives": [
         "Illumination を使用する場面を理解する。",
@@ -3068,7 +3068,7 @@
       "title": "データ管理",
       "series": 5,
       "app_key": "data_manager",
-      "section": "Data",
+      "section": "データ",
       "description": "元の取得データに触れずにプロジェクトの保存領域を確認し、派生ファイルを整理します。",
       "objectives": [
         "Data Manager を使用する場面を理解する。",
@@ -3116,7 +3116,7 @@
       "title": "プロジェクトブラウザー",
       "series": 5,
       "app_key": "project_browser",
-      "section": "Data",
+      "section": "データ",
       "description": "spaCR プロジェクトを検索し、段階、サイズ、最新実行、古くなった出力を 1 つのテーブルで確認します。",
       "objectives": [
         "Project Browser を使用する場面を理解する。",
@@ -3165,7 +3165,7 @@
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "セグメンテーションモデル",
       "description": "napari でマスクを確認し、修正済みラベルを来歴情報とともに spaCR へ戻します。",
       "objectives": [
         "Napari Bridge を使用する場面を理解する。",
@@ -3214,7 +3214,7 @@
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "マッピング深度、カバレッジ、衝突、位置効果、エビデンスに基づく存在量しきい値を確認します。",
       "objectives": [
         "Barcode QC を使用する場面を理解する。",
@@ -3263,7 +3263,7 @@
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "効果量、不確実性、偽発見率、ガイド RNA の一致度を使用してスクリーニングヒットを順位付けし、確認します。",
       "objectives": [
         "Hit List を使用する場面を理解する。",
@@ -3312,7 +3312,7 @@
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "設定を記憶から再構築せず、記録済み実行から追跡可能な Methods と Results の文章を作成します。",
       "objectives": [
         "Methods & Results を使用する場面を理解する。",
@@ -3360,7 +3360,7 @@
       "title": "実行比較",
       "series": 5,
       "app_key": "run_compare",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "2 つの実行を並べ、設定、カウント、出力、ヒットの変化を確認します。",
       "objectives": [
         "Run Compare を使用する場面を理解する。",
@@ -3408,7 +3408,7 @@
       "title": "管理図",
       "series": 5,
       "app_key": "control_chart",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "プレート間で対照を追跡し、明示したベースラインに対するドリフトを検出します。",
       "objectives": [
         "Control Charts を使用する場面を理解する。",
@@ -3457,7 +3457,7 @@
       "title": "パイプライングラフ",
       "series": 5,
       "app_key": "pipeline_graph",
-      "section": "Explore",
+      "section": "探索",
       "description": "各結果を生成したアーティファクトと、古くなった、または欠けている下流出力を確認します。",
       "objectives": [
         "Pipeline Graph を使用する場面を理解する。",
@@ -3505,7 +3505,7 @@
       "title": "予測プロファイラー",
       "series": 5,
       "app_key": "profiler",
-      "section": "Explore",
+      "section": "探索",
       "description": "モデル入力を 1 つ変化させ、適合済み予測がどのように応答するかを観察します。",
       "objectives": [
         "Prediction Profiler を使用する場面を理解する。",
@@ -3554,7 +3554,7 @@
       "title": "QCダッシュボード",
       "series": 5,
       "app_key": "qc_dashboard",
-      "section": "Explore",
+      "section": "探索",
       "description": "分割、単位、情報漏洩、プレート効果、アノテーションの検査を 1 つの確認画面にまとめます。",
       "objectives": [
         "QC Dashboard を使用する場面を理解する。",
@@ -3603,7 +3603,7 @@
       "series": 5,
       "app_key": "image_scatter",
       "host_app_key": "umap",
-      "section": "Explore",
+      "section": "探索",
       "description": "測定値をプロットし、任意の点に対応する画像を確認します。",
       "objectives": [
         "Image Scatter を使用する場面を理解する。",
@@ -3651,7 +3651,7 @@
       "title": "系譜",
       "series": 5,
       "app_key": "lineage",
-      "section": "Explore",
+      "section": "探索",
       "description": "細胞、核、病原体、オルガネラの割り当てなど、包含関係を確認します。",
       "objectives": [
         "Lineage を使用する場面を理解する。",
@@ -3700,7 +3700,7 @@
       "title": "レイヤービューア",
       "series": 5,
       "app_key": "layer_viewer",
-      "section": "Explore",
+      "section": "探索",
       "description": "画像、マスク、点、関心領域を位置合わせ済みレイヤーとして確認します。",
       "objectives": [
         "Layer Viewer を使用する場面を理解する。",
@@ -3749,7 +3749,7 @@
       "title": "グラフ作成",
       "series": 5,
       "app_key": "graph_builder",
-      "section": "Explore",
+      "section": "探索",
       "description": "テーブル列に視覚的な役割を割り当てて、探索的なチャートを作成します。",
       "objectives": [
         "Graph Builder を使用する場面を理解する。",
@@ -3798,7 +3798,7 @@
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
-      "section": "Explore",
+      "section": "探索",
       "description": "spaCR の測定値を scanpy または scvi-tools 用の AnnData ファイルへ書き出します。",
       "objectives": [
         "AnnData Export を使用する場面を理解する。",
@@ -3847,7 +3847,7 @@
       "series": 5,
       "app_key": "pca",
       "host_app_key": "umap",
-      "section": "Explore",
+      "section": "探索",
       "description": "相関する測定値を主成分で要約し、それらを規定する特徴量を確認します。",
       "objectives": [
         "PCA を使用する場面を理解する。",
@@ -3895,7 +3895,7 @@
       "title": "集計",
       "series": 5,
       "app_key": "tabulate",
-      "section": "Explore",
+      "section": "探索",
       "description": "寄与するデータ数を表示したまま、測定値をグループ別の要約へピボットします。",
       "objectives": [
         "Tabulate を使用する場面を理解する。",
@@ -3944,7 +3944,7 @@
       "title": "特徴量辞書",
       "series": 5,
       "app_key": "feature_dict",
-      "section": "Explore",
+      "section": "探索",
       "description": "測定特徴量の意味を、名前または概念から調べます。",
       "objectives": [
         "Feature Dictionary を使用する場面を理解する。",
@@ -3992,7 +3992,7 @@
       "title": "スモールマルチプル",
       "series": 5,
       "app_key": "trellis",
-      "section": "Explore",
+      "section": "探索",
       "description": "データを正しく反映した共有軸のグリッドで、同じチャートをグループ間で比較します。",
       "objectives": [
         "Small Multiples を使用する場面を理解する。",
@@ -4041,7 +4041,7 @@
       "title": "ゲートエディター",
       "series": 5,
       "app_key": "gate_editor",
-      "section": "Explore",
+      "section": "探索",
       "description": "2D, 3D,または低次元高次元ビューで集団ゲートを描き,検査し,巣を作ったり再利用する.",
       "objectives": [
         "2Dで集団ゲートを描いて検査する",
@@ -4108,7 +4108,7 @@
       "title": "特徴量エクスプローラー",
       "series": 5,
       "app_key": "feature_explorer",
-      "section": "Explore",
+      "section": "探索",
       "description": "選択したクラスを分離する能力によって特徴量を順位付けし、その根拠を確認します。",
       "objectives": [
         "Feature Explorer を使用する場面を理解する。",
@@ -4157,7 +4157,7 @@
       "title": "外れ値",
       "series": 5,
       "app_key": "outliers",
-      "section": "Explore",
+      "section": "探索",
       "description": "すべての行を保持したまま、ロバストな規則で異常なオブジェクトまたはウェルを示します。",
       "objectives": [
         "Outliers を使用する場面を理解する。",
@@ -4206,7 +4206,7 @@
       "title": "実験計画",
       "series": 5,
       "app_key": "experiment_design",
-      "section": "Design",
+      "section": "設計",
       "description": "取得前に実験条件、対照、反復を配置します。",
       "objectives": [
         "Experiment Design を使用する場面を理解する。",
@@ -4254,7 +4254,7 @@
       "title": "検出力 / 設計",
       "series": 5,
       "app_key": "power",
-      "section": "Design",
+      "section": "設計",
       "description": "明示した仮定のもとで、効果の検出に必要な細胞数とウェル数を推定します。",
       "objectives": [
         "Power / Design を使用する場面を理解する。",
@@ -4302,7 +4302,7 @@
       "title": "用量反応",
       "series": 5,
       "app_key": "dose_response",
-      "section": "Design",
+      "section": "設計",
       "description": "不確実性を報告し、データで支持されない EC50 推定を採用せずに、用量反応曲線を適合します。",
       "objectives": [
         "Dose–Response を使用する場面を理解する。",
@@ -4350,7 +4350,7 @@
       "title": "CVモデルの説明",
       "series": 5,
       "app_key": "explain_cv",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "測定済みの特徴量からコンピュータービジョンの予測を再現し、得られた説明が忠実で情報漏えいのないものか検証します。",
       "objectives": [
         "Explain CV Modelを使用する時期を理解する.",
@@ -4399,7 +4399,7 @@
       "title": "ヒットの検証",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
       "objectives": [],
       "prerequisite": "",
@@ -4415,7 +4415,7 @@
       "title": "ボルケーノプロット探索",
       "series": 5,
       "app_key": "volcano_explorer",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "完了した回帰結果を開き、各点を詳しく調べ、グラフの外観を調整し、解析を再実行せずに出版用サイズのベクター図を出力します。",
       "objectives": [
         "Volcano Explorer を何時使用するかを理解してください.",
@@ -4464,7 +4464,7 @@
       "title": "パラメータ探索",
       "series": 5,
       "app_key": "parameter_sweep",
-      "section": "Results and quality control",
+      "section": "結果と品質管理",
       "description": "回帰設定を限定的に探索し、妥当な解析条件を変えても維持される結論を比較します。",
       "objectives": [
         "Parameter Sweep を何時使用するかを理解してください.",
@@ -4721,7 +4721,7 @@
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
-      "section": "Segmentation models",
+      "section": "セグメンテーションモデル",
       "status": "coming_soon",
       "availability_title": "近日公開",
       "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
@@ -4736,7 +4736,7 @@
       "title": "Embeddings",
       "series": 2,
       "app_key": "embeddings",
-      "section": "Data",
+      "section": "データ",
       "status": "coming_soon",
       "availability_title": "近日公開",
       "description": "このチュートリアルはまだ公開されていません。ほかのチュートリアルをご覧ください。",
