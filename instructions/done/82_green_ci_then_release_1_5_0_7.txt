@@ -315,3 +315,39 @@ UNTIL THEN, the release sequence has four steps and not three:
 bump -> merge to main -> wait for Zenodo -> write the version DOI into
 CITATION.cff (top-level `doi:` and the identifier's `value`, with its
 `description` naming the release).
+
+================================================================================
+DONE 2026-09-12 -- 1.5.0.7 IS OUT, AND STEP 1 WAS ALREADY 288'S
+================================================================================
+
+THE RELEASE IS COMPLETE AND VERIFIED, not merely dispatched:
+
+    PyPI                 1.5.0.7, wheel and sdist, verify job green
+    tag                  v1.5.0.7
+    GitHub release       "spaCR 1.5.0.7", marked Latest
+    installers           Windows, Linux and macOS universal, all three built
+    Zenodo               10.5281/zenodo.22726094, minted 2026-09-12
+    CITATION.cff         carries that DOI, and the concept DOI is unchanged
+    release_notes.json   rebundled, 10 releases, newest first
+
+WHAT ACTUALLY BLOCKED IT WAS A DEADLOCK, AND THIS FILE HELPED CAUSE IT. Two
+packaging checks asserted that the version being released was ALREADY on PyPI
+and already tagged. They ran in the job that BUILDS the artefact, so the
+release could never produce what they demanded, and the build failed every
+time. It was described three times -- in this file, in the bump commit and to
+the maintainer -- as a "post-release window", which is the wrong word: a
+window closes, a deadlock does not. `_release_exists()` now asks git whether
+`v<version>` is tagged and the checks stand down for a version that has not
+shipped yet.
+
+STEP 1 IS NOT CLAIMED HERE. "Every GitHub test green" was already reassigned
+to 288 by this file's own status block, and that is where it stays. What can
+be said is that the release lane is no longer part of it: the three ratchets
+that went red with 377's `border_rules_agree` are fixed, and the remaining
+failures are six groups with no connection to packaging.
+
+NOTHING WAS DONE AFTER THE RELEASE THAT THE TITLE FORBIDS. The DOI and the
+bundled notes are both post-release BOOKKEEPING that only exists once the
+release does -- Zenodo cannot mint a DOI for a release that has not been
+published, and the notes cannot bundle a release that is not there. Neither
+changes what shipped.
