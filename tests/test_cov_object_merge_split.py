@@ -45,6 +45,43 @@ def _intensity_plane(values, shape=(64, 64)):
     return img
 
 
+
+# ---------------------------------------------------------------------------
+# touching pair, for the intensity path
+# ---------------------------------------------------------------------------
+#
+# 391 REMOVED THE ONLY INTENSITY *FILTER*. The percentile band these tests used
+# to trigger with is gone, and the merge is now the only thing that reads the
+# intensity image at all -- so exercising the 4-D channel-last layout needs
+# objects that actually share a boundary. The three `_BOXES` are disjoint by
+# design (so the border filter can never be the reason one vanishes), which
+# makes them useless for a merge.
+
+_TOUCH = {1: (slice(20, 40), slice(10, 31)), 2: (slice(20, 40), slice(31, 52))}
+_TOUCH_PROBES = {1: (30, 15), 2: (30, 47)}
+
+
+def _touching_object_count(out_mask):
+    """How many distinct labels survive, ignoring background."""
+    return len({int(v) for v in np.unique(out_mask) if v})
+
+
+def _two_touching_mask(shape=(64, 64)):
+    """Two labels sharing one vertical boundary at x=31."""
+    m = np.zeros(shape, dtype=np.int32)
+    for lbl, sl in _TOUCH.items():
+        m[sl] = lbl
+    return m
+
+
+def _seam_plane(seam, body=100.0, shape=(64, 64)):
+    """Flat intensity over both objects, with the shared seam set to ``seam``."""
+    img = np.zeros(shape, dtype=np.float32)
+    for sl in _TOUCH.values():
+        img[sl] = body
+    img[20:40, 29:34] = seam
+    return img
+
 def _surviving_labels(out_mask):
     """Original box ids (1/2/3) that still have a non-zero pixel at their probe."""
     return {lbl for lbl, (y, x) in _PROBES.items() if out_mask[y, x] != 0}
@@ -201,20 +238,41 @@ def test_merge_split_filter_masks_noop_returns_same_object_identity():
     assert out is masks
 
 
-def test_merge_split_filter_masks_max_intensity_percentile_alone_enables_work():
-    """``max_intensity_percentile < 100`` on its own must trip needs_work."""
+def test_merge_split_filter_masks_intensity_threshold_alone_enables_work():
+    """The absolute threshold on its own must trip needs_work.
+
+    This asserted `max_intensity_percentile < 100` did so. Instruction 391
+    removed that setting -- it dropped its share of objects however bright the
+    field -- and the absolute `<role>_intensity_threshold` took its place, so
+    the question survives and only the setting that answers it has changed.
+    """
     from spacr.object import merge_split_filter_masks
 
-    masks = _three_box_mask()
-    intensity = _intensity_plane({1: 10.0, 2: 50.0, 3: 90.0})
+    masks = _two_touching_mask()
+    intensity = _seam_plane(seam=900.0)          # bright seam -> they merge
 
     out = merge_split_filter_masks(
         masks, intensity,
-        {"cell_max_intensity_percentile": 50}, "cell",
+        {"cell_intensity_merge": True, "cell_intensity_threshold": 500.0},
+        "cell",
     )
     assert isinstance(out, list) and len(out) == 1
-    # Median threshold -> only the strictly brightest object exceeds it.
-    assert _surviving_labels(out[0]) == {1, 2}
+    assert _touching_object_count(out[0]) == 1, "a bright seam means one object"
+
+
+def test_merge_split_filter_masks_refuses_when_no_threshold_is_set():
+    """With the merge on and no threshold, nothing merges -- deliberately.
+
+    There is no safe default for a number in raw image units, so the merge
+    declines rather than guessing, and says what the boundaries were.
+    """
+    from spacr.object import merge_split_filter_masks
+
+    out = merge_split_filter_masks(
+        _two_touching_mask(), _seam_plane(seam=900.0),
+        {"cell_intensity_merge": True}, "cell",
+    )
+    assert _touching_object_count(out[0]) == 2, "it merged without being told at what"
 
 
 def test_merge_split_filter_masks_honours_misspelled_perimiter_key():

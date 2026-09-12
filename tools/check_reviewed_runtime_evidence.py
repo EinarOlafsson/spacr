@@ -122,6 +122,19 @@ def _languages(argv) -> list:
 def main(argv=None) -> int:
     """Print every loose reviewed runtime record; return 1 if there are any."""
     argv = list(sys.argv[1:] if argv is None else argv)
+
+    # A FLAG IS NOT A LOCALE. `--help` was taken as a directory name and
+    # reported as one malformed record, which is a confusing way to answer a
+    # request for help and an actively misleading one for a typo'd locale.
+    if any(a.startswith("-") for a in argv):
+        if set(argv) & {"-h", "--help"}:
+            print(__doc__)
+            return 0
+        print(f"unknown option(s): {[a for a in argv if a.startswith('-')]}\n",
+              file=sys.stderr)
+        print(__doc__, file=sys.stderr)
+        return 2
+
     import build_i18n_catalogs as runtime
 
     sources = runtime.canonical_sources()
@@ -241,6 +254,20 @@ def main(argv=None) -> int:
             print(f"{title} ({len(rows)}):")
             print("\n".join(rows))
             print()
+    # CHECKING NOTHING IS NOT PASSING, and this is the failure shape that
+    # survives longest: a guard that silently reports zero problems because it
+    # found zero records looks identical to a clean tree. It used to print
+    # "1 of 0 records need attention", which is not a sentence about anything.
+    if checked == 0:
+        print(f"NOTHING WAS CHECKED. {len(languages)} locale(s) requested "
+              f"({', '.join(languages) or 'none'}) and no reviewed record was "
+              f"read -- so this run says nothing about whether the evidence is "
+              f"stale. Check the locale names and that "
+              f"{REVIEWED_RUNTIME} is populated.", file=sys.stderr)
+        if malformed:
+            print("\n".join(malformed), file=sys.stderr)
+        return 2
+
     if not reported:
         print(f"every reviewed runtime record still matches its source "
               f"({checked} checked)")
