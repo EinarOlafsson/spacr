@@ -19,7 +19,7 @@ import pytest
 
 from spacr.setting_animations import setting_animations
 
-AUDIT = Path(__file__).resolve().parent.parent / "instructions" / "62_anim_audit.json"
+AUDIT = Path(__file__).resolve().parent.parent / "features" / "62_anim_audit.json"
 
 VERDICTS = ("GOOD", "WEAK")
 

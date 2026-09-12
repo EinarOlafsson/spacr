@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Promote ``nightly`` to ``main`` without publishing the working folders.
 
-``instructions/``, ``skill/``, ``proposals/`` and ``.claude/`` are how the
+``features/``, ``skill/``, ``proposals/`` and ``.claude/`` are how the
 work is driven, not the product. They stay tracked on ``nightly`` -- version
 control is the point of keeping them -- and they do not appear on the branch
 a visitor to GitHub lands on.
@@ -32,7 +32,7 @@ from typing import List, Optional, Sequence
 
 #: Tracked on ``nightly``, never on ``main``. Directory prefixes, matched
 #: against ``git ls-tree`` output, so a name here covers everything under it.
-WORKING_FOLDERS: Sequence[str] = ("instructions", "skill", "proposals", ".claude")
+WORKING_FOLDERS: Sequence[str] = ("features", "skill", "proposals", ".claude")
 
 DEFAULT_SOURCE = "nightly"
 DEFAULT_TARGET = "main"
@@ -206,7 +206,7 @@ def promote(
         "Drop the working folders from "
         + target
         + "\n\n"
-        + "instructions/, skill/, proposals/ and .claude/ are how the work "
+        + "features/, skill/, proposals/ and .claude/ are how the work "
           "is driven, not\nthe product. They stay tracked on "
         + source
         + " and on disk; the branch a\nvisitor lands on does not carry them."

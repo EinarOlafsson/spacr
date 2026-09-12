@@ -6,7 +6,7 @@ so, but because cv2 reads a 3-channel array as BGR and the writer handed it
 the array unchanged. When someone read the list the other way, every crop
 written for eleven days put the 405/DAPI plane in the red channel.
 
-The survey behind this file (instructions/done/20) classified every channel
+The survey behind this file (features/new/20) classified every channel
 setting spaCR has into three kinds:
 
 * a SET of source channels to process -- ``channels``, ``channel_dims``.
@@ -118,7 +118,7 @@ def test_the_channel_sets_are_still_plain_lists():
             assert list in allowed, (
                 f"{key} stopped being a list; if it became a colour mapping "
                 f"that is a decision to record in COLOUR_SETTINGS and in "
-                f"instructions/done/20, not a quiet type change")
+                f"features/new/20, not a quiet type change")
 
 
 def test_train_channels_names_colours_rather_than_positions():

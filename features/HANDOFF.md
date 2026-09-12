@@ -424,7 +424,7 @@ looked.
   maintainer's -- a release, a retirement, wording he must approve -- and not
   to reporting a measurement he did not ask a question about.
 
-* A feature goes into `instructions/open/NN_slug.txt` **before** it is coded,
+* A feature goes into `features/future/NN_slug.txt` **before** it is coded,
   quoting the request in a `Requested:` line. Merge overlapping asks into the
   first task; do not file duplicates.
 * Print the done/left table whenever an item is finished. Refined

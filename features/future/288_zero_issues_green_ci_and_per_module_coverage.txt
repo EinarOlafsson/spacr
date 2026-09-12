@@ -2,7 +2,11 @@
 ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 100% PER-MODULE COVERAGE
 ================================================================================
 
-Status:    OPEN, filed 2026-08-27. RELEASE-BLOCKING.
+NOT BLOCKING. Since 2026-09-12 spaCR keeps two lists -- what it has
+gained and what it might gain next -- and neither gates a release.
+The words below were written when a single instructions list did.
+
+Status:    OPEN, filed 2026-08-27. not blocking, see the note below.
 Owner:     the complete spaCR source tree, tests and GitHub workflows.
 Precedes:  the version, main-branch and history publication actions.
            (These were item 253's, deleted 2026-09-02 at the
@@ -2740,4 +2744,892 @@ writes straddled a granule. RUNNING THE SHARD RATHER THAN READING ITS
 REPORT is what found it -- a 40 % flake on one filesystem and a pass on
 another is invisible to both, and the difference between the machines is
 the thing the test is sensitive to.
+
+
+================================================================================
+MERGED IN FROM 352 ON 2026-09-12, AT THE MAINTAINER'S INSTRUCTION
+================================================================================
+
+352 asked for the same thing in softer words -- every module at the highest
+REASONABLE coverage, then green Actions -- and carrying two items for one
+goal meant two places to record the same measurement. Its text follows
+unedited so nothing it argued is lost.
+
+================================================================================
+EVERY MODULE AT THE HIGHEST REASONABLE COVERAGE, THEN GREEN GITHUB ACTIONS
+================================================================================
+
+Status:    not started, filed 2026-09-02. THE STANDING GOAL AFTER THE LIST.
+Requested: 2026-09-02, verbatim -- "When you are done with all the items on
+           your instructions list, work on gettings all modules to the highest
+           reasonable test coverage (not 100% jut everything that makeses sese
+           to test should have a test) , and after that make sure github tests
+           are clean."
+Owner:     unassigned; this is what to pick up when `open/` is otherwise empty.
+
+--------------------------------------------------------------------------------
+THIS IS A CHANGE OF TARGET FROM 288, AND THAT IS THE POINT
+--------------------------------------------------------------------------------
+
+288 asks for 100% per module. This asks for "the highest REASONABLE coverage
+-- not 100%, just everything that makes sense to test". Those are different
+goals and the second is the maintainer's current one.
+
+WHAT THE DIFFERENCE BUYS, in this repository's own measured experience:
+
+  * 288's own file records that chasing the last items produced FOUR TESTS
+    THAT PASSED WHILE EXERCISING NOTHING -- every one asserted an absence,
+    which is what a function returns when it did not run. Those raise a
+    number and find nothing.
+  * `deep_spacr`'s remaining six arcs need a model, a data loader and a real
+    epoch. That is an integration test worth having for its own sake and a
+    terrible way to buy six items.
+  * The 2026-08-31 audit wrongly recorded 307 sites as "unreachable by
+    construction". The correction is real and useful -- an `except ImportError`
+    arm is ALWAYS drivable -- but the effort went into re-deriving reachability
+    rather than into finding defects.
+
+AGAINST THAT: the coverage sweep is also what FOUND the defects in instruction
+310, ninety-seven of them, because code behind a pragma has by construction
+never run. So the sweep pays for itself in bugs, not in percentage.
+
+THE READING TO WORK TO: cover what a reader would call a behaviour. Stop at
+what only a line counter would call one.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Last complete measurement (batched11, 2026-08-31, now stale): 99.87% lines,
+355 items across 108 of 510 modules. `spacr/sequencing.py` reached 100.00% on
+current source on 2026-09-02 and its 9 items should come off that list.
+
+    25 ml.py    24 io.py    23 plot.py    19 timelapse.py
+    13 qt/preferences.py    10 qt/screens/app_screen.py
+     8 measure.py    8 guide_attribution.py    7 utils.py
+     7 regression_annotation.py    6 spacrops.py    6 hyperparam.py
+     6 qt/widgets/cell_montage_view.py    6 deep_spacr.py
+
+THE MEASUREMENT IS THE HARD PART, NOT THE TESTS. Every trap is recorded in
+288 and in 288_coverage_state: run BATCHED not under xdist, measure a FROZEN
+tree, clear `/tmp/pytest-of-olafsson` first, and check the statement and file
+counts against the previous run rather than believing the combine step's log
+line. And do it in the `spacr` conda env -- `spacr12` lacks pytest-cov and
+exits 4 per batch while the wrapper reports success.
+
+--------------------------------------------------------------------------------
+AND THEN: GREEN ACTIONS
+--------------------------------------------------------------------------------
+
+Second, and only after the above: `tests.yml`, `compat-matrix.yml` and
+`docs.yml` green on one pushed nightly SHA. That is 288's and 05's gate as
+well, so this item does not duplicate them -- it says which order the
+maintainer wants them in.
+
+TWO THINGS IN THE WAY THAT ARE ALREADY KNOWN, and neither is a coverage
+problem: 345 (three annotate tests) and 346 (twenty-one measure tests) both
+fail ONLY IN COMPANY. A suite that is red only when run whole cannot be made
+green by adding tests to it.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+* A fresh complete batched measurement, with its statement and file counts
+  matching the previous run, recorded with its date and commit.
+* Every module either at a coverage the reader agrees is reasonable, or named
+  here with the reason it stops short -- a decision not to test is a result
+  and is recorded like one.
+* No test added under this item asserts only an absence.
+* The three required workflows green on one pushed nightly SHA.
+
+--------------------------------------------------------------------------------
+2026-09-04 -- ITEM 60 IS RETIRED INTO THIS ONE, AND PROGRESS.md IS GONE
+--------------------------------------------------------------------------------
+
+`instructions/PROGRESS.md` was retired today on the maintainer's decision. It
+was hand-maintained, it had gone stale, and a second ledger disagreeing with
+the folder is the exact failure `tools/build_instruction_index.py` was written
+to prevent. `instructions/00_INDEX.txt` is now the only ledger.
+
+HOW STALE IT WAS, measured before deleting it rather than asserted: its
+"Unfinished" table listed about 34 items, several at 0%, and every one of them
+is closed in `done/`. Six were opened and checked:
+
+    122  regress across screens        PROGRESS said 0%   file says "122 IS CLOSED", 2026-08-20
+    142  force restart                 PROGRESS said 0%   "DONE, A THROUGH C", 21 tests
+    137  drag images in                PROGRESS said 0%   "DONE 2026-08-20", 50 tests
+    126  the theme must not lag        PROGRESS said 0%   fixed at the cause, 8 tests
+    114  parameter search              PROGRESS said 0%   all five points built
+    174  beta transform                PROGRESS said 0%   "DONE. A, B AND C", 20 tests
+
+ITEM 60 WAS A GHOST. PROGRESS.md carried a row -- "60 Every module at 100%
+test coverage -- IN PROGRESS, 42,851 tests" -- for an instruction that HAS NO
+FILE, in `open/` or `done/`, and never did. Its only other trace is
+`instructions/data/60_coverage_baseline.json`. So the number was being carried
+forward in a ledger nobody could act on, for an item nobody could read.
+
+RETIRED INTO 288 AND THIS ITEM, which is where that goal actually lives now:
+288 is the 100%-per-module gate with its own measured state, and 352 is the
+"highest reasonable coverage, then green Actions" goal the maintainer set on
+2026-09-02 as what to pick up when `open/` is otherwise empty. No new file is
+created for 60; a third home for the same goal is how this drifted in the
+first place. The baseline JSON stays where it is -- it is data, and data with
+no owning instruction is still evidence.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- guide_attribution: 8 ITEMS ON THE LIST, 2 IN THE TREE, 0 WORTH A TEST
+--------------------------------------------------------------------------------
+
+Taken as the first module of this item because it is small, in one lane, and
+carries 8 items on the stale list above. Measured on the current tree with
+every test file that imports it -- seventeen of them, not the five whose
+names say "guide_attribution":
+
+    with the five obviously-named files    87.39 %   27 missing
+    with all seventeen                     98.83 %    2 missing
+
+THE FIRST NUMBER IS THE TRAP THIS ITEM WARNS ABOUT, from the other side. A
+module measured against "its own" tests looks twenty-five items worse than it
+is, and twenty-five tests written against that reading would duplicate cover
+that already exists in `test_option_c_reads_every_measurement`,
+`test_a_guide_and_a_probability_for_every_cell` and a dozen others. The unit
+of measurement is the SUITE, not the file whose name matches.
+
+THE TWO THAT ARE LEFT ARE BOTH UNREACHABLE DEFENSIVE GUARDS, and neither
+should be driven:
+
+  * `attributable`, line 343, `if total <= 0: return False, 0.0`. Three
+    things must hold together for it: `p < 1` (or the function has already
+    returned `(True, 1.0)`), every competitor filtered out, and the fallback
+    competitor's weight `1 - p` also zero -- which contradicts the first. The
+    one way it used to happen is named in the comment above it: a weight
+    whose conversion is not pure could pass the positivity filter as one
+    number and be stored as another. READING IT ONCE CLOSED THAT, and
+    `test_a_weight_is_read_once_in_attributable.py` keeps it closed.
+
+  * `posterior_multivariate`, line 761, the `dead` row fallback. The line
+    above it re-centres each row on its own maximum, so at least one entry
+    is exactly zero, `exp` gives that column 1.0, and the row sum is never
+    zero. An all-NaN row does not reach it either -- `NaN <= 0` is False.
+
+WHAT WAS WRITTEN INSTEAD OF TWO TESTS THAT REACH THEM. Two classes that
+assert the INVARIANT making each guard unnecessary, and say so in their
+docstrings -- including the three inputs most likely to break the second
+one (a zero measurement, whose log is -inf; a negative one; NaN), all three
+measured and all three finite. Reaching either arm would mean weakening the
+invariant to make the guard reachable, which is the wrong way round, and is
+exactly the shape of the four tests 288 records as "passing while exercising
+nothing".
+
+SO guide_attribution IS DONE for this item at 98.83 %, and the two remaining
+statements are recorded here as deliberate rather than left to look like
+debt. THE LIST ABOVE IS STALE IN BOTH DIRECTIONS -- it says 8 -- and the
+next module should be re-measured the same way before any test is written
+for it.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- regression_annotation: 7 ITEMS ON THE LIST, 99.06 % -> 99.57 %
+--------------------------------------------------------------------------------
+
+Second module, same method, and it went the other way from the first --
+three of the four remaining statements WERE behaviours and now have tests:
+
+  * `Strategy.describe()` when a strategy is declared and not built. Every
+    shipped strategy is implemented, so the sentence has never been produced
+    by the real menu -- but the field exists so a strategy can be OFFERED
+    for discussion before it is built, and a menu entry that reads like a
+    working feature is the failure it prevents.
+  * `strategy()` handed an entry where a key is expected. The caller that
+    matters passes a resolved entry through a second layer, and looking it
+    up again would fail for a strategy that is not on the menu at all --
+    which is exactly the case a caller holding the object is in.
+  * `LeakageReport.summary()` when the INCLUSIVE fit is itself at chance.
+    Survival is the fraction of that fit's lift retained after removing the
+    score's own inputs; with no lift there is nothing to retain, so the
+    report says so in words instead of printing a ratio nobody can read.
+
+THE FOURTH IS AN UNREACHABLE GUARD, and it is left alone.
+`_run_self_training` raises `NotEnoughLabels` when `best is None`, and the
+loop is `range(max(1, int(request.rounds)))` -- it runs at least once
+whatever the request asks for, and the first pass assigns `best`. Reaching
+it would mean removing that floor, which trades an unreachable line for a
+real way to get no fit at all.
+
+TWO MODULES IN, THE PATTERN IS THE SAME BOTH TIMES: the stale list's number
+is wrong, the per-file measurement is wrong in the pessimistic direction,
+and what is left at the end is defensive guards over invariants asserted
+elsewhere. The work is the measurement and the reading; the tests are
+small.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- qt/widgets/cell_montage_view: THE STALE LIST SAID 6, IT IS 4
+--------------------------------------------------------------------------------
+
+Third module, same method, same result in the same direction: the list at
+the top of this file says 6 items for `qt/widgets/cell_montage_view.py`.
+Measured today over all 32 test files that touch it -- 1,516 statements,
+420 branches -- it is 99.74 %, with TWO uncovered statements and TWO
+partial branches. One of the four was a behaviour; three are guards over
+invariants asserted elsewhere.
+
+THE MEASUREMENT WAS THE HARD PART AGAIN, and it produced a trap worth more
+than the number. See the note in 288_coverage_state: `--source=` makes this
+module's suite SEGFAULT, three runs out of three, and removing it makes the
+same suite pass, two out of two. Measure without `--source` and filter with
+`--include` at report time.
+
+  HOW WRONG A PARTIAL MEASUREMENT LOOKS. Three numbers came out of the same
+  module today before the method was right: 98.09 % (a combine that had
+  silently dropped a crashed process), 89.05 % (a combine run while the
+  loop was still going) and 54.60 % (a `coverage combine` that ERASED the
+  target instead of merging into it -- it does that unless told otherwise,
+  and it takes the source files with it). None of them announced that it
+  was partial. Check the file count in the combine line against the number
+  of test files you ran, every time.
+
+WHAT WAS ACTUALLY LEFT:
+
+  * `_clear()`'s loop body, line 3574 -- A REAL BEHAVIOUR AND NOW TESTED.
+    `clear()` is the entry point the Regression screen calls when the
+    loaded run changes, and it is the subject of issue 116, where a user's
+    Cells tab kept showing the previous run. THE EXISTING REGRESSION TEST
+    CALLS IT ON A VIEW WITH NO TABS OPEN, so it proved the method exists
+    and nothing about what it does; the loop body had never run. The new
+    test builds a real montage, asserts the grids have something in them,
+    clears, and asserts the TABS SURVIVE and the GRIDS EMPTY -- clearing is
+    not closing, and a `clear()` that took the tabs away would break
+    comparing one gene against another.
+
+  * `_announce`'s "nothing selected" branch, line 3340 -- UNREACHABLE, and
+    the reason is worth keeping. `_announce` prints `reason()` when it is
+    non-empty and only otherwise falls through to a branch testing
+    `not self._name`. But `reason()` returns a sentence for BOTH ways
+    `_name` can be falsy and returns `''` only after passing its own
+    `if not self._name` guard -- so `_name` is always truthy by the time
+    the second check runs. THE SENTENCE IS NOT LOST: a user who has
+    selected nothing still sees `NOTHING_SELECTED`, from `reason()`,
+    through the first branch. The dead code is the duplicate, not the
+    message, which is why the branch is asserted rather than deleted.
+
+  * The two `elif isinstance(widget, QLineEdit)` fall-throughs in
+    `_write_back` and `_read_back`, branches 2874->2858 and 2897->2888 --
+    UNREACHABLE over an invariant, and the invariant is now parametrized
+    over all eight mirrored settings. Neither loop has an `else`, so a
+    mirrored widget of any other type would be written back as nothing and
+    read back as absent: a setting that appears to save and does not. The
+    guard is cheap; the invariant is what keeps the settings window honest.
+
+MEASURED AGAIN AFTER THE TESTS, which is the half that is usually skipped:
+99.74 % -> 99.79 %, 32 of 32 processes clean, and `_clear()`'s loop body
+is covered. What is left is exactly the three unreachable guards named
+above -- one statement (3340) and two branches -- so this module is DONE
+for this item, at a number whose remainder is accounted for rather than
+merely small.
+
+THREE MODULES IN, THE PATTERN HAS NOT CHANGED: the stale list's number is
+wrong, the per-file measurement is wrong pessimistically, and what is left
+at the end is guards over invariants plus the occasional real behaviour
+that a test touched without exercising. THE LIST AT THE TOP OF THIS FILE
+SHOULD NOT BE TRUSTED FOR ANY MODULE -- re-measure before writing a test.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- A COMPLETE SWEEP, WHICH THIS ITEM ASKS FOR AND HAS NOT HAD
+--------------------------------------------------------------------------------
+
+"A fresh complete batched measurement, with its statement and file counts
+matching the previous run, recorded with its date and commit." Done.
+
+    commit          2e9e8a907 (frozen for the whole run)
+    files           2,738, CI's seven measurement-file ignores honoured
+    marker          not gpu and not gui   (CI's coverage marker, plus this
+                                           box's standing rule)
+    chunks          69 of ~40 files, one process each, never xdist
+    processes       151 -- 69 chunks plus 82 file-by-file recoveries
+    wall clock      about four and a half hours
+
+    statements      219,082    missing   2,206
+    branches         65,948    partial     704
+    TOTAL                                       98.86 %
+
+    modules measured   560
+    at 100 %           408
+    something left     152
+    below 80 %           9
+
+NO MODULE REPORTS 0 %, and that is the check that matters most: a module
+that was never imported would look like untested code rather than like a
+collection gap, and 510 of them were reachable in the last full run against
+561 today.
+
+THE NINE BELOW 80 %, which are where the reasons are owed:
+
+    spacr/ops_phenotype.py              52.16 %   78 missing
+    spacr/qt/terms_i18n/__init__.py     52.94 %    6
+    spacr/qt/hf_download.py             56.19 %  149
+    spacr/qt/ai/issue_preview.py        72.73 %   31
+    spacr/qt/widgets/sra_picker.py      73.63 %   38
+    spacr/qt/widgets/height_grip.py     73.68 %   34
+    spacr/ops_accel.py                  76.85 %   30
+    spacr/qt/gc_policy.py               79.45 %   12
+    spacr/regression_layout.py          79.45 %   15
+
+    SEVERAL OF THESE ARE EXPECTED AND NOT DEBT. `hf_download` and
+    `sra_picker` reach the network; `ops_accel` is the GPU path and this
+    run excluded `gpu`; `height_grip` is a mouse-drag widget. Each still
+    needs the reason WRITTEN here rather than assumed -- that is this
+    item's rule and the next session's job, module by module, by the same
+    method the three already done used.
+
+TWO CAVEATS ON THE RUN ITSELF, recorded because a number without its
+method is not a measurement:
+
+  1. THE COMBINE READ 324 DATA FILES AND SKIPPED 112. 151 processes wrote
+     more than 151 files because `.coveragerc` sets `patch = subprocess`.
+     The skipped ones are almost certainly the empty SQLite shells that
+     `tools/run_coverage_batches.py` documents and discards by hand -- "a
+     process killed while coverage is opening its database can leave
+     behind a valid SQLite shell with no coverage metadata". ALMOST
+     CERTAINLY IS NOT MEASURED: `coverage combine` deletes what it reads
+     AND what it skips, so by the time the number was read there was
+     nothing left to inspect.
+
+     THE FIX FOR NEXT TIME, and it is one I had already learned tonight
+     and failed to apply to this script: copy the raw files aside before
+     combining. The sweep script does not, and should.
+
+  2. TWO CHUNKS DIED -- one segfault and one 40-minute timeout -- and both
+     were re-run file by file, which is why there are 151 processes and
+     not 69. No file was silently dropped.
+
+AND 27 OF THE 69 CHUNKS REPORTED FAILURES. 345 and 346, the two recorded
+"red only in company" items, are both CLOSED, so these are current and
+unnamed. The sweep records counts and not names by design -- `--tb=no` and
+one reused output file is what keeps it fast -- so naming them is a
+separate no-coverage re-run over those 27 chunks, and it is the next thing
+this item needs. That is 288's blocker as much as this one's.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE NINE BELOW 80 %, EACH WITH ITS REASON READ RATHER THAN GUESSED
+--------------------------------------------------------------------------------
+
+This item's rule: "Every module either at a coverage the reader agrees is
+reasonable, or NAMED HERE WITH THE REASON it stops short." The nine from
+the complete sweep, with the reason taken from the UNCOVERED LINE NUMBERS
+in each case rather than from the module's name.
+
+  MY FIRST GUESSES WERE WRONG FOR TWO OF THEM, which is why this section
+  exists in this form. `ops_accel` and `sra_picker` have no `requests.`,
+  no `http`, no `torch.cuda` anywhere in them -- I grepped for those, got
+  zero, and would have written "network" and "GPU" from the module names
+  if I had stopped there. Reading the uncovered lines gave a different and
+  better answer for both.
+
+  spacr/ops_phenotype.py            52.16 %   NOT A REASON -- A CRASH.
+    `src[:, 0].ptp()` at line 531, removed by NumPy 2.0. Seven tests could
+    not get past it. Fixed, and RE-MEASURED: 52.16 % -> 87.06 %, 18
+    statements missing instead of 78. It leaves the below-80 set entirely
+    on one line of repair. IT IS THE WARNING FOR THIS WHOLE SECTION: a low
+    number is a question, not an answer, and the first question is whether
+    the module runs at all. Read as "ops_phenotype needs tests", the tests
+    would have been written against a function that raises.
+
+  spacr/qt/hf_download.py           56.19 %   149 of 368 statements, in
+    three large blocks (477-517, 583-637, 674-732). They are the download
+    itself. Exercising them means either reaching Hugging Face from a test
+    or mocking the transport so thoroughly that what is measured is the
+    mock. REASONABLE AS IS.
+
+  spacr/qt/terms_i18n/__init__.py   52.94 %   FIFTEEN STATEMENTS, six
+    uncovered (40-43, 48, 59-60): `register()`'s validation arm and the
+    accessors' answers for a language with no presentation. The percentage
+    is small because the DENOMINATOR is small; six lines in a fifteen-line
+    module is not the same kind of gap as 149 in 368, and a ratio alone
+    cannot tell them apart. Worth a test, and it is small.
+
+  spacr/qt/ai/issue_preview.py      72.73 %   `_check_for_diagnosis`
+    (224-249) polls for an answer from a live AI console thread and gives
+    up on a timer. Driving it needs a real `_ai_thread`. REASONABLE AS IS.
+
+  spacr/qt/widgets/sra_picker.py    73.63 %   NOT THE WIDGET -- THE WORKER.
+    60-64 and 78-98 are the download worker's constructor and `run()`,
+    which calls `fetch_reads`. Network, reached through a helper rather
+    than through `requests` in this file, which is why grepping the file
+    for network symbols says nothing. REASONABLE AS IS.
+
+  spacr/qt/widgets/height_grip.py   73.68 %   `enterEvent`,
+    `mousePressEvent` and the drag arithmetic behind them (182-285). A
+    grip is a mouse gesture; offscreen Qt will synthesise the events but
+    what is then measured is the synthesis. REASONABLE AS IS, and the same
+    argument 327 makes about the pointer.
+
+  spacr/ops_accel.py                76.85 %   THE CUPY AND GPU-DEVICE ARMS
+    (69-70, 77, 90-91, 106-108, 331-343). `_torch(gpu=True)`'s device
+    selection, `_cupy()`'s availability probe, and the entire CuPy
+    nearest-neighbour branch. This box runs `-m "not gpu"` and has no
+    cupy. REASONABLE AS IS -- and the honest note is that it is untested
+    ANYWHERE until CI grows a GPU runner, not merely untested here.
+
+  spacr/qt/gc_policy.py             79.45 %   The INSTALL path (104-120):
+    it calls `gc.disable()` and starts a QTimer that collects on the GUI
+    thread. Running it inside the suite changes garbage collection for
+    every later test in that process. DELIBERATELY NOT EXERCISED, and this
+    is the one where testing it would be worse than not.
+
+  spacr/regression_layout.py        79.45 %   Fifteen statements and
+    FIFTEEN PARTIAL BRANCHES over 100 statements -- the widest
+    branch-to-statement ratio of the nine. Not a single feature left out
+    but a scatter of layout arms. The only one here that looks like
+    ordinary missing coverage rather than a reason.
+
+SO THE LIST IS: one crash (fixed), five reasonable-as-is, one deliberately
+never to be tested, and TWO worth writing tests for. BOTH ARE NOW DONE:
+
+    spacr/qt/terms_i18n/__init__.py     52.94 % -> 100.00 %   10 tests
+    spacr/regression_layout.py          79.45 % -> 100.00 %   18 tests
+                                        (100 statements, 46 branches, all)
+
+  AND THE SECOND ONE TURNED OUT TO BE A PROMISE NOBODY HAD CHECKED. Its
+  gap was not a scatter of layout arms as the line numbers suggested from
+  a distance -- it was EIGHT REFUSALS, which is the whole of what the
+  module's opening sentence claims: "a value is never silently selected
+  when duplicate rows disagree". Every one of them is now exercised,
+  including the two that matter most: a (well, gRNA) pair carrying
+  conflicting counts, and a metadata column that is not constant within
+  one observation. A refusal nobody has run is a promise nobody has
+  checked, and the risk was never that the arm was missing -- it was that
+  it might not fire.
+
+  The control cases went in beside them, because eight refusals with no
+  positive case is a module that might be refusing everything: a
+  well-formed wide frame converts, and the SAME pair twice with the SAME
+  value is explicitly not a disagreement.
+
+So the nine are: one fixed, five reasoned, one deliberately untested, two
+at 100 %. Nothing below 80 % is now unexplained.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE SECOND HALF STARTS: WHAT IS ACTUALLY RED ON GITHUB
+--------------------------------------------------------------------------------
+
+"after that make sure github tests are clean" is the other half of this item
+and it was blocked on the merge from main, which landed today. So the
+question is now askable, and the answer is not what the branch protection
+implies.
+
+THREE WORKFLOWS RUN ON A PUSH TO NIGHTLY: `tests`, `docs`, `compat-matrix`.
+Read on run 34582823707 and its neighbours.
+
+  1. `compat-matrix` / PACKAGING METADATA -- RED, AND THE DIAGNOSIS BELOW
+     IS HALF RIGHT. See the 2026-09-11 correction at the end of this item:
+     the home session root-caused it further and fixed it better.
+     `tests/test_packaging_metadata.py::test_the_citation_version_doi_is_
+     the_one_for_the_version_it_claims` arrived with main's CITATION work
+     and reads `CITATION.cff`, which is YAML. The job installs "packaging
+     tooling only" -- build, twine, pytest, packaging -- deliberately, so
+     that a metadata bug cannot hide behind a resolver failure. It does not
+     install PyYAML, and the job failed on
+
+         ModuleNotFoundError: No module named 'yaml'
+
+     A METADATA TEST REPORTING A MISSING TEST DEPENDENCY READS AS A
+     PACKAGING DEFECT AND IS NOT ONE, which is the worst kind of red: it
+     costs a reader the time to find out it means nothing. PyYAML is added
+     to that job's install list, which is the honest place -- reading the
+     citation file IS packaging tooling.
+
+  2. `compat-matrix` / 3.15 INSTALLS FROM WHEELS ONLY -- RED, AND CORRECTLY
+     SO. `pandas` has no cp315 wheel on PyPI yet:
+
+         ERROR: Could not find a version that satisfies the requirement
+         pandas<4.0,>=2.2.1 (from spacr) (from versions: none)
+
+     The cell is ALREADY `continue-on-error: ${{ matrix.python-version ==
+     '3.15' }}` and its comment already says why it is expected to fail --
+     "PySide6 6.11.2 declares <3.15, so this cell is expected to fail at the
+     dependency resolve until a compatible Qt release appears; its weekly
+     run tells us when that blocker has moved". NOTHING TO FIX. Worth
+     recording only because the blocker the comment names is no longer the
+     one that fires first: pandas gets there before PySide6 does, so a
+     future reader watching for "Qt admits 3.15" will be reading the wrong
+     line. The cell's own purpose -- noticing when upstream wheels arrive --
+     is intact either way.
+
+  3. A CANCELLATION STORM ON NIGHTLY, and it is not this item's to fix.
+     Eight of the last ten runs are `cancelled`, because tutorial commits
+     are landing every two minutes and every workflow here is in a
+     newest-wins concurrency group. Both `tests.yml` and `compat-matrix.yml`
+     already carry long comments about exactly this and have already been
+     split by event because of it. A green run needs a gap in the pushes,
+     not another workflow change.
+
+         SO "GREEN ACTIONS" CANNOT BE DEMONSTRATED WHILE ANOTHER SESSION IS
+         PUSHING EVERY TWO MINUTES, and saying so is more useful than
+         reporting whatever the last uncancelled run happened to say.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE ONE CI FIX THIS SESSION COULD NOT PUSH
+--------------------------------------------------------------------------------
+
+The PyYAML line above is written, tested and correct, and it is NOT on
+nightly. GitHub refused the push:
+
+    ! [remote rejected] HEAD -> nightly (refusing to allow an OAuth App to
+      create or update workflow `.github/workflows/compat-matrix.yml`
+      without `workflow` scope)
+
+`gh auth status` reports scopes 'gist', 'read:org', 'repo' -- no `workflow`.
+So no session authenticated this way can change any file under
+`.github/workflows/`, whatever the change is. Worth knowing before the next
+one is written: a workflow fix from here needs either the scope added or the
+maintainer to apply it.
+
+THE CHANGE, so it does not have to be rediscovered. In
+`.github/workflows/compat-matrix.yml`, the `Install packaging tooling only`
+step of the `metadata` job:
+
+        run: |
+          python -m pip install --upgrade pip
+    -     python -m pip install build twine pytest packaging
+    +     python -m pip install build twine pytest packaging PyYAML
+
+with this comment above the `run:`, which is the part worth keeping:
+
+    # PyYAML IS PACKAGING TOOLING HERE. `CITATION.cff` is YAML, and the
+    # test that asks whether its version DOI belongs to the version it
+    # claims has to read it. Without this the job fails on
+    # `ModuleNotFoundError: No module named 'yaml'` -- a metadata test
+    # reporting a missing test dependency, which reads as a packaging
+    # defect and is not one.
+
+Everything else in this item's 2026-09-11 note is pushed.
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE PACKAGING-METADATA RED IS FIXED, AND NOT BY THE FIX ABOVE
+--------------------------------------------------------------------------------
+
+FROM THE HOME SESSION, verified here before recording. The note above reads
+the failure as a standing gap between a "tooling only" install and a
+`CITATION.cff` that happens to be YAML, and adds PyYAML to close it. THE GAP
+DID NOT EXIST UNTIL THAT TEST DID.
+
+    `import yaml` appears ZERO times in `tests/test_packaging_metadata.py`
+    before 2daa622d4 and once after -- checked with `git show`. The DOI
+    guard introduced it.
+
+So the job was not missing a dependency; a new test was demanding one that
+job deliberately does not install. Fixed in b6095ab3d with
+`pytest.importorskip("yaml", ...)`, and the PyYAML line is NOT taken.
+
+WHY THAT IS THE BETTER FIX, and it is the reasoning rather than the diff
+that matters here: the metadata job exists to prove the distribution's
+metadata is right WITHOUT the full dependency graph, so that a resolver
+failure cannot hide a metadata bug. Every package added to a
+"tooling only" install makes the next omission harder to notice. The DOI
+guard still runs everywhere the real suite runs, which is where a stale DOI
+would be caught anyway.
+
+  A TEST THAT NEEDS A PACKAGE A JOB DELIBERATELY OMITS IS THE TEST'S
+  PROBLEM, NOT THE JOB'S. Adding the package passes the job and quietly
+  spends the property the job was built to hold.
+
+SO STRIKE "BLOCKED ON EINAR" FOR THIS ONE. The workflow-scope limit is real
+and still applies to any future change under `.github/workflows/` from this
+session -- `gh auth status` here reports gist/read:org/repo and no
+`workflow` -- but it is no longer blocking anything. The PyYAML diff
+recorded above is superseded; it is left in the file because the SCOPE
+finding is worth keeping and the diff is what makes it concrete.
+
+--------------------------------------------------------------------------------
+2026-09-11, LATER -- THE `tests` WORKFLOW HAS NEVER PRODUCED A VERDICT ON
+NIGHTLY, AND THE FILE ALREADY KNEW HOW TO GET ONE
+--------------------------------------------------------------------------------
+
+Asked GitHub for the last twenty-five `tests` runs on nightly:
+
+    Counter({'cancelled': 23, '': 2})
+
+TWENTY-THREE CANCELLED, TWO STILL RUNNING, ZERO DECIDED. Not one has been
+allowed to finish. So "are the tests green on nightly" has not had an answer
+at any point in this item's life -- the runs were being destroyed by the next
+push before they could give one, and a cancelled run reports nothing.
+
+  A WORKFLOW THAT NEVER COMPLETES IS NOT RED AND IS NOT GREEN. It is
+  absent, and an absent signal reads as "no news" to everyone looking at
+  the branch. That is worse than a red one.
+
+`docs` is the counter-example and is SUCCESS on run 34612507409, because it
+is slower to be superseded. `compat-matrix` completes because its grid
+outlives the gaps.
+
+THE FILE ALREADY SOLVED THIS AND NOBODY HAD USED IT:
+
+    concurrency:
+      group: tests-${{ github.ref }}-${{ github.event_name }}
+      cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+A DISPATCHED RUN IS EXEMPT FROM CANCELLATION, by that second line, and is in
+its own group by the first. So the way to get a verdict on a branch under a
+push storm is to ask for one by hand rather than to wait for a gap that is
+not coming. Dispatched: run 34618149518.
+
+  THAT IS ALSO THE ANSWER TO "when is nightly green". Not "when the pushes
+  stop" -- they will not, tutorials land every few minutes by design -- but
+  "dispatch a run and read it". Worth doing before any release gate, and
+  worth knowing before anybody spends another hour reading cancellation
+  storms as failures.
+
+AND THE PACKAGING JOB IS FIXED ON NIGHTLY AT LAST. The home session's
+`pytest.importorskip` (b6095ab3d) was written ten hours ago on
+`feat/372-phase-b` and had not reached nightly; run 34615609288 was still
+red on `ModuleNotFoundError: No module named 'yaml'`. Cherry-picked
+unchanged. compat-matrix should now carry only the 3.15 cell, which is
+`continue-on-error` and waiting on pandas wheels.
+
+
+--------------------------------------------------------------------------------
+2026-09-11, LATER STILL -- "DISPATCH A RUN AND READ IT" IS RIGHT FOR `tests`
+AND PUBLISHES THE PUBLIC SITE IF CARRIED TO `docs`
+--------------------------------------------------------------------------------
+
+The rule the section above lands on -- under a push storm, dispatch a run
+rather than wait for a gap -- is correct for `tests.yml` and MUST NOT be
+applied uniformly. Raised by a peer session, then checked here against the
+file rather than taken on trust.
+
+`.github/workflows/docs.yml` gates everything that can touch production
+Pages on the branch, WITH ONE DELIBERATE EXCEPTION for a dispatch:
+
+    # Upload Pages artifact / Configure Pages / the deploy job
+    if: >-
+      github.ref == 'refs/heads/main' ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/nightly')
+
+and the file's own header says what that means in as many words: a push to
+nightly used to republish https://einarolafsson.github.io/spacr/ FROM
+nightly, "overwriting whatever main had last deployed", so the public site
+documented unreviewed work. The push trigger was narrowed to fix that. The
+dispatch exemption is the remaining door, and it is intentional -- "a
+deliberately dispatched nightly run is the one narrow exception: it may
+publish only after this same workflow has audited the exact nightly catalogs
+and built the site successfully."
+
+  SO THE TWO WORKFLOWS ANSWER A DISPATCH DIFFERENTLY, AND OPPOSITELY.
+  `tests.yml` treats a dispatch as "give me a verdict nobody can cancel".
+  `docs.yml` treats a dispatch on nightly as "publish this". Someone
+  reaching for the first and reading the second's trigger list as
+  equivalent changes the public documentation site as a side effect of
+  wanting an uncancelled test run.
+
+357 reserves that specific action for the maintainer -- it is the one thing
+on its list visible outside the repository -- and it is still unanswered. So
+the rule, stated so it cannot be over-generalised:
+
+    DISPATCH `tests.yml` FREELY. NEVER DISPATCH `docs.yml` ON NIGHTLY TO
+    GET A CLEAN GATE. `compat-matrix.yml` completes on its own and does not
+    need dispatching either way.
+
+AND A RED `docs` RUN IS NOT EVIDENCE ABOUT WHATEVER WAS JUST PUSHED. It is
+red for the catalog migration 83 owns -- 82 records 196 `sv` failures with
+five of nine languages at schema 2, fr/hi/is still at schema 1, `sv` at
+schema 2 with stale symbols, and none of the nine carrying the API symbols
+from `benchmark`, `column_groups`, `gate_library` or `gpu_reduce`. Anyone
+reading a docs verdict for a code change is reading 83's backlog.
+
+
+--------------------------------------------------------------------------------
+2026-09-11 -- A GREEN-ACTIONS FAILURE MODE THAT IS NOT THIS ITEM'S TO FIX: 393
+--------------------------------------------------------------------------------
+
+POINTER ONLY. `test_readme_presentation.py` asserts that committed PNG
+tiles equal a fresh `render_module_tile()` byte for byte
+(`ImageChops.difference(...).getbbox() is None`), so the Pillow version
+that rendered them is part of the contract and nothing declares it. CI
+installs 12.3.0; a contributor on 10.3.0 -- inside `setup.py`'s own
+`pillow>=10.2.0,<13` -- regenerates the artwork, the antialiasing differs
+(measured 834 px on `align`, 1756 on `mask`, 3263 on `dose_response`), and
+the gate goes red for everyone else while the diff reads as routine
+regenerated artwork.
+
+Filed by the other session as **393**. Recorded here because 352 is where
+anyone looking for "why did Actions go red" will look, and this one cannot
+be found from the failure: the workflow reports a picture comparison, not a
+dependency mismatch.
+
+  AND THE CONTROL IS THE PART WORTH COPYING. A regeneration script with no
+  control cannot tell "this artefact is stale" from "my toolchain is not
+  the one that made it" -- the diff is identical in both cases. 393's
+  answer is to reproduce three ALREADY-COMMITTED artefacts byte-identically
+  before writing anything, and refuse to write if they do not come back.
+  Any future script that rewrites committed binary output wants that,
+  including the icon generators under `tools/`.
+
+
+--------------------------------------------------------------------------------
+2026-09-11 -- TWO BLOCKING JOBS HAVE OUTGROWN THEIR BUDGETS AND HAVE NEVER
+PRODUCED A VERDICT, SO NIGHTLY CANNOT BE GREEN WHATEVER THE TESTS SAY
+--------------------------------------------------------------------------------
+
+The note above establishes that a dispatched run is the way to get a verdict
+under a push storm. Dispatch two of them and read the JOBS rather than the
+run, and a second thing appears that cancellation was hiding:
+
+    run 34618149518     Fast / Full suite control   cancelled at 1:30:17
+                        Minimum dependencies        cancelled at 2:01:09
+    run 34639565357     Fast / Full suite control   cancelled at 1:30:32
+
+`.github/workflows/tests.yml` gives `fast` `timeout-minutes: 90` (line 69)
+and `minimum-dependencies` `timeout-minutes: 120` (line 440). Both jobs ran
+to their ceiling and were killed, on two independent dispatched runs a day
+apart. THAT IS NOT A CANCELLATION STORM -- a dispatched run is exempt from
+the concurrency group, and these were killed by their own timeout.
+
+  BOTH ARE BLOCKING, AND THE FILE SAYS SO IN AS MANY WORDS: "Both are
+  blocking, and tests/test_optimal_dependency_versions.py fails if either
+  stops being so." A blocking job that cannot finish inside its budget is a
+  required check that can never pass. So "when is nightly green" has an
+  answer that does not depend on a single test: NEVER, until the budgets or
+  the jobs change.
+
+WHY NOBODY HAD SEEN IT. Every push-triggered run is destroyed by the next
+push long before ninety minutes, so the only runs that live long enough to
+hit a timeout are dispatched ones, and there had been two. The cancellation
+storm was hiding a second, independent reason the branch cannot go green,
+and the first fix -- dispatch a run -- is what made it visible.
+
+WHAT IS NOT KNOWN, and it matters for which fix is right. Whether these jobs
+are slow because the suite has grown (64,315 tests at the last full local
+sweep, up from 46,877 when 288 was filed) or because something in them
+wedges. The Qt job has been bitten by the second before: its own comment
+records a shard that "reached 99%, then sat in silence until the runner
+killed it", cured by a per-test timeout that turns a lost job into one named
+failure. `fast` and `minimum-dependencies` have no such per-test timeout.
+
+  SO THE FIRST CHANGE IS THE DIAGNOSTIC, NOT THE BUDGET. Raising a ceiling
+  on a job that wedges buys nothing and costs an hour of runner per push; a
+  per-test timeout tells you which it is on the next run.
+
+THE TOOL HALF IS DONE AND PUSHED; THE WORKFLOW HALF CANNOT BE.
+`tools/run_pytest_batches.py` did NOT take a per-test ceiling -- checked
+rather than assumed, and the first draft of this note wrongly supposed it
+did. It takes `--per-test-timeout SECONDS` now, passing `--timeout` and
+`--timeout-method thread` to pytest and adding `--max-worker-restart=0`
+whenever xdist is on, for the reason `_pytest-suite.yml` gives: xdist
+otherwise hands the same test to a replacement worker, which wedges again,
+so a deterministic hang pays the ceiling once per restart instead of once.
+Verified against a synthetic `time.sleep(600)` -- the ceiling fires, the
+traceback names the test and its line, and the batch summary names the file.
+
+WHAT IS LEFT IS ONE LINE IN EACH OF TWO JOBS, and this session cannot push
+it: any commit touching `.github/workflows/` is rejected -- `gh auth status`
+reports gist/read:org/repo and no `workflow` scope, which the note above
+already records for `compat-matrix.yml`. In `tests.yml`, the `Run fast
+tests` step of `fast` and the equivalent in `minimum-dependencies`:
+
+        python tools/run_pytest_batches.py \
+          --marker "..." \
+    -     --batch-size 32 --workers 2
+    +     --batch-size 32 --workers 2 --per-test-timeout 1200
+
+Twenty minutes is the value the Qt suite already uses and is far more than
+any test in these jobs should need. IT DOES NOT BY ITSELF MAKE EITHER JOB
+FIT ITS BUDGET -- it makes the next run SAY whether the problem is one
+wedged test or a suite that has outgrown ninety minutes, which is the
+question that decides the real fix.
+
+
+--------------------------------------------------------------------------------
+2026-09-11 -- THE FIRST VERDICT NIGHTLY HAS EVER HAD: 95 TESTS IN 33 FILES,
+AND THREE JOBS THAT CANNOT FINISH
+--------------------------------------------------------------------------------
+
+Dispatched run 34639565357 on 110911b97 RAN TO COMPLETION -- the first
+`tests` run on nightly to do so, against the twenty-five cancellations this
+file counted earlier. Conclusion: failure. The value is not the conclusion,
+it is that there is finally a list.
+
+    95 distinct failing tests across 33 files
+    12 of 12 coverage shards red
+    3 jobs cancelled by their OWN timeout rather than by a push
+
+THE THREE TIMEOUTS ARE THE FINDING. `Fast / Full suite control` at 1:30:32
+against `timeout-minutes: 90`, `Minimum dependencies` at ~2:01 against 120,
+`Qt shard 0 of 2` likewise. The same two were cancelled at 1:30:17 and
+2:01:09 on dispatch 34618149518 a day earlier, so it is systematic. Both
+`fast` and `minimum-dependencies` are blocking by the file's own statement.
+
+  SO NIGHTLY COULD NOT HAVE GONE GREEN TONIGHT WHATEVER THE TESTS SAID, and
+  fixing all 95 would not have changed that. This is a second, independent
+  reason the branch is red, it has been true for at least two dispatches,
+  and no amount of test-fixing reaches it.
+
+THE 33 FILES BY OWNER, because "95 failures" is not actionable and the
+split is not even:
+
+    the catalogs, 83        7 files  external_i18n_catalogs, i18n_caption_ratchet,
+                                     api_i18n_extractor, documentation_i18n,
+                                     i18n_coverage_audit, tutorial_catalog_i18n,
+                                     the_text_fits_sweep (every de-2.0 caption)
+    386, embeddings         4 files  readme_presentation, the_readme_describes...,
+                                     the_api_homepage..., every_module_lands_on_prose
+    the docstring ratchets  3 files  docstring_correctness, docstring_field_lists...,
+                                     nested_functions_are_documented
+    372, OPS                4 files  one_key_vocabulary, the_raw_reader_count...,
+                                     cov_r6_io, conda_forge_recipe
+    the figure writers      2 files  one_visual_system_not_twelve,
+                                     every_kept_figure_goes_through_one_writer
+    388                     1 file   a_bystander_column_reaches...
+    unattributed           12 files  see below
+
+  TWENTY-ONE OF THE THIRTY-THREE ARE ONE LANE'S WORK LANDING WITHOUT ITS
+  RATCHETS, and that is the shape rather than a coincidence: a registry
+  entry, a catalog inventory or a documented-symbol count is pinned in
+  several files at once, so one unmoved pin shows up as four or five red
+  files in four or five different shards. Reading the shard list as
+  "twelve independent problems" is what made this look worse than it is.
+
+OF THE TWELVE UNATTRIBUTED, four were run here first because they were the
+most likely to belong to the theme work -- `test_preferences_tabs`,
+`test_the_memory_budget`, `test_opening_things_does_not_hang`,
+`test_cov_r5_app_screen`. ALL 80 TESTS IN THOSE FILES PASS LOCALLY, so each
+is environment, ordering within its shard, or already fixed between
+110911b97 and now. PASSING ALONE IS NOT FIXED and this file does not claim
+it is; it records which ones cannot be reproduced from their own file, so
+the next step for them is the shard rather than the test.
+
+TRIAGED, THE TWELVE UNATTRIBUTED FILES, EACH RUN HERE RATHER THAN GUESSED AT:
+
+  FIVE ARE 386's EMBEDDINGS SCREEN and every one names the file, so none of
+  them was ever unattributed -- only unread:
+
+      "these views are built without install_sorting():"
+          ['screens/embeddings.py: self._table']
+      "these build a plain Qt cell instead of the shared one:"
+          ['screens/embeddings.py:286']
+      "hover help is on the FIELD instead of the setting's name in:"
+          ['embeddings.EmbeddingsScreen: 3 (QComboBox, QSpinBox)']
+      test_current_packaging_denominator_is_532...   assert 562 == 558
+      "conversational registered-app copy returned: ['somebody']"
+
+  THREE DO NOT REPRODUCE AND ALL THREE ARE TIMING ASSERTIONS --
+  `the_magic_wand_is_bounded_by_work` (two "returns promptly" tests),
+  `the_download_buttons_sit_over_their_columns`, and
+  `regression_results_panel::test_it_is_fast_enough_to_recolour_interactively`.
+
+    A CI BOX RUNNING TWELVE COVERAGE SHARDS CONCURRENTLY IS NOT THE MACHINE
+    THOSE CEILINGS WERE CALIBRATED ON. That is not an argument for raising
+    them; it is a reason not to read them as defects without a second run.
+
+  THREE PASS HERE with their whole files -- `preferences_tabs`,
+  `the_memory_budget`, `opening_things_does_not_hang`, `cov_r5_app_screen`
+  (80 tests, all green) -- so each needs its SHARD to reproduce, not its
+  file.
+
+  AND ONE WAS THIS SESSION'S OWN, caught by the suite rather than by the
+  author. `test_no_new_failure_swallowing_skips` named four handlers
+  written the same evening: `except Exception: pytest.skip(...)` around
+  `window._on_nav_selected(...)` in the new theme guards, which turns a
+  module that will not open -- a bug -- into a green run. Removed rather
+  than ratcheted, on that test's own reasoning: a skip must never be
+  reachable from a bug in spaCR.
 

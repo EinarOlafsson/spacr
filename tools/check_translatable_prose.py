@@ -258,12 +258,12 @@ ATTRIBUTION_VERBS = frozenset("""
 def _known_instruction_numbers() -> frozenset:
     """Instruction numbers that actually exist, so 333 px is not a reference.
 
-    Empty when ``instructions/`` is absent, in which case the attribution
+    Empty when ``features/`` is absent, in which case the attribution
     verb alone decides -- the check degrades in recall, never in precision.
     """
     found = set()
-    base = ROOT / "instructions"
-    for directory in (base, base / "open", base / "done"):
+    base = ROOT / "features"
+    for directory in (base, base / "future", base / "new"):
         if not directory.is_dir():
             continue
         for entry in directory.iterdir():

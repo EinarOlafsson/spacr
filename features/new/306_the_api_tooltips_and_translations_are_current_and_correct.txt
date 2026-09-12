@@ -2,7 +2,11 @@
 THE API, TOOLTIPS AND EVERY SUPPORTED TRANSLATION ARE CURRENT AND CORRECT
 ================================================================================
 
-Status:    OPEN, filed 2026-08-28. RELEASE-BLOCKING. The 2026-08-30 catalogs
+NOT BLOCKING. Since 2026-09-12 spaCR keeps two lists -- what it has
+gained and what it might gain next -- and neither gates a release.
+The words below were written when a single instructions list did.
+
+Status:    OPEN, filed 2026-08-28. not blocking, see the note below. The 2026-08-30 catalogs
            are at a source-current mechanical fixed point; the remaining
            semantic acceptance debt is recorded below.
 Owner:     public API prose, settings tooltips, documentation and i18n catalogs.

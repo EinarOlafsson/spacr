@@ -17,7 +17,7 @@ import pytest
 
 REPO = Path(__file__).resolve().parent.parent
 TOOL = REPO / "tools" / "build_instruction_index.py"
-INSTRUCTIONS = REPO / "instructions"
+INSTRUCTIONS = REPO / "features"
 
 pytestmark = pytest.mark.skipif(
     not TOOL.exists() or not INSTRUCTIONS.is_dir(),
@@ -43,7 +43,7 @@ def test_the_committed_index_matches_the_instruction_files():
 def test_every_open_instruction_appears():
     tool = _tool()
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
-    for path in (INSTRUCTIONS / "open").glob("*.txt"):
+    for path in (INSTRUCTIONS / "future").glob("*.txt"):
         assert path.name in text, f"{path.name} is missing from the index"
 
 
@@ -65,8 +65,8 @@ def test_a_done_instruction_is_not_listed_as_open():
     """
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
     open_block = text.split("OPEN")[1].split("DONE")[0]
-    for path in (INSTRUCTIONS / "done").glob("*.txt"):
-        if (INSTRUCTIONS / "open" / path.name).exists():
+    for path in (INSTRUCTIONS / "new").glob("*.txt"):
+        if (INSTRUCTIONS / "future" / path.name).exists():
             continue
         assert path.name not in open_block, (
             f"{path.name} is done but listed under OPEN")
@@ -80,23 +80,38 @@ def test_a_reopened_instruction_is_listed_once_and_open():
     the rule above exists to prevent, in the one case that rule now skips.
     """
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
-    open_block = text.split("OPEN")[1].split("DONE")[0]
-    done_block = text.split("DONE")[1]
-    reopened = [path.name for path in (INSTRUCTIONS / "done").glob("*.txt")
-                if (INSTRUCTIONS / "open" / path.name).exists()]
+    # RE-POINTED 2026-09-12 at the section names the index now prints. The
+    # two blocks are still the two lists and the assertions below are
+    # unchanged; only the words that separate them moved.
+    future_block = text.split("FUTURE FEATURES")[1].split("NEW FEATURES")[0]
+    new_block = text.split("NEW FEATURES")[1]
+    reopened = [path.name for path in (INSTRUCTIONS / "new").glob("*.txt")
+                if (INSTRUCTIONS / "future" / path.name).exists()]
     for name in reopened:
-        assert name in open_block, f"{name} was reopened but is not under OPEN"
-        assert name not in done_block, (
-            f"{name} is under DONE as well as OPEN; a reader cannot tell "
+        assert name in future_block, (
+            f"{name} is on the future list but is not printed under it")
+        assert name not in new_block, (
+            f"{name} is printed under both lists; a reader cannot tell "
             "which of the two describes the current state")
 
 
 def test_the_counts_are_the_real_counts():
+    """The index's own tally must be the folders, counted.
+
+    RE-POINTED 2026-09-12, not relaxed. The single instructions list became
+    two feature lists, so the sentence the index prints changed with it --
+    the assertion still compares the printed numbers against a fresh count
+    of both folders, and still fails if either drifts by one.
+    """
     tool = _tool()
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
-    n_open = len(list((INSTRUCTIONS / "open").glob("*.txt")))
-    n_done = len(list((INSTRUCTIONS / "done").glob("*.txt")))
-    assert f"{n_done} done / {n_open} open" in text
+    n_future = len(list((INSTRUCTIONS / "future").glob("*.txt")))
+    n_new = len(list((INSTRUCTIONS / "new").glob("*.txt")))
+    assert (f"{n_new} in features/new, {n_future} in features/future"
+            in text)
+    # The lists stopped being a gate on the same day they were split, and
+    # the index is where a reader finds that out.
+    assert "NEITHER LIST BLOCKS A RELEASE" in text
 
 
 def test_duplicate_instruction_numbers_are_ordered_by_filename():
@@ -130,7 +145,7 @@ def test_codex_owned_open_files_are_marked_do_not_touch():
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
     open_numbers = {
         path.name.split("_", 1)[0]
-        for path in (INSTRUCTIONS / "open").glob("*.txt")
+        for path in (INSTRUCTIONS / "future").glob("*.txt")
     }
     # An owner whose instruction has since been DONE is the normal end state.
     # Asserting every owner is still open made the index fail for work being
@@ -140,7 +155,7 @@ def test_codex_owned_open_files_are_marked_do_not_touch():
         f"OWNERS names {sorted(stale)}, which are no longer open; remove "
         f"them so the marking tracks the folder")
     for number in tool.OWNERS:
-        paths = list((INSTRUCTIONS / "open").glob(f"{number}_*.txt"))
+        paths = list((INSTRUCTIONS / "future").glob(f"{number}_*.txt"))
         assert len(paths) == 1, number
         block = [b for b in text.split("\n\n") if paths[0].name in b]
         assert block, f"instruction {number} is not in the index"
@@ -184,7 +199,7 @@ def test_an_open_status_line_does_not_contradict_its_own_body():
     import re
 
     stale = []
-    for path in sorted((INSTRUCTIONS / "open").glob("*.txt")):
+    for path in sorted((INSTRUCTIONS / "future").glob("*.txt")):
         text = path.read_text(encoding="utf-8")
         header = re.search(r"^Status:\s*(.+?)(?=^\w+:|\Z)", text,
                            re.M | re.S)

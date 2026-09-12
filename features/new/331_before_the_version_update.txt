@@ -144,7 +144,7 @@ BEFORE THE UPDATE
 
        This resolves a contradiction this file carried for six days: 331
        listed 316 as gating while 316's OWN header said it was
-       "RELEASE-BLOCKING for any claim that spaCR is translated, though NOT
+       "not blocking, see the note below for any claim that spaCR is translated, though NOT
        for the release itself". 316's header was right. It stays open
        against a later release.
 

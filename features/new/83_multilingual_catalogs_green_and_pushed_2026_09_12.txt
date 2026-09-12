@@ -381,3 +381,28 @@ HOW TO DEBUG A REJECTION rather than guess at it: call `_syntax_preserved`,
 directly on the candidate and diff the `_PROTECT_PATTERNS` matches between
 source and target. The gate reports THAT it refused; only those four say
 WHY.
+
+================================================================================
+DONE 2026-09-12 -- BOTH LANES GREEN AND PUSHED
+================================================================================
+
+    API AUDIT       exit 0, 9 languages, 10,398 symbols
+    RUNTIME AUDIT   exit 0, 1,068 settings, 200 categories, 2,856 UI strings,
+                    68 modules
+    tests/test_documentation_i18n.py  138 passed against these files
+
+WHAT HAD BROKEN IT was one symbol. `border_rules_agree` landed with 377 AFTER
+the catalogs were built -- the mid-batch arrival 288's rule exists to prevent
+-- and took all nine locales red on its own. The docs deploy had been blocked
+on it since 2026-09-11 05:35, so the finished tutorial work sat unpublished
+for a day for the sake of one function.
+
+REBUILT IN THE ORDER THAT CONVERGES: build, then repair, then audit. The build
+alone does not. It translated the new symbol and still left two of its blocks
+as exact English in Spanish, Chinese, Korean and Icelandic, because
+`--languages` translates once with the plain model and writes back whatever
+returns. The repair pass re-runs only the failed blocks with clause splitting
+and the fallback checkpoint, and that is what cleared them.
+
+A GREEN BUILD IS NOT A GREEN AUDIT. Worth carrying forward as a rule, because
+the build exits 0 in both cases.

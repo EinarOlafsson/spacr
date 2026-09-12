@@ -1,6 +1,6 @@
 """A folded module is a button on a host, and it is not also a tile.
 
-``instructions/open/246_settings_appear_when_they_apply.txt`` §4 states the
+``features/new/246_settings_appear_when_they_apply.txt`` §4 states the
 bar in one line: *no key appears in both a host's fold table and the
 registry*. A key in both draws a tile the maintainer has already been told
 is gone, and the tile and the button then race for which one a user reaches
