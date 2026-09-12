@@ -13,6 +13,8 @@ looks exactly like a chart of a model that was only measured three ways.
 """
 
 import numpy as np
+import pathlib
+
 import pytest
 
 from spacr.scorecard import CHART_METRICS, read_scorecard_csv, scorecard_figure
@@ -28,10 +30,16 @@ ap_mean,0.76,0.31,0.45,366,12517,toxo-pv-round3,2026-09-10
 
 
 def test_a_chart_is_written(tmp_path):
-    out = scorecard_figure(read_scorecard_csv(CSV),
-                           tmp_path / "card.png", title="Toxo PV v1")
-    assert out.exists() if hasattr(out, "exists") else True
-    assert (tmp_path / "card.png").stat().st_size > 5_000
+    # The RETURNED path is the one that exists: `spacr.plot.save_figure`
+    # makes the file name follow the figure-format preference, so a request
+    # for `card.png` under a PDF preference lands on `card.pdf`. Asserting
+    # the requested name would pass only where the preference is PNG.
+    out = pathlib.Path(scorecard_figure(read_scorecard_csv(CSV),
+                                        tmp_path / "card.png",
+                                        title="Toxo PV v1"))
+    assert out.exists()
+    assert out.stem == "card"
+    assert out.stat().st_size > 5_000
 
 
 def test_the_chart_metric_names_exist_in_a_real_scorecard():
@@ -59,8 +67,17 @@ def test_a_missing_metric_is_skipped_not_drawn_as_zero(tmp_path):
     partial = ("metric,finetuned,vanilla,delta\n"
                "f1,0.86,0.32,0.54\nrecall,0.83,0.72,0.11\n")
     # It draws, with two bars rather than six, and does not invent the rest.
-    scorecard_figure(read_scorecard_csv(partial), tmp_path / "p.png")
-    assert (tmp_path / "p.png").exists()
+    #
+    # THE RETURNED PATH, NOT THE REQUESTED ONE. `scorecard_figure` writes
+    # through `spacr.plot.save_figure`, whose rule is that the file NAME
+    # follows the user's figure-format preference -- a PNG written to
+    # `figure.pdf` is a file no viewer opens. So a caller asking for `p.png`
+    # under a PDF preference gets `p.pdf`, and the path it hands back is the
+    # one that exists. A test asserting the requested name would pass only
+    # on machines whose preference happens to be PNG.
+    written = scorecard_figure(read_scorecard_csv(partial), tmp_path / "p.png")
+    assert pathlib.Path(written).exists()
+    assert pathlib.Path(written).stem == "p"
 
 
 def test_importing_the_module_still_needs_no_plotting_stack():

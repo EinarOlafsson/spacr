@@ -1,13 +1,13 @@
 {
- "schema": 1,
- "language": "zh_CN",
- "records": [
-  {
-   "label": "spacr.ops_compose#1",
-   "context": "`ops_stitch` solves where every microscope image field sits and deliberately does not hold the pixels -- well A1 is 26,855 x 26,865, which is 1.4 GB as uint16 for ONE channel, and every later phase would read through it. This module composes the same well window by window instead, which is what B2 asks segmentation to do anyway: \"segment once, on the composite, window by window\".",
-   "source": "`ops_stitch` solves where every tile sits and deliberately does not hold the pixels -- well A1 is 26,855 x 26,865, which is 1.4 GB as uint16 for ONE channel, and every later phase would read through it. This module composes the same well WINDOW BY WINDOW instead, which is what B2 asks segmentation to do anyway: \"segment once, on the composite, window by window\".",
-   "source_sha256": "b553a737ed987dd13aa8b0d0546b00b8702cdd3a760ed269af776739ff6f47ca",
-   "translation": "`ops_stitch` 只求解每个图块的位置，并刻意不保留像素——孔位 A1 为 26,855 x 26,865，单个通道以 uint16 存储即为 1.4 GB，而后续每个阶段都要通读它。本模块改为逐窗口合成同一个孔位，这也正是 B2 要求分割所做的：“在合成图上分割一次，逐窗口进行”。"
-  }
- ]
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.ops_compose#1",
+      "context": "`ops_stitch` solves where every microscope image field sits and deliberately does not hold the pixels -- well A1 is 26,855 x 26,865, which is 1.4 GB as uint16 for ONE channel, and every later phase would read through it. This module composes the same well window by window instead, which is what segmentation wants anyway: segment once, on the composite, a window at a time.",
+      "source": "`ops_stitch` solves where every tile sits and deliberately does not hold the pixels -- well A1 is 26,855 x 26,865, which is 1.4 GB as uint16 for ONE channel, and every later phase would read through it. This module composes the same well WINDOW BY WINDOW instead, which is what segmentation wants anyway: segment once, on the composite, a window at a time.",
+      "source_sha256": "3615110a457f0a82e8b18b44a172b325f96463a06c911e624a73ed2b008e844b",
+      "translation": "`ops_stitch` 只求解每个图块的位置，并刻意不保留像素——孔位 A1 为 26,855 x 26,865，单个通道以 uint16 存储即为 1.4 GB，而后续每个阶段都要通读它。本模块改为逐窗口合成同一个孔位，这也正是分割本身所需要的：在合成图上分割一次，逐窗口进行。"
+    }
+  ]
 }

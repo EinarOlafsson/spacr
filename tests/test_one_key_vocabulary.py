@@ -334,6 +334,15 @@ def test_the_sql_column_list_is_canonical_too(tmp_path):
 #: the same rule `test_the_raw_reader_count_only_goes_down` states out loud.
 #: It may only ever be lowered, and it is well below the 101 the instruction
 #: set as the bar.
+#:
+#: IT COUNTS LINES, SO IT CANNOT TELL A USE FROM A MENTION. The scan is a
+#: regex over every source line, and a COMMENT naming `pd.read_sql_query` --
+#: to explain why the code beside it does not call one -- counts exactly the
+#: same as a call. That cost a pass on 2026-09-11: `ops_store` was moved onto
+#: `tabular._read_query` and the count did not drop, because the comment
+#: recording the move mentioned the thing it had just stopped doing. If this
+#: reports no progress after a reader was genuinely moved, grep the file for
+#: the literal before doubting the move.
 DIRECT_READER_CEILING = 85
 
 _DIRECT_READER = re.compile(r"pd\.read_csv\(|pd\.read_sql")

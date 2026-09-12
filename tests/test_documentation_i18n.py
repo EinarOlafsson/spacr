@@ -3470,12 +3470,15 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         for alt in canonical_alt
         if (match := re.fullmatch(r"Open the (.+) API", alt)) is not None
     ]
-    # 21, NOT 44. 44 is the size of the app REGISTRY; the grid draws one
+    # 22, NOT 45. 45 is the size of the app REGISTRY; the grid draws one
     # tile per TILED app, and instruction 318 moved everything reached from
     # another module's button off the grid. This number was left at the
     # registry size when that happened, so this test has been red on a stale
-    # count rather than on anything about accessible text.
-    assert len(module_names) == 21
+    # count rather than on anything about accessible text. 21 -> 22 on
+    # 2026-09-11 with 386's Embeddings tile, which gets its alt text from
+    # the same `WORKFLOW_MODULE_ALT_TEMPLATES` entry as every other module,
+    # in all nine languages -- no reviewed record of its own is needed.
+    assert len(module_names) == 22
     readme_root = ROOT / "docs" / "i18n" / "readme"
     for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
         text = (readme_root / f"README.{language}.rst").read_text(
@@ -3486,13 +3489,15 @@ def test_localized_readme_images_have_reviewed_accessible_text():
             ".. spacr-workflow-begin"
         )[2].partition(".. spacr-workflow-end")[0]
         workflow_alt = re.findall(r"(?m)^   :alt: (.+)$", workflow)
-        assert len(workflow_alt) == 21
-        # Fourteen badges, 21 linked Home applications, four installer/archive
+        assert len(workflow_alt) == 22
+        # Fourteen badges, 22 linked Home applications, four installer/archive
         # icons and five resource icons. The badge count rose by one on
         # 2026-09-02 when the bioRxiv preprint joined the row; the
         # application count fell from 44 to 21 with instruction 318 and was
-        # never brought down here.
-        assert len(alt_text) == 44
+        # never brought down here. 21 -> 22 on 2026-09-11 with `embeddings`,
+        # which takes the total from 44 to 45 -- the two 44s are unrelated
+        # and meeting at the same number was a coincidence.
+        assert len(alt_text) == 45
         assert all(
             module in alt
             for module, alt in zip(

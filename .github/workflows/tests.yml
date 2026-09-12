@@ -66,7 +66,19 @@ jobs:
   fast:
     name: Fast / Full suite control (ubuntu-24.04, py3.12)
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    # 90 -> 150. THIS JOB WAS BEING KILLED BY ITS OWN BUDGET, not by a push:
+    # 1:30:32 on dispatch 34639565357 and 1:30:17 on 34618149518 a day
+    # earlier, both reported as "cancelled", which reads exactly like a
+    # superseded run. `fast` is a BLOCKING job, so a budget it cannot finish
+    # inside is a required check that can never pass -- nightly could not
+    # have gone green whatever the tests said. Only dispatched runs live
+    # long enough to reveal it; push runs are superseded first.
+    #
+    # Raised WITH `--per-test-timeout` below rather than instead of it: a
+    # bigger budget alone would hide a hung test by giving it more room. The
+    # per-test timeout names the test; the budget is there so an honestly
+    # long suite can finish.
+    timeout-minutes: 150
 
     steps:
       - uses: actions/checkout@v7
@@ -150,7 +162,7 @@ jobs:
         run: |
           python tools/run_pytest_batches.py \
             --marker "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
-            --batch-size 32 --workers 2
+            --batch-size 32 --workers 2 --per-test-timeout 300
 
   integration:
     name: Integration
@@ -184,7 +196,15 @@ jobs:
       python_version: "3.12"
       extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "qt and not slow and not heavy and not gpu and not network and not nas and not gui"
-      timeout_minutes: 120
+      # 120 -> 180, and it is SHARD 0 that needs it. The two shards are not
+      # the same size: `run_serial_tail` below is true for shard 0 only, so
+      # it runs the whole serial tail after its parallel half. On dispatch
+      # 34639565357 shard 1 finished and reported its failures while shard 0
+      # was killed by this budget -- and a killed job reports as "cancelled",
+      # which is indistinguishable from a superseded push until you look at
+      # the duration. Qt is blocking, so that was a required check that could
+      # not pass.
+      timeout_minutes: 180
       xdist_workers: 4
       file_shard_index: ${{ matrix.shard }}
       file_shard_count: 2
@@ -437,7 +457,9 @@ jobs:
   minimum-dependencies:
     name: Minimum dependencies (ubuntu-24.04, py3.9)
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    # 120 -> 180, same finding as `fast` above: killed by its own budget at
+    # about 2:01 on two separate dispatches. Also blocking.
+    timeout-minutes: 180
 
     steps:
       - uses: actions/checkout@v7
@@ -528,7 +550,7 @@ jobs:
         run: |
           python tools/run_pytest_batches.py \
             --marker "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
-            --batch-size 32 --workers 2
+            --batch-size 32 --workers 2 --per-test-timeout 300
 
   release-gate:
     name: Release gate / zero unexpected failures

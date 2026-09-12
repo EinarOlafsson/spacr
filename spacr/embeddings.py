@@ -355,6 +355,11 @@ def encoder_key(spec: "EmbeddingSpec") -> str:
     that are the same width, the same dtype and not remotely the same
     quantity -- one is per-stain, the other is a mixture. A key that named
     only the backbone would let those two be compared silently.
+
+    :param spec: the run's configuration. Only ``backbone`` and
+        ``channel_policy`` reach the key: everything else on the spec --
+        batch size, device, crop size -- changes how long the run takes and
+        not what a dimension means.
     """
     return f"{ENCODER_KEY_PREFIX}{spec.backbone}/{spec.channel_policy}"
 

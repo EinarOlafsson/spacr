@@ -23,7 +23,7 @@ builder = importlib.import_module("build_documentation_i18n")
 # remain represented.  A source/API change requires regenerating and reviewing
 # that report before deliberately updating either digest.
 _NEW_VISIBLE_DIGEST = (
-    "936940899ea87eeba7a277f1f27a9e503f92f4b68bd62a0ab9b2906ed5c9cbb2"
+    "1a6e99e42477ea0489b9ed2ccd033e9cea64cb91927b3cc74b48a89a8d2cb21a"
 )
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -161,7 +161,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # a boolean about axis rescaling. The docstrings are back at the top of
     # their classes and the constants carry `#:` comments, so the two bogus
     # entries are gone. Nothing was undocumented by the change.
-    assert len(dunders) == 202
+    # 202 -> 203 on 2026-09-11, ONE entry:
+    # `spacr.qt.widgets.dose_response.PlateSpec.__post_init__`, from
+    # 387(3, 4) at 60166dcc4 -- the validator that refuses a plate whose
+    # control wells it cannot find. A `__post_init__` that raises is a
+    # contract and belongs on the page, which is 368's rule, so this is an
+    # admission rather than a leak. Named rather than counted: a ratchet
+    # moved without saying what it admitted is a rubber stamp.
+    assert len(dunders) == 203
     assert len(assignments) == 16
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
@@ -965,7 +972,49 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 377's infection guard, and 380's two per-window stylesheet helpers.
     # Four are new MODULES and bring their own module docstring with them.
     # The nine catalogs were regenerated against this inventory first.
-    expected = 10_339
+    # 10,339 -> 10,394 on 2026-09-11, +55 and -0, measured against the
+    # surface at a99af39ec rather than inferred from the failure message.
+    # Enumerated by module, because a ratchet moved without saying what it
+    # admitted is a rubber stamp:
+    #
+    #    17  qt.widgets.dose_response  387   PlateSpec (+__post_init__,
+    #                                        from_json, to_json), PlateReport
+    #                                        (+usable, summary_row), PooledFit
+    #                                        (+reproducible, summary_row),
+    #                                        Checkerboard (+shape),
+    #                                        checkerboard_from_frame,
+    #                                        normalise_to_controls,
+    #                                        plate_reports, pool_across_plates,
+    #                                        pool_frame
+    #    10  spacr.ops_objects         372   the module, ObjectsError,
+    #                                        WindowObject, PlateObject (+row),
+    #                                        objects_in_window, segment_windows,
+    #                                        sew, number, objects_frame
+    #     9  qt.screens.embeddings     386   the module, EmbeddingsScreen
+    #                                        (+spec, set_crops, embed, is_busy,
+    #                                        closeEvent),
+    #                                        make_embeddings_screen, register
+    #     7  spacr.ops_sample          372   the module, SampleError,
+    #                                        sample_objects, decode_input,
+    #                                        average_over_cycles, reads_rows,
+    #                                        barcode_rows
+    #     7  spacr.ops_store           372   the module, StoreError, Readiness,
+    #                                        write_table, read_table, row_count,
+    #                                        objects_ready
+    #     2  spacr.embeddings          386   encoder_key, encoder_entry
+    #     1  spacr.scorecard           370   scorecard_figure
+    #     1  spacr.qt.app              380   MainWindow.stylesheet_roots
+    #     1  spacr.qt.theme            380   mark_as_a_sheet_target
+    #   ---
+    #    55
+    #
+    # THREE ARE NEW MODULES -- ops_objects, ops_sample, ops_store -- so each
+    # brings its own module docstring as well; they are counted in the rows
+    # above as "the module". Nothing was retired, so this is a pure
+    # admission. The nine catalogs were regenerated against this inventory
+    # before the number was touched, which is the order this file's own
+    # message asks for.
+    expected = 10_395
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -998,7 +1047,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # docstring as well. The nine catalogs were regenerated against this
     # inventory before the number was touched, which is the order this
     # file's own message asks for.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_339
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_395
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1122,7 +1171,47 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # outside the package calls.
     # 225 -> 180 with the same +45: the boundary itself did not move,
     # so the difference shrinks by exactly what the surface gained.
-    assert 10_519 - len(docs) == 180
+    # RE-MEASURED 2026-09-11, AND THE TWO NUMBERS HAD COME APART. This
+    # assertion is meant to read "pre-filter total minus surface equals the
+    # boundary", and by the previous entry it no longer did: that entry left
+    # the left-hand constant at 10,519 and let the DIFFERENCE absorb a +45
+    # surface gain, which is why it says 180 while the bucket list below it
+    # says the boundary is 213. Adjusting one side is the shortcut this
+    # comment chain warns against everywhere else, and it silently converts
+    # the assertion from a measurement into an accumulator.
+    #
+    # Measured the documented way -- `public_docstrings()` with
+    # `_is_rendered_autoapi_entry` neutralised -- both halves in one run:
+    #
+    #     pre-filter   10,612
+    #     post-filter  10,394
+    #     boundary        218
+    #
+    # THE BOUNDARY DID MOVE, 213 -> 218, and by exactly one bucket:
+    #
+    #   116  spacr.resources.home.versions._generators   unchanged
+    #    59  spacr.resources.icons.backup_icons._gen...  unchanged
+    #    16  spacr.qt.i18n_catalogs                      unchanged
+    #    16  spacr.qt.tutorial                           unchanged
+    #     5  spacr.qt._layout_policy                     NEW
+    #     4  spacr._v1_v2_bridge                         unchanged
+    #     1  spacr.qt.__main__                           unchanged
+    #     1  spacr.qt.run_without_setup                  unchanged
+    #   ---
+    #   218
+    #
+    # `layout_policy` became `_layout_policy`, which is the follow-through
+    # on the 2026-09-10 finding recorded above: it is read by nothing but
+    # `app.py` and was never API. Its five entries did not disappear, they
+    # crossed from the rendered side to the filtered side -- so the surface
+    # falls by five and the boundary rises by five, and the pre-filter total
+    # is unmoved by this particular change. That is the one case where the
+    # two halves move in opposite directions, and the only way to see it is
+    # to measure both.
+    # 10,612 -> 10,613 with 380's `set_a_sheeted_widgets_own_rule`, merged
+    # after the measurement above. BOTH halves move together, which is the
+    # expected shape for a rendered symbol: the boundary stays 218.
+    assert 10_613 - len(docs) == 218
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

@@ -1,11 +1,10 @@
 """Embeddings — a label-free vector for every object, beside the measured panel.
 
-386 STEP 6, AND ITS OWN INSTRUCTION ARGUES THIS IS NOT POLISH. The survey it
-records found that Cell-DINO, OpenPhenom and SubCell are all Python/CLI and
-that NO GUI PLATFORM EXPOSES ANY OF THEM -- not CellProfiler, not napari, not
-QuPath. The engine serves this lab; the screen is what would make spaCR the
-only clickable route to a foundation-model embedding for a community that
-currently has to write Python to get one.
+A SCREEN, NOT A SCRIPT. Cell-DINO, OpenPhenom and SubCell are all Python or
+command line. No graphical platform exposes any of them.
+
+The engine serves this lab. The screen offers that embedding without any
+Python.
 
 All the arithmetic is in :mod:`spacr.embeddings` and none is here. This module
 is the surface, and three of the engine's decisions shape it:
@@ -47,12 +46,13 @@ import pandas as pd
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox, QHBoxLayout, QLabel, QPushButton, QSpinBox, QTableWidget,
-    QTableWidgetItem, QVBoxLayout, QWidget,
+    QVBoxLayout, QWidget,
 )
 
 from ..app_catalog import declared_app
 from ..job_runner import JobRunner
 from ..theme import SPACING
+from ..widgets.sortable_table import install_sorting, table_item
 from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.screens.embeddings")
@@ -125,16 +125,23 @@ class EmbeddingsScreen(QWidget):
         # THE COST IS IN THE CAPTION, not only the tooltip. 386 asks for this
         # choice to be explicit; a user who cannot see what it costs will
         # pick whichever is first and never revisit it.
-        self._policy.addItem("Per channel (keeps the stain, N passes)",
-                             "per_channel")
-        self._policy.addItem("Project to three (mixes stains, one pass)",
-                             "project")
+        # SHORT ENOUGH TO TRANSLATE. These are runtime catalog rows, and the
+        # machine translator returns long clause-heavy English unchanged --
+        # the earlier five-line tooltip failed the zh_CN gate outright. One
+        # idea per sentence, which a tooltip wants anyway.
+        # The PASS COUNT stays in the caption: 386 asks for the cost to be
+        # visible where the choice is made, and a test pins it.
+        self._policy.addItem("Per channel (one pass per stain)", "per_channel")
+        self._policy.addItem("Project to three (one pass)", "project")
+        # VERIFIED AGAINST THE zh_CN MODEL BEFORE BEING WRITTEN. The M2M
+        # checkpoint returns a string UNCHANGED -- not an error -- when
+        # "channel" and "stain" appear in the same row, and the catalog audit
+        # then reports it as "remains exact English". Six variants were run
+        # through `_translate_batches` to find that; this wording avoids the
+        # pair and comes back as Chinese. See instruction 394.
         self._policy.setToolTip(
-            "Per channel encodes each stain separately and puts the channel "
-            "in every column name, so an attribution can say which stain "
-            "carried the signal. Projection mixes the channels into three "
-            "and is faster; its columns name no channel because there is no "
-            "longer one to name.")
+            "Encoding runs separately for every stain and names it in the "
+            "column. Projection mixes them into three and is faster.")
         controls.addWidget(self._policy)
 
         controls.addWidget(QLabel("Backbone:", self))
@@ -167,7 +174,12 @@ class EmbeddingsScreen(QWidget):
         controls.addWidget(self._run)
         outer.addLayout(controls)
 
-        self._table = QTableWidget(0, 0, self)
+        # install_sorting + table_item, like every other view in the app.
+        # A preview of eight dimensions is exactly the table someone sorts --
+        # "which objects score highest on dimension 3" is the only question
+        # a raw embedding column can answer by eye -- and Qt's default sort
+        # is lexicographic, so -0.0412 would rank above 0.9031.
+        self._table = install_sorting(QTableWidget(0, 0, self))
         self._table.setObjectName("EmbeddingsPreviewTable")
         self._table.setAlternatingRowColors(True)
         self._table.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -184,6 +196,14 @@ class EmbeddingsScreen(QWidget):
         outer.addWidget(self._status)
 
         self._fill_backbones()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into: a tooltip that only appears over the control
+        # is one the user meets after they have already decided what to put
+        # in it. One post-pass rather than a convention every hand-built row
+        # has to remember -- the same call `live_preview.py` ends with.
+        from .settings_model import retarget_field_tooltips
+
+        retarget_field_tooltips(self)
 
     # -- inputs -----------------------------------------------------------
 
@@ -200,12 +220,16 @@ class EmbeddingsScreen(QWidget):
     def set_crops(self, crops: np.ndarray, *, label: str = "") -> None:
         """Hand the screen an ``(objects, height, width, channels)`` stack.
 
-        CHANNELS LAST, which is what :mod:`spacr.crops` produces and what
-        :func:`spacr.embeddings.embed_array` documents. Getting this backwards
-        does not raise anywhere useful: a (n, C, H, W) stack with four
-        channels and a 64-pixel crop is still four-dimensional, so it would
-        reach the backbone and fail there with a message about tensor shapes.
+        The channel axis comes last. Getting it backwards does not raise
+        here; it reaches the model and fails there with a message about
+        tensor shapes.
 
+        That layout is what :mod:`spacr.crops` produces and what
+        :func:`spacr.embeddings.embed_array` documents.
+
+        :param crops: the object stack, channels LAST. Not copied: the
+            screen keeps this array and hands it to the backbone, so a
+            caller that mutates it afterwards changes what gets embedded.
         :raises ValueError: when the stack is not four-dimensional.
         """
         crops = np.asarray(crops)
@@ -233,7 +257,7 @@ class EmbeddingsScreen(QWidget):
         )
 
     def embed(self) -> None:
-        """Run the encoder off the GUI thread and show the result."""
+        """Runs the encoder in the background and shows the result."""
         crops = getattr(self, "_crops", None)
         if crops is None:
             self._status.setText("Load crops first.")
@@ -242,6 +266,12 @@ class EmbeddingsScreen(QWidget):
         self._status.setText(f"Embedding {crops.shape[0]} objects…")
 
         def work():
+            """Run the backbone off the GUI thread.
+
+            The import is inside because it pulls torch in: a user who never
+            opens this screen should not pay for it, and a user who does
+            should pay for it once, here, rather than at launch.
+            """
             from ...embeddings import embed_array
 
             return embed_array(crops, spec)
@@ -283,7 +313,11 @@ class EmbeddingsScreen(QWidget):
         self._table.setRowCount(rows)
         for row in range(rows):
             for index, column in enumerate(columns):
-                item = QTableWidgetItem(f"{frame.iloc[row][column]:.4f}")
+                # The displayed text is rounded to four places; the SORT
+                # KEY is the float, so two dimensions that both print
+                # -0.0000 still order by what they actually are.
+                value = float(frame.iloc[row][column])
+                item = table_item(f"{value:.4f}", key=value)
                 item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 self._table.setItem(row, index, item)
 
@@ -299,7 +333,12 @@ class EmbeddingsScreen(QWidget):
         return bool(self._jobs.active_jobs())
 
     def closeEvent(self, event):            # noqa: N802 - Qt name
-        """Let the job runner stop its thread before the widget goes."""
+        """Let the job runner stop its thread before the widget goes.
+
+        :param event: Qt's close event, passed to the base class unchanged.
+            Never ignored -- a screen that refuses to close because a run is
+            in flight would trap the window, so the run is stopped instead.
+        """
         try:
             self._jobs.shutdown()
         except Exception:                    # noqa: BLE001

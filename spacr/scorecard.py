@@ -432,9 +432,8 @@ def compare_against_baseline(truth: np.ndarray, finetuned: np.ndarray,
 #
 # A screen is unbalanced -- that is what a screen IS -- so several of these
 # exist only because accuracy is uninformative when 98% of objects are
-# negative. Instruction 370 asks for AUPRC "first when positives are rare,
-# which in a screen they are", and for balanced accuracy and MCC for the
-# same reason.
+# negative. AUPRC comes first when positives are rare, which in a screen
+# they are, and balanced accuracy and MCC are here for the same reason.
 #
 # BUILT ON `spacr.classifier_quality.Confusion` RATHER THAN BESIDE IT. That
 # module already owns the confusion matrix, sensitivity, specificity and
@@ -1083,10 +1082,10 @@ def scorecard_figure(metrics: Mapping[str, object], path, *,
                      title: str = "", dpi: int = 150):
     """Draw finetuned against stock as paired bars, and write it to ``path``.
 
-    370 asks for the scorecard "in graph form" on Hugging Face and on the API
-    page, beside the CSV and the table. This is that rendering, and it reads
-    the SAME parsed metrics the tooltip and the zoo screen do, so the picture
-    cannot disagree with the numbers printed next to it.
+    The scorecard in graph form, for Hugging Face and for the API page,
+    beside the CSV and the table. It reads the SAME parsed metrics the
+    tooltip and the zoo screen read, so the picture cannot disagree with the
+    numbers printed next to it.
 
     MATPLOTLIB IS IMPORTED INSIDE, deliberately. This module's contract is
     that the Model Zoo can import it with neither torch nor cellpose present
@@ -1130,49 +1129,65 @@ def scorecard_figure(metrics: Mapping[str, object], path, *,
             f"empty chart published beside a model would read as a model that "
             f"scored zero.")
 
-    positions = np.arange(len(names), dtype=float)
-    width = 0.38
-    figure, axes = plt.subplots(figsize=(1.6 * len(names) + 2.0, 4.2))
-    axes.bar(positions - width / 2, stock, width, label="stock",
-             color="#b0b7c3")
-    axes.bar(positions + width / 2, fine, width, label="finetuned",
-             color="#2f6df6")
+    # INSIDE `figure_style`, and the context opens BEFORE `subplots`:
+    # rcParams reach an artist when it is CREATED, so a context entered
+    # afterwards leaves the spines, ticks and labels at whatever the
+    # caller's globals happened to be. A chart published beside a model
+    # is the last place to ship a figure in a second visual system.
+    from .figures.style import figure_style
 
-    for x, value in zip(positions - width / 2, stock):
-        axes.text(x, value + 0.015, f"{value:.3f}", ha="center", fontsize=8)
-    for x, value in zip(positions + width / 2, fine):
-        axes.text(x, value + 0.015, f"{value:.3f}", ha="center", fontsize=8,
-                  fontweight="bold")
+    with figure_style():
+        positions = np.arange(len(names), dtype=float)
+        width = 0.38
+        figure, axes = plt.subplots(figsize=(1.6 * len(names) + 2.0, 4.2))
+        axes.bar(positions - width / 2, stock, width, label="stock",
+                 color="#b0b7c3")
+        axes.bar(positions + width / 2, fine, width, label="finetuned",
+                 color="#2f6df6")
 
-    axes.set_xticks(positions)
-    axes.set_xticklabels(names)
-    # 0 TO 1 ALWAYS, never autoscaled. Every metric here is a fraction, and a
-    # y-axis that started at 0.8 would make a 0.02 gain look like a landslide
-    # -- which is exactly the misreading a published chart must not invite.
-    axes.set_ylim(0.0, 1.08)
-    axes.set_ylabel("score")
-    # OUTSIDE THE AXES. `lower right` sat on top of the recall bars, which is
-    # the corner a high-scoring model fills -- the legend would hide exactly
-    # the result the chart is published to show.
-    axes.legend(frameon=False, loc="upper center", ncol=2,
-                bbox_to_anchor=(0.5, -0.12))
-    axes.spines[["top", "right"]].set_visible(False)
+        for x, value in zip(positions - width / 2, stock):
+            axes.text(x, value + 0.015, f"{value:.3f}", ha="center", fontsize=8)
+        for x, value in zip(positions + width / 2, fine):
+            axes.text(x, value + 0.015, f"{value:.3f}", ha="center", fontsize=8,
+                      fontweight="bold")
 
-    holdout = metrics.get("holdout")
-    version = metrics.get("holdout_version")
-    objects = metrics.get("n_objects")
-    caption = []
-    if title:
-        caption.append(str(title))
-    if holdout:
-        caption.append(f"hold-out {holdout}"
-                       + (f" @ {version}" if version else ""))
-    if isinstance(objects, (int, float)):
-        caption.append(f"{int(objects)} objects")
-    if caption:
-        axes.set_title("  -  ".join(caption), fontsize=10)
+        axes.set_xticks(positions)
+        axes.set_xticklabels(names)
+        # 0 TO 1 ALWAYS, never autoscaled. Every metric here is a fraction, and a
+        # y-axis that started at 0.8 would make a 0.02 gain look like a landslide
+        # -- which is exactly the misreading a published chart must not invite.
+        axes.set_ylim(0.0, 1.08)
+        axes.set_ylabel("score")
+        # OUTSIDE THE AXES. `lower right` sat on top of the recall bars, which is
+        # the corner a high-scoring model fills -- the legend would hide exactly
+        # the result the chart is published to show.
+        axes.legend(frameon=False, loc="upper center", ncol=2,
+                    bbox_to_anchor=(0.5, -0.12))
+        axes.spines[["top", "right"]].set_visible(False)
 
-    figure.tight_layout()
-    figure.savefig(str(path), dpi=dpi)
-    plt.close(figure)
-    return path
+        holdout = metrics.get("holdout")
+        version = metrics.get("holdout_version")
+        objects = metrics.get("n_objects")
+        caption = []
+        if title:
+            caption.append(str(title))
+        if holdout:
+            caption.append(f"hold-out {holdout}"
+                           + (f" @ {version}" if version else ""))
+        if isinstance(objects, (int, float)):
+            caption.append(f"{int(objects)} objects")
+        if caption:
+            axes.set_title("  -  ".join(caption), fontsize=10)
+
+        figure.tight_layout()
+        # THROUGH `spacr.plot.save_figure`, the one writer. A scorecard is a
+        # figure the user KEEPS -- it is published beside the model -- so the
+        # figure-format and resolution preferences have to reach it like any
+        # other kept figure. A bare `savefig` here would hard-code PNG at
+        # whatever dpi this function was called with and ignore both.
+        #
+        # Imported inside the call: `spacr.plot` pulls in the whole plotting
+        # stack, and this module is importable without it.
+        from .plot import save_figure
+
+        return save_figure(figure, path, dpi=dpi, close=True)

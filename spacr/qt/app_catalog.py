@@ -872,18 +872,21 @@ DECLARED_APPS = (
         section='Data',
         factory='make_embeddings_screen',
         stage='alpha',
+        # UNDER 500 CHARACTERS, MEASURED. The runtime catalog's translator
+        # returns a long row unchanged rather than failing, and the audit
+        # then calls it "exact English". Of the six longest intros in this
+        # file, `dose_response` at 495 translates and this one at 544 did
+        # not -- the only difference being length. Keep it near the shorter
+        # of those two.
         intro=(
-            'Turns each segmented object into a vector using a pretrained '
+            'Turns each segmented object into a vector with a pretrained '
             'image encoder, alongside the measured panel rather than instead '
-            'of it. The measured features answer questions somebody thought '
-            'to ask; an embedding carries whatever the encoder found useful, '
-            'which is what makes it worth having when the phenotype has no '
-            'name yet. Per-channel encoding is the default so a dimension '
-            'still knows which stain it came from, and a projection onto '
-            'three channels is offered for speed. The columns land in the '
-            'emb_ family, grouped beside the measured ones in every picker. '
-            'A single dimension means nothing on its own -- read them as a '
-            'vector, through a reduction or a retrieval.'
+            'of it. Measured features answer questions chosen in advance; an '
+            'embedding carries whatever the encoder found useful, which is '
+            'worth having when the phenotype has no name yet. Per-channel '
+            'encoding is the default. Every dimension then records the '
+            'stain it came from. Read them as a vector: one dimension means '
+            'nothing alone.'
         ),
         cli_note=(
             'For headless use, call spacr.embeddings.embed_array() on the '

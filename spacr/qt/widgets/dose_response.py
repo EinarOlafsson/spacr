@@ -2509,7 +2509,12 @@ class PlateSpec:
 
     @classmethod
     def from_json(cls, payload: Mapping[str, Any]) -> "PlateSpec":
-        """Rebuild from :meth:`to_json`, validating on the way in."""
+        """Rebuild from :meth:`to_json`, validating on the way in.
+
+        :param payload: the mapping :meth:`to_json` produced. Missing keys
+            fall back to the field defaults rather than raising, so a spec
+            written by an older version still loads.
+        """
         gate = payload.get("min_zprime")
         return cls(plate=str(payload.get("plate", "")),
                    control=str(payload.get("control", "")),
@@ -2532,6 +2537,12 @@ class PlateReport:
         because a control had fewer than two wells. ``None`` is not a
         failure; it is the absence of a number, and is reported as such.
     :param note: the sentence to show the user. Empty when nothing is wrong.
+    :param plate: the plate identifier this report is about, as it appears in
+        the plate column of the frame.
+    :param n_positive: how many positive-control wells were found on it.
+        Reported even when the plate is refused, because "two" and "none"
+        are different problems and the note alone does not distinguish them.
+    :param n_negative: the same for negative controls.
     """
 
     plate: str
@@ -2777,6 +2788,13 @@ def plate_reports(frame: pd.DataFrame, spec: PlateSpec, *,
     plates would be dropped. A table where every plate is refused returns its
     refusals rather than raising -- here the refusals ARE the answer.
 
+    :param frame: the long-format table, one row per well.
+    :param spec: which column names the plate, which the control, and which
+        control values are the two ends.
+    :param response: the readout column whose control means decide the
+        plate's Z'. Keyword-only, because a plate's verdict is about a
+        PARTICULAR readout and passing it positionally invites reading the
+        report as a property of the plate alone.
     :raises DoseResponseError: when a named column is missing.
     """
     _, reports = _scan_plates(frame, spec, response)
@@ -2817,27 +2835,36 @@ class PooledFit:
     have to be refused again, differently, inside it. This way a refusal on
     one plate stays exactly the refusal this module already speaks.
 
-    RANDOM, NOT FIXED. Fixed-effect pooling assumes the plates share one true
-    EC50 and differ only by sampling noise, so three tight plates that
-    disagree produce an impossibly narrow interval around a value none of
-    them support. The DerSimonian--Laird estimate of the between-plate
-    variance is added to each plate's own, so real plate-to-plate variation
-    widens the answer instead of being weighted away.
+    RANDOM, NOT FIXED. Fixed-effect pooling assumes every plate measures the
+    same value and differs only by noise. Three tight plates that disagree
+    then give a narrow interval around a value none of them support. The
+    DerSimonian-Laird estimate of the between-plate variance is added to each
+    plate's own, so real variation between plates widens the answer instead
+    of being weighted away.
 
     :param status: :data:`STATUS_FITTED`, or :data:`STATUS_REFUSED` when too
         few plates fitted or the plates disagree beyond what their own
         uncertainty explains.
     :param ec50: the pooled EC50, or ``None`` when refused.
-    :param tau: the between-plate SD on the log10 scale -- the number that
-        says how reproducible this compound is from plate to plate, which no
-        average of three EC50s can report.
+    :param tau: the between-plate SD on the log10 scale -- it shows how far
+        the plates agree about this compound, which no average of three EC50
+        values can report.
     :param i_squared: the share of the observed spread that is real rather
         than sampling noise, in ``[0, 1]``.
-    :param q: Cochran's Q, and :param q_p: its p-value against the null that
-        every plate measured the same EC50.
+    :param q: Cochran's Q against the null that every plate measured the
+        same EC50.
+    :param q_p: the p-value of that Q.
     :param per_plate: the individual fits, kept so the pooled number can
         always be taken apart again.
     :param note: why, when refused or when the plates sit uneasily together.
+    :param log10_ec50: the pooled estimate on the log10 scale, which is where
+        the pooling is actually done -- EC50s are log-normal, so averaging
+        them in linear units weights the high plates more than the data
+        warrants.
+    :param log10_se: the standard error of that estimate, on the same scale.
+    :param ec50_low: the low end of the confidence interval, back on the
+        linear scale the user reads.
+    :param ec50_high: its high end.
     """
 
     status: str
@@ -2865,7 +2892,15 @@ class PooledFit:
     def summary_row(self) -> Dict[str, Any]:
         """One row for the results table, refusal included."""
         blank = float("nan")
+
         def num(value):
+            """``None`` as NaN, so a refused fit still fills its columns.
+
+            A refusal has no EC50, and leaving the cell empty would make the
+            row a different shape from a fitted one -- which is what a table
+            cannot have. NaN is the value that says "not a number here"
+            without changing the columns.
+            """
             return blank if value is None else float(value)
         return {
             "metric": "pooled_ec50",
@@ -3012,6 +3047,11 @@ def pool_frame(frame: pd.DataFrame, spec: DoseResponseSpec, *,
     exactly as :func:`fit_frame` keeps one bad compound from taking a plate
     down.
 
+    :param frame: the long-format table, one row per well, with every
+        replicate plate in it.
+    :param spec: the fit specification, applied unchanged to every plate --
+        which is what makes the per-plate EC50s comparable in the first
+        place.
     :param plate: the column identifying the replicate.
     :raises DoseResponseError: when ``plate`` is not a column, or when no
         plate produced a fit at all -- there is nothing to pool and a refusal

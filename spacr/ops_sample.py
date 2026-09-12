@@ -1,10 +1,10 @@
-"""Every other channel, sampled at the object coordinates B4 assigned.
+"""Every other channel, sampled at the coordinates the numbering assigned.
 
 SAMPLING EVERY OTHER CHANNEL at the object coordinates the numbering step
 assigned -- the part that can be built and checked without a
-real cycle stack. B4 produced a plate-level object id and a well-frame
-centroid for every nucleus; this is what reads the remaining channels AT
-those coordinates and keys the result to those ids.
+real cycle stack. The numbering step produced a plate-level object id and a
+well-frame centroid for every nucleus; this is what reads the remaining
+channels AT those coordinates and keys the result to those ids.
 
     C1  SEQUENCING CHANNELS, PER CYCLE ... NEVER averaged across cycles --
         that is the one operation that destroys a barcode while leaving it
@@ -22,8 +22,9 @@ collapsed, and this module offers no way to average one.
     THE PHENOTYPE PATH IS THE OPPOSITE CASE, which is why the two are
     separate functions rather than one with a flag. A phenotype channel
     measured in several cycles IS several samples of one quantity and
-    averaging it is the right thing -- C4 emits "the schema `measure`
-    already emits". Same plate, same objects, opposite correct answer; a
+    averaging it is the right thing, and what it emits is the schema
+    ``measure`` already emits. Same plate, same objects, opposite correct
+    answer; a
     shared flag would make that a caller's choice, and it is not one.
 
 The samplers are injected, as they are in :mod:`spacr.ops_compose` and
@@ -148,10 +149,10 @@ def decode_input(per_cycle: Sequence[Sequence[np.ndarray]]) -> np.ndarray:
 def average_over_cycles(per_cycle: Sequence[np.ndarray]) -> np.ndarray:
     """Mean of one PHENOTYPE channel across cycles. Correct here, only here.
 
-    C4 samples phenotype channels "at the same object ids", and a phenotype
+    Phenotype channels are sampled "at the same object ids", and a phenotype
     measured in several cycles is several samples of one quantity -- so
     averaging raises its precision, exactly as averaging the Hoechst across
-    tiles did in B1.
+    tiles does when they overlap.
 
     SEPARATE FROM :func:`decode_input` ON PURPOSE. The same operation is
     right for a phenotype channel and catastrophic for a sequencing one, so
@@ -161,6 +162,11 @@ def average_over_cycles(per_cycle: Sequence[np.ndarray]) -> np.ndarray:
     NaN-aware, because :func:`sample_objects` returns NaN for an object this
     cycle did not cover, and an object measured in nine cycles of eleven
     should get the mean of the nine rather than NaN.
+
+    :param per_cycle: one array of per-object values per cycle, every array
+        the same length and in the same object order. The order is the
+        caller's to keep: nothing here can detect two cycles sampled against
+        different object tables.
     """
     stack = np.stack([np.asarray(one, dtype=float) for one in per_cycle])
     with np.errstate(invalid="ignore"):
@@ -170,8 +176,10 @@ def average_over_cycles(per_cycle: Sequence[np.ndarray]) -> np.ndarray:
 def reads_rows(objects: Sequence, values: np.ndarray, *,
                channels: Sequence[str],
                bases: Optional[Sequence[str]] = None) -> List[Dict[str, object]]:
-    """``ops_reads`` rows: one per object per cycle, per Phase D's columns.
+    """``ops_reads`` rows: one per object per cycle, per the storage contract's columns.
 
+    :param objects: the numbered objects the values were sampled at, in the
+        same order as ``values``' first axis.
     :param values: ``(objects, cycles, channels)`` from :func:`decode_input`.
     :param channels: a name per channel, for the column names.
     :param bases: the letter each channel votes for; when given, each row
@@ -220,6 +228,11 @@ def barcode_rows(objects: Sequence, values: np.ndarray, *,
     cycles -- "a barcode is only as trustworthy as its worst base". Repeating
     that here would be a second decoder to keep in step.
 
+    :param objects: the numbered objects, in the same order as ``values``'
+        first axis.
+    :param values: ``(objects, cycles, channels)`` intensities, NEVER
+        averaged over cycles -- see :func:`decode_input`, which refuses a
+        single cycle for the same reason.
     :param library: when given, each barcode is corrected to the nearest
         library member through :func:`spacr.ops_sbs.correct_to_library`, and
         the row carries what it mapped to.

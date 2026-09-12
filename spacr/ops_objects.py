@@ -5,13 +5,14 @@ table. The compose step gives a mosaic that is built a
 window at a time and never materialised whole; this is what segmentation and
 numbering do on top of it:
 
-    B2  SEGMENT ONCE, on the composite, window by window.
-    B3  SEW THE LABELS ACROSS WINDOW SEAMS. An object straddling a boundary
-        is one object, matched on its well-frame centroid.
-    B4  PLATE-LEVEL OBJECT NUMBERS, ASSIGNED IN THE WELL FRAME. Per-window
-        numbering would give two windows an object #1 apiece.
+* SEGMENT ONCE, on the composite, window by window.
+* SEW THE LABELS ACROSS WINDOW SEAMS. An object straddling a boundary is
+  one object, matched on its well-frame centroid.
+* NUMBER IN THE WELL FRAME, NOT PER WINDOW. Per-window numbering would
+  give two windows an object #1 apiece.
 
-THE SEAM PROBLEM IS ALREADY HALF-SOLVED BY B1, and saying how avoids
+THE SEAM PROBLEM IS ALREADY HALF-SOLVED BY THE COMPOSE STEP, and saying how
+avoids
 reinventing it. :func:`spacr.ops_compose.windows_over` tiles with an OVERLAP,
 and its contract is that the overlap exceeds the largest object. So a nucleus
 near a seam is not split between two windows -- it is seen WHOLE by at least
@@ -30,7 +31,8 @@ and would be counted as one for the rest of the run.
 
 THE IDS ARE A JOIN KEY, so they are assigned deterministically -- raster
 order on the well-frame centroid -- and not by iteration order over a dict or
-by whichever window happened to be segmented first. 372: "This id, and the
+by whichever window happened to be segmented first. The contract is: "This
+id, and the
 centroid beside it, is the join key for every later phase." Two runs over the
 same data must produce the same numbers or nothing downstream can be
 compared.
@@ -88,6 +90,15 @@ class WindowObject:
     :param clipped: whether its mask touches a window edge that is not also a
         canvas edge -- meaning this window did NOT see all of it. A clipped
         observation is never preferred and never emitted alone.
+    :param centroid_y: row of the object's centroid, in WELL-frame pixels --
+        not window-frame. Matching across a seam compares centroids from two
+        different windows, so they have to be in a frame both agree on.
+    :param centroid_x: column of the same centroid, same frame.
+    :param area: the mask's pixel count as this window saw it. Smaller than
+        the truth whenever ``clipped`` is set, which is what makes it usable
+        as the tie-break between two observations of one nucleus.
+    :param bbox: ``(top, left, bottom, right)`` in well-frame pixels,
+        bottom/right exclusive.
     """
 
     window: Window
@@ -101,10 +112,26 @@ class WindowObject:
 
 @dataclass(frozen=True)
 class PlateObject:
-    """One nucleus, numbered for the whole well. The join key for Phase C.
+    """One nucleus, numbered for the whole well. The join key for sampling.
 
-    The field names are the ``ops_objects`` columns Phase D specifies, so the
-    table is written from these without a translation layer.
+    The field names are the ``ops_objects`` columns the storage contract
+    specifies, so the table is written from these without a translation
+    layer.
+
+    :param object_id: the well-wide number. Unique across the whole well,
+        which is the entire reason this type exists -- per-window numbering
+        gives two windows an object #1 apiece.
+    :param centroid_x: column of the centroid, in well-frame pixels.
+    :param centroid_y: row of the centroid, same frame.
+    :param area: pixel count of the mask that was kept, which is the
+        UNCLIPPED observation wherever one exists.
+    :param bbox: ``(top, left, bottom, right)`` in well-frame pixels,
+        bottom/right exclusive.
+    :param window: the window whose observation was kept, as ``(row, col)``.
+        Recorded so a suspect object can be traced back to the pixels it was
+        segmented from.
+    :param n_observations: how many windows saw this nucleus. Greater than
+        one means it sat in an overlap and the observations were sewn.
     """
 
     object_id: int
@@ -193,7 +220,7 @@ def segment_windows(windows: Iterable[Window],
                     segment: Callable[[Window], np.ndarray], *,
                     canvas: Optional[Tuple[int, int]] = None,
                     ) -> Tuple[WindowObject, ...]:
-    """B2: run a segmenter over each window and collect the observations.
+    """Run a segmenter over each window and collect the observations.
 
     THE SEGMENTER IS INJECTED, exactly as ``compose_window`` takes its
     ``read_tile``. This module never imports cellpose, never chooses a model
@@ -240,7 +267,7 @@ def sew(observations: Sequence[WindowObject], *,
         tolerance: float = DEFAULT_CENTROID_TOLERANCE,
         area_ratio: float = DEFAULT_AREA_RATIO,
         ) -> Tuple[Tuple[WindowObject, ...], ...]:
-    """B3: group observations that are the same nucleus.
+    """Group observations that are the same nucleus.
 
     Every group is one physical object. A nucleus in a window overlap is
     grouped from two (or four, at a corner) observations; one in a window's
@@ -257,6 +284,9 @@ def sew(observations: Sequence[WindowObject], *,
     truncated by definition, so requiring areas to agree would prevent
     exactly the match that rescues it.
 
+    :param observations: every window's view of every object in one well,
+        already in well-frame coordinates. Order does not matter; the
+        grouping is by geometry, not by arrival.
     :returns: groups, each a tuple of observations, in no particular order --
         :func:`number` imposes the order that matters.
     """
@@ -283,7 +313,7 @@ def sew(observations: Sequence[WindowObject], *,
 
 def number(groups: Sequence[Sequence[WindowObject]], *,
            strict: bool = True) -> Tuple[PlateObject, ...]:
-    """B4: one id per object, assigned in the well frame, deterministically.
+    """One id per object, assigned in the well frame, deterministically.
 
     RASTER ORDER ON THE WELL-FRAME CENTROID -- top to bottom, then left to
     right -- rather than the order windows were segmented in. The id is a
@@ -340,6 +370,8 @@ def objects_frame(objects: Sequence[PlateObject]):
     Imported locally so this module stays usable -- and testable -- without
     pandas, which is the same reason :mod:`spacr.scorecard` reaches for the
     standard library.
+
+    :param objects: the numbered objects, one row each, in the order given.
     """
     import pandas as pd
 

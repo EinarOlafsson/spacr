@@ -224,3 +224,57 @@ RELATED
 lab: no GUI platform anywhere exposes a foundation-model embedding, which is
 what makes step 6 an adoption argument rather than polish. 390 is lowest
 priority; this file is not bound by that and can be picked up on its own.
+
+
+--------------------------------------------------------------------------------
+2026-09-11: STEP 6 WAS RECORDED DONE ON THE STRENGTH OF THE SCREEN EXISTING
+--------------------------------------------------------------------------------
+
+THE MODULE HAD A SCREEN, AN API PAGE AND A CATALOG ROW SAYING `section='Data'`
+-- and an entry in NONE of the tables that make a tile real. Home drew a tile
+the README grid could not file, and `packaging/generate_readme_visuals.py`
+refused outright: "documented application order does not match the Home
+registry: additional=['embeddings']". Eleven tables had to move:
+
+    SECTION_TILE_ORDER (spacr/qt/app.py)   no entry -> Data, beside `foreign`
+    README.rst + 9 localized               the Data row gains a tile, wraps at 6
+    docs/source/_generated/workflow_grid    regenerated
+    module count, 3 files                  44 -> 45
+    tile count, 3 files                    21 -> 22
+    declared layout                        Data 6 -> 7
+    localized alt-text count               21 -> 22
+    Home app ratchet                       29 -> 30
+    packaging denominator                  558 -> 562
+    API surface / callables / dunders      10,339 -> 10,395 / 8,535 -> 8,583 / 202 -> 203
+    ten API + ten runtime catalogs         rebuilt
+
+DATA IS 7 AND THAT IS A CHANGE TO A LAYOUT THE MAINTAINER SPECIFIED (Core 6 /
+Data 6 / Tools 5 / Assays 4). A new module has to land somewhere, and the only
+arrangement that keeps four counts fixed is one where nothing is ever added --
+so the count moved. If Tools, or TILELESS_APPS with no tile at all, is the
+better answer, the two places to change are `SECTION_TILE_ORDER` and the
+`wanted` dict in `test_make_masks_is_a_tool_and_no_section_is_empty.py`; both
+carry a comment saying so.
+
+FOUR DEFECTS IN THE SCREEN ITSELF, none of which the fourteen tests written
+with it had asked about:
+
+  * the preview table was built without `install_sorting()` and with plain
+    `QTableWidgetItem` cells, so Qt sorted lexicographically -- -0.0412 ranked
+    above 0.9031 in the one table whose only purpose is ranking objects on a
+    dimension;
+  * hover help sat on the fields rather than on the setting names, which is
+    113's rule and one `retarget_field_tooltips(self)` call;
+  * `work`, its background closure, was undocumented;
+  * the registered-app copy said "questions somebody thought to ask", which
+    the user-facing tone gate rejects as conversational.
+
+AND THE CAPTIONS WERE TOO LONG TO TRANSLATE. The five-line policy tooltip and
+the six-sentence tile intro came back as untranslated English in zh_CN and
+failed the runtime catalog audit outright. Shortened to one idea per sentence,
+which a tooltip wants regardless. The PASS COUNT stays in the caption -- this
+item asks for the cost to be visible where the choice is made, and shortening
+it away is caught by a test.
+
+STILL OPEN: the kNN retrieval measurement, which is this item's own "how to
+know it worked" and has never been run.

@@ -7,9 +7,20 @@ folded into a host -- and an empty section must not survive as a tab
 onto a blank pane.
 
 IT LANDED IN TOOLS, NOT DATA. This file asserted Data until 2026-09-01,
-from before the restructure. The maintainer's own layout is Core 6 /
-Data 6 / Tools 5 / Assays 4, and SECTION_TILE_ORDER meets it exactly
-with Make Masks in Tools; moving it to Data would make that 7 and 4.
+from before the restructure. The maintainer's own layout was Core 6 /
+Data 6 / Tools 5 / Assays 4, and SECTION_TILE_ORDER met it exactly with
+Make Masks in Tools; moving Make Masks to Data would have made that 7
+and 4, which is the arrangement this file exists to refuse.
+
+DATA IS 7 FROM 2026-09-11, AND THAT IS A DIFFERENT CLAIM. 386's
+Embeddings module joined Data, so the section grew by one. The shape
+this file guards is WHICH SECTION A MODULE IS FILED UNDER, not that the
+four counts never move -- a new module has to land somewhere, and the
+only arrangement that keeps every count fixed is one where nothing is
+ever added. Embeddings' own catalog row has said `section='Data'` since
+it was written; it simply had no entry in SECTION_TILE_ORDER, so Home
+drew a tile it could not sort. Make Masks is still in Tools, which is
+the assertion that was actually asked for.
 """
 
 from __future__ import annotations
@@ -32,14 +43,20 @@ def test_make_masks_is_under_tools(qapp):
 
 
 def test_the_declared_layout_is_the_one_that_was_asked_for(qapp):
-    """Core 6 / Data 6 / Tools 5 / Assays 4, as specified.
+    """Core 6 / Data 7 / Tools 5 / Assays 4.
 
     Counted from SECTION_TILE_ORDER rather than from what draws: two of
     those keys are folded onto host mastheads by instruction 318, so
-    nineteen tiles appear rather than twenty-one. The LAYOUT is what was
+    twenty tiles appear rather than twenty-two. The LAYOUT is what was
     asked for; the folding is a later decision on top of it.
+
+    Data 6 -> 7 on 2026-09-11 with Embeddings. Flagged rather than
+    absorbed: the other three counts are the maintainer's specification
+    and are unchanged, and if Embeddings belongs somewhere other than
+    Data -- or belongs in TILELESS_APPS with no tile at all -- this line
+    and `SECTION_TILE_ORDER` are the two places to move it.
     """
-    wanted = {app_module.SECTION_CORE: 6, app_module.SECTION_DATA: 6,
+    wanted = {app_module.SECTION_CORE: 6, app_module.SECTION_DATA: 7,
               app_module.SECTION_TOOLS: 5, app_module.SECTION_ASSAYS: 4}
     actual = {name: len(keys)
               for name, keys in app_module.SECTION_TILE_ORDER.items()}

@@ -15,7 +15,8 @@ Data
 Import images and tables into spaCR projects and execute reproducible
 multi-plate workflows.
 
-| |DocModule_foreign|\ |DocModule_run_compare|\ |DocModule_experiment_design|\ |DocModule_power|\ |DocModule_dose_response|\ |DocModule_qc_dashboard|
+| |DocModule_foreign|\ |DocModule_embeddings|\ |DocModule_run_compare|\ |DocModule_experiment_design|\ |DocModule_power|\ |DocModule_dose_response|
+| |DocModule_qc_dashboard|
 
 Tools
 ^^^^^
@@ -66,6 +67,11 @@ Quantitative readouts for biological assays.
    :width: 16.0%
    :alt: Open the Import API
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
+   :align: middle
+.. |DocModule_embeddings| image:: /_static/workflow/apps/embeddings.png
+   :width: 16.0%
+   :alt: Open the Embeddings API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html
    :align: middle
 .. |DocModule_run_compare| image:: /_static/workflow/apps/run_compare.png
    :width: 16.0%

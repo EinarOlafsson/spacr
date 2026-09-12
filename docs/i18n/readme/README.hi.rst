@@ -101,7 +101,7 @@ segmentation, measurement, annotation और classification modules भी ए�
      - 🟢 CPU
      - 🟢 CPU
 
-समर्थित (स्थिर)  लागू (बेटा) 🔴 CPU समर्थन केवल
+🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
 
 .. spacr-hardware-end
 
@@ -278,7 +278,8 @@ annotations, classification, barcode mapping and regression.
 Import images and tables into spaCR projects and execute reproducible
 multi-plate workflows.
 
-| |Module_foreign|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
+| |Module_foreign|\ |Module_embeddings|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|
+| |Module_qc_dashboard|
 
 उपकरण
 ^^^^^
@@ -329,6 +330,11 @@ Quantitative readouts for biological assays.
    :width: 16.0%
    :alt: Import API खोलें
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
+   :align: middle
+.. |Module_embeddings| image:: ../../../spacr/resources/icons/workflow/apps/embeddings.png
+   :width: 16.0%
+   :alt: Embeddings API खोलें
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html
    :align: middle
 .. |Module_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
    :width: 16.0%

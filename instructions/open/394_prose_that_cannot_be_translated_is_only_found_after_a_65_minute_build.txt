@@ -1,0 +1,247 @@
+================================================================================
+PROSE THAT CANNOT BE TRANSLATED IS ONLY FOUND AFTER A 65-MINUTE BUILD, AND
+THE HOUSE STYLE IS WHAT PRODUCES IT
+================================================================================
+
+Status:    OPEN AND ACTIONABLE, filed 2026-09-11. Nothing gates it. Filed
+           after the same failure cost four rebuild cycles in one evening.
+Owner:     unassigned. `tools/build_i18n_catalogs.py` holds the gates,
+           `tools/build_documentation_i18n.py` the API half.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Both catalog lanes gate on translation QUALITY, not merely on presence:
+
+    API blocks failed the contextual-source translation gate
+    API blocks retain ordinary English prose words
+    API blocks retain copied English prose sequences
+    API blocks remain exact English outside the hash allowlist
+    <lang>/UI: N rows remain exact English
+
+Those verdicts exist only AFTER the model has run. Adding one docstring
+paragraph therefore costs a ~40-minute nine-language build plus a ~25-minute
+audit before anyone learns whether the paragraph was translatable. Measured
+2026-09-11: four full cycles in one evening, three of them caused by prose
+added between the previous build and its audit.
+
+THE HOUSE STYLE IS THE CAUSE, and that is not an argument for changing the
+house style. spaCR docstrings are dense, clause-heavy and idiomatic on
+purpose -- they explain WHY, they carry measurements, and they use ALL-CAPS
+for emphasis and em-dashes for asides. Every one of those is hostile to a
+machine translator:
+
+  * `spacr.ops_store`'s module docstring was a pseudo-table of bare
+    identifiers -- `ops_geometry, ops_objects, ops_reads, ops_barcodes` --
+    with almost no prose between them. There was nothing to translate, so the
+    English came back unchanged and the gate called it a copy.
+  * Twelve instruction-phase labels (`B1`-`B5`, `C4`, `Phase C`, `Phase D`,
+    `372:`) sat mid-sentence across four OPS modules. Each is an
+    untranslatable token wedged into a clause.
+  * A five-line tooltip and a six-sentence tile intro on the Embeddings
+    screen came back as untranslated English in zh_CN and failed the runtime
+    audit outright.
+
+AND THE OBVIOUS DIAGNOSIS WAS WRONG. The first theory was that
+`_PROTECT_PATTERNS` treats emphasis-CAPS as literals it must not translate.
+Reading the actual Swedish output disproved it: `SEPARATE FROM ... ON PURPOSE`
+came back as `Avskilj från ... med flit` -- translated, and badly. The real
+failure is quality on dense prose. `a caller's decision` became
+`en uppringares beslut`, a TELEPHONE caller. A theory that predicts the right
+fix for the wrong reason is worse than no theory; check the output.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The feedback loop is 65 minutes long and the failure is invisible until the
+end of it. That has two costs, and the second is worse:
+
+  * WORK IS SERIALISED BEHIND IT. A release that needs current catalogs
+    cannot absorb a docstring edit without paying the cycle again, so
+    "finish all source edits first" becomes a rule everyone has to hold in
+    their head. It was broken three times in one evening by the person who
+    had written the rule down.
+  * IT MAKES THE PIPELINE FEEL ARBITRARY, which invites the wrong fix.
+    Somebody who has paid the cycle twice will reach for `--force` or for a
+    reviewed-evidence record to silence the gate, and both are worse than
+    the prose being rewritten: `--force` retranslates everything and can
+    regress settled strings, and a reviewed record pins a bad translation as
+    a good one.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A LOCAL CHECK THAT PREDICTS THE GATE, and it is the whole point. The gate
+   functions are already importable -- `_syntax_preserved`,
+   `_looks_degenerate`, `_semantic_false_friends`, `_model_artifact_reasons`,
+   `_reviewed_api_block_valid`. What is missing is a mode that runs the
+   CHEAP, model-free half over the English source alone and reports which
+   blocks are likely to fail, in seconds rather than an hour. Not every
+   verdict needs the model: "this block is 80 % identifiers", "this sentence
+   is 47 words with four subordinate clauses", "this paragraph is an
+   indented pseudo-table" are all decidable from the source.
+
+2. RUN IT IN THE DOCSTRING TESTS, beside
+   `test_every_docstring_is_valid_rst`. Those already run in seconds and
+   already fail on prose that will break a later build -- this is the same
+   shape of check, one stage earlier. A block that will fail the translation
+   gate should fail a test at edit time.
+
+3. WRITE THE SHAPE DOWN where prose is written, not where it is translated.
+   One idea per sentence in anything that reaches a catalog; identifiers in
+   prose need a verb around them; no instruction-phase labels in a public
+   docstring -- they mean nothing to a reader of the API reference and they
+   are untranslatable.
+
+DELIBERATELY NOT PROPOSED: changing the house style. The density is what
+makes these docstrings worth reading, and the rule is needed only for text
+that reaches a catalog -- which is public docstrings and UI strings, not
+comments.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Editing a public docstring into an untranslatable shape fails a test in
+    under a minute, naming the block.
+  * A full nine-language build started after that test passes produces zero
+    quality flags -- which is the state the 2026-09-11 rewrite reached, and
+    then lost again to the next paragraph somebody added.
+  * The check is measured against the real gate: take the blocks that DID
+    fail on 2026-09-11 (`ops_store#2`, `ops_objects.segment_windows#1`,
+    `ops_sample.average_over_cycles#2`, `scorecard.scorecard_figure#1`) and
+    confirm the local check names them from the English alone.
+
+
+--------------------------------------------------------------------------------
+2026-09-11, MEASURED: THE RUNTIME LANE HAS A LENGTH THRESHOLD AND NOTHING
+SAYS SO
+--------------------------------------------------------------------------------
+
+The runtime catalog's translator returns a long row UNCHANGED rather than
+failing on it, and the audit then reports "N rows remain exact English" --
+which reads as a translation problem and is really a length problem.
+
+Measured against this file's own data rather than guessed. The six longest
+`intro` strings in `spacr/qt/app_catalog.py`:
+
+    544  embeddings        NOT translated
+    495  dose_response     translated
+    475  control_chart     translated
+    434  project_browser   translated
+    430  investigate_hit   translated
+    419  outliers          translated
+
+One of them fails and it is the longest. Shortening the Embeddings intro to
+446 characters is what cleared it -- not rewording, not removing identifiers,
+just length. Two earlier rewrites that shortened it to 500-odd did NOT clear
+it, which is how the threshold was located: the failures bracket it.
+
+SO THE PRACTICAL RULE, until the check in point 1 above exists: keep anything
+that reaches a runtime catalog row near 450 characters or under. The five
+working intros are all below 500 and the one failure is above it.
+
+AND THE DIAGNOSTIC THAT FOUND IT IS THE REUSABLE PART. The question "do other
+strings of this shape translate?" is answerable from the catalog that already
+exists, in seconds, without running the model -- look for the English key and
+check whether CJK appears in its value. Two earlier attempts rewrote the
+prose on a theory about its CONTENT and failed, because the theory was never
+tested against a working example of the same shape.
+
+
+--------------------------------------------------------------------------------
+2026-09-11, THE ACTUAL CAUSE -- AND THREE WRONG THEORIES BEFORE IT
+--------------------------------------------------------------------------------
+
+THE M2M CHECKPOINT RETURNS A ROW UNCHANGED, NOT AN ERROR, for certain word
+pairings. The audit then reports "remains exact English", which reads as a
+quality problem and is a tokenisation one. Established by calling
+`build_i18n_catalogs._translate_batches` directly on candidate strings rather
+than by reasoning about them:
+
+    IDENTITY  Per channel encodes each stain separately.
+    IDENTITY  Each channel encodes its stain separately.
+    IDENTITY  One pass per channel keeps the stains apart; projection is faster.
+    ok        Encodes each stain separately.                  (no "channel")
+    ok        Per channel encodes each dye separately.        ("dye", not "stain")
+    ok        Projection mixes the stains into three.         (no "channel")
+
+"channel" and "stain" in the same catalog row produce identity output. Either
+word alone is fine, and a synonym for either is fine. Swedish -- a Marian
+model -- translates every one of those. It is specific to the four M2M
+languages, `zh_CN`, `hi`, `ko` and `is`, which is exactly where the failures
+concentrated (ko 30 blocks, is 37, against fr 4).
+
+THREE THEORIES WERE WRONG FIRST, and each cost a full rebuild:
+
+  1. `_PROTECT_PATTERNS` treats emphasis-CAPS as untranslatable literals.
+     Disproved by reading the Swedish: `SEPARATE FROM ... ON PURPOSE` came
+     back as `Avskilj från ... med flit` -- translated, and badly.
+  2. Clause density and idiom. Rewriting five modules' prose did produce a
+     build with zero flags, which looked like confirmation and was
+     coincidence: the next paragraph added brought the flags straight back.
+  3. A length threshold. Of the six longest app intros, `dose_response` at
+     495 characters translated and `embeddings` at 544 did not, which is a
+     real correlation and a false cause. Shortening to 446 changed nothing.
+
+THEORY 3 IS THE INSTRUCTIVE ONE. It had a measurement behind it, the
+measurement was correct, and the conclusion was still wrong -- because the
+comparison was between two strings that differed in more than length. A
+controlled test against the model would have cost two minutes at any point.
+
+WHAT THIS CHANGES ABOUT THE FIX PROPOSED ABOVE. The check does not need to
+judge translation quality, which is hard. It needs to detect IDENTITY
+OUTPUT, which is free: translate the string and compare it to itself. That
+can run per-string in seconds for anything newly added, long before a full
+nine-language build, and it catches the whole class -- exact English, wrong
+script, and copied sequences are all the same underlying event.
+
+The two strings this was found on are now verified against the model BEFORE
+being written, with the reason in a comment at the call site so the next
+person does not reword them back into the failing pair.
+
+
+--------------------------------------------------------------------------------
+2026-09-11, THE WORKFLOW THAT ACTUALLY CONVERGES
+--------------------------------------------------------------------------------
+
+`--languages` AND `--repair-api-blocks` ARE NOT INTERCHANGEABLE, and running
+only the first is why this took five cycles.
+
+    --languages           translates changed blocks once, with the plain
+                          model. A block that comes back identity STAYS
+                          identity: the build writes it and reports it.
+    --repair-api-blocks   re-runs only the blocks that failed, with clause
+                          splitting and a MADLAD fallback checkpoint. It took
+                          one evening's damage from ~37 blocks per language
+                          down to six distinct blocks across all nine.
+
+So the order is BUILD, THEN REPAIR, THEN AUDIT. A rebuild after a source edit
+re-translates the edited blocks fresh and produces NEW identity failures in
+whichever languages the plain model happens to fail on that day -- repairing
+before auditing is what closes them.
+
+AND THE TRIGGERS ARE NOT WORTH MAPPING. Measured, in Korean:
+
+    IDENTITY  how reproducible this compound is from plate to plate
+    ok        how far the plates agree about this compound
+    IDENTITY  Fixed-effect pooling assumes every plate measures the same EC50
+    ok        Fixed-effect pooling assumes every plate measures the same value
+    IDENTITY  The screen makes spaCR a route to that embedding
+    ok        The screen makes this package a route to that embedding
+    ok        spaCR reads the table
+
+The last two lines are the point: "spaCR" is not the trigger, because it
+translates fine on its own. It is an interaction between tokens, and no style
+rule a human can follow will predict it. That is the argument for the
+automated identity check rather than a style guide -- the check needs no
+theory of WHY, only the observation that output equals input.
+
+ONE STRUCTURAL REMEDY IS WORTH KNOWING. A block that will not translate as a
+whole often translates as two: `translatable_blocks` splits on paragraphs, so
+breaking one paragraph into two gives two shorter blocks that each succeed.
+The Embeddings screen's opening paragraph was fixed that way after every
+sentence in it had been shown to translate alone.

@@ -4,12 +4,13 @@
 deliberately does not hold the pixels -- well A1 is 26,855 x 26,865, which is
 1.4 GB as uint16 for ONE channel, and every later phase would read through it.
 This module composes the same well WINDOW BY WINDOW instead, which is what
-B2 asks segmentation to do anyway: "segment once, on the composite, window by
-window".
+segmentation wants anyway: segment once, on the composite, a window at a
+time.
 
     THE MEMORY PROBLEM AND THE SEGMENTATION PLAN HAVE THE SAME ANSWER. A
     window that a segmenter can hold is also a window a composer can build,
-    so nothing ever materialises the whole canvas. The join key B4 needs --
+    so nothing ever materialises the whole canvas. The join key the object
+    numbering needs --
     a plate-level object number in the WELL frame -- survives because every
     window carries its own offset into that frame.
 
@@ -75,7 +76,8 @@ def windows_over(canvas: Tuple[int, int], size: int = 4096,
                  overlap: int = 256) -> Iterator[Window]:
     """Tile a canvas into overlapping windows, in raster order.
 
-    THE WINDOWS OVERLAP ON PURPOSE and B3 is the reason: an object straddling
+    THE WINDOWS OVERLAP ON PURPOSE, and sewing is the reason: an object
+    straddling
     a window boundary is one object, and it can only be matched across the
     seam if both windows saw all of it. The overlap has to exceed the largest
     object, not merely touch.

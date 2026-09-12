@@ -1854,8 +1854,15 @@ def _declared_folds(module_name: str):
 SECTION_TILE_ORDER: Dict[str, Tuple[str, ...]] = {
     SECTION_CORE: ("mask", "measure", "annotate", "classify_merged",
                    "map_barcodes", "regression"),
-    SECTION_DATA: ("foreign", "run_compare", "experiment_design", "power",
-                   "dose_response", "qc_dashboard"),
+    # `embeddings` sits beside `foreign` because both ANSWER THE SAME
+    # QUESTION -- where do the numbers come from. One imports a measured
+    # table from outside spaCR; the other makes one from the images with a
+    # self-supervised backbone. Filed under Data by its catalog row since it
+    # was written; it had no place in this table until now, which is a tile
+    # the registry drew and Home could not sort.
+    SECTION_DATA: ("foreign", "embeddings", "run_compare",
+                   "experiment_design", "power", "dose_response",
+                   "qc_dashboard"),
     SECTION_TOOLS: ("make_masks", "align", "umap", "gate_editor",
                     "graph_builder"),
     SECTION_ASSAYS: ("analyze_plaques", "recruitment", "invasion",

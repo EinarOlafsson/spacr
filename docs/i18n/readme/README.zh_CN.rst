@@ -101,7 +101,7 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
      - 🟢 CPU
      - 🟢 CPU
 
-支持(稳定) 实施(beta) 🔴 CPU 仅支持
+🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
 
 .. spacr-hardware-end
 
@@ -278,7 +278,8 @@ annotations, classification, barcode mapping and regression.
 Import images and tables into spaCR projects and execute reproducible
 multi-plate workflows.
 
-| |Module_foreign|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
+| |Module_foreign|\ |Module_embeddings|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|
+| |Module_qc_dashboard|
 
 工具
 ^^^^
@@ -329,6 +330,11 @@ Quantitative readouts for biological assays.
    :width: 16.0%
    :alt: 打开 Import API
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
+   :align: middle
+.. |Module_embeddings| image:: ../../../spacr/resources/icons/workflow/apps/embeddings.png
+   :width: 16.0%
+   :alt: 打开 Embeddings API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html
    :align: middle
 .. |Module_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
    :width: 16.0%

@@ -3930,3 +3930,52 @@ for a radius that yields exactly 1,281 sites, and more than one circle does.
     microscope's serpentine in general is not known, and shipping it as a
     constant without checking would be the same mistake at a different
     scale.
+
+
+--------------------------------------------------------------------------------
+2026-09-11: NO NEW ENGINE WORK, BUT THE MODULES CARRIED FIVE DEFECTS
+--------------------------------------------------------------------------------
+
+Found by running CI's own gates rather than by re-reading the code. None of
+them is about the geometry; all five are about the modules being part of a
+package rather than standing alone.
+
+  * A DOCS-BUILD BLOCKER. `ops_objects`' module docstring had two lines at
+    four-space indent followed by an eight-space continuation with no blank
+    line between. RST calls that "Unexpected indentation" and
+    `sphinx-build -W` calls it fatal, so the whole documentation build fails
+    on it -- and only main deploys, so it fails after the merge rather than
+    before. Rewritten as a bullet list.
+
+  * THE STORE READ AND WROTE SQL DIRECTLY. `pd.read_sql_query` and
+    `frame.to_sql`, both outside `spacr.tabular`. Two separate ratchets hold
+    that number down, for the reason 145 recorded: a reader that does not
+    canonicalise DOES NOT FAIL, it returns a number. Now on
+    `tabular._read_query` and `tabular.write_database`.
+
+    WITH `canonicalise=False`, AND THIS IS THE ONE PLACE THAT IS RIGHT.
+    `read_table` renames `object_id` to `objectID`; these are OPS tables
+    whose column names ARE the storage contract, and the parquet sidecar
+    beside the database spells them the old way. Canonicalising on the way
+    in would make the two disagree about a table neither had changed -- and
+    the disagreement check compares ROW COUNTS, so it would not notice.
+
+  * THIRTY-NINE UNDOCUMENTED REQUIRED PARAMETERS across `ops_objects`,
+    `ops_sample` and `ops_store`, every one of them new since this work
+    began. Documented rather than admitted to the ratchet; see 391's note on
+    the same decision.
+
+  * TWELVE INSTRUCTION-PHASE LABELS IN PUBLIC DOCSTRINGS -- `B1` to `B5`,
+    `C4`, `Phase C`, `Phase D`, `372:` -- across four modules. They say
+    nothing to a reader of the API reference, and they are untranslatable
+    tokens sitting mid-sentence, which is half of why the nine-language
+    catalog build failed its quality gates on these modules. See 394.
+
+  * A REVIEWED CHINESE TRANSLATION went stale when those labels were
+    removed: `ops_compose#1` had a reviewed record pinned to the old source
+    hash. Repaired against all four of the tool's checks.
+
+STILL THE REAL REMAINING WORK: the end-to-end run on the maintainer's own
+12 TB at `/nas_mnt/data/ops/`. Phase B has been exercised there -- 1,840
+observations to 1,707 objects with 133 sewn, which is exactly the arithmetic
+-- and nothing after it has.

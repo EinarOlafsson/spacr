@@ -413,3 +413,39 @@ every note, the Hugging Face link and the SHA-256.
 
 Six tests, and the first of them asserts the page is IN THE TOCTREE, because
 being generated and being reachable turned out to be different things.
+
+
+--------------------------------------------------------------------------------
+2026-09-11: THE CHART WAS DRAWN OUTSIDE BOTH OF THE HOUSE'S OWN MECHANISMS
+--------------------------------------------------------------------------------
+
+`scorecard_figure` worked and was tested, and was wrong twice in ways its
+tests could not see, because both faults are about HOW the figure reaches
+disk rather than what is in it.
+
+  * IT BUILT ITS FIGURE OUTSIDE `figure_style`. rcParams reach an artist when
+    it is CREATED, so a context entered after `plt.subplots` leaves the
+    spines, ticks and labels at whatever the caller's globals happened to
+    be. A scorecard is published beside a model -- it is the last place to
+    ship a figure in a second visual system.
+    `test_no_figure_is_created_outside_the_house_style` names it.
+
+  * IT WROTE WITH A BARE `savefig`. The user's "Figure format" and
+    "Resolution" preferences reach figures through `spacr.plot.save_figure`
+    and nothing else, so a chart written with `figure.savefig(path, dpi=dpi)`
+    ignored both. `test_every_kept_figure_goes_through_one_writer` counts the
+    bypasses and holds them to a ceiling.
+
+THE SECOND FIX CHANGED A CONTRACT AND THE TESTS HAD TO FOLLOW. `save_figure`
+makes the file NAME follow the format preference -- a PNG written to
+`figure.pdf` is a file no viewer opens -- so a caller asking for `card.png`
+under a PDF preference gets `card.pdf`. The function returns the path that
+was actually written, and callers must use it. Both of this item's own tests
+asserted the REQUESTED name and would have passed only on a machine whose
+preference happens to be PNG.
+
+WHAT THIS SAYS ABOUT THE ITEM'S OWN TESTS: five tests covered what the chart
+DRAWS -- the metric names, the refusal when none are present, the two-bar
+case -- and none covered how it is written. A figure is not finished when it
+looks right; it is finished when it goes out through the one writer wearing
+the house style.

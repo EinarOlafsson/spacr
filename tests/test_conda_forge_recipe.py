@@ -114,8 +114,19 @@ def test_conda_recipe_exercises_heavy_and_desktop_imports_without_pip_metadata()
 
 
 def test_conda_recipe_preserves_the_license_of_its_pypi_source():
+    """The recipe tracks the PUBLISHED sdist, not ``setup.py``.
+
+    1.5.0.4 -> 1.5.0.6 on 2026-09-11, with the conda-forge PR that moved it.
+
+    THE TWO VERSIONS ARE NOT THE SAME NUMBER AND SHOULD NOT BE. This recipe
+    builds from a PyPI sdist and carries its sha256, so it can only name a
+    version that has actually been published. The repository's own version
+    moves first and the recipe follows once the release is on PyPI, which
+    means this pin lagging `setup.py` is the NORMAL state between a bump and
+    a publish -- not a staleness to fix by matching them.
+    """
     recipe = yaml.safe_load(RECIPE.read_text(encoding="utf-8"))
-    assert recipe["context"]["version"] == "1.5.0.4"
+    assert recipe["context"]["version"] == "1.5.0.6"
     assert recipe["about"]["license"] == "BSD-3-Clause"
     assert recipe["about"]["license_file"] == "LICENSE"
 

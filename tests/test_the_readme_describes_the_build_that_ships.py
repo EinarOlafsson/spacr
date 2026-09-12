@@ -84,17 +84,23 @@ class TestTheReadmeGrid:
     def test_the_registry_count_is_deliberately_pinned(self, registry):
         """Two counts, and they are deliberately different.
 
-        44 modules EXIST; 21 draw a tile. Instruction 318 separated the
+        45 modules EXIST; 22 draw a tile. Instruction 318 separated the
         two on 2026-08-31 -- a folded module keeps its registry row, its
         screen and its API page, and loses only its place on Home. Both
         numbers are pinned because a change to either should have to
         argue with this line first.
+
+        BOTH ROSE BY ONE on 2026-09-11: `embeddings`, 386's feature source,
+        which is a module AND draws a tile. It had been in the registry
+        without a place in `SECTION_TILE_ORDER` since it was written, so
+        Home drew a tile the README could not file -- this line is what
+        said so.
         """
         apps, sections = registry
         from spacr.qt.app import tiled_apps
 
-        assert len(apps) == 44
-        assert len(tiled_apps()) == 21
+        assert len(apps) == 45
+        assert len(tiled_apps()) == 22
         assert sections == ["Core", "Data", "Tools", "Assays"]
 
     def test_no_folded_module_is_offered_as_a_separate_tool(self, folded):

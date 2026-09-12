@@ -198,8 +198,9 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
     pipeline = dict(generator.MAIN_PIPELINE)
 
     # Pinned deliberately: a new Home app needs a generated tile and an API
-    # destination before this count advances.
-    assert len(registry) == 44
+    # destination before this count advances. 44 -> 45 on 2026-09-11 with
+    # `embeddings`, which had both and was missing only its section.
+    assert len(registry) == 45
     assert set(urls) == {key for key, _label, _description, _section in registry}
     # The generator no longer keeps its OWN copy of the section order. It
     # reads spacr.qt.app's SECTION_ORDER/SECTION_TILE_ORDER through

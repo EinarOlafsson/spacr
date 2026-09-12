@@ -251,7 +251,24 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     #   `spacr/ops_compose.py`     the canonical nuclear map, composed one
     #                              window at a time instead of held as one
     #                              1.4 GB array per channel
-    assert len(shipped) == 558
+    # 558 -> 562 on 2026-09-11, +4/-0, named on the same principle:
+    #   `spacr/ops_objects.py`     segment, sew, number -- the three steps
+    #                              between a composite and an object table,
+    #                              with the sewing that makes an object
+    #                              straddling a window seam one object
+    #   `spacr/ops_sample.py`      every other channel read at the object
+    #                              coordinates the numbering assigned, and
+    #                              the refusal to average a barcode across
+    #                              cycles that keeps sequencing correct
+    #   `spacr/ops_store.py`       the storage contract: sqlite authoritative,
+    #                              parquet as a cache, and the readiness gate
+    #                              that says the objects exist before any
+    #                              channel is read
+    #   `spacr/qt/screens/embeddings.py`
+    #                              386's screen. A Qt screen is shipped code
+    #                              like any other module, so it counts here
+    #                              even though it draws rather than computes.
+    assert len(shipped) == 562
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the

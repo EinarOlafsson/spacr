@@ -48,7 +48,7 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 #: two tour helpers written here that TourPilot replaced.
 #: 10,306 -> 10,339 on 2026-09-11 with the merge from main, +45/-0,
 #: decomposed in tests/test_api_i18n_extractor.py beside the same move.
-REAL_SYMBOL_COUNT = 10_339
+REAL_SYMBOL_COUNT = 10_395
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -523,7 +523,42 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
     )
     english = json.loads(ENGLISH_CATALOG.read_text(encoding="utf-8"))
     symbols = tuple(english["symbols"])
-    assert len(symbols) == REAL_SYMBOL_COUNT
+    # SAY WHICH OF THE TWO IT IS. A bare count comparison cannot tell "the
+    # catalog was built before a symbol was added" from "a symbol that used
+    # to be documented has gone", and those need opposite responses: the
+    # first is `tools/build_documentation_i18n.py`, the second is a
+    # regression in the source. Naming the difference costs one set
+    # operation against the live surface and saves the reader the reasoning.
+    if len(symbols) != REAL_SYMBOL_COUNT:
+        import sys as _sys
+        _sys.path.insert(0, str(ROOT / "tools"))
+        from build_documentation_i18n import public_docstrings
+
+        live = set(public_docstrings())
+        catalog = set(symbols)
+        stale = sorted(live - catalog)[:8]
+        vanished = sorted(catalog - live)[:8]
+        if not stale and not vanished:
+            # THE THIRD CASE, and the one a two-way message would misreport:
+            # the catalog and the source agree with each other symbol for
+            # symbol, so neither is wrong -- REAL_SYMBOL_COUNT above is. That
+            # happens when somebody moves the surface and updates the other
+            # ratchets but not this one, and a message blaming the catalog
+            # would send them to rebuild something that is already correct.
+            raise AssertionError(
+                f"the catalog and the source agree on {len(symbols)} symbols, "
+                f"so REAL_SYMBOL_COUNT ({REAL_SYMBOL_COUNT}) is the stale "
+                f"one. Set it to {len(symbols)}; nothing needs rebuilding.")
+        raise AssertionError(
+            f"the English catalog carries {len(symbols)} symbols and the "
+            f"surface is {REAL_SYMBOL_COUNT}.\n"
+            f"  in the source but NOT in the catalog ({len(live - catalog)}): "
+            f"{stale} -- the catalog is stale; rebuild it with "
+            f"tools/build_documentation_i18n.py\n"
+            f"  in the catalog but NOT in the source "
+            f"({len(catalog - live)}): {vanished} -- a documented symbol "
+            f"was removed or made private; that is a source change, not a "
+            f"build one")
     assert len(set(symbols)) == REAL_SYMBOL_COUNT
 
     harness = f"""

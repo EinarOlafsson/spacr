@@ -1,14 +1,10 @@
-"""Where an OPS run's tables live, and the gate that says B4 finished.
+"""Where an OPS run's tables live, and the gate that says the objects exist.
 
-THE STORAGE CONTRACT for an OPS run, and the gate that says the object pass
-finished. The contract is:
-
-    IN measurements.db, authoritative:
-        ops_geometry, ops_objects, ops_reads, ops_barcodes
-    BESIDE IT, as a cache: parquet for `ops_reads` and `ops_barcodes` ...
-    Written in the same step, with the row counts asserted equal, so the
-    sidecar cannot silently drift from the authority. The reader prefers
-    parquet and falls back to sqlite.
+The storage contract has two halves. In ``measurements.db``, which is
+authoritative: ``ops_geometry``, ``ops_objects``, ``ops_reads`` and
+``ops_barcodes``. Beside it, as a cache: parquet copies of ``ops_reads``
+and ``ops_barcodes``, written in the same step with their row counts
+asserted equal, so the sidecar cannot drift from the authority unnoticed.
 
 SQLITE IS THE AUTHORITY AND PARQUET IS A CACHE, which is a decision and not a
 detail. The two can disagree, so one of them has to be right by definition --
@@ -18,15 +14,15 @@ one call and asserts the counts match before either is visible as complete;
 :func:`read_table` prefers the cache and falls back without complaining,
 because a missing cache is a performance question and not a correctness one.
 
-B5 IS A GATE, NOT A STEP. 372: "no sequencing or phenotype channel is read
-until `ops_objects` is on disk and its row count checked". :func:`objects_ready`
-is that sentence, and it returns a REASON when the answer is no -- a gate that
-only says "not yet" makes the operator guess which half failed.
+READINESS IS A GATE, NOT A STEP. No sequencing or phenotype channel is read
+until ``ops_objects`` is on disk and its row count checked.
+:func:`objects_ready` is that sentence, and it returns a REASON when the
+answer is no -- a gate that only says "not yet" makes the operator guess
+which half failed.
 
-    THE ORDINARY MEASUREMENT TABLES ARE KEYED ON THE SAME OBJECT IDS, so
-    nothing downstream needs to know the run was OPS. That is why B4's
-    numbering had to be deterministic: these ids are a join key across
-    tables written at different times by different phases.
+Other measurement tables use the same object ids, so later steps need no
+special case. The numbering is deterministic for that reason: those ids join
+tables written at different times.
 """
 from __future__ import annotations
 
@@ -59,7 +55,7 @@ OPS_TABLES = ("ops_geometry", "ops_objects", "ops_reads", "ops_barcodes")
 #: two things to keep in step for no gain.
 CACHED_TABLES = ("ops_reads", "ops_barcodes")
 
-#: The table B5 gates on.
+#: The table the readiness gate asks about.
 OBJECTS_TABLE = "ops_objects"
 
 
@@ -88,15 +84,33 @@ def write_table(db_path: str, table: str, frame, *,
     """
     if table not in OPS_TABLES:
         raise StoreError(
-            f"{table!r} is not an OPS table; 372's storage contract names "
+            f"{table!r} is not an OPS table; the storage contract names "
             f"{', '.join(OPS_TABLES)}. A table outside that list would not be "
             f"read by anything and would look like data that had been kept.")
 
     rows = int(len(frame))
-    with sqlite3.connect(str(db_path), timeout=30) as conn:
-        frame.to_sql(table, conn, if_exists=if_exists, index=False)
-        stored = int(conn.execute(
-            f"SELECT COUNT(*) FROM {table}").fetchone()[0])
+    # THROUGH `spacr.tabular.write_database`, the funnel, rather than a bare
+    # `to_sql`. `test_the_raw_reader_count_only_goes_down` holds the number
+    # of writes and reads outside it to a ceiling that only falls, and the
+    # reason is that a reader or writer that does not canonicalise DOES NOT
+    # FAIL -- it returns a number.
+    #
+    # `canonicalise=False` here, for the same reason `read_table` below
+    # passes it: these are OPS tables whose column names ARE the storage
+    # contract, and the parquet sidecar written a few lines down spells them
+    # the same way. Renaming on the way in would make the two disagree about
+    # a table neither had changed, and the row-count check cannot see a
+    # renamed column.
+    from .tabular import write_database
+
+    write_database(frame, db_path, table, if_exists=if_exists,
+                   canonicalise=False, index=False)
+    stored = row_count(db_path, table)
+    if stored is None:
+        raise StoreError(
+            f"{table} is not in {db_path} after writing it, which means the "
+            f"write did not land. Nothing downstream should read a table "
+            f"that is not there.")
 
     if table not in CACHED_TABLES:
         return stored
@@ -147,6 +161,8 @@ def read_table(db_path: str, table: str, *, prefer_cache: bool = True):
     is NOT silent -- it is removed and the authority is returned, since a
     disagreement is the one failure this arrangement can produce.
 
+    :param db_path: the run's sqlite database, which is the authority.
+    :param table: which of :data:`OPS_TABLES` to read.
     :raises StoreError: when the table is not in the database at all.
     """
     import pandas as pd
@@ -167,16 +183,37 @@ def read_table(db_path: str, table: str, *, prefer_cache: bool = True):
                     "the parquet cache for %s disagreed with the database "
                     "(%d vs %s) and was removed", table, len(cached), stored)
 
+    # THROUGH `spacr.tabular`, not a direct pandas SQL read. Its own
+    # `_read_query` docstring describes this caller exactly: somebody who
+    # already holds a connection, for whom `read_table` would reopen the
+    # database, and who therefore reached for pandas directly -- which is
+    # "how a frame with un-canonicalised column names gets into the
+    # package: it does not fail, it returns a number".
+    #
+    # `canonicalise=False`, and this is the one place that is right. These
+    # are OPS tables written by this module from `PlateObject.row()` and the
+    # sampling rows, so their names ARE the storage contract. Canonicalising
+    # renames `object_id` to `objectID`, which the parquet cache sitting
+    # beside the database still spells the old way -- the two would then
+    # disagree about a table neither had changed, and the disagreement check
+    # above compares ROW COUNTS, so it would not notice.
+    from .tabular import _read_query
+
     with sqlite3.connect(str(db_path), timeout=30) as conn:
         try:
-            return pd.read_sql_query(f"SELECT * FROM {table}", conn)
+            return _read_query(conn, f"SELECT * FROM {table}",
+                               canonicalise=False, report=None)
         except Exception as failure:                   # noqa: BLE001
             raise StoreError(
                 f"{table} is not in {db_path}: {failure}") from failure
 
 
 def row_count(db_path: str, table: str) -> Optional[int]:
-    """Rows in one table, or ``None`` when the table is not there."""
+    """Rows in one table, or ``None`` when the table is not there.
+
+    :param db_path: the run's sqlite database.
+    :param table: the table to count.
+    """
     if not os.path.exists(db_path):
         return None
     try:
@@ -194,7 +231,18 @@ def row_count(db_path: str, table: str) -> Optional[int]:
 
 @dataclass(frozen=True)
 class Readiness:
-    """Whether Phase C may start, and why not when it may not."""
+    """Whether object sampling may start, and why not when it may not.
+
+    :param ready: the verdict. Also what ``bool(readiness)`` answers, so a
+        caller can write ``if not objects_ready(db):`` and still reach
+        :attr:`reason` when it needs to say why.
+    :param rows: how many objects the table holds, or ``None`` when there is
+        no table to count -- which is a different failure from a table with
+        no rows in it, and the two are told apart here rather than by the
+        caller.
+    :param reason: one sentence naming which of the three things went wrong,
+        empty when nothing did.
+    """
 
     ready: bool
     rows: Optional[int]
@@ -205,9 +253,9 @@ class Readiness:
 
 
 def objects_ready(db_path: str, *, minimum: int = 1) -> Readiness:
-    """B5: may a sequencing or phenotype channel be read yet?
+    """May a sequencing or phenotype channel be read yet?
 
-    372 states the gate as one sentence -- "no sequencing or phenotype
+    The gate is one sentence -- "no sequencing or phenotype
     channel is read until `ops_objects` is on disk and its row count
     checked" -- and both halves matter. On disk without a count check would
     pass an empty table, and an empty ops_objects means every later phase
@@ -221,6 +269,8 @@ def objects_ready(db_path: str, *, minimum: int = 1) -> Readiness:
         honest floor -- a well with a single nucleus is a bad well, not an
         impossible one -- so this exists to be raised by a caller who knows
         their plate, not to encode a guess here.
+    :param db_path: the run's sqlite database. Its ABSENCE is one of the
+        three answers, so this is not required to exist.
     """
     if not os.path.exists(str(db_path)):
         return Readiness(False, None,
@@ -229,8 +279,8 @@ def objects_ready(db_path: str, *, minimum: int = 1) -> Readiness:
     rows = row_count(db_path, OBJECTS_TABLE)
     if rows is None:
         return Readiness(False, None,
-                         f"{db_path} has no {OBJECTS_TABLE} table. B4 numbers "
-                         f"the objects and Phase D writes them; neither has "
+                         f"{db_path} has no {OBJECTS_TABLE} table. the numbering pass writes "
+                         f"the objects and the storage step writes them; neither has "
                          f"run for this well.")
     if rows < minimum:
         return Readiness(False, rows,

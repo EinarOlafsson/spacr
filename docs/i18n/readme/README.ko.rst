@@ -101,7 +101,7 @@ spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정�
      - 🟢 CPU
      - 🟢 CPU
 
-지원 (안정)  구현 (베타) 🔴 CPU 지원만
+🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
 
 .. spacr-hardware-end
 
@@ -278,7 +278,8 @@ annotations, classification, barcode mapping and regression.
 Import images and tables into spaCR projects and execute reproducible
 multi-plate workflows.
 
-| |Module_foreign|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|\ |Module_qc_dashboard|
+| |Module_foreign|\ |Module_embeddings|\ |Module_run_compare|\ |Module_experiment_design|\ |Module_power|\ |Module_dose_response|
+| |Module_qc_dashboard|
 
 도구
 ^^^^
@@ -329,6 +330,11 @@ Quantitative readouts for biological assays.
    :width: 16.0%
    :alt: Import API 열기
    :target: https://einarolafsson.github.io/spacr/api/spacr/foreign/index.html
+   :align: middle
+.. |Module_embeddings| image:: ../../../spacr/resources/icons/workflow/apps/embeddings.png
+   :width: 16.0%
+   :alt: Embeddings API 열기
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/embeddings/index.html
    :align: middle
 .. |Module_run_compare| image:: ../../../spacr/resources/icons/workflow/apps/run_compare.png
    :width: 16.0%

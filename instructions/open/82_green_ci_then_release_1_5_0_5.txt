@@ -224,3 +224,94 @@ WHAT ACTUALLY CLOSES THE DOCS GATE, in order: finish the schema migration for
 fr / hi / is, then run the translation pass so the new public symbols exist in
 all nine. Both are instruction 83's machinery. Nothing in this file blocks
 them and no release now depends on them.
+
+
+--------------------------------------------------------------------------------
+2026-09-11: WHY "EVERY GITHUB TEST GREEN" HAD BEEN UNREACHABLE, NOT MERELY HARD
+--------------------------------------------------------------------------------
+
+THREE BLOCKING JOBS COULD NOT FINISH INSIDE THEIR OWN BUDGETS. Found on the
+first tests.yml run that was ever allowed to complete on nightly -- a
+dispatched one, 34639565357:
+
+    Fast / Full suite control   killed at 1:30:32   timeout-minutes: 90
+    Minimum dependencies        killed at ~2:01     timeout-minutes: 120
+    Qt shard 0 of 2             killed              timeout-minutes: 120
+
+`fast`, `minimum-dependencies` and `qt` are all in the release gate's `needs`.
+A blocking job that cannot finish inside its budget is a required check that
+can NEVER pass, so this file's step 1 was not achievable however many tests
+were fixed. The same two were killed at 1:30:17 and 2:01:09 on dispatch
+34618149518 a day earlier.
+
+WHY NOBODY HAD SEEN IT, and the part worth carrying:
+
+  * GitHub reports a `timeout-minutes` kill as **cancelled**, which is the
+    same word it uses for a run superseded by a newer push. The two are
+    indistinguishable in the jobs list; only the DURATION tells them apart,
+    and only if you know the budget to compare it against.
+  * `tests.yml` sets `cancel-in-progress` for push events, so push-triggered
+    runs on a busy branch are superseded long before ninety minutes. Every
+    run anyone had looked at died young for an unrelated reason.
+  * Dispatched runs are exempt from that cancellation. Dispatching is what
+    made the budget kill visible, and it took until the second dispatch for
+    anyone to read the durations rather than the conclusions.
+
+THE ASYMMETRY ON QT IS EXPLAINED BY `run_serial_tail`, which is true for
+shard 0 only: the two shards are not the same size, so shard 1 finished and
+reported its failures while shard 0 was killed. A pair of shards where one
+reports and one "cancels" reads exactly like a superseded run.
+
+FIXED 2026-09-11: 90 -> 150, 120 -> 180 and 120 -> 180, WITH
+`--per-test-timeout 300` on the two `fast`-family invocations rather than
+instead of it. That distinction is the point: a larger budget alone HIDES a
+hung test by giving it more room to hang in. The per-test timeout names the
+test; the budget exists so an honestly long suite can finish. The Qt suite
+already carried `per_test_timeout_seconds: 1200` for the same reason, from a
+wedged test that used the whole 120 minutes and printed nothing.
+
+WHAT TO CHECK BEFORE CONCLUDING A RUN WAS SUPERSEDED, in order:
+  1. Does the job's duration equal its `timeout-minutes`? Then it was killed.
+  2. Did the branch head actually move during the run?
+  3. Only then is concurrency the explanation.
+
+
+--------------------------------------------------------------------------------
+2026-09-11: EVERY RELEASE OPENS A WINDOW WHERE CI IS RED BY DESIGN
+--------------------------------------------------------------------------------
+
+`test_the_citation_version_doi_is_the_one_for_the_version_it_claims` fails
+from the moment a bump lands until somebody hand-edits CITATION.cff, and that
+is not a defect in the bump. The chain:
+
+  1. `packaging/release.py bump` rewrites exactly TWO fields in CITATION.cff,
+     `version` and `date-released`.
+  2. The version DOI stays the previous release's.
+  3. The new release's DOI DOES NOT EXIST YET -- Zenodo mints it only after
+     the GitHub release is published.
+  4. `packaging/README.md` records the follow-up: "Once Zenodo archives a
+     version, put that release's newly minted version DOI in CITATION.cff".
+
+So between the bump and that manual edit, a test asserts something that
+cannot yet be true. It was written (2026-09-11, by the session that added the
+DOI identifiers) without accounting for the workflow it guards.
+
+THE TEST IS NOT THE THING TO CHANGE. Its assertion is exactly right -- a
+version claiming an older release's DOI is the defect `packaging/README.md`
+warns about by name, and a test that tolerated the state would catch nothing.
+The red IS the reminder that the release is unfinished.
+
+WHAT WOULD ACTUALLY CLOSE IT, in preference order:
+
+  * HAVE THE RELEASE WORKFLOW WRITE THE DOI. `release.yml` already commits
+    `setup.py CITATION.cff spacr/_version.py`, and the Zenodo deposition is
+    reachable from the same run. A step that reads back the minted DOI and
+    commits it removes the manual step and the window together.
+  * FAILING THAT, MAKE THE WINDOW EXPLICIT. A release checklist item, and a
+    failure message that names the remedy rather than only the mismatch --
+    which it does now say.
+
+UNTIL THEN, the release sequence has four steps and not three:
+bump -> merge to main -> wait for Zenodo -> write the version DOI into
+CITATION.cff (top-level `doi:` and the identifier's `value`, with its
+`description` naming the release).
