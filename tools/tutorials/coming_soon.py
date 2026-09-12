@@ -62,12 +62,17 @@ def release_catalog(source, language):
                 lesson.pop(field, None)
             lesson.update(status='coming_soon', availability_title=title,
                           description=description, objectives=[], prerequisite='', scenes=[])
-    result['lessons'].append({
+    ops = {
         'id': OPS, 'number': 76, 'slug': 'ops', 'title': 'OPS', 'series': 2,
         'app_key': 'ops', 'host_app_key': 'mask', 'section': 'Segmentation models',
         'status': 'coming_soon', 'availability_title': title,
         'description': description, 'objectives': [], 'prerequisite': '', 'scenes': [],
-    })
+    }
+    # Preserve legacy caption entries and their original order. Some have
+    # no numeric metadata until write_catalogs copies the English routing.
+    # Only the reserved OPS position needs insertion before recorded 77.
+    position = ids.index(EMBEDDINGS) if recorded_embedding is not None else len(ids)
+    result['lessons'].insert(position, ops)
     if recorded_embedding is None:
         result['lessons'].append({
             'id': EMBEDDINGS, 'number': 77, 'slug': 'embeddings',
@@ -76,5 +81,4 @@ def release_catalog(source, language):
             'availability_title': title, 'description': description,
             'objectives': [], 'prerequisite': '', 'scenes': [],
         })
-    result['lessons'].sort(key=lambda lesson: lesson['number'])
     return result

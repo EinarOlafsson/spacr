@@ -73,3 +73,20 @@ def test_promotion_must_keep_the_actual_home_identity_and_recorded_scenes(catalo
     lesson.update(change)
     with pytest.raises(ValueError, match='recorded Embeddings promotion'):
         release_catalog(catalog, 'en')
+
+
+@pytest.mark.parametrize('language', ('da', 'de', 'is', 'ko', 'nb', 'sv'))
+def test_retained_caption_entries_without_numbers_keep_their_content_and_order(catalog, language):
+    # Real retained caption catalogs (notably Plate Viewer and Database)
+    # predate the numeric route metadata added by write_catalogs later.
+    for lesson in catalog['lessons']:
+        lesson.pop('number')
+    catalog['lessons'].append({'id': EMBEDDINGS, 'number': 77, 'app_key': 'embeddings',
+                              'scenes': [{'narration': 'Recorded API example'}]})
+    before = deepcopy(catalog)
+    result = release_catalog(catalog, language)
+    assert catalog == before
+    assert result['lessons'][0] == before['lessons'][0]
+    assert result['lessons'][-1] == before['lessons'][-1]
+    assert [x['id'] for x in result['lessons']] == [
+        *[x['id'] for x in before['lessons'][:-1]], OPS, EMBEDDINGS]
