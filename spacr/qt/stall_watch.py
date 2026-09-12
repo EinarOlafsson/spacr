@@ -66,12 +66,21 @@ def _write(text: str) -> None:
         pass
 
 
-def watch_this_application(app, *, stall_seconds: Optional[float] = None):
+def watch_this_application(app, *, stall_seconds: Optional[float] = None,
+                           echo: bool = True):
     """Report the GUI thread's stack whenever it stops answering.
 
     :param app: the live ``QApplication``. The heartbeat timer is parented
         to it so the timer lives exactly as long as the application does.
     :param stall_seconds: override :data:`STALL_SECONDS` for one call.
+    :param echo: also write each report to ``sys.stderr``. Pass ``False``
+        under a harness that captures streams. THE FILE IS THE RECORD AND
+        STDERR IS A CONVENIENCE: this writes from a DAEMON THREAD, and a
+        thread writing into a stream the harness is swapping underneath it
+        crashed pytest inside its own `capture.py` -- not in our write,
+        which is guarded, but in pytest reading a stream that moved while
+        it read. A tool must not write to a stream it does not own when
+        somebody else is holding it.
     :returns: the watcher thread, or ``None`` if Qt could not be reached.
 
     THE HEARTBEAT IS THE MEASUREMENT. A ``QTimer`` on the GUI thread bumps
@@ -126,6 +135,12 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None):
             time.sleep(POLL_SECONDS)
             stalled = time.monotonic() - beat["at"]
             if stalled < limit:
+                # THE STALL IS OVER, so its summary is due now rather than
+                # when the next one starts. Waiting for the next one loses
+                # the last stall of every session, which is the only stall a
+                # process that wedges and dies ever has.
+                if samples:
+                    _flush_samples()
                 continue
             if beat["n"] == reported_for:
                 # SAME STALL, ANOTHER SAMPLE. The first crossing writes the
@@ -145,11 +160,12 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None):
             report = (f"\n--- GUI THREAD STALLED {stalled:.1f}s "
                       f"(heartbeat {beat['n']}) ---\n"
                       + "".join(traceback.format_stack(frame)))
-            try:
-                sys.stderr.write(report)
-                sys.stderr.flush()
-            except Exception:                                # noqa: BLE001
-                pass
+            if echo:
+                try:
+                    sys.stderr.write(report)
+                    sys.stderr.flush()
+                except Exception:                            # noqa: BLE001
+                    pass
             _write(report)
 
     samples: list = []
@@ -180,7 +196,32 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None):
                f"({total} samples at {POLL_SECONDS}s):\n{lines}")
         samples.clear()
 
-    thread = threading.Thread(target=watch, daemon=True,
+    def _flush_when_the_stall_ends() -> None:
+        """Summarise a stall the moment the loop answers again.
+
+        THE LAST STALL OF A SESSION WAS NEVER SUMMARISED, and that is the
+        one anybody runs this for. `_flush_samples` was called only when the
+        NEXT stall began, so a process that wedges once and is then killed
+        -- a run against a sleeping autofs mount, say -- left the first
+        traceback and no distribution at all. The summary is the part that
+        separates the call HOLDING the thread from the one that merely
+        happened to be running when the sample was taken.
+
+        The heartbeat resuming is the end of the stall, so that is where the
+        summary belongs. `tick` cannot do it: it runs on the GUI thread, and
+        the whole point is that the GUI thread was not running.
+        """
+        if samples:
+            _flush_samples()
+
+    def watch_and_flush() -> None:
+        """Run the watcher, and summarise whatever is pending on the way out."""
+        try:
+            watch()
+        finally:                                             # pragma: no cover
+            _flush_when_the_stall_ends()
+
+    thread = threading.Thread(target=watch_and_flush, daemon=True,
                               name="spacr-gui-stall-watch")
     thread.start()
     return thread

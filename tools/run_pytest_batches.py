@@ -10,6 +10,7 @@ preserving the same marker selection and test coverage.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 from pathlib import Path
 import subprocess
 import sys
@@ -39,6 +40,19 @@ def _batches(items: Sequence[str], size: int) -> list[list[str]]:
         raise ValueError("batch size must be at least 1")
     return [list(items[start:start + size])
             for start in range(0, len(items), size)]
+
+
+def _timeout_plugin_available() -> bool:
+    """Whether ``pytest-timeout`` is importable in this interpreter.
+
+    Checked rather than assumed: ``--timeout`` is that plugin's option and
+    pytest rejects an unknown one before collecting anything, so passing it
+    blind turns a missing diagnostic into a job that runs no tests at all.
+    """
+    try:
+        return importlib.util.find_spec("pytest_timeout") is not None
+    except (ImportError, ValueError):
+        return False
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -109,7 +123,25 @@ def main(argv: Sequence[str] | None = None) -> int:
             command.extend([
                 "-n", str(args.workers), "--dist", "loadfile",
             ])
-        if args.per_test_timeout > 0:
+        if args.per_test_timeout > 0 and not _timeout_plugin_available():
+            # SAY IT ONCE, LOUDLY, AND STILL RUN. `--timeout` is pytest-timeout's
+            # option, not pytest's, so passing it without the plugin makes
+            # pytest exit with "unrecognized arguments" -- EVERY batch, before
+            # a single test runs. A ceiling is a diagnostic; the suite is the
+            # job. Failing the whole run because the diagnostic is unavailable
+            # would be a worse trade than losing the diagnostic.
+            #
+            # It is not declared in setup.py, pyproject.toml or any
+            # requirements file: `_pytest-suite.yml` pip-installs it for the Qt
+            # suite and nothing installs it for this one.
+            if not getattr(main, "_said_no_timeout_plugin", False):
+                print("run_pytest_batches: pytest-timeout is not installed, so "
+                      "--per-test-timeout has no effect. A test that wedges "
+                      "will use the whole job budget and name nothing. "
+                      "`pip install \"pytest-timeout>=2.3,<3\"` to arm it.",
+                      flush=True)
+                main._said_no_timeout_plugin = True
+        elif args.per_test_timeout > 0:
             # A JOB THAT IS KILLED BY ITS OWN BUDGET NAMES NOTHING. The Qt
             # suite learned this the expensive way and its comment records
             # it: a shard "reached 99%, then sat in silence until the
