@@ -1481,6 +1481,29 @@ def test_the_layout_policy_reader_imports_nothing_heavy():
             "without a display")
 
 
+def _release_exists(version: str) -> bool:
+    """Has ``version`` actually been released, i.e. is ``v<version>`` tagged?
+
+    THE ANSWER DECIDES WHETHER A POST-RELEASE CHECK CAN BE SATISFIED AT ALL.
+    `release.yml` tags only after it has published, so an untagged version is
+    one whose Zenodo DOI has not been minted and whose PyPI sdist does not
+    exist. Asserting against either of those before the release is asserting
+    against something the release itself creates.
+
+    Offline and git-only on purpose: the release build has no network, and a
+    check that needs one would be skipped exactly where it matters.
+    """
+    import subprocess
+
+    try:
+        done = subprocess.run(
+            ["git", "tag", "--list", f"v{version}"],
+            cwd=REPO_ROOT, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):      # no git, no tags
+        return False
+    return bool(done.stdout.strip())
+
+
 def test_the_citation_version_doi_is_the_one_for_the_version_it_claims():
     """A bump moves `version:` and leaves `doi:` behind. Catch that here.
 
@@ -1529,6 +1552,21 @@ def test_the_citation_version_doi_is_the_one_for_the_version_it_claims():
     entry = version_dois[0]
     named = re.search(r"\bspaCR\s+(\d[\d.]*)",
                       str(entry["description"])).group(1).rstrip(".")
+    if not _release_exists(version):
+        # THIS CHECK CANNOT GATE THE RELEASE THAT CREATES WHAT IT CHECKS.
+        # Zenodo mints a version DOI only after the GitHub release exists, so
+        # between the bump and the publish there is no DOI to name. Asserting
+        # here made `release.yml`'s build step fail, which SKIPPED the publish
+        # -- a deadlock, not a window: the DOI could never be minted because
+        # the check that wanted it prevented the release.
+        #
+        # What the check is FOR is unchanged and still runs the moment the tag
+        # exists: a released version whose CITATION.cff still carries the
+        # previous release's DOI is the defect `packaging/README.md` names.
+        pytest.skip(
+            f"spaCR {version} is not tagged yet, so its Zenodo DOI cannot "
+            f"exist; this check resumes once v{version} is released. "
+            f"CITATION.cff currently names spaCR {named}.")
     assert named == version, (
         f"CITATION.cff says version {version!r} but its version DOI "
         f"{entry['value']!r} is described as belonging to spaCR {named!r}. A "
@@ -1577,6 +1615,15 @@ def test_the_conda_recipe_names_the_version_this_repo_ships():
 
     setup = (REPO_ROOT / "setup.py").read_text(encoding="utf-8")
     shipped = re.search(r'VERSION\s*=\s*"([^"]+)"', setup).group(1)
+    if not _release_exists(shipped):
+        # Same deadlock as the DOI check above. The recipe carries the sha256
+        # of a PyPI sdist, so it can only name a version that has been
+        # published -- and it cannot be updated before the release that
+        # publishes it. It follows the release; it cannot precede it.
+        pytest.skip(
+            f"spaCR {shipped} is not tagged yet, so no sdist exists for the "
+            f"recipe to name; this check resumes once v{shipped} is "
+            f"released. The recipe currently builds {declared.group(1)}.")
     assert declared.group(1) == shipped, (
         f"the conda-forge recipe builds {declared.group(1)!r} but this repo "
         f"ships {shipped!r}. Bump the recipe and replace its sha256 with the "
