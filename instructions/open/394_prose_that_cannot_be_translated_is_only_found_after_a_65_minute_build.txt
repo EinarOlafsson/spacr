@@ -3,8 +3,14 @@ PROSE THAT CANNOT BE TRANSLATED IS ONLY FOUND AFTER A 65-MINUTE BUILD, AND
 THE HOUSE STYLE IS WHAT PRODUCES IT
 ================================================================================
 
-Status:    OPEN AND ACTIONABLE, filed 2026-09-11. Nothing gates it. Filed
-           after the same failure cost four rebuild cycles in one evening.
+Status:    THE LOCAL CHECK EXISTS, 2026-09-12, and covers ONE of the three
+           causes -- which is all a source-only check can ever cover, and it
+           says so in every failure message it prints.
+           `tools/check_translatable_prose.py` plus
+           `tests/test_prose_that_reaches_a_catalog_can_be_translated.py`:
+           38,352 blocks in ~2 s, 0 flagged, 4 of 4 recovered real failures
+           named. Filed 2026-09-11 after the same failure cost four rebuild
+           cycles in one evening.
 Owner:     unassigned. `tools/build_i18n_catalogs.py` holds the gates,
            `tools/build_documentation_i18n.py` the API half.
 
@@ -245,3 +251,91 @@ whole often translates as two: `translatable_blocks` splits on paragraphs, so
 breaking one paragraph into two gives two shorter blocks that each succeed.
 The Embeddings screen's opening paragraph was fixed that way after every
 sentence in it had been shown to translate alone.
+
+
+--------------------------------------------------------------------------------
+2026-09-12 -- BUILT, AND SMALLER THAN THIS FILE EXPECTED: ONE SIGNAL, AND THE
+TWO IT PROPOSED ARE FALSE
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED. `tools/check_translatable_prose.py`, run by
+`tests/test_prose_that_reaches_a_catalog_can_be_translated.py` beside
+`test_every_docstring_is_valid_rst`, which is where item 2 of WHAT TO DO
+asked for it. 38,352 blocks in about two seconds.
+
+THE SIGNAL, AND IT WAS RECOVERED BY DIFFING RATHER THAN REASONED ABOUT. A
+project label -- an instruction number (`372`) or a phase code (`B2`, `C4`)
+-- standing as the GRAMMATICAL SUBJECT of a sentence, with no noun to carry
+it. Each of the four blocks that really failed had one, and each rewrite
+that made it pass removed exactly that and nothing else:
+
+    B2: run a segmenter over ...     ->  Run a segmenter over ...
+    C4 samples phenotype channels    ->  Phenotype channels are sampled
+    370 asks for the scorecard ...   ->  The scorecard in graph form, ...
+    372 states the contract:         ->  (the sentence given a subject)
+
+  WHY IT FAILS, from the gate's own tokenizer rather than from a story:
+  `_api_lexical_words` is `re.findall(r"[^\W\d_]+", ...)`, which ERASES
+  DIGITS. `372` contributes NO lexical word at all and `B2` contributes an
+  orphan `b`, so a sentence whose subject is a label is, to the gate, a
+  sentence with no subject -- while the model still has to carry the label
+  through verbatim.
+
+    38,352 blocks examined, 0 flagged, 4 of 4 named, and no sibling block
+    of those same four docstrings flagged
+
+BOTH OF THIS FILE'S OWN SUSPICIONS ARE FALSE, AND THAT IS THE MORE USEFUL
+HALF.
+
+  * LENGTH AND CLAUSE DENSITY DISCRIMINATE NOTHING. Measured across the
+    whole corpus by percentile, the `B2` positive sits between the 43rd and
+    60th on words, mean sentence length, longest sentence and clause marks.
+    Any threshold low enough to catch it catches more than half the corpus
+    -- about 20,000 blocks. Two of the four positives ARE long, but that is
+    spaCR house style and not a property of failure.
+  * THE PSEUDO-TABLE IS NOT IT EITHER, which this file states as fact in
+    WHAT THE STATE IS. `_PROTECT_RE` already protects snake_case, so
+    `ops_geometry, ops_objects, ops_reads, ops_barcodes` is INVISIBLE to the
+    gate -- and the passing rewrite kept the identical identifier list.
+  * ALL-CAPS was already disproved here against Swedish output. Confirmed a
+    second way: the caps block in the failing docstring is BYTE-IDENTICAL to
+    its passing rewrite.
+
+    THIS FILE WARNS THAT A THEORY PREDICTING THE RIGHT FIX FOR THE WRONG
+    REASON IS WORSE THAN NO THEORY. Two of its own three candidates were
+    that, and only measurement separated them.
+
+ONE CAUSE OF THREE, AND EVERY FAILURE MESSAGE SAYS SO. The other two are not
+in the English and no source-only check can reach them:
+
+    1. a label where a translator expects a name   -- this check
+    2. model brittleness on token pairs            -- only the model finds it
+    3. the expansion layer injecting a word        -- only after
+                                                      `_api_translation_source`
+
+The bound is a property of the problem: `--repair-api-blocks` once cleared
+about thirty-seven blocks per language in `ko` and `is` WITH NO SOURCE EDIT
+AT ALL, so nothing in the English could have predicted them. The sentence
+"a green run here is not a green build" is in the ASSERTION TEXT rather than
+a docstring, because it is what a reader needs on the day the test passes
+and the build fails -- and the first thing deleted by whoever finds the
+check annoying.
+
+TWO METHOD NOTES WORTH MORE THAN THE CHECK.
+
+  * A CHECKER THAT SPLITS ITS INPUT DIFFERENTLY FROM THE TOOL IT CHECKS
+    MEASURES ITS OWN SPLITTER. Hit twice in one evening by two sessions: a
+    report of 1,569 stale reviewed records where the true number was one,
+    and a claim that a docstring's first block carried no label when the
+    block that failed was the paragraph below it. The check imports
+    `translatable_blocks()` and never reimplements it.
+  * RECOVERING "THE FAILING INPUT" FROM GIT ONLY WORKS IF YOU PIN THE
+    REVISION WHERE IT FAILED. Two of the four had already been rewritten
+    when they were listed, so recovering from a convenient commit produced
+    the FIXED text and the pattern read as three of four. The four blocks
+    are now carried verbatim in the checker and re-run on every test, so the
+    calibration cannot rot.
+
+WHAT IS LEFT. Item 3 of WHAT TO DO -- write the shape down where prose is
+written. The check enforces the one rule that is decidable; the house-style
+note for authors is not written.
