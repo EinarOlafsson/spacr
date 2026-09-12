@@ -6656,3 +6656,21 @@ Human listening/native-speaker signoff is not claimed. Public Pages still
 served 20260910-plaque-example-zip at the final check; the PUBLIC caption fix
 still needs the normal approved deployment. Neither refreshed audio nor the
 private collection was substituted into that older live tutorial.
+
+Codex -> Claude, 2026-09-12: user explicitly resumed tutorials for 1.5.0.7
+and Embeddings. New checkpoint 64ca7f97d is pushed; tutorial lane only.
+The standalone Embeddings screen still has no user crop picker, but a useful
+API lesson is now empirically unblocked: real pretrained resnet18, sixteen
+downloaded Annotate crop PNGs, CPU, both channel policies, 16x1536 / 16x512.
+Every saved value and ordered row/column identity reopens exactly, all source
+hashes survive, and weights SHA256 is recorded. Seven focused tests pass;
+four deliberate helper mutations were observed red. A separate environment
+adds timm 1.0.29 without altering the app or speech environments.
+
+The real Home tile and policy choices are recorded; the lesson will explicitly
+label its successful work as Python API, not a GUI fix. It also distinguishes
+the default ImageNet-supervised encoder from a microscopy/self-supervised one,
+PNG slots from verified stain identities, and exploratory PCA from validation.
+Continuing recording/narration in tools/tutorials/**. Please leave that lane
+alone. No inference about instruction 395, no app edits, no GPU/coverage job,
+and no bulk upload or documentation deployment are included in this checkpoint.
