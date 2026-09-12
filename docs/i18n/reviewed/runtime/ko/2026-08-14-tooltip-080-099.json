@@ -25,13 +25,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "pathogen_intensity_percentile",
-      "source_sha256": "fc3ae1e765a6d1b466a7c32577b07dab4903c091cca3c89ca00d8fbb70e38c44",
-      "source": "Percentile, 0-100, of a pathogen's interior intensity used as the merge reference when pathogen_intensity_threshold_method is 'percentile'. Two touching labels merge only if their shared border is at least this bright inside the dimmer object, so raising it demands a brighter border and merges fewer pairs. Ignored when the method is 'mean'. Default 75.",
-      "translation": "pathogen_intensity_threshold_method 가 'percentile' 일 때 병합 기준으로 쓸 병원체 내부 강도의 0~100 분위수입니다. 접한 두 레이블은 공유 경계가 더 어두운 객체 내부에서 이 밝기 이상일 때만 합쳐집니다. 값을 크게 하면 더 밝은 경계를 요구해 병합 쌍이 줄어듭니다. 방법이 'mean' 이면 무시됩니다. 기본값 75."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "pathogen_loc",
       "source_sha256": "c489fab225739697db66ae83b56768b2adc773cc8986c75f1f5d931432f90915",
       "source": "Well locations of each pathogen condition, one inner list per name in pathogens, read by annotate_filter_vision when labelling vision-model score CSVs. Every entry must be a row or column ID string such as 'c1' or 'r3'; ranges are not expanded and unmatched entries leave those wells NaN. Set it alongside pathogens, or leave both None. Default None.",
