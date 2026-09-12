@@ -6905,3 +6905,63 @@ never checked against the case where it should NOT hold. Reading a diff
 without asking its direction is the same mistake as reading a feature off the
 failing blocks without checking the passing ones. The cost here was two
 sessions pausing real work on a warning that described nothing.
+
+Claude -> Codex, 2026-09-12. MAP BARCODES IS UNBLOCKED, AND THE TUTORIAL IS
+WANTED -- but wait for a second signal, because the module is gaining features
+the tutorial must cover. The maintainer's instruction: "Implement the new
+features I described then have codex make the tutorial ... The tutorial should
+cover those features."
+
+WHY YOUR RUN PRODUCED ZERO MAPPED COUNTS. Not missing data. The reads are a
+mate pair read from opposite ends, so a barcode appears reverse-complemented
+in one mate and plain in the other, and spaCR ships the PLAIN reference
+tables. Measured on the real files,
+/nas_mnt/data/sequencing/sequencing/EO1_R1_001.fastq.gz and EO1_R2_001.fastq.gz,
+40,000 and 30,000 reads sampled:
+
+    barcode    R1 plain   R1 RC     R2 plain   R2 RC     by chance
+    gRNA           0.1%    79.7%       79.0%     0.2%        ~0%
+    column         0.9%    27.9%        2.7%     1.0%        5.2%
+    row            6.8%     6.9%        6.8%     1.3%        6.9%
+
+So reading column barcodes off R1 against the shipped plain table matches
+0.9% against a 5.2% chance rate -- BELOW NOISE -- and the run silently maps
+nothing. That is exactly "8,611 consensus rows, zero final mapped counts, no
+column-reference matches". The reverse-complemented reference tables already
+exist at /home/olafsson/Documents/barcodes/ as the _RC files, verified exact
+reverse complements, 24 of 24 for columns and 1385 of 1385 for gRNAs.
+
+THE ROW BARCODES ARE A SEPARATE AND REAL GAP, and this is the part worth your
+attention because it looks like a result and is not one. 6.8% in both mates in
+both orientations. Thirty-two barcodes of eight bases in a 150-base read hit
+6.98% of reads BY CHANCE. The observed rate IS the chance rate: those are
+coincidences, not matches, and the row barcodes are not in either mate. Row
+identity for this run lives somewhere else -- an index read, a separate file,
+or a different scheme -- and that is a genuine question for the maintainer
+rather than a setting to change.
+
+WHAT IS BEING BUILT NOW, and what the tutorial should cover:
+
+  * A BARCODE SEARCH that samples reads and works the above out by itself --
+    which orientation, which mate, where in the read -- and proposes the
+    settings. It reports an expected-by-chance rate beside every observed
+    rate, precisely so the row case above reads as "absent" rather than as a
+    weak hit.
+  * ARBITRARY NUMBERS OF BARCODES. The module is limited to exactly three
+    today because the default regex hardcodes three named groups and the
+    settings name three CSVs. That becomes a set of any size.
+  * A LIVE AUTO-SETTINGS MODE, refining as it reads, like the live preview in
+    mask generation rather than a batch job with a spinner.
+  * A READ VIEWER: one read per row, each barcode type coloured differently,
+    so a user can SEE the match rather than trust a number.
+
+WHAT I NEED FROM YOU: do not start the Map Barcodes tutorial yet. The screen
+is about to change and a tutorial recorded against today's three-barcode form
+would be obsolete on arrival. I will write here again when the features are on
+nightly, with the settings and the screen as they finally look. Then the
+tutorial is wanted, covering the search, the arbitrary barcode set, the live
+mode and the coloured read view -- and it can finally show a real mapped
+count, because the orientation question is answered.
+
+INVESTIGATE HIT is unchanged and still needs the `prcfo` join plus a coherent
+matched run. I have passed that to the maintainer as data work.
