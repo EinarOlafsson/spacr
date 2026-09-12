@@ -4635,8 +4635,8 @@ class MainWindow(QMainWindow):
             self._startup._btn_all_apps.clicked.connect(self.toggle_app_drawer)
         except Exception:
             pass
-        self._stack.addWidget(self._startup)
         self._a_page_joined_the_stack(self._startup)
+        self._stack.addWidget(self._startup)
         self._drop_a_redundant_screen_backdrop(self._startup)
 
     def _show_the_screensaver(self) -> bool:
@@ -4887,8 +4887,8 @@ class MainWindow(QMainWindow):
 
         self._screens[key] = fresh
         self._screen_scales[key] = _current_font_scale()
-        self._stack.addWidget(fresh)
         self._a_page_joined_the_stack(fresh)
+        self._stack.addWidget(fresh)
         self._drop_a_redundant_screen_backdrop(fresh)
         self._stack.setCurrentWidget(fresh)
         if old is not None:
@@ -4996,8 +4996,8 @@ class MainWindow(QMainWindow):
             except Exception:
                 # Decoration must never stop a screen from opening.
                 LOG.exception("Could not theme the %s screen", key)
-            self._stack.addWidget(self._screens[key])
             self._a_page_joined_the_stack(self._screens[key])
+            self._stack.addWidget(self._screens[key])
             self._drop_a_redundant_screen_backdrop(self._screens[key])
             try:
                 from .i18n import retranslate_widget_tree
@@ -5331,6 +5331,15 @@ class MainWindow(QMainWindow):
         marked widget on its ``Polish`` or ``Show`` -- which is before its
         first paint, and is also the only moment at which a page that is
         added but not raised should cost anything.
+
+        CALLED BEFORE ``addWidget``, AND THE ORDER IS THE WHOLE POINT.
+        ``QStackedWidget.addWidget`` makes the FIRST widget current and
+        shows it there and then, so a mark applied afterwards arrives after
+        that page's only ``Show`` and the filter never sees it marked. Every
+        later page is unaffected -- the stack is no longer empty, so
+        ``addWidget`` does not raise them -- which is exactly what makes
+        this the kind of defect that ships: it is wrong for one page out of
+        forty-five, and that page is Home.
 
         :param page: the widget that has just been added to the stack.
         """
