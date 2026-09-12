@@ -9813,16 +9813,133 @@
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings",
+      "title": "Embeddings: aktuell skärm och ett verkligt Python-exempel",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Den här handledningen är inte tillgänglig ännu. Utforska de andra handledningarna under tiden.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Se den nya modulen och koda verkliga bilder via API:t utan att påstå att GUI:t är lagat eller en fenotyp validerad.",
+      "objectives": [
+        "Skilj det aktuella GUI:t från det fungerande API:t.",
+        "Jämför kanalstrategier med sexton bilder.",
+        "Bevara identiteter och tolka figurer försiktigt."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 med tillägget embeddings; inspelat med timm 1.0.29 och förtränat ResNet18 på CPU. Hämta Annotate-exemplet och den länkade ZIP-filen. Använd cell_png-mappen i README och nya utdatamappar. Filnamn är inte verifierade databasnycklar. Skärmen saknar bildinläsning; lyckade steg använder API:t. Ingen biologisk validering, modersmålsgranskning eller GPU-körning påstås.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings är en ny modul på Home i spaCR. Den omvandlar bildutsnitt till numeriska vektorer utan att träna på dina annoteringar. Lektionen visar den aktuella skärmen och ett fungerande Python-exempel med verkliga hämtade bilder.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "I version ett punkt fem punkt noll punkt sju har skärmen ingen kontroll för att läsa in bildutsnitt, och Embed är inaktiverad. Vi simulerar inte en lyckad GUI-körning. Den verkliga kodningen som visas härnäst utförs av det stödda Python-API:t.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel kodar varje lagrad kanal separat och sammanfogar vektorerna. Project to three kodar i stället den kombinerade bilden. Det ändrar representationen, inte bara hastigheten. En kanalplats i en PNG är inte automatiskt en verifierad infärgningsidentitet.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "Installera det valfria tillägget embeddings i din spaCR-miljö. Standardmodellens ResNet arton använder övervakat tränade ImageNet-vikter, inte en självövervakad modell tränad på celler. Det lilla exemplet använder CPU; GPU eller en extern AI-tjänst behövs inte.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Använd Annotates nedladdningsbara exempel och utsnittsmappen i instruktionerna. Det länkade skriptet väljer sexton befintliga bilder i filnamnsordning. Varje bild är tvåhundratjugofyra pixlar på varje sida och har tre lagrade kanaler. Ingen storleksändring eller ny segmentering utförs.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "Kör skriptet med en ny utdatamapp. Det anropar embed_array med den verkliga förtränade kodaren och grupper om fyra. Kanalvis kodning ger sexton rader och ettusenfemhundratrettiosex dimensioner. Den sparade matrisen öppnas igen och kontrolleras värde för värde.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "Välj nu project och en annan utdatamapp. Samma bilder ger sexton rader och femhundratolv dimensioner. Dessa kolumner med kombinerade kanaler är inte utbytbara mot de tidigare kanalvisa kolumnerna. Jämför strategier medvetet och bevara inställningarna för varje körning.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "Granska montaget av de verkliga indatabilderna i bildvisaren. Numren följer utdataradernas ordning. Kontrollera utsnittens kvalitet och exportens kanalmappning innan vektorer tolkas. Filnamnen identifierar exemplet; verifiera objektnycklar före sammanfogning med en mätdatabas.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "Den här sparade figuren projicerar de kanalvisa vektorerna på två huvudkomponenter. De numrerade punkterna motsvarar samma utsnitt. Det är en utforskande visualisering av ett mycket litet urval, inte bevis för olika fenotyper. En vektordimension är inte ett biologiskt mätvärde.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "Vektorerna med kombinerade kanaler har sin egen projektion. Jämför inte axelkoordinater mellan figurerna som om de delade samma anpassade transformation. Ingen figur mäter sökprecision eller visar att vektorerna överträffar panelen med uppmätta egenskaper.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Bevara vektorer, källidentiteter, vikternas kontrollsumma, inställningar och paketversioner. Skriptet kontrollerar att originalbilderna är oförändrade och avvisar befintliga mål. Matcha indatautsnitt, normalisering och kanalmappning vid jämförelser. Följ de länkade instruktionerna för att återskapa API-exemplet.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     }
   ]
 }

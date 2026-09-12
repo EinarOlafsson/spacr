@@ -1,0 +1,16 @@
+{
+  "scope": "Read-only comparison with the actual PyPI wheel, not a fresh installation test",
+  "metadata_url": "https://pypi.org/pypi/spacr/1.5.0.7/json",
+  "version": "1.5.0.7",
+  "wheel": "spacr-1.5.0.7-py3-none-any.whl",
+  "wheel_bytes": 37653750,
+  "wheel_sha256": "080511402e9b12ccc3cd448b200c7a48cfa8aa5331aeccccf605ebdb75b23408",
+  "wheel_checksum_matches_pypi_metadata": true,
+  "embeddings_requirement": "timm<2.0,>=0.9; extra == \"embeddings\"",
+  "files_byte_identical_to_recorded_checkout": {
+    "spacr/embeddings.py": "3a6d906300fecb8b0ae7fe2c07a8e2440604374fe56756271284d5583750d41b",
+    "spacr/crops.py": "720b1b43d0d3e9cc6cab04ebc7e18fd99f98151940f76e973aa216e0dc674c5c",
+    "spacr/qt/screens/embeddings.py": "21b26b054334335064dbe8b967af6ec4f8eca4a3862e405c45c6aa67d33b3c0b"
+  },
+  "published_tutorial": false
+}

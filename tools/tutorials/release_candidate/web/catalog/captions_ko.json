@@ -9813,16 +9813,133 @@
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings",
+      "title": "Embeddings: 현재 화면과 실제 Python 예제",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "곧 공개됩니다",
-      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "새 모듈을 살펴보고 API로 실제 이미지를 인코딩합니다. GUI 수정이나 생물학적 검증과는 구분합니다.",
+      "objectives": [
+        "현재 GUI와 작동하는 API를 구분합니다.",
+        "열여섯 이미지로 채널 정책을 비교합니다.",
+        "식별 정보를 보존하고 그림의 한계를 이해합니다."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "embeddings 추가 의존성이 설치된 spaCR 1.5.0.7이 필요합니다. 녹화는 timm 1.0.29와 CPU의 사전 학습 ResNet18을 사용합니다. Annotate 예제와 연결된 ZIP을 받고 README의 cell_png 폴더 및 새 출력 폴더를 사용하세요. 파일명은 검증된 데이터베이스 결합 키가 아닙니다. 화면에 이미지 로딩 컨트롤이 없어 성공한 처리는 API를 사용합니다. 생물학적 검증, 원어민 검토 또는 GPU 실행을 주장하지 않습니다.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings는 spaCR의 Home에 추가된 모듈입니다. 사용자의 주석으로 학습하지 않고 잘라낸 이미지를 수치 벡터로 바꿉니다. 이 강의는 현재 화면과 실제로 다운로드한 이미지로 작동하는 Python 예제를 보여 줍니다.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "일 점 오 점 영 점 칠 버전에서는 이 화면에 잘라낸 이미지를 불러오는 컨트롤이 없고 Embed는 비활성 상태입니다. GUI 실행이 성공한 것처럼 연출하지 않습니다. 다음에 보여 주는 실제 인코딩은 지원되는 Python API가 수행합니다.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel은 저장된 각 채널을 따로 인코딩하고 벡터를 이어 붙입니다. Project to three는 결합한 이미지를 인코딩합니다. 속도뿐 아니라 표현 자체가 바뀝니다. PNG의 채널 위치만으로 검증된 염색 표지를 알 수 있는 것은 아닙니다.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "spaCR 환경에 선택 사항인 embeddings 추가 의존성을 설치합니다. 기본 ResNet 십팔은 ImageNet 지도 학습 가중치를 쓰며, 세포로 학습한 자기지도 모델이 아닙니다. 이 작은 예제는 CPU를 사용하므로 GPU나 원격 인공지능 서비스가 필요하지 않습니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Annotate의 다운로드 예제와 설명에 지정된 이미지 폴더를 사용합니다. 연결된 스크립트는 파일명 순으로 기존 이미지 열여섯 장을 선택합니다. 각 이미지는 가로세로 이백이십사 픽셀이고 저장된 채널은 세 개입니다. 크기를 바꾸거나 다시 분할하지 않습니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "새 출력 폴더를 지정해 스크립트를 실행합니다. 실제 사전 학습 인코더와 네 장씩의 배치로 embed_array를 호출합니다. 채널별 인코딩은 열여섯 행과 천오백삼십육 차원을 만듭니다. 저장한 행렬을 다시 열고 모든 값을 확인합니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "이제 project와 다른 출력 폴더를 선택합니다. 같은 이미지가 열여섯 행과 오백십이 차원을 만듭니다. 결합 채널의 열은 앞선 채널별 열과 서로 대체할 수 없습니다. 정책을 의도적으로 비교하고 실행마다 설정을 보존하세요.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "이미지 뷰어에서 실제 입력 몽타주를 확인합니다. 번호는 출력 행 순서와 일치합니다. 벡터를 해석하기 전에 이미지 품질과 내보내기의 채널 매핑을 확인하세요. 파일명은 이 예제의 식별자이며, 측정 데이터베이스와 결합하기 전에 객체 키를 검증해야 합니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "저장한 이 그림은 채널별 벡터를 두 주성분에 투영합니다. 번호가 있는 점은 동일한 이미지에 대응합니다. 매우 작은 표본의 탐색적 시각화이지 서로 다른 표현형의 증거는 아닙니다. 임베딩의 한 차원은 생물학적 측정값이 아닙니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "결합 채널 벡터는 별도의 투영을 갖습니다. 따로 적합한 두 그림의 축 좌표를 같은 변환을 공유하는 것처럼 비교하지 마세요. 어느 그림도 검색 정확도를 측정하거나 임베딩이 직접 측정한 특징 패널보다 우수하다는 사실을 입증하지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "벡터, 원본 식별 정보, 가중치 체크섬, 설정과 패키지 버전을 보존하세요. 스크립트는 원본 이미지가 변하지 않았는지 확인하고 기존 출력 위치를 거부합니다. 비교할 때 입력 이미지, 정규화와 채널 매핑을 맞추세요. 연결된 설명으로 이 API 예제를 재현할 수 있습니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     }
   ]
 }

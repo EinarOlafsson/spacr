@@ -10829,16 +10829,144 @@
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings",
+      "title": "Embeddings: tela atual e exemplo real em Python",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "Em breve",
-      "description": "Este tutorial ainda não está disponível. Enquanto isso, explore os outros tutoriais.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Conheça o módulo e codifique imagens reais pela API, sem alegar que a interface foi corrigida ou que um fenótipo foi validado.",
+      "objectives": [
+        "Distinguir a interface atual da API funcional.",
+        "Comparar as políticas de canais com dezesseis imagens.",
+        "Preservar identidades e interpretar os gráficos com cautela."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 com o extra embeddings; gravação com timm 1.0.29 e ResNet18 pré-treinado na CPU. Baixe o exemplo do Annotate e o ZIP vinculado. Use a pasta cell_png indicada no README e novas pastas de saída. Os nomes dos arquivos não são chaves de banco verificadas. A tela não oferece carregamento de imagens; o sucesso demonstrado usa a API. Não se alega validação biológica, revisão por falante nativo nem execução em GPU.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings é um novo módulo na Home do spaCR. Ele transforma recortes de imagens em vetores numéricos sem treinar com suas anotações. Esta aula mostra a tela atual e um exemplo funcional em Python com imagens reais baixadas.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Embeddings é um novo módulo na Home do espáquer. Ele transforma recortes de imagens em vetores numéricos sem treinar com suas anotações. Esta aula mostra a tela atual e um exemplo funcional em Python com imagens reais baixadas."
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "Na versão um ponto cinco ponto zero ponto sete, esta tela não tem um controle para carregar recortes e Embed permanece desativado. Não simularemos uma execução gráfica bem-sucedida. A API Python realiza a codificação real mostrada a seguir.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Na versão um ponto cinco ponto zero ponto sete, esta tela não tem um controle para carregar recortes e Embed permanece desativado. Não simularemos uma execução gráfica bem-sucedida. A API Python realiza a codificação real mostrada a seguir."
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel codifica cada canal armazenado separadamente e concatena os vetores. Project to three codifica a imagem combinada. Isso muda a representação, não apenas a velocidade. Uma posição de canal PNG não identifica automaticamente uma marcação verificada.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Per channel codifica cada canal armazenado separadamente e concatena os vetores. Project to three codifica a imagem combinada. Isso muda a representação, não apenas a velocidade. Uma posição de canal PNG não identifica automaticamente uma marcação verificada."
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "Instale o extra opcional embeddings no ambiente spaCR. O ResNet dezoito padrão usa pesos supervisionados do ImageNet, não um modelo autossupervisionado treinado em células. Este pequeno exemplo usa a CPU; não exige GPU nem serviço remoto de inteligência artificial.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Instale o extra opcional embeddings no ambiente espáquer. O ResNet dezoito padrão usa pesos supervisionados do ImageNet, não um modelo autossupervisionado treinado em células. Este pequeno exemplo usa a CPU; não exige GPU nem serviço remoto de inteligência artificial."
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Use o exemplo disponível no Annotate e a pasta de recortes indicada nas instruções. O script vinculado seleciona dezesseis imagens existentes em ordem de nome. Cada uma tem duzentos e vinte e quatro pixels de lado e três canais armazenados. Não há redimensionamento nem nova segmentação.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Use o exemplo disponível no Annotate e a pasta de recortes indicada nas instruções. O script vinculado seleciona dezesseis imagens existentes em ordem de nome. Cada uma tem duzentos e vinte e quatro pixels de lado e três canais armazenados. Não há redimensionamento nem nova segmentação."
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "Execute o script com uma nova pasta de saída. Ele chama embed_array com o codificador pré-treinado real e lotes de quatro. A codificação por canal produz dezesseis linhas e mil quinhentas e trinta e seis dimensões. A matriz salva é reaberta e conferida valor por valor.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Execute o script com uma nova pasta de saída. Ele chama embed_array com o codificador pré-treinado real e lotes de quatro. A codificação por canal produz dezesseis linhas e mil quinhentas e trinta e seis dimensões. A matriz salva é reaberta e conferida valor por valor."
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "Agora escolha project e outra pasta de saída. As mesmas imagens produzem dezesseis linhas e quinhentas e doze dimensões. Essas colunas de canais combinados não são intercambiáveis com as anteriores. Compare as políticas deliberadamente e guarde as configurações de cada execução.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Agora escolha project e outra pasta de saída. As mesmas imagens produzem dezesseis linhas e quinhentas e doze dimensões. Essas colunas de canais combinados não são intercambiáveis com as anteriores. Compare as políticas deliberadamente e guarde as configurações de cada execução."
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "Examine a montagem das imagens reais de entrada no visualizador. Os números seguem a ordem das linhas de saída. Confira a qualidade dos recortes e o mapeamento dos canais exportados antes de interpretar vetores. Os nomes identificam este exemplo; valide as chaves antes de unir um banco de medições.",
+          "hold_after": 0.7,
+          "speech_text": "Examine a montagem das imagens reais de entrada no visualizador. Os números seguem a ordem das linhas de saída. Confira a qualidade dos recortes e o mapeamento dos canais exportados antes de interpretar vetores. Os nomes identificam este exemplo; valide as chaves antes de unir um banco de medições."
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "Este gráfico salvo projeta os vetores por canal em dois componentes principais. Os pontos numerados correspondem aos mesmos recortes. É uma visualização exploratória de uma amostra minúscula, não uma prova de fenótipos distintos. Uma dimensão de um vetor não é uma medida biológica.",
+          "hold_after": 0.7,
+          "speech_text": "Este gráfico salvo projeta os vetores por canal em dois componentes principais. Os pontos numerados correspondem aos mesmos recortes. É uma visualização exploratória de uma amostra minúscula, não uma prova de fenótipos distintos. Uma dimensão de um vetor não é uma medida biológica."
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "Os vetores de canais combinados têm sua própria projeção. Não compare coordenadas entre esses gráficos como se compartilhassem uma transformação ajustada. Nenhum mede a precisão de recuperação nem demonstra que os vetores superem o painel de características medidas.",
+          "hold_after": 0.7,
+          "speech_text": "Os vetores de canais combinados têm sua própria projeção. Não compare coordenadas entre esses gráficos como se compartilhassem uma transformação ajustada. Nenhum mede a precisão de recuperação nem demonstra que os vetores superem o painel de características medidas."
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Guarde os vetores, identidades, checksum dos pesos, configurações e versões. O script verifica que as imagens originais não mudaram e recusa destinos existentes. Mantenha recortes, normalização e mapeamento de canais coerentes nas comparações. Use as instruções vinculadas para reproduzir este exemplo da API.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Guarde os vetores, identidades, checksum dos pesos, configurações e versões. O script verifica que as imagens originais não mudaram e recusa destinos existentes. Mantenha recortes, normalização e mapeamento de canais coerentes nas comparações. Use as instruções vinculadas para reproduzir este exemplo da API."
+        }
+      ]
     }
   ],
   "language": "pt-BR"

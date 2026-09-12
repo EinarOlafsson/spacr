@@ -33,22 +33,22 @@ The user confirmed these requirements on 9 September:
 
 The maintainer explicitly approved **Coming soon screens for unfinished
 workflows**, superseding the earlier no-placeholder rule for this release.
-The candidate therefore contains 71 complete tutorial packages and six
+The candidate now contains 72 complete tutorial packages and five
 unavailable screens: Map Barcodes, Model Compare, Model Zoo, Investigate Hit,
-OPS and Embeddings. These screens are not successful workflow demonstrations and do not
+and OPS. These screens are not successful workflow demonstrations and do not
 close the underlying application/data defects. OPS is under Mask.
 
 `coming_soon.py` supplies text in all fourteen catalog languages. It only
 transforms release copies; held recordings and original catalogs are preserved.
 Screens have no narration/video, cannot be marked complete, and do not count
-as available tutorials. The fifty-voice selection remains intact for all 71
+as available tutorials. The fifty-voice selection remains intact for all 72
 ready lessons. Parent routing is generated from the live registry, including
 for unchanged lessons whose media and narration are retained byte-for-byte.
 
 `build_release_candidate.py` creates a new private candidate, rechecks the
 existing full-library evidence and copies verified media without uploading it.
 `verify_release_candidate.py <candidate>` checks the candidate in Chromium,
-including all six screens in fourteen languages, mobile text visibility,
+including all five screens in fourteen languages, mobile text visibility,
 each ready English video/audio pair, seeking, and ready/unavailable transitions.
 `checkpoint_release_candidate.py <candidate>` saves its exact player, fourteen
 catalogs, route metadata, browser evidence and all media hashes under
@@ -76,6 +76,33 @@ approved deployment with final hosted roots and live-byte verification.
 An inventory or passing structural test is not a completed tutorial. Only
 validated recordings, narration, captions, and links close a lesson.
 
+### Embeddings — 12 September
+
+Lesson 77 introduces the actual 1.5.0.7 Home screen and demonstrates the
+supported Python API on sixteen real downloaded Annotate crop PNGs. The
+standalone GUI has no crop-loading control yet: the recording discloses this,
+does not inject crops into the screen, and does not claim a completed GUI run.
+Its working API example uses the real ImageNet-supervised ResNet18 encoder on
+CPU, not a mocked encoder or a microscopy-trained model.
+
+The eleven-scene shared English recording shows both channel policies,
+verified saved matrices (16 × 1,536 and 16 × 512), the input montage, separate
+exploratory PCA plots and provenance. The downloadable helper refuses existing
+output directories, reopens every saved matrix value and row identity, and
+checks that source crops are unchanged. Filenames are demonstration identities,
+not validated database join keys; the lesson makes no phenotype or retrieval
+accuracy claim. Both actual runs and deliberately broken guard checks are saved
+under `evidence/2026-09-12_embeddings_*`.
+
+All 50 voices and 14 catalog languages are preserved. Final checks decode every
+track, reconcile its exact script/pronunciation inputs, exercise all fourteen
+language/caption cases, and check Heart's native captions at every narrated
+sentence midpoint. `complete_embeddings_media.py` builds and validates a new
+private candidate; `checkpoint_embeddings.py` saves its measured evidence after
+the normal candidate checkpoint. This is technical verification, not
+native-speaker or human listening approval. The five other Coming soon screens
+and the publication hold remain unchanged.
+
 ### Final library and web-copy checkpoints
 
 `verify_library_checkpoint.py --held 12_map_barcodes 21_model_compare
@@ -84,7 +111,7 @@ validated recordings, narration, captions, and links close a lesson.
 every other staged lesson, including the explicit whole-media retention path.
 It checks final bytes against existing audio/browser reports, all fourteen
 catalogs, and the current navigation registry. Listed holds and missing routes
-(including OPS and Embeddings) remain visible; passing the checked subset is not whole-library
+(currently OPS) remain visible; passing the checked subset is not whole-library
 or publication approval. No model, synthesis or full-suite coverage run occurs.
 Use the immutable catalog baseline from `d2d4c189b`, before the public Coming
 soon conversion; the current candidate records its exact fourteen hashes.

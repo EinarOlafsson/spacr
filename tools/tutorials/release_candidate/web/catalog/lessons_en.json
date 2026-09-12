@@ -9918,16 +9918,133 @@
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings",
+      "title": "Embeddings: current screen and a real Python example",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "Coming soon",
-      "description": "This tutorial is not available yet. Please explore the other tutorials.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Inspect the new Home module, encode real downloaded crops with the supported API, and compare channel policies without claiming a repaired GUI or a validated phenotype.",
+      "objectives": [
+        "Find Embeddings and distinguish its current GUI limitation from the working API.",
+        "Encode sixteen real crops, preserve identities and inspect both channel policies.",
+        "Read saved vectors and exploratory plots with appropriate limitations."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 with its embeddings extra; the recording uses timm 1.0.29 and cached pretrained ResNet18 weights on CPU. Download Annotate's real example as shown in that tutorial. Extract the helper ZIP, locate plate1/data/single_nucleus/uninfected/plate1_E02/cell_png, and use NEW output directories. The helper reads sixteen sorted PNGs without resizing; filenames identify the demonstration rows, not verified database join keys. The standalone Embeddings screen still lacks a crop-loading control. Successful operations here use the public Python API, not programmatic injection disguised as a GUI action. The default encoder is ImageNet-supervised, not microscopy-trained. No native-speaker signoff, biological validation, GPU benchmark or provider request is claimed. Read the included README for normalization, provenance, device and channel-mapping details.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings is a new Home module in spaCR. It turns image crops into numerical vectors without training on your annotations. This lesson demonstrates the current screen and a working Python example, using real downloaded images.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled. We will not simulate a successful GUI run. The supported Python API performs the actual encoding shown next.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel encodes each stored channel separately, then concatenates the vectors. Project to three encodes the combined image instead. That changes the representation, not just its speed. A saved PNG slot is not automatically a verified stain identity.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "Install the optional embeddings extra in your spaCR environment. The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model. This small example uses the CPU; no GPU or remote AI service is required.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Use Annotate's downloadable example and the crop folder named in the instructions. The linked helper selects sixteen existing images in sorted filename order. Each is two hundred twenty-four pixels square, with three stored channels. No resizing or new segmentation is performed.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "Run the helper with a new output directory. It calls embed_array with the real pretrained encoder and batches of four. Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions. The saved matrix is reopened and checked value by value.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "Now choose project and a different output directory. The same images produce sixteen rows and five hundred twelve dimensions. These combined-channel columns are not interchangeable with the earlier per-channel columns. Compare policies deliberately and retain the settings for each run.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "Inspect the actual input montage in the image viewer. Its numbers match the output row order. Check crop quality and the export's channel mapping before interpreting vectors. Filenames identify this example; validate the object keys before joining to a measurements database.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "This saved plot projects the per-channel vectors onto two principal components. The numbered points refer to those same crops. It is exploratory visualization of a tiny sample, not proof of distinct phenotypes. A single embedding dimension is not a biological measurement.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "The combined-channel vectors have their own projection. Do not compare axis coordinates across these separate plots as if they shared a fitted transformation. Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Keep the vectors, source identities, weights checksum, settings and package versions. The helper checks that source images remain unchanged and refuses existing destinations. Match input crops, normalization and channel mapping between comparisons. Use the linked instructions to reproduce this API example.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     }
   ]
 }

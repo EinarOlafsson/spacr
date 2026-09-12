@@ -9813,16 +9813,133 @@
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings",
+      "title": "Embeddings: den aktuelle skærm og et ægte Python-eksempel",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Denne vejledning er endnu ikke tilgængelig. Se de andre vejledninger imens.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Se det nye modul og kod virkelige billeder med API’et uden at påstå, at GUI’en er rettet eller en fænotype valideret.",
+      "objectives": [
+        "Skeln mellem den aktuelle GUI og det fungerende API.",
+        "Sammenlign kanalpolitikker på seksten billeder.",
+        "Bevar identiteter og fortolk figurer med omtanke."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 med tilvalget embeddings; optaget med timm 1.0.29 og fortrænet ResNet18 på CPU. Hent Annotate-eksemplet og den tilknyttede ZIP. Brug cell_png-mappen fra README og nye outputmapper. Filnavne er ikke verificerede databasenøgler. Skærmen mangler billedindlæsning; de vellykkede handlinger bruger API’et. Ingen biologisk validering, modersmålsvurdering eller GPU-kørsel hævdes.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings er et nyt modul på Home i spaCR. Det omdanner billedudsnit til numeriske vektorer uden træning på dine annoteringer. Lektionen viser den aktuelle skærm og et fungerende Python-eksempel med virkelige downloadede billeder.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "I version ét punkt fem punkt nul punkt syv har skærmen ingen kontrol til indlæsning af billedudsnit, og Embed er deaktiveret. Vi simulerer ikke en vellykket GUI-kørsel. Den faktiske kodning, der vises bagefter, udføres af det understøttede Python-API.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel koder hver gemt kanal separat og sammenkæder vektorerne. Project to three koder det kombinerede billede. Det ændrer repræsentationen, ikke kun hastigheden. En kanalplads i en PNG er ikke automatisk en verificeret farvningsidentitet.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "Installér det valgfrie tilvalg embeddings i dit spaCR-miljø. Standardmodellens ResNet atten bruger superviserede ImageNet-vægte, ikke en selvsuperviseret model trænet på celler. Dette lille eksempel bruger CPU; hverken GPU eller en ekstern AI-tjeneste er nødvendig.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Brug Annotates downloadbare eksempel og billedudsnitsmappen i vejledningen. Det tilknyttede script vælger seksten eksisterende billeder sorteret efter filnavn. Hvert billede er to hundrede fireogtyve pixels på hver led med tre gemte kanaler. Der ændres ikke størrelse og segmenteres ikke igen.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "Kør scriptet med en ny outputmappe. Det kalder embed_array med den virkelige fortrænede encoder og batcher på fire. Kodning pr. kanal giver seksten rækker og et tusind fem hundrede seksogtredive dimensioner. Den gemte matrix genåbnes og kontrolleres værdi for værdi.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "Vælg nu project og en anden outputmappe. De samme billeder giver seksten rækker og fem hundrede tolv dimensioner. Disse kombinerede kanalkolonner kan ikke udskiftes med de tidligere kanalvise kolonner. Sammenlign politikker bevidst, og gem indstillingerne for hver kørsel.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "Undersøg montagen af de faktiske inputbilleder i billedviseren. Numrene følger outputrækkernes orden. Kontrollér udsnittenes kvalitet og eksportens kanaltilknytning før fortolkning. Filnavnene identificerer dette eksempel; verificér objektnøglerne før sammenføjning med en måledatabase.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "Denne gemte figur projicerer de kanalvise vektorer på to hovedkomponenter. De nummererede punkter er de samme billedudsnit. Det er en undersøgende visualisering af en meget lille stikprøve, ikke bevis for forskellige fænotyper. Én vektordimension er ikke en biologisk måling.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "Vektorerne med kombinerede kanaler har deres egen projektion. Sammenlign ikke aksekoordinater på tværs af figurerne, som om de delte én tilpasset transformation. Ingen af figurerne måler genfindingsnøjagtighed eller viser, at vektorerne overgår panelet af målte egenskaber.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Gem vektorer, kildeidentiteter, vægtenes kontrolsum, indstillinger og pakkeversioner. Scriptet kontrollerer, at originalbillederne er uændrede, og afviser eksisterende destinationer. Match inputudsnit, normalisering og kanaltilknytning i sammenligninger. Brug den tilknyttede vejledning til at gentage API-eksemplet.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     }
   ]
 }

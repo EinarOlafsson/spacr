@@ -9813,16 +9813,133 @@
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings",
+      "title": "Embeddings: núverandi skjár og raunverulegt Python-dæmi",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "Væntanlegt",
-      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Skoðaðu nýju eininguna og kóðaðu raunmyndir með API án þess að halda fram lagfærðu myndviðmóti eða líffræðilegri staðfestingu.",
+      "objectives": [
+        "Greina á milli núverandi myndviðmóts og virks API.",
+        "Bera rásastefnur saman á sextán myndum.",
+        "Varðveita auðkenni og túlka myndrit með varúð."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 með embeddings-viðbót; upptakan notar timm 1.0.29 og forþjálfað ResNet18 á örgjörva. Sæktu Annotate-dæmið og tengdu ZIP-skrána. Notaðu cell_png-möppuna í README og nýjar úttaksmöppur. Skráarnöfn eru ekki staðfestir gagnagrunnslyklar. Skjárinn hefur ekki myndahleðslu; árangursrík vinnsla fer fram með API. Ekki er fullyrt um líffræðilega staðfestingu, yfirferð móðurmálshafa eða GPU-keyrslu.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings er ný eining á Home-síðu spaCR. Hún breytir myndútskurðum í talnavigra án þess að þjálfa á merkingunum þínum. Kennslan sýnir núverandi skjá og virkt Python-dæmi með raunverulegum niðurhöluðum myndum.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "Í útgáfu eitt punktur fimm punktur núll punktur sjö hefur þessi skjár enga stýringu til að hlaða myndútskurðum og Embed er óvirkt. Við líkjum ekki eftir árangursríkri myndviðmótskeyrslu. Raunverulega kóðunin sem kemur næst er framkvæmd með studdu Python-API.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel kóðar hverja vistaða rás sérstaklega og tengir vigurna saman. Project to three kóðar samsettu myndina í staðinn. Þetta breytir framsetningunni, ekki aðeins hraðanum. Rásasæti í PNG auðkennir ekki sjálfkrafa staðfesta litun.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "Settu valkvæðu embeddings-viðbótina upp í spaCR-umhverfinu. Sjálfgefna ResNet átján notar ImageNet-vogir úr stýrðu námi, ekki sjálfstýrt líkan þjálfað á frumum. Þetta litla dæmi notar örgjörvann; hvorki GPU né ytri gervigreindarþjónusta er nauðsynleg.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Notaðu niðurhalanlega Annotate-dæmið og útskurðamöppuna í leiðbeiningunum. Tengda skriftan velur sextán fyrirliggjandi myndir í röð eftir skráarnafni. Hver mynd er tvö hundruð tuttugu og fjórir pixlar á hvorn veg með þremur vistuðum rásum. Hvorki stærðarbreyting né ný hlutun fer fram.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "Keyrðu skriftuna með nýrri úttaksmöppu. Hún kallar á embed_array með raunverulegum forþjálfuðum kóðara og fjögurra mynda lotum. Kóðun eftir rás gefur sextán raðir og eitt þúsund fimm hundruð þrjátíu og sex víddir. Vistaða fylkið er opnað aftur og hvert gildi athugað.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "Veldu nú project og aðra úttaksmöppu. Sömu myndir gefa sextán raðir og fimm hundruð tólf víddir. Þessir dálkar með samsettum rásum koma ekki í stað fyrri rásaskiptu dálkanna. Berðu stefnurnar saman af ásettu ráði og geymdu stillingar hverrar keyrslu.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "Skoðaðu yfirlitið yfir raunverulegu inntaksmyndirnar í myndskoðaranum. Númerin fylgja röð úttaksraðanna. Athugaðu gæði útskurða og rásavörpun útflutningsins áður en vigur er túlkaður. Skráarnöfn auðkenna dæmið; staðfestu hlutalykla fyrir samtengingu við mæligagnagrunn.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "Þetta vistaða myndrit varpar rásaskiptu vigrunum á tvo aðalþætti. Númeruðu punktarnir vísa til sömu útskurða. Þetta er könnunarmynd af mjög litlu úrtaki, ekki sönnun fyrir ólíkum svipgerðum. Ein vídd í vigri er ekki líffræðileg mæling.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "Vigrarnir með samsettum rásum hafa sína eigin vörpun. Ekki bera ásahnit þessara aðskildu myndrita saman eins og þau notuðu sömu aðlöguðu umbreytingu. Hvorugt myndrit mælir endurheimtarnákvæmni eða sýnir að vigrar séu betri en safn mældra eiginleika.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Geymdu vigra, auðkenni upprunamynda, gátsummu voganna, stillingar og útgáfur hugbúnaðarpakka. Skriftan athugar að upprunamyndir séu óbreyttar og hafnar fyrirliggjandi úttaksstöðum. Samræmdu útskurði, stöðlun og rásavörpun við samanburð. Fylgdu tengdu leiðbeiningunum til að endurtaka API-dæmið.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     }
   ]
 }

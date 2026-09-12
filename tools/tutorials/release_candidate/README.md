@@ -1,30 +1,36 @@
 # Tutorial release candidate — updated 12 September 2026
 
-This is the **unpublished, maintainer-approved candidate**, not the current
+This is an **unpublished candidate within the maintainer-approved scope**, not the current
 live tutorial site. `checkpoint.json` identifies the complete on-disk package;
 `release-manifest.json` records every web/media file and its SHA-256 hash.
 
 | Contents | Count |
 | --- | ---: |
-| Fully produced tutorial packages | 71 |
-| Coming soon screens | 6 |
+| Fully produced tutorial packages | 72 |
+| Coming soon screens | 5 |
 | Total navigable entries | 77 |
 | Catalog languages | 14 |
 | Narration languages / voices per ready lesson | 8 / 50 |
-| Verified narration tracks, including retained tracks | 3,550 |
+| Verified narration tracks, including retained tracks | 3,600 |
 
-The six unavailable workflows are Map Barcodes, Model Compare, Model Zoo,
-Investigate Hit, OPS and Embeddings. They remain reachable through the correct Main modules
+The five unavailable workflows are Map Barcodes, Model Compare, Model Zoo,
+Investigate Hit and OPS. They remain reachable through the correct Main modules
 or parent-grouped Submodules navigation, but do not load old media, claim a
 successful run, offer completion, or inflate the available count. The underlying
 application/data issues remain for their owners; the user approved these screens
 instead of waiting for those fixes.
 
-All original held recordings and catalogs are preserved. The candidate only
-adds availability and current-parent metadata; ready narration and visual
-masters are not regenerated for this change. Complete text sources, scripts,
+Embeddings now has a real eleven-scene tutorial: its current GUI introduction
+followed by a supported Python API example with actual downloaded images,
+two channel policies, verified saved vectors and exploratory figures. The
+lesson explicitly discloses that the standalone screen has no crop loader;
+it does not claim that GUI workflow has been repaired. Its shared recording,
+all 50 voices and fourteen catalogs are included.
+
+All original held recordings and catalogs are preserved. Moving unchanged
+lessons between navigation sections does not regenerate their media. Complete text sources, scripts,
 catalogs and evidence are in Git. At the maintainer's request the web videos,
-posters, fonts and example downloads are also committed; the 6.5-GiB narration
+posters, fonts and example downloads are also committed; the narration
 and 4K package remains in the original workspace and separately copied candidate,
 indexed by the committed hashes, pending media-host upload approval.
 
@@ -35,7 +41,7 @@ Use the existing isolated tutorial environment, not a new application install:
 ```bash
 /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/.venv/bin/python \
   tools/tutorials/verify_release_candidate.py \
-  /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/release-candidate-6ttmkjq2
+  /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/release-candidate-rlxbqjl1
 ```
 
 For an interactive local preview, add `--serve`. It binds only to localhost,
@@ -44,14 +50,16 @@ Stop it with Ctrl-C. Git contains the web media, but the complete narration and
 4K files are still required from the local candidate or a verified media host.
 
 This rebuilt package includes the narration-paired caption fix and native
-caption-track reload fix. Its exact files passed 71 English playback cases
+caption-track reload fix. Its exact files passed 72 English playback cases
 (audio hashes, requested seek positions, video synchronization, paired
-transcript and two native caption reloads each), plus 84 Coming soon cases
+transcript and two native caption reloads each), plus 70 Coming soon cases
 across all fourteen languages. Both deliberate placeholder-player mutations
 failed, with the unchanged player passing before and after. These are browser
 checks, not a new native-GUI or listening review. The refreshed Platform
 Installers Heart track additionally passed native-caption checks at all
-36 sentence midpoints, including both CUDA mentions.
+36 sentence midpoints, including both CUDA mentions. Embeddings Heart also
+passed every native sentence cue; its separately recorded final matrix verifies
+all 50 tracks and fourteen language/caption playback cases.
 
 `source-verification-summary.json` records the frozen preservation baseline:
 catalogs extracted from Git commit `d2d4c189b`, before the public Coming soon
@@ -86,7 +94,7 @@ media roots. After the maintainer clears the hold:
 4. Run the exact deployment's tutorial tests and live verifier before declaring
    it published. Keep the previous media revision available for rollback.
 
-The public-source route test also includes the six Coming soon screens, but
+The currently separate public-source route test still includes six Coming soon screens, but
 that does not prove Pages deployed them. Passing candidate checks is not a claim
 that the live site or all GitHub CI is green. Technical validation also does not constitute native-speaker listening
 approval or repair the application defects disclosed in the tutorials.

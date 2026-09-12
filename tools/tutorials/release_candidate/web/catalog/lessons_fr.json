@@ -10829,16 +10829,144 @@
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings",
+      "title": "Embeddings : interface actuelle et exemple Python réel",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "Bientôt disponible",
-      "description": "Ce tutoriel n’est pas encore disponible. En attendant, découvrez les autres tutoriels.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Découvrez le module et encodez des images réelles avec l’API, sans prétendre que l’interface est réparée ou qu’un phénotype est validé.",
+      "objectives": [
+        "Distinguer l’interface de l’API opérationnelle.",
+        "Comparer les politiques de canaux sur seize images.",
+        "Préserver les identités et interpréter les figures avec prudence."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 avec l’option embeddings ; enregistrement avec timm 1.0.29 et ResNet18 préentraîné sur CPU. Téléchargez l’exemple Annotate et le ZIP associé. Utilisez le dossier cell_png indiqué dans README et de nouveaux dossiers de sortie. Les noms de fichiers ne sont pas des clés de base vérifiées. L’écran ne propose pas de chargement ; les opérations réussies utilisent l’API. Aucune validation biologique, révision par locuteur natif ou exécution GPU n’est revendiquée.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings est un nouveau module de Home dans spaCR. Il transforme des recadrages d’images en vecteurs numériques sans apprentissage sur vos annotations. Cette leçon présente l’écran actuel et un exemple Python fonctionnel utilisant de vraies images téléchargées.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Embeddings est un nouveau module de Home dans spakeur. Il transforme des recadrages d’images en vecteurs numériques sans apprentissage sur vos annotations. Cette leçon présente l’écran actuel et un exemple Python fonctionnel utilisant de vraies images téléchargées."
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "Dans la version un point cinq point zéro point sept, cet écran ne comporte pas de commande de chargement des recadrages et Embed reste désactivé. Nous ne simulerons pas une exécution graphique réussie. L’API Python effectue l’encodage réel montré ensuite.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Dans la version un point cinq point zéro point sept, cet écran ne comporte pas de commande de chargement des recadrages et Embed reste désactivé. Nous ne simulerons pas une exécution graphique réussie. L’API Python effectue l’encodage réel montré ensuite."
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel encode séparément chaque canal stocké puis concatène les vecteurs. Project to three encode plutôt l’image combinée. Cela change la représentation, pas seulement la vitesse. Un emplacement de canal PNG n’identifie pas automatiquement un marquage vérifié.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Per channel encode séparément chaque canal stocké puis concatène les vecteurs. Project to three encode plutôt l’image combinée. Cela change la représentation, pas seulement la vitesse. Un emplacement de canal PNG n’identifie pas automatiquement un marquage vérifié."
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "Installez l’option embeddings dans votre environnement spaCR. Le ResNet dix-huit par défaut utilise des poids supervisés ImageNet, pas un modèle auto-supervisé entraîné sur des cellules. Ce petit exemple utilise le CPU ; aucun GPU ni service distant d’intelligence artificielle n’est nécessaire.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Installez l’option embeddings dans votre environnement spakeur. Le ResNet dix-huit par défaut utilise des poids supervisés ImageNet, pas un modèle auto-supervisé entraîné sur des cellules. Ce petit exemple utilise le CPU ; aucun GPU ni service distant d’intelligence artificielle n’est nécessaire."
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Utilisez l’exemple téléchargeable d’Annotate et le dossier de recadrages indiqué. Le script lié sélectionne seize images existantes par ordre de nom de fichier. Chacune fait deux cent vingt-quatre pixels de côté avec trois canaux stockés. Aucun redimensionnement ni nouvelle segmentation n’est effectué.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Utilisez l’exemple téléchargeable d’Annotate et le dossier de recadrages indiqué. Le script lié sélectionne seize images existantes par ordre de nom de fichier. Chacune fait deux cent vingt-quatre pixels de côté avec trois canaux stockés. Aucun redimensionnement ni nouvelle segmentation n’est effectué."
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "Exécutez le script avec un nouveau dossier de sortie. Il appelle embed_array avec le véritable encodeur préentraîné et des lots de quatre. L’encodage par canal produit seize lignes et mille cinq cent trente-six dimensions. La matrice enregistrée est rouverte et contrôlée valeur par valeur.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Exécutez le script avec un nouveau dossier de sortie. Il appelle embed_array avec le véritable encodeur préentraîné et des lots de quatre. L’encodage par canal produit seize lignes et mille cinq cent trente-six dimensions. La matrice enregistrée est rouverte et contrôlée valeur par valeur."
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "Choisissez maintenant project et un autre dossier de sortie. Les mêmes images produisent seize lignes et cinq cent douze dimensions. Ces colonnes combinant les canaux ne sont pas interchangeables avec les précédentes. Comparez les politiques consciemment et conservez les paramètres de chaque exécution.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Choisissez maintenant project et un autre dossier de sortie. Les mêmes images produisent seize lignes et cinq cent douze dimensions. Ces colonnes combinant les canaux ne sont pas interchangeables avec les précédentes. Comparez les politiques consciemment et conservez les paramètres de chaque exécution."
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "Examinez le montage des vraies images d’entrée dans le visualiseur. Les numéros suivent l’ordre des lignes de sortie. Vérifiez la qualité des recadrages et la correspondance des canaux exportés avant d’interpréter les vecteurs. Les noms identifient cet exemple ; validez les clés avant une jointure avec une base de mesures.",
+          "hold_after": 0.7,
+          "speech_text": "Examinez le montage des vraies images d’entrée dans le visualiseur. Les numéros suivent l’ordre des lignes de sortie. Vérifiez la qualité des recadrages et la correspondance des canaux exportés avant d’interpréter les vecteurs. Les noms identifient cet exemple ; validez les clés avant une jointure avec une base de mesures."
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "Cette figure enregistrée projette les vecteurs par canal sur deux composantes principales. Les points numérotés correspondent aux mêmes images. C’est une visualisation exploratoire d’un très petit échantillon, pas une preuve de phénotypes distincts. Une dimension d’un vecteur n’est pas une mesure biologique.",
+          "hold_after": 0.7,
+          "speech_text": "Cette figure enregistrée projette les vecteurs par canal sur deux composantes principales. Les points numérotés correspondent aux mêmes images. C’est une visualisation exploratoire d’un très petit échantillon, pas une preuve de phénotypes distincts. Une dimension d’un vecteur n’est pas une mesure biologique."
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "Les vecteurs de canaux combinés ont leur propre projection. Ne comparez pas les coordonnées entre ces graphiques comme s’ils partageaient une même transformation ajustée. Aucun ne mesure la précision de recherche ni ne démontre une supériorité sur le panel de caractéristiques mesurées.",
+          "hold_after": 0.7,
+          "speech_text": "Les vecteurs de canaux combinés ont leur propre projection. Ne comparez pas les coordonnées entre ces graphiques comme s’ils partageaient une même transformation ajustée. Aucun ne mesure la précision de recherche ni ne démontre une supériorité sur le panel de caractéristiques mesurées."
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Conservez les vecteurs, les identités, l’empreinte des poids, les paramètres et les versions. Le script vérifie que les images sources restent inchangées et refuse les destinations existantes. Faites correspondre recadrages, normalisation et canaux entre comparaisons. Suivez les instructions liées pour reproduire cet exemple API.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Conservez les vecteurs, les identités, l’empreinte des poids, les paramètres et les versions. Le script vérifie que les images sources restent inchangées et refuse les destinations existantes. Faites correspondre recadrages, normalisation et canaux entre comparaisons. Suivez les instructions liées pour reproduire cet exemple API."
+        }
+      ]
     }
   ],
   "language": "fr"

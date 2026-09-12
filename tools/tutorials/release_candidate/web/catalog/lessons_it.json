@@ -10829,16 +10829,144 @@
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
-      "title": "Embeddings",
+      "title": "Embeddings: schermata attuale ed esempio Python reale",
       "series": 2,
       "app_key": "embeddings",
       "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "Prossimamente",
-      "description": "Questo tutorial non è ancora disponibile. Nel frattempo, esplora gli altri tutorial.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Esamina il modulo e codifica immagini reali con l’API, distinguendo i limiti dell’interfaccia dalla validazione biologica.",
+      "objectives": [
+        "Distinguere interfaccia e API funzionante.",
+        "Confrontare le politiche dei canali su sedici immagini.",
+        "Preservare le identità e interpretare i grafici con cautela."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 con l’extra embeddings; registrazione con timm 1.0.29 e ResNet18 preaddestrato su CPU. Scarica l’esempio di Annotate e lo ZIP collegato. Usa la cartella cell_png indicata nel README e nuove cartelle di output. I nomi dei file non sono chiavi del database verificate. La schermata non ha un selettore di immagini: il percorso funzionante usa l’API. Non si dichiara validazione biologica, revisione madrelingua o esecuzione GPU.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings è un nuovo modulo nella Home di spaCR. Trasforma ritagli di immagini in vettori numerici senza addestrarsi sulle tue annotazioni. Questa lezione mostra la schermata attuale e un esempio Python funzionante con immagini reali scaricate.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Embeddings è un nuovo modulo nella Home di spàker. Trasforma ritagli di immagini in vettori numerici senza addestrarsi sulle tue annotazioni. Questa lezione mostra la schermata attuale e un esempio Python funzionante con immagini reali scaricate."
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "Nella versione uno punto cinque punto zero punto sette, questa schermata non ha un controllo per caricare ritagli ed Embed resta disabilitato. Non simuleremo un’esecuzione grafica riuscita. L’API Python esegue la vera codifica mostrata di seguito.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Nella versione uno punto cinque punto zero punto sette, questa schermata non ha un controllo per caricare ritagli ed Embed resta disabilitato. Non simuleremo un’esecuzione grafica riuscita. L’API Python esegue la vera codifica mostrata di seguito."
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel codifica separatamente ogni canale memorizzato e concatena i vettori. Project to three codifica invece l’immagine combinata. Cambia la rappresentazione, non solo la velocità. Una posizione di canale PNG non identifica automaticamente una colorazione verificata.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Per channel codifica separatamente ogni canale memorizzato e concatena i vettori. Project to three codifica invece l’immagine combinata. Cambia la rappresentazione, non solo la velocità. Una posizione di canale PNG non identifica automaticamente una colorazione verificata."
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "Installa l’extra opzionale embeddings nell’ambiente spaCR. Il ResNet diciotto predefinito usa pesi supervisionati ImageNet, non un modello autosupervisionato addestrato sulle cellule. Questo piccolo esempio usa la CPU; non richiede GPU né un servizio remoto di intelligenza artificiale.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Installa l’extra opzionale embeddings nell’ambiente spàker. Il ResNet diciotto predefinito usa pesi supervisionati ImageNet, non un modello autosupervisionato addestrato sulle cellule. Questo piccolo esempio usa la CPU; non richiede GPU né un servizio remoto di intelligenza artificiale."
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Usa l’esempio scaricabile di Annotate e la cartella di ritagli indicata nelle istruzioni. Lo script collegato seleziona sedici immagini esistenti in ordine di nome. Ognuna misura duecentoventiquattro pixel per lato con tre canali memorizzati. Non viene ridimensionata né segmentata di nuovo.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Usa l’esempio scaricabile di Annotate e la cartella di ritagli indicata nelle istruzioni. Lo script collegato seleziona sedici immagini esistenti in ordine di nome. Ognuna misura duecentoventiquattro pixel per lato con tre canali memorizzati. Non viene ridimensionata né segmentata di nuovo."
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "Esegui lo script con una nuova cartella di output. Chiama embed_array con il vero codificatore preaddestrato e lotti di quattro. La codifica per canale produce sedici righe e millecinquecentotrentasei dimensioni. La matrice salvata viene riaperta e controllata valore per valore.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Esegui lo script con una nuova cartella di output. Chiama embed_array con il vero codificatore preaddestrato e lotti di quattro. La codifica per canale produce sedici righe e millecinquecentotrentasei dimensioni. La matrice salvata viene riaperta e controllata valore per valore."
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "Ora scegli project e un’altra cartella di output. Le stesse immagini producono sedici righe e cinquecentododici dimensioni. Queste colonne a canali combinati non sono intercambiabili con le precedenti. Confronta consapevolmente le politiche e conserva le impostazioni di ogni esecuzione.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Ora scegli project e un’altra cartella di output. Le stesse immagini producono sedici righe e cinquecentododici dimensioni. Queste colonne a canali combinati non sono intercambiabili con le precedenti. Confronta consapevolmente le politiche e conserva le impostazioni di ogni esecuzione."
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "Esamina il mosaico delle vere immagini di ingresso nel visualizzatore. I numeri seguono l’ordine delle righe di output. Controlla qualità dei ritagli e corrispondenza dei canali esportati prima di interpretare i vettori. I nomi identificano questo esempio; verifica le chiavi prima di unire un database di misure.",
+          "hold_after": 0.7,
+          "speech_text": "Esamina il mosaico delle vere immagini di ingresso nel visualizzatore. I numeri seguono l’ordine delle righe di output. Controlla qualità dei ritagli e corrispondenza dei canali esportati prima di interpretare i vettori. I nomi identificano questo esempio; verifica le chiavi prima di unire un database di misure."
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "Questo grafico salvato proietta i vettori per canale su due componenti principali. I punti numerati corrispondono agli stessi ritagli. È una visualizzazione esplorativa di un campione minuscolo, non una prova di fenotipi distinti. Una dimensione di un vettore non è una misura biologica.",
+          "hold_after": 0.7,
+          "speech_text": "Questo grafico salvato proietta i vettori per canale su due componenti principali. I punti numerati corrispondono agli stessi ritagli. È una visualizzazione esplorativa di un campione minuscolo, non una prova di fenotipi distinti. Una dimensione di un vettore non è una misura biologica."
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "I vettori a canali combinati hanno una propria proiezione. Non confrontare le coordinate fra questi grafici come se condividessero una trasformazione stimata. Nessuno misura l’accuratezza di recupero o dimostra che i vettori superino il pannello di caratteristiche misurate.",
+          "hold_after": 0.7,
+          "speech_text": "I vettori a canali combinati hanno una propria proiezione. Non confrontare le coordinate fra questi grafici come se condividessero una trasformazione stimata. Nessuno misura l’accuratezza di recupero o dimostra che i vettori superino il pannello di caratteristiche misurate."
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Conserva vettori, identità, checksum dei pesi, impostazioni e versioni. Lo script controlla che le immagini originali restino invariate e rifiuta destinazioni esistenti. Mantieni coerenti ritagli, normalizzazione e mappatura dei canali nei confronti. Usa le istruzioni collegate per riprodurre l’esempio API.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Conserva vettori, identità, checksum dei pesi, impostazioni e versioni. Lo script controlla che le immagini originali restino invariate e rifiuta destinazioni esistenti. Mantieni coerenti ritagli, normalizzazione e mappatura dei canali nei confronti. Usa le istruzioni collegate per riprodurre l’esempio API."
+        }
+      ]
     }
   ],
   "language": "it"
