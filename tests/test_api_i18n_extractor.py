@@ -1014,7 +1014,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # admission. The nine catalogs were regenerated against this inventory
     # before the number was touched, which is the order this file's own
     # message asks for.
-    expected = 10_397
+    # 10,397 -> 10,398 on 2026-09-12, +1/-0: `border_rules_agree`, added
+    # by 377 after the catalogs were built. The nine catalogs were rebuilt
+    # and repaired against this inventory before the number was touched,
+    # which is the order this file's own message asks for.
+    expected = 10_398
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1047,7 +1051,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # docstring as well. The nine catalogs were regenerated against this
     # inventory before the number was touched, which is the order this
     # file's own message asks for.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_397
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_398
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1211,7 +1215,19 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # 10,612 -> 10,613 with 380's `set_a_sheeted_widgets_own_rule`, merged
     # after the measurement above. BOTH halves move together, which is the
     # expected shape for a rendered symbol: the boundary stays 218.
-    assert 10_615 - len(docs) == 218
+    # 10,615 -> 10,616 with 377's `border_rules_agree`, and BOTH halves were
+    # re-measured in one run with `_is_rendered_autoapi_entry` neutralised
+    # rather than either being inferred from the other:
+    #
+    #     pre-filter   10,616
+    #     post-filter  10,398
+    #     boundary        218
+    #
+    # Another rendered symbol, so again both halves move and the boundary
+    # does not. Measuring both is still the only way to know that, because
+    # the case where they move in OPPOSITE directions looks identical from
+    # either half alone.
+    assert 10_616 - len(docs) == 218
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

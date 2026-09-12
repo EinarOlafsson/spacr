@@ -84,7 +84,34 @@ TOOLS = ROOT / "tools"
 #: The nine locales were repaired against this inventory before the number
 #: was touched, which is the order this file's own rule asks for: catalogs
 #: first, ratchet second.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_339
+#:
+#: 10,339 -> 10,398 on 2026-09-12, +59/-0. Measured against a detached
+#: worktree at the pin commit rather than by subtracting counts, because a
+#: net figure cannot tell an arrival from a departure and this file has been
+#: wrong that way before. Nothing was removed, and the fifty-nine are the
+#: work that landed between the two commits:
+#:
+#:     spacr.ops_objects            9    372, windowed segmentation
+#:     qt.widgets.dose_response     9    387, the two surfaces
+#:     spacr.ops_sample             7    372, sampling at the coordinates
+#:     spacr.ops_store              7    372, the storage contract
+#:     spacr.qt.screens.embeddings  8    386, the screen and its table
+#:     dose_response dataclasses    8    387, PlateSpec, PlateReport,
+#:                                       PooledFit and Checkerboard
+#:     spacr.embeddings             2    386, the engine
+#:     spacr.qt.theme               2    380, the per-window stylesheet
+#:     ops_objects.PlateObject      1    372
+#:     spacr.infection              1    377, border_rules_agree
+#:     spacr.scorecard              1    370
+#:     spacr.qt, .qt.screens,
+#:       .qt.app.MainWindow,
+#:       .qt.stall_watch            4    module docstrings and one member
+#:
+#: `spacr.infection.border_rules_agree` is the one that staled the catalogs:
+#: it landed AFTER they were built, which is exactly the mid-batch arrival
+#: 288's rule warns about, and it took nine locales red until the repair
+#: pass cleared it.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_398
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
