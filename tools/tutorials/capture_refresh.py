@@ -59,6 +59,7 @@ def main() -> int:
     parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
     parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
     parser.add_argument('--classify-overview', action='store_true', help='Record only native family choices and nested Classify navigation; never start a model')
+    parser.add_argument('--model-zoo-inventory', action='store_true', help='Record actual Model Zoo inventory/provenance only; no download, training or benchmark')
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
     parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
     parser.add_argument('--anndata-api-introduction', action='store_true', help='Record only the AnnData GUI route/settings before the separately verified API workaround')
@@ -70,6 +71,8 @@ def main() -> int:
     parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
+    if args.model_zoo_inventory and (args.module != 'model_zoo' or args.run or args.download or args.preview):
+        parser.error('--model-zoo-inventory requires model_zoo without run/download/preview')
     if args.preview_variants and not args.preview:
         parser.error('--preview-variants requires --preview')
     if args.hit_list_companion and args.module != 'hit_list':
@@ -595,9 +598,14 @@ def main() -> int:
             record_external_masks(app, window, screen, stage, captures, capture,
                                   settle, write_json, args.timeout)
         if args.module == 'model_zoo':
-            from capture_model_zoo import record_model_zoo
-            record_model_zoo(app, window, screen, stage, captures, capture,
-                             settle, write_json, args.timeout)
+            if args.model_zoo_inventory:
+                from capture_model_inventory import record_inventory
+                record_inventory(app, window, screen, stage, captures, capture,
+                                 settle, write_json, args.timeout)
+            else:
+                from capture_model_zoo import record_model_zoo
+                record_model_zoo(app, window, screen, stage, captures, capture,
+                                 settle, write_json, args.timeout)
         if args.module == 'train_compare':
             from capture_training_runs import record_training_runs
             record_training_runs(app, window, screen, stage, captures, capture,
