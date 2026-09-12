@@ -171,7 +171,8 @@ def verify(root, *, placeholders_only=False):
                         page.evaluate('renderCaptions()')
                         page.wait_for_function('elements.captionTrack.readyState === 2 && !captionTrackLoading')
                         assert page.locator('#caption-track').count() == 1
-                    sentence_cues = check_sentence_cues(page) if identity in {'04_platform_installers', '76_ops', '77_embeddings'} else []
+                    sentence_cues = check_sentence_cues(page) if identity in {
+                        '04_platform_installers', '21_model_compare', '22_model_zoo', '76_ops', '77_embeddings'} else []
                     # The positive playable counterpart is followed by a real
                     # transition back to unavailable, cancelling active audio.
                     page.evaluate('(identity) => selectLesson(identity)', unavailable)
