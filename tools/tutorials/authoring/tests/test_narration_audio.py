@@ -165,8 +165,10 @@ def test_disabled_cadence_is_uniform_for_all_current_scenes_and_24_voices() -> N
     scene_count = sum(len(lesson["scenes"]) for lesson in lessons)
     voices = LANGUAGES["en"][1]
 
-    assert len(lessons) == 73
-    assert scene_count == 508
+    # Inventory evolves independently of disabled cadence. Exercise every
+    # actual scene rather than pinning the pre-refresh catalog's old size.
+    assert lessons and scene_count > 0
+    assert len({lesson['id'] for lesson in lessons}) == len(lessons)
     assert len(voices) == 24
     assert len(set(voices)) == 24
     assert set(voices) == set(ENGLISH_VOICE_SPEEDS)
@@ -186,7 +188,7 @@ def test_disabled_cadence_is_uniform_for_all_current_scenes_and_24_voices() -> N
                 checked += 1
         assert effective_speeds == {base_speed}
 
-    assert checked == 24 * 508
+    assert checked == len(voices) * scene_count
 
 
 def test_scene_multiplier_combines_with_voice_base_speed() -> None:

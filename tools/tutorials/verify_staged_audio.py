@@ -49,7 +49,7 @@ def main():
                 dialect_code = 'b' if language == 'en' and voice.startswith('b') else code
                 dialect = verify.narration_dialect(language, dialect_code, voice)
                 speed = verify.resolve_voice_speed(voice)
-                plans = verify.prepare_scene_plans(lesson, language, dialect, speed)
+                plans = verify.prepare_scene_plans(lesson, language, dialect, speed, voice=voice)
                 spec = verify.TrackSpec(path, lesson, language, dialect_code, voice, dialect, speed, plans)
                 errors = verify.check_track(spec)
             record = {'language': language, 'voice': voice, 'errors': errors,

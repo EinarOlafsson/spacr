@@ -947,7 +947,7 @@ def supported_track_specs(
         }
 
     specs: list[TrackSpec] = []
-    plan_cache: dict[tuple[str, str, str, float], list[dict[str, Any]]] = {}
+    plan_cache: dict[tuple[str, str, str, float, str], list[dict[str, Any]]] = {}
     for lesson_id in canonical_ids:
         for language, (lang_code, voices) in matrix.items():
             lesson = localized_by_language[language][lesson_id]
@@ -962,10 +962,10 @@ def supported_track_specs(
                 )
                 dialect = narration_dialect(language, voice_lang_code, voice)
                 speed = resolve_voice_speed(voice)
-                cache_key = (lesson_id, language, dialect, speed)
+                cache_key = (lesson_id, language, dialect, speed, voice)
                 if cache_key not in plan_cache:
                     plan_cache[cache_key] = prepare_scene_plans(
-                        lesson, language, dialect, speed
+                        lesson, language, dialect, speed, voice=voice
                     )
                 specs.append(
                     TrackSpec(

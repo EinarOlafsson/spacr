@@ -261,7 +261,7 @@ def restore(text: str) -> str:
     text = re.sub(r"RAMPFO(?:UR|R)TOKEN", "RAMP4", text)
     # NLLB occasionally rewrites the middle of the spaCR placeholder as a
     # natural-language conjunction (for example SPACRANDTOKEN in German).
-    # The stable SPACR[A-Z]*TOKEN shape still identifies it uniquely.
+    # The stable SPACR prefix and TOKEN suffix still identify it uniquely.
     text = re.sub(r"SPACR[A-Z]*TOKEN", "spaCR", text)
     # The sentence model occasionally duplicates one consonant inside a long
     # all-caps module placeholder (for example PARAMETTERSWEEPTOKEN in
