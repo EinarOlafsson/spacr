@@ -25,26 +25,30 @@ from spacr import utils
 
 
 def _in_memory(mask, **overrides):
-    """Call ``_process_single_fov_in_memory`` with the pipeline's defaults."""
+    """Call ``_process_single_fov_in_memory`` with the pipeline's defaults.
+
+    The merge step takes ONE ABSOLUTE NUMBER now, ``intensity_threshold``: a
+    boundary mean in the image's own raw units, replacing the method-and-
+    percentile pair that measured each boundary against the dimmer of the two
+    objects it separated. ``None`` is the pipeline's default and merges
+    nothing. The split threshold likewise lost its ``area_multiplier``, so
+    ``minimum_area_to_split`` is the whole threshold in pixels.
+    """
     settings = dict(
         intensity_img=None, intensity_channel=None, do_split=False,
         do_perimeter_merge=True, do_intensity_merge=False,
-        perimeter_fraction=0.1, area_multiplier=2.0, min_distance=10,
-        min_object_area=100, intensity_threshold_method='mean',
-        intensity_percentile=75, min_area=0, max_area=0,
-        remove_border_objects=False, min_intensity_percentile=0,
-        max_intensity_percentile=100)
+        perimeter_fraction=0.1, min_watershed_distance=10,
+        minimum_area_to_split=100, intensity_threshold=None,
+        min_area=0, max_area=0, remove_border_objects=False)
     settings.update(overrides)
     return utils._process_single_fov_in_memory(
         mask, settings['intensity_img'], settings['intensity_channel'],
         settings['do_split'], settings['do_perimeter_merge'],
         settings['do_intensity_merge'], settings['perimeter_fraction'],
-        settings['area_multiplier'], settings['min_distance'],
-        settings['min_object_area'], settings['intensity_threshold_method'],
-        settings['intensity_percentile'], settings['min_area'],
-        settings['max_area'], settings['remove_border_objects'],
-        settings['min_intensity_percentile'],
-        settings['max_intensity_percentile'])
+        settings['min_watershed_distance'],
+        settings['minimum_area_to_split'], settings['intensity_threshold'],
+        settings['min_area'], settings['max_area'],
+        settings['remove_border_objects'])
 
 
 # ===========================================================================
@@ -61,6 +65,13 @@ def test_a_mask_array_with_no_pixels_reaches_the_filter_without_merging(capsys):
     Without it the union-find would size its mapping from ``label_img.max()``
     on an empty array, which numpy refuses (asserted below), and the field
     would fail rather than come back empty.
+
+    THE GATE IS THE LABEL COUNT, NOT THE THRESHOLD, which is what keeps this
+    field safe now that the merge step takes an absolute intensity threshold
+    instead of a relative one. The count is taken before any threshold is
+    read, so an empty field skips the merge whatever the threshold says, and
+    the second call below holds that: the threshold is set, the intensity
+    merge is on, and the field still comes back untouched and silent.
     """
     empty = np.zeros((0, 0), np.uint16)
 
@@ -71,6 +82,21 @@ def test_a_mask_array_with_no_pixels_reaches_the_filter_without_merging(capsys):
     # No merge pass ran: the merge phase is the only thing that reports a
     # changed object count for this field.
     assert "merge:" not in capsys.readouterr().out
+
+    # With the intensity merge switched on and an absolute threshold set, the
+    # field takes the same route. It has no labels, so it has no shared
+    # boundaries to measure, so the threshold is never consulted and no
+    # report is produced -- the boundary-range line the merge step prints
+    # would otherwise have to summarise a range over nothing.
+    with_threshold = _in_memory(empty,
+                                intensity_img=np.zeros((0, 0), np.float32),
+                                do_intensity_merge=True,
+                                intensity_threshold=250.0)
+
+    assert with_threshold.shape == (0, 0)
+    assert with_threshold.dtype == np.uint16
+    assert "Intensity merge" not in capsys.readouterr().out
+
     # And it is the label count, not luck, that kept it out: the union-find
     # the merge phase ends with cannot be built over an empty array.
     with pytest.raises(ValueError):

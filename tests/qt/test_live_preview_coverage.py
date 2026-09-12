@@ -462,19 +462,57 @@ class TestApplySizeFilter:
         assert int((out > 0).sum()) == 36
         assert out[0, 0] == 0
 
-    def test_intensity_percentile_drops_the_dim_object(self):
+    def test_an_absolute_intensity_threshold_removes_no_object(self):
+        """The dim object SURVIVES, and the run is what says so.
+
+        This was ``test_intensity_percentile_drops_the_dim_object`` and
+        asserted that ``cell_min_intensity_percentile=50`` deleted the
+        dimmer of two objects. That setting is gone, and the expectation is
+        re-pointed rather than re-pinned to whatever the preview now emits,
+        because the old one did not encode a filter at all -- it encoded a
+        quota. A percentile band cut the FIELD'S OWN distribution, so it
+        removed its share however bright the field was: with two objects it
+        dropped one of them unconditionally. ``spacr.utils._filter_objects``
+        was stripped of it and keeps ``intensity_img`` only so positional
+        callers still work; nothing there reads it.
+
+        What replaced it is an ABSOLUTE threshold in the image's own raw
+        units, and it lives in a different phase: ``{obj}_intensity_threshold``
+        is measured along the boundary two TOUCHING labels share and MERGES
+        them. It can never delete a label, so no intensity, however dim,
+        costs an object its place in the filter.
+
+        The surviving-object claim is therefore checked against
+        ``spacr.object.merge_split_filter_masks`` -- the batch worker -- run
+        on the same mask and the same settings, rather than against numbers
+        typed in here. Preview-agrees-with-run is the property actually
+        wanted, and a hand-written expectation cannot notice when only one
+        of the two changes.
+        """
         m = np.zeros((20, 20), np.int32)
-        m[2:6, 2:6] = 1
-        m[10:14, 10:14] = 2
+        m[2:6, 2:6] = 1               # 16 px, dim
+        m[10:14, 10:14] = 2           # 16 px, bright, and not touching it
         inten = np.zeros((20, 20), np.float32)
         inten[2:6, 2:6] = 10.0        # dim
         inten[10:14, 10:14] = 900.0   # bright
-        out = LP._apply_size_filter(
-            m, {"cell_min_intensity_percentile": 50}, "cell",
-            intensity_img=inten)
-        surviving = out[10:14, 10:14]
-        assert (surviving > 0).all()
-        assert not out[2:6, 2:6].any()
+        # A threshold above the dim object and below the bright one: the
+        # exact shape that used to cost object 1 its existence.
+        settings = {"cell_intensity_threshold": 500.0,
+                    "cell_intensity_merge": True,
+                    # An area rule both sides agree is a no-op at 16 px,
+                    # present so the filter genuinely runs and gets handed
+                    # the intensity image instead of short-circuiting
+                    # before it could have ignored it.
+                    "cell_min_area": 4}
+        out = LP._apply_size_filter(m, settings, "cell", intensity_img=inten)
+        assert (out[2:6, 2:6] > 0).all(), "the dim object was dropped on intensity"
+        assert (out[10:14, 10:14] > 0).all()
+
+        from spacr.object import merge_split_filter_masks
+        run = merge_split_filter_masks(
+            m.astype(np.uint16), inten, dict(settings), "cell")[0]
+        assert np.array_equal(np.asarray(run), out), (
+            "the preview and the batch run disagree about what survives")
 
     def test_a_failing_filter_returns_the_unfiltered_mask(self, monkeypatch):
         import spacr.utils as SU
