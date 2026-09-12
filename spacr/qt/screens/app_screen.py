@@ -71,6 +71,15 @@ _ORGANELLE_MODEL_KEY = re.compile(r"^organelle[a-z]?_model_name$")
 #: off. It is the column itself, and — see `_settings_panel_qss` — the
 #: rule that names it is a rule saying *paint nothing*.
 SETTINGS_PANEL_NAME = "SettingsBox"
+#: The scroll area inside ONE category tab, when the settings column is
+#: drawn as tabs rather than as a single scrolling list. It needs its own
+#: name because the column's name is looked up with `findChild` to mean
+#: the column specifically, and two widgets answering to that would make
+#: the lookup return whichever Qt reached first.
+SETTINGS_TAB_PAGE_NAME = "SettingsTabPage"
+#: The tab strip itself. Named since it was written; registered for QSS
+#: only now, which is why its pane took the blanket window fill.
+SETTINGS_TABS_NAME = "SettingsCategoryTabs"
 
 #: The "Point <module> at some data" banner at the top of that column.
 EMPTY_STATE_NAME = "EmptyStateBanner"
@@ -120,6 +129,30 @@ QScrollArea#{SETTINGS_PANEL_NAME} {{
 QWidget#{EMPTY_STATE_NAME} {{
     background: transparent;
     border: none;
+}}
+/* THE TABBED LAYOUT NEEDS THE SAME THING SAID AGAIN, for different
+   widgets. When the categories are drawn as tabs, each tab holds its own
+   scroll area and the strip holds a pane, and none of them is the column
+   above -- so the rule naming the column reaches none of them and they
+   fall through to the blanket `QWidget {{ background-color: bg }}`, which
+   is the WINDOW colour and is `#000000` on the dark theme. That is the
+   black slab behind the settings, and it is the same defect the column
+   itself had: the cards inside carry the visible surfaces, so everything
+   behind them paints nothing. */
+QScrollArea#{SETTINGS_TAB_PAGE_NAME} {{
+    background: transparent;
+    border: none;
+}}
+QTabWidget#{SETTINGS_TABS_NAME}::pane {{
+    background: transparent;
+    border: none;
+}}
+/* Qt builds `qt_tabwidget_tabbar` itself, and with no rule of its own it
+   takes the blanket fill like anything else. The TABS keep the shipped
+   look -- they are controls and belong on a surface; it is only the strip
+   behind them that must not paint. */
+QTabWidget#{SETTINGS_TABS_NAME} > QTabBar {{
+    background: transparent;
 }}
 """
 
@@ -441,6 +474,40 @@ def _fit_to_lines(text: str, label, lines: int) -> str:
 # is enough. Fixed, for the same reason: the runtime controls above must not
 # jump when the pointer crosses a category header.
 CATEGORY_STRIP_LINES = 3
+
+
+def _height_of_lines(metrics, lines: int) -> int:
+    """The height ``lines`` wrapped lines occupy in the font ``metrics`` reads.
+
+    :param metrics: the ``QFontMetrics`` of the label that will paint them.
+    :param lines: how many lines to reserve; anything below one reserves one.
+    :returns: the height in pixels.
+    """
+    # NOT `lineSpacing() * lines`, WHICH IS SHORT ON SOME FONTS AND EXACT ON
+    # THE REST -- which is why the shortfall went unseen for as long as it
+    # did. `lineSpacing()` is `height() + leading()`, and a font whose OS/2
+    # table asks for a NEGATIVE leading -- several of the URW and Bitstream
+    # faces do, by one to three pixels at interface sizes -- reports a line
+    # spacing SMALLER than the ascent plus descent one line actually needs.
+    # Qt does not overlap the glyphs to honour it: a wrapped label is laid
+    # out at `height() + (lines - 1) * lineSpacing()`, so the product
+    # reserved less than the text it was reserving for and the last line
+    # came out clipped by `-leading()` pixels per line.
+    #
+    # WHICH FONT IS PAINTING IS NOT SOMETHING THE PACKAGE DECIDES. The
+    # stylesheet asks for Open Sans and the package ships it, but a machine
+    # that has not registered those files -- a test runner, or anything
+    # reading the interface through fontconfig's substitution -- paints with
+    # whatever it has, and that is where the negative leading arrived from.
+    # Open Sans itself has a leading of zero, so on a developer's machine
+    # both expressions agree to the pixel and nothing looks wrong.
+    #
+    # The maximum rather than the sum, because it is the same number
+    # whenever the leading is zero or positive -- every font that was
+    # already correct keeps the height it had -- and is never smaller than
+    # the layout above when the leading is negative.
+    count = max(1, int(lines))
+    return max(metrics.lineSpacing(), metrics.height()) * count
 
 
 # One blurb per settings CATEGORY, keyed by the uppercased category title.
@@ -2436,8 +2503,16 @@ class AppScreen(QWidget):
                 page_layout.addWidget(section)
                 page_layout.addStretch(1)
                 holder = QScrollArea()
+                holder.setObjectName(SETTINGS_TAB_PAGE_NAME)
                 holder.setWidgetResizable(True)
                 holder.setFrameShape(QScrollArea.NoFrame)
+                # THE SAME VIEWPORT FILL AS THE COLUMN ABOVE. A
+                # `QScrollArea`'s viewport auto-fills by default with the
+                # WINDOW colour rather than a surface, so no opacity
+                # preference can reach it and it reads as an opaque slab
+                # behind the settings. The column was fixed for this; the
+                # tab pages were the ones still doing it.
+                holder.viewport().setAutoFillBackground(False)
                 holder.setWidget(page)
                 self._settings_tabs.addTab(
                     holder, str(section.property("settingsCategorySource")))
@@ -7192,7 +7267,7 @@ class AppScreen(QWidget):
             return
         hint.ensurePolished()
         hint.setFixedHeight(
-            hint.fontMetrics().lineSpacing() * HINT_STRIP_LINES)
+            _height_of_lines(hint.fontMetrics(), HINT_STRIP_LINES))
 
     # ------------------------------------------------------------------
     # Category help — the strip under the actions row
@@ -7204,7 +7279,7 @@ class AppScreen(QWidget):
             return
         strip.ensurePolished()
         strip.setFixedHeight(
-            strip.fontMetrics().lineSpacing() * CATEGORY_STRIP_LINES)
+            _height_of_lines(strip.fontMetrics(), CATEGORY_STRIP_LINES))
 
     def _watch_for_late_captions(self) -> None:
         """Translate any subtree parented into this screen after it was built.

@@ -25,7 +25,8 @@ Three layers, because they fail for different reasons:
    paints. This is the 1.08:1 case, through shipped public API
    (:meth:`HomePage.set_reserved_content`).
 3. A static sweep pins the modules that still import the frozen dark
-   palette. It may only ever shrink.
+   palette. It may only ever shrink, and it has reached zero: the pin is
+   empty, so the sweep now fails on any module that reads that palette.
 
 Layer 2 grew a second case on 2026-08-10: a *filled* danger surface,
 where the ink is ``bg`` rather than ``fg``. The sweep in layer 2 flagged
@@ -364,30 +365,39 @@ def test_active_palette_falls_back_to_dark_when_preferences_explode(
 #: ``spacr/qt/screens/startup.py`` used to head this list with 24 sites.
 #: It was deleted, not fixed: ``qt/widgets/home.py`` had already replaced
 #: it and nothing in the app imported it.
-STILL_READS_THE_DARK_PALETTE = {
-    "app.py",                       # unused import
-    "screens/agreement.py",
-    "screens/align.py",             # incl. paintEvent
-    "screens/app_screen.py",
-    "screens/batch.py",
-    "screens/convert.py",
-    "screens/db_browser.py",
-    "screens/foreign.py",
-    "screens/make_masks.py",        # incl. paintEvent
-    "screens/model_compare.py",
-    "screens/model_zoo.py",
-    "screens/plate_view.py",        # incl. paintEvent
-    "screens/report.py",
-    "screens/train_compare.py",
-    "widgets/ai_chat_panel.py",
-    "widgets/ai_toggle_label.py",   # incl. paintEvent
-    "widgets/console_panel.py",     # module-level COLOR_* constants
-    "widgets/empty_state.py",       # unused import
-    "widgets/hover_tooltip.py",
-    "widgets/measure_preview.py",
-    "widgets/metadata_table.py",
-    "widgets/toggle.py",            # incl. paintEvent
-}
+#:
+#: IT IS EMPTY BECAUSE THE TREE IS. That is a measurement, not a tidy-up:
+#: :func:`_modules_reading_the_dark_palette` was run over all 300 modules
+#: under ``spacr/qt`` on 2026-09-12 and named none of them, and the same
+#: sweep run against the committed tree at each of the last ten commits
+#: named none either. Nothing imports ``PALETTE`` from the theme and
+#: nothing reads it off the module.
+#:
+#: The twenty-two names that stood here were all fixed in July 2026 and
+#: the list was never trimmed behind them, which is worse than untidy. An
+#: upper bound that names a module excuses THAT module for good: any one
+#: of the twenty-two could have imported the frozen dict again and this
+#: test would still have passed. ``test_theme_blind_console_widgets.py``
+#: exists because of exactly that hole and re-checks two of them by hand.
+#: Emptying the list closes the hole for all twenty-two at once, and the
+#: sweep now means what its name says — no module, new or old, may read
+#: the frozen dark palette.
+#:
+#: Each name was chased back to the commit that removed its last read
+#: rather than dropped on the strength of a green run:
+#:
+#: * 79addb097 (2026-07-28, "qt themes: resolve every widget palette at
+#:   runtime") closed nineteen — under ``screens/``: agreement, align,
+#:   app_screen, batch, convert, db_browser, foreign, make_masks,
+#:   model_compare, model_zoo, plate_view, report, train_compare; under
+#:   ``widgets/``: ai_chat_panel, empty_state, hover_tooltip,
+#:   measure_preview, metadata_table, toggle.
+#: * ea78bc74e (2026-07-27, "three defects -- a theme-blind label, a
+#:   cross-thread widget, a lying tooltip") closed
+#:   ``widgets/ai_toggle_label.py`` and ``widgets/console_panel.py``.
+#: * 9af0ff43c (2026-07-27, "maturity becomes a colour, not a tab")
+#:   dropped the unused import in ``app.py``.
+STILL_READS_THE_DARK_PALETTE: set[str] = set()
 
 
 def _modules_reading_the_dark_palette() -> set:

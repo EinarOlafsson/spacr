@@ -58,9 +58,19 @@ ROOT = Path(__file__).resolve().parents[2]
 # in the generated one. 378 deferred it for exactly this reason -- every
 # spec's label is a row here -- and named the condition it was waiting
 # on: "whenever the catalogs are next rebuilt".
-COMPACT_CAPTION_COUNT = 208
+# 208 -> 209 on 2026-09-12, +1/-0. Admitted: "Embeddings", the name 386's
+# new module registers in APPS, in the Data section. An app name is compact
+# copy by this file's own rule, and this one arrived with its nine rows
+# already written -- the discovered set minus `_ROWS` is empty, so the
+# literal-row requirement was already satisfied and only the number was
+# behind. Measured, not guessed: this set was recomputed at 76921939b, the
+# commit that last moved it, and at the merge, and "Embeddings" is the
+# entire difference. Nothing was retired and nothing was reworded, which is
+# why the count and the digest move together this time rather than the
+# digest alone.
+COMPACT_CAPTION_COUNT = 209
 COMPACT_CAPTION_SHA256 = (
-    "d27b4576703e5c4424517f67a3a6b6294ae9f7e554b7abea1f0e433be4538856"
+    "e0b2c63f3e43a544cd50c22c7d9ee03e76437c4a41a5810d278b0443983c154e"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -143,6 +153,48 @@ COMPACT_CAPTION_SHA256 = (
 # live and reviewed sets are identical, 0 either way -- so the catalogs were
 # regenerated correctly and only the ratchet was left behind, which is the
 # right way round for this file's "catalogs first, ratchet second" rule.
+#
+# MOVED 2026-09-12, and this one is 386's Embeddings module arriving rather
+# than anything drifting. UI 2,841 -> 2,856 is +18/-3, and MODULE_SUMMARIES
+# 67 -> 68 is the `embeddings` module summary itself -- the same shape the
+# OPS module made in 6aa5a73aa, where a new module moves the summary count
+# by exactly one. The other three tables do NOT move: 388's bystander pair
+# and 364's audit were already banked in b5f367f47, and `canonical_sources`
+# still returns 1,073/1,068/200 for them.
+#
+# Measured the way the note above demands, by recomputing the canonical
+# identities at 76921939b -- the commit that last moved UI -- and at the
+# merge, then diffing the sets. All 21 members, named:
+#
+#   THE EMBEDDINGS SCREEN, fifteen records added by 067a0a5a7 and 7f0f74ac7
+#   (the tile that was in the registry and in none of the tables drawing
+#   it). Its controls: "Embed", "Encode every object", "Backbone:",
+#   "Batch:", "Channels:", "Per channel (one pass per stain)", "Project to
+#   three (one pass)", "Load crops first", "Load crops first." and "no
+#   crops loaded". Its prose: the four tooltips that explain the backbone
+#   choice, the batch size, what per-channel encoding does to the column
+#   names, and what the module is for, plus the warning that a single
+#   dimension is not a phenotype.
+#
+#   The tooltip and the status line really are two records, "Load crops
+#   first" and "Load crops first.", differing only in the full stop. That
+#   is a duplicate the source should collapse, not something this file can
+#   fix: the nine catalogs already carry both, and dropping one here would
+#   leave a translated row with no source behind it.
+#
+#   REWORDED, so one removal and one addition each and no net change:
+#     The two normalisation percentile tooltips, which now say what the
+#     sixth decimal buys -- 0.0001 clips only the darkest few pixels of a
+#     megapixel field, 99.9999 clips a handful of hot pixels where 99.99
+#     clips four hundred (7f0f74ac7).
+#     The Path-mode tooltip in Preferences, which gained a third paragraph
+#     for 327's tour mode now that the twenty coordinates are actually
+#     wired to a camera (ac7efdbd4). Same control, new English source,
+#     therefore a new identity.
+#
+# Catalogs first, ratchet second, as ever: all nine locales carry all 18 new
+# UI rows and the `embeddings` summary as of 0f3c6dace, and "Embeddings" has
+# its nine `_ROWS` translations. Verified before these numbers were touched.
 EXTERNAL_SOURCE_COUNTS = {
     "SETTING_LABELS": 1073,
     "SETTING_TOOLTIPS": 1068,
@@ -153,8 +205,8 @@ EXTERNAL_SOURCE_COUNTS = {
     # reader the hover and tells them nothing. 201 -> 200 on 2026-09-11
     # with `save_to_db`, whose help text was one of them.
     "CATEGORY_HELP": 200,
-    "UI": 2841,
-    "MODULE_SUMMARIES": 67,
+    "UI": 2856,
+    "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
 # invented-negatives notice replaced "{n} outstanding suggestions thrown away
@@ -171,8 +223,11 @@ EXTERNAL_SOURCE_COUNTS = {
 # change, which is more than the net -4 suggests because seven of the
 # removals are renames and arrive back under a new key. Enumerated in the
 # note over EXTERNAL_SOURCE_COUNTS.
+# Moved again on 2026-09-12 with the counts above: 21 record identities
+# change, 18 arriving and 3 leaving, enumerated in the note over
+# EXTERNAL_SOURCE_COUNTS.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "c4e294ac9abb2d36faea603f026e941a96f919dbfd5dc13a80ba71024085950b"
+    "3b0e3b3ccf71ab1ec2eda6bd0194844223acde28587bcdffad428f9316e3a6e7"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

@@ -549,6 +549,52 @@ def _remember(key: tuple, value: Any, seq: int) -> None:
                 del _decisions[stale]
 
 
+#: Where a scan that is still running leaves the half of its answer that is
+#: already settled, keyed by the thread running it. Nothing is ever CACHED
+#: through here: a partial answer goes to the one caller waiting on it and no
+#: further. See :func:`_settled_so_far`.
+_settled_partials: Dict[int, List[Any]] = {}
+
+
+def _settled_so_far(value: Any) -> None:
+    """Hand the waiting caller what is already known, part-way through a scan.
+
+    THE BUDGET IS SPENT ON A WHOLE SCAN, AND A SCAN IS NOT ONE QUESTION.
+    :func:`scan_mask_drop` answers "can the mask module take this folder?"
+    from a single listing of the folder the user dropped -- and then, only
+    when the answer is no, goes on to answer "what nearby folder did they
+    mean?", which lists the PARENT and every sibling and every child. The
+    second question is not about the user's folder at all; its cost belongs
+    to whatever else happens to live beside it.
+
+    Bundling the two put the cheap answer behind the expensive one, and when
+    the pair overran :data:`DECISION_BUDGET_S` the caller got the optimistic
+    guess -- so a folder that had already been READ, and found empty, was
+    ACCEPTED. Measured on a local NVMe with a warm page cache: an empty
+    folder whose parent held 2,000 sibling folders of thirty files each cost
+    275 ms for the pair and 0.1 ms for the half that decides the drop. That
+    is not a sleeping share, it is a disk answering every call it was given,
+    and the guess the budget exists for was never meant to stand in for an
+    answer already in hand.
+
+    So a scan calls this the moment its answer is final and only optional
+    work is left. A caller that stops waiting gets the real record instead of
+    the guess, and the scan carries on filling in the rest for whoever asks
+    next.
+
+    Silent off the budgeted path, which is where it should be: a scan running
+    on a worker has nobody watching a stopwatch, and one running inline has
+    no box registered for its thread.
+
+    :param value: the record as far as it is settled. The caller passes a
+        copy -- what has been handed over must not go on changing underneath
+        the thread that took it.
+    """
+    box = _settled_partials.get(threading.get_ident())
+    if box is not None:
+        box[0] = value
+
+
 def _decide(key: tuple, work: Callable[[], Any], default: Any) -> Any:
     """Answer ``work()`` without ever making the GUI thread wait long for it.
 
@@ -610,6 +656,9 @@ def _decide(key: tuple, work: Callable[[], Any], default: Any) -> Any:
         Outlives the wait below whenever the share is asleep, which is why
         :func:`_remember` refuses an answer older than the one it holds.
         """
+        # Registered BEFORE ``work`` starts, because what it hands back part
+        # of the way through is the whole point: see :func:`_settled_so_far`.
+        _settled_partials[threading.get_ident()] = box
         try:
             answer = work()
         except Exception:
@@ -621,6 +670,7 @@ def _decide(key: tuple, work: Callable[[], Any], default: Any) -> Any:
             box[0] = answer
             _remember(key, answer, seq)
         finally:
+            _settled_partials.pop(threading.get_ident(), None)
             done.set()
 
     threading.Thread(target=run, daemon=True,
@@ -726,6 +776,14 @@ def scan_mask_drop(path) -> Dict[str, Any]:
         except OSError:
             out["accepted"] = False
         if not out["accepted"]:
+            # THE DROP IS DECIDED BY THE LINE ABOVE, and the walk below is no
+            # part of deciding it -- it lists the parent, every sibling and
+            # every child to fill the "did you mean" list, which is the
+            # neighbourhood's cost and not the dropped folder's. Hand the
+            # decided half over before paying it, or a caller on the budget
+            # gets the optimistic guess and ACCEPTS a folder this function has
+            # already read and found empty. See :func:`_settled_so_far`.
+            _settled_so_far(dict(out))
             try:
                 out["alternatives"] = list(find_image_folders_nearby(path))
             except OSError:

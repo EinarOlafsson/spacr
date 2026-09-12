@@ -2385,40 +2385,52 @@ def needs_curated_layout(app_key: str) -> bool:
 
 #: The dash between a family prefix and the group name in a merged module's
 #: heading. Written once: an em dash swapped for a hyphen in an edit fails
-#: silently, because the lookups below simply stop matching.
+#: silently, because the lookups simply stop matching.
+#:
+#: It has to be the em dash ``spacr.qt.i18n._COMPOSITE_SEPARATOR`` splits on,
+#: and that is now the whole of what makes these headings translate: nothing
+#: catalogues the finished pair any more, so a heading joined with any other
+#: character is one the composite pass cannot take apart, and it would read
+#: English in every language while the settings around it did not.
 _FAMILY_HEADING_DASH = "—"
 
 
 def _family_heading(prefix: str, name: str) -> str:
-    """Compose one family-prefixed section heading and catalogue the pair.
+    """Compose one family-prefixed section heading.
 
     The composed heading is a key as much as a caption: the blurb tables,
     the hidden-category lists and the layout tests are all written against
     the English ``Computer Vision — Images & Cropping``, so the heading is
-    returned in English and only its TRANSLATION is composed here. No
-    catalog can carry a row for every prefix and group name that meet, and
-    asking for the finished pair is what leaves these headings reading half
-    English; each half is looked up on its own and the halves joined, so a
-    row written for either one reaches the header — which knows only the
-    finished pair. A translation that already exists for the whole pair
-    wins, so a reviewed caption is never displaced by a composed one.
-    """
-    heading = f"{prefix} {_FAMILY_HEADING_DASH} {name}"
-    try:
-        from ..i18n import (VALID_LANGUAGE_CODES, _exact_translation,
-                            add_translation, tr)
+    returned in English and translated where it is drawn. No catalog can
+    carry a row for every prefix and group name that meet, so the pair is
+    resolved by looking each half up on its own and joining the halves,
+    which is what stops these headings reading half English; a translation
+    that already exists for the whole pair still wins, so a reviewed
+    caption is never displaced by a composed one.
 
-        add_translation(heading, [
-            _exact_translation(heading, code)
-            or f"{tr(prefix, code)} {_FAMILY_HEADING_DASH} {tr(name, code)}"
-            for code in VALID_LANGUAGE_CODES[1:]
-        ])
-    except (ImportError, AttributeError, ValueError):
-        # A catalog that will not take the row leaves the heading reading
-        # exactly as it does today. A panel that is otherwise ready to build
-        # must not fail over a caption.
-        pass
-    return heading
+    NOTHING IS CATALOGUED HERE, AND THAT IS WHAT KEEPS CLASSIFY CHEAP TO
+    OPEN. This used to compose the pair for all nine translated languages
+    and hand the finished row to ``add_translation`` while the settings
+    panel was being built. Composing a pair in a language means asking for
+    that language, and the first question asked of a language imports its
+    whole catalog module — ten thousand lines each. So opening Classify
+    imported nine of them, every one of which was then guaranteed to miss:
+    the pair is built at run time and no generated catalog can hold a
+    string that does not exist in the source. Measured under the branch
+    tracer the coverage lane runs, that cost 22.3 seconds of a 20 second
+    ceiling, against 1.9 for Mask Generation and 2.4 for Regression, which
+    ask for nothing but the language on screen.
+
+    ``spacr.qt.i18n.tr`` already composes exactly this shape on demand:
+    ``_composite_translation`` splits an ``A — B`` label on the same dash,
+    resolves each side exactly and then by term, and joins them — the same
+    two lookups in the same order and the same authority this function was
+    doing ahead of time. So the row is not lost, it is computed when the
+    caption is drawn, for the one language being drawn. Checked against the
+    values the eager pass produced: byte-identical for all five headings in
+    all nine languages.
+    """
+    return f"{prefix} {_FAMILY_HEADING_DASH} {name}"
 
 
 def categories_for_app(

@@ -4672,6 +4672,8 @@ def _read_and_merge_data(
     :returns: merged feature frame and the ungrouped object-table frames.
     """
 
+    from pandas.api.types import is_object_dtype
+
     from .utils import MEASUREMENT_STAMP_COLUMNS, _split_data
 
     conflict_policies = {"raise", "prefer_left", "prefer_right"}
@@ -4818,7 +4820,41 @@ def _read_and_merge_data(
 
     for table, dfs in data_dict.items():
         if dfs:
-            data_dict[table] = pd.concat(dfs, axis=0)
+            frame = pd.concat(dfs, axis=0)
+
+            # THE KEY HALF THAT COMES FROM THE DATABASE IS MADE TEXT HERE.
+            #
+            # Every object role below spells its per-object key the same way,
+            # `prcf + '_' + <parent id>`, and the parent id has just been
+            # rewritten with `.astype(str)` one line above the concatenation.
+            # `prcf` is whatever dtype the read inferred, and that is only the
+            # same dtype when the table had rows to infer from. A table with
+            # none comes back with every column at `object`, because there is
+            # nothing in it to look at, while the parent id beside it is a
+            # genuine string column -- and under pandas' string dtype the two
+            # cannot be added at all: `operation 'radd' not supported for
+            # dtype 'str' with dtype 'object'`, raised out of pyarrow from a
+            # line whose job is to spell a key. Older pandas concatenated the
+            # same pair silently, which is why this went unseen.
+            #
+            # An object table with no rows is not a contrived case: a plate on
+            # which a role segmented nothing anywhere produces one, and so
+            # does any caller reading a table that was created but never
+            # written. Such a read is supposed to fail further down, on the
+            # location columns it really is missing, rather than here on a
+            # dtype.
+            #
+            # Only an `object` column is touched. A `prcf` that is genuinely
+            # numeric is left alone so that it still fails loudly at the
+            # concatenation, as it does today, instead of being turned into
+            # digits that key nothing. Coercing the text case is the same rule
+            # `utils._split_data` already applies when it rebuilds `prcf` from
+            # the four location columns, so the key spelled on the way in
+            # matches the one spelled on the way out.
+            if 'prcf' in frame.columns and is_object_dtype(frame['prcf']):
+                frame['prcf'] = frame['prcf'].astype(str)
+
+            data_dict[table] = frame
         if verbose:
             print(f"{table}: {len(data_dict[table])}")
 
