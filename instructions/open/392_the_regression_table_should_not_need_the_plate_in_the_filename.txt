@@ -2,9 +2,9 @@
 THE REGRESSION TABLE SHOULD NOT NEED THE PLATE NAME IN THE FILENAME
 ================================================================================
 
-Status:    OPEN AND ACTIONABLE, filed 2026-09-10. Nothing gates it. SMALL --
-           the engine already does the right thing; only the GUI's proposal
-           step insists on the filenames.
+Status:    DONE, 2026-09-12. Both constraints removed in the proposal step;
+           the engine was already right and is untouched. Eight guards, each
+           verified to fail without its fix. Filed 2026-09-10.
 Requested: 2026-09-10, verbatim -- "in the regression model as it is now the
            user must name their count and score csvs starting with the plate
            name. this is impractical and the user should be able to drag and
@@ -138,3 +138,58 @@ HOW TO KNOW IT WORKED
     `_repropose`.
   * Deleting the first of three rows does not leave a row labelled `plate 2`
     at the top.
+
+
+--------------------------------------------------------------------------------
+2026-09-12 -- DONE, AND THREE SCOPING DECISIONS THE TESTS MADE FOR ME
+--------------------------------------------------------------------------------
+
+Both constraints are gone. `suggest_file_pairs` now runs the token pass
+first, pairs what is left over BY POSITION, and names any row the filenames
+did not. No engine change, as this file predicted: the GUI caught up with
+what `load_regression_input_pairs` already did.
+
+    scores.csv + counts.csv          one row, `plate 1`  (was: two half-rows)
+    a_scores + x_counts, b_ + y_     `plate 1`, `plate 2`
+    exp42_scores + exp7_scores       still paired BY TOKEN with the counts
+      given in the OPPOSITE order      supplied backwards -- position never
+                                       overrides a name the user chose
+    exp42_scores + exp42_counts      paired AND named  (was: named nothing)
+    plate3_scores + plate3_counts    parsed as `plate3`, not generated
+
+THE THREE DECISIONS WERE FORCED BY EXISTING TESTS, not chosen, and each one
+would have been a defect:
+
+  1. NUMBER AFTER THE DATABASES, NOT BEFORE. `_attach_databases` fills a
+     plate cell only `if not row.get("plate")`. Numbering first made every
+     cell truthy, so A DATABASE COULD NEVER NAME A PLATE AGAIN -- silently,
+     with the pairing still looking correct.
+     `test_a_database_names_the_plate_when_the_csvs_could_not` caught it,
+     which is precisely what it is for.
+  2. ONLY A REAL PAIR IS NUMBERED. Two tests say a database under generic
+     folders "claims no plate at all", and they are right to. "The files" in
+     the request is the PAIR; a score waiting for its partner has been named
+     by nothing. Numbering it would assert what step 3 of this file warns
+     about -- a default that reads as parsed. A blank cell is the honest
+     state and the one the user is being asked to resolve.
+  3. TELL A TYPED LABEL FROM A GENERATED ONE BY RE-PROPOSING AND COMPARING,
+     not by a flag. Whatever the proposal would say for the current files is
+     by definition not a decision; anything else is. No extra state to go
+     stale, and if the proposal rules ever change, a label that used to be
+     generated becomes a decision automatically -- which is the safe
+     direction to be wrong in. Keyed on the row's FILES, because position is
+     exactly what re-proposing is allowed to change.
+
+  THE TESTS THAT "FAILED" WERE THE DESIGN REVIEW. Four went red across two
+  rounds and not one of them was stale: each named a property the first
+  implementation had quietly removed. Updating them would have shipped three
+  defects.
+
+WHAT IS NOT DONE. `_repropose` is reached only when a file is ADDED, so a
+generated number is renumbered on the next drop rather than the instant a
+row is deleted or moved. The number is right whenever the table is next
+re-proposed and stale in between. Fixing that means calling `_repropose`
+from the row-move and row-delete paths, which touches the manual-attachment
+pinning those paths already do -- worth doing, not worth conflating with
+this.
+
