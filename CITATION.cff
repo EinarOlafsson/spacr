@@ -29,8 +29,8 @@ contact:
   - family-names: "Olafsson"
     given-names: "Einar B."
     orcid: "https://orcid.org/0000-0002-3388-061X"
-version: "1.5.0.6"
-date-released: "2026-09-10"
+version: "1.5.0.7"
+date-released: "2026-09-12"
 doi: "10.5281/zenodo.22695045"
 identifiers:
   - type: doi
