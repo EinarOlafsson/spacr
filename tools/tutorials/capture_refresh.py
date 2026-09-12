@@ -482,6 +482,9 @@ def main() -> int:
         from capture_feature_explorer import record_explorer
         record_explorer(app, window, stage, captures, capture,
                         settle, write_json, args.timeout)
+    elif args.module == 'embeddings':
+        from capture_embeddings import record_screen
+        record_screen(app, window, stage, captures, capture, settle, write_json)
     elif args.classify_overview:
         from capture_classify_overview import record_overview
         record_overview(app, window, captures, capture, settle, write_json)
