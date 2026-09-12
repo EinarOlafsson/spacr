@@ -4,6 +4,7 @@
 Run after complete_embeddings_media.py and the full candidate checkpoint.
 Records distinguish the successful real API example from the incomplete GUI.
 """
+import argparse
 from pathlib import Path
 
 from build_release_candidate import copy_checked
@@ -12,10 +13,12 @@ from stage_lesson import DEFAULT_STAGE, read, write
 from validate_candidate import validate
 
 
-def main():
+def main(candidate=None):
     stage = DEFAULT_STAGE
-    complete = read(stage / 'embeddings-final-candidate.json')
-    candidate = Path(complete['candidate'])
+    if candidate is None:
+        complete = read(stage / 'embeddings-final-candidate.json')
+        candidate = complete['candidate']
+    candidate = Path(candidate)
     validate(candidate, include_hosted_media=True, require_browser=True)
     root = Path(__file__).resolve().parent
     checked = root / 'release_candidate'
@@ -50,4 +53,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--candidate', type=Path,
+                        help='Reverify unchanged Embeddings media in a newly checked candidate')
+    main(parser.parse_args().candidate)
