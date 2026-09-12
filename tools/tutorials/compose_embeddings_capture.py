@@ -10,8 +10,8 @@ from embeddings_example import digest
 
 def compose(stage=DEFAULT_STAGE):
     root = Path(stage) / 'captures'
-    gui, terminal = root / 'embeddings_1507_gui', root / 'embeddings_1507_api'
-    destination = root / 'embeddings_1507_verified'
+    gui, terminal = root / 'embeddings_1507_gui', root / 'embeddings_1507_api_readable'
+    destination = root / 'embeddings_1507_verified_readable'
     if destination.exists():
         raise FileExistsError('Preserve the existing composed recording')
     hashes = {}

@@ -13,7 +13,7 @@ from capture_cli import accepted_command, capture_terminal
 from embeddings_example import digest
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
-NAME = 'embeddings_1507_api'
+NAME = 'embeddings_1507_api_readable'
 
 
 def terminal_driver(stage):
@@ -117,7 +117,7 @@ def main():
         return capture_terminal(stage, driver=Path(__file__).resolve(), capture_name=NAME,
                                 window_title='spaCR Embeddings API', expected_scenes=8,
                                 module='embeddings', pipeline_requested=True,
-                                refocus_terminal_after_capture=True)
+                                refocus_terminal_after_capture=True, terminal_zoom=2.8)
     if (stage / 'captures' / NAME).exists():
         raise FileExistsError('Preserve the existing API capture')
     env = dict(os.environ); root = stage / 'desktop' / NAME

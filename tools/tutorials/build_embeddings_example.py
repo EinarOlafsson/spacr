@@ -8,7 +8,7 @@ from stage_lesson import DEFAULT_STAGE, REPO, read
 
 def build():
     root = Path(__file__).resolve().parent
-    proof = read(DEFAULT_STAGE / 'captures/embeddings_1507_api/scientific_acceptance.json')
+    proof = read(DEFAULT_STAGE / 'captures/embeddings_1507_api_readable/scientific_acceptance.json')
     helper = root / 'embeddings_example.py'
     if proof.get('accepted') is not True or proof.get('helper_sha256') != digest(helper):
         raise ValueError('Only the exact successfully recorded helper can be packaged')
