@@ -44384,6 +44384,40 @@
         "177bd5885dff8a936f88ff62c0cc314a88ff463c7aeb9d8d7b786b35011fbe33"
       ]
     },
+    "spacr.object_roles.split_role_setting": {
+      "source_blocks_sha256": [
+        "d0e79f5532bf7139a477d4e4e3cd21470db94ed081295e2ee63bb9fda604000a",
+        "b31291dbe93bed78c2638ad3fabfa15ac6b713178c60e1a9cf4ef23d9c2e75d8",
+        "a9c3b7b870201dd1098735ed2d719991b4428a4e8215b808aebeb21bfa57a230",
+        "7d8b3572497febdb5b96e3db2ff6d0786b934287e514da06a8a14da72d33e16b",
+        "26136fe384c2c4abf9e81416c74471bdf72aed3e73d882407aa41b5c263e2f90",
+        "ec01f87b17be4f855ed2d9a163871063f6b0c17d6ccff8144006bd22379d39e4"
+      ],
+      "source_sha256": "0b92cd912382b99cf8de95134eaa9ebac2ce659f540548cbbefc6cd2887e000d",
+      "text": "``organellezz_min_split_area`` -> ``(\"organellezz\", \"min_split_area\")``.\n\nइसके विपरीत :func:`role_setting`, और कारण एक सुफिक्स रीनाम के बजाय 3,522 की छह पंक्तियों की लागत हो सकती है. प्रत्येक भूमिका एक एकल शब्द है जिसमें कोई उप-स्कोर नहीं है, इसलिए प्रथम पर विभाजित करने के लिए एक भूमिका को सुफिज़ से अलग करता है, 702 organelle स्लॉट को स्कैन किए बिना।\n\n:func:`role_setting` की वैधता नहीं है: यह ``ALL_ROLES`` में किसी भी भूमिका को स्वीकार करता है, जिसमें ``cytoplasm`` भी शामिल है, जो विभाजित होने के बजाय उत्पन्न होता है और अभी भी ``cytoplasm_min_size`` घोषित करता है।\n\nएक बार संरचित-डेटा नाम एक भूमिका संरचित डेटा नाम नहीं है, और यह मायने रखता है: ``FT``, ``CP_prob`` , ``Signal_to_noise`` और ``flow_threshold`` सभी लाइव सेटिंग्स अपने स्वयं के दाईं ओर स्टैंडल एप्लिकेशन/टेस्ट-मॉडल उप-मोड्यूल में हैं।\n\n:param key: एक सेटिंग नाम है।\n:returns: ``(role, suffix)``, या ``None`` जब ``key`` कोई भूमिका नहीं नामित करता है।",
+      "translation_source_blocks_sha256": [
+        "d0e79f5532bf7139a477d4e4e3cd21470db94ed081295e2ee63bb9fda604000a",
+        "b31291dbe93bed78c2638ad3fabfa15ac6b713178c60e1a9cf4ef23d9c2e75d8",
+        "a9c3b7b870201dd1098735ed2d719991b4428a4e8215b808aebeb21bfa57a230",
+        "709b41e64f5752f93dca6e16866116bda32b9f74eb45b369904559909ed95970",
+        "b792c1c8587e45e5da5ffe5deb21b808ba668a063f71fbfb3303b7d02a6c60c0",
+        "ec01f87b17be4f855ed2d9a163871063f6b0c17d6ccff8144006bd22379d39e4"
+      ]
+    },
+    "spacr.object_roles.withdrawn_setting_reason": {
+      "source_blocks_sha256": [
+        "d519eb90d81775557665dc3732ad9ac3e58b4e3a1c748929b9bd09808414988d",
+        "0f9789c9692c1250160dfe1c3963077634f30afaa6608ae73992bc4df768faa8",
+        "1505bd4f41e5d7939db140671b69d76f395f577e045c566cc3b44d18cab5abc3"
+      ],
+      "source_sha256": "5ab5ac4fabcbb71db083d7f6ea6ac0934ab3e58340a7fbbcbdaa1c14224caedc",
+      "text": "क्यों ``key`` अब नहीं पढ़ा जाता है, या ``None`` अगर इसे वापस नहीं लिया जाता है।\n\n:param key: संरचित-डेटा नाम एक सेटिंग फ़ाइल ले जाता है।\n:returns: एक वाक्यांश जिसका नाम है जिसने इसे बदल दिया, या ``None``।",
+      "translation_source_blocks_sha256": [
+        "d519eb90d81775557665dc3732ad9ac3e58b4e3a1c748929b9bd09808414988d",
+        "ba6324c413dab39846e526ac1a9f734557d7e59700dbcdf67c5d7e6e4887f0bd",
+        "1505bd4f41e5d7939db140671b69d76f395f577e045c566cc3b44d18cab5abc3"
+      ]
+    },
     "spacr.object_settings_table": {
       "source_blocks_sha256": [
         "4aac57b87d5006d3cc60a0321a6b4637ac74ece71aad5ad6bf81a751118038b9",
@@ -147694,6 +147728,28 @@
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
       ]
     },
+    "spacr.settings.surviving_setting_name": {
+      "source_blocks_sha256": [
+        "439f8bdf46a7c64aeb4e0adf05c48b41c686414797e809f7d389b2237e5cb0c5",
+        "b1901ea8f27154e16d6b9678639d9298e48f243c9cc1d7e6369289235346dde1",
+        "0b24f5841718b79ae1cd6b8daf982c44bcf6aa0004b4c507718005868b916a30",
+        "e9d3ccd20bfe62481b9608b8585b55ca00cb6c58fb1fbe287cf8ac35c47890be",
+        "88389cc73fa9949c8ef330d482586964784165951f89671f48aa3d09d2ffdf54",
+        "0f9789c9692c1250160dfe1c3963077634f30afaa6608ae73992bc4df768faa8",
+        "49ffbaaa7cd54f6579b40ec6fe6e4b97a5e72a0e67c07242cf58f81554cb7468"
+      ],
+      "source_sha256": "68edc26ef73fd083642689b771767376f24adfb194b98e4bf559915acbdadf49",
+      "text": "``key`` को आज कहा जाता है, जिसके बाद अंत तक पुनः नाम दिए जाते हैं।\n\nसभी तीन उपभोक्ताओं के लिए एक समाधान - चलने की पट्टी, डॉक्टर का संदेश और Qt पैनल की लोड।\n\nवे इस सवाल का जवाब देने के लिए तीन अलग-अलग तरीकों से इस्तेमाल किया. दौड़ ने केवल नाम तालिका की सलाह दी, डॉक्टर केवल सेवानिवृत्ति तालिका, और Qt पैनल एकमात्र था जो Organelle suffix के नियम को जानता था. एक उत्पन्न Organelle संरचित-डेटा नाम इसलिए बोर्ड द्वारा स्थानांतरित किया जा सकता था, दौड़ द्वारा अनदेखा किया गया और डॉक्टर द्वारा उल्लेख नहीं किया गया, सब एक बार में.\n\nएक बाद का नाम ``<role>_min_split_area`` से ``<role>_minimum_area_to_split`` तक लेता है, और ``<role>_min_object_area`` पहले से ही ``_min_split_area`` के लिए नामित किया गया है - इसलिए सबसे पुराने फ़ाइलों को दो घोंसले की आवश्यकता होती है और एक समाधान जो एक ले जाता है, एक संरचित डेटा नाम पर मूल्य छोड़ देता है कुछ भी नहीं पढ़ता है।\n\nजिंदगी केवल समय पर जांच की जाती है. प्रत्येक हॉप की जांच एक वैध श्रृंखला के बीच से इनकार करेगी, क्योंकि एक मध्यम नाम की परिभाषा के अनुसार अब नहीं रहता है. जब पुराने संरचित डेटा नाम ITSELF अभी भी जीवित है तो इनकार करना यह है कि एक काम सेटिंग को हटाने के लिए एक सुफ़िक्स नियम को रोकता है - सात ``_size`` संरचित-डेटा नाम जीवित हैं और स्पर्श नहीं किया जाना चाहिए।\n\n:param key: संरचित-डेटा नाम एक सेटिंग फ़ाइल ले जाता है।\n:returns: आज पढ़े गए नामों का एक टुकड़ा - खाली जब ``key`` वर्तमान है, वापस ले लिया गया है, अज्ञात है, या एक चक्र के माध्यम से हल हो जाता है।",
+      "translation_source_blocks_sha256": [
+        "439f8bdf46a7c64aeb4e0adf05c48b41c686414797e809f7d389b2237e5cb0c5",
+        "ccbfbc81dfc1197875976388de754baa09b4d01aaeb02f0332704c8941661172",
+        "ba1e7a5454379bc7b4acc29b7e76ed53b5f19f869ef29afcad8f312d3465dace",
+        "9216337e73a4f19ade5ee1615a35576fe7c8c3830706a746ae7d96a1737dda40",
+        "937128a10ac0ca931bb7d26b0ecdf22c9d5b40b73b661ea0709f202cc7ef46c4",
+        "ba6324c413dab39846e526ac1a9f734557d7e59700dbcdf67c5d7e6e4887f0bd",
+        "49ffbaaa7cd54f6579b40ec6fe6e4b97a5e72a0e67c07242cf58f81554cb7468"
+      ]
+    },
     "spacr.settings.unregister_defaults": {
       "source_blocks_sha256": [
         "bc9fa2ebb9bfb77c50126fec188487a66946dfa7e87b20c199b2cdc473d6fb74",
@@ -156730,23 +156786,19 @@
         "71a3fdaeab1856e1919fdd4121a26d5759b81ceaa026ac34a992e960171153fe",
         "67d266268263beb1f7537ded4f51f914622a95b3f8ddaf1903d65166f56d3cd1",
         "926ac43d8a9c6c69de09a71f60611fd8bc056964e1de69c6f7042e150d02b1f0",
-        "8660179d3c500a791377ad6616f1276e74b87024afc5013e54ebb36165c5c3a0",
         "726a02524c8b06ac0c9b56fd3aae7755575a00f91eb7d8fa0ee15d5f03597917",
-        "ecf96a622e18b601279bf1f7e7c3177d3fd46c5e502789fdca46f41ca52ba5fa",
-        "4038b226ea4ca3711014a083e834780f503c4d9e165b3e25950ba7fad16d8242",
-        "00ab14ca3eef4ebc1308ad781f7c6a9c326c1e9a1cc9801b1265faf3bb9d970d",
+        "9c06776caf711b14b6ae399234f9326f7583ce6b4db0274dee62db8260be27f0",
+        "6f0f5d529bb25684b3993ee2c65c780557c93de37148bf05680cb82f0d2d22ca",
         "4fab960c72b0fa4104b426300af8100cf1cfd7483a8b62d4689cee050a327426",
         "bfe5d5389bb41da3cb82e48ead7cf4a78ecbbf05d57a1121ef499e148c36f473",
         "334bec03a8313e5d68e9c76477f645a40b7c773d1b211e79e97551b602ba5ead",
-        "d97deff4499de4456f43ef9d8f57809adb05a234b73c76e78649251513262b59",
-        "4a56b833ae9b02d851090acbf0900dd17c07df35ccd409bd8cb0634c80b09097",
         "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
         "bb45ff5a41caf6b310c9f90638229246e5d9b82b85f9f7de1ffdf5b168566d1c",
         "84384eca313dcfd1df73b57382310db0f372cb4bfd13a0ef3b9c2dcddd92d0b6",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "42a428c5195df3ad2bac4d8267b12b2a0eadd3b339c46ad934712f1695a67468",
-      "text": "एक मैस्क निर्देशिका के माध्यम से लेबल किए गए वस्तुओं को विभाजित, मिश्रण, और फ़िल्टर।\n\nप्रत्येक मास्क फ़ाइल पर विभाजित -> मिश्रण -> फ़िल्टर कार्यप्रवाह को समानांतर रूप से ``mask_src`` में चलाता है, प्रत्येक स्थान पर मास्क को अतिरिक्त लिखता है।\n\n:param mask_src: .tif, .tiff, या .npy एक्सटेंशन के साथ मास्क फ़ाइलों को शामिल करने वाले निर्देशिका।\n:param intensity_img_src: फिट इंटेंस छवियों के निर्देशिका, या ``None``।\n:param intensity_channel: छवि डेटा चैनल सूचकांक मल्टी-चित्र डेटा कैनल तीव्रता छवियों से खींचने के लिए।\n:param perimeter_fraction: कम से कम साझा-सीमा फ्रैक्शन के लिए परिदृश्य आधारित मिश्रण।\n:param intensity_merge: सीमा-आधारित एकाग्रता के आधार पर संयोजन की अनुमति देता है।\n:param intensity_split: पानी से भरे वस्तुओं को विभाजित करने की अनुमति देता है।\n:param area_multiplier: क्षेत्र > बहुल * मध्यम के साथ विभाजित वस्तुओं।\n:param min_distance: पानी के बीच पिक्सेल की न्यूनतम दूरी।\n:param min_object_area: उस क्षेत्र के नीचे एक निश्चित न्यूनतम क्षेत्र है जिसके तहत वस्तुओं को कभी विभाजित नहीं किया जाता है।\n:param intensity_threshold_method: ``'mean'`` या ``'percentile'`` सीमा तुलना।\n:param intensity_percentile: प्रतिशतल का उपयोग तब किया जाता है जब विधि ``'percentile'`` होती है।\n:param min_area: इस से छोटे वस्तुओं को हटा दें (px); 0 अक्षम।\n:param max_area: इससे बड़ी वस्तुओं (px) को हटा दें; 0 अक्षम हैं।\n:param remove_border_objects: छवि सीमा को छूने वाले वस्तुओं को फेंक दें।\n:param min_intensity_percentile: इस तीव्रता के नीचे वस्तुओं को फेंक दें; 0 अक्षम है।\n:param max_intensity_percentile: इस तीव्रता से ऊपर वस्तुओं को फेंक दें; 100 अक्षम हैं।\n:param n_jobs: एक साथ काम करने वाले कर्मचारियों की गिनती।\n:param progress_callback: वैकल्पिक कॉलबैक (fov_index, कुल, अवधि, op_name)।\n:param op_name: प्रगति कॉलबैक के लिए लेबल पारित किया।\n:returns: None.",
+      "source_sha256": "cc1f2b1e099bf2932606ddb07c4c7a01a1288c9fd497073b9b393c6582f68afc",
+      "text": "मैस्क के एक निर्देशिका के माध्यम से लेबल किए गए वस्तुओं को विभाजित, मिश्रण और फ़िल्टर करें।\n\nप्रत्येक मास्क फ़ाइल पर विभाजित -> मिश्रण -> फ़िल्टर कार्यप्रवाह को समानांतर रूप से ``mask_src`` में चलाता है, प्रत्येक स्थान पर मास्क को अतिरिक्त लिखता है।\n\n:param mask_src: .tif, .tiff, या .npy एक्सटेंशन के साथ मास्क फ़ाइलों को शामिल करने वाले निर्देशिका।\n:param intensity_img_src: संबंधित तीव्रता छवियों के निर्देशिका, या ``None``।\n:param intensity_channel: छवि डेटा चैनल सूचकांक मल्टी-चित्र डेटा कैनल तीव्रता छवियों से खींचने के लिए।\n:param perimeter_fraction: न्यूनतम साझा-सीमा फ्रैक्शन के लिए परिदृश्य-आधारित मिश्रण के लिए।\n:param intensity_merge: सीमा-इंटेंसिटी-आधारित मिश्रण की अनुमति देता है।\n:param intensity_split: पानी से भरे वस्तुओं को विभाजित करने की अनुमति देता है।\n:param min_watershed_distance: पिक्सेल की न्यूनतम दूरी पानी से भरे बीजों के बीच है।\n:param minimum_area_to_split: बिल्कुल, पिक्सेल में: 391 ``area_multiplier * median_area`` शब्द को हटा दिया, इसलिए सीमा अब किसी भी अन्य के साथ नहीं चलती है जो क्षेत्र में है।\n:param intensity_threshold: सीमा का मतलब है जिस पर या उस पर दो स्पर्श करने वाले वस्तुओं को मिश्रित किया जाता है, कच्चे छवि इकाइयों में. ``None`` कुछ भी मिश्रण नहीं करता है और ऐसा कहता है. यह अलग-अलग एक्सपोजर या लाभ पर अधिग्रहण के बीच नहीं लेता है - यह एक संख्या की कीमत है जिसे एक छवि से पढ़ा जा सकता है.\n:param min_area: इस से छोटे वस्तुओं (px) को हटा दें; 0 अक्षम हैं।\n:param max_area: इससे बड़ी वस्तुओं (px) को हटा दें; 0 अक्षम हैं।\n:param remove_border_objects: छवि सीमा को छूने वाले वस्तुओं को फेंक दें।\n:param n_jobs: एक साथ काम करने वाले कर्मचारियों की गिनती करें।\n:param progress_callback: वैकल्पिक कॉलबैक (fov_index, कुल, अवधि, op_name)।\n:param op_name: प्रगति कॉलबैक के लिए लेबल स्थानांतरित किया गया है।\n:returns: None.",
       "translation_source_blocks_sha256": [
         "2e0e970315e09fb0418b050ba9277afcc0b8cfa19b07d55fc6b9b990e20f8490",
         "b6716d859169fcca2109e27d93115ec404bb0e80e0e98c266c048137b10bdbe3",
@@ -156756,16 +156808,12 @@
         "71a3fdaeab1856e1919fdd4121a26d5759b81ceaa026ac34a992e960171153fe",
         "67d266268263beb1f7537ded4f51f914622a95b3f8ddaf1903d65166f56d3cd1",
         "926ac43d8a9c6c69de09a71f60611fd8bc056964e1de69c6f7042e150d02b1f0",
-        "8660179d3c500a791377ad6616f1276e74b87024afc5013e54ebb36165c5c3a0",
         "726a02524c8b06ac0c9b56fd3aae7755575a00f91eb7d8fa0ee15d5f03597917",
-        "ecf96a622e18b601279bf1f7e7c3177d3fd46c5e502789fdca46f41ca52ba5fa",
-        "4038b226ea4ca3711014a083e834780f503c4d9e165b3e25950ba7fad16d8242",
-        "00ab14ca3eef4ebc1308ad781f7c6a9c326c1e9a1cc9801b1265faf3bb9d970d",
+        "9c06776caf711b14b6ae399234f9326f7583ce6b4db0274dee62db8260be27f0",
+        "d26f4ed98ffba21f024c2b7bd44fe3b249a1caae6e34d0701e0ff661f6bf5d14",
         "4fab960c72b0fa4104b426300af8100cf1cfd7483a8b62d4689cee050a327426",
         "bfe5d5389bb41da3cb82e48ead7cf4a78ecbbf05d57a1121ef499e148c36f473",
         "334bec03a8313e5d68e9c76477f645a40b7c773d1b211e79e97551b602ba5ead",
-        "d97deff4499de4456f43ef9d8f57809adb05a234b73c76e78649251513262b59",
-        "4a56b833ae9b02d851090acbf0900dd17c07df35ccd409bd8cb0634c80b09097",
         "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
         "bb45ff5a41caf6b310c9f90638229246e5d9b82b85f9f7de1ffdf5b168566d1c",
         "84384eca313dcfd1df73b57382310db0f372cb4bfd13a0ef3b9c2dcddd92d0b6",

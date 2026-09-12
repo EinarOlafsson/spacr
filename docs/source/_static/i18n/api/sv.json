@@ -44384,6 +44384,40 @@
         "177bd5885dff8a936f88ff62c0cc314a88ff463c7aeb9d8d7b786b35011fbe33"
       ]
     },
+    "spacr.object_roles.split_role_setting": {
+      "source_blocks_sha256": [
+        "d0e79f5532bf7139a477d4e4e3cd21470db94ed081295e2ee63bb9fda604000a",
+        "b31291dbe93bed78c2638ad3fabfa15ac6b713178c60e1a9cf4ef23d9c2e75d8",
+        "a9c3b7b870201dd1098735ed2d719991b4428a4e8215b808aebeb21bfa57a230",
+        "7d8b3572497febdb5b96e3db2ff6d0786b934287e514da06a8a14da72d33e16b",
+        "26136fe384c2c4abf9e81416c74471bdf72aed3e73d882407aa41b5c263e2f90",
+        "ec01f87b17be4f855ed2d9a163871063f6b0c17d6ccff8144006bd22379d39e4"
+      ],
+      "source_sha256": "0b92cd912382b99cf8de95134eaa9ebac2ce659f540548cbbefc6cd2887e000d",
+      "text": "``organellezz_min_split_area`` -> ``(\"organellezz\", \"min_split_area\")``.\n\nInversen av :func:`role_setting`, och anledningen till att ett suffix byter namn kan kosta sex rader istället för 3,522. Varje roll är ett enda ord utan understrykning, så partitionering på den första skiljer rollen från suffrix utan att skanna 702 organelle slots.\n\nINTE :func:`role_setting` validering: detta accepterar någon roll i ``ALL_ROLES``, inklusive ``cytoplasm``, som härleds snarare än segmenteras och fortfarande förklarar ``cytoplasm_min_size``. Att begränsa sig till segmenterade roller här skulle tyst hoppa över det.\n\nEtt enkelt strukturerat datanamn är inte ett rollstrukturerat datanamn, och det spelar roll: ``FT``, ``CP_prob``, ``Signal_to_noise`` och ``flow_threshold`` är alla LIVE-inställningar i sin egen rätt i de fristående tillämpnings-/testmodellsundermodulerna. Ett strukturerat data namn utan underscore har ingen roll, så det kan aldrig matcha en suffixregel.\n\n:param key: ett inställningsnamn.\n:returns: ``(role, suffix)`` eller ``None`` när ``key`` inte anger någon roll.",
+      "translation_source_blocks_sha256": [
+        "d0e79f5532bf7139a477d4e4e3cd21470db94ed081295e2ee63bb9fda604000a",
+        "b31291dbe93bed78c2638ad3fabfa15ac6b713178c60e1a9cf4ef23d9c2e75d8",
+        "a9c3b7b870201dd1098735ed2d719991b4428a4e8215b808aebeb21bfa57a230",
+        "709b41e64f5752f93dca6e16866116bda32b9f74eb45b369904559909ed95970",
+        "b792c1c8587e45e5da5ffe5deb21b808ba668a063f71fbfb3303b7d02a6c60c0",
+        "ec01f87b17be4f855ed2d9a163871063f6b0c17d6ccff8144006bd22379d39e4"
+      ]
+    },
+    "spacr.object_roles.withdrawn_setting_reason": {
+      "source_blocks_sha256": [
+        "d519eb90d81775557665dc3732ad9ac3e58b4e3a1c748929b9bd09808414988d",
+        "0f9789c9692c1250160dfe1c3963077634f30afaa6608ae73992bc4df768faa8",
+        "1505bd4f41e5d7939db140671b69d76f395f577e045c566cc3b44d18cab5abc3"
+      ],
+      "source_sha256": "5ab5ac4fabcbb71db083d7f6ea6ac0934ab3e58340a7fbbcbdaa1c14224caedc",
+      "text": "Varför ``key`` inte längre läses eller ``None`` om den inte dras tillbaka.\n\n:param key: Det strukturerade datanamnet en inställningsfil bär.\n:returns: En mening som anger vad som ersatte den, eller ``None``.",
+      "translation_source_blocks_sha256": [
+        "d519eb90d81775557665dc3732ad9ac3e58b4e3a1c748929b9bd09808414988d",
+        "ba6324c413dab39846e526ac1a9f734557d7e59700dbcdf67c5d7e6e4887f0bd",
+        "1505bd4f41e5d7939db140671b69d76f395f577e045c566cc3b44d18cab5abc3"
+      ]
+    },
     "spacr.object_settings_table": {
       "source_blocks_sha256": [
         "4aac57b87d5006d3cc60a0321a6b4637ac74ece71aad5ad6bf81a751118038b9",
@@ -147694,6 +147728,28 @@
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
       ]
     },
+    "spacr.settings.surviving_setting_name": {
+      "source_blocks_sha256": [
+        "439f8bdf46a7c64aeb4e0adf05c48b41c686414797e809f7d389b2237e5cb0c5",
+        "b1901ea8f27154e16d6b9678639d9298e48f243c9cc1d7e6369289235346dde1",
+        "0b24f5841718b79ae1cd6b8daf982c44bcf6aa0004b4c507718005868b916a30",
+        "e9d3ccd20bfe62481b9608b8585b55ca00cb6c58fb1fbe287cf8ac35c47890be",
+        "88389cc73fa9949c8ef330d482586964784165951f89671f48aa3d09d2ffdf54",
+        "0f9789c9692c1250160dfe1c3963077634f30afaa6608ae73992bc4df768faa8",
+        "49ffbaaa7cd54f6579b40ec6fe6e4b97a5e72a0e67c07242cf58f81554cb7468"
+      ],
+      "source_sha256": "68edc26ef73fd083642689b771767376f24adfb194b98e4bf559915acbdadf49",
+      "text": "Vad ``key`` kallas idag, efter namnbyte till slutet.\n\nEn lösning för alla tre konsumenterna -- löpningens vik, läkarens meddelande och Qt-panelens last.\n\nDe brukade svara på den här frågan på tre olika sätt. Kören konsulterade enbart omnamnstabellen, läkaren enbart pensionsbordet, och panelen Qt var den enda som kände till organelle suffixregeln. Ett strukturerat organelle-datanamn kunde därför migreras av panelen, ignoreras av kör och inte nämns av läkaren, alla på en gång.\n\nEn kedja är misslyckandet som det här existerar för. Ett senare omnamn tar ``<role>_min_split_area`` till ``<role>_minimum_area_to_split``, och ``<role>_min_object_area`` döptes redan om till ``_min_split_area`` -- så de äldsta filerna behöver två hopar, och en upplösare som tar bort värdet på ett strukturerat datanamn läser ingenting.\n\nLiveness kontrolleras endast på terminus. Att kontrollera varje humle skulle vägra mitt i en giltig kedja, eftersom ett mellannamn per definition inte längre är live. Att vägra när det gamla strukturerade datanamnet är ITSELF fortfarande lever är det som stoppar en suffixregel att pensionera en arbetsinställning – sju ``_size`` strukturerade datanamn är live och får inte röras.\n\n:param key: Det strukturerade datanamnet en inställningsfil bär.\n:returns: en tuple av namnen lästa idag -- tom när ``key`` är aktuell, återkallad, okänd, eller löser genom en cykel.",
+      "translation_source_blocks_sha256": [
+        "439f8bdf46a7c64aeb4e0adf05c48b41c686414797e809f7d389b2237e5cb0c5",
+        "ccbfbc81dfc1197875976388de754baa09b4d01aaeb02f0332704c8941661172",
+        "ba1e7a5454379bc7b4acc29b7e76ed53b5f19f869ef29afcad8f312d3465dace",
+        "9216337e73a4f19ade5ee1615a35576fe7c8c3830706a746ae7d96a1737dda40",
+        "937128a10ac0ca931bb7d26b0ecdf22c9d5b40b73b661ea0709f202cc7ef46c4",
+        "ba6324c413dab39846e526ac1a9f734557d7e59700dbcdf67c5d7e6e4887f0bd",
+        "49ffbaaa7cd54f6579b40ec6fe6e4b97a5e72a0e67c07242cf58f81554cb7468"
+      ]
+    },
     "spacr.settings.unregister_defaults": {
       "source_blocks_sha256": [
         "bc9fa2ebb9bfb77c50126fec188487a66946dfa7e87b20c199b2cdc473d6fb74",
@@ -156730,23 +156786,19 @@
         "71a3fdaeab1856e1919fdd4121a26d5759b81ceaa026ac34a992e960171153fe",
         "67d266268263beb1f7537ded4f51f914622a95b3f8ddaf1903d65166f56d3cd1",
         "926ac43d8a9c6c69de09a71f60611fd8bc056964e1de69c6f7042e150d02b1f0",
-        "8660179d3c500a791377ad6616f1276e74b87024afc5013e54ebb36165c5c3a0",
         "726a02524c8b06ac0c9b56fd3aae7755575a00f91eb7d8fa0ee15d5f03597917",
-        "ecf96a622e18b601279bf1f7e7c3177d3fd46c5e502789fdca46f41ca52ba5fa",
-        "4038b226ea4ca3711014a083e834780f503c4d9e165b3e25950ba7fad16d8242",
-        "00ab14ca3eef4ebc1308ad781f7c6a9c326c1e9a1cc9801b1265faf3bb9d970d",
+        "9c06776caf711b14b6ae399234f9326f7583ce6b4db0274dee62db8260be27f0",
+        "6f0f5d529bb25684b3993ee2c65c780557c93de37148bf05680cb82f0d2d22ca",
         "4fab960c72b0fa4104b426300af8100cf1cfd7483a8b62d4689cee050a327426",
         "bfe5d5389bb41da3cb82e48ead7cf4a78ecbbf05d57a1121ef499e148c36f473",
         "334bec03a8313e5d68e9c76477f645a40b7c773d1b211e79e97551b602ba5ead",
-        "d97deff4499de4456f43ef9d8f57809adb05a234b73c76e78649251513262b59",
-        "4a56b833ae9b02d851090acbf0900dd17c07df35ccd409bd8cb0634c80b09097",
         "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
         "bb45ff5a41caf6b310c9f90638229246e5d9b82b85f9f7de1ffdf5b168566d1c",
         "84384eca313dcfd1df73b57382310db0f372cb4bfd13a0ef3b9c2dcddd92d0b6",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "42a428c5195df3ad2bac4d8267b12b2a0eadd3b339c46ad934712f1695a67468",
-      "text": "Dela, sammanfoga och filtrera märkta objekt över en katalog med masker.\n\nKör split -> slå samman -> filterflöde på varje maskfil i ``mask_src`` parallellt och skriva över varje mask på plats.\n\n:param mask_src: Katalog som innehåller maskfiler med .tif, .tiff eller .npy tillägg.\n:param intensity_img_src: katalog med matchade intensitetsbilder, eller ``None``.\n:param intensity_channel: Bilddatakanalindex för att dra från multi-image datakanalintensitetsbilder.\n:param perimeter_fraction: minsta gemensamma gränsfraktion för sammanfogning inom en radie.\n:param intensity_merge: möjliggöra gränsintensitetsbaserad sammanslagning.\n:param intensity_split: möjliggöra uppdelning av vattendelare av överdimensionerade objekt.\n:param area_multiplier: Dela objekt med area > multiplikator * median.\n:param min_distance: minsta pixelavstånd mellan vattendelare.\n:param min_object_area: absolut minsta area under vilken objekt aldrig delas.\n:param intensity_threshold_method: Jämförelsen mellan gränsen ``'mean'`` eller ``'percentile'``\n:param intensity_percentile: percentil som används vid metoden ``'percentile'``.\n:param min_area: ta bort objekt mindre än detta (px); 0 inaktiverar.\n:param max_area: ta bort objekt större än detta (px); 0 inaktiverar.\n:param remove_border_objects: släpp objekt som rör vid bildkanten.\n:param min_intensity_percentile: släpp objekt under intensiteten percentil; 0 inaktiverar.\n:param max_intensity_percentile: släpp objekt ovanför denna intensitet percentil; 100 inaktiverar.\n:param n_jobs: Parallellt antal arbetstagare.\n:param progress_callback: Valfri återkallning ( fov_index, totalt, varaktighet op_name).\n:param op_name: Etiketten skickas till framstegsåterkallning.\n:returns: None.",
+      "source_sha256": "cc1f2b1e099bf2932606ddb07c4c7a01a1288c9fd497073b9b393c6582f68afc",
+      "text": "Dela, sammanfoga och filtrera märkta objekt över en katalog med masker.\n\nKör split -> slå samman -> filterflöde på varje maskfil i ``mask_src`` parallellt och skriva över varje mask på plats.\n\n:param mask_src: Katalog som innehåller maskfiler med .tif, .tiff eller .npy tillägg.\n:param intensity_img_src: katalog med matchade intensitetsbilder, eller ``None``.\n:param intensity_channel: Bilddatakanalindex för att dra från multi-image datakanalintensitetsbilder.\n:param perimeter_fraction: minsta delade gränsöverskridande fraktion för sammanfogning inom området.\n:param intensity_merge: möjliggöra gränsintensitetsbaserad sammanslagning.\n:param intensity_split: möjliggöra uppdelning av vattendelare av överdimensionerade objekt.\n:param min_watershed_distance: minsta pixelavstånd mellan vattendelare.\n:param minimum_area_to_split: objekt på eller under detta område aldrig delas. ABSOLUTE, i pixlar: 391 bort ``area_multiplier * median_area`` termen, så tröskeln rör sig inte längre med något annat i fältet.\n:param intensity_threshold: gräns betyder vid eller över vilken två rörande objekt slås samman, i råa bildenheter. ``None`` slår samman ingenting och säger så. Det medför inte mellan förvärv vid olika exponering eller vinst -- det är priset på ett tal som kan avläsas av en bild.\n:param min_area: ta bort objekt mindre än detta (px); 0 inaktiverar.\n:param max_area: ta bort objekt större än detta (px); 0 inaktiverar.\n:param remove_border_objects: släpp objekt som rör vid bildkanten.\n:param n_jobs: Parallella arbetstagare räknas.\n:param progress_callback: Valfri återkallning ( fov_index, totalt, varaktighet op_name).\n:param op_name: Etiketten gick vidare till uppropet.\n:returns: None.",
       "translation_source_blocks_sha256": [
         "2e0e970315e09fb0418b050ba9277afcc0b8cfa19b07d55fc6b9b990e20f8490",
         "b6716d859169fcca2109e27d93115ec404bb0e80e0e98c266c048137b10bdbe3",
@@ -156756,16 +156808,12 @@
         "71a3fdaeab1856e1919fdd4121a26d5759b81ceaa026ac34a992e960171153fe",
         "67d266268263beb1f7537ded4f51f914622a95b3f8ddaf1903d65166f56d3cd1",
         "926ac43d8a9c6c69de09a71f60611fd8bc056964e1de69c6f7042e150d02b1f0",
-        "8660179d3c500a791377ad6616f1276e74b87024afc5013e54ebb36165c5c3a0",
         "726a02524c8b06ac0c9b56fd3aae7755575a00f91eb7d8fa0ee15d5f03597917",
-        "ecf96a622e18b601279bf1f7e7c3177d3fd46c5e502789fdca46f41ca52ba5fa",
-        "4038b226ea4ca3711014a083e834780f503c4d9e165b3e25950ba7fad16d8242",
-        "00ab14ca3eef4ebc1308ad781f7c6a9c326c1e9a1cc9801b1265faf3bb9d970d",
+        "9c06776caf711b14b6ae399234f9326f7583ce6b4db0274dee62db8260be27f0",
+        "d26f4ed98ffba21f024c2b7bd44fe3b249a1caae6e34d0701e0ff661f6bf5d14",
         "4fab960c72b0fa4104b426300af8100cf1cfd7483a8b62d4689cee050a327426",
         "bfe5d5389bb41da3cb82e48ead7cf4a78ecbbf05d57a1121ef499e148c36f473",
         "334bec03a8313e5d68e9c76477f645a40b7c773d1b211e79e97551b602ba5ead",
-        "d97deff4499de4456f43ef9d8f57809adb05a234b73c76e78649251513262b59",
-        "4a56b833ae9b02d851090acbf0900dd17c07df35ccd409bd8cb0634c80b09097",
         "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
         "bb45ff5a41caf6b310c9f90638229246e5d9b82b85f9f7de1ffdf5b168566d1c",
         "84384eca313dcfd1df73b57382310db0f372cb4bfd13a0ef3b9c2dcddd92d0b6",

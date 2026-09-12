@@ -44384,6 +44384,40 @@
         "177bd5885dff8a936f88ff62c0cc314a88ff463c7aeb9d8d7b786b35011fbe33"
       ]
     },
+    "spacr.object_roles.split_role_setting": {
+      "source_blocks_sha256": [
+        "d0e79f5532bf7139a477d4e4e3cd21470db94ed081295e2ee63bb9fda604000a",
+        "b31291dbe93bed78c2638ad3fabfa15ac6b713178c60e1a9cf4ef23d9c2e75d8",
+        "a9c3b7b870201dd1098735ed2d719991b4428a4e8215b808aebeb21bfa57a230",
+        "7d8b3572497febdb5b96e3db2ff6d0786b934287e514da06a8a14da72d33e16b",
+        "26136fe384c2c4abf9e81416c74471bdf72aed3e73d882407aa41b5c263e2f90",
+        "ec01f87b17be4f855ed2d9a163871063f6b0c17d6ccff8144006bd22379d39e4"
+      ],
+      "source_sha256": "0b92cd912382b99cf8de95134eaa9ebac2ce659f540548cbbefc6cd2887e000d",
+      "text": "``organellezz_min_split_area`` -> ``(\"organellezz\", \"min_split_area\")``.\n\nL'inverse de :func:`role_setting`, et la raison pour laquelle un suffixe rename peut coûter six lignes au lieu de 3.522. Chaque rôle est un seul mot sans soulignement, donc partitionner sur le PREMIER sépare le rôle du suffix sans scanner les 702 fentes organitales.\n\nN'EST PAS la validation de :func:`role_setting`: cela accepte tout rôle dans ``ALL_ROLES``, y compris ``cytoplasm``, qui est dérivé plutôt que segmenté et déclare toujours ``cytoplasm_min_size``.\n\nUn nom nu de données structurées n'est pas un nom de données structuré de rôle, et cela compte : ``FT``, ``CP_prob``,``Signal_to_noise`` et ``flow_threshold`` sont tous des paramètres LIVE à part entière dans les sous-modules d'application/test-modèle. Un nom de donnée structurée sans souligné n'a aucun rôle, de sorte qu'il ne peut jamais correspondre à une règle suffixe.\n\n:param key: un nom de réglage.\n:returns: ``(role, suffix)``, ou ``None`` lorsque ``key`` ne nomme aucun rôle.",
+      "translation_source_blocks_sha256": [
+        "d0e79f5532bf7139a477d4e4e3cd21470db94ed081295e2ee63bb9fda604000a",
+        "b31291dbe93bed78c2638ad3fabfa15ac6b713178c60e1a9cf4ef23d9c2e75d8",
+        "a9c3b7b870201dd1098735ed2d719991b4428a4e8215b808aebeb21bfa57a230",
+        "709b41e64f5752f93dca6e16866116bda32b9f74eb45b369904559909ed95970",
+        "b792c1c8587e45e5da5ffe5deb21b808ba668a063f71fbfb3303b7d02a6c60c0",
+        "ec01f87b17be4f855ed2d9a163871063f6b0c17d6ccff8144006bd22379d39e4"
+      ]
+    },
+    "spacr.object_roles.withdrawn_setting_reason": {
+      "source_blocks_sha256": [
+        "d519eb90d81775557665dc3732ad9ac3e58b4e3a1c748929b9bd09808414988d",
+        "0f9789c9692c1250160dfe1c3963077634f30afaa6608ae73992bc4df768faa8",
+        "1505bd4f41e5d7939db140671b69d76f395f577e045c566cc3b44d18cab5abc3"
+      ],
+      "source_sha256": "5ab5ac4fabcbb71db083d7f6ea6ac0934ab3e58340a7fbbcbdaa1c14224caedc",
+      "text": "Pourquoi ``key`` n'est plus lu, ou ``None`` s'il n'a pas été retiré.\n\n:param key: le nom de données structurées qu'un fichier de paramètres porte.\n:returns: une phrase nommant ce qui l'a remplacé, ou ``None``.",
+      "translation_source_blocks_sha256": [
+        "d519eb90d81775557665dc3732ad9ac3e58b4e3a1c748929b9bd09808414988d",
+        "ba6324c413dab39846e526ac1a9f734557d7e59700dbcdf67c5d7e6e4887f0bd",
+        "1505bd4f41e5d7939db140671b69d76f395f577e045c566cc3b44d18cab5abc3"
+      ]
+    },
     "spacr.object_settings_table": {
       "source_blocks_sha256": [
         "4aac57b87d5006d3cc60a0321a6b4637ac74ece71aad5ad6bf81a751118038b9",
@@ -147694,6 +147728,28 @@
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
       ]
     },
+    "spacr.settings.surviving_setting_name": {
+      "source_blocks_sha256": [
+        "439f8bdf46a7c64aeb4e0adf05c48b41c686414797e809f7d389b2237e5cb0c5",
+        "b1901ea8f27154e16d6b9678639d9298e48f243c9cc1d7e6369289235346dde1",
+        "0b24f5841718b79ae1cd6b8daf982c44bcf6aa0004b4c507718005868b916a30",
+        "e9d3ccd20bfe62481b9608b8585b55ca00cb6c58fb1fbe287cf8ac35c47890be",
+        "88389cc73fa9949c8ef330d482586964784165951f89671f48aa3d09d2ffdf54",
+        "0f9789c9692c1250160dfe1c3963077634f30afaa6608ae73992bc4df768faa8",
+        "49ffbaaa7cd54f6579b40ec6fe6e4b97a5e72a0e67c07242cf58f81554cb7468"
+      ],
+      "source_sha256": "68edc26ef73fd083642689b771767376f24adfb194b98e4bf559915acbdadf49",
+      "text": "Qu'est-ce que ``key`` est appelé AUJOURD'HUI, après avoir rebaptisé à la fin.\n\nUn résolveur pour les trois consommateurs -- le pli de la course, le message du médecin et la charge du panneau Qt.\n\nIls avaient l'habitude de répondre à cette question de trois façons différentes. La course a consulté seule la table de renom, le médecin seule la tableau de retraite, et le panneau Qt était le seul qui connaissait la règle du suffixe organelle. Un nom organelle structuré-data généré pouvait donc être migré par le panneau, ignoré par la course et non mentionné par le médecin, le tout à la fois.\n\nUne chaîne est l'échec pour lequel elle existe. Un renommer plus tard prend ``<role>_min_split_area`` en ``<role>_minimum_area_to_split``, et ``<role>_min_object_area`` a déjà été rebaptisé ``_min_split_area`` -- donc les fichiers les plus anciens ont besoin de deux houblons, et un résolveur qui prend un laisse la valeur sur un nom de données structuré rien ne lit.\n\nLa vérification de chaque houblon refuserait le milieu d'une chaîne valide, parce qu'un nom intermédiaire n'est plus par définition vivant. Refuser quand l'ancien nom de données structurées est ITSELF toujours en vie est ce qui arrête une règle suffixe de retrait d'un cadre de travail -- sept noms de données structurés ``_size`` sont en direct et ne doivent pas être touchés.\n\n:param key: le nom de données structurées qu'un fichier de paramètres porte.\n:returns: un tuple des noms lus aujourd'hui -- vide lorsque ``key`` est courant, retiré, inconnu ou résolu à travers un cycle.",
+      "translation_source_blocks_sha256": [
+        "439f8bdf46a7c64aeb4e0adf05c48b41c686414797e809f7d389b2237e5cb0c5",
+        "ccbfbc81dfc1197875976388de754baa09b4d01aaeb02f0332704c8941661172",
+        "ba1e7a5454379bc7b4acc29b7e76ed53b5f19f869ef29afcad8f312d3465dace",
+        "9216337e73a4f19ade5ee1615a35576fe7c8c3830706a746ae7d96a1737dda40",
+        "937128a10ac0ca931bb7d26b0ecdf22c9d5b40b73b661ea0709f202cc7ef46c4",
+        "ba6324c413dab39846e526ac1a9f734557d7e59700dbcdf67c5d7e6e4887f0bd",
+        "49ffbaaa7cd54f6579b40ec6fe6e4b97a5e72a0e67c07242cf58f81554cb7468"
+      ]
+    },
     "spacr.settings.unregister_defaults": {
       "source_blocks_sha256": [
         "bc9fa2ebb9bfb77c50126fec188487a66946dfa7e87b20c199b2cdc473d6fb74",
@@ -156730,23 +156786,19 @@
         "71a3fdaeab1856e1919fdd4121a26d5759b81ceaa026ac34a992e960171153fe",
         "67d266268263beb1f7537ded4f51f914622a95b3f8ddaf1903d65166f56d3cd1",
         "926ac43d8a9c6c69de09a71f60611fd8bc056964e1de69c6f7042e150d02b1f0",
-        "8660179d3c500a791377ad6616f1276e74b87024afc5013e54ebb36165c5c3a0",
         "726a02524c8b06ac0c9b56fd3aae7755575a00f91eb7d8fa0ee15d5f03597917",
-        "ecf96a622e18b601279bf1f7e7c3177d3fd46c5e502789fdca46f41ca52ba5fa",
-        "4038b226ea4ca3711014a083e834780f503c4d9e165b3e25950ba7fad16d8242",
-        "00ab14ca3eef4ebc1308ad781f7c6a9c326c1e9a1cc9801b1265faf3bb9d970d",
+        "9c06776caf711b14b6ae399234f9326f7583ce6b4db0274dee62db8260be27f0",
+        "6f0f5d529bb25684b3993ee2c65c780557c93de37148bf05680cb82f0d2d22ca",
         "4fab960c72b0fa4104b426300af8100cf1cfd7483a8b62d4689cee050a327426",
         "bfe5d5389bb41da3cb82e48ead7cf4a78ecbbf05d57a1121ef499e148c36f473",
         "334bec03a8313e5d68e9c76477f645a40b7c773d1b211e79e97551b602ba5ead",
-        "d97deff4499de4456f43ef9d8f57809adb05a234b73c76e78649251513262b59",
-        "4a56b833ae9b02d851090acbf0900dd17c07df35ccd409bd8cb0634c80b09097",
         "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
         "bb45ff5a41caf6b310c9f90638229246e5d9b82b85f9f7de1ffdf5b168566d1c",
         "84384eca313dcfd1df73b57382310db0f372cb4bfd13a0ef3b9c2dcddd92d0b6",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "42a428c5195df3ad2bac4d8267b12b2a0eadd3b339c46ad934712f1695a67468",
-      "text": "Split, fusion et filtre des objets marqués à travers un répertoire de masques.\n\nExécute la partition -> fusionne le flux de travail du filtre -> sur chaque fichier masque dans ``mask_src`` en parallèle, écraser chaque masque en place.\n\n:param mask_src: Répertoire contenant des fichiers masque avec des extensions .tif, .tiff ou .npy.\n:param intensity_img_src: répertoire d'images d'intensités correspondantes, ou ``None``.\n:param intensity_channel: index des canaux de données d'image pour tirer des images d'intensité des canaux multi-images.\n:param perimeter_fraction: fraction minimale partagée pour la fusion basée sur le périmètre.\n:param intensity_merge: permettre la fusion par concentration de l'intensité des frontières.\n:param intensity_split: permettre le fractionnement des objets surdimensionnés dans le bassin versant.\n:param area_multiplier: objets divisés avec zone > multiplicateur * médiane.\n:param min_distance: distance minimale de pixel entre les graines du bassin versant.\n:param min_object_area: zone minimale absolue sous laquelle les objets ne sont jamais divisés.\n:param intensity_threshold_method: ``'mean'`` ou ``'percentile'`` comparaison des limites.\n:param intensity_percentile: percentile utilisé lorsque la méthode est ``'percentile'``.\n:param min_area: supprimer les objets plus petits que cela (px); 0 désactive.\n:param max_area: supprimer les objets plus grands que cela (px); 0 désactive.\n:param remove_border_objects: déposer des objets touchant la bordure de l'image.\n:param min_intensity_percentile: chute des objets sous ce percentile d'intensité; 0 désactive.\n:param max_intensity_percentile: chute des objets au-dessus de ce percentile d'intensité; 100 désactive.\n:param n_jobs: nombre de processus workers parallèles.\n:param progress_callback: callback(fov_index, total, durée, op_name).\n:param op_name: label passé au rappel de progrès.\n:returns: None.",
+      "source_sha256": "cc1f2b1e099bf2932606ddb07c4c7a01a1288c9fd497073b9b393c6582f68afc",
+      "text": "Séparer, fusionner et filtrer les objets étiquetés à travers un répertoire de masques.\n\nExécute la partition -> fusionne le flux de travail du filtre -> sur chaque fichier masque dans ``mask_src`` en parallèle, écraser chaque masque en place.\n\n:param mask_src: Répertoire contenant des fichiers masque avec des extensions .tif, .tiff ou .npy.\n:param intensity_img_src: répertoire d'images d'intensité appariées, ou ``None``.\n:param intensity_channel: index des canaux de données d'image pour tirer des images d'intensité des canaux multi-images.\n:param perimeter_fraction: fraction minimale partagée pour la fusion basée sur le périmètre.\n:param intensity_merge: permettre la fusion de l'intensité des frontières.\n:param intensity_split: permettre le fractionnement de bassins versants d'objets surdimensionnés.\n:param min_watershed_distance: distance minimale de pixel entre les graines du bassin versant.\n:param minimum_area_to_split: ABSOLUTE, en pixels: 391 a supprimé le terme ``area_multiplier * median_area``, de sorte que le seuil ne se déplace plus avec n'importe quoi d'autre dans le champ.\n:param intensity_threshold: limite signifie à ou au-dessus de laquelle deux objets touchant fusionnent, en unités d'image brutes. ``None`` ne fusionne rien et le dit. Il ne transporte pas entre les acquisitions à une exposition ou un gain différent -- c'est le prix d'un nombre qui peut être lu sur une image.\n:param min_area: supprimer les objets plus petits que cela (px); 0 désactive.\n:param max_area: supprimer les objets plus grands que cela (px); 0 désactive.\n:param remove_border_objects: déposer des objets touchant la bordure de l'image.\n:param n_jobs: nombre d'ouvriers parallèles.\n:param progress_callback: callback optionnel(fov_index, total, durée, op_name).\n:param op_name: l'étiquette est passée au rappel des progrès.\n:returns: None.",
       "translation_source_blocks_sha256": [
         "2e0e970315e09fb0418b050ba9277afcc0b8cfa19b07d55fc6b9b990e20f8490",
         "b6716d859169fcca2109e27d93115ec404bb0e80e0e98c266c048137b10bdbe3",
@@ -156756,16 +156808,12 @@
         "71a3fdaeab1856e1919fdd4121a26d5759b81ceaa026ac34a992e960171153fe",
         "67d266268263beb1f7537ded4f51f914622a95b3f8ddaf1903d65166f56d3cd1",
         "926ac43d8a9c6c69de09a71f60611fd8bc056964e1de69c6f7042e150d02b1f0",
-        "8660179d3c500a791377ad6616f1276e74b87024afc5013e54ebb36165c5c3a0",
         "726a02524c8b06ac0c9b56fd3aae7755575a00f91eb7d8fa0ee15d5f03597917",
-        "ecf96a622e18b601279bf1f7e7c3177d3fd46c5e502789fdca46f41ca52ba5fa",
-        "4038b226ea4ca3711014a083e834780f503c4d9e165b3e25950ba7fad16d8242",
-        "00ab14ca3eef4ebc1308ad781f7c6a9c326c1e9a1cc9801b1265faf3bb9d970d",
+        "9c06776caf711b14b6ae399234f9326f7583ce6b4db0274dee62db8260be27f0",
+        "d26f4ed98ffba21f024c2b7bd44fe3b249a1caae6e34d0701e0ff661f6bf5d14",
         "4fab960c72b0fa4104b426300af8100cf1cfd7483a8b62d4689cee050a327426",
         "bfe5d5389bb41da3cb82e48ead7cf4a78ecbbf05d57a1121ef499e148c36f473",
         "334bec03a8313e5d68e9c76477f645a40b7c773d1b211e79e97551b602ba5ead",
-        "d97deff4499de4456f43ef9d8f57809adb05a234b73c76e78649251513262b59",
-        "4a56b833ae9b02d851090acbf0900dd17c07df35ccd409bd8cb0634c80b09097",
         "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
         "bb45ff5a41caf6b310c9f90638229246e5d9b82b85f9f7de1ffdf5b168566d1c",
         "84384eca313dcfd1df73b57382310db0f372cb4bfd13a0ef3b9c2dcddd92d0b6",
