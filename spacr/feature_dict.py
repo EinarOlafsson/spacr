@@ -120,6 +120,13 @@ CHANNEL_PAIR = "pair"
 CHANNEL_SCOPES: tuple[str, ...] = (CHANNEL_NONE, CHANNEL_SINGLE, CHANNEL_PAIR)
 
 #: Feature families used by :attr:`FeatureEntry.family`, with a one-line gloss.
+#: The infection-neighbourhood columns, which `measure._with_bystanders`
+#: writes onto the CELL table without an object prefix. Listed rather than
+#: pattern-matched because there are exactly three and a pattern over bare
+#: names would catch anything a future column happened to be called.
+_BYSTANDER_COLUMNS: frozenset = frozenset(
+    {"is_bystander", "is_distal", "distance_to_infected"})
+
 FEATURE_FAMILIES: dict[str, str] = {
     "morphology": (
         "Size, shape and position measured from the label mask alone; no "
@@ -2967,6 +2974,31 @@ def parse_column(name: str, measurement_units: str | None = None
     embedding = _parse_embedding(name)
     if embedding is not None:
         return embedding
+
+    # 1c. infection-neighbourhood columns (spacr/bystanders.py), for the same
+    #     reason as the embeddings above and with the same consequence if it
+    #     is skipped. `is_bystander`, `is_distal` and `distance_to_infected`
+    #     carry NO OBJECT PREFIX -- they are written onto the cell table by
+    #     `measure._with_bystanders` and named for what they say rather than
+    #     for the object they say it about -- so the structural parse at step
+    #     3 returns `object_type is None` and they come back as "unknown".
+    #
+    #     Measured before this branch existed: all three landed in
+    #     `family/unknown` with no object group at all, so the whole family
+    #     was invisible to `column_groups.classify` and therefore to every
+    #     picker, regression selection and hit call that groups by family.
+    #     Their `KNOWN_PROPERTIES` entries have said `"spatial"` since they
+    #     were written; nothing was reading them.
+    #
+    #     NOT A NEW FAMILY. `spatial` already covers this in its own words --
+    #     "where an object ... sits relative to ... other segmented object
+    #     types ... same-type neighbourhood and touching measurements" -- and
+    #     a sixth vocabulary for the same concept is the mistake 377 names.
+    bystander = KNOWN_PROPERTIES.get(name) if name in _BYSTANDER_COLUMNS \
+        else None
+    if bystander is not None:
+        return _entry(name, bystander, key=name, object_type="cell",
+                      measurement_units=measurement_units)
 
     # 2. per-parent organelle summaries, before the object prefix is stripped
     #    (the prefix 'organelle_' would otherwise swallow the family name).
