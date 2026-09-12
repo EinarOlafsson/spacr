@@ -1111,3 +1111,81 @@ same process, same window, four modules open. But the honest price of the
 change, and any future step in this direction should budget for that rather
 than for the diff.
 
+
+--------------------------------------------------------------------------------
+2026-09-11 -- AREA 3 IS MEASURING 31 OF 45 MODULES, AND THE FOURTEEN IT MISSES
+ARE THE ONES THE USER REACHES THROUGH A DOOR THE DRIVER DOES NOT KNOW ABOUT
+--------------------------------------------------------------------------------
+
+The 2026-09-09 audit above concluded that areas 1, 3 and 5 "need running and
+watching, not building". Run and watched. `tools/spacr_startup_benchmark.py
+--offscreen --runs 2 --record-only`, cold and warm, both processes agreeing
+exactly:
+
+    47 readiness records, 32 within budget, 15 not, 14 ERRORED
+    every error identical: "expected one live sidebar button, found 0"
+
+THE FOURTEEN ARE NOT RANDOM. They are `feature_explorer`, `convert`,
+`external_masks`, `lineage`, `layer_viewer`, `tabulate`, `outliers`,
+`control_chart`, `train_compare`, `plate_view`, `profiler`,
+`investigate_hit`, `feature_dict` and `trellis` -- every one of them in
+`TILELESS_APPS`, and every one reached from a HOST MODULE'S BUTTON, from
+Help, or from Ctrl+K rather than from a sidebar row. Verified directly: a
+real `MainWindow`, drawer opened, `findChildren(QAbstractButton)` over the
+whole window finds NO button carrying any of those fourteen `navKey`s.
+
+  THIS HAS HAPPENED BEFORE AND THE DRIVER SAYS SO IN ITS OWN COMMENT.
+  "NINE KEYS HAVE TWO ROWS... BUT THIS DRIVER DEMANDED EXACTLY ONE AND
+  ERRORED ON ALL NINE, which is how instruction 284's ratchet stopped
+  measuring nine modules without anyone noticing -- 314's own suspicion,
+  that 'the ratchet is not running on the path the user actually takes',
+  made concrete."
+
+  The fix then was to prefer the registry row over the fold child. THAT FIX
+  HAS SILENTLY STOPPED WORKING: `isFoldChild` is now READ in
+  `spacr/qt/startup_benchmark.py:316` and SET NOWHERE IN THE TREE -- one
+  grep, no matches outside that line. The rows it discriminated between no
+  longer exist, so the branch is dead code guarding nothing, the count went
+  from nine unmeasured modules to fourteen, and the artifact reports
+  `passed: false` with 463 violations, which reads as a catastrophe rather
+  than as "the driver cannot find fourteen doors".
+
+    A RATCHET THAT ERRORS IS NOT A RATCHET THAT FAILED. Fourteen errors and
+    463 violations look like a broken application; they are a broken
+    measurement, and the difference is invisible from the summary line.
+    This is the same shape as the two stale premises 381 recorded tonight
+    -- a check whose world moved underneath it -- in a third form: a probe
+    that navigates by a structure the application stopped having.
+
+WHAT THE THIRTY-ONE IT DID MEASURE SAY. Under load, so every number is a
+CEILING rather than a speed -- CI shard 11 was running in another process
+and the 1-minute load average was 19.8 on 32 cores. Recorded anyway,
+because the SHAPE is not a load artefact:
+
+    Home                 2.85 s     within the 5 s budget
+    measure             14.42 s     OVER the 10 s module budget
+    regression           9.09 s     inside it, and not by much
+    mask                 6.57 s
+    classify_merged      6.04 s
+    umap                 3.91 s
+    everything else      under 2.5 s, most under 0.5 s
+
+  ONE MODULE IS FOUR TIMES THE NEXT-SLOWEST AND TWICE ANY OTHER. `measure`
+  is the defect area 3 exists to name, and the shape -- one dominant step
+  rather than thirty small ones -- is exactly what this item's own opening
+  asks to be distinguished: "a 3-second startup with one 2.4-second step is
+  a different problem from thirty 100 ms steps."
+
+WHAT IS NEXT HERE, in order, and the first is not the fix:
+
+  1. A CLEAN RUN. These numbers were taken at load 19.8 and are ceilings.
+     `measure` at 14.42 s against a 10 s budget is a large enough margin
+     that load alone is unlikely to explain it, but "unlikely" is not the
+     standard this file sets for anything else.
+  2. THE DRIVER'S FOURTEENTH DOOR. Pressing a host module's button, a Help
+     entry or the command palette is how a user reaches these, so that is
+     what the driver has to do. `TILELESS_APPS` already records which host
+     each one belongs to, in a comment beside every key.
+  3. THEN `measure`, with the breakdown area 3 asks for: registry lookup,
+     screen construction, settings build, first paint.
+
