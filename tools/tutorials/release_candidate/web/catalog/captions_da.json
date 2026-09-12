@@ -9794,22 +9794,6 @@
       ]
     },
     {
-      "id": "76_ops",
-      "number": 76,
-      "slug": "ops",
-      "title": "OPS",
-      "series": 2,
-      "app_key": "ops",
-      "host_app_key": "mask",
-      "section": "Segmentation models",
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Denne vejledning er endnu ikke tilgængelig. Se de andre vejledninger imens.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
-    },
-    {
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
@@ -9936,6 +9920,122 @@
           "related_lessons": [
             "06_api",
             "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: den aktuelle side og justering af fire billedfelter",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Find OPS under Mask, og følg et kontrolleret eksempel på justering og sammensætning af fire virkelige billedfelter. Det er ikke et komplet plade-, segmenterings- eller afkodningsforløb.",
+      "objectives": [
+        "Find den indlejrede OPS-side, og forstå eksemplets begrænsninger.",
+        "Juster fire nabofelter med de oprindelige optagekoordinater bevaret.",
+        "Kontrollér overlap, dækning og gemte oplysninger om datakilden."
+      ],
+      "prerequisite": "Optaget med spaCR 1.5.0.7 nightly og Python-API'erne ops_layout, ops_stitch og ops_compose på CPU. GUI-knappen Run bruger en anden ældre motor, som ikke køres her. Privat NAS-kilde: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, position 0, 1, 10 og 11. Autoriseret adgang er nødvendig; data er ikke en offentlig testdownload, og der gives ikke ret til videredistribution. Hver uint16-TIFF har fem planer på 1480 × 1480 pixels; DAPI er plan nul. Det oprindelige layout med 333 positioner bevares. Genbrug ikke layout, overlap eller grænser på en anden optagelse uden måling. Vælg en ny outputmappe uden for originalerne. Hele brønden, segmentering, justering mellem cyklusser, afkodning og biologisk analyse demonstreres ikke.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Optisk pooled screening begynder med billeder fra nabofelter og gentagne billedcyklusser. Åbn Mask i spaCR for at finde den indlejrede OPS-side. Denne lektion viser placeringen og et lille, kontrolleret eksempel på billedjustering.",
+          "focus_modules": [
+            "mask"
+          ],
+          "related_lessons": [
+            "05_home",
+            "07_mask"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_mask_host",
+          "narration": "Brug OPS-kontakten i Masks handlingsrække. Den åbner en separat side inde i værtsmodulet. OPS er ikke endnu en Home-flise og heller ikke Map Barcodes-forløbet til filer med sekventeringslæsninger.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_ops_settings",
+          "narration": "Den aktuelle OPS-side har indstillinger for input, sammensyning, mosaik, justering og kvalitetskontrol. Run-knappen bruger en anden ældre motor. Vi starter den ikke og hævder ikke, at et helt screeningsforløb er valideret. De næste trin bruger geometri-API'erne direkte.",
+          "focus": [
+            340,
+            170,
+            1210,
+            1310
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_scope",
+          "narration": "Dette CPU-eksempel justerer og sammensætter fire virkelige billedfelter fra en eksisterende optagelse. Det segmenterer ikke celler, afkoder ikke stregkoder og behandler ikke en hel plade. Originalerne er ikke en medfølgende testdownload; nøjagtig gentagelse kræver autoriseret adgang til filerne.",
+          "focus": [
+            200,
+            100,
+            3440,
+            800
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Vælg position nul, en, ti og elleve fra den første billedcyklus. Hver originalfil har fem planer; plan nul indeholder kernefarvningen. Bevar det oprindelige layout med tre hundrede treogtredive positioner og deres numre. Fire valgte felter definerer ikke en ny brønd med kun fire felter.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_geometry",
+          "narration": "Hjælpescriptet kalder stitch_well, kontrollerer alle fire nabooverlap og kalder derefter compose_window. Alle fire felter placeres. Det sammensatte udsnit er to tusind syv hundrede seksoghalvtreds pixels på hver led. I denne optagelse lukker den geometriske løkke inden for en kvart pixel; det er ikke en generel præcisionsgaranti.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_independent_checks",
+          "narration": "Stol ikke kun på placeringen. Sammenlign de faktisk overlappende pixels uafhængigt af justeringsscoren. Her er korrelationerne efter justering langt stærkere end efter bevidst at flytte en af akserne sytten pixels. Sådanne fejlforskydningskontroller hjælper med at opdage en plausibel, men forkert placering.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_geometry_figure",
+          "narration": "Undersøg det faktisk gemte billede og dækningskortet. Venstre panel viser det sammensatte kernebillede; højre tæller de bidragende felter. Nul dækning betyder manglende optagepixels, ikke biologisk baggrund. Her kombineres rumlige naboer i ét plan, aldrig forskellige sekventeringscyklusser.",
+          "focus": [
+            600,
+            390,
+            2630,
+            1400
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Gem array, dækning, placeringer, kildefilernes kontrolsummer og kørselsrapport samlet. Scriptet genåbner output og bekræfter, at alle fire originalfiler er uændrede. Dette er et reproducerbart geometrisk kontroltrin. En fuld vejledning i optisk screening kræver stadig særskilt validering af de efterfølgende trin.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
           ],
           "hold_after": 0.7
         }

@@ -9794,22 +9794,6 @@
       ]
     },
     {
-      "id": "76_ops",
-      "number": 76,
-      "slug": "ops",
-      "title": "OPS",
-      "series": 2,
-      "app_key": "ops",
-      "host_app_key": "mask",
-      "section": "Segmentation models",
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Den här handledningen är inte tillgänglig ännu. Utforska de andra handledningarna under tiden.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
-    },
-    {
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
@@ -9936,6 +9920,122 @@
           "related_lessons": [
             "06_api",
             "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: den aktuella sidan och inpassning av fyra bildfält",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Hitta OPS under Mask och följ ett kontrollerat exempel på inpassning och sammansättning av fyra verkliga bildfält. Detta är inte ett fullständigt platt-, segmenterings- eller avkodningsflöde.",
+      "objectives": [
+        "Hitta den nästlade OPS-sidan och förstå exemplets begränsningar.",
+        "Passa in fyra angränsande bildfält med ursprungliga bildtagningskoordinater.",
+        "Granska överlapp, täckning och sparade uppgifter om datakällan."
+      ],
+      "prerequisite": "Inspelningen använder Python-API:erna ops_layout, ops_stitch och ops_compose i spaCR 1.5.0.7 nightly på CPU. Run i gränssnittet använder en annan äldre motor som inte körs här. Privat NAS-källa: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, positionerna 0, 1, 10 och 11. Behörig åtkomst krävs; det är ingen offentlig testnedladdning och ger ingen rätt till vidare spridning. Varje uint16-TIFF har fem plan med 1480 × 1480 pixlar; DAPI ligger i plan noll. Den ursprungliga layouten med 333 positioner behålls. Återanvänd inte layout, överlapp eller gränser på en annan bildserie utan mätning. Välj en ny utdatamapp utanför originalen. Hela brunnen, segmentering, inpassning mellan cykler, avkodning och biologisk analys demonstreras inte.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Optisk poolad screening börjar med bilder från angränsande fält och upprepade bildtagningscykler. Öppna Mask i spaCR för att hitta den nästlade OPS-sidan. Den här lektionen visar var den finns och ett litet, kontrollerat exempel på bildinpassning.",
+          "focus_modules": [
+            "mask"
+          ],
+          "related_lessons": [
+            "05_home",
+            "07_mask"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_mask_host",
+          "narration": "Använd OPS-reglaget i åtgärdsraden i Mask. Det öppnar en separat sida inuti värdmodulen. OPS är inte ytterligare en Home-panel och inte heller Map Barcodes-flödet för filer med sekvenseringsläsningar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_ops_settings",
+          "narration": "Den aktuella OPS-sidan har inställningar för indata, sammanfogning, mosaik, inpassning och kvalitetskontroll. Run-knappen använder en annan äldre motor. Vi startar den inte och hävdar inte att ett helt screeningflöde är validerat. Nästa steg använder geometri-API:erna direkt.",
+          "focus": [
+            340,
+            170,
+            1210,
+            1310
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_scope",
+          "narration": "Detta CPU-exempel passar in och sätter samman fyra verkliga bildfält från en befintlig bildtagning. Det segmenterar inte celler, avkodar inte streckkoder och bearbetar inte en hel platta. Originalen ingår inte som testnedladdning; exakt upprepning kräver behörig åtkomst till filerna.",
+          "focus": [
+            200,
+            100,
+            3440,
+            800
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Välj positionerna noll, ett, tio och elva från den första bildcykeln. Varje originalfil har fem plan; plan noll innehåller kärnfärgningen. Behåll den ursprungliga layouten med trehundratrettiotre positioner och deras nummer. Fyra utvalda fält definierar inte en ny brunn med bara fyra fält.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_geometry",
+          "narration": "Hjälpskriptet anropar stitch_well, kontrollerar de fyra angränsande överlappen och anropar sedan compose_window. Alla fyra fält placeras. Det sammansatta området är tvåtusensjuhundrafemtiosex pixlar på varje sida. I denna bildtagning sluts den geometriska slingan inom en kvarts pixel; det är ingen allmän noggrannhetsgaranti.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_independent_checks",
+          "narration": "Lita inte enbart på placeringen. Jämför de faktiskt överlappande pixlarna oberoende av registreringspoängen. Här är korrelationerna efter inpassning mycket starkare än efter att medvetet förskjuta någon av axlarna sjutton pixlar. Sådana felplaceringskontroller hjälper till att hitta en rimlig men felaktig placering.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_geometry_figure",
+          "narration": "Granska bilden och täckningskartan som faktiskt sparats. Vänster panel visar den sammansatta kärnbilden; höger räknar bidragande bildfält. Noll täckning betyder att bildtagningspixlar saknas, inte biologisk bakgrund. Här kombineras rumsliga grannar i ett plan, aldrig olika sekvenseringscykler.",
+          "focus": [
+            600,
+            390,
+            2630,
+            1400
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Spara array, täckning, placeringar, källfilernas kontrollsummor och körningsrapport tillsammans. Skriptet öppnar resultaten igen och bekräftar att alla fyra originalfiler är oförändrade. Detta är ett reproducerbart geometriskt kontrollsteg. En fullständig optisk screeninghandledning kräver fortfarande separat validering av senare steg.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
           ],
           "hold_after": 0.7
         }

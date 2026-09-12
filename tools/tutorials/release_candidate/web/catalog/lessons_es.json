@@ -10810,22 +10810,6 @@
       ]
     },
     {
-      "id": "76_ops",
-      "number": 76,
-      "slug": "ops",
-      "title": "OPS",
-      "series": 2,
-      "app_key": "ops",
-      "host_app_key": "mask",
-      "section": "Segmentation models",
-      "status": "coming_soon",
-      "availability_title": "Próximamente",
-      "description": "Este tutorial aún no está disponible. Mientras tanto, puedes explorar los otros tutoriales.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
-    },
-    {
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
@@ -10965,6 +10949,131 @@
           ],
           "hold_after": 0.7,
           "speech_text": "Conserve los vectores, las identidades, la suma de comprobación de los pesos, los ajustes y las versiones. El script verifica que las imágenes originales no cambien y rechaza destinos existentes. Mantenga iguales los recortes, la normalización y la correspondencia de canales al comparar. Reproduzca el ejemplo con las instrucciones enlazadas."
+        }
+      ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: pantalla actual y alineación de cuatro campos de imagen",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Encuentre OPS dentro de Mask y siga un ejemplo verificado de alineación y composición de cuatro campos reales. No es un flujo completo de placa, segmentación ni decodificación.",
+      "objectives": [
+        "Localizar la pantalla anidada de OPS y entender los límites del ejemplo.",
+        "Alinear cuatro campos vecinos conservando las coordenadas de adquisición originales.",
+        "Inspeccionar las superposiciones, la cobertura y la procedencia guardada."
+      ],
+      "prerequisite": "Grabación con las API ops_layout, ops_stitch y ops_compose de spaCR 1.5.0.7 nightly, en CPU. Run en la interfaz usa otro motor heredado y no se ejecuta aquí. Fuente NAS privada: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, sitios 0, 1, 10 y 11. Se necesita acceso autorizado; no es una descarga pública ni se conceden derechos de redistribución. Cada TIFF es uint16, con cinco planos de 1480 por 1480 píxeles; DAPI ocupa el plano cero. Se conserva la distribución original de 333 sitios. No reutilice la distribución, la superposición ni los umbrales para otra adquisición sin medirla. Use una carpeta de salida nueva fuera de los originales. No se demuestra el pozo completo, la segmentación, la alineación entre ciclos, la decodificación ni el análisis biológico.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "El cribado óptico agrupado comienza con imágenes adquiridas en campos vecinos y ciclos de imagen repetidos. En spaCR, abra Mask para encontrar la pantalla anidada de OPS. Esta lección muestra su ubicación y un pequeño ejemplo verificado de alineación de imágenes.",
+          "focus_modules": [
+            "mask"
+          ],
+          "related_lessons": [
+            "05_home",
+            "07_mask"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "El cribado óptico agrupado comienza con imágenes adquiridas en campos vecinos y ciclos de imagen repetidos. En espáquer, abra Mask para encontrar la pantalla anidada de OPS. Esta lección muestra su ubicación y un pequeño ejemplo verificado de alineación de imágenes."
+        },
+        {
+          "visual": "gui_01_mask_host",
+          "narration": "Use el interruptor OPS de la fila de acciones de Mask. Abre una página independiente dentro del módulo principal. OPS no es otra tarjeta de Home ni el flujo Map Barcodes para archivos de lecturas de secuenciación.",
+          "hold_after": 0.7,
+          "speech_text": "Use el interruptor OPS de la fila de acciones de Mask. Abre una página independiente dentro del módulo principal. OPS no es otra tarjeta de Home ni el flujo Map Barcodes para archivos de lecturas de secuenciación."
+        },
+        {
+          "visual": "gui_02_ops_settings",
+          "narration": "La página actual de OPS ofrece ajustes de entrada, unión de campos, mosaico, alineación y control de calidad. Su botón Run utiliza un motor heredado diferente. No lo iniciamos ni afirmamos haber validado un flujo de cribado completo. Los siguientes pasos utilizan directamente las API de geometría.",
+          "focus": [
+            340,
+            170,
+            1210,
+            1310
+          ],
+          "hold_after": 0.7,
+          "speech_text": "La página actual de OPS ofrece ajustes de entrada, unión de campos, mosaico, alineación y control de calidad. Su botón Run utiliza un motor heredado diferente. No lo iniciamos ni afirmamos haber validado un flujo de cribado completo. Los siguientes pasos utilizan directamente las API de geometría."
+        },
+        {
+          "visual": "api_00_scope",
+          "narration": "Esta demostración en CPU alinea y compone cuatro campos reales de una adquisición existente. No segmenta células, decodifica códigos de barras ni procesa una placa completa. La adquisición original no es una descarga de prueba incluida; reproducirla exactamente exige acceso autorizado a los archivos.",
+          "focus": [
+            200,
+            100,
+            3440,
+            800
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Esta demostración en CPU alinea y compone cuatro campos reales de una adquisición existente. No segmenta células, decodifica códigos de barras ni procesa una placa completa. La adquisición original no es una descarga de prueba incluida; reproducirla exactamente exige acceso autorizado a los archivos."
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Seleccione los sitios cero, uno, diez y once del primer ciclo de imagen. Cada archivo original tiene cinco planos; el plano cero contiene la tinción nuclear. Conserve la distribución original de trescientos treinta y tres sitios y sus números. Elegir cuatro campos no define un pozo nuevo de cuatro campos.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Seleccione los sitios cero, uno, diez y once del primer ciclo de imagen. Cada archivo original tiene cinco planos; el plano cero contiene la tinción nuclear. Conserve la distribución original de trescientos treinta y tres sitios y sus números. Elegir cuatro campos no define un pozo nuevo de cuatro campos."
+        },
+        {
+          "visual": "api_02_geometry",
+          "narration": "El script llama a stitch_well, comprueba las cuatro superposiciones vecinas y después llama a compose_window. Los cuatro campos quedan colocados. La región compuesta mide dos mil setecientos cincuenta y seis píxeles por lado. En esta adquisición, el ciclo geométrico cierra con un error máximo de un cuarto de píxel; no es una garantía universal de precisión.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7,
+          "speech_text": "El script llama a stitch_well, comprueba las cuatro superposiciones vecinas y después llama a compose_window. Los cuatro campos quedan colocados. La región compuesta mide dos mil setecientos cincuenta y seis píxeles por lado. En esta adquisición, el ciclo geométrico cierra con un error máximo de un cuarto de píxel; no es una garantía universal de precisión."
+        },
+        {
+          "visual": "api_03_independent_checks",
+          "narration": "No confíe solo en la colocación. Compare los píxeles de las superposiciones independientemente de la puntuación de alineación. Aquí las correlaciones alineadas superan ampliamente las obtenidas al desplazar deliberadamente cualquiera de los ejes diecisiete píxeles. Estos controles ayudan a detectar una colocación plausible pero incorrecta.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "No confíe solo en la colocación. Compare los píxeles de las superposiciones independientemente de la puntuación de alineación. Aquí las correlaciones alineadas superan ampliamente las obtenidas al desplazar deliberadamente cualquiera de los ejes diecisiete píxeles. Estos controles ayudan a detectar una colocación plausible pero incorrecta."
+        },
+        {
+          "visual": "api_05_geometry_figure",
+          "narration": "Inspeccione la imagen y el mapa de cobertura realmente guardados. El panel izquierdo muestra la imagen nuclear compuesta; el derecho cuenta los campos que contribuyen. Cobertura cero significa que no hay píxel adquirido, no fondo biológico. Se combinan vecinos espaciales de un mismo plano, nunca ciclos de secuenciación diferentes.",
+          "focus": [
+            600,
+            390,
+            2630,
+            1400
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Inspeccione la imagen y el mapa de cobertura realmente guardados. El panel izquierdo muestra la imagen nuclear compuesta; el derecho cuenta los campos que contribuyen. Cobertura cero significa que no hay píxel adquirido, no fondo biológico. Se combinan vecinos espaciales de un mismo plano, nunca ciclos de secuenciación diferentes."
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Conserve juntos la matriz, la cobertura, las posiciones, las sumas de comprobación de los originales y el informe. El script reabre los resultados y confirma que los cuatro archivos originales no cambiaron. Es un paso de geometría reproducible. Un tutorial óptico completo aún requiere validar por separado las etapas posteriores.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Conserve juntos la matriz, la cobertura, las posiciones, las sumas de comprobación de los originales y el informe. El script reabre los resultados y confirma que los cuatro archivos originales no cambiaron. Es un paso de geometría reproducible. Un tutorial óptico completo aún requiere validar por separado las etapas posteriores."
         }
       ]
     }

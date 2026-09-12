@@ -9794,22 +9794,6 @@
       ]
     },
     {
-      "id": "76_ops",
-      "number": 76,
-      "slug": "ops",
-      "title": "OPS",
-      "series": 2,
-      "app_key": "ops",
-      "host_app_key": "mask",
-      "section": "Segmentation models",
-      "status": "coming_soon",
-      "availability_title": "Væntanlegt",
-      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
-    },
-    {
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
@@ -9936,6 +9920,122 @@
           "related_lessons": [
             "06_api",
             "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: núverandi viðmót og samstilling fjögurra myndflísa",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Finndu OPS undir Mask og skoðaðu sannreynt dæmi um samstillingu og samsetningu fjögurra raunverulegra myndflísa. Þetta er ekki full vinnsla á plötu, frumuskipting eða afkóðun.",
+      "objectives": [
+        "Finna innfelldu OPS-síðuna og skilja takmarkanir dæmisins.",
+        "Samstilla fjórar samliggjandi myndflísar án þess að breyta upprunalegum hnitum.",
+        "Skoða skörun, þekju og vistaðar upplýsingar um uppruna."
+      ],
+      "prerequisite": "Upptakan notar Python-skilin ops_layout, ops_stitch og ops_compose úr spaCR 1.5.0.7 nightly á örgjörva. Run í viðmótinu notar aðra eldri vinnsluvél sem er ekki keyrð hér. Einkagögn á NAS: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, staðir 0, 1, 10 og 11. Heimilaðan aðgang þarf; þetta er ekki opinbert prófunarniðurhal og veitir ekki endurdreifingarleyfi. Hver uint16-TIFF skrá hefur fimm plön með 1480 × 1480 mynddílum; DAPI er á plani núll. Upprunalegu skipulagi 333 staða er haldið. Ekki yfirfæra skipulag, skörun eða viðmið á aðra myndatöku án mælinga. Veldu nýja úttaksmöppu utan frumgagnanna. Heill brunnur, frumuskipting, samstilling milli lota, afkóðun og líffræðileg greining eru ekki sýnd.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Ljósmyndamiðuð hópskimun byrjar á myndum af aðliggjandi sjónsviðum úr endurteknum myndatökulotum. Opnaðu Mask í spaCR til að finna innfelldu OPS-síðuna. Þessi kennslustund sýnir staðsetningu hennar og lítið, sannreynt dæmi um samstillingu mynda.",
+          "focus_modules": [
+            "mask"
+          ],
+          "related_lessons": [
+            "05_home",
+            "07_mask"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_mask_host",
+          "narration": "Notaðu OPS-rofann í aðgerðalínu Mask. Hann opnar sérstaka síðu innan aðaleiningarinnar. OPS er ekki annar hnappur á Home og ekki Map Barcodes-vinnuferlið fyrir skrár með raðgreiningarlestrum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_ops_settings",
+          "narration": "Núverandi OPS-síða hefur stillingar fyrir inntak, samsetningu mynda, myndmósaík, samstillingu og gæðaeftirlit. Run-hnappurinn notar aðra eldri vinnsluvél. Við ræsum hana ekki og fullyrðum ekki að allt skimunarferlið hafi verið sannreynt. Næstu skref nota rúmfræðiskilin beint.",
+          "focus": [
+            340,
+            170,
+            1210,
+            1310
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_scope",
+          "narration": "Þetta örgjörvadæmi samstillir og sameinar fjórar raunverulegar myndflísar úr fyrirliggjandi myndatöku. Það afmarkar ekki frumur, afkóðar ekki strikamerki og vinnur ekki heila plötu. Frumgögnin fylgja ekki sem prófunarniðurhal; nákvæm endurtekning krefst heimilaðs aðgangs að skránum.",
+          "focus": [
+            200,
+            100,
+            3440,
+            800
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Veldu staði núll, einn, tíu og ellefu úr fyrstu myndatökulotunni. Hver frumskrá hefur fimm plön; plan núll inniheldur kjarnalitun. Haltu upprunalegu skipulagi þrjú hundruð þrjátíu og þriggja staða og númerum þeirra. Fjórar valdar flísar skilgreina ekki nýjan brunn með aðeins fjórum flísum.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_geometry",
+          "narration": "Hjálparforritið kallar á stitch_well, athugar allar fjórar skaranir milli nágranna og kallar síðan á compose_window. Allar fjórar flísarnar eru staðsettar. Samsetti hlutinn er tvö þúsund sjö hundruð fimmtíu og sex mynddílar á kant. Í þessari myndatöku lokast rúmfræðilykkjan með skekkju innan fjórðungs mynddíls; það er ekki almenn nákvæmnisábyrgð.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_independent_checks",
+          "narration": "Ekki treysta aðeins á staðsetningu. Berðu saman raunverulega skarandi mynddíla óháð samstillingareinkunninni. Hér er fylgnin eftir samstillingu mun sterkari en þegar öðrum hvorum ásnum er vísvitandi hliðrað um sautján mynddíla. Slík röng hliðrun sem viðmið hjálpar að finna trúverðuga en ranga staðsetningu.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_geometry_figure",
+          "narration": "Skoðaðu myndina og þekjukortið sem voru raunverulega vistuð. Vinstri ramminn sýnir samsettu kjarnamyndina; sá hægri telur flísarnar sem leggja til gögn. Núll þekja merkir að mynddíla vantar úr upptökunni, ekki líffræðilegan bakgrunn. Hér eru sameinaðir rúmfræðilegir nágrannar á einu plani, aldrei ólíkar raðgreiningarlotur.",
+          "focus": [
+            600,
+            390,
+            2630,
+            1400
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Geymdu fylkið, þekjuna, staðsetningar, gátsummur frumskráa og keyrsluskýrsluna saman. Forritið opnar niðurstöður aftur og staðfestir að allar fjórar frumskrárnar séu óbreyttar. Þetta er endurtakanlegt rúmfræðilegt athugunarskref. Full kennsla í ljósmyndamiðaðri skimun krefst enn sérstakrar sannprófunar á síðari stigum.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
           ],
           "hold_after": 0.7
         }

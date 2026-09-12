@@ -10810,22 +10810,6 @@
       ]
     },
     {
-      "id": "76_ops",
-      "number": 76,
-      "slug": "ops",
-      "title": "OPS",
-      "series": 2,
-      "app_key": "ops",
-      "host_app_key": "mask",
-      "section": "Segmentation models",
-      "status": "coming_soon",
-      "availability_title": "Em breve",
-      "description": "Este tutorial ainda não está disponível. Enquanto isso, explore os outros tutoriais.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
-    },
-    {
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
@@ -10965,6 +10949,131 @@
           ],
           "hold_after": 0.7,
           "speech_text": "Guarde os vetores, identidades, checksum dos pesos, configurações e versões. O script verifica que as imagens originais não mudaram e recusa destinos existentes. Mantenha recortes, normalização e mapeamento de canais coerentes nas comparações. Use as instruções vinculadas para reproduzir este exemplo da API."
+        }
+      ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: tela atual e alinhamento de quatro campos de imagem",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Encontre OPS dentro de Mask e acompanhe um exemplo verificado de geometria e composição de quatro campos reais. Não é um fluxo completo de placa, segmentação ou decodificação.",
+      "objectives": [
+        "Encontrar a tela aninhada de OPS e entender os limites do exemplo.",
+        "Alinhar quatro campos vizinhos mantendo as coordenadas originais.",
+        "Inspecionar sobreposições, cobertura e procedência registrada."
+      ],
+      "prerequisite": "Gravação com as APIs ops_layout, ops_stitch e ops_compose de spaCR 1.5.0.7 nightly, em CPU. Run na interface usa outro mecanismo legado, não executado aqui. Fonte NAS privada: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, posições 0, 1, 10 e 11. É necessário acesso autorizado; não é um download público e não concede direitos de redistribuição. Cada TIFF uint16 tem cinco planos de 1480 por 1480 pixels; DAPI ocupa o plano zero. Mantém-se a disposição original de 333 posições. Não reutilize geometria, sobreposição ou limites sem medir a outra aquisição. Escolha uma pasta de saída nova fora dos originais. Não se demonstram o poço inteiro, segmentação, alinhamento entre ciclos, decodificação ou análise biológica.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "A triagem óptica em pool começa com imagens adquiridas em campos vizinhos e ciclos repetidos de aquisição. Em spaCR, abra Mask para encontrar a tela aninhada de OPS. Esta aula mostra sua localização e um pequeno exemplo verificado de alinhamento de imagens.",
+          "focus_modules": [
+            "mask"
+          ],
+          "related_lessons": [
+            "05_home",
+            "07_mask"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "A triagem óptica em pool começa com imagens adquiridas em campos vizinhos e ciclos repetidos de aquisição. Em espáquer, abra Mask para encontrar a tela aninhada de OPS. Esta aula mostra sua localização e um pequeno exemplo verificado de alinhamento de imagens."
+        },
+        {
+          "visual": "gui_01_mask_host",
+          "narration": "Use o botão de alternância OPS na linha de ações de Mask. Ele abre uma página separada dentro do módulo principal. OPS não é um segundo bloco de Home nem o fluxo Map Barcodes para arquivos de leituras de sequenciamento.",
+          "hold_after": 0.7,
+          "speech_text": "Use o botão de alternância OPS na linha de ações de Mask. Ele abre uma página separada dentro do módulo principal. OPS não é um segundo bloco de Home nem o fluxo Map Barcodes para arquivos de leituras de sequenciamento."
+        },
+        {
+          "visual": "gui_02_ops_settings",
+          "narration": "A página atual de OPS oferece configurações de entrada, junção de campos, mosaico, alinhamento e controle de qualidade. Seu botão Run usa outro mecanismo legado. Não o iniciamos nem afirmamos ter validado um fluxo completo de triagem. As próximas etapas usam diretamente as APIs de geometria.",
+          "focus": [
+            340,
+            170,
+            1210,
+            1310
+          ],
+          "hold_after": 0.7,
+          "speech_text": "A página atual de OPS oferece configurações de entrada, junção de campos, mosaico, alinhamento e controle de qualidade. Seu botão Run usa outro mecanismo legado. Não o iniciamos nem afirmamos ter validado um fluxo completo de triagem. As próximas etapas usam diretamente as APIs de geometria."
+        },
+        {
+          "visual": "api_00_scope",
+          "narration": "Esta demonstração em CPU alinha e compõe quatro campos reais de uma aquisição existente. Não segmenta células, decodifica códigos de barras nem processa uma placa inteira. A aquisição original não é um download de teste incluído; a reprodução exata exige acesso autorizado aos arquivos.",
+          "focus": [
+            200,
+            100,
+            3440,
+            800
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Esta demonstração em CPU alinha e compõe quatro campos reais de uma aquisição existente. Não segmenta células, decodifica códigos de barras nem processa uma placa inteira. A aquisição original não é um download de teste incluído; a reprodução exata exige acesso autorizado aos arquivos."
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Selecione as posições zero, um, dez e onze do primeiro ciclo de aquisição. Cada arquivo original tem cinco planos; o plano zero contém a coloração nuclear. Mantenha a disposição original das trezentas e trinta e três posições e sua numeração. Selecionar quatro campos não define um novo poço de quatro campos.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Selecione as posições zero, um, dez e onze do primeiro ciclo de aquisição. Cada arquivo original tem cinco planos; o plano zero contém a coloração nuclear. Mantenha a disposição original das trezentas e trinta e três posições e sua numeração. Selecionar quatro campos não define um novo poço de quatro campos."
+        },
+        {
+          "visual": "api_02_geometry",
+          "narration": "O script chama stitch_well, verifica as quatro sobreposições vizinhas e depois chama compose_window. Os quatro campos são posicionados. A região composta mede dois mil setecentos e cinquenta e seis pixels de lado. Nesta aquisição, o ciclo geométrico fecha com erro de até um quarto de pixel; não é garantia universal de precisão.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7,
+          "speech_text": "O script chama stitch_well, verifica as quatro sobreposições vizinhas e depois chama compose_window. Os quatro campos são posicionados. A região composta mede dois mil setecentos e cinquenta e seis pixels de lado. Nesta aquisição, o ciclo geométrico fecha com erro de até um quarto de pixel; não é garantia universal de precisão."
+        },
+        {
+          "visual": "api_03_independent_checks",
+          "narration": "Não confie apenas no posicionamento. Compare os pixels realmente sobrepostos independentemente da pontuação de alinhamento. Aqui, as correlações alinhadas são muito maiores que aquelas após deslocar deliberadamente qualquer um dos eixos em dezessete pixels. Esses controles ajudam a detectar um posicionamento plausível, mas incorreto.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Não confie apenas no posicionamento. Compare os pixels realmente sobrepostos independentemente da pontuação de alinhamento. Aqui, as correlações alinhadas são muito maiores que aquelas após deslocar deliberadamente qualquer um dos eixos em dezessete pixels. Esses controles ajudam a detectar um posicionamento plausível, mas incorreto."
+        },
+        {
+          "visual": "api_05_geometry_figure",
+          "narration": "Inspecione a imagem e o mapa de cobertura realmente salvos. À esquerda está a imagem nuclear composta; à direita, a contagem dos campos que contribuem. Cobertura zero significa ausência de pixel adquirido, não fundo biológico. Combinam-se vizinhos espaciais no mesmo plano, nunca ciclos diferentes de sequenciamento.",
+          "focus": [
+            600,
+            390,
+            2630,
+            1400
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Inspecione a imagem e o mapa de cobertura realmente salvos. À esquerda está a imagem nuclear composta; à direita, a contagem dos campos que contribuem. Cobertura zero significa ausência de pixel adquirido, não fundo biológico. Combinam-se vizinhos espaciais no mesmo plano, nunca ciclos diferentes de sequenciamento."
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Guarde juntos a matriz, a cobertura, as posições, as somas de verificação dos originais e o relatório. O script reabre os resultados e confirma que os quatro arquivos originais não mudaram. É uma etapa geométrica reproduzível. Um tutorial óptico completo ainda exige validar separadamente as etapas seguintes.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Guarde juntos a matriz, a cobertura, as posições, as somas de verificação dos originais e o relatório. O script reabre os resultados e confirma que os quatro arquivos originais não mudaram. É uma etapa geométrica reproduzível. Um tutorial óptico completo ainda exige validar separadamente as etapas seguintes."
         }
       ]
     }

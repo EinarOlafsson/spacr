@@ -9899,22 +9899,6 @@
       ]
     },
     {
-      "id": "76_ops",
-      "number": 76,
-      "slug": "ops",
-      "title": "OPS",
-      "series": 2,
-      "app_key": "ops",
-      "host_app_key": "mask",
-      "section": "Segmentation models",
-      "status": "coming_soon",
-      "availability_title": "Coming soon",
-      "description": "This tutorial is not available yet. Please explore the other tutorials.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
-    },
-    {
       "id": "77_embeddings",
       "number": 77,
       "slug": "embeddings",
@@ -10041,6 +10025,122 @@
           "related_lessons": [
             "06_api",
             "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
+    },
+    {
+      "id": "76_ops",
+      "number": 76,
+      "slug": "ops",
+      "title": "OPS: current screen and four-tile image alignment",
+      "series": 2,
+      "app_key": "ops",
+      "host_app_key": "mask",
+      "section": "Segmentation models",
+      "description": "Find OPS under Mask, then follow a measured four-tile geometry and composition example on real acquisition images. This is not a completed full-plate, segmentation or decoding workflow.",
+      "objectives": [
+        "Find the current nested OPS screen and understand the demonstration's limits.",
+        "Register four real neighboring image tiles while retaining their original acquisition coordinates.",
+        "Inspect independently checked overlaps, coverage and saved provenance."
+      ],
+      "prerequisite": "The recording uses spaCR 1.5.0.7 nightly's ops_layout, ops_stitch and ops_compose Python APIs on CPU. The current GUI Run dispatches to a different legacy engine and is not run here. Source: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, sites 0, 1, 10 and 11. These are existing maintainer NAS data, NOT a bundled or publicly downloadable OPS example. You need authorized access to that acquisition to reproduce the exact measurements; the tutorial does not grant data redistribution rights. Each original TIFF is uint16, five planes by 1480 by 1480 pixels, with DAPI at plane zero. The helper retains the acquisition's 333-site layout while processing only four neighbors. Do not reuse its layout, overlap or acceptance thresholds for an unmeasured acquisition. No source file is edited; choose a new output folder outside the acquisition. Full-well validation, segmentation, sequencing-cycle registration, barcode decoding and biological hit analysis are outside this lesson's demonstrated scope.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles. In spaCR, open Mask to find the nested OPS screen. This lesson shows its location and a small, verified image-alignment example.",
+          "focus_modules": [
+            "mask"
+          ],
+          "related_lessons": [
+            "05_home",
+            "07_mask"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_mask_host",
+          "narration": "Use the OPS toggle in Mask's action row. It opens a separate page inside the host module. OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_ops_settings",
+          "narration": "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings. Its Run button uses a different, legacy engine. We do not start it here or imply that a complete screening pipeline has been validated. The next steps use the geometry APIs directly.",
+          "focus": [
+            340,
+            170,
+            1210,
+            1310
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_scope",
+          "narration": "This CPU demonstration registers and composes four real image tiles from an existing acquisition. It does not segment cells, decode barcodes or process a whole plate. The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files.",
+          "focus": [
+            200,
+            100,
+            3440,
+            800
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Select sites zero, one, ten and eleven from the first imaging cycle. Each original file has five planes; plane zero contains the nuclear stain. Keep the original three hundred thirty-three-site layout and site numbers. Four selected tiles do not define a new four-tile well.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_geometry",
+          "narration": "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window. All four tiles are placed. Their patch is two thousand seven hundred fifty-six pixels square. The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_independent_checks",
+          "narration": "Do not trust placement alone. Compare actual overlapping pixels independently of the registration score. Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels. Those wrong-offset controls help detect a plausible-looking but incorrect placement.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_geometry_figure",
+          "narration": "Inspect the actual saved image and coverage map. The left panel shows the composed nuclear image; the right counts contributing tiles. Zero coverage means no acquisition pixel, not biological background. This combines spatial neighbors within one plane, never different sequencing cycles.",
+          "focus": [
+            600,
+            390,
+            2630,
+            1400
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Save the array, coverage, placements, source checksums and run report together. The helper reopens its outputs and confirms all four source files are unchanged. Treat this as a reproducible geometry checkpoint. A full optical screening tutorial still needs separately validated downstream stages.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
           ],
           "hold_after": 0.7
         }

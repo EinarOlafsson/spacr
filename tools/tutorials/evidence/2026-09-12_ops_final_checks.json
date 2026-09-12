@@ -1,0 +1,897 @@
+{
+  "scope": "Four-tile geometry tutorial, not a completed OPS screening pipeline",
+  "capture": {
+    "accepted": true,
+    "scope": "Current GUI route and four-tile geometry API example",
+    "gui": {
+      "accepted": true,
+      "scope": "Visible Home to Mask to OPS navigation only",
+      "route": [
+        "mask",
+        "ops"
+      ],
+      "gui_workflow_completed": false,
+      "run_clicked": false,
+      "inputs_injected": false,
+      "segmentation_or_decoding_performed": false,
+      "app_source_modified": false,
+      "published": false
+    },
+    "terminal": {
+      "accepted": true,
+      "scope": "Four real tiles through geometry/composition APIs only",
+      "run": {
+        "accepted": true,
+        "scope": "Four-tile geometry/composition API example only",
+        "app_version": "1.5.0.7",
+        "source_folder": "/nas_mnt/data/ops/OpticalPooledScreens_data/screenA/20200202_6W-LaC024A/sequencing/images/input/c1",
+        "sources": [
+          {
+            "site": 0,
+            "name": "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif",
+            "sha256": "10a83404e7c4acbe6692de973298a53562852791881763da3f346e5cc99f0114",
+            "shape": [
+              5,
+              1480,
+              1480
+            ],
+            "plane": 0,
+            "dtype": "uint16"
+          },
+          {
+            "site": 1,
+            "name": "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-1.tif",
+            "sha256": "494a0b96d72d32daab426fb266d5b4ea6d3ca6b4aa5847025621a00e23a61a4e",
+            "shape": [
+              5,
+              1480,
+              1480
+            ],
+            "plane": 0,
+            "dtype": "uint16"
+          },
+          {
+            "site": 10,
+            "name": "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-10.tif",
+            "sha256": "f01d41e427dce01b0f09747201956b1a06a31c6e4f7ccd1b7cf350785693f3b7",
+            "shape": [
+              5,
+              1480,
+              1480
+            ],
+            "plane": 0,
+            "dtype": "uint16"
+          },
+          {
+            "site": 11,
+            "name": "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-11.tif",
+            "sha256": "edbd78838bc4d7c4eff852721ac919a80d52a8033f6efd0725a847a8263c3945",
+            "shape": [
+              5,
+              1480,
+              1480
+            ],
+            "plane": 0,
+            "dtype": "uint16"
+          }
+        ],
+        "helper_sha256": "c348cf00559d30b77617fba2a44e878c3b218f1f9afc089b410548279f3dc8d6",
+        "source_unchanged": true,
+        "sites": [
+          0,
+          1,
+          10,
+          11
+        ],
+        "full_well_sites": 333,
+        "canvas": [
+          2756,
+          2756
+        ],
+        "placed": 4,
+        "accepted_edges": 4,
+        "residuals": [
+          0.2500000000002309,
+          0.25000000000045475,
+          0.24999999999954525,
+          0.24999999999977263
+        ],
+        "independent_overlap_checks": [
+          {
+            "sites": [
+              0,
+              1
+            ],
+            "shift": [
+              1267,
+              9
+            ],
+            "aligned_pearson": 0.8434978419826764,
+            "offset_17px_controls": [
+              0.12139433431756123,
+              0.12047732359463535
+            ]
+          },
+          {
+            "sites": [
+              0,
+              11
+            ],
+            "shift": [
+              -9,
+              1268
+            ],
+            "aligned_pearson": 0.8832324630697752,
+            "offset_17px_controls": [
+              0.22253885371338003,
+              0.2024804776201072
+            ]
+          },
+          {
+            "sites": [
+              1,
+              10
+            ],
+            "shift": [
+              -9,
+              1267
+            ],
+            "aligned_pearson": 0.8058697011039221,
+            "offset_17px_controls": [
+              0.10574857150836063,
+              0.1087516028792661
+            ]
+          },
+          {
+            "sites": [
+              11,
+              10
+            ],
+            "shift": [
+              1267,
+              9
+            ],
+            "aligned_pearson": 0.8528621044222785,
+            "offset_17px_controls": [
+              0.14884094961758368,
+              0.11966589546945142
+            ]
+          }
+        ],
+        "placements": {
+          "0": [
+            8.999999999999128,
+            0.0
+          ],
+          "1": [
+            1275.9999999999986,
+            9.250000000000231
+          ],
+          "10": [
+            1267.0,
+            1276.4999999999998
+          ],
+          "11": [
+            0.0,
+            1267.7499999999995
+          ]
+        },
+        "backends": [
+          "numpy"
+        ],
+        "coverage_counts": {
+          "0": 44354,
+          "1": 6431136,
+          "2": 1071290,
+          "3": 7140,
+          "4": 41616
+        },
+        "elapsed_seconds": 2.7586972430581227,
+        "full_pipeline_completed": false,
+        "gui_pipeline_completed": false,
+        "segmentation_or_decoding_performed": false,
+        "published": false,
+        "artifacts": {
+          "composed_dapi.npy": "d5e9eb5619ec243dca1256b249669ccbb456faf3c488d355344aa75fb9e8734c",
+          "coverage.npy": "05b40313ff3d2f472d4912cdc960592ceee7494093ea097a0294b4eb0b22e334",
+          "geometry_and_coverage.png": "8d2fbbc7afd38e4f774ba15d721218025f8c9fcce7576ec396c2d577b3f76ee1"
+        }
+      },
+      "figure": {
+        "scene": "05_geometry_figure",
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/ops-geometry-recorded-5pafmboc/patch/geometry_and_coverage.png",
+        "sha256": "8d2fbbc7afd38e4f774ba15d721218025f8c9fcce7576ec396c2d577b3f76ee1",
+        "viewer": "eog",
+        "window_title": "geometry_and_coverage.png"
+      },
+      "private_work": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/ops-geometry-recorded-5pafmboc",
+      "source_unchanged": true,
+      "helper_sha256": "c348cf00559d30b77617fba2a44e878c3b218f1f9afc089b410548279f3dc8d6",
+      "gui_workflow_completed": false,
+      "inputs_injected": false,
+      "segmentation_or_decoding_performed": false,
+      "published": false
+    },
+    "source_hashes": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_gui_v2/scientific_acceptance.json": "fa21241524f82b6cfe9deda60c71ded4694f745be5d9fe07503a65c35e0dfe9f",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/scientific_acceptance.json": "ec4524d8bf221d8e1df80af9669c8f09d49ba6e9afdca01cdb47a4c76a49603c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_gui_v2/provenance.json": "e95e656eaafe3a6c7239445e06dddd7b82f9342c2bb83e8d0bcd248365fa8123",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_gui_v2/frames.json": "01daad8688fc6fceb88576b9a7599eb8fb8104d4e576e0fca1b717af0039651b",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_gui_v2/00_home.png": "ea719aa4a5888772c74b7ce56682d8823b9b944221f7318b1944044c1099792b",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_gui_v2/01_mask_host.png": "5c50298632e0465d4fb4ea865e75c184935e7d6cc03e3a712f0740d84b594eb1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_gui_v2/02_ops_settings.png": "7b044fd779f65945b5d8c858192b9665396c62318996d17128a0be95f954743b",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/provenance.json": "95a4a1cb40389c8bb4c5ebb90f86accd4dcc248269f8936ca13eeefe18ee994c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/frames.json": "9504423de3234d15b362e0db2a989d2d520f089bf31bc43f854f063132278063",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/00_scope.png": "425eb70330caea2d259b21b45d0003bde1d8f2b929ac8511d99258e788999822",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/01_inputs.png": "c6a19d260a4face030432b666785a09b16898f83ab9032b534a3b7629eb265d0",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/02_geometry.png": "03cd58f28da03162c34af51320ef52a1775a0920cdbd1773b3140f5c74aab289",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/03_independent_checks.png": "331d681b223e0280056c86a104440621bbe32be0315df6315cdc6aab7882aace",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/04_provenance.png": "1e3e7feca469d741906b285481b88c54bf96631e7e647bf7a9cadb8f3a54c3d2",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/05_geometry_figure.png": "4a506b00b5268d51117ba338e1c705b1807b37007fb8cbdb9e13104b6eb01f46"
+    },
+    "gui_workflow_completed": false,
+    "published": false
+  },
+  "matrix": {
+    "lesson": "76_ops",
+    "passed": true,
+    "canonical_english_sha256": "4b52abe939abc1c32a7649c513ce93adb3d4eeabeb9e9bf32e6e65a2a869c385",
+    "scene_count": 9,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "37a2ad5a694a25c7a5d23b265660dc1abdf481b291c1e3446dd3d9302be331ed"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "8c006761da2d16605556c1e68a1eb3b69b0756559d7d6456312211bdced877e3"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "32792383902b604fac4d9d7e503a3b4ed421c8e970a6b93c5fd027592ec9d50a"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "66bbb2cc77c7919aa5ba80d08cb9866bb4a2abc893c92eebbcc4a68c9a7b297d"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "fa62dcab532501f9b618a04538401d2a171cc16154a6fb6cb0c5352c727af14d"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "2198ad275799fdb5a2cf7901ad88fb01c9e6a7749d1bb9c3e9ecfdd62864bb18"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "c449142b0c084ee5941a7f8f30798f4b867ab9c5fa18a175980bd341fd886257"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "1304ba699a9750d89000992abb29d0f00c0361e0b6ab783f5fe3727ae20510f5"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "e566e0f6f8a03db12e40f20646508b9f32d94341cd66ba8fad270d10999e6468"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "9a4b5d47005b4e343883e98347036b7b6f98f5ac82df41988403e6c439a17af4"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "d93d44fde68448aa0748cbb28c70b70de2284298d8c7e9dd3f32f33fce646de5"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "39581c4f02ede96764fa05a03ea78f3462ce66693da2f4e1162315b99b084cbc"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "95b5b389d15e4fee4bb6a87bf351475b1d30786e534fa5779b3c1cb02b38b4b6"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "2d1eaf9fa9647e97ad00ea5d8de3a0d2f640511b041a608a5549b0cfbe63a677"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "ad2231fd866db4cb6200dc3a7b1a76e78af1c2b9fa453c452632d59fea0aeabc"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "4be03f24d4110f775a6158905d691b3b82e9888362f3e9d7a96432de49750f61"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "e9ac3b1ae7ba343705a54f036b9eee5f8ec4126e2cabf1449258bea588c94924"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "1f18db44ded8253ff9d82b9fe5f0007665769d1d0c9d402286607a56f838430b"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "57aa66f7370c8a1a906d28122e25b7a1f1c6be2ef9ffd2c4aa02049cb8ff99fd"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "1d6435f392552f5ca8d5da7581cd0a49faaee55c6a3915149373fe3909afe58c"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "8d9159f1af6b9d378f5462172dc39bc0fdc883a60886bd1cdd3b013c85bb09c2"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "71a6f4ca96f0cffa0c2d7c75dd8407ac1e8d465f05b29fe9c7dc3edadf438896"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "361347193a5fe6425820489bda2b0f7833e60ada480b9c06cc4054ff1b1cb2e0"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "f48b77b43d45bc3631a314a49b1ead3f622dd2dfa37dd23cdbbf9be01f8501e8"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "15d95369ccdc03397f5e1b5c867121eeb4e1359130893975cc901b4d767bc22a"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "5b2c1860add4e4f2d2fe342f2fbb2682f75f9ba085777d53385f94d2aa6022f6"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "7e2af85305b1753e79c63fef61c76b736bf323d92276671032139bb6c9cff581"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "9eac5dd36264e88beea84ea42e77236595708932a74049c925cf7b9ce1e4aa6a"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "e1a42b6dc079f1983fba2f001350a7359c6d09e5005a66a3b5be90bccb1d6c00"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "7628d21fd6cb237fe3a43a2d916ec2efa453d849907bc55e5241a389f6bdcfed"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "47899c78cc88c200afb6c1c385c7bbd789663b1be8a355a28fc0f02eb1642691"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "daa1cfb8744b7199f5f082132051feec9848075e2bc5bcad6c75458aa157e52a"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "5fdd71993a8edcdb54a6b221317e7dfdc1a8271c3b15a65f8842faa4b3c80118"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "1d26ba6b631c2f99aa73efbd698281b42ec205d8d9e19ebacf0845fb3531ca1c"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "1d56a8f20b8c2e5d4942456f32dbb99d73127e5719d8d42c4fa7913247935c78"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "aa6163e73bf7016b6a9fddeaf911f992c7894a64fcd00d305fadcb5aa215f661"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "ccba33effeebc714149d3719155d43ebb41f75bf2d71d323fbc796858d7286d6"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "efd52b7b72a5e5dffb7d0bed9e60bb6f21fba4307549593898de5d978951d7be"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "abf4bb4c01583b6c4e217e98338000e028b2cafce9d33ba3f78a52cb7381f94b"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "e8688f549059a7581bc8fe580c04c2ae19021c2cc83596c49bd5bbd5b53428dd"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "c471ac966c98ed0536ee886e1f9aaf7d8d5ffbda4ad51bc1d68ebcce33cf70ac"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "03e2cd69dc15d9633629518501b8a94b3c0b99820a096822f8df9c7a55334ae9"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "1902136577ab8d1f64531fa4c53289cf49ece2ac7741bdd531d70bad50379f71"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "2af6e49c6221f2c9eeaa6608e8f9860d82ac8623bb3bc30012e31341aebfdfd4"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "a65ddf6915654a1912beab87bb458e2ffa760a1860f8e1e0fd17292160861403"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "eeda3e029c34e8baf3bd00f53b94675cb71e4c84fcde06f83137bf86a2508012"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "4c200d6a8384d2c6ecfe289f247f86e57acc672b0d9ea4f5a2434dcd02c1c332"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "d71d6040c0a4fec1f0a8bfe675d60883527f461f8391e1936ba8a6201f397498"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "e70207536eb74d76b99b79219eb4de7b9478a54659aa06b4898c0bfde1cca59e"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "152814118b9ca1e21af8acef32c2498891ca206305d3376e13983c6f35c1ebba"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "b3ab5532cb15d8b1d8d31b5a48d44164b57ede7096389e265bf393b41be31b61"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "f26c82a9c5d3cf0995b2a3d743b7bf31a101e9d177b4372ac53f619a3e1fc11c"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "7f21cdc08ae6979dfe7cf03ef26bb90edb0f2c8f66ffa1125d273070227ae8b5"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "b094d0d29c16e1d72f71fce1970b7a97b2bd94fcf68665f2fbea418400985b13"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "9014c7972fde7e3cf8a10f7a143798790890f671c5a6ec2a47838a05942bd2a2"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "bb03613e84195c0d75fedf38d6820b6dc12900b7e854abb97c7199b4613f5773"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "eabedc862940b92cd8cac32f2064362c0bd24ed358cd9e07509468bc1745181e"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "ee9b0c73e4dafd72cffcebeb7081d62694a23b2d58cc937a943760a0dd1c097a"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "02d5b7fb143f5e84da17f3711edfd075a67c6192d6b884e98baa489990471a8a"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "4bdab11d39aa397814ae8e3b49b963bbca6a150eea1e5046f0d36ef7b711d2ea"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "f756ef6864a1a2b71aa2b762921028ed9f7dcd417fa55a439702d6c2e470763f"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "e22b48a4393d353cd5ae5882a3844959d883497b9b81aabe8d1b8aeb12aa683f"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "f99c0595089b5ae70ecea182fae190a99dc29939490edf8fc469a10f893b5c07"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "84c74004cc1ef89dd8f4776151efc2b64c54de4e942fde1ce3a3e3f487a06bf6"
+      }
+    ],
+    "master_sha256": "c09eec3eeea05a4f933d3d209d41b033cccac552d367d9aa41febe142931e4fc",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "4808"
+        }
+      ],
+      "format": {
+        "duration": "160.266667",
+        "size": "7021813"
+      }
+    },
+    "poster_sha256": "175c5e4bd8a94828b7ef718cc244f6e6950fb87e7fccd438ccec5847195db639",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "candidate_manifest_sha256": "22c8745fd118147473c724cd10c7aecca07e006b3e1c472cd52408e3ca623f66",
+  "heart_timing_sha256": "4809b211f1305eacb50447e4e791f9bf34fe604dc8815c5cb8963ec63c407a9b",
+  "candidate_browser_case": {
+    "lesson": "76_ops",
+    "audio_sha256": "32792383902b604fac4d9d7e503a3b4ed421c8e970a6b93c5fd027592ec9d50a",
+    "clocks": {
+      "audio": 29.713042,
+      "video": 29.593125,
+      "expected": 29.713351060874274,
+      "width": 2560,
+      "height": 1440,
+      "error": null,
+      "requested_audio_time": 28.294999999999998
+    },
+    "chapter_text_matches_audio": true,
+    "native_caption_reloads": 2,
+    "sentence_cue_checks": [
+      {
+        "requested_audio_time": 3.3,
+        "text": "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles.",
+        "audio": 3.509743,
+        "video": 3.396911,
+        "cues": [
+          "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles."
+        ]
+      },
+      {
+        "requested_audio_time": 8.54,
+        "text": "In spaCR, open Mask to find the nested OPS screen.",
+        "audio": 8.757698,
+        "video": 8.800526,
+        "cues": [
+          "In spaCR, open Mask to find the nested OPS screen."
+        ]
+      },
+      {
+        "requested_audio_time": 12.91,
+        "text": "This lesson shows its location and a small, verified image-alignment example.",
+        "audio": 13.138496,
+        "video": 12.975448,
+        "cues": [
+          "This lesson shows its location and a small, verified image-alignment example."
+        ]
+      },
+      {
+        "requested_audio_time": 17.24,
+        "text": "Use the OPS toggle in Mask's action row.",
+        "audio": 17.457468,
+        "video": 17.448694,
+        "cues": [
+          "Use the OPS toggle in Mask's action row."
+        ]
+      },
+      {
+        "requested_audio_time": 20.2075,
+        "text": "It opens a separate page inside the host module.",
+        "audio": 20.413857,
+        "video": 20.295542,
+        "cues": [
+          "It opens a separate page inside the host module."
+        ]
+      },
+      {
+        "requested_audio_time": 24.784999999999997,
+        "text": "OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files.",
+        "audio": 25.006615,
+        "video": 25.040557,
+        "cues": [
+          "OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files."
+        ]
+      },
+      {
+        "requested_audio_time": 31.5375,
+        "text": "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings.",
+        "audio": 31.748521,
+        "video": 31.658391,
+        "cues": [
+          "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings."
+        ]
+      },
+      {
+        "requested_audio_time": 36.315,
+        "text": "Its Run button uses a different, legacy engine.",
+        "audio": 36.540085,
+        "video": 36.315377,
+        "cues": [
+          "Its Run button uses a different, legacy engine."
+        ]
+      },
+      {
+        "requested_audio_time": 40.35249999999999,
+        "text": "We do not start it here or imply that a complete screening pipeline has been validated.",
+        "audio": 40.56745,
+        "video": 40.432052,
+        "cues": [
+          "We do not start it here or imply that a complete screening pipeline has been validated."
+        ]
+      },
+      {
+        "requested_audio_time": 44.5575,
+        "text": "The next steps use the geometry APIs directly.",
+        "audio": 44.771068,
+        "video": 44.557963,
+        "cues": [
+          "The next steps use the geometry APIs directly."
+        ]
+      },
+      {
+        "requested_audio_time": 50.145,
+        "text": "This CPU demonstration registers and composes four real image tiles from an existing acquisition.",
+        "audio": 50.369873,
+        "video": 50.256017,
+        "cues": [
+          "This CPU demonstration registers and composes four real image tiles from an existing acquisition."
+        ]
+      },
+      {
+        "requested_audio_time": 55.9225,
+        "text": "It does not segment cells, decode barcodes or process a whole plate.",
+        "audio": 56.141781,
+        "video": 56.172586,
+        "cues": [
+          "It does not segment cells, decode barcodes or process a whole plate."
+        ]
+      },
+      {
+        "requested_audio_time": 62.212500000000006,
+        "text": "The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files.",
+        "audio": 62.431419,
+        "video": 62.213147,
+        "cues": [
+          "The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files."
+        ]
+      },
+      {
+        "requested_audio_time": 68.9725,
+        "text": "Select sites zero, one, ten and eleven from the first imaging cycle.",
+        "audio": 69.204491,
+        "video": 69.129174,
+        "cues": [
+          "Select sites zero, one, ten and eleven from the first imaging cycle."
+        ]
+      },
+      {
+        "requested_audio_time": 73.7775,
+        "text": "Each original file has five planes; plane zero contains the nuclear stain.",
+        "audio": 73.99868,
+        "video": 73.778267,
+        "cues": [
+          "Each original file has five planes; plane zero contains the nuclear stain."
+        ]
+      },
+      {
+        "requested_audio_time": 78.44,
+        "text": "Keep the original three hundred thirty-three-site layout and site numbers.",
+        "audio": 78.657905,
+        "video": 78.538695,
+        "cues": [
+          "Keep the original three hundred thirty-three-site layout and site numbers."
+        ]
+      },
+      {
+        "requested_audio_time": 82.465,
+        "text": "Four selected tiles do not define a new four-tile well.",
+        "audio": 82.694035,
+        "video": 82.465857,
+        "cues": [
+          "Four selected tiles do not define a new four-tile well."
+        ]
+      },
+      {
+        "requested_audio_time": 87.42250000000001,
+        "text": "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window.",
+        "audio": 87.641027,
+        "video": 87.544103,
+        "cues": [
+          "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window."
+        ]
+      },
+      {
+        "requested_audio_time": 91.0,
+        "text": "All four tiles are placed.",
+        "audio": 91.233519,
+        "video": 91.000946,
+        "cues": [
+          "All four tiles are placed."
+        ]
+      },
+      {
+        "requested_audio_time": 93.83000000000001,
+        "text": "Their patch is two thousand seven hundred fifty-six pixels square.",
+        "audio": 94.052933,
+        "video": 94.027957,
+        "cues": [
+          "Their patch is two thousand seven hundred fifty-six pixels square."
+        ]
+      },
+      {
+        "requested_audio_time": 98.72,
+        "text": "The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee.",
+        "audio": 98.956336,
+        "video": 98.721026,
+        "cues": [
+          "The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee."
+        ]
+      },
+      {
+        "requested_audio_time": 103.00999999999999,
+        "text": "Do not trust placement alone.",
+        "audio": 103.236623,
+        "video": 103.245515,
+        "cues": [
+          "Do not trust placement alone."
+        ]
+      },
+      {
+        "requested_audio_time": 106.345,
+        "text": "Compare actual overlapping pixels independently of the registration score.",
+        "audio": 106.582843,
+        "video": 106.427115,
+        "cues": [
+          "Compare actual overlapping pixels independently of the registration score."
+        ]
+      },
+      {
+        "requested_audio_time": 112.91749999999999,
+        "text": "Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels.",
+        "audio": 113.144817,
+        "video": 113.097696,
+        "cues": [
+          "Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels."
+        ]
+      },
+      {
+        "requested_audio_time": 119.595,
+        "text": "Those wrong-offset controls help detect a plausible-looking but incorrect placement.",
+        "audio": 119.833057,
+        "video": 119.837719,
+        "cues": [
+          "Those wrong-offset controls help detect a plausible-looking but incorrect placement."
+        ]
+      },
+      {
+        "requested_audio_time": 124.14,
+        "text": "Inspect the actual saved image and coverage map.",
+        "audio": 124.367733,
+        "video": 124.337123,
+        "cues": [
+          "Inspect the actual saved image and coverage map."
+        ]
+      },
+      {
+        "requested_audio_time": 128.39249999999998,
+        "text": "The left panel shows the composed nuclear image; the right counts contributing tiles.",
+        "audio": 128.632504,
+        "video": 128.442034,
+        "cues": [
+          "The left panel shows the composed nuclear image; the right counts contributing tiles."
+        ]
+      },
+      {
+        "requested_audio_time": 133.41750000000002,
+        "text": "Zero coverage means no acquisition pixel, not biological background.",
+        "audio": 133.644644,
+        "video": 133.600873,
+        "cues": [
+          "Zero coverage means no acquisition pixel, not biological background."
+        ]
+      },
+      {
+        "requested_audio_time": 138.3275,
+        "text": "This combines spatial neighbors within one plane, never different sequencing cycles.",
+        "audio": 138.569288,
+        "video": 138.32901,
+        "cues": [
+          "This combines spatial neighbors within one plane, never different sequencing cycles."
+        ]
+      },
+      {
+        "requested_audio_time": 143.73250000000002,
+        "text": "Save the array, coverage, placements, source checksums and run report together.",
+        "audio": 143.962625,
+        "video": 143.934121,
+        "cues": [
+          "Save the array, coverage, placements, source checksums and run report together."
+        ]
+      },
+      {
+        "requested_audio_time": 148.7175,
+        "text": "The helper reopens its outputs and confirms all four source files are unchanged.",
+        "audio": 148.936203,
+        "video": 148.719046,
+        "cues": [
+          "The helper reopens its outputs and confirms all four source files are unchanged."
+        ]
+      },
+      {
+        "requested_audio_time": 152.775,
+        "text": "Treat this as a reproducible geometry checkpoint.",
+        "audio": 153.005513,
+        "video": 152.893744,
+        "cues": [
+          "Treat this as a reproducible geometry checkpoint."
+        ]
+      },
+      {
+        "requested_audio_time": 157.085,
+        "text": "A full optical screening tutorial still needs separately validated downstream stages.",
+        "audio": 157.326044,
+        "video": 157.086633,
+        "cues": [
+          "A full optical screening tutorial still needs separately validated downstream stages."
+        ]
+      }
+    ],
+    "passed": true
+  },
+  "full_ops_pipeline_completed": false,
+  "gui_workflow_completed": false,
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false
+}

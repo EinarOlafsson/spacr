@@ -1877,6 +1877,11 @@ elements.video.addEventListener("seeked", () => {
   }
   seekNarrationToVideo();
 });
+elements.video.addEventListener("emptied", () => {
+  // Replacing/removing src cancels an in-flight seek without a seeked event.
+  // Its guard belongs to the discarded resource, not the next lesson.
+  videoClockCorrectionPending = false;
+});
 elements.video.addEventListener("timeupdate", () => {
   if (!parkVideoForNarration(false)) syncVideoToNarration(false);
   updateWatchUI();
