@@ -1779,13 +1779,15 @@ def surviving_setting_name(key):
     """What ``key`` is called TODAY, following renames to the end.
 
     ONE RESOLVER FOR ALL THREE CONSUMERS -- the run's fold, the doctor's
-    message and the Qt panel's load. They used to answer this question three
-    different ways: the run knew only `RENAMED_SETTINGS`, the doctor only
-    `RETIRED_SETTINGS`, and the Qt panel alone knew the organelle suffix
-    rule. That is why `organelleq_min_size` was migrated by the panel,
-    ignored by the run and unmentioned by the doctor, all at once.
+    message and the Qt panel's load.
 
-    A CHAIN IS THE FAILURE THIS EXISTS FOR. 391 renames
+    They used to answer this question three different ways. The run consulted
+    the rename table alone, the doctor the retirement table alone, and the Qt
+    panel was the only one that knew the organelle suffix rule. A generated
+    organelle key could therefore be migrated by the panel, ignored by the
+    run and unmentioned by the doctor, all at once.
+
+    A CHAIN IS THE FAILURE THIS EXISTS FOR. A later rename takes
     ``<role>_min_split_area`` to ``<role>_minimum_area_to_split``, and
     ``<role>_min_object_area`` was already renamed to ``_min_split_area`` --
     so the oldest files need two hops, and a resolver that takes one leaves
