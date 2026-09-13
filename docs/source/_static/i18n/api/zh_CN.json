@@ -5091,6 +5091,602 @@
         "553a1a79db6f695ccb94f3ae9bad88dfe4ca34f455c0b258a1054b4452e9b07b"
       ]
     },
+    "spacr.barcode_search": {
+      "source_blocks_sha256": [
+        "c5710bbbdc1d888f7f7ac91eb35125595dd31005363ff16f8b15a8cbe1701840",
+        "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
+        "7d1b9c484f72b7238a81207d79f5f3e207329e793b37acbcd52eee2d05ec80da",
+        "c1a4db801ab36225558324485ee3cd68560cad093026ca543c20bd07a57ff20c",
+        "b9678d9ddae5d429e5e437028d9813328b88f2917084de4e1fb272a80ffb3f48",
+        "76a77322a7df9a3b6031d621eee9e527cd2755baacb477f8fd85927aaf4808c6",
+        "f0425fdcdd1296d0e40e5b8437d9efb653ae245565378b506dea4543e487358a",
+        "87abc46324b7652f26afd47890cc77870273d005260e0e9ff49fdf9cd7a4c3f5",
+        "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
+        "9cdf97745e26f6331d427c3b47bac0e9d665a9013ad83e82b5d1d97e2c13d8e2",
+        "2a168de40798a583f43ae4a10b09d9ec6541cef4c29ed2d7a4a8fad0fc4bcc28"
+      ],
+      "source_sha256": "5b68ce11638d37ea4bc01bf69d8fda009072f9afa3c51d542e4fb44836f1f974",
+      "text": "决定哪个条形码表一个序列运行实际上包含。\n\n它是为了什么\n==============\n地图条形码必须说三件事它不能猜测:哪个同伴携带每条条码,是否参考表存储在同一方向的阅读,在哪里在阅读条形代码设置。 得到其中任何一个错误产生一个处理会议,结束正常和地图什么,因为每个阶段之后的提取窗口工作在错误的基础上。 这个模块阅读一个有限的样本的阅读器,测量每个参考表对他们在两个方向,并将测量转换为设置的地图运行可以使用。 它不保持图形码和打开没有对话,所以相同的引擎服务于直播搜索的界面,笔记本电脑,测试。\n\n为什么原始打击率不是证据\n==================================\n一个短条码通过纯偶然在长阅读中出现。 三十二个不同的八个基础条码在一百五十个基础阅读中扫描有大约七分之七的机会,所以一个真正缺席的图表仍然报告了约七%的阅读作为打击。 一个检测器在这个速度上宣布一个发现会发送某人寻找一个不存在的错误,或者会安静地设置一个地图,没有任何结果。\n\n为什么大增长还不够\n==========================================\n随机丰富回答是否有序列在读书中. 它不回答是否是实验室微板条码. 序列适配器是固定的序列重复在每个阅读, 每个表中的条码一堆将看起来像一个适应器的一部分足够密切相匹配。 这产生一个大,完美的真实的丰富驱动两个条码坐在适用器而不是一个实验室小板。 测量分开两个是位置。 实验室显板条代码占据一个位置在结构中,因此在几乎每个阅读中降落在一个折扣,这正是为什么一个提取窗口可以为它提供的一切。 一场在阅读中分散的比赛不能产生一个窗口,并且不被视为一个发现,尽管它是丰富的。\n\n它所产生的\n================\n一份报告,每份参考表、导向和输入文件的组合中包含一个发现。 每个发现都包含所观察的利率、机会率、丰富、折扣分配、最狭窄的折扣窗口,以大多数的打击为主,表面有多少个不同的字符号被观察到,以及一个判决,说出为什么这个判决被达到。 该报告可以作为日志的表格呈现,并且可以插入 :func:`spacr.sequencing.generate_barecode_mapping` 阅读的设置。\n\n接下来的要做什么\n================\n在提议的设置之前阅读判决. 一个表据报道在两方方向中都缺席,通常是错误的参考文件而不是一个失败的实验,而折扣列是从一个适配器中提交实验室微板条码的最快方式,它会看起来像一个。",
+      "translation_source_blocks_sha256": [
+        "c5710bbbdc1d888f7f7ac91eb35125595dd31005363ff16f8b15a8cbe1701840",
+        "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
+        "93020ed3684bde847fa4aa3dd6e46a9eecc1296add90ab325c07520268d74df8",
+        "105743402576613ebc7f9ad16d7f145ec260723a262cc7f7c78cfa544b783296",
+        "b9678d9ddae5d429e5e437028d9813328b88f2917084de4e1fb272a80ffb3f48",
+        "85ec72c029d81ae9cfff3b4b8c859689c42e5b9b07c0c8415749effdd153fb19",
+        "46be5f11698d7a9a9a5e520c2542cb924dcdfc29fac18a16b5017077abb6468c",
+        "1b9e73ff367742a6893f9adda6659a509d41eb8e4a8cc60eb5f4c7ab862a3b47",
+        "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
+        "6164ad73de3089addfdf4320dbe9f6da259911427de5e8fbaae926809d0c3167",
+        "10e18f90c11a4acfb1c3abe417d6d636b9a54874961d051c9ae95d25c250b9f3"
+      ]
+    },
+    "spacr.barcode_search.BarcodeHit": {
+      "source_blocks_sha256": [
+        "d34ea2ed012a61c3938dad92a89e2d612f397bf19ff89af952e26fcb23a9917d",
+        "12c9f85d41b5894f9c2904c4f5674da9745988c61b5368c205e71d57adfb9dbe",
+        "ee1bfc5d4f7c4dae1c76da83af3ec5476aaa448cd2563f53e70c3f47943f5b60",
+        "086d88dd683a2559e2ab8f037405d141fca33ae8de782abe1c58469a8ecfaddd",
+        "a07f6746cc615984c09622ca7a2ceff5bdcd483f5e1cd122cf941e23ad8f0fd7",
+        "2ca150290d8cd98cf69f249cd0cc34323a78200d22238046bb5115fa6e8e67a0",
+        "112eb656ec1fb155fee7c82a37e720884b59dbd7950e7db215337c0ed7cb3e16",
+        "a174adadc9dbc8792f5da9c0375f52a47c096498e93ad55df68b19822b2fa500",
+        "04e76aebfcc3ba1860f31b3b12fd106c7e1259525663dcea336d407c490db680"
+      ],
+      "source_sha256": "a5b6e33d708cfac8e7df491a06789e3d9358d71e8b86d4f007ac0a4724325ee5",
+      "text": "一个字符串在一个阅读中出现。\n\n它覆盖的伸展是这样给出的,以便一个显示器可以准确地突出这些基础,而颜色指数是条码本身而不是其表的稳定的数字,因此两个不同的条码相同的表被绘制为两个不同的颜色。\n\n:param start: 字符代码的第一个基础在阅读中指数。\n:param end: 指数一个超越其最后一个基础,所以 ``read[start:end]`` 是条码。\n:param table: 标签表的条码来自。\n:param role: 表填写的角色,或 None。\n:param barcode: 相匹配的序列本身。\n:param orientation: 它是否符合 ``AS_GIVEN`` 或 ``REVERSE_COMPLEMENT``。\n:param colour_index: 一个稳定的号码为条码,而不是它的表,所以两个条码的一个表被绘制在两个颜色。",
+      "translation_source_blocks_sha256": [
+        "d34ea2ed012a61c3938dad92a89e2d612f397bf19ff89af952e26fcb23a9917d",
+        "12c9f85d41b5894f9c2904c4f5674da9745988c61b5368c205e71d57adfb9dbe",
+        "ee1bfc5d4f7c4dae1c76da83af3ec5476aaa448cd2563f53e70c3f47943f5b60",
+        "086d88dd683a2559e2ab8f037405d141fca33ae8de782abe1c58469a8ecfaddd",
+        "a07f6746cc615984c09622ca7a2ceff5bdcd483f5e1cd122cf941e23ad8f0fd7",
+        "2ca150290d8cd98cf69f249cd0cc34323a78200d22238046bb5115fa6e8e67a0",
+        "112eb656ec1fb155fee7c82a37e720884b59dbd7950e7db215337c0ed7cb3e16",
+        "a174adadc9dbc8792f5da9c0375f52a47c096498e93ad55df68b19822b2fa500",
+        "04e76aebfcc3ba1860f31b3b12fd106c7e1259525663dcea336d407c490db680"
+      ]
+    },
+    "spacr.barcode_search.BarcodeSearchReport": {
+      "source_blocks_sha256": [
+        "af237dab128bb165a877baf49b5f6fbd2186600d9f93df8df382ecbae67ef1f1",
+        "e8252c62c287a66dd56596b266dd14a4f7ed3453c195344ca3e88a56d775bc07",
+        "506ea5dba4b56b222e8eb296e9d261874863c152409a761bac6e54a70ae9fc17",
+        "70ac54bb542d0211b04dfc7d5a57e2fbadd4d86c1992a5686c526618b3021d4e",
+        "bcd2c3acf2af511c66c6bd94ea30ea1eb283d02c0c1cacd0515133f686cf7f62",
+        "f325840ed23f6b346218637366f24a82ade39a3c612210d4a12b2dea29ec74bd"
+      ],
+      "source_sha256": "c8ae322cefbc8c068084c1d0dadf00cb2442d3976a78b080cff8f2d4120741ee",
+      "text": "每个发现从一个搜寻,加上多少被阅读来获得他们。\n\n一份部分完成搜索的报告与完成搜索相同的形状,并旨在显示,因此直播显示器可以进行每个改进,而无需特别加密第一个。\n\n:param findings: 1 个 :class:`OrientationFinding` 按表、文件和导向进行审查。\n:param reads_by_file: 每个文件中有多少个阅读器被审查。\n:param read_length_by_file: 每个文件的中等阅读长度,即一个折扣 histogram 的尺寸。\n:param complete: 是否搜索完成. False 在部分报告上,直播显示器,而它仍然是精致的。",
+      "translation_source_blocks_sha256": [
+        "af237dab128bb165a877baf49b5f6fbd2186600d9f93df8df382ecbae67ef1f1",
+        "e8252c62c287a66dd56596b266dd14a4f7ed3453c195344ca3e88a56d775bc07",
+        "506ea5dba4b56b222e8eb296e9d261874863c152409a761bac6e54a70ae9fc17",
+        "70ac54bb542d0211b04dfc7d5a57e2fbadd4d86c1992a5686c526618b3021d4e",
+        "bcd2c3acf2af511c66c6bd94ea30ea1eb283d02c0c1cacd0515133f686cf7f62",
+        "f325840ed23f6b346218637366f24a82ade39a3c612210d4a12b2dea29ec74bd"
+      ]
+    },
+    "spacr.barcode_search.BarcodeSearchReport.best_for_role": {
+      "source_blocks_sha256": [
+        "c1b52cd4762e5b2c5da661e6c61928bd0748c59e3f3d5df4086491c96721db90",
+        "94f08ee57af51abb8e3190324f2a5e474252dfc5f602d041580f5b36e4f0bd5a",
+        "90c7f0c75c5a1b38e1c14bc53d9055f3c09e5bd1dbd97613ba2b1a4ee3ee999f",
+        "22efbdb8b4b6134ca2c12107ea1d9fc7055501a2c981766e38ca413392e7056f"
+      ],
+      "source_sha256": "0bc854e9892ab1b4b887a621592967fdaf0c553685e112f030bc47c3423fa0f3",
+      "text": "返回最令人信服的现有发现为条码角色。\n\n一个角色可以由一个以上的桌子和任何伴侣填写,呼叫者想要一个实际上会被使用。\n\n:param role: 字符串的角色是想要的。\n:returns: 发现的最高观察率,或 None。",
+      "translation_source_blocks_sha256": [
+        "c1b52cd4762e5b2c5da661e6c61928bd0748c59e3f3d5df4086491c96721db90",
+        "94f08ee57af51abb8e3190324f2a5e474252dfc5f602d041580f5b36e4f0bd5a",
+        "90c7f0c75c5a1b38e1c14bc53d9055f3c09e5bd1dbd97613ba2b1a4ee3ee999f",
+        "22efbdb8b4b6134ca2c12107ea1d9fc7055501a2c981766e38ca413392e7056f"
+      ]
+    },
+    "spacr.barcode_search.BarcodeSearchReport.for_table": {
+      "source_blocks_sha256": [
+        "876b6a633025fe4543da738139fc7c766e8e42152239ca02ce32198fb7850dd0",
+        "fd01c216a77c5a6cb9336b892228f533a990556044f0f321de39d3bb13b01709",
+        "952be08bbaae1589c1a9d8b02faeb1ea64397735606eaf07a95b6794977f8734"
+      ],
+      "source_sha256": "46617f26ec440dbb9c5ac50003463fcb36c87c780fb37144de529676620ca0e0",
+      "text": "返回属于一个参考表的结果。\n\n:param table: 桌子的标签。\n:returns: 一个双重的发现,最强的丰富首先。",
+      "translation_source_blocks_sha256": [
+        "876b6a633025fe4543da738139fc7c766e8e42152239ca02ce32198fb7850dd0",
+        "fd01c216a77c5a6cb9336b892228f533a990556044f0f321de39d3bb13b01709",
+        "952be08bbaae1589c1a9d8b02faeb1ea64397735606eaf07a95b6794977f8734"
+      ]
+    },
+    "spacr.barcode_search.BarcodeSearchReport.format_table": {
+      "source_blocks_sha256": [
+        "5ddab1fea570b5d291c2848454e44585f1b50f62a91040a492892fcd94c4b967",
+        "8453506ac149b5da898149e5b0ee03c7b9e2a334ea37fdceb1f9b9b47ad7e7b5",
+        "27806d48d521d55f4174693935a2143dbd4ac4bcad5468d3d834d3e10e7a430a"
+      ],
+      "source_sha256": "9199ba8f74df52539ee1a8dae05ee5af467c5393a8371d9132800f4d140eb761",
+      "text": "将结果作为一个日志或控制台的固定宽文本。\n\n一个只看到观察的列的读者会相信一个偶然,而整个模块的点是,两个数字永远不会分开。\n\n:returns: 收藏的文章,如一条线。",
+      "translation_source_blocks_sha256": [
+        "5ddab1fea570b5d291c2848454e44585f1b50f62a91040a492892fcd94c4b967",
+        "8453506ac149b5da898149e5b0ee03c7b9e2a334ea37fdceb1f9b9b47ad7e7b5",
+        "27806d48d521d55f4174693935a2143dbd4ac4bcad5468d3d834d3e10e7a430a"
+      ]
+    },
+    "spacr.barcode_search.BarcodeSearchReport.reads": {
+      "source_blocks_sha256": [
+        "f6688e8e50aa245a76ab03e79399f37975395062542476a2baa6e74c4965ab4b",
+        "f5da64705e254a70f4b8c4c8cee8ae0360fc18a4763043aa1ccd0ca296374bf4"
+      ],
+      "source_sha256": "aa902a54fc54b35b32275576916b821968d73ec96d3ccbc67372c9cda3c4327a",
+      "text": "返回在所有文件中查看了多少个阅读。\n\n:returns: 阅读总数。",
+      "translation_source_blocks_sha256": [
+        "f6688e8e50aa245a76ab03e79399f37975395062542476a2baa6e74c4965ab4b",
+        "f5da64705e254a70f4b8c4c8cee8ae0360fc18a4763043aa1ccd0ca296374bf4"
+      ]
+    },
+    "spacr.barcode_search.BarcodeSearchReport.roles": {
+      "source_blocks_sha256": [
+        "c7f7ee4e7ae832d219e217221a8548d368e1deafc45cf6f0c9a3ea4e4aeedc03",
+        "4becb703f05f1956548fe4beeb6147353494d0210d35a4dec5ebde83e6652346"
+      ],
+      "source_sha256": "7dc90407cbb802dbda712affaa7a61e9331189822d2d2b69e51a1fe82905c538",
+      "text": "返回每个字符串代码的角色,搜索的表被授予。\n\n:returns: 一个双重的角色名称,在稳定的顺序,没有 anchor。",
+      "translation_source_blocks_sha256": [
+        "c7f7ee4e7ae832d219e217221a8548d368e1deafc45cf6f0c9a3ea4e4aeedc03",
+        "4becb703f05f1956548fe4beeb6147353494d0210d35a4dec5ebde83e6652346"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable": {
+      "source_blocks_sha256": [
+        "c2b83513de3f9b710a57b948a831b751b3c083a28a1d8ab9c77499a38e24f792",
+        "2fd1b8f8aac67729f7ef8b0f165036a1e480785fc50d2a2e8127b36744bd3d49",
+        "c9eaa7e301338caba859fd4dc39b3c66de204f8ce54c771dfdc4e0f3d72a5fa6",
+        "0dd2d3c68449ef46a88154e7e763bec76ef83b8ca8b19bfe9489eb151e3cacdf",
+        "649663be938d12a13de73ec69f66a242e8b370f5364c5b3a4586ee8775e35975",
+        "a47f54a7ab26c347c3d8a7857e2cad471495f44bc859d3b4e53d27dc4b51162e"
+      ],
+      "source_sha256": "b4c731bed95a71365eec83d86038a90ea3868b0c62fe9b38fe405dbd55800f8a",
+      "text": "一个参考表称为条码序列。\n\n序列作为从序列到名称的地图,以便在没有第二次搜索的情况下可以命名一场比赛,而长度计算则被保留,因为机会率取决于每个长度的条码数量,而不是仅仅是桌面大小。\n\n:param name: 标签这个表是由其余的搜索所知道的,标签每一个发现它产生的指向回归。\n:param sequences: 从条码序列地图到该条码的名称,这样一个打击可以被命名,而不再搜索表。\n:param role: 筛选的哪个部分的身份图表的解码 -- 实验室微板行,实验室小板列,导游 -- 或 None 为一个没有搜索的桌子。\n:param path: 在图表被阅读的地方,保持,以便建议的地图可以命名文件而不是标签。",
+      "translation_source_blocks_sha256": [
+        "c2b83513de3f9b710a57b948a831b751b3c083a28a1d8ab9c77499a38e24f792",
+        "2fd1b8f8aac67729f7ef8b0f165036a1e480785fc50d2a2e8127b36744bd3d49",
+        "c9eaa7e301338caba859fd4dc39b3c66de204f8ce54c771dfdc4e0f3d72a5fa6",
+        "0dd2d3c68449ef46a88154e7e763bec76ef83b8ca8b19bfe9489eb151e3cacdf",
+        "00d22ba6088a3d51f8372cb1127f7bb8724ceb9509e2bc3fdae35be83c63b3e2",
+        "a47f54a7ab26c347c3d8a7857e2cad471495f44bc859d3b4e53d27dc4b51162e"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable.__post_init__": {
+      "source_blocks_sha256": [
+        "d53bf6dd55d12089175c9fe87333c8d2f61d8530d76eb862455e7297c5985da6",
+        "13c3b6b2d819953a024e7b1e708aa6426ddb9fa6d9fba3f4e21c4b341c969590"
+      ],
+      "source_sha256": "15ccfc00273a9968412d4f03121fea796c2d32005777422f2ec928efbd4b0946",
+      "text": "给桌子一个私人商店为从中构建的指数。\n\n在超过一千个引导 RNA序列的桌面上构建搜索指数需要足够长时间,每次阅读都会使一个直播显示器不可用,所以每个指标都建成一次,并在这里保持。",
+      "translation_source_blocks_sha256": [
+        "d53bf6dd55d12089175c9fe87333c8d2f61d8530d76eb862455e7297c5985da6",
+        "13c3b6b2d819953a024e7b1e708aa6426ddb9fa6d9fba3f4e21c4b341c969590"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable.barcode_order": {
+      "source_blocks_sha256": [
+        "079b49871c80b0ffc70881c94f20e3444d5642a2fd89e415da064174fd2fae41",
+        "443bac809e46249cef632c544ec0e7f1c84bbc771255a882c9c5d935192094e7",
+        "c18c7aa1d604c097d35a07f26a955139f68ce0d11d4f2513460c782d89d02c95"
+      ],
+      "source_sha256": "b4cb13fa5e44a123681330f1c9ba9fe53e34ca9bbbc09c56b2bc2fd540b94428",
+      "text": "返回每个存储的表序列的稳定的数字。\n\n显示器每个字符串代码而不是每个表的颜色,并且每次充电相同的表数量都必须是一样的,所以它来自分类序列而不是档案的顺序。\n\n:returns: 从存储序列到分类时的位置的地图。",
+      "translation_source_blocks_sha256": [
+        "079b49871c80b0ffc70881c94f20e3444d5642a2fd89e415da064174fd2fae41",
+        "443bac809e46249cef632c544ec0e7f1c84bbc771255a882c9c5d935192094e7",
+        "c18c7aa1d604c097d35a07f26a955139f68ce0d11d4f2513460c782d89d02c95"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable.length_counts": {
+      "source_blocks_sha256": [
+        "d105e9597044f560a7c8df1754969f101434c44bb0159ad2ddfa8c74980f3c7b",
+        "2efa0ae362a7f2984c9a414020878c1381b5291de63aa05aa66451f612733da8"
+      ],
+      "source_sha256": "68d6be130cc4b3558e6ba0c205836c3928b6ac163d5e47c667af2677ee63bfb7",
+      "text": "返回桌子在每个长度上持有多少个不同的条码。\n\n:returns: 从序列长度到条码数量的地图。",
+      "translation_source_blocks_sha256": [
+        "d105e9597044f560a7c8df1754969f101434c44bb0159ad2ddfa8c74980f3c7b",
+        "2efa0ae362a7f2984c9a414020878c1381b5291de63aa05aa66451f612733da8"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable.matcher": {
+      "source_blocks_sha256": [
+        "6a7944f64b78be7cb6f746dbf2fd6abf40cae3ea26790c9e35430a3f32a37cbe",
+        "5c2cc8ea6006ce90f1e24dbe37a06566f8ad1936b102416c071cb6409cb3d75f",
+        "e562b4e09df67e4f190f78f51152f1e2d861f7f86cbee71858b999505bb593ff"
+      ],
+      "source_sha256": "08e5dd7b5d0a714404bf8e06191d728e8726f4714106eae2ef597c13b3bf3f75",
+      "text": "返回可重复使用的搜索指数为表中的一个方向。\n\n:param orientation: 哪个方向的桌子去寻找。\n:returns: 指数,最初使用并随后保留。",
+      "translation_source_blocks_sha256": [
+        "6a7944f64b78be7cb6f746dbf2fd6abf40cae3ea26790c9e35430a3f32a37cbe",
+        "5c2cc8ea6006ce90f1e24dbe37a06566f8ad1936b102416c071cb6409cb3d75f",
+        "e562b4e09df67e4f190f78f51152f1e2d861f7f86cbee71858b999505bb593ff"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable.oriented": {
+      "source_blocks_sha256": [
+        "1a3526736baf779b050c6a16424c4d5d26bf45649341a86f505c44b2b00f3c73",
+        "954def042d93e64d1dcdfcc88891b0c8cad3c3c674342822668c6e40bf5080da",
+        "b4c69577eb3f978cfc1698910680b5d7a0680f891b93597a61d9788cc1dd936e",
+        "c346d1ffc41fe87b72e3aa0789461006d2c1d1672ba9e019b74ffd807b9affb1"
+      ],
+      "source_sha256": "43cacb6d9ad1052c3dc70624aed8f940805522dedfd85f6ded97aa3dee166dbb",
+      "text": "返回相同的表与其序列在选择的方向。\n\n:param orientation: 无论是存储方向标签,还是相反的补充标签。\n:returns: 一个表,其序列在所要求的方向中被阅读。\n:raises ValueError: 当指向标签不是两者之一时。",
+      "translation_source_blocks_sha256": [
+        "1a3526736baf779b050c6a16424c4d5d26bf45649341a86f505c44b2b00f3c73",
+        "954def042d93e64d1dcdfcc88891b0c8cad3c3c674342822668c6e40bf5080da",
+        "b4c69577eb3f978cfc1698910680b5d7a0680f891b93597a61d9788cc1dd936e",
+        "c346d1ffc41fe87b72e3aa0789461006d2c1d1672ba9e019b74ffd807b9affb1"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable.size": {
+      "source_blocks_sha256": [
+        "75e5aa10640d5c1fc92c41daad6f81508d35ad187772cbd0e86aa8575700d18b",
+        "343ab55c33d8c93b1bb3d87bf92f989e00532d9d1edaaab027191f10bcd4a610"
+      ],
+      "source_sha256": "b8825e77e0a2cff1bd47b98e7185da7d1aaffb39a2112a2feabe08fed5874067",
+      "text": "返回桌子里有多少个不同的序列。\n\n:returns: 以不同的条形码序列计算。",
+      "translation_source_blocks_sha256": [
+        "75e5aa10640d5c1fc92c41daad6f81508d35ad187772cbd0e86aa8575700d18b",
+        "343ab55c33d8c93b1bb3d87bf92f989e00532d9d1edaaab027191f10bcd4a610"
+      ]
+    },
+    "spacr.barcode_search.OrientationFinding": {
+      "source_blocks_sha256": [
+        "0753b6517a570d72ee3b110c9df2ed3d55278709ab84f42b0fa008960b461e1f",
+        "9d587d21eef1e8361f0e75d6273db2e68194ec582afebe5334e160be26b84f50",
+        "1e6e6cfa4411034449aa3f905f40ddfe423f7f6d028d067ea774786c412272cf",
+        "a5f26b17c32fe2c8eb6a24a6c8bd21d96a7253e111cf882889f114cf586396cb",
+        "492c8731cc604d95125765997f5e9295c84003a1474f1e205c7eb4dcdf31a6f4",
+        "e47541de909d334deca2f33bfaee8cdc715ccffa6c68ef7b5399dac07d88a957",
+        "9666c27658d466dd8a4cea04d8be8f74c47ec6e7c85d74588197f6328a81867e",
+        "b2994e1d6d9e0b984cad20ef3104acdda10b99aef82538a9385b09af0f394e74",
+        "778ae10379371968df63dd53a2b6e40942e44f66ecc90adce252733f7dd3591c",
+        "30e7dd5eccd0e5e170f785a367c8de3e799a03537b560bd1d88ad3ffea75588c",
+        "d2f130947617b4700771a7e5bd222deda5b5171d273e527bd15d6e5d6a331718",
+        "761f94942a114ee9d8a8f06f8db88568caf3de77b1bb8531eb33d1e0ec64d11c",
+        "bf0988fe550533109f8ea88fcccf6ce52ddd4a237ebed97b74b049046143f699",
+        "2abb58998b7471120fa1485615c2caca99f1cad473f423a1010f249d32741377",
+        "42d4f76fdb98682e9f1934ed8083c76dc261f75bcc62f618e6c11285530eba64",
+        "2f8f2837c0d86cdca0205437125dbdf0381864b68287cc85803b047bf468a26c",
+        "cae29aa677191e761b987efc67b0e1193a21ff72ac1fdb23630fb153c8aec7bb",
+        "b6ea4a1d7ac735c0dddb5793dcf3c2f52843a42ed87b8886a905b71a4ae00f28",
+        "9aec55dfd6071d310c0f74f454aa4bdf79e4a0719b9c045c389022c6c3514f4b",
+        "6272b19cb663011bce661657084005a1e50445303b62d9eefd92f410df08a690",
+        "9596c71e4a85e24ebaec17731c8ec0d8589caa2e6167a76e8702d19a263b2d64",
+        "e92e91ad279495186942c30faad2ae73996f7d20d6a27b191476ce40b6fdd8c1"
+      ],
+      "source_sha256": "199cd3d4af5cef454e4607b7d1b1340bbdc74777ea8642e638cafc348af132d5",
+      "text": "什么一个参考表对一个文件在一个方向。\n\n所有需要判断的结果都与它一起旅行,所以召唤者永远不必重新计算偶然率,以决定是否观察到的速度意味着任何东西。\n\n:param table: 标签的参考表这个发现是关于。\n:param role: 表填写的角色,或者当它没有一个被搜索时 None。\n:param file_label: 图表的阅读文件被搜索反对。\n:param orientation: 表是否符合 ``AS_GIVEN`` 或 ``REVERSE_COMPLEMENT``。\n:param table_path: 在那里,图表被阅读,或 None 当它在线交付时。\n:param reads: 有多少读书被审查到达这个发现。\n:param hits: 这些阅读中有多少包含表中的条形码。\n:param observed_rate: ``hits`` 分为 ``reads``。\n:param expected_rate: 同一表的速度会随机达到,考虑到它在每个长度上持有多少条码;观察到的速度本身并不意味着什么;这就是它可读的。\n:param enrichment: ``observed_rate`` 分为 ``expected_rate``。\n:param offset_start: 最早的启动折扣被计算为条码的常见位置。\n:param offset_span: 这个位置覆盖了多少次。\n:param modal_offset: 最常见的单一开始折扣,或 None 当没有发现。\n:param barcode_lengths: 抽出窗口必须通过最长的,而不是模型一个。\n:param distinct_barcodes_seen: 表中的各个字符号实际上被观察到多少 一个与同一序列相匹配的表与其字符代码不同。\n:param table_size: 桌子里有多少个不同的序列。\n:param top_barcode_share: 最常见的单条码所带来的打击部分 几乎一个,以及一个低的``distinct_barcodes_seen``,是一个激动人心的比赛的签名,而不是一个真实的。\n:param verdict: ``PRESENT``, ``ABSENT`` or ``INDETERMINATE``.\n:param reason: 为什么这个判决被达到,说要向一个用户显示。\n:param offset_counts: 每个开始的折扣,为 histogram。",
+      "translation_source_blocks_sha256": [
+        "0753b6517a570d72ee3b110c9df2ed3d55278709ab84f42b0fa008960b461e1f",
+        "9d587d21eef1e8361f0e75d6273db2e68194ec582afebe5334e160be26b84f50",
+        "1e6e6cfa4411034449aa3f905f40ddfe423f7f6d028d067ea774786c412272cf",
+        "a5f26b17c32fe2c8eb6a24a6c8bd21d96a7253e111cf882889f114cf586396cb",
+        "492c8731cc604d95125765997f5e9295c84003a1474f1e205c7eb4dcdf31a6f4",
+        "e47541de909d334deca2f33bfaee8cdc715ccffa6c68ef7b5399dac07d88a957",
+        "9666c27658d466dd8a4cea04d8be8f74c47ec6e7c85d74588197f6328a81867e",
+        "b2994e1d6d9e0b984cad20ef3104acdda10b99aef82538a9385b09af0f394e74",
+        "778ae10379371968df63dd53a2b6e40942e44f66ecc90adce252733f7dd3591c",
+        "30e7dd5eccd0e5e170f785a367c8de3e799a03537b560bd1d88ad3ffea75588c",
+        "d2f130947617b4700771a7e5bd222deda5b5171d273e527bd15d6e5d6a331718",
+        "761f94942a114ee9d8a8f06f8db88568caf3de77b1bb8531eb33d1e0ec64d11c",
+        "bf0988fe550533109f8ea88fcccf6ce52ddd4a237ebed97b74b049046143f699",
+        "2abb58998b7471120fa1485615c2caca99f1cad473f423a1010f249d32741377",
+        "42d4f76fdb98682e9f1934ed8083c76dc261f75bcc62f618e6c11285530eba64",
+        "2f8f2837c0d86cdca0205437125dbdf0381864b68287cc85803b047bf468a26c",
+        "cae29aa677191e761b987efc67b0e1193a21ff72ac1fdb23630fb153c8aec7bb",
+        "b6ea4a1d7ac735c0dddb5793dcf3c2f52843a42ed87b8886a905b71a4ae00f28",
+        "9aec55dfd6071d310c0f74f454aa4bdf79e4a0719b9c045c389022c6c3514f4b",
+        "6272b19cb663011bce661657084005a1e50445303b62d9eefd92f410df08a690",
+        "9596c71e4a85e24ebaec17731c8ec0d8589caa2e6167a76e8702d19a263b2d64",
+        "e92e91ad279495186942c30faad2ae73996f7d20d6a27b191476ce40b6fdd8c1"
+      ]
+    },
+    "spacr.barcode_search.OrientationFinding.offset_histogram": {
+      "source_blocks_sha256": [
+        "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
+        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
+        "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
+      ],
+      "source_sha256": "f130a60cbb1b69258dadd277780b1bc6b6a4a3b19e856cc49a1e26abc215c770",
+      "text": "返回每次开始折扣时的击数作为序列。\n\n序列由折扣索引,以便一个召唤者可以直接编写它,而不会首先研究哪个折扣被人口。\n\n:param read_length: 该序列应该有多长;足够长,以保持当被忽略时最大的观察折扣。\n:returns: 一系列的攻击计算,通过启动折扣进行索引。",
+      "translation_source_blocks_sha256": [
+        "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
+        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
+        "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
+      ]
+    },
+    "spacr.barcode_search.OrientationFinding.window_end": {
+      "source_blocks_sha256": [
+        "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
+        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
+      ],
+      "source_sha256": "4f32f1f65a73ce5b9b7d23c7199e27e65d71af34ebf59beddbeb28c8774eda19",
+      "text": "返回第一个折扣超过条码在其常见位置。\n\n提议的提取窗口必须到达最后一个条码的尽头而不是它的开始,而一个条代码集,其成员在长度上不同,到达最短的最长的成员。\n\n:returns: 折扣刚刚到达条码的结尾。",
+      "translation_source_blocks_sha256": [
+        "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
+        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
+      ]
+    },
+    "spacr.barcode_search.ProposedMapping": {
+      "source_blocks_sha256": [
+        "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
+        "a82d4579e4dfce423089129609f616b51d5999a257cb786bb1290382fdd1d3cd",
+        "c83a06f40906767f7de977cb698c385f449ca54aba98faae6647cd1d70c5bcf7",
+        "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
+        "44f50d7c93cb1bf51bf2c87e242f91514205bbe797177381d25f31f5e5a87d21",
+        "1a73838fc848de072abe72f7407248191a8f0833188d8c62ab8bbe9b626d4d5c",
+        "a190f1d71e892d7916f7b846482a15e0496c95e6e7e42220b348e58158fdae8b",
+        "cc7ae03a3d0782402fa2de870a83c7fdc29998825bb64ad262ddd77211193519",
+        "b73ba95fd81532679b792744546dbcf363dc776defcb8caf284672198b996dbf",
+        "a00a190d22632254b649be175293a38ea317560c118f90f9a150a4f0817073bb"
+      ],
+      "source_sha256": "868f4ffc07389f2845d8a9cd2d3ec208797d4e37d7da9b6023590d6e710547f9",
+      "text": "设置搜索认为一个地图运行应该使用,以及为什么。\n\n设置关键值地图只持有结构化数据名称,地图运行已经阅读,所以它可以直接交付到它. 所有搜索所学到的,没有家在这些结构化的数据名单旅行旁边,因为一个呼叫器,沉默地落下方向将重新引入这个模块的故障存在,以防止。 一个筛选,从实验室微板列之外的条形码,引导 RNA和实验室小板列没有设置名称等待它,所以每个角色所选择的表列在参考表中,无论一个结构红数据名可以填写它。\n\n:param settings: 只有结构化数据名称,地图运行已经阅读,所以地图可以直接传递这个关键值地图。\n:param reference_file: 文件,其阅读的窗口外套是反对的,因为外套没有他们的框架意味着什么。\n:param source_files: 从角色到创建它的阅读文件的地图。\n:param orientations: 从表标签到运行方向的地图,应该搜索该表。\n:param reference_tables: 每个角色所选择的表,列出是否有一个设置名称存在,以便携带它 - 这是一个点,因为没有结构数据名称的角色正是那种,否则会失去。\n:param reverse_complement_needed: 行程的桌子必须逆转补充来识别,因为它们被发现在第二方存储。\n:param unresolved_roles: 命名而不是猜测,所以一个召唤者可以这样说,而不是开始一个将没有地图的运行。\n:param notes: 搜索者所知道的,在设置名称中没有家。",
+      "translation_source_blocks_sha256": [
+        "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
+        "e51909a79fb0c96a88e398f9e06291857eaf773e8d05956029b1cba63d160185",
+        "1472deda3c4b599dc0ff3fc7dd9009bcd7775436d9009406154085643bef140e",
+        "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
+        "44f50d7c93cb1bf51bf2c87e242f91514205bbe797177381d25f31f5e5a87d21",
+        "1a73838fc848de072abe72f7407248191a8f0833188d8c62ab8bbe9b626d4d5c",
+        "9687e223609f11475394b838ce0cb00adffeece67663cfbbd07760df20ed29ca",
+        "cc7ae03a3d0782402fa2de870a83c7fdc29998825bb64ad262ddd77211193519",
+        "b73ba95fd81532679b792744546dbcf363dc776defcb8caf284672198b996dbf",
+        "42a466168f6d44ecd92e476ad028c3939b7fe7ea41bc517024fc42b702b8622e"
+      ]
+    },
+    "spacr.barcode_search.annotate_read": {
+      "source_blocks_sha256": [
+        "7fbf2aa128c0dbdd5ded2c3d65ed826367fe0327468ac90d9aa846678cd90b73",
+        "67b67ebe3dcd4da63981257971fc41be961dcd9e3eeb3b69f402bb38af8c12e0",
+        "f5871b8efbcf0427b2492ac8cac663f596c8b2c05dda1624e2f0eea02197f480",
+        "7a7764fc524c9be4b656cea505e908d6b5b0d4254c02bab4200efa74ec62b8f7",
+        "ffc7c6a91293b9ab03c84dcac0b2d7cdf8a37ae253f5e6dab5e844c176c65ba4",
+        "833ec3335dc04da3784dd24f20740963f5a7d65c6d452761f9f8fe7ca188e93f"
+      ],
+      "source_sha256": "662d64616ab84e8c306b67eed2b8139cfb55b05c96b50048258f436cb0c40b5d",
+      "text": "把每个条码放在一个阅读的内部,以便显示器可以染色它们。\n\n阅读一个搜索的观点是他的判决背后的证据,最快的方式,有人相信或不相信一个判决是看到条码坐在阅读。\n\n:param read: 阅读序列。\n:param tables: 要寻找的参考表。\n:param orientations: 从表标签到搜索方向的地图;两个方向都在寻找一个没有在那里命名的表。\n:returns: 由他们在阅读中的位置命令的双重打击。",
+      "translation_source_blocks_sha256": [
+        "7fbf2aa128c0dbdd5ded2c3d65ed826367fe0327468ac90d9aa846678cd90b73",
+        "67b67ebe3dcd4da63981257971fc41be961dcd9e3eeb3b69f402bb38af8c12e0",
+        "f5871b8efbcf0427b2492ac8cac663f596c8b2c05dda1624e2f0eea02197f480",
+        "7a7764fc524c9be4b656cea505e908d6b5b0d4254c02bab4200efa74ec62b8f7",
+        "ffc7c6a91293b9ab03c84dcac0b2d7cdf8a37ae253f5e6dab5e844c176c65ba4",
+        "833ec3335dc04da3784dd24f20740963f5a7d65c6d452761f9f8fe7ca188e93f"
+      ]
+    },
+    "spacr.barcode_search.expected_chance_rate": {
+      "source_blocks_sha256": [
+        "20fb94dbd50bf5748d2286bcf52accb5543e26238f2f941e98ab3317501cbd32",
+        "3e1c7742db4b0ddcda9aac4ae8c38626bc67abf5d124c8ad1ac9ca7af800a31b",
+        "faa6203d76d85b31859918ec5dc36a5385f2f772e20123345b342c5e4aa0fb82",
+        "2e6e1fd8b50f849f1ccb33ec440ee4f96f463be7ef8a23c8caefd0ea66aecdc5",
+        "a3491eb25c4b2a2f13d8b5bb48c8013dc2a1c3b78ff769f57b64cfe90e1a056d",
+        "2828a2934b996754374485d0c6be971bd6f011b315df983f26787037a06da24e"
+      ],
+      "source_sha256": "b7a4d7b2381e428e85df15329ea7fabb956ffb11c5f9322aea45a281383b4f69",
+      "text": "随机返回预期包含条形码的阅读份额。\n\n一条阅读被视为从四个中平等引导的独立基础的运行,因此一个特定的长度的条码在一个位置上相匹配,有可能超过四个升到那个长度,而一条阅读提供了一个比其长度和条码之间的差异更大的位置。\n\n在一个真正的跑步中,真正缺席的表在这个回报率的百分点的两分之二内匹配,这足以接近观察和预期的信任之间的比例。\n\n:param table: 所需的偶然率的参考表。\n:param read_lengths: 一个阅读长度,一个不可分割的它们,或从阅读长的地图,到有多少读者有它。\n:returns: 至少有一条条条形码的读者的预期份额。",
+      "translation_source_blocks_sha256": [
+        "20fb94dbd50bf5748d2286bcf52accb5543e26238f2f941e98ab3317501cbd32",
+        "3e1c7742db4b0ddcda9aac4ae8c38626bc67abf5d124c8ad1ac9ca7af800a31b",
+        "faa6203d76d85b31859918ec5dc36a5385f2f772e20123345b342c5e4aa0fb82",
+        "2e6e1fd8b50f849f1ccb33ec440ee4f96f463be7ef8a23c8caefd0ea66aecdc5",
+        "a3491eb25c4b2a2f13d8b5bb48c8013dc2a1c3b78ff769f57b64cfe90e1a056d",
+        "2828a2934b996754374485d0c6be971bd6f011b315df983f26787037a06da24e"
+      ]
+    },
+    "spacr.barcode_search.infer_barcode_role": {
+      "source_blocks_sha256": [
+        "826e951f80ed96db0fe3dcc99788206e7fe9053c370acb0523585884ad02e449",
+        "406290720395266907ed821cd749dabf44d9f02353332fe1b70c55af95b0f7e1",
+        "70bacf888df5e85ed5568fa2f63ad08c53d58480c5304be6d069e72981abf60a",
+        "3a33ff3ddc63fdecb9dd78104548c0956bc4d54adf5de9f0ba3fd6367d86f938"
+      ],
+      "source_sha256": "7fe9e65753888b39c8b62686ed8d8006b69fb19b088d61a9ebe414d8eb87f72d",
+      "text": "猜测一个参考文件是否包含序列、列或引导 RNA条码。\n\n猜测只读到文件名,因为表本身没有任何字段说它们是什么。引导 RNA表首先被识别,因为引导 RNA文件名不会提到列或列,而列名则在列名之前被认可。\n\n:param path: 参考表的路径。\n:returns: 其中一个角色名称,或 None 当名称没有任何设置。",
+      "translation_source_blocks_sha256": [
+        "826e951f80ed96db0fe3dcc99788206e7fe9053c370acb0523585884ad02e449",
+        "406290720395266907ed821cd749dabf44d9f02353332fe1b70c55af95b0f7e1",
+        "70bacf888df5e85ed5568fa2f63ad08c53d58480c5304be6d069e72981abf60a",
+        "3a33ff3ddc63fdecb9dd78104548c0956bc4d54adf5de9f0ba3fd6367d86f938"
+      ]
+    },
+    "spacr.barcode_search.iter_annotated_reads": {
+      "source_blocks_sha256": [
+        "05ee7b9697f7365eee9b9d61e1142d08a9d491cc3c003303632785507e600fe2",
+        "85373b63543b4ca693369dd9e9cce3b5a5118a5d2280f94bc8a2b4b82384acc4",
+        "26f707b58de11c0ae73394dc4aeb86cbb5498add01d6a51c2bec1f96dfd7a32d",
+        "7a7764fc524c9be4b656cea505e908d6b5b0d4254c02bab4200efa74ec62b8f7",
+        "ffc7c6a91293b9ab03c84dcac0b2d7cdf8a37ae253f5e6dab5e844c176c65ba4",
+        "c1b8ffc3c78a500b4bd0b1df12899206a8e6efd2ad611032cb4b715c7bade2f8",
+        "3638218a9466185f888ad87f2d8a791465b4169d45cc432c9caad0e0b7248569",
+        "1ba63d342adfe92e1a59b7a1c24745fdda0e2e6453a36a7ece8c55001ceca692"
+      ],
+      "source_sha256": "43b12c55b03007d2f038798f124cf740a9db88060eb2d87351c5095fcc31ec59",
+      "text": "Yield 与其内部发现的条形码一起阅读。\n\n这营养了窗口,显示一读一行,其条码被取出,所以它保持着相同的方式,搜索是,从来没有走过一个完整的文件。\n\n:param fastq_file: 要阅读的序列文件。\n:param tables: 要寻找的参考表。\n:param orientations: 从表标签到搜索方向的地图;两个方向都在寻找一个没有在那里命名的表。\n:param limit: 最多可以从文件中取出多少读者。\n:param only_matching: 要么跳过没有发现任何东西的读书。\n:yields: 每个人都读了,在里面打了。",
+      "translation_source_blocks_sha256": [
+        "05ee7b9697f7365eee9b9d61e1142d08a9d491cc3c003303632785507e600fe2",
+        "85373b63543b4ca693369dd9e9cce3b5a5118a5d2280f94bc8a2b4b82384acc4",
+        "26f707b58de11c0ae73394dc4aeb86cbb5498add01d6a51c2bec1f96dfd7a32d",
+        "7a7764fc524c9be4b656cea505e908d6b5b0d4254c02bab4200efa74ec62b8f7",
+        "ffc7c6a91293b9ab03c84dcac0b2d7cdf8a37ae253f5e6dab5e844c176c65ba4",
+        "c1b8ffc3c78a500b4bd0b1df12899206a8e6efd2ad611032cb4b715c7bade2f8",
+        "3638218a9466185f888ad87f2d8a791465b4169d45cc432c9caad0e0b7248569",
+        "1ba63d342adfe92e1a59b7a1c24745fdda0e2e6453a36a7ece8c55001ceca692"
+      ]
+    },
+    "spacr.barcode_search.iter_barcode_search": {
+      "source_blocks_sha256": [
+        "be53908e5330585c04b30c657b9d162caf175f6cbafff17b5d1b6efb732331f8",
+        "870fc78e5cb0740b9312af30725c8e6d1cc000ca3418b11866a7ef336ebcccd5",
+        "09c534427f878685319086fb793c983a0416e88c4adf3e5d5f63138fae0dc8d7",
+        "356bf4a8cff66fb005706f9090e824d110cad569bc50da022c53158c11cf21ca",
+        "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
+        "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
+        "cecebaa56b401a51c17f09e6c6bcce96100b40648d4c4a7ffd013c033942ca3e",
+        "2994989e6097115b97d8265cbd22460e2d7aeb93f77816ffcfef02978cfe1966",
+        "4963cc530705a2d39174f005fc23797dac4614423674d72fb9442335f9a30c83"
+      ],
+      "source_sha256": "68acf2e2c140fff9340ae6b8b5eed814c79eecc306ff8b04640ef61f487133d0",
+      "text": "查找一个字符串时刻,报告每个字符号后。\n\n界面显示此执行,所以搜索手返回一个完整的报告后每个点击而不是仅仅在结局。 每个报告具有相同的形状,最后一个和内部的计算只会不断增长,所以利率安排而不是跳跃,而是一个判决,这是无效的决定,当证据到达时停止早期是合法的,并留下一个报告,说有多少阅读它休息。\n\n:param fastq_files: 序列文件、序列或从标签中的地图,每个人都应该带到自己的路径。\n:param tables: 要搜索的参考表,任何数字。\n:param max_reads: 最多可以从每个文件中获取多少读者。\n:param chunk_reads: 每个步骤从每个文件中获取多少阅读。\n:param anchor: 一个可选的固定序列,如一个地图运行将其窗口插入,在图表旁边搜索,以便对其进行相对表达。\n:yields: 每一刻之后,一份报告,没有什么可读的。\n:raises ValueError: 当没有文件交付或预算不积极时。",
+      "translation_source_blocks_sha256": [
+        "be53908e5330585c04b30c657b9d162caf175f6cbafff17b5d1b6efb732331f8",
+        "97af24626ca296f27ccba6abba1a178b081f40aac19f891a2cd9d4741db3559c",
+        "09c534427f878685319086fb793c983a0416e88c4adf3e5d5f63138fae0dc8d7",
+        "356bf4a8cff66fb005706f9090e824d110cad569bc50da022c53158c11cf21ca",
+        "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
+        "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
+        "cecebaa56b401a51c17f09e6c6bcce96100b40648d4c4a7ffd013c033942ca3e",
+        "2994989e6097115b97d8265cbd22460e2d7aeb93f77816ffcfef02978cfe1966",
+        "4963cc530705a2d39174f005fc23797dac4614423674d72fb9442335f9a30c83"
+      ]
+    },
+    "spacr.barcode_search.iter_fastq_reads": {
+      "source_blocks_sha256": [
+        "a138d23fb04254aef6c4d77606be7efe2eb69baae444960681ca43f9f21eb790",
+        "5c909ca5bd3319cba0489df9520795db46231edbdbc6aad7db7866448dc27757",
+        "4a42a36dbd7c0eadf096f96a22208ca3b5ccdf65431b4ddedc7aa8d1d8fd4906",
+        "43d4e55ddb649fac1f545e76dc8bafc201076bb446b5078be8ab6ca906e02461",
+        "327457a4bbd959c0cb5e6252ca9b4d6e0df8aa66f750459de930410c32892805"
+      ],
+      "source_sha256": "e31fe6f93acb3d92dff642783786d352a2f421291fe1eb019dea9182245a00bf",
+      "text": "Yield 从序列文件中阅读序列,而无需加载。\n\n反对的文件通常在网络共享上有几兆比特,所以记录被拖动一次,呼叫者决定什么时候停止。 记录,其四行在文件结束时被切断,而不是扔掉,因为一个折叠的最终记录是复制仍然写的文件的正常后果。\n\n:param path: 序列文件的路径,gzip压缩或平板。\n:param limit: 有多少人读得最多;每读得被忽视。\n:yields: 每个阅读的序列,上方加载。",
+      "translation_source_blocks_sha256": [
+        "a138d23fb04254aef6c4d77606be7efe2eb69baae444960681ca43f9f21eb790",
+        "188d6caf775cea67a5ff4dd1038d3b228a28285258e98bd63c115727dfffd24d",
+        "4a42a36dbd7c0eadf096f96a22208ca3b5ccdf65431b4ddedc7aa8d1d8fd4906",
+        "43d4e55ddb649fac1f545e76dc8bafc201076bb446b5078be8ab6ca906e02461",
+        "327457a4bbd959c0cb5e6252ca9b4d6e0df8aa66f750459de930410c32892805"
+      ]
+    },
+    "spacr.barcode_search.load_barcode_table": {
+      "source_blocks_sha256": [
+        "f77ec2169e7de420288a63ca62dc3028c45a834c3851a47a69b6ac2be2916c4e",
+        "c6b5a3aba077223b23478a775556a3816fe2334950513590ee5edd0ed3a26c3e",
+        "e3b8fc51b322603e0ad125403d209bd6a7dc17fc8774f8b758d511a5da4c14eb",
+        "791040b1365b7b869246cd72b8ee146757769e5df140434ba3ccc2315cbf0d74",
+        "9c578724379f91d6711c477a6b39c3f361b5ef4afb0f67dc6c6654456c1cca09",
+        "3f8154a60b61dec7bb41100e4bcfabb2ee1acd6105b900ae4b3b15514a648089",
+        "de08f5f9664a84d73e17c2d8c8fc8b83a89083dda31830972cfa16b643cf2b2e"
+      ],
+      "source_sha256": "f80b448c1525c4f92dc5ec0ca98ff5293f99ca8fcc25712f849b309ae45131d3",
+      "text": "阅读一个从comma分开的文件中的条形码的参考表。\n\n文件需要一个标题命名一个序列列,并为可读的输出,一个名称列。 序列是上方编写和切断,白色行被切割,并在两个名称下重复的序列保留了第一个名字,以便图表保持地图。\n\n:param path: 路径的comma分开的参考表。\n:param name: 表的标签;当被忽略时,使用文件字体。\n:param role: 这个表填写了条形码的角色;从文件名中得出,当被忽略时。\n:returns: 负载的桌子。\n:raises ValueError: 当文件没有序列列或行列时。",
+      "translation_source_blocks_sha256": [
+        "f77ec2169e7de420288a63ca62dc3028c45a834c3851a47a69b6ac2be2916c4e",
+        "c6b5a3aba077223b23478a775556a3816fe2334950513590ee5edd0ed3a26c3e",
+        "e3b8fc51b322603e0ad125403d209bd6a7dc17fc8774f8b758d511a5da4c14eb",
+        "791040b1365b7b869246cd72b8ee146757769e5df140434ba3ccc2315cbf0d74",
+        "9c578724379f91d6711c477a6b39c3f361b5ef4afb0f67dc6c6654456c1cca09",
+        "3f8154a60b61dec7bb41100e4bcfabb2ee1acd6105b900ae4b3b15514a648089",
+        "de08f5f9664a84d73e17c2d8c8fc8b83a89083dda31830972cfa16b643cf2b2e"
+      ]
+    },
+    "spacr.barcode_search.load_barcode_tables": {
+      "source_blocks_sha256": [
+        "9daa0e396c20b1952674691a23ad67ff33a016bf5dda95db8daa5a8519ad33e5",
+        "869dce8adec9bb18ac24bf755891e8ea95e133f8f49bf6a1b3fc2ca4857ad808",
+        "a068180479916123cb9eab68104140ce2d075b6743c50f00881067fdea296367",
+        "463de674442208e0f728a9ee4ca566fd8770e7f969c7f48c278d3de5261581b9"
+      ],
+      "source_sha256": "b873326e9ec53523b3ebbfd8033bf9e87953c038220437294c5b46bbacf6899f",
+      "text": "同时阅读多个参考表。\n\n可以提供任何表的数量,因此一个带有超过三种字符号类型 spaCR 增加的行程以相同的方式处理一个带少。\n\n:param paths: 参考表的路径,或从标签的地图一个表应该带到它的路径。\n:returns: 一个双重的负载表在给定的顺序。",
+      "translation_source_blocks_sha256": [
+        "9daa0e396c20b1952674691a23ad67ff33a016bf5dda95db8daa5a8519ad33e5",
+        "869dce8adec9bb18ac24bf755891e8ea95e133f8f49bf6a1b3fc2ca4857ad808",
+        "a068180479916123cb9eab68104140ce2d075b6743c50f00881067fdea296367",
+        "463de674442208e0f728a9ee4ca566fd8770e7f969c7f48c278d3de5261581b9"
+      ]
+    },
+    "spacr.barcode_search.propose_map_barcodes_settings": {
+      "source_blocks_sha256": [
+        "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
+        "85b304b193ee226a6389e7d0dbd91026c49ae8a6b018ad304c8fb450d879bc1d",
+        "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
+        "5f72fcdb6e8a5b1f0f391a4412d517f2605845f9cbcfbbd537c41a5e63056f22",
+        "bec02643d71c1ab3c7adc4083972af051ad67c5c3f7a414850eeb18e1b268677",
+        "54bdf3c9f8a1233d9f0f00f7c2923b9584fefc9576bd69fb91404876e17fdc76",
+        "db8dfb93e580e97e3a3655631fd1a4fb55d0cc1b1dd29f64da285de6d5b6960e",
+        "5a2d01a292df36e13612b05a87e883cc1b1641cedcc34760fcf61328aac9eb68"
+      ],
+      "source_sha256": "032eef54d05213cbed7caacd468c8e6a03258d6127e72bd1645b8be8272f8a52",
+      "text": "将完成的搜索转换为运行条码地图的设置。\n\n地图运行在第一的方向中读取两对符串,所以是框架中一切都被表达在其中。 图表在第二对符中被存储时因此被称为需要被逆转补充,因为这就是运行所需要的,以便识别它。 一个角色,没有设置的图表是单独的,而不是猜测的,并被命名在未解决的角色中,所以召唤者可以这样说而不是开始一个运行将地图什么。\n\n它的起点是最早的折扣任何设立的条码占据,它的结局是最短的任何达成,两者都被测量在一个被寻找的 anchor,因为地图运行发现它的窗口,找到该 anchor 首先。\n\n:param report: 这是一个搜索的报告。\n:param base_settings: 从开始的设置,留下未修改;当被忽略时,一个空的关键值地图。\n:param reference_file: 该文件的标签,其导向是框架;当被忽略时,搜索的第一个文件。\n:returns: 提议,持有条款和什么不合适在其中。\n:raises ValueError: 当报告不包含文件时。",
+      "translation_source_blocks_sha256": [
+        "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
+        "85b304b193ee226a6389e7d0dbd91026c49ae8a6b018ad304c8fb450d879bc1d",
+        "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
+        "5f72fcdb6e8a5b1f0f391a4412d517f2605845f9cbcfbbd537c41a5e63056f22",
+        "c8703e1a8896ef9ec525cc7a42e07256e71021f886b7ce8f6ed3eda366ceba23",
+        "54bdf3c9f8a1233d9f0f00f7c2923b9584fefc9576bd69fb91404876e17fdc76",
+        "db8dfb93e580e97e3a3655631fd1a4fb55d0cc1b1dd29f64da285de6d5b6960e",
+        "5a2d01a292df36e13612b05a87e883cc1b1641cedcc34760fcf61328aac9eb68"
+      ]
+    },
+    "spacr.barcode_search.reverse_complement": {
+      "source_blocks_sha256": [
+        "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
+        "d2207806852fdc2a5acaa73706b0887c199cf8fd8f6e3d01a4037b0726859cfc",
+        "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
+        "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
+      ],
+      "source_sha256": "c46d4e4efe9c44e5381f2a3a734e910487e5d7228ee5b7060c6892cc4fe37aae",
+      "text": "返回核子序列的逆补充。\n\n翻译涵盖了每个案例的四个基础,并留下了一个模糊的基础,因此一个持有未解决的位置的读者会幸存下来,而不是扔掉。\n\n:param sequence: 核子序列到flip。\n:returns: 相反的补充,作为一条线。",
+      "translation_source_blocks_sha256": [
+        "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
+        "7b6e1438856ef0b0a9bdd5e3c8cb61ccc271a1249eccb23ac936ce91f0b9c5ee",
+        "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
+        "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
+      ]
+    },
+    "spacr.barcode_search.sample_fastq_reads": {
+      "source_blocks_sha256": [
+        "601fb6bfff38f11a367679276862e42d6a0edc244c5d666a9f8c978c3959f3e6",
+        "4a42a36dbd7c0eadf096f96a22208ca3b5ccdf65431b4ddedc7aa8d1d8fd4906",
+        "5936857909bc08f6ed72684e7bcce7e2c439a4b11c008bfa6e73f70a2a898388",
+        "a771fa249e2d3cb3d92b256fb97ccdda2360d88c9181c5577d9fe6a625882f12"
+      ],
+      "source_sha256": "db8752f449bc1461e7e70fd0e78d1f2314e5da58c553ad1fb44238fc180d3783",
+      "text": "从序列文件中阅读一个有限的序列样本。\n\n:param path: 序列文件的路径,gzip压缩或平板。\n:param limit: 从文件的开始就需要多少读书。\n:returns: 阅读序列的双重。",
+      "translation_source_blocks_sha256": [
+        "601fb6bfff38f11a367679276862e42d6a0edc244c5d666a9f8c978c3959f3e6",
+        "4a42a36dbd7c0eadf096f96a22208ca3b5ccdf65431b4ddedc7aa8d1d8fd4906",
+        "5936857909bc08f6ed72684e7bcce7e2c439a4b11c008bfa6e73f70a2a898388",
+        "a771fa249e2d3cb3d92b256fb97ccdda2360d88c9181c5577d9fe6a625882f12"
+      ]
+    },
+    "spacr.barcode_search.search_barcodes": {
+      "source_blocks_sha256": [
+        "9591fa9e0aac1a794bbd5997fbcaed681d3bf7b33c0f0730bbde45178d24467f",
+        "4e60cf5411a5704d7b1f619e6434c14ec7f457d406c2b93a120dd31b45159367",
+        "09c534427f878685319086fb793c983a0416e88c4adf3e5d5f63138fae0dc8d7",
+        "356bf4a8cff66fb005706f9090e824d110cad569bc50da022c53158c11cf21ca",
+        "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
+        "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
+        "121e67a40b01bcaa2bdf2a2135f2c96f8e837b0c18e7957bd3570eba68a3002d",
+        "222117e6ec7e5d7e8d9f8ecfd66fa43a53b17fcf23d352f0761151a032d4441c"
+      ],
+      "source_sha256": "a82ad07ed67bb693688c64a32439664b6a6c2f3f2cde59576b6b126192d93ba5",
+      "text": "查找有限的阅读样本并返回完成报告。\n\n这是整个 :func:`iter_barcode_search` 运行到其终点,对于想要一个答案而不是一个运行显示器的呼叫者来说。\n\n:param fastq_files: 序列文件、序列或从标签中的地图,每个人都应该带到自己的路径。\n:param tables: 要搜索的参考表,任何数字。\n:param max_reads: 最多可以从每个文件中获取多少读者。\n:param chunk_reads: 每个步骤从每个文件中获取多少阅读。\n:param anchor: 一个可选的固定序列在图表旁边搜索。\n:returns: 来自最后一块的报告。",
+      "translation_source_blocks_sha256": [
+        "9591fa9e0aac1a794bbd5997fbcaed681d3bf7b33c0f0730bbde45178d24467f",
+        "4e60cf5411a5704d7b1f619e6434c14ec7f457d406c2b93a120dd31b45159367",
+        "09c534427f878685319086fb793c983a0416e88c4adf3e5d5f63138fae0dc8d7",
+        "356bf4a8cff66fb005706f9090e824d110cad569bc50da022c53158c11cf21ca",
+        "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
+        "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
+        "121e67a40b01bcaa2bdf2a2135f2c96f8e837b0c18e7957bd3570eba68a3002d",
+        "222117e6ec7e5d7e8d9f8ecfd66fa43a53b17fcf23d352f0761151a032d4441c"
+      ]
+    },
     "spacr.baseline": {
       "source_blocks_sha256": [
         "5f6136ffbea7ee1fd9bda3488998f45221c9e6524630cde3cab7f31f2bdddfc5",
@@ -81715,6 +82311,250 @@
         "ad3cde062ec02e55d51ec2f4efeb5d73c65b398c9f3e8ed5fa0593cdee5fb924"
       ]
     },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel": {
+      "source_blocks_sha256": [
+        "4d3ae79b26b34677edbb14d0e99f795ff584668f52c703a011ae5faf2a80adde",
+        "a3983531f2b9dcd52d3a594abd78b4e59f32eba72b3d8fbfc9356a4559255133",
+        "9da11592a01ea792202879023645503d6892e9f444020946bbd506b34ef0ddf5",
+        "99b12cc816f1e9c808c7dcdf4f1cf6a040538f94c847a8ce4757ff3d35f116a9",
+        "63879165cc3f5954fad739999b097d521503f9a0463c9d65add035f7e5dce341",
+        "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
+        "22c5e36e4032e484204f2d8aa5adc469a2f245a619c4eb7ab29eac8aca8e9611",
+        "69fab91fe9d5a1456515f233f95f1f8109c47ea4bc4a90d7b83caa9dde7c16ff",
+        "bb6ce2f5523e29da210a8cd57204fad7f711c6bce4c21f239b649d2093135f16",
+        "4d48864425a404fce83587336774ba68d4b6252382db27f8f9cf41ea3107a8c2",
+        "fffe6b8a4d0ba881ad9c2f6efc43b1ec3bc337eedfb02e19c57051e3c68fa8b6",
+        "081bd4209ec26a6d555eeacbaf928d492f21ec54aa966a065f5256024691085d",
+        "63a0194f05ff8d1e823dc8c824206334c0feb08e5582dab50df1a1600f9d6c8d",
+        "896b07f6be081ba7d8e8170bce1b2178d4e1a7b955e35b1a9e8aaf9a57a4dcd6",
+        "d503489d8db18ec557f1e1986cfb79252ab0860f7f39793f8f6edc318a861b60",
+        "c6ec171caaf172335059cb849f56e34345679a0528229875a0aa00e3dc00f9c2",
+        "8b25805b62503021d3cd0e356d77fed3f84e9cf8e3c38a0027c7dedd01257bb5",
+        "afbdb1aec56ec8739acd1a6bd56ddcd0a071b8826657b277fbecbd0e6fd9de4c"
+      ],
+      "source_sha256": "18edad6505a2e7d98f483a0ab114a1e1f65b291a03a05f87d51cf1b0cdb89484",
+      "text": "直播搜索:阅读,测量设置,尚未写的任何内容。\n\n按下搜索按钮和面板样本一个样本的读者从文件夹的表格名称,测量每个参考表对他们在两个方向和在两个字符串,并精化它显示什么后每个点的阅读. 它结束通过提议设置这些测量意味着和等待,因为应用它们是用户的决定。\n\n什么是应用视图,为什么每个部分都在那里. 结果表携带观察的速度和预期的速度偶然在附近的列,与它们之间的比例两者,因为一个速度不能说出事故,这个面板存在,以阻止某人行动一个。 文本窗口显示阅读与他们的比赛颜色为条码类型,因为条码降落在相同的列顺序后顺序是证据,解决一个论点一个百分比不能。\n\n每个档案都被阅读在提交的工作内,一刻一刻,所以接口保持生存,搜寻可以在任何时刻被放弃。 取消不提供任何东西:中断的测量是一个诚实的部分报告和不公平的建议。\n\n:param screen: 地图 Barcodes 应用程序视图,其设置表格为搜索而阅读,并由 Apply 编写。 可以是 None,让面板可用作为一个显示器,没有什么可阅读的,也没有什么可写的。\n:param parent: 父母 Widget;所有权仅。\n:param threaded: False 运行每个步骤,在同一顺序和通过同一操作器,这样一个测试可以同时运行整个搜索。\n:param max_reads: 有多少读到样本从每个文件. 发动机的自己的默认,当被忽略。\n:param chunk_reads: 搜索的每个步骤都会从每个文件中读到多少,当错过时,发动机的默认情况。\n:param read_sample: 文本窗口显示多少读者。\n:ivar search_button: 一个搜索开始了。\n:ivar cancel_button: 在飞行中放弃搜索。\n:ivar apply_button: 将提议的设置写入表格中,直到完成的搜索提出了与表格已经持有的不同内容。\n:ivar status: 一条线说明搜索正在做什么或发现了什么。\n:ivar findings: 测量表,每位参数表一行。\n:ivar proposal_label: 什么应用程序会改变,以及搜索所学到的,没有设置可以保持。\n:ivar reads: 文本窗口显示与彩色相匹配的样本阅读。\n创建面板并将其与一个设置应用程序视图相反。",
+      "translation_source_blocks_sha256": [
+        "4d3ae79b26b34677edbb14d0e99f795ff584668f52c703a011ae5faf2a80adde",
+        "a3983531f2b9dcd52d3a594abd78b4e59f32eba72b3d8fbfc9356a4559255133",
+        "34a552a1413be2c88a7e18430315a0498cf07e59c3ad6299a874299e17b9fb41",
+        "99b12cc816f1e9c808c7dcdf4f1cf6a040538f94c847a8ce4757ff3d35f116a9",
+        "9a6deb2275efcb320f0e01c66fe701e1ee7464c5c0e6402cef5990ade1c8aaba",
+        "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
+        "1ddfa4fdc6c9ed5a50d951fbdd544d23551a7c88ee659a84d1e17ddff40da699",
+        "69fab91fe9d5a1456515f233f95f1f8109c47ea4bc4a90d7b83caa9dde7c16ff",
+        "bb6ce2f5523e29da210a8cd57204fad7f711c6bce4c21f239b649d2093135f16",
+        "4d48864425a404fce83587336774ba68d4b6252382db27f8f9cf41ea3107a8c2",
+        "fffe6b8a4d0ba881ad9c2f6efc43b1ec3bc337eedfb02e19c57051e3c68fa8b6",
+        "081bd4209ec26a6d555eeacbaf928d492f21ec54aa966a065f5256024691085d",
+        "63a0194f05ff8d1e823dc8c824206334c0feb08e5582dab50df1a1600f9d6c8d",
+        "896b07f6be081ba7d8e8170bce1b2178d4e1a7b955e35b1a9e8aaf9a57a4dcd6",
+        "d503489d8db18ec557f1e1986cfb79252ab0860f7f39793f8f6edc318a861b60",
+        "c6ec171caaf172335059cb849f56e34345679a0528229875a0aa00e3dc00f9c2",
+        "8b25805b62503021d3cd0e356d77fed3f84e9cf8e3c38a0027c7dedd01257bb5",
+        "d25cb98ff534012232ab9a30941c5bc56af94699323b0d941d4c9755685c13ce"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.apply_proposal": {
+      "source_blocks_sha256": [
+        "3f264485db692dd1c26956568605c78687f09b41be62baa2174cb6e27f2cfc32",
+        "e5dd6c380a3f70fe282d3f167b0a1825e802f906e839d27b4ab481ab7d34e1cd",
+        "e193b1117fb68613ec2f600f2a3600a16939fbeb8b9fcb37f297ac43f1553f1c"
+      ],
+      "source_sha256": "c28ec96a8551fdc048685cb9085c24f56d2d4d2389f610ef94f9e7217e4f1268",
+      "text": "将提议的设置写入表格中,以目的。\n\n一个完成的搜索允许按钮并停在那里,因为一个平静地取代某人写的值的面板会比它存在的更糟糕的失败。\n\n:returns: 他们所写的钥匙,在他们写的顺序中。",
+      "translation_source_blocks_sha256": [
+        "3f264485db692dd1c26956568605c78687f09b41be62baa2174cb6e27f2cfc32",
+        "e5dd6c380a3f70fe282d3f167b0a1825e802f906e839d27b4ab481ab7d34e1cd",
+        "e193b1117fb68613ec2f600f2a3600a16939fbeb8b9fcb37f297ac43f1553f1c"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.cancel_search": {
+      "source_blocks_sha256": [
+        "9c9f188c7309e513bfef72c23ab5e6e3dea5756aa232e5b4090276bba8a4cfd6",
+        "aaac90ed44491d18da64b1d041e6e5ea76ecb61010d4d596994a69baceea02cd",
+        "2594511ba2dba42f9bcbe30784c0a8e2d1699d3b5c5b6b51a8a7ed3742464f12"
+      ],
+      "source_sha256": "fbb0695ed0de1a31fa1ea4ab3df3677ad7e6a9f721462a3462736ebcec1357d4",
+      "text": "放弃在飞行中寻找,并不提供任何东西。\n\n已经在背景执行单位的切割不被中断;它结束,结果在到达时落下,这就是取消工作没有锁,不能被要求在中间停下来。\n\n:returns: True 如果有搜索要取消。",
+      "translation_source_blocks_sha256": [
+        "9c9f188c7309e513bfef72c23ab5e6e3dea5756aa232e5b4090276bba8a4cfd6",
+        "c4f31d2906d49d2c1b38e5bdc96a630b345b9d585578d48f0f9736bc68098644",
+        "2594511ba2dba42f9bcbe30784c0a8e2d1699d3b5c5b6b51a8a7ed3742464f12"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.changeEvent": {
+      "source_blocks_sha256": [
+        "1c883a898e3d4a9112ffd6c22a3445c2eb937c9f6fb7c705d4b017fc796c7c91",
+        "ac0a82ca4786b729f4bd48d60894cb22af8dc4369bd70023fc86eb812707de53",
+        "f97e2dcd439b60c3e1c232454619e418ca5922dd0bef5be11f27d1a65c9a214f"
+      ],
+      "source_sha256": "c278c19753e5665e49203b80503644fd2f07ca1df257c67b2bb9d3f8430a87d8",
+      "text": "重复测量,当它们下的主题改变时。\n\n判决颜色从应用视图上的板块中取出,当序列被绘制时,所以在主题变更之前绘制的序列将保持旧主题的墨水,直到它再次绘制。\n\n:param event: Qt 变更事件正在交付。",
+      "translation_source_blocks_sha256": [
+        "1c883a898e3d4a9112ffd6c22a3445c2eb937c9f6fb7c705d4b017fc796c7c91",
+        "a270b898ab46c5000bd384957c7723994f7e11aa57526a74d3922491f0c6fa8b",
+        "f97e2dcd439b60c3e1c232454619e418ca5922dd0bef5be11f27d1a65c9a214f"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.closeEvent": {
+      "source_blocks_sha256": [
+        "f746fded5a7e0065768837ded6be416256431616a67a103d51fc8a3e7d717153",
+        "aa98e32b629924f35c2a329a4b64ebb16501b905dd2f4517487e90c9b8bca85e"
+      ],
+      "source_sha256": "ccc435ff840c713b88e8ed3ce6ed38055a5b0a285964e85b24f26a2c8f54b922",
+      "text": "停止搜索,而不是让它活在面板上。\n\n:param event: 接近的 Qt 事件正在交付。",
+      "translation_source_blocks_sha256": [
+        "f746fded5a7e0065768837ded6be416256431616a67a103d51fc8a3e7d717153",
+        "aa98e32b629924f35c2a329a4b64ebb16501b905dd2f4517487e90c9b8bca85e"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.current_settings": {
+      "source_blocks_sha256": [
+        "2675c02ae874111b94da4509dff0c7b62b91eb9704bfd0d19d399f8a59a52411",
+        "f52aaccbddc4034bc27897e7956cff3789c47f8bc1150c1de985b87acff628a7"
+      ],
+      "source_sha256": "49441203fbb5ebbebddbfed362941dcd0a0e1675ee8ba329440fbabb1e51b081",
+      "text": "返回设置,因为表格现在保留它们。\n\n:returns: 设置键值地图,空白时没有表格。",
+      "translation_source_blocks_sha256": [
+        "2675c02ae874111b94da4509dff0c7b62b91eb9704bfd0d19d399f8a59a52411",
+        "ff33f020a779df6b54581abad9c21f4fe3bb48d4e49e870ee7dc59024101fd2d"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.is_searching": {
+      "source_blocks_sha256": [
+        "22f74dd7e11790ac2b800ff6f1f31b88f9d4641edc3f4a6378b44f9eb5ab06c7",
+        "2d56b7240f47505599a16dfe8b1b5ada2556be093fa15a0459837edd72c3fc33"
+      ],
+      "source_sha256": "f40fec3d541e7a5a24db8f8b5f228c25d3874a474e7dc8a048732e0c3269230f",
+      "text": "返回是否正在进行搜索。\n\n:returns: True 而面板正在通过阅读器工作。",
+      "translation_source_blocks_sha256": [
+        "22f74dd7e11790ac2b800ff6f1f31b88f9d4641edc3f4a6378b44f9eb5ab06c7",
+        "2d56b7240f47505599a16dfe8b1b5ada2556be093fa15a0459837edd72c3fc33"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.on_apply_clicked": {
+      "source_blocks_sha256": [
+        "43ca7b9a77f1e49a3969e7450b9066a6e747c439044e5ef2bacfc26428b5c84d",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ],
+      "source_sha256": "db92bd4ee94b42ae98f0206b19f7f0601fc022eea22a09c48abc629bf992b587",
+      "text": "将提议的设置写入表格中。\n\n:param _checked: Qt 的 toggle 状态,未使用。",
+      "translation_source_blocks_sha256": [
+        "43ca7b9a77f1e49a3969e7450b9066a6e747c439044e5ef2bacfc26428b5c84d",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.on_cancel_clicked": {
+      "source_blocks_sha256": [
+        "ee3d559b4b81fba75e133cf9fcb78983bfad2f7f89505b7d3c2ec3e1d1cf27fb",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ],
+      "source_sha256": "9758df4d06d267a9e1c836a617d3caff338a9fda62baa2f0be80255f9cb0c086",
+      "text": "在飞行中放弃搜索。\n\n:param _checked: Qt 的 toggle 状态,未使用。",
+      "translation_source_blocks_sha256": [
+        "ee3d559b4b81fba75e133cf9fcb78983bfad2f7f89505b7d3c2ec3e1d1cf27fb",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.on_search_clicked": {
+      "source_blocks_sha256": [
+        "52d9cf92b4f0a57e3bb4757dc70167cb9a398dc38a8cbe542a1dc4952da32a4b",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ],
+      "source_sha256": "987d0da927c0f9ae761c63d1274ef6e8e95b31253a0cc197407eb40281513e4a",
+      "text": "开始一个搜索,或者重新启动一个已经运行。\n\n:param _checked: Qt 的 toggle 状态,未使用。",
+      "translation_source_blocks_sha256": [
+        "52d9cf92b4f0a57e3bb4757dc70167cb9a398dc38a8cbe542a1dc4952da32a4b",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.proposal": {
+      "source_blocks_sha256": [
+        "9c14f31375a3cd0c881b21ea69043812cfd8ffd915297b38fba29ee63fe83fb0",
+        "a0cc56f402c3645b7941b89f8e2c251d4681685a079e064257283f2825af5f35"
+      ],
+      "source_sha256": "62a5589251a6fafe9d0beeb3ceeaadff9c81308c92c2a7d52278f344b36212f4",
+      "text": "返回已完成的搜索。\n\n:returns: 提议,或 None 当没有搜索完成时。",
+      "translation_source_blocks_sha256": [
+        "9c14f31375a3cd0c881b21ea69043812cfd8ffd915297b38fba29ee63fe83fb0",
+        "a0cc56f402c3645b7941b89f8e2c251d4681685a079e064257283f2825af5f35"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.proposed_changes": {
+      "source_blocks_sha256": [
+        "ec6fe8f2199acd110fdd1cc36ff9022cc40a5b1672250a8d07d06ff651208ef3",
+        "5a625d711901422ad20ede080d899674ba46c531679675c428feca6429e37502"
+      ],
+      "source_sha256": "57989896be626900a534025835f8a5a5d4c5940045aaa4542e98f22e6ab3245f",
+      "text": "返回应用会写的设置,旧值除了新值。\n\n:returns: 一个双重的输入,每个持有设置的结构数据名称,表格持有的值和搜索所提出的值。",
+      "translation_source_blocks_sha256": [
+        "ec6fe8f2199acd110fdd1cc36ff9022cc40a5b1672250a8d07d06ff651208ef3",
+        "970a5d6523011baa61ce2130f6a22701fa48d4dfa100bf89b135af353aa00d4e"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.report": {
+      "source_blocks_sha256": [
+        "5324b12282aa3c19fac0f1c4164db92d41788a04630e01552612f12b150a8e66",
+        "00b149900b61eb16f99f40e999074c4703416210caf72bf394449ce7220b8d09"
+      ],
+      "source_sha256": "7f0b1c10183f2b700228199ada6404c88b5ef486924c842ae9bd3ecb0471fba2",
+      "text": "返回最新的报告,完整或不完整。\n\n:returns: 报告,或 None 如果没有搜索产生一个。",
+      "translation_source_blocks_sha256": [
+        "5324b12282aa3c19fac0f1c4164db92d41788a04630e01552612f12b150a8e66",
+        "00b149900b61eb16f99f40e999074c4703416210caf72bf394449ce7220b8d09"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.shutdown": {
+      "source_blocks_sha256": [
+        "6f5ef74f043d1e15b410d0f55a02d15384133c54c704e14e681b7805bb7c8b08",
+        "67a51d74f17e22136ee4e58ddc1cac15b5e32c54c9db1e2149766e3ebb9dd445"
+      ],
+      "source_sha256": "e35104b7470e2122dd08346afb612ac912690dbece20f1c47b6d7eca9e11ec19",
+      "text": "放弃飞行中的任何搜索,并不会留下任何背景执行单元。\n\n安全地直接打电话,当筛选在没有接近事件的情况下被打破时,这就是模块通常会消失的方式。",
+      "translation_source_blocks_sha256": [
+        "e9dfbab7d7139b0d57095c06a23867bd527a90f89c1deb48293b0cc8f146ba04",
+        "67a51d74f17e22136ee4e58ddc1cac15b5e32c54c9db1e2149766e3ebb9dd445"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.start_search": {
+      "source_blocks_sha256": [
+        "4fbb017a76aa586e16c524e0fbfe0f9f56962b2d1ebb76bb26d9657ef6d7c4ce",
+        "57428766cb02ea481647c0131b832d58d943282e30ace583bc779512d6ef5a2f",
+        "c908abbcf4a44033b7b3d471073d5c2478834ee23a44751deb0d03dda4306bc2"
+      ],
+      "source_sha256": "9bfe28705eb03dde537c25a4fee23781878afbb7b2a02baf30f38886f25e57e0",
+      "text": "开始新鲜的搜索文件设置的名称。\n\n回来,而不是升起,当没有什么可搜索的,因为原因是关于表格的句子,面板显示它。\n\n:returns: True 当搜索开始时。",
+      "translation_source_blocks_sha256": [
+        "4fbb017a76aa586e16c524e0fbfe0f9f56962b2d1ebb76bb26d9657ef6d7c4ce",
+        "57428766cb02ea481647c0131b832d58d943282e30ace583bc779512d6ef5a2f",
+        "c908abbcf4a44033b7b3d471073d5c2478834ee23a44751deb0d03dda4306bc2"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPlan": {
+      "source_blocks_sha256": [
+        "faa8600f43aad3e4a71381e4a0526c538e405f16e3c02cb6f4d82406419c6b05",
+        "c50d135ca61f508a8c28414ad58b4380a0cde0c7f251ccc6ed49b1235b3cb386",
+        "7b0ba6a82107ba5118b995073856227617eb259fe0400b4b5f0c04a28616fdda",
+        "d7b602115898130d2fb1ba94b36f967537637dc693824ab120b2ac94bbe37c98",
+        "3913a8e66151c450d84382db472ec860fb12413d48db5842dac08a410440af2e",
+        "d05cd1807eb37189c14084b47edc44bc96c36518d7783f82411cf83106560b8c",
+        "1cd097aeb9c3e44c65aa1835972545bf769c5d8c81c7d3f278d588e69c133dfc",
+        "5df7395ac4556e71f4d3a687ac22bdcdedb45029773c8fdfa9fb6529d3890825"
+      ],
+      "source_sha256": "fd2ecdedd39bbf73a6225b6d4c0ce9e3556703e7b428f6880bcdf53d82122381",
+      "text": "一个搜索要阅读的,从设置表格中获取。\n\n计划是从搜索中分开的,因为两者不同方式失败,用户需要被告知发生了什么。 一个无法完成的计划是关于表格的句子,例如没有序列文件的文件夹,并且值得在任何阅读之前显示; 找不到任何东西的搜索是一个测量,并意味着完全不同的东西。\n\n:ivar fastq_files: 序列文件要阅读,作为一个从标签的地图,每个带在报告到其路径. 标签是伴侣的名字,所以一个报告可以说哪伴侣携带哪条条码。\n:ivar reference_tables: 每张参考表中有一张输入,包含它所提到的名称,它所阅读的路径,以及它所填写的条形码角色。\n:ivar anchor: 固定 vector 序列 地图运行位置其窗口,搜索旁边的表格,以便可以表达与它相对。\n:ivar sample: 样品的名称,其阅读正在寻找。\n:ivar other_samples: 条码配置是图书馆的属性,而不是一个样本,所以一个样品设置它为所有,但计算显示,所以没有人认为其他人错过了。\n:ivar problem: 一个句子说为什么这个计划不能被搜索,或者一个空线,当它可以。",
+      "translation_source_blocks_sha256": [
+        "faa8600f43aad3e4a71381e4a0526c538e405f16e3c02cb6f4d82406419c6b05",
+        "c50d135ca61f508a8c28414ad58b4380a0cde0c7f251ccc6ed49b1235b3cb386",
+        "7b0ba6a82107ba5118b995073856227617eb259fe0400b4b5f0c04a28616fdda",
+        "d7b602115898130d2fb1ba94b36f967537637dc693824ab120b2ac94bbe37c98",
+        "3913a8e66151c450d84382db472ec860fb12413d48db5842dac08a410440af2e",
+        "d05cd1807eb37189c14084b47edc44bc96c36518d7783f82411cf83106560b8c",
+        "1cd097aeb9c3e44c65aa1835972545bf769c5d8c81c7d3f278d588e69c133dfc",
+        "5df7395ac4556e71f4d3a687ac22bdcdedb45029773c8fdfa9fb6529d3890825"
+      ]
+    },
     "spacr.qt.screens.map_barcodes.CategoryFold": {
       "source_blocks_sha256": [
         "8f6a5aa8bd24286075f35aafd2f7e98d958a45c0793bbef66fe390846fd1386f",
@@ -81923,6 +82763,24 @@
         "f6f10207dca43ac2404b337be8523dcf815eb6dcf8fdc941967585685e4cbd05"
       ]
     },
+    "spacr.qt.screens.map_barcodes.build_barcode_search_card": {
+      "source_blocks_sha256": [
+        "3abbf5512678d10be2c930e031c9b78e41515c03661942a477b3acedb0f66020",
+        "c9816b529ad68a17369a7997d8a9a809b0f3ecd5a208c2189e1d382e2d0f697f",
+        "6169ea2f56979fe7542320653177248c788455248a8793c93d70a0ca3bde71e8",
+        "5bafba04017db4b97007323e0fdc5486783ff2f598cafcca0893b8228c5b3c4b",
+        "889a7ecbda80b9eae9ea0ef8c768d8c31283448ee836e9d55d00c68d1fda2e34"
+      ],
+      "source_sha256": "fa846744fb43aa4e3cd2fe36f1adf196c8e1ee02a70a0e2e5517f474a149c5c6",
+      "text": "创建直播搜索和它放置的卡,无数。\n\n返回无数,因为直播的卡是,所以呼叫者决定它去哪里,是否开始可见。\n\n:param screen: 地图条形图显示搜索者阅读和写作。\n:param kwargs: 通过到 :class:`BarcodeSearchPanel`。\n:returns: 面板和持有它的卡片。",
+      "translation_source_blocks_sha256": [
+        "3abbf5512678d10be2c930e031c9b78e41515c03661942a477b3acedb0f66020",
+        "c9816b529ad68a17369a7997d8a9a809b0f3ecd5a208c2189e1d382e2d0f697f",
+        "6169ea2f56979fe7542320653177248c788455248a8793c93d70a0ca3bde71e8",
+        "5bafba04017db4b97007323e0fdc5486783ff2f598cafcca0893b8228c5b3c4b",
+        "889a7ecbda80b9eae9ea0ef8c768d8c31283448ee836e9d55d00c68d1fda2e34"
+      ]
+    },
     "spacr.qt.screens.map_barcodes.build_registered_screen": {
       "source_blocks_sha256": [
         "f098d0837ae39116bee483c10326ff146e707ca95455570e2774dcc038a6f77c",
@@ -81973,6 +82831,24 @@
       "translation_source_blocks_sha256": [
         "8e8c4fab4f9f9f2e7783577734be7bc45da7a6f993e13c898303c63ad7e57f93",
         "b2c4ab7406a64d33d09d83ae130845525d2ee8d5cdbc9abe630dda41b6b2c82b"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.describe_proposed_changes": {
+      "source_blocks_sha256": [
+        "7376129595ae427e52dc3b5fb171d87bcc23bbb0df84187f1384a54ebcb903ab",
+        "37ee78d6869ac6c441b02242f5a8d8e762ff5bffb11b9ba12a9f84aaf1d12062",
+        "bd33ad3d544e00f6a51c873ea681decf1b9d5b8a223245063ee16eac1bfbc7a2",
+        "3c315ea371ec5eb5d55b9f67a4de11f367b7843c86ab62d2212f5132b3268328",
+        "b11d71fd453b9df2a060c3536dc8daa4b727a0950bac04828e396c131c99d697"
+      ],
+      "source_sha256": "2fda958ca951b119c504794e77af14681cb831ea537824ecab36c9e0f69d535c",
+      "text": "返回设置一个建议会改变,旧值除了新的。\n\n显示什么会改变之前它改变是方便和陷阱之间的差异. 有人写一个窗口长度必须能够看到,按下应用程式取代它,并用什么,而仍然有时间决定不。\n\n:param proposal: 这是一个完成的搜索结果。\n:param current_settings: 作为形式的设置,它们现在保持着它们。\n:returns: 一个双重的输入,每个持有设置的结构数据名称,表格持有的值和搜索所提出的值,对于那些设置的值实际上会改变。",
+      "translation_source_blocks_sha256": [
+        "7376129595ae427e52dc3b5fb171d87bcc23bbb0df84187f1384a54ebcb903ab",
+        "37ee78d6869ac6c441b02242f5a8d8e762ff5bffb11b9ba12a9f84aaf1d12062",
+        "bd33ad3d544e00f6a51c873ea681decf1b9d5b8a223245063ee16eac1bfbc7a2",
+        "3c315ea371ec5eb5d55b9f67a4de11f367b7843c86ab62d2212f5132b3268328",
+        "57500835495d3041025bd188622355b8cd7dcc895a3a1b29da8d8c7426853756"
       ]
     },
     "spacr.qt.screens.map_barcodes.fold_description": {
@@ -82035,6 +82911,24 @@
         "5e00556e804d061afca04de16253a4aa5028bc571a05f3f58e30ec16b3450057"
       ]
     },
+    "spacr.qt.screens.map_barcodes.install_barcode_search": {
+      "source_blocks_sha256": [
+        "530556d7122c23d89ad10fd8fab7767c67836727f21459c162981944c77d8278",
+        "166bd07e2872250755cfe844529e95526237ff33f9e0d9f887b0263e227278f2",
+        "8d2b52931e318b461462dbe68fbe5f558d644d6fb370430e3f5365ef51f43f7d",
+        "06bb42ab1005f3985d618f53da35d5e464452956b7d0b04ac292ab7936c0cdbf",
+        "b28fc7af221cb7c16ac76bfaea28496c30032937d83939dbddbb509ec5ee15d6"
+      ],
+      "source_sha256": "aa004f91335676e7a8d326dbc412243966bb98f82e47d51e32db1ecdc3c2166c",
+      "text": "将地图条形码应用程序显示其直播搜索,背后是一个漏洞。\n\n安装而不是建立在应用程序视图的原因,这个应用程序的每个其他面板都是从外部安装的:应用程序观图是应用程序常规设置视图,它不知道什么关于序列和不应该。\n\n:param screen: 任何不属于地图条形码的筛选都单独留下。\n:param kwargs: 通过到 :class:`BarcodeSearchPanel`,这就是一个测试要求一个较小的阅读样本或一个未经阅读的搜索。\n:returns: 面板,或 None 当筛选不是地图条形码筛选或没有运行时间面板安装。",
+      "translation_source_blocks_sha256": [
+        "de7e6b24cb87bc45d20dd6b333ab4900684945ff82e7da02b1a98e773df0345d",
+        "4ad4a0aa3ad18350c4ebfcd501dcffa942d3a8dab141259afd221226bce67bd6",
+        "8d2b52931e318b461462dbe68fbe5f558d644d6fb370430e3f5365ef51f43f7d",
+        "06bb42ab1005f3985d618f53da35d5e464452956b7d0b04ac292ab7936c0cdbf",
+        "b28fc7af221cb7c16ac76bfaea28496c30032937d83939dbddbb509ec5ee15d6"
+      ]
+    },
     "spacr.qt.screens.map_barcodes.install_fold_strip": {
       "source_blocks_sha256": [
         "ae33c6a9c21d0044487cd70d6c49665eb4d55baa9fdec58e378692a4129b7f9e",
@@ -82059,12 +82953,18 @@
     },
     "spacr.qt.screens.map_barcodes.install_folds": {
       "source_blocks_sha256": [
-        "e5e18f15b0a74f88d370359b7e82f68a9cb1bb2652b776125e91cd99f56f182b"
+        "13dc33e740ee3737075fe4345c15fdef20d33889d42a7c91077efcb2594d23d0",
+        "5f8827d1e6a62469074906bb37f4df5126a78eff9b7d93ad2fafa8ac12deeefd",
+        "188412ed16e9028194ec3656ad95e6a19eb2ef893dd824112d3e042b90ec699b",
+        "1f383a69f7dc9bf3ec00917ee9edcc85d6da1d12b1a58f00999ee69bcf876737"
       ],
-      "source_sha256": "e5e18f15b0a74f88d370359b7e82f68a9cb1bb2652b776125e91cd99f56f182b",
-      "text": "将 Map Barcodes 的字符串放在 ``screen`` 的面板上。",
+      "source_sha256": "ec5a51ccab9717d4c0d1f889c2bde478f38a0b8b2b75c1e2330420027fac6710",
+      "text": "将地图条码的字符串和其直播条码搜索插入 ``screen``。\n\n搜索是在这里安装的,而不是通过一个自我,因为这是呼叫每条路线到地图条形筛选已经通过。\n\n:param screen: 筛选可安装。\n:returns: 字符串,或 None 当此筛选主持没有字符。",
       "translation_source_blocks_sha256": [
-        "e5e18f15b0a74f88d370359b7e82f68a9cb1bb2652b776125e91cd99f56f182b"
+        "13dc33e740ee3737075fe4345c15fdef20d33889d42a7c91077efcb2594d23d0",
+        "5f8827d1e6a62469074906bb37f4df5126a78eff9b7d93ad2fafa8ac12deeefd",
+        "188412ed16e9028194ec3656ad95e6a19eb2ef893dd824112d3e042b90ec699b",
+        "1f383a69f7dc9bf3ec00917ee9edcc85d6da1d12b1a58f00999ee69bcf876737"
       ]
     },
     "spacr.qt.screens.map_barcodes.install_folds_on": {
@@ -82093,6 +82993,24 @@
         "9c4a9539f0007adce581862c20e6ccb4a2078eac96997f37826cb5c2158f6368",
         "94cd1d2e1a6a30ffff46478f3584697dfecaf5c5ad160c9c5b5d4a3edb5c8d05",
         "91500b4c0bf5b58571c5e0ded98146782239a7c554acc1ae62d9b337874214ba"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.plan_barcode_search": {
+      "source_blocks_sha256": [
+        "e36662447951be7cf8f08a90ef352c7e4e79e3a8cb2df07295bf006acbfe51a6",
+        "791b836b718a64befd3169937f0ebfc18b2cdbad7359fe39ce0e41608eea657d",
+        "f88d1f8a05eb30bfafa0ee94117b1b90ab6c4bdde11b26f0a4dbe8c40f7d972d",
+        "d6e80650315cc36f8c8b217794cee7861656dfd52dce88995b1cada21a2f904c",
+        "5685d1485d92ea64b1f3f21616f12b08b357df91b5152a06c73c2ab9cb41f5a7"
+      ],
+      "source_sha256": "dfe47caeb03b41a1c2c4ef751059f2cf8d7fede45bd36f2f75ba408a7e41d566",
+      "text": "找出哪个阅读和哪个参考表一个搜索应该阅读。\n\n一个真正的筛选的序列文件夹持有几个样本,其中一个是足够的. 哪个配偶携带哪个条码,哪个方向的参考表存储在相对的阅读,在哪里在阅读的条码座位是图书馆的所有属性和序列运行而不是一个样本的,所以测量它们在第一样本设置它们为每个样本旁边。\n\n它列出一个文件夹,并检查参考文件是否存在,所以每次按下搜索按钮时,它就足够便宜运行,并且可以说在单个字节被解码之前缺少什么。\n\n:param settings: 地图 条形码设置,如表格保留它们。\n:returns: 它的问题是一个句子,当没有什么可搜索和空白,当计划可以执行时。",
+      "translation_source_blocks_sha256": [
+        "e36662447951be7cf8f08a90ef352c7e4e79e3a8cb2df07295bf006acbfe51a6",
+        "791b836b718a64befd3169937f0ebfc18b2cdbad7359fe39ce0e41608eea657d",
+        "dda48781fc90bf114b9abb3e786070798f087c6446b21de32b9885760af696ca",
+        "d6e80650315cc36f8c8b217794cee7861656dfd52dce88995b1cada21a2f904c",
+        "5685d1485d92ea64b1f3f21616f12b08b357df91b5152a06c73c2ab9cb41f5a7"
       ]
     },
     "spacr.qt.screens.map_barcodes.restate_fold_button": {
@@ -127975,6 +128893,192 @@
         "e00ce618fc56d8a9eceb26a25e220744a8805694feb9e998758e41bcfa1de501"
       ]
     },
+    "spacr.qt.widgets.read_view": {
+      "source_blocks_sha256": [
+        "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
+        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
+        "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
+        "5dfb4bb842ac0f2797ac22244d93d3310e003829aac15af79f9f0124d9f38030"
+      ],
+      "source_sha256": "d0e18e1e03cc79530830d73cb8008353a3cc1b201cd19d585bcef538fe19e56f",
+      "text": "显示序列阅读作为文本,一个阅读顺序,与比赛彩色。\n\n图条码界面要求用户相信关于他们的FASTQ文件的声明:在一个特定的位置,在一个特殊的方向,发现了一个特定的条码. 一个百分比在一个总结框中不能解决一个论点,因为一个比例看起来是相同的,如果比赛是真实的或偶然的. 阅读它安排。 看到 gRNA 地板在同一个列的序列后序列是用户信任的数字和用户必须采取的数字之间的差异,并且看到没有什么线上是如何一个错误的运行宣布自己在一个眼光,而不是一个小时的地图,产生没有计算。\n\n因此,这个 widget 是故意平坦的. 它将阅读文本在一个固定字段面,一个阅读到一个行,它绘制的字符一个条码匹配在一个颜色属于该条码类型. 什么都没有挖掘,什么都被排除,和字符在一个阅读的列四十位直接在字符的列第四十位,这是整个理由看阅读而不是在一个桌子上。\n\n这个模块不知道如何找到比赛. 它需要阅读和字符串,其他人计算,所以搜索引擎和主机的筛选可以自由地改变,没有触摸任何东西在这里,所以这可以测试没有任何一个。\n\n关于颜色的注意事项,因为它是容易错误的部分. 这里绘制的每种颜色都源于应用视图的主题,从来没有写成字面,而衍生品保留了主题本身的焦点角色的相对光明性。 对比是相对的光明性和其他任何东西的功能,所以这样制作的颜色正是清晰的对比,焦点已经在这个主题上清晰,包括主题,其面板在一张照片上流传。",
+      "translation_source_blocks_sha256": [
+        "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
+        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
+        "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
+        "3a805954e5e0fb6809a8a6b7bc5a5538afe2cf2db0abb5a1c3944d9975d62229"
+      ]
+    },
+    "spacr.qt.widgets.read_view.BarcodeSpan": {
+      "source_blocks_sha256": [
+        "a6d24050e9c5c6dfedf0dcb149dbd5809ab6b1ef38bdb49c8ba80f4e01ef84f8",
+        "e0bf798f0dc2a1ee4ac5369071bb5d4f1de6a71d15d1faa12ce98c4d66670e08",
+        "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
+        "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
+        "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
+        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+      ],
+      "source_sha256": "02be31d10f02110e50884d3f64ad5803cf8f150cbdf36b99b873347e8db804d1",
+      "text": "一个字符串的阅读,某种类型的条码相匹配。\n\n间隔是半开放的,从阅读开始就以字符计算。, 因此,它跟随 Python 精确滑动,相匹配的文本为 ``read[start:stop]``. 阅读之外的位置在拖拉时被粘贴。, 一个在开始后不停的间隔,就不会有任何贡献。, 因此,一个在阅读长度上做算法的呼叫者不能让视觉升高。\n\n它是什么呼叫这个字符号的家庭,这是传说所展示的,也是颜色的标志,所以两个分配一个类型的字符是保证在每个行上分享一个颜色。\n\n:param start: 第一个相匹配的字符,从零计算。\n:param stop: 一个超越了最后匹配的角色。\n:param kind: 相匹配的条形码类型的名称。",
+      "translation_source_blocks_sha256": [
+        "a6d24050e9c5c6dfedf0dcb149dbd5809ab6b1ef38bdb49c8ba80f4e01ef84f8",
+        "e0bf798f0dc2a1ee4ac5369071bb5d4f1de6a71d15d1faa12ce98c4d66670e08",
+        "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
+        "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
+        "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
+        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadRow": {
+      "source_blocks_sha256": [
+        "d72866e4e7ba05cb1938311f9d2c019336b7fa3c4130b00e93d340fdbcf08281",
+        "f1d11a511c1f51ba217e15d81cb57191a685177215579f55a29261f0492ca215",
+        "e6815a14b952f0b6cbf8489ed75bdbba863c68d1818db14df65fa0bf77390d0d"
+      ],
+      "source_sha256": "15d8ca64569cc896f187dbc944a50489a48fc704d9a123686b6f4b84981887a5",
+      "text": "一个读了,里面的一切都相匹配了。\n\n:param text: 阅读应该显示在应用程序视图上,已经切割到呼叫者想要显示的任何窗口。\n:param spans: 命令重要的是,当两者超越,如:class:`ReadView`中所描述。",
+      "translation_source_blocks_sha256": [
+        "d72866e4e7ba05cb1938311f9d2c019336b7fa3c4130b00e93d340fdbcf08281",
+        "63e682ae423d7f3e38e33094074e0476b1a42954c2cb351ae682bdbaea02dffc",
+        "e6815a14b952f0b6cbf8489ed75bdbba863c68d1818db14df65fa0bf77390d0d"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView": {
+      "source_blocks_sha256": [
+        "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
+        "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
+        "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
+        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "a87f546d5bbbdbd8e853072bbf110383d442f14498713f2646e3858c69a69cb3",
+        "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
+        "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
+      ],
+      "source_sha256": "ec7f068304591e8fa899d5de4cc3020d81fcd0a9b72bdbeea26c62bb381e198c",
+      "text": "阅读作为文本,一行一行,每个字符号类型在自己的颜色。\n\n它从来不寻找任何东西本身,从来没有进口它所做的代码,所以它可以落入任何有阅读和位置显示的筛选。\n\n什么是保证. 字符被拖在固定字符位置的固定字体面,所以列四十一个字符座位上列四十年后列. 一读从来没有拖到第二个视觉序列:一个长的人使视觉旋转侧面,而不是,因为一个旋转的字符会打破一个阅读序列的承诺,整个 widget 存在保持. 一条字符代码类型保持一个颜色,只要视觉显示它,所以眼睛可以跟随一个匹配下列,和传说在字符串上说什么颜色。\n\n如何排序曲线. 阅读的曲线被考虑到他们给予的顺序,第一个覆盖一个字符保持它. 到达后来的曲线仍然颜色每个字符已经没有采取,所以它从来没有完全隐藏,只是切割。 决定这一点之前任何绘画开始是什么使曲线曲线只是一个问题的优先事项,而不是一种方式来破坏图像. 一个呼叫者谁想要一个特定的条形码类型赢得曲线应该列出其曲线首先。\n\n读书在列表模型中保持,由代表编写,因此交付读书需要列表分配,而仅仅是实际上在应用程序视图上的行列的绘图费用。 设置1000个读书和显示视图解决了字符的所有权,一个界面的行列,而不是1000个,这就是保持接口响应的一个真实的FASTQ样本而不是一个玩具。\n\n:param parent: 可选 Qt 所有者负责 widget 的寿命。\n创建一个空白的视野,在阅读列表的顶部有一个传说。",
+      "translation_source_blocks_sha256": [
+        "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
+        "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
+        "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
+        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "a765b429869a0bf35b16ae1a5028cf2c5189ec7a8ee1c56d3c15251742aa9b7a",
+        "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
+        "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.changeEvent": {
+      "source_blocks_sha256": [
+        "9e96546e696fa3308818e1e24425951c096bd96239cf7160214f990901d9fddf",
+        "63155dd338615fed07dde3aca825fe8843d6573d8cc6f2cdbf59d725dcc64238",
+        "a90d461fe30e4b3e41658f97de0abdee5b78c1eafd036f64212479ffa55205aa"
+      ],
+      "source_sha256": "65dbf7d9d307b5838f6409e3ced7d0fdccd7f7238d004e343da7f6b547fc00c7",
+      "text": "跟随主题或文本大小的变化,而不会被告知。\n\n该应用程序在主题变更时重新应用其风格表和板块,并且 Qt 将其交给每个 widget 作为一个变更事件。\n\n:param event: Qt 变更事件正在交付。",
+      "translation_source_blocks_sha256": [
+        "9e96546e696fa3308818e1e24425951c096bd96239cf7160214f990901d9fddf",
+        "63155dd338615fed07dde3aca825fe8843d6573d8cc6f2cdbf59d725dcc64238",
+        "a90d461fe30e4b3e41658f97de0abdee5b78c1eafd036f64212479ffa55205aa"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.clear": {
+      "source_blocks_sha256": [
+        "5c07c49f97c602c7fe7af7f05a221c9b5b1732c11954641852d5cd9ea9f659f9",
+        "daf8716d92270c9d1284deade52e7b6c96ab42d5583628ac4a591cbef81f727f"
+      ],
+      "source_sha256": "0a456cef67dc1cdaf19bd0c9c4e6fab26e79a28d8a48d09b117fe28ddb44cc77",
+      "text": "把每个阅读都扔掉,忘记了哪些条码类型被显示。\n\n忘记类型是要有这一点,而不是设置一个空白的阅读列表,新鲜的运行可以寻找不同的条码集,并完成以前的处理会议的任务将给新的第一条条码旧的第二条码的颜色。",
+      "translation_source_blocks_sha256": [
+        "5c07c49f97c602c7fe7af7f05a221c9b5b1732c11954641852d5cd9ea9f659f9",
+        "56d5c7a2c7a516e98757d0736c50fb3b57055f752dee55726e907a4f47aa70e1"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.colour_for": {
+      "source_blocks_sha256": [
+        "8b3c95c7feff9f60dd71f2e157c55850d5b4d0c3365ec583308c747700a85deb",
+        "4745663ca173b7754802d333571dd39a7b8f07a0b32497b85957ec8cfa7d941e",
+        "771633569246e965a0b78a3d283cb9b48a2922b9c5f75183ddc113bd638a3900"
+      ],
+      "source_sha256": "3100e9a7d4f1fd0a6202b8beba7cb1859f742e6c6e0f544dd99538f24d1fc1d1",
+      "text": "返回一个条码类型的颜色。\n\n:param kind: 条码类型名称。\n:returns: 一个 hex 颜色行,或 ``None`` 如果视图从未显示过该类型。",
+      "translation_source_blocks_sha256": [
+        "8b3c95c7feff9f60dd71f2e157c55850d5b4d0c3365ec583308c747700a85deb",
+        "4745663ca173b7754802d333571dd39a7b8f07a0b32497b85957ec8cfa7d941e",
+        "771633569246e965a0b78a3d283cb9b48a2922b9c5f75183ddc113bd638a3900"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.kinds": {
+      "source_blocks_sha256": [
+        "ef423c05850ef0c03cf416843cd7e228659e1bfe170776eb7965fc99d5623e68",
+        "50698a2d8c2ce00698253cb0bf1a06068790e5d2b15cb8b91a45b7daa41c1b04"
+      ],
+      "source_sha256": "b978423c8786a8e4cf0025043ba5ec507513157d2800ed3fa5d8ab2fda5cded4",
+      "text": "返回已显示的条码类型,以传奇顺序。\n\n:returns: 类型名称,这也是他们的颜色的命令。",
+      "translation_source_blocks_sha256": [
+        "ef423c05850ef0c03cf416843cd7e228659e1bfe170776eb7965fc99d5623e68",
+        "50698a2d8c2ce00698253cb0bf1a06068790e5d2b15cb8b91a45b7daa41c1b04"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.refresh_colours": {
+      "source_blocks_sha256": [
+        "ef690760daca7c78c542683292f6e7d81c556484eac921432d9e98cc04bea1cb",
+        "91c8f0d05295d8df13617050a88e5cd13e8d1296b8f4cc40d5aee551daf13c0c"
+      ],
+      "source_sha256": "32df08b6174b886d4a4a5b1fa1b74f1238a3baf362d935695f017c7a16e7f41e",
+      "text": "再次从主题中取出颜色并重新绘制。\n\n安全地随时打电话,便宜就足以打电话:它每条条码类型再产生一种颜色,而不是每条阅读。",
+      "translation_source_blocks_sha256": [
+        "ef690760daca7c78c542683292f6e7d81c556484eac921432d9e98cc04bea1cb",
+        "91c8f0d05295d8df13617050a88e5cd13e8d1296b8f4cc40d5aee551daf13c0c"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.row_count": {
+      "source_blocks_sha256": [
+        "0abf19fffecc1b3d8ad194dfca3eea94f8d4aaae10a3468b0fc89a72e96c9b6e",
+        "1c152268a7c932b474a79018b26986bb0c6f4750d0d47190f46b0815a8964c95"
+      ],
+      "source_sha256": "3deeae7e1210f0fa790951234db5e7c03e7624e9a5a537a17a7fd6eb4e5d5e10",
+      "text": "回复了被显示的读书数量。\n\n:returns: 视野中的行列数量。",
+      "translation_source_blocks_sha256": [
+        "0abf19fffecc1b3d8ad194dfca3eea94f8d4aaae10a3468b0fc89a72e96c9b6e",
+        "1c152268a7c932b474a79018b26986bb0c6f4750d0d47190f46b0815a8964c95"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.set_reads": {
+      "source_blocks_sha256": [
+        "334a33f74d185c7c7f43bdb9a30c2d42353cb074b3c4609a66cca4a160e7d322",
+        "a90c8d7a0521ce4ac40775ad095bb0e7537a38016ca0d3e49c4ad2fe1c6cb8a5",
+        "b6a4b3bbab0006a8097ff2b412471b7db5670abe5a66ddbdd306dc000a1d6ff5",
+        "b3e7bcc339e4bd2646cb341847c25bd0853e62d116b08bb9810f20e782d004f7",
+        "2541ca5d894ea1628cf7883c47d30b16b6925f88d787e12e70bda6ec018e9784"
+      ],
+      "source_sha256": "81fc3c92fbc65aeab7c0a0ffeac136b03922f3e6e8ce1dc2c10d6c53c8e88aa2",
+      "text": "显示这些阅读,这些字符串类型在传说中。\n\n通过条形码类型明确是值得做的每当它们是已知的,因为它确定了传奇的顺序和哪个类型得到什么颜色。 一个类型被搜索,但没有在应用程序视图上的列中找到,然后仍然出现在传奇中,这本身是信息:它说搜索运行并返回空白,而不是让用户想知道它是否运行。\n\n左不安全,类型从它们的序列中取出,它们是第一次看到的,任何已经显示的类型都保持着它所拥有的颜色。\n\n:param rows: 读者,每一个一个:class:`ReadRow`,一个平行的字符串,一个没有比赛的阅读,或一个文本和字符的对。\n:param kinds: 字符号在传奇顺序中输入名称,或 ``None`` 从字符串中取出它们。",
+      "translation_source_blocks_sha256": [
+        "334a33f74d185c7c7f43bdb9a30c2d42353cb074b3c4609a66cca4a160e7d322",
+        "bd1d354586e4d6dd738a83025acb0f7a24cfaad46b3b09297b8daa93288027a9",
+        "b6a4b3bbab0006a8097ff2b412471b7db5670abe5a66ddbdd306dc000a1d6ff5",
+        "b3e7bcc339e4bd2646cb341847c25bd0853e62d116b08bb9810f20e782d004f7",
+        "2541ca5d894ea1628cf7883c47d30b16b6925f88d787e12e70bda6ec018e9784"
+      ]
+    },
+    "spacr.qt.widgets.read_view.barcode_colours": {
+      "source_blocks_sha256": [
+        "cd5f4c51077f7c0a709eaf23ce8860f36f8e89ac6b8c2886c1c1f2091e33f6bf",
+        "397bd4612859f0dc929ac053d300d82bc322ac8bea3da5b0b37683c00ff58c46",
+        "cd9153c13ea4f21e679ed1ddba653a62aca671ae13a22cfa6df908a23adc802f",
+        "b96ce8cecc93c4e791911ad47fadec794a63c1fa87e518222cf2df3488d6a68b",
+        "6af8a1d9762a62c4e979868ada2fe0149f3bd7b35b15b4d00de6bb02f57a6e81"
+      ],
+      "source_sha256": "1364208424c6746387d9471f842b11a0bd00f9f2b4383196698ccf48a067413e",
+      "text": "给每个字符号输入自己的颜色,从主题中取出。\n\n颜色按位置分配,因此类型保持其颜色,只要呼叫器继续通过类型在同一顺序,并添加类型到序列结束时永远不会改变已经交付的颜色。\n\n它在光和黑暗的板块之间,以及两者和图像板块之间的差异,这是故意而不是偶然的:每个板块都有自己的可读的亮度,颜色是由它产生的。\n\n:param kinds: 条形码类型名称,在顺序中,它们应该被染色。\n:returns: 从每个名字到一个黑色字符串的地图。",
+      "translation_source_blocks_sha256": [
+        "cd5f4c51077f7c0a709eaf23ce8860f36f8e89ac6b8c2886c1c1f2091e33f6bf",
+        "397bd4612859f0dc929ac053d300d82bc322ac8bea3da5b0b37683c00ff58c46",
+        "fd7de089abb27d8ac437276f39bcc0ab069bb5f816632fd7318904839f950cee",
+        "b96ce8cecc93c4e791911ad47fadec794a63c1fa87e518222cf2df3488d6a68b",
+        "6af8a1d9762a62c4e979868ada2fe0149f3bd7b35b15b4d00de6bb02f57a6e81"
+      ]
+    },
     "spacr.qt.widgets.refit_dialog": {
       "source_blocks_sha256": [
         "1639f3ffdfe260bdc3fd607da2f305b50724ce8479b744a88bfa13f79be8ac80",
@@ -145611,21 +146715,21 @@
         "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
         "0f4a85c9d0557430930b200a9a4a0c27115a4d49ac0982c9b4eaefb058f59146",
         "45fb64dc2b3050c47ae42d726c134194a07e683d180ad732e717bfe3a0fbfede",
-        "29813c86205a5cee649d9782b48f6ef3fc447e89fa29f56d88417f2861302513",
+        "d8d0426ed527dfbf4d6c429cfd2ee61ba09b9e7c345633ef0941ae6fc2b03c79",
         "87abc46324b7652f26afd47890cc77870273d005260e0e9ff49fdf9cd7a4c3f5",
         "d56ee9e8a13f439eae241d58a2aa7858a47bc3d14e4777fea16bb70b1287fc8b",
         "9cdf97745e26f6331d427c3b47bac0e9d665a9013ad83e82b5d1d97e2c13d8e2",
         "2f431e82b9bf770d91b682283f773ff8494c09526aa40903c17678c82195855b",
         "e1380a40a01e067252f44957c4b4467d882cea762eb3b170776da2b0cbdb125a"
       ],
-      "source_sha256": "19522cbca1fa57b1015a353a9015ddb06480828bdd2e1ab7d06eb655842dfd40",
-      "text": "FASTQ 解码集成扫描实验会读到每微型样品位置引导 RNA的计算。\n\n它是为了什么\n==============\n**Map Barcodes** 模块将序列运行连接到基于图像的应用程序视图。, 和实验室微板红色字符号在每个阅读,解决这些序列对参考表, :func:`generate_barecode_mapping` 是 GUI 和 Python 入口点(历史 ``barecode`` 播放仍然是 API 公众的一部分); :func:`graph_sequencing_stats` 可以帮助选择一个阅读分裂切割。\n\n它需要什么\n=============\n``src`` 必须包含 gzip 压缩的 FASTQ 文件,其名称允许 spaCR 对 R1 和 R2 阅读。 运行还需要三个 CSV 参考表 - ``row_csv``, ``column_csv`` 和 ``grna_csv`` - 与 ``sequence`` 和 ``name`` 列。 ``target_sequence`` 插入条码窗口,而 ``offset_start``, ``expected_end`` 和 ``columnID``, ``grna`` 和 ``rowID`` 所称的集体的 regex 则描述了其布局。 使用 ``mode='paired'`` 为质量重量的 R1 / R2 共识或 ``mode='single'`` 与 ``single_direction`` 当只需要读一读时。\n\n它所产生的\n================\n每个样品都会在 ``src`` 下获得自己的输出目录. 基本物品是 ``unique_combinations.csv`` (引导 RNA按行和列计算) 和 ``qc.csv``; ``annotated_reads.h5`` 也被写入,当 ``save_h5`` 被启用时. 可选的条形码 QC 添加一个报告和字符串 ``barcode_qc``。\n\n接下来的要做什么\n================\n在信任计算之前,检查 QC 表和未地图的分数。 使用 ``test=True`` 处理一个点,同时检查 regex、阅读方向和参考方向,然后运行完整地图并将结果的 ``unique_combinations.csv`` 文件转移到 :func:`spacr.ml.perform_regression` 作为 ``count_data``。 :func:`barecodes_reverse_complement` 可以创建 CSV 参考的相反方向副本。\n\n有三种简单的方式来获得可靠但不完整的产量。 安克斯对比是准确的,一个错误的雷格斯静静地拒绝阅读; 参考序列在其存储方向上进行比较; 而在``barcode_mismatches``的两个参考中,一个序列不被分配,而不是被猜测。 最后,阅读级别 HDF5 输出可能比计算表大得多,高压可能节省更多的时间,而不是解码,因此,除非需要这些个别标记,否则将 ``save_h5`` 禁用。",
+      "source_sha256": "c7f31c57df8988181371ae96508f3d62a573810bce60756ff15d347294ae50d1",
+      "text": "FASTQ 解码集成扫描实验会读到每微型样品位置引导 RNA的计算。\n\n它是为了什么\n==============\n**Map Barcodes** 模块将序列运行连接到基于图像的应用程序视图。, 和实验室微板红色字符号在每个阅读,解决这些序列对参考表, :func:`generate_barecode_mapping` 是 GUI 和 Python 入口点(历史 ``barecode`` 播放仍然是 API 公众的一部分); :func:`graph_sequencing_stats` 可以帮助选择一个阅读分裂切割。\n\n它需要什么\n=============\n``src`` 必须包含 gzip 压缩的 FASTQ 文件,其名称允许 spaCR 对 R1 和 R2 阅读。 运行还需要每条字符号的 CSV 参考表,其中有 ``sequence`` 和 ``name`` 列。 一个驱动解码的三个字符号 spaCR 发送他们的名称为 ``row_csv``, ``column_csv`` 和 ``grna_csv`` ,一个运行解码任何其他数字的字符代码列出它们在 ``barcode_set`` 相反,一个输入每字符码。 ``target_sequence`` 插入条码窗口,而 ``offset_start``, ``expected_end`` 和一个名为每个条码的一个组的 regex 描述其布局。 发送的 regex 名称为 ``columnID``, ``grna`` 和 ``rowID``. 使用 ``mode='paired'`` 为质量重大的 R1/R2 共识或 ``mode='single'`` 与 ``single_direction`` 时只需要阅读一个同步。\n\n它所产生的\n================\n每个样品都会在 ``src`` 下获得自己的输出目录. 基本物品是 ``unique_combinations.csv`` (引导 RNA按行和列计算) 和 ``qc.csv``; ``annotated_reads.h5`` 也被写入,当 ``save_h5`` 被启用时. 可选的条形码 QC 添加一个报告和字符串 ``barcode_qc``。\n\n接下来的要做什么\n================\n在信任计算之前,检查 QC 表和未地图的分数。 使用 ``test=True`` 处理一个点,同时检查 regex、阅读方向和参考方向,然后运行完整地图并将结果的 ``unique_combinations.csv`` 文件转移到 :func:`spacr.ml.perform_regression` 作为 ``count_data``。 :func:`barecodes_reverse_complement` 可以创建 CSV 参考的相反方向副本。\n\n有三种简单的方式来获得可靠但不完整的产量。 安克斯对比是准确的,一个错误的雷格斯静静地拒绝阅读; 参考序列在其存储方向上进行比较; 而在``barcode_mismatches``的两个参考中,一个序列不被分配,而不是被猜测。 最后,阅读级别 HDF5 输出可能比计算表大得多,高压可能节省更多的时间,而不是解码,因此,除非需要这些个别标记,否则将 ``save_h5`` 禁用。",
       "translation_source_blocks_sha256": [
         "82f3d40706e14d897cb609c0b3a5f14147be4af6d605ec27dc9cd60ab2d2e26a",
         "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
         "df7a07c456e9708e5aaa1cf799c97150e7fa0e16a3e1d222853881edcf0b36e1",
         "2ba4b43ad7886d87af0f0b34232519ac26fc6e881ac8f2583cd4c5033577d599",
-        "29813c86205a5cee649d9782b48f6ef3fc447e89fa29f56d88417f2861302513",
+        "d8d0426ed527dfbf4d6c429cfd2ee61ba09b9e7c345633ef0941ae6fc2b03c79",
         "1b9e73ff367742a6893f9adda6659a509d41eb8e4a8cc60eb5f4c7ab862a3b47",
         "f50f75d242e2f3d44c15f6a4272302523dbd59082c51580da7f0929197fd7b59",
         "6164ad73de3089addfdf4320dbe9f6da259911427de5e8fbaae926809d0c3167",
@@ -145712,14 +146816,15 @@
     "spacr.sequencing.generate_barecode_mapping": {
       "source_blocks_sha256": [
         "2a5eb1b139093da86a46a4ebb085aac2ca9fea857f3d2e0af50d15d9ba6a11bf",
-        "f046ddb399b6a106114e04c2d09db0a9cd2b8ee79366dd127ad282e54c273333",
+        "0f6e0c1e140edaa7426fb1251d7bb01bab5b4b719480182fd7d61bbce1956b77",
         "9b509e5646b87ffdcbf88b747f801e66bb3cb869245ee0ddc151c527a7de33cd",
         "f54a5bcf96a34bc69980c5b0465753a07fce5cb2579df44aebdf7c0682c1ff31",
         "52e77ec9a4f15faf2def937305975c86581566acefd2c3df38ee5227c0a16ddb",
         "cf1fd210aaad17548a90101828746fd0317ffe9a79d5c4ded0d5a1849ea9f213",
         "365c2dea13aa27eb06c9a0f6b075a4d4ab32a5effd8e526ffda8077d6f9dc020",
         "19aaec12779f9c1d3ce12b444bfe3d92a23005d15a444efc370e31ba9b7b8192",
-        "4480186400a5573bb9a1ff78ecafbab1e94a889da21cde4f3f39aa43bd4a47ed",
+        "3d9be3a73324e0694c6df9f462f3535c0203b6755d316f073f83a609081ed793",
+        "be6b3cc3ffa8a8b89a54b676312a00c93803c81634182ae1bd23f2fcf09d585a",
         "f3531e87cd866cdf0a99ccccb9444d95085389f37541d0fc1e5319d665f4bb0b",
         "338cd188bcae7dbbbbd5e473501488e20220342f969116c12a31301e6e6165be",
         "771ca49565901e6ffad8dccfd0d915b1f28c0538d7f83e608c9e28311848954c",
@@ -145728,18 +146833,19 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "a24b201e8ac8ad15ccf8cb452cb2130a305d8a454c58d0a86185334693d6dffe"
       ],
-      "source_sha256": "eb34ce8a32857bc0371a9b205bc27267bd2cf63b2d0c2b7029074f5413471881",
-      "text": "将集成扫描实验 FASTQ 文件的文件夹转换为每微型样品位置 sgRNA 计算表,可使用 :func:`spacr.ml.perform_regression`。\n\n发现 R1/R2 文件每个样本在 ``src`` 下,从每个阅读中提取序列,列和 gRNA 条码,通过配置的 regex 和 offset 窗口,将其翻译成名称,通过三个条码查看 CSVs (见 :func:`map_sequences_to_names`),并写入每个样品 ``annotated_reads.h5`` (可选), ``unique_combinations.csv`` (每个微型样本位置 gRNA 计算) 和 ``qc.csv``. Paired vs 单端和 R1 / R2 指向从 ``settings['mode']`` 和``single_direction`` 选择。\n\n:param settings: 设置关键值地图,通过 :func:`spacr.settings.set_default_generate_barecode_mapping` 进行可通化。\n\n    - ``src`` - 包含 ``*.fastq.gz`` 阅读的文件夹。\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` 或 ``'R2'`` (只有``mode='single'``)。\n    - ``regex`` — regex 从阅读中提取条形码。\n    - ``target_sequence``、``offset_start``、 ``expected_end`` — 用于查找条码区域的轴和滑板窗口。\n    - ``column_csv`` / ``row_csv``/ ``grna_csv`` — 条码->名称查看 CSVs。\n    - ``save_h5``, ``comp_type``, ``comp_level`` — HDF5 输出点。\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` - 当是真实的, QC 每个完成样本与 :func:`spacr.sequencing_qc.barcode_qc`,写字符和报告到 ``<dst>/barcode_qc`` (默认 False; 未填写设置默认)。\n    - ``target_grnas_per_well`` - 按微板样品位置预期的 gRNAs,从此 QC 步骤产生其丰富范围(默认情况为 1)。\n\n:returns: None. 按样品输出写入 ``<src>/<sample>_<mode>[_<direction>]/``。\n\n示例：\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\n此外,请参见: :func:`map_sequences_to_names` - 内部条码->名称查看。 :func:`spacr.ml.perform_regression` - ``unique_combinations.csv`` 作为 ``count_data`` 消耗结果。",
+      "source_sha256": "51448c630ac0222d805ff06d48569178f90b78fea4614a0fb7819b0909c6b5bc",
+      "text": "将集成扫描实验 FASTQ 文件的文件夹转换为每微型样品位置 sgRNA 计算表,可使用 :func:`spacr.ml.perform_regression`。\n\n发现 R1/R2 文件每个样本在 ``src`` 下,提取每个行代码从每个阅读通过配置的 regex 和 offset 窗口,翻译每个到一个名称通过自己的搜索图 CSV (见 :func:`map_sequences_to_names`),并写个样本 ``annotated_reads.h5`` (可选), ``unique_combinations.csv`` (每个微型样本位置 gRNA 计算) 和 ``qc.csv``. Paired vs 单端和 R1 / R2 方向是从 ``settings['mode']`` 和``single_direction`` 选择。\n\n:param settings: 设置关键值地图,通过 :func:`spacr.settings.set_default_generate_barecode_mapping` 进行可通化。\n\n    - ``src`` - 包含 ``*.fastq.gz`` 阅读的文件夹。\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` 或 ``'R2'`` (只有``mode='single'``)。\n    - ``regex`` — regex 从阅读中提取条形码。\n    - ``target_sequence``、``offset_start``、 ``expected_end`` - 用于查找条码区域的插槽和插槽窗口。\n    - ``column_csv`` / ``row_csv``/ ``grna_csv`` — 字符号->名称查看 CSVs 为发送的三个字符代码 spaCR。\n    - ``barcode_set`` - 编码的条码,当一个处理会议有不同的,而不是三个,作为一个列表,每个输入名称条代码,参考 CSV 命名其序列,并捕获它的 regex 组. 缺席,这是什么每个设置文件写在设置之前存在的,处理会议编码上述三个名称。\n    - ``save_h5``、``comp_type``、 ``comp_level`` — HDF5 输出按钮。\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` - 当是真实的, QC 每个完成样本与 :func:`spacr.sequencing_qc.barcode_qc`,写字符和报告到 ``<dst>/barcode_qc`` (默认 False; 未填写设置默认)。\n    - ``target_grnas_per_well`` - 按微板样品位置预期的 gRNAs,从此 QC 步骤产生其丰富范围(默认情况为 1)。\n\n:returns: None. 按样品输出写入 ``<src>/<sample>_<mode>[_<direction>]/``。\n\n示例：\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\n此外,请参见: :func:`map_sequences_to_names` - 内部条码->名称查看。 :func:`spacr.ml.perform_regression` - ``unique_combinations.csv`` 作为 ``count_data`` 消耗结果。",
       "translation_source_blocks_sha256": [
         "8cd69f2da40b717c5f23cf48be86f3b6a48bb1f7387c9109f9ad6aa561f8d2a5",
-        "b8cd34360e14f2cfcdaa40bbbb5979e350c8187734bc925ea031fb70ab9979a9",
+        "2c8b7d67d8c595087afcb92934b1c7738a105f31e0824ee3498ddef59daba15a",
         "202738512ed71d389708912326ec67a93fe171f9ef542414ed4fe80950fefde4",
         "f54a5bcf96a34bc69980c5b0465753a07fce5cb2579df44aebdf7c0682c1ff31",
         "52e77ec9a4f15faf2def937305975c86581566acefd2c3df38ee5227c0a16ddb",
         "cf1fd210aaad17548a90101828746fd0317ffe9a79d5c4ded0d5a1849ea9f213",
         "365c2dea13aa27eb06c9a0f6b075a4d4ab32a5effd8e526ffda8077d6f9dc020",
         "19aaec12779f9c1d3ce12b444bfe3d92a23005d15a444efc370e31ba9b7b8192",
-        "4480186400a5573bb9a1ff78ecafbab1e94a889da21cde4f3f39aa43bd4a47ed",
+        "3d9be3a73324e0694c6df9f462f3535c0203b6755d316f073f83a609081ed793",
+        "0b50b6d74d2ff8dce6d4fbcbf9d46024b87815a1d70e22982aa679784905302c",
         "f3531e87cd866cdf0a99ccccb9444d95085389f37541d0fc1e5319d665f4bb0b",
         "338cd188bcae7dbbbbd5e473501488e20220342f969116c12a31301e6e6165be",
         "771ca49565901e6ffad8dccfd0d915b1f28c0538d7f83e608c9e28311848954c",
@@ -145821,7 +146927,7 @@
         "ae7bfa385c0cbf217473d3da7895820998e1fa15c377addcabeba591dae8a94e",
         "46e8c8fe51e8ed65147aaad2f4a879ac5610e61f37c74d3e214e25390d0318a2",
         "2e55fd1420381e57acc5dc445078539b77171a01fb98bdc6251ca92c9d1723d8",
-        "d1519b7e4ce40ac21ae2fb71017bfd73b7a53cb57fec3b64c082a3bac19782f0",
+        "7f47ed0231e6bab02270e4a3cd2d30f246d3d92bdf6b4811eb62c74791fd6898",
         "fa6a4de3748685c990c777d49a627278c41fff9a7b4ae2d617cfc701000b35b3",
         "06ca2ab4fc96cc187d9e14c3d0668ac310d0ea425c681b26243be61af766d89d",
         "b265771c1b97ba6ab5c7d9da1fad7c4f5e8933a89f87a536beb706474cc36fc2",
@@ -145838,16 +146944,17 @@
         "07feef1b4079fec1c6f7506faaccdfaa69cf81982965e0a4908414b961ff8bcc",
         "eda60e96b80a69d554143462663c488d4151674044c573e1c5cb969e064d395e",
         "a92cd25865cd1e5862059f74ef38c8592cc4b37c0ec3a51348df72db7186a1ea",
+        "a5d3f466ebfff3f051b68970c42432ff25741c9d1291668c7e034bf1b20e5227",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "5840747ab783d4118b26c875a7526b386efb98affa207b167c6670d3b8b0e9b5",
-      "text": "切割的包装处理 FASTQ:将条码提取、解码和流到磁盘。\n\n阅读 R1/R2 在 ``chunk_size`` 区块中,将其分配给 :func:`process_chunk` 工作进程,并允许 :func:`saver_process` 同时写下 HDF5 / CSV 输出。\n\n:param r1_file: gzipped r1 fastq 路径。\n:param r2_file: gzipped r2 fastq 路径。\n:param regex: 与名为 ``rowID``、 ``columnID``、``grna``的组合相结合。\n:param target_sequence: 使用的 anchor 序列来查找条码区域。\n:param offset_start: 从 ``target_sequence`` 开始提取。\n:param expected_end: 提取的共识区的长度。\n:param column_csv: 列条码参考 CSV。\n:param grna_csv: gRNA 条码参考 CSV。\n:param row_csv: 序列条码参考 CSV。\n:param save_h5: 保持完整的阅读 DataFrame 到 HDF5。\n:param comp_type: HDF5 压缩图书馆。\n:param comp_level: 压缩水平 HDF5。\n:param hdf5_file: HDF5 输出路径。\n:param unique_combinations_csv: 目的地 CSV 为集成组合。\n:param qc_csv_file: 目的地 CSV 为 QC 统计数据。\n:param chunk_size: 按字符串阅读,默认 ``10000``。\n:param n_jobs: 工作进程流程;默认为 ``cpu_count() - 3``。\n:param test: 只处理第一个点击并打印预览。\n:param fill_na: 填写未经地图的ID,使用原始条码序列。\n:returns: None.",
+      "source_sha256": "b13fe4c20bf9fdbc89ba6f9f891dc8754f99b5df150280f312aa51a87a644387",
+      "text": "切割的包装处理 FASTQ:将条码提取、解码和流到磁盘。\n\n阅读 R1/R2 在 ``chunk_size`` 区块中,将它们分配给 :func:`process_chunk` 工作进程,并允许 :func:`saver_process` 同时写下 HDF5 / CSV 输出。\n\n:param r1_file: gzipped r1 fastq 路径。\n:param r2_file: gzipped r2 fastq 路径。\n:param regex: regex 每条字符号命名一个组. 发送的三个 spaCR 是从 ``rowID``、 ``columnID`` 和 ``grna`` 阅读的。\n:param target_sequence: 使用的 anchor 序列来查找条码区域。\n:param offset_start: 从 ``target_sequence`` 开始提取。\n:param expected_end: 提取的共识区的长度。\n:param column_csv: 列栏代码参考 CSV。\n:param grna_csv: gRNA - 条码参考 CSV。\n:param row_csv: 序列条码参考 CSV。\n:param save_h5: 保持完整的阅读 DataFrame 到 HDF5。\n:param comp_type: HDF5 压缩图书馆。\n:param comp_level: HDF5 压缩水平。\n:param hdf5_file: HDF5 输出路径。\n:param unique_combinations_csv: 目的地 CSV 为集成组合。\n:param qc_csv_file: 目的地 CSV 为 QC 统计数据。\n:param chunk_size: 按字符串阅读: 默认 ``10000``。\n:param n_jobs: 工作进程流程;默认为 ``cpu_count() - 3``。\n:param test: 只处理第一个点击并打印预览。\n:param fill_na: 填写无地图 ID 与原始条形码序列。\n:param barcode_set: 字符串编码为 :class:`spacr.settings.BarcodeSet` 的任何尺寸。 None 将从上述 3 个 CSVs 参考中发送的 3 条码 spaCR 解码,这是每个跑步在一组可以提供之前所做的事情; 一个集被用来代替它们。\n:returns: None.",
       "translation_source_blocks_sha256": [
         "4be484ffafdb21ac1ecdd0d5260f4584ff0b7dd0ed2f6d996adeb3ed8b70d083",
         "ae7bfa385c0cbf217473d3da7895820998e1fa15c377addcabeba591dae8a94e",
         "39e65c843fa0a9535d65aadfb8887452a76e6ced2ae643bf657a14ed23e07cf4",
         "0b47129dfddd35ff9b562fa73c1a6c6f81e9bffa66834a021e81556c45a6620b",
-        "d1519b7e4ce40ac21ae2fb71017bfd73b7a53cb57fec3b64c082a3bac19782f0",
+        "7f47ed0231e6bab02270e4a3cd2d30f246d3d92bdf6b4811eb62c74791fd6898",
         "fa6a4de3748685c990c777d49a627278c41fff9a7b4ae2d617cfc701000b35b3",
         "06ca2ab4fc96cc187d9e14c3d0668ac310d0ea425c681b26243be61af766d89d",
         "b265771c1b97ba6ab5c7d9da1fad7c4f5e8933a89f87a536beb706474cc36fc2",
@@ -145864,25 +146971,30 @@
         "07feef1b4079fec1c6f7506faaccdfaa69cf81982965e0a4908414b961ff8bcc",
         "eda60e96b80a69d554143462663c488d4151674044c573e1c5cb969e064d395e",
         "a92cd25865cd1e5862059f74ef38c8592cc4b37c0ec3a51348df72db7186a1ea",
+        "a5d3f466ebfff3f051b68970c42432ff25741c9d1291668c7e034bf1b20e5227",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.sequencing.process_chunk": {
       "source_blocks_sha256": [
         "d8b2c1c2e32eeae7b75e031f42f4cf32e4347d7bf2af735f3cedd0c621f9d7da",
-        "731e7187233f64a536dd859de7014d28fe720ad8569224f4c682883073c5aa32",
-        "c9ece26750d3c9ee8c279c49cc076fab020e8b785fce9f6ac2e1f721e05eef58",
-        "4d7162f6dfc396e1c8faa617d0d470905cf0a8a43d53499bff27728b58287a21",
-        "6e2684290412ec9e48605d14b2026c5739b8afec4863e40ad949e16cdc59d153"
+        "d5478725e603f4d7520bd4b5f7d14f327d1669f8c1314c805ff4b4888af12628",
+        "85785563dc4a50f33a29cb09d6a02d11f240ad0e99bbac7155feb60df8d6d35d",
+        "f8e0d044695b64933aa8c3f7822ed4e05e79de14d81a62ebf4a79f9c111a182b",
+        "bf9bd93ef68541694f2ff3a1eeaf6b395cd418ce65271fbe9519c407d90c68f9",
+        "ceea04f123b4df4f7997168fd0e5f2c0ea335f2b74163b25e3e7287adc0f96df",
+        "adc7d0347d0edc612ebaddeebf7d5fe63a0af172d77647872835af3971211df5"
       ],
-      "source_sha256": "d9aa54728ba47dbff087edea1a6de0e97b2bab3d4b7f275f0b3b657336d10251",
-      "text": "提取和地图的条码从单或包装的FASTQ读书的组合。\n\n将 ``target_sequence`` 插入,提取共识窗口,与所称组 ``regex`` 分开,并通过参考 CSV 地图每个条码到其 ID。\n\n该 regex 必须提供 ``grna`` 组,加上一个行和列组. ``columnID``/``rowID``,由发送的默认 regeks 使用的名称,先例; ``column``/ ``row`` 被接受为联盟。\n\n:param chunk_data: 单端 ``(r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na)`` 的 9 倍或相同的跟踪字段的 10 倍的 ``(r1_chunk, r2_chunk, ...)`` 折叠字段。\n:returns: ``(df, unique_combinations, qc_df)`` - 列出的阅读(``read``,字符串序列和ID),每三重计算,以及一个 NaN/total-reads QC 顺序。",
+      "source_sha256": "074c6072f1ac07b7e3cc8a02a68bbd3d863eb0c6cde82715ca85eb278ff7c2d1",
+      "text": "提取和地图的条码从一个单端或折叠的FASTQ阅读。\n\n在 ``target_sequence`` 上插入,提取共识窗口,将该窗口与所谓的组 ``regex`` 分开,并通过该条码的自己的参考表地图地图它所持有的每个条码到一个名称。\n\n一个字符串是历史的一个,并解码了这个模块总是解码的三个字符号,一个实验室微板列,一个引导 RNA和实验室小板序列,从三个参考 CSV 路径。\n\n对于历史的三个,列和行是从 ``columnID`` 和 ``rowID`` 读取的,在那里 regex 定义这些,并从 ``column``和 ``row`` 没有,所以在这些名称设置之前写的模式正在匹配。\n\n:param chunk_data: 单端读书的9倍 ``(r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na)``,10倍的Payred-End阅读 ``(r1_chunk, r2_chunk, ...)`` 相同的追踪字段,或地图持有 ``r1_chunk``, ``r2_chunk`` (缺席或 None 以单一读书为主。 ``regex``, ``target_sequence``, ``offset_start``, ``window_length``, ``barcode_set`` 和 ``fill_na``.\n:returns: tuple ``(df, unique_combinations, qc_df)`` - 标记的阅读,持有阅读,然后每个条码的序列和名称; 字符号名称的每个单一组合背后的列数; 和一个单环 QC 缺少值和总阅读框架。\n:raises ValueError: 但是,当这种形状不属于某种形状时,, 当窗口长度不积极时, 当一个字符串编码中没有一个组的名称时,或者当一个 FASTQ 记录被误解时。",
       "translation_source_blocks_sha256": [
         "d8b2c1c2e32eeae7b75e031f42f4cf32e4347d7bf2af735f3cedd0c621f9d7da",
-        "731e7187233f64a536dd859de7014d28fe720ad8569224f4c682883073c5aa32",
-        "c9ece26750d3c9ee8c279c49cc076fab020e8b785fce9f6ac2e1f721e05eef58",
-        "4d7162f6dfc396e1c8faa617d0d470905cf0a8a43d53499bff27728b58287a21",
-        "6e2684290412ec9e48605d14b2026c5739b8afec4863e40ad949e16cdc59d153"
+        "d5478725e603f4d7520bd4b5f7d14f327d1669f8c1314c805ff4b4888af12628",
+        "001b272a5e84e11d777a73ec4fb0c634d27cd374915942ce1e224d1ea68ed7f9",
+        "f8e0d044695b64933aa8c3f7822ed4e05e79de14d81a62ebf4a79f9c111a182b",
+        "bf9bd93ef68541694f2ff3a1eeaf6b395cd418ce65271fbe9519c407d90c68f9",
+        "ceea04f123b4df4f7997168fd0e5f2c0ea335f2b74163b25e3e7287adc0f96df",
+        "adc7d0347d0edc612ebaddeebf7d5fe63a0af172d77647872835af3971211df5"
       ]
     },
     "spacr.sequencing.reverse_complement": {
@@ -145945,17 +147057,19 @@
     },
     "spacr.sequencing.save_unique_combinations_to_csv": {
       "source_blocks_sha256": [
-        "0d5af46e2659642b731103b74450cdc0ae490a96130d8d5868828b398be412b1",
-        "4fb4d279b852f705661ca8ddd93150644b60bc525fa6edacf7c6153b091ad720",
+        "a911469cf2e1a9a96f220e316be00f04bd9425542ecc147e15b13af8768c0464",
+        "cd3498a8aac7301223ec0b3743bc602c4dc0b64c5185ca0b00d58bd5bf156411",
+        "1dcf1513efff49e204e5a9d37adb52d02e1d3ab548df7fec1a1bcfe775d66597",
         "12bbe819421969f4917ccf273c51d071b7a09fbfc6f132a81ffdd82d54afe665",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
         "af88f8d7a8fb671e265d7c92ee93dd63b79809e39dfacb7e26b2be6bc69cb0a4"
       ],
-      "source_sha256": "6d4ecd154e8a9917efb4de2828d148f01ff2eaa8b386ee507b4797ad53c61114",
-      "text": "附件为``(rowID, columnID, grna_name)``计算为 CSV,总结重复。\n\n:param unique_combinations: DataFrame 与 ``rowID``, ``columnID``、 ``grna_name`` 和数字计算列。\n:param csv_file: 目的地 CSV 路径(如果缺席,创建)。\n:returns: None.\n:raises Exception: 打印后,当 CSV 写失败时。",
+      "source_sha256": "0b21fa655a5aef1ee470130f8c04924f7cff6e52f011f95fbb2a6133f52e3d9a",
+      "text": "附件每条条码组合计算为 CSV,总结重复。\n\n列到组由是框的,每个列除了计算. 他们通常是这个模块的三个编码,在这里被称为一个字母,这是一个两个地方一个处理会议必须保持准确的三条条码。 阅读它们从框不是一个漏洞:框来自组由它产生的,所以它的列是组合被计算,无论是一个条码或六个。\n\n:param unique_combinations: DataFrame 持有每条字符串和一个数字 ``count`` 列的单个列。\n:param csv_file: 目的地 CSV 路径(缺席时创建)。\n:returns: None.\n:raises Exception: 印刷背景后,当 CSV 写失败时。",
       "translation_source_blocks_sha256": [
-        "0d5af46e2659642b731103b74450cdc0ae490a96130d8d5868828b398be412b1",
-        "4fb4d279b852f705661ca8ddd93150644b60bc525fa6edacf7c6153b091ad720",
+        "a911469cf2e1a9a96f220e316be00f04bd9425542ecc147e15b13af8768c0464",
+        "0ba4509f332a280459f8f0718784a1bd6358677158ce5aedca72bf1cdfcfd4e3",
+        "1dcf1513efff49e204e5a9d37adb52d02e1d3ab548df7fec1a1bcfe775d66597",
         "12bbe819421969f4917ccf273c51d071b7a09fbfc6f132a81ffdd82d54afe665",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
         "af88f8d7a8fb671e265d7c92ee93dd63b79809e39dfacb7e26b2be6bc69cb0a4"
@@ -145994,7 +147108,7 @@
         "bfe462b6a72d7d28abc8ff1bb0666c802176b34b259c1d77489cc1f5b7673576",
         "46e8c8fe51e8ed65147aaad2f4a879ac5610e61f37c74d3e214e25390d0318a2",
         "83a567a602860418afaf87ac77200d09ef1bf95e4c06b7fc23429ac225ec3204",
-        "d1519b7e4ce40ac21ae2fb71017bfd73b7a53cb57fec3b64c082a3bac19782f0",
+        "7f47ed0231e6bab02270e4a3cd2d30f246d3d92bdf6b4811eb62c74791fd6898",
         "fa6a4de3748685c990c777d49a627278c41fff9a7b4ae2d617cfc701000b35b3",
         "06ca2ab4fc96cc187d9e14c3d0668ac310d0ea425c681b26243be61af766d89d",
         "e006244c534c113e0a6c4ea938726e99e29de4f987558139cbe044502a96d2cd",
@@ -146011,15 +147125,16 @@
         "07feef1b4079fec1c6f7506faaccdfaa69cf81982965e0a4908414b961ff8bcc",
         "eda60e96b80a69d554143462663c488d4151674044c573e1c5cb969e064d395e",
         "a92cd25865cd1e5862059f74ef38c8592cc4b37c0ec3a51348df72db7186a1ea",
+        "a5d3f466ebfff3f051b68970c42432ff25741c9d1291668c7e034bf1b20e5227",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "2b95bcb32a075df684bcc77e6e92fa41a12941538532a60832114ccabbd202c5",
-      "text": "单端 FASTQ 处理:将条码提取、解码和流到磁盘。\n\n:param r1_file: gzipped r1 fastq 路径。\n:param r2_file: 未使用的位置持有者保留与加密变量相匹配的界面。\n:param regex: 与名为 ``rowID``、 ``columnID``、``grna``的组合相结合。\n:param target_sequence: 使用的 anchor 序列来查找条码区域。\n:param offset_start: 从 ``target_sequence`` 开始提取。\n:param expected_end: 提取的条形码区域的长度。\n:param column_csv: 列条码参考 CSV。\n:param grna_csv: gRNA 条码参考 CSV。\n:param row_csv: 序列条码参考 CSV。\n:param save_h5: 保持完整的阅读 DataFrame 到 HDF5。\n:param comp_type: HDF5 压缩图书馆。\n:param comp_level: 压缩水平 HDF5。\n:param hdf5_file: HDF5 输出路径。\n:param unique_combinations_csv: 目的地 CSV 为集成组合。\n:param qc_csv_file: 目的地 CSV 为 QC 统计数据。\n:param chunk_size: 按字符串阅读,默认 ``10000``。\n:param n_jobs: 工作进程流程;默认为 ``cpu_count() - 3``。\n:param test: 只处理第一个点击并打印预览。\n:param fill_na: 填写未经地图的ID,使用原始条码序列。\n:returns: None.",
+      "source_sha256": "3de39ea1c75f0ed0e0136f60ecff3769871eb8b60b926739e3bf4cdd45058bc0",
+      "text": "Chunked 单端 FASTQ 处理:提取、解码和流向磁盘的条码。\n\n:param r1_file: gzipped r1 fastq 路径。\n:param r2_file: 未使用的位置持有者保留与折叠变量相匹配的界面。\n:param regex: regex 每条字符号命名一个组. 发送的三个 spaCR 是从 ``rowID``、 ``columnID`` 和 ``grna`` 阅读的。\n:param target_sequence: 使用的 anchor 序列来查找条码区域。\n:param offset_start: 从 ``target_sequence`` 开始提取。\n:param expected_end: 提取的条形码区域的长度。\n:param column_csv: 列栏代码参考 CSV。\n:param grna_csv: gRNA - 条码参考 CSV。\n:param row_csv: 序列条码参考 CSV。\n:param save_h5: 保持完整的阅读 DataFrame 到 HDF5。\n:param comp_type: HDF5 压缩图书馆。\n:param comp_level: HDF5 压缩水平。\n:param hdf5_file: HDF5 输出路径。\n:param unique_combinations_csv: 目的地 CSV 为集成组合。\n:param qc_csv_file: 目的地 CSV 为 QC 统计数据。\n:param chunk_size: 按字符串阅读: 默认 ``10000``。\n:param n_jobs: 工作进程流程;默认为 ``cpu_count() - 3``。\n:param test: 只处理第一个点击并打印预览。\n:param fill_na: 填写无地图 ID 与原始条形码序列。\n:param barcode_set: 字符串编码为 :class:`spacr.settings.BarcodeSet` 的任何尺寸。 None 将从上述 3 个 CSVs 参考中发送的 3 条码 spaCR 解码,这是每个跑步在一组可以提供之前所做的事情; 一个集被用来代替它们。\n:returns: None.",
       "translation_source_blocks_sha256": [
         "bfe462b6a72d7d28abc8ff1bb0666c802176b34b259c1d77489cc1f5b7673576",
         "39e65c843fa0a9535d65aadfb8887452a76e6ced2ae643bf657a14ed23e07cf4",
         "83a567a602860418afaf87ac77200d09ef1bf95e4c06b7fc23429ac225ec3204",
-        "d1519b7e4ce40ac21ae2fb71017bfd73b7a53cb57fec3b64c082a3bac19782f0",
+        "7f47ed0231e6bab02270e4a3cd2d30f246d3d92bdf6b4811eb62c74791fd6898",
         "fa6a4de3748685c990c777d49a627278c41fff9a7b4ae2d617cfc701000b35b3",
         "06ca2ab4fc96cc187d9e14c3d0668ac310d0ea425c681b26243be61af766d89d",
         "e006244c534c113e0a6c4ea938726e99e29de4f987558139cbe044502a96d2cd",
@@ -146036,6 +147151,7 @@
         "07feef1b4079fec1c6f7506faaccdfaa69cf81982965e0a4908414b961ff8bcc",
         "eda60e96b80a69d554143462663c488d4151674044c573e1c5cb969e064d395e",
         "a92cd25865cd1e5862059f74ef38c8592cc4b37c0ec3a51348df72db7186a1ea",
+        "a5d3f466ebfff3f051b68970c42432ff25741c9d1291668c7e034bf1b20e5227",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
@@ -146829,6 +147945,188 @@
         "97152c67389c8fb8345d2f4eed047f13edd3189632d39f0a37a7af51bd220f34"
       ]
     },
+    "spacr.settings.BarcodeEntry": {
+      "source_blocks_sha256": [
+        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "e6e65ecebf78eb06898d73da6aa6d7f3abc8d78dfd8c25533cc6da0adc0ae6d8",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "50d952f67575b1ff8a281070cd8d4edfb23507607fb46f6c94cf4abf59a3f540"
+      ],
+      "source_sha256": "896323309f63c284ab5617acdedfb15c8aa99f2487f35e6e0a48c4c65dee19dd",
+      "text": "一个条码输入一个地图条码运行解码。\n\n处理会议用来准确地编码三个条码 - 一个实验室微板列,一个引导 RNA和一个实验院微板序列 - 因为规则,设置和阅读处理器分别以名称播放了所有三个。\n\n参数\n----------\n名称: 一个用户将使用这个字符号,如列,行,grna 或实验室微板. 它命名两个输出列的处理会议写入,所以它必须是独一无二的组内. csv: 参考表,将其中一个序列变成一个名称. 需要一个 ``sequence`` 列和 ``name`` 个列,其序列必须是相同的方向,因为它们是比较字符,而不是逆转补充。 group_aliases:该组名称的额外播放,当偏好缺席时被接受。 列和行编码 spaCR 发送接受更短的 ``column`` 和 ``row`` 这样,这就是为什么在这些名称设置之前写的模式仍然运行。 sequence_column:在输出列中,提取的序列被写入。 左空是输入名称,其次是 ``_sequence``. id_column:在输出列中,已解决的名称被写入。 左空是输入名称,其次是 ``ID``. 引导 RNA字符号 spaCR 发送将此设置为 ``grna_name`` 相反,因为它是每个计算表的标题已经写下来,每个读者都期望一个。",
+      "translation_source_blocks_sha256": [
+        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "a54459002ec25a06a6300251212900b8edd1e9f50229b3b3fe2a08e45b5516c8",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "371ff8408777d0833615110fa3a38e164a47c51253c43682868cb56dc7b3138f"
+      ]
+    },
+    "spacr.settings.BarcodeEntry.__post_init__": {
+      "source_blocks_sha256": [
+        "305dffc934653be8fde5369eb12cb39f60f63547626a775d634e3cd3fff85fab",
+        "7fec057c86008675c307a82dbffcd28fb32923fdb3dc28a230c8ba5733eda2fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "7dcc17dc475bea4205473402c72fcae770f19071bc152e67c5cf0be27b89823e"
+      ],
+      "source_sha256": "f2a02ff3cb97c7791c0019c6b76615f581c43d94edd64efd23a5c3e8e5742a18",
+      "text": "填写从输入本身的名称下面的插件。\n\n源于这里而不是在每个使用点,因为两个读者,每个工作出一个输入的列被称为什么是两个读者的可能不同意。 输入被冻结,因此正常值分为 ``object.__setattr__``。\n\n:returns: None.\n:raises ValueError: 当输入没有名称时,其输出列将无声无声。",
+      "translation_source_blocks_sha256": [
+        "305dffc934653be8fde5369eb12cb39f60f63547626a775d634e3cd3fff85fab",
+        "7fec057c86008675c307a82dbffcd28fb32923fdb3dc28a230c8ba5733eda2fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "7dcc17dc475bea4205473402c72fcae770f19071bc152e67c5cf0be27b89823e"
+      ]
+    },
+    "spacr.settings.BarcodeEntry.accepted_groups": {
+      "source_blocks_sha256": [
+        "b55abe767d53489758498064b9fe95dd44ccf9ab5fb88448ccf37cd09a16b48f",
+        "e66505550eed0efe35dc0482f86609e7628bb269c6ed86eb39ed51801b17b5cb"
+      ],
+      "source_sha256": "ed5e5cdb3575ad275648dd74807b7e699f9f1923c705e0a89725b9dc950d87b1",
+      "text": "返回每个 regex 组命名此条码答案。\n\n:returns: 一群组名称,最喜欢的第一场比赛,随后接受的任何较老的比赛。",
+      "translation_source_blocks_sha256": [
+        "b55abe767d53489758498064b9fe95dd44ccf9ab5fb88448ccf37cd09a16b48f",
+        "e66505550eed0efe35dc0482f86609e7628bb269c6ed86eb39ed51801b17b5cb"
+      ]
+    },
+    "spacr.settings.BarcodeEntry.group_in": {
+      "source_blocks_sha256": [
+        "a425d4650a1840b40114acb5ae27531b7961cb235593a5b159687756d3f5cbe8",
+        "51e429074ad732b52e933c5cd0ef04a93c848c11fec502741efa225f0c3119ca",
+        "f30b76a8fb57f571195bad172ec367da5eafa9e4ad37c3f5358a0d6a2947eccf"
+      ],
+      "source_sha256": "73e0b16b242268ae088857682db694fa889d93da9ccd8cb81789790001be700f",
+      "text": "返回一个 regex 所使用的这个条形码组的字符串。\n\n:param names: 组名称 定义一个 regex。\n:returns: 所接受的组名称由 regex 定义,或 None 如果它不定义其中任何一个。",
+      "translation_source_blocks_sha256": [
+        "a425d4650a1840b40114acb5ae27531b7961cb235593a5b159687756d3f5cbe8",
+        "51e429074ad732b52e933c5cd0ef04a93c848c11fec502741efa225f0c3119ca",
+        "f30b76a8fb57f571195bad172ec367da5eafa9e4ad37c3f5358a0d6a2947eccf"
+      ]
+    },
+    "spacr.settings.BarcodeEntry.group_label": {
+      "source_blocks_sha256": [
+        "fad7402e0f2e7ba1b7b7877bcf74ed52ba08b2f4e3be2e9abe3df687834149ce",
+        "a0a890dadf1f6b8d1190f16c17a8b5ef3a919df3a0dcfb4779e1b2d707ba503f",
+        "7ec4a22c0a184a59f3e9b3b1fa5ba0639b80248504ca64e85ccf7b14a66a6755"
+      ],
+      "source_sha256": "076156015b40a6afaf78cdf472d359254a3fe7d6c68da12a3c904d1ca8d015ec",
+      "text": "将此条码的已接受的组名称作为一个标签返回。\n\n排序,而不是先选择,因为这个标签在用户阅读的消息中,当 regex 缺少一个组时,并且 spaCR 总是打印的名字,最古老的字符先。\n\n:returns: 收到的群体名称由slashes 加入。",
+      "translation_source_blocks_sha256": [
+        "fad7402e0f2e7ba1b7b7877bcf74ed52ba08b2f4e3be2e9abe3df687834149ce",
+        "a0a890dadf1f6b8d1190f16c17a8b5ef3a919df3a0dcfb4779e1b2d707ba503f",
+        "7ec4a22c0a184a59f3e9b3b1fa5ba0639b80248504ca64e85ccf7b14a66a6755"
+      ]
+    },
+    "spacr.settings.BarcodeSet": {
+      "source_blocks_sha256": [
+        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "ded2ad28437c9bd2f3515ede17e5716d88c76a19b67f3ea25d02380d342e9e12",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "e9114b380382e0a75aff2d2344648c9e73b5b9e510aca38786e83a710fba3dfa"
+      ],
+      "source_sha256": "548c793b144d8a03d83beab1612c8c65ace5315d6c4655b5cdd49f8db45b2edf",
+      "text": "订购的条形码类型一个地图条形则运行解码。\n\n一个集取代了模块开始的三个名为参考设置,它是如何处理会议到达每个条码,因此一个处理会议与一个条码和一个处理课程与十只不同于它所拥有的。\n\n参数\n----------\nentries: The barcode types, in the order the run lists them. The annotated reads carry each entry's sequence column and name column in this order, after the read itself. count_columns: The name columns the per-well counts are grouped by, in the order they are grouped. Left empty it is every entry's name column in entry order. It can be set because the three barcodes spaCR shipped for years are counted by row, then column, then guide, while the reads list the column first; a set reproducing that run has to be able to say so rather than quietly re-sort tables people already have.",
+      "translation_source_blocks_sha256": [
+        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "86ae1cc70a39c43febc66d849b6b0e8e76037bbb71d7e0177acf57582ecf3f07",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "5825ae0c1b460bf403e7093bd588e4fc3a27c60e76e4fcdb3413e4a1410aae32"
+      ]
+    },
+    "spacr.settings.BarcodeSet.__iter__": {
+      "source_blocks_sha256": [
+        "144c908ab982eb93289254b5f9b7b78a5f8e2c521097418be19f39b52827ca5f",
+        "24bd768ba51ce037df7e1a47d0b83e5f33416eaf972d9d5bf8d6889d4a2cd3c8"
+      ],
+      "source_sha256": "1677b111d7d3c4109755411fd132541a039d90aee75431f9fef5a777e67de50c",
+      "text": "在运行列表的顺序中输入条码。\n\n:returns: 对入口的 iterator。",
+      "translation_source_blocks_sha256": [
+        "144c908ab982eb93289254b5f9b7b78a5f8e2c521097418be19f39b52827ca5f",
+        "24bd768ba51ce037df7e1a47d0b83e5f33416eaf972d9d5bf8d6889d4a2cd3c8"
+      ]
+    },
+    "spacr.settings.BarcodeSet.__len__": {
+      "source_blocks_sha256": [
+        "bc69de5d240f5887a7048cf1ae00d3b89c95dc11f931a77590dccd1870ebf2cd",
+        "eae096758db82f3cce02d9a97e8de3f38762a60dbbe0fa444cf927e404efc503"
+      ],
+      "source_sha256": "0714c69c4f9ac211a9c450eb6f33fd828dbfe282a557e540f86e4f8ac1e5d112",
+      "text": "返回这个集装饰多少条码。\n\n:returns: 作为一个整体的输入数量。",
+      "translation_source_blocks_sha256": [
+        "bc69de5d240f5887a7048cf1ae00d3b89c95dc11f931a77590dccd1870ebf2cd",
+        "eae096758db82f3cce02d9a97e8de3f38762a60dbbe0fa444cf927e404efc503"
+      ]
+    },
+    "spacr.settings.BarcodeSet.__post_init__": {
+      "source_blocks_sha256": [
+        "5d62b3f91b3c697f38be46bfe2d1808ea34ff994bcc2e3c730fff50e68edb234",
+        "e3e263ef1737519891f26a0398e82ee76ff2a2938fbf174d6fa8088193eea4c2",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "ad2c8c8c5ef7589780ced9705d2025f4a51a3bedd229b900de556767238a3fb6"
+      ],
+      "source_sha256": "20280181cf2ffac0bf4ad4d871550e983cf0f791c67b3bc340abb9208ff5253f",
+      "text": "正常化收藏,拒绝无法解码阅读的收藏。\n\n每个检查在这里是两个字符代码在发行中成为不可分割的方式,这是沉默而不是大声:两个入口分享一个名称列在标记的阅读中互相过写,并且由错误的列组成的数字仍然是一个充满可靠的数字的表。\n\n:returns: None.\n:raises ValueError: 当集是空的,当一个会员不是条码输入,当两个输入共享一个名称,一个 regex 组或一个输出列,或者当计算列不准确是输入的名称列。",
+      "translation_source_blocks_sha256": [
+        "5d62b3f91b3c697f38be46bfe2d1808ea34ff994bcc2e3c730fff50e68edb234",
+        "e3e263ef1737519891f26a0398e82ee76ff2a2938fbf174d6fa8088193eea4c2",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "ad2c8c8c5ef7589780ced9705d2025f4a51a3bedd229b900de556767238a3fb6"
+      ]
+    },
+    "spacr.settings.BarcodeSet.id_columns": {
+      "source_blocks_sha256": [
+        "14d88a7740a57bfa93d23d5f756b099a4c399506cfa85dbe4fe5dee01e21b5a8",
+        "86b1f9abcf15b1b8237e4260a971d68d25f940eceb6e6b3f3439a46dc535885a"
+      ],
+      "source_sha256": "099904586741e1aaf5e78aa46b44215ac13fdfe641f86e6da6b583e98f9ccb3a",
+      "text": "返回输出列的每个条码的解决名称土地。\n\n:returns: 列名称,在输入顺序中。",
+      "translation_source_blocks_sha256": [
+        "14d88a7740a57bfa93d23d5f756b099a4c399506cfa85dbe4fe5dee01e21b5a8",
+        "86b1f9abcf15b1b8237e4260a971d68d25f940eceb6e6b3f3439a46dc535885a"
+      ]
+    },
+    "spacr.settings.BarcodeSet.names": {
+      "source_blocks_sha256": [
+        "2ab53e04c5e6ee67f8f22948848671e8c3bc792a38dd5ce18565edb115b4632d",
+        "bbaeeddce5657f4c61f10176405c35ab64ef8c7f373c88ac239c4ed52191132f"
+      ],
+      "source_sha256": "bf8855c623aafec67c83114206a2d233f72e9224950d589f88dd536b5661f452",
+      "text": "返回每个条码的名称,在输入顺序。\n\n:returns: 一个双重的名字。",
+      "translation_source_blocks_sha256": [
+        "2ab53e04c5e6ee67f8f22948848671e8c3bc792a38dd5ce18565edb115b4632d",
+        "bbaeeddce5657f4c61f10176405c35ab64ef8c7f373c88ac239c4ed52191132f"
+      ]
+    },
+    "spacr.settings.BarcodeSet.resolve_groups": {
+      "source_blocks_sha256": [
+        "45b9f610d94574101d440f8570e3c619152c0918e717b28131222443ed965eca",
+        "e5714a9a19c4151e84d02ea28483911992d412946b1f2b6ee82fccb08b4b2792",
+        "9136ddb59564117007dcbdc0efaea39361251e0f72844028000f4478f8c35d8b",
+        "5588ea870c5e9a6953fc9ce828f9129afa1baa5beb4d190049954d6ec0b5f85a",
+        "4196e50c9fd7086bc620ff5df6f3bc0c18cfc33c9d90c79dc0a38de9b3fcbafc"
+      ],
+      "source_sha256": "c8e134098a99c6853cc77a0bd71f78731913b7a8eadcb53db2b06b46ffe8cc31",
+      "text": "返回 regex 组,每个条码被捕获。\n\n五条字符串需要五个名为组,而这些答案的失败是指四个字符号的雷格斯。 \"no such group\" 从一个工作进程过程的内部,几个框架从任何一个用户配置的东西,所以这里的消息命名没有组的条码,然后列出规则所定义的组。\n\n:param regex: 编写的常规表达式,或一个模型的序列。\n:returns: 从每个条形码的名称到组名称的关键值地图,该 regex 将其播放。\n:raises ValueError: 当 regex 命名此组中的一个或多个条码时,没有一个组。",
+      "translation_source_blocks_sha256": [
+        "45b9f610d94574101d440f8570e3c619152c0918e717b28131222443ed965eca",
+        "e5714a9a19c4151e84d02ea28483911992d412946b1f2b6ee82fccb08b4b2792",
+        "9136ddb59564117007dcbdc0efaea39361251e0f72844028000f4478f8c35d8b",
+        "b9ce32f94c17bf952d77e28f2b82c51300ca828cc92a662584b7bc2ebbc8541a",
+        "4196e50c9fd7086bc620ff5df6f3bc0c18cfc33c9d90c79dc0a38de9b3fcbafc"
+      ]
+    },
+    "spacr.settings.BarcodeSet.sequence_columns": {
+      "source_blocks_sha256": [
+        "d0159a62c2fe4ee420e5ac9f5a19856b140dbdbd5593f1b23d128a87c49c107a",
+        "86b1f9abcf15b1b8237e4260a971d68d25f940eceb6e6b3f3439a46dc535885a"
+      ],
+      "source_sha256": "9c637f358d1f5702b5482b414fdd5be94bec60402ec6bd6f092e88d2b749c0a5",
+      "text": "将输出列返回每个条码的原始序列。\n\n:returns: 列名称,在输入顺序中。",
+      "translation_source_blocks_sha256": [
+        "d0159a62c2fe4ee420e5ac9f5a19856b140dbdbd5593f1b23d128a87c49c107a",
+        "86b1f9abcf15b1b8237e4260a971d68d25f940eceb6e6b3f3439a46dc535885a"
+      ]
+    },
     "spacr.settings.advanced_object_of": {
       "source_blocks_sha256": [
         "eb95a2f6f808fd54008e22b1e2f05375f66ffa2b3a073a1d28025c9e1986c030",
@@ -146843,6 +148141,26 @@
         "b2abc54ce3113b58bcf8e91fb9ed64fe12ee7115c3e98ebc3322ff0c517156bc",
         "b792c1c8587e45e5da5ffe5deb21b808ba668a063f71fbfb3303b7d02a6c60c0",
         "7db760e5a2b2c275e616f3663a21786333e30164a7d9f324a8a63f3a6a77b34d"
+      ]
+    },
+    "spacr.settings.barcode_set_from_settings": {
+      "source_blocks_sha256": [
+        "23d3a63abfefc43ee4990361c76f9c655adb2967c272cfba0e48a7d579534996",
+        "492d19f4f9d0fb8af010213c8758958a9c9c399c1a83c02eb9c436b19c5e581e",
+        "4d312f44397e8039faa0ae394c6fae8ab6a7c10fd62182e8f9e2139c2254fa40",
+        "3d30216d33c8c260c5865bc735473da91faa82782bd221dadd575f653eb4192a",
+        "5ba9f18bc8ffce5d833740b89591c9ed873275f86cfd5a3d3c68a8d59144ef3d",
+        "0494bba2e53fd71d124bebf071dc8e898b1bfb1d2def3853fbfc2d5d722892bc"
+      ],
+      "source_sha256": "91cb13a473f948d2583653ce80054f14cd2dc7ba7faad5fb475b7c809cfb954a",
+      "text": "返回条码设置一个地图条码运行已配置。\n\n设置文件以 ``barcode_set`` 命名其条码,作为一个列表,每条条码有一个输入。 输入是 :class:`BarcodeEntry` 字段的地图,或者只是一个名称,当该名称的参考表已经在设置中。 一个输出名称没有参考表采取一个在其自己的名称下跟随 ``_csv``,并且失败了这个名称 spaCR 船舶的参考,因此,添加一个第四条码的三个船舶是一个单输入的补充,而不是所有四个重新声明。\n\n发送的三条字符号 spaCR 之后命名的输入保留了字符代码一直持有的输入,因为每个字符串的设置文件不会自行输出。 这就是他们描述的处理会议中的三个组成部分,而不是重新实施它:相同的序列组,相同输出列,以及计算表的相同顺序。\n\n:param settings: 地图 Barcodes 设置地图。\n:returns: 设置为 :class:`BarcodeSet` 或 None 如果设置名称没有设置。 None 不是一个错误,是常见的案例:它意味着处理会议将实验室微板列、引导 RNA和实验室小板列命名为 ``column_csv``, ``grna_csv`` 和 ``row_csv`` ,正如每个处理会议在一组之前所做的那样。\n:raises ValueError: 当输入不是输入字段的名称或地图时,当地图带有没有输入的字段时,或者当输入标记无法解决的参考表时。",
+      "translation_source_blocks_sha256": [
+        "23d3a63abfefc43ee4990361c76f9c655adb2967c272cfba0e48a7d579534996",
+        "492d19f4f9d0fb8af010213c8758958a9c9c399c1a83c02eb9c436b19c5e581e",
+        "6b163107f6e06250b0abefea30e41a7637d9b47ac9cfcb108bd1910b6a60c004",
+        "3d30216d33c8c260c5865bc735473da91faa82782bd221dadd575f653eb4192a",
+        "d3e3d32f9a290cadc73c33eb37c6e0722e66d9ad0e602381dd7b9d9f2a008966",
+        "0494bba2e53fd71d124bebf071dc8e898b1bfb1d2def3853fbfc2d5d722892bc"
       ]
     },
     "spacr.settings.bundled_barcode_path": {

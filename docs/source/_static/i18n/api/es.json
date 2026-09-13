@@ -5090,6 +5090,602 @@
         "553a1a79db6f695ccb94f3ae9bad88dfe4ca34f455c0b258a1054b4452e9b07b"
       ]
     },
+    "spacr.barcode_search": {
+      "source_blocks_sha256": [
+        "c5710bbbdc1d888f7f7ac91eb35125595dd31005363ff16f8b15a8cbe1701840",
+        "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
+        "7d1b9c484f72b7238a81207d79f5f3e207329e793b37acbcd52eee2d05ec80da",
+        "c1a4db801ab36225558324485ee3cd68560cad093026ca543c20bd07a57ff20c",
+        "b9678d9ddae5d429e5e437028d9813328b88f2917084de4e1fb272a80ffb3f48",
+        "76a77322a7df9a3b6031d621eee9e527cd2755baacb477f8fd85927aaf4808c6",
+        "f0425fdcdd1296d0e40e5b8437d9efb653ae245565378b506dea4543e487358a",
+        "87abc46324b7652f26afd47890cc77870273d005260e0e9ff49fdf9cd7a4c3f5",
+        "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
+        "9cdf97745e26f6331d427c3b47bac0e9d665a9013ad83e82b5d1d97e2c13d8e2",
+        "2a168de40798a583f43ae4a10b09d9ec6541cef4c29ed2d7a4a8fad0fc4bcc28"
+      ],
+      "source_sha256": "5b68ce11638d37ea4bc01bf69d8fda009072f9afa3c51d542e4fb44836f1f974",
+      "text": "Decida qué tablas de código de barras contiene realmente una secuenciación.\n\n¿Para qué es?\n==============\nMap Barcodes tiene que ser dicho tres cosas que no puede adivinar: qué mate lleva cada código de barras, si la tabla de referencia se almacena en la misma orientación que las lecturas, y dónde en la lectura se encuentra el código de barra. Conseguir cualquiera de ellos mal produce una sesión de procesamiento que termina normalmente y no mapea nada, porque cada etapa después de la ventana de extracción está trabajando en las bases incorrectas. Este módulo lee una muestra delimitada de los lecturas, mide cada tabla de referencias contra ellos en ambas orientaciones, y convierte las mediciones en ajustes que la ejecución de asignación puede utilizar. No tiene código gráfico y abre diálogos, por lo que el mismo motor sirve a la búsqueda en vivo en la interfaz, un cuaderno y las pruebas.\n\n¿Por qué una tasa de éxito bruta no es evidencia\n================================================\nUn código de barras corto aparece en una lectura larga por pura coincidencia. Treinta y dos códigos de barras base distintos escaneados a través de ciento cincuenta bases tienen alrededor de un siete por ciento de probabilidad de una coincidencia espuria, por lo que una tabla que está realmente ausente todavía reporta aproximadamente siete porciento de las lecturas como hits. Un detector que anunció un hallazgo a ese ritmo enviaría a alguien a buscar un error que no existe, o configuraría silenciosamente un mapeo que no produce nada. Cada tasa que este módulo reporta por lo tanto llega con la tasa esperada por casualidad para esa tabla contra esas lecturas, y con la proporción entre ellas. Nada se llama presente a menos que quede bien claro de su propia tasa de coincidencia.\n\n¿Por qué un gran enriquecimiento todavía no es suficiente\n=========================================================\nEl enriquecimiento sobre el azar responde si las secuencias están en las lecturas. No responde si son los códigos de barras de microplacas de laboratorio. Los adaptadores de secuenciación son secuencias fijas que se repiten en cada lectura, y un puñado de códigos de barra en cualquier tabla se asemejarán a una parte de un adaptador lo suficientemente cerca como para que coincida con ella. Esto produce un enriquecimiento grande y perfectamente real impulsado por dos códigos de bar sentados en el adaptador en lugar de por una microplaca de laboratorio . La medida que separa los dos es la posición. Un código de barras microplata de laboratorio ocupa un lugar en la construcción y por lo tanto aterriza en un desplazamiento en casi cada lectura , que es exactamente por lo que se puede proponer una ventana de extracción para ello en absoluto. Un partido disperso a través de la lectura no puede dar lugar a una ventana y no se trata como un hallazgo, por más enriquecido que sea.\n\nLo que produce\n================\nUn informe que contiene un hallazgo por combinación de tabla de referencia, orientación y archivo de entrada. Cada hallazgo contiene la tasa observada, la tasa de oportunidad, el enriquecimiento, la distribución de compensación, la ventana de compensación más estrecha que representa la mayoría de los aciertos, cuántos códigos de barras distintos de la tabla fueron vistos, y un veredicto con una frase que dice por qué se alcanzó ese veredicto. El informe se puede representar como una tabla para un registro, y se puede plegar en la configuración que :func:`spacr.sequencing.generate_barecode_mapping` lee.\n\nQué hacer a continuación\n========================\nLea los veredictos antes de la configuración propuesta. Una tabla reportada como ausente en ambas orientaciones de ambos compañeros es generalmente el archivo de referencia equivocado en lugar de un experimento fallido, y la columna offset es la forma más rápida de decir un microcódigo de barras de laboratorio de un adaptador que sucede que se asemeja a uno.",
+      "translation_source_blocks_sha256": [
+        "c5710bbbdc1d888f7f7ac91eb35125595dd31005363ff16f8b15a8cbe1701840",
+        "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
+        "93020ed3684bde847fa4aa3dd6e46a9eecc1296add90ab325c07520268d74df8",
+        "105743402576613ebc7f9ad16d7f145ec260723a262cc7f7c78cfa544b783296",
+        "b9678d9ddae5d429e5e437028d9813328b88f2917084de4e1fb272a80ffb3f48",
+        "85ec72c029d81ae9cfff3b4b8c859689c42e5b9b07c0c8415749effdd153fb19",
+        "46be5f11698d7a9a9a5e520c2542cb924dcdfc29fac18a16b5017077abb6468c",
+        "1b9e73ff367742a6893f9adda6659a509d41eb8e4a8cc60eb5f4c7ab862a3b47",
+        "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
+        "6164ad73de3089addfdf4320dbe9f6da259911427de5e8fbaae926809d0c3167",
+        "10e18f90c11a4acfb1c3abe417d6d636b9a54874961d051c9ae95d25c250b9f3"
+      ]
+    },
+    "spacr.barcode_search.BarcodeHit": {
+      "source_blocks_sha256": [
+        "d34ea2ed012a61c3938dad92a89e2d612f397bf19ff89af952e26fcb23a9917d",
+        "12c9f85d41b5894f9c2904c4f5674da9745988c61b5368c205e71d57adfb9dbe",
+        "ee1bfc5d4f7c4dae1c76da83af3ec5476aaa448cd2563f53e70c3f47943f5b60",
+        "086d88dd683a2559e2ab8f037405d141fca33ae8de782abe1c58469a8ecfaddd",
+        "a07f6746cc615984c09622ca7a2ceff5bdcd483f5e1cd122cf941e23ad8f0fd7",
+        "2ca150290d8cd98cf69f249cd0cc34323a78200d22238046bb5115fa6e8e67a0",
+        "112eb656ec1fb155fee7c82a37e720884b59dbd7950e7db215337c0ed7cb3e16",
+        "a174adadc9dbc8792f5da9c0375f52a47c096498e93ad55df68b19822b2fa500",
+        "04e76aebfcc3ba1860f31b3b12fd106c7e1259525663dcea336d407c490db680"
+      ],
+      "source_sha256": "a5b6e33d708cfac8e7df491a06789e3d9358d71e8b86d4f007ac0a4724325ee5",
+      "text": "Una ocurrencia de código de barras dentro de una lectura.\n\nEl estiramiento que cubre se da para que una pantalla pueda resaltar exactamente esas bases, y el índice de color es un número estable para el propio código de barras en lugar de para su tabla, de modo que dos códigos de barras diferentes de la misma tabla se dibujan en dos colores diferentes.\n\n:param start: índice de la primera base del código de barras dentro de la lectura.\n:param end: índice uno más allá de su última base, por lo que ``read[start:end]`` es el código de barras.\n:param table: etiqueta de la mesa de la que vino el código de barras.\n:param role: el rol que ocupa la tabla, o None.\n:param barcode: la secuencia emparejada en sí misma.\n:param orientation: si coincide con ``AS_GIVEN`` o ``REVERSE_COMPLEMENT``.\n:param colour_index: un número estable para el código de barras, no para su tabla, por lo que dos códigos de barras de una tabla se dibujan en dos colores.",
+      "translation_source_blocks_sha256": [
+        "d34ea2ed012a61c3938dad92a89e2d612f397bf19ff89af952e26fcb23a9917d",
+        "12c9f85d41b5894f9c2904c4f5674da9745988c61b5368c205e71d57adfb9dbe",
+        "ee1bfc5d4f7c4dae1c76da83af3ec5476aaa448cd2563f53e70c3f47943f5b60",
+        "086d88dd683a2559e2ab8f037405d141fca33ae8de782abe1c58469a8ecfaddd",
+        "a07f6746cc615984c09622ca7a2ceff5bdcd483f5e1cd122cf941e23ad8f0fd7",
+        "2ca150290d8cd98cf69f249cd0cc34323a78200d22238046bb5115fa6e8e67a0",
+        "112eb656ec1fb155fee7c82a37e720884b59dbd7950e7db215337c0ed7cb3e16",
+        "a174adadc9dbc8792f5da9c0375f52a47c096498e93ad55df68b19822b2fa500",
+        "04e76aebfcc3ba1860f31b3b12fd106c7e1259525663dcea336d407c490db680"
+      ]
+    },
+    "spacr.barcode_search.BarcodeSearchReport": {
+      "source_blocks_sha256": [
+        "af237dab128bb165a877baf49b5f6fbd2186600d9f93df8df382ecbae67ef1f1",
+        "e8252c62c287a66dd56596b266dd14a4f7ed3453c195344ca3e88a56d775bc07",
+        "506ea5dba4b56b222e8eb296e9d261874863c152409a761bac6e54a70ae9fc17",
+        "70ac54bb542d0211b04dfc7d5a57e2fbadd4d86c1992a5686c526618b3021d4e",
+        "bcd2c3acf2af511c66c6bd94ea30ea1eb283d02c0c1cacd0515133f686cf7f62",
+        "f325840ed23f6b346218637366f24a82ade39a3c612210d4a12b2dea29ec74bd"
+      ],
+      "source_sha256": "c8ae322cefbc8c068084c1d0dadf00cb2442d3976a78b080cff8f2d4120741ee",
+      "text": "Cada hallazgo de una búsqueda, además de cuánto se leyó para conseguirlos.\n\nUn informe de una búsqueda parcialmente terminada tiene la misma forma que una terminada y está destinado a ser mostrado, por lo que una pantalla en vivo puede renderizar cada refinamiento sin carcasa especial la primera.\n\n:param findings: una :class:`OrientationFinding` por tabla, archivo y orientación examinados.\n:param reads_by_file: cuántas lecturas fueron examinadas en cada archivo.\n:param read_length_by_file: longitud media de lectura por archivo, que es el tamaño de un histograma offset.\n:param complete: si la búsqueda ha terminado. False en los informes parciales una pantalla en vivo renderiza mientras todavía se está refinando.",
+      "translation_source_blocks_sha256": [
+        "af237dab128bb165a877baf49b5f6fbd2186600d9f93df8df382ecbae67ef1f1",
+        "e8252c62c287a66dd56596b266dd14a4f7ed3453c195344ca3e88a56d775bc07",
+        "506ea5dba4b56b222e8eb296e9d261874863c152409a761bac6e54a70ae9fc17",
+        "70ac54bb542d0211b04dfc7d5a57e2fbadd4d86c1992a5686c526618b3021d4e",
+        "bcd2c3acf2af511c66c6bd94ea30ea1eb283d02c0c1cacd0515133f686cf7f62",
+        "f325840ed23f6b346218637366f24a82ade39a3c612210d4a12b2dea29ec74bd"
+      ]
+    },
+    "spacr.barcode_search.BarcodeSearchReport.best_for_role": {
+      "source_blocks_sha256": [
+        "c1b52cd4762e5b2c5da661e6c61928bd0748c59e3f3d5df4086491c96721db90",
+        "94f08ee57af51abb8e3190324f2a5e474252dfc5f602d041580f5b36e4f0bd5a",
+        "90c7f0c75c5a1b38e1c14bc53d9055f3c09e5bd1dbd97613ba2b1a4ee3ee999f",
+        "22efbdb8b4b6134ca2c12107ea1d9fc7055501a2c981766e38ca413392e7056f"
+      ],
+      "source_sha256": "0bc854e9892ab1b4b887a621592967fdaf0c553685e112f030bc47c3423fa0f3",
+      "text": "Devuelve el hallazgo presente más convincente para un rol de código de barras.\n\nUn papel puede ser llenado por más de una tabla y por cualquiera de los dos compañeros, y el que llama quiere el que realmente sería usado. Sólo se consideran los hallazgos que limpiaron cada cheque, por lo que esto no devuelve nada cuando el rol no fue establecido.\n\n:param role: el rol de código de barras que se busca.\n:returns: el hallazgo con la tasa más alta observada, o None.",
+      "translation_source_blocks_sha256": [
+        "c1b52cd4762e5b2c5da661e6c61928bd0748c59e3f3d5df4086491c96721db90",
+        "94f08ee57af51abb8e3190324f2a5e474252dfc5f602d041580f5b36e4f0bd5a",
+        "90c7f0c75c5a1b38e1c14bc53d9055f3c09e5bd1dbd97613ba2b1a4ee3ee999f",
+        "22efbdb8b4b6134ca2c12107ea1d9fc7055501a2c981766e38ca413392e7056f"
+      ]
+    },
+    "spacr.barcode_search.BarcodeSearchReport.for_table": {
+      "source_blocks_sha256": [
+        "876b6a633025fe4543da738139fc7c766e8e42152239ca02ce32198fb7850dd0",
+        "fd01c216a77c5a6cb9336b892228f533a990556044f0f321de39d3bb13b01709",
+        "952be08bbaae1589c1a9d8b02faeb1ea64397735606eaf07a95b6794977f8734"
+      ],
+      "source_sha256": "46617f26ec440dbb9c5ac50003463fcb36c87c780fb37144de529676620ca0e0",
+      "text": "Devuelve los hallazgos que pertenecen a una tabla de referencia.\n\n:param table: la etiqueta de la mesa.\n:returns: una tupla de hallazgos, el enriquecimiento más fuerte primero.",
+      "translation_source_blocks_sha256": [
+        "876b6a633025fe4543da738139fc7c766e8e42152239ca02ce32198fb7850dd0",
+        "fd01c216a77c5a6cb9336b892228f533a990556044f0f321de39d3bb13b01709",
+        "952be08bbaae1589c1a9d8b02faeb1ea64397735606eaf07a95b6794977f8734"
+      ]
+    },
+    "spacr.barcode_search.BarcodeSearchReport.format_table": {
+      "source_blocks_sha256": [
+        "5ddab1fea570b5d291c2848454e44585f1b50f62a91040a492892fcd94c4b967",
+        "8453506ac149b5da898149e5b0ee03c7b9e2a334ea37fdceb1f9b9b47ad7e7b5",
+        "27806d48d521d55f4174693935a2143dbd4ac4bcad5468d3d834d3e10e7a430a"
+      ],
+      "source_sha256": "9199ba8f74df52539ee1a8dae05ee5af467c5393a8371d9132800f4d140eb761",
+      "text": "Renderizar los resultados como texto de ancho fijo para un registro o una consola.\n\nLa tasa esperada se encuentra al lado de la observada a propósito. Un lector que ve sólo la columna observada creerá una coincidencia, y el punto completo del módulo es que los dos números nunca se separan.\n\n:returns: la tabla renderizada, como una cadena.",
+      "translation_source_blocks_sha256": [
+        "5ddab1fea570b5d291c2848454e44585f1b50f62a91040a492892fcd94c4b967",
+        "8453506ac149b5da898149e5b0ee03c7b9e2a334ea37fdceb1f9b9b47ad7e7b5",
+        "27806d48d521d55f4174693935a2143dbd4ac4bcad5468d3d834d3e10e7a430a"
+      ]
+    },
+    "spacr.barcode_search.BarcodeSearchReport.reads": {
+      "source_blocks_sha256": [
+        "f6688e8e50aa245a76ab03e79399f37975395062542476a2baa6e74c4965ab4b",
+        "f5da64705e254a70f4b8c4c8cee8ae0360fc18a4763043aa1ccd0ca296374bf4"
+      ],
+      "source_sha256": "aa902a54fc54b35b32275576916b821968d73ec96d3ccbc67372c9cda3c4327a",
+      "text": "Devuelve cuántas lecturas fueron examinadas en todos los archivos.\n\n:returns: el número total de lecturas.",
+      "translation_source_blocks_sha256": [
+        "f6688e8e50aa245a76ab03e79399f37975395062542476a2baa6e74c4965ab4b",
+        "f5da64705e254a70f4b8c4c8cee8ae0360fc18a4763043aa1ccd0ca296374bf4"
+      ]
+    },
+    "spacr.barcode_search.BarcodeSearchReport.roles": {
+      "source_blocks_sha256": [
+        "c7f7ee4e7ae832d219e217221a8548d368e1deafc45cf6f0c9a3ea4e4aeedc03",
+        "4becb703f05f1956548fe4beeb6147353494d0210d35a4dec5ebde83e6652346"
+      ],
+      "source_sha256": "7dc90407cbb802dbda712affaa7a61e9331189822d2d2b69e51a1fe82905c538",
+      "text": "Devuelve cada rol de código de barras que las tablas buscadas fueron dadas.\n\n:returns: una tupla de nombres de roles, en un orden estable, sin el ancla.",
+      "translation_source_blocks_sha256": [
+        "c7f7ee4e7ae832d219e217221a8548d368e1deafc45cf6f0c9a3ea4e4aeedc03",
+        "4becb703f05f1956548fe4beeb6147353494d0210d35a4dec5ebde83e6652346"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable": {
+      "source_blocks_sha256": [
+        "c2b83513de3f9b710a57b948a831b751b3c083a28a1d8ab9c77499a38e24f792",
+        "2fd1b8f8aac67729f7ef8b0f165036a1e480785fc50d2a2e8127b36744bd3d49",
+        "c9eaa7e301338caba859fd4dc39b3c66de204f8ce54c771dfdc4e0f3d72a5fa6",
+        "0dd2d3c68449ef46a88154e7e763bec76ef83b8ca8b19bfe9489eb151e3cacdf",
+        "649663be938d12a13de73ec69f66a242e8b370f5364c5b3a4586ee8775e35975",
+        "a47f54a7ab26c347c3d8a7857e2cad471495f44bc859d3b4e53d27dc4b51162e"
+      ],
+      "source_sha256": "b4c731bed95a71365eec83d86038a90ea3868b0c62fe9b38fe405dbd55800f8a",
+      "text": "Una tabla de referencia de secuencias de códigos de barras nombradas.\n\nLas secuencias se mantienen como una asignación de secuencia a nombre para que una coincidencia pueda ser nombrada sin una segunda búsqueda, y los recuentos por longitud se mantienen porque la tasa de probabilidad depende de cuántos códigos de barras de cada longitud hay en lugar del tamaño de la tabla solo.\n\n:param name: la etiqueta esta tabla es conocida por el resto de la búsqueda, y la etiqueta cada hallazgo que produce se refiere a.\n:param sequences: asignación de la secuencia de código de barras al nombre de ese código de barra, por lo que un golpe puede ser nombrado sin buscar en la tabla de nuevo.\n:param role: qué parte de la identidad de la cribado decodifica la tabla -- fila de microplaca de laboratorio, columna de micro placa de laboratorios, guía -- o None para una tabla buscada sin una.\n:param path: donde se leyó la tabla, mantenido para que una asignación propuesta pueda nombrar el archivo en lugar de la etiqueta.",
+      "translation_source_blocks_sha256": [
+        "c2b83513de3f9b710a57b948a831b751b3c083a28a1d8ab9c77499a38e24f792",
+        "2fd1b8f8aac67729f7ef8b0f165036a1e480785fc50d2a2e8127b36744bd3d49",
+        "c9eaa7e301338caba859fd4dc39b3c66de204f8ce54c771dfdc4e0f3d72a5fa6",
+        "0dd2d3c68449ef46a88154e7e763bec76ef83b8ca8b19bfe9489eb151e3cacdf",
+        "00d22ba6088a3d51f8372cb1127f7bb8724ceb9509e2bc3fdae35be83c63b3e2",
+        "a47f54a7ab26c347c3d8a7857e2cad471495f44bc859d3b4e53d27dc4b51162e"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable.__post_init__": {
+      "source_blocks_sha256": [
+        "d53bf6dd55d12089175c9fe87333c8d2f61d8530d76eb862455e7297c5985da6",
+        "13c3b6b2d819953a024e7b1e708aa6426ddb9fa6d9fba3f4e21c4b341c969590"
+      ],
+      "source_sha256": "15ccfc00273a9968412d4f03121fea796c2d32005777422f2ec928efbd4b0946",
+      "text": "Dale a la mesa una tienda privada para los índices construidos a partir de ella.\n\nConstruir el índice de búsqueda sobre una tabla de más de mil secuencias de guía toma bastante tiempo que hacerlo una vez por lectura haría inutilizable una pantalla en vivo, por lo que cada índice se construye una vez y se mantiene aquí.",
+      "translation_source_blocks_sha256": [
+        "d53bf6dd55d12089175c9fe87333c8d2f61d8530d76eb862455e7297c5985da6",
+        "13c3b6b2d819953a024e7b1e708aa6426ddb9fa6d9fba3f4e21c4b341c969590"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable.barcode_order": {
+      "source_blocks_sha256": [
+        "079b49871c80b0ffc70881c94f20e3444d5642a2fd89e415da064174fd2fae41",
+        "443bac809e46249cef632c544ec0e7f1c84bbc771255a882c9c5d935192094e7",
+        "c18c7aa1d604c097d35a07f26a955139f68ce0d11d4f2513460c782d89d02c95"
+      ],
+      "source_sha256": "b4cb13fa5e44a123681330f1c9ba9fe53e34ca9bbbc09c56b2bc2fd540b94428",
+      "text": "Devuelve un número estable para cada secuencia almacenada de la tabla.\n\nUna pantalla pinta un color por código de barras en lugar de por tabla, y el número tiene que ser el mismo cada vez que se carga la misma tabla, por lo que viene de ordenar las secuencias en lugar del orden del archivo.\n\n:returns: una asignación desde la secuencia almacenada a su posición cuando se ordene.",
+      "translation_source_blocks_sha256": [
+        "079b49871c80b0ffc70881c94f20e3444d5642a2fd89e415da064174fd2fae41",
+        "443bac809e46249cef632c544ec0e7f1c84bbc771255a882c9c5d935192094e7",
+        "c18c7aa1d604c097d35a07f26a955139f68ce0d11d4f2513460c782d89d02c95"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable.length_counts": {
+      "source_blocks_sha256": [
+        "d105e9597044f560a7c8df1754969f101434c44bb0159ad2ddfa8c74980f3c7b",
+        "2efa0ae362a7f2984c9a414020878c1381b5291de63aa05aa66451f612733da8"
+      ],
+      "source_sha256": "68d6be130cc4b3558e6ba0c205836c3928b6ac163d5e47c667af2677ee63bfb7",
+      "text": "Devuelve cuántos códigos de barras distintos tiene la tabla a cada longitud.\n\n:returns: una asignación de longitud de secuencia al número de códigos de barras.",
+      "translation_source_blocks_sha256": [
+        "d105e9597044f560a7c8df1754969f101434c44bb0159ad2ddfa8c74980f3c7b",
+        "2efa0ae362a7f2984c9a414020878c1381b5291de63aa05aa66451f612733da8"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable.matcher": {
+      "source_blocks_sha256": [
+        "6a7944f64b78be7cb6f746dbf2fd6abf40cae3ea26790c9e35430a3f32a37cbe",
+        "5c2cc8ea6006ce90f1e24dbe37a06566f8ad1936b102416c071cb6409cb3d75f",
+        "e562b4e09df67e4f190f78f51152f1e2d861f7f86cbee71858b999505bb593ff"
+      ],
+      "source_sha256": "08e5dd7b5d0a714404bf8e06191d728e8726f4714106eae2ef597c13b3bf3f75",
+      "text": "Devuelve el índice de búsqueda reutilizable para una orientación de la tabla.\n\n:param orientation: qué orientación de la tabla a buscar.\n:returns: el índice, construido sobre el primer uso y mantenido después.",
+      "translation_source_blocks_sha256": [
+        "6a7944f64b78be7cb6f746dbf2fd6abf40cae3ea26790c9e35430a3f32a37cbe",
+        "5c2cc8ea6006ce90f1e24dbe37a06566f8ad1936b102416c071cb6409cb3d75f",
+        "e562b4e09df67e4f190f78f51152f1e2d861f7f86cbee71858b999505bb593ff"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable.oriented": {
+      "source_blocks_sha256": [
+        "1a3526736baf779b050c6a16424c4d5d26bf45649341a86f505c44b2b00f3c73",
+        "954def042d93e64d1dcdfcc88891b0c8cad3c3c674342822668c6e40bf5080da",
+        "b4c69577eb3f978cfc1698910680b5d7a0680f891b93597a61d9788cc1dd936e",
+        "c346d1ffc41fe87b72e3aa0789461006d2c1d1672ba9e019b74ffd807b9affb1"
+      ],
+      "source_sha256": "43cacb6d9ad1052c3dc70624aed8f940805522dedfd85f6ded97aa3dee166dbb",
+      "text": "Devuelve la misma tabla con sus secuencias en una orientación elegida.\n\n:param orientation: bien la etiqueta de la orientación almacenada o la etiqueta del reverso complementada.\n:returns: una tabla cuyas secuencias se leen en la orientación solicitada.\n:raises ValueError: cuando la etiqueta de orientación no es una de las dos.",
+      "translation_source_blocks_sha256": [
+        "1a3526736baf779b050c6a16424c4d5d26bf45649341a86f505c44b2b00f3c73",
+        "954def042d93e64d1dcdfcc88891b0c8cad3c3c674342822668c6e40bf5080da",
+        "b4c69577eb3f978cfc1698910680b5d7a0680f891b93597a61d9788cc1dd936e",
+        "c346d1ffc41fe87b72e3aa0789461006d2c1d1672ba9e019b74ffd807b9affb1"
+      ]
+    },
+    "spacr.barcode_search.BarcodeTable.size": {
+      "source_blocks_sha256": [
+        "75e5aa10640d5c1fc92c41daad6f81508d35ad187772cbd0e86aa8575700d18b",
+        "343ab55c33d8c93b1bb3d87bf92f989e00532d9d1edaaab027191f10bcd4a610"
+      ],
+      "source_sha256": "b8825e77e0a2cff1bd47b98e7185da7d1aaffb39a2112a2feabe08fed5874067",
+      "text": "Devuelve cuantas secuencias distintas tiene la tabla.\n\n:returns: el conteo de secuencias de código de barras distintas.",
+      "translation_source_blocks_sha256": [
+        "75e5aa10640d5c1fc92c41daad6f81508d35ad187772cbd0e86aa8575700d18b",
+        "343ab55c33d8c93b1bb3d87bf92f989e00532d9d1edaaab027191f10bcd4a610"
+      ]
+    },
+    "spacr.barcode_search.OrientationFinding": {
+      "source_blocks_sha256": [
+        "0753b6517a570d72ee3b110c9df2ed3d55278709ab84f42b0fa008960b461e1f",
+        "9d587d21eef1e8361f0e75d6273db2e68194ec582afebe5334e160be26b84f50",
+        "1e6e6cfa4411034449aa3f905f40ddfe423f7f6d028d067ea774786c412272cf",
+        "a5f26b17c32fe2c8eb6a24a6c8bd21d96a7253e111cf882889f114cf586396cb",
+        "492c8731cc604d95125765997f5e9295c84003a1474f1e205c7eb4dcdf31a6f4",
+        "e47541de909d334deca2f33bfaee8cdc715ccffa6c68ef7b5399dac07d88a957",
+        "9666c27658d466dd8a4cea04d8be8f74c47ec6e7c85d74588197f6328a81867e",
+        "b2994e1d6d9e0b984cad20ef3104acdda10b99aef82538a9385b09af0f394e74",
+        "778ae10379371968df63dd53a2b6e40942e44f66ecc90adce252733f7dd3591c",
+        "30e7dd5eccd0e5e170f785a367c8de3e799a03537b560bd1d88ad3ffea75588c",
+        "d2f130947617b4700771a7e5bd222deda5b5171d273e527bd15d6e5d6a331718",
+        "761f94942a114ee9d8a8f06f8db88568caf3de77b1bb8531eb33d1e0ec64d11c",
+        "bf0988fe550533109f8ea88fcccf6ce52ddd4a237ebed97b74b049046143f699",
+        "2abb58998b7471120fa1485615c2caca99f1cad473f423a1010f249d32741377",
+        "42d4f76fdb98682e9f1934ed8083c76dc261f75bcc62f618e6c11285530eba64",
+        "2f8f2837c0d86cdca0205437125dbdf0381864b68287cc85803b047bf468a26c",
+        "cae29aa677191e761b987efc67b0e1193a21ff72ac1fdb23630fb153c8aec7bb",
+        "b6ea4a1d7ac735c0dddb5793dcf3c2f52843a42ed87b8886a905b71a4ae00f28",
+        "9aec55dfd6071d310c0f74f454aa4bdf79e4a0719b9c045c389022c6c3514f4b",
+        "6272b19cb663011bce661657084005a1e50445303b62d9eefd92f410df08a690",
+        "9596c71e4a85e24ebaec17731c8ec0d8589caa2e6167a76e8702d19a263b2d64",
+        "e92e91ad279495186942c30faad2ae73996f7d20d6a27b191476ce40b6fdd8c1"
+      ],
+      "source_sha256": "199cd3d4af5cef454e4607b7d1b1340bbdc74777ea8642e638cafc348af132d5",
+      "text": "Lo que una tabla de referencia hizo contra un archivo en una orientación.\n\nTodo lo necesario para juzgar el hallazgo viaja con él, por lo que una persona que llama nunca tiene que recomputar la tasa de coincidencias para decidir si la tasa observada significa algo.\n\n:param table: etiqueta de la tabla de referencia de la que se trata este hallazgo.\n:param role: el rol que la tabla llena, o None cuando fue buscado sin uno.\n:param file_label: el archivo leído contra el que se registró la tabla.\n:param orientation: si la tabla coincide con ``AS_GIVEN`` o ``REVERSE_COMPLEMENT``.\n:param table_path: donde se leyó la tabla, o None cuando se suministró en línea.\n:param reads: ¿Cuántas lecturas fueron examinadas para llegar a este hallazgo.\n:param hits: cuántas de esas lecturas contenían un código de barras de la tabla.\n:param observed_rate: ``hits`` dividido por ``reads``.\n:param expected_rate: la tasa de la misma tabla alcanzaría por casualidad, dado el número de códigos de barras que tiene a cada longitud. La tasa observada no significa nada por sí sola; esto es lo que lo hace legible.\n:param enrichment: ``observed_rate`` dividido por ``expected_rate``.\n:param offset_start: El desplazamiento inicial más temprano cuenta como la posición habitual del código de barras.\n:param offset_span: Cuantas compensaciones consecutivas cubre esa posición.\n:param modal_offset: el único offset de inicio más común, o None cuando no se encontró nada.\n:param barcode_lengths: las distintas longitudes presentes en la tabla. La ventana de extracción tiene que llegar más allá de la más larga, no la modal.\n:param distinct_barcodes_seen: ¿Cuántos códigos de barras diferentes de la tabla se observaron realmente. Una tabla que sigue emparejando la misma secuencia está emparejado con algo más que sus códigos de barra.\n:param table_size: cuántas secuencias distintas tiene la tabla.\n:param top_barcode_share: fracción de aciertos tomada por el código de barras más común. Cerca de uno, junto con un bajo ``distinct_barcodes_seen``, es la firma de una coincidencia espurio en lugar de uno real.\n:param verdict: ``PRESENT``, ``ABSENT`` or ``INDETERMINATE``.\n:param reason: por qué se llegó a ese veredicto, redactado para ser mostrado a un usuario.\n:param offset_counts: cuenta de golpe en cada offset de inicio, para el histograma.",
+      "translation_source_blocks_sha256": [
+        "0753b6517a570d72ee3b110c9df2ed3d55278709ab84f42b0fa008960b461e1f",
+        "9d587d21eef1e8361f0e75d6273db2e68194ec582afebe5334e160be26b84f50",
+        "1e6e6cfa4411034449aa3f905f40ddfe423f7f6d028d067ea774786c412272cf",
+        "a5f26b17c32fe2c8eb6a24a6c8bd21d96a7253e111cf882889f114cf586396cb",
+        "492c8731cc604d95125765997f5e9295c84003a1474f1e205c7eb4dcdf31a6f4",
+        "e47541de909d334deca2f33bfaee8cdc715ccffa6c68ef7b5399dac07d88a957",
+        "9666c27658d466dd8a4cea04d8be8f74c47ec6e7c85d74588197f6328a81867e",
+        "b2994e1d6d9e0b984cad20ef3104acdda10b99aef82538a9385b09af0f394e74",
+        "778ae10379371968df63dd53a2b6e40942e44f66ecc90adce252733f7dd3591c",
+        "30e7dd5eccd0e5e170f785a367c8de3e799a03537b560bd1d88ad3ffea75588c",
+        "d2f130947617b4700771a7e5bd222deda5b5171d273e527bd15d6e5d6a331718",
+        "761f94942a114ee9d8a8f06f8db88568caf3de77b1bb8531eb33d1e0ec64d11c",
+        "bf0988fe550533109f8ea88fcccf6ce52ddd4a237ebed97b74b049046143f699",
+        "2abb58998b7471120fa1485615c2caca99f1cad473f423a1010f249d32741377",
+        "42d4f76fdb98682e9f1934ed8083c76dc261f75bcc62f618e6c11285530eba64",
+        "2f8f2837c0d86cdca0205437125dbdf0381864b68287cc85803b047bf468a26c",
+        "cae29aa677191e761b987efc67b0e1193a21ff72ac1fdb23630fb153c8aec7bb",
+        "b6ea4a1d7ac735c0dddb5793dcf3c2f52843a42ed87b8886a905b71a4ae00f28",
+        "9aec55dfd6071d310c0f74f454aa4bdf79e4a0719b9c045c389022c6c3514f4b",
+        "6272b19cb663011bce661657084005a1e50445303b62d9eefd92f410df08a690",
+        "9596c71e4a85e24ebaec17731c8ec0d8589caa2e6167a76e8702d19a263b2d64",
+        "e92e91ad279495186942c30faad2ae73996f7d20d6a27b191476ce40b6fdd8c1"
+      ]
+    },
+    "spacr.barcode_search.OrientationFinding.offset_histogram": {
+      "source_blocks_sha256": [
+        "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
+        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
+        "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
+      ],
+      "source_sha256": "f130a60cbb1b69258dadd277780b1bc6b6a4a3b19e856cc49a1e26abc215c770",
+      "text": "Devuelve el conteo de aciertos en cada desplazamiento inicial como un array.\n\nEl array es indexado por offset de modo que un llamante puede trazarlo directamente sin primero calcular qué offlines fueron poblados.\n\n:param read_length: cuánto tiempo debe ser la matriz; el tiempo suficiente para mantener el desplazamiento más grande observado cuando se omite.\n:returns: una matriz de hit cuenta indexada por offset de inicio.",
+      "translation_source_blocks_sha256": [
+        "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
+        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
+        "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
+      ]
+    },
+    "spacr.barcode_search.OrientationFinding.window_end": {
+      "source_blocks_sha256": [
+        "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
+        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
+      ],
+      "source_sha256": "4f32f1f65a73ce5b9b7d23c7199e27e65d71af34ebf59beddbeb28c8774eda19",
+      "text": "Devuelve el primer desplazamiento más allá del código de barras en su posición habitual.\n\nLa ventana de extracción propuesta tiene que llegar al final del último código de barras en lugar de su inicio, y un conjunto de códigos de barras cuyos miembros difieren en longitud llega más lejos en su miembro más largo.\n\n:returns: el desplazamiento justo después del final del código de barras.",
+      "translation_source_blocks_sha256": [
+        "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
+        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
+      ]
+    },
+    "spacr.barcode_search.ProposedMapping": {
+      "source_blocks_sha256": [
+        "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
+        "a82d4579e4dfce423089129609f616b51d5999a257cb786bb1290382fdd1d3cd",
+        "c83a06f40906767f7de977cb698c385f449ca54aba98faae6647cd1d70c5bcf7",
+        "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
+        "44f50d7c93cb1bf51bf2c87e242f91514205bbe797177381d25f31f5e5a87d21",
+        "1a73838fc848de072abe72f7407248191a8f0833188d8c62ab8bbe9b626d4d5c",
+        "a190f1d71e892d7916f7b846482a15e0496c95e6e7e42220b348e58158fdae8b",
+        "cc7ae03a3d0782402fa2de870a83c7fdc29998825bb64ad262ddd77211193519",
+        "b73ba95fd81532679b792744546dbcf363dc776defcb8caf284672198b996dbf",
+        "a00a190d22632254b649be175293a38ea317560c118f90f9a150a4f0817073bb"
+      ],
+      "source_sha256": "868f4ffc07389f2845d8a9cd2d3ec208797d4e37d7da9b6023590d6e710547f9",
+      "text": "Configuración de la búsqueda cree que una ejecución de asignación debe utilizar, y por qué.\n\nLa asignación de valores clave de configuración sólo contiene nombres de datos estructurados que la ejecución de la asignación ya lee, por lo que se puede entregar directamente a él. Todo lo que la búsqueda aprendió que no tiene hogar entre esos nombres de los datos estructurada viaja junto, porque un llamante que dejó caer silenciosamente la orientación reintroduciría el fallo que este módulo existe para evitar. Una cribado que decodifica un código de barras más allá de la columna de microplaca de laboratorio, la guía y la fila de micro placa de laboratorio no tiene ningún nombre de ajuste que lo espere, así que la tabla elegida para cada papel se lista entre las tablas de referencia si se puede rellenar o no un nombre de datos estructurados para ello.\n\n:param settings: sólo los nombres de datos estructurados que la asignación ejecuta ya lee, por lo que se puede entregar esta asignación de valor clave directamente.\n:param reference_file: el archivo cuyas lecturas de las compensaciones de la ventana se expresan contra, ya que las compensaciones no significan nada sin su marco.\n:param source_files: mapeo desde el rol al archivo de lectura que lo estableció.\n:param orientations: mapeo desde la etiqueta de la tabla a la orientación que la ejecución debe buscar en esa tabla.\n:param reference_tables: la tabla elegida para cada rol, listada si existe o no un nombre de ajuste para llevarlo -- que es el punto, porque un rol sin nombre de datos estructurados es exactamente el que de otro modo se perdería.\n:param reverse_complement_needed: tablas la carrera tiene que revertir el complemento para reconocer, porque se encontraron en el segundo mate como almacenado.\n:param unresolved_roles: Nombrado en lugar de adivinado, por lo que un llamante puede decirlo en vez de iniciar una ejecución que no mapeará nada.\n:param notes: lo que la búsqueda aprendió que no tiene hogar entre los nombres de configuración.",
+      "translation_source_blocks_sha256": [
+        "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
+        "e51909a79fb0c96a88e398f9e06291857eaf773e8d05956029b1cba63d160185",
+        "1472deda3c4b599dc0ff3fc7dd9009bcd7775436d9009406154085643bef140e",
+        "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
+        "44f50d7c93cb1bf51bf2c87e242f91514205bbe797177381d25f31f5e5a87d21",
+        "1a73838fc848de072abe72f7407248191a8f0833188d8c62ab8bbe9b626d4d5c",
+        "9687e223609f11475394b838ce0cb00adffeece67663cfbbd07760df20ed29ca",
+        "cc7ae03a3d0782402fa2de870a83c7fdc29998825bb64ad262ddd77211193519",
+        "b73ba95fd81532679b792744546dbcf363dc776defcb8caf284672198b996dbf",
+        "42a466168f6d44ecd92e476ad028c3939b7fe7ea41bc517024fc42b702b8622e"
+      ]
+    },
+    "spacr.barcode_search.annotate_read": {
+      "source_blocks_sha256": [
+        "7fbf2aa128c0dbdd5ded2c3d65ed826367fe0327468ac90d9aa846678cd90b73",
+        "67b67ebe3dcd4da63981257971fc41be961dcd9e3eeb3b69f402bb38af8c12e0",
+        "f5871b8efbcf0427b2492ac8cac663f596c8b2c05dda1624e2f0eea02197f480",
+        "7a7764fc524c9be4b656cea505e908d6b5b0d4254c02bab4200efa74ec62b8f7",
+        "ffc7c6a91293b9ab03c84dcac0b2d7cdf8a37ae253f5e6dab5e844c176c65ba4",
+        "833ec3335dc04da3784dd24f20740963f5a7d65c6d452761f9f8fe7ca188e93f"
+      ],
+      "source_sha256": "662d64616ab84e8c306b67eed2b8139cfb55b05c96b50048258f436cb0c40b5d",
+      "text": "Localizar cada código de barras dentro de una lectura para que una pantalla pueda colorearlos.\n\nLas lecturas de una búsqueda analizadas son las pruebas detrás de sus veredictos, y la manera más rápida para que alguien crea o no crea un veredicto es ver los códigos de barras sentados en las lecturas. Esto devuelve los estiramientos para pintar, de izquierda a derecha, con solapamientos resueltos a favor de cualquiera de las tablas que se enumeran primero.\n\n:param read: la secuencia de lectura.\n:param tables: las tablas de referencia a buscar.\n:param orientations: un mapeo desde la etiqueta de la tabla a la orientación a buscar; ambas orientaciones son buscadas para una tabla no nombrada allí.\n:returns: una tupla de aciertos ordenada por su posición en la lectura.",
+      "translation_source_blocks_sha256": [
+        "7fbf2aa128c0dbdd5ded2c3d65ed826367fe0327468ac90d9aa846678cd90b73",
+        "67b67ebe3dcd4da63981257971fc41be961dcd9e3eeb3b69f402bb38af8c12e0",
+        "f5871b8efbcf0427b2492ac8cac663f596c8b2c05dda1624e2f0eea02197f480",
+        "7a7764fc524c9be4b656cea505e908d6b5b0d4254c02bab4200efa74ec62b8f7",
+        "ffc7c6a91293b9ab03c84dcac0b2d7cdf8a37ae253f5e6dab5e844c176c65ba4",
+        "833ec3335dc04da3784dd24f20740963f5a7d65c6d452761f9f8fe7ca188e93f"
+      ]
+    },
+    "spacr.barcode_search.expected_chance_rate": {
+      "source_blocks_sha256": [
+        "20fb94dbd50bf5748d2286bcf52accb5543e26238f2f941e98ab3317501cbd32",
+        "3e1c7742db4b0ddcda9aac4ae8c38626bc67abf5d124c8ad1ac9ca7af800a31b",
+        "faa6203d76d85b31859918ec5dc36a5385f2f772e20123345b342c5e4aa0fb82",
+        "2e6e1fd8b50f849f1ccb33ec440ee4f96f463be7ef8a23c8caefd0ea66aecdc5",
+        "a3491eb25c4b2a2f13d8b5bb48c8013dc2a1c3b78ff769f57b64cfe90e1a056d",
+        "2828a2934b996754374485d0c6be971bd6f011b315df983f26787037a06da24e"
+      ],
+      "source_sha256": "b7a4d7b2381e428e85df15329ea7fabb956ffb11c5f9322aea45a281383b4f69",
+      "text": "Devuelve la parte de las lecturas que se espera que contenga un código de barras por coincidencia.\n\nUna lectura se trata como una serie de bases independientes dibujadas uniformemente de los cuatro de ellos, por lo que un código de barras de una longitud determinada coincide en una posición con una probabilidad de uno sobre cuatro elevado a esa longitud, y una lectura ofrece una posición más que la diferencia entre su longitud y la del código de barra. La probabilidad de que ningún código de barras de la tabla coincida en cualquier lugar es el producto sobre cada código de barra y cada posición de la probabilidad de no coincidir allí, y la respuesta es uno menos que el producto. Las lecturas de diferentes longitudes son promediadas.\n\nLa hipótesis de base uniforme es el punto débil y fue comprobado en lugar de supuesto. En una ejecución real las tablas que estaban genuinamente ausentes emparejaron dentro de dos décimas de un punto porcentual de la tasa que este devuelve, que es lo suficientemente cerca para la relación entre observada y esperada para ser confiable.\n\n:param table: la tabla de referencia cuya tasa de coincidencias se desea.\n:param read_lengths: una longitud de lectura, una iterable de ellos, o un mapeo desde la longitud de la lectura a cuántas lecturas lo tenían.\n:returns: la cuota esperada de lecturas con al menos un código de barras.",
+      "translation_source_blocks_sha256": [
+        "20fb94dbd50bf5748d2286bcf52accb5543e26238f2f941e98ab3317501cbd32",
+        "3e1c7742db4b0ddcda9aac4ae8c38626bc67abf5d124c8ad1ac9ca7af800a31b",
+        "faa6203d76d85b31859918ec5dc36a5385f2f772e20123345b342c5e4aa0fb82",
+        "2e6e1fd8b50f849f1ccb33ec440ee4f96f463be7ef8a23c8caefd0ea66aecdc5",
+        "a3491eb25c4b2a2f13d8b5bb48c8013dc2a1c3b78ff769f57b64cfe90e1a056d",
+        "2828a2934b996754374485d0c6be971bd6f011b315df983f26787037a06da24e"
+      ]
+    },
+    "spacr.barcode_search.infer_barcode_role": {
+      "source_blocks_sha256": [
+        "826e951f80ed96db0fe3dcc99788206e7fe9053c370acb0523585884ad02e449",
+        "406290720395266907ed821cd749dabf44d9f02353332fe1b70c55af95b0f7e1",
+        "70bacf888df5e85ed5568fa2f63ad08c53d58480c5304be6d069e72981abf60a",
+        "3a33ff3ddc63fdecb9dd78104548c0956bc4d54adf5de9f0ba3fd6367d86f938"
+      ],
+      "source_sha256": "7fe9e65753888b39c8b62686ed8d8006b69fb19b088d61a9ebe414d8eb87f72d",
+      "text": "Adivina si un archivo de referencia contiene códigos de barras de fila, columna o guía.\n\nLa conjetura sólo lee el nombre del archivo, porque las tablas en sí no llevan ningún campo diciendo lo que son. Las tablas de guía se reconocen primero, ya que un nombre de archivo guía no menciona ni filas ni columnas, y los nombres de columna se reconocen antes de nombres de fila.\n\n:param path: la ruta de la tabla de referencia.\n:returns: uno de los nombres de rol, o None cuando el nombre no establece nada.",
+      "translation_source_blocks_sha256": [
+        "826e951f80ed96db0fe3dcc99788206e7fe9053c370acb0523585884ad02e449",
+        "406290720395266907ed821cd749dabf44d9f02353332fe1b70c55af95b0f7e1",
+        "70bacf888df5e85ed5568fa2f63ad08c53d58480c5304be6d069e72981abf60a",
+        "3a33ff3ddc63fdecb9dd78104548c0956bc4d54adf5de9f0ba3fd6367d86f938"
+      ]
+    },
+    "spacr.barcode_search.iter_annotated_reads": {
+      "source_blocks_sha256": [
+        "05ee7b9697f7365eee9b9d61e1142d08a9d491cc3c003303632785507e600fe2",
+        "85373b63543b4ca693369dd9e9cce3b5a5118a5d2280f94bc8a2b4b82384acc4",
+        "26f707b58de11c0ae73394dc4aeb86cbb5498add01d6a51c2bec1f96dfd7a32d",
+        "7a7764fc524c9be4b656cea505e908d6b5b0d4254c02bab4200efa74ec62b8f7",
+        "ffc7c6a91293b9ab03c84dcac0b2d7cdf8a37ae253f5e6dab5e844c176c65ba4",
+        "c1b8ffc3c78a500b4bd0b1df12899206a8e6efd2ad611032cb4b715c7bade2f8",
+        "3638218a9466185f888ad87f2d8a791465b4169d45cc432c9caad0e0b7248569",
+        "1ba63d342adfe92e1a59b7a1c24745fdda0e2e6453a36a7ece8c55001ceca692"
+      ],
+      "source_sha256": "43b12c55b03007d2f038798f124cf740a9db88060eb2d87351c5095fcc31ec59",
+      "text": "Yield lee junto con los códigos de barras encontrados dentro de ellos.\n\nEsto alimenta la ventana que muestra una lectura por línea con sus códigos de barras elegidos, por lo que permanece limitada de la misma manera que la búsqueda es y nunca camina un archivo entero.\n\n:param fastq_file: el archivo de secuenciación a leer.\n:param tables: las tablas de referencia a buscar.\n:param orientations: un mapeo desde la etiqueta de la tabla a la orientación a buscar; ambas orientaciones son buscadas para una tabla no nombrada allí.\n:param limit: cuántas lecturas tomar del archivo como máximo.\n:param only_matching: si saltar las lecturas en las que no se encontró nada.\n:yields: cada lectura y los aciertos dentro de ella.",
+      "translation_source_blocks_sha256": [
+        "05ee7b9697f7365eee9b9d61e1142d08a9d491cc3c003303632785507e600fe2",
+        "85373b63543b4ca693369dd9e9cce3b5a5118a5d2280f94bc8a2b4b82384acc4",
+        "26f707b58de11c0ae73394dc4aeb86cbb5498add01d6a51c2bec1f96dfd7a32d",
+        "7a7764fc524c9be4b656cea505e908d6b5b0d4254c02bab4200efa74ec62b8f7",
+        "ffc7c6a91293b9ab03c84dcac0b2d7cdf8a37ae253f5e6dab5e844c176c65ba4",
+        "c1b8ffc3c78a500b4bd0b1df12899206a8e6efd2ad611032cb4b715c7bade2f8",
+        "3638218a9466185f888ad87f2d8a791465b4169d45cc432c9caad0e0b7248569",
+        "1ba63d342adfe92e1a59b7a1c24745fdda0e2e6453a36a7ece8c55001ceca692"
+      ]
+    },
+    "spacr.barcode_search.iter_barcode_search": {
+      "source_blocks_sha256": [
+        "be53908e5330585c04b30c657b9d162caf175f6cbafff17b5d1b6efb732331f8",
+        "870fc78e5cb0740b9312af30725c8e6d1cc000ca3418b11866a7ef336ebcccd5",
+        "09c534427f878685319086fb793c983a0416e88c4adf3e5d5f63138fae0dc8d7",
+        "356bf4a8cff66fb005706f9090e824d110cad569bc50da022c53158c11cf21ca",
+        "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
+        "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
+        "cecebaa56b401a51c17f09e6c6bcce96100b40648d4c4a7ffd013c033942ca3e",
+        "2994989e6097115b97d8265cbd22460e2d7aeb93f77816ffcfef02978cfe1966",
+        "4963cc530705a2d39174f005fc23797dac4614423674d72fb9442335f9a30c83"
+      ],
+      "source_sha256": "68acf2e2c140fff9340ae6b8b5eed814c79eecc306ff8b04640ef61f487133d0",
+      "text": "Buscar códigos de barras un bloque a la vez, informando después de cada bloque.\n\nLa interfaz muestra esta ejecución, por lo que la búsqueda devuelve un informe completo después de cada bloque en lugar de sólo al final. Cada informe tiene la misma forma que el final y los conteos dentro de él sólo crecen, así que las tasas se establecen en lugar del salto y un veredicto que fue indeciso se decide a medida que llega la evidencia. Parar temprano es legítimo y deja un informe que dice cuántas lecturas se basa en.\n\n:param fastq_files: un archivo de secuenciación, una secuencia de ellos, o una asignación de la etiqueta cada uno debe llevar a su ruta.\n:param tables: las tablas de referencia a buscar, de cualquier número.\n:param max_reads: cuántas lecturas tomar de cada archivo como máximo.\n:param chunk_reads: cuántas lecturas toma cada paso de cada archivo.\n:param anchor: una secuencia fija opcional, como la que la ejecución de la asignación ancla su ventana, buscado junto a las tablas para que los desplazamientos se pueden expresar en relación con ella.\n:yields: un informe después de cada bloque, y un informe cuando no hay nada que leer.\n:raises ValueError: cuando no se ha presentado ningún expediente o los presupuestos no son positivos.",
+      "translation_source_blocks_sha256": [
+        "be53908e5330585c04b30c657b9d162caf175f6cbafff17b5d1b6efb732331f8",
+        "97af24626ca296f27ccba6abba1a178b081f40aac19f891a2cd9d4741db3559c",
+        "09c534427f878685319086fb793c983a0416e88c4adf3e5d5f63138fae0dc8d7",
+        "356bf4a8cff66fb005706f9090e824d110cad569bc50da022c53158c11cf21ca",
+        "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
+        "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
+        "cecebaa56b401a51c17f09e6c6bcce96100b40648d4c4a7ffd013c033942ca3e",
+        "2994989e6097115b97d8265cbd22460e2d7aeb93f77816ffcfef02978cfe1966",
+        "4963cc530705a2d39174f005fc23797dac4614423674d72fb9442335f9a30c83"
+      ]
+    },
+    "spacr.barcode_search.iter_fastq_reads": {
+      "source_blocks_sha256": [
+        "a138d23fb04254aef6c4d77606be7efe2eb69baae444960681ca43f9f21eb790",
+        "5c909ca5bd3319cba0489df9520795db46231edbdbc6aad7db7866448dc27757",
+        "4a42a36dbd7c0eadf096f96a22208ca3b5ccdf65431b4ddedc7aa8d1d8fd4906",
+        "43d4e55ddb649fac1f545e76dc8bafc201076bb446b5078be8ab6ca906e02461",
+        "327457a4bbd959c0cb5e6252ca9b4d6e0df8aa66f750459de930410c32892805"
+      ],
+      "source_sha256": "e31fe6f93acb3d92dff642783786d352a2f421291fe1eb019dea9182245a00bf",
+      "text": "Rendimiento de las secuencias de lectura de un archivo de secuencia sin cargarlo.\n\nLos archivos contra los que esto se ejecuta son comúnmente varios gigabytes en una red compartida, por lo que los registros se tiran uno a la vez y el que llama decide cuándo parar. Un registro cuyas cuatro líneas se cortan al final del archivo se deja caer en lugar de lanzar, porque un registro final truncado es una consecuencia normal de copiar un archivo que todavía se está escribiendo.\n\n:param path: la ruta del archivo de secuenciación, gzip comprimido o plano.\n:param limit: cuántos leen para ceder a lo sumo; cada lectura cuando se omite.\n:yields: la secuencia de cada lectura, mayúscula.",
+      "translation_source_blocks_sha256": [
+        "a138d23fb04254aef6c4d77606be7efe2eb69baae444960681ca43f9f21eb790",
+        "188d6caf775cea67a5ff4dd1038d3b228a28285258e98bd63c115727dfffd24d",
+        "4a42a36dbd7c0eadf096f96a22208ca3b5ccdf65431b4ddedc7aa8d1d8fd4906",
+        "43d4e55ddb649fac1f545e76dc8bafc201076bb446b5078be8ab6ca906e02461",
+        "327457a4bbd959c0cb5e6252ca9b4d6e0df8aa66f750459de930410c32892805"
+      ]
+    },
+    "spacr.barcode_search.load_barcode_table": {
+      "source_blocks_sha256": [
+        "f77ec2169e7de420288a63ca62dc3028c45a834c3851a47a69b6ac2be2916c4e",
+        "c6b5a3aba077223b23478a775556a3816fe2334950513590ee5edd0ed3a26c3e",
+        "e3b8fc51b322603e0ad125403d209bd6a7dc17fc8774f8b758d511a5da4c14eb",
+        "791040b1365b7b869246cd72b8ee146757769e5df140434ba3ccc2315cbf0d74",
+        "9c578724379f91d6711c477a6b39c3f361b5ef4afb0f67dc6c6654456c1cca09",
+        "3f8154a60b61dec7bb41100e4bcfabb2ee1acd6105b900ae4b3b15514a648089",
+        "de08f5f9664a84d73e17c2d8c8fc8b83a89083dda31830972cfa16b643cf2b2e"
+      ],
+      "source_sha256": "f80b448c1525c4f92dc5ec0ca98ff5293f99ca8fcc25712f849b309ae45131d3",
+      "text": "Lea una tabla de referencia de códigos de barras de un archivo separado por comas.\n\nEl archivo necesita un encabezado que nombre una columna de secuencia y, para una salida legible, una columna con nombre. Las secuencias son mayúsculas en mayúsculas y despojadas, las filas en blanco se saltan, y una secuencia repetida bajo dos nombres mantiene el primer nombre para que la tabla permanezca una asignación.\n\n:param path: la ruta de la tabla de referencia separada por comas.\n:param name: una etiqueta para la tabla; el vástago del archivo se utiliza cuando se omite.\n:param role: el rol del código de barras que llena esta tabla; inferido del nombre del archivo cuando se omite.\n:returns: la mesa cargada.\n:raises ValueError: cuando el archivo no lleva ninguna columna de secuencia o filas.",
+      "translation_source_blocks_sha256": [
+        "f77ec2169e7de420288a63ca62dc3028c45a834c3851a47a69b6ac2be2916c4e",
+        "c6b5a3aba077223b23478a775556a3816fe2334950513590ee5edd0ed3a26c3e",
+        "e3b8fc51b322603e0ad125403d209bd6a7dc17fc8774f8b758d511a5da4c14eb",
+        "791040b1365b7b869246cd72b8ee146757769e5df140434ba3ccc2315cbf0d74",
+        "9c578724379f91d6711c477a6b39c3f361b5ef4afb0f67dc6c6654456c1cca09",
+        "3f8154a60b61dec7bb41100e4bcfabb2ee1acd6105b900ae4b3b15514a648089",
+        "de08f5f9664a84d73e17c2d8c8fc8b83a89083dda31830972cfa16b643cf2b2e"
+      ]
+    },
+    "spacr.barcode_search.load_barcode_tables": {
+      "source_blocks_sha256": [
+        "9daa0e396c20b1952674691a23ad67ff33a016bf5dda95db8daa5a8519ad33e5",
+        "869dce8adec9bb18ac24bf755891e8ea95e133f8f49bf6a1b3fc2ca4857ad808",
+        "a068180479916123cb9eab68104140ce2d075b6743c50f00881067fdea296367",
+        "463de674442208e0f728a9ee4ca566fd8770e7f969c7f48c278d3de5261581b9"
+      ],
+      "source_sha256": "b873326e9ec53523b3ebbfd8033bf9e87953c038220437294c5b46bbacf6899f",
+      "text": "Lea varias tablas de referencia a la vez.\n\nSe puede suministrar cualquier número de tablas, por lo que una ejecución que lleva más de los tres tipos de código de barras spaCR crecido con se maneja de la misma manera que una que lleva menos.\n\n:param paths: rutas de las tablas de referencia, o una asignación de la etiqueta una tabla debe llevar a su ruta.\n:returns: una tupla de mesas cargadas en el orden dado.",
+      "translation_source_blocks_sha256": [
+        "9daa0e396c20b1952674691a23ad67ff33a016bf5dda95db8daa5a8519ad33e5",
+        "869dce8adec9bb18ac24bf755891e8ea95e133f8f49bf6a1b3fc2ca4857ad808",
+        "a068180479916123cb9eab68104140ce2d075b6743c50f00881067fdea296367",
+        "463de674442208e0f728a9ee4ca566fd8770e7f969c7f48c278d3de5261581b9"
+      ]
+    },
+    "spacr.barcode_search.propose_map_barcodes_settings": {
+      "source_blocks_sha256": [
+        "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
+        "85b304b193ee226a6389e7d0dbd91026c49ae8a6b018ad304c8fb450d879bc1d",
+        "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
+        "5f72fcdb6e8a5b1f0f391a4412d517f2605845f9cbcfbbd537c41a5e63056f22",
+        "bec02643d71c1ab3c7adc4083972af051ad67c5c3f7a414850eeb18e1b268677",
+        "54bdf3c9f8a1233d9f0f00f7c2923b9584fefc9576bd69fb91404876e17fdc76",
+        "db8dfb93e580e97e3a3655631fd1a4fb55d0cc1b1dd29f64da285de6d5b6960e",
+        "5a2d01a292df36e13612b05a87e883cc1b1641cedcc34760fcf61328aac9eb68"
+      ],
+      "source_sha256": "032eef54d05213cbed7caacd468c8e6a03258d6127e72bd1645b8be8272f8a52",
+      "text": "Convierta una búsqueda terminada en configuración para una ejecución de asignación de código de barras.\n\nLa ejecución de asignación lee ambos mates en una secuencia en la orientación de la primera, por lo que es el marco todo se expresa en. Una tabla encontrada en el segundo mate como se almacena por lo tanto se informa como necesidad de ser complementado inversamente, porque eso es lo que la ejecución necesitará para reconocerlo. Un papel que ninguna tabla establecida se deja solo en lugar de adivinarse, y se nombra entre los roles no resueltos para que el llamante pueda decir así en vez de iniciar una carrera que no mapeará nada.\n\nLa ventana de extracción se deriva de donde los códigos de barras realmente aterrizó. Su inicio es el primer desplazamiento de cualquier código de barras establecido ocupado y su final es el más alejado de cualquiera de ellos alcanzado, ambos medidos contra el ancla cuando uno fue buscado, ya que la ejecución de la asignación localiza su ventana al encontrar primero ese ancla.\n\n:param report: el informe de una búsqueda.\n:param base_settings: configuración para empezar, sin modificar; una asignación de valor de clave vacía cuando se omite.\n:param reference_file: la etiqueta del archivo cuya orientación es el marco; el primer archivo de la búsqueda cuando se omite.\n:returns: la propuesta, manteniendo los ajustes y lo que no encajaba en ellos.\n:raises ValueError: cuando el informe no contiene archivos.",
+      "translation_source_blocks_sha256": [
+        "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
+        "85b304b193ee226a6389e7d0dbd91026c49ae8a6b018ad304c8fb450d879bc1d",
+        "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
+        "5f72fcdb6e8a5b1f0f391a4412d517f2605845f9cbcfbbd537c41a5e63056f22",
+        "c8703e1a8896ef9ec525cc7a42e07256e71021f886b7ce8f6ed3eda366ceba23",
+        "54bdf3c9f8a1233d9f0f00f7c2923b9584fefc9576bd69fb91404876e17fdc76",
+        "db8dfb93e580e97e3a3655631fd1a4fb55d0cc1b1dd29f64da285de6d5b6960e",
+        "5a2d01a292df36e13612b05a87e883cc1b1641cedcc34760fcf61328aac9eb68"
+      ]
+    },
+    "spacr.barcode_search.reverse_complement": {
+      "source_blocks_sha256": [
+        "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
+        "d2207806852fdc2a5acaa73706b0887c199cf8fd8f6e3d01a4037b0726859cfc",
+        "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
+        "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
+      ],
+      "source_sha256": "c46d4e4efe9c44e5381f2a3a734e910487e5d7228ee5b7060c6892cc4fe37aae",
+      "text": "Devuelve el complemento inverso de una secuencia de nucleótidos.\n\nLa traducción cubre las cuatro bases en cada caso y deja una base ambigua como es, por lo que una lectura que lleva una posición sin resolver sobrevive a la vuelta en lugar de lanzar.\n\n:param sequence: la secuencia de nucleótidos a voltear.\n:returns: el complemento inverso, como una cadena.",
+      "translation_source_blocks_sha256": [
+        "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
+        "7b6e1438856ef0b0a9bdd5e3c8cb61ccc271a1249eccb23ac936ce91f0b9c5ee",
+        "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
+        "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
+      ]
+    },
+    "spacr.barcode_search.sample_fastq_reads": {
+      "source_blocks_sha256": [
+        "601fb6bfff38f11a367679276862e42d6a0edc244c5d666a9f8c978c3959f3e6",
+        "4a42a36dbd7c0eadf096f96a22208ca3b5ccdf65431b4ddedc7aa8d1d8fd4906",
+        "5936857909bc08f6ed72684e7bcce7e2c439a4b11c008bfa6e73f70a2a898388",
+        "a771fa249e2d3cb3d92b256fb97ccdda2360d88c9181c5577d9fe6a625882f12"
+      ],
+      "source_sha256": "db8752f449bc1461e7e70fd0e78d1f2314e5da58c553ad1fb44238fc180d3783",
+      "text": "Lea una muestra limitada de secuencias de un archivo de secuenciación.\n\n:param path: la ruta del archivo de secuenciación, gzip comprimido o plano.\n:param limit: cuántas lecturas tomar desde el inicio del archivo.\n:returns: una tupla de secuencias de lectura.",
+      "translation_source_blocks_sha256": [
+        "601fb6bfff38f11a367679276862e42d6a0edc244c5d666a9f8c978c3959f3e6",
+        "4a42a36dbd7c0eadf096f96a22208ca3b5ccdf65431b4ddedc7aa8d1d8fd4906",
+        "5936857909bc08f6ed72684e7bcce7e2c439a4b11c008bfa6e73f70a2a898388",
+        "a771fa249e2d3cb3d92b256fb97ccdda2360d88c9181c5577d9fe6a625882f12"
+      ]
+    },
+    "spacr.barcode_search.search_barcodes": {
+      "source_blocks_sha256": [
+        "9591fa9e0aac1a794bbd5997fbcaed681d3bf7b33c0f0730bbde45178d24467f",
+        "4e60cf5411a5704d7b1f619e6434c14ec7f457d406c2b93a120dd31b45159367",
+        "09c534427f878685319086fb793c983a0416e88c4adf3e5d5f63138fae0dc8d7",
+        "356bf4a8cff66fb005706f9090e824d110cad569bc50da022c53158c11cf21ca",
+        "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
+        "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
+        "121e67a40b01bcaa2bdf2a2135f2c96f8e837b0c18e7957bd3570eba68a3002d",
+        "222117e6ec7e5d7e8d9f8ecfd66fa43a53b17fcf23d352f0761151a032d4441c"
+      ],
+      "source_sha256": "a82ad07ed67bb693688c64a32439664b6a6c2f3f2cde59576b6b126192d93ba5",
+      "text": "Busque una muestra limitada de lecturas y devuelva el informe terminado.\n\nEste es el conjunto de :func:`iter_barcode_search` ejecutar hasta su final, para los que llaman que quieren una respuesta en lugar de una pantalla en ejecución.\n\n:param fastq_files: un archivo de secuenciación, una secuencia de ellos, o una asignación de la etiqueta cada uno debe llevar a su ruta.\n:param tables: las tablas de referencia a buscar, de cualquier número.\n:param max_reads: cuántas lecturas tomar de cada archivo como máximo.\n:param chunk_reads: cuántas lecturas toma cada paso de cada archivo.\n:param anchor: una secuencia fija opcional buscada junto a las tablas.\n:returns: el informe del último bloque.",
+      "translation_source_blocks_sha256": [
+        "9591fa9e0aac1a794bbd5997fbcaed681d3bf7b33c0f0730bbde45178d24467f",
+        "4e60cf5411a5704d7b1f619e6434c14ec7f457d406c2b93a120dd31b45159367",
+        "09c534427f878685319086fb793c983a0416e88c4adf3e5d5f63138fae0dc8d7",
+        "356bf4a8cff66fb005706f9090e824d110cad569bc50da022c53158c11cf21ca",
+        "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
+        "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
+        "121e67a40b01bcaa2bdf2a2135f2c96f8e837b0c18e7957bd3570eba68a3002d",
+        "222117e6ec7e5d7e8d9f8ecfd66fa43a53b17fcf23d352f0761151a032d4441c"
+      ]
+    },
     "spacr.baseline": {
       "source_blocks_sha256": [
         "5f6136ffbea7ee1fd9bda3488998f45221c9e6524630cde3cab7f31f2bdddfc5",
@@ -81714,6 +82310,250 @@
         "ad3cde062ec02e55d51ec2f4efeb5d73c65b398c9f3e8ed5fa0593cdee5fb924"
       ]
     },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel": {
+      "source_blocks_sha256": [
+        "4d3ae79b26b34677edbb14d0e99f795ff584668f52c703a011ae5faf2a80adde",
+        "a3983531f2b9dcd52d3a594abd78b4e59f32eba72b3d8fbfc9356a4559255133",
+        "9da11592a01ea792202879023645503d6892e9f444020946bbd506b34ef0ddf5",
+        "99b12cc816f1e9c808c7dcdf4f1cf6a040538f94c847a8ce4757ff3d35f116a9",
+        "63879165cc3f5954fad739999b097d521503f9a0463c9d65add035f7e5dce341",
+        "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
+        "22c5e36e4032e484204f2d8aa5adc469a2f245a619c4eb7ab29eac8aca8e9611",
+        "69fab91fe9d5a1456515f233f95f1f8109c47ea4bc4a90d7b83caa9dde7c16ff",
+        "bb6ce2f5523e29da210a8cd57204fad7f711c6bce4c21f239b649d2093135f16",
+        "4d48864425a404fce83587336774ba68d4b6252382db27f8f9cf41ea3107a8c2",
+        "fffe6b8a4d0ba881ad9c2f6efc43b1ec3bc337eedfb02e19c57051e3c68fa8b6",
+        "081bd4209ec26a6d555eeacbaf928d492f21ec54aa966a065f5256024691085d",
+        "63a0194f05ff8d1e823dc8c824206334c0feb08e5582dab50df1a1600f9d6c8d",
+        "896b07f6be081ba7d8e8170bce1b2178d4e1a7b955e35b1a9e8aaf9a57a4dcd6",
+        "d503489d8db18ec557f1e1986cfb79252ab0860f7f39793f8f6edc318a861b60",
+        "c6ec171caaf172335059cb849f56e34345679a0528229875a0aa00e3dc00f9c2",
+        "8b25805b62503021d3cd0e356d77fed3f84e9cf8e3c38a0027c7dedd01257bb5",
+        "afbdb1aec56ec8739acd1a6bd56ddcd0a071b8826657b277fbecbd0e6fd9de4c"
+      ],
+      "source_sha256": "18edad6505a2e7d98f483a0ab114a1e1f65b291a03a05f87d51cf1b0cdb89484",
+      "text": "La búsqueda en vivo: lee, mide los ajustes, nada escrito todavía.\n\nPulsa el botón de búsqueda y el panel muestra las lecturas de una muestra de la carpeta los nombres del formulario, mide cada tabla de referencia contra ellos en ambas orientaciones y en ambos mates, y refina lo que muestra después de cada bloque de lectura. Termina proponiendo los ajustes que esas mediciones implican y esperan, porque aplicarlos es decisión del usuario.\n\nLa tabla de resultados muestra la tasa observada y la tasa esperada por coincidencia en columnas adyacentes, con la relación entre ellas al lado de ambas, porque una tasa sola no se puede decir de un accidente y este panel existe para detener a alguien actuando en uno. La ventana de texto muestra lecturas con sus coincidencias coloreadas por tipo de código de barras, porque un código de barra que aterriza en las mismas columnas en fila tras fila es la evidencia que resuelve un argumento que un porcentaje no puede. La propuesta muestra el valor que el formulario tiene junto al valor que sugiere la búsqueda, por lo que lo que Aplique está a punto de hacer es legible antes de hacerlo.\n\nLo que cuesta. Cada archivo se lee dentro de un trabajo enviado, un bloque a la vez, por lo que la interfaz permanece en vivo y una búsqueda puede ser abandonada en cualquier momento. Cancelar no propone nada: una medición interrumpida es un informe parcial honesto y una recomendación deshonesta.\n\n:param screen: la vista de la aplicación Map Barcodes cuyo formulario de configuración se lee para la búsqueda y escrito por Aplicar. Puede ser None, que deja el panel utilizable como una pantalla sin nada que leer y nada a lo que escribir.\n:param parent: widget padre; solo propiedad.\n:param threaded: ejecutar la búsqueda en las unidades de ejecución de fondo. False ejecuta cada paso en línea, en el mismo orden y a través de los mismos manejadores, por lo que una prueba puede conducir una búsqueda completa sincrónicamente.\n:param max_reads: el número de lecturas que se muestren de cada archivo. El propio motor por defecto cuando se omite.\n:param chunk_reads: cuántos lee cada paso de la búsqueda toma de cada archivo. El propio motor por defecto cuando se omite.\n:param read_sample: cuántas lecturas muestra la ventana de texto.\n:ivar search_button: inicia una búsqueda.\n:ivar cancel_button: abandona la búsqueda en vuelo.\n:ivar apply_button: escribe los ajustes propuestos en el formulario; desactivado hasta que una búsqueda terminada ha propuesto algo que difiere de lo que el formulario ya contiene.\n:ivar status: una línea que dice lo que la búsqueda está haciendo o ha encontrado.\n:ivar findings: la tabla de mediciones, una fila por tabla de referencia por mate por orientación.\n:ivar proposal_label: lo que Aplicar cambiaría, y lo que la búsqueda aprendió que ninguna configuración puede contener.\n:ivar reads: la ventana de texto que muestra las lecturas muestreadas con las coincidencias coloreadas.\nConstruya el panel y armételo contra una vista de la aplicación de configuración.",
+      "translation_source_blocks_sha256": [
+        "4d3ae79b26b34677edbb14d0e99f795ff584668f52c703a011ae5faf2a80adde",
+        "a3983531f2b9dcd52d3a594abd78b4e59f32eba72b3d8fbfc9356a4559255133",
+        "34a552a1413be2c88a7e18430315a0498cf07e59c3ad6299a874299e17b9fb41",
+        "99b12cc816f1e9c808c7dcdf4f1cf6a040538f94c847a8ce4757ff3d35f116a9",
+        "9a6deb2275efcb320f0e01c66fe701e1ee7464c5c0e6402cef5990ade1c8aaba",
+        "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
+        "1ddfa4fdc6c9ed5a50d951fbdd544d23551a7c88ee659a84d1e17ddff40da699",
+        "69fab91fe9d5a1456515f233f95f1f8109c47ea4bc4a90d7b83caa9dde7c16ff",
+        "bb6ce2f5523e29da210a8cd57204fad7f711c6bce4c21f239b649d2093135f16",
+        "4d48864425a404fce83587336774ba68d4b6252382db27f8f9cf41ea3107a8c2",
+        "fffe6b8a4d0ba881ad9c2f6efc43b1ec3bc337eedfb02e19c57051e3c68fa8b6",
+        "081bd4209ec26a6d555eeacbaf928d492f21ec54aa966a065f5256024691085d",
+        "63a0194f05ff8d1e823dc8c824206334c0feb08e5582dab50df1a1600f9d6c8d",
+        "896b07f6be081ba7d8e8170bce1b2178d4e1a7b955e35b1a9e8aaf9a57a4dcd6",
+        "d503489d8db18ec557f1e1986cfb79252ab0860f7f39793f8f6edc318a861b60",
+        "c6ec171caaf172335059cb849f56e34345679a0528229875a0aa00e3dc00f9c2",
+        "8b25805b62503021d3cd0e356d77fed3f84e9cf8e3c38a0027c7dedd01257bb5",
+        "d25cb98ff534012232ab9a30941c5bc56af94699323b0d941d4c9755685c13ce"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.apply_proposal": {
+      "source_blocks_sha256": [
+        "3f264485db692dd1c26956568605c78687f09b41be62baa2174cb6e27f2cfc32",
+        "e5dd6c380a3f70fe282d3f167b0a1825e802f906e839d27b4ab481ab7d34e1cd",
+        "e193b1117fb68613ec2f600f2a3600a16939fbeb8b9fcb37f297ac43f1553f1c"
+      ],
+      "source_sha256": "c28ec96a8551fdc048685cb9085c24f56d2d4d2389f610ef94f9e7217e4f1268",
+      "text": "Escriba los ajustes propuestos en el formulario, a propósito.\n\nNada llama a esto por sí solo. Una búsqueda que termina permite el botón y se detiene allí, porque un panel que reemplazó en silencio los valores que alguien escribió sería un peor fracaso que el que existe para prevenir.\n\n:returns: las llaves que estaban escritas, en el orden en que fueron escritas.",
+      "translation_source_blocks_sha256": [
+        "3f264485db692dd1c26956568605c78687f09b41be62baa2174cb6e27f2cfc32",
+        "e5dd6c380a3f70fe282d3f167b0a1825e802f906e839d27b4ab481ab7d34e1cd",
+        "e193b1117fb68613ec2f600f2a3600a16939fbeb8b9fcb37f297ac43f1553f1c"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.cancel_search": {
+      "source_blocks_sha256": [
+        "9c9f188c7309e513bfef72c23ab5e6e3dea5756aa232e5b4090276bba8a4cfd6",
+        "aaac90ed44491d18da64b1d041e6e5ea76ecb61010d4d596994a69baceea02cd",
+        "2594511ba2dba42f9bcbe30784c0a8e2d1699d3b5c5b6b51a8a7ed3742464f12"
+      ],
+      "source_sha256": "fbb0695ed0de1a31fa1ea4ab3df3677ad7e6a9f721462a3462736ebcec1357d4",
+      "text": "Abandonar la búsqueda en vuelo y no proponer nada de ella.\n\nEl bloque ya en una unidad de ejecución de fondo no se interrumpe; termina y su resultado se cae a la llegada, que es lo que la cancelación significa para el trabajo que no tiene cerradura y no se le puede pedir que se detenga en el medio.\n\n:returns: True cuando hubo una búsqueda para cancelar.",
+      "translation_source_blocks_sha256": [
+        "9c9f188c7309e513bfef72c23ab5e6e3dea5756aa232e5b4090276bba8a4cfd6",
+        "c4f31d2906d49d2c1b38e5bdc96a630b345b9d585578d48f0f9736bc68098644",
+        "2594511ba2dba42f9bcbe30784c0a8e2d1699d3b5c5b6b51a8a7ed3742464f12"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.changeEvent": {
+      "source_blocks_sha256": [
+        "1c883a898e3d4a9112ffd6c22a3445c2eb937c9f6fb7c705d4b017fc796c7c91",
+        "ac0a82ca4786b729f4bd48d60894cb22af8dc4369bd70023fc86eb812707de53",
+        "f97e2dcd439b60c3e1c232454619e418ca5922dd0bef5be11f27d1a65c9a214f"
+      ],
+      "source_sha256": "c278c19753e5665e49203b80503644fd2f07ca1df257c67b2bb9d3f8430a87d8",
+      "text": "Redibuje las medidas cuando cambie el tema debajo de ellas.\n\nLos colores del veredicto se toman de la paleta que estaba en la vista de aplicación cuando se dibujó la fila, por lo que una fila dibujada antes de un cambio de tema mantiene la tinta del tema antiguo hasta que se dibuja de nuevo.\n\n:param event: el evento de cambio Qt que se está entregando.",
+      "translation_source_blocks_sha256": [
+        "1c883a898e3d4a9112ffd6c22a3445c2eb937c9f6fb7c705d4b017fc796c7c91",
+        "a270b898ab46c5000bd384957c7723994f7e11aa57526a74d3922491f0c6fa8b",
+        "f97e2dcd439b60c3e1c232454619e418ca5922dd0bef5be11f27d1a65c9a214f"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.closeEvent": {
+      "source_blocks_sha256": [
+        "f746fded5a7e0065768837ded6be416256431616a67a103d51fc8a3e7d717153",
+        "aa98e32b629924f35c2a329a4b64ebb16501b905dd2f4517487e90c9b8bca85e"
+      ],
+      "source_sha256": "ccc435ff840c713b88e8ed3ce6ed38055a5b0a285964e85b24f26a2c8f54b922",
+      "text": "Detener la búsqueda en lugar de dejar que sobreviva al panel.\n\n:param event: el evento de cierre Qt que se está entregando.",
+      "translation_source_blocks_sha256": [
+        "f746fded5a7e0065768837ded6be416256431616a67a103d51fc8a3e7d717153",
+        "aa98e32b629924f35c2a329a4b64ebb16501b905dd2f4517487e90c9b8bca85e"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.current_settings": {
+      "source_blocks_sha256": [
+        "2675c02ae874111b94da4509dff0c7b62b91eb9704bfd0d19d399f8a59a52411",
+        "f52aaccbddc4034bc27897e7956cff3789c47f8bc1150c1de985b87acff628a7"
+      ],
+      "source_sha256": "49441203fbb5ebbebddbfed362941dcd0a0e1675ee8ba329440fbabb1e51b081",
+      "text": "Devuelve los ajustes como el formulario los contiene en este momento.\n\n:returns: la asignación de valores clave de configuración, vacía cuando no hay forma.",
+      "translation_source_blocks_sha256": [
+        "2675c02ae874111b94da4509dff0c7b62b91eb9704bfd0d19d399f8a59a52411",
+        "ff33f020a779df6b54581abad9c21f4fe3bb48d4e49e870ee7dc59024101fd2d"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.is_searching": {
+      "source_blocks_sha256": [
+        "22f74dd7e11790ac2b800ff6f1f31b88f9d4641edc3f4a6378b44f9eb5ab06c7",
+        "2d56b7240f47505599a16dfe8b1b5ada2556be093fa15a0459837edd72c3fc33"
+      ],
+      "source_sha256": "f40fec3d541e7a5a24db8f8b5f228c25d3874a474e7dc8a048732e0c3269230f",
+      "text": "Devuelve si se está ejecutando una búsqueda.\n\n:returns: True mientras el panel está trabajando a través de las lecturas.",
+      "translation_source_blocks_sha256": [
+        "22f74dd7e11790ac2b800ff6f1f31b88f9d4641edc3f4a6378b44f9eb5ab06c7",
+        "2d56b7240f47505599a16dfe8b1b5ada2556be093fa15a0459837edd72c3fc33"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.on_apply_clicked": {
+      "source_blocks_sha256": [
+        "43ca7b9a77f1e49a3969e7450b9066a6e747c439044e5ef2bacfc26428b5c84d",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ],
+      "source_sha256": "db92bd4ee94b42ae98f0206b19f7f0601fc022eea22a09c48abc629bf992b587",
+      "text": "Escriba los ajustes propuestos en el formulario.\n\n:param _checked: El estado de Qt de la palanca, sin usar.",
+      "translation_source_blocks_sha256": [
+        "43ca7b9a77f1e49a3969e7450b9066a6e747c439044e5ef2bacfc26428b5c84d",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.on_cancel_clicked": {
+      "source_blocks_sha256": [
+        "ee3d559b4b81fba75e133cf9fcb78983bfad2f7f89505b7d3c2ec3e1d1cf27fb",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ],
+      "source_sha256": "9758df4d06d267a9e1c836a617d3caff338a9fda62baa2f0be80255f9cb0c086",
+      "text": "Abandonen la búsqueda en vuelo.\n\n:param _checked: El estado de Qt de la palanca, sin usar.",
+      "translation_source_blocks_sha256": [
+        "ee3d559b4b81fba75e133cf9fcb78983bfad2f7f89505b7d3c2ec3e1d1cf27fb",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.on_search_clicked": {
+      "source_blocks_sha256": [
+        "52d9cf92b4f0a57e3bb4757dc70167cb9a398dc38a8cbe542a1dc4952da32a4b",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ],
+      "source_sha256": "987d0da927c0f9ae761c63d1274ef6e8e95b31253a0cc197407eb40281513e4a",
+      "text": "Inicie una búsqueda o reinicie una que ya se esté ejecutando.\n\n:param _checked: El estado de Qt de la palanca, sin usar.",
+      "translation_source_blocks_sha256": [
+        "52d9cf92b4f0a57e3bb4757dc70167cb9a398dc38a8cbe542a1dc4952da32a4b",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.proposal": {
+      "source_blocks_sha256": [
+        "9c14f31375a3cd0c881b21ea69043812cfd8ffd915297b38fba29ee63fe83fb0",
+        "a0cc56f402c3645b7941b89f8e2c251d4681685a079e064257283f2825af5f35"
+      ],
+      "source_sha256": "62a5589251a6fafe9d0beeb3ceeaadff9c81308c92c2a7d52278f344b36212f4",
+      "text": "Devolver la propuesta una búsqueda terminada producida.\n\n:returns: la propuesta, o None cuando no haya terminado la búsqueda.",
+      "translation_source_blocks_sha256": [
+        "9c14f31375a3cd0c881b21ea69043812cfd8ffd915297b38fba29ee63fe83fb0",
+        "a0cc56f402c3645b7941b89f8e2c251d4681685a079e064257283f2825af5f35"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.proposed_changes": {
+      "source_blocks_sha256": [
+        "ec6fe8f2199acd110fdd1cc36ff9022cc40a5b1672250a8d07d06ff651208ef3",
+        "5a625d711901422ad20ede080d899674ba46c531679675c428feca6429e37502"
+      ],
+      "source_sha256": "57989896be626900a534025835f8a5a5d4c5940045aaa4542e98f22e6ab3245f",
+      "text": "Devuelve la configuración Aplicar escribiría, valor antiguo junto con nuevo.\n\n:returns: una tupla de entradas, cada una con el nombre de datos estructurados de una configuración, el valor que contiene el formulario y el valor propuesto por la búsqueda.",
+      "translation_source_blocks_sha256": [
+        "ec6fe8f2199acd110fdd1cc36ff9022cc40a5b1672250a8d07d06ff651208ef3",
+        "970a5d6523011baa61ce2130f6a22701fa48d4dfa100bf89b135af353aa00d4e"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.report": {
+      "source_blocks_sha256": [
+        "5324b12282aa3c19fac0f1c4164db92d41788a04630e01552612f12b150a8e66",
+        "00b149900b61eb16f99f40e999074c4703416210caf72bf394449ce7220b8d09"
+      ],
+      "source_sha256": "7f0b1c10183f2b700228199ada6404c88b5ef486924c842ae9bd3ecb0471fba2",
+      "text": "Devuelve el informe más reciente, completo o no.\n\n:returns: el informe, o None cuando ninguna búsqueda ha producido uno.",
+      "translation_source_blocks_sha256": [
+        "5324b12282aa3c19fac0f1c4164db92d41788a04630e01552612f12b150a8e66",
+        "00b149900b61eb16f99f40e999074c4703416210caf72bf394449ce7220b8d09"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.shutdown": {
+      "source_blocks_sha256": [
+        "6f5ef74f043d1e15b410d0f55a02d15384133c54c704e14e681b7805bb7c8b08",
+        "67a51d74f17e22136ee4e58ddc1cac15b5e32c54c9db1e2149766e3ebb9dd445"
+      ],
+      "source_sha256": "e35104b7470e2122dd08346afb612ac912690dbece20f1c47b6d7eca9e11ec19",
+      "text": "Abandonar cualquier búsqueda en vuelo y no dejar ninguna unidad de ejecución de fondo detrás.\n\nEs seguro llamar directamente cuando una cribado es derribada sin un evento cerrado, que es como un módulo plegado generalmente desaparece.",
+      "translation_source_blocks_sha256": [
+        "e9dfbab7d7139b0d57095c06a23867bd527a90f89c1deb48293b0cc8f146ba04",
+        "67a51d74f17e22136ee4e58ddc1cac15b5e32c54c9db1e2149766e3ebb9dd445"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.start_search": {
+      "source_blocks_sha256": [
+        "4fbb017a76aa586e16c524e0fbfe0f9f56962b2d1ebb76bb26d9657ef6d7c4ce",
+        "57428766cb02ea481647c0131b832d58d943282e30ace583bc779512d6ef5a2f",
+        "c908abbcf4a44033b7b3d471073d5c2478834ee23a44751deb0d03dda4306bc2"
+      ],
+      "source_sha256": "9bfe28705eb03dde537c25a4fee23781878afbb7b2a02baf30f38886f25e57e0",
+      "text": "Comience una nueva búsqueda sobre los archivos los nombres de los formularios de configuración.\n\nDevuelve en lugar de subir cuando no hay nada que buscar, porque la razón es una frase sobre el formulario y el panel lo muestra.\n\n:returns: True cuando se inició una búsqueda.",
+      "translation_source_blocks_sha256": [
+        "4fbb017a76aa586e16c524e0fbfe0f9f56962b2d1ebb76bb26d9657ef6d7c4ce",
+        "57428766cb02ea481647c0131b832d58d943282e30ace583bc779512d6ef5a2f",
+        "c908abbcf4a44033b7b3d471073d5c2478834ee23a44751deb0d03dda4306bc2"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPlan": {
+      "source_blocks_sha256": [
+        "faa8600f43aad3e4a71381e4a0526c538e405f16e3c02cb6f4d82406419c6b05",
+        "c50d135ca61f508a8c28414ad58b4380a0cde0c7f251ccc6ed49b1235b3cb386",
+        "7b0ba6a82107ba5118b995073856227617eb259fe0400b4b5f0c04a28616fdda",
+        "d7b602115898130d2fb1ba94b36f967537637dc693824ab120b2ac94bbe37c98",
+        "3913a8e66151c450d84382db472ec860fb12413d48db5842dac08a410440af2e",
+        "d05cd1807eb37189c14084b47edc44bc96c36518d7783f82411cf83106560b8c",
+        "1cd097aeb9c3e44c65aa1835972545bf769c5d8c81c7d3f278d588e69c133dfc",
+        "5df7395ac4556e71f4d3a687ac22bdcdedb45029773c8fdfa9fb6529d3890825"
+      ],
+      "source_sha256": "fd2ecdedd39bbf73a6225b6d4c0ce9e3556703e7b428f6880bcdf53d82122381",
+      "text": "Lo que una búsqueda va a leer, trabajado desde el formulario de configuración.\n\nLa planificación está separada de la búsqueda porque los dos fallan de diferentes maneras y el usuario necesita saber cuál ocurrió. Un plan que no se puede hacer es una frase sobre el formulario, como una carpeta que no contiene archivos de secuenciación, y vale la pena mostrarlo antes de que se abra cualquier lectura; una búsqueda que no encuentra nada es una medida, y significa algo completamente distinto.\n\n:ivar fastq_files: los archivos de secuenciación a leer, como un mapeo de la etiqueta cada uno lleva en el informe a su ruta. Las etiquetas son los nombres del mate, por lo que un informe puede decir qué mate llevaba qué código de barras.\n:ivar reference_tables: una entrada por tabla de referencia, con el nombre que se indica debajo, la ruta desde la que se lee y el rol de código de barras que llena.\n:ivar anchor: la secuencia vectorial fija la ejecución de la asignación localiza su ventana por, buscado junto a las tablas para que los desplazamientos se pueden expresar en relación con ella. Vacío cuando el nombre de la configuración no.\n:ivar sample: el nombre de la muestra cuyas lecturas se están registrando.\n:ivar other_samples: El diseño del código de barras es una propiedad de la biblioteca en lugar de una muestra, por lo que una muestra lo establece para todos ellos, pero el conteo se muestra para que nadie piense que se perdieron los otros.\n:ivar problem: una frase que dice por qué este plan no puede ser buscado, o una cadena vacía cuando puede.",
+      "translation_source_blocks_sha256": [
+        "faa8600f43aad3e4a71381e4a0526c538e405f16e3c02cb6f4d82406419c6b05",
+        "c50d135ca61f508a8c28414ad58b4380a0cde0c7f251ccc6ed49b1235b3cb386",
+        "7b0ba6a82107ba5118b995073856227617eb259fe0400b4b5f0c04a28616fdda",
+        "d7b602115898130d2fb1ba94b36f967537637dc693824ab120b2ac94bbe37c98",
+        "3913a8e66151c450d84382db472ec860fb12413d48db5842dac08a410440af2e",
+        "d05cd1807eb37189c14084b47edc44bc96c36518d7783f82411cf83106560b8c",
+        "1cd097aeb9c3e44c65aa1835972545bf769c5d8c81c7d3f278d588e69c133dfc",
+        "5df7395ac4556e71f4d3a687ac22bdcdedb45029773c8fdfa9fb6529d3890825"
+      ]
+    },
     "spacr.qt.screens.map_barcodes.CategoryFold": {
       "source_blocks_sha256": [
         "8f6a5aa8bd24286075f35aafd2f7e98d958a45c0793bbef66fe390846fd1386f",
@@ -81922,6 +82762,24 @@
         "f6f10207dca43ac2404b337be8523dcf815eb6dcf8fdc941967585685e4cbd05"
       ]
     },
+    "spacr.qt.screens.map_barcodes.build_barcode_search_card": {
+      "source_blocks_sha256": [
+        "3abbf5512678d10be2c930e031c9b78e41515c03661942a477b3acedb0f66020",
+        "c9816b529ad68a17369a7997d8a9a809b0f3ecd5a208c2189e1d382e2d0f697f",
+        "6169ea2f56979fe7542320653177248c788455248a8793c93d70a0ca3bde71e8",
+        "5bafba04017db4b97007323e0fdc5486783ff2f598cafcca0893b8228c5b3c4b",
+        "889a7ecbda80b9eae9ea0ef8c768d8c31283448ee836e9d55d00c68d1fda2e34"
+      ],
+      "source_sha256": "fa846744fb43aa4e3cd2fe36f1adf196c8e1ee02a70a0e2e5517f474a149c5c6",
+      "text": "Construye la búsqueda en vivo y la tarjeta en la que se encuentra, desmontada.\n\nDevuelto sin montar, como es la tarjeta de previsualización en vivo, para que el llamante decida a dónde va y si empieza a ser visible.\n\n:param screen: los códigos de barras del mapa de la cribado de la búsqueda lee y escribe.\n:param kwargs: pasó a través de :class:`BarcodeSearchPanel`.\n:returns: el panel y la tarjeta que lo sostiene.",
+      "translation_source_blocks_sha256": [
+        "3abbf5512678d10be2c930e031c9b78e41515c03661942a477b3acedb0f66020",
+        "c9816b529ad68a17369a7997d8a9a809b0f3ecd5a208c2189e1d382e2d0f697f",
+        "6169ea2f56979fe7542320653177248c788455248a8793c93d70a0ca3bde71e8",
+        "5bafba04017db4b97007323e0fdc5486783ff2f598cafcca0893b8228c5b3c4b",
+        "889a7ecbda80b9eae9ea0ef8c768d8c31283448ee836e9d55d00c68d1fda2e34"
+      ]
+    },
     "spacr.qt.screens.map_barcodes.build_registered_screen": {
       "source_blocks_sha256": [
         "f098d0837ae39116bee483c10326ff146e707ca95455570e2774dcc038a6f77c",
@@ -81972,6 +82830,24 @@
       "translation_source_blocks_sha256": [
         "8e8c4fab4f9f9f2e7783577734be7bc45da7a6f993e13c898303c63ad7e57f93",
         "b2c4ab7406a64d33d09d83ae130845525d2ee8d5cdbc9abe630dda41b6b2c82b"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.describe_proposed_changes": {
+      "source_blocks_sha256": [
+        "7376129595ae427e52dc3b5fb171d87bcc23bbb0df84187f1384a54ebcb903ab",
+        "37ee78d6869ac6c441b02242f5a8d8e762ff5bffb11b9ba12a9f84aaf1d12062",
+        "bd33ad3d544e00f6a51c873ea681decf1b9d5b8a223245063ee16eac1bfbc7a2",
+        "3c315ea371ec5eb5d55b9f67a4de11f367b7843c86ab62d2212f5132b3268328",
+        "b11d71fd453b9df2a060c3536dc8daa4b727a0950bac04828e396c131c99d697"
+      ],
+      "source_sha256": "2fda958ca951b119c504794e77af14681cb831ea537824ecab36c9e0f69d535c",
+      "text": "Devuelve los ajustes que una propuesta cambiaría, un valor antiguo junto con el nuevo.\n\nMostrar lo que va a cambiar antes de que cambie es la diferencia entre una conveniencia y una trampa. Alguien que tecleó una longitud de ventana tiene que ser capaz de ver que pulsar Aplicar lo reemplaza, y con qué, mientras que todavía hay tiempo para decidir no hacerlo.\n\n:param proposal: la propuesta se ha realizado una búsqueda final.\n:param current_settings: los ajustes como el formulario los sostiene ahora.\n:returns: una tupla de entradas, cada una con el nombre de datos estructurados de la configuración, el valor que contiene el formulario y el valor propuesto por la búsqueda, para aquellas configuraciones cuyo valor realmente cambiaría.",
+      "translation_source_blocks_sha256": [
+        "7376129595ae427e52dc3b5fb171d87bcc23bbb0df84187f1384a54ebcb903ab",
+        "37ee78d6869ac6c441b02242f5a8d8e762ff5bffb11b9ba12a9f84aaf1d12062",
+        "bd33ad3d544e00f6a51c873ea681decf1b9d5b8a223245063ee16eac1bfbc7a2",
+        "3c315ea371ec5eb5d55b9f67a4de11f367b7843c86ab62d2212f5132b3268328",
+        "57500835495d3041025bd188622355b8cd7dcc895a3a1b29da8d8c7426853756"
       ]
     },
     "spacr.qt.screens.map_barcodes.fold_description": {
@@ -82034,6 +82910,24 @@
         "5e00556e804d061afca04de16253a4aa5028bc571a05f3f58e30ec16b3450057"
       ]
     },
+    "spacr.qt.screens.map_barcodes.install_barcode_search": {
+      "source_blocks_sha256": [
+        "530556d7122c23d89ad10fd8fab7767c67836727f21459c162981944c77d8278",
+        "166bd07e2872250755cfe844529e95526237ff33f9e0d9f887b0263e227278f2",
+        "8d2b52931e318b461462dbe68fbe5f558d644d6fb370430e3f5365ef51f43f7d",
+        "06bb42ab1005f3985d618f53da35d5e464452956b7d0b04ac292ab7936c0cdbf",
+        "b28fc7af221cb7c16ac76bfaea28496c30032937d83939dbddbb509ec5ee15d6"
+      ],
+      "source_sha256": "aa004f91335676e7a8d326dbc412243966bb98f82e47d51e32db1ecdc3c2166c",
+      "text": "Dé a la aplicación Map Barcodes ver su búsqueda en vivo, detrás de un cambio.\n\nInstalado en lugar de integrado en la vista de aplicación por la razón de que cada otro panel en esta vista de aplicaciones está instalado desde fuera: la vista aplicación es la vista genérica de la aplicación de configuración, que no sabe nada sobre secuenciación y no debería tener que hacerlo. Las llamadas repetidas devuelven el panel que ya está allí, porque el stack watcher llega a una vista de la solicitud de nuevo cada vez que se vuelve actual.\n\n:param screen: cualquier cosa que no sea la cribado de Map Barcodes se deja solo.\n:param kwargs: pasó a través de :class:`BarcodeSearchPanel`, que es cómo una prueba pide una muestra de lectura más pequeña o una búsqueda sin hilo.\n:returns: el panel, o None cuando la cribado no es la cribado Map Barcodes o no tiene ningún panel de tiempo de ejecución en el que montar.",
+      "translation_source_blocks_sha256": [
+        "de7e6b24cb87bc45d20dd6b333ab4900684945ff82e7da02b1a98e773df0345d",
+        "4ad4a0aa3ad18350c4ebfcd501dcffa942d3a8dab141259afd221226bce67bd6",
+        "8d2b52931e318b461462dbe68fbe5f558d644d6fb370430e3f5365ef51f43f7d",
+        "06bb42ab1005f3985d618f53da35d5e464452956b7d0b04ac292ab7936c0cdbf",
+        "b28fc7af221cb7c16ac76bfaea28496c30032937d83939dbddbb509ec5ee15d6"
+      ]
+    },
     "spacr.qt.screens.map_barcodes.install_fold_strip": {
       "source_blocks_sha256": [
         "ae33c6a9c21d0044487cd70d6c49665eb4d55baa9fdec58e378692a4129b7f9e",
@@ -82058,12 +82952,18 @@
     },
     "spacr.qt.screens.map_barcodes.install_folds": {
       "source_blocks_sha256": [
-        "e5e18f15b0a74f88d370359b7e82f68a9cb1bb2652b776125e91cd99f56f182b"
+        "13dc33e740ee3737075fe4345c15fdef20d33889d42a7c91077efcb2594d23d0",
+        "5f8827d1e6a62469074906bb37f4df5126a78eff9b7d93ad2fafa8ac12deeefd",
+        "188412ed16e9028194ec3656ad95e6a19eb2ef893dd824112d3e042b90ec699b",
+        "1f383a69f7dc9bf3ec00917ee9edcc85d6da1d12b1a58f00999ee69bcf876737"
       ],
-      "source_sha256": "e5e18f15b0a74f88d370359b7e82f68a9cb1bb2652b776125e91cd99f56f182b",
-      "text": "Ponga la tira de plegado de Map Barcodes en el mástil de ``screen``.",
+      "source_sha256": "ec5a51ccab9717d4c0d1f889c2bde478f38a0b8b2b75c1e2330420027fac6710",
+      "text": "Ponga la tira de pliegues de Map Barcodes y su búsqueda de código de barras en vivo en ``screen``.\n\nLa búsqueda se instala aquí en lugar de a través de una costura propia porque esta es la llamada cada ruta a la cribado de códigos de barras de mapa ya pasa a través. Un panel instalado en cualquier otro lugar estaría presente cuando la cribado se alcanza de una manera y falta cuando se llega a otra.\n\n:param screen: la cribado en la que instalar.\n:returns: la tira de plegado, o None cuando esta cribado no contiene pliegues.",
       "translation_source_blocks_sha256": [
-        "e5e18f15b0a74f88d370359b7e82f68a9cb1bb2652b776125e91cd99f56f182b"
+        "13dc33e740ee3737075fe4345c15fdef20d33889d42a7c91077efcb2594d23d0",
+        "5f8827d1e6a62469074906bb37f4df5126a78eff9b7d93ad2fafa8ac12deeefd",
+        "188412ed16e9028194ec3656ad95e6a19eb2ef893dd824112d3e042b90ec699b",
+        "1f383a69f7dc9bf3ec00917ee9edcc85d6da1d12b1a58f00999ee69bcf876737"
       ]
     },
     "spacr.qt.screens.map_barcodes.install_folds_on": {
@@ -82092,6 +82992,24 @@
         "9c4a9539f0007adce581862c20e6ccb4a2078eac96997f37826cb5c2158f6368",
         "94cd1d2e1a6a30ffff46478f3584697dfecaf5c5ad160c9c5b5d4a3edb5c8d05",
         "91500b4c0bf5b58571c5e0ded98146782239a7c554acc1ae62d9b337874214ba"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes.plan_barcode_search": {
+      "source_blocks_sha256": [
+        "e36662447951be7cf8f08a90ef352c7e4e79e3a8cb2df07295bf006acbfe51a6",
+        "791b836b718a64befd3169937f0ebfc18b2cdbad7359fe39ce0e41608eea657d",
+        "f88d1f8a05eb30bfafa0ee94117b1b90ab6c4bdde11b26f0a4dbe8c40f7d972d",
+        "d6e80650315cc36f8c8b217794cee7861656dfd52dce88995b1cada21a2f904c",
+        "5685d1485d92ea64b1f3f21616f12b08b357df91b5152a06c73c2ab9cb41f5a7"
+      ],
+      "source_sha256": "dfe47caeb03b41a1c2c4ef751059f2cf8d7fede45bd36f2f75ba408a7e41d566",
+      "text": "Elaborar qué lee y qué tablas de referencia debe leer una búsqueda.\n\nLa carpeta de secuenciación de una cribado real contiene varias muestras, y una de ellas es suficiente. Qué mate lleva qué código de barras, qué orientación las tablas de referencia se almacenan en relación con las lecturas, y dónde en la lectura los códigos de barras se sientan son todas las propiedades de la biblioteca y la secuenciación se ejecutan en lugar de una muestra, por lo que midiendo en la primera muestra se establecen para cada muestra junto a ella. Los otros se cuentan en lugar que leer, y el recuento se informa de modo que nadie tiene que preguntarse si fueron olvidados.\n\nNada aquí abre una lectura. Lista una carpeta y comprueba que los archivos de referencia existen, por lo que es lo suficientemente barato para ejecutar cada vez que se presiona el botón de búsqueda y puede decir lo que falta antes de que se decodifique un solo byte.\n\n:param settings: la configuración Map Barcodes como el formulario los contiene.\n:returns: el plan. Su problema es una frase cuando no hay nada que buscar y vacío cuando el plan se puede llevar a cabo.",
+      "translation_source_blocks_sha256": [
+        "e36662447951be7cf8f08a90ef352c7e4e79e3a8cb2df07295bf006acbfe51a6",
+        "791b836b718a64befd3169937f0ebfc18b2cdbad7359fe39ce0e41608eea657d",
+        "dda48781fc90bf114b9abb3e786070798f087c6446b21de32b9885760af696ca",
+        "d6e80650315cc36f8c8b217794cee7861656dfd52dce88995b1cada21a2f904c",
+        "5685d1485d92ea64b1f3f21616f12b08b357df91b5152a06c73c2ab9cb41f5a7"
       ]
     },
     "spacr.qt.screens.map_barcodes.restate_fold_button": {
@@ -127974,6 +128892,192 @@
         "e00ce618fc56d8a9eceb26a25e220744a8805694feb9e998758e41bcfa1de501"
       ]
     },
+    "spacr.qt.widgets.read_view": {
+      "source_blocks_sha256": [
+        "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
+        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
+        "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
+        "5dfb4bb842ac0f2797ac22244d93d3310e003829aac15af79f9f0124d9f38030"
+      ],
+      "source_sha256": "d0e18e1e03cc79530830d73cb8008353a3cc1b201cd19d585bcef538fe19e56f",
+      "text": "Mostrar secuencia se lee como texto, una lectura por fila, con coincidencias de color.\n\nLa pantalla Map Barcodes le pide al usuario que crea una reclamación sobre sus archivos FASTQ: que un código de barras en particular se encontró en un lugar en particular, en una orientación particular. Un porcentaje en una caja de resumen no puede resolver un argumento sobre eso, porque un porcentaje se ve igual si las coincidencias son reales o accidentales. Las lecturas lo resuelven. Ver la tierra gRNA en las mismas columnas en fila tras fila es la diferencia entre un número que el usuario confía y un número el usuario tiene que tomar en fe, y ver nada alinearse es cómo una ejecución mal configurada se anuncia en un vistazo en lugar de después de una hora de asignación que no produce ningún conteo.\n\nAsí que este widget es deliberadamente plano. Dibuja el texto leído en una cara de tono fija, uno leído a una línea, y pinta los caracteres un código de barras coincide en un color que pertenece a ese tipo de código de barra. Nada envuelve, nada se elided, y el carácter en la columna cuarenta de una lectura se encuentra directamente encima del carácter en columna cuarenta del siguiente, que es la razón completa para mirar las lecturas en lugar de en una tabla.\n\nEste módulo no sabe nada acerca de cómo se encuentran las coincidencias. Toma lecturas y lapsos que alguien más computa, por lo que el motor de búsqueda y la cribado que aloja puede cambiar libremente sin tocar nada aquí, y por lo tanto esto puede ser probado sin ninguno de ellos. El contrato es el par de pequeños tipos de registro a continuación, y está destinado a ser escrito a mano tan fácilmente como se genera.\n\nUna nota sobre el color, porque es la parte que es fácil de malinterpretar. Cada color pintado aquí se deriva del tema que está en la vista de la aplicación, nunca escrito como un literal, y la derivación preserva la luz relativa del propio papel acento del tema. Contraste es una función de luminancia relativa y de nada más, por lo que un color hecho de esta manera aclara exactamente el contraste que el acento ya aclara sobre ese tema, incluyendo los temas cuyos paneles son translúcidos sobre una fotografía. Eso es lo que permite un número arbitrario de tipos de código de barras cada uno obtiene un color propio sin que ninguno de ellos se vuelva ilegible en algún tema nadie revisado.",
+      "translation_source_blocks_sha256": [
+        "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
+        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
+        "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
+        "3a805954e5e0fb6809a8a6b7bc5a5538afe2cf2db0abb5a1c3944d9975d62229"
+      ]
+    },
+    "spacr.qt.widgets.read_view.BarcodeSpan": {
+      "source_blocks_sha256": [
+        "a6d24050e9c5c6dfedf0dcb149dbd5809ab6b1ef38bdb49c8ba80f4e01ef84f8",
+        "e0bf798f0dc2a1ee4ac5369071bb5d4f1de6a71d15d1faa12ce98c4d66670e08",
+        "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
+        "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
+        "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
+        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+      ],
+      "source_sha256": "02be31d10f02110e50884d3f64ad5803cf8f150cbdf36b99b873347e8db804d1",
+      "text": "Un tramo de una lectura que un código de barras de algún tipo coincide.\n\nEl intervalo es medio abierto y contado en caracteres desde el comienzo de la lectura, por lo que sigue Python rebanando exactamente y el texto emparejado es ``read[start:stop]``. Las posiciones fuera de la lecturas se sujetan cuando se dibuja el lapso, y un lapso cuya parada no es después de su inicio no aporta nada, así que un llamante que hace aritmética en longitudes de lectura no puede hacer que la vista aumente.\n\nEl tipo es una etiqueta opaca. Es lo que el llama la familia de códigos de barras, es lo que muestra la leyenda, y es lo qué elige el color, por lo que dos lapsos que comparten un tipo están garantizados para compartir un color en cada fila.\n\n:param start: Primer personaje emparejado, contando desde cero.\n:param stop: Un más allá del último personaje emparejado.\n:param kind: Nombre del tipo de código de barras que coincide.",
+      "translation_source_blocks_sha256": [
+        "a6d24050e9c5c6dfedf0dcb149dbd5809ab6b1ef38bdb49c8ba80f4e01ef84f8",
+        "e0bf798f0dc2a1ee4ac5369071bb5d4f1de6a71d15d1faa12ce98c4d66670e08",
+        "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
+        "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
+        "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
+        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadRow": {
+      "source_blocks_sha256": [
+        "d72866e4e7ba05cb1938311f9d2c019336b7fa3c4130b00e93d340fdbcf08281",
+        "f1d11a511c1f51ba217e15d81cb57191a685177215579f55a29261f0492ca215",
+        "e6815a14b952f0b6cbf8489ed75bdbba863c68d1818db14df65fa0bf77390d0d"
+      ],
+      "source_sha256": "15d8ca64569cc896f187dbc944a50489a48fc704d9a123686b6f4b84981887a5",
+      "text": "Una lectura y todo lo que encajaba dentro de ella.\n\n:param text: La lectura como debería aparecer en la vista de la aplicación, ya recortada a cualquier ventana que el llamante desee mostrar.\n:param spans: Las coincidencias dentro de ese texto. El orden importa cuando dos de ellos se superponen, como se describe en :class:`ReadView`.",
+      "translation_source_blocks_sha256": [
+        "d72866e4e7ba05cb1938311f9d2c019336b7fa3c4130b00e93d340fdbcf08281",
+        "63e682ae423d7f3e38e33094074e0476b1a42954c2cb351ae682bdbaea02dffc",
+        "e6815a14b952f0b6cbf8489ed75bdbba863c68d1818db14df65fa0bf77390d0d"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView": {
+      "source_blocks_sha256": [
+        "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
+        "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
+        "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
+        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "a87f546d5bbbdbd8e853072bbf110383d442f14498713f2646e3858c69a69cb3",
+        "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
+        "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
+      ],
+      "source_sha256": "ec7f068304591e8fa899d5de4cc3020d81fcd0a9b72bdbeea26c62bb381e198c",
+      "text": "Lee como texto, una a una fila, con cada tipo de código de barras en su propio color.\n\nLa mano lee y los espacios que alguien más coincide dentro de ellos, y les muestra. Nunca busca nada en sí mismo y nunca importa el código que lo hace, por lo que se puede caer en cualquier cribado que tiene lecturas y posiciones para mostrar.\n\nLo que garantiza. Las lecturas se dibujan en una cara de tono fija en posiciones de carácter fijas, por lo que la columna cuarenta de una lectura se encuentra encima de la columna 40 de la siguiente. Una lectura nunca se envuelve en una segunda fila visual: una larga hace que la vista se desplace hacia los lados, porque una lectura envuelta rompería la promesa de que el widget entero existe para guardar. Un tipo de código de barras mantiene un color durante tanto tiempo como la vista lo está mostrando, para que el ojo pueda seguir una coincidencia abajo de las filas, y una leyenda encima de las lecturas dice qué color es cuál.\n\nCómo se resuelven los solapamientos. Los lapsos de una lectura se consideran en el orden que se les dio, y el primero en cubrir un carácter lo mantiene. Un lapso que llega más tarde todavía colorea cada carácter que no se haya tomado, por lo que nunca se oculta completamente, sólo se recorta. Decidir esto antes de que comience cualquier dibujo es lo que hace que los lapsos superpuestos se limiten a una cuestión de prioridad en lugar de una forma de corromper la imagen. Un llamante que quiera un tipo de código de barras en particular para ganar un solapamiento debe enumerar sus lapsos primero.\n\nLo que cuesta. Las lecturas son mantenidas en un modelo de lista y dibujadas por un delegado, así que entregar las lecturas cuesta una asignación de lista, y el dibujo cuesta sólo las filas que están realmente en la vista de aplicación. Establecer diez mil lecturas y mostrar la vista resuelve la propiedad del carácter de una pantalla llena de filas, no de diez mil, que es lo que mantiene la interfaz sensible en una muestra FASTQ real en lugar de en un juguete.\n\n:param parent: Opcional Qt propietario responsable de la vida útil del widget.\nConstruir una vista vacía con una leyenda encima de una lista de lecturas.",
+      "translation_source_blocks_sha256": [
+        "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
+        "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
+        "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
+        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "a765b429869a0bf35b16ae1a5028cf2c5189ec7a8ee1c56d3c15251742aa9b7a",
+        "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
+        "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.changeEvent": {
+      "source_blocks_sha256": [
+        "9e96546e696fa3308818e1e24425951c096bd96239cf7160214f990901d9fddf",
+        "63155dd338615fed07dde3aca825fe8843d6573d8cc6f2cdbf59d725dcc64238",
+        "a90d461fe30e4b3e41658f97de0abdee5b78c1eafd036f64212479ffa55205aa"
+      ],
+      "source_sha256": "65dbf7d9d307b5838f6409e3ced7d0fdccd7f7238d004e343da7f6b547fc00c7",
+      "text": "Siga un tema o un cambio de tamaño de texto sin que se le diga al respecto.\n\nLa aplicación vuelve a aplicar su hoja de estilos y paleta cuando cambia el tema, y Qt lo entrega a cada widget como un evento de cambio. Volver a tomar los colores aquí significa el re-tema de lectura con todo lo demás en lugar de mantener la paleta en la que fueron dibujados por primera vez.\n\n:param event: El evento de cambio Qt que se está entregando.",
+      "translation_source_blocks_sha256": [
+        "9e96546e696fa3308818e1e24425951c096bd96239cf7160214f990901d9fddf",
+        "63155dd338615fed07dde3aca825fe8843d6573d8cc6f2cdbf59d725dcc64238",
+        "a90d461fe30e4b3e41658f97de0abdee5b78c1eafd036f64212479ffa55205aa"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.clear": {
+      "source_blocks_sha256": [
+        "5c07c49f97c602c7fe7af7f05a221c9b5b1732c11954641852d5cd9ea9f659f9",
+        "daf8716d92270c9d1284deade52e7b6c96ab42d5583628ac4a591cbef81f727f"
+      ],
+      "source_sha256": "0a456cef67dc1cdaf19bd0c9c4e6fab26e79a28d8a48d09b117fe28ddb44cc77",
+      "text": "Deje caer cada lectura y olvide qué tipos de código de barras estaban siendo mostrados.\n\nOlvidar los tipos es el punto de tener esto en absoluto en lugar de establecer una lista vacía de lecturas. Una nueva ejecución puede buscar un conjunto diferente de códigos de barras, y llevar encima la asignación de la sesión de procesamiento anterior daría al nuevo primer código de barras el color del antiguo segundo código de barra.",
+      "translation_source_blocks_sha256": [
+        "5c07c49f97c602c7fe7af7f05a221c9b5b1732c11954641852d5cd9ea9f659f9",
+        "56d5c7a2c7a516e98757d0736c50fb3b57055f752dee55726e907a4f47aa70e1"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.colour_for": {
+      "source_blocks_sha256": [
+        "8b3c95c7feff9f60dd71f2e157c55850d5b4d0c3365ec583308c747700a85deb",
+        "4745663ca173b7754802d333571dd39a7b8f07a0b32497b85957ec8cfa7d941e",
+        "771633569246e965a0b78a3d283cb9b48a2922b9c5f75183ddc113bd638a3900"
+      ],
+      "source_sha256": "3100e9a7d4f1fd0a6202b8beba7cb1859f742e6c6e0f544dd99538f24d1fc1d1",
+      "text": "Devuelve el color en el que se dibuja un tipo de código de barras.\n\n:param kind: El nombre de tipo de código de barras.\n:returns: Una cadena de color hexagonal, o ``None`` si la vista nunca se ha mostrado ese tipo.",
+      "translation_source_blocks_sha256": [
+        "8b3c95c7feff9f60dd71f2e157c55850d5b4d0c3365ec583308c747700a85deb",
+        "4745663ca173b7754802d333571dd39a7b8f07a0b32497b85957ec8cfa7d941e",
+        "771633569246e965a0b78a3d283cb9b48a2922b9c5f75183ddc113bd638a3900"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.kinds": {
+      "source_blocks_sha256": [
+        "ef423c05850ef0c03cf416843cd7e228659e1bfe170776eb7965fc99d5623e68",
+        "50698a2d8c2ce00698253cb0bf1a06068790e5d2b15cb8b91a45b7daa41c1b04"
+      ],
+      "source_sha256": "b978423c8786a8e4cf0025043ba5ec507513157d2800ed3fa5d8ab2fda5cded4",
+      "text": "Devuelve los tipos de código de barras que se muestran, en orden de leyenda.\n\n:returns: Los nombres de tipo, que es también el orden que asignó sus colores.",
+      "translation_source_blocks_sha256": [
+        "ef423c05850ef0c03cf416843cd7e228659e1bfe170776eb7965fc99d5623e68",
+        "50698a2d8c2ce00698253cb0bf1a06068790e5d2b15cb8b91a45b7daa41c1b04"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.refresh_colours": {
+      "source_blocks_sha256": [
+        "ef690760daca7c78c542683292f6e7d81c556484eac921432d9e98cc04bea1cb",
+        "91c8f0d05295d8df13617050a88e5cd13e8d1296b8f4cc40d5aee551daf13c0c"
+      ],
+      "source_sha256": "32df08b6174b886d4a4a5b1fa1b74f1238a3baf362d935695f017c7a16e7f41e",
+      "text": "Tome los colores del tema de nuevo y repinte.\n\nSeguro de llamar en cualquier momento y lo suficientemente barato como para recurrir a un capricho: vuelve a derivar un color por tipo de código de barras, no por lectura.",
+      "translation_source_blocks_sha256": [
+        "ef690760daca7c78c542683292f6e7d81c556484eac921432d9e98cc04bea1cb",
+        "91c8f0d05295d8df13617050a88e5cd13e8d1296b8f4cc40d5aee551daf13c0c"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.row_count": {
+      "source_blocks_sha256": [
+        "0abf19fffecc1b3d8ad194dfca3eea94f8d4aaae10a3468b0fc89a72e96c9b6e",
+        "1c152268a7c932b474a79018b26986bb0c6f4750d0d47190f46b0815a8964c95"
+      ],
+      "source_sha256": "3deeae7e1210f0fa790951234db5e7c03e7624e9a5a537a17a7fd6eb4e5d5e10",
+      "text": "Devuelve cuántas lecturas se están mostrando.\n\n:returns: El número de filas en la vista.",
+      "translation_source_blocks_sha256": [
+        "0abf19fffecc1b3d8ad194dfca3eea94f8d4aaae10a3468b0fc89a72e96c9b6e",
+        "1c152268a7c932b474a79018b26986bb0c6f4750d0d47190f46b0815a8964c95"
+      ]
+    },
+    "spacr.qt.widgets.read_view.ReadView.set_reads": {
+      "source_blocks_sha256": [
+        "334a33f74d185c7c7f43bdb9a30c2d42353cb074b3c4609a66cca4a160e7d322",
+        "a90c8d7a0521ce4ac40775ad095bb0e7537a38016ca0d3e49c4ad2fe1c6cb8a5",
+        "b6a4b3bbab0006a8097ff2b412471b7db5670abe5a66ddbdd306dc000a1d6ff5",
+        "b3e7bcc339e4bd2646cb341847c25bd0853e62d116b08bb9810f20e782d004f7",
+        "2541ca5d894ea1628cf7883c47d30b16b6925f88d787e12e70bda6ec018e9784"
+      ],
+      "source_sha256": "81fc3c92fbc65aeab7c0a0ffeac136b03922f3e6e8ce1dc2c10d6c53c8e88aa2",
+      "text": "Mostrar estas lecturas, con estos tipos de código de barras en la leyenda.\n\nPasar los tipos de código de barras explícitamente vale la pena hacerlo siempre que se conocen, porque corrige tanto el orden de la leyenda y qué tipo obtiene qué color. Un tipo que se busca pero que se encuentra en ninguna de las lecturas en la vista de la aplicación entonces todavía aparece en la leyenda, que es en sí misma información: dice que la búsqueda corrió y volvió vacía en lugar de dejar al usuario para preguntarse si se corrió en absoluto.\n\nSin decir nada, los tipos se toman de los palmos en el orden en que se ven por primera vez, y cualquier tipo que ya se muestra mantiene el color que tiene.\n\n:param rows: Las lecturas, cada una un :class:`ReadRow`, una cadena simple para una lectura sin coincidencias, o un texto y espacio par.\n:param kinds: Nombres de tipo de código de barras en orden de leyenda, o ``None`` para tomarlos de los lapsos.",
+      "translation_source_blocks_sha256": [
+        "334a33f74d185c7c7f43bdb9a30c2d42353cb074b3c4609a66cca4a160e7d322",
+        "bd1d354586e4d6dd738a83025acb0f7a24cfaad46b3b09297b8daa93288027a9",
+        "b6a4b3bbab0006a8097ff2b412471b7db5670abe5a66ddbdd306dc000a1d6ff5",
+        "b3e7bcc339e4bd2646cb341847c25bd0853e62d116b08bb9810f20e782d004f7",
+        "2541ca5d894ea1628cf7883c47d30b16b6925f88d787e12e70bda6ec018e9784"
+      ]
+    },
+    "spacr.qt.widgets.read_view.barcode_colours": {
+      "source_blocks_sha256": [
+        "cd5f4c51077f7c0a709eaf23ce8860f36f8e89ac6b8c2886c1c1f2091e33f6bf",
+        "397bd4612859f0dc929ac053d300d82bc322ac8bea3da5b0b37683c00ff58c46",
+        "cd9153c13ea4f21e679ed1ddba653a62aca671ae13a22cfa6df908a23adc802f",
+        "b96ce8cecc93c4e791911ad47fadec794a63c1fa87e518222cf2df3488d6a68b",
+        "6af8a1d9762a62c4e979868ada2fe0149f3bd7b35b15b4d00de6bb02f57a6e81"
+      ],
+      "source_sha256": "1364208424c6746387d9471f842b11a0bd00f9f2b4383196698ccf48a067413e",
+      "text": "Dar a cada tipo de código de barras un color propio, tomado del tema.\n\nLos colores se asignan por posición, por lo que un tipo mantiene su color mientras el llamante siga pasando los tipos en el mismo orden, y añadiendo un tipo al final de la secuencia nunca cambia los colores ya entregados. Las repeticiones se ignoran después de la primera aparición.\n\nEl resultado sigue el tema de la vista de aplicación en el momento de la llamada. Difiere entre las paletas de luz y de oscuridad, y entre ambas y las de imagen, lo cual es deliberado en lugar de incidental: cada paleta tiene su propia luminancia legible y los colores se derivan de ella.\n\n:param kinds: Nombres de tipo de código de barras, en el orden en que deben ser coloreados.\n:returns: Una asignación de cada nombre a una cadena de color hexagonal.",
+      "translation_source_blocks_sha256": [
+        "cd5f4c51077f7c0a709eaf23ce8860f36f8e89ac6b8c2886c1c1f2091e33f6bf",
+        "397bd4612859f0dc929ac053d300d82bc322ac8bea3da5b0b37683c00ff58c46",
+        "fd7de089abb27d8ac437276f39bcc0ab069bb5f816632fd7318904839f950cee",
+        "b96ce8cecc93c4e791911ad47fadec794a63c1fa87e518222cf2df3488d6a68b",
+        "6af8a1d9762a62c4e979868ada2fe0149f3bd7b35b15b4d00de6bb02f57a6e81"
+      ]
+    },
     "spacr.qt.widgets.refit_dialog": {
       "source_blocks_sha256": [
         "1639f3ffdfe260bdc3fd607da2f305b50724ce8479b744a88bfa13f79be8ac80",
@@ -145610,21 +146714,21 @@
         "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
         "0f4a85c9d0557430930b200a9a4a0c27115a4d49ac0982c9b4eaefb058f59146",
         "45fb64dc2b3050c47ae42d726c134194a07e683d180ad732e717bfe3a0fbfede",
-        "29813c86205a5cee649d9782b48f6ef3fc447e89fa29f56d88417f2861302513",
+        "d8d0426ed527dfbf4d6c429cfd2ee61ba09b9e7c345633ef0941ae6fc2b03c79",
         "87abc46324b7652f26afd47890cc77870273d005260e0e9ff49fdf9cd7a4c3f5",
         "d56ee9e8a13f439eae241d58a2aa7858a47bc3d14e4777fea16bb70b1287fc8b",
         "9cdf97745e26f6331d427c3b47bac0e9d665a9013ad83e82b5d1d97e2c13d8e2",
         "2f431e82b9bf770d91b682283f773ff8494c09526aa40903c17678c82195855b",
         "e1380a40a01e067252f44957c4b4467d882cea762eb3b170776da2b0cbdb125a"
       ],
-      "source_sha256": "19522cbca1fa57b1015a353a9015ddb06480828bdd2e1ab7d06eb655842dfd40",
-      "text": "Decodificar el experimento de detección agrupada FASTQ lee en los recuentos de la guía de posición de la muestra por microplaca.\n\n¿Para qué es?\n==============\nEl módulo **Map Barcodes** conecta una secuenciación a una vista de aplicación basada en imágenes. Encuentra la microplaca de laboratorio, guía y microplacas de laboratorio en cada lectura, resuelve esas secuencias contra tablas de referencia y cuenta las guías resultantes por bien. :func:`generate_barecode_mapping` es el punto de entrada GUI y Python (la ortografía histórica ``barecode`` sigue siendo parte del público API); :func:`graph_sequencing_stats` puede entonces ayudar a elegir un corte de fracción de lectura.\n\nLo que necesita\n===============\n``src`` debe contener archivos FASTQ comprimidos por gzip cuyos nombres permiten que el par R1 y R2 de spaCR. La ejecución también necesita tres tablas de referencia CSV - ``row_csv``, ``column_csv`` y ``grna_csv`` - con ``sequence`` y ``name``. ``target_sequence`` ancla la ventana del código de barras, mientras que ``offset_start``, ``expected_end``, y un regex con los grupos llamados ``columnID``, ``grna`` y ``rowID`` describen su disposición. Use ``mode='paired'`` para un consenso de R1/R2 ponderado de calidad o ``mode='single'`` con ``single_direction`` cuando sólo se debe leer un mate.\n\nLo que produce\n================\nCada muestra obtiene su propio directorio de salida debajo de ``src``. Los artefactos esenciales son ``unique_combinations.csv`` (guía cuenta por fila y columna) y ``qc.csv``; ``annotated_reads.h5`` también se escribe cuando ``save_h5`` está activado. Código de barras opcional QC añade un informe y parcelas bajo ``barcode_qc``. Manifiestos de sesión de procesamiento y registros de fallos identifican muestras que se saltaron o no pudieron procesarse.\n\nQué hacer a continuación\n========================\nInspeccione la tabla QC y la fracción no mapeada antes de confiar en los conteos. Use ``test=True`` para procesar un bloque mientras comprueba el regex, la dirección de lectura y la orientación de referencia, luego ejecute la asignación completa y pase los archivos ``unique_combinations.csv`` resultantes a :func:`spacr.ml.perform_regression` como ``count_data``. :func:`barecodes_reverse_complement` puede hacer una copia de orientación opuesta de una referencia CSV.\n\nHay tres maneras fáciles de obtener una salida plausible pero incompleta. La coincidencia de anclaje es exacta y un regex incorrecto rechaza silenciosamente las lecturas; las secuencias de referencia se comparan en su orientación almacenada; y una secuencia dentro de ``barcode_mismatches`` de dos referencias permanece sin firmar en lugar de ser adivinada. Finalmente, la salida de nivel de lectura HDF5 puede ser mucho más grande que las tablas de recuento, y una alta compresión puede gastar más tiempo ahorrando que decodificación, por lo que inhabilitar ``save_h5`` a menos que se necesiten esas anotaciones individuales.",
+      "source_sha256": "c7f31c57df8988181371ae96508f3d62a573810bce60756ff15d347294ae50d1",
+      "text": "Decodificar el experimento de detección agrupada FASTQ lee en los recuentos de la guía de posición de la muestra por microplaca.\n\n¿Para qué es?\n==============\nEl módulo **Map Barcodes** conecta una secuenciación a una vista de aplicación basada en imágenes. Encuentra la microplaca de laboratorio, guía y microplacas de laboratorio en cada lectura, resuelve esas secuencias contra tablas de referencia y cuenta las guías resultantes por bien. :func:`generate_barecode_mapping` es el punto de entrada GUI y Python (la ortografía histórica ``barecode`` sigue siendo parte del público API); :func:`graph_sequencing_stats` puede entonces ayudar a elegir un corte de fracción de lectura.\n\nLo que necesita\n===============\n``src`` debe contener archivos FASTQ comprimidos por gzip cuyos nombres permiten que el par R1 y R2 de spaCR. La ejecución también necesita una tabla de referencia CSV por código de barras, con ``sequence`` y ``name``. Una ejecución que decodifica los tres códigos de barras spaCR enviados los nombra como ``row_csv``, ``column_csv`` y ``grna_csv``, y una ejecución que codifica cualquier otro número de códigos de barra los lista bajo ``barcode_set`` en cambio, una entrada por código de barras. ``target_sequence`` ancla la ventana de código de barras, mientras que ``offset_start``, ``expected_end``, y un regex que nombra un grupo por código de barra describen su diseño. El regex enviado nombra ``columnID``, ``grna`` y ``rowID``. Utilizar ``mode='paired'`` para un consenso R1/R2 ponderado de calidad o ``mode='single'`` con ``single_direction`` cuando solo se debe leer un mate.\n\nLo que produce\n================\nCada muestra obtiene su propio directorio de salida debajo de ``src``. Los artefactos esenciales son ``unique_combinations.csv`` (guía cuenta por fila y columna) y ``qc.csv``; ``annotated_reads.h5`` también se escribe cuando ``save_h5`` está activado. Código de barras opcional QC añade un informe y parcelas bajo ``barcode_qc``. Manifiestos de sesión de procesamiento y registros de fallos identifican muestras que se saltaron o no pudieron procesarse.\n\nQué hacer a continuación\n========================\nInspeccione la tabla QC y la fracción no mapeada antes de confiar en los conteos. Use ``test=True`` para procesar un bloque mientras comprueba el regex, la dirección de lectura y la orientación de referencia, luego ejecute la asignación completa y pase los archivos ``unique_combinations.csv`` resultantes a :func:`spacr.ml.perform_regression` como ``count_data``. :func:`barecodes_reverse_complement` puede hacer una copia de orientación opuesta de una referencia CSV.\n\nHay tres maneras fáciles de obtener una salida plausible pero incompleta. La coincidencia de anclaje es exacta y un regex incorrecto rechaza silenciosamente las lecturas; las secuencias de referencia se comparan en su orientación almacenada; y una secuencia dentro de ``barcode_mismatches`` de dos referencias permanece sin firmar en lugar de ser adivinada. Finalmente, la salida de nivel de lectura HDF5 puede ser mucho más grande que las tablas de recuento, y una alta compresión puede gastar más tiempo ahorrando que decodificación, por lo que inhabilitar ``save_h5`` a menos que se necesiten esas anotaciones individuales.",
       "translation_source_blocks_sha256": [
         "82f3d40706e14d897cb609c0b3a5f14147be4af6d605ec27dc9cd60ab2d2e26a",
         "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
         "df7a07c456e9708e5aaa1cf799c97150e7fa0e16a3e1d222853881edcf0b36e1",
         "2ba4b43ad7886d87af0f0b34232519ac26fc6e881ac8f2583cd4c5033577d599",
-        "29813c86205a5cee649d9782b48f6ef3fc447e89fa29f56d88417f2861302513",
+        "d8d0426ed527dfbf4d6c429cfd2ee61ba09b9e7c345633ef0941ae6fc2b03c79",
         "1b9e73ff367742a6893f9adda6659a509d41eb8e4a8cc60eb5f4c7ab862a3b47",
         "f50f75d242e2f3d44c15f6a4272302523dbd59082c51580da7f0929197fd7b59",
         "6164ad73de3089addfdf4320dbe9f6da259911427de5e8fbaae926809d0c3167",
@@ -145711,14 +146815,15 @@
     "spacr.sequencing.generate_barecode_mapping": {
       "source_blocks_sha256": [
         "2a5eb1b139093da86a46a4ebb085aac2ca9fea857f3d2e0af50d15d9ba6a11bf",
-        "f046ddb399b6a106114e04c2d09db0a9cd2b8ee79366dd127ad282e54c273333",
+        "0f6e0c1e140edaa7426fb1251d7bb01bab5b4b719480182fd7d61bbce1956b77",
         "9b509e5646b87ffdcbf88b747f801e66bb3cb869245ee0ddc151c527a7de33cd",
         "f54a5bcf96a34bc69980c5b0465753a07fce5cb2579df44aebdf7c0682c1ff31",
         "52e77ec9a4f15faf2def937305975c86581566acefd2c3df38ee5227c0a16ddb",
         "cf1fd210aaad17548a90101828746fd0317ffe9a79d5c4ded0d5a1849ea9f213",
         "365c2dea13aa27eb06c9a0f6b075a4d4ab32a5effd8e526ffda8077d6f9dc020",
         "19aaec12779f9c1d3ce12b444bfe3d92a23005d15a444efc370e31ba9b7b8192",
-        "4480186400a5573bb9a1ff78ecafbab1e94a889da21cde4f3f39aa43bd4a47ed",
+        "3d9be3a73324e0694c6df9f462f3535c0203b6755d316f073f83a609081ed793",
+        "be6b3cc3ffa8a8b89a54b676312a00c93803c81634182ae1bd23f2fcf09d585a",
         "f3531e87cd866cdf0a99ccccb9444d95085389f37541d0fc1e5319d665f4bb0b",
         "338cd188bcae7dbbbbd5e473501488e20220342f969116c12a31301e6e6165be",
         "771ca49565901e6ffad8dccfd0d915b1f28c0538d7f83e608c9e28311848954c",
@@ -145727,18 +146832,19 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "a24b201e8ac8ad15ccf8cb452cb2130a305d8a454c58d0a86185334693d6dffe"
       ],
-      "source_sha256": "eb34ce8a32857bc0371a9b205bc27267bd2cf63b2d0c2b7029074f5413471881",
-      "text": "Convierta una carpeta de archivos de prueba de detección agrupada en tablas de recuento de sgRNA por microplaca utilizables por :func:`spacr.ml.perform_regression`.\n\nDescubre archivos R1/R2 por muestra en ``src``, extrae la fila, la columna y los códigos de barras gRNA de cada lectura a través de la ventana configurada regex y offset, los traduce a nombres mediante tres búsquedas de código de barras CSVs (véase :func:`map_sequences_to_names`), y escribe por muestra ``annotated_reads.h5`` (opcional), ``unique_combinations.csv`` (la posición de muestra por microplaca gRNA) y ``qc.csv``. La orientación emparejada vs uni-end y R1/ R2 se eligen entre ``settings['mode']`` y ``single_direction``.\n\n:param settings: Configuración del mapeo de valores clave, canonizado a través de :func:`spacr.settings.set_default_generate_barecode_mapping`. Entradas de datos estructurados:\n\n    - ``src`` — se lee la carpeta que contiene ``*.fastq.gz``\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` o ``'R2'`` (solo ``mode='single'``).\n    - ``regex`` — regex extrae códigos de barras de una lectura.\n    - ``target_sequence``, ``offset_start``, ``expected_end`` — ventana de anclaje y rebanada utilizada para localizar la región del código de barras.\n    - ``column_csv`` / ``row_csv`` /``grna_csv`` — barcode->name lookup CSVs.\n    - ``save_h5``, ``comp_type``, ``comp_level`` — HDF5 perillas de salida.\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` — cuando es cierto, QC cada muestra terminada con :func:`spacr.sequencing_qc.barcode_qc`, gráficos de escritura y un informe en ``<dst>/barcode_qc`` (por defecto False; no rellenado por los valores predeterminados).\n    - ``target_grnas_per_well`` — espera gRNAs por posición de la muestra de microplaca, de la que ese paso QC deriva su umbral de abundancia (predeterminado 1).\n\n:returns: None. Escribe salidas por muestra en ``<src>/<sample>_<mode>[_<direction>]/``.\n\nEjemplo:\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\nVéase también: :func:`map_sequences_to_names` — búsqueda de nombre de código de barras interno->. :func:`spacr.ml.perform_regression` — consume el resultado ``unique_combinations.csv`` como ``count_data``.",
+      "source_sha256": "51448c630ac0222d805ff06d48569178f90b78fea4614a0fb7819b0909c6b5bc",
+      "text": "Convierta una carpeta de archivos de prueba de detección agrupada en tablas de recuento de sgRNA por microplaca utilizables por :func:`spacr.ml.perform_regression`.\n\nDescubre los archivos R1/R2 por muestra en ``src``, extrae cada código de barras los decodificadores de ejecución de cada lectura a través de la ventana configurada regex y offset, traduce cada uno de ellos a un nombre mediante su propia búsqueda CSV (véase :func:`map_sequences_to_names`), y escribe por muestra ``annotated_reads.h5`` (opcional), ``unique_combinations.csv`` (la posición de muestra por microplaca gRNA cuenta) y ``qc.csv``. La orientación emparejada vs uni-end y R1/ R2 se eligen entre ``settings['mode']`` y ``single_direction``.\n\n:param settings: Configuración del mapeo de valores clave, canonizado a través de :func:`spacr.settings.set_default_generate_barecode_mapping`. Entradas de datos estructurados:\n\n    - ``src`` — la carpeta que contiene ``*.fastq.gz`` lee.\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` or ``'R2'`` (``mode='single'`` solo).\n    - ``regex`` — regex extrae códigos de barras de una lectura.\n    - ``target_sequence``, ``offset_start``, (``expected_end``): ventana de anclaje y rebanada utilizada para localizar la región del código de barras.\n    - ``column_csv`` / ``row_csv`` / ``grna_csv`` — Barcode->name lookup CSVs para los tres códigos de barras spaCR enviados.\n    - ``barcode_set`` — los códigos de barras a decodificar cuando una sesión de procesamiento tiene otros tres, como una lista con una entrada por código de barras. Cada entrada nombra el código de barra, la referencia CSV que nombra sus secuencias y el grupo regex que lo captura. Ausente, que es lo que cada archivo de configuración escrito antes de que existieran conjuntos, la sesión de proceso decode los tres mencionados anteriormente.\n    - ``save_h5``, ``comp_type``, (``comp_level``) — HDF5 perillas de salida.\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` — cuando es cierto, QC cada muestra terminada con :func:`spacr.sequencing_qc.barcode_qc`, gráficos de escritura y un informe en ``<dst>/barcode_qc`` (por defecto False; no rellenado por los valores predeterminados).\n    - ``target_grnas_per_well`` — espera gRNAs por posición de la muestra de microplaca, de la que ese paso QC deriva su umbral de abundancia (predeterminado 1).\n\n:returns: None. Escribe salidas por muestra en ``<src>/<sample>_<mode>[_<direction>]/``.\n\nEjemplo:\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\nVéase también: :func:`map_sequences_to_names` — búsqueda de nombre de código de barras interno->. :func:`spacr.ml.perform_regression` — consume el resultado ``unique_combinations.csv`` como ``count_data``.",
       "translation_source_blocks_sha256": [
         "8cd69f2da40b717c5f23cf48be86f3b6a48bb1f7387c9109f9ad6aa561f8d2a5",
-        "b8cd34360e14f2cfcdaa40bbbb5979e350c8187734bc925ea031fb70ab9979a9",
+        "2c8b7d67d8c595087afcb92934b1c7738a105f31e0824ee3498ddef59daba15a",
         "202738512ed71d389708912326ec67a93fe171f9ef542414ed4fe80950fefde4",
         "f54a5bcf96a34bc69980c5b0465753a07fce5cb2579df44aebdf7c0682c1ff31",
         "52e77ec9a4f15faf2def937305975c86581566acefd2c3df38ee5227c0a16ddb",
         "cf1fd210aaad17548a90101828746fd0317ffe9a79d5c4ded0d5a1849ea9f213",
         "365c2dea13aa27eb06c9a0f6b075a4d4ab32a5effd8e526ffda8077d6f9dc020",
         "19aaec12779f9c1d3ce12b444bfe3d92a23005d15a444efc370e31ba9b7b8192",
-        "4480186400a5573bb9a1ff78ecafbab1e94a889da21cde4f3f39aa43bd4a47ed",
+        "3d9be3a73324e0694c6df9f462f3535c0203b6755d316f073f83a609081ed793",
+        "0b50b6d74d2ff8dce6d4fbcbf9d46024b87815a1d70e22982aa679784905302c",
         "f3531e87cd866cdf0a99ccccb9444d95085389f37541d0fc1e5319d665f4bb0b",
         "338cd188bcae7dbbbbd5e473501488e20220342f969116c12a31301e6e6165be",
         "771ca49565901e6ffad8dccfd0d915b1f28c0538d7f83e608c9e28311848954c",
@@ -145820,7 +146926,7 @@
         "ae7bfa385c0cbf217473d3da7895820998e1fa15c377addcabeba591dae8a94e",
         "46e8c8fe51e8ed65147aaad2f4a879ac5610e61f37c74d3e214e25390d0318a2",
         "2e55fd1420381e57acc5dc445078539b77171a01fb98bdc6251ca92c9d1723d8",
-        "d1519b7e4ce40ac21ae2fb71017bfd73b7a53cb57fec3b64c082a3bac19782f0",
+        "7f47ed0231e6bab02270e4a3cd2d30f246d3d92bdf6b4811eb62c74791fd6898",
         "fa6a4de3748685c990c777d49a627278c41fff9a7b4ae2d617cfc701000b35b3",
         "06ca2ab4fc96cc187d9e14c3d0668ac310d0ea425c681b26243be61af766d89d",
         "b265771c1b97ba6ab5c7d9da1fad7c4f5e8933a89f87a536beb706474cc36fc2",
@@ -145837,16 +146943,17 @@
         "07feef1b4079fec1c6f7506faaccdfaa69cf81982965e0a4908414b961ff8bcc",
         "eda60e96b80a69d554143462663c488d4151674044c573e1c5cb969e064d395e",
         "a92cd25865cd1e5862059f74ef38c8592cc4b37c0ec3a51348df72db7186a1ea",
+        "a5d3f466ebfff3f051b68970c42432ff25741c9d1291668c7e034bf1b20e5227",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "5840747ab783d4118b26c875a7526b386efb98affa207b167c6670d3b8b0e9b5",
-      "text": "Procesamiento FASTQ de extremo parido: extraer, decodificar y transmitir códigos de barras al disco.\n\nLee R1/R2 en bloques ``chunk_size``, los cultiva a :func:`process_chunk` procesos de trabajo, y permite que :func:`saver_process` escriban HDF5 / CSV salidas simultáneamente.\n\n:param r1_file: gzipped ruta r1 fastq.\n:param r2_file: gzipped r2 fastq traw.\n:param regex: regex con grupos denominados ``rowID``, ``columnID``, ``grna``.\n:param target_sequence: secuencia de anclaje utilizada para localizar la región del código de barras.\n:param offset_start: Desplazamiento de ``target_sequence`` para comenzar la extracción.\n:param expected_end: longitud de la región de consenso extraído.\n:param column_csv: referencia de código de columna CSV.\n:param grna_csv: Referencia de código de barras gRNA CSV.\n:param row_csv: referencia de código de barras de fila CSV.\n:param save_h5: persistirá la lectura completa de DataFrame a HDF5.\n:param comp_type: Biblioteca de compresión HDF5.\n:param comp_level: Nivel de compresión HDF5.\n:param hdf5_file: Ruta de salida HDF5.\n:param unique_combinations_csv: destino CSV para combinaciones agregadas.\n:param qc_csv_file: destino CSV para estadísticas QC.\n:param chunk_size: lee por lote. Predeterminado ``10000``.\n:param n_jobs: procesos de trabajador; por defecto a ``cpu_count() - 3``.\n:param test: procesar sólo el primer bloque e imprimir una vista previa.\n:param fill_na: llenar los ID no mapeados con secuencias de código de barras en bruto.\n:returns: None.",
+      "source_sha256": "b13fe4c20bf9fdbc89ba6f9f891dc8754f99b5df150280f312aa51a87a644387",
+      "text": "Procesamiento FASTQ de extremo par: extraer, decodificar y transmitir códigos de barras al disco.\n\nLee R1/R2 en bloques ``chunk_size``, los cultiva a :func:`process_chunk` procesos de trabajo, y permite que :func:`saver_process` escriban HDF5 / CSV salidas simultáneamente.\n\n:param r1_file: gzipped ruta r1 fastq.\n:param r2_file: gzipped r2 fastq traw.\n:param regex: regex nombra un grupo por código de barras. Los tres spaCR enviados se leen desde ``rowID``, ``columnID`` y ``grna``.\n:param target_sequence: secuencia de anclaje utilizada para localizar la región del código de barras.\n:param offset_start: offset de ``target_sequence`` para comenzar la extracción.\n:param expected_end: longitud de la región de consenso extraída.\n:param column_csv: columna-código de barras de referencia CSV.\n:param grna_csv: Referencia gRNA-barcode CSV.\n:param row_csv: referencia al código de barras de fila CSV.\n:param save_h5: persistir las lecturas completas DataFrame a HDF5.\n:param comp_type: HDF5 biblioteca de compresión.\n:param comp_level: Nivel de compresión HDF5.\n:param hdf5_file: Ruta de salida HDF5.\n:param unique_combinations_csv: destino CSV para combinaciones agregadas.\n:param qc_csv_file: destino CSV para las estadísticas QC.\n:param chunk_size: lee por lote. Predeterminado ``10000``.\n:param n_jobs: procesos de trabajador; por defecto a ``cpu_count() - 3``.\n:param test: procesar sólo el primer bloque e imprimir una vista previa.\n:param fill_na: llenar los identificadores no cartografiados con secuencias de código de barras en bruto.\n:param barcode_set: los códigos de barras a decodificar, como un :class:`spacr.settings.BarcodeSet` de cualquier tamaño. None decode los tres códigos de barra spaCR enviados desde las tres referencias CSVs anteriores, que es lo que cada ejecución hizo antes de que se pudiera dar un conjunto; se utiliza un conjunto en lugar de ellos.\n:returns: None.",
       "translation_source_blocks_sha256": [
         "4be484ffafdb21ac1ecdd0d5260f4584ff0b7dd0ed2f6d996adeb3ed8b70d083",
         "ae7bfa385c0cbf217473d3da7895820998e1fa15c377addcabeba591dae8a94e",
         "39e65c843fa0a9535d65aadfb8887452a76e6ced2ae643bf657a14ed23e07cf4",
         "0b47129dfddd35ff9b562fa73c1a6c6f81e9bffa66834a021e81556c45a6620b",
-        "d1519b7e4ce40ac21ae2fb71017bfd73b7a53cb57fec3b64c082a3bac19782f0",
+        "7f47ed0231e6bab02270e4a3cd2d30f246d3d92bdf6b4811eb62c74791fd6898",
         "fa6a4de3748685c990c777d49a627278c41fff9a7b4ae2d617cfc701000b35b3",
         "06ca2ab4fc96cc187d9e14c3d0668ac310d0ea425c681b26243be61af766d89d",
         "b265771c1b97ba6ab5c7d9da1fad7c4f5e8933a89f87a536beb706474cc36fc2",
@@ -145863,25 +146970,30 @@
         "07feef1b4079fec1c6f7506faaccdfaa69cf81982965e0a4908414b961ff8bcc",
         "eda60e96b80a69d554143462663c488d4151674044c573e1c5cb969e064d395e",
         "a92cd25865cd1e5862059f74ef38c8592cc4b37c0ec3a51348df72db7186a1ea",
+        "a5d3f466ebfff3f051b68970c42432ff25741c9d1291668c7e034bf1b20e5227",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.sequencing.process_chunk": {
       "source_blocks_sha256": [
         "d8b2c1c2e32eeae7b75e031f42f4cf32e4347d7bf2af735f3cedd0c621f9d7da",
-        "731e7187233f64a536dd859de7014d28fe720ad8569224f4c682883073c5aa32",
-        "c9ece26750d3c9ee8c279c49cc076fab020e8b785fce9f6ac2e1f721e05eef58",
-        "4d7162f6dfc396e1c8faa617d0d470905cf0a8a43d53499bff27728b58287a21",
-        "6e2684290412ec9e48605d14b2026c5739b8afec4863e40ad949e16cdc59d153"
+        "d5478725e603f4d7520bd4b5f7d14f327d1669f8c1314c805ff4b4888af12628",
+        "85785563dc4a50f33a29cb09d6a02d11f240ad0e99bbac7155feb60df8d6d35d",
+        "f8e0d044695b64933aa8c3f7822ed4e05e79de14d81a62ebf4a79f9c111a182b",
+        "bf9bd93ef68541694f2ff3a1eeaf6b395cd418ce65271fbe9519c407d90c68f9",
+        "ceea04f123b4df4f7997168fd0e5f2c0ea335f2b74163b25e3e7287adc0f96df",
+        "adc7d0347d0edc612ebaddeebf7d5fe63a0af172d77647872835af3971211df5"
       ],
-      "source_sha256": "d9aa54728ba47dbff087edea1a6de0e97b2bab3d4b7f275f0b3b657336d10251",
-      "text": "Extraer y mapear códigos de barras de un bloque de letras de FASTQ de un solo o de un par de extremos.\n\nAnclas en ``target_sequence``, extrae una ventana de consenso, la divide con el grupo ``regex`` y mapea cada código de barras a su ID a través de los CSVs de referencia.\n\nEl regex debe suministrar un grupo ``grna`` más una fila y un grupo de columna. ``columnID``/``rowID``, los nombres utilizados por el regex predeterminado enviado, tienen precedencia; ``column``/``row`` se aceptan como alias.\n\n:param chunk_data: 9-tupla para un solo extremo ``(r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na)`` o 10-tupla para un solo extremo ``(r1_chunk, r2_chunk, ...)`` con los mismos campos de arrastre.\n:returns: tupla ``(df, unique_combinations, qc_df)`` — la lectura anotada (``read``, secuencias por código de barras e ID), cuenta por triplet y una fila NaN/total-reads QC.",
+      "source_sha256": "074c6072f1ac07b7e3cc8a02a68bbd3d863eb0c6cde82715ca85eb278ff7c2d1",
+      "text": "Extraer y mapear códigos de barras de un bloque de letras FASTQ de extremo único o pareado.\n\nAnclas en ``target_sequence``, extrae una ventana de consenso, divide esa ventana con el grupo nombrado ``regex`` y mapea cada código de barras que tiene a un nombre a través de la propia tabla de referencia de ese código de barra.\n\nEl bloque llega en una de dos formas. Una tupla es la histórica y decodifica los tres códigos de barras que este módulo siempre ha descodificado, una columna de microplaca de laboratorio, una guía y una fila de micro placa de laboratorio a partir de tres rutas de referencia CSV. Un mapeo lleva un conjunto de códigos de barra en su lugar y descodificar sin embargo muchos códigos de bar que establecen se mantiene, uno o diez, escribiendo una columna secuencial y una columna nombre para cada uno de ellos.\n\nEl regex debe nombrar un grupo para cada código de barras que se está decodificando, y la ejecución deja de nombrar el código de barra que no tiene ningún grupo en lugar de decodificación del resto. Para los tres históricos la columna y la fila se leen de ``columnID`` y ``rowID`` donde el regex define esos, y de ``column`` y ``row`` donde no lo hace, por lo que un patrón escrito antes de que esos nombres fueran colocados continúa emparejando.\n\n:param chunk_data: un 9-tupla para un solo extremo lee ``(r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na)``, un 10-tuple para pares de extremo lee ``(r1_chunk, r2_chunk, ...)`` con los mismos campos de seguimiento, o una asignación que sostiene ``r1_chunk``, ``r2_chunk`` (ausente o None para un único extremo lee), ``regex``, ``target_sequence``, ``offset_start``, ``window_length``, ``barcode_set`` y ``fill_na``.\n:returns: tupla ``(df, unique_combinations, qc_df)`` — el anotado lee, manteniendo la lectura y luego la secuencia y el nombre de cada código de barras; el número de lecturas detrás de cada combinación única de nombres de código de barra; y un marco de una fila QC de valores faltantes y lecturas totales.\n:raises ValueError: cuando el bloque no es ninguna de esas formas, cuando la longitud de la ventana no es positiva, cuando el regex no nombra ningún grupo para uno de los códigos de barras, o cuando un registro FASTQ está mal formado.",
       "translation_source_blocks_sha256": [
         "d8b2c1c2e32eeae7b75e031f42f4cf32e4347d7bf2af735f3cedd0c621f9d7da",
-        "731e7187233f64a536dd859de7014d28fe720ad8569224f4c682883073c5aa32",
-        "c9ece26750d3c9ee8c279c49cc076fab020e8b785fce9f6ac2e1f721e05eef58",
-        "4d7162f6dfc396e1c8faa617d0d470905cf0a8a43d53499bff27728b58287a21",
-        "6e2684290412ec9e48605d14b2026c5739b8afec4863e40ad949e16cdc59d153"
+        "d5478725e603f4d7520bd4b5f7d14f327d1669f8c1314c805ff4b4888af12628",
+        "001b272a5e84e11d777a73ec4fb0c634d27cd374915942ce1e224d1ea68ed7f9",
+        "f8e0d044695b64933aa8c3f7822ed4e05e79de14d81a62ebf4a79f9c111a182b",
+        "bf9bd93ef68541694f2ff3a1eeaf6b395cd418ce65271fbe9519c407d90c68f9",
+        "ceea04f123b4df4f7997168fd0e5f2c0ea335f2b74163b25e3e7287adc0f96df",
+        "adc7d0347d0edc612ebaddeebf7d5fe63a0af172d77647872835af3971211df5"
       ]
     },
     "spacr.sequencing.reverse_complement": {
@@ -145944,17 +147056,19 @@
     },
     "spacr.sequencing.save_unique_combinations_to_csv": {
       "source_blocks_sha256": [
-        "0d5af46e2659642b731103b74450cdc0ae490a96130d8d5868828b398be412b1",
-        "4fb4d279b852f705661ca8ddd93150644b60bc525fa6edacf7c6153b091ad720",
+        "a911469cf2e1a9a96f220e316be00f04bd9425542ecc147e15b13af8768c0464",
+        "cd3498a8aac7301223ec0b3743bc602c4dc0b64c5185ca0b00d58bd5bf156411",
+        "1dcf1513efff49e204e5a9d37adb52d02e1d3ab548df7fec1a1bcfe775d66597",
         "12bbe819421969f4917ccf273c51d071b7a09fbfc6f132a81ffdd82d54afe665",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
         "af88f8d7a8fb671e265d7c92ee93dd63b79809e39dfacb7e26b2be6bc69cb0a4"
       ],
-      "source_sha256": "6d4ecd154e8a9917efb4de2828d148f01ff2eaa8b386ee507b4797ad53c61114",
-      "text": "Añadir por ``(rowID, columnID, grna_name)`` cuenta a un CSV, sumando duplicados.\n\n:param unique_combinations: DataFrame con columnas ``rowID``, ``columnID``, ``grna_name`` y recuento numérico.\n:param csv_file: ruta de destino CSV (creada si no existe).\n:returns: None.\n:raises Exception: después de imprimir el contexto, cuando la escritura CSV falla.",
+      "source_sha256": "0b21fa655a5aef1ee470130f8c04924f7cff6e52f011f95fbb2a6133f52e3d9a",
+      "text": "Añadir por código de barras cuenta a un CSV, sumando duplicados.\n\nLas columnas a agrupar por son la propia del marco, cada columna excepto el conteo. Solían ser los tres este módulo decodificado, llamado aquí como un literal, que es uno de los dos lugares una sesión de procesamiento tuvo que contener exactamente tres códigos de barras. Leerlos fuera del marco no es un aflojamiento: el marco viene del grupopor que lo produjo, por lo que sus columnas son la combinación que se cuenta, ya sea que sea un código de barras o seis.\n\n:param unique_combinations: DataFrame con una columna por código de barras y una columna numérica ``count``.\n:param csv_file: ruta de destino CSV (creada si no existe).\n:returns: None.\n:raises Exception: después de imprimir el contexto, cuando la escritura CSV falla.",
       "translation_source_blocks_sha256": [
-        "0d5af46e2659642b731103b74450cdc0ae490a96130d8d5868828b398be412b1",
-        "4fb4d279b852f705661ca8ddd93150644b60bc525fa6edacf7c6153b091ad720",
+        "a911469cf2e1a9a96f220e316be00f04bd9425542ecc147e15b13af8768c0464",
+        "0ba4509f332a280459f8f0718784a1bd6358677158ce5aedca72bf1cdfcfd4e3",
+        "1dcf1513efff49e204e5a9d37adb52d02e1d3ab548df7fec1a1bcfe775d66597",
         "12bbe819421969f4917ccf273c51d071b7a09fbfc6f132a81ffdd82d54afe665",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
         "af88f8d7a8fb671e265d7c92ee93dd63b79809e39dfacb7e26b2be6bc69cb0a4"
@@ -145993,7 +147107,7 @@
         "bfe462b6a72d7d28abc8ff1bb0666c802176b34b259c1d77489cc1f5b7673576",
         "46e8c8fe51e8ed65147aaad2f4a879ac5610e61f37c74d3e214e25390d0318a2",
         "83a567a602860418afaf87ac77200d09ef1bf95e4c06b7fc23429ac225ec3204",
-        "d1519b7e4ce40ac21ae2fb71017bfd73b7a53cb57fec3b64c082a3bac19782f0",
+        "7f47ed0231e6bab02270e4a3cd2d30f246d3d92bdf6b4811eb62c74791fd6898",
         "fa6a4de3748685c990c777d49a627278c41fff9a7b4ae2d617cfc701000b35b3",
         "06ca2ab4fc96cc187d9e14c3d0668ac310d0ea425c681b26243be61af766d89d",
         "e006244c534c113e0a6c4ea938726e99e29de4f987558139cbe044502a96d2cd",
@@ -146010,15 +147124,16 @@
         "07feef1b4079fec1c6f7506faaccdfaa69cf81982965e0a4908414b961ff8bcc",
         "eda60e96b80a69d554143462663c488d4151674044c573e1c5cb969e064d395e",
         "a92cd25865cd1e5862059f74ef38c8592cc4b37c0ec3a51348df72db7186a1ea",
+        "a5d3f466ebfff3f051b68970c42432ff25741c9d1291668c7e034bf1b20e5227",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "2b95bcb32a075df684bcc77e6e92fa41a12941538532a60832114ccabbd202c5",
-      "text": "Procesamiento FASTQ de un solo extremo: extraer, decodificar y transmitir códigos de barras al disco.\n\n:param r1_file: gzipped ruta r1 fastq.\n:param r2_file: marcador de posición no utilizado mantenido para la paridad de interfaz con la variante emparejada.\n:param regex: regex con grupos denominados ``rowID``, ``columnID``, ``grna``.\n:param target_sequence: secuencia de anclaje utilizada para localizar la región del código de barras.\n:param offset_start: Desplazamiento de ``target_sequence`` para comenzar la extracción.\n:param expected_end: longitud de la región de código de barras extraído.\n:param column_csv: referencia de código de columna CSV.\n:param grna_csv: Referencia de código de barras gRNA CSV.\n:param row_csv: referencia de código de barras de fila CSV.\n:param save_h5: persistirá la lectura completa de DataFrame a HDF5.\n:param comp_type: Biblioteca de compresión HDF5.\n:param comp_level: Nivel de compresión HDF5.\n:param hdf5_file: Ruta de salida HDF5.\n:param unique_combinations_csv: destino CSV para combinaciones agregadas.\n:param qc_csv_file: destino CSV para estadísticas QC.\n:param chunk_size: lee por lote. Predeterminado ``10000``.\n:param n_jobs: procesos de trabajador; por defecto a ``cpu_count() - 3``.\n:param test: procesar sólo el primer bloque e imprimir una vista previa.\n:param fill_na: llenar los ID no mapeados con secuencias de código de barras en bruto.\n:returns: None.",
+      "source_sha256": "3de39ea1c75f0ed0e0136f60ecff3769871eb8b60b926739e3bf4cdd45058bc0",
+      "text": "Procesamiento FASTQ de un solo extremo: extraer, decodificar y transmitir códigos de barras al disco.\n\n:param r1_file: gzipped ruta r1 fastq.\n:param r2_file: marcador de posición no utilizado mantenido para la paridad de interfaz con la variante emparejada.\n:param regex: regex nombra un grupo por código de barras. Los tres spaCR enviados se leen desde ``rowID``, ``columnID`` y ``grna``.\n:param target_sequence: secuencia de anclaje utilizada para localizar la región del código de barras.\n:param offset_start: offset de ``target_sequence`` para comenzar la extracción.\n:param expected_end: longitud de la región extraída del código de barras.\n:param column_csv: columna-código de barras de referencia CSV.\n:param grna_csv: Referencia gRNA-barcode CSV.\n:param row_csv: referencia al código de barras de fila CSV.\n:param save_h5: persistir las lecturas completas DataFrame a HDF5.\n:param comp_type: HDF5 biblioteca de compresión.\n:param comp_level: Nivel de compresión HDF5.\n:param hdf5_file: Ruta de salida HDF5.\n:param unique_combinations_csv: destino CSV para combinaciones agregadas.\n:param qc_csv_file: destino CSV para las estadísticas QC.\n:param chunk_size: lee por lote. Predeterminado ``10000``.\n:param n_jobs: procesos de trabajador; por defecto a ``cpu_count() - 3``.\n:param test: procesar sólo el primer bloque e imprimir una vista previa.\n:param fill_na: llenar los identificadores no cartografiados con secuencias de código de barras en bruto.\n:param barcode_set: los códigos de barras a decodificar, como un :class:`spacr.settings.BarcodeSet` de cualquier tamaño. None decode los tres códigos de barra spaCR enviados desde las tres referencias CSVs anteriores, que es lo que cada ejecución hizo antes de que se pudiera dar un conjunto; se utiliza un conjunto en lugar de ellos.\n:returns: None.",
       "translation_source_blocks_sha256": [
         "bfe462b6a72d7d28abc8ff1bb0666c802176b34b259c1d77489cc1f5b7673576",
         "39e65c843fa0a9535d65aadfb8887452a76e6ced2ae643bf657a14ed23e07cf4",
         "83a567a602860418afaf87ac77200d09ef1bf95e4c06b7fc23429ac225ec3204",
-        "d1519b7e4ce40ac21ae2fb71017bfd73b7a53cb57fec3b64c082a3bac19782f0",
+        "7f47ed0231e6bab02270e4a3cd2d30f246d3d92bdf6b4811eb62c74791fd6898",
         "fa6a4de3748685c990c777d49a627278c41fff9a7b4ae2d617cfc701000b35b3",
         "06ca2ab4fc96cc187d9e14c3d0668ac310d0ea425c681b26243be61af766d89d",
         "e006244c534c113e0a6c4ea938726e99e29de4f987558139cbe044502a96d2cd",
@@ -146035,6 +147150,7 @@
         "07feef1b4079fec1c6f7506faaccdfaa69cf81982965e0a4908414b961ff8bcc",
         "eda60e96b80a69d554143462663c488d4151674044c573e1c5cb969e064d395e",
         "a92cd25865cd1e5862059f74ef38c8592cc4b37c0ec3a51348df72db7186a1ea",
+        "a5d3f466ebfff3f051b68970c42432ff25741c9d1291668c7e034bf1b20e5227",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
@@ -146828,6 +147944,188 @@
         "97152c67389c8fb8345d2f4eed047f13edd3189632d39f0a37a7af51bd220f34"
       ]
     },
+    "spacr.settings.BarcodeEntry": {
+      "source_blocks_sha256": [
+        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "e6e65ecebf78eb06898d73da6aa6d7f3abc8d78dfd8c25533cc6da0adc0ae6d8",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "50d952f67575b1ff8a281070cd8d4edfb23507607fb46f6c94cf4abf59a3f540"
+      ],
+      "source_sha256": "896323309f63c284ab5617acdedfb15c8aa99f2487f35e6e0a48c4c65dee19dd",
+      "text": "Un código de barras tipo un mapa Los códigos de barras ejecutan decodificadores.\n\nUna sesión de procesamiento utilizada para decodificar exactamente tres códigos de barras -- una columna microplaca de laboratorio, una guía y una fila microplata de laboratorio -- porque el regex, la configuración y los procesadores de lectura cada uno deletrearon los tres por su nombre. Una entrada es la misma información escrita una vez, por lo que una cribado que lleva un cuarto código de barras, o sólo uno, es una colección diferente de entradas en lugar de una ruta de código diferente.\n\nParámetros\n----------\nnombre: La palabra que un usuario usaría para este código de barras, como columna, fila, grana o microplaca de laboratorio. Da nombre a las dos columnas de salida que la sesión de procesamiento escribe para la entrada, por lo que tiene que ser única dentro de un conjunto. csv: La tabla de referencia que convierte una de estas secuencias en un nombre. Necesita una columna ``sequence`` y una columna de ``name``, y sus secuencias deben estar en la misma orientación que las lecturas, porque se comparan textualmente en lugar de completarse inversamente. grupo: El grupo nombrado del código de barra regex cuyo texto capturado es este código. group_aliases: Otras grafías de ese nombre de grupo, aceptadas cuando el preferido está ausente del regex. La columna y los códigos de barras de fila spaCR enviados aceptan el más corto ``column`` y ``row`` de esta manera, por lo que un patrón escrito antes de que esos nombres fueran colocados todavía se ejecuta. sequence_column: La columna de salida a la que se escribe la secuencia extraída. Dejado vacío es el nombre de la entrada seguido por ``_sequence``. id_column: La columnas de salida el nombre resuelto está escrito. Dejada vacía es el apellido de la inscripción seguido por ``ID``. El código de barras guía spaCR enviado establece esto a ``grna_name`` en lugar, porque esa es la cabecera de cada tabla de recuento ya escrita y cada lector de uno espera.",
+      "translation_source_blocks_sha256": [
+        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "a54459002ec25a06a6300251212900b8edd1e9f50229b3b3fe2a08e45b5516c8",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "371ff8408777d0833615110fa3a38e164a47c51253c43682868cb56dc7b3138f"
+      ]
+    },
+    "spacr.settings.BarcodeEntry.__post_init__": {
+      "source_blocks_sha256": [
+        "305dffc934653be8fde5369eb12cb39f60f63547626a775d634e3cd3fff85fab",
+        "7fec057c86008675c307a82dbffcd28fb32923fdb3dc28a230c8ba5733eda2fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "7dcc17dc475bea4205473402c72fcae770f19071bc152e67c5cf0be27b89823e"
+      ],
+      "source_sha256": "f2a02ff3cb97c7791c0019c6b76615f581c43d94edd64efd23a5c3e8e5742a18",
+      "text": "Rellene las grafías que siguen del nombre de la entrada.\n\nDerivado aquí en lugar de en cada punto de uso, porque dos lectores que cada uno trabaja lo que las columnas de una entrada se llaman son dos lectores en desacuerdo. La entrada está congelada, por lo que los valores normalizados se asignan a través de ``object.__setattr__``.\n\n:returns: None.\n:raises ValueError: cuando la entrada no tiene nombre, lo que dejaría sus columnas de salida llamadas nada en absoluto.",
+      "translation_source_blocks_sha256": [
+        "305dffc934653be8fde5369eb12cb39f60f63547626a775d634e3cd3fff85fab",
+        "7fec057c86008675c307a82dbffcd28fb32923fdb3dc28a230c8ba5733eda2fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "7dcc17dc475bea4205473402c72fcae770f19071bc152e67c5cf0be27b89823e"
+      ]
+    },
+    "spacr.settings.BarcodeEntry.accepted_groups": {
+      "source_blocks_sha256": [
+        "b55abe767d53489758498064b9fe95dd44ccf9ab5fb88448ccf37cd09a16b48f",
+        "e66505550eed0efe35dc0482f86609e7628bb269c6ed86eb39ed51801b17b5cb"
+      ],
+      "source_sha256": "ed5e5cdb3575ad275648dd74807b7e699f9f1923c705e0a89725b9dc950d87b1",
+      "text": "Devuelve cada nombre de grupo regex a este código de barras.\n\n:returns: una tupla de nombres de grupo, la ortografía preferida primero y cualquier ortografía aceptada más antigua después de ella.",
+      "translation_source_blocks_sha256": [
+        "b55abe767d53489758498064b9fe95dd44ccf9ab5fb88448ccf37cd09a16b48f",
+        "e66505550eed0efe35dc0482f86609e7628bb269c6ed86eb39ed51801b17b5cb"
+      ]
+    },
+    "spacr.settings.BarcodeEntry.group_in": {
+      "source_blocks_sha256": [
+        "a425d4650a1840b40114acb5ae27531b7961cb235593a5b159687756d3f5cbe8",
+        "51e429074ad732b52e933c5cd0ef04a93c848c11fec502741efa225f0c3119ca",
+        "f30b76a8fb57f571195bad172ec367da5eafa9e4ad37c3f5358a0d6a2947eccf"
+      ],
+      "source_sha256": "73e0b16b242268ae088857682db694fa889d93da9ccd8cb81789790001be700f",
+      "text": "Devuelve la ortografía del grupo de este código de barras que usa un regex.\n\n:param names: el grupo nombra un regex define.\n:returns: el nombre de grupo aceptado que define el regex, o None cuando define ninguno de ellos.",
+      "translation_source_blocks_sha256": [
+        "a425d4650a1840b40114acb5ae27531b7961cb235593a5b159687756d3f5cbe8",
+        "51e429074ad732b52e933c5cd0ef04a93c848c11fec502741efa225f0c3119ca",
+        "f30b76a8fb57f571195bad172ec367da5eafa9e4ad37c3f5358a0d6a2947eccf"
+      ]
+    },
+    "spacr.settings.BarcodeEntry.group_label": {
+      "source_blocks_sha256": [
+        "fad7402e0f2e7ba1b7b7877bcf74ed52ba08b2f4e3be2e9abe3df687834149ce",
+        "a0a890dadf1f6b8d1190f16c17a8b5ef3a919df3a0dcfb4779e1b2d707ba503f",
+        "7ec4a22c0a184a59f3e9b3b1fa5ba0639b80248504ca64e85ccf7b14a66a6755"
+      ],
+      "source_sha256": "076156015b40a6afaf78cdf472d359254a3fe7d6c68da12a3c904d1ca8d015ec",
+      "text": "Devuelve los nombres de grupo aceptados de este código de barras como una sola etiqueta.\n\nClasificado en lugar de preferido primero, porque esta etiqueta aterriza en el mensaje que un usuario lee cuando el regex falta un grupo, y el mensaje spaCR siempre ha impreso los nombres de la ortografía anterior primero.\n\n:returns: los nombres de grupo aceptados unidos por cortes.",
+      "translation_source_blocks_sha256": [
+        "fad7402e0f2e7ba1b7b7877bcf74ed52ba08b2f4e3be2e9abe3df687834149ce",
+        "a0a890dadf1f6b8d1190f16c17a8b5ef3a919df3a0dcfb4779e1b2d707ba503f",
+        "7ec4a22c0a184a59f3e9b3b1fa5ba0639b80248504ca64e85ccf7b14a66a6755"
+      ]
+    },
+    "spacr.settings.BarcodeSet": {
+      "source_blocks_sha256": [
+        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "ded2ad28437c9bd2f3515ede17e5716d88c76a19b67f3ea25d02380d342e9e12",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "e9114b380382e0a75aff2d2344648c9e73b5b9e510aca38786e83a710fba3dfa"
+      ],
+      "source_sha256": "548c793b144d8a03d83beab1612c8c65ace5315d6c4655b5cdd49f8db45b2edf",
+      "text": "El código de barras ordenado tipo un mapa Los códigos de barras ejecutan decodificadores.\n\nUn conjunto reemplaza las tres configuraciones de referencia nombradas con las que comenzó el módulo. Iterarlo es cómo la sesión de procesamiento llega a cada código de barras, por lo que una sesión de proceso con un código de barra y una sesión con diez solo difieren en lo que esto sostiene.\n\nParámetros\n----------\nentradas: Los tipos de código de barras, en el orden en que la ejecución los lista. Las lecturas anotadas llevan la columna de secuencia de cada entrada y la columna del nombre en este orden, después de la lectura misma. count_columns: Las columnas de nombres los recuentos de la posición de muestra por microplaca se agrupan en el mismo orden en el que están agrupados. Dejó vacías las columnas de nombre de cada una de las entradas en orden de entrada. Se puede establecer porque los tres códigos de barras spaCR enviados durante años se cuentan por fila, luego columna, luego guía, mientras que las lecturas listan la columna primero; un conjunto de reproducción que se ejecuta tiene que ser capaz de decir así en lugar de re-ordenar silenciosamente las tablas que la gente ya tiene.",
+      "translation_source_blocks_sha256": [
+        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "86ae1cc70a39c43febc66d849b6b0e8e76037bbb71d7e0177acf57582ecf3f07",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "5825ae0c1b460bf403e7093bd588e4fc3a27c60e76e4fcdb3413e4a1410aae32"
+      ]
+    },
+    "spacr.settings.BarcodeSet.__iter__": {
+      "source_blocks_sha256": [
+        "144c908ab982eb93289254b5f9b7b78a5f8e2c521097418be19f39b52827ca5f",
+        "24bd768ba51ce037df7e1a47d0b83e5f33416eaf972d9d5bf8d6889d4a2cd3c8"
+      ],
+      "source_sha256": "1677b111d7d3c4109755411fd132541a039d90aee75431f9fef5a777e67de50c",
+      "text": "Iterar los códigos de barras en el orden en que la ejecución los lista.\n\n:returns: un iterador sobre las entradas.",
+      "translation_source_blocks_sha256": [
+        "144c908ab982eb93289254b5f9b7b78a5f8e2c521097418be19f39b52827ca5f",
+        "24bd768ba51ce037df7e1a47d0b83e5f33416eaf972d9d5bf8d6889d4a2cd3c8"
+      ]
+    },
+    "spacr.settings.BarcodeSet.__len__": {
+      "source_blocks_sha256": [
+        "bc69de5d240f5887a7048cf1ae00d3b89c95dc11f931a77590dccd1870ebf2cd",
+        "eae096758db82f3cce02d9a97e8de3f38762a60dbbe0fa444cf927e404efc503"
+      ],
+      "source_sha256": "0714c69c4f9ac211a9c450eb6f33fd828dbfe282a557e540f86e4f8ac1e5d112",
+      "text": "Devuelve cuántos códigos de barras de este conjunto decodifica.\n\n:returns: el número de entradas como un entero.",
+      "translation_source_blocks_sha256": [
+        "bc69de5d240f5887a7048cf1ae00d3b89c95dc11f931a77590dccd1870ebf2cd",
+        "eae096758db82f3cce02d9a97e8de3f38762a60dbbe0fa444cf927e404efc503"
+      ]
+    },
+    "spacr.settings.BarcodeSet.__post_init__": {
+      "source_blocks_sha256": [
+        "5d62b3f91b3c697f38be46bfe2d1808ea34ff994bcc2e3c730fff50e68edb234",
+        "e3e263ef1737519891f26a0398e82ee76ff2a2938fbf174d6fa8088193eea4c2",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "ad2c8c8c5ef7589780ced9705d2025f4a51a3bedd229b900de556767238a3fb6"
+      ],
+      "source_sha256": "20280181cf2ffac0bf4ad4d871550e983cf0f791c67b3bc340abb9208ff5253f",
+      "text": "Normalizar la colección y rechazar una que no pueda decodificar una lectura.\n\nCada comprobación aquí es una manera para que dos códigos de barras se vuelvan indistinguibles en la salida, que es silenciosa en lugar de ruidosa: dos entradas que comparten una columna de nombre sobrescriben entre sí en las lecturas anotadas, y los recuentos agrupados por las columnas equivocadas siguen siendo una tabla llena de números plausibles.\n\n:returns: None.\n:raises ValueError: cuando el conjunto está vacío, cuando un miembro no es una entrada de código de barras, cuando dos entradas comparten un nombre, un grupo regex o una columna de salida, o cuando las columnas de recuento no son exactamente las columnas del nombre de las entradas.",
+      "translation_source_blocks_sha256": [
+        "5d62b3f91b3c697f38be46bfe2d1808ea34ff994bcc2e3c730fff50e68edb234",
+        "e3e263ef1737519891f26a0398e82ee76ff2a2938fbf174d6fa8088193eea4c2",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "ad2c8c8c5ef7589780ced9705d2025f4a51a3bedd229b900de556767238a3fb6"
+      ]
+    },
+    "spacr.settings.BarcodeSet.id_columns": {
+      "source_blocks_sha256": [
+        "14d88a7740a57bfa93d23d5f756b099a4c399506cfa85dbe4fe5dee01e21b5a8",
+        "86b1f9abcf15b1b8237e4260a971d68d25f940eceb6e6b3f3439a46dc535885a"
+      ],
+      "source_sha256": "099904586741e1aaf5e78aa46b44215ac13fdfe641f86e6da6b583e98f9ccb3a",
+      "text": "Devuelve la columna de salida de cada nombre resuelto de cada código de barras.\n\n:returns: una tupla de nombres de columna, en orden de entrada.",
+      "translation_source_blocks_sha256": [
+        "14d88a7740a57bfa93d23d5f756b099a4c399506cfa85dbe4fe5dee01e21b5a8",
+        "86b1f9abcf15b1b8237e4260a971d68d25f940eceb6e6b3f3439a46dc535885a"
+      ]
+    },
+    "spacr.settings.BarcodeSet.names": {
+      "source_blocks_sha256": [
+        "2ab53e04c5e6ee67f8f22948848671e8c3bc792a38dd5ce18565edb115b4632d",
+        "bbaeeddce5657f4c61f10176405c35ab64ef8c7f373c88ac239c4ed52191132f"
+      ],
+      "source_sha256": "bf8855c623aafec67c83114206a2d233f72e9224950d589f88dd536b5661f452",
+      "text": "Devuelve el nombre de cada código de barras, en orden de entrada.\n\n:returns: una tupla de nombres.",
+      "translation_source_blocks_sha256": [
+        "2ab53e04c5e6ee67f8f22948848671e8c3bc792a38dd5ce18565edb115b4632d",
+        "bbaeeddce5657f4c61f10176405c35ab64ef8c7f373c88ac239c4ed52191132f"
+      ]
+    },
+    "spacr.settings.BarcodeSet.resolve_groups": {
+      "source_blocks_sha256": [
+        "45b9f610d94574101d440f8570e3c619152c0918e717b28131222443ed965eca",
+        "e5714a9a19c4151e84d02ea28483911992d412946b1f2b6ee82fccb08b4b2792",
+        "9136ddb59564117007dcbdc0efaea39361251e0f72844028000f4478f8c35d8b",
+        "5588ea870c5e9a6953fc9ce828f9129afa1baa5beb4d190049954d6ec0b5f85a",
+        "4196e50c9fd7086bc620ff5df6f3bc0c18cfc33c9d90c79dc0a38de9b3fcbafc"
+      ],
+      "source_sha256": "c8e134098a99c6853cc77a0bd71f78731913b7a8eadcb53db2b06b46ffe8cc31",
+      "text": "Devuelve el grupo regex por el que se captura cada código de barras.\n\nUn conjunto de cinco códigos de barras necesita cinco grupos llamados, y el fallo de esta respuesta es un regex que nombra cuatro. Eso solía aparecer como un \"no such group\" desnudo desde el interior de un proceso de trabajo, varios marcos de cualquier cosa que un usuario configura, por lo que el mensaje aquí nombra el código de barras que no tiene grupo y luego lista los grupos que el regex define.\n\n:param regex: una expresión regular compilada, o la cadena de patrón de uno.\n:returns: una asignación de valor clave del nombre de cada código de barras al nombre del grupo con el que el regex lo deletrea.\n:raises ValueError: cuando el regex no nombre ningún grupo para uno o más de los códigos de barras en este conjunto.",
+      "translation_source_blocks_sha256": [
+        "45b9f610d94574101d440f8570e3c619152c0918e717b28131222443ed965eca",
+        "e5714a9a19c4151e84d02ea28483911992d412946b1f2b6ee82fccb08b4b2792",
+        "9136ddb59564117007dcbdc0efaea39361251e0f72844028000f4478f8c35d8b",
+        "b9ce32f94c17bf952d77e28f2b82c51300ca828cc92a662584b7bc2ebbc8541a",
+        "4196e50c9fd7086bc620ff5df6f3bc0c18cfc33c9d90c79dc0a38de9b3fcbafc"
+      ]
+    },
+    "spacr.settings.BarcodeSet.sequence_columns": {
+      "source_blocks_sha256": [
+        "d0159a62c2fe4ee420e5ac9f5a19856b140dbdbd5593f1b23d128a87c49c107a",
+        "86b1f9abcf15b1b8237e4260a971d68d25f940eceb6e6b3f3439a46dc535885a"
+      ],
+      "source_sha256": "9c637f358d1f5702b5482b414fdd5be94bec60402ec6bd6f092e88d2b749c0a5",
+      "text": "Devuelve la columna de salida de cada secuencia de código de barras.\n\n:returns: una tupla de nombres de columna, en orden de entrada.",
+      "translation_source_blocks_sha256": [
+        "d0159a62c2fe4ee420e5ac9f5a19856b140dbdbd5593f1b23d128a87c49c107a",
+        "86b1f9abcf15b1b8237e4260a971d68d25f940eceb6e6b3f3439a46dc535885a"
+      ]
+    },
     "spacr.settings.advanced_object_of": {
       "source_blocks_sha256": [
         "eb95a2f6f808fd54008e22b1e2f05375f66ffa2b3a073a1d28025c9e1986c030",
@@ -146842,6 +148140,26 @@
         "b2abc54ce3113b58bcf8e91fb9ed64fe12ee7115c3e98ebc3322ff0c517156bc",
         "b792c1c8587e45e5da5ffe5deb21b808ba668a063f71fbfb3303b7d02a6c60c0",
         "7db760e5a2b2c275e616f3663a21786333e30164a7d9f324a8a63f3a6a77b34d"
+      ]
+    },
+    "spacr.settings.barcode_set_from_settings": {
+      "source_blocks_sha256": [
+        "23d3a63abfefc43ee4990361c76f9c655adb2967c272cfba0e48a7d579534996",
+        "492d19f4f9d0fb8af010213c8758958a9c9c399c1a83c02eb9c436b19c5e581e",
+        "4d312f44397e8039faa0ae394c6fae8ab6a7c10fd62182e8f9e2139c2254fa40",
+        "3d30216d33c8c260c5865bc735473da91faa82782bd221dadd575f653eb4192a",
+        "5ba9f18bc8ffce5d833740b89591c9ed873275f86cfd5a3d3c68a8d59144ef3d",
+        "0494bba2e53fd71d124bebf071dc8e898b1bfb1d2def3853fbfc2d5d722892bc"
+      ],
+      "source_sha256": "91cb13a473f948d2583653ce80054f14cd2dc7ba7faad5fb475b7c809cfb954a",
+      "text": "Devuelve el código de barras establecido con el que se configuró la ejecución de Map Barcodes.\n\nUn archivo de configuración nombra sus códigos de barras bajo ``barcode_set``, como una lista con una entrada por código de barras. Una entrada es una asignación de los campos de :class:`BarcodeEntry`, o simplemente un nombre cuando la tabla de referencia para ese nombre ya está en la configuración. Una entradas que no nombra ninguna tabla de referencias toma la que tiene su propio nombre seguido por ``_csv``, y a falta de que la referencia de ese nombre spaCR naves, por lo que añadir un cuarto código de barra a los tres que nave es una adición de una entrada en lugar de una redeclaración de los cuatro.\n\nUna entrada que lleva el nombre de uno de los tres códigos de barras spaCR enviados mantiene las grafías que el código de barras siempre ha tenido, para cada campo el archivo de configuración no se deletrea a sí mismo. Eso es lo que hace que un conjunto de esos tres la sesión de procesamiento que describen en lugar de una re-implementación de la misma: los mismos grupos regex, las mismas columnas de salida, y el mismo orden de la tabla de recuento. Un código de barra llamado cualquier otra cosa deriva de su propio nombre.\n\n:param settings: a Cartografía de configuración de códigos de barras de mapa.\n:returns: el configurado :class:`BarcodeSet`, o None cuando la configuración no nombre ningún conjunto. None no es un error y es el caso normal: significa que la sesión de procesamiento decodifica la columna de microplaca de laboratorio, la guía y la fila de micro placa de laboratorios nombrada por ``column_csv``, ``grna_csv`` y ``row_csv``, exactamente como cada sesión de proceso lo hizo antes de que un conjunto pudiera ser nombrado en absoluto.\n:raises ValueError: Cuando una entrada no es ni un nombre ni una asignación de campos de entrada, cuando una asignación lleva un campo que no tiene ninguna entrada, o cuando una entrada nombra una tabla de referencia que no se puede resolver.",
+      "translation_source_blocks_sha256": [
+        "23d3a63abfefc43ee4990361c76f9c655adb2967c272cfba0e48a7d579534996",
+        "492d19f4f9d0fb8af010213c8758958a9c9c399c1a83c02eb9c436b19c5e581e",
+        "6b163107f6e06250b0abefea30e41a7637d9b47ac9cfcb108bd1910b6a60c004",
+        "3d30216d33c8c260c5865bc735473da91faa82782bd221dadd575f653eb4192a",
+        "d3e3d32f9a290cadc73c33eb37c6e0722e66d9ad0e602381dd7b9d9f2a008966",
+        "0494bba2e53fd71d124bebf071dc8e898b1bfb1d2def3853fbfc2d5d722892bc"
       ]
     },
     "spacr.settings.bundled_barcode_path": {

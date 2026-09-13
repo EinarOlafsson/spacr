@@ -3084,6 +3084,366 @@
       "source_sha256": "5ebe701f41bb2d526aa3617a6b8d6c85f074326ac0129148ff5359c4c62ab2f4",
       "text": "Write model-based cell attributions to a ``png_list`` table.\n\nParameters\n----------\ndb_path : str\n    Measurement database containing ``png_list``.\nrows : iterable of mappings\n    Records carrying ``key_column`` and any fields in :data:`COLUMNS`.\nkey_column : str, default='prcfo'\n    Column used to match records to ``png_list``. ``file_name`` supports\n    databases created before the per-object ``prcfo`` key was available.\nconfirmed : bool, default=False\n    Must be ``True``. The function refuses automatic or implicit writes.\n\nReturns\n-------\ndict\n    Counts of matched rows and newly added columns.\n\nRaises\n------\nAttributionWriteError\n    If confirmation is absent, ``png_list`` is missing, or the match key\n    is unavailable."
     },
+    "spacr.barcode_search": {
+      "source_blocks_sha256": [
+        "c5710bbbdc1d888f7f7ac91eb35125595dd31005363ff16f8b15a8cbe1701840",
+        "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
+        "7d1b9c484f72b7238a81207d79f5f3e207329e793b37acbcd52eee2d05ec80da",
+        "c1a4db801ab36225558324485ee3cd68560cad093026ca543c20bd07a57ff20c",
+        "b9678d9ddae5d429e5e437028d9813328b88f2917084de4e1fb272a80ffb3f48",
+        "76a77322a7df9a3b6031d621eee9e527cd2755baacb477f8fd85927aaf4808c6",
+        "f0425fdcdd1296d0e40e5b8437d9efb653ae245565378b506dea4543e487358a",
+        "87abc46324b7652f26afd47890cc77870273d005260e0e9ff49fdf9cd7a4c3f5",
+        "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
+        "9cdf97745e26f6331d427c3b47bac0e9d665a9013ad83e82b5d1d97e2c13d8e2",
+        "2a168de40798a583f43ae4a10b09d9ec6541cef4c29ed2d7a4a8fad0fc4bcc28"
+      ],
+      "source_sha256": "5b68ce11638d37ea4bc01bf69d8fda009072f9afa3c51d542e4fb44836f1f974",
+      "text": "Decide which barcode tables a sequencing run really contains.\n\nWHAT IT IS FOR\n==============\nMap Barcodes has to be told three things it cannot guess: which mate carries\neach barcode, whether the reference table is stored in the same orientation as\nthe reads, and where in the read the barcode sits.  Getting any of them wrong\nproduces a run that finishes normally and maps nothing, because every stage\nafter the extraction window is working on the wrong bases.  This module reads a\nbounded sample of the reads, measures each reference table against them in both\norientations, and turns the measurements into settings the mapping run can use.\nIt holds no graphical code and opens no dialogs, so the same engine serves the\nlive search in the interface, a notebook, and the tests.\n\nWHY A RAW HIT RATE IS NOT EVIDENCE\n==================================\nA short barcode turns up in a long read by pure coincidence.  Thirty-two\ndistinct eight base barcodes scanned across a hundred and fifty base read have\nabout a seven percent chance of a spurious match, so a table that is genuinely\nabsent still reports roughly seven percent of reads as hits.  A detector that\nannounced a finding at that rate would send someone hunting for a bug that does\nnot exist, or would quietly configure a mapping that yields nothing.  Every rate\nthis module reports therefore arrives with the rate expected by chance for that\ntable against those reads, and with the ratio between them.  Nothing is called\npresent unless it stands well clear of its own coincidence rate.\n\nWHY A LARGE ENRICHMENT IS STILL NOT ENOUGH\n==========================================\nEnrichment over chance answers whether the sequences are in the reads.  It does\nnot answer whether they are the plate barcodes.  Sequencing adapters are fixed\nsequences repeated in every read, and a handful of barcodes in any table will\nresemble part of an adapter closely enough to match it.  That produces a large,\nperfectly real enrichment driven by two barcodes sitting in the adapter rather\nthan by a plate.  The measurement that separates the two is position.  A plate\nbarcode occupies one place in the construct and so lands at one offset in\nalmost every read, which is exactly why an extraction window can be proposed for\nit at all.  A match scattered across the read cannot yield a window and is not\ntreated as a finding, however enriched it is.\n\nWHAT IT PRODUCES\n================\nA report carrying one finding per combination of reference table, orientation\nand input file.  Each finding holds the observed rate, the chance rate, the\nenrichment, the offset distribution, the narrowest offset window that accounts\nfor most of the hits, how many distinct barcodes of the table were seen, and a\nverdict with a sentence saying why that verdict was reached.  The report can be\nrendered as a table for a log, and it can be folded into the settings that\n:func:`spacr.sequencing.generate_barecode_mapping` reads.\n\nWHAT TO DO NEXT\n===============\nRead the verdicts before the proposed settings.  A table reported as absent in\nboth orientations of both mates is usually the wrong reference file rather than\na failed experiment, and the offset column is the quickest way to tell a plate\nbarcode from an adapter that happens to resemble one."
+    },
+    "spacr.barcode_search.BarcodeHit": {
+      "source_blocks_sha256": [
+        "d34ea2ed012a61c3938dad92a89e2d612f397bf19ff89af952e26fcb23a9917d",
+        "12c9f85d41b5894f9c2904c4f5674da9745988c61b5368c205e71d57adfb9dbe",
+        "ee1bfc5d4f7c4dae1c76da83af3ec5476aaa448cd2563f53e70c3f47943f5b60",
+        "086d88dd683a2559e2ab8f037405d141fca33ae8de782abe1c58469a8ecfaddd",
+        "a07f6746cc615984c09622ca7a2ceff5bdcd483f5e1cd122cf941e23ad8f0fd7",
+        "2ca150290d8cd98cf69f249cd0cc34323a78200d22238046bb5115fa6e8e67a0",
+        "112eb656ec1fb155fee7c82a37e720884b59dbd7950e7db215337c0ed7cb3e16",
+        "a174adadc9dbc8792f5da9c0375f52a47c096498e93ad55df68b19822b2fa500",
+        "04e76aebfcc3ba1860f31b3b12fd106c7e1259525663dcea336d407c490db680"
+      ],
+      "source_sha256": "a5b6e33d708cfac8e7df491a06789e3d9358d71e8b86d4f007ac0a4724325ee5",
+      "text": "One barcode occurrence inside one read.\n\nThe stretch it covers is given so that a display can highlight exactly those\nbases, and the colour index is a stable number for the barcode itself rather\nthan for its table, so that two different barcodes of the same table are\ndrawn in two different colours.\n\n:param start: index of the barcode's first base within the read.\n:param end: index one past its last base, so ``read[start:end]`` is the\n    barcode.\n:param table: label of the table the barcode came from.\n:param role: the role that table fills, or None.\n:param barcode: the matched sequence itself.\n:param orientation: whether it matched ``AS_GIVEN`` or\n    ``REVERSE_COMPLEMENT``.\n:param colour_index: a stable number for the barcode, not for its table,\n    so two barcodes of one table are drawn in two colours."
+    },
+    "spacr.barcode_search.BarcodeSearchReport": {
+      "source_blocks_sha256": [
+        "af237dab128bb165a877baf49b5f6fbd2186600d9f93df8df382ecbae67ef1f1",
+        "e8252c62c287a66dd56596b266dd14a4f7ed3453c195344ca3e88a56d775bc07",
+        "506ea5dba4b56b222e8eb296e9d261874863c152409a761bac6e54a70ae9fc17",
+        "70ac54bb542d0211b04dfc7d5a57e2fbadd4d86c1992a5686c526618b3021d4e",
+        "bcd2c3acf2af511c66c6bd94ea30ea1eb283d02c0c1cacd0515133f686cf7f62",
+        "f325840ed23f6b346218637366f24a82ade39a3c612210d4a12b2dea29ec74bd"
+      ],
+      "source_sha256": "c8ae322cefbc8c068084c1d0dadf00cb2442d3976a78b080cff8f2d4120741ee",
+      "text": "Every finding from one search, plus how much was read to get them.\n\nA report from a partly finished search has the same shape as a finished\none and is meant to be shown, so a live display can render each refinement\nwithout special casing the first one.\n\n:param findings: one :class:`OrientationFinding` per table, file and\n    orientation examined.\n:param reads_by_file: how many reads were examined in each file.\n:param read_length_by_file: mean read length per file, which is what sizes\n    an offset histogram.\n:param complete: whether the search finished. False on the partial reports\n    a live display renders while it is still refining."
+    },
+    "spacr.barcode_search.BarcodeSearchReport.best_for_role": {
+      "source_blocks_sha256": [
+        "c1b52cd4762e5b2c5da661e6c61928bd0748c59e3f3d5df4086491c96721db90",
+        "94f08ee57af51abb8e3190324f2a5e474252dfc5f602d041580f5b36e4f0bd5a",
+        "90c7f0c75c5a1b38e1c14bc53d9055f3c09e5bd1dbd97613ba2b1a4ee3ee999f",
+        "22efbdb8b4b6134ca2c12107ea1d9fc7055501a2c981766e38ca413392e7056f"
+      ],
+      "source_sha256": "0bc854e9892ab1b4b887a621592967fdaf0c553685e112f030bc47c3423fa0f3",
+      "text": "Return the most convincing present finding for a barcode role.\n\nA role may be filled by more than one table and by either mate, and the\ncaller wants the one that would actually be used.  Only findings that\ncleared every check are considered, so this returns nothing when the\nrole was not established.\n\n:param role: the barcode role wanted.\n:returns: the finding with the highest observed rate, or None."
+    },
+    "spacr.barcode_search.BarcodeSearchReport.for_table": {
+      "source_blocks_sha256": [
+        "876b6a633025fe4543da738139fc7c766e8e42152239ca02ce32198fb7850dd0",
+        "fd01c216a77c5a6cb9336b892228f533a990556044f0f321de39d3bb13b01709",
+        "952be08bbaae1589c1a9d8b02faeb1ea64397735606eaf07a95b6794977f8734"
+      ],
+      "source_sha256": "46617f26ec440dbb9c5ac50003463fcb36c87c780fb37144de529676620ca0e0",
+      "text": "Return the findings belonging to one reference table.\n\n:param table: the label of the table.\n:returns: a tuple of findings, strongest enrichment first."
+    },
+    "spacr.barcode_search.BarcodeSearchReport.format_table": {
+      "source_blocks_sha256": [
+        "5ddab1fea570b5d291c2848454e44585f1b50f62a91040a492892fcd94c4b967",
+        "8453506ac149b5da898149e5b0ee03c7b9e2a334ea37fdceb1f9b9b47ad7e7b5",
+        "27806d48d521d55f4174693935a2143dbd4ac4bcad5468d3d834d3e10e7a430a"
+      ],
+      "source_sha256": "9199ba8f74df52539ee1a8dae05ee5af467c5393a8371d9132800f4d140eb761",
+      "text": "Render the findings as fixed width text for a log or a console.\n\nThe expected rate sits beside the observed one on purpose.  A reader\nwho sees only the observed column will believe a coincidence, and the\nwhole point of the module is that the two numbers are never separated.\n\n:returns: the rendered table, as a string."
+    },
+    "spacr.barcode_search.BarcodeSearchReport.reads": {
+      "source_blocks_sha256": [
+        "f6688e8e50aa245a76ab03e79399f37975395062542476a2baa6e74c4965ab4b",
+        "f5da64705e254a70f4b8c4c8cee8ae0360fc18a4763043aa1ccd0ca296374bf4"
+      ],
+      "source_sha256": "aa902a54fc54b35b32275576916b821968d73ec96d3ccbc67372c9cda3c4327a",
+      "text": "Return how many reads were examined across all files.\n\n:returns: the total read count."
+    },
+    "spacr.barcode_search.BarcodeSearchReport.roles": {
+      "source_blocks_sha256": [
+        "c7f7ee4e7ae832d219e217221a8548d368e1deafc45cf6f0c9a3ea4e4aeedc03",
+        "4becb703f05f1956548fe4beeb6147353494d0210d35a4dec5ebde83e6652346"
+      ],
+      "source_sha256": "7dc90407cbb802dbda712affaa7a61e9331189822d2d2b69e51a1fe82905c538",
+      "text": "Return every barcode role the searched tables were given.\n\n:returns: a tuple of role names, in a stable order, without the anchor."
+    },
+    "spacr.barcode_search.BarcodeTable": {
+      "source_blocks_sha256": [
+        "c2b83513de3f9b710a57b948a831b751b3c083a28a1d8ab9c77499a38e24f792",
+        "2fd1b8f8aac67729f7ef8b0f165036a1e480785fc50d2a2e8127b36744bd3d49",
+        "c9eaa7e301338caba859fd4dc39b3c66de204f8ce54c771dfdc4e0f3d72a5fa6",
+        "0dd2d3c68449ef46a88154e7e763bec76ef83b8ca8b19bfe9489eb151e3cacdf",
+        "649663be938d12a13de73ec69f66a242e8b370f5364c5b3a4586ee8775e35975",
+        "a47f54a7ab26c347c3d8a7857e2cad471495f44bc859d3b4e53d27dc4b51162e"
+      ],
+      "source_sha256": "b4c731bed95a71365eec83d86038a90ea3868b0c62fe9b38fe405dbd55800f8a",
+      "text": "One reference table of named barcode sequences.\n\nThe sequences are held as a mapping from sequence to name so that a match\ncan be named without a second search, and the per-length counts are kept\nbecause the chance rate depends on how many barcodes of each length there\nare rather than on the size of the table alone.\n\n:param name: the label this table is known by for the rest of the search,\n    and the label every finding it produces refers back to.\n:param sequences: mapping from barcode sequence to the name of that\n    barcode, so a hit can be named without searching the table again.\n:param role: which part of the screen's identity the table decodes --\n    plate row, plate column, guide -- or None for a table searched\n    without one.\n:param path: where the table was read from, kept so a proposed mapping can\n    name the file rather than the label."
+    },
+    "spacr.barcode_search.BarcodeTable.__post_init__": {
+      "source_blocks_sha256": [
+        "d53bf6dd55d12089175c9fe87333c8d2f61d8530d76eb862455e7297c5985da6",
+        "13c3b6b2d819953a024e7b1e708aa6426ddb9fa6d9fba3f4e21c4b341c969590"
+      ],
+      "source_sha256": "15ccfc00273a9968412d4f03121fea796c2d32005777422f2ec928efbd4b0946",
+      "text": "Give the table a private store for the indexes built from it.\n\nBuilding the search index over a table of more than a thousand guide\nsequences takes long enough that doing it once per read would make a\nlive display unusable, so each index is built once and kept here."
+    },
+    "spacr.barcode_search.BarcodeTable.barcode_order": {
+      "source_blocks_sha256": [
+        "079b49871c80b0ffc70881c94f20e3444d5642a2fd89e415da064174fd2fae41",
+        "443bac809e46249cef632c544ec0e7f1c84bbc771255a882c9c5d935192094e7",
+        "c18c7aa1d604c097d35a07f26a955139f68ce0d11d4f2513460c782d89d02c95"
+      ],
+      "source_sha256": "b4cb13fa5e44a123681330f1c9ba9fe53e34ca9bbbc09c56b2bc2fd540b94428",
+      "text": "Return a stable number for each stored sequence of the table.\n\nA display paints one colour per barcode rather than per table, and the\nnumber has to be the same every time the same table is loaded, so it\ncomes from sorting the sequences rather than from the order of the file.\n\n:returns: a mapping from stored sequence to its position when sorted."
+    },
+    "spacr.barcode_search.BarcodeTable.length_counts": {
+      "source_blocks_sha256": [
+        "d105e9597044f560a7c8df1754969f101434c44bb0159ad2ddfa8c74980f3c7b",
+        "2efa0ae362a7f2984c9a414020878c1381b5291de63aa05aa66451f612733da8"
+      ],
+      "source_sha256": "68d6be130cc4b3558e6ba0c205836c3928b6ac163d5e47c667af2677ee63bfb7",
+      "text": "Return how many distinct barcodes the table holds at each length.\n\n:returns: a mapping from sequence length to the number of barcodes."
+    },
+    "spacr.barcode_search.BarcodeTable.matcher": {
+      "source_blocks_sha256": [
+        "6a7944f64b78be7cb6f746dbf2fd6abf40cae3ea26790c9e35430a3f32a37cbe",
+        "5c2cc8ea6006ce90f1e24dbe37a06566f8ad1936b102416c071cb6409cb3d75f",
+        "e562b4e09df67e4f190f78f51152f1e2d861f7f86cbee71858b999505bb593ff"
+      ],
+      "source_sha256": "08e5dd7b5d0a714404bf8e06191d728e8726f4714106eae2ef597c13b3bf3f75",
+      "text": "Return the reusable search index for one orientation of the table.\n\n:param orientation: which orientation of the table to search in.\n:returns: the index, built on first use and kept afterwards."
+    },
+    "spacr.barcode_search.BarcodeTable.oriented": {
+      "source_blocks_sha256": [
+        "1a3526736baf779b050c6a16424c4d5d26bf45649341a86f505c44b2b00f3c73",
+        "954def042d93e64d1dcdfcc88891b0c8cad3c3c674342822668c6e40bf5080da",
+        "b4c69577eb3f978cfc1698910680b5d7a0680f891b93597a61d9788cc1dd936e",
+        "c346d1ffc41fe87b72e3aa0789461006d2c1d1672ba9e019b74ffd807b9affb1"
+      ],
+      "source_sha256": "43cacb6d9ad1052c3dc70624aed8f940805522dedfd85f6ded97aa3dee166dbb",
+      "text": "Return the same table with its sequences in a chosen orientation.\n\n:param orientation: either the label for the stored orientation or the\n    label for the reverse complemented one.\n:returns: a table whose sequences read in the requested orientation.\n:raises ValueError: when the orientation label is not one of the two."
+    },
+    "spacr.barcode_search.BarcodeTable.size": {
+      "source_blocks_sha256": [
+        "75e5aa10640d5c1fc92c41daad6f81508d35ad187772cbd0e86aa8575700d18b",
+        "343ab55c33d8c93b1bb3d87bf92f989e00532d9d1edaaab027191f10bcd4a610"
+      ],
+      "source_sha256": "b8825e77e0a2cff1bd47b98e7185da7d1aaffb39a2112a2feabe08fed5874067",
+      "text": "Return how many distinct sequences the table holds.\n\n:returns: the count of distinct barcode sequences."
+    },
+    "spacr.barcode_search.OrientationFinding": {
+      "source_blocks_sha256": [
+        "0753b6517a570d72ee3b110c9df2ed3d55278709ab84f42b0fa008960b461e1f",
+        "9d587d21eef1e8361f0e75d6273db2e68194ec582afebe5334e160be26b84f50",
+        "1e6e6cfa4411034449aa3f905f40ddfe423f7f6d028d067ea774786c412272cf",
+        "a5f26b17c32fe2c8eb6a24a6c8bd21d96a7253e111cf882889f114cf586396cb",
+        "492c8731cc604d95125765997f5e9295c84003a1474f1e205c7eb4dcdf31a6f4",
+        "e47541de909d334deca2f33bfaee8cdc715ccffa6c68ef7b5399dac07d88a957",
+        "9666c27658d466dd8a4cea04d8be8f74c47ec6e7c85d74588197f6328a81867e",
+        "b2994e1d6d9e0b984cad20ef3104acdda10b99aef82538a9385b09af0f394e74",
+        "778ae10379371968df63dd53a2b6e40942e44f66ecc90adce252733f7dd3591c",
+        "30e7dd5eccd0e5e170f785a367c8de3e799a03537b560bd1d88ad3ffea75588c",
+        "d2f130947617b4700771a7e5bd222deda5b5171d273e527bd15d6e5d6a331718",
+        "761f94942a114ee9d8a8f06f8db88568caf3de77b1bb8531eb33d1e0ec64d11c",
+        "bf0988fe550533109f8ea88fcccf6ce52ddd4a237ebed97b74b049046143f699",
+        "2abb58998b7471120fa1485615c2caca99f1cad473f423a1010f249d32741377",
+        "42d4f76fdb98682e9f1934ed8083c76dc261f75bcc62f618e6c11285530eba64",
+        "2f8f2837c0d86cdca0205437125dbdf0381864b68287cc85803b047bf468a26c",
+        "cae29aa677191e761b987efc67b0e1193a21ff72ac1fdb23630fb153c8aec7bb",
+        "b6ea4a1d7ac735c0dddb5793dcf3c2f52843a42ed87b8886a905b71a4ae00f28",
+        "9aec55dfd6071d310c0f74f454aa4bdf79e4a0719b9c045c389022c6c3514f4b",
+        "6272b19cb663011bce661657084005a1e50445303b62d9eefd92f410df08a690",
+        "9596c71e4a85e24ebaec17731c8ec0d8589caa2e6167a76e8702d19a263b2d64",
+        "e92e91ad279495186942c30faad2ae73996f7d20d6a27b191476ce40b6fdd8c1"
+      ],
+      "source_sha256": "199cd3d4af5cef454e4607b7d1b1340bbdc74777ea8642e638cafc348af132d5",
+      "text": "What one reference table did against one file in one orientation.\n\nEverything needed to judge the finding travels with it, so a caller never\nhas to recompute the coincidence rate in order to decide whether the\nobserved rate means anything.\n\n:param table: label of the reference table this finding is about.\n:param role: the role that table fills, or None when it was searched\n    without one.\n:param file_label: the read file the table was searched against.\n:param orientation: whether the table matched ``AS_GIVEN`` or\n    ``REVERSE_COMPLEMENT``.\n:param table_path: where the table was read from, or None when it was\n    supplied inline.\n:param reads: how many reads were examined to reach this finding.\n:param hits: how many of those reads contained a barcode from the table.\n:param observed_rate: ``hits`` divided by ``reads``.\n:param expected_rate: the rate the same table would reach by chance, given\n    how many barcodes it holds at each length. The observed rate means\n    nothing on its own; this is what makes it readable.\n:param enrichment: ``observed_rate`` divided by ``expected_rate``.\n:param offset_start: earliest start offset counted as the barcode's usual\n    position.\n:param offset_span: how many consecutive offsets that position covers.\n:param modal_offset: the single commonest start offset, or None when\n    nothing was found.\n:param barcode_lengths: the distinct lengths present in the table. The\n    extraction window has to reach past the longest, not the modal one.\n:param distinct_barcodes_seen: how many different barcodes of the table\n    were actually observed. A table that keeps matching the same one\n    sequence is matching something other than its barcodes.\n:param table_size: how many distinct sequences the table holds.\n:param top_barcode_share: fraction of hits taken by the commonest single\n    barcode. Near one, alongside a low ``distinct_barcodes_seen``, is the\n    signature of a spurious match rather than a real one.\n:param verdict: ``PRESENT``, ``ABSENT`` or ``INDETERMINATE``.\n:param reason: why that verdict was reached, worded to be shown to a user.\n:param offset_counts: hit count at each start offset, for the histogram."
+    },
+    "spacr.barcode_search.OrientationFinding.offset_histogram": {
+      "source_blocks_sha256": [
+        "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
+        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
+        "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
+      ],
+      "source_sha256": "f130a60cbb1b69258dadd277780b1bc6b6a4a3b19e856cc49a1e26abc215c770",
+      "text": "Return the hit count at each start offset as an array.\n\nThe array is indexed by offset so that a caller can plot it directly\nwithout first working out which offsets were populated.\n\n:param read_length: how long the array should be; long enough to hold\n    the largest observed offset when omitted.\n:returns: an array of hit counts indexed by start offset."
+    },
+    "spacr.barcode_search.OrientationFinding.window_end": {
+      "source_blocks_sha256": [
+        "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
+        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
+      ],
+      "source_sha256": "4f32f1f65a73ce5b9b7d23c7199e27e65d71af34ebf59beddbeb28c8774eda19",
+      "text": "Return the first offset past the barcode in its usual position.\n\nThe proposed extraction window has to reach the end of the last barcode\nrather than its start, and a barcode set whose members differ in length\nreaches furthest at its longest member.\n\n:returns: the offset just past the end of the barcode."
+    },
+    "spacr.barcode_search.ProposedMapping": {
+      "source_blocks_sha256": [
+        "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
+        "a82d4579e4dfce423089129609f616b51d5999a257cb786bb1290382fdd1d3cd",
+        "c83a06f40906767f7de977cb698c385f449ca54aba98faae6647cd1d70c5bcf7",
+        "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
+        "44f50d7c93cb1bf51bf2c87e242f91514205bbe797177381d25f31f5e5a87d21",
+        "1a73838fc848de072abe72f7407248191a8f0833188d8c62ab8bbe9b626d4d5c",
+        "a190f1d71e892d7916f7b846482a15e0496c95e6e7e42220b348e58158fdae8b",
+        "cc7ae03a3d0782402fa2de870a83c7fdc29998825bb64ad262ddd77211193519",
+        "b73ba95fd81532679b792744546dbcf363dc776defcb8caf284672198b996dbf",
+        "a00a190d22632254b649be175293a38ea317560c118f90f9a150a4f0817073bb"
+      ],
+      "source_sha256": "868f4ffc07389f2845d8a9cd2d3ec208797d4e37d7da9b6023590d6e710547f9",
+      "text": "Settings the search believes a mapping run should use, and why.\n\nThe settings dictionary holds only keys the mapping run already reads, so it\ncan be handed straight to it.  Everything the search learned that has no\nhome among those keys travels alongside, because a caller that silently\ndropped the orientation would reintroduce the failure this module exists to\nprevent.  A screen that decodes a barcode beyond the plate column, the guide\nand the plate row has no settings key waiting for it, so the table chosen\nfor every role is listed among the reference tables whether or not a key\ncould be filled in for it.\n\n:param settings: only keys the mapping run already reads, so the mapping\n    can be handed this dictionary directly.\n:param reference_file: the file whose reads the window offsets are\n    expressed against, since offsets mean nothing without their frame.\n:param source_files: mapping from role to the read file that established\n    it.\n:param orientations: mapping from table label to the orientation the run\n    should search that table in.\n:param reference_tables: the table chosen for each role, listed whether or\n    not a settings key exists to carry it -- which is the point, because a\n    role with no key is exactly the one that would otherwise be lost.\n:param reverse_complement_needed: tables the run has to reverse complement\n    to recognise, because they were found in the second mate as stored.\n:param unresolved_roles: roles no table established. Named rather than\n    guessed, so a caller can say so instead of starting a run that will\n    map nothing.\n:param notes: what the search learned that has no home among the settings\n    keys."
+    },
+    "spacr.barcode_search.annotate_read": {
+      "source_blocks_sha256": [
+        "7fbf2aa128c0dbdd5ded2c3d65ed826367fe0327468ac90d9aa846678cd90b73",
+        "67b67ebe3dcd4da63981257971fc41be961dcd9e3eeb3b69f402bb38af8c12e0",
+        "f5871b8efbcf0427b2492ac8cac663f596c8b2c05dda1624e2f0eea02197f480",
+        "7a7764fc524c9be4b656cea505e908d6b5b0d4254c02bab4200efa74ec62b8f7",
+        "ffc7c6a91293b9ab03c84dcac0b2d7cdf8a37ae253f5e6dab5e844c176c65ba4",
+        "833ec3335dc04da3784dd24f20740963f5a7d65c6d452761f9f8fe7ca188e93f"
+      ],
+      "source_sha256": "662d64616ab84e8c306b67eed2b8139cfb55b05c96b50048258f436cb0c40b5d",
+      "text": "Locate every barcode inside one read so a display can colour them.\n\nThe reads a search looked at are the evidence behind its verdicts, and the\nquickest way for someone to believe or disbelieve a verdict is to see the\nbarcodes sitting in the reads.  This returns the stretches to paint, left to\nright, with overlaps resolved in favour of whichever table is listed first.\n\n:param read: the read sequence.\n:param tables: the reference tables to look for.\n:param orientations: a mapping from table label to the orientation to search\n    in; both orientations are searched for a table not named there.\n:returns: a tuple of hits ordered by their position in the read."
+    },
+    "spacr.barcode_search.expected_chance_rate": {
+      "source_blocks_sha256": [
+        "20fb94dbd50bf5748d2286bcf52accb5543e26238f2f941e98ab3317501cbd32",
+        "3e1c7742db4b0ddcda9aac4ae8c38626bc67abf5d124c8ad1ac9ca7af800a31b",
+        "faa6203d76d85b31859918ec5dc36a5385f2f772e20123345b342c5e4aa0fb82",
+        "2e6e1fd8b50f849f1ccb33ec440ee4f96f463be7ef8a23c8caefd0ea66aecdc5",
+        "a3491eb25c4b2a2f13d8b5bb48c8013dc2a1c3b78ff769f57b64cfe90e1a056d",
+        "2828a2934b996754374485d0c6be971bd6f011b315df983f26787037a06da24e"
+      ],
+      "source_sha256": "b7a4d7b2381e428e85df15329ea7fabb956ffb11c5f9322aea45a281383b4f69",
+      "text": "Return the share of reads expected to contain a barcode by coincidence.\n\nA read is treated as a run of independent bases drawn evenly from the four\nof them, so one barcode of a given length matches at one position with a\nprobability of one over four raised to that length, and a read offers one\nmore position than the difference between its length and the barcode's.\nThe probability that no barcode of the table matches anywhere is the product\nover every barcode and every position of the probability that it does not\nmatch there, and the answer is one minus that product.  Reads of different\nlengths are averaged.\n\nThe even base assumption is the weak point and it was checked rather than\nassumed.  On a real run the tables that were genuinely absent matched\nwithin two tenths of a percentage point of the rate this returns, which is\nclose enough for the ratio between observed and expected to be trusted.\n\n:param table: the reference table whose coincidence rate is wanted.\n:param read_lengths: a read length, an iterable of them, or a mapping from\n    read length to how many reads had it.\n:returns: the expected share of reads holding at least one barcode."
+    },
+    "spacr.barcode_search.infer_barcode_role": {
+      "source_blocks_sha256": [
+        "826e951f80ed96db0fe3dcc99788206e7fe9053c370acb0523585884ad02e449",
+        "406290720395266907ed821cd749dabf44d9f02353332fe1b70c55af95b0f7e1",
+        "70bacf888df5e85ed5568fa2f63ad08c53d58480c5304be6d069e72981abf60a",
+        "3a33ff3ddc63fdecb9dd78104548c0956bc4d54adf5de9f0ba3fd6367d86f938"
+      ],
+      "source_sha256": "7fe9e65753888b39c8b62686ed8d8006b69fb19b088d61a9ebe414d8eb87f72d",
+      "text": "Guess whether a reference file holds row, column or guide barcodes.\n\nThe guess reads the file name only, because the tables themselves carry no\nfield saying what they are.  Guide tables are recognised first, since a\nguide file name mentions neither rows nor columns, and column names are\nrecognised before row names.\n\n:param path: the path of the reference table.\n:returns: one of the role names, or None when the name settles nothing."
+    },
+    "spacr.barcode_search.iter_annotated_reads": {
+      "source_blocks_sha256": [
+        "05ee7b9697f7365eee9b9d61e1142d08a9d491cc3c003303632785507e600fe2",
+        "85373b63543b4ca693369dd9e9cce3b5a5118a5d2280f94bc8a2b4b82384acc4",
+        "26f707b58de11c0ae73394dc4aeb86cbb5498add01d6a51c2bec1f96dfd7a32d",
+        "7a7764fc524c9be4b656cea505e908d6b5b0d4254c02bab4200efa74ec62b8f7",
+        "ffc7c6a91293b9ab03c84dcac0b2d7cdf8a37ae253f5e6dab5e844c176c65ba4",
+        "c1b8ffc3c78a500b4bd0b1df12899206a8e6efd2ad611032cb4b715c7bade2f8",
+        "3638218a9466185f888ad87f2d8a791465b4169d45cc432c9caad0e0b7248569",
+        "1ba63d342adfe92e1a59b7a1c24745fdda0e2e6453a36a7ece8c55001ceca692"
+      ],
+      "source_sha256": "43b12c55b03007d2f038798f124cf740a9db88060eb2d87351c5095fcc31ec59",
+      "text": "Yield reads together with the barcodes found inside them.\n\nThis feeds the window that shows one read per line with its barcodes picked\nout, so it stays bounded in the same way the search is and never walks a\nwhole file.\n\n:param fastq_file: the sequencing file to read.\n:param tables: the reference tables to look for.\n:param orientations: a mapping from table label to the orientation to search\n    in; both orientations are searched for a table not named there.\n:param limit: how many reads to take from the file at most.\n:param only_matching: whether to skip reads in which nothing was found.\n:yields: each read and the hits inside it."
+    },
+    "spacr.barcode_search.iter_barcode_search": {
+      "source_blocks_sha256": [
+        "be53908e5330585c04b30c657b9d162caf175f6cbafff17b5d1b6efb732331f8",
+        "870fc78e5cb0740b9312af30725c8e6d1cc000ca3418b11866a7ef336ebcccd5",
+        "09c534427f878685319086fb793c983a0416e88c4adf3e5d5f63138fae0dc8d7",
+        "356bf4a8cff66fb005706f9090e824d110cad569bc50da022c53158c11cf21ca",
+        "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
+        "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
+        "cecebaa56b401a51c17f09e6c6bcce96100b40648d4c4a7ffd013c033942ca3e",
+        "2994989e6097115b97d8265cbd22460e2d7aeb93f77816ffcfef02978cfe1966",
+        "4963cc530705a2d39174f005fc23797dac4614423674d72fb9442335f9a30c83"
+      ],
+      "source_sha256": "68acf2e2c140fff9340ae6b8b5eed814c79eecc306ff8b04640ef61f487133d0",
+      "text": "Search for barcodes a chunk at a time, reporting after every chunk.\n\nThe interface shows this running, so the search hands back a complete report\nafter each chunk rather than only at the end.  Every report has the same\nshape as the final one and the counts inside it only ever grow, so the rates\nsettle rather than jump and a verdict that was undecided becomes decided as\nthe evidence arrives.  Stopping early is legitimate and leaves a report that\nsays how many reads it rests on.\n\n:param fastq_files: a sequencing file, a sequence of them, or a mapping from\n    the label each should carry to its path.\n:param tables: the reference tables to look for, of any number.\n:param max_reads: how many reads to take from each file at most.\n:param chunk_reads: how many reads each step takes from each file.\n:param anchor: an optional fixed sequence, such as the one the mapping run\n    anchors its window on, searched alongside the tables so that offsets can\n    be expressed relative to it.\n:yields: a report after each chunk, and one report when there is nothing to\n    read.\n:raises ValueError: when no file was supplied or the budgets are not\n    positive."
+    },
+    "spacr.barcode_search.iter_fastq_reads": {
+      "source_blocks_sha256": [
+        "a138d23fb04254aef6c4d77606be7efe2eb69baae444960681ca43f9f21eb790",
+        "5c909ca5bd3319cba0489df9520795db46231edbdbc6aad7db7866448dc27757",
+        "4a42a36dbd7c0eadf096f96a22208ca3b5ccdf65431b4ddedc7aa8d1d8fd4906",
+        "43d4e55ddb649fac1f545e76dc8bafc201076bb446b5078be8ab6ca906e02461",
+        "327457a4bbd959c0cb5e6252ca9b4d6e0df8aa66f750459de930410c32892805"
+      ],
+      "source_sha256": "e31fe6f93acb3d92dff642783786d352a2f421291fe1eb019dea9182245a00bf",
+      "text": "Yield read sequences from a sequencing file without loading it.\n\nThe files this runs against are commonly several gigabytes on a network\nshare, so records are pulled one at a time and the caller decides when to\nstop.  A record whose four lines are cut short at the end of the file is\ndropped rather than raising, because a truncated final record is a normal\nconsequence of copying a file that is still being written.\n\n:param path: the path of the sequencing file, gzip compressed or plain.\n:param limit: how many reads to yield at most; every read when omitted.\n:yields: the sequence of each read, upper cased."
+    },
+    "spacr.barcode_search.load_barcode_table": {
+      "source_blocks_sha256": [
+        "f77ec2169e7de420288a63ca62dc3028c45a834c3851a47a69b6ac2be2916c4e",
+        "c6b5a3aba077223b23478a775556a3816fe2334950513590ee5edd0ed3a26c3e",
+        "e3b8fc51b322603e0ad125403d209bd6a7dc17fc8774f8b758d511a5da4c14eb",
+        "791040b1365b7b869246cd72b8ee146757769e5df140434ba3ccc2315cbf0d74",
+        "9c578724379f91d6711c477a6b39c3f361b5ef4afb0f67dc6c6654456c1cca09",
+        "3f8154a60b61dec7bb41100e4bcfabb2ee1acd6105b900ae4b3b15514a648089",
+        "de08f5f9664a84d73e17c2d8c8fc8b83a89083dda31830972cfa16b643cf2b2e"
+      ],
+      "source_sha256": "f80b448c1525c4f92dc5ec0ca98ff5293f99ca8fcc25712f849b309ae45131d3",
+      "text": "Read a reference table of barcodes from a comma separated file.\n\nThe file needs a header naming a sequence column and, for readable output, a\nname column.  Sequences are upper cased and stripped, blank rows are\nskipped, and a sequence repeated under two names keeps the first name so\nthat the table stays a mapping.\n\n:param path: the path of the comma separated reference table.\n:param name: a label for the table; the file stem is used when omitted.\n:param role: the barcode role this table fills; inferred from the file name\n    when omitted.\n:returns: the loaded table.\n:raises ValueError: when the file carries no sequence column or no rows."
+    },
+    "spacr.barcode_search.load_barcode_tables": {
+      "source_blocks_sha256": [
+        "9daa0e396c20b1952674691a23ad67ff33a016bf5dda95db8daa5a8519ad33e5",
+        "869dce8adec9bb18ac24bf755891e8ea95e133f8f49bf6a1b3fc2ca4857ad808",
+        "a068180479916123cb9eab68104140ce2d075b6743c50f00881067fdea296367",
+        "463de674442208e0f728a9ee4ca566fd8770e7f969c7f48c278d3de5261581b9"
+      ],
+      "source_sha256": "b873326e9ec53523b3ebbfd8033bf9e87953c038220437294c5b46bbacf6899f",
+      "text": "Read several reference tables at once.\n\nAny number of tables may be supplied, so a run that carries more than the\nthree barcode kinds spaCR grew up with is handled the same way as one that\ncarries fewer.\n\n:param paths: paths of the reference tables, or a mapping from the label a\n    table should carry to its path.\n:returns: a tuple of loaded tables in the order given."
+    },
+    "spacr.barcode_search.propose_map_barcodes_settings": {
+      "source_blocks_sha256": [
+        "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
+        "85b304b193ee226a6389e7d0dbd91026c49ae8a6b018ad304c8fb450d879bc1d",
+        "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
+        "5f72fcdb6e8a5b1f0f391a4412d517f2605845f9cbcfbbd537c41a5e63056f22",
+        "bec02643d71c1ab3c7adc4083972af051ad67c5c3f7a414850eeb18e1b268677",
+        "54bdf3c9f8a1233d9f0f00f7c2923b9584fefc9576bd69fb91404876e17fdc76",
+        "db8dfb93e580e97e3a3655631fd1a4fb55d0cc1b1dd29f64da285de6d5b6960e",
+        "5a2d01a292df36e13612b05a87e883cc1b1641cedcc34760fcf61328aac9eb68"
+      ],
+      "source_sha256": "032eef54d05213cbed7caacd468c8e6a03258d6127e72bd1645b8be8272f8a52",
+      "text": "Turn a finished search into settings for a barcode mapping run.\n\nThe mapping run reads both mates into one sequence in the orientation of the\nfirst, so that is the frame everything is expressed in.  A table found in\nthe second mate as it is stored is therefore reported as needing to be\nreverse complemented, because that is what the run will need in order to\nrecognise it.  A role that no table established is left alone rather than\nguessed at, and is named among the unresolved roles so the caller can say so\ninstead of starting a run that will map nothing.\n\nThe extraction window is derived from where the barcodes actually landed.\nIts start is the earliest offset any established barcode occupied and its\nend is the furthest any of them reached, both measured against the anchor\nwhen one was searched for, since the mapping run locates its window by\nfinding that anchor first.\n\n:param report: the report from a search.\n:param base_settings: settings to start from, left unmodified; an empty\n    dictionary when omitted.\n:param reference_file: the label of the file whose orientation is the frame;\n    the first file of the search when omitted.\n:returns: the proposal, holding the settings and what did not fit in them.\n:raises ValueError: when the report holds no files."
+    },
+    "spacr.barcode_search.reverse_complement": {
+      "source_blocks_sha256": [
+        "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
+        "d2207806852fdc2a5acaa73706b0887c199cf8fd8f6e3d01a4037b0726859cfc",
+        "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
+        "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
+      ],
+      "source_sha256": "c46d4e4efe9c44e5381f2a3a734e910487e5d7228ee5b7060c6892cc4fe37aae",
+      "text": "Return the reverse complement of a nucleotide sequence.\n\nThe translation covers the four bases in either case and leaves an\nambiguous base as it is, so a read carrying an unresolved position survives\nthe flip instead of raising.\n\n:param sequence: the nucleotide sequence to flip.\n:returns: the reverse complement, as a string."
+    },
+    "spacr.barcode_search.sample_fastq_reads": {
+      "source_blocks_sha256": [
+        "601fb6bfff38f11a367679276862e42d6a0edc244c5d666a9f8c978c3959f3e6",
+        "4a42a36dbd7c0eadf096f96a22208ca3b5ccdf65431b4ddedc7aa8d1d8fd4906",
+        "5936857909bc08f6ed72684e7bcce7e2c439a4b11c008bfa6e73f70a2a898388",
+        "a771fa249e2d3cb3d92b256fb97ccdda2360d88c9181c5577d9fe6a625882f12"
+      ],
+      "source_sha256": "db8752f449bc1461e7e70fd0e78d1f2314e5da58c553ad1fb44238fc180d3783",
+      "text": "Read a bounded sample of sequences from a sequencing file.\n\n:param path: the path of the sequencing file, gzip compressed or plain.\n:param limit: how many reads to take from the start of the file.\n:returns: a tuple of read sequences."
+    },
+    "spacr.barcode_search.search_barcodes": {
+      "source_blocks_sha256": [
+        "9591fa9e0aac1a794bbd5997fbcaed681d3bf7b33c0f0730bbde45178d24467f",
+        "4e60cf5411a5704d7b1f619e6434c14ec7f457d406c2b93a120dd31b45159367",
+        "09c534427f878685319086fb793c983a0416e88c4adf3e5d5f63138fae0dc8d7",
+        "356bf4a8cff66fb005706f9090e824d110cad569bc50da022c53158c11cf21ca",
+        "40e76ceb4f8695a204e5bec1fd5996d10bebbc054d3499a5a92f81dae20a68f5",
+        "966ce4fbdd783637927f7733803fd6143fdc9091b1d8ad9c2c240398dc885855",
+        "121e67a40b01bcaa2bdf2a2135f2c96f8e837b0c18e7957bd3570eba68a3002d",
+        "222117e6ec7e5d7e8d9f8ecfd66fa43a53b17fcf23d352f0761151a032d4441c"
+      ],
+      "source_sha256": "a82ad07ed67bb693688c64a32439664b6a6c2f3f2cde59576b6b126192d93ba5",
+      "text": "Search a bounded sample of reads and return the finished report.\n\nThis is the whole of :func:`iter_barcode_search` run to its end, for callers\nthat want an answer rather than a running display.\n\n:param fastq_files: a sequencing file, a sequence of them, or a mapping from\n    the label each should carry to its path.\n:param tables: the reference tables to look for, of any number.\n:param max_reads: how many reads to take from each file at most.\n:param chunk_reads: how many reads each step takes from each file.\n:param anchor: an optional fixed sequence searched alongside the tables.\n:returns: the report from the last chunk."
+    },
     "spacr.baseline": {
       "source_blocks_sha256": [
         "5f6136ffbea7ee1fd9bda3488998f45221c9e6524630cde3cab7f31f2bdddfc5",
@@ -51120,6 +51480,160 @@
       "source_sha256": "3d97ff35595d980beca90741a28cbf78ca135d942a3bdec66e8111c8d1bb1e8e",
       "text": "Barcode QC integration and shared support for folded modules.\n\nThe Barcode QC page assesses reads per well, low-depth wells, unmapped reads,\nbarcode collisions, positional effects, library coverage and the resulting\nabundance threshold. It opens beside the Map Barcodes settings with its full\nsettings form, run controls, console and figures.\n\nThis module also provides the common infrastructure used by host screens:\n:func:`install_fold_strip`, :class:`FoldOpener`,\n:func:`build_settings_screen` and :func:`install_window_hooks`. These helpers\nmount a complete module page, connect host signals and attach its masthead\nbutton without duplicating analytical implementations."
     },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel": {
+      "source_blocks_sha256": [
+        "4d3ae79b26b34677edbb14d0e99f795ff584668f52c703a011ae5faf2a80adde",
+        "a3983531f2b9dcd52d3a594abd78b4e59f32eba72b3d8fbfc9356a4559255133",
+        "9da11592a01ea792202879023645503d6892e9f444020946bbd506b34ef0ddf5",
+        "99b12cc816f1e9c808c7dcdf4f1cf6a040538f94c847a8ce4757ff3d35f116a9",
+        "63879165cc3f5954fad739999b097d521503f9a0463c9d65add035f7e5dce341",
+        "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067",
+        "22c5e36e4032e484204f2d8aa5adc469a2f245a619c4eb7ab29eac8aca8e9611",
+        "69fab91fe9d5a1456515f233f95f1f8109c47ea4bc4a90d7b83caa9dde7c16ff",
+        "bb6ce2f5523e29da210a8cd57204fad7f711c6bce4c21f239b649d2093135f16",
+        "4d48864425a404fce83587336774ba68d4b6252382db27f8f9cf41ea3107a8c2",
+        "fffe6b8a4d0ba881ad9c2f6efc43b1ec3bc337eedfb02e19c57051e3c68fa8b6",
+        "081bd4209ec26a6d555eeacbaf928d492f21ec54aa966a065f5256024691085d",
+        "63a0194f05ff8d1e823dc8c824206334c0feb08e5582dab50df1a1600f9d6c8d",
+        "896b07f6be081ba7d8e8170bce1b2178d4e1a7b955e35b1a9e8aaf9a57a4dcd6",
+        "d503489d8db18ec557f1e1986cfb79252ab0860f7f39793f8f6edc318a861b60",
+        "c6ec171caaf172335059cb849f56e34345679a0528229875a0aa00e3dc00f9c2",
+        "8b25805b62503021d3cd0e356d77fed3f84e9cf8e3c38a0027c7dedd01257bb5",
+        "afbdb1aec56ec8739acd1a6bd56ddcd0a071b8826657b277fbecbd0e6fd9de4c"
+      ],
+      "source_sha256": "18edad6505a2e7d98f483a0ab114a1e1f65b291a03a05f87d51cf1b0cdb89484",
+      "text": "The live search: reads in, measured settings out, nothing written yet.\n\nPress the search button and the panel samples the reads of one sample from\nthe folder the form names, measures every reference table against them in\nboth orientations and in both mates, and refines what it shows after each\nchunk of reads. It ends by proposing the settings those measurements imply\nand waiting, because applying them is the user's decision.\n\nWhat is on screen, and why each part is there. The findings table carries\nthe observed rate and the rate expected by coincidence in adjacent\ncolumns, with the ratio between them beside both, because a rate alone\ncannot be told from an accident and this panel exists to stop somebody\nacting on one. The text window shows reads with their matches coloured by\nbarcode type, because a barcode landing in the same columns on row after\nrow is the evidence that settles an argument a percentage cannot. The\nproposal shows the value the form holds beside the value the search\nsuggests, so what Apply is about to do is legible before it does it.\n\nWhat it costs. Every file is read inside a submitted job, one chunk at a\ntime, so the interface stays live throughout and a search can be abandoned\nat any point. Cancelling proposes nothing: an interrupted measurement is\nan honest partial report and a dishonest recommendation.\n\n:param screen: the Map Barcodes screen whose settings form is read for the\n    search and written by Apply. May be None, which leaves the panel\n    usable as a display with nothing to read from and nothing to write to.\n:param parent: parent widget; ownership only.\n:param threaded: run the search on worker threads. False runs each step\n    inline, in the same order and through the same handlers, so a test can\n    drive a whole search synchronously.\n:param max_reads: how many reads to sample from each file. The engine's\n    own default when omitted.\n:param chunk_reads: how many reads each step of the search takes from each\n    file. The engine's own default when omitted.\n:param read_sample: how many reads the text window shows.\n:ivar search_button: starts a search.\n:ivar cancel_button: abandons the search in flight.\n:ivar apply_button: writes the proposed settings into the form; disabled\n    until a finished search has proposed something that differs from what\n    the form already holds.\n:ivar status: one line saying what the search is doing or has found.\n:ivar findings: the table of measurements, one row per reference table per\n    mate per orientation.\n:ivar proposal_label: what Apply would change, and what the search learned\n    that no setting can hold.\n:ivar reads: the text window showing sampled reads with matches coloured.\nBuild the panel and arm it against one settings screen."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.apply_proposal": {
+      "source_blocks_sha256": [
+        "3f264485db692dd1c26956568605c78687f09b41be62baa2174cb6e27f2cfc32",
+        "e5dd6c380a3f70fe282d3f167b0a1825e802f906e839d27b4ab481ab7d34e1cd",
+        "e193b1117fb68613ec2f600f2a3600a16939fbeb8b9fcb37f297ac43f1553f1c"
+      ],
+      "source_sha256": "c28ec96a8551fdc048685cb9085c24f56d2d4d2389f610ef94f9e7217e4f1268",
+      "text": "Write the proposed settings into the form, on purpose.\n\nNothing calls this on its own. A search that finishes enables the\nbutton and stops there, because a panel that quietly replaced values\nsomebody typed would be a worse failure than the one it exists to\nprevent.\n\n:returns: the keys that were written, in the order they were written."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.cancel_search": {
+      "source_blocks_sha256": [
+        "9c9f188c7309e513bfef72c23ab5e6e3dea5756aa232e5b4090276bba8a4cfd6",
+        "aaac90ed44491d18da64b1d041e6e5ea76ecb61010d4d596994a69baceea02cd",
+        "2594511ba2dba42f9bcbe30784c0a8e2d1699d3b5c5b6b51a8a7ed3742464f12"
+      ],
+      "source_sha256": "fbb0695ed0de1a31fa1ea4ab3df3677ad7e6a9f721462a3462736ebcec1357d4",
+      "text": "Abandon the search in flight and propose nothing from it.\n\nThe chunk already on a worker thread is not interrupted; it finishes\nand its result is dropped on arrival, which is what cancelling means\nfor work that holds no lock and cannot be asked to stop in the middle.\n\n:returns: True when there was a search to cancel."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.changeEvent": {
+      "source_blocks_sha256": [
+        "1c883a898e3d4a9112ffd6c22a3445c2eb937c9f6fb7c705d4b017fc796c7c91",
+        "ac0a82ca4786b729f4bd48d60894cb22af8dc4369bd70023fc86eb812707de53",
+        "f97e2dcd439b60c3e1c232454619e418ca5922dd0bef5be11f27d1a65c9a214f"
+      ],
+      "source_sha256": "c278c19753e5665e49203b80503644fd2f07ca1df257c67b2bb9d3f8430a87d8",
+      "text": "Redraw the measurements when the theme underneath them changes.\n\nThe verdict colours are taken from the palette that was on screen when\nthe row was drawn, so a row drawn before a theme change keeps the old\ntheme's ink until it is drawn again.\n\n:param event: the Qt change event being delivered."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.closeEvent": {
+      "source_blocks_sha256": [
+        "f746fded5a7e0065768837ded6be416256431616a67a103d51fc8a3e7d717153",
+        "aa98e32b629924f35c2a329a4b64ebb16501b905dd2f4517487e90c9b8bca85e"
+      ],
+      "source_sha256": "ccc435ff840c713b88e8ed3ce6ed38055a5b0a285964e85b24f26a2c8f54b922",
+      "text": "Stop the search rather than let it outlive the panel.\n\n:param event: the Qt close event being delivered."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.current_settings": {
+      "source_blocks_sha256": [
+        "2675c02ae874111b94da4509dff0c7b62b91eb9704bfd0d19d399f8a59a52411",
+        "f52aaccbddc4034bc27897e7956cff3789c47f8bc1150c1de985b87acff628a7"
+      ],
+      "source_sha256": "49441203fbb5ebbebddbfed362941dcd0a0e1675ee8ba329440fbabb1e51b081",
+      "text": "Return the settings as the form holds them at this moment.\n\n:returns: the settings dictionary, empty when there is no form."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.is_searching": {
+      "source_blocks_sha256": [
+        "22f74dd7e11790ac2b800ff6f1f31b88f9d4641edc3f4a6378b44f9eb5ab06c7",
+        "2d56b7240f47505599a16dfe8b1b5ada2556be093fa15a0459837edd72c3fc33"
+      ],
+      "source_sha256": "f40fec3d541e7a5a24db8f8b5f228c25d3874a474e7dc8a048732e0c3269230f",
+      "text": "Return whether a search is running.\n\n:returns: True while the panel is working through the reads."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.on_apply_clicked": {
+      "source_blocks_sha256": [
+        "43ca7b9a77f1e49a3969e7450b9066a6e747c439044e5ef2bacfc26428b5c84d",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ],
+      "source_sha256": "db92bd4ee94b42ae98f0206b19f7f0601fc022eea22a09c48abc629bf992b587",
+      "text": "Write the proposed settings into the form.\n\n:param _checked: Qt's toggle state, unused."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.on_cancel_clicked": {
+      "source_blocks_sha256": [
+        "ee3d559b4b81fba75e133cf9fcb78983bfad2f7f89505b7d3c2ec3e1d1cf27fb",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ],
+      "source_sha256": "9758df4d06d267a9e1c836a617d3caff338a9fda62baa2f0be80255f9cb0c086",
+      "text": "Abandon the search in flight.\n\n:param _checked: Qt's toggle state, unused."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.on_search_clicked": {
+      "source_blocks_sha256": [
+        "52d9cf92b4f0a57e3bb4757dc70167cb9a398dc38a8cbe542a1dc4952da32a4b",
+        "c25de0ece7e41103365060ffd2fb148ed2ec6c152a1092538faadcb8a04ceba0"
+      ],
+      "source_sha256": "987d0da927c0f9ae761c63d1274ef6e8e95b31253a0cc197407eb40281513e4a",
+      "text": "Start a search, or restart one that is already running.\n\n:param _checked: Qt's toggle state, unused."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.proposal": {
+      "source_blocks_sha256": [
+        "9c14f31375a3cd0c881b21ea69043812cfd8ffd915297b38fba29ee63fe83fb0",
+        "a0cc56f402c3645b7941b89f8e2c251d4681685a079e064257283f2825af5f35"
+      ],
+      "source_sha256": "62a5589251a6fafe9d0beeb3ceeaadff9c81308c92c2a7d52278f344b36212f4",
+      "text": "Return the proposal a finished search produced.\n\n:returns: the proposal, or None when no search has finished."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.proposed_changes": {
+      "source_blocks_sha256": [
+        "ec6fe8f2199acd110fdd1cc36ff9022cc40a5b1672250a8d07d06ff651208ef3",
+        "5a625d711901422ad20ede080d899674ba46c531679675c428feca6429e37502"
+      ],
+      "source_sha256": "57989896be626900a534025835f8a5a5d4c5940045aaa4542e98f22e6ab3245f",
+      "text": "Return the settings Apply would write, old value beside new.\n\n:returns: a tuple of entries, each holding a setting's key, the value\n    the form holds and the value the search proposes."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.report": {
+      "source_blocks_sha256": [
+        "5324b12282aa3c19fac0f1c4164db92d41788a04630e01552612f12b150a8e66",
+        "00b149900b61eb16f99f40e999074c4703416210caf72bf394449ce7220b8d09"
+      ],
+      "source_sha256": "7f0b1c10183f2b700228199ada6404c88b5ef486924c842ae9bd3ecb0471fba2",
+      "text": "Return the most recent report, complete or not.\n\n:returns: the report, or None when no search has produced one."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.shutdown": {
+      "source_blocks_sha256": [
+        "6f5ef74f043d1e15b410d0f55a02d15384133c54c704e14e681b7805bb7c8b08",
+        "67a51d74f17e22136ee4e58ddc1cac15b5e32c54c9db1e2149766e3ebb9dd445"
+      ],
+      "source_sha256": "e35104b7470e2122dd08346afb612ac912690dbece20f1c47b6d7eca9e11ec19",
+      "text": "Abandon any search in flight and leave no worker thread behind.\n\nSafe to call directly when a screen is torn down without a close\nevent, which is how a folded module usually goes away."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPanel.start_search": {
+      "source_blocks_sha256": [
+        "4fbb017a76aa586e16c524e0fbfe0f9f56962b2d1ebb76bb26d9657ef6d7c4ce",
+        "57428766cb02ea481647c0131b832d58d943282e30ace583bc779512d6ef5a2f",
+        "c908abbcf4a44033b7b3d471073d5c2478834ee23a44751deb0d03dda4306bc2"
+      ],
+      "source_sha256": "9bfe28705eb03dde537c25a4fee23781878afbb7b2a02baf30f38886f25e57e0",
+      "text": "Begin a fresh search over the files the settings form names.\n\nReturns rather than raises when there is nothing to search, because\nthe reason is a sentence about the form and the panel shows it.\n\n:returns: True when a search was started."
+    },
+    "spacr.qt.screens.map_barcodes.BarcodeSearchPlan": {
+      "source_blocks_sha256": [
+        "faa8600f43aad3e4a71381e4a0526c538e405f16e3c02cb6f4d82406419c6b05",
+        "c50d135ca61f508a8c28414ad58b4380a0cde0c7f251ccc6ed49b1235b3cb386",
+        "7b0ba6a82107ba5118b995073856227617eb259fe0400b4b5f0c04a28616fdda",
+        "d7b602115898130d2fb1ba94b36f967537637dc693824ab120b2ac94bbe37c98",
+        "3913a8e66151c450d84382db472ec860fb12413d48db5842dac08a410440af2e",
+        "d05cd1807eb37189c14084b47edc44bc96c36518d7783f82411cf83106560b8c",
+        "1cd097aeb9c3e44c65aa1835972545bf769c5d8c81c7d3f278d588e69c133dfc",
+        "5df7395ac4556e71f4d3a687ac22bdcdedb45029773c8fdfa9fb6529d3890825"
+      ],
+      "source_sha256": "fd2ecdedd39bbf73a6225b6d4c0ce9e3556703e7b428f6880bcdf53d82122381",
+      "text": "What one search is going to read, worked out from the settings form.\n\nPlanning is separated from searching because the two fail in different\nways and the user needs to be told which one happened. A plan that cannot\nbe made is a sentence about the form, such as a folder holding no\nsequencing files, and it is worth showing before any read is opened; a\nsearch that finds nothing is a measurement, and means something else\nentirely.\n\n:ivar fastq_files: the sequencing files to read, as a mapping from the\n    label each carries in the report to its path. The labels are the mate\n    names, so a report can say which mate carried which barcode.\n:ivar reference_tables: one entry per reference table, holding the name it\n    is reported under, the path it is read from, and the barcode role it\n    fills.\n:ivar anchor: the fixed vector sequence the mapping run locates its window\n    by, searched alongside the tables so that offsets can be expressed\n    relative to it. Empty when the settings name none.\n:ivar sample: the name of the sample whose reads are being searched.\n:ivar other_samples: how many further samples sit beside it in the same\n    folder. Barcode layout is a property of the library rather than of one\n    sample, so one sample settles it for all of them, but the count is\n    shown so nobody thinks the others were missed.\n:ivar problem: a sentence saying why this plan cannot be searched, or an\n    empty string when it can."
+    },
     "spacr.qt.screens.map_barcodes.CategoryFold": {
       "source_blocks_sha256": [
         "8f6a5aa8bd24286075f35aafd2f7e98d958a45c0793bbef66fe390846fd1386f",
@@ -51252,6 +51766,17 @@
       "source_sha256": "f6f10207dca43ac2404b337be8523dcf815eb6dcf8fdc941967585685e4cbd05",
       "text": "Show the folded module; raise it if it is already up."
     },
+    "spacr.qt.screens.map_barcodes.build_barcode_search_card": {
+      "source_blocks_sha256": [
+        "3abbf5512678d10be2c930e031c9b78e41515c03661942a477b3acedb0f66020",
+        "c9816b529ad68a17369a7997d8a9a809b0f3ecd5a208c2189e1d382e2d0f697f",
+        "6169ea2f56979fe7542320653177248c788455248a8793c93d70a0ca3bde71e8",
+        "5bafba04017db4b97007323e0fdc5486783ff2f598cafcca0893b8228c5b3c4b",
+        "889a7ecbda80b9eae9ea0ef8c768d8c31283448ee836e9d55d00c68d1fda2e34"
+      ],
+      "source_sha256": "fa846744fb43aa4e3cd2fe36f1adf196c8e1ee02a70a0e2e5517f474a149c5c6",
+      "text": "Build the live search and the card it sits in, unmounted.\n\nReturned unmounted, as the live preview's card is, so that the caller\ndecides where it goes and whether it starts visible.\n\n:param screen: the Map Barcodes screen the search reads and writes.\n:param kwargs: passed through to :class:`BarcodeSearchPanel`.\n:returns: the panel and the card holding it."
+    },
     "spacr.qt.screens.map_barcodes.build_registered_screen": {
       "source_blocks_sha256": [
         "f098d0837ae39116bee483c10326ff146e707ca95455570e2774dcc038a6f77c",
@@ -51283,6 +51808,17 @@
       ],
       "source_sha256": "b2a4319508c2ec905c3b78ba4d7c516da6f28d6ef353fc21af5edb8bca711cef",
       "text": "Connect ``screen``'s host signals to ``host_window``'s slots.\n\nConnections are derived from :data:`spacr.qt.chaining.HOST_CONNECTIONS`,\nthe same mapping used by ``MainWindow._build_screen``. Folded and\nstandalone screens therefore expose the same host-level actions."
+    },
+    "spacr.qt.screens.map_barcodes.describe_proposed_changes": {
+      "source_blocks_sha256": [
+        "7376129595ae427e52dc3b5fb171d87bcc23bbb0df84187f1384a54ebcb903ab",
+        "37ee78d6869ac6c441b02242f5a8d8e762ff5bffb11b9ba12a9f84aaf1d12062",
+        "bd33ad3d544e00f6a51c873ea681decf1b9d5b8a223245063ee16eac1bfbc7a2",
+        "3c315ea371ec5eb5d55b9f67a4de11f367b7843c86ab62d2212f5132b3268328",
+        "b11d71fd453b9df2a060c3536dc8daa4b727a0950bac04828e396c131c99d697"
+      ],
+      "source_sha256": "2fda958ca951b119c504794e77af14681cb831ea537824ecab36c9e0f69d535c",
+      "text": "Return the settings a proposal would change, old value beside new.\n\nShowing what will change before it changes is the difference between a\nconvenience and a trap. Somebody who typed a window length has to be able\nto see that pressing Apply replaces it, and with what, while there is\nstill time to decide not to.\n\n:param proposal: the proposal a finished search produced.\n:param current_settings: the settings as the form holds them now.\n:returns: a tuple of entries, each holding the setting's key, the value\n    the form holds and the value the search proposes, for those settings\n    whose value would actually change."
     },
     "spacr.qt.screens.map_barcodes.fold_description": {
       "source_blocks_sha256": [
@@ -51322,6 +51858,17 @@
       "source_sha256": "b6399f681911612aeb34653482eef4f9b887921c743aa55d7b886849ddf20199",
       "text": "Return the host's page strip, creating it when first requested.\n\nThe host body becomes a non-closable first page and retains its layout\nstretch. Pages opened for folded modules can be closed without destroying\ntheir underlying screens.\n\n:param screen: the host module's screen.\n:param title: caption for the host page. If omitted, use\n    ``screen._fold_page_title`` and then the registered application name.\n:returns: the page strip, or ``None`` when the host has no page body."
     },
+    "spacr.qt.screens.map_barcodes.install_barcode_search": {
+      "source_blocks_sha256": [
+        "530556d7122c23d89ad10fd8fab7767c67836727f21459c162981944c77d8278",
+        "166bd07e2872250755cfe844529e95526237ff33f9e0d9f887b0263e227278f2",
+        "8d2b52931e318b461462dbe68fbe5f558d644d6fb370430e3f5365ef51f43f7d",
+        "06bb42ab1005f3985d618f53da35d5e464452956b7d0b04ac292ab7936c0cdbf",
+        "b28fc7af221cb7c16ac76bfaea28496c30032937d83939dbddbb509ec5ee15d6"
+      ],
+      "source_sha256": "aa004f91335676e7a8d326dbc412243966bb98f82e47d51e32db1ecdc3c2166c",
+      "text": "Give the Map Barcodes screen its live search, behind a toggle.\n\nInstalled rather than built into the screen for the reason every other\npanel on this screen is installed from outside: the screen is the generic\nsettings screen, which knows nothing about sequencing and should not have\nto. Repeated calls return the panel that is already there, because the\nstack watcher reaches a screen again every time it becomes current.\n\n:param screen: the screen to install into. Anything that is not the Map\n    Barcodes screen is left alone.\n:param kwargs: passed through to :class:`BarcodeSearchPanel`, which is how\n    a test asks for a smaller read sample or an unthreaded search.\n:returns: the panel, or None when the screen is not the Map Barcodes\n    screen or has no runtime panel to mount into."
+    },
     "spacr.qt.screens.map_barcodes.install_fold_strip": {
       "source_blocks_sha256": [
         "ae33c6a9c21d0044487cd70d6c49665eb4d55baa9fdec58e378692a4129b7f9e",
@@ -51337,10 +51884,13 @@
     },
     "spacr.qt.screens.map_barcodes.install_folds": {
       "source_blocks_sha256": [
-        "e5e18f15b0a74f88d370359b7e82f68a9cb1bb2652b776125e91cd99f56f182b"
+        "13dc33e740ee3737075fe4345c15fdef20d33889d42a7c91077efcb2594d23d0",
+        "5f8827d1e6a62469074906bb37f4df5126a78eff9b7d93ad2fafa8ac12deeefd",
+        "188412ed16e9028194ec3656ad95e6a19eb2ef893dd824112d3e042b90ec699b",
+        "1f383a69f7dc9bf3ec00917ee9edcc85d6da1d12b1a58f00999ee69bcf876737"
       ],
-      "source_sha256": "e5e18f15b0a74f88d370359b7e82f68a9cb1bb2652b776125e91cd99f56f182b",
-      "text": "Put Map Barcodes' fold strip on ``screen``'s masthead."
+      "source_sha256": "ec5a51ccab9717d4c0d1f889c2bde478f38a0b8b2b75c1e2330420027fac6710",
+      "text": "Put Map Barcodes' fold strip and its live barcode search on ``screen``.\n\nThe search is installed here rather than through a seam of its own because\nthis is the call every route to the Map Barcodes screen already passes\nthrough. A panel installed anywhere else would be present when the screen\nis reached one way and missing when it is reached another.\n\n:param screen: the screen to install into.\n:returns: the fold strip, or None when this screen hosts no folds."
     },
     "spacr.qt.screens.map_barcodes.install_folds_on": {
       "source_blocks_sha256": [
@@ -51359,6 +51909,17 @@
       ],
       "source_sha256": "9da59e4464e65a914f8554e752e33e8f6fdbb415cf0be06f3fdb68f058121c45",
       "text": "Install fold strips as screens become current in ``window``.\n\nRepeated calls return the existing stack watcher rather than connecting\nan additional callback.\n\n:param window: the main window.\n:returns: the watcher, or None when the window has no screen stack."
+    },
+    "spacr.qt.screens.map_barcodes.plan_barcode_search": {
+      "source_blocks_sha256": [
+        "e36662447951be7cf8f08a90ef352c7e4e79e3a8cb2df07295bf006acbfe51a6",
+        "791b836b718a64befd3169937f0ebfc18b2cdbad7359fe39ce0e41608eea657d",
+        "f88d1f8a05eb30bfafa0ee94117b1b90ab6c4bdde11b26f0a4dbe8c40f7d972d",
+        "d6e80650315cc36f8c8b217794cee7861656dfd52dce88995b1cada21a2f904c",
+        "5685d1485d92ea64b1f3f21616f12b08b357df91b5152a06c73c2ab9cb41f5a7"
+      ],
+      "source_sha256": "dfe47caeb03b41a1c2c4ef751059f2cf8d7fede45bd36f2f75ba408a7e41d566",
+      "text": "Work out which reads and which reference tables a search should read.\n\nThe sequencing folder of a real screen holds several samples, and one of\nthem is enough. Which mate carries which barcode, which orientation the\nreference tables are stored in relative to the reads, and where in the\nread the barcodes sit are all properties of the library and the sequencing\nrun rather than of a sample, so measuring them on the first sample settles\nthem for every sample beside it. The others are counted rather than read,\nand the count is reported so that nobody has to wonder whether they were\nforgotten.\n\nNothing here opens a read. It lists a folder and checks that the reference\nfiles exist, so it is cheap enough to run whenever the search button is\npressed and it can say what is missing before a single byte is decoded.\n\n:param settings: the Map Barcodes settings as the form holds them.\n:returns: the plan. Its problem is a sentence when there is nothing to\n    search and empty when the plan can be carried out."
     },
     "spacr.qt.screens.map_barcodes.restate_fold_button": {
       "source_blocks_sha256": [
@@ -80874,6 +81435,123 @@
       "source_sha256": "e00ce618fc56d8a9eceb26a25e220744a8805694feb9e998758e41bcfa1de501",
       "text": "The worst of several verdicts, by :data:`VERDICT_ORDER`."
     },
+    "spacr.qt.widgets.read_view": {
+      "source_blocks_sha256": [
+        "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
+        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
+        "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
+        "5dfb4bb842ac0f2797ac22244d93d3310e003829aac15af79f9f0124d9f38030"
+      ],
+      "source_sha256": "d0e18e1e03cc79530830d73cb8008353a3cc1b201cd19d585bcef538fe19e56f",
+      "text": "Show sequencing reads as text, one read per row, with matches coloured.\n\nThe Map Barcodes screen asks the user to believe a claim about their FASTQ\nfiles: that a particular barcode was found in a particular place, in a\nparticular orientation. A percentage in a summary box cannot settle an\nargument about that, because a percentage looks the same whether the matches\nare real or accidental. Reads do settle it. Seeing the gRNA land in the same\ncolumns on row after row is the difference between a number the user trusts\nand a number the user has to take on faith, and seeing nothing line up is how\na misconfigured run announces itself in one glance instead of after an hour\nof mapping that produces no counts.\n\nSo this widget is deliberately plain. It draws the read text in a fixed pitch\nface, one read to a line, and it paints the characters a barcode matched in a\ncolour belonging to that barcode type. Nothing wraps, nothing is elided, and\nthe character in column forty of one read sits directly above the character in\ncolumn forty of the next, which is the entire reason for looking at reads\nrather than at a table.\n\nThis module knows nothing about how matches are found. It takes reads and\nspans that somebody else computed, so the search engine and the screen that\nhosts it can change freely without touching anything here, and so this can be\ntested without either of them. The contract is the pair of small record types\nbelow, and it is meant to be written by hand as easily as it is generated.\n\nA note on colour, because it is the part that is easy to get wrong. Every\ncolour painted here is derived from the theme that is on screen, never written\nas a literal, and the derivation preserves the relative luminance of the\ntheme's own accent role. Contrast is a function of relative luminance and of\nnothing else, so a colour made this way clears exactly the contrast that the\naccent already clears on that theme, including the themes whose panels are\ntranslucent over a photograph. That is what lets an arbitrary number of\nbarcode types each get a colour of their own without any of them becoming\nunreadable on some theme nobody checked."
+    },
+    "spacr.qt.widgets.read_view.BarcodeSpan": {
+      "source_blocks_sha256": [
+        "a6d24050e9c5c6dfedf0dcb149dbd5809ab6b1ef38bdb49c8ba80f4e01ef84f8",
+        "e0bf798f0dc2a1ee4ac5369071bb5d4f1de6a71d15d1faa12ce98c4d66670e08",
+        "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
+        "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
+        "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
+        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+      ],
+      "source_sha256": "02be31d10f02110e50884d3f64ad5803cf8f150cbdf36b99b873347e8db804d1",
+      "text": "One stretch of a read that a barcode of some type matched.\n\nThe interval is half open and counted in characters from the start of the\nread, so it follows Python slicing exactly and the matched text is\n``read[start:stop]``. Positions outside the read are clamped when the span\nis drawn, and a span whose stop is not after its start contributes\nnothing, so a caller doing arithmetic on read lengths cannot make the view\nraise.\n\nThe kind is an opaque label. It is whatever the caller calls that family\nof barcode, it is what the legend shows, and it is what picks the colour,\nso two spans sharing a kind are guaranteed to share a colour on every row.\n\n:param start: First matched character, counting from zero.\n:param stop: One past the last matched character.\n:param kind: Name of the barcode type that matched."
+    },
+    "spacr.qt.widgets.read_view.ReadRow": {
+      "source_blocks_sha256": [
+        "d72866e4e7ba05cb1938311f9d2c019336b7fa3c4130b00e93d340fdbcf08281",
+        "f1d11a511c1f51ba217e15d81cb57191a685177215579f55a29261f0492ca215",
+        "e6815a14b952f0b6cbf8489ed75bdbba863c68d1818db14df65fa0bf77390d0d"
+      ],
+      "source_sha256": "15d8ca64569cc896f187dbc944a50489a48fc704d9a123686b6f4b84981887a5",
+      "text": "One read and everything that matched inside it.\n\n:param text: The read as it should appear on screen, already trimmed to\n    whatever window the caller wants shown.\n:param spans: The matches inside that text. Order matters when two of\n    them overlap, as described on :class:`ReadView`."
+    },
+    "spacr.qt.widgets.read_view.ReadView": {
+      "source_blocks_sha256": [
+        "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
+        "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
+        "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
+        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "a87f546d5bbbdbd8e853072bbf110383d442f14498713f2646e3858c69a69cb3",
+        "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
+        "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
+      ],
+      "source_sha256": "ec7f068304591e8fa899d5de4cc3020d81fcd0a9b72bdbeea26c62bb381e198c",
+      "text": "Reads as text, one to a row, with each barcode type in its own colour.\n\nHand it reads and the spans somebody else matched inside them, and it\nshows them. It never searches for anything itself and never imports the\ncode that does, so it can be dropped into any screen that has reads and\npositions to show.\n\nWhat it guarantees. Reads are drawn in a fixed pitch face at fixed\ncharacter positions, so column forty of one read sits above column forty\nof the next. A read never wraps onto a second visual row: a long one makes\nthe view scroll sideways instead, because a wrapped read would break the\none read per row promise that the whole widget exists to keep. A barcode\ntype keeps one colour for as long as the view is showing it, so the eye\ncan follow a match down the rows, and a legend above the reads says which\ncolour is which.\n\nHow overlaps are settled. The spans of a read are considered in the order\nthey were given, and the first one to cover a character keeps it. A span\nthat arrives later still colours every character not already taken, so it\nis never hidden completely, only trimmed. Deciding this before any drawing\nstarts is what makes overlapping spans merely a question of priority\nrather than a way to corrupt the picture. A caller who wants a particular\nbarcode type to win an overlap should list its spans first.\n\nWhat it costs. The reads are held in a list model and drawn by a delegate,\nso handing over reads costs a list assignment and drawing costs only the\nrows that are actually on screen. Setting ten thousand reads and showing\nthe view resolves the character ownership of a screenful of rows, not of\nten thousand, which is what keeps the interface responsive on a real\nFASTQ sample rather than on a toy one.\n\n:param parent: Optional Qt owner responsible for the widget's lifetime.\nBuild an empty view with a legend above a list of reads."
+    },
+    "spacr.qt.widgets.read_view.ReadView.changeEvent": {
+      "source_blocks_sha256": [
+        "9e96546e696fa3308818e1e24425951c096bd96239cf7160214f990901d9fddf",
+        "63155dd338615fed07dde3aca825fe8843d6573d8cc6f2cdbf59d725dcc64238",
+        "a90d461fe30e4b3e41658f97de0abdee5b78c1eafd036f64212479ffa55205aa"
+      ],
+      "source_sha256": "65dbf7d9d307b5838f6409e3ced7d0fdccd7f7238d004e343da7f6b547fc00c7",
+      "text": "Follow a theme or text size change without being told about it.\n\nThe application re-applies its stylesheet and palette when the theme\nchanges, and Qt delivers that to every widget as a change event.\nTaking the colours again here means the reads re-theme with everything\nelse instead of keeping the palette they were first drawn in.\n\n:param event: The Qt change event being delivered."
+    },
+    "spacr.qt.widgets.read_view.ReadView.clear": {
+      "source_blocks_sha256": [
+        "5c07c49f97c602c7fe7af7f05a221c9b5b1732c11954641852d5cd9ea9f659f9",
+        "daf8716d92270c9d1284deade52e7b6c96ab42d5583628ac4a591cbef81f727f"
+      ],
+      "source_sha256": "0a456cef67dc1cdaf19bd0c9c4e6fab26e79a28d8a48d09b117fe28ddb44cc77",
+      "text": "Drop every read and forget which barcode types were being shown.\n\nForgetting the types is the point of having this at all rather than\nsetting an empty list of reads. A fresh run may search for a different\nset of barcodes, and carrying the previous run's assignment over would\ngive the new first barcode the old second barcode's colour."
+    },
+    "spacr.qt.widgets.read_view.ReadView.colour_for": {
+      "source_blocks_sha256": [
+        "8b3c95c7feff9f60dd71f2e157c55850d5b4d0c3365ec583308c747700a85deb",
+        "4745663ca173b7754802d333571dd39a7b8f07a0b32497b85957ec8cfa7d941e",
+        "771633569246e965a0b78a3d283cb9b48a2922b9c5f75183ddc113bd638a3900"
+      ],
+      "source_sha256": "3100e9a7d4f1fd0a6202b8beba7cb1859f742e6c6e0f544dd99538f24d1fc1d1",
+      "text": "Return the colour one barcode type is drawn in.\n\n:param kind: The barcode type name.\n:returns: A hex colour string, or ``None`` if the view has never been\n    shown that type."
+    },
+    "spacr.qt.widgets.read_view.ReadView.kinds": {
+      "source_blocks_sha256": [
+        "ef423c05850ef0c03cf416843cd7e228659e1bfe170776eb7965fc99d5623e68",
+        "50698a2d8c2ce00698253cb0bf1a06068790e5d2b15cb8b91a45b7daa41c1b04"
+      ],
+      "source_sha256": "b978423c8786a8e4cf0025043ba5ec507513157d2800ed3fa5d8ab2fda5cded4",
+      "text": "Return the barcode types being shown, in legend order.\n\n:returns: The type names, which is also the order that assigned their\n    colours."
+    },
+    "spacr.qt.widgets.read_view.ReadView.refresh_colours": {
+      "source_blocks_sha256": [
+        "ef690760daca7c78c542683292f6e7d81c556484eac921432d9e98cc04bea1cb",
+        "91c8f0d05295d8df13617050a88e5cd13e8d1296b8f4cc40d5aee551daf13c0c"
+      ],
+      "source_sha256": "32df08b6174b886d4a4a5b1fa1b74f1238a3baf362d935695f017c7a16e7f41e",
+      "text": "Take the colours from the theme again and repaint.\n\nSafe to call at any time and cheap enough to call on a whim: it\nre-derives one colour per barcode type, not per read."
+    },
+    "spacr.qt.widgets.read_view.ReadView.row_count": {
+      "source_blocks_sha256": [
+        "0abf19fffecc1b3d8ad194dfca3eea94f8d4aaae10a3468b0fc89a72e96c9b6e",
+        "1c152268a7c932b474a79018b26986bb0c6f4750d0d47190f46b0815a8964c95"
+      ],
+      "source_sha256": "3deeae7e1210f0fa790951234db5e7c03e7624e9a5a537a17a7fd6eb4e5d5e10",
+      "text": "Return how many reads are being shown.\n\n:returns: The number of rows in the view."
+    },
+    "spacr.qt.widgets.read_view.ReadView.set_reads": {
+      "source_blocks_sha256": [
+        "334a33f74d185c7c7f43bdb9a30c2d42353cb074b3c4609a66cca4a160e7d322",
+        "a90c8d7a0521ce4ac40775ad095bb0e7537a38016ca0d3e49c4ad2fe1c6cb8a5",
+        "b6a4b3bbab0006a8097ff2b412471b7db5670abe5a66ddbdd306dc000a1d6ff5",
+        "b3e7bcc339e4bd2646cb341847c25bd0853e62d116b08bb9810f20e782d004f7",
+        "2541ca5d894ea1628cf7883c47d30b16b6925f88d787e12e70bda6ec018e9784"
+      ],
+      "source_sha256": "81fc3c92fbc65aeab7c0a0ffeac136b03922f3e6e8ce1dc2c10d6c53c8e88aa2",
+      "text": "Show these reads, with these barcode types in the legend.\n\nPassing the barcode types explicitly is worth doing whenever they are\nknown, because it fixes both the legend order and which type gets\nwhich colour. A type that is searched for but found in none of the\nreads on screen then still appears in the legend, which is itself\ninformation: it says the search ran and came back empty rather than\nleaving the user to wonder whether it ran at all.\n\nLeft unsaid, the types are taken from the spans in the order they are\nfirst seen, and any type already being shown keeps the colour it has.\n\n:param rows: The reads, each a :class:`ReadRow`, a plain string for a\n    read with no matches, or a text and spans pair.\n:param kinds: Barcode type names in legend order, or ``None`` to take\n    them from the spans."
+    },
+    "spacr.qt.widgets.read_view.barcode_colours": {
+      "source_blocks_sha256": [
+        "cd5f4c51077f7c0a709eaf23ce8860f36f8e89ac6b8c2886c1c1f2091e33f6bf",
+        "397bd4612859f0dc929ac053d300d82bc322ac8bea3da5b0b37683c00ff58c46",
+        "cd9153c13ea4f21e679ed1ddba653a62aca671ae13a22cfa6df908a23adc802f",
+        "b96ce8cecc93c4e791911ad47fadec794a63c1fa87e518222cf2df3488d6a68b",
+        "6af8a1d9762a62c4e979868ada2fe0149f3bd7b35b15b4d00de6bb02f57a6e81"
+      ],
+      "source_sha256": "1364208424c6746387d9471f842b11a0bd00f9f2b4383196698ccf48a067413e",
+      "text": "Give each barcode type a colour of its own, taken from the theme.\n\nColours are assigned by position, so a type keeps its colour as long as\nthe caller keeps passing the types in the same order, and adding a type to\nthe end of the sequence never changes the colours already handed out.\nRepeats are ignored after the first appearance.\n\nThe result follows the theme on screen at the moment of the call. It\ndiffers between the light and dark palettes, and between both and the\nimage palettes, which is deliberate rather than incidental: each palette\nhas its own readable luminance and the colours are derived from it.\n\n:param kinds: Barcode type names, in the order they should be coloured.\n:returns: A mapping from each name to a hex colour string."
+    },
     "spacr.qt.widgets.refit_dialog": {
       "source_blocks_sha256": [
         "1639f3ffdfe260bdc3fd607da2f305b50724ce8479b744a88bfa13f79be8ac80",
@@ -92003,15 +92681,15 @@
         "bbeae35fee8ef00e03cd47a577b25e6eb6b76855c47d7e30978b0f9efdc2ce2b",
         "0f4a85c9d0557430930b200a9a4a0c27115a4d49ac0982c9b4eaefb058f59146",
         "45fb64dc2b3050c47ae42d726c134194a07e683d180ad732e717bfe3a0fbfede",
-        "29813c86205a5cee649d9782b48f6ef3fc447e89fa29f56d88417f2861302513",
+        "d8d0426ed527dfbf4d6c429cfd2ee61ba09b9e7c345633ef0941ae6fc2b03c79",
         "87abc46324b7652f26afd47890cc77870273d005260e0e9ff49fdf9cd7a4c3f5",
         "d56ee9e8a13f439eae241d58a2aa7858a47bc3d14e4777fea16bb70b1287fc8b",
         "9cdf97745e26f6331d427c3b47bac0e9d665a9013ad83e82b5d1d97e2c13d8e2",
         "2f431e82b9bf770d91b682283f773ff8494c09526aa40903c17678c82195855b",
         "e1380a40a01e067252f44957c4b4467d882cea762eb3b170776da2b0cbdb125a"
       ],
-      "source_sha256": "19522cbca1fa57b1015a353a9015ddb06480828bdd2e1ab7d06eb655842dfd40",
-      "text": "Decode pooled-screen FASTQ reads into per-well guide counts.\n\nWHAT IT IS FOR\n==============\nThe **Map Barcodes** module connects a sequencing run to an image-based\nscreen.  It finds the plate-column, guide, and plate-row barcode in each\nread, resolves those sequences against reference tables, and counts the\nresulting guides by well.  :func:`generate_barecode_mapping` is the GUI and\nPython entry point (the historical ``barecode`` spelling remains part of the\npublic API); :func:`graph_sequencing_stats` can then help choose a read-fraction\ncutoff.\n\nWHAT IT NEEDS\n=============\n``src`` must contain gzip-compressed FASTQ files whose names let spaCR pair R1\nand R2 reads.  The run also needs three CSV reference tables -- ``row_csv``,\n``column_csv``, and ``grna_csv`` -- with ``sequence`` and ``name`` columns.\n``target_sequence`` anchors the barcode window, while ``offset_start``,\n``expected_end``, and a regex with the named groups ``columnID``, ``grna``,\nand ``rowID`` describe its layout.  Use ``mode='paired'`` for a\nquality-weighted R1/R2 consensus or ``mode='single'`` with\n``single_direction`` when only one mate should be read.\n\nWHAT IT PRODUCES\n================\nEach sample gets its own output directory beneath ``src``.  The essential\nartifacts are ``unique_combinations.csv`` (guide counts by row and column)\nand ``qc.csv``; ``annotated_reads.h5`` is also written when ``save_h5`` is\nenabled.  Optional barcode QC adds a report and plots under ``barcode_qc``.\nRun manifests and failure records identify samples that were skipped or\ncould not be processed.\n\nWHAT TO DO NEXT\n===============\nInspect the QC table and unmapped fraction before trusting the counts.  Use\n``test=True`` to process one chunk while checking the regex, read direction,\nand reference orientation, then run the full mapping and pass the resulting\n``unique_combinations.csv`` files to :func:`spacr.ml.perform_regression` as\n``count_data``.  :func:`barecodes_reverse_complement` can make an\nopposite-orientation copy of a reference CSV.\n\nThere are three easy ways to obtain plausible but incomplete output.  The\nanchor match is exact and a wrong regex silently rejects reads; reference\nsequences are compared in their stored orientation; and a sequence within\n``barcode_mismatches`` of two references remains unassigned instead of being\nguessed.  Finally, read-level HDF5 output can be much larger than the count\ntables, and high compression may spend more time saving than decoding, so\ndisable ``save_h5`` unless those individual annotations are needed."
+      "source_sha256": "c7f31c57df8988181371ae96508f3d62a573810bce60756ff15d347294ae50d1",
+      "text": "Decode pooled-screen FASTQ reads into per-well guide counts.\n\nWHAT IT IS FOR\n==============\nThe **Map Barcodes** module connects a sequencing run to an image-based\nscreen.  It finds the plate-column, guide, and plate-row barcode in each\nread, resolves those sequences against reference tables, and counts the\nresulting guides by well.  :func:`generate_barecode_mapping` is the GUI and\nPython entry point (the historical ``barecode`` spelling remains part of the\npublic API); :func:`graph_sequencing_stats` can then help choose a read-fraction\ncutoff.\n\nWHAT IT NEEDS\n=============\n``src`` must contain gzip-compressed FASTQ files whose names let spaCR pair R1\nand R2 reads.  The run also needs a CSV reference table per barcode, with\n``sequence`` and ``name`` columns.  A run that decodes the three barcodes\nspaCR shipped names them as ``row_csv``, ``column_csv`` and ``grna_csv``, and\na run that decodes any other number of barcodes lists them under\n``barcode_set`` instead, one entry per barcode.  ``target_sequence`` anchors\nthe barcode window, while ``offset_start``, ``expected_end``, and a regex\nnaming one group per barcode describe its layout.  The shipped regex names\n``columnID``, ``grna`` and ``rowID``.  Use ``mode='paired'`` for a\nquality-weighted R1/R2 consensus or ``mode='single'`` with\n``single_direction`` when only one mate should be read.\n\nWHAT IT PRODUCES\n================\nEach sample gets its own output directory beneath ``src``.  The essential\nartifacts are ``unique_combinations.csv`` (guide counts by row and column)\nand ``qc.csv``; ``annotated_reads.h5`` is also written when ``save_h5`` is\nenabled.  Optional barcode QC adds a report and plots under ``barcode_qc``.\nRun manifests and failure records identify samples that were skipped or\ncould not be processed.\n\nWHAT TO DO NEXT\n===============\nInspect the QC table and unmapped fraction before trusting the counts.  Use\n``test=True`` to process one chunk while checking the regex, read direction,\nand reference orientation, then run the full mapping and pass the resulting\n``unique_combinations.csv`` files to :func:`spacr.ml.perform_regression` as\n``count_data``.  :func:`barecodes_reverse_complement` can make an\nopposite-orientation copy of a reference CSV.\n\nThere are three easy ways to obtain plausible but incomplete output.  The\nanchor match is exact and a wrong regex silently rejects reads; reference\nsequences are compared in their stored orientation; and a sequence within\n``barcode_mismatches`` of two references remains unassigned instead of being\nguessed.  Finally, read-level HDF5 output can be much larger than the count\ntables, and high compression may spend more time saving than decoding, so\ndisable ``save_h5`` unless those individual annotations are needed."
     },
     "spacr.sequencing.barecodes_reverse_complement": {
       "source_blocks_sha256": [
@@ -92062,14 +92740,15 @@
     "spacr.sequencing.generate_barecode_mapping": {
       "source_blocks_sha256": [
         "2a5eb1b139093da86a46a4ebb085aac2ca9fea857f3d2e0af50d15d9ba6a11bf",
-        "f046ddb399b6a106114e04c2d09db0a9cd2b8ee79366dd127ad282e54c273333",
+        "0f6e0c1e140edaa7426fb1251d7bb01bab5b4b719480182fd7d61bbce1956b77",
         "9b509e5646b87ffdcbf88b747f801e66bb3cb869245ee0ddc151c527a7de33cd",
         "f54a5bcf96a34bc69980c5b0465753a07fce5cb2579df44aebdf7c0682c1ff31",
         "52e77ec9a4f15faf2def937305975c86581566acefd2c3df38ee5227c0a16ddb",
         "cf1fd210aaad17548a90101828746fd0317ffe9a79d5c4ded0d5a1849ea9f213",
         "365c2dea13aa27eb06c9a0f6b075a4d4ab32a5effd8e526ffda8077d6f9dc020",
         "19aaec12779f9c1d3ce12b444bfe3d92a23005d15a444efc370e31ba9b7b8192",
-        "4480186400a5573bb9a1ff78ecafbab1e94a889da21cde4f3f39aa43bd4a47ed",
+        "3d9be3a73324e0694c6df9f462f3535c0203b6755d316f073f83a609081ed793",
+        "be6b3cc3ffa8a8b89a54b676312a00c93803c81634182ae1bd23f2fcf09d585a",
         "f3531e87cd866cdf0a99ccccb9444d95085389f37541d0fc1e5319d665f4bb0b",
         "338cd188bcae7dbbbbd5e473501488e20220342f969116c12a31301e6e6165be",
         "771ca49565901e6ffad8dccfd0d915b1f28c0538d7f83e608c9e28311848954c",
@@ -92078,8 +92757,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "a24b201e8ac8ad15ccf8cb452cb2130a305d8a454c58d0a86185334693d6dffe"
       ],
-      "source_sha256": "eb34ce8a32857bc0371a9b205bc27267bd2cf63b2d0c2b7029074f5413471881",
-      "text": "Turn a folder of pooled-screen FASTQ files into per-well sgRNA count tables usable by :func:`spacr.ml.perform_regression`.\n\nDiscovers R1/R2 files per sample under ``src``, extracts the row,\ncolumn, and gRNA barcodes from each read via the configured regex\nand offset window, translates them to names via three barcode\nlookup CSVs (see :func:`map_sequences_to_names`), and writes\nper-sample ``annotated_reads.h5`` (optional),\n``unique_combinations.csv`` (the per-well gRNA counts) and\n``qc.csv``. Paired vs single-end and R1/R2 orientation are chosen\nfrom ``settings['mode']`` and ``single_direction``.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_default_generate_barecode_mapping`.\n    Key entries:\n\n    - ``src`` — folder containing ``*.fastq.gz`` reads.\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` or ``'R2'`` (``mode='single'``\n      only).\n    - ``regex`` — regex extracting barcodes from a read.\n    - ``target_sequence``, ``offset_start``, ``expected_end`` —\n      anchor and slice window used to locate the barcode region.\n    - ``column_csv`` / ``row_csv`` / ``grna_csv`` — barcode->name\n      lookup CSVs.\n    - ``save_h5``, ``comp_type``, ``comp_level`` — HDF5 output\n      knobs.\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` — when true, QC each finished sample with\n      :func:`spacr.sequencing_qc.barcode_qc`, writing plots and a\n      report into ``<dst>/barcode_qc`` (default False; not filled in\n      by the settings defaults).\n    - ``target_grnas_per_well`` — expected gRNAs per well, from which\n      that QC step derives its abundance threshold (default 1).\n\n:returns: None. Writes per-sample outputs into\n    ``<src>/<sample>_<mode>[_<direction>]/``.\n\nExample:\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\nSee Also:\n    :func:`map_sequences_to_names` — inner barcode->name lookup.\n    :func:`spacr.ml.perform_regression` — consumes the resulting\n    ``unique_combinations.csv`` as ``count_data``."
+      "source_sha256": "51448c630ac0222d805ff06d48569178f90b78fea4614a0fb7819b0909c6b5bc",
+      "text": "Turn a folder of pooled-screen FASTQ files into per-well sgRNA count tables usable by :func:`spacr.ml.perform_regression`.\n\nDiscovers R1/R2 files per sample under ``src``, extracts every\nbarcode the run decodes from each read via the configured regex and\noffset window, translates each of them to a name through its own\nlookup CSV (see :func:`map_sequences_to_names`), and writes\nper-sample ``annotated_reads.h5`` (optional),\n``unique_combinations.csv`` (the per-well gRNA counts) and\n``qc.csv``. Paired vs single-end and R1/R2 orientation are chosen\nfrom ``settings['mode']`` and ``single_direction``.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_default_generate_barecode_mapping`.\n    Key entries:\n\n    - ``src`` — folder containing ``*.fastq.gz`` reads.\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` or ``'R2'`` (``mode='single'``\n      only).\n    - ``regex`` — regex extracting barcodes from a read.\n    - ``target_sequence``, ``offset_start``, ``expected_end`` —\n      anchor and slice window used to locate the barcode region.\n    - ``column_csv`` / ``row_csv`` / ``grna_csv`` — barcode->name\n      lookup CSVs for the three barcodes spaCR shipped.\n    - ``barcode_set`` — the barcodes to decode when a run has other than\n      those three, as a list with one entry per barcode. Each entry\n      names the barcode, the reference CSV that names its sequences and\n      the regex group that captures it. Absent, which is what every\n      settings file written before sets existed is, the run decodes the\n      three named above.\n    - ``save_h5``, ``comp_type``, ``comp_level`` — HDF5 output\n      knobs.\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` — when true, QC each finished sample with\n      :func:`spacr.sequencing_qc.barcode_qc`, writing plots and a\n      report into ``<dst>/barcode_qc`` (default False; not filled in\n      by the settings defaults).\n    - ``target_grnas_per_well`` — expected gRNAs per well, from which\n      that QC step derives its abundance threshold (default 1).\n\n:returns: None. Writes per-sample outputs into\n    ``<src>/<sample>_<mode>[_<direction>]/``.\n\nExample:\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\nSee Also:\n    :func:`map_sequences_to_names` — inner barcode->name lookup.\n    :func:`spacr.ml.perform_regression` — consumes the resulting\n    ``unique_combinations.csv`` as ``count_data``."
     },
     "spacr.sequencing.get_consensus_base": {
       "source_blocks_sha256": [
@@ -92126,7 +92805,7 @@
         "ae7bfa385c0cbf217473d3da7895820998e1fa15c377addcabeba591dae8a94e",
         "46e8c8fe51e8ed65147aaad2f4a879ac5610e61f37c74d3e214e25390d0318a2",
         "2e55fd1420381e57acc5dc445078539b77171a01fb98bdc6251ca92c9d1723d8",
-        "d1519b7e4ce40ac21ae2fb71017bfd73b7a53cb57fec3b64c082a3bac19782f0",
+        "7f47ed0231e6bab02270e4a3cd2d30f246d3d92bdf6b4811eb62c74791fd6898",
         "fa6a4de3748685c990c777d49a627278c41fff9a7b4ae2d617cfc701000b35b3",
         "06ca2ab4fc96cc187d9e14c3d0668ac310d0ea425c681b26243be61af766d89d",
         "b265771c1b97ba6ab5c7d9da1fad7c4f5e8933a89f87a536beb706474cc36fc2",
@@ -92143,21 +92822,24 @@
         "07feef1b4079fec1c6f7506faaccdfaa69cf81982965e0a4908414b961ff8bcc",
         "eda60e96b80a69d554143462663c488d4151674044c573e1c5cb969e064d395e",
         "a92cd25865cd1e5862059f74ef38c8592cc4b37c0ec3a51348df72db7186a1ea",
+        "a5d3f466ebfff3f051b68970c42432ff25741c9d1291668c7e034bf1b20e5227",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "5840747ab783d4118b26c875a7526b386efb98affa207b167c6670d3b8b0e9b5",
-      "text": "Chunked paired-end FASTQ processing: extract, decode and stream barcodes to disk.\n\nReads R1/R2 in ``chunk_size`` blocks, farms them out to\n:func:`process_chunk` workers, and lets :func:`saver_process` write\nHDF5 / CSV outputs concurrently.\n\n:param r1_file: gzipped R1 FASTQ path.\n:param r2_file: gzipped R2 FASTQ path.\n:param regex: regex with named groups ``rowID``, ``columnID``, ``grna``.\n:param target_sequence: anchor sequence used to locate the barcode region.\n:param offset_start: offset from ``target_sequence`` to begin extraction.\n:param expected_end: length of the extracted consensus region.\n:param column_csv: column-barcode reference CSV.\n:param grna_csv: gRNA-barcode reference CSV.\n:param row_csv: row-barcode reference CSV.\n:param save_h5: persist the full reads DataFrame to HDF5.\n:param comp_type: HDF5 compression library.\n:param comp_level: HDF5 compression level.\n:param hdf5_file: HDF5 output path.\n:param unique_combinations_csv: destination CSV for aggregated combinations.\n:param qc_csv_file: destination CSV for QC statistics.\n:param chunk_size: reads per batch. Default ``10000``.\n:param n_jobs: worker processes; defaults to ``cpu_count() - 3``.\n:param test: process only the first chunk and print a preview.\n:param fill_na: fill unmapped IDs with raw barcode sequences.\n:returns: None."
+      "source_sha256": "b13fe4c20bf9fdbc89ba6f9f891dc8754f99b5df150280f312aa51a87a644387",
+      "text": "Chunked paired-end FASTQ processing: extract, decode and stream barcodes to disk.\n\nReads R1/R2 in ``chunk_size`` blocks, farms them out to\n:func:`process_chunk` workers, and lets :func:`saver_process` write\nHDF5 / CSV outputs concurrently.\n\n:param r1_file: gzipped R1 FASTQ path.\n:param r2_file: gzipped R2 FASTQ path.\n:param regex: regex naming one group per barcode. The three spaCR\n    shipped are read from ``rowID``, ``columnID`` and ``grna``.\n:param target_sequence: anchor sequence used to locate the barcode region.\n:param offset_start: offset from ``target_sequence`` to begin extraction.\n:param expected_end: length of the extracted consensus region.\n:param column_csv: column-barcode reference CSV.\n:param grna_csv: gRNA-barcode reference CSV.\n:param row_csv: row-barcode reference CSV.\n:param save_h5: persist the full reads DataFrame to HDF5.\n:param comp_type: HDF5 compression library.\n:param comp_level: HDF5 compression level.\n:param hdf5_file: HDF5 output path.\n:param unique_combinations_csv: destination CSV for aggregated combinations.\n:param qc_csv_file: destination CSV for QC statistics.\n:param chunk_size: reads per batch. Default ``10000``.\n:param n_jobs: worker processes; defaults to ``cpu_count() - 3``.\n:param test: process only the first chunk and print a preview.\n:param fill_na: fill unmapped IDs with raw barcode sequences.\n:param barcode_set: the barcodes to decode, as a\n    :class:`spacr.settings.BarcodeSet` of any size. None decodes the\n    three barcodes spaCR shipped from the three reference CSVs above,\n    which is what every run did before a set could be given; a set is\n    used instead of them.\n:returns: None."
     },
     "spacr.sequencing.process_chunk": {
       "source_blocks_sha256": [
         "d8b2c1c2e32eeae7b75e031f42f4cf32e4347d7bf2af735f3cedd0c621f9d7da",
-        "731e7187233f64a536dd859de7014d28fe720ad8569224f4c682883073c5aa32",
-        "c9ece26750d3c9ee8c279c49cc076fab020e8b785fce9f6ac2e1f721e05eef58",
-        "4d7162f6dfc396e1c8faa617d0d470905cf0a8a43d53499bff27728b58287a21",
-        "6e2684290412ec9e48605d14b2026c5739b8afec4863e40ad949e16cdc59d153"
+        "d5478725e603f4d7520bd4b5f7d14f327d1669f8c1314c805ff4b4888af12628",
+        "85785563dc4a50f33a29cb09d6a02d11f240ad0e99bbac7155feb60df8d6d35d",
+        "f8e0d044695b64933aa8c3f7822ed4e05e79de14d81a62ebf4a79f9c111a182b",
+        "bf9bd93ef68541694f2ff3a1eeaf6b395cd418ce65271fbe9519c407d90c68f9",
+        "ceea04f123b4df4f7997168fd0e5f2c0ea335f2b74163b25e3e7287adc0f96df",
+        "adc7d0347d0edc612ebaddeebf7d5fe63a0af172d77647872835af3971211df5"
       ],
-      "source_sha256": "d9aa54728ba47dbff087edea1a6de0e97b2bab3d4b7f275f0b3b657336d10251",
-      "text": "Extract and map barcodes from a chunk of single- or paired-end FASTQ reads.\n\nAnchors on ``target_sequence``, extracts a consensus window, splits it\nwith the named-group ``regex``, and maps each barcode to its ID via\nthe reference CSVs.\n\nThe regex must supply a ``grna`` group plus a row and a column group.\n``columnID``/``rowID``, the names used by the shipped default regex,\ntake precedence; ``column``/``row`` are accepted as aliases.\n\n:param chunk_data: 9-tuple for single-end\n    ``(r1_chunk, regex, target_sequence, offset_start, expected_end,\n    column_csv, grna_csv, row_csv, fill_na)`` or 10-tuple for paired-end\n    ``(r1_chunk, r2_chunk, ...)`` with the same trailing fields.\n:returns: tuple ``(df, unique_combinations, qc_df)`` — the annotated\n    reads (``read``, per-barcode sequences and IDs), per-triplet counts,\n    and a NaN/total-reads QC row."
+      "source_sha256": "074c6072f1ac07b7e3cc8a02a68bbd3d863eb0c6cde82715ca85eb278ff7c2d1",
+      "text": "Extract and map barcodes from a chunk of single- or paired-end FASTQ reads.\n\nAnchors on ``target_sequence``, extracts a consensus window, splits that\nwindow with the named-group ``regex``, and maps every barcode it holds to\na name through that barcode's own reference table.\n\nTHE CHUNK ARRIVES IN ONE OF TWO SHAPES. A tuple is the historical one and\ndecodes the three barcodes this module has always decoded, a plate\ncolumn, a guide and a plate row, from three reference CSV paths. A\nmapping carries a barcode set instead and decodes however many barcodes\nthat set holds, one or ten, writing a sequence column and a name column\nfor each of them.\n\nThe regex must name a group for every barcode being decoded, and the run\nstops naming the barcode that has no group rather than decoding the rest.\nFor the historical three the column and the row are read from\n``columnID`` and ``rowID`` where the regex defines those, and from\n``column`` and ``row`` where it does not, so a pattern written before\nthose names were settled goes on matching.\n\n:param chunk_data: a 9-tuple for single-end reads\n    ``(r1_chunk, regex, target_sequence, offset_start, expected_end,\n    column_csv, grna_csv, row_csv, fill_na)``, a 10-tuple for paired-end\n    reads ``(r1_chunk, r2_chunk, ...)`` with the same trailing fields, or\n    a mapping holding ``r1_chunk``, ``r2_chunk`` (absent or None for\n    single-end reads), ``regex``, ``target_sequence``, ``offset_start``,\n    ``window_length``, ``barcode_set`` and ``fill_na``.\n:returns: tuple ``(df, unique_combinations, qc_df)`` — the annotated\n    reads, holding the read and then each barcode's sequence and name;\n    the number of reads behind each unique combination of barcode names;\n    and a one-row QC frame of missing values and total reads.\n:raises ValueError: when the chunk is neither of those shapes, when the\n    window length is not positive, when the regex names no group for one\n    of the barcodes, or when a FASTQ record is malformed."
     },
     "spacr.sequencing.reverse_complement": {
       "source_blocks_sha256": [
@@ -92196,14 +92878,15 @@
     },
     "spacr.sequencing.save_unique_combinations_to_csv": {
       "source_blocks_sha256": [
-        "0d5af46e2659642b731103b74450cdc0ae490a96130d8d5868828b398be412b1",
-        "4fb4d279b852f705661ca8ddd93150644b60bc525fa6edacf7c6153b091ad720",
+        "a911469cf2e1a9a96f220e316be00f04bd9425542ecc147e15b13af8768c0464",
+        "cd3498a8aac7301223ec0b3743bc602c4dc0b64c5185ca0b00d58bd5bf156411",
+        "1dcf1513efff49e204e5a9d37adb52d02e1d3ab548df7fec1a1bcfe775d66597",
         "12bbe819421969f4917ccf273c51d071b7a09fbfc6f132a81ffdd82d54afe665",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
         "af88f8d7a8fb671e265d7c92ee93dd63b79809e39dfacb7e26b2be6bc69cb0a4"
       ],
-      "source_sha256": "6d4ecd154e8a9917efb4de2828d148f01ff2eaa8b386ee507b4797ad53c61114",
-      "text": "Append per-``(rowID, columnID, grna_name)`` counts to a CSV, summing duplicates.\n\n:param unique_combinations: DataFrame with ``rowID``, ``columnID``, ``grna_name`` and numeric count columns.\n:param csv_file: destination CSV path (created if absent).\n:returns: None.\n:raises Exception: after printing context, when the CSV write fails."
+      "source_sha256": "0b21fa655a5aef1ee470130f8c04924f7cff6e52f011f95fbb2a6133f52e3d9a",
+      "text": "Append per-barcode-combination counts to a CSV, summing duplicates.\n\nThe columns to group by are the frame's own, every column except the\ncount. They used to be the three this module decoded, named here as a\nliteral, which is one of the two places a run had to hold exactly three\nbarcodes. Reading them off the frame is not a loosening: the frame comes\nfrom the groupby that produced it, so its columns ARE the combination\nbeing counted, whether that is one barcode or six.\n\n:param unique_combinations: DataFrame holding one column per barcode and\n    a numeric ``count`` column.\n:param csv_file: destination CSV path (created if absent).\n:returns: None.\n:raises Exception: after printing context, when the CSV write fails."
     },
     "spacr.sequencing.saver_process": {
       "source_blocks_sha256": [
@@ -92226,7 +92909,7 @@
         "bfe462b6a72d7d28abc8ff1bb0666c802176b34b259c1d77489cc1f5b7673576",
         "46e8c8fe51e8ed65147aaad2f4a879ac5610e61f37c74d3e214e25390d0318a2",
         "83a567a602860418afaf87ac77200d09ef1bf95e4c06b7fc23429ac225ec3204",
-        "d1519b7e4ce40ac21ae2fb71017bfd73b7a53cb57fec3b64c082a3bac19782f0",
+        "7f47ed0231e6bab02270e4a3cd2d30f246d3d92bdf6b4811eb62c74791fd6898",
         "fa6a4de3748685c990c777d49a627278c41fff9a7b4ae2d617cfc701000b35b3",
         "06ca2ab4fc96cc187d9e14c3d0668ac310d0ea425c681b26243be61af766d89d",
         "e006244c534c113e0a6c4ea938726e99e29de4f987558139cbe044502a96d2cd",
@@ -92243,10 +92926,11 @@
         "07feef1b4079fec1c6f7506faaccdfaa69cf81982965e0a4908414b961ff8bcc",
         "eda60e96b80a69d554143462663c488d4151674044c573e1c5cb969e064d395e",
         "a92cd25865cd1e5862059f74ef38c8592cc4b37c0ec3a51348df72db7186a1ea",
+        "a5d3f466ebfff3f051b68970c42432ff25741c9d1291668c7e034bf1b20e5227",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "2b95bcb32a075df684bcc77e6e92fa41a12941538532a60832114ccabbd202c5",
-      "text": "Chunked single-end FASTQ processing: extract, decode and stream barcodes to disk.\n\n:param r1_file: gzipped R1 FASTQ path.\n:param r2_file: unused placeholder kept for interface parity with the paired variant.\n:param regex: regex with named groups ``rowID``, ``columnID``, ``grna``.\n:param target_sequence: anchor sequence used to locate the barcode region.\n:param offset_start: offset from ``target_sequence`` to begin extraction.\n:param expected_end: length of the extracted barcode region.\n:param column_csv: column-barcode reference CSV.\n:param grna_csv: gRNA-barcode reference CSV.\n:param row_csv: row-barcode reference CSV.\n:param save_h5: persist the full reads DataFrame to HDF5.\n:param comp_type: HDF5 compression library.\n:param comp_level: HDF5 compression level.\n:param hdf5_file: HDF5 output path.\n:param unique_combinations_csv: destination CSV for aggregated combinations.\n:param qc_csv_file: destination CSV for QC statistics.\n:param chunk_size: reads per batch. Default ``10000``.\n:param n_jobs: worker processes; defaults to ``cpu_count() - 3``.\n:param test: process only the first chunk and print a preview.\n:param fill_na: fill unmapped IDs with raw barcode sequences.\n:returns: None."
+      "source_sha256": "3de39ea1c75f0ed0e0136f60ecff3769871eb8b60b926739e3bf4cdd45058bc0",
+      "text": "Chunked single-end FASTQ processing: extract, decode and stream barcodes to disk.\n\n:param r1_file: gzipped R1 FASTQ path.\n:param r2_file: unused placeholder kept for interface parity with the paired variant.\n:param regex: regex naming one group per barcode. The three spaCR\n    shipped are read from ``rowID``, ``columnID`` and ``grna``.\n:param target_sequence: anchor sequence used to locate the barcode region.\n:param offset_start: offset from ``target_sequence`` to begin extraction.\n:param expected_end: length of the extracted barcode region.\n:param column_csv: column-barcode reference CSV.\n:param grna_csv: gRNA-barcode reference CSV.\n:param row_csv: row-barcode reference CSV.\n:param save_h5: persist the full reads DataFrame to HDF5.\n:param comp_type: HDF5 compression library.\n:param comp_level: HDF5 compression level.\n:param hdf5_file: HDF5 output path.\n:param unique_combinations_csv: destination CSV for aggregated combinations.\n:param qc_csv_file: destination CSV for QC statistics.\n:param chunk_size: reads per batch. Default ``10000``.\n:param n_jobs: worker processes; defaults to ``cpu_count() - 3``.\n:param test: process only the first chunk and print a preview.\n:param fill_na: fill unmapped IDs with raw barcode sequences.\n:param barcode_set: the barcodes to decode, as a\n    :class:`spacr.settings.BarcodeSet` of any size. None decodes the\n    three barcodes spaCR shipped from the three reference CSVs above,\n    which is what every run did before a set could be given; a set is\n    used instead of them.\n:returns: None."
     },
     "spacr.sequencing_qc": {
       "source_blocks_sha256": [
@@ -92733,6 +93417,123 @@
       "source_sha256": "97152c67389c8fb8345d2f4eed047f13edd3189632d39f0a37a7af51bd220f34",
       "text": "Defaults, types, categories, descriptions, and validation for settings."
     },
+    "spacr.settings.BarcodeEntry": {
+      "source_blocks_sha256": [
+        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "e6e65ecebf78eb06898d73da6aa6d7f3abc8d78dfd8c25533cc6da0adc0ae6d8",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "50d952f67575b1ff8a281070cd8d4edfb23507607fb46f6c94cf4abf59a3f540"
+      ],
+      "source_sha256": "896323309f63c284ab5617acdedfb15c8aa99f2487f35e6e0a48c4c65dee19dd",
+      "text": "One barcode type a Map Barcodes run decodes.\n\nA run used to decode exactly three barcodes -- a plate column, a guide\nand a plate row -- because the regex, the settings and the read\nprocessors each spelled all three of them out by name. An entry is that\nsame information written once, so that a screen carrying a fourth\nbarcode, or only one, is a different collection of entries rather than a\ndifferent code path.\n\nParameters\n----------\nname:\n    The word a user would use for this barcode, such as column, row,\n    grna or plate. It names the two output columns the run writes for\n    the entry, so it has to be unique within a set.\ncsv:\n    The reference table that turns one of these sequences into a name.\n    It needs a ``sequence`` column and a ``name`` column, and its\n    sequences must be in the same orientation as the reads, because they\n    are compared verbatim rather than reverse-complemented.\ngroup:\n    The named group of the barcode regex whose captured text is this\n    barcode. Left empty it is the entry's own name, which is what a\n    regex written for a new set will normally use.\ngroup_aliases:\n    Further spellings of that group name, accepted when the preferred\n    one is absent from the regex. The column and row barcodes spaCR\n    shipped accept the shorter ``column`` and ``row`` this way, which is\n    why a pattern written before those names were settled still runs.\nsequence_column:\n    The output column the extracted sequence is written to. Left empty\n    it is the entry's name followed by ``_sequence``.\nid_column:\n    The output column the resolved name is written to. Left empty it is\n    the entry's name followed by ``ID``. The guide barcode spaCR shipped\n    sets this to ``grna_name`` instead, because that is the header every\n    count table already written and every reader of one expects."
+    },
+    "spacr.settings.BarcodeEntry.__post_init__": {
+      "source_blocks_sha256": [
+        "305dffc934653be8fde5369eb12cb39f60f63547626a775d634e3cd3fff85fab",
+        "7fec057c86008675c307a82dbffcd28fb32923fdb3dc28a230c8ba5733eda2fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "7dcc17dc475bea4205473402c72fcae770f19071bc152e67c5cf0be27b89823e"
+      ],
+      "source_sha256": "f2a02ff3cb97c7791c0019c6b76615f581c43d94edd64efd23a5c3e8e5742a18",
+      "text": "Fill in the spellings that follow from the entry's own name.\n\nDerived here rather than at each point of use, because two readers\nthat each work out what an entry's columns are called are two\nreaders that can disagree. The entry is frozen, so the normalised\nvalues are assigned through ``object.__setattr__``.\n\n:returns: None.\n:raises ValueError: when the entry has no name, which would leave\n    its output columns called nothing at all."
+    },
+    "spacr.settings.BarcodeEntry.accepted_groups": {
+      "source_blocks_sha256": [
+        "b55abe767d53489758498064b9fe95dd44ccf9ab5fb88448ccf37cd09a16b48f",
+        "e66505550eed0efe35dc0482f86609e7628bb269c6ed86eb39ed51801b17b5cb"
+      ],
+      "source_sha256": "ed5e5cdb3575ad275648dd74807b7e699f9f1923c705e0a89725b9dc950d87b1",
+      "text": "Return every regex group name this barcode answers to.\n\n:returns: a tuple of group names, the preferred spelling first and\n    any older accepted spellings after it."
+    },
+    "spacr.settings.BarcodeEntry.group_in": {
+      "source_blocks_sha256": [
+        "a425d4650a1840b40114acb5ae27531b7961cb235593a5b159687756d3f5cbe8",
+        "51e429074ad732b52e933c5cd0ef04a93c848c11fec502741efa225f0c3119ca",
+        "f30b76a8fb57f571195bad172ec367da5eafa9e4ad37c3f5358a0d6a2947eccf"
+      ],
+      "source_sha256": "73e0b16b242268ae088857682db694fa889d93da9ccd8cb81789790001be700f",
+      "text": "Return the spelling of this barcode's group that a regex uses.\n\n:param names: the group names a regex defines.\n:returns: the accepted group name the regex defines, or None when it\n    defines none of them."
+    },
+    "spacr.settings.BarcodeEntry.group_label": {
+      "source_blocks_sha256": [
+        "fad7402e0f2e7ba1b7b7877bcf74ed52ba08b2f4e3be2e9abe3df687834149ce",
+        "a0a890dadf1f6b8d1190f16c17a8b5ef3a919df3a0dcfb4779e1b2d707ba503f",
+        "7ec4a22c0a184a59f3e9b3b1fa5ba0639b80248504ca64e85ccf7b14a66a6755"
+      ],
+      "source_sha256": "076156015b40a6afaf78cdf472d359254a3fe7d6c68da12a3c904d1ca8d015ec",
+      "text": "Return this barcode's accepted group names as one label.\n\nSorted rather than preferred first, because this label lands in the\nmessage a user reads when the regex is missing a group, and the\nmessage spaCR has always printed names the older spelling first.\n\n:returns: the accepted group names joined by slashes."
+    },
+    "spacr.settings.BarcodeSet": {
+      "source_blocks_sha256": [
+        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "ded2ad28437c9bd2f3515ede17e5716d88c76a19b67f3ea25d02380d342e9e12",
+        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
+        "e9114b380382e0a75aff2d2344648c9e73b5b9e510aca38786e83a710fba3dfa"
+      ],
+      "source_sha256": "548c793b144d8a03d83beab1612c8c65ace5315d6c4655b5cdd49f8db45b2edf",
+      "text": "The ordered barcode types one Map Barcodes run decodes.\n\nA set replaces the three named reference settings the module started\nwith. Iterating it is how the run reaches every barcode, so a run with\none barcode and a run with ten differ only in what this holds.\n\nParameters\n----------\nentries:\n    The barcode types, in the order the run lists them. The annotated\n    reads carry each entry's sequence column and name column in this\n    order, after the read itself.\ncount_columns:\n    The name columns the per-well counts are grouped by, in the order\n    they are grouped. Left empty it is every entry's name column in\n    entry order. It can be set because the three barcodes spaCR shipped\n    for years are counted by row, then column, then guide, while the\n    reads list the column first; a set reproducing that run has to be\n    able to say so rather than quietly re-sort tables people already\n    have."
+    },
+    "spacr.settings.BarcodeSet.__iter__": {
+      "source_blocks_sha256": [
+        "144c908ab982eb93289254b5f9b7b78a5f8e2c521097418be19f39b52827ca5f",
+        "24bd768ba51ce037df7e1a47d0b83e5f33416eaf972d9d5bf8d6889d4a2cd3c8"
+      ],
+      "source_sha256": "1677b111d7d3c4109755411fd132541a039d90aee75431f9fef5a777e67de50c",
+      "text": "Iterate the barcodes in the order the run lists them.\n\n:returns: an iterator over the entries."
+    },
+    "spacr.settings.BarcodeSet.__len__": {
+      "source_blocks_sha256": [
+        "bc69de5d240f5887a7048cf1ae00d3b89c95dc11f931a77590dccd1870ebf2cd",
+        "eae096758db82f3cce02d9a97e8de3f38762a60dbbe0fa444cf927e404efc503"
+      ],
+      "source_sha256": "0714c69c4f9ac211a9c450eb6f33fd828dbfe282a557e540f86e4f8ac1e5d112",
+      "text": "Return how many barcodes this set decodes.\n\n:returns: the number of entries as an integer."
+    },
+    "spacr.settings.BarcodeSet.__post_init__": {
+      "source_blocks_sha256": [
+        "5d62b3f91b3c697f38be46bfe2d1808ea34ff994bcc2e3c730fff50e68edb234",
+        "e3e263ef1737519891f26a0398e82ee76ff2a2938fbf174d6fa8088193eea4c2",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "ad2c8c8c5ef7589780ced9705d2025f4a51a3bedd229b900de556767238a3fb6"
+      ],
+      "source_sha256": "20280181cf2ffac0bf4ad4d871550e983cf0f791c67b3bc340abb9208ff5253f",
+      "text": "Normalise the collection and refuse one that cannot decode a read.\n\nEvery check here is a way for two barcodes to become\nindistinguishable in the output, which is silent rather than loud:\ntwo entries sharing a name column overwrite each other in the\nannotated reads, and counts grouped by the wrong columns are still a\ntable full of plausible numbers.\n\n:returns: None.\n:raises ValueError: when the set is empty, when a member is not a\n    barcode entry, when two entries share a name, a regex group or\n    an output column, or when the count columns are not exactly the\n    entries' name columns."
+    },
+    "spacr.settings.BarcodeSet.id_columns": {
+      "source_blocks_sha256": [
+        "14d88a7740a57bfa93d23d5f756b099a4c399506cfa85dbe4fe5dee01e21b5a8",
+        "86b1f9abcf15b1b8237e4260a971d68d25f940eceb6e6b3f3439a46dc535885a"
+      ],
+      "source_sha256": "099904586741e1aaf5e78aa46b44215ac13fdfe641f86e6da6b583e98f9ccb3a",
+      "text": "Return the output column each barcode's resolved name lands in.\n\n:returns: a tuple of column names, in entry order."
+    },
+    "spacr.settings.BarcodeSet.names": {
+      "source_blocks_sha256": [
+        "2ab53e04c5e6ee67f8f22948848671e8c3bc792a38dd5ce18565edb115b4632d",
+        "bbaeeddce5657f4c61f10176405c35ab64ef8c7f373c88ac239c4ed52191132f"
+      ],
+      "source_sha256": "bf8855c623aafec67c83114206a2d233f72e9224950d589f88dd536b5661f452",
+      "text": "Return the name of each barcode, in entry order.\n\n:returns: a tuple of names."
+    },
+    "spacr.settings.BarcodeSet.resolve_groups": {
+      "source_blocks_sha256": [
+        "45b9f610d94574101d440f8570e3c619152c0918e717b28131222443ed965eca",
+        "e5714a9a19c4151e84d02ea28483911992d412946b1f2b6ee82fccb08b4b2792",
+        "9136ddb59564117007dcbdc0efaea39361251e0f72844028000f4478f8c35d8b",
+        "5588ea870c5e9a6953fc9ce828f9129afa1baa5beb4d190049954d6ec0b5f85a",
+        "4196e50c9fd7086bc620ff5df6f3bc0c18cfc33c9d90c79dc0a38de9b3fcbafc"
+      ],
+      "source_sha256": "c8e134098a99c6853cc77a0bd71f78731913b7a8eadcb53db2b06b46ffe8cc31",
+      "text": "Return the regex group each barcode is captured by.\n\nA set of five barcodes needs five named groups, and the failure this\nanswers is a regex that names four. That used to surface as a bare\n\"no such group\" from inside a worker process, several frames from\nanything a user configured, so the message here names the barcode\nthat has no group and then lists the groups the regex does define.\n\n:param regex: a compiled regular expression, or the pattern string\n    of one.\n:returns: a dict from each barcode's name to the group name the\n    regex spells it with.\n:raises ValueError: when the regex names no group for one or more of\n    the barcodes in this set."
+    },
+    "spacr.settings.BarcodeSet.sequence_columns": {
+      "source_blocks_sha256": [
+        "d0159a62c2fe4ee420e5ac9f5a19856b140dbdbd5593f1b23d128a87c49c107a",
+        "86b1f9abcf15b1b8237e4260a971d68d25f940eceb6e6b3f3439a46dc535885a"
+      ],
+      "source_sha256": "9c637f358d1f5702b5482b414fdd5be94bec60402ec6bd6f092e88d2b749c0a5",
+      "text": "Return the output column each barcode's raw sequence lands in.\n\n:returns: a tuple of column names, in entry order."
+    },
     "spacr.settings.advanced_object_of": {
       "source_blocks_sha256": [
         "eb95a2f6f808fd54008e22b1e2f05375f66ffa2b3a073a1d28025c9e1986c030",
@@ -92742,6 +93543,18 @@
       ],
       "source_sha256": "e7a112fa85c90df9e67978b080d6e23923512615a331c4eb07dfbe5f12536903",
       "text": "Which object a family member belongs to, or None.\n\nBoth spellings are understood -- `cell_min_size` and\n`remove_background_cell` -- because the sub-heading a key is drawn under\nhas to be the object it acts on whichever way round spaCR happens to\nname it.\n\n:param key: a settings key.\n:returns: the object name from :data:`ADVANCED_OBJECT_ORDER`, or None\n    when the key names no object."
+    },
+    "spacr.settings.barcode_set_from_settings": {
+      "source_blocks_sha256": [
+        "23d3a63abfefc43ee4990361c76f9c655adb2967c272cfba0e48a7d579534996",
+        "492d19f4f9d0fb8af010213c8758958a9c9c399c1a83c02eb9c436b19c5e581e",
+        "4d312f44397e8039faa0ae394c6fae8ab6a7c10fd62182e8f9e2139c2254fa40",
+        "3d30216d33c8c260c5865bc735473da91faa82782bd221dadd575f653eb4192a",
+        "5ba9f18bc8ffce5d833740b89591c9ed873275f86cfd5a3d3c68a8d59144ef3d",
+        "0494bba2e53fd71d124bebf071dc8e898b1bfb1d2def3853fbfc2d5d722892bc"
+      ],
+      "source_sha256": "91cb13a473f948d2583653ce80054f14cd2dc7ba7faad5fb475b7c809cfb954a",
+      "text": "Return the barcode set a Map Barcodes run was configured with.\n\nA settings file names its barcodes under ``barcode_set``, as a list with\none entry per barcode. An entry is a mapping of the fields of\n:class:`BarcodeEntry`, or just a name when the reference table for that\nname is already in the settings. An entry that names no reference table\ntakes the one under its own name followed by ``_csv``, and failing that\nthe reference of that name spaCR ships, so adding a fourth barcode to\nthe three that ship is a one-entry addition rather than a re-declaration\nof all four.\n\nAn entry named after one of the three barcodes spaCR shipped keeps the\nspellings that barcode has always had, for every field the settings file\ndoes not spell out itself. That is what makes a set of those three the\nrun they describe rather than a re-implementation of it: the same regex\ngroups, the same output columns, and the same order of the count table.\nA barcode named anything else derives its spellings from its own name.\n\n:param settings: a Map Barcodes settings mapping.\n:returns: the configured :class:`BarcodeSet`, or None when the settings\n    name no set. None is not an error and is the ordinary case: it means\n    the run decodes the plate column, the guide and the plate row named\n    by ``column_csv``, ``grna_csv`` and ``row_csv``, exactly as every\n    run did before a set could be named at all.\n:raises ValueError: when an entry is neither a name nor a mapping of\n    entry fields, when a mapping carries a field no entry has, or when\n    an entry names a reference table that cannot be resolved."
     },
     "spacr.settings.bundled_barcode_path": {
       "source_blocks_sha256": [
