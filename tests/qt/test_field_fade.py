@@ -337,7 +337,12 @@ def test_turning_it_off_restores_the_plain_field(qtbot, prefs_sandbox, qapp):
 
     # The QSS block is empty, not merely overridden.
     assert ff.field_fade_qss(theme_mod.palette_for("dark"), 0.6) == ""
-    assert "registered widget QSS: FieldFade" not in qapp.styleSheet()
+    # READ THE WINDOW SHEET. Instruction 380 moved the composed sheet off the
+    # QApplication, so `qapp.styleSheet()` is "" here and no marker is ever
+    # found in an empty string -- this line asserted nothing until 2026-09-13.
+    live = theme_mod.window_stylesheet(qapp) or ""
+    assert live, "no window sheet is installed; this assertion is about nothing"
+    assert "registered widget QSS: FieldFade" not in live
 
 
 def test_the_preferences_dialog_carries_the_toggle(qtbot, prefs_sandbox,

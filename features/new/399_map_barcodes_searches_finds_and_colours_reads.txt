@@ -1,0 +1,83 @@
+================================================================================
+MAP BARCODES SEARCHES FOR BARCODES, SETS ITS OWN SETTINGS, AND COLOURS READS
+================================================================================
+
+Status:    LANDED on nightly 2026-09-12, filed 2026-09-13. Not blocking.
+           The code is done and merged. The tutorial is not.
+Requested: 2026-09-12 -- "implementing a search function that searches for
+           barcodes and setts settings automatically, and the ability to find
+           more than 3, I.e. an arbitrary number of barcodes... The automatic
+           settings mode, should be like live mode if make, the user should
+           also see the matching barcodes in a text window with 1 read per row
+           and the different barcodes matches visualized by coloring different
+           barcodes different colors."
+Owner:     Claude session. Tutorial is the Codex session's, under 234's
+           do-not-touch rule.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Three things shipped, all on `origin/nightly`, none on `main`:
+
+  spacr/barcode_search.py      the detection engine. `search_barcodes()`
+                               reads a bounded sample of a FASTQ, scores every
+                               table against it, and returns a
+                               `BarcodeSearchReport`. `propose_map_barcodes_
+                               settings()` turns that into settings the
+                               mapping run already reads.
+  spacr/qt/widgets/read_view.py  one read per row, fixed pitch, each barcode
+                               type in its own theme-derived colour. It never
+                               searches and never imports the engine.
+  spacr/settings.py            `BarcodeEntry` and `BarcodeSet` replace the
+                               three hard-coded reference settings, so a run
+                               decodes an arbitrary number of barcodes rather
+                               than exactly three.
+
+THE CHANCE BASELINE IS THE POINT OF THE ENGINE. 32 eight-base barcodes match
+6.98 % of reads in a 150 bp read BY CHANCE. A percentage alone therefore
+proves nothing, which is why the report carries span (where the matches sit)
+and seen (how many of the table appear) as well as rate. That is also what
+the read view is for: 27.66 % on col_p2 looked like signal and was adapter --
+span 45 bases, 12 of 24 barcodes.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Before this, a misconfigured Map Barcodes run announced itself after an hour
+of mapping that produced no counts. Now it announces itself in one glance.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+1. Promote nightly to main so the API pages reach the deployed site. Blocked
+   only by the localization audit, which is red on the barcode modules.
+2. The tutorial. Lesson 12 `12_map_barcodes` is `status: coming_soon` in the
+   live catalog with no poster and no video. The screen is final, so it can
+   be recorded.
+3. NOT a defect of this feature, but found by it: the screen name
+   `Map Barcodes` is itself translated in 103 of 153 API blocks across nine
+   languages -- Korean and Hindi lose it in all 17. `_PROTECTED_TERMS` in
+   `tools/build_i18n_catalogs.py` lists `Hugging Face` and `HomePage` but no
+   screen names. Maintainer's call on 2026-09-13 was deploy first, fix after.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    curl -s https://einarolafsson.github.io/spacr/genindex.html \
+      | grep -c -E 'barcode_search|BarcodeSet|BarcodeEntry'
+
+Zero today, because the live site is built from `main`. Non-zero after the
+promote is what closes item 1.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+The engine does not reverse-complement the reference tables. It was claimed
+early that it must; the reads use the `primers_3` tables and row identity is
+present at 98.28 %, so the claim was wrong and was retracted rather than
+coded around.

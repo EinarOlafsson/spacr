@@ -1197,7 +1197,8 @@ def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
                 # cannot hold: 705 roles carry each of these, so naming the
                 # first spelling would leave every generated organelle slot
                 # silent -- the `organelleq_min_size` failure again.
-                from .object_roles import withdrawn_setting_reason
+                from .object_roles import (split_role_setting,
+                                   withdrawn_setting_reason)
 
                 gone = withdrawn_setting_reason(key)
                 if gone:
@@ -1236,6 +1237,28 @@ def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
     return problems
 
 
+def _object_role_in(key):
+    """The object role a settings key names, at EITHER end, or ``None``.
+
+    `<role>_suffix` is the common shape -- `cell_min_area` -- and
+    `object_roles.split_role_setting` handles it. But the shape that actually
+    produced a wrong suggestion puts the role LAST: `remove_background_organelle`
+    was matched to `remove_background_cell`, because the only difference is the
+    final word and `difflib` scores on characters. A guard that looked only at
+    the front would have missed the one case anybody has hit.
+
+    :param key: a settings key.
+    :returns: the role name, or ``None`` when the key names none.
+    """
+    from .object_roles import ALL_ROLES, split_role_setting
+
+    parts = split_role_setting(key)
+    if parts is not None:
+        return parts[0]
+    tail = str(key).rsplit("_", 1)[-1]
+    return tail if tail in ALL_ROLES else None
+
+
 def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem]:
     """Flag keys that look like a typo of a real setting.
 
@@ -1267,7 +1290,24 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
             # WRONG: it pointed `<role>_intensity_threshold_method`, which held
             # 'mean', at `<role>_intensity_threshold`, which holds a float.
             continue
-        close = difflib.get_close_matches(key, sorted(known), n=1, cutoff=0.85)
+        close = difflib.get_close_matches(key, sorted(known), n=5, cutoff=0.85)
+        # NEVER SUGGEST A NAME FROM A DIFFERENT OBJECT ROLE, because role is
+        # exactly the axis a user cannot see they crossed. `difflib` scores on
+        # characters, and `cell_`/`nucleus_`/`pathogen_`/`organelle_` keys share
+        # every character after the prefix -- so a typo in one role's setting
+        # matches another role's at well over the 0.85 cutoff, and the message
+        # reads as helpful.
+        #
+        # IT IS WORSE THAN SILENCE WHEN IT IS WRONG. Before the organelle
+        # preprocessing settings were declared (364), a user who worked out
+        # `remove_background_organelle` was told "did you mean
+        # 'remove_background_cell'?" -- and following that changes a DIFFERENT
+        # CHANNEL's preprocessing, quietly, on a run that then looks fine. A
+        # wrong suggestion gets FOLLOWED; silence at least gets investigated.
+        # 391 suppressed one instance of this; this is the rule behind it.
+        mine = _object_role_in(key)
+        if mine is not None:
+            close = [c for c in close if _object_role_in(c) in (None, mine)]
         if close:
             problems.append(Problem(
                 WARNING, key,

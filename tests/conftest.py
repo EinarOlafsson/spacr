@@ -2422,3 +2422,42 @@ def _the_accelerator_verdict_does_not_leak_between_tests(
         yield
     finally:
         accelerator._CACHED = _the_real_accelerator
+
+
+@pytest.fixture(autouse=True)
+def _the_app_registry_is_left_as_it_was_found():
+    """Undo a registration a test in plain ``tests/`` made.
+
+    ``tests/qt/conftest.py`` has restored this since the leak was first found,
+    and a conftest only covers the directory beneath it -- so the protection
+    stopped at ``tests/qt/`` while NINE callers of
+    ``spacr.qt.register_self_registering_modules()`` sit in plain ``tests/``.
+    Nine apps join the registry when it runs, and every later test in the
+    process saw a longer list than it saw alone.
+
+    MEASURED 2026-09-13, each run in one process before
+    ``tests/test_app_registry_parity.py`` and each making it fail:
+
+        test_a_settings_api_link_lands_on_the_setting
+        test_the_api_homepage_shows_the_module_structure
+        test_the_readme_describes_the_build_that_ships
+        test_user_facing_tone
+
+    with ``FOLDED names apps that still have a registry row: ['control_chart',
+    'feature_explorer', 'outliers', 'trellis']``. The parity file passes alone
+    every time, which is why a per-file loop never found it and a batched
+    sweep did.
+    """
+    try:
+        from spacr.qt import app as app_mod
+    except Exception:                                        # noqa: BLE001
+        yield
+        return
+    from tests.app_registry_state import (
+        app_registry_snapshot, restore_app_registry_to,
+    )
+    snapshot = app_registry_snapshot(app_mod)
+    try:
+        yield
+    finally:
+        restore_app_registry_to(app_mod, snapshot)

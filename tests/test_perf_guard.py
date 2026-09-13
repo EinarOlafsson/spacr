@@ -140,15 +140,22 @@ roots = {STARTUP_SCIENTIFIC!r}
 initial_scientific = [name for name in roots if name in sys.modules]
 late_module = "spacr.qt.screens.model_compare"
 late_module_absent = late_module not in sys.modules
-before = app.styleSheet()
+# READ THE WINDOW SHEET, NOT THE APPLICATION SHEET. Instruction 380 moved
+# the composed sheet off the QApplication and onto every top-level window,
+# and `apply_preferences_to_app` documents that `app.styleSheet()` is empty
+# by construction afterwards. Reading it here measured 0 characters -- which
+# is the correct value of the wrong quantity.
+from spacr.qt.theme import ensure_widget_qss_applied, window_stylesheet
+before = window_stylesheet(app) or ""
+app_sheet_before = app.styleSheet()
 model_compare = importlib.import_module(late_module)
 marker = "/* --- registered widget QSS: %s --- */" % (
     model_compare.MODEL_PANEL_NAME,
 )
-from spacr.qt.theme import ensure_widget_qss_applied
 scope = QWidget()
 local_applied = ensure_widget_qss_applied(
     model_compare.MODEL_PANEL_NAME, root=scope)
+after = window_stylesheet(app) or ""
 report(seconds=time.perf_counter() - start,
        apply_seconds=apply_seconds,
        qss_chars=len(before),
@@ -156,8 +163,9 @@ report(seconds=time.perf_counter() - start,
        expected=list(spacr.qt.SELF_REGISTERING_MODULES),
        initial_scientific=initial_scientific,
        late_module_absent=late_module_absent,
-       app_sheet_unchanged=app.styleSheet() == before,
-       late_marker_global=marker in app.styleSheet(),
+       app_sheet_empty=app_sheet_before == "",
+       app_sheet_unchanged=after == before,
+       late_marker_global=marker in after,
        late_marker_local=marker in scope.styleSheet(),
        local_applied=local_applied)
 """
@@ -392,6 +400,27 @@ def test_initial_preferences_are_light_and_late_widget_qss_is_local():
     class. The screen host applies it synchronously to the new root before
     first paint; importing it must not restyle every existing application
     widget.
+
+    WHAT THIS TEST MEASURES CHANGED UNDER IT, and only one of its four
+    stylesheet assertions noticed. Instruction 380 moved the composed sheet
+    from ``QApplication.setStyleSheet`` to each top-level window, so
+    ``app.styleSheet()`` became empty by construction. Measured 2026-09-13:
+
+        app.styleSheet()        0 characters
+        window_stylesheet(app)  49,287 characters
+
+    The ``qss_chars > 30_000`` floor went red and named the regression, which
+    is why it is here. THE OTHER TWO WENT QUIETLY VACUOUS AND KEPT PASSING:
+    ``"" == ""`` satisfies "the application sheet did not change", and no
+    marker is ever found in an empty string, so "the late block did not leak
+    globally" was true of nothing. A guard reading the wrong object reports a
+    pass for a reason unrelated to its invariant -- and had the floor not
+    existed, this file would still be green and guarding nothing.
+
+    So all three now read ``window_stylesheet``, and the empty application
+    sheet is asserted OUTRIGHT rather than assumed: ``apply_preferences_to_app``
+    treats a non-empty one as foreign by construction, which makes emptiness a
+    property worth pinning rather than a side effect worth reading through.
     """
     result = best_of(QT_APPLICATION_PREFERENCES, runs=2)
     assert result["registered"] == result["expected"], (
@@ -409,10 +438,15 @@ def test_initial_preferences_are_light_and_late_widget_qss_is_local():
         f"the launch prelude plus live preferences took {result['seconds']:.2f} s")
     assert result["late_module_absent"] is True, (
         "the representative on-demand screen was already imported at startup")
+    assert result["app_sheet_empty"] is True, (
+        "the QApplication carries a stylesheet of its own; instruction 380 "
+        "puts the composed sheet on the windows and treats a non-empty "
+        "application sheet as foreign, because it outranks nothing and "
+        "applies to every widget in the process")
     assert result["app_sheet_unchanged"] is True, (
-        "importing one late screen replaced the whole application stylesheet")
+        "importing one late screen replaced the whole window stylesheet")
     assert result["late_marker_global"] is False, (
-        "the late screen block leaked into the QApplication stylesheet")
+        "the late screen block leaked into the window stylesheet")
     assert result["local_applied"] is True
     assert result["late_marker_local"] is True, (
         "the late screen's registered block was not in its local scope "

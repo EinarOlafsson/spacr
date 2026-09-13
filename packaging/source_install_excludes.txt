@@ -25,7 +25,7 @@
 # figures that Read The Docs rebuilds from source anyway.
 !/docs/
 !/tests/
-!/instructions/
+!/features/
 !/Notebooks/
 !/proposals/
 !/tools/

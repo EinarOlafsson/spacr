@@ -691,7 +691,13 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # "Default X." claim, so only sixteen were ever in this census. The four
     # gained are the one absolute setting that replaces them,
     # `<role>_intensity_threshold`, whose "Default None." parses to None.
-    assert comparisons == 663
+    # 663 -> 666 on 2026-09-12, +3/-0 and all three from one finding:
+    # 364 declared `remove_background_organelle`, `organelle_background`
+    # and `organelle_signal_to_noise`, which io.py had been reading
+    # through `.get` fallbacks with nothing declaring them. Each carries
+    # a parseable "Default X." so each joins this census. The VALUES are
+    # the fallbacks they replace (False / 100 / 10), so no run changes.
+    assert comparisons == 666
     # 44 since 2026-09-02. Instruction 364 unified organelle's duplicated
     # size/area settings, and the surviving tooltip now NAMES its per-app
     # defaults ("Default 10 in Mask; Measure and External Masks start at 0")

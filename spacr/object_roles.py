@@ -352,7 +352,7 @@ RENAMED_SETTING_SUFFIXES: Dict[str, str] = {
 #: A WITHDRAWAL NEEDS A MESSAGE MORE THAN A RENAME DOES, not less. A renamed
 #: key has somewhere to send its value; a withdrawn one does not, so the only
 #: thing standing between the user and a silently ignored setting is being
-#: told. Instruction 391 is explicit: "do NOT silently drop an unrecognised
+#: told. The rule is explicit: do NOT silently drop an unrecognised
 #: key -- a settings file that quietly loses a value the user set is worse
 #: than one that refuses to load."
 #:

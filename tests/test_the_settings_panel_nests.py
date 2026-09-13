@@ -198,16 +198,32 @@ def test_the_preprocessing_family_shows_each_object_what_it_actually_has(
     """The lopsided family is grouped, not levelled.
 
     Cell, nucleus and pathogen can zero a background floor and set a
-    signal-to-noise anchor; organelle can also flatten with a rolling ball
-    and equalise with CLAHE. A shared heading with no object level would make
-    three objects look like they have settings they do not have -- with one,
-    each sub-heading shows exactly the keys its object offers, and the gap is
-    visible instead of implied.
+    signal-to-noise anchor; organelle can do both of those AND flatten with a
+    rolling ball and equalise with CLAHE. A shared heading with no object level
+    would make three objects look like they have settings they do not have --
+    with one, each sub-heading shows exactly the keys its object offers, and
+    the gap is visible instead of implied.
+
+    4 -> 7 ON 2026-09-13, AND THE PROSE ABOVE WAS ALREADY DESCRIBING THIS.
+    Until 364, `organelle` carried only the four rolling-ball and CLAHE keys.
+    It had NO background floor and NO signal-to-noise anchor -- it was the one
+    object channel whose background could not be removed -- while `io.py` read
+    `remove_background_organelle`, `organelle_background` and
+    `organelle_signal_to_noise` regardless. Declaring those three is what moved
+    this count.
+
+    So the word "also" in the first sentence was a claim about a world that did
+    not exist: it reads as "organelle does what the others do, and more", and
+    organelle did strictly less. The number was right about the gap and the
+    sentence was wrong about it, which is why the sentence is the part that
+    changed least here -- one word.
     """
     family = _named(mask_tree, "Image Preprocessing (per object)")
     sizes = {child.title: len(child.own_rows) for child in family.children}
     assert sizes["Cell"] == sizes["Nucleus"] == sizes["Pathogen"] == 3
-    assert sizes["Organelle 1"] == 4
+    # 3 shared (background, signal_to_noise, remove_background) + 4 organelle
+    # only (rolling_ball, rolling_ball_radius, clahe, clahe_clip_limit).
+    assert sizes["Organelle 1"] == 7
 
 
 def test_the_per_object_family_is_not_the_whole_image_one():

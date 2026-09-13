@@ -40,7 +40,22 @@ def test_every_registered_displayed_setting_has_authored_help():
     # Fresh forms now start with zero organelles, so inactive generated slots
     # no longer inflate this occurrence count. Ratchet the complete current
     # registry instead of retaining the pre-count threshold.
-    assert checked >= 759, (
+    #
+    # 759 -> 754 on 2026-09-12, and the delta is NOT one change's arithmetic.
+    # 759 was set on 2026-08-30 (5effb31ec) and this floor only trips when the
+    # count FALLS, so it sat unmoved while a fortnight of additions raised it.
+    # Instruction 391 then removed five settings at four object roles -- twenty
+    # declared keys -- and added one absolute threshold at four, which is -16
+    # on its own. The net being -5 means roughly eleven settings were added by
+    # other work in between. Anyone reading -5 as "391 removed five settings"
+    # would be wrong twice over.
+    #
+    # THE ASSERTION THAT MATTERS IS THE ONE BELOW, not this one. `missing` is
+    # empty: every displayed setting, including the four new
+    # `<role>_intensity_threshold` keys, has authored help. This floor only
+    # catches the registry becoming less exhaustive, and a deliberate removal
+    # is not that.
+    assert checked >= 754, (
         f"only {checked} setting occurrences were checked; the registry "
         "inventory is no longer exhaustive")
     assert not missing, (

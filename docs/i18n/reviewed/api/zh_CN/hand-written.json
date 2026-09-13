@@ -1,0 +1,13 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "The count columns can be set separately because the three barcodes spaCR shipped for years are counted by row, then column, then guide, while the reads list the column first. A set reproducing that run has to be able to say so, rather than quietly re-sort tables people already have.",
+      "label": "spacr.settings.BarcodeSet#2",
+      "source": "The count columns can be set separately because the three barcodes spaCR shipped for years are counted by row, then column, then guide, while the reads list the column first. A set reproducing that run has to be able to say so, rather than quietly re-sort tables people already have.",
+      "source_sha256": "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
+      "translation": "计数列可以单独设置，因为 spaCR 多年来提供的三个条形码是按行、再按列、再按引导序列计数的，而读段中列排在最前面。能够重现该运行的条形码集必须可以表达这一点，而不是悄悄地重新排序用户已有的表格。"
+    }
+  ],
+  "schema": 1
+}

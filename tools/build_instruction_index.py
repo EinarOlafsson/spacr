@@ -47,6 +47,24 @@ INDEX = INSTRUCTIONS / "00_INDEX.txt"
 #: wrong means two sessions editing one file.
 OWNERS: Dict[str, str] = {}
 
+#: Item numbers that are already used twice, measured on 2026-09-13 and
+#: named rather than counted. A number is the only handle anyone has on an
+#: item -- HANDOFF, the trailing notes and the commit messages all cite items
+#: by number -- so two files sharing one makes every citation ambiguous.
+#:
+#: THIS IS A RATCHET, NOT A PARDON. `--check` fails on any duplicate NOT in
+#: this set, so the eight below can be resolved one at a time without a new
+#: one slipping in behind them. Removing a member is the only edit that
+#: should ever be made here.
+#:
+#: Three are the same topic recorded twice at different stages (58, 82, 83)
+#: and want merging; five are genuinely different topics that collided (84,
+#: 176, 177, 234, 377) and want renumbering.
+KNOWN_DUPLICATE_NUMBERS: frozenset[str] = frozenset({
+    "58", "82", "83", "84", "176", "177", "234", "377",
+})
+
+
 #: Why an item cannot be worked, when the reason is outside the repository.
 BLOCKED: Dict[str, str] = {
     "44": "needs a macOS/Windows host",
@@ -149,6 +167,37 @@ def _note_for(number: str) -> str:
     return ""
 
 
+def _sort_key(number: str) -> tuple[int, str]:
+    """Order item numbers numerically, tolerating a non-numeric name."""
+    return (int(number), "") if number.isdigit() else (1 << 30, number)
+
+
+def _files_for_number(number: str) -> List[str]:
+    """Every feature file whose name starts with this item number."""
+    found: List[str] = []
+    for folder in ("future", "new"):
+        base = INSTRUCTIONS / folder
+        if not base.is_dir():
+            continue
+        found += sorted(path.name for path in base.glob(f"{number}_*"))
+    return found
+
+
+def _duplicate_numbers() -> set:
+    """Item numbers carried by more than one file, across both lists."""
+    seen: Dict[str, int] = {}
+    for folder in ("future", "new"):
+        base = INSTRUCTIONS / folder
+        if not base.is_dir():
+            continue
+        for path in base.iterdir():
+            number = path.name.split("_", 1)[0]
+            if not number.isdigit():
+                continue
+            seen[number] = seen.get(number, 0) + 1
+    return {number for number, count in seen.items() if count > 1}
+
+
 def render(today: str = "") -> str:
     """The whole index as text."""
     future_rows = _entries("future")
@@ -163,7 +212,7 @@ def render(today: str = "") -> str:
 
     lines = [
         "=" * 80,
-        "SPACR FEATURES -- NEW, AND FUTURE",
+        "spaCR FEATURES -- NEW, AND FUTURE",
         "=" * 80,
         "",
         f"Regenerated {stamp} by `tools/build_instruction_index.py`, from the "
@@ -232,8 +281,22 @@ def main(argv=None) -> int:
         return "\n".join(line for line in text.splitlines()
                          if not line.startswith("Regenerated "))
 
+    duplicates = _duplicate_numbers()
+    unexpected = sorted(duplicates - KNOWN_DUPLICATE_NUMBERS, key=_sort_key)
+    resolved = sorted(KNOWN_DUPLICATE_NUMBERS - duplicates, key=_sort_key)
+    for number in unexpected:
+        print(f"DUPLICATE item number {number}: "
+              + ", ".join(_files_for_number(number)))
+    if resolved:
+        print("resolved duplicates, drop from KNOWN_DUPLICATE_NUMBERS: "
+              + ", ".join(resolved))
+
     fresh = render()
     if args.check:
+        if unexpected:
+            print(f"STALE -- {len(unexpected)} item number(s) used twice and "
+                  "not in KNOWN_DUPLICATE_NUMBERS")
+            return 1
         if body(current) == body(fresh):
             print("the index matches the instruction files")
             return 0

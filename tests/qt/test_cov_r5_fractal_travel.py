@@ -38,7 +38,8 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QPoint                              # noqa: E402
+from PySide6.QtCore import QPoint, Qt                          # noqa: E402
+from PySide6.QtWidgets import QApplication                     # noqa: E402
 from PySide6.QtWidgets import QWidget                          # noqa: E402
 
 from spacr.qt import preferences as P                          # noqa: E402
@@ -76,6 +77,38 @@ class _StubWidget:
 
     def height(self):
         return self._height
+
+
+@pytest.fixture(autouse=True)
+def _no_mouse_button_is_held(monkeypatch):
+    """Decide the mouse BUTTONS here, for `_StubWidget`'s own reason.
+
+    `_StubWidget` exists because `Pointer.sample` reads the process-global
+    `QCursor.pos()`, so "where the pointer lands relative to the widget is
+    whatever the session's cursor happens to be doing". It fixes the position
+    and stops there. `sample` reads a SECOND piece of process-global state on
+    the very next line:
+
+        buttons = QApplication.mouseButtons()
+        ...
+        wanted_pull = 0.0 if (left or right) else within
+
+    A held button means the user is DRAGGING, and a drag deliberately suppresses
+    the pull. So any earlier test in the process that synthesises a mouse press
+    without a matching release makes every pull assertion in this file read
+    0.0 for a reason that has nothing to do with the file.
+
+    MEASURED 2026-09-13, in a 60-file batch of the full sweep:
+
+        no button held              pull after 40 samples  0.9158   passes
+        LeftButton held             pull after 40 samples  0.0000   fails
+
+    which is exactly the failure the sweep reported, and the file passes alone.
+    Same shape as the stylesheet work of the same day: the author saw one piece
+    of global state, fixed it, and the identical problem one line below stayed.
+    """
+    monkeypatch.setattr(QApplication, "mouseButtons",
+                        staticmethod(lambda: Qt.MouseButton.NoButton))
 
 
 def test_a_widget_that_is_not_on_screen_puts_the_pointer_outside(qapp):

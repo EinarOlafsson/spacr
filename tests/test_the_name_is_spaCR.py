@@ -42,6 +42,32 @@ SKIP_PARTS = (
     "spacr.egg-info", "docs/i18n/", "docs/source/_static/i18n/",
     "i18n_catalogs", "docs/_sources/", "docs/_build/",
 )
+#: `.txt` IS DELIBERATELY ABSENT, and the reason is measured rather than
+#: assumed. The feature ledger under `features/` is 400-odd `.txt` files and
+#: they carry 58 mis-cased mentions, so adding the extension looks like free
+#: coverage. It is not. Measured 2026-09-12, the 58 are:
+#:
+#:   15  ALL-CAPS BANNER LINES. Every ledger file opens with an upper-case
+#:       title and the generated index reprints them, so `SPACR` there is the
+#:       house style of the line, not a spelling of the name.
+#:   ~20 ALL-CAPS LEAD CLAUSES inside prose -- the ledger's way of opening a
+#:       paragraph ("SPACR ALREADY REFUSES THAT COLLISION. `multi_database`
+#:       ..."). Same style, mid-file.
+#:    ~9 QUOTED EVIDENCE. 288 lists offenders found in OTHER files, with path
+#:       and line number. Correcting the quotation would make the report
+#:       disagree with the file it reports on, which is the one thing a
+#:       report of that kind must not do -- and those files are the tutorial
+#:       lane, owned elsewhere.
+#:   ~14 PUBLISHED INSTALLER ASSET NAMES, which `ALLOWED_LINES` and the
+#:       `ASSET` pattern below already exempt everywhere else for the reason
+#:       given there: the file on GitHub is named what it is named.
+#:
+#: So scanning `.txt` would cost three new exemptions and catch nothing that
+#: is wrong. The one real defect this file has ever found in that corner was
+#: caught anyway, because it lived in the GENERATOR: `build_instruction_index`
+#: wrote a `SPACR` banner into `features/00_INDEX.txt`, and the generator is
+#: `.py`. That is the general shape -- generated text is best checked where it
+#: is written, not where it lands.
 EXTENSIONS = {".py", ".rst", ".md", ".sh", ".ps1", ".yml", ".yaml",
               ".toml", ".cfg", ".desktop", ".spec"}
 

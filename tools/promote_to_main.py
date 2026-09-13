@@ -28,7 +28,7 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, Tuple
 
 #: Tracked on ``nightly``, never on ``main``. Directory prefixes, matched
 #: against ``git ls-tree`` output, so a name here covers everything under it.
@@ -145,6 +145,125 @@ def _echo(command: Sequence[str], out) -> None:
     print("    git " + " ".join(command), file=out)
 
 
+def upstream_gap(repo: Path, branch: str) -> Optional[Tuple[str, int]]:
+    """The branch's upstream and how many commits it is ahead of ``branch``.
+
+    Returns None when the branch has no upstream configured, which is a
+    legitimate state -- a fresh clone, a branch never pushed -- and not
+    something a promotion should refuse over.
+
+    :param repo: working tree to ask in.
+    :param branch: the local branch to measure.
+    :returns: ``(upstream_name, commits_behind)``, or None if no upstream.
+    """
+    upstream = run_git(repo, "rev-parse", "--abbrev-ref",
+                       f"{branch}@{{upstream}}", check=False)
+    if not upstream:
+        return None
+    behind = run_git(repo, "rev-list", "--count", f"{branch}..{upstream}",
+                     check=False)
+    return (upstream, int(behind)) if behind.isdigit() else None
+
+
+def refuse_if_stale(repo: Path, branches: Sequence[str]) -> None:
+    """Stop a promotion whose local branches trail their upstreams.
+
+    THIS IS THE CHECK THAT WAS MISSING, AND ITS ABSENCE WAS WORSE THAN A
+    WRONG ANSWER. A promotion merges the LOCAL branch. On 2026-09-13 the
+    local ``nightly`` here was 147 commits behind ``origin/nightly``, and a
+    dry run duly reported "not tracked on nightly, nothing to drop:
+    features/" -- true of that stale ref, false of the branch the maintainer
+    meant. A real run would have merged four-month-old work into ``main``,
+    dropped no working folder because none was there to drop, and printed
+    every line of a successful promotion while doing it.
+
+    Being behind is therefore refused rather than warned about: the failure
+    mode is a promotion that LOOKS right, and a warning in a wall of
+    otherwise-correct output is not a defence against that.
+
+    :param repo: working tree to check.
+    :param branches: the local branches a promotion is about to use.
+    :raises PromotionError: when any of them is behind its upstream.
+    """
+    stale = []
+    for branch in branches:
+        gap = upstream_gap(repo, branch)
+        if gap is not None and gap[1]:
+            stale.append((branch, gap[0], gap[1]))
+    if not stale:
+        return
+    lines = [
+        f"  {branch} is {count} commit{'' if count == 1 else 's'} "
+        f"behind {upstream}"
+        for branch, upstream, count in stale
+    ]
+    remedy = [f"  git branch -f {branch} {upstream}"
+              for branch, upstream, _ in stale]
+    raise PromotionError(
+        "the local branches are behind their upstreams:\n"
+        + "\n".join(lines)
+        + "\n\nA promotion merges the LOCAL branch, so this would ship a "
+          "stale tree and drop nothing, because the working folders may not "
+          "exist on the older ref.\n\nFetch and fast-forward first:\n"
+          "  git fetch origin\n"
+        + "\n".join(remedy)
+        + "\n\n(`git branch -f` refuses a branch that is checked out "
+          "somewhere; in that worktree use `git merge --ff-only` instead.)"
+          "\n\nNothing was changed.")
+
+
+def resolve_dropped_conflicts(
+    repo: Path,
+    conflicts: Sequence[str],
+    folders: Sequence[str],
+    out,
+) -> None:
+    """Settle merge conflicts that lie inside folders about to be dropped.
+
+    EVERY PROMOTION AFTER THE FIRST ONE HITS THESE, and they are not real
+    conflicts. `target` deleted the working folders in its own "drop"
+    commit; `source` went on editing them, because that is where the work
+    is written. Git sees delete-here, modify-there and stops -- on files
+    the very next step removes from `target` again.
+
+    Taking `source`'s version is therefore not a judgement call about whose
+    content wins. The content is about to leave `target`'s index either
+    way; resolving simply lets the merge record that `source` is an
+    ancestor, which is what makes the NEXT promotion a clean fast merge
+    rather than a replay of the same collisions.
+
+    A conflict OUTSIDE those folders is a different animal -- two people
+    editing the product -- and stops the promotion for a human.
+
+    :param repo: the working tree, already on ``target`` mid-merge.
+    :param conflicts: paths git reports as unmerged.
+    :param folders: the directory prefixes this promotion drops.
+    :param out: where progress is written.
+    :raises PromotionError: when any conflict falls outside ``folders``.
+    """
+    prefixes = tuple(f"{folder.rstrip('/')}/" for folder in folders)
+    outside = [path for path in conflicts
+               if not path.startswith(prefixes)]
+    if outside:
+        run_git(repo, "merge", "--abort", check=False)
+        raise PromotionError(
+            "the merge conflicts outside the folders this promotion drops:"
+            "\n" + "\n".join(f"  {path}" for path in outside)
+            + "\n\nThose are edits to the product itself and need a person. "
+              "The merge was aborted and nothing was changed.")
+    print(f"settling {len(conflicts)} conflict"
+          f"{'' if len(conflicts) == 1 else 's'} inside the dropped folders",
+          file=out)
+    for path in conflicts:
+        # `git rm` rather than `add`: the path is deleted on target and the
+        # next step drops it anyway, so staging the deletion resolves the
+        # conflict without carrying content into a tree that will not keep
+        # it. The file stays on disk and stays tracked on source.
+        run_git(repo, "rm", "-r", "--quiet", "--force", "--", path,
+                check=False)
+        run_git(repo, "add", "-A", "--", path, check=False)
+
+
 def promote(
     repo: Path,
     source: str = DEFAULT_SOURCE,
@@ -183,6 +302,8 @@ def promote(
             raise PromotionError(
                 f"branch {branch!r} does not exist in {root}. Nothing was "
                 "changed.")
+
+    refuse_if_stale(root, (source, target))
 
     started_on = current_branch(root)
     present = tracked_working_folders(root, source, folders)
@@ -242,7 +363,16 @@ def promote(
     run_git(root, "checkout", target)
     try:
         print(f"merging {source}", file=out)
-        run_git(root, "merge", "--no-ff", "-m", merge_message, source)
+        merged = run_git(root, "merge", "--no-ff", "-m", merge_message,
+                         source, check=False)
+        conflicts = [line for line in
+                     run_git(root, "diff", "--name-only", "--diff-filter=U",
+                             check=False).splitlines() if line]
+        if conflicts:
+            resolve_dropped_conflicts(root, conflicts, folders, out)
+            run_git(root, "commit", "--no-edit")
+        elif merged is None:
+            pass
 
         # Asked again, of the target, AFTER the merge: the merge is what
         # brings the folders across, and a folder retired on source between

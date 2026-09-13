@@ -1,14 +1,31 @@
 """The packaged setting animations are too small until they are zoomed.
 
-Measured across all 94 assets as generated, the content — everything that is
+Measured across all 86 assets as generated, the content — everything that is
 neither the black background nor the rounded field the generator draws around
-every scene — covers a median of 63.9 % of the square. 72 of the 94 are below
-70 % and the smallest, ``nucleus_diameter``, covers 22.8 %. Shown at tooltip
+every scene — covers a median of 66.7 % of the square. 56 of the 86 are below
+70 % and the smallest, ``nucleus_diameter``, covers 22.5 %. Shown at tooltip
 size that is a handful of pixels of illustration adrift in black.
+
+Those four figures read 94 / 63.9 % / 72 / 22.8 % until now, and they are
+re-measured here rather than re-pointed at whatever the helper happens to
+emit. Two unrelated things moved them.
+
+The corpus lost the eight animations for the removed intensity-percentile
+settings, 94 -> 86, and that is the part this file was failing on. The median
+and the counts, though, had been wrong since 2026-08-20, long before that:
+re-measuring the assets as they stood on 2026-08-03 with today's helper still
+reproduces 63.9 % / 72 / 22.8 % exactly, so the old prose was right for the
+assets it was written against and went stale when the animations were
+regenerated. Dating it that way also proves the re-encode was as harmless as
+it claimed — every one of the 86 surviving animations measures to the same
+extent, to the pixel, before and after.
 
 :mod:`spacr.qt.widgets.animation_zoom` measures each animation once and crops
 and rescales it so the content lands in a 70-80 % band. These tests measure
-the real assets, before and after, with the same helper the widget uses.
+the real assets, before and after, with the same helper the widget uses. That
+module's own docstring still quotes the 2026-08-03 figures; it is translated
+into nine languages, so correcting it belongs to the catalog lane and not
+here.
 """
 from __future__ import annotations
 
@@ -22,6 +39,16 @@ from spacr.setting_animations import animations_by_setting, setting_animations
 #: A deterministic spread across the whole measured range, chosen by
 #: percentile from the full corpus: the two smallest, the median, and the
 #: largest — which is the only case that has to be scaled *down*.
+#:
+#: ``organelle_max_intensity_percentile`` held one of these slots at 76.9 %
+#: until its setting and its GIF were removed together. ``cell_min_area``
+#: takes the slot because it is the nearest surviving animation in the
+#: measured range — 77.2 %, one source pixel wider (278 against 277 of 360) —
+#: and not for anything about its name. What the slot is for is an animation
+#: whose content already sits inside the 70-80 % band, so the zoom has to
+#: nudge it rather than magnify it; the sample's only other in-band member,
+#: ``nucleus_signal_to_noise``, sits exactly on the 80 % edge, which is a
+#: boundary case and not a substitute for one comfortably inside.
 SAMPLE = (
     "nucleus_diameter",
     "smooth_lines",
@@ -32,7 +59,7 @@ SAMPLE = (
     "nucleus_signal_to_noise",
     "nucleus_max_area",
     "normalization_percentiles",
-    "organelle_max_intensity_percentile",
+    "cell_min_area",
     "organelle_mask_within_cells",
     "pathogen_remove_border_objects",
 )
@@ -69,10 +96,24 @@ def test_the_animations_are_mostly_too_small_as_generated():
     reconsidered instead of silently doing nothing.
     """
     extents = [_source_extent(a) for a in setting_animations()]
-    assert len(extents) == 94
+    # 86, down from 94. Diffed as slug sets against the corpus as it stood
+    # before the removal: eight left, none arrived, nothing was renamed into
+    # or out of the set. The eight are the dim/bright pair at all four object
+    # roles — cell, nucleus, organelle and pathogen, each of them
+    # ``_min_intensity_percentile`` and ``_max_intensity_percentile`` — whose
+    # settings went with them, so a GIF explaining any of them would now
+    # illustrate a setting nobody can type.
+    assert len(extents) == 86
     below = [value for value in extents if value < az.MIN_FILL]
+    # Re-checked as a claim about the population, not carried over. Six of the
+    # eight departed animations measured above 70 % and two below, so the
+    # majority narrowed from 58 of 94 to 56 of 86 — 62 % to 65 % of the corpus,
+    # which is a majority that grew. The corpus median moved the other way,
+    # 67.1 % to 66.7 %, because what left sat mostly above it.
     assert len(below) > len(extents) / 2, (
         "the assets no longer under-fill their frame; re-check the zoom")
+    # ``nucleus_diameter`` at 22.5 % is still the smallest and was not touched
+    # by the removal; nothing that left was anywhere near this floor.
     assert min(extents) < 0.30
 
 
@@ -96,7 +137,7 @@ def test_a_real_animation_zooms_into_the_seventy_to_eighty_band(slug):
 
 @pytest.mark.heavy
 def test_every_packaged_animation_zooms_into_the_band():
-    """All 94, not a sample — the slow, complete version of the test above."""
+    """All 86, not a sample — the slow, complete version of the test above."""
     out_of_band = []
     for animation in setting_animations():
         zoomed = az.zoomed_animation(str(animation.path), DISPLAY_SIZE)

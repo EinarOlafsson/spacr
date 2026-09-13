@@ -269,6 +269,31 @@ def test_the_visible_count_went_down_and_this_is_the_number():
     organelle does to its CHANNEL before anything is segmented, which is the
     same question the other objects' background floor answers.
 
+    IT THEN DROPPED BY ONE MORE, FROM 31 TO 30, WITHOUT ANYTHING BEING
+    DELETED. The split floor `<role>_min_object_area` had already been
+    renamed once, to `<role>_min_split_area`, while the object-filtration
+    family still matched on the ORIGINAL suffix -- so that family matched no
+    key at all for the split floor and every object's floor stayed stranded
+    under its own object heading, `organelle_min_split_area` under
+    "Organelle advanced". The move to absolute intensities renamed it a
+    second time, to `<role>_minimum_area_to_split`, and spelled the new name
+    in the family table as well, so the floor now files with
+    `organelle_min_area` and `organelle_max_area`, which is where it always
+    belonged. Measured slot by slot: exactly one key left each of the 702
+    roles and none arrived.
+
+    THE FIVE RELATIVE SETTINGS THAT WENT AT THE SAME TIME ARE NOT IN THIS
+    NUMBER, because none of them lived under this heading. Four were under
+    "Intensity handling", which went from 6 keys per slot to 3 as
+    `organelle_intensity_threshold_method`, `organelle_intensity_percentile`,
+    `organelle_min_intensity_percentile` and
+    `organelle_max_intensity_percentile` left and the absolute
+    `organelle_intensity_threshold` arrived. The fifth,
+    `organelle_area_multiplier`, was under "Object filtration", which stayed
+    at 7 per slot because the split floor arrived there as the multiplier
+    left. Per slot across the five headings: 51 organelle keys before, 47
+    now.
+
     The per-slot arithmetic is unchanged and the multiplier is what moved:
     the headings are generated for every slot `number_of_organelles` CAN
     name rather than for a fixed four, because a category is what makes a
@@ -287,19 +312,36 @@ def test_the_visible_count_went_down_and_this_is_the_number():
     # summarize_organelles_by is shared, while every detection knob is cloned
     # once per slot.
     #
-    # WRITTEN AS 1 + 31 * MAX, not 31 + 30 * (MAX - 1). The old form said
-    # the first slot has 31 keys and every later one has 30, which was a
-    # way of writing "30 cloned knobs plus the one shared key" that only
+    # WRITTEN AS 1 + 30 * MAX, not 30 + 29 * (MAX - 1). The old form said
+    # the first slot has one more key than every later one, which was a
+    # way of writing "the cloned knobs plus the one shared key" that only
     # worked while the knob count happened to be one less than the first
-    # slot's total. There are 31 cloned knobs now, and the old form was
-    # 702 short without naming which of its two numbers had moved.
-    # Measured: 702 roles of exactly 31 keys each, plus
-    # summarize_organelles_by, which belongs to no slot.
+    # slot's total, and it went 702 short without naming which of its two
+    # numbers had moved.
+    #
+    # 31 -> 30, MEASURED against the same two sets built from the tree as
+    # it stood before the rename, not read off what the code now emits:
+    #   LEFT    organelle_min_split_area -- one key, from every one of the
+    #           702 roles. It is not gone: it is spelled
+    #           organelle_minimum_area_to_split now and drawn under
+    #           "Object filtration", because the family table was matching
+    #           a name the key had lost two renames ago and matched it
+    #           again once both spellings were brought up to date.
+    #           MOVED, NOT HIDDEN -- test_everything_is_still_reachable is
+    #           what holds that line.
+    #   ARRIVED nothing.
+    # So 1 + 30 * 702 = 21061 keys, against 1 + 31 * 702 = 21763 before:
+    # 702 roles of exactly 30 keys each, plus summarize_organelles_by,
+    # which belongs to no slot.
     advanced = categories["Organelle advanced"]
     shared = [key for key in advanced if organelle_role_of(key) in (None, "")]
     assert shared == ["summarize_organelles_by"]
-    assert len(advanced) == len(shared) + 31 * MAX_ORGANELLES
-    # Still 53 + organelle_type, just spread across five headings now.
+    assert len(advanced) == len(shared) + 30 * MAX_ORGANELLES
+    # 54 IS A FLOOR, NOT THE COUNT, and it is here to catch a heading
+    # dropped on the floor rather than to pin the arithmetic: the five
+    # headings hold 47 organelle keys per slot now (3 + 30 + 7 + 3 + 4),
+    # down from 51, with organelle_channel, organelle_mask_dim and
+    # organelle_chann_dim filed under General on top of that.
     total = sum(len(categories[c]) for c in ORGANELLE_HOME_HEADINGS)
     assert total >= 54
 

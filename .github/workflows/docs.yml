@@ -66,7 +66,7 @@ jobs:
     #     AUDIT LOCALIZATION CATALOGS         24.2 min
     #     build docs                           3.8 min
     #
-    # The audit is the cost: ten API catalogs of 10,337 symbols and ten
+    # The audit is the cost: ten API catalogs of 10,478 symbols and ten
     # runtime catalogs, every one verified on every docs build. That is
     # 30 minutes of work against a 30 minute budget, so the job was going to
     # be flaky even on the runs it survived. Raising the ceiling is the fix
@@ -137,8 +137,26 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
         run: |
+          # BOTH LANES ALWAYS RUN, AND THAT IS THE WHOLE POINT OF THE
+          # BOOKKEEPING. These are two independent catalogs -- the API
+          # lane and the runtime lane -- and the step used to be two bare
+          # commands under `bash -e`, so a red API lane exited before the
+          # runtime lane was ever asked. The API lane was red for fifteen
+          # consecutive runs on 2026-09-13, which means the runtime audit
+          # went unrun for fifteen runs and a regression in it would have
+          # surfaced only once the unrelated lane was fixed.
+          set +e
           python tools/build_documentation_i18n.py --audit
+          api=$?
           python tools/build_i18n_catalogs.py --audit
+          runtime=$?
+          set -e
+          echo "audit exits: api=$api runtime=$runtime"
+          if [ "$api" -ne 0 ] || [ "$runtime" -ne 0 ]; then
+            [ "$api" -ne 0 ] && echo "FAILED: the API catalog lane"
+            [ "$runtime" -ne 0 ] && echo "FAILED: the runtime catalog lane"
+            exit 1
+          fi
 
       - name: Build docs
         env:

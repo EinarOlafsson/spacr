@@ -5,8 +5,13 @@ Five entries in the panel -- ``auto``, ``Overlay``, ``Masks``, ``Flows`` and
 back with ``currentText()``: translating the caption moved the value with it,
 so every lookup missed. Two more dropdowns were NOT marked and did exactly
 that, silently. On a Swedish screen the segmentation object box handed the
-worker ``cellen``, and the intensity threshold wrote ``medelvärde`` into
-``cell_intensity_threshold_method``, a setting that only accepts ``mean``.
+worker ``cellen`` instead of ``cell``.
+
+The second example used to be the intensity threshold method, which wrote
+``medelvärde`` into a setting that only accepted ``mean``. That setting was
+withdrawn when the relative intensity scheme was replaced, so the example is
+gone while the trap it illustrates is not: any dropdown whose handler reads
+``currentText()`` moves its value when the caption is translated.
 
 Every entry now keeps its English value in the item's DATA, so the caption is
 free to follow the language. These tests read the caption and the value apart
@@ -121,26 +126,6 @@ def test_the_worker_is_asked_for_a_compartment_it_knows(panel, language):
         assert f"remove_background_{compartment}" in settings
         assert f"{compartment}_signal_to_noise" in settings
     assert not [key for key in settings if key.startswith("cellen")]
-
-
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_the_threshold_method_propagates_as_a_value_spacr_accepts(
-        panel, language):
-    """``mean``/``percentile`` reach the settings dict whatever the caption reads."""
-    retranslate_widget_tree(panel, language)
-    methods = {key: value
-               for key, value in panel._compartment_settings().items()
-               if key.endswith("intensity_threshold_method")}
-
-    assert methods
-    assert set(methods.values()) == {"mean"}
-
-    for widget in panel._compartment_widgets["cell"].values():
-        if isinstance(widget, QComboBox):
-            widget.setCurrentIndex(
-                LP.INTENSITY_THRESHOLD_METHODS.index("percentile"))
-    assert panel._compartment_settings()[
-        "cell_intensity_threshold_method"] == "percentile"
 
 
 @pytest.mark.parametrize("language", LANGUAGES)

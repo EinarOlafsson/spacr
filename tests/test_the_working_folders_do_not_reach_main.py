@@ -197,5 +197,141 @@ class TestItRefusesRatherThanGuess:
             ["--repo", str(repo), "--execute",
              "--folder", "features", "--folder", "never_existed"]) == 0
         assert "spacr/feature.py" in tracked(repo, "main")
+        # `features/`, NOT `instructions/`. This assertion named the old
+        # folder until 2026-09-13 and the fixture has never created one, so
+        # it matched nothing and could not fail -- a guard that passes because
+        # it is looking in an empty place. The folder this test promotes is
+        # `features`, so that is the one that must not reach main.
         assert not {p for p in tracked(repo, "main")
-                    if p.startswith("instructions/")}
+                    if p.startswith("features/")}
+
+
+class TestAStaleLocalBranchIsRefused:
+    """A promotion merges the LOCAL branch, so a stale one must not run.
+
+    The failure this guards is not a crash. On 2026-09-13 the local
+    ``nightly`` in the working checkout was 147 commits behind
+    ``origin/nightly``, and the dry run reported "not tracked on nightly,
+    nothing to drop: features/" -- true of that old ref and false of the
+    branch anyone meant. A real run would have merged stale work into
+    ``main``, dropped nothing because there was nothing there to drop, and
+    printed a clean report while doing it.
+    """
+
+    @staticmethod
+    def _with_upstream(root: Path, tmp_path: Path) -> Path:
+        """Give ``root`` an origin that is one commit ahead on nightly."""
+        origin = tmp_path / "origin.git"
+        git(root, "clone", "--quiet", "--bare", str(root), str(origin))
+        git(root, "remote", "add", "origin", str(origin))
+        git(root, "fetch", "--quiet", "origin")
+        git(root, "branch", "--set-upstream-to=origin/nightly", "nightly")
+
+        # Move the upstream on, without moving the local branch: a second
+        # clone commits and pushes, which is what another session does.
+        other = tmp_path / "other"
+        git(root, "clone", "--quiet", str(origin), str(other))
+        git(other, "config", "user.name", "Einar Olafsson")
+        git(other, "config", "user.email", "einar.olafsson@gmail.com")
+        git(other, "config", "commit.gpgsign", "false")
+        git(other, "checkout", "--quiet", "nightly")
+        write(other / "spacr" / "newer.py", "def newer():\n    return 3\n")
+        git(other, "add", "-A")
+        git(other, "commit", "--quiet", "-m", "work the local branch lacks")
+        git(other, "push", "--quiet", "origin", "nightly")
+        git(root, "fetch", "--quiet", "origin")
+        return origin
+
+    def test_a_branch_behind_its_upstream_stops_even_the_dry_run(
+            self, repo, tmp_path, capsys):
+        self._with_upstream(repo, tmp_path)
+        status = promote_to_main.main(["--repo", str(repo)])
+        assert status != 0
+        captured = capsys.readouterr()
+        printed = captured.out + captured.err
+        assert "behind origin/nightly" in printed, printed
+        assert "Nothing was changed." in printed, printed
+
+    def test_it_names_the_remedy(self, repo, tmp_path, capsys):
+        self._with_upstream(repo, tmp_path)
+        promote_to_main.main(["--repo", str(repo)])
+        captured = capsys.readouterr()
+        printed = captured.out + captured.err
+        assert "git fetch origin" in printed, printed
+        assert "git branch -f nightly origin/nightly" in printed, printed
+
+    def test_main_is_untouched_by_the_refusal(self, repo, tmp_path):
+        self._with_upstream(repo, tmp_path)
+        before = git(repo, "rev-parse", "main")
+        promote_to_main.main(["--repo", str(repo), "--execute"])
+        assert git(repo, "rev-parse", "main") == before
+
+    def test_a_branch_level_with_its_upstream_is_allowed_through(
+            self, repo, tmp_path):
+        self._with_upstream(repo, tmp_path)
+        git(repo, "checkout", "--quiet", "nightly")
+        git(repo, "merge", "--quiet", "--ff-only", "origin/nightly")
+        assert promote_to_main.main(["--repo", str(repo), "--execute"]) == 0
+        assert not (tracked(repo, "main") & WORKING_PATHS)
+
+    def test_no_upstream_at_all_is_not_an_error(self, repo):
+        """A fresh clone with no remote must still be promotable."""
+        assert promote_to_main.upstream_gap(repo, "nightly") is None
+        assert promote_to_main.main(["--repo", str(repo)]) == 0
+
+
+class TestASecondPromotionAfterTheFoldersMovedOn:
+    """The collision every promotion after the first one actually hits.
+
+    `main` deleted the working folders in its own drop commit. `nightly`
+    kept editing them, because that is where the work is written. Git then
+    reports modify/delete on files the very next step removes from `main`
+    again -- eight of them on 2026-09-13, which stopped a promotion whose
+    product changes were entirely clean.
+    """
+
+    @staticmethod
+    def _promote(repo: Path) -> int:
+        return promote_to_main.main(["--repo", str(repo), "--execute"])
+
+    def test_a_modified_working_file_does_not_stop_the_promotion(self, repo):
+        assert self._promote(repo) == 0
+        git(repo, "checkout", "--quiet", "nightly")
+        write(repo / "features" / "future" / "250_public.txt",
+              "the instruction, edited after the first promotion\n")
+        write(repo / "spacr" / "second.py", "def second():\n    return 2\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "--quiet", "-m", "more work, and more notes")
+
+        assert self._promote(repo) == 0
+        assert not (tracked(repo, "main") & WORKING_PATHS)
+        assert "spacr/second.py" in tracked(repo, "main")
+
+    def test_the_source_still_tracks_them_afterwards(self, repo):
+        self._promote(repo)
+        git(repo, "checkout", "--quiet", "nightly")
+        write(repo / "features" / "future" / "250_public.txt", "edited\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "--quiet", "-m", "edit the notes")
+        self._promote(repo)
+        assert WORKING_PATHS <= tracked(repo, "nightly")
+
+    def test_a_conflict_in_the_product_still_stops_it(self, repo, capsys):
+        """A real collision must not be swept up with the bookkeeping ones."""
+        self._promote(repo)
+        git(repo, "checkout", "--quiet", "main")
+        write(repo / "spacr" / "feature.py", "def feature():\n    return 'main'\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "--quiet", "-m", "main edits the product")
+        git(repo, "checkout", "--quiet", "nightly")
+        write(repo / "spacr" / "feature.py", "def feature():\n    return 'nightly'\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "--quiet", "-m", "nightly edits the product")
+
+        before = git(repo, "rev-parse", "main")
+        assert self._promote(repo) != 0
+        captured = capsys.readouterr()
+        printed = captured.out + captured.err
+        assert "outside the folders" in printed, printed
+        assert "spacr/feature.py" in printed, printed
+        assert git(repo, "rev-parse", "main") == before

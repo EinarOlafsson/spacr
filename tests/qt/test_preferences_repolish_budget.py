@@ -27,11 +27,17 @@ def test_an_identical_visual_save_does_not_recompose_the_global_sheet(
     monkeypatch.setattr(theme, "stylesheet", counted_stylesheet)
     try:
         preferences.apply_preferences_to_app(qapp)
-        first_sheet = qapp.styleSheet()
+        # THE WINDOW SHEET IS THE ONE THAT EXISTS. Instruction 380 put the
+        # composed sheet on the top-level windows; `qapp.styleSheet()` is ""
+        # afterwards, so comparing it across the second save compared "" with
+        # "" and passed regardless. `len(composed) == 1` carried this test on
+        # its own until 2026-09-13.
+        first_sheet = theme.window_stylesheet(qapp) or ""
+        assert first_sheet, "no window sheet installed; nothing to compare"
         preferences.apply_preferences_to_app(qapp)
 
         assert len(composed) == 1
-        assert qapp.styleSheet() == first_sheet
+        assert theme.window_stylesheet(qapp) == first_sheet
     finally:
         if previous is None:
             if hasattr(qapp, "_spacr_preferences_style_signature"):
@@ -68,7 +74,12 @@ def test_a_foreign_nonempty_sheet_invalidates_the_visual_signature(
 ):
     """A host may replace public QApplication state behind the cache."""
     preferences.apply_preferences_to_app(qapp)
-    expected = qapp.styleSheet()
+    # Both halves matter now and only one did before. The foreign sheet has to
+    # be GONE from the application (380 treats a non-empty application sheet as
+    # foreign by construction) and the window sheet has to be ours again.
+    # `expected` used to be `qapp.styleSheet()`, which was already "".
+    expected = theme.window_stylesheet(qapp) or ""
+    assert expected, "no window sheet installed; nothing to restore to"
     qapp.setStyleSheet("QWidget { background: #123456; }")
 
     composed = []
@@ -82,4 +93,6 @@ def test_a_foreign_nonempty_sheet_invalidates_the_visual_signature(
     preferences.apply_preferences_to_app(qapp)
 
     assert composed == [True]
-    assert qapp.styleSheet() == expected
+    assert qapp.styleSheet() == "", (
+        "the foreign application sheet survived a preferences apply")
+    assert theme.window_stylesheet(qapp) == expected
