@@ -125,3 +125,72 @@ the audit changed since it last passed.
 So the numbers in WHAT THE STATE IS and in HOW TO KNOW IT WORKED are a dated
 snapshot rather than a live target. Read them as "full coverage on that date";
 the audit tool is the live check.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- THE GATE WAS THROWING AWAY CORRECT CHINESE AND KOREAN, AND THE
+FIX WAS ALREADY WRITTEN ONE PATTERN BELOW IT
+--------------------------------------------------------------------------------
+
+Four settings tooltips had sat untranslated in zh_CN for weeks --
+`barcode_set`, `organelleb_background`, `organellec_background`,
+`organelled_background` -- and every repair pass reported them as MADLAD
+failures with `reasons=['protected_syntax']`. Read that way it is a translation
+problem, and the obvious response is the one this item has used before:
+shorten the English and split it until the model copes.
+
+THAT WAS THE WRONG DIAGNOSIS. MADLAD had been producing correct Chinese the
+whole time and the checker could not see it.
+
+`_syntax_preserved` protects snake_case identifiers so a translation cannot
+mangle a setting name. Its rule was
+
+    \b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+\b
+
+and CJK and Hangul are WORD CHARACTERS to Python's `re`, so `\b` never fires
+between them and an ASCII letter:
+
+    "the floor that remove_background_organelle 4 clips"   -> matched
+    "地面remove_background_organelle,4个剪辑"               -> NO MATCH
+
+The identifier is there, byte for byte. The protector counts it as missing,
+concludes the model dropped a protected token, and rejects the translation.
+
+  CHINESE DOES NOT SPACE-SEPARATE WORDS AND KOREAN PARTICLES ATTACH DIRECTLY,
+  so this fires on essentially any caption in those languages that names a
+  setting. Measured: 677 of 5,176 English captions contain a snake_case
+  identifier, 567 of them SETTING_TOOLTIPS -- against 2 of the 9 languages.
+
+THE REPAIR WAS ALREADY IN THE FILE, TWELVE LINES LOWER. The class-name pattern
+beside it reads
+
+    (?<![A-Za-z0-9_])[A-Z][A-Za-z0-9]*(?:Error|Exception|...)(?![A-Za-z0-9_])
+
+with the comment: "ASCII identifier boundaries are intentional: Korean case
+particles commonly attach directly to the class name and remain translatable
+prose rather than part of the Python identifier." Somebody met this exact
+problem, solved it correctly for one pattern, wrote down why, and the
+neighbouring pattern kept `\b`.
+
+VERIFIED IN THREE DIRECTIONS rather than just made green:
+
+    correct translation, identifier abutting CJK     now ACCEPTED
+    translation with the identifier MANGLED          still REJECTED
+    ASCII source against itself                      unchanged
+
+and controlled against the suite: 4 failed / 169 passed with the change,
+4 failed / 169 passed without it -- the same four, already red beforehand.
+
+  I FIRST MEASURED 13 FAILURES AND NEARLY REVERTED. Two of my changes were
+  live at once, and the other one -- an English tooltip rewrite -- invalidates
+  catalogs by itself. Splitting them is what showed the regex was innocent.
+
+THE PAYOFF, measured after one repair pass: the untranslated list went from
+FOUR keys to ONE. `barcode_set` gained 132 Chinese characters,
+`organellec_background` and `organelled_background` 43 each.
+`organelleb_background` remains and is a separate question.
+
+WHAT THIS SAYS ABOUT THE ITEM'S HISTORY. Any earlier count of "captions this
+model cannot translate" was measuring the gate as much as the model, for the
+two languages whose script has no spaces. A re-audit of zh_CN and ko coverage
+is worth doing now that the instrument reports what the model actually
+produced.
