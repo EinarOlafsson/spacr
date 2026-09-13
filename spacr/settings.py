@@ -526,6 +526,21 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('remove_background_cell', False)
     settings.setdefault('remove_background_nucleus', False)
     settings.setdefault('remove_background_pathogen', True)
+    # DECLARED 2026-09-12 (364). `spacr/io.py` has read
+    # `remove_background_organelle`, `organelle_background` and
+    # `organelle_signal_to_noise` since the per-channel loop was written, each
+    # through a `.get` with a fallback -- so nothing raised, nothing logged,
+    # and organelle was the ONLY object channel whose background could not be
+    # removed, because no declared setting turned it on.
+    #
+    # THE VALUES ARE THE FALLBACKS, NOT A NEW OPINION. io.py resolved these to
+    # `settings.get('background', 100)`, `settings.get('Signal_to_noise', 10)`
+    # and `settings.get('remove_background', False)`, so declaring 100 / 10 /
+    # False changes no run that exists. Copying `remove_background_pathogen`'s
+    # True would silently start clipping every organelle channel in every
+    # settings file already written, which is a behaviour change and belongs
+    # in release notes with the maintainer's say-so, not here.
+    settings.setdefault('remove_background_organelle', False)
     
     settings.setdefault('cell_diameter', None)
     settings.setdefault('nucleus_diameter', None)
@@ -4027,6 +4042,9 @@ expected_types = {
     "remove_background_cell":bool,
     "remove_background_nucleus":bool,
     "remove_background_pathogen":bool,
+    "remove_background_organelle":bool,
+    "organelle_background":(int, float),
+    "organelle_signal_to_noise":(int, float),
     "figuresize":int,
     "cmap":str,
     "pathogen_model":str,
@@ -4927,6 +4945,9 @@ tooltips = {
     "remove_background": "(bool) - Hard-clip every pixel below the 'background' value to zero before normalization and segmentation. Use it when a channel carries a bright, even haze that inflates the normalization floor; leave it off for dim or already flat-fielded data, since the clip silently deletes faint real signal. Default False.",
     "remove_background_cell": "(bool) - Before normalisation, zero every pixel in the cell channel below cell_background. This flattens haze so the percentile stretch is driven by real signal, but it also erases genuinely dim cell edges and can shrink masks. Enable only once cell_background is set from an actual empty region. Default False.",
     "remove_background_nucleus": "(bool) - Before normalizing the nucleus channel, zero every pixel below nucleus_background and exclude those pixels from the percentile calculation. Enabling it raises contrast on real nuclei and suppresses haze, but clips genuinely dim nuclei to zero so they may become unsegmentable. Default False; check nucleus_background against raw images first.",
+    "remove_background_organelle": "(bool) - Before normalising the organelle channel, hard-zero every pixel whose raw intensity is below organelle_background. Enable it when diffuse autofluorescence inflates the low percentile and faint puncta are lost in haze; leave it off for dim organelles, since the clipping erases real signal and biases downstream intensity measurements. Default False.",
+    "organelle_background": "(int or float) - Raw intensity treated as background on the organelle channel: the floor that remove_background_organelle clips to zero, and the base of the organelle_signal_to_noise product. Read it off a blank region of the image rather than guessing. Default 100.",
+    "organelle_signal_to_noise": "(int or float) - Multiple of organelle_background an organelle pixel must reach to count as signal during normalisation. Raise it when background haze is being normalised as if it were organelle; lower it when faint puncta are being flattened away. Default 10.",
     "remove_background_pathogen": "(bool) - Before normalising the pathogen channel, hard-zero every pixel whose raw intensity is below pathogen_background. Enable it when diffuse autofluorescence inflates the low percentile and Cellpose starts segmenting haze; leave it off for dim parasites, since the clipping erases real signal and biases downstream intensity measurements. Default True.",
     "remove_cluster_noise": "(bool) - Remove points that DBSCAN labels as noise (-1) before plotting the embedding, so the figure contains only clustered points. Disable it to retain all embedded points, including diffuse background. It has no effect with kmeans, which never emits -1, and is disabled automatically when color_by is set. Default True.",
     "remove_highly_correlated": "(bool or float) - Before dimensionality reduction, drop numeric features whose absolute Pearson correlation with an already-kept feature exceeds a cut-off. Pass a float to set the cut-off yourself, True to use 0.95, or False to keep everything. Enable it so families of near-duplicate measurements (area, perimeter, convex_area) do not dominate the embedding. Default True.",
@@ -5450,7 +5471,7 @@ _organelle_all_settings = [
         # method: unet
         "organelle_unet_model_path", "organelle_unet_threshold",
         # filter the detected objects
-        "organelle_min_area", "organelle_max_area", "organelle_minimum_area_to_split", "organelle_min_watershed_distance", "organelle_perimeter_fraction", "organelle_intensity_merge", "organelle_intensity_threshold", "organelle_intensity_split", "organelle_remove_border", "organelle_remove_border_objects",
+        "remove_background_organelle", "organelle_background", "organelle_signal_to_noise", "organelle_min_area", "organelle_max_area", "organelle_minimum_area_to_split", "organelle_min_watershed_distance", "organelle_perimeter_fraction", "organelle_intensity_merge", "organelle_intensity_threshold", "organelle_intensity_split", "organelle_remove_border", "organelle_remove_border_objects",
         # what to write out
         "summarize_organelles_by",
 ]
@@ -7743,6 +7764,17 @@ def _set_organelle_defaults(settings):
         'organelle_remove_border': False,
 
         # Preprocessing
+        # THESE TWO BELONG HERE AND NOT IN THE GENERIC BLOCK, and the reason is
+        # worth the line: `_count_implied_by_the_slots` treats ANY non-blank
+        # `organelle_*` key as evidence that slot one is in use. Setting them
+        # unconditionally beside the cell/nucleus/pathogen defaults made every
+        # settings file infer one organelle instead of zero -- exactly the trap
+        # `get_measure_crop_settings` already warns about, "once those
+        # placeholders exist they cannot be distinguished from a legacy file
+        # that genuinely requested slot one". This function reads the count
+        # first, so a key written here cannot imply one.
+        'organelle_background': 100,
+        'organelle_signal_to_noise': 10,
         'organelle_rolling_ball': False,
         'organelle_rolling_ball_radius': 50,
         'organelle_clahe': False,

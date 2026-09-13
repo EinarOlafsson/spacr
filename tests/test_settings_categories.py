@@ -308,6 +308,12 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # 364, 2026-09-12: three organelle preprocessing settings that
+    # `spacr/io.py` had READ since the per-channel loop was written and
+    # nothing declared, so organelle was the only object channel whose
+    # background could not be removed.
+    "remove_background_organelle", "organelle_background",
+    "organelle_signal_to_noise",
     # THE OTHER HALF OF A RENAME, and it appears here rather than only in
     # KEYS_RETIRED because a rename is a key leaving AND a key arriving.
     # `controls` -> `nontargeting_control_grnas`, 2026-09-10, the last of
