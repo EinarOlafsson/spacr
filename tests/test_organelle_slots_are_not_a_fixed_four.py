@@ -70,7 +70,7 @@ def test_the_objects_that_are_not_slots_are_unaffected():
 
 def test_a_seven_slot_run_draws_seven_numbered_sub_headings():
     """Through the function the panel actually splits its rows with."""
-    keys = [f"{role}_min_size" for role in organelle_roles(7)]
+    keys = [f"{role}_min_area" for role in organelle_roles(7)]
     rows = [(f"Min size {index}", None) for index in range(len(keys))]
 
     _own, children = _split_rows_by_object(rows, keys)
@@ -153,7 +153,13 @@ def test_a_csv_written_at_seven_loads_at_two_with_every_answer_intact(
     for number, role in enumerate(organelle_roles(7), start=1):
         assert at_two[f"{role}_channel"] == number
         assert at_two[f"{role}_diameter"] == 10 * number
-        assert at_two[f"{role}_min_size"] == 5 * number
+        # WRITTEN AS `_min_size`, READ BACK AS `_min_area`. The fixture
+        # above deliberately still writes the old spelling, because that is
+        # what every settings file saved before the rename contains. So this
+        # line now asserts two things at once: the hidden slot kept its
+        # answer, and the answer followed the key to its new name. Asserting
+        # the old name here would have required the migration NOT to run.
+        assert at_two[f"{role}_min_area"] == 5 * number
 
 
 def test_lowering_then_raising_the_count_restores_the_hidden_answers(tmp_path):
