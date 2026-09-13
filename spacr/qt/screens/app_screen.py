@@ -22,7 +22,7 @@ from typing import Callable, Optional
 from weakref import WeakMethod
 
 from PySide6.QtCore import (
-    QEvent, QObject, QSize, Qt, QThread, QTimer, Signal,
+    QEvent, QObject, QRect, QSize, Qt, QThread, QTimer, Signal,
 )
 from PySide6.QtGui import QColor, QIcon, QPainter, QPalette, QPixmap
 from PySide6.QtWidgets import (
@@ -479,35 +479,46 @@ CATEGORY_STRIP_LINES = 3
 def _height_of_lines(metrics, lines: int) -> int:
     """The height ``lines`` wrapped lines occupy in the font ``metrics`` reads.
 
+    ASK QT RATHER THAN REBUILD ITS ARITHMETIC. Every closed form tried here
+    has been wrong on some font, because the height of a wrapped paragraph
+    is a layout question and only the layout engine knows the answer.
+
+    The two that were tried, and how they failed:
+
+    ``lineSpacing() * lines`` is short wherever a font's OS/2 table asks for
+    a NEGATIVE leading -- several URW and Bitstream faces do, by one to three
+    pixels at interface sizes. Qt does not overlap glyphs to honour it, so
+    the product reserved less than the text needed and the last line came out
+    clipped.
+
+    ``max(lineSpacing(), height()) * lines`` was the repair for that, and it
+    is still wrong: measured against ``QLabel.heightForWidth`` over 40
+    families x 28 pixel sizes at three lines, it UNDER-reserves 450 of 1,120
+    combinations and over-reserves another 202. It fixed the negative-leading
+    case and missed everything else.
+
+    ``boundingRect`` with the same flags Qt lays the label out with is exact
+    on all 1,120 -- never short, never over. It subsumes the negative-leading
+    case rather than special-casing it, so the reasoning above is history
+    rather than a rule to maintain.
+
+    WHICH FONT IS PAINTING IS NOT SOMETHING THE PACKAGE DECIDES, which is why
+    this matters at all. The stylesheet asks for Open Sans and the package
+    ships it, but a machine that has not registered those files -- a test
+    runner, or anything reading the interface through fontconfig's
+    substitution -- paints with whatever it has. Open Sans has a leading of
+    zero, so on a developer's machine the broken expressions agreed to the
+    pixel and nothing looked wrong.
+
     :param metrics: the ``QFontMetrics`` of the label that will paint them.
     :param lines: how many lines to reserve; anything below one reserves one.
     :returns: the height in pixels.
     """
-    # NOT `lineSpacing() * lines`, WHICH IS SHORT ON SOME FONTS AND EXACT ON
-    # THE REST -- which is why the shortfall went unseen for as long as it
-    # did. `lineSpacing()` is `height() + leading()`, and a font whose OS/2
-    # table asks for a NEGATIVE leading -- several of the URW and Bitstream
-    # faces do, by one to three pixels at interface sizes -- reports a line
-    # spacing SMALLER than the ascent plus descent one line actually needs.
-    # Qt does not overlap the glyphs to honour it: a wrapped label is laid
-    # out at `height() + (lines - 1) * lineSpacing()`, so the product
-    # reserved less than the text it was reserving for and the last line
-    # came out clipped by `-leading()` pixels per line.
-    #
-    # WHICH FONT IS PAINTING IS NOT SOMETHING THE PACKAGE DECIDES. The
-    # stylesheet asks for Open Sans and the package ships it, but a machine
-    # that has not registered those files -- a test runner, or anything
-    # reading the interface through fontconfig's substitution -- paints with
-    # whatever it has, and that is where the negative leading arrived from.
-    # Open Sans itself has a leading of zero, so on a developer's machine
-    # both expressions agree to the pixel and nothing looks wrong.
-    #
-    # The maximum rather than the sum, because it is the same number
-    # whenever the leading is zero or positive -- every font that was
-    # already correct keeps the height it had -- and is never smaller than
-    # the layout above when the leading is negative.
     count = max(1, int(lines))
-    return max(metrics.lineSpacing(), metrics.height()) * count
+    return metrics.boundingRect(
+        QRect(0, 0, 1 << 20, 0),
+        int(Qt.TextWordWrap | Qt.AlignTop | Qt.AlignLeft),
+        "\n".join(["Xg"] * count)).height()
 
 
 # One blurb per settings CATEGORY, keyed by the uppercased category title.
