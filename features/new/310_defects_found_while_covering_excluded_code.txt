@@ -2,8 +2,11 @@
 DEFECTS FOUND WHILE COVERING CODE THAT WAS EXCLUDED FROM COVERAGE
 ================================================================================
 
-Status:    OPEN, filed 2026-08-29. A RUNNING LIST -- appended to as the
-           coverage sweep reaches more modules.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-09-04 -- CLOSED BY THE MAINTAINER, AGAINST THIS FILE'S OWN LAST
+           LINE."
+           It was a RUNNING LIST; its successors are named in it --
+           288 for the coverage sweep, 352 for the standing goal.
 Owner:     mixed; each entry names its own lane.
 Requested: 2026-08-29 -- "continue with the tests and dont stop until the tests
            are complete and all moduals are 100% covered", under the standing

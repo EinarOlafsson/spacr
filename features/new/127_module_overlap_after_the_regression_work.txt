@@ -2,7 +2,12 @@
 MODULES THAT OVERLAP OR ARE REDUNDANT, MEASURED 2026-08-17
 ================================================================================
 
-Status:    filed 2026-08-17. ANALYSIS ONLY -- no code written, on purpose.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "DONE 2026-08-19 -- every acceptance line is met; the remainder is YOUR
+           decision."
+           It was filed ANALYSIS ONLY, no code written on purpose, and it
+           delivered that analysis. What is "left" is a set of choices for the
+           maintainer, not work.
 Requested: 2026-08-17 --
 
            "take a look through all the modules in spacr. some of them overlap
