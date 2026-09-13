@@ -123,3 +123,42 @@ STILL WORTH DOING, though not blocking: `feature_dictionary.eventFilter` ran
 419,953 times during one Mask open and `_still_alive` 839,906 times, for
 4.8 s and 3.6 s of the profile. That is a filter installed per widget where
 one on the panel would do.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- THE PROFILE ABOVE PREDATES A FIX TO ONE OF THE TWO FUNCTIONS
+--------------------------------------------------------------------------------
+
+The closing note cites `feature_dictionary.eventFilter` at 419,953 calls and
+4.8 s, and `_still_alive` at 839,906 calls and 3.6 s, and concludes "a filter
+installed per widget where one on the panel would do".
+
+DATES, because they change what is left to do:
+
+    2026-08-28  b7f02c9cf   this profile was written
+    2026-08-31  cac629c93   the import was hoisted out of `_still_alive`
+
+`_still_alive` called `from shiboken6 import isValid` on every invocation.
+The module's own comment measures what hoisting it to module scope did:
+"625 ms per screen build, against 33 ms resolved once. Measured, not assumed."
+So the dominant cost inside that function -- an import statement executed
+839,906 times -- has been gone since three days after this note was written,
+and the 3.6 s figure is not what the profiler would report today.
+
+TWO THINGS THE NOTE STILL GETS RIGHT, and they are the part worth keeping:
+
+  * The CALL COUNTS are structural and unchanged. `FeatureHelpFilter` is
+    installed on the QApplication, so it sees every event in the application;
+    that is why it runs 419,953 times during one Mask open, and hoisting an
+    import does not change that.
+  * Moving it would help. But the docstring says why it is where it is --
+    "Installed on the QApplication, so it covers the screens that do not exist
+    yet when it is installed, every app screen in spaCR is built lazily on
+    first navigation" -- and the eventFilter opens with "THIS RUNS FOR EVERY
+    EVENT IN THE APPLICATION, and it segfaulted." A move needs a hook at
+    results-table creation and it needs to survive that history.
+
+NOT RE-PROFILED HERE, deliberately: the benchmark presses every sidebar button
+and loads torch, and a training run with a 110 GB watchdog was holding 56 GB
+at the time. Whoever picks this up should re-run
+`tools/spacr_startup_benchmark.py --offscreen --record-only` FIRST and get a
+current number, rather than optimising against this one.
