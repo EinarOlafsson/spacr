@@ -225,6 +225,17 @@ creating anything, and prefer `Edit` over `Write` for a path that may exist.
   true in August and cost a session an hour of confusion on 2026-09-01.
 * `spacr-nightly` at `/home/olafsson/repo/spacr-nightly` IS still stale
   (last commit 2026-07-26). Line numbers quoted from it will not match.
+* **THE THREE PATHS ABOVE ARE MACHINE-SPECIFIC, checked 2026-09-13.** On the
+  host `carruthers` none of them exists -- there is no `/mnt/firecuda2` at
+  all -- and the live checkout is:
+
+      /home/carruthers/Documents/repo/spacr        (branch nightly)
+
+  with agent worktrees under `/tmp/claude-1000/<repo>/<session>/scratchpad/`.
+  The advice in this section is still right and is the part to keep: RUN
+  `git worktree list` BEFORE YOUR FIRST COMMIT. The absolute paths are not
+  portable between the maintainer's machines and should be read as an example
+  of the shape rather than as somewhere to `cd`.
 
 ### The environment
 
