@@ -1,9 +1,20 @@
 330 — THE DOCK AND THE MENU BAR SHOULD SHOW THE NESTED STRUCTURE
 ================================================================
 
-Status:    OPEN, filed 2026-09-01. AFTER THE VERSION UPDATE, by the
-           maintainer's own split: this is a feature, and the items
-           before the update are defects and the release itself.
+Status:    DONE, corrected 2026-09-13. It shipped in 940542f5b on
+           2026-09-01 ("330: show the folded modules in the dock and the
+           menu bar") and was audited against all three DONE MEANS criteria
+           the same day.
+
+           THIS FILE SAID SO AND WAS IGNORED. Its own audit note reads "The
+           header was never corrected, so the item has been carried as
+           not-started" -- written 2026-09-01, twelve days before anybody
+           corrected the header. Fourth such case, with 69, 119 and 32.
+
+           It was filed AFTER THE VERSION UPDATE by the maintainer's own
+           split -- this is a feature, and the items before the update are
+           defects and the release itself -- and then built anyway, which is
+           why the hold wording outlived the work.
 
 ASKED FOR (2026-09-01, verbatim)
 --------------------------------
