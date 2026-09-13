@@ -1,14 +1,16 @@
 """Show sequencing reads as text, one read per row, with matches coloured.
 
-The Map Barcodes screen asks the user to believe a claim about their FASTQ
-files: that a particular barcode was found in a particular place, in a
-particular orientation. A percentage in a summary box cannot settle an
-argument about that, because a percentage looks the same whether the matches
-are real or accidental. Reads do settle it. Seeing the gRNA land in the same
-columns on row after row is the difference between a number the user trusts
-and a number the user has to take on faith, and seeing nothing line up is how
-a misconfigured run announces itself in one glance instead of after an hour
-of mapping that produces no counts.
+The Map Barcodes screen makes a claim about the sequencing files. It says
+that a barcode was found, that it sat at a certain place, and that it ran in
+a certain direction.
+
+A percentage on its own cannot prove that claim, because a percentage looks
+the same whether the matches are real or accidental.
+
+The reads themselves can prove it. When the guide barcode falls in the same
+columns row after row, the number can be trusted. When nothing lines up, a
+badly configured run shows itself at once, rather than after an hour of
+mapping that returns no counts.
 
 So this widget is deliberately plain. It draws the read text in a fixed pitch
 face, one read to a line, and it paints the characters a barcode matched in a
@@ -127,7 +129,7 @@ class BarcodeSpan(NamedTuple):
 
     :param start: First matched character, counting from zero.
     :param stop: One past the last matched character.
-    :param kind: Name of the barcode type that matched.
+    :param kind: The barcode type this span belongs to.
     """
 
     start: int
@@ -620,13 +622,13 @@ class ReadView(QWidget):
     can follow a match down the rows, and a legend above the reads says which
     colour is which.
 
-    How overlaps are settled. The spans of a read are considered in the order
-    they were given, and the first one to cover a character keeps it. A span
-    that arrives later still colours every character not already taken, so it
-    is never hidden completely, only trimmed. Deciding this before any drawing
-    starts is what makes overlapping spans merely a question of priority
-    rather than a way to corrupt the picture. A caller who wants a particular
-    barcode type to win an overlap should list its spans first.
+    How overlaps are settled. The spans of a read are read in the order they
+    were given. The first span to cover a character keeps that character.
+
+    A later span still colours every character that is still free, so it is
+    trimmed rather than hidden. The rule is applied before anything is drawn,
+    which turns an overlap into a question of priority instead of a broken
+    picture. To let one barcode type win an overlap, list its spans first.
 
     What it costs. The reads are held in a list model and drawn by a delegate,
     so handing over reads costs a list assignment and drawing costs only the

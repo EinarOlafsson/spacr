@@ -1151,8 +1151,8 @@ def _flip(orientation):
 class ProposedMapping:
     """Settings the search believes a mapping run should use, and why.
 
-    The proposed settings hold only keys the mapping run already reads, so
-    they can be handed straight to it.
+    Every key in the proposal is one the mapping run already reads. The run
+    can take the proposal as it stands.
 
     What the search learned that has no matching key is carried alongside.
 

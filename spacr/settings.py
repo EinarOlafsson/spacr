@@ -214,7 +214,7 @@ def bundled_barcode_path(kind):
 
 @dataclass(frozen=True)
 class BarcodeEntry:
-    """One barcode type a Map Barcodes run decodes.
+    """One barcode type that a run decodes.
 
     A run used to decode exactly three barcodes -- a plate column, a guide
     and a plate row -- because the regex, the settings and the read
@@ -320,7 +320,7 @@ class BarcodeEntry:
 
 @dataclass(frozen=True)
 class BarcodeSet:
-    """The ordered barcode types one Map Barcodes run decodes.
+    """The barcode types a run decodes, in order.
 
     A set replaces the three named reference settings the module started
     with. Iterating it is how the run reaches every barcode, so a run with
@@ -331,9 +331,9 @@ class BarcodeSet:
     reads list the column first. A set reproducing that run has to be able to
     say so, rather than quietly re-sort tables people already have.
 
-    :ivar entries: the barcode types, in the order the run lists them. The
-        annotated reads carry each entry's sequence column and name column in
-        this order, after the read itself.
+    :ivar entries: the barcode types, in the order the run lists them. Every
+        entry adds a sequence column and a name column to each annotated
+        read. Those columns come after the read, in the same order.
     :ivar count_columns: the name columns the per-well counts are grouped by,
         in the order they are grouped. Left empty it is every entry's name
         column in entry order.
