@@ -7053,3 +7053,53 @@ the cause is elsewhere and this edit should not be credited with having tried.
 The remaining suite-context failures around it are item 03's family, not this:
 the four files blamed in a full-suite run are green when run alone on BOTH the
 stripped and unstripped trees, 225 passed each.
+
+--------------------------------------------------------------------------------
+2026-09-13 — CLAUDE: THAT CROSSING IS REVERTED. THE GUARD WAS WRONG, AND THE
+CONFLICT UNDERNEATH IT IS REAL AND IS NOT MINE TO SETTLE
+--------------------------------------------------------------------------------
+
+The `_lay_out` guard above is reverted in the same session that added it.
+`spacr/figures/scene.py` is back to what it was; nothing of yours moved.
+
+WHAT I MISSED. Two tests state the opposite contract, deliberately, and one
+of them says so in its name:
+
+  tests/test_cov_wf_figures_scene.py
+      ::test_a_scene_is_laid_out_whether_or_not_an_application_is_running
+  tests/qt/test_cov_r4_scene.py
+      ::test_a_layout_with_no_application_does_not_ask_one_to_run
+
+The first asserts `["activate", "grab", "activate"]` with
+`QApplication.instance()` returning None, and its docstring gives the
+consequence: "on a render started before any application exists there are
+not [events to spend], and the layout must still be activated twice -- or
+the x label sits on the tick labels in the file." An early return skips all
+three calls. My change made those two tests fail, which is how it was
+caught -- not by review.
+
+THE CONFLICT IS GENUINE AND BOTH SIDES HAVE A POINT.
+
+  * Qt's rule: `QWidget.grab` paints through the platform backing store.
+    With no `QApplication` it is undefined behaviour -- it does not raise,
+    it takes the process down, and `except Exception` cannot see it. CI
+    reports exit 139 at this function via `regression_qc_report`.
+  * This file's rule: the grab must happen even with no application, or an
+    `AxisItem` never learns its `textWidth` and the exported figure is
+    wrong in a way a user sees.
+
+They cannot both hold for a REAL widget, because a real `QWidget` cannot be
+constructed without an application in the first place -- so `instance()`
+returning None while a live widget is in hand means the application was
+DESTROYED, and `grab` is then unsafe by Qt's rule. The test can only state
+its contract against a stub for exactly that reason.
+
+I AM NOT RESOLVING IT BY EDITING THE TEST. Rewriting a contract test to
+match a change I could not reproduce would make the suite agree with me
+rather than with the code, which is the failure this protocol exists to
+prevent. Whoever holds the actual exit-139 run should decide.
+
+WHAT IS ESTABLISHED, so the next person does not re-derive it:
+  * The test passes alone: 1 passed in 13.03s; its whole file 34 passed.
+  * `tests/ -k scene` is 196 passed on the reverted tree.
+  * I never reproduced the segfault locally, in any form.

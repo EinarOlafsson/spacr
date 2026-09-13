@@ -1436,38 +1436,15 @@ def _lay_out(widget) -> None:
     This is the same trap ``FastPlot.snapshot`` records for a plot on a page
     nobody has raised, and it has the same shape: ask for the work rather than
     assume it happened.
-
-    THE PAINT IS SKIPPED ENTIRELY WITHOUT A LIVE GUI, AND THAT IS THE POINT
-    OF THE TWO GUARDS. ``QWidget.grab`` paints through the platform backing
-    store, so calling it with no ``QApplication``, or from a thread that is
-    not the one the application lives on, is undefined behaviour in Qt: it
-    does not raise, it takes the process down. A ``try``/``except`` cannot
-    catch that, which is why these are early returns and not a wider net.
-
-    The asymmetry this replaces is worth naming, because it reads as
-    deliberate and was not: ``processEvents`` was already guarded with
-    ``if application is not None`` while ``grab`` on the line above it was
-    not. Whoever wrote the guard knew the application could be missing and
-    protected the call that merely does nothing without one, rather than the
-    call that crashes.
-
-    Nothing is lost by returning early. The measurement this function exists
-    to force -- an ``AxisItem`` learning its ``textWidth`` while it paints --
-    cannot happen without a GUI in the first place.
     """
-    from PySide6.QtCore import QThread
     from PySide6.QtWidgets import QApplication
 
-    application = QApplication.instance()
-    if application is None:
-        return
-    if QThread.currentThread() != application.thread():
-        return
-
     try:
+        application = QApplication.instance()
         widget.ci.layout.activate()
         widget.grab()
-        application.processEvents()
+        if application is not None:
+            application.processEvents()
         widget.ci.layout.activate()
     except Exception:                                          # noqa: BLE001
         pass
