@@ -69,6 +69,22 @@ which is the one outcome worse than not having it.
 The asymmetry is real, not a convenience. "Not started" over "INSTRUCTION 186
 IS COMPLETE" cannot both be true. "Done" over "still owed: the thing 114 will
 do" can.
+
+AND NARROWING THE REVERSE PATTERN DOES NOT RESCUE IT, which is worth recording
+because it is the obvious next idea. Measured 2026-09-13: a pattern matching
+only RETRACTIONS -- `NOT DONE`, `DID NOT WORK`, `WAS WRONG`, `REGRESSED`,
+`REVERTED`, `REOPENED`, `STILL BROKEN` -- against a Status that says DONE
+returns **98 of 397 files**, three times the broad sweep's 31. Two sampled at
+random show why:
+
+    392   "the existing behaviour is not regressed by the new fallback"
+    03    "closes the test-only item on the same scope that reopened it"
+
+The first is a NEGATED use of the word and the second is history. These files
+are investigative narratives, and a narrative about having been wrong contains
+every phrase a retraction contains. The forward direction works precisely
+because "not started" is a CLAIM ABOUT THE FILE'S OWN STATE in a fixed
+position, not a word that can appear in a sentence about anything else.
 """
 from __future__ import annotations
 
