@@ -26,6 +26,19 @@ test that guessed would be turned off within a week.
 So this cannot catch every stale header. It catches the ones where the file
 states its own completion in words chosen to be unmistakable, and those are
 exactly the ones where a reader is most entitled to expect the header to agree.
+
+THE OPPOSITE DIRECTION IS DELIBERATELY NOT CHECKED, and that is a measurement
+rather than an oversight. Sweeping for the reverse -- a Status saying DONE over
+a tail that mentions open work -- returns 31 files, and nearly all are correct:
+a finished item properly records what it handed on. `119` says "STILL OPEN in
+this file's scope: nothing"; `181` says "STILL OWED (B of the original ask)"
+about work it names and assigns. A check there would fail on 31 healthy files
+on its first run, and a check that fails on healthy files gets switched off --
+which is the one outcome worse than not having it.
+
+The asymmetry is real, not a convenience. "Not started" over "INSTRUCTION 186
+IS COMPLETE" cannot both be true. "Done" over "still owed: the thing 114 will
+do" can.
 """
 from __future__ import annotations
 
