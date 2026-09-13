@@ -134,6 +134,71 @@ changes and throws every intermediate result away. Finish the code, then
 rebuild, then commit the catalogs. A private name (`_build_the_dialog`) costs
 nothing at all — it never enters the manifest.
 
+## THE MEASUREMENT LESSONS OF 2026-09-13
+
+### Eighteen ledger files were wrong about their own state, and the ledger had already said so three times
+
+The index header warns about this. So does `69`, whose heading reads
+"2026-08-13 - DONE. THE FILE'S 'not started' WAS WRONG, AND THIS IS THE
+SEVENTH". So does `119`: "Filed to done/ after re-reading the file rather than
+its header, which still said 'not started'." All three diagnoses were correct,
+were written down, and were followed by a month in which the header did not
+change. **Noticing was never the scarce step.**
+
+`tests/test_a_ledger_file_does_not_contradict_itself.py` now fails a file whose
+Status OPENS with a not-started claim while its trailing notes declare
+completion. Thirteen files were found by reading; WIDENING THE PATTERN to the
+ledger's own `2026-08-13 - DONE` heading form found five more in one run,
+including 69 itself. Only one direction is checked, and the docstring measures
+why: the reverse sweep returns 31 files and nearly all are healthy.
+
+### Two guards were reading folders that no longer exist
+
+Both passed for four weeks because a missing directory globs to nothing and an
+empty set satisfies almost any assertion.
+
+* `test_the_working_folders_do_not_reach_main` checked a prefix its fixture
+  never creates.
+* `test_duplicate_instruction_numbers_are_ordered_by_filename` called
+  `_entries("done")` and compared an empty list to its own sort, while
+  `features/new` held 390 rows and eight duplicate ids.
+
+**Assert the subject is non-empty before asserting anything about it.** The new
+ledger check does this, and so should anything that locates its subject by
+path.
+
+### A green build is not a green audit — demonstrated again
+
+Both catalog lanes rebuilt cleanly (API 10,401 -> 10,478 symbols, runtime
+1,040 -> 1,050 settings, +N/-0 in all nine languages). The closing audit then
+found Map Barcodes' new prose untranslated in EIGHT of nine languages,
+Icelandic worst at 37 blocks of copied English. The repair pass is a separate
+run and is the one that makes it true.
+
+### Ratchets: subtract, never bump
+
+Map Barcodes moved six. Each was re-measured by diffing against the baseline
+commit, and three digests were moved by recomputing with the new entries
+removed and checking the old pin returned byte for byte. That caught what a
+total hides: parameters moved +129 while 63 new callables carry 127 — the other
+two were `barcode_set` added to two EXISTING functions, a different event
+entirely.
+
+*The trap:* my first subtraction failed because I rebuilt the changed lines
+field by field and forgot one field. A mismatch then reads as "something
+unexplained moved" when what moved was the reconstruction. **Subtract using the
+recorded baseline line, never a rebuild of it.**
+
+### `import spacr` here runs code from four days ago
+
+The editable install points correctly at
+`/home/carruthers/Documents/repo/spacr`, and that checkout is 2,505 commits
+behind `origin/nightly`. Trap 3f tells you to check where the install points;
+that check passes. See §3f for the one-line version that also reads the
+resolved location's HEAD.
+
+---
+
 ## 0. THE FOUR LESSONS. READ THESE BEFORE YOU TOUCH ANYTHING.
 
 ### 0a. Audit before you build — EIGHT files have been wrong about themselves
