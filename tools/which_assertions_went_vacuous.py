@@ -48,8 +48,28 @@ Those 16 are not real. They do not reproduce when the affected file is run
 alone under the probe (28 passed both ways), nor in a five-file subset chosen
 from the likely interactors (312 passed under the probe), and the probe adds no
 measurable time -- one file measured 30.34 s under it against 31.06 s without.
-So it is not slowness and it is not a simple two-file interaction; the
-mechanism was NOT localised, and saying so is more useful than a guess.
+
+REPLACING `traceback.extract_stack` WITH `sys._getframe` HALVED IT AND DID NOT
+CURE IT. The first version resolved a source line per frame through
+`linecache`, reading files while the suite ran; this one walks the same frames
+and touches only code objects. Same 66 files:
+
+    extract_stack version   16 failed, 1991 passed   (135 sites)
+    frame-walking version    6 failed, 2001 passed   (137 sites)
+    no probe at all          0 failed, 2007 passed
+
+  AND THE SIX ARE DIFFERENT TESTS FROM THE SIXTEEN -- all pixel-rendering
+  assertions, where the earlier set were not. A perturbation whose victims
+  change when the probe's internals change is not a deterministic interaction
+  with any one test; it is the suite being sensitive to something this probe
+  does incidentally. The mechanism is still NOT localised.
+
+WHAT IS STABLE, AND IT IS THE PART THAT MATTERS: the SITE TABLE agrees between
+the two implementations on every conclusion drawn from it. The four assertions
+found vacuous under the first were confirmed under the second, and the one
+repaired in between visibly dropped out of the only-empty column because it
+had started reading a real value. The table is trustworthy; the pass/fail
+column is not.
 
   WHAT THAT MEANS IN PRACTICE. Use this tool to produce the SITE TABLE, which
   is what it is for and which was verified correct against a second probe on
@@ -89,7 +109,7 @@ ROOT = Path(__file__).resolve().parents[1]
 #: is the earliest hook that is available without editing a conftest.
 PLUGIN = '''
 """Record, per call site in tests/, whether {accessor} came back empty."""
-import atexit, json, os, traceback
+import atexit, json, os, sys
 
 OUT = os.environ["VACUOUS_OUT"]
 SITES = {{}}
@@ -106,12 +126,23 @@ def pytest_configure(config):
 
     def probe(self):
         value = original(self)
-        for frame in traceback.extract_stack()[:-1][::-1]:
-            if os.sep + "tests" + os.sep in frame.filename:
-                key = "%s:%d" % (frame.filename, frame.lineno)
+        # `sys._getframe` RATHER THAN `traceback.extract_stack`, and the
+        # difference is not speed. `extract_stack` resolves a source LINE for
+        # every frame through `linecache`, which reads and caches files while
+        # the suite is running; `_getframe` walks the same frames and touches
+        # only the code objects. The probe is known to perturb a large run
+        # (see the module docstring) and reading the tree from inside every
+        # accessor call is the most invasive thing it was doing.
+        frame = sys._getframe(1)
+        marker = os.sep + "tests" + os.sep
+        while frame is not None:
+            name = frame.f_code.co_filename
+            if marker in name:
+                key = "%s:%d" % (name, frame.f_lineno)
                 seen = SITES.setdefault(key, {{"full": 0, "empty": 0}})
                 seen["full" if value else "empty"] += 1
                 break
+            frame = frame.f_back
         return value
 
     setattr(owner, {attr!r}, probe)
