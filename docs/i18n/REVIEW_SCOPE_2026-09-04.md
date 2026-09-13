@@ -51,17 +51,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,265 | Remainder | Reviewed API blocks | Of 10,400 | Remainder |
+| Language | Reviewed runtime records | Of 5,244 | Remainder | Reviewed API blocks | Of 10,478 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.24% | 5,147 | 468 | 4.50% | 9,932 |
-| German | 85 | 1.61% | 5,180 | 424 | 4.08% | 9,976 |
-| Spanish | 114 | 2.17% | 5,151 | 287 | 2.76% | 10,113 |
-| Simplified Chinese | 266 | 5.05% | 4,999 | 506 | 4.87% | 9,894 |
-| Portuguese | 107 | 2.03% | 5,158 | 448 | 4.31% | 9,952 |
-| Hindi | 126 | 2.39% | 5,139 | 461 | 4.43% | 9,939 |
-| Korean | 250 | 4.75% | 5,015 | 453 | 4.36% | 9,947 |
-| Icelandic | 151 | 2.87% | 5,114 | 1,025 | 9.86% | 9,375 |
-| French | 98 | 1.86% | 5,167 | 465 | 4.47% | 9,935 |
+| Swedish | 118 | 2.25% | 5,126 | 468 | 4.47% | 10,010 |
+| German | 85 | 1.62% | 5,159 | 424 | 4.05% | 10,054 |
+| Spanish | 99 | 1.89% | 5,145 | 287 | 2.74% | 10,191 |
+| Simplified Chinese | 262 | 5.00% | 4,982 | 506 | 4.83% | 9,972 |
+| Portuguese | 99 | 1.89% | 5,145 | 448 | 4.28% | 10,030 |
+| Hindi | 126 | 2.40% | 5,118 | 460 | 4.39% | 10,018 |
+| Korean | 245 | 4.67% | 4,999 | 453 | 4.32% | 10,025 |
+| Icelandic | 151 | 2.88% | 5,093 | 1,025 | 9.78% | 9,453 |
+| French | 98 | 1.87% | 5,146 | 465 | 4.44% | 10,013 |
 
 *Regenerated 2026-09-11 against the tree after the merge from `main`. Both
 denominators moved -- the runtime one DOWN, 5,260 to 5,249, because 364
@@ -137,3 +137,35 @@ Every defect found on 2026-09-04 is listed with what was done about it.
   systematic reading has covered. Filed against instruction 316.
 * **A per-locale fluent reader.** Six of nine locales have never had one, and
   the 2026-09-04 acceptance does not change that.
+
+---
+
+## Table regenerated 2026-09-13
+
+The denominators moved with the Map Barcodes merge and the week's settings
+work: runtime 5,265 -> 5,244 sources, API 10,400 -> 10,478 symbols. The test
+that guards this table derives both from the builders, so it went red until
+this was regenerated -- which is the contract, not a defect.
+
+**SEVERAL REVIEWED COUNTS FELL, and that was checked rather than assumed.**
+Spanish 114 -> 99, Portuguese 107 -> 99, Korean 250 -> 245, Chinese 266 -> 262.
+A falling count of reviewed records is the signature of STRANDED EVIDENCE -- a
+record keyed to a source that has been renamed or removed -- which has happened
+in this repository before and cost 32 records.
+
+It is not what happened here:
+
+  * `tools/check_reviewed_runtime_evidence.py` reports every reviewed runtime
+    record still matching its source, 1,287 checked, exit 0.
+  * The catalogs' reviewed sections were not touched by the 2026-09-13
+    rebuild or repair at all: `git diff` on `es`, `pt`, `ko` and `zh_CN`
+    contains ZERO lines mentioning `reviewed`.
+
+So the fall happened between 2026-09-04 and now, as 391 retired settings and
+renamed others, and the records for settings that no longer exist went with
+them. The evidence was not lost; the things it was evidence ABOUT were
+withdrawn.
+
+Reviewed totals today: sv 118, de 85, es 99, zh_CN 262, pt 99, hi 126, ko 245,
+is 151, fr 98 -- 1,283 runtime records across nine locales.
+

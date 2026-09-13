@@ -119,7 +119,13 @@ TOOLS = ROOT / "tools"
 #: `spacr.object_roles.withdrawn_setting_reason`, the resolver that says why
 #: a setting was withdrawn. Set-differenced against the previous
 #: measurement, not subtracted.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_401
+#: 10,401 -> 10,478 on 2026-09-13, +77/-0 for Map Barcodes (c753b7de7).
+#: Set-differenced against 5a2825f67 rather than subtracted, per the note
+#: above: 31 spacr.barcode_search (its module docstring included), 20
+#: spacr.qt.screens, 14 spacr.settings, 12 spacr.qt.widgets. All nine API
+#: catalogs were regenerated AND repaired before this number moved, which is
+#: the order the assertion's own message asks for.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_478
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
