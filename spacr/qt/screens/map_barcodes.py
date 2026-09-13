@@ -24,11 +24,12 @@ from PySide6.QtCore import QObject, Qt, QTimer, Signal
 from PySide6.QtWidgets import (QAbstractItemView, QHBoxLayout, QHeaderView,
                                QFrame, QLabel, QPushButton, QScrollArea,
                                QSizePolicy, QSplitter, QTabBar, QTableWidget,
-                               QTableWidgetItem, QTabWidget, QToolButton,
+                               QTabWidget, QToolButton,
                                QVBoxLayout, QWidget)
 
 from ..i18n import tr
 from ..theme import install_close_marks
+from ..widgets.sortable_table import install_sorting, table_item
 from ..widgets.fold_strip import FoldStrip
 
 LOG = logging.getLogger(__name__)
@@ -1908,6 +1909,9 @@ class BarcodeSearchPanel(QWidget):
         self._explain_chance_column()
         self.findings.setSizePolicy(QSizePolicy.Expanding,
                                     QSizePolicy.Expanding)
+        # Every view in the package asks for this, and this one did not: the
+        # columns hold read counts and chance rates, which are numbers.
+        install_sorting(self.findings)
         self.findings.setMinimumHeight(150)
 
         self.reads = ReadView(self)
@@ -2336,7 +2340,11 @@ class BarcodeSearchPanel(QWidget):
                 # nobody can read while it is working.
                 item = self.findings.item(row, column)
                 if item is None:
-                    item = QTableWidgetItem()
+                    # THE SHARED ITEM, not `QTableWidgetItem`. A bare Qt cell
+                    # sorts its text as words, so the read counts in this
+                    # table would order 10 before 9 the moment a reader
+                    # clicked the header.
+                    item = table_item()
                     self.findings.setItem(row, column, item)
                 item.setText(str(text))
                 # The sentence the engine wrote about this finding says which
