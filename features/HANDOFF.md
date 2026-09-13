@@ -349,13 +349,26 @@ One that trusts its invocation can, and did.
 
 ## 4. Findings filed but not fixed
 
-**93 — the intensity rescale factor is per field and unrecorded.**
-`measure._promote_merged_to_uint16` picks `factor = 65535/top` from **that
-field's own maximum** when intensities exceed 65535, and runs once per file. A
-bright field is divided by more than a dim one, so the same object measures
-differently in each. The factor prints only under `verbose` and is never
-stored. The float-on-[0,1] path uses a fixed 65535 and is fine; the dangerous
-path is rare, which is why it would go unnoticed.
+**93 — RESOLVED, corrected 2026-09-13.** This entry described the intensity
+rescale factor as "per field and unrecorded", with all three of its complaints
+now answered. Re-read the code before using it; it was stale.
+
+* **Not per field.** `spacr/intensity_rescale.py:build_plate_plan` inspects
+  every field as one plate set, and raw-valued fields on a plate SHARE
+  `65535 / plate_max`. A per-field decision survives only as a recorded
+  fallback for a file that could not be inspected.
+* **Recorded.** `measurements.db:intensity_rescale` carries
+  `rescale_factor REAL NOT NULL`, `rescale_scope` and `plate_intensity_max`;
+  the table is in `schema.FIELD_PROVENANCE_TABLES` and `resume.py` knows it.
+* **Not verbose-only.** The warning at `measure.py:3148` is commented
+  "Deliberately independent of verbose: this conversion changes the unit
+  represented by one stored intensity count", and names the table it was
+  written to.
+
+The original observation was right and the fix went in without this entry
+being updated, which is the same failure the merge entry below had. When a
+section-4 finding is closed, close it HERE too -- an open finding that is not
+open costs somebody a second investigation.
 
 **RESOLVED 2026-09-13 — a merge warning the maintainer saw in a real run.**
 This entry said "this could be serious and nobody has looked" until
