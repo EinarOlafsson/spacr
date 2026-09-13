@@ -69,6 +69,49 @@ def _figure(path: pathlib.Path) -> None:
     plt.close(figure)
 
 
+@pytest.fixture(autouse=True)
+def a_rasteriser_that_answers_headlessly(monkeypatch):
+    """Turn the fixture's PDFs into pixels without ``PySide6.QtPdf``.
+
+    What these tests are about is which FILES the loader collects and how it
+    captions them, not how a page is turned into pixels. Rasterising is
+    `spacr.qt.widgets.figure_queue.render_pdf_to_image`, which drives
+    ``PySide6.QtPdf`` -- a separate shared library, and one that is missing
+    or unloadable on plenty of machines including every headless one this
+    suite runs on, where it answers ``None`` for every page. `_pictures_from`
+    then drops each name that will not decode, which is right of it and is
+    what the grid wants, but it leaves the grid EMPTY: without this fixture
+    every assertion below is answered by the absent backend rather than by
+    the collection logic, and passes or fails for a reason that has nothing
+    to do with the complaint being guarded.
+
+    Only the backend is stood in for. The names stay the ``.pdf`` ones the
+    pipeline really writes, because the run-versus-screen de-duplication
+    matches on basename and a fixture quietly written as ``.png`` would be
+    testing a file layout no screen on disk has. The stand-in refuses what
+    the real one refuses -- a file that is missing, and one that is not a PDF
+    -- so a caller relying on undecodable names being skipped still gets that
+    answer here.
+    """
+    from PySide6.QtGui import QImage
+
+    from spacr.qt.widgets import figure_queue
+
+    def rasterise(pdf_path, *_args, **_kwargs):
+        try:
+            with open(pdf_path, "rb") as handle:
+                header = handle.read(5)
+        except OSError:
+            return None
+        if header != b"%PDF-":
+            return None
+        image = QImage(8, 8, QImage.Format.Format_RGB32)
+        image.fill(0xFFFFFFFF)
+        return image
+
+    monkeypatch.setattr(figure_queue, "render_pdf_to_image", rasterise)
+
+
 @pytest.fixture()
 def screen_folder(tmp_path):
     """A screen shaped the way `perform_regression` leaves one.
@@ -85,6 +128,18 @@ def screen_folder(tmp_path):
     for run in ("ols_11", "ols_12"):
         _figure(root / run / "regression_figure.pdf")
         _figure(root / run / "regression_qc" / "panel_00.pdf")
+    # One figure the SIBLING run has and this one does not. Two runs of the
+    # same sweep write mostly the same basenames, and a basename this run
+    # already carries is dropped on its way in by the de-duplication -- so
+    # with matching names throughout, a sweep that wrongly recursed into the
+    # screen folder would drag ols_11's figures in and then have them all
+    # removed again for the wrong reason, and
+    # `test_the_sibling_runs_figures_are_not_dragged_in` would pass while
+    # guarding nothing. A name that is ols_11's alone survives that and shows
+    # up as the extra figure it is. MEASURED: without it, making
+    # `_figure_names_under` ignore ``recursive=False`` leaves all eleven of
+    # these green.
+    _figure(root / "ols_11" / "regression_qc" / "panel_01.pdf")
     return root
 
 

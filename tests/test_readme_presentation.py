@@ -728,8 +728,23 @@ def test_setting_animations_are_wired_into_readme_and_docs():
     assert "Setting animation registry" in readme
     assert "setting_animations.html" in readme
     assert "Setting animation gallery" in gallery
-    assert gallery.count(".. _setting-animation-") == 94
-    assert gallery.count(".. image:: ../../spacr/resources/") == 94
+    # 94 -> 86 on 2026-09-12, both counts. Measured against the manifest
+    # either side of the change: eight specs left and none arrived, and
+    # they are the dim/bright intensity-percentile pair at the four
+    # object roles -- `cell_min_intensity_percentile`,
+    # `cell_max_intensity_percentile` and the same two for `nucleus`,
+    # `pathogen` and `organelle`. Those settings were replaced by an
+    # absolute threshold, so the animations documented settings that no
+    # longer exist and their GIFs were deleted with them.
+    #
+    # The gallery is generated from the registry, so both numbers move
+    # together: one anchor and one image per shipped animation. Verified
+    # on disk that the page still points only at files that exist -- all
+    # 86 referenced GIFs are present, no GIF is left unreferenced, and
+    # the README links the gallery and registry pages rather than any
+    # GIF, so nothing on the front page is broken by the deletion.
+    assert gallery.count(".. _setting-animation-") == 86
+    assert gallery.count(".. image:: ../../spacr/resources/") == 86
     assert ":mod:`spacr.setting_animations`" in gallery
 
 
