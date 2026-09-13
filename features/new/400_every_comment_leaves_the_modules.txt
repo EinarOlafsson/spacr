@@ -1,0 +1,77 @@
+================================================================================
+EVERY COMMENT LEAVES THE MODULES AND THE REASONS MOVE TO docs/notes
+================================================================================
+
+Status:    IN PROGRESS, filed 2026-09-13. Not blocking. Two rival versions
+           exist and one must be discarded -- see BEWARE.
+Requested: 2026-09-12 -- "you have left an extreemely high number of notes
+           throughout many of the modual py files. If there is valuble
+           information there i would like that to be retained. but if possible
+           i would like to remove all of these # comments and move this
+           information some place different."
+Owner:     Claude session.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+`tools/extract_source_notes.py` classifies every comment in the package,
+moves the ones worth keeping to `docs/notes/<same path>.md`, and strips them
+from the source. It is a dry run unless `--execute`, and it writes
+`--discard-log` so a real run throws nothing away irrecoverably.
+
+THE SAFETY PROPERTY IS AST EQUALITY, AND IT IS NOT SKIPPABLE. Every file is
+compared `ast.dump(ast.parse(before)) == ast.dump(ast.parse(after))` before
+it is written, and a file whose AST moved is refused. A comment strip that
+changes behaviour is the only way this task can do harm, so it is the one
+thing the tool will not do.
+
+Current measurement: 512 modules stripped, 491 notes files written, ~50,500
+comment lines removed. The 71 `#` lines that remain in `spacr/` are all
+inside string literals -- QSS selectors (`#Sidebar`), a GLSL `#version 120`,
+and `# BEFORE` / `# AFTER` examples inside docstrings.
+
+--------------------------------------------------------------------------------
+BEWARE: TWO VERSIONS, ONE MUST DIE
+--------------------------------------------------------------------------------
+
+  branch salvage/comment-extraction-original   commit 1d93e5947
+      The first run. 514 files. Was on a DETACHED HEAD on no branch for
+      several days, one `git worktree prune` from being lost, which is why
+      it is branched now. Its base is 54 commits behind nightly.
+
+  branch feat/comment-extraction-rebuilt       commit 5947cb375
+      CANONICAL. Same tool re-run against current code rather than rebasing
+      the original across 514 conflicted files. Also un-ignores `docs/notes`
+      in `.gitignore` with a reason, instead of the original's `git add -f`,
+      which left 491 files tracked-but-ignored and invisible to `git status`.
+
+LANDING BOTH WOULD DOUBLE-APPLY. Land the rebuilt one; delete the salvage
+branch once it is merged.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Isolate 15 failures seen in a full-suite run on the stripped tree: 7
+   errors in `tests/flowview/test_the_panel_is_a_box_you_can_resize.py`, plus
+   `tests/qt/test_ambient_wiring.py`, `tests/qt/test_console_thread_safety.py`
+   and `tests/qt/test_cov_app_screen.py`. The strip does not touch test
+   files, and the same files pass on nightly, so the cause is either the
+   strip or one of the newer commits -- that has NOT been told apart yet.
+2. Rebase `feat/comment-extraction-rebuilt` onto nightly and re-run.
+3. Merge, then delete `salvage/comment-extraction-original`.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Not a full-suite run in one process. That was tried and is not survivable:
+`tests/conftest.py` enforces a 6 GB ceiling with `os._exit(3)`, and the run
+reached 5.3 GB at 9 % after 80 minutes, projecting ~14 hours. Use
+`tools/run_pytest_batches.py` the way CI does, or raise
+`SPACR_TEST_MEMORY_GB` deliberately.
+
+    python tools/extract_source_notes.py          # dry run, expect no changes
+
+A clean dry run on a merged tree means nothing was missed.
