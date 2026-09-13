@@ -2,7 +2,10 @@
 LOADING A RUN HANGS THE APPLICATION
 ================================================================================
 
-Status:    filed 2026-08-18. FOUND, not fixed.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "DONE 2026-08-19."
+           Originally filed 2026-08-18; the header was never moved off
+           "filed" and the item read as unstarted until 2026-09-13.
 Requested: 2026-08-18 -- "i tried to load another run and this seemed to hang
            spacr"
 

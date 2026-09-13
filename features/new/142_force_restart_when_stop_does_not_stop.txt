@@ -2,7 +2,10 @@
 FORCE RESTART, FOR WHEN STOP DOES NOT STOP
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-08-20 -- DONE, A THROUGH C."
+           Originally filed 2026-08-18; the header was never moved off
+           "filed" and the item read as unstarted until 2026-09-13.
 Requested: 2026-08-18 --
 
   "add an extra button to the stop popup window called Force restart, if forse

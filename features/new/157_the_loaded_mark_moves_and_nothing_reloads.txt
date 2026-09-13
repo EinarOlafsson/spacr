@@ -2,7 +2,10 @@
 THE LOADED MARK MOVES AND NOTHING RELOADS
 ================================================================================
 
-Status:    filed 2026-08-18. A defect in the run-loading work of the same day.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-08-19 -- DONE. Verified by reading the connection."
+           Originally filed 2026-08-18; the header was never moved off
+           "filed" and the item read as unstarted until 2026-09-13.
 Requested: 2026-08-18 --
 
   "i ran a mixed model and a ols model and eaven if the ols model is marked as

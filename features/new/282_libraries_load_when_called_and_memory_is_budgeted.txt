@@ -2,10 +2,19 @@
 LIBRARIES LOAD WHEN CALLED, AND THE USER SETS THE MEMORY BUDGET
 ================================================================================
 
-Status:    OPEN, filed 2026-08-27. NOT STARTED. One measurement taken, and
-           it rules out part of the request as asked -- see MEASURED below.
-           The maintainer asked for an opinion on the design as well as the
-           work, and that opinion is owed.
+Status:    PARTLY DONE, corrected 2026-09-13. "NOT STARTED" was wrong:
+           the file carries "DONE 2026-08-28." with the lazy-import result
+           asserted through `sys.modules` rather than timed.
+
+           STILL OPEN, and named in the file: `what_to_drop` and
+           `headroom_is_short` are written and tested but the existing caches
+           do not consult them yet -- `resource_cleanup.py`'s sweep and the
+           figure live-cache. The file calls that mechanical, "the decisions
+           the item was about are made and recorded here".
+
+           Also still owed, from the original ask: the maintainer wanted an
+           opinion on the design as well as the work. Originally filed
+           2026-08-27.
 Owner:     spacr/qt/app.py (the preloader), and whatever cache layer this
            grows.
 Requested: 2026-08-27.

@@ -2,7 +2,10 @@
 THE FIGURES CONTAINER IS RESIZABLE AND EACH CATEGORY COLLAPSES
 ================================================================================
 
-Status:    filed 2026-08-19.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-08-19 -- DONE. A, B AND C."
+           Originally filed 2026-08-19; the header was never moved off
+           "filed" and the item read as unstarted until 2026-09-13.
 Requested: 2026-08-19 -- "cant control the height of the containers in the
            figures container in the measurements tab. i need to be able to
            make each taller and collapse each element category"

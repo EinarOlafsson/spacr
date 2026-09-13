@@ -2,7 +2,10 @@
 ANALYSIS MODE IS A DROPDOWN, NOT A TEXT BOX
 ================================================================================
 
-Status:    filed 2026-08-17.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-08-20 -- DONE. And the labels found a bug in the settings writer."
+           Originally filed 2026-08-17; the header was never moved off
+           "filed" and the item read as unstarted until 2026-09-13.
 Requested: 2026-08-17 -- "analasys mode should be a dropdown"
 
 Related: 132 is the model and inference tab this sits in. 106 is the rule a

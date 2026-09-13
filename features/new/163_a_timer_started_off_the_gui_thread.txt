@@ -2,7 +2,10 @@
 A TIMER STARTED OFF THE GUI THREAD NEVER FIRES
 ================================================================================
 
-Status:    filed 2026-08-18. NOT LOCATED.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "DONE 2026-08-19."
+           Originally filed 2026-08-18; the header was never moved off
+           "filed" and the item read as unstarted until 2026-09-13.
 Requested: 2026-08-18 -- four of
 
     Qt warning: QBasicTimer::start: Timers cannot be started from another thread

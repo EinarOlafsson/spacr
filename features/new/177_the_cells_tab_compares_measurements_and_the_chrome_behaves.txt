@@ -2,7 +2,10 @@
 THE CELLS TAB COMPARES MEASUREMENTS, AND THE CHROME BEHAVES
 ================================================================================
 
-Status:    filed 2026-08-19.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-08-19 -- DONE. A to F."
+           Originally filed 2026-08-19; the header was never moved off
+           "filed" and the item read as unstarted until 2026-09-13.
 Requested: 2026-08-19, six things in one message.
 
 --------------------------------------------------------------------------------

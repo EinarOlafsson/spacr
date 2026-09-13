@@ -2,10 +2,10 @@
 THE X AND Y AXES BEHAVE AS EXPECTED, LOGGED OR NOT
 ================================================================================
 
-Status:    filed 2026-08-18. Retitled 2026-08-18 at the maintainer's request
-           -- the scope is BOTH AXES BEHAVING CORRECTLY in either mode, not
-           only the log transform. The log half is a CORRECTNESS bug, not a
-           nit; the linear half is that a typed limit must hold.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "INSTRUCTION 148 IS COMPLETE: A, B and C all shipped 2026-08-18."
+           Originally filed 2026-08-18; the header was never moved off
+           "filed" and the item read as unstarted until 2026-09-13.
 
 THE WHOLE OF IT, IN ONE LINE: an axis must describe the marks drawn against
 it, and a limit the user typed must be the limit that is used -- whether the

@@ -2,7 +2,10 @@
 THE EXPLAINER TEXT FILLS THE WIDTH OF ITS BOX
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-08-20 -- DONE, by 144's move to rich text, and now HELD BY A TEST."
+           Originally filed 2026-08-18; the header was never moved off
+           "filed" and the item read as unstarted until 2026-09-13.
 Requested: 2026-08-18, twice, once per box --
 
   "in model and inference in regression module the text in the text box

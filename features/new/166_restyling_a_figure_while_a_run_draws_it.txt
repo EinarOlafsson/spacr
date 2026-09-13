@@ -2,7 +2,10 @@
 RESTYLING A FIGURE WHILE A RUN IS DRAWING ONE CRASHES spaCR
 ================================================================================
 
-Status:    filed 2026-08-19. Cause found, fix in the same commit.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-08-19 -- DONE, and verified on re-reading rather than assumed."
+           Originally filed 2026-08-19; the header was never moved off
+           "filed" and the item read as unstarted until 2026-09-13.
 Requested: 2026-08-19 -- "i was changing the background graph color of the
            first graph while a nonparametric statmodels mixed model was being
            trained and spacr crashed"
