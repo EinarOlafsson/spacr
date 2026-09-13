@@ -1,5 +1,5 @@
 ================================================================================
-SPACR FEATURES -- NEW, AND FUTURE
+spaCR FEATURES -- NEW, AND FUTURE
 ================================================================================
 
 Regenerated 2026-09-12 by `tools/build_instruction_index.py`, from the files

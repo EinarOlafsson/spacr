@@ -163,7 +163,7 @@ def render(today: str = "") -> str:
 
     lines = [
         "=" * 80,
-        "SPACR FEATURES -- NEW, AND FUTURE",
+        "spaCR FEATURES -- NEW, AND FUTURE",
         "=" * 80,
         "",
         f"Regenerated {stamp} by `tools/build_instruction_index.py`, from the "
