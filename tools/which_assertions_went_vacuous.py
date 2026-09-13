@@ -37,6 +37,27 @@ property they name.
   none of them call the accessor, so none of them appear at all. Absence
   from this table is not evidence.
 
+THE PROBE PERTURBS A LARGE RUN. TREAT EVERY FAILURE UNDER IT AS SUSPECT.
+Measured 2026-09-13 over 66 theme files in one process:
+
+    with this probe       16 failed, 1991 passed, 6 skipped
+    without it, same
+    files and same order       0 failed, 2007 passed, 6 skipped
+
+Those 16 are not real. They do not reproduce when the affected file is run
+alone under the probe (28 passed both ways), nor in a five-file subset chosen
+from the likely interactors (312 passed under the probe), and the probe adds no
+measurable time -- one file measured 30.34 s under it against 31.06 s without.
+So it is not slowness and it is not a simple two-file interaction; the
+mechanism was NOT localised, and saying so is more useful than a guess.
+
+  WHAT THAT MEANS IN PRACTICE. Use this tool to produce the SITE TABLE, which
+  is what it is for and which was verified correct against a second probe on
+  the write side. Do NOT use its pass/fail result for anything. When it reports
+  a failure, re-run the same files without `-p vacuous_plugin` before believing
+  it -- and if a site appears only in a run that also failed, check whether the
+  failing test is the one that would have reached it.
+
 THE COUNTER IS A NAMED DICT AND THAT IS DELIBERATE. The first version of this
 measurement stored `[full, empty]` as a two-slot list and the reporting code
 unpacked it as `(empty, full)`, so every site was reported inverted: it

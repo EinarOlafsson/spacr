@@ -638,3 +638,50 @@ SO THE FULL PASS ADDS ONE FINDING to the four already fixed, and it is a
 different KIND of finding. The eight-file sample and the 66-file population
 agree about the 380 casualties, which is the only evidence available that the
 sample was not lucky.
+
+--------------------------------------------------------------------------------
+2026-09-13, LAST -- THE INSTRUMENT ITSELF FAILED SIXTEEN TESTS, AND THE CONTROL
+RUN IS THE ONLY REASON THAT IS KNOWN
+--------------------------------------------------------------------------------
+
+The 66-file pass above reported `16 failed, 1991 passed` alongside its site
+table. I very nearly wrote those up as pre-existing order dependence -- 66
+theme files in one process is a combination CI never runs, and the three names
+I had were in a timing-flavoured file (`test_z_and_the_wheel_resize_the_text`),
+so the story told itself.
+
+IT WAS THE PROBE. The same 66 files, in the same order, with the plugin
+removed:
+
+    with the probe        16 failed, 1991 passed, 6 skipped
+    without it             0 failed, 2007 passed, 6 skipped
+
+Same total, 2013 tests either way. Sixteen tests that pass without the probe
+fail with it.
+
+WHAT IT IS NOT, each measured rather than assumed:
+
+  * NOT SLOWNESS. `traceback.extract_stack()` on every read looked like the
+    obvious cost, and it is not one: `tests/qt/test_preferences.py` ran in
+    30.34 s under the probe against 31.06 s without.
+  * NOT A PROPERTY OF THE AFFECTED FILE. Run alone under the probe it is 28
+    passed, both ways.
+  * NOT A SMALL INTERACTION. Five files chosen as the likely interactors --
+    field fade, registration seams, preferences, photo themes, and the
+    affected file -- gave 312 passed under the probe.
+
+THE MECHANISM WAS NOT FOUND, and bisecting a 66-file run at 12-35 minutes a
+pass was not worth the remaining night. That is recorded as an open question
+rather than dressed up.
+
+  THE POINT IS THE CONTROL, NOT THE BUG. An instrument that changes the thing
+  it measures is the oldest hazard there is, and nothing in the probe's output
+  hinted at it -- the site table it produced was CORRECT, verified against a
+  write-side probe, and the conclusions drawn from it stand. Only the pass/fail
+  column was fiction, and it was fiction that fitted a plausible story.
+
+  SO: RUN THE CONTROL. The tool's docstring now says to treat every failure
+  under it as suspect and re-run without the plugin before believing it. This
+  is the second time in one night that a second measurement of the same thing
+  is what caught the first one -- the other being the inverted `[full, empty]`
+  counter, caught by a write-side probe disagreeing with a read-side one.
