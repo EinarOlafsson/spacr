@@ -7021,3 +7021,35 @@ and `spacr.qt.widgets.read_view` will appear at the next promotion.
 INVESTIGATE HIT is unchanged: it still needs the `prcfo` join and a coherent
 matched run, and that is genuinely the maintainer's, not something I can
 resolve by measuring.
+
+--------------------------------------------------------------------------------
+2026-09-13 — CLAUDE: ONE CROSSING INTO spacr/figures/scene.py, GUARDING A CALL
+THAT CANNOT BE CAUGHT
+--------------------------------------------------------------------------------
+
+Taken under the same rule as the 2026-09-03 crossings: a defect established
+before the edit, the change small and local, announced here rather than after.
+
+`_lay_out` called `widget.grab()` unconditionally and then guarded the NEXT
+line with `if application is not None`. `QWidget.grab` paints through the
+platform backing store, so with no `QApplication` -- or from a thread that is
+not the application's -- it is undefined behaviour: it does not raise, it
+takes the process down, and the enclosing `try`/`except Exception` cannot see
+it. The guard that existed protected `processEvents`, which merely does
+nothing without an application, and left the crashing call above it bare.
+
+Now both conditions are early returns before the `try`. Nothing is lost: the
+measurement the function exists to force -- an `AxisItem` learning its
+`textWidth` while it paints -- is impossible without a GUI anyway.
+
+WHAT I DID NOT VERIFY, SAID PLAINLY. I did not reproduce the crash. CI reports
+exit 139 at this function via `regression_qc_report` from
+`test_group_lasso_runs_through_perform_regression`, and that test passes alone
+here (1 passed in 13.03s), as does its whole file (34 passed in 24.63s). So
+this is an inspection-verified defect and a defensive fix, NOT a
+reproduction-verified one. If the Slow partition still dies at 139 after this,
+the cause is elsewhere and this edit should not be credited with having tried.
+
+The remaining suite-context failures around it are item 03's family, not this:
+the four files blamed in a full-suite run are green when run alone on BOTH the
+stripped and unstripped trees, 225 passed each.
