@@ -3,9 +3,12 @@ GENERATE MASKS SAYS PERCENTILE WHERE THE USER MEANS INTENSITY, AND THE LIVE
 VIEW STILL DRAWS A STRAY FIELD OVER THE PATH
 ================================================================================
 
-Status:    PARTLY DONE, 2026-09-11. Parts FOUR, FIVE and SIX are closed;
-           Parts ONE, TWO and THREE are open and are the bulk of the work.
-           See PROGRESS at the foot of this file.
+Status:    DONE, 2026-09-13. All six parts are built and the catalog
+           rebuild that was the last outstanding item has run in both lanes.
+           THIS LINE SAID "PARTLY DONE" UNTIL 2026-09-13 while the note at
+           the foot of the file had already recorded all six parts closed on
+           2026-09-12 -- the header being wrong about the file is the exact
+           failure the index warns of, and it was wrong for a day.
 Requested: 2026-09-10, verbatim -- "in generate masks, the intensity
            threshold is a quantile, cahnge it to an absolut intensity
            threshold. remove these settings: Max intensity pct, Min intensity
@@ -484,3 +487,40 @@ is the rebuild, and it is deliberately BATCHED -- part three and parts one/two
 are paid for in one pass rather than one per commit, at the other session's
 request and at about forty minutes a pass. A green build is not a green audit:
 budget the repair pass after it.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- THE LAST OUTSTANDING ITEM, THE CATALOG REBUILD, IS DONE
+--------------------------------------------------------------------------------
+
+The note above ends "WHAT IS LEFT, AND IT IS ONE THING: THE CATALOG REBUILD",
+naming `setting_consumers.json` and `setting_api_targets.py` as still carrying
+rows for the removed and renamed keys, and the EN runtime catalog as holding
+140 references to names that no longer exist.
+
+IT RAN AT 19:29 ON 2026-09-12, commit 173846ebe, "Both catalog lanes green
+after 391: nine languages, 10,401 symbols, 1,040 settings". Measured here
+rather than taken from the commit message:
+
+    removed names still referenced
+      min_object_area, intensity_percentile, area_multiplier,
+      max_intensity_pct, min_intensity_pct, intensity_threshold_method
+        spacr/qt/i18n_catalogs/en.py        0
+        docs/setting_consumers.json         0
+        spacr/qt/screens/setting_api_targets.py  0
+
+    new names present
+                                    catalog  consumers  targets
+        intensity_threshold              35         26        7
+        minimum_area_to_split            35         26        7
+        min_watershed_distance           35         26        7
+
+So the 140 are gone and the replacements are carried in all three artifacts.
+The counts agree across the three, which is the part worth checking: a rebuild
+that refreshed the catalog and left a derived map behind would show as a
+catalog with the new names and a consumer map without them.
+
+THE REPAIR PASS THE NOTE ASKS FOR IS STILL THE RIGHT ADVICE and is not
+discharged by this. "A green build is not a green audit" was written about
+translated prose, not about key names, and nothing here inspected a single
+translation for meaning. What is checked above is that no artifact names a
+setting that does not exist.
