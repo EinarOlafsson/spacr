@@ -165,6 +165,19 @@ _TEXT_METHODS = {
     "setPlaceholderText", "setAccessibleName", "setAccessibleDescription",
     "setInformativeText", "setDetailedText", "append_notice",
     "set_translatable_text", "tr",
+    # A ONE-LINE WRAPPER HIDES ITS TEMPLATES FROM THIS EXTRACTOR ENTIRELY.
+    # `map_barcodes._set_status(text, **values)` forwards to
+    # `set_translatable_text(self.status, text, **values)`, so the literal sits
+    # at the WRAPPER's call site and the extractor, looking only at the
+    # forwarding call, sees a parameter name. Measured 2026-09-13: all ELEVEN
+    # of the Map Barcodes status sentences were absent from the catalogs and
+    # therefore untranslated in all nine languages -- the screen's entire
+    # progress commentary, in English, for every non-English user.
+    #
+    # Named here rather than by un-wrapping the method: the wrapper is
+    # reasonable code, and an extractor that only understands one spelling of
+    # a call is the thing that should bend.
+    "_set_status",
 }
 _TEXT_CONSTRUCTORS = {
     "QLabel", "QPushButton", "QToolButton", "QCheckBox", "QRadioButton",
@@ -3163,6 +3176,11 @@ def _candidate_arguments(node: ast.Call, name: str) -> Iterable[ast.AST]:
         # The first argument is a widget; the second is the canonical English
         # template that must enter the runtime catalog.
         yield node.args[1]
+        return
+    if name == "_set_status" and node.args:
+        # `_set_status(text, **values)` -- the widget is `self.status`, so the
+        # template is the FIRST positional argument rather than the second.
+        yield node.args[0]
         return
     if name == "addTab" and len(node.args) >= 2:
         yield node.args[1]

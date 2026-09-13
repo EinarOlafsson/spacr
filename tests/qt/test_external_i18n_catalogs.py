@@ -349,10 +349,38 @@ def test_every_set_translatable_text_call_has_static_catalog_sources():
                   and isinstance(statement.target, ast.Name)
                   and statement.value is not None):
                 constants[statement.target.id] = statement.value
+        # A FORWARDING CALL CARRIES NO TEMPLATE, AND ITS CALLERS DO. Twenty-three
+        # screens define `_set_status(self, text, ...)` as a one-line wrapper
+        # around `set_translatable_text(self.status, text, ...)`. The literal
+        # lives at the WRAPPER's call sites; the forwarding line itself only
+        # ever passes a parameter name, so demanding a static template of it
+        # asks for something that cannot exist.
+        #
+        # The wrappers are named in `builder._TEXT_METHODS`, which is what
+        # makes their call sites extractable -- so a forwarding call is
+        # exempt here exactly when the extractor already covers the wrapper it
+        # is inside. That keeps this guard strict about every OTHER call.
+        forwarding = set()
+        for fn in ast.walk(tree):
+            if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            if fn.name not in builder._TEXT_METHODS:
+                continue
+            names = {a.arg for a in fn.args.args + fn.args.kwonlyargs}
+            for inner in ast.walk(fn):
+                if (isinstance(inner, ast.Call)
+                        and builder._call_name(inner) == "set_translatable_text"
+                        and len(inner.args) >= 2
+                        and isinstance(inner.args[1], ast.Name)
+                        and inner.args[1].id in names):
+                    forwarding.add(inner)
+
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call):
                 continue
             if builder._call_name(node) != "set_translatable_text":
+                continue
+            if node in forwarding:
                 continue
             checked += 1
             arguments = list(builder._candidate_arguments(
