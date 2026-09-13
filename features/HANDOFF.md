@@ -357,17 +357,41 @@ differently in each. The factor prints only under `verbose` and is never
 stored. The float-on-[0,1] path uses a fixed 65535 and is fine; the dangerous
 path is rare, which is why it would go unnoticed.
 
-**Not yet investigated — a merge warning the maintainer saw in a real run:**
+**RESOLVED 2026-09-13 — a merge warning the maintainer saw in a real run.**
+This entry said "this could be serious and nobody has looked" until
+2026-09-13. Somebody had looked, and the answer is written in
+`spacr/merge_tables.py` beside the code that fixes it.
 
 ```
 'plateID':  57170 of 65737 objects disagree between cell and pathogen
 'rowID':    57170 …   'columnID': 57170 …   'fieldID': 57170 …
 ```
 
-`object_label` disagreeing is expected — a cell and its pathogen have
-different labels. The **identity** columns disagreeing means the merge may be
-pairing rows from different fields. This could be serious and nobody has
-looked.
+TWO CAUSES, BOTH FIXED, both documented where they were fixed:
+
+* `object_label` was in `MUST_AGREE` and should not have been. A cell's
+  `object_label` is its label in the CELL mask; a pathogen's is its label in
+  the PATHOGEN mask. Two labellings of two objects with no reason to coincide,
+  so the warning fired on nearly every row of every healthy screen — and a
+  warning that fires on the normal case teaches its reader to ignore it.
+* The identity columns were compared against ABSENCE. An uninfected cell kept
+  on purpose (`keep_uninfected=True`) has no pathogen row, so every
+  pathogen-side column is missing for it. `_columns_agree` now treats EITHER
+  side missing as "cannot disagree".
+
+THE SHAPE OF THE NUMBERS IS THE EVIDENCE: plateID, rowID, columnID and fieldID
+all disagreeing at exactly 57,170 is what "57,170 cells have no pathogen in
+them" looks like, not what "the merge is pairing rows from different fields"
+looks like — a mispairing would not hit four columns at an identical count.
+`merge_tables.py` records the same shape from a smaller run, 172 of 553, where
+172 was exactly the number of cells with no pathogen.
+
+Verified behaviourally on 2026-09-13 rather than read off the docstring: the
+uninfected-cell case now reports 0 conflicts, a genuine plate1-vs-plate2
+disagreement still reports 1, and `object_label` is no longer in `MUST_AGREE`.
+
+The maintainer's specific run was not re-run — that needs their data — but the
+defect it displayed is closed and the numbers fit it exactly.
 
 ---
 
