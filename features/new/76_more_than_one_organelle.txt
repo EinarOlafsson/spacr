@@ -2,7 +2,28 @@
 MORE THAN ONE ORGANELLE: organelle, organelle_1, organelle_2, ...
 ================================================================================
 
-Status:    not started, 2026-08-11.
+Status:    SUBSTANTIALLY BUILT, corrected 2026-09-13. This line said "not
+           started" for a month while the note at the foot of this file
+           described a registry of 702 organelle slots and seven rewritten
+           vocabularies. Verified 2026-09-13: `ALL_ROLES` carries 706 roles,
+           and feature_dict, measure_hooks, filters, merge_tables, io and
+           measure all interpolate `*ORGANELLE_ROLES` (7, 2, 2, 2, 9 and 13
+           references respectively).
+
+           TWO THINGS REMAIN, both re-checked today and both still true:
+             * `run_compare.OBJECT_TABLES` is ('cell', 'nucleus', 'pathogen',
+               'cytoplasm', 'png_list') -- no organelle table, so a
+               run-to-run comparison cannot see that one run wrote organelle
+               rows and another wrote none.
+             * `gene_measurement_compare.OBJECT_TABLES` (line 982) omits them
+               the same way.
+
+           ONE CLAIM IN THE NOTE BELOW IS TOO STRONG. It lists
+           `external_masks.py` among the files that interpolate the registry.
+           It does not: lines 78-81 hard-code four regexes, for organelle
+           through organelled. That is defensible -- a filename matcher
+           cannot carry 702 patterns -- but it is a cap, not interpolation,
+           and a fifth slot's masks would not be recognised by filename.
 Requested: 2026-08-11 — "Add to instructions to add support for detecting organelle multiple times so I can have organelle, organelle_1, organelle_2, etc."
 
 --------------------------------------------------------------------------------
