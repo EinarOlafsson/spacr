@@ -206,6 +206,64 @@ resolved location's HEAD.
 
 ---
 
+### A refactor repairs the half of a pair that goes red, and never sees the half that goes green
+
+Instruction 380 moved the composed stylesheet off the `QApplication` and onto
+each top-level window. Commit `94f590e0b`, in that same lane, contains
+
+    -    assert "registered widget QSS: FieldFade" in qapp.styleSheet()
+    +    assert "registered widget QSS: FieldFade" in theme_mod.window_stylesheet(qapp)
+
+Two hundred lines earlier in the SAME FILE sits the same assertion with the
+opposite polarity — `not in qapp.styleSheet()` — and it was not touched. The
+positive one went red when the sheet moved; the negative one became "no marker
+is ever found in the empty string" and stayed green. Same file, same afternoon,
+same person.
+
+**Every `x in value` a refactor breaks has an `x not in value` somewhere that it
+did not.** They are one assertion seen from two sides, and only one of them is
+on the screen at the end of the day. When a move turns a test red, GREP THE
+SAME FILE FOR THE SAME READ before fixing it.
+
+`tests/test_perf_guard.py` was the other victim and shows the cost: of its three
+stylesheet assertions, one failed and two passed vacuously for two days. It was
+found by a full-suite sweep, not by anyone looking at the theme.
+`tools/which_assertions_went_vacuous.py` is the instrument, and takes
+`--accessor module:Class.method` so it is not about stylesheets.
+
+### Name the containers your search recognises, or the count is a property of the grep
+
+`layout` and `measure` were reported as settings that nothing reads. Both are
+read, in four modules, through
+
+    resolved = default_settings(settings)
+
+so the settings dictionary is bound to a local called `resolved` by the time a
+key comes out of it. A search for `settings[...]`, `settings.get(...)` and
+`settings.setdefault(...)` sees none of it. Measured: **four modules, 84 reads,
+50 distinct keys** — and the four are `convert`, `align`, `foreign` and
+`external_masks`, the pipeline entry points such an audit exists to check.
+
+That is the third instrument in one item to have its own blind spot reported as
+a property of the code: `expected_types` cannot see keys registered inside a
+function body (item 397), the tooltip dict cannot see keys registered from a
+module body (trap 3c), and a grep cannot see keys read out of a renamed local.
+In all three the first reading was "these settings do not exist".
+
+### Two probes that disagree is a gift; one probe is believed
+
+The vacuous-assertion sweep above first reported **41 of 55 sites vacuous**. The
+true number was 11 and the 41 were the healthy ones: the counter stored
+`[full, empty]` and the reporting script unpacked `(empty, full)`. Every row was
+inverted, the summary was dramatic, and nothing about it looked wrong.
+
+It was caught because a second probe on the WRITE side said 72,979 characters
+were installed and never cleared, against a read probe insisting the value was
+always empty. Both could not be true. **A measurement that cannot be checked
+against a differently-shaped measurement of the same thing should be reported
+with that stated.** The counter is now a named dict, because a key cannot be
+unpacked backwards.
+
 ## 0. THE FOUR LESSONS. READ THESE BEFORE YOU TOUCH ANYTHING.
 
 ### 0a. Audit before you build — SIXTY-NINE files have been wrong about themselves
