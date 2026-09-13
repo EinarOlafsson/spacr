@@ -83,7 +83,7 @@ the tree:
 
 | generated file | what regenerates it |
 |---|---|
-| `instructions/00_INDEX.txt` | `tools/build_instruction_index.py` |
+| `features/00_INDEX.txt` | `tools/build_instruction_index.py` |
 | `spacr/qt/i18n_catalogs/*.py` | `tools/build_i18n_catalogs.py` |
 | `docs/source/_static/i18n/api/*.json` | `tools/build_documentation_i18n.py` |
 | `docs/i18n/readme/*` | `tools/build_documentation_i18n.py` |
@@ -115,10 +115,10 @@ Work in this repository is tracked in an instruction ledger, not only in
 issues. Each item is one file saying what the state is, why it matters, what to
 do, how to know it worked, and what was deliberately *not* done.
 
-**It lives on the `nightly` branch, under `instructions/`** — it is working
+**It lives on the `nightly` branch, under `features/`** — it is working
 material rather than product, so it is deliberately not published on `main`.
-`instructions/00_INDEX.txt` is generated from the folder and
-`instructions/TEMPLATE.txt` is the shape.
+`features/00_INDEX.txt` is generated from the folder and
+`features/TEMPLATE.txt` is the shape.
 
 You do not need to file one to contribute a fix. If you are picking up
 something substantial, reading the relevant item first will usually save you

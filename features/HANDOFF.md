@@ -1,14 +1,22 @@
-# Handoff — header rewritten 2026-09-02
+# Handoff — header rewritten 2026-09-02, paths corrected 2026-09-12
+
+> **PATHS UPDATED 2026-09-12.** `instructions/` became
+> `features/new` and `features/future`, and this file -- the one the
+> index tells you to read FIRST -- still pointed at the old folder in
+> six places, including `00_INDEX.txt` itself. Anyone following it
+> landed on a path that does not exist. The counts further down are
+> from 2026-09-04 and are NOT corrected here on purpose: the index is
+> generated and this file is not, so read counts there.
 
 Written for whoever picks this up next, human or agent. It records what is
 true right now, what needs the maintainer, and the traps that cost time so
 they cost nobody else any.
 
-Read this, then `instructions/00_INDEX.txt`, then the open instruction you are
+Read this, then `features/00_INDEX.txt`, then the open instruction you are
 taking. The INDEX is generated from the folder and carries a percentage on
 every open row; this file carries the things a generator cannot know.
 
-**THERE IS ONE LEDGER AND IT IS `00_INDEX.txt`.** `instructions/PROGRESS.md`
+**THERE IS ONE LEDGER AND IT IS `00_INDEX.txt`.** `instructions/PROGRESS.md (retired, and the folder is now features/)`
 was a second, hand-maintained one; it went stale, listed about 34 closed items
 as unfinished, and carried a row for an item 60 that has no file anywhere. It
 was retired on 2026-09-04 at the maintainer's decision — see instruction 352
@@ -23,16 +31,15 @@ a `codex/tutorial-api-final` checkpoint; both were nine months of work out of
 date and are in section 8 below with the rest of the history.
 
 Two sessions share this repository.
-`instructions/325_two_sessions_one_repo_working_protocol.temp` is the channel
+`features/325_two_sessions_one_repo_working_protocol.temp` is the channel
 between them and the record of who owns what — **read it before touching
 anything**,
 
 > NOT UNDER `open/`, AND NOT A MISFILING. The maintainer took 325 off the
 > instructions list on 2026-09-09: it is a standing protocol rather than a
 > task that can be finished, so it does not belong in a ledger that counts
-> what is done. `build_instruction_index.py` globs `open/*.txt` and
-> `done/*.txt`, so 325 is deliberately invisible to `00_INDEX.txt` and
-> `--check` passes without it. Do not "repair" it back into `open/`. and announce there before editing `setup.py`, `spacr/__init__.py`,
+> what is done. `build_instruction_index.py` globs the feature folders, so 325 is deliberately invisible to `00_INDEX.txt` and
+> `--check` passes without it. Do not "repair" it back into a numbered list. and announce there before editing `setup.py`, `spacr/__init__.py`,
 `spacr/schema.py`, `spacr/accelerator.py` or `.github/**`.
 
 WHAT IS RELEASE-BLOCKING, from instruction 331 which splits the list into
@@ -204,7 +211,7 @@ creating anything, and prefer `Edit` over `Write` for a path that may exist.
 
 * Branch `nightly`. SUPERSEDED 2026-09-02: the file list and ownership that
   used to be here were true in August and are not now.
-  **`instructions/325_two_sessions_one_repo_working_protocol.temp`
+  **`features/325_two_sessions_one_repo_working_protocol.temp`
   sections 1 and 2 are the current answer** to which
   tree is whose and which files are whose, and it stays current because both
   sessions write to it.
@@ -367,7 +374,7 @@ looked.
 ## 5. Where each open instruction stands
 
 > **SUPERSEDED — this table is an August snapshot.** Several of its items are
-> closed and fourteen more have been filed since. `instructions/00_INDEX.txt`
+> closed and fourteen more have been filed since. `features/00_INDEX.txt`
 > is regenerated from the folder and carries a percentage on every open row;
 > read that instead. The table is kept because its one-line characterisations
 > of 52, 95, 94 and 47 are still the best short descriptions of what those
@@ -474,7 +481,7 @@ Written for whoever picks this up next, human or agent. It records what is
 true right now, what needs the maintainer, and the traps that cost time so
 they cost nobody else any.
 
-Read this, then `instructions/00_INDEX.txt`, then the open instruction you are
+Read this, then `features/00_INDEX.txt`, then the open instruction you are
 taking. The authoritative status is the current ledger and each instruction's
 latest dated record; older sections below are preserved as history.
 
