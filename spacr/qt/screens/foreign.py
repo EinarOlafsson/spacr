@@ -816,7 +816,11 @@ class ForeignScreen(QWidget):
         masks = self.mask_folders()
         if not masks:
             self._set_status(
-                "Add at least one mask folder — a spaCR project without "
+                # TWO SENTENCES, NOT ONE EM-DASH CLAUSE. The Hindi
+                # checkpoint was the only one of the nine that would not take
+                # this line, and the repo's remedy for that is to shorten and
+                # split rather than to accept an English row.
+                "Add at least one mask folder. A spaCR project without "
                 "object masks has nothing to measure and nothing to crop.",
                 error=True)
             return False
