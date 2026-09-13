@@ -1,8 +1,8 @@
 """Show sequencing reads as text, one read per row, with matches coloured.
 
-The Map Barcodes screen makes a claim about the sequencing files. It says
-that a barcode was found, that it sat at a certain place, and that it ran in
-a certain direction.
+A barcode mapping run makes three claims about the sequencing files: that a
+barcode was found, that it sat at a certain place, and that it ran in a
+certain direction.
 
 A percentage on its own cannot prove that claim, because a percentage looks
 the same whether the matches are real or accidental.
