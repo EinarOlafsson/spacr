@@ -129,3 +129,46 @@ WHAT IS ALREADY TRUE, so nobody re-derives it:
   * `screen.apply_settings_dict` is the door into a module form and it
     already returns how many settings it placed, which is half of the
     report (b) asks for.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- PART 2 MAY BE ABOUT A DIFFERENT BUTTON, AND THAT IS A QUESTION
+--------------------------------------------------------------------------------
+
+VERIFIED, not inferred:
+
+  * `mask.install_example_data_button` wires its button straight to
+    `load_the_example_images`, which calls `generate_mask_demo` and
+    `demo_settings`. It contains NO download and pops NO progress window --
+    zero occurrences of `download`, `hf_` or `Hugging` in
+    `spacr/qt/screens/mask.py`.
+  * The toxo_mito dataset is downloaded from `app.py` (the e2e chain and the
+    Home action), and THAT path shows the progress window part 1 is about and
+    applies the settings pack through `_settings_for` ->
+    `settings_from_pack`.
+
+SO THE TWO HALVES OF THE ORIGINAL REQUEST POINT AT THE SAME PATH, and it is
+not the mask screen's example button. "the window that pops up" with the
+clipped percentage only exists in the download, and the download is also the
+only thing with a dataset whose settings could be filled in.
+
+Part 2 above says "the mask example brings no settings FROM THE DATASET". The
+mask example has no dataset: it generates a synthetic plate, for which
+`demo_settings` is the correct answer and this file says so in the same
+paragraph.
+
+WHAT IS ACTUALLY UNRESOLVED, then, is a question for the maintainer rather
+than a defect anybody can fix from the code:
+
+    When you said "in the mask loade example data ... the correct settings
+    should also be filled in", did you mean the toxo_mito DOWNLOAD (which now
+    fills them) or the mask screen's synthetic EXAMPLE button (which fills
+    synthetic ones deliberately)?
+
+If it is the download, parts 1, 2 and 3 are all closed. If it is the example
+button, the ask is "let the example button offer the real dataset too", which
+is a different and larger item than this one.
+
+NOT DECIDED HERE. Reading it either way changes what gets built, and the file
+already had one part described against the wrong path -- guessing a second
+time is how that compounds.
+
