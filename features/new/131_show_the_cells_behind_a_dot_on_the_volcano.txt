@@ -2,7 +2,10 @@
 SHOW THE CELLS BEHIND A DOT ON THE REGRESSION PLOT
 ================================================================================
 
-Status:    filed 2026-08-17, not started.
+Status:    DONE, corrected 2026-09-13 -- "2026-08-20 -- CLOSED. The tab,
+           the picking, the captions and the saves ship." What is still owed
+           is tracked on ITS OWN files, 172 and 173, not here. Originally
+           filed 2026-08-17.
 Requested: 2026-08-17 --
 
            "in the regression module, if the user has imported databases, and

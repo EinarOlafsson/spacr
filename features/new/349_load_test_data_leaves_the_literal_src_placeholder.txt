@@ -2,7 +2,10 @@
 "LOAD TEST DATA" PUTS THE LITERAL <src> INTO MASK GENERATION'S PATH FIELD
 ================================================================================
 
-Status:    not started, filed 2026-09-02. A LIVE DEFECT the maintainer hit.
+Status:    DONE, corrected 2026-09-13 -- "MAP BARCODES IS CLEAN. ALL FOUR
+           ROUTES ACCOUNTED FOR. CLOSING." Originally filed 2026-09-02 as a
+           live defect the maintainer hit; the fix came from reading the
+           CALLER rather than the published data pack.
 Requested: 2026-09-02, verbatim -- "loade test images dosnt loade the right
            path into src in mask generation it loads <src>, probably because
            the module restarts after loading"

@@ -3,7 +3,9 @@ CATEGORY HELP BELONGS ONLY IN THE STRIP, THE API LINK BECOMES A DOT, AND EVERY
 SETTING GETS A TOOLTIP
 ================================================================================
 
-Status:    not started, filed 2026-09-02.
+Status:    DONE, corrected 2026-09-13 -- the file's closing line is
+           "CLOSING. All four parts hold and are asserted", with 20 tests
+           passing. Originally filed 2026-09-02.
 Requested: 2026-09-02, verbatim -- "for settings level tooltips keep the popup
            but for cotegory level dont show the popup and just show the bottom
            of the screen text. and make sure all settings have tooltipps. seels

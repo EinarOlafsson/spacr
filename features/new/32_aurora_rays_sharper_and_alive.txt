@@ -2,7 +2,14 @@
 AURORA THEME: SHARPER RAYS THAT BREATHE
 ================================================================================
 
-Status:    not started
+Status:    DONE, corrected 2026-09-13. The heading at line 44 reads
+           "2026-08-17 - CLOSED. THE WORK LANDED; NOBODY WROTE IT DOWN HERE",
+           and a re-audit on 2026-08-26 passed with one citation corrected.
+           So this file recorded that its own header was wrong and the header
+           survived another four weeks -- the third such case in this ledger,
+           with 69 and 119. The cost is guarded by
+           `tests/qt/test_perf_guard_qt.py`: aurora at 1920x1080, 1.40 ms
+           quiet budget and 3.36 ms loaded.
 Requested: 2026-08-07 - "for the aurora theme the \"rays of light\" should be even sharper and they should be dynamic, meaning each ray should at different speeds be changing length to look more like real aurora."
 
 --------------------------------------------------------------------------------

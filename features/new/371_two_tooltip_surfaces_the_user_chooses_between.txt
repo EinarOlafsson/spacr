@@ -3,7 +3,11 @@ TWO TOOLTIP SURFACES, EITHER OR BOTH, AND THE BOTTOM ONE STAYS LONG ENOUGH
 TO CLICK
 ================================================================================
 
-Status:    not started, filed 2026-09-02. MEASURED the same day -- the state
+Status:    DONE, corrected 2026-09-13. Parts 1, 2 and 3 closed
+           2026-09-03; the fourth -- the strip's Animation word -- was done
+           later the same night and hands off to the popup rather than
+           duplicating it. 7 new tests, 328 passing across the tooltip
+           family. Originally filed 2026-09-02. MEASURED the same day -- the state
            section below is what is on disk now, not a guess.
 Requested: 2026-09-02 -- "for the tooltips there should be 2 options in
            preferences appearence tab that are boolean and can both be on at

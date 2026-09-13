@@ -2,7 +2,12 @@
 THE THEME MUST NOT LAG WHILE A RUN IS GOING
 ================================================================================
 
-Status:    filed 2026-08-17, not started.
+Status:    DONE, corrected 2026-09-13 -- "2026-08-20 -- MEASURED, THEN
+           FIXED AT THE CAUSE", with 8 tests. What remains is the reporter's
+           own confirmation on the machine that lagged, which is not this
+           item's to produce; cause 3 (every core busy) is outside the
+           application's reach by construction. Originally filed
+           2026-08-17.
 Requested: 2026-08-17 --
 
            "when something is running after hitting run, the theme starts
