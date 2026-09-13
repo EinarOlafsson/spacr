@@ -340,3 +340,47 @@ WHAT REMAINS BEFORE THIS FILE CAN MOVE TO done/:
     the tree and `bystanders.py` at its committed state the counts were
     8,502 and 10,299 -- already four and five over, from step 1's own
     module. Nothing else on nightly is moving them.
+
+--------------------------------------------------------------------------------
+2026-09-12 (late) -- THE FIRST REMAINING ITEM IS STALE. THE REACH IS ALREADY A
+SETTING.
+--------------------------------------------------------------------------------
+
+"WHAT REMAINS" above lists "the reach as a setting (waiting on home's runtime
+catalog rebuild)" as the first open item. Measured tonight, it is done:
+
+    bystander_measurements          expected_types True  tooltip True
+                                    category ['Measurements']  default False
+    bystander_reach_in_diameters    expected_types True  tooltip True
+                                    category ['Measurements']  default 1.0
+    both present in the runtime catalogs (5 entries each in es)
+
+So the GUI exposure this file was waiting on has landed, the rebuild that was
+going to carry it has run, and the entry above simply outlived the work. That
+is the third stale "what remains" found in two days -- 364's organelle gap was
+referenced seven times and never described, 327 described a control that does
+not exist -- and the pattern is the same: the file records what was true when
+the blocker was written and nobody re-reads it when the blocker clears.
+
+WHAT IS ACTUALLY LEFT, and only one of the two is anybody's to do:
+
+  * THE PAYOFF MEASUREMENT. Split an existing infected-versus-uninfected
+    comparison's uninfected arm and report whether the effect size moves.
+    GENUINELY BLOCKED: it is the maintainer's data, on a real screen, and no
+    amount of code makes it runnable here. This file should record the answer
+    either way, including "it did not move", which is the result that would
+    most change what the feature is for.
+
+  * THE API CATALOG REBUILD. Not blocked and not waiting on this file any
+    more: the surface has moved well past the numbers recorded above --
+    8,498 -> 8,508 was measured 2026-09-10 and the Map Barcodes merge took it
+    to about 10,478 on 2026-09-12 -- so the ratchets quoted here are stale as
+    numbers even though the instruction to re-measure stands. Whoever runs the
+    next pass should measure rather than use them.
+
+    THE RATCHET RED ON NIGHTLY TONIGHT IS NOT THIS FILE'S.
+    `test_no_new_undocumented_required_public_parameters` fails at 2,318
+    against 2,280, and none of the excess is in any module 388 touched -- the
+    named ones are `spacr.align` and `spacr.barcode_search`, and
+    `barcode_search.py` arrived on 2026-09-12 with Map Barcodes. Recorded here
+    so nobody reads a red docstring ratchet as bystander fallout.
