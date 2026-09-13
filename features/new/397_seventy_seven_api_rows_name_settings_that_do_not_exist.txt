@@ -71,3 +71,61 @@ WHAT TO DO
 
 DO NOT SIMPLY DELETE ROWS TO MAKE THE COUNT ZERO. The seventeen `hit_*` rows
 are the proof that the count is not the defect.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- SPLIT BY CAUSE, AND THE ANSWER IS THAT 76 OF THE 77 ARE REAL
+--------------------------------------------------------------------------------
+
+The item asks for the 77 to be split by cause before anything is fixed. Done,
+and the split does not look like the one guessed above.
+
+THE GUESS WAS WRONG ABOUT THE TOOLTIPS. This file predicts "21 have a tooltip
+but no type" and calls those the interesting ones. In fact ALL 77 have a
+tooltip -- and on reflection that is forced rather than surprising:
+`build_setting_consumer_map.py` unions the EN catalog's `SETTING_TOOLTIPS`
+into its vocabulary, so a row can only exist if a tooltip exists. Tooltip
+presence cannot discriminate anything here. The 21/17/4/35 breakdown above was
+a guess at the shape and should not be used.
+
+THE DISCRIMINATOR THAT WORKS is whether anything reads the key. Measured over
+558 files, EXCLUDING the three tables that define these keys by construction
+(`setting_api_targets.py`, `setting_consumers.json`, the catalogs) -- without
+that exclusion every key trivially matches itself and the answer comes back
+77/77, which is how I first measured it and it was meaningless:
+
+    read elsewhere in spacr/      76
+    not read anywhere              1     umap.reduction_method
+
+So the 77 is NOT a population of rows naming dead settings. It is 76 real
+settings that are declared somewhere `expected_types` cannot see -- the
+`hit_*` shape generalised -- plus one anomaly.
+
+THE ONE ANOMALY, and it is benign. `umap.reduction_method` is the only dotted
+key among all 836 rows. The dot is not damage: `umap.metric` and
+`umap.n_neighbors` sit beside it in the EN catalog, so screen-scoped dotted
+keys are a real convention. What is odd is that those two siblings have NO row
+in `SETTING_API_TARGETS` and this one does, and that its row is degenerate --
+`('spacr.validate', '', False)`: empty symbol, not rendered. Meanwhile the bare
+`reduction_method` is declared, is read, and has its own correct row pointing
+at `spacr.core.generate_image_umap`. So the dotted row is a duplicate that
+points nowhere and renders nothing.
+
+TWO MORE ARE WORTH A SECOND LOOK but are not claimed as defects. Of the ten
+bare single-word keys, `layout` and `measure` are read as a setting
+(`settings[...]`, `.get`, `.setdefault`) in ZERO files, where the other eight
+are read that way in at least one. That test is deliberately narrow and only
+recognises four container names, so a key read some other way would look dead
+to it. `measure` in particular appears as a plain string in 44 files, which is
+exactly the noise this item warns about.
+
+WHAT THIS CHANGES. The "subtract a set rather than a number" advice above is
+still right, but the set is smaller and duller than expected: 76 explained,
+1 duplicate, 2 to confirm. Nobody auditing a future stranded-row count needs
+to chase 77 unexplained rows, because 77 was never the number of unexplained
+rows -- it was the number of rows whose declaration `expected_types` cannot
+see, and that is a property of the measurement, not of the table.
+
+NOTHING WAS DELETED, per the warning at the head of this file. The duplicate
+row is recorded here rather than removed, because removing it is a change to a
+generated table and belongs with the generator's next pass.
+
