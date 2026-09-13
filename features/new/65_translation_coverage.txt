@@ -194,3 +194,55 @@ model cannot translate" was measuring the gate as much as the model, for the
 two languages whose script has no spaces. A re-audit of zh_CN and ko coverage
 is worth doing now that the instrument reports what the model actually
 produced.
+
+--------------------------------------------------------------------------------
+2026-09-13, LATER -- A ONE-LINE WRAPPER HID 117 STATUS MESSAGES FROM THE
+EXTRACTOR, AND THIS ITEM'S COVERAGE NUMBERS NEVER COUNTED THEM
+--------------------------------------------------------------------------------
+
+The entry above fixed the gate that was REJECTING correct translations. This is
+the other half, found the same afternoon by chasing a single red in Map
+Barcodes: a class of caption that never reached the catalogs to be translated
+at all.
+
+TWENTY-THREE SCREENS WRITE THEIR STATUS LINE THROUGH A WRAPPER:
+
+    def _set_status(self, text: str, error: bool = False) -> None:
+        set_translatable_text(self.status, text, ...)
+
+and call it with a literal -- `self._set_status("Choose a destination folder
+first.")`. The extractor walks `set_translatable_text` calls, so it reads the
+FORWARDING line, sees a parameter named `text`, and records nothing. The
+literal is one frame away and invisible.
+
+    UI sources   2871 -> 2988      new 117      removed 0
+
+  THESE ARE NOT EDGE CASES. They are what the screen says while it works:
+  "A comparison is already running…", "Choose a coefficient table.",
+  "Add at least one mask folder -- a spaCR project without object masks has
+  nothing to measure." Every one of them has been English in all nine
+  languages for as long as the wrapper has existed. The heaviest users are
+  db_browser (33 call sites), foreign (30), model_zoo (27), image_import (24),
+  batch (23), convert (20).
+
+WHAT THIS DOES TO THIS ITEM'S HISTORY. Every coverage percentage recorded here
+was computed over the captions the extractor could see. 117 user-facing strings
+were outside that set, so the denominator was wrong -- not by much against
+2,871, but the missing ones were concentrated in exactly the text a user reads
+while waiting for something to finish.
+
+  TWO BLIND SPOTS, ONE AFTERNOON, OPPOSITE DIRECTIONS. The `\b` bug REJECTED
+  translations that existed. This one never ASKED for translations at all. Both
+  were invisible in the coverage report, because a caption the extractor cannot
+  see is absent from the numerator and the denominator alike.
+
+THE FIX NAMES THE WRAPPER rather than removing it. `_set_status` is in
+`builder._TEXT_METHODS` with its template as the first positional argument, and
+the static-template guard exempts a forwarding call whose parameter belongs to
+a wrapper the extractor already covers -- so the exemption exists exactly where
+the call sites are reachable, and every other call stays strict.
+
+WHAT REMAINS: the nine-language rebuild for the 117, running when this was
+written. Until it lands the catalog audits are red, and that is the honest
+state -- the strings were always untranslated, and are now visibly so rather
+than silently so.
