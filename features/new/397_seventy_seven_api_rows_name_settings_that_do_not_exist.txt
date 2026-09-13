@@ -157,3 +157,71 @@ place: not a population of dead rows, a population of live settings declared
 where the comparison vocabulary cannot see them. Anyone tempted to "clean up"
 this list should read trap 3c first.
 
+
+--------------------------------------------------------------------------------
+2026-09-13, LATER -- THE TWO LEFT "TO CONFIRM" ARE BOTH REAL, AND THE REASON
+THEY LOOKED DEAD IS A BLIND SPOT WORTH MORE THAN THE TWO KEYS
+--------------------------------------------------------------------------------
+
+The entry above left `layout` and `measure` as "worth a second look but not
+claimed as defects", on the grounds that the test which called them unread
+"only recognises four container names". That was the right hedge and it was
+the right suspicion. BOTH ARE LIVE.
+
+    layout    spacr/convert.py:2176         resolved.get('layout')
+              spacr/foreign.py:3584         resolved.get('layout')
+              spacr/external_masks.py:551   resolved.get("layout")
+              and its values are declared: settings_model.py:964 offers
+              auto / flat / well / plate_well, and its API row points at
+              `spacr.convert.convert_folder`, which is where it is read
+
+    measure   spacr/foreign.py:3609, :3619  resolved.get('measure')
+
+THE CONTAINER IS CALLED `resolved`, NOT `settings`. Each of those functions
+opens
+
+    resolved = default_settings(settings)
+
+so the dictionary being read IS the settings dictionary; it simply has a
+different local name by the time anything reads a key out of it. A tool that
+greps for `settings[...]`, `settings.get(...)` and `settings.setdefault(...)`
+sees none of it.
+
+HOW BIG THE BLIND SPOT IS, measured rather than guessed:
+
+    modules using `resolved = default_settings(...)`      4
+        spacr/convert.py  spacr/external_masks.py
+        spacr/align.py    spacr/foreign.py
+    reads of the form `resolved.get('<key>')`            84
+    DISTINCT SETTING KEYS read only that way             50
+
+  FIFTY KEYS, NOT TWO. Any audit of the form "which settings does nothing
+  read?" run against those four container names will report all fifty as
+  dead, and four of spaCR's pipeline entry points -- convert, align, foreign
+  import and external masks -- are exactly the modules such an audit would be
+  run to check.
+
+WHAT THIS SAYS ABOUT THE ITEM. It is the same lesson as trap 3c and as the 77
+itself, arriving for the third time from a third direction: THE MEASUREMENT
+VOCABULARY IS THE DEFECT, NOT THE TABLE. First it was `expected_types` not
+seeing keys registered inside a function body; then the tooltip dict not
+seeing keys registered from a module body; now a grep not seeing keys read out
+of a differently-named local. Three instruments, three blind spots, and in all
+three cases the first reading was "these settings do not exist".
+
+  THE RULE THAT FALLS OUT OF IT: before reporting that a setting is unread,
+  say which containers the search recognised. A count of unread settings
+  without that sentence attached is not a measurement, it is a property of
+  the grep.
+
+SO THE SPLIT IS NOW COMPLETE AND NOTHING IN THE 77 IS A DEAD ROW:
+
+    read elsewhere in spacr/          76
+    live, read through `resolved`      2   layout, measure -- part of the 76,
+                                          counted again here because this
+                                          entry is what established it
+    duplicate, renders nothing         1   umap.reduction_method
+
+The one duplicate row remains recorded rather than removed, per the warning at
+the head of this file and for the reason given above: removing it is a change
+to a generated table and belongs with the generator's next pass.
