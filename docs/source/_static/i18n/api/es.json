@@ -5419,7 +5419,9 @@
     "spacr.barcode_search.ProposedMapping": {
       "source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "a82d4579e4dfce423089129609f616b51d5999a257cb786bb1290382fdd1d3cd",
+        "44112b48f305c7632ae1ee69cdf99bcbdffda71fba4987e204a5ca6350326329",
+        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "8c02f8c21128a929b2421e44a6335f149b4c7371066cc68a7ea16cb0109fc646",
         "c83a06f40906767f7de977cb698c385f449ca54aba98faae6647cd1d70c5bcf7",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
         "44f50d7c93cb1bf51bf2c87e242f91514205bbe797177381d25f31f5e5a87d21",
@@ -5429,11 +5431,13 @@
         "b73ba95fd81532679b792744546dbcf363dc776defcb8caf284672198b996dbf",
         "a00a190d22632254b649be175293a38ea317560c118f90f9a150a4f0817073bb"
       ],
-      "source_sha256": "868f4ffc07389f2845d8a9cd2d3ec208797d4e37d7da9b6023590d6e710547f9",
-      "text": "Configuración de la búsqueda cree que una ejecución de asignación debe utilizar, y por qué.\n\nLa asignación de valores clave de configuración sólo contiene nombres de datos estructurados que la ejecución de la asignación ya lee, por lo que se puede entregar directamente a él. Todo lo que la búsqueda aprendió que no tiene hogar entre esos nombres de los datos estructurada viaja junto, porque un llamante que dejó caer silenciosamente la orientación reintroduciría el fallo que este módulo existe para evitar. Una cribado que decodifica un código de barras más allá de la columna de microplaca de laboratorio, la guía y la fila de micro placa de laboratorio no tiene ningún nombre de ajuste que lo espere, así que la tabla elegida para cada papel se lista entre las tablas de referencia si se puede rellenar o no un nombre de datos estructurados para ello.\n\n:param settings: sólo los nombres de datos estructurados que la asignación ejecuta ya lee, por lo que se puede entregar esta asignación de valor clave directamente.\n:param reference_file: el archivo cuyas lecturas de las compensaciones de la ventana se expresan contra, ya que las compensaciones no significan nada sin su marco.\n:param source_files: mapeo desde el rol al archivo de lectura que lo estableció.\n:param orientations: mapeo desde la etiqueta de la tabla a la orientación que la ejecución debe buscar en esa tabla.\n:param reference_tables: la tabla elegida para cada rol, listada si existe o no un nombre de ajuste para llevarlo -- que es el punto, porque un rol sin nombre de datos estructurados es exactamente el que de otro modo se perdería.\n:param reverse_complement_needed: tablas la carrera tiene que revertir el complemento para reconocer, porque se encontraron en el segundo mate como almacenado.\n:param unresolved_roles: Nombrado en lugar de adivinado, por lo que un llamante puede decirlo en vez de iniciar una ejecución que no mapeará nada.\n:param notes: lo que la búsqueda aprendió que no tiene hogar entre los nombres de configuración.",
+      "source_sha256": "d99c7195319b647f3ba18b4bc6aaf9b9e1349a21f88499e49d3e42200b0d10af",
+      "text": "Configuración de la búsqueda cree que una ejecución de asignación debe utilizar, y por qué.\n\nLos ajustes propuestos sólo contienen nombres de datos estructurados que la ejecución de asignación ya lee, por lo que pueden ser entregados directamente a él.\n\nTodo lo que la búsqueda aprendió que no tiene hogar entre esas llaves viaja junto. Un llamante que silenciosamente dejó caer la orientación reintroduciría el fallo que este módulo existe para prevenir.\n\nUna cribado que decodifica un código de barras más allá de la columna de microplaca de laboratorio, la guía y la fila de micro placa de laboratorio no tiene ningún nombre de configuración que lo espere. Por lo tanto, la tabla elegida para cada papel figura entre las tablas de referencia, independientemente de si se puede rellenar o no un nombre de datos estructurados.\n\n:param settings: sólo los nombres de datos estructurados que la asignación ejecuta ya lee, por lo que se puede entregar esta asignación de valor clave directamente.\n:param reference_file: el archivo cuyas lecturas de las compensaciones de la ventana se expresan contra, ya que las compensaciones no significan nada sin su marco.\n:param source_files: mapeo desde el rol al archivo de lectura que lo estableció.\n:param orientations: mapeo desde la etiqueta de la tabla a la orientación que la ejecución debe buscar en esa tabla.\n:param reference_tables: la tabla elegida para cada rol, listada si existe o no un nombre de ajuste para llevarlo -- que es el punto, porque un rol sin nombre de datos estructurados es exactamente el que de otro modo se perdería.\n:param reverse_complement_needed: tablas la carrera tiene que revertir el complemento para reconocer, porque se encontraron en el segundo mate como almacenado.\n:param unresolved_roles: Nombrado en lugar de adivinado, por lo que un llamante puede decirlo en vez de iniciar una ejecución que no mapeará nada.\n:param notes: lo que la búsqueda aprendió que no tiene hogar entre los nombres de configuración.",
       "translation_source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "e51909a79fb0c96a88e398f9e06291857eaf773e8d05956029b1cba63d160185",
+        "addfbdabfeb4a97d528ab904d919d12b0eafd971a5d531d01fff5ff7528a9d89",
+        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "8c2cc1511ededead99b46fea2ff3c7d4d66d731ce015f288a428f57db9ebb6e6",
         "1472deda3c4b599dc0ff3fc7dd9009bcd7775436d9009406154085643bef140e",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
         "44f50d7c93cb1bf51bf2c87e242f91514205bbe797177381d25f31f5e5a87d21",
@@ -5609,7 +5613,9 @@
     "spacr.barcode_search.propose_map_barcodes_settings": {
       "source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "85b304b193ee226a6389e7d0dbd91026c49ae8a6b018ad304c8fb450d879bc1d",
+        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
+        "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
         "5f72fcdb6e8a5b1f0f391a4412d517f2605845f9cbcfbbd537c41a5e63056f22",
         "bec02643d71c1ab3c7adc4083972af051ad67c5c3f7a414850eeb18e1b268677",
@@ -5617,11 +5623,13 @@
         "db8dfb93e580e97e3a3655631fd1a4fb55d0cc1b1dd29f64da285de6d5b6960e",
         "5a2d01a292df36e13612b05a87e883cc1b1641cedcc34760fcf61328aac9eb68"
       ],
-      "source_sha256": "032eef54d05213cbed7caacd468c8e6a03258d6127e72bd1645b8be8272f8a52",
-      "text": "Convierta una búsqueda terminada en configuración para una ejecución de asignación de código de barras.\n\nLa ejecución de asignación lee ambos mates en una secuencia en la orientación de la primera, por lo que es el marco todo se expresa en. Una tabla encontrada en el segundo mate como se almacena por lo tanto se informa como necesidad de ser complementado inversamente, porque eso es lo que la ejecución necesitará para reconocerlo. Un papel que ninguna tabla establecida se deja solo en lugar de adivinarse, y se nombra entre los roles no resueltos para que el llamante pueda decir así en vez de iniciar una carrera que no mapeará nada.\n\nLa ventana de extracción se deriva de donde los códigos de barras realmente aterrizó. Su inicio es el primer desplazamiento de cualquier código de barras establecido ocupado y su final es el más alejado de cualquiera de ellos alcanzado, ambos medidos contra el ancla cuando uno fue buscado, ya que la ejecución de la asignación localiza su ventana al encontrar primero ese ancla.\n\n:param report: el informe de una búsqueda.\n:param base_settings: configuración para empezar, sin modificar; una asignación de valor de clave vacía cuando se omite.\n:param reference_file: la etiqueta del archivo cuya orientación es el marco; el primer archivo de la búsqueda cuando se omite.\n:returns: la propuesta, manteniendo los ajustes y lo que no encajaba en ellos.\n:raises ValueError: cuando el informe no contiene archivos.",
+      "source_sha256": "cce8e999a095ba50ce7844f76f245474690e2194191a8c8e6755ee586cedb4da",
+      "text": "Convierta una búsqueda terminada en configuración para una ejecución de asignación de código de barras.\n\nLa ejecución de asignación lee ambos mates en una secuencia en la orientación de la primera, por lo que es el marco todo se expresa en.\n\nPor lo tanto, se indica que una tabla encontrada en el segundo mate como se almacena necesita ser complementada inversamente. Eso es lo que la carrera necesitará para reconocerla.\n\nUn papel que ninguna tabla establecida se deja solo en lugar de adivinarse. Se nombra entre los roles no resueltos, por lo que la persona que llama puede decirlo en vez de iniciar una carrera que no mapeará nada.\n\nLa ventana de extracción se deriva de donde los códigos de barras realmente aterrizó. Su inicio es el primer desplazamiento de cualquier código de barras establecido ocupado y su final es el más alejado de cualquiera de ellos alcanzado, ambos medidos contra el ancla cuando uno fue buscado, ya que la ejecución de la asignación localiza su ventana al encontrar primero ese ancla.\n\n:param report: el informe de una búsqueda.\n:param base_settings: configuración para empezar, sin modificar; una asignación de valor de clave vacía cuando se omite.\n:param reference_file: la etiqueta del archivo cuya orientación es el marco; el primer archivo de la búsqueda cuando se omite.\n:returns: la propuesta, manteniendo los ajustes y lo que no encajaba en ellos.\n:raises ValueError: cuando el informe no contiene archivos.",
       "translation_source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "85b304b193ee226a6389e7d0dbd91026c49ae8a6b018ad304c8fb450d879bc1d",
+        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
+        "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
         "5f72fcdb6e8a5b1f0f391a4412d517f2605845f9cbcfbbd537c41a5e63056f22",
         "c8703e1a8896ef9ec525cc7a42e07256e71021f886b7ce8f6ed3eda366ceba23",
@@ -82912,16 +82920,18 @@
     },
     "spacr.qt.screens.map_barcodes.install_barcode_search": {
       "source_blocks_sha256": [
-        "530556d7122c23d89ad10fd8fab7767c67836727f21459c162981944c77d8278",
+        "15f2c39e156e3c0b3b9df3a28c56d304b4c9fd47a9ca32d67afb0fd4c48bb15d",
+        "ed647d8bb4ba23894b384d6c9e1cf2b405f872e1127d6bcf640dbe451fafa7d2",
         "166bd07e2872250755cfe844529e95526237ff33f9e0d9f887b0263e227278f2",
         "8d2b52931e318b461462dbe68fbe5f558d644d6fb370430e3f5365ef51f43f7d",
         "06bb42ab1005f3985d618f53da35d5e464452956b7d0b04ac292ab7936c0cdbf",
         "b28fc7af221cb7c16ac76bfaea28496c30032937d83939dbddbb509ec5ee15d6"
       ],
-      "source_sha256": "aa004f91335676e7a8d326dbc412243966bb98f82e47d51e32db1ecdc3c2166c",
-      "text": "Dé a la aplicación Map Barcodes ver su búsqueda en vivo, detrás de un cambio.\n\nInstalado en lugar de integrado en la vista de aplicación por la razón de que cada otro panel en esta vista de aplicaciones está instalado desde fuera: la vista aplicación es la vista genérica de la aplicación de configuración, que no sabe nada sobre secuenciación y no debería tener que hacerlo. Las llamadas repetidas devuelven el panel que ya está allí, porque el stack watcher llega a una vista de la solicitud de nuevo cada vez que se vuelve actual.\n\n:param screen: cualquier cosa que no sea la cribado de Map Barcodes se deja solo.\n:param kwargs: pasó a través de :class:`BarcodeSearchPanel`, que es cómo una prueba pide una muestra de lectura más pequeña o una búsqueda sin hilo.\n:returns: el panel, o None cuando la cribado no es la cribado Map Barcodes o no tiene ningún panel de tiempo de ejecución en el que montar.",
+      "source_sha256": "60518b3842cca72aa523f469db6d81610e06685c11b01150c09c1c840301b93d",
+      "text": "Adjuntar la búsqueda de código de barras en vivo a la cribado Mapa de códigos de barras.\n\nLa búsqueda comienza oculta, y un cambio en la vista de la aplicación lo muestra.\n\nInstalado en lugar de integrado en la vista de aplicación por la razón de que cada otro panel en esta vista de aplicaciones está instalado desde fuera: la vista aplicación es la vista genérica de la aplicación de configuración, que no sabe nada sobre secuenciación y no debería tener que hacerlo. Las llamadas repetidas devuelven el panel que ya está allí, porque el stack watcher llega a una vista de la solicitud de nuevo cada vez que se vuelve actual.\n\n:param screen: cualquier cosa que no sea la cribado de Map Barcodes se deja solo.\n:param kwargs: pasó a través de :class:`BarcodeSearchPanel`, que es cómo una prueba pide una muestra de lectura más pequeña o una búsqueda sin hilo.\n:returns: el panel, o None cuando la cribado no es la cribado Map Barcodes o no tiene ningún panel de tiempo de ejecución en el que montar.",
       "translation_source_blocks_sha256": [
-        "de7e6b24cb87bc45d20dd6b333ab4900684945ff82e7da02b1a98e773df0345d",
+        "15f2c39e156e3c0b3b9df3a28c56d304b4c9fd47a9ca32d67afb0fd4c48bb15d",
+        "fcfa1f96446aac7ee73a71c5ef8ea38db665bd136a58520c66aa0babcac300b7",
         "4ad4a0aa3ad18350c4ebfcd501dcffa942d3a8dab141259afd221226bce67bd6",
         "8d2b52931e318b461462dbe68fbe5f558d644d6fb370430e3f5365ef51f43f7d",
         "06bb42ab1005f3985d618f53da35d5e464452956b7d0b04ac292ab7936c0cdbf",
@@ -146815,7 +146825,9 @@
     "spacr.sequencing.generate_barecode_mapping": {
       "source_blocks_sha256": [
         "2a5eb1b139093da86a46a4ebb085aac2ca9fea857f3d2e0af50d15d9ba6a11bf",
-        "0f6e0c1e140edaa7426fb1251d7bb01bab5b4b719480182fd7d61bbce1956b77",
+        "2248ee778f5a212033ec0a8e295a683216ef3f8c9f3bba0200531e9d9a81fbd9",
+        "636ae44b1915ba5307148e698b5d17dabb71049696816af718e19c5970fb86b0",
+        "5e13ec1af0da75ad7f3f385a2f243c58c3e6923f276e4ab9a20da8b6954224f1",
         "9b509e5646b87ffdcbf88b747f801e66bb3cb869245ee0ddc151c527a7de33cd",
         "f54a5bcf96a34bc69980c5b0465753a07fce5cb2579df44aebdf7c0682c1ff31",
         "52e77ec9a4f15faf2def937305975c86581566acefd2c3df38ee5227c0a16ddb",
@@ -146832,11 +146844,13 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "a24b201e8ac8ad15ccf8cb452cb2130a305d8a454c58d0a86185334693d6dffe"
       ],
-      "source_sha256": "51448c630ac0222d805ff06d48569178f90b78fea4614a0fb7819b0909c6b5bc",
-      "text": "Convierta una carpeta de archivos de prueba de detección agrupada en tablas de recuento de sgRNA por microplaca utilizables por :func:`spacr.ml.perform_regression`.\n\nDescubre los archivos R1/R2 por muestra en ``src``, extrae cada código de barras los decodificadores de ejecución de cada lectura a través de la ventana configurada regex y offset, traduce cada uno de ellos a un nombre mediante su propia búsqueda CSV (véase :func:`map_sequences_to_names`), y escribe por muestra ``annotated_reads.h5`` (opcional), ``unique_combinations.csv`` (la posición de muestra por microplaca gRNA cuenta) y ``qc.csv``. La orientación emparejada vs uni-end y R1/ R2 se eligen entre ``settings['mode']`` y ``single_direction``.\n\n:param settings: Configuración del mapeo de valores clave, canonizado a través de :func:`spacr.settings.set_default_generate_barecode_mapping`. Entradas de datos estructurados:\n\n    - ``src`` — la carpeta que contiene ``*.fastq.gz`` lee.\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` or ``'R2'`` (``mode='single'`` solo).\n    - ``regex`` — regex extrae códigos de barras de una lectura.\n    - ``target_sequence``, ``offset_start``, (``expected_end``): ventana de anclaje y rebanada utilizada para localizar la región del código de barras.\n    - ``column_csv`` / ``row_csv`` / ``grna_csv`` — Barcode->name lookup CSVs para los tres códigos de barras spaCR enviados.\n    - ``barcode_set`` — los códigos de barras a decodificar cuando una sesión de procesamiento tiene otros tres, como una lista con una entrada por código de barras. Cada entrada nombra el código de barra, la referencia CSV que nombra sus secuencias y el grupo regex que lo captura. Ausente, que es lo que cada archivo de configuración escrito antes de que existieran conjuntos, la sesión de proceso decode los tres mencionados anteriormente.\n    - ``save_h5``, ``comp_type``, (``comp_level``) — HDF5 perillas de salida.\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` — cuando es cierto, QC cada muestra terminada con :func:`spacr.sequencing_qc.barcode_qc`, gráficos de escritura y un informe en ``<dst>/barcode_qc`` (por defecto False; no rellenado por los valores predeterminados).\n    - ``target_grnas_per_well`` — espera gRNAs por posición de la muestra de microplaca, de la que ese paso QC deriva su umbral de abundancia (predeterminado 1).\n\n:returns: None. Escribe salidas por muestra en ``<src>/<sample>_<mode>[_<direction>]/``.\n\nEjemplo:\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\nVéase también: :func:`map_sequences_to_names` — búsqueda de nombre de código de barras interno->. :func:`spacr.ml.perform_regression` — consume el resultado ``unique_combinations.csv`` como ``count_data``.",
+      "source_sha256": "0a51509de1bff58527c450259124c95343710af020de9562bfc6628961f94f2d",
+      "text": "Convierta una carpeta de archivos de prueba de detección agrupada en tablas de recuento de sgRNA por microplaca utilizables por :func:`spacr.ml.perform_regression`.\n\nDescubre los archivos R1 y R2 de cada muestra bajo ``src``. La orientación emparejada frente a la de un solo extremo y R1/R2 se seleccionan entre ``settings['mode']`` y ``single_direction``.\n\nDe cada lectura extrae cada código de barras la ejecución decodifica, usando la ventana configurada regex y offset. Cada secuencia extraída se convierte en un nombre a través de la búsqueda CSV de ese código de barra (ver :func:`map_sequences_to_names`).\n\nPer sample it writes ``annotated_reads.h5`` (optional), ``unique_combinations.csv`` (the per-microplate sample position gRNA counts) and ``qc.csv``.\n\n:param settings: Configuración del mapeo de valores clave, canonizado a través de :func:`spacr.settings.set_default_generate_barecode_mapping`. Entradas de datos estructurados:\n\n    - ``src`` — la carpeta que contiene ``*.fastq.gz`` lee.\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` or ``'R2'`` (``mode='single'`` only).\n    - ``regex`` — regex extrae códigos de barras de una lectura.\n    - ``target_sequence``, ``offset_start``, (``expected_end``): ventana de anclaje y rebanada utilizada para localizar la región del código de barras.\n    - ``column_csv`` / ``row_csv`` / ``grna_csv`` — Barcode->name lookup CSVs para los tres códigos de barras spaCR enviados.\n    - ``barcode_set`` — los códigos de barras a decodificar cuando una sesión de procesamiento tiene otros tres, como una lista con una entrada por código de barras. Cada entrada nombra el código de barra, la referencia CSV que nombra sus secuencias y el grupo regex que lo captura. Ausente, que es lo que cada archivo de configuración escrito antes de que existieran conjuntos, la sesión de proceso decode los tres mencionados anteriormente.\n    - ``save_h5``, ``comp_type``, (``comp_level``) — HDF5 perillas de salida.\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` — cuando es cierto, QC cada muestra terminada con :func:`spacr.sequencing_qc.barcode_qc`, gráficos de escritura y un informe en ``<dst>/barcode_qc`` (por defecto False; no rellenado por los valores predeterminados).\n    - ``target_grnas_per_well`` — espera gRNAs por posición de la muestra de microplaca, de la que ese paso QC deriva su umbral de abundancia (predeterminado 1).\n\n:returns: None. Escribe salidas por muestra en ``<src>/<sample>_<mode>[_<direction>]/``.\n\nEjemplo\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\nVéase también: :func:`map_sequences_to_names` — búsqueda de nombre de código de barras interno->. :func:`spacr.ml.perform_regression` — consume el resultado ``unique_combinations.csv`` como ``count_data``.",
       "translation_source_blocks_sha256": [
         "8cd69f2da40b717c5f23cf48be86f3b6a48bb1f7387c9109f9ad6aa561f8d2a5",
-        "2c8b7d67d8c595087afcb92934b1c7738a105f31e0824ee3498ddef59daba15a",
+        "2248ee778f5a212033ec0a8e295a683216ef3f8c9f3bba0200531e9d9a81fbd9",
+        "636ae44b1915ba5307148e698b5d17dabb71049696816af718e19c5970fb86b0",
+        "fb11b56eb726bf627ade4060c9c2a63bcc524a5921ecf80e6087447d05f89188",
         "202738512ed71d389708912326ec67a93fe171f9ef542414ed4fe80950fefde4",
         "f54a5bcf96a34bc69980c5b0465753a07fce5cb2579df44aebdf7c0682c1ff31",
         "52e77ec9a4f15faf2def937305975c86581566acefd2c3df38ee5227c0a16ddb",
@@ -147948,16 +147962,24 @@
       "source_blocks_sha256": [
         "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
         "e6e65ecebf78eb06898d73da6aa6d7f3abc8d78dfd8c25533cc6da0adc0ae6d8",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "50d952f67575b1ff8a281070cd8d4edfb23507607fb46f6c94cf4abf59a3f540"
+        "d58785ef6ef741235c248817fa0bf63706eb1c9e9b5042816b59f14cca90a5c0",
+        "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
+        "c70b8c3e62290430d17f50fcfbf56c632dbee2c15e7875005b3718d4eb295beb",
+        "0c894722ba71f5823cd30491073fc938da0a141e33afd4f8ee35f9c17431d757",
+        "54684e804efb149765829e6d3ffc14518cb55f95cd7cd373c9415c5b9d0432f8",
+        "41f2159e3149ffb4c2a37e2da76914e58fb646954aa260ef1397ce297f6f49d3"
       ],
-      "source_sha256": "896323309f63c284ab5617acdedfb15c8aa99f2487f35e6e0a48c4c65dee19dd",
-      "text": "Un código de barras tipo un mapa Los códigos de barras ejecutan decodificadores.\n\nUna sesión de procesamiento utilizada para decodificar exactamente tres códigos de barras -- una columna microplaca de laboratorio, una guía y una fila microplata de laboratorio -- porque el regex, la configuración y los procesadores de lectura cada uno deletrearon los tres por su nombre. Una entrada es la misma información escrita una vez, por lo que una cribado que lleva un cuarto código de barras, o sólo uno, es una colección diferente de entradas en lugar de una ruta de código diferente.\n\nParámetros\n----------\nnombre: La palabra que un usuario usaría para este código de barras, como columna, fila, grana o microplaca de laboratorio. Da nombre a las dos columnas de salida que la sesión de procesamiento escribe para la entrada, por lo que tiene que ser única dentro de un conjunto. csv: La tabla de referencia que convierte una de estas secuencias en un nombre. Necesita una columna ``sequence`` y una columna de ``name``, y sus secuencias deben estar en la misma orientación que las lecturas, porque se comparan textualmente en lugar de completarse inversamente. grupo: El grupo nombrado del código de barra regex cuyo texto capturado es este código. group_aliases: Otras grafías de ese nombre de grupo, aceptadas cuando el preferido está ausente del regex. La columna y los códigos de barras de fila spaCR enviados aceptan el más corto ``column`` y ``row`` de esta manera, por lo que un patrón escrito antes de que esos nombres fueran colocados todavía se ejecuta. sequence_column: La columna de salida a la que se escribe la secuencia extraída. Dejado vacío es el nombre de la entrada seguido por ``_sequence``. id_column: La columnas de salida el nombre resuelto está escrito. Dejada vacía es el apellido de la inscripción seguido por ``ID``. El código de barras guía spaCR enviado establece esto a ``grna_name`` en lugar, porque esa es la cabecera de cada tabla de recuento ya escrita y cada lector de uno espera.",
+      "source_sha256": "3c9b076038b7fe5d8a0dbec07fc4ec5523de64d1f64685896c540df7bd71798d",
+      "text": "Un código de barras tipo un mapa Los códigos de barras ejecutan decodificadores.\n\nUna sesión de procesamiento utilizada para decodificar exactamente tres códigos de barras -- una columna microplaca de laboratorio, una guía y una fila microplata de laboratorio -- porque el regex, la configuración y los procesadores de lectura cada uno deletrearon los tres por su nombre. Una entrada es la misma información escrita una vez, por lo que una cribado que lleva un cuarto código de barras, o sólo uno, es una colección diferente de entradas en lugar de una ruta de código diferente.\n\n:ivar name: the word a user would use for this barcode, such as ``column``, ``row``, ``grna`` or ``plate``. It names the two output columns the processing session writes for the entry, so it has to be unique within a set.\n:ivar csv: la tabla de referencia que convierte una de estas secuencias en un nombre. Necesita una columna ``sequence`` y una columna de ``name``. Sus secuencias deben estar en la misma orientación que las lecturas, porque se comparan textualmente en lugar de completarse inversamente.\n:ivar group: el grupo nombrado del código de barras regex cuyo texto capturado es este código de barra. Dejado vacío es el propio nombre de la entrada, que es lo que un regex escrito para un nuevo conjunto usará normalmente.\n:ivar group_aliases: otras grafías de ese nombre de grupo, aceptadas cuando el preferido no está en el regex. Los códigos de barras de columna y fila spaCR enviados aceptan el más corto ``column`` y ``row`` de esta manera, por lo que un patrón escrito antes de que esos nombres fueran colocados todavía se ejecuta.\n:ivar sequence_column: la columna de salida a la que se escribe la secuencia extraída. La izquierda vacía es el nombre de la entrada seguido por ``_sequence``.\n:ivar id_column: la columna de salida en la que se escribe el nombre resuelto. La izquierda vacía es el nombre de la entrada seguido de ``ID``. El código de barras de guía spaCR enviado establece esto a ``grna_name`` en su lugar, porque es el encabezado de cada tabla de recuento ya escrita y cada lector de uno espera.",
       "translation_source_blocks_sha256": [
         "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
         "a54459002ec25a06a6300251212900b8edd1e9f50229b3b3fe2a08e45b5516c8",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "371ff8408777d0833615110fa3a38e164a47c51253c43682868cb56dc7b3138f"
+        "bcf57e9b01531c6c73c19194d71f301f94655e6aaf1c6829e9e151ac9ed37cf7",
+        "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
+        "c70b8c3e62290430d17f50fcfbf56c632dbee2c15e7875005b3718d4eb295beb",
+        "0c894722ba71f5823cd30491073fc938da0a141e33afd4f8ee35f9c17431d757",
+        "54684e804efb149765829e6d3ffc14518cb55f95cd7cd373c9415c5b9d0432f8",
+        "41f2159e3149ffb4c2a37e2da76914e58fb646954aa260ef1397ce297f6f49d3"
       ]
     },
     "spacr.settings.BarcodeEntry.__post_init__": {
@@ -148020,16 +148042,18 @@
       "source_blocks_sha256": [
         "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
         "ded2ad28437c9bd2f3515ede17e5716d88c76a19b67f3ea25d02380d342e9e12",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "e9114b380382e0a75aff2d2344648c9e73b5b9e510aca38786e83a710fba3dfa"
+        "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
+        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "e62e63f559ddf046554e9fc42153a4cdc3d4fe8224573f02c3dfe36914e4d89f"
       ],
-      "source_sha256": "548c793b144d8a03d83beab1612c8c65ace5315d6c4655b5cdd49f8db45b2edf",
-      "text": "El código de barras ordenado tipo un mapa Los códigos de barras ejecutan decodificadores.\n\nUn conjunto reemplaza las tres configuraciones de referencia nombradas con las que comenzó el módulo. Iterarlo es cómo la sesión de procesamiento llega a cada código de barras, por lo que una sesión de proceso con un código de barra y una sesión con diez solo difieren en lo que esto sostiene.\n\nParámetros\n----------\nentradas: Los tipos de código de barras, en el orden en que la ejecución los lista. Las lecturas anotadas llevan la columna de secuencia de cada entrada y la columna del nombre en este orden, después de la lectura misma. count_columns: Las columnas de nombres los recuentos de la posición de muestra por microplaca se agrupan en el mismo orden en el que están agrupados. Dejó vacías las columnas de nombre de cada una de las entradas en orden de entrada. Se puede establecer porque los tres códigos de barras spaCR enviados durante años se cuentan por fila, luego columna, luego guía, mientras que las lecturas listan la columna primero; un conjunto de reproducción que se ejecuta tiene que ser capaz de decir así en lugar de re-ordenar silenciosamente las tablas que la gente ya tiene.",
+      "source_sha256": "20633b53ddeae67fce8bb689126f8a5d0e12515e50f42b9794db534ab6c4fd1f",
+      "text": "El código de barras ordenado tipo un mapa Los códigos de barras ejecutan decodificadores.\n\nUn conjunto reemplaza las tres configuraciones de referencia nombradas con las que comenzó el módulo. Iterarlo es cómo la sesión de procesamiento llega a cada código de barras, por lo que una sesión de proceso con un código de barra y una sesión con diez solo difieren en lo que esto sostiene.\n\nLas columnas de cuenta se pueden establecer por separado porque los tres códigos de barras spaCR enviados durante años se cuentan por fila, luego columna, luego guía, mientras que la lista de lecturas de la columna primero. Un conjunto de reproducción que se ejecuta tiene que ser capaz de decir así, en lugar de re-ordenar en silencio tablas que la gente ya tiene.\n\n:ivar entries: los tipos de código de barras, en el orden en que la ejecución los lista. Las lecturas anotadas llevan la columna de secuencia de cada entrada y la columna del nombre en este orden, después de la lectura misma.\n:ivar count_columns: las columnas de nombre los recuentos de la posición de muestra por microplaca se agrupan, en el orden en que se agrupa. Dejado vacío es la columna de nombre de cada entrada en orden de entrada.",
       "translation_source_blocks_sha256": [
         "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
         "86ae1cc70a39c43febc66d849b6b0e8e76037bbb71d7e0177acf57582ecf3f07",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "5825ae0c1b460bf403e7093bd588e4fc3a27c60e76e4fcdb3413e4a1410aae32"
+        "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
+        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "477ae570ca19e990949ef7e68fd328768bea29b28744e7e96641bb1b099c89f4"
       ]
     },
     "spacr.settings.BarcodeSet.__iter__": {

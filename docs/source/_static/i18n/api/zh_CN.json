@@ -5420,7 +5420,9 @@
     "spacr.barcode_search.ProposedMapping": {
       "source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "a82d4579e4dfce423089129609f616b51d5999a257cb786bb1290382fdd1d3cd",
+        "44112b48f305c7632ae1ee69cdf99bcbdffda71fba4987e204a5ca6350326329",
+        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "8c02f8c21128a929b2421e44a6335f149b4c7371066cc68a7ea16cb0109fc646",
         "c83a06f40906767f7de977cb698c385f449ca54aba98faae6647cd1d70c5bcf7",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
         "44f50d7c93cb1bf51bf2c87e242f91514205bbe797177381d25f31f5e5a87d21",
@@ -5430,11 +5432,13 @@
         "b73ba95fd81532679b792744546dbcf363dc776defcb8caf284672198b996dbf",
         "a00a190d22632254b649be175293a38ea317560c118f90f9a150a4f0817073bb"
       ],
-      "source_sha256": "868f4ffc07389f2845d8a9cd2d3ec208797d4e37d7da9b6023590d6e710547f9",
-      "text": "设置搜索认为一个地图运行应该使用,以及为什么。\n\n设置关键值地图只持有结构化数据名称,地图运行已经阅读,所以它可以直接交付到它. 所有搜索所学到的,没有家在这些结构化的数据名单旅行旁边,因为一个呼叫器,沉默地落下方向将重新引入这个模块的故障存在,以防止。 一个筛选,从实验室微板列之外的条形码,引导 RNA和实验室小板列没有设置名称等待它,所以每个角色所选择的表列在参考表中,无论一个结构红数据名可以填写它。\n\n:param settings: 只有结构化数据名称,地图运行已经阅读,所以地图可以直接传递这个关键值地图。\n:param reference_file: 文件,其阅读的窗口外套是反对的,因为外套没有他们的框架意味着什么。\n:param source_files: 从角色到创建它的阅读文件的地图。\n:param orientations: 从表标签到运行方向的地图,应该搜索该表。\n:param reference_tables: 每个角色所选择的表,列出是否有一个设置名称存在,以便携带它 - 这是一个点,因为没有结构数据名称的角色正是那种,否则会失去。\n:param reverse_complement_needed: 行程的桌子必须逆转补充来识别,因为它们被发现在第二方存储。\n:param unresolved_roles: 命名而不是猜测,所以一个召唤者可以这样说,而不是开始一个将没有地图的运行。\n:param notes: 搜索者所知道的,在设置名称中没有家。",
+      "source_sha256": "d99c7195319b647f3ba18b4bc6aaf9b9e1349a21f88499e49d3e42200b0d10af",
+      "text": "设置搜索认为一个地图运行应该使用,以及为什么。\n\n提议的设置只保留了地图运行已经阅读的结构化数据名称,因此它们可以直接交付给它。\n\n所有搜索所学到的,其中没有家在这些钥匙旅行旁边. 一个呼叫者,沉默地下降的方向将重新引入这个模块的失败存在,以防止。\n\n一个筛选在实验室微板列之外的条形码,引导 RNA和实验室小板列没有设置名称等待它。 因此,为每个角色选择的表列入参考表中,无论是否可以填写一个结构化数据名称。\n\n:param settings: 只有结构化数据名称,地图运行已经阅读,所以地图可以直接传递这个关键值地图。\n:param reference_file: 文件,其阅读的窗口外套是反对的,因为外套没有他们的框架意味着什么。\n:param source_files: 从角色到创建它的阅读文件的地图。\n:param orientations: 从表标签到运行方向的地图,应该搜索该表。\n:param reference_tables: 每个角色所选择的表,列出是否有一个设置名称存在,以便携带它 - 这是一个点,因为没有结构数据名称的角色正是那种,否则会失去。\n:param reverse_complement_needed: 行程的桌子必须逆转补充来识别,因为它们被发现在第二方存储。\n:param unresolved_roles: 命名而不是猜测,所以一个召唤者可以这样说,而不是开始一个将没有地图的运行。\n:param notes: 搜索者所知道的,在设置名称中没有家。",
       "translation_source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "e51909a79fb0c96a88e398f9e06291857eaf773e8d05956029b1cba63d160185",
+        "addfbdabfeb4a97d528ab904d919d12b0eafd971a5d531d01fff5ff7528a9d89",
+        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "8c2cc1511ededead99b46fea2ff3c7d4d66d731ce015f288a428f57db9ebb6e6",
         "1472deda3c4b599dc0ff3fc7dd9009bcd7775436d9009406154085643bef140e",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
         "44f50d7c93cb1bf51bf2c87e242f91514205bbe797177381d25f31f5e5a87d21",
@@ -5610,7 +5614,9 @@
     "spacr.barcode_search.propose_map_barcodes_settings": {
       "source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "85b304b193ee226a6389e7d0dbd91026c49ae8a6b018ad304c8fb450d879bc1d",
+        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
+        "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
         "5f72fcdb6e8a5b1f0f391a4412d517f2605845f9cbcfbbd537c41a5e63056f22",
         "bec02643d71c1ab3c7adc4083972af051ad67c5c3f7a414850eeb18e1b268677",
@@ -5618,11 +5624,13 @@
         "db8dfb93e580e97e3a3655631fd1a4fb55d0cc1b1dd29f64da285de6d5b6960e",
         "5a2d01a292df36e13612b05a87e883cc1b1641cedcc34760fcf61328aac9eb68"
       ],
-      "source_sha256": "032eef54d05213cbed7caacd468c8e6a03258d6127e72bd1645b8be8272f8a52",
-      "text": "将完成的搜索转换为运行条码地图的设置。\n\n地图运行在第一的方向中读取两对符串,所以是框架中一切都被表达在其中。 图表在第二对符中被存储时因此被称为需要被逆转补充,因为这就是运行所需要的,以便识别它。 一个角色,没有设置的图表是单独的,而不是猜测的,并被命名在未解决的角色中,所以召唤者可以这样说而不是开始一个运行将地图什么。\n\n它的起点是最早的折扣任何设立的条码占据,它的结局是最短的任何达成,两者都被测量在一个被寻找的 anchor,因为地图运行发现它的窗口,找到该 anchor 首先。\n\n:param report: 这是一个搜索的报告。\n:param base_settings: 从开始的设置,留下未修改;当被忽略时,一个空的关键值地图。\n:param reference_file: 该文件的标签,其导向是框架;当被忽略时,搜索的第一个文件。\n:returns: 提议,持有条款和什么不合适在其中。\n:raises ValueError: 当报告不包含文件时。",
+      "source_sha256": "cce8e999a095ba50ce7844f76f245474690e2194191a8c8e6755ee586cedb4da",
+      "text": "将完成的搜索转换为运行条码地图的设置。\n\n地图运行读取两个匹配在一个序列的方向的第一个,所以这是框架,一切都表达在。\n\n因此,在其存储时,在第二层中发现的桌子需要被逆转补充,这就是运行所需要的,以便识别它。\n\n一个没有设立的桌子的角色是单独的,而不是猜测的,它被命名在未解决的角色中,所以召唤者可以这样说,而不开始一个将没有地图的跑步。\n\n它的起点是最早的折扣任何设立的条码占据,它的结局是最短的任何达成,两者都被测量在一个被寻找的 anchor,因为地图运行发现它的窗口,找到该 anchor 首先。\n\n:param report: 这是一个搜索的报告。\n:param base_settings: 从开始的设置,留下未修改;当被忽略时,一个空的关键值地图。\n:param reference_file: 该文件的标签,其导向是框架;当被忽略时,搜索的第一个文件。\n:returns: 提议,持有条款和什么不合适在其中。\n:raises ValueError: 当报告不包含文件时。",
       "translation_source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "85b304b193ee226a6389e7d0dbd91026c49ae8a6b018ad304c8fb450d879bc1d",
+        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
+        "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
         "5f72fcdb6e8a5b1f0f391a4412d517f2605845f9cbcfbbd537c41a5e63056f22",
         "c8703e1a8896ef9ec525cc7a42e07256e71021f886b7ce8f6ed3eda366ceba23",
@@ -82913,16 +82921,18 @@
     },
     "spacr.qt.screens.map_barcodes.install_barcode_search": {
       "source_blocks_sha256": [
-        "530556d7122c23d89ad10fd8fab7767c67836727f21459c162981944c77d8278",
+        "15f2c39e156e3c0b3b9df3a28c56d304b4c9fd47a9ca32d67afb0fd4c48bb15d",
+        "ed647d8bb4ba23894b384d6c9e1cf2b405f872e1127d6bcf640dbe451fafa7d2",
         "166bd07e2872250755cfe844529e95526237ff33f9e0d9f887b0263e227278f2",
         "8d2b52931e318b461462dbe68fbe5f558d644d6fb370430e3f5365ef51f43f7d",
         "06bb42ab1005f3985d618f53da35d5e464452956b7d0b04ac292ab7936c0cdbf",
         "b28fc7af221cb7c16ac76bfaea28496c30032937d83939dbddbb509ec5ee15d6"
       ],
-      "source_sha256": "aa004f91335676e7a8d326dbc412243966bb98f82e47d51e32db1ecdc3c2166c",
-      "text": "将地图条形码应用程序显示其直播搜索,背后是一个漏洞。\n\n安装而不是建立在应用程序视图的原因,这个应用程序的每个其他面板都是从外部安装的:应用程序观图是应用程序常规设置视图,它不知道什么关于序列和不应该。\n\n:param screen: 任何不属于地图条形码的筛选都单独留下。\n:param kwargs: 通过到 :class:`BarcodeSearchPanel`,这就是一个测试要求一个较小的阅读样本或一个未经阅读的搜索。\n:returns: 面板,或 None 当筛选不是地图条形码筛选或没有运行时间面板安装。",
+      "source_sha256": "60518b3842cca72aa523f469db6d81610e06685c11b01150c09c1c840301b93d",
+      "text": "将直播条形码搜索添加到地图条形图筛选上。\n\n搜索开始隐藏,应用程序视图上的图标显示它。\n\n安装而不是建立在应用程序视图的原因,这个应用程序的每个其他面板都是从外部安装的:应用程序观图是应用程序常规设置视图,它不知道什么关于序列和不应该。\n\n:param screen: 任何不属于地图条形码的筛选都单独留下。\n:param kwargs: 通过到 :class:`BarcodeSearchPanel`,这就是一个测试要求一个较小的阅读样本或一个未经阅读的搜索。\n:returns: 面板,或 None 当筛选不是地图条形码筛选或没有运行时间面板安装。",
       "translation_source_blocks_sha256": [
-        "de7e6b24cb87bc45d20dd6b333ab4900684945ff82e7da02b1a98e773df0345d",
+        "15f2c39e156e3c0b3b9df3a28c56d304b4c9fd47a9ca32d67afb0fd4c48bb15d",
+        "fcfa1f96446aac7ee73a71c5ef8ea38db665bd136a58520c66aa0babcac300b7",
         "4ad4a0aa3ad18350c4ebfcd501dcffa942d3a8dab141259afd221226bce67bd6",
         "8d2b52931e318b461462dbe68fbe5f558d644d6fb370430e3f5365ef51f43f7d",
         "06bb42ab1005f3985d618f53da35d5e464452956b7d0b04ac292ab7936c0cdbf",
@@ -146816,7 +146826,9 @@
     "spacr.sequencing.generate_barecode_mapping": {
       "source_blocks_sha256": [
         "2a5eb1b139093da86a46a4ebb085aac2ca9fea857f3d2e0af50d15d9ba6a11bf",
-        "0f6e0c1e140edaa7426fb1251d7bb01bab5b4b719480182fd7d61bbce1956b77",
+        "2248ee778f5a212033ec0a8e295a683216ef3f8c9f3bba0200531e9d9a81fbd9",
+        "636ae44b1915ba5307148e698b5d17dabb71049696816af718e19c5970fb86b0",
+        "5e13ec1af0da75ad7f3f385a2f243c58c3e6923f276e4ab9a20da8b6954224f1",
         "9b509e5646b87ffdcbf88b747f801e66bb3cb869245ee0ddc151c527a7de33cd",
         "f54a5bcf96a34bc69980c5b0465753a07fce5cb2579df44aebdf7c0682c1ff31",
         "52e77ec9a4f15faf2def937305975c86581566acefd2c3df38ee5227c0a16ddb",
@@ -146833,11 +146845,13 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "a24b201e8ac8ad15ccf8cb452cb2130a305d8a454c58d0a86185334693d6dffe"
       ],
-      "source_sha256": "51448c630ac0222d805ff06d48569178f90b78fea4614a0fb7819b0909c6b5bc",
-      "text": "将集成扫描实验 FASTQ 文件的文件夹转换为每微型样品位置 sgRNA 计算表,可使用 :func:`spacr.ml.perform_regression`。\n\n发现 R1/R2 文件每个样本在 ``src`` 下,提取每个行代码从每个阅读通过配置的 regex 和 offset 窗口,翻译每个到一个名称通过自己的搜索图 CSV (见 :func:`map_sequences_to_names`),并写个样本 ``annotated_reads.h5`` (可选), ``unique_combinations.csv`` (每个微型样本位置 gRNA 计算) 和 ``qc.csv``. Paired vs 单端和 R1 / R2 方向是从 ``settings['mode']`` 和``single_direction`` 选择。\n\n:param settings: 设置关键值地图,通过 :func:`spacr.settings.set_default_generate_barecode_mapping` 进行可通化。\n\n    - ``src`` - 包含 ``*.fastq.gz`` 阅读的文件夹。\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` 或 ``'R2'`` (只有``mode='single'``)。\n    - ``regex`` — regex 从阅读中提取条形码。\n    - ``target_sequence``、``offset_start``、 ``expected_end`` - 用于查找条码区域的插槽和插槽窗口。\n    - ``column_csv`` / ``row_csv``/ ``grna_csv`` — 字符号->名称查看 CSVs 为发送的三个字符代码 spaCR。\n    - ``barcode_set`` - 编码的条码,当一个处理会议有不同的,而不是三个,作为一个列表,每个输入名称条代码,参考 CSV 命名其序列,并捕获它的 regex 组. 缺席,这是什么每个设置文件写在设置之前存在的,处理会议编码上述三个名称。\n    - ``save_h5``、``comp_type``、 ``comp_level`` — HDF5 输出按钮。\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` - 当是真实的, QC 每个完成样本与 :func:`spacr.sequencing_qc.barcode_qc`,写字符和报告到 ``<dst>/barcode_qc`` (默认 False; 未填写设置默认)。\n    - ``target_grnas_per_well`` - 按微板样品位置预期的 gRNAs,从此 QC 步骤产生其丰富范围(默认情况为 1)。\n\n:returns: None. 按样品输出写入 ``<src>/<sample>_<mode>[_<direction>]/``。\n\n示例：\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\n此外,请参见: :func:`map_sequences_to_names` - 内部条码->名称查看。 :func:`spacr.ml.perform_regression` - ``unique_combinations.csv`` 作为 ``count_data`` 消耗结果。",
+      "source_sha256": "0a51509de1bff58527c450259124c95343710af020de9562bfc6628961f94f2d",
+      "text": "将集成扫描实验 FASTQ 文件的文件夹转换为每微型样品位置 sgRNA 计算表,可使用 :func:`spacr.ml.perform_regression`。\n\n查找每个样本的 R1 和 R2 文件在 ``src`` 下方. 单端和 R1/R2 方向从 ``settings['mode']`` 和 ``single_direction`` 中选择。\n\n从每个阅读中,它提取每个字符串代码的执行代码,使用配置的 regex 和 offset 窗口. 每个提取的序列,然后转换为一个名称,通过该字符号的自己的观点 CSV (见 :func:`map_sequences_to_names`)。\n\n每个样品,它写 ``annotated_reads.h5``(可选), ``unique_combinations.csv``(每个微型样品位置 gRNA 计算)和 ``qc.csv``。\n\n:param settings: 设置关键值地图,通过 :func:`spacr.settings.set_default_generate_barecode_mapping` 进行可通化。\n\n    - ``src`` - 包含 ``*.fastq.gz`` 阅读的文件夹。\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` 或 ``'R2'`` (只有``mode='single'``)。\n    - ``regex`` — regex 从阅读中提取条形码。\n    - ``target_sequence``、``offset_start``、 ``expected_end`` - 用于查找条码区域的插槽和插槽窗口。\n    - ``column_csv`` / ``row_csv``/ ``grna_csv`` — 字符号->名称查看 CSVs 为发送的三个字符代码 spaCR。\n    - ``barcode_set`` - 编码的条码,当一个处理会议有不同的,而不是三个,作为一个列表,每个输入名称条代码,参考 CSV 命名其序列,并捕获它的 regex 组. 缺席,这是什么每个设置文件写在设置之前存在的,处理会议编码上述三个名称。\n    - ``save_h5``、``comp_type``、 ``comp_level`` — HDF5 输出按钮。\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` - 当是真实的, QC 每个完成样本与 :func:`spacr.sequencing_qc.barcode_qc`,写字符和报告到 ``<dst>/barcode_qc`` (默认 False; 未填写设置默认)。\n    - ``target_grnas_per_well`` - 按微板样品位置预期的 gRNAs,从此 QC 步骤产生其丰富范围(默认情况为 1)。\n\n:returns: None. 按样品输出写入 ``<src>/<sample>_<mode>[_<direction>]/``。\n\n例子:\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\n此外,请参见: :func:`map_sequences_to_names` - 内部条码->名称查看。 :func:`spacr.ml.perform_regression` - ``unique_combinations.csv`` 作为 ``count_data`` 消耗结果。",
       "translation_source_blocks_sha256": [
         "8cd69f2da40b717c5f23cf48be86f3b6a48bb1f7387c9109f9ad6aa561f8d2a5",
-        "2c8b7d67d8c595087afcb92934b1c7738a105f31e0824ee3498ddef59daba15a",
+        "2248ee778f5a212033ec0a8e295a683216ef3f8c9f3bba0200531e9d9a81fbd9",
+        "636ae44b1915ba5307148e698b5d17dabb71049696816af718e19c5970fb86b0",
+        "fb11b56eb726bf627ade4060c9c2a63bcc524a5921ecf80e6087447d05f89188",
         "202738512ed71d389708912326ec67a93fe171f9ef542414ed4fe80950fefde4",
         "f54a5bcf96a34bc69980c5b0465753a07fce5cb2579df44aebdf7c0682c1ff31",
         "52e77ec9a4f15faf2def937305975c86581566acefd2c3df38ee5227c0a16ddb",
@@ -147949,16 +147963,24 @@
       "source_blocks_sha256": [
         "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
         "e6e65ecebf78eb06898d73da6aa6d7f3abc8d78dfd8c25533cc6da0adc0ae6d8",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "50d952f67575b1ff8a281070cd8d4edfb23507607fb46f6c94cf4abf59a3f540"
+        "d58785ef6ef741235c248817fa0bf63706eb1c9e9b5042816b59f14cca90a5c0",
+        "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
+        "c70b8c3e62290430d17f50fcfbf56c632dbee2c15e7875005b3718d4eb295beb",
+        "0c894722ba71f5823cd30491073fc938da0a141e33afd4f8ee35f9c17431d757",
+        "54684e804efb149765829e6d3ffc14518cb55f95cd7cd373c9415c5b9d0432f8",
+        "41f2159e3149ffb4c2a37e2da76914e58fb646954aa260ef1397ce297f6f49d3"
       ],
-      "source_sha256": "896323309f63c284ab5617acdedfb15c8aa99f2487f35e6e0a48c4c65dee19dd",
-      "text": "一个条码输入一个地图条码运行解码。\n\n处理会议用来准确地编码三个条码 - 一个实验室微板列,一个引导 RNA和一个实验院微板序列 - 因为规则,设置和阅读处理器分别以名称播放了所有三个。\n\n参数\n----------\n名称: 一个用户将使用这个字符号,如列,行,grna 或实验室微板. 它命名两个输出列的处理会议写入,所以它必须是独一无二的组内. csv: 参考表,将其中一个序列变成一个名称. 需要一个 ``sequence`` 列和 ``name`` 个列,其序列必须是相同的方向,因为它们是比较字符,而不是逆转补充。 group_aliases:该组名称的额外播放,当偏好缺席时被接受。 列和行编码 spaCR 发送接受更短的 ``column`` 和 ``row`` 这样,这就是为什么在这些名称设置之前写的模式仍然运行。 sequence_column:在输出列中,提取的序列被写入。 左空是输入名称,其次是 ``_sequence``. id_column:在输出列中,已解决的名称被写入。 左空是输入名称,其次是 ``ID``. 引导 RNA字符号 spaCR 发送将此设置为 ``grna_name`` 相反,因为它是每个计算表的标题已经写下来,每个读者都期望一个。",
+      "source_sha256": "3c9b076038b7fe5d8a0dbec07fc4ec5523de64d1f64685896c540df7bd71798d",
+      "text": "一个条码输入一个地图条码运行解码。\n\n处理会议用来准确地编码三个条码 - 一个实验室微板列,一个引导 RNA和一个实验院微板序列 - 因为规则,设置和阅读处理器分别以名称播放了所有三个。\n\n:ivar name: 一个用户将使用这个字符号,如 ``column``, ``row``、 ``grna`` 或 ``plate``. 它命名两个输出列的处理会议写给输入,所以它必须是独一无二的组内。\n:ivar csv: 参考表将其中一个序列变成一个名称. 它需要一个 ``sequence`` 列和一个 ``name`` 列. 其序列必须与读者相同的方向,因为它们是比较的词汇而不是逆转补充。\n:ivar group: 字符串编码的名称组 regex 被捕的文本是这个字符号. 左空它是输入的自己的名称,这就是一个字符条编写为一个新的组通常会使用的。\n:ivar group_aliases: 收到的列和行条代码 spaCR 以此方式接受更短的 ``column`` 和 ``row`` ,这就是为什么在这些名称设置之前写的模式仍然运行。\n:ivar sequence_column: 输出列中提取的序列写到 左空是输入名称,其次是 ``_sequence``。\n:ivar id_column: 输出列解答的名称是写到. 左空是输入名称,其次是 ``ID``. 引导 RNA字符号 spaCR 发送将此设置为 ``grna_name`` 相反,因为这是标题 每个计算表已经写的,每个读者等待一个。",
       "translation_source_blocks_sha256": [
         "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
         "a54459002ec25a06a6300251212900b8edd1e9f50229b3b3fe2a08e45b5516c8",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "371ff8408777d0833615110fa3a38e164a47c51253c43682868cb56dc7b3138f"
+        "bcf57e9b01531c6c73c19194d71f301f94655e6aaf1c6829e9e151ac9ed37cf7",
+        "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
+        "c70b8c3e62290430d17f50fcfbf56c632dbee2c15e7875005b3718d4eb295beb",
+        "0c894722ba71f5823cd30491073fc938da0a141e33afd4f8ee35f9c17431d757",
+        "54684e804efb149765829e6d3ffc14518cb55f95cd7cd373c9415c5b9d0432f8",
+        "41f2159e3149ffb4c2a37e2da76914e58fb646954aa260ef1397ce297f6f49d3"
       ]
     },
     "spacr.settings.BarcodeEntry.__post_init__": {
@@ -148021,16 +148043,18 @@
       "source_blocks_sha256": [
         "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
         "ded2ad28437c9bd2f3515ede17e5716d88c76a19b67f3ea25d02380d342e9e12",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "e9114b380382e0a75aff2d2344648c9e73b5b9e510aca38786e83a710fba3dfa"
+        "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
+        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "e62e63f559ddf046554e9fc42153a4cdc3d4fe8224573f02c3dfe36914e4d89f"
       ],
-      "source_sha256": "548c793b144d8a03d83beab1612c8c65ace5315d6c4655b5cdd49f8db45b2edf",
-      "text": "订购的条形码类型一个地图条形则运行解码。\n\n一个集取代了模块开始的三个名为参考设置,它是如何处理会议到达每个条码,因此一个处理会议与一个条码和一个处理课程与十只不同于它所拥有的。\n\n参数\n----------\nentries: The barcode types, in the order the run lists them. The annotated reads carry each entry's sequence column and name column in this order, after the read itself. count_columns: The name columns the per-well counts are grouped by, in the order they are grouped. Left empty it is every entry's name column in entry order. It can be set because the three barcodes spaCR shipped for years are counted by row, then column, then guide, while the reads list the column first; a set reproducing that run has to be able to say so rather than quietly re-sort tables people already have.",
+      "source_sha256": "20633b53ddeae67fce8bb689126f8a5d0e12515e50f42b9794db534ab6c4fd1f",
+      "text": "订购的条形码类型一个地图条形则运行解码。\n\n一个集取代了模块开始的三个名为参考设置,它是如何处理会议到达每个条码,因此一个处理会议与一个条码和一个处理课程与十只不同于它所拥有的。\n\nThe count columns can be set separately because the three barcodes spaCR shipped for years are counted by row, then column, then guide, while the reads list the column first. A set reproducing that run has to be able to say so, rather than quietly re-sort tables people already have.\n\n:ivar entries: 字符串类型,在顺序中运行列出它们. 标记的列包含每个输入的序列列和名称列在这个顺序,在阅读本身之后。\n:ivar count_columns: 名称列 每个微型样品位置数分为,按顺序它们分为。 左空是每个输入的名字列在输入顺序中。",
       "translation_source_blocks_sha256": [
         "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
         "86ae1cc70a39c43febc66d849b6b0e8e76037bbb71d7e0177acf57582ecf3f07",
-        "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
-        "5825ae0c1b460bf403e7093bd588e4fc3a27c60e76e4fcdb3413e4a1410aae32"
+        "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
+        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "477ae570ca19e990949ef7e68fd328768bea29b28744e7e96641bb1b099c89f4"
       ]
     },
     "spacr.settings.BarcodeSet.__iter__": {
