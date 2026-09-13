@@ -768,3 +768,40 @@ WHAT THE LIVE FAILURE ACTUALLY CONFIRMS is the limitation the tool already
 prints: cause 2, a token combination no model has been run against yet. The
 repair pass is what resolves it, which is why the order is BUILD, then
 REPAIR, then AUDIT, and why a build alone never converges.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- THE LOCAL CHECK HAS A BLIND SPOT ITS OWN NAME DESCRIBES
+--------------------------------------------------------------------------------
+
+This item built a local check so that untranslatable prose is found in ~15
+seconds instead of after a 65-minute build. It works, and today showed the edge
+of what it can answer.
+
+`tests/test_prose_that_reaches_a_catalog_can_be_translated.py`. A caption that
+NEVER REACHES A CATALOG is outside its question by construction, and 2026-09-13
+found 258 of them: a screen writes its chrome through a small local helper --
+`_set_status(text)`, `_combo(label, tip, ...)` -- so the literal sits at the
+helper's call site while the extractor reads the forwarding call and records a
+parameter name. 117 were recovered by naming `_set_status`; 141 remain, listed
+in item 65.
+
+  THE TWO CHECKS ASK DIFFERENT QUESTIONS AND BOTH ARE NEEDED. This item's
+  check asks "can this English be translated?". The gap it cannot see is
+  "did this English ever get asked?". A caption can be perfectly translatable
+  and still ship in English for a year.
+
+AND A SECOND KIND OF FALSE NEGATIVE, which no analysis of the English could
+have caught. The four tooltips that failed every repair pass with
+`protected_syntax` were NOT untranslatable: MADLAD produced correct Chinese and
+the checker could not see an identifier next to a CJK character, because `\b`
+does not fire between two word characters. The prose was fine; the instrument
+was wrong. A local check that reasons about the English would have cleared
+those four and been right to -- and they would still have failed the build.
+
+WHAT IS DONE ABOUT IT. `tests/test_a_helper_does_not_hide_a_caption_from_the_
+catalog.py` pins the 141 at the measured number and fails when a helper hides
+one more. Verified by staging a single new caption behind an existing helper.
+It does not fix them -- each helper needs its own extractor rule because the
+template's argument position differs, and guessing writes runtime values into
+the catalog -- but the number can no longer grow unnoticed, which is the
+property this item exists to provide for the OTHER failure mode.
