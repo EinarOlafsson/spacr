@@ -197,5 +197,10 @@ class TestItRefusesRatherThanGuess:
             ["--repo", str(repo), "--execute",
              "--folder", "features", "--folder", "never_existed"]) == 0
         assert "spacr/feature.py" in tracked(repo, "main")
+        # `features/`, NOT `instructions/`. This assertion named the old
+        # folder until 2026-09-13 and the fixture has never created one, so
+        # it matched nothing and could not fail -- a guard that passes because
+        # it is looking in an empty place. The folder this test promotes is
+        # `features`, so that is the one that must not reach main.
         assert not {p for p in tracked(repo, "main")
-                    if p.startswith("instructions/")}
+                    if p.startswith("features/")}

@@ -84,7 +84,7 @@ read_the_exclusions() {
 /*
 !/docs/
 !/tests/
-!/instructions/
+!/features/
 !/Notebooks/
 !/proposals/
 !/tools/

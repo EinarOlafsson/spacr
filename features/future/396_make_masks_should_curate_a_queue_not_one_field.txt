@@ -1,5 +1,6 @@
-396 MAKE MASKS SHOULD CURATE A QUEUE, NOT ONE FIELD AT A TIME
-=============================================================
+================================================================================
+MAKE MASKS SHOULD CURATE A QUEUE, NOT ONE FIELD AT A TIME
+================================================================================
 
 Status:    FUTURE, filed 2026-09-12. Not blocking anything.
 Requested: 2026-09-12, verbatim -- "wouldnt it be easier in the future if we

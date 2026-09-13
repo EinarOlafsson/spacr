@@ -3,7 +3,7 @@
 ================================================================================
 
 WHY THIS FILE EXISTS: the baseline anyone would plan 352 from --
-`instructions/data/288_per_module_coverage_batched_2026-08-30b.txt` -- is ten
+`features/data/288_per_module_coverage_batched_2026-08-30b.txt` -- is ten
 days stale and understates the Qt lane badly. Planning off it means writing
 tests for modules that are already covered.
 

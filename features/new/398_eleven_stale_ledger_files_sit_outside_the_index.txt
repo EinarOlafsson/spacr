@@ -1,0 +1,94 @@
+================================================================================
+ELEVEN STALE LEDGER FILES SIT OUTSIDE THE INDEX
+================================================================================
+
+Status:    OPEN, filed 2026-09-13. Not blocking. Measured, not estimated.
+           NOT FIXED HERE deliberately -- deleting ledger files is the
+           maintainer's call, and two of the eleven are not duplicates.
+Requested: not requested. Found while sweeping for stale `instructions/`
+           paths after the folder rename.
+Owner:     unassigned. `features/*.txt` at the top level;
+           `tools/build_instruction_index.py` is what cannot see them.
+
+--------------------------------------------------------------------------------
+WHAT IS THERE
+--------------------------------------------------------------------------------
+
+`instructions/` held files in THREE places: `open/`, `done/`, and its own top
+level. The rename carried all three across --
+
+    instructions/open/  -> features/future/
+    instructions/done/  -> features/new/
+    instructions/*.txt  -> features/*.txt
+
+-- and the third is the problem. The index generator scans `new/` and
+`future/` only (`build_instruction_index.py:154-155`), so the eleven files at
+`features/` top level appear in NO index, and the index's own header, which
+tells a reader it is generated from the files themselves, is true only of the
+two folders it looks in.
+
+NINE OF THE ELEVEN HAVE A COUNTERPART IN `features/new/` WITH THE SAME NAME,
+AND EVERY ONE OF THE NINE IS THE STALER COPY:
+
+    file                                  top  new/   top-level says     new/ says
+    01_pip_upgrade_is_broken...            87   223   fix is in the repo  DONE 2026-09-10
+    02_multi_fov_loader...                 92   114   half done           DONE 2026-08-29
+    03_five_order_dependent_qt_failures   107   283   NOT DIAGNOSED       DONE 2026-08-29
+    04_font_scale_default_disagrees        66    83   decided, not acted  DONE
+    05_version_bump_and_github_actions     56   122   deferred twice      OPEN, held by maintainer
+    06_module_overlap_and_merge            76    76   measured/delivered  DONE, same
+    07_known_bugs_not_fixed               470   684   (no status line)    DONE
+    08_flowview_pipeline_visualisation    468   649   specified, NOT      DONE
+                                                      STARTED
+    31_gate_editor_redesign                26   639   (no status line)    DONE
+
+THE 03 ROW IS THE ONE TO LOOK AT. A reader opening `features/03_five_order_
+dependent_qt_failures.txt` is told the five Qt failures are "not diagnosed".
+The authoritative copy says "DONE, 2026-08-29 -- the exact combined-order
+reproducer is green". The stale file is 107 lines against 283, so it is not
+merely out of date, it is missing the entire diagnosis.
+
+TWO ARE NOT DUPLICATES and must not be swept up with the nine:
+
+    segmentation_qc_field_browser.txt   156 lines, no counterpart
+    update_tutorials_README.txt         273 lines, no counterpart, and it is
+                                        TUTORIAL material, owned elsewhere
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The index header says "THE TRAILING NOTES AT THE END OF EACH FILE ARE THE
+CURRENT STATE. The header often says 'not started' when it is done -- eight
+files have been wrong about themselves this week." That warning is about a
+file disagreeing with ITSELF. This is worse: two files with the same name
+disagreeing with EACH OTHER, where the one a reader is more likely to open --
+it is one directory shallower -- is the wrong one, and the index that would
+correct them cannot see it.
+
+It is also invisible to every check that exists. The index is generated from
+`new/` and `future/`, so a top-level file can never make it stale. Nothing
+counts these eleven. They were found by grepping for a path that no longer
+exists.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  * DECIDE THE NINE AS A GROUP, not one at a time: they are all the same
+    event. Either delete them as superseded, or move them somewhere named
+    for what they are.
+  * KEEP A RECORD IF THEY GO. Several carry dated history their counterparts
+    may not -- 07 and 08 are 470 and 468 lines. Check before deleting rather
+    than after; a `diff` against the counterpart says in a second whether
+    anything is only in the stale copy.
+  * THE TWO SINGLETONS NEED A HOME OR AN OWNER, separately. The tutorial one
+    is not this list's to decide.
+  * MAKE THE GENERATOR SAY SO. Whatever is decided, the index should either
+    scan the top level or state in its header that it does not, so the next
+    reader is not told it is generated "from the files themselves" when it is
+    generated from two thirds of them.
+
+DO NOT DELETE THE NINE TO MAKE THE FOLDER TIDY WITHOUT READING THEM. That is
+the same error 397 warns about from the other direction: the count is not the
+defect, and a file nobody has read is not evidence of anything yet.

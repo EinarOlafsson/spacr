@@ -1,5 +1,6 @@
-397 SEVENTY-SEVEN API ROWS NAME A SETTING THAT DOES NOT EXIST
-=============================================================
+================================================================================
+SEVENTY-SEVEN API ROWS NAME A SETTING THAT DOES NOT EXIST
+================================================================================
 
 Status:    OPEN, filed 2026-09-12. Not blocking. Measured, not estimated.
 Requested: not requested -- found while clearing 391's own stale rows, and

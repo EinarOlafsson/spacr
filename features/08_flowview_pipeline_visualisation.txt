@@ -114,7 +114,7 @@ Some of that inventory already exists and will save time:
                             panel with its own QSS MUST be added to that
                             list or its containers paint the window colour
                             (#000000) until something rebuilds the
-                            stylesheet. See instructions/03 and the commit
+                            stylesheet. See features/03 and the commit
                             "The black box was a missing stylesheet rule".
 
 --------------------------------------------------------------------------------
