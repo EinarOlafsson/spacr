@@ -555,3 +555,86 @@ stylesheet. The other 29 mostly INSTALL a sheet and read their own back, which
 is the "always full" column above and is legitimate. A full pass would run the
 plugin over the whole `tests/qt` directory in one process and diff the site
 table; that is cheap and has not been done.
+
+--------------------------------------------------------------------------------
+2026-09-13, THE SAME DAY -- THE FULL PASS, WHICH THE ENTRY ABOVE NAMED AS NOT
+DONE: SIXTY-SIX FILES, AND THE ANSWER IS THAT THERE WAS ONE MORE AND IT IS FINE
+--------------------------------------------------------------------------------
+
+The entry above closes by naming what it had not done: "a full pass would run
+the plugin over the whole `tests/qt` directory in one process and diff the site
+table; that is cheap and has not been done." Done now, over the 66 files that
+mention a stylesheet at all, in one process.
+
+    sites             135        (against 55 in the eight-file pass)
+    always full        58
+    mixed               4
+    only ever empty    73
+
+SEVENTY-THREE SOUNDS LIKE A DISASTER AND IS NOT, because 64 of them are not
+assertions. They are save-and-restore points (`saved = qapp.styleSheet()` in a
+fixture's setup), and production reads attributed to the test line that called
+into production. Reading the line at each site is a two-line script and it is
+the difference between a finding and a number:
+
+    only-empty sites   73
+      assertions        9
+      everything else  64   fixture save/restore, production reads
+
+AND EIGHT OF THE NINE ARE CORRECT:
+
+    ..._previous_theme.py:248   `assert app.styleSheet() == ""`     deliberate
+    ..._repolish_budget.py:96   `assert qapp.styleSheet() == ""`    deliberate
+    ..._uncovered_paths.py:299  `assert qapp.styleSheet() == ""`    deliberate
+    ..._qss_is_complete.py:278  `assert not app.styleSheet()`       deliberate
+    ..._previous_theme.py:181, :265, ..._qss_is_complete.py:288
+                                the sheet is read inside a helper; the
+                                assertion on that line is about something else
+
+THE NINTH IS `test_home_variants.py:551` AND :553, AND IT IS NOT A 380 CASUALTY
+AT ALL -- WHICH IS WHY IT IS THE MOST USEFUL ONE.
+
+    def test_apply_theme_as_a_guest_never_touches_the_application(gen, ctx):
+        before = gen.app.styleSheet()          # "" -- pytest-qt's app is bare
+        ...
+        assert gen.app.styleSheet() == before
+
+`gen` loads the standalone HOME-SCREEN GENERATOR scripts, not the Qt package,
+and `common.Ctx.apply_theme` branches on `_WE_OWN_THE_APP`: as an owner it
+styles the application, as a guest it must not touch it. Nothing to do with
+per-window sheets. `before` is empty only because pytest-qt's application
+carries no stylesheet of its own.
+
+  SO THE ASSERTION PROVED HALF ITS DOCSTRING. "Leave the application's
+  stylesheet exactly as it found it" has two failure modes and an empty
+  `before` only covers one:
+
+      guest SETS a sheet      value stops being empty   -> old test FAILS
+      guest CLEARS/REPLACES   "" stays ""               -> old test PASSES
+
+  And the second is the case the guest branch exists for: a host application
+  embedding these generators HAS a sheet of its own.
+
+MEASURED, BY STAGING BOTH DEFECTS IN `common.py` AND RUNNING BOTH FORMS OF THE
+TEST:
+
+    staged: guest does `self.app.setStyleSheet(self.qss())`
+        old form  FAILS      new form  FAILS
+    staged: guest does `self.app.setStyleSheet("")`
+        old form  PASSES     new form  FAILS
+
+The test now installs a sentinel sheet before the call and restores it in
+`finally`, so `before` is a real value and both failure modes are covered. The
+staged defects were reverted and the production file verified clean.
+
+  THIS IS WHY "ONLY EVER EMPTY" IS WORTH READING EVEN WHEN THE CAUSE IS NOT
+  THE REFACTOR YOU WENT LOOKING FOR. The sweep was built to find 380
+  casualties. This site is not one. It is a guard that was written correctly,
+  never broke, and was always weaker than it claimed -- and the same
+  instrument found it, because the symptom is the same: an assertion whose
+  expected value is empty is an assertion with one side missing.
+
+SO THE FULL PASS ADDS ONE FINDING to the four already fixed, and it is a
+different KIND of finding. The eight-file sample and the 66-file population
+agree about the 380 casualties, which is the only evidence available that the
+sample was not lucky.

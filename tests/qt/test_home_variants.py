@@ -543,9 +543,23 @@ def test_apply_theme_as_a_guest_never_touches_the_application(gen, ctx):
     the application's stylesheet exactly as it found it.
     """
     from PySide6.QtWidgets import QWidget
-    before = gen.app.styleSheet()
+    # A SENTINEL, BECAUSE AN EMPTY `before` ONLY PROVES HALF THE CLAIM.
+    # pytest-qt's application carries no stylesheet, so this test used to read
+    # `before = gen.app.styleSheet()` as "" and compare "" with "". That does
+    # catch a guest that SETS a sheet -- the value would stop being empty --
+    # but it cannot catch a guest that CLEARS or REPLACES one, and the
+    # docstring's claim is "exactly as it found it". A host application
+    # embedding these generators would have its own sheet, which is the case
+    # the guest branch exists for. Measured 2026-09-13 by
+    # `tools/which_assertions_went_vacuous.py`, which flagged both lines as
+    # only ever seeing an empty value.
+    sentinel = "QLabel#SpacrGuestSentinel { color: #0f0; }"
+    restore = gen.app.styleSheet()
+    gen.app.setStyleSheet(sentinel)
     target = QWidget()
     try:
+        before = gen.app.styleSheet()
+        assert before == sentinel, "the sentinel did not take"
         ctx.apply_theme(target)
         assert target.styleSheet() == ctx.qss()
         assert gen.app.styleSheet() == before
@@ -553,6 +567,10 @@ def test_apply_theme_as_a_guest_never_touches_the_application(gen, ctx):
         assert gen.app.styleSheet() == before
     finally:
         target.deleteLater()
+        # Put the application back exactly as it was found, for the same
+        # reason this test exists: the application is shared with every other
+        # test in the process.
+        gen.app.setStyleSheet(restore)
 
 
 def test_apply_theme_as_the_owner_styles_the_application(gen, monkeypatch):
