@@ -2,8 +2,15 @@
 STANDARDISE EVERY LIVE VIEW AND EVERY HYPERPARAMETER SEARCH
 ================================================================================
 
-Status:    not started. Do it AFTER the individual defects below are
-           fixed, or the standard is copied from a broken example.
+Status:    DONE, corrected 2026-09-13. The heading at line 91 reads
+           "2026-08-13 - DONE. THE FILE'S 'not started' WAS WRONG, AND THIS IS
+           THE SEVENTH" -- so this file diagnosed its own stale header a month
+           ago, recorded the diagnosis, and kept the header. All five steps
+           ship in `spacr/qt/widgets/preview_contract.py`.
+
+           The original ordering advice, still sound: do this AFTER the
+           individual defects are fixed, or the standard is copied from a
+           broken example. 35, 51 and 67 were fixed first.
 Requested: 2026-08-09 — "do another pass where you look att all modules with Live views and hyperparamiter searches, and standardize common elements and make these as functional and helpfull as possible to the user."
 
 --------------------------------------------------------------------------------

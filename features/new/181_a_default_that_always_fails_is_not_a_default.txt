@@ -2,7 +2,10 @@
 A PENALTY THAT SHRINKS EVERY COEFFICIENT TO ZERO IS NOT A DEFAULT
 ================================================================================
 
-Status:    filed 2026-08-20, not started.
+Status:    DONE, corrected 2026-09-13 -- "2026-08-20 -- DONE, and the cause
+           was worse than the report." Part B of the original ask (printing the
+           chosen alpha) is named in the closing note as still owed.
+           Originally filed 2026-08-20.
 Reported:  2026-08-19, from a live run on the TSG101 screen --
 
   ValueError: lasso shrank all 790 coefficients to exactly zero at alpha=1:

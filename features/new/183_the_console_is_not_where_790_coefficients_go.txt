@@ -2,7 +2,8 @@
 790 COEFFICIENTS DO NOT BELONG IN THE CONSOLE
 ================================================================================
 
-Status:    filed 2026-08-20, not started.
+Status:    DONE, corrected 2026-09-13 -- "2026-08-20 -- DONE."
+           Originally filed 2026-08-20.
 Found:     2026-08-19, from a live glm run -- the pasted console output was
            truncated at 50 000 characters and was still inside the coefficient
            table.

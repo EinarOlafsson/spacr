@@ -47,7 +47,13 @@ OPENS_NOT_STARTED = re.compile(
 DECLARES_COMPLETE = re.compile(
     r"(?i)(INSTRUCTION \d+ IS COMPLETE|STATUS:\s*DONE"
     r"|completes instruction \d+|STILL OWED:\s*nothing"
-    r"|THIS ITEM IS (?:DONE|CLOSED))")
+    r"|THIS ITEM IS (?:DONE|CLOSED)"
+    # A dated section heading declaring the item done. This is the ledger's
+    # own house form and the pattern that caught 69, whose heading reads
+    # "2026-08-13 - DONE. THE FILE'S 'not started' WAS WRONG, AND THIS IS THE
+    # SEVENTH" -- written a month before the header was finally corrected.
+    r"|^20\d\d-\d\d-\d\d\s*[-\u2013\u2014]+\s*DONE\b)",
+    re.M)
 
 #: How much of the end of the file counts as "the trailing notes".
 TAIL_CHARS = 4000

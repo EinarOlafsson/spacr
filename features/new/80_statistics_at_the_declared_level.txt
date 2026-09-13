@@ -2,7 +2,8 @@
 THE REPORTED STATISTIC MUST BE COMPUTED AT THE LEVEL THE SETTING DECLARES
 ================================================================================
 
-Status:    not started, 2026-08-11.
+Status:    DONE, corrected 2026-09-13 -- the file carries a "2026-08-11 -
+           DONE" section. This header said "not started" for a month after.
 Requested: 2026-08-11 — "for Decision: chi-squared unit of replication do 1
            and 2", where the options put to the maintainer were:
 

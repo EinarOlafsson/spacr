@@ -2,7 +2,9 @@
 THREE ANNOTATE-ENGINE TESTS FAIL, AND HAVE FOR LONGER THAN ANYONE NOTICED
 ================================================================================
 
-Status:    not started
+Status:    DONE, corrected 2026-09-13 -- the file carries a "2026-09-02 --
+           DONE" section. Three further annotate failures found while doing it
+           are filed separately as 345.
 Requested: not requested -- found on 2026-09-01 while working elsewhere, and
            filed so it stops being rediscovered.
 Owner:     unassigned
