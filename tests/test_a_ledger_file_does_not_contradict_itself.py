@@ -93,6 +93,15 @@ def _ledger_files():
 
 
 def _status(text):
+    """The Status line, or None for the files that do not carry one.
+
+    TWENTY-NINE LEDGER FILES HAVE NO `Status:` LINE. They are the terser
+    2026-08-28 template, which opens "Asked <date>:" instead. This check skips
+    them, and that was MEASURED rather than waved through: none of the
+    twenty-nine declares completion in its trailing notes, so there is nothing
+    for this assertion to catch in them today. If that template starts
+    carrying dated DONE sections, this function is where to widen.
+    """
     match = re.search(r"^Status:\s*(.*)$", text, re.M)
     return match.group(1) if match else None
 
