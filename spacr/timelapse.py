@@ -46,11 +46,16 @@ from spacr import schema
 from spacr.image_colors import read_image_rgb, rgb_to_cv2
 from spacr.utils import _LazyModule, debug
 
-# Trackpy imports Numba at module import time.  Besides making every caller
-# pay for a tracking backend it may never use, that import can fail when a
-# checkout-local ``tools/coverage`` package shadows coverage.py's public
-# module.  Keep the existing ``tp.link_df`` / ``tp.filter_stubs`` call sites,
-# but load the optional backend only when the Trackpy path is actually used.
+# Trackpy imports Numba at module import time, which makes every caller pay
+# for a tracking backend it may never use.  Keep the existing ``tp.link_df``
+# / ``tp.filter_stubs`` call sites, but load the optional backend only when
+# the Trackpy path is actually used.
+#
+# It also used to fail outright: a checkout-local ``tools/coverage``
+# directory became a namespace package whenever coverage.py itself was not
+# importable, and shadowed it.  That directory is ``tools/coverage_scripts``
+# as of 2026-09-13, so the shadow is gone -- but laziness is still right on
+# the cost argument alone.
 tp = _LazyModule("trackpy")
 
 

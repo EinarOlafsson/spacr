@@ -1424,9 +1424,15 @@ def _morphological_measurements(
         # infinity there, and one non-finite value deletes the column from
         # every model matrix. It is a sentinel, not a distance, and must
         # not be averaged.
+        # BUILT RATHER THAN OVERWRITTEN. Under copy-on-write -- the default
+        # from pandas 3 -- `to_numpy` hands back a read-only view of the
+        # column, and assigning into it raises "assignment destination is
+        # read-only". `np.where` produces the sentinel-filled array in one
+        # step, so there is no in-place write to forbid.
         distance = pd.to_numeric(block['distance_to_infected'],
                                  errors='coerce').to_numpy(dtype=float)
-        distance[~np.isfinite(distance)] = _SPATIAL_NO_NEIGHBOUR
+        distance = np.where(np.isfinite(distance), distance,
+                            _SPATIAL_NO_NEIGHBOUR)
         out['distance_to_infected'] = distance
         return frame.merge(out, on='label', how='left', validate='one_to_one')
 

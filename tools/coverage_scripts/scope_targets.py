@@ -13,7 +13,7 @@ Two filters keep the list honest:
 * a module importing a package this interpreter does not have is dropped,
   because no test written here can reach it.
 
-    python tools/coverage/scope_targets.py <coverage.json> [--min-gap 4]
+    python tools/coverage_scripts/scope_targets.py <coverage.json> [--min-gap 4]
 """
 from __future__ import annotations
 

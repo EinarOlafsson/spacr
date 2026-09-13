@@ -18,7 +18,7 @@
 # wrong when it is missing.
 #
 #   WT=/path/to/frozen/worktree OUT=/path/for/artifacts JOBS=4 \
-#       bash tools/coverage/batched_coverage_nocovplugin.sh
+#       bash tools/coverage_scripts/batched_coverage_nocovplugin.sh
 set -uo pipefail
 WT=${WT:?set WT to a frozen worktree}
 OUT=${OUT:?set OUT to an artifact directory}

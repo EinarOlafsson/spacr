@@ -24,7 +24,7 @@ thing for an unrelated reason (a missing column, an empty frame, a raise
 earlier in the call). ``pytest.raises(ImportError)`` in particular will happily
 catch an ImportError from somewhere else entirely, so each test below pins the
 MESSAGE the arm itself writes, and the arcs were confirmed reached with
-``tools/coverage/check_arcs.py`` rather than assumed.
+``tools/coverage_scripts/check_arcs.py`` rather than assumed.
 """
 from __future__ import annotations
 
