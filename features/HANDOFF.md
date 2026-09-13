@@ -830,3 +830,49 @@ The remainder of this handoff contains historical investigation notes. Its old
 69-done / 17-open count and hands-off ownership table are superseded.
 
 ---
+
+### A batched sweep is the only instrument that sees a whole class of defect
+
+2026-09-13. The suite was run end to end in 60-file processes, from both ends
+of the alphabet, until all 2,790 files were covered. It found eight defects,
+and **every one of them passes when its file is run alone**:
+
+    Map Barcodes' findings table sorted read counts as words (10 before 9)
+    fractal travel read process-global QApplication.mouseButtons()
+    dialog filters called caplog.at_level on the root, not spacr.qt.app
+    test_barcode_search named /home/olafsson/, so it skipped everywhere
+    the app-registry restore fixture stopped at tests/qt/
+    eight animation verdicts described animations that no longer ship
+    the i18n protector rejected correct Chinese and Korean
+    a one-line wrapper hid 117 status captions from the extractor
+
+A per-file loop -- which is how most of these files are ever run -- reports all
+eight green. **The cost is wall clock and nothing else.**
+
+TWO RULES THE SWEEP ITSELF TAUGHT:
+
+* **THE TREE MUST NOT MOVE UNDER IT.** A sweep running while the catalogs were
+  being rebuilt recorded 20 reds that were the rebuild's own half-written
+  state. Every one green on re-check. `red.txt` is a worklist; a red recorded
+  while its file was being edited says nothing.
+* **RE-CHECK EVERY RED BEFORE BELIEVING IT.** Of 27 recorded, 8 were real, 1
+  was deliberate, and 18 were contamination or already-fixed rows the
+  cumulative log kept.
+
+### Three times in one session, a second measurement caught the first
+
+Worth stating as a habit rather than three anecdotes.
+
+* A `[full, empty]` counter unpacked as `(empty, full)` reported 41 of 55
+  assertions vacuous. The truth was 11, and the 41 were the healthy ones.
+  Caught by a write-side probe contradicting the read-side one.
+* A probe that instruments an accessor failed 16 tests *itself*. Caught by
+  running the same files without it: 0 failed, 2,007 passed.
+* An i18n regex fix appeared to break 9 tests. Two changes were live at once;
+  the other one invalidates catalogs by itself. Isolated, the regex was
+  innocent -- 4 failed either way, the same four.
+
+  IN ALL THREE THE FIRST NUMBER WAS PLAUSIBLE AND WRONG, and in two of them it
+  pointed at the more dramatic conclusion. A measurement that cannot be checked
+  against a differently-shaped measurement of the same thing should be reported
+  with that said out loud.
