@@ -2,7 +2,12 @@
 OFFLOAD THE COMPUTE THAT IS ACTUALLY GPU-SHAPED
 ================================================================================
 
-Status:    not started. Under investigation 2026-08-10; findings go here.
+Status:    CLOSED BY THE MAINTAINER, corrected 2026-09-13 -- "2026-08-10 -
+           CLOSED BY THE MAINTAINER. NO GPU OFFLOAD, NO NEW DEPENDENCY",
+           after "INVESTIGATED AND MEASURED. THE ANSWER IS MOSTLY 'NOT THE
+           GPU'". A decision not to act is a result, and this file reached
+           one on the day it was filed. The header invited the next reader to
+           redo the investigation for a month.
 Requested: 2026-08-10 — "Cupy is the GPU accelerated numpy and there are other GPU translations of python packages. Are there any aspects of any modules e.g. measure, annotate, image UMAP that could be accelerated and therefore made smoother and faster by offloading some compute to the GPU?"
 
 --------------------------------------------------------------------------------
