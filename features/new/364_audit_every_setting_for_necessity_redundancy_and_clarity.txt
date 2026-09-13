@@ -2084,3 +2084,51 @@ The honest default is whatever the organelle channel has EFFECTIVELY been doing
 since the fallback was written -- which is False -- so declaring it False
 changes no existing run, and any other value is a behaviour change that belongs
 in the release notes.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- THE ORGANELLE PREPROCESSING FIX REACHES ONE SLOT OF 702
+--------------------------------------------------------------------------------
+
+Found while auditing what the runtime catalog rebuild added. It added ten
+settings, and eight of them are this item's:
+
+    organelle_background       organelle_signal_to_noise
+    organelleb_background      organelleb_signal_to_noise
+    organellec_background      organellec_signal_to_noise
+    organelled_background      organelled_signal_to_noise
+    remove_background_organelle                     (slot one only)
+
+TWO FACTS, AND THE SECOND IS THE BIGGER ONE.
+
+FIRST, THE ASYMMETRY I INTRODUCED. `<slot>_background` and
+`<slot>_signal_to_noise` were declared inside `_set_organelle_defaults`, so
+every organelle slot gets them. `remove_background_organelle` was deliberately
+left in the GENERIC block, because its role resolves to None and moving it
+would make `_count_implied_by_the_slots` infer an organelle that is not there
+-- the regression this item already records. The consequence was not thought
+through at the time: slots b..zz now have a background floor and a
+signal-to-noise anchor and NO toggle to apply them with. Slot one has all
+three.
+
+    organelle    background=True  signal_to_noise=True  remove_background=True
+    organelleb   background=True  signal_to_noise=True  remove_background=False
+    organellec   background=True  signal_to_noise=True  remove_background=False
+
+SECOND, IT DOES NOT MATTER YET, AND THAT IS THE ACTUAL FINDING. `io.py`'s
+channel-preprocessing branch (io.py:1746-1771) handles exactly four channels:
+nucleus, cell, pathogen, and `organelle_channel`. It reads NO `organelleb_*`
+key at all -- zero occurrences in the file. So all 701 organelle slots past the
+first are declared with 52 settings each, carry tooltips, appear in the API
+catalogs, and are never reached by the code that would use them.
+
+This is the same shape as the gap this item was filed about, one level up. That
+gap was "io.py reads three keys nothing declares". This one is "the settings
+declare 701 slots that io.py cannot reach".
+
+NOT FIXED HERE, DELIBERATELY. Adding `remove_background_organelleb` would
+complete a symmetry into a branch that does not exist, which is tidier and no
+more useful. The real question is whether io.py's four-branch structure should
+become a loop over resolved object roles -- and that is a change to the
+preprocessing path, not a settings audit. Recorded so the next person does not
+mistake the missing toggle for the whole of it.
+
