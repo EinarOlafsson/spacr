@@ -204,3 +204,77 @@ class TestItRefusesRatherThanGuess:
         # `features`, so that is the one that must not reach main.
         assert not {p for p in tracked(repo, "main")
                     if p.startswith("features/")}
+
+
+class TestAStaleLocalBranchIsRefused:
+    """A promotion merges the LOCAL branch, so a stale one must not run.
+
+    The failure this guards is not a crash. On 2026-09-13 the local
+    ``nightly`` in the working checkout was 147 commits behind
+    ``origin/nightly``, and the dry run reported "not tracked on nightly,
+    nothing to drop: features/" -- true of that old ref and false of the
+    branch anyone meant. A real run would have merged stale work into
+    ``main``, dropped nothing because there was nothing there to drop, and
+    printed a clean report while doing it.
+    """
+
+    @staticmethod
+    def _with_upstream(root: Path, tmp_path: Path) -> Path:
+        """Give ``root`` an origin that is one commit ahead on nightly."""
+        origin = tmp_path / "origin.git"
+        git(root, "clone", "--quiet", "--bare", str(root), str(origin))
+        git(root, "remote", "add", "origin", str(origin))
+        git(root, "fetch", "--quiet", "origin")
+        git(root, "branch", "--set-upstream-to=origin/nightly", "nightly")
+
+        # Move the upstream on, without moving the local branch: a second
+        # clone commits and pushes, which is what another session does.
+        other = tmp_path / "other"
+        git(root, "clone", "--quiet", str(origin), str(other))
+        git(other, "config", "user.name", "Einar Olafsson")
+        git(other, "config", "user.email", "einar.olafsson@gmail.com")
+        git(other, "config", "commit.gpgsign", "false")
+        git(other, "checkout", "--quiet", "nightly")
+        write(other / "spacr" / "newer.py", "def newer():\n    return 3\n")
+        git(other, "add", "-A")
+        git(other, "commit", "--quiet", "-m", "work the local branch lacks")
+        git(other, "push", "--quiet", "origin", "nightly")
+        git(root, "fetch", "--quiet", "origin")
+        return origin
+
+    def test_a_branch_behind_its_upstream_stops_even_the_dry_run(
+            self, repo, tmp_path, capsys):
+        self._with_upstream(repo, tmp_path)
+        status = promote_to_main.main(["--repo", str(repo)])
+        assert status != 0
+        captured = capsys.readouterr()
+        printed = captured.out + captured.err
+        assert "behind origin/nightly" in printed, printed
+        assert "Nothing was changed." in printed, printed
+
+    def test_it_names_the_remedy(self, repo, tmp_path, capsys):
+        self._with_upstream(repo, tmp_path)
+        promote_to_main.main(["--repo", str(repo)])
+        captured = capsys.readouterr()
+        printed = captured.out + captured.err
+        assert "git fetch origin" in printed, printed
+        assert "git branch -f nightly origin/nightly" in printed, printed
+
+    def test_main_is_untouched_by_the_refusal(self, repo, tmp_path):
+        self._with_upstream(repo, tmp_path)
+        before = git(repo, "rev-parse", "main")
+        promote_to_main.main(["--repo", str(repo), "--execute"])
+        assert git(repo, "rev-parse", "main") == before
+
+    def test_a_branch_level_with_its_upstream_is_allowed_through(
+            self, repo, tmp_path):
+        self._with_upstream(repo, tmp_path)
+        git(repo, "checkout", "--quiet", "nightly")
+        git(repo, "merge", "--quiet", "--ff-only", "origin/nightly")
+        assert promote_to_main.main(["--repo", str(repo), "--execute"]) == 0
+        assert not (tracked(repo, "main") & WORKING_PATHS)
+
+    def test_no_upstream_at_all_is_not_an_error(self, repo):
+        """A fresh clone with no remote must still be promotable."""
+        assert promote_to_main.upstream_gap(repo, "nightly") is None
+        assert promote_to_main.main(["--repo", str(repo)]) == 0
