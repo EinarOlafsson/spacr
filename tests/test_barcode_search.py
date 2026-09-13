@@ -16,6 +16,7 @@ from __future__ import annotations
 import gzip
 import os
 import random
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -876,8 +877,22 @@ def test_the_score_interval_keeps_a_width_when_nothing_was_seen():
 # The real run the feature exists for
 # ---------------------------------------------------------------------------
 
-_EO1 = "/nas_mnt/data/sequencing/sequencing/"
-_REFERENCES = "/home/olafsson/Documents/barcodes/"
+_EO1 = os.environ.get(
+    "SPACR_SEQUENCING_DIR", "/nas_mnt/data/sequencing/sequencing").rstrip("/") + "/"
+#: THE REFERENCE CSVs LIVE IN SOMEBODY'S HOME, and that is the whole problem
+#: with naming them. This used to read `/home/olafsson/Documents/barcodes/`,
+#: which exists on exactly one machine -- so everywhere else `paths_available`
+#: came back False, the test below skipped, and the skip looked like a pass.
+#: `test_test_suite_hygiene::test_no_user_home_paths_in_the_suite` exists for
+#: precisely that shape and says so: "a test whose precondition only exists on
+#: one machine reports green everywhere else while running nothing."
+#:
+#: Built from `Path.home()` rather than spelled out, so it follows whoever is
+#: running it, and overridable by environment for anyone whose copy is
+#: somewhere else.
+_REFERENCES = os.environ.get(
+    "SPACR_BARCODE_REFERENCE_DIR",
+    str(Path.home() / "Documents" / "barcodes")).rstrip("/") + "/"
 _REAL_INPUTS = (
     (_EO1 + "EO1_R1_001.fastq.gz", "file"),
     (_EO1 + "EO1_R2_001.fastq.gz", "file"),
