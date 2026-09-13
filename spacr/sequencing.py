@@ -13,11 +13,14 @@ cutoff.
 WHAT IT NEEDS
 =============
 ``src`` must contain gzip-compressed FASTQ files whose names let spaCR pair R1
-and R2 reads.  The run also needs three CSV reference tables -- ``row_csv``,
-``column_csv``, and ``grna_csv`` -- with ``sequence`` and ``name`` columns.
-``target_sequence`` anchors the barcode window, while ``offset_start``,
-``expected_end``, and a regex with the named groups ``columnID``, ``grna``,
-and ``rowID`` describe its layout.  Use ``mode='paired'`` for a
+and R2 reads.  The run also needs a CSV reference table per barcode, with
+``sequence`` and ``name`` columns.  A run that decodes the three barcodes
+spaCR shipped names them as ``row_csv``, ``column_csv`` and ``grna_csv``, and
+a run that decodes any other number of barcodes lists them under
+``barcode_set`` instead, one entry per barcode.  ``target_sequence`` anchors
+the barcode window, while ``offset_start``, ``expected_end``, and a regex
+naming one group per barcode describe its layout.  The shipped regex names
+``columnID``, ``grna`` and ``rowID``.  Use ``mode='paired'`` for a
 quality-weighted R1/R2 consensus or ``mode='single'`` with
 ``single_direction`` when only one mate should be read.
 
@@ -50,6 +53,7 @@ disable ``save_h5`` unless those individual annotations are needed.
 
 import logging
 import os, gzip, re, time
+from collections.abc import Mapping
 import pandas as pd
 from multiprocessing import Pool, cpu_count, Queue, Process
 from Bio.Seq import Seq
@@ -259,9 +263,17 @@ def save_df_to_hdf5(df, hdf5_file, key='df', comp_type='zlib', comp_level=5):
         raise
 
 def save_unique_combinations_to_csv(unique_combinations, csv_file):
-    """Append per-``(rowID, columnID, grna_name)`` counts to a CSV, summing duplicates.
+    """Append per-barcode-combination counts to a CSV, summing duplicates.
 
-    :param unique_combinations: DataFrame with ``rowID``, ``columnID``, ``grna_name`` and numeric count columns.
+    The columns to group by are the frame's own, every column except the
+    count. They used to be the three this module decoded, named here as a
+    literal, which is one of the two places a run had to hold exactly three
+    barcodes. Reading them off the frame is not a loosening: the frame comes
+    from the groupby that produced it, so its columns ARE the combination
+    being counted, whether that is one barcode or six.
+
+    :param unique_combinations: DataFrame holding one column per barcode and
+        a numeric ``count`` column.
     :param csv_file: destination CSV path (created if absent).
     :returns: None.
     :raises Exception: after printing context, when the CSV write fails.
@@ -273,9 +285,11 @@ def save_unique_combinations_to_csv(unique_combinations, csv_file):
             existing_df = pd.DataFrame()
         
         if not existing_df.empty:
+            combination_columns = [column for column in unique_combinations.columns
+                                   if column != 'count']
             unique_combinations = pd.concat([existing_df, unique_combinations])
             unique_combinations = unique_combinations.groupby(
-                ['rowID', 'columnID', 'grna_name'], as_index=False).sum()
+                combination_columns, as_index=False).sum()
 
         # index=False: the frame comes out of a groupby with as_index=False,
         # so its index is a RangeIndex carrying nothing. Written out, the next
@@ -386,47 +400,103 @@ def reverse_complement(seq):
 def process_chunk(chunk_data):
     """Extract and map barcodes from a chunk of single- or paired-end FASTQ reads.
 
-    Anchors on ``target_sequence``, extracts a consensus window, splits it
-    with the named-group ``regex``, and maps each barcode to its ID via
-    the reference CSVs.
+    Anchors on ``target_sequence``, extracts a consensus window, splits that
+    window with the named-group ``regex``, and maps every barcode it holds to
+    a name through that barcode's own reference table.
 
-    The regex must supply a ``grna`` group plus a row and a column group.
-    ``columnID``/``rowID``, the names used by the shipped default regex,
-    take precedence; ``column``/``row`` are accepted as aliases.
+    THE CHUNK ARRIVES IN ONE OF TWO SHAPES. A tuple is the historical one and
+    decodes the three barcodes this module has always decoded, a plate
+    column, a guide and a plate row, from three reference CSV paths. A
+    mapping carries a barcode set instead and decodes however many barcodes
+    that set holds, one or ten, writing a sequence column and a name column
+    for each of them.
 
-    :param chunk_data: 9-tuple for single-end
+    The regex must name a group for every barcode being decoded, and the run
+    stops naming the barcode that has no group rather than decoding the rest.
+    For the historical three the column and the row are read from
+    ``columnID`` and ``rowID`` where the regex defines those, and from
+    ``column`` and ``row`` where it does not, so a pattern written before
+    those names were settled goes on matching.
+
+    :param chunk_data: a 9-tuple for single-end reads
         ``(r1_chunk, regex, target_sequence, offset_start, expected_end,
-        column_csv, grna_csv, row_csv, fill_na)`` or 10-tuple for paired-end
-        ``(r1_chunk, r2_chunk, ...)`` with the same trailing fields.
+        column_csv, grna_csv, row_csv, fill_na)``, a 10-tuple for paired-end
+        reads ``(r1_chunk, r2_chunk, ...)`` with the same trailing fields, or
+        a mapping holding ``r1_chunk``, ``r2_chunk`` (absent or None for
+        single-end reads), ``regex``, ``target_sequence``, ``offset_start``,
+        ``window_length``, ``barcode_set`` and ``fill_na``.
     :returns: tuple ``(df, unique_combinations, qc_df)`` — the annotated
-        reads (``read``, per-barcode sequences and IDs), per-triplet counts,
-        and a NaN/total-reads QC row.
+        reads, holding the read and then each barcode's sequence and name;
+        the number of reads behind each unique combination of barcode names;
+        and a one-row QC frame of missing values and total reads.
+    :raises ValueError: when the chunk is neither of those shapes, when the
+        window length is not positive, when the regex names no group for one
+        of the barcodes, or when a FASTQ record is malformed.
     """
-    if not isinstance(chunk_data, (tuple, list)) or len(chunk_data) not in (9, 10):
+    if isinstance(chunk_data, Mapping):
+        absent = [name for name in ('r1_chunk', 'regex', 'target_sequence',
+                                    'offset_start', 'window_length',
+                                    'barcode_set')
+                  if name not in chunk_data]
+        if absent:
+            raise ValueError(
+                "A barcode-set chunk is missing " + ", ".join(absent) + ".")
+        r1_chunk = chunk_data['r1_chunk']
+        r2_chunk = chunk_data.get('r2_chunk')
+        regex = chunk_data['regex']
+        target_sequence = chunk_data['target_sequence']
+        offset_start = chunk_data['offset_start']
+        expected_end = chunk_data['window_length']
+        fill_na = chunk_data.get('fill_na', False)
+        barcode_set = chunk_data['barcode_set']
+    elif isinstance(chunk_data, (tuple, list)) and len(chunk_data) in (9, 10):
+        if len(chunk_data) == 10:
+            r1_chunk, r2_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na = chunk_data
+        else:
+            r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na = chunk_data
+            r2_chunk = None
+        from .settings import BarcodeEntry, BarcodeSet
+
+        # THE THREE THIS MODULE HAS ALWAYS DECODED, WRITTEN THE WAY THE FRAME
+        # LISTS THEM: the name column each barcode fills, and beside it the
+        # barcode's name, its reference table, the regex group that captures
+        # it, and the older spelling of that group still accepted. A run that
+        # names a barcode set of its own replaces this collection entirely;
+        # it is what a run that names none decodes.
+        legacy = {
+            'columnID': ('column', column_csv, 'columnID', ('column',)),
+            'rowID': ('row', row_csv, 'rowID', ('row',)),
+            'grna_name': ('grna', grna_csv, 'grna', ()),
+        }
+        barcode_set = BarcodeSet(
+            tuple(BarcodeEntry(name=name, csv=reference, group=group,
+                               group_aliases=aliases, id_column=id_column)
+                  for id_column, (name, reference, group, aliases)
+                  in legacy.items()),
+            # COUNTED BY ROW, THEN COLUMN, THEN GUIDE, which is not the order
+            # the reads are listed in. Both orders are older than barcode
+            # sets and both are in files people already have, so the set
+            # carries the counting order rather than re-sorting every count
+            # table that has ever been written.
+            count_columns=('rowID', 'columnID', 'grna_name'))
+    else:
         raise ValueError(
             "process_chunk expects 9 values for single-end reads or 10 "
             f"values for paired-end reads; received "
             f"{len(chunk_data) if hasattr(chunk_data, '__len__') else 'an unknown count'}.")
 
-    regex_obj = re.compile(chunk_data[2] if len(chunk_data) == 10 else chunk_data[1])
-    group_names = set(regex_obj.groupindex)
-    column_group = "columnID" if "columnID" in group_names else "column"
-    row_group = "rowID" if "rowID" in group_names else "row"
-    missing_groups = [
-        canonical for canonical, alternatives in (
-            ("column/columnID", {"column", "columnID"}),
-            ("row/rowID", {"row", "rowID"}),
-            ("grna", {"grna"}),
-        )
-        if not group_names.intersection(alternatives)
-    ]
-    if missing_groups:
-        raise ValueError(
-            "Barcode regex is missing required named group(s): "
-            + ", ".join(missing_groups) + ".")
+    groups = barcode_set.resolve_groups(regex)
 
     def _parse_record(record, label):
-        """Validate and split one four-line FASTQ record."""
+        """Validate and split one four-line FASTQ record.
+
+        :param record: the record as one string of four lines.
+        :param label: how to name this record in an error message.
+        :returns: tuple ``(sequence, quality)``.
+        :raises ValueError: when the record is not four lines, is not a FASTQ
+            record, or pairs a sequence with a quality string of another
+            length.
+        """
         lines = str(record).splitlines()
         if len(lines) != 4:
             raise ValueError(
@@ -443,8 +513,19 @@ def process_chunk(chunk_data):
                 f"({len(sequence)} != {len(quality)}).")
         return sequence, quality
 
+    def _split_window(match):
+        """Record every barcode the regex captured in this window.
+
+        :param match: the regex match over one consensus window.
+        :returns: None. The captured text is appended to the lists in
+            ``extracted``, one list per barcode, so that every barcode of
+            every matched read stays at the same position.
+        """
+        for entry in barcode_set:
+            extracted[entry.name].append(match.group(groups[entry.name]))
+
     def paired_find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, regex):
-        """Return consensus reads and their parsed row/column/gRNA barcodes for paired-end chunks.
+        """Return consensus reads and their barcodes for paired-end chunks.
 
         :param r1_chunk: four-line FASTQ record strings for R1.
         :param r2_chunk: the matching R2 records, paired with ``r1_chunk`` by
@@ -465,12 +546,13 @@ def process_chunk(chunk_data):
         :param regex: pattern string applied with ``re.match``: anchored at the
             window start, but bases past the last group are ignored, so an
             oversized ``expected_end`` only adds padding.
-        :returns: ``(consensus_sequences, columns, grnas, rows)``, one entry per
-            matched pair. A chunk with no matches prints a warning and retries
-            the last window reverse-complemented as an orientation hint.
+        :returns: the consensus sequence of every matched pair, one entry per
+            pair, with that pair's barcodes appended to ``extracted``. A chunk
+            with no matches prints a warning and retries the last window
+            reverse-complemented as an orientation hint.
         :raises ValueError: when the two chunks hold different read counts.
         """
-        consensus_sequences, columns, grnas, rows = [], [], [], []
+        consensus_sequences = []
         consensus_seq = None
         if len(r1_chunk) != len(r2_chunk):
             raise ValueError(
@@ -509,20 +591,7 @@ def process_chunk(chunk_data):
                 match = re.match(regex, consensus_seq)
                 if match:
                     consensus_sequences.append(consensus_seq)
-
-                    #print(f"r1_seq: {r1_seq}")
-                    #print(f"r2_seq: {r2_seq}")
-                    #print(f"consensus_sequences: {consensus_sequences}")
-
-                    column_sequence = match.group(column_group)
-                    grna_sequence = match.group('grna')
-                    row_sequence = match.group(row_group)
-                    columns.append(column_sequence)
-                    grnas.append(grna_sequence)
-                    rows.append(row_sequence)
-
-                    #print(f"row bc: {row_sequence} col bc: {column_sequence} grna bc: {grna_sequence}")
-                    #print(f"row bc: {rows} col bc: {columns} grna bc: {grnas}")
+                    _split_window(match)
 
         if len(consensus_sequences) == 0:
             print(f"WARNING: No sequences matched {regex} in chunk")
@@ -535,10 +604,10 @@ def process_chunk(chunk_data):
                 if match:
                     print(f"Reverse complement of last sequence in chunk matched {regex}")
 
-        return consensus_sequences, columns, grnas, rows
+        return consensus_sequences
     
     def single_find_sequence_in_chunk_reads(r1_chunk, target_sequence, offset_start, expected_end, regex):
-        """Return R1 windows and their parsed row/column/gRNA barcodes for single-end chunks.
+        """Return R1 windows and their barcodes for single-end chunks.
 
         No consensus is computed here: the R1 window is used as-is, so read
         quality never influences the base calls the way it does for pairs.
@@ -557,12 +626,13 @@ def process_chunk(chunk_data):
             of the per-well counts.
         :param regex: pattern string applied with ``re.match``: anchored at the
             window start, but bases past the last group are ignored.
-        :returns: ``(consensus_sequences, columns, grnas, rows)``, one entry per
-            matched read. A chunk with no matches prints a warning and retries
-            the last window reverse-complemented as an orientation hint.
+        :returns: the window of every matched read, one entry per read, with
+            that read's barcodes appended to ``extracted``. A chunk with no
+            matches prints a warning and retries the last window
+            reverse-complemented as an orientation hint.
         """
 
-        consensus_sequences, columns, grnas, rows = [], [], [], []
+        consensus_sequences = []
         consensus_seq = None
 
         for index, r1_lines in enumerate(r1_chunk):
@@ -592,12 +662,7 @@ def process_chunk(chunk_data):
                 match = re.match(regex, consensus_seq)
                 if match:
                     consensus_sequences.append(consensus_seq)
-                    column_sequence = match.group(column_group)
-                    grna_sequence = match.group('grna')
-                    row_sequence = match.group(row_group)
-                    columns.append(column_sequence)
-                    grnas.append(grna_sequence)
-                    rows.append(row_sequence)
+                    _split_window(match)
 
         if len(consensus_sequences) == 0:
             print(f"WARNING: No sequences matched {regex} in chunk")
@@ -612,50 +677,48 @@ def process_chunk(chunk_data):
                 if match:
                     print(f"Reverse complement of last sequence in chunk matched {regex}")
 
-        return consensus_sequences, columns, grnas, rows
-
-    if len(chunk_data) == 10:
-        r1_chunk, r2_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na = chunk_data
-    else:
-        r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na = chunk_data
-        r2_chunk = None
+        return consensus_sequences
 
     if int(expected_end) <= 0:
         raise ValueError("window_length must be a positive integer.")
 
+    extracted = {entry.name: [] for entry in barcode_set}
+
     if r2_chunk is None:
-        consensus_sequences, columns, grnas, rows = single_find_sequence_in_chunk_reads(r1_chunk, target_sequence, offset_start, expected_end, regex)
+        consensus_sequences = single_find_sequence_in_chunk_reads(r1_chunk, target_sequence, offset_start, expected_end, regex)
     else:
-        consensus_sequences, columns, grnas, rows = paired_find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, regex)
-    
-    column_names = map_sequences_to_names(column_csv, columns, rc=False)
-    grna_names = map_sequences_to_names(grna_csv, grnas, rc=False)
-    row_names = map_sequences_to_names(row_csv, rows, rc=False)
-    
-    df = pd.DataFrame({
-        'read': consensus_sequences,
-        'column_sequence': columns,
-        'columnID': column_names,
-        'row_sequence': rows,
-        'rowID': row_names,
-        'grna_sequence': grnas,
-        'grna_name': grna_names
-    })
+        consensus_sequences = paired_find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, regex)
+
+    # ONE PAIR OF COLUMNS PER BARCODE, in the order the set lists them. The
+    # three shipped barcodes carry the column names this frame has always
+    # had, in the order it has always had them, so a run that names no set
+    # writes the frame it always wrote. Every entry contributes both of its
+    # columns, which is why the fill below never has to ask whether a column
+    # it is about to read is there.
+    frame = {'read': consensus_sequences}
+    for entry in barcode_set:
+        sequences = extracted[entry.name]
+        frame[entry.sequence_column] = sequences
+        frame[entry.id_column] = map_sequences_to_names(
+            entry.csv, sequences, rc=False)
+
+    df = pd.DataFrame(frame)
 
     qc_df = df.isna().sum().to_frame().T
     qc_df.columns = df.columns
     qc_df.index = ["NaN_Counts"]
     qc_df['total_reads'] = len(df)
-    
+
+    count_columns = list(barcode_set.count_columns)
     if fill_na:
         df2 = df.copy()
-        df2['columnID'] = df2['columnID'].fillna(df2['column_sequence'])
-        df2['rowID'] = df2['rowID'].fillna(df2['row_sequence'])
-        df2['grna_name'] = df2['grna_name'].fillna(df2['grna_sequence'])
-        
-        unique_combinations = df2.groupby(['rowID', 'columnID', 'grna_name']).size().reset_index(name='count')
+        for entry in barcode_set:
+            df2[entry.id_column] = df2[entry.id_column].fillna(
+                df2[entry.sequence_column])
+
+        unique_combinations = df2.groupby(count_columns).size().reset_index(name='count')
     else:
-        unique_combinations = df.groupby(['rowID', 'columnID', 'grna_name']).size().reset_index(name='count')
+        unique_combinations = df.groupby(count_columns).size().reset_index(name='count')
 
     return df, unique_combinations, qc_df
 
@@ -702,6 +765,47 @@ def _validate_chunk_size(chunk_size):
         raise ValueError(
             f"chunk_size must be at least 1; received {chunk_size!r}.")
     return size
+
+
+def _chunk_payload(r1_chunk, r2_chunk, regex, target_sequence, offset_start,
+                   expected_end, column_csv, grna_csv, row_csv, fill_na,
+                   barcode_set):
+    """Package one chunk of reads for :func:`process_chunk`.
+
+    A run that names no barcode set sends the tuple it has always sent, so
+    the three barcodes spaCR shipped reach the workers exactly as they did
+    before sets existed. A run that names one sends a mapping carrying the
+    set itself, because a collection of any size has no place in a tuple
+    whose length is what says whether the reads are paired.
+
+    :param r1_chunk: four-line FASTQ record strings for R1.
+    :param r2_chunk: the matching R2 records, or None for single-end reads.
+    :param regex: pattern with one named group per barcode.
+    :param target_sequence: anchor used to locate the barcode window.
+    :param offset_start: bases from the anchor to the window start.
+    :param expected_end: window length.
+    :param column_csv: column-barcode reference CSV, read only when no
+        barcode set is given.
+    :param grna_csv: gRNA-barcode reference CSV, read only when no barcode
+        set is given.
+    :param row_csv: row-barcode reference CSV, read only when no barcode set
+        is given.
+    :param fill_na: fill unmapped names with the raw barcode sequence.
+    :param barcode_set: the run's :class:`spacr.settings.BarcodeSet`, or None
+        for the three barcodes spaCR shipped.
+    :returns: the chunk, as a tuple when no set is given and a mapping when
+        one is.
+    """
+    if barcode_set is None:
+        if r2_chunk is None:
+            return (r1_chunk, regex, target_sequence, offset_start,
+                    expected_end, column_csv, grna_csv, row_csv, fill_na)
+        return (r1_chunk, r2_chunk, regex, target_sequence, offset_start,
+                expected_end, column_csv, grna_csv, row_csv, fill_na)
+    return {'r1_chunk': r1_chunk, 'r2_chunk': r2_chunk, 'regex': regex,
+            'target_sequence': target_sequence, 'offset_start': offset_start,
+            'window_length': expected_end, 'barcode_set': barcode_set,
+            'fill_na': fill_na}
 
 
 def _finish_saver(save_queue, save_process, timeout=60):
@@ -752,7 +856,7 @@ def _abort_chunk_workers(pool, save_queue, save_process):
         save_process.join(5)
 
 
-def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False, fill_na=False):
+def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False, fill_na=False, barcode_set=None):
     """Chunked paired-end FASTQ processing: extract, decode and stream barcodes to disk.
 
     Reads R1/R2 in ``chunk_size`` blocks, farms them out to
@@ -761,7 +865,8 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
 
     :param r1_file: gzipped R1 FASTQ path.
     :param r2_file: gzipped R2 FASTQ path.
-    :param regex: regex with named groups ``rowID``, ``columnID``, ``grna``.
+    :param regex: regex naming one group per barcode. The three spaCR
+        shipped are read from ``rowID``, ``columnID`` and ``grna``.
     :param target_sequence: anchor sequence used to locate the barcode region.
     :param offset_start: offset from ``target_sequence`` to begin extraction.
     :param expected_end: length of the extracted consensus region.
@@ -778,6 +883,11 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     :param n_jobs: worker processes; defaults to ``cpu_count() - 3``.
     :param test: process only the first chunk and print a preview.
     :param fill_na: fill unmapped IDs with raw barcode sequences.
+    :param barcode_set: the barcodes to decode, as a
+        :class:`spacr.settings.BarcodeSet` of any size. None decodes the
+        three barcodes spaCR shipped from the three reference CSVs above,
+        which is what every run did before a set could be given; a set is
+        used instead of them.
     :returns: None.
     """
     from .utils import count_reads_in_fastq, print_progress
@@ -845,7 +955,10 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
                 break
 
             chunk_count += 1
-            chunk_data = (r1_chunk, r2_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na)
+            chunk_data = _chunk_payload(
+                r1_chunk, r2_chunk, regex, target_sequence, offset_start,
+                expected_end, column_csv, grna_csv, row_csv, fill_na,
+                barcode_set)
 
             # Process chunks in parallel-
             result = pool.apply_async(process_chunk, (chunk_data,))
@@ -873,12 +986,13 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
 
     _finish_saver(save_queue, save_process)
 
-def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False, fill_na=False):
+def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False, fill_na=False, barcode_set=None):
     """Chunked single-end FASTQ processing: extract, decode and stream barcodes to disk.
 
     :param r1_file: gzipped R1 FASTQ path.
     :param r2_file: unused placeholder kept for interface parity with the paired variant.
-    :param regex: regex with named groups ``rowID``, ``columnID``, ``grna``.
+    :param regex: regex naming one group per barcode. The three spaCR
+        shipped are read from ``rowID``, ``columnID`` and ``grna``.
     :param target_sequence: anchor sequence used to locate the barcode region.
     :param offset_start: offset from ``target_sequence`` to begin extraction.
     :param expected_end: length of the extracted barcode region.
@@ -895,6 +1009,11 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     :param n_jobs: worker processes; defaults to ``cpu_count() - 3``.
     :param test: process only the first chunk and print a preview.
     :param fill_na: fill unmapped IDs with raw barcode sequences.
+    :param barcode_set: the barcodes to decode, as a
+        :class:`spacr.settings.BarcodeSet` of any size. None decodes the
+        three barcodes spaCR shipped from the three reference CSVs above,
+        which is what every run did before a set could be given; a set is
+        used instead of them.
     :returns: None.
     """
     from .utils import count_reads_in_fastq, print_progress
@@ -949,7 +1068,10 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
                 break
 
             chunk_count += 1
-            chunk_data = (r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na)
+            chunk_data = _chunk_payload(
+                r1_chunk, None, regex, target_sequence, offset_start,
+                expected_end, column_csv, grna_csv, row_csv, fill_na,
+                barcode_set)
 
             # Process chunks in parallel
             result = pool.apply_async(process_chunk, (chunk_data,))
@@ -1034,10 +1156,10 @@ def _run_barcode_qc(settings, dst, count_csv, qc_csv):
 def generate_barecode_mapping(settings=None):
     """Turn a folder of pooled-screen FASTQ files into per-well sgRNA count tables usable by :func:`spacr.ml.perform_regression`.
 
-    Discovers R1/R2 files per sample under ``src``, extracts the row,
-    column, and gRNA barcodes from each read via the configured regex
-    and offset window, translates them to names via three barcode
-    lookup CSVs (see :func:`map_sequences_to_names`), and writes
+    Discovers R1/R2 files per sample under ``src``, extracts every
+    barcode the run decodes from each read via the configured regex and
+    offset window, translates each of them to a name through its own
+    lookup CSV (see :func:`map_sequences_to_names`), and writes
     per-sample ``annotated_reads.h5`` (optional),
     ``unique_combinations.csv`` (the per-well gRNA counts) and
     ``qc.csv``. Paired vs single-end and R1/R2 orientation are chosen
@@ -1055,7 +1177,13 @@ def generate_barecode_mapping(settings=None):
         - ``target_sequence``, ``offset_start``, ``expected_end`` —
           anchor and slice window used to locate the barcode region.
         - ``column_csv`` / ``row_csv`` / ``grna_csv`` — barcode->name
-          lookup CSVs.
+          lookup CSVs for the three barcodes spaCR shipped.
+        - ``barcode_set`` — the barcodes to decode when a run has other than
+          those three, as a list with one entry per barcode. Each entry
+          names the barcode, the reference CSV that names its sequences and
+          the regex group that captures it. Absent, which is what every
+          settings file written before sets existed is, the run decodes the
+          three named above.
         - ``save_h5``, ``comp_type``, ``comp_level`` — HDF5 output
           knobs.
         - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.
@@ -1088,7 +1216,8 @@ def generate_barecode_mapping(settings=None):
     """
     if settings is None:
         settings = {}
-    from .settings import set_default_generate_barecode_mapping
+    from .settings import (barcode_set_from_settings,
+                          set_default_generate_barecode_mapping)
     from .utils import save_settings
     from .io import parse_gz_files
 
@@ -1117,6 +1246,22 @@ def generate_barecode_mapping(settings=None):
     regex = settings['regex']
 
     print(f'Using regex: {regex} to extract barcode information')
+
+    # THE BARCODES THIS RUN DECODES. None is the ordinary answer: no settings
+    # file written before barcode sets existed names one, and None means the
+    # run decodes the plate column, the guide and the plate row from the
+    # three reference CSVs, which is exactly what it decoded before.
+    barcode_set = barcode_set_from_settings(settings)
+    if barcode_set is not None:
+        # CHECKED ONCE, HERE, rather than in the first worker that reaches
+        # it. A regex naming no group for one of the barcodes is a settings
+        # mistake, and a set of five barcodes with four groups is the shape
+        # of mistake this whole change makes possible -- so it costs a user
+        # a second before any FASTQ is opened instead of a chunk's work and
+        # a traceback out of a worker process.
+        barcode_set.resolve_groups(regex)
+        print(f'Decoding {len(barcode_set)} barcode(s): '
+              + ', '.join(barcode_set.names))
 
     samples_dict = parse_gz_files(settings['src'])
     
@@ -1202,6 +1347,7 @@ def generate_barecode_mapping(settings=None):
                                  column_csv=settings['column_csv'],
                                  grna_csv=settings['grna_csv'],
                                  row_csv=settings['row_csv'],
+                                 barcode_set=barcode_set,
                                  save_h5 = settings['save_h5'],
                                  comp_type = settings['comp_type'],
                                  comp_level=settings['comp_level'],

@@ -5,6 +5,7 @@ import logging
 import sys
 import os, ast
 from copy import deepcopy
+from dataclasses import dataclass, replace
 from numbers import Integral
 from .organelle_types import (ALL_ORGANELLE_ROLES,
                               DEFAULT_NUMBER_OF_ORGANELLES,
@@ -209,6 +210,422 @@ def bundled_barcode_path(kind):
     return os.path.abspath(
         os.path.join(os.path.dirname(__file__), "resources", "data", filename)
     )
+
+
+@dataclass(frozen=True)
+class BarcodeEntry:
+    """One barcode type a Map Barcodes run decodes.
+
+    A run used to decode exactly three barcodes -- a plate column, a guide
+    and a plate row -- because the regex, the settings and the read
+    processors each spelled all three of them out by name. An entry is that
+    same information written once, so that a screen carrying a fourth
+    barcode, or only one, is a different collection of entries rather than a
+    different code path.
+
+    Parameters
+    ----------
+    name:
+        The word a user would use for this barcode, such as column, row,
+        grna or plate. It names the two output columns the run writes for
+        the entry, so it has to be unique within a set.
+    csv:
+        The reference table that turns one of these sequences into a name.
+        It needs a ``sequence`` column and a ``name`` column, and its
+        sequences must be in the same orientation as the reads, because they
+        are compared verbatim rather than reverse-complemented.
+    group:
+        The named group of the barcode regex whose captured text is this
+        barcode. Left empty it is the entry's own name, which is what a
+        regex written for a new set will normally use.
+    group_aliases:
+        Further spellings of that group name, accepted when the preferred
+        one is absent from the regex. The column and row barcodes spaCR
+        shipped accept the shorter ``column`` and ``row`` this way, which is
+        why a pattern written before those names were settled still runs.
+    sequence_column:
+        The output column the extracted sequence is written to. Left empty
+        it is the entry's name followed by ``_sequence``.
+    id_column:
+        The output column the resolved name is written to. Left empty it is
+        the entry's name followed by ``ID``. The guide barcode spaCR shipped
+        sets this to ``grna_name`` instead, because that is the header every
+        count table already written and every reader of one expects.
+    """
+
+    name: str
+    csv: str = ""
+    group: str = ""
+    group_aliases: tuple = ()
+    sequence_column: str = ""
+    id_column: str = ""
+
+    def __post_init__(self):
+        """Fill in the spellings that follow from the entry's own name.
+
+        Derived here rather than at each point of use, because two readers
+        that each work out what an entry's columns are called are two
+        readers that can disagree. The entry is frozen, so the normalised
+        values are assigned through ``object.__setattr__``.
+
+        :returns: None.
+        :raises ValueError: when the entry has no name, which would leave
+            its output columns called nothing at all.
+        """
+        name = str(self.name or "").strip()
+        if not name:
+            raise ValueError(
+                "A barcode entry needs a name: it names the columns the run "
+                "writes for that barcode and identifies it in every message.")
+        object.__setattr__(self, "name", name)
+        object.__setattr__(self, "csv", str(self.csv or ""))
+        object.__setattr__(self, "group", str(self.group or "").strip() or name)
+        object.__setattr__(self, "group_aliases", tuple(
+            str(alias).strip() for alias in (self.group_aliases or ())
+            if str(alias).strip()))
+        object.__setattr__(self, "sequence_column",
+                           str(self.sequence_column or "").strip()
+                           or f"{name}_sequence")
+        object.__setattr__(self, "id_column",
+                           str(self.id_column or "").strip() or f"{name}ID")
+
+    def accepted_groups(self):
+        """Return every regex group name this barcode answers to.
+
+        :returns: a tuple of group names, the preferred spelling first and
+            any older accepted spellings after it.
+        """
+        return (self.group,) + tuple(
+            alias for alias in self.group_aliases if alias != self.group)
+
+    def group_in(self, names):
+        """Return the spelling of this barcode's group that a regex uses.
+
+        :param names: the group names a regex defines.
+        :returns: the accepted group name the regex defines, or None when it
+            defines none of them.
+        """
+        available = set(names)
+        for candidate in self.accepted_groups():
+            if candidate in available:
+                return candidate
+        return None
+
+    def group_label(self):
+        """Return this barcode's accepted group names as one label.
+
+        Sorted rather than preferred first, because this label lands in the
+        message a user reads when the regex is missing a group, and the
+        message spaCR has always printed names the older spelling first.
+
+        :returns: the accepted group names joined by slashes.
+        """
+        return "/".join(sorted(set(self.accepted_groups())))
+
+
+@dataclass(frozen=True)
+class BarcodeSet:
+    """The ordered barcode types one Map Barcodes run decodes.
+
+    A set replaces the three named reference settings the module started
+    with. Iterating it is how the run reaches every barcode, so a run with
+    one barcode and a run with ten differ only in what this holds.
+
+    Parameters
+    ----------
+    entries:
+        The barcode types, in the order the run lists them. The annotated
+        reads carry each entry's sequence column and name column in this
+        order, after the read itself.
+    count_columns:
+        The name columns the per-well counts are grouped by, in the order
+        they are grouped. Left empty it is every entry's name column in
+        entry order. It can be set because the three barcodes spaCR shipped
+        for years are counted by row, then column, then guide, while the
+        reads list the column first; a set reproducing that run has to be
+        able to say so rather than quietly re-sort tables people already
+        have.
+    """
+
+    entries: tuple = ()
+    count_columns: tuple = ()
+
+    def __post_init__(self):
+        """Normalise the collection and refuse one that cannot decode a read.
+
+        Every check here is a way for two barcodes to become
+        indistinguishable in the output, which is silent rather than loud:
+        two entries sharing a name column overwrite each other in the
+        annotated reads, and counts grouped by the wrong columns are still a
+        table full of plausible numbers.
+
+        :returns: None.
+        :raises ValueError: when the set is empty, when a member is not a
+            barcode entry, when two entries share a name, a regex group or
+            an output column, or when the count columns are not exactly the
+            entries' name columns.
+        """
+        entries = tuple(self.entries or ())
+        if not entries:
+            raise ValueError(
+                "A barcode set needs at least one entry; a run with no "
+                "barcode to decode has nothing to count.")
+        for entry in entries:
+            if not isinstance(entry, BarcodeEntry):
+                raise ValueError(
+                    "A barcode set holds BarcodeEntry values; received "
+                    f"{type(entry).__name__}. Use barcode_set_from_settings "
+                    "to build a set from a settings file.")
+        object.__setattr__(self, "entries", entries)
+
+        for label, values in (
+                ("name", [entry.name for entry in entries]),
+                ("regex group", [entry.group for entry in entries]),
+                ("sequence column",
+                 [entry.sequence_column for entry in entries]),
+                ("name column", [entry.id_column for entry in entries])):
+            repeated = sorted({value for value in values
+                               if values.count(value) > 1})
+            if repeated:
+                raise ValueError(
+                    f"Two barcodes in this set share a {label}: "
+                    f"{', '.join(repeated)}. Each barcode needs its own, or "
+                    "one of them silently replaces the other in the output.")
+
+        wanted = tuple(entry.id_column for entry in entries)
+        given = tuple(str(column) for column in (self.count_columns or ()))
+        if not given:
+            given = wanted
+        elif sorted(given) != sorted(wanted):
+            raise ValueError(
+                "The count columns of this barcode set are "
+                f"{', '.join(given)}, which is not its barcodes' name "
+                f"columns, {', '.join(wanted)}. Counts are per unique "
+                "combination of every barcode, so the two hold the same "
+                "columns and differ only in order.")
+        object.__setattr__(self, "count_columns", given)
+
+    def __len__(self):
+        """Return how many barcodes this set decodes.
+
+        :returns: the number of entries as an integer.
+        """
+        return len(self.entries)
+
+    def __iter__(self):
+        """Iterate the barcodes in the order the run lists them.
+
+        :returns: an iterator over the entries.
+        """
+        return iter(self.entries)
+
+    @property
+    def names(self):
+        """Return the name of each barcode, in entry order.
+
+        :returns: a tuple of names.
+        """
+        return tuple(entry.name for entry in self.entries)
+
+    @property
+    def id_columns(self):
+        """Return the output column each barcode's resolved name lands in.
+
+        :returns: a tuple of column names, in entry order.
+        """
+        return tuple(entry.id_column for entry in self.entries)
+
+    @property
+    def sequence_columns(self):
+        """Return the output column each barcode's raw sequence lands in.
+
+        :returns: a tuple of column names, in entry order.
+        """
+        return tuple(entry.sequence_column for entry in self.entries)
+
+    def resolve_groups(self, regex):
+        """Return the regex group each barcode is captured by.
+
+        A set of five barcodes needs five named groups, and the failure this
+        answers is a regex that names four. That used to surface as a bare
+        "no such group" from inside a worker process, several frames from
+        anything a user configured, so the message here names the barcode
+        that has no group and then lists the groups the regex does define.
+
+        :param regex: a compiled regular expression, or the pattern string
+            of one.
+        :returns: a dict from each barcode's name to the group name the
+            regex spells it with.
+        :raises ValueError: when the regex names no group for one or more of
+            the barcodes in this set.
+        """
+        import re as _re
+
+        compiled = regex if hasattr(regex, "groupindex") else _re.compile(regex)
+        available = set(compiled.groupindex)
+        resolved, missing = {}, []
+        for entry in self.entries:
+            found = entry.group_in(available)
+            if found is None:
+                missing.append(entry.group_label())
+            else:
+                resolved[entry.name] = found
+        if missing:
+            message = ("Barcode regex is missing required named group(s): "
+                       + ", ".join(missing) + ".")
+            if available:
+                message += (" The groups this regex defines are "
+                            + ", ".join(sorted(available)) + ".")
+            else:
+                message += " This regex defines no named groups at all."
+            raise ValueError(message)
+        # AND NO TWO BARCODES MAY LAND ON ONE GROUP. A barcode that accepts
+        # an older spelling of its group can fall back onto the group another
+        # barcode was given, and then both are handed the same captured text
+        # and counted as though they were different -- silently, because
+        # every column of the output is full.
+        taken = {}
+        for name, group in resolved.items():
+            if group in taken:
+                raise ValueError(
+                    f"The {taken[group]} and {name} barcodes would both be "
+                    f"read from the regex group {group}, so both would be "
+                    "given the same sequence. Give one of them a group of "
+                    "its own.")
+            taken[group] = name
+        return resolved
+
+
+#: Private like `_BUNDLED_BARCODE_FILES` beside it, and reached the same
+#: way: through the function that uses it rather than by importing it.
+#:
+#: What the three barcodes spaCR has shipped since before barcode sets
+#: existed are called, so that a settings file naming one of them by name
+#: gets the run it has always got rather than a generically derived one.
+#:
+#: ONLY THE FIELDS A SETTINGS FILE LEAVES OUT ARE FILLED FROM THIS. An entry
+#: that spells a field out keeps what it says, and a name that is not one of
+#: these three derives its spellings from itself the ordinary way.
+#:
+#: The guide is the one that cannot be derived: its resolved name lands in
+#: `grna_name` rather than `grnaID`, which is the header every count table
+#: already written uses and every reader of one, `spacr.ml` included,
+#: expects. The column and row prefer the longer group name and still accept
+#: the short one, which is how a regex written before those names were
+#: settled goes on matching.
+_SHIPPED_BARCODE_SPELLINGS = {
+    'column': {'group': 'columnID', 'group_aliases': ('column',),
+               'id_column': 'columnID'},
+    'row': {'group': 'rowID', 'group_aliases': ('row',),
+            'id_column': 'rowID'},
+    'grna': {'group': 'grna', 'id_column': 'grna_name'},
+}
+
+#: The order the per-well counts of the three shipped barcodes are grouped
+#: in, which is not the order the reads list them in. Both orders are older
+#: than barcode sets and both are in files people already have.
+_SHIPPED_COUNT_COLUMNS = ('rowID', 'columnID', 'grna_name')
+
+
+def barcode_set_from_settings(settings):
+    """Return the barcode set a Map Barcodes run was configured with.
+
+    A settings file names its barcodes under ``barcode_set``, as a list with
+    one entry per barcode. An entry is a mapping of the fields of
+    :class:`BarcodeEntry`, or just a name when the reference table for that
+    name is already in the settings. An entry that names no reference table
+    takes the one under its own name followed by ``_csv``, and failing that
+    the reference of that name spaCR ships, so adding a fourth barcode to
+    the three that ship is a one-entry addition rather than a re-declaration
+    of all four.
+
+    An entry named after one of the three barcodes spaCR shipped keeps the
+    spellings that barcode has always had, for every field the settings file
+    does not spell out itself. That is what makes a set of those three the
+    run they describe rather than a re-implementation of it: the same regex
+    groups, the same output columns, and the same order of the count table.
+    A barcode named anything else derives its spellings from its own name.
+
+    :param settings: a Map Barcodes settings mapping.
+    :returns: the configured :class:`BarcodeSet`, or None when the settings
+        name no set. None is not an error and is the ordinary case: it means
+        the run decodes the plate column, the guide and the plate row named
+        by ``column_csv``, ``grna_csv`` and ``row_csv``, exactly as every
+        run did before a set could be named at all.
+    :raises ValueError: when an entry is neither a name nor a mapping of
+        entry fields, when a mapping carries a field no entry has, or when
+        an entry names a reference table that cannot be resolved.
+    """
+    if not isinstance(settings, dict):
+        return None
+    value = settings.get('barcode_set')
+    if isinstance(value, BarcodeSet):
+        return value
+    if not value:
+        # ABSENT, BLANK, OR EMPTIED IN A PANEL ARE ONE ANSWER. A settings
+        # file written before sets existed has no key at all, a panel field
+        # cleared by hand arrives as an empty string, and a list a user
+        # emptied arrives as an empty list. All three mean the run decodes
+        # the three barcodes spaCR shipped, which is the only reading that
+        # cannot surprise somebody.
+        return None
+    count_columns = ()
+    if isinstance(value, dict):
+        count_columns = tuple(value.get('count_columns') or ())
+        value = value.get('entries') or ()
+    if isinstance(value, (str, bytes)) or not hasattr(value, '__iter__'):
+        raise ValueError(
+            "barcode_set is a list with one entry per barcode; received "
+            f"{type(value).__name__}.")
+    fields = {'name', 'csv', 'group', 'group_aliases', 'sequence_column',
+              'id_column'}
+    entries = []
+    for item in value:
+        if isinstance(item, BarcodeEntry):
+            # Already spelled out in full by whoever built it. Nothing is
+            # filled in over an explicit decision.
+            entry = item
+        else:
+            if isinstance(item, str):
+                values = {'name': item}
+            elif isinstance(item, dict):
+                unknown = sorted(set(map(str, item)) - fields)
+                if unknown:
+                    raise ValueError(
+                        f"A barcode_set entry names {', '.join(unknown)}, "
+                        f"which a barcode has no field for. The fields are "
+                        f"{', '.join(sorted(fields))}.")
+                values = {str(key): item[key] for key in item}
+            else:
+                raise ValueError(
+                    "A barcode_set entry is the barcode's name or a mapping "
+                    f"of its fields; received {type(item).__name__}.")
+            for field, spelling in _SHIPPED_BARCODE_SPELLINGS.get(
+                    str(values.get('name', '')), {}).items():
+                values.setdefault(field, spelling)
+            entry = BarcodeEntry(**values)
+        if not entry.csv:
+            fallback = settings.get(f'{entry.name}_csv')
+            if not fallback and entry.name.lower() in _BUNDLED_BARCODE_FILES:
+                fallback = bundled_barcode_path(entry.name)
+            if not fallback:
+                raise ValueError(
+                    f"The {entry.name} barcode has no reference table. Give "
+                    f"the entry a csv, or set {entry.name}_csv beside the "
+                    "set.")
+            entry = replace(entry, csv=str(fallback))
+        entries.append(entry)
+    entries = tuple(entries)
+    if not count_columns and sorted(
+            entry.id_column for entry in entries) == sorted(
+                _SHIPPED_COUNT_COLUMNS):
+        # THE THREE SHIPPED BARCODES KEEP THEIR COUNTING ORDER. Counts have
+        # always been grouped by row, then column, then guide, while the
+        # reads list the column first, so taking the entry order here would
+        # reorder the rows and the header of every count table a user
+        # already has for no reason they asked for.
+        count_columns = _SHIPPED_COUNT_COLUMNS
+    return BarcodeSet(entries, count_columns=count_columns)
 
 
 # ---------------------------------------------------------------------------
@@ -4281,6 +4698,13 @@ expected_types = {
     'target_sequence': str,
     'window_length': int,
     'column_csv': str,
+    # A LIST OF BARCODES INSTEAD OF THREE NAMED ONES. Absent, which is
+    # what every settings file written so far has, means the three
+    # above: `barcode_set_from_settings` returns None and the run
+    # decodes exactly what it decoded before sets existed. Declared
+    # rather than merely tolerated so a panel can collect one and
+    # `check_settings` keeps the value instead of dropping it.
+    'barcode_set': (list, tuple, dict, type(None)),
     'grna_csv': str,
     'row_csv': str,
     'save_h5': bool,
@@ -5043,6 +5467,7 @@ tooltips = {
     "treatment_plate_metadata": "(list of lists) - Wells that received each treatment, with one inner list per treatment in the same order, for example [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); other entries are ignored and receive no treatment label. Unlisted wells remain in the output, and their condition values contain only the available cell, pathogen, or treatment labels. Default None. Recruitment starts with [['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']], positionally paired with its two initial treatment names.",
     "regex": "(str) - Regex applied with re.match to each extracted read window; it must define the named groups columnID, grna and rowID, whose captured sequences are looked up in the three barcode CSVs. Non-matching reads are silently dropped, so a wrong group name or barcode orientation yields zero counts. The default captures an 8 bp column, 20-21 bp gRNA and 8 bp row barcode.",
     "target_sequence": "(str) - Constant vector sequence used as the anchor: every read is scanned for an exact match and the barcode window is then sliced relative to that hit using offset_start and window_length. Reads without an exact match are skipped entirely, so it must be error-free and given in the orientation of the read being scanned. Default 'TGCTGTTTCCAGCATAGCTCTTAAAC'.",
+    "barcode_set": "(list) - The barcodes this run decodes, one entry per barcode, each naming the barcode, the reference CSV that names its sequences and the regex group it is captured by; an entry may be just the barcode name when a reference CSV is already named beside it. Default blank, which decodes the plate column, the guide and the plate row from column_csv, grna_csv and row_csv, exactly as every run did before this key existed. A set may hold one barcode or ten, and the regex has to name a group for every entry in it, so the run refuses a pattern that names fewer and says which barcode has no group.",
     "column_csv": "(path) - CSV mapping column barcodes to well names; it must have 'sequence' and 'name' columns. Reads are matched verbatim against it with no reverse-complementing, so the sequences must be in the same orientation as the reads - run barecodes_reverse_complement on the file if they are not. Unmatched reads get NA for columnID. Default the bundled spacr/resources/data/barcodes_column.csv; barcode QC (sequencing_qc) instead defaults this key to empty, where the reference is optional.",
     "row_csv": "(path) - CSV mapping row barcodes to well names; it must have 'sequence' and 'name' columns. Reads are matched verbatim with no reverse-complementing, so the sequences must be in the same orientation as the reads - use barecodes_reverse_complement to flip the file if needed. Unmatched reads get NA for rowID. Default: the bundled spacr/resources/data/barcodes_row.csv.",
     "grna_csv": "(path) - CSV mapping gRNA barcode sequences to gRNA names; it must have 'sequence' and 'name' columns. Reads are matched verbatim with no reverse-complementing, so orientation must match the reads (barecodes_reverse_complement flips a file). Rows whose gRNA does not match are written as NA and dropped from the counts. Default: the bundled spacr/resources/data/grna_barcodes.csv.",
