@@ -234,6 +234,29 @@ ORGANELLE_METHOD_FIELDS: Dict[Optional[str], tuple] = {
 #: The morphologies, in the order the settings panel offers them.
 ORGANELLE_MORPHOLOGIES = ("spots", "network", "irregular", "ring")
 
+# THE RELATIVE SCHEME IS GONE FROM THIS TABLE (391), MEASURED AGAINST WHAT
+# THE RUN READS RATHER THAN TRIMMED BY EYE.
+#
+# `spacr.object.merge_split_filter_masks` is the only reader of these
+# per-compartment keys, and it now looks up exactly eight suffixes plus one
+# absolute threshold. Comparing the table against it, and against
+# `spacr.settings.set_default_settings_preprocess_generate_masks`:
+#
+#   LEFT (5 suffixes x 4 compartments = 20 keys that nothing read):
+#     area_multiplier, intensity_threshold_method, intensity_percentile,
+#     min_intensity_percentile, max_intensity_percentile
+#   ARRIVED (1 suffix x 4 compartments = 4 keys the run reads and the panel
+#   could not send at all):
+#     intensity_threshold
+#
+# The twenty were not merely inert. Every one of them is listed in
+# `spacr.object_roles.WITHDRAWN_SETTING_SUFFIXES`, i.e. the settings loader
+# already tells a user who opens a saved file that these are no longer read
+# -- while this panel went on offering them as live controls and writing
+# them into the run. And the absent `intensity_threshold` was the worse half:
+# the "Intensity merge" toggle below propagates fine, but with no threshold
+# beside it the run has nothing to compare a shared boundary against, so it
+# refuses to merge. The preview said "merging on"; the run merged nothing.
 COMPARTMENT_FIELDS = (
     ("min_area",                   "Min area (px²)",        "int",   (0, 100_000_000, 0)),
     ("max_area",                   "Max area (px²)",        "int",   (0, 100_000_000, 0)),
@@ -252,26 +275,30 @@ COMPARTMENT_FIELDS = (
     # next one.
     ("minimum_area_to_split",      "Minimum area to split", "int",   (0, 100_000_000, 100)),
     ("min_watershed_distance",     "Minimum watershed distance", "int", (0, 100_000, 10)),
-    ("area_multiplier",            "Area multiplier",       "float", (0.0, 1000.0, 2.0)),
     # Defaults MUST match spacr.settings.set_default_settings_preprocess_generate_masks.
     # They are both what the preview filters with and what the Propagate
     # button writes into the main settings panel, so any drift silently
-    # re-tunes the real run. The intensity percentiles in particular used to
-    # default to 1/99 rather than the pipeline's 0/100 — which switched
-    # `_filter_objects`' intensity filter ON for every preview and dropped the
-    # dimmest and brightest object found (with two objects, all of them).
+    # re-tunes the real run. That is also how the five withdrawn rows named
+    # at the top of this table were caught: they had no pipeline default to
+    # match, because the pipeline had stopped shipping them.
     ("perimeter_fraction",         "Perimeter fraction",    "float", (0.0, 1.0, 0.0)),
-    ("min_intensity_percentile",   "Min intensity pct",     "int",   (0, 100, 0)),
-    ("max_intensity_percentile",   "Max intensity pct",     "int",   (0, 100, 100)),
-    ("intensity_percentile",       "Intensity percentile",  "int",   (0, 100, 75)),
-    ("intensity_threshold_method", "Intensity threshold",   "method", None),
+    # ONE ABSOLUTE INTENSITY, IN THE IMAGE'S OWN RAW UNITS, replacing the
+    # method dropdown and the three percentiles. It is the boundary mean two
+    # touching labels must reach before "Intensity merge" joins them.
+    #
+    # The pipeline ships it as None -- "no number, so refuse to merge and
+    # report the boundary intensities found" -- and a spin box cannot hold
+    # None, so 0 is what says it here and `_off_as_the_run_spells_it` turns
+    # that back into None on the way out. The cost of the sentinel is that a
+    # literal threshold of 0 ("merge every pair that touches") has to be
+    # asked for as a very small positive number instead; the alternative is a
+    # preview that cannot express the run's own default, which is how the
+    # panel came to disagree with the run in the first place.
+    ("intensity_threshold",        "Intensity threshold",   "float", (0.0, 1_000_000.0, 0.0)),
     ("intensity_merge",            "Intensity merge",       "bool",  None),
     ("intensity_split",            "Intensity split",       "bool",  None),
     ("remove_border_objects",      "Remove border objects", "bool",  None),
 )
-
-# Threshold-method choices (see spacr.utils intensity-merge logic).
-INTENSITY_THRESHOLD_METHODS = ("mean", "percentile")
 
 # What the outline-colour dropdown offers, in the order it offers it.
 # ``auto`` is one colour per compartment and ``color (random)`` one colour
@@ -1005,11 +1032,10 @@ def _apply_size_filter(mask: np.ndarray,
     live preview matches a real run.
 
     Reads the per-compartment knobs (``{obj}_min_area``, ``{obj}_max_area``,
-    ``{obj}_remove_border_objects``, ``{obj}_min_intensity_percentile``,
-    ``{obj}_max_intensity_percentile``) — the exact keys the compartment
-    panels write — and runs them through :func:`spacr.utils._filter_objects`.
-    Legacy ``{obj}_min_size``/``{obj}_max_size`` are honoured as a fallback.
-    No-ops when nothing is set."""
+    ``{obj}_remove_border_objects``) — the exact keys the compartment panels
+    write — and runs them through :func:`spacr.utils._filter_objects`. Legacy
+    ``{obj}_min_size``/``{obj}_max_size`` are honoured as a fallback. No-ops
+    when nothing is set."""
     if not settings or mask is None:
         return mask
 
@@ -3065,12 +3091,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 w.setRange(int(lo), int(hi)); w.setValue(int(dv))
             elif kind == "bool":
                 w = Toggle(parent=self)
-            elif kind == "method":
-                w = QComboBox(self)
-                # `_widget_value` propagates the entry's data, so the
-                # method arrives as `mean` however the caption reads.
-                set_translatable_items(w, INTENSITY_THRESHOLD_METHODS)
             else:
+                # NO `method` KIND ANY MORE (391). Its only field was
+                # `intensity_threshold_method`, whose `mean`/`percentile`
+                # choice the run no longer makes -- see the note on
+                # COMPARTMENT_FIELDS. Left in place it would be a combo box
+                # waiting for the withdrawn setting to be re-added by
+                # someone who found the branch and assumed it had a user.
                 raise ValueError(kind)
             w.hide()
             return w
@@ -3270,6 +3297,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
         The module's own default is the honest signal for which convention a
         key follows, so it is read rather than guessed at.
+
+        ``<role>_intensity_threshold`` joins them: it is an absolute
+        intensity with no default, and ``None`` is how the merge step is
+        told there is no number yet.
         """
         if cls._OFF_IS_NONE is None:
             try:
@@ -3278,9 +3309,16 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 shipped = _d({})
             except Exception:                                # noqa: BLE001
                 shipped = {}
+            # `_intensity_threshold` ADDED WITH THE ABSOLUTE SCHEME (391).
+            # `spacr.object.merge_split_filter_masks` defaults it to None and
+            # `spacr.utils._merge_by_intensity` reads None as "no threshold
+            # was given, so merge nothing and print the boundary intensities
+            # you found". A propagated 0 would instead read as a real
+            # threshold of zero and merge every pair that touches.
             cls._OFF_IS_NONE = frozenset(
                 key for key, value in shipped.items()
-                if value is None and key.endswith(("_max_area", "_max_size")))
+                if value is None and key.endswith(
+                    ("_max_area", "_max_size", "_intensity_threshold")))
         return cls._OFF_IS_NONE
 
     def _unclamped(self, widget, value):
