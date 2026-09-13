@@ -246,3 +246,56 @@ WHAT REMAINS: the nine-language rebuild for the 117, running when this was
 written. Until it lands the catalog audits are red, and that is the honest
 state -- the strings were always untranslated, and are now visibly so rather
 than silently so.
+
+--------------------------------------------------------------------------------
+2026-09-13, THIRD PASS -- THE WRAPPER SHAPE IS NOT ONE WRAPPER: 141 MORE
+CAPTIONS ARE HIDDEN THE SAME WAY
+--------------------------------------------------------------------------------
+
+`_set_status` was found by chasing a red. The obvious next question is whether
+it is the only helper of its shape, and it is not.
+
+THE INSTRUMENT. Walk every function in `spacr/qt`; if it forwards one of its
+own PARAMETERS into a call the extractor knows (`_TEXT_METHODS` or
+`_TEXT_CONSTRUCTORS`), it is a candidate wrapper. Then look at its CALL SITES:
+a wrapper only hides anything if callers pass string literals, and only those
+literals ABSENT from the catalog are a finding. Everything else is ordinary
+parameterisation -- `QLabel(text)` inside an `__init__` is not a defect, and
+120 of the 168 candidates are exactly that.
+
+  ONE FALSE POSITIVE WORTH NAMING so nobody re-finds it: `_row()` in
+  `spacr/qt/i18n.py` matches with 1,941 literals, and they are the compact
+  catalog's own Swedish, German and Spanish rows. The file holding the
+  translations is not a file hiding them. It is excluded by name.
+
+WHAT IS LEFT AFTER THAT FILTER: **141 captions across 27 files.**
+
+    48  widgets/volcano_explorer.py     _combo/_check/_line/_spin/_colour_box
+     8  screens/methods_export.py
+     8  screens/annotate.py             _set_kbd_hint
+     7  prerun.py                       _say
+     7  widgets/setup_slides.py
+     5  preferences.py, regression_results.py, distributed_jobs.py,
+        run_history.py, hit_list.py
+
+and they read like the rest of the product:
+
+    "Point src at a plate folder first -- there is nothing to measure yet."
+    "No object channel is set. Fill in cell_channel, nucleus_channel ..."
+    "spaCR did NOT restart: the module and its settings could not be saved"
+    "Column plotted on the x axis"      "Draw the significance line"
+
+VOLCANO EXPLORER IS A THIRD OF IT ON ITS OWN, because it builds its whole
+settings panel out of five local helpers -- `_combo`, `_check`, `_line`,
+`_spin`, `_colour_box` -- each taking a caption and a tooltip. Every label in
+that panel is English in all nine languages.
+
+WHY THIS IS NOT FIXED IN THIS PASS. Each wrapper needs its own extractor rule,
+because the template's ARGUMENT POSITION differs -- `_set_status(text)` is
+first, `_combo(label, tooltip, ...)` is two, `_line(label, value, tip)` is
+three. Naming them blind would capture the wrong argument and put runtime
+values in the catalog, which is worse than missing a caption. It is a
+per-wrapper reading, then one nine-language rebuild.
+
+    117 + 141 = 258 captions hidden by helper functions, of which 117 are now
+    translated and 141 are measured, listed and waiting.
