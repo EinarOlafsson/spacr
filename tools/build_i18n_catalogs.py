@@ -451,7 +451,19 @@ _PROTECT_PATTERNS = (
     # alternation chooses the first match at an offset, so putting the shorter
     # snake_case rule first would protect only ``per_graph`` in
     # ``per_graph : dict`` and expose the declared type to prose rewrites.
-    re.compile(r"\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+\b"),
+    # ASCII IDENTIFIER BOUNDARIES, NOT ``\b`` -- the same choice the class-name
+    # pattern below makes, and for the same reason. CJK and Hangul are word
+    # characters to ``re``, so ``\b`` never fires between them and an ASCII
+    # letter: in ``...remove_background_organelle,4...`` the identifier is
+    # present byte-for-byte and ``\b[A-Za-z]...`` does not match it. The
+    # protector then reported a surviving identifier as missing and rejected a
+    # CORRECT translation as ``protected_syntax``.
+    #
+    # Chinese does not space-separate words and Korean particles attach
+    # directly, so this fired on essentially any zh_CN or ko caption naming a
+    # setting. Measured 2026-09-13: 677 of 5,176 English captions contain a
+    # snake_case identifier, 567 of them SETTING_TOOLTIPS.
+    re.compile(r"(?<![A-Za-z0-9_])[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+(?![A-Za-z0-9_])"),
     # Exception and framework class names sometimes occur without inline-code
     # markup in legacy docstrings. They are identifiers, not translatable
     # CamelCase prose. ASCII identifier boundaries are intentional: Korean

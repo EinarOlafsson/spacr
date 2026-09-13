@@ -304,40 +304,16 @@ def _registry_baseline():
     return _app_registry_snapshot(app_mod)
 
 
-def _app_registry_snapshot(app_mod):
-    """Everything ``register_self_registering_modules()`` writes to.
-
-    The same shape ``_restore_app_registry`` saves, in one place so the
-    per-test restore and the per-module one cannot drift apart. Driven off
-    ``_META_TARGETS`` so a new side table is covered without an edit here.
-    """
-    import sys
-
-    side = []
-    for module_name, attribute, _field in app_mod._META_TARGETS:
-        module = sys.modules.get(module_name)
-        table = getattr(module, attribute, None) if module else None
-        if isinstance(table, dict):
-            side.append((table, dict(table)))
-    return (list(app_mod.APPS), dict(app_mod.APP_FACTORIES),
-            dict(app_mod.APP_STAGE), dict(app_mod.APP_META), side)
-
-
-def _restore_app_registry_to(app_mod, snapshot):
-    """Put ``snapshot`` back. ``APPS`` is rebuilt only if it actually moved."""
-    apps, factories, stages, meta, side = snapshot
-    if list(app_mod.APPS) != apps:
-        app_mod.APPS[:] = apps
-        app_mod._refresh_sections()
-    app_mod.APP_FACTORIES.clear()
-    app_mod.APP_FACTORIES.update(factories)
-    app_mod.APP_STAGE.clear()
-    app_mod.APP_STAGE.update(stages)
-    app_mod.APP_META.clear()
-    app_mod.APP_META.update(meta)
-    for table, saved in side:
-        table.clear()
-        table.update(saved)
+# THE HELPERS MOVED TO ``tests/app_registry_state.py``. A conftest only covers
+# the directory beneath it, and nine of the callers of
+# ``register_self_registering_modules()`` are in plain ``tests/`` where this
+# file never reached them. The shared module is imported by both conftests so
+# the per-test restore and the per-module one still cannot drift apart, which
+# is what the original note here asked for.
+from tests.app_registry_state import (                       # noqa: E402
+    app_registry_snapshot as _app_registry_snapshot,
+    restore_app_registry_to as _restore_app_registry_to,
+)
 
 
 @pytest.fixture(scope="module", autouse=True)
