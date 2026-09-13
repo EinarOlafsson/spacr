@@ -544,3 +544,50 @@ everything: the GL context, the shader compile and the frame timing are
 numbers the driver returns, and none of them needs anybody to look at the
 screen. What DOES need looking at is instruction 381's pixel check, and
 `tools/can_this_display_be_measured.py` exists to say so in five seconds.
+
+--------------------------------------------------------------------------------
+2026-09-12 -- THE TWO LEFTOVERS ARE CLOSED, AND ONE OF THEM WAS OVERSTATED HERE
+--------------------------------------------------------------------------------
+
+Both were prose rather than behaviour, which is why they survived a file that
+had otherwise been measured to a standstill.
+
+THE COMMENT THAT SENT THE NEXT READER AT A DAY OF REJECTED WORK.
+`fractal_travel.py` still ended the `orbit_gpu` branch with "the fix is
+render-to-texture and it needs a GPU to verify" -- written before the GPU
+measurement, and left standing after it. That measurement CLOSED the item
+rather than unblocking it: at 4K the slowest shader is 4.87 ms against a
+33.3 ms budget, so an FBO plus a second program plus a resize-time allocation
+would optimise something already 7x to 25x inside budget while adding a
+failure surface to the one path that cannot currently fail that way. The
+comment now carries the numbers and says not to write it, and points at the
+CPU path's 68.51 ms instead, which is where the choppiness actually is.
+
+  This is the same defect this file already named once: "a comment naming a
+  lever that does not exist sends the next reader looking for code rather
+  than writing it". It had simply moved from the lever to the fix.
+
+AND THIS FILE OVERSTATED THE SECOND ONE. The entry above says `render_scale`
+is "described as the direct answer to how do I get the image sharper. On a GPU
+it does nothing whatever -- the setting moves, the preference saves, and the
+frame is identical."
+
+The first half is right. The second implies a control a user can move, and
+there is none. Measured: `render_scale` has ZERO entries in the ten runtime
+catalogs, no label, no tooltip, and no row in Preferences. It is the bare
+QSettings key `spaceout/fractal_render_scale`. Nobody can watch a slider do
+nothing, because there is no slider -- so the cost is a reader misled by the
+docstring, not a user misled by the interface.
+
+Fixed where the claim is made rather than by adding a control or a tooltip:
+`_target_size`'s docstring now says the setting is read on the CPU path and
+nowhere else, that `backend='auto'` means any machine with a working GPU never
+applies it, and that making the GPU honour it is the render-to-texture work
+this instruction rejected.
+
+NO CATALOG CHURN, deliberately. A tooltip would have been the obvious fix and
+would have put a new translatable string into ten catalogs and nine locales
+for a setting that has no visible control. A comment costs nothing and reaches
+the only person who can be misled.
+
+NOTHING IS LEFT IN 327.

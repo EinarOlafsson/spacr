@@ -1087,6 +1087,21 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             native and anything less trades sharpness for speed. It was a setting
             nobody read, and it is the direct answer to "how do I get the image
             sharper".
+
+            ON THIS PATH ONLY, AND THAT IS WORTH SAYING WHERE THE CLAIM IS MADE.
+            `_render_scale()` is read here and nowhere else: the GPU canvas shades
+            its physical size at every one of its three uses and never calls
+            `target_render_size`. So on a machine with a working GPU -- which is
+            the default, `backend='auto'` -- this setting has no effect whatever,
+            and a reader who came here from the sentence above would otherwise go
+            looking for the code that applies it.
+
+            IT IS NOT A VISIBLE CONTROL, which is why this is a comment rather
+            than a tooltip: `spaceout/fractal_render_scale` is a bare QSettings
+            key with no row in Preferences, so nobody can move a slider and watch
+            nothing happen. Making the GPU honour it would mean render-to-texture,
+            which instruction 327 measured and rejected -- every shader is 7x to
+            25x inside its budget at 4K, so there is nothing to buy.
             """
             try:
                 render_scale = float(_render_scale())
@@ -1877,8 +1892,23 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
         # three uses and never calls `target_render_size`; every `scale` in
         # it is the camera zoom. So for `orbit_gpu` -- and for `space`,
         # which has equal numbers for the same reason -- a long frame has
-        # NO lever at all on the GPU. See instruction 327 (1); the fix is
-        # render-to-texture and it needs a GPU to verify.
+        # NO lever at all on the GPU.
+        #
+        # AND THAT IS MEASURED AS NOT WORTH FIXING, so do not go and write it.
+        # This used to say "the fix is render-to-texture and it needs a GPU to
+        # verify". A GPU has since been measured -- RTX 3090 Ti, real GL
+        # context, 2 s a row -- and every shader has between seven and
+        # twenty-five times the headroom it needs even at 4K:
+        #
+        #     orbit_gpu 2.56 ms   cascade 1.34 ms   space 4.87 ms
+        #     at 3840x2160, against a 33.3 ms budget
+        #
+        # So an FBO, a second shader program and a resize-time allocation
+        # would optimise something already far inside its budget, and would
+        # add a failure surface to the one path that cannot currently fail
+        # that way. The choppiness instruction 327 opens with is the CPU
+        # path -- 68.51 ms a frame at 4K, 14.6 fps -- and its adaptive scale,
+        # which is where anyone reading this for what to do next should go.
         base_detail = 4
         detail_floor = 4
     else:
