@@ -373,7 +373,7 @@
       "title": "掩膜",
       "series": 1,
       "app_key": "mask",
-      "section": "Core",
+      "section": "核心模块",
       "description": "配置细分,使用直播预览验证,并创建下游测量掩膜.",
       "objectives": [
         "检查源元数据和道映射.",
@@ -495,7 +495,7 @@
       "title": "测量",
       "series": 1,
       "app_key": "measure",
-      "section": "Core",
+      "section": "核心模块",
       "description": "从图像和掩膜中提取对象级特征，然后检查生成的对象裁剪图库和数据库输出。",
       "objectives": [
         "验证图像通道与掩膜图层的映射。",
@@ -583,7 +583,7 @@
       "title": "标注",
       "series": 1,
       "app_key": "annotate",
-      "section": "Core",
+      "section": "核心模块",
       "description": "复核对象裁剪图，分配一致的标签，审核覆盖度，并将保存的标签提供给分类器。",
       "objectives": [
         "配置一致的裁剪图视图和标注列。",
@@ -672,7 +672,7 @@
       "series": 1,
       "app_key": "classify",
       "host_app_key": "classify_merged",
-      "section": "Core",
+      "section": "核心模块",
       "description": "使用已标注的对象裁剪图训练并评估图像分类器，同时采用分组验证，并可选择执行超参数搜索。",
       "objectives": [
         "将保存的标签和对象裁剪图映射为防止数据泄漏的数据集。",
@@ -775,7 +775,7 @@
       "series": 1,
       "app_key": "ml_analyze",
       "host_app_key": "classify_merged",
-      "section": "Core",
+      "section": "核心模块",
       "description": "使用对象测量值训练并评估基于特征的分类器，同时进行板感知校正，并可选择执行超参数搜索。",
       "objectives": [
         "准备有效的测量特征和板感知标签。",
@@ -870,7 +870,7 @@
       "title": "映射条形码",
       "series": 1,
       "app_key": "map_barcodes",
-      "section": "Core",
+      "section": "核心模块",
       "description": "本教程尚未上线。请先浏览其他教程。",
       "objectives": [],
       "prerequisite": "",
@@ -885,7 +885,7 @@
       "title": "回归",
       "series": 1,
       "app_key": "regression",
-      "section": "Core",
+      "section": "核心模块",
       "description": "使用分块置换检验或同步回归，将混合筛选中的向导丰度与测得的表型相关联，然后检查支持度、诊断结果和效应估计值。",
       "objectives": [
         "正确对齐表型、向导计数和对照信息。",
@@ -980,7 +980,7 @@
       "title": "创建掩膜",
       "series": 1,
       "app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "分割模型",
       "description": "以交互方式创建并修正分割标签，用于质量控制或制作 Cellpose 训练图像对。",
       "objectives": [
         "根据不同的掩膜错误选择合适的编辑工具。",
@@ -1068,7 +1068,7 @@
       "title": "图像 UMAP",
       "series": 1,
       "app_key": "umap",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "嵌入测量物体在两个维度,并使用其真实显微镜裁剪图检查现象类型的邻居.",
       "objectives": [
         "选择具有生物相关性的特征和排除.",
@@ -1164,7 +1164,7 @@
       "series": 1,
       "app_key": "activation",
       "host_app_key": "classify_merged",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "检查哪些图像区域会影响已训练视觉分类器的预测，并检验这些解释是否可信。",
       "objectives": [
         "确保归因运行与已训练模型及其输入完全匹配。",
@@ -1253,7 +1253,7 @@
       "series": 2,
       "app_key": "timelapse",
       "host_app_key": "mask",
-      "section": "Core",
+      "section": "核心模块",
       "description": "分割时间序列图像，将选定对象连接为轨迹，并验证生成的影片和运动轨迹。",
       "objectives": [
         "正确映射采集轴，并以一致方式分割代表性帧。",
@@ -1356,7 +1356,7 @@
       "series": 2,
       "app_key": "motility",
       "host_app_key": "measure",
-      "section": "Core",
+      "section": "核心模块",
       "description": "根据已跟踪图像测量经过校准的运动，并按感染状态或实验组比较轨迹。",
       "objectives": [
         "正确映射已跟踪对象和校准信息。",
@@ -1445,7 +1445,7 @@
       "series": 2,
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "分割模型",
       "description": "使用已复核的图像与实例掩膜配对，微调与 Cellpose 或 CPSAM 兼容的模型。",
       "objectives": [
         "验证配对训练数据并选择合理的初始检查点。",
@@ -1527,7 +1527,7 @@
       "series": 2,
       "app_key": "cellpose_masks",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "分割模型",
       "description": "应用内置或自定义 Cellpose 模型，检查掩膜和流场，并为每个视野保存一个实例标签掩膜。",
       "objectives": [
         "确保图像、通道、对象尺度和检查点相匹配。",
@@ -1609,7 +1609,7 @@
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "分割模型",
       "description": "本教程尚未上线。请先浏览其他教程。",
       "objectives": [],
       "prerequisite": "",
@@ -1625,7 +1625,7 @@
       "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "分割模型",
       "description": "本教程尚未上线。请先浏览其他教程。",
       "objectives": [],
       "prerequisite": "",
@@ -1641,7 +1641,7 @@
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "测量不同标注列之间的一致性，并检查造成不一致的具体对象。",
       "objectives": [
         "配置公平的标签比较。",
@@ -1715,7 +1715,7 @@
       "title": "空斑分析",
       "series": 3,
       "app_key": "analyze_plaques",
-      "section": "Toxoplasma assays",
+      "section": "弓形虫实验",
       "description": "分割或重复使用菌斑掩膜，验证掩膜，并按实验条件汇总菌斑形成情况。",
       "objectives": [
         "在重新分割和使用现有掩膜之间作出选择。",
@@ -1789,7 +1789,7 @@
       "title": "募集分析",
       "series": 3,
       "app_key": "recruitment",
-      "section": "Toxoplasma assays",
+      "section": "弓形虫实验",
       "description": "相对于宿主细胞背景，量化寄生虫相关区域中的标记物富集。",
       "objectives": [
         "正确映射通道和掩膜。",
@@ -1863,7 +1863,7 @@
       "title": "侵袭分析",
       "series": 3,
       "app_key": "invasion",
-      "section": "Toxoplasma assays",
+      "section": "弓形虫实验",
       "description": "通过比较细胞外染色和寄生虫总染色，区分附着寄生虫与已入侵寄生虫。",
       "objectives": [
         "正确映射染色通道。",
@@ -1937,7 +1937,7 @@
       "title": "复制分析",
       "series": 3,
       "app_key": "replication",
-      "section": "Toxoplasma assays",
+      "section": "弓形虫实验",
       "description": "将寄生虫分配到液泡，并按实验条件汇总细胞内复制。",
       "objectives": [
         "配置液泡分配。",
@@ -2011,7 +2011,7 @@
       "title": "训练运行",
       "series": 4,
       "app_key": "train_compare",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "通过叠加曲线和比较设置差异，对模型训练运行进行比较。",
       "objectives": [
         "加载并验证可比较的运行。",
@@ -2086,7 +2086,7 @@
       "title": "报告",
       "series": 4,
       "app_key": "report",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "创建可共享的 HTML 或 PDF 汇总，其中包含质量控制、图、统计量、设置和版本。",
       "objectives": [
         "选择与报告相关的证据。",
@@ -2153,7 +2153,7 @@
       "title": "孔板队列",
       "series": 4,
       "app_key": "queue",
-      "section": "Data and batch runs",
+      "section": "数据和批处理运行",
       "description": "使用同一条已验证流程处理多块板，同时显示可恢复的运行状态。",
       "objectives": [
         "构建并复核多板队列。",
@@ -2220,7 +2220,7 @@
       "title": "外部掩膜",
       "series": 4,
       "app_key": "external_masks",
-      "section": "Data and batch runs",
+      "section": "数据和批处理运行",
       "description": "将第三方图像和标签掩膜导入为经过测量且可追溯的 spaCR 项目。",
       "objectives": [
         "正确映射外部输入。",
@@ -2295,7 +2295,7 @@
       "title": "对齐和拼接",
       "series": 4,
       "app_key": "align",
-      "section": "Data and batch runs",
+      "section": "数据和批处理运行",
       "description": "配准图像图块，并在内存使用受限的情况下写出拼接图像。",
       "objectives": [
         "描述图块布局。",
@@ -2369,7 +2369,7 @@
       "title": "孔板查看器",
       "series": 4,
       "app_key": "plate_view",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "以板热图形式探索测量值，并检测空间伪影或边缘效应。",
       "objectives": [
         "生成合适的板热图。",
@@ -2444,7 +2444,7 @@
       "title": "数据库浏览器",
       "series": 4,
       "app_key": "db_browser",
-      "section": "Data",
+      "section": "数据",
       "description": "无需命令行即可浏览、过滤和导出 spaCR 测量数据库。",
       "objectives": [
         "安全打开数据库并逐页浏览。",
@@ -2518,7 +2518,7 @@
       "title": "格式转换器",
       "series": 4,
       "app_key": "convert",
-      "section": "Data",
+      "section": "数据",
       "description": "将显微镜格式转换为符合 spaCR 命名规则的 TIFF，并保存经过复核的来源映射图。",
       "objectives": [
         "配置能够识别信息丢失的映射。",
@@ -2593,7 +2593,7 @@
       "title": "导入项目",
       "series": 5,
       "app_key": "foreign",
-      "section": "Data",
+      "section": "数据",
       "description": "将其他实验室的图像、掩膜和测量值映射到可追溯的 spaCR 项目。",
       "objectives": [
         "明确映射外部数据。",
@@ -2667,7 +2667,7 @@
       "title": "批处理运行器",
       "series": 5,
       "app_key": "batch",
-      "section": "Data and batch runs",
+      "section": "数据和批处理运行",
       "description": "验证、保存并执行带依赖关系和独立日志的真实 spaCR 模块任务有序队列。",
       "objectives": [
         "添加经过验证的模块与设置任务，并指定标签、依赖关系和命令行覆盖项。",
@@ -2777,7 +2777,7 @@
       "title": "分布式作业",
       "series": 5,
       "app_key": "distributed_jobs",
-      "section": "Data and batch runs",
+      "section": "数据和批处理运行",
       "description": "在 SSH 工作站、Slurm 集群、云环境或 HPC 命令中提交并监测 spaCR 作业。",
       "objectives": [
         "了解何时使用 Distributed Jobs。",
@@ -2826,7 +2826,7 @@
       "series": 5,
       "app_key": "classifier_evaluation",
       "host_app_key": "classify_merged",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "审核留出集预测、嵌套交叉验证、校准、数据泄漏和逐板性能。",
       "objectives": [
         "了解何时使用 Classifier Evaluation。",
@@ -2874,7 +2874,7 @@
       "title": "运行历史",
       "series": 5,
       "app_key": "run_history",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "在一个位置搜索每项作业的设置、文件、警告、失败和性能。",
       "objectives": [
         "了解何时使用 Run History。",
@@ -2922,7 +2922,7 @@
       "title": "分类",
       "series": 5,
       "app_key": "classify_merged",
-      "section": "Core",
+      "section": "核心模块",
       "description": "为图像裁剪图或测量特征选择一种分类工作流，并在评估时避免相关对象跨数据划分泄漏。",
       "objectives": [
         "了解何时使用 Classify。",
@@ -2971,7 +2971,7 @@
       "series": 5,
       "app_key": "curate",
       "host_app_key": "make_masks",
-      "section": "Core",
+      "section": "核心模块",
       "description": "手动修正分割掩膜和轨迹，同时保留每项编辑的可审核记录。",
       "objectives": [
         "了解何时使用 Curate。",
@@ -3020,7 +3020,7 @@
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
-      "section": "Data",
+      "section": "数据",
       "description": "在测量强度特征之前估计并验证平场校正。",
       "objectives": [
         "了解何时使用 Illumination。",
@@ -3068,7 +3068,7 @@
       "title": "数据管理器",
       "series": 5,
       "app_key": "data_manager",
-      "section": "Data",
+      "section": "数据",
       "description": "检查项目存储空间并回收派生文件，同时不影响原始采集数据。",
       "objectives": [
         "了解何时使用 Data Manager。",
@@ -3116,7 +3116,7 @@
       "title": "项目浏览器",
       "series": 5,
       "app_key": "project_browser",
-      "section": "Data",
+      "section": "数据",
       "description": "查找 spaCR 项目，并在一个表格中查看其阶段、大小、最近一次运行和过期输出。",
       "objectives": [
         "了解何时使用 Project Browser。",
@@ -3165,7 +3165,7 @@
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "分割模型",
       "description": "在 napari 中复核掩膜，并将修正后的标签连同来源信息返回 spaCR。",
       "objectives": [
         "了解何时使用 Napari Bridge。",
@@ -3214,7 +3214,7 @@
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "检查映射深度、覆盖度、冲突、位置效应和基于证据的丰度阈值。",
       "objectives": [
         "了解何时使用 Barcode QC。",
@@ -3263,7 +3263,7 @@
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "根据效应量、不确定性、错误发现率和向导 RNA 一致性，对筛选命中项进行排序和复核。",
       "objectives": [
         "了解何时使用 Hit List。",
@@ -3312,7 +3312,7 @@
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "根据已记录的运行起草可追溯的方法和结果文本，而不是凭记忆重建设置。",
       "objectives": [
         "了解何时使用 Methods & Results。",
@@ -3360,7 +3360,7 @@
       "title": "运行对比",
       "series": 5,
       "app_key": "run_compare",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "并排比较两次运行，以了解设置、计数、输出和命中项的变化。",
       "objectives": [
         "了解何时使用 Run Compare。",
@@ -3408,7 +3408,7 @@
       "title": "控制图",
       "series": 5,
       "app_key": "control_chart",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "跨板跟踪对照，并根据明确指定的基线检测漂移。",
       "objectives": [
         "了解何时使用 Control Charts。",
@@ -3457,7 +3457,7 @@
       "title": "流程图",
       "series": 5,
       "app_key": "pipeline_graph",
-      "section": "Explore",
+      "section": "探索",
       "description": "查看生成每项结果的分析产物，以及哪些下游输出已过期或缺失。",
       "objectives": [
         "了解何时使用 Pipeline Graph。",
@@ -3505,7 +3505,7 @@
       "title": "预测剖析器",
       "series": 5,
       "app_key": "profiler",
-      "section": "Explore",
+      "section": "探索",
       "description": "改变一个模型输入，并观察已拟合预测如何响应。",
       "objectives": [
         "了解何时使用 Prediction Profiler。",
@@ -3554,7 +3554,7 @@
       "title": "质控面板",
       "series": 5,
       "app_key": "qc_dashboard",
-      "section": "Explore",
+      "section": "探索",
       "description": "将分割、单位、数据泄漏、板效应和标注检查集中到一个复核界面。",
       "objectives": [
         "了解何时使用 QC Dashboard。",
@@ -3603,7 +3603,7 @@
       "series": 5,
       "app_key": "image_scatter",
       "host_app_key": "umap",
-      "section": "Explore",
+      "section": "探索",
       "description": "绘制测量值，并检查任意数据点对应的图像。",
       "objectives": [
         "了解何时使用 Image Scatter。",
@@ -3651,7 +3651,7 @@
       "title": "谱系",
       "series": 5,
       "app_key": "lineage",
-      "section": "Explore",
+      "section": "探索",
       "description": "检查细胞、细胞核、病原体和细胞器分配等包含关系。",
       "objectives": [
         "了解何时使用 Lineage。",
@@ -3700,7 +3700,7 @@
       "title": "图层查看器",
       "series": 5,
       "app_key": "layer_viewer",
-      "section": "Explore",
+      "section": "探索",
       "description": "以对齐图层的形式检查图像、掩膜、点和感兴趣区域。",
       "objectives": [
         "了解何时使用 Layer Viewer。",
@@ -3749,7 +3749,7 @@
       "title": "图表构建器",
       "series": 5,
       "app_key": "graph_builder",
-      "section": "Explore",
+      "section": "探索",
       "description": "通过将表格列分配给不同视觉角色来构建探索性图表。",
       "objectives": [
         "了解何时使用 Graph Builder。",
@@ -3798,7 +3798,7 @@
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
-      "section": "Explore",
+      "section": "探索",
       "description": "将 spaCR 测量值写入 AnnData 文件，供 scanpy 或 scvi-tools 使用。",
       "objectives": [
         "了解何时使用 AnnData Export。",
@@ -3847,7 +3847,7 @@
       "series": 5,
       "app_key": "pca",
       "host_app_key": "umap",
-      "section": "Explore",
+      "section": "探索",
       "description": "使用主成分概括相关测量值，并检查驱动这些主成分的特征。",
       "objectives": [
         "了解何时使用 PCA。",
@@ -3895,7 +3895,7 @@
       "title": "汇总表",
       "series": 5,
       "app_key": "tabulate",
-      "section": "Explore",
+      "section": "探索",
       "description": "将测量值透视为分组汇总，同时保留可见的贡献项计数。",
       "objectives": [
         "了解何时使用 Tabulate。",
@@ -3944,7 +3944,7 @@
       "title": "特征词典",
       "series": 5,
       "app_key": "feature_dict",
-      "section": "Explore",
+      "section": "探索",
       "description": "按名称或概念查询测量特征的含义。",
       "objectives": [
         "了解何时使用 Feature Dictionary。",
@@ -3992,7 +3992,7 @@
       "title": "小型多组图",
       "series": 5,
       "app_key": "trellis",
-      "section": "Explore",
+      "section": "探索",
       "description": "在坐标轴范围一致且如实反映数据的网格中，比较不同组的同一种图表。",
       "objectives": [
         "了解何时使用 Small Multiples。",
@@ -4041,7 +4041,7 @@
       "title": "门控编辑器",
       "series": 5,
       "app_key": "gate_editor",
-      "section": "Explore",
+      "section": "探索",
       "description": "绘制,检查,巢穴,再利用2D,3D或缩小高维图景的群体门.",
       "objectives": [
         "绘制和检查2D群体门.",
@@ -4108,7 +4108,7 @@
       "title": "特征浏览器",
       "series": 5,
       "app_key": "feature_explorer",
-      "section": "Explore",
+      "section": "探索",
       "description": "根据特征区分所选类别的能力对其排序，并检查排名所依据的证据。",
       "objectives": [
         "了解何时使用 Feature Explorer。",
@@ -4157,7 +4157,7 @@
       "title": "离群值",
       "series": 5,
       "app_key": "outliers",
-      "section": "Explore",
+      "section": "探索",
       "description": "使用稳健规则标记异常对象或孔，同时保留每一行数据。",
       "objectives": [
         "了解何时使用 Outliers。",
@@ -4206,7 +4206,7 @@
       "title": "实验设计",
       "series": 5,
       "app_key": "experiment_design",
-      "section": "Design",
+      "section": "实验设计",
       "description": "在采集之前安排实验条件、对照和重复。",
       "objectives": [
         "了解何时使用 Experiment Design。",
@@ -4254,7 +4254,7 @@
       "title": "检验效能 / 设计",
       "series": 5,
       "app_key": "power",
-      "section": "Design",
+      "section": "实验设计",
       "description": "在明确的假设条件下，估算检测效应所需的细胞数和孔数。",
       "objectives": [
         "了解何时使用 Power / Design。",
@@ -4302,7 +4302,7 @@
       "title": "剂量反应",
       "series": 5,
       "app_key": "dose_response",
-      "section": "Design",
+      "section": "实验设计",
       "description": "拟合剂量-反应曲线，同时报告不确定性，并拒绝缺乏数据支持的 EC50 估计。",
       "objectives": [
         "了解何时使用 Dose–Response。",
@@ -4350,7 +4350,7 @@
       "title": "解释 CV 模型",
       "series": 5,
       "app_key": "explain_cv",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "根据测量特征复现计算机视觉预测，并检查所得解释是否忠实且不存在信息泄漏。",
       "objectives": [
         "了解何时使用 Explain CV Model。",
@@ -4399,7 +4399,7 @@
       "title": "调查命中",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "本教程尚未上线。请先浏览其他教程。",
       "objectives": [],
       "prerequisite": "",
@@ -4415,7 +4415,7 @@
       "title": "火山图浏览器",
       "series": 5,
       "app_key": "volcano_explorer",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "打开已完成的回归结果，逐点检查并调整图形样式，无需重新运行分析即可导出出版尺寸的矢量图。",
       "objectives": [
         "了解何时使用 Volcano Explorer。",
@@ -4464,7 +4464,7 @@
       "title": "参数扫描",
       "series": 5,
       "app_key": "parameter_sweep",
-      "section": "Results and quality control",
+      "section": "结果与质量控制",
       "description": "对回归配置进行有限的参数探索，并比较哪些结论能在合理的分析选择下保持稳定。",
       "objectives": [
         "了解何时使用 Parameter Sweep。",
@@ -4721,7 +4721,7 @@
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
-      "section": "Segmentation models",
+      "section": "分割模型",
       "status": "coming_soon",
       "availability_title": "即将推出",
       "description": "本教程尚未上线。请先浏览其他教程。",
@@ -4736,7 +4736,7 @@
       "title": "Embeddings",
       "series": 2,
       "app_key": "embeddings",
-      "section": "Data",
+      "section": "数据",
       "status": "coming_soon",
       "availability_title": "即将推出",
       "description": "本教程尚未上线。请先浏览其他教程。",

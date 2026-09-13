@@ -19447,6 +19447,20 @@
       "source_sha256": "f549da474c875bccbbceabbe3c8c902220c4d080459d1c05f909537f469a89c2",
       "text": "Infection metrics, assembled from a finished Measure run.\n\nA REPORT, NOT A PIPELINE, and that was a deliberate choice made after the\nderivability was measured: thirteen of the sixteen candidate infection metrics\nfall out of tables Measure has already written, with no new image processing.\nThe three that do not -- intracellular fraction, vacuoles per cell, distance\nto the host boundary -- belong to the invasion module and to segmentation, and\nare deliberately absent here rather than approximated.\n\nTHE DENOMINATOR IS THE WHOLE PROBLEM, and it is why every number this module\nproduces carries its own denominator beside it. Almost every way of getting an\ninfection metric wrong is a denominator that does not match its numerator:\n\n* The relationship table has NO ROW for a cell with no parasites.\n  ``measure.get_components`` explodes the per-cell child list and drops the\n  empty ones, so counting rows there counts INFECTED cells and calls it the\n  cell count. The denominator has to come from the ``cell`` table, which\n  holds every segmented cell whether or not anything is inside it.\n* ``io.py`` drops pathogens with no ``cell_id`` and can filter rows by\n  ``pathogen_prcfo_count``. Neither touches the cell table. A numerator built\n  from a filtered pathogen table over an unfiltered cell table counts two\n  different populations, and the ratio looks entirely plausible.\n\nSo :func:`infection_report` returns the denominator, and its size, on every\nrow. A reader who disagrees with a number can see immediately which of the two\nhalves they disagree with.\n\nIT DOES NOT INVENT A FIFTH VOCABULARY. ``uninfected``, ``pathogen_count`` and\n``pathogen_prcfo_count`` already exist across ``measure``, ``io`` and\n``timelapse``. This module reuses them and adds no synonym."
     },
+    "spacr.infection.border_rules_agree": {
+      "source_blocks_sha256": [
+        "44cc30204f54b32eff3dff93798a74f2c20bc1470bafd8fc348737dbe7e52311",
+        "7fb634e19fe0163df0d8c2bf382a00a88f797f83f74903b845e64ed2aef8e0fc",
+        "66e2b8bd49a2a5a990ac6e1c108e039d12593a3e335251c750c022cb1cf31faf",
+        "98621a50df070fda6f736b210a3b9767422c0abd235b024942b5d4f72671f011",
+        "029bb670e697280e8897e27eb32e0ced2bbe7a35fffb68200e15f771e5418091",
+        "e6814e3b18bc924d815a55871b135616715dfa0f5cb025c2674f2e06d2334dee",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "bba92b892686c9fe9c90a00a49a60c4859544838a93e12be385f99e8aeef7c7e"
+      ],
+      "source_sha256": "a6983f0c991e6d5122e9c66657fca8eac99c7c1f0780de89c20f8b6d5f1f5f49",
+      "text": "Whether cells and parasites were border-filtered the same way.\n\nTHE NUMERATOR AND THE DENOMINATOR MUST OBEY THE SAME RULE, which is what\n377's PART 1 asks for in as many words: \"the infection denominator has to\nuse the same rule or the rate is computed against a different cell count\nthan the numerator\".\n\n`remove_border_objects` is applied at SEGMENTATION time, per object type,\nso it decides what is in each table rather than how the table is counted.\nThe two settings are independent and default to False together, so they\nagree unless somebody changed one:\n\n  * pathogens cleared and cells kept -- a host cell whose only parasite\n    touched the edge is still in the cell table, now with a count of\n    zero. It reads as UNINFECTED and deflates the rate.\n  * cells cleared and pathogens kept -- a parasite can name a cell that\n    is no longer in the cell table, so it is counted in neither\n    numerator nor denominator and the infection index drifts.\n\nTHIS IS THE SAME FAILURE AS `include_uninfected`, WHICH ALREADY SHIPPED:\na setting that silently changes what a table contains, and therefore what\na ratio over it means, with nothing in the output saying so. That one\nturned every well into 1.000000 on a real plate. This one is quieter,\nwhich is worse -- a deflated rate looks like biology.\n\n:param db_path: path to a ``measurements.db``.\n:returns: ``True`` when both rules match, ``False`` when they differ,\n    ``None`` when the run recorded neither -- an older database, where\n    the honest answer is that we cannot tell."
+    },
     "spacr.infection.host_contrast": {
       "source_blocks_sha256": [
         "6f190797ef51212c457e8407407bf5f92654dea4aa121a4bb9fae69dfd55cb20",
@@ -27388,6 +27402,27 @@
       ],
       "source_sha256": "d139fa7088c79f631229555498d28a7cd0a9edfe4fb0d081f4ae1a36a4ad74b3",
       "text": "Humanise a setting key, giving organelle slots numbered labels.\n\n:param key: canonical setting key to turn into a display label.\n:returns: The canonical human-readable setting label."
+    },
+    "spacr.object_roles.split_role_setting": {
+      "source_blocks_sha256": [
+        "d0e79f5532bf7139a477d4e4e3cd21470db94ed081295e2ee63bb9fda604000a",
+        "b31291dbe93bed78c2638ad3fabfa15ac6b713178c60e1a9cf4ef23d9c2e75d8",
+        "a9c3b7b870201dd1098735ed2d719991b4428a4e8215b808aebeb21bfa57a230",
+        "7d8b3572497febdb5b96e3db2ff6d0786b934287e514da06a8a14da72d33e16b",
+        "26136fe384c2c4abf9e81416c74471bdf72aed3e73d882407aa41b5c263e2f90",
+        "ec01f87b17be4f855ed2d9a163871063f6b0c17d6ccff8144006bd22379d39e4"
+      ],
+      "source_sha256": "0b92cd912382b99cf8de95134eaa9ebac2ce659f540548cbbefc6cd2887e000d",
+      "text": "``organellezz_min_split_area`` -> ``(\"organellezz\", \"min_split_area\")``.\n\nThe inverse of :func:`role_setting`, and the reason a suffix rename can\ncost six lines instead of 3,522. Every role is a single word with no\nunderscore, so partitioning on the FIRST one separates the role from the\nsuffix without scanning the 702 organelle slots.\n\nNOT :func:`role_setting`'s validation: this accepts any role in\n``ALL_ROLES``, including ``cytoplasm``, which is derived rather than\nsegmented and still declares ``cytoplasm_min_size``. Restricting to\nsegmented roles here would silently skip it.\n\nA BARE KEY IS NOT A ROLE KEY, and that matters: ``FT``, ``CP_prob``,\n``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their\nown right in the standalone apply/test-model submodules. A key with no\nunderscore has no role, so it can never match a suffix rule.\n\n:param key: a settings key.\n:returns: ``(role, suffix)``, or ``None`` when ``key`` names no role."
+    },
+    "spacr.object_roles.withdrawn_setting_reason": {
+      "source_blocks_sha256": [
+        "d519eb90d81775557665dc3732ad9ac3e58b4e3a1c748929b9bd09808414988d",
+        "0f9789c9692c1250160dfe1c3963077634f30afaa6608ae73992bc4df768faa8",
+        "1505bd4f41e5d7939db140671b69d76f395f577e045c566cc3b44d18cab5abc3"
+      ],
+      "source_sha256": "5ab5ac4fabcbb71db083d7f6ea6ac0934ab3e58340a7fbbcbdaa1c14224caedc",
+      "text": "Why ``key`` is no longer read, or ``None`` if it is not withdrawn.\n\n:param key: the key a settings file carries.\n:returns: a sentence naming what replaced it, or ``None``."
     },
     "spacr.object_settings_table": {
       "source_blocks_sha256": [
@@ -93264,6 +93299,19 @@
       "source_sha256": "10ac04215def98f21d4790412aee01a0a09fc2e719ab0f2f141605814d894cb0",
       "text": "Populate default settings for interpreting vision-model predictions.\n\nCovers feature importance, permutation importance, and SHAP explanation\noptions over the cell/nucleus/pathogen/cytoplasm tables.\n\n:param settings: dict to fill in place.\n:returns: the settings dict with defaults applied."
     },
+    "spacr.settings.surviving_setting_name": {
+      "source_blocks_sha256": [
+        "439f8bdf46a7c64aeb4e0adf05c48b41c686414797e809f7d389b2237e5cb0c5",
+        "b1901ea8f27154e16d6b9678639d9298e48f243c9cc1d7e6369289235346dde1",
+        "0b24f5841718b79ae1cd6b8daf982c44bcf6aa0004b4c507718005868b916a30",
+        "e9d3ccd20bfe62481b9608b8585b55ca00cb6c58fb1fbe287cf8ac35c47890be",
+        "88389cc73fa9949c8ef330d482586964784165951f89671f48aa3d09d2ffdf54",
+        "0f9789c9692c1250160dfe1c3963077634f30afaa6608ae73992bc4df768faa8",
+        "49ffbaaa7cd54f6579b40ec6fe6e4b97a5e72a0e67c07242cf58f81554cb7468"
+      ],
+      "source_sha256": "68edc26ef73fd083642689b771767376f24adfb194b98e4bf559915acbdadf49",
+      "text": "What ``key`` is called TODAY, following renames to the end.\n\nONE RESOLVER FOR ALL THREE CONSUMERS -- the run's fold, the doctor's\nmessage and the Qt panel's load.\n\nThey used to answer this question three different ways. The run consulted\nthe rename table alone, the doctor the retirement table alone, and the Qt\npanel was the only one that knew the organelle suffix rule. A generated\norganelle key could therefore be migrated by the panel, ignored by the\nrun and unmentioned by the doctor, all at once.\n\nA CHAIN IS THE FAILURE THIS EXISTS FOR. A later rename takes\n``<role>_min_split_area`` to ``<role>_minimum_area_to_split``, and\n``<role>_min_object_area`` was already renamed to ``_min_split_area`` --\nso the oldest files need two hops, and a resolver that takes one leaves\nthe value on a key nothing reads.\n\nLIVENESS IS CHECKED AT THE TERMINUS ONLY. Checking each hop would refuse\nthe middle of a valid chain, because an intermediate name is by\ndefinition no longer live. Refusing when the old key is ITSELF still live\nis what stops a suffix rule retiring a working setting -- seven ``_size``\nkeys are live and must not be touched.\n\n:param key: the key a settings file carries.\n:returns: a tuple of the names read today -- empty when ``key`` is\n    current, withdrawn, unknown, or resolves through a cycle."
+    },
     "spacr.settings.unregister_defaults": {
       "source_blocks_sha256": [
         "bc9fa2ebb9bfb77c50126fec188487a66946dfa7e87b20c199b2cdc473d6fb74",
@@ -98803,23 +98851,19 @@
         "71a3fdaeab1856e1919fdd4121a26d5759b81ceaa026ac34a992e960171153fe",
         "67d266268263beb1f7537ded4f51f914622a95b3f8ddaf1903d65166f56d3cd1",
         "926ac43d8a9c6c69de09a71f60611fd8bc056964e1de69c6f7042e150d02b1f0",
-        "8660179d3c500a791377ad6616f1276e74b87024afc5013e54ebb36165c5c3a0",
         "726a02524c8b06ac0c9b56fd3aae7755575a00f91eb7d8fa0ee15d5f03597917",
-        "ecf96a622e18b601279bf1f7e7c3177d3fd46c5e502789fdca46f41ca52ba5fa",
-        "4038b226ea4ca3711014a083e834780f503c4d9e165b3e25950ba7fad16d8242",
-        "00ab14ca3eef4ebc1308ad781f7c6a9c326c1e9a1cc9801b1265faf3bb9d970d",
+        "9c06776caf711b14b6ae399234f9326f7583ce6b4db0274dee62db8260be27f0",
+        "6f0f5d529bb25684b3993ee2c65c780557c93de37148bf05680cb82f0d2d22ca",
         "4fab960c72b0fa4104b426300af8100cf1cfd7483a8b62d4689cee050a327426",
         "bfe5d5389bb41da3cb82e48ead7cf4a78ecbbf05d57a1121ef499e148c36f473",
         "334bec03a8313e5d68e9c76477f645a40b7c773d1b211e79e97551b602ba5ead",
-        "d97deff4499de4456f43ef9d8f57809adb05a234b73c76e78649251513262b59",
-        "4a56b833ae9b02d851090acbf0900dd17c07df35ccd409bd8cb0634c80b09097",
         "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
         "bb45ff5a41caf6b310c9f90638229246e5d9b82b85f9f7de1ffdf5b168566d1c",
         "84384eca313dcfd1df73b57382310db0f372cb4bfd13a0ef3b9c2dcddd92d0b6",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "42a428c5195df3ad2bac4d8267b12b2a0eadd3b339c46ad934712f1695a67468",
-      "text": "Split, merge, and filter labeled objects across a directory of masks.\n\nRuns the split -> merge -> filter pipeline on each mask file in\n``mask_src`` in parallel, overwriting each mask in place.\n\n:param mask_src: directory containing mask .tif/.tiff/.npy files.\n:param intensity_img_src: directory of matched intensity images, or ``None``.\n:param intensity_channel: channel index to pull from multi-channel intensity images.\n:param perimeter_fraction: minimum shared-boundary fraction for perimeter-based merging.\n:param intensity_merge: enable boundary-intensity-based merging.\n:param intensity_split: enable watershed splitting of oversized objects.\n:param area_multiplier: split objects with area > multiplier * median.\n:param min_distance: minimum pixel distance between watershed seeds.\n:param min_object_area: absolute minimum area below which objects are never split.\n:param intensity_threshold_method: ``'mean'`` or ``'percentile'`` boundary comparison.\n:param intensity_percentile: percentile used when method is ``'percentile'``.\n:param min_area: remove objects smaller than this (px); 0 disables.\n:param max_area: remove objects larger than this (px); 0 disables.\n:param remove_border_objects: drop objects touching the image border.\n:param min_intensity_percentile: drop objects below this intensity percentile; 0 disables.\n:param max_intensity_percentile: drop objects above this intensity percentile; 100 disables.\n:param n_jobs: parallel worker count.\n:param progress_callback: optional callback(fov_index, total, duration, op_name).\n:param op_name: label passed to the progress callback.\n:returns: None."
+      "source_sha256": "cc1f2b1e099bf2932606ddb07c4c7a01a1288c9fd497073b9b393c6582f68afc",
+      "text": "Split, merge, and filter labeled objects across a directory of masks.\n\nRuns the split -> merge -> filter pipeline on each mask file in\n``mask_src`` in parallel, overwriting each mask in place.\n\n:param mask_src: directory containing mask .tif/.tiff/.npy files.\n:param intensity_img_src: directory of matched intensity images, or ``None``.\n:param intensity_channel: channel index to pull from multi-channel intensity images.\n:param perimeter_fraction: minimum shared-boundary fraction for perimeter-based merging.\n:param intensity_merge: enable boundary-intensity-based merging.\n:param intensity_split: enable watershed splitting of oversized objects.\n:param min_watershed_distance: minimum pixel distance between watershed seeds.\n:param minimum_area_to_split: objects at or below this area are never split.\n    ABSOLUTE, in pixels: 391 removed the ``area_multiplier * median_area``\n    term, so the threshold no longer moves with whatever else is in the field.\n:param intensity_threshold: boundary mean at or above which two touching\n    objects merge, in RAW IMAGE UNITS. ``None`` merges nothing and says so.\n    It does not carry between acquisitions at different exposure or gain --\n    that is the price of a number that can be read off an image.\n:param min_area: remove objects smaller than this (px); 0 disables.\n:param max_area: remove objects larger than this (px); 0 disables.\n:param remove_border_objects: drop objects touching the image border.\n:param n_jobs: parallel worker count.\n:param progress_callback: optional callback(fov_index, total, duration, op_name).\n:param op_name: label passed to the progress callback.\n:returns: None."
     },
     "spacr.utils.merge_touching_objects": {
       "source_blocks_sha256": [

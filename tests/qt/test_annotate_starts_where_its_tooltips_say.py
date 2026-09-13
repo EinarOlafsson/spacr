@@ -1,7 +1,7 @@
 """One table, or at least a shrinking count of places where there are two.
 
 Instruction 364's Annotate audit
-(``instructions/data/364_annotate_and_map_barcodes_settings_audit_2026-09-02.txt``)
+(``features/data/364_annotate_and_map_barcodes_settings_audit_2026-09-02.txt``)
 found that Annotate answers "what is the default" twice, with two different
 answers. ``set_annotate_default_settings`` in ``spacr/settings.py`` is what
 the tooltips describe, what ``picture_defaults()`` seeds from, and what a

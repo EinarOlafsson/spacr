@@ -152,57 +152,39 @@ def test_a_border_filter_that_removes_something_says_so(capsys):
     assert "Border filter" in capsys.readouterr().out
 
 
-def test_an_intensity_filter_that_removes_nothing_says_nothing(capsys):
-    """Arc 756 -> 762: the filter ran and had nothing to drop.
+def test_the_intensity_percentile_filter_is_gone_and_stays_gone():
+    """391 removed it, and the removal is the assertion.
 
-    Reaching it needs a non-default percentile -- 0/100 skips the block
-    entirely -- with objects that all sit inside the resulting thresholds.
-    Objects of identical mean intensity are exactly that, and they are not
-    contrived: a field of evenly stained cells is the healthy case, and it is
-    the one that must not print "removed 0 objects".
+    THE THREE TESTS THAT WERE HERE exercised an intensity-PERCENTILE band --
+    that a filter which dropped nothing printed nothing, that 0/100 skipped
+    the block, and that a firing filter named its thresholds. All three were
+    about a filter that no longer exists, so they are replaced by the reason
+    it does not.
+
+    A QUANTILE BAND CANNOT DECLINE TO FIRE. It dropped objects outside a
+    percentile of the FIELD'S OWN distribution, so it removed roughly its
+    share however bright the field: a 0/99 setting dropped the brightest
+    object in every field whatever its intensity, and with two objects it
+    dropped one of them unconditionally. That is a quota, not a filter -- and
+    it is why the live preview once silently disagreed with the pipeline by
+    defaulting to 1/99 where the run used 0/100.
     """
+    import inspect
     from spacr.utils import _filter_objects
 
-    label_img = np.zeros((20, 20), dtype=np.int32)
-    label_img[2:6, 2:6] = 1
-    label_img[12:16, 12:16] = 2
-    intensity = np.full((20, 20), 100.0)     # every object the same
+    params = set(inspect.signature(_filter_objects).parameters)
+    gone = {"min_intensity_percentile", "max_intensity_percentile"}
+    assert not (params & gone), (
+        f"the intensity-percentile band came back: {sorted(params & gone)}")
 
-    _filter_objects(label_img, intensity_img=intensity,
-                    min_intensity_percentile=1, max_intensity_percentile=99)
-
-    assert "Intensity filter" not in capsys.readouterr().out
-
-
-def test_the_default_percentiles_skip_the_intensity_filter_entirely(capsys):
-    """The guard above it: 0-100 keeps everything, so the work is not done."""
-    from spacr.utils import _filter_objects
-
+    # And it does not fire by another name: two objects of very different
+    # intensity, and neither is dropped.
     label_img = np.zeros((20, 20), dtype=np.int32)
     label_img[2:6, 2:6] = 1
     label_img[12:16, 12:16] = 2
     intensity = np.full((20, 20), 100.0)
     intensity[2:6, 2:6] = 10.0
 
-    _filter_objects(label_img, intensity_img=intensity,
-                    min_intensity_percentile=0, max_intensity_percentile=100)
-
-    assert "Intensity filter" not in capsys.readouterr().out
-
-
-def test_an_intensity_filter_that_removes_something_reports_the_count(capsys):
-    """The taken side, and the message carries the thresholds it used."""
-    from spacr.utils import _filter_objects
-
-    label_img = np.zeros((20, 20), dtype=np.int32)
-    label_img[2:6, 2:6] = 1
-    label_img[12:16, 12:16] = 2
-    intensity = np.full((20, 20), 100.0)
-    intensity[2:6, 2:6] = 10.0
-
-    _filter_objects(label_img, intensity_img=intensity,
-                    min_intensity_percentile=50, max_intensity_percentile=100)
-
-    printed = capsys.readouterr().out
-    assert "Intensity filter" in printed
-    assert "thresholds" in printed
+    out = _filter_objects(label_img.copy(), intensity_img=intensity)
+    assert sorted(np.unique(out).tolist()) == [0, 1, 2], (
+        "an object was dropped on intensity, which nothing here should do")

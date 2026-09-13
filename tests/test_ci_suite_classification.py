@@ -1,6 +1,7 @@
 """Contracts for the mutually exclusive GitHub Actions pytest suites."""
 
 import ast
+import re
 from pathlib import Path
 
 from tests.conftest import _automatic_ci_markers, _ci_file_shard
@@ -261,18 +262,43 @@ def test_qt_measurement_suites_run_after_xdist_workers_exit():
 
 
 def test_qt_suite_has_room_for_its_measured_runtime():
-    """Qt files are split so neither job reaches the runner's hour boundary."""
+    """The budget must outlive shard 0, and still be able to name a hang."""
     workflow = WORKFLOW.read_text(encoding="utf-8")
     qt_block = workflow.split("\n  qt:", 1)[1].split("\n  gpu:", 1)[0]
 
-    # A single four-worker job repeatedly reached about 91% before the hosted
-    # runner sent a shutdown signal at one hour. File-level sharding retains
-    # the complete marker-selected suite while bounding each job well below
-    # that service window.
-    assert 'timeout_minutes: 120' in qt_block
+    # 120 -> 180, AND THE HALF THAT NEEDED IT WAS MEASURED RATHER THAN
+    # GUESSED. Dispatch 34639565357 is the first run that lived long enough
+    # to show it: shard 1 finished and reported its failures while shard 0
+    # was killed by the 120-minute budget. GitHub reports a budget kill as
+    # "cancelled", which reads exactly like a superseded push, so a blocking
+    # job had been failing to finish in silence -- a required check that
+    # could never pass whatever the tests said.
+    #
+    # Shard 0 is the expensive half by construction, not by luck, and this
+    # tree says by how much. Bucketing the Qt modules through
+    # `_ci_file_shard` gives shard 0 522 parallel files carrying 6,995 test
+    # functions against shard 1's 524 files and 6,699 -- near enough even --
+    # and then `run_serial_tail`, true for shard 0 only, hands shard 0 a
+    # further seven measurement files and 115 tests that run one at a time
+    # with the four xdist workers gone. Two hours covered the parallel half
+    # on both shards. It did not cover that serial tail.
+    assert "timeout_minutes: 180" in qt_block
     assert "shard: [0, 1]" in qt_block
     assert "file_shard_count: 2" in qt_block
     assert "run_serial_tail: ${{ matrix.shard == 0 }}" in qt_block
+
+    # A BIGGER BUDGET ON ITS OWN ONLY BUYS A HANG MORE ROOM TO HIDE IN. A job
+    # killed by `timeout_minutes` prints no summary at all, so the extra
+    # hour of silence would buy nothing but a later kill; the per-test
+    # ceiling is what turns that into one named failure. It is asserted here,
+    # beside the budget it makes safe, and asserted to be the smaller of the
+    # two, because a ceiling at or above the job budget can never fire.
+    budget = re.search(r"^\s*timeout_minutes:\s*(\d+)\s*$", qt_block, re.M)
+    ceiling = re.search(
+        r"^\s*per_test_timeout_seconds:\s*(\d+)\s*$", qt_block, re.M)
+    assert budget is not None
+    assert ceiling is not None
+    assert 0 < int(ceiling.group(1)) < int(budget.group(1)) * 60
 
 
 def test_file_shards_are_stable_disjoint_and_cover_every_test_module():

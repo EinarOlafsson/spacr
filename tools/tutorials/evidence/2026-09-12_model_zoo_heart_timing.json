@@ -1,0 +1,705 @@
+{
+  "schema": 1,
+  "language": "en",
+  "lang_code": "a",
+  "dialect": "us",
+  "voice": "af_heart",
+  "speed": 1.0,
+  "sample_rate": 24000,
+  "total_duration": 123.27,
+  "media_sha256": "3499f88f3840dbc6094abe738d8190264c92fa75a96b11b9de39afd9902b4037",
+  "media_bytes": 823684,
+  "render_fingerprint": "bc9473b26cb3e7e45bf65fbba29dcc6d00b6dd56e4bdb401b26ca2f227dc4015",
+  "render_inputs": {
+    "renderer": "render_all_voices-v4",
+    "lesson": "22_model_zoo",
+    "language": "en",
+    "lang_code": "a",
+    "dialect": "us",
+    "voice": "af_heart",
+    "speed": 1.0,
+    "scenes": [
+      {
+        "narration": "Model Zoo is the model library inside Make Masks. Open the host module, then use its Model Zoo control. This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark.",
+        "speech_text": [
+          "Model Zoo is the model library inside Make Masks.",
+          "Open the host module, then use its Model Zoo control.",
+          "This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The table brings published entries and locally discovered files into one view. Read the model kind and source columns together. A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment.",
+        "speech_text": [
+          "The table brings published entries and locally discovered files into one view.",
+          "Read the model kind and source columns together.",
+          "A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Enter your existing model directory and press Scan, or choose a folder with the adjacent button. Here we scan the real Cellpose cache. Use your own path. Scanning discovers files and metadata; it does not train a model or run segmentation.",
+        "speech_text": [
+          "Enter your existing model directory and press Scan, or choose a folder with the adjacent button.",
+          "Here we scan the real [Cellpose](/sˈɛlpˌOz/) cache.",
+          "Use your own path.",
+          "Scanning discovers files and metadata; it does not train a model or run segmentation."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "This scan displays eight entries. Some are published remote models and others are local checkpoints. The count describes this machine, not a required setup. Select the exact file you intend to use instead of assuming that similar model names identify the same weights.",
+        "speech_text": [
+          "This scan displays eight entries.",
+          "Some are published remote models and others are local checkpoints.",
+          "The count describes this machine, not a required setup.",
+          "Select the exact file you intend to use instead of assuming that similar model names identify the same weights."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The selected local checkpoint has no published checksum or recorded training provenance in this view. Unknown means unknown. Its name is not evidence of its training dataset. Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs.",
+        "speech_text": [
+          "The selected local checkpoint has no published checksum or recorded training provenance in this view.",
+          "Unknown means unknown.",
+          "Its name is not evidence of its training dataset.",
+          "Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The download area controls where an available remote model is saved. It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads. This local selection is not downloaded again. The Plaque lesson shows an actual model download and preview.",
+        "speech_text": [
+          "The download area controls where an available remote model is saved.",
+          "It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads.",
+          "This local selection is not downloaded again.",
+          "The Plaque lesson shows an actual model download and preview."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The lower area is for testing fields and comparing selected models. Those jobs are separate from scanning the library. The current Cellpose argument mismatch prevents us from claiming a successful benchmark here. No masks or test scores are fabricated. Keep representative validation images separate from training examples when evaluating a repaired workflow.",
+        "speech_text": [
+          "The lower area is for testing fields and comparing selected models.",
+          "Those jobs are separate from scanning the library.",
+          "The current [Cellpose](/sˈɛlpˌOz/) argument mismatch prevents us from claiming a successful benchmark here.",
+          "No masks or test scores are fabricated.",
+          "Keep representative validation images separate from training examples when evaluating a repaired workflow."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      }
+    ],
+    "assembly": {
+      "version": "2026-08-11-natural-sentences-v1",
+      "sample_rate": 24000,
+      "lead_silence_seconds": 0.1,
+      "tail_silence_seconds": 0.18,
+      "sentence_pause_seconds": 0.12,
+      "scene_hold_min_seconds": 0.32,
+      "scene_hold_max_seconds": 0.52,
+      "default_scene_hold_seconds": 0.42,
+      "vad_frame_seconds": 0.005,
+      "vad_peak_ratio": 0.002,
+      "vad_absolute_floor": 2e-05
+    },
+    "cadence_profile": {
+      "version": "2026-08-11-af-heart-scene-cadence-v6",
+      "sha256": "4d728d67e73eea7e6203878879992f9050ae4a2677d717efdd68545104eb7812",
+      "bytes": 23008,
+      "enabled": false,
+      "targets": {
+        "slow_wpm": 125.0,
+        "fast_wpm": 145.0,
+        "calibration_wpm": 150.0
+      },
+      "safe_multiplier_bounds": {
+        "minimum": 0.68,
+        "maximum": 1.18
+      }
+    },
+    "mastering": {
+      "filters": [
+        "loudnorm=I=-16:TP=-3:LRA=11",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.7:attack=5:release=50:level=disabled",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.5:attack=5:release=50:level=disabled"
+      ],
+      "codec": "aac",
+      "bitrate": "48k",
+      "channels": 1,
+      "maximum_decoded_true_peak_dbfs": -1.0
+    },
+    "pronunciation": {
+      "role": "pronunciation_profile",
+      "version": "2026-08-28-pype-v11",
+      "sha256": "8789f5eb4444a0ec85a592dcf3160a0ba521d8b356e83814b88aac7742e11423",
+      "bytes": 15302
+    },
+    "synthesis_runtime": {
+      "model": {
+        "repository": "hexgrad/Kokoro-82M",
+        "snapshot": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+        "config": {
+          "role": "kokoro_config",
+          "name": "14a726edd3718279eac426630879ff743955b16a",
+          "bytes": 2351,
+          "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f"
+        },
+        "weights": {
+          "role": "kokoro_weights",
+          "name": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+          "bytes": 327212226,
+          "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4"
+        }
+      },
+      "voice_pack": {
+        "role": "kokoro_voice_pack",
+        "name": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "bytes": 523425,
+        "sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b",
+        "loaded_tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b"
+      },
+      "software": {
+        "kokoro": "0.9.4",
+        "misaki": "0.9.4",
+        "torch": "2.13.0",
+        "soundfile": "0.13.1",
+        "python": "3.12.13",
+        "implementation": "cpython"
+      },
+      "inference": {
+        "device": "cpu"
+      },
+      "mastering_tool": {
+        "version": "ffmpeg version 6.1.1-3ubuntu5+esm13 Copyright (c) 2000-2023 the FFmpeg developers",
+        "version_output_sha256": "1b302b8d4ef78f6694217011ce8af39e91b3548ab9a4903e170ada970fbf0b16",
+        "executable": {
+          "role": "ffmpeg_executable",
+          "name": "ffmpeg",
+          "bytes": 342488,
+          "sha256": "1d5081bc88516c140712a2a6eddd86b0922681bd114f5b3c481cb360634acbe3"
+        }
+      }
+    }
+  },
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 13.915,
+      "scene_end": 14.434999999999999,
+      "duration": 14.434999999999999,
+      "text": "Model Zoo is the model library inside Make Masks. Open the host module, then use its Model Zoo control. This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark.",
+      "speech_text": "Model Zoo is the model library inside Make Masks. Open the host module, then use its Model Zoo control. This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark.",
+      "phonemes": "mˈɑdᵊl zˈu ɪz ðə mˈɑdᵊl lˈIbɹˌɛɹi ɪnsˈId mˌAk mˈæsks. ˈOpᵊn ðə hˈOst mˈɑʤul, ðˈɛn jˈuz ɪts mˈɑdᵊl zˈu kəntɹˈOl. ðˌɪs lˈɛsən dˈɛmənstɹˌAts ðə ɹˈiᵊl lˈIbɹˌɛɹi ænd lˈOkəl mˈɑdᵊl skˈæn, nˌɑt ɐ nˈu tɹˈAnɪŋ ɹˈʌn ɔɹ ɐn ˈækjəɹəsi bˈɛnʧmˌɑɹk.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 0.0,
+          "speech_end": 3.395,
+          "audible_start": 0.1,
+          "audible_end": 3.215,
+          "duration": 3.395,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.26,
+          "text": "Model Zoo is the model library inside Make Masks.",
+          "speech_text": "Model Zoo is the model library inside Make Masks.",
+          "phonemes": "mˈɑdᵊl zˈu ɪz ðə mˈɑdᵊl lˈIbɹˌɛɹi ɪnsˈId mˌAk mˈæsks."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 3.515,
+          "speech_end": 6.945,
+          "audible_start": 3.615,
+          "audible_end": 6.765,
+          "duration": 3.43,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.275,
+          "text": "Open the host module, then use its Model Zoo control.",
+          "speech_text": "Open the host module, then use its Model Zoo control.",
+          "phonemes": "ˈOpᵊn ðə hˈOst mˈɑʤul, ðˈɛn jˈuz ɪts mˈɑdᵊl zˈu kəntɹˈOl."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 7.065,
+          "speech_end": 13.915,
+          "audible_start": 7.165,
+          "audible_end": 13.735,
+          "duration": 6.85,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.275,
+          "text": "This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark.",
+          "speech_text": "This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark.",
+          "phonemes": "ðˌɪs lˈɛsən dˈɛmənstɹˌAts ðə ɹˈiᵊl lˈIbɹˌɛɹi ænd lˈOkəl mˈɑdᵊl skˈæn, nˌɑt ɐ nˈu tɹˈAnɪŋ ɹˈʌn ɔɹ ɐn ˈækjəɹəsi bˈɛnʧmˌɑɹk."
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "speech_start": 14.434999999999999,
+      "speech_end": 29.27,
+      "scene_end": 29.79,
+      "duration": 15.355,
+      "text": "The table brings published entries and locally discovered files into one view. Read the model kind and source columns together. A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment.",
+      "speech_text": "The table brings published entries and locally discovered files into one view. Read the model kind and source columns together. A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment.",
+      "phonemes": "ðə tˈAbᵊl bɹˈɪŋz pˈʌblɪʃt ˈɛntɹiz ænd lˈOkəli dəskˈʌvəɹd fˈIlz ˈɪntu wˈʌn vjˈu. ɹˈid ðə mˈɑdᵊl kˈInd ænd sˈɔɹs kˈɑləmz təɡˈɛðəɹ. ɐ mˈɑdᵊl bˈiɪŋ lˈɪstᵻd dˈʌz nˌɑt mˈin ɪt hæz bɪn dˈWnlˌOdᵻd, tˈɛstᵻd ˌɔn jʊɹ ˈɪmɪʤᵻz, ɔɹ vˈælɪdˌATᵻd fɔɹ jʊɹ ɪkspˈɛɹəmənt.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 14.434999999999999,
+          "speech_end": 19.174999999999997,
+          "audible_start": 14.534999999999998,
+          "audible_end": 18.994999999999997,
+          "duration": 4.74,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.315,
+          "text": "The table brings published entries and locally discovered files into one view.",
+          "speech_text": "The table brings published entries and locally discovered files into one view.",
+          "phonemes": "ðə tˈAbᵊl bɹˈɪŋz pˈʌblɪʃt ˈɛntɹiz ænd lˈOkəli dəskˈʌvəɹd fˈIlz ˈɪntu wˈʌn vjˈu."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 19.294999999999998,
+          "speech_end": 22.099999999999998,
+          "audible_start": 19.395,
+          "audible_end": 21.919999999999998,
+          "duration": 2.805,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.3,
+          "text": "Read the model kind and source columns together.",
+          "speech_text": "Read the model kind and source columns together.",
+          "phonemes": "ɹˈid ðə mˈɑdᵊl kˈInd ænd sˈɔɹs kˈɑləmz təɡˈɛðəɹ."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 22.22,
+          "speech_end": 29.27,
+          "audible_start": 22.32,
+          "audible_end": 29.089999999999996,
+          "duration": 7.05,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.275,
+          "text": "A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment.",
+          "speech_text": "A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment.",
+          "phonemes": "ɐ mˈɑdᵊl bˈiɪŋ lˈɪstᵻd dˈʌz nˌɑt mˈin ɪt hæz bɪn dˈWnlˌOdᵻd, tˈɛstᵻd ˌɔn jʊɹ ˈɪmɪʤᵻz, ɔɹ vˈælɪdˌATᵻd fɔɹ jʊɹ ɪkspˈɛɹəmənt."
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "speech_start": 29.79,
+      "speech_end": 44.595,
+      "scene_end": 45.115,
+      "duration": 15.325000000000003,
+      "text": "Enter your existing model directory and press Scan, or choose a folder with the adjacent button. Here we scan the real Cellpose cache. Use your own path. Scanning discovers files and metadata; it does not train a model or run segmentation.",
+      "speech_text": "Enter your existing model directory and press Scan, or choose a folder with the adjacent button. Here we scan the real [Cellpose](/sˈɛlpˌOz/) cache. Use your own path. Scanning discovers files and metadata; it does not train a model or run segmentation.",
+      "phonemes": "ˈɛntəɹ jʊɹ ɪɡzˈɪstɪŋ mˈɑdᵊl dəɹˈɛktəɹi ænd pɹˈɛs skˈæn, ɔɹ ʧˈuz ɐ fˈOldəɹ wɪð ði əʤˈAsᵊnt bˈʌtn. hˈɪɹ wi skˈæn ðə ɹˈiᵊl sˈɛlpˌOz kˈæʃ. jˈuz jʊɹ ˈOn pˈæθ. skˈænɪŋ dəskˈʌvəɹz fˈIlz ænd mˈɛTədˌATə; ɪt dˈʌz nˌɑt tɹˈAn ɐ mˈɑdᵊl ɔɹ ɹˈʌn sˌɛɡməntˈAʃən.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 29.79,
+          "speech_end": 35.32,
+          "audible_start": 29.89,
+          "audible_end": 35.14,
+          "duration": 5.53,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.285,
+          "text": "Enter your existing model directory and press Scan, or choose a folder with the adjacent button.",
+          "speech_text": "Enter your existing model directory and press Scan, or choose a folder with the adjacent button.",
+          "phonemes": "ˈɛntəɹ jʊɹ ɪɡzˈɪstɪŋ mˈɑdᵊl dəɹˈɛktəɹi ænd pɹˈɛs skˈæn, ɔɹ ʧˈuz ɐ fˈOldəɹ wɪð ði əʤˈAsᵊnt bˈʌtn."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 35.44,
+          "speech_end": 37.605,
+          "audible_start": 35.54,
+          "audible_end": 37.425,
+          "duration": 2.165,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.24,
+          "text": "Here we scan the real Cellpose cache.",
+          "speech_text": "Here we scan the real [Cellpose](/sˈɛlpˌOz/) cache.",
+          "phonemes": "hˈɪɹ wi skˈæn ðə ɹˈiᵊl sˈɛlpˌOz kˈæʃ."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 37.725,
+          "speech_end": 39.01,
+          "audible_start": 37.825,
+          "audible_end": 38.83,
+          "duration": 1.285,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.25,
+          "trimmed_tail": 0.215,
+          "text": "Use your own path.",
+          "speech_text": "Use your own path.",
+          "phonemes": "jˈuz jʊɹ ˈOn pˈæθ."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 39.129999999999995,
+          "speech_end": 44.595,
+          "audible_start": 39.23,
+          "audible_end": 44.415,
+          "duration": 5.465,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.17,
+          "trimmed_tail": 0.29,
+          "text": "Scanning discovers files and metadata; it does not train a model or run segmentation.",
+          "speech_text": "Scanning discovers files and metadata; it does not train a model or run segmentation.",
+          "phonemes": "skˈænɪŋ dəskˈʌvəɹz fˈIlz ænd mˈɛTədˌATə; ɪt dˈʌz nˌɑt tɹˈAn ɐ mˈɑdᵊl ɔɹ ɹˈʌn sˌɛɡməntˈAʃən."
+        }
+      ]
+    },
+    {
+      "scene": 4,
+      "speech_start": 45.115,
+      "speech_end": 61.59,
+      "scene_end": 62.11000000000001,
+      "duration": 16.995000000000005,
+      "text": "This scan displays eight entries. Some are published remote models and others are local checkpoints. The count describes this machine, not a required setup. Select the exact file you intend to use instead of assuming that similar model names identify the same weights.",
+      "speech_text": "This scan displays eight entries. Some are published remote models and others are local checkpoints. The count describes this machine, not a required setup. Select the exact file you intend to use instead of assuming that similar model names identify the same weights.",
+      "phonemes": "ðˌɪs skˈæn dəsplˈAz ˈAt ˈɛntɹiz. sˌʌm ɑɹ pˈʌblɪʃt ɹəmˈOt mˈɑdᵊlz ænd ˈʌðəɹz ɑɹ lˈOkəl ʧˈɛkpˌYnts. ðə kˈWnt dəskɹˈIbz ðɪs məʃˈin, nˌɑt ɐ ɹəkwˈIəɹd sˈɛTˌʌp. səlˈɛkt ði ɪɡzˈækt fˈIl ju ɪntˈɛnd tə jˈuz ɪnstˈɛd ʌv əsˈumɪŋ ðæt sˈɪmᵊləɹ mˈɑdᵊl nˈAmz IdˈɛntəfˌI ðə sˈAm wˈAts.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 45.115,
+          "speech_end": 47.065000000000005,
+          "audible_start": 45.215,
+          "audible_end": 46.885000000000005,
+          "duration": 1.95,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.19,
+          "trimmed_tail": 0.235,
+          "text": "This scan displays eight entries.",
+          "speech_text": "This scan displays eight entries.",
+          "phonemes": "ðˌɪs skˈæn dəsplˈAz ˈAt ˈɛntɹiz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 47.185,
+          "speech_end": 50.85,
+          "audible_start": 47.285000000000004,
+          "audible_end": 50.67,
+          "duration": 3.665,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.265,
+          "text": "Some are published remote models and others are local checkpoints.",
+          "speech_text": "Some are published remote models and others are local checkpoints.",
+          "phonemes": "sˌʌm ɑɹ pˈʌblɪʃt ɹəmˈOt mˈɑdᵊlz ænd ˈʌðəɹz ɑɹ lˈOkəl ʧˈɛkpˌYnts."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 50.97,
+          "speech_end": 54.31,
+          "audible_start": 51.07,
+          "audible_end": 54.13,
+          "duration": 3.34,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.215,
+          "text": "The count describes this machine, not a required setup.",
+          "speech_text": "The count describes this machine, not a required setup.",
+          "phonemes": "ðə kˈWnt dəskɹˈIbz ðɪs məʃˈin, nˌɑt ɐ ɹəkwˈIəɹd sˈɛTˌʌp."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 54.43,
+          "speech_end": 61.59,
+          "audible_start": 54.53,
+          "audible_end": 61.410000000000004,
+          "duration": 7.16,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.175,
+          "trimmed_tail": 0.265,
+          "text": "Select the exact file you intend to use instead of assuming that similar model names identify the same weights.",
+          "speech_text": "Select the exact file you intend to use instead of assuming that similar model names identify the same weights.",
+          "phonemes": "səlˈɛkt ði ɪɡzˈækt fˈIl ju ɪntˈɛnd tə jˈuz ɪnstˈɛd ʌv əsˈumɪŋ ðæt sˈɪmᵊləɹ mˈɑdᵊl nˈAmz IdˈɛntəfˌI ðə sˈAm wˈAts."
+        }
+      ]
+    },
+    {
+      "scene": 5,
+      "speech_start": 62.11000000000001,
+      "speech_end": 80.905,
+      "scene_end": 81.425,
+      "duration": 19.31499999999999,
+      "text": "The selected local checkpoint has no published checksum or recorded training provenance in this view. Unknown means unknown. Its name is not evidence of its training dataset. Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs.",
+      "speech_text": "The selected local checkpoint has no published checksum or recorded training provenance in this view. Unknown means unknown. Its name is not evidence of its training dataset. Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs.",
+      "phonemes": "ðə səlˈɛktᵻd lˈOkəl ʧˈɛkpˌYnt hæz nˈO pˈʌblɪʃt ʧˈɛksˌʌm ɔɹ ɹəkˈɔɹdᵻd tɹˈAnɪŋ pɹˈɑvənᵊns ɪn ðɪs vjˈu. ˌʌnnˈOn mˈinz ˌʌnnˈOn. ˌɪts nˈAm ɪz nˌɑt ˈɛvədᵊns ʌv ɪts tɹˈAnɪŋ dˈATəsˌɛt. ˌWəɹ fˈIl ʧˈɛksˌʌm kənfˈɜɹmz ðæt ðɪs ɹəkˈɔɹdɪŋ lˈɛft ɪt ˌʌnʧˈAnʤd; ðˈæt dˈʌz nˌɑt əstˈæblɪʃ hˌu pɹədˈust ɪt ɔɹ hˌW wˈɛl ɪt pəɹfˈɔɹmz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 62.11000000000001,
+          "speech_end": 68.0,
+          "audible_start": 62.21000000000001,
+          "audible_end": 67.82000000000001,
+          "duration": 5.89,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.29,
+          "text": "The selected local checkpoint has no published checksum or recorded training provenance in this view.",
+          "speech_text": "The selected local checkpoint has no published checksum or recorded training provenance in this view.",
+          "phonemes": "ðə səlˈɛktᵻd lˈOkəl ʧˈɛkpˌYnt hæz nˈO pˈʌblɪʃt ʧˈɛksˌʌm ɔɹ ɹəkˈɔɹdᵻd tɹˈAnɪŋ pɹˈɑvənᵊns ɪn ðɪs vjˈu."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 68.12,
+          "speech_end": 69.62,
+          "audible_start": 68.22000000000001,
+          "audible_end": 69.44000000000001,
+          "duration": 1.5,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.25,
+          "text": "Unknown means unknown.",
+          "speech_text": "Unknown means unknown.",
+          "phonemes": "ˌʌnnˈOn mˈinz ˌʌnnˈOn."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 69.74000000000001,
+          "speech_end": 72.635,
+          "audible_start": 69.84,
+          "audible_end": 72.45500000000001,
+          "duration": 2.895,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.34,
+          "text": "Its name is not evidence of its training dataset.",
+          "speech_text": "Its name is not evidence of its training dataset.",
+          "phonemes": "ˌɪts nˈAm ɪz nˌɑt ˈɛvədᵊns ʌv ɪts tɹˈAnɪŋ dˈATəsˌɛt."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 72.75500000000001,
+          "speech_end": 80.905,
+          "audible_start": 72.855,
+          "audible_end": 80.72500000000001,
+          "duration": 8.15,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.27,
+          "text": "Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs.",
+          "speech_text": "Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs.",
+          "phonemes": "ˌWəɹ fˈIl ʧˈɛksˌʌm kənfˈɜɹmz ðæt ðɪs ɹəkˈɔɹdɪŋ lˈɛft ɪt ˌʌnʧˈAnʤd; ðˈæt dˈʌz nˌɑt əstˈæblɪʃ hˌu pɹədˈust ɪt ɔɹ hˌW wˈɛl ɪt pəɹfˈɔɹmz."
+        }
+      ]
+    },
+    {
+      "scene": 6,
+      "speech_start": 81.425,
+      "speech_end": 100.125,
+      "scene_end": 100.645,
+      "duration": 19.22,
+      "text": "The download area controls where an available remote model is saved. It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads. This local selection is not downloaded again. The Plaque lesson shows an actual model download and preview.",
+      "speech_text": "The download area controls where an available remote model is saved. It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads. This local selection is not downloaded again. The Plaque lesson shows an actual model download and preview.",
+      "phonemes": "ðə dˈWnlˌOd ˈɛɹiə kəntɹˈOlz wˌɛɹ ɐn əvˈAləbᵊl ɹəmˈOt mˈɑdᵊl ɪz sˈAvd. ˌɪt ˈɔlsO ɪkspˈOzᵻz ɐ ʧˈYs əbˈWt mˈɑdᵊlz wɪðˈWt pˈʌblɪʃt ʧˈɛksˌʌmz; dˈu nˌɑt tɹˈit mˈɪsɪŋ ʧˈɛksˌʌmz æz vˈɛɹᵻfˌId dˈWnlˌOdz. ðˌɪs lˈOkəl səlˈɛkʃən ɪz nˌɑt dˈWnlˌOdᵻd əɡˈɛn. ðə plˈæk lˈɛsən ʃˈOz ɐn ˈækʧəwəl mˈɑdᵊl dˈWnlˌOd ænd pɹˈivjˌu.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 81.425,
+          "speech_end": 85.69,
+          "audible_start": 81.52499999999999,
+          "audible_end": 85.50999999999999,
+          "duration": 4.265,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.265,
+          "text": "The download area controls where an available remote model is saved.",
+          "speech_text": "The download area controls where an available remote model is saved.",
+          "phonemes": "ðə dˈWnlˌOd ˈɛɹiə kəntɹˈOlz wˌɛɹ ɐn əvˈAləbᵊl ɹəmˈOt mˈɑdᵊl ɪz sˈAvd."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 85.81,
+          "speech_end": 93.3,
+          "audible_start": 85.91,
+          "audible_end": 93.12,
+          "duration": 7.49,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.27,
+          "text": "It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads.",
+          "speech_text": "It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads.",
+          "phonemes": "ˌɪt ˈɔlsO ɪkspˈOzᵻz ɐ ʧˈYs əbˈWt mˈɑdᵊlz wɪðˈWt pˈʌblɪʃt ʧˈɛksˌʌmz; dˈu nˌɑt tɹˈit mˈɪsɪŋ ʧˈɛksˌʌmz æz vˈɛɹᵻfˌId dˈWnlˌOdz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 93.42,
+          "speech_end": 96.34,
+          "audible_start": 93.52,
+          "audible_end": 96.16,
+          "duration": 2.92,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.26,
+          "text": "This local selection is not downloaded again.",
+          "speech_text": "This local selection is not downloaded again.",
+          "phonemes": "ðˌɪs lˈOkəl səlˈɛkʃən ɪz nˌɑt dˈWnlˌOdᵻd əɡˈɛn."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 96.46,
+          "speech_end": 100.125,
+          "audible_start": 96.56,
+          "audible_end": 99.945,
+          "duration": 3.665,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.29,
+          "text": "The Plaque lesson shows an actual model download and preview.",
+          "speech_text": "The Plaque lesson shows an actual model download and preview.",
+          "phonemes": "ðə plˈæk lˈɛsən ʃˈOz ɐn ˈækʧəwəl mˈɑdᵊl dˈWnlˌOd ænd pɹˈivjˌu."
+        }
+      ]
+    },
+    {
+      "scene": 7,
+      "speech_start": 100.645,
+      "speech_end": 122.75,
+      "scene_end": 123.27,
+      "duration": 22.625,
+      "text": "The lower area is for testing fields and comparing selected models. Those jobs are separate from scanning the library. The current Cellpose argument mismatch prevents us from claiming a successful benchmark here. No masks or test scores are fabricated. Keep representative validation images separate from training examples when evaluating a repaired workflow.",
+      "speech_text": "The lower area is for testing fields and comparing selected models. Those jobs are separate from scanning the library. The current [Cellpose](/sˈɛlpˌOz/) argument mismatch prevents us from claiming a successful benchmark here. No masks or test scores are fabricated. Keep representative validation images separate from training examples when evaluating a repaired workflow.",
+      "phonemes": "ðə lˈOəɹ ˈɛɹiə ɪz fɔɹ tˈɛstɪŋ fˈildz ænd kəmpˈɛɹɪŋ səlˈɛktᵻd mˈɑdᵊlz. ðˌOz ʤˈɑbz ɑɹ sˈɛpəɹət fɹʌm skˈænɪŋ ðə lˈIbɹˌɛɹi. ðə kˈɜɹənt sˈɛlpˌOz ˈɑɹɡjəmənt mˈɪsmˌæʧ pɹivˈɛnts ˌʌs fɹʌm klˈAmɪŋ ɐ səksˈɛsfᵊl bˈɛnʧmˌɑɹk hˈɪɹ. nˈO mˈæsks ɔɹ tˈɛst skˈɔɹz ɑɹ fˈæbɹəkˌATᵻd. kˈip ɹˌɛpɹəzˈɛntəTɪv vˌælɪdˈAʃən ˈɪmɪʤᵻz sˈɛpəɹət fɹʌm tɹˈAnɪŋ ɪɡzˈæmpəlz wˌɛn ɪvˈæljuˌATɪŋ ɐ ɹəpˈɛɹd wˈɜɹkflˌO.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 100.645,
+          "speech_end": 104.84,
+          "audible_start": 100.74499999999999,
+          "audible_end": 104.66,
+          "duration": 4.195,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.265,
+          "text": "The lower area is for testing fields and comparing selected models.",
+          "speech_text": "The lower area is for testing fields and comparing selected models.",
+          "phonemes": "ðə lˈOəɹ ˈɛɹiə ɪz fɔɹ tˈɛstɪŋ fˈildz ænd kəmpˈɛɹɪŋ səlˈɛktᵻd mˈɑdᵊlz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 104.96,
+          "speech_end": 107.72999999999999,
+          "audible_start": 105.06,
+          "audible_end": 107.55,
+          "duration": 2.77,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.23,
+          "trimmed_tail": 0.3,
+          "text": "Those jobs are separate from scanning the library.",
+          "speech_text": "Those jobs are separate from scanning the library.",
+          "phonemes": "ðˌOz ʤˈɑbz ɑɹ sˈɛpəɹət fɹʌm skˈænɪŋ ðə lˈIbɹˌɛɹi."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 107.85,
+          "speech_end": 113.05499999999999,
+          "audible_start": 107.94999999999999,
+          "audible_end": 112.875,
+          "duration": 5.205,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.295,
+          "text": "The current Cellpose argument mismatch prevents us from claiming a successful benchmark here.",
+          "speech_text": "The current [Cellpose](/sˈɛlpˌOz/) argument mismatch prevents us from claiming a successful benchmark here.",
+          "phonemes": "ðə kˈɜɹənt sˈɛlpˌOz ˈɑɹɡjəmənt mˈɪsmˌæʧ pɹivˈɛnts ˌʌs fɹʌm klˈAmɪŋ ɐ səksˈɛsfᵊl bˈɛnʧmˌɑɹk hˈɪɹ."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 113.175,
+          "speech_end": 115.72,
+          "audible_start": 113.27499999999999,
+          "audible_end": 115.53999999999999,
+          "duration": 2.545,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.285,
+          "text": "No masks or test scores are fabricated.",
+          "speech_text": "No masks or test scores are fabricated.",
+          "phonemes": "nˈO mˈæsks ɔɹ tˈɛst skˈɔɹz ɑɹ fˈæbɹəkˌATᵻd."
+        },
+        {
+          "sentence": 5,
+          "speech_start": 115.84,
+          "speech_end": 122.75,
+          "audible_start": 115.94,
+          "audible_end": 122.57,
+          "duration": 6.91,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.315,
+          "text": "Keep representative validation images separate from training examples when evaluating a repaired workflow.",
+          "speech_text": "Keep representative validation images separate from training examples when evaluating a repaired workflow.",
+          "phonemes": "kˈip ɹˌɛpɹəzˈɛntəTɪv vˌælɪdˈAʃən ˈɪmɪʤᵻz sˈɛpəɹət fɹʌm tɹˈAnɪŋ ɪɡzˈæmpəlz wˌɛn ɪvˈæljuˌATɪŋ ɐ ɹəpˈɛɹd wˈɜɹkflˌO."
+        }
+      ]
+    }
+  ]
+}

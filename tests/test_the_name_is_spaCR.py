@@ -107,7 +107,7 @@ LEGACY_IDENTIFIERS = re.compile(
 #:
 #:     # NLLB occasionally rewrites the middle of the spaCR placeholder as a
 #:     # natural-language conjunction (for example SPACRANDTOKEN in German).
-#:     # The stable SPACR prefix and TOKEN suffix still identify it uniquely.
+#:     # The stable SPACR[A-Z]*TOKEN shape still identifies it uniquely.
 #:     text = re.sub(r"SPACR[A-Z]*TOKEN", "spaCR", text)
 #:
 #: THE `SPACR` THERE IS A PATTERN, NOT A MENTION, and the replacement string
@@ -115,6 +115,16 @@ LEGACY_IDENTIFIERS = re.compile(
 #: spelling breaks the match, the placeholder is never restored, and every
 #: affected translation ships with a raw token in it -- so this rule would
 #: have caused the defect it exists to prevent.
+#:
+#: THE COMMENT ABOVE THE REGEX HAS TO QUOTE THE SHAPE, not describe it in
+#: words. An earlier wording said "the stable SPACR prefix and TOKEN suffix",
+#: which splits the token across two English words; nothing spans them, so the
+#: bare `SPACR` was a mention again and this rule failed on a comment that was
+#: right about everything except how it spelled itself. That wording was
+#: replaced by the quote above on 2026-09-11, came back on 2026-09-12 when the
+#: tutorial narration commit rewrote the file from an older copy, and is the
+#: only thing this rule has ever caught in that file. If it fails there again,
+#: read the comment before the code -- the regex is almost certainly fine.
 #:
 #: Matched only in the shape those placeholders actually take: all capitals,
 #: optionally carrying a regex class or group, ending in TOKEN. Ordinary

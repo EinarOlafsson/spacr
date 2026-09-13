@@ -85,6 +85,120 @@ class TestTheFallbackIsWiredIn:
         assert "statsmodels (CPU)" in body
 
 
+class TestTheFallbackActuallyRuns:
+    """The class above proves the words are in the source. This one proves a
+    fit comes back.
+
+    IT HAS TO RUN WHERE THERE IS NO CARD, and that is the whole difficulty of
+    testing this. `perform_mixed_model` asks `_require_backend` first, and
+    that refuses `regression_backend='torch'` outright when no CUDA device
+    answers -- deliberately, because a fit you asked to run on the GPU and
+    that quietly ran on the CPU is the slow run you were avoiding, reported
+    as the fast one. So a test that stubbed only the torch fit would reach
+    the fallback on a machine with a card and never reach it on a hosted
+    runner, which has none.
+
+    Measured both ways on 2026-09-12 on the same working tree: with an RTX
+    3090 visible, that call returns a statsmodels result; with
+    `CUDA_VISIBLE_DEVICES=''` the identical call raises `ValueError: torch
+    (GPU) needs a CUDA device and none was found`. A test written the naive
+    way is green here and red on CI, and the tempting repair -- skipping it
+    where there is no GPU, or where there is one -- would retire the guard on
+    whichever machine was asked last.
+
+    What is stubbed here is therefore the AVAILABILITY VERDICT and nothing
+    else. The test says "a card answered", and then the real
+    `perform_mixed_model`, the real `_is_out_of_memory` and the real
+    statsmodels fit run underneath it. That path does not touch a device, so
+    it is the same code on both machines -- which is why this carries no
+    `gpu` marker and is skipped nowhere.
+    """
+
+    @staticmethod
+    def _a_design_a_mixed_model_can_fit():
+        """Eight groups of twelve rows with a random intercept worth finding.
+
+        Fixed seed: a fallback that returned different numbers on different
+        days would be the bug this file exists to catch, so the comparison
+        below has to be against one fit and not a distribution of them.
+        """
+        import numpy as np
+        import pandas as pd
+
+        rng = np.random.default_rng(0)
+        groups = np.repeat(np.arange(8), 12)
+        n = groups.size
+        first = rng.normal(size=n)
+        second = rng.normal(size=n)
+        design = pd.DataFrame({"Intercept": np.ones(n),
+                               "a": first, "b": second})
+        response = (1.0 + 0.7 * first - 0.4 * second
+                    + rng.normal(size=8)[groups]
+                    + rng.normal(scale=0.5, size=n))
+        return response, design, groups
+
+    @pytest.fixture
+    def a_card_that_answered(self, monkeypatch):
+        """Let the torch branch be entered on a machine with no GPU.
+
+        `_require_backend` reads `backend_status`, which this replaces, and
+        nothing else about the branch is faked.
+        """
+        from spacr import ml
+
+        monkeypatch.setattr(
+            ml, "backend_status",
+            lambda name, regression_type=None: {"enabled": True,
+                                                "reason": ""})
+
+    def test_the_cpu_model_comes_back_with_the_same_numbers(
+            self, a_card_that_answered, monkeypatch):
+        """The message promises the same model, the same numbers and only
+        more time, so this holds it to the numbers and not to the type."""
+        import numpy as np
+        from statsmodels.regression.mixed_linear_model import MixedLM
+
+        from spacr import ml, mixed_gpu
+
+        class OutOfMemoryError(RuntimeError):
+            """Shaped like torch's, which also subclasses RuntimeError."""
+
+        def the_card_filled_up(*args, **kwargs):
+            raise OutOfMemoryError(
+                "CUDA out of memory. Tried to allocate 2.41 GiB")
+
+        monkeypatch.setattr(mixed_gpu, "fit_mixed_reml_torch",
+                            the_card_filled_up)
+
+        y, X, groups = self._a_design_a_mixed_model_can_fit()
+        fell_back = ml.perform_mixed_model(y, X, groups,
+                                           regression_backend="torch")
+        asked_for_the_cpu = MixedLM(y, X, groups=groups).fit()
+
+        assert type(fell_back).__module__.startswith("statsmodels")
+        assert np.allclose(np.asarray(fell_back.params, dtype=float),
+                           np.asarray(asked_for_the_cpu.params, dtype=float))
+
+    def test_a_failure_that_is_not_memory_is_not_quietly_refitted(
+            self, a_card_that_answered, monkeypatch):
+        """A bug in the torch fit must surface as that bug.
+
+        Falling back on every exception would hand back a model that fitted,
+        printed and plotted, so nothing downstream could tell that the run it
+        describes never happened.
+        """
+        from spacr import ml, mixed_gpu
+
+        def a_real_bug(*args, **kwargs):
+            raise ValueError("the guide table lost its index")
+
+        monkeypatch.setattr(mixed_gpu, "fit_mixed_reml_torch", a_real_bug)
+
+        y, X, groups = self._a_design_a_mixed_model_can_fit()
+        with pytest.raises(ValueError, match="lost its index"):
+            ml.perform_mixed_model(y, X, groups, regression_backend="torch")
+
+
 class TestThePackagingPromotion:
     """220: pyfixest, glum and gpytorch are core, gated where torch already
     gates."""

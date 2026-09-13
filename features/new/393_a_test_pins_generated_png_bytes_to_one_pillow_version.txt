@@ -1,0 +1,196 @@
+================================================================================
+A TEST PINS GENERATED PNG BYTES, SO THE BUILD TOOL'S VERSION IS PART OF THE
+CONTRACT AND NOTHING SAYS SO
+================================================================================
+
+Status:    OPEN AND ACTIONABLE, filed 2026-09-11. Nothing gates it. Found
+           while adding the Embeddings tile for 386; the tile landed, the
+           trap did not get fixed.
+Owner:     unassigned. `tests/test_readme_presentation.py` holds the
+           assertion, `packaging/generate_readme_visuals.py` the renderer,
+           `setup.py` the range that makes it possible.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+`test_every_workflow_button_tracks_the_home_screen_registry_and_api` compares
+every committed tile against a freshly rendered one, pixel for pixel:
+
+    committed = Image.open(ROOT / relative).convert("RGBA")
+    rendered  = generator.render_module_tile(key, label).convert("RGBA")
+    assert ImageChops.difference(committed, rendered).getbbox() is None
+
+That reads as reproducible, and there is a good reason to think so: the tile
+font is BUNDLED (`spacr/resources/font/open_sans/static/OpenSans-Regular.ttf`),
+not a system font, so the usual cause of "artwork differs per machine" is
+already handled.
+
+IT IS PILLOW ITSELF. Measured 2026-09-11, same repo, same font file, same
+`render_module_tile` call:
+
+    Pillow 12.3.0 (what CI installs)   reproduces every committed tile exactly
+    Pillow 10.3.0 (this workstation)   align 834 px, mask 1756 px,
+                                       dose_response 3263 px differ
+
+Antialiasing of the glyph edges, not layout. Visually the tiles look the
+same, which is the part that makes this expensive.
+
+`setup.py` allows `pillow>=10.2.0,<13`. Every version in that range installs
+cleanly, passes `pip check`, and renders different bytes.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The failure mode is not "a test fails". It is a GREEN-LOOKING DIFF THAT
+TURNS CI RED FOR EVERYONE ELSE.
+
+Adding one module means adding one tile, and the way to add a tile is to run
+`packaging/generate_readme_visuals.py`, which has no flags and regenerates
+everything it knows about. On Pillow 10.3.0 that rewrote 36 committed tiles
+that were not stale at all. The diff is 36 modified PNGs next to the one new
+one -- indistinguishable from routine regenerated artwork, reviewable only by
+opening them, and they look identical when you do.
+
+Had it been pushed, `test_readme_presentation` would have gone red on CI and
+on every contributor whose Pillow is not 10.3.0, and the commit that broke it
+would have read "add the Embeddings tile".
+
+The near miss is the argument. The only reason it did not ship is that the
+count assertions failed first and forced a closer look at why 36 unrelated
+files had changed.
+
+--------------------------------------------------------------------------------
+WHAT TO DO -- ANY ONE OF THESE, AND THEY ARE IN ORDER OF PREFERENCE
+--------------------------------------------------------------------------------
+
+1. COMPARE WHAT THE TEST IS ACTUALLY FOR, NOT THE BYTES. The assertion
+   exists so a tile cannot drift from its label, its key or its artwork
+   style. A perceptual comparison -- mean absolute difference under a small
+   threshold, say -- catches a wrong label, a wrong colour and a missing
+   glyph, and ignores antialiasing. It is the smallest change and it keeps
+   the guard.
+
+2. PIN THE RENDERER, LOUDLY. If byte equality is genuinely wanted, then the
+   renderer version is part of the contract and belongs written down: a
+   `packaging/requirements-artwork.txt` with `pillow==12.3.0`, a check in
+   `generate_readme_visuals.py` that REFUSES to write when the running
+   Pillow is not that version, and a sentence in the test's own docstring
+   naming it. A contract nobody can read is not a contract.
+
+3. STOP COMMITTING THE PNGS and generate them in the docs build. Biggest
+   change, removes the class outright, and costs the README its artwork
+   when read on GitHub -- which is probably why they are committed. Listed
+   for completeness rather than recommended.
+
+WHATEVER IS CHOSEN, GIVE THE GENERATOR A `--only KEY` FLAG. It is
+all-or-nothing today, so adding one tile means rewriting forty. That is what
+turned a one-file change into a 36-file diff, and it is true regardless of
+which fix above is taken.
+
+--------------------------------------------------------------------------------
+THE WORKAROUND USED ON 2026-09-11, FOR WHOEVER HITS THIS NEXT
+--------------------------------------------------------------------------------
+
+Install the matching Pillow beside the environment rather than into it, and
+prove it is the right one before writing anything:
+
+    pip install --target /tmp/pillow123 "pillow==12.3.0"
+
+then, in a script that puts `/tmp/pillow123` FIRST on `sys.path`, re-render
+three tiles that are ALREADY COMMITTED and refuse to continue unless all
+three come back byte-identical. Only then write the new one. The control is
+the whole point: without it there is no way to tell "I rendered with the
+right Pillow" from "I rendered with the wrong one and the diff looks
+plausible".
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * `tests/test_readme_presentation.py` passes on at least two Pillow
+    versions inside the range `setup.py` allows -- 10.2 and 12.3 are the
+    ends of it. Today it passes on exactly one and the one is not written
+    down anywhere.
+  * Adding a module and regenerating touches ONE tile, not forty.
+  * A deliberately wrong tile -- render one with another module's label and
+    commit it -- still fails the test. Whatever replaces byte equality has
+    to keep catching that, or the fix has removed the guard rather than
+    repaired it.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not fixed in the same change that found it. That change was the Embeddings
+tile on a release branch waiting for a green run, and swapping the
+comparison a CI gate depends on is not something to do while a merge to main
+is pending. The Embeddings tile was rendered with 12.3.0 via the workaround
+above, so nothing is red in the meantime -- which is exactly the state that
+lets this be forgotten, hence the file.
+
+================================================================================
+DONE 2026-09-12 -- AND THE DIAGNOSIS ABOVE IS WRONG IN A WAY THAT MATTERS
+================================================================================
+
+"IT IS PILLOW ITSELF" IS NOT WHAT THE MEASUREMENT SAYS. Three builds, same
+repo, same bundled font, same `render_module_tile` call:
+
+    Pillow 10.2.0   FreeType 2.13.2   Raqm 0.10.1   every tile byte-exact
+    Pillow 12.3.0   FreeType 2.14.3   Raqm 0.10.5   every tile byte-exact
+    Pillow 10.3.0   FreeType 2.12.1   Raqm ABSENT   align/mask/dose_response
+
+TWO DIFFERENT FREETYPE VERSIONS AGREE TO THE BYTE. The odd one out is the
+build with no Raqm, which falls back to the BASIC text layout engine. So the
+variable is the LAYOUT ENGINE, not a version number -- and option 2 above,
+"pin the renderer" with `pillow==12.3.0`, would NOT have worked. A 12.3.0
+built without Raqm drifts exactly the same way, and `setup.py` cannot
+express the difference because it is a property of the wheel, not the
+release.
+
+Worth stating plainly because the filed theory was testable and the test was
+cheap: `PIL.features.version("raqm")`.
+
+OPTION 1 WAS TAKEN AND THE OBVIOUS FORM OF IT DOES NOT WORK. Mean absolute
+difference, the metric the file suggests, does not separate the two
+populations:
+
+    worst legitimate drift     `dose_response`                 0.3651
+    a tile whose last letter is wrong  `replication`->`replicatiox`  0.2588
+
+Any tolerance wide enough for the drift also passes a wrong label. That is
+removing the guard, not repairing it -- which is what the file's own "how to
+know it worked" section warns about, and it is only visible if you measure
+the wrong-tile control instead of assuming it scores high.
+
+WHAT SEPARATES THEM IS THAT DRIFT IS ONE PIXEL WIDE. It perturbs glyph
+EDGES; a wrong glyph MOVES INK. Binarise both tiles to an ink mask, take the
+disagreement, erode it with `MinFilter(3)` so a pixel survives only where
+all eight neighbours also disagree:
+
+    legitimate drift, all three builds                  0 px
+    least-wrong control, cross-build                   41 px
+    least-wrong control, same build                    32 px
+
+Tolerance 16 px: half the floor, and twice a drift that measures zero on
+every build tested. `MinFilter(5)` was tried and REJECTED -- it buys margin
+by dropping the worst control to 0 px too, i.e. by silently switching the
+guard off.
+
+MEASURED AGAINST THE FILE'S OWN CRITERIA:
+
+  * `tests/test_readme_presentation.py` passes on 10.2.0, 12.3.0 AND the
+    no-Raqm 10.3.0 that used to fail. Three builds, not the two asked for.
+  * `--only KEY` added, repeatable and comma-separated, and it rejects an
+    unknown key by naming all 22 valid ones. Regenerating one tile now
+    writes one file; the logos and databank buttons are skipped too, since
+    they share the renderer and the drift.
+  * The deliberately-wrong tile still fails. Planted `mask` drawn as
+    `Masx` -- the LEAST wrong control available, chosen on purpose -- and
+    both assertions caught it at 32 px against a tolerance of 16.
+
+The generator now WARNS, loudly, when it is running without Raqm: not a
+refusal, because ink-compared artwork from a BASIC build is still correct,
+but the forty-file diff is what this instruction exists to stop somebody
+committing without noticing.

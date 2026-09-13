@@ -32,13 +32,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cell_intensity_merge",
-      "source_sha256": "14fc540114816f7fcb9d042a5c709292fce6d8335abdc191c40df32a8b31022f",
-      "source": "Merge touching cell labels when the mean intensity along their shared boundary is at least as high as the interior intensity of the dimmer label, indicating no detectable membrane boundary between them. This can correct over-segmentation of individual cells. The comparison statistic is set by cell_intensity_threshold_method. Default False.",
-      "translation": "当相邻细胞标签共享边界的平均强度不低于较暗标签的内部强度时合并这些标签，表明两者之间没有可检测的细胞膜边界。此设置可以校正单个细胞的过度分割。比较统计量由 cell_intensity_threshold_method 设置。默认值为 False。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "cell_loc",
       "source_sha256": "769a0540082bbfe051b2d93347b5604bb643a007e56f7d9d94b35db290a5021e",
       "source": "One list of well identifiers per entry in cells, specifying the plate locations of each host cell line, for example [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; other values are ignored and the corresponding wells remain unannotated. None labels every row with the first entry of cells. No default is set: annotate_filter_vision accesses settings['cell_loc'] directly, so the key must be present in the dictionary and explicitly set to None when location mapping is not required.",

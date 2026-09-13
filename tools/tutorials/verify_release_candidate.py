@@ -16,7 +16,7 @@ import threading
 from playwright.sync_api import sync_playwright
 
 from check_completed_matrix import digest
-from coming_soon import COPY, PLACEHOLDERS
+from coming_soon import COPY, first_placeholder
 from stage_lesson import read, write
 from validate_candidate import validate
 from verify_staged_lesson import Handler
@@ -56,6 +56,8 @@ def verify(root, *, placeholders_only=False):
     errors, foreign, screens, playback = [], [], [], []
     english = read(root / 'web/catalog/lessons_en.json')
     ready = [l for l in english['lessons'] if l.get('status') != 'coming_soon']
+    placeholders = [l['id'] for l in english['lessons'] if l.get('status') == 'coming_soon']
+    unavailable = first_placeholder(english['lessons'])
     try:
         with sync_playwright() as engine:
             browser = engine.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True)
@@ -73,7 +75,7 @@ def verify(root, *, placeholders_only=False):
                            'spacr-tutorial-voice-v2': 'af_heart',
                            'spacr-tutorial-captions-v1': json.dumps({'language': language, 'enabled': True}),
                            # Old completion records must not count held entries.
-                           'spacr-tutorial-progress-v2': json.dumps(list(PLACEHOLDERS))}
+                           'spacr-tutorial-progress-v2': json.dumps(placeholders)}
                 ctx.add_init_script('Object.entries(' + json.dumps(storage) +
                                     ').forEach(([k,v]) => localStorage.setItem(k,v));')
                 return ctx
@@ -85,8 +87,8 @@ def verify(root, *, placeholders_only=False):
                 media_requests = []
                 page.on('request', lambda req: media_requests.append(req.url)
                         if any(ext in req.url for ext in ('.mp4', '.m4a')) else None)
-                page.goto(origin + '/web/#lesson=76_ops', wait_until='networkidle')
-                for identity in PLACEHOLDERS:
+                page.goto(origin + '/web/#lesson=' + unavailable, wait_until='networkidle')
+                for identity in placeholders:
                     page.evaluate('(id) => selectLesson(id)', identity)
                     page.wait_for_function('(text) => document.querySelector("#planned-title").textContent === text', arg=COPY[language][0])
                     assert page.locator('#planned-card').is_visible()
@@ -120,14 +122,14 @@ def verify(root, *, placeholders_only=False):
                     if language in ('en', 'de', 'ja') and width in (390, 1440):
                         page.screenshot(path=str(output / f'coming-soon-{language}-{width}.png'), full_page=True)
                 assert not errors, errors
-                print(language, len(PLACEHOLDERS), 'Coming soon screens PASS', flush=True)
+                print(language, len(placeholders), 'Coming soon screens PASS', flush=True)
                 ctx.close()
 
             if not placeholders_only:
                 ctx = context()
                 page = ctx.new_page()
                 page.on('pageerror', lambda error: errors.append(str(error)))
-                page.goto(origin + '/web/#lesson=76_ops', wait_until='networkidle')
+                page.goto(origin + '/web/#lesson=' + unavailable, wait_until='networkidle')
                 for lesson in ready:
                     identity = lesson['id']
                     page.evaluate('(id) => selectLesson(id)', identity)
@@ -169,10 +171,11 @@ def verify(root, *, placeholders_only=False):
                         page.evaluate('renderCaptions()')
                         page.wait_for_function('elements.captionTrack.readyState === 2 && !captionTrackLoading')
                         assert page.locator('#caption-track').count() == 1
-                    sentence_cues = check_sentence_cues(page) if identity == '04_platform_installers' else []
+                    sentence_cues = check_sentence_cues(page) if identity in {
+                        '04_platform_installers', '21_model_compare', '22_model_zoo', '76_ops', '77_embeddings'} else []
                     # The positive playable counterpart is followed by a real
                     # transition back to unavailable, cancelling active audio.
-                    page.evaluate("selectLesson('76_ops')")
+                    page.evaluate('(identity) => selectLesson(identity)', unavailable)
                     assert page.evaluate('elements.audio.paused && !elements.audio.getAttribute("src")')
                     playback.append({'lesson': identity, 'audio_sha256': loaded, 'clocks': clocks,
                                      'chapter_text_matches_audio': True, 'native_caption_reloads': 2,

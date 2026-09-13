@@ -36,9 +36,14 @@ make the scan cheaper, not to thread it harder -- it is already threaded.
 Budgets here are stated, not derived, and sit far above the measured numbers,
 because CI is slower and a flaky responsiveness test gets deleted rather than
 fixed.
+
+ONE THING IS HELD STILL ACROSS EVERY MEASURED WINDOW, and it is not the work
+being measured: CPython's cyclic collector. :class:`LoopWatchdog` says why, and
+what the numbers look like with it running.
 """
 from __future__ import annotations
 
+import gc
 import time
 
 import numpy as np
@@ -60,26 +65,97 @@ SLOW_DECODE_S = 1.0
 
 
 class LoopWatchdog(QObject):
-    """Record the gap between consecutive GUI-thread timer ticks."""
+    """Record the gap between consecutive GUI-thread timer ticks.
+
+    THE COLLECTOR IS HELD STILL WHILE THIS RUNS, and that is not a way of
+    letting a slow load through -- it is what makes the number mean the load.
+    An automatic gen-2 sweep is the largest single thing that stops this
+    process's GUI thread, it is charged to whichever thread happened to cross
+    the threshold, and it has nothing to do with whether the panel threaded its
+    work. On 2026-09-12, on the maintainer's box, with the collector left
+    running, the worst gap in each measured window was:
+
+        drop a merged array        138.7 ms, of which 133.8 ms was one gen-2
+        drop a plate folder        169.9 ms, of which 169.0 ms was one gen-2
+        drop an image               74.4 ms, of which  10.4 ms was one gen-1
+
+    and with the same runs' collectors held still, 11.0 ms, 8.6 ms and 65.7 ms.
+    Nine tenths of the first two numbers was the interpreter, not the preview.
+
+    Which window the sweep lands in is a lottery, and the drops are holding the
+    most tickets: a drop is the only path whose window contains a first-time
+    import on the worker. ``compute_crops`` does ``from spacr.measure import
+    crop_objects_from_array``, which takes the process from 321 979 to 370 517
+    tracked objects *inside* the window, so the allocations that cross the
+    threshold and the sweep they buy both land in the stretch being timed. The
+    FOV and spinbox tests load once before starting their watchdog and pay that
+    import outside theirs, which is why CI named the two drops and not them.
+
+    The sweep cost scales with what the process is holding -- 2.8 ms at 46 525
+    tracked objects, 37.2 ms at 155 846, ~120 ms at the ~322 000 this file
+    starts with, ~205 ms by the time it ends -- and a CI process carries the
+    rest of its batch as well. That is the whole of why this is red on CI and
+    green on a developer's box, and it was reproduced rather than inferred:
+    give the process references of the width a batch holds, without adding
+    enough objects to change WHEN CPython sweeps, and one sweep costs 773 ms.
+
+        old shape, ordinary heap       passes
+        old shape, batch-width heap    FAILS, 4 runs of 4 -- 670, 840, 765 ms
+        new shape, same heap           passes, 3 runs of 3
+
+    "Dropping a merged array stalled the GUI thread for 840 ms" is what the
+    middle row prints, and it is the CI failure. It says nothing about the
+    panel; the panel dispatched in 0.4 ms in the same run.
+
+    The teeth are untouched. With the collector held still and every JobRunner
+    forced inline, the same two tests report 3527 ms and 1016 ms against the
+    same 400 ms budget: the measurement still catches work that moves back onto
+    the GUI thread, it just no longer catches the garbage collector.
+
+    A sweep is taken *before* the window rather than merely skipped, so a
+    window does not inherit a nearly-full generation and the deferred garbage
+    does not accumulate across the file. Anything that collects anyway --
+    an explicit ``gc.collect()`` from the code under test -- is counted, and
+    :func:`_drive` reports it rather than letting it surface as a budget
+    failure that blames the wrong thing.
+    """
 
     def __init__(self, parent=None, interval_ms: int = 1):
         super().__init__(parent)
         self._last = time.perf_counter()
         self.worst = 0.0
         self.ticks = 0
+        self.collections = 0
+        self._gc_was_enabled = False
         self._timer = QTimer(self)
         self._timer.setTimerType(Qt.PreciseTimer)
         self._timer.setInterval(interval_ms)
         self._timer.timeout.connect(self._tick)
 
     def start(self):
+        gc.collect()
+        self._gc_was_enabled = gc.isenabled()
+        gc.disable()
+        if self._note_collection not in gc.callbacks:
+            gc.callbacks.append(self._note_collection)
         self._last = time.perf_counter()
         self.worst = 0.0
         self.ticks = 0
+        self.collections = 0
         self._timer.start()
 
     def stop(self):
         self._timer.stop()
+        if self._note_collection in gc.callbacks:
+            gc.callbacks.remove(self._note_collection)
+        if self._gc_was_enabled:
+            gc.enable()
+        self._gc_was_enabled = False
+
+    def _note_collection(self, phase, _info):
+        """Count a collection that ran anyway, so ``_drive`` can name it."""
+        if phase == "stop":
+            self.collections += 1
 
     def _tick(self):
         now = time.perf_counter()
@@ -88,6 +164,26 @@ class LoopWatchdog(QObject):
         self.ticks += 1
         if gap > self.worst:
             self.worst = gap
+
+
+@pytest.fixture(autouse=True)
+def _collector_left_as_found():
+    """Hand the collector back however a test ends.
+
+    ``LoopWatchdog.stop`` restores both halves of what ``start`` changed, and
+    ``_drive`` calls it before any assertion -- but a test that raises anywhere
+    else would leave automatic collection off, and a stale callback on a dead
+    widget, for the whole session. Either is a far worse thing to leak into
+    another file than a slow sweep.
+    """
+    was_enabled = gc.isenabled()
+    callbacks = list(gc.callbacks)
+    try:
+        yield
+    finally:
+        gc.callbacks[:] = callbacks
+        if was_enabled and not gc.isenabled():
+            gc.enable()
 
 
 @pytest.fixture
@@ -142,12 +238,21 @@ def _mime_for(path):
 
 
 def _drive(qtbot, dog, done, budget_s=30.0):
-    """Pump the event loop until ``done()``, never blocking it."""
+    """Pump the event loop until ``done()``, never blocking it.
+
+    The collection guard fires ahead of every budget assertion in this file, so
+    a window that did get swept says so instead of reporting a stall the panel
+    did not cause -- which is the exact confusion this guard was written after.
+    """
     end = time.perf_counter() + budget_s
     while time.perf_counter() < end and not done():
         qtbot.wait(10)
     qtbot.wait(50)
     dog.stop()
+    assert dog.collections == 0, (
+        f"{dog.collections} cyclic collection(s) ran inside the measured "
+        f"window even with automatic collection off; the worst gap of "
+        f"{dog.worst * 1000:.0f} ms is not attributable to the load")
 
 
 def _panel(qtbot):

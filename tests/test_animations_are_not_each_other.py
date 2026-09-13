@@ -161,58 +161,68 @@ class TestTheSceneDrawsItsCriterion:
         )
 
 
-@pytest.mark.parametrize("kind", KINDS)
-@pytest.mark.parametrize("bound", ["min", "max"])
-def test_the_intensity_filter_is_not_the_area_filter(kind, bound, paths):
-    """`*_min_area` and `*_min_intensity_percentile` were 20% distinct.
+# `test_the_intensity_filter_is_not_the_area_filter` stood here. It compared
+# each `*_min_area` animation against its `*_[min|max]_intensity_percentile`
+# twin and required them to differ in more than 20% of their drawn area -- the
+# two had once been nearly identical, because both drew four objects of four
+# sizes and only one of them was about size at all.
+#
+# INSTRUCTION 391 DELETED THE TWIN, so there is nothing left to be confusable
+# with. The concern it encoded is preserved in
+# `TestTheIntensityFilterAnimationsAreGone` below, which asserts the animation
+# and its setting are both really gone rather than letting the comparison
+# quietly become a no-op against a missing file.
 
-    Both drew four objects of four different sizes, and the intensity variant
-    additionally gave them four brightnesses. So the two orders agreed, size
-    was the visible one, and nothing told a viewer which property the
-    threshold had actually read.
+
+class TestTheIntensityFilterAnimationsAreGone:
+    """The class here asserted that eight animations varied brightness and not
+    size. Instruction 391 deleted the settings they documented -- the
+    intensity-percentile band at four object roles -- so the animations went
+    with them and the tests ran off the end of a generator with StopIteration.
+
+    THE ANIMATIONS ARE ASSERTED GONE RATHER THAN QUIETLY DROPPED. Narrowing
+    the parametrisation to the surviving kinds would have turned 24 failures
+    into 24 silent non-tests, and nothing would then notice if a future change
+    reintroduced an animation for a setting that does not exist -- which is a
+    docs row pointing at nothing.
+
+    The `_min_area` half of the old class is KEPT below: its whole purpose was
+    to prove the intensity fix had not flattened the family it was
+    distinguishing from, and the area filter is still here to be flattened.
     """
-    got = _ink_difference(
-        paths[f"{kind}_{bound}_area"],
-        paths[f"{kind}_{bound}_intensity_percentile"])
-    assert got > MIN_DISTINCT_INK * 2, (
-        f"{kind}_{bound}_intensity_percentile differs from {kind}_{bound}_area "
-        f"in only {got:.1%} of its drawn area"
-    )
 
+    RETIRED = tuple(f"{kind}_{bound}_intensity_percentile"
+                    for kind in KINDS for bound in ("min", "max"))
 
-class TestTheIntensityFilterVariesOnlyIntensity:
-
-    def _outlines(self, slug, action):
+    def test_no_animation_documents_a_removed_intensity_setting(self):
         gen = pytest.importorskip("generate_setting_animations")
-        spec = next(s for s in gen._specs() if s.slug == slug)
+        slugs = {s.slug for s in gen._specs()}
+        back = sorted(slug for slug in self.RETIRED if slug in slugs)
+        assert back == [], (
+            f"these animations document settings 391 removed: {back}. An "
+            "animation for a setting that does not exist is a docs row "
+            "pointing at nothing.")
+
+    def test_the_settings_themselves_are_really_gone(self):
+        """So this file fails for the right reason if they ever come back."""
+        from spacr.settings import expected_types
+
+        alive = sorted(s for s in self.RETIRED if s in expected_types)
+        assert alive == [], alive
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_the_area_filter_still_varies_size(self, kind):
+        """The fix must not flatten the family it was distinguishing from."""
+        gen = pytest.importorskip("generate_setting_animations")
+        spec = next(s for s in gen._specs() if s.slug == f"{kind}_min_area")
         seen = []
         real, well = gen._object_outline, gen._well
         gen._object_outline = (
             lambda p, k, c, size, amount=1.0, phase=0.0, **kw: seen.append((c, size, amount)))
         gen._well = lambda *a, **k: None
         try:
-            gen._filter_scene(object(), spec, action)
+            gen._filter_scene(object(), spec, 0.0)
         finally:
             gen._object_outline, gen._well = real, well
-        return seen
-
-    @pytest.mark.parametrize("kind", KINDS)
-    @pytest.mark.parametrize("bound", ["min", "max"])
-    def test_every_object_is_the_same_size(self, kind, bound):
-        sizes = {s for _c, s, _a in
-                 self._outlines(f"{kind}_{bound}_intensity_percentile", 0.0)}
-        assert len(sizes) == 1, f"the objects still differ in size: {sizes}"
-
-    @pytest.mark.parametrize("kind", KINDS)
-    @pytest.mark.parametrize("bound", ["min", "max"])
-    def test_and_they_differ_in_brightness(self, kind, bound):
-        amounts = sorted(a for _c, _s, a in
-                         self._outlines(f"{kind}_{bound}_intensity_percentile", 0.0))
-        assert len(set(amounts)) == 4, amounts
-        assert amounts[-1] - amounts[0] > 0.4, "the range is too small to read"
-
-    @pytest.mark.parametrize("kind", KINDS)
-    def test_the_area_filter_still_varies_size(self, kind):
-        """The fix must not flatten the family it was distinguishing from."""
-        sizes = {s for _c, s, _a in self._outlines(f"{kind}_min_area", 0.0)}
+        sizes = {s for _c, s, _a in seen}
         assert len(sizes) == 4, sizes

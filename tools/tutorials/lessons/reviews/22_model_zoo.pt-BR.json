@@ -1,0 +1,17 @@
+{
+  "lesson": "22_model_zoo", "language": "pt-BR", "english_sha256": "8f4b24235c0e8e47ef0c96ea6ecf57b7adae2bae07c4d00514893f128b4e81eb",
+  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
+  "title": "Model Zoo: encontrar modelos e verificar sua procedência",
+  "description": "Abra a biblioteca aninhada, explore um cache local e diferencie informações de treinamento registradas de procedência desconhecida. A incompatibilidade atual do Cellpose impede demonstrar uma avaliação bem-sucedida.",
+  "objectives": ["Encontrar Model Zoo dentro de Make Masks e explorar uma pasta local.", "Ler origem, tipo, checksum e treinamento sem confundir metadados desconhecidos com validação.", "Distinguir gerenciamento de modelos, download, treinamento e avaliação."],
+  "prerequisite": "spaCR 1.5.0.7 nightly. A gravação explora um cache Cellpose existente e seleciona o arquivo cpsam original, sem download, treinamento ou inferência. Use sua própria pasta, não o caminho pessoal do apresentador. Os metadados não registram checksum publicado, dados de treinamento ou autor; não os inferimos pelo nome. Um hash independente comprova apenas que o arquivo não mudou durante a gravação, não sua origem. A avaliação do Model Zoo e Model Compare passam invert, incompatível com Cellpose 4.2.1.1; o defeito não é corrigido nem contornado aqui. O tutorial Plaque demonstra um download e uma prévia reais. Não afirmamos acurácia nem validação com dados independentes.",
+  "scenes": [
+    "Model Zoo é a biblioteca de modelos dentro de Make Masks. Abra o módulo principal e depois o controle Model Zoo. Esta aula demonstra a biblioteca real e a busca de modelos locais, não um novo treinamento nem uma avaliação de acurácia.",
+    "A tabela reúne entradas publicadas e arquivos descobertos localmente. Leia juntas as colunas de tipo e origem. Estar listado não significa que um modelo foi baixado, testado nas suas imagens ou validado para seu experimento.",
+    "Informe uma pasta de modelos existente e pressione Scan, ou escolha uma pasta pelo botão ao lado. Aqui exploramos o cache real do Cellpose. Use seu próprio caminho. A busca descobre arquivos e metadados; não treina modelos nem executa segmentação.",
+    "Esta busca mostra oito entradas: alguns modelos remotos publicados e alguns arquivos locais de pesos. O número descreve este computador, não uma configuração obrigatória. Selecione o arquivo exato: nomes semelhantes não garantem os mesmos pesos.",
+    "O arquivo local selecionado não tem checksum publicado nem procedência de treinamento registrada nesta tela. Desconhecido significa desconhecido. O nome não comprova o conjunto de treinamento. Nosso hash confirma que a gravação não alterou o arquivo, não quem o produziu ou qual é seu desempenho.",
+    "A área de download define onde salvar um modelo remoto disponível. Também oferece uma escolha para modelos sem checksum publicado; a ausência de checksum não equivale a um download verificado. Esta seleção local não é baixada novamente. A aula Plaque mostra um download e uma prévia reais.",
+    "A área inferior serve para testar campos e comparar modelos selecionados. São tarefas diferentes de explorar a biblioteca. A incompatibilidade atual dos argumentos do Cellpose impede afirmar uma avaliação bem-sucedida aqui. Não inventamos máscaras nem pontuações. Ao avaliar o fluxo corrigido, separe imagens representativas de validação dos exemplos de treinamento."
+  ]
+}

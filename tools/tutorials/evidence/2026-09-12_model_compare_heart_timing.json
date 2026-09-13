@@ -1,0 +1,776 @@
+{
+  "schema": 1,
+  "language": "en",
+  "lang_code": "a",
+  "dialect": "us",
+  "voice": "af_heart",
+  "speed": 1.0,
+  "sample_rate": 24000,
+  "total_duration": 141.04,
+  "media_sha256": "f571869e66b0f3cf225268ccebc8474451e6ea6611231037944b5debde46d069",
+  "media_bytes": 933838,
+  "render_fingerprint": "bf18fd98ec9fc9abedc314857e597b039827f7d90ca41a8a09474026330d30cf",
+  "render_inputs": {
+    "renderer": "render_all_voices-v4",
+    "lesson": "21_model_compare",
+    "language": "en",
+    "lang_code": "a",
+    "dialect": "us",
+    "voice": "af_heart",
+    "speed": 1.0,
+    "scenes": [
+      {
+        "narration": "Model Compare is nested inside Make Masks. It is designed to compare segmentation results on the same fields. This lesson shows the current screen, then demonstrates its working mask-comparison API with two genuine saved outputs.",
+        "speech_text": [
+          "Model Compare is nested inside Make Masks.",
+          "It is designed to compare segmentation results on the same fields.",
+          "This lesson shows the current screen, then demonstrates its working mask-comparison API with two genuine saved outputs."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The screen separates Model A and Model B settings. Record the exact weights and preprocessing for each comparison. Different names or a larger object count do not establish that one result is better. The parameter and result tables are empty before a comparison runs.",
+        "speech_text": [
+          "The screen separates Model A and Model B settings.",
+          "Record the exact weights and pre-processing for each comparison.",
+          "Different names or a larger object count do not establish that one result is better.",
+          "The parameter and result tables are empty before a comparison runs."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Enter the real example folder and press Load. Here, three original fields load successfully and Compare becomes available. Loading images is not the same as successfully running the models. We have not created masks or filled the comparison table on this screen.",
+        "speech_text": [
+          "Enter the real example folder and press Load.",
+          "Here, three original fields load successfully and Compare becomes available.",
+          "Loading images is not the same as successfully running the models.",
+          "We have not created masks or filled the comparison table on this screen."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The installed Cellpose version rejects an invert argument still passed by this GUI backend. This real signature check shows the incompatibility without starting inference. We do not hide it. Instead, the next example uses compare_masks directly on existing label images.",
+        "speech_text": [
+          "The installed [Cellpose](/sˈɛlpˌOz/) version rejects an invert argument still passed by this GUI back end.",
+          "This real signature check shows the incompatibility without starting inference.",
+          "We do not hide it.",
+          "Instead, the next example uses compare_masks directly on existing label images."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Both masks belong to the same real image from the Apply Cellpose tutorial. One is its saved batch output; the other is its saved live-preview output. They use the same model with different preprocessing, not two competing sets of weights. Neither mask is ground truth.",
+        "speech_text": [
+          "Both masks belong to the same real image from the Apply [Cellpose](/sˈɛlpˌOz/) tutorial.",
+          "One is its saved batch output; the other is its saved live-preview output.",
+          "They use the same model with different pre-processing, not two competing sets of weights.",
+          "Neither mask is ground truth."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The API reports ninety-four objects in A and ninety-five in B, with ninety-one matched pairs. Mean overlap among matched pairs is about zero point nine six. The adjusted Rand index is also about zero point nine six one. These describe agreement, not accuracy or a winner.",
+        "speech_text": [
+          "The API reports ninety-four objects in A and ninety-five in B, with ninety-one matched pairs.",
+          "Mean overlap among matched pairs is about zero point nine six.",
+          "The adjusted Rand index is also about zero point nine six one.",
+          "These describe agreement, not accuracy or a winner."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Inspect the actual saved overlays. The right panel marks pixels whose foreground status differs. It does not show every instance-label disagreement. A similar object count can conceal different boundaries, splits or merges, so inspect images as well as summary numbers.",
+        "speech_text": [
+          "Inspect the actual saved overlays.",
+          "The right panel marks pixels whose foreground status differs.",
+          "It does not show every instance-label disagreement.",
+          "A similar object count can conceal different boundaries, splits or merges, so inspect images as well as summary numbers."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The helper independently checks every matched overlap using the original pixels and verifies the identical-mask control. Keep the CSV, figure, source identities and preprocessing records together. Use independent reviewed annotations and held-out images before making accuracy or model-selection claims.",
+        "speech_text": [
+          "The helper independently checks every matched overlap using the original pixels and verifies the identical-mask control.",
+          "Keep the CSV, figure, source identities and pre-processing records together.",
+          "Use independent reviewed annotations and held-out images before making accuracy or model-selection claims."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      }
+    ],
+    "assembly": {
+      "version": "2026-08-11-natural-sentences-v1",
+      "sample_rate": 24000,
+      "lead_silence_seconds": 0.1,
+      "tail_silence_seconds": 0.18,
+      "sentence_pause_seconds": 0.12,
+      "scene_hold_min_seconds": 0.32,
+      "scene_hold_max_seconds": 0.52,
+      "default_scene_hold_seconds": 0.42,
+      "vad_frame_seconds": 0.005,
+      "vad_peak_ratio": 0.002,
+      "vad_absolute_floor": 2e-05
+    },
+    "cadence_profile": {
+      "version": "2026-08-11-af-heart-scene-cadence-v6",
+      "sha256": "4d728d67e73eea7e6203878879992f9050ae4a2677d717efdd68545104eb7812",
+      "bytes": 23008,
+      "enabled": false,
+      "targets": {
+        "slow_wpm": 125.0,
+        "fast_wpm": 145.0,
+        "calibration_wpm": 150.0
+      },
+      "safe_multiplier_bounds": {
+        "minimum": 0.68,
+        "maximum": 1.18
+      }
+    },
+    "mastering": {
+      "filters": [
+        "loudnorm=I=-16:TP=-3:LRA=11",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.7:attack=5:release=50:level=disabled",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.5:attack=5:release=50:level=disabled"
+      ],
+      "codec": "aac",
+      "bitrate": "48k",
+      "channels": 1,
+      "maximum_decoded_true_peak_dbfs": -1.0
+    },
+    "pronunciation": {
+      "role": "pronunciation_profile",
+      "version": "2026-08-28-pype-v11",
+      "sha256": "8789f5eb4444a0ec85a592dcf3160a0ba521d8b356e83814b88aac7742e11423",
+      "bytes": 15302
+    },
+    "synthesis_runtime": {
+      "model": {
+        "repository": "hexgrad/Kokoro-82M",
+        "snapshot": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+        "config": {
+          "role": "kokoro_config",
+          "name": "14a726edd3718279eac426630879ff743955b16a",
+          "bytes": 2351,
+          "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f"
+        },
+        "weights": {
+          "role": "kokoro_weights",
+          "name": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+          "bytes": 327212226,
+          "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4"
+        }
+      },
+      "voice_pack": {
+        "role": "kokoro_voice_pack",
+        "name": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "bytes": 523425,
+        "sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b",
+        "loaded_tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b"
+      },
+      "software": {
+        "kokoro": "0.9.4",
+        "misaki": "0.9.4",
+        "torch": "2.13.0",
+        "soundfile": "0.13.1",
+        "python": "3.12.13",
+        "implementation": "cpython"
+      },
+      "inference": {
+        "device": "cpu"
+      },
+      "mastering_tool": {
+        "version": "ffmpeg version 6.1.1-3ubuntu5+esm13 Copyright (c) 2000-2023 the FFmpeg developers",
+        "version_output_sha256": "1b302b8d4ef78f6694217011ce8af39e91b3548ab9a4903e170ada970fbf0b16",
+        "executable": {
+          "role": "ffmpeg_executable",
+          "name": "ffmpeg",
+          "bytes": 342488,
+          "sha256": "1d5081bc88516c140712a2a6eddd86b0922681bd114f5b3c481cb360634acbe3"
+        }
+      }
+    }
+  },
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 14.875,
+      "scene_end": 15.395,
+      "duration": 15.395,
+      "text": "Model Compare is nested inside Make Masks. It is designed to compare segmentation results on the same fields. This lesson shows the current screen, then demonstrates its working mask-comparison API with two genuine saved outputs.",
+      "speech_text": "Model Compare is nested inside Make Masks. It is designed to compare segmentation results on the same fields. This lesson shows the current screen, then demonstrates its working mask-comparison API with two genuine saved outputs.",
+      "phonemes": "mˈɑdᵊl kəmpˈɛɹ ɪz nˈɛstᵻd ɪnsˈId mˌAk mˈæsks. ˌɪt ɪz dəzˈInd tə kəmpˈɛɹ sˌɛɡməntˈAʃən ɹəzˈʌlts ˌɔn ðə sˈAm fˈildz. ðˌɪs lˈɛsən ʃˈOz ðə kˈɜɹənt skɹˈin, ðˈɛn dˈɛmənstɹˌAts ɪts wˈɜɹkɪŋ mˌæskkəmpˈɛɹəsᵊn ˌApˌiˈI wɪð tˈu ʤˈɛnjəwən sˈAvd ˈWtpˌʊts.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 0.0,
+          "speech_end": 2.875,
+          "audible_start": 0.1,
+          "audible_end": 2.695,
+          "duration": 2.875,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.26,
+          "text": "Model Compare is nested inside Make Masks.",
+          "speech_text": "Model Compare is nested inside Make Masks.",
+          "phonemes": "mˈɑdᵊl kəmpˈɛɹ ɪz nˈɛstᵻd ɪnsˈId mˌAk mˈæsks."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 2.995,
+          "speech_end": 6.875,
+          "audible_start": 3.095,
+          "audible_end": 6.695,
+          "duration": 3.88,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.28,
+          "text": "It is designed to compare segmentation results on the same fields.",
+          "speech_text": "It is designed to compare segmentation results on the same fields.",
+          "phonemes": "ˌɪt ɪz dəzˈInd tə kəmpˈɛɹ sˌɛɡməntˈAʃən ɹəzˈʌlts ˌɔn ðə sˈAm fˈildz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 6.995,
+          "speech_end": 14.875,
+          "audible_start": 7.095,
+          "audible_end": 14.695,
+          "duration": 7.88,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.27,
+          "text": "This lesson shows the current screen, then demonstrates its working mask-comparison API with two genuine saved outputs.",
+          "speech_text": "This lesson shows the current screen, then demonstrates its working mask-comparison API with two genuine saved outputs.",
+          "phonemes": "ðˌɪs lˈɛsən ʃˈOz ðə kˈɜɹənt skɹˈin, ðˈɛn dˈɛmənstɹˌAts ɪts wˈɜɹkɪŋ mˌæskkəmpˈɛɹəsᵊn ˌApˌiˈI wɪð tˈu ʤˈɛnjəwən sˈAvd ˈWtpˌʊts."
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "speech_start": 15.395,
+      "speech_end": 32.595,
+      "scene_end": 33.115,
+      "duration": 17.720000000000002,
+      "text": "The screen separates Model A and Model B settings. Record the exact weights and preprocessing for each comparison. Different names or a larger object count do not establish that one result is better. The parameter and result tables are empty before a comparison runs.",
+      "speech_text": "The screen separates Model A and Model B settings. Record the exact weights and pre-processing for each comparison. Different names or a larger object count do not establish that one result is better. The parameter and result tables are empty before a comparison runs.",
+      "phonemes": "ðə skɹˈin sˈɛpəɹˌAts mˈɑdᵊl ˈA ænd mˈɑdᵊl bˈi sˈɛTɪŋz. ɹəkˈɔɹd ði ɪɡzˈækt wˈAts ænd pɹˌipɹˈɑsɛsɪŋ fɔɹ ˈiʧ kəmpˈɛɹəsᵊn. dˈɪfəɹənt nˈAmz ɔɹ ɐ lˈɑɹʤəɹ ˈɑbʤəkt kˈWnt dˈu nˌɑt əstˈæblɪʃ ðæt wˈʌn ɹəzˈʌlt ɪz bˈɛTəɹ. ðə pəɹˈæməTəɹ ænd ɹəzˈʌlt tˈAbᵊlz ɑɹ ˈɛmpti bəfˈɔɹ ɐ kəmpˈɛɹəsᵊn ɹˈʌnz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 15.395,
+          "speech_end": 18.745,
+          "audible_start": 15.495,
+          "audible_end": 18.564999999999998,
+          "duration": 3.35,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.25,
+          "text": "The screen separates Model A and Model B settings.",
+          "speech_text": "The screen separates Model A and Model B settings.",
+          "phonemes": "ðə skɹˈin sˈɛpəɹˌAts mˈɑdᵊl ˈA ænd mˈɑdᵊl bˈi sˈɛTɪŋz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 18.865,
+          "speech_end": 22.595,
+          "audible_start": 18.965,
+          "audible_end": 22.415,
+          "duration": 3.73,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.285,
+          "text": "Record the exact weights and preprocessing for each comparison.",
+          "speech_text": "Record the exact weights and pre-processing for each comparison.",
+          "phonemes": "ɹəkˈɔɹd ði ɪɡzˈækt wˈAts ænd pɹˌipɹˈɑsɛsɪŋ fɔɹ ˈiʧ kəmpˈɛɹəsᵊn."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 22.715,
+          "speech_end": 28.015,
+          "audible_start": 22.814999999999998,
+          "audible_end": 27.835,
+          "duration": 5.3,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.29,
+          "text": "Different names or a larger object count do not establish that one result is better.",
+          "speech_text": "Different names or a larger object count do not establish that one result is better.",
+          "phonemes": "dˈɪfəɹənt nˈAmz ɔɹ ɐ lˈɑɹʤəɹ ˈɑbʤəkt kˈWnt dˈu nˌɑt əstˈæblɪʃ ðæt wˈʌn ɹəzˈʌlt ɪz bˈɛTəɹ."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 28.134999999999998,
+          "speech_end": 32.595,
+          "audible_start": 28.235,
+          "audible_end": 32.415,
+          "duration": 4.46,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.27,
+          "text": "The parameter and result tables are empty before a comparison runs.",
+          "speech_text": "The parameter and result tables are empty before a comparison runs.",
+          "phonemes": "ðə pəɹˈæməTəɹ ænd ɹəzˈʌlt tˈAbᵊlz ɑɹ ˈɛmpti bəfˈɔɹ ɐ kəmpˈɛɹəsᵊn ɹˈʌnz."
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "speech_start": 33.115,
+      "speech_end": 48.915000000000006,
+      "scene_end": 49.43500000000001,
+      "duration": 16.320000000000007,
+      "text": "Enter the real example folder and press Load. Here, three original fields load successfully and Compare becomes available. Loading images is not the same as successfully running the models. We have not created masks or filled the comparison table on this screen.",
+      "speech_text": "Enter the real example folder and press Load. Here, three original fields load successfully and Compare becomes available. Loading images is not the same as successfully running the models. We have not created masks or filled the comparison table on this screen.",
+      "phonemes": "ˈɛntəɹ ðə ɹˈiᵊl ɪɡzˈæmpəl fˈOldəɹ ænd pɹˈɛs lˈOd. hˈɪɹ, θɹˈi əɹˈɪʤənᵊl fˈildz lˈOd səksˈɛsfəli ænd kəmpˈɛɹ bəkˈʌmz əvˈAləbᵊl. lˈOdɪŋ ˈɪmɪʤᵻz ɪz nˌɑt ðə sˈAm æz səksˈɛsfəli ɹˈʌnɪŋ ðə mˈɑdᵊlz. wˌi hæv nˌɑt kɹiˈATᵻd mˈæsks ɔɹ fˈɪld ðə kəmpˈɛɹəsᵊn tˈAbᵊl ˌɔn ðɪs skɹˈin.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 33.115,
+          "speech_end": 35.82,
+          "audible_start": 33.215,
+          "audible_end": 35.64,
+          "duration": 2.705,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.26,
+          "text": "Enter the real example folder and press Load.",
+          "speech_text": "Enter the real example folder and press Load.",
+          "phonemes": "ˈɛntəɹ ðə ɹˈiᵊl ɪɡzˈæmpəl fˈOldəɹ ænd pɹˈɛs lˈOd."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 35.940000000000005,
+          "speech_end": 40.745000000000005,
+          "audible_start": 36.04,
+          "audible_end": 40.565000000000005,
+          "duration": 4.805,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.18,
+          "trimmed_tail": 0.315,
+          "text": "Here, three original fields load successfully and Compare becomes available.",
+          "speech_text": "Here, three original fields load successfully and Compare becomes available.",
+          "phonemes": "hˈɪɹ, θɹˈi əɹˈɪʤənᵊl fˈildz lˈOd səksˈɛsfəli ænd kəmpˈɛɹ bəkˈʌmz əvˈAləbᵊl."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 40.865,
+          "speech_end": 44.715,
+          "audible_start": 40.965,
+          "audible_end": 44.535000000000004,
+          "duration": 3.85,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.23,
+          "trimmed_tail": 0.27,
+          "text": "Loading images is not the same as successfully running the models.",
+          "speech_text": "Loading images is not the same as successfully running the models.",
+          "phonemes": "lˈOdɪŋ ˈɪmɪʤᵻz ɪz nˌɑt ðə sˈAm æz səksˈɛsfəli ɹˈʌnɪŋ ðə mˈɑdᵊlz."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 44.835,
+          "speech_end": 48.915000000000006,
+          "audible_start": 44.935,
+          "audible_end": 48.735,
+          "duration": 4.08,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.29,
+          "text": "We have not created masks or filled the comparison table on this screen.",
+          "speech_text": "We have not created masks or filled the comparison table on this screen.",
+          "phonemes": "wˌi hæv nˌɑt kɹiˈATᵻd mˈæsks ɔɹ fˈɪld ðə kəmpˈɛɹəsᵊn tˈAbᵊl ˌɔn ðɪs skɹˈin."
+        }
+      ]
+    },
+    {
+      "scene": 4,
+      "speech_start": 49.43500000000001,
+      "speech_end": 67.00000000000001,
+      "scene_end": 67.52000000000001,
+      "duration": 18.085,
+      "text": "The installed Cellpose version rejects an invert argument still passed by this GUI backend. This real signature check shows the incompatibility without starting inference. We do not hide it. Instead, the next example uses compare_masks directly on existing label images.",
+      "speech_text": "The installed [Cellpose](/sˈɛlpˌOz/) version rejects an invert argument still passed by this GUI back end. This real signature check shows the incompatibility without starting inference. We do not hide it. Instead, the next example uses compare_masks directly on existing label images.",
+      "phonemes": "ði ɪnstˈɔld sˈɛlpˌOz vˈɜɹʒən ɹəʤˈɛkts ɐn ˈɪnvˌɜɹt ˈɑɹɡjəmənt stˈɪl pˈæst bI ðɪs ɡˈui bˈæk ˈɛnd. ðˌɪs ɹˈiᵊl sˈɪɡnəʧəɹ ʧˈɛk ʃˈOz ði ˌɪnkəmpˌæTəbˈɪləTi wɪðˈWt stˈɑɹTɪŋ ˈɪnfəɹəns. wˌi dˈu nˌɑt hˈId ɪt. ɪnstˈɛd, ðə nˈɛkst ɪɡzˈæmpəl jˈuzᵻz kəmpˈɛɹmˌæsks dəɹˈɛktli ˌɔn ɪɡzˈɪstɪŋ lˈAbəl ˈɪmɪʤᵻz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 49.43500000000001,
+          "speech_end": 55.11500000000001,
+          "audible_start": 49.53500000000001,
+          "audible_end": 54.93500000000001,
+          "duration": 5.68,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.285,
+          "text": "The installed Cellpose version rejects an invert argument still passed by this GUI backend.",
+          "speech_text": "The installed [Cellpose](/sˈɛlpˌOz/) version rejects an invert argument still passed by this GUI back end.",
+          "phonemes": "ði ɪnstˈɔld sˈɛlpˌOz vˈɜɹʒən ɹəʤˈɛkts ɐn ˈɪnvˌɜɹt ˈɑɹɡjəmənt stˈɪl pˈæst bI ðɪs ɡˈui bˈæk ˈɛnd."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 55.23500000000001,
+          "speech_end": 60.04500000000001,
+          "audible_start": 55.33500000000001,
+          "audible_end": 59.86500000000001,
+          "duration": 4.81,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.265,
+          "text": "This real signature check shows the incompatibility without starting inference.",
+          "speech_text": "This real signature check shows the incompatibility without starting inference.",
+          "phonemes": "ðˌɪs ɹˈiᵊl sˈɪɡnəʧəɹ ʧˈɛk ʃˈOz ði ˌɪnkəmpˌæTəbˈɪləTi wɪðˈWt stˈɑɹTɪŋ ˈɪnfəɹəns."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 60.165000000000006,
+          "speech_end": 61.400000000000006,
+          "audible_start": 60.26500000000001,
+          "audible_end": 61.22000000000001,
+          "duration": 1.235,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.19,
+          "trimmed_tail": 0.175,
+          "text": "We do not hide it.",
+          "speech_text": "We do not hide it.",
+          "phonemes": "wˌi dˈu nˌɑt hˈId ɪt."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 61.52000000000001,
+          "speech_end": 67.00000000000001,
+          "audible_start": 61.62000000000001,
+          "audible_end": 66.82000000000001,
+          "duration": 5.48,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.29,
+          "text": "Instead, the next example uses compare_masks directly on existing label images.",
+          "speech_text": "Instead, the next example uses compare_masks directly on existing label images.",
+          "phonemes": "ɪnstˈɛd, ðə nˈɛkst ɪɡzˈæmpəl jˈuzᵻz kəmpˈɛɹmˌæsks dəɹˈɛktli ˌɔn ɪɡzˈɪstɪŋ lˈAbəl ˈɪmɪʤᵻz."
+        }
+      ]
+    },
+    {
+      "scene": 5,
+      "speech_start": 67.52000000000001,
+      "speech_end": 84.01,
+      "scene_end": 84.53,
+      "duration": 17.00999999999999,
+      "text": "Both masks belong to the same real image from the Apply Cellpose tutorial. One is its saved batch output; the other is its saved live-preview output. They use the same model with different preprocessing, not two competing sets of weights. Neither mask is ground truth.",
+      "speech_text": "Both masks belong to the same real image from the Apply [Cellpose](/sˈɛlpˌOz/) tutorial. One is its saved batch output; the other is its saved live-preview output. They use the same model with different pre-processing, not two competing sets of weights. Neither mask is ground truth.",
+      "phonemes": "bˈOθ mˈæsks bəlˈɔŋ tə ðə sˈAm ɹˈiᵊl ˈɪmɪʤ fɹʌm ði əplˈI sˈɛlpˌOz tutˈɔɹiəl. wˈʌn ɪz ɪts sˈAvd bˈæʧ ˈWtpˌʊt; ði ˈʌðəɹ ɪz ɪts sˈAvd lˌIvpɹˈivjˌu ˈWtpˌʊt. ðˌA jˈuz ðə sˈAm mˈɑdᵊl wɪð dˈɪfəɹənt pɹˌipɹˈɑsɛsɪŋ, nˌɑt tˈu kəmpˈiTɪŋ sˈɛts ʌv wˈAts. nˈiðəɹ mˈæsk ɪz ɡɹˈWnd tɹˈuθ.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 67.52000000000001,
+          "speech_end": 72.29500000000002,
+          "audible_start": 67.62,
+          "audible_end": 72.11500000000001,
+          "duration": 4.775,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.235,
+          "trimmed_tail": 0.29,
+          "text": "Both masks belong to the same real image from the Apply Cellpose tutorial.",
+          "speech_text": "Both masks belong to the same real image from the Apply [Cellpose](/sˈɛlpˌOz/) tutorial.",
+          "phonemes": "bˈOθ mˈæsks bəlˈɔŋ tə ðə sˈAm ɹˈiᵊl ˈɪmɪʤ fɹʌm ði əplˈI sˈɛlpˌOz tutˈɔɹiəl."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 72.415,
+          "speech_end": 76.95500000000001,
+          "audible_start": 72.51500000000001,
+          "audible_end": 76.775,
+          "duration": 4.54,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.25,
+          "text": "One is its saved batch output; the other is its saved live-preview output.",
+          "speech_text": "One is its saved batch output; the other is its saved live-preview output.",
+          "phonemes": "wˈʌn ɪz ɪts sˈAvd bˈæʧ ˈWtpˌʊt; ði ˈʌðəɹ ɪz ɪts sˈAvd lˌIvpɹˈivjˌu ˈWtpˌʊt."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 77.07500000000002,
+          "speech_end": 81.95500000000001,
+          "audible_start": 77.17500000000001,
+          "audible_end": 81.775,
+          "duration": 4.88,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.23,
+          "trimmed_tail": 0.24,
+          "text": "They use the same model with different preprocessing, not two competing sets of weights.",
+          "speech_text": "They use the same model with different pre-processing, not two competing sets of weights.",
+          "phonemes": "ðˌA jˈuz ðə sˈAm mˈɑdᵊl wɪð dˈɪfəɹənt pɹˌipɹˈɑsɛsɪŋ, nˌɑt tˈu kəmpˈiTɪŋ sˈɛts ʌv wˈAts."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 82.07500000000002,
+          "speech_end": 84.01,
+          "audible_start": 82.17500000000001,
+          "audible_end": 83.83000000000001,
+          "duration": 1.935,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.245,
+          "text": "Neither mask is ground truth.",
+          "speech_text": "Neither mask is ground truth.",
+          "phonemes": "nˈiðəɹ mˈæsk ɪz ɡɹˈWnd tɹˈuθ."
+        }
+      ]
+    },
+    {
+      "scene": 6,
+      "speech_start": 84.53,
+      "speech_end": 102.52,
+      "scene_end": 103.03999999999999,
+      "duration": 18.50999999999999,
+      "text": "The API reports ninety-four objects in A and ninety-five in B, with ninety-one matched pairs. Mean overlap among matched pairs is about zero point nine six. The adjusted Rand index is also about zero point nine six one. These describe agreement, not accuracy or a winner.",
+      "speech_text": "The API reports ninety-four objects in A and ninety-five in B, with ninety-one matched pairs. Mean overlap among matched pairs is about zero point nine six. The adjusted Rand index is also about zero point nine six one. These describe agreement, not accuracy or a winner.",
+      "phonemes": "ði ˌApˌiˈI ɹəpˈɔɹts nˈIndifˌɔɹ ˈɑbʤəkts ɪn ˈA ænd nˈIndifˌIv ɪn bˈi, wɪð nˈIndiwˌʌn mˈæʧt pˈɛɹz. mˈin ˌOvəɹlˈæp əmˈʌŋ mˈæʧt pˈɛɹz ɪz əbˈWt zˈɪɹO pˈYnt nˈIn sˈɪks. ði əʤˈʌstᵻd ɹˈænd ˈɪndˌɛks ɪz ˈɔlsO əbˈWt zˈɪɹO pˈYnt nˈIn sˈɪks wˈʌn. ðˌiz dəskɹˈIb əɡɹˈimᵊnt, nˌɑt ˈækjəɹəsi ɔɹ ɐ wˈɪnəɹ.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 84.53,
+          "speech_end": 90.855,
+          "audible_start": 84.63,
+          "audible_end": 90.675,
+          "duration": 6.325,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.265,
+          "text": "The API reports ninety-four objects in A and ninety-five in B, with ninety-one matched pairs.",
+          "speech_text": "The API reports ninety-four objects in A and ninety-five in B, with ninety-one matched pairs.",
+          "phonemes": "ði ˌApˌiˈI ɹəpˈɔɹts nˈIndifˌɔɹ ˈɑbʤəkts ɪn ˈA ænd nˈIndifˌIv ɪn bˈi, wɪð nˈIndiwˌʌn mˈæʧt pˈɛɹz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 90.975,
+          "speech_end": 95.11,
+          "audible_start": 91.075,
+          "audible_end": 94.93,
+          "duration": 4.135,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.24,
+          "text": "Mean overlap among matched pairs is about zero point nine six.",
+          "speech_text": "Mean overlap among matched pairs is about zero point nine six.",
+          "phonemes": "mˈin ˌOvəɹlˈæp əmˈʌŋ mˈæʧt pˈɛɹz ɪz əbˈWt zˈɪɹO pˈYnt nˈIn sˈɪks."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 95.23,
+          "speech_end": 99.38,
+          "audible_start": 95.33,
+          "audible_end": 99.2,
+          "duration": 4.15,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.29,
+          "text": "The adjusted Rand index is also about zero point nine six one.",
+          "speech_text": "The adjusted Rand index is also about zero point nine six one.",
+          "phonemes": "ði əʤˈʌstᵻd ɹˈænd ˈɪndˌɛks ɪz ˈɔlsO əbˈWt zˈɪɹO pˈYnt nˈIn sˈɪks wˈʌn."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 99.5,
+          "speech_end": 102.52,
+          "audible_start": 99.6,
+          "audible_end": 102.34,
+          "duration": 3.02,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.285,
+          "text": "These describe agreement, not accuracy or a winner.",
+          "speech_text": "These describe agreement, not accuracy or a winner.",
+          "phonemes": "ðˌiz dəskɹˈIb əɡɹˈimᵊnt, nˌɑt ˈækjəɹəsi ɔɹ ɐ wˈɪnəɹ."
+        }
+      ]
+    },
+    {
+      "scene": 7,
+      "speech_start": 103.03999999999999,
+      "speech_end": 120.16,
+      "scene_end": 120.67999999999999,
+      "duration": 17.64,
+      "text": "Inspect the actual saved overlays. The right panel marks pixels whose foreground status differs. It does not show every instance-label disagreement. A similar object count can conceal different boundaries, splits or merges, so inspect images as well as summary numbers.",
+      "speech_text": "Inspect the actual saved overlays. The right panel marks pixels whose foreground status differs. It does not show every instance-label disagreement. A similar object count can conceal different boundaries, splits or merges, so inspect images as well as summary numbers.",
+      "phonemes": "ɪnspˈɛkt ði ˈækʧəwəl sˈAvd ˈOvəɹlˌAz. ðə ɹˈIt pˈænᵊl mˈɑɹks pˈɪksᵊlz hˌuz fˈɔɹɡɹˌWnd stˈATəs dˈɪfəɹz. ˌɪt dˈʌz nˌɑt ʃˈO ˈɛvəɹi ˈɪnstᵊnslˌAbəl dˌɪsəɡɹˈimənt. ɐ sˈɪmᵊləɹ ˈɑbʤəkt kˈWnt kæn kənsˈil dˈɪfəɹənt bˈWndəɹiz, splˈɪts ɔɹ mˈɜɹʤᵻz, sˌO ɪnspˈɛkt ˈɪmɪʤᵻz æz wˈɛl æz sˈʌməɹi nˈʌmbəɹz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 103.03999999999999,
+          "speech_end": 105.315,
+          "audible_start": 103.13999999999999,
+          "audible_end": 105.13499999999999,
+          "duration": 2.275,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.245,
+          "text": "Inspect the actual saved overlays.",
+          "speech_text": "Inspect the actual saved overlays.",
+          "phonemes": "ɪnspˈɛkt ði ˈækʧəwəl sˈAvd ˈOvəɹlˌAz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 105.43499999999999,
+          "speech_end": 109.095,
+          "audible_start": 105.535,
+          "audible_end": 108.91499999999999,
+          "duration": 3.66,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.27,
+          "text": "The right panel marks pixels whose foreground status differs.",
+          "speech_text": "The right panel marks pixels whose foreground status differs.",
+          "phonemes": "ðə ɹˈIt pˈænᵊl mˈɑɹks pˈɪksᵊlz hˌuz fˈɔɹɡɹˌWnd stˈATəs dˈɪfəɹz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 109.21499999999999,
+          "speech_end": 112.365,
+          "audible_start": 109.315,
+          "audible_end": 112.18499999999999,
+          "duration": 3.15,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.26,
+          "text": "It does not show every instance-label disagreement.",
+          "speech_text": "It does not show every instance-label disagreement.",
+          "phonemes": "ˌɪt dˈʌz nˌɑt ʃˈO ˈɛvəɹi ˈɪnstᵊnslˌAbəl dˌɪsəɡɹˈimənt."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 112.48499999999999,
+          "speech_end": 120.16,
+          "audible_start": 112.585,
+          "audible_end": 119.97999999999999,
+          "duration": 7.675,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.275,
+          "text": "A similar object count can conceal different boundaries, splits or merges, so inspect images as well as summary numbers.",
+          "speech_text": "A similar object count can conceal different boundaries, splits or merges, so inspect images as well as summary numbers.",
+          "phonemes": "ɐ sˈɪmᵊləɹ ˈɑbʤəkt kˈWnt kæn kənsˈil dˈɪfəɹənt bˈWndəɹiz, splˈɪts ɔɹ mˈɜɹʤᵻz, sˌO ɪnspˈɛkt ˈɪmɪʤᵻz æz wˈɛl æz sˈʌməɹi nˈʌmbəɹz."
+        }
+      ]
+    },
+    {
+      "scene": 8,
+      "speech_start": 120.67999999999999,
+      "speech_end": 140.51999999999998,
+      "scene_end": 141.04,
+      "duration": 20.36,
+      "text": "The helper independently checks every matched overlap using the original pixels and verifies the identical-mask control. Keep the CSV, figure, source identities and preprocessing records together. Use independent reviewed annotations and held-out images before making accuracy or model-selection claims.",
+      "speech_text": "The helper independently checks every matched overlap using the original pixels and verifies the identical-mask control. Keep the CSV, figure, source identities and pre-processing records together. Use independent reviewed annotations and held-out images before making accuracy or model-selection claims.",
+      "phonemes": "ðə hˈɛlpəɹ ˌɪndəpˈɛndəntli ʧˈɛks ˈɛvəɹi mˈæʧt ˈOvəɹlˌæp jˈuzɪŋ ði əɹˈɪʤənᵊl pˈɪksᵊlz ænd vˈɛɹəfˌIz ði Idˈɛntəkᵊlmˌæsk kəntɹˈOl. kˈip ðə sˌiˌɛsvˈi, fˈɪɡjəɹ, sˈɔɹs IdˈɛntəTiz ænd pɹˌipɹˈɑsɛsɪŋ ɹˈɛkəɹdz təɡˈɛðəɹ. jˈuz ˌɪndəpˈɛndənt ɹəvjˈud ˌænətˈAʃənz ænd hˈɛldˌWt ˈɪmɪʤᵻz bəfˈɔɹ mˈAkɪŋ ˈækjəɹəsi ɔɹ mˌɑdᵊlsəlˈɛkʃən klˈAmz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 120.67999999999999,
+          "speech_end": 128.25,
+          "audible_start": 120.77999999999999,
+          "audible_end": 128.07,
+          "duration": 7.57,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.31,
+          "text": "The helper independently checks every matched overlap using the original pixels and verifies the identical-mask control.",
+          "speech_text": "The helper independently checks every matched overlap using the original pixels and verifies the identical-mask control.",
+          "phonemes": "ðə hˈɛlpəɹ ˌɪndəpˈɛndəntli ʧˈɛks ˈɛvəɹi mˈæʧt ˈOvəɹlˌæp jˈuzɪŋ ði əɹˈɪʤənᵊl pˈɪksᵊlz ænd vˈɛɹəfˌIz ði Idˈɛntəkᵊlmˌæsk kəntɹˈOl."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 128.37,
+          "speech_end": 133.505,
+          "audible_start": 128.47,
+          "audible_end": 133.325,
+          "duration": 5.135,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.19,
+          "trimmed_tail": 0.3,
+          "text": "Keep the CSV, figure, source identities and preprocessing records together.",
+          "speech_text": "Keep the CSV, figure, source identities and pre-processing records together.",
+          "phonemes": "kˈip ðə sˌiˌɛsvˈi, fˈɪɡjəɹ, sˈɔɹs IdˈɛntəTiz ænd pɹˌipɹˈɑsɛsɪŋ ɹˈɛkəɹdz təɡˈɛðəɹ."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 133.625,
+          "speech_end": 140.51999999999998,
+          "audible_start": 133.725,
+          "audible_end": 140.34,
+          "duration": 6.895,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.23,
+          "trimmed_tail": 0.275,
+          "text": "Use independent reviewed annotations and held-out images before making accuracy or model-selection claims.",
+          "speech_text": "Use independent reviewed annotations and held-out images before making accuracy or model-selection claims.",
+          "phonemes": "jˈuz ˌɪndəpˈɛndənt ɹəvjˈud ˌænətˈAʃənz ænd hˈɛldˌWt ˈɪmɪʤᵻz bəfˈɔɹ mˈAkɪŋ ˈækjəɹəsi ɔɹ mˌɑdᵊlsəlˈɛkʃən klˈAmz."
+        }
+      ]
+    }
+  ]
+}

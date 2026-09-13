@@ -53,20 +53,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "nucleus_intensity_merge",
-      "source_sha256": "abfa54900cad844be049052e68cf839866cdfa868283ce56661d1ace2ee8004b",
-      "source": "Merge touching nucleus labels when the mean intensity along their shared boundary is at least as high as the dimmer object's own intensity statistic - i.e. there is no dark seam between them, so the split is spurious. Controlled by nucleus_intensity_threshold_method and nucleus_intensity_percentile. Default False; enable when Cellpose over-segments single nuclei.",
-      "translation": "접한 핵 레이블의 공유 경계 평균 강도가 더 어두운 객체 자체의 강도 통계량 이상이면 합칩니다. 즉 어두운 이음새가 없어 분리가 잘못된 경우입니다. nucleus_intensity_threshold_method 와 nucleus_intensity_percentile 로 제어합니다. 기본값 False 이며 Cellpose 가 한 핵을 여러 개로 과분할할 때 켭니다."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "nucleus_intensity_percentile",
-      "source_sha256": "26110c2c362dbda2c3698db3da7775f30a9f71260590d609db55d64519c48647",
-      "source": "Percentile of each nucleus's own pixel intensities used as the merge reference when nucleus_intensity_threshold_method is 'percentile'. Higher values (90) demand a very bright shared boundary and merge almost nothing; lower values (50) merge readily. Range 0-100, default 75. Ignored when the method is 'mean'.",
-      "translation": "nucleus_intensity_threshold_method 가 'percentile' 일 때 병합 기준으로 쓸 각 핵 자체 픽셀 강도의 분위수입니다. 큰 값(90) 은 매우 밝은 공유 경계를 요구해 거의 합치지 않고 작은 값(50) 은 쉽게 합칩니다. 범위 0~100, 기본값 75. 방법이 'mean' 이면 무시됩니다."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "nucleus_mask_dim",
       "source_sha256": "3eb6fb6c76dbf347af7f631c0afbccbf5e9c46d9434cf444beb24d36f73a9749",
       "source": "Position along the last axis of each merged/*.npy array where the nucleus label mask sits, one plane after the cell mask. With the default four image channels (0-3) that is 5; keep a different number of channels and it shifts by the same amount. None makes measure_crop skip nucleus measurements and cell-to-nucleus linking. Default 5.",

@@ -2510,33 +2510,221 @@
     },
     {
       "id": "21_model_compare",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "곧 공개됩니다",
-      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 21,
+      "slug": "model_compare",
+      "title": "Model Compare: 현재 화면과 실제 마스크의 일치도",
+      "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_compare"
+      "description": "중첩된 비교 화면에서 실제 시야를 불러오고 저장된 분할 결과를 API로 비교합니다. 일치도를 정확도와 혼동하거나 GUI 추론 문제가 해결되었다고 설명하지 않습니다.",
+      "objectives": [
+        "Make Masks 안의 Model Compare를 열어 실제 예제 시야를 불러옵니다.",
+        "현재 Cellpose 비호환 문제와 작동하는 마스크 비교 API를 구분합니다.",
+        "어느 결과도 정답으로 단정하지 않고 객체 수, 대응과 겹침을 해석합니다."
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly와 Cellpose 4.2.1.1로 녹화했습니다. GUI는 지원되지 않는 invert 인수를 전달하므로 이미지만 불러오며, 추론 실행, 결과 주입, 앱 수정은 하지 않습니다. spacr.model_compare.compare_masks는 Apply Cellpose의 cell_pair_02.tif에서 실제 저장된 배치 출력과 실시간 미리보기 출력을 비교합니다. 같은 cpsam 가중치에 서로 다른 전처리를 사용합니다. 어느 마스크도 전문가가 만든 정답 참조가 아니며 여기서는 모델을 실행하지 않습니다. 시야 식별 정보, 픽셀 기하, 전처리와 파일 해시를 보존하세요. 같은 크기만으로 같은 이미지에서 나온 마스크임을 증명할 수 없습니다. 스크립트와 증거 기록이 원본을 식별합니다. 새 출력 폴더를 사용하세요. 일치도는 정확도, 모델 순위, 생물학적 타당성 또는 독립 이미지에서의 성능을 증명하지 않습니다.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare는 Make Masks 안에 있으며 같은 시야의 분할 결과를 비교합니다. 이 강의는 현재 화면을 소개한 뒤, 실제 저장된 두 결과로 작동하는 마스크 비교 API를 시연합니다.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "화면은 Model A와 Model B 설정을 분리합니다. 비교마다 정확한 가중치와 전처리를 기록하세요. 이름이 다르거나 객체가 많다고 더 좋은 결과는 아닙니다. 비교를 실행하기 전에는 매개변수 표와 결과 표가 비어 있습니다.",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "실제 예제 폴더를 입력하고 Load를 누릅니다. 원본 시야 세 개가 정상적으로 로드되어 Compare가 활성화됩니다. 이미지 로드는 모델의 성공적인 실행과 다릅니다. 이 화면에서 마스크를 만들거나 비교 표에 결과를 넣지 않았습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "설치된 Cellpose는 이 GUI 백엔드가 아직 전달하는 invert 인수를 거부합니다. 실제 함수 시그니처 검사로 추론 없이 비호환성을 확인합니다. 이 문제를 숨기지 않습니다. 다음 예제는 기존 레이블 이미지에 compare_masks를 직접 적용합니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "두 마스크는 Apply Cellpose 강의의 같은 실제 이미지에서 나왔습니다. 하나는 저장된 배치 출력이고 다른 하나는 저장된 실시간 미리보기 출력입니다. 같은 모델과 다른 전처리를 사용하며, 서로 경쟁하는 두 가중치 세트가 아닙니다. 어느 마스크도 정답 참조가 아닙니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "API 결과는 A에 객체 94개, B에 95개이며 대응 쌍은 91개입니다. 대응 쌍의 평균 겹침은 약 0.96, 조정 랜드 지수는 약 0.961입니다. 이는 일치도를 나타낼 뿐, 정확도나 승자를 뜻하지 않습니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "실제로 저장된 중첩 이미지를 살펴보세요. 오른쪽 패널은 전경 여부가 다른 픽셀을 표시하며 모든 인스턴스 레이블 불일치를 보여주지는 않습니다. 비슷한 객체 수에도 경계 차이, 분할 또는 병합이 숨을 수 있으므로 요약 수치와 함께 이미지를 확인하세요.",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "스크립트는 원본 픽셀로 각 대응 쌍의 겹침을 독립적으로 검산하고 동일 마스크 대조도 확인합니다. CSV, 그림, 원본 식별 정보와 전처리 기록을 함께 보관하세요. 정확도를 주장하거나 모델을 선택하기 전에 독립적으로 검토한 주석과 평가용으로 따로 보관한 이미지를 사용하세요.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "곧 공개됩니다",
-      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 22,
+      "slug": "model_zoo",
+      "title": "Model Zoo: 모델을 찾고 출처 확인하기",
+      "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_zoo"
+      "description": "중첩된 모델 라이브러리를 열어 기존 로컬 캐시를 검색합니다. 기록된 학습 정보와 알 수 없는 출처를 구분하며, 현재 Cellpose 비호환 문제가 남아 있는 동안 벤치마크 성공을 주장하지 않습니다.",
+      "objectives": [
+        "Make Masks 안에서 Model Zoo를 찾아 로컬 모델 폴더를 검색합니다.",
+        "출처, 유형, 체크섬과 학습 정보를 읽고 알 수 없는 메타데이터를 검증과 혼동하지 않습니다.",
+        "모델 관리와 다운로드, 학습, 벤치마크를 구분합니다."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly. 실제 녹화는 기존 Cellpose 캐시를 검색하고 원래 cpsam 파일을 선택할 뿐, 다운로드, 학습, 추론은 하지 않습니다. 발표자의 개인 경로가 아닌 자신의 모델 폴더를 사용하세요. 선택한 메타데이터에는 공개 체크섬, 학습 데이터셋과 작성자가 없으며 이름에서 추측하지 않습니다. 별도 해시는 녹화 중 로컬 파일이 바뀌지 않았다는 사실만 확인하고 출처는 증명하지 않습니다. Model Zoo 벤치마크와 Model Compare는 Cellpose 4.2.1.1이 지원하지 않는 invert를 전달합니다. 앱의 결함을 여기서 수정하거나 우회하지 않습니다. 실제 다운로드와 미리보기는 Plaque 강의를 참조하세요. 정확도 비교나 독립 데이터 검증을 수행했다고 주장하지 않습니다.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo는 Make Masks 안의 모델 라이브러리입니다. 상위 모듈을 열고 Model Zoo 컨트롤을 사용하세요. 이 강의는 실제 라이브러리와 로컬 모델 검색을 시연하며, 새로운 학습이나 정확도 벤치마크를 수행하지 않습니다.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "표는 공개된 항목과 로컬에서 발견한 파일을 한 화면에 모읍니다. 모델 유형과 출처 열을 함께 읽으세요. 목록에 있다고 다운로드되었거나 자신의 이미지에서 시험되었거나 실험에 맞게 검증된 것은 아닙니다.",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "기존 모델 폴더를 입력하고 Scan을 누르거나 옆 버튼으로 폴더를 선택합니다. 여기서는 실제 Cellpose 캐시를 검색합니다. 자신의 경로를 사용하세요. 검색은 파일과 메타데이터를 찾을 뿐 모델 학습이나 이미지 분할을 수행하지 않습니다.",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "이번 검색에는 항목 여덟 개가 표시됩니다. 공개된 원격 모델과 로컬 가중치 파일이 포함됩니다. 이 수는 이 컴퓨터의 상태이지 필수 구성이 아닙니다. 비슷한 이름을 같은 가중치로 생각하지 말고 정확한 파일을 선택하세요.",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "선택한 로컬 파일은 이 화면에 공개 체크섬도 학습 출처도 기록되어 있지 않습니다. 모르는 것은 모르는 상태로 남습니다. 이름은 학습 데이터셋의 증거가 아닙니다. 우리가 계산한 해시는 녹화 중 파일이 바뀌지 않았음을 확인할 뿐 작성자나 성능을 증명하지 않습니다.",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "다운로드 영역은 사용 가능한 원격 모델의 저장 위치를 정합니다. 공개 체크섬이 없는 모델에 대한 선택지도 있지만 체크섬 부재를 검증된 다운로드로 취급하면 안 됩니다. 현재 로컬 파일은 다시 다운로드하지 않습니다. Plaque 강의에서 실제 다운로드와 미리보기를 보여줍니다.",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "아래 영역은 시야를 시험하고 선택한 모델을 비교하는 곳입니다. 라이브러리 검색과는 별개의 작업입니다. 현재 Cellpose 인수 불일치 때문에 여기서 성공적인 벤치마크를 주장할 수 없습니다. 마스크나 점수를 만들어 넣지 않았습니다. 수정된 흐름을 평가할 때 대표적인 검증 이미지를 학습 예제와 분리하세요.",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "23_agreement",
@@ -9794,35 +9982,252 @@
       ]
     },
     {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: 현재 화면과 실제 Python 예제",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "새 모듈을 살펴보고 API로 실제 이미지를 인코딩합니다. GUI 수정이나 생물학적 검증과는 구분합니다.",
+      "objectives": [
+        "현재 GUI와 작동하는 API를 구분합니다.",
+        "열여섯 이미지로 채널 정책을 비교합니다.",
+        "식별 정보를 보존하고 그림의 한계를 이해합니다."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "embeddings 추가 의존성이 설치된 spaCR 1.5.0.7이 필요합니다. 녹화는 timm 1.0.29와 CPU의 사전 학습 ResNet18을 사용합니다. Annotate 예제와 연결된 ZIP을 받고 README의 cell_png 폴더 및 새 출력 폴더를 사용하세요. 파일명은 검증된 데이터베이스 결합 키가 아닙니다. 화면에 이미지 로딩 컨트롤이 없어 성공한 처리는 API를 사용합니다. 생물학적 검증, 원어민 검토 또는 GPU 실행을 주장하지 않습니다.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings는 spaCR의 Home에 추가된 모듈입니다. 사용자의 주석으로 학습하지 않고 잘라낸 이미지를 수치 벡터로 바꿉니다. 이 강의는 현재 화면과 실제로 다운로드한 이미지로 작동하는 Python 예제를 보여 줍니다.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "일 점 오 점 영 점 칠 버전에서는 이 화면에 잘라낸 이미지를 불러오는 컨트롤이 없고 Embed는 비활성 상태입니다. GUI 실행이 성공한 것처럼 연출하지 않습니다. 다음에 보여 주는 실제 인코딩은 지원되는 Python API가 수행합니다.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel은 저장된 각 채널을 따로 인코딩하고 벡터를 이어 붙입니다. Project to three는 결합한 이미지를 인코딩합니다. 속도뿐 아니라 표현 자체가 바뀝니다. PNG의 채널 위치만으로 검증된 염색 표지를 알 수 있는 것은 아닙니다.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "spaCR 환경에 선택 사항인 embeddings 추가 의존성을 설치합니다. 기본 ResNet 십팔은 ImageNet 지도 학습 가중치를 쓰며, 세포로 학습한 자기지도 모델이 아닙니다. 이 작은 예제는 CPU를 사용하므로 GPU나 원격 인공지능 서비스가 필요하지 않습니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Annotate의 다운로드 예제와 설명에 지정된 이미지 폴더를 사용합니다. 연결된 스크립트는 파일명 순으로 기존 이미지 열여섯 장을 선택합니다. 각 이미지는 가로세로 이백이십사 픽셀이고 저장된 채널은 세 개입니다. 크기를 바꾸거나 다시 분할하지 않습니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "새 출력 폴더를 지정해 스크립트를 실행합니다. 실제 사전 학습 인코더와 네 장씩의 배치로 embed_array를 호출합니다. 채널별 인코딩은 열여섯 행과 천오백삼십육 차원을 만듭니다. 저장한 행렬을 다시 열고 모든 값을 확인합니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "이제 project와 다른 출력 폴더를 선택합니다. 같은 이미지가 열여섯 행과 오백십이 차원을 만듭니다. 결합 채널의 열은 앞선 채널별 열과 서로 대체할 수 없습니다. 정책을 의도적으로 비교하고 실행마다 설정을 보존하세요.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "이미지 뷰어에서 실제 입력 몽타주를 확인합니다. 번호는 출력 행 순서와 일치합니다. 벡터를 해석하기 전에 이미지 품질과 내보내기의 채널 매핑을 확인하세요. 파일명은 이 예제의 식별자이며, 측정 데이터베이스와 결합하기 전에 객체 키를 검증해야 합니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "저장한 이 그림은 채널별 벡터를 두 주성분에 투영합니다. 번호가 있는 점은 동일한 이미지에 대응합니다. 매우 작은 표본의 탐색적 시각화이지 서로 다른 표현형의 증거는 아닙니다. 임베딩의 한 차원은 생물학적 측정값이 아닙니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "결합 채널 벡터는 별도의 투영을 갖습니다. 따로 적합한 두 그림의 축 좌표를 같은 변환을 공유하는 것처럼 비교하지 마세요. 어느 그림도 검색 정확도를 측정하거나 임베딩이 직접 측정한 특징 패널보다 우수하다는 사실을 입증하지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "벡터, 원본 식별 정보, 가중치 체크섬, 설정과 패키지 버전을 보존하세요. 스크립트는 원본 이미지가 변하지 않았는지 확인하고 기존 출력 위치를 거부합니다. 비교할 때 입력 이미지, 정규화와 채널 매핑을 맞추세요. 연결된 설명으로 이 API 예제를 재현할 수 있습니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
+    },
+    {
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS",
+      "title": "OPS: 현재 화면과 네 이미지 타일의 정합",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
       "section": "Segmentation models",
-      "status": "coming_soon",
-      "availability_title": "곧 공개됩니다",
-      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
-    },
-    {
-      "id": "77_embeddings",
-      "number": 77,
-      "slug": "embeddings",
-      "title": "Embeddings",
-      "series": 2,
-      "app_key": "embeddings",
-      "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "곧 공개됩니다",
-      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Mask 안에서 OPS를 찾고 실제 타일 네 장으로 검증한 정합 및 합성 예제를 살펴봅니다. 전체 플레이트 처리, 세포 분할 또는 바코드 해독을 완료한 워크플로는 아닙니다.",
+      "objectives": [
+        "중첩된 OPS 화면과 예제의 범위를 이해합니다.",
+        "원래 촬영 좌표를 유지하며 인접한 네 타일을 정합합니다.",
+        "겹침, 커버리지와 저장된 출처 정보를 확인합니다."
+      ],
+      "prerequisite": "녹화는 spaCR 1.5.0.7 nightly의 ops_layout, ops_stitch, ops_compose Python API를 CPU에서 실행합니다. GUI의 Run은 다른 구형 엔진을 사용하므로 여기서는 실행하지 않습니다. 비공개 NAS 출처: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, 위치 0, 1, 10, 11. 승인된 접근 권한이 필요하며 공개 테스트 다운로드가 아니고 재배포 권한도 부여하지 않습니다. 각 uint16 TIFF는 1480×1480픽셀 평면 다섯 개이며 DAPI는 0번 평면입니다. 원래 333개 위치의 배치를 유지합니다. 다른 촬영 자료에 같은 배치, 겹침, 임계값을 측정 없이 적용하지 마세요. 원본 밖의 새 출력 폴더를 선택하세요. 전체 웰, 분할, 주기 간 정합, 해독, 생물학적 분석은 시연 범위가 아닙니다.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "광학 풀링 스크리닝은 인접한 시야를 반복 촬영한 이미지에서 시작합니다. spaCR에서 Mask를 열면 그 안에 OPS 화면이 있습니다. 이번 강의는 해당 위치와 검증된 작은 이미지 정합 예제를 보여줍니다.",
+          "focus_modules": [
+            "mask"
+          ],
+          "related_lessons": [
+            "05_home",
+            "07_mask"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_mask_host",
+          "narration": "Mask 작업 표시줄의 OPS 스위치를 사용합니다. 상위 모듈 안에 별도 페이지가 열립니다. OPS는 Home의 추가 타일이 아니며, 시퀀싱 리드 파일을 처리하는 Map Barcodes와도 다른 워크플로입니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_ops_settings",
+          "narration": "현재 OPS 페이지에는 입력, 이어 붙이기, 모자이크, 정합 및 품질 관리 설정이 있습니다. Run 버튼은 다른 구형 엔진을 사용합니다. 여기서는 실행하지 않으며 전체 스크리닝 과정이 검증되었다고 주장하지도 않습니다. 다음 단계에서는 기하 처리 API를 직접 사용합니다.",
+          "focus": [
+            340,
+            170,
+            1210,
+            1310
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_scope",
+          "narration": "이 CPU 예제는 기존 촬영 자료의 실제 이미지 타일 네 장을 정합하고 합성합니다. 세포 분할이나 바코드 해독, 전체 플레이트 처리는 하지 않습니다. 원본 촬영 자료는 포함된 테스트 다운로드가 아닙니다. 정확히 재현하려면 해당 파일에 대한 승인된 접근 권한이 필요합니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            800
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "첫 번째 촬영 주기에서 위치 영, 일, 십, 십일을 선택합니다. 각 원본 파일에는 평면 다섯 개가 있으며 영 번 평면은 핵 염색입니다. 원래 삼백삼십삼 개 위치의 배치와 번호를 유지합니다. 타일 네 장을 선택했다고 새로운 네 타일 웰 배치가 되는 것은 아닙니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_geometry",
+          "narration": "보조 스크립트는 stitch_well을 호출하고 인접한 겹침 네 곳을 검사한 뒤 compose_window를 호출합니다. 타일 네 장이 모두 배치됩니다. 합성 영역의 한 변은 이천칠백오십육 픽셀입니다. 이 촬영 자료의 기하학적 폐합 오차는 사분의 일 픽셀 이내이지만 모든 데이터에 대한 정확도 보장은 아닙니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_independent_checks",
+          "narration": "배치 결과만 믿지 마세요. 정합 점수와 독립적으로 실제 겹치는 픽셀을 비교하세요. 여기서는 올바른 정합의 상관관계가 어느 한 축을 의도적으로 십칠 픽셀 이동한 경우보다 훨씬 높습니다. 이런 잘못된 오프셋 대조는 그럴듯하지만 틀린 배치를 찾는 데 도움이 됩니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_geometry_figure",
+          "narration": "실제로 저장된 이미지와 커버리지 맵을 확인하세요. 왼쪽은 합성된 핵 이미지이고 오른쪽은 기여한 타일 수입니다. 커버리지가 영이면 획득한 픽셀이 없다는 뜻이지 생물학적 배경이라는 뜻이 아닙니다. 같은 평면의 공간적 이웃을 결합하며 서로 다른 시퀀싱 주기는 절대 섞지 않습니다.",
+          "focus": [
+            600,
+            390,
+            2630,
+            1400
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "배열, 커버리지, 배치 좌표, 원본 체크섬과 실행 보고서를 함께 보관하세요. 스크립트는 출력을 다시 읽고 원본 네 파일이 바뀌지 않았음을 확인합니다. 이는 재현 가능한 기하 처리 점검 단계입니다. 전체 광학 스크리닝 튜토리얼을 위해서는 후속 단계의 개별 검증이 여전히 필요합니다.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "hold_after": 0.7
+        }
+      ]
     }
   ]
 }

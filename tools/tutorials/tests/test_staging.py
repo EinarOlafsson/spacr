@@ -70,6 +70,38 @@ def test_check_only_still_rejects_changed_lesson_identity(project):
         stage.stage_lesson(lesson, 'home', root, check_only=True)
 
 
+@pytest.mark.parametrize('change', [None, 'number', 'app_key', 'host_app_key', 'status', 'unknown'])
+def test_can_fill_exact_published_placeholder_without_renumbering(change):
+    current = [{'id': 'diagnostics', 'number': 75}]
+    lesson = {'id': '77_embeddings', 'number': 77, 'app_key': 'embeddings'}
+    released = [{**lesson, 'status': 'coming_soon'}]
+    stage.require_append_identity(lesson, current, released)
+    if change is None:
+        return
+    if change == 'unknown':
+        released = []
+    else:
+        released[0][change] = 'wrong'
+    with pytest.raises(ValueError, match='exact published placeholder'):
+        stage.require_append_identity(lesson, current, released)
+
+
+@pytest.mark.parametrize('change', [None, 'number', 'app_key', 'host_app_key', 'status', 'occupied'])
+def test_fill_reserved_ops_slot_after_embeddings_was_recorded(change):
+    current = [{'id': 'diagnostics', 'number': 75}, {'id': '77_embeddings', 'number': 77}]
+    lesson = {'id': '76_ops', 'number': 76, 'app_key': 'ops', 'host_app_key': 'mask'}
+    released = [{**lesson, 'status': 'coming_soon'}]
+    stage.require_append_identity(lesson, current, released)
+    if change is None:
+        return
+    if change == 'occupied':
+        current.append({'id': 'different', 'number': 76})
+    else:
+        released[0][change] = 'wrong'
+    with pytest.raises(ValueError, match='exact published placeholder'):
+        stage.require_append_identity(lesson, current, released)
+
+
 @pytest.mark.parametrize('defect', [None, 'stale', 'missing', 'outside'])
 def test_visual_only_focus_preserves_lesson_and_rejects_drift(project, defect):
     import hashlib

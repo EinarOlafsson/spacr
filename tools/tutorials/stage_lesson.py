@@ -39,6 +39,19 @@ def union(rectangles):
     return [x, y, right - x, bottom - y]
 
 
+def require_append_identity(lesson, current, released):
+    """Allow a numbered public placeholder to become real without renumbering it."""
+    expected = max(item['number'] for item in current) + 1
+    if lesson['number'] == expected:
+        return
+    known = [item for item in released if item['id'] == lesson['id']]
+    if (any(item['number'] == lesson['number'] for item in current) or len(known) != 1
+            or known[0].get('status') != 'coming_soon'
+            or any(known[0].get(key) != lesson.get(key)
+                   for key in ('number', 'app_key', 'host_app_key'))):
+        raise ValueError(f'New lesson must append with number {expected} or its exact published placeholder identity')
+
+
 def stage_lesson(lesson_path, capture_module, stage, *, check_only=False, focus_map=None):
     from PIL import Image
     lesson = read(lesson_path)
@@ -114,9 +127,8 @@ def stage_lesson(lesson_path, capture_module, stage, *, check_only=False, focus_
             replaced = True
             break
     if not replaced:
-        expected = max(item['number'] for item in catalog['lessons']) + 1
-        if lesson['number'] != expected:
-            raise ValueError(f'New lesson must append with number {expected}')
+        require_append_identity(lesson, catalog['lessons'],
+                                read(baseline / 'lessons_en.json')['lessons'])
         catalog['lessons'].append(lesson)
     if check_only:
         print(f"Validated {lesson['id']}: {len(scenes)} real capture scenes; catalogs unchanged.")

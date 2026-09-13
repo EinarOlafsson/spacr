@@ -1,0 +1,770 @@
+================================================================================
+PROSE THAT CANNOT BE TRANSLATED IS ONLY FOUND AFTER A 65-MINUTE BUILD, AND
+THE HOUSE STYLE IS WHAT PRODUCES IT
+================================================================================
+
+Status:    THE LOCAL CHECK EXISTS AND NOW READS THE RIGHT STRING, 2026-09-12.
+           It DECIDES cause 1 and REPORTS cause 2 from a registry; cause 3 is
+           not a signal of its own, it is which English every signal reads,
+           and that half is now fixed. `tools/check_translatable_prose.py`
+           plus `tests/test_prose_that_reaches_a_catalog_can_be_translated.py`
+           and `tests/test_check_translatable_prose.py`: 38,368 blocks in
+           ~15 s, 0 flagged, 4 of 4 recovered real failures named, 394
+           registry advisories that never gate. Filed 2026-09-11 after the
+           same failure cost four rebuild cycles in one evening.
+Owner:     unassigned. `tools/build_i18n_catalogs.py` holds the gates,
+           `tools/build_documentation_i18n.py` the API half.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Both catalog lanes gate on translation QUALITY, not merely on presence:
+
+    API blocks failed the contextual-source translation gate
+    API blocks retain ordinary English prose words
+    API blocks retain copied English prose sequences
+    API blocks remain exact English outside the hash allowlist
+    <lang>/UI: N rows remain exact English
+
+Those verdicts exist only AFTER the model has run. Adding one docstring
+paragraph therefore costs a ~40-minute nine-language build plus a ~25-minute
+audit before anyone learns whether the paragraph was translatable. Measured
+2026-09-11: four full cycles in one evening, three of them caused by prose
+added between the previous build and its audit.
+
+THE HOUSE STYLE IS THE CAUSE, and that is not an argument for changing the
+house style. spaCR docstrings are dense, clause-heavy and idiomatic on
+purpose -- they explain WHY, they carry measurements, and they use ALL-CAPS
+for emphasis and em-dashes for asides. Every one of those is hostile to a
+machine translator:
+
+  * `spacr.ops_store`'s module docstring was a pseudo-table of bare
+    identifiers -- `ops_geometry, ops_objects, ops_reads, ops_barcodes` --
+    with almost no prose between them. There was nothing to translate, so the
+    English came back unchanged and the gate called it a copy.
+  * Twelve instruction-phase labels (`B1`-`B5`, `C4`, `Phase C`, `Phase D`,
+    `372:`) sat mid-sentence across four OPS modules. Each is an
+    untranslatable token wedged into a clause.
+  * A five-line tooltip and a six-sentence tile intro on the Embeddings
+    screen came back as untranslated English in zh_CN and failed the runtime
+    audit outright.
+
+AND THE OBVIOUS DIAGNOSIS WAS WRONG. The first theory was that
+`_PROTECT_PATTERNS` treats emphasis-CAPS as literals it must not translate.
+Reading the actual Swedish output disproved it: `SEPARATE FROM ... ON PURPOSE`
+came back as `Avskilj från ... med flit` -- translated, and badly. The real
+failure is quality on dense prose. `a caller's decision` became
+`en uppringares beslut`, a TELEPHONE caller. A theory that predicts the right
+fix for the wrong reason is worse than no theory; check the output.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The feedback loop is 65 minutes long and the failure is invisible until the
+end of it. That has two costs, and the second is worse:
+
+  * WORK IS SERIALISED BEHIND IT. A release that needs current catalogs
+    cannot absorb a docstring edit without paying the cycle again, so
+    "finish all source edits first" becomes a rule everyone has to hold in
+    their head. It was broken three times in one evening by the person who
+    had written the rule down.
+  * IT MAKES THE PIPELINE FEEL ARBITRARY, which invites the wrong fix.
+    Somebody who has paid the cycle twice will reach for `--force` or for a
+    reviewed-evidence record to silence the gate, and both are worse than
+    the prose being rewritten: `--force` retranslates everything and can
+    regress settled strings, and a reviewed record pins a bad translation as
+    a good one.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A LOCAL CHECK THAT PREDICTS THE GATE, and it is the whole point. The gate
+   functions are already importable -- `_syntax_preserved`,
+   `_looks_degenerate`, `_semantic_false_friends`, `_model_artifact_reasons`,
+   `_reviewed_api_block_valid`. What is missing is a mode that runs the
+   CHEAP, model-free half over the English source alone and reports which
+   blocks are likely to fail, in seconds rather than an hour. Not every
+   verdict needs the model: "this block is 80 % identifiers", "this sentence
+   is 47 words with four subordinate clauses", "this paragraph is an
+   indented pseudo-table" are all decidable from the source.
+
+2. RUN IT IN THE DOCSTRING TESTS, beside
+   `test_every_docstring_is_valid_rst`. Those already run in seconds and
+   already fail on prose that will break a later build -- this is the same
+   shape of check, one stage earlier. A block that will fail the translation
+   gate should fail a test at edit time.
+
+3. WRITE THE SHAPE DOWN where prose is written, not where it is translated.
+   One idea per sentence in anything that reaches a catalog; identifiers in
+   prose need a verb around them; no instruction-phase labels in a public
+   docstring -- they mean nothing to a reader of the API reference and they
+   are untranslatable.
+
+DELIBERATELY NOT PROPOSED: changing the house style. The density is what
+makes these docstrings worth reading, and the rule is needed only for text
+that reaches a catalog -- which is public docstrings and UI strings, not
+comments.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Editing a public docstring into an untranslatable shape fails a test in
+    under a minute, naming the block.
+  * A full nine-language build started after that test passes produces zero
+    quality flags -- which is the state the 2026-09-11 rewrite reached, and
+    then lost again to the next paragraph somebody added.
+  * The check is measured against the real gate: take the blocks that DID
+    fail on 2026-09-11 (`ops_store#2`, `ops_objects.segment_windows#1`,
+    `ops_sample.average_over_cycles#2`, `scorecard.scorecard_figure#1`) and
+    confirm the local check names them from the English alone.
+
+
+--------------------------------------------------------------------------------
+2026-09-11, MEASURED: THE RUNTIME LANE HAS A LENGTH THRESHOLD AND NOTHING
+SAYS SO
+--------------------------------------------------------------------------------
+
+The runtime catalog's translator returns a long row UNCHANGED rather than
+failing on it, and the audit then reports "N rows remain exact English" --
+which reads as a translation problem and is really a length problem.
+
+Measured against this file's own data rather than guessed. The six longest
+`intro` strings in `spacr/qt/app_catalog.py`:
+
+    544  embeddings        NOT translated
+    495  dose_response     translated
+    475  control_chart     translated
+    434  project_browser   translated
+    430  investigate_hit   translated
+    419  outliers          translated
+
+One of them fails and it is the longest. Shortening the Embeddings intro to
+446 characters is what cleared it -- not rewording, not removing identifiers,
+just length. Two earlier rewrites that shortened it to 500-odd did NOT clear
+it, which is how the threshold was located: the failures bracket it.
+
+SO THE PRACTICAL RULE, until the check in point 1 above exists: keep anything
+that reaches a runtime catalog row near 450 characters or under. The five
+working intros are all below 500 and the one failure is above it.
+
+AND THE DIAGNOSTIC THAT FOUND IT IS THE REUSABLE PART. The question "do other
+strings of this shape translate?" is answerable from the catalog that already
+exists, in seconds, without running the model -- look for the English key and
+check whether CJK appears in its value. Two earlier attempts rewrote the
+prose on a theory about its CONTENT and failed, because the theory was never
+tested against a working example of the same shape.
+
+
+--------------------------------------------------------------------------------
+2026-09-11, THE ACTUAL CAUSE -- AND THREE WRONG THEORIES BEFORE IT
+--------------------------------------------------------------------------------
+
+THE M2M CHECKPOINT RETURNS A ROW UNCHANGED, NOT AN ERROR, for certain word
+pairings. The audit then reports "remains exact English", which reads as a
+quality problem and is a tokenisation one. Established by calling
+`build_i18n_catalogs._translate_batches` directly on candidate strings rather
+than by reasoning about them:
+
+    IDENTITY  Per channel encodes each stain separately.
+    IDENTITY  Each channel encodes its stain separately.
+    IDENTITY  One pass per channel keeps the stains apart; projection is faster.
+    ok        Encodes each stain separately.                  (no "channel")
+    ok        Per channel encodes each dye separately.        ("dye", not "stain")
+    ok        Projection mixes the stains into three.         (no "channel")
+
+"channel" and "stain" in the same catalog row produce identity output. Either
+word alone is fine, and a synonym for either is fine. Swedish -- a Marian
+model -- translates every one of those. It is specific to the four M2M
+languages, `zh_CN`, `hi`, `ko` and `is`, which is exactly where the failures
+concentrated (ko 30 blocks, is 37, against fr 4).
+
+THREE THEORIES WERE WRONG FIRST, and each cost a full rebuild:
+
+  1. `_PROTECT_PATTERNS` treats emphasis-CAPS as untranslatable literals.
+     Disproved by reading the Swedish: `SEPARATE FROM ... ON PURPOSE` came
+     back as `Avskilj från ... med flit` -- translated, and badly.
+  2. Clause density and idiom. Rewriting five modules' prose did produce a
+     build with zero flags, which looked like confirmation and was
+     coincidence: the next paragraph added brought the flags straight back.
+  3. A length threshold. Of the six longest app intros, `dose_response` at
+     495 characters translated and `embeddings` at 544 did not, which is a
+     real correlation and a false cause. Shortening to 446 changed nothing.
+
+THEORY 3 IS THE INSTRUCTIVE ONE. It had a measurement behind it, the
+measurement was correct, and the conclusion was still wrong -- because the
+comparison was between two strings that differed in more than length. A
+controlled test against the model would have cost two minutes at any point.
+
+WHAT THIS CHANGES ABOUT THE FIX PROPOSED ABOVE. The check does not need to
+judge translation quality, which is hard. It needs to detect IDENTITY
+OUTPUT, which is free: translate the string and compare it to itself. That
+can run per-string in seconds for anything newly added, long before a full
+nine-language build, and it catches the whole class -- exact English, wrong
+script, and copied sequences are all the same underlying event.
+
+The two strings this was found on are now verified against the model BEFORE
+being written, with the reason in a comment at the call site so the next
+person does not reword them back into the failing pair.
+
+
+--------------------------------------------------------------------------------
+2026-09-11, THE WORKFLOW THAT ACTUALLY CONVERGES
+--------------------------------------------------------------------------------
+
+`--languages` AND `--repair-api-blocks` ARE NOT INTERCHANGEABLE, and running
+only the first is why this took five cycles.
+
+    --languages           translates changed blocks once, with the plain
+                          model. A block that comes back identity STAYS
+                          identity: the build writes it and reports it.
+    --repair-api-blocks   re-runs only the blocks that failed, with clause
+                          splitting and a MADLAD fallback checkpoint. It took
+                          one evening's damage from ~37 blocks per language
+                          down to six distinct blocks across all nine.
+
+So the order is BUILD, THEN REPAIR, THEN AUDIT. A rebuild after a source edit
+re-translates the edited blocks fresh and produces NEW identity failures in
+whichever languages the plain model happens to fail on that day -- repairing
+before auditing is what closes them.
+
+AND THE TRIGGERS ARE NOT WORTH MAPPING. Measured, in Korean:
+
+    IDENTITY  how reproducible this compound is from plate to plate
+    ok        how far the plates agree about this compound
+    IDENTITY  Fixed-effect pooling assumes every plate measures the same EC50
+    ok        Fixed-effect pooling assumes every plate measures the same value
+    IDENTITY  The screen makes spaCR a route to that embedding
+    ok        The screen makes this package a route to that embedding
+    ok        spaCR reads the table
+
+The last two lines are the point: "spaCR" is not the trigger, because it
+translates fine on its own. It is an interaction between tokens, and no style
+rule a human can follow will predict it. That is the argument for the
+automated identity check rather than a style guide -- the check needs no
+theory of WHY, only the observation that output equals input.
+
+ONE STRUCTURAL REMEDY IS WORTH KNOWING. A block that will not translate as a
+whole often translates as two: `translatable_blocks` splits on paragraphs, so
+breaking one paragraph into two gives two shorter blocks that each succeed.
+The Embeddings screen's opening paragraph was fixed that way after every
+sentence in it had been shown to translate alone.
+
+
+--------------------------------------------------------------------------------
+2026-09-11: INSTRUCTION LABELS EXPLAIN FOUR BLOCKS, NOT THE CLASS
+--------------------------------------------------------------------------------
+
+The four blocks in the final API audit all carried an instruction label, and
+that is a real, verified, four-of-four signal:
+
+    ops_objects, ops_sample, ops_store     B1-B5, C4, Phase C, Phase D, 372:
+    qt.screens.embeddings#1                "386 STEP 6, AND ITS OWN INSTRUCTION..."
+    scorecard.scorecard_figure#1           '370 asks for the scorecard "in graph form"'
+
+IT WOULD BE A MISTAKE TO BUILD THE CHECK ON THAT ALONE. Those four are what
+survived to the END of a long sequence. Earlier in the same evening the same
+gates failed on blocks with no label anywhere in them, and they were fixed
+three different ways:
+
+  * `--repair-api-blocks` cleared roughly 37 blocks per language in `ko` and
+    `is` without a single source edit. Whatever was wrong with those, it was
+    not an instruction label -- the ENGLISH NEVER CHANGED.
+  * Three runtime rows failed on a token interaction. Measured: "channel" and
+    "stain" in the same row return identity in zh_CN; either word alone is
+    fine; "dye" for "stain" is fine; "spaCR reads the table" is fine while
+    "The screen makes spaCR a route to that embedding" is not. No label, no
+    length rule, no style rule a person could follow.
+  * `EmbeddingsScreen.set_crops#1` leaked the word "builder" into German --
+    from the TOOL'S OWN expansion of `:mod:`spacr.crops`` to "the crop
+    builder", not from anything the author wrote.
+
+SO THERE ARE AT LEAST THREE INDEPENDENT CAUSES, and only one of them is
+visible in the source at all:
+
+    1. instruction labels and other untranslatable tokens mid-sentence
+       -- detectable statically, cheap, and worth a test on its own
+    2. model brittleness on particular token interactions
+       -- NOT detectable statically; only running the model finds it
+    3. the expansion layer injecting a word the model then keeps
+       -- detectable only after `_api_translation_source` has run
+
+A check that only looks for instruction labels would have passed every one of
+the runtime failures and the German one. That is the "signal that sounds
+right and measures nothing" this file already warns about, arrived at from
+the other direction: a signal that is real, and is a minority of the cases.
+
+WHAT THAT MEANS FOR THE FIX. Point 1 above stays a static test and is easy.
+Points 2 and 3 need the model, but not a full build: translating ONE changed
+block in ONE language and checking for residual English is seconds, not an
+hour, and it catches all three causes without needing to know which one
+applies.
+
+
+--------------------------------------------------------------------------------
+A CHECKER THAT SPLITS ITS INPUT DIFFERENTLY FROM THE TOOL IT CHECKS IS
+MEASURING ITS OWN SPLITTER
+--------------------------------------------------------------------------------
+
+Both sessions hit this within hours of each other, on different files, in
+different languages, and neither recognised it as the same bug until they
+compared notes:
+
+  * A checker for stale reviewed API records split docstrings on blank lines
+    where the tool uses `translatable_blocks()`. It reported **1,569 stale
+    records across nine languages**. The true number was **one**. The
+    disagreement with the build -- which had raised on exactly one record --
+    is what caught it; nothing in the checker's own output looked wrong.
+  * A reviewer reading a failing block treated the FIRST LINE of a docstring
+    as block #1, where `translatable_blocks()` returns something else. It
+    concluded "no signal in this text" about a paragraph it had not looked
+    at, and the paragraph it had not looked at carried the signal.
+
+THE GENERAL FORM: any analysis of "which block failed" must use the same
+block function as the thing that reported the failure. Splitting on `\n\n`,
+on sentences, or on lines is a DIFFERENT question wearing the same name, and
+the answer looks plausible either way -- which is why the error survives.
+
+IF THE CHECK IN THIS FILE IS BUILT, it calls `translatable_blocks()` and
+nothing else. Same for anything that reports a block index.
+
+AND THE CHECK MUST NAME ITS OWN BLIND SPOT IN THE ASSERTION TEXT, not in a
+docstring. Only cause 1 above is visible in the English; causes 2 and 3 are
+model-side and expansion-side and NO source-only check can predict them. A
+green local check that reads as "the build will be green" is worse than no
+check, because it is the one somebody trusts on the day it is wrong. The
+sentence saying so is the first thing a future reader will want to delete,
+which is exactly why it belongs where deleting it breaks the test.
+2026-09-12 -- BUILT, AND SMALLER THAN THIS FILE EXPECTED: ONE SIGNAL, AND THE
+TWO IT PROPOSED ARE FALSE
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED. `tools/check_translatable_prose.py`, run by
+`tests/test_prose_that_reaches_a_catalog_can_be_translated.py` beside
+`test_every_docstring_is_valid_rst`, which is where item 2 of WHAT TO DO
+asked for it. 38,352 blocks in about two seconds.
+
+THE SIGNAL, AND IT WAS RECOVERED BY DIFFING RATHER THAN REASONED ABOUT. A
+project label -- an instruction number (`372`) or a phase code (`B2`, `C4`)
+-- standing as the GRAMMATICAL SUBJECT of a sentence, with no noun to carry
+it. Each of the four blocks that really failed had one, and each rewrite
+that made it pass removed exactly that and nothing else:
+
+    B2: run a segmenter over ...     ->  Run a segmenter over ...
+    C4 samples phenotype channels    ->  Phenotype channels are sampled
+    370 asks for the scorecard ...   ->  The scorecard in graph form, ...
+    372 states the contract:         ->  (the sentence given a subject)
+
+  WHY IT FAILS, from the gate's own tokenizer rather than from a story:
+  `_api_lexical_words` is `re.findall(r"[^\W\d_]+", ...)`, which ERASES
+  DIGITS. `372` contributes NO lexical word at all and `B2` contributes an
+  orphan `b`, so a sentence whose subject is a label is, to the gate, a
+  sentence with no subject -- while the model still has to carry the label
+  through verbatim.
+
+    38,352 blocks examined, 0 flagged, 4 of 4 named, and no sibling block
+    of those same four docstrings flagged
+
+BOTH OF THIS FILE'S OWN SUSPICIONS ARE FALSE, AND THAT IS THE MORE USEFUL
+HALF.
+
+  * LENGTH AND CLAUSE DENSITY DISCRIMINATE NOTHING. Measured across the
+    whole corpus by percentile, the `B2` positive sits between the 43rd and
+    60th on words, mean sentence length, longest sentence and clause marks.
+    Any threshold low enough to catch it catches more than half the corpus
+    -- about 20,000 blocks. Two of the four positives ARE long, but that is
+    spaCR house style and not a property of failure.
+  * THE PSEUDO-TABLE IS NOT IT EITHER, which this file states as fact in
+    WHAT THE STATE IS. `_PROTECT_RE` already protects snake_case, so
+    `ops_geometry, ops_objects, ops_reads, ops_barcodes` is INVISIBLE to the
+    gate -- and the passing rewrite kept the identical identifier list.
+  * ALL-CAPS was already disproved here against Swedish output. Confirmed a
+    second way: the caps block in the failing docstring is BYTE-IDENTICAL to
+    its passing rewrite.
+
+    THIS FILE WARNS THAT A THEORY PREDICTING THE RIGHT FIX FOR THE WRONG
+    REASON IS WORSE THAN NO THEORY. Two of its own three candidates were
+    that, and only measurement separated them.
+
+ONE CAUSE OF THREE, AND EVERY FAILURE MESSAGE SAYS SO. The other two are not
+in the English and no source-only check can reach them:
+
+    1. a label where a translator expects a name   -- this check
+    2. model brittleness on token pairs            -- only the model finds it
+    3. the expansion layer injecting a word        -- only after
+                                                      `_api_translation_source`
+
+The bound is a property of the problem: `--repair-api-blocks` once cleared
+about thirty-seven blocks per language in `ko` and `is` WITH NO SOURCE EDIT
+AT ALL, so nothing in the English could have predicted them. The sentence
+"a green run here is not a green build" is in the ASSERTION TEXT rather than
+a docstring, because it is what a reader needs on the day the test passes
+and the build fails -- and the first thing deleted by whoever finds the
+check annoying.
+
+TWO METHOD NOTES WORTH MORE THAN THE CHECK.
+
+  * A CHECKER THAT SPLITS ITS INPUT DIFFERENTLY FROM THE TOOL IT CHECKS
+    MEASURES ITS OWN SPLITTER. Hit twice in one evening by two sessions: a
+    report of 1,569 stale reviewed records where the true number was one,
+    and a claim that a docstring's first block carried no label when the
+    block that failed was the paragraph below it. The check imports
+    `translatable_blocks()` and never reimplements it.
+  * RECOVERING "THE FAILING INPUT" FROM GIT ONLY WORKS IF YOU PIN THE
+    REVISION WHERE IT FAILED. Two of the four had already been rewritten
+    when they were listed, so recovering from a convenient commit produced
+    the FIXED text and the pattern read as three of four. The four blocks
+    are now carried verbatim in the checker and re-run on every test, so the
+    calibration cannot rot.
+
+WHAT IS LEFT. Item 3 of WHAT TO DO -- write the shape down where prose is
+written. The check enforces the one rule that is decidable; the house-style
+note for authors is not written.
+
+--------------------------------------------------------------------------------
+RECONCILING THE TWO SECTIONS ABOVE
+--------------------------------------------------------------------------------
+
+They were written hours apart by two sessions and they disagree about scope,
+so read them together rather than picking one.
+
+THE CHECK IS RIGHT TO SHIP WITH ONE SIGNAL. It detects what is detectable
+from the English, and the measurement that the other two candidates -- clause
+density and sentence length -- discriminate nothing is a real negative result
+worth having. A check that fires on sentence length would be the one somebody
+loosens the first time it misfires.
+
+IT IS NOT THE WHOLE CLASS, AND THE CHECK MUST KEEP SAYING SO. Three failures
+that evening had no label anywhere in them:
+
+  * `--repair-api-blocks` cleared ~37 blocks per language in `ko` and `is`
+    with NO source edit. The English never changed, so nothing readable in it
+    could have predicted them.
+  * Three runtime rows failed on a token interaction: "channel" and "stain"
+    in the same row return identity in zh_CN; either alone is fine.
+  * One block leaked "builder" into German from the TOOL'S expansion of
+    `:mod:`spacr.crops``, not from anything the author wrote.
+
+So: one signal is what a source-only check CAN see, and it is a minority of
+what actually fails. Both statements are true and the second is the one that
+stops a green check being read as a green build.
+
+
+--------------------------------------------------------------------------------
+2026-09-12, A FOURTH NO-LABEL FAILURE, AND IT NARROWS MY OWN NEGATIVE RESULT
+--------------------------------------------------------------------------------
+
+`spacr.qt.stall_watch#4` failed the zh_CN audit the same evening, with NO
+label anywhere in it. One ~700-character paragraph, dense with identifiers;
+the model returned it unchanged and the gate reported "lack target script"
+plus "retain copied English prose sequences". Split into four paragraphs it
+passes, each verified against the model before being written:
+
+    "WHY THIS IS IN THE PACKAGE..."      residual English 0
+    "Reaching in from outside..."        residual English 0
+    the sitecustomize sentence           residual English 7 -> reworded -> 0
+    "A flag read inside launch..."       residual English 0
+
+THE CHECK ABOVE WOULD NOT HAVE CAUGHT IT, and saying so is the point of this
+section. It is a fourth member of the no-label class the reconciliation
+lists, and the most recent.
+
+  IT ALSO NARROWS THE NEGATIVE RESULT I RECORDED. "Length and clause density
+  discriminate nothing" is measured and true FOR THE LABEL CLASS: the `B2`
+  positive sits at the 43rd-60th percentile on every such metric, so no
+  threshold separates those four positives from the corpus. It does NOT
+  follow that length never matters. This block was fixed BY SPLITTING IT,
+  which is a length-or-density effect by construction.
+
+  Both are true and the second does not weaken the first: length is not what
+  distinguishes a label failure, and length may well be exactly what
+  distinguishes an identity-return failure. A measurement over one class is
+  evidence about that class. My own wording invited the broader reading and
+  is corrected here rather than left to be believed.
+
+WHAT WOULD TEST IT, since the idea is now cheap to check rather than argue:
+the runtime lane's length threshold is already recorded in this file, and the
+four measurements above are a labelled set of one long failing paragraph
+against four short passing ones. That is not enough to fit a threshold on --
+four points, one document -- but it is enough to say the question is open and
+what the next measurement should be: the length distribution of blocks that
+returned IDENTITY, against the corpus, in a single language. Nobody has that
+yet, and the check should not grow a length rule until somebody does.
+
+
+--------------------------------------------------------------------------------
+2026-09-12 -- DENSITY, MEASURED: IT SEPARATES ONE SHAPE AND NOT THE OTHER, AND
+NEITHER AT A PRICE WORTH PAYING
+--------------------------------------------------------------------------------
+
+The other session's observation, which is sharper than "the block was too
+long": splitting `stall_watch#4` fixed three of its four paragraphs and the
+fourth needed REWORDING as well, because it was nearly all identifiers with
+almost no prose between them -- the same shape as `ops_store`'s old
+pseudo-table. So TOO LONG and TOO LITTLE PROSE PER IDENTIFIER are separable,
+and only the second is decidable from the source. Tested here because this
+corpus is what can answer it.
+
+    ratio of gate-protected characters to total, over 38,357 blocks
+
+        corpus p50 0.026   p90 0.390   p95 0.538   p99 0.840
+
+        ops_store pseudo-table   0.503   94th percentile
+        the sitecustomize block  0.186   74th percentile
+
+IT SEPARATES THE PSEUDO-TABLE AND NOT THE SENTENCE. A genuine pseudo-table
+really is unusual -- 94th percentile -- which is the intuition confirmed. The
+paragraph that FELT like one is ordinary: three quarters of the corpus is
+less dense, and a quarter of it is denser.
+
+AND THE PRICE IS THE ANSWER. What a threshold costs, measured rather than
+guessed:
+
+    cut 0.400  flags 3,671 blocks ( 9.6%)   catches the pseudo-table
+    cut 0.450  flags 2,917 blocks ( 7.6%)   catches the pseudo-table
+    cut 0.503  flags 2,260 blocks ( 5.9%)   catches neither
+    cut 0.700  flags   898 blocks ( 2.3%)   catches neither
+
+The cheapest cut that catches the ONE block it was built for flags 2,917
+others. The label signal, for comparison, flags 0 of 38,352 and names 4 of 4.
+
+  A SIGNAL THAT NEEDS THOUSANDS OF FALSE POSITIVES TO CATCH ONE TRUE ONE IS
+  NOT A CHECK, IT IS A MOOD. Density is not added, and this is the record of
+  why so the next person does not re-derive the intuition and stop before
+  pricing it.
+
+AND THE FIRST MEASUREMENT OF IT WAS WRONG, in the way this file has now seen
+three times in one night. A backtick regex of my own put the pseudo-table at
+0.150 -- BELOW an ordinary sentence at 0.186 -- because its identifiers are
+BARE (`ops_geometry, ops_objects`) and a backtick pattern cannot see them,
+while the gate's `_PROTECT_RE` protects bare snake_case. The ranking was
+inverted. Re-run against `_PROTECT_RE` the pseudo-table is 0.503 and the
+ordering is the one the intuition predicted.
+
+    MEASURING WITH YOUR OWN SPLITTER MEASURES YOUR OWN SPLITTER. 1,569 stale
+    records where the truth was one; a docstring's first block read as its
+    first line; and now a density ranking inverted. Three sessions-worth of
+    the same mistake in one night, on three different files, in three
+    different languages of the problem.
+
+
+--------------------------------------------------------------------------------
+2026-09-12 -- A THIRD FAILURE MODE: VOCABULARY THE MODEL DECLINES, WHICH IS
+NEITHER IDENTITY NOR A LABEL
+--------------------------------------------------------------------------------
+
+The reconciliation above lists three causes and the check covers one. The
+`stall_watch#4` work turned up a fourth, and it matters because it was
+mistaken for one of the others all evening.
+
+The block was assumed to be returning IDENTITY, so it was split and
+shortened. That is not what was happening. The cached Icelandic was a REAL
+TRANSLATION that kept two English words:
+
+    The ``sitecustomize`` móddur er inn af vinnumennum, og hlutinn
+    sem hann patch er aldrei framkvæmdastjórinn.
+
+`The` and `patch` survived into otherwise Icelandic prose. That is the gate's
+"retains ordinary English prose words" verdict, and it is a different failure
+from identity: the model DID translate, and declined two specific words.
+
+  NO AMOUNT OF SPLITTING OR SHORTENING TOUCHES IT. Two rewrites were spent on
+  length before the output was read. The fix was removing `patch` and
+  `worker` -- words the Icelandic model will not take -- and the block came
+  back clean at the same length.
+
+WHAT IT MEANS FOR THE CHECK, precisely:
+
+  * It is INVISIBLE IN THE ENGLISH. "patch" is an ordinary technical word; no
+    property of the source distinguishes it from a word the model accepts.
+  * THE SET IS PER-LANGUAGE. A word Icelandic declines may be fine in German.
+    A static check would need a per-language refusal list, and nothing
+    produces one except running the model.
+  * SO IT JOINS CAUSES 2 AND 3 AS OUT OF REACH, and the count in the check's
+    own failure message -- "ONE of the three causes" -- is now conservative
+    rather than exact. The sentence it exists to carry, that a green run here
+    is not a green build, is unchanged and is the part that matters.
+
+  AND IT IS THE THIRD TIME TONIGHT A THEORY SURVIVED BECAUSE NOBODY READ THE
+  OUTPUT. ALL-CAPS was disproved by reading real Swedish. The pseudo-table
+  was disproved by reading what `_PROTECT_RE` does. This one cost two
+  rewrites to a theory that reading one cached row would have killed.
+  `_looks_degenerate` and the residual-word comparison both already run on
+  the OUTPUT; the habit worth building is reading it first, not last.
+
+
+--------------------------------------------------------------------------------
+A RESIDUAL-ENGLISH COUNT HAS COGNATE FALSE POSITIVES
+--------------------------------------------------------------------------------
+
+Counting words that appear in BOTH the English source and the translation --
+after masking protected literals -- is the cheapest way to spot a block the
+model left half-English, and it found most of the fixes recorded above. It
+has one systematic false positive worth knowing before anyone builds on it.
+
+Measured on one sentence across all nine targets:
+
+    sv es zh_CN hi ko is fr    residual 0
+    de                         residual 1   "worker"
+    pt                         residual 1   "benchmark"
+
+Neither is a failure. "Worker" and "Benchmark" are ordinary German loanwords
+and "module" IS a French word. The count cannot tell a word the model failed
+to translate from a word whose translation is spelled the same, and the
+Germanic and Romance targets do this constantly with technical vocabulary.
+
+SO THE COUNT IS A TRIAGE SIGNAL, NOT A VERDICT. Zero residual is strong
+evidence the block is fine. A small residual in a language close to English
+means look at it, not fix it. The authority is the build's own gate, and a
+cheap check should hand off to it rather than pretend to replace it -- which
+is the same conclusion this file reaches about static checks generally.
+
+AND THE THIRD FAILURE MODE, distinct from identity output and from
+instruction labels: VOCABULARY THE MODEL DECLINES. `spacr.qt.stall_watch#6`
+came back as real Icelandic that kept `The` and `patch`; `patch` and `worker`
+are words that checkpoint will not take. Splitting and shortening -- which
+fix the identity cases -- do nothing to it. The set is per-language and
+invisible in the English, so only a residual comparison against real output
+finds it.
+
+
+--------------------------------------------------------------------------------
+2026-09-12 -- THE CHECK NOW READS THE EXPANSION, AND PRICING THE REGISTRY IS
+WHAT THE WORK ACTUALLY PRODUCED
+--------------------------------------------------------------------------------
+
+WHAT CHANGED. `tools/check_translatable_prose.py` gained
+`expanded_source()`, `check_block_as_translated()`, a `KNOWN_BAD_TOKENS`
+registry and `--verify-registry`. `check_block()` is unchanged and still
+judges whatever text it is handed, so the runtime lane -- which never goes
+through `_api_translation_source` -- keeps a correct entry point.
+
+CAUSE 3 IS NOT A THIRD SIGNAL. It is which English every signal reads, and
+the old check read the wrong one. `_translate_api_documents` builds its model
+input as `translation_inputs[block] = _api_translation_source(block)` and
+hashes that same string, so the gate's verdict is about the EXPANSION.
+Measured here:
+
+    38,368 blocks, 7,824 of them (20.4%) rewritten before the model sees them
+
+    injected, and nobody wrote any of it:
+        1,382 microplate   1,185 view   1,136 data   1,047 sample
+        1,043 image          760 position   546 extracted   526 laboratory
+    erased:
+          832 screen    384 crop    161 worker
+
+THE GERMAN `builder` EVENT IS ALIVE IN THIS CHECKOUT UNDER ANOTHER WORD.
+`:mod:`spacr.crops`` now expands to "extracted image regions", so nothing
+gains "builder" from the tool any more. `worker` -- which the Icelandic
+checkpoint declines -- has taken its place: the expansion ERASES it from 161
+blocks and INVENTS it in 8.
+
+    Retire spaCR's own idle workers and lower its thread counts.
+      -> ... and lower its worker-count limits.
+    production image loads are threaded.
+      -> production image loads are executed in a worker.
+
+So a token check against the docstring is wrong in both directions on 169
+blocks, and only one of those directions is a false positive.
+
+AND EXPANDING NAIVELY IS ALSO WRONG, WHICH ONLY MEASURING FOUND.
+`_lower_shouted_emphasis` runs INSIDE `_api_translation_source`, so
+"A4 DOES NOT NEED MASKS." reaches the model as "A4 does not need masks." --
+the label-subject defect exactly. Run naively on the expansion the check
+flags two corpus blocks it does not flag on the source:
+
+    spacr.ops_phenotype.nuclear_points[7]     A4 DOES NOT NEED MASKS.
+    spacr.ops_sample[2]                       C1  SEQUENCING CHANNELS, ...
+
+Both were then READ against the cached model output for all nine targets.
+Both translate, and `A4` and `C1` survive verbatim in every one. They are
+false positives. The heading exemption is therefore evaluated on the AUTHOR'S
+text while the signal reads the model's, and a test pins the trap so nobody
+simplifies it away.
+
+THE REGISTRY, AND ITS PRICE, WHICH IS THE PART WORTH KEEPING. Four entries,
+each carrying the observation that produced it AND what believing it costs.
+`--verify-registry` prices them against the build's own checkpoint cache --
+real model output, no model run, about fifteen seconds:
+
+    entry           lang     flagged  cached  confirmed
+    channel+stain   zh_CN         20      16          0
+    patch           is            10       5          4
+    worker          is           316     233          9
+    builder         de            48      24         22
+
+READ THAT TABLE BEFORE BELIEVING ANY OF IT. `channel+stain` confirms nothing
+on this corpus -- it was measured on short RUNTIME rows, which are not here,
+and deleting it would forget an observation nobody can re-derive from the
+English. `worker` is 3.9% and two of its nine are inside proper names.
+`builder` is 22 of 24 and German takes "Builder", "Worker" and "Benchmark" as
+ordinary loanwords, so a kept word there is not automatically a failure. This
+file has already priced one signal out for needing 2,917 false positives to
+catch one true one; a registry that cannot say what it costs is the same
+mistake with a friendlier name. So the registry REPORTS -- 394 advisories on
+the current corpus -- and only the label signal gates.
+
+WHAT IS STILL OUT OF REACH, unchanged and still the important sentence: an
+identity return on a token combination nobody has hit yet, and vocabulary a
+checkpoint declines that is not already in the registry. Both are
+per-language and only running the model produces them. A GREEN RUN IS NOT A
+GREEN BUILD, and that sentence is printed by every run and carried in every
+assertion in both test files.
+
+AND THE CHECKPOINT CACHE IS THE REUSABLE FINDING. `--verify-registry` reads
+`<model_root>/.spacr_translation_cache/<lang>.json`, keyed by
+`API_BLOCK_CACHE_NAMESPACE + "\0" + contextual_source`. That is real
+nine-language model output, already on disk, queryable in seconds. Every
+theory this file records as surviving because nobody read the output --
+ALL-CAPS, the pseudo-table, the length threshold -- was falsifiable from that
+file at any point, for free.
+
+--------------------------------------------------------------------------------
+2026-09-12 -- A FOURTH THEORY, TESTED AND REFUTED BEFORE IT COST ANYTHING
+--------------------------------------------------------------------------------
+
+A LIVE FAILURE ARRIVED WHILE THE CHECK WAS BEING EXTENDED, which is the best
+kind of test data: `spacr.infection.border_rules_agree` landed with 377 after
+the catalogs were built, and blocks 2 and 7 refused to translate in four
+languages -- es, zh_CN, ko, is. The extended check does NOT name it, and says
+so in its own output.
+
+Reading the two blocks suggested an obvious shape. Both have a PROTECTED
+LITERAL AS THE GRAMMATICAL SUBJECT:
+
+    #2  `remove_border_objects` is applied at SEGMENTATION time, ...
+    #7  ``True`` when both rules match, ``False`` when they differ, ...
+
+The model sees a masked token where it expects a noun, which is the same
+argument that makes a bare project label untranslatable -- so the natural
+move was to extend `BARE_LABEL_SUBJECT` to cover it.
+
+MEASURED FIRST, AND IT DOES NOT DISCRIMINATE:
+
+    blocks whose subject is a protected literal    2,543 of 38,386 (6.6%)
+    of those, with literal fraction >= 0.15, that
+      are NOT known failures                       2,040
+    corpus literal fraction                        median 0.000,
+                                                   p90 0.361, p99 0.821
+    the six known failures                         0.00, 0.00, 0.00, 0.09,
+                                                   0.15, 0.31
+
+Two thousand blocks share the shape and translate fine, the failures sit
+BELOW the corpus p90 on the feature, and only two of the six have a literal
+subject at all. Implementing it would have added a check that fires on 5% of
+the corpus and catches two blocks by coincidence.
+
+THAT IS NOW FOUR REFUTED THEORIES ON THIS ONE QUESTION -- ALL-CAPS
+protection, clause density, a 500-character length threshold, and this. The
+common error in all four is the same: a property was read off the failing
+blocks and never checked against the blocks that PASS. The cost of checking
+is one script and about a minute, and it has now been wrong four times out
+of four, so the rule is worth stating as a rule.
+
+WHAT THE LIVE FAILURE ACTUALLY CONFIRMS is the limitation the tool already
+prints: cause 2, a token combination no model has been run against yet. The
+repair pass is what resolves it, which is why the order is BUILD, then
+REPAIR, then AUDIT, and why a build alone never converges.

@@ -32,6 +32,90 @@ def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+#: A tile counts as wrong when this many pixels of INK disagree. Zero is
+#: not the threshold and the reason is measured, not assumed -- see
+#: `_tile_ink_disagreement`.
+TILE_INK_CUTOFF = 96
+TILE_INK_TOLERANCE_PX = 16
+
+
+def _tile_ink_disagreement(committed, rendered) -> int:
+    """How many pixels of ink the two tiles genuinely disagree about.
+
+    THE OBVIOUS TEST IS BYTE EQUALITY AND IT CANNOT BE USED. The tile font
+    is bundled, so the usual cause of per-machine artwork drift is already
+    handled -- but Pillow chooses its TEXT LAYOUT ENGINE from what its
+    wheel was built with, and that changes glyph edges. Measured
+    2026-09-12, same repo, same font file, same `render_module_tile`:
+
+        Pillow 10.2.0   FreeType 2.13.2   Raqm 0.10.1   every tile exact
+        Pillow 12.3.0   FreeType 2.14.3   Raqm 0.10.5   every tile exact
+        Pillow 10.3.0   FreeType 2.12.1   Raqm ABSENT   3 tiles differ
+
+    TWO DIFFERENT FREETYPE VERSIONS AGREE TO THE BYTE and the odd one out
+    is the build with no Raqm, which falls back to the BASIC layout
+    engine. So the contract is not a Pillow version -- pinning
+    `pillow==12.3.0` would not help anyone whose 12.3.0 came from a
+    channel that builds without Raqm -- and `setup.py` cannot express it
+    at all.
+
+    MEAN PIXEL DIFFERENCE DOES NOT SEPARATE THE TWO POPULATIONS. The
+    worst legitimate drift (`dose_response`, 0.3651) scores ABOVE a tile
+    whose last letter is wrong (`replication` drawn as `replicatiox`,
+    0.2588), so any tolerance wide enough for the drift also passes a
+    wrong label. That is removing the guard, not repairing it.
+
+    What separates them is that drift is one pixel wide. It perturbs
+    glyph EDGES; a wrong glyph MOVES INK. So: binarise both to an ink
+    mask, take the disagreement, and erode it -- `MinFilter(3)` keeps a
+    pixel only where all eight neighbours also disagree. Measured over
+    all 22 tiles against three controls each (last glyph dropped, last
+    glyph substituted, another module's label entirely):
+
+        legitimate drift, all three builds        0 px
+        least-wrong control, cross-build         41 px  (`mask`)
+        least-wrong control, same build          32 px  (`mask`)
+
+    The floor is 32, not 41: a wrong tile drawn by the SAME build as the
+    one checking it has no drift to add to the difference, so it is the
+    smaller number and the one the tolerance has to sit under. 16 px is
+    half of it, and twice a drift that measures zero everywhere it has
+    been measured.
+    DO NOT WIDEN THE EROSION to buy more margin: at `MinFilter(5)` the
+    worst control also falls to 0 px and the guard silently stops
+    catching anything.
+    """
+    import numpy as np
+    from PIL import Image, ImageFilter
+
+    if committed.size != rendered.size:
+        return committed.width * committed.height
+
+    def ink(image):
+        pixels = np.asarray(image.convert("RGBA"), dtype=np.float32)
+        luminance = (0.299 * pixels[..., 0]
+                     + 0.587 * pixels[..., 1]
+                     + 0.114 * pixels[..., 2])
+        return (luminance * (pixels[..., 3] / 255.0)) > TILE_INK_CUTOFF
+
+    flipped = ink(committed) != ink(rendered)
+    mask = Image.fromarray((flipped * 255).astype(np.uint8), "L")
+    solid = np.asarray(mask.filter(ImageFilter.MinFilter(3)), dtype=np.uint8)
+    return int((solid > 0).sum())
+
+
+def _assert_tile_is_what_the_generator_draws(committed, rendered, what: str):
+    """Fail unless the committed tile is the one the generator draws."""
+    disagreement = _tile_ink_disagreement(committed, rendered)
+    assert disagreement <= TILE_INK_TOLERANCE_PX, (
+        f"{what} on disk is not what the generator draws: "
+        f"{disagreement} px of ink disagree, tolerance is "
+        f"{TILE_INK_TOLERANCE_PX}. Regenerate it with "
+        f"`python packaging/generate_readme_visuals.py --only KEY`. "
+        f"Antialiasing alone cannot reach this number -- see "
+        f"`_tile_ink_disagreement` for the measurement.")
+
+
 def test_readme_uses_an_explicit_supported_python_badge():
     text = _read(README)
     assert "Python-3.9%E2%80%933.14" in text
@@ -183,7 +267,7 @@ def test_readme_uses_branch_safe_documentation_links():
 
 
 def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
-    from PIL import Image, ImageChops
+    from PIL import Image
 
     path = ROOT / "packaging" / "generate_readme_visuals.py"
     spec = importlib.util.spec_from_file_location("spacr_readme_visuals", path)
@@ -237,7 +321,7 @@ def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
         relative = f"spacr/resources/icons/{folder}/{key}.png"
         committed = Image.open(ROOT / relative).convert("RGBA")
         rendered = generator.render_module_tile(key, label).convert("RGBA")
-        assert ImageChops.difference(committed, rendered).getbbox() is None
+        _assert_tile_is_what_the_generator_draws(committed, rendered, relative)
         assert relative in text
         assert urls[key] in text
         docs_relative = relative.replace(
@@ -292,7 +376,7 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
     "same size" reachable, and "same size" is what makes an even grid
     possible.
     """
-    from PIL import Image, ImageChops
+    from PIL import Image
 
     path = ROOT / "packaging" / "generate_readme_visuals.py"
     spec = importlib.util.spec_from_file_location("spacr_readme_visuals", path)
@@ -316,8 +400,7 @@ def test_every_module_is_one_tile_of_one_size_in_one_grid():
         committed = Image.open(ROOT / "spacr" / "resources" / "icons" / image)
         committed = committed.convert("RGBA")
         rendered = generator.render_module_tile(key, label).convert("RGBA")
-        assert ImageChops.difference(committed, rendered).getbbox() is None, (
-            f"{image} on disk is not what the generator draws")
+        _assert_tile_is_what_the_generator_draws(committed, rendered, image)
         assert committed.size == (generator.BUTTON_SIZE, generator.BUTTON_SIZE)
         # Every tile occupies the same box in its canvas, so every tile
         # draws at the same size and every row anchors to the same left

@@ -1,6 +1,7 @@
 """Tests for the drag-and-drop system + per-module handlers."""
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 
 import pytest
@@ -70,6 +71,51 @@ def test_mask_handler_accepts_image_folder(tmp_path):
 def test_mask_handler_rejects_empty(tmp_path):
     from spacr.qt.dnd_handlers import MaskDropHandler
     assert MaskDropHandler().can_accept(tmp_path) is False
+
+
+def test_mask_handler_rejects_empty_while_the_neighbourhood_is_still_walking(
+        tmp_path, monkeypatch):
+    """An empty folder stays refused even when the "did you mean" walk hangs.
+
+    THIS IS THE TEST ABOVE, ON A BUSY MACHINE. `can_accept` is answered by
+    `_decide`, which waits `DECISION_BUDGET_S` for the filesystem and then
+    returns an optimistic "accept" so a sleeping NAS share cannot freeze the
+    window. The scan behind it answered two questions, not one: whether the
+    dropped folder holds images -- one listing, always fast on a disk that
+    replies -- and then, on a rejection, which NEARBY folders do, which lists
+    the parent and every sibling and every child.
+
+    The neighbourhood is not the user's folder, and its size is nobody's
+    choice. Measured on a local NVMe with a warm page cache: an empty folder
+    whose parent held 2,000 sibling folders of thirty files each cost 275 ms
+    for the pair -- past the 250 ms budget -- so the guess was returned and
+    the empty folder was ACCEPTED, with `has_images_in` having already said
+    no. That is the shape of a full-suite run, where every `tmp_path` sits
+    beside one directory per test that has already run, and it is why this
+    file passed on its own and failed on CI.
+
+    The walk is stalled outright here rather than simulated with thousands of
+    directories: the assertion is that the answer does not depend on it.
+    """
+    from spacr.qt import dnd_handlers as dh
+    from spacr.qt.dnd_handlers import MaskDropHandler
+
+    released = threading.Event()
+
+    def stalled_walk(path, *args, **kwargs):
+        """Stand in for a parent directory that takes longer than the budget."""
+        released.wait(10)
+        return []
+
+    monkeypatch.setattr(dh, "find_image_folders_nearby", stalled_walk)
+    dh.forget_decisions()
+    try:
+        assert MaskDropHandler().can_accept(tmp_path) is False
+    finally:
+        # Let the parked walk finish before the patch is undone, so nothing
+        # is left running past the end of the test.
+        released.set()
+        dh.forget_decisions()
 
 
 def test_mask_handler_suggests_sibling(tmp_path):

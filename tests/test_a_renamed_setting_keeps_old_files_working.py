@@ -59,6 +59,19 @@ FACTORIES = {
     # moment it was renamed, which is the whole reason it exists. The
     # table cannot go stale in the direction that hides the bug.
     "nontargeting_control_grnas": "get_perform_regression_default_settings",
+    # ADDED 2026-09-12 WITH THE FOUR RENAMES THE RUN NEVER PERFORMED, and
+    # again by this test, which failed the moment they were added to
+    # `RENAMED_SETTINGS`. All four were recorded in `RETIRED_SETTINGS` -- so
+    # `spacr-doctor` had been saying "renamed to X" about files whose value
+    # the run then replaced with a default.
+    #
+    # The organelle `_area` pair belongs to the MASK factory, which had no
+    # fold at all until this change: it declares every `<role>_FT`,
+    # `_CP_prob`, `_Signal_to_noise` and `_min_object_area` key, and
+    # `_set_organelle_defaults` owns `organelle_min_area`/`_max_area`.
+    "organelle_min_area": "set_default_settings_preprocess_generate_masks",
+    "organelle_max_area": "set_default_settings_preprocess_generate_masks",
+    "reduction_method": "set_default_umap_image_settings",
 }
 
 
@@ -122,6 +135,37 @@ def test_the_new_name_wins_when_both_are_present():
             assert old not in settings
 
 
+def _an_old_name_leading_to(new):
+    """A spelling an old settings file could carry that resolves to ``new``.
+
+    A SPLIT REACHES ITS TARGETS FROM ONE OLD KEY, so this asks "which old
+    name leads here" rather than "which maps exactly to this string" --
+    `control_wells` maps to a TUPLE, and an exact match raised StopIteration
+    on both of its halves.
+
+    AND NOT EVERY RENAME IS A LITERAL ONE. A rename that belongs to a role
+    FAMILY is recorded once as a suffix, because 705 roles carry
+    `_flow_threshold` and writing the old names out would be 3,522 entries.
+    `organelle_min_area` has no literal entry for exactly that reason, so
+    looking only in `RENAMED_SETTINGS` would say a renamed setting is not
+    renamed -- and the factory that must fold it would go unchecked.
+    """
+    for old, target in RENAMED_SETTINGS.items():
+        if new in _targets(target):
+            return old
+    from spacr.object_roles import RENAMED_SETTING_SUFFIXES, split_role_setting
+
+    parts = split_role_setting(new)
+    if parts is not None:
+        role, suffix = parts
+        for old_suffix, new_suffix in RENAMED_SETTING_SUFFIXES.items():
+            if new_suffix == suffix:
+                return f"{role}_{old_suffix}"
+    raise AssertionError(
+        f"{new} is named in FACTORIES but no old spelling reaches it, so "
+        "this entry guards nothing")
+
+
 def test_the_fold_runs_before_the_defaults_are_filled_in():
     """Otherwise the user's value is dropped and nothing says so.
 
@@ -136,8 +180,7 @@ def test_the_fold_runs_before_the_defaults_are_filled_in():
         # "which old name leads here" rather than "which maps exactly to
         # this string" -- `control_wells` maps to a TUPLE, and asking for
         # an exact match raised StopIteration on both of its halves.
-        old = next(o for o, n in RENAMED_SETTINGS.items()
-                   if new in _targets(n))
+        old = _an_old_name_leading_to(new)
         factory = getattr(module, factory_name)
         default = factory({}).get(new)
         # A PROBE THE DEFAULT CANNOT BE. Comparing "not the default" was

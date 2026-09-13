@@ -238,10 +238,110 @@ def _glyph_box(widget):
     return min(xs), min(ys), max(xs) - min(xs) + 1, max(ys) - min(ys) + 1
 
 
+#: How much larger than the size it is drawn at each glyph is rendered
+#: before it is measured -- and the whole reason this file no longer
+#: compares the two painted widget boxes. The mark is drawn at 15 px and
+#: the operator it replaces at 13 px, so each lays down ink five to ten
+#: pixels across, and :func:`_glyph_box` keeps only pixels that are nearly
+#: opaque AND nearly white, which throws the antialiased edge away. That
+#: edge is exactly what a different FreeType, hint style or fallback face
+#: moves, so the comparison had a signal the size of its own noise. At 16x
+#: those two fonts become 208 px and 240 px, and the same glyph in the same
+#: face then moved by ONE pixel across four hint settings -- full, slight,
+#: none, and antialiasing off -- in an ink box of 142, under a percent,
+#: against a difference that is 18 % at its smallest.
+_GLYPH_MAGNIFICATION = 16
+
+#: How much bigger the mark has to measure than the glyph it replaces.
+#: Every host measured on 2026-09-12 grew by at least 18.5 % -- a lone
+#: DejaVu Sans drawing both glyphs, where the operator is unusually tall --
+#: and by as much as 83 % where a dingbat fallback draws the mark beside
+#: Open Sans. Ten percent is under all of them and twenty times the
+#: rasteriser spread, and a mark that stops growing still fails it: the
+#: same glyph at the same size measures exactly 1.000, a 15 % scale cut
+#: 0.95, and a genuinely small glyph -- `·` at the full scale -- 0.22.
+_GLYPH_GROWTH = 1.10
+
+
+def _ink_extent(font, glyph):
+    """The width and height of the ink one glyph paints, magnified.
+
+    ``font`` is the font a widget resolved -- family, weight, and the
+    size the style sheet put on it -- and ``glyph`` the text it draws.
+    The pair is rendered again at :data:`_GLYPH_MAGNIFICATION` times that
+    size, and every pixel carrying ANY coverage counts: no threshold, so
+    the antialiased edge the rasteriser moves is inside the measurement
+    rather than cut out of it at a different place on every machine.
+    """
+    import numpy as np
+    from PySide6.QtGui import QFont, QFontInfo, QImage, QPainter
+
+    size = QFontInfo(font).pixelSize() * _GLYPH_MAGNIFICATION
+    enlarged = QFont(font)
+    enlarged.setPixelSize(size)
+    # Three times the type size in each direction: a glyph drawn centred
+    # cannot reach the edge of that, and a measurement that touched an
+    # edge would be reporting the image and not the ink.
+    side = size * 3
+    image = QImage(side, side, QImage.Format_Grayscale8)
+    image.fill(0)
+    painter = QPainter(image)
+    painter.setFont(enlarged)
+    painter.setPen(QColor("white"))
+    painter.drawText(image.rect(), Qt.AlignCenter, glyph)
+    painter.end()
+    coverage = np.frombuffer(image.constBits(), dtype=np.uint8)
+    coverage = coverage.reshape(image.height(), image.bytesPerLine())[:, :side]
+    rows, columns = np.nonzero(coverage)
+    assert rows.size, f"{glyph!r} painted nothing at {size} px"
+    return (int(columns.max() - columns.min() + 1),
+            int(rows.max() - rows.min() + 1))
+
+
 def test_the_glyph_is_drawn_larger_than_the_mark_it_replaces(qtbot, qapp):
-    """"a LARGE X" -- measured against the `×` the sites used to draw."""
+    """"a LARGE X" -- measured against the `×` the sites used to draw.
+
+    TWO MEASUREMENTS, NEITHER OF THEM A SEVEN-PIXEL BOX. The type sizes are
+    integers the style resolved onto the two widgets and carry no rasteriser
+    at all; the ink is measured from those same two fonts rendered large
+    enough that a pixel of hinting cannot decide the verdict.
+
+    It used to compare the two painted widget boxes directly, and what that
+    compared was the host's fonts rather than spaCR's decision. Same tree,
+    same theme, the mark at 15 px against 13 px throughout, nothing changed
+    but fontconfig, measured 2026-09-12:
+
+        host fonts                     the `x`   the mark   old assertion
+        this workstation               5x5       7x7        passed
+        the same, hint style full      5x6       9x9        passed
+        the same, antialiasing off     5x6       10x10      passed
+        the DejaVu family              6x6       7x7        passed by 1 px
+        DejaVu Sans and nothing else   7x7       7x7        FAILED
+        Liberation and nothing else    6x5       5x6        FAILED
+        the Ubuntu family              5x5       6x1        FAILED
+
+    The fifth row is an ordinary hosted runner. GitHub's ubuntu-24.04 image
+    lists one font package in its manifest, the colour emoji one, so a
+    single family draws both glyphs and seven pixels is the whole
+    resolution available. The mark is not too small there: rendered at 16x,
+    those same two fonts measure 142x141 against 118x119, twenty percent
+    wider and eighteen percent taller. That row fails on its own with the
+    rest of this file green, which is the shape the failure arrived in.
+
+    What the ink alone cannot say is WHICH glyph is being drawn: on a face
+    whose `x` is nearly as tall as its `X`, DejaVu Sans among them, the
+    mark measures 1.19 where a bare size increase would give 1.15. So the
+    glyph is pinned by name instead -- here, and in the six assertions
+    below that compare a drawn mark's text against ``theme.CLOSE_MARK``.
+    """
+    from PySide6.QtGui import QFontInfo
     from PySide6.QtWidgets import QToolButton
     from spacr.qt.preferences import get_font_scale
+
+    # The comparison below is against the operator the sites used to draw,
+    # so the mark must not BE that operator: the growth would then be a
+    # measurement of a thing against itself, and would read 1.000.
+    assert theme.CLOSE_MARK != "\u00d7"
 
     saved = qapp.styleSheet()
     qapp.setStyleSheet(theme.stylesheet("dark", font_scale=get_font_scale()))
@@ -258,17 +358,31 @@ def test_the_glyph_is_drawn_larger_than_the_mark_it_replaces(qtbot, qapp):
         host.show()
         qapp.processEvents()
 
-        _x, _y, old_w, old_h = _glyph_box(was)
-        _x, _y, new_w, new_h = _glyph_box(mark)
+        # Both are drawn where they sit. The sizes below are taken from the
+        # fonts, and a mark whose widget painted nothing at all -- a host
+        # with no face for the glyph does exactly that -- would otherwise
+        # satisfy every one of them.
+        _glyph_box(was)
+        _glyph_box(mark)
 
-        # Rasterisation can round one axis to the same pixel on two fonts.
-        # It is still a larger drawn mark when neither axis contracts and
-        # the painted bounding box grows on the other axis (7x7 versus 7x6
-        # on Ubuntu/PySide 6.11.2, for example).
-        assert (new_w >= old_w and new_h >= old_h
-                and new_w * new_h > old_w * old_h), (
-            f"the mark is {new_w}x{new_h}; the one it replaces is "
-            f"{old_w}x{old_h}")
+        old_px = QFontInfo(was.font()).pixelSize()
+        new_px = QFontInfo(mark.font()).pixelSize()
+        old_w, old_h = _ink_extent(was.font(), was.text())
+        new_w, new_h = _ink_extent(mark.font(), mark.text())
+
+        # THE TYPE SIZE, EXACTLY. Whatever the host's fonts are, the theme
+        # sets the mark larger than the control it replaces, and a scale
+        # that stops doing so shows up here and in no rendered pixel.
+        assert new_px > old_px, (
+            f"the mark is set at {new_px} px and the one it replaces at "
+            f"{old_px} px")
+
+        # AND THE INK, MEASURED WHERE IT CAN BE MEASURED.
+        assert (new_w >= old_w * _GLYPH_GROWTH
+                and new_h >= old_h * _GLYPH_GROWTH), (
+            f"the mark's ink is {new_w}x{new_h} against {old_w}x{old_h} for "
+            f"the one it replaces, rendered at {_GLYPH_MAGNIFICATION}x; the "
+            f"mark has to be at least {_GLYPH_GROWTH:.2f} times it")
     finally:
         qapp.setStyleSheet(saved)
 

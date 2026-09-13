@@ -1,6 +1,6 @@
 """Promotion keeps the working folders off ``main`` and on ``nightly``.
 
-``instructions/``, ``skill/``, ``proposals/`` and ``.claude/`` are tracked on
+``features/``, ``skill/``, ``proposals/`` and ``.claude/`` are tracked on
 ``nightly`` on purpose. Merging carries every tracked path, so each promotion
 brings them back across and each promotion has to drop them again -- the
 property that makes this a tool rather than a remembered step, and the one
@@ -74,7 +74,7 @@ def repo(tmp_path: Path) -> Path:
     git(root, "commit", "--quiet", "-m", "the product")
 
     git(root, "checkout", "--quiet", "-b", "nightly")
-    write(root / "instructions" / "open" / "250_public.txt", "an instruction\n")
+    write(root / "features" / "future" / "250_public.txt", "an instruction\n")
     write(root / "skill" / "engineer.md", "a skill\n")
     write(root / "proposals" / "a_proposal.md", "a proposal\n")
     write(root / ".claude" / "settings.json", "{}\n")
@@ -85,7 +85,7 @@ def repo(tmp_path: Path) -> Path:
 
 
 WORKING_PATHS = {
-    "instructions/open/250_public.txt",
+    "features/future/250_public.txt",
     "skill/engineer.md",
     "proposals/a_proposal.md",
     ".claude/settings.json",
@@ -112,7 +112,7 @@ class TestTheDryRunIsTheDefault:
         printed = capsys.readouterr().out
 
         assert "DRY RUN" in printed
-        for folder in ("instructions", "skill", "proposals", ".claude"):
+        for folder in ("features", "skill", "proposals", ".claude"):
             assert f"{folder}/" in printed, f"{folder} was not named"
         assert "git merge --no-ff" in printed
         assert "git rm -r --cached" in printed
@@ -160,7 +160,7 @@ class TestEveryPromotionDropsThemAgain:
         assert not tracked(repo, "main") & WORKING_PATHS
 
         # More work on nightly, touching a working folder and the product.
-        write(repo / "instructions" / "open" / "251_next.txt", "the next one\n")
+        write(repo / "features" / "future" / "251_next.txt", "the next one\n")
         write(repo / "spacr" / "later.py", "def later():\n    return 2\n")
         git(repo, "add", "-A")
         git(repo, "commit", "--quiet", "-m", "more work")
@@ -170,7 +170,7 @@ class TestEveryPromotionDropsThemAgain:
         on_main = tracked(repo, "main")
         assert "spacr/later.py" in on_main, "the second promotion carried nothing"
         leaked = {p for p in on_main if p.split("/")[0] in
-                  {"instructions", "skill", "proposals", ".claude"}}
+                  {"features", "skill", "proposals", ".claude"}}
         assert not leaked, (
             "the second promotion published the working folders the merge "
             f"brought back: {sorted(leaked)}")
@@ -195,7 +195,7 @@ class TestItRefusesRatherThanGuess:
         """A working folder can be retired between promotions."""
         assert promote_to_main.main(
             ["--repo", str(repo), "--execute",
-             "--folder", "instructions", "--folder", "never_existed"]) == 0
+             "--folder", "features", "--folder", "never_existed"]) == 0
         assert "spacr/feature.py" in tracked(repo, "main")
         assert not {p for p in tracked(repo, "main")
                     if p.startswith("instructions/")}

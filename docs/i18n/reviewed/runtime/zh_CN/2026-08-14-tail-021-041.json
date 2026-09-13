@@ -81,13 +81,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "nucleus_intensity_percentile",
-      "source_sha256": "26110c2c362dbda2c3698db3da7775f30a9f71260590d609db55d64519c48647",
-      "source": "Percentile of each nucleus's own pixel intensities used as the merge reference when nucleus_intensity_threshold_method is 'percentile'. Higher values (90) demand a very bright shared boundary and merge almost nothing; lower values (50) merge readily. Range 0-100, default 75. Ignored when the method is 'mean'.",
-      "translation": "当 nucleus_intensity_threshold_method 为 'percentile' 时，用作合并参考值的每个细胞核自身像素强度分位数。较高值（90）要求共享边界非常明亮，因此几乎不合并；较低值（50）更容易合并。范围为 0–100，默认值为 75。当方法为 'mean' 时忽略。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "nucleus_intensity_range",
       "source_sha256": "3e77b70bc4521a89ff009916d38638a82e7180ee02ec689bcfd08c5085458ae8",
       "source": "Two-element [min, max] bound on mean nucleus-channel intensity used by the recruitment analysis to drop rows from the measurement table - it filters measured objects, not masks or normalization. Rows are kept only if min < mean intensity < max (raw units), and each bound is ignored unless it is an int. Default [0, 100000].",
@@ -109,13 +102,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "pathogen_area_multiplier",
-      "source_sha256": "34efd8898f8de5328d2fab6e6aa73e11e0c7e357566d59e5e2147b247d84e7f6",
-      "source": "Splitting threshold expressed as a multiple of the median pathogen area in the field. Only labels above this threshold and pathogen_min_split_area are processed by watershed segmentation. Lower values, such as 1.5, split more objects; higher values restrict splitting to larger aggregates. Used only when pathogen_intensity_split is True. Default 2.0.",
-      "translation": "拆分阈值表示为该显微镜视野中病原体面积中位数的倍数。只有同时超过该阈值和 pathogen_min_split_area 的标签才会进行分水岭分割。较低的值（如 1.5）会拆分更多对象；较高的值仅拆分较大的聚集体。仅当 pathogen_intensity_split 为 True 时使用。默认值 2.0。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "pathogen_chann_dim",
       "source_sha256": "b2a9cd2909602957075a3e9bfeffc6a9f25cbeac524ba2ba6bc5a484b38dfdf5",
       "source": "Recruitment analysis only (analyze_recruitment): the image-channel index paired with the pathogen mask when drawing outline overlays, and the switch that enables pathogen_size_range / pathogen_intensity_range filtering. Set it to None to skip pathogen filtering. It plays no part in segmentation - use pathogen_channel for that. Default 2.",
@@ -127,13 +113,6 @@
       "source_sha256": "7000eb3fe8c4b8ad4698c1996184ca7c191ee30304c6e0965c3efccdb7fcc81f",
       "source": "Zero-indexed raw acquisition channel segmented into pathogen masks (Toxoplasma etc.), and the channel pathogen_background, pathogen_signal_to_noise and remove_background_pathogen apply to. None disables pathogen segmentation, the pathogen table, the infected-only filter (uninfected) and the adjust_cells step, which needs cell, nucleus and pathogen masks together. Default None.",
       "translation": "用于分割病原体掩模（弓形虫等）的从零开始编号的原始采集图像数据通道；pathogen_background、pathogen_signal_to_noise 和 remove_background_pathogen 也应用于此图像数据通道。设为 None 会禁用病原体分割、病原体表、仅感染对象过滤器（uninfected）以及 adjust_cells 步骤；后者需要同时存在细胞、细胞核和病原体掩模。默认值为 None。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "pathogen_intensity_percentile",
-      "source_sha256": "fc3ae1e765a6d1b466a7c32577b07dab4903c091cca3c89ca00d8fbb70e38c44",
-      "source": "Percentile, 0-100, of a pathogen's interior intensity used as the merge reference when pathogen_intensity_threshold_method is 'percentile'. Two touching labels merge only if their shared border is at least this bright inside the dimmer object, so raising it demands a brighter border and merges fewer pairs. Ignored when the method is 'mean'. Default 75.",
-      "translation": "当 pathogen_intensity_threshold_method 为 'percentile' 时，用作合并参考值的病原体内部强度分位数，范围为 0–100。只有当两个相邻标签的共享边界在较暗对象内部也至少达到此亮度时才会合并，因此提高该值会要求更亮的边界并减少合并。当方法为 'mean' 时忽略。默认值为 75。"
     },
     {
       "table": "setting_tooltips",

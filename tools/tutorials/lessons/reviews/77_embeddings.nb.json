@@ -1,0 +1,29 @@
+{
+  "title": "Embeddings: dagens skjerm og et ekte Python-eksempel",
+  "description": "Se den nye modulen og kod virkelige bilder med API-et uten å hevde at GUI-et er rettet eller en fenotype validert.",
+  "objectives": [
+    "Skill mellom dagens GUI og API-et som virker.",
+    "Sammenlign kanalstrategier på seksten bilder.",
+    "Bevar identiteter og tolk figurene med varsomhet."
+  ],
+  "prerequisite": "spaCR 1.5.0.7 med tillegget embeddings; opptak med timm 1.0.29 og forhåndstrent ResNet18 på CPU. Last ned Annotate-eksemplet og ZIP-filen. Bruk cell_png-mappen i README og nye utdatamapper. Filnavn er ikke bekreftede databasenøkler. Skjermen mangler innlasting av bilder; vellykket behandling bruker API-et. Biologisk validering, morsmålsvurdering eller GPU-kjøring er ikke dokumentert her.",
+  "scenes": [
+    "Embeddings er en ny modul på Home i spaCR. Den gjør bildeutsnitt om til numeriske vektorer uten å trene på annotasjonene dine. Denne leksjonen viser dagens skjerm og et fungerende Python-eksempel med virkelige nedlastede bilder.",
+    "I versjon én punkt fem punkt null punkt sju har denne skjermen ingen kontroll for å laste inn bildeutsnitt, og Embed er deaktivert. Vi simulerer ikke en vellykket GUI-kjøring. Den faktiske kodingen som vises etterpå, gjøres av det støttede Python-API-et.",
+    "Per channel koder hver lagrede kanal separat og setter vektorene sammen. Project to three koder det kombinerte bildet. Dette endrer representasjonen, ikke bare hastigheten. En kanalplass i en PNG identifiserer ikke automatisk en bekreftet farging.",
+    "Installer det valgfrie tillegget embeddings i spaCR-miljøet. Standardmodellens ResNet atten bruker veiledet trente ImageNet-vekter, ikke en selvveiledet modell trent på celler. Dette lille eksemplet bruker CPU; verken GPU eller en ekstern KI-tjeneste er nødvendig.",
+    "Bruk det nedlastbare eksemplet fra Annotate og utsnittsmappen i veiledningen. Det lenkede skriptet velger seksten eksisterende bilder sortert etter filnavn. Hvert bilde har to hundre og tjuefire piksler på hver side og tre lagrede kanaler. Størrelsen endres ikke, og det gjøres ingen ny segmentering.",
+    "Kjør skriptet med en ny utdatamappe. Det kaller embed_array med den virkelige forhåndstrente koderen og grupper på fire. Kanalvis koding gir seksten rader og ett tusen fem hundre og trettiseks dimensjoner. Den lagrede matrisen åpnes på nytt og kontrolleres verdi for verdi.",
+    "Velg nå project og en annen utdatamappe. De samme bildene gir seksten rader og fem hundre og tolv dimensjoner. Disse kolonnene med kombinerte kanaler kan ikke byttes med de tidligere kanalvise kolonnene. Sammenlign strategiene bevisst og behold innstillingene for hver kjøring.",
+    "Undersøk montasjen av de faktiske inndatabildene i bildeviseren. Numrene følger rekkefølgen på utdataradene. Kontroller utsnittskvalitet og eksportens kanalkart før tolkning. Filnavnene identifiserer dette eksemplet; bekreft objektnøklene før sammenkobling med en måledatabase.",
+    "Denne lagrede figuren projiserer de kanalvise vektorene på to hovedkomponenter. De nummererte punktene tilsvarer de samme utsnittene. Dette er en utforskende visualisering av et svært lite utvalg, ikke bevis for ulike fenotyper. Én vektordimensjon er ikke en biologisk måling.",
+    "Vektorene med kombinerte kanaler har sin egen projeksjon. Ikke sammenlign aksekoordinater mellom disse figurene som om de delte samme tilpassede transformasjon. Ingen av figurene måler gjenfinningsnøyaktighet eller viser at vektorene er bedre enn panelet av målte egenskaper.",
+    "Behold vektorene, kildeidentiteter, vektenes kontrollsum, innstillinger og pakkeversjoner. Skriptet kontrollerer at originalbildene er uendret og avviser eksisterende mål. Bruk samsvarende utsnitt, normalisering og kanalkart ved sammenligning. Følg den lenkede veiledningen for å gjenskape API-eksemplet."
+  ],
+  "lesson": "77_embeddings",
+  "language": "nb",
+  "english_sha256": "f5415671d988cad7353067d0a764a519bf90cb6134d0de803b90d50060678172",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false
+}

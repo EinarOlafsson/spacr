@@ -38,33 +38,73 @@ COPY = {
 }
 
 
-def release_catalog(source, language):
+def first_placeholder(lessons):
+    """Choose an actual unavailable route, never an identity that became ready."""
+    for lesson in lessons:
+        if lesson.get('status') == 'coming_soon':
+            return lesson['id']
+    raise ValueError('This placeholder check requires an actually unavailable lesson')
+
+
+def release_catalog(source, language, *, recording_stage=None, model_promotions=()):
     """Preserve every ready lesson verbatim and replace only approved holds."""
     result = deepcopy(source)
     ids = [lesson['id'] for lesson in result['lessons']]
+    from model_promotion import MODELS, require_recorded_model
+    model_promotions = set(model_promotions)
+    if not model_promotions <= set(MODELS) or not model_promotions <= set(ids):
+        raise ValueError('Only the two explicitly recorded model lessons can be promoted here')
+    for lesson in result['lessons']:
+        if lesson['id'] in model_promotions:
+            require_recorded_model(recording_stage, language, lesson)
+    recorded_embedding = next((lesson for lesson in result['lessons']
+                               if lesson['id'] == EMBEDDINGS), None)
+    valid_promotion = (recorded_embedding is not None
+                       and recorded_embedding.get('number') == 77
+                       and recorded_embedding.get('app_key') == 'embeddings'
+                       and 'host_app_key' not in recorded_embedding
+                       and recorded_embedding.get('status') != 'coming_soon'
+                       and bool(recorded_embedding.get('scenes')))
+    recorded_ops = next((lesson for lesson in result['lessons'] if lesson['id'] == OPS), None)
+    valid_ops = (recorded_ops is not None
+                 and recorded_ops.get('number') == 76
+                 and recorded_ops.get('app_key') == 'ops'
+                 and recorded_ops.get('host_app_key') == 'mask'
+                 and recorded_ops.get('status') != 'coming_soon'
+                 and bool(recorded_ops.get('scenes')))
     if (len(ids) != len(set(ids)) or not set(HELD) <= set(ids)
-            or OPS in ids or EMBEDDINGS in ids):
+            or (OPS in ids and not valid_ops) or (EMBEDDINGS in ids and not valid_promotion)):
         raise ValueError('Expected distinct original lessons, four holds, '
-                         'and neither generated placeholder already present')
+                         'a recorded OPS promotion if present, and only a recorded Embeddings promotion')
+    if recorded_ops is not None:
+        from ops_promotion import require_recorded_ops
+        require_recorded_ops(recording_stage, language, recorded_ops)
     title, description = COPY[language]
     for lesson in result['lessons']:
-        if lesson['id'] in HELD:
+        if lesson['id'] in HELD and lesson['id'] not in model_promotions:
             # Retain identity, title and routing, not stale promises or media.
             for field in ('silent', 'poster', 'example_files'):
                 lesson.pop(field, None)
             lesson.update(status='coming_soon', availability_title=title,
                           description=description, objectives=[], prerequisite='', scenes=[])
-    result['lessons'].append({
+    ops = {
         'id': OPS, 'number': 76, 'slug': 'ops', 'title': 'OPS', 'series': 2,
         'app_key': 'ops', 'host_app_key': 'mask', 'section': 'Segmentation models',
         'status': 'coming_soon', 'availability_title': title,
         'description': description, 'objectives': [], 'prerequisite': '', 'scenes': [],
-    })
-    result['lessons'].append({
-        'id': EMBEDDINGS, 'number': 77, 'slug': 'embeddings',
-        'title': 'Embeddings', 'series': 2, 'app_key': 'embeddings',
-        'section': 'Data', 'status': 'coming_soon',
-        'availability_title': title, 'description': description,
-        'objectives': [], 'prerequisite': '', 'scenes': [],
-    })
+    }
+    # Preserve legacy caption entries and their original order. Some have
+    # no numeric metadata until write_catalogs copies the English routing.
+    # Only the reserved OPS position needs insertion before recorded 77.
+    position = ids.index(EMBEDDINGS) if recorded_embedding is not None else len(ids)
+    if recorded_ops is None:
+        result['lessons'].insert(position, ops)
+    if recorded_embedding is None:
+        result['lessons'].append({
+            'id': EMBEDDINGS, 'number': 77, 'slug': 'embeddings',
+            'title': 'Embeddings', 'series': 2, 'app_key': 'embeddings',
+            'section': 'Data', 'status': 'coming_soon',
+            'availability_title': title, 'description': description,
+            'objectives': [], 'prerequisite': '', 'scenes': [],
+        })
     return result

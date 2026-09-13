@@ -51,17 +51,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,249 | Remainder | Reviewed API blocks | Of 10,339 | Remainder |
+| Language | Reviewed runtime records | Of 5,265 | Remainder | Reviewed API blocks | Of 10,400 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.25% | 5,131 | 468 | 4.53% | 9,871 |
-| German | 85 | 1.62% | 5,164 | 424 | 4.10% | 9,915 |
-| Spanish | 114 | 2.17% | 5,135 | 287 | 2.78% | 10,052 |
-| Simplified Chinese | 266 | 5.07% | 4,983 | 506 | 4.89% | 9,833 |
-| Portuguese | 107 | 2.04% | 5,142 | 448 | 4.33% | 9,891 |
-| Hindi | 126 | 2.40% | 5,123 | 461 | 4.46% | 9,878 |
-| Korean | 250 | 4.76% | 4,999 | 453 | 4.38% | 9,886 |
-| Icelandic | 151 | 2.88% | 5,098 | 1,025 | 9.91% | 9,314 |
-| French | 98 | 1.87% | 5,151 | 465 | 4.50% | 9,874 |
+| Swedish | 118 | 2.24% | 5,147 | 468 | 4.50% | 9,932 |
+| German | 85 | 1.61% | 5,180 | 424 | 4.08% | 9,976 |
+| Spanish | 114 | 2.17% | 5,151 | 287 | 2.76% | 10,113 |
+| Simplified Chinese | 266 | 5.05% | 4,999 | 506 | 4.87% | 9,894 |
+| Portuguese | 107 | 2.03% | 5,158 | 448 | 4.31% | 9,952 |
+| Hindi | 126 | 2.39% | 5,139 | 461 | 4.43% | 9,939 |
+| Korean | 250 | 4.75% | 5,015 | 453 | 4.36% | 9,947 |
+| Icelandic | 151 | 2.87% | 5,114 | 1,025 | 9.86% | 9,375 |
+| French | 98 | 1.86% | 5,167 | 465 | 4.47% | 9,935 |
 
 *Regenerated 2026-09-11 against the tree after the merge from `main`. Both
 denominators moved -- the runtime one DOWN, 5,260 to 5,249, because 364

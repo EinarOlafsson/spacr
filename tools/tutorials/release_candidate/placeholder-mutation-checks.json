@@ -1,5 +1,5 @@
 {
-  "player_sha256": "47b9096f57156f6c569dd95f908683474bd5327fb00b56aa728024d6ad8de726",
+  "player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
   "mutations": [
     {
       "guard": "availability guard",
@@ -12,6 +12,7 @@
   ],
   "baseline_before_and_after_passed": true,
   "source_files_modified": false,
+  "tested_placeholder": "12_map_barcodes",
   "passed": true,
   "published": false
 }

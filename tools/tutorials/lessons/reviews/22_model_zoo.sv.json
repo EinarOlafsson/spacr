@@ -1,0 +1,17 @@
+{
+  "lesson": "22_model_zoo", "language": "sv", "english_sha256": "8f4b24235c0e8e47ef0c96ea6ecf57b7adae2bae07c4d00514893f128b4e81eb",
+  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
+  "title": "Model Zoo: hitta modeller och granska deras ursprung",
+  "description": "Öppna det inbäddade modellbiblioteket och skanna en befintlig lokal cache. Skilj registrerade träningsuppgifter från okänt ursprung; Cellposes aktuella inkompatibilitet hindrar en styrkt prestandamätning.",
+  "objectives": ["Hitta Model Zoo i Make Masks och skanna en lokal modellmapp.", "Läs källa, typ, kontrollsumma och träningsuppgifter utan att förväxla okända metadata med validering.", "Skilj modellhantering från nedladdning, träning och prestandamätning."],
+  "prerequisite": "spaCR 1.5.0.7 nightly. Inspelningen skannar en befintlig Cellpose-cache och väljer den ursprungliga cpsam-filen utan nedladdning, träning eller inferens. Använd din egen mapp, inte presentatörens personliga sökväg. Valda metadata saknar publicerad kontrollsumma, träningsdata och författare; inget härleds ur namnet. En separat hash visar bara att den lokala filen var oförändrad under inspelningen, inte dess ursprung. Model Zoos prestandamätning och Model Compare skickar invert, som Cellpose 4.2.1.1 inte stöder. Appfelet varken repareras eller kringgås här. Plaque-lektionen visar en verklig nedladdning och förhandsvisning. Ingen noggrannhetsjämförelse eller oberoende validering påstås.",
+  "scenes": [
+    "Model Zoo är modellbiblioteket inuti Make Masks. Öppna värdmodulen och sedan dess Model Zoo-kontroll. Lektionen visar det verkliga biblioteket och skanning av lokala modeller, inte ny träning eller en noggrannhetsmätning.",
+    "Tabellen samlar publicerade poster och lokalt upptäckta filer. Läs modelltyp och källa tillsammans. Att en modell finns i listan betyder inte att den är nedladdad, testad på dina bilder eller validerad för ditt experiment.",
+    "Ange en befintlig modellmapp och tryck Scan, eller välj den med knappen bredvid. Här skannar vi den verkliga Cellpose-cachen. Använd din egen sökväg. Skanningen hittar filer och metadata; den tränar inga modeller och segmenterar inga bilder.",
+    "Denna skanning visar åtta poster: publicerade fjärrmodeller och lokala viktfiler. Antalet beskriver den här datorn, inte en obligatorisk konfiguration. Välj den exakta filen; liknande namn garanterar inte samma vikter.",
+    "Den valda lokala filen har varken publicerad kontrollsumma eller registrerat träningsursprung i denna vy. Okänt betyder okänt. Namnet bevisar inte vilket träningsdataset som använts. Vår hash bekräftar att inspelningen lämnade filen oförändrad, inte vem som skapade den eller hur väl den fungerar.",
+    "Nedladdningsområdet styr var en tillgänglig fjärrmodell sparas. Där finns även ett val för modeller utan publicerad kontrollsumma. En saknad kontrollsumma är inte verifiering. Denna lokala fil laddas inte ned igen. Plaque-lektionen visar en verklig nedladdning och förhandsvisning.",
+    "Den nedre delen används för att testa bildfält och jämföra valda modeller. Det är andra uppgifter än att skanna biblioteket. Den aktuella Cellpose-argumentkonflikten hindrar oss från att påstå en lyckad prestandamätning här. Inga masker eller testvärden är påhittade. Håll representativa valideringsbilder åtskilda från träningsexempel när det reparerade flödet utvärderas."
+  ]
+}

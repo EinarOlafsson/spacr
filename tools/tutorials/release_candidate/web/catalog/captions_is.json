@@ -2510,33 +2510,221 @@
     },
     {
       "id": "21_model_compare",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Væntanlegt",
-      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 21,
+      "slug": "model_compare",
+      "title": "Model Compare: núverandi viðmót og samræmi raunverulegra maska",
+      "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_compare"
+      "description": "Opnaðu innbyggða samanburðinn, lestu inn raunveruleg myndsvið og berðu saman vistaðar hlutaskiptingar með API-inu. Samræmi sannar hvorki nákvæmni né að keyrsla líkana í viðmótinu hafi verið lagfærð.",
+      "objectives": [
+        "Finndu Model Compare í Make Masks og lestu inn sýnimyndsviðin.",
+        "Greindu á milli núverandi ósamræmis í Cellpose og virka API-sins fyrir maskasamanburð.",
+        "Túlkaðu fjölda, samsvörun og skörun án þess að kalla aðra niðurstöðuna rétta."
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly og Cellpose 4.2.1.1. Viðmótið sendir invert-viðfangið sem er ekki stutt. Við lesum aðeins inn myndir, keyrum ekki líkön, setjum ekki inn tilbúnar niðurstöður og breytum ekki forritinu. spacr.model_compare.compare_masks ber saman raunverulega vistaða runuvinnslu og forskoðun úr cell_pair_02.tif í Apply Cellpose: sömu cpsam-vogir en ólík forvinnsla. Hvorugur maskinn er rétt viðmið merkt af sérfræðingum; ekkert líkan er keyrt hér. Varðveittu auðkenni myndsviðs, rúmfræði mynddíla, forvinnslu og tætigildi skráa. Sömu stærðir sanna ekki sömu upprunamynd. Skriptan og gögn sem fylgja henni auðkenna frumskrár. Notaðu nýja úttaksmöppu. Samræmi staðfestir ekki nákvæmni, röðun líkana, líffræðilegt réttmæti eða frammistöðu á óháðum myndum.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare er inni í Make Masks og ber saman hlutaskiptingu sömu myndsviða. Kennslan sýnir núverandi viðmót og síðan virkt API fyrir maskasamanburð með tveimur raunverulegum vistuðum niðurstöðum.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "Viðmótið aðskilur stillingar Model A og Model B. Skráðu nákvæmlega vogir og forvinnslu í hverjum samanburði. Ólík nöfn eða fleiri hlutir sanna ekki betri niðurstöðu. Töflur fyrir færibreytur og niðurstöður eru tómar áður en samanburður er keyrður.",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "Sláðu inn raunverulegu sýnimöppuna og ýttu á Load. Hér hlaðast þrjú upprunaleg myndsvið inn og Compare verður virkt. Að lesa inn myndir er ekki það sama og að keyra líkön með árangri. Við höfum hvorki búið til maska né fyllt samanburðartöfluna á þessum skjá.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "Uppsetta Cellpose-útgáfan hafnar invert-viðfanginu sem bakendi þessa viðmóts sendir enn. Raunveruleg athugun á skilgreiningu fallsins sýnir ósamræmið án líkanakeyrslu. Við felum það ekki. Næsta dæmi notar compare_masks beint á fyrirliggjandi merktar myndir.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "Báðir maskarnir tilheyra sömu raunverulegu mynd úr Apply Cellpose-kennslunni. Annar er vistað úttak runuvinnslu, hinn vistuð lifandi forskoðun. Þeir nota sama líkan með ólíkri forvinnslu, ekki tvö samkeppnissett af vogum. Hvorugur er þekkt rétt viðmið.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "API-ið sýnir 94 hluti í A og 95 í B, með 91 samsvarandi pari. Meðalskörun para er um 0,96 og leiðréttur Rand-stuðull um 0,961. Þetta lýsir samræmi, ekki nákvæmni eða sigurvegara.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "Skoðaðu yfirlagðar myndir sem voru raunverulega vistaðar. Hægra svæðið merkir mynddíla þar sem flokkun sem forgrunnur er ólík. Það sýnir ekki allan mun á merkjum einstakra hluta. Svipaður fjöldi getur falið ólík mörk, skiptingar eða sameiningar. Skoðaðu því myndirnar líka.",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "Skriptan sannreynir hverja samsvarandi skörun óháð út frá upprunalegu mynddílunum og prófar viðmið með eins möskum. Geymdu CSV, mynd, auðkenni frumgagna og forvinnslu saman. Notaðu óháð yfirfarnar merkingar og myndir sem voru teknar frá fyrir mat áður en þú fullyrðir um nákvæmni eða velur líkan.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Væntanlegt",
-      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 22,
+      "slug": "model_zoo",
+      "title": "Model Zoo: finndu líkön og skoðaðu uppruna þeirra",
+      "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_zoo"
+      "description": "Opnaðu innbyggða líkanasafnið og skannaðu fyrirliggjandi staðbundið skyndiminni. Greindu skráðar þjálfunarupplýsingar frá óþekktum uppruna; núverandi Cellpose-ósamræmi kemur í veg fyrir staðfesta frammistöðuprófun.",
+      "objectives": [
+        "Finndu Model Zoo í Make Masks og skannaðu staðbundna líkanamöppu.",
+        "Lestu uppruna, gerð, gátsummu og þjálfun án þess að rugla óþekktum lýsigögnum við sannprófun.",
+        "Greindu líkanastjórnun frá niðurhali, þjálfun og frammistöðuprófun."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly. Upptakan skannar fyrirliggjandi Cellpose-skyndiminni og velur upprunalegu cpsam-skrána án niðurhals, þjálfunar eða líkanakeyrslu. Notaðu eigin möppu, ekki persónulega slóð kynnisins. Valin lýsigögn hafa hvorki birt gátsummu, þjálfunargögn né höfund; ekkert er ályktað út frá nafninu. Sérstakt tætigildi sýnir aðeins að staðbundna skráin breyttist ekki við upptöku, ekki uppruna hennar. Frammistöðuprófun Model Zoo og Model Compare senda invert, sem Cellpose 4.2.1.1 styður ekki. Forritsvillan er hvorki lagfærð né sniðgengin hér. Plaque-kennslan sýnir raunverulegt niðurhal og forskoðun. Ekki er fullyrt um nákvæmnisamanburð eða prófun á óháðum gögnum.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo er líkanasafnið inni í Make Masks. Opnaðu móðureininguna og síðan Model Zoo-stýringuna. Kennslan sýnir raunverulegt safn og leit að staðbundnum líkönum, ekki nýja þjálfun eða prófun á nákvæmni.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "Taflan sameinar birtar færslur og skrár sem finnast á tölvunni. Lestu gerð líkans og uppruna saman. Færsla á lista þýðir ekki að líkani hafi verið hlaðið niður, það prófað á þínum myndum eða staðfest fyrir þína tilraun.",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "Sláðu inn fyrirliggjandi líkanamöppu og ýttu á Scan, eða veldu möppu með hnappnum við hliðina. Hér skönnum við raunverulegt Cellpose-skyndiminni. Notaðu eigin slóð. Skönnun finnur skrár og lýsigögn; hún þjálfar ekki líkön og hlutaskiptir ekki myndum.",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "Þessi skönnun sýnir átta færslur: birt líkön á neti og staðbundnar vogaskrár. Fjöldinn lýsir þessari tölvu, ekki nauðsynlegri uppsetningu. Veldu nákvæmlega réttu skrána; lík nöfn tryggja ekki sömu vogir.",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "Valda staðbundna skráin hefur hvorki birta gátsummu né skráðan þjálfunaruppruna í þessari sýn. Óþekkt merkir óþekkt. Nafnið sannar ekki hvaða þjálfunargögn voru notuð. Tætigildið okkar staðfestir að upptakan breytti ekki skránni, ekki hver bjó hana til eða hversu vel hún virkar.",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "Niðurhalssvæðið stýrir hvar tiltækt líkan af netinu er vistað. Þar er einnig val fyrir líkön án birtrar gátsummu. Vantar gátsummu merkir ekki staðfest niðurhal. Þessari staðbundnu skrá er ekki hlaðið niður aftur. Plaque-kennslan sýnir raunverulegt niðurhal og forskoðun.",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "Neðra svæðið er fyrir prófun myndsviða og samanburð valinna líkana. Það eru önnur verkefni en skönnun safnsins. Núverandi ósamræmi Cellpose-viðfanga kemur í veg fyrir að við getum lýst árangursríkri frammistöðuprófun hér. Engir maskar eða prófgildi eru tilbúin. Haltu dæmigerðum sannprófunarmyndum aðskildum frá þjálfunardæmum þegar lagfært verkferli er metið.",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "23_agreement",
@@ -9794,35 +9982,252 @@
       ]
     },
     {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: núverandi skjár og raunverulegt Python-dæmi",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Skoðaðu nýju eininguna og kóðaðu raunmyndir með API án þess að halda fram lagfærðu myndviðmóti eða líffræðilegri staðfestingu.",
+      "objectives": [
+        "Greina á milli núverandi myndviðmóts og virks API.",
+        "Bera rásastefnur saman á sextán myndum.",
+        "Varðveita auðkenni og túlka myndrit með varúð."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 með embeddings-viðbót; upptakan notar timm 1.0.29 og forþjálfað ResNet18 á örgjörva. Sæktu Annotate-dæmið og tengdu ZIP-skrána. Notaðu cell_png-möppuna í README og nýjar úttaksmöppur. Skráarnöfn eru ekki staðfestir gagnagrunnslyklar. Skjárinn hefur ekki myndahleðslu; árangursrík vinnsla fer fram með API. Ekki er fullyrt um líffræðilega staðfestingu, yfirferð móðurmálshafa eða GPU-keyrslu.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings er ný eining á Home-síðu spaCR. Hún breytir myndútskurðum í talnavigra án þess að þjálfa á merkingunum þínum. Kennslan sýnir núverandi skjá og virkt Python-dæmi með raunverulegum niðurhöluðum myndum.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "Í útgáfu eitt punktur fimm punktur núll punktur sjö hefur þessi skjár enga stýringu til að hlaða myndútskurðum og Embed er óvirkt. Við líkjum ekki eftir árangursríkri myndviðmótskeyrslu. Raunverulega kóðunin sem kemur næst er framkvæmd með studdu Python-API.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel kóðar hverja vistaða rás sérstaklega og tengir vigurna saman. Project to three kóðar samsettu myndina í staðinn. Þetta breytir framsetningunni, ekki aðeins hraðanum. Rásasæti í PNG auðkennir ekki sjálfkrafa staðfesta litun.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "Settu valkvæðu embeddings-viðbótina upp í spaCR-umhverfinu. Sjálfgefna ResNet átján notar ImageNet-vogir úr stýrðu námi, ekki sjálfstýrt líkan þjálfað á frumum. Þetta litla dæmi notar örgjörvann; hvorki GPU né ytri gervigreindarþjónusta er nauðsynleg.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Notaðu niðurhalanlega Annotate-dæmið og útskurðamöppuna í leiðbeiningunum. Tengda skriftan velur sextán fyrirliggjandi myndir í röð eftir skráarnafni. Hver mynd er tvö hundruð tuttugu og fjórir pixlar á hvorn veg með þremur vistuðum rásum. Hvorki stærðarbreyting né ný hlutun fer fram.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "Keyrðu skriftuna með nýrri úttaksmöppu. Hún kallar á embed_array með raunverulegum forþjálfuðum kóðara og fjögurra mynda lotum. Kóðun eftir rás gefur sextán raðir og eitt þúsund fimm hundruð þrjátíu og sex víddir. Vistaða fylkið er opnað aftur og hvert gildi athugað.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "Veldu nú project og aðra úttaksmöppu. Sömu myndir gefa sextán raðir og fimm hundruð tólf víddir. Þessir dálkar með samsettum rásum koma ekki í stað fyrri rásaskiptu dálkanna. Berðu stefnurnar saman af ásettu ráði og geymdu stillingar hverrar keyrslu.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "Skoðaðu yfirlitið yfir raunverulegu inntaksmyndirnar í myndskoðaranum. Númerin fylgja röð úttaksraðanna. Athugaðu gæði útskurða og rásavörpun útflutningsins áður en vigur er túlkaður. Skráarnöfn auðkenna dæmið; staðfestu hlutalykla fyrir samtengingu við mæligagnagrunn.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "Þetta vistaða myndrit varpar rásaskiptu vigrunum á tvo aðalþætti. Númeruðu punktarnir vísa til sömu útskurða. Þetta er könnunarmynd af mjög litlu úrtaki, ekki sönnun fyrir ólíkum svipgerðum. Ein vídd í vigri er ekki líffræðileg mæling.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "Vigrarnir með samsettum rásum hafa sína eigin vörpun. Ekki bera ásahnit þessara aðskildu myndrita saman eins og þau notuðu sömu aðlöguðu umbreytingu. Hvorugt myndrit mælir endurheimtarnákvæmni eða sýnir að vigrar séu betri en safn mældra eiginleika.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Geymdu vigra, auðkenni upprunamynda, gátsummu voganna, stillingar og útgáfur hugbúnaðarpakka. Skriftan athugar að upprunamyndir séu óbreyttar og hafnar fyrirliggjandi úttaksstöðum. Samræmdu útskurði, stöðlun og rásavörpun við samanburð. Fylgdu tengdu leiðbeiningunum til að endurtaka API-dæmið.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
+    },
+    {
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS",
+      "title": "OPS: núverandi viðmót og samstilling fjögurra myndflísa",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
       "section": "Segmentation models",
-      "status": "coming_soon",
-      "availability_title": "Væntanlegt",
-      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
-    },
-    {
-      "id": "77_embeddings",
-      "number": 77,
-      "slug": "embeddings",
-      "title": "Embeddings",
-      "series": 2,
-      "app_key": "embeddings",
-      "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "Væntanlegt",
-      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Finndu OPS undir Mask og skoðaðu sannreynt dæmi um samstillingu og samsetningu fjögurra raunverulegra myndflísa. Þetta er ekki full vinnsla á plötu, frumuskipting eða afkóðun.",
+      "objectives": [
+        "Finna innfelldu OPS-síðuna og skilja takmarkanir dæmisins.",
+        "Samstilla fjórar samliggjandi myndflísar án þess að breyta upprunalegum hnitum.",
+        "Skoða skörun, þekju og vistaðar upplýsingar um uppruna."
+      ],
+      "prerequisite": "Upptakan notar Python-skilin ops_layout, ops_stitch og ops_compose úr spaCR 1.5.0.7 nightly á örgjörva. Run í viðmótinu notar aðra eldri vinnsluvél sem er ekki keyrð hér. Einkagögn á NAS: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, staðir 0, 1, 10 og 11. Heimilaðan aðgang þarf; þetta er ekki opinbert prófunarniðurhal og veitir ekki endurdreifingarleyfi. Hver uint16-TIFF skrá hefur fimm plön með 1480 × 1480 mynddílum; DAPI er á plani núll. Upprunalegu skipulagi 333 staða er haldið. Ekki yfirfæra skipulag, skörun eða viðmið á aðra myndatöku án mælinga. Veldu nýja úttaksmöppu utan frumgagnanna. Heill brunnur, frumuskipting, samstilling milli lota, afkóðun og líffræðileg greining eru ekki sýnd.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Ljósmyndamiðuð hópskimun byrjar á myndum af aðliggjandi sjónsviðum úr endurteknum myndatökulotum. Opnaðu Mask í spaCR til að finna innfelldu OPS-síðuna. Þessi kennslustund sýnir staðsetningu hennar og lítið, sannreynt dæmi um samstillingu mynda.",
+          "focus_modules": [
+            "mask"
+          ],
+          "related_lessons": [
+            "05_home",
+            "07_mask"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_mask_host",
+          "narration": "Notaðu OPS-rofann í aðgerðalínu Mask. Hann opnar sérstaka síðu innan aðaleiningarinnar. OPS er ekki annar hnappur á Home og ekki Map Barcodes-vinnuferlið fyrir skrár með raðgreiningarlestrum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_ops_settings",
+          "narration": "Núverandi OPS-síða hefur stillingar fyrir inntak, samsetningu mynda, myndmósaík, samstillingu og gæðaeftirlit. Run-hnappurinn notar aðra eldri vinnsluvél. Við ræsum hana ekki og fullyrðum ekki að allt skimunarferlið hafi verið sannreynt. Næstu skref nota rúmfræðiskilin beint.",
+          "focus": [
+            340,
+            170,
+            1210,
+            1310
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_scope",
+          "narration": "Þetta örgjörvadæmi samstillir og sameinar fjórar raunverulegar myndflísar úr fyrirliggjandi myndatöku. Það afmarkar ekki frumur, afkóðar ekki strikamerki og vinnur ekki heila plötu. Frumgögnin fylgja ekki sem prófunarniðurhal; nákvæm endurtekning krefst heimilaðs aðgangs að skránum.",
+          "focus": [
+            200,
+            100,
+            3440,
+            800
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Veldu staði núll, einn, tíu og ellefu úr fyrstu myndatökulotunni. Hver frumskrá hefur fimm plön; plan núll inniheldur kjarnalitun. Haltu upprunalegu skipulagi þrjú hundruð þrjátíu og þriggja staða og númerum þeirra. Fjórar valdar flísar skilgreina ekki nýjan brunn með aðeins fjórum flísum.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_geometry",
+          "narration": "Hjálparforritið kallar á stitch_well, athugar allar fjórar skaranir milli nágranna og kallar síðan á compose_window. Allar fjórar flísarnar eru staðsettar. Samsetti hlutinn er tvö þúsund sjö hundruð fimmtíu og sex mynddílar á kant. Í þessari myndatöku lokast rúmfræðilykkjan með skekkju innan fjórðungs mynddíls; það er ekki almenn nákvæmnisábyrgð.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_independent_checks",
+          "narration": "Ekki treysta aðeins á staðsetningu. Berðu saman raunverulega skarandi mynddíla óháð samstillingareinkunninni. Hér er fylgnin eftir samstillingu mun sterkari en þegar öðrum hvorum ásnum er vísvitandi hliðrað um sautján mynddíla. Slík röng hliðrun sem viðmið hjálpar að finna trúverðuga en ranga staðsetningu.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_geometry_figure",
+          "narration": "Skoðaðu myndina og þekjukortið sem voru raunverulega vistuð. Vinstri ramminn sýnir samsettu kjarnamyndina; sá hægri telur flísarnar sem leggja til gögn. Núll þekja merkir að mynddíla vantar úr upptökunni, ekki líffræðilegan bakgrunn. Hér eru sameinaðir rúmfræðilegir nágrannar á einu plani, aldrei ólíkar raðgreiningarlotur.",
+          "focus": [
+            600,
+            390,
+            2630,
+            1400
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Geymdu fylkið, þekjuna, staðsetningar, gátsummur frumskráa og keyrsluskýrsluna saman. Forritið opnar niðurstöður aftur og staðfestir að allar fjórar frumskrárnar séu óbreyttar. Þetta er endurtakanlegt rúmfræðilegt athugunarskref. Full kennsla í ljósmyndamiðaðri skimun krefst enn sérstakrar sannprófunar á síðari stigum.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "hold_after": 0.7
+        }
+      ]
     }
   ]
 }

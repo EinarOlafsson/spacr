@@ -37,8 +37,23 @@ def test_all_authored_catalogs_match_the_75_lesson_inventory_and_routes():
         for lesson in english
         if lesson.get("host_app_key") is not None
     }
-    assert len(ids) == len(set(ids)) == 75
-    assert len(expected_routes) == 25
+    # The authored inventory grew from 75 to 77 when the Coming soon screens
+    # were folded into the public player. Diffing the id lists of every one of
+    # the fourteen catalogs against the previous release shows two arrivals and
+    # no departures: 76_ops and 77_embeddings, both scene-less placeholders
+    # carrying the unavailable-route copy rather than a recorded walkthrough.
+    assert len(ids) == len(set(ids)) == 77
+    # Folded-host routes grew from 25 to 39 in the same change, because the
+    # catalogs are now stamped from the navigation tree instead of carrying a
+    # hand-maintained subset of it. Diffing the route maps names fourteen
+    # arrivals and no departures or rehostings. Thirteen of them were already
+    # submodules of an existing host in the navigation tree and were simply
+    # missing the catalog field -- 28_training_runs, 31_external_masks,
+    # 33_plate_viewer, 35_converter, 51_control_charts, 53_prediction_profiler,
+    # 56_lineage, 57_layer_viewer, 61_tabulate, 63_small_multiples,
+    # 65_feature_explorer, 66_outliers and 71_investigate_hit -- and the
+    # fourteenth is the new 76_ops, which the navigation tree folds under Mask.
+    assert len(expected_routes) == 39
 
     for locale in FULL_LOCALES:
         lessons = _catalog("lessons", locale)["lessons"]

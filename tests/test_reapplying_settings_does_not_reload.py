@@ -13,11 +13,32 @@ outline, edge width, percentiles. Only the first kind can need new pixels,
 and the second is most of what a user touches while looking at a montage.
 """
 import sys
+from pathlib import Path
 
 import pandas as pd
 import pytest
 
-sys.path.insert(0, "tests/qt")
+# THE SCREEN THESE TESTS NEED IS ALREADY BUILT, beside the Qt tab it was
+# written for -- a real merged/ folder, a real measurements.db with a
+# png_list, and a real regression_data.csv. This file reaches sideways for
+# those builders rather than copying a hundred lines of fixture, and the
+# path it reaches along is derived from THIS FILE and not from the process's
+# working directory.
+#
+# It was the bare relative string "tests/qt", and sys.path entries are
+# resolved when the import runs, not when they are inserted: a relative entry
+# therefore means "wherever pytest was started from". That is the repository
+# root when somebody types `pytest tests/...` there, and it is anything at all
+# when a runner is handed the absolute path of this file from its own working
+# directory -- which every one of the seven tests below then fails with
+# `ModuleNotFoundError: No module named 'test_cells_behind_the_dot_tab'`,
+# naming the import rather than the cwd that broke it. The other modules in
+# this suite that borrow a sibling's helpers already derive the entry from
+# __file__ (see tests/test_layout_inference_reads_the_folder.py and
+# tests/test_crops_uncovered_paths.py); this one now does too.
+_QT_TESTS = str(Path(__file__).resolve().parent / "qt")
+if _QT_TESTS not in sys.path:
+    sys.path.insert(0, _QT_TESTS)
 
 
 @pytest.fixture()

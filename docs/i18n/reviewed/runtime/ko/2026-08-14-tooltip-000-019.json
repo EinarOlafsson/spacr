@@ -46,20 +46,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cell_intensity_percentile",
-      "source_sha256": "39b5b2a7d1c2e5e5efc47322606f76f32ce9b109a308ed401519401fbba7c842",
-      "source": "Percentile from 0 to 100 of the dimmer cell's interior intensity used as the merge reference when cell_intensity_threshold_method is 'percentile'. Raising it toward 95 sets a higher bar for the shared boundary to clear, so fewer pairs merge; lowering it merges more. Ignored when the method is 'mean'. Default 75.",
-      "translation": "cell_intensity_threshold_method 가 'percentile' 일 때 합칠 기준으로 쓰는, 더 어두운 세포 내부 강도의 0~100 분위수입니다. 95 쪽으로 올리면 공유 경계가 넘어야 할 기준이 높아져 합쳐지는 쌍이 줄고, 낮추면 더 많이 합쳐집니다. 방법이 'mean' 이면 무시됩니다. 기본값 75."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cell_intensity_threshold_method",
-      "source_sha256": "58f329e2197af3d7fba96001373baa55ec8abc9d1f8aae17cf3d6b05483408af",
-      "source": "Reference statistic that cell_intensity_merge compares the shared-boundary intensity against: 'mean' uses the mean interior intensity of the dimmer of the two cells, 'percentile' uses its cell_intensity_percentile instead. Any value other than 'mean' is treated as 'percentile'. Choose 'percentile' with a high percentile to make merging rarer. Default 'mean'.",
-      "translation": "cell_intensity_merge 가 공유 경계 강도와 비교할 기준 통계량입니다. 'mean' 은 두 세포 중 더 어두운 세포의 평균 내부 강도를 사용하고, 'percentile' 은 cell_intensity_percentile 을 사용합니다. 'mean' 이외의 값은 모두 'percentile' 로 처리됩니다. 병합을 드물게 하려면 높은 분위수와 함께 'percentile' 을 선택하십시오. 기본값 'mean'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "cell_loc",
       "source_sha256": "769a0540082bbfe051b2d93347b5604bb643a007e56f7d9d94b35db290a5021e",
       "source": "One list of well identifiers per entry in cells, specifying the plate locations of each host cell line, for example [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; other values are ignored and the corresponding wells remain unannotated. None labels every row with the first entry of cells. No default is set: annotate_filter_vision accesses settings['cell_loc'] directly, so the key must be present in the dictionary and explicitly set to None when location mapping is not required.",

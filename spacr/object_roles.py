@@ -296,6 +296,131 @@ def role_setting(role: str, suffix: str) -> str:
     return f"{role}_{str(suffix).lstrip('_')}"
 
 
+#: ``old suffix -> new suffix`` for a rename that belongs to a ROLE FAMILY
+#: rather than to one key. 705 roles carry ``_flow_threshold``; writing the
+#: old names out would be 3,522 entries nobody can read and six families
+#: nobody can keep in step. The rename belongs to the SUFFIX, so it is
+#: recorded once here and resolved per role.
+#:
+#: WHICH ROLES A RULE APPLIES TO IS NOT WRITTEN DOWN, and deliberately --
+#: see :func:`spacr.settings.surviving_setting_name`, which applies a rule
+#: only when the old key is NOT a live setting and the new one IS. A written
+#: scope is a second list to keep in step with ``expected_types``, and the
+#: measurement says a wrong one is expensive: seven ``_size`` keys are still
+#: live (``cell_min_size``, ``cell_max_size``, ``nucleus_min_size``,
+#: ``nucleus_max_size``, ``pathogen_min_size``, ``pathogen_max_size``,
+#: ``cytoplasm_min_size``) while no organelle one is. A blanket
+#: ``_size -> _area`` would retire all seven, and they do not even mean the
+#: same thing -- ``cell_min_size`` filters at MEASUREMENT time and
+#: ``cell_min_area`` at SEGMENTATION time, as `cell_min_size`'s own tooltip
+#: says. Deriving the scope cannot make that mistake.
+RENAMED_SETTING_SUFFIXES: Dict[str, str] = {
+    # All six landed in b7ae412af (2026-09-02), "retire organelle's duplicate
+    # size settings, rename four families" -- 90 settings across 26 organelle
+    # slots. None of them got a migration, which is what this table repairs.
+    "FT": "flow_threshold",
+    "CP_prob": "cellprob_threshold",
+    "Signal_to_noise": "signal_to_noise",
+    "min_object_area": "min_split_area",
+    "min_size": "min_area",
+    "max_size": "max_area",
+    # 391, 2026-09-12. Both are honest corrections: `min_split_area` is NOT a
+    # minimum object area -- an object below it is kept, it is simply never
+    # split -- and `min_distance` is the minimum separation between watershed
+    # seeds, which means nothing outside that algorithm.
+    #
+    # NOTE THE CHAIN THIS CREATES, and that it is why the resolver walks to a
+    # fixed point rather than taking one step:
+    #
+    #     <role>_min_object_area  ->  <role>_min_split_area
+    #                             ->  <role>_minimum_area_to_split
+    #
+    # A file written before b7ae412af needs BOTH hops. One hop would leave the
+    # value on `_min_split_area`, which nothing reads any more -- the same
+    # silent loss this table exists to prevent, one rename later.
+    "min_split_area": "minimum_area_to_split",
+    "min_distance": "min_watershed_distance",
+}
+
+
+#: ``suffix -> why it went``, for settings WITHDRAWN from a whole role family.
+#:
+#: THE PARALLEL OF `RENAMED_SETTING_SUFFIXES`, AND IT EXISTS FOR THE SAME
+#: REASON: 705 roles carry each of these, so a literal table would name the
+#: first spelling and go silent for every generated organelle slot beside it.
+#:
+#: A WITHDRAWAL NEEDS A MESSAGE MORE THAN A RENAME DOES, not less. A renamed
+#: key has somewhere to send its value; a withdrawn one does not, so the only
+#: thing standing between the user and a silently ignored setting is being
+#: told. Instruction 391 is explicit: "do NOT silently drop an unrecognised
+#: key -- a settings file that quietly loses a value the user set is worse
+#: than one that refuses to load."
+#:
+#: AND ONE OF THESE WAS WORSE THAN SILENT. `<role>_intensity_threshold_method`
+#: held 'mean' or 'percentile', and the fuzzy typo-matcher pointed it at the
+#: new `<role>_intensity_threshold`, which holds a NUMBER -- so the advice was
+#: to copy a method name into a float. A wrong suggestion is followed; silence
+#: at least gets investigated.
+WITHDRAWN_SETTING_SUFFIXES: Dict[str, str] = {
+    "area_multiplier": (
+        "the watershed split threshold is now the absolute "
+        "<role>_minimum_area_to_split alone, with no median term"),
+    "intensity_threshold_method": (
+        "merging no longer chooses between a mean and a percentile: set "
+        "<role>_intensity_threshold to an absolute intensity instead"),
+    "intensity_percentile": (
+        "merging now compares the shared boundary against the absolute "
+        "<role>_intensity_threshold, not a percentile of the dimmer object"),
+    "min_intensity_percentile": (
+        "the intensity band was removed: it dropped its share of objects "
+        "however bright the field, which is a quota rather than a filter"),
+    "max_intensity_percentile": (
+        "the intensity band was removed: it dropped its share of objects "
+        "however bright the field, which is a quota rather than a filter"),
+}
+
+
+def withdrawn_setting_reason(key: str):
+    """Why ``key`` is no longer read, or ``None`` if it is not withdrawn.
+
+    :param key: the key a settings file carries.
+    :returns: a sentence naming what replaced it, or ``None``.
+    """
+    parts = split_role_setting(key)
+    if parts is None:
+        return None
+    role, suffix = parts
+    reason = WITHDRAWN_SETTING_SUFFIXES.get(suffix)
+    return None if reason is None else reason.replace("<role>", role)
+
+
+def split_role_setting(key: str):
+    """``organellezz_min_split_area`` -> ``("organellezz", "min_split_area")``.
+
+    The inverse of :func:`role_setting`, and the reason a suffix rename can
+    cost six lines instead of 3,522. Every role is a single word with no
+    underscore, so partitioning on the FIRST one separates the role from the
+    suffix without scanning the 702 organelle slots.
+
+    NOT :func:`role_setting`'s validation: this accepts any role in
+    ``ALL_ROLES``, including ``cytoplasm``, which is derived rather than
+    segmented and still declares ``cytoplasm_min_size``. Restricting to
+    segmented roles here would silently skip it.
+
+    A BARE KEY IS NOT A ROLE KEY, and that matters: ``FT``, ``CP_prob``,
+    ``Signal_to_noise`` and ``flow_threshold`` are all LIVE settings in their
+    own right in the standalone apply/test-model submodules. A key with no
+    underscore has no role, so it can never match a suffix rule.
+
+    :param key: a settings key.
+    :returns: ``(role, suffix)``, or ``None`` when ``key`` names no role.
+    """
+    role, separator, suffix = str(key).partition("_")
+    if not separator or not suffix or role not in ALL_ROLES:
+        return None
+    return role, suffix
+
+
 def enabled_organelle_roles(settings: Mapping[str, Any]) -> Tuple[str, ...]:
     """Organelle slots whose ``<role>_channel`` is enabled, in plane order.
 

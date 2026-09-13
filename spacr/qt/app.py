@@ -5275,12 +5275,46 @@ class MainWindow(QMainWindow):
             # The flag means "this screen gave its backdrop up", which only
             # the code below can know. A screen that never had one is not
             # in that state and must keep painting its page.
+            #
+            # BUT "HAS NO BACKDROP OF ITS OWN" AND "NEVER HAD ONE" ARE NOT
+            # THE SAME QUESTION, and reading them as one left a slab on
+            # screen. A screen that surrenders its animation below has
+            # `_ambient` None for the rest of its life, so it arrives here
+            # every time afterwards -- and the reconcile at the end of
+            # `refresh_theme` CLEARS the flag whenever the window has no
+            # backdrop, while nothing ever set it again. Switch the
+            # animation off in Preferences and on again, and every module
+            # already built goes on painting its flat page colour straight
+            # over the restored animation for the rest of the session, while
+            # a module opened after the toggle is correct. Measured
+            # offscreen, dark theme, 30 % page opacity, the settings column
+            # of a module that is open throughout:
+            #
+            #     the module is opened      1.00 page, 0.70 panels
+            #     the animation is off      0.00, one flat slab   (correct)
+            #     the animation is on again 0.00, one flat slab   (WRONG)
+            #     a module opened after     1.00 / 0.70           (correct)
+            #
+            # So the surrender is recorded durably below, and this branch
+            # reads that record rather than the widget. HomePage never
+            # surrenders anything, so it never carries the record and the
+            # floor it paints is untouched by any of this.
+            if getattr(screen, "_surrendered_its_backdrop", False):
+                screen._uses_window_backdrop = True
+                self._stop_painting_over_the_window_backdrop(screen)
             return
         # RECORDED BEFORE THE WIDGET GOES. `page_fill` returns a flat colour
         # whenever `_ambient` is None, so a screen that merely lost its own
         # backdrop would paint that colour straight over the window's
         # animation -- the black slab, reported three times.
         screen._uses_window_backdrop = True
+        # AND RECORDED DURABLY, because the line above is a claim about the
+        # window as it stands now and gets cleared when the window's
+        # backdrop goes. This one is a claim about the SCREEN -- it gave its
+        # animation away and cannot paint a page under one again -- and it
+        # is what the branch above reads to tell this screen apart from a
+        # screen that never had a backdrop at all.
+        screen._surrendered_its_backdrop = True
         # RETIRED HERE, NOT BY THE SCREEN. `_discard_ambient` exists on
         # HomePage alone -- AppScreen has no such method -- so delegating to
         # it silently did nothing for module screens while still clearing
@@ -5310,6 +5344,35 @@ class MainWindow(QMainWindow):
             clear = getattr(screen, "_clear_page_surfaces", None)
             if callable(clear):
                 clear()
+        except Exception:                                    # noqa: BLE001
+            pass
+
+    def _stop_painting_over_the_window_backdrop(self, screen) -> None:
+        """Clear a screen's surfaces and repaint it, now that it defers again.
+
+        The mirror image of the two steps :meth:`_retire_the_dock_backdrop`
+        takes when the window's animation goes away. Setting
+        ``_uses_window_backdrop`` is only half of handing the picture back:
+        the flag stops ``page_fill`` returning a colour, and this makes the
+        containers above it transparent again and asks for the frame that
+        shows the difference. Without the repaint the slab stays on screen
+        until something else damages the region, which on a settled window
+        can be a long time.
+
+        :param screen: the screen that has just started deferring to the
+            window's backdrop again.
+
+        Never raises: a screen that cannot be repainted is a cosmetic
+        problem, and this runs inside the Preferences save.
+        """
+        try:
+            clear = getattr(screen, "_clear_page_surfaces", None)
+            if callable(clear):
+                clear()
+        except Exception:                                    # noqa: BLE001
+            pass
+        try:
+            screen.update()
         except Exception:                                    # noqa: BLE001
             pass
 

@@ -135,7 +135,10 @@ def test_no_animation_documents_a_setting_the_shipped_manifest_does_not_carry():
     # `normalization_percentiles` spec when it was retired (357-Q4).
     # Nothing read it, so an animation offered under its name illustrated
     # a control the run does not have.
-    assert sum(len(keys) for keys in specs.values()) == 134
+    # 134 -> 118 on 2026-09-12, and it is -16 rather than -8 because the
+    # eight animations 391 removed each mapped TWO settings: the dim and
+    # bright halves of the intensity-percentile band, at four roles.
+    assert sum(len(keys) for keys in specs.values()) == 118
 
 
 def test_the_gallery_names_only_settings_spacr_actually_has():
@@ -157,7 +160,7 @@ def test_the_gallery_names_only_settings_spacr_actually_has():
 
 
 def test_every_animation_in_the_page_is_one_the_registry_ships():
-    """94 anchors, 94 images, 94 ``**Settings:**`` lines, one per animation.
+    """86 anchors, 86 images, 86 ``**Settings:**`` lines, one per animation.
 
     The anchors are link targets: ``SettingAnimation.docs_url`` builds a URL
     from each slug and the Qt tooltip's **API** word opens it. A page that
@@ -168,7 +171,11 @@ def test_every_animation_in_the_page_is_one_the_registry_ships():
     page = PAGE.read_text(encoding="utf-8")
     animations = setting_animations()
 
-    assert len(_settings_lines(page)) == len(animations) == 94
+    # 94 -> 86 on 2026-09-12. Instruction 391 removed five relative
+    # settings, and eight animations documented them: the dim/bright
+    # intensity-percentile pair at four object roles. An animation for a
+    # setting that no longer exists is a docs row pointing at nothing.
+    assert len(_settings_lines(page)) == len(animations) == 86
     for animation in animations:
         assert page.count(f".. _{animation.docs_anchor}:") == 1
         assert page.count(f"gifs/{animation.slug}.gif") == 1

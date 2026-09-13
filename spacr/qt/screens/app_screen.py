@@ -71,6 +71,15 @@ _ORGANELLE_MODEL_KEY = re.compile(r"^organelle[a-z]?_model_name$")
 #: off. It is the column itself, and — see `_settings_panel_qss` — the
 #: rule that names it is a rule saying *paint nothing*.
 SETTINGS_PANEL_NAME = "SettingsBox"
+#: The scroll area inside ONE category tab, when the settings column is
+#: drawn as tabs rather than as a single scrolling list. It needs its own
+#: name because the column's name is looked up with `findChild` to mean
+#: the column specifically, and two widgets answering to that would make
+#: the lookup return whichever Qt reached first.
+SETTINGS_TAB_PAGE_NAME = "SettingsTabPage"
+#: The tab strip itself. Named since it was written; registered for QSS
+#: only now, which is why its pane took the blanket window fill.
+SETTINGS_TABS_NAME = "SettingsCategoryTabs"
 
 #: The "Point <module> at some data" banner at the top of that column.
 EMPTY_STATE_NAME = "EmptyStateBanner"
@@ -120,6 +129,30 @@ QScrollArea#{SETTINGS_PANEL_NAME} {{
 QWidget#{EMPTY_STATE_NAME} {{
     background: transparent;
     border: none;
+}}
+/* THE TABBED LAYOUT NEEDS THE SAME THING SAID AGAIN, for different
+   widgets. When the categories are drawn as tabs, each tab holds its own
+   scroll area and the strip holds a pane, and none of them is the column
+   above -- so the rule naming the column reaches none of them and they
+   fall through to the blanket `QWidget {{ background-color: bg }}`, which
+   is the WINDOW colour and is `#000000` on the dark theme. That is the
+   black slab behind the settings, and it is the same defect the column
+   itself had: the cards inside carry the visible surfaces, so everything
+   behind them paints nothing. */
+QScrollArea#{SETTINGS_TAB_PAGE_NAME} {{
+    background: transparent;
+    border: none;
+}}
+QTabWidget#{SETTINGS_TABS_NAME}::pane {{
+    background: transparent;
+    border: none;
+}}
+/* Qt builds `qt_tabwidget_tabbar` itself, and with no rule of its own it
+   takes the blanket fill like anything else. The TABS keep the shipped
+   look -- they are controls and belong on a surface; it is only the strip
+   behind them that must not paint. */
+QTabWidget#{SETTINGS_TABS_NAME} > QTabBar {{
+    background: transparent;
 }}
 """
 
@@ -443,6 +476,40 @@ def _fit_to_lines(text: str, label, lines: int) -> str:
 CATEGORY_STRIP_LINES = 3
 
 
+def _height_of_lines(metrics, lines: int) -> int:
+    """The height ``lines`` wrapped lines occupy in the font ``metrics`` reads.
+
+    :param metrics: the ``QFontMetrics`` of the label that will paint them.
+    :param lines: how many lines to reserve; anything below one reserves one.
+    :returns: the height in pixels.
+    """
+    # NOT `lineSpacing() * lines`, WHICH IS SHORT ON SOME FONTS AND EXACT ON
+    # THE REST -- which is why the shortfall went unseen for as long as it
+    # did. `lineSpacing()` is `height() + leading()`, and a font whose OS/2
+    # table asks for a NEGATIVE leading -- several of the URW and Bitstream
+    # faces do, by one to three pixels at interface sizes -- reports a line
+    # spacing SMALLER than the ascent plus descent one line actually needs.
+    # Qt does not overlap the glyphs to honour it: a wrapped label is laid
+    # out at `height() + (lines - 1) * lineSpacing()`, so the product
+    # reserved less than the text it was reserving for and the last line
+    # came out clipped by `-leading()` pixels per line.
+    #
+    # WHICH FONT IS PAINTING IS NOT SOMETHING THE PACKAGE DECIDES. The
+    # stylesheet asks for Open Sans and the package ships it, but a machine
+    # that has not registered those files -- a test runner, or anything
+    # reading the interface through fontconfig's substitution -- paints with
+    # whatever it has, and that is where the negative leading arrived from.
+    # Open Sans itself has a leading of zero, so on a developer's machine
+    # both expressions agree to the pixel and nothing looks wrong.
+    #
+    # The maximum rather than the sum, because it is the same number
+    # whenever the leading is zero or positive -- every font that was
+    # already correct keeps the height it had -- and is never smaller than
+    # the layout above when the leading is negative.
+    count = max(1, int(lines))
+    return max(metrics.lineSpacing(), metrics.height()) * count
+
+
 # One blurb per settings CATEGORY, keyed by the uppercased category title.
 # The table itself lives beside the category map in `settings_model`, because
 # that is what decides which categories exist; this module only renders them.
@@ -754,11 +821,6 @@ def _theme_wallpaper():
 #: point a dict meets the widgets, rather than in every producer.
 _RENAMED_SETTING_KEYS = {"png_dims": "png_channel_mapping"}
 
-#: ``organelleb_min_size`` -> role ``organelleb``, suffix ``min_size``.
-_ORGANELLE_SLOT_KEY = re.compile(
-    r"^(?P<role>organelle[a-z]*)_(?P<suffix>.+)$")
-
-
 def _translate_legacy_setting_keys(settings: dict) -> dict:
     """Rename retired setting keys so their values still reach a widget.
 
@@ -787,36 +849,47 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
     # to X" about the very file the panel had just dropped the value from.
     for key in list(out):
         replacement = _surviving_name_of(key)
-        if replacement and replacement != key:
-            out.setdefault(replacement, out.pop(key))
+        if not replacement or replacement == key:
+            continue
+        # A SPLIT IS A TUPLE OF NAMES, NOT A NAME. `control_wells` became
+        # `stain_baseline_wells` AND `analysis_excluded_wells`, and passing
+        # the pair straight to `setdefault` stored the value under a TUPLE
+        # key -- which no widget reads, so the value was lost exactly the way
+        # this function exists to prevent. Both halves get it, which is what
+        # the old key meant: a file that set it was setting both at once.
+        value = out.pop(key)
+        for name in ((replacement,) if isinstance(replacement, str)
+                     else tuple(replacement)):
+            out.setdefault(name, value)
     return out
 
 
 def _surviving_name_of(key: str):
     """What a retired setting is called now, or ``None`` if it is current.
 
-    :param key: the key a settings file carries.
-    :returns: the name that is read today, or ``None``.
-    """
-    from spacr.validate import RETIRED_SETTINGS
+    ONE RESOLVER, SHARED. This used to be the only place in spaCR that knew
+    the organelle suffix rule, and it had its own regex to do it -- so the Qt
+    panel migrated `organelleq_min_size` while the run ignored it and the
+    doctor said nothing about it. The rule now lives in
+    `spacr.settings.surviving_setting_name`, which all three consult, and the
+    regex is gone rather than generalised.
 
-    direct = RETIRED_SETTINGS.get(key)
-    if direct:
-        return direct
-    # THE GENERATED ORGANELLE SLOTS. The table names the first slot only --
-    # `organelle_min_size` -- but a run declares as many organelles as it
-    # likes and each slot repeats the same suffix, so a table of literals
-    # would migrate `organelleb` and silently miss `organellez`. The rename
-    # belongs to the SUFFIX, so it is looked up on the first slot's spelling
-    # and put back on the slot the key actually names.
-    match = _ORGANELLE_SLOT_KEY.match(key or "")
-    if match is None:
+    ALSO WHY THIS NO LONGER READS `RETIRED_SETTINGS` DIRECTLY: that table
+    contains withdrawals and one SEMANTIC migration as well as renames.
+    Reading it here folded `gradient_accumulation: False` straight onto
+    `gradient_accumulation_steps`, where `int()` makes it ZERO -- and a step
+    count of zero is not a state the code has. `steps = 1` is the off state,
+    which is what `settings._fold_gradient_accumulation` exists to produce.
+
+    :param key: the key a settings file carries.
+    :returns: the name read today, a tuple for a split, or ``None``.
+    """
+    from spacr.settings import surviving_setting_name
+
+    survivors = surviving_setting_name(key)
+    if not survivors:
         return None
-    suffix = match.group("suffix")
-    renamed = RETIRED_SETTINGS.get(f"organelle_{suffix}")
-    if not renamed or not renamed.startswith("organelle_"):
-        return None
-    return f"{match.group('role')}_{renamed[len('organelle_'):]}"
+    return survivors[0] if len(survivors) == 1 else tuple(survivors)
 
 
 def _elapsed_words(seconds: float) -> str:
@@ -2430,8 +2503,16 @@ class AppScreen(QWidget):
                 page_layout.addWidget(section)
                 page_layout.addStretch(1)
                 holder = QScrollArea()
+                holder.setObjectName(SETTINGS_TAB_PAGE_NAME)
                 holder.setWidgetResizable(True)
                 holder.setFrameShape(QScrollArea.NoFrame)
+                # THE SAME VIEWPORT FILL AS THE COLUMN ABOVE. A
+                # `QScrollArea`'s viewport auto-fills by default with the
+                # WINDOW colour rather than a surface, so no opacity
+                # preference can reach it and it reads as an opaque slab
+                # behind the settings. The column was fixed for this; the
+                # tab pages were the ones still doing it.
+                holder.viewport().setAutoFillBackground(False)
                 holder.setWidget(page)
                 self._settings_tabs.addTab(
                     holder, str(section.property("settingsCategorySource")))
@@ -7186,7 +7267,7 @@ class AppScreen(QWidget):
             return
         hint.ensurePolished()
         hint.setFixedHeight(
-            hint.fontMetrics().lineSpacing() * HINT_STRIP_LINES)
+            _height_of_lines(hint.fontMetrics(), HINT_STRIP_LINES))
 
     # ------------------------------------------------------------------
     # Category help — the strip under the actions row
@@ -7198,7 +7279,7 @@ class AppScreen(QWidget):
             return
         strip.ensurePolished()
         strip.setFixedHeight(
-            strip.fontMetrics().lineSpacing() * CATEGORY_STRIP_LINES)
+            _height_of_lines(strip.fontMetrics(), CATEGORY_STRIP_LINES))
 
     def _watch_for_late_captions(self) -> None:
         """Translate any subtree parented into this screen after it was built.

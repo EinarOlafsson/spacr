@@ -13,11 +13,13 @@ Run::
 
 from __future__ import annotations
 
+import argparse
 import os
 import re
 import sys
 import textwrap
 from pathlib import Path
+from typing import Optional, Sequence
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -1482,24 +1484,80 @@ def _workflow_markup_for_readme(path: Path, icon_prefix: str) -> str:
     return markup
 
 
-def main() -> int:
+def _warn_if_the_layout_engine_differs() -> None:
+    """Say so when this build will not reproduce the committed artwork.
+
+    The committed tiles were drawn by a Pillow whose wheel bundles Raqm.
+    A build without it falls back to the BASIC text layout engine and
+    draws different glyph edges -- measured 2026-09-12 across three
+    builds, and the ONLY thing that predicted the difference. FreeType
+    2.13.2 and 2.14.3 agree to the byte; 2.12.1 without Raqm does not.
+
+    A warning rather than a refusal, because `tests/test_readme_
+    presentation.py` compares ink and not bytes, so artwork regenerated
+    on a BASIC build is still correct. What it is not is byte-identical,
+    and a diff of forty visually identical PNGs is what this exists to
+    stop somebody committing without noticing.
+    """
+    from PIL import features
+
+    if features.version("raqm"):
+        return
+    print(
+        "WARNING: this Pillow has no Raqm, so text is laid out by the "
+        "BASIC engine and\n"
+        "         tiles will differ from the committed ones at glyph "
+        "edges. They are not\n"
+        "         wrong -- the tests compare ink, not bytes -- but the "
+        "diff will be noisy.\n"
+        "         Use --only KEY to regenerate just the tile you meant "
+        "to change.",
+        file=sys.stderr,
+    )
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Regenerate the README and documentation artwork.")
+    parser.add_argument(
+        "--only", action="append", metavar="KEY", default=None,
+        help="regenerate only this module's tile; repeatable. Everything "
+             "else this script writes is text and is rewritten either "
+             "way. Without it every tile is redrawn, which is how adding "
+             "one module came to produce a forty-file diff.")
+    options = parser.parse_args(argv)
+    _warn_if_the_layout_engine_differs()
+
+    only: Optional[set[str]] = None
+    if options.only:
+        only = {key.strip() for value in options.only
+                for key in value.split(",") if key.strip()}
+        known = {key for key, _label, _image in _module_grid()}
+        unknown = sorted(only - known)
+        if unknown:
+            raise SystemExit(
+                f"--only names no such tile: {', '.join(unknown)}\n"
+                f"known tiles: {', '.join(sorted(known))}")
+
     missing = [str(path) for path in RESOURCE_SOURCES.values() if not path.is_file()]
     if missing:
         raise FileNotFoundError("missing resource artwork: " + ", ".join(missing))
-    for name in RESOURCE_SOURCES:
+    for name in (() if only is not None else RESOURCE_SOURCES):
         target = DATABANK_DIR / f"{name}_button.png"
         render_resource_button(name).save(target, "PNG", optimize=True)
         print(target.relative_to(ROOT))
     target = ICON_DIR / "logo_spacr_readme.png"
-    render_readme_logo().save(target, "PNG", optimize=True)
+    if only is None:
+        render_readme_logo().save(target, "PNG", optimize=True)
+        print(target.relative_to(ROOT))
     # The API docs' own logo, written straight into _static so Sphinx
     # picks it up without a copy step that could put the bare white mark
     # back.
     docs_logo = (ROOT / "docs" / "source" / "_static"
                  / "logo_spacr_docs.png")
     docs_logo.parent.mkdir(parents=True, exist_ok=True)
-    render_docs_logo().save(docs_logo, "PNG", optimize=True)
-    print(target.relative_to(ROOT))
+    if only is None:
+        render_docs_logo().save(docs_logo, "PNG", optimize=True)
     WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)
     DOC_WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)
     APP_WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)
@@ -1509,6 +1567,8 @@ def main() -> int:
     # by the same call now, so there is no second loop that could drift
     # from the first -- which is how they came to be different sizes.
     for key, label, image in _module_grid():
+        if only is not None and key not in only:
+            continue
         target = WORKFLOW_DIR.parent / image
         render_module_tile(key, label).save(target, "PNG", optimize=True)
         (DOC_WORKFLOW_DIR.parent / image).write_bytes(target.read_bytes())

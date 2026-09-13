@@ -1,0 +1,29 @@
+{
+  "title": "Embeddings: aktuelle Oberfläche und echtes Python-Beispiel",
+  "description": "Das neue Modul kennenlernen und echte Bilder per API kodieren, ohne eine reparierte Oberfläche oder biologische Validierung zu behaupten.",
+  "objectives": [
+    "Die aktuelle Oberfläche von der funktionierenden API unterscheiden.",
+    "Kanalstrategien an sechzehn Bildern vergleichen.",
+    "Identitäten erhalten und Abbildungen vorsichtig interpretieren."
+  ],
+  "prerequisite": "spaCR 1.5.0.7 mit dem Extra embeddings; Aufnahme mit timm 1.0.29 und vortrainiertem ResNet18 auf der CPU. Laden Sie das Annotate-Beispiel und die verknüpfte ZIP herunter. Verwenden Sie den im README genannten cell_png-Ordner und neue Ausgabeordner. Dateinamen sind keine geprüften Datenbankschlüssel. Der Oberfläche fehlt ein Ladeelement; erfolgreiche Verarbeitung erfolgt per API. Keine biologische Validierung, muttersprachliche Prüfung oder GPU-Ausführung wird behauptet.",
+  "scenes": [
+    "Embeddings ist ein neues Modul auf der Home-Seite von spaCR. Es wandelt Bildausschnitte in numerische Vektoren um, ohne mit Ihren Annotationen zu trainieren. Diese Lektion zeigt die aktuelle Oberfläche und ein funktionierendes Python-Beispiel mit echten heruntergeladenen Bildern.",
+    "In Version eins Punkt fünf Punkt null Punkt sieben gibt es hier kein Bedienelement zum Laden von Bildausschnitten, und Embed bleibt deaktiviert. Wir täuschen keinen erfolgreichen GUI-Lauf vor. Die anschließend gezeigte tatsächliche Kodierung erfolgt über die unterstützte Python-API.",
+    "Per channel kodiert jeden gespeicherten Kanal einzeln und hängt die Vektoren aneinander. Project to three kodiert stattdessen das zusammengesetzte Bild. Das ändert die Darstellung, nicht nur die Geschwindigkeit. Eine PNG-Kanalposition ist nicht automatisch eine bestätigte Färbungsidentität.",
+    "Installieren Sie das optionale Extra embeddings in Ihrer spaCR-Umgebung. Der voreingestellte ResNet achtzehn nutzt überwacht trainierte ImageNet-Gewichte, kein auf Zellen trainiertes selbstüberwachtes Modell. Dieses kleine Beispiel nutzt die CPU; GPU oder externer KI-Dienst sind nicht erforderlich.",
+    "Verwenden Sie das herunterladbare Annotate-Beispiel und den genannten Bildausschnittordner. Das verknüpfte Skript wählt sechzehn vorhandene Bilder nach Dateinamen sortiert aus. Jedes ist zweihundertvierundzwanzig Pixel groß je Seite und enthält drei gespeicherte Kanäle. Es wird weder skaliert noch neu segmentiert.",
+    "Starten Sie das Skript mit einem neuen Ausgabeordner. Es ruft embed_array mit dem echten vortrainierten Encoder und Vierer-Batches auf. Kanalweise Kodierung ergibt sechzehn Zeilen und eintausendfünfhundertsechsunddreißig Dimensionen. Die gespeicherte Matrix wird erneut geöffnet und Wert für Wert geprüft.",
+    "Wählen Sie nun project und einen anderen Ausgabeordner. Dieselben Bilder ergeben sechzehn Zeilen und fünfhundertzwölf Dimensionen. Diese kanalübergreifenden Spalten sind nicht mit den vorherigen kanalweisen Spalten austauschbar. Vergleichen Sie die Strategien bewusst und bewahren Sie die Einstellungen jedes Laufs auf.",
+    "Prüfen Sie die tatsächliche Eingabemontage im Bildbetrachter. Ihre Nummern entsprechen der Reihenfolge der Ausgabezeilen. Kontrollieren Sie Ausschnittqualität und exportierte Kanalzuordnung vor der Interpretation. Die Dateinamen identifizieren dieses Beispiel; prüfen Sie die Objektschlüssel vor einer Verknüpfung mit einer Messdatenbank.",
+    "Diese gespeicherte Grafik projiziert die kanalweisen Vektoren auf zwei Hauptkomponenten. Die nummerierten Punkte gehören zu denselben Ausschnitten. Das ist eine explorative Darstellung einer sehr kleinen Stichprobe, kein Beleg für unterschiedliche Phänotypen. Eine einzelne Vektordimension ist keine biologische Messgröße.",
+    "Die kanalübergreifenden Vektoren haben ihre eigene Projektion. Vergleichen Sie die Achsenkoordinaten dieser getrennten Grafiken nicht so, als beruhten sie auf derselben angepassten Transformation. Keine Grafik misst die Retrieval-Genauigkeit oder belegt eine Überlegenheit gegenüber dem Panel gemessener Merkmale.",
+    "Bewahren Sie Vektoren, Quellidentitäten, Gewichtsprüfsumme, Einstellungen und Paketversionen auf. Das Skript prüft unveränderte Originalbilder und lehnt vorhandene Ziele ab. Gleichen Sie Eingabeausschnitte, Normalisierung und Kanalzuordnung bei Vergleichen ab. Mit der verknüpften Anleitung können Sie dieses API-Beispiel reproduzieren."
+  ],
+  "lesson": "77_embeddings",
+  "language": "de",
+  "english_sha256": "f5415671d988cad7353067d0a764a519bf90cb6134d0de803b90d50060678172",
+  "review_type": "source-pinned editorial translation",
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false
+}

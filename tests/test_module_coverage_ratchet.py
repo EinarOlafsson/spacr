@@ -268,7 +268,34 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     #                              386's screen. A Qt screen is shipped code
     #                              like any other module, so it counts here
     #                              even though it draws rather than computes.
-    assert len(shipped) == 562
+    # 562 -> 563 on 2026-09-12, +1/-0, MEASURED rather than assumed: the
+    # shipped set was rebuilt from the tree the 562 pin was written on
+    # (`7f0f74ac7`, feat/372-phase-b, 2026-09-11 23:32) and differenced
+    # against this one. Exactly one path arrived and nothing left:
+    #   `spacr/qt/stall_watch.py`  380's GUI-thread stall watcher -- a
+    #                              heartbeat timer on the event loop and a
+    #                              daemon thread that samples the main
+    #                              thread's stack while it is stuck, which
+    #                              is the only way to name a freeze that
+    #                              raises nothing and logs nothing. It is
+    #                              in the package rather than in `tools/`
+    #                              because the flag that turns it on is
+    #                              read inside `spacr.qt.app.launch`, after
+    #                              Qt owns the one QApplication a driver
+    #                              from outside can no longer create. That
+    #                              makes it installed Python, so it needs a
+    #                              coverage row like every other module.
+    # It reached this branch in the nightly merge `b9340962e` the following
+    # morning, which is why the pin written the evening before could not
+    # have seen it.
+    # RECORDED AS A MEASURED NEGATIVE, because this failure was first
+    # blamed on them: instructions 377 and 388 added no module at all.
+    # 377 put the public `border_rules_agree` into the existing
+    # `spacr/infection.py`, and 388's bystander columns landed in modules
+    # this denominator already counts -- `spacr/bystanders.py` has been in
+    # it since 556. Both move the docstring and symbol inventories, and
+    # neither can move a file count.
+    assert len(shipped) == 563
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the

@@ -94,7 +94,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 
 def main():
+    global DEFAULT_STAGE, WORKSPACE
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE,
+                        help='Isolated tutorial stage; does not modify the shared stage')
     parser.add_argument('--lesson', default='05_home')
     parser.add_argument('--language', default='en')
     parser.add_argument('--voice', default='af_heart')
@@ -104,6 +107,8 @@ def main():
     parser.add_argument('--web-rendition', action='store_true',
                         help='Check the verified private 1440p copy, preserving original browser reports')
     args = parser.parse_args()
+    DEFAULT_STAGE = args.stage.resolve()
+    WORKSPACE = DEFAULT_STAGE.parent
     retained = None
     if args.retained_media:
         from verify_retained_media import retained_media_sources

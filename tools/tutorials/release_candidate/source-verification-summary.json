@@ -1,12 +1,10 @@
 {
   "scope": "Cross-library source and final-byte reconciliation only",
-  "checked_lessons": 71,
-  "checked_tracks": 3550,
-  "browser_cases": 994,
+  "checked_lessons": 75,
+  "checked_tracks": 3750,
+  "browser_cases": 1050,
   "held_lesson_ids": [
     "12_map_barcodes",
-    "21_model_compare",
-    "22_model_zoo",
     "71_investigate_hit"
   ],
   "checked_subset_passed": true,

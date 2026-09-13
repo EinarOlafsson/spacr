@@ -2510,33 +2510,221 @@
     },
     {
       "id": "21_model_compare",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 21,
+      "slug": "model_compare",
+      "title": "Model Compare: gjeldende skjerm og samsvar mellom ekte masker",
+      "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_compare"
+      "description": "Åpne den innebygde sammenligningen, last inn ekte bildefelt og sammenlign lagrede segmenteringer med API-et. Samsvar betyr ikke nøyaktighet eller at inferens i brukergrensesnittet er reparert.",
+      "objectives": [
+        "Finn Model Compare i Make Masks og last inn eksempelfeltene.",
+        "Skill Cellposes nåværende inkompatibilitet fra det fungerende API-et for maskesammenligning.",
+        "Tolk antall, koblinger og overlapp uten å erklære et resultat riktig."
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly og Cellpose 4.2.1.1. Grensesnittet sender invert, som ikke støttes. Vi laster bare bilder, kjører ikke inferens, injiserer ikke resultater og endrer ikke appen. spacr.model_compare.compare_masks sammenligner ekte lagrede batch- og forhåndsvisningsresultater fra cell_pair_02.tif i Apply Cellpose: samme cpsam-vekter, ulik forbehandling. Ingen maske er en ekspertannotert fasit; ingen modell kjøres her. Bevar feltidentitet, pikselgeometri, forbehandling og filhasher. Like dimensjoner beviser ikke samme kildebilde. Skript og dokumentasjon identifiserer originalene. Bruk en ny utdatamappe. Samsvar fastslår ikke nøyaktighet, modellrangering, biologisk gyldighet eller ytelse på uavhengige bilder.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare ligger inne i Make Masks og sammenligner segmenteringer av de samme bildefeltene. Leksjonen viser dagens skjerm og deretter det fungerende API-et for maskesammenligning med to ekte lagrede resultater.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "Skjermen skiller innstillingene for Model A og Model B. Registrer nøyaktige vekter og forbehandling. Ulike navn eller flere objekter beviser ikke et bedre resultat. Parameter- og resultattabellene er tomme før en sammenligning kjøres.",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "Oppgi den virkelige eksempelmappen og trykk Load. Her lastes tre originalfelt inn, og Compare blir tilgjengelig. Lastede bilder betyr ikke en vellykket modellkjøring. Vi har verken laget masker eller fylt sammenligningstabellen på denne skjermen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "Den installerte Cellpose-versjonen avviser invert-argumentet som dette GUI-bakstykket fortsatt sender. Den faktiske kontrollen av funksjonssignaturen viser inkompatibiliteten uten inferens. Vi skjuler ikke feilen. Neste eksempel bruker compare_masks direkte på eksisterende etikettbilder.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "Begge maskene tilhører det samme ekte bildet fra Apply Cellpose-leksjonen. Den ene er lagret batchutdata, den andre lagret live-forhåndsvisning. De bruker samme modell med ulik forbehandling, ikke konkurrerende vekter. Ingen av maskene er en kjent riktig fasit.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "API-et rapporterer 94 objekter i A og 95 i B, med 91 sammenkoblede par. Gjennomsnittlig overlapp blant parene er omtrent 0,96, og justert Rand-indeks omtrent 0,961. Dette beskriver samsvar, ikke nøyaktighet eller en vinner.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "Undersøk de faktisk lagrede overleggene. Høyre panel markerer piksler med ulik forgrunnsstatus. Det viser ikke alle forskjeller mellom instansetiketter. Lignende antall kan skjule ulike grenser, delinger og sammenslåinger. Se derfor også på bildene.",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "Skriptet kontrollerer hvert sammenkoblet overlapp uavhengig med originalpikslene og sjekker kontrollen med identiske masker. Bevar CSV, figur, kildeidentiteter og forbehandling sammen. Bruk uavhengig gjennomgåtte annoteringer og egne evalueringsbilder før du hevder nøyaktighet eller velger modell.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 22,
+      "slug": "model_zoo",
+      "title": "Model Zoo: finn modeller og undersøk opphavet",
+      "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_zoo"
+      "description": "Åpne det innebygde modellbiblioteket, skann en eksisterende lokal hurtigbuffer og skill registrerte treningsopplysninger fra ukjent opphav. Cellposes nåværende inkompatibilitet hindrer en dokumentert ytelsestest.",
+      "objectives": [
+        "Finn Model Zoo i Make Masks og skann en lokal modellmappe.",
+        "Les kilde, type, kontrollsum og trening uten å forveksle ukjente metadata med validering.",
+        "Skill modelladministrasjon fra nedlasting, trening og ytelsestesting."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly. Opptaket skanner en eksisterende Cellpose-hurtigbuffer og velger den originale cpsam-filen uten nedlasting, trening eller inferens. Bruk din egen mappe, ikke presentatørens personlige sti. Valgte metadata mangler offentlig kontrollsum, treningsdatasett og forfatter; ingenting utledes fra navnet. En separat hash viser bare at den lokale filen var uendret under opptaket, ikke opphavet. Model Zoos ytelsestest og Model Compare sender invert, som Cellpose 4.2.1.1 ikke støtter. Appfeilen blir verken reparert eller omgått her. Plaque-leksjonen viser en ekte nedlasting og forhåndsvisning. Ingen nøyaktighetssammenligning eller uavhengig validering påstås.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo er modellbiblioteket inne i Make Masks. Åpne vertsmodulen og deretter Model Zoo-kontrollen. Denne leksjonen viser det ekte biblioteket og skanning av lokale modeller, ikke ny trening eller testing av nøyaktighet.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "Tabellen samler publiserte oppføringer og lokalt oppdagede filer. Les modelltype og kilde sammen. En oppføring betyr ikke at modellen er lastet ned, testet på dine bilder eller validert for forsøket ditt.",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "Oppgi en eksisterende modellmappe og trykk Scan, eller velg den med knappen ved siden av. Her skanner vi den virkelige Cellpose-hurtigbufferen. Bruk din egen sti. Skanning finner filer og metadata; den trener ikke modeller og segmenterer ikke bilder.",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "Denne skanningen viser åtte oppføringer: noen publiserte fjernmodeller og noen lokale vektfiler. Antallet beskriver denne datamaskinen, ikke et obligatorisk oppsett. Velg den nøyaktige filen; lignende navn garanterer ikke samme vekter.",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "Den valgte lokale filen har verken offentlig kontrollsum eller registrert treningsopphav i denne visningen. Ukjent betyr ukjent. Navnet beviser ikke hvilket treningsdatasett som ble brukt. Hashen vår bekrefter at opptaket lot filen være uendret, ikke hvem som laget den eller hvor godt den virker.",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "Nedlastingsområdet bestemmer hvor en tilgjengelig fjernmodell lagres. Det gir også et valg for modeller uten offentlig kontrollsum. Manglende kontrollsum betyr ikke verifisert nedlasting. Denne lokale filen lastes ikke ned igjen. Plaque-leksjonen viser en ekte nedlasting og forhåndsvisning.",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "Det nederste området brukes til å teste bildefelt og sammenligne valgte modeller. Det er andre oppgaver enn biblioteksskanning. Den nåværende Cellpose-argumentkonflikten hindrer oss i å hevde en vellykket ytelsestest her. Ingen masker eller testverdier er oppdiktet. Hold representative valideringsbilder atskilt fra treningseksempler når den reparerte arbeidsflyten vurderes.",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "23_agreement",
@@ -9794,35 +9982,252 @@
       ]
     },
     {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: dagens skjerm og et ekte Python-eksempel",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Se den nye modulen og kod virkelige bilder med API-et uten å hevde at GUI-et er rettet eller en fenotype validert.",
+      "objectives": [
+        "Skill mellom dagens GUI og API-et som virker.",
+        "Sammenlign kanalstrategier på seksten bilder.",
+        "Bevar identiteter og tolk figurene med varsomhet."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 med tillegget embeddings; opptak med timm 1.0.29 og forhåndstrent ResNet18 på CPU. Last ned Annotate-eksemplet og ZIP-filen. Bruk cell_png-mappen i README og nye utdatamapper. Filnavn er ikke bekreftede databasenøkler. Skjermen mangler innlasting av bilder; vellykket behandling bruker API-et. Biologisk validering, morsmålsvurdering eller GPU-kjøring er ikke dokumentert her.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings er en ny modul på Home i spaCR. Den gjør bildeutsnitt om til numeriske vektorer uten å trene på annotasjonene dine. Denne leksjonen viser dagens skjerm og et fungerende Python-eksempel med virkelige nedlastede bilder.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "I versjon én punkt fem punkt null punkt sju har denne skjermen ingen kontroll for å laste inn bildeutsnitt, og Embed er deaktivert. Vi simulerer ikke en vellykket GUI-kjøring. Den faktiske kodingen som vises etterpå, gjøres av det støttede Python-API-et.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel koder hver lagrede kanal separat og setter vektorene sammen. Project to three koder det kombinerte bildet. Dette endrer representasjonen, ikke bare hastigheten. En kanalplass i en PNG identifiserer ikke automatisk en bekreftet farging.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "Installer det valgfrie tillegget embeddings i spaCR-miljøet. Standardmodellens ResNet atten bruker veiledet trente ImageNet-vekter, ikke en selvveiledet modell trent på celler. Dette lille eksemplet bruker CPU; verken GPU eller en ekstern KI-tjeneste er nødvendig.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Bruk det nedlastbare eksemplet fra Annotate og utsnittsmappen i veiledningen. Det lenkede skriptet velger seksten eksisterende bilder sortert etter filnavn. Hvert bilde har to hundre og tjuefire piksler på hver side og tre lagrede kanaler. Størrelsen endres ikke, og det gjøres ingen ny segmentering.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "Kjør skriptet med en ny utdatamappe. Det kaller embed_array med den virkelige forhåndstrente koderen og grupper på fire. Kanalvis koding gir seksten rader og ett tusen fem hundre og trettiseks dimensjoner. Den lagrede matrisen åpnes på nytt og kontrolleres verdi for verdi.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "Velg nå project og en annen utdatamappe. De samme bildene gir seksten rader og fem hundre og tolv dimensjoner. Disse kolonnene med kombinerte kanaler kan ikke byttes med de tidligere kanalvise kolonnene. Sammenlign strategiene bevisst og behold innstillingene for hver kjøring.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "Undersøk montasjen av de faktiske inndatabildene i bildeviseren. Numrene følger rekkefølgen på utdataradene. Kontroller utsnittskvalitet og eksportens kanalkart før tolkning. Filnavnene identifiserer dette eksemplet; bekreft objektnøklene før sammenkobling med en måledatabase.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "Denne lagrede figuren projiserer de kanalvise vektorene på to hovedkomponenter. De nummererte punktene tilsvarer de samme utsnittene. Dette er en utforskende visualisering av et svært lite utvalg, ikke bevis for ulike fenotyper. Én vektordimensjon er ikke en biologisk måling.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "Vektorene med kombinerte kanaler har sin egen projeksjon. Ikke sammenlign aksekoordinater mellom disse figurene som om de delte samme tilpassede transformasjon. Ingen av figurene måler gjenfinningsnøyaktighet eller viser at vektorene er bedre enn panelet av målte egenskaper.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Behold vektorene, kildeidentiteter, vektenes kontrollsum, innstillinger og pakkeversjoner. Skriptet kontrollerer at originalbildene er uendret og avviser eksisterende mål. Bruk samsvarende utsnitt, normalisering og kanalkart ved sammenligning. Følg den lenkede veiledningen for å gjenskape API-eksemplet.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
+    },
+    {
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS",
+      "title": "OPS: dagens skjermbilde og innretting av fire bildefelt",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
       "section": "Segmentation models",
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
-    },
-    {
-      "id": "77_embeddings",
-      "number": 77,
-      "slug": "embeddings",
-      "title": "Embeddings",
-      "series": 2,
-      "app_key": "embeddings",
-      "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Denne veiledningen er ikke tilgjengelig ennå. Se de andre veiledningene i mellomtiden.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Finn OPS under Mask og følg et kontrollert eksempel på innretting og sammensetting av fire virkelige bildefelt. Dette er ikke et komplett plate-, segmenterings- eller dekodingsforløp.",
+      "objectives": [
+        "Finn den nestede OPS-siden og forstå eksemplets begrensninger.",
+        "Rett inn fire nabofelt uten å endre de opprinnelige opptakskoordinatene.",
+        "Undersøk overlapp, dekning og lagrede kildeopplysninger."
+      ],
+      "prerequisite": "Opptaket bruker Python-API-ene ops_layout, ops_stitch og ops_compose i spaCR 1.5.0.7 nightly på CPU. Run i GUI-et bruker en annen eldre motor og kjøres ikke her. Privat NAS-kilde: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, posisjon 0, 1, 10 og 11. Autorisert tilgang kreves; dette er ikke en offentlig testnedlasting og gir ingen rett til videre distribusjon. Hver uint16-TIFF har fem plan på 1480 × 1480 piksler, med DAPI på plan null. Det opprinnelige oppsettet med 333 posisjoner beholdes. Ikke overfør oppsett, overlapp eller grenser til et annet opptak uten måling. Velg en ny utdatamappe utenfor originalene. Hele brønnen, segmentering, innretting mellom sykluser, dekoding og biologisk analyse demonstreres ikke.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Optisk pooled screening begynner med bilder tatt i nabofelt gjennom gjentatte bildesykluser. Åpne Mask i spaCR for å finne den nestede OPS-siden. Denne leksjonen viser plasseringen og et lite, kontrollert eksempel på bildeinnretting.",
+          "focus_modules": [
+            "mask"
+          ],
+          "related_lessons": [
+            "05_home",
+            "07_mask"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_mask_host",
+          "narration": "Bruk OPS-bryteren i handlingsraden i Mask. Den åpner en egen side inne i vertsmodulen. OPS er ikke enda en Home-flis og heller ikke Map Barcodes-forløpet for filer med sekvenseringsavlesninger.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_ops_settings",
+          "narration": "Dagens OPS-side har innstillinger for inndata, sammenføyning, mosaikk, innretting og kvalitetskontroll. Run-knappen bruker en annen eldre motor. Vi starter den ikke og hevder ikke at et helt screeningforløp er validert. De neste trinnene bruker geometri-API-ene direkte.",
+          "focus": [
+            340,
+            170,
+            1210,
+            1310
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_scope",
+          "narration": "Dette CPU-eksemplet retter inn og setter sammen fire virkelige bildefelt fra et eksisterende opptak. Det segmenterer ikke celler, dekoder ikke strekkoder og behandler ikke en hel plate. Originalene er ikke en medfølgende testnedlasting; nøyaktig gjentakelse krever autorisert tilgang til filene.",
+          "focus": [
+            200,
+            100,
+            3440,
+            800
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Velg posisjon null, én, ti og elleve fra den første bildesyklusen. Hver originalfil har fem plan; plan null viser kjernefargingen. Behold det opprinnelige oppsettet med tre hundre og trettitre posisjoner og numrene deres. Fire utvalgte felt definerer ikke en ny brønn med bare fire felt.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_geometry",
+          "narration": "Hjelpeskriptet kaller stitch_well, kontrollerer alle fire nabooverlapp og kaller deretter compose_window. Alle fire feltene plasseres. Det sammensatte området har to tusen sju hundre og femtiseks piksler på hver side. I dette opptaket lukkes den geometriske sløyfen innenfor en kvart piksel; det er ikke en generell garanti for nøyaktighet.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_independent_checks",
+          "narration": "Ikke stol bare på plasseringen. Sammenlign de faktisk overlappende pikslene uavhengig av innrettingsskåren. Her er korrelasjonene etter innretting langt sterkere enn etter å ha flyttet en av aksene sytten piksler med vilje. Slike feilforskyvningskontroller hjelper med å oppdage en plausibel, men feil plassering.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_geometry_figure",
+          "narration": "Undersøk bildet og dekningskartet som faktisk ble lagret. Til venstre vises det sammensatte kjernebildet; til høyre telles feltene som bidrar. Null dekning betyr manglende opptakspiksler, ikke biologisk bakgrunn. Her kombineres romlige naboer i ett plan, aldri forskjellige sekvenseringssykluser.",
+          "focus": [
+            600,
+            390,
+            2630,
+            1400
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Lagre array, dekning, plasseringer, kildefilenes kontrollsummer og kjørerapport sammen. Skriptet åpner resultatene på nytt og bekrefter at alle fire originalfiler er uendret. Dette er et reproduserbart geometrisk kontrolltrinn. En full veiledning for optisk screening krever fortsatt separat validering av de senere trinnene.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "hold_after": 0.7
+        }
+      ]
     }
   ]
 }

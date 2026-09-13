@@ -2785,33 +2785,234 @@
       "id": "21_model_compare",
       "number": 21,
       "slug": "model_compare",
-      "title": "Comparer les modèles",
+      "title": "Model Compare : écran actuel et concordance de masques réels",
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Ce tutoriel n’est pas encore disponible. En attendant, découvrez les autres tutoriels.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Bientôt disponible"
+      "description": "Ouvrez la comparaison imbriquée, chargez des champs réels et comparez des segmentations enregistrées par l’API. La concordance ne prouve ni l’exactitude ni la réparation de l’inférence dans l’interface.",
+      "objectives": [
+        "Trouver Model Compare dans Make Masks et charger les champs d’exemple.",
+        "Distinguer l’incompatibilité actuelle de Cellpose de l’API fonctionnelle de comparaison des masques.",
+        "Interpréter effectifs, appariements et recouvrements sans déclarer un résultat correct."
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly et Cellpose 4.2.1.1. L’interface transmet invert, non pris en charge ; nous chargeons les images sans lancer d’inférence, injecter de résultats ni modifier l’application. spacr.model_compare.compare_masks compare deux véritables sorties de cell_pair_02.tif du tutoriel Apply Cellpose : traitement par lots et aperçu, avec les mêmes poids cpsam mais des prétraitements différents. Aucun masque n’est une référence experte ; aucun modèle ne s’exécute ici. Conservez identité du champ, géométrie, prétraitement et empreintes des fichiers : des dimensions identiques ne prouvent pas une origine commune. Le script et son dossier de preuves identifient les sources. Choisissez un nouveau dossier de sortie. Ces mesures ne démontrent ni exactitude, ni classement des modèles, ni validité biologique, ni généralisation à des images indépendantes.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare se trouve dans Make Masks. Il compare des segmentations des mêmes champs. Cette leçon présente l’écran actuel, puis démontre l’API fonctionnelle de comparaison de masques avec deux résultats réellement enregistrés.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Model Compare se trouve dans Make Masks. Il compare des segmentations des mêmes champs. Cette leçon présente l’écran actuel, puis démontre l’API fonctionnelle de comparaison de masques avec deux résultats réellement enregistrés."
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "L’écran sépare les réglages de Model A et Model B. Notez précisément les poids et le prétraitement de chaque comparaison. Des noms différents ou davantage d’objets ne prouvent pas qu’un résultat est meilleur. Les tableaux de paramètres et de résultats sont vides avant le lancement d’une comparaison.",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7,
+          "speech_text": "L’écran sépare les réglages de Model A et Model B. Notez précisément les poids et le prétraitement de chaque comparaison. Des noms différents ou davantage d’objets ne prouvent pas qu’un résultat est meilleur. Les tableaux de paramètres et de résultats sont vides avant le lancement d’une comparaison."
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "Saisissez le véritable dossier d’exemple et appuyez sur Load. Ici, trois champs originaux se chargent et Compare devient disponible. Charger les images ne signifie pas que les modèles fonctionnent. Nous n’avons créé aucun masque ni rempli le tableau de comparaison sur cet écran.",
+          "hold_after": 0.7,
+          "speech_text": "Saisissez le véritable dossier d’exemple et appuyez sur Load. Ici, trois champs originaux se chargent et Compare devient disponible. Charger les images ne signifie pas que les modèles fonctionnent. Nous n’avons créé aucun masque ni rempli le tableau de comparaison sur cet écran."
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "La version installée de Cellpose refuse l’argument invert encore transmis par ce moteur de l’interface. Cette vérification réelle de la signature montre l’incompatibilité sans lancer d’inférence. Nous ne la masquons pas. L’exemple suivant appelle directement compare_masks sur des images d’étiquettes existantes.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "La version installée de celle pose refuse l’argument invert encore transmis par ce moteur de l’interface. Cette vérification réelle de la signature montre l’incompatibilité sans lancer d’inférence. Nous ne la masquons pas. L’exemple suivant appelle directement compare_masks sur des images d’étiquettes existantes."
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "Les deux masques correspondent à la même image réelle du tutoriel Apply Cellpose. L’un est la sortie enregistrée du traitement par lots, l’autre celle de l’aperçu. Ils utilisent le même modèle avec des prétraitements différents, et non deux jeux de poids concurrents. Aucun n’est une vérité de référence.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Les deux masques correspondent à la même image réelle du tutoriel Apply celle pose. L’un est la sortie enregistrée du traitement par lots, l’autre celle de l’aperçu. Ils utilisent le même modèle avec des prétraitements différents, et non deux jeux de poids concurrents. Aucun n’est une vérité de référence."
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "L’API indique quatre-vingt-quatorze objets dans A et quatre-vingt-quinze dans B, avec quatre-vingt-onze paires appariées. Le recouvrement moyen des paires vaut environ zéro virgule quatre-vingt-seize. L’indice de Rand ajusté vaut environ zéro virgule neuf six un. Ces chiffres décrivent la concordance, pas l’exactitude ni un gagnant.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7,
+          "speech_text": "L’API indique quatre-vingt-quatorze objets dans A et quatre-vingt-quinze dans B, avec quatre-vingt-onze paires appariées. Le recouvrement moyen des paires vaut environ zéro virgule quatre-vingt-seize. L’indice de Rand ajusté vaut environ zéro virgule neuf six un. Ces chiffres décrivent la concordance, pas l’exactitude ni un gagnant."
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "Examinez les superpositions réellement enregistrées. Le panneau droit marque les pixels dont l’appartenance au premier plan diffère. Il ne montre pas tous les désaccords entre étiquettes d’objets. Des effectifs proches peuvent cacher des contours différents, des divisions ou des fusions : examinez aussi les images.",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Examinez les superpositions réellement enregistrées. Le panneau droit marque les pixels dont l’appartenance au premier plan diffère. Il ne montre pas tous les désaccords entre étiquettes d’objets. Des effectifs proches peuvent cacher des contours différents, des divisions ou des fusions : examinez aussi les images."
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "Le script vérifie indépendamment chaque recouvrement sur les pixels d’origine ainsi que le contrôle à masques identiques. Conservez ensemble CSV, figure, identité des sources et prétraitement. Utilisez des annotations indépendantes révisées et des images réservées à l’évaluation avant de conclure sur l’exactitude ou le choix d’un modèle.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Le script vérifie indépendamment chaque recouvrement sur les pixels d’origine ainsi que le contrôle à masques identiques. Conservez ensemble CSV, figure, identité des sources et prétraitement. Utilisez des annotations indépendantes révisées et des images réservées à l’évaluation avant de conclure sur l’exactitude ou le choix d’un modèle."
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
       "number": 22,
       "slug": "model_zoo",
-      "title": "Bibliothèque de modèles",
+      "title": "Model Zoo : trouver des modèles et examiner leur provenance",
       "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Ce tutoriel n’est pas encore disponible. En attendant, découvrez les autres tutoriels.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Bientôt disponible"
+      "description": "Ouvrez la bibliothèque imbriquée, explorez un cache local et distinguez les informations d’entraînement des origines inconnues. L’incompatibilité actuelle de Cellpose empêche de présenter une évaluation réussie.",
+      "objectives": [
+        "Trouver Model Zoo dans Make Masks et explorer un répertoire local.",
+        "Lire origine, type, empreinte et entraînement sans confondre métadonnées inconnues et validation.",
+        "Distinguer gestion des modèles, téléchargement, entraînement et évaluation."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly. L’enregistrement explore un cache Cellpose existant et sélectionne le fichier cpsam original, sans téléchargement, entraînement ni inférence. Utilisez votre répertoire, pas le chemin personnel du présentateur. Les métadonnées sélectionnées ne donnent ni empreinte publiée, ni données d’entraînement, ni auteur ; on ne les déduit pas du nom. Une empreinte indépendante prouve seulement que le fichier local n’a pas changé pendant l’enregistrement, pas son origine. L’évaluation de Model Zoo et Model Compare transmettent invert, incompatible avec Cellpose 4.2.1.1 ; ce défaut n’est ni réparé ni contourné ici. Le tutoriel Plaque montre un vrai téléchargement et aperçu. Aucune exactitude ni validation indépendante n’est revendiquée.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo est la bibliothèque de modèles dans Make Masks. Ouvrez le module hôte, puis sa commande Model Zoo. Cette leçon montre la bibliothèque réelle et la recherche de modèles locaux, pas un nouvel entraînement ni une évaluation de précision.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Model Zoo est la bibliothèque de modèles dans Make Masks. Ouvrez le module hôte, puis sa commande Model Zoo. Cette leçon montre la bibliothèque réelle et la recherche de modèles locaux, pas un nouvel entraînement ni une évaluation de précision."
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "Le tableau réunit les entrées publiées et les fichiers trouvés localement. Lisez ensemble les colonnes de type et d’origine. La présence d’un modèle ne signifie pas qu’il est téléchargé, testé sur vos images ou validé pour votre expérience.",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Le tableau réunit les entrées publiées et les fichiers trouvés localement. Lisez ensemble les colonnes de type et d’origine. La présence d’un modèle ne signifie pas qu’il est téléchargé, testé sur vos images ou validé pour votre expérience."
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "Saisissez un répertoire de modèles existant et appuyez sur Scan, ou choisissez-le avec le bouton voisin. Ici, nous explorons le vrai cache Cellpose. Utilisez votre propre chemin. Cette recherche découvre fichiers et métadonnées ; elle n’entraîne pas de modèle et ne segmente pas d’images.",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Saisissez un répertoire de modèles existant et appuyez sur Scan, ou choisissez-le avec le bouton voisin. Ici, nous explorons le vrai cache celle pose. Utilisez votre propre chemin. Cette recherche découvre fichiers et métadonnées ; elle n’entraîne pas de modèle et ne segmente pas d’images."
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "Cette recherche affiche huit entrées : certains modèles distants publiés et certains fichiers de poids locaux. Ce nombre décrit cet ordinateur, pas une configuration obligatoire. Sélectionnez le fichier exact : des noms proches ne garantissent pas les mêmes poids.",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Cette recherche affiche huit entrées : certains modèles distants publiés et certains fichiers de poids locaux. Ce nombre décrit cet ordinateur, pas une configuration obligatoire. Sélectionnez le fichier exact : des noms proches ne garantissent pas les mêmes poids."
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "Le fichier local sélectionné n’a ni empreinte publiée ni provenance d’entraînement enregistrée dans cette vue. Inconnu signifie inconnu. Son nom ne prouve pas son jeu d’entraînement. Notre empreinte confirme qu’il n’a pas changé pendant l’enregistrement, pas son auteur ni ses performances.",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Le fichier local sélectionné n’a ni empreinte publiée ni provenance d’entraînement enregistrée dans cette vue. Inconnu signifie inconnu. Son nom ne prouve pas son jeu d’entraînement. Notre empreinte confirme qu’il n’a pas changé pendant l’enregistrement, pas son auteur ni ses performances."
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "La zone de téléchargement définit où enregistrer un modèle distant disponible. Elle propose aussi un choix pour les modèles sans empreinte publiée ; une empreinte absente n’est pas une vérification. Cette sélection locale n’est pas téléchargée de nouveau. La leçon Plaque montre un vrai téléchargement et aperçu.",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "La zone de téléchargement définit où enregistrer un modèle distant disponible. Elle propose aussi un choix pour les modèles sans empreinte publiée ; une empreinte absente n’est pas une vérification. Cette sélection locale n’est pas téléchargée de nouveau. La leçon Plaque montre un vrai téléchargement et aperçu."
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "La zone inférieure sert à tester des champs et comparer des modèles. Ce sont des opérations distinctes de l’exploration de la bibliothèque. L’incompatibilité actuelle des arguments Cellpose empêche d’annoncer une évaluation réussie ici. Aucun masque ni score n’est inventé. Pour évaluer le flux réparé, gardez des images représentatives de validation séparées de l’entraînement.",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "La zone inférieure sert à tester des champs et comparer des modèles. Ce sont des opérations distinctes de l’exploration de la bibliothèque. L’incompatibilité actuelle des arguments celle pose empêche d’annoncer une évaluation réussie ici. Aucun masque ni score n’est inventé. Pour évaluer le flux réparé, gardez des images représentatives de validation séparées de l’entraînement."
+        }
+      ]
     },
     {
       "id": "23_agreement",
@@ -10810,35 +11011,272 @@
       ]
     },
     {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings : interface actuelle et exemple Python réel",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Découvrez le module et encodez des images réelles avec l’API, sans prétendre que l’interface est réparée ou qu’un phénotype est validé.",
+      "objectives": [
+        "Distinguer l’interface de l’API opérationnelle.",
+        "Comparer les politiques de canaux sur seize images.",
+        "Préserver les identités et interpréter les figures avec prudence."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 avec l’option embeddings ; enregistrement avec timm 1.0.29 et ResNet18 préentraîné sur CPU. Téléchargez l’exemple Annotate et le ZIP associé. Utilisez le dossier cell_png indiqué dans README et de nouveaux dossiers de sortie. Les noms de fichiers ne sont pas des clés de base vérifiées. L’écran ne propose pas de chargement ; les opérations réussies utilisent l’API. Aucune validation biologique, révision par locuteur natif ou exécution GPU n’est revendiquée.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings est un nouveau module de Home dans spaCR. Il transforme des recadrages d’images en vecteurs numériques sans apprentissage sur vos annotations. Cette leçon présente l’écran actuel et un exemple Python fonctionnel utilisant de vraies images téléchargées.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Embeddings est un nouveau module de Home dans spakeur. Il transforme des recadrages d’images en vecteurs numériques sans apprentissage sur vos annotations. Cette leçon présente l’écran actuel et un exemple Python fonctionnel utilisant de vraies images téléchargées."
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "Dans la version un point cinq point zéro point sept, cet écran ne comporte pas de commande de chargement des recadrages et Embed reste désactivé. Nous ne simulerons pas une exécution graphique réussie. L’API Python effectue l’encodage réel montré ensuite.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Dans la version un point cinq point zéro point sept, cet écran ne comporte pas de commande de chargement des recadrages et Embed reste désactivé. Nous ne simulerons pas une exécution graphique réussie. L’API Python effectue l’encodage réel montré ensuite."
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel encode séparément chaque canal stocké puis concatène les vecteurs. Project to three encode plutôt l’image combinée. Cela change la représentation, pas seulement la vitesse. Un emplacement de canal PNG n’identifie pas automatiquement un marquage vérifié.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Per channel encode séparément chaque canal stocké puis concatène les vecteurs. Project to three encode plutôt l’image combinée. Cela change la représentation, pas seulement la vitesse. Un emplacement de canal PNG n’identifie pas automatiquement un marquage vérifié."
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "Installez l’option embeddings dans votre environnement spaCR. Le ResNet dix-huit par défaut utilise des poids supervisés ImageNet, pas un modèle auto-supervisé entraîné sur des cellules. Ce petit exemple utilise le CPU ; aucun GPU ni service distant d’intelligence artificielle n’est nécessaire.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Installez l’option embeddings dans votre environnement spakeur. Le ResNet dix-huit par défaut utilise des poids supervisés ImageNet, pas un modèle auto-supervisé entraîné sur des cellules. Ce petit exemple utilise le CPU ; aucun GPU ni service distant d’intelligence artificielle n’est nécessaire."
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Utilisez l’exemple téléchargeable d’Annotate et le dossier de recadrages indiqué. Le script lié sélectionne seize images existantes par ordre de nom de fichier. Chacune fait deux cent vingt-quatre pixels de côté avec trois canaux stockés. Aucun redimensionnement ni nouvelle segmentation n’est effectué.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Utilisez l’exemple téléchargeable d’Annotate et le dossier de recadrages indiqué. Le script lié sélectionne seize images existantes par ordre de nom de fichier. Chacune fait deux cent vingt-quatre pixels de côté avec trois canaux stockés. Aucun redimensionnement ni nouvelle segmentation n’est effectué."
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "Exécutez le script avec un nouveau dossier de sortie. Il appelle embed_array avec le véritable encodeur préentraîné et des lots de quatre. L’encodage par canal produit seize lignes et mille cinq cent trente-six dimensions. La matrice enregistrée est rouverte et contrôlée valeur par valeur.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Exécutez le script avec un nouveau dossier de sortie. Il appelle embed_array avec le véritable encodeur préentraîné et des lots de quatre. L’encodage par canal produit seize lignes et mille cinq cent trente-six dimensions. La matrice enregistrée est rouverte et contrôlée valeur par valeur."
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "Choisissez maintenant project et un autre dossier de sortie. Les mêmes images produisent seize lignes et cinq cent douze dimensions. Ces colonnes combinant les canaux ne sont pas interchangeables avec les précédentes. Comparez les politiques consciemment et conservez les paramètres de chaque exécution.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Choisissez maintenant project et un autre dossier de sortie. Les mêmes images produisent seize lignes et cinq cent douze dimensions. Ces colonnes combinant les canaux ne sont pas interchangeables avec les précédentes. Comparez les politiques consciemment et conservez les paramètres de chaque exécution."
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "Examinez le montage des vraies images d’entrée dans le visualiseur. Les numéros suivent l’ordre des lignes de sortie. Vérifiez la qualité des recadrages et la correspondance des canaux exportés avant d’interpréter les vecteurs. Les noms identifient cet exemple ; validez les clés avant une jointure avec une base de mesures.",
+          "hold_after": 0.7,
+          "speech_text": "Examinez le montage des vraies images d’entrée dans le visualiseur. Les numéros suivent l’ordre des lignes de sortie. Vérifiez la qualité des recadrages et la correspondance des canaux exportés avant d’interpréter les vecteurs. Les noms identifient cet exemple ; validez les clés avant une jointure avec une base de mesures."
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "Cette figure enregistrée projette les vecteurs par canal sur deux composantes principales. Les points numérotés correspondent aux mêmes images. C’est une visualisation exploratoire d’un très petit échantillon, pas une preuve de phénotypes distincts. Une dimension d’un vecteur n’est pas une mesure biologique.",
+          "hold_after": 0.7,
+          "speech_text": "Cette figure enregistrée projette les vecteurs par canal sur deux composantes principales. Les points numérotés correspondent aux mêmes images. C’est une visualisation exploratoire d’un très petit échantillon, pas une preuve de phénotypes distincts. Une dimension d’un vecteur n’est pas une mesure biologique."
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "Les vecteurs de canaux combinés ont leur propre projection. Ne comparez pas les coordonnées entre ces graphiques comme s’ils partageaient une même transformation ajustée. Aucun ne mesure la précision de recherche ni ne démontre une supériorité sur le panel de caractéristiques mesurées.",
+          "hold_after": 0.7,
+          "speech_text": "Les vecteurs de canaux combinés ont leur propre projection. Ne comparez pas les coordonnées entre ces graphiques comme s’ils partageaient une même transformation ajustée. Aucun ne mesure la précision de recherche ni ne démontre une supériorité sur le panel de caractéristiques mesurées."
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Conservez les vecteurs, les identités, l’empreinte des poids, les paramètres et les versions. Le script vérifie que les images sources restent inchangées et refuse les destinations existantes. Faites correspondre recadrages, normalisation et canaux entre comparaisons. Suivez les instructions liées pour reproduire cet exemple API.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Conservez les vecteurs, les identités, l’empreinte des poids, les paramètres et les versions. Le script vérifie que les images sources restent inchangées et refuse les destinations existantes. Faites correspondre recadrages, normalisation et canaux entre comparaisons. Suivez les instructions liées pour reproduire cet exemple API."
+        }
+      ]
+    },
+    {
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS",
+      "title": "OPS : écran actuel et alignement de quatre champs d’image",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
       "section": "Segmentation models",
-      "status": "coming_soon",
-      "availability_title": "Bientôt disponible",
-      "description": "Ce tutoriel n’est pas encore disponible. En attendant, découvrez les autres tutoriels.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
-    },
-    {
-      "id": "77_embeddings",
-      "number": 77,
-      "slug": "embeddings",
-      "title": "Embeddings",
-      "series": 2,
-      "app_key": "embeddings",
-      "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "Bientôt disponible",
-      "description": "Ce tutoriel n’est pas encore disponible. En attendant, découvrez les autres tutoriels.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Retrouvez OPS dans Mask, puis suivez un exemple vérifié de géométrie et de composition sur quatre champs réels. Ce n’est pas un traitement complet de plaque, de segmentation ou de décodage.",
+      "objectives": [
+        "Trouver l’écran imbriqué d’OPS et comprendre les limites de la démonstration.",
+        "Aligner quatre champs voisins en conservant les coordonnées d’acquisition.",
+        "Examiner les recouvrements, la couverture et la provenance enregistrée."
+      ],
+      "prerequisite": "Enregistrement avec les API ops_layout, ops_stitch et ops_compose de spaCR 1.5.0.7 nightly sur CPU. Le bouton Run utilise un autre moteur historique, non lancé ici. Source NAS privée : screenA/20200202_6W-LaC024A, sequencing/images/input/c1, sites 0, 1, 10 et 11. Un accès autorisé est nécessaire ; ce n’est pas un téléchargement public et aucun droit de redistribution n’est accordé. Chaque TIFF uint16 contient cinq plans de 1480 par 1480 pixels, avec DAPI au plan zéro. Le plan d’acquisition original de 333 sites est conservé. Ne réutilisez pas cette géométrie, ce recouvrement ou ces seuils sans mesurer votre acquisition. Choisissez une nouvelle sortie hors des originaux. Le puits complet, la segmentation, l’alignement entre cycles, le décodage et l’analyse biologique ne sont pas démontrés.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Le criblage optique en pool commence par des images acquises dans des champs voisins au cours de cycles d’imagerie répétés. Dans spaCR, ouvrez Mask pour trouver l’écran imbriqué d’OPS. Cette leçon montre son emplacement et un petit exemple vérifié d’alignement d’images.",
+          "focus_modules": [
+            "mask"
+          ],
+          "related_lessons": [
+            "05_home",
+            "07_mask"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Le criblage optique en pool commence par des images acquises dans des champs voisins au cours de cycles d’imagerie répétés. Dans spakeur, ouvrez Mask pour trouver l’écran imbriqué d’OPS. Cette leçon montre son emplacement et un petit exemple vérifié d’alignement d’images."
+        },
+        {
+          "visual": "gui_01_mask_host",
+          "narration": "Utilisez le commutateur OPS dans la rangée d’actions de Mask. Il ouvre une page distincte dans le module hôte. OPS n’est pas une deuxième tuile Home, ni le flux Map Barcodes destiné aux fichiers de lectures de séquençage.",
+          "hold_after": 0.7,
+          "speech_text": "Utilisez le commutateur OPS dans la rangée d’actions de Mask. Il ouvre une page distincte dans le module hôte. OPS n’est pas une deuxième tuile Home, ni le flux Map Barcodes destiné aux fichiers de lectures de séquençage."
+        },
+        {
+          "visual": "gui_02_ops_settings",
+          "narration": "La page OPS actuelle propose des réglages d’entrée, d’assemblage, de mosaïque, d’alignement et de contrôle qualité. Son bouton Run utilise un autre moteur historique. Nous ne le lançons pas et ne prétendons pas avoir validé un flux de criblage complet. Les étapes suivantes utilisent directement les API de géométrie.",
+          "focus": [
+            340,
+            170,
+            1210,
+            1310
+          ],
+          "hold_after": 0.7,
+          "speech_text": "La page OPS actuelle propose des réglages d’entrée, d’assemblage, de mosaïque, d’alignement et de contrôle qualité. Son bouton Run utilise un autre moteur historique. Nous ne le lançons pas et ne prétendons pas avoir validé un flux de criblage complet. Les étapes suivantes utilisent directement les API de géométrie."
+        },
+        {
+          "visual": "api_00_scope",
+          "narration": "Cette démonstration sur CPU aligne et compose quatre champs réels d’une acquisition existante. Elle ne segmente pas les cellules, ne décode pas les codes-barres et ne traite pas une plaque entière. Les originaux ne sont pas fournis comme téléchargement de test ; une reproduction exacte exige un accès autorisé aux fichiers.",
+          "focus": [
+            200,
+            100,
+            3440,
+            800
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Cette démonstration sur CPU aligne et compose quatre champs réels d’une acquisition existante. Elle ne segmente pas les cellules, ne décode pas les codes-barres et ne traite pas une plaque entière. Les originaux ne sont pas fournis comme téléchargement de test ; une reproduction exacte exige un accès autorisé aux fichiers."
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Sélectionnez les sites zéro, un, dix et onze du premier cycle d’imagerie. Chaque fichier original comporte cinq plans ; le plan zéro contient le marquage nucléaire. Conservez le plan original de trois cent trente-trois sites et leur numérotation. Quatre champs sélectionnés ne définissent pas un nouveau puits à quatre champs.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Sélectionnez les sites zéro, un, dix et onze du premier cycle d’imagerie. Chaque fichier original comporte cinq plans ; le plan zéro contient le marquage nucléaire. Conservez le plan original de trois cent trente-trois sites et leur numérotation. Quatre champs sélectionnés ne définissent pas un nouveau puits à quatre champs."
+        },
+        {
+          "visual": "api_02_geometry",
+          "narration": "Le script appelle stitch_well, vérifie les quatre recouvrements voisins, puis appelle compose_window. Les quatre champs sont placés. La région composée mesure deux mille sept cent cinquante-six pixels de côté. Dans cette acquisition, la boucle géométrique se ferme à un quart de pixel près ; ce n’est pas une garantie universelle de précision.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Le script appelle stitch_well, vérifie les quatre recouvrements voisins, puis appelle compose_window. Les quatre champs sont placés. La région composée mesure deux mille sept cent cinquante-six pixels de côté. Dans cette acquisition, la boucle géométrique se ferme à un quart de pixel près ; ce n’est pas une garantie universelle de précision."
+        },
+        {
+          "visual": "api_03_independent_checks",
+          "narration": "Ne vous fiez pas au seul placement. Comparez les pixels réellement superposés indépendamment du score d’alignement. Ici, les corrélations après alignement dépassent largement celles obtenues en décalant volontairement l’un ou l’autre axe de dix-sept pixels. Ces contrôles aident à détecter un placement plausible mais erroné.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Ne vous fiez pas au seul placement. Comparez les pixels réellement superposés indépendamment du score d’alignement. Ici, les corrélations après alignement dépassent largement celles obtenues en décalant volontairement l’un ou l’autre axe de dix-sept pixels. Ces contrôles aident à détecter un placement plausible mais erroné."
+        },
+        {
+          "visual": "api_05_geometry_figure",
+          "narration": "Examinez l’image et la carte de couverture effectivement enregistrées. À gauche figure l’image nucléaire composée ; à droite, le nombre de champs contributeurs. Une couverture nulle signifie qu’aucun pixel n’a été acquis, et non un fond biologique. On combine des voisins spatiaux dans un seul plan, jamais des cycles de séquençage différents.",
+          "focus": [
+            600,
+            390,
+            2630,
+            1400
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Examinez l’image et la carte de couverture effectivement enregistrées. À gauche figure l’image nucléaire composée ; à droite, le nombre de champs contributeurs. Une couverture nulle signifie qu’aucun pixel n’a été acquis, et non un fond biologique. On combine des voisins spatiaux dans un seul plan, jamais des cycles de séquençage différents."
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Conservez ensemble le tableau, la couverture, les positions, les empreintes des originaux et le rapport. Le script rouvre les résultats et confirme que les quatre fichiers sources sont inchangés. Il s’agit d’une étape géométrique reproductible. Un tutoriel optique complet exige encore une validation distincte des étapes suivantes.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Conservez ensemble le tableau, la couverture, les positions, les empreintes des originaux et le rapport. Le script rouvre les résultats et confirme que les quatre fichiers sources sont inchangés. Il s’agit d’une étape géométrique reproductible. Un tutoriel optique complet exige encore une validation distincte des étapes suivantes."
+        }
+      ]
     }
   ],
   "language": "fr"

@@ -1,0 +1,18 @@
+{
+  "lesson": "21_model_compare", "language": "sv", "english_sha256": "225fa51401501fa7e2f3ccdd9491fbdb3cc9b3ca5592ec794df79f955df6d5be",
+  "review_type": "source-pinned editorial translation", "native_speaker_reviewed": false, "listening_reviewed": false,
+  "title": "Model Compare: aktuell vy och överensstämmelse mellan verkliga masker",
+  "description": "Öppna den inbäddade jämförelsen, läs in verkliga bildfält och jämför sparade segmenteringar med API:t. Överensstämmelse bevisar varken noggrannhet eller att gränssnittets inferens har reparerats.",
+  "objectives": ["Hitta Model Compare i Make Masks och läs in exempelfälten.", "Skilj Cellposes aktuella inkompatibilitet från det fungerande API:t för maskjämförelse.", "Tolka antal, matchningar och överlappning utan att kalla något resultat korrekt."],
+  "prerequisite": "spaCR 1.5.0.7 nightly och Cellpose 4.2.1.1. Gränssnittet skickar invert, som inte stöds. Vi läser bara in bilder, kör inte inferens, injicerar inte resultat och ändrar inte appen. spacr.model_compare.compare_masks jämför verkliga sparade batch- och förhandsvisningsresultat från cell_pair_02.tif i Apply Cellpose: samma cpsam-vikter, olika förbehandling. Ingen mask är expertgranskad grundsanning; ingen modell körs här. Bevara fältidentitet, pixelgeometri, förbehandling och filhashar. Samma mått bevisar inte samma källbild. Skriptet och dess dokumentation identifierar originalen. Använd en ny utdatamapp. Överensstämmelse fastställer inte noggrannhet, modellrangordning, biologisk giltighet eller prestanda på oberoende bilder.",
+  "scenes": [
+    "Model Compare finns inuti Make Masks och jämför segmenteringar av samma bildfält. Lektionen visar den aktuella skärmen och demonstrerar sedan det fungerande API:t för maskjämförelse med två verkliga sparade resultat.",
+    "Skärmen skiljer inställningar för Model A och Model B åt. Dokumentera exakta vikter och förbehandling för varje jämförelse. Olika namn eller fler objekt bevisar inte ett bättre resultat. Parameter- och resultattabellerna är tomma innan en jämförelse körs.",
+    "Ange den verkliga exempelmappen och tryck på Load. Här läses tre originalfält in och Compare blir tillgängligt. Inlästa bilder är inte samma sak som lyckad modellkörning. Vi har varken skapat masker eller fyllt jämförelsetabellen på denna skärm.",
+    "Den installerade Cellpose-versionen avvisar invert-argumentet som gränssnittets backend fortfarande skickar. Den verkliga kontrollen av funktionssignaturen visar inkompatibiliteten utan inferens. Vi döljer inte felet. Nästa exempel använder compare_masks direkt på befintliga etikettbilder.",
+    "Båda maskerna tillhör samma verkliga bild från Apply Cellpose-lektionen. Den ena är sparad batchutdata, den andra sparad liveförhandsvisning. De använder samma modell med olika förbehandling, inte två konkurrerande viktuppsättningar. Ingen mask är en känd korrekt referens.",
+    "API:t rapporterar 94 objekt i A och 95 i B, med 91 matchade par. Medelöverlappningen bland paren är ungefär 0,96 och justerat Rand-index ungefär 0,961. Det beskriver överensstämmelse, inte noggrannhet eller en vinnare.",
+    "Granska de faktiskt sparade överlagringarna. Den högra panelen markerar pixlar vars förgrundsstatus skiljer sig. Den visar inte alla skillnader mellan instansetiketter. Liknande antal kan dölja olika gränser, delningar och sammanslagningar. Granska därför även bilderna.",
+    "Skriptet kontrollerar varje matchad överlappning oberoende med originalpixlarna och verifierar kontrollen med identiska masker. Spara CSV, figur, källidentiteter och förbehandling tillsammans. Använd oberoende granskade annoteringar och undanhållna utvärderingsbilder innan du hävdar noggrannhet eller väljer modell."
+  ]
+}

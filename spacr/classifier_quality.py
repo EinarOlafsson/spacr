@@ -374,7 +374,7 @@ def training_wells(wells: Sequence[str], *,
 # reason -- there is nothing to fall back to.
 #
 # `discover_test_splits` finds a user's own files; `from_test_split` reads
-# them. The tsg101 figures are recorded in `instructions/done/`, which is a
+# them. The tsg101 figures are recorded in `features/new/`, which is a
 # log and cannot be imported.
 
 

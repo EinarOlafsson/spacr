@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-"""Regenerate ``instructions/00_INDEX.txt`` from the instruction files.
+"""Regenerate ``features/00_INDEX.txt`` from the feature files.
+
+TWO LISTS, NEITHER OF THEM A GATE. ``features/new/`` is what spaCR has
+gained; ``features/future/`` is what it might gain next. Asked for on
+2026-09-12, replacing a single instructions list whose items carried
+release-blocking status and so turned a plan into a gate.
 
 WHY THIS IS A TOOL AND NOT A DOCUMENT. The index was hand-written on
 2026-08-05 and was nine days stale by 2026-08-14: it listed work that had
@@ -29,7 +34,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 REPO = Path(__file__).resolve().parent.parent
-INSTRUCTIONS = REPO / "instructions"
+INSTRUCTIONS = REPO / "features"
 INDEX = INSTRUCTIONS / "00_INDEX.txt"
 
 #: Instructions owned by the concurrent codex session. Named here rather than
@@ -59,7 +64,7 @@ LAST: Dict[str, str] = {
 #: How far along something is, where the file's own header does not say.
 STAGE: Dict[str, str] = {
     # Audited against the code on 2026-09-01, not read off the headers.
-    # Three items were found already complete and moved to done/ that day
+    # Three items were found already complete and moved to new/ that day
     # (319, 330, 336); two more were badly wrong about themselves (327 read
     # as not-started with all five parts shipped, 306 read as finished with
     # its ratchet red). Re-audit before trusting any figure here.
@@ -93,7 +98,7 @@ def _instruction_title(lines: List[str], number: str, fallback: str) -> str:
     Older records put an uppercase title between ``====`` rules. Recent
     records begin directly with ``NNN — Title``. The index used to assume
     only the first form, which silently produced blank rows as soon as the
-    second form reached ``open/`` or ``done/``.
+    second form reached ``future/`` or ``new/``.
     """
     if (len(lines) >= 3 and lines[0].strip()
             and set(lines[0].strip()) == {"="} and lines[1].strip()):
@@ -146,15 +151,19 @@ def _note_for(number: str) -> str:
 
 def render(today: str = "") -> str:
     """The whole index as text."""
-    open_rows = _entries("open")
-    done_rows = _entries("done")
+    future_rows = _entries("future")
+    new_rows = _entries("new")
+    # Kept under the old names below so the rest of this renderer, which
+    # predates the split into two lists, does not have to be rewritten to
+    # say the same thing.
+    open_rows, done_rows = future_rows, new_rows
     total = len(open_rows) + len(done_rows)
     percent = (len(done_rows) * 100 // total) if total else 0
     stamp = today or datetime.date.today().isoformat()
 
     lines = [
         "=" * 80,
-        "WHAT IS LEFT -- INDEX",
+        "SPACR FEATURES -- NEW, AND FUTURE",
         "=" * 80,
         "",
         f"Regenerated {stamp} by `tools/build_instruction_index.py`, from the "
@@ -172,7 +181,7 @@ def render(today: str = "") -> str:
         "and",
         "re-deriving it later costs the same as deriving it once.",
         "",
-        "READ instructions/HANDOFF.md FIRST. It carries the traps, what needs "
+        "READ features/HANDOFF.md FIRST. It carries the traps, what needs "
         "the",
         "maintainer, and the standing rules.",
         "",
@@ -182,10 +191,11 @@ def render(today: str = "") -> str:
         "wrong about",
         "themselves this week.",
         "",
-        f"{len(done_rows)} done / {len(open_rows)} open ({percent}%).",
+        f"{len(done_rows)} in features/new, {len(open_rows)} in "
+        f"features/future. NEITHER LIST BLOCKS A RELEASE.",
         "",
         "-" * 80,
-        "OPEN",
+        "FUTURE FEATURES",
         "-" * 80,
         "",
     ]
@@ -197,7 +207,7 @@ def render(today: str = "") -> str:
         lines.append(f"       {name}")
         lines.append("")
 
-    lines += ["-" * 80, "DONE", "-" * 80, ""]
+    lines += ["-" * 80, "NEW FEATURES", "-" * 80, ""]
     for number, title, _name in done_rows:
         lines.append(f"  {number:>3}  {title}".rstrip())
     lines.append("")
@@ -211,7 +221,7 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
 
     if not INSTRUCTIONS.is_dir():
-        print("no instructions/ folder here")
+        print("no features/ folder here")
         return 0
 
     current = INDEX.read_text() if INDEX.exists() else ""

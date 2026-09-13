@@ -237,12 +237,21 @@ ORGANELLE_MORPHOLOGIES = ("spots", "network", "irregular", "ring")
 COMPARTMENT_FIELDS = (
     ("min_area",                   "Min area (px²)",        "int",   (0, 100_000_000, 0)),
     ("max_area",                   "Max area (px²)",        "int",   (0, 100_000_000, 0)),
-    # `min_split_area` since 2026-09-02. Renamed with the rest by
-    # `b7ae412af`, and missed here for the same reason as the two
-    # aliases above: the name is written without its leading
-    # underscore, so a suffix substitution did not see it.
-    ("min_split_area",             "Min object area",       "int",   (0, 100_000_000, 100)),
-    ("min_distance",               "Min distance",          "int",   (0, 100_000, 10)),
+    # BOTH RENAMED 2026-09-12 (391), KEYS AND LABELS, and both are honest
+    # corrections rather than cosmetics:
+    #
+    #   "Min object area" was NOT a minimum object area. An object smaller
+    #   than it is KEPT -- it is simply never split -- so a user reading the
+    #   old name would reasonably expect small objects to be discarded.
+    #   "Min distance" is the minimum separation between watershed seeds and
+    #   means nothing outside that algorithm.
+    #
+    # These are written WITHOUT the leading underscore, which is how the
+    # previous rename (`b7ae412af`) missed them: a suffix substitution
+    # anchored on `_` does not see a bare suffix. Worth remembering for the
+    # next one.
+    ("minimum_area_to_split",      "Minimum area to split", "int",   (0, 100_000_000, 100)),
+    ("min_watershed_distance",     "Minimum watershed distance", "int", (0, 100_000, 10)),
     ("area_multiplier",            "Area multiplier",       "float", (0.0, 1000.0, 2.0)),
     # Defaults MUST match spacr.settings.set_default_settings_preprocess_generate_masks.
     # They are both what the preview filters with and what the Propagate
@@ -1015,11 +1024,14 @@ def _apply_size_filter(mask: np.ndarray,
     min_area = _num(f"{obj}_min_area", _num(f"{obj}_min_size", 0))
     max_area = _num(f"{obj}_max_area", _num(f"{obj}_max_size", 0))
     remove_border = bool(settings.get(f"{obj}_remove_border_objects", False))
-    min_ip = _num(f"{obj}_min_intensity_percentile", 0)
-    max_ip = _num(f"{obj}_max_intensity_percentile", 100)
+    # THE INTENSITY PERCENTILES ARE GONE (391). The comment below used to
+    # record that this preview once defaulted them to 1/99 where the pipeline
+    # used 0/100, so the preview silently dropped the dimmest and brightest
+    # object in every field. That defect is now unreachable rather than fixed:
+    # a quantile band always removes its share, so there was no value of it
+    # that meant "do nothing" except the endpoints.
 
-    if not (min_area > 0 or max_area > 0 or remove_border
-            or min_ip > 0 or max_ip < 100):
+    if not (min_area > 0 or max_area > 0 or remove_border):
         return mask
 
     try:
@@ -1029,8 +1041,6 @@ def _apply_size_filter(mask: np.ndarray,
             intensity_img=intensity_img,
             min_area=int(min_area), max_area=int(max_area),
             remove_border=remove_border,
-            min_intensity_percentile=float(min_ip),
-            max_intensity_percentile=float(max_ip),
         ).astype(mask.dtype)
     except Exception:
         LOG.debug("size filter failed", exc_info=True)

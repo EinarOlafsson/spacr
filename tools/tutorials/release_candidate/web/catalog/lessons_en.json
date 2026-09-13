@@ -2534,33 +2534,219 @@
       "id": "21_model_compare",
       "number": 21,
       "slug": "model_compare",
-      "title": "Model Compare",
+      "title": "Model Compare: current screen and real mask agreement",
       "series": 2,
       "app_key": "model_compare",
-      "section": "Segmentation models",
-      "description": "This tutorial is not available yet. Please explore the other tutorials.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
       "host_app_key": "make_masks",
-      "status": "coming_soon",
-      "availability_title": "Coming soon"
+      "section": "Segmentation models",
+      "description": "Find the nested comparison screen, load real fields, and use the working compare_masks API on genuine saved segmentations. Understand agreement without claiming ground truth, competing model weights or repaired GUI inference.",
+      "objectives": [
+        "Find Model Compare inside Make Masks and load the actual example fields.",
+        "Recognize the current Cellpose incompatibility and separate it from the working pure-mask API.",
+        "Interpret object counts, matching, overlap and foreground disagreement without calling either result correct."
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "Recorded on spaCR 1.5.0.7 nightly with Cellpose 4.2.1.1. The current GUI comparison backend sends the unsupported invert argument. We load fields but do not start GUI inference, inject results or patch application code. The successful example calls spacr.model_compare.compare_masks on two actual saved outputs from Apply Cellpose's cell_pair_02.tif: stock cpsam batch preprocessing versus stock cpsam live-preview preprocessing. These use the SAME model weights, not two competing models. Both were independently checked in the Apply recording, but neither is expert ground truth. No model runs in this example. Preserve field identity, pixel geometry, preprocessing and file hashes; a matching shape alone does not establish that two masks describe the same image. The recorded helper and source hashes are in tools/tutorials/model_compare_example.py and its evidence receipt. Example output folders must be new. The agreement measures do not establish accuracy, model ranking, biological validity or out-of-sample performance.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare is nested inside Make Masks. It is designed to compare segmentation results on the same fields. This lesson shows the current screen, then demonstrates its working mask-comparison API with two genuine saved outputs.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "The screen separates Model A and Model B settings. Record the exact weights and preprocessing for each comparison. Different names or a larger object count do not establish that one result is better. The parameter and result tables are empty before a comparison runs.",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "Enter the real example folder and press Load. Here, three original fields load successfully and Compare becomes available. Loading images is not the same as successfully running the models. We have not created masks or filled the comparison table on this screen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "The installed Cellpose version rejects an invert argument still passed by this GUI backend. This real signature check shows the incompatibility without starting inference. We do not hide it. Instead, the next example uses compare_masks directly on existing label images.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "Both masks belong to the same real image from the Apply Cellpose tutorial. One is its saved batch output; the other is its saved live-preview output. They use the same model with different preprocessing, not two competing sets of weights. Neither mask is ground truth.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "The API reports ninety-four objects in A and ninety-five in B, with ninety-one matched pairs. Mean overlap among matched pairs is about zero point nine six. The adjusted Rand index is also about zero point nine six one. These describe agreement, not accuracy or a winner.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "Inspect the actual saved overlays. The right panel marks pixels whose foreground status differs. It does not show every instance-label disagreement. A similar object count can conceal different boundaries, splits or merges, so inspect images as well as summary numbers.",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "The helper independently checks every matched overlap using the original pixels and verifies the identical-mask control. Keep the CSV, figure, source identities and preprocessing records together. Use independent reviewed annotations and held-out images before making accuracy or model-selection claims.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
       "number": 22,
       "slug": "model_zoo",
-      "title": "Model Zoo",
+      "title": "Model Zoo: find models and inspect their provenance",
       "series": 2,
       "app_key": "model_zoo",
-      "section": "Segmentation models",
-      "description": "This tutorial is not available yet. Please explore the other tutorials.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
       "host_app_key": "make_masks",
-      "status": "coming_soon",
-      "availability_title": "Coming soon"
+      "section": "Segmentation models",
+      "description": "Open the nested model library, scan an existing local cache, and distinguish recorded training information from unknown provenance. Benchmarking is not demonstrated as successful while the current Cellpose argument incompatibility remains.",
+      "objectives": [
+        "Find Model Zoo inside Make Masks and scan a local model directory.",
+        "Read source, kind, checksum and training-information fields without confusing unknown metadata with validation.",
+        "Distinguish model management from downloading, training and benchmarking."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly. This real recording scans an existing Cellpose cache and selects the original cpsam checkpoint; it does not download, train or run inference. Use your own model directory rather than copying the presenter's home path. The selected checkpoint's metadata records no published checksum, training dataset or author; the tutorial does not infer those from its filename. A separate checksum establishes only that this local file stayed unchanged during recording, not that its origin is verified. Model Zoo's benchmark and Model Compare currently pass an unsupported invert keyword to Cellpose 4.2.1.1. That app-owned incompatibility is recorded separately and not repaired or bypassed here. See the Plaque tutorial for an actual model download and preview. No accuracy comparison or held-out validation is claimed.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo is the model library inside Make Masks. Open the host module, then use its Model Zoo control. This lesson demonstrates the real library and local model scan, not a new training run or an accuracy benchmark.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "The table brings published entries and locally discovered files into one view. Read the model kind and source columns together. A model being listed does not mean it has been downloaded, tested on your images, or validated for your experiment.",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "Enter your existing model directory and press Scan, or choose a folder with the adjacent button. Here we scan the real Cellpose cache. Use your own path. Scanning discovers files and metadata; it does not train a model or run segmentation.",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "This scan displays eight entries. Some are published remote models and others are local checkpoints. The count describes this machine, not a required setup. Select the exact file you intend to use instead of assuming that similar model names identify the same weights.",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "The selected local checkpoint has no published checksum or recorded training provenance in this view. Unknown means unknown. Its name is not evidence of its training dataset. Our file checksum confirms that this recording left it unchanged; that does not establish who produced it or how well it performs.",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "The download area controls where an available remote model is saved. It also exposes a choice about models without published checksums; do not treat missing checksums as verified downloads. This local selection is not downloaded again. The Plaque lesson shows an actual model download and preview.",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "The lower area is for testing fields and comparing selected models. Those jobs are separate from scanning the library. The current Cellpose argument mismatch prevents us from claiming a successful benchmark here. No masks or test scores are fabricated. Keep representative validation images separate from training examples when evaluating a repaired workflow.",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "23_agreement",
@@ -9899,35 +10085,252 @@
       ]
     },
     {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: current screen and a real Python example",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Inspect the new Home module, encode real downloaded crops with the supported API, and compare channel policies without claiming a repaired GUI or a validated phenotype.",
+      "objectives": [
+        "Find Embeddings and distinguish its current GUI limitation from the working API.",
+        "Encode sixteen real crops, preserve identities and inspect both channel policies.",
+        "Read saved vectors and exploratory plots with appropriate limitations."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 with its embeddings extra; the recording uses timm 1.0.29 and cached pretrained ResNet18 weights on CPU. Download Annotate's real example as shown in that tutorial. Extract the helper ZIP, locate plate1/data/single_nucleus/uninfected/plate1_E02/cell_png, and use NEW output directories. The helper reads sixteen sorted PNGs without resizing; filenames identify the demonstration rows, not verified database join keys. The standalone Embeddings screen still lacks a crop-loading control. Successful operations here use the public Python API, not programmatic injection disguised as a GUI action. The default encoder is ImageNet-supervised, not microscopy-trained. No native-speaker signoff, biological validation, GPU benchmark or provider request is claimed. Read the included README for normalization, provenance, device and channel-mapping details.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings is a new Home module in spaCR. It turns image crops into numerical vectors without training on your annotations. This lesson demonstrates the current screen and a working Python example, using real downloaded images.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled. We will not simulate a successful GUI run. The supported Python API performs the actual encoding shown next.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel encodes each stored channel separately, then concatenates the vectors. Project to three encodes the combined image instead. That changes the representation, not just its speed. A saved PNG slot is not automatically a verified stain identity.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "Install the optional embeddings extra in your spaCR environment. The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model. This small example uses the CPU; no GPU or remote AI service is required.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Use Annotate's downloadable example and the crop folder named in the instructions. The linked helper selects sixteen existing images in sorted filename order. Each is two hundred twenty-four pixels square, with three stored channels. No resizing or new segmentation is performed.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "Run the helper with a new output directory. It calls embed_array with the real pretrained encoder and batches of four. Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions. The saved matrix is reopened and checked value by value.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "Now choose project and a different output directory. The same images produce sixteen rows and five hundred twelve dimensions. These combined-channel columns are not interchangeable with the earlier per-channel columns. Compare policies deliberately and retain the settings for each run.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "Inspect the actual input montage in the image viewer. Its numbers match the output row order. Check crop quality and the export's channel mapping before interpreting vectors. Filenames identify this example; validate the object keys before joining to a measurements database.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "This saved plot projects the per-channel vectors onto two principal components. The numbered points refer to those same crops. It is exploratory visualization of a tiny sample, not proof of distinct phenotypes. A single embedding dimension is not a biological measurement.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "The combined-channel vectors have their own projection. Do not compare axis coordinates across these separate plots as if they shared a fitted transformation. Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Keep the vectors, source identities, weights checksum, settings and package versions. The helper checks that source images remain unchanged and refuses existing destinations. Match input crops, normalization and channel mapping between comparisons. Use the linked instructions to reproduce this API example.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
+    },
+    {
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS",
+      "title": "OPS: current screen and four-tile image alignment",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
       "section": "Segmentation models",
-      "status": "coming_soon",
-      "availability_title": "Coming soon",
-      "description": "This tutorial is not available yet. Please explore the other tutorials.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
-    },
-    {
-      "id": "77_embeddings",
-      "number": 77,
-      "slug": "embeddings",
-      "title": "Embeddings",
-      "series": 2,
-      "app_key": "embeddings",
-      "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "Coming soon",
-      "description": "This tutorial is not available yet. Please explore the other tutorials.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Find OPS under Mask, then follow a measured four-tile geometry and composition example on real acquisition images. This is not a completed full-plate, segmentation or decoding workflow.",
+      "objectives": [
+        "Find the current nested OPS screen and understand the demonstration's limits.",
+        "Register four real neighboring image tiles while retaining their original acquisition coordinates.",
+        "Inspect independently checked overlaps, coverage and saved provenance."
+      ],
+      "prerequisite": "The recording uses spaCR 1.5.0.7 nightly's ops_layout, ops_stitch and ops_compose Python APIs on CPU. The current GUI Run dispatches to a different legacy engine and is not run here. Source: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, sites 0, 1, 10 and 11. These are existing maintainer NAS data, NOT a bundled or publicly downloadable OPS example. You need authorized access to that acquisition to reproduce the exact measurements; the tutorial does not grant data redistribution rights. Each original TIFF is uint16, five planes by 1480 by 1480 pixels, with DAPI at plane zero. The helper retains the acquisition's 333-site layout while processing only four neighbors. Do not reuse its layout, overlap or acceptance thresholds for an unmeasured acquisition. No source file is edited; choose a new output folder outside the acquisition. Full-well validation, segmentation, sequencing-cycle registration, barcode decoding and biological hit analysis are outside this lesson's demonstrated scope.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles. In spaCR, open Mask to find the nested OPS screen. This lesson shows its location and a small, verified image-alignment example.",
+          "focus_modules": [
+            "mask"
+          ],
+          "related_lessons": [
+            "05_home",
+            "07_mask"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_mask_host",
+          "narration": "Use the OPS toggle in Mask's action row. It opens a separate page inside the host module. OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_ops_settings",
+          "narration": "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings. Its Run button uses a different, legacy engine. We do not start it here or imply that a complete screening pipeline has been validated. The next steps use the geometry APIs directly.",
+          "focus": [
+            340,
+            170,
+            1210,
+            1310
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_scope",
+          "narration": "This CPU demonstration registers and composes four real image tiles from an existing acquisition. It does not segment cells, decode barcodes or process a whole plate. The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files.",
+          "focus": [
+            200,
+            100,
+            3440,
+            800
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Select sites zero, one, ten and eleven from the first imaging cycle. Each original file has five planes; plane zero contains the nuclear stain. Keep the original three hundred thirty-three-site layout and site numbers. Four selected tiles do not define a new four-tile well.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_geometry",
+          "narration": "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window. All four tiles are placed. Their patch is two thousand seven hundred fifty-six pixels square. The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_independent_checks",
+          "narration": "Do not trust placement alone. Compare actual overlapping pixels independently of the registration score. Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels. Those wrong-offset controls help detect a plausible-looking but incorrect placement.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_geometry_figure",
+          "narration": "Inspect the actual saved image and coverage map. The left panel shows the composed nuclear image; the right counts contributing tiles. Zero coverage means no acquisition pixel, not biological background. This combines spatial neighbors within one plane, never different sequencing cycles.",
+          "focus": [
+            600,
+            390,
+            2630,
+            1400
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Save the array, coverage, placements, source checksums and run report together. The helper reopens its outputs and confirms all four source files are unchanged. Treat this as a reproducible geometry checkpoint. A full optical screening tutorial still needs separately validated downstream stages.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "hold_after": 0.7
+        }
+      ]
     }
   ]
 }

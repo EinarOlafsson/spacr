@@ -2510,33 +2510,221 @@
     },
     {
       "id": "21_model_compare",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Demnächst verfügbar",
-      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 21,
+      "slug": "model_compare",
+      "title": "Model Compare: aktuelle Oberfläche und Übereinstimmung echter Masken",
+      "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_compare"
+      "description": "Öffnen Sie den verschachtelten Vergleich, laden Sie echte Bildfelder und vergleichen Sie gespeicherte Segmentierungen über die funktionierende API. Übereinstimmung belegt weder Richtigkeit noch eine reparierte GUI-Inferenz.",
+      "objectives": [
+        "Model Compare in Make Masks finden und echte Beispielfelder laden.",
+        "Die aktuelle Cellpose-Inkompatibilität von der funktionierenden Maskenvergleichs-API unterscheiden.",
+        "Objektzahlen, Zuordnungen und Überlappungen beurteilen, ohne ein Ergebnis als richtig festzulegen."
+      ],
+      "example_files": [
+        "Model_Compare_saved_masks_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly, Cellpose 4.2.1.1. Die GUI übergibt das nicht unterstützte Argument invert. Wir laden nur Bilder, starten keine Inferenz, schleusen keine Ergebnisse ein und ändern keine Anwendung. spacr.model_compare.compare_masks vergleicht echte Batch- und Vorschauergebnisse von cell_pair_02.tif aus Apply Cellpose: gleiche cpsam-Gewichte, unterschiedliche Vorverarbeitung. Keine Maske ist eine Expertenreferenz; hier läuft kein Modell. Bewahren Sie Feldidentität, Pixelgeometrie, Vorverarbeitung und Datei-Hashes auf. Gleiche Abmessungen beweisen keine gemeinsame Bildquelle. Skript und Belegdateien identifizieren die Originale. Verwenden Sie einen neuen Ausgabeordner. Übereinstimmung beweist weder Genauigkeit, Modellrangfolge, biologische Gültigkeit noch Leistung auf unabhängigen Bildern.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Model Compare liegt innerhalb von Make Masks und vergleicht Segmentierungen derselben Bildfelder. Diese Lektion zeigt die aktuelle Oberfläche und danach die funktionierende Maskenvergleichs-API anhand zweier tatsächlich gespeicherter Ergebnisse.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "22_model_zoo"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_model_parameters",
+          "narration": "Die Oberfläche trennt die Einstellungen für Model A und Model B. Dokumentieren Sie die genauen Gewichte und die Vorverarbeitung. Unterschiedliche Namen oder mehr Objekte belegen kein besseres Ergebnis. Parameter- und Ergebnistabellen sind vor einem Vergleich leer.",
+          "focus": [
+            350,
+            420,
+            3450,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_03_real_fields_loaded_not_compared",
+          "narration": "Geben Sie den echten Beispielordner ein und drücken Sie Load. Hier laden drei Originalfelder erfolgreich, und Compare wird verfügbar. Geladene Bilder bedeuten noch keine erfolgreich ausgeführten Modelle. Wir haben auf dieser Oberfläche weder Masken erzeugt noch die Vergleichstabelle gefüllt.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_current_gui_limit",
+          "narration": "Die installierte Cellpose-Version lehnt invert ab, das dieses GUI-Backend noch übergibt. Die tatsächliche Signaturprüfung zeigt die Inkompatibilität ohne Inferenz. Wir verbergen sie nicht. Das nächste Beispiel verwendet compare_masks direkt mit vorhandenen Labelbildern.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1350
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_inputs",
+          "narration": "Beide Masken gehören zum selben echten Bild aus Apply Cellpose. Eine ist die gespeicherte Batch-Ausgabe, die andere die gespeicherte Live-Vorschau. Sie verwenden dasselbe Modell mit unterschiedlicher Vorverarbeitung, keine konkurrierenden Gewichte. Keine Maske ist eine bekannte richtige Referenz.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "related_lessons": [
+            "20_cellpose_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_actual_comparison",
+          "narration": "Die API meldet 94 Objekte in A und 95 in B sowie 91 zugeordnete Paare. Die mittlere Überlappung der Paare beträgt etwa 0,96, der adjustierte Rand-Index etwa 0,961. Diese Werte beschreiben Übereinstimmung, nicht Genauigkeit oder einen Sieger.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_actual_comparison_figure",
+          "narration": "Prüfen Sie die tatsächlich gespeicherten Überlagerungen. Rechts sind Pixel markiert, deren Vordergrundstatus abweicht. Das zeigt nicht alle Unterschiede zwischen Instanzlabels. Ähnliche Objektzahlen können andere Grenzen, Aufteilungen oder Verschmelzungen verdecken. Betrachten Sie daher auch die Bilder.",
+          "focus": [
+            450,
+            480,
+            2950,
+            1230
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_outputs",
+          "narration": "Das Skript prüft jede zugeordnete Überlappung unabhängig an den Originalpixeln und kontrolliert identische Masken als Positivkontrolle. Bewahren Sie CSV, Abbildung, Quellidentitäten und Vorverarbeitung zusammen auf. Für Genauigkeitsaussagen oder Modellauswahl brauchen Sie unabhängig geprüfte Annotationen und zurückgehaltene Auswertungsbilder.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "23_agreement",
+            "19_train_cellpose"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "22_model_zoo",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Demnächst verfügbar",
-      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 22,
+      "slug": "model_zoo",
+      "title": "Model Zoo: Modelle finden und ihre Herkunft prüfen",
+      "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "series": 2,
       "section": "Segmentation models",
-      "slug": "model_zoo"
+      "description": "Öffnen Sie die verschachtelte Modellbibliothek und durchsuchen Sie einen vorhandenen lokalen Cache. Unterscheiden Sie dokumentiertes Training von unbekannter Herkunft; die aktuelle Cellpose-Inkompatibilität verhindert einen nachgewiesenen Benchmark.",
+      "objectives": [
+        "Model Zoo in Make Masks finden und einen lokalen Modellordner durchsuchen.",
+        "Quelle, Typ, Prüfsumme und Trainingsangaben lesen, ohne unbekannte Metadaten mit Validierung gleichzusetzen.",
+        "Modellverwaltung von Download, Training und Benchmark unterscheiden."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly. Die echte Aufnahme durchsucht einen vorhandenen Cellpose-Cache und wählt die ursprüngliche cpsam-Datei. Kein Download, Training oder Inferenzlauf. Verwenden Sie Ihren eigenen Ordner, nicht den persönlichen Pfad des Vortragenden. Die ausgewählten Metadaten enthalten weder veröffentlichte Prüfsumme noch Trainingsdaten oder Autor; dies wird nicht aus dem Namen abgeleitet. Ein separater Hash belegt nur die unveränderte lokale Datei während der Aufnahme, nicht ihre Herkunft. Model Zoo und Model Compare übergeben invert, das Cellpose 4.2.1.1 nicht unterstützt; der Anwendungsfehler wird hier weder repariert noch umgangen. Plaque zeigt einen echten Download samt Vorschau. Keine Genauigkeitsbewertung oder Validierung an unabhängigen Daten wird behauptet.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Model Zoo ist die Modellbibliothek innerhalb von Make Masks. Öffnen Sie das übergeordnete Modul und dann dessen Model-Zoo-Steuerung. Diese Lektion zeigt die echte Bibliothek und lokale Modellsuche, kein neues Training und keinen Genauigkeitsbenchmark.",
+          "focus_modules": [
+            "make_masks"
+          ],
+          "related_lessons": [
+            "14_make_masks"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_model_library",
+          "narration": "Die Tabelle vereint veröffentlichte Einträge und lokal entdeckte Dateien. Lesen Sie Modelltyp und Quelle zusammen. Ein aufgelistetes Modell ist nicht automatisch heruntergeladen, an Ihren Bildern getestet oder für Ihr Experiment validiert.",
+          "focus": [
+            350,
+            210,
+            3450,
+            560
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_cache_path",
+          "narration": "Geben Sie einen vorhandenen Modellordner ein und drücken Sie Scan, oder wählen Sie ihn mit der benachbarten Schaltfläche. Hier durchsuchen wir den echten Cellpose-Cache. Verwenden Sie Ihren eigenen Pfad. Die Suche findet Dateien und Metadaten; sie trainiert oder segmentiert nicht.",
+          "focus": [
+            350,
+            340,
+            3450,
+            410
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_scanned_models",
+          "narration": "Diese Suche zeigt acht Einträge: veröffentlichte entfernte Modelle und lokale Gewichtsdateien. Die Zahl beschreibt diesen Rechner, keine vorgeschriebene Ausstattung. Wählen Sie die genaue Datei; ähnliche Namen garantieren keine identischen Gewichte.",
+          "focus": [
+            350,
+            400,
+            3450,
+            380
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_selected_provenance",
+          "narration": "Die ausgewählte lokale Datei besitzt in dieser Ansicht weder veröffentlichte Prüfsumme noch dokumentierte Trainingsherkunft. Unbekannt bleibt unbekannt. Der Name beweist keinen Trainingsdatensatz. Unser Hash belegt, dass die Aufnahme die Datei unverändert ließ, nicht wer sie erzeugte oder wie gut sie funktioniert.",
+          "focus": [
+            350,
+            1050,
+            3450,
+            210
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_download_controls_not_started",
+          "narration": "Der Downloadbereich bestimmt den Speicherort eines verfügbaren entfernten Modells. Er bietet auch eine Wahl für Modelle ohne veröffentlichte Prüfsumme. Eine fehlende Prüfsumme ist keine Verifikation. Diese lokale Auswahl wird nicht erneut heruntergeladen. Die Plaque-Lektion zeigt einen echten Download samt Vorschau.",
+          "focus": [
+            350,
+            1220,
+            3450,
+            170
+          ],
+          "related_lessons": [
+            "24_plaque"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07_benchmark_controls_not_run",
+          "narration": "Der untere Bereich dient zum Testen von Bildfeldern und Vergleichen ausgewählter Modelle. Das sind andere Aufgaben als die Bibliothekssuche. Die aktuelle Cellpose-Argumentinkompatibilität verhindert hier einen nachgewiesenen Benchmark. Es werden keine Masken oder Werte erfunden. Halten Sie repräsentative Validierungsbilder vom Training getrennt, wenn Sie den reparierten Ablauf bewerten.",
+          "focus": [
+            350,
+            1380,
+            3450,
+            650
+          ],
+          "related_lessons": [
+            "19_train_cellpose",
+            "21_model_compare"
+          ],
+          "hold_after": 0.7
+        }
+      ]
     },
     {
       "id": "23_agreement",
@@ -9794,35 +9982,252 @@
       ]
     },
     {
+      "id": "77_embeddings",
+      "number": 77,
+      "slug": "embeddings",
+      "title": "Embeddings: aktuelle Oberfläche und echtes Python-Beispiel",
+      "series": 2,
+      "app_key": "embeddings",
+      "section": "Data",
+      "description": "Das neue Modul kennenlernen und echte Bilder per API kodieren, ohne eine reparierte Oberfläche oder biologische Validierung zu behaupten.",
+      "objectives": [
+        "Die aktuelle Oberfläche von der funktionierenden API unterscheiden.",
+        "Kanalstrategien an sechzehn Bildern vergleichen.",
+        "Identitäten erhalten und Abbildungen vorsichtig interpretieren."
+      ],
+      "example_files": [
+        "Embeddings_API_example.zip"
+      ],
+      "prerequisite": "spaCR 1.5.0.7 mit dem Extra embeddings; Aufnahme mit timm 1.0.29 und vortrainiertem ResNet18 auf der CPU. Laden Sie das Annotate-Beispiel und die verknüpfte ZIP herunter. Verwenden Sie den im README genannten cell_png-Ordner und neue Ausgabeordner. Dateinamen sind keine geprüften Datenbankschlüssel. Der Oberfläche fehlt ein Ladeelement; erfolgreiche Verarbeitung erfolgt per API. Keine biologische Validierung, muttersprachliche Prüfung oder GPU-Ausführung wird behauptet.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Embeddings ist ein neues Modul auf der Home-Seite von spaCR. Es wandelt Bildausschnitte in numerische Vektoren um, ohne mit Ihren Annotationen zu trainieren. Diese Lektion zeigt die aktuelle Oberfläche und ein funktionierendes Python-Beispiel mit echten heruntergeladenen Bildern.",
+          "focus_modules": [
+            "embeddings"
+          ],
+          "related_lessons": [
+            "05_home",
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_no_gui_crop_input",
+          "narration": "In Version eins Punkt fünf Punkt null Punkt sieben gibt es hier kein Bedienelement zum Laden von Bildausschnitten, und Embed bleibt deaktiviert. Wir täuschen keinen erfolgreichen GUI-Lauf vor. Die anschließend gezeigte tatsächliche Kodierung erfolgt über die unterstützte Python-API.",
+          "focus": [
+            340,
+            55,
+            3480,
+            190
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_channel_policies",
+          "narration": "Per channel kodiert jeden gespeicherten Kanal einzeln und hängt die Vektoren aneinander. Project to three kodiert stattdessen das zusammengesetzte Bild. Das ändert die Darstellung, nicht nur die Geschwindigkeit. Eine PNG-Kanalposition ist nicht automatisch eine bestätigte Färbungsidentität.",
+          "focus": [
+            340,
+            145,
+            1050,
+            270
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_version",
+          "narration": "Installieren Sie das optionale Extra embeddings in Ihrer spaCR-Umgebung. Der voreingestellte ResNet achtzehn nutzt überwacht trainierte ImageNet-Gewichte, kein auf Zellen trainiertes selbstüberwachtes Modell. Dieses kleine Beispiel nutzt die CPU; GPU oder externer KI-Dienst sind nicht erforderlich.",
+          "focus": [
+            200,
+            100,
+            3440,
+            700
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Verwenden Sie das herunterladbare Annotate-Beispiel und den genannten Bildausschnittordner. Das verknüpfte Skript wählt sechzehn vorhandene Bilder nach Dateinamen sortiert aus. Jedes ist zweihundertvierundzwanzig Pixel groß je Seite und enthält drei gespeicherte Kanäle. Es wird weder skaliert noch neu segmentiert.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "related_lessons": [
+            "09_annotate"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_per_channel",
+          "narration": "Starten Sie das Skript mit einem neuen Ausgabeordner. Es ruft embed_array mit dem echten vortrainierten Encoder und Vierer-Batches auf. Kanalweise Kodierung ergibt sechzehn Zeilen und eintausendfünfhundertsechsunddreißig Dimensionen. Die gespeicherte Matrix wird erneut geöffnet und Wert für Wert geprüft.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_project",
+          "narration": "Wählen Sie nun project und einen anderen Ausgabeordner. Dieselben Bilder ergeben sechzehn Zeilen und fünfhundertzwölf Dimensionen. Diese kanalübergreifenden Spalten sind nicht mit den vorherigen kanalweisen Spalten austauschbar. Vergleichen Sie die Strategien bewusst und bewahren Sie die Einstellungen jedes Laufs auf.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_input_crops",
+          "narration": "Prüfen Sie die tatsächliche Eingabemontage im Bildbetrachter. Ihre Nummern entsprechen der Reihenfolge der Ausgabezeilen. Kontrollieren Sie Ausschnittqualität und exportierte Kanalzuordnung vor der Interpretation. Die Dateinamen identifizieren dieses Beispiel; prüfen Sie die Objektschlüssel vor einer Verknüpfung mit einer Messdatenbank.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_06_per_channel_pca",
+          "narration": "Diese gespeicherte Grafik projiziert die kanalweisen Vektoren auf zwei Hauptkomponenten. Die nummerierten Punkte gehören zu denselben Ausschnitten. Das ist eine explorative Darstellung einer sehr kleinen Stichprobe, kein Beleg für unterschiedliche Phänotypen. Eine einzelne Vektordimension ist keine biologische Messgröße.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_07_project_pca",
+          "narration": "Die kanalübergreifenden Vektoren haben ihre eigene Projektion. Vergleichen Sie die Achsenkoordinaten dieser getrennten Grafiken nicht so, als beruhten sie auf derselben angepassten Transformation. Keine Grafik misst die Retrieval-Genauigkeit oder belegt eine Überlegenheit gegenüber dem Panel gemessener Merkmale.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Bewahren Sie Vektoren, Quellidentitäten, Gewichtsprüfsumme, Einstellungen und Paketversionen auf. Das Skript prüft unveränderte Originalbilder und lehnt vorhandene Ziele ab. Gleichen Sie Eingabeausschnitte, Normalisierung und Kanalzuordnung bei Vergleichen ab. Mit der verknüpften Anleitung können Sie dieses API-Beispiel reproduzieren.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1200
+          ],
+          "related_lessons": [
+            "06_api",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        }
+      ]
+    },
+    {
       "id": "76_ops",
       "number": 76,
       "slug": "ops",
-      "title": "OPS",
+      "title": "OPS: aktuelle Oberfläche und Ausrichtung von vier Bildkacheln",
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
       "section": "Segmentation models",
-      "status": "coming_soon",
-      "availability_title": "Demnächst verfügbar",
-      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
-    },
-    {
-      "id": "77_embeddings",
-      "number": 77,
-      "slug": "embeddings",
-      "title": "Embeddings",
-      "series": 2,
-      "app_key": "embeddings",
-      "section": "Data",
-      "status": "coming_soon",
-      "availability_title": "Demnächst verfügbar",
-      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": []
+      "description": "Öffnen Sie OPS innerhalb von Mask und verfolgen Sie ein geprüftes Beispiel zur Ausrichtung und Zusammensetzung von vier echten Bildkacheln. Kein vollständiger Platten-, Segmentierungs- oder Dekodierungsablauf.",
+      "objectives": [
+        "Die verschachtelte OPS-Seite und die Grenzen des Beispiels kennenlernen.",
+        "Vier benachbarte Bildkacheln mit ihren ursprünglichen Aufnahmekoordinaten ausrichten.",
+        "Überlappungen, Abdeckung und gespeicherte Herkunftsnachweise prüfen."
+      ],
+      "prerequisite": "Aufnahme mit den Python-APIs ops_layout, ops_stitch und ops_compose aus spaCR 1.5.0.7 nightly auf der CPU. Run in der GUI verwendet eine andere ältere Engine und wird hier nicht gestartet. Private NAS-Quelle: screenA/20200202_6W-LaC024A, sequencing/images/input/c1, Positionen 0, 1, 10 und 11. Autorisierter Zugriff ist nötig; kein öffentlicher Testdownload und keine Erlaubnis zur Weiterverteilung. Jede uint16-TIFF enthält fünf Ebenen mit 1480 × 1480 Pixeln; DAPI liegt auf Ebene null. Das ursprüngliche Layout mit 333 Positionen bleibt erhalten. Layout, Überlappung und Grenzwerte nicht ungeprüft auf andere Aufnahmen übertragen. Einen neuen Ausgabeordner außerhalb der Originaldaten wählen. Ganzes Well, Segmentierung, zyklusübergreifende Ausrichtung, Dekodierung und biologische Analyse werden nicht demonstriert.",
+      "scenes": [
+        {
+          "visual": "gui_00_home",
+          "narration": "Optisches gepooltes Screening beginnt mit Bildern aus benachbarten Feldern und wiederholten Aufnahmezyklen. Öffnen Sie in spaCR Mask, um die darin verschachtelte OPS-Seite zu finden. Diese Lektion zeigt ihren Ort und ein kleines, geprüftes Beispiel zur Bildausrichtung.",
+          "focus_modules": [
+            "mask"
+          ],
+          "related_lessons": [
+            "05_home",
+            "07_mask"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_01_mask_host",
+          "narration": "Verwenden Sie den OPS-Schalter in der Aktionszeile von Mask. Er öffnet eine eigene Seite innerhalb des übergeordneten Moduls. OPS ist keine zweite Home-Kachel und nicht der Map-Barcodes-Ablauf für Dateien mit Sequenzierungsreads.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "gui_02_ops_settings",
+          "narration": "Die aktuelle OPS-Seite bietet Einstellungen für Eingabe, Bildzusammenfügung, Mosaik, Ausrichtung und Qualitätskontrolle. Ihr Run-Knopf verwendet eine andere ältere Engine. Wir starten sie nicht und behaupten keine Validierung eines vollständigen Screening-Ablaufs. Die nächsten Schritte nutzen direkt die Geometrie-APIs.",
+          "focus": [
+            340,
+            170,
+            1210,
+            1310
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_00_scope",
+          "narration": "Dieses CPU-Beispiel richtet vier echte Bildkacheln einer vorhandenen Aufnahme aus und setzt sie zusammen. Es segmentiert keine Zellen, dekodiert keine Barcodes und verarbeitet keine ganze Platte. Die Originalaufnahme ist kein mitgelieferter Testdownload; für eine genaue Wiederholung ist autorisierter Zugriff auf die Dateien nötig.",
+          "focus": [
+            200,
+            100,
+            3440,
+            800
+          ],
+          "related_lessons": [
+            "06_api"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_01_inputs",
+          "narration": "Wählen Sie die Positionen null, eins, zehn und elf aus dem ersten Aufnahmezyklus. Jede Originaldatei enthält fünf Ebenen; Ebene null zeigt die Kernfärbung. Behalten Sie das ursprüngliche Layout mit dreihundertdreiunddreißig Positionen und deren Nummern bei. Vier ausgewählte Kacheln ergeben kein neues Well-Layout mit nur vier Kacheln.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_02_geometry",
+          "narration": "Das Hilfsskript ruft stitch_well auf, prüft alle vier benachbarten Überlappungen und ruft dann compose_window auf. Alle vier Kacheln werden platziert. Der zusammengesetzte Ausschnitt hat eine Seitenlänge von zweitausendsiebenhundertsechsundfünfzig Pixeln. Hier schließt die geometrische Schleife auf einen Viertelpixel genau; das ist keine allgemeine Genauigkeitsgarantie.",
+          "focus": [
+            200,
+            100,
+            3440,
+            900
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_03_independent_checks",
+          "narration": "Vertrauen Sie nicht allein der Platzierung. Vergleichen Sie die tatsächlich überlappenden Pixel unabhängig vom Registrierungswert. Die Korrelationen nach Ausrichtung sind hier deutlich höher als nach einer absichtlichen Verschiebung einer Achse um siebzehn Pixel. Solche Fehlversatzkontrollen helfen, plausibel wirkende, aber falsche Platzierungen zu erkennen.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1000
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_05_geometry_figure",
+          "narration": "Prüfen Sie das tatsächlich gespeicherte Bild und die Abdeckungskarte. Links steht das zusammengesetzte Kernbild, rechts die Anzahl beitragender Kacheln. Null Abdeckung bedeutet fehlende Aufnahmepixel, nicht biologischen Hintergrund. Hier werden räumliche Nachbarn innerhalb einer Ebene kombiniert, niemals verschiedene Sequenzierungszyklen.",
+          "focus": [
+            600,
+            390,
+            2630,
+            1400
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "api_04_provenance",
+          "narration": "Bewahren Sie Array, Abdeckung, Positionen, Prüfsummen der Quelldateien und Laufbericht zusammen auf. Das Skript öffnet die Ausgaben erneut und bestätigt, dass alle vier Originale unverändert sind. Dies ist ein reproduzierbarer Geometrie-Prüfschritt. Ein vollständiges optisches Screening-Tutorial benötigt weiterhin getrennt validierte Folgeschritte.",
+          "focus": [
+            200,
+            100,
+            3440,
+            1100
+          ],
+          "hold_after": 0.7
+        }
+      ]
     }
   ]
 }

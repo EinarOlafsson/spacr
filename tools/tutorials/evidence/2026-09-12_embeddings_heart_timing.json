@@ -1,0 +1,1004 @@
+{
+  "schema": 1,
+  "language": "en",
+  "lang_code": "a",
+  "dialect": "us",
+  "voice": "af_heart",
+  "speed": 1.0,
+  "sample_rate": 24000,
+  "total_duration": 190.06,
+  "media_sha256": "d8f26e1b3b2eebfced1fe129bec3c44dadeae9da77338278881693d43102d5ca",
+  "media_bytes": 1258372,
+  "render_fingerprint": "89ee73e3695f96f865714a5423078736a6b421c6c7662d038105323ca8ce8ce7",
+  "render_inputs": {
+    "renderer": "render_all_voices-v4",
+    "lesson": "77_embeddings",
+    "language": "en",
+    "lang_code": "a",
+    "dialect": "us",
+    "voice": "af_heart",
+    "speed": 1.0,
+    "scenes": [
+      {
+        "narration": "Embeddings is a new Home module in spaCR. It turns image crops into numerical vectors without training on your annotations. This lesson demonstrates the current screen and a working Python example, using real downloaded images.",
+        "speech_text": [
+          "Embeddings is a new Home module in spacer.",
+          "It turns image crops into numerical vectors without training on your annotations.",
+          "This lesson demonstrates the current screen and a working Python example, using real downloaded images."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled. We will not simulate a successful GUI run. The supported Python API performs the actual encoding shown next.",
+        "speech_text": [
+          "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled.",
+          "We will not simulate a successful GUI run.",
+          "The supported Python API performs the actual encoding shown next."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Per channel encodes each stored channel separately, then concatenates the vectors. Project to three encodes the combined image instead. That changes the representation, not just its speed. A saved PNG slot is not automatically a verified stain identity.",
+        "speech_text": [
+          "Per channel encodes each stored channel separately, then concatenates the vectors.",
+          "Project to three encodes the combined image instead.",
+          "That changes the representation, not just its speed.",
+          "A saved PNG slot is not automatically a verified stain identity."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Install the optional embeddings extra in your spaCR environment. The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model. This small example uses the CPU; no GPU or remote AI service is required.",
+        "speech_text": [
+          "Install the optional embeddings extra in your spacer environment.",
+          "The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model.",
+          "This small example uses the CPU; no GPU or remote AI service is required."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Use Annotate's downloadable example and the crop folder named in the instructions. The linked helper selects sixteen existing images in sorted filename order. Each is two hundred twenty-four pixels square, with three stored channels. No resizing or new segmentation is performed.",
+        "speech_text": [
+          "Use Annotate's downloadable example and the crop folder named in the instructions.",
+          "The linked helper selects sixteen existing images in sorted filename order.",
+          "Each is two hundred twenty-four pixels square, with three stored channels.",
+          "No resizing or new segmentation is performed."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Run the helper with a new output directory. It calls embed_array with the real pretrained encoder and batches of four. Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions. The saved matrix is reopened and checked value by value.",
+        "speech_text": [
+          "Run the helper with a new output directory.",
+          "It calls embed_array with the real pre-trained encoder and batches of four.",
+          "Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions.",
+          "The saved matrix is reopened and checked value by value."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Now choose project and a different output directory. The same images produce sixteen rows and five hundred twelve dimensions. These combined-channel columns are not interchangeable with the earlier per-channel columns. Compare policies deliberately and retain the settings for each run.",
+        "speech_text": [
+          "Now choose project and a different output directory.",
+          "The same images produce sixteen rows and five hundred twelve dimensions.",
+          "These combined-channel columns are not interchangeable with the earlier per-channel columns.",
+          "Compare policies deliberately and retain the settings for each run."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Inspect the actual input montage in the image viewer. Its numbers match the output row order. Check crop quality and the export's channel mapping before interpreting vectors. Filenames identify this example; validate the object keys before joining to a measurements database.",
+        "speech_text": [
+          "Inspect the actual input montage in the image viewer.",
+          "Its numbers match the output row order.",
+          "Check crop quality and the export's channel mapping before interpreting vectors.",
+          "Filenames identify this example; validate the object keys before joining to a measurements database."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "This saved plot projects the per-channel vectors onto two principal components. The numbered points refer to those same crops. It is exploratory visualization of a tiny sample, not proof of distinct phenotypes. A single embedding dimension is not a biological measurement.",
+        "speech_text": [
+          "This saved plot projects the per-channel vectors onto two principal components.",
+          "The numbered points refer to those same crops.",
+          "It is exploratory visualization of a tiny sample, not proof of distinct phenotypes.",
+          "A single embedding dimension is not a biological measurement."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The combined-channel vectors have their own projection. Do not compare axis coordinates across these separate plots as if they shared a fitted transformation. Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel.",
+        "speech_text": [
+          "The combined-channel vectors have their own projection.",
+          "Do not compare axis coordinates across these separate plots as if they shared a fitted transformation.",
+          "Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Keep the vectors, source identities, weights checksum, settings and package versions. The helper checks that source images remain unchanged and refuses existing destinations. Match input crops, normalization and channel mapping between comparisons. Use the linked instructions to reproduce this API example.",
+        "speech_text": [
+          "Keep the vectors, source identities, weights checksum, settings and package versions.",
+          "The helper checks that source images remain unchanged and refuses existing destinations.",
+          "Match input crops, normalization and channel mapping between comparisons.",
+          "Use the linked instructions to reproduce this API example."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      }
+    ],
+    "assembly": {
+      "version": "2026-08-11-natural-sentences-v1",
+      "sample_rate": 24000,
+      "lead_silence_seconds": 0.1,
+      "tail_silence_seconds": 0.18,
+      "sentence_pause_seconds": 0.12,
+      "scene_hold_min_seconds": 0.32,
+      "scene_hold_max_seconds": 0.52,
+      "default_scene_hold_seconds": 0.42,
+      "vad_frame_seconds": 0.005,
+      "vad_peak_ratio": 0.002,
+      "vad_absolute_floor": 2e-05
+    },
+    "cadence_profile": {
+      "version": "2026-08-11-af-heart-scene-cadence-v6",
+      "sha256": "4d728d67e73eea7e6203878879992f9050ae4a2677d717efdd68545104eb7812",
+      "bytes": 23008,
+      "enabled": false,
+      "targets": {
+        "slow_wpm": 125.0,
+        "fast_wpm": 145.0,
+        "calibration_wpm": 150.0
+      },
+      "safe_multiplier_bounds": {
+        "minimum": 0.68,
+        "maximum": 1.18
+      }
+    },
+    "mastering": {
+      "filters": [
+        "loudnorm=I=-16:TP=-3:LRA=11",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.7:attack=5:release=50:level=disabled",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.5:attack=5:release=50:level=disabled"
+      ],
+      "codec": "aac",
+      "bitrate": "48k",
+      "channels": 1,
+      "maximum_decoded_true_peak_dbfs": -1.0
+    },
+    "pronunciation": {
+      "role": "pronunciation_profile",
+      "version": "2026-08-28-pype-v11",
+      "sha256": "8789f5eb4444a0ec85a592dcf3160a0ba521d8b356e83814b88aac7742e11423",
+      "bytes": 15302
+    },
+    "synthesis_runtime": {
+      "model": {
+        "repository": "hexgrad/Kokoro-82M",
+        "snapshot": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+        "config": {
+          "role": "kokoro_config",
+          "name": "14a726edd3718279eac426630879ff743955b16a",
+          "bytes": 2351,
+          "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f"
+        },
+        "weights": {
+          "role": "kokoro_weights",
+          "name": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+          "bytes": 327212226,
+          "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4"
+        }
+      },
+      "voice_pack": {
+        "role": "kokoro_voice_pack",
+        "name": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "bytes": 523425,
+        "sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b",
+        "loaded_tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b"
+      },
+      "software": {
+        "kokoro": "0.9.4",
+        "misaki": "0.9.4",
+        "torch": "2.13.0",
+        "soundfile": "0.13.1",
+        "python": "3.12.13",
+        "implementation": "cpython"
+      },
+      "inference": {
+        "device": "cpu"
+      },
+      "mastering_tool": {
+        "version": "ffmpeg version 6.1.1-3ubuntu5+esm13 Copyright (c) 2000-2023 the FFmpeg developers",
+        "version_output_sha256": "1b302b8d4ef78f6694217011ce8af39e91b3548ab9a4903e170ada970fbf0b16",
+        "executable": {
+          "role": "ffmpeg_executable",
+          "name": "ffmpeg",
+          "bytes": 342488,
+          "sha256": "1d5081bc88516c140712a2a6eddd86b0922681bd114f5b3c481cb360634acbe3"
+        }
+      }
+    }
+  },
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 14.25,
+      "scene_end": 14.77,
+      "duration": 14.77,
+      "text": "Embeddings is a new Home module in spaCR. It turns image crops into numerical vectors without training on your annotations. This lesson demonstrates the current screen and a working Python example, using real downloaded images.",
+      "speech_text": "Embeddings is a new Home module in spacer. It turns image crops into numerical vectors without training on your annotations. This lesson demonstrates the current screen and a working Python example, using real downloaded images.",
+      "phonemes": "əmbˈɛdɪŋz ɪz ɐ nˈu hˈOm mˈɑʤul ɪn spˈAsəɹ. ˌɪt tˈɜɹnz ˈɪmɪʤ kɹˈɑps ˈɪntu numˈɛɹəkᵊl vˈɛktəɹz wɪðˈWt tɹˈAnɪŋ ˌɔn jʊɹ ˌænətˈAʃənz. ðˌɪs lˈɛsən dˈɛmənstɹˌAts ðə kˈɜɹənt skɹˈin ænd ɐ wˈɜɹkɪŋ pˈIθˌɑn ɪɡzˈæmpəl, jˈuzɪŋ ɹˈiᵊl dˈWnlˌOdᵻd ˈɪmɪʤᵻz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 0.0,
+          "speech_end": 2.685,
+          "audible_start": 0.1,
+          "audible_end": 2.505,
+          "duration": 2.685,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.285,
+          "text": "Embeddings is a new Home module in spaCR.",
+          "speech_text": "Embeddings is a new Home module in spacer.",
+          "phonemes": "əmbˈɛdɪŋz ɪz ɐ nˈu hˈOm mˈɑʤul ɪn spˈAsəɹ."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 2.805,
+          "speech_end": 7.7,
+          "audible_start": 2.905,
+          "audible_end": 7.52,
+          "duration": 4.895,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.275,
+          "text": "It turns image crops into numerical vectors without training on your annotations.",
+          "speech_text": "It turns image crops into numerical vectors without training on your annotations.",
+          "phonemes": "ˌɪt tˈɜɹnz ˈɪmɪʤ kɹˈɑps ˈɪntu numˈɛɹəkᵊl vˈɛktəɹz wɪðˈWt tɹˈAnɪŋ ˌɔn jʊɹ ˌænətˈAʃənz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 7.82,
+          "speech_end": 14.25,
+          "audible_start": 7.92,
+          "audible_end": 14.07,
+          "duration": 6.43,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.275,
+          "text": "This lesson demonstrates the current screen and a working Python example, using real downloaded images.",
+          "speech_text": "This lesson demonstrates the current screen and a working Python example, using real downloaded images.",
+          "phonemes": "ðˌɪs lˈɛsən dˈɛmənstɹˌAts ðə kˈɜɹənt skɹˈin ænd ɐ wˈɜɹkɪŋ pˈIθˌɑn ɪɡzˈæmpəl, jˈuzɪŋ ɹˈiᵊl dˈWnlˌOdᵻd ˈɪmɪʤᵻz."
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "speech_start": 14.77,
+      "speech_end": 29.85,
+      "scene_end": 30.37,
+      "duration": 15.600000000000001,
+      "text": "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled. We will not simulate a successful GUI run. The supported Python API performs the actual encoding shown next.",
+      "speech_text": "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled. We will not simulate a successful GUI run. The supported Python API performs the actual encoding shown next.",
+      "phonemes": "ɪn vˈɜɹʒən wˈʌn pˈYnt fˈIv pˈYnt zˈɪɹO pˈYnt sˈɛvən, ðɪs skɹˈin hæz nˈO kɹˌɑplˈOdɪŋ kəntɹˈOl, ænd əmbˈɛd ɹəmˈAnz dəsˈAbəld. wˌi wɪl nˌɑt sˈɪmjəlˌAt ɐ səksˈɛsfᵊl ɡˈui ɹˈʌn. ðə səpˈɔɹTᵻd pˈIθˌɑn ˌApˌiˈI pəɹfˈɔɹmz ði ˈækʧəwəl ɛŋkˈOdɪŋ ʃˈOn nˈɛkst.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 14.77,
+          "speech_end": 22.445,
+          "audible_start": 14.87,
+          "audible_end": 22.265,
+          "duration": 7.675,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.275,
+          "text": "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled.",
+          "speech_text": "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled.",
+          "phonemes": "ɪn vˈɜɹʒən wˈʌn pˈYnt fˈIv pˈYnt zˈɪɹO pˈYnt sˈɛvən, ðɪs skɹˈin hæz nˈO kɹˌɑplˈOdɪŋ kəntɹˈOl, ænd əmbˈɛd ɹəmˈAnz dəsˈAbəld."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 22.564999999999998,
+          "speech_end": 25.17,
+          "audible_start": 22.665,
+          "audible_end": 24.990000000000002,
+          "duration": 2.605,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.255,
+          "text": "We will not simulate a successful GUI run.",
+          "speech_text": "We will not simulate a successful GUI run.",
+          "phonemes": "wˌi wɪl nˌɑt sˈɪmjəlˌAt ɐ səksˈɛsfᵊl ɡˈui ɹˈʌn."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 25.29,
+          "speech_end": 29.85,
+          "audible_start": 25.39,
+          "audible_end": 29.67,
+          "duration": 4.56,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.265,
+          "text": "The supported Python API performs the actual encoding shown next.",
+          "speech_text": "The supported Python API performs the actual encoding shown next.",
+          "phonemes": "ðə səpˈɔɹTᵻd pˈIθˌɑn ˌApˌiˈI pəɹfˈɔɹmz ði ˈækʧəwəl ɛŋkˈOdɪŋ ʃˈOn nˈɛkst."
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "speech_start": 30.37,
+      "speech_end": 46.905,
+      "scene_end": 47.425000000000004,
+      "duration": 17.055000000000003,
+      "text": "Per channel encodes each stored channel separately, then concatenates the vectors. Project to three encodes the combined image instead. That changes the representation, not just its speed. A saved PNG slot is not automatically a verified stain identity.",
+      "speech_text": "Per channel encodes each stored channel separately, then concatenates the vectors. Project to three encodes the combined image instead. That changes the representation, not just its speed. A saved PNG slot is not automatically a verified stain identity.",
+      "phonemes": "pˌɜɹ ʧˈænᵊl ɪnkˈOdz ˈiʧ stˈɔɹd ʧˈænᵊl sˈɛpəɹətli, ðˈɛn kənkˈætnˌAts ðə vˈɛktəɹz. pɹˈɑʤˌɛkt tə θɹˈi ɪnkˈOdz ðə kəmbˈInd ˈɪmɪʤ ɪnstˈɛd. ðˈæt ʧˈAnʤᵻz ðə ɹˌɛpɹəzˌɛntˈAʃən, nˌɑt ʤˈʌst ɪts spˈid. ɐ sˈAvd pˌiˌɛnʤˈi slˈɑt ɪz nˌɑt ˌɔTəmˈæTəkᵊli ɐ vˈɛɹᵻfˌId stˈAn IdˈɛntəTi.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 30.37,
+          "speech_end": 35.18,
+          "audible_start": 30.470000000000002,
+          "audible_end": 35.0,
+          "duration": 4.81,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.265,
+          "text": "Per channel encodes each stored channel separately, then concatenates the vectors.",
+          "speech_text": "Per channel encodes each stored channel separately, then concatenates the vectors.",
+          "phonemes": "pˌɜɹ ʧˈænᵊl ɪnkˈOdz ˈiʧ stˈɔɹd ʧˈænᵊl sˈɛpəɹətli, ðˈɛn kənkˈætnˌAts ðə vˈɛktəɹz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 35.3,
+          "speech_end": 38.615,
+          "audible_start": 35.4,
+          "audible_end": 38.435,
+          "duration": 3.315,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.26,
+          "text": "Project to three encodes the combined image instead.",
+          "speech_text": "Project to three encodes the combined image instead.",
+          "phonemes": "pɹˈɑʤˌɛkt tə θɹˈi ɪnkˈOdz ðə kəmbˈInd ˈɪmɪʤ ɪnstˈɛd."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 38.735,
+          "speech_end": 41.965,
+          "audible_start": 38.835,
+          "audible_end": 41.785,
+          "duration": 3.23,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.29,
+          "text": "That changes the representation, not just its speed.",
+          "speech_text": "That changes the representation, not just its speed.",
+          "phonemes": "ðˈæt ʧˈAnʤᵻz ðə ɹˌɛpɹəzˌɛntˈAʃən, nˌɑt ʤˈʌst ɪts spˈid."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 42.085,
+          "speech_end": 46.905,
+          "audible_start": 42.185,
+          "audible_end": 46.725,
+          "duration": 4.82,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.3,
+          "text": "A saved PNG slot is not automatically a verified stain identity.",
+          "speech_text": "A saved PNG slot is not automatically a verified stain identity.",
+          "phonemes": "ɐ sˈAvd pˌiˌɛnʤˈi slˈɑt ɪz nˌɑt ˌɔTəmˈæTəkᵊli ɐ vˈɛɹᵻfˌId stˈAn IdˈɛntəTi."
+        }
+      ]
+    },
+    {
+      "scene": 4,
+      "speech_start": 47.425000000000004,
+      "speech_end": 64.305,
+      "scene_end": 64.825,
+      "duration": 17.4,
+      "text": "Install the optional embeddings extra in your spaCR environment. The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model. This small example uses the CPU; no GPU or remote AI service is required.",
+      "speech_text": "Install the optional embeddings extra in your spacer environment. The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model. This small example uses the CPU; no GPU or remote AI service is required.",
+      "phonemes": "ɪnstˈɔl ði ˈɑpʃənᵊl əmbˈɛdɪŋz ˈɛkstɹə ɪn jʊɹ spˈAsəɹ ənvˈIɹənmᵊnt. ðə dəfˈɔlt ɹˌAznˈɛt ˌAtˈin jˈuzᵻz ˈɪmɪʤnˌɛtsˈupəɹvˌIzd wˈAts, nˌɑt ɐ sˌɛltɹˈAnd sˌɛlfsˈupəɹvˌIzd mˈɑdᵊl. ðˌɪs smˈɔl ɪɡzˈæmpəl jˈuzᵻz ðə sˌipˌijˈu; nˈO ʤˌipˌijˈu ɔɹ ɹəmˈOt ˈAˌI sˈɜɹvəs ɪz ɹəkwˈIəɹd.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 47.425000000000004,
+          "speech_end": 51.300000000000004,
+          "audible_start": 47.525000000000006,
+          "audible_end": 51.120000000000005,
+          "duration": 3.875,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.265,
+          "text": "Install the optional embeddings extra in your spaCR environment.",
+          "speech_text": "Install the optional embeddings extra in your spacer environment.",
+          "phonemes": "ɪnstˈɔl ði ˈɑpʃənᵊl əmbˈɛdɪŋz ˈɛkstɹə ɪn jʊɹ spˈAsəɹ ənvˈIɹənmᵊnt."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 51.42,
+          "speech_end": 58.315000000000005,
+          "audible_start": 51.52,
+          "audible_end": 58.135000000000005,
+          "duration": 6.895,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.285,
+          "text": "The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model.",
+          "speech_text": "The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model.",
+          "phonemes": "ðə dəfˈɔlt ɹˌAznˈɛt ˌAtˈin jˈuzᵻz ˈɪmɪʤnˌɛtsˈupəɹvˌIzd wˈAts, nˌɑt ɐ sˌɛltɹˈAnd sˌɛlfsˈupəɹvˌIzd mˈɑdᵊl."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 58.435,
+          "speech_end": 64.305,
+          "audible_start": 58.535000000000004,
+          "audible_end": 64.125,
+          "duration": 5.87,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.26,
+          "text": "This small example uses the CPU; no GPU or remote AI service is required.",
+          "speech_text": "This small example uses the CPU; no GPU or remote AI service is required.",
+          "phonemes": "ðˌɪs smˈɔl ɪɡzˈæmpəl jˈuzᵻz ðə sˌipˌijˈu; nˈO ʤˌipˌijˈu ɔɹ ɹəmˈOt ˈAˌI sˈɜɹvəs ɪz ɹəkwˈIəɹd."
+        }
+      ]
+    },
+    {
+      "scene": 5,
+      "speech_start": 64.825,
+      "speech_end": 81.935,
+      "scene_end": 82.455,
+      "duration": 17.629999999999995,
+      "text": "Use Annotate's downloadable example and the crop folder named in the instructions. The linked helper selects sixteen existing images in sorted filename order. Each is two hundred twenty-four pixels square, with three stored channels. No resizing or new segmentation is performed.",
+      "speech_text": "Use Annotate's downloadable example and the crop folder named in the instructions. The linked helper selects sixteen existing images in sorted filename order. Each is two hundred twenty-four pixels square, with three stored channels. No resizing or new segmentation is performed.",
+      "phonemes": "jˈus ˈænətˌAts dˌWnlˈOdəbəl ɪɡzˈæmpəl ænd ðə kɹˈɑp fˈOldəɹ nˈAmd ɪn ði ɪnstɹˈʌkʃənz. ðə lˈɪŋkt hˈɛlpəɹ səlˈɛkts sˌɪkstˈin ɪɡzˈɪstɪŋ ˈɪmɪʤᵻz ɪn sˈɔɹTᵻd fˈIlnˌAm ˈɔɹdəɹ. ˈiʧ ɪz tˈu hˈʌndɹəd twˈɛntifˌɔɹ pˈɪksᵊlz skwˈɛɹ, wɪð θɹˈi stˈɔɹd ʧˈænᵊlz. nˈO ɹᵻsˈIzɪŋ ɔɹ nˈu sˌɛɡməntˈAʃən ɪz pəɹfˈɔɹmd.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 64.825,
+          "speech_end": 69.69,
+          "audible_start": 64.925,
+          "audible_end": 69.51,
+          "duration": 4.865,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.235,
+          "trimmed_tail": 0.275,
+          "text": "Use Annotate's downloadable example and the crop folder named in the instructions.",
+          "speech_text": "Use Annotate's downloadable example and the crop folder named in the instructions.",
+          "phonemes": "jˈus ˈænətˌAts dˌWnlˈOdəbəl ɪɡzˈæmpəl ænd ðə kɹˈɑp fˈOldəɹ nˈAmd ɪn ði ɪnstɹˈʌkʃənz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 69.81,
+          "speech_end": 74.555,
+          "audible_start": 69.91,
+          "audible_end": 74.375,
+          "duration": 4.745,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.335,
+          "text": "The linked helper selects sixteen existing images in sorted filename order.",
+          "speech_text": "The linked helper selects sixteen existing images in sorted filename order.",
+          "phonemes": "ðə lˈɪŋkt hˈɛlpəɹ səlˈɛkts sˌɪkstˈin ɪɡzˈɪstɪŋ ˈɪmɪʤᵻz ɪn sˈɔɹTᵻd fˈIlnˌAm ˈɔɹdəɹ."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 74.675,
+          "speech_end": 78.81,
+          "audible_start": 74.775,
+          "audible_end": 78.63,
+          "duration": 4.135,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.265,
+          "text": "Each is two hundred twenty-four pixels square, with three stored channels.",
+          "speech_text": "Each is two hundred twenty-four pixels square, with three stored channels.",
+          "phonemes": "ˈiʧ ɪz tˈu hˈʌndɹəd twˈɛntifˌɔɹ pˈɪksᵊlz skwˈɛɹ, wɪð θɹˈi stˈɔɹd ʧˈænᵊlz."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 78.93,
+          "speech_end": 81.935,
+          "audible_start": 79.03,
+          "audible_end": 81.755,
+          "duration": 3.005,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.27,
+          "text": "No resizing or new segmentation is performed.",
+          "speech_text": "No resizing or new segmentation is performed.",
+          "phonemes": "nˈO ɹᵻsˈIzɪŋ ɔɹ nˈu sˌɛɡməntˈAʃən ɪz pəɹfˈɔɹmd."
+        }
+      ]
+    },
+    {
+      "scene": 6,
+      "speech_start": 82.455,
+      "speech_end": 99.53,
+      "scene_end": 100.05,
+      "duration": 17.595,
+      "text": "Run the helper with a new output directory. It calls embed_array with the real pretrained encoder and batches of four. Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions. The saved matrix is reopened and checked value by value.",
+      "speech_text": "Run the helper with a new output directory. It calls embed_array with the real pre-trained encoder and batches of four. Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions. The saved matrix is reopened and checked value by value.",
+      "phonemes": "ɹˈʌn ðə hˈɛlpəɹ wɪð ɐ nˈu ˈWtpˌʊt dəɹˈɛktəɹi. ˌɪt kˈɔlz əmbˈɛdəɹˌA wɪð ðə ɹˈiᵊl pɹˌitɹˈAnd ɪnkˈOdəɹ ænd bˈæʧᵻz ʌv fˈɔɹ. pˌɜɹʧˈænᵊl ɛŋkˈOdɪŋ pɹədˈusᵻz sˌɪkstˈin ɹˈOz ænd wˈʌn θˈWzᵊnd fˈIv hˈʌndɹəd θˈɜɹTisˌɪks dəmˈɛnʃənz. ðə sˈAvd mˈAtɹɪks ɪz ɹiˈOpᵊnd ænd ʧˈɛkt vˈælju bI vˈælju.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 82.455,
+          "speech_end": 85.045,
+          "audible_start": 82.55499999999999,
+          "audible_end": 84.865,
+          "duration": 2.59,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.275,
+          "text": "Run the helper with a new output directory.",
+          "speech_text": "Run the helper with a new output directory.",
+          "phonemes": "ɹˈʌn ðə hˈɛlpəɹ wɪð ɐ nˈu ˈWtpˌʊt dəɹˈɛktəɹi."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 85.16499999999999,
+          "speech_end": 89.63499999999999,
+          "audible_start": 85.265,
+          "audible_end": 89.455,
+          "duration": 4.47,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.295,
+          "text": "It calls embed_array with the real pretrained encoder and batches of four.",
+          "speech_text": "It calls embed_array with the real pre-trained encoder and batches of four.",
+          "phonemes": "ˌɪt kˈɔlz əmbˈɛdəɹˌA wɪð ðə ɹˈiᵊl pɹˌitɹˈAnd ɪnkˈOdəɹ ænd bˈæʧᵻz ʌv fˈɔɹ."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 89.755,
+          "speech_end": 95.685,
+          "audible_start": 89.855,
+          "audible_end": 95.505,
+          "duration": 5.93,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.29,
+          "text": "Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions.",
+          "speech_text": "Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions.",
+          "phonemes": "pˌɜɹʧˈænᵊl ɛŋkˈOdɪŋ pɹədˈusᵻz sˌɪkstˈin ɹˈOz ænd wˈʌn θˈWzᵊnd fˈIv hˈʌndɹəd θˈɜɹTisˌɪks dəmˈɛnʃənz."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 95.80499999999999,
+          "speech_end": 99.53,
+          "audible_start": 95.905,
+          "audible_end": 99.35,
+          "duration": 3.725,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.28,
+          "text": "The saved matrix is reopened and checked value by value.",
+          "speech_text": "The saved matrix is reopened and checked value by value.",
+          "phonemes": "ðə sˈAvd mˈAtɹɪks ɪz ɹiˈOpᵊnd ænd ʧˈɛkt vˈælju bI vˈælju."
+        }
+      ]
+    },
+    {
+      "scene": 7,
+      "speech_start": 100.05,
+      "speech_end": 117.095,
+      "scene_end": 117.615,
+      "duration": 17.564999999999998,
+      "text": "Now choose project and a different output directory. The same images produce sixteen rows and five hundred twelve dimensions. These combined-channel columns are not interchangeable with the earlier per-channel columns. Compare policies deliberately and retain the settings for each run.",
+      "speech_text": "Now choose project and a different output directory. The same images produce sixteen rows and five hundred twelve dimensions. These combined-channel columns are not interchangeable with the earlier per-channel columns. Compare policies deliberately and retain the settings for each run.",
+      "phonemes": "nˈW ʧˈuz pɹˈɑʤˌɛkt ænd ɐ dˈɪfəɹənt ˈWtpˌʊt dəɹˈɛktəɹi. ðə sˈAm ˈɪmɪʤᵻz pɹədˈus sˌɪkstˈin ɹˈOz ænd fˈIv hˈʌndɹəd twˈɛlv dəmˈɛnʃənz. ðˌiz kəmbˈIndʧˌænᵊl kˈɑləmz ɑɹ nˌɑt ˌɪntəɹʧˈAnʤəbᵊl wɪð ði ˈɜɹliəɹ pɜɹʧˈænᵊl kˈɑləmz. kəmpˈɛɹ pˈɑləsiz dəlˈɪbəɹətli ænd ɹətˈAn ðə sˈɛTɪŋz fɔɹ ˈiʧ ɹˈʌn.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 100.05,
+          "speech_end": 103.105,
+          "audible_start": 100.14999999999999,
+          "audible_end": 102.925,
+          "duration": 3.055,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.265,
+          "text": "Now choose project and a different output directory.",
+          "speech_text": "Now choose project and a different output directory.",
+          "phonemes": "nˈW ʧˈuz pɹˈɑʤˌɛkt ænd ɐ dˈɪfəɹənt ˈWtpˌʊt dəɹˈɛktəɹi."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 103.225,
+          "speech_end": 107.57,
+          "audible_start": 103.325,
+          "audible_end": 107.39,
+          "duration": 4.345,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.285,
+          "text": "The same images produce sixteen rows and five hundred twelve dimensions.",
+          "speech_text": "The same images produce sixteen rows and five hundred twelve dimensions.",
+          "phonemes": "ðə sˈAm ˈɪmɪʤᵻz pɹədˈus sˌɪkstˈin ɹˈOz ænd fˈIv hˈʌndɹəd twˈɛlv dəmˈɛnʃənz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 107.69,
+          "speech_end": 113.02499999999999,
+          "audible_start": 107.78999999999999,
+          "audible_end": 112.845,
+          "duration": 5.335,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.265,
+          "text": "These combined-channel columns are not interchangeable with the earlier per-channel columns.",
+          "speech_text": "These combined-channel columns are not interchangeable with the earlier per-channel columns.",
+          "phonemes": "ðˌiz kəmbˈIndʧˌænᵊl kˈɑləmz ɑɹ nˌɑt ˌɪntəɹʧˈAnʤəbᵊl wɪð ði ˈɜɹliəɹ pɜɹʧˈænᵊl kˈɑləmz."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 113.145,
+          "speech_end": 117.095,
+          "audible_start": 113.245,
+          "audible_end": 116.91499999999999,
+          "duration": 3.95,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.285,
+          "text": "Compare policies deliberately and retain the settings for each run.",
+          "speech_text": "Compare policies deliberately and retain the settings for each run.",
+          "phonemes": "kəmpˈɛɹ pˈɑləsiz dəlˈɪbəɹətli ænd ɹətˈAn ðə sˈɛTɪŋz fɔɹ ˈiʧ ɹˈʌn."
+        }
+      ]
+    },
+    {
+      "scene": 8,
+      "speech_start": 117.615,
+      "speech_end": 134.97,
+      "scene_end": 135.49,
+      "duration": 17.875000000000014,
+      "text": "Inspect the actual input montage in the image viewer. Its numbers match the output row order. Check crop quality and the export's channel mapping before interpreting vectors. Filenames identify this example; validate the object keys before joining to a measurements database.",
+      "speech_text": "Inspect the actual input montage in the image viewer. Its numbers match the output row order. Check crop quality and the export's channel mapping before interpreting vectors. Filenames identify this example; validate the object keys before joining to a measurements database.",
+      "phonemes": "ɪnspˈɛkt ði ˈækʧəwəl ˈɪnpˌʊt mɑntˈɑʒ ɪn ði ˈɪmɪʤ vjˈuəɹ. ˌɪts nˈʌmbəɹz mˈæʧ ði ˈWtpˌʊt ɹˈO ˈɔɹdəɹ. ʧˈɛk kɹˈɑp kwˈɑləTi ænd ði ˈɛkspˌɔɹts ʧˈænᵊl mˈæpɪŋ bəfˈɔɹ ɪntˈɜɹpɹəTɪŋ vˈɛktəɹz. fˈIlnˌAmz IdˈɛntəfˌI ðɪs ɪɡzˈæmpəl; vˈælɪdˌAt ði ˈɑbʤəkt kˈiz bəfˈɔɹ ʤˈYnɪŋ tə ɐ mˈɛʒəɹmᵊnts dˈæTəbˌAs.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 117.615,
+          "speech_end": 120.945,
+          "audible_start": 117.71499999999999,
+          "audible_end": 120.765,
+          "duration": 3.33,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.285,
+          "text": "Inspect the actual input montage in the image viewer.",
+          "speech_text": "Inspect the actual input montage in the image viewer.",
+          "phonemes": "ɪnspˈɛkt ði ˈækʧəwəl ˈɪnpˌʊt mɑntˈɑʒ ɪn ði ˈɪmɪʤ vjˈuəɹ."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 121.065,
+          "speech_end": 123.41499999999999,
+          "audible_start": 121.16499999999999,
+          "audible_end": 123.235,
+          "duration": 2.35,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.29,
+          "text": "Its numbers match the output row order.",
+          "speech_text": "Its numbers match the output row order.",
+          "phonemes": "ˌɪts nˈʌmbəɹz mˈæʧ ði ˈWtpˌʊt ɹˈO ˈɔɹdəɹ."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 123.535,
+          "speech_end": 128.16,
+          "audible_start": 123.63499999999999,
+          "audible_end": 127.97999999999999,
+          "duration": 4.625,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.265,
+          "text": "Check crop quality and the export's channel mapping before interpreting vectors.",
+          "speech_text": "Check crop quality and the export's channel mapping before interpreting vectors.",
+          "phonemes": "ʧˈɛk kɹˈɑp kwˈɑləTi ænd ði ˈɛkspˌɔɹts ʧˈænᵊl mˈæpɪŋ bəfˈɔɹ ɪntˈɜɹpɹəTɪŋ vˈɛktəɹz."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 128.28,
+          "speech_end": 134.97,
+          "audible_start": 128.38,
+          "audible_end": 134.79,
+          "duration": 6.69,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.17,
+          "trimmed_tail": 0.24,
+          "text": "Filenames identify this example; validate the object keys before joining to a measurements database.",
+          "speech_text": "Filenames identify this example; validate the object keys before joining to a measurements database.",
+          "phonemes": "fˈIlnˌAmz IdˈɛntəfˌI ðɪs ɪɡzˈæmpəl; vˈælɪdˌAt ði ˈɑbʤəkt kˈiz bəfˈɔɹ ʤˈYnɪŋ tə ɐ mˈɛʒəɹmᵊnts dˈæTəbˌAs."
+        }
+      ]
+    },
+    {
+      "scene": 9,
+      "speech_start": 135.49,
+      "speech_end": 152.28500000000003,
+      "scene_end": 152.80500000000004,
+      "duration": 17.315000000000026,
+      "text": "This saved plot projects the per-channel vectors onto two principal components. The numbered points refer to those same crops. It is exploratory visualization of a tiny sample, not proof of distinct phenotypes. A single embedding dimension is not a biological measurement.",
+      "speech_text": "This saved plot projects the per-channel vectors onto two principal components. The numbered points refer to those same crops. It is exploratory visualization of a tiny sample, not proof of distinct phenotypes. A single embedding dimension is not a biological measurement.",
+      "phonemes": "ðˌɪs sˈAvd plˈɑt pɹˈɑʤˌɛkts ðə pɜɹʧˈænᵊl vˈɛktəɹz ˈɑntˌu tˈu pɹˈɪnsəpᵊl kəmpˈOnənts. ðə nˈʌmbəɹd pˈYnts ɹəfˈɜɹ tə ðOz sˈAm kɹˈɑps. ˌɪt ɪz ɪksplˈɔɹətˌɔɹi vˌɪʒələzˈAʃən ʌv ɐ tˈIni sˈæmpᵊl, nˌɑt pɹˈuf ʌv dəstˈɪŋkt fˈinətˌIps. ɐ sˈɪŋɡᵊl əmbˈɛdɪŋ dəmˈɛnʃən ɪz nˌɑt ɐ bˌIəlˈɑʤəkᵊl mˈɛʒəɹmᵊnt.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 135.49,
+          "speech_end": 140.46,
+          "audible_start": 135.59,
+          "audible_end": 140.28,
+          "duration": 4.97,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.19,
+          "trimmed_tail": 0.265,
+          "text": "This saved plot projects the per-channel vectors onto two principal components.",
+          "speech_text": "This saved plot projects the per-channel vectors onto two principal components.",
+          "phonemes": "ðˌɪs sˈAvd plˈɑt pɹˈɑʤˌɛkts ðə pɜɹʧˈænᵊl vˈɛktəɹz ˈɑntˌu tˈu pɹˈɪnsəpᵊl kəmpˈOnənts."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 140.58,
+          "speech_end": 143.07000000000002,
+          "audible_start": 140.68,
+          "audible_end": 142.89000000000001,
+          "duration": 2.49,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.245,
+          "text": "The numbered points refer to those same crops.",
+          "speech_text": "The numbered points refer to those same crops.",
+          "phonemes": "ðə nˈʌmbəɹd pˈYnts ɹəfˈɜɹ tə ðOz sˈAm kɹˈɑps."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 143.19,
+          "speech_end": 148.48000000000002,
+          "audible_start": 143.29000000000002,
+          "audible_end": 148.3,
+          "duration": 5.29,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.25,
+          "text": "It is exploratory visualization of a tiny sample, not proof of distinct phenotypes.",
+          "speech_text": "It is exploratory visualization of a tiny sample, not proof of distinct phenotypes.",
+          "phonemes": "ˌɪt ɪz ɪksplˈɔɹətˌɔɹi vˌɪʒələzˈAʃən ʌv ɐ tˈIni sˈæmpᵊl, nˌɑt pɹˈuf ʌv dəstˈɪŋkt fˈinətˌIps."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 148.60000000000002,
+          "speech_end": 152.28500000000003,
+          "audible_start": 148.70000000000002,
+          "audible_end": 152.10500000000002,
+          "duration": 3.685,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.26,
+          "text": "A single embedding dimension is not a biological measurement.",
+          "speech_text": "A single embedding dimension is not a biological measurement.",
+          "phonemes": "ɐ sˈɪŋɡᵊl əmbˈɛdɪŋ dəmˈɛnʃən ɪz nˌɑt ɐ bˌIəlˈɑʤəkᵊl mˈɛʒəɹmᵊnt."
+        }
+      ]
+    },
+    {
+      "scene": 10,
+      "speech_start": 152.80500000000004,
+      "speech_end": 169.41500000000002,
+      "scene_end": 169.93500000000003,
+      "duration": 17.129999999999995,
+      "text": "The combined-channel vectors have their own projection. Do not compare axis coordinates across these separate plots as if they shared a fitted transformation. Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel.",
+      "speech_text": "The combined-channel vectors have their own projection. Do not compare axis coordinates across these separate plots as if they shared a fitted transformation. Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel.",
+      "phonemes": "ðə kəmbˈIndʧˌænᵊl vˈɛktəɹz hæv ðɛɹ ˈOn pɹəʤˈɛkʃən. dˈu nˌɑt kəmpˈɛɹ ˈæksɪs kOˈɔɹdənəts əkɹˈɔs ðiz sˈɛpəɹət plˈɑts æz ɪf ðA ʃˈɛɹd ɐ fˈɪTᵻd tɹˌænsfəɹmˈAʃən. nˈiðəɹ pˈɪkʧəɹ mˈɛʒəɹz ɹətɹˈivᵊl ˈækjəɹəsi ɔɹ əstˈæblɪʃᵻz ðæt əmbˈɛdɪŋz ˌWtpəɹfˈɔɹm ðə hˌændmˈɛʒəɹd fˈiʧəɹ pˈænᵊl.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 152.80500000000004,
+          "speech_end": 155.94500000000002,
+          "audible_start": 152.90500000000003,
+          "audible_end": 155.76500000000004,
+          "duration": 3.14,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.265,
+          "text": "The combined-channel vectors have their own projection.",
+          "speech_text": "The combined-channel vectors have their own projection.",
+          "phonemes": "ðə kəmbˈIndʧˌænᵊl vˈɛktəɹz hæv ðɛɹ ˈOn pɹəʤˈɛkʃən."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 156.06500000000003,
+          "speech_end": 161.95000000000005,
+          "audible_start": 156.16500000000005,
+          "audible_end": 161.77000000000004,
+          "duration": 5.885,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.29,
+          "text": "Do not compare axis coordinates across these separate plots as if they shared a fitted transformation.",
+          "speech_text": "Do not compare axis coordinates across these separate plots as if they shared a fitted transformation.",
+          "phonemes": "dˈu nˌɑt kəmpˈɛɹ ˈæksɪs kOˈɔɹdənəts əkɹˈɔs ðiz sˈɛpəɹət plˈɑts æz ɪf ðA ʃˈɛɹd ɐ fˈɪTᵻd tɹˌænsfəɹmˈAʃən."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 162.07000000000005,
+          "speech_end": 169.41500000000002,
+          "audible_start": 162.17000000000004,
+          "audible_end": 169.23500000000004,
+          "duration": 7.345,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.33,
+          "text": "Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel.",
+          "speech_text": "Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel.",
+          "phonemes": "nˈiðəɹ pˈɪkʧəɹ mˈɛʒəɹz ɹətɹˈivᵊl ˈækjəɹəsi ɔɹ əstˈæblɪʃᵻz ðæt əmbˈɛdɪŋz ˌWtpəɹfˈɔɹm ðə hˌændmˈɛʒəɹd fˈiʧəɹ pˈænᵊl."
+        }
+      ]
+    },
+    {
+      "scene": 11,
+      "speech_start": 169.93500000000003,
+      "speech_end": 189.54000000000002,
+      "scene_end": 190.06000000000003,
+      "duration": 20.125,
+      "text": "Keep the vectors, source identities, weights checksum, settings and package versions. The helper checks that source images remain unchanged and refuses existing destinations. Match input crops, normalization and channel mapping between comparisons. Use the linked instructions to reproduce this API example.",
+      "speech_text": "Keep the vectors, source identities, weights checksum, settings and package versions. The helper checks that source images remain unchanged and refuses existing destinations. Match input crops, normalization and channel mapping between comparisons. Use the linked instructions to reproduce this API example.",
+      "phonemes": "kˈip ðə vˈɛktəɹz, sˈɔɹs IdˈɛntəTiz, wˈAts ʧˈɛksˌʌm, sˈɛTɪŋz ænd pˈækɪʤ vˈɜɹʒənz. ðə hˈɛlpəɹ ʧˈɛks ðæt sˈɔɹs ˈɪmɪʤᵻz ɹəmˈAn ˌʌnʧˈAnʤd ænd ɹəfjˈuzᵻz ɪɡzˈɪstɪŋ dˌɛstənˈAʃənz. mˈæʧ ˈɪnpˌʊt kɹˈɑps, nˌɔɹmələzˈAʃən ænd ʧˈænᵊl mˈæpɪŋ bətwˈin kəmpˈɛɹəsᵊnz. jˈuz ðə lˈɪŋkt ɪnstɹˈʌkʃənz tə ɹˌipɹədˈus ðɪs ˌApˌiˈI ɪɡzˈæmpəl.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 169.93500000000003,
+          "speech_end": 175.00000000000003,
+          "audible_start": 170.03500000000003,
+          "audible_end": 174.82000000000002,
+          "duration": 5.065,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.29,
+          "text": "Keep the vectors, source identities, weights checksum, settings and package versions.",
+          "speech_text": "Keep the vectors, source identities, weights checksum, settings and package versions.",
+          "phonemes": "kˈip ðə vˈɛktəɹz, sˈɔɹs IdˈɛntəTiz, wˈAts ʧˈɛksˌʌm, sˈɛTɪŋz ænd pˈækɪʤ vˈɜɹʒənz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 175.12000000000003,
+          "speech_end": 180.73000000000002,
+          "audible_start": 175.22000000000003,
+          "audible_end": 180.55000000000004,
+          "duration": 5.61,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.29,
+          "text": "The helper checks that source images remain unchanged and refuses existing destinations.",
+          "speech_text": "The helper checks that source images remain unchanged and refuses existing destinations.",
+          "phonemes": "ðə hˈɛlpəɹ ʧˈɛks ðæt sˈɔɹs ˈɪmɪʤᵻz ɹəmˈAn ˌʌnʧˈAnʤd ænd ɹəfjˈuzᵻz ɪɡzˈɪstɪŋ dˌɛstənˈAʃənz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 180.85000000000002,
+          "speech_end": 185.52000000000004,
+          "audible_start": 180.95000000000005,
+          "audible_end": 185.34000000000003,
+          "duration": 4.67,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.26,
+          "text": "Match input crops, normalization and channel mapping between comparisons.",
+          "speech_text": "Match input crops, normalization and channel mapping between comparisons.",
+          "phonemes": "mˈæʧ ˈɪnpˌʊt kɹˈɑps, nˌɔɹmələzˈAʃən ænd ʧˈænᵊl mˈæpɪŋ bətwˈin kəmpˈɛɹəsᵊnz."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 185.64000000000004,
+          "speech_end": 189.54000000000002,
+          "audible_start": 185.74000000000004,
+          "audible_end": 189.36000000000004,
+          "duration": 3.9,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.28,
+          "text": "Use the linked instructions to reproduce this API example.",
+          "speech_text": "Use the linked instructions to reproduce this API example.",
+          "phonemes": "jˈuz ðə lˈɪŋkt ɪnstɹˈʌkʃənz tə ɹˌipɹədˈus ðɪs ˌApˌiˈI ɪɡzˈæmpəl."
+        }
+      ]
+    }
+  ]
+}

@@ -18,7 +18,7 @@ import tempfile
 from audit_staged_catalogs import CATALOGS
 from build_navigation import build as navigation
 from check_completed_matrix import digest, voice_matrix
-from coming_soon import HELD, PLACEHOLDERS, release_catalog
+from coming_soon import EMBEDDINGS, OPS, HELD, release_catalog
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 from verify_library_checkpoint import verify
 
@@ -46,12 +46,13 @@ def copy_checked(source, target, records, root, expected=None):
                     'sha256': actual, 'bytes': target.stat().st_size})
 
 
-def write_catalogs(stage, web):
+def write_catalogs(stage, web, *, model_promotions=()):
     """Derive parent metadata from today's GUI without altering lesson scenes."""
     catalogs = {}
     for filename in CATALOGS:
         language = filename.split('_', 1)[1].removesuffix('.json')
-        catalogs[filename] = release_catalog(read(stage / 'catalog' / filename), language)
+        catalogs[filename] = release_catalog(read(stage / 'catalog' / filename), language,
+                                             recording_stage=stage, model_promotions=model_promotions)
     nav = navigation(catalogs['lessons_en.json'])
     if nav['missing_tutorials']:
         raise ValueError(f"Unaccounted tutorial routes: {nav['missing_tutorials']}")
@@ -60,12 +61,27 @@ def write_catalogs(stage, web):
         for lesson in catalog['lessons']:
             # Historical held translations predate app_key metadata. Routing
             # is language-independent; do not copy their old omissions.
+            #
+            # `section` IS NOT ROUTING. It is the heading a reader sees above
+            # the lesson, so overwriting it with the English one replaced
+            # every translated section label with English -- Spanish lost
+            # "Modulos principales" and "Datos" and got "Core" and "Data",
+            # and so did the other six translated locales. It sat in this
+            # list because it looks like the metadata beside it; what it
+            # actually is, is display text.
+            #
+            # Still filled in FROM English when the locale has none of its
+            # own, because a new lesson reaches a locale before its
+            # translation does and a missing heading is worse than an
+            # untranslated one. A locale that HAS a heading keeps it.
             canonical = english_by_id[lesson['id']]
-            for field in ('number', 'app_key', 'host_app_key', 'series', 'section', 'slug'):
+            for field in ('number', 'app_key', 'host_app_key', 'series', 'slug'):
                 if field in canonical:
                     lesson[field] = canonical[field]
                 else:
                     lesson.pop(field, None)
+            if not lesson.get('section') and 'section' in canonical:
+                lesson['section'] = canonical['section']
             route = nav['routes'].get(lesson['id'], {})
             if route.get('kind') == 'submodule':
                 lesson['host_app_key'] = route['host_app_key']
@@ -90,6 +106,12 @@ def refresh_candidate_player(root):
     report = read(root / 'release-manifest.json')
     if report.get('release_hold') is not True or report.get('published') is not False:
         raise ValueError('Only an unpublished, held candidate may be refreshed')
+    existing = read(root / 'web/catalog/lessons_en.json')['lessons']
+    proposed = release_catalog(read(root.parent / 'catalog/lessons_en.json'), 'en')['lessons']
+    def disposition(lessons):
+        return [(lesson['id'], lesson.get('status') == 'coming_soon') for lesson in lessons]
+    if disposition(existing) != disposition(proposed):
+        raise ValueError('A newly recorded route needs a new candidate, not a player-only refresh')
     names = ('app_v2.js', 'styles.css')
     records = report['files']
     for name in names:
@@ -112,11 +134,20 @@ def refresh_candidate_player(root):
     write(root / 'release-manifest.json', report)
 
 
-def build(stage=DEFAULT_STAGE, *, baseline=None):
+def build(stage=DEFAULT_STAGE, *, baseline=None, model_promotions=()):
     stage = Path(stage).resolve()
     # Revalidate current sources before creating any release copies.
-    proof = verify(stage, set(HELD), baseline=baseline)
-    if proof['checked_lessons'] != 71 or proof['checked_tracks'] != 3550:
+    from model_promotion import MODELS, require_recorded_model
+    model_promotions = set(model_promotions)
+    if not model_promotions <= set(MODELS):
+        raise ValueError('Unknown model tutorial promotion')
+    english = read(stage / 'catalog/lessons_en.json')['lessons']
+    for identity in sorted(model_promotions):
+        require_recorded_model(stage, 'en', next(item for item in english if item['id'] == identity))
+    proof = verify(stage, set(HELD) - model_promotions, baseline=baseline)
+    ready_ids = {item['lesson'] for item in proof['lessons']}
+    expected_ready = 71 + (EMBEDDINGS in ready_ids) + (OPS in ready_ids) + len(model_promotions)
+    if proof['checked_lessons'] != expected_ready or proof['checked_tracks'] != expected_ready * 50:
         raise ValueError('The approved ready/tutorial partition changed')
     root = Path(tempfile.mkdtemp(prefix='release-candidate-', dir=stage))
     web, media = root / 'web', root / 'media_host'
@@ -141,7 +172,7 @@ def build(stage=DEFAULT_STAGE, *, baseline=None):
     (web / 'index.html').write_text(index)
     records[:] = [r for r in records if r['path'] != 'web/index.html']
 
-    write_catalogs(stage, web)
+    write_catalogs(stage, web, model_promotions=model_promotions)
     voices = voice_matrix(stage.parent / 'tools/render_all_voices.py')
     web_checks = []
     for result in proof['lessons']:
@@ -174,10 +205,12 @@ def build(stage=DEFAULT_STAGE, *, baseline=None):
     web_bytes = sum(r['bytes'] for r in records if r['path'].startswith('web/'))
     if web_bytes > 700 * 1024**2:
         raise ValueError('Candidate exceeds the tutorial media budget')
+    unavailable = [item['id'] for item in read(web / 'catalog/lessons_en.json')['lessons']
+                   if item.get('status') == 'coming_soon']
     report = {'scope': 'Private release candidate, not a live deployment',
-              'ready_lessons': len(proof['lessons']), 'coming_soon': list(PLACEHOLDERS),
+              'ready_lessons': len(proof['lessons']), 'coming_soon': unavailable,
               'routes': len(read(web / 'catalog/lessons_en.json')['lessons']),
-              'catalog_languages': len(CATALOGS), 'narration_tracks': 3550,
+              'catalog_languages': len(CATALOGS), 'narration_tracks': proof['checked_tracks'],
               'web_bytes': web_bytes, 'ceiling_bytes': 700 * 1024**2,
               'media_host_bytes': sum(r['bytes'] for r in records if r['path'].startswith('media_host/')),
               'files': sorted(records, key=lambda r: r['path']), 'web_checks': web_checks,

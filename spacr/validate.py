@@ -1179,9 +1179,36 @@ def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
     """
     problems: List[Problem] = []
     for key in settings:
-        if not isinstance(key, str) or key not in RETIRED_SETTINGS:
+        if not isinstance(key, str):
             continue
-        replacement = RETIRED_SETTINGS[key]
+        replacement = RETIRED_SETTINGS.get(key)
+        if replacement is None:
+            # NOT IN THE TABLE IS NOT THE SAME AS NOT RENAMED. A rename that
+            # belongs to a role FAMILY cannot be written out here -- 705 roles
+            # carry `_flow_threshold` -- so the literal table names at most the
+            # first spelling. It named `organelle_min_size` and said nothing
+            # about `organelleq_min_size`, which is the same setting in the
+            # slot beside it. The resolver knows the suffix rules, so ask it.
+            from .settings import surviving_setting_name
+
+            survivors = surviving_setting_name(key)
+            if not survivors:
+                # WITHDRAWN FROM A WHOLE ROLE FAMILY, which the literal table
+                # cannot hold: 705 roles carry each of these, so naming the
+                # first spelling would leave every generated organelle slot
+                # silent -- the `organelleq_min_size` failure again.
+                from .object_roles import withdrawn_setting_reason
+
+                gone = withdrawn_setting_reason(key)
+                if gone:
+                    problems.append(Problem(
+                        WARNING, key,
+                        f"'{key}' is no longer a spaCR setting.",
+                        f"Remove '{key}' — {gone}. As it stands the value is "
+                        f"read by nothing."))
+                continue
+            replacement = (survivors[0] if len(survivors) == 1
+                           else tuple(survivors))
         if isinstance(replacement, (tuple, list)):
             # A SPLIT. One key that meant two things is now two keys, and
             # both need naming: a message that offered only one of them
@@ -1223,6 +1250,22 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
             continue
         if key in RETIRED_SETTINGS:
             # Answered by name, and better, in _check_retired_keys.
+            continue
+        # AND THE ROLE-FAMILY RENAMES THE LITERAL TABLE CANNOT HOLD. Without
+        # this, a legacy file gets TWO warnings for one key: the retirement
+        # message naming the real successor, and a fuzzy "did you mean"
+        # guessing at it. `difflib` matches `pathogen_Signal_to_noise` to
+        # `pathogen_signal_to_noise` at the 0.85 cutoff, so the pair differ
+        # only in confidence, and two messages about one key reads as two
+        # problems.
+        from .object_roles import withdrawn_setting_reason
+        from .settings import surviving_setting_name
+
+        if surviving_setting_name(key) or withdrawn_setting_reason(key):
+            # ALREADY ANSWERED BY NAME in _check_retired_keys, and better. For
+            # the withdrawn ones the fuzzy matcher is not merely redundant but
+            # WRONG: it pointed `<role>_intensity_threshold_method`, which held
+            # 'mean', at `<role>_intensity_threshold`, which holds a float.
             continue
         close = difflib.get_close_matches(key, sorted(known), n=1, cutoff=0.85)
         if close:

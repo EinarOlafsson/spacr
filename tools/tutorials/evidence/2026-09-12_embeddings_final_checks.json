@@ -1,0 +1,1218 @@
+{
+  "scope": "Real GUI introduction and supported Python API; technical media checks",
+  "capture": {
+    "accepted": true,
+    "scope": "Current GUI introduction, supported Python API and real figures",
+    "gui": {
+      "accepted": true,
+      "scope": "Actual Home route and channel policy choices only",
+      "gui_workflow_completed": false,
+      "crops_injected": false,
+      "policies_selected": [
+        "project",
+        "per_channel"
+      ],
+      "initial_source": "no crops loaded",
+      "embed_enabled": false,
+      "model_started": false,
+      "app_source_modified": false,
+      "published": false
+    },
+    "terminal": {
+      "accepted": true,
+      "scope": "Two real API runs and actual saved-figure viewers",
+      "runs": [
+        {
+          "accepted": true,
+          "version": "1.5.0.7",
+          "source_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png",
+          "sources": [
+            {
+              "name": "plate1_E02_10_1_1.png",
+              "sha256": "4a42a56e083a48aa7954eae54077cfc7df25445cf23d92f328b27233bb9f7767",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_15.png",
+              "sha256": "698bf94c8d8e8a22932bae78dd5a2ee832859e591f1bb1cff02c5f5aa3b199fc",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_16.png",
+              "sha256": "6b7dc75f6124531146d91149f99606c9134b8df70f6d7235b9c87839de937541",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_17.png",
+              "sha256": "48cfcefe467b4ea1afbb61ee49922798290b74040967907881a77fffa755d6ec",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_23.png",
+              "sha256": "f0a82aaf1ad3910c35b732761f00170e687dbae5886e389bd44b36a7b2bdfa79",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_28.png",
+              "sha256": "99dc7f537bdbee2b1747afcc63809561ece181304e445a232724ca474a15a527",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_30.png",
+              "sha256": "b9df4dc9bea40be4e67852b538cde3734330933796083e4d696596deecb0c6be",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_31.png",
+              "sha256": "3f214bbff9f04535fa3b272f6439fb256575977b0056510cad486b87381e15a1",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_37.png",
+              "sha256": "4d48d9f8ba6d1126e26226c59eb6a26619a2e6fe5041d0ec67b016f72060bad3",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_38.png",
+              "sha256": "05481d49733e9c0a1bc22e78c664602e1da31437bc09dc956fdcc4e8665816aa",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_40.png",
+              "sha256": "ebbac8d597cba1812318b51c93d7b377c308c82c1e5a2b017bf20346e9a43c5b",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_41.png",
+              "sha256": "19ed8e16de2dbeb9b7a6ad8304d6d33ab86b3405471c37313ad5231ff7f6cd72",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_6.png",
+              "sha256": "7843d641b3094c53ecefada0da9be5034bb2722474edab4182c8bc5b2e990558",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_7.png",
+              "sha256": "0ff2ad15d909934169dfa64572020dcd02573119237b61bf90fa1c57da655ea3",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_8.png",
+              "sha256": "5f818ff617e7526902fd51dd34ad47b80fb0bd12cc9c006c4091392c3b3714b3",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_11_1_10.png",
+              "sha256": "ed3866914fe87262261a0ef05f8322c01f9dfcbd2e73d2aaf9b218000d3d4199",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            }
+          ],
+          "source_unchanged": true,
+          "shape": [
+            16,
+            1536
+          ],
+          "spec": {
+            "backbone": "resnet18",
+            "channel_policy": "per_channel",
+            "channels": null,
+            "batch_size": 4,
+            "device": "cpu",
+            "normalize": true
+          },
+          "spec_fingerprint": "ee13fbde21d1062c",
+          "weights_sha256": "80c49dee3da4822c009c5a7fe591e9223c5a2cfcf95a4067ca4dfb5a7b89c612",
+          "packages": {
+            "numpy": "2.5.2",
+            "pandas": "2.3.3",
+            "torch": "2.13.0",
+            "timm": "1.0.29",
+            "Pillow": "12.3.0"
+          },
+          "helper_sha256": "afd77f8e3a6ce5db0ea74b6a6faa9172bd238e6fcfbe06a32ad1cada59434c6f",
+          "elapsed_seconds": 6.539551569032483,
+          "verification": {
+            "matrix_cells_checked": 24576,
+            "ordered_identities_match": true,
+            "npy_exact": true,
+            "csv_float32_exact": true
+          },
+          "gui_workflow_completed": false,
+          "biology_validated": false,
+          "stain_mapping_verified": false,
+          "artifacts": {
+            "input_crops.png": "0d54643f24d008c92192bbceb671bf33256d1e67b675de048dacf129776b401c",
+            "pca.png": "09c94f26de6d83964af0ea2b7fbc560518dc4911ca013c42a497c156ecefe4ca",
+            "pca_coordinates.npy": "1c0bcbf4fd8e2fae6d9a67d2c2a117112bade29d12914ff1d402a14c17f97c83",
+            "vectors.csv": "6f6265324457ccbe9f6612c1a0ebe214fe8aed4a87c06846450a7f6317289aa6",
+            "vectors.npy": "d5442bb673382c94f8bedcf14cf714eaae9f75eeadd590d2096964800d74b2d8"
+          }
+        },
+        {
+          "accepted": true,
+          "version": "1.5.0.7",
+          "source_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png",
+          "sources": [
+            {
+              "name": "plate1_E02_10_1_1.png",
+              "sha256": "4a42a56e083a48aa7954eae54077cfc7df25445cf23d92f328b27233bb9f7767",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_15.png",
+              "sha256": "698bf94c8d8e8a22932bae78dd5a2ee832859e591f1bb1cff02c5f5aa3b199fc",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_16.png",
+              "sha256": "6b7dc75f6124531146d91149f99606c9134b8df70f6d7235b9c87839de937541",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_17.png",
+              "sha256": "48cfcefe467b4ea1afbb61ee49922798290b74040967907881a77fffa755d6ec",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_23.png",
+              "sha256": "f0a82aaf1ad3910c35b732761f00170e687dbae5886e389bd44b36a7b2bdfa79",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_28.png",
+              "sha256": "99dc7f537bdbee2b1747afcc63809561ece181304e445a232724ca474a15a527",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_30.png",
+              "sha256": "b9df4dc9bea40be4e67852b538cde3734330933796083e4d696596deecb0c6be",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_31.png",
+              "sha256": "3f214bbff9f04535fa3b272f6439fb256575977b0056510cad486b87381e15a1",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_37.png",
+              "sha256": "4d48d9f8ba6d1126e26226c59eb6a26619a2e6fe5041d0ec67b016f72060bad3",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_38.png",
+              "sha256": "05481d49733e9c0a1bc22e78c664602e1da31437bc09dc956fdcc4e8665816aa",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_40.png",
+              "sha256": "ebbac8d597cba1812318b51c93d7b377c308c82c1e5a2b017bf20346e9a43c5b",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_41.png",
+              "sha256": "19ed8e16de2dbeb9b7a6ad8304d6d33ab86b3405471c37313ad5231ff7f6cd72",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_6.png",
+              "sha256": "7843d641b3094c53ecefada0da9be5034bb2722474edab4182c8bc5b2e990558",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_7.png",
+              "sha256": "0ff2ad15d909934169dfa64572020dcd02573119237b61bf90fa1c57da655ea3",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_10_1_8.png",
+              "sha256": "5f818ff617e7526902fd51dd34ad47b80fb0bd12cc9c006c4091392c3b3714b3",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            },
+            {
+              "name": "plate1_E02_11_1_10.png",
+              "sha256": "ed3866914fe87262261a0ef05f8322c01f9dfcbd2e73d2aaf9b218000d3d4199",
+              "shape": [
+                224,
+                224,
+                3
+              ],
+              "dtype": "uint8"
+            }
+          ],
+          "source_unchanged": true,
+          "shape": [
+            16,
+            512
+          ],
+          "spec": {
+            "backbone": "resnet18",
+            "channel_policy": "project",
+            "channels": null,
+            "batch_size": 4,
+            "device": "cpu",
+            "normalize": true
+          },
+          "spec_fingerprint": "441c81a54b7039ec",
+          "weights_sha256": "80c49dee3da4822c009c5a7fe591e9223c5a2cfcf95a4067ca4dfb5a7b89c612",
+          "packages": {
+            "numpy": "2.5.2",
+            "pandas": "2.3.3",
+            "torch": "2.13.0",
+            "timm": "1.0.29",
+            "Pillow": "12.3.0"
+          },
+          "helper_sha256": "afd77f8e3a6ce5db0ea74b6a6faa9172bd238e6fcfbe06a32ad1cada59434c6f",
+          "elapsed_seconds": 5.007448788965121,
+          "verification": {
+            "matrix_cells_checked": 8192,
+            "ordered_identities_match": true,
+            "npy_exact": true,
+            "csv_float32_exact": true
+          },
+          "gui_workflow_completed": false,
+          "biology_validated": false,
+          "stain_mapping_verified": false,
+          "artifacts": {
+            "input_crops.png": "0d54643f24d008c92192bbceb671bf33256d1e67b675de048dacf129776b401c",
+            "pca.png": "526755c772cfa441d42bc3eaf3dabba1462ade03f30d31746f25ebf31165366f",
+            "pca_coordinates.npy": "00cafff5cc000a4c3728a6e4004d2937caacedcef4dca1aa47b785fa4a43a8d1",
+            "vectors.csv": "19ce1f768b7a50219ca9f91ef39e7e81a6f5201844cffc3239c083589afb9eb3",
+            "vectors.npy": "8414d65766d0205d35def428a02b1457a3eb4f334c647bbf8641385bdcebc159"
+          }
+        }
+      ],
+      "figures": [
+        {
+          "scene": "05_input_crops",
+          "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/embeddings-recorded-cepyc8c7/per_channel/input_crops.png",
+          "sha256": "0d54643f24d008c92192bbceb671bf33256d1e67b675de048dacf129776b401c",
+          "viewer": "eog",
+          "window_title": "input_crops.png"
+        },
+        {
+          "scene": "06_per_channel_pca",
+          "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/embeddings-recorded-cepyc8c7/per_channel/pca.png",
+          "sha256": "09c94f26de6d83964af0ea2b7fbc560518dc4911ca013c42a497c156ecefe4ca",
+          "viewer": "eog",
+          "window_title": "pca.png"
+        },
+        {
+          "scene": "07_project_pca",
+          "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/embeddings-recorded-cepyc8c7/project/pca.png",
+          "sha256": "526755c772cfa441d42bc3eaf3dabba1462ade03f30d31746f25ebf31165366f",
+          "viewer": "eog",
+          "window_title": "pca.png"
+        }
+      ],
+      "private_work": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/embeddings-recorded-cepyc8c7",
+      "source_unchanged": true,
+      "helper_sha256": "afd77f8e3a6ce5db0ea74b6a6faa9172bd238e6fcfbe06a32ad1cada59434c6f",
+      "gui_workflow_completed": false,
+      "crops_injected": false,
+      "published": false
+    },
+    "source_hashes": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_gui/scientific_acceptance.json": "9138d194e985f1072d28c100caa482a2ebe5c0c5238f6b3edf8fad96dc70bd7d",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_api_readable/scientific_acceptance.json": "808e8fe2aefaa3b241589309655aa5d7f9bdf9164acc8860baaff41074f96f9a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_gui/provenance.json": "e78865faaaee5fc41664beb24c54c931346f48f0cc0bacb4746226a640083059",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_gui/frames.json": "f8f18fc8c5c5d49cde4fb6ddd1246798153f236d1c7c69e07791caec0f325856",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_gui/00_home.png": "e254516d957a6cc7e1cff811975aeca1620e82d0618ea1e5dda387250ff8ea22",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_gui/01_no_gui_crop_input.png": "93bef828cd03ab3c5eeccd0a8b71c2075c3dd47e51fd23f4229642444e20270d",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_gui/02_channel_policies.png": "729c8be51068e6fdd50dcc17a9203f33cc5d4a4be7824d63e53a2464fd6342f3",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_gui/03_project_selected.png": "775e6abb606560ffd20690edbf0e51b99e93887cfe14b38ec703153eb73f32a5",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_gui/04_per_channel_restored.png": "858bffbb452519a862fb6b5553a2568ed6abfd1a14e0631e1fbf2fa2762414f3",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_api_readable/provenance.json": "e8cbe4f875fff21dfa8b3e98cc4d901b08adc46833601734cbdc34a391945e54",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_api_readable/frames.json": "7e1efa564cbd5030b667f837f6a5de1a4cabc5cf8eea2542b3ef979495c55ddd",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_api_readable/00_version.png": "829153afea6f01ebec97c88eedff5b47cdfdcabf1ab69ef42e494f8e3fb3a523",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_api_readable/01_inputs.png": "a2b63fbdc1d8f6e17163ed6ee5cb69051072534406af460ddf4e6e27c7e4e9ed",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_api_readable/02_per_channel.png": "0e9cac24ad11590286c264f0ff9a7038eb2b0dc5b63206e9290c1a947cf9b2cd",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_api_readable/03_project.png": "9421272eccbcf5d25b9b6fbb3540bdf60803627f17a71162cc3af2bdc5370398",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_api_readable/04_provenance.png": "aec56a4d446be6b27d9ada48f03435c93ec724da3ec7c9f79f15938b14b73e91",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_api_readable/05_input_crops.png": "8b55b439b1eda6c976b419ee4e2c0f094d1996416a52b33a0902579ec23ca14a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_api_readable/06_per_channel_pca.png": "55eafb105af9e59843e695d29d2539b0599bc5d04387bb1661c6a6a15a7c5d05",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/embeddings_1507_api_readable/07_project_pca.png": "957eabdc7aabdf4644e747c2eb993ba3950ebe32aef3fe439f8d80998f5def3e"
+    },
+    "gui_workflow_completed": false,
+    "published": false
+  },
+  "matrix": {
+    "lesson": "77_embeddings",
+    "passed": true,
+    "canonical_english_sha256": "f5415671d988cad7353067d0a764a519bf90cb6134d0de803b90d50060678172",
+    "scene_count": 11,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "5cd4aa4004d9fcd352a373b6e769865f789d83f9328fdeba16f96acdf94058e9"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "d3b6be0d9be660357d76fe81d9b03cf7fd0a64aa389d1c97b67afbb4f51293d9"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "d8f26e1b3b2eebfced1fe129bec3c44dadeae9da77338278881693d43102d5ca"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "93311abad2ff6d5178d26e56b623d3d934b2156b43817e17ebba002fe98292af"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "822ff7fd2de89ac623c3cec718900e9ddf7f6c2a9670bc28b6374ab9f4351528"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "56998b4375568c951b653a876cff5770a97e4dcd3a22a522fdb0e07a95c1ff34"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "c5af4927237968bae1f7599614e747071ab58d3965d4685a3defa8ea6f331ea8"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "9daf9c13024836a4fac5e5d95f031ec477420ac5c9589f3cac740f9fefb24ac5"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "25548467c90d74ee99d0c4a5cdf5cf71cf7516ae6652d2408e92f2805e45579b"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "fcd39e2dfb0bf3521e37fef103bfda2ecdafebc208297d2c784466f5e69375a1"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "9c1ffb474d12fab720170396e1aff6f9116ea9a177f9047a78ffa09f23a89d09"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "ab2b043451a930048ebeafaa68a7bb93c7a27485b3a9003622c67fcca9822c1a"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "766cd4bf7642bc7ed95ecf14736c2bcd5ddfc2ea74cfb654b6c5a5f1131c4422"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "960934a17ab25b3b088e87ac90a75f90152c89c9942930918ce128ecee7cc1d5"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "372b843e6bb4f5ac790f0c1b79c92586fb87916bd11fcf3bb5b6f3330fd6a780"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "f02e5f33c591c20243598abfa0e4e547c109d13bd771cd732263696c3cb99115"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "f77022f64aebf197f0012616433830878435f46ddf1ae0163043f9d3440ce84d"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "49964b5da24ccc85ef1b93eb0e944a04b83c971daae7ffe6f11adefb194a386b"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "54669fe3ea88783d5b4b8c312fe6b4e468c5f1c7b6a44948516fec10d5dcb7b8"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "32e9d378803d44786c8e68977580d20b0d06b40aba84bad164f083a0e6fe0541"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "2f82de2133b39f896ec5e60e384f962f5e08859d482a6e45587500e17e460dc7"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "f2be47112506a6db6367832d894b69651df3b6a22b1f8c5279534bab369e4069"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "5fff99a413704969add20932db49d112f5f379a9aa45cdc3c29024848f6316e9"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "985678fac46eff7ce1cddbb66499b57cedd4e2d704e4f35106d09688bd3bd324"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "284984c755979b735c5ef5fe7620cc4f4afe298e6e4ff690bdf1d0539ea7d99a"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "261eacad9c8b3f52aa9565085853f346d772bcdabac809c5af19bea7ac4d8859"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "4b66b19c3feb2959b3696d937c31c27a79549a67056a33ef74fa63d5d9d2a085"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "86a9c11a91150f26a87252f807edbc1f9278043b241d2496466dba3fffe1b504"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "6ea8168cfbcb7e7e8285823f4f5713460fb59849e4a21f0ec8651173c61e404a"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "70cd8c0b83aa6bff453e21919c2e59042f274b0150804ee4d3a6139b026e608d"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "d685babff41f4e8abd04a2974491305cc07acab2f57c2479ed3f651431edf8f7"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "e44c6bc9cbbf0fa697dbe3ac29ab579233f42a43f933f45b495c227ed3476f8b"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "6f2bd0eec30db564e1c6d2e87d1317f5fa0199b78a68f7320f5599447af23e5d"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "ec39fb5afcfd4a94f7cb22a72eb30ec77e6f019eacb0ad70eb90709c57a26810"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "58a49662d020a805afe551205b141ca5fc43e83d129e9ccb67fc0fa8c4b8ca72"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "5a7fb52d35c366c8b7a83d33b5b9d5905cd1e2effe3ec460377bda34a5d16d0d"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "e39571229036f18b40163eb7dede618fc07457fd669cb99b389fc307d7f995d8"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "c4a578f77d5e8f23386db9ac96b63835fbad5194319aedc40c947d6f2a3fa9b1"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "ad3b5feb8497b4670d3272a3374023cdaa73b1e4a7a68dc9864ed5c44a90f606"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "f9ebea1ea7f7932abc997d5b844777f73d57e68ecec6994eeecd356807e8561c"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "f0741f1fbe7b6e85063d836ff5525aaa2866fb10edaea32c8d1302544e8772bc"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "fb4effce8c9a105517f0583c977579dd4b8c9ff5af202668e632d5ca7ca8c024"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "9488421ee21aee67a628b554f634d39a529e5fe7499dce0d2687e23d13d97632"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "93818e6ce019d967f88d3e32f4f72511f3881b2640b3a495acde649d27cb05c5"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "82acd946c10f9fbcd954222827775159f27620b8611ff6d5ebb909283bc4ec7c"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "ce6ba177185bb8823082f188bff657e3a14dbfa2e516723f08ca4ae9f51b0e1a"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "645bca8c6d2f08083685d30c52826445fb613bb525508b941daf3253c46c2117"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "8e5cd5eb0544be1a801b31264fa44daabeda95e26e8d6bc182a6e65d234d114e"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "3c8a915902cf4d8be11e221f663a11d66d73991ed7405d058921352aa1aa7bdd"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "4ba19f91c7eb4d4050905ece9f263827b75ce4b7458db7d054ccecf8b5ed10f2"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "95419da281f36d324b5cec366d88a1f57f4089ac6ee9b31f1fed68a66de4324e"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "490c87feb367107986e776dcd3f0e9b59644f9490590dd8b1aafd8e21108155f"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "3aaa9e0d262cc198c5ba694a61e49d8134f06609df99281aac22a2f4f45fb850"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "34c14e6328b61ca7adc7590c85cb39afbe7e692e80361880990c42946a60aad3"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "1835316692786058a276ec68d8c9a35b59becfa71137946ac3770fb4647c115c"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "ec17a06dc1371dd21628886a817ce41bcc7a5258dad77678d06aba100d6d02a4"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "4bfa4064bd97fe3b6a97f0d29a39f8092f808da2ccfb1fa56dd551213d059870"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "c9c86baa8af8dcc7925c006cde67e1186f6b3326f503338ed6394ae5a8b4cede"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "8ce9d82aeec17e3cc75ef9aeab64f8b8a76e5789302cb3ca2a1f7152f33c7f48"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "5f0963d3488e27b7c62864b6e464008a15a1322bcca6b72013a1a91159a96a8d"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "b951b20ac1a8e9810f13f98bdb653f208d7f5e238864d3a4ec2b831f0d3e987e"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "012dd229e17d14dc4aac82c5d869b01afd4c050cc0860cf0f727ddce4e2e8a8c"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "ee503c33366b1eb8e224cb93f33e23ede0cb408ff1e344a4ddfdc4b13b75431c"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "f5c655ecb5d2613b87b3c3dcad4a12daddb6ac72d17f63bb044cdeca3fdca5d7"
+      }
+    ],
+    "master_sha256": "e04d92bafc61e7f5680a713f1743e3ae42a5526f9273b22ac1dad26507cc5b86",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "5702"
+        }
+      ],
+      "format": {
+        "duration": "190.066667",
+        "size": "7344177"
+      }
+    },
+    "poster_sha256": "b56e5f93efe5cd5ecf9e36794f71527a4f1babb88566518dcf94f0d5bba9b522",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "candidate_manifest_sha256": "e96da7917abed42c29cfb547f85acae0f39b6340742167e44acc1002b01ec7a3",
+  "heart_timing_sha256": "1c95762fe9444a3504fdbe3badd0ee08b5410a368d6c96cebc120b393c63bd90",
+  "candidate_browser_case": {
+    "lesson": "77_embeddings",
+    "audio_sha256": "d8f26e1b3b2eebfced1fe129bec3c44dadeae9da77338278881693d43102d5ca",
+    "clocks": {
+      "audio": 31.743711,
+      "video": 31.63024,
+      "expected": 31.74482451847436,
+      "width": 2560,
+      "height": 1440,
+      "error": null,
+      "requested_audio_time": 30.37
+    },
+    "chapter_text_matches_audio": true,
+    "native_caption_reloads": 2,
+    "sentence_cue_checks": [
+      {
+        "requested_audio_time": 1.3425,
+        "text": "Embeddings is a new Home module in spaCR.",
+        "audio": 1.547059,
+        "video": 1.588438,
+        "cues": [
+          "Embeddings is a new Home module in spaCR."
+        ]
+      },
+      {
+        "requested_audio_time": 5.2525,
+        "text": "It turns image crops into numerical vectors without training on your annotations.",
+        "audio": 5.462268,
+        "video": 5.352349,
+        "cues": [
+          "It turns image crops into numerical vectors without training on your annotations."
+        ]
+      },
+      {
+        "requested_audio_time": 11.035,
+        "text": "This lesson demonstrates the current screen and a working Python example, using real downloaded images.",
+        "audio": 11.235341,
+        "video": 11.21425,
+        "cues": [
+          "This lesson demonstrates the current screen and a working Python example, using real downloaded images."
+        ]
+      },
+      {
+        "requested_audio_time": 18.6075,
+        "text": "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled.",
+        "audio": 18.813746,
+        "video": 18.765108,
+        "cues": [
+          "In version one point five point zero point seven, this screen has no crop-loading control, and Embed remains disabled."
+        ]
+      },
+      {
+        "requested_audio_time": 23.8675,
+        "text": "We will not simulate a successful GUI run.",
+        "audio": 24.059038,
+        "video": 24.12573,
+        "cues": [
+          "We will not simulate a successful GUI run."
+        ]
+      },
+      {
+        "requested_audio_time": 27.57,
+        "text": "The supported Python API performs the actual encoding shown next.",
+        "audio": 27.779362,
+        "video": 27.704608,
+        "cues": [
+          "The supported Python API performs the actual encoding shown next."
+        ]
+      },
+      {
+        "requested_audio_time": 32.775,
+        "text": "Per channel encodes each stored channel separately, then concatenates the vectors.",
+        "audio": 32.991964,
+        "video": 33.008422,
+        "cues": [
+          "Per channel encodes each stored channel separately, then concatenates the vectors."
+        ]
+      },
+      {
+        "requested_audio_time": 36.957499999999996,
+        "text": "Project to three encodes the combined image instead.",
+        "audio": 37.160047,
+        "video": 37.05622,
+        "cues": [
+          "Project to three encodes the combined image instead."
+        ]
+      },
+      {
+        "requested_audio_time": 40.35,
+        "text": "That changes the representation, not just its speed.",
+        "audio": 40.560471,
+        "video": 40.61298,
+        "cues": [
+          "That changes the representation, not just its speed."
+        ]
+      },
+      {
+        "requested_audio_time": 44.495000000000005,
+        "text": "A saved PNG slot is not automatically a verified stain identity.",
+        "audio": 44.706583,
+        "video": 44.635571,
+        "cues": [
+          "A saved PNG slot is not automatically a verified stain identity."
+        ]
+      },
+      {
+        "requested_audio_time": 49.362500000000004,
+        "text": "Install the optional embeddings extra in your spaCR environment.",
+        "audio": 49.584477,
+        "video": 49.57616,
+        "cues": [
+          "Install the optional embeddings extra in your spaCR environment."
+        ]
+      },
+      {
+        "requested_audio_time": 54.86750000000001,
+        "text": "The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model.",
+        "audio": 55.075743,
+        "video": 54.908826,
+        "cues": [
+          "The default ResNet eighteen uses ImageNet-supervised weights, not a cell-trained self-supervised model."
+        ]
+      },
+      {
+        "requested_audio_time": 61.370000000000005,
+        "text": "This small example uses the CPU; no GPU or remote AI service is required.",
+        "audio": 61.596536,
+        "video": 61.475626,
+        "cues": [
+          "This small example uses the CPU; no GPU or remote AI service is required."
+        ]
+      },
+      {
+        "requested_audio_time": 67.2575,
+        "text": "Use Annotate's downloadable example and the crop folder named in the instructions.",
+        "audio": 67.46904,
+        "video": 67.442798,
+        "cues": [
+          "Use Annotate's downloadable example and the crop folder named in the instructions."
+        ]
+      },
+      {
+        "requested_audio_time": 72.1825,
+        "text": "The linked helper selects sixteen existing images in sorted filename order.",
+        "audio": 72.402577,
+        "video": 72.185032,
+        "cues": [
+          "The linked helper selects sixteen existing images in sorted filename order."
+        ]
+      },
+      {
+        "requested_audio_time": 76.7425,
+        "text": "Each is two hundred twenty-four pixels square, with three stored channels.",
+        "audio": 76.953742,
+        "video": 76.87904,
+        "cues": [
+          "Each is two hundred twenty-four pixels square, with three stored channels."
+        ]
+      },
+      {
+        "requested_audio_time": 80.4325,
+        "text": "No resizing or new segmentation is performed.",
+        "audio": 80.653354,
+        "video": 80.450966,
+        "cues": [
+          "No resizing or new segmentation is performed."
+        ]
+      },
+      {
+        "requested_audio_time": 83.75,
+        "text": "Run the helper with a new output directory.",
+        "audio": 83.959766,
+        "video": 83.985312,
+        "cues": [
+          "Run the helper with a new output directory."
+        ]
+      },
+      {
+        "requested_audio_time": 87.39999999999999,
+        "text": "It calls embed_array with the real pretrained encoder and batches of four.",
+        "audio": 87.625643,
+        "video": 87.527308,
+        "cues": [
+          "It calls embed_array with the real pretrained encoder and batches of four."
+        ]
+      },
+      {
+        "requested_audio_time": 92.72,
+        "text": "Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions.",
+        "audio": 92.933097,
+        "video": 92.936117,
+        "cues": [
+          "Per-channel encoding produces sixteen rows and one thousand five hundred thirty-six dimensions."
+        ]
+      },
+      {
+        "requested_audio_time": 97.66749999999999,
+        "text": "The saved matrix is reopened and checked value by value.",
+        "audio": 97.890378,
+        "video": 97.713225,
+        "cues": [
+          "The saved matrix is reopened and checked value by value."
+        ]
+      },
+      {
+        "requested_audio_time": 101.5775,
+        "text": "Now choose project and a different output directory.",
+        "audio": 101.791143,
+        "video": 101.770966,
+        "cues": [
+          "Now choose project and a different output directory."
+        ]
+      },
+      {
+        "requested_audio_time": 105.3975,
+        "text": "The same images produce sixteen rows and five hundred twelve dimensions.",
+        "audio": 105.623513,
+        "video": 105.465602,
+        "cues": [
+          "The same images produce sixteen rows and five hundred twelve dimensions."
+        ]
+      },
+      {
+        "requested_audio_time": 110.35749999999999,
+        "text": "These combined-channel columns are not interchangeable with the earlier per-channel columns.",
+        "audio": 110.571387,
+        "video": 110.536306,
+        "cues": [
+          "These combined-channel columns are not interchangeable with the earlier per-channel columns."
+        ]
+      },
+      {
+        "requested_audio_time": 115.12,
+        "text": "Compare policies deliberately and retain the settings for each run.",
+        "audio": 115.343935,
+        "video": 115.138276,
+        "cues": [
+          "Compare policies deliberately and retain the settings for each run."
+        ]
+      },
+      {
+        "requested_audio_time": 119.28,
+        "text": "Inspect the actual input montage in the image viewer.",
+        "audio": 119.514469,
+        "video": 119.498484,
+        "cues": [
+          "Inspect the actual input montage in the image viewer."
+        ]
+      },
+      {
+        "requested_audio_time": 122.24,
+        "text": "Its numbers match the output row order.",
+        "audio": 122.463223,
+        "video": 122.374229,
+        "cues": [
+          "Its numbers match the output row order."
+        ]
+      },
+      {
+        "requested_audio_time": 125.8475,
+        "text": "Check crop quality and the export's channel mapping before interpreting vectors.",
+        "audio": 126.059752,
+        "video": 125.869905,
+        "cues": [
+          "Check crop quality and the export's channel mapping before interpreting vectors."
+        ]
+      },
+      {
+        "requested_audio_time": 131.625,
+        "text": "Filenames identify this example; validate the object keys before joining to a measurements database.",
+        "audio": 131.844806,
+        "video": 131.760602,
+        "cues": [
+          "Filenames identify this example; validate the object keys before joining to a measurements database."
+        ]
+      },
+      {
+        "requested_audio_time": 137.97500000000002,
+        "text": "This saved plot projects the per-channel vectors onto two principal components.",
+        "audio": 138.203135,
+        "video": 138.194748,
+        "cues": [
+          "This saved plot projects the per-channel vectors onto two principal components."
+        ]
+      },
+      {
+        "requested_audio_time": 141.82500000000002,
+        "text": "The numbered points refer to those same crops.",
+        "audio": 142.039974,
+        "video": 141.942406,
+        "cues": [
+          "The numbered points refer to those same crops."
+        ]
+      },
+      {
+        "requested_audio_time": 145.835,
+        "text": "It is exploratory visualization of a tiny sample, not proof of distinct phenotypes.",
+        "audio": 146.059583,
+        "video": 146.065401,
+        "cues": [
+          "It is exploratory visualization of a tiny sample, not proof of distinct phenotypes."
+        ]
+      },
+      {
+        "requested_audio_time": 150.44250000000002,
+        "text": "A single embedding dimension is not a biological measurement.",
+        "audio": 150.659309,
+        "video": 150.551407,
+        "cues": [
+          "A single embedding dimension is not a biological measurement."
+        ]
+      },
+      {
+        "requested_audio_time": 154.37500000000003,
+        "text": "The combined-channel vectors have their own projection.",
+        "audio": 154.600785,
+        "video": 154.592981,
+        "cues": [
+          "The combined-channel vectors have their own projection."
+        ]
+      },
+      {
+        "requested_audio_time": 159.00750000000005,
+        "text": "Do not compare axis coordinates across these separate plots as if they shared a fitted transformation.",
+        "audio": 159.220844,
+        "video": 159.113668,
+        "cues": [
+          "Do not compare axis coordinates across these separate plots as if they shared a fitted transformation."
+        ]
+      },
+      {
+        "requested_audio_time": 165.74250000000004,
+        "text": "Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel.",
+        "audio": 165.965441,
+        "video": 165.884849,
+        "cues": [
+          "Neither picture measures retrieval accuracy or establishes that embeddings outperform the hand-measured feature panel."
+        ]
+      },
+      {
+        "requested_audio_time": 172.46750000000003,
+        "text": "Keep the vectors, source identities, weights checksum, settings and package versions.",
+        "audio": 172.701193,
+        "video": 172.681423,
+        "cues": [
+          "Keep the vectors, source identities, weights checksum, settings and package versions."
+        ]
+      },
+      {
+        "requested_audio_time": 177.925,
+        "text": "The helper checks that source images remain unchanged and refuses existing destinations.",
+        "audio": 178.14691,
+        "video": 177.997484,
+        "cues": [
+          "The helper checks that source images remain unchanged and refuses existing destinations."
+        ]
+      },
+      {
+        "requested_audio_time": 183.18500000000003,
+        "text": "Match input crops, normalization and channel mapping between comparisons.",
+        "audio": 183.416318,
+        "video": 183.332873,
+        "cues": [
+          "Match input crops, normalization and channel mapping between comparisons."
+        ]
+      },
+      {
+        "requested_audio_time": 187.59000000000003,
+        "text": "Use the linked instructions to reproduce this API example.",
+        "audio": 187.809207,
+        "video": 187.849998,
+        "cues": [
+          "Use the linked instructions to reproduce this API example."
+        ]
+      }
+    ],
+    "passed": true
+  },
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "gui_workflow_completed": false,
+  "published": false
+}
