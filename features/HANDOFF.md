@@ -201,7 +201,7 @@ resolved location's HEAD.
 
 ## 0. THE FOUR LESSONS. READ THESE BEFORE YOU TOUCH ANYTHING.
 
-### 0a. Audit before you build — EIGHT files have been wrong about themselves
+### 0a. Audit before you build — TWENTY-SIX files have been wrong about themselves
 
 | file | said | was |
 |---|---|---|
@@ -217,6 +217,27 @@ resolved location's HEAD.
 **Read the code before building from any header.** Trailing notes beat the
 header; the code beats both. Twice this week the "missing" thing existed under
 a name nobody grepped for.
+
+**THERE IS NOW A CHECK, added 2026-09-13, and the count above went from eight
+to twenty-six the day it was written.** `69` is in the table above as an
+example from August; it was STILL saying "not started" on 2026-09-13, above its
+own heading reading "2026-08-13 - DONE. THE FILE'S 'not started' WAS WRONG, AND
+THIS IS THE SEVENTH". `119` closes with "Filed to done/ after re-reading the
+file rather than its header, which still said 'not started'" -- and did not
+change the header either.
+
+So this lesson has been learned, written down, and re-learned at least three
+times, which is the argument that reading is not the fix.
+`tests/test_a_ledger_file_does_not_contradict_itself.py` fails any file whose
+Status OPENS with a not-started claim while its trailing notes declare
+completion. Eighteen were corrected; five of those were found only by widening
+the pattern to the ledger's own `2026-08-13 - DONE` heading form, after
+thirteen rounds of reading had missed them.
+
+It is deliberately narrow and says so: only an unmistakable completion sentence
+counts, it checks one direction (the reverse sweep returns 31 healthy files),
+and it shares the index's blind spot on the eleven files at the top of
+`features/` that 398 is about.
 
 ### 0b. GREEN TESTS DO NOT MEAN THE FEATURE WORKS
 
