@@ -54,9 +54,27 @@ WHAT IS LEFT
 
 1. Promote nightly to main so the API pages reach the deployed site. Blocked
    only by the localization audit, which is red on the barcode modules.
-2. The tutorial. Lesson 12 `12_map_barcodes` is `status: coming_soon` in the
-   live catalog with no poster and no video. The screen is final, so it can
-   be recorded.
+2. The tutorial, and READ THIS BEFORE TOUCHING `coming_soon.py`. Lesson 12
+   `12_map_barcodes` is `status: coming_soon` because `'12_map_barcodes'` is
+   in `HELD` in `tools/tutorials/coming_soon.py`. It is TEMPTING to delete it
+   from that tuple, because unlike the other held lessons this one HAS its
+   assets already:
+
+       docs/source/_extra/tutorials/production/12_map_barcodes/poster.jpg
+       docs/source/_extra/tutorials/production/12_map_barcodes/video/
+           12_map_barcodes_silent.mp4
+
+   DO NOT. The recording is dated 2026-08-17. The feature landed 2026-09-12
+   in c753b7de7, "Map Barcodes finds its own settings, takes any number of
+   barcodes, and shows the reads". So that video is a tour of the old
+   three-barcode screen: no search, no automatic settings, no read view, no
+   arbitrary barcode count. Publishing it would document a screen the
+   application does not have, which is worse than saying "coming soon"
+   honestly.
+
+   What is needed is a RE-RECORDING against the current screen. That needs
+   the GUI and a person driving it, so it is the Codex session's under 325.
+   The screen is final as of c753b7de7; nothing further is queued.
 3. NOT a defect of this feature, but found by it: the screen name
    `Map Barcodes` is itself translated in 103 of 153 API blocks across nine
    languages -- Korean and Hindi lose it in all 17. `_PROTECTED_TERMS` in
