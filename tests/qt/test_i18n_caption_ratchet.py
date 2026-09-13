@@ -195,9 +195,42 @@ COMPACT_CAPTION_SHA256 = (
 # Catalogs first, ratchet second, as ever: all nine locales carry all 18 new
 # UI rows and the `embeddings` summary as of 0f3c6dace, and "Embeddings" has
 # its nine `_ROWS` translations. Verified before these numbers were touched.
+# 2026-09-13. Moved after a RECORD-BY-RECORD REVIEW against 8e9bd0b84, the
+# commit each of these counts was last set at -- and that mattered: the counts
+# had been edited piecemeal, so `SETTING_LABELS` was last moved at b5f367f47
+# while `UI` was last moved at 8e9bd0b84, and differencing against the wrong
+# one manufactured a 15-row discrepancy that does not exist. Every count below
+# reproduces exactly at 8e9bd0b84.
+#
+#   SETTINGS      1073 -> 1055      35 removed, 17 added
+#   UI            2856 -> 2988       0 removed, 132 added
+#   CATEGORY_HELP, MODULE_SUMMARIES  unchanged
+#
+# ALL 35 REMOVALS ARE `WITHDRAWN_SETTING_SUFFIXES`, none unexplained: the
+# intensity band retired across seven roles -- `area_multiplier`,
+# `intensity_percentile`, `intensity_threshold_method`,
+# `min_intensity_percentile`, `max_intensity_percentile`. `object_roles.py`
+# carries the reason: the band "dropped its share of objects however bright
+# the field, which is a quota rather than a filter".
+#
+# THE 17 ADDITIONS ARE ITS REPLACEMENTS AND TWO FEATURES. Seven
+# `<role>_intensity_threshold` -- one absolute threshold where the withdrawn
+# pair chose between a mean and a percentile; four `organelle*_background` and
+# four `organelle*_signal_to_noise` from the organelle channel expansion;
+# `remove_background_organelle`; and `barcode_set` for Map Barcodes.
+#
+# ALL 132 UI ADDITIONS RESOLVE TO A SOURCE FILE IN `spacr/qt`, none orphaned.
+# 24 are Map Barcodes. The other 108 are spread over twenty files that each
+# define a `_set_status` wrapper, and they are new to this table only because
+# the extractor could not see through that wrapper until today -- the strings
+# themselves have been on screen all along. The heaviest are convert (11),
+# batch (10), foreign (10), model_zoo (9), hyperparam (9), db_browser (7).
+#
+# Nothing in this move is a caption whose origin is unknown, which is the
+# question this ratchet exists to force.
 EXTERNAL_SOURCE_COUNTS = {
-    "SETTING_LABELS": 1073,
-    "SETTING_TOOLTIPS": 1068,
+    "SETTING_LABELS": 1055,
+    "SETTING_TOOLTIPS": 1050,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
@@ -205,7 +238,7 @@ EXTERNAL_SOURCE_COUNTS = {
     # reader the hover and tells them nothing. 201 -> 200 on 2026-09-11
     # with `save_to_db`, whose help text was one of them.
     "CATEGORY_HELP": 200,
-    "UI": 2856,
+    "UI": 2988,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -226,8 +259,11 @@ EXTERNAL_SOURCE_COUNTS = {
 # Moved again on 2026-09-12 with the counts above: 21 record identities
 # change, 18 arriving and 3 leaving, enumerated in the note over
 # EXTERNAL_SOURCE_COUNTS.
+# Moved again on 2026-09-13 with the counts above: 184 record identities
+# change, 149 arriving and 35 leaving, every one classified in the note over
+# EXTERNAL_SOURCE_COUNTS.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "3b0e3b3ccf71ab1ec2eda6bd0194844223acde28587bcdffad428f9316e3a6e7"
+    "944abd972215c4f5aa1dac9acd60b4e2e4500c4ef82c817727cfdfd02115794b"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
