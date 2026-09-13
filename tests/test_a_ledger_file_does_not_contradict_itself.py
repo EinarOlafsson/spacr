@@ -27,6 +27,36 @@ So this cannot catch every stale header. It catches the ones where the file
 states its own completion in words chosen to be unmistakable, and those are
 exactly the ones where a reader is most entitled to expect the header to agree.
 
+THE WORKLIST QUERY, WHICH IS WIDER THAN THE ASSERTION AND IS THE POINT. On
+2026-09-13 sixty-two headers were corrected, and this check asserts on only a
+subset of them. The rest were found by running the query below, reading each
+hit, and deciding. It over-reports on purpose -- a worklist may, an assertion
+may not:
+
+    import re, pathlib
+    CLOSE = re.compile(r"(?im)^(?:"
+      r"20\d\d-\d\d-\d\d\s*[-\u2013\u2014]+\s*(?:DONE|CLOSED|SHIPPED|COMPLETE)"
+      r"|INSTRUCTION \d+ IS COMPLETE|DONE[ ,]\s*20\d\d|STATUS:\s*DONE"
+      r"|CLOSING\.|STILL OWED:\s*nothing)")
+    SETTLED = re.compile(r"(?i)^\s*(done|closed|complete|resolved|substantially"
+                         r"|partly|future|blocked|built|superseded|in progress)")
+    for p in sorted(pathlib.Path("features").rglob("*.txt")):
+        t = p.read_text(errors="ignore")
+        m = re.search(r"^Status:\s*(.*)$", t, re.M)
+        if m and not SETTLED.match(m.group(1)) and CLOSE.search(t):
+            print(p.name, "|", m.group(1)[:60])
+
+SEARCH FOR ALL THE PHRASINGS AT ONCE. This ledger closes an item in at least
+four ways and I found them one at a time, over five passes, each time
+believing the previous sweep had been exhaustive:
+
+    a Status corrected off "not started"    20
+    a dated `2026-08-13 - DONE` heading      5 more, in a single run
+    a Status left reading "filed <date>"    18 more
+    a dated `-- CLOSED` or `-- SHIPPED`     11 more, then 4 more
+
+A sweep keyed on any one of them finds a fraction and reads as complete.
+
 THE OPPOSITE DIRECTION IS DELIBERATELY NOT CHECKED, and that is a measurement
 rather than an oversight. Sweeping for the reverse -- a Status saying DONE over
 a tail that mentions open work -- returns 31 files, and nearly all are correct:
