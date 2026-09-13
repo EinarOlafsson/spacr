@@ -42,11 +42,20 @@ anything**,
 > `--check` passes without it. Do not "repair" it back into a numbered list. and announce there before editing `setup.py`, `spacr/__init__.py`,
 `spacr/schema.py`, `spacr/accelerator.py` or `.github/**`.
 
-WHAT IS RELEASE-BLOCKING, from instruction 331 which splits the list into
-before and after the version bump: **288** (green CI, per-module coverage),
-**05** and **304** (the bump and Zenodo, both needing the maintainer), **316**
-(translations), and **01** (Windows self-update, code-complete and waiting only
-on publication).
+NOTHING IS RELEASE-BLOCKING ANY MORE. This paragraph used to name 288, 05,
+304, 316 and 01, carried over from instruction 331 which split the old list
+into before and after the version bump. That split was abolished on
+2026-09-12 when the maintainer replaced the instructions list with
+`features/new` and `features/future` and said plainly that NEITHER LIST
+BLOCKS A RELEASE. `00_INDEX.txt` has said so since; this file did not, and
+since the index tells every reader to come here first, the first thing a new
+session was told was the abolished rule. 1.5.0.7 shipped on 2026-09-12 with
+several of those five still open, which settles it by demonstration.
+
+What is left of that list is ordinary work: 288 (per-module coverage) and
+316 (translations) are open items like any other, 05 and 304 are done, and
+01 is code-complete. Section 1 below is the only thing that genuinely gates
+on someone other than the session doing the work.
 
 **314 CAME OFF THAT LIST ON 2026-09-04**, closed by the maintainer — "i never
 get that problem any more!" — and NOT by a fix: nothing was ever changed
