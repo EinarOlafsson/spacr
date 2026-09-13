@@ -336,6 +336,31 @@ Grep the module you are about to accuse, not just its callers.
 
 ### 3f. `pip -e` POINTED AT THE WRONG CHECKOUT, AND A CHECK CAN'T SEE IT
 
+**A LIVE INSTANCE ON THE HOST `carruthers`, measured 2026-09-13 01:33.** The
+paths below are from the other machine; the hazard is here too, and it is not
+a mispointed editable install this time. `pip -e` points where it should --
+
+    Editable project location: /home/carruthers/Documents/repo/spacr
+
+-- and that checkout is 2,505 COMMITS BEHIND `origin/nightly`, its HEAD being
+`cd92bc381` from 2026-09-09 21:47. It does NOT contain the Map Barcodes merge
+and does NOT contain 391's settings migration.
+
+So `import spacr` from anywhere that is not a worktree -- and therefore
+`spacr`, `spacr-qt`, and any script run from another directory -- gets code
+from 2026-09-09. That is the same consequence 3f records: the GUI runs against
+a tree days behind, and "I still see the bug" becomes impossible to interpret.
+
+NOT UPDATED BY THIS SESSION, ON PURPOSE. Another session is working in that
+checkout at exactly that commit, and pulling 2,505 commits under it would be
+the worst kind of help. Whoever owns it should decide. Reported rather than
+fixed, which is the same call 398 makes about the eleven files.
+
+THE CHECK IS ONE LINE and is worth running before trusting any GUI observation:
+
+    python -c "import spacr; print(spacr.__file__)" && \
+      git -C "$(python -c 'import spacr,os;print(os.path.dirname(os.path.dirname(spacr.__file__)))')" log -1 --format='%h %ci'
+
 FOUND AND FIXED 2026-08-18. `pip show spacr` reported
 
     Editable project location: /mnt/firecuda2/Claude/repo/spacr
