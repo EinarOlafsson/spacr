@@ -1040,7 +1040,32 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,398 -> 10,400 with 364's `split_role_setting` and
     # `surviving_setting_name`, the two public resolvers its migration adds.
     # 10,400 -> 10,401 with 391's `withdrawn_setting_reason`.
-    expected = 10_401
+    # 10,401 -> 10,478 on 2026-09-13, +77/-0, a pure admission for Map
+    # Barcodes (c753b7de7). By module, measured by diffing the doc-key set
+    # against 5a2825f67 rather than subtracting totals:
+    #
+    #     31  spacr.barcode_search   the new module, including its own
+    #                                module docstring
+    #     20  spacr.qt.screens       map_barcodes.BarcodeSearchPanel and its
+    #                                plan/card/install helpers
+    #     14  spacr.settings         BarcodeEntry, BarcodeSet and
+    #                                barcode_set_from_settings
+    #     12  spacr.qt.widgets       read_view.ReadView, ReadRow, BarcodeSpan
+    #
+    # THE NINE CATALOGS WERE REGENERATED AND REPAIRED BEFORE THIS NUMBER WAS
+    # TOUCHED, which is the order this file's own failure message asks for.
+    # Every locale went 10,401 -> 10,478 with +77/-0 and 7 entries refreshed
+    # in place; nothing was dropped in any language.
+    #
+    # AND THE BUILD WAS GREEN BEFORE THE AUDIT WAS. The rebuild wrote all ten
+    # catalogs cleanly and its closing audit then found the new prose
+    # untranslated in EIGHT of the nine languages. A repair pass fixed most of
+    # it. What remains is 16 blocks in four languages -- 13 Icelandic, one
+    # each in Chinese, Hindi and French -- where MADLAD's candidates damaged
+    # protected literals and the gates REFUSED them. Those stay English on
+    # purpose: English prose on an API page is a gap, and corrupted Icelandic
+    # that looks like a translation is worse.
+    expected = 10_478
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1073,7 +1098,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # docstring as well. The nine catalogs were regenerated against this
     # inventory before the number was touched, which is the order this
     # file's own message asks for.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_401
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_478
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
