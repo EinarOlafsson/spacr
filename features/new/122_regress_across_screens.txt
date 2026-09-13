@@ -2,7 +2,10 @@
 REGRESS ACROSS SCREENS: screenID, MERGED TABLES, AND A MEASUREMENT SEARCH
 ================================================================================
 
-Status:    filed 2026-08-16, not started.
+Status:    DONE IN ITS OWN SCOPE, corrected 2026-09-13. This said "not
+           started". The remaining leftover -- containment for the measurement
+           scan -- is instruction 114's subject and stays there rather than
+           being half-done here. Originally filed 2026-08-16.
 Requested: 2026-08-16 - "these screens share many of the same grnas and many
            measurements. so if a user say ran 2 screens they could
            theoretically easily plug in the independent variables and then the

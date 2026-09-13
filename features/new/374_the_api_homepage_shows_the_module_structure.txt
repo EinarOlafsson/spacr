@@ -2,7 +2,12 @@
 THE API HOMEPAGE MUST SHOW THE MODULE STRUCTURE THE REST OF spaCR SHOWS
 ================================================================================
 
-Status:    not started, filed 2026-09-02. MEASURED the same day; the numbers
+Status:    DONE, corrected 2026-09-13. This said "not started"; the whole
+           diff landed in commit ec4bc55dd (README.rst, docs/source/index.rst,
+           the autoapi index template, two generated blocks,
+           generate_readme_visuals.py and its test), under a message about
+           371 because a concurrent session committed everything staged.
+           Originally filed 2026-09-02. MEASURED the same day; the numbers
            below are what is on disk, not an impression.
 Requested: 2026-09-02 -- "the API homepage needs to reflect the new module
            structure like the readme does."

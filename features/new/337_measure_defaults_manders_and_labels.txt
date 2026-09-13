@@ -3,7 +3,11 @@ ONE MANDERS DEFINITION, SPATIAL MEASUREMENTS ON, AND THE RUN'S SETTINGS AS
 THE DEFAULTS
 ================================================================================
 
-Status:    not started
+Status:    DONE, corrected 2026-09-13. This said "not started" while the
+           notes at the foot of the file record PART 3 done and PART 4 done.
+           The one remaining item is explicitly NOT this file's -- six keys a
+           real run wrote that are not Measure settings, handed to the other
+           session in 325 rather than guessed at.
 Requested: 2026-09-01 — "remove the corrected manders settings in measure, and
            remove the depreceated incorrect manders measurements and just keep
            the new correct measurements. spacial measurements and object

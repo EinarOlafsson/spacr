@@ -2,7 +2,14 @@
 EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
 ================================================================================
 
-Status:    not started, filed 2026-09-02. Follows 362, which made the grid
+Status:    PARTLY DONE, corrected 2026-09-13. This said "not started".
+           The note at the foot records the Codex-owned 366b subset CLOSED --
+           `STILL_OWED` empty, `tests/test_every_module_lands_on_prose.py`
+           green at 82121ce1e -- and says 366 itself "remains open for its
+           README editorial work and any final rendered-page review in the
+           other session's lane". So: the measurable half is done, the
+           editorial half is open and is NOT this session's to take.
+           Originally filed 2026-09-02. Follows 362, which made the grid
            one size and six a row.
 Requested: 2026-09-02 -- "in the readme make the modual tiles the same size
            and on a grid where the distance to the mogule above, below left

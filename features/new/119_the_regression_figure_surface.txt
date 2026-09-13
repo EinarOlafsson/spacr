@@ -2,7 +2,12 @@
 THE REGRESSION FIGURE SURFACE: A GRID, A RESULTS TABLE, AND SPEED
 ================================================================================
 
-Status:    filed 2026-08-16, not started. THIS FILE IS THE INDEX for one
+Status:    DONE, corrected 2026-09-13 -- and this file already knew. Its
+           own closing note reads "Filed to done/ after re-reading the file
+           rather than its header, which still said 'not started'". The file
+           was moved and the header was not, so the sentence describing the
+           mistake sat directly beneath the mistake for four weeks.
+           Originally filed 2026-08-16. THIS FILE IS THE INDEX for one
            request that spans seven instructions -- see WHAT LIVES WHERE.
 Requested: 2026-08-16 - "The regression itself i working pretty well. but the
            figures being generated are verry slow, espessially the last

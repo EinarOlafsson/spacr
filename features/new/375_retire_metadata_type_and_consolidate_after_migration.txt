@@ -2,7 +2,11 @@
 RETIRE metadata_type AND consolidate, ONCE IMPORT HAS ACTUALLY REPLACED THEM
 ================================================================================
 
-Status:    not started, filed 2026-09-02. THE SCHEDULING HALF OF 363, which
+Status:    RESOLVED AS "NO CHANGE", corrected 2026-09-13. This said "not
+           started"; the note at the foot says steps 2 and 3 "ARE NOT DONE AND
+           WILL NOT BE" -- RETIRED_SETTINGS gains nothing, settings keeps both
+           keys, Mask's panel keeps both rows. A decision not to act is a
+           result, and this file reached one. Originally filed 2026-09-02. THE SCHEDULING HALF OF 363, which
            refused to do this in the same change and was right to.
 Requested: implied by 363 -- "Once this exists, `metadata_type` and
            `consolidate` are import concerns sitting in Mask's settings, and
