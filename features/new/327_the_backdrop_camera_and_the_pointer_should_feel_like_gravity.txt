@@ -1,7 +1,14 @@
 327 — THE BACKDROP CAMERA AND THE POINTER SHOULD FEEL LIKE GRAVITY
 ==================================================================
 
-Status:    (2), (3) AND (4) ARE DONE. (3) was wired by the OTHER session on
+Status:    DONE, 2026-09-13. Every part is closed and the note at the foot
+           of this file ends "NOTHING IS LEFT IN 327". This line led with the
+           part numbers rather than the state until 2026-09-13, so a reader
+           skimming the index saw a part-list where 391 and the others show a
+           word -- the same header-lags-the-file problem, in the one shape my
+           scan for it could not match, since nothing here said "open".
+
+           (2), (3) AND (4) ARE DONE. (3) was wired by the OTHER session on
            2026-09-09 as `TourPilot`, offered in Preferences as "Tour the
            interesting places".
 
