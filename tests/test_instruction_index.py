@@ -115,10 +115,21 @@ def test_the_counts_are_the_real_counts():
 
 
 def test_duplicate_instruction_numbers_are_ordered_by_filename():
-    """A duplicate numeric id must not inherit filesystem iteration order."""
+    """A duplicate numeric id must not inherit filesystem iteration order.
+
+    READS `new` AND `future`, THE FOLDERS THAT EXIST. This asked for "done"
+    until 2026-09-13, which was the folder's name before the rename. Nothing
+    errored: `_entries` globs a missing directory and gets nothing back, so
+    the assertion compared an empty list against its own sort and passed for
+    that reason. `new` carries 390 rows and eight duplicate ids -- 58, 82, 83,
+    84 among them -- which is precisely the case this test is named for, and
+    none of it was being read.
+    """
     tool = _tool()
-    rows = tool._entries("done")
-    assert rows == sorted(rows, key=lambda row: (int(row[0]), row[2]))
+    for folder in ("new", "future"):
+        rows = tool._entries(folder)
+        assert rows, f"{folder} is empty, so this test proves nothing"
+        assert rows == sorted(rows, key=lambda row: (int(row[0]), row[2]))
 
 
 def test_titles_are_read_from_both_instruction_formats():
