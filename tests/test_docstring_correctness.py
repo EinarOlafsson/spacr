@@ -2730,14 +2730,27 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # whose six fields -- anchor, fastq_files, other_samples, problem,
     # reference_tables, sample -- are therefore required ivars. Same shape as
     # the two 2026-09-10 additions above.
-    assert len(required_ivars) == 37
+    # 37 -> 38 on 2026-09-13: `spacr.settings.BarcodeEntry`, and it did NOT
+    # arrive -- it was already here. Commit ec3ee9132 rewrote its numpydoc
+    # `Parameters` block as `:ivar:` fields so the prose would split into
+    # translatable blocks, and `IVAR_FIELD` matches `:ivar name:` where it
+    # matched nothing before. Only `name` is a required parameter; the other
+    # six fields carry defaults, which is why one symbol brings one field.
+    #
+    #   A DOCSTRING FORMAT CHANGE MOVES THIS RATCHET, and that is the first
+    #   time it has happened here -- every previous move was a dataclass
+    #   arriving. Measured by set-differencing the symbol map against
+    #   0e619178c rather than by subtracting totals: exactly one symbol added,
+    #   none removed, no field set changed on any symbol present in both.
+    assert len(required_ivars) == 38
     # 156 -> 165 on 2026-09-10: nine fields across Alignment and
     # StitchedWell, the two dataclasses the count above admitted.
     # 165 -> 171, +6: the six fields of `BarcodeSearchPlan` named above.
     # The symbol count moved by one and the field count by six, which is the
     # pair worth asserting -- one moving without the other would mean a
     # dataclass changed shape rather than arrived.
-    assert sum(map(len, required_ivars.values())) == 171
+    # 171 -> 172, +1: `BarcodeEntry`'s `name`, per the note above.
+    assert sum(map(len, required_ivars.values())) == 172
     # 30 -> 32 and 145 -> 154: Alignment and StitchedWell again, with
     # their nine fields between them.
     # 32 -> 33 and 154 -> 160: `BarcodeSearchPlan` and its six fields. The
@@ -2745,13 +2758,19 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # what makes it a dataclass arriving rather than an ordinary callable
     # growing `:ivar:` fields -- the ordinary counterexamples below are
     # unchanged, and they are the control.
-    assert len(generated) == 33
-    assert sum(map(len, generated.values())) == 160
+    # 33 -> 34 and 160 -> 161: `BarcodeEntry`. The whole move is again in the
+    # GENERATED half and the ordinary counterexamples below are untouched,
+    # which is the control that says a dataclass was admitted rather than an
+    # ordinary callable growing `:ivar:` fields.
+    assert len(generated) == 34
+    assert sum(map(len, generated.values())) == 161
     # `dataclass_constructor` 31 -> 32: `BarcodeSearchPlan`. The namedtuple
     # bucket is unchanged, which is the part worth asserting -- a namedtuple
     # arriving here would be a different event.
     assert Counter(by_symbol[symbol].category for symbol in generated) == {
-        "dataclass_constructor": 32,
+        # 32 -> 33: `BarcodeEntry`, a dataclass. The namedtuple bucket is
+        # unchanged, which is the part worth asserting.
+        "dataclass_constructor": 33,
         "namedtuple_constructor": 1,
     }
     assert Counter(
@@ -2761,7 +2780,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     ) == {
         # 149 -> 155: the six fields of `BarcodeSearchPlan`. The namedtuple
         # bucket is unchanged.
-        "dataclass_constructor": 155,
+        # 155 -> 156: `BarcodeEntry`'s one required field, `name`.
+        "dataclass_constructor": 156,
         "namedtuple_constructor": 5,
     }
     assert len(ordinary) == 4
@@ -2780,7 +2800,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 32 -> 33, tracking `generated` above: every generated constructor
     # still documents every required field, which is what the zero on the
     # next line asserts and is the point of this test.
-    assert sum(not names for names in remaining.values()) == 33
+    # 33 -> 34, tracking `generated` above.
+    assert sum(not names for names in remaining.values()) == 34
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(
