@@ -130,3 +130,30 @@ NOTHING WAS DELETED, per the warning at the head of this file. The duplicate
 row is recorded here rather than removed, because removing it is a change to a
 generated table and belongs with the generator's next pass.
 
+--------------------------------------------------------------------------------
+2026-09-13 -- THIS IS HANDOFF TRAP 3c, COUNTED FROM THE OTHER END
+--------------------------------------------------------------------------------
+
+`HANDOFF.md` trap 3c says "`spacr.settings.tooltips` is NOT complete on
+import": six pipelines call `register_defaults` from their own module body, so
+a key is undocumented until that module is imported. Measured 2026-09-13,
+thirteen keys arrive late:
+
+    collision_max_distance  exclude_starved_wells  min_reads_per_well
+    on_error  on_error_attempts  on_error_backoff  position_effect_ratio
+    qc_data  starved_read_fraction  sweep_points  sweep_span
+    target_grnas_per_well  target_statistic
+
+`collision_max_distance` and `exclude_starved_wells` are in THIS item's 77.
+
+So the two are one fact: a setting registered from inside a module body is
+invisible to any tool that reads a module-scope table. Trap 3c is that fact
+seen by a tool reading the tooltip dict; the 77 is the same fact seen by a
+tool reading `expected_types`. They were filed days apart as separate things.
+
+THAT STRENGTHENS THE CONCLUSION ABOVE rather than changing it. The 77 is a
+property of the measurement, and here is the mechanism spelled out in a second
+place: not a population of dead rows, a population of live settings declared
+where the comparison vocabulary cannot see them. Anyone tempted to "clean up"
+this list should read trap 3c first.
+
