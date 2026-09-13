@@ -1,0 +1,73 @@
+397 SEVENTY-SEVEN API ROWS NAME A SETTING THAT DOES NOT EXIST
+=============================================================
+
+Status:    OPEN, filed 2026-09-12. Not blocking. Measured, not estimated.
+Requested: not requested -- found while clearing 391's own stale rows, and
+           filed rather than chased on the other session's advice: "a number
+           nobody has explained is worth an item, not an evening".
+Owner:     unassigned. `tools/build_setting_consumer_map.py` writes the table;
+           `spacr/qt/screens/setting_api_targets.py` is the table.
+
+--------------------------------------------------------------------------------
+THE MEASUREMENT
+--------------------------------------------------------------------------------
+
+`SETTING_API_TARGETS` maps a setting key to the module and symbol that reads
+it, and the Qt panels use it to point a setting's help at the right API page.
+Of its rows, 77 name a key that is NOT in `expected_types`:
+
+    has a tooltip but no type      21   blue_channel, columnID,
+                                        control_sgrnas, csv
+    known local-scope family       17   hit_bootstrap, hit_direction,
+                                        hit_effect, hit_fdr
+    bare word                       4   inputs, layout, measure, overwrite
+    other                          35   barcode_qc, cellpose_all,
+                                        cellpose_masks, collision_max_distance
+
+THE SEVENTEEN ARE PROBABLY FINE AND ARE THE KEY TO READING THE REST.
+`build_setting_consumer_map.py` documents its own reason for unioning the EN
+i18n catalog into its vocabulary: `hit_investigation_default_settings` builds
+a `tips` dict INSIDE the function body, so seventeen `hit_*` settings appear in
+a panel and in no module-scope table. They are real settings that
+`expected_types` cannot see. So "absent from expected_types" does NOT mean
+"does not exist", and anyone auditing this list by deletion will remove real
+settings.
+
+THE TWENTY-ONE ARE THE INTERESTING ONES. A key with a TOOLTIP but no
+`expected_types` entry is half-declared: it has prose a user can read and no
+type the loader can check. Either the type is missing or the tooltip outlived
+the setting, and the two are opposite defects with opposite fixes.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS, AND WHY IT IS NOT URGENT
+--------------------------------------------------------------------------------
+
+A row naming a dead key is a settings-help link pointing at a page for
+something that is not there. It is not a crash and no user has reported it.
+But 364's whole finding was that a rename strands every generated table keyed
+by setting name, and four settings went missing from the API exactly that way
+-- so a standing population of 77 unexplained rows is the same class of thing,
+sitting unexamined.
+
+  IT IS ALSO A BLIND SPOT IN A CHECK. Anyone measuring "did my change strand a
+  row?" has to subtract this 77 first, which is what happened on 391: the
+  count went 90 -> 77 and the useful signal was the 13, not the total. A
+  baseline nobody has explained makes every future measurement of that kind
+  harder to read.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  * SPLIT THE 77 BY CAUSE before fixing anything. Declared-elsewhere (the
+    `hit_*` shape) is not a defect. Tooltip-without-type is. A key nothing
+    reads is a third thing.
+  * FOR THE TOOLTIP-WITHOUT-TYPE TWENTY-ONE, decide per key whether the type
+    is missing or the tooltip is stale -- and note that adding a type is the
+    safer error, since `check_settings` then validates what a user typed.
+  * THEN PIN THE REMAINDER. Whatever cannot be explained should be a named,
+    committed list with a reason each, so the next person measuring stranded
+    rows can subtract a set rather than a number.
+
+DO NOT SIMPLY DELETE ROWS TO MAKE THE COUNT ZERO. The seventeen `hit_*` rows
+are the proof that the count is not the defect.
