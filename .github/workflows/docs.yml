@@ -66,7 +66,7 @@ jobs:
     #     AUDIT LOCALIZATION CATALOGS         24.2 min
     #     build docs                           3.8 min
     #
-    # The audit is the cost: ten API catalogs of 10,337 symbols and ten
+    # The audit is the cost: ten API catalogs of 10,478 symbols and ten
     # runtime catalogs, every one verified on every docs build. That is
     # 30 minutes of work against a 30 minute budget, so the job was going to
     # be flaky even on the runs it survived. Raising the ceiling is the fix
