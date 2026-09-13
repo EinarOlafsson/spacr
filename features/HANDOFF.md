@@ -136,7 +136,7 @@ nothing at all — it never enters the manifest.
 
 ## THE MEASUREMENT LESSONS OF 2026-09-13
 
-### Eighteen ledger files were wrong about their own state, and the ledger had already said so three times
+### Twenty ledger files were wrong about their own state, and the ledger had already said so three times
 
 The index header warns about this. So does `69`, whose heading reads
 "2026-08-13 - DONE. THE FILE'S 'not started' WAS WRONG, AND THIS IS THE
@@ -147,7 +147,7 @@ change. **Noticing was never the scarce step.**
 
 `tests/test_a_ledger_file_does_not_contradict_itself.py` now fails a file whose
 Status OPENS with a not-started claim while its trailing notes declare
-completion. Thirteen files were found by reading; WIDENING THE PATTERN to the
+completion. Fifteen files were found by reading; WIDENING THE PATTERN to the
 ledger's own `2026-08-13 - DONE` heading form found five more in one run,
 including 69 itself. Only one direction is checked, and the docstring measures
 why: the reverse sweep returns 31 files and nearly all are healthy.
@@ -201,7 +201,7 @@ resolved location's HEAD.
 
 ## 0. THE FOUR LESSONS. READ THESE BEFORE YOU TOUCH ANYTHING.
 
-### 0a. Audit before you build — TWENTY-SIX files have been wrong about themselves
+### 0a. Audit before you build — TWENTY-EIGHT files have been wrong about themselves
 
 | file | said | was |
 |---|---|---|
@@ -219,7 +219,7 @@ header; the code beats both. Twice this week the "missing" thing existed under
 a name nobody grepped for.
 
 **THERE IS NOW A CHECK, added 2026-09-13, and the count above went from eight
-to twenty-six the day it was written.** `69` is in the table above as an
+to twenty-eight the day it was written.** `69` is in the table above as an
 example from August; it was STILL saying "not started" on 2026-09-13, above its
 own heading reading "2026-08-13 - DONE. THE FILE'S 'not started' WAS WRONG, AND
 THIS IS THE SEVENTH". `119` closes with "Filed to done/ after re-reading the
@@ -230,7 +230,7 @@ So this lesson has been learned, written down, and re-learned at least three
 times, which is the argument that reading is not the fix.
 `tests/test_a_ledger_file_does_not_contradict_itself.py` fails any file whose
 Status OPENS with a not-started claim while its trailing notes declare
-completion. Eighteen were corrected; five of those were found only by widening
+completion. TWENTY were corrected; five of those were found only by widening
 the pattern to the ledger's own `2026-08-13 - DONE` heading form, after
 thirteen rounds of reading had missed them.
 
