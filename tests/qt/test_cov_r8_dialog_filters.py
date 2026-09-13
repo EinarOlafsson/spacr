@@ -74,7 +74,18 @@ def test_one_installer_that_raises_does_not_stop_the_others(qapp,
         ("spacr_fake_filters", "also_good"),
     ))
 
-    with caplog.at_level("DEBUG"):
+    # NAME THE LOGGER. Bare `caplog.at_level("DEBUG")` lowers the ROOT logger
+    # only, and `install_the_dialog_filters` logs through `spacr.qt.app`. If
+    # any earlier test in the process has left a level on `spacr` -- which the
+    # console level policy does, and which `tests/qt/conftest.py` has a fixture
+    # to restore precisely because it is process-global -- the DEBUG record is
+    # filtered on the way UP and never reaches caplog's handler at all.
+    #
+    # Measured 2026-09-13, found by the full-suite sweep: this test passes
+    # alone and fails inside a 60-file batch with `assert 'bad' in ''`. Staging
+    # `logging.getLogger("spacr").setLevel(logging.INFO)` in a plugin
+    # reproduces it exactly.
+    with caplog.at_level("DEBUG", logger=app_module.LOG.name):
         installed = app_module.install_the_dialog_filters(qapp)
 
     assert ran == ["good", "also_good"], "a later installer was skipped"
