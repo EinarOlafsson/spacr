@@ -212,6 +212,58 @@ def refuse_if_stale(repo: Path, branches: Sequence[str]) -> None:
           "\n\nNothing was changed.")
 
 
+def resolve_dropped_conflicts(
+    repo: Path,
+    conflicts: Sequence[str],
+    folders: Sequence[str],
+    out,
+) -> None:
+    """Settle merge conflicts that lie inside folders about to be dropped.
+
+    EVERY PROMOTION AFTER THE FIRST ONE HITS THESE, and they are not real
+    conflicts. `target` deleted the working folders in its own "drop"
+    commit; `source` went on editing them, because that is where the work
+    is written. Git sees delete-here, modify-there and stops -- on files
+    the very next step removes from `target` again.
+
+    Taking `source`'s version is therefore not a judgement call about whose
+    content wins. The content is about to leave `target`'s index either
+    way; resolving simply lets the merge record that `source` is an
+    ancestor, which is what makes the NEXT promotion a clean fast merge
+    rather than a replay of the same collisions.
+
+    A conflict OUTSIDE those folders is a different animal -- two people
+    editing the product -- and stops the promotion for a human.
+
+    :param repo: the working tree, already on ``target`` mid-merge.
+    :param conflicts: paths git reports as unmerged.
+    :param folders: the directory prefixes this promotion drops.
+    :param out: where progress is written.
+    :raises PromotionError: when any conflict falls outside ``folders``.
+    """
+    prefixes = tuple(f"{folder.rstrip('/')}/" for folder in folders)
+    outside = [path for path in conflicts
+               if not path.startswith(prefixes)]
+    if outside:
+        run_git(repo, "merge", "--abort", check=False)
+        raise PromotionError(
+            "the merge conflicts outside the folders this promotion drops:"
+            "\n" + "\n".join(f"  {path}" for path in outside)
+            + "\n\nThose are edits to the product itself and need a person. "
+              "The merge was aborted and nothing was changed.")
+    print(f"settling {len(conflicts)} conflict"
+          f"{'' if len(conflicts) == 1 else 's'} inside the dropped folders",
+          file=out)
+    for path in conflicts:
+        # `git rm` rather than `add`: the path is deleted on target and the
+        # next step drops it anyway, so staging the deletion resolves the
+        # conflict without carrying content into a tree that will not keep
+        # it. The file stays on disk and stays tracked on source.
+        run_git(repo, "rm", "-r", "--quiet", "--force", "--", path,
+                check=False)
+        run_git(repo, "add", "-A", "--", path, check=False)
+
+
 def promote(
     repo: Path,
     source: str = DEFAULT_SOURCE,
@@ -311,7 +363,16 @@ def promote(
     run_git(root, "checkout", target)
     try:
         print(f"merging {source}", file=out)
-        run_git(root, "merge", "--no-ff", "-m", merge_message, source)
+        merged = run_git(root, "merge", "--no-ff", "-m", merge_message,
+                         source, check=False)
+        conflicts = [line for line in
+                     run_git(root, "diff", "--name-only", "--diff-filter=U",
+                             check=False).splitlines() if line]
+        if conflicts:
+            resolve_dropped_conflicts(root, conflicts, folders, out)
+            run_git(root, "commit", "--no-edit")
+        elif merged is None:
+            pass
 
         # Asked again, of the target, AFTER the merge: the merge is what
         # brings the folders across, and a folder retired on source between

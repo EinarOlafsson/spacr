@@ -278,3 +278,60 @@ class TestAStaleLocalBranchIsRefused:
         """A fresh clone with no remote must still be promotable."""
         assert promote_to_main.upstream_gap(repo, "nightly") is None
         assert promote_to_main.main(["--repo", str(repo)]) == 0
+
+
+class TestASecondPromotionAfterTheFoldersMovedOn:
+    """The collision every promotion after the first one actually hits.
+
+    `main` deleted the working folders in its own drop commit. `nightly`
+    kept editing them, because that is where the work is written. Git then
+    reports modify/delete on files the very next step removes from `main`
+    again -- eight of them on 2026-09-13, which stopped a promotion whose
+    product changes were entirely clean.
+    """
+
+    @staticmethod
+    def _promote(repo: Path) -> int:
+        return promote_to_main.main(["--repo", str(repo), "--execute"])
+
+    def test_a_modified_working_file_does_not_stop_the_promotion(self, repo):
+        assert self._promote(repo) == 0
+        git(repo, "checkout", "--quiet", "nightly")
+        write(repo / "features" / "future" / "250_public.txt",
+              "the instruction, edited after the first promotion\n")
+        write(repo / "spacr" / "second.py", "def second():\n    return 2\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "--quiet", "-m", "more work, and more notes")
+
+        assert self._promote(repo) == 0
+        assert not (tracked(repo, "main") & WORKING_PATHS)
+        assert "spacr/second.py" in tracked(repo, "main")
+
+    def test_the_source_still_tracks_them_afterwards(self, repo):
+        self._promote(repo)
+        git(repo, "checkout", "--quiet", "nightly")
+        write(repo / "features" / "future" / "250_public.txt", "edited\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "--quiet", "-m", "edit the notes")
+        self._promote(repo)
+        assert WORKING_PATHS <= tracked(repo, "nightly")
+
+    def test_a_conflict_in_the_product_still_stops_it(self, repo, capsys):
+        """A real collision must not be swept up with the bookkeeping ones."""
+        self._promote(repo)
+        git(repo, "checkout", "--quiet", "main")
+        write(repo / "spacr" / "feature.py", "def feature():\n    return 'main'\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "--quiet", "-m", "main edits the product")
+        git(repo, "checkout", "--quiet", "nightly")
+        write(repo / "spacr" / "feature.py", "def feature():\n    return 'nightly'\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "--quiet", "-m", "nightly edits the product")
+
+        before = git(repo, "rev-parse", "main")
+        assert self._promote(repo) != 0
+        captured = capsys.readouterr()
+        printed = captured.out + captured.err
+        assert "outside the folders" in printed, printed
+        assert "spacr/feature.py" in printed, printed
+        assert git(repo, "rev-parse", "main") == before
