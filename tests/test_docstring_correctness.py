@@ -1989,7 +1989,23 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # noticing: `spacr.utils.merge_split_objects` lost five relative
     # settings and gained one absolute threshold, so the surface grew by a
     # callable while shrinking by three parameters.
-    assert len(callables) == len(by_symbol) == 8_588
+    # 8,588 -> 8,651 on 2026-09-13, +63 and nothing removed. Every one of
+    # the 63 is Map Barcodes (c753b7de7), which is worth stating because the module
+    # breakdown looks at first like four separate changes:
+    #
+    #     25  spacr.barcode_search      the new module: 5 dataclass
+    #                                   constructors, 8 methods, 12 functions
+    #     20  spacr.qt.screens          map_barcodes.BarcodeSearchPanel and
+    #                                   its plan/card/install helpers
+    #     11  spacr.qt.widgets          read_view.ReadView, ReadRow,
+    #                                   BarcodeSpan and barcode_colours
+    #      7  spacr.settings            BarcodeEntry, BarcodeSet and
+    #                                   barcode_set_from_settings
+    #
+    # Measured by diffing the symbol set against 5a2825f67, not by
+    # subtracting totals: a +63 that was really +64/-1 would read the same
+    # from the total alone, and this test exists to catch exactly that.
+    assert len(callables) == len(by_symbol) == 8_651
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2019,12 +2035,19 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # it lands in this bucket and in no other. A count that moved here
     # WITHOUT the total moving, or the other way round, would mean a
     # symbol changed category rather than arrived.
+    # All five moving categories are Map Barcodes (c753b7de7), +63 in total
+    # and the per-category split is the evidence that they ARRIVED rather
+    # than changed category: function +18, method +33, constructor +2,
+    # dataclass_constructor +8, namedtuple_constructor +2. Nothing was
+    # removed, and the two unmoved buckets (exception_constructor,
+    # inherited_or_default_constructor) are the ones a recategorisation
+    # would have disturbed.
     assert Counter(item.category for item in callables) == {
-        "function": 3_727,
-        "method": 3_804,
-        "constructor": 394,
-        "dataclass_constructor": 459,
-        "namedtuple_constructor": 6,
+        "function": 3_745,
+        "method": 3_837,
+        "constructor": 396,
+        "dataclass_constructor": 467,
+        "namedtuple_constructor": 8,
         "exception_constructor": 142,
         "inherited_or_default_constructor": 56,
     }
@@ -2041,8 +2064,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # in a rendered module is exposed by autoapi and by nothing else, so
     # `cli_only` and `compatibility` are unmoved. Those two are the buckets
     # that would catch a symbol reaching the user by some other route.
+    # `autoapi` 8,583 -> 8,646, the same +63: every Map Barcodes callable is
+    # rendered by autoapi and by nothing else, so `cli_only` and
+    # `compatibility` are unmoved. Those two are the buckets that would catch
+    # a symbol reaching the user by some other route.
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_583,
+        "autoapi": 8_646,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2069,9 +2096,16 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # variants keep tracking callables one for one and the seven two-variant
     # entries are unchanged. That last part is the one worth asserting -- a
     # new overload pair would be a different event from a new callable.
-    assert sum(item.variant_count for item in callables) == 8_595
+    # 8,595 -> 8,658, the same +63: none of the Map Barcodes callables
+    # carries a second prose variant, so variants keep tracking callables one
+    # for one and the seven two-variant entries are unchanged. That last part
+    # is the one worth asserting -- a new overload pair would be a different
+    # event from a new callable.
+    assert sum(item.variant_count for item in callables) == 8_658
+    # The single-variant bucket 8,581 -> 8,644, the same +63, and the
+    # two-variant bucket is unchanged at 7.
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_581,
+        1: 8_644,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2099,12 +2133,19 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # screen: a QWidget subclass, so it is a `constructor` rather than a
     # `dataclass_constructor`, and its `__init__` carries prose. Every
     # other new callable this day is a function, a method or a dataclass.
+    # 394 -> 396 on 2026-09-13, and BOTH sums move together, which is the
+    # shape that says constructors were added rather than docstrings lost.
+    # The two are `spacr.qt.screens.map_barcodes.BarcodeSearchPanel` and
+    # `spacr.qt.widgets.read_view.ReadView` -- QWidget subclasses, so they
+    # are `constructor` rather than `dataclass_constructor`, and both
+    # `__init__` carry prose. Every other Map Barcodes callable is a
+    # function, a method or a dataclass.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 394
+    ) == 396
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 394
+    ) == 396
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -2151,10 +2192,25 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # parameter, so this moves by one alongside the callable count. A
     # parameter total that moved WITHOUT the callable count moving would
     # mean an existing signature changed, which is a different event.
-    assert sum(len(item.parameters) for item in callables) == 17_063
+    # 17,063 -> 17,192 on 2026-09-13, +129, AND THIS ONE DID NOT TRACK THE
+    # CALLABLE COUNT -- which is the event the note above says to look for.
+    # The 63 new Map Barcodes callables carry 127 parameters between them.
+    # The other two are a signature change to callables that already existed:
+    #
+    #     spacr.sequencing.paired_read_chunked_processing  +barcode_set
+    #     spacr.sequencing.single_read_chunked_processing  +barcode_set
+    #
+    # Both optional, which is why the REQUIRED sum below moves by exactly the
+    # 86 the new callables bring and not by 88. Measured by diffing per-symbol
+    # parameter sets against 5a2825f67, not inferred from the totals: +129
+    # against +127 is a two-parameter discrepancy that a total alone reports
+    # as an unremarkable increase.
+    assert sum(len(item.parameters) for item in callables) == 17_192
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
-    assert sum(len(item.required_parameters) for item in callables) == 8_669
+    # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
+    # has a default on both sequencing functions, so neither is required.
+    assert sum(len(item.required_parameters) for item in callables) == 8_755
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -2182,7 +2238,23 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # way: the digest recomputed without `split_role_setting` and
     # `surviving_setting_name` returns 28dea135..., the previous pin, byte
     # for byte. Nothing else among 8,587 symbols moved.
-    ) == "d21a9ee171e9bcc4cd5db58f363cbd72ef3a399e97d4a2619c4a2a1cd8cae752"
+        #
+    # Moved again 2026-09-13 for Map Barcodes, and PROVED the same way
+    # rather than bumped. The digest recomputed over the 8,588 baseline
+    # symbols -- the 63 arrivals dropped and the two changed lines restored
+    # to their 5a2825f67 form -- returns d21a9ee1..., the previous pin, byte
+    # for byte. So the whole move is those 63 plus `barcode_set` on the two
+    # sequencing functions, and nothing else among 8,588 symbols changed
+    # category, exposure, parameter names or variant counts.
+    #
+    # THE FIRST SUBTRACTION I TRIED DID NOT MATCH, and the reason is worth
+    # keeping: I restored `parameters` on the two sequencing functions and
+    # forgot `accepted_documented_parameters`, which gained `barcode_set`
+    # too because the docstrings were updated in the same commit. A digest
+    # that failed to match would have read as "something unexplained moved"
+    # when what had actually moved was my reconstruction. Subtract using the
+    # recorded baseline LINE, not a field-by-field rebuild of it.
+) == "487529aa5a65899e84b7948f9a6deece4c56bf5a50ee3aeadbd794dbdc5a092a"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2583,7 +2655,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # for: the two are measured by different code and agreeing is the
     # evidence. One moving alone would mean the two disagree about what the
     # public surface is.
-    assert len(docs) == 10_401
+    # 10,401 -> 10,478 on 2026-09-13, +77 for Map Barcodes (c753b7de7). The extractor's
+    # own pin moved in the same change and by the same amount, which is what
+    # this cross-check is for: the two are measured by different code and
+    # agreeing is the evidence. One moving alone would mean the two disagree
+    # about what the public surface is.
+    assert len(docs) == 10_478
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -2604,7 +2681,11 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 8,579 -> 8,580, the same single arrival: `border_rules_agree` is
     # rendered AND documented, so it lands in both this set and the
     # extractor's, which is what makes the two halves agree.
-    assert len(rendered_documented_callables) == 8_583
+    # 8,583 -> 8,646, the same +63 as the total: every Map Barcodes callable
+    # is both rendered and documented, so this tracks the inventory instead
+    # of diverging from it. A divergence here would mean a new callable that
+    # the API pages do not render.
+    assert len(rendered_documented_callables) == 8_646
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2644,16 +2725,33 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 34 -> 36 on 2026-09-10: `ops_phenotype.Alignment` and
     # `ops_stitch.StitchedWell`, both dataclasses whose constructors
     # are generated and whose fields are therefore required ivars.
-    assert len(required_ivars) == 36
+    # 36 -> 37 on 2026-09-13: `spacr.qt.screens.map_barcodes
+    # .BarcodeSearchPlan`, a dataclass whose constructor is generated and
+    # whose six fields -- anchor, fastq_files, other_samples, problem,
+    # reference_tables, sample -- are therefore required ivars. Same shape as
+    # the two 2026-09-10 additions above.
+    assert len(required_ivars) == 37
     # 156 -> 165 on 2026-09-10: nine fields across Alignment and
     # StitchedWell, the two dataclasses the count above admitted.
-    assert sum(map(len, required_ivars.values())) == 165
+    # 165 -> 171, +6: the six fields of `BarcodeSearchPlan` named above.
+    # The symbol count moved by one and the field count by six, which is the
+    # pair worth asserting -- one moving without the other would mean a
+    # dataclass changed shape rather than arrived.
+    assert sum(map(len, required_ivars.values())) == 171
     # 30 -> 32 and 145 -> 154: Alignment and StitchedWell again, with
     # their nine fields between them.
-    assert len(generated) == 32
-    assert sum(map(len, generated.values())) == 154
+    # 32 -> 33 and 154 -> 160: `BarcodeSearchPlan` and its six fields. The
+    # whole of the 36 -> 37 move above is in the GENERATED half, which is
+    # what makes it a dataclass arriving rather than an ordinary callable
+    # growing `:ivar:` fields -- the ordinary counterexamples below are
+    # unchanged, and they are the control.
+    assert len(generated) == 33
+    assert sum(map(len, generated.values())) == 160
+    # `dataclass_constructor` 31 -> 32: `BarcodeSearchPlan`. The namedtuple
+    # bucket is unchanged, which is the part worth asserting -- a namedtuple
+    # arriving here would be a different event.
     assert Counter(by_symbol[symbol].category for symbol in generated) == {
-        "dataclass_constructor": 31,
+        "dataclass_constructor": 32,
         "namedtuple_constructor": 1,
     }
     assert Counter(
@@ -2661,7 +2759,9 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         for symbol in generated
         for _name in generated[symbol]
     ) == {
-        "dataclass_constructor": 149,
+        # 149 -> 155: the six fields of `BarcodeSearchPlan`. The namedtuple
+        # bucket is unchanged.
+        "dataclass_constructor": 155,
         "namedtuple_constructor": 5,
     }
     assert len(ordinary) == 4
@@ -2677,7 +2777,10 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 30 -> 32, tracking `generated` above: every generated constructor
     # still documents every required field, which is what the zero on
     # the next line asserts and is the point of this test.
-    assert sum(not names for names in remaining.values()) == 32
+    # 32 -> 33, tracking `generated` above: every generated constructor
+    # still documents every required field, which is what the zero on the
+    # next line asserts and is the point of this test.
+    assert sum(not names for names in remaining.values()) == 33
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(
@@ -2864,7 +2967,26 @@ def test_no_new_undocumented_required_public_parameters():
     # was an omission rather than a rendered docstring. The ratio is the
     # same point the note above makes in the other direction -- a surface
     # that shrinks by twelve moves this by one.
-    assert len(omissions) == 2_280
+    # 2,280 -> 2,279 on 2026-09-13, and the arithmetic is worth reading
+    # because the number went the wrong way first. Map Barcodes (c753b7de7)
+    # added `spacr/barcode_search.py`, and this test went red at 2,318:
+    #
+    #   ADMITTED  +39. Five frozen dataclasses -- BarcodeTable,
+    #             OrientationFinding, BarcodeSearchReport, ProposedMapping
+    #             and BarcodeHit -- each carrying a good class docstring and
+    #             no `:param:` for its fields. A dataclass field IS a
+    #             required parameter of the synthesised `__init__`, which is
+    #             why they land here at all.
+    #   RESOLVED  -1. `spacr.qt.screens.map_barcodes.install_folds:screen`,
+    #             documented by the same commit. Both halves are one lane's.
+    #
+    # The 39 are now documented rather than admitted, which is what takes
+    # the total BELOW its old baseline: 2,280 - 1 = 2,279. Documenting them
+    # was the right call and not merely the tidy one -- 434 of the 481
+    # public dataclasses in the tree already document their fields, so
+    # admitting these five would have made the new module the exception to
+    # a convention it had no reason to break.
+    assert len(omissions) == 2_279
     # 1,635 -> 1,633: two of the six retired accessors were omissions.
     # 1,633 -> 1,636 on 2026-09-10, +2 function and +1 method against a
     # surface that grew by 69 -- the OPS modules document their
@@ -2872,21 +2994,37 @@ def test_no_new_undocumented_required_public_parameters():
     # 1,636 -> 1,635, -1: one of the ten withdrawn callables omitted a
     # parameter. Nine of the ten documented theirs, which is the same
     # ratio the OPS note above records in the other direction.
-    assert sum(omitted_callables.values()) == 1_635
+    # 1,635 -> 1,634 on 2026-09-13, -1. The five Map Barcodes dataclasses
+    # were documented rather than admitted, so they never enter this count,
+    # and what remains is `install_folds` -- documented by the same commit.
+    # A new module that adds 63 callables and moves this by MINUS one is the
+    # ratio the OPS note above describes: documented surface does not land
+    # here however much of it there is.
+    assert sum(omitted_callables.values()) == 1_634
+    # `function` 756 -> 755, the -1 above: `install_folds`, documented by
+    # the Map Barcodes commit itself. Every other bucket is unmoved, because
+    # the five new dataclasses were documented rather than admitted.
     assert omitted_callables == {
-        "function": 756,
+        "function": 755,
         "method": 835,
         "dataclass_constructor": 42,
         "namedtuple_constructor": 2,
     }
+    # `function` 1,127 -> 1,126, the one parameter of `install_folds`.
     assert omitted_parameters == {
-        "function": 1_127,
+        "function": 1_126,
         "method": 1_011,
         "dataclass_constructor": 130,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "69a9bd1b622a1fd2a5ff9be8b0487c1a95421a0d9d66b6be1394f205bf1668ba"
+        # Moved 2026-09-13 and proved by subtraction: the digest recomputed
+        # with `spacr.qt.screens.map_barcodes.install_folds:screen` added
+        # back returns 69a9bd1b..., the previous pin, byte for byte. That
+        # single re-added line is the whole difference -- the 39 Map
+        # Barcodes dataclass fields never entered this set, because they
+        # were documented rather than admitted.
+        "c1cd7923245cad6196d2c0ca7ccbedaf46dd4030db8e452581f3f0be57d821a0"
     )
 
 

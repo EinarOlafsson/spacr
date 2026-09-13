@@ -22,8 +22,13 @@ builder = importlib.import_module("build_documentation_i18n")
 # investigator's /tmp report while still proving that all exact audited ids
 # remain represented.  A source/API change requires regenerating and reviewing
 # that report before deliberately updating either digest.
+# Moved 2026-09-13 for Map Barcodes and proved by subtraction rather than
+# regenerated blind: the digest recomputed without the five admitted dunders
+# (BarcodeTable.__post_init__, BarcodeEntry.__post_init__, and BarcodeSet's
+# __post_init__, __iter__ and __len__) returns 1a6e99e4..., the previous pin,
+# byte for byte. The 16 constant attributes did not move at all.
 _NEW_VISIBLE_DIGEST = (
-    "1a6e99e42477ea0489b9ed2ccd033e9cea64cb91927b3cc74b48a89a8d2cb21a"
+    "d81f8f00a973ac81bfa30726a2e2c866deb531750cf5d841a70eafd055f7303b"
 )
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -168,7 +173,21 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # contract and belongs on the page, which is 368's rule, so this is an
     # admission rather than a leak. Named rather than counted: a ratchet
     # moved without saying what it admitted is a rubber stamp.
-    assert len(dunders) == 203
+    # 203 -> 208 on 2026-09-13, FIVE entries, all Map Barcodes (c753b7de7) and all named
+    # because this file's own rule is that a ratchet moved without saying
+    # what it admitted is a rubber stamp:
+    #
+    #     spacr.barcode_search.BarcodeTable.__post_init__
+    #     spacr.settings.BarcodeEntry.__post_init__
+    #     spacr.settings.BarcodeSet.__post_init__
+    #     spacr.settings.BarcodeSet.__iter__
+    #     spacr.settings.BarcodeSet.__len__
+    #
+    # Three `__post_init__` and the two that make a BarcodeSet iterable.
+    # Admissions rather than leaks, by 368's rule: a documented dunder on a
+    # public class is rendered surface, and a `__post_init__` that validates
+    # is a contract a reader meets on the API page or nowhere.
+    assert len(dunders) == 208
     assert len(assignments) == 16
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
@@ -1237,7 +1256,21 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # not.
     # 10,618 -> 10,619, both halves re-measured in one run with the filter
     # neutralised: pre-filter 10,619, post-filter 10,401, boundary 218.
-    assert 10_619 - len(docs) == 218
+    # 10,619 -> 10,696 on 2026-09-13 for Map Barcodes (c753b7de7), BOTH halves re-measured
+    # in one run with `_is_rendered_autoapi_entry` neutralised rather than
+    # either inferred from the other:
+    #
+    #     pre-filter   10,696
+    #     post-filter  10,478
+    #     boundary        218
+    #
+    # +77 on both sides, so the boundary does not move: the whole of Map
+    # Barcodes' surface is rendered and none of it crossed the AutoAPI line
+    # in either direction. That is the shape a rendered addition should have,
+    # and the only way to know it is the shape this one has is to measure
+    # both halves -- the opposite-direction case looks identical from either
+    # half alone, which the `layout_policy` note above records.
+    assert 10_696 - len(docs) == 218
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

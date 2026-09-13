@@ -202,6 +202,16 @@ class BarcodeTable:
     can be named without a second search, and the per-length counts are kept
     because the chance rate depends on how many barcodes of each length there
     are rather than on the size of the table alone.
+
+    :param name: the label this table is known by for the rest of the search,
+        and the label every finding it produces refers back to.
+    :param sequences: mapping from barcode sequence to the name of that
+        barcode, so a hit can be named without searching the table again.
+    :param role: which part of the screen's identity the table decodes --
+        plate row, plate column, guide -- or None for a table searched
+        without one.
+    :param path: where the table was read from, kept so a proposed mapping can
+        name the file rather than the label.
     """
 
     name: str
@@ -586,6 +596,39 @@ class OrientationFinding:
     Everything needed to judge the finding travels with it, so a caller never
     has to recompute the coincidence rate in order to decide whether the
     observed rate means anything.
+
+    :param table: label of the reference table this finding is about.
+    :param role: the role that table fills, or None when it was searched
+        without one.
+    :param file_label: the read file the table was searched against.
+    :param orientation: whether the table matched ``AS_GIVEN`` or
+        ``REVERSE_COMPLEMENT``.
+    :param table_path: where the table was read from, or None when it was
+        supplied inline.
+    :param reads: how many reads were examined to reach this finding.
+    :param hits: how many of those reads contained a barcode from the table.
+    :param observed_rate: ``hits`` divided by ``reads``.
+    :param expected_rate: the rate the same table would reach by chance, given
+        how many barcodes it holds at each length. The observed rate means
+        nothing on its own; this is what makes it readable.
+    :param enrichment: ``observed_rate`` divided by ``expected_rate``.
+    :param offset_start: earliest start offset counted as the barcode's usual
+        position.
+    :param offset_span: how many consecutive offsets that position covers.
+    :param modal_offset: the single commonest start offset, or None when
+        nothing was found.
+    :param barcode_lengths: the distinct lengths present in the table. The
+        extraction window has to reach past the longest, not the modal one.
+    :param distinct_barcodes_seen: how many different barcodes of the table
+        were actually observed. A table that keeps matching the same one
+        sequence is matching something other than its barcodes.
+    :param table_size: how many distinct sequences the table holds.
+    :param top_barcode_share: fraction of hits taken by the commonest single
+        barcode. Near one, alongside a low ``distinct_barcodes_seen``, is the
+        signature of a spurious match rather than a real one.
+    :param verdict: ``PRESENT``, ``ABSENT`` or ``INDETERMINATE``.
+    :param reason: why that verdict was reached, worded to be shown to a user.
+    :param offset_counts: hit count at each start offset, for the histogram.
     """
 
     table: str
@@ -648,6 +691,14 @@ class BarcodeSearchReport:
     A report from a partly finished search has the same shape as a finished
     one and is meant to be shown, so a live display can render each refinement
     without special casing the first one.
+
+    :param findings: one :class:`OrientationFinding` per table, file and
+        orientation examined.
+    :param reads_by_file: how many reads were examined in each file.
+    :param read_length_by_file: mean read length per file, which is what sizes
+        an offset histogram.
+    :param complete: whether the search finished. False on the partial reports
+        a live display renders while it is still refining.
     """
 
     findings: Tuple[OrientationFinding, ...]
@@ -1102,6 +1153,25 @@ class ProposedMapping:
     and the plate row has no settings key waiting for it, so the table chosen
     for every role is listed among the reference tables whether or not a key
     could be filled in for it.
+
+    :param settings: only keys the mapping run already reads, so the mapping
+        can be handed this dictionary directly.
+    :param reference_file: the file whose reads the window offsets are
+        expressed against, since offsets mean nothing without their frame.
+    :param source_files: mapping from role to the read file that established
+        it.
+    :param orientations: mapping from table label to the orientation the run
+        should search that table in.
+    :param reference_tables: the table chosen for each role, listed whether or
+        not a settings key exists to carry it -- which is the point, because a
+        role with no key is exactly the one that would otherwise be lost.
+    :param reverse_complement_needed: tables the run has to reverse complement
+        to recognise, because they were found in the second mate as stored.
+    :param unresolved_roles: roles no table established. Named rather than
+        guessed, so a caller can say so instead of starting a run that will
+        map nothing.
+    :param notes: what the search learned that has no home among the settings
+        keys.
     """
 
     settings: Dict[str, object]
@@ -1284,6 +1354,17 @@ class BarcodeHit:
     bases, and the colour index is a stable number for the barcode itself rather
     than for its table, so that two different barcodes of the same table are
     drawn in two different colours.
+
+    :param start: index of the barcode's first base within the read.
+    :param end: index one past its last base, so ``read[start:end]`` is the
+        barcode.
+    :param table: label of the table the barcode came from.
+    :param role: the role that table fills, or None.
+    :param barcode: the matched sequence itself.
+    :param orientation: whether it matched ``AS_GIVEN`` or
+        ``REVERSE_COMPLEMENT``.
+    :param colour_index: a stable number for the barcode, not for its table,
+        so two barcodes of one table are drawn in two colours.
     """
 
     start: int
