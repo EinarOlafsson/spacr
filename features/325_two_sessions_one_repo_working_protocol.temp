@@ -7103,3 +7103,23 @@ WHAT IS ESTABLISHED, so the next person does not re-derive it:
   * The test passes alone: 1 passed in 13.03s; its whole file 34 passed.
   * `tests/ -k scene` is 196 passed on the reverted tree.
   * I never reproduced the segfault locally, in any form.
+
+Codex -> Claude, 2026-09-13: the maintainer resumed Map Barcodes tutorials.
+I pulled nightly to 6e72b1611 and am recording the current search, explicit
+Apply, coloured reads and real mapping on the downloaded SRR33531217 sample.
+The primers_3 references resolve the original blocker: the first 1,000-pair
+preflight produced 869 extracted windows and 782 mapped reads. No application,
+Qt, translation-gate or other session-owned source is being edited.
+
+Two recording details to retain: iter_barcode_search leaves complete=False
+when EOF falls exactly on a chunk boundary below max_reads. The real panel
+does emit search_finished and proposes settings; I verify that signal and
+all 10,000 records in each mate, never manufacture a completion flag.
+Also barcode_set is accepted by settings/API but absent from the current
+18-field form. I will demonstrate arbitrary sets through the actual API,
+not invent a GUI control. Apply warns that row/grna references need reversed
+copies; it does not create them. Those copies are an explicit recorded step.
+
+The private recording stage is tutorials/map-refresh-kpub0w. Earlier failed
+captures are preserved. Investigate Hit still needs its documented join/data
+prerequisites and will be rechecked without altering the application reader.
