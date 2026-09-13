@@ -49,10 +49,13 @@ rendered as a table for a log, and it can be folded into the settings that
 
 WHAT TO DO NEXT
 ===============
-Read the verdicts before the proposed settings.  A table reported as absent in
-both orientations of both mates is usually the wrong reference file rather than
-a failed experiment, and the offset column is the quickest way to tell a plate
-barcode from an adapter that happens to resemble one.
+Read the verdicts before the proposed settings.
+
+A table reported as absent in both directions of both mates usually means the
+wrong reference file, not a failed experiment.
+
+The offset column is the quickest way to tell a plate barcode from an adapter
+that happens to look like one.
 """
 
 from __future__ import annotations
@@ -163,9 +166,10 @@ ANCHOR_ROLE = "anchor"
 def reverse_complement(sequence):
     """Return the reverse complement of a nucleotide sequence.
 
-    The translation covers the four bases in either case and leaves an
-    ambiguous base as it is, so a read carrying an unresolved position survives
-    the flip instead of raising.
+    Upper case and lower case are both handled.
+
+    Any letter that is not one of the four bases is returned unchanged, so a
+    read with an uncertain position is still reversed rather than refused.
 
     :param sequence: the nucleotide sequence to flip.
     :returns: the reverse complement, as a string.
@@ -656,9 +660,10 @@ class OrientationFinding:
     def window_end(self):
         """Return the first offset past the barcode in its usual position.
 
-        The proposed extraction window has to reach the end of the last barcode
-        rather than its start, and a barcode set whose members differ in length
-        reaches furthest at its longest member.
+        The window has to reach the end of the last barcode, not its start.
+
+        When the barcodes in a set are not all the same length, the longest
+        one decides where the window ends.
 
         :returns: the offset just past the end of the barcode.
         """
@@ -669,8 +674,9 @@ class OrientationFinding:
     def offset_histogram(self, read_length=None):
         """Return the hit count at each start offset as an array.
 
-        The array is indexed by offset so that a caller can plot it directly
-        without first working out which offsets were populated.
+        Position in the array is the offset itself. A caller can draw the
+        array as it is, and does not have to work out which offsets were
+        used.
 
         :param read_length: how long the array should be; long enough to hold
             the largest observed offset when omitted.
@@ -1148,9 +1154,10 @@ class ProposedMapping:
     The proposed settings hold only keys the mapping run already reads, so
     they can be handed straight to it.
 
-    Everything the search learned that has no home among those keys travels
-    alongside. A caller that silently dropped the orientation would
-    reintroduce the failure this module exists to prevent.
+    What the search learned that has no matching key is carried alongside.
+
+    A caller that quietly dropped the orientation would bring back the very
+    failure this module exists to prevent.
 
     A screen that decodes a barcode beyond the plate column, the guide and the
     plate row has no settings key waiting for it. The table chosen for every
@@ -1190,8 +1197,8 @@ class ProposedMapping:
 def propose_map_barcodes_settings(report, base_settings=None, reference_file=None):
     """Turn a finished search into settings for a barcode mapping run.
 
-    The mapping run reads both mates into one sequence in the orientation of
-    the first, so that is the frame everything is expressed in.
+    The run joins both mates into one sequence, using the direction of the
+    first mate. Every position below is given in that direction.
 
     A table found in the second mate as it is stored is therefore reported as
     needing to be reverse complemented. That is what the run will need in
