@@ -73,6 +73,20 @@ TAIL_CHARS = 4000
 
 
 def _ledger_files():
+    """The two folders the index is generated from.
+
+    THIS SHARES THE INDEX'S BLIND SPOT ON PURPOSE, and 398 is the item about
+    it: eleven `.txt` files sit at the top of `features/` and are scanned by
+    neither. Nine of them are stale duplicates of a `features/new/` file --
+    `features/03_...` says "not diagnosed" where its counterpart says "DONE,
+    2026-08-29" -- so they are exactly the population this check is for, and
+    exactly the one it cannot see.
+
+    Widening the glob here would make this test fail on nine files that nobody
+    has decided what to do with, which turns a green check red for a reason it
+    cannot fix. 398 holds that decision. When those files are resolved, this
+    function is the second place to change.
+    """
     for folder in ("new", "future"):
         for path in sorted((FEATURES / folder).glob("*.txt")):
             yield path
