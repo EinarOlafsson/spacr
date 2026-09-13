@@ -201,7 +201,7 @@ resolved location's HEAD.
 
 ## 0. THE FOUR LESSONS. READ THESE BEFORE YOU TOUCH ANYTHING.
 
-### 0a. Audit before you build — SEVENTY files have been wrong about themselves
+### 0a. Audit before you build — SIXTY-NINE files have been wrong about themselves
 
 | file | said | was |
 |---|---|---|
@@ -219,7 +219,11 @@ header; the code beats both. Twice this week the "missing" thing existed under
 a name nobody grepped for.
 
 **THERE IS NOW A CHECK, added 2026-09-13, and the count above went from eight
-to seventy the day it was written.** `32` is the sharpest of them: its own
+to sixty-nine the day it was written.** (Sixty-two corrected on 2026-09-13 plus the eight already tabled, LESS `69`,
+which appears in both: it was wrong about itself in August, was listed here as
+an example of the problem, and was STILL wrong this morning.)
+
+`32` is the sharpest of them: its own
 heading reads "2026-08-17 - CLOSED. THE WORK LANDED; NOBODY WROTE IT DOWN
 HERE", above a Status line that still said "not started" a month later, and a
 re-audit on 2026-08-26 passed without touching it either. `69` is in the table
