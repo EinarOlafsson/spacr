@@ -612,12 +612,22 @@ class TestCompartmentSettings:
         assert s["remove_background_pathogen"] is True
 
     def test_compartment_values_propagate(self, qtbot):
+        """A per-compartment control reaches the run under its own key.
+
+        RE-POINTED at the absolute threshold, not relaxed. This used to set
+        `intensity_threshold_method` to "percentile" and assert it arrived.
+        That setting was withdrawn when the relative scheme was replaced, and
+        the panel offered it for a while afterwards -- so this test passed by
+        agreeing with a control that wrote a key nothing read. The pair it
+        checks is the same pair: a numeric field and a second field of a
+        different kind, both arriving prefixed by their compartment.
+        """
         p = self._panel(qtbot)
         p._compartment_widgets["organelle"]["min_area"].setValue(555)
-        p._compartment_widgets["organelle"]["intensity_threshold_method"].setCurrentText("percentile")
+        p._compartment_widgets["organelle"]["intensity_threshold"].setValue(12.5)
         s = p.settings_for_propagation()
         assert s["organelle_min_area"] == 555
-        assert s["organelle_intensity_threshold_method"] == "percentile"
+        assert s["organelle_intensity_threshold"] == 12.5
 
 
 class TestViewModes:
