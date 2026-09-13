@@ -2,7 +2,36 @@
 THE MASK EXAMPLE DATA: A CLIPPED DIALOG, AND SETTINGS THAT NEVER ARRIVE
 ================================================================================
 
-Status:    OPEN, filed 2026-08-31.
+Status:    PARTLY DONE, corrected 2026-09-13. Read part by part, because the
+           three are in three different states and the header said OPEN for
+           all of them.
+
+             1. THE CLIPPED DIALOG IS FIXED, and was on 2026-09-01 in
+                f47a4ff0c. `hf_download._DownloadDialog` replaced
+                `QProgressDialog`: the text wraps and is centred, the bar is
+                above it, and its docstring records that widening for the
+                longest caption "helped and did not fix it, because the
+                longest caption is a FILE NAME and there is no longest file
+                name". Held by
+                `tests/qt/test_the_download_window_shows_its_percentage.py`.
+
+             2. THE MASK EXAMPLE STILL BRINGS SYNTHETIC SETTINGS. OPEN.
+                `mask.load_the_example_images` still calls
+                `demo_settings("mask", ...)`. Note that f47a4ff0c's message,
+                "Every example applies its settings", is about a DIFFERENT
+                thing -- that examples apply settings at all -- and does not
+                close this.
+
+             3. THE UNSAFE READER IS GONE AND ITS SUCCESSOR HAD A HOLE I
+                CLOSED TONIGHT. `spacr/qt/settings_pack.py` now migrates a
+                pack and reports what became of every key. But its
+                `PACK_RENAMES` table was EMPTY for mask and measure, so a
+                pack written before 391 lost every key that instruction
+                renamed. Measured: a four-key pack gave applied 2, renamed 0,
+                dropped 4, with all four resolvable by
+                `spacr.settings.surviving_setting_name`. The reader now
+                consults the package's own table after the per-app one, and
+                `tests/test_a_settings_pack_survives_a_rename.py` holds it.
 Owner:     spacr/qt/hf_download.py, spacr/qt/screens/mask.py, and the
            settings pack on Hugging Face.
 Requested: 2026-08-31, in the maintainer's words --

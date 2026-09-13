@@ -132,6 +132,33 @@ def read_pack(app_key: str, pack_dir: str) -> Tuple[Dict[str, Any], int]:
     return values, malformed
 
 
+def _package_renames(key: str) -> Tuple[str, ...]:
+    """What ``spacr.settings`` says this key became, or nothing.
+
+    A SECOND OPINION, NOT A REPLACEMENT for `PACK_RENAMES`. That table is
+    curated per app and can say "this one changed meaning, drop it"; this
+    only knows the mechanical renames the package records, which is exactly
+    the set a pack written against an older spaCR trips over.
+
+    Returns a single-element tuple for an ordinary rename and an empty one
+    for anything it cannot resolve -- including a SPLIT, where one old key
+    became several. A split has no safe automatic answer: the value belongs
+    to one of the new keys or to none, and guessing puts a number on a
+    control that looks deliberate and is wrong.
+    """
+    try:
+        from ..settings import surviving_setting_name
+    except Exception:                                       # noqa: BLE001
+        return ()
+    try:
+        names = surviving_setting_name(key)
+    except Exception:                                       # noqa: BLE001
+        return ()
+    if not names or len(names) != 1:
+        return ()
+    return tuple(names)
+
+
 def settings_from_pack(app_key: str, pack_dir: str, *,
                        src: Optional[str] = None,
                        defaults: Optional[Dict[str, Any]] = None,
@@ -165,7 +192,27 @@ def settings_from_pack(app_key: str, pack_dir: str, *,
             settings[moved] = value
             report.renamed.append((key, moved))
             continue
-        report.dropped.append(key)
+        # THE PACKAGE'S OWN RENAME TABLE, consulted after this app's.
+        # `PACK_RENAMES` is curated per app and is empty for both of them,
+        # which used to mean a pack written before 391 lost every key that
+        # instruction renamed: `cell_FT`, `cell_CP_prob` and their nucleus
+        # and pathogen siblings were reported as DROPPED while
+        # `spacr.settings` knew exactly what each had become. Measured
+        # 2026-09-13 on a four-key pack: applied 2, renamed 0, dropped 4,
+        # and all four resolvable.
+        #
+        # `surviving_setting_name` follows a rename CHAIN, so a key renamed
+        # twice still lands. It can return more than one name where a
+        # setting was split; a value cannot be sent to two places without
+        # inventing a meaning for it, so that case is left to
+        # `PACK_RENAMES`, which can say what was intended.
+        for survivor in _package_renames(key):
+            if survivor in settings:
+                settings[survivor] = value
+                report.renamed.append((key, survivor))
+                break
+        else:
+            report.dropped.append(key)
 
     if src is not None:
         # LAST, and unconditionally. The pack's own `src` is a path on the
