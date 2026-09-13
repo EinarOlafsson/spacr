@@ -295,7 +295,25 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # this denominator already counts -- `spacr/bystanders.py` has been in
     # it since 556. Both move the docstring and symbol inventories, and
     # neither can move a file count.
-    assert len(shipped) == 563
+    # 563 -> 565 on 2026-09-13, +2/-0, and both are Map Barcodes
+    # (c753b7de7). Named because a file count is the one inventory where
+    # naming is trivial and a bare bump is therefore inexcusable:
+    #
+    #     spacr/barcode_search.py        the engine
+    #     spacr/qt/widgets/read_view.py  the widget that shows the reads
+    #
+    # Measured by diffing the shipped set against the commit that set 563,
+    # not by subtracting: `git diff --diff-filter=A` over `spacr/**/*.py`
+    # returns exactly those two and nothing else, so +2 is two arrivals and
+    # not three arrivals and a departure.
+    #
+    # THIS IS THE SEVENTH RATCHET THAT COMMIT MOVED. The other six are in
+    # `test_docstring_correctness` and `test_api_i18n_extractor` and were
+    # found together because they failed together; this one lives in a
+    # coverage test and was found a day later by a full sweep. A merge that
+    # adds a module moves counts in at least three unrelated files, and
+    # there is no list of them anywhere.
+    assert len(shipped) == 565
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
