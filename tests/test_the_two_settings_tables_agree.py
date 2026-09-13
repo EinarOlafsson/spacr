@@ -376,3 +376,45 @@ def test_split_role_setting_never_matches_a_bare_key():
             _fold_renamed_settings(settings)
             assert settings == {bare: PROBE}, (
                 f"{bare} is a live standalone setting and was migrated")
+
+
+def test_a_settings_change_has_not_stranded_reviewed_translations():
+    """IMPOSSIBLE: landing a settings change that kills the catalog build.
+
+    THIS TEST EXISTS BECAUSE THE GUARD WAS ALREADY THERE AND I DID NOT RUN IT.
+    `tests/test_the_reviewed_runtime_reporter_tells_moved_from_stale.py`
+    asserts the same thing, and instruction 391's settings batch was pushed
+    without it in the selected set -- so 32 reviewed records were stranded,
+    every phase of a forty-minute catalog rebuild exited 1 on the first
+    language, and another session paid for it.
+
+    THE FAILURE IS NOT IN THE CATALOGS, WHICH IS WHY IT IS EASY TO MISS.
+    Reviewed runtime evidence is validated against the LIVE setting surface
+    and the API builder loads it before it starts, so removing a setting or
+    rewriting a tooltip breaks the LOADER -- and nothing in the settings
+    suite notices.
+
+    It lives HERE, beside the rename and withdrawal guards, because this is
+    the file anyone changing a setting already runs. A guard in a file that
+    has to be remembered is a guard that will be forgotten again.
+
+    Costs about twenty seconds. A dead rebuild costs forty minutes and
+    somebody else's afternoon.
+    """
+    import pathlib
+    import subprocess
+    import sys
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    tool = root / "tools" / "check_reviewed_runtime_evidence.py"
+    if not tool.exists():                      # pragma: no cover
+        pytest.skip("the reviewed-runtime reporter is not in this tree")
+
+    done = subprocess.run([sys.executable, str(tool)], cwd=str(root),
+                          capture_output=True, text=True, timeout=600)
+    assert done.returncode == 0, (
+        "a settings change in this tree has stranded reviewed translations, "
+        "and the catalog build will fail on the first language rather than "
+        "on the catalogs. Repair them before pushing -- the report below says "
+        "which are re-pointable and which must be dropped:\n\n"
+        + done.stdout[-4000:])
