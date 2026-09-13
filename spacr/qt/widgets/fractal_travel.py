@@ -1100,8 +1100,8 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
             than a tooltip: `spaceout/fractal_render_scale` is a bare QSettings
             key with no row in Preferences, so nobody can move a slider and watch
             nothing happen. Making the GPU honour it would mean render-to-texture,
-            which instruction 327 measured and rejected -- every shader is 7x to
-            25x inside its budget at 4K, so there is nothing to buy.
+            which was measured and rejected: every shader runs 7x to 25x inside
+            its frame budget at 4K, so there is no headroom to buy back.
             """
             try:
                 render_scale = float(_render_scale())

@@ -200,9 +200,9 @@ def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str], *,
 def _number_unlabelled_plates(rows: list[dict]) -> list[dict]:
     """Give every row without a parsed plate name one generated from its order.
 
-    `plate 1`, `plate 2`, in row order, which is what the maintainer asked
-    for: "if they do share a name it can be used if the files do not the name
-    should be generated, first row plate 1 second row plate 2 and so on".
+    `plate 1`, `plate 2`, in row order. The rule is that a name shared by the
+    files is used when there is one, and a row whose files carry no name gets
+    one generated from its position instead.
 
     NUMBERED BY ROW, NOT BY A COUNTER OVER THE UNLABELLED. A table whose
     second row is parsed as `plate7` would otherwise run `plate 1`, `plate7`,
