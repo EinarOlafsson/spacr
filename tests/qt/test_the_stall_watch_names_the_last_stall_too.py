@@ -40,21 +40,35 @@ def _watch_one_stall(tmp_path, monkeypatch, seconds=3.0):
     # echo=False: the watcher writes from a DAEMON THREAD, and writing
     # into a stream pytest is swapping underneath it crashes pytest
     # inside its own capture.py. The file is the record either way.
-    stall_watch.watch_this_application(app, stall_seconds=0.4,
-                                       echo=False)
+    watcher = stall_watch.watch_this_application(app, stall_seconds=0.4,
+                                                 echo=False)
 
     def wedge():
         """Block the GUI thread the way a synchronous call does."""
         time.sleep(seconds * 0.4)
 
-    QTimer.singleShot(50, wedge)
-    deadline = time.monotonic() + 6.0
-    while time.monotonic() < deadline:
-        app.processEvents()
-        time.sleep(0.02)
-        if log.exists() and "WHERE THAT STALL SPENT" in log.read_text():
-            break
-    return log.read_text() if log.exists() else ""
+    try:
+        QTimer.singleShot(50, wedge)
+        deadline = time.monotonic() + 6.0
+        while time.monotonic() < deadline:
+            app.processEvents()
+            time.sleep(0.02)
+            if log.exists() and "WHERE THAT STALL SPENT" in log.read_text():
+                break
+        return log.read_text() if log.exists() else ""
+    finally:
+        # THE WATCHER OUTLIVES THIS TEST UNLESS IT IS STOPPED, and the
+        # `qapp` it is installed on is session-scoped, so what leaks here
+        # leaks into every test that runs afterwards. Two of these sampling
+        # the GUI thread's live frames four times a second is what
+        # segfaulted the Slow shard on 2026-09-13, hundreds of tests later,
+        # in a figure export that had nothing to do with stall watching.
+        if watcher is not None:
+            watcher.stop()
+            watcher.join(1.0)
+        timer = getattr(app, "_spacr_stall_timer", None)
+        if timer is not None:
+            timer.stop()
 
 
 @pytest.mark.slow

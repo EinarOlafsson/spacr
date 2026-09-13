@@ -53,7 +53,12 @@ class TestPackingAFrameForTheWriter:
             f"the outer test now admits {admitted}; the two arms below it "
             f"handle 1 and 2 only")
 
-        block = source[source.index("# Handling 1-channel"):]
+        # ANCHORED ON THE MATCH THIS TEST ALREADY MADE. The slice used to
+        # start at "# Handling 1-channel", which made a pin on control flow
+        # depend on a comment surviving -- and comments do not survive.
+        # `outer` is the outer channel test itself, already located and
+        # already asserted on above, so the block cannot drift from it.
+        block = source[outer.start():]
         block = block[:block.index("elif frame.shape[2] >= 3:")]
         assert "elif frame.shape[2] == 2:" not in block
         assert "\n            else:\n" in block
