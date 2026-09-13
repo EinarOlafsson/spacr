@@ -5102,10 +5102,12 @@
         "87abc46324b7652f26afd47890cc77870273d005260e0e9ff49fdf9cd7a4c3f5",
         "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
         "9cdf97745e26f6331d427c3b47bac0e9d665a9013ad83e82b5d1d97e2c13d8e2",
-        "2a168de40798a583f43ae4a10b09d9ec6541cef4c29ed2d7a4a8fad0fc4bcc28"
+        "8c3b756a59a288efefc5cd40736fe4dac7c64abb1b2c54563bb639df11d12b7a",
+        "ef9bd71db073402127a75607c05f058a682f9a166d4a2b9721757f5dd613bea6",
+        "bd431fde3755ae77e6503f997f68b65ef49331d1a75653298ac1a6620224f87e"
       ],
-      "source_sha256": "5b68ce11638d37ea4bc01bf69d8fda009072f9afa3c51d542e4fb44836f1f974",
-      "text": "Að ákveða hvaða barkódabílum á eftirlitsþáttum virkilega inniheldur.\n\nHvað er það fyrir\n=================\nKarta Barkódum þarf að segja þrjár hlutir það er ekki hægt að gleyma: hvaða samstarfsaðili bori hver barkód, hvort reference tabla er geymt í sömu leiðandi sem lesendur, og hvar í lesendur barkoda setur. Að fá einn af þeim rangt framleiðir meðferð uppsetningu sem fer venjulega og kortar ekkert, vegna þess að hvert skref eftir útgáfu vinstri er að vinna á mismunandi grundvöllum. Þessi móddur lætur tengd sýning af lesendum, mættur hver reference tól gegn þeim í báðum leiðandi, og breytir mælinga í settingar sem mapping fer hægt að nota. Það hallar engin grafískt kóða og opnar engin samskipti, þannig að sömu tólin er að leita á lífi í samskiptum, notkun, og prófa.\n\nHvers vegna hræðilegt hit er ekki vísbendingar\n==============================================\nA stutt barcode breytir upp í lengi lesingu af hreinu tilfinningu. Tíu og tvö mismunandi átta bas barcodes skannað á milli hundra og fimmtíu bas lesingu hafa um sjö procenta sönnun á spennandi leik, þannig að borðið sem er alvöru fjarlægð enn segir um sjöt procenta lesinga sem hit. Sönnun sem birtist á þeim stigum myndi senda einhver að leita að bug sem er ekki til, eða myndi örugglega setja upp mapping sem gefur ekkert. Hver stig þessi móddur skýringar því kemur með árangursríkt á tækifæri fyrir það borðið gegn þeim lesingum, og með samræmi milli þeirra. Enginn er kallað til þarna nema það er vel ljóst af eigin tilfinnslu.\n\nHvers vegna er mikla ríkur enn ekki nóg\n==========================================\nReikning yfir tækifæri svarar hvort sekkunar eru í lesunum. Það svara ekki hvort þeir eru mikróplata barkódur. Sequencing adapters eru fasta sekkódir endurtekin í hvert lesun, og nokkrar barkóða í hvaða tól mun líta hluti af adapter nóg nær til að tengja það. Það framleiðir stór, fullkomlega raunverulegur reikning dæmdur af tveimur barkókóðum sem sitja í adapterinu en ekki með mikróplata rannsóknarinnar. Mæðing sem skilja tveimur er stöðu. Laboratori mikróblata barkodur tekur einn stað í byggingu og svo landar á einn offset í næstum hvert lesu, sem er nákvæmlega ástæða fyrir því að útgáfa vinstan er hægt að forðast fyrir það í öllu. Leikurinn sem er rennur í gegnum lestinn getur ekki gefið vegg og er ekki meðhöndlaður sem fundur, þótt það er reiður.\n\nÞað sem það framleiðir\n======================\nA skýrsla með einn fundur á sameiginleika referenstabla, leiðsögn og innfangsfili. Hver fundur holds uppgötvuna, möguleika, reiði, smáasta uppsetningu sem talar yfir flestum hitnum, hversu mörg mismunandi barkódum á borðinu voru séð, og ákvörðun með orðinu sem segir hvers vegna þessi ákvörð var náinn. skýrslan getur verið gefið út sem tól fyrir dagskrá, og það er hægt að fylgjast í settunum sem :func:`spacr.sequencing.generate_barecode_mapping` lesa.\n\nHvað á að gera næst\n===================\nLesa skammturnar áður en viðbótar settingar. tól sem talin er ekki til í báðum leiðbeiningum af báðum matum er yfirleitt rangt reference faili en ekki mismunandi tilraun, og afsetur koluminn er snemma leið til að segja mikróplata barkódinn frá adapter sem gerist að líta út á einn.",
+      "source_sha256": "289c6b367812e7320ca194ea34582f32dde0fc825419af7a2569fce12a54e833",
+      "text": "Að ákveða hvaða barkódabílum á eftirlitsþáttum virkilega inniheldur.\n\nHvað er það fyrir\n=================\nKarta Barkódum þarf að segja þrjár hlutir það er ekki hægt að gleyma: hvaða samstarfsaðili bori hver barkód, hvort reference tabla er geymt í sömu leiðandi sem lesendur, og hvar í lesendur barkoda setur. Að fá einn af þeim rangt framleiðir meðferð uppsetningu sem fer venjulega og kortar ekkert, vegna þess að hvert skref eftir útgáfu vinstri er að vinna á mismunandi grundvöllum. Þessi móddur lætur tengd sýning af lesendum, mættur hver reference tól gegn þeim í báðum leiðandi, og breytir mælinga í settingar sem mapping fer hægt að nota. Það hallar engin grafískt kóða og opnar engin samskipti, þannig að sömu tólin er að leita á lífi í samskiptum, notkun, og prófa.\n\nHvers vegna hræðilegt hit er ekki vísbendingar\n==============================================\nA stutt barcode breytir upp í lengi lesingu af hreinu tilfinningu. Tíu og tvö mismunandi átta bas barcodes skannað á milli hundra og fimmtíu bas lesingu hafa um sjö procenta sönnun á spennandi leik, þannig að borðið sem er alvöru fjarlægð enn segir um sjöt procenta lesinga sem hit. Sönnun sem birtist á þeim stigum myndi senda einhver að leita að bug sem er ekki til, eða myndi örugglega setja upp mapping sem gefur ekkert. Hver stig þessi móddur skýringar því kemur með árangursríkt á tækifæri fyrir það borðið gegn þeim lesingum, og með samræmi milli þeirra. Enginn er kallað til þarna nema það er vel ljóst af eigin tilfinnslu.\n\nHvers vegna er mikla ríkur enn ekki nóg\n==========================================\nReikning yfir tækifæri svarar hvort sekkunar eru í lesunum. Það svara ekki hvort þeir eru mikróplata barkódur. Sequencing adapters eru fasta sekkódir endurtekin í hvert lesun, og nokkrar barkóða í hvaða tól mun líta hluti af adapter nóg nær til að tengja það. Það framleiðir stór, fullkomlega raunverulegur reikning dæmdur af tveimur barkókóðum sem sitja í adapterinu en ekki með mikróplata rannsóknarinnar. Mæðing sem skilja tveimur er stöðu. Laboratori mikróblata barkodur tekur einn stað í byggingu og svo landar á einn offset í næstum hvert lesu, sem er nákvæmlega ástæða fyrir því að útgáfa vinstan er hægt að forðast fyrir það í öllu. Leikurinn sem er rennur í gegnum lestinn getur ekki gefið vegg og er ekki meðhöndlaður sem fundur, þótt það er reiður.\n\nÞað sem það framleiðir\n======================\nA skýrsla með einn fundur á sameiginleika referenstabla, leiðsögn og innfangsfili. Hver fundur holds uppgötvuna, möguleika, reiði, smáasta uppsetningu sem talar yfir flestum hitnum, hversu mörg mismunandi barkódum á borðinu voru séð, og ákvörðun með orðinu sem segir hvers vegna þessi ákvörð var náinn. skýrslan getur verið gefið út sem tól fyrir dagskrá, og það er hægt að fylgjast í settunum sem :func:`spacr.sequencing.generate_barecode_mapping` lesa.\n\nHvað á að gera næst\n===================\nLestu ákvörðun áður en tilkynnt skilyrði.\n\nTábla sem hefur verið óþekkt í báðum leiðum af báðum matnum þýðir yfirleitt rangt referensfili, ekki mismunandi tilraun.\n\ner fljķtasta leiđin til ađ greina strikamerki á rannsķknarstofuplötu frá millistykki sem virđist líkjast henni.",
       "translation_source_blocks_sha256": [
         "c5710bbbdc1d888f7f7ac91eb35125595dd31005363ff16f8b15a8cbe1701840",
         "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
@@ -5117,7 +5119,9 @@
         "1b9e73ff367742a6893f9adda6659a509d41eb8e4a8cc60eb5f4c7ab862a3b47",
         "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
         "6164ad73de3089addfdf4320dbe9f6da259911427de5e8fbaae926809d0c3167",
-        "10e18f90c11a4acfb1c3abe417d6d636b9a54874961d051c9ae95d25c250b9f3"
+        "8c3b756a59a288efefc5cd40736fe4dac7c64abb1b2c54563bb639df11d12b7a",
+        "ef9bd71db073402127a75607c05f058a682f9a166d4a2b9721757f5dd613bea6",
+        "af63ea6462356dd473500aeb8a43b43c82387d50c4f457a83e6ec50aba382e32"
       ]
     },
     "spacr.barcode_search.BarcodeHit": {
@@ -5389,15 +5393,15 @@
     "spacr.barcode_search.OrientationFinding.offset_histogram": {
       "source_blocks_sha256": [
         "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
-        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "744b3c640260556afcdaa9ecf6684893978df5e7e80821733a9386366f90aa0a",
         "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
         "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
       ],
-      "source_sha256": "f130a60cbb1b69258dadd277780b1bc6b6a4a3b19e856cc49a1e26abc215c770",
-      "text": "Til baka hit reikning á hverjum upphafi afsetur sem áratug.\n\nThe array is indexed by offset so that a caller can plot it directly without first working out which offsets were populated.\n\n:param read_length: Hversu lengi ætti að vera, nóg lengi til að halda stærsta viðbótinu þegar yfirgefið er.\n:returns: A fjöldi hit sumar indexed með byrjun offset.",
+      "source_sha256": "68c8ddac0d2b4c8a4a552f58a7449b57ed68a8a97e1547d06de83904aba01045",
+      "text": "Til baka hit reikning á hverjum upphafi afsetur sem áratug.\n\nÁstæður í áratuginu er afseturinn sjálfur. Sjálf er hægt að rita áætlun eins og það er, og þarf ekki að vinna út hvaða offset voru notaðar.\n\n:param read_length: Hversu lengi ætti að vera, nóg lengi til að halda stærsta viðbótinu þegar yfirgefið er.\n:returns: A fjöldi hit sumar indexed með byrjun offset.",
       "translation_source_blocks_sha256": [
         "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
-        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "744b3c640260556afcdaa9ecf6684893978df5e7e80821733a9386366f90aa0a",
         "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
         "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
       ]
@@ -5405,22 +5409,25 @@
     "spacr.barcode_search.OrientationFinding.window_end": {
       "source_blocks_sha256": [
         "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
-        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "4824d5f5d99c7775ae841395896a49a2c15047c07b9588410e02551804d8bbd3",
+        "dfc3f4901f45ffa2fbfb4130425580788889bc0602d6d5c1b629be675f2da0ab",
         "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
       ],
-      "source_sha256": "4f32f1f65a73ce5b9b7d23c7199e27e65d71af34ebf59beddbeb28c8774eda19",
-      "text": "Hættu fyrstu uppsetningu yfir barkódinn í venjulegum stöðu.\n\nThe proposed extraction window has to reach the end of the last barcode rather than its start, and a barcode set whose members differ in length reaches furthest at its longest member.\n\n:returns: Hugbúið er strax yfir lok barkódans.",
+      "source_sha256": "2d777c8e8c3dc95d53478be8bb65f6a0f51f6b3137fecc4ee9f8112fa2cb0ba4",
+      "text": "Hættu fyrstu uppsetningu yfir barkódinn í venjulegum stöðu.\n\nFönnunin þarf að ná lok síðasta stefnu, ekki upphafið.\n\nÞegar barkódur í setum eru ekki öll sama lengd, lengsti ákveður hvar ljósið endar.\n\n:returns: Hugbúið er strax yfir lok barkódans.",
       "translation_source_blocks_sha256": [
         "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
-        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "4824d5f5d99c7775ae841395896a49a2c15047c07b9588410e02551804d8bbd3",
+        "dfc3f4901f45ffa2fbfb4130425580788889bc0602d6d5c1b629be675f2da0ab",
         "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
       ]
     },
     "spacr.barcode_search.ProposedMapping": {
       "source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "44112b48f305c7632ae1ee69cdf99bcbdffda71fba4987e204a5ca6350326329",
-        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "3af1280468ae174bf22c9c81391bc973cbe546a3b244746887b4bf386a8e4732",
+        "1b8839b3807f9028ccdfbde70eaff4dddbec1f71dc896ce8e06ca1fa984340bb",
+        "d2c88ed356fc41c4ba9464254db7f56a80b13e847e4864aa8a28cb973f88a03f",
         "8c02f8c21128a929b2421e44a6335f149b4c7371066cc68a7ea16cb0109fc646",
         "c83a06f40906767f7de977cb698c385f449ca54aba98faae6647cd1d70c5bcf7",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
@@ -5431,12 +5438,13 @@
         "b73ba95fd81532679b792744546dbcf363dc776defcb8caf284672198b996dbf",
         "a00a190d22632254b649be175293a38ea317560c118f90f9a150a4f0817073bb"
       ],
-      "source_sha256": "d99c7195319b647f3ba18b4bc6aaf9b9e1349a21f88499e49d3e42200b0d10af",
-      "text": "Sættu að leita að hugsa að mappingu ætti að nota, og hvers vegna.\n\nThe proposed settings hold only structured-data names that the mapping run already reads, so they can be handed straight to it.\n\nEverything the search learned that has no home among those keys travels alongside. A caller that silently dropped the orientation would reintroduce the failure this module exists to prevent.\n\nSkrifa sem dekodir barkód fyrir utan mikroplaðs kolumn, leiðbeining og mikroflaðs rán hefur engin setting nafn að bíða eftir því. Tabla valinn fyrir hverri hlutverki er því listuð á meðal reference tólum, hvort eða ekki hægt væri að fylla upp með byggð gögn nafn fyrir það.\n\n:param settings: Aðeins byggð gögnnafn sem mapping fer nú þegar lesa, þannig að mappingu er hægt að veita þetta key-value mappings beint.\n:param reference_file: fájl sem les vindur offset eru útskýrtir gegn, þar sem offset þýðir ekkert án þeirra ramma.\n:param source_files: að mappingu frá hlutverki til lesufilinn sem stofnaði það.\n:param orientations: að mappingu frá tólum tákn til leiðsögn sem fer ætti að leita að þessari tól í.\n:param reference_tables: tól sem valið er fyrir hverri hlutverk, listað hvort eða ekki áætluninn er til að búa það - sem er punktinn, vegna þess að hlutverk með engin byggð-data nafni er nákvæmlega það sem annars myndi vera tapt.\n:param reverse_complement_needed: tól sem hlaupið verður að snúast fylgdi til að viðurkenna, vegna þess að þeir voru fundið í annað mat sem lagður.\n:param unresolved_roles: Nafnast í stað þess að gleyma, þannig að samtalandi getur sagt það í stað að byrja á hlaup sem mun mynda ekkert.\n:param notes: Það sem leitinn lærði að hafa engin heimili meðal setningarnar.",
+      "source_sha256": "9bdc17fca4294ef02ad4cbcbb5abc23b571a8c34005aeb143fa9ad7c69043fd9",
+      "text": "Sættu að leita að hugsa að mappingu ætti að nota, og hvers vegna.\n\nHver byggð gögn nafn í forritið er einn sem mapping rán hefur þegar lesið. Rán getur tekið forræði eins og það er.\n\nÞað sem leitað lærði sem hefur engin sameiginlegur lykill er borið við.\n\nA hringandi sem hljóðlega hættir leiðin myndi koma aftur sjálfur mismunandi þetta module er til að koma í veg fyrir.\n\nSkrifa sem dekodir barkód fyrir utan mikroplaðs kolumn, leiðbeining og mikroflaðs rán hefur engin setting nafn að bíða eftir því. Tabla valinn fyrir hverri hlutverki er því listuð á meðal reference tólum, hvort eða ekki hægt væri að fylla upp með byggð gögn nafn fyrir það.\n\n:param settings: Aðeins byggð gögnnafn sem mapping fer nú þegar lesa, þannig að mappingu er hægt að veita þetta key-value mappings beint.\n:param reference_file: fájl sem les vindur offset eru útskýrtir gegn, þar sem offset þýðir ekkert án þeirra ramma.\n:param source_files: að mappingu frá hlutverki til lesufilinn sem stofnaði það.\n:param orientations: að mappingu frá tólum tákn til leiðsögn sem fer ætti að leita að þessari tól í.\n:param reference_tables: tól sem valið er fyrir hverri hlutverk, listað hvort eða ekki áætluninn er til að búa það - sem er punktinn, vegna þess að hlutverk með engin byggð-data nafni er nákvæmlega það sem annars myndi vera tapt.\n:param reverse_complement_needed: tól sem hlaupið verður að snúast fylgdi til að viðurkenna, vegna þess að þeir voru fundið í annað mat sem lagður.\n:param unresolved_roles: Nafnast í stað þess að gleyma, þannig að samtalandi getur sagt það í stað að byrja á hlaup sem mun mynda ekkert.\n:param notes: Það sem leitinn lærði að hafa engin heimili meðal setningarnar.",
       "translation_source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "addfbdabfeb4a97d528ab904d919d12b0eafd971a5d531d01fff5ff7528a9d89",
-        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "f393bb6df3f2ad8134c7aac63d3ebb69434253fe29cd7fa4195fa484e3f06c64",
+        "1b8839b3807f9028ccdfbde70eaff4dddbec1f71dc896ce8e06ca1fa984340bb",
+        "d2c88ed356fc41c4ba9464254db7f56a80b13e847e4864aa8a28cb973f88a03f",
         "8c2cc1511ededead99b46fea2ff3c7d4d66d731ce015f288a428f57db9ebb6e6",
         "1472deda3c4b599dc0ff3fc7dd9009bcd7775436d9009406154085643bef140e",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
@@ -5613,7 +5621,7 @@
     "spacr.barcode_search.propose_map_barcodes_settings": {
       "source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "29e2e67ce1cb272327d7ea7aabc8bfced399163f332efa23568ab7bb4705a295",
         "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
         "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
@@ -5623,11 +5631,11 @@
         "db8dfb93e580e97e3a3655631fd1a4fb55d0cc1b1dd29f64da285de6d5b6960e",
         "5a2d01a292df36e13612b05a87e883cc1b1641cedcc34760fcf61328aac9eb68"
       ],
-      "source_sha256": "cce8e999a095ba50ce7844f76f245474690e2194191a8c8e6755ee586cedb4da",
-      "text": "Svingja lokið leita að settum fyrir bragðskódum mappingu.\n\nThe mapping run reads both mates into one sequence in the orientation of the first, so that is the frame everything is expressed in.\n\nTól sem finnist í öðru matti þar sem það er geymt er því talin eins og þarf að vera endurkomandi. Það er það sem flutning mun þurfa til að viðurkenna það.\n\nA hlutverk sem engin tól er settur er eftir einum en ekki gaman á. Það er nefnd meðal óreyttur hlutverk, þannig að kallaðurinn getur sagt það í stað þess að byrja á ferli sem mun mynda ekkert.\n\nFyrstinn er fyrsti afsetur af einhverjum staðfestum stefnumótum og endurinn er snærsti af þeim er náinn, báðir mætt gegn anchor þegar maður var að leita að, þar sem mapping rún lokar vindur hans með því að finna að anchor fyrst.\n\n:param report: Rannsókn frá sögu.\n:param base_settings: Hættir til að byrja frá, hættir ekki breytt; tomt key-value mapping þegar yfirgefið.\n:param reference_file: a) merki faila sem leiðsögnin er ramma; fyrsti faili til að leita þegar yfirgefið.\n:returns: Þannig að við höfum verið að halda áætlunina og það sem var ekki vel í þeim.\n:raises ValueError: þegar skýrslu er engin skýrslur.",
+      "source_sha256": "f3e281f09e2deb3088e5963cd37a0bcce62f286f5c748236fdd0f42577e2342d",
+      "text": "Svingja lokið leita að settum fyrir bragðskódum mappingu.\n\nLeikurinn tengist bæði mates í einu sekúni, notað stefnu fyrstu mates. Hver stöðu hér neðan er gefið í þessum stefnu.\n\nTól sem finnist í öðru matti þar sem það er geymt er því talin eins og þarf að vera endurkomandi. Það er það sem flutning mun þurfa til að viðurkenna það.\n\nA hlutverk sem engin tól er settur er eftir einum en ekki gaman á. Það er nefnd meðal óreyttur hlutverk, þannig að kallaðurinn getur sagt það í stað þess að byrja á ferli sem mun mynda ekkert.\n\nFyrstinn er fyrsti afsetur af einhverjum staðfestum stefnumótum og endurinn er snærsti af þeim er náinn, báðir mætt gegn anchor þegar maður var að leita að, þar sem mapping rún lokar vindur hans með því að finna að anchor fyrst.\n\n:param report: Rannsókn frá sögu.\n:param base_settings: Hættir til að byrja frá, hættir ekki breytt; tomt key-value mapping þegar yfirgefið.\n:param reference_file: a) merki faila sem leiðsögnin er ramma; fyrsti faili til að leita þegar yfirgefið.\n:returns: Þannig að við höfum verið að halda áætlunina og það sem var ekki vel í þeim.\n:raises ValueError: þegar skýrslu er engin skýrslur.",
       "translation_source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "29e2e67ce1cb272327d7ea7aabc8bfced399163f332efa23568ab7bb4705a295",
         "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
         "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
@@ -5641,15 +5649,17 @@
     "spacr.barcode_search.reverse_complement": {
       "source_blocks_sha256": [
         "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
-        "d2207806852fdc2a5acaa73706b0887c199cf8fd8f6e3d01a4037b0726859cfc",
+        "3e8a2f28b2f8221f546782a59821994d8124e650c475ebded900f4731719809d",
+        "c92e20c428e053cdaafaf19b0dd3bce646054511a4820fe3f651d242453264a8",
         "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
         "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
       ],
-      "source_sha256": "c46d4e4efe9c44e5381f2a3a734e910487e5d7228ee5b7060c6892cc4fe37aae",
-      "text": "Hættu aftur viðbót við nukleóti-sekvensen.\n\nThe translation covers the four bases in either case and leaves an ambiguous base as it is, so a read carrying an unresolved position survives the flip instead of raising.\n\n:param sequence: Nükleótið á eftirliti til flip.\n:returns: Þannig að viðbrögð, eins og stringa.",
+      "source_sha256": "11141ad7160feaeb5c373c9aafa960e77ce65f7de55f689c3a9e5d7bcd747214",
+      "text": "Hættu aftur viðbót við nukleóti-sekvensen.\n\nHærri og hærri mál eru bæði meðhöndluð.\n\nAllir bréf sem eru ekki einn af fjórum grundvöllum er aftur óbreytt, þannig að lesing með óþekkt stöðu er enn snúið í stað þess að neita.\n\n:param sequence: Nükleótið á eftirliti til flip.\n:returns: Þannig að viðbrögð, eins og stringa.",
       "translation_source_blocks_sha256": [
         "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
-        "7b6e1438856ef0b0a9bdd5e3c8cb61ccc271a1249eccb23ac936ce91f0b9c5ee",
+        "3e8a2f28b2f8221f546782a59821994d8124e650c475ebded900f4731719809d",
+        "c92e20c428e053cdaafaf19b0dd3bce646054511a4820fe3f651d242453264a8",
         "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
         "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
       ]
@@ -128905,16 +128915,20 @@
     "spacr.qt.widgets.read_view": {
       "source_blocks_sha256": [
         "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
-        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d1ee21a452dec013e846aed3662fb61f14de3c0541d2cf4524029192ccaf79d6",
+        "42d60d2b6dfb68e4522fb0db11667f9914e49cb4142a20f5009e33c50f634e2d",
+        "79cca739ca54d8008826db8b694060c34e33a650c212028eee6a05f31e6f09d8",
         "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
         "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
         "5dfb4bb842ac0f2797ac22244d93d3310e003829aac15af79f9f0124d9f38030"
       ],
-      "source_sha256": "d0e18e1e03cc79530830d73cb8008353a3cc1b201cd19d585bcef538fe19e56f",
-      "text": "sýna eftirliti lesur eins og texta, einn lesur í röð, með leikjum litinn.\n\nThe Map Barcodes screen asks the user to believe a claim about their FASTQ files: that a particular barcode was found in a particular place, in a particular orientation. A percentage in a summary box cannot settle an argument about that, because a percentage looks the same whether the matches are real or accidental. Reads do settle it. Seeing the gRNA land in the same columns on row after row is the difference between a number the user trusts and a number the user has to take on faith, and seeing nothing line up is how a misconfigured run announces itself in one glance instead of after an hour of mapping that produces no counts.\n\nSvo þetta widget er hugsanlega ljóst. Það trekkar lesning texta í stöðugri stöðu, einn lesið á líni, og það litur tegundum barkód sem samsvarar í litum sem tilheyrir þessar barkóða tegund. Enginn stendur, ekkert er fjarlægð, og tegundin í fjórða tólum af eitt lesið situr strax yfir tegundina í tólunni fjórður af næsta, sem er allt ástæðu til að horfa á lesningar en ekki á tólnum.\n\nÞessi aðal veit ekkert um hvernig leikur eru fundið. Það tekur lesningar og spans sem einhver annar heitir, þannig að sökmotorinn og skrin sem heitir það getur breyst frjáls án þess að berjast á neitt hér, og þannig að þetta er hægt að prófa án neitt af þeim.\n\nA nota á lit, vegna þess að það er hluti sem er auðvelt að missa. Sérhver litur sem er málin hér er afleiðing frá temanum sem er á viðbrögð, aldrei skrifað sem bókstaf, og úrleiðinginn bjarga samræmi ljóminni eigin athygli hlutverk teman. Kontrast er virkefni af samræmi ljóminni og ekkert annað, þannig að litur sem gerist þannig hreinsa nákvæmlega það kontrast sem áherslu hefur þegar hreinsað á þessu efni, þar á meðal þeim efni sem panelnar eru yfir ljósmyndum. Það er það sem gerir óþekkt fjölda barkóða tegundir hver fá lit sína án þess að neitt þeirra verða óreiðanlegur á sumum málum enginn athugað.",
+      "source_sha256": "b5e3efed9a5c734bff55efd8567cda4340a317c565abadc46872826228458b15",
+      "text": "sýna eftirliti lesur eins og texta, einn lesur í röð, með leikjum litinn.\n\nA barcode mapping rennir þremur hlutir um sequencing skrá. fyrsta er að barcode var fundið. annað er þar sem barcode setti. þriðja er hvaða leið það fór í.\n\nSjálfur getur hlutfall ekki sýnt þessar ákvarðanir, vegna þess að hlutfall virðist sama hvort leikur eru raunverulegur eða slæmt.\n\nÞegar lesendur sjálfur geta sýnt það. Þegar leiðbeiningurinn falir í sömu stefnu eftir stefnu, þá er hægt að treysta fjölda. Þegar ekkert línu upp, er slæmt sett rennur birtist á einu sinni, en ekki eftir klukkustund af mappingu sem endurheimtir engin tölur.\n\nSvo þetta widget er hugsanlega ljóst. Það trekkar lesning texta í stöðugri stöðu, einn lesið á líni, og það litur tegundum barkód sem samsvarar í litum sem tilheyrir þessar barkóða tegund. Enginn stendur, ekkert er fjarlægð, og tegundin í fjórða tólum af eitt lesið situr strax yfir tegundina í tólunni fjórður af næsta, sem er allt ástæðu til að horfa á lesningar en ekki á tólnum.\n\nÞessi aðal veit ekkert um hvernig leikur eru fundið. Það tekur lesningar og spans sem einhver annar heitir, þannig að sökmotorinn og skrin sem heitir það getur breyst frjáls án þess að berjast á neitt hér, og þannig að þetta er hægt að prófa án neitt af þeim.\n\nA nota á lit, vegna þess að það er hluti sem er auðvelt að missa. Sérhver litur sem er málin hér er afleiðing frá temanum sem er á viðbrögð, aldrei skrifað sem bókstaf, og úrleiðinginn bjarga samræmi ljóminni eigin athygli hlutverk teman. Kontrast er virkefni af samræmi ljóminni og ekkert annað, þannig að litur sem gerist þannig hreinsa nákvæmlega það kontrast sem áherslu hefur þegar hreinsað á þessu efni, þar á meðal þeim efni sem panelnar eru yfir ljósmyndum. Það er það sem gerir óþekkt fjölda barkóða tegundir hver fá lit sína án þess að neitt þeirra verða óreiðanlegur á sumum málum enginn athugað.",
       "translation_source_blocks_sha256": [
         "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
-        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d1ee21a452dec013e846aed3662fb61f14de3c0541d2cf4524029192ccaf79d6",
+        "42d60d2b6dfb68e4522fb0db11667f9914e49cb4142a20f5009e33c50f634e2d",
+        "79cca739ca54d8008826db8b694060c34e33a650c212028eee6a05f31e6f09d8",
         "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
         "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
         "3a805954e5e0fb6809a8a6b7bc5a5538afe2cf2db0abb5a1c3944d9975d62229"
@@ -128927,17 +128941,17 @@
         "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
         "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
         "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
-        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+        "64bdcbd32652c583619a5f41032ef1a2c562580b5f0284756cbe93a7c915e94e"
       ],
-      "source_sha256": "02be31d10f02110e50884d3f64ad5803cf8f150cbdf36b99b873347e8db804d1",
-      "text": "Einn hliðið af lesunni sem barkódur af einhverjum tegundum samsvarar.\n\nFramtíðin er hálft opinn og ritað í merki frá upphafi lesunnar, þannig að það fylgir Python slicing nákvæmlega og matched textu er ``read[start:stop]``. Stæði fyrir utan lesunnar eru klumped þegar spán er þreytur, og spán sem hættir ekki eftir upphafið er ekkert aðstoða, svo að kallað sem gerir aritmetík á lesandi lengdum getur ekki gert sjónarhófi.\n\nÞað er hvað ritað kalla að fjölskylda barkód, það er það sem leyndardóminn sýnir, og það er hvaða litur er, þannig að tvö spans að deila kyn er tryggð að deilla lit á hverri rödd.\n\n:param start: Fyrsta samsettu tegund, sem talar frá null.\n:param stop: Einn í gegnum síðasta sameiginlegur tegund.\n:param kind: Name of the barcode type that matched.",
+      "source_sha256": "651c4110ec02b5afd0989ee068a47293bbb200263b5757053df5f9cdf247131f",
+      "text": "Einn hliðið af lesunni sem barkódur af einhverjum tegundum samsvarar.\n\nFramtíðin er hálft opinn og ritað í merki frá upphafi lesunnar, þannig að það fylgir Python slicing nákvæmlega og matched textu er ``read[start:stop]``. Stæði fyrir utan lesunnar eru klumped þegar spán er þreytur, og spán sem hættir ekki eftir upphafið er ekkert aðstoða, svo að kallað sem gerir aritmetík á lesandi lengdum getur ekki gert sjónarhófi.\n\nÞað er hvað ritað kalla að fjölskylda barkód, það er það sem leyndardóminn sýnir, og það er hvaða litur er, þannig að tvö spans að deila kyn er tryggð að deilla lit á hverri rödd.\n\n:param start: Fyrsta samsettu tegund, sem talar frá null.\n:param stop: Einn í gegnum síðasta sameiginlegur tegund.\n:param kind: ribune name",
       "translation_source_blocks_sha256": [
         "a6d24050e9c5c6dfedf0dcb149dbd5809ab6b1ef38bdb49c8ba80f4e01ef84f8",
         "e0bf798f0dc2a1ee4ac5369071bb5d4f1de6a71d15d1faa12ce98c4d66670e08",
         "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
         "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
         "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
-        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+        "64bdcbd32652c583619a5f41032ef1a2c562580b5f0284756cbe93a7c915e94e"
       ]
     },
     "spacr.qt.widgets.read_view.ReadRow": {
@@ -128959,18 +128973,20 @@
         "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
         "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
         "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
-        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "39d3c51ea392e264b4e3e98b96de9c94adfca951d6a9aba48fbd7c8838be6905",
+        "9ae9f6e045ac0b7ef9d0e64c5b64f22b7220af13f2bb05e44505bfeb8b3e81b7",
         "a87f546d5bbbdbd8e853072bbf110383d442f14498713f2646e3858c69a69cb3",
         "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
         "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
       ],
-      "source_sha256": "ec7f068304591e8fa899d5de4cc3020d81fcd0a9b72bdbeea26c62bb381e198c",
-      "text": "Lesa eins og texta, einn eftir eilífu, með hverjum barkódum tegund í eigin lit.\n\nHann lætur það og spannir einhver annar matched inn í þeim, og það sýnir þá. Það er aldrei að leita að neinu sjálfum og aldrei innsækja kóða sem það gerir, þannig að það er hægt að kasta í hvaða skrin sem hefur lesur og stöðu til að sýna.\n\nÞað sem það veitir. Lætur eru tekin í stöðugri stöðu á stöðugum tegundum, þannig að fjörutíu af einum lesu situr yfir fjöruttíu af næsta. Lesa aldrei snúa á annað sýnilegum röð: lengur gerir sjónarhluta síðar, vegna þess að snúa lesur myndi brjóta einn lesur á röð loforð að allan widget er til að halda. Barcode tegund hallar einn litur svo lengi að sýn sýnir það, svo að augun getur fylgst samning niður röð, og leyndarmál yfir lesunum segir hvaða litur er.\n\nHow overlaps are settled. The spans of a read are considered in the order they were given, and the first one to cover a character keeps it. A span that arrives later still colours every character not already taken, so it is never hidden completely, only trimmed. Deciding this before any drawing starts is what makes overlapping spans merely a question of priority rather than a way to corrupt the picture. A caller who wants a particular barcode type to win an overlap should list its spans first.\n\nHvað kostar það. Lesa eru haldið í listamálið og þreytin af ráðherranum, svo að veita yfir lesa kostar listamál og dreyting kostar aðeins ránir sem eru í raun á umsókn sýningu. Að setja tíu þúsund lesa og sýna sýningu leysa eigandi tegund af skreytingu af ránum, ekki tíð þúsunda, sem er það sem hallar samskipti viðbrögð á raunverulegu FASTQ sýning en á leikföngum einn.\n\n:param parent: Optional Qt eigandi sem er ábyrgur fyrir lífi widgetinu.\nBúa vöktu sýn með leyndarmál yfir listan af lesum.",
+      "source_sha256": "d4e42575087f177d95463a71417f086e302c083584c863fe42a000fe3eeb9189",
+      "text": "Lesa eins og texta, einn eftir eilífu, með hverjum barkódum tegund í eigin lit.\n\nHann lætur það og spannir einhver annar matched inn í þeim, og það sýnir þá. Það er aldrei að leita að neinu sjálfum og aldrei innsækja kóða sem það gerir, þannig að það er hægt að kasta í hvaða skrin sem hefur lesur og stöðu til að sýna.\n\nÞað sem það veitir. Lætur eru tekin í stöðugri stöðu á stöðugum tegundum, þannig að fjörutíu af einum lesu situr yfir fjöruttíu af næsta. Lesa aldrei snúa á annað sýnilegum röð: lengur gerir sjónarhluta síðar, vegna þess að snúa lesur myndi brjóta einn lesur á röð loforð að allan widget er til að halda. Barcode tegund hallar einn litur svo lengi að sýn sýnir það, svo að augun getur fylgst samning niður röð, og leyndarmál yfir lesunum segir hvaða litur er.\n\nHvernig á að skipuleggja yfirliti. Skýrslur af lesingu eru lesin í orði sem þeir voru gefið. Fyrsta hliðið til að djúpa tegundin varðveita þessa tegund.\n\nA síðar rita enn litur hvert tegund sem er enn frjáls, þannig að það er ritað í stað þess að fela. Regla er notað áður en eitthvað er að rita, sem breytist á rita í spurning um priorítum í stað brjóta mynd. Til að leyfa einum ritaða tegund vinna ritaði, lista rita sína fyrst.\n\nHvað kostar það. Lesa eru haldið í listamálið og þreytin af ráðherranum, svo að veita yfir lesa kostar listamál og dreyting kostar aðeins ránir sem eru í raun á umsókn sýningu. Að setja tíu þúsund lesa og sýna sýningu leysa eigandi tegund af skreytingu af ránum, ekki tíð þúsunda, sem er það sem hallar samskipti viðbrögð á raunverulegu FASTQ sýning en á leikföngum einn.\n\n:param parent: Optional Qt eigandi sem er ábyrgur fyrir lífi widgetinu.\nBúa vöktu sýn með leyndarmál yfir listan af lesum.",
       "translation_source_blocks_sha256": [
         "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
         "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
         "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
-        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "39d3c51ea392e264b4e3e98b96de9c94adfca951d6a9aba48fbd7c8838be6905",
+        "9ae9f6e045ac0b7ef9d0e64c5b64f22b7220af13f2bb05e44505bfeb8b3e81b7",
         "a765b429869a0bf35b16ae1a5028cf2c5189ec7a8ee1c56d3c15251742aa9b7a",
         "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
         "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
@@ -146845,7 +146861,7 @@
         "a24b201e8ac8ad15ccf8cb452cb2130a305d8a454c58d0a86185334693d6dffe"
       ],
       "source_sha256": "0a51509de1bff58527c450259124c95343710af020de9562bfc6628961f94f2d",
-      "text": "Vertu fótbolta af FASTQ skreytingu próf í per-microplate próf stöðu sgRNA tól sem hægt er að nota með :func:`spacr.ml.perform_regression`.\n\nUppgötva R1 og R2 skjölum á hverjum skugga undir ``src``. Paired vs ein-end og R1/R2 leiðsögn eru valið frá ``settings['mode']`` og ``single_direction``.\n\nFrá hverjum lesingu er það taka út hverri barkódur á leiðandi dekóði, með því að nota uppbyggð regex og offset vetrinn. Hver útgreiðan er þá breytt í nafn í gegnum eigin lookup CSV (sjá :func:`map_sequences_to_names`).\n\nÁ dæmi skrifa það ``annotated_reads.h5`` (þekkt), ``unique_combinations.csv`` (eð mikróplata dæmi stöðu gRNA talar) og ``qc.csv``.\n\n:param settings: Sættu key-value mapping, kanonicalized með :func:`spacr.settings.set_default_generate_barecode_mapping`.\n\n    - ``src`` — fylgjur sem inniheldur ``*.fastq.gz`` lesur.\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` eða ``'R2'`` (eins og ``mode='single'``).\n    - ``regex`` — regex útgreining barkódum frá lesingu.\n    - ``target_sequence``, ``offset_start`` og ``expected_end`` — ákvarðanir og slíka vinstri sem notuð er til að finna barkód svæðis.\n    - ``column_csv`` / ``row_csv``/ ``grna_csv`` — barkód ->name lookup CSVs fyrir þremur barkóður spaCR sendin.\n    - ``barcode_set`` — barkódur til að dekoða þegar meðferð uppsetningu hefur öðruvísi en þremur, sem lista með einn inntöl á barkóði. Hver inntök heitir barkodu, reference CSV sem heitir eftirliti sínu og regex hópur sem taka það.\n    - ``save_h5``, ``comp_type`` og ``comp_level`` — HDF5 útgangsbúðir.\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` — ef rétt, QC hver fullkominn tákn með :func:`spacr.sequencing_qc.barcode_qc`, skrifa skammtur og skýrslu í ``<dst>/barcode_qc`` (þekkt False; ekki fyllt í með staðsetningu staðsetningar).\n    - ``target_grnas_per_well`` — vöruð gRNAs á mikrópstæða, frá því að QC skref afleiðir bragð sitt (þekkt 1).\n\n:returns: None. Skrifa niðurstöður á dæmi í ``<src>/<sample>_<mode>[_<direction>]/``.\n\nTil dæmis:\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\nSjá einnig: :func:`map_sequences_to_names` — innri rálkódinn->nafn lookup. :func:`spacr.ml.perform_regression` — nota niðurstaða ``unique_combinations.csv`` sem ``count_data``.",
+      "text": "Vertu fótbolta af FASTQ skreytingu próf í per-microplate próf stöðu sgRNA tól sem hægt er að nota með :func:`spacr.ml.perform_regression`.\n\nUppgötva R1 og R2 skjölum á hverjum skugga undir ``src``. Paired vs ein-end og R1/R2 leiðsögn eru valið frá ``settings['mode']`` og ``single_direction``.\n\nFrá hverjum lesingu er það taka út hverri barkódur á leiðandi dekóði, með því að nota uppbyggð regex og offset vetrinn. Hver útgreiðan er þá breytt í nafn í gegnum eigin lookup CSV (sjá :func:`map_sequences_to_names`).\n\nÁ dæmi skrifa það ``annotated_reads.h5`` (þekkt), ``unique_combinations.csv`` (eð mikróplata dæmi stöðu gRNA talar) og ``qc.csv``.\n\n:param settings: Sættu key-value mapping, kanonicalized með :func:`spacr.settings.set_default_generate_barecode_mapping`.\n\n    - ``src`` — fylgjur sem inniheldur ``*.fastq.gz`` lesur.\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` eða ``'R2'`` (eins og ``mode='single'``).\n    - ``regex`` — regex útgreining barkódum frá lesingu.\n    - ``target_sequence``, ``offset_start`` og ``expected_end`` — ákvarðanir og slíka vinstri sem notuð er til að finna barkód svæðis.\n    - ``column_csv`` / ``row_csv``/ ``grna_csv`` — barkód ->name lookup CSVs fyrir þremur barkóður spaCR sendin.\n    - ``barcode_set`` — barkódur til að dekoða þegar meðferð uppsetningu hefur öðruvísi en þremur, sem lista með einn inntöl á barkóði. Hver inntök heitir barkodu, reference CSV sem heitir eftirliti sínu og regex hópur sem taka það.\n    - ``save_h5``, ``comp_type`` og ``comp_level`` — HDF5 útgangsbúðir.\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` — ef rétt, QC hver fullkominn tákn með :func:`spacr.sequencing_qc.barcode_qc`, skrifa skammtur og skýrslu í ``<dst>/barcode_qc`` (þekkt False; ekki fyllt í með staðsetningu staðsetningar).\n    - ``target_grnas_per_well`` — vöruð gRNAs á mikrópstæða, frá því að QC skref afleiðir bragð sitt (þekkt 1).\n\n:returns: None. Skrifa niðurstöður á dæmi í ``<src>/<sample>_<mode>[_<direction>]/``.\n\nDæmi:\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\nSjá einnig: :func:`map_sequences_to_names` — innri rálkódinn->nafn lookup. :func:`spacr.ml.perform_regression` — nota niðurstaða ``unique_combinations.csv`` sem ``count_data``.",
       "translation_source_blocks_sha256": [
         "8cd69f2da40b717c5f23cf48be86f3b6a48bb1f7387c9109f9ad6aa561f8d2a5",
         "2248ee778f5a212033ec0a8e295a683216ef3f8c9f3bba0200531e9d9a81fbd9",
@@ -147960,7 +147976,7 @@
     },
     "spacr.settings.BarcodeEntry": {
       "source_blocks_sha256": [
-        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "493b1aca75dd59bed46bcbd976b81cec344b605503d2aba0312528855e55f80e",
         "e6e65ecebf78eb06898d73da6aa6d7f3abc8d78dfd8c25533cc6da0adc0ae6d8",
         "d58785ef6ef741235c248817fa0bf63706eb1c9e9b5042816b59f14cca90a5c0",
         "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
@@ -147969,10 +147985,10 @@
         "54684e804efb149765829e6d3ffc14518cb55f95cd7cd373c9415c5b9d0432f8",
         "41f2159e3149ffb4c2a37e2da76914e58fb646954aa260ef1397ce297f6f49d3"
       ],
-      "source_sha256": "3c9b076038b7fe5d8a0dbec07fc4ec5523de64d1f64685896c540df7bd71798d",
-      "text": "One barcode type a Map Barcodes run decodes.\n\nA meðferð ákvarðan er notað til að dekoða nákvæmlega þremur barkódum - laboratory microplate kolumn, leiðbeining og laboratory mikroplate slík - vegna þess að reggex, settingar og lesing processors hver spilaði allar þrír af þeim út af nafni.\n\n:ivar name: orð sem notandi myndi notað fyrir þessa stefnumót, svo sem ``column``, ``row`` , ``grna`` eða ``plate``. Það nefnir tvö útgangar kolumna sem meðhöndlun rita fyrir innfangið, þannig að það verður að vera einstakt innan sett.\n:ivar csv: Ráðstefn sem snúa einn af þessum eftirliti í nafn. Það þarf ``sequence`` stefnu og ``name`` stefn. Sækkun hennar ætti að vera í sömu leiðandi sem lesendur, vegna þess að þeir eru samanburðar verbatim en ekki aftur-komplemented.\n:ivar group: the named group of the barcode regex whose captured text is this barcode. Left empty it is the entry's own name, which is what a regex written for a new set will normally use.\n:ivar group_aliases: further spellings of that group name, accepted when the preferred one is absent from the regex. The column and row barcodes spaCR shipped accept the shorter ``column`` and ``row`` this way, which is why a pattern written before those names were settled still runs.\n:ivar sequence_column: afleiðingskólinn sem útgreiðslan er skrifað til. Leiðu völum það er nafn innfangsins eftir ``_sequence``.\n:ivar id_column: the output column the resolved name is written to. Left empty it is the entry's name followed by ``ID``. The guide barcode spaCR shipped sets this to ``grna_name`` instead, because that is the header every count table already written and every reader of one expects.",
+      "source_sha256": "36bb69b77e7ba3ea4ff318276ae71564e63e7301bc0e1f05dedebaa9f326f009",
+      "text": "Einn barkódur tegund sem löngur dekóða.\n\nA meðferð ákvarðan er notað til að dekoða nákvæmlega þremur barkódum - laboratory microplate kolumn, leiðbeining og laboratory mikroplate slík - vegna þess að reggex, settingar og lesing processors hver spilaði allar þrír af þeim út af nafni.\n\n:ivar name: orð sem notandi myndi notað fyrir þessa stefnumót, svo sem ``column``, ``row`` , ``grna`` eða ``plate``. Það nefnir tvö útgangar kolumna sem meðhöndlun rita fyrir innfangið, þannig að það verður að vera einstakt innan sett.\n:ivar csv: Ráðstefn sem snúa einn af þessum eftirliti í nafn. Það þarf ``sequence`` stefnu og ``name`` stefn. Sækkun hennar ætti að vera í sömu leiðandi sem lesendur, vegna þess að þeir eru samanburðar verbatim en ekki aftur-komplemented.\n:ivar group: nafnið hópur barkódans regex sem greint texti er þetta barkod. Leiðu vöktu það er eigin nafn innfangsins, sem er það sem regex skrifað fyrir nýjan setur mun venjulega nota.\n:ivar group_aliases: framar spellingar þessara hópna nafn, samþykkt þegar uppáhalds einn er ekki frá regex. Fólkið og stefnu stefnu spaCR sendur samþykkja stuttari ``column`` og ``row`` þannig, sem er ástæðan fyrir því að mönnun skrifað áður en þessir nafni voru settur enn að fara.\n:ivar sequence_column: afleiðingskólinn sem útgreiðslan er skrifað til. Leiðu völum það er nafn innfangsins eftir ``_sequence``.\n:ivar id_column: hliðarnúmerið, sem er leyft nafn er skrifað til. Leiðu völum það er nafn innfanginn fylgt með ``ID``. leiðbeiningurinn spaCR sendur setur þetta til ``grna_name`` í staðinn, Því að það er headerin, hver fjölmiðla sífellt skrifað og hver lesandi á einum vantar.",
       "translation_source_blocks_sha256": [
-        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "493b1aca75dd59bed46bcbd976b81cec344b605503d2aba0312528855e55f80e",
         "a54459002ec25a06a6300251212900b8edd1e9f50229b3b3fe2a08e45b5516c8",
         "bcf57e9b01531c6c73c19194d71f301f94655e6aaf1c6829e9e151ac9ed37cf7",
         "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
@@ -148040,19 +148056,19 @@
     },
     "spacr.settings.BarcodeSet": {
       "source_blocks_sha256": [
-        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "1f7b2a96ba46b9b848d96dc6291fe9d1ebe6dc336cbf4170df12f1f4f5659ba7",
         "ded2ad28437c9bd2f3515ede17e5716d88c76a19b67f3ea25d02380d342e9e12",
         "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
-        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "dae54ee4ac0af5bb5327188f7f93187e13ae55e766340e4c2d199f79dd38d23a",
         "e62e63f559ddf046554e9fc42153a4cdc3d4fe8224573f02c3dfe36914e4d89f"
       ],
-      "source_sha256": "20633b53ddeae67fce8bb689126f8a5d0e12515e50f42b9794db534ab6c4fd1f",
-      "text": "The ordered barcode types one Map Barcodes run decodes.\n\nA set skiptir um þrjár nefndar referenssetningar sem módulinn byrjaði með. Ítök það er hvernig meðhöndlun ákvarðanir ná hverri barkód, þannig að meðhendlun með einn barkod og meðhaldur með tíu missa aðeins í því sem þetta hefur.\n\nTölur tákn er hægt að setja sérstakt vegna þess að þrjár táknum spaCR sendur í ár eru táknað eftir röð, þá tólum, þá leiðbeiningum, en lesendur listar tólinn fyrst.\n\n:ivar entries: the barcode types, in the order the run lists them. The annotated reads carry each entry's sequence column and name column in this order, after the read itself.\n:ivar count_columns: nafnið kolumnar per-mikroplata staðsyns tákn eru hópur af, í röð sem þeir eru hópd. Leiðu völum það er nafn kolumna á hverri innri í innri orði.",
+      "source_sha256": "80aaa5ffb38f1d653c3b2a0702e9c0913230c5c9a3a6c38e9a9c4d1e569ef79d",
+      "text": "Barkódinn tegundir löngur dekóður, í orði.\n\nA set skiptir um þrjár nefndar referenssetningar sem módulinn byrjaði með. Ítök það er hvernig meðhöndlun ákvarðanir ná hverri barkód, þannig að meðhendlun með einn barkod og meðhaldur með tíu missa aðeins í því sem þetta hefur.\n\nTölur tákn er hægt að setja sérstakt vegna þess að þrjár táknum spaCR sendur í ár eru táknað eftir röð, þá tólum, þá leiðbeiningum, en lesendur listar tólinn fyrst.\n\n:ivar entries: barkódtypur, í orðum sem fer listar þá. Hver inntölinn bætir eftirliti stefnu og nafn stefnu á hverjum notuð lesingu. Þessar stefnu koma eftir lesingu, í sama orði.\n:ivar count_columns: nafnið kolumnar per-mikroplata staðsyns tákn eru hópur af, í röð sem þeir eru hópd. Leiðu völum það er nafn kolumna á hverri innri í innri orði.",
       "translation_source_blocks_sha256": [
-        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "1f7b2a96ba46b9b848d96dc6291fe9d1ebe6dc336cbf4170df12f1f4f5659ba7",
         "86ae1cc70a39c43febc66d849b6b0e8e76037bbb71d7e0177acf57582ecf3f07",
         "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
-        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "dae54ee4ac0af5bb5327188f7f93187e13ae55e766340e4c2d199f79dd38d23a",
         "477ae570ca19e990949ef7e68fd328768bea29b28744e7e96641bb1b099c89f4"
       ]
     },

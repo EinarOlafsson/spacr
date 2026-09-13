@@ -5103,10 +5103,12 @@
         "87abc46324b7652f26afd47890cc77870273d005260e0e9ff49fdf9cd7a4c3f5",
         "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
         "9cdf97745e26f6331d427c3b47bac0e9d665a9013ad83e82b5d1d97e2c13d8e2",
-        "2a168de40798a583f43ae4a10b09d9ec6541cef4c29ed2d7a4a8fad0fc4bcc28"
+        "8c3b756a59a288efefc5cd40736fe4dac7c64abb1b2c54563bb639df11d12b7a",
+        "ef9bd71db073402127a75607c05f058a682f9a166d4a2b9721757f5dd613bea6",
+        "bd431fde3755ae77e6503f997f68b65ef49331d1a75653298ac1a6620224f87e"
       ],
-      "source_sha256": "5b68ce11638d37ea4bc01bf69d8fda009072f9afa3c51d542e4fb44836f1f974",
-      "text": "决定哪个条形码表一个序列运行实际上包含。\n\n它是为了什么\n==============\n地图条形码必须说三件事它不能猜测:哪个同伴携带每条条码,是否参考表存储在同一方向的阅读,在哪里在阅读条形代码设置。 得到其中任何一个错误产生一个处理会议,结束正常和地图什么,因为每个阶段之后的提取窗口工作在错误的基础上。 这个模块阅读一个有限的样本的阅读器,测量每个参考表对他们在两个方向,并将测量转换为设置的地图运行可以使用。 它不保持图形码和打开没有对话,所以相同的引擎服务于直播搜索的界面,笔记本电脑,测试。\n\n为什么原始打击率不是证据\n==================================\n一个短条码通过纯偶然在长阅读中出现。 三十二个不同的八个基础条码在一百五十个基础阅读中扫描有大约七分之七的机会,所以一个真正缺席的图表仍然报告了约七%的阅读作为打击。 一个检测器在这个速度上宣布一个发现会发送某人寻找一个不存在的错误,或者会安静地设置一个地图,没有任何结果。\n\n为什么大增长还不够\n==========================================\n随机丰富回答是否有序列在读书中. 它不回答是否是实验室微板条码. 序列适配器是固定的序列重复在每个阅读, 每个表中的条码一堆将看起来像一个适应器的一部分足够密切相匹配。 这产生一个大,完美的真实的丰富驱动两个条码坐在适用器而不是一个实验室小板。 测量分开两个是位置。 实验室显板条代码占据一个位置在结构中,因此在几乎每个阅读中降落在一个折扣,这正是为什么一个提取窗口可以为它提供的一切。 一场在阅读中分散的比赛不能产生一个窗口,并且不被视为一个发现,尽管它是丰富的。\n\n它所产生的\n================\n一份报告,每份参考表、导向和输入文件的组合中包含一个发现。 每个发现都包含所观察的利率、机会率、丰富、折扣分配、最狭窄的折扣窗口,以大多数的打击为主,表面有多少个不同的字符号被观察到,以及一个判决,说出为什么这个判决被达到。 该报告可以作为日志的表格呈现,并且可以插入 :func:`spacr.sequencing.generate_barecode_mapping` 阅读的设置。\n\n接下来的要做什么\n================\n在提议的设置之前阅读判决. 一个表据报道在两方方向中都缺席,通常是错误的参考文件而不是一个失败的实验,而折扣列是从一个适配器中提交实验室微板条码的最快方式,它会看起来像一个。",
+      "source_sha256": "289c6b367812e7320ca194ea34582f32dde0fc825419af7a2569fce12a54e833",
+      "text": "决定哪个条形码表一个序列运行实际上包含。\n\n它是为了什么\n==============\n地图条形码必须说三件事它不能猜测:哪个同伴携带每条条码,是否参考表存储在同一方向的阅读,在哪里在阅读条形代码设置。 得到其中任何一个错误产生一个处理会议,结束正常和地图什么,因为每个阶段之后的提取窗口工作在错误的基础上。 这个模块阅读一个有限的样本的阅读器,测量每个参考表对他们在两个方向,并将测量转换为设置的地图运行可以使用。 它不保持图形码和打开没有对话,所以相同的引擎服务于直播搜索的界面,笔记本电脑,测试。\n\n为什么原始打击率不是证据\n==================================\n一个短条码通过纯偶然在长阅读中出现。 三十二个不同的八个基础条码在一百五十个基础阅读中扫描有大约七分之七的机会,所以一个真正缺席的图表仍然报告了约七%的阅读作为打击。 一个检测器在这个速度上宣布一个发现会发送某人寻找一个不存在的错误,或者会安静地设置一个地图,没有任何结果。\n\n为什么大增长还不够\n==========================================\n随机丰富回答是否有序列在读书中. 它不回答是否是实验室微板条码. 序列适配器是固定的序列重复在每个阅读, 每个表中的条码一堆将看起来像一个适应器的一部分足够密切相匹配。 这产生一个大,完美的真实的丰富驱动两个条码坐在适用器而不是一个实验室小板。 测量分开两个是位置。 实验室显板条代码占据一个位置在结构中,因此在几乎每个阅读中降落在一个折扣,这正是为什么一个提取窗口可以为它提供的一切。 一场在阅读中分散的比赛不能产生一个窗口,并且不被视为一个发现,尽管它是丰富的。\n\n它所产生的\n================\n一份报告,每份参考表、导向和输入文件的组合中包含一个发现。 每个发现都包含所观察的利率、机会率、丰富、折扣分配、最狭窄的折扣窗口,以大多数的打击为主,表面有多少个不同的字符号被观察到,以及一个判决,说出为什么这个判决被达到。 该报告可以作为日志的表格呈现,并且可以插入 :func:`spacr.sequencing.generate_barecode_mapping` 阅读的设置。\n\n接下来的要做什么\n================\n在提议的安排之前,请阅读判决。\n\n一张表通常在两方的两方向都缺席,通常意味着错误的参考文件,而不是一个失败的实验。\n\n折扣列是最快的方式,从一个适配器告诉一个实验室微板条码,它会看起来像一个。",
       "translation_source_blocks_sha256": [
         "c5710bbbdc1d888f7f7ac91eb35125595dd31005363ff16f8b15a8cbe1701840",
         "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
@@ -5118,7 +5120,9 @@
         "1b9e73ff367742a6893f9adda6659a509d41eb8e4a8cc60eb5f4c7ab862a3b47",
         "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
         "6164ad73de3089addfdf4320dbe9f6da259911427de5e8fbaae926809d0c3167",
-        "10e18f90c11a4acfb1c3abe417d6d636b9a54874961d051c9ae95d25c250b9f3"
+        "8c3b756a59a288efefc5cd40736fe4dac7c64abb1b2c54563bb639df11d12b7a",
+        "ef9bd71db073402127a75607c05f058a682f9a166d4a2b9721757f5dd613bea6",
+        "af63ea6462356dd473500aeb8a43b43c82387d50c4f457a83e6ec50aba382e32"
       ]
     },
     "spacr.barcode_search.BarcodeHit": {
@@ -5390,15 +5394,15 @@
     "spacr.barcode_search.OrientationFinding.offset_histogram": {
       "source_blocks_sha256": [
         "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
-        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "744b3c640260556afcdaa9ecf6684893978df5e7e80821733a9386366f90aa0a",
         "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
         "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
       ],
-      "source_sha256": "f130a60cbb1b69258dadd277780b1bc6b6a4a3b19e856cc49a1e26abc215c770",
-      "text": "返回每次开始折扣时的击数作为序列。\n\n序列由折扣索引,以便一个召唤者可以直接编写它,而不会首先研究哪个折扣被人口。\n\n:param read_length: 该序列应该有多长;足够长,以保持当被忽略时最大的观察折扣。\n:returns: 一系列的攻击计算,通过启动折扣进行索引。",
+      "source_sha256": "68c8ddac0d2b4c8a4a552f58a7449b57ed68a8a97e1547d06de83904aba01045",
+      "text": "返回每次开始折扣时的击数作为序列。\n\n序列中的位置是自定义的,一个召唤者可以像它一样绘制序列,并且不需要研究哪些序列被使用。\n\n:param read_length: 该序列应该有多长;足够长,以保持当被忽略时最大的观察折扣。\n:returns: 一系列的攻击计算,通过启动折扣进行索引。",
       "translation_source_blocks_sha256": [
         "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
-        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "744b3c640260556afcdaa9ecf6684893978df5e7e80821733a9386366f90aa0a",
         "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
         "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
       ]
@@ -5406,22 +5410,25 @@
     "spacr.barcode_search.OrientationFinding.window_end": {
       "source_blocks_sha256": [
         "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
-        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "4824d5f5d99c7775ae841395896a49a2c15047c07b9588410e02551804d8bbd3",
+        "dfc3f4901f45ffa2fbfb4130425580788889bc0602d6d5c1b629be675f2da0ab",
         "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
       ],
-      "source_sha256": "4f32f1f65a73ce5b9b7d23c7199e27e65d71af34ebf59beddbeb28c8774eda19",
-      "text": "返回第一个折扣超过条码在其常见位置。\n\n提议的提取窗口必须到达最后一个条码的尽头而不是它的开始,而一个条代码集,其成员在长度上不同,到达最短的最长的成员。\n\n:returns: 折扣刚刚到达条码的结尾。",
+      "source_sha256": "2d777c8e8c3dc95d53478be8bb65f6a0f51f6b3137fecc4ee9f8112fa2cb0ba4",
+      "text": "返回第一个折扣超过条码在其常见位置。\n\n窗口必须到达最后的条码的尽头,而不是它的开始。\n\n当一个组中的条形码不是所有相同的长度时,最长的则决定窗口的终点。\n\n:returns: 折扣刚刚到达条码的结尾。",
       "translation_source_blocks_sha256": [
         "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
-        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "4824d5f5d99c7775ae841395896a49a2c15047c07b9588410e02551804d8bbd3",
+        "dfc3f4901f45ffa2fbfb4130425580788889bc0602d6d5c1b629be675f2da0ab",
         "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
       ]
     },
     "spacr.barcode_search.ProposedMapping": {
       "source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "44112b48f305c7632ae1ee69cdf99bcbdffda71fba4987e204a5ca6350326329",
-        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "3af1280468ae174bf22c9c81391bc973cbe546a3b244746887b4bf386a8e4732",
+        "1b8839b3807f9028ccdfbde70eaff4dddbec1f71dc896ce8e06ca1fa984340bb",
+        "d2c88ed356fc41c4ba9464254db7f56a80b13e847e4864aa8a28cb973f88a03f",
         "8c02f8c21128a929b2421e44a6335f149b4c7371066cc68a7ea16cb0109fc646",
         "c83a06f40906767f7de977cb698c385f449ca54aba98faae6647cd1d70c5bcf7",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
@@ -5432,12 +5439,13 @@
         "b73ba95fd81532679b792744546dbcf363dc776defcb8caf284672198b996dbf",
         "a00a190d22632254b649be175293a38ea317560c118f90f9a150a4f0817073bb"
       ],
-      "source_sha256": "d99c7195319b647f3ba18b4bc6aaf9b9e1349a21f88499e49d3e42200b0d10af",
-      "text": "设置搜索认为一个地图运行应该使用,以及为什么。\n\n提议的设置只保留了地图运行已经阅读的结构化数据名称,因此它们可以直接交付给它。\n\n所有搜索所学到的,其中没有家在这些钥匙旅行旁边. 一个呼叫者,沉默地下降的方向将重新引入这个模块的失败存在,以防止。\n\n一个筛选在实验室微板列之外的条形码,引导 RNA和实验室小板列没有设置名称等待它。 因此,为每个角色选择的表列入参考表中,无论是否可以填写一个结构化数据名称。\n\n:param settings: 只有结构化数据名称,地图运行已经阅读,所以地图可以直接传递这个关键值地图。\n:param reference_file: 文件,其阅读的窗口外套是反对的,因为外套没有他们的框架意味着什么。\n:param source_files: 从角色到创建它的阅读文件的地图。\n:param orientations: 从表标签到运行方向的地图,应该搜索该表。\n:param reference_tables: 每个角色所选择的表,列出是否有一个设置名称存在,以便携带它 - 这是一个点,因为没有结构数据名称的角色正是那种,否则会失去。\n:param reverse_complement_needed: 行程的桌子必须逆转补充来识别,因为它们被发现在第二方存储。\n:param unresolved_roles: 命名而不是猜测,所以一个召唤者可以这样说,而不是开始一个将没有地图的运行。\n:param notes: 搜索者所知道的,在设置名称中没有家。",
+      "source_sha256": "9bdc17fca4294ef02ad4cbcbb5abc23b571a8c34005aeb143fa9ad7c69043fd9",
+      "text": "设置搜索认为一个地图运行应该使用,以及为什么。\n\n提议中的每一个结构化数据名称都是已经阅读的地图运行,运行可以随时采取提议。\n\n搜索中所学到的,没有匹配密钥,都被带到旁边。\n\n一个静静地放下方向的呼叫器会带回这个模块存在的故障,以防止。\n\n一个筛选在实验室微板列之外的条形码,引导 RNA和实验室小板列没有设置名称等待它。 因此,为每个角色选择的表列入参考表中,无论是否可以填写一个结构化数据名称。\n\n:param settings: 只有结构化数据名称,地图运行已经阅读,所以地图可以直接传递这个关键值地图。\n:param reference_file: 文件,其阅读的窗口外套是反对的,因为外套没有他们的框架意味着什么。\n:param source_files: 从角色到创建它的阅读文件的地图。\n:param orientations: 从表标签到运行方向的地图,应该搜索该表。\n:param reference_tables: 每个角色所选择的表,列出是否有一个设置名称存在,以便携带它 - 这是一个点,因为没有结构数据名称的角色正是那种,否则会失去。\n:param reverse_complement_needed: 行程的桌子必须逆转补充来识别,因为它们被发现在第二方存储。\n:param unresolved_roles: 命名而不是猜测,所以一个召唤者可以这样说,而不是开始一个将没有地图的运行。\n:param notes: 搜索者所知道的,在设置名称中没有家。",
       "translation_source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "addfbdabfeb4a97d528ab904d919d12b0eafd971a5d531d01fff5ff7528a9d89",
-        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "f393bb6df3f2ad8134c7aac63d3ebb69434253fe29cd7fa4195fa484e3f06c64",
+        "1b8839b3807f9028ccdfbde70eaff4dddbec1f71dc896ce8e06ca1fa984340bb",
+        "d2c88ed356fc41c4ba9464254db7f56a80b13e847e4864aa8a28cb973f88a03f",
         "8c2cc1511ededead99b46fea2ff3c7d4d66d731ce015f288a428f57db9ebb6e6",
         "1472deda3c4b599dc0ff3fc7dd9009bcd7775436d9009406154085643bef140e",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
@@ -5614,7 +5622,7 @@
     "spacr.barcode_search.propose_map_barcodes_settings": {
       "source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "29e2e67ce1cb272327d7ea7aabc8bfced399163f332efa23568ab7bb4705a295",
         "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
         "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
@@ -5624,11 +5632,11 @@
         "db8dfb93e580e97e3a3655631fd1a4fb55d0cc1b1dd29f64da285de6d5b6960e",
         "5a2d01a292df36e13612b05a87e883cc1b1641cedcc34760fcf61328aac9eb68"
       ],
-      "source_sha256": "cce8e999a095ba50ce7844f76f245474690e2194191a8c8e6755ee586cedb4da",
-      "text": "将完成的搜索转换为运行条码地图的设置。\n\n地图运行读取两个匹配在一个序列的方向的第一个,所以这是框架,一切都表达在。\n\n因此,在其存储时,在第二层中发现的桌子需要被逆转补充,这就是运行所需要的,以便识别它。\n\n一个没有设立的桌子的角色是单独的,而不是猜测的,它被命名在未解决的角色中,所以召唤者可以这样说,而不开始一个将没有地图的跑步。\n\n它的起点是最早的折扣任何设立的条码占据,它的结局是最短的任何达成,两者都被测量在一个被寻找的 anchor,因为地图运行发现它的窗口,找到该 anchor 首先。\n\n:param report: 这是一个搜索的报告。\n:param base_settings: 从开始的设置,留下未修改;当被忽略时,一个空的关键值地图。\n:param reference_file: 该文件的标签,其导向是框架;当被忽略时,搜索的第一个文件。\n:returns: 提议,持有条款和什么不合适在其中。\n:raises ValueError: 当报告不包含文件时。",
+      "source_sha256": "f3e281f09e2deb3088e5963cd37a0bcce62f286f5c748236fdd0f42577e2342d",
+      "text": "将完成的搜索转换为运行条码地图的设置。\n\n跑步将两匹匹配合成一个序列,使用第一匹配的方向。\n\n因此,在其存储时,在第二层中发现的桌子需要被逆转补充,这就是运行所需要的,以便识别它。\n\n一个没有设立的桌子的角色是单独的,而不是猜测的,它被命名在未解决的角色中,所以召唤者可以这样说,而不开始一个将没有地图的跑步。\n\n它的起点是最早的折扣任何设立的条码占据,它的结局是最短的任何达成,两者都被测量在一个被寻找的 anchor,因为地图运行发现它的窗口,找到该 anchor 首先。\n\n:param report: 这是一个搜索的报告。\n:param base_settings: 从开始的设置,留下未修改;当被忽略时,一个空的关键值地图。\n:param reference_file: 该文件的标签,其导向是框架;当被忽略时,搜索的第一个文件。\n:returns: 提议,持有条款和什么不合适在其中。\n:raises ValueError: 当报告不包含文件时。",
       "translation_source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "29e2e67ce1cb272327d7ea7aabc8bfced399163f332efa23568ab7bb4705a295",
         "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
         "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
@@ -5642,15 +5650,17 @@
     "spacr.barcode_search.reverse_complement": {
       "source_blocks_sha256": [
         "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
-        "d2207806852fdc2a5acaa73706b0887c199cf8fd8f6e3d01a4037b0726859cfc",
+        "3e8a2f28b2f8221f546782a59821994d8124e650c475ebded900f4731719809d",
+        "c92e20c428e053cdaafaf19b0dd3bce646054511a4820fe3f651d242453264a8",
         "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
         "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
       ],
-      "source_sha256": "c46d4e4efe9c44e5381f2a3a734e910487e5d7228ee5b7060c6892cc4fe37aae",
-      "text": "返回核子序列的逆补充。\n\n翻译涵盖了每个案例的四个基础,并留下了一个模糊的基础,因此一个持有未解决的位置的读者会幸存下来,而不是扔掉。\n\n:param sequence: 核子序列到flip。\n:returns: 相反的补充,作为一条线。",
+      "source_sha256": "11141ad7160feaeb5c373c9aafa960e77ce65f7de55f689c3a9e5d7bcd747214",
+      "text": "返回核子序列的逆补充。\n\n最高案例和低案例都被处理。\n\n任何不是四个基础之一的信件都被返回不变,因此不确定位置的阅读仍然被逆转而不是被拒绝。\n\n:param sequence: 核子序列到flip。\n:returns: 相反的补充,作为一条线。",
       "translation_source_blocks_sha256": [
         "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
-        "7b6e1438856ef0b0a9bdd5e3c8cb61ccc271a1249eccb23ac936ce91f0b9c5ee",
+        "3e8a2f28b2f8221f546782a59821994d8124e650c475ebded900f4731719809d",
+        "c92e20c428e053cdaafaf19b0dd3bce646054511a4820fe3f651d242453264a8",
         "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
         "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
       ]
@@ -128906,16 +128916,20 @@
     "spacr.qt.widgets.read_view": {
       "source_blocks_sha256": [
         "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
-        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d1ee21a452dec013e846aed3662fb61f14de3c0541d2cf4524029192ccaf79d6",
+        "42d60d2b6dfb68e4522fb0db11667f9914e49cb4142a20f5009e33c50f634e2d",
+        "79cca739ca54d8008826db8b694060c34e33a650c212028eee6a05f31e6f09d8",
         "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
         "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
         "5dfb4bb842ac0f2797ac22244d93d3310e003829aac15af79f9f0124d9f38030"
       ],
-      "source_sha256": "d0e18e1e03cc79530830d73cb8008353a3cc1b201cd19d585bcef538fe19e56f",
-      "text": "显示序列阅读作为文本,一个阅读顺序,与比赛彩色。\n\n图条码界面要求用户相信关于他们的FASTQ文件的声明:在一个特定的位置,在一个特殊的方向,发现了一个特定的条码. 一个百分比在一个总结框中不能解决一个论点,因为一个比例看起来是相同的,如果比赛是真实的或偶然的. 阅读它安排。 看到 gRNA 地板在同一个列的序列后序列是用户信任的数字和用户必须采取的数字之间的差异,并且看到没有什么线上是如何一个错误的运行宣布自己在一个眼光,而不是一个小时的地图,产生没有计算。\n\n因此,这个 widget 是故意平坦的. 它将阅读文本在一个固定字段面,一个阅读到一个行,它绘制的字符一个条码匹配在一个颜色属于该条码类型. 什么都没有挖掘,什么都被排除,和字符在一个阅读的列四十位直接在字符的列第四十位,这是整个理由看阅读而不是在一个桌子上。\n\n这个模块不知道如何找到比赛. 它需要阅读和字符串,其他人计算,所以搜索引擎和主机的筛选可以自由地改变,没有触摸任何东西在这里,所以这可以测试没有任何一个。\n\n关于颜色的注意事项,因为它是容易错误的部分. 这里绘制的每种颜色都源于应用视图的主题,从来没有写成字面,而衍生品保留了主题本身的焦点角色的相对光明性。 对比是相对的光明性和其他任何东西的功能,所以这样制作的颜色正是清晰的对比,焦点已经在这个主题上清晰,包括主题,其面板在一张照片上流传。",
+      "source_sha256": "b5e3efed9a5c734bff55efd8567cda4340a317c565abadc46872826228458b15",
+      "text": "显示序列阅读作为文本,一个阅读顺序,与比赛彩色。\n\n一条条条码地图运行声称三件事关于序列文件,第一条是条码被发现,第二条是该条码的位置,第三条是它走进哪条方向。\n\n一个百分比本身不能证明这个声明,因为一个比例看起来是相同的,无论比赛是真实的还是偶然的。\n\n读者自己可以证明这一点. 当引导 RNA字符号落入同一列列顺序,可以信任的数字. 当没有线上,一个不良配置的运行会立即出现,而不是在一个小时的地图后,返回没有计算。\n\n因此,这个 widget 是故意平坦的. 它将阅读文本在一个固定字段面,一个阅读到一个行,它绘制的字符一个条码匹配在一个颜色属于该条码类型. 什么都没有挖掘,什么都被排除,和字符在一个阅读的列四十位直接在字符的列第四十位,这是整个理由看阅读而不是在一个桌子上。\n\n这个模块不知道如何找到比赛. 它需要阅读和字符串,其他人计算,所以搜索引擎和主机的筛选可以自由地改变,没有触摸任何东西在这里,所以这可以测试没有任何一个。\n\n关于颜色的注意事项,因为它是容易错误的部分. 这里绘制的每种颜色都源于应用视图的主题,从来没有写成字面,而衍生品保留了主题本身的焦点角色的相对光明性。 对比是相对的光明性和其他任何东西的功能,所以这样制作的颜色正是清晰的对比,焦点已经在这个主题上清晰,包括主题,其面板在一张照片上流传。",
       "translation_source_blocks_sha256": [
         "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
-        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d1ee21a452dec013e846aed3662fb61f14de3c0541d2cf4524029192ccaf79d6",
+        "42d60d2b6dfb68e4522fb0db11667f9914e49cb4142a20f5009e33c50f634e2d",
+        "79cca739ca54d8008826db8b694060c34e33a650c212028eee6a05f31e6f09d8",
         "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
         "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
         "3a805954e5e0fb6809a8a6b7bc5a5538afe2cf2db0abb5a1c3944d9975d62229"
@@ -128928,17 +128942,17 @@
         "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
         "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
         "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
-        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+        "64bdcbd32652c583619a5f41032ef1a2c562580b5f0284756cbe93a7c915e94e"
       ],
-      "source_sha256": "02be31d10f02110e50884d3f64ad5803cf8f150cbdf36b99b873347e8db804d1",
-      "text": "一个字符串的阅读,某种类型的条码相匹配。\n\n间隔是半开放的,从阅读开始就以字符计算。, 因此,它跟随 Python 精确滑动,相匹配的文本为 ``read[start:stop]``. 阅读之外的位置在拖拉时被粘贴。, 一个在开始后不停的间隔,就不会有任何贡献。, 因此,一个在阅读长度上做算法的呼叫者不能让视觉升高。\n\n它是什么呼叫这个字符号的家庭,这是传说所展示的,也是颜色的标志,所以两个分配一个类型的字符是保证在每个行上分享一个颜色。\n\n:param start: 第一个相匹配的字符,从零计算。\n:param stop: 一个超越了最后匹配的角色。\n:param kind: 相匹配的条形码类型的名称。",
+      "source_sha256": "651c4110ec02b5afd0989ee068a47293bbb200263b5757053df5f9cdf247131f",
+      "text": "一个字符串的阅读,某种类型的条码相匹配。\n\n间隔是半开放的,从阅读开始就以字符计算。, 因此,它跟随 Python 精确滑动,相匹配的文本为 ``read[start:stop]``. 阅读之外的位置在拖拉时被粘贴。, 一个在开始后不停的间隔,就不会有任何贡献。, 因此,一个在阅读长度上做算法的呼叫者不能让视觉升高。\n\n它是什么呼叫这个字符号的家庭,这是传说所展示的,也是颜色的标志,所以两个分配一个类型的字符是保证在每个行上分享一个颜色。\n\n:param start: 第一个相匹配的字符,从零计算。\n:param stop: 一个超越了最后匹配的角色。\n:param kind: 这个字符号类型属于这个范围。",
       "translation_source_blocks_sha256": [
         "a6d24050e9c5c6dfedf0dcb149dbd5809ab6b1ef38bdb49c8ba80f4e01ef84f8",
         "e0bf798f0dc2a1ee4ac5369071bb5d4f1de6a71d15d1faa12ce98c4d66670e08",
         "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
         "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
         "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
-        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+        "64bdcbd32652c583619a5f41032ef1a2c562580b5f0284756cbe93a7c915e94e"
       ]
     },
     "spacr.qt.widgets.read_view.ReadRow": {
@@ -128960,18 +128974,20 @@
         "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
         "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
         "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
-        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "39d3c51ea392e264b4e3e98b96de9c94adfca951d6a9aba48fbd7c8838be6905",
+        "9ae9f6e045ac0b7ef9d0e64c5b64f22b7220af13f2bb05e44505bfeb8b3e81b7",
         "a87f546d5bbbdbd8e853072bbf110383d442f14498713f2646e3858c69a69cb3",
         "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
         "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
       ],
-      "source_sha256": "ec7f068304591e8fa899d5de4cc3020d81fcd0a9b72bdbeea26c62bb381e198c",
-      "text": "阅读作为文本,一行一行,每个字符号类型在自己的颜色。\n\n它从来不寻找任何东西本身,从来没有进口它所做的代码,所以它可以落入任何有阅读和位置显示的筛选。\n\n什么是保证. 字符被拖在固定字符位置的固定字体面,所以列四十一个字符座位上列四十年后列. 一读从来没有拖到第二个视觉序列:一个长的人使视觉旋转侧面,而不是,因为一个旋转的字符会打破一个阅读序列的承诺,整个 widget 存在保持. 一条字符代码类型保持一个颜色,只要视觉显示它,所以眼睛可以跟随一个匹配下列,和传说在字符串上说什么颜色。\n\n如何排序曲线. 阅读的曲线被考虑到他们给予的顺序,第一个覆盖一个字符保持它. 到达后来的曲线仍然颜色每个字符已经没有采取,所以它从来没有完全隐藏,只是切割。 决定这一点之前任何绘画开始是什么使曲线曲线只是一个问题的优先事项,而不是一种方式来破坏图像. 一个呼叫者谁想要一个特定的条形码类型赢得曲线应该列出其曲线首先。\n\n读书在列表模型中保持,由代表编写,因此交付读书需要列表分配,而仅仅是实际上在应用程序视图上的行列的绘图费用。 设置1000个读书和显示视图解决了字符的所有权,一个界面的行列,而不是1000个,这就是保持接口响应的一个真实的FASTQ样本而不是一个玩具。\n\n:param parent: 可选 Qt 所有者负责 widget 的寿命。\n创建一个空白的视野,在阅读列表的顶部有一个传说。",
+      "source_sha256": "d4e42575087f177d95463a71417f086e302c083584c863fe42a000fe3eeb9189",
+      "text": "阅读作为文本,一行一行,每个字符号类型在自己的颜色。\n\n它从来不寻找任何东西本身,从来没有进口它所做的代码,所以它可以落入任何有阅读和位置显示的筛选。\n\n什么是保证. 字符被拖在固定字符位置的固定字体面,所以列四十一个字符座位上列四十年后列. 一读从来没有拖到第二个视觉序列:一个长的人使视觉旋转侧面,而不是,因为一个旋转的字符会打破一个阅读序列的承诺,整个 widget 存在保持. 一条字符代码类型保持一个颜色,只要视觉显示它,所以眼睛可以跟随一个匹配下列,和传说在字符串上说什么颜色。\n\n如何安排字符串? 阅读字符的字符符串被列入它们的顺序, 第一字符覆盖字符保持这个字符。\n\n一个后期字段仍然颜色每个字符仍然是免费的,所以它是切割而不是隐藏的。 规则是在任何东西被切割之前应用,这将一个字段变成一个优先问题而不是一个破碎的图像。 为了让一个字符号类型赢得一个字体,首先列出它的字段。\n\n读书在列表模型中保持,由代表编写,因此交付读书需要列表分配,而仅仅是实际上在应用程序视图上的行列的绘图费用。 设置1000个读书和显示视图解决了字符的所有权,一个界面的行列,而不是1000个,这就是保持接口响应的一个真实的FASTQ样本而不是一个玩具。\n\n:param parent: 可选 Qt 所有者负责 widget 的寿命。\n创建一个空白的视野,在阅读列表的顶部有一个传说。",
       "translation_source_blocks_sha256": [
         "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
         "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
         "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
-        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "39d3c51ea392e264b4e3e98b96de9c94adfca951d6a9aba48fbd7c8838be6905",
+        "9ae9f6e045ac0b7ef9d0e64c5b64f22b7220af13f2bb05e44505bfeb8b3e81b7",
         "a765b429869a0bf35b16ae1a5028cf2c5189ec7a8ee1c56d3c15251742aa9b7a",
         "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
         "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
@@ -146846,7 +146862,7 @@
         "a24b201e8ac8ad15ccf8cb452cb2130a305d8a454c58d0a86185334693d6dffe"
       ],
       "source_sha256": "0a51509de1bff58527c450259124c95343710af020de9562bfc6628961f94f2d",
-      "text": "将集成扫描实验 FASTQ 文件的文件夹转换为每微型样品位置 sgRNA 计算表,可使用 :func:`spacr.ml.perform_regression`。\n\n查找每个样本的 R1 和 R2 文件在 ``src`` 下方. 单端和 R1/R2 方向从 ``settings['mode']`` 和 ``single_direction`` 中选择。\n\n从每个阅读中,它提取每个字符串代码的执行代码,使用配置的 regex 和 offset 窗口. 每个提取的序列,然后转换为一个名称,通过该字符号的自己的观点 CSV (见 :func:`map_sequences_to_names`)。\n\n每个样品,它写 ``annotated_reads.h5``(可选), ``unique_combinations.csv``(每个微型样品位置 gRNA 计算)和 ``qc.csv``。\n\n:param settings: 设置关键值地图,通过 :func:`spacr.settings.set_default_generate_barecode_mapping` 进行可通化。\n\n    - ``src`` - 包含 ``*.fastq.gz`` 阅读的文件夹。\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` 或 ``'R2'`` (只有``mode='single'``)。\n    - ``regex`` — regex 从阅读中提取条形码。\n    - ``target_sequence``、``offset_start``、 ``expected_end`` - 用于查找条码区域的插槽和插槽窗口。\n    - ``column_csv`` / ``row_csv``/ ``grna_csv`` — 字符号->名称查看 CSVs 为发送的三个字符代码 spaCR。\n    - ``barcode_set`` - 编码的条码,当一个处理会议有不同的,而不是三个,作为一个列表,每个输入名称条代码,参考 CSV 命名其序列,并捕获它的 regex 组. 缺席,这是什么每个设置文件写在设置之前存在的,处理会议编码上述三个名称。\n    - ``save_h5``、``comp_type``、 ``comp_level`` — HDF5 输出按钮。\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` - 当是真实的, QC 每个完成样本与 :func:`spacr.sequencing_qc.barcode_qc`,写字符和报告到 ``<dst>/barcode_qc`` (默认 False; 未填写设置默认)。\n    - ``target_grnas_per_well`` - 按微板样品位置预期的 gRNAs,从此 QC 步骤产生其丰富范围(默认情况为 1)。\n\n:returns: None. 按样品输出写入 ``<src>/<sample>_<mode>[_<direction>]/``。\n\n例子:\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\n此外,请参见: :func:`map_sequences_to_names` - 内部条码->名称查看。 :func:`spacr.ml.perform_regression` - ``unique_combinations.csv`` 作为 ``count_data`` 消耗结果。",
+      "text": "将集成扫描实验 FASTQ 文件的文件夹转换为每微型样品位置 sgRNA 计算表,可使用 :func:`spacr.ml.perform_regression`。\n\n查找每个样本的 R1 和 R2 文件在 ``src`` 下方. 单端和 R1/R2 方向从 ``settings['mode']`` 和 ``single_direction`` 中选择。\n\n从每个阅读中,它提取每个字符串代码的执行代码,使用配置的 regex 和 offset 窗口. 每个提取的序列,然后转换为一个名称,通过该字符号的自己的观点 CSV (见 :func:`map_sequences_to_names`)。\n\n每个样品,它写 ``annotated_reads.h5``(可选), ``unique_combinations.csv``(每个微型样品位置 gRNA 计算)和 ``qc.csv``。\n\n:param settings: 设置关键值地图,通过 :func:`spacr.settings.set_default_generate_barecode_mapping` 进行可通化。\n\n    - ``src`` - 包含 ``*.fastq.gz`` 阅读的文件夹。\n    - ``mode`` — ``'paired'`` or ``'single'``.\n    - ``single_direction`` — ``'R1'`` 或 ``'R2'`` (只有``mode='single'``)。\n    - ``regex`` — regex 从阅读中提取条形码。\n    - ``target_sequence``、``offset_start``、 ``expected_end`` - 用于查找条码区域的插槽和插槽窗口。\n    - ``column_csv`` / ``row_csv``/ ``grna_csv`` — 字符号->名称查看 CSVs 为发送的三个字符代码 spaCR。\n    - ``barcode_set`` - 编码的条码,当一个处理会议有不同的,而不是三个,作为一个列表,每个输入名称条代码,参考 CSV 命名其序列,并捕获它的 regex 组. 缺席,这是什么每个设置文件写在设置之前存在的,处理会议编码上述三个名称。\n    - ``save_h5``、``comp_type``、 ``comp_level`` — HDF5 输出按钮。\n    - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.\n    - ``barcode_qc`` - 当是真实的, QC 每个完成样本与 :func:`spacr.sequencing_qc.barcode_qc`,写字符和报告到 ``<dst>/barcode_qc`` (默认 False; 未填写设置默认)。\n    - ``target_grnas_per_well`` - 按微板样品位置预期的 gRNAs,从此 QC 步骤产生其丰富范围(默认情况为 1)。\n\n:returns: None. 按样品输出写入 ``<src>/<sample>_<mode>[_<direction>]/``。\n\n示例：\n    .. code-block:: python\n\n        from spacr.sequencing import generate_barecode_mapping\n        generate_barecode_mapping({\n            'src': '/data/screen_v1/fastq',\n            'mode': 'paired',\n            'row_csv': '/data/barcodes/rows.csv',\n            'column_csv': '/data/barcodes/cols.csv',\n            'grna_csv': '/data/barcodes/grnas.csv',\n        })\n\n此外,请参见: :func:`map_sequences_to_names` - 内部条码->名称查看。 :func:`spacr.ml.perform_regression` - ``unique_combinations.csv`` 作为 ``count_data`` 消耗结果。",
       "translation_source_blocks_sha256": [
         "8cd69f2da40b717c5f23cf48be86f3b6a48bb1f7387c9109f9ad6aa561f8d2a5",
         "2248ee778f5a212033ec0a8e295a683216ef3f8c9f3bba0200531e9d9a81fbd9",
@@ -147961,7 +147977,7 @@
     },
     "spacr.settings.BarcodeEntry": {
       "source_blocks_sha256": [
-        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "493b1aca75dd59bed46bcbd976b81cec344b605503d2aba0312528855e55f80e",
         "e6e65ecebf78eb06898d73da6aa6d7f3abc8d78dfd8c25533cc6da0adc0ae6d8",
         "d58785ef6ef741235c248817fa0bf63706eb1c9e9b5042816b59f14cca90a5c0",
         "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
@@ -147970,10 +147986,10 @@
         "54684e804efb149765829e6d3ffc14518cb55f95cd7cd373c9415c5b9d0432f8",
         "41f2159e3149ffb4c2a37e2da76914e58fb646954aa260ef1397ce297f6f49d3"
       ],
-      "source_sha256": "3c9b076038b7fe5d8a0dbec07fc4ec5523de64d1f64685896c540df7bd71798d",
-      "text": "一个条码输入一个地图条码运行解码。\n\n处理会议用来准确地编码三个条码 - 一个实验室微板列,一个引导 RNA和一个实验院微板序列 - 因为规则,设置和阅读处理器分别以名称播放了所有三个。\n\n:ivar name: 一个用户将使用这个字符号,如 ``column``, ``row``、 ``grna`` 或 ``plate``. 它命名两个输出列的处理会议写给输入,所以它必须是独一无二的组内。\n:ivar csv: 参考表将其中一个序列变成一个名称. 它需要一个 ``sequence`` 列和一个 ``name`` 列. 其序列必须与读者相同的方向,因为它们是比较的词汇而不是逆转补充。\n:ivar group: 字符串编码的名称组 regex 被捕的文本是这个字符号. 左空它是输入的自己的名称,这就是一个字符条编写为一个新的组通常会使用的。\n:ivar group_aliases: 收到的列和行条代码 spaCR 以此方式接受更短的 ``column`` 和 ``row`` ,这就是为什么在这些名称设置之前写的模式仍然运行。\n:ivar sequence_column: 输出列中提取的序列写到 左空是输入名称,其次是 ``_sequence``。\n:ivar id_column: 输出列解答的名称是写到. 左空是输入名称,其次是 ``ID``. 引导 RNA字符号 spaCR 发送将此设置为 ``grna_name`` 相反,因为这是标题 每个计算表已经写的,每个读者等待一个。",
+      "source_sha256": "36bb69b77e7ba3ea4ff318276ae71564e63e7301bc0e1f05dedebaa9f326f009",
+      "text": "一个字符串编码,一个运行编码。\n\n处理会议用来准确地编码三个条码 - 一个实验室微板列,一个引导 RNA和一个实验院微板序列 - 因为规则,设置和阅读处理器分别以名称播放了所有三个。\n\n:ivar name: 一个用户将使用这个字符号,如 ``column``, ``row``、 ``grna`` 或 ``plate``. 它命名两个输出列的处理会议写给输入,所以它必须是独一无二的组内。\n:ivar csv: 参考表将其中一个序列变成一个名称. 它需要一个 ``sequence`` 列和一个 ``name`` 列. 其序列必须与读者相同的方向,因为它们是比较的词汇而不是逆转补充。\n:ivar group: 字符串编码的名称组 regex 被捕的文本是这个字符号. 左空它是输入的自己的名称,这就是一个字符条编写为一个新的组通常会使用的。\n:ivar group_aliases: 收到的列和行条代码 spaCR 以此方式接受更短的 ``column`` 和 ``row`` ,这就是为什么在这些名称设置之前写的模式仍然运行。\n:ivar sequence_column: 输出列中提取的序列写到 左空是输入名称,其次是 ``_sequence``。\n:ivar id_column: 输出列解答的名称是写到. 左空是输入名称,其次是 ``ID``. 引导 RNA字符号 spaCR 发送将此设置为 ``grna_name`` 相反,因为这是标题 每个计算表已经写的,每个读者等待一个。",
       "translation_source_blocks_sha256": [
-        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "493b1aca75dd59bed46bcbd976b81cec344b605503d2aba0312528855e55f80e",
         "a54459002ec25a06a6300251212900b8edd1e9f50229b3b3fe2a08e45b5516c8",
         "bcf57e9b01531c6c73c19194d71f301f94655e6aaf1c6829e9e151ac9ed37cf7",
         "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
@@ -148041,19 +148057,19 @@
     },
     "spacr.settings.BarcodeSet": {
       "source_blocks_sha256": [
-        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "1f7b2a96ba46b9b848d96dc6291fe9d1ebe6dc336cbf4170df12f1f4f5659ba7",
         "ded2ad28437c9bd2f3515ede17e5716d88c76a19b67f3ea25d02380d342e9e12",
         "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
-        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "dae54ee4ac0af5bb5327188f7f93187e13ae55e766340e4c2d199f79dd38d23a",
         "e62e63f559ddf046554e9fc42153a4cdc3d4fe8224573f02c3dfe36914e4d89f"
       ],
-      "source_sha256": "20633b53ddeae67fce8bb689126f8a5d0e12515e50f42b9794db534ab6c4fd1f",
-      "text": "订购的条形码类型一个地图条形则运行解码。\n\n一个集取代了模块开始的三个名为参考设置,它是如何处理会议到达每个条码,因此一个处理会议与一个条码和一个处理课程与十只不同于它所拥有的。\n\nThe count columns can be set separately because the three barcodes spaCR shipped for years are counted by row, then column, then guide, while the reads list the column first. A set reproducing that run has to be able to say so, rather than quietly re-sort tables people already have.\n\n:ivar entries: 字符串类型,在顺序中运行列出它们. 标记的列包含每个输入的序列列和名称列在这个顺序,在阅读本身之后。\n:ivar count_columns: 名称列 每个微型样品位置数分为,按顺序它们分为。 左空是每个输入的名字列在输入顺序中。",
+      "source_sha256": "80aaa5ffb38f1d653c3b2a0702e9c0913230c5c9a3a6c38e9a9c4d1e569ef79d",
+      "text": "条码类型一个运行代码,顺序。\n\n一个集取代了模块开始的三个名为参考设置,它是如何处理会议到达每个条码,因此一个处理会议与一个条码和一个处理课程与十只不同于它所拥有的。\n\n计数列可以单独设置，因为 spaCR 多年来提供的三个条形码是按行、再按列、再按引导序列计数的，而读段中列排在最前面。能够重现该运行的条形码集必须可以表达这一点，而不是悄悄地重新排序用户已有的表格。\n\n:ivar entries: 字符串类型,顺序运行列出它们. 每个输入添加一个序列列和一个名称列到每个标记的阅读. 这些列在阅读后,在相同的顺序。\n:ivar count_columns: 名称列 每个微型样品位置数分为,按顺序它们分为。 左空是每个输入的名字列在输入顺序中。",
       "translation_source_blocks_sha256": [
-        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "1f7b2a96ba46b9b848d96dc6291fe9d1ebe6dc336cbf4170df12f1f4f5659ba7",
         "86ae1cc70a39c43febc66d849b6b0e8e76037bbb71d7e0177acf57582ecf3f07",
         "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
-        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "dae54ee4ac0af5bb5327188f7f93187e13ae55e766340e4c2d199f79dd38d23a",
         "477ae570ca19e990949ef7e68fd328768bea29b28744e7e96641bb1b099c89f4"
       ]
     },

@@ -5102,10 +5102,12 @@
         "87abc46324b7652f26afd47890cc77870273d005260e0e9ff49fdf9cd7a4c3f5",
         "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
         "9cdf97745e26f6331d427c3b47bac0e9d665a9013ad83e82b5d1d97e2c13d8e2",
-        "2a168de40798a583f43ae4a10b09d9ec6541cef4c29ed2d7a4a8fad0fc4bcc28"
+        "8c3b756a59a288efefc5cd40736fe4dac7c64abb1b2c54563bb639df11d12b7a",
+        "ef9bd71db073402127a75607c05f058a682f9a166d4a2b9721757f5dd613bea6",
+        "bd431fde3755ae77e6503f997f68b65ef49331d1a75653298ac1a6620224f87e"
       ],
-      "source_sha256": "5b68ce11638d37ea4bc01bf69d8fda009072f9afa3c51d542e4fb44836f1f974",
-      "text": "Décidez quelles tables de code-barres un séquençage contient vraiment.\n\nC'est pour quoi ?\n=================\nLes codes-barres de carte doivent être dits trois choses qu'il ne peut pas deviner: quel mate porte chaque code-barre, si la table de référence est stockée dans la même orientation que les lectures, et où dans la lecture le code-Barre est assis. Obtenir l'un d'eux fausse produit une session de traitement qui se termine normalement et ne maquille rien, parce que chaque étape après la fenêtre d'extraction fonctionne sur les mauvaises bases. Ce module lit un échantillon limité des lectures , mesure chaque table de références contre eux dans les deux orientations , et transforme les mesures en paramètres que l'exécution de la cartographie peut utiliser . Il ne détient pas de code graphique et n'ouvre aucune boîte de dialogue , de sorte que le même moteur sert la recherche en direct dans l'interface , un carnet et les tests .\n\nPourquoi un taux de succès brut n'est pas une preuve\n====================================================\nUn code-barres court apparaît dans une longue lecture par pur hasard. Trente-deux codes-barres distincts à huit bases numérisés sur une lecture de cent cinquante bases ont environ sept pour cent de chances d'une correspondance fausse, de sorte qu'une table qui est véritablement absente signale encore environ 7 pour cent des lectures comme des hits. Un détecteur annonçant une découverte à ce rythme enverrait quelqu'un à la recherche d'un bogue qui n'existe pas, ou configurerait discrètement une cartographie qui ne donne rien. Chaque taux rapporté par ce module arrive donc avec le taux attendu par hasard pour cette table par rapport à ces lectures, et avec le rapport entre eux. Rien n’est dit présent à moins qu’il ne soit bien clair de son propre taux de coïncidence.\n\nPourquoi un grand enrichissement n'est pas encore suffisant\n===========================================================\nIl ne répond pas s'il s'agit des microcodes à barres de laboratoire. Les adaptateurs de séquence sont des séquences fixes répétées dans chaque lecture, et une poignée de codes à barres dans n'importe quelle table ressemblera à une partie d'un adaptateur assez proche pour l'apparier. Cela produit un enrichissement grand, parfaitement réel conduit par deux codes à barre assis dans l'adaptateur plutôt que par une microplaque de laboratoire . La mesure qui sépare les deux est la position. Un microcode à barres en laboratoire occupe une place dans la construction et se pose donc à un décalage dans presque chaque lecture , ce qui est exactement pourquoi une fenêtre d'extraction peut être proposée pour elle du tout . Une correspondance dispersée à travers la lecture ne peut pas produire une fenêtre et n'est pas traitée comme une découverte, même enrichie.\n\nCe qu'il produit\n================\nUn rapport contenant un résultat par combinaison de tableau de référence, d'orientation et de fichier d'entrée. Chaque résultat contient le taux observé, le taux de chance, l'enrichissement, la distribution offset, la fenêtre de décalage la plus étroite qui compte pour la plupart des résultats, le nombre de codes-barres distincts de la table et un verdict avec une phrase indiquant pourquoi ce verdict a été atteint. Le rapport peut être rendu comme une table pour un journal, et il peut être replié dans les paramètres que :func:`spacr.sequencing.generate_barecode_mapping` lit.\n\nQue faire ensuite\n=================\nRead the verdicts before the proposed settings.  A table reported as absent in both orientations of both mates is usually the wrong reference file rather than a failed experiment, and the offset column is the quickest way to tell a plate barcode from an adapter that happens to resemble one.",
+      "source_sha256": "289c6b367812e7320ca194ea34582f32dde0fc825419af7a2569fce12a54e833",
+      "text": "Décidez quelles tables de code-barres un séquençage contient vraiment.\n\nC'est pour quoi ?\n=================\nLes codes-barres de carte doivent être dits trois choses qu'il ne peut pas deviner: quel mate porte chaque code-barre, si la table de référence est stockée dans la même orientation que les lectures, et où dans la lecture le code-Barre est assis. Obtenir l'un d'eux fausse produit une session de traitement qui se termine normalement et ne maquille rien, parce que chaque étape après la fenêtre d'extraction fonctionne sur les mauvaises bases. Ce module lit un échantillon limité des lectures , mesure chaque table de références contre eux dans les deux orientations , et transforme les mesures en paramètres que l'exécution de la cartographie peut utiliser . Il ne détient pas de code graphique et n'ouvre aucune boîte de dialogue , de sorte que le même moteur sert la recherche en direct dans l'interface , un carnet et les tests .\n\nPourquoi un taux de succès brut n'est pas une preuve\n====================================================\nUn code-barres court apparaît dans une longue lecture par pur hasard. Trente-deux codes-barres distincts à huit bases numérisés sur une lecture de cent cinquante bases ont environ sept pour cent de chances d'une correspondance fausse, de sorte qu'une table qui est véritablement absente signale encore environ 7 pour cent des lectures comme des hits. Un détecteur annonçant une découverte à ce rythme enverrait quelqu'un à la recherche d'un bogue qui n'existe pas, ou configurerait discrètement une cartographie qui ne donne rien. Chaque taux rapporté par ce module arrive donc avec le taux attendu par hasard pour cette table par rapport à ces lectures, et avec le rapport entre eux. Rien n’est dit présent à moins qu’il ne soit bien clair de son propre taux de coïncidence.\n\nPourquoi un grand enrichissement n'est pas encore suffisant\n===========================================================\nIl ne répond pas s'il s'agit des microcodes à barres de laboratoire. Les adaptateurs de séquence sont des séquences fixes répétées dans chaque lecture, et une poignée de codes à barres dans n'importe quelle table ressemblera à une partie d'un adaptateur assez proche pour l'apparier. Cela produit un enrichissement grand, parfaitement réel conduit par deux codes à barre assis dans l'adaptateur plutôt que par une microplaque de laboratoire . La mesure qui sépare les deux est la position. Un microcode à barres en laboratoire occupe une place dans la construction et se pose donc à un décalage dans presque chaque lecture , ce qui est exactement pourquoi une fenêtre d'extraction peut être proposée pour elle du tout . Une correspondance dispersée à travers la lecture ne peut pas produire une fenêtre et n'est pas traitée comme une découverte, même enrichie.\n\nCe qu'il produit\n================\nUn rapport contenant un résultat par combinaison de tableau de référence, d'orientation et de fichier d'entrée. Chaque résultat contient le taux observé, le taux de chance, l'enrichissement, la distribution offset, la fenêtre de décalage la plus étroite qui compte pour la plupart des résultats, le nombre de codes-barres distincts de la table et un verdict avec une phrase indiquant pourquoi ce verdict a été atteint. Le rapport peut être rendu comme une table pour un journal, et il peut être replié dans les paramètres que :func:`spacr.sequencing.generate_barecode_mapping` lit.\n\nQue faire ensuite\n=================\nLisez les verdicts avant les paramètres proposés.\n\nUne table signalée comme étant absente dans les deux directions des deux partenaires signifie généralement le mauvais fichier de référence, pas une expérience ratée.\n\nLa colonne offset est la façon la plus rapide de dire à un microcode-barres de laboratoire à partir d'un adaptateur qui se trouve à ressembler à un.",
       "translation_source_blocks_sha256": [
         "c5710bbbdc1d888f7f7ac91eb35125595dd31005363ff16f8b15a8cbe1701840",
         "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
@@ -5117,7 +5119,9 @@
         "1b9e73ff367742a6893f9adda6659a509d41eb8e4a8cc60eb5f4c7ab862a3b47",
         "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
         "6164ad73de3089addfdf4320dbe9f6da259911427de5e8fbaae926809d0c3167",
-        "10e18f90c11a4acfb1c3abe417d6d636b9a54874961d051c9ae95d25c250b9f3"
+        "8c3b756a59a288efefc5cd40736fe4dac7c64abb1b2c54563bb639df11d12b7a",
+        "ef9bd71db073402127a75607c05f058a682f9a166d4a2b9721757f5dd613bea6",
+        "af63ea6462356dd473500aeb8a43b43c82387d50c4f457a83e6ec50aba382e32"
       ]
     },
     "spacr.barcode_search.BarcodeHit": {
@@ -5389,15 +5393,15 @@
     "spacr.barcode_search.OrientationFinding.offset_histogram": {
       "source_blocks_sha256": [
         "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
-        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "744b3c640260556afcdaa9ecf6684893978df5e7e80821733a9386366f90aa0a",
         "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
         "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
       ],
-      "source_sha256": "f130a60cbb1b69258dadd277780b1bc6b6a4a3b19e856cc49a1e26abc215c770",
-      "text": "Retourne le nombre de frappes à chaque décalage de départ en tant que tableau.\n\nLe tableau est indexé par offset de sorte qu'un appelant puisse le tracer directement sans d'abord travailler sur les offsets qui ont été peuplés.\n\n:param read_length: combien de temps le tableau doit être; assez long pour tenir le plus grand décalage observé lorsqu'il est omis.\n:returns: une série de nombres de succès indexés par offset de départ.",
+      "source_sha256": "68c8ddac0d2b4c8a4a552f58a7449b57ed68a8a97e1547d06de83904aba01045",
+      "text": "Retourne le nombre de frappes à chaque décalage de départ en tant que tableau.\n\nPosition dans le tableau est l'offset lui-même. Un appelant peut dessiner le tableau tel qu'il est, et n'a pas à travailler sur quels offsets ont été utilisés.\n\n:param read_length: combien de temps le tableau doit être; assez long pour tenir le plus grand décalage observé lorsqu'il est omis.\n:returns: une série de nombres de succès indexés par offset de départ.",
       "translation_source_blocks_sha256": [
         "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
-        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "744b3c640260556afcdaa9ecf6684893978df5e7e80821733a9386366f90aa0a",
         "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
         "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
       ]
@@ -5405,22 +5409,25 @@
     "spacr.barcode_search.OrientationFinding.window_end": {
       "source_blocks_sha256": [
         "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
-        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "4824d5f5d99c7775ae841395896a49a2c15047c07b9588410e02551804d8bbd3",
+        "dfc3f4901f45ffa2fbfb4130425580788889bc0602d6d5c1b629be675f2da0ab",
         "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
       ],
-      "source_sha256": "4f32f1f65a73ce5b9b7d23c7199e27e65d71af34ebf59beddbeb28c8774eda19",
-      "text": "Retourner le premier décalage au-delà du code-barres dans sa position habituelle.\n\nLa fenêtre d'extraction proposée doit atteindre la fin du dernier code à barres plutôt que son début, et un ensemble de codes à barres dont les membres diffèrent en longueur atteint le plus loin à son membre le plus long.\n\n:returns: l'offset juste après la fin du code-barres.",
+      "source_sha256": "2d777c8e8c3dc95d53478be8bb65f6a0f51f6b3137fecc4ee9f8112fa2cb0ba4",
+      "text": "Retourner le premier décalage au-delà du code-barres dans sa position habituelle.\n\nLa fenêtre doit atteindre la fin du dernier code-barres, pas son début.\n\nLorsque les codes-barres d'un ensemble ne sont pas tous de la même longueur, le plus long décide où se termine la fenêtre.\n\n:returns: l'offset juste après la fin du code-barres.",
       "translation_source_blocks_sha256": [
         "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
-        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "4824d5f5d99c7775ae841395896a49a2c15047c07b9588410e02551804d8bbd3",
+        "dfc3f4901f45ffa2fbfb4130425580788889bc0602d6d5c1b629be675f2da0ab",
         "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
       ]
     },
     "spacr.barcode_search.ProposedMapping": {
       "source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "44112b48f305c7632ae1ee69cdf99bcbdffda71fba4987e204a5ca6350326329",
-        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "3af1280468ae174bf22c9c81391bc973cbe546a3b244746887b4bf386a8e4732",
+        "1b8839b3807f9028ccdfbde70eaff4dddbec1f71dc896ce8e06ca1fa984340bb",
+        "d2c88ed356fc41c4ba9464254db7f56a80b13e847e4864aa8a28cb973f88a03f",
         "8c02f8c21128a929b2421e44a6335f149b4c7371066cc68a7ea16cb0109fc646",
         "c83a06f40906767f7de977cb698c385f449ca54aba98faae6647cd1d70c5bcf7",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
@@ -5431,12 +5438,13 @@
         "b73ba95fd81532679b792744546dbcf363dc776defcb8caf284672198b996dbf",
         "a00a190d22632254b649be175293a38ea317560c118f90f9a150a4f0817073bb"
       ],
-      "source_sha256": "d99c7195319b647f3ba18b4bc6aaf9b9e1349a21f88499e49d3e42200b0d10af",
-      "text": "Paramètres de la recherche pense qu'une opération de cartographie devrait utiliser, et pourquoi.\n\nLes paramètres proposés ne contiennent que des noms de données structurés que le mapping lit déjà, de sorte qu'ils peuvent lui être remis directement.\n\nTout ce que la recherche a appris qui n'a pas de maison parmi ces clés voyage à côté. Un appelant qui a silencieusement abandonné l'orientation réintroduirait l'échec que ce module existe pour empêcher.\n\nUn criblage qui décode un code-barres au-delà de la colonne de microplaques de laboratoire, le guide et la ligne de microplates de laboratoire n'ont pas de nom de réglage qui l'attend. La table choisie pour chaque rôle est donc répertoriée dans les tableaux de référence, qu'un nom de données structurées puisse être rempli ou non.\n\n:param settings: Seuls les noms de données structurés que l'exécution de la cartographie lit déjà, de sorte que la cartographie peut être remise directement cette valeur clé mapping.\n:param reference_file: le fichier dont les termes offsets de fenêtre sont exprimés contre, puisque les offset ne signifient rien sans leur cadre.\n:param source_files: mapping du rôle au fichier de lecture qui l'a établi.\n:param orientations: mapping de l'étiquette de la table à l'orientation, l'exécution devrait chercher dans cette table.\n:param reference_tables: la table choisie pour chaque rôle, énumérée si un nom de paramètre existe ou non pour le porter -- qui est le point, parce qu'un rôle sans nom de données structurées est exactement celui qui serait autrement perdu.\n:param reverse_complement_needed: les tableaux de la course doivent inverser le complément pour reconnaître, parce qu'ils ont été trouvés dans le second partenaire comme stockés.\n:param unresolved_roles: rôles pas de table établie. Nommé plutôt que de deviner, donc un appelant peut le dire au lieu de commencer une course qui ne mappera rien.\n:param notes: ce que la recherche a appris qui n'a pas de maison parmi les noms de réglage.",
+      "source_sha256": "9bdc17fca4294ef02ad4cbcbb5abc23b571a8c34005aeb143fa9ad7c69043fd9",
+      "text": "Paramètres de la recherche pense qu'une opération de cartographie devrait utiliser, et pourquoi.\n\nChaque nom de données structurées dans la proposition est celui que l'on lit déjà. L'exécution peut prendre la proposition telle qu'elle se présente.\n\nCe que la recherche a appris qui n'a pas de clé correspondante est porté à côté.\n\nUn appelant qui a discrètement abandonné l'orientation ramènerait l'échec même que ce module existe pour prévenir.\n\nUn criblage qui décode un code-barres au-delà de la colonne de microplaques de laboratoire, le guide et la ligne de microplates de laboratoire n'ont pas de nom de réglage qui l'attend. La table choisie pour chaque rôle est donc répertoriée dans les tableaux de référence, qu'un nom de données structurées puisse être rempli ou non.\n\n:param settings: Seuls les noms de données structurés que l'exécution de la cartographie lit déjà, de sorte que la cartographie peut être remise directement cette valeur clé mapping.\n:param reference_file: le fichier dont les termes offsets de fenêtre sont exprimés contre, puisque les offset ne signifient rien sans leur cadre.\n:param source_files: mapping du rôle au fichier de lecture qui l'a établi.\n:param orientations: mapping de l'étiquette de la table à l'orientation, l'exécution devrait chercher dans cette table.\n:param reference_tables: la table choisie pour chaque rôle, énumérée si un nom de paramètre existe ou non pour le porter -- qui est le point, parce qu'un rôle sans nom de données structurées est exactement celui qui serait autrement perdu.\n:param reverse_complement_needed: les tableaux de la course doivent inverser le complément pour reconnaître, parce qu'ils ont été trouvés dans le second partenaire comme stockés.\n:param unresolved_roles: rôles pas de table établie. Nommé plutôt que de deviner, donc un appelant peut le dire au lieu de commencer une course qui ne mappera rien.\n:param notes: ce que la recherche a appris qui n'a pas de maison parmi les noms de réglage.",
       "translation_source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "addfbdabfeb4a97d528ab904d919d12b0eafd971a5d531d01fff5ff7528a9d89",
-        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "f393bb6df3f2ad8134c7aac63d3ebb69434253fe29cd7fa4195fa484e3f06c64",
+        "1b8839b3807f9028ccdfbde70eaff4dddbec1f71dc896ce8e06ca1fa984340bb",
+        "d2c88ed356fc41c4ba9464254db7f56a80b13e847e4864aa8a28cb973f88a03f",
         "8c2cc1511ededead99b46fea2ff3c7d4d66d731ce015f288a428f57db9ebb6e6",
         "1472deda3c4b599dc0ff3fc7dd9009bcd7775436d9009406154085643bef140e",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
@@ -5613,7 +5621,7 @@
     "spacr.barcode_search.propose_map_barcodes_settings": {
       "source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "29e2e67ce1cb272327d7ea7aabc8bfced399163f332efa23568ab7bb4705a295",
         "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
         "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
@@ -5623,11 +5631,11 @@
         "db8dfb93e580e97e3a3655631fd1a4fb55d0cc1b1dd29f64da285de6d5b6960e",
         "5a2d01a292df36e13612b05a87e883cc1b1641cedcc34760fcf61328aac9eb68"
       ],
-      "source_sha256": "cce8e999a095ba50ce7844f76f245474690e2194191a8c8e6755ee586cedb4da",
-      "text": "Transformez une recherche terminée en paramètres pour une opération de mappage de code-barres.\n\nL'exécution de la cartographie lit les deux compagnons en une seule séquence dans l'orientation du premier, donc c'est le cadre dans lequel tout s'exprime.\n\nUn tableau trouvé dans le second mate car il est stocké est donc signalé comme nécessitant d'être complété à l'envers. C'est ce dont la course aura besoin pour la reconnaître.\n\nUn rôle qu'aucune table établie est laissé seul plutôt que de deviner. Il est nommé parmi les rôles non résolus, donc l'appelant peut le dire au lieu de commencer une course qui ne va rien mapper.\n\nLa fenêtre d'extraction est dérivée de l'endroit où les codes-barres ont effectivement atterri. Son départ est le plus tôt offset tout code-barre établi occupé et sa fin est la plus éloignée d'entre eux atteints, tous deux mesurés par rapport à l'ancre lorsqu'on a été recherché, puisque l'exécution de la cartographie localise sa fenêtre en trouvant d'abord cette ancre.\n\n:param report: le rapport d'une recherche.\n:param base_settings: paramètres à partir de, laissé non modifié; une valeur de clé vide mapping quand omis.\n:param reference_file: l'étiquette du fichier dont l'orientation est le cadre; le premier fichier de la recherche lorsqu'il est omis.\n:returns: la proposition, en tenant les réglages et ce qui ne s'y trouvait pas.\n:raises ValueError: lorsque le rapport ne contient aucun fichier.",
+      "source_sha256": "f3e281f09e2deb3088e5963cd37a0bcce62f286f5c748236fdd0f42577e2342d",
+      "text": "Transformez une recherche terminée en paramètres pour une opération de mappage de code-barres.\n\nLa course relie les deux compagnons en une seule séquence, en utilisant la direction du premier compagnon. Chaque position ci-dessous est donnée dans cette direction.\n\nUn tableau trouvé dans le second mate car il est stocké est donc signalé comme nécessitant d'être complété à l'envers. C'est ce dont la course aura besoin pour la reconnaître.\n\nUn rôle qu'aucune table établie est laissé seul plutôt que de deviner. Il est nommé parmi les rôles non résolus, donc l'appelant peut le dire au lieu de commencer une course qui ne va rien mapper.\n\nLa fenêtre d'extraction est dérivée de l'endroit où les codes-barres ont effectivement atterri. Son départ est le plus tôt offset tout code-barre établi occupé et sa fin est la plus éloignée d'entre eux atteints, tous deux mesurés par rapport à l'ancre lorsqu'on a été recherché, puisque l'exécution de la cartographie localise sa fenêtre en trouvant d'abord cette ancre.\n\n:param report: le rapport d'une recherche.\n:param base_settings: paramètres à partir de, laissé non modifié; une valeur de clé vide mapping quand omis.\n:param reference_file: l'étiquette du fichier dont l'orientation est le cadre; le premier fichier de la recherche lorsqu'il est omis.\n:returns: la proposition, en tenant les réglages et ce qui ne s'y trouvait pas.\n:raises ValueError: lorsque le rapport ne contient aucun fichier.",
       "translation_source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "29e2e67ce1cb272327d7ea7aabc8bfced399163f332efa23568ab7bb4705a295",
         "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
         "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
@@ -5641,15 +5649,17 @@
     "spacr.barcode_search.reverse_complement": {
       "source_blocks_sha256": [
         "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
-        "d2207806852fdc2a5acaa73706b0887c199cf8fd8f6e3d01a4037b0726859cfc",
+        "3e8a2f28b2f8221f546782a59821994d8124e650c475ebded900f4731719809d",
+        "c92e20c428e053cdaafaf19b0dd3bce646054511a4820fe3f651d242453264a8",
         "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
         "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
       ],
-      "source_sha256": "c46d4e4efe9c44e5381f2a3a734e910487e5d7228ee5b7060c6892cc4fe37aae",
-      "text": "Retourner le complément inverse d'une séquence de nucléotides.\n\nLa traduction couvre les quatre bases dans les deux cas et laisse une base ambiguë telle qu'elle est, de sorte qu'une lecture portant une position non résolue survit au flip au lieu de lancer.\n\n:param sequence: la séquence des nucléotides à basculer.\n:returns: le complément inverse, comme une chaîne.",
+      "source_sha256": "11141ad7160feaeb5c373c9aafa960e77ce65f7de55f689c3a9e5d7bcd747214",
+      "text": "Retourner le complément inverse d'une séquence de nucléotides.\n\nLes cas supérieurs et les cas inférieurs sont tous les deux traités.\n\nToute lettre qui n'est pas l'une des quatre bases est retournée inchangée, de sorte qu'une lecture avec une position incertaine est toujours inversée plutôt que refusée.\n\n:param sequence: la séquence des nucléotides à basculer.\n:returns: le complément inverse, comme une chaîne.",
       "translation_source_blocks_sha256": [
         "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
-        "7b6e1438856ef0b0a9bdd5e3c8cb61ccc271a1249eccb23ac936ce91f0b9c5ee",
+        "3e8a2f28b2f8221f546782a59821994d8124e650c475ebded900f4731719809d",
+        "c92e20c428e053cdaafaf19b0dd3bce646054511a4820fe3f651d242453264a8",
         "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
         "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
       ]
@@ -128905,16 +128915,20 @@
     "spacr.qt.widgets.read_view": {
       "source_blocks_sha256": [
         "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
-        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d1ee21a452dec013e846aed3662fb61f14de3c0541d2cf4524029192ccaf79d6",
+        "42d60d2b6dfb68e4522fb0db11667f9914e49cb4142a20f5009e33c50f634e2d",
+        "79cca739ca54d8008826db8b694060c34e33a650c212028eee6a05f31e6f09d8",
         "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
         "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
         "5dfb4bb842ac0f2797ac22244d93d3310e003829aac15af79f9f0124d9f38030"
       ],
-      "source_sha256": "d0e18e1e03cc79530830d73cb8008353a3cc1b201cd19d585bcef538fe19e56f",
-      "text": "Afficher le séquençage se lit comme du texte, une lecture par ligne, avec des correspondances colorées.\n\nL'écran Map Barcodes demande à l'utilisateur de croire à une revendication concernant ses fichiers FASTQ : qu'un code-barres particulier a été trouvé à un endroit particulier, dans une orientation particulière. Un pourcentage dans une case sommaire ne peut pas régler un argument à ce sujet, parce qu'un pourcentage semble le même que les matchs soient réels ou accidentels. Les lectures ne règlent pas. Voir le terrain gRNA dans les mêmes colonnes à la ligne suivante est la différence entre un nombre que l'utilisateur fait confiance à un nombre qu'il doit prendre sur la foi, et ne rien voir en ligne est comment une course mal configurée s'annonce d'un seul coup d'oeil au lieu d'après une heure de mapping qui ne produit pas de compte.\n\nDonc ce widget est délibérément clair. Il dessine le texte de lecture dans une face de pas fixe, une lue sur une ligne, et il peint les caractères un code-barres assorti dans une couleur appartenant à ce type de code-Barre. Rien n'enveloppe, rien n'est éclipsé, et le caractère dans la colonne quarante d'une lue se trouve directement au-dessus du caractère de la colonne 40 de la suivante, ce qui est la raison complète pour regarder lit plutôt que à une table.\n\nCe module ne sait rien de la façon dont les correspondances sont trouvées. Il faut lire et s'étendre que quelqu'un d'autre a calculé, de sorte que le moteur de recherche et le criblage qui héberge il peut changer librement sans rien toucher ici, et donc cela peut être testé sans l'un ou l'autre d'entre eux. Le contrat est la paire de petits types d'enregistrements ci-dessous, et il est destiné à être écrit à la main aussi facilement qu'il est généré.\n\nUne note sur la couleur, parce que c'est la partie qui est facile de se tromper. Chaque couleur peinte ici est dérivée du thème qui est sur la vue de l'application, jamais écrit comme littéral, et la dérivation préserve la luminance relative du rôle d'accent propre au thème. Contraste est une fonction de luminances relatives et de rien d'autre, donc une couleur faite de cette façon efface exactement le contraste que l'accent dégage déjà sur ce thème, y compris les thèmes dont les panneaux sont translucides sur une photographie. C'est ce qui permet à un nombre arbitraire de types de code-barres d'obtenir une couleur de leur propre sans qu'aucun d'eux ne devienne illisible sur un thème que personne n'a coché.",
+      "source_sha256": "b5e3efed9a5c734bff55efd8567cda4340a317c565abadc46872826228458b15",
+      "text": "Afficher le séquençage se lit comme du texte, une lecture par ligne, avec des correspondances colorées.\n\nUn mapping de code-barres revendique trois choses au sujet des fichiers séquençage. Le premier est qu'un code-Barres a été trouvé. Le second est où ce code- barres est assis. Le troisième est la direction dans laquelle il a couru.\n\nUn pourcentage à lui seul ne peut pas prouver cette revendication, car un pourcentage semble le même que les allumettes soient réelles ou accidentelles.\n\nLes lectures elles-mêmes peuvent le prouver. Lorsque le code-barres guide tombe dans la même ligne de colonnes après la ligne, le nombre peut être fait confiance. Quand rien ne se line, une exécution mal configurée se montre à la fois, plutôt qu'après une heure de mapping qui ne renvoie pas de compte.\n\nDonc ce widget est délibérément clair. Il dessine le texte de lecture dans une face de pas fixe, une lue sur une ligne, et il peint les caractères un code-barres assorti dans une couleur appartenant à ce type de code-Barre. Rien n'enveloppe, rien n'est éclipsé, et le caractère dans la colonne quarante d'une lue se trouve directement au-dessus du caractère de la colonne 40 de la suivante, ce qui est la raison complète pour regarder lit plutôt que à une table.\n\nCe module ne sait rien de la façon dont les correspondances sont trouvées. Il faut lire et s'étendre que quelqu'un d'autre a calculé, de sorte que le moteur de recherche et le criblage qui héberge il peut changer librement sans rien toucher ici, et donc cela peut être testé sans l'un ou l'autre d'entre eux. Le contrat est la paire de petits types d'enregistrements ci-dessous, et il est destiné à être écrit à la main aussi facilement qu'il est généré.\n\nUne note sur la couleur, parce que c'est la partie qui est facile de se tromper. Chaque couleur peinte ici est dérivée du thème qui est sur la vue de l'application, jamais écrit comme littéral, et la dérivation préserve la luminance relative du rôle d'accent propre au thème. Contraste est une fonction de luminances relatives et de rien d'autre, donc une couleur faite de cette façon efface exactement le contraste que l'accent dégage déjà sur ce thème, y compris les thèmes dont les panneaux sont translucides sur une photographie. C'est ce qui permet à un nombre arbitraire de types de code-barres d'obtenir une couleur de leur propre sans qu'aucun d'eux ne devienne illisible sur un thème que personne n'a coché.",
       "translation_source_blocks_sha256": [
         "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
-        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d1ee21a452dec013e846aed3662fb61f14de3c0541d2cf4524029192ccaf79d6",
+        "42d60d2b6dfb68e4522fb0db11667f9914e49cb4142a20f5009e33c50f634e2d",
+        "79cca739ca54d8008826db8b694060c34e33a650c212028eee6a05f31e6f09d8",
         "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
         "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
         "3a805954e5e0fb6809a8a6b7bc5a5538afe2cf2db0abb5a1c3944d9975d62229"
@@ -128927,17 +128941,17 @@
         "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
         "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
         "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
-        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+        "64bdcbd32652c583619a5f41032ef1a2c562580b5f0284756cbe93a7c915e94e"
       ],
-      "source_sha256": "02be31d10f02110e50884d3f64ad5803cf8f150cbdf36b99b873347e8db804d1",
-      "text": "Une partie d'une lecture qu'un code-barres de certains types correspond.\n\nL'intervalle est à moitié ouvert et compté en caractères à partir du début de la lecture, de sorte qu'il suit Python en tranchant exactement et le texte correspondant est ``read[start:stop]``. Les positions en dehors de la lis sont serrées lorsque la portée est dessinée, et une portée dont l'arrêt n'est pas après son début ne contribue rien, donc un appelant faisant l'arithmétique sur les longueurs de lecture ne peut pas faire augmenter la vue.\n\nLe genre est une étiquette opaque. C'est tout ce que l'appelant appelle cette famille de code-barres, c'est ce que la légende montre, et c'était ce qui choisit la couleur, donc deux travées partageant une sorte sont garanties de partager une couleur sur chaque ligne.\n\n:param start: Premier caractère assorti, comptant à partir de zéro.\n:param stop: Un passé le dernier personnage assorti.\n:param kind: Nom du type de code-barres qui correspond.",
+      "source_sha256": "651c4110ec02b5afd0989ee068a47293bbb200263b5757053df5f9cdf247131f",
+      "text": "Une partie d'une lecture qu'un code-barres de certains types correspond.\n\nL'intervalle est à moitié ouvert et compté en caractères à partir du début de la lecture, de sorte qu'il suit Python en tranchant exactement et le texte correspondant est ``read[start:stop]``. Les positions en dehors de la lis sont serrées lorsque la portée est dessinée, et une portée dont l'arrêt n'est pas après son début ne contribue rien, donc un appelant faisant l'arithmétique sur les longueurs de lecture ne peut pas faire augmenter la vue.\n\nLe genre est une étiquette opaque. C'est tout ce que l'appelant appelle cette famille de code-barres, c'est ce que la légende montre, et c'était ce qui choisit la couleur, donc deux travées partageant une sorte sont garanties de partager une couleur sur chaque ligne.\n\n:param start: Premier caractère assorti, comptant à partir de zéro.\n:param stop: Un passé le dernier personnage assorti.\n:param kind: Le type de code-barres auquel cette portée appartient.",
       "translation_source_blocks_sha256": [
         "a6d24050e9c5c6dfedf0dcb149dbd5809ab6b1ef38bdb49c8ba80f4e01ef84f8",
         "e0bf798f0dc2a1ee4ac5369071bb5d4f1de6a71d15d1faa12ce98c4d66670e08",
         "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
         "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
         "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
-        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+        "64bdcbd32652c583619a5f41032ef1a2c562580b5f0284756cbe93a7c915e94e"
       ]
     },
     "spacr.qt.widgets.read_view.ReadRow": {
@@ -128959,18 +128973,20 @@
         "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
         "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
         "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
-        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "39d3c51ea392e264b4e3e98b96de9c94adfca951d6a9aba48fbd7c8838be6905",
+        "9ae9f6e045ac0b7ef9d0e64c5b64f22b7220af13f2bb05e44505bfeb8b3e81b7",
         "a87f546d5bbbdbd8e853072bbf110383d442f14498713f2646e3858c69a69cb3",
         "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
         "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
       ],
-      "source_sha256": "ec7f068304591e8fa899d5de4cc3020d81fcd0a9b72bdbeea26c62bb381e198c",
-      "text": "Lit comme texte, une à une rangée, avec chaque code-barres dans sa propre couleur.\n\nIl ne cherche jamais rien lui-même et n'importe jamais le code qui le fait, de sorte qu'il peut être déposé dans un criblage qui a des lectures et des positions à afficher.\n\nCe qu'il garantit. Les lectures sont dessinées dans une face de pas fixe à des positions de caractères fixes, de sorte que la colonne quarante d'une lecture se trouve au-dessus de la colonne 40 de la suivante. Une lecture ne s'enroule jamais sur une deuxième rangée visuelle : une longue affiche le défilement latéral, car une lecture enveloppée briserait la promesse de lecture par rangée que tout le widget existe à conserver. Un type de code à barres garde une couleur aussi longtemps que la vue le montre, de manière à ce que l'œil puisse suivre une correspondance vers le bas des lignes, et une légende au-delà des lectures indique quelle est la couleur qui.\n\nComment les chevauchements sont réglés. Les travées d'une lecture sont considérées dans l'ordre où elles ont été données, et le premier à couvrir un personnage le garde. Une travée qui arrive plus tard colore toujours chaque personnage non déjà pris, donc il n'est jamais complètement caché, seulement paré. Décider ceci avant que tout dessin commence est ce qui rend les travées qui se chevauchent simplement une question de priorité plutôt qu'un moyen de corrompre l'image. Un appelant qui veut un type de code-barres particulier pour gagner un chevauchement devrait lister ses travées en premier.\n\nCe qu'il coûte. Les lectures sont conservées dans un modèle de liste et dessinées par un délégué, de sorte que la remise lit les coûts d'attribution et de dessin de la liste ne coûte que les lignes qui sont réellement sur la vue d'application. Régler dix mille lectures et montrer la vue résout la propriété de caractère d'un écran de lignes, pas de dix mille, ce qui maintient l'interface sensible sur un échantillon FASTQ réel plutôt que sur un jouet.\n\n:param parent: Optionnel propriétaire Qt responsable de la vie du widget.\nConstruisez une vue vide avec une légende au-dessus d'une liste de lectures.",
+      "source_sha256": "d4e42575087f177d95463a71417f086e302c083584c863fe42a000fe3eeb9189",
+      "text": "Lit comme texte, une à une rangée, avec chaque code-barres dans sa propre couleur.\n\nIl ne cherche jamais rien lui-même et n'importe jamais le code qui le fait, de sorte qu'il peut être déposé dans un criblage qui a des lectures et des positions à afficher.\n\nCe qu'il garantit. Les lectures sont dessinées dans une face de pas fixe à des positions de caractères fixes, de sorte que la colonne quarante d'une lecture se trouve au-dessus de la colonne 40 de la suivante. Une lecture ne s'enroule jamais sur une deuxième rangée visuelle : une longue affiche le défilement latéral, car une lecture enveloppée briserait la promesse de lecture par rangée que tout le widget existe à conserver. Un type de code à barres garde une couleur aussi longtemps que la vue le montre, de manière à ce que l'œil puisse suivre une correspondance vers le bas des lignes, et une légende au-delà des lectures indique quelle est la couleur qui.\n\nComment les chevauchements sont réglés. Les travées d'une lecture sont lues dans l'ordre où elles ont été données. La première travée pour couvrir un caractère garde ce caractère.\n\nUne portée ultérieure colore toujours chaque personnage qui est encore libre, donc il est taillé plutôt que caché. La règle est appliquée avant que quelque chose ne soit dessiné, ce qui transforme un chevauchement en une question de priorité au lieu d'une image brisée. Pour laisser un type de code-barres gagner un chevauchement, listez ses travées d'abord.\n\nCe qu'il coûte. Les lectures sont conservées dans un modèle de liste et dessinées par un délégué, de sorte que la remise lit les coûts d'attribution et de dessin de la liste ne coûte que les lignes qui sont réellement sur la vue d'application. Régler dix mille lectures et montrer la vue résout la propriété de caractère d'un écran de lignes, pas de dix mille, ce qui maintient l'interface sensible sur un échantillon FASTQ réel plutôt que sur un jouet.\n\n:param parent: Optionnel propriétaire Qt responsable de la vie du widget.\nConstruisez une vue vide avec une légende au-dessus d'une liste de lectures.",
       "translation_source_blocks_sha256": [
         "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
         "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
         "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
-        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "39d3c51ea392e264b4e3e98b96de9c94adfca951d6a9aba48fbd7c8838be6905",
+        "9ae9f6e045ac0b7ef9d0e64c5b64f22b7220af13f2bb05e44505bfeb8b3e81b7",
         "a765b429869a0bf35b16ae1a5028cf2c5189ec7a8ee1c56d3c15251742aa9b7a",
         "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
         "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
@@ -147960,7 +147976,7 @@
     },
     "spacr.settings.BarcodeEntry": {
       "source_blocks_sha256": [
-        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "493b1aca75dd59bed46bcbd976b81cec344b605503d2aba0312528855e55f80e",
         "e6e65ecebf78eb06898d73da6aa6d7f3abc8d78dfd8c25533cc6da0adc0ae6d8",
         "d58785ef6ef741235c248817fa0bf63706eb1c9e9b5042816b59f14cca90a5c0",
         "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
@@ -147969,10 +147985,10 @@
         "54684e804efb149765829e6d3ffc14518cb55f95cd7cd373c9415c5b9d0432f8",
         "41f2159e3149ffb4c2a37e2da76914e58fb646954aa260ef1397ce297f6f49d3"
       ],
-      "source_sha256": "3c9b076038b7fe5d8a0dbec07fc4ec5523de64d1f64685896c540df7bd71798d",
-      "text": "Un code-barres tape un code-Barres Map exécute des décodages.\n\nUne session de traitement utilisée pour décoder exactement trois codes-barres -- une colonne de microplaques de laboratoire, un guide et une ligne de microplates de laboratoire -- parce que le régex, les paramètres et les processeurs de lecture ont chacun épelé les trois par leur nom. Une entrée est la même information écrite une fois, de sorte qu'un criblage portant un quatrième code-barre, ou un seul, est une collection différente d'entrées plutôt qu'une autre voie de code.\n\n:ivar name: le mot qu'un utilisateur utiliserait pour ce code-barres, comme ``column``, ``row``,``grna`` ou ``plate``. Il nomme les deux colonnes de sortie que la session de traitement écrit pour l'entrée, donc il doit être unique dans un ensemble.\n:ivar csv: la table de référence qui transforme l'une de ces séquences en un nom. Elle a besoin d'une colonne ``sequence`` et d' une colonne ``name``. Ses séquences doivent être dans la même orientation que les lectures, parce qu'elles sont comparées in extenso plutôt qu'inversées.\n:ivar group: le groupe nommé du code-barres regex dont le texte capturé est ce code-Barres. Le vide gauche c'est le nom propre de l'entrée, qui est ce qu'un régex écrit pour un nouvel ensemble utilisera normalement.\n:ivar group_aliases: further spellings of that group name, accepted when the preferred one is absent from the regex. The column and row barcodes spaCR shipped accept the shorter ``column`` and ``row`` this way, which is why a pattern written before those names were settled still runs.\n:ivar sequence_column: la colonne de sortie à laquelle la séquence extraite est écrite. Le vide gauche est le nom de l'entrée suivi de ``_sequence``.\n:ivar id_column: la colonne de sortie à laquelle le nom résolu est écrit. Le vide gauche c'est le nom de l'entrée suivi de ``ID``. Le code-barres guide spaCR expédié le définit à la place à ``grna_name``, car c'était l'en-tête de chaque table de comptage déjà écrite et chaque lecteur d'un utilisateur s'attend.",
+      "source_sha256": "36bb69b77e7ba3ea4ff318276ae71564e63e7301bc0e1f05dedebaa9f326f009",
+      "text": "Un type de code-barres qu'une exécution décode.\n\nUne session de traitement utilisée pour décoder exactement trois codes-barres -- une colonne de microplaques de laboratoire, un guide et une ligne de microplates de laboratoire -- parce que le régex, les paramètres et les processeurs de lecture ont chacun épelé les trois par leur nom. Une entrée est la même information écrite une fois, de sorte qu'un criblage portant un quatrième code-barre, ou un seul, est une collection différente d'entrées plutôt qu'une autre voie de code.\n\n:ivar name: le mot qu'un utilisateur utiliserait pour ce code-barres, comme ``column``, ``row``,``grna`` ou ``plate``. Il nomme les deux colonnes de sortie que la session de traitement écrit pour l'entrée, donc il doit être unique dans un ensemble.\n:ivar csv: la table de référence qui transforme l'une de ces séquences en un nom. Elle a besoin d'une colonne ``sequence`` et d' une colonne ``name``. Ses séquences doivent être dans la même orientation que les lectures, parce qu'elles sont comparées in extenso plutôt qu'inversées.\n:ivar group: le groupe nommé du code-barres regex dont le texte capturé est ce code-Barres. Le vide gauche c'est le nom propre de l'entrée, qui est ce qu'un régex écrit pour un nouvel ensemble utilisera normalement.\n:ivar group_aliases: D'autres orthographes de ce nom de groupe, acceptées lorsque l'orthographe préférée est absente de l'expression rationnelle. Les codes-barres de colonne et de ligne spaCR expédiés acceptent les plus courts ``column`` et ``row`` de cette façon, ce qui explique pourquoi un motif écrit avant que ces noms ne soient réglés fonctionne toujours.\n:ivar sequence_column: la colonne de sortie à laquelle la séquence extraite est écrite. Le vide gauche est le nom de l'entrée suivi de ``_sequence``.\n:ivar id_column: la colonne de sortie à laquelle le nom résolu est écrit. Le vide gauche c'est le nom de l'entrée suivi de ``ID``. Le code-barres guide spaCR expédié le définit à la place à ``grna_name``, car c'était l'en-tête de chaque table de comptage déjà écrite et chaque lecteur d'un utilisateur s'attend.",
       "translation_source_blocks_sha256": [
-        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "493b1aca75dd59bed46bcbd976b81cec344b605503d2aba0312528855e55f80e",
         "a54459002ec25a06a6300251212900b8edd1e9f50229b3b3fe2a08e45b5516c8",
         "bcf57e9b01531c6c73c19194d71f301f94655e6aaf1c6829e9e151ac9ed37cf7",
         "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
@@ -148040,19 +148056,19 @@
     },
     "spacr.settings.BarcodeSet": {
       "source_blocks_sha256": [
-        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "1f7b2a96ba46b9b848d96dc6291fe9d1ebe6dc336cbf4170df12f1f4f5659ba7",
         "ded2ad28437c9bd2f3515ede17e5716d88c76a19b67f3ea25d02380d342e9e12",
         "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
-        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "dae54ee4ac0af5bb5327188f7f93187e13ae55e766340e4c2d199f79dd38d23a",
         "e62e63f559ddf046554e9fc42153a4cdc3d4fe8224573f02c3dfe36914e4d89f"
       ],
-      "source_sha256": "20633b53ddeae67fce8bb689126f8a5d0e12515e50f42b9794db534ab6c4fd1f",
-      "text": "Le code-barres commandé type un code-Barres Map exécute des décodages.\n\nUn set remplace les trois paramètres de référence nommés par le module commencé avec. Itérer c'est comment la session de traitement atteint chaque code-barres, de sorte qu'une session de processus avec un code-Barres et une session de transformation avec dix ne diffèrent que dans ce que cela contient.\n\nLes colonnes de comptage peuvent être définies séparément parce que les trois codes-barres spaCR expédiés pendant des années sont comptés par ligne, puis colonne, puis guide, tandis que la liste lit la colonne d'abord. Un jeu de reproduction qui fonctionne doit pouvoir le dire, plutôt que de re-trier tranquillement les tables que les gens ont déjà.\n\n:ivar entries: les types de code-barres, dans l'ordre où l'exécution les liste. Les lectures annotées portent la colonne de séquence et de nom de chaque entrée dans cet ordre, après la lecture elle-même.\n:ivar count_columns: les colonnes nominatives par microplaque sont regroupées par, dans l'ordre où elles sont regroupées. Le vide gauche est la colonne nominative de chaque entrée en ordre d'entrée.",
+      "source_sha256": "80aaa5ffb38f1d653c3b2a0702e9c0913230c5c9a3a6c38e9a9c4d1e569ef79d",
+      "text": "Le code-barres tape un décodage d'exécution, dans l'ordre.\n\nUn set remplace les trois paramètres de référence nommés par le module commencé avec. Itérer c'est comment la session de traitement atteint chaque code-barres, de sorte qu'une session de processus avec un code-Barres et une session de transformation avec dix ne diffèrent que dans ce que cela contient.\n\nLes colonnes de comptage peuvent être définies séparément parce que les trois codes-barres spaCR expédiés pendant des années sont comptés par ligne, puis colonne, puis guide, tandis que la liste lit la colonne d'abord. Un jeu de reproduction qui fonctionne doit pouvoir le dire, plutôt que de re-trier tranquillement les tables que les gens ont déjà.\n\n:ivar entries: chaque entrée ajoute une colonne de séquence et une colonne du nom à chaque lecture annotée. Ces colonnes viennent après la lecture, dans le même ordre.\n:ivar count_columns: les colonnes nominatives par microplaque sont regroupées par, dans l'ordre où elles sont regroupées. Le vide gauche est la colonne nominative de chaque entrée en ordre d'entrée.",
       "translation_source_blocks_sha256": [
-        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "1f7b2a96ba46b9b848d96dc6291fe9d1ebe6dc336cbf4170df12f1f4f5659ba7",
         "86ae1cc70a39c43febc66d849b6b0e8e76037bbb71d7e0177acf57582ecf3f07",
         "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
-        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "dae54ee4ac0af5bb5327188f7f93187e13ae55e766340e4c2d199f79dd38d23a",
         "477ae570ca19e990949ef7e68fd328768bea29b28744e7e96641bb1b099c89f4"
       ]
     },

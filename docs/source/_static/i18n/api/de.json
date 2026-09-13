@@ -5102,10 +5102,12 @@
         "87abc46324b7652f26afd47890cc77870273d005260e0e9ff49fdf9cd7a4c3f5",
         "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
         "9cdf97745e26f6331d427c3b47bac0e9d665a9013ad83e82b5d1d97e2c13d8e2",
-        "2a168de40798a583f43ae4a10b09d9ec6541cef4c29ed2d7a4a8fad0fc4bcc28"
+        "8c3b756a59a288efefc5cd40736fe4dac7c64abb1b2c54563bb639df11d12b7a",
+        "ef9bd71db073402127a75607c05f058a682f9a166d4a2b9721757f5dd613bea6",
+        "bd431fde3755ae77e6503f997f68b65ef49331d1a75653298ac1a6620224f87e"
       ],
-      "source_sha256": "5b68ce11638d37ea4bc01bf69d8fda009072f9afa3c51d542e4fb44836f1f974",
-      "text": "Entscheiden Sie, welche Barcode-Tabellen eine Sequenzierung wirklich enthält.\n\nWofür es ist\n==============\nKarten-Barcodes müssen drei Dinge gesagt werden, die es nicht raten kann: welcher mate trägt jeden Barcode, ob die Referenztabelle in der gleichen Ausrichtung wie die liest gespeichert ist, und wo im Lesen der Barcode sitzt. Irgendwelche von ihnen falsch zu bekommen erzeugt eine Verarbeitungssitzung, die normal endet und nichts kartiert, weil jede Stufe nach dem Extraktionsfenster auf den falschen Basen arbeitet. Dieses Modul liest eine begrenzte Probe der liest, misst jede Referenztabelle gegen sie in beiden Orientierungen, und verwandelt die Messungen in Einstellungen, die der Mapping-Lauf verwenden kann. Es enthält keinen grafischen Code und öffnet keine Dialoge, so dass die gleiche Engine dient der Live-Suche in der Schnittstelle, einem Notebook und den Tests.\n\nWarum eine rohe Trefferrate kein Beweis dafür ist\n=================================================\nEin kurzer Barcode taucht in einem langen gelesen durch reinen Zufall auf. 32 verschiedene acht Basis-Barcodes gescannt über hundertfünfzig Basis-Lese haben etwa sieben Prozent Chance auf eine falsche Übereinstimmung, so dass eine Tabelle, die wirklich fehlt noch berichtet rund sieben Prozent der Lesungen als Treffer. Ein Detektor, der ein Ergebnis mit dieser Rate angekündigt würde jemand auf der Jagd nach einem Fehler, der nicht existiert, oder würde ruhig konfigurieren ein Mapping, das nichts ergibt. Jede Rate dieses Modul Berichte kommt daher mit der Rate, die durch Zufall für diese Tabelle gegen die liest erwartet, und mit dem Verhältnis zwischen ihnen. Nichts wird als vorhanden, es sei denn, es steht deutlich klar von seiner eigenen Zufallsrate.\n\nWarum eine große Anreicherung immer noch nicht ausreicht\n========================================================\nAnreicherung über Zufall antwortet, ob sich die Sequenzen in den Lesegeräten befinden. Es beantwortet nicht, ob sie die Labor-Mikroplatten-Barcodes sind. Sequenzierungsadapter sind feste Sequenzen, die in jedem Lesegerät wiederholt werden, und eine Handvoll Barcodes in jeder Tabelle ähnelt Teil eines Adapters genau genug, um es anzupassen. Das erzeugt eine große, perfekt reale Bereicherung, angetrieben von zwei Barcodes, die im Adapter sitzen, anstatt von einem Labor-Microplate. Die Messung, die die beiden trennt, ist Position. Ein Labor- Mikroplatten- Barcode nimmt einen Platz im Konstrukt ein und landet so auf einem Offset in fast jedem Lesen, weshalb genau ein Extraktionsfenster für sie überhaupt vorgeschlagen werden kann. Ein über das Lesefeld verstreutes Streichholz kann kein Fenster ergeben und wird nicht wie ein Fund behandelt, jedoch angereichert ist es.\n\nWas es produziert\n=================\nEin Bericht, der je nach Kombination aus Referenztabelle, Orientierung und Eingabedatei einen Befund enthält. Jeder Befund enthält die beobachtete Rate, die Zufallsrate, die Anreicherung, die Offsetverteilung, das schmalste Offsetfenster, das die meisten Treffer ausmacht, wie viele unterschiedliche Barcodes der Tabelle gesehen wurden, und ein Urteil mit einem Satz, der sagt, warum dieses Urteil erreicht wurde. Der Bericht kann als Tabelle für ein Protokoll wiedergegeben werden, und er kann in die Einstellungen gefaltet werden, die :func:`spacr.sequencing.generate_barecode_mapping` liest.\n\nWas als nächstes zu tun ist\n===========================\nLesen Sie die Urteile vor den vorgeschlagenen Einstellungen. Eine Tabelle, die in beiden Ausrichtungen beider Partner als fehlend gemeldet wird, ist in der Regel die falsche Referenzdatei und nicht ein fehlgeschlagenes Experiment, und die Offset-Spalte ist der schnellste Weg, um einem Labor-Mikroplatten-Barcode von einem Adapter zu erzählen, der zufällig einem ähnelt.",
+      "source_sha256": "289c6b367812e7320ca194ea34582f32dde0fc825419af7a2569fce12a54e833",
+      "text": "Entscheiden Sie, welche Barcode-Tabellen eine Sequenzierung wirklich enthält.\n\nWofür es ist\n==============\nKarten-Barcodes müssen drei Dinge gesagt werden, die es nicht raten kann: welcher mate trägt jeden Barcode, ob die Referenztabelle in der gleichen Ausrichtung wie die liest gespeichert ist, und wo im Lesen der Barcode sitzt. Irgendwelche von ihnen falsch zu bekommen erzeugt eine Verarbeitungssitzung, die normal endet und nichts kartiert, weil jede Stufe nach dem Extraktionsfenster auf den falschen Basen arbeitet. Dieses Modul liest eine begrenzte Probe der liest, misst jede Referenztabelle gegen sie in beiden Orientierungen, und verwandelt die Messungen in Einstellungen, die der Mapping-Lauf verwenden kann. Es enthält keinen grafischen Code und öffnet keine Dialoge, so dass die gleiche Engine dient der Live-Suche in der Schnittstelle, einem Notebook und den Tests.\n\nWarum eine rohe Trefferrate kein Beweis dafür ist\n=================================================\nEin kurzer Barcode taucht in einem langen gelesen durch reinen Zufall auf. 32 verschiedene acht Basis-Barcodes gescannt über hundertfünfzig Basis-Lese haben etwa sieben Prozent Chance auf eine falsche Übereinstimmung, so dass eine Tabelle, die wirklich fehlt noch berichtet rund sieben Prozent der Lesungen als Treffer. Ein Detektor, der ein Ergebnis mit dieser Rate angekündigt würde jemand auf der Jagd nach einem Fehler, der nicht existiert, oder würde ruhig konfigurieren ein Mapping, das nichts ergibt. Jede Rate dieses Modul Berichte kommt daher mit der Rate, die durch Zufall für diese Tabelle gegen die liest erwartet, und mit dem Verhältnis zwischen ihnen. Nichts wird als vorhanden, es sei denn, es steht deutlich klar von seiner eigenen Zufallsrate.\n\nWarum eine große Anreicherung immer noch nicht ausreicht\n========================================================\nAnreicherung über Zufall antwortet, ob sich die Sequenzen in den Lesegeräten befinden. Es beantwortet nicht, ob sie die Labor-Mikroplatten-Barcodes sind. Sequenzierungsadapter sind feste Sequenzen, die in jedem Lesegerät wiederholt werden, und eine Handvoll Barcodes in jeder Tabelle ähnelt Teil eines Adapters genau genug, um es anzupassen. Das erzeugt eine große, perfekt reale Bereicherung, angetrieben von zwei Barcodes, die im Adapter sitzen, anstatt von einem Labor-Microplate. Die Messung, die die beiden trennt, ist Position. Ein Labor- Mikroplatten- Barcode nimmt einen Platz im Konstrukt ein und landet so auf einem Offset in fast jedem Lesen, weshalb genau ein Extraktionsfenster für sie überhaupt vorgeschlagen werden kann. Ein über das Lesefeld verstreutes Streichholz kann kein Fenster ergeben und wird nicht wie ein Fund behandelt, jedoch angereichert ist es.\n\nWas es produziert\n=================\nEin Bericht, der je nach Kombination aus Referenztabelle, Orientierung und Eingabedatei einen Befund enthält. Jeder Befund enthält die beobachtete Rate, die Zufallsrate, die Anreicherung, die Offsetverteilung, das schmalste Offsetfenster, das die meisten Treffer ausmacht, wie viele unterschiedliche Barcodes der Tabelle gesehen wurden, und ein Urteil mit einem Satz, der sagt, warum dieses Urteil erreicht wurde. Der Bericht kann als Tabelle für ein Protokoll wiedergegeben werden, und er kann in die Einstellungen gefaltet werden, die :func:`spacr.sequencing.generate_barecode_mapping` liest.\n\nWas als nächstes zu tun ist\n===========================\nLesen Sie die Urteile vor den vorgeschlagenen Einstellungen.\n\nEine Tabelle, die in beiden Richtungen von beiden Paaren als abwesend gemeldet wird, bedeutet in der Regel die falsche Referenzdatei, nicht ein gescheitertes Experiment.\n\nDie Offset-Spalte ist der schnellste Weg, um einen Labor-Mikroplatten-Barcode von einem Adapter, der zufällig wie einer aussieht zu erzählen.",
       "translation_source_blocks_sha256": [
         "c5710bbbdc1d888f7f7ac91eb35125595dd31005363ff16f8b15a8cbe1701840",
         "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
@@ -5117,7 +5119,9 @@
         "1b9e73ff367742a6893f9adda6659a509d41eb8e4a8cc60eb5f4c7ab862a3b47",
         "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
         "6164ad73de3089addfdf4320dbe9f6da259911427de5e8fbaae926809d0c3167",
-        "10e18f90c11a4acfb1c3abe417d6d636b9a54874961d051c9ae95d25c250b9f3"
+        "8c3b756a59a288efefc5cd40736fe4dac7c64abb1b2c54563bb639df11d12b7a",
+        "ef9bd71db073402127a75607c05f058a682f9a166d4a2b9721757f5dd613bea6",
+        "af63ea6462356dd473500aeb8a43b43c82387d50c4f457a83e6ec50aba382e32"
       ]
     },
     "spacr.barcode_search.BarcodeHit": {
@@ -5389,15 +5393,15 @@
     "spacr.barcode_search.OrientationFinding.offset_histogram": {
       "source_blocks_sha256": [
         "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
-        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "744b3c640260556afcdaa9ecf6684893978df5e7e80821733a9386366f90aa0a",
         "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
         "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
       ],
-      "source_sha256": "f130a60cbb1b69258dadd277780b1bc6b6a4a3b19e856cc49a1e26abc215c770",
-      "text": "Gibt die Trefferzahl bei jedem Startversatz als Array zurück.\n\nDas Array wird durch Offset indexiert, so dass ein Anrufer es direkt zeichnen kann, ohne vorher herauszufinden, welche Offsets bevölkert wurden.\n\n:param read_length: wie lang das Array sein sollte; lang genug, um den größten beobachteten Offset zu halten, wenn er weggelassen wird.\n:returns: eine Reihe von Trefferzahlen, die durch Start-Offset indexiert werden.",
+      "source_sha256": "68c8ddac0d2b4c8a4a552f58a7449b57ed68a8a97e1547d06de83904aba01045",
+      "text": "Gibt die Trefferzahl bei jedem Startversatz als Array zurück.\n\nPosition im Array ist der Offset selbst. Ein Anrufer kann das Array so zeichnen, wie es ist, und muss nicht herausfinden, welche Offsets verwendet wurden.\n\n:param read_length: wie lang das Array sein sollte; lang genug, um den größten beobachteten Offset zu halten, wenn er weggelassen wird.\n:returns: eine Reihe von Trefferzahlen, die durch Start-Offset indexiert werden.",
       "translation_source_blocks_sha256": [
         "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
-        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "744b3c640260556afcdaa9ecf6684893978df5e7e80821733a9386366f90aa0a",
         "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
         "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
       ]
@@ -5405,22 +5409,25 @@
     "spacr.barcode_search.OrientationFinding.window_end": {
       "source_blocks_sha256": [
         "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
-        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "4824d5f5d99c7775ae841395896a49a2c15047c07b9588410e02551804d8bbd3",
+        "dfc3f4901f45ffa2fbfb4130425580788889bc0602d6d5c1b629be675f2da0ab",
         "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
       ],
-      "source_sha256": "4f32f1f65a73ce5b9b7d23c7199e27e65d71af34ebf59beddbeb28c8774eda19",
-      "text": "Geben Sie den ersten Offset über den Barcode in seiner gewohnten Position zurück.\n\nDas vorgeschlagene Extraktionsfenster muss eher das Ende des letzten Barcodes als seinen Anfang erreichen, und ein Barcode-Set, dessen Mitglieder sich in der Länge unterscheiden, erreicht am weitesten bei seinem längsten Mitglied.\n\n:returns: das Offset kurz vor dem Ende des Barcodes.",
+      "source_sha256": "2d777c8e8c3dc95d53478be8bb65f6a0f51f6b3137fecc4ee9f8112fa2cb0ba4",
+      "text": "Geben Sie den ersten Offset über den Barcode in seiner gewohnten Position zurück.\n\nDas Fenster muss das Ende des letzten Barcodes erreichen, nicht seinen Anfang.\n\nWenn die Barcodes in einem Set nicht alle gleich lang sind, entscheidet der längste, wo das Fenster endet.\n\n:returns: das Offset kurz vor dem Ende des Barcodes.",
       "translation_source_blocks_sha256": [
         "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
-        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "4824d5f5d99c7775ae841395896a49a2c15047c07b9588410e02551804d8bbd3",
+        "dfc3f4901f45ffa2fbfb4130425580788889bc0602d6d5c1b629be675f2da0ab",
         "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
       ]
     },
     "spacr.barcode_search.ProposedMapping": {
       "source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "44112b48f305c7632ae1ee69cdf99bcbdffda71fba4987e204a5ca6350326329",
-        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "3af1280468ae174bf22c9c81391bc973cbe546a3b244746887b4bf386a8e4732",
+        "1b8839b3807f9028ccdfbde70eaff4dddbec1f71dc896ce8e06ca1fa984340bb",
+        "d2c88ed356fc41c4ba9464254db7f56a80b13e847e4864aa8a28cb973f88a03f",
         "8c02f8c21128a929b2421e44a6335f149b4c7371066cc68a7ea16cb0109fc646",
         "c83a06f40906767f7de977cb698c385f449ca54aba98faae6647cd1d70c5bcf7",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
@@ -5431,12 +5438,13 @@
         "b73ba95fd81532679b792744546dbcf363dc776defcb8caf284672198b996dbf",
         "a00a190d22632254b649be175293a38ea317560c118f90f9a150a4f0817073bb"
       ],
-      "source_sha256": "d99c7195319b647f3ba18b4bc6aaf9b9e1349a21f88499e49d3e42200b0d10af",
-      "text": "Einstellungen der Suche glauben, dass ein Mapping-Lauf verwenden sollte, und warum.\n\nDie vorgeschlagenen Einstellungen enthalten nur strukturierte Datennamen, die das Mapping bereits liest, so dass sie direkt an sie übergeben werden können.\n\nAlles, was die Suche gelernt hat, das kein Zuhause unter diesen Schlüsseln hat, reist nebenher. Ein Anrufer, der stillschweigend die Orientierung fallen ließ, würde den Ausfall dieses Moduls wieder einführen, um zu verhindern.\n\nEin Screening, der einen Barcode jenseits der Labor-Mikroplattenspalte entschlüsselt, die Anleitung und die Labor-Microplattenzeile haben keinen Einstellungsnamen, der darauf wartet. Die für jede Rolle gewählte Tabelle wird daher in den Referenztabellen aufgelistet, ob dafür ein strukturierter Datenname ausgefüllt werden könnte oder nicht.\n\n:param settings: nur strukturierte Datennamen, die das Mapping bereits liest, so dass das Mappen direkt übergeben werden kann.\n:param reference_file: die Datei, deren liest das Fenster Offsets werden gegen ausgedrückt, da Offset bedeutet nichts ohne ihren Rahmen.\n:param source_files: Mapping von der Rolle zu der gelesenen Datei, die sie etabliert.\n:param orientations: Mapping von Tabellenbeschriftung auf die Ausrichtung, in der der Lauf diese Tabelle durchsuchen sollte.\n:param reference_tables: die Tabelle, die für jede Rolle gewählt wurde, aufgelistet, ob ein Einstellungsname existiert oder nicht -- was der Punkt ist, da eine Rolle ohne strukturierten Datennamen genau diejenige ist, die sonst verloren gehen würde.\n:param reverse_complement_needed: Der Lauf muss die Ergänzung umkehren, um sie zu erkennen, weil sie im zweiten Mate als gespeichert gefunden wurden.\n:param unresolved_roles: Rollen keine Tabelle etabliert. Benannt statt erraten, so kann ein Anrufer so sagen, anstatt einen Lauf zu starten, der nichts kartieren wird.\n:param notes: was die Suche gelernt hat, das kein Zuhause unter den Einstellungsnamen hat.",
+      "source_sha256": "9bdc17fca4294ef02ad4cbcbb5abc23b571a8c34005aeb143fa9ad7c69043fd9",
+      "text": "Einstellungen der Suche glauben, dass ein Mapping-Lauf verwenden sollte, und warum.\n\nJeder Name der strukturierten Daten in dem Vorschlag ist einer, den der Mapping-Lauf bereits liest.\n\nWas die Suche gelernt hat, die keinen passenden Schlüssel hat, wird nebenbei getragen.\n\nEin Anrufer, der die Orientierung leise fallen ließ, würde den Fehler dieses Moduls zurückbringen, um zu verhindern.\n\nEin Screening, der einen Barcode jenseits der Labor-Mikroplattenspalte entschlüsselt, die Anleitung und die Labor-Microplattenzeile haben keinen Einstellungsnamen, der darauf wartet. Die für jede Rolle gewählte Tabelle wird daher in den Referenztabellen aufgelistet, ob dafür ein strukturierter Datenname ausgefüllt werden könnte oder nicht.\n\n:param settings: nur strukturierte Datennamen, die das Mapping bereits liest, so dass das Mappen direkt übergeben werden kann.\n:param reference_file: die Datei, deren liest das Fenster Offsets werden gegen ausgedrückt, da Offset bedeutet nichts ohne ihren Rahmen.\n:param source_files: Mapping von der Rolle zu der gelesenen Datei, die sie etabliert.\n:param orientations: Mapping von Tabellenbeschriftung auf die Ausrichtung, in der der Lauf diese Tabelle durchsuchen sollte.\n:param reference_tables: die Tabelle, die für jede Rolle gewählt wurde, aufgelistet, ob ein Einstellungsname existiert oder nicht -- was der Punkt ist, da eine Rolle ohne strukturierten Datennamen genau diejenige ist, die sonst verloren gehen würde.\n:param reverse_complement_needed: Der Lauf muss die Ergänzung umkehren, um sie zu erkennen, weil sie im zweiten Mate als gespeichert gefunden wurden.\n:param unresolved_roles: Rollen keine Tabelle etabliert. Benannt statt erraten, so kann ein Anrufer so sagen, anstatt einen Lauf zu starten, der nichts kartieren wird.\n:param notes: was die Suche gelernt hat, das kein Zuhause unter den Einstellungsnamen hat.",
       "translation_source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "addfbdabfeb4a97d528ab904d919d12b0eafd971a5d531d01fff5ff7528a9d89",
-        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "f393bb6df3f2ad8134c7aac63d3ebb69434253fe29cd7fa4195fa484e3f06c64",
+        "1b8839b3807f9028ccdfbde70eaff4dddbec1f71dc896ce8e06ca1fa984340bb",
+        "d2c88ed356fc41c4ba9464254db7f56a80b13e847e4864aa8a28cb973f88a03f",
         "8c2cc1511ededead99b46fea2ff3c7d4d66d731ce015f288a428f57db9ebb6e6",
         "1472deda3c4b599dc0ff3fc7dd9009bcd7775436d9009406154085643bef140e",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
@@ -5613,7 +5621,7 @@
     "spacr.barcode_search.propose_map_barcodes_settings": {
       "source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "29e2e67ce1cb272327d7ea7aabc8bfced399163f332efa23568ab7bb4705a295",
         "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
         "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
@@ -5623,11 +5631,11 @@
         "db8dfb93e580e97e3a3655631fd1a4fb55d0cc1b1dd29f64da285de6d5b6960e",
         "5a2d01a292df36e13612b05a87e883cc1b1641cedcc34760fcf61328aac9eb68"
       ],
-      "source_sha256": "cce8e999a095ba50ce7844f76f245474690e2194191a8c8e6755ee586cedb4da",
-      "text": "Verwandeln Sie eine fertige Suche in Einstellungen für einen Barcode-Mapping-Lauf.\n\nDer Mapping-Lauf liest beide Mates in einer Sequenz in der Orientierung des ersten, so dass der Rahmen alles ist ausgedrückt in.\n\nEine Tabelle, die im zweiten Mate gefunden wird, wie sie gespeichert wird, wird daher als reverse ergänzt gemeldet. Das ist es, was der Lauf braucht, um ihn zu erkennen.\n\nEine Rolle, die keine Tabelle festgelegt wird, bleibt allein, anstatt erraten zu werden. Sie wird unter den ungelösten Rollen genannt, so dass der Anrufer das sagen kann, anstatt einen Lauf zu starten, der nichts kartieren wird.\n\nDas Extraktionsfenster leitet sich davon ab, wo die Barcodes tatsächlich gelandet sind. Sein Start ist der früheste Offset, den ein etablierter Barcode belegt und sein Ende ist das am weitesten erreichte, beide gemessen am Anker, wenn man nach einem gesucht wurde, da der Mapping-Lauf sein Fenster lokalisiert, indem man zuerst diesen Anker findet.\n\n:param report: den Bericht von einer Durchsuchung.\n:param base_settings: Einstellungen zum Starten, unverändert lassen; ein leeres Schlüssel-Wert-Mapping, wenn es weggelassen wird.\n:param reference_file: die Beschriftung der Datei, deren Ausrichtung der Rahmen ist; die erste Datei der Suche, wenn sie weggelassen wird.\n:returns: der Vorschlag, die Einstellungen zu halten und das, was nicht in sie passte.\n:raises ValueError: wenn der Bericht keine Dateien enthält.",
+      "source_sha256": "f3e281f09e2deb3088e5963cd37a0bcce62f286f5c748236fdd0f42577e2342d",
+      "text": "Verwandeln Sie eine fertige Suche in Einstellungen für einen Barcode-Mapping-Lauf.\n\nDer Lauf verbindet beide Paare in eine Sequenz, wobei die Richtung des ersten Paares verwendet wird. Jede Position unten wird in diese Richtung angegeben.\n\nEine Tabelle, die im zweiten Mate gefunden wird, wie sie gespeichert wird, wird daher als reverse ergänzt gemeldet. Das ist es, was der Lauf braucht, um ihn zu erkennen.\n\nEine Rolle, die keine Tabelle festgelegt wird, bleibt allein, anstatt erraten zu werden. Sie wird unter den ungelösten Rollen genannt, so dass der Anrufer das sagen kann, anstatt einen Lauf zu starten, der nichts kartieren wird.\n\nDas Extraktionsfenster leitet sich davon ab, wo die Barcodes tatsächlich gelandet sind. Sein Start ist der früheste Offset, den ein etablierter Barcode belegt und sein Ende ist das am weitesten erreichte, beide gemessen am Anker, wenn man nach einem gesucht wurde, da der Mapping-Lauf sein Fenster lokalisiert, indem man zuerst diesen Anker findet.\n\n:param report: den Bericht von einer Durchsuchung.\n:param base_settings: Einstellungen zum Starten, unverändert lassen; ein leeres Schlüssel-Wert-Mapping, wenn es weggelassen wird.\n:param reference_file: die Beschriftung der Datei, deren Ausrichtung der Rahmen ist; die erste Datei der Suche, wenn sie weggelassen wird.\n:returns: der Vorschlag, die Einstellungen zu halten und das, was nicht in sie passte.\n:raises ValueError: wenn der Bericht keine Dateien enthält.",
       "translation_source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "29e2e67ce1cb272327d7ea7aabc8bfced399163f332efa23568ab7bb4705a295",
         "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
         "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
@@ -5641,15 +5649,17 @@
     "spacr.barcode_search.reverse_complement": {
       "source_blocks_sha256": [
         "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
-        "d2207806852fdc2a5acaa73706b0887c199cf8fd8f6e3d01a4037b0726859cfc",
+        "3e8a2f28b2f8221f546782a59821994d8124e650c475ebded900f4731719809d",
+        "c92e20c428e053cdaafaf19b0dd3bce646054511a4820fe3f651d242453264a8",
         "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
         "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
       ],
-      "source_sha256": "c46d4e4efe9c44e5381f2a3a734e910487e5d7228ee5b7060c6892cc4fe37aae",
-      "text": "Gibt die umgekehrte Ergänzung einer Nukleotidsequenz zurück.\n\nDie Übersetzung deckt die vier Basen in beiden Fällen und hinterlässt eine mehrdeutige Basis, wie sie ist, so dass ein Lesegerät, das eine ungelöste Position trägt, den Flip überlebt, anstatt zu werfen.\n\n:param sequence: die Nukleotid-Sequenz zum Flip.\n:returns: die umgekehrte Ergänzung, als String.",
+      "source_sha256": "11141ad7160feaeb5c373c9aafa960e77ce65f7de55f689c3a9e5d7bcd747214",
+      "text": "Gibt die umgekehrte Ergänzung einer Nukleotidsequenz zurück.\n\nOber- und Kleinbuchstaben werden beide behandelt.\n\nJeder Buchstabe, der nicht einer der vier Basen ist, wird unverändert zurückgegeben, so dass ein gelesenes mit einer unsicheren Position immer noch umgekehrt wird, anstatt abgelehnt zu werden.\n\n:param sequence: die Nukleotid-Sequenz zum Flip.\n:returns: die umgekehrte Ergänzung, als String.",
       "translation_source_blocks_sha256": [
         "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
-        "7b6e1438856ef0b0a9bdd5e3c8cb61ccc271a1249eccb23ac936ce91f0b9c5ee",
+        "3e8a2f28b2f8221f546782a59821994d8124e650c475ebded900f4731719809d",
+        "c92e20c428e053cdaafaf19b0dd3bce646054511a4820fe3f651d242453264a8",
         "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
         "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
       ]
@@ -128905,16 +128915,20 @@
     "spacr.qt.widgets.read_view": {
       "source_blocks_sha256": [
         "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
-        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d1ee21a452dec013e846aed3662fb61f14de3c0541d2cf4524029192ccaf79d6",
+        "42d60d2b6dfb68e4522fb0db11667f9914e49cb4142a20f5009e33c50f634e2d",
+        "79cca739ca54d8008826db8b694060c34e33a650c212028eee6a05f31e6f09d8",
         "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
         "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
         "5dfb4bb842ac0f2797ac22244d93d3310e003829aac15af79f9f0124d9f38030"
       ],
-      "source_sha256": "d0e18e1e03cc79530830d73cb8008353a3cc1b201cd19d585bcef538fe19e56f",
-      "text": "Sequenzierung wird als Text angezeigt, eine gelesene pro Zeile, mit farbigen Streichhölzern.\n\nDie Karte Barcodes Bildschirm fordert den Benutzer auf, einen Anspruch auf ihre FASTQ-Dateien zu glauben: dass ein bestimmter Barcode an einem bestimmten Ort gefunden wurde, in einer bestimmten Ausrichtung. Ein Prozentsatz in einer Zusammenfassung Box kann nicht ein Argument darüber beilegen, weil ein Prozentsatz gleich aussieht, ob die Übereinstimmungen real oder zufällig sind. Lies es begleichen. Das gRNA Land in den gleichen Spalten in Reihe nach Zeile ist der Unterschied zwischen einer Zahl, die der Benutzer vertraut und eine Zahl der Benutzer auf Glauben nehmen muss, und sehen nichts Line-up ist, wie ein falsch konfigurierter Lauf kündigt sich in einem Blick statt nach einer Stunde des Mappings, die keine zählt.\n\nSo ist dieses Widget bewusst klar. Es zeichnet den gelesenen Text in einem festen Pitch Face, man liest zu einer Zeile, und es malt die Zeichen einen Barcode in einer Farbe, die zu diesem Barcode-Typ. Nichts wickelt, nichts ist abgewichen, und das Zeichen in Spalte vierzig von einem gelesen sitzt direkt über dem Zeichen in der Spalte vierzig der nächsten, das ist der gesamte Grund für den Blick auf Lesungen statt an einem Tisch.\n\nDieses Modul weiß nichts darüber, wie Übereinstimmungen gefunden werden. Es braucht gelesen und Spannen, die jemand anderes berechnet, so dass die Suchmaschine und der Screening, der es hostet frei ändern kann, ohne etwas zu berühren hier, und so kann dies ohne einen von ihnen getestet werden. Der Vertrag ist das Paar von kleinen Datensatztypen unten, und es soll von Hand so einfach geschrieben werden, wie es erzeugt wird.\n\nEin Hinweis auf die Farbe, denn es ist der Teil, der leicht falsch zu machen ist. Jede Farbe, die hier gemalt wird, leitet sich von dem Thema ab, das auf der Applikationsansicht steht, nie als wörtlich geschrieben, und die Ableitung bewahrt die relative Leuchtkraft der eigenen Akzentrolle des Themas. Kontrast ist eine Funktion der relativen Leuchtkraft und von nichts anderem, so dass eine Farbe auf diese Weise den Kontrast klar macht, dass der Akzent bereits klar auf diesem Thema, einschließlich der Themen, deren Paneele sind transluzent über einem Foto. Das ist, was eine beliebige Anzahl von Barcode-Typen jeder erhalten eine Farbe ihrer eigenen, ohne dass jeder von ihnen unlesbar auf einem Thema niemand überprüft.",
+      "source_sha256": "b5e3efed9a5c734bff55efd8567cda4340a317c565abadc46872826228458b15",
+      "text": "Sequenzierung wird als Text angezeigt, eine gelesene pro Zeile, mit farbigen Streichhölzern.\n\nEin Barcode-Mapping-Lauf beansprucht drei Dinge über die Sequenzierungsdateien. Der erste ist, dass ein Barcode gefunden wurde. Der zweite ist, wo dieser Barcode saß. Der dritte ist, in welche Richtung er lief.\n\nEin Prozentsatz allein kann diesen Anspruch nicht nachweisen, da ein Prozentsatz gleich aussieht, ob die Übereinstimmungen real oder zufällig sind.\n\nDie Lesungen selbst können es beweisen. Wenn der Führungsbarcode in den gleichen Spalten Zeile für Zeile fällt, kann der Nummer vertraut werden. Wenn nichts stimmt, zeigt sich ein schlecht konfigurierter Lauf sofort, anstatt nach einer Stunde Mapping, das keine Zählungen zurückgibt.\n\nSo ist dieses Widget bewusst klar. Es zeichnet den gelesenen Text in einem festen Pitch Face, man liest zu einer Zeile, und es malt die Zeichen einen Barcode in einer Farbe, die zu diesem Barcode-Typ. Nichts wickelt, nichts ist abgewichen, und das Zeichen in Spalte vierzig von einem gelesen sitzt direkt über dem Zeichen in der Spalte vierzig der nächsten, das ist der gesamte Grund für den Blick auf Lesungen statt an einem Tisch.\n\nDieses Modul weiß nichts darüber, wie Übereinstimmungen gefunden werden. Es braucht gelesen und Spannen, die jemand anderes berechnet, so dass die Suchmaschine und der Screening, der es hostet frei ändern kann, ohne etwas zu berühren hier, und so kann dies ohne einen von ihnen getestet werden. Der Vertrag ist das Paar von kleinen Datensatztypen unten, und es soll von Hand so einfach geschrieben werden, wie es erzeugt wird.\n\nEin Hinweis auf die Farbe, denn es ist der Teil, der leicht falsch zu machen ist. Jede Farbe, die hier gemalt wird, leitet sich von dem Thema ab, das auf der Applikationsansicht steht, nie als wörtlich geschrieben, und die Ableitung bewahrt die relative Leuchtkraft der eigenen Akzentrolle des Themas. Kontrast ist eine Funktion der relativen Leuchtkraft und von nichts anderem, so dass eine Farbe auf diese Weise den Kontrast klar macht, dass der Akzent bereits klar auf diesem Thema, einschließlich der Themen, deren Paneele sind transluzent über einem Foto. Das ist, was eine beliebige Anzahl von Barcode-Typen jeder erhalten eine Farbe ihrer eigenen, ohne dass jeder von ihnen unlesbar auf einem Thema niemand überprüft.",
       "translation_source_blocks_sha256": [
         "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
-        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d1ee21a452dec013e846aed3662fb61f14de3c0541d2cf4524029192ccaf79d6",
+        "42d60d2b6dfb68e4522fb0db11667f9914e49cb4142a20f5009e33c50f634e2d",
+        "79cca739ca54d8008826db8b694060c34e33a650c212028eee6a05f31e6f09d8",
         "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
         "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
         "3a805954e5e0fb6809a8a6b7bc5a5538afe2cf2db0abb5a1c3944d9975d62229"
@@ -128927,17 +128941,17 @@
         "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
         "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
         "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
-        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+        "64bdcbd32652c583619a5f41032ef1a2c562580b5f0284756cbe93a7c915e94e"
       ],
-      "source_sha256": "02be31d10f02110e50884d3f64ad5803cf8f150cbdf36b99b873347e8db804d1",
-      "text": "Eine Dehnung einer Lesart, die ein Barcode irgendeiner Art entspricht.\n\nDas Intervall ist halb offen und wird von Beginn des Lesens an in Zeichen gezählt, so dass es genau nach Python schneidet und der übereinstimmende Text ``read[start:stop]`` ist. Positionen außerhalb des Lesenden werden beim Ziehen der Spanne eingeklemmt, und eine Spanne, deren Stop nicht nach dem Start ist, trägt nichts bei, sodass ein Anrufer, der auf Leselängen arithmetisiert, die Ansicht nicht erhöhen kann.\n\nDie Art ist ein undurchsichtiges Etikett. Es ist, was immer der Anrufer diese Barcode-Familie nennt, es ist das, was die Legende zeigt, und es ist, welche die Farbe wählt, so dass zwei Spannweiten, die eine Art teilen, garantiert eine Farbe auf jeder Reihe teilen.\n\n:param start: Erstes Matching-Zeichen, Zählung von Null.\n:param stop: Einer hinter dem letzten passenden Charakter.\n:param kind: Name des Barcode-Typs, der zusammenpasste.",
+      "source_sha256": "651c4110ec02b5afd0989ee068a47293bbb200263b5757053df5f9cdf247131f",
+      "text": "Eine Dehnung einer Lesart, die ein Barcode irgendeiner Art entspricht.\n\nDas Intervall ist halb offen und wird von Beginn des Lesens an in Zeichen gezählt, so dass es genau nach Python schneidet und der übereinstimmende Text ``read[start:stop]`` ist. Positionen außerhalb des Lesenden werden beim Ziehen der Spanne eingeklemmt, und eine Spanne, deren Stop nicht nach dem Start ist, trägt nichts bei, sodass ein Anrufer, der auf Leselängen arithmetisiert, die Ansicht nicht erhöhen kann.\n\nDie Art ist ein undurchsichtiges Etikett. Es ist, was immer der Anrufer diese Barcode-Familie nennt, es ist das, was die Legende zeigt, und es ist, welche die Farbe wählt, so dass zwei Spannweiten, die eine Art teilen, garantiert eine Farbe auf jeder Reihe teilen.\n\n:param start: Erstes Matching-Zeichen, Zählung von Null.\n:param stop: Einer hinter dem letzten passenden Charakter.\n:param kind: Der Barcode-Typ dieser Spanne gehört.",
       "translation_source_blocks_sha256": [
         "a6d24050e9c5c6dfedf0dcb149dbd5809ab6b1ef38bdb49c8ba80f4e01ef84f8",
         "e0bf798f0dc2a1ee4ac5369071bb5d4f1de6a71d15d1faa12ce98c4d66670e08",
         "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
         "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
         "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
-        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+        "64bdcbd32652c583619a5f41032ef1a2c562580b5f0284756cbe93a7c915e94e"
       ]
     },
     "spacr.qt.widgets.read_view.ReadRow": {
@@ -128959,18 +128973,20 @@
         "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
         "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
         "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
-        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "39d3c51ea392e264b4e3e98b96de9c94adfca951d6a9aba48fbd7c8838be6905",
+        "9ae9f6e045ac0b7ef9d0e64c5b64f22b7220af13f2bb05e44505bfeb8b3e81b7",
         "a87f546d5bbbdbd8e853072bbf110383d442f14498713f2646e3858c69a69cb3",
         "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
         "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
       ],
-      "source_sha256": "ec7f068304591e8fa899d5de4cc3020d81fcd0a9b72bdbeea26c62bb381e198c",
-      "text": "Liest als Text, eins zu einer Zeile, mit jedem Barcode-Typ in seiner eigenen Farbe.\n\nZeigen Sie es liest und die Spannweiten jemand anderes in ihnen abgestimmt, und es zeigt ihnen. Es sucht nie nach etwas selbst und importiert nie den Code, der tut, so kann es in jeden Screening, der gelesen hat und Positionen zu zeigen fallen gelassen werden.\n\nWas es garantiert. Lies wird in einem festen Pitch Face an festen Zeichenpositionen gezeichnet, so dass Spalte vierzig von einem gelesenen sitzt über Spalte vierzig der nächsten. Ein gelesenes nie wickelt sich auf eine zweite visuelle Reihe: ein langes macht die Ansicht scroll seitwärts statt, weil ein gewickeltes gelesenes würde das eine gelesene pro Zeile zu brechen versprechen, dass das ganze Widget vorhanden ist, um zu halten. Ein Barcode-Typ hält eine Farbe für so lange wie die Ansicht zeigt, so kann das Auge eine Übereinstimmung nach unten die Reihen folgen, und eine Legende über den gelesenen sagt, welche Farbe ist.\n\nWie Überlappungen geregelt werden. Die Spannen eines Lesens werden in der Reihenfolge betrachtet, in der sie gegeben wurden, und der erste, der ein Zeichen bedeckt, hält es. Eine Spanne, die später kommt, färbt immer noch jeden nicht bereits genommenen Charakter, so dass er nie vollständig versteckt ist, nur getrimmt. Entscheidet man dies, bevor eine Zeichnung beginnt, ist das, was Überlupieren Spannen nur eine Frage der Priorität anstatt eine Möglichkeit, das Bild zu korrumpieren macht. Ein Anrufer, der einen bestimmten Barcode-Typ zu gewinnen, sollte zuerst seine Spannen auflisten.\n\nWas es kostet. Die Lesungen werden in einem Listenmodell gehalten und von einem Delegierten gezeichnet, so dass das Übergeben von liest kostet eine Liste Zuweisung und Zeichnung kostet nur die Zeilen, die tatsächlich in der Anwendungsansicht sind. Das Setzen von zehntausend liest und zeigt die Ansicht löst den Charakter Besitz eines Bildschirms voller Zeilen, nicht von zehn Tausend, was die Schnittstelle reagiert auf einem echten FASTQ-Beispiel anstatt auf einem Spielzeug ein.\n\n:param parent: Optional Qt Besitzer verantwortlich für die Lebensdauer des Widgets.\nErstellen Sie eine leere Ansicht mit einer Legende über einer Liste von Reads.",
+      "source_sha256": "d4e42575087f177d95463a71417f086e302c083584c863fe42a000fe3eeb9189",
+      "text": "Liest als Text, eins zu einer Zeile, mit jedem Barcode-Typ in seiner eigenen Farbe.\n\nZeigen Sie es liest und die Spannweiten jemand anderes in ihnen abgestimmt, und es zeigt ihnen. Es sucht nie nach etwas selbst und importiert nie den Code, der tut, so kann es in jeden Screening, der gelesen hat und Positionen zu zeigen fallen gelassen werden.\n\nWas es garantiert. Lies wird in einem festen Pitch Face an festen Zeichenpositionen gezeichnet, so dass Spalte vierzig von einem gelesenen sitzt über Spalte vierzig der nächsten. Ein gelesenes nie wickelt sich auf eine zweite visuelle Reihe: ein langes macht die Ansicht scroll seitwärts statt, weil ein gewickeltes gelesenes würde das eine gelesene pro Zeile zu brechen versprechen, dass das ganze Widget vorhanden ist, um zu halten. Ein Barcode-Typ hält eine Farbe für so lange wie die Ansicht zeigt, so kann das Auge eine Übereinstimmung nach unten die Reihen folgen, und eine Legende über den gelesenen sagt, welche Farbe ist.\n\nWie Überlappungen gelöst werden. Die Spannen eines gelesenen werden in der Reihenfolge gelesen, in der sie gegeben wurden. Die erste Spanne, die einen Charakter bedeckt, hält diesen Charakter.\n\nEine spätere Spanne färbt noch jeden Charakter, der noch frei ist, also wird er eher getrimmt als versteckt. Die Regel wird angewendet, bevor etwas gezeichnet wird, was eine Überlappung in eine Prioritätsfrage statt eines zerbrochenen Bildes verwandelt. Um einen Barcodetyp eine Überleppung gewinnen zu lassen, listet zuerst seine Spannen auf.\n\nWas es kostet. Die Lesungen werden in einem Listenmodell gehalten und von einem Delegierten gezeichnet, so dass das Übergeben von liest kostet eine Liste Zuweisung und Zeichnung kostet nur die Zeilen, die tatsächlich in der Anwendungsansicht sind. Das Setzen von zehntausend liest und zeigt die Ansicht löst den Charakter Besitz eines Bildschirms voller Zeilen, nicht von zehn Tausend, was die Schnittstelle reagiert auf einem echten FASTQ-Beispiel anstatt auf einem Spielzeug ein.\n\n:param parent: Optional Qt Besitzer verantwortlich für die Lebensdauer des Widgets.\nErstellen Sie eine leere Ansicht mit einer Legende über einer Liste von Reads.",
       "translation_source_blocks_sha256": [
         "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
         "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
         "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
-        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "39d3c51ea392e264b4e3e98b96de9c94adfca951d6a9aba48fbd7c8838be6905",
+        "9ae9f6e045ac0b7ef9d0e64c5b64f22b7220af13f2bb05e44505bfeb8b3e81b7",
         "a765b429869a0bf35b16ae1a5028cf2c5189ec7a8ee1c56d3c15251742aa9b7a",
         "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
         "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
@@ -147960,7 +147976,7 @@
     },
     "spacr.settings.BarcodeEntry": {
       "source_blocks_sha256": [
-        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "493b1aca75dd59bed46bcbd976b81cec344b605503d2aba0312528855e55f80e",
         "e6e65ecebf78eb06898d73da6aa6d7f3abc8d78dfd8c25533cc6da0adc0ae6d8",
         "d58785ef6ef741235c248817fa0bf63706eb1c9e9b5042816b59f14cca90a5c0",
         "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
@@ -147969,10 +147985,10 @@
         "54684e804efb149765829e6d3ffc14518cb55f95cd7cd373c9415c5b9d0432f8",
         "41f2159e3149ffb4c2a37e2da76914e58fb646954aa260ef1397ce297f6f49d3"
       ],
-      "source_sha256": "3c9b076038b7fe5d8a0dbec07fc4ec5523de64d1f64685896c540df7bd71798d",
-      "text": "Ein Barcode-Typ eines Map Barcodes führt Decodes aus.\n\nEine Verarbeitungssitzung, mit der genau drei Barcodes entschlüsselt wurden -- eine Labor-Mikroplattenspalte, eine Anleitung und eine Labormikroplattenzeile -- denn der Regex, die Einstellungen und die Leseprozessoren buchstabierten alle drei per Namen. Ein Eintrag ist die gleiche Information, die einmal geschrieben wurde, so dass ein Screening, der einen vierten Barcode oder nur einen enthält, eine andere Sammlung von Einträgen ist, anstatt einen anderen Codepfad.\n\n:ivar name: the word a user would use for this barcode, such as ``column``, ``row``, ``grna`` or ``plate``. It names the two output columns the processing session writes for the entry, so it has to be unique within a set.\n:ivar csv: die Referenztabelle, die eine dieser Sequenzen in einen Namen verwandelt. Sie benötigt eine ``sequence``-Spalte und eine ``name``-Säule. Ihre Sequenzen müssen in der gleichen Orientierung wie die gelesenen Sequenzen sein, da sie wörtlich anstatt umgekehrt verglichen werden.\n:ivar group: die benannte Gruppe des Barcode regex, dessen aufgenommener Text dieser Barcode ist. Links leer ist es der eigene Name des Eintrags, was ein Regex für einen neuen Satz normalerweise verwendet.\n:ivar group_aliases: weitere Rechtschreibungen dieses Gruppennamens, akzeptiert, wenn der bevorzugte vom Regex abwesend ist. Spalten- und Zeilen-Barcodes spaCR, die versendet werden, akzeptieren die kürzere ``column`` und ``row`` auf diese Weise, weshalb ein Muster, das vor der Begleichung dieser Namen geschrieben wurde, immer noch läuft.\n:ivar sequence_column: die Ausgabespalte, in die die extrahierte Sequenz geschrieben wird. Links leer ist der Name des Eintrags gefolgt von ``_sequence``.\n:ivar id_column: the output column the resolved name is written to. Left empty it is the entry's name followed by ``ID``. The guide barcode spaCR shipped sets this to ``grna_name`` instead, because that is the header every count table already written and every reader of one expects.",
+      "source_sha256": "36bb69b77e7ba3ea4ff318276ae71564e63e7301bc0e1f05dedebaa9f326f009",
+      "text": "Ein Barcode-Typ, der eine Ausführung entschlüsselt.\n\nEine Verarbeitungssitzung, mit der genau drei Barcodes entschlüsselt wurden -- eine Labor-Mikroplattenspalte, eine Anleitung und eine Labormikroplattenzeile -- denn der Regex, die Einstellungen und die Leseprozessoren buchstabierten alle drei per Namen. Ein Eintrag ist die gleiche Information, die einmal geschrieben wurde, so dass ein Screening, der einen vierten Barcode oder nur einen enthält, eine andere Sammlung von Einträgen ist, anstatt einen anderen Codepfad.\n\n:ivar name: das Wort, das ein Benutzer für diesen Barcode verwenden würde, wie z. B. ``column``, ``row``, ``grna`` oder ``plate``. Es benennt die beiden Ausgabespalten, die die Verarbeitungssitzung für den Eintrag schreibt, so dass sie innerhalb eines Satzes eindeutig sein muss.\n:ivar csv: die Referenztabelle, die eine dieser Sequenzen in einen Namen verwandelt. Sie benötigt eine ``sequence``-Spalte und eine ``name``-Säule. Ihre Sequenzen müssen in der gleichen Orientierung wie die gelesenen Sequenzen sein, da sie wörtlich anstatt umgekehrt verglichen werden.\n:ivar group: die benannte Gruppe des Barcode regex, dessen aufgenommener Text dieser Barcode ist. Links leer ist es der eigene Name des Eintrags, was ein Regex für einen neuen Satz normalerweise verwendet.\n:ivar group_aliases: weitere Rechtschreibungen dieses Gruppennamens, akzeptiert, wenn der bevorzugte vom Regex abwesend ist. Spalten- und Zeilen-Barcodes spaCR, die versendet werden, akzeptieren die kürzere ``column`` und ``row`` auf diese Weise, weshalb ein Muster, das vor der Begleichung dieser Namen geschrieben wurde, immer noch läuft.\n:ivar sequence_column: die Ausgabespalte, in die die extrahierte Sequenz geschrieben wird. Links leer ist der Name des Eintrags gefolgt von ``_sequence``.\n:ivar id_column: die Ausgabespalte, in die der aufgelöste Name geschrieben wird. Links leer ist der Name des Eintrags gefolgt von ``ID``. Der ausgelieferte Guide-Barcode spaCR setzt dies stattdessen auf ``grna_name``, denn das ist der Header jeder bereits geschriebenen Zähltabelle und jeder Leser von einem erwartet.",
       "translation_source_blocks_sha256": [
-        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "493b1aca75dd59bed46bcbd976b81cec344b605503d2aba0312528855e55f80e",
         "a54459002ec25a06a6300251212900b8edd1e9f50229b3b3fe2a08e45b5516c8",
         "bcf57e9b01531c6c73c19194d71f301f94655e6aaf1c6829e9e151ac9ed37cf7",
         "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
@@ -148040,19 +148056,19 @@
     },
     "spacr.settings.BarcodeSet": {
       "source_blocks_sha256": [
-        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "1f7b2a96ba46b9b848d96dc6291fe9d1ebe6dc336cbf4170df12f1f4f5659ba7",
         "ded2ad28437c9bd2f3515ede17e5716d88c76a19b67f3ea25d02380d342e9e12",
         "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
-        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "dae54ee4ac0af5bb5327188f7f93187e13ae55e766340e4c2d199f79dd38d23a",
         "e62e63f559ddf046554e9fc42153a4cdc3d4fe8224573f02c3dfe36914e4d89f"
       ],
-      "source_sha256": "20633b53ddeae67fce8bb689126f8a5d0e12515e50f42b9794db534ab6c4fd1f",
-      "text": "Die bestellten Barcode-Typen eine Karte Barcodes laufen Decodes.\n\nEin Set ersetzt die drei benannten Referenzeinstellungen, mit denen das Modul begonnen hat. Iterieren ist es, wie die Verarbeitungssitzung jeden Barcode erreicht, so dass eine Verarbeitungssession mit einem Barcode und einer Verarbeitungssektion mit zehn nur in dem, was diese hält, unterscheidet.\n\nDie Zählspalten können separat eingestellt werden, da die drei über Jahre versandten Barcodes spaCR nach Zeile gezählt werden, dann Spalte, dann Führung, während die gelesenen Spalten zuerst die Spalte auflisten. Ein Satz, der diese laufenden Tabellen reproduziert, muss das sagen können, anstatt stille Tabellen neu zu sortieren, die die Leute bereits haben.\n\n:ivar entries: die Barcode-Typen in der Reihenfolge, in der der Lauf sie listet. Die kommentierten gelesenen tragen die Sequenzspalte und die Namensspalte jedes Eintrags in dieser Reihenfolge, nach dem Lesen selbst.\n:ivar count_columns: die Namenspalten, nach denen die Anzahl der Beispielpositionen pro Mikroplatte gruppiert wird, in der Reihenfolge, in welcher sie gruppieren werden. Links leer ist es die Namensspalte jedes Eintrags in der Eingabereihenfolge.",
+      "source_sha256": "80aaa5ffb38f1d653c3b2a0702e9c0913230c5c9a3a6c38e9a9c4d1e569ef79d",
+      "text": "Der Barcode gibt einen Lauf dekodiert, in Ordnung.\n\nEin Set ersetzt die drei benannten Referenzeinstellungen, mit denen das Modul begonnen hat. Iterieren ist es, wie die Verarbeitungssitzung jeden Barcode erreicht, so dass eine Verarbeitungssession mit einem Barcode und einer Verarbeitungssektion mit zehn nur in dem, was diese hält, unterscheidet.\n\nDie Zählspalten können separat eingestellt werden, da die drei über Jahre versandten Barcodes spaCR nach Zeile gezählt werden, dann Spalte, dann Führung, während die gelesenen Spalten zuerst die Spalte auflisten. Ein Satz, der diese laufenden Tabellen reproduziert, muss das sagen können, anstatt stille Tabellen neu zu sortieren, die die Leute bereits haben.\n\n:ivar entries: die Barcode-Typen in der Reihenfolge, in der der Lauf sie listet. Jeder Eintrag fügt eine Sequenzspalte und eine Namensspalte zu jedem kommentierten Lesen hinzu. Diese Spalten kommen nach dem Lesen in der gleichen Reihenfolge.\n:ivar count_columns: die Namenspalten, nach denen die Anzahl der Beispielpositionen pro Mikroplatte gruppiert wird, in der Reihenfolge, in welcher sie gruppieren werden. Links leer ist es die Namensspalte jedes Eintrags in der Eingabereihenfolge.",
       "translation_source_blocks_sha256": [
-        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "1f7b2a96ba46b9b848d96dc6291fe9d1ebe6dc336cbf4170df12f1f4f5659ba7",
         "86ae1cc70a39c43febc66d849b6b0e8e76037bbb71d7e0177acf57582ecf3f07",
         "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
-        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "dae54ee4ac0af5bb5327188f7f93187e13ae55e766340e4c2d199f79dd38d23a",
         "477ae570ca19e990949ef7e68fd328768bea29b28744e7e96641bb1b099c89f4"
       ]
     },

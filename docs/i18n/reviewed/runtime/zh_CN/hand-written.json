@@ -1,0 +1,34 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "barcode_set",
+      "source": "The barcodes this run decodes, one entry per barcode, each naming the barcode, the reference CSV that names its sequences and the regex group it is captured by; an entry may be just the barcode name when a reference CSV is already named beside it. Default blank, which decodes the plate column, the guide and the plate row from column_csv, grna_csv and row_csv, exactly as every run did before this key existed. A set may hold one barcode or ten, and the regex has to name a group for every entry in it, so the run refuses a pattern that names fewer and says which barcode has no group.",
+      "source_sha256": "1d42f78957e369a89dafd1addadd9ce1016e6806a4b6bc2fc7453e14bc9da607",
+      "table": "setting_tooltips",
+      "translation": "本次运行要解码的条形码，每个条形码一个条目，每个条目指定条形码本身、列出其序列的参考 CSV 以及捕获它的 regex 分组；当参考 CSV 已在旁边指定时，条目可以只写条形码名称。默认留空，此时从 column_csv、grna_csv 和 row_csv 解码微孔板列、引导序列和微孔板行，与此键存在之前的每次运行完全相同。一个集合可以包含一个条形码，也可以包含十个，并且 regex 必须为其中的每个条目命名一个分组，因此当某个模式命名的分组较少时，运行会拒绝该模式并指出哪个条形码没有分组。"
+    },
+    {
+      "key": "organelleb_background",
+      "source": "Raw intensity treated as background on the organelle 2 channel: the floor that remove_background_organelle 2 clips to zero, and the base of the organelleb_signal_to_noise product. Read it off a blank region of the image rather than guessing. Default 100.",
+      "source_sha256": "d9c5e4ea060587c623c97ae51aa73ae20dc6cf3a6a2b8bda0f028a62f9520534",
+      "table": "setting_tooltips",
+      "translation": "在细胞器 2 通道上被视为背景的原始强度：remove_background_organelle 2 将低于该值的像素截为零的下限，也是 organelleb_signal_to_noise 乘积的基准值。请从图像的空白区域读取该值，而不要凭猜测设定。默认值 100。"
+    },
+    {
+      "key": "organellec_background",
+      "source": "Raw intensity treated as background on the organelle 3 channel: the floor that remove_background_organelle 3 clips to zero, and the base of the organellec_signal_to_noise product. Read it off a blank region of the image rather than guessing. Default 100.",
+      "source_sha256": "d41564ea32235790f82728989656851db26a17189a6cbdf4ab449d282f8a7564",
+      "table": "setting_tooltips",
+      "translation": "在细胞器 3 通道上被视为背景的原始强度：remove_background_organelle 3 将低于该值的像素截为零的下限，也是 organellec_signal_to_noise 乘积的基准值。请从图像的空白区域读取该值，而不要凭猜测设定。默认值 100。"
+    },
+    {
+      "key": "organelled_background",
+      "source": "Raw intensity treated as background on the organelle 4 channel: the floor that remove_background_organelle 4 clips to zero, and the base of the organelled_signal_to_noise product. Read it off a blank region of the image rather than guessing. Default 100.",
+      "source_sha256": "b915d036e58959b546700388732791dc908320876003e69219d8bf7639ca5fc1",
+      "table": "setting_tooltips",
+      "translation": "在细胞器 4 通道上被视为背景的原始强度：remove_background_organelle 4 将低于该值的像素截为零的下限，也是 organelled_signal_to_noise 乘积的基准值。请从图像的空白区域读取该值，而不要凭猜测设定。默认值 100。"
+    }
+  ],
+  "schema": 1
+}

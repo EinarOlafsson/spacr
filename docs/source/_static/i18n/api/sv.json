@@ -5102,10 +5102,12 @@
         "87abc46324b7652f26afd47890cc77870273d005260e0e9ff49fdf9cd7a4c3f5",
         "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
         "9cdf97745e26f6331d427c3b47bac0e9d665a9013ad83e82b5d1d97e2c13d8e2",
-        "2a168de40798a583f43ae4a10b09d9ec6541cef4c29ed2d7a4a8fad0fc4bcc28"
+        "8c3b756a59a288efefc5cd40736fe4dac7c64abb1b2c54563bb639df11d12b7a",
+        "ef9bd71db073402127a75607c05f058a682f9a166d4a2b9721757f5dd613bea6",
+        "bd431fde3755ae77e6503f997f68b65ef49331d1a75653298ac1a6620224f87e"
       ],
-      "source_sha256": "5b68ce11638d37ea4bc01bf69d8fda009072f9afa3c51d542e4fb44836f1f974",
-      "text": "Bestäm vilken streckkod som lägger in en sekvenseringskörning innehåller verkligen.\n\nVad det är till för\n===================\nStreckkoder för kartor måste få veta tre saker som det inte kan gissa sig till: vilken partner som bär varje streckkod, om referenstabellen lagras i samma riktning som avläsningen, och var i läsningen streckkoden sitter. Att få någon av dem fel skapar en bearbetningssession som slutar normalt och kartlägger ingenting, eftersom varje steg efter utdragsfönstret fungerar på fel grunder. Modulen läser ett begränsat urval av av avläsningarna, mäter varje referenstabell mot dem i båda riktningarna, och omvandlar mätningarna till inställningar som kartkörningen kan använda. Den innehåller ingen grafisk kod och öppnar inga dialogrutor, så samma motor tjänar direktsökningen i gränssnittet, en anteckningsbok och testerna.\n\nVarför en rå träff inte är bevis\n==================================\nEn kort streckkod dyker upp i en lång läsning av ren slump. Trettiotvå distinkta åtta-bas streckkoder skannade över ett hundra och femtio bas läsa har cirka sju procent chans för en falsk matchning, så en tabell som verkligen är frånvarande fortfarande rapporterar ungefär sju procent av läser som träffar. En detektor som tillkännagav en upptäckt i den takten skulle skicka någon på jakt efter ett fel som inte existerar, eller i tysthet konfigurera en mappning som inte ger något. Varje hastighet som modulen rapporterar kommer därför med den hastigheten som förväntas av slumpen för den tabellen mot de läsningarna, och med förhållandet mellan dem. Ingenting kallas närvarande om det inte står väl klart för sin egen sammanträffande hastighet.\n\nVarför en stor berikning fortfarande inte är tillräckligt\n=========================================================\nBerikning över slumpen svarar om sekvenserna är i avläsningarna. Det svarar inte om de är laboratoriets mikroplattor streckkoder. Sekvensadaptrar är fasta sekvenser upprepade i varje avläsning, och en handfull streckkoder i varje tabell liknar en del av en adapter tillräckligt nära för att matcha den. Det ger en stor, perfekt verklig anrikning drivs av två streckkoder sitter i adaptern snarare än av en laboratoriemikroplatta. Mätningen som skiljer de två är position. En laboratoriemikroplattor streckkod upptar en plats i konstruktionen och så landar på en offset i nästan varje avläst, vilket är exakt varför ett utdrag fönster kan föreslås för det alls. En matchning som är utspridd över läsningen kan inte ge ett fönster och behandlas inte som ett fynd, oavsett hur berikad den är.\n\nVad den producerar\n==================\nEn rapport med ett fynd per kombination av referenstabell, orienterings- och inmatningsfil. Varje fynd innehåller den observerade hastigheten, slumpfrekvensen, berikningen, offsetdistributionen, det smalaste offsetsfönstret som står för de flesta träffarna, hur många olika streckkoder i tabellen sågs, och en dom med en mening som säger varför domen nåddes. Rapporten kan återges som en tabell för en logg, och den kan vikas in i inställningarna som :func:`spacr.sequencing.generate_barecode_mapping` läser.\n\nVad ska jag göra härnäst?\n=========================\nLäs domsluten innan de föreslagna inställningarna. En tabell som rapporteras som frånvarande i båda riktningarna för båda paren är oftast fel referensfil snarare än ett misslyckat experiment, och offsetkolonnen är det snabbaste sättet att berätta en laboratoriemikroplatta streckkod från en adapter som råkar likna en.",
+      "source_sha256": "289c6b367812e7320ca194ea34582f32dde0fc825419af7a2569fce12a54e833",
+      "text": "Bestäm vilken streckkod som lägger in en sekvenseringskörning innehåller verkligen.\n\nVad det är till för\n===================\nStreckkoder för kartor måste få veta tre saker som det inte kan gissa sig till: vilken partner som bär varje streckkod, om referenstabellen lagras i samma riktning som avläsningen, och var i läsningen streckkoden sitter. Att få någon av dem fel skapar en bearbetningssession som slutar normalt och kartlägger ingenting, eftersom varje steg efter utdragsfönstret fungerar på fel grunder. Modulen läser ett begränsat urval av av avläsningarna, mäter varje referenstabell mot dem i båda riktningarna, och omvandlar mätningarna till inställningar som kartkörningen kan använda. Den innehåller ingen grafisk kod och öppnar inga dialogrutor, så samma motor tjänar direktsökningen i gränssnittet, en anteckningsbok och testerna.\n\nVarför en rå träff inte är bevis\n==================================\nEn kort streckkod dyker upp i en lång läsning av ren slump. Trettiotvå distinkta åtta-bas streckkoder skannade över ett hundra och femtio bas läsa har cirka sju procent chans för en falsk matchning, så en tabell som verkligen är frånvarande fortfarande rapporterar ungefär sju procent av läser som träffar. En detektor som tillkännagav en upptäckt i den takten skulle skicka någon på jakt efter ett fel som inte existerar, eller i tysthet konfigurera en mappning som inte ger något. Varje hastighet som modulen rapporterar kommer därför med den hastigheten som förväntas av slumpen för den tabellen mot de läsningarna, och med förhållandet mellan dem. Ingenting kallas närvarande om det inte står väl klart för sin egen sammanträffande hastighet.\n\nVarför en stor berikning fortfarande inte är tillräckligt\n=========================================================\nBerikning över slumpen svarar om sekvenserna är i avläsningarna. Det svarar inte om de är laboratoriets mikroplattor streckkoder. Sekvensadaptrar är fasta sekvenser upprepade i varje avläsning, och en handfull streckkoder i varje tabell liknar en del av en adapter tillräckligt nära för att matcha den. Det ger en stor, perfekt verklig anrikning drivs av två streckkoder sitter i adaptern snarare än av en laboratoriemikroplatta. Mätningen som skiljer de två är position. En laboratoriemikroplattor streckkod upptar en plats i konstruktionen och så landar på en offset i nästan varje avläst, vilket är exakt varför ett utdrag fönster kan föreslås för det alls. En matchning som är utspridd över läsningen kan inte ge ett fönster och behandlas inte som ett fynd, oavsett hur berikad den är.\n\nVad den producerar\n==================\nEn rapport med ett fynd per kombination av referenstabell, orienterings- och inmatningsfil. Varje fynd innehåller den observerade hastigheten, slumpfrekvensen, berikningen, offsetdistributionen, det smalaste offsetsfönstret som står för de flesta träffarna, hur många olika streckkoder i tabellen sågs, och en dom med en mening som säger varför domen nåddes. Rapporten kan återges som en tabell för en logg, och den kan vikas in i inställningarna som :func:`spacr.sequencing.generate_barecode_mapping` läser.\n\nVad ska jag göra härnäst?\n=========================\nLäs utslagen innan de föreslagna inställningarna.\n\nEn tabell som rapporteras vara frånvarande i båda riktningarna av båda makarna betyder vanligtvis fel referensfil, inte ett misslyckat experiment.\n\nDen offset kolonnen är det snabbaste sättet att berätta en laboratoriemikroplatta streckkod från en adapter som råkar se ut som en.",
       "translation_source_blocks_sha256": [
         "c5710bbbdc1d888f7f7ac91eb35125595dd31005363ff16f8b15a8cbe1701840",
         "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
@@ -5117,7 +5119,9 @@
         "1b9e73ff367742a6893f9adda6659a509d41eb8e4a8cc60eb5f4c7ab862a3b47",
         "38f37177fa01b90cfe071db2579d1c7d711206c2e9a19bacce79c8a0f9b5219b",
         "6164ad73de3089addfdf4320dbe9f6da259911427de5e8fbaae926809d0c3167",
-        "10e18f90c11a4acfb1c3abe417d6d636b9a54874961d051c9ae95d25c250b9f3"
+        "8c3b756a59a288efefc5cd40736fe4dac7c64abb1b2c54563bb639df11d12b7a",
+        "ef9bd71db073402127a75607c05f058a682f9a166d4a2b9721757f5dd613bea6",
+        "af63ea6462356dd473500aeb8a43b43c82387d50c4f457a83e6ec50aba382e32"
       ]
     },
     "spacr.barcode_search.BarcodeHit": {
@@ -5389,15 +5393,15 @@
     "spacr.barcode_search.OrientationFinding.offset_histogram": {
       "source_blocks_sha256": [
         "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
-        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "744b3c640260556afcdaa9ecf6684893978df5e7e80821733a9386366f90aa0a",
         "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
         "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
       ],
-      "source_sha256": "f130a60cbb1b69258dadd277780b1bc6b6a4a3b19e856cc49a1e26abc215c770",
-      "text": "Returnera träfftalet vid varje start offset som en array.\n\nArrayen indexeras av offset så att en uppringare kan rita den direkt utan att först arbeta ut vilka offsets var befolkade.\n\n:param read_length: hur länge arrayen ska vara, tillräckligt länge för att hålla den största observerade offset när utelämnad.\n:returns: Ett antal träffar indexeras genom start offset.",
+      "source_sha256": "68c8ddac0d2b4c8a4a552f58a7449b57ed68a8a97e1547d06de83904aba01045",
+      "text": "Returnera träfftalet vid varje start offset som en array.\n\nPosition i arrayen är själva offset. En anropare kan rita array som den är, och behöver inte räkna ut vilka offsets användes.\n\n:param read_length: hur länge arrayen ska vara, tillräckligt länge för att hålla den största observerade offset när utelämnad.\n:returns: Ett antal träffar indexeras genom start offset.",
       "translation_source_blocks_sha256": [
         "5672ac8f7c83e32acc9a53bcf2729b8dafa7b6c4df323109b18893f0cb4cc8eb",
-        "aebce6e58b55b32b819ef623f013fe33013552e2bb4fc3d1e07c104d9487a1ed",
+        "744b3c640260556afcdaa9ecf6684893978df5e7e80821733a9386366f90aa0a",
         "5f7d96568da0a9fa2119d77d98594b8b7a377446ee3ab56041c0098e43c30e22",
         "a176ad6f361769cdecb4c20ec6dd5c043901dcf6bc6bce969c8b8684fed48b94"
       ]
@@ -5405,22 +5409,25 @@
     "spacr.barcode_search.OrientationFinding.window_end": {
       "source_blocks_sha256": [
         "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
-        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "4824d5f5d99c7775ae841395896a49a2c15047c07b9588410e02551804d8bbd3",
+        "dfc3f4901f45ffa2fbfb4130425580788889bc0602d6d5c1b629be675f2da0ab",
         "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
       ],
-      "source_sha256": "4f32f1f65a73ce5b9b7d23c7199e27e65d71af34ebf59beddbeb28c8774eda19",
-      "text": "Returnera den första offset förbi streckkoden i sin vanliga position.\n\nDen föreslagna utdragsfönstret måste nå slutet av den sista streckkoden snarare än dess början, och en streckkodsuppsättning vars medlemmar skiljer sig i längd når längst på sin längsta medlem.\n\n:returns: offset strax efter streckkodens slut.",
+      "source_sha256": "2d777c8e8c3dc95d53478be8bb65f6a0f51f6b3137fecc4ee9f8112fa2cb0ba4",
+      "text": "Returnera den första offset förbi streckkoden i sin vanliga position.\n\nFönstret måste nå slutet av den sista streckkoden, inte dess början.\n\nNär streckkoderna i en uppsättning inte är alla lika långa bestämmer den längsta var fönstret slutar.\n\n:returns: offset strax efter streckkodens slut.",
       "translation_source_blocks_sha256": [
         "42229d9d8b26b6aac04897720bca103599b36ae98931b4ed95327e7c902ff644",
-        "73c234d9fdc68e6600e6218afb8563f7eb337cd85812a58a0620c423b0d76d5d",
+        "4824d5f5d99c7775ae841395896a49a2c15047c07b9588410e02551804d8bbd3",
+        "dfc3f4901f45ffa2fbfb4130425580788889bc0602d6d5c1b629be675f2da0ab",
         "55bf3acf14bb0c382eafbb06f6a982111c411f5396f68ebd168d743e4b9e3693"
       ]
     },
     "spacr.barcode_search.ProposedMapping": {
       "source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "44112b48f305c7632ae1ee69cdf99bcbdffda71fba4987e204a5ca6350326329",
-        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "3af1280468ae174bf22c9c81391bc973cbe546a3b244746887b4bf386a8e4732",
+        "1b8839b3807f9028ccdfbde70eaff4dddbec1f71dc896ce8e06ca1fa984340bb",
+        "d2c88ed356fc41c4ba9464254db7f56a80b13e847e4864aa8a28cb973f88a03f",
         "8c02f8c21128a929b2421e44a6335f149b4c7371066cc68a7ea16cb0109fc646",
         "c83a06f40906767f7de977cb698c385f449ca54aba98faae6647cd1d70c5bcf7",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
@@ -5431,12 +5438,13 @@
         "b73ba95fd81532679b792744546dbcf363dc776defcb8caf284672198b996dbf",
         "a00a190d22632254b649be175293a38ea317560c118f90f9a150a4f0817073bb"
       ],
-      "source_sha256": "d99c7195319b647f3ba18b4bc6aaf9b9e1349a21f88499e49d3e42200b0d10af",
-      "text": "Inställningar sökningen anser att en kartläggning kör bör använda, och varför.\n\nDe föreslagna inställningarna innehåller bara strukturerade datanamn som karteringskörningen redan läser, så att de kan lämnas direkt till den.\n\nAllt sökningen lärt sig som inte har något hem bland dessa nycklar reser tillsammans. En uppringare som tyst tappade orienteringen skulle återinföra misslyckandet modulen finns för att förhindra.\n\nEn screening som avkodar en streckkod utanför laboratoriekolumnen, guiden och laboratorieraden har inget inställningsnamn som väntar på den. Den tabell som valts för varje roll listas därför bland referenstabellerna, oavsett om ett strukturerat datanamn kan fyllas i eller inte.\n\n:param settings: Endast strukturerade datanamn som karteringskörningen redan läser, så att mappningen kan överlämnas denna mappning av nyckelvärden direkt.\n:param reference_file: Den fil vars avläsningar av fönstrets förskjutningar uttrycks mot, eftersom förskjutningarna inte betyder någonting utan sin ram.\n:param source_files: Kartläggning från roll till läsfilen som etablerade den.\n:param orientations: Kartläggning från tabelletikett till orienteringen som körningen ska söka i den tabellen.\n:param reference_tables: tabellen som valts för varje roll, listad om ett inställningsnamn finns för att bära den – vilket är poängen, eftersom en roll utan strukturerat datanamn är exakt den som annars skulle gå förlorad.\n:param reverse_complement_needed: bord som körningen måste vända komplement för att känna igen, eftersom de hittades i den andra partnern som lagrats.\n:param unresolved_roles: roller ingen tabell etablerad. Namngiven snarare än gissad, så en uppringare kan säga så i stället för att starta en körning som kommer att kartlägga ingenting.\n:param notes: vad sökningen lärt sig som inte har något hem bland de inställningsnamn.",
+      "source_sha256": "9bdc17fca4294ef02ad4cbcbb5abc23b571a8c34005aeb143fa9ad7c69043fd9",
+      "text": "Inställningar sökningen anser att en kartläggning kör bör använda, och varför.\n\nVarje strukturerat datanamn i förslaget är ett av de karteringskörningar som redan lästs. Köret kan ta förslaget som det står.\n\nVad sökningen lärt sig som inte har någon matchande nyckel utförs tillsammans med.\n\nEn uppringare som tyst tappade orienteringen skulle föra tillbaka själva misslyckandet denna modul finns för att förhindra.\n\nEn screening som avkodar en streckkod utanför laboratoriekolumnen, guiden och laboratorieraden har inget inställningsnamn som väntar på den. Den tabell som valts för varje roll listas därför bland referenstabellerna, oavsett om ett strukturerat datanamn kan fyllas i eller inte.\n\n:param settings: Endast strukturerade datanamn som karteringskörningen redan läser, så att mappningen kan överlämnas denna mappning av nyckelvärden direkt.\n:param reference_file: Den fil vars avläsningar av fönstrets förskjutningar uttrycks mot, eftersom förskjutningarna inte betyder någonting utan sin ram.\n:param source_files: Kartläggning från roll till läsfilen som etablerade den.\n:param orientations: Kartläggning från tabelletikett till orienteringen som körningen ska söka i den tabellen.\n:param reference_tables: tabellen som valts för varje roll, listad om ett inställningsnamn finns för att bära den – vilket är poängen, eftersom en roll utan strukturerat datanamn är exakt den som annars skulle gå förlorad.\n:param reverse_complement_needed: bord som körningen måste vända komplement för att känna igen, eftersom de hittades i den andra partnern som lagrats.\n:param unresolved_roles: roller ingen tabell etablerad. Namngiven snarare än gissad, så en uppringare kan säga så i stället för att starta en körning som kommer att kartlägga ingenting.\n:param notes: vad sökningen lärt sig som inte har något hem bland de inställningsnamn.",
       "translation_source_blocks_sha256": [
         "cc10297f2ff9eb937c84296863741c8d0c10ee6c284af2d0bbf962d928eae280",
-        "addfbdabfeb4a97d528ab904d919d12b0eafd971a5d531d01fff5ff7528a9d89",
-        "2bad971115c0b76da2748201f52aca9e2d61aee5fe4b1e5a238db108a9311f07",
+        "f393bb6df3f2ad8134c7aac63d3ebb69434253fe29cd7fa4195fa484e3f06c64",
+        "1b8839b3807f9028ccdfbde70eaff4dddbec1f71dc896ce8e06ca1fa984340bb",
+        "d2c88ed356fc41c4ba9464254db7f56a80b13e847e4864aa8a28cb973f88a03f",
         "8c2cc1511ededead99b46fea2ff3c7d4d66d731ce015f288a428f57db9ebb6e6",
         "1472deda3c4b599dc0ff3fc7dd9009bcd7775436d9009406154085643bef140e",
         "04762ac7d09a713634a973d02c9912b53ecc1079611dbc1db99cc2bb0feceee8",
@@ -5613,7 +5621,7 @@
     "spacr.barcode_search.propose_map_barcodes_settings": {
       "source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "29e2e67ce1cb272327d7ea7aabc8bfced399163f332efa23568ab7bb4705a295",
         "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
         "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
@@ -5623,11 +5631,11 @@
         "db8dfb93e580e97e3a3655631fd1a4fb55d0cc1b1dd29f64da285de6d5b6960e",
         "5a2d01a292df36e13612b05a87e883cc1b1641cedcc34760fcf61328aac9eb68"
       ],
-      "source_sha256": "cce8e999a095ba50ce7844f76f245474690e2194191a8c8e6755ee586cedb4da",
-      "text": "Förvandla en färdig sökning till inställningar för en körning av streckkodskartläggning.\n\nKarteringskörningen avläser båda paren i en sekvens i orienteringen för den första, så det är ramen allt uttrycks i.\n\nEn tabell som finns hos den andra partnern eftersom den lagras rapporteras därför behöva kompletteras omvänt. Det är vad körningen kommer att behöva för att känna igen den.\n\nEn roll som ingen tabell upprättad lämnas ensam snarare än gissas på. Den namnges bland de olösta roller, så uppringaren kan säga så i stället för att starta en körning som kommer att kartlägga ingenting.\n\nUttagsfönstret härleds från var streckkoderna faktiskt landade. Dess start är den tidigaste offset någon etablerad streckkod upptagen och dess ände är längst någon av dem nådde, båda mätt mot ankaret när man söktes efter, eftersom kartläggningen kör lokaliserar sitt fönster genom att hitta det ankar först.\n\n:param report: Rapporten från en sökning.\n:param base_settings: Inställningar att börja från, vänster omodifierad; en tom nyckelvärdeskartering när utelämnad.\n:param reference_file: Etiketten på den fil vars orientering är ramen; den första filen i sökningen när den utelämnas.\n:returns: Förslaget, som innehåller inställningarna och vad som inte passade in i dem.\n:raises ValueError: när rapporten inte innehåller några filer.",
+      "source_sha256": "f3e281f09e2deb3088e5963cd37a0bcce62f286f5c748236fdd0f42577e2342d",
+      "text": "Förvandla en färdig sökning till inställningar för en körning av streckkodskartläggning.\n\nKören förenar båda parter i en sekvens, med hjälp av riktningen av den första partnern. Varje position nedan ges i den riktningen.\n\nEn tabell som finns hos den andra partnern eftersom den lagras rapporteras därför behöva kompletteras omvänt. Det är vad körningen kommer att behöva för att känna igen den.\n\nEn roll som ingen tabell upprättad lämnas ensam snarare än gissas på. Den namnges bland de olösta roller, så uppringaren kan säga så i stället för att starta en körning som kommer att kartlägga ingenting.\n\nUttagsfönstret härleds från var streckkoderna faktiskt landade. Dess start är den tidigaste offset någon etablerad streckkod upptagen och dess ände är längst någon av dem nådde, båda mätt mot ankaret när man söktes efter, eftersom kartläggningen kör lokaliserar sitt fönster genom att hitta det ankar först.\n\n:param report: Rapporten från en sökning.\n:param base_settings: Inställningar att börja från, vänster omodifierad; en tom nyckelvärdeskartering när utelämnad.\n:param reference_file: Etiketten på den fil vars orientering är ramen; den första filen i sökningen när den utelämnas.\n:returns: Förslaget, som innehåller inställningarna och vad som inte passade in i dem.\n:raises ValueError: när rapporten inte innehåller några filer.",
       "translation_source_blocks_sha256": [
         "bc3609feda13b9f8b283531be7a2da9505e10c9c78a1140b4a8337aa310029c0",
-        "8a38778a73083a2d8d9192677884c40a2e2238e10b1e8a495f1a088e65fe9449",
+        "29e2e67ce1cb272327d7ea7aabc8bfced399163f332efa23568ab7bb4705a295",
         "2edc728c136ec26ca32c1b714da0a5cf7fd14380366934100d9d5749eee2e7f3",
         "72effcba5b80821a0e866830942bff62e6195231c2a758b846282b5cc92f7be4",
         "bf919ae9c935ff4230c04f78bbdcaeb5cc7a6ada9bc8a235c5543f55d93d49a6",
@@ -5641,15 +5649,17 @@
     "spacr.barcode_search.reverse_complement": {
       "source_blocks_sha256": [
         "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
-        "d2207806852fdc2a5acaa73706b0887c199cf8fd8f6e3d01a4037b0726859cfc",
+        "3e8a2f28b2f8221f546782a59821994d8124e650c475ebded900f4731719809d",
+        "c92e20c428e053cdaafaf19b0dd3bce646054511a4820fe3f651d242453264a8",
         "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
         "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
       ],
-      "source_sha256": "c46d4e4efe9c44e5381f2a3a734e910487e5d7228ee5b7060c6892cc4fe37aae",
-      "text": "Returnera det omvända komplementet av en nukleotidsekvens.\n\nÖversättningen täcker de fyra baserna i båda fallen och lämnar en tvetydig bas som den är, så en läsning som bär en olöst position överlever flip istället för att kasta.\n\n:param sequence: Nucleotide-sekvensen att vända.\n:returns: det omvända komplementet, som en sträng.",
+      "source_sha256": "11141ad7160feaeb5c373c9aafa960e77ce65f7de55f689c3a9e5d7bcd747214",
+      "text": "Returnera det omvända komplementet av en nukleotidsekvens.\n\nBåde övre och nedre fall hanteras.\n\nVarje bokstav som inte är en av de fyra baserna returneras oförändrad, så en läsning med en osäker position är fortfarande omvänd snarare än vägras.\n\n:param sequence: Nucleotide-sekvensen att vända.\n:returns: det omvända komplementet, som en sträng.",
       "translation_source_blocks_sha256": [
         "2aa3d865410fae4267e820783412b7fd192404450d83606758f0909054463dc0",
-        "7b6e1438856ef0b0a9bdd5e3c8cb61ccc271a1249eccb23ac936ce91f0b9c5ee",
+        "3e8a2f28b2f8221f546782a59821994d8124e650c475ebded900f4731719809d",
+        "c92e20c428e053cdaafaf19b0dd3bce646054511a4820fe3f651d242453264a8",
         "54e931f0bd76c2cf8c09ae90df1b370d9a99c705c59f4a944b8d70d9994a1d14",
         "15270b151e8a5623fe1e11b051002ef030d973540ad39c4cb630910f992eec73"
       ]
@@ -128905,16 +128915,20 @@
     "spacr.qt.widgets.read_view": {
       "source_blocks_sha256": [
         "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
-        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d1ee21a452dec013e846aed3662fb61f14de3c0541d2cf4524029192ccaf79d6",
+        "42d60d2b6dfb68e4522fb0db11667f9914e49cb4142a20f5009e33c50f634e2d",
+        "79cca739ca54d8008826db8b694060c34e33a650c212028eee6a05f31e6f09d8",
         "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
         "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
         "5dfb4bb842ac0f2797ac22244d93d3310e003829aac15af79f9f0124d9f38030"
       ],
-      "source_sha256": "d0e18e1e03cc79530830d73cb8008353a3cc1b201cd19d585bcef538fe19e56f",
-      "text": "Visa sekvensering lyder som text, en läsa per rad, med matchningar färgade.\n\nSkärmen Map Barcodes ber användaren att tro ett påstående om sina FASTQ-filer: att en viss streckkod hittades på en viss plats, i en viss orientering. En procentsats i en sammanfattningsruta kan inte avgöra ett argument om det, eftersom en procentsats ser likadan ut om matchningarna är verkliga eller oavsiktliga. Läser gör det. Att se gRNA landa i samma kolumner på rad efter rad är skillnaden mellan ett nummer som användaren litar på och ett nummer användaren måste ta på tro, och att se ingenting rada upp är hur en felkonfigurerad körning tillkännager sig i en blick istället för efter en timme av kartläggning som ger inga räknas.\n\nSå den här widgeten är avsiktligt klar. Den ritar lästexten i en fast tonhöjd, man läser på en rad, och den målar tecknen en streckkod som matchas i en färg som tillhör den streckkodstypen. Ingenting sveper, ingenting glider bort, och tecknet i kolumn fyrtio av en läser sitter direkt ovanför tecknet i kolumnen fyrtio i nästa, vilket är hela anledningen till att titta på läser snarare än vid ett bord.\n\nDen här modulen vet ingenting om hur matchningar hittas. Den tar avläsningar och spänner som någon annan beräknar, så sökmotorn och skärmen som värdar den kan ändras fritt utan att röra något här, och så detta kan testas utan någon av dem. Kontraktet är paret av små skivtyper nedan, och det är tänkt att skrivas för hand lika lätt som det genereras.\n\nEn anteckning om färg, eftersom det är den delen som är lätt att få fel. Varje färg som målas här härrör från temat som är på applikationsvyn, aldrig skriven som en bokstavlig, och härledningen bevarar den relativa ljusstyrkan i temats egen accentroll. Kontrast är en funktion av relativ luminans och ingenting annat, så en färg gjorde detta sätt klart exakt kontrasten att accenten redan rensar på det temat, inklusive teman vars paneler är genomskinliga över ett fotografi. Det är det som låter ett godtyckligt antal streckkoder typer var och en få en egen färg utan att någon av dem blir oläsbar på något tema som ingen har kontrollerat.",
+      "source_sha256": "b5e3efed9a5c734bff55efd8567cda4340a317c565abadc46872826228458b15",
+      "text": "Visa sekvensering lyder som text, en läsa per rad, med matchningar färgade.\n\nEn streckkod mappning kör hävdar tre saker om sekvensering filer. Den första är att en streckkod hittades. Den andra är där streckkoden satt. Den tredje är vilken riktning den körde i.\n\nEn procentandel i sig kan inte bevisa detta påstående, eftersom en procentsats ser likadan ut oavsett om tändstickorna är verkliga eller oavsiktliga.\n\nLäsarna själva kan bevisa det. När guidens streckkod faller i samma kolumnrad efter rad, kan man lita på numret. När inget radar upp, visar sig en dåligt inställd körning på en gång, snarare än efter en timmes kartläggning som inte ger några värden.\n\nSå den här widgeten är avsiktligt klar. Den ritar lästexten i en fast tonhöjd, man läser på en rad, och den målar tecknen en streckkod som matchas i en färg som tillhör den streckkodstypen. Ingenting sveper, ingenting glider bort, och tecknet i kolumn fyrtio av en läser sitter direkt ovanför tecknet i kolumnen fyrtio i nästa, vilket är hela anledningen till att titta på läser snarare än vid ett bord.\n\nDen här modulen vet ingenting om hur matchningar hittas. Den tar avläsningar och spänner som någon annan beräknar, så sökmotorn och skärmen som värdar den kan ändras fritt utan att röra något här, och så detta kan testas utan någon av dem. Kontraktet är paret av små skivtyper nedan, och det är tänkt att skrivas för hand lika lätt som det genereras.\n\nEn anteckning om färg, eftersom det är den delen som är lätt att få fel. Varje färg som målas här härrör från temat som är på applikationsvyn, aldrig skriven som en bokstavlig, och härledningen bevarar den relativa ljusstyrkan i temats egen accentroll. Kontrast är en funktion av relativ luminans och ingenting annat, så en färg gjorde detta sätt klart exakt kontrasten att accenten redan rensar på det temat, inklusive teman vars paneler är genomskinliga över ett fotografi. Det är det som låter ett godtyckligt antal streckkoder typer var och en få en egen färg utan att någon av dem blir oläsbar på något tema som ingen har kontrollerat.",
       "translation_source_blocks_sha256": [
         "0fcb02c356c74fcd15c9089c301120f429addc914d873fd9437285f2af38e019",
-        "688be217cf9bf124d970a71c97ebb4b5af2f0878c4dda7919ec83cfbd6ee6d84",
+        "d1ee21a452dec013e846aed3662fb61f14de3c0541d2cf4524029192ccaf79d6",
+        "42d60d2b6dfb68e4522fb0db11667f9914e49cb4142a20f5009e33c50f634e2d",
+        "79cca739ca54d8008826db8b694060c34e33a650c212028eee6a05f31e6f09d8",
         "d2c15ad5272fabc546b9d43a7c66733f553ac3af1b4ee3319178744f3b2086ed",
         "888dee2779e42c06930e5b234845a8ac0ec2527f2eb58924fece5b2a47935621",
         "3a805954e5e0fb6809a8a6b7bc5a5538afe2cf2db0abb5a1c3944d9975d62229"
@@ -128927,17 +128941,17 @@
         "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
         "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
         "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
-        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+        "64bdcbd32652c583619a5f41032ef1a2c562580b5f0284756cbe93a7c915e94e"
       ],
-      "source_sha256": "02be31d10f02110e50884d3f64ad5803cf8f150cbdf36b99b873347e8db804d1",
-      "text": "En bit av en läsning som en streckkod av någon typ matchade.\n\nIntervallet är halvöppet och räknat i tecken från början av läsningen, så det följer Python skärning exakt och den matchade texten är ``read[start:stop]``. Positioner utanför avläsningen kläms fast när spännvidden ritas, och en spännvidd vars stopp inte är efter dess start bidrar ingenting, så en anropare som gör aritmetik på läslängder kan inte få vyn att höja.\n\nTypen är en ogenomskinlig etikett. Det är vad den som ringer kallar streckkodsfamiljen, det är vad legenden visar, och det är det som väljer färg, så två spänn som delar på ett slag är garanterade att dela en färg på varje rad.\n\n:param start: Första matchade karaktär, räknat från noll.\n:param stop: En förbi den senaste matchade karaktären.\n:param kind: Namn på streckkodstypen som matchade.",
+      "source_sha256": "651c4110ec02b5afd0989ee068a47293bbb200263b5757053df5f9cdf247131f",
+      "text": "En bit av en läsning som en streckkod av någon typ matchade.\n\nIntervallet är halvöppet och räknat i tecken från början av läsningen, så det följer Python skärning exakt och den matchade texten är ``read[start:stop]``. Positioner utanför avläsningen kläms fast när spännvidden ritas, och en spännvidd vars stopp inte är efter dess start bidrar ingenting, så en anropare som gör aritmetik på läslängder kan inte få vyn att höja.\n\nTypen är en ogenomskinlig etikett. Det är vad den som ringer kallar streckkodsfamiljen, det är vad legenden visar, och det är det som väljer färg, så två spänn som delar på ett slag är garanterade att dela en färg på varje rad.\n\n:param start: Första matchade karaktär, räknat från noll.\n:param stop: En förbi den senaste matchade karaktären.\n:param kind: Streckkodstyp denna spännvidd tillhör.",
       "translation_source_blocks_sha256": [
         "a6d24050e9c5c6dfedf0dcb149dbd5809ab6b1ef38bdb49c8ba80f4e01ef84f8",
         "e0bf798f0dc2a1ee4ac5369071bb5d4f1de6a71d15d1faa12ce98c4d66670e08",
         "073e3026294d48b6d0de181e5d8cfc9db1b926c2af446a185d0c7bd6d04d391f",
         "4f8506715b5cc9228ba213c96891e7f5192e48f82daad29136062f2c8e497c0e",
         "742a85bfee9ee1142a9a910a8c1ebe40f97174947f5ef869f58ace3231930b22",
-        "2bb9478d58a995a0fd25a0b277e3f7044e2de11ccde21797440fb2256acc9475"
+        "64bdcbd32652c583619a5f41032ef1a2c562580b5f0284756cbe93a7c915e94e"
       ]
     },
     "spacr.qt.widgets.read_view.ReadRow": {
@@ -128959,18 +128973,20 @@
         "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
         "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
         "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
-        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "39d3c51ea392e264b4e3e98b96de9c94adfca951d6a9aba48fbd7c8838be6905",
+        "9ae9f6e045ac0b7ef9d0e64c5b64f22b7220af13f2bb05e44505bfeb8b3e81b7",
         "a87f546d5bbbdbd8e853072bbf110383d442f14498713f2646e3858c69a69cb3",
         "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
         "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
       ],
-      "source_sha256": "ec7f068304591e8fa899d5de4cc3020d81fcd0a9b72bdbeea26c62bb381e198c",
-      "text": "Läser som text, en till en rad, med varje streckkodstyp i sin egen färg.\n\nHand det läser och spänner någon annan matchade inuti dem, och det visar dem. Det söker aldrig efter något själv och importerar aldrig koden som gör, så det kan släppas på någon screening som har läst och positioner att visa.\n\nVad det garanterar. Läsningar ritas i en fast teckenhöjd vid fasta teckenpositioner, så att kolumn fyrtio i en läsning ligger ovanför kolumnen fyrtio för nästa läsning. En läsning omsluter aldrig en andra visuell rad: en lång läsning gör att vyn rullar i sidled istället, eftersom en omsluten läsning skulle bryta löftet om en läsning per rad som hela widgeten existerar för att hålla. En streckkodstyp behåller en färg så länge vyn visar den, så att ögat kan följa en matchning längs raderna, och en förklaring ovanför läsningarna säger vilken färg som är vilken.\n\nHur överlappningar löses. Räckvidderna för en läsning beaktas i den ordning de gavs, och den första som täcker en karaktär behåller den. En spännvidd som kommer senare färgar alla tecken som inte redan har tagits, så den är aldrig helt dold, bara trimmad. Att bestämma detta innan någon teckning börjar är det som gör överlappande spänner bara en fråga om prioritet snarare än ett sätt att korrumpera bilden. En uppringare som vill ha en viss streckkod typ för att vinna en överlappning bör lista sina spänn först.\n\nVad det kostar. Avläsningarna hålls i en listmodell och ritas av en delegat, så att lämna över avläsningar kostar en listastilldelning och ritning kostar bara de rader som faktiskt finns på programvyn. Att ställa in tiotusen avlästa och visa vyn löser karaktärsägandet av en skärm full av rader, inte tio tusen, vilket är vad som håller gränssnittet lyhördt på en riktig FASTQ-prov istället för på en leksak.\n\n:param parent: Tillval Qt ägare ansvarig för widgetens livslängd.\nBygg en tom vy med en legend ovanför en lista med läsningar.",
+      "source_sha256": "d4e42575087f177d95463a71417f086e302c083584c863fe42a000fe3eeb9189",
+      "text": "Läser som text, en till en rad, med varje streckkodstyp i sin egen färg.\n\nHand det läser och spänner någon annan matchade inuti dem, och det visar dem. Det söker aldrig efter något själv och importerar aldrig koden som gör, så det kan släppas på någon screening som har läst och positioner att visa.\n\nVad det garanterar. Läsningar ritas i en fast teckenhöjd vid fasta teckenpositioner, så att kolumn fyrtio i en läsning ligger ovanför kolumnen fyrtio för nästa läsning. En läsning omsluter aldrig en andra visuell rad: en lång läsning gör att vyn rullar i sidled istället, eftersom en omsluten läsning skulle bryta löftet om en läsning per rad som hela widgeten existerar för att hålla. En streckkodstyp behåller en färg så länge vyn visar den, så att ögat kan följa en matchning längs raderna, och en förklaring ovanför läsningarna säger vilken färg som är vilken.\n\nHur överlappningar regleras. Räckvidderna för en läsning läses i den ordning de gavs. Den första spännvidden för att täcka en karaktär behåller den karaktären.\n\nEn senare spännvidd färgar fortfarande varje tecken som fortfarande är gratis, så den trimmas snarare än döljs. Regeln tillämpas innan något ritas, vilket förvandlar en överlappning till en fråga om prioritet istället för en trasig bild. För att låta en streckkod typ vinna en överlappning, lista dess spännvidder först.\n\nVad det kostar. Avläsningarna hålls i en listmodell och ritas av en delegat, så att lämna över avläsningar kostar en listastilldelning och ritning kostar bara de rader som faktiskt finns på programvyn. Att ställa in tiotusen avlästa och visa vyn löser karaktärsägandet av en skärm full av rader, inte tio tusen, vilket är vad som håller gränssnittet lyhördt på en riktig FASTQ-prov istället för på en leksak.\n\n:param parent: Tillval Qt ägare ansvarig för widgetens livslängd.\nBygg en tom vy med en legend ovanför en lista med läsningar.",
       "translation_source_blocks_sha256": [
         "3933e0fee39ca828388f0f7f3d7e46c34428835836bc4051b2002d9ad3531cb6",
         "29af72caac6c9388ec7f7f56ff3de1dfb2aede07fce011d751a80646c8f8fd80",
         "337cadde116ec5885fc947c0cc01ae9d9d9836a5c0afacec3d91cf9d079b431f",
-        "c52a43e3b5d88ff075d56c5c4e4ecf01320e50c208cc100ba9dd88062cb22f55",
+        "39d3c51ea392e264b4e3e98b96de9c94adfca951d6a9aba48fbd7c8838be6905",
+        "9ae9f6e045ac0b7ef9d0e64c5b64f22b7220af13f2bb05e44505bfeb8b3e81b7",
         "a765b429869a0bf35b16ae1a5028cf2c5189ec7a8ee1c56d3c15251742aa9b7a",
         "3a2626a64a4e99940fefdfeb64bc83c95cc12101526b8a91dd7fea26b6946746",
         "1ab4bca38c0e64cc86ab410ec6f91fd07ab0fb697f53d99074539e9e727410a0"
@@ -147960,7 +147976,7 @@
     },
     "spacr.settings.BarcodeEntry": {
       "source_blocks_sha256": [
-        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "493b1aca75dd59bed46bcbd976b81cec344b605503d2aba0312528855e55f80e",
         "e6e65ecebf78eb06898d73da6aa6d7f3abc8d78dfd8c25533cc6da0adc0ae6d8",
         "d58785ef6ef741235c248817fa0bf63706eb1c9e9b5042816b59f14cca90a5c0",
         "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
@@ -147969,10 +147985,10 @@
         "54684e804efb149765829e6d3ffc14518cb55f95cd7cd373c9415c5b9d0432f8",
         "41f2159e3149ffb4c2a37e2da76914e58fb646954aa260ef1397ce297f6f49d3"
       ],
-      "source_sha256": "3c9b076038b7fe5d8a0dbec07fc4ec5523de64d1f64685896c540df7bd71798d",
-      "text": "En streckkod skriver en karta Streckkoder kör dekoder.\n\nEn processsession som används för att avkoda exakt tre streckkoder -- en laboratoriekolumn för mikroplattor, en guide och en laboratorierad för mikroplatta -- eftersom regex, inställningar och läsprocessorer var stavade ut alla tre av dem med namn. En post är samma information skriven en gång, så att en screening med en fjärde streckkod, eller bara en, är en annan samling poster snarare än en annan kodsökväg.\n\n:ivar name: the word a user would use for this barcode, such as ``column``, ``row``, ``grna`` or ``plate``. It names the two output columns the processing session writes for the entry, so it has to be unique within a set.\n:ivar csv: the reference table that turns one of these sequences into a name. It needs a ``sequence`` column and a ``name`` column. Its sequences must be in the same orientation as the reads, because they are compared verbatim rather than reverse-complemented.\n:ivar group: Den namngivna gruppen av streckkodsregexen vars fångade text är den här streckkoden. Till vänster tom är det postens eget namn, vilket är vad en regex skriven för en ny uppsättning normalt kommer att använda.\n:ivar group_aliases: Ytterligare stavningar av det gruppnamnet, som godtas när den föredragna saknas från regexet. Kolumnen och raden streckkoder spaCR levereras accepterar de kortare ``column`` och ``row`` på detta sätt, vilket är anledningen till att ett mönster som skrevs innan dessa namn var reglerade fortfarande körs.\n:ivar sequence_column: utmatningskolumnen den extraherade sekvensen skrivs till. Vänster tom är det postens namn följt av ``_sequence``.\n:ivar id_column: utmatningskolumnen det uppgjorda namnet skrivs till. Vänster tomt är det postens namn följt av ``ID``. Guidestreckkoden spaCR levereras ställer in detta till ``grna_name`` istället, eftersom det är rubriken varje räkna tabell som redan skrivits och varje läsare av en förväntar sig.",
+      "source_sha256": "36bb69b77e7ba3ea4ff318276ae71564e63e7301bc0e1f05dedebaa9f326f009",
+      "text": "En streckkod typ som en kör avkodar.\n\nEn processsession som används för att avkoda exakt tre streckkoder -- en laboratoriekolumn för mikroplattor, en guide och en laboratorierad för mikroplatta -- eftersom regex, inställningar och läsprocessorer var stavade ut alla tre av dem med namn. En post är samma information skriven en gång, så att en screening med en fjärde streckkod, eller bara en, är en annan samling poster snarare än en annan kodsökväg.\n\n:ivar name: ordet en användare skulle använda för denna streckkod, såsom ``column``, ``row``, ``grna`` eller ``plate``. Det namnger de två utdatakolumnerna som bearbetningssessionen skriver för posten, så det måste vara unikt inom en uppsättning.\n:ivar csv: Referenstabellen som förvandlar en av dessa sekvenser till ett namn. Den behöver en ``sequence`` kolumn och en ``name`` kolumn. Dess sekvenser måste vara i samma riktning som avläsningarna, eftersom de jämförs ordagrant snarare än omvänt-kompletteras.\n:ivar group: Den namngivna gruppen av streckkodsregexen vars fångade text är den här streckkoden. Till vänster tom är det postens eget namn, vilket är vad en regex skriven för en ny uppsättning normalt kommer att använda.\n:ivar group_aliases: Ytterligare stavningar av det gruppnamnet, som godtas när den föredragna saknas från regexet. Kolumnen och raden streckkoder spaCR levereras accepterar de kortare ``column`` och ``row`` på detta sätt, vilket är anledningen till att ett mönster som skrevs innan dessa namn var reglerade fortfarande körs.\n:ivar sequence_column: utmatningskolumnen den extraherade sekvensen skrivs till. Vänster tom är det postens namn följt av ``_sequence``.\n:ivar id_column: utmatningskolumnen det uppgjorda namnet skrivs till. Vänster tomt är det postens namn följt av ``ID``. Guidestreckkoden spaCR levereras ställer in detta till ``grna_name`` istället, eftersom det är rubriken varje räkna tabell som redan skrivits och varje läsare av en förväntar sig.",
       "translation_source_blocks_sha256": [
-        "8ac2725886c6b7956fc05e09625ead842a11bc3ae284b87925238b60767442b6",
+        "493b1aca75dd59bed46bcbd976b81cec344b605503d2aba0312528855e55f80e",
         "a54459002ec25a06a6300251212900b8edd1e9f50229b3b3fe2a08e45b5516c8",
         "bcf57e9b01531c6c73c19194d71f301f94655e6aaf1c6829e9e151ac9ed37cf7",
         "f65ca50eb420d4220470cff3dcea3a400cde71ba2fe412425224bc4dbbe877f9",
@@ -148040,19 +148056,19 @@
     },
     "spacr.settings.BarcodeSet": {
       "source_blocks_sha256": [
-        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "1f7b2a96ba46b9b848d96dc6291fe9d1ebe6dc336cbf4170df12f1f4f5659ba7",
         "ded2ad28437c9bd2f3515ede17e5716d88c76a19b67f3ea25d02380d342e9e12",
         "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
-        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "dae54ee4ac0af5bb5327188f7f93187e13ae55e766340e4c2d199f79dd38d23a",
         "e62e63f559ddf046554e9fc42153a4cdc3d4fe8224573f02c3dfe36914e4d89f"
       ],
-      "source_sha256": "20633b53ddeae67fce8bb689126f8a5d0e12515e50f42b9794db534ab6c4fd1f",
-      "text": "Den beställda streckkoden skriver en karta Streckkoder kör dekoder.\n\nEtt set ersätter de tre namngivna referensinställningarna som modulen startade med. Att iterera det är hur bearbetningssessionen når varje streckkod, så en processsession med en streckkod och en behandlingssession med tio skiljer sig bara åt i vad den innehåller.\n\nRäkna kolumner kan ställas in separat eftersom de tre streckkoder spaCR levereras för år räknas med rad, sedan kolumn, sedan guide, medan läser lista kolumnen först. En uppsättning återgivning som kör måste kunna säga så, snarare än tyst sortera tabeller människor redan har.\n\n:ivar entries: streckkodstyperna, i den ordning körningen listar dem. De kommenterade läsarna bär varje posts sekvenskolumn och namnkolumnen i den här ordningen, efter själva läsningen.\n:ivar count_columns: Namnkolumner som antalet provplatser per mikroplatta grupperas efter, i den ordning de grupperas. Till vänster tomt är det varje posts namnkolumn i postordning.",
+      "source_sha256": "80aaa5ffb38f1d653c3b2a0702e9c0913230c5c9a3a6c38e9a9c4d1e569ef79d",
+      "text": "Streckkoden skriver en kör dekoder, i ordning.\n\nEtt set ersätter de tre namngivna referensinställningarna som modulen startade med. Att iterera det är hur bearbetningssessionen når varje streckkod, så en processsession med en streckkod och en behandlingssession med tio skiljer sig bara åt i vad den innehåller.\n\nRäkna kolumner kan ställas in separat eftersom de tre streckkoder spaCR levereras för år räknas med rad, sedan kolumn, sedan guide, medan läser lista kolumnen först. En uppsättning återgivning som kör måste kunna säga så, snarare än tyst sortera tabeller människor redan har.\n\n:ivar entries: streckkodstyperna, i ordningen kör listar dem. Varje post lägger till en sekvenskolonn och en namnkolumn till varje kommenterad läsning. Kolumnerna kommer efter läsningen, i samma ordning.\n:ivar count_columns: Namnkolumner som antalet provplatser per mikroplatta grupperas efter, i den ordning de grupperas. Till vänster tomt är det varje posts namnkolumn i postordning.",
       "translation_source_blocks_sha256": [
-        "41be471add1334d95d2e9b280c89b859597c15fe2090240b343c42d40eef0093",
+        "1f7b2a96ba46b9b848d96dc6291fe9d1ebe6dc336cbf4170df12f1f4f5659ba7",
         "86ae1cc70a39c43febc66d849b6b0e8e76037bbb71d7e0177acf57582ecf3f07",
         "a7dafacd4a60dd612946a2781d4a958932b7e422ddb103a12064cc46818e1954",
-        "79b7e62a4d1e30d856d52299033bbe18e5fe568f43ce7256d68d93b92f510be9",
+        "dae54ee4ac0af5bb5327188f7f93187e13ae55e766340e4c2d199f79dd38d23a",
         "477ae570ca19e990949ef7e68fd328768bea29b28744e7e96641bb1b099c89f4"
       ]
     },

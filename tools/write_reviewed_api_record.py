@@ -52,6 +52,8 @@ from typing import Optional, Sequence
 REPO = Path(__file__).resolve().parent.parent
 CATALOGS = REPO / "docs" / "source" / "_static" / "i18n" / "api"
 REVIEWED = REPO / "docs" / "i18n" / "reviewed" / "api"
+REVIEWED_RUNTIME = REPO / "docs" / "i18n" / "reviewed" / "runtime"
+RUNTIME_CATALOG = REPO / "spacr" / "qt" / "i18n_catalogs" / "en.py"
 SCHEMA = 1
 
 
@@ -104,20 +106,64 @@ def record(label: str, translation: str) -> dict:
     }
 
 
+def runtime_source(table: str, key: str) -> str:
+    """The English runtime string a (table, key) names.
+
+    :param table: the catalog table, lower case as the records spell it --
+        ``setting_tooltips``, ``setting_labels``, and so on.
+    :param key: the row within it.
+    :returns: the English source string.
+    :raises SystemExit: when either does not exist.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_en", RUNTIME_CATALOG)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    mapping = getattr(module, table.upper(), None)
+    if mapping is None:
+        raise SystemExit(f"no table {table.upper()!r} in {RUNTIME_CATALOG}")
+    if key not in mapping:
+        raise SystemExit(f"no key {key!r} in {table.upper()}")
+    return mapping[key]
+
+
+def runtime_record(table: str, key: str, translation: str) -> dict:
+    """One reviewed runtime record.
+
+    The runtime lane has NO ``context`` field -- that belongs to the API
+    lane, whose sources go through an English expansion first. Adding one
+    here would be rejected.
+    """
+    source = runtime_source(table, key)
+    return {
+        "key": key,
+        "source": source,
+        "source_sha256": hashlib.sha256(source.encode("utf-8")).hexdigest(),
+        "table": table,
+        "translation": translation,
+    }
+
+
 def write(language: str, name: str, entries: Sequence[dict]) -> Path:
     """Merge ``entries`` into a reviewed file, replacing same-label rows."""
-    folder = REVIEWED / language
+    lane = REVIEWED_RUNTIME if "table" in entries[0] else REVIEWED
+    folder = lane / language
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / f"{name}.json"
     if path.exists():
         document = json.loads(path.read_text(encoding="utf-8"))
     else:
         document = {"language": language, "records": [], "schema": SCHEMA}
-    replacing = {entry["label"] for entry in entries}
+    def identity(row: dict) -> tuple:
+        return (row.get("label"), row.get("table"), row.get("key"))
+
+    replacing = {identity(entry) for entry in entries}
     kept = [r for r in document.get("records", [])
-            if r.get("label") not in replacing]
-    document["records"] = sorted(kept + list(entries),
-                                 key=lambda r: r["label"])
+            if identity(r) not in replacing]
+    document["records"] = sorted(
+        kept + list(entries),
+        key=lambda r: (r.get("label") or "", r.get("table") or "",
+                       r.get("key") or ""))
     path.write_text(
         json.dumps(document, ensure_ascii=False, indent=2, sort_keys=True)
         + "\n", encoding="utf-8")
@@ -127,7 +173,9 @@ def write(language: str, name: str, entries: Sequence[dict]) -> Path:
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--language", required=True)
-    parser.add_argument("--label", required=True)
+    parser.add_argument("--label", help="API lane: <symbol>#<index>")
+    parser.add_argument("--table", help="runtime lane: e.g. setting_tooltips")
+    parser.add_argument("--key", help="runtime lane: the row in that table")
     parser.add_argument("--translation")
     parser.add_argument("--translation-file", type=Path)
     parser.add_argument("--name", default="hand-written",
@@ -137,8 +185,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                              "nothing -- use this first")
     args = parser.parse_args(argv)
 
+    runtime_lane = bool(args.table or args.key)
+    if runtime_lane and not (args.table and args.key):
+        raise SystemExit("the runtime lane needs both --table and --key")
+    if runtime_lane == bool(args.label):
+        raise SystemExit("give either --label (API) or --table/--key "
+                         "(runtime), not both and not neither")
+
     if args.show:
-        print(resolve(args.label))
+        print(runtime_source(args.table, args.key) if runtime_lane
+              else resolve(args.label))
         return 0
     if bool(args.translation) == bool(args.translation_file):
         raise SystemExit("give exactly one of --translation, "
@@ -148,13 +204,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if not text:
         raise SystemExit("the translation is empty")
 
-    entry = record(args.label, text)
+    entry = (runtime_record(args.table, args.key, text) if runtime_lane
+             else record(args.label, text))
     path = write(args.language, args.name, [entry])
     print(f"wrote {path}")
-    print(f"  label  {entry['label']}")
+    print(f"  label  {entry.get('label') or entry['table'] + '/' + entry['key']}")
     print(f"  sha    {entry['source_sha256'][:16]}...")
     print(f"  source {entry['source'][:70]}...")
-    print("\nVerify with: python tools/check_reviewed_api_evidence.py")
+    checker = ("check_reviewed_runtime_evidence" if runtime_lane
+               else "check_reviewed_api_evidence")
+    print(f"\nVerify with: python tools/{checker}.py")
     return 0
 
 
