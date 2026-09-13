@@ -2021,3 +2021,66 @@ that read as passes. `test_every_sample_role_is_real` now fails instead.
 
 STILL OPEN in 364: the organelle preprocessing gap, the two proposals waiting
 on the maintainer, and the generated-table checklist, which 391 will exercise.
+
+--------------------------------------------------------------------------------
+2026-09-12 -- THE ORGANELLE PREPROCESSING GAP, FOUND AND MEASURED. IT IS THREE
+SETTINGS THE CODE READS AND NOTHING DECLARES.
+--------------------------------------------------------------------------------
+
+This file names "the organelle preprocessing gap" SEVEN times, every one of
+them as "recorded above", and never once describes it. Nothing in
+`features/data/364_mask_and_measure_settings_audit_2026-09-02.txt` describes it
+either. So it was found again from the code rather than recovered from prose,
+and it is written down properly here so the next reader does not repeat that.
+
+    `spacr/io.py:1765-1771`, the per-channel preprocessing loop:
+
+        background        = settings.get('organelle_background', background)
+        signal_threshold  = settings.get('organelle_signal_to_noise', ...) * background
+        remove_background = settings.get('remove_background_organelle', remove_background)
+
+    ALL THREE ARE ABSENT FROM `expected_types`. Measured:
+
+        remove_background_cell        declared: True
+        cell_background               declared: True
+        remove_background_organelle   declared: False
+        organelle_background          declared: False
+        organelle_signal_to_noise     declared: False
+
+WHAT THAT COSTS. Every `.get` has a fallback, so nothing raises and nothing is
+logged -- the organelle channel simply keeps the generic defaults set at the
+top of the loop, `settings.get('background', 100)` and
+`settings.get('remove_background', False)`. So:
+
+  * ORGANELLE IS THE ONLY OBJECT CHANNEL THAT CANNOT HAVE ITS BACKGROUND
+    REMOVED. cell, nucleus and pathogen each have a declared
+    `remove_background_<role>` with a GUI row and a tooltip;
+    `remove_background_pathogen` even defaults to True. The organelle channel
+    is off and there is no declared setting that turns it on.
+  * IT IS UNREACHABLE FROM THE INTERFACE. An undeclared setting has no type,
+    no default, no tooltip, no category and no row, so it cannot be set in the
+    GUI and never appears in a settings file the GUI writes.
+  * AND THE DOCTOR ACTIVELY MISDIRECTS ANYONE WHO WORKS THE KEY OUT:
+
+        'remove_background_organelle' is not a spaCR setting;
+            did you mean 'remove_background_cell'?
+
+    Following that advice changes the CELL channel's preprocessing instead of
+    the organelle's. That is the same class of defect 391 found and suppressed
+    for `<role>_intensity_threshold_method`: a wrong suggestion is FOLLOWED,
+    where silence at least gets investigated. The other two are accepted
+    silently, which is the quieter half of the same problem.
+
+NOT FIXED HERE, AND THE REASON IS SEQUENCING RATHER THAN DIFFICULTY. The fix is
+to declare the three -- default, type, tooltip, category -- which is a new
+translatable string in ten catalogs and nine locales. The other session is
+mid-rebuild for an unrelated merge and we have agreed to batch catalog-touching
+work rather than pay forty minutes a commit. This is queued for that batch.
+
+WHOEVER TAKES IT SHOULD CHECK ONE THING FIRST, because it decides the defaults:
+`remove_background_pathogen` is True and `remove_background_cell` is False, so
+the roles do not agree with each other and there is no obvious value to copy.
+The honest default is whatever the organelle channel has EFFECTIVELY been doing
+since the fallback was written -- which is False -- so declaring it False
+changes no existing run, and any other value is a behaviour change that belongs
+in the release notes.
