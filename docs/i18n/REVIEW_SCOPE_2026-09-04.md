@@ -53,15 +53,24 @@ table derives them from the same source the builders read.
 
 | Language | Reviewed runtime records | Of 5,244 | Remainder | Reviewed API blocks | Of 10,478 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.25% | 5,126 | 468 | 4.47% | 10,010 |
-| German | 85 | 1.62% | 5,159 | 424 | 4.05% | 10,054 |
-| Spanish | 99 | 1.89% | 5,145 | 287 | 2.74% | 10,191 |
-| Simplified Chinese | 262 | 5.00% | 4,982 | 506 | 4.83% | 9,972 |
-| Portuguese | 99 | 1.89% | 5,145 | 448 | 4.28% | 10,030 |
-| Hindi | 126 | 2.40% | 5,118 | 460 | 4.39% | 10,018 |
-| Korean | 245 | 4.67% | 4,999 | 453 | 4.32% | 10,025 |
-| Icelandic | 151 | 2.88% | 5,093 | 1,025 | 9.78% | 9,453 |
-| French | 98 | 1.87% | 5,146 | 465 | 4.44% | 10,013 |
+| Swedish | 118 | 2.20% | 5,243 | 468 | 4.47% | 10,010 |
+| German | 85 | 1.59% | 5,276 | 424 | 4.05% | 10,054 |
+| Spanish | 99 | 1.85% | 5,262 | 287 | 2.74% | 10,191 |
+| Simplified Chinese | 266 | 4.96% | 5,095 | 507 | 4.84% | 9,971 |
+| Portuguese | 99 | 1.85% | 5,262 | 448 | 4.28% | 10,030 |
+| Hindi | 126 | 2.35% | 5,235 | 461 | 4.40% | 10,017 |
+| Korean | 245 | 4.57% | 5,116 | 453 | 4.32% | 10,025 |
+| Icelandic | 151 | 2.82% | 5,210 | 1,025 | 9.78% | 9,453 |
+| French | 98 | 1.83% | 5,263 | 465 | 4.44% | 10,013 |
+
+*Regenerated 2026-09-13. The runtime denominator moved 5,244 -> 5,361 because
+a one-line `_set_status` wrapper had hidden 117 user-facing status captions
+from the extractor across twenty-three screens; they are now declared and
+translated in all nine locales. NO REVIEWED RECORD CHANGED -- the reviewed
+counts are what they were, and the percentages fall only because the surface
+they are measured against grew. That is the honest direction for this number
+to move: the captions were always there and always unreviewed, and the report
+now counts them.*
 
 *Regenerated 2026-09-11 against the tree after the merge from `main`. Both
 denominators moved -- the runtime one DOWN, 5,260 to 5,249, because 364
