@@ -2,7 +2,10 @@
 THE MODEL SUMMARY SURVIVES BEING LOADED FROM DISK
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-08-19 -- CLOSED. The work is done; the ratchet is not this file's to bump."
+           Originally filed 2026-08-18; the header stayed on "filed" and the
+           item read as unstarted until 2026-09-13.
 Requested: 2026-08-18 --
 
   "i get: 'No summary: this panel was opened from a results table on disk

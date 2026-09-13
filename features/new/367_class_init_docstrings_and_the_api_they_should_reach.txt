@@ -2,7 +2,10 @@
 CLASSES DOCUMENT THEMSELVES BUT NOT THEIR __init__, WHERE THE PARAMETERS ARE
 ================================================================================
 
-Status:    measured 2026-09-02, implementation started.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-09-04 - CLOSED. ALL FOUR ACCEPTANCE CHECKS VERIFIED."
+           It said "measured 2026-09-02, implementation started" for nine
+           days after the implementation finished.
 Requested: 2026-09-02 -- "i noticed for classes in spacr many have a short
            docstring and nothing for the __init__. the __init__ is where the
            settings imports lie. so this section should have a docstring that

@@ -2,8 +2,10 @@
 TWO REGRESSIONS HUNG THE MACHINE
 ================================================================================
 
-Status:    filed 2026-08-18. NOT REPRODUCED. One guard shipped; the cause is
-           still unknown and this file says so rather than guessing.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-08-19 -- CLOSED. Reproduced, diagnosed and fixed. Not by guessing."
+           Originally filed 2026-08-18; the header stayed on "filed" and the
+           item read as unstarted until 2026-09-13.
 Requested: 2026-08-18 -- "i ran one ols then a mixed regression model and this
            hung my computer twice so i had to restart it"
 

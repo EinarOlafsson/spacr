@@ -2,7 +2,10 @@
 THE VOLCANO'S Y AXIS IS CONTINUOUS AGAIN
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-08-20 -- CLOSED. The sections above are shipped."
+           Originally filed 2026-08-18; the header stayed on "filed" and the
+           item read as unstarted until 2026-09-13.
 Requested: 2026-08-18 --
 
   "gra14 and 225160 allways have the same adjusted p value, why is there a

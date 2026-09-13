@@ -2,8 +2,10 @@
 THE MODEL BOX IS TYPESET, NOT DUMPED
 ================================================================================
 
-Status:    filed 2026-08-18. Supersedes the FORMAT half of 143 B; 143's
-           "make it short" still stands.
+Status:    DONE, corrected 2026-09-13 -- the file carries
+           "2026-08-18 -- SHIPPED, ALL OF A TO D. Commit 24149572."
+           Originally filed 2026-08-18; the header stayed on "filed" and the
+           item read as unstarted until 2026-09-13.
 Requested: 2026-08-18 --
 
   "actually my main problem was it dosnt look great. i want you to use
