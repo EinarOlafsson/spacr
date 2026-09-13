@@ -2,7 +2,8 @@
 THE LOADING SCREEN BACKGROUND IS TEAL; MAKE IT BLACK OR DARK GREY
 ================================================================================
 
-Status:    not started, 2026-08-11.
+Status:    DONE, corrected 2026-09-13 -- the file ends "STATUS: DONE."
+           This header said "not started" since 2026-08-11.
 Requested: 2026-08-11 — "add to instructions the background is teal, and i
            want it to be black or dark gray"
 

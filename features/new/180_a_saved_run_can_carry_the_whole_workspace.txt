@@ -2,7 +2,8 @@
 A SAVED RUN CAN CARRY THE WHOLE WORKSPACE, NOT ONLY THE SETTINGS
 ================================================================================
 
-Status:    filed 2026-08-19, not started.
+Status:    DONE, corrected 2026-09-13. The closing note reads "STILL OWED:
+           nothing in the ask". Originally filed 2026-08-19.
 Requested: 2026-08-19 -- "when i save a run i want the option to allso save all
            the things that are open in it so the imported files the opened cell
            images, any graphs created, the settings state, everything."

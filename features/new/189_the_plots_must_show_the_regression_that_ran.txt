@@ -2,7 +2,8 @@
 THE PLOTS MUST SHOW THE REGRESSION THAT ACTUALLY RAN
 ================================================================================
 
-Status:    filed 2026-08-20, not started. POSSIBLE CORRECTNESS BUG -- see A.
+Status:    DONE, corrected 2026-09-13. The file's last line is
+           "INSTRUCTION 189 IS COMPLETE". Originally filed 2026-08-20. POSSIBLE CORRECTNESS BUG -- see A.
 Requested: 2026-08-20 -- "one thing that makes me uneasy is that all the plots
            look the same no matter which regression type i do."
 Owner:     regression module

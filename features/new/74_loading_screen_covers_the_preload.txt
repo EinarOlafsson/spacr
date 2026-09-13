@@ -2,7 +2,8 @@
 LOAD EVERYTHING BEHIND A LOADING SCREEN, THEN SHOW A READY APP
 ================================================================================
 
-Status:    not started, 2026-08-10. Supersedes the deferred-preload trade in
+Status:    DONE, corrected 2026-09-13 -- the file ends "STATUS: DONE."
+           This header said "not started" since 2026-08-10. Supersedes the deferred-preload trade in
            instruction 55.
 Requested: 2026-08-10 — "instead just wait to show everything until the preload is done. the problem is the stutter if preload is triggered right away its fine. Generate a loading screen that goas away as soon as everything is loaded. The loading screen should be the spacr logo with a dark green background (like the icon for the installations) with some text to the right of the logo that says something like 'End-to-end microscopy--> single-cell image analysis --> genotype-to-phenotype mapping' this is the text that should be to the right of the spacr logo on the home screen as well. the loading screen should take up the entire window untill everything is loaded also indicate loading progress somehow simplistically and elegantly and thematically appropriately."
 

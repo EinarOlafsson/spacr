@@ -2,7 +2,8 @@
 THE CELLS TAB, WALKED THROUGH: SIX THINGS FOUND IN ONE SITTING
 ================================================================================
 
-Status:    filed 2026-08-20, not started.
+Status:    DONE, corrected 2026-09-13. The file's last line is
+           "INSTRUCTION 186 IS COMPLETE". Originally filed 2026-08-20.
 Requested: 2026-08-20, from a live session on the Cells tab. Six separate
            reports, kept in one instruction because they are one screen and
            one walkthrough; each is independently shippable.
