@@ -264,8 +264,8 @@ creating anything, and prefer `Edit` over `Write` for a path that may exist.
 
 | # | Question | Cost to answer |
 |---|---|---|
-| **81** | The reporter's `df -T` on the path in issue #15's traceback. If it is a local filesystem the shipped WAL fix covers them; if NFS/CIFS/Lustre, WAL is unsafe there and the fix is different. | one comment |
-| **81** | A stack trace, or a repro on a real display, for the remaining native crash. Four inspections and one measurement say it is **not** in any Python path. Guessing would be a change with no evidence. | — |
+| ~~**81**~~ | ~~The reporter's `df -T` on issue #15~~ — **NOT NEEDED, checked 2026-09-13.** #15 was closed 2026-08-14 and 81's own header records it "fixed across local and shared filesystems in 13c41543", so the answer stopped mattering: both branches are covered. | — |
+| ~~**81**~~ | ~~A stack trace for the remaining native crash~~ — **NOT NEEDED, checked 2026-09-13.** That is #72, closed 2026-08-12. The repository has **0 open issues and 86 closed**. | — |
 | **44/45/53** | A macOS host, a Windows host, and `makensis`. The Linux halves can be done without them. | — |
 | **59** | conda-forge accounts. | — |
 | **93** | Whether a stack whose intensities exceed the 16-bit ceiling should be **refused** rather than silently rescaled. See §4. | a decision |
