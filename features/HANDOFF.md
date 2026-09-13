@@ -268,10 +268,28 @@ staticmethod(lambda *a, **k: None))`. Patching `exec` does **not** cover it.
 ### 3c. `spacr.settings.tooltips` is NOT complete on import
 
 Six pipelines register their keys from their own module via
-`register_defaults`, which runs on import of that module. Read cold, `dst` and
-`cmap` look undocumented — and a tool that then writes "no description" is not
-missing a sentence, it is writing a **wrong** one. See
+`register_defaults`, which runs on import of that module. A tool that reads the
+dict cold and then writes "no description" is not missing a sentence, it is
+writing a **wrong** one. See
 `tools/build_notebook_settings.py::_load_registrations`.
+
+**THE EXAMPLE CHANGED, re-measured 2026-09-13.** This trap named `dst` and
+`cmap`. Both are documented cold now, so anyone checking the trap against them
+would conclude it had gone away. It has not: `tooltips` still grows from
+37,247 to 37,260 once the pipeline modules are imported, and the thirteen keys
+that arrive late are
+
+    collision_max_distance  exclude_starved_wells  min_reads_per_well
+    on_error  on_error_attempts  on_error_backoff  position_effect_ratio
+    qc_data  starved_read_fraction  sweep_points  sweep_span
+    target_grnas_per_well  target_statistic
+
+SAME MECHANISM AS 397, reached from the other side. That item counts rows in
+`SETTING_API_TARGETS` naming a key absent from `expected_types` and finds 76
+that are real settings declared where `expected_types` cannot see them --
+`collision_max_distance` and `exclude_starved_wells` are on both lists. A
+setting registered from its own module's body is invisible to any tool that
+reads a module-scope table, and that is one fact with two symptoms.
 
 Also: `register_defaults` **refuses** to let one module redefine another's
 tooltip. Adding `'dst'` to the core dict breaks `import spacr.sequencing_qc`.
