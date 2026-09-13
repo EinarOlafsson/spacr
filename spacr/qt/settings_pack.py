@@ -145,6 +145,13 @@ def _package_renames(key: str) -> Tuple[str, ...]:
     became several. A split has no safe automatic answer: the value belongs
     to one of the new keys or to none, and guessing puts a number on a
     control that looks deliberate and is wrong.
+
+    THE IMPORT IS INSIDE THE FUNCTION ON PURPOSE. `spacr.settings` is large
+    and NO module under `spacr/qt/` imports it at module scope -- pulling it
+    in here would put it on the import path of every Qt screen, which is the
+    cost 282 and 284 exist to remove. This runs once per unmatched pack key,
+    a few dozen times per load at most, not per event. Do not hoist it
+    without measuring what it adds to screen construction first.
     """
     try:
         from ..settings import surviving_setting_name
