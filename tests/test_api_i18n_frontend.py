@@ -48,7 +48,16 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 #: two tour helpers written here that TourPilot replaced.
 #: 10,306 -> 10,339 on 2026-09-11 with the merge from main, +45/-0,
 #: decomposed in tests/test_api_i18n_extractor.py beside the same move.
-REAL_SYMBOL_COUNT = 10_397
+#: 10,397 -> 10,478 on 2026-09-13, +81, and this one lagged by four behind
+#: the extractor's +77 because it was already four short before Map Barcodes
+#: landed -- it sat at 10,397 while the extractor sat at 10,401. So this is
+#: two moves in one: a +4 that had been outstanding, and Map Barcodes' +77.
+#: Nothing needed rebuilding for it. The catalogs and the live source agreed
+#: with each other symbol for symbol when this failed, which is the third
+#: case the assertion below distinguishes: the constant was the stale thing,
+#: not the catalog. A two-way message would have sent the reader to rebuild
+#: something already correct.
+REAL_SYMBOL_COUNT = 10_478
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
