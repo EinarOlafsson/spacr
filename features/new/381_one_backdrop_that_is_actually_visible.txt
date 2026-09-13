@@ -449,3 +449,109 @@ general form is cheap and worth copying:
     `apply_stylesheet_per_window` were the same thing once and are not now;
     every guard that reached for the first is testing a world it chose.
 
+
+--------------------------------------------------------------------------------
+2026-09-13 -- THE SWEEP THIS ITEM'S OWN CONCLUSION ASKED FOR, RUN AT LAST: FOUR
+ASSERTIONS, AND ONE COMMIT THAT FIXED THE RED HALF OF A PAIR
+--------------------------------------------------------------------------------
+
+The section above ends with a rule and no enumeration:
+
+    "`app.setStyleSheet` and `apply_stylesheet_per_window` were the same thing
+     once and are not now; every guard that reached for the first is testing a
+     world it chose."
+
+NOBODY THEN WENT AND FOUND THEM. This is that list. It was not found by
+reading, which is the point of the rest of this entry.
+
+WHAT STARTED IT. `test_perf_guard.py::test_initial_preferences_are_light_and_
+late_widget_qss_is_local` was RED, and had been since 380 landed on 09-11 --
+found on 09-13 by a full-suite sweep, not by anyone looking at the theme. Its
+probe calls production's own `apply_preferences_to_app` and then read
+`app.styleSheet()`:
+
+    app.styleSheet()             0 characters
+    window_stylesheet(app)  49,287 characters
+
+  ONE OF ITS THREE STYLESHEET ASSERTIONS FAILED. THE OTHER TWO PASSED, AND
+  PASSED FOR NO REASON AT ALL. `"" == ""` satisfies "the application sheet did
+  not change"; no marker is ever found in an empty string, so "the late block
+  did not leak globally" was true of nothing. Had the character floor not been
+  written next to them, that file would still be green today.
+
+THE INSTRUMENT, because the reading has to be mechanical. A pytest plugin
+wraps `QApplication.styleSheet` and records, per CALL SITE in `tests/`,
+whether the value came back empty or full. A site that is ONLY EVER EMPTY is a
+site whose equality and containment checks are satisfied by emptiness rather
+than by the property they name. Fifty-five sites across eight theme files:
+
+    always full       41      reading a sheet the test itself installed
+    mixed              3      conftest save/restore, and one staging helper
+    only ever empty   11      <- the candidates
+
+  AND THE FIRST RUN OF THIS SAID THE OPPOSITE, 41 AND 11 THE OTHER WAY ROUND.
+  The counter stored [full, empty] and the reporting script unpacked it as
+  (empty, full), so every site was reported inverted and the summary read "41
+  of 55 vacuous", which would have been a far more dramatic finding and was
+  not true. Caught because the write-side probe disagreed with it -- 72,979
+  characters installed and never cleared, against a read probe claiming the
+  sheet was always empty. TWO PROBES THAT DISAGREE IS A GIFT; a single probe
+  would have been believed.
+
+OF THE ELEVEN, THREE ARE REAL AND ONE IS THE CORRECT ASSERTION OF EMPTINESS:
+
+    test_widget_qss_is_complete.py:278   `assert not app.styleSheet()`
+                                         deliberate, and its docstring says so
+    test_field_fade.py:340               `"...FieldFade" not in qapp.styleSheet()`
+    test_preferences_repolish_budget:34  `qapp.styleSheet() == first_sheet`
+    test_preferences_repolish_budget:85  `qapp.styleSheet() == expected`
+
+IN ALL THREE THE TEST'S PRIMARY ASSERTION STILL WORKED -- `len(composed) == 1`,
+`composed == [True]`, `field_fade_qss(...) == ""`. That is why nothing was
+noticed: each of these files has a loud assertion doing the work and a quiet
+one that quietly stopped.
+
+--------------------------------------------------------------------------------
+THE PART WORTH KEEPING, WHICH IS ABOUT THE COMMIT THAT FIXED THE OTHER HALF
+--------------------------------------------------------------------------------
+
+Commit 94f590e0b (2026-09-11), in this item's own lane, contains exactly this:
+
+    -    assert "registered widget QSS: FieldFade" in qapp.styleSheet()
+    +    assert "registered widget QSS: FieldFade" in theme_mod.window_stylesheet(qapp)
+
+That is `tests/qt/test_field_fade.py:492`. Two hundred lines earlier, in the
+SAME FILE, sits
+
+         assert "registered widget QSS: FieldFade" not in qapp.styleSheet()
+
+and that line was not touched. The two are the same assertion with opposite
+polarity. The positive one went RED when the sheet moved and was repaired in
+the commit that moved it. The negative one went VACUOUS and was therefore
+invisible -- in the same file, in the same afternoon, to the same person.
+
+  A REFACTOR REPAIRS WHAT IT BREAKS LOUDLY AND LEAVES WHAT IT BREAKS QUIETLY,
+  and the two are not different populations: they are the same assertion seen
+  from two sides. Every `x in sheet` that fails has an `x not in sheet`
+  somewhere that did not, and only one of them is on the screen at the end of
+  the day.
+
+  THE PRACTICAL FORM: when a refactor moves a value and a test goes red,
+  GREP THE SAME FILE FOR THE SAME READ before fixing the red one. The
+  companion is usually within a few hundred lines, and it will never tell you
+  it is there.
+
+WHAT WAS DONE. All four assertions (the two in the perf guard, the one in
+field fade, the two in the repolish budget) now read `window_stylesheet`, and
+each is preceded by an assertion that the value is NON-EMPTY -- so a future
+move of the sheet fails this lot loudly instead of quietly. The repolish
+budget's foreign-sheet test additionally asserts `qapp.styleSheet() == ""`
+outright, because 380 treats a non-empty application sheet as foreign by
+construction and that is a property worth pinning rather than reading through.
+
+NOT DONE, AND NAMED SO NOBODY THINKS IT WAS. The instrument covered the eight
+theme files the greps pointed at, not all 37 that mention an application
+stylesheet. The other 29 mostly INSTALL a sheet and read their own back, which
+is the "always full" column above and is legitimate. A full pass would run the
+plugin over the whole `tests/qt` directory in one process and diff the site
+table; that is cheap and has not been done.
