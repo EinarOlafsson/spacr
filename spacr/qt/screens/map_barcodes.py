@@ -2614,7 +2614,9 @@ def _insert_above_actions(screen: QWidget, widget: QWidget) -> bool:
 
 
 def install_barcode_search(screen: QWidget, **kwargs):
-    """Give the Map Barcodes screen its live search, behind a toggle.
+    """Attach the live barcode search to the Map Barcodes screen.
+
+    The search starts hidden, and a toggle on the screen shows it.
 
     Installed rather than built into the screen for the reason every other
     panel on this screen is installed from outside: the screen is the generic

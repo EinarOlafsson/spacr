@@ -1156,14 +1156,18 @@ def _run_barcode_qc(settings, dst, count_csv, qc_csv):
 def generate_barecode_mapping(settings=None):
     """Turn a folder of pooled-screen FASTQ files into per-well sgRNA count tables usable by :func:`spacr.ml.perform_regression`.
 
-    Discovers R1/R2 files per sample under ``src``, extracts every
-    barcode the run decodes from each read via the configured regex and
-    offset window, translates each of them to a name through its own
-    lookup CSV (see :func:`map_sequences_to_names`), and writes
-    per-sample ``annotated_reads.h5`` (optional),
+    Discovers the R1 and R2 files of each sample under ``src``. Paired
+    vs single-end and R1/R2 orientation are chosen from
+    ``settings['mode']`` and ``single_direction``.
+
+    From every read it extracts each barcode the run decodes, using the
+    configured regex and offset window. Each extracted sequence is then
+    turned into a name through that barcode's own lookup CSV (see
+    :func:`map_sequences_to_names`).
+
+    Per sample it writes ``annotated_reads.h5`` (optional),
     ``unique_combinations.csv`` (the per-well gRNA counts) and
-    ``qc.csv``. Paired vs single-end and R1/R2 orientation are chosen
-    from ``settings['mode']`` and ``single_direction``.
+    ``qc.csv``.
 
     :param settings: Settings dict, canonicalized via
         :func:`spacr.settings.set_default_generate_barecode_mapping`.

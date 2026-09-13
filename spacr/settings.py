@@ -223,34 +223,29 @@ class BarcodeEntry:
     barcode, or only one, is a different collection of entries rather than a
     different code path.
 
-    Parameters
-    ----------
-    name:
-        The word a user would use for this barcode, such as column, row,
-        grna or plate. It names the two output columns the run writes for
-        the entry, so it has to be unique within a set.
-    csv:
-        The reference table that turns one of these sequences into a name.
-        It needs a ``sequence`` column and a ``name`` column, and its
+    :ivar name: the word a user would use for this barcode, such as
+        ``column``, ``row``, ``grna`` or ``plate``. It names the two output
+        columns the run writes for the entry, so it has to be unique within a
+        set.
+    :ivar csv: the reference table that turns one of these sequences into a
+        name. It needs a ``sequence`` column and a ``name`` column. Its
         sequences must be in the same orientation as the reads, because they
         are compared verbatim rather than reverse-complemented.
-    group:
-        The named group of the barcode regex whose captured text is this
-        barcode. Left empty it is the entry's own name, which is what a
+    :ivar group: the named group of the barcode regex whose captured text is
+        this barcode. Left empty it is the entry's own name, which is what a
         regex written for a new set will normally use.
-    group_aliases:
-        Further spellings of that group name, accepted when the preferred
-        one is absent from the regex. The column and row barcodes spaCR
-        shipped accept the shorter ``column`` and ``row`` this way, which is
-        why a pattern written before those names were settled still runs.
-    sequence_column:
-        The output column the extracted sequence is written to. Left empty
-        it is the entry's name followed by ``_sequence``.
-    id_column:
-        The output column the resolved name is written to. Left empty it is
-        the entry's name followed by ``ID``. The guide barcode spaCR shipped
-        sets this to ``grna_name`` instead, because that is the header every
-        count table already written and every reader of one expects.
+    :ivar group_aliases: further spellings of that group name, accepted when
+        the preferred one is absent from the regex. The column and row
+        barcodes spaCR shipped accept the shorter ``column`` and ``row`` this
+        way, which is why a pattern written before those names were settled
+        still runs.
+    :ivar sequence_column: the output column the extracted sequence is written
+        to. Left empty it is the entry's name followed by ``_sequence``.
+    :ivar id_column: the output column the resolved name is written to. Left
+        empty it is the entry's name followed by ``ID``. The guide barcode
+        spaCR shipped sets this to ``grna_name`` instead, because that is the
+        header every count table already written and every reader of one
+        expects.
     """
 
     name: str
@@ -331,20 +326,17 @@ class BarcodeSet:
     with. Iterating it is how the run reaches every barcode, so a run with
     one barcode and a run with ten differ only in what this holds.
 
-    Parameters
-    ----------
-    entries:
-        The barcode types, in the order the run lists them. The annotated
-        reads carry each entry's sequence column and name column in this
-        order, after the read itself.
-    count_columns:
-        The name columns the per-well counts are grouped by, in the order
-        they are grouped. Left empty it is every entry's name column in
-        entry order. It can be set because the three barcodes spaCR shipped
-        for years are counted by row, then column, then guide, while the
-        reads list the column first; a set reproducing that run has to be
-        able to say so rather than quietly re-sort tables people already
-        have.
+    The count columns can be set separately because the three barcodes spaCR
+    shipped for years are counted by row, then column, then guide, while the
+    reads list the column first. A set reproducing that run has to be able to
+    say so, rather than quietly re-sort tables people already have.
+
+    :ivar entries: the barcode types, in the order the run lists them. The
+        annotated reads carry each entry's sequence column and name column in
+        this order, after the read itself.
+    :ivar count_columns: the name columns the per-well counts are grouped by,
+        in the order they are grouped. Left empty it is every entry's name
+        column in entry order.
     """
 
     entries: tuple = ()
