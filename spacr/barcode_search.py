@@ -1145,13 +1145,16 @@ def _flip(orientation):
 class ProposedMapping:
     """Settings the search believes a mapping run should use, and why.
 
-    The settings dictionary holds only keys the mapping run already reads, so it
-    can be handed straight to it.  Everything the search learned that has no
-    home among those keys travels alongside, because a caller that silently
-    dropped the orientation would reintroduce the failure this module exists to
-    prevent.  A screen that decodes a barcode beyond the plate column, the guide
-    and the plate row has no settings key waiting for it, so the table chosen
-    for every role is listed among the reference tables whether or not a key
+    The proposed settings hold only keys the mapping run already reads, so
+    they can be handed straight to it.
+
+    Everything the search learned that has no home among those keys travels
+    alongside. A caller that silently dropped the orientation would
+    reintroduce the failure this module exists to prevent.
+
+    A screen that decodes a barcode beyond the plate column, the guide and the
+    plate row has no settings key waiting for it. The table chosen for every
+    role is therefore listed among the reference tables, whether or not a key
     could be filled in for it.
 
     :param settings: only keys the mapping run already reads, so the mapping
@@ -1187,13 +1190,16 @@ class ProposedMapping:
 def propose_map_barcodes_settings(report, base_settings=None, reference_file=None):
     """Turn a finished search into settings for a barcode mapping run.
 
-    The mapping run reads both mates into one sequence in the orientation of the
-    first, so that is the frame everything is expressed in.  A table found in
-    the second mate as it is stored is therefore reported as needing to be
-    reverse complemented, because that is what the run will need in order to
-    recognise it.  A role that no table established is left alone rather than
-    guessed at, and is named among the unresolved roles so the caller can say so
-    instead of starting a run that will map nothing.
+    The mapping run reads both mates into one sequence in the orientation of
+    the first, so that is the frame everything is expressed in.
+
+    A table found in the second mate as it is stored is therefore reported as
+    needing to be reverse complemented. That is what the run will need in
+    order to recognise it.
+
+    A role that no table established is left alone rather than guessed at. It
+    is named among the unresolved roles, so the caller can say so instead of
+    starting a run that will map nothing.
 
     The extraction window is derived from where the barcodes actually landed.
     Its start is the earliest offset any established barcode occupied and its
