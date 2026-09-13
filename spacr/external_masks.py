@@ -875,11 +875,23 @@ def register_settings(replace: bool = False) -> bool:
             "channel, Z, and time identifiers from source files. 'auto' "
             "detects the supported layout from the filenames. Default "
             "'auto'.",
+        # SHARED WITH `spacr.convert`, WHICH HAS A DIFFERENT DEFAULT.
+        # `register_defaults` refuses a second module's differing text for one
+        # key, so this string is the only description either consumer gets and
+        # has to be true of both. It used to describe External Masks alone: it
+        # named 'max' and 'first', called 'max' the default, and never
+        # mentioned 'keep' -- while `convert_folder` DEFAULTS to 'keep' and
+        # accepts it. A reader of Format Convert was told the wrong default
+        # and not told one of the three values existed.
         "z_handling":
-            "(str) - How multiple Z planes become a 2-D Measure input. "
-            "'max' takes a maximum-intensity projection and 'first' keeps "
-            "only the first plane; inputs that still contain separate planes "
-            "are rejected. Default 'max'.",
+            "(str) - How multiple Z planes are handled. 'keep' writes every "
+            "plane under its own Z number and loses nothing. 'max' takes a "
+            "maximum-intensity projection, collapsing a stack to one plane "
+            "while leaving a single-plane input untouched. 'first' keeps only "
+            "the first plane and discards the rest. Format Convert accepts "
+            "all three and defaults to 'keep', so a conversion is lossless "
+            "unless you ask otherwise. External Masks needs a 2-D input, so "
+            "it rejects 'keep' and defaults to 'max'.",
         "plate_naming":
             "(str) - How imported plates are named when the source does not "
             "provide one. 'index' assigns stable plate numbers in discovered "

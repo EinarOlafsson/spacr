@@ -138,3 +138,37 @@ diff against, and the second of which is tutorial material owned elsewhere.
 Still not deleted here: that is a maintainer's call on a tracked folder, and
 the measurement is the part this session can honestly contribute.
 
+
+--------------------------------------------------------------------------------
+2026-09-13 -- COUNTABLE NOW, STILL UNDECIDED
+--------------------------------------------------------------------------------
+
+The decision this file defers -- delete the nine or move them -- is untouched
+and still the maintainer's. What has changed is that the gap can be SEEN.
+
+This item's own complaint was that nothing counts these eleven: "The index is
+generated from `new/` and `future/`, so a top-level file can never make it
+stale. Nothing counts these eleven. They were found by grepping for a path
+that no longer exists." That is the part a test can close without taking
+anybody's decision.
+
+`tests/test_a_ledger_file_is_not_shadowed_by_a_staler_twin.py` pins the known
+set and fails on a TENTH:
+
+    KNOWN_SHADOWED   the nine, each verified to still have a counterpart
+    KNOWN_UNIQUE     segmentation_qc_field_browser, update_tutorials_README
+    a new top-level file            -> red
+    a twin grown for a unique file  -> red
+    a pinned twin that disappears   -> red, so the list shrinks when resolved
+
+Verified in both directions by staging each failure: a tenth file fails
+`test_no_new_top_level_ledger_file_appears`, and copying
+`segmentation_qc_field_browser.txt` into `new/` fails
+`test_the_known_unique_files_have_not_grown_a_twin`.
+
+RE-MEASURED ON THE SAME DAY, and one number moved: `03` is now 107 lines
+against 345 in `new/`, not 283 -- because the batched sweep reopened it this
+morning with two fresh order-dependent failures. The shallow copy still says
+"NOT DIAGNOSED". The gap it hides has grown by 62 lines since this file was
+written, which is the argument for resolving the nine rather than leaving
+them.

@@ -135,14 +135,24 @@ def pytest_configure(config):
         # accessor call is the most invasive thing it was doing.
         frame = sys._getframe(1)
         marker = os.sep + "tests" + os.sep
-        while frame is not None:
-            name = frame.f_code.co_filename
-            if marker in name:
-                key = "%s:%d" % (name, frame.f_lineno)
-                seen = SITES.setdefault(key, {{"full": 0, "empty": 0}})
-                seen["full" if value else "empty"] += 1
-                break
-            frame = frame.f_back
+        try:
+            while frame is not None:
+                name = frame.f_code.co_filename
+                if marker in name:
+                    key = "%s:%d" % (name, frame.f_lineno)
+                    seen = SITES.setdefault(key, {{"full": 0, "empty": 0}})
+                    seen["full" if value else "empty"] += 1
+                    break
+                frame = frame.f_back
+        finally:
+            # DROP THE FRAME. A frame object participates in reference cycles,
+            # so a local still bound to one when this returns keeps every
+            # object in that call chain alive until the cycle collector runs.
+            # The widgets a previous test built are in that chain, and the
+            # tests that noticed were pixel-rendering ones -- six of them,
+            # all in three files, where the earlier `traceback` version's
+            # victims were sixteen different tests.
+            del frame
         return value
 
     setattr(owner, {attr!r}, probe)
