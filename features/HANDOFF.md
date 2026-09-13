@@ -159,6 +159,13 @@ empty set satisfies almost any assertion.
 
 * `test_the_working_folders_do_not_reach_main` checked a prefix its fixture
   never creates.
+
+AND THE SIZE UNDERSELLS THE SOURCE-INSTALL ONE. 15 MB is modest beside the
+420 MB of `docs/` the same list excludes. The cost is not the megabytes: it is
+that 396 internal ledger files would land in a user's install -- files that
+quote the maintainer's requests verbatim, name unfixed defects, and argue about
+what not to build. `!/features/` keeps working notes out of a distribution, and
+that is what the exclusion is for; the disk saving is incidental.
 * `test_duplicate_instruction_numbers_are_ordered_by_filename` called
   `_entries("done")` and compared an empty list to its own sort, while
   `features/new` held 390 rows and eight duplicate ids.
