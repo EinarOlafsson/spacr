@@ -136,7 +136,7 @@ nothing at all — it never enters the manifest.
 
 ## THE MEASUREMENT LESSONS OF 2026-09-13
 
-### Twenty-eight ledger files were wrong about their own state, and the ledger had already said so three times
+### Thirty-one ledger files were wrong about their own state, and the ledger had already said so three times
 
 The index header warns about this. So does `69`, whose heading reads
 "2026-08-13 - DONE. THE FILE'S 'not started' WAS WRONG, AND THIS IS THE
@@ -201,7 +201,7 @@ resolved location's HEAD.
 
 ## 0. THE FOUR LESSONS. READ THESE BEFORE YOU TOUCH ANYTHING.
 
-### 0a. Audit before you build — THIRTY-SIX files have been wrong about themselves
+### 0a. Audit before you build — THIRTY-NINE files have been wrong about themselves
 
 | file | said | was |
 |---|---|---|
@@ -219,7 +219,7 @@ header; the code beats both. Twice this week the "missing" thing existed under
 a name nobody grepped for.
 
 **THERE IS NOW A CHECK, added 2026-09-13, and the count above went from eight
-to thirty-six the day it was written.** `32` is the sharpest of them: its own
+to thirty-nine the day it was written.** `32` is the sharpest of them: its own
 heading reads "2026-08-17 - CLOSED. THE WORK LANDED; NOBODY WROTE IT DOWN
 HERE", above a Status line that still said "not started" a month later, and a
 re-audit on 2026-08-26 passed without touching it either. `69` is in the table
@@ -234,9 +234,17 @@ So this lesson has been learned, written down, and re-learned at least three
 times, which is the argument that reading is not the fix.
 `tests/test_a_ledger_file_does_not_contradict_itself.py` fails any file whose
 Status OPENS with a not-started claim while its trailing notes declare
-completion. TWENTY-EIGHT were corrected; five of those were found only by widening
+completion. THIRTY-ONE were corrected; five of those were found only by widening
 the pattern to the ledger's own `2026-08-13 - DONE` heading form, after
 thirteen rounds of reading had missed them.
+
+THE MOST EXPENSIVE SHAPE IS NOT "DONE LABELLED NOT STARTED". It is `70`,
+whose header read "under investigation 2026-08-10; findings go here" over a
+file containing both the measurement and "CLOSED BY THE MAINTAINER. NO GPU
+OFFLOAD, NO NEW DEPENDENCY", written the same day. A mislabelled done item
+costs a reader minutes. A header inviting an investigation that has already
+produced a decision costs somebody a day, and the decision was the
+maintainer's.
 
 It is deliberately narrow and says so: only an unmistakable completion sentence
 counts, it checks one direction (the reverse sweep returns 31 healthy files),
