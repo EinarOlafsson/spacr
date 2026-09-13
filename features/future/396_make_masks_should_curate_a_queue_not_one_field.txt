@@ -1,0 +1,89 @@
+396 MAKE MASKS SHOULD CURATE A QUEUE, NOT ONE FIELD AT A TIME
+=============================================================
+
+Status:    FUTURE, filed 2026-09-12. Not blocking anything.
+Requested: 2026-09-12, verbatim -- "wouldnt it be easier in the future if we
+           just use spacr make masks module started from the trerminal to
+           vurate the masks?"
+Owner:     unassigned. `spacr/qt/screens/make_masks.py` is the editor;
+           `spacr/cli.py:732` is the refusal to launch it from a terminal.
+
+--------------------------------------------------------------------------------
+WHAT PROMPTED IT
+--------------------------------------------------------------------------------
+
+The maintainer curates Toxoplasma PV masks with a BESPOKE 1,900-line Qt tool
+living outside spaCR, in another project's `code/tools/curate_masks_qt.py`,
+and asked the obvious question: why not use Make Masks?
+
+The answer today is that Make Masks is the better EDITOR and the bespoke tool
+is the better WORKFLOW, and neither is both.
+
+MAKE MASKS ALREADY HAS THE EDITING. `save_curated_mask`, brush, erase, erase
+object, wand +/-, draw, divide, recrop, undo -- nine tools, and it loads
+images with `<folder>/masks` and saves `uint16` TIFFs. It also already carries
+the six-decimal percentile fix from 391 part five, which the external tool did
+not.
+
+WHAT IT DOES NOT HAVE IS A QUEUE, and that is what makes a 329-image curation
+session survivable rather than exhausting:
+
+    --folder <dir>          a queue of bundles rather than one folder
+    --order easy|prob|value|name    work the easy ones first, or the most
+                            uncertain first; ordering IS the productivity
+                            feature, because a curator's judgement is worth
+                            more on the hard ones and they should not spend
+                            it on the first hundred easy ones
+    --limit N               stop after N, so a session has an end
+    curate_status.csv       done / skip per stem, written into the queue
+                            folder, so the work RESUMES -- and because that
+                            file syncs, resumes across machines
+
+    Measured 2026-09-12: 500 bundles, 366 done, 29 skip, 105 remaining. None
+    of that state can be expressed in Make Masks today.
+
+AND IT CANNOT BE STARTED FROM A TERMINAL. `spacr/cli.py:732` refuses by
+design: "Make Masks is a manual mask editor; run it in the GUI (spacr-qt)."
+That is defensible for a mouse-driven tool, but it means a curation session
+cannot be scripted, pointed at a folder, or resumed from a shell -- which is
+how the maintainer actually works, over SSH, on two machines.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+  * A FOLDER ARGUMENT that reaches Make Masks, and a CLI entry point that
+    opens it there. The refusal at cli.py:732 becomes "opens the editor on
+    this folder" rather than "use the GUI".
+  * A RESUMABLE STATUS FILE beside the images, with done and skip as distinct
+    states. Skip is not a lesser done: it records "this one cannot be
+    curated", and losing that distinction means the same unusable field is
+    offered again every session.
+  * ORDERING, and `easy` as the default because that is what the external
+    tool chose after use.
+  * A LIMIT, so a session is a bounded piece of work.
+
+ONE LAYOUT MISMATCH TO SETTLE FIRST. Make Masks documents `<folder>` holding
+images with `<folder>/masks` beneath. The curation sets in the field are laid
+out as SIBLING `images/` and `masks/` directories. Whichever wins, the other
+has to be accepted or converted, and silently assuming one is how a folder
+full of work gets loaded as empty.
+
+--------------------------------------------------------------------------------
+WHY IT IS WORTH DOING RATHER THAN LEAVING TWO TOOLS
+--------------------------------------------------------------------------------
+
+The external tool is unmaintained by anyone but its author, untranslated,
+untested, and outside the repository -- so its defects are found by the
+maintainer in the middle of a curation session rather than by CI. One was
+found that way on the day this was filed: the contrast percentile appeared to
+stop responding above 99.99. It turned out NOT to be a widget rounding bug at
+all -- the control already accepted 13 decimals -- but a saturated bright end
+on 69 of 253 images, where no number of decimals can subdivide identical
+pixels, and a control that said nothing about it. Inside spaCR that class of
+thing is caught by the tooltip-quality gates and the percentile tests.
+
+Two tools also means two answers to the same question. spaCR's Make Masks and
+the external tool disagree about defaults, about what a percentile means, and
+about whether a mask is saved as it is edited -- and a curator moving between
+them carries assumptions that are true in one and false in the other.
