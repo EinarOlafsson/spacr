@@ -92,3 +92,49 @@ WHAT TO DO
 DO NOT DELETE THE NINE TO MAKE THE FOLDER TIDY WITHOUT READING THEM. That is
 the same error 397 warns about from the other direction: the count is not the
 defect, and a file nobody has read is not evidence of anything yet.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- THE DIFF THIS ITEM ASKS FOR, DONE
+--------------------------------------------------------------------------------
+
+"Check before deleting rather than after; a `diff` against the counterpart says
+in a second whether anything is only in the stale copy." Done for all nine.
+
+    file                                  stale  new   lines only in the stale
+    01_pip_upgrade_is_broken...              87   157        2
+    02_multi_fov_loader...                   92    76        1
+    03_five_order_dependent_qt_failures     107   197        1
+    04_font_scale_default_disagrees          66    56        1
+    05_version_bump_and_github_actions       56    86       24
+    06_module_overlap_and_merge              76    51        1
+    07_known_bugs_not_fixed                 470   533       66
+    08_flowview_pipeline_visualisation      468   514        3
+    31_gate_editor_redesign                  26   505        0
+
+SEVEN OF THE NINE DIFFER BY THREE LINES OR FEWER, and those are the Status
+line and its wrapping. 31 is a strict SUBSET of its counterpart -- zero unique
+lines in 26.
+
+THE TWO THAT LOOK SUBSTANTIAL ARE SUPERSEDED, NOT LOST, and both were read
+rather than counted:
+
+  07 (66 lines). Its unique block is the ORIGINAL reasoning about
+  `barcodes_grna.csv` having three duplicated protospacers -- "left alone
+  because a duplicated protospacer can be a screen-design decision". The
+  counterpart does not merely repeat that, it CLOSES it: "[FIXED 2026-08-15]",
+  1,385 rows in, eight ambiguous rows removed at commit edb6d2fb, 1,377 out,
+  and the correction that three was the count of shared SEQUENCES and not of
+  ambiguous rows. The stale text is the question; the live text is the answer.
+
+  05 (24 lines). Its unique block opens "Status: deferred on request, twice.
+  Current: spacr/version.py reports 1.5.0.2". The version is 1.5.0.5. Every
+  line of it is a snapshot of a state that has moved.
+
+SO THE RECOMMENDATION ABOVE CAN BE FOLLOWED WITHOUT LOSS for the nine. What
+remains genuinely undecided is the two singletons -- `segmentation_qc_field_
+browser.txt` and `update_tutorials_README.txt` -- which have no counterpart to
+diff against, and the second of which is tutorial material owned elsewhere.
+
+Still not deleted here: that is a maintainer's call on a tracked folder, and
+the measurement is the part this session can honestly contribute.
+
