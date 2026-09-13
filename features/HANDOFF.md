@@ -317,11 +317,45 @@ creating anything, and prefer `Edit` over `Write` for a path that may exist.
 
 ### 3a. A new public module obliges an i18n rebuild
 
-Adding a module to `spacr/__init__.py::_SUBMODULES` turns the docs job red
-until `python tools/build_documentation_i18n.py --sources-only` is run (writes
-only `en.json`). Forgetting `_SUBMODULES` itself turns **every** compat-matrix
-cell red on `test_smoke.py::test_lazy_loader_matches_files`. It has happened
-twice.
+Adding a public module turns the docs job red until
+`python tools/build_documentation_i18n.py --sources-only` is run (writes only
+`en.json`). **STILL TRUE, and lived again on 2026-09-13**: Map Barcodes added
+`spacr/barcode_search.py` and with it 77 API entries, which took six tests red
+across two files until both catalog lanes were rebuilt.
+
+~~Forgetting `_SUBMODULES` itself turns every compat-matrix cell red.~~
+**NO LONGER POSSIBLE, checked 2026-09-13.** `_SUBMODULES` is computed --
+`set(_DOCUMENTED_SUBMODULES) | _submodules_on_disk()` -- so it reads the
+directory and cannot be forgotten. The comment above it records why: "a module
+that existed but could not be reached through the package, so the names are
+taken from the directory whenever there is one to read." The failure that
+happened twice was fixed by making the list self-updating, which is the right
+shape and is worth copying: THE LIST THAT CANNOT GO STALE IS THE ONE NOBODY
+MAINTAINS.
+
+`_DOCUMENTED_SUBMODULES` IS STILL HAND-WRITTEN AND HAS DRIFTED 39 MODULES
+BEHIND THE PACKAGE -- 195 named against 234 on disk, `barcode_search`,
+`accelerator`, `embeddings`, `infection`, `object_distances` and most of the
+`ops_*` family among the absentees. The only test on it is a SUBSET assertion,
+which a missing entry satisfies, so nothing reports the drift.
+
+THE MECHANISM LOOKS ALARMING AND THE MEASUREMENT SAYS IT IS INERT. In a
+PyInstaller bundle there is no directory to scan, so `_submodules_on_disk()`
+returns nothing and `_SUBMODULES` collapses to the documented tuple alone --
+`__getattr__` then raises AttributeError for all 39. That is why the comment
+calls it "the frozen-bundle floor".
+
+Checked by AST rather than by grep, because grep says the opposite: 28 of the
+39 appear as `spacr.<name>` in the sources, and EVERY ONE is a Sphinx
+cross-reference in a docstring (`:mod:`spacr.object_distances``). Executable
+`spacr.<missing>` attribute access in the package: ZERO. Nothing in spaCR
+reaches these modules by attribute at run time; they are imported by path,
+which a bundle serves from its archive.
+
+So the floor being 39 behind costs nothing today. It would cost something the
+first time a frozen build did `import spacr; spacr.bystanders...`, and it is
+cheap to prevent: the same union trick `_SUBMODULES` already uses fixed the
+failure that "happened twice".
 
 ### 3b. Headless Qt refuses static modals
 
