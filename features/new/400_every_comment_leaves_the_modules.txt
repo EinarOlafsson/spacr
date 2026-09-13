@@ -2,7 +2,8 @@
 EVERY COMMENT LEAVES THE MODULES AND THE REASONS MOVE TO docs/notes
 ================================================================================
 
-Status:    IN PROGRESS, filed 2026-09-13. Not blocking. Two rival versions
+Status:    BLOCKED 2026-09-13 -- both branches are unreachable from this
+           machine and from origin; see the 09-13 note. Two rival versions
            exist and one must be discarded -- see BEWARE.
 Requested: 2026-09-12 -- "you have left an extreemely high number of notes
            throughout many of the modual py files. If there is valuble
@@ -86,3 +87,59 @@ reached 5.3 GB at 9 % after 80 minutes, projecting ~14 hours. Use
     python tools/extract_source_notes.py          # dry run, expect no changes
 
 A clean dry run on a merged tree means nothing was missed.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- NEITHER BRANCH IS ON THIS MACHINE, AND NEITHER IS THE TOOL
+--------------------------------------------------------------------------------
+
+Steps 2 and 3 above cannot be performed from this checkout, and the reason is
+worse than a missing branch.
+
+SEARCHED, not assumed:
+
+    git cat-file -e 5947cb375   (CANONICAL, feat/comment-extraction-rebuilt)
+        NOT IN THIS REPOSITORY
+    git cat-file -e 1d93e5947   (salvage/comment-extraction-original)
+        NOT IN THIS REPOSITORY
+
+and this worktree shares `/home/carruthers/Documents/repo/spacr/.git` with the
+main checkout, so "not here" means not in the object store either copy uses.
+Also checked and also absent:
+
+    git ls-remote --heads origin | grep comment-extraction    nothing
+    git reflog --all | grep -i comment.extraction             0 mentions
+    every other .git under mnt3, /home/carruthers, and the
+      session scratchpad, probed with `cat-file -e`           no hits
+    tools/extract_source_notes.py                             absent
+    docs/notes/                                               absent
+
+SO THE DELIVERABLE AND THE TOOL THAT MADE IT ARE BOTH GONE FROM HERE: 512
+modules stripped, 491 notes files, ~50,500 comment lines moved, and the AST
+equality check that made it safe.
+
+  THIS FILE PREDICTED IT. The BEWARE section says the original "was on a
+  DETACHED HEAD on no branch for several days, one `git worktree prune` from
+  being lost, which is why it is branched now". Branching it locally was the
+  right instinct and was not enough, because NEITHER BRANCH WAS EVER PUSHED.
+  A local branch in a repository somebody prunes is a detached HEAD with a
+  nicer name.
+
+WHAT IS NOT CLAIMED. The maintainer works on two machines and syncs between
+them, so this work may exist on the other one. "Gone from this machine and
+from origin" is the measured claim; "lost" is not, and a `git ls-remote` from
+the other machine settles it in a second.
+
+WHAT TO DO, in order:
+
+  1. CHECK THE OTHER MACHINE for `feat/comment-extraction-rebuilt`. If it is
+     there, PUSH IT before doing anything else with it.
+  2. If it is not, the work is redoable -- the tool was ~a day and the run is
+     mechanical -- but it has now been redone once already (the rebuilt branch
+     exists BECAUSE rebasing the original across 514 conflicted files was
+     judged worse than re-running the tool). Redoing it a third time without
+     pushing would be the same mistake twice.
+  3. Whatever survives, PUSH THE BRANCH FIRST and land second. Nothing about
+     this item is safe to hold only locally.
+
+STATUS CHANGED from IN PROGRESS to BLOCKED: the steps it lists operate on
+commits that are not reachable from here.
