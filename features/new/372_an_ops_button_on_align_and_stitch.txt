@@ -3979,3 +3979,203 @@ STILL THE REAL REMAINING WORK: the end-to-end run on the maintainer's own
 12 TB at `/nas_mnt/data/ops/`. Phase B has been exercised there -- 1,840
 observations to 1,707 objects with 133 sewn, which is exactly the arithmetic
 -- and nothing after it has.
+
+--------------------------------------------------------------------------------
+PART 14-J -- THE ROW ORIGIN IS SOLVED PER COLUMN, AND AN UNMEASURED WELL IS
+STILL BYTE FOR BYTE THE OLD ONE. 2026-09-14.
+--------------------------------------------------------------------------------
+
+PART 14-I said "SO THE FIX IS THE TABLE, NOT A FORMULA. Solve the row origin
+per column from the alignments". That is in the tree now. It is the SOLVER
+ONLY -- see the two remainders at the foot, which are both still open.
+
+WHAT IS THERE, with lines as of this writing:
+
+    spacr/ops_layout.py
+      139  `WellLayout.row_offsets: Tuple[int, ...] = ()`, a fifth field on
+           the frozen dataclass. A TUPLE because `_index` is an
+           `lru_cache` keyed on the layout itself, so the class has to stay
+           hashable; a list or a dict there is a TypeError at the first
+           call and a wrong answer if it ever were not.
+      141  `WellLayout._shift`, one column's offset, zero past the end of
+           the table.
+      159  `WellLayout.span` adds it to BOTH ends of the chord, which is
+           what makes the correction a move and not a resize.
+      320  `_mode`, commonest value, ties to the one nearest zero.
+      335  `_solve_row_offsets(centres, layout, col_step, row_step)`.
+       84  `MEASURED_PHENOTYPE_ROW_OFFSETS`, PART 14-I's 41 integers.
+
+    spacr/ops_phenotype.py
+      548  `phenotype_site_map(phenotype_sites, sbs_sites, row_offsets=())`
+      595  applies them to the phenotype layout, refusing a table that is
+           not one integer per column.
+
+THE SOLVER IS A2's ARGUMENT ONE LEVEL UP, which is what PART 14-F asked
+for. Invert the fitted raster, read each placed field's grid index off its
+own measured centre, take the per-column integer mode, and hand back one
+number per column INCLUDING the columns nothing aligned in -- register what
+you can, solve, place the rest. Three things in it are decisions rather
+than arithmetic and each one is pinned by a test:
+
+  * A MODE, NOT A MEAN. A column of 21 fields where 20 say +2 and one
+    stray says +22 averages to +3. The vote says +2.
+  * A MAJORITY, OR NOTHING. A column whose own fields do not agree is left
+    alone and reported as no measurement rather than as a number. PART
+    14-I's load-bearing check was that the offset is CONSTANT down a
+    column -- 0.0028 rows of spread -- so a column that disagrees with
+    itself is not a row-origin shift and no integer would fix it.
+  * AND THE GAUGE IS AN ASSUMPTION, SAID OUT LOUD. Shifting every column
+    one row and moving the raster's origin one row back produce the same
+    centres, so the measurement fixes the table only up to a constant --
+    the same degeneracy `solve_placements` pins by nailing one site per
+    component. It is pinned so the LARGEST GROUP OF COLUMNS reads zero,
+    which is what the measured well looks like: 21 of 41 sit where the
+    circle says. A well where most FIELDS are shifted but most COLUMNS are
+    not is answered on the columns, and that is a choice, not a fact.
+
+`()` IS TODAY'S BEHAVIOUR AND THAT IS THE TEST THAT MATTERS. There is no
+acquisition on this box to check a correction against, so the change had to
+be provably nothing when nothing is measured. Digests of heights, site
+count, every position and every pair were taken from the tree BEFORE the
+field existed, for wells of 5, 21, 333 and 1,281 fields, and the
+zero-offset layout still reproduces all four. An explicit table of zeros
+gives the same digests as the empty default.
+
+    tests/test_a_column_starts_where_the_acquisition_put_it.py   29 tests
+
+    the planted truth   chosen columns shifted by -2..+2 and recovered
+                        exactly; PART 14-I's own 41 integers planted into
+                        the 1,281-field well and recovered exactly; the
+                        same table recovered through a frame translated
+                        anywhere, including half a row; recovered under
+                        120 px of stage wobble; idempotent, so a solve
+                        against an already-corrected layout returns it
+    the refusals        a column nothing aligned in comes back at zero; a
+                        column that disagrees with itself is not given a
+                        number; a parallel raster and a site the well does
+                        not hold are both refused rather than answered
+    the connected path  solve -> offsets -> `phenotype_site_map`
+
+NOT ONE OF THOSE WAS TRUSTED UNTIL IT WAS SEEN RED. Twenty-four mutations
+of the two modules over two passes, each applied alone, run, and reverted;
+the full output is kept rather than tailed, which is PART 14-F's rule --
+and the first pass was read off a `tail` and had to be run again for
+exactly that reason. Nothing survived the second pass.
+
+    `span` ignoring the offset -- TODAY'S CODE PUT BACK -- reds 13 of the
+    solver tests and NOT ONE of the byte-identical ones, which is the
+    asymmetry that makes both halves mean something. `span` shifting every
+    column by one extra row reds all eight digest assertions. Dropping the
+    majority guard, the gauge, the integer pin, the rounding, the mode's
+    tie-break, the absolute-offset return, the length check, and
+    `phenotype_site_map`'s use of the table were each caught by the one
+    test written for them.
+
+    AND THREE MUTATIONS SURVIVED THE FIRST PASS, which is the reason for
+    running them: a mean instead of a mode (the stray was too small to
+    move a mean of 21), no gauge at all (every origin tried happened to be
+    a whole number of rows out, and the pin took that straight back off),
+    and the tie-break (no test produced a tie). Three tests were added --
+    a twenty-row stray, an origin half a row off, and ten columns against
+    ten -- and a fourth mutation was added with them, a mode that goes to
+    whichever value the dict yielded first, because determinism was the
+    reason for spelling the tie-break out. All four are caught now.
+    Without the mutation run the first three would have read as passing
+    evidence for code nothing was checking.
+
+WHAT THE CORRECTION DOES TO THE SITE MAP, counted rather than claimed, for
+1,281 phenotype fields against 333 sequencing ones with PART 14-I's table:
+
+    382 fields remapped to a different sequencing tile
+      4 fields the circle refused outright are now placed
+     20 rim fields lose their tile, because their true row puts them off
+        the sequencing circle and a one-to-one map has nothing to offer
+        them -- which is PART 14-C's case for windowing A4 on the well
+        frame rather than on a single tile, unchanged by this
+
+STILL OPEN, AND THE ITEM IS NOT CLOSED BY THIS.
+
+  1. NOTHING IN PRODUCTION CALLS THE SOLVER YET. `phenotype_site_map` will
+     take a table and the solver will produce one, but no driver measures
+     an acquisition's centres and feeds the one to the other. That wants
+     new settings keys and the PART 13 retirement, and it is days rather
+     than an afternoon.
+  2. AND EVERY REAL-DATA CHECK IS BLOCKED ON THIS BOX. `/nas_mnt/data/ops`
+     does not exist here -- checked, not assumed -- so the solver has been
+     run against planted truth and against nothing else. The 41 integers
+     it recovers are the ones PART 14-I measured because they were typed
+     in from PART 14-I, which is a check on the arithmetic and not on the
+     acquisition.
+
+AND PART 14-I's LAST WARNING STANDS UNCHANGED: measure the other wells
+before generalising. `MEASURED_PHENOTYPE_ROW_OFFSETS` is a record of well
+A1 of one acquisition and NOTHING APPLIES IT AUTOMATICALLY -- the default
+is still the empty tuple, which is still the circle. Whether that table
+belongs to this raster or to the microscope's serpentine is not known, and
+a solver that measures it per acquisition is the answer to not knowing.
+
+
+--------------------------------------------------------------------------------
+PART 14-K -- WHAT AN ADVERSARIAL AUDIT FOUND IN THE SOLVER, 2026-09-14
+--------------------------------------------------------------------------------
+
+The solver from 14-J was handed to an agent whose only job was to break it. It
+ran probes rather than reasoning, and found four gaps. NONE OF THEM SHIP
+TODAY, because nothing in production computes offsets yet -- but every one of
+them becomes a silent wrong answer the day something does, so they are written
+here rather than in a commit message.
+
+ONE IS FIXED.
+
+  A MAJORITY OF ONE IS NOT A MAJORITY. `counts[best] * 2 > len(values)` reads
+  `1 * 2 > 1` at a single sample, so the guard that exists to stop one
+  misplaced field deciding a column could not fire in the one case where a
+  single field IS the column. Fixed: `MIN_FIELDS_FOR_A_COLUMN_VOTE = 3`, three
+  being the smallest number at which a stray can be outvoted -- which is the
+  entire argument for taking a mode rather than a mean. This is the live
+  regime, not a hypothetical: 14-G aligned 188 of 321 fields and 14-I needed a
+  wide-window run for the five columns nothing aligned in, so columns down to
+  one or two survivors are one step from what was already measured. Pinned by
+  `test_a_column_with_one_surviving_field_is_not_given_a_number` and
+  `test_two_agreeing_fields_are_two_fields_not_a_vote`, both verified against
+  the removed guard.
+
+THREE ARE NOT FIXED, AND EACH NEEDS A DECISION RATHER THAN A PATCH.
+
+  1. "REPORTED AS NOTHING RATHER THAN AS A NUMBER" IS NOT TRUE AT THE API.
+     `_solve_row_offsets` returns `Tuple[int, ...]`, which has no channel for
+     "not measured": a column that was measured at zero, one refused by the
+     guard, and one never seen at all are BYTE-IDENTICAL in the result.
+
+     This defeats the one guard built for it. `phenotype_site_map` refuses a
+     wrong-LENGTH table because that "would correct some columns and silently
+     leave the rest -- which is the state this argument exists to end". The
+     solver produces exactly that state at the RIGHT length. Demonstrated: a
+     `row_step` 6% off the true pitch silently reverts 14 of 41 columns to
+     uncorrected and returns a full, plausible 41-tuple, with no exception and
+     no flag; 20 of 41 at 15%.
+
+     Fixing it means changing the return type -- a solution object carrying
+     the offsets AND the columns it could not measure -- which is a decision
+     about the API rather than a repair, and is better made by whoever writes
+     the production caller than by a session at five in the morning.
+
+  2. THE GAUGE IS UNOBSERVABLE AND THE CONSUMER TREATS IT AS ABSOLUTE. Offsets
+     are recoverable only up to a constant; the solver pins it so the modal
+     group of COLUMNS reads the layout's existing value, and says so.
+     `phenotype_site_map` then uses the row absolutely and its docstring calls
+     the argument "where each phenotype column really starts", with no mention
+     of the gauge. With all 1281 centres supplied and zero noise, a true
+     `(5,)*41` solves as `(0,)*41` and 1277 of 1281 sites map differently.
+     The arithmetic is right; the boundary between the two functions is
+     undocumented and unguarded.
+
+  3. `_mode`'s TIE BETWEEN +k AND -k is undocumented and, once it reaches the
+     pin, shifts the whole table rather than one column.
+
+WHAT THIS SAYS ABOUT 14-J's OWN EVIDENCE. 14-J reported 24 mutations and zero
+survivors, which was true of the mutations it wrote. The audit's four findings
+are all cases NO mutation described, and three of them are about what the
+function CANNOT SAY rather than what it computes. A mutation suite tests the
+answers a function gives; it cannot test the questions its return type makes
+unaskable.

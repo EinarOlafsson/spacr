@@ -55,7 +55,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import Dict, Iterator, List, Optional, Tuple
+from typing import Dict, Iterator, List, Mapping, Optional, Tuple
 
 __all__ = [
     "WellLayout",
@@ -67,6 +67,24 @@ __all__ = [
 #: ``(columns, radius, centre column, centre row)`` for well A1 of
 #: `screenA/20200202_6W-LaC024A`, 333 sites at 10X.
 MEASURED_WELL: Tuple[int, float, int, int] = (21, 10.25, 10, -10)
+
+#: The row origin each column of the 41-column PHENOTYPE well was actually
+#: acquired at, relative to the circle :func:`round_well_layout` fits for
+#: 1,281 fields. Measured in 372's PART 14-I from 188 aligned fields plus a
+#: wide-window run over the five columns nothing aligned in; 41 of 41
+#: columns, 20 of them non-zero, every value in -2..+2.
+#:
+#: A RECORD, NOT A DEFAULT, and nothing applies it on its own. It is well A1
+#: of one acquisition: whether the table belongs to this raster or to the
+#: microscope's serpentine in general is not known, and shipping it as a
+#: constant every 1,281-field well got silently would be the same mistake
+#: at a larger scale. :func:`_solve_row_offsets` measures it per
+#: acquisition; this is what that measurement came to once, kept so a
+#: caller can check a fresh solve against it.
+MEASURED_PHENOTYPE_ROW_OFFSETS: Tuple[int, ...] = (
+    -1, +2, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, +2, -2, +2, -2, +2, -1, 0, 0, 0,
+    0, 0, +1, -2, +2, -2, +2, -2, +1, 0, 0, 0, 0, 0, 0, 0, 0, +1, -2, +1,
+)
 
 #: Microns between tile centres at 10X, from the reference implementation's
 #: `plate_coordinate`. Measured against a 1267 px pitch, which puts the
@@ -96,18 +114,54 @@ class WellLayout:
     :ivar snake: whether the acquisition snakes -- odd columns collected
         bottom to top. Micro-Manager's HCS plugin does, which is why the
         reference implementation carries a `remap_snake` at all.
+    :ivar row_offsets: how far each column's rows sit from where the circle
+        puts them, one integer per column, left to right. Empty means the
+        circle is taken at its word, which is what every layout did before
+        the phenotype well showed it could not be. Columns past the end of
+        the tuple are unshifted, so ``()`` is the whole of the old
+        behaviour rather than a special case of it. A TUPLE because this
+        class is hashed -- see :func:`_index`.
+
+    THE OFFSET MOVES A COLUMN, IT DOES NOT RESIZE ONE. Both ends of the
+    span shift together, so :attr:`heights` and :attr:`site_count` are the
+    same whatever the offsets are, and site N is the same field before and
+    after a correction -- at a different row. That is exactly the defect
+    372's PART 14-G measured on the phenotype acquisition: over 188 aligned
+    fields the COLUMN index was right every time, to a standard deviation
+    of one thousandth, and the row was wrong by an exact whole number per
+    column. Right heights, wrong origins.
     """
 
     columns: int = MEASURED_WELL[0]
     radius: float = MEASURED_WELL[1]
     centre: Tuple[int, int] = (MEASURED_WELL[2], MEASURED_WELL[3])
     snake: bool = True
+    row_offsets: Tuple[int, ...] = ()
+
+    def _shift(self, column: int) -> int:
+        """This column's row offset, or zero where none was measured.
+
+        :param column: the column index.
+        :returns: the integer number of rows the column is shifted by.
+
+        Padding rather than refusing is what lets ``()`` stand for "no
+        offsets at all" without the default being a special case: a layout
+        nobody has measured behaves exactly as every layout did before the
+        field existed. A caller handing over a TABLE wants the opposite --
+        a table of the wrong length is a mistake rather than a partial
+        answer -- and that check belongs at the boundary it is handed
+        across, which is :func:`spacr.ops_phenotype.phenotype_site_map`.
+        """
+        if 0 <= column < len(self.row_offsets):
+            return int(self.row_offsets[column])
+        return 0
 
     def span(self, column: int) -> Optional[Tuple[int, int]]:
         """``(first row, last row)`` of one column, or None if it is empty.
 
         :param column: the column index.
-        :returns: the inclusive absolute row range inside the circle.
+        :returns: the inclusive absolute row range inside the circle,
+            shifted by this column's entry in :attr:`row_offsets`.
         """
         if not 0 <= column < self.columns:
             return None
@@ -116,7 +170,8 @@ class WellLayout:
         if remainder < 0:
             return None
         half = math.floor(math.sqrt(remainder))
-        return self.centre[1] - half, self.centre[1] + half
+        origin = self.centre[1] + self._shift(column)
+        return origin - half, origin + half
 
     @property
     def heights(self) -> List[int]:
@@ -260,6 +315,132 @@ def _index(layout: "WellLayout"):
     """
     places = tuple(layout._walk())
     return places, {place: site for site, place in enumerate(places)}
+
+
+def _mode(counts: Mapping[int, int]) -> int:
+    """The commonest key, ties going to the one nearest zero.
+
+    :param counts: ``value -> how many times it was seen``.
+    :returns: the winning value.
+
+    A MODE AND NOT A MEAN, because the thing being averaged is an integer
+    number of rows: one field placed against the wrong neighbour would drag
+    a mean off the whole column and cannot outvote it. The tie-break is
+    spelled out rather than left to whichever key was inserted first, so
+    two runs over the same acquisition answer the same way.
+    """
+    return max(counts, key=lambda value: (counts[value], -abs(value), -value))
+
+
+#: How many placed fields a column needs before its vote is counted. Two
+#: agreeing fields are not evidence that a column is shifted -- they are two
+#: fields, and the mode of two is whichever one came first. Three is the
+#: smallest number at which a single misplaced field can be outvoted, which is
+#: the whole argument for taking a mode rather than a mean.
+MIN_FIELDS_FOR_A_COLUMN_VOTE = 3
+
+
+def _solve_row_offsets(centres: Mapping[int, Tuple[float, float]],
+                       layout: "WellLayout",
+                       col_step: Tuple[float, float],
+                       row_step: Tuple[float, float]) -> Tuple[int, ...]:
+    """Where each column really starts, solved from the fields that placed.
+
+    :param centres: ``site -> (y, x)``, the MEASURED centre of every field
+        that was successfully placed, in one common frame. The frame's
+        origin does not matter -- see the gauge below.
+    :param layout: the layout those sites are indexed by. Its own
+        :attr:`WellLayout.row_offsets` are the starting point, so a solve
+        against an already-corrected layout returns that same table.
+    :param col_step: ``(dy, dx)`` of moving one column right, in the units
+        ``centres`` is measured in.
+    :param row_step: ``(dy, dx)`` of moving one row down.
+    :returns: one integer per column of ``layout``, ready to hand back as
+        :attr:`WellLayout.row_offsets`.
+    :raises ValueError: when the two steps are parallel, which is not a
+        raster and cannot be inverted.
+    :raises IndexError: when ``centres`` names a site the layout does not
+        hold, which means the two disagree about the well.
+
+    REGISTER WHAT YOU CAN, SOLVE, PLACE THE REST -- the argument
+    :func:`spacr.ops_solve.solve_placements` already makes one level down,
+    where the edges that register decide where every tile goes including
+    the ones that did not. Here the fields that ALIGN decide where every
+    column starts, including the columns nothing aligned in. 372's PART
+    14-G measured the shape that makes it work: invert the fitted raster to
+    read each placed field's grid index off its measured centre, and the
+    column index comes back exact every time while the row is wrong by a
+    whole number that is CONSTANT DOWN A COLUMN -- 0.0028 rows of spread
+    inside any of them. So a column is one integer, and 41 integers are the
+    whole correction.
+
+    WHY THE MODE AND NOT THE MEAN, per column: a column's fields agree to
+    three thousandths of a row when they agree at all, so the mode is
+    unanimous on real data and merely refuses to be dragged when one field
+    was placed against the wrong neighbour. A column whose own fields do
+    NOT agree by a majority is left at its existing offset and reported as
+    nothing rather than as a number -- a column that disagrees with itself
+    has not been measured, and inventing an integer for it is how a wrong
+    row origin got shipped in the first place.
+
+    THE GAUGE, STATED BECAUSE IT IS AN ASSUMPTION AND NOT A MEASUREMENT.
+    Shifting every column by one row and moving the raster's origin one row
+    the other way produce the same centres, so the measurement fixes the
+    offsets only up to a constant -- exactly the degeneracy
+    ``solve_placements`` pins by nailing one site of each component to the
+    origin. This pins the constant so that the LARGEST GROUP OF COLUMNS
+    reads zero, which is what the measured table looks like: 21 of the
+    phenotype well's 41 columns sit where the circle says, and the 20 that
+    do not are two alternating rings either side of the widest ones.
+    """
+    col_dy, col_dx = float(col_step[0]), float(col_step[1])
+    row_dy, row_dx = float(row_step[0]), float(row_step[1])
+    determinant = col_dy * row_dx - row_dy * col_dx
+    if not determinant:
+        raise ValueError(
+            "the column step and the row step are parallel, so this raster "
+            "has no inverse and a measured centre names no grid position")
+
+    seen: Dict[int, List[float]] = {}
+    for site, centre in centres.items():
+        column, row = layout.position(int(site))
+        away_y = float(centre[0]) - (col_dy * column + row_dy * row)
+        away_x = float(centre[1]) - (col_dx * column + row_dx * row)
+        seen.setdefault(column, []).append(
+            (col_dy * away_x - col_dx * away_y) / determinant)
+    if not seen:
+        return tuple(layout._shift(column) for column in range(layout.columns))
+
+    measured = sorted(value for column in seen.values() for value in column)
+    gauge = measured[len(measured) // 2]
+    solved: Dict[int, int] = {}
+    for column, values in seen.items():
+        counts: Dict[int, int] = {}
+        for value in values:
+            rows = int(round(value - gauge))
+            counts[rows] = counts.get(rows, 0) + 1
+        best = _mode(counts)
+        # A MAJORITY OF ONE IS NOT A MAJORITY. `counts[best] * 2 > len(values)`
+        # is `1 * 2 > 1` at a single sample, so the guard that is supposed to
+        # stop one misplaced field deciding a column cannot fire in exactly the
+        # case where one field IS the column. The defence in the docstring
+        # above -- "refuses to be dragged when one field was placed against the
+        # wrong neighbour" -- needs at least three votes to mean anything, so
+        # that one wrong field can be outvoted two to one.
+        #
+        # This is the live regime, not a hypothetical: PART 14-G aligned 188 of
+        # 321 fields, and PART 14-I needed a wide-window run for the five
+        # columns nothing aligned in. Columns surviving with one or two fields
+        # are one step from what was already measured.
+        if len(values) >= MIN_FIELDS_FOR_A_COLUMN_VOTE and counts[best] * 2 > len(values):
+            solved[column] = best
+
+    tally: Dict[int, int] = {}
+    for offset in solved.values():
+        tally[offset] = tally.get(offset, 0) + 1
+    pin = _mode(tally) if tally else 0
+    return tuple(layout._shift(column) + solved.get(column, pin) - pin
+                 for column in range(layout.columns))
 
 
 def round_well_layout(site_count: int = 333,

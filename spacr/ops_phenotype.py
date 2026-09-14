@@ -49,7 +49,7 @@ count of things attempted is not a measure of anything succeeding.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -545,16 +545,39 @@ def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
     return best
 
 
-def phenotype_site_map(phenotype_sites: int, sbs_sites: int
-                       ) -> Dict[int, int]:
+def phenotype_site_map(phenotype_sites: int, sbs_sites: int,
+                       row_offsets: Sequence[int] = ()) -> Dict[int, int]:
     """Which sequencing tile covers each phenotype tile.
 
     :param phenotype_sites: how many fields the phenotype acquisition holds.
     :param sbs_sites: how many the sequencing acquisition holds.
+    :param row_offsets: where each phenotype column really starts, one
+        integer per column, as :func:`spacr.ops_layout._solve_row_offsets`
+        measures it from the fields that aligned. Empty takes the circle at
+        its word, which is what this function did before there was anything
+        better to offer it.
     :returns: ``{phenotype site -> sequencing site}``, omitting any
         phenotype tile whose sequencing position is outside that circle.
     :raises ValueError: when either count is not a round well, which
-        :func:`spacr.ops_layout.round_well_layout` decides.
+        :func:`spacr.ops_layout.round_well_layout` decides, or when the
+        offsets are not one per phenotype column.
+
+    AND THE CIRCLE IS NOT ALWAYS THE ACQUISITION, which is what
+    ``row_offsets`` is for. `round_well_layout` SEARCHES for a radius that
+    holds exactly the field count and more than one radius does; for the
+    41-column phenotype well the one it finds gives the right column and a
+    row wrong by up to two. 372's PART 14-G measured that over 188 aligned
+    fields -- column index exact to a standard deviation of 0.001, row
+    index out by a whole number constant down each column -- and it refused
+    133 of 321 fields, because one row is 633 px and a window that misses
+    by that holds none of the tile's nuclei.
+
+    A WRONG-LENGTH TABLE IS REFUSED rather than padded. Padding is right
+    inside :class:`spacr.ops_layout.WellLayout`, where the empty default
+    has to keep meaning "no offsets"; here the caller is handing over a
+    measurement of a particular well, and a table that does not fit it
+    would correct some columns and silently leave the rest -- which is the
+    state this argument exists to end.
 
     IT IS A LAYOUT QUESTION, NOT AN IMAGE ONE, and answering it by image
     was how the first three attempts at A4 spent an afternoon: phenotype
@@ -569,6 +592,13 @@ def phenotype_site_map(phenotype_sites: int, sbs_sites: int
 
     phenotype = round_well_layout(int(phenotype_sites))
     sbs = round_well_layout(int(sbs_sites))
+    if row_offsets:
+        if len(row_offsets) != phenotype.columns:
+            raise ValueError(
+                f"{len(row_offsets)} row offsets for a phenotype well of "
+                f"{phenotype.columns} columns; it wants one per column")
+        phenotype = replace(phenotype,
+                            row_offsets=tuple(int(v) for v in row_offsets))
     ratio = (phenotype.columns - 1) / max(1, (sbs.columns - 1))
     p_col, p_row = phenotype.centre
     s_col, s_row = sbs.centre
