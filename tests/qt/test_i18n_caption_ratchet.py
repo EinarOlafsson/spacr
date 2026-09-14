@@ -238,7 +238,26 @@ EXTERNAL_SOURCE_COUNTS = {
     # reader the hover and tells them nothing. 201 -> 200 on 2026-09-11
     # with `save_to_db`, whose help text was one of them.
     "CATEGORY_HELP": 200,
-    "UI": 2988,
+    # 2,988 -> 3,291 on 2026-09-14, and reviewed record by record against
+    # 49c1189f7, where every count in this dict still reproduces exactly.
+    # +304 / -1, NOT a flat +303: the four other tables did not move at all,
+    # so the whole delta is UI and the single removal is the part a net figure
+    # would have hidden.
+    #
+    #   THE ONE REMOVAL is 'Plate queue' -- sentence case -- which became
+    #   'Plate Queue' when the nine _HELP_MODULES display names were
+    #   normalised to title case. The row did not leave the interface; it
+    #   changed spelling, and it appears among the 304 additions under its new
+    #   one. A net +303 reads as 303 arrivals and says nothing about a caption
+    #   silently losing its translation to a re-cased key.
+    #
+    #   THE 304 ADDITIONS are captions that were always on screen and never in
+    #   a catalog: 283 reached the extractor through fourteen runtime
+    #   registries an AST walk could only see as a variable, and 21 are the
+    #   regression-model menu, which `settings_model` DECLARED for exactly
+    #   this purpose and which nothing consumed -- so all 21 read English in
+    #   all nine locales.
+    "UI": 3291,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -263,7 +282,7 @@ EXTERNAL_SOURCE_COUNTS = {
 # change, 149 arriving and 35 leaving, every one classified in the note over
 # EXTERNAL_SOURCE_COUNTS.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "944abd972215c4f5aa1dac9acd60b4e2e4500c4ef82c817727cfdfd02115794b"
+    "89d4f2e8484893aeaa3bbb5d399d2822ec207eb7b5be69ee7bf2eeb86f03b6d9"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
