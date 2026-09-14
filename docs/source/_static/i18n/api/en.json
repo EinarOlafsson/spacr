@@ -29944,10 +29944,12 @@
         "e40bb0d8f684269939ccd2a5d22d7421ac4da379980a3cec9b1ccdfd30c9eb7f",
         "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
-        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
+        "19be3432505275638c7e278ddf388d65661544080d2decc91cb553b1ef2a7f2b",
+        "a7b6672ede5c1b5799c512833610ac73f449691464cd6321a8baae2198b48959"
       ],
-      "source_sha256": "435b0796cae0975cc48ed06ba508058d1fdb4adfff84688c6d7d5194dd65b1eb",
-      "text": "A round well's tiles, addressed by site index and by grid position.\n\n:ivar columns: how many columns of fields the acquisition raster has.\n:ivar radius: the well's radius, in grid units (one tile pitch = 1).\n:ivar centre: ``(column, row)`` of the circle's centre. The row is\n    negative for the measured well because site 0 is at the TOP and\n    rows increase downwards.\n:ivar snake: whether the acquisition snakes -- odd columns collected\n    bottom to top. Micro-Manager's HCS plugin does, which is why the\n    reference implementation carries a `remap_snake` at all."
+      "source_sha256": "8106f443d32403521de32c718ab00175fe205d8363784c2a020f6ca34d505001",
+      "text": "A round well's tiles, addressed by site index and by grid position.\n\n:ivar columns: how many columns of fields the acquisition raster has.\n:ivar radius: the well's radius, in grid units (one tile pitch = 1).\n:ivar centre: ``(column, row)`` of the circle's centre. The row is\n    negative for the measured well because site 0 is at the TOP and\n    rows increase downwards.\n:ivar snake: whether the acquisition snakes -- odd columns collected\n    bottom to top. Micro-Manager's HCS plugin does, which is why the\n    reference implementation carries a `remap_snake` at all.\n:ivar row_offsets: how far each column's rows sit from where the circle\n    puts them, one integer per column, left to right. Empty means the\n    circle is taken at its word, which is what every layout did before\n    the phenotype well showed it could not be. Columns past the end of\n    the tuple are unshifted, so ``()`` is the whole of the old\n    behaviour rather than a special case of it. A TUPLE because this\n    class is hashed -- see :func:`_index`.\n\nTHE OFFSET MOVES A COLUMN, IT DOES NOT RESIZE ONE. Both ends of the\nspan shift together, so :attr:`heights` and :attr:`site_count` are the\nsame whatever the offsets are, and site N is the same field before and\nafter a correction -- at a different row. That is exactly the defect\n372's PART 14-G measured on the phenotype acquisition: over 188 aligned\nfields the COLUMN index was right every time, to a standard deviation\nof one thousandth, and the row was wrong by an exact whole number per\ncolumn. Right heights, wrong origins."
     },
     "spacr.ops_layout.WellLayout.heights": {
       "source_blocks_sha256": [
@@ -30025,10 +30027,10 @@
       "source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
       ],
-      "source_sha256": "8ce6cbe1c72dd601b8154e144f82f6ea5d502e4abb0d23b545837a2d0d67e37c",
-      "text": "``(first row, last row)`` of one column, or None if it is empty.\n\n:param column: the column index.\n:returns: the inclusive absolute row range inside the circle."
+      "source_sha256": "94e8b9d4a8cd1295b574025c4e8bcc9c311bef2d296fca741489c13a748b19ae",
+      "text": "``(first row, last row)`` of one column, or None if it is empty.\n\n:param column: the column index.\n:returns: the inclusive absolute row range inside the circle,\n    shifted by this column's entry in :attr:`row_offsets`."
     },
     "spacr.ops_layout.round_well_layout": {
       "source_blocks_sha256": [
@@ -30289,12 +30291,15 @@
         "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
         "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
         "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
         "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
+        "1e7aeb4b7afc11ed1ca7454db89d2c37fd6302a11d0085d339a6ff6f67cf088c",
+        "1e0b0fefaf09226a4f1f88506df53c35e0d50a7b23fefa8190747188c5dffdf2",
         "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
       ],
-      "source_sha256": "fdb5eaf6703a2c5a928257740bfda3b0065722325b7faaf3ddfa45e8e114c3cd",
-      "text": "Which sequencing tile covers each phenotype tile.\n\n:param phenotype_sites: how many fields the phenotype acquisition holds.\n:param sbs_sites: how many the sequencing acquisition holds.\n:returns: ``{phenotype site -> sequencing site}``, omitting any\n    phenotype tile whose sequencing position is outside that circle.\n:raises ValueError: when either count is not a round well, which\n    :func:`spacr.ops_layout.round_well_layout` decides.\n\nIT IS A LAYOUT QUESTION, NOT AN IMAGE ONE, and answering it by image\nwas how the first three attempts at A4 spent an afternoon: phenotype\nsite N was matched against sequencing site N, which is a different part\nof the well, and every pair came back at 2-9 % inliers. The layout says\nit in closed form. The measured acquisition fits 41 columns at radius\n20.15 against the sequencing well's 21 at 10.25 -- the same round well\nat twice the tile density, and 41 = 2 * 21 - 1 -- so a phenotype grid\nposition halves about the centre."
+      "source_sha256": "eb76980fa0c62b1986d70e54e57c351c0b2d0f3cf54dbe03ec01cd9cb6790f95",
+      "text": "Which sequencing tile covers each phenotype tile.\n\n:param phenotype_sites: how many fields the phenotype acquisition holds.\n:param sbs_sites: how many the sequencing acquisition holds.\n:param row_offsets: where each phenotype column really starts, one\n    integer per column, as :func:`spacr.ops_layout._solve_row_offsets`\n    measures it from the fields that aligned. Empty takes the circle at\n    its word, which is what this function did before there was anything\n    better to offer it.\n:returns: ``{phenotype site -> sequencing site}``, omitting any\n    phenotype tile whose sequencing position is outside that circle.\n:raises ValueError: when either count is not a round well, which\n    :func:`spacr.ops_layout.round_well_layout` decides, or when the\n    offsets are not one per phenotype column.\n\nAND THE CIRCLE IS NOT ALWAYS THE ACQUISITION, which is what\n``row_offsets`` is for. `round_well_layout` SEARCHES for a radius that\nholds exactly the field count and more than one radius does; for the\n41-column phenotype well the one it finds gives the right column and a\nrow wrong by up to two. 372's PART 14-G measured that over 188 aligned\nfields -- column index exact to a standard deviation of 0.001, row\nindex out by a whole number constant down each column -- and it refused\n133 of 321 fields, because one row is 633 px and a window that misses\nby that holds none of the tile's nuclei.\n\nA WRONG-LENGTH TABLE IS REFUSED rather than padded. Padding is right\ninside :class:`spacr.ops_layout.WellLayout`, where the empty default\nhas to keep meaning \"no offsets\"; here the caller is handing over a\nmeasurement of a particular well, and a table that does not fit it\nwould correct some columns and silently leave the rest -- which is the\nstate this argument exists to end.\n\nIT IS A LAYOUT QUESTION, NOT AN IMAGE ONE, and answering it by image\nwas how the first three attempts at A4 spent an afternoon: phenotype\nsite N was matched against sequencing site N, which is a different part\nof the well, and every pair came back at 2-9 % inliers. The layout says\nit in closed form. The measured acquisition fits 41 columns at radius\n20.15 against the sequencing well's 21 at 10.25 -- the same round well\nat twice the tile density, and 41 = 2 * 21 - 1 -- so a phenotype grid\nposition halves about the centre."
     },
     "spacr.ops_phenotype.refine_similarity": {
       "source_blocks_sha256": [

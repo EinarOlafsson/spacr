@@ -48560,16 +48560,20 @@
         "e40bb0d8f684269939ccd2a5d22d7421ac4da379980a3cec9b1ccdfd30c9eb7f",
         "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
-        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
+        "19be3432505275638c7e278ddf388d65661544080d2decc91cb553b1ef2a7f2b",
+        "a7b6672ede5c1b5799c512833610ac73f449691464cd6321a8baae2198b48959"
       ],
-      "source_sha256": "435b0796cae0975cc48ed06ba508058d1fdb4adfff84688c6d7d5194dd65b1eb",
-      "text": "Les champs d'image au microscope d'un puits rond, indiqués par l'index du site et par la position de la grille.\n\n:ivar columns: combien de colonnes de champs de vue microscope le raster d'acquisition a.\n:ivar radius: le rayon de la position de l'échantillon de la microplaque, en unités de grille (un champ d'image du microscope = 1).\n:ivar centre: ``(column, row)`` du centre du cercle. La ligne est négative pour le puits mesuré car le site 0 est au TOP et les lignes augmentent vers le bas.\n:ivar snake: si les serpents d'acquisition -- colonnes impaires recueillies en bas en haut. Le plugin HCS de Micro-Manager le fait, c'est pourquoi l'implémentation de référence porte un `remap_snake` du tout.",
+      "source_sha256": "8106f443d32403521de32c718ab00175fe205d8363784c2a020f6ca34d505001",
+      "text": "Les champs d'image au microscope d'un puits rond, indiqués par l'index du site et par la position de la grille.\n\n:ivar columns: combien de colonnes de champs de vue microscope le raster d'acquisition a.\n:ivar radius: le rayon de la position de l'échantillon de la microplaque, en unités de grille (un champ d'image du microscope = 1).\n:ivar centre: ``(column, row)`` du centre du cercle. La ligne est négative pour le puits mesuré car le site 0 est au TOP et les lignes augmentent vers le bas.\n:ivar snake: si les serpents d'acquisition -- colonnes impaires recueillies en bas en haut. Le plugin HCS de Micro-Manager le fait, c'est pourquoi l'implémentation de référence porte un `remap_snake` du tout.\n:ivar row_offsets: jusqu'à quel point les rangées de chaque colonne sont assises d'où le cercle les place, un entier par colonne, de gauche à droite. Vide signifie que le cercle est pris à son mot, ce qui est ce que chaque disposition a fait avant le phénotype bien montré qu'il ne pouvait pas être. Les colonnes au-delà de la fin du tuple sont sans changement, donc ``()`` est l'ensemble du vieux comportement plutôt qu'un cas spécial de celui-ci. un tuple parce que cette classe est haché -- voir :func:`_index`.\n\nLe décalage déplace une colonne, il ne redimensionne pas une. Les deux extrémités du décalage de la travée ensemble, donc :attr:`heights` et :attr:`site_count` sont les mêmes que les décalages, et le site N est le même champ de vision du microscope avant et après une correction -- à une ligne différente. C'est exactement le défaut 372's PARTIE 14-G mesuré sur l'acquisition du phénotype: plus de 188 champs de vue du microscope alignés l'indice COLUMN était juste à chaque fois, à une déviation standard d'un millième, et la ligne était erronée par un nombre entier exact par colonne.",
       "translation_source_blocks_sha256": [
         "83c474c5db52a90504971d35c2d3d36da56e3bd1bc0392390eac9421c599c543",
         "02670dea8d0c21ad12eb680d75acc0cde68cf015c5fbfa83765a31ce4f8bb8dd",
         "71556bf7e9f35f28c8520cb67fc5f78a504e29f0c85808711cf8b90d14d8d4df",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
-        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
+        "6ab4eb4e3f981c2078f1eae27c7c104a4a9c68d1de9927062c509b7bfc8105df",
+        "870af8968e920b1eb1ab3e6a392e1b38155e8b69f61ef89c7aaa8c4c96ae2631"
       ]
     },
     "spacr.ops_layout.WellLayout.heights": {
@@ -48688,14 +48692,14 @@
       "source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
       ],
-      "source_sha256": "8ce6cbe1c72dd601b8154e144f82f6ea5d502e4abb0d23b545837a2d0d67e37c",
-      "text": "``(first row, last row)`` d'une colonne, ou None si elle est vide.\n\n:param column: l'index des colonnes.\n:returns: la gamme de rangées absolues inclusives à l'intérieur du cercle.",
+      "source_sha256": "94e8b9d4a8cd1295b574025c4e8bcc9c311bef2d296fca741489c13a748b19ae",
+      "text": "``(first row, last row)`` d'une colonne, ou None si elle est vide.\n\n:param column: l'index des colonnes.\n:returns: la ligne absolue inclusive à l'intérieur du cercle, déplacée par l'entrée de cette colonne dans :attr:`row_offsets`.",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
       ]
     },
     "spacr.ops_layout.round_well_layout": {
@@ -49127,18 +49131,24 @@
         "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
         "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
         "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
         "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
+        "1e7aeb4b7afc11ed1ca7454db89d2c37fd6302a11d0085d339a6ff6f67cf088c",
+        "1e0b0fefaf09226a4f1f88506df53c35e0d50a7b23fefa8190747188c5dffdf2",
         "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
       ],
-      "source_sha256": "fdb5eaf6703a2c5a928257740bfda3b0065722325b7faaf3ddfa45e8e114c3cd",
-      "text": "Le séquençage des tuiles couvre chaque tuile phénotypique.\n\n:param phenotype_sites: le nombre de champs de vision au microscope que détient l'acquisition du phénotype.\n:param sbs_sites: combien d'acquisitions de séquençage détient.\n:returns: ``{phenotype site -> sequencing site}``, en omettant toute tuile phénotype dont la position de séquençage est à l'extérieur de ce cercle.\n:raises ValueError: quand l'un ou l'autre compte n'est pas un puits rond, qui :func:`spacr.ops_layout.round_well_layout` décide.\n\nC'est une question de mise en page, pas une image, et répondre par l'image était comment les trois premières tentatives à A4 ont passé un après-midi: le site phénotype N a été jumelé au site séquençage N, qui est une partie différente du puits, et chaque paire est revenue à 2-9 % inliers. La mise en place le dit en forme fermée. L'acquisition mesurée correspond à 41 colonnes au rayon 20.15 contre le puits séquentielle 21 à 10.25 -- le même rond bien à deux fois la densité du champ d'image du microscope, et 41 = 2 * 21 - 1 -- donc une position de grille phénotype moitié autour du centre.",
+      "source_sha256": "eb76980fa0c62b1986d70e54e57c351c0b2d0f3cf54dbe03ec01cd9cb6790f95",
+      "text": "Le séquençage des tuiles couvre chaque tuile phénotypique.\n\n:param phenotype_sites: le nombre de champs de vision au microscope que détient l'acquisition du phénotype.\n:param sbs_sites: combien d'acquisitions de séquençage détient.\n:param row_offsets: où chaque colonne phénotype commence vraiment, un entier par colonne, comme :func:`spacr.ops_layout._solve_row_offsets` mesure à partir des champs qui s'alignent. Vide prend le cercle à son mot, ce qui est ce que cette fonction a fait avant qu'il y ait quelque chose de mieux à lui offrir.\n:returns: ``{phenotype site -> sequencing site}``, en omettant toute tuile phénotype dont la position de séquençage est à l'extérieur de ce cercle.\n:raises ValueError: lorsque le nombre n'est pas un puits rond, qui :func:`spacr.ops_layout.round_well_layout` décide, ou lorsque les décalages ne sont pas un par colonne phénotype.\n\nEt le cercle n'est pas toujours l'acquisition, ce qui est pour ``row_offsets``. `round_well_layout` RECHERCHE pour un rayon qui tient exactement le champ de vision du microscope et plus d'un rayon le fait; pour le phénotype 41-colonne bien celui qu'il trouve donne la bonne colonne et une ligne erronée par jusqu'à deux. 372's PARTIE 14-G mesuré que plus de 188 champs de vue du microscope aligné -- index de colonne exact à un écart type de 0,001, indexer de ligne par une constante de nombre entier dans chaque colonne -- et il a refusé 133 des 321 champs de vision microscope, parce qu'une ligne est 633 px et une fenêtre qui ne manque pas par cela ne contient aucun noyau du champ d'image du microscope.\n\nUne table de mauvaise longueur est refusée plutôt que rembourrée. Padding est juste à l'intérieur :class:`spacr.ops_layout.WellLayout`, où la valeur par défaut vide doit garder le sens \"no offsets\"; ici l'appelant remet une mesure d'un puits particulier, et une table qui ne correspond pas il corrigerait certaines colonnes et laisserait silencieusement le reste -- qui est l'état que cet argument existe pour finir.\n\nC'est une question de mise en page, pas une image, et répondre par l'image était comment les trois premières tentatives à A4 ont passé un après-midi: le site phénotype N a été jumelé au site séquençage N, qui est une partie différente du puits, et chaque paire est revenue à 2-9 % inliers. La mise en place le dit en forme fermée. L'acquisition mesurée correspond à 41 colonnes au rayon 20.15 contre le puits séquentielle 21 à 10.25 -- le même rond bien à deux fois la densité du champ d'image du microscope, et 41 = 2 * 21 - 1 -- donc une position de grille phénotype moitié autour du centre.",
       "translation_source_blocks_sha256": [
         "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
         "ab9a59257c1c23fa317e0fc02f4941f59f8d1efa35b0f64f53d525dde8b780d8",
         "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
         "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
+        "954fef2fe85ad5eef97ca8e47fe4dc97df42e970741e7238f358a6ab9d75f30f",
+        "9aa63c8b8ecf3986373d52abb4f39f5c6db1b6b62f37a3402b7c3bd1323856fd",
         "ad004c2f9c7a9994138a70118994b3ac9e9df26b9cc63b71a3a363a586031c5b"
       ]
     },

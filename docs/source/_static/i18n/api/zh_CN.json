@@ -48561,16 +48561,20 @@
         "e40bb0d8f684269939ccd2a5d22d7421ac4da379980a3cec9b1ccdfd30c9eb7f",
         "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
-        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
+        "19be3432505275638c7e278ddf388d65661544080d2decc91cb553b1ef2a7f2b",
+        "a7b6672ede5c1b5799c512833610ac73f449691464cd6321a8baae2198b48959"
       ],
-      "source_sha256": "435b0796cae0975cc48ed06ba508058d1fdb4adfff84688c6d7d5194dd65b1eb",
-      "text": "圆孔的显微镜图像字段,由网站指数和网络位置处理。\n\n:ivar columns: 采购拉斯特有多少个显微镜字段的列。\n:ivar radius: 微板样本位置的射线,在网络单位(一个微镜图像字段 = 1)。\n:ivar centre: ``(column, row)`` 循环的中心. 行对测量良好的负面,因为位置 0 位于顶部,行向下增加。\n:ivar snake: 是否收购蛇 - 奇怪的列收集到底部到顶部. 微管理员的HCS插件,这就是为什么参考实施携带一个 `remap_snake` 总的来说。",
+      "source_sha256": "8106f443d32403521de32c718ab00175fe205d8363784c2a020f6ca34d505001",
+      "text": "圆孔的显微镜图像字段,由网站指数和网络位置处理。\n\n:ivar columns: 采购拉斯特有多少个显微镜字段的列。\n:ivar radius: 微板样本位置的射线,在网络单位(一个微镜图像字段 = 1)。\n:ivar centre: ``(column, row)`` 循环的中心. 行对测量良好的负面,因为位置 0 位于顶部,行向下增加。\n:ivar snake: 是否收购蛇 - 奇怪的列收集到底部到顶部. 微管理员的HCS插件,这就是为什么参考实施携带一个 `remap_snake` 总的来说。\n:ivar row_offsets: how far each column's rows sit from where the circle puts them, one integer per column, left to right. Empty means the circle is taken at its word, which is what every layout did before the phenotype well showed it could not be. Columns past the end of the tuple are unshifted, so ``()`` is the whole of the old behaviour rather than a special case of it. a tuple because this class is hashed -- see :func:`_index`.\n\n排序移动一个列,它不再排序一个. 范围的两端交换在一起,所以 :attr:`heights` 和 :attr:`site_count` 是相同的,无论排序是什么,而位置 N 是一个微观视野之前和之后的纠正 - 在不同的序列. 这是正确的错误 372 的PART 14-G 测量在现象收购: 超过 188 调整微镜视野, COLUMN 指数是正确的每次,到一个标准偏差一千,并且序列是错误的正确的整个数字每列。",
       "translation_source_blocks_sha256": [
         "83c474c5db52a90504971d35c2d3d36da56e3bd1bc0392390eac9421c599c543",
         "02670dea8d0c21ad12eb680d75acc0cde68cf015c5fbfa83765a31ce4f8bb8dd",
         "71556bf7e9f35f28c8520cb67fc5f78a504e29f0c85808711cf8b90d14d8d4df",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
-        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
+        "6ab4eb4e3f981c2078f1eae27c7c104a4a9c68d1de9927062c509b7bfc8105df",
+        "870af8968e920b1eb1ab3e6a392e1b38155e8b69f61ef89c7aaa8c4c96ae2631"
       ]
     },
     "spacr.ops_layout.WellLayout.heights": {
@@ -48689,14 +48693,14 @@
       "source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
       ],
-      "source_sha256": "8ce6cbe1c72dd601b8154e144f82f6ea5d502e4abb0d23b545837a2d0d67e37c",
-      "text": "一个列的 ``(first row, last row)`` 或 None 如果它是空的。\n\n:param column: 列指数。\n:returns: 包含的绝对序列范围在圆圈内。",
+      "source_sha256": "94e8b9d4a8cd1295b574025c4e8bcc9c311bef2d296fca741489c13a748b19ae",
+      "text": "一个列的 ``(first row, last row)`` 或 None 如果它是空的。\n\n:param column: 列指数。\n:returns: 循环内包含的绝对行范围,由此列的输入转换为 :attr:`row_offsets`。",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
       ]
     },
     "spacr.ops_layout.round_well_layout": {
@@ -49128,18 +49132,24 @@
         "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
         "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
         "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
         "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
+        "1e7aeb4b7afc11ed1ca7454db89d2c37fd6302a11d0085d339a6ff6f67cf088c",
+        "1e0b0fefaf09226a4f1f88506df53c35e0d50a7b23fefa8190747188c5dffdf2",
         "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
       ],
-      "source_sha256": "fdb5eaf6703a2c5a928257740bfda3b0065722325b7faaf3ddfa45e8e114c3cd",
-      "text": "哪个序列板覆盖每个现象板。\n\n:param phenotype_sites: 显微镜采购的视野有多少个字段。\n:param sbs_sites: 收购的序列持有多少。\n:returns: ``{phenotype site -> sequencing site}``,忽略任何在该循环之外的序列位置的现象类板。\n:raises ValueError: 如果任何一个计算都不是一个圆的好,则 :func:`spacr.ops_layout.round_well_layout` 决定。\n\n这是一个布局问题,不是一个图像一个,并根据图像回答它是如何在A4的前三次尝试花了一个下午:现象站N与序列站N相匹配,这是一个不同的部分的孔,每对回到了2 - 9%的入口。 布局说它在封闭的形式。 测量的收获适合41列在广径20:15对序列孔21在10:25 - 相同的圆,在微观图像字段密度的两倍, 41 = 2 * 21 - 1 - 因此一个现象网位置半周围的中心。",
+      "source_sha256": "eb76980fa0c62b1986d70e54e57c351c0b2d0f3cf54dbe03ec01cd9cb6790f95",
+      "text": "哪个序列板覆盖每个现象板。\n\n:param phenotype_sites: 显微镜采购的视野有多少个字段。\n:param sbs_sites: 收购的序列持有多少。\n:param row_offsets: 每个现象列实际上开始,每个列都有一个整体,因为 :func:`spacr.ops_layout._solve_row_offsets` 测量它从结合的领域。\n:returns: ``{phenotype site -> sequencing site}``,忽略任何在该循环之外的序列位置的现象类板。\n:raises ValueError: 当任何计算都不是一个圆的,而 :func:`spacr.ops_layout.round_well_layout` 决定,或者当分数不为每个现象列一个时。\n\nAnd the circle is not always the acquisition, which is what ``row_offsets`` is for. `round_well_layout` SEARCHES for a radius that holds exactly the microscope field of view count and more than one radius does; for the 41-column phenotype well the one it finds gives the right column and a row wrong by up to two. 372's PART 14-G measured that over 188 aligned microscope fields of view -- column index exact to a standard deviation of 0.001, row index out by a whole number constant down each column -- and it refused 133 of 321 microscope fields of view, because one row is 633 px and a window that misses by that holds none of the microscope image field's nuclei.\n\n一个错误的长度表被拒绝,而不是被插入。 插入是正确的内部 :class:`spacr.ops_layout.WellLayout`,在那里空虚的默认必须保持意义 \"no offsets\"; 这里的呼叫者正在通过一个测量一个特定的好,而一个不适合它的表将纠正一些列,静静地离开其余 - 这是这个论点的状态存在到结束。\n\n这是一个布局问题,不是一个图像一个,并根据图像回答它是如何在A4的前三次尝试花了一个下午:现象站N与序列站N相匹配,这是一个不同的部分的孔,每对回到了2 - 9%的入口。 布局说它在封闭的形式。 测量的收获适合41列在广径20:15对序列孔21在10:25 - 相同的圆,在微观图像字段密度的两倍, 41 = 2 * 21 - 1 - 因此一个现象网位置半周围的中心。",
       "translation_source_blocks_sha256": [
         "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
         "ab9a59257c1c23fa317e0fc02f4941f59f8d1efa35b0f64f53d525dde8b780d8",
         "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
         "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
+        "954fef2fe85ad5eef97ca8e47fe4dc97df42e970741e7238f358a6ab9d75f30f",
+        "9aa63c8b8ecf3986373d52abb4f39f5c6db1b6b62f37a3402b7c3bd1323856fd",
         "ad004c2f9c7a9994138a70118994b3ac9e9df26b9cc63b71a3a363a586031c5b"
       ]
     },

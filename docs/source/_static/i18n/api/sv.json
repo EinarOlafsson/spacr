@@ -48560,16 +48560,20 @@
         "e40bb0d8f684269939ccd2a5d22d7421ac4da379980a3cec9b1ccdfd30c9eb7f",
         "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
-        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
+        "19be3432505275638c7e278ddf388d65661544080d2decc91cb553b1ef2a7f2b",
+        "a7b6672ede5c1b5799c512833610ac73f449691464cd6321a8baae2198b48959"
       ],
-      "source_sha256": "435b0796cae0975cc48ed06ba508058d1fdb4adfff84688c6d7d5194dd65b1eb",
-      "text": "En rund brunns mikroskop bildfält, adresserad efter platsindex och rutnät position.\n\n:ivar columns: Hur många kolumner av mikroskop fält av visa förvärv raster har.\n:ivar radius: mikroplattans provpositionsradie, i rutnätsenheter (ett mikroskopfälts pitch = 1).\n:ivar centre: ``(column, row)`` i cirkelns mittpunkt. Raden är negativ för den uppmätta brunnen eftersom plats 0 ligger på toppen och raderna ökar nedåt.\n:ivar snake: om förvärvsormarna – udda kolumner samlade längst ner till toppen. Micro-Managers HCS-insticksprogram gör det, vilket är anledningen till att referensimplementationen har en `remap_snake` alls.",
+      "source_sha256": "8106f443d32403521de32c718ab00175fe205d8363784c2a020f6ca34d505001",
+      "text": "En rund brunns mikroskop bildfält, adresserad efter platsindex och rutnät position.\n\n:ivar columns: Hur många kolumner av mikroskop fält av visa förvärv raster har.\n:ivar radius: mikroplattans provpositionsradie, i rutnätsenheter (ett mikroskopfälts pitch = 1).\n:ivar centre: ``(column, row)`` i cirkelns mittpunkt. Raden är negativ för den uppmätta brunnen eftersom plats 0 ligger på toppen och raderna ökar nedåt.\n:ivar snake: om förvärvsormarna – udda kolumner samlade längst ner till toppen. Micro-Managers HCS-insticksprogram gör det, vilket är anledningen till att referensimplementationen har en `remap_snake` alls.\n:ivar row_offsets: hur långt varje kolumns rader sitter från var cirkeln placerar dem, ett heltal per kolumn, vänster till höger. Tom betyder att cirkeln tas på sitt ord, vilket är vad varje layout gjorde innan fenotypen väl visade att det inte kunde vara. Kolumner förbi slutet av tuplen är oförändrade, så ``()`` är hela det gamla beteendet snarare än ett specialfall av det. ett tuple eftersom denna klass är hazed -- se :func:`_index`.\n\nFörskjutningen flyttar en kolumn, den ändrar inte storlek en. Båda ändarna av span skifta tillsammans, så :attr:`heights` och :attr:`site_count` är samma oavsett förskjutningar är, och site N är samma mikroskopfält av vy före och efter en korrigering -- på en annan rad. Det är exakt defekt 372-del 14-G mätt på fenotyp förvärv: över 188 anpassade mikroskop fält av seende COLUMN index var rätt varje gång, till en standardavvikelse av tusende, och raden var fel med ett exakt heltal per kolumn. Höger höjder, fel ursprung.",
       "translation_source_blocks_sha256": [
         "83c474c5db52a90504971d35c2d3d36da56e3bd1bc0392390eac9421c599c543",
         "02670dea8d0c21ad12eb680d75acc0cde68cf015c5fbfa83765a31ce4f8bb8dd",
         "71556bf7e9f35f28c8520cb67fc5f78a504e29f0c85808711cf8b90d14d8d4df",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
-        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
+        "6ab4eb4e3f981c2078f1eae27c7c104a4a9c68d1de9927062c509b7bfc8105df",
+        "870af8968e920b1eb1ab3e6a392e1b38155e8b69f61ef89c7aaa8c4c96ae2631"
       ]
     },
     "spacr.ops_layout.WellLayout.heights": {
@@ -48688,14 +48692,14 @@
       "source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
       ],
-      "source_sha256": "8ce6cbe1c72dd601b8154e144f82f6ea5d502e4abb0d23b545837a2d0d67e37c",
-      "text": "``(first row, last row)`` i en kolumn eller None om den är tom.\n\n:param column: Kolumnindex.\n:returns: Inbegripet absolut radintervall innanför cirkeln.",
+      "source_sha256": "94e8b9d4a8cd1295b574025c4e8bcc9c311bef2d296fca741489c13a748b19ae",
+      "text": "``(first row, last row)`` i en kolumn eller None om den är tom.\n\n:param column: Kolumnindex.\n:returns: Det sammanlagda absoluta radintervallet inom cirkeln, förskjutet genom denna kolumns post i :attr:`row_offsets`.",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
       ]
     },
     "spacr.ops_layout.round_well_layout": {
@@ -49127,18 +49131,24 @@
         "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
         "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
         "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
         "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
+        "1e7aeb4b7afc11ed1ca7454db89d2c37fd6302a11d0085d339a6ff6f67cf088c",
+        "1e0b0fefaf09226a4f1f88506df53c35e0d50a7b23fefa8190747188c5dffdf2",
         "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
       ],
-      "source_sha256": "fdb5eaf6703a2c5a928257740bfda3b0065722325b7faaf3ddfa45e8e114c3cd",
-      "text": "Vilken sekvensering kakel täcker varje fenotyp kakel.\n\n:param phenotype_sites: Hur många mikroskop fält av visa fenotyp förvärv innehar.\n:param sbs_sites: Hur många i följd förvärv innehar.\n:returns: ``{phenotype site -> sequencing site}`` och utelämnar alla fenotypplattor vars sekvenseringsposition är utanför den cirkeln.\n:raises ValueError: När antingen räkningen inte är en brunn, som :func:`spacr.ops_layout.round_well_layout` bestämmer.\n\nDet är en layoutfråga, inte en bild en, och svara på det med bild var hur de tre första försöken på A4 tillbringade en eftermiddag: fenotyp plats N matchades mot sekvensering webbplats N, som är en annan del av brunnen, och varje par kom tillbaka på 2-9 % inliers. layouten säger det i sluten form. Den uppmätta förvärvet passar 41 kolumner vid radie 20.15 mot sekvensbrunnen är 21 vid 10.25 -- samma runda väl vid dubbelt mikroskop bildfält densitet, och 41 = 2 * 21 - 1 -- så en fenotypen rutnät position halverar om centrum.",
+      "source_sha256": "eb76980fa0c62b1986d70e54e57c351c0b2d0f3cf54dbe03ec01cd9cb6790f95",
+      "text": "Vilken sekvensering kakel täcker varje fenotyp kakel.\n\n:param phenotype_sites: Hur många mikroskop fält av visa fenotyp förvärv innehar.\n:param sbs_sites: Hur många i följd förvärv innehar.\n:param row_offsets: där varje fenotyp kolumn verkligen börjar, ett heltal per kolumn, som :func:`spacr.ops_layout._solve_row_offsets` mäter det från fälten som ligger i linje. Tom tar cirkeln på sitt ord, vilket är vad denna funktion gjorde innan det fanns något bättre att erbjuda det.\n:returns: ``{phenotype site -> sequencing site}`` och utelämnar alla fenotypplattor vars sekvenseringsposition är utanför den cirkeln.\n:raises ValueError: när antingen räkningen inte är en runda, som :func:`spacr.ops_layout.round_well_layout` bestämmer, eller när förskjutningarna inte är ett per fenotypkolonn.\n\nOch cirkeln är inte alltid förvärv, vilket är vad ``row_offsets`` är till för. `round_well_layout` SÖKNINGAR för en radie som håller exakt mikroskopet synfält räknas och mer än en radie gör; för 41-kolumn fenotypen väl den som den finner ger rätt kolumn och en rad fel med upp till två. 372: s DEL 14-G mätte att över 188 anpassade mikroskopfält av sikt -- kolumnindex exakt till en standardavvikelse på 0,001, rad index ut med ett heltal konstant ner varje kolumn -- och det vägrade 133 av 321 mikroskop fält av syn, eftersom en rad är 633 px och ett fönster som missar genom att hålla inget av mikroskop bildfältets nuclei.\n\nEtt bord med fel längd nekas snarare än vadderade. Pudding är rätt inne i :class:`spacr.ops_layout.WellLayout`, där den tomma standardvärdet måste behålla betydelsen \"no offsets\"; här lämnar anroparen över ett mått på en viss brunn, och ett bord som inte passar det skulle korrigera några kolumner och tyst lämna resten – vilket är det tillstånd som detta argument existerar för att sluta.\n\nDet är en layoutfråga, inte en bild en, och svara på det med bild var hur de tre första försöken på A4 tillbringade en eftermiddag: fenotyp plats N matchades mot sekvensering webbplats N, som är en annan del av brunnen, och varje par kom tillbaka på 2-9 % inliers. layouten säger det i sluten form. Den uppmätta förvärvet passar 41 kolumner vid radie 20.15 mot sekvensbrunnen är 21 vid 10.25 -- samma runda väl vid dubbelt mikroskop bildfält densitet, och 41 = 2 * 21 - 1 -- så en fenotypen rutnät position halverar om centrum.",
       "translation_source_blocks_sha256": [
         "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
         "ab9a59257c1c23fa317e0fc02f4941f59f8d1efa35b0f64f53d525dde8b780d8",
         "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
         "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
+        "954fef2fe85ad5eef97ca8e47fe4dc97df42e970741e7238f358a6ab9d75f30f",
+        "9aa63c8b8ecf3986373d52abb4f39f5c6db1b6b62f37a3402b7c3bd1323856fd",
         "ad004c2f9c7a9994138a70118994b3ac9e9df26b9cc63b71a3a363a586031c5b"
       ]
     },

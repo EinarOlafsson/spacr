@@ -48560,16 +48560,20 @@
         "e40bb0d8f684269939ccd2a5d22d7421ac4da379980a3cec9b1ccdfd30c9eb7f",
         "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
-        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
+        "19be3432505275638c7e278ddf388d65661544080d2decc91cb553b1ef2a7f2b",
+        "a7b6672ede5c1b5799c512833610ac73f449691464cd6321a8baae2198b48959"
       ],
-      "source_sha256": "435b0796cae0975cc48ed06ba508058d1fdb4adfff84688c6d7d5194dd65b1eb",
-      "text": "Campos de imagen del microscopio de un pozo redondo, abordados por el índice del sitio y por la posición de la rejilla.\n\n:ivar columns: cuántas columnas de campos de visión del microscopio tiene el raster de adquisición.\n:ivar radius: el radio de la posición de muestra de la microplaca, en unidades de cuadrícula (un campo de campo de imagen del microscopio = 1).\n:ivar centre: ``(column, row)`` del centro del círculo. La fila es negativa para el pozo medido porque el sitio 0 está en el TOP y las filas aumentan hacia abajo.\n:ivar snake: si las serpientes de adquisición -- impares columnas recogidas de abajo a arriba. Complemento de HCS de Micro-Manager lo hace, por lo que la implementación de referencia lleva un `remap_snake` en absoluto.",
+      "source_sha256": "8106f443d32403521de32c718ab00175fe205d8363784c2a020f6ca34d505001",
+      "text": "Campos de imagen del microscopio de un pozo redondo, abordados por el índice del sitio y por la posición de la rejilla.\n\n:ivar columns: cuántas columnas de campos de visión del microscopio tiene el raster de adquisición.\n:ivar radius: el radio de la posición de muestra de la microplaca, en unidades de cuadrícula (un campo de campo de imagen del microscopio = 1).\n:ivar centre: ``(column, row)`` del centro del círculo. La fila es negativa para el pozo medido porque el sitio 0 está en el TOP y las filas aumentan hacia abajo.\n:ivar snake: si las serpientes de adquisición -- impares columnas recogidas de abajo a arriba. Complemento de HCS de Micro-Manager lo hace, por lo que la implementación de referencia lleva un `remap_snake` en absoluto.\n:ivar row_offsets: how far each column's rows sit from where the circle puts them, one integer per column, left to right. Empty means the circle is taken at its word, which is what every layout did before the phenotype well showed it could not be. Columns past the end of the tuple are unshifted, so ``()`` is the whole of the old behaviour rather than a special case of it. a tuple because this class is hashed -- see :func:`_index`.\n\nEl desplazamiento mueve una columna, no cambia el tamaño de una. Ambos extremos del cambio de longitud juntos, por lo que :attr:`heights` y :attr:`site_count` son los mismos que los desplazamientos, y el sitio N es el mismo campo de visión del microscopio antes y después de una corrección -- en una fila diferente. Eso es exactamente el defecto de la PART 14-G de 372 medida en la adquisición del fenotipo: más de 188 campos de visión alineados del microscopio el índice COLUMN tenía razón cada vez, a una desviación estándar de una milésima, y la fila estaba equivocada por un número entero exacto por columna. Alturas correctas, orígenes incorrectos.",
       "translation_source_blocks_sha256": [
         "83c474c5db52a90504971d35c2d3d36da56e3bd1bc0392390eac9421c599c543",
         "02670dea8d0c21ad12eb680d75acc0cde68cf015c5fbfa83765a31ce4f8bb8dd",
         "71556bf7e9f35f28c8520cb67fc5f78a504e29f0c85808711cf8b90d14d8d4df",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
-        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
+        "6ab4eb4e3f981c2078f1eae27c7c104a4a9c68d1de9927062c509b7bfc8105df",
+        "870af8968e920b1eb1ab3e6a392e1b38155e8b69f61ef89c7aaa8c4c96ae2631"
       ]
     },
     "spacr.ops_layout.WellLayout.heights": {
@@ -48688,14 +48692,14 @@
       "source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
       ],
-      "source_sha256": "8ce6cbe1c72dd601b8154e144f82f6ea5d502e4abb0d23b545837a2d0d67e37c",
-      "text": "``(first row, last row)`` de una columna, o None si está vacía.\n\n:param column: el índice de columna.\n:returns: el rango de filas absoluto inclusivo dentro del círculo.",
+      "source_sha256": "94e8b9d4a8cd1295b574025c4e8bcc9c311bef2d296fca741489c13a748b19ae",
+      "text": "``(first row, last row)`` de una columna, o None si está vacía.\n\n:param column: el índice de columna.\n:returns: el rango de filas absoluto inclusivo dentro del círculo, desplazado por la entrada de esta columna en :attr:`row_offsets`.",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
       ]
     },
     "spacr.ops_layout.round_well_layout": {
@@ -49127,18 +49131,24 @@
         "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
         "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
         "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
         "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
+        "1e7aeb4b7afc11ed1ca7454db89d2c37fd6302a11d0085d339a6ff6f67cf088c",
+        "1e0b0fefaf09226a4f1f88506df53c35e0d50a7b23fefa8190747188c5dffdf2",
         "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
       ],
-      "source_sha256": "fdb5eaf6703a2c5a928257740bfda3b0065722325b7faaf3ddfa45e8e114c3cd",
-      "text": "Qué azulejo secuencial cubre cada azulejo fenotipo.\n\n:param phenotype_sites: cuántos campos de visión del microscopio tiene la adquisición del fenotipo.\n:param sbs_sites: ¿cuántas de las adquisiciones de secuencia?\n:returns: ``{phenotype site -> sequencing site}``, omitiendo cualquier tesela fenotípica cuya posición de secuenciación esté fuera de ese círculo.\n:raises ValueError: cuando cualquiera de los dos conteos no es un pozo redondo, que :func:`spacr.ops_layout.round_well_layout` decide.\n\nEs una pregunta de diseño, no una imagen una, y responderla por imagen fue cómo los tres primeros intentos en A4 pasaron una tarde: el sitio del fenotipo N se comparó con el sitio de secuenciación N, que es una parte diferente del pozo, y cada par volvió a ser 2-9 % de inliers. El diseño lo dice en forma cerrada. La adquisición medida encaja 41 columnas en el radio 20.15 contra el pozo de secuenciamiento 21 en 10.25 -- la misma ronda bien en el doble de la densidad del campo de la imagen del microscopio, y 41 = 2 * 21 - 1 -- por lo que una posición de cuadrícula fenotípica se reduce a la mitad sobre el centro.",
+      "source_sha256": "eb76980fa0c62b1986d70e54e57c351c0b2d0f3cf54dbe03ec01cd9cb6790f95",
+      "text": "Qué azulejo secuencial cubre cada azulejo fenotipo.\n\n:param phenotype_sites: cuántos campos de visión del microscopio tiene la adquisición del fenotipo.\n:param sbs_sites: ¿cuántas de las adquisiciones de secuencia?\n:param row_offsets: donde cada columna de fenotipo realmente comienza, un entero por columna, como :func:`spacr.ops_layout._solve_row_offsets` lo mide desde los campos que se alinearon. Vacío toma el círculo en su palabra, que es lo que esta función hizo antes de que hubiera algo mejor para ofrecerlo.\n:returns: ``{phenotype site -> sequencing site}``, omitiendo cualquier tesela fenotípica cuya posición de secuenciación esté fuera de ese círculo.\n:raises ValueError: cuando el conteo no es un pozo redondo, que :func:`spacr.ops_layout.round_well_layout` decide, o cuando los desplazamientos no son uno por columna de fenotipo.\n\nY el círculo no es siempre la adquisición, que es lo que ``row_offsets`` es para. `round_well_layout` SEARCHES para un radio que contiene exactamente el campo de visión del microscopio y más de un radio lo hace; para el fenotipo 41-columna bien el que encuentra da la columna derecha y una fila incorrecta por hasta dos. La PARTE 14-G de 372 midió que más de 188 campos de visión alineados del microscopio -- índice de columna exacto a una desviación estándar de 0,001, índice de fila hacia fuera por un número entero constante abajo de cada columna -- y rechazó 133 de 321 campos de vista del microscopio, porque una fila es 633 px y una ventana que no contiene ninguno de los núcleos del campo de imagen del microscopio.\n\nUna tabla de longitud incorrecta es rechazada en lugar de acolchada. El relleno está justo dentro :class:`spacr.ops_layout.WellLayout`, donde el valor predeterminado vacío tiene que mantener el significado \"no offsets\"; aquí el llamante está entregando una medida de un pozo particular, y una tabla que no se ajuste corregiría algunas columnas y silenciosamente dejaría el resto -- que es el estado que este argumento existe para terminar.\n\nEs una pregunta de diseño, no una imagen una, y responderla por imagen fue cómo los tres primeros intentos en A4 pasaron una tarde: el sitio del fenotipo N se comparó con el sitio de secuenciación N, que es una parte diferente del pozo, y cada par volvió a ser 2-9 % de inliers. El diseño lo dice en forma cerrada. La adquisición medida encaja 41 columnas en el radio 20.15 contra el pozo de secuenciamiento 21 en 10.25 -- la misma ronda bien en el doble de la densidad del campo de la imagen del microscopio, y 41 = 2 * 21 - 1 -- por lo que una posición de cuadrícula fenotípica se reduce a la mitad sobre el centro.",
       "translation_source_blocks_sha256": [
         "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
         "ab9a59257c1c23fa317e0fc02f4941f59f8d1efa35b0f64f53d525dde8b780d8",
         "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
         "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
+        "954fef2fe85ad5eef97ca8e47fe4dc97df42e970741e7238f358a6ab9d75f30f",
+        "9aa63c8b8ecf3986373d52abb4f39f5c6db1b6b62f37a3402b7c3bd1323856fd",
         "ad004c2f9c7a9994138a70118994b3ac9e9df26b9cc63b71a3a363a586031c5b"
       ]
     },

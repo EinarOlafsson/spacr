@@ -48560,16 +48560,20 @@
         "e40bb0d8f684269939ccd2a5d22d7421ac4da379980a3cec9b1ccdfd30c9eb7f",
         "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
-        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
+        "19be3432505275638c7e278ddf388d65661544080d2decc91cb553b1ef2a7f2b",
+        "a7b6672ede5c1b5799c512833610ac73f449691464cd6321a8baae2198b48959"
       ],
-      "source_sha256": "435b0796cae0975cc48ed06ba508058d1fdb4adfff84688c6d7d5194dd65b1eb",
-      "text": "둥근 골의 마이크로스코프 이미지 필드, 사이트 인덱스 및 네트워크 위치에 의해 다루어집니다.\n\n:ivar columns: 얼마나 많은 열의 마이크로스코프 필드의 시야 인수 래스터가있다.\n:ivar radius: 마이크로 플레이트 샘플 위치의 라디오, 네트워크 단위 (마이크로스코프 이미지 필드 피치 = 1).\n:ivar centre: ``(column, row)`` 서클의 중심에서 라인은 잘 측정 된 것에 대해 부정적이기 때문에 사이트 0은 TOP에 있으며 라인이 아래로 증가합니다.\n:ivar snake: 마이크로 매니저의 HCS 플러그인은, 그래서 참조 구현은 전혀 `remap_snake`를 수행합니다.",
+      "source_sha256": "8106f443d32403521de32c718ab00175fe205d8363784c2a020f6ca34d505001",
+      "text": "둥근 골의 마이크로스코프 이미지 필드, 사이트 인덱스 및 네트워크 위치에 의해 다루어집니다.\n\n:ivar columns: 얼마나 많은 열의 마이크로스코프 필드의 시야 인수 래스터가있다.\n:ivar radius: 마이크로 플레이트 샘플 위치의 라디오, 네트워크 단위 (마이크로스코프 이미지 필드 피치 = 1).\n:ivar centre: ``(column, row)`` 서클의 중심에서 라인은 잘 측정 된 것에 대해 부정적이기 때문에 사이트 0은 TOP에 있으며 라인이 아래로 증가합니다.\n:ivar snake: 마이크로 매니저의 HCS 플러그인은, 그래서 참조 구현은 전혀 `remap_snake`를 수행합니다.\n:ivar row_offsets: 얼마나 멀리 각 열의 순서가 그들을 둥지에 넣어, 하나 전체 각 열, 왼쪽으로 오른쪽으로. 빈은 각 레이아웃이 그것이 될 수 없다는 것을 보여 주기 전에 그것의 단어로 둥지를 가져 오는 것을 의미합니다. 둥지가 끝을 넘는 둥지는 흔들리지 않습니다, 그래서 ``()``는 오래된 행동의 전체가 아닌 그것의 특별한 경우입니다.이 클래스가 해시되어 있기 때문에 둥근 - 참조 :func:`_index`.\n\n:attr:`heights`과 :attr:`site_count`은 오프세트가 무엇이든 동일하며 사이트 N은 수정 전과 후에 동일한 미크로스코프 시각 필드입니다 - 다른 순서입니다.이것은 정확히 오류 372의 PART 14-G는 현상 인수에 측정됩니다 : 188 이상의 조정 된 미크로는 시각의 필드에서 COLUMN 지수는 각 시간, 표준 변동에 천, 그리고 순서는 정확한 전체 숫자에 의해 잘못되었습니다.",
       "translation_source_blocks_sha256": [
         "83c474c5db52a90504971d35c2d3d36da56e3bd1bc0392390eac9421c599c543",
         "02670dea8d0c21ad12eb680d75acc0cde68cf015c5fbfa83765a31ce4f8bb8dd",
         "71556bf7e9f35f28c8520cb67fc5f78a504e29f0c85808711cf8b90d14d8d4df",
         "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
-        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16",
+        "6ab4eb4e3f981c2078f1eae27c7c104a4a9c68d1de9927062c509b7bfc8105df",
+        "870af8968e920b1eb1ab3e6a392e1b38155e8b69f61ef89c7aaa8c4c96ae2631"
       ]
     },
     "spacr.ops_layout.WellLayout.heights": {
@@ -48688,14 +48692,14 @@
       "source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
       ],
-      "source_sha256": "8ce6cbe1c72dd601b8154e144f82f6ea5d502e4abb0d23b545837a2d0d67e37c",
-      "text": "``(first row, last row)`` 하나의 열, 또는 None 빈 경우.\n\n:param column: 콜럼 인덱스 입니다.\n:returns: 포괄적 인 절대 순서 범위는 서클 내부입니다.",
+      "source_sha256": "94e8b9d4a8cd1295b574025c4e8bcc9c311bef2d296fca741489c13a748b19ae",
+      "text": "``(first row, last row)`` 하나의 열, 또는 None 빈 경우.\n\n:param column: 콜럼 인덱스 입니다.\n:returns: 서클 내부의 포괄적 절대 순서 범위, 이 열의 입력에 의해 :attr:`row_offsets`로 옮겨집니다.",
       "translation_source_blocks_sha256": [
         "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
         "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
-        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+        "e3a5c399d5a32e21fd4517521151039b4c3a8bc9a24fa6dde9b2e02092dde981"
       ]
     },
     "spacr.ops_layout.round_well_layout": {
@@ -49127,18 +49131,24 @@
         "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
         "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
         "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
         "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
+        "1e7aeb4b7afc11ed1ca7454db89d2c37fd6302a11d0085d339a6ff6f67cf088c",
+        "1e0b0fefaf09226a4f1f88506df53c35e0d50a7b23fefa8190747188c5dffdf2",
         "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
       ],
-      "source_sha256": "fdb5eaf6703a2c5a928257740bfda3b0065722325b7faaf3ddfa45e8e114c3cd",
-      "text": "각 종류의 종류를 다루고 있는 종류는 종류가 다릅니다.\n\n:param phenotype_sites: 얼마나 많은 미크로스코프 시각 필드 페노 타입이 소유하고 있는지.\n:param sbs_sites: 얼마나 많은 수수료를 소유하고 있는지.\n:returns: ``{phenotype site -> sequencing site}``, 그 서클 밖에 있는 순서 위치를 가진 모든 현상형 벽돌을 무시한다.\n:raises ValueError: 각각의 계산이 둥근 잘가 아니면 :func:`spacr.ops_layout.round_well_layout`이 결정됩니다.\n\n그것은 레이아웃 질문이 아니라 이미지 하나이며, 이미지에 의해 대답하는 것은 A4에서 첫 번째 세 번의 시도가 오후를 보내는 방법이었다 : 현상 사이트 N는 배의 다른 부분 인 N의 순서 위치와 일치했고, 각 쌍은 2 ~ 9 %의 인리어로 돌아 왔습니다. 디자인은 그것을 닫힌 형태로 말합니다. 측정 된 인수는 21에서 10.25에 순서 배의 41 열과 일치합니다. - 동일한 라운드는 마이크로스코프 이미지 필드 밀도의 두 배로 잘, 41 = 2 * 21 - 1 - 그래서 현상 네트워크 위치는 중앙 주위의 절반입니다.",
+      "source_sha256": "eb76980fa0c62b1986d70e54e57c351c0b2d0f3cf54dbe03ec01cd9cb6790f95",
+      "text": "각 종류의 종류를 다루고 있는 종류는 종류가 다릅니다.\n\n:param phenotype_sites: 얼마나 많은 미크로스코프 시각 필드 페노 타입이 소유하고 있는지.\n:param sbs_sites: 얼마나 많은 수수료를 소유하고 있는지.\n:param row_offsets: 각 페노 타입 열이 실제로 시작되는 곳에서, :func:`spacr.ops_layout._solve_row_offsets`로 각 열에 하나의 전체를 측정합니다. 빈은 그것의 단어에 서클을 가져옵니다, 이것은이 기능이 그것을 제공하기 전에 무엇이 더 좋았는지.\n:returns: ``{phenotype site -> sequencing site}``, 그 서클 밖에 있는 순서 위치를 가진 모든 현상형 벽돌을 무시한다.\n:raises ValueError: 숫자 중 하나가 둥근 덩어리가 아닌 경우, :func:`spacr.ops_layout.round_well_layout`가 결정되거나, 오프세트가 현상형 열 당 하나가 아닌 경우.\n\n그리고 서클은 항상 획득이 아닙니다, 그것은 ``row_offsets``에 대한. `round_well_layout` 시야는 정확히 마이크로스코프 필드의 시야 계산을 유지하고 1 개 이상의 라디오를 수행; 그것이 발견하는 41 열 현상은 오른쪽 열과 두 가지로 잘못된 순서를 제공합니다. 372의 PART 14-G 측정은 188 이상의 조정 된 미생물 필드 시야 - 0.001의 표준 변동에 정확한 열 인덱스, 각 열 아래에 일정한 전체 숫자에 의해 표시되는 순서 - 그것은 거부 133의 321 미생물을 시야 필드, 왜냐하면 하나의 순서는 633 px이고 창은 그것에 의해 손실되지 않습니다.\n\n잘못된 길이의 테이블은 패드 대신 거부됩니다. 패딩은 :class:`spacr.ops_layout.WellLayout`의 내부에 똑바로, 여기에 빈 기본이 의미를 유지해야합니다 \"no offsets\"; 여기에서 호출자는 특정 선의 측정을 전달하고, 그것에 맞지 않는 테이브는 일부 열을 수정하고 조용히 나머지를 떠날 것입니다 - 그것은이 논쟁이 끝날 상태입니다.\n\n그것은 레이아웃 질문이 아니라 이미지 하나이며, 이미지에 의해 대답하는 것은 A4에서 첫 번째 세 번의 시도가 오후를 보내는 방법이었다 : 현상 사이트 N는 배의 다른 부분 인 N의 순서 위치와 일치했고, 각 쌍은 2 ~ 9 %의 인리어로 돌아 왔습니다. 디자인은 그것을 닫힌 형태로 말합니다. 측정 된 인수는 21에서 10.25에 순서 배의 41 열과 일치합니다. - 동일한 라운드는 마이크로스코프 이미지 필드 밀도의 두 배로 잘, 41 = 2 * 21 - 1 - 그래서 현상 네트워크 위치는 중앙 주위의 절반입니다.",
       "translation_source_blocks_sha256": [
         "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
         "ab9a59257c1c23fa317e0fc02f4941f59f8d1efa35b0f64f53d525dde8b780d8",
         "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "a00f444ce23a669aae8a4d35f8fb9b8ef93c5e123d3f500a0331e3611dc8b6ea",
         "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
-        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "37244a615367db72fcd7638a502878791dafab9ce17f8325bdc749b3773f7e60",
+        "954fef2fe85ad5eef97ca8e47fe4dc97df42e970741e7238f358a6ab9d75f30f",
+        "9aa63c8b8ecf3986373d52abb4f39f5c6db1b6b62f37a3402b7c3bd1323856fd",
         "ad004c2f9c7a9994138a70118994b3ac9e9df26b9cc63b71a3a363a586031c5b"
       ]
     },
