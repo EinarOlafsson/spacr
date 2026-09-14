@@ -2,7 +2,13 @@
 WHAT DOSE-RESPONSE STILL CANNOT SAY: SELECTIVITY, SYNERGY, AND THE PLATE
 ================================================================================
 
-Status:    OPEN AND ACTIONABLE from 2026-09-10. THE HOLD IS LIFTED: the
+Status:    ALL FIVE NUMBERED TASKS ARE BUILT, verified 2026-09-13 against
+           `dose_response.__all__` rather than against this file's prose.
+           What remains is the two EXTRAS this file records outside the
+           numbered list -- the five-parameter logistic and hormesis
+           detection -- plus whatever the screen does not yet surface.
+           See the 09-13 note. Was OPEN AND ACTIONABLE from 2026-09-10,
+           when THE HOLD WAS LIFTED: the
            condition was the version bump, and `spacr/_version.py` reached
            1.5.0.5 on 2026-09-10 (merge 82918f29d, "Merge main into nightly:
            the 1.5.0.5 bump and the Qt merge"). Nothing else gates this file.
@@ -164,3 +170,57 @@ because none of them co-segment host and pathogen from the same image; and
 that finishing PARTS 1 and 2 here is the change most likely to bring new
 users, by making spaCR the tool for anti-parasitic compound screening. The
 WORK stays here. 390 is lowest priority; this file is not.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- THE "ABSENT" LIST IS STALE, AND I DUPLICATED A FEATURE BEFORE
+CHECKING
+--------------------------------------------------------------------------------
+
+This file records "WHAT IT CANNOT SAY, verified by grep on both files
+2026-09-09: ABSENT: selectivity index, CC50, therapeutic index". That was true
+on 2026-09-09. It is not true now, and the numbered work list below it has been
+implemented almost entirely.
+
+MEASURED 2026-09-13 against `spacr.qt.widgets.dose_response.__all__` (60
+names), not against prose:
+
+    1  SELECTIVITY INDEX      SelectivityIndex, selectivity_index
+    2  SYNERGY                SYNERGY_BLISS, SYNERGY_LOEWE, SYNERGY_MODELS,
+                              InteractionSurface, bliss_surface,
+                              loewe_surface, Checkerboard,
+                              checkerboard_from_frame
+    3  PLATE NORMALISATION    NORMALISE_NONE, NORMALISE_PERCENT,
+                              NORMALISATIONS, normalise_to_controls
+    4  Z-PRIME CONSUMED       ZPRIME_MARGINAL
+    5  POOLED FITS            PooledFit
+
+    5PL / HORMESIS            absent -- and these are the two this file itself
+                              lists OUTSIDE the numbered order, as "worth
+                              recording"
+
+The selectivity index even honours the design this file asked for: it works in
+log space, where a ratio is a difference, and falls back to interval arithmetic
+only on the one-sided cases, where it labels them one-sided. There is a test
+file for it already.
+
+  I WROTE A SECOND ONE BEFORE LOOKING. Trusting the "ABSENT" line, I built
+  `spacr/selectivity.py` and a thirteen-test file, then found
+  `SelectivityIndex` at dose_response.py:1826 -- with nearly the same class
+  docstring argument, and an existing test whose name differs from mine by two
+  words. Both were deleted; the ratchets they moved (modules 565->566,
+  callables 8651->8654, API symbols 10478->10482) are back where they were.
+
+  THE COST WAS ABOUT AN HOUR AND THE LESSON IS THE ONE THIS REPOSITORY KEEPS
+  RE-LEARNING. A dated verification inside a file is evidence about that date
+  and nothing else. `HANDOFF.md` now carries "a header that claims MORE work
+  than exists is invisible to every gate"; this is the same defect one level
+  down -- a BODY that claims more work than exists, with the date of its own
+  measurement attached, which makes it read as current.
+
+WHAT IS ACTUALLY OWED, and it is much smaller than this file suggests:
+
+  * The 5PL and hormesis detection, both engine-level, both explicitly
+    outside the numbered order.
+  * A check of what the SCREEN surfaces. Every item above is verified present
+    in the ENGINE's public API; this note does not claim the Qt screen exposes
+    all of it, and that is the next thing to measure.
