@@ -3027,7 +3027,7 @@ class ProjectFolderDropHandler(LayoutDropHandler):
 
 
 class DataManagerDropHandler(ProjectFolderDropHandler):
-    """Data Manager: set the project, then measure it."""
+    """Set the project in Data Manager, then measure it."""
 
     def deliver(self, screen, value: str, target) -> None:
         """Set the project, then measure it.
