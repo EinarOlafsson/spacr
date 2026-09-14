@@ -1,0 +1,108 @@
+================================================================================
+FLOWVIEW'S COLLECTOR IS A PROCESS-WIDE GLOBAL THAT NOTHING PUTS BACK
+================================================================================
+
+Status:    OPEN, filed 2026-09-14. Not blocking. PRE-EXISTING -- it is not a
+           regression from any of tonight's 21 commits, and the measurement
+           that establishes that is below.
+Requested: not requested. Surfaced by the work session's clean full-suite
+           sweep, batch 1.
+Owner:     unassigned. `spacr/flowview/trace.py`, and every test that calls
+           `trace.enable(...)`.
+
+--------------------------------------------------------------------------------
+THE SYMPTOM
+--------------------------------------------------------------------------------
+
+    FAILED tests/flowview/test_classify_ui_integration.py::
+           test_open_failure_is_recoverable_and_never_costs_the_fold_strip
+    ERROR  tests/flowview/test_the_panel_is_a_box_you_can_resize.py  (7 tests)
+    AttributeError: '_Live' object has no attribute 'drain'
+
+`_Live` is a stub collector defined in a DIFFERENT test file. It reaches these
+tests because nothing removes it.
+
+--------------------------------------------------------------------------------
+THE MECHANISM, EXACTLY
+--------------------------------------------------------------------------------
+
+`spacr/flowview/trace.py`:
+
+    _collector = _new_collector()          # module global, set at import
+
+    def enable(collector=None):
+        global _collector, _enabled
+        with _STATE_LOCK:
+            if collector is not None:
+                _collector = collector     # process-wide, and permanent
+            _enabled = True
+            return _collector
+
+    def disable() -> None:
+        global _enabled
+        with _STATE_LOCK:
+            _enabled = False               # does NOT restore _collector
+
+So `enable(x)` installs `x` for the life of the process and `disable()` does
+not undo it. The tests restore it BY HAND -- `trace.enable(previous_collector)`
+appears in four files -- which works only when the test reaches that line. A
+test that raises, skips, or takes an early return leaves its stub installed for
+everything that follows.
+
+`monkeypatch` CANNOT SAVE THIS, and that is the part worth understanding.
+`monkeypatch.setattr(trace, "get_collector", ...)` is undone at teardown, so
+the files that patch the FUNCTION are safe. The leak is a `global` assignment
+INSIDE a function, which is not an attribute set and which monkeypatch has no
+way to observe. Three modules also do `from .trace import get_collector` at
+module scope, so patching one binding leaves the others -- a second, separate
+hazard in the same area.
+
+No conftest restores `_collector`. There is no teardown at all.
+
+--------------------------------------------------------------------------------
+WHY IT LOOKS LIKE A REGRESSION AND IS NOT
+--------------------------------------------------------------------------------
+
+The work session measured this carefully enough to be worth repeating, because
+the first three measurements all said "regression introduced tonight":
+
+  * Both files PASS alone. `tests/flowview/` as a directory failed on the
+    current tree and passed on 49c1189f7. Two trees, clean difference.
+  * `git bisect` named a973af6a4 (a regex lookaround change) as first-bad.
+    Checked explicitly rather than believed: a973af6a4 tests GOOD and its
+    PARENT tests BAD -- the inverse. THE PROPERTY IS NOT MONOTONIC, SO BISECT
+    CANNOT ANSWER IT. A bisect result on a flaky property is noise with a
+    commit hash attached.
+  * A linear scan of all 21 commits was scattered, and included a25269741 --
+    a pure ledger-text commit touching one .txt file under features/future/.
+    Nothing in it can reach flowview. That is what killed the hypothesis.
+  * Direct measurement: same two files, same unchanged commit, 15 runs across
+    two worktrees, 0 failures. The earlier reproductions were real
+    observations of a test sensitive to machine load, not to source.
+
+The rule that follows: A RED RECORDED WHILE THE MACHINE WAS BUSY IS A WORKLIST
+ITEM, NOT A FINDING.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. An autouse fixture in `tests/flowview/conftest.py` (and `tests/conftest.py`
+   for the flowview tests outside that directory) that records
+   `trace.get_collector()` before each test and reinstalls it afterwards,
+   whatever the test did or did not reach.
+2. Consider giving `trace` a `reset()` that restores the import-time collector,
+   so the teardown does not have to reach into a private global.
+3. Only then remove the hand-written `trace.enable(previous_collector)` lines,
+   which will be redundant. Leave them until the fixture is proven.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    python -m pytest tests/flowview -q -p no:randomly        # 157 passed
+    python -m pytest tests/flowview tests/test_cov_r8_classify_flowview_tails.py -q
+
+and, the one that actually matters, both under load: run them while a second
+pytest is saturating the machine. The failure never reproduced on a quiet box
+in 15 attempts.
