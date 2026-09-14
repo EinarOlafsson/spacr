@@ -1071,7 +1071,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # protected literals and the gates REFUSED them. Those stay English on
     # purpose: English prose on an API page is a gap, and corrupted Icelandic
     # that looks like a translation is worse.
-    expected = 10_533  # 2026-09-14: +53 / -0, see test_docstring_correctness
+    # 10,478 -> 10,531 (+53, two new modules) and then -> 10,533 (+2, two
+    # dunders documented). Both by set difference; see the accounting in
+    # test_docstring_correctness and above.
+    expected = 10_533
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
