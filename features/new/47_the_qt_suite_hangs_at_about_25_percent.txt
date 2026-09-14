@@ -338,7 +338,7 @@ made those visible for the first time, exactly as this file predicted.
 2026-08-10 - THE 74 TRIAGED. 24 REAL, 43 STALE, 6 ORDERING.
 --------------------------------------------------------------------------------
 
-Per-test verdicts: `instructions/data/47_qt_failure_triage.json`. Each "real"
+Per-test verdicts: `features/data/47_qt_failure_triage.json`. Each "real"
 call was then handed to a separate agent told to REFUTE it; three were
 downgraded that way and are not counted below.
 
@@ -618,7 +618,7 @@ files between the worktree and HEAD, which is what confirmed it here.
 
 REMAINING 15, none attributable to this session's work: the 7 ordering ones
 above, the `classes` migration (now folded into instruction 37), and the rest
-listed in `instructions/data/47_qt_failure_triage.json`.
+listed in `features/data/47_qt_failure_triage.json`.
 
 --------------------------------------------------------------------------------
 2026-08-12 - THE FIRST RUN AGAINST A REAL X SERVER, AND A FOURTH MODAL HANG

@@ -2866,7 +2866,7 @@ is closed in `done/`. Six were opened and checked:
 ITEM 60 WAS A GHOST. PROGRESS.md carried a row -- "60 Every module at 100%
 test coverage -- IN PROGRESS, 42,851 tests" -- for an instruction that HAS NO
 FILE, in `open/` or `done/`, and never did. Its only other trace is
-`instructions/data/60_coverage_baseline.json`. So the number was being carried
+`features/data/60_coverage_baseline.json`. So the number was being carried
 forward in a ledger nobody could act on, for an item nobody could read.
 
 RETIRED INTO 288 AND THIS ITEM, which is where that goal actually lives now:

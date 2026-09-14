@@ -640,7 +640,7 @@ addition, and its nine existing translations are stale rather than absent, so
 a review of additions alone would have passed nine locales of text that no
 longer describes what it labels.
 
-Exact lists: instructions/data/306_caption_identities_since_3c224e468.json
+Exact lists: features/data/306_caption_identities_since_3c224e468.json
 
 REPRODUCE:
 
@@ -731,7 +731,7 @@ short of complete, so a digest pinned here would pin a known-incomplete state.
 Order: regenerate for the relicense string, re-capture, then move the ratchet
 with the semantic dispositions above recorded against it.
 
-Data: instructions/data/306_caption_identities_since_3c224e468.json (refreshed
+Data: features/data/306_caption_identities_since_3c224e468.json (refreshed
 against 2d16e469c).
 
 

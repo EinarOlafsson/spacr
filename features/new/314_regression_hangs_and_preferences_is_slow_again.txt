@@ -295,7 +295,7 @@ Measured, not assumed. The patch hoists the import to a module-level
 `_SHIBOKEN_IS_VALID`, keeping the fallback as a module-level `None` so the
 "cannot ask the question" branch behaves exactly as before.
 
-    instructions/data/314_feature_dictionary_shiboken_import.patch
+    features/data/314_feature_dictionary_shiboken_import.patch
 
 WHY IT MATTERS TO THIS ITEM. 592 ms on a Regression build is not the
 multi-second hang either, and must not be reported as its cause -- this file

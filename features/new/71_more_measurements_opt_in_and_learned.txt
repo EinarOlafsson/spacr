@@ -107,7 +107,7 @@ added here needs tests), 59 (a new dependency has a packaging cost).
 2026-08-10 - INVESTIGATED. ALL FOUR SUB-QUESTIONS ANSWERED, WITH NUMBERS.
 --------------------------------------------------------------------------------
 
-Full findings: `instructions/data/71_measurements_investigation.txt`.
+Full findings: `features/data/71_measurements_investigation.txt`.
 
 FOUR PREREQUISITES THAT DELETE A NEW FEATURE SILENTLY. Any new column must
 clear all four or it will not survive to a model:

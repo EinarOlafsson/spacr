@@ -137,10 +137,10 @@ neighbour family that gets much more useful with two organelle classes), 37
 (the same "settings are spelled out per object" problem in classify).
 
 --------------------------------------------------------------------------------
-2026-08-11 - STEP 1 DONE: ~450 SITES INVENTORIED. FULL PLAN IN instructions/data/
+2026-08-11 - STEP 1 DONE: ~450 SITES INVENTORIED. FULL PLAN IN features/data/
 --------------------------------------------------------------------------------
 
-`instructions/data/76_migration_plan.txt` carries the migration plan, the
+`features/data/76_migration_plan.txt` carries the migration plan, the
 per-file counts and the file:line lists. Roughly 355 mechanical / 95
 judgement across the package, EXCLUDING `spacr/qt/**` (a concurrent session
 owns it -- it is unsearched, not zero: `qt/widgets/live_preview.py:111` alone

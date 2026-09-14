@@ -11,7 +11,7 @@ Status:    OPEN, BUT NOT FOR THE REASON THIS LINE USED TO GIVE. All three
            What keeps 364 open is the tail: the organelle preprocessing gap,
            two proposals waiting on the maintainer, and the legacy-migration
            hole the 2026-09-05 check found in the renames. Proposals are in
-           instructions/data/364_mask_and_measure_settings_audit_2026-09-02.txt.
+           features/data/364_mask_and_measure_settings_audit_2026-09-02.txt.
 Requested: 2026-09-02, verbatim -- "look through each moduals settings and
            evaluate if any settings are unnecessary, redundant or are not
            intuitive. then propose to remove settings that are unnecessary,
@@ -324,7 +324,7 @@ looks like a two-line change and is not:
     values and a widget dict that has lost them.
 
 REGRESSION IS AUDITED, 2026-09-02 -- see
-instructions/data/364_regression_settings_audit_2026-09-02.txt. 88 settings,
+features/data/364_regression_settings_audit_2026-09-02.txt. 88 settings,
 nothing dead (the same scan that found nothing dead in mask and measure's
 268), and six findings. The two worth the maintainer's attention first:
 
@@ -342,7 +342,7 @@ nothing dead (the same scan that found nothing dead in mask and measure's
     regression -- one key, two meanings, chosen by which family runs.
 
 CLASSIFY IS AUDITED TOO, 2026-09-02 -- see
-instructions/data/364_classify_settings_audit_2026-09-02.txt. 114 settings,
+features/data/364_classify_settings_audit_2026-09-02.txt. 114 settings,
 nothing dead, seven findings. One of them should not wait for a rename batch:
 
   * `intermedeate_save`'s TOOLTIP IS FALSE. It tells the user "It currently
@@ -365,7 +365,7 @@ Annotate and Map Barcodes are the remaining core modules. Then preferences
 and spaceout as the request asks.
 
 ANNOTATE AND MAP BARCODES ARE AUDITED, 2026-09-02 -- see
-instructions/data/364_annotate_and_map_barcodes_settings_audit_2026-09-02.txt.
+features/data/364_annotate_and_map_barcodes_settings_audit_2026-09-02.txt.
 That completes the six core modules. Annotate: 23 settings in its defaults
 factory, 31 counting the screen's own table, 44 counting the Cells-tab
 picture panel. Map Barcodes: 18 declared, 20 that the pipeline actually
@@ -443,7 +443,7 @@ assay sub-modules.
 A LIVE REGRESSION
 --------------------------------------------------------------------------------
 
-`instructions/data/364_previews_searches_and_assays_settings_audit_2026-09-02
+`features/data/364_previews_searches_and_assays_settings_audit_2026-09-02
 .txt`: 1,188 lines, 16 findings. Mask live preview 95 rows, Crop preview 27,
 Timelapse 14, Motility 11; the three hyperparameter surfaces 23 / 18 / 50 plus
 16 run controls; recruitment 30, invasion 37, replication 25, analyze_plaques
@@ -677,7 +677,7 @@ the rest. The two core modules the maintainer named first are done.
               CLASSIFY SHAPE AGAIN
 --------------------------------------------------------------------------------
 
-See instructions/data/364_motility_settings_audit_2026-09-04.txt. PROPOSALS
+See features/data/364_motility_settings_audit_2026-09-04.txt. PROPOSALS
 only; nothing in the module was changed.
 
   * NOTHING IS DEAD, and the near-miss is worth recording. Two of the 55 are
@@ -1007,7 +1007,7 @@ TWO PRE-EXISTING FAILURES FIXED ON THE WAY PAST, neither of them OPS:
               FINDING AT ALL
 --------------------------------------------------------------------------------
 
-See instructions/data/364_plaque_settings_audit_2026-09-08.txt. PROPOSALS
+See features/data/364_plaque_settings_audit_2026-09-08.txt. PROPOSALS
 only; nothing in the module was changed.
 
   FINDING 0 IS A BUG, NOT A SETTINGS OPINION, and it is why plaques jumped the

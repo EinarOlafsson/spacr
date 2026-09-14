@@ -136,7 +136,7 @@ First complete whole-suite run with coverage, made possible by instruction 47:
     22,858 passed  72 failed  51 skipped  14 xfailed
     136,889 statements   15,227 uncovered   89%
 
-Per-file JSON kept at `instructions/data/60_coverage_baseline.json`. Compare
+Per-file JSON kept at `features/data/60_coverage_baseline.json`. Compare
 future runs against it rather than against a remembered number.
 
 RANKED BY UNCOVERED STATEMENTS, which is the metric that matters -- a
