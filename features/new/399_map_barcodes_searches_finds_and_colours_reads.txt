@@ -75,6 +75,20 @@ WHAT IS LEFT
    What is needed is a RE-RECORDING against the current screen. That needs
    the GUI and a person driving it, so it is the Codex session's under 325.
    The screen is final as of c753b7de7; nothing further is queued.
+
+   DONE 2026-09-13 by the other session, in 3c40b477c "Complete Map
+   Barcodes tutorial with verified multilingual media". The re-recording
+   exists and is NOT the August file:
+
+       release candidate  3,673,211 bytes  sha b64399b9ae48de96
+       production (Aug)   1,538,000 bytes  sha 77809b3010b73137
+
+   It is STAGED, NOT PUBLISHED. `12_map_barcodes` is still in `HELD` in
+   `tools/tutorials/coming_soon.py` and `docs/source/_extra/tutorials/
+   production/12_map_barcodes/` still holds the August capture. The
+   promotion runs through `tools/tutorials/merge_map_media.py`, which is
+   the other session's tool and its call to make -- do not run it from
+   this lane.
 3. NOT a defect of this feature, but found by it: the screen name
    `Map Barcodes` is itself translated in 103 of 153 API blocks across nine
    languages -- Korean and Hindi lose it in all 17. `_PROTECTED_TERMS` in

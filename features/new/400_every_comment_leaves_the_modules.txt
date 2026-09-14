@@ -143,3 +143,28 @@ WHAT TO DO, in order:
 
 STATUS CHANGED from IN PROGRESS to BLOCKED: the steps it lists operate on
 commits that are not reachable from here.
+
+--------------------------------------------------------------------------------
+LANDED 2026-09-13 -- AND THE "BLOCKED" NOTE ON THIS ITEM WAS RIGHT AT THE TIME
+--------------------------------------------------------------------------------
+
+Commit d0334c103 on nightly: 492 modules stripped, 491 notes under
+docs/notes, tools/extract_source_notes.py included.
+
+6e72b1611 recorded this item as BLOCKED because neither branch nor the tool
+existed on that machine. That was accurate and worth recording: both
+branches were LOCAL-ONLY to the other checkout, which is exactly the hazard
+the item itself warned about -- a 50,000-line deletion on a detached HEAD is
+one `git worktree prune` from gone. Nothing was lost, but only because it
+was branched in time.
+
+The tool and the notes are now on origin, so the two steps that could not
+run there can run anywhere. The salvage branch
+`salvage/comment-extraction-original` (1d93e5947) is superseded and can be
+deleted; the landed commit was regenerated from current source, four times
+over, rather than rebased from it.
+
+VERIFIED BEFORE THE PUSH, through `run_pytest_batches.py` with CI's own
+invocation: 7 failures, every one of which fails identically on UNSTRIPPED
+nightly or is a load artefact. Zero caused by the strip.
+
