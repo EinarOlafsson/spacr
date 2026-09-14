@@ -31,3 +31,18 @@ def test_other_lessons_languages_and_correct_read_mentions_remain_unchanged(iden
 def test_changed_spoken_premise_cannot_silently_skip_the_correction():
     with pytest.raises(ValueError, match='premise changed'):
         speech('12_map_barcodes', 'en', 'af_heart', TARGET, 'unrelated text')
+
+
+def test_only_the_measured_fable_track_gets_the_extra_mastering_pass():
+    function = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                    and node.name == 'mastering_config')
+    constants = {'MASTERING_CONFIG': {'filters': ['normal-encode']},
+                 'LOUDNESS_FILTERS': ['normal-encode']}
+    exec(compile(ast.Module(body=[function], type_ignores=[]), str(SOURCE), 'exec'), constants)
+    mastering = constants['mastering_config']
+    assert mastering('12_map_barcodes', 'en', 'bm_fable')['filters'] == [
+        'normal-encode', 'normal-encode,volume=-2dB']
+    for args in [('12_map_barcodes', 'en', 'af_heart'),
+                 ('07_mask', 'en', 'bm_fable'), ('12_map_barcodes', 'fr', 'bm_fable')]:
+        assert mastering(*args)['filters'] == ['normal-encode']
+    assert constants['MASTERING_CONFIG']['filters'] == ['normal-encode']

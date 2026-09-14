@@ -31,6 +31,19 @@ def checkpoint(candidate):
         if (actual['requested_audio_time'] != midpoint or abs(actual['audio'] - midpoint) >= 1
                 or actual['text'] != sentence['text'] or sentence['text'] not in actual['cues']):
             raise ValueError('Native captions disagree with the actual narrated sentence')
+    pronunciation = []
+    for track in matrix['tracks']:
+        if track['language'] != 'en':
+            continue
+        actual = read(folder / 'audio/en' / (track['voice'] + '.json'))
+        sentence = actual['scenes'][11]['sentences'][0]
+        if ('[read](/ɹˈid/) depth' not in sentence['speech_text']
+                or 'ɹˈid dˈɛpθ' not in sentence['phonemes']):
+            raise ValueError('An English voice still has the incorrect read-depth phonemes')
+        pronunciation.append({'voice': track['voice'], 'audio_sha256': track['sha256'],
+                              'phonemes': sentence['phonemes']})
+    if len(pronunciation) != 24:
+        raise ValueError('Check read-depth pronunciation in every preserved English voice')
     preservation = read(candidate / 'checks/map-preservation-checks.json')
     if preservation.get('passed') is not True:
         raise ValueError('Verify preservation of the other tutorials first')
@@ -44,6 +57,7 @@ def checkpoint(candidate):
         'capture': read(DEFAULT_STAGE / 'captures/map_verified/scientific_acceptance.json'),
         'matrix': matrix, 'candidate_manifest_sha256': digest(checked / 'release-manifest.json'),
         'heart_timing_sha256': digest(timing_path), 'candidate_browser_case': case,
+        'english_read_depth_phoneme_checks': pronunciation,
         'native_speaker_signoff': False, 'human_listening_signoff': False, 'published': False})
     print('Checkpointed Map: real counts, fifty voices, fourteen cases, every native Heart caption', flush=True)
 

@@ -349,6 +349,10 @@ def mastering_config(lesson_id: str, language: str, voice: str) -> dict:
     result["filters"] = list(MASTERING_CONFIG["filters"])
     if (lesson_id, language, voice) == ("18_motility", "en", "bf_isabella"):
         result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("12_map_barcodes", "en", "bm_fable"):
+        # Measured AAC overshoot was -0.6 dBFS after the normal encodes.
+        # Keep the -1 dBFS acceptance gate and attenuate only this track.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
     return result
 
 

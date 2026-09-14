@@ -244,8 +244,8 @@
     },
     {
       "path": "tools/render_all_voices.py",
-      "sha256": "674645f538f9897c4ca2f55713b670378d9b3af4234ab5dea8e828dfaf4bbdd6",
-      "bytes": 29622
+      "sha256": "40a3ae411fed6407245c04d936673f83e9632263a4adaa0452e5adb0e33410ae",
+      "bytes": 29919
     },
     {
       "path": "tools/render_install_keyframes.py",
