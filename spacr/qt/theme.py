@@ -3000,6 +3000,19 @@ class _SheetsEveryWindowThatAppears(QObject):
     """
 
     def eventFilter(self, watched, event):  # noqa: N802 - Qt override
+        """Sheet a window at the moment Qt says it needs its style.
+
+        :param watched: the object the event is for. A window is sheeted
+            along with the roots it belongs to, a widget marked as a
+            sheet target is sheeted on its own, and anything else is left
+            alone.
+        :param event: the event. Only ``Polish`` and ``Show`` do
+            anything, and both are idempotent through the serial, so the
+            pair costs one application.
+        :returns: ``False`` always. The event is observed and never
+            consumed, because swallowing a polish or a show would stop
+            the widget being styled or shown at all.
+        """
         if event.type() in (QEvent.Polish, QEvent.Show):
             try:
                 if watched.isWindow():

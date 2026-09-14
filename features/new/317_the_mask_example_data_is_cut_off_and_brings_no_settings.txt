@@ -2,9 +2,12 @@
 THE MASK EXAMPLE DATA: A CLIPPED DIALOG, AND SETTINGS THAT NEVER ARRIVE
 ================================================================================
 
-Status:    PARTLY DONE, corrected 2026-09-13. Read part by part, because the
+Status:    PARTLY DONE, corrected 2026-09-14. Read part by part, because the
            three are in three different states and the header said OPEN for
-           all of them.
+           all of them. PART 3'S ENTRY WAS INVERTED until tonight and is
+           rewritten below; the old wording is quoted in the 2026-09-14
+           section at the foot of this file, because an inverted claim is
+           worse than a stale one -- a reader acts on it.
 
              1. THE CLIPPED DIALOG IS FIXED, and was on 2026-09-01 in
                 f47a4ff0c. `hf_download._DownloadDialog` replaced
@@ -22,16 +25,67 @@ Status:    PARTLY DONE, corrected 2026-09-13. Read part by part, because the
                 thing -- that examples apply settings at all -- and does not
                 close this.
 
-             3. THE UNSAFE READER IS GONE AND ITS SUCCESSOR HAD A HOLE I
-                CLOSED TONIGHT. `spacr/qt/settings_pack.py` now migrates a
-                pack and reports what became of every key. But its
-                `PACK_RENAMES` table was EMPTY for mask and measure, so a
-                pack written before 391 lost every key that instruction
-                renamed. Measured: a four-key pack gave applied 2, renamed 0,
-                dropped 4, with all four resolvable by
-                `spacr.settings.surviving_setting_name`. The reader now
-                consults the package's own table after the per-app one, and
-                `tests/test_a_settings_pack_survives_a_rename.py` holds it.
+             3. THE SUCCESSOR IS REAL, ITS RENAME HOLE IS CLOSED, AND IT
+                HAD NOT REPLACED THE UNSAFE READER. Half open.
+
+                CLOSED, and the previous entry had this right:
+                `PACK_RENAMES` was empty for mask and measure, so a pack
+                written before 391 lost every key that instruction renamed
+                (measured: a four-key pack gave applied 2, renamed 0,
+                dropped 4, all four resolvable by
+                `spacr.settings.surviving_setting_name`). The package's own
+                table is consulted after the per-app one --
+                `_package_renames`, settings_pack.py:274, called at line 361
+                -- and `tests/test_a_settings_pack_survives_a_rename.py`
+                holds it.
+
+                CLOSED 2026-09-14: the migrating reader could not read the
+                published pack AT ALL. It opened `<app>_settings.csv`; the
+                pack ships `gen_masks_settings.csv` and
+                `crop_measure_settings.csv`. Measured on the real pack at
+                `~/datasets/settings/gen_masks_settings.csv` (59 non-blank
+                lines, one of them a header): applied 0, renamed 0, dropped
+                0, malformed 0 -- a MISS, not an error, so `_run_e2e_chain`
+                filled the Mask form with plain defaults and said nothing.
+                Two more of the same shape: the shipped `Key,Value` header
+                arrived as a setting named `Key` and was reported to the
+                user as dropped, and `channels,"[0, 1, 2, 3]"` arrived as an
+                eleven-character STRING over a list default and was counted
+                as APPLIED. Now: `PACK_FILES` + `pack_candidates`
+                (settings_pack.py:104, 221) find the published spellings,
+                `_HEADER_ROWS` (line 115) skips a heading in first position
+                only, and `_coerce` (line 208) parses a bracketed cell.
+                Re-measured on the same file: 32 applied + 9 renamed + 17
+                dropped = 58, every row the reader saw, nothing excluded.
+                Held by
+                `tests/test_a_settings_pack_finds_the_file_the_pack_ships.py`.
+
+                ALSO 2026-09-14: the report told a user a true-sounding
+                falsehood. Ten of those 17 dropped keys -- `timelapse`,
+                `fps`, `experiment` and seven more -- are LIVE settings this
+                build has; they are simply not on the mask form. "dropped
+                (this version has no such setting)" sends that user looking
+                for a version that has them. `PackReport.elsewhere` (line
+                137) is the subset of `dropped` that is live elsewhere, and
+                `summary()` gives it its own sentence. `elsewhere` is a
+                SUBSET, never a fourth bucket, so `app.py`'s
+                `if report.dropped or ...` guard still sees everything.
+
+                STILL OPEN, and this is the part the old entry denied by
+                saying "the unsafe reader is gone": the blind reader is
+                alive and is the one every user-facing example button goes
+                through. `AppScreen.apply_settings_that_came_with`
+                (spacr/qt/screens/app_screen.py:3657) reads the same shipped
+                CSVs, applies them with `apply_settings_dict`, and reports a
+                COUNT -- "12 settings loaded from gen_mask_settings.csv" --
+                naming nothing that did not land. It is reached from
+                app_screen.py:3751, 3898, 4047 and 4128, which is Load test
+                data, the Measure example, the Annotate example and the
+                screen-data picker. `settings_from_pack` is called from ONE
+                place, `app.py:2970`, the e2e chain. Routing the four
+                through this module is the rest of part 3 and it was left
+                undone tonight on purpose: app_screen.py was not this
+                session's to edit.
 Owner:     spacr/qt/hf_download.py, spacr/qt/screens/mask.py, and the
            settings pack on Hugging Face.
 Requested: 2026-08-31, in the maintainer's words --
@@ -73,6 +127,11 @@ THREE THINGS, AND THEY ARE NOT THE SAME BUG
 
 3. THE SETTINGS PACK IS ALREADY DOWNLOADED AND ONLY THE E2E DEMO USES IT.
 
+   [CORRECTED 2026-09-14: "the only reader" was true when this was written
+   and is not true now. There are two, they read DIFFERENT FILES out of the
+   same folder, and only one of them migrates. See the 2026-09-14 section at
+   the foot of this file.]
+
    `hf_download.SETTINGS_REPO` is `einarolafsson/spacr_settings`, and the
    worker already fetches every file in it beside the dataset. The only
    reader is `_run_e2e_chain._settings_for`, a closure inside
@@ -108,14 +167,19 @@ WHAT TO DO
 
   d. Do the same for Measure, since the pack carries
      `measure_settings.csv` as well.
+     [CORRECTED 2026-09-14: it does not, and never has. The measure file
+     in the pack is `crop_measure_settings.csv`, and a run writes
+     `measure_crop_settings.csv`. Both names are in
+     `settings_pack.PACK_FILES` now.]
 
 HOW TO KNOW IT WORKED
 
   * the progress dialog shows a whole Hugging Face filename and its
     "(n/m files)" line at every stage of the download;
   * loading the real example data fills the mask form from
-    `mask_settings.csv`, and says how many keys were applied, renamed and
-    dropped;
+    `gen_masks_settings.csv` -- NOT `mask_settings.csv`, which this file
+    named until 2026-09-14 and the pack has never shipped -- and says how
+    many keys were applied, renamed and dropped;
   * a settings pack written against an older spaCR applies its live keys
     and NAMES the ones it could not, rather than merging them silently;
   * the synthetic plate still works offline.
@@ -172,3 +236,97 @@ NOT DECIDED HERE. Reading it either way changes what gets built, and the file
 already had one part described against the wrong path -- guessing a second
 time is how that compounds.
 
+
+--------------------------------------------------------------------------------
+2026-09-14 -- PART 3 WAS INVERTED, AND THE READER READ NOTHING
+--------------------------------------------------------------------------------
+
+WHAT THIS FILE SAID, verbatim, until tonight:
+
+    "3. THE UNSAFE READER IS GONE AND ITS SUCCESSOR HAD A HOLE I CLOSED
+     TONIGHT."
+
+The second clause is true. The first is backwards, and it is the half a
+reader acts on: it says the job is done and the only thing left was a
+detail. Both halves are now in the Status block above; this section is the
+evidence, so nobody re-derives it.
+
+VERIFIED BY GREP AND BY RUNNING IT, 2026-09-14, not inferred:
+
+  * `settings_from_pack` has exactly ONE caller in the package:
+    `spacr/qt/app.py:2970`, inside `_run_e2e_chain`. `grep -rn
+    "settings_from_pack" --include=*.py spacr/` returns that line and the
+    definition, and nothing else.
+
+  * `AppScreen.apply_settings_that_came_with`
+    (spacr/qt/screens/app_screen.py:3657) is the reader every example
+    BUTTON goes through -- four call sites, at 3751, 3898, 4047 and 4128.
+    It reads the shipped CSV with `_load_settings_csv`, re-homes its paths,
+    hands the lot to `apply_settings_dict`, and prints "[example] {count}
+    settings loaded from {name}". `apply_settings_dict`'s own docstring says
+    it "silently skips keys the current app does not have", so the
+    difference between the file's key count and `count` is exactly the
+    information the user is not given. It is not as dangerous as the reader
+    it replaced -- it does call `_translate_legacy_setting_keys`, so renames
+    do land -- but it is the blind half of "migrates and reports": it
+    migrates and does not report.
+
+  * THE TWO READERS DO NOT OPEN THE SAME FILE. `apply_settings_that_came_with`
+    looks for `gen_mask_settings.csv` / `gen_masks_settings.csv` (and
+    `measure_crop_settings.csv` / `crop_measure_settings.csv`);
+    `settings_from_pack` looked for `mask_settings.csv` /
+    `measure_settings.csv`, which the pack has never shipped. So the safe
+    reader was reading an absent file while the blind one read the present
+    one.
+
+THE MEASUREMENT, on the real pack this repository already has a copy of,
+`~/datasets/settings/gen_masks_settings.csv`, 59 non-blank lines of which
+line 1 is the `Key,Value` header:
+
+    before   pack file found: none      applied 0  renamed 0  dropped 0
+    after    pack file found: it        applied 32 renamed 9  dropped 17
+
+    32 + 9 + 17 = 58 = the 58 settings rows. The 59th line is the header,
+    which is now skipped rather than counted as a dropped setting called
+    `Key`. Nothing else is excluded from that count.
+
+    Of the 17 dropped, 10 are LIVE settings in `spacr.settings.expected_types`
+    that the mask form does not carry -- experiment, fps, random_test,
+    timelapse, timelapse_displacement, timelapse_frame_limits,
+    timelapse_memory, timelapse_mode, timelapse_objects,
+    timelapse_remove_transient -- and 7 are gone from the build: all_to_mip,
+    normalize_plots, pick_slice, skip_mode, upscale, upscale_factor,
+    workers. The report used to call all 17 "this version has no such
+    setting", which is false of the first ten.
+
+    `channels` landed as the STRING "[0, 1, 2, 3]" over a list default and
+    was counted as applied. It now lands as [0, 1, 2, 3].
+
+A FOURTH READER, found while checking the third, and not fixed here:
+`tests/test_e2e_real_dataset.py:_load_settings_for` (line 110) opens
+``{app_key}_settings.csv`` under the settings root and, when it is not
+there, keeps the defaults and says nothing -- ``if csv_path.is_file():``
+with no else. Pointed at the real pack, which has never carried that name,
+every one of its four `@pytest.mark.slow` stages runs on
+`resolve_default_settings` while appearing to run on the pack. It is opt-in
+(two env vars) so it is not failing anybody's suite; it is simply not
+testing what it says. `tests/test_hf_e2e_integration.py` had the identical
+bug and fixed it with a hard assertion naming the file, which is worth
+copying rather than re-deriving.
+
+WHAT IS LEFT OF PART 3, precisely:
+
+  * route `apply_settings_that_came_with` through `settings_from_pack` so
+    the four example buttons name what did not land, instead of printing a
+    count. Everything it needs now exists: `pack_candidates` knows the
+    file names that method knows, `PackReport.summary()` is the sentence,
+    and `tests/test_a_settings_pack_finds_the_file_the_pack_ships.py` pins
+    the two file-name tables to each other so they cannot drift apart while
+    that is done. NOT DONE TONIGHT: app_screen.py belonged to another
+    session.
+
+  * `app.py:2971` only logs when something was dropped, renamed or
+    malformed. A pack that is MISSING still logs nothing, and that is how a
+    whole e2e chain ran on defaults unnoticed. `PackReport.source` is now
+    "" exactly in that case, so the guard can test it -- app.py was not this
+    session's file either.

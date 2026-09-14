@@ -113,6 +113,16 @@ class EmbeddingSpec:
     normalize: bool = True
 
     def __post_init__(self) -> None:
+        """Reject a specification that could not produce a matrix.
+
+        The check is made where the spec is built rather than where it is
+        used, because one spec encodes every crop of a run: an unknown
+        channel policy or a batch size below one is a typing mistake, and
+        discovering it after the images are loaded wastes the load.
+
+        :raises EmbeddingError: when ``channel_policy`` is not one of
+            :data:`CHANNEL_POLICIES`, or ``batch_size`` is below one.
+        """
         if self.channel_policy not in CHANNEL_POLICIES:
             raise EmbeddingError(
                 f"unknown channel policy {self.channel_policy!r}; "

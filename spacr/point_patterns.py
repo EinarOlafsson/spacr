@@ -278,6 +278,17 @@ def _points_in_window(points, window: np.ndarray) -> np.ndarray:
 
 
 def _as_radii(radii) -> np.ndarray:
+    """The radii to evaluate at, checked before any of them is used.
+
+    :param radii: one radius or a sequence of them, in the units the
+        spacing is given in.
+    :returns: a one-dimensional float array of the radii, in the order
+        they were given.
+    :raises ValueError: when there are no radii, or one of them is not
+        finite or not positive. K(0) is zero by construction and a
+        negative radius has no meaning, so either is a mistake worth
+        saying out loud rather than a column of zeros in the result.
+    """
     values = np.atleast_1d(np.asarray(radii, dtype=float))
     if not values.size:
         raise ValueError("no radii to evaluate")

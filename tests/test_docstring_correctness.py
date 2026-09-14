@@ -2232,7 +2232,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # increase and cannot distinguish 101 arrivals from 99 arrivals and two
     # existing signatures widening. Both are optional, which is why the
     # REQUIRED sum below moves by exactly the 60 the new callables bring.
-    assert sum(len(item.parameters) for item in callables) == 17_293
+    # 17,293 -> 17,295 on 2026-09-14, +2, and NOT from the two dunders item
+    # 368 documented -- those move the API surface, not this inventory. Both
+    # are `spacr.qt.settings_pack.PackReport` gaining the fields `elsewhere`
+    # and `source` (item 317). Established by line-differencing the digest
+    # below against origin/nightly: +0 / -0 symbols and exactly ONE existing
+    # line changed, that one. Both fields carry defaults, so the required
+    # sum below does not move -- the same asymmetry 372's `row_offsets`
+    # produced, and the reason the two sums are counted apart.
+    assert sum(len(item.parameters) for item in callables) == 17_295
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2286,7 +2294,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # that failed to match would have read as "something unexplained moved"
     # when what had actually moved was my reconstruction. Subtract using the
     # recorded baseline LINE, not a field-by-field rebuild of it.
-) == "1b89c25e6f019bfa7e7038e5e31aaa639307524e72472076faadf8847826f6e5"
+) == "3714f4a1486dd7880e795ecb31f5e7f1f690b7f7d3e50c84eaf1410cef32e018"
     # Moved 2026-09-14, and PROVED rather than assumed, the way this file
     # asks: the same digest recomputed over the tree at 49c1189f7 returns
     # 487529aa5a65... byte for byte, which is the value this line carried
@@ -2709,7 +2717,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # test_documentation_i18n. Moving one and not the rest is how a full
     # sweep found three of them a day late; grep for the literal before
     # believing a single edit was enough.
-    assert len(docs) == 10_531
+    assert len(docs) == 10_533
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every

@@ -2,9 +2,19 @@
 EVERY FUNCTION DOCUMENTED, AND A CLICKABLE TREE OF WHERE EACH SETTING IS USED
 ================================================================================
 
-Status:    PHASES 1-3 DONE 2026-09-02 -- the analyser, the pruned tree, and
-           the Sphinx page with every branch clickable. Phase 4, the
-           docstrings, is not started.
+Status:    PHASES 1-4 DONE, AND BOTH ENDS NOW HELD BY A TEST rather than by
+           a note in this file, which is what the two previous closes were
+           missing. 2026-09-14: the two generated artefacts were two days
+           stale (seven settings had no section and no index entry) and the
+           package-wide docstring zero had been back up at eight for five
+           days. Both repaired, both pinned --
+           tests/test_the_settings_flow_artefacts_are_current.py and
+           tests/test_every_callable_in_the_package_is_documented.py. The
+           last note says what regressed and which commit did it.
+           THIS LINE PREVIOUSLY READ "phase 4, the docstrings, is not
+           started" and was left that way for ten days after phase 4 was
+           mostly done. Run the measurement in the last note before
+           believing any header here, including this one.
 Requested: 2026-09-02 -- "many functions and subfunctions lack docstrings ...
            all functions should have a docstring that explains their inputs
            and outputs, this goes for subfunctions as well ... when it comes
@@ -448,3 +458,221 @@ machine that made it. `git status` says nothing, `git add` says nothing, and
 the build is green locally forever. If a page is added under
 `docs/source/`, the allowlist entry belongs in the same commit, and the way
 to prove it is `git ls-files --error-unmatch <path>`.
+
+
+--------------------------------------------------------------------------------
+2026-09-14 -- THE TWO GENERATED ARTEFACTS WERE STALE, AND THE DOCSTRING ZERO
+              HAD REGRESSED TO EIGHT. BOTH NOW HAVE A TEST.
+--------------------------------------------------------------------------------
+
+ONE RUN OF `python tools/settings_flow.py --rst` WRITES TWO FILES --
+`docs/source/_generated/settings_flow.rst` and
+`spacr/qt/screens/settings_flow_index.py` -- and it had not been re-run since
+d83def136 (2026-09-12 15:49). The page's own header said
+
+    1092 settings, of 1112 read anywhere
+
+while the source read 1099 of them. Seven settings had no section on the page
+and no entry in the index the settings panel consults before it offers a
+reader the flow page at all: barcode_set, cell_csv, cytoplasm_csv,
+nucleus_csv, organelle_csv, pathogen_csv, font.sans-serif. Eight more
+sections were missing a node from their trees.
+
+WHAT ADDED TO IT, because a regression with no named cause simply happens
+again:
+
+  c753b7de76  2026-09-12 23:41, eight hours after the last regeneration.
+              `spacr/settings.py:514 barcode_set_from_settings` reads
+              `barcode_set`, then `settings.get(f'{name}_csv')`, which the
+              analyser expands over the five object roles
+              (`tools/settings_flow.py:66 OBJECT_ROLES`) -- one new key and
+              five `*_csv` keys, six of the seven.
+  536ae37630  2026-09-14 03:31. `spacr/style_base.py:215` writes
+              `params["font.sans-serif"]`, which the analyser counts as a
+              read (see the finding below), and
+              `spacr/qt/widgets/live_preview.py:2624` added
+              `self._seed_the_model(settings, primary)` -- an UNRESOLVED node
+              belonging in the trees of adjust_cells, cell_channel,
+              cytoplasm_channel, normalize, nucleus_channel,
+              number_of_organelles, organelle_channel and pathogen_channel.
+
+WHY NOTHING WENT RED. The only guard over these two files was
+`test_the_flow_index_agrees_with_the_page_it_was_written_from`
+(tests/test_a_settings_api_link_lands_on_the_setting.py:269), which compares
+the two ARTEFACTS WITH EACH OTHER. One run writes both, so they go stale
+together and agree the whole time: the check catches exactly the case that
+cannot happen. A comparison between two generated files is not a freshness
+test, and the way to tell is to ask what single event it is meant to detect.
+
+FIXED BY REGENERATION, NEVER BY HAND: 1,099 sections, 6,952 cross-references.
+Two runs in separate processes produce identical bytes, which is what makes a
+comparison against the tool's output usable as a test at all.
+
+PINNED BY tests/test_the_settings_flow_artefacts_are_current.py -- four
+checks: the settings drawn are the settings the source reads today; every
+section's body is what the generator writes for it today; the index is
+byte-for-byte `_index_module(page)`; and the header's count equals the number
+of sections in the same file. Properties rather than bytes wherever a
+property exists, so a failure names the setting that moved instead of a line
+number in a 980 KB file -- and the index is the deliberate exception, because
+it is a pure function of the page, so its bytes ARE its property and a
+key-set comparison would miss an edited docstring or a duplicated entry.
+WHAT IT DOES NOT PIN is written in the file: the generator's fixed preamble
+prose, and the "of N read anywhere" total, which counts settings the page
+draws no section for and therefore moves when an unrelated module changes a
+read.
+
+  EVERY CHECK WAS WATCHED TO FAIL. Restoring the stale pair fails two of them
+  and names all seven missing settings; deleting one index entry fails the
+  index check and names `magnification`; retyping one node inside one tree
+  fails the body check, names CP_prob and prints the line; editing the header
+  count fails the count check. Each mutation was run and reverted.
+
+A FINDING LEFT UNCHANGED, ON PURPOSE. 37 of the 1,099 sections exist only
+because a value is WRITTEN into a settings-shaped mapping.
+`tools/settings_flow.py:453` records an `ast.Subscript` on a settings-named
+object without looking at `node.ctx`, so `params["figure.figsize"] = ...` in
+a plotting helper reads as a settings read; that is where axes.edgecolor,
+figure.figsize, xtick.color, lines.marker and font.sans-serif come from, and
+36 of the 37 predate tonight. The fix is one clause -- require `ast.Load`
+there -- but it removes 37 keys from SETTINGS_WITH_A_FLOW_SECTION, which the
+settings panel reads when deciding where a tooltip link lands. That is a
+behaviour change with its own test, not something to slip inside a
+regeneration.
+
+PHASE 4 HAD REGRESSED FROM ZERO TO EIGHT, five days after "UNDOCUMENTED: 0"
+was written above. Every one of the eight was written AFTER that measurement
+(line numbers as found, before the fix):
+
+    spacr/ops_stitch.py:106      _measure_residuals     2605ab25d6  09-09
+    spacr/embeddings.py:115      __post_init__          a7fb90d01e  09-10
+    spacr/ops_store.py:152       _parquet_rows          798272cdef  09-10
+    spacr/ops_store.py:242       __bool__               798272cdef  09-10
+    spacr/point_patterns.py:280  _as_radii              36705de5ab  09-10
+    spacr/qt/theme.py:3002       eventFilter            fda9f82564  09-11
+    spacr/barcode_search.py:521  _Matcher.__init__      c753b7de76  09-12
+    spacr/barcode_search.py:774  _SearchState.__init__  c753b7de76  09-12
+
+NEITHER EXISTING RATCHET COULD HAVE CAUGHT A SINGLE ONE, which is why this
+became a new file rather than a line in one of them:
+
+  * `tests/test_nested_functions_are_documented.py` counts only functions
+    defined INSIDE another function. Not one of the eight was nested.
+  * `tests/test_completed_modules_keep_every_function_documented.py` counts
+    every callable but only in the modules its registry names, and five of
+    these six modules did not exist when it was last extended. A registry of
+    finished modules cannot notice a module that is not in it.
+
+AND THE 2026-09-02 PLAN ABOVE ASKED FOR EXACTLY WHAT WAS MISSING: "coverage
+ratchets for METHODS and nested functions, so the numbers above cannot go
+back up". The nested one was built; the methods one never was. Six of the
+eight were methods or module-level functions.
+
+ALL EIGHT ARE NOW WRITTEN, and they are not formalities: `_measure_residuals`
+(spacr/ops_stitch.py:106) returns an EMPTY array when no edge survived, which
+is not a disagreement of zero; `_parquet_rows` (spacr/ops_store.py:152) reads
+the file's footer rather than the file, which is why it can run on every
+write; `Readiness.__bool__` (spacr/ops_store.py:251) has to answer the
+verdict rather than "an object exists"; and `eventFilter`
+(spacr/qt/theme.py:3002) returns False always, because swallowing a Polish or
+a Show would stop the widget being styled or shown at all.
+
+THE MEASUREMENT, AND IT ADDS UP TO ITS CORPUS: 572 `.py` files under
+`spacr/`, 572 parsed, 0 unparsable, 19,131 callables (1,362 classes, 17,769
+functions), 0 undocumented, counted at every nesting depth with
+`ast.get_docstring`. Nothing is excluded -- not the generated modules, not
+`qt/i18n_catalogs`.
+
+PINNED BY tests/test_every_callable_in_the_package_is_documented.py, which
+asserts the zero, asserts that parsed plus unparsable sums to the number of
+files in the package, and proves its own scanner by running it over a
+specimen module with an undocumented function, class, method and closure.
+WATCHED TO FAIL: deleting the docstring of a dunder method and of a nested
+function names both by file and line; a file that cannot be parsed fails the
+corpus check rather than reading as no debt; and blinding the scanner to
+everything below module scope leaves the zero GREEN while the specimen check
+goes red -- which is the whole reason that check exists.
+
+THE COST, STATED RATHER THAN DISCOVERED LATER. Two of the eight are dunders
+on PUBLIC classes, and `tools/build_documentation_i18n.py:3982
+_is_visible_function_name` publishes a DOCUMENTED dunder that an undocumented
+one never reaches. So the public API inventory moved by exactly two --
+`spacr.embeddings.EmbeddingSpec.__post_init__` and
+`spacr.ops_store.Readiness.__bool__` -- which is the mechanism the 2026-09-04
+note in this file described and the 2026-09-09 note narrowed (a class whose
+`__init__` is already documented adds prose, not a symbol; a documented
+dunder adds a symbol). Both notes are right about different cases.
+
+  THE COUNT RATCHETS WERE NOT MOVED HERE, and one of them could not be.
+  `DOCUMENTATION_API_SYMBOL_COUNT_RATCHET` (tests/test_documentation_i18n.py:140)
+  is 10,531; the inventory was ALREADY 10,533 before this work, from another
+  session's in-flight `spacr/qt/settings_pack.py` (`pack_candidates`,
+  `pack_path`), and is 10,535 with these two. Setting it to 10,535 would bake
+  another session's uncommitted work into a reviewed number, and 10,533 would
+  still be red -- so the same four files keep 10,531
+  (tests/test_documentation_i18n.py:140,
+  tests/test_api_i18n_extractor.py:1068 and :1101,
+  tests/test_api_i18n_frontend.py:60, tests/test_docstring_correctness.py:2712)
+  and this note carries the +2 instead. Verified by removing the two
+  docstrings and re-running: the same three checks fail at 10,533 -- two in
+  tests/test_api_i18n_extractor.py and one in tests/test_documentation_i18n.py,
+  NOT in test_docstring_correctness.py, which was not in that run and whose
+  own three failures (2,282 vs 2,279 omitted parameters; 8,698 vs 8,696 public
+  callables; 10,535 vs 10,531) were measured afterwards and are the other
+  session's `settings_pack` +3/+2 plus this +2 on the last one alone.
+  test_documentation_i18n's own docstring records the standing agreement --
+  the API catalogs may be stale during ordinary work and are rebuilt once,
+  immediately before the version is cut. These two symbols are part of that
+  rebuild.
+
+  BUT ONE RATCHET HERE IS NOT POLLUTED AND MUST MOVE WITH THIS CHANGE, which
+  the paragraph above originally missed. `tests/test_api_i18n_extractor.py:190
+  assert len(dunders) == 208` counts DOCUMENTED DUNDERS ON PUBLIC CLASSES,
+  and `spacr/qt/settings_pack.py` contributes none of them -- measured, both
+  `_visible_special_members()` and `_visible_assignment_docs()` contain
+  nothing from that file. The set is 210 with this change and the two extra
+  entries are exactly
+
+      spacr.embeddings.EmbeddingSpec.__post_init__
+      spacr.ops_store.Readiness.__bool__
+
+  so that assertion, and `_NEW_VISIBLE_DIGEST` beside it at :195, went from
+  green to red on this change alone. They are hidden behind the polluted
+  10,531 further down the same test function, which fails at :1070 either
+  way, so the test's PASS/FAIL did not change and the regression is invisible
+  at test granularity -- which is exactly the "known red is not the same as
+  known" trap this file records once already. The move is 208 -> 210 with
+  those two names in the comment block, per that file's own rule that a
+  ratchet moved without saying what it admitted is a rubber stamp, and
+  `_NEW_VISIBLE_DIGEST` recomputed in the same edit (measured 2026-09-14:
+  8b07b969f09ee4eb335ec0e250d3904e505faf7710b523a15dc9ce157ce21e26 -- verify
+  it rather than paste it, the tree is being edited concurrently). Left for
+  the catalog rebuild that has to regenerate the nine API catalogs for these
+  two symbols anyway, because bumping the count without the rebuild is half
+  the change; it is written here so the rebuild knows what it owes.
+
+WHAT IN THIS FILE WAS STALE, INVERTED OR UNVERIFIABLE:
+
+  * The Status header said phase 4 "is not started" for ten days after it was
+    largely done. Rewritten.
+  * "WHAT REMAINS OF 368: nothing in phase 4 ... This instruction can close."
+    (2026-09-09) was true on the day and false within three days, because
+    nothing held it. The 2026-09-10 note had already caught the same file
+    being wrong about the page being published. A closed item is where this
+    goes wrong most, and both times the fix was a test, not a sentence.
+  * "STILL TO DO: ... including the page in the doc tree once the Sphinx
+    build is next run" (2026-09-02) is DONE -- the 2026-09-10 note closed it,
+    with `sphinx-build -W` at exit 0.
+  * Every commit SHA cited in this file's recent notes was checked with
+    `git cat-file -e`; all of them resolve.
+  * "PHASES 1-4 DONE" in the new Status header is true of the DOCSTRINGS and
+    not of the whole of phase 4 as this file planned it. Phase 4's own NOTE
+    says nested functions need "the parent's page to carry them, which the
+    analyser can supply". Nothing does: `autoapi_options` in
+    docs/source/conf.py and the module template in
+    docs/source/_autoapi_templates/python/ emit no nested function, and no
+    tool injects one, so every one of the 844 nested helpers is documented in
+    the source and invisible on the API page. That is the half of the
+    maintainer's "this goes for subfunctions as well" that is about READING
+    them. It has never been built and has never been recorded as dropped;
+    recorded here rather than left inside a DONE.

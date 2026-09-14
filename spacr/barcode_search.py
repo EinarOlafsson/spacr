@@ -519,6 +519,14 @@ class _Matcher:
     """
 
     def __init__(self, table):
+        """Build the prefix index this matcher walks the read with.
+
+        The lengths are sorted and the prefix length clamped to the SHORTEST
+        barcode, because a prefix longer than the shortest sequence could
+        never match it -- and a table mixing lengths is the ordinary case.
+
+        :param table: the barcode table to index.
+        """
         self.table = table
         self.lengths = sorted({len(sequence) for sequence in table.sequences})
         self.shortest = self.lengths[0] if self.lengths else 0
@@ -772,6 +780,15 @@ class _SearchState:
     """Running counts for one search, and the report built from them."""
 
     def __init__(self, tables, file_labels):
+        """Hold the tables and the per-file counters one search fills in.
+
+        A matcher is built per table AND per orientation up front, because
+        both orientations are tried for every read and rebuilding them per
+        read is the cost this class exists to avoid.
+
+        :param tables: the barcode tables being searched.
+        :param file_labels: the names the report gives the files, in order.
+        """
         self.tables = tuple(tables)
         self.file_labels = tuple(file_labels)
         self.matchers = {

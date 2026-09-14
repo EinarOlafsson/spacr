@@ -104,6 +104,19 @@ class StitchedWell:
         return self._residuals
 
     def _measure_residuals(self) -> np.ndarray:
+        """How far each accepted edge's measurement is from the solve.
+
+        Only an edge that registered and whose two tiles both got a
+        position can contribute, so this is shorter than the edge list
+        whenever a pair was rejected or a tile went unplaced, and empty
+        when none of them survived -- which is not the same answer as a
+        disagreement of zero, and is left as an empty array so it cannot
+        be read as one.
+
+        :returns: one distance in pixels per contributing edge, between
+            the shift that edge measured and the shift the placements
+            imply.
+        """
         found = []
         for (a, b), one in self.edges.items():
             if not getattr(one, "accepted", True):

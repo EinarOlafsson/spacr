@@ -28,7 +28,7 @@ builder = importlib.import_module("build_documentation_i18n")
 # __post_init__, __iter__ and __len__) returns 1a6e99e4..., the previous pin,
 # byte for byte. The 16 constant attributes did not move at all.
 _NEW_VISIBLE_DIGEST = (
-    "d81f8f00a973ac81bfa30726a2e2c866deb531750cf5d841a70eafd055f7303b"
+    "8b07b969f09ee4eb335ec0e250d3904e505faf7710b523a15dc9ce157ce21e26"
 )
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -187,7 +187,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Admissions rather than leaks, by 368's rule: a documented dunder on a
     # public class is rendered surface, and a `__post_init__` that validates
     # is a contract a reader meets on the API page or nowhere.
-    assert len(dunders) == 208
+    # 2026-09-14: +2, item 368's docstring sweep. The two are
+    # spacr.embeddings.EmbeddingSpec.__post_init__ and
+    # spacr.ops_store.Readiness.__bool__ -- both dunders that already
+    # EXISTED and were undocumented; documenting them is what admits them
+    # to the rendered surface. Set-differenced against origin/nightly:
+    # +2 / -0, and those are the two.
+    assert len(dunders) == 210
     assert len(assignments) == 16
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
@@ -1065,7 +1071,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # protected literals and the gates REFUSED them. Those stay English on
     # purpose: English prose on an API page is a gap, and corrupted Icelandic
     # that looks like a translation is worse.
-    expected = 10_531  # 2026-09-14: +53 / -0, see test_docstring_correctness
+    expected = 10_533  # 2026-09-14: +53 / -0, see test_docstring_correctness
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1098,7 +1104,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # docstring as well. The nine catalogs were regenerated against this
     # inventory before the number was touched, which is the order this
     # file's own message asks for.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_531
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_533
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1300,7 +1306,15 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # by exactly that. A boundary that had grown instead would mean new
     # symbols arriving OUTSIDE the documented surface, which is a different
     # event and the one this subtraction exists to separate.
-    assert 10_696 - len(docs) == 165
+    # 2026-09-14: +2, item 368's docstring sweep. The two are
+    # spacr.embeddings.EmbeddingSpec.__post_init__ and
+    # spacr.ops_store.Readiness.__bool__ -- both dunders that already
+    # EXISTED and were undocumented; documenting them is what admits them
+    # to the rendered surface. Set-differenced against origin/nightly:
+    # +2 / -0, and those are the two.
+    # The autoapi total is unchanged at 10,696, so the excluded boundary
+    # shrinks by exactly the 2 newly documented.
+    assert 10_696 - len(docs) == 163
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

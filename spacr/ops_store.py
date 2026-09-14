@@ -150,6 +150,15 @@ def _remove_stale(path: str) -> None:
 
 
 def _parquet_rows(path: str) -> int:
+    """How many rows a parquet sidecar says it holds.
+
+    Read from the file's footer rather than by loading it, because this
+    runs on every write to check the cache against the database before
+    either is trusted.
+
+    :param path: the sidecar to count.
+    :returns: the row count recorded in the file's metadata.
+    """
     import pyarrow.parquet as pq
 
     return int(pq.ParquetFile(path).metadata.num_rows)
@@ -240,6 +249,15 @@ class Readiness:
     reason: str = ""
 
     def __bool__(self) -> bool:
+        """The verdict alone, so the result reads as a condition.
+
+        ``if not objects_ready(db):`` is the natural way to write the
+        gate, and it must answer the verdict rather than "an object
+        exists". :attr:`reason` is still there to say why the answer was
+        no.
+
+        :returns: :attr:`ready`.
+        """
         return self.ready
 
 
