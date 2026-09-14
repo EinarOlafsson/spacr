@@ -1,5 +1,25 @@
 299 — The pointer reaches every pattern, and the cascade draws on CPU
 
+Status:    CLOSED, verified 2026-09-14 against the tree rather than against
+           this file. All three defects below are fixed and two of the three
+           requested settings exist; THE THIRD WAS DELIBERATELY REMOVED by a
+           later decision and is guarded by a test, so re-adding it would be a
+           regression rather than work.
+             a) CPU cascade black -- FIXED. `CascadeEngine.render` takes all
+                ten arguments at fractal_cascade.py:499, and they are USED:
+                :373 passes them to `render_into` and :390-406 folds
+                `pointer_x * (pull * 0.30 - push * 0.55)` into tx/ty. The
+                sibling engines match the ten-arg shape (fractal_travel.py:685,
+                fractal_space.py:476), which is what makes the TypeError that
+                caused the black frame impossible to reintroduce quietly.
+                tests/qt/test_fractal_cascade_uncovered_paths.py: 20 passed.
+             b) GPU pointer -- FIXED. `Pointer` at fractal_travel.py:121 samples
+                QCursor rather than taking events; the GPU canvas owns one at
+                :1753 and feeds u_pointer_x/u_pointer_y/u_pull/u_push at
+                :1814-1817 from `_pointer_state()` at :2087.
+           READ THE BODY BELOW AS HISTORY. It is the report that prompted the
+           work and it still reads as a list of live defects.
+
 Reported 2026-08-28, from real use of spaceout.
 
 WHAT WORKS: the pointer effect in orbit fold on CPU. And CPU space has one
