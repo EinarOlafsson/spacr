@@ -29,6 +29,46 @@ The user confirmed these requirements on 9 September:
 
 ## Checkpoints
 
+### Map Barcodes — 13 September
+
+Lesson 12 now records the current Home module using the real downloadable
+SRR33531217 sample, bounded to 10,000 paired records. It shows live barcode
+search, Observed/By chance and orientation evidence, coloured reads, explicit
+Apply, separately verified reversed reference copies, actual batch output,
+the console and an unsent spaCR AI question. Barcode QC remains linked as
+the nested workflow; the API and Regression lessons are also cross-linked.
+
+The correct references are the maintainer's matching `primers_3` column/row
+tables and guide table, not the old bundled tables. Every saved barcode
+assignment and count is independently reconciled: 8,611 extracted windows,
+7,657 mapped reads and 4,099 count rows. The separately recorded two-barcode
+Python example maps 793 of 869 extracted windows from 1,000 pairs into 535
+count rows. It deliberately omits row identity, so these are not per-well
+counts. The current form has no barcode-set editor; none is invented.
+
+There is one shared 4K/30 master, all 50 existing voices, and explicit reviewed
+scripts in all thirteen non-English catalog languages. The English `read
+depth` noun has a narrowly scoped long-e pronunciation correction; captions
+keep the correct spelling. Fable required a scoped attenuation pass to meet
+the unchanged decoded peak limit. The approved spaCR, PyPI and CUDA rules
+remain unchanged. Technical checks do not claim native-speaker or human
+listening approval.
+
+`complete_map_media.py` checks the entire isolated media matrix and its web
+copy. `merge_map_media.py` moves only the verified Map lesson into shared
+staging, preserving previous drafts in a named backup and writing a recovery
+receipt. `barcode_promotion.py` rechecks actual saved data and all final media;
+deleting a placeholder flag cannot close the lesson. `check_map_preservation.py`
+verifies every other lesson and media file against the previous package.
+`checkpoint_map.py` then records the complete matrix, all 24 English phoneme
+checks and every native Heart caption at its actual sentence midpoint.
+
+The isolated source remains at `tutorials/map-refresh-kpub0w`; obsolete English
+audio is preserved under `english-before-read-depth-3ha8yyzv`. Publication is a
+separate held deployment, not an effect of generating or committing media.
+Investigate Hit was rechecked and still raises `KeyError: 'prcfo'` on the real
+matched data; it remains an explicit Coming Soon screen.
+
 ### Maintainer-approved completion scope — 11 September
 
 The maintainer explicitly approved **Coming soon screens for unfinished

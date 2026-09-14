@@ -678,7 +678,7 @@
       "title": "Mask : filtres en direct, exécution réelle et export vérifié des superpositions",
       "series": 1,
       "app_key": "mask",
-      "section": "Core",
+      "section": "Modules principaux",
       "description": "Utilisez l’exemple téléchargeable réel, comparez aire et diamètre en direct, traitez deux champs avec Plot activé et récupérez une superposition par une étape Python explicite.",
       "objectives": [
         "Trouver Mask dans Home et ses commandes intégrées Live, Time et 3D.",
@@ -843,7 +843,7 @@
       "title": "Measure : vues en direct, mesures réelles et résultats enregistrés",
       "series": 1,
       "app_key": "measure",
-      "section": "Core",
+      "section": "Modules principaux",
       "description": "Utilisez les seize champs téléchargeables pour examiner champs et canaux en direct, rétablir les réglages sans normalisation, lire les avertissements de qualité et vérifier une exécution avec Plot.",
       "objectives": [
         "Charger l’exemple actuel et distinguer canaux d’intensité et plans de masques.",
@@ -959,7 +959,7 @@
       "title": "Annotate : vrais recadrages, étiquettes enregistrées et outils de révision",
       "series": 1,
       "app_key": "annotate",
-      "section": "Core",
+      "section": "Modules principaux",
       "description": "Chargez le jeu de recadrages téléchargeable, créez une colonne d'annotation distincte, vérifiez les étiquettes réellement enregistrées, ajustez l'affichage et trouvez les outils de révision et d'entraînement du module Annotate actuel.",
       "objectives": [
         "Choisir l'exemple téléchargeable de recadrages ou de lecture à la demande et ouvrir son véritable dossier de projet.",
@@ -1160,7 +1160,7 @@
       "series": 1,
       "app_key": "classify",
       "host_app_key": "classify_merged",
-      "section": "Core",
+      "section": "Modules principaux",
       "description": "Préparez des images téléchargées intactes avec des identités de puits explicites, puis examinez un petit modèle sans surestimer ses performances.",
       "objectives": [
         "Trouver la famille vision par ordinateur dans Classify.",
@@ -1339,7 +1339,7 @@
       "series": 1,
       "app_key": "ml_analyze",
       "host_app_key": "classify_merged",
-      "section": "Core",
+      "section": "Modules principaux",
       "description": "Utilisez Classify avec des cellules mesurées téléchargeables, des étiquettes de métadonnées explicites, une petite forêt aléatoire, la console réelle et les prédictions enregistrées.",
       "objectives": [
         "Choisir la famille tabulaire et charger l’exemple mesuré depuis le sélecteur de données.",
@@ -1487,16 +1487,107 @@
       "id": "12_map_barcodes",
       "number": 12,
       "slug": "map_barcodes",
-      "title": "Mapper les codes-barres",
+      "title": "Map Barcodes : recherche en direct, références vérifiées et comptages réels",
       "series": 1,
       "app_key": "map_barcodes",
-      "section": "Core",
-      "description": "Ce tutoriel n’est pas encore disponible. En attendant, découvrez les autres tutoriels.",
-      "objectives": [],
-      "prerequisite": "",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Bientôt disponible"
+      "section": "Modules principaux",
+      "description": "Téléchargez un petit échantillon réel de séquençage, examinez la recherche en direct, appliquez explicitement une proposition et vérifiez les comptages. Découvrez un ensemble de deux codes-barres avec l’API Python actuelle.",
+      "objectives": [
+        "Identifier les tables et orientations étayées par les lectures réelles.",
+        "Distinguer une proposition des paramètres appliqués et des références correctement orientées.",
+        "Examiner les comptages enregistrés et utiliser un ensemble explicite sans inventer de codes-barres."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly avec recherche de codes-barres. La vidéo utilise SRR33531217, les tables primers_3 de colonnes et de lignes du mainteneur et les références de guides, et non les anciennes tables fournies. Procurez-vous les références de votre bibliothèque avant le traitement.",
+      "scenes": [
+        {
+          "visual": "gui_01_module",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc"
+          ],
+          "narration": "Ouvrez Map Barcodes depuis Home. Ce module transforme les lectures de séquençage en comptages de codes-barres identifiés par leur nom. Barcode QC est son sous-module de contrôle qualité ; son tutoriel séparé reste disponible.",
+          "speech_text": "Ouvrez Map Barcodes depuis Home. Ce module transforme les lectures de séquençage en comptages de codes-barres identifiés par leur nom. Barcode QC est son sous-module de contrôle qualité ; son tutoriel séparé reste disponible."
+        },
+        {
+          "visual": "gui_02_archive_bounded_choice",
+          "hold_after": 0.7,
+          "narration": "Choisissez Load test data et sélectionnez les deux fichiers de lectures appariées du premier run de l’archive. Limitez chaque fichier à dix mille lectures. Vous téléchargez ainsi un véritable échantillon apparié, pas toute l’archive de séquençage.",
+          "speech_text": "Choisissez Load test data et sélectionnez les deux fichiers de lectures appariées du premier run de l’archive. Limitez chaque fichier à dix mille lectures. Vous téléchargez ainsi un véritable échantillon apparié, pas toute l’archive de séquençage."
+        },
+        {
+          "visual": "gui_04_reference_tables",
+          "hold_after": 0.7,
+          "narration": "Choisissez les tables de référence correspondant à cette bibliothèque. Ici, nous utilisons les bonnes tables de colonnes et de lignes primers trois, ainsi que celle des guides, plutôt que les anciennes valeurs par défaut. Nous commençons volontairement avec une fenêtre de cent vingt bases pour montrer sa modification par la proposition.",
+          "speech_text": "Choisissez les tables de référence correspondant à cette bibliothèque. Ici, nous utilisons les bonnes tables de colonnes et de lignes primers trois, ainsi que celle des guides, plutôt que les anciennes valeurs par défaut. Nous commençons volontairement avec une fenêtre de cent vingt bases pour montrer sa modification par la proposition."
+        },
+        {
+          "visual": "gui_06_live_search_progress",
+          "hold_after": 0.7,
+          "narration": "Ouvrez Find barcodes et lancez la recherche. Les comptages évoluent pendant l’échantillonnage des lectures réelles des deux fichiers, dans les deux orientations. Le formulaire reste inchangé pendant cet affinage en direct.",
+          "speech_text": "Ouvrez Find barcodes et lancez la recherche. Les comptages évoluent pendant l’échantillonnage des lectures réelles des deux fichiers, dans les deux orientations. Le formulaire reste inchangé pendant cet affinage en direct."
+        },
+        {
+          "visual": "gui_07_search_verdicts",
+          "hold_after": 0.7,
+          "narration": "Comparez Observed à By chance, puis examinez l’orientation, la position et le verdict. Un taux de correspondance ne suffit pas à établir un code-barres. La concentration des positions et les références distinctes observées contribuent aussi à l’analyse ; lisez les explications avant d’appliquer quoi que ce soit.",
+          "speech_text": "Comparez Observed à By chance, puis examinez l’orientation, la position et le verdict. Un taux de correspondance ne suffit pas à établir un code-barres. La concentration des positions et les références distinctes observées contribuent aussi à l’analyse ; lisez les explications avant d’appliquer quoi que ce soit."
+        },
+        {
+          "visual": "gui_08_coloured_reads",
+          "hold_after": 0.7,
+          "narration": "Le visualiseur présente une lecture réelle par ligne. La légende identifie les couleurs de colonne, de guide, de ligne et de séquence d’ancrage. Les correspondances colorées permettent d’examiner les résultats, mais une correspondance isolée ne prouve pas que la table soit correcte.",
+          "speech_text": "Le visualiseur présente une lecture réelle par ligne. La légende identifie les couleurs de colonne, de guide, de ligne et de séquence d’ancrage. Les correspondances colorées permettent d’examiner les résultats, mais une correspondance isolée ne prouve pas que la table soit correcte."
+        },
+        {
+          "visual": "gui_09_proposed_settings",
+          "hold_after": 0.7,
+          "narration": "Examinez la proposition. Pour cet échantillon, la fenêtre d’extraction mesure quatre-vingt-neuf bases. Seul un clic sur Apply these settings inscrit la modification dans le formulaire. La détection automatique n’autorise pas le remplacement automatique de vos paramètres.",
+          "speech_text": "Examinez la proposition. Pour cet échantillon, la fenêtre d’extraction mesure quatre-vingt-neuf bases. Seul un clic sur Apply these settings inscrit la modification dans le formulaire. La détection automatique n’autorise pas le remplacement automatique de vos paramètres."
+        },
+        {
+          "visual": "gui_11_oriented_reference_copies",
+          "hold_after": 0.7,
+          "narration": "Les notes demandent aussi des références de lignes et de guides en complément inverse. Apply ne crée pas ces fichiers. Sélectionnez des copies en complément inverse vérifiées séparément, en conservant chaque nom original ; gardez la table de colonnes dans son orientation initiale.",
+          "speech_text": "Les notes demandent aussi des références de lignes et de guides en complément inverse. Apply ne crée pas ces fichiers. Sélectionnez des copies en complément inverse vérifiées séparément, en conservant chaque nom original ; gardez la table de colonnes dans son orientation initiale."
+        },
+        {
+          "visual": "gui_20_batch_settings",
+          "hold_after": 0.7,
+          "narration": "Traitez la paire téléchargée avec deux processus de travail, des blocs de mille et l’enregistrement des lectures annotées activé. Laissez les attributions manquantes telles quelles. Ce traitement utilise le CPU ; aucun GPU n’est nécessaire.",
+          "speech_text": "Traitez la paire téléchargée avec deux processus de travail, des blocs de mille et l’enregistrement des lectures annotées activé. Laissez les attributions manquantes telles quelles. Ce traitement utilise le CPU ; aucun GPU n’est nécessaire."
+        },
+        {
+          "visual": "gui_23_batch_finished",
+          "hold_after": 0.7,
+          "narration": "L’exécution réelle a extrait huit mille six cent onze fenêtres et attribué sept mille six cent cinquante-sept lectures à quatre mille quatre-vingt-dix-neuf lignes de comptage. Les références sans correspondance ou ambiguës restent non attribuées. La réussite est vérifiée dans les fichiers enregistrés, pas seulement dans le message de fin de la console.",
+          "speech_text": "L’exécution réelle a extrait huit mille six cent onze fenêtres et attribué sept mille six cent cinquante-sept lectures à quatre mille quatre-vingt-dix-neuf lignes de comptage. Les références sans correspondance ou ambiguës restent non attribuées. La réussite est vérifiée dans les fichiers enregistrés, pas seulement dans le message de fin de la console."
+        },
+        {
+          "visual": "api_01_actual_two_barcode_api",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ],
+          "narration": "L’API Python actuelle accepte des ensembles de codes-barres de toute taille, bien que ce formulaire ne dispose pas de leur éditeur. Un deuxième calcul réel sélectionne uniquement colonne et guide sur mille paires de lectures. Chaque entrée exige un groupe nommé correspondant dans le motif. Sans identité de ligne, les comptages sont par colonne et guide, pas par puits.",
+          "speech_text": "L’API Python actuelle accepte des ensembles de codes-barres de toute taille, bien que ce formulaire ne dispose pas de leur éditeur. Un deuxième calcul réel sélectionne uniquement colonne et guide sur mille paires de lectures. Chaque entrée exige un groupe nommé correspondant dans le motif. Sans identité de ligne, les comptages sont par colonne et guide, pas par puits."
+        },
+        {
+          "visual": "api_02_real_count_figure",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc",
+            "13_regression"
+          ],
+          "narration": "Cette figure de vérification Python montre la profondeur de lecture issue du traitement à trois codes-barres effectué dans l’interface. Chaque comptage a été confronté indépendamment aux lectures annotées et aux noms de référence. Une profondeur inégale relève du contrôle qualité, pas d’un effet biologique ; examinez Barcode QC avant Regression.",
+          "speech_text": "Cette figure de vérification Python montre la profondeur de lecture issue du traitement à trois codes-barres effectué dans l’interface. Chaque comptage a été confronté indépendamment aux lectures annotées et aux noms de référence. Une profondeur inégale relève du contrôle qualité, pas d’un effet biologique ; examinez Barcode QC avant Regression."
+        },
+        {
+          "visual": "gui_30_ai_unsent_question",
+          "hold_after": 0.7,
+          "narration": "Les commandes spaCR AI peuvent aider à expliquer une analyse lorsque vous configurez un fournisseur. Cette vidéo montre une question non envoyée et ne contient aucune réponse d’IA. Vérifiez vous-même références, orientations, avertissements et comptages enregistrés avant de passer à plus grande échelle.",
+          "speech_text": "Les commandes spakeur AI peuvent aider à expliquer une analyse lorsque vous configurez un fournisseur. Cette vidéo montre une question non envoyée et ne contient aucune réponse d’IA. Vérifiez vous-même références, orientations, avertissements et comptages enregistrés avant de passer à plus grande échelle."
+        }
+      ]
     },
     {
       "id": "13_regression",
@@ -1505,7 +1596,7 @@
       "title": "Regression : un exemple réel, des tables appariées aux résultats",
       "series": 1,
       "app_key": "regression",
-      "section": "Core",
+      "section": "Modules principaux",
       "description": "Chargez le criblage d’exemple téléchargeable, configurez une analyse limitée par permutation des guides, examinez la console et les figures réelles et retrouvez les outils spécialisés désormais intégrés à Regression.",
       "objectives": [
         "Charger quatre paires de tables de scores et de comptages avec le bouton visible des données de test et choisir un dossier de sortie distinct.",
@@ -1676,7 +1767,7 @@
       "title": "Make Masks : retouches réversibles, recadrage et détection locale",
       "series": 1,
       "app_key": "make_masks",
-      "section": "Tools",
+      "section": "Modèles de segmentation",
       "description": "Retouchez de véritables étiquettes cellulaires téléchargées par des gestes réels, distinguez affichage et modification des masques, créez un recadrage d'entraînement récupérable et examinez une détection réelle de Cellpose et ses vues intermédiaires.",
       "objectives": [
         "Ouvrir des images bidimensionnelles et leurs masques d'instances sans modifier la source téléchargée.",
@@ -1852,7 +1943,7 @@
       "title": "Image UMAP : mesures réelles et inspection interactive des images recadrées",
       "series": 1,
       "app_key": "umap",
-      "section": "Tools",
+      "section": "Résultats et contrôle qualité",
       "description": "Construire une projection limitée à partir des mesures de l’exemple téléchargé, inspecter de vraies images recadrées et retrouver les outils de projection intégrés.",
       "objectives": [
         "Réutiliser le projet téléchargé et sélectionner ses tables de mesures.",
@@ -1998,7 +2089,7 @@
       "series": 1,
       "app_key": "activation",
       "host_app_key": "classify_merged",
-      "section": "Classify",
+      "section": "Résultats et contrôle qualité",
       "description": "Ouvrez Activation Maps dans Classify, associez un modèle fiable aux recadrages réels et comparez deux sorties sans confondre attribution et validation.",
       "objectives": [
         "Trouver l'outil intégré et préserver le contrat d'entrée du modèle.",
@@ -2100,7 +2191,7 @@
       "title": "Suivi temporel",
       "series": 2,
       "app_key": "timelapse",
-      "section": "Core",
+      "section": "Modules principaux",
       "host_app_key": "mask",
       "description": "Utiliser le flux imbriqué dans Mask, exécuter huit images synthétiques et comparer les liens de masques dans Track preview.",
       "objectives": [
@@ -2311,7 +2402,7 @@
       "title": "Analyse de motilité",
       "series": 2,
       "app_key": "motility",
-      "section": "Core",
+      "section": "Modules principaux",
       "host_app_key": "measure",
       "description": "Explorez les filtres interactifs et les unités à partir de trajectoires synthétiques reproductibles dans Measure > Motility.",
       "objectives": [
@@ -2522,7 +2613,7 @@
       "series": 3,
       "app_key": "train_cellpose",
       "host_app_key": "make_masks",
-      "section": "Tools",
+      "section": "Modèles de segmentation",
       "title": "Train Cellpose : paires vérifiées et étape explicite par l’API",
       "description": "Trouvez Train dans Cellpose Workbench, reconnaissez le défaut actuel d’import de source et suivez un entraînement Python réel de deux époques sur six paires téléchargeables image/masque cellulaire.",
       "objectives": [
@@ -2660,7 +2751,7 @@
       "series": 3,
       "app_key": "cellpose_masks",
       "host_app_key": "make_masks",
-      "section": "Tools",
+      "section": "Modèles de segmentation",
       "title": "Appliquer Cellpose : masques enregistrés et filtres en direct",
       "description": "Appliquer CPSAM à trois images réelles téléchargeables dans le Workbench imbriqué, examiner figures et console, puis tester les filtres sans confondre aperçu et traitement par lots.",
       "objectives": [
@@ -2789,7 +2880,7 @@
       "series": 2,
       "app_key": "model_compare",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "Modèles de segmentation",
       "description": "Ouvrez la comparaison imbriquée, chargez des champs réels et comparez des segmentations enregistrées par l’API. La concordance ne prouve ni l’exactitude ni la réparation de l’inférence dans l’interface.",
       "objectives": [
         "Trouver Model Compare dans Make Masks et charger les champs d’exemple.",
@@ -2912,7 +3003,7 @@
       "series": 2,
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
-      "section": "Segmentation models",
+      "section": "Modèles de segmentation",
       "description": "Ouvrez la bibliothèque imbriquée, explorez un cache local et distinguez les informations d’entraînement des origines inconnues. L’incompatibilité actuelle de Cellpose empêche de présenter une évaluation réussie.",
       "objectives": [
         "Trouver Model Zoo dans Make Masks et explorer un répertoire local.",
@@ -3022,7 +3113,7 @@
       "series": 3,
       "app_key": "agreement",
       "host_app_key": "annotate",
-      "section": "Results and quality control",
+      "section": "Résultats et contrôle qualité",
       "description": "Ouvrez l’outil intégré, comparez des étiquettes pédagogiques explicitement artificielles sur des copies de vrais recadrages téléchargés et distinguez l’accord par paire du résumé à plusieurs passes.",
       "objectives": [
         "Ouvrir Annotator Agreement depuis Annotate.",
@@ -3107,7 +3198,7 @@
       "title": "Analyse des plages de lyse",
       "series": 3,
       "app_key": "analyze_plaques",
-      "section": "Toxoplasma assays",
+      "section": "Essais Toxoplasma",
       "description": "Réutilisez des masques synthétiques, choisissez explicitement le modèle de prévisualisation et vérifiez les filtres et les tables enregistrées.",
       "objectives": [
         "Distinguer les masques enregistrés d’une nouvelle prédiction.",
@@ -3304,7 +3395,7 @@
       "slug": "recruitment",
       "series": 3,
       "app_key": "recruitment",
-      "section": "Assays",
+      "section": "Essais Toxoplasma",
       "title": "Recruitment : vérifier les rapports entre compartiments sur des mesures réelles",
       "description": "Effectuez une analyse limitée de tables de mesures réelles, examinez les filtres et les figures actuels et distinguez les rapports par cellule hôte des résumés par puits et des conclusions biologiques.",
       "objectives": [
@@ -3570,7 +3661,7 @@
       "title": "Essai d’invasion",
       "series": 3,
       "app_key": "invasion",
-      "section": "Toxoplasma assays",
+      "section": "Essais Toxoplasma",
       "description": "Configurez l’essai à deux couleurs actuel, séparez les puits de référence du marquage des conditions expérimentales et examinez les vrais seuils, graphiques et fichiers. La base de démonstration est explicitement synthétique.",
       "objectives": [
         "Associer les marquages extérieur et total aux bonnes colonnes de mesure.",
@@ -3754,7 +3845,7 @@
       "title": "Essai de réplication",
       "series": 3,
       "app_key": "replication",
-      "section": "Toxoplasma assays",
+      "section": "Essais Toxoplasma",
       "description": "Comptez les parasites par vacuole, examinez les distributions et réglez les légendes sans changer les données. L’exemple est entièrement synthétique et ne démontre aucun effet thérapeutique.",
       "objectives": [
         "Compter par vacuole et non par cellule hôte.",
@@ -3923,7 +4014,7 @@
       "series": 4,
       "app_key": "train_compare",
       "host_app_key": "classify_merged",
-      "section": "Tools",
+      "section": "Résultats et contrôle qualité",
       "title": "Training Runs : s’exercer aux commandes de comparaison avec des journaux synthétiques",
       "description": "Ouvrez Training Runs dans Classify et utilisez des journaux de progression explicitement synthétiques pour examiner les métriques enregistrées, les différences automatiques de paramètres et les modes d’affichage des plis, sans entraîner ni évaluer de modèle.",
       "objectives": [
@@ -4135,7 +4226,7 @@
       "slug": "report",
       "series": 4,
       "app_key": "report",
-      "section": "Help",
+      "section": "Résultats et contrôle qualité",
       "title": "Report : examiner et partager les résultats enregistrés sans relancer l’analyse",
       "description": "Générez un rapport à partir de l’exemple réel External Masks, distinguez la fin du traitement de l’absence de preuves de contrôle qualité et examinez le véritable HTML autonome avant de le partager.",
       "objectives": [
@@ -4289,7 +4380,7 @@
       "slug": "plate_queue",
       "series": 4,
       "app_key": "queue",
-      "section": "Data and batch runs",
+      "section": "Données et traitements par lots",
       "title": "Plate Queue : exécuter, arrêter entre les tâches et reprendre",
       "description": "Mettez en file deux répétitions isolées de l'exemple vérifié de Recruitment, contrôlez les résultats enregistrés et distinguez un arrêt maîtrisé d'une récupération après panne non testée.",
       "objectives": [
@@ -4421,7 +4512,7 @@
       "series": 4,
       "app_key": "external_masks",
       "host_app_key": "foreign",
-      "section": "Data",
+      "section": "Données et traitements par lots",
       "title": "External Masks : mesurer des étiquettes cellulaires existantes sans refaire la segmentation",
       "description": "Réutilisez des images de microscopie réelles et des étiquettes cellulaires existantes, examinez leurs attributions, prévisualisez sans écrire de données de projet et vérifiez un projet spaCR nouvellement mesuré, en distinguant les recadrages d’affichage et le cytoplasme dupliqué de preuves biologiques indépendantes.",
       "objectives": [
@@ -4724,7 +4815,7 @@
       "slug": "align_stitch",
       "series": 4,
       "app_key": "align",
-      "section": "Tools",
+      "section": "Données et traitements par lots",
       "title": "Align & Stitch : examiner un plan réel et vérifier la mosaïque enregistrée",
       "description": "Utilisez l’interface actuelle d’assemblage avec des pixels réels de microscopie conservés, examinez la disposition calculée, écrivez des bandes d’image de taille limitée et vérifiez la mosaïque ainsi que ses enregistrements de coordonnées.",
       "objectives": [
@@ -4857,7 +4948,7 @@
       "title": "Visionneuse de plaques",
       "series": 4,
       "app_key": "plate_view",
-      "section": "Results and quality control",
+      "section": "Résultats et contrôle qualité",
       "description": "Explorez les mesures sous forme de cartes thermiques de plaques et détectez les artefacts spatiaux ou les effets de bord.",
       "objectives": [
         "Créer une carte thermique de plaque appropriée.",
@@ -4932,7 +5023,7 @@
       "title": "Explorateur de base de données",
       "series": 4,
       "app_key": "db_browser",
-      "section": "Data",
+      "section": "Données",
       "description": "Parcourez, filtrez et exportez les bases de données de mesures spaCR sans utiliser la ligne de commande.",
       "objectives": [
         "Ouvrir et parcourir une base de données en toute sécurité.",
@@ -5006,7 +5097,7 @@
       "series": 4,
       "app_key": "convert",
       "host_app_key": "foreign",
-      "section": "Data",
+      "section": "Données",
       "title": "Format Converter : vérifier les identifiants avant d’écrire des images réelles",
       "description": "Accédez à Format Converter depuis Import, prévisualisez les correspondances de deux images réelles, écrivez dans une destination distincte et vérifiez la réutilisation à partir du point de reprise sans modifier les originaux.",
       "objectives": [
@@ -5207,7 +5298,7 @@
       "series": 5,
       "title": "Import Project : vérifier les masques, mesures et origines réels",
       "app_key": "foreign",
-      "section": "Data",
+      "section": "Données",
       "description": "Importez un véritable sous-ensemble de deux champs de microscopie, vérifiez les jointures d’objets et les noms de colonnes avant toute écriture, et distinguez les mesures importées d’une nouvelle mesure par spaCR.",
       "objectives": [
         "Trouver Import Project et ses trois outils d’entrée imbriqués.",
@@ -5370,7 +5461,7 @@
       "slug": "batch",
       "series": 5,
       "app_key": "batch",
-      "section": "Data and batch runs",
+      "section": "Données et traitements par lots",
       "title": "Batch Runner : tâches validées, dépendances et journaux distincts",
       "description": "Configurez trois conversions préservant les canaux avec l'interface multithread réelle et ses sélecteurs de fichiers. Vérifiez les dépendances, sauvegardez et rechargez la file, puis arrêtez et reprenez de vrais sous-processus.",
       "objectives": [
@@ -5533,7 +5624,7 @@
       "title": "Tâches distribuées",
       "series": 5,
       "app_key": "distributed_jobs",
-      "section": "Data and batch runs",
+      "section": "Données et traitements par lots",
       "description": "Préparer un profil réel depuis Help et distinguer configuration enregistrée et exécution distante vérifiée.",
       "objectives": [
         "Ouvrir Distributed jobs depuis Help et enregistrer un profil.",
@@ -5671,7 +5762,7 @@
       "title": "Évaluation des classifieurs",
       "series": 3,
       "app_key": "classifier_evaluation",
-      "section": "Tools",
+      "section": "Résultats et contrôle qualité",
       "host_app_key": "classify_merged",
       "description": "Inspectez des prédictions réelles enregistrées dans Classify et repérez le chevauchement entre entraînement et test.",
       "objectives": [
@@ -5869,7 +5960,7 @@
       "slug": "run_history",
       "series": 5,
       "app_key": "run_history",
-      "section": "Data and batch runs",
+      "section": "Résultats et contrôle qualité",
       "title": "Run History : examiner les journaux réels et restaurer les paramètres disponibles",
       "description": "Retrouvez les tâches enregistrées dans Help, examinez paramètres, inventaires, avertissements et erreurs, puis rouvrez une configuration réelle de Recruitment sans exécution ni suppression.",
       "objectives": [
@@ -6035,7 +6126,7 @@
       "title": "Classify : le module principal et ses outils imbriqués",
       "series": 4,
       "app_key": "classify_merged",
-      "section": "Core",
+      "section": "Modules principaux",
       "description": "Choisissez la classification d’images ou de mesures, utilisez les exemples téléchargeables, examinez de vrais résultats et trouvez les cinq outils intégrés à Classify.",
       "objectives": [
         "Choisir la famille dans le module unifié de Home.",
@@ -6205,7 +6296,7 @@
       "series": 5,
       "app_key": "curate",
       "host_app_key": "make_masks",
-      "section": "Make Masks",
+      "section": "Modules principaux",
       "example_files": [
         "Curate_SYNTHETIC_practice.zip"
       ],
@@ -6344,7 +6435,7 @@
       "series": 5,
       "app_key": "illumination",
       "host_app_key": "measure",
-      "section": "Data",
+      "section": "Données",
       "description": "Estimez un champ d’éclairage à partir d’images téléchargées dans la page Illumination de Measure, examinez son contrôle qualité exporté et distinguez amélioration numérique et validation biologique.",
       "objectives": [
         "Ouvrir la page intégrée et sélectionner les canaux d’intensité des champs fusionnés.",
@@ -6528,7 +6619,7 @@
       "slug": "data_manager",
       "series": 5,
       "app_key": "data_manager",
-      "section": "Data and batch runs",
+      "section": "Données",
       "title": "Data Manager : examiner, nettoyer et archiver un exemple réel en sécurité",
       "description": "Examinez les fichiers enregistrés ou non, annulez puis confirmez la suppression précise des vignettes et déplacez un projet privé avec ses traces d’archivage.",
       "objectives": [
@@ -6669,7 +6760,7 @@
       "slug": "project_browser",
       "series": 5,
       "app_key": "project_browser",
-      "section": "Data and batch runs",
+      "section": "Données",
       "title": "Project Browser : découvrir des projets réels et interpréter leurs preuves",
       "description": "Trouvez des exemples enregistrés ou non, réglez la profondeur, triez l’espace occupé et lisez les éléments disponibles sans analyse ni suppression.",
       "objectives": [
@@ -6821,7 +6912,7 @@
       "series": 5,
       "app_key": "napari_bridge",
       "host_app_key": "make_masks",
-      "section": "Mask correction",
+      "section": "Modèles de segmentation",
       "description": "Pratiquez un aller-retour vérifié pixel par pixel avec une image et un masque synthétiques, des sauvegardes, Fill et Undo natifs, puis fermeture et réouverture entre les imports.",
       "objectives": [
         "Ouvrir Napari Bridge dans Make Masks avec des fichiers d’image et d’étiquettes distincts.",
@@ -6940,7 +7031,7 @@
       "series": 5,
       "app_key": "barcode_qc",
       "host_app_key": "map_barcodes",
-      "section": "Map Barcodes",
+      "section": "Résultats et contrôle qualité",
       "description": "Examinez les comptages publiés, exécutez Barcode QC et comparez profondeur de lecture et seuils dans les graphiques réellement enregistrés.",
       "objectives": [
         "Trouver Barcode QC dans Map Barcodes et choisir des comptages réels.",
@@ -7034,7 +7125,7 @@
       "series": 5,
       "app_key": "hit_list",
       "host_app_key": "regression",
-      "section": "Regression",
+      "section": "Résultats et contrôle qualité",
       "example_files": [
         "Hit_List_real_results_companion.zip"
       ],
@@ -7129,7 +7220,7 @@
       "series": 5,
       "app_key": "methods_export",
       "host_app_key": "regression",
-      "section": "Regression",
+      "section": "Résultats et contrôle qualité",
       "description": "Ouvrez l’outil intégré, utilisez l’exécution réelle de Regression, repérez trois problèmes de vérification et conservez un Markdown explicitement non validé.",
       "objectives": [
         "Trouver l’outil dans Regression et choisir les sources d’une exécution terminée.",
@@ -7245,7 +7336,7 @@
       "title": "Run Compare : examiner deux instantanés réels de Measure",
       "series": 5,
       "app_key": "run_compare",
-      "section": "Data",
+      "section": "Résultats et contrôle qualité",
       "example_files": [
         "Run_Compare_real_snapshots.zip"
       ],
@@ -7365,7 +7456,7 @@
       "series": 5,
       "app_key": "control_chart",
       "host_app_key": "qc_dashboard",
-      "section": "Data",
+      "section": "Résultats et contrôle qualité",
       "title": "Control Charts : examiner une campagne avec des témoins et des limites explicites",
       "description": "Ouvrez l’outil de QC, chargez une campagne explicitement synthétique de trente plaques, vérifiez le témoin et la référence sélectionnés, puis exportez des points vérifiés indépendamment.",
       "objectives": [
@@ -7493,7 +7584,7 @@
       "slug": "pipeline_graph",
       "series": 5,
       "app_key": "pipeline_graph",
-      "section": "Explore",
+      "section": "Exploration",
       "title": "Pipeline Graph : examiner la provenance réelle et les artefacts manquants",
       "description": "Lisez les enregistrements réels, distinguez fichiers absents et provenance non enregistrée, filtrez le graphe et copiez sa représentation Graphviz complète sans relancer l’analyse.",
       "objectives": [
@@ -7647,7 +7738,7 @@
       "title": "Profil des prédictions",
       "series": 5,
       "app_key": "profiler",
-      "section": "Explore",
+      "section": "Exploration",
       "description": "Importez un modèle ajusté sur des données synthétiques, faites varier une entrée et examinez les effets des valeurs maintenues fixes et des réglages du tracé.",
       "objectives": [
         "Ouvrir Prediction Profiler dans Regression et importer des coefficients appropriés.",
@@ -7795,7 +7886,7 @@
       "slug": "qc_dashboard",
       "series": 5,
       "app_key": "qc_dashboard",
-      "section": "Data",
+      "section": "Exploration",
       "title": "QC : lire les preuves, pas seulement le résumé",
       "description": "Lisez de vrais rapports téléchargés et calculés, distinguez contrôles manquants, avertissements et échecs, et trouvez les trois outils imbriqués de QC.",
       "objectives": [
@@ -7933,7 +8024,7 @@
       "series": 5,
       "app_key": "image_scatter",
       "host_app_key": "umap",
-      "section": "Explore",
+      "section": "Exploration",
       "title": "Image Scatter : mesures réelles et image derrière chaque point",
       "description": "Explorez Image Scatter dans Image UMAP avec des mesures cellulaires téléchargées, des aperçus vérifiés et le transfert exact d'une cellule vers Annotate.",
       "objectives": [
@@ -8087,7 +8178,7 @@
       "series": 5,
       "app_key": "lineage",
       "host_app_key": "db_browser",
-      "section": "Explore",
+      "section": "Exploration",
       "title": "Lineage : relations d’inclusion et images vérifiées des cellules parentes",
       "description": "Examiner les relations enregistrées, la limite d’affichage et le recadrage du parent seul, sans approuver le remplacement erroné des enfants manquants.",
       "objectives": [
@@ -8203,7 +8294,7 @@
       "slug": "layer_viewer",
       "series": 5,
       "app_key": "layer_viewer",
-      "section": "Explore",
+      "section": "Exploration",
       "title": "Layer Viewer : superpositions réelles, réglages d’affichage et inspection sans modifier la source",
       "description": "Ouvrez Layer Viewer dans QC, superposez une image d’intensité et son masque cellulaire, testez visibilité, opacité, mélange et ordre des couches, puis distinguez navigation, édition et calibration.",
       "objectives": [
@@ -8373,7 +8464,7 @@
       "slug": "graph_builder",
       "series": 5,
       "app_key": "graph_builder",
-      "section": "Explore",
+      "section": "Exploration",
       "title": "Graph Builder : mesures réelles, filtres interactifs et limite du transfert",
       "description": "Construire des graphiques à partir des mesures, comparer les métadonnées d’acquisition et reconnaître le défaut actuel de transfert vers Annotate.",
       "objectives": [
@@ -8480,7 +8571,7 @@
       "series": 5,
       "app_key": "anndata_export",
       "host_app_key": "measure",
-      "section": "Measure",
+      "section": "Exploration",
       "description": "Repérez l’exporteur intégré, comprenez l’échec lié aux métadonnées manquantes et exportez le véritable exemple avec un script Python explicitement vérifié.",
       "objectives": [
         "Trouver AnnData Export dans Measure et la base de mesures source.",
@@ -8645,7 +8736,7 @@
       "series": 5,
       "app_key": "pca",
       "host_app_key": "umap",
-      "section": "Explore",
+      "section": "Exploration",
       "title": "PCA : mesures réelles, réajustements en direct et valeurs manquantes",
       "description": "Explorez PCA dans Image UMAP avec de vraies cellules téléchargées, des scores vérifiés, des filtres réversibles, des politiques explicites de valeurs manquantes et trois exports CSV.",
       "objectives": [
@@ -8843,7 +8934,7 @@
       "slug": "tabulate",
       "series": 5,
       "app_key": "tabulate",
-      "section": "Explore",
+      "section": "Exploration",
       "title": "Tabulate : regrouper des mesures réelles, vérifier les effectifs et actualiser le graphique",
       "description": "Ouvrez Tabulate dans Database Browser, regroupez les mesures téléchargées par puits et champ, examinez les valeurs manquantes, exportez les statistiques vérifiées et distinguez un tableau dynamique d'un graphique périmé ou catégoriel.",
       "objectives": [
@@ -9039,7 +9130,7 @@
       "slug": "feature_dictionary",
       "series": 5,
       "app_key": "feature_dict",
-      "section": "Help",
+      "section": "Exploration",
       "title": "Feature Dictionary : consulter les définitions, les unités et les fonctions de calcul",
       "description": "Utilisez le dictionnaire accessible depuis Help pour rechercher des définitions, les filtrer par concept et objet, et distinguer la documentation générale des mesures disponibles dans un projet.",
       "objectives": [
@@ -9168,7 +9259,7 @@
       "slug": "small_multiples",
       "series": 5,
       "app_key": "trellis",
-      "section": "Explore",
+      "section": "Exploration",
       "title": "Small Multiples : groupes réels, filtres dynamiques et échelles fidèles",
       "description": "Ouvrez Small Multiples dans Graph Builder, comparez des mesures téléchargées sur des échelles communes ou indépendantes, examinez les groupes vides et les facettes plafonnées, puis créez une colonne dérivée réversible.",
       "objectives": [
@@ -9319,7 +9410,7 @@
       "slug": "gate_editor",
       "series": 5,
       "app_key": "gate_editor",
-      "section": "Tools",
+      "section": "Exploration",
       "title": "Gate Editor : populations réelles, vues réversibles et exports exacts",
       "description": "Tracez des zones de sélection sur des mesures cellulaires téléchargées, vérifiez l’appartenance enregistrée, comparez des vues tridimensionnelles réelles et projetées, et examinez une recherche de groupes bornée sans inventer d’étiquettes biologiques.",
       "objectives": [
@@ -9507,7 +9598,7 @@
       "slug": "feature_explorer",
       "series": 5,
       "app_key": "feature_explorer",
-      "section": "Explore",
+      "section": "Exploration",
       "title": "Feature Explorer : classer des mesures réelles et garder la comparaison explicite",
       "description": "Ouvrez le sous-module de Classify, comparez des mesures réelles par rangée de plaque, examinez les distributions, filtrez en direct, ajoutez une colonne calculée et exportez le classement voulu sans entraîner de classifieur.",
       "objectives": [
@@ -9673,7 +9764,7 @@
       "slug": "outliers",
       "series": 5,
       "app_key": "outliers",
-      "section": "Explore",
+      "section": "Exploration",
       "title": "Outliers : examiner des signalements réels sans supprimer les observations",
       "description": "Ouvrez Outliers dans QC, comparez des règles robustes sur des mesures cellulaires réelles, distinguez puits non évalués et puits sans anomalie, examinez un véritable refus de transformation logarithmique et exportez chaque ligne avec ses indicateurs.",
       "objectives": [
@@ -9900,7 +9991,7 @@
       "slug": "experiment_design",
       "series": 5,
       "app_key": "experiment_design",
-      "section": "Data",
+      "section": "Conception",
       "title": "Experiment Design : plan de plaque reproductible et export exact",
       "description": "Modifiez un projet de disposition avec les vrais contrôles, examinez les avertissements de capacité et de réplication, reproduisez les affectations aléatoires et exportez le plan exact des puits.",
       "objectives": [
@@ -10060,7 +10151,7 @@
       "title": "Power / Design : lire le simulateur et ses limites",
       "series": 5,
       "app_key": "power",
-      "section": "Design",
+      "section": "Conception",
       "example_files": [
         "Power_recorded_simulation_review.zip"
       ],
@@ -10164,7 +10255,7 @@
       "slug": "dose_response",
       "series": 5,
       "app_key": "dose_response",
-      "section": "Data",
+      "section": "Conception",
       "title": "Dose-réponse : courbes ajustées, incertitude et refus justifiés",
       "description": "Utilisez l’écran actuel Dose Response avec une table synthétique reproductible, comparez les intervalles de profil et de Wald et distinguez les résultats ajustés, non bornés et refusés.",
       "objectives": [
@@ -10399,7 +10490,7 @@
       "title": "Expliquer le modèle de vision",
       "series": 5,
       "app_key": "explain_cv",
-      "section": "Results and quality control",
+      "section": "Résultats et contrôle qualité",
       "host_app_key": "classify_merged",
       "description": "Examiner un véritable modèle de substitution dans Classify et reconnaître quand ses explications ne sont pas interprétables.",
       "objectives": [
@@ -10546,7 +10637,7 @@
       "title": "Examiner le résultat",
       "series": 5,
       "app_key": "investigate_hit",
-      "section": "Results and quality control",
+      "section": "Résultats et contrôle qualité",
       "description": "Ce tutoriel n’est pas encore disponible. En attendant, découvrez les autres tutoriels.",
       "objectives": [],
       "prerequisite": "",
@@ -10563,7 +10654,7 @@
       "series": 5,
       "app_key": "volcano_explorer",
       "host_app_key": "regression",
-      "section": "Regression",
+      "section": "Résultats et contrôle qualité",
       "example_files": [
         "Volcano_real_guide_family.zip"
       ],
@@ -10682,7 +10773,7 @@
       "title": "Balayage de paramètres",
       "series": 5,
       "app_key": "parameter_sweep",
-      "section": "Results and quality control",
+      "section": "Résultats et contrôle qualité",
       "host_app_key": "regression",
       "description": "Exécuter deux essais dans Regression et distinguer réussite du calcul et validité de l’inférence.",
       "objectives": [
@@ -11017,7 +11108,7 @@
       "title": "Embeddings : interface actuelle et exemple Python réel",
       "series": 2,
       "app_key": "embeddings",
-      "section": "Data",
+      "section": "Données",
       "description": "Découvrez le module et encodez des images réelles avec l’API, sans prétendre que l’interface est réparée ou qu’un phénotype est validé.",
       "objectives": [
         "Distinguer l’interface de l’API opérationnelle.",
@@ -11161,7 +11252,7 @@
       "series": 2,
       "app_key": "ops",
       "host_app_key": "mask",
-      "section": "Segmentation models",
+      "section": "Modèles de segmentation",
       "description": "Retrouvez OPS dans Mask, puis suivez un exemple vérifié de géométrie et de composition sur quatre champs réels. Ce n’est pas un traitement complet de plaque, de segmentation ou de décodage.",
       "objectives": [
         "Trouver l’écran imbriqué d’OPS et comprendre les limites de la démonstration.",

@@ -1339,17 +1339,96 @@
     },
     {
       "id": "12_map_barcodes",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "곧 공개됩니다",
-      "description": "이 튜토리얼은 아직 공개되지 않았습니다. 다른 튜토리얼을 먼저 살펴보세요.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 12,
-      "app_key": "map_barcodes",
+      "slug": "map_barcodes",
+      "title": "Map Barcodes: 실시간 검색, 검증된 참조표와 실제 집계",
       "series": 1,
-      "section": "Core",
-      "slug": "map_barcodes"
+      "app_key": "map_barcodes",
+      "section": "주요 모듈",
+      "description": "실제 시퀀싱 데이터의 제한된 표본을 다운로드하고 실시간 검색을 확인한 뒤 제안을 명시적으로 적용하고 집계를 검증합니다. 현재 Python API에서 두 종류의 바코드 세트도 시연합니다.",
+      "objectives": [
+        "실제 리드가 뒷받침하는 참조표와 방향을 찾습니다.",
+        "검색 제안, 적용된 설정, 올바른 방향의 참조 파일을 구분합니다.",
+        "저장된 집계를 확인하고 바코드를 꾸며내지 않은 명시적 세트를 사용합니다."
+      ],
+      "prerequisite": "바코드 검색 기능이 있는 spaCR 1.5.0.7 nightly가 필요합니다. 녹화에서는 다운로드 가능한 SRR33531217과 관리자의 해당 primers_3 열·행 참조표 및 가이드 참조표를 사용하며, 예전 기본 참조표를 사용하지 않습니다. 매핑 전에 자신의 라이브러리에 맞는 참조표를 준비하세요.",
+      "scenes": [
+        {
+          "visual": "gui_01_module",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc"
+          ],
+          "narration": "Home에서 Map Barcodes를 엽니다. 이 모듈은 시퀀싱 리드를 이름으로 식별된 바코드별 집계로 변환합니다. Barcode QC는 그 아래의 품질 관리 모듈이며, 별도 튜토리얼도 계속 이용할 수 있습니다."
+        },
+        {
+          "visual": "gui_02_archive_bounded_choice",
+          "hold_after": 0.7,
+          "narration": "Load test data를 선택하고 공개 아카이브의 첫 번째 런에서 페어를 이루는 두 파일을 모두 선택합니다. 각 파일을 리드 10,000개로 제한합니다. 이렇게 하면 전체 시퀀싱 아카이브가 아니라 실제 페어드 표본을 다운로드합니다."
+        },
+        {
+          "visual": "gui_04_reference_tables",
+          "hold_after": 0.7,
+          "narration": "이 라이브러리에 맞는 참조표를 선택합니다. 여기서는 예전 기본값 대신 올바른 primers_3 열·행 참조표와 가이드 참조표를 사용합니다. 제안이 설정을 변경하는 모습을 보이려고 의도적으로 윈도 길이를 120개 염기로 시작합니다."
+        },
+        {
+          "visual": "gui_06_live_search_progress",
+          "hold_after": 0.7,
+          "narration": "Find barcodes를 열고 검색을 시작합니다. 두 파일의 실제 리드를 양방향으로 표본 조사하면서 집계가 갱신됩니다. 이 실시간 갱신 중에 설정 양식은 변경되지 않습니다."
+        },
+        {
+          "visual": "gui_07_search_verdicts",
+          "hold_after": 0.7,
+          "narration": "Observed와 By chance를 비교한 뒤 방향, 위치, 판정을 살펴봅니다. 일치율만으로 바코드의 존재를 확정할 수 없습니다. 일치 위치의 집중도와 관측된 서로 다른 참조 바코드도 판단에 사용됩니다. 적용 전에 판정 설명을 읽으세요."
+        },
+        {
+          "visual": "gui_08_coloured_reads",
+          "hold_after": 0.7,
+          "narration": "리드 뷰어는 한 줄에 실제 리드 하나를 표시합니다. 범례는 열, 가이드, 행, 앵커 서열의 색을 알려줍니다. 색으로 표시된 일치는 근거를 살피는 데 도움이 되지만, 단독 일치 하나가 참조표의 정확성을 증명하지는 않습니다."
+        },
+        {
+          "visual": "gui_09_proposed_settings",
+          "hold_after": 0.7,
+          "narration": "제안을 검토합니다. 이 표본의 추출 윈도 길이는 89개 염기입니다. Apply these settings를 눌러야만 제안된 변경이 양식에 기록됩니다. 자동 탐지가 설정을 자동으로 덮어쓸 권한을 뜻하지는 않습니다."
+        },
+        {
+          "visual": "gui_11_oriented_reference_copies",
+          "hold_after": 0.7,
+          "narration": "설명에는 행과 가이드 참조표가 역상보 방향이어야 한다는 내용도 있습니다. Apply는 해당 파일을 만들지 않습니다. 모든 원래 바코드 이름을 유지한, 별도로 검증된 역상보 사본을 선택하고 열 참조표는 원래 방향으로 둡니다."
+        },
+        {
+          "visual": "gui_20_batch_settings",
+          "hold_after": 0.7,
+          "narration": "다운로드한 페어를 작업 프로세스 두 개와 1,000개 단위의 청크로 처리하고 주석이 붙은 리드 저장을 켭니다. 없는 할당은 결측 상태로 남겨 둡니다. 이 매핑은 CPU를 사용하며 GPU는 필요하지 않습니다."
+        },
+        {
+          "visual": "gui_23_batch_finished",
+          "hold_after": 0.7,
+          "narration": "실제 실행은 윈도 8,611개를 추출하고 리드 7,657개를 집계표 4,099행에 매핑했습니다. 일치하지 않거나 모호한 참조는 할당되지 않은 채로 남습니다. 완료 여부는 콘솔의 종료 메시지뿐 아니라 저장된 파일로 확인합니다."
+        },
+        {
+          "visual": "api_01_actual_two_barcode_api",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ],
+          "narration": "현재 Python API는 크기에 제한 없는 바코드 세트를 받지만, 이 양식에는 세트 편집기가 없습니다. 여기서는 실제 두 번째 계산에서 리드 1,000쌍에 대해 열과 가이드만 선택합니다. 각 항목에는 패턴의 대응하는 이름 있는 그룹이 필요합니다. 행 식별을 빼면 웰별이 아니라 열과 가이드별 집계가 됩니다."
+        },
+        {
+          "visual": "api_02_real_count_figure",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc",
+            "13_regression"
+          ],
+          "narration": "이 Python 검증 그림은 GUI에서 실행한 세 바코드 종류의 결과에 저장된 리드 깊이를 보여줍니다. 모든 집계를 주석이 붙은 리드 및 참조 이름과 독립적으로 대조했습니다. 불균일한 깊이는 품질 관리 관찰이지 생물학적 효과가 아닙니다. 후속 Regression 전에 Barcode QC를 확인하세요."
+        },
+        {
+          "visual": "gui_30_ai_unsent_question",
+          "hold_after": 0.7,
+          "narration": "공급자를 설정하면 spaCR AI 기능으로 실행 결과의 설명을 도움받을 수 있습니다. 녹화에는 보내지 않은 질문만 있으며 AI 응답은 없습니다. 규모를 확대하기 전에 참조 식별, 방향, 경고, 저장된 집계를 직접 확인하세요."
+        }
+      ]
     },
     {
       "id": "13_regression",
@@ -4444,8 +4523,8 @@
       "number": 33,
       "app_key": "plate_view",
       "series": 4,
-      "section": "Results and quality control",
       "slug": "plate_viewer",
+      "section": "Results and quality control",
       "host_app_key": "graph_builder"
     },
     {
@@ -4479,8 +4558,8 @@
       "number": 34,
       "app_key": "db_browser",
       "series": 4,
-      "section": "Data",
-      "slug": "database"
+      "slug": "database",
+      "section": "Data"
     },
     {
       "id": "35_converter",
@@ -9565,8 +9644,8 @@
       "number": 71,
       "app_key": "investigate_hit",
       "series": 5,
-      "section": "Results and quality control",
       "slug": "investigate_hit",
+      "section": "Results and quality control",
       "host_app_key": "regression"
     },
     {

@@ -25,7 +25,7 @@ def merge_catalog(target, source):
     replacement = next(row for row in source['lessons'] if row['id'] == IDENTITY)
     original = next(row for row in target['lessons'] if row['id'] == IDENTITY)
     if (replacement.get('status') == 'coming_soon'
-            or any(replacement.get(key) != original.get(key) for key in ('id', 'number'))):
+            or replacement.get('number') != 12 or original.get('number', 12) != 12):
         raise ValueError('The completed lesson must preserve its numbered identity')
     result = deepcopy(target)
     result['lessons'] = [deepcopy(replacement if row['id'] == IDENTITY else row)

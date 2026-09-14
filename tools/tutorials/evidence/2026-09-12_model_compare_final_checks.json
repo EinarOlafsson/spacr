@@ -946,15 +946,15 @@
     "human_listening_review": false,
     "published": false
   },
-  "candidate_manifest_sha256": "e96da7917abed42c29cfb547f85acae0f39b6340742167e44acc1002b01ec7a3",
+  "candidate_manifest_sha256": "c7675ed8aa30380bd83aae090f80f39e48b5c1fdf6e114a42fbdecd1d14fc9c8",
   "heart_timing_sha256": "c0d89207785bf5d00054a7849e44f0a48a3217d0a3c078c6cc3e750aba01ac2d",
   "candidate_browser_case": {
     "lesson": "21_model_compare",
     "audio_sha256": "f571869e66b0f3cf225268ccebc8474451e6ea6611231037944b5debde46d069",
     "clocks": {
-      "audio": 34.528958,
-      "video": 34.562509,
-      "expected": 34.52732580655853,
+      "audio": 34.524526,
+      "video": 34.55444,
+      "expected": 34.5228940160604,
       "width": 2560,
       "height": 1440,
       "error": null,
@@ -966,8 +966,8 @@
       {
         "requested_audio_time": 1.4375,
         "text": "Model Compare is nested inside Make Masks.",
-        "audio": 1.659907,
-        "video": 1.669095,
+        "audio": 1.647662,
+        "video": 1.672435,
         "cues": [
           "Model Compare is nested inside Make Masks."
         ]
@@ -975,8 +975,8 @@
       {
         "requested_audio_time": 4.9350000000000005,
         "text": "It is designed to compare segmentation results on the same fields.",
-        "audio": 5.14298,
-        "video": 5.062092,
+        "audio": 5.128663,
+        "video": 5.084714,
         "cues": [
           "It is designed to compare segmentation results on the same fields."
         ]
@@ -984,8 +984,8 @@
       {
         "requested_audio_time": 10.935,
         "text": "This lesson shows the current screen, then demonstrates its working mask-comparison API with two genuine saved outputs.",
-        "audio": 11.152701,
-        "video": 11.120566,
+        "audio": 11.14139,
+        "video": 11.134638,
         "cues": [
           "This lesson shows the current screen, then demonstrates its working mask-comparison API with two genuine saved outputs."
         ]
@@ -993,8 +993,8 @@
       {
         "requested_audio_time": 17.07,
         "text": "The screen separates Model A and Model B settings.",
-        "audio": 17.272999,
-        "video": 17.291123,
+        "audio": 17.26067,
+        "video": 17.303659,
         "cues": [
           "The screen separates Model A and Model B settings."
         ]
@@ -1002,8 +1002,8 @@
       {
         "requested_audio_time": 20.729999999999997,
         "text": "Record the exact weights and preprocessing for each comparison.",
-        "audio": 20.93911,
-        "video": 20.84559,
+        "audio": 20.925398,
+        "video": 20.852214,
         "cues": [
           "Record the exact weights and preprocessing for each comparison."
         ]
@@ -1011,8 +1011,8 @@
       {
         "requested_audio_time": 25.365000000000002,
         "text": "Different names or a larger object count do not establish that one result is better.",
-        "audio": 25.570096,
-        "video": 25.594605,
+        "audio": 25.57855,
+        "video": 25.592396,
         "cues": [
           "Different names or a larger object count do not establish that one result is better."
         ]
@@ -1020,8 +1020,8 @@
       {
         "requested_audio_time": 30.365,
         "text": "The parameter and result tables are empty before a comparison runs.",
-        "audio": 30.577119,
-        "video": 30.452306,
+        "audio": 30.563533,
+        "video": 30.444846,
         "cues": [
           "The parameter and result tables are empty before a comparison runs."
         ]
@@ -1029,8 +1029,8 @@
       {
         "requested_audio_time": 34.4675,
         "text": "Enter the real example folder and press Load.",
-        "audio": 34.664585,
-        "video": 34.677514,
+        "audio": 34.672212,
+        "video": 34.673507,
         "cues": [
           "Enter the real example folder and press Load."
         ]
@@ -1038,8 +1038,8 @@
       {
         "requested_audio_time": 38.3425,
         "text": "Here, three original fields load successfully and Compare becomes available.",
-        "audio": 38.546366,
-        "video": 38.45566,
+        "audio": 38.553985,
+        "video": 38.431815,
         "cues": [
           "Here, three original fields load successfully and Compare becomes available."
         ]
@@ -1047,8 +1047,8 @@
       {
         "requested_audio_time": 42.790000000000006,
         "text": "Loading images is not the same as successfully running the models.",
-        "audio": 42.993519,
-        "video": 42.996916,
+        "audio": 43.000236,
+        "video": 42.998671,
         "cues": [
           "Loading images is not the same as successfully running the models."
         ]
@@ -1056,8 +1056,8 @@
       {
         "requested_audio_time": 46.875,
         "text": "We have not created masks or filled the comparison table on this screen.",
-        "audio": 47.087034,
-        "video": 46.974595,
+        "audio": 47.094022,
+        "video": 46.974619,
         "cues": [
           "We have not created masks or filled the comparison table on this screen."
         ]
@@ -1065,8 +1065,8 @@
       {
         "requested_audio_time": 52.275000000000006,
         "text": "The installed Cellpose version rejects an invert argument still passed by this GUI backend.",
-        "audio": 52.473137,
-        "video": 52.448945,
+        "audio": 52.50039,
+        "video": 52.456488,
         "cues": [
           "The installed Cellpose version rejects an invert argument still passed by this GUI backend."
         ]
@@ -1074,8 +1074,8 @@
       {
         "requested_audio_time": 57.64000000000001,
         "text": "This real signature check shows the incompatibility without starting inference.",
-        "audio": 57.854506,
-        "video": 57.902902,
+        "audio": 57.859013,
+        "video": 57.902491,
         "cues": [
           "This real signature check shows the incompatibility without starting inference."
         ]
@@ -1083,8 +1083,8 @@
       {
         "requested_audio_time": 60.782500000000006,
         "text": "We do not hide it.",
-        "audio": 61.006103,
-        "video": 60.960998,
+        "audio": 61.007917,
+        "video": 60.964457,
         "cues": [
           "We do not hide it."
         ]
@@ -1092,8 +1092,8 @@
       {
         "requested_audio_time": 64.26000000000002,
         "text": "Instead, the next example uses compare_masks directly on existing label images.",
-        "audio": 64.471461,
-        "video": 64.346732,
+        "audio": 64.470743,
+        "video": 64.358138,
         "cues": [
           "Instead, the next example uses compare_masks directly on existing label images."
         ]
@@ -1101,8 +1101,8 @@
       {
         "requested_audio_time": 69.90750000000001,
         "text": "Both masks belong to the same real image from the Apply Cellpose tutorial.",
-        "audio": 70.129975,
-        "video": 70.061122,
+        "audio": 70.134458,
+        "video": 70.070014,
         "cues": [
           "Both masks belong to the same real image from the Apply Cellpose tutorial."
         ]
@@ -1110,8 +1110,8 @@
       {
         "requested_audio_time": 74.685,
         "text": "One is its saved batch output; the other is its saved live-preview output.",
-        "audio": 74.914482,
-        "video": 74.939239,
+        "audio": 74.899322,
+        "video": 74.935043,
         "cues": [
           "One is its saved batch output; the other is its saved live-preview output."
         ]
@@ -1119,8 +1119,8 @@
       {
         "requested_audio_time": 79.51500000000001,
         "text": "They use the same model with different preprocessing, not two competing sets of weights.",
-        "audio": 79.73016,
-        "video": 79.63224,
+        "audio": 79.738635,
+        "video": 79.614997,
         "cues": [
           "They use the same model with different preprocessing, not two competing sets of weights."
         ]
@@ -1128,8 +1128,8 @@
       {
         "requested_audio_time": 83.04250000000002,
         "text": "Neither mask is ground truth.",
-        "audio": 83.266307,
-        "video": 83.293603,
+        "audio": 83.252535,
+        "video": 83.289379,
         "cues": [
           "Neither mask is ground truth."
         ]
@@ -1137,8 +1137,8 @@
       {
         "requested_audio_time": 87.6925,
         "text": "The API reports ninety-four objects in A and ninety-five in B, with ninety-one matched pairs.",
-        "audio": 87.932171,
-        "video": 87.81732,
+        "audio": 87.916638,
+        "video": 87.796348,
         "cues": [
           "The API reports ninety-four objects in A and ninety-five in B, with ninety-one matched pairs."
         ]
@@ -1146,8 +1146,8 @@
       {
         "requested_audio_time": 93.04249999999999,
         "text": "Mean overlap among matched pairs is about zero point nine six.",
-        "audio": 93.26943,
-        "video": 93.245977,
+        "audio": 93.254875,
+        "video": 93.251211,
         "cues": [
           "Mean overlap among matched pairs is about zero point nine six."
         ]
@@ -1155,8 +1155,8 @@
       {
         "requested_audio_time": 97.305,
         "text": "The adjusted Rand index is also about zero point nine six one.",
-        "audio": 97.52031,
-        "video": 97.406909,
+        "audio": 97.527836,
+        "video": 97.370507,
         "cues": [
           "The adjusted Rand index is also about zero point nine six one."
         ]
@@ -1164,8 +1164,8 @@
       {
         "requested_audio_time": 101.00999999999999,
         "text": "These describe agreement, not accuracy or a winner.",
-        "audio": 101.236857,
-        "video": 101.226333,
+        "audio": 101.242559,
+        "video": 101.225428,
         "cues": [
           "These describe agreement, not accuracy or a winner."
         ]
@@ -1173,8 +1173,8 @@
       {
         "requested_audio_time": 104.1775,
         "text": "Inspect the actual saved overlays.",
-        "audio": 104.414533,
-        "video": 104.412904,
+        "audio": 104.398726,
+        "video": 104.407769,
         "cues": [
           "Inspect the actual saved overlays."
         ]
@@ -1182,8 +1182,8 @@
       {
         "requested_audio_time": 107.26499999999999,
         "text": "The right panel marks pixels whose foreground status differs.",
-        "audio": 107.488668,
-        "video": 107.416053,
+        "audio": 107.496738,
+        "video": 107.415946,
         "cues": [
           "The right panel marks pixels whose foreground status differs."
         ]
@@ -1191,8 +1191,8 @@
       {
         "requested_audio_time": 110.78999999999999,
         "text": "It does not show every instance-label disagreement.",
-        "audio": 111.021842,
-        "video": 110.852081,
+        "audio": 111.009299,
+        "video": 110.821903,
         "cues": [
           "It does not show every instance-label disagreement."
         ]
@@ -1200,8 +1200,8 @@
       {
         "requested_audio_time": 116.32249999999999,
         "text": "A similar object count can conceal different boundaries, splits or merges, so inspect images as well as summary numbers.",
-        "audio": 116.542346,
-        "video": 116.45339,
+        "audio": 116.549727,
+        "video": 116.467891,
         "cues": [
           "A similar object count can conceal different boundaries, splits or merges, so inspect images as well as summary numbers."
         ]
@@ -1209,8 +1209,8 @@
       {
         "requested_audio_time": 124.465,
         "text": "The helper independently checks every matched overlap using the original pixels and verifies the identical-mask control.",
-        "audio": 124.693075,
-        "video": 124.631997,
+        "audio": 124.701103,
+        "video": 124.644356,
         "cues": [
           "The helper independently checks every matched overlap using the original pixels and verifies the identical-mask control."
         ]
@@ -1218,8 +1218,8 @@
       {
         "requested_audio_time": 130.9375,
         "text": "Keep the CSV, figure, source identities and preprocessing records together.",
-        "audio": 131.152322,
-        "video": 131.162705,
+        "audio": 131.165586,
+        "video": 131.165234,
         "cues": [
           "Keep the CSV, figure, source identities and preprocessing records together."
         ]
@@ -1227,8 +1227,8 @@
       {
         "requested_audio_time": 137.0725,
         "text": "Use independent reviewed annotations and held-out images before making accuracy or model-selection claims.",
-        "audio": 137.295556,
-        "video": 137.130536,
+        "audio": 137.309754,
+        "video": 137.141528,
         "cues": [
           "Use independent reviewed annotations and held-out images before making accuracy or model-selection claims."
         ]

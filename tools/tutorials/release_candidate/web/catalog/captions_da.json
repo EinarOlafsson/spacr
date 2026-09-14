@@ -1339,17 +1339,96 @@
     },
     {
       "id": "12_map_barcodes",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Denne vejledning er endnu ikke tilgængelig. Se de andre vejledninger imens.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 12,
-      "app_key": "map_barcodes",
+      "slug": "map_barcodes",
+      "title": "Map Barcodes: livesøgning, kontrollerede referencer og faktiske optællinger",
       "series": 1,
-      "section": "Core",
-      "slug": "map_barcodes"
+      "app_key": "map_barcodes",
+      "section": "Hovedmoduler",
+      "description": "Hent et begrænset, virkeligt sekventeringsudsnit, undersøg livesøgningen, anvend et forslag udtrykkeligt, og kontrollér optællingerne. Se et sæt med to stregkodetyper via det aktuelle Python-API.",
+      "objectives": [
+        "Finde referencetabeller og orienteringer understøttet af faktiske læsninger.",
+        "Skelne søgeforslag fra anvendte indstillinger og korrekt orienterede referencefiler.",
+        "Undersøge gemte optællinger og bruge et udtrykkeligt sæt uden opdigtede ekstra stregkoder."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly med stregkodesøgning. Optagelsen bruger SRR33531217 og vedligeholderens tilsvarende primers_3-kolonne- og rækketabeller samt guidereferencer, ikke de ældre medfølgende tabeller. Skaf referencer, der passer til dit bibliotek, før kortlægningen.",
+      "scenes": [
+        {
+          "visual": "gui_01_module",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc"
+          ],
+          "narration": "Åbn Map Barcodes fra Home. Modulet omdanner sekventeringslæsninger til optællinger af navngivne stregkoder. Barcode QC er det underordnede kvalitetskontrolmodul; dets separate vejledning er stadig tilgængelig."
+        },
+        {
+          "visual": "gui_02_archive_bounded_choice",
+          "hold_after": 0.7,
+          "narration": "Vælg Load test data og begge filer i læseparret fra arkivets første kørsel. Begræns hver fil til 10.000 læsninger. Så hentes et faktisk parret udsnit, ikke hele sekventeringsarkivet."
+        },
+        {
+          "visual": "gui_04_reference_tables",
+          "hold_after": 0.7,
+          "narration": "Vælg referencetabeller, der hører til dette bibliotek. Her bruger vi de rigtige primers_3-kolonne- og rækketabeller samt guidetabellen frem for de gamle standardtabeller. Vi starter bevidst med en vindueslængde på 120 baser for at vise ændringen i forslaget."
+        },
+        {
+          "visual": "gui_06_live_search_progress",
+          "hold_after": 0.7,
+          "narration": "Åbn Find barcodes, og start søgningen. Optællingerne opdateres, mens faktiske læsninger fra begge filer undersøges i begge orienteringer. Indstillingsformularen ændres ikke under denne løbende forfining."
+        },
+        {
+          "visual": "gui_07_search_verdicts",
+          "hold_after": 0.7,
+          "narration": "Sammenlign Observed med By chance, og undersøg orientering, position og vurdering. En træfrate alene fastslår ikke en stregkode. Træfpositionernes koncentration og de forskellige observerede referencer indgår også; læs forklaringerne, før du anvender noget."
+        },
+        {
+          "visual": "gui_08_coloured_reads",
+          "hold_after": 0.7,
+          "narration": "Læsevisningen viser én faktisk læsning pr. række. Signaturforklaringen angiver farverne for kolonne, guide, række og ankersekvens. Farvede træf hjælper med at undersøge evidensen, men et enkelt træf beviser ikke, at referencetabellen er korrekt."
+        },
+        {
+          "visual": "gui_09_proposed_settings",
+          "hold_after": 0.7,
+          "narration": "Gennemgå forslaget. Dette udsnit giver et ekstraktionsvindue på 89 baser. Kun et tryk på Apply these settings skriver ændringen i formularen. Automatisk registrering giver ikke automatisk lov til at erstatte dine indstillinger."
+        },
+        {
+          "visual": "gui_11_oriented_reference_copies",
+          "hold_after": 0.7,
+          "narration": "Noterne kræver også reverskomplementerede referencer for rækker og guider. Apply opretter ikke disse filer. Vælg separat kontrollerede reverskomplementerede kopier, som bevarer alle oprindelige stregkodenavne; behold kolonnetabellen i dens oprindelige orientering."
+        },
+        {
+          "visual": "gui_20_batch_settings",
+          "hold_after": 0.7,
+          "narration": "Behandl det hentede par med to arbejdsprocesser, blokke på 1.000 og lagring af annoterede læsninger slået til. Lad manglende tildelinger forblive manglende. Denne kortlægning bruger CPU; GPU er ikke nødvendig."
+        },
+        {
+          "visual": "gui_23_batch_finished",
+          "hold_after": 0.7,
+          "narration": "Den faktiske kørsel udtrak 8.611 vinduer og tildelte 7.657 læsninger til 4.099 optællingsrækker. Referencer uden træf eller med tvetydighed forbliver utildelte. Afslutningen kontrolleres mod gemte filer, ikke kun konsollens færdigmelding."
+        },
+        {
+          "visual": "api_01_actual_two_barcode_api",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ],
+          "narration": "Det aktuelle Python-API accepterer stregkodesæt af vilkårlig størrelse, men formularen har ingen editor til sådanne sæt. En anden faktisk beregning vælger kun kolonne og guide fra 1.000 læsepar. Hver post kræver en tilsvarende navngiven gruppe i mønstret. Uden rækkeidentitet er optællingerne pr. kolonne og guide, ikke pr. brønd."
+        },
+        {
+          "visual": "api_02_real_count_figure",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc",
+            "13_regression"
+          ],
+          "narration": "Denne kontrolfigur i Python viser læsedybden fra den gemte GUI-kørsel med tre stregkodetyper. Hver optælling er kontrolleret uafhængigt mod annoterede læsninger og referencenavne. Uens dybde er en observation til kvalitetskontrol, ikke en biologisk effekt; undersøg Barcode QC før efterfølgende Regression."
+        },
+        {
+          "visual": "gui_30_ai_unsent_question",
+          "hold_after": 0.7,
+          "narration": "spaCR AI kan hjælpe med at forklare en kørsel, når du har konfigureret en udbyder. Optagelsen viser et spørgsmål, der ikke er sendt, og indeholder intet AI-svar. Kontrollér selv referenceidentitet, orientering, advarsler og gemte optællinger, før du skalerer op."
+        }
+      ]
     },
     {
       "id": "13_regression",
@@ -4444,8 +4523,8 @@
       "number": 33,
       "app_key": "plate_view",
       "series": 4,
-      "section": "Results and quality control",
       "slug": "plate_viewer",
+      "section": "Results and quality control",
       "host_app_key": "graph_builder"
     },
     {
@@ -4479,8 +4558,8 @@
       "number": 34,
       "app_key": "db_browser",
       "series": 4,
-      "section": "Data",
-      "slug": "database"
+      "slug": "database",
+      "section": "Data"
     },
     {
       "id": "35_converter",
@@ -9565,8 +9644,8 @@
       "number": 71,
       "app_key": "investigate_hit",
       "series": 5,
-      "section": "Results and quality control",
       "slug": "investigate_hit",
+      "section": "Results and quality control",
       "host_app_key": "regression"
     },
     {

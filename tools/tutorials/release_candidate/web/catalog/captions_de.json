@@ -1339,17 +1339,96 @@
     },
     {
       "id": "12_map_barcodes",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Demnächst verfügbar",
-      "description": "Dieses Tutorial ist noch nicht verfügbar. Entdecke in der Zwischenzeit die anderen Tutorials.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 12,
-      "app_key": "map_barcodes",
+      "slug": "map_barcodes",
+      "title": "Map Barcodes: Live-Suche, geprüfte Referenzen und echte Zählwerte",
       "series": 1,
-      "section": "Core",
-      "slug": "map_barcodes"
+      "app_key": "map_barcodes",
+      "section": "Hauptmodule",
+      "description": "Laden Sie einen begrenzten echten Sequenzierungsdatensatz, prüfen Sie die Live-Suche, übernehmen Sie einen Vorschlag ausdrücklich und kontrollieren Sie die Zählwerte. Ein Set mit zwei Barcode-Typen wird über die aktuelle Python-API gezeigt.",
+      "objectives": [
+        "Referenztabellen und Orientierungen anhand echter Reads bestimmen.",
+        "Vorschläge, übernommene Einstellungen und korrekt orientierte Referenzdateien unterscheiden.",
+        "Gespeicherte Zählwerte prüfen und ein explizites Set ohne erfundene zusätzliche Barcodes verwenden."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly mit Barcode-Suche. Die Aufnahme verwendet SRR33531217 und die passenden primers_3-Spalten- und Zeilentabellen sowie Guide-Referenzen des Maintainers, nicht die älteren mitgelieferten Tabellen. Beschaffen Sie vor der Zuordnung passende Referenzen für Ihre Bibliothek.",
+      "scenes": [
+        {
+          "visual": "gui_01_module",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc"
+          ],
+          "narration": "Öffnen Sie Map Barcodes über Home. Dieses Modul wandelt Sequenzierungsreads in Zählwerte für namentlich zugeordnete Barcodes um. Barcode QC ist der untergeordnete Arbeitsablauf zur Qualitätskontrolle; sein separates Tutorial bleibt verfügbar."
+        },
+        {
+          "visual": "gui_02_archive_bounded_choice",
+          "hold_after": 0.7,
+          "narration": "Wählen Sie Load test data und beide Mate-Dateien des ersten Archiv-Runs. Begrenzen Sie jede Datei auf 10.000 Reads. So laden Sie eine echte gepaarte Stichprobe statt des gesamten Sequenzierungsarchivs herunter."
+        },
+        {
+          "visual": "gui_04_reference_tables",
+          "hold_after": 0.7,
+          "narration": "Wählen Sie Referenztabellen dieser Bibliothek. Hier verwenden wir die passenden primers_3-Spalten- und Zeilentabellen und die Guide-Tabelle statt der alten Standardtabellen. Wir beginnen absichtlich mit einer Fensterlänge von 120 Basen, um die Änderung durch den Vorschlag zu zeigen."
+        },
+        {
+          "visual": "gui_06_live_search_progress",
+          "hold_after": 0.7,
+          "narration": "Öffnen Sie Find barcodes und starten Sie die Suche. Die Zählwerte werden aktualisiert, während echte Reads aus beiden Mate-Dateien in beiden Orientierungen untersucht werden. Das Einstellungsformular bleibt während dieser Live-Verfeinerung unverändert."
+        },
+        {
+          "visual": "gui_07_search_verdicts",
+          "hold_after": 0.7,
+          "narration": "Vergleichen Sie Observed mit By chance und prüfen Sie Orientierung, Position und Urteil. Eine Trefferquote allein bestätigt keinen Barcode. Auch die Konzentration der Trefferpositionen und die beobachteten unterschiedlichen Referenzen fließen ein; lesen Sie vor der Übernahme die Begründungen."
+        },
+        {
+          "visual": "gui_08_coloured_reads",
+          "hold_after": 0.7,
+          "narration": "Die Read-Ansicht zeigt einen echten Read pro Zeile. Die Legende kennzeichnet die Farben für Spalte, Guide, Zeile und Ankersequenz. Farbige Treffer helfen bei der Prüfung, aber ein einzelner Treffer beweist nicht, dass die Referenztabelle stimmt."
+        },
+        {
+          "visual": "gui_09_proposed_settings",
+          "hold_after": 0.7,
+          "narration": "Prüfen Sie den Vorschlag. Für diese Stichprobe beträgt die Extraktionsfensterlänge 89 Basen. Erst Apply these settings schreibt die vorgeschlagene Änderung ins Formular. Automatische Erkennung ist keine Erlaubnis, Ihre Einstellungen automatisch zu ersetzen."
+        },
+        {
+          "visual": "gui_11_oriented_reference_copies",
+          "hold_after": 0.7,
+          "narration": "Die Hinweise verlangen außerdem revers-komplementierte Zeilen- und Guide-Referenzen. Apply erstellt diese Dateien nicht. Wählen Sie separat geprüfte revers-komplementierte Kopien, die alle ursprünglichen Barcode-Namen erhalten; die Spaltentabelle bleibt in ihrer ursprünglichen Orientierung."
+        },
+        {
+          "visual": "gui_20_batch_settings",
+          "hold_after": 0.7,
+          "narration": "Verarbeiten Sie das heruntergeladene Paar mit zwei Arbeitsprozessen, Blöcken von 1.000 und aktiviertem Speichern annotierter Reads. Lassen Sie fehlende Zuordnungen fehlend. Dieser Arbeitsablauf nutzt die CPU; eine GPU ist nicht erforderlich."
+        },
+        {
+          "visual": "gui_23_batch_finished",
+          "hold_after": 0.7,
+          "narration": "Der echte Lauf extrahierte 8.611 Fenster und ordnete 7.657 Reads insgesamt 4.099 Zählzeilen zu. Nicht passende und mehrdeutige Referenzen bleiben unzugeordnet. Der Abschluss wird anhand gespeicherter Dateien geprüft, nicht nur anhand der Fertigmeldung in der Konsole."
+        },
+        {
+          "visual": "api_01_actual_two_barcode_api",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ],
+          "narration": "Die aktuelle Python-API akzeptiert Barcode-Sets beliebiger Größe, obwohl dieses Formular keinen Set-Editor besitzt. Eine zweite echte Berechnung wählt auf 1.000 Read-Paaren nur Spalte und Guide aus. Jeder Eintrag benötigt eine passende benannte Gruppe im Muster. Ohne Zeilenidentität sind dies Zählwerte je Spalte und Guide, nicht je Well."
+        },
+        {
+          "visual": "api_02_real_count_figure",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc",
+            "13_regression"
+          ],
+          "narration": "Diese Python-Prüfgrafik zeigt die Read-Tiefe aus dem gespeicherten GUI-Lauf mit drei Barcode-Typen. Jeder Zählwert wurde unabhängig mit den annotierten Reads und Referenznamen abgeglichen. Ungleiche Tiefe ist eine Beobachtung zur Qualitätskontrolle, kein biologischer Effekt; prüfen Sie Barcode QC vor der nachfolgenden Regression."
+        },
+        {
+          "visual": "gui_30_ai_unsent_question",
+          "hold_after": 0.7,
+          "narration": "Die spaCR-AI-Steuerelemente können nach Einrichtung eines Anbieters helfen, einen Lauf zu erklären. Die Aufnahme zeigt eine nicht gesendete Frage und keine KI-Antwort. Prüfen Sie Referenzidentität, Orientierung, Warnungen und gespeicherte Zählwerte selbst, bevor Sie größere Datenmengen verarbeiten."
+        }
+      ]
     },
     {
       "id": "13_regression",
@@ -4444,8 +4523,8 @@
       "number": 33,
       "app_key": "plate_view",
       "series": 4,
-      "section": "Results and quality control",
       "slug": "plate_viewer",
+      "section": "Results and quality control",
       "host_app_key": "graph_builder"
     },
     {
@@ -4479,8 +4558,8 @@
       "number": 34,
       "app_key": "db_browser",
       "series": 4,
-      "section": "Data",
-      "slug": "database"
+      "slug": "database",
+      "section": "Data"
     },
     {
       "id": "35_converter",
@@ -9565,8 +9644,8 @@
       "number": 71,
       "app_key": "investigate_hit",
       "series": 5,
-      "section": "Results and quality control",
       "slug": "investigate_hit",
+      "section": "Results and quality control",
       "host_app_key": "regression"
     },
     {

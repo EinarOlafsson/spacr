@@ -1339,17 +1339,96 @@
     },
     {
       "id": "12_map_barcodes",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Væntanlegt",
-      "description": "Þetta kennsluefni er ekki tiltækt enn. Skoðaðu annað kennsluefni á meðan.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 12,
-      "app_key": "map_barcodes",
+      "slug": "map_barcodes",
+      "title": "Map Barcodes: lifandi leit, staðfestar viðmiðunartöflur og raunverulegar talningar",
       "series": 1,
-      "section": "Core",
-      "slug": "map_barcodes"
+      "app_key": "map_barcodes",
+      "section": "Aðaleiningar",
+      "description": "Sæktu takmarkað úrtak raunverulegra raðgreiningargagna, skoðaðu leitina, samþykktu tillögu sérstaklega og sannreyndu talningar. Sýnt er tveggja strikamerkja sett með núverandi Python-forritaskilum.",
+      "objectives": [
+        "Finna viðmiðunartöflur og stefnur sem raunverulegir lestrar styðja.",
+        "Greina á milli leitartillögu, samþykktra stillinga og rétt snúinna viðmiðunarskráa.",
+        "Skoða vistaðar talningar og velja afmarkað sett án þess að búa til viðbótarstrikamerki."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly með strikamerkjaleit. Upptakan notar SRR33531217 og viðeigandi primers_3-töflur um dálka og raðir ásamt gRNA-viðmiðum frá umsjónarmanni, ekki eldri innbyggðu töflurnar. Útvegaðu viðmið sem passa við þitt safn áður en þú kortleggur.",
+      "scenes": [
+        {
+          "visual": "gui_01_module",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc"
+          ],
+          "narration": "Opnaðu Map Barcodes frá Home. Einingin breytir raðgreiningarlestrum í talningar fyrir nafngreind strikamerki. Barcode QC er undirliggjandi gæðastýringareining; sérstaka kennslumyndin fyrir hana er enn aðgengileg."
+        },
+        {
+          "visual": "gui_02_archive_bounded_choice",
+          "hold_after": 0.7,
+          "narration": "Veldu Load test data og báðar skrár lestraparsins úr fyrstu keyrslu gagnasafnsins. Takmarkaðu hvora skrá við 10.000 lestra. Þannig sækirðu raunverulegt parað úrtak, ekki allt raðgreiningarsafnið."
+        },
+        {
+          "visual": "gui_04_reference_tables",
+          "hold_after": 0.7,
+          "narration": "Veldu viðmiðunartöflur sem tilheyra þessu safni. Hér notum við réttu primers_3-töflurnar fyrir dálka og raðir ásamt gRNA-töflunni, ekki eldri sjálfgefnu töflurnar. Við byrjum vísvitandi með 120 basa glugga til að sýna hvernig tillagan breytir honum."
+        },
+        {
+          "visual": "gui_06_live_search_progress",
+          "hold_after": 0.7,
+          "narration": "Opnaðu Find barcodes og ræstu leitina. Talningar uppfærast á meðan raunverulegir lestrar úr báðum skrám eru skoðaðir í báðar áttir. Stillingaformið breytist ekki við þessa samfelldu uppfærslu."
+        },
+        {
+          "visual": "gui_07_search_verdicts",
+          "hold_after": 0.7,
+          "narration": "Berðu Observed saman við By chance og skoðaðu stefnu, staðsetningu og niðurstöðu. Samsvörunarhlutfall eitt og sér staðfestir ekki strikamerki. Samþjöppun samsvarana eftir staðsetningu og fjöldi ólíkra viðmiða sem sjást hafa einnig áhrif; lestu skýringarnar áður en þú samþykkir breytingar."
+        },
+        {
+          "visual": "gui_08_coloured_reads",
+          "hold_after": 0.7,
+          "narration": "Lestraskoðarinn sýnir einn raunverulegan lestur í hverri línu. Litaskýringin auðkennir dálk, gRNA, röð og akkerisröð. Litaðar samsvaranir hjálpa við skoðun gagnanna, en ein stök samsvörun sannar ekki að viðmiðunartaflan sé rétt."
+        },
+        {
+          "visual": "gui_09_proposed_settings",
+          "hold_after": 0.7,
+          "narration": "Skoðaðu tillöguna. Fyrir þetta úrtak er útdráttarglugginn 89 basar. Breytingin er aðeins skrifuð í formið þegar ýtt er á Apply these settings. Sjálfvirk greining er ekki sjálfkrafa leyfi til að skipta út stillingunum þínum."
+        },
+        {
+          "visual": "gui_11_oriented_reference_copies",
+          "hold_after": 0.7,
+          "narration": "Athugasemdirnar krefjast einnig viðmiða fyrir raðir og gRNA á formi öfugrar fylliraðar. Apply býr ekki til þessar skrár. Veldu sérstaklega sannreynd afrit með öfugum fylliröðum sem varðveita öll upprunaleg strikamerkjanöfn; haltu dálkatöflunni í upprunalegri stefnu."
+        },
+        {
+          "visual": "gui_20_batch_settings",
+          "hold_after": 0.7,
+          "narration": "Keyrðu niðurhalaða parið með tveimur vinnsluferlum, 1.000 færslum í hverjum bút og vistun merktrar lestragreiningar virkri. Láttu vantaðar úthlutanir áfram vera vantaðar. Kortlagningin notar CPU; GPU er ekki nauðsynleg."
+        },
+        {
+          "visual": "gui_23_batch_finished",
+          "hold_after": 0.7,
+          "narration": "Raunverulega keyrslan dró út 8.611 glugga og úthlutaði 7.657 lestrum á 4.099 talningarlínur. Ósamsvarandi eða margræð viðmið fá áfram enga úthlutun. Lok keyrslu eru staðfest með vistuðu skránum, ekki aðeins lokaskilaboðum stjórnborðsins."
+        },
+        {
+          "visual": "api_01_actual_two_barcode_api",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ],
+          "narration": "Núverandi Python-forritaskil taka við strikamerkjasetti af hvaða stærð sem er, þótt þetta form hafi engan ritil fyrir slík sett. Önnur raunveruleg útreikningskeyrsla velur aðeins dálk og gRNA úr 1.000 lestrapörum. Hver færsla þarf samsvarandi nafngreindan hóp í mynstrinu. Án raðauðkennis eru talningarnar eftir dálki og gRNA, ekki eftir brunni."
+        },
+        {
+          "visual": "api_02_real_count_figure",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc",
+            "13_regression"
+          ],
+          "narration": "Þessi sannprófunarmynd úr Python sýnir lestrardýpt úr vistuðu þriggja strikamerkja keyrslunni í myndræna viðmótinu. Sérhver talning var borin sjálfstætt saman við merkta lestra og viðmiðunarnöfn. Ójöfn dýpt er gæðastýringarathugun, ekki líffræðileg áhrif; skoðaðu Barcode QC áður en haldið er í Regression."
+        },
+        {
+          "visual": "gui_30_ai_unsent_question",
+          "hold_after": 0.7,
+          "narration": "spaCR AI getur hjálpað við að útskýra keyrslu þegar þjónustuveita hefur verið stillt. Upptakan sýnir ósenda spurningu og inniheldur ekkert svar frá gervigreind. Athugaðu sjálfur viðmið, stefnu, viðvaranir og vistaðar talningar áður en vinnslan er stækkuð."
+        }
+      ]
     },
     {
       "id": "13_regression",
@@ -4444,8 +4523,8 @@
       "number": 33,
       "app_key": "plate_view",
       "series": 4,
-      "section": "Results and quality control",
       "slug": "plate_viewer",
+      "section": "Results and quality control",
       "host_app_key": "graph_builder"
     },
     {
@@ -4479,8 +4558,8 @@
       "number": 34,
       "app_key": "db_browser",
       "series": 4,
-      "section": "Data",
-      "slug": "database"
+      "slug": "database",
+      "section": "Data"
     },
     {
       "id": "35_converter",
@@ -9565,8 +9644,8 @@
       "number": 71,
       "app_key": "investigate_hit",
       "series": 5,
-      "section": "Results and quality control",
       "slug": "investigate_hit",
+      "section": "Results and quality control",
       "host_app_key": "regression"
     },
     {

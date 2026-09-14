@@ -29,6 +29,17 @@ def test_only_map_changes_without_modifying_inputs_or_losing_metadata():
     assert (target, source) == original
 
 
+def test_legacy_caption_metadata_can_gain_only_the_existing_map_number():
+    target, source = fixture(), fixture()
+    target['lessons'][1].pop('number')
+    merged = merge_catalog(target, source)
+    assert merged['lessons'][1]['number'] == 12
+    assert 'number' not in target['lessons'][1]
+    source['lessons'][1]['number'] = 78
+    with pytest.raises(ValueError):
+        merge_catalog(target, source)
+
+
 @pytest.mark.parametrize('defect', ['missing', 'duplicate_map', 'duplicate_other', 'renumbered', 'held'])
 def test_a_successful_merge_then_an_invalid_source_is_rejected(defect):
     target, source = fixture(), fixture()

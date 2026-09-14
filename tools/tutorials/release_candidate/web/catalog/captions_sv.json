@@ -1339,17 +1339,96 @@
     },
     {
       "id": "12_map_barcodes",
-      "scenes": [],
-      "status": "coming_soon",
-      "availability_title": "Kommer snart",
-      "description": "Den här handledningen är inte tillgänglig ännu. Utforska de andra handledningarna under tiden.",
-      "objectives": [],
-      "prerequisite": "",
       "number": 12,
-      "app_key": "map_barcodes",
+      "slug": "map_barcodes",
+      "title": "Map Barcodes: livesökning, verifierade referenser och verkliga antal",
       "series": 1,
-      "section": "Core",
-      "slug": "map_barcodes"
+      "app_key": "map_barcodes",
+      "section": "Huvudmoduler",
+      "description": "Hämta ett begränsat verkligt sekvenseringsprov, granska livesökningen, tillämpa ett förslag uttryckligen och verifiera antalen. Visa en uppsättning med två streckkodstyper via det aktuella Python-API:et.",
+      "objectives": [
+        "Hitta referenstabeller och orienteringar som stöds av verkliga läsningar.",
+        "Skilja sökförslag från tillämpade inställningar och korrekt orienterade referensfiler.",
+        "Granska sparade antal och använda en uttrycklig uppsättning utan påhittade extra streckkoder."
+      ],
+      "prerequisite": "spaCR 1.5.0.7 nightly med streckkodssökning. Inspelningen använder SRR33531217 och förvaltarens matchande primers_3-tabeller för kolumner och rader samt guidereferenser, inte de äldre medföljande tabellerna. Skaffa referenser som passar ditt bibliotek före mappning.",
+      "scenes": [
+        {
+          "visual": "gui_01_module",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc"
+          ],
+          "narration": "Öppna Map Barcodes från Home. Modulen omvandlar sekvenseringsläsningar till antal för namngivna streckkoder. Barcode QC är dess underordnade kvalitetskontrollmodul; den separata handledningen finns kvar."
+        },
+        {
+          "visual": "gui_02_archive_bounded_choice",
+          "hold_after": 0.7,
+          "narration": "Välj Load test data och båda filerna i läsparet för arkivets första körning. Begränsa varje fil till 10 000 läsningar. Då hämtas ett verkligt parat delprov, inte hela sekvenseringsarkivet."
+        },
+        {
+          "visual": "gui_04_reference_tables",
+          "hold_after": 0.7,
+          "narration": "Välj referenstabeller som hör till biblioteket. Här används rätt primers_3-tabeller för kolumner och rader samt guidetabellen, inte de äldre standardtabellerna. Vi börjar avsiktligt med en fönsterlängd på 120 baser för att visa hur förslaget ändrar den."
+        },
+        {
+          "visual": "gui_06_live_search_progress",
+          "hold_after": 0.7,
+          "narration": "Öppna Find barcodes och starta sökningen. Antalen uppdateras medan verkliga läsningar från båda filerna undersöks i båda orienteringarna. Inställningsformuläret ändras inte under denna löpande förfining."
+        },
+        {
+          "visual": "gui_07_search_verdicts",
+          "hold_after": 0.7,
+          "narration": "Jämför Observed med By chance och granska orientering, position och bedömning. En träfffrekvens räcker inte för att fastställa en streckkod. Även hur koncentrerade träffarnas positioner är och vilka olika referenser som observeras påverkar sökningen; läs förklaringarna innan du tillämpar något."
+        },
+        {
+          "visual": "gui_08_coloured_reads",
+          "hold_after": 0.7,
+          "narration": "Läsvyn visar en verklig läsning per rad. Teckenförklaringen anger färgerna för kolumn, guide, rad och ankare. Färgade träffar hjälper dig att granska underlaget, men en enstaka träff bevisar inte att referenstabellen är rätt."
+        },
+        {
+          "visual": "gui_09_proposed_settings",
+          "hold_after": 0.7,
+          "narration": "Granska förslaget. För detta prov är extraktionsfönstret 89 baser långt. Först när du trycker på Apply these settings skrivs ändringen in i formuläret. Automatisk upptäckt ger inte automatiskt tillstånd att ersätta inställningarna."
+        },
+        {
+          "visual": "gui_11_oriented_reference_copies",
+          "hold_after": 0.7,
+          "narration": "Anmärkningarna kräver också omvänt komplementära referenser för rader och guider. Apply skapar inte dessa filer. Välj separat verifierade omvänt komplementära kopior som bevarar alla ursprungliga streckkodsnamn; behåll kolumntabellen i dess ursprungliga orientering."
+        },
+        {
+          "visual": "gui_20_batch_settings",
+          "hold_after": 0.7,
+          "narration": "Bearbeta det hämtade paret med två arbetsprocesser, block om 1 000 och lagring av annoterade läsningar aktiverad. Låt saknade tilldelningar förbli saknade. Mappningen använder CPU; GPU behövs inte."
+        },
+        {
+          "visual": "gui_23_batch_finished",
+          "hold_after": 0.7,
+          "narration": "Den verkliga körningen extraherade 8 611 fönster och tilldelade 7 657 läsningar till 4 099 rader med antal. Referenser utan träff eller med tvetydighet förblir otilldelade. Slutförandet kontrolleras mot sparade filer, inte bara konsolens meddelande."
+        },
+        {
+          "visual": "api_01_actual_two_barcode_api",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ],
+          "narration": "Det aktuella Python-API:et accepterar streckkodsuppsättningar av valfri storlek, men detta formulär saknar en uppsättningsredigerare. En andra verklig beräkning väljer endast kolumn och guide från 1 000 läspar. Varje post kräver en motsvarande namngiven grupp i mönstret. Utan radidentitet gäller antalen kolumn och guide, inte brunn."
+        },
+        {
+          "visual": "api_02_real_count_figure",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "47_barcode_qc",
+            "13_regression"
+          ],
+          "narration": "Denna verifieringsfigur i Python visar läsdjupet från den sparade GUI-körningen med tre streckkodstyper. Varje antal har stämts av oberoende mot annoterade läsningar och referensnamn. Ojämnt djup är en kvalitetskontrollobservation, inte en biologisk effekt; granska Barcode QC före efterföljande Regression."
+        },
+        {
+          "visual": "gui_30_ai_unsent_question",
+          "hold_after": 0.7,
+          "narration": "spaCR AI kan hjälpa till att förklara en körning när du har konfigurerat en leverantör. Inspelningen visar en oskickad fråga och innehåller inget AI-svar. Kontrollera själv referensidentitet, orientering, varningar och sparade antal innan du skalar upp."
+        }
+      ]
     },
     {
       "id": "13_regression",
@@ -4444,8 +4523,8 @@
       "number": 33,
       "app_key": "plate_view",
       "series": 4,
-      "section": "Results and quality control",
       "slug": "plate_viewer",
+      "section": "Results and quality control",
       "host_app_key": "graph_builder"
     },
     {
@@ -4479,8 +4558,8 @@
       "number": 34,
       "app_key": "db_browser",
       "series": 4,
-      "section": "Data",
-      "slug": "database"
+      "slug": "database",
+      "section": "Data"
     },
     {
       "id": "35_converter",
@@ -9565,8 +9644,8 @@
       "number": 71,
       "app_key": "investigate_hit",
       "series": 5,
-      "section": "Results and quality control",
       "slug": "investigate_hit",
+      "section": "Results and quality control",
       "host_app_key": "regression"
     },
     {
