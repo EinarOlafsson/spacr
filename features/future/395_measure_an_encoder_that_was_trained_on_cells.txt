@@ -10,8 +10,30 @@ Status:    OPEN, AND NOT ONE LINE AWAY -- corrected 2026-09-13. The
            engine, the screen, the column family and the measurement harness
            all exist and all have been run end to end. What is missing is one
            line of configuration and a second run.
-Owner:     unassigned. `spacr/embeddings.py` holds `EmbeddingSpec` and
-           `_timm_encoder`; the measurement is the one 386 records.
+Owner:     BLOCKED ON THE MAINTAINER, 2026-09-14 -- the item cannot start
+           until somebody says WHICH PLATE produced the baseline.
+           `spacr/embeddings.py` holds `EmbeddingSpec` and `_timm_encoder`;
+           the measurement is the one 386 records.
+
+           SEARCHED FOR THE ARTEFACTS 2026-09-14 before accepting that, across
+           /media/carruthers/mnt3/claude and /media/carruthers/mnt1: no file
+           named for retrieval or gene_retrieval exists anywhere, and every
+           hit for the literal strings "0.894" and "0.695" is a coincidental
+           value in an unrelated CSV (phenotype.csv, a control-chart fixture)
+           rather than a record of the run. The harness is not merely
+           uncommitted; it is gone.
+
+           WHY THAT BLOCKS RATHER THAN DELAYS. This item's own success
+           criterion is a number "reported beside 0.695 and 0.894, ON THE SAME
+           PLATE, the same objects and the same folds". A harness written
+           fresh is a new split, and the item itself warns that changing the
+           encoder and the measurement in one step produces a number nobody
+           can attribute. Rebuilding blind does not satisfy the criterion --
+           it quietly replaces it.
+
+           THE ONE QUESTION THAT UNBLOCKS IT: which plate was the 2026-09-12
+           retrieval measurement run on? With that, step 1 (rebuild the
+           harness under `tools/`, plate named) becomes ordinary work.
 
 --------------------------------------------------------------------------------
 WHY THIS EXISTS
