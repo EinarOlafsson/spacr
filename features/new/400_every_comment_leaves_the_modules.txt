@@ -2,9 +2,11 @@
 EVERY COMMENT LEAVES THE MODULES AND THE REASONS MOVE TO docs/notes
 ================================================================================
 
-Status:    BLOCKED 2026-09-13 -- both branches are unreachable from this
-           machine and from origin; see the 09-13 note. Two rival versions
-           exist and one must be discarded -- see BEWARE.
+Status:    DONE 2026-09-13, landed on nightly as d0334c103. 492 modules
+           stripped, 491 notes under docs/notes, the extractor included.
+           The earlier BLOCKED note was accurate when written: both
+           branches were local-only to one checkout. See the closing
+           section for what was verified before the push.
 Requested: 2026-09-12 -- "you have left an extreemely high number of notes
            throughout many of the modual py files. If there is valuble
            information there i would like that to be retained. but if possible

@@ -2,8 +2,10 @@
 MAP BARCODES SEARCHES FOR BARCODES, SETS ITS OWN SETTINGS, AND COLOURS READS
 ================================================================================
 
-Status:    LANDED on nightly 2026-09-12, filed 2026-09-13. Not blocking.
-           The code is done and merged. The tutorial is not.
+Status:    DONE 2026-09-13. Code landed on nightly 2026-09-12 and reached
+           the public site in the 16:15Z deploy; the tutorial was
+           re-recorded by the other session the same day and is staged for
+           promotion. Not blocking.
 Requested: 2026-09-12 -- "implementing a search function that searches for
            barcodes and setts settings automatically, and the ability to find
            more than 3, I.e. an arbitrary number of barcodes... The automatic
