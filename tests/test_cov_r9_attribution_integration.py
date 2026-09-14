@@ -368,5 +368,12 @@ class TestTheSaliencyGenerator:
             "every channel carries the same map, so the per-channel branch "
             "would be three copies of one picture")
 
-        with pytest.raises(ValueError):
+        # THE REFUSAL IS THE POINT; ITS EXCEPTION TYPE IS PILLOW'S BUSINESS.
+        # setup.py deliberately admits two Pillow majors, and they disagree:
+        # 10.x raises ValueError("Too many dimensions: 3 > 2"), 11.x raises
+        # TypeError("Cannot handle this data type: (1, 1, 16), |u1"). Pinning
+        # one of them passed locally on 10.3.0 and failed the Integration job
+        # on 11.x, which is a test that measures the runner rather than the
+        # contract it is named for.
+        with pytest.raises((ValueError, TypeError)):
             Image.fromarray((activation_map * 255).astype(np.uint8), mode='L')
