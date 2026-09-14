@@ -143,6 +143,124 @@ changes and throws every intermediate result away. Finish the code, then
 rebuild, then commit the catalogs. A private name (`_build_the_dialog`) costs
 nothing at all — it never enters the manifest.
 
+## THE MEASUREMENT LESSONS OF 2026-09-14
+
+### Adding a protected term retroactively invalidates every reviewed record that translated it
+
+`_PROTECTED_TERMS` is SHARED BETWEEN THE TWO i18n LANES and neither lane's code
+says so. The other session protected the twenty UI screen names for a
+runtime-lane reason -- English sense expansion was renaming Plate Queue to
+"Plate-processing list" before translation. That reached back into hand-written
+API evidence and invalidated fourteen records in de, is and pt that had
+translated one of those names.
+
+It does not fail softly. `reviewed_api_block_translations` RAISES:
+
+    ValueError: rejected reviewed API target
+    'spacr.qt.preferences.get_dashboard_watermark#1'
+
+from `build_documentation_i18n.py:5772`, via `_syntax_preserved` returning
+False, about a file nobody edited, in a lane nobody touched. The blast radius
+is invisible from the change.
+
+Confirm the cause the way it was confirmed here, rather than reasoning about it:
+
+    git show <before>:tools/build_i18n_catalogs.py | grep -c UI_SCREEN_NAMES   # 0
+    git show <after>:tools/build_i18n_catalogs.py  | grep -c UI_SCREEN_NAMES   # 3
+    git diff --stat <before> <after> -- tools/build_documentation_i18n.py      # unchanged
+
+The validator had not moved; only the term list had. And the right response was
+to fix the fourteen records, not to scope the protection: a German API page
+calling a screen "Laufverlauf" sends a reader to something the interface does
+not have. The protection did not create those defects, it revealed them.
+
+### Exact English is not always a fallback, and every audit assumed it was
+
+Some rows are made entirely of protected literals: a bare identifier, a caption
+whose every word is a product name, a format string of nothing but
+placeholders. There is no prose in them to change, so asking a model for a
+translation can only damage them. A nine-language rebuild produced:
+
+    'extra_performance'  ->  'extra_performance oder'                  (de)
+    'extra_performance'  ->  'extra_performance에 해당되는 글 1건'      (ko)
+    'Image UMAP…'        ->  'Image UMAP...'                           (de)
+    '[{severity}] {object_type}: {flags}'
+                         ->  '({severity}] {object_type}: {flags}'     (de)
+
+The last turns a matched bracket pair into a mismatched one in a user-facing
+line. NOT ONE AUDIT COULD SEE ANY OF IT, because every coverage and
+exact-English check asks whether the target DIFFERS from the English. All four
+differ. All four scored as translated, and the damage RAISED the coverage
+number.
+
+`_IDENTITY_TEXT` is this rule written out by hand and its own comment records
+the failures it was written for (`viridis` to Korean "virus", `slurm` to German
+"mud"). Enumeration cannot keep up: every new identifier-shaped caption
+reintroduces the bug until a human happens to notice. The derived half now
+lives in `_reviewed_translation`.
+
+ORDERING IS LOAD-BEARING. `{location}: {path}` is also entirely protected AND
+carries a deliberate hand-written record in all nine locales, where a reviewer
+added the word path/Pfad/chemin/sökväg to make it readable. Ask the identity
+question before reading the records and all nine are discarded. It was nearly
+filed as a fourth instance of damage.
+
+### A probe that is wrong in the safe direction still lies, and it lies quietly
+
+The identity rule was measured twice wrong before it was measured right. Both
+times the probe was fed the wrong string, and both times it produced a
+confident, plausible, actionable number:
+
+  * `getattr(module, "UI_SOURCES", {})` against the LOCALE catalogs, which name
+    that table `UI`. The `{}` default made `ui.get(s, s) == s` true for every
+    row, reporting "0 translated, 304 English" for all nine locales -- a total
+    failure of tonight's entire rebuild. Believed, it would have triggered a
+    pointless re-run of everything.
+  * the predicate applied to `SETTING_LABELS` KEYS (`adjust_cells`) rather than
+    to the English source, which is the VALUE (`Adjust cells`). It said 1,033
+    rows were affected and 1,920 German labels would be reverted. Believed, the
+    fix would have been abandoned as far too dangerous.
+
+The true number was FOUR. Neither probe raised anything; both returned a number.
+WHEN A MEASUREMENT SAYS THE WORK FAILED COMPLETELY, OR THAT IT IS FAR MORE
+DANGEROUS THAN EXPECTED, CHECK WHAT YOU FED IT BEFORE ACTING ON IT. The same
+mistake appeared a third time in a test written the same hour -- the sweep in
+`test_a_row_with_nothing_to_translate_is_left_alone.py` looked English values up
+as if they were keys, and `seg_qc` collided, reporting a German setting LABEL as
+damage to an identifier.
+
+### Wait on the process, not on its wrapper
+
+`systemd-run --user --scope bash -c '...'` gives at least three PIDs: the scope
+unit, the shell, and the python process. `kill -0` on the wrapper reported the
+rebuild "finished" while it was still translating French, 264 of 304. The log's
+own "REBUILD EXIT=" line had not been written yet, which was the giveaway. The
+script then ran a SECOND python for the audit, so even the first python exiting
+did not mean the script was done.
+
+    pgrep -f 'build_i18n_catalogs' | head      # find the real one
+    while kill -0 $PID 2>/dev/null; do sleep 20; done
+
+This is the fourth recorded instance of reading a background job's state from
+the wrong handle. See also "Do not read a background job's log until the process
+has exited" below. And `pgrep -f <pattern>` still matches the shell that runs
+it: a waiter looking for `sweep3.sh` matched itself and reported a stopped sweep
+as alive.
+
+### Do not let the tree move under a sweep -- including your own commits
+
+A clean full-suite sweep was running while eight agents edited the same
+worktree. It had 13,514 tests green over 12 batches and its remaining 35
+batches would have been uninterpretable, because any red could equally have
+been a real defect or an agent mid-edit. It was stopped rather than finished.
+FIVE HOURS OF CPU FOR A RESULT THAT CANNOT BE TRUSTED IS NOT CHEAPER THAN
+STOPPING.
+
+The rebuild that WOULD have moved the tree was run in a separate worktree
+instead (`git worktree add -b i18n-rebuild <path> origin/nightly`), which costs
+one checkout and removes the conflict entirely. Do that whenever a long
+verification and a large mechanical change want the same tree.
+
 ## THE MEASUREMENT LESSONS OF 2026-09-13
 
 ### Sixty-two ledger files were wrong about their own state, and the ledger had already said so four times
