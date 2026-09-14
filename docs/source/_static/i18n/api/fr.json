@@ -19690,6 +19690,20 @@
         "c63929f86e8d344a85d73180d981921751bbbf037fed7b7ef0e32a7d75a5bac2"
       ]
     },
+    "spacr.embeddings.EmbeddingSpec.__post_init__": {
+      "source_blocks_sha256": [
+        "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
+        "f56d85217de1cb26860c431c88271f867d79ee87d697789c85a43b724c2800e3",
+        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+      ],
+      "source_sha256": "6a66c6ad25c0f2fde0ae68e93a0153e07694cfa708c1ccc1819eb6f3e240a420",
+      "text": "Rejeter une spécification qui ne pouvait pas produire de matrice.\n\nLe contrôle est effectué là où la spec est construite plutôt que là où elle est utilisée, parce qu'une spec code chaque région d'image extraite d'une exécution: une politique de canal de données d'images inconnue ou une taille de lot inférieure à une est une erreur de saisie, et la découvrir après que les images sont chargées gaspille la charge.\n\n:raises EmbeddingError: lorsque ``channel_policy`` n'est pas un de :data:`CHANNEL_POLICIES`, ou ``batch_size`` est inférieur à un.",
+      "translation_source_blocks_sha256": [
+        "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
+        "e65869bbd8b37a09ceef528360e940963fbf80a121570dd3b22e5e39ea30a4cb",
+        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+      ]
+    },
     "spacr.embeddings.EmbeddingSpec.fingerprint": {
       "source_blocks_sha256": [
         "b3f73c01375ab9b68a716e0416b39e74d31ec9284a4051de8b35dda19743ced7",
@@ -50016,6 +50030,20 @@
         "577c68a02b08a65661cc3e265cea36efb7e006267a91300d77a16651ef90ec16",
         "f7c85820406fb6e82f4f85717bca0c5573f674e81450d802055dd991d43ab47a",
         "4cacd542e217100bc03696c3d05924a88f8d1e286b86f0bdb7cf7dda84d183d1"
+      ]
+    },
+    "spacr.ops_store.Readiness.__bool__": {
+      "source_blocks_sha256": [
+        "dc34292a75e343ceebb0579a4980bc70c694f286aa3c951e08a3452c301f2dca",
+        "cb8a478d0983e28888e6bdb8d51a31a0f34ab10fa2ee7908d19ba0085cf8b09e",
+        "c598952f9527ae7d5d203fc4a32bc0559fd236c7e019acfe77701ccda4b7a2ef"
+      ],
+      "source_sha256": "f51bf983ee806bfa120b5c34a5f75c46c0cb4df68adeb25d3e26cbca3cdabe19",
+      "text": "Le verdict seul, donc le résultat se lit comme une condition.\n\n``if not objects_ready(db):`` est la façon naturelle d'écrire la limite de sélection des données, et elle doit répondre au verdict plutôt qu'à \"an object exists\". :attr:`reason` est toujours là pour dire pourquoi la réponse était non.\n\n:returns: :attr:`ready`.",
+      "translation_source_blocks_sha256": [
+        "dc34292a75e343ceebb0579a4980bc70c694f286aa3c951e08a3452c301f2dca",
+        "ba12938e10175c12d125ae404d9c9dc787f4c55264416f8094b2206d01156b0d",
+        "c598952f9527ae7d5d203fc4a32bc0559fd236c7e019acfe77701ccda4b7a2ef"
       ]
     },
     "spacr.ops_store.StoreError": {
@@ -90779,25 +90807,37 @@
     "spacr.qt.settings_pack": {
       "source_blocks_sha256": [
         "ab9973c1f5d237646efd7244d89bd84bb17d9cfb266b0b513a4b828bf5dc3410",
-        "fe787e883fd6004a869cea468ea5b90385ba95cbf1d0fbd889efbf9d04cd1a85",
+        "bb4d8efb7c54fc6f73e92f54c6bfdd162c4bd4bbfbbf857610c22e26526b1a7e",
         "42a8687921e49dd97ce0735a4a8d376e487e15a4a79e0117a7793e508750fd59",
         "bf44b8e66d9733e8a8be7a93421195f314bc5d494400064d7d2d9d09a0444bc0",
         "a73d62408fca8dda2153beec9c8d5175d180412a2274e75d2dc0fefc91b99a3f",
         "f734c2a7ec91ead8f396cbac515094d1755c9c7fcf5e7e50703a1335c08c6d95",
-        "480adc7294996cc433b76d3164ed4f3df8b4ab47073362a2124379790ec4c38d",
-        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4"
+        "dd1d9ab468038c6be0d0ca79c2473c997f43c6fe5fd0fea950bf6cd42afc631a",
+        "f9cad53fc15c2e866ba61614bdc4ffafd22a7a14a7fbbeb251a2dc4bccd3a784",
+        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4",
+        "809e2af49bb1b15c26827f32d28164985e8e7a38191ecae19bd0cec7a14c3efe",
+        "214290cdb5f0843d8999cc74831d2e38700cd312f7b2aab1301f5cf45690cd3e",
+        "cd538090ecf6f866079cc0beb4307a7d721597e588005458e3ae7d5ec96fe9d2",
+        "9923fd684380e6bf7e03211781875fc583457dc4bcdb19f5885c9449e88b2f5f",
+        "9eeb76279dae5a5f51ff47acfef3dcebd6efb53b8c3ba403480366fa0e044a25"
       ],
-      "source_sha256": "2015c5dd08df7607cae3df4445e278a9d0387d30fab13dd48cb6df6abd2e475c",
-      "text": "Lire un pack de paramètres téléchargés dans les paramètres que spaCR peut exécuter.\n\nL'ensemble de données de démonstration sur HuggingFace envoie des fichiers ``<app>_settings.csv`` à côté des images. Ils ont été écrits par un ancien spaCR, donc certains de leurs noms n'existent plus -- des noms de données structurés renommés, des noms structurés de données supprimés avec la fonctionnalité qu'ils ont configurée, des nom de données structurées qui n'ont jamais été paramétrés du tout.\n\nLe chargeur précédent lisait chaque ligne de la ligne CSV directement au-dessus des valeurs par défaut, de sorte qu'un nom de données structurées que le build actuel n'a jamais entendu parler est arrivé dans le mapping de la valeur de la clé de paramètres et a voyagé dans le workflow, où il a été ignoré silencieusement ou a produit une erreur de nommage d'un paramètre que l'utilisateur n'avait pas tapé et ne peut trouver dans le formulaire.\n\nDonc, ce MIGRATES plutôt que fusionne, et RAPPORTS plutôt que de deviner:\n\n* une clé que l'application a encore est appliquée;\n* une clé qui a été rebaptisée est appliquée sous son nouveau nom et comptée;\n* une clé qui n'existe plus nulle part est abandonnée et nommée.\n\nLe rapport est le livrable autant que les paramètres sont. \"Loaded 34 paramètres, rebaptisé 2, largué 3 cette version n'a plus\" est une phrase sur laquelle un utilisateur peut agir. Trente-neuf paramètres appliqués silencieusement, dont trois ne font rien, ne l'est pas.",
+      "source_sha256": "4fa4477a098840231ac9973eab732a5bd3a8587d6041b5c78eb385c7f4fbd811",
+      "text": "Lire un pack de paramètres téléchargés dans les paramètres que spaCR peut exécuter.\n\nL'ensemble de données de démonstration sur HuggingFace envoie un paramètre CSV par étape à côté des images. Ils ont été écrits par un ancien spaCR, donc certains de leurs noms n'existent plus -- des noms de données structurés renommés, des noms structurés de données supprimés avec la fonctionnalité qu'ils ont configurée, des nom de données structurées qui n'ont jamais été paramétrés du tout.\n\nLe chargeur précédent lisait chaque ligne de la ligne CSV directement au-dessus des valeurs par défaut, de sorte qu'un nom de données structurées que le build actuel n'a jamais entendu parler est arrivé dans le mapping de la valeur de la clé de paramètres et a voyagé dans le workflow, où il a été ignoré silencieusement ou a produit une erreur de nommage d'un paramètre que l'utilisateur n'avait pas tapé et ne peut trouver dans le formulaire.\n\nDonc, ce MIGRATES plutôt que fusionne, et RAPPORTS plutôt que de deviner:\n\n* une clé que l'application a encore est appliquée;\n* une clé qui a été rebaptisée est appliquée sous son nouveau nom et comptée;\n* une clé qui n'existe plus nulle part est abandonnée et nommée;\n* un nom de données structuré qui est un paramètre dans cette compilation mais pas sur le formulaire de l'application CETTE est nommé séparément, parce que \"cette version n'a pas ce paramètre\" est une fausse phrase à ce sujet.\n\nLe rapport est le livrable autant que les paramètres sont. \"Loaded 34 paramètres, rebaptisé 2, largué 3 cette version n'a plus\" est une phrase sur laquelle un utilisateur peut agir. Trente-neuf paramètres appliqués silencieusement, dont trois ne font rien, ne l'est pas.\n\nPourquoi il n'a rien lu du tout jusqu'en 2026-09-14, ce qui est le point de correction 317 nécessaire. Ce module a été écrit comme le successeur sûr d'un lecteur qui fusionnait aveugle, et ensuite ne pouvait pas le remplacer, parce que trois choses qu'il n'avait pas fait sont trois choses dont le pack publié a besoin:\n\n* Il a cherché le mauvais fichier. Il a ouvert ``<app>_settings.csv`` seulement, et ``einarolafsson/spacr_settings`` n'a jamais expédié un fichier par ce nom -- il envoie ``gen_masks_settings.csv`` et ``crop_measure_settings.csv``. Mesuré sur le pack réel à ``~/datasets/settings`` sur 2026-09-14: appliqué 0, rebaptisé 0, largué 0, mal formé 0, sur un fichier de réglage de 58. Une erreur plutôt qu'une erreur, donc l'appelant a rempli le formulaire avec des défauts simples et dit rien. `tests/test_hf_e2e_integration.py` a trouvé le même trou de l'autre côté et a travaillé autour avec un lecteur local et une assertion difficile sur les noms, qui est d'où `PACK_FILES` vient.\n* Il lit la ligne d'en-tête comme un paramètre. Les fichiers expédiés démarrent ``Key,Value`` et sont arrivés comme un nom de données structuré nommé ``Key``, signalé à l'utilisateur comme un réglage abandonné. Ce n'est pas un paramètre; c'est un en-tête de colonne.\n* Il a remis des listes en tant que chaînes. ``channels,\"[0, 1, 2, 3]\"`` est devenu la chaîne de onze caractères, comptée comme APPLIED, remplaçant une vraie liste par défaut -- ce qui est pire qu'une goutte, parce que le rapport dit que cela a fonctionné.\n\nMesuré à nouveau avec ces trois fichiers fermés, mêmes par défaut : 32 appliqués, 9 rebaptisés, 17 supprimés, dont 10 sont des paramètres en direct que ce formulaire ne porte pas. 32 + 9 + 17 = 58, qui est chaque ligne que le lecteur a vue, et le fichier a 59 lignes non blanches -- la cinquante-neuvième est l'en-tête qu'il saute maintenant. Rien n'est exclu de ce nombre.",
       "translation_source_blocks_sha256": [
         "f26d4231e3cb3be29f573b79b1d90cf4b2c0b7a247dcb8391795e8999986c249",
-        "c3d3fb2ce9f32a764a44d1c5ed3faaaf916d6a61080caccd07121a9dff419400",
+        "55c271d42354a869089975a32b18c0d9b1a977c5050d97d88b9e8b66d48feee5",
         "6b3f23159b455c1eb8870b87f9f5851591a1623c3043689f4c4198b792787fbe",
         "bf44b8e66d9733e8a8be7a93421195f314bc5d494400064d7d2d9d09a0444bc0",
         "a73d62408fca8dda2153beec9c8d5175d180412a2274e75d2dc0fefc91b99a3f",
         "f734c2a7ec91ead8f396cbac515094d1755c9c7fcf5e7e50703a1335c08c6d95",
-        "480adc7294996cc433b76d3164ed4f3df8b4ab47073362a2124379790ec4c38d",
-        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4"
+        "dd1d9ab468038c6be0d0ca79c2473c997f43c6fe5fd0fea950bf6cd42afc631a",
+        "02dd0e0b15cec0bf4f3efa712fe2551b8f2dcbe2b5df710298a38f720eb3b940",
+        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4",
+        "e5f1c1b02518aecc4a2bd416f0ecb37f4c27402f3825e8c1c3a7829b9c4ab3dc",
+        "ebbdcb7c882e931a4ed28b256932f2351cb51ccb053d257660be5b398388db44",
+        "49b2216d509b087c7e795c6a47d47d726033182a5d9bd7ab7a43bee85c0c485d",
+        "838e9ea3f5970dab8aa52547c444823d4fdd474a1c91ae421ab5370612e24447",
+        "9eeb76279dae5a5f51ff47acfef3dcebd6efb53b8c3ba403480366fa0e044a25"
       ]
     },
     "spacr.qt.settings_pack.PackReport": {
@@ -90813,42 +90853,44 @@
     "spacr.qt.settings_pack.PackReport.summary": {
       "source_blocks_sha256": [
         "9cba45799f39f9d2e5ef3c73bb70090e3d15a4589510203179187d143fdf8811",
-        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26"
+        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26",
+        "6c7bf2d3d1bbf7d54d3be8dbb6a52949ebe911ef28ad38cc52fe930dff9ca203"
       ],
-      "source_sha256": "53f0e42cee9c3c2023642448e1b684f6bd87db9c9392f7901904a62852d2d050",
-      "text": "Une phrase pour une barre d'état, nommant ce qui a été perdu.\n\nNomme les clés abandonnées plutôt que de les compter : \"dropped 3\" dit à un utilisateur qu'il manquait quelque chose sans leur dire quoi, ce qui est le pire des deux.",
+      "source_sha256": "255df81e7fa7015b8fcdba07a6a420897924e766fb3777d9e268e09627202f21",
+      "text": "Une phrase pour une barre d'état, nommant ce qui a été perdu.\n\nNomme les clés abandonnées plutôt que de les compter : \"dropped 3\" dit à un utilisateur qu'il manquait quelque chose sans leur dire quoi, ce qui est le pire des deux.\n\nDeux phrases pour deux pertes différentes. \"cette version n'a pas un tel réglage\" a été dit sur `timelapse` et neuf autres sur le paquet de masque réel, et il est faux de chacun d'entre eux -- ils sont des paramètres en direct que cette forme particulière ne montre pas. Un utilisateur a dit que la version les a laissé tomber va à la recherche d'une version qui les a.",
       "translation_source_blocks_sha256": [
         "9cba45799f39f9d2e5ef3c73bb70090e3d15a4589510203179187d143fdf8811",
-        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26"
+        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26",
+        "e0f9d37d39edbe2177f89374cd4cea78c7d0098563e53a18b56323089e1b87fb"
       ]
     },
     "spacr.qt.settings_pack.read_pack": {
       "source_blocks_sha256": [
-        "587cd9c3ea6cb8e61ba8e65fb38f233dcd534e4daf0f2b6ba0cbf5bb43fdc81d",
-        "52d5b7ff39f7c44b3891061e97068a5b8d2d79f42309ff79a8dc852d5c55bb9b"
+        "edcb80746178ed8b426ddea8e7d8383d812707fd995f23205347902b0fa19a8f",
+        "c0b13102c2be7604ae82b3972525b20bcd2e53873f3feec503b244e6847e58ff"
       ],
-      "source_sha256": "76bfbc734c5081a7eda6a33e5304fe3716e47445195356521e63a9f8aa62b316",
-      "text": "``({key: value}, malformed row count)`` à partir de ``<app>_settings.csv``.\n\nLe fichier manquant n'est pas une erreur : un pack transporte légitimement des paramètres pour certaines applications et non pour d'autres, et l'appelant obtient une valeur de clé vide.",
+      "source_sha256": "47553bc8be6be7a66e60f1e1b80a31b3bfc69186f6755d7762f4fdd5a517beca",
+      "text": "``({key: value}, malformed row count)`` dans le fichier pack de cette application.\n\nLe fichier manquant n'est pas une erreur : un pack transporte légitimement des paramètres pour certaines applications et non pour d'autres, et l'appelant obtient une valeur de clé vide. Utilisez :func:`_pack_path` pour indiquer cette case en dehors d'un fichier qui a été lu.",
       "translation_source_blocks_sha256": [
-        "587cd9c3ea6cb8e61ba8e65fb38f233dcd534e4daf0f2b6ba0cbf5bb43fdc81d",
-        "db4b929678523be1ada9f07fa8cfa9dd8bbfe2239e8e740d6d24e3050f1c0f7d"
+        "edcb80746178ed8b426ddea8e7d8383d812707fd995f23205347902b0fa19a8f",
+        "61519a4a2a1f9ff114e9d86f18fc614e66a2f84a6c3f9aa0c59bf79334f0bf1f"
       ]
     },
     "spacr.qt.settings_pack.settings_from_pack": {
       "source_blocks_sha256": [
         "2a272bbfaaf0e535a241fabdf42ab804ba4f82b052564436a2fba1506f313c88",
         "bc3d5fb1693b85f6cc3ccebc4e5b3592040859495b9240cb7b26e4a2a8e087ab",
-        "acecd40df1a939228136f4e47fa92596c35ce933f8a028a6b987db7545763b74",
+        "9ccfd8ff0339c58b8b833f4366c2e5c90187194266298489d338dc4bded7e378",
         "76a8264140685dc8c4fb5b7c3358127d4dc4f7c82496d898dec4e682e93d67e1",
         "4c0ee1255781361aee5d87dc9cfa78f930e1d65bda3ec7705c197364417d4e9d",
         "f00d1a8561e06489a382981cf0e91b57e7f487ea2606bcf73fb53bff7cfa569e"
       ],
-      "source_sha256": "c7fa01f2b216bd266e7645010767fc751c65753950d4281781001abe02eaadb6",
-      "text": "Les par défaut de l'application, avec le paquet migré sur eux.\n\n:param app_key: le module auquel le pack est destiné.\n:param pack_dir: dossier contenant ``<app_key>_settings.csv``.\n:param src: dataset folder; remplace n'importe quel ``src`` les noms de paquets, parce qu'un paquet écrit sur la machine de quelqu'un d'autre nomme un chemin qui n'existe pas sur celui-ci.\n:param defaults: par défaut de l'application; résolu à partir du registre quand omis.\n:returns: les paramètres à appliquer, et ce qui est devenu de l'emballage.",
+      "source_sha256": "0d40f941ec445f6a8e02ad46de00f115377a4ccfe91e2d42f5dada5714356a1b",
+      "text": "Les par défaut de l'application, avec le paquet migré sur eux.\n\n:param app_key: le module auquel le pack est destiné.\n:param pack_dir: dossier contenant les paramètres de cette application CSV, sous l'un des noms :func:`_pack_candidates` listes.\n:param src: dataset folder; remplace n'importe quel ``src`` les noms de paquets, parce qu'un paquet écrit sur la machine de quelqu'un d'autre nomme un chemin qui n'existe pas sur celui-ci.\n:param defaults: par défaut de l'application; résolu à partir du registre quand omis.\n:returns: les paramètres à appliquer, et ce qui est devenu de l'emballage.",
       "translation_source_blocks_sha256": [
         "2a272bbfaaf0e535a241fabdf42ab804ba4f82b052564436a2fba1506f313c88",
         "bc3d5fb1693b85f6cc3ccebc4e5b3592040859495b9240cb7b26e4a2a8e087ab",
-        "acecd40df1a939228136f4e47fa92596c35ce933f8a028a6b987db7545763b74",
+        "9ccfd8ff0339c58b8b833f4366c2e5c90187194266298489d338dc4bded7e378",
         "76a8264140685dc8c4fb5b7c3358127d4dc4f7c82496d898dec4e682e93d67e1",
         "4c0ee1255781361aee5d87dc9cfa78f930e1d65bda3ec7705c197364417d4e9d",
         "f00d1a8561e06489a382981cf0e91b57e7f487ea2606bcf73fb53bff7cfa569e"
@@ -121744,14 +121786,16 @@
       "source_blocks_sha256": [
         "e5c20e6d1e2bc34f46fc0f086fd02b3946cd36f2e87fb2553fd02a0fd4583132",
         "049df24676b7fa7729ac356a809c520fb089757f74c2b8ed2915a6332c301261",
-        "e18d59776ac9817a9fd1ca75950c60d2ba04245562b9d434403f0a15750850f3"
+        "f66497db564e94e90ac66f885e174e2a86b9ef6a94d8fabf3af3594c691d0789",
+        "3f611ed0e4fe621c4bb0ce1dff1a891dd70a166c0c506044c01165dca12f28ed"
       ],
-      "source_sha256": "ad774784f18d6e5c02afc20bbf3cc33d204cac1c6e0ef80144bf7b808ab24bf5",
-      "text": "Afficher une fente d'orgue par fente l'exécution déclare.\n\nLes lignes sont HIDDEN, non supprimées : les widgets gardent leurs valeurs, donc en abaissant le nombre et en le soulevant, ils trouvent encore les anciennes réponses encore là -- la même promesse `spacr.settings._set_organelle_defaults` fait pour les paramètres eux-mêmes.\n\nUn compte non défini affiche chaque emplacement, ce qui est ce que cette boîte de dialogue a fait avant que le compte ne l'atteigne : mieux vaut offrir un champ trop grand que de cacher un lancer est utilisé.",
+      "source_sha256": "ab26e6f814070dc6c7eaee0e993341baf7654f57900dcdd671db1625ef5f6475",
+      "text": "Afficher une fente d'orgue par fente l'exécution déclare.\n\nLes lignes sont HIDDEN, non supprimées : les widgets gardent leurs valeurs, donc en abaissant le nombre et en le soulevant, ils trouvent encore les anciennes réponses encore là -- la même promesse `spacr.settings._set_organelle_defaults` fait pour les paramètres eux-mêmes.\n\nLe panneau construit les commandes d'un slot lorsque le compte l'atteigne plutôt que de construire tous les 702 devant, donc un compte qui monte pendant que cette boîte de dialogue est ouverte arrive comme des commandes sans lignes; `_adopt_new_slot_controls` les place dans le bloc avant que la limite de sélection des données ci-dessous décide qui sont affichés.\n\nUn compte non défini montre chaque fente qui existe, ce qui est ce que ce dialogue a fait avant que le compte ne l'atteigne : mieux vaut offrir un champ trop nombreux que de cacher un lancer est utilisé.",
       "translation_source_blocks_sha256": [
         "e5c20e6d1e2bc34f46fc0f086fd02b3946cd36f2e87fb2553fd02a0fd4583132",
         "049df24676b7fa7729ac356a809c520fb089757f74c2b8ed2915a6332c301261",
-        "e18d59776ac9817a9fd1ca75950c60d2ba04245562b9d434403f0a15750850f3"
+        "338948e3ae81ef6cb88d2b4f50b6347d3f91add1a8355bbe34f71e93027988b3",
+        "3f611ed0e4fe621c4bb0ce1dff1a891dd70a166c0c506044c01165dca12f28ed"
       ]
     },
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel": {
@@ -121943,13 +121987,15 @@
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.set_organelle_count": {
       "source_blocks_sha256": [
         "21377c4914fdcc624b96565eae10a379c38d624db2318bc760d9a049a605f2a1",
-        "3c02ab1a42eac7b2695fb1d29cbc44e3a53e67d59de0264e0e1c01fff9344f1c"
+        "3c02ab1a42eac7b2695fb1d29cbc44e3a53e67d59de0264e0e1c01fff9344f1c",
+        "4d92b0f1a87f19052f22a2a3f90b5fc17b819e87008d513c8ab789f9c3a3d3e1"
       ],
-      "source_sha256": "37bc7d149dd60bcb27acf53e2677bbf723613324a0309e0da79e620c58b609cc",
-      "text": "Combien de fentes organelles les paramètres d'image-région extraits devraient offrir.\n\nLa même règle Masque et l'aperçu en direct de Masque suivent : la session de traitement déclare `number_of_organelles`, et chaque panneau montre que beaucoup. Sans elle, les paramètres de la région d'image extraite offraient un quatre fixe -- donc une exécution d'une organisation avait trois zones de masque et trois zones minimales pour les objets qu'elle n'a pas, et chacun d'eux se propage dans les paramètres que la session lit.",
+      "source_sha256": "8de0603a29ebed2015028c065ffa60f323958b920b62e70207871a72eb82ab27",
+      "text": "Combien de fentes organelles les paramètres d'image-région extraits devraient offrir.\n\nLa même règle Masque et l'aperçu en direct de Masque suivent : la session de traitement déclare `number_of_organelles`, et chaque panneau montre que beaucoup. Sans elle, les paramètres de la région d'image extraite offraient un quatre fixe -- donc une exécution d'une organisation avait trois zones de masque et trois zones minimales pour les objets qu'elle n'a pas, et chacun d'eux se propage dans les paramètres que la session lit.\n\nCela ne changeait que ce qui était SHOWN, plus de 702 fentes de contrôle que `_build_controls` avait déjà fait -- donc la réponse à \"une course sans organelle\" était de 2 117 contrôles cachés derrière une limite de sélection de données. Le compte est maintenant ce qui amène les contrôles d'une fente à l'existence, c'est pourquoi élever est la seule route qui doit fonctionner.",
       "translation_source_blocks_sha256": [
         "4cd568add300f7b7ea1b868f666cf2fba4e75f9503b3c4df7992a1be5f1315fe",
-        "068caf5ec5f007b6ae3091daabbd0b7cc8f4718f3613cfe97e4cce8223b7ef76"
+        "068caf5ec5f007b6ae3091daabbd0b7cc8f4718f3613cfe97e4cce8223b7ef76",
+        "024eb2f178d68e4014593068ac34acf582b0cbf2ca02bf21459f812694a7ed7e"
       ]
     },
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.set_propagate_callback": {

@@ -19690,6 +19690,20 @@
         "c63929f86e8d344a85d73180d981921751bbbf037fed7b7ef0e32a7d75a5bac2"
       ]
     },
+    "spacr.embeddings.EmbeddingSpec.__post_init__": {
+      "source_blocks_sha256": [
+        "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
+        "f56d85217de1cb26860c431c88271f867d79ee87d697789c85a43b724c2800e3",
+        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+      ],
+      "source_sha256": "6a66c6ad25c0f2fde0ae68e93a0153e07694cfa708c1ccc1819eb6f3e240a420",
+      "text": "매트릭스를 생성할 수 없는 사양을 거부한다.\n\n검사는 스펙이 구축되는 대신 사용되는 곳에서 수행됩니다, 왜냐하면 하나의 스펙은 실행의 모든 추출 된 이미지 영역을 암호화하기 때문입니다 : 알려지지 않은 이미지 데이터 채널 정책 또는 하나 아래의 배치 크기는 인쇄 오류이며, 이미지가 충전 된 후에 그것을 발견하면 부하가 사라집니다.\n\n:raises EmbeddingError: ``channel_policy``이 :data:`CHANNEL_POLICIES` 중 하나가 아니거나 ``batch_size``이 하나 아래에 있는 경우.",
+      "translation_source_blocks_sha256": [
+        "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
+        "e65869bbd8b37a09ceef528360e940963fbf80a121570dd3b22e5e39ea30a4cb",
+        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+      ]
+    },
     "spacr.embeddings.EmbeddingSpec.fingerprint": {
       "source_blocks_sha256": [
         "b3f73c01375ab9b68a716e0416b39e74d31ec9284a4051de8b35dda19743ced7",
@@ -50016,6 +50030,20 @@
         "577c68a02b08a65661cc3e265cea36efb7e006267a91300d77a16651ef90ec16",
         "f7c85820406fb6e82f4f85717bca0c5573f674e81450d802055dd991d43ab47a",
         "4cacd542e217100bc03696c3d05924a88f8d1e286b86f0bdb7cf7dda84d183d1"
+      ]
+    },
+    "spacr.ops_store.Readiness.__bool__": {
+      "source_blocks_sha256": [
+        "dc34292a75e343ceebb0579a4980bc70c694f286aa3c951e08a3452c301f2dca",
+        "cb8a478d0983e28888e6bdb8d51a31a0f34ab10fa2ee7908d19ba0085cf8b09e",
+        "c598952f9527ae7d5d203fc4a32bc0559fd236c7e019acfe77701ccda4b7a2ef"
+      ],
+      "source_sha256": "f51bf983ee806bfa120b5c34a5f75c46c0cb4df68adeb25d3e26cbca3cdabe19",
+      "text": "판결만으로는 결과가 조건으로 읽을 수 있다.\n\n``if not objects_ready(db):``는 데이터 선택 경계를 작성하는 자연스러운 방법이며, \"an object exists\" 대신 판결에 응답해야합니다. :attr:`reason`는 여전히 왜 대답이 아니었는지 말할 수 있습니다.\n\n:returns: :attr:`ready`.",
+      "translation_source_blocks_sha256": [
+        "dc34292a75e343ceebb0579a4980bc70c694f286aa3c951e08a3452c301f2dca",
+        "ba12938e10175c12d125ae404d9c9dc787f4c55264416f8094b2206d01156b0d",
+        "c598952f9527ae7d5d203fc4a32bc0559fd236c7e019acfe77701ccda4b7a2ef"
       ]
     },
     "spacr.ops_store.StoreError": {
@@ -90779,25 +90807,37 @@
     "spacr.qt.settings_pack": {
       "source_blocks_sha256": [
         "ab9973c1f5d237646efd7244d89bd84bb17d9cfb266b0b513a4b828bf5dc3410",
-        "fe787e883fd6004a869cea468ea5b90385ba95cbf1d0fbd889efbf9d04cd1a85",
+        "bb4d8efb7c54fc6f73e92f54c6bfdd162c4bd4bbfbbf857610c22e26526b1a7e",
         "42a8687921e49dd97ce0735a4a8d376e487e15a4a79e0117a7793e508750fd59",
         "bf44b8e66d9733e8a8be7a93421195f314bc5d494400064d7d2d9d09a0444bc0",
         "a73d62408fca8dda2153beec9c8d5175d180412a2274e75d2dc0fefc91b99a3f",
         "f734c2a7ec91ead8f396cbac515094d1755c9c7fcf5e7e50703a1335c08c6d95",
-        "480adc7294996cc433b76d3164ed4f3df8b4ab47073362a2124379790ec4c38d",
-        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4"
+        "dd1d9ab468038c6be0d0ca79c2473c997f43c6fe5fd0fea950bf6cd42afc631a",
+        "f9cad53fc15c2e866ba61614bdc4ffafd22a7a14a7fbbeb251a2dc4bccd3a784",
+        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4",
+        "809e2af49bb1b15c26827f32d28164985e8e7a38191ecae19bd0cec7a14c3efe",
+        "214290cdb5f0843d8999cc74831d2e38700cd312f7b2aab1301f5cf45690cd3e",
+        "cd538090ecf6f866079cc0beb4307a7d721597e588005458e3ae7d5ec96fe9d2",
+        "9923fd684380e6bf7e03211781875fc583457dc4bcdb19f5885c9449e88b2f5f",
+        "9eeb76279dae5a5f51ff47acfef3dcebd6efb53b8c3ba403480366fa0e044a25"
       ],
-      "source_sha256": "2015c5dd08df7607cae3df4445e278a9d0387d30fab13dd48cb6df6abd2e475c",
-      "text": "내려받은 설정 꾸러미를 이 spaCR 가 실행할 수 있는 설정으로 읽어 들인다.\n\nHuggingFace 선박에 대한 데모 데이터 세트 ``<app>_settings.csv`` 사진 옆에 있는 파일이 있습니다.그것은 오래된 사람에 의해 작성되었습니다. spaCR 그래서 그들이 부르는 것 중 일부는 더 이상 존재하지 않는다 - 구조화된 데이터 이름은 다시 부르고, 그들이 구성한 기능과 함께 구조화 된 데이터 이름을 제거하고, 결코 설정되지 않은 구조화되어 있는 데이터 이름.\n\n그들을 눈이 멀게하는 것은이 모듈이 고치기 위해 존재하는 오류입니다.이전 충전기는 각 라인을 읽습니다. CSV 기본적으로, 그래서 구조화 된 데이터 이름 현재 건물은 설정에 도달하는 키 가치 지도 및 작업 흐름에 여행, 그것은 조용히 무시되거나 사용자가 입력하지 않고 양식에서 찾을 수없는 설정 이름에 오류를 생성했다.\n\n그래서 이것은 합병하는 대신 이민, 그리고 추측 대신 보고 :\n\n* 응용 프로그램이 여전히 사용 중인 키;\n* 새롭게 이름을 바꾸어 놓은 키가 새 이름으로 적용되고 계산됩니다.\n* 더 이상 존재하지 않는 열쇠는 어디에도 떨어지고 이름을 지정합니다.\n\n보고서는 설정만큼 배달 가능합니다. \"로드 34 설정, 다시 이름 2, 떨어진 3 이 버전은 더 이상 가지고 있지 않습니다\"는 사용자가 행동 할 수있는 문장입니다.",
+      "source_sha256": "4fa4477a098840231ac9973eab732a5bd3a8587d6041b5c78eb385c7f4fbd811",
+      "text": "다운로드된 설정 패키지를 설정으로 읽으십시오.이 spaCR를 실행할 수 있습니다.\n\nThe demo dataset on HuggingFace ships a settings CSV per stage beside the images. They were written by an older spaCR, so some of what they name no longer exists -- structured-data names renamed, structured-data names removed with the feature they configured, structured-data names that were never settings at all.\n\n그들을 눈이 멀게하는 것은이 모듈이 고치기 위해 존재하는 오류입니다.이전 충전기는 각 라인을 읽습니다. CSV 기본적으로, 그래서 구조화 된 데이터 이름 현재 건물은 설정에 도달하는 키 가치 지도 및 작업 흐름에 여행, 그것은 조용히 무시되거나 사용자가 입력하지 않고 양식에서 찾을 수없는 설정 이름에 오류를 생성했다.\n\n그래서 이것은 합병하는 대신 이민, 그리고 추측 대신 보고 :\n\n* 응용 프로그램이 여전히 사용 중인 키;\n* 새롭게 이름을 바꾸어 놓은 키가 새 이름으로 적용되고 계산됩니다.\n* 더 이상 존재하지 않는 열쇠는 어디에도 떨어지고 이름을 지정합니다.\n* 이 구축에서 설정이지만 이 앱의 양식이 아닌 구조된 데이터 이름은 \"이 버전에는 그러한 설정이 없음\"이 거짓 문장이기 때문에 별도로 이름을 지정합니다.\n\n보고서는 설정만큼 배달 가능합니다. \"로드 34 설정, 다시 이름 2, 떨어진 3 이 버전은 더 이상 가지고 있지 않습니다\"는 사용자가 행동 할 수있는 문장입니다.\n\n왜 2026-09-14까지 아무것도 읽지 않았는지, 이것은 수정 항목 317이 필요합니다.이 모듈은 눈먼 사람과 결합 한 독자에게 안전한 후계자로 쓰여졌으며, 그 후에 그것을 대체 할 수 없었기 때문에 그것이하지 않은 세 가지가 세 가지입니다.\n\n* It looked for the wrong file. It opened ``<app>_settings.csv`` only, and ``einarolafsson/spacr_settings`` has never shipped a file by that name -- it ships ``gen_masks_settings.csv`` and ``crop_measure_settings.csv``. Measured on the real pack at ``~/datasets/settings`` on 2026-09-14: applied 0, renamed 0, dropped 0, malformed 0, on a 58-setting file. A miss rather than an error, so the caller filled the form with plain defaults and said nothing. `tests/test_hf_e2e_integration.py` found the same hole from the other side and worked around it with a local reader and a hard assertion on the names, which is where `PACK_FILES` comes from.\n* 그것은 헤드 라인을 설정으로 읽습니다. 배송 된 파일은 ``Key,Value``를 시작하고 ``Key``라는 구조화 된 데이터 이름으로 도착했으며, 사용자에게 떨어진 설정으로 알려졌습니다.\n* 그것은 라인으로 목록을 전달했습니다. ``channels,\"[0, 1, 2, 3]\"``는 APPLIED로 계산 된 11 캐릭터 라인이되었으며 실제 목록 기본을 대체했습니다 - 이는 보고서에 따르면 작동했기 때문에 떨어지는 것보다 더 나쁘습니다.\n\n다시 세 개의 닫힌, 같은 파일, 동일한 기본 사항으로 측정 : 32 응용, 9 새 이름, 17 떨어져, 그 중 10 라이브 설정이 양식이 가져 오지 않습니다. 32 + 9 + 17 = 58, 그것은 모든 라인 독자가 보았고, 파일은 59 비 흰색 라인이있다 - 다섯 번째는 지금 스키프의 헤더입니다.",
       "translation_source_blocks_sha256": [
         "f26d4231e3cb3be29f573b79b1d90cf4b2c0b7a247dcb8391795e8999986c249",
-        "c3d3fb2ce9f32a764a44d1c5ed3faaaf916d6a61080caccd07121a9dff419400",
+        "55c271d42354a869089975a32b18c0d9b1a977c5050d97d88b9e8b66d48feee5",
         "6b3f23159b455c1eb8870b87f9f5851591a1623c3043689f4c4198b792787fbe",
         "bf44b8e66d9733e8a8be7a93421195f314bc5d494400064d7d2d9d09a0444bc0",
         "a73d62408fca8dda2153beec9c8d5175d180412a2274e75d2dc0fefc91b99a3f",
         "f734c2a7ec91ead8f396cbac515094d1755c9c7fcf5e7e50703a1335c08c6d95",
-        "480adc7294996cc433b76d3164ed4f3df8b4ab47073362a2124379790ec4c38d",
-        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4"
+        "dd1d9ab468038c6be0d0ca79c2473c997f43c6fe5fd0fea950bf6cd42afc631a",
+        "02dd0e0b15cec0bf4f3efa712fe2551b8f2dcbe2b5df710298a38f720eb3b940",
+        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4",
+        "e5f1c1b02518aecc4a2bd416f0ecb37f4c27402f3825e8c1c3a7829b9c4ab3dc",
+        "ebbdcb7c882e931a4ed28b256932f2351cb51ccb053d257660be5b398388db44",
+        "49b2216d509b087c7e795c6a47d47d726033182a5d9bd7ab7a43bee85c0c485d",
+        "838e9ea3f5970dab8aa52547c444823d4fdd474a1c91ae421ab5370612e24447",
+        "9eeb76279dae5a5f51ff47acfef3dcebd6efb53b8c3ba403480366fa0e044a25"
       ]
     },
     "spacr.qt.settings_pack.PackReport": {
@@ -90813,42 +90853,44 @@
     "spacr.qt.settings_pack.PackReport.summary": {
       "source_blocks_sha256": [
         "9cba45799f39f9d2e5ef3c73bb70090e3d15a4589510203179187d143fdf8811",
-        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26"
+        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26",
+        "6c7bf2d3d1bbf7d54d3be8dbb6a52949ebe911ef28ad38cc52fe930dff9ca203"
       ],
-      "source_sha256": "53f0e42cee9c3c2023642448e1b684f6bd87db9c9392f7901904a62852d2d050",
-      "text": "상태 바에 대한 한 문장, 잃어버린 것을 명칭합니다.\n\n떨어진 열쇠를 계산하는 대신 이름 : \"dropped 3\"는 사용자가 무언가가 그들에게 무엇을 말하지 않고 잃어버렸다고 말하며, 두 가지 중 최악입니다.",
+      "source_sha256": "255df81e7fa7015b8fcdba07a6a420897924e766fb3777d9e268e09627202f21",
+      "text": "상태 바에 대한 한 문장, 잃어버린 것을 명칭합니다.\n\n떨어진 열쇠를 계산하는 대신 이름 : \"dropped 3\"는 사용자가 무언가가 그들에게 무엇을 말하지 않고 잃어버렸다고 말하며, 두 가지 중 최악입니다.\n\n두 개의 다른 손실을위한 두 문장. \"이 버전은 그러한 설정이 없습니다\"는 `timelapse`에 대해 말하고 실제 마스크 패키지에있는 다른 9 명, 그것은 그들 각각의 사실이 아닙니다 - 그들은이 특정 양식이 표시하지 않는 라이브 설정입니다.",
       "translation_source_blocks_sha256": [
         "9cba45799f39f9d2e5ef3c73bb70090e3d15a4589510203179187d143fdf8811",
-        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26"
+        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26",
+        "e0f9d37d39edbe2177f89374cd4cea78c7d0098563e53a18b56323089e1b87fb"
       ]
     },
     "spacr.qt.settings_pack.read_pack": {
       "source_blocks_sha256": [
-        "587cd9c3ea6cb8e61ba8e65fb38f233dcd534e4daf0f2b6ba0cbf5bb43fdc81d",
-        "52d5b7ff39f7c44b3891061e97068a5b8d2d79f42309ff79a8dc852d5c55bb9b"
+        "edcb80746178ed8b426ddea8e7d8383d812707fd995f23205347902b0fa19a8f",
+        "c0b13102c2be7604ae82b3972525b20bcd2e53873f3feec503b244e6847e58ff"
       ],
-      "source_sha256": "76bfbc734c5081a7eda6a33e5304fe3716e47445195356521e63a9f8aa62b316",
-      "text": "``({key: value}, malformed row count)``에서 ``<app>_settings.csv``로 이동합니다.\n\n잃어버린 파일은 오류가 아닙니다 : 패키지는 합법적으로 일부 앱이 아닌 다른 앱에 대한 설정을 수행하고 호출자는 빈 키 가치 맵링을 얻습니다.",
+      "source_sha256": "47553bc8be6be7a66e60f1e1b80a31b3bfc69186f6755d7762f4fdd5a517beca",
+      "text": "``({key: value}, malformed row count)`` 이 앱의 패키지 파일에서.\n\n실종된 파일은 오류가 아닙니다 : 패키지는 합법적으로 일부 앱이 아닌 다른 앱에 대한 설정을 수행하고 호출자는 빈 키 가치 맵링을 얻습니다. :func:`_pack_path`를 사용하여 읽은 파일과는 달리 그 사례를 알려줍니다.",
       "translation_source_blocks_sha256": [
-        "587cd9c3ea6cb8e61ba8e65fb38f233dcd534e4daf0f2b6ba0cbf5bb43fdc81d",
-        "db4b929678523be1ada9f07fa8cfa9dd8bbfe2239e8e740d6d24e3050f1c0f7d"
+        "edcb80746178ed8b426ddea8e7d8383d812707fd995f23205347902b0fa19a8f",
+        "61519a4a2a1f9ff114e9d86f18fc614e66a2f84a6c3f9aa0c59bf79334f0bf1f"
       ]
     },
     "spacr.qt.settings_pack.settings_from_pack": {
       "source_blocks_sha256": [
         "2a272bbfaaf0e535a241fabdf42ab804ba4f82b052564436a2fba1506f313c88",
         "bc3d5fb1693b85f6cc3ccebc4e5b3592040859495b9240cb7b26e4a2a8e087ab",
-        "acecd40df1a939228136f4e47fa92596c35ce933f8a028a6b987db7545763b74",
+        "9ccfd8ff0339c58b8b833f4366c2e5c90187194266298489d338dc4bded7e378",
         "76a8264140685dc8c4fb5b7c3358127d4dc4f7c82496d898dec4e682e93d67e1",
         "4c0ee1255781361aee5d87dc9cfa78f930e1d65bda3ec7705c197364417d4e9d",
         "f00d1a8561e06489a382981cf0e91b57e7f487ea2606bcf73fb53bff7cfa569e"
       ],
-      "source_sha256": "c7fa01f2b216bd266e7645010767fc751c65753950d4281781001abe02eaadb6",
-      "text": "애플리케이션의 결함, 패키지가 그들 위로 이주.\n\n:param app_key: 패키지가 있는 모듈입니다.\n:param pack_dir: 폴더를 ``<app_key>_settings.csv``로 유지합니다.\n:param src: 데이터 세트 폴더; ``src`` 패키지 이름이 무엇이든 상승, 왜냐하면 누군가의 기계에 쓰여진 패키지는 이 패키지가 존재하지 않는 경로를 지정하기 때문입니다.\n:param defaults: 응용 프로그램의 결함; 거부되면 레지스트리에서 해결.\n:returns: 적용해야 할 설정, 그리고 패키지에서 무엇이되었는지.",
+      "source_sha256": "0d40f941ec445f6a8e02ad46de00f115377a4ccfe91e2d42f5dada5714356a1b",
+      "text": "애플리케이션의 결함, 패키지가 그들 위로 이주.\n\n:param app_key: 패키지가 있는 모듈입니다.\n:param pack_dir: 이 애플리케이션의 설정 CSV을 포함하는 폴더, 이름 :func:`_pack_candidates` 목록 중 하나 아래.\n:param src: 데이터 세트 폴더; ``src`` 패키지 이름이 무엇이든 상승, 왜냐하면 누군가의 기계에 쓰여진 패키지는 이 패키지가 존재하지 않는 경로를 지정하기 때문입니다.\n:param defaults: 응용 프로그램의 결함; 거부되면 레지스트리에서 해결.\n:returns: 적용해야 할 설정, 그리고 패키지에서 무엇이되었는지.",
       "translation_source_blocks_sha256": [
         "2a272bbfaaf0e535a241fabdf42ab804ba4f82b052564436a2fba1506f313c88",
         "bc3d5fb1693b85f6cc3ccebc4e5b3592040859495b9240cb7b26e4a2a8e087ab",
-        "acecd40df1a939228136f4e47fa92596c35ce933f8a028a6b987db7545763b74",
+        "9ccfd8ff0339c58b8b833f4366c2e5c90187194266298489d338dc4bded7e378",
         "76a8264140685dc8c4fb5b7c3358127d4dc4f7c82496d898dec4e682e93d67e1",
         "4c0ee1255781361aee5d87dc9cfa78f930e1d65bda3ec7705c197364417d4e9d",
         "f00d1a8561e06489a382981cf0e91b57e7f487ea2606bcf73fb53bff7cfa569e"
@@ -121744,14 +121786,16 @@
       "source_blocks_sha256": [
         "e5c20e6d1e2bc34f46fc0f086fd02b3946cd36f2e87fb2553fd02a0fd4583132",
         "049df24676b7fa7729ac356a809c520fb089757f74c2b8ed2915a6332c301261",
-        "e18d59776ac9817a9fd1ca75950c60d2ba04245562b9d434403f0a15750850f3"
+        "f66497db564e94e90ac66f885e174e2a86b9ef6a94d8fabf3af3594c691d0789",
+        "3f611ed0e4fe621c4bb0ce1dff1a891dd70a166c0c506044c01165dca12f28ed"
       ],
-      "source_sha256": "ad774784f18d6e5c02afc20bbf3cc33d204cac1c6e0ef80144bf7b808ab24bf5",
-      "text": "슬롯 당 1 개의 organelle 슬롯을 표시합니다.\n\n라인은 숨겨져 있고, 제거되지 않습니다 : 위젯은 그들의 가치를 유지하므로 계산을 낮추고 다시 올리면 오래된 답변이 여전히 거기에 있습니다 - 같은 약속 `spacr.settings._set_organelle_defaults`은 설정 자체를 위해 만듭니다.\n\nUnset 계산은 각 슬롯을 보여줍니다, 이것은 계산이 그것에 도달하기 전에이 대화가 무엇을했는지입니다 : 너무 많은 필드를 제공하는 것이 사용되는 실행을 숨기는 것보다 낫습니다.",
+      "source_sha256": "ab26e6f814070dc6c7eaee0e993341baf7654f57900dcdd671db1625ef5f6475",
+      "text": "슬롯 당 1 개의 organelle 슬롯을 표시합니다.\n\n라인은 숨겨져 있고, 제거되지 않습니다 : 위젯은 그들의 가치를 유지하므로 계산을 낮추고 다시 올리면 오래된 답변이 여전히 거기에 있습니다 - 같은 약속 `spacr.settings._set_organelle_defaults`은 설정 자체를 위해 만듭니다.\n\n이 패널은 모든 702을 앞쪽으로 건설하는 대신 계산이 도달 할 때 슬롯의 컨트롤을 구축합니다, 그래서이 대화가 열려있는 동안 상승하는 계산은 라인이없는 컨트로 도착합니다; `_adopt_new_slot_controls` 데이터 선택의 경계 아래에 그들을 블록에 넣어 표시됩니다 결정.\n\nUnset 계산은 존재하는 모든 슬롯을 보여줍니다, 이것은 계산이 그것에 도달하기 전에이 대화가 무엇을했는지 : 사용되는 실행을 숨기기보다는 너무 많은 필드를 제공하는 것이 더 낫습니다.",
       "translation_source_blocks_sha256": [
         "e5c20e6d1e2bc34f46fc0f086fd02b3946cd36f2e87fb2553fd02a0fd4583132",
         "049df24676b7fa7729ac356a809c520fb089757f74c2b8ed2915a6332c301261",
-        "e18d59776ac9817a9fd1ca75950c60d2ba04245562b9d434403f0a15750850f3"
+        "338948e3ae81ef6cb88d2b4f50b6347d3f91add1a8355bbe34f71e93027988b3",
+        "3f611ed0e4fe621c4bb0ce1dff1a891dd70a166c0c506044c01165dca12f28ed"
       ]
     },
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel": {
@@ -121943,13 +121987,15 @@
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.set_organelle_count": {
       "source_blocks_sha256": [
         "21377c4914fdcc624b96565eae10a379c38d624db2318bc760d9a049a605f2a1",
-        "3c02ab1a42eac7b2695fb1d29cbc44e3a53e67d59de0264e0e1c01fff9344f1c"
+        "3c02ab1a42eac7b2695fb1d29cbc44e3a53e67d59de0264e0e1c01fff9344f1c",
+        "4d92b0f1a87f19052f22a2a3f90b5fc17b819e87008d513c8ab789f9c3a3d3e1"
       ],
-      "source_sha256": "37bc7d149dd60bcb27acf53e2677bbf723613324a0309e0da79e620c58b609cc",
-      "text": "얼마나 많은 organelle 슬롯 추출 이미지 지역 설정을 제공해야합니다.\n\n같은 규칙 마스크와 마스크 라이브 프리뷰를 따르십시오 : 처리 세션은 `number_of_organelles`를 선언하고 각 패널은 많은 것을 보여줍니다.이없이 추출 된 이미지-구역 설정은 고정 된 네 가지를 제공합니다 - 그래서 하나의 유기 실행은 그것이 가지고 있지 않은 물건에 대한 세 개의 마스크 슬라이드와 최소 3 개의 영역 필드를 가지고 있었고, 그들 각각은 처방 세션 읽기 설정을 확산합니다.",
+      "source_sha256": "8de0603a29ebed2015028c065ffa60f323958b920b62e70207871a72eb82ab27",
+      "text": "얼마나 많은 organelle 슬롯 추출 이미지 지역 설정을 제공해야합니다.\n\n같은 규칙 마스크와 마스크 라이브 프리뷰를 따르십시오 : 처리 세션은 `number_of_organelles`를 선언하고 각 패널은 많은 것을 보여줍니다.이없이 추출 된 이미지-구역 설정은 고정 된 네 가지를 제공합니다 - 그래서 하나의 유기 실행은 그것이 가지고 있지 않은 물건에 대한 세 개의 마스크 슬라이드와 최소 3 개의 영역 필드를 가지고 있었고, 그들 각각은 처방 세션 읽기 설정을 확산합니다.\n\n그것은 그들을 구축뿐만 아니라 그들을 보여줍니다.이것은 이미 `_build_controls`가 만든 컨트롤의 702 슬롯의 가치, SHOWN이었던 것만을 변경하는 데 사용되었으므로 \"아무런 organelle와 함께 실행\"에 대한 대답은 데이터 선택 경계 뒤에 숨겨진 2,117 컨트로였습니다.",
       "translation_source_blocks_sha256": [
         "4cd568add300f7b7ea1b868f666cf2fba4e75f9503b3c4df7992a1be5f1315fe",
-        "068caf5ec5f007b6ae3091daabbd0b7cc8f4718f3613cfe97e4cce8223b7ef76"
+        "068caf5ec5f007b6ae3091daabbd0b7cc8f4718f3613cfe97e4cce8223b7ef76",
+        "024eb2f178d68e4014593068ac34acf582b0cbf2ca02bf21459f812694a7ed7e"
       ]
     },
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.set_propagate_callback": {

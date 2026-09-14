@@ -12096,6 +12096,15 @@
       "source_sha256": "21494b889f3fefbf854713581e7a6f15e34c39f2dcd96e3df6de01b158847924",
       "text": "How to embed, recorded so a matrix can say where it came from.\n\n:param backbone: encoder name, resolved through timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or\n    :data:`CHANNEL_PROJECT`.\n:param channels: which channel indices to encode, in order. ``None``\n    means every channel the array has.\n:param batch_size: crops per forward pass.\n:param device: torch device string, or ``None`` to choose one.\n:param normalize: divide each channel by its own 99th percentile before\n    encoding. Microscopy dynamic range varies by orders of magnitude\n    between stains, and an encoder trained on photographs will otherwise\n    see one channel as noise."
     },
+    "spacr.embeddings.EmbeddingSpec.__post_init__": {
+      "source_blocks_sha256": [
+        "a9f4000a9a156edcbfcf2562cb8c607dc7b920d4ba04ce45b9d9c63a1d927362",
+        "f56d85217de1cb26860c431c88271f867d79ee87d697789c85a43b724c2800e3",
+        "9e92f86b264ba5762cb350b8869a3af0f5ba06496adb43c675fab7d2e61bc1a9"
+      ],
+      "source_sha256": "6a66c6ad25c0f2fde0ae68e93a0153e07694cfa708c1ccc1819eb6f3e240a420",
+      "text": "Reject a specification that could not produce a matrix.\n\nThe check is made where the spec is built rather than where it is\nused, because one spec encodes every crop of a run: an unknown\nchannel policy or a batch size below one is a typing mistake, and\ndiscovering it after the images are loaded wastes the load.\n\n:raises EmbeddingError: when ``channel_policy`` is not one of\n    :data:`CHANNEL_POLICIES`, or ``batch_size`` is below one."
+    },
     "spacr.embeddings.EmbeddingSpec.fingerprint": {
       "source_blocks_sha256": [
         "b3f73c01375ab9b68a716e0416b39e74d31ec9284a4051de8b35dda19743ced7",
@@ -30821,6 +30830,15 @@
       ],
       "source_sha256": "ebdb5e39cdbe5cb25c7be0c6e583b23bd3f3638a822f7dd0211b30d9ff124891",
       "text": "Whether object sampling may start, and why not when it may not.\n\n:param ready: the verdict. Also what ``bool(readiness)`` answers, so a\n    caller can write ``if not objects_ready(db):`` and still reach\n    :attr:`reason` when it needs to say why.\n:param rows: how many objects the table holds, or ``None`` when there is\n    no table to count -- which is a different failure from a table with\n    no rows in it, and the two are told apart here rather than by the\n    caller.\n:param reason: one sentence naming which of the three things went wrong,\n    empty when nothing did."
+    },
+    "spacr.ops_store.Readiness.__bool__": {
+      "source_blocks_sha256": [
+        "dc34292a75e343ceebb0579a4980bc70c694f286aa3c951e08a3452c301f2dca",
+        "cb8a478d0983e28888e6bdb8d51a31a0f34ab10fa2ee7908d19ba0085cf8b09e",
+        "c598952f9527ae7d5d203fc4a32bc0559fd236c7e019acfe77701ccda4b7a2ef"
+      ],
+      "source_sha256": "f51bf983ee806bfa120b5c34a5f75c46c0cb4df68adeb25d3e26cbca3cdabe19",
+      "text": "The verdict alone, so the result reads as a condition.\n\n``if not objects_ready(db):`` is the natural way to write the\ngate, and it must answer the verdict rather than \"an object\nexists\". :attr:`reason` is still there to say why the answer was\nno.\n\n:returns: :attr:`ready`."
     },
     "spacr.ops_store.StoreError": {
       "source_blocks_sha256": [
@@ -56910,16 +56928,22 @@
     "spacr.qt.settings_pack": {
       "source_blocks_sha256": [
         "ab9973c1f5d237646efd7244d89bd84bb17d9cfb266b0b513a4b828bf5dc3410",
-        "fe787e883fd6004a869cea468ea5b90385ba95cbf1d0fbd889efbf9d04cd1a85",
+        "bb4d8efb7c54fc6f73e92f54c6bfdd162c4bd4bbfbbf857610c22e26526b1a7e",
         "42a8687921e49dd97ce0735a4a8d376e487e15a4a79e0117a7793e508750fd59",
         "bf44b8e66d9733e8a8be7a93421195f314bc5d494400064d7d2d9d09a0444bc0",
         "a73d62408fca8dda2153beec9c8d5175d180412a2274e75d2dc0fefc91b99a3f",
         "f734c2a7ec91ead8f396cbac515094d1755c9c7fcf5e7e50703a1335c08c6d95",
-        "480adc7294996cc433b76d3164ed4f3df8b4ab47073362a2124379790ec4c38d",
-        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4"
+        "dd1d9ab468038c6be0d0ca79c2473c997f43c6fe5fd0fea950bf6cd42afc631a",
+        "f9cad53fc15c2e866ba61614bdc4ffafd22a7a14a7fbbeb251a2dc4bccd3a784",
+        "4c512f686c0119a1a21b2f189a336baa050e115ed4e5a45e829c7fce42946cc4",
+        "809e2af49bb1b15c26827f32d28164985e8e7a38191ecae19bd0cec7a14c3efe",
+        "214290cdb5f0843d8999cc74831d2e38700cd312f7b2aab1301f5cf45690cd3e",
+        "cd538090ecf6f866079cc0beb4307a7d721597e588005458e3ae7d5ec96fe9d2",
+        "9923fd684380e6bf7e03211781875fc583457dc4bcdb19f5885c9449e88b2f5f",
+        "9eeb76279dae5a5f51ff47acfef3dcebd6efb53b8c3ba403480366fa0e044a25"
       ],
-      "source_sha256": "2015c5dd08df7607cae3df4445e278a9d0387d30fab13dd48cb6df6abd2e475c",
-      "text": "Read a downloaded settings pack into settings this spaCR can run.\n\nThe demo dataset on HuggingFace ships ``<app>_settings.csv`` files beside\nthe images. They were written by an older spaCR, so some of what they name\nno longer exists -- keys renamed, keys removed with the feature they\nconfigured, keys that were never settings at all.\n\nMERGING THEM BLIND IS THE BUG THIS MODULE EXISTS TO FIX. The previous\nloader read every row of the CSV straight over the defaults, so a key the\ncurrent build has never heard of arrived in the settings dict and travelled\ninto the pipeline, where it was either ignored silently or produced an\nerror naming a setting the user did not type and cannot find in the form.\nEither way the user is told nothing at the point where it could be\nexplained.\n\nSo this MIGRATES rather than merges, and REPORTS rather than guesses:\n\n* a key the app still has is applied;\n* a key that has been renamed is applied under its new name and counted;\n* a key that no longer exists anywhere is dropped and named.\n\nThe report is the deliverable as much as the settings are. \"Loaded 34\nsettings, renamed 2, dropped 3 this version no longer has\" is a sentence a\nuser can act on. Thirty-nine settings applied silently, three of which do\nnothing, is not."
+      "source_sha256": "4fa4477a098840231ac9973eab732a5bd3a8587d6041b5c78eb385c7f4fbd811",
+      "text": "Read a downloaded settings pack into settings this spaCR can run.\n\nThe demo dataset on HuggingFace ships a settings CSV per stage beside the\nimages. They were written by an older spaCR, so some of what they name no\nlonger exists -- keys renamed, keys removed with the feature they\nconfigured, keys that were never settings at all.\n\nMERGING THEM BLIND IS THE BUG THIS MODULE EXISTS TO FIX. The previous\nloader read every row of the CSV straight over the defaults, so a key the\ncurrent build has never heard of arrived in the settings dict and travelled\ninto the pipeline, where it was either ignored silently or produced an\nerror naming a setting the user did not type and cannot find in the form.\nEither way the user is told nothing at the point where it could be\nexplained.\n\nSo this MIGRATES rather than merges, and REPORTS rather than guesses:\n\n* a key the app still has is applied;\n* a key that has been renamed is applied under its new name and counted;\n* a key that no longer exists anywhere is dropped and named;\n* a key that is a setting in this build but not on THIS app's form is\n  named separately, because \"this version has no such setting\" is a false\n  sentence about it.\n\nThe report is the deliverable as much as the settings are. \"Loaded 34\nsettings, renamed 2, dropped 3 this version no longer has\" is a sentence a\nuser can act on. Thirty-nine settings applied silently, three of which do\nnothing, is not.\n\nWHY IT READ NOTHING AT ALL UNTIL 2026-09-14, which is the correction item\n317 needed. This module was written as the safe successor to a reader that\nmerged blind, and then could not replace it, because three things it did\nnot do are three things the published pack needs:\n\n* IT LOOKED FOR THE WRONG FILE. It opened ``<app>_settings.csv`` only, and\n  ``einarolafsson/spacr_settings`` has never shipped a file by that name --\n  it ships ``gen_masks_settings.csv`` and ``crop_measure_settings.csv``.\n  Measured on the real pack at ``~/datasets/settings`` on 2026-09-14:\n  applied 0, renamed 0, dropped 0, malformed 0, on a 58-setting file. A\n  miss rather than an error, so the caller filled the form with plain\n  defaults and said nothing. `tests/test_hf_e2e_integration.py` found the\n  same hole from the other side and worked around it with a local reader\n  and a hard assertion on the names, which is where `PACK_FILES` comes\n  from.\n* IT READ THE HEADER ROW AS A SETTING. The shipped files start ``Key,Value``\n  and that arrived as a key named ``Key``, reported to the user as a\n  dropped setting. It is not a setting; it is a column heading.\n* IT HANDED LISTS OVER AS STRINGS. ``channels,\"[0, 1, 2, 3]\"`` became the\n  eleven-character string, counted as APPLIED, replacing a real list\n  default -- which is worse than a drop, because the report says it worked.\n\nMeasured again with those three closed, same file, same defaults: 32\napplied, 9 renamed, 17 dropped, of which 10 are live settings this form does\nnot carry. 32 + 9 + 17 = 58, which is every row the reader saw, and the file\nhas 59 non-blank lines -- the fifty-ninth is the header it now skips. Nothing\nis excluded from that count."
     },
     "spacr.qt.settings_pack.PackReport": {
       "source_blocks_sha256": [
@@ -56931,30 +56955,31 @@
     "spacr.qt.settings_pack.PackReport.summary": {
       "source_blocks_sha256": [
         "9cba45799f39f9d2e5ef3c73bb70090e3d15a4589510203179187d143fdf8811",
-        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26"
+        "45a9022b94a316d96284be082b9b5219da9470e9116166ceb26913664ee8fc26",
+        "6c7bf2d3d1bbf7d54d3be8dbb6a52949ebe911ef28ad38cc52fe930dff9ca203"
       ],
-      "source_sha256": "53f0e42cee9c3c2023642448e1b684f6bd87db9c9392f7901904a62852d2d050",
-      "text": "One sentence for a status bar, naming what was lost.\n\nNames the dropped keys rather than counting them: \"dropped 3\" tells\na user something went missing without telling them what, which is\nthe worst of both."
+      "source_sha256": "255df81e7fa7015b8fcdba07a6a420897924e766fb3777d9e268e09627202f21",
+      "text": "One sentence for a status bar, naming what was lost.\n\nNames the dropped keys rather than counting them: \"dropped 3\" tells\na user something went missing without telling them what, which is\nthe worst of both.\n\nTWO SENTENCES FOR TWO DIFFERENT LOSSES. \"this version has no such\nsetting\" was said about `timelapse` and nine others on the real\nmask pack, and it is untrue of every one of them -- they are live\nsettings that this particular form does not show. A user told the\nversion dropped them goes looking for a version that has them."
     },
     "spacr.qt.settings_pack.read_pack": {
       "source_blocks_sha256": [
-        "587cd9c3ea6cb8e61ba8e65fb38f233dcd534e4daf0f2b6ba0cbf5bb43fdc81d",
-        "52d5b7ff39f7c44b3891061e97068a5b8d2d79f42309ff79a8dc852d5c55bb9b"
+        "edcb80746178ed8b426ddea8e7d8383d812707fd995f23205347902b0fa19a8f",
+        "c0b13102c2be7604ae82b3972525b20bcd2e53873f3feec503b244e6847e58ff"
       ],
-      "source_sha256": "76bfbc734c5081a7eda6a33e5304fe3716e47445195356521e63a9f8aa62b316",
-      "text": "``({key: value}, malformed row count)`` from ``<app>_settings.csv``.\n\nMissing file is not an error: a pack legitimately carries settings for\nsome apps and not others, and the caller gets an empty dict."
+      "source_sha256": "47553bc8be6be7a66e60f1e1b80a31b3bfc69186f6755d7762f4fdd5a517beca",
+      "text": "``({key: value}, malformed row count)`` from this app's pack file.\n\nMissing file is not an error: a pack legitimately carries settings for\nsome apps and not others, and the caller gets an empty dict. Use\n:func:`_pack_path` to tell that case apart from a file that was read."
     },
     "spacr.qt.settings_pack.settings_from_pack": {
       "source_blocks_sha256": [
         "2a272bbfaaf0e535a241fabdf42ab804ba4f82b052564436a2fba1506f313c88",
         "bc3d5fb1693b85f6cc3ccebc4e5b3592040859495b9240cb7b26e4a2a8e087ab",
-        "acecd40df1a939228136f4e47fa92596c35ce933f8a028a6b987db7545763b74",
+        "9ccfd8ff0339c58b8b833f4366c2e5c90187194266298489d338dc4bded7e378",
         "76a8264140685dc8c4fb5b7c3358127d4dc4f7c82496d898dec4e682e93d67e1",
         "4c0ee1255781361aee5d87dc9cfa78f930e1d65bda3ec7705c197364417d4e9d",
         "f00d1a8561e06489a382981cf0e91b57e7f487ea2606bcf73fb53bff7cfa569e"
       ],
-      "source_sha256": "c7fa01f2b216bd266e7645010767fc751c65753950d4281781001abe02eaadb6",
-      "text": "The app's defaults, with the pack migrated over them.\n\n:param app_key: the module the pack is for.\n:param pack_dir: folder holding ``<app_key>_settings.csv``.\n:param src: dataset folder; overrides whatever ``src`` the pack names,\n    because a pack written on somebody else's machine names a path\n    that does not exist on this one.\n:param defaults: the app's defaults; resolved from the registry when\n    omitted.\n:returns: the settings to apply, and what became of the pack."
+      "source_sha256": "0d40f941ec445f6a8e02ad46de00f115377a4ccfe91e2d42f5dada5714356a1b",
+      "text": "The app's defaults, with the pack migrated over them.\n\n:param app_key: the module the pack is for.\n:param pack_dir: folder holding this app's settings CSV, under any of\n    the names :func:`_pack_candidates` lists.\n:param src: dataset folder; overrides whatever ``src`` the pack names,\n    because a pack written on somebody else's machine names a path\n    that does not exist on this one.\n:param defaults: the app's defaults; resolved from the registry when\n    omitted.\n:returns: the settings to apply, and what became of the pack."
     },
     "spacr.qt.settings_search": {
       "source_blocks_sha256": [
@@ -76823,10 +76848,11 @@
       "source_blocks_sha256": [
         "e5c20e6d1e2bc34f46fc0f086fd02b3946cd36f2e87fb2553fd02a0fd4583132",
         "049df24676b7fa7729ac356a809c520fb089757f74c2b8ed2915a6332c301261",
-        "e18d59776ac9817a9fd1ca75950c60d2ba04245562b9d434403f0a15750850f3"
+        "f66497db564e94e90ac66f885e174e2a86b9ef6a94d8fabf3af3594c691d0789",
+        "3f611ed0e4fe621c4bb0ce1dff1a891dd70a166c0c506044c01165dca12f28ed"
       ],
-      "source_sha256": "ad774784f18d6e5c02afc20bbf3cc33d204cac1c6e0ef80144bf7b808ab24bf5",
-      "text": "Show one organelle slot per slot the run declares.\n\nThe rows are HIDDEN, not removed: the widgets keep their values, so\nlowering the count and raising it again finds the old answers still\nthere -- the same promise `spacr.settings._set_organelle_defaults`\nmakes for the settings themselves.\n\nAn unset count shows every slot, which is what this dialog did before\nthe count reached it: better to offer a field too many than to hide\none a run is using."
+      "source_sha256": "ab26e6f814070dc6c7eaee0e993341baf7654f57900dcdd671db1625ef5f6475",
+      "text": "Show one organelle slot per slot the run declares.\n\nThe rows are HIDDEN, not removed: the widgets keep their values, so\nlowering the count and raising it again finds the old answers still\nthere -- the same promise `spacr.settings._set_organelle_defaults`\nmakes for the settings themselves.\n\nIT LAYS OUT AS WELL AS GATING. The panel builds a slot's controls\nwhen the count reaches it rather than building all 702 up front, so\na count that rises while this dialog is open arrives as controls\nwith no rows; `_adopt_new_slot_controls` puts them in the block\nbefore the gate below decides which are shown.\n\nAn unset count shows every slot that exists, which is what this\ndialog did before the count reached it: better to offer a field too\nmany than to hide one a run is using."
     },
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel": {
       "source_blocks_sha256": [
@@ -76954,10 +76980,11 @@
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.set_organelle_count": {
       "source_blocks_sha256": [
         "21377c4914fdcc624b96565eae10a379c38d624db2318bc760d9a049a605f2a1",
-        "3c02ab1a42eac7b2695fb1d29cbc44e3a53e67d59de0264e0e1c01fff9344f1c"
+        "3c02ab1a42eac7b2695fb1d29cbc44e3a53e67d59de0264e0e1c01fff9344f1c",
+        "4d92b0f1a87f19052f22a2a3f90b5fc17b819e87008d513c8ab789f9c3a3d3e1"
       ],
-      "source_sha256": "37bc7d149dd60bcb27acf53e2677bbf723613324a0309e0da79e620c58b609cc",
-      "text": "How many organelle slots the crop settings should offer.\n\nThe same rule Mask and the Mask live preview follow: the run declares\n`number_of_organelles`, and every panel shows that many. Without it the\ncrop settings offered a fixed four -- so a one-organelle run had three\nmask-slice and three minimum-area fields for objects it does not have,\nand each of them propagates into the settings the run reads."
+      "source_sha256": "8de0603a29ebed2015028c065ffa60f323958b920b62e70207871a72eb82ab27",
+      "text": "How many organelle slots the crop settings should offer.\n\nThe same rule Mask and the Mask live preview follow: the run declares\n`number_of_organelles`, and every panel shows that many. Without it the\ncrop settings offered a fixed four -- so a one-organelle run had three\nmask-slice and three minimum-area fields for objects it does not have,\nand each of them propagates into the settings the run reads.\n\nIT BUILDS THEM AS WELL AS SHOWING THEM. This used to change only what\nwas SHOWN, over 702 slots' worth of controls that `_build_controls`\nhad already made -- so the answer to \"a run with no organelle\" was\n2,117 controls hidden behind a gate. The count is now what brings a\nslot's controls into existence, which is why raising it is the only\nroute that has to work."
     },
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.set_propagate_callback": {
       "source_blocks_sha256": [
