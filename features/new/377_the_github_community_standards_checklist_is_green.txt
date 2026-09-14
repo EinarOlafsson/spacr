@@ -2,7 +2,11 @@
 EVERY ROW OF GITHUB'S COMMUNITY STANDARDS CHECKLIST IS GREEN
 ================================================================================
 
-Status:    OPEN, filed 2026-09-04.
+Status:    DONE, 2026-09-04. All five files written and pushed to `main`
+           as edad380b3; `community/profile` measured health_percentage
+           42 -> 100 immediately after, and no release fired. The header
+           said OPEN until 2026-09-13 while the evidence sat twelve
+           sections below it. Filed 2026-09-04.
 Owner:     the repository's public-facing community files.
 Requested: 2026-09-04, verbatim -- "add to instructions, i want to fulfuill all
            of these: Description / README / Code of conduct / Contributing /
