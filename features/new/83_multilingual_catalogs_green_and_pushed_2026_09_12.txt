@@ -2,7 +2,15 @@
 FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
 ================================================================================
 
-Status:    in progress, 2026-08-12.
+Status:    DONE, confirmed 2026-09-13. Both lanes audit clean and the
+           criterion in WHAT THE STATE IS -- "all nine target locales
+           must be rebuilt" -- is met. Measured with this file's own
+           rule, redirecting and reading $? rather than through a pipe:
+               API EXIT=0      languages=9 symbols=10,478
+               RUNTIME EXIT=0  languages=9 settings=1,050
+                               categories=200 ui=2,988 modules=68
+           The header said "in progress, 2026-08-12" for a month while
+           this file's own title carried the date it went green.
 Requested: 2026-08-11 — "push to nightly"
            2026-08-12 — "ok please finish everything. thanks and make sure to
            save anything you learn in terms of how to make the voises sound
@@ -406,3 +414,27 @@ and the fallback checkpoint, and that is what cleared them.
 
 A GREEN BUILD IS NOT A GREEN AUDIT. Worth carrying forward as a rule, because
 the build exits 0 in both cases.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- BOTH LANES AUDIT CLEAN, AND THE UI COUNT MOVED SINCE THIS FILE
+LAST RECORDED IT
+--------------------------------------------------------------------------------
+
+    API EXIT=0      languages=9  symbols=10,478
+    RUNTIME EXIT=0  languages=9  settings=1,050  categories=200
+                    ui=2,988     modules=68
+
+Read the way this file tells the reader to read it -- `> /tmp/log 2>&1; echo
+"EXIT=$?"` -- because its own NEVER READ AN EXIT CODE THROUGH A PIPE rule was
+written after two sessions were fooled by `... | tail` reporting success for a
+command that failed.
+
+THE UI COUNT MOVED, 2,856 -> 2,988, and the earlier number in this file is not
+wrong for its date. 117 captions entered the catalogs on 2026-09-13 when a
+one-line `_set_status` wrapper stopped hiding them from the extractor; item 65
+carries that, and item 394 carries why no local check could have seen them.
+Settings moved 1,068 -> 1,050 with the intensity band's retirement.
+
+  SO A GREEN AUDIT IS A STATEMENT ABOUT A TREE, NOT A PERMANENT ONE. This file
+  recorded green on 2026-09-12 and was green again on 2026-09-13 over a
+  different and larger inventory. Both are true; neither supersedes the other.
