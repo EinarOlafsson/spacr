@@ -51,17 +51,32 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,664 | Remainder | Reviewed API blocks | Of 10,533 | Remainder |
+| Language | Reviewed runtime records | Of 5,662 | Remainder | Reviewed API blocks | Of 10,533 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.08% | 5,546 | 468 | 4.44% | 10,065 |
-| German | 85 | 1.50% | 5,579 | 420 | 3.99% | 10,113 |
-| Spanish | 99 | 1.75% | 5,565 | 287 | 2.72% | 10,246 |
-| Simplified Chinese | 267 | 4.71% | 5,397 | 507 | 4.81% | 10,026 |
-| Portuguese | 99 | 1.75% | 5,565 | 446 | 4.23% | 10,087 |
-| Hindi | 128 | 2.26% | 5,536 | 460 | 4.37% | 10,073 |
-| Korean | 246 | 4.34% | 5,418 | 453 | 4.30% | 10,080 |
-| Icelandic | 151 | 2.67% | 5,513 | 1,021 | 9.69% | 9,512 |
-| French | 98 | 1.73% | 5,566 | 465 | 4.41% | 10,068 |
+| Swedish | 118 | 2.08% | 5,544 | 468 | 4.44% | 10,065 |
+| German | 85 | 1.50% | 5,577 | 420 | 3.99% | 10,113 |
+| Spanish | 99 | 1.75% | 5,563 | 287 | 2.72% | 10,246 |
+| Simplified Chinese | 267 | 4.72% | 5,395 | 507 | 4.81% | 10,026 |
+| Portuguese | 99 | 1.75% | 5,563 | 446 | 4.23% | 10,087 |
+| Hindi | 128 | 2.26% | 5,534 | 460 | 4.37% | 10,073 |
+| Korean | 246 | 4.34% | 5,416 | 453 | 4.30% | 10,080 |
+| Icelandic | 151 | 2.67% | 5,511 | 1,021 | 9.69% | 9,512 |
+| French | 98 | 1.73% | 5,564 | 465 | 4.41% | 10,068 |
+
+*Regenerated 2026-09-14, second pass, for instruction 364's `grna`
+retirement. The runtime denominator moves 5,664 -> 5,662 and NOT by a flat
+two deletions: `grna`'s setting label and its tooltip leave (-2), the
+`PATH_LIST_TITLES` chooser caption 'Choose the gRNA CSV' leaves with the
+control it named (-1), and the identity 'gRNA' ARRIVES as a UI record (+1).
+It arrives because of the removal: while `grna` was a setting whose English
+label was 'gRNA', that identity was materialised by the label table and
+excluded from the UI sources; retiring the setting hands it to UI instead.
+NO REVIEWED RECORD CHANGED in any locale -- the nine reviewed counts are
+exactly what they were, because `grna` had no reviewed record in any
+language. Its sibling `barcodes` DOES (zh_CN, `setting_tooltips`), which is
+why `barcodes` is approved for the same retirement and is not in this pass.
+Only zh_CN's percentage moves, 4.71% -> 4.72%, and that is 267 divided by a
+denominator two smaller rather than any change in what has been read.*
 
 *Regenerated 2026-09-14. The API denominator moved 10,478 -> 10,531 as well:
 53 public symbols arrived and none left, set-differenced against the

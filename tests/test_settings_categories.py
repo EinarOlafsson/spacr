@@ -304,6 +304,26 @@ KEYS_RETIRED = frozenset({
     #                        itself from `diameter`.
     "compartments", "compression", "split_axis_lims",
     "upscale", "upscale_factor",
+    # RETIRED outright on 2026-09-14, instruction 364, approved by the
+    # maintainer on 2026-09-09 with the rest of the retirement group. `grna`
+    # was DECLARED ONLY BY `get_map_barcodes_default_settings`, which nothing
+    # under `spacr/` calls, and its own tooltip said so in as many words:
+    # "it exists only in get_map_barcodes_default_settings, which no pipeline
+    # calls, so changing it has no effect on any run".
+    # `settings['grna']` and `settings.get('grna')` appear nowhere.
+    # The live equivalent is `grna_csv`, read by `generate_barecode_mapping`.
+    #
+    # IT IS HERE AND NOT IN A RENAME LIST because nothing replaces it for a
+    # user: `grna_csv` was always the key that worked, so an old settings CSV
+    # naming `grna` was never doing anything and `validate.RETIRED_SETTINGS`
+    # maps it to "" -- withdrawn, no replacement -- rather than pointing at a
+    # key the user was probably already setting.
+    #
+    # NOT `barcodes`, its sibling in the same dead factory and approved in the
+    # same breath. That one is HELD: a reviewed zh_CN translation is pinned to
+    # its tooltip in docs/i18n/reviewed/runtime/, so retiring it withdraws a
+    # reviewed record and is a translation decision, not a deletion.
+    "grna",
 })
 
 

@@ -984,7 +984,20 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "highlight": "",
     "guide_permutation_plot": "",
     "corrected_manders": "",
+    # `grna` was declared only by `get_map_barcodes_default_settings`, which
+    # nothing under `spacr/` calls, and its own tooltip said so. The live
+    # equivalent is `grna_csv`, read by `generate_barecode_mapping`. Retired
+    # 2026-09-14 under 364, approved by the maintainer 2026-09-09.
+    "grna": "",
 }
+#: NOT HERE, YET: `barcodes`, `grna`'s sibling in the same dead factory and
+#: approved for the same retirement on the same day. It is HELD because a
+#: REVIEWED translation is pinned to its tooltip --
+#: `docs/i18n/reviewed/runtime/zh_CN/2026-08-14-tail-000-020.json`, record
+#: ("setting_tooltips", "barcodes") -- so withdrawing it retires a reviewed
+#: record rather than only a dead key. `grna` has no reviewed record in any
+#: of the nine locales, which is why it could go alone.
+#:
 #: NOT HERE: a setting withdrawn from ONE panel while `spacr.settings` still
 #: declares it. `log_x`, `log_y`, `x_lim`, `y_lims` and `png_type` left the
 #: regression panel and are read elsewhere, so naming one here would warn a

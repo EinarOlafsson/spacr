@@ -12,6 +12,18 @@ Status:    OPEN, BUT NOT FOR THE REASON THIS LINE USED TO GIVE. All three
            two proposals waiting on the maintainer, and the legacy-migration
            hole the 2026-09-05 check found in the renames. Proposals are in
            features/data/364_mask_and_measure_settings_audit_2026-09-02.txt.
+           RETIREMENTS, 2026-09-14: `grna` is DONE -- removed from
+           settings.py (type entry, category list, tooltip and the
+           setdefault in get_map_barcodes_default_settings at :2178),
+           recorded in validate.RETIRED_SETTINGS as `"grna": ""`, dropped
+           from settings_model's PATH_LIST_KEYS / PATH_LIST_TITLES /
+           PATH_LIST_SINGLE_KEYS, and out of all ten catalogs. `barcodes`
+           is the only one of the approved retirements deliberately HELD,
+           and the hold is a reviewed zh_CN tooltip translation, not a
+           doubt about the setting -- see the 2026-09-14 section at the
+           end of this file. The other approved retirements (`Toxoplasma`,
+           the three `*_mask_dim`, the two `prefs/space_*`, `img_size`)
+           are still unstarted.
 Requested: 2026-09-02, verbatim -- "look through each moduals settings and
            evaluate if any settings are unnecessary, redundant or are not
            intuitive. then propose to remove settings that are unnecessary,
@@ -2132,3 +2144,127 @@ become a loop over resolved object roles -- and that is a change to the
 preprocessing path, not a settings audit. Recorded so the next person does not
 mistake the missing toggle for the whole of it.
 
+
+--------------------------------------------------------------------------------
+2026-09-14 -- `grna` IS RETIRED. `barcodes` IS HELD, AND THE REASON IS A
+              REVIEWED TRANSLATION RATHER THAN A DOUBT ABOUT THE SETTING
+--------------------------------------------------------------------------------
+
+APPROVED 2026-09-09, APPLIED TODAY. The retirement group the maintainer
+approved is recorded above ("THE RETIREMENTS remove rows entirely rather than
+renaming them -- `barcodes`, `grna`, `Toxoplasma`, ..."). `grna` is the first
+of that group to land.
+
+RE-VERIFIED BEFORE TOUCHING ANYTHING, because the 2026-09-02 and 2026-09-04
+notes above are both dated claims and a date is not evidence about today.
+Both still hold:
+
+    settings['grna']  and  settings.get('grna')        0 occurrences
+    settings.pop / setdefault('grna') outside the      0 occurrences
+        declaring factory itself
+    get_map_barcodes_default_settings callers under    0
+        spacr/  (settings.py:2178 defines it)
+
+Everything the file-count scan finds for the bare word is `grna_csv`,
+`barcodes_grna.csv`, the regex named group `(?P<grna>...)`, or the pandas
+column `df['grna']` -- 40-odd modules of it, and none of it a settings key.
+The live equivalent is `grna_csv`, read by `generate_barecode_mapping`.
+
+WHERE THE STALE CLAIM WAS. The recipe I was handed said `grna` also had to be
+removed from `spacr/validate.py`. IT WAS NEVER THERE: validate.py's only two
+`grna` hits are `"controls": "nontargeting_control_grnas"` (validate.py:948)
+and the `grna_csv` file requirement for map_barcodes (validate.py:1228).
+validate.py is where the key ARRIVES, in `RETIRED_SETTINGS`, not somewhere it
+had to be deleted from. Recorded because an inverted claim costs the next
+reader a grep either way.
+
+WHAT MOVED
+
+  spacr/settings.py           the `setdefault('grna', ...)` in
+                              get_map_barcodes_default_settings, the
+                              `"grna": str` type entry, the tooltip, and
+                              "grna" out of the "Paths" category list
+  spacr/validate.py           RETIRED_SETTINGS gains `"grna": ""` -- no
+                              replacement, because `grna_csv` was always the
+                              key that worked and pointing a user at it would
+                              imply their `grna` had been doing something
+  spacr/qt/screens/           PATH_LIST_KEYS, PATH_LIST_TITLES and
+    settings_model.py         PATH_LIST_SINGLE_KEYS all drop it. The third is
+                              not in the recipe I was given and had to be
+                              found by grep; leaving it would have left a
+                              single-file marker for a key with no control.
+  ten i18n catalogs           see below -- this is the part with a surprise
+  three test files            tests/test_settings_portable_defaults.py,
+                              tests/test_settings_categories.py,
+                              tests/test_more_helpers_3.py, each recording
+                              WHY the key left rather than dropping it
+  tests/qt/                   counts and digest, moved by set difference
+    test_i18n_caption_ratchet.py
+  docs/i18n/COVERAGE.md       regenerated; runtime denominator 5,664 -> 5,662
+  docs/i18n/                  the same denominator in the reviewed-evidence
+    REVIEW_SCOPE_2026-09-04.md  table
+
+THE CATALOG COUNT THAT DID NOT MOVE, WHICH IS THE INTERESTING ONE. The recipe
+predicted UI 3,291 -> 3,292. It is 3,291 -> 3,291, and that is NOT because
+nothing happened. Measured by set difference against origin/nightly:
+
+    SETTING_LABELS     1055 -> 1054   -1 / +0
+    SETTING_TOOLTIPS   1050 -> 1049   -1 / +0
+    UI                 3291 -> 3291   -1 / +1   <-- two events, not zero
+    CATEGORY_HELP, MODULE_SUMMARIES   unchanged
+
+  OUT of UI: 'Choose the gRNA CSV', the PATH_LIST_TITLES file-chooser caption.
+  It is a UI source in its own right, and it left with the control it named.
+  The recipe did not mention it, so a run that moved UI to 3,292 would have
+  been wrong by exactly one in each direction and right in neither.
+
+  IN to UI: 'gRNA'. It arrives BECAUSE of the removal. 'gRNA' is in
+  `build_i18n_catalogs._IDENTITY_TEXT`, and line 3867 does
+  `ui_sources.update(_IDENTITY_TEXT - already_materialized)`. While `grna` was
+  a setting whose English LABEL was 'gRNA', `set(labels.values())` materialised
+  the term and excluded it from the UI sources; retiring the setting
+  un-materialises it and it falls through to UI. Without a UI row for it in all
+  ten catalogs, test_runtime_catalogs_resolve_all_reviewed_false_friend_variants
+  raises KeyError: 'gRNA' and
+  test_standalone_technical_identity_values_remain_exact_in_every_language fails
+  with it. It is an identity, so the value is 'gRNA' in all ten.
+
+  So each catalog lost SIX rows and gained TWO: the `grna` label, its tooltip,
+  the chooser caption, and their three SOURCE_HASHES rows out; the 'gRNA' UI row
+  and its SOURCE_HASHES row in. 60 removals and 20 additions across the ten,
+  where the recipe said 40 and 10. No other row in any catalog changed -- the
+  nine translated files were edited line-by-line rather than regenerated, and
+  the diff is exactly eight hunks each.
+
+  THE DIGEST IS THE ONLY WITNESS TO HALF OF THIS. EXTERNAL_SOURCE_KEY_SHA256
+  moves 89d4f2e8... -> f576cb08... while the UI count does not move at all. A
+  ratchet that pinned totals and not identities would have read this change as
+  "SETTING_LABELS and SETTING_TOOLTIPS each lost one" and said nothing about a
+  UI caption being swapped for a different one.
+
+WHY `barcodes` IS NOT IN THIS COMMIT. It is approved in the same breath and it
+is just as dead -- same factory, same "nothing reads this key" tooltip. It is
+held because a REVIEWED translation is pinned to its tooltip:
+
+    docs/i18n/reviewed/runtime/zh_CN/2026-08-14-tail-000-020.json
+    record ("setting_tooltips", "barcodes")
+
+Retiring it therefore withdraws a reviewed record, which is a translation
+decision with a human reviewer behind it, not a deletion of dead text.
+`grna` has no reviewed record in ANY of the nine locales -- which is exactly
+why it could go alone, and why the nine reviewed-record counts in
+REVIEW_SCOPE are unchanged by this commit. Whoever takes `barcodes` should
+expect the reviewed-record count for zh_CN to fall by one and should say so
+in that table rather than letting it move silently.
+
+EVIDENCE. Gate green: tests/qt/test_external_i18n_catalogs.py,
+tests/qt/test_i18n_caption_ratchet.py, tests/test_documentation_i18n.py and
+tests/test_i18n_coverage_audit.py -- 184 passed. `python
+tools/build_i18n_catalogs.py --audit` exits 0 and reports settings=1049
+categories=200 ui=3291 modules=68. The settings-side suites that name the key
+or read the tables it left -- test_settings_portable_defaults,
+test_settings_categories, test_more_helpers_3, test_a_retired_setting_says_so,
+test_dead_settings, test_settings, test_a_renamed_setting_keeps_old_files_working,
+test_a_settings_pack_survives_a_rename, test_i18n_reference_sources,
+test_regression_workbench -- 370 passed; the Qt settings-model and file-list
+suites 239 passed. Every changed assertion was mutated and watched fail first.

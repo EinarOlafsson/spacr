@@ -228,9 +228,40 @@ COMPACT_CAPTION_SHA256 = (
 #
 # Nothing in this move is a caption whose origin is unknown, which is the
 # question this ratchet exists to force.
+#
+# MOVED 2026-09-14 for 364's `grna` retirement, and the interesting number is
+# the one that DID NOT move. Measured by set difference against the counts
+# above, not by accepting a new total:
+#
+#   SETTING_LABELS    1055 -> 1054   -1 / +0   the `grna` key
+#   SETTING_TOOLTIPS  1050 -> 1049   -1 / +0   the same key's tooltip
+#   UI                3291 -> 3291   -1 / +1   AND THIS IS NOT "NO CHANGE"
+#   CATEGORY_HELP, MODULE_SUMMARIES  unchanged
+#
+# THE UI ROW SWAPPED IDENTITY UNDER A CONSTANT TOTAL, which is the exact shape
+# this file exists to refuse to read off a total. Two things happened at once:
+#
+#   OUT: 'Choose the gRNA CSV', the `PATH_LIST_TITLES` file-chooser caption for
+#   `grna`. It went with the setting -- a dialog title for a control that is no
+#   longer drawn is a caption nine locales still carry and nobody can reach.
+#
+#   IN: 'gRNA'. This one arrives BECAUSE of the removal, not despite it.
+#   'gRNA' is in `build_i18n_catalogs._IDENTITY_TEXT`, and line 3867 does
+#   `ui_sources.update(_IDENTITY_TEXT - already_materialized)`. While `grna`
+#   was a setting whose English LABEL was 'gRNA', the term was materialised by
+#   `set(labels.values())` and therefore excluded from the UI sources. Retiring
+#   the setting un-materialises it, so the identity falls through to UI and
+#   every catalog needs a UI row for it. Without that row
+#   `test_runtime_catalogs_resolve_all_reviewed_false_friend_variants` raises
+#   KeyError: 'gRNA' and the standalone-identity test fails with it.
+#
+# So a NET ZERO here is a removal and an arrival, and the digest below moves
+# even though no count does. Catalogs first, ratchet second: all ten carry the
+# new 'gRNA' identity row and have lost the four `grna` rows and the chooser
+# caption before these numbers were touched.
 EXTERNAL_SOURCE_COUNTS = {
-    "SETTING_LABELS": 1055,
-    "SETTING_TOOLTIPS": 1050,
+    "SETTING_LABELS": 1054,
+    "SETTING_TOOLTIPS": 1049,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
@@ -281,8 +312,14 @@ EXTERNAL_SOURCE_COUNTS = {
 # Moved again on 2026-09-13 with the counts above: 184 record identities
 # change, 149 arriving and 35 leaving, every one classified in the note over
 # EXTERNAL_SOURCE_COUNTS.
+# Moved again on 2026-09-14 for `grna`, and THIS TIME THE DIGEST IS THE ONLY
+# WITNESS TO PART OF THE CHANGE. Four identities move: ('SETTING_LABELS',
+# 'grna') and ('SETTING_TOOLTIPS', 'grna') leave, ('UI', 'Choose the gRNA CSV')
+# leaves and ('UI', 'gRNA') arrives. The UI pair cancels in the count and does
+# not cancel here -- which is the point of pinning identities and not just
+# totals.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "89d4f2e8484893aeaa3bbb5d399d2822ec207eb7b5be69ee7bf2eeb86f03b6d9"
+    "f576cb08f184154f97bb47c8e8fb2af1013f17efdb419a70ad825093710f0dcf"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

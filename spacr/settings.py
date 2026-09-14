@@ -2182,7 +2182,6 @@ def get_map_barcodes_default_settings(settings):
     :returns: the settings dict with defaults applied.
     """
     settings.setdefault('src', 'path')
-    settings.setdefault('grna', bundled_barcode_path('grna'))
     settings.setdefault('barcodes', bundled_barcode_path('column'))
     settings.setdefault('test', False)
     settings.setdefault('verbose', True)
@@ -3068,7 +3067,6 @@ expected_types = {
     "plot_control": bool,
     "remove_background": bool,
     "target": str,
-    "grna": str,
     "barcodes": str,
     "dependent_variable": (str, list),
     "regression_panel_manifest": (dict, str, type(None)),
@@ -3997,7 +3995,6 @@ tooltips = {
     "gradient_accumulation": "(bool) - Sum gradients over several batches before each optimizer step, producing an effective batch size of batch_size x gradient_accumulation_steps without additional GPU memory. Enable when batch_size must be reduced to fit available VRAM and the resulting training trajectory is unstable. Remaining gradients are applied at the end of each epoch. Default True.",
     "gradient_accumulation_steps": "(int) - How many batches are summed per optimizer step when gradient_accumulation is on; the loss is divided by this value so gradient magnitude stays comparable. Effective batch size = batch_size x this. Raise it (4-16) to emulate a larger batch on limited VRAM, at the cost of fewer weight updates per epoch. Ignored when gradient_accumulation is False. Default 4.",
     "grayscale": "(bool) - Force the Cellpose channel pair to [0, 0] so the network treats the input as a single combined channel, overriding the [cytoplasm, nucleus] pair otherwise inferred from model_name (cyto -> [1,0], cyto2 -> [2,1], nucleus -> [0,0]). Leave it on for single-channel inputs; switch it off only when feeding a genuine two-channel stack. Default True.",
-    "grna": "(str) - Path to a CSV of gRNA barcode sequences for the legacy barcode-mapping helper. Like 'barcodes' it exists only in get_map_barcodes_default_settings, which no pipeline calls, so changing it has no effect on any run. The live equivalent, read by generate_barecode_mapping, is grna_csv.",
     "grouping": "(str) - How per-object values collapse to one number per well in the plate heatmap: 'mean' averages heatmap_feature over the objects in a well, 'sum' totals them, 'count' ignores the feature and colors wells by object count. Use 'count' to spot uneven seeding or dropout, 'mean' for phenotype strength. Default 'mean'; any other value raises ValueError.",
     "heatmap_feature": "(str) - Numeric column that is aggregated per well and color-mapped in the plate heatmap after ML scoring, e.g. 'predictions' for the classifier score or 'recruitment' for the pathogen/cytoplasm intensity ratio. Must be a numeric column of the scored dataframe or the run raises ValueError listing the valid names. Default 'predictions'.",
     "homogeneity": "(bool) - Compute grey-level co-occurrence-matrix homogeneity for every object in every channel, adding one homogeneity_distance_<d> column per entry in homogeneity_distances. Homogeneity is high for smooth, evenly filled objects and low for punctate or grainy ones, so keep it on for texture phenotypes; disabling it noticeably speeds up measurement. Default True.",
@@ -4547,7 +4544,7 @@ organelle_basic_settings.insert(0, NUMBER_OF_ORGANELLES)
 
 
 categories = {
-    "Paths": ["src", "grna", "barcodes", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
+    "Paths": ["src", "barcodes", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
 
     "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected"],
 

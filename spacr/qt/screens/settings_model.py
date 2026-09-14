@@ -6758,7 +6758,6 @@ PATH_LIST_KEYS: Dict[str, str] = {
     "row_csv": "csv",
     "column_csv": "csv",
     "barcodes": "csv",
-    "grna": "csv",
 }
 
 
@@ -6772,7 +6771,6 @@ PATH_LIST_TITLES: Dict[str, str] = {
     "row_csv": "Choose the row barcode CSV",
     "column_csv": "Choose the column barcode CSV",
     "barcodes": "Choose the barcode CSV",
-    "grna": "Choose the gRNA CSV",
 }
 
 
@@ -6780,7 +6778,10 @@ PATH_LIST_TITLES: Dict[str, str] = {
 #:
 #: Every one of these is declared ``str`` in :mod:`spacr.settings` and is
 #: handed to ``pd.read_csv`` unchanged -- ``sequencing.map_sequences_to_names``
-#: for the three barcode references, the legacy helpers for the other two.
+#: for the three barcode references, the legacy helper for ``barcodes``.
+#: It was the legacy helpers for the other TWO until 2026-09-14, when `grna`
+#: was retired (364) -- it was declared only by
+#: ``get_map_barcodes_default_settings``, which nothing calls.
 #: Giving them the multi-file control made the panel COLLECT a one-element
 #: list, so merely opening the module and saving rewrote
 #: ``column_csv=/…/barcodes_column.csv`` to ``['/…/barcodes_column.csv']`` in
@@ -6789,7 +6790,7 @@ PATH_LIST_TITLES: Dict[str, str] = {
 #: user had never typed. The dialog and the drop target stay; the shape of the
 #: value goes back to what its consumer reads.
 PATH_LIST_SINGLE_KEYS: Tuple[str, ...] = (
-    "grna_csv", "row_csv", "column_csv", "barcodes", "grna",
+    "grna_csv", "row_csv", "column_csv", "barcodes",
 )
 
 
