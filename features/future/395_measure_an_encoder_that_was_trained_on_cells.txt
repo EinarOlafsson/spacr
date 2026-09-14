@@ -3,7 +3,10 @@ MEASURE AN ENCODER THAT WAS TRAINED ON CELLS, BECAUSE THE ONE THAT LOST WAS
 TRAINED ON PHOTOGRAPHS
 ================================================================================
 
-Status:    OPEN AND ACTIONABLE, filed 2026-09-12. Nothing gates it: the
+Status:    OPEN, AND NOT ONE LINE AWAY -- corrected 2026-09-13. The
+           retrieval harness that produced the baseline figures is NOT
+           in this repository, so "a second run" means rebuilding it
+           first; see the 09-13 note. Filed 2026-09-12 as: the
            engine, the screen, the column family and the measurement harness
            all exist and all have been run end to end. What is missing is one
            line of configuration and a second run.
@@ -81,3 +84,55 @@ panel does NOT. 386 says plainly that retrieval of a KNOWN phenotype is the
 wrong instrument for that, because the positive control is the screen's top
 hit precisely because the panel already detects it. That needs a different
 design and a human looking at crops, and it is not this item.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- THE HARNESS IS NOT IN THE REPOSITORY, SO THIS IS NOT ONE LINE
+--------------------------------------------------------------------------------
+
+This file says "the engine, the screen, the column family and the measurement
+harness all exist and all have been run end to end. What is missing is one line
+of configuration and a second run."
+
+THREE OF THOSE FOUR ARE TRUE. `spacr/embeddings.py` holds `EmbeddingSpec`,
+`EmbeddingResult`, the channel policies and the `emb_` column prefix;
+`spacr/qt/screens/embeddings.py` is the screen; the column family reaches the
+pickers. Pointing the spec at another backbone really is one line.
+
+THE FOURTH IS NOT. Searched 2026-09-13:
+
+    tools/           no embedding/retrieval harness of any name
+    spacr/           `balanced_accuracy` appears in scorecard, surrogate, ml,
+                     regression_annotation and classifier_evaluation -- general
+                     utilities, none of them the 386 measurement
+    tests/           nothing that reproduces the split or the control
+    features/data/   no 386 or 395 artefact, no run summary, no folds
+
+So the thing that produced
+
+    gene retrieval, embeddings      0.695     position control  0.494
+    gene retrieval, measured panel  0.894     position control  0.514
+
+on 2026-09-12 -- the grouped-by-well split, the twenty adjacent library-column
+pairs, the shuffled nulls, and the falsified three-channel excuse -- exists
+only as those numbers. The plate is not named in either file.
+
+  THIS MATTERS MORE THAN THE MISSING SCRIPT. This file's own success criterion
+  is "reported beside 0.695 and 0.894, ON THE SAME PLATE, the same objects and
+  the same folds". That cannot be satisfied by a harness written fresh, because
+  a new harness is a new split -- and the item says so itself: "changing the
+  encoder and the measurement in the same step produces a number nobody can
+  attribute."
+
+WHAT IS ACTUALLY OWED, in order:
+
+  1. RECOVER OR REBUILD THE HARNESS and commit it under `tools/`, with the
+     plate named. Until it is in the repository the baseline is unreproducible
+     and every future comparison inherits that.
+  2. Only then swap the backbone. `BiomedCLIP-PubMedBERT_256-vit_base_patch16_224`
+     is already in the local HuggingFace cache and is a domain-shifted encoder
+     that needs no download -- a cheap first probe, though not one of the three
+     this file names (Cell-DINO, OpenPhenom, SubCell).
+
+  SAME SHAPE AS ITEM 400, FOUND THE SAME DAY: work that was really done, whose
+  artefact is not reachable from the checkout, and whose file says it is ready.
+  An item is only as actionable as the code a reader can find.
