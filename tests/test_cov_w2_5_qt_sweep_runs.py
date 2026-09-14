@@ -496,11 +496,6 @@ def test_deleting_a_run_removes_the_folder_and_the_row(panel, tmp_path):
     assert "Deleted 1 run folder" in panel._status.text()
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="delete_runs_from_disk builds `keep` from the "
-                          "decorated failure strings ('<folder> (reason)'), so "
-                          "no plain folder path ever matches and a row whose "
-                          "folder survived is removed from the table anyway")
 def test_a_folder_that_will_not_delete_keeps_its_row(panel, tmp_path,
                                                      monkeypatch):
     """A row whose folder survived must not disappear from the table.

@@ -1485,13 +1485,21 @@ class TestRecomputeOnSettingsChange:
 
     def test_the_status_line_reports_the_object_count(self, qtbot,
                                                       monkeypatch, gray_tif):
+        """The count leads the line; 333 appended the model that made it.
+
+        Asserted on the LEADING clause rather than on the whole line. The
+        status now also names the model the masks came from -- a preview
+        whose provenance is unstated silently invites the user to tune
+        against one model for a run that will use another -- and an equality
+        assertion here made that addition read as a regression in the count.
+        """
         self._stub_two_objects(monkeypatch, [])
         p = _panel(qtbot)
         p.load_image(gray_tif)
         self._run(qtbot, p)
-        assert p._status.text() == "Found cell=2."
+        assert p._status.text().startswith("Found cell=2.")
         p._compartment_widgets["cell"]["min_area"].setValue(50)
-        assert p._status.text() == "Found cell=1."
+        assert p._status.text().startswith("Found cell=1.")
 
     def test_toggling_a_checkbox_filter_also_recomputes(self, qtbot,
                                                         monkeypatch, gray_tif):

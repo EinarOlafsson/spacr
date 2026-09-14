@@ -2,8 +2,18 @@
 ONE NAME FOR LOADING AND ONE FOR STREAMING, EVERYWHERE
 ================================================================================
 
-Status:    closed. Every panel says the two words, and the training
-           vocabulary is migrated onto them.
+Status:    closed. Every panel that offers this choice now offers the two
+           names AS A CONTROL -- including the training panel, which until
+           2026-09-14 offered them as a FREE-TEXT BOX. See
+           `settings_model._IMAGE_SOURCE_OPTIONS` (line 682), wired in at
+           lines 773 and 777, and `_image_source_the_panel_offers` (line
+           687), applied at line 7886.
+
+           THE PREVIOUS STATUS LINE WAS WRONG WHERE IT MATTERED MOST. It
+           read "closed. Every panel says the two words, and the training
+           vocabulary is migrated onto them." The vocabulary was migrated;
+           the PANEL was not. See "AND THE PANEL THE MIGRATION WAS FOR"
+           below.
 Requested: 2026-08-19 -- "add to instructions to unify the terminology stream
            images and load images. the default should always be loade images
            which loades from data folder. if that fails it should always try
@@ -185,3 +195,198 @@ Tests: `tests/test_load_images_and_stream_images.py`. The test that required
 its docstring, and the replacement is stricter: it also asserts both retired
 spellings are still ACCEPTED by both alias tables, so retiring the wording
 cannot quietly retire the reader.
+
+
+--------------------------------------------------------------------------------
+2026-09-14 -- AND THE PANEL THE MIGRATION WAS FOR
+--------------------------------------------------------------------------------
+
+RE-CHECKED AGAINST THE TREE, NOT AGAINST THIS FILE. Both directions were
+verified: what still uses an older synonym, and whether the default and the
+fallback are implemented rather than merely described.
+
+THE FALLBACK IS REAL, IN BOTH DIRECTIONS AND FROM BOTH DOORS. Verified, not
+taken from the note above: `crops.resolve_crop_source` returns kind 'merged'
+with a reason naming both routes when LOAD IMAGES is asked for and there is
+no `data/`, and the mirror image for STREAM IMAGES with no `merged/`. The
+TRAINING door reaches the same code -- `io.open_crop_source` ->
+`io._canonical_crop_source` -> `crops.resolve_crop_source` -- so the value
+the training panel writes falls back too, and prints which route drew. Two
+new tests drive it through `open_crop_source` rather than through
+`resolve_crop_source`, because the door is where the rename broke it before.
+
+BUT THE TRAINING PANEL HAD NO CONTROL FOR THE CHOICE AT ALL. `image_source`
+is absent from `_APP_HIDDEN_KEYS`, so the Classify and Classify (merged)
+screens laid out a row for it -- and a key absent from `_APP_COMBO_OPTIONS`
+gets whatever widget its default's TYPE implies, which for a string is a
+free-text box. Reproduced before the change:
+
+    SettingsWidgets('classify')._widgets['image_source']
+        -> _ScalarEdit('load_images')       # a text field
+
+So the one panel this instruction's own "the training vocabulary is
+migrated" section is about was the one panel where a user could type a
+fourth spelling -- and a typo, or a remembered 'pre_generated', is exactly
+the input that produced the refusal that section documents. The first line
+of HOW TO KNOW IT WORKED -- "Every panel offering this choice offers LOAD
+IMAGES and STREAM IMAGES, in those words, with LOAD IMAGES selected" -- was
+false for it.
+
+IT IS A COMBO NOW. `_IMAGE_SOURCE_OPTIONS` offers ('load_images', "load
+images - crops already in data/") and ('stream_images', "stream images - cut
+from merged/"), LOAD IMAGES first and selected, wired into
+`_APP_COMBO_OPTIONS['classify']` and `['classify_merged']`. The sentences
+are word-for-word `_CROP_SOURCE_OPTIONS`', which is the point: one question,
+one wording, two panels. It is a SECOND table rather than a reuse because
+the STORED values differ and may not move -- the viewers persist
+'png'/'merged' and training persists 'load_images'/'stream_images' -- and
+rule D says stored values do not change. Both spellings resolve through
+`crop_source.CROP_SOURCE_ALIASES`.
+
+'generate' IS NOT OFFERED, AND IS STILL ACCEPTED. Rule D: it is an ACTION,
+and the training panel already has `generate_training_dataset` for it.
+
+AND AN OLD SETTINGS FILE PUT A THIRD, RETIRED SPELLING IN THE PANEL. Found
+while testing the above, not predicted by it: a combo whose stored value
+matches no item keeps that value as a new first item, so a settings CSV
+carrying 'on_demand' rendered
+
+    ['on_demand', 'load_images', 'stream_images']
+
+-- the retired word, shown to the user, selected, in a panel whose whole
+purpose here is that there are two names. 'png', 'merged', 'auto',
+'generate' and 'pre_generated' all did the same.
+`_image_source_the_panel_offers` resolves the stored value through
+`settings._canonical_image_source` -- the table the PIPELINE reads, so the
+panel and the run cannot disagree -- and lands anything unrecognised, 'auto'
+included (rule A, rule E), on LOAD IMAGES. Every retired spelling still
+loads; it now SELECTS the mode it has always meant instead of being
+displayed as a third one.
+
+AND IT IS NOT A LABEL WITH AN ARROW. `settings.setting_dependencies` gates
+`stream_method` and the rest of the streaming-only settings on
+`image_source`, and `_rules_for_this_panel` fires a rule only when the
+setting it reads is on the panel. Driven in a test: `stream_method` is
+disabled at LOAD IMAGES and enabled at STREAM IMAGES.
+
+Tests: `tests/test_load_images_and_stream_images.py`, eight new tests (20
+cases; the file collects 36, up from 16). Each was proved non-vacuous by breaking the source and watching it
+redden: unwiring `image_source` from `_APP_COMBO_OPTIONS` (15 red), removing
+the panel normaliser (7 red), wording the labels 'pre-generated'/'on demand'
+(3 red), offering STREAM IMAGES first (16 red), adding 'generate' as a third
+source (15 red). The three that cross into `spacr/crops.py` and `spacr/io.py`
+were reddened without editing those files: dropping 'load_images' from
+`io.CROP_SOURCE_ALIASES` reproduces the exact refusal this file records --
+"crop_source='load_images': crop_source must be 'auto', 'png' or 'merged'" --
+and renaming `crops.STREAM_IMAGES_LABEL` breaks rule C's sentence.
+
+--------------------------------------------------------------------------------
+STALE OR WRONG ELSEWHERE, FOUND WHILE CHECKING (not fixed -- other owners)
+--------------------------------------------------------------------------------
+
+* `docs/notes/spacr/settings.md` line 559 still carries the sentence this
+  file says is gone: "crop_source.CROP_SOURCES is ('pre_generated',
+  'on_demand', 'generate'), with 'auto' kept only as an alias for
+  pre_generated". CROP_SOURCES is ('png', 'merged', 'generate'). The
+  deletion recorded in "AND THE STALE COMMENT BESIDE IT IS GONE" happened in
+  `spacr/settings.py` only; the notes mirror kept the old wording, so a grep
+  still lands on the retired vocabulary described as the current one.
+
+* `crop_source.inapplicable_settings` has NO consumer in the application.
+  The shipped `crop_source` tooltip promises "controls that do not apply to
+  the selected source are disabled", and that promise IS kept -- but by
+  `settings.setting_dependencies`, a different mechanism.
+  `inapplicable_settings` is imported only by `tests/test_crop_source.py`
+  and `tests/test_cov_w2_4_crop_source.py`. It is a table that looks wired
+  and is not.
+
+* `_APP_COMBO_OPTIONS['umap']['crop_source']` and `['annotate']['crop_source']`
+  reach no built control. 'crop_source' is in `_APP_HIDDEN_KEYS['umap']`, and
+  the annotate screen builds its own dialog (`screens/annotate.py`
+  `_SettingsDialog`) from `crops.LOAD_IMAGES_LABEL` directly. Verified:
+  `SettingsWidgets('umap')._widgets` and `('annotate')._widgets` contain no
+  'crop_source'. `_CROP_SOURCE_OPTIONS` is therefore a declaration that only
+  tests read; the two tests in this file that assert on it are asserting on
+  a table, not on a panel. Left alone rather than deleted -- which of the
+  two should be the survivor is a bigger call than this item.
+
+* This file says there are exactly TWO names. `spacr/crops.py` has since
+  grown a third picture source -- `STREAM_FROM_DB = 'merged_db'`, labelled
+  "stream images (database)" -- and `PICTURE_SOURCES` offers all three,
+  while `STREAM_IMAGES_LABEL` became "stream images (array)". That is a
+  refinement of STREAM IMAGES rather than a fourth vocabulary, and the
+  panels still offer two, but this file does not mention it and a reader
+  comparing the two would think one of them was wrong.
+
+--------------------------------------------------------------------------------
+2026-09-14 -- ADVERSARIAL REVIEW OF THE ABOVE
+--------------------------------------------------------------------------------
+
+The combo is real and the panel is driven; verified independently, not read
+off the section above. Both Classify screens build a `_ValueCombo`, open on
+LOAD IMAGES, and every retired spelling written into `image_source` SELECTS
+its mode instead of appearing as a third item. Re-running the unwiring and
+the panel-normaliser mutations reproduced 16 and 7 failures respectively
+(the section says 15 and 7; the extra one is the second `classify_merged`
+entry). `open_crop_source` with BOTH folders present still returns 'png' for
+LOAD IMAGES and 'merged' for STREAM IMAGES, so the two fallback tests bind
+to the fallback rather than to a constant.
+
+TWO DEFECTS FOUND AND FIXED.
+
+1. THE GREYING TEST DROVE THE REFRESH ITSELF, so it proved only that the
+   rule CAN read the combo, not that the combo reaches the rule. Skipping
+   `image_source` in `_connect_setting_dependency_signals` -- which in the
+   app leaves the streaming settings greyed out for a user who has just
+   asked to stream -- left all 36 tests in the file passing, and
+   `tests/qt/test_no_control_is_inert.py` and
+   `tests/qt/test_greying_is_not_regression_only.py` passing with it. The
+   test now calls no refresh by hand, runs on both panels, and drives the
+   return trip to LOAD IMAGES; that mutation now reddens it (2 failed).
+
+2. THE COMMENT ON `_IMAGE_SOURCE_OPTIONS` DOCUMENTED THE BEHAVIOUR THE SAME
+   CHANGE DELETED. It said 'generate' "is still ACCEPTED here, because a
+   combo whose stored value is not among its items keeps that value as its
+   first item ... so a settings file carrying it still loads and still shows
+   what it holds". `_image_source_the_panel_offers` is what stops that
+   happening: 'generate' resolves to 'load_images' and is NOT shown.
+   Rewritten to say what the code does, and why -- it is what
+   `deep_spacr_defaults` turns 'generate' into before any run, so the panel
+   shows the source the run will read. This is the failure mode the file's
+   own "AND THE STALE COMMENT BESIDE IT IS GONE" section names.
+
+ONE GAP LEFT, REPORTED RATHER THAN FIXED (pre-existing, not introduced
+here). `_image_source_the_panel_offers` reads `image_source` only. A
+settings file written BEFORE that key existed carries `crop_source` alone --
+which is exactly the file the migration is for -- and `crop_source` is in
+`_APP_HIDDEN_KEYS['classify']`, so it reaches no control:
+
+    SettingsWidgets('classify', current={'crop_source': 'on_demand'})
+        -> the combo opens on LOAD IMAGES
+        -> collect() -> image_source='load_images', crop_source='on_demand'
+        -> deep_spacr_defaults then sets crop_source='load_images'
+
+The same file run headlessly streams, because `deep_spacr_defaults` seeds
+`image_source` from `settings.get('crop_source')`. So "the panel and the run
+cannot disagree about what an old file means" holds for every value of
+`image_source` and not yet for the older KEY. Closing it means mirroring
+that seed at panel-build time, which needs `SettingsWidgets` to know which
+keys came from `current` rather than from the shipped defaults -- a larger
+change than this item, and a choice about which key wins when a file carries
+both.
+
+Also latent, and unreachable today: `settings._IMAGE_SOURCES` has no entry
+for `crops.STREAM_FROM_DB` ('merged_db'), so `_canonical_image_source` would
+resolve it to LOAD IMAGES -- the wrong-direction answer that entry table was
+fixed to stop giving. Nothing writes 'merged_db' into `image_source`
+('merged_db' appears in neither `settings.py`, `io.py`, `crop_source.py` nor
+`settings_model.py`), so it is a trap for whoever adds the database mode to
+training, not a bug on screen.
+
+NOT THIS ITEM'S FAULT: `tests/test_api_i18n_extractor.py` has two failures
+in this tree (`10_696 - len(docs) == 218` is off by 52). They come from
+other agents' untracked modules -- `spacr/curation_queue.py` contributes 36
+documented public symbols and `spacr/cli_make_masks.py` 7 -- and
+`_image_source_the_panel_offers` contributes none, being private:
+`public_docstrings()` holds no `spacr.qt.screens.settings_model._*` key at
+all.

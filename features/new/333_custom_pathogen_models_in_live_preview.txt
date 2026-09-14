@@ -58,11 +58,102 @@ HOW TO KNOW IT WORKED
   or silently substituting.
 
 --------------------------------------------------------------------------------
-DONE, 2026-09-01
+STATUS, 2026-09-14 -- DONE
 --------------------------------------------------------------------------------
 
-The live model menu lists downloaded zoo checkpoints, and the Live settings
-model row carries the same "Model zoo..." button every object model name has.
-Without it the live view offered cpsam and nothing else, so a zoo model could
-be selected for the RUN and not for the PREVIEW -- the preview showing a
-different model than the run would use, while the user tuned against it.
+WHAT THE 2026-09-01 ENTRY DID, and it was accurate as far as it went:
+`spacr/settings.py:downloaded_zoo_models` puts local zoo checkpoints in the
+live menu (`cellpose_live_model_menu`, settings.py:1184), and the Live
+settings model row carries the "Model zoo..." button
+(`live_preview.py:3915`, `LivePreviewPanel._choose_a_preview_model`, which
+passes `kinds=("cellpose",)`). Point 2 of WHAT TO DO was therefore already
+satisfied and is unchanged by this pass.
+
+WHAT IT DID NOT DO, and what this pass added:
+
+1. POINT 1 WAS NOT DONE. `apply_settings` read `settings.get("model_name")`
+   and nothing else, and MASK DOES NOT DECLARE `model_name`. Measured on a
+   Mask `AppScreen` built from this tree: `_settings_model.collect()` carries
+   `cell_model_name`, `nucleus_model_name`, `organelle_model_name`,
+   `pathogen_model_name` and `pathogen_model`, and no bare `model_name`. So
+   the combo was NEVER seeded from Mask -- the exact defect the item
+   describes was still live, in the read the 2026-09-01 entry did not touch.
+
+   Now `LivePreviewPanel._seed_the_model` (live_preview.py:2626) seeds from
+   `_model_the_run_would_use` (live_preview.py:1195), whose key order is the
+   RUN's own, held in `_model_keys_for` (live_preview.py:1161):
+   `pathogen_model` then `pathogen_model_name` then `model_name` for
+   pathogens, `<object>_model_name` then `model_name` otherwise. A key
+   present-but-None does not count, which is how Mask spells an unset
+   `pathogen_model` and how the run tests it.
+
+   AND THE PANEL FOLLOWS THE OBJECT SELECTOR onto that object's model --
+   `_reseed_the_model_for_the_object` (live_preview.py:2667), called from
+   `_on_primary_object_changed`. Without it the pathogen case never fires at
+   all: the panel opens on `cell`, so a user who switches to `pathogen` to
+   look at the parasites would still have been shown cpsam. A model the user
+   picked by hand is never overwritten (`_model_seeded_to`).
+
+2. POINT 3 WAS NOT DONE. Nothing on the panel said which model made the
+   picture; the status line read "Found cell=12." and stopped. It now reads
+   "Found cell=12.  Model: <name>." -- `_model_provenance`
+   (live_preview.py:3385), used at live_preview.py:3762 -- and names the
+   model that RAN rather than whatever the combo holds now, so changing the
+   combo (which does not re-segment) cannot mislabel the masks. The run
+   history records the same (`_snapshot_run`).
+
+   A checkpoint that is not on this machine no longer costs the preview:
+   `_checkpoint_is_missing` (live_preview.py:1219) tests exactly what
+   `spacr.utils._resolve_cellpose_pretrained` RAISES on, and
+   `_model_for_this_pass` (live_preview.py:3366) previews with cpsam and
+   returns the clause that says so. The run still stops; the preview states
+   the substitution instead of making it in silence.
+
+3. THE ROUND TRIP, which the item does not list but which re-opens the same
+   hole pointing the other way. `settings_for_propagation` wrote
+   `model_name` and `<primary>_model_name` only, so a user seeded from a
+   `pathogen_model` checkpoint who changed the live model and propagated
+   left `pathogen_model` overriding what they had just chosen. It now writes
+   `pathogen_model` back too -- but ONLY when the settings the panel holds
+   already set it (live_preview.py:2464), so propagation cannot switch an
+   override on for a user who never asked for one.
+
+STALE OR WRONG IN THE NOTE ABOVE, each re-checked against this tree:
+
+* "object.py:769-771" does not resolve. The pathogen override is at
+  `spacr/object.py:696-697` in `generate_cellpose_masks_sam`, and again at
+  1069-1070 on the older path. The RULE is exactly as the note describes it;
+  only the line numbers had drifted.
+* "core.py:432 on the default Mask path" -- `spacr/core.py` mentions
+  `pathogen_model` only in prose at line 164 today. The reach is real but the
+  cited line is not.
+* WATCH OUT / 310 entry 39, "the Mask panel renders NO pathogen model row
+  today ... the panel builds a widget for neither", is HALF STALE and it
+  matters. `pathogen_model_name` HAS a widget on a Mask screen built from
+  this tree -- `_settings_model._widgets` holds it, with the zoo button on
+  it -- so 39 is NOT a prerequisite for this item: there is a row on screen
+  for the preview to agree with, and it is the row a user actually fills in.
+  Only `pathogen_model` still has no widget. It is collected (value None) but
+  not rendered, which is why the propagation write-back above is a no-op
+  today and becomes live the day 39 lands.
+
+NOT DONE, DELIBERATELY:
+
+* `analyze_plaques` has the same shape of defect one module over: the run
+  reads `plaque_model` (`spacr/submodules.py:1187 _resolve_plaque_model`,
+  default 'bundled') while the preview reads `model_name`. Resolving
+  'bundled' or a zoo KEY to a path needs that resolver, not this panel's
+  key table, so it is left alone rather than half-done here.
+* The provenance clause is English-only. A new literal caption under
+  `spacr/qt` enters the generated i18n layer, whose inventory is pinned by
+  count AND digest in `tests/qt/test_i18n_caption_ratchet.py`; the clause is
+  composed from an f-string with `tr("Model")` (an existing catalogue
+  source) for the one word that had one, exactly as the object-count
+  sentence it is appended to has always been.
+
+EVIDENCE: `tests/qt/test_the_preview_uses_the_model_the_run_will_use.py`,
+17 tests, every one of them shown to go red under at least one deliberate
+mutation of the source. `tests/qt/test_live_preview_coverage.py`'s
+`test_the_status_line_reports_the_object_count` asserted the status line by
+equality and now asserts its leading clause, because the line gained the
+model's name.

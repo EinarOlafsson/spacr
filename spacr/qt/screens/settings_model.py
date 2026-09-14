@@ -649,6 +649,82 @@ _CROP_SOURCE_OPTIONS = [
     ("merged", "stream images — cut from merged/"),
 ]
 
+#: The SAME choice as :data:`_CROP_SOURCE_OPTIONS`, in the spelling training
+#: stores it under. Instruction 171 is that LOAD IMAGES and STREAM IMAGES are
+#: the only two names anywhere, and the sentences here are word-for-word the
+#: ones above so that a user reading the annotation panel and the training
+#: panel can see they are being asked one question.
+#:
+#: It had to exist as a SEPARATE table because the stored values differ and
+#: must not change: the viewers persist 'png'/'merged' and training persists
+#: 'load_images'/'stream_images' (`spacr.settings._canonical_image_source`
+#: rewrites every choice into that pair, and `settings.py` then copies
+#: `image_source` onto `crop_source`). Offering 'png' here would write a
+#: value that normaliser does not produce; offering 'load_images' in the
+#: viewer table would move the meaning of settings files already on disk.
+#: Both spellings resolve through `crop_source.CROP_SOURCE_ALIASES`.
+#:
+#: THE TRAINING PANEL HAD NO CONTROL FOR THIS AT ALL. `image_source` is not
+#: in `_APP_HIDDEN_KEYS`, so the Classify screens laid out a row for it -- as
+#: a FREE-TEXT box, because a key absent from this table gets whatever widget
+#: its default's type implies. That is the one panel the whole migration onto
+#: these two names was for, and it was the one panel where a user could type
+#: a fourth spelling. A typo, or a remembered 'pre_generated', reached
+#: `crop_source.CROP_SOURCE_ALIASES` and refused the run at the door.
+#:
+#: 'generate' is deliberately NOT offered. It is an ACTION -- it WRITES a
+#: crop set -- rather than one of the two sources, exactly as instruction
+#: 171's rule D says; `crop_source.CROP_SOURCE_OPTIONS` still carries it for
+#: readers that need the third entry, and the training panel's own
+#: `generate_training_dataset` switch is where a user asks for the write.
+#:
+#: It is still ACCEPTED, and it SELECTS rather than being shown. A settings
+#: file carrying it opens on LOAD IMAGES, because that is what
+#: `settings._canonical_image_source` -- and therefore
+#: `settings.deep_spacr_defaults`, which rewrites `image_source` through it
+#: before any run -- turns it into. The panel showing the word the file
+#: holds while the run reads a different source is the disagreement
+#: `_image_source_the_panel_offers` exists to prevent, so 'generate' is
+#: treated here exactly as every other retired spelling is.
+_IMAGE_SOURCE_OPTIONS = [
+    ("load_images", "load images — crops already in data/"),
+    ("stream_images", "stream images — cut from merged/"),
+]
+
+
+def _image_source_the_panel_offers(value) -> str:
+    """Which of the two offered modes a stored ``image_source`` selects.
+
+    A combo whose stored value matches no item keeps that value as a new
+    first item (see ``_widget_for``), which is right for a free alphabet and
+    wrong for this one: a settings CSV carrying ``'on_demand'`` put a THIRD
+    entry, spelled in a retired vocabulary, in front of a user who is being
+    asked a two-way question. That is instruction 171's failure in the one
+    panel the whole migration was for.
+
+    RESOLVED, NOT REFUSED, and resolved through the table the pipeline reads
+    -- `spacr.settings._canonical_image_source` -- so the panel and the run
+    cannot disagree about what an old file means. Every retired spelling
+    still loads; it just selects the mode it has always meant.
+
+    ``'auto'`` comes back from that function as itself, because
+    `crops.resolve_crop_source` still computes "what is available here". It
+    is NOT an answer a user is offered (instruction 171, rule E), so here it
+    selects LOAD IMAGES -- rule A, the default is a named mode -- and rule
+    B's fallback is what keeps a project with no ``data/`` drawing: LOAD
+    IMAGES with nothing to load streams instead and says so. Anything else
+    unrecognised lands on LOAD IMAGES for the same reason the normaliser
+    does.
+    """
+    offered = [stored for stored, _label in _IMAGE_SOURCE_OPTIONS]
+    try:
+        from spacr.settings import _canonical_image_source
+        resolved = _canonical_image_source(value)
+    except Exception:                                            # noqa: BLE001
+        resolved = str(value or "").strip().lower()
+    return resolved if resolved in offered else offered[0]
+
+
 _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
     "umap": {
         "reduction_method": ["umap", "tsne", "pca", "isomap", "spectral"],
@@ -702,9 +778,11 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
     },
     "classify": {
         "evaluation_calibration": ["temperature", "none"],
+        "image_source": _IMAGE_SOURCE_OPTIONS,
     },
     "classify_merged": {
         "evaluation_calibration": ["temperature", "none"],
+        "image_source": _IMAGE_SOURCE_OPTIONS,
         "classifier_family": [
             ("cv", "Computer Vision (Torch)"),
             ("ml", "Tabular Machine Learning"),
@@ -7812,6 +7890,8 @@ class SettingsWidgets:
                 w.addItem(str(shown), userData=stored)
             if key in self._defaults:
                 default = self._defaults[key]
+            if key == "image_source":
+                default = _image_source_the_panel_offers(default)
             for i in range(w.count()):
                 if w.itemData(i) == default or w.itemText(i) == str(default):
                     w.setCurrentIndex(i)

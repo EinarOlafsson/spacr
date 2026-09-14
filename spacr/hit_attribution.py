@@ -69,6 +69,21 @@ _IDENTIFIER_HINTS = (
     "prediction", "probability", "posterior", "score",
 )
 
+#: Columns :func:`build_hit_cell_frame` computes from ``score_column`` ALONE.
+#:
+#: A within-well rank and a within-well percentile are monotone transforms of
+#: the score, so each carries the model output in full while matching none of
+#: :data:`_IDENTIFIER_HINTS` by name. :func:`_default_features` therefore
+#: treats them exactly as it treats the score itself -- kept only when the
+#: caller asked for the score -- because otherwise
+#: ``include_original_score=False`` excludes the score and admits a perfect
+#: proxy for it in the same breath, and without the warning the explicit
+#: opt-in attaches.
+SCORE_DERIVED_COLUMNS: Tuple[str, ...] = (
+    "candidate_rank",
+    "candidate_percentile",
+)
+
 
 def _now() -> str:
     """The current UTC time, as an ISO string for a provenance record.
@@ -233,6 +248,10 @@ def build_hit_cell_frame(
     if direction_key not in {"positive", "negative"}:
         raise HitAttributionError("direction must be 'positive' or 'negative'")
     ascending = direction_key == "negative"
+    # Both of these are functions of score_column alone, so both are listed
+    # in SCORE_DERIVED_COLUMNS -- rename one here and rename it there too, or
+    # _default_features will start handing the score back to the model under
+    # a name that does not look like it.
     frame["candidate_rank"] = (
         frame.groupby(wells, dropna=False)[score_column]
         .rank(method="first", ascending=ascending).astype(int))
@@ -681,14 +700,15 @@ def _default_features(frame: pd.DataFrame, score_column: str,
 
     :param frame: the object table.
     :param score_column: the score column, kept only if asked for.
-    :param include_score: keep the score among the features.
+    :param include_score: keep the score -- and everything derived from it,
+        see :data:`SCORE_DERIVED_COLUMNS` -- among the features.
     :returns: the feature names.
     """
     numeric = list(frame.select_dtypes(include=[np.number]).columns)
     features = []
     for column in numeric:
         low = str(column).lower()
-        if column == score_column:
+        if column == score_column or column in SCORE_DERIVED_COLUMNS:
             if include_score:
                 features.append(column)
             continue

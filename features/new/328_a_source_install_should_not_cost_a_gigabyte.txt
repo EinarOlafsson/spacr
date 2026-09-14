@@ -93,3 +93,116 @@ DONE MEANS
   rather than being machine-drafted.
 * The lightweight clone is TESTED by installing from it and launching
   spaCR, not by checking that pip exited zero.
+
+
+STATUS 2026-09-14 -- MEASURED AGAIN, AND THE MEASUREMENT ABOVE IS STALE
+------------------------------------------------------------------------
+
+DONE. The README's "Install from source (light)" section (README.rst:238)
+now carries both lightweight forms, the measured cost of each, what a
+shallow clone cannot do, and which form a contributor takes. It is pinned
+by tests/test_the_light_install_numbers_are_honest.py (14 tests).
+
+RE-MEASURED, by cloning the real remote four ways into a temp directory on
+2026-09-14, branch `main`, ~48 MB/s link:
+
+    form                     seconds   downloaded      .git   worktree
+    git clone                    131     5.78 GiB  5927 MiB    941 MiB
+    --depth 1                     31      595 MiB   596 MiB    941 MiB
+    --depth 1 --filter=blob:none  59    263 KiB +*  575 MiB    941 MiB
+    install_from_source.sh         5           --*   31 MiB     55 MiB
+
+    * the filtered clone fetches twice: 263 KiB of commits and trees, and
+      then the checkout goes back for every blob it needs.
+    * the installer fetches with `git fetch -q`, which prints no progress
+      at all; its .git is the honest figure. On the forms that do report,
+      received and .git agree to within one per cent.
+
+FOUR CLAIMS IN THE NOTE ABOVE ARE NO LONGER TRUE. Re-checked with `du` and
+`git ls-files` against the tree today:
+
+1. "THE BULK IS NOT TUTORIAL VIDEOS" -- it is now. Tracked .mp4 is 372 MB
+   and .m4a another 118 MB: 490 MB of the 957 MiB tracked tree, against
+   133 MB for the translated API JSON. tools/tutorials/release_candidate/
+   web is 349 MiB and docs/source/_extra/tutorials another 248 MiB. The
+   note was right on 2026-08-31 and is wrong today; the tutorial tree
+   arrived in between.
+
+2. The tracked tree is 957 MiB, not 424 MB. spacr/resources is 70 MB, not
+   92 MB. The API translations are 133 MB, not 109 MB. GitHub reports the
+   repository as 5.9 GB; the local .git packs to 6.2 GB.
+
+3. spacr/resources/icons/loading_spinner_1.gif, cited as the second
+   largest tracked file at 17.7 MB, NO LONGER EXISTS. The largest tracked
+   .gif is now loading_spinner.gif at 0.65 MB. MANIFEST.in:116 still
+   excludes the deleted name.
+
+4. THE RECIPE IN "WHAT TO ADD" IS WRONG, and the measurement is what says
+   so. `--depth 1 --filter=blob:none` is SLOWER than `--depth 1` alone --
+   59 s against 31 s -- and downloads the same bytes, because a non-bare
+   clone checks out HEAD and checking out HEAD fetches every blob the
+   filter declined. The blob filter pays only when something stops the
+   checkout from asking, which is what packaging/install_from_source.sh
+   does by pairing it with a sparse checkout: 31 MiB of objects, 5 s. So
+   the README documents `--depth 1` plain, and says in one line why the
+   obvious flag is not there. test_the_readme_does_not_sell_a_filter_that_
+   saved_nothing pins that.
+
+"DO NOT SPARSE-CHECKOUT THE PACKAGE" was already overtaken: the shipped
+installer sparse-checks-out inside spacr/ (models, home/versions,
+backup_icons, i18n_catalogs) and the note's own condition -- test it by
+LAUNCHING -- is now met. test_the_light_checkout_launches_spacr_and_not_
+merely_imports_it builds and shows the Qt main window out of the fetched
+57 MB tree, offscreen, with nothing installed: 1.1 s.
+
+AND A LIMIT ON WHAT THAT PROVES, measured while writing it: the window
+comes up with spacr/resources EXCLUDED ENTIRELY. Launching is not evidence
+that the install kept its resources, so the same test also requires every
+resource directory MANIFEST.in ships to be present in the fetched tree.
+Excluding !/spacr/resources/ reddens that check; excluding !/spacr/qt/
+reddens the launch.
+
+A REAL BUG, FOUND BY TRYING TO BREAK THE TEST AND FAILING. The installer
+promised to prefer packaging/source_install_excludes.txt over its embedded
+copy "when run from a checkout", and did not: it resolved
+`dirname "$0"` inside read_the_exclusions, which runs AFTER `cd "$DIR"`.
+For the ordinary invocation -- `sh packaging/install_from_source.sh` --
+`$0` is relative, so the dirname resolved against the new checkout, found
+no packaging/, and fell back to the embedded list SILENTLY. Editing the
+exclusion list and running the script the obvious way did nothing at all.
+An absolute `$0` worked, which is why the existing end-to-end test, which
+builds its path with `str(SCRIPT)`, never saw it; and
+test_the_script_prefers_the_file_when_run_from_a_checkout only greps the
+script body for the filename, so it could not see it either. Fixed at
+install_from_source.sh:61 by resolving SCRIPT_DIR once, before any cd.
+test_an_edited_exclusion_list_reaches_the_checkout copies the script and
+an edited list to a temp directory, runs it there by a relative path, and
+requires the new rule in the clone's .git/info/sparse-checkout; it goes
+red against the old code.
+
+ALSO ADDED
+  * packaging/measure_clone_forms.sh -- re-runs the table above
+    (`--dry-run` prints the commands and touches no network; it refuses to
+    call a clone of a local PATH a download, because git hardlinks those:
+    `--depth 1` against a path produced a 6.5 GB .git and no transfer).
+  * install_from_source.sh --show-exclusions, which says WHICH list it
+    would use and what is in it. Its `usage` also printed a fixed line
+    range that had fallen a line short of --no-install and --help; the
+    range is fixed and a test now derives the flags from the case arms.
+  * The installer header's own numbers (427 MB / 76 MB / +33 / +32 / +236)
+    were re-measured: 941 MB / 55 MB / +17 / +35 / +419.
+
+NOT DONE, DELIBERATELY
+  * The nine translated READMEs (docs/i18n/readme/README.*.rst) still
+    carry the old English light-install section. They are generated, so
+    per this item's own DONE MEANS the new prose belongs in instruction
+    316's pending list for regeneration and review; it was not
+    machine-drafted here, and 316's file was not edited by this session
+    because it belongs to another item.
+  * Nothing was deleted from the repository. The "worth doing separately"
+    paragraph above still stands, and the tutorial media is now the larger
+    half of the case for it.
+  * README.rst:224 still says "The default branch is ``nightly``" while
+    the GitHub API reports `main` as the default and install_from_source.sh
+    defaults to `main`. Out of this item's scope; flagged for whoever owns
+    that paragraph.

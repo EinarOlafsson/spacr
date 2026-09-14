@@ -23,6 +23,13 @@ Interactive Cellpose tuning surface for the Mask app screen. It provides:
   ``cell``, ``nucleus``, and ``cell + nucleus``. In cell+nucleus mode
   the panel runs two Cellpose passes and overlays both masks in
   distinct colours.
+* **The model the RUN will use, and it says which.** The panel reads the
+  same setting the pipeline reads -- ``pathogen_model`` over
+  ``pathogen_model_name`` for pathogens, ``<object>_model_name``
+  otherwise (:func:`_model_keys_for`) -- offers the model zoo beside the
+  combo, and names the model that produced the masks on the status line.
+  A checkpoint that is not on this machine previews with cpsam AND SAYS
+  SO rather than stalling or substituting in silence.
 * **Pre / Post filters.** When the object type is ``cell`` (or the
   combined mode) the panel routes pre / post-processing settings from
   the Mask app (``cell_min_size``, ``cell_max_size``,
@@ -1146,6 +1153,97 @@ def _is_a_real_model_name(value: str) -> bool:
         return False
 
 
+#: What a preview segments with when the model it was asked for cannot be
+#: loaded. Cellpose 4 ships exactly one stock model and this is it.
+_STOCK_MODEL = "cpsam"
+
+
+def _model_keys_for(primary: str) -> Tuple[str, ...]:
+    """The settings keys that decide ``primary``'s model, in the RUN's order.
+
+    NOT a second opinion about which model to use -- it is the pipeline's own
+    precedence, written down where the preview can reach it. The preview used
+    to read ``model_name`` and nothing else, which the Mask module does not
+    declare at all: a user who chose a checkpoint for the pathogens was shown
+    a preview made with stock cpsam and tuned diameter and thresholds against
+    it.
+
+    The order, read off the run:
+
+      * ``<object_type>_model_name`` is what
+        :func:`spacr.settings._get_object_settings` puts in
+        ``object_settings['model_name']``;
+      * ``pathogen_model`` OVERRIDES it for pathogens --
+        ``spacr/object.py`` lines 696-697 in
+        :func:`~spacr.object.generate_cellpose_masks_sam`, and again at
+        1069-1070 on the older path. (The ledger cited 769-771; the lines
+        have moved, the rule has not.)
+      * the bare ``model_name`` comes last because the two modules that
+        reach this panel through :mod:`spacr.qt.preview_registry` --
+        ``cellpose_masks`` and ``analyze_plaques`` -- have one object type
+        and call its model that. Mask never sets it.
+
+    :param primary: the compartment the panel's common controls target.
+    :returns: the keys to try, first one SET wins.
+    """
+    role = str(primary or "cell")
+    if role == "pathogen":
+        return ("pathogen_model", "pathogen_model_name", "model_name")
+    return (f"{role}_model_name", "model_name")
+
+
+def _model_the_run_would_use(settings: Optional[Dict[str, Any]],
+                            primary: str) -> Tuple[str, str]:
+    """Which model the RUN would segment ``primary`` with, and which key said so.
+
+    A key that is present but ``None`` does not count. That is not a corner
+    case: Mask always carries ``pathogen_model`` and spells "not set" as
+    ``None``, and the run tests it with ``is not None`` for exactly that
+    reason. Treating the key's presence as an answer would have the preview
+    read a model of ``"None"``.
+
+    :param settings: the module's settings dict.
+    :param primary: the compartment the preview is tuned for.
+    :returns: ``(model, key)``, or ``("", "")`` when no key names a model.
+    """
+    for key in _model_keys_for(primary):
+        value = (settings or {}).get(key)
+        if value is None:
+            continue
+        text = str(value).strip()
+        if text:
+            return text, key
+    return "", ""
+
+
+def _checkpoint_is_missing(model_name: Any) -> bool:
+    """Whether ``model_name`` is a checkpoint PATH with no file behind it.
+
+    THE RUN STOPS ON THIS and should:
+    :func:`spacr.utils._resolve_cellpose_pretrained` raises
+    ``FileNotFoundError`` rather than let Cellpose quietly fall back to the
+    stock weights. A PREVIEW must not stop. A zoo model the user has picked
+    but not downloaded would turn Run preview into a button that only ever
+    shows an error, and the preview is the thing they are looking at while
+    deciding whether the settings are right.
+
+    So the preview falls back to :data:`_STOCK_MODEL` and SAYS SO --
+    :meth:`LivePreviewPanel._model_for_this_pass` and the provenance clause on
+    the status line. A preview whose provenance is unstated is the defect
+    this panel was fixed for wearing a different hat.
+
+    The test is the run's own, so the two cannot come to disagree about what
+    counts as a path: a separator in it, or a checkpoint suffix.
+
+    :param model_name: the model name or path the user picked.
+    :returns: True when it names a file that is not there.
+    """
+    text = str(model_name or "").strip()
+    if not text or os.path.isfile(text):
+        return False
+    return os.sep in text or text.endswith((".pth", ".pt"))
+
+
 def _model_menu():
     """What the Cellpose model combo offers, read from the Cellpose API.
 
@@ -1246,6 +1344,17 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._raw_masks: Dict[str, np.ndarray] = {}
         self._flows: Dict[str, np.ndarray] = {}
         self._settings: Dict[str, Any] = {}
+        #: The model the masks on screen were actually made with, and the
+        #: clause explaining it when that is not the model that was asked
+        #: for. Read from the run rather than from the combo: the combo can
+        #: be changed after a pass, and the picture would then be captioned
+        #: with a model that never touched it.
+        self._model_that_ran: str = ""
+        self._model_note: str = ""
+        #: The model this panel last SEEDED into the combo, or ``None`` when
+        #: it has seeded none. It is how the panel tells its own value from
+        #: one the user picked: see :meth:`_reseed_the_model_for_the_object`.
+        self._model_seeded_to: Optional[str] = None
         self._worker: Optional[_PreviewWorker] = None
         self._load_jobs = JobRunner(self, threaded=threaded,
                                     app_key="preview image")
@@ -2353,7 +2462,22 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     )
 
     def settings_for_propagation(self) -> dict:
-        """Map the live-preview widget values to main-panel settings keys."""
+        """Map the live-preview widget values to main-panel settings keys.
+
+        THE MODEL IS WRITTEN BACK TO THE KEY IT WAS READ FROM. Propagation
+        used to write ``model_name`` and ``<primary>_model_name`` only, and
+        for pathogens the run reads neither first: ``pathogen_model``
+        overrides both when it is set. A user seeded from a
+        ``pathogen_model`` checkpoint, switched the live model, and
+        propagated, and the run went on using the checkpoint -- the same
+        preview/run disagreement as before, pointing the other way.
+
+        Only when the settings the panel holds ALREADY set that key. Writing
+        it otherwise would newly switch the override on for a user who never
+        asked for it, and ``pathogen_model`` is validated harder than the
+        name key (:mod:`spacr.validate` stops a run on a path that is not
+        there).
+        """
         model = self._model_box.currentText()
         primary = self._primary_object()
         out = {
@@ -2373,6 +2497,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "normalize": bool(self._normalise_check.isChecked()),
             "lower_percentile": float(self._lo_pct.value()),
         }
+        if primary == "pathogen" and self._settings.get(
+                "pathogen_model") is not None:
+            out["pathogen_model"] = model
         if hasattr(self, "_compartment_widgets"):
             out.update(self._compartment_settings())
         return out
@@ -2494,14 +2621,72 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 self._normalise_check.setChecked(bool(settings["normalize"]))
             except Exception:
                 LOG.debug("apply_settings: bad normalize", exc_info=True)
-        if settings.get("model_name") is not None:
-            wanted = str(settings["model_name"])
-            idx = self._model_box.findText(wanted)
-            if idx < 0 and _is_a_real_model_name(wanted):
-                self._model_box.addItem(wanted)
-                idx = self._model_box.count() - 1
-            if idx >= 0:
-                self._model_box.setCurrentIndex(idx)
+        self._seed_the_model(settings, primary)
+
+    def _seed_the_model(self, settings: dict, primary: str) -> None:
+        """Select the model the RUN would use for ``primary``.
+
+        THIS READ WAS ``settings.get("model_name")`` AND NOTHING ELSE, and
+        Mask does not declare ``model_name``. Measured on a built Mask
+        screen, ``_settings_model.collect()`` carries ``cell_model_name``,
+        ``nucleus_model_name``, ``organelle_model_name``,
+        ``pathogen_model_name`` and ``pathogen_model`` -- and no bare
+        ``model_name`` at all. So the combo was never seeded from Mask: a
+        user who picked a zoo checkpoint for the pathogens opened the
+        preview, saw cpsam's masks, and tuned diameter and thresholds
+        against a model the run was not going to use. The preview did not
+        fail; it answered a different question and looked authoritative
+        doing it.
+
+        :func:`_model_the_run_would_use` holds the key order, taken from the
+        run. A checkpoint the combo has never heard of is ADDED rather than
+        ignored, the same way :meth:`_choose_a_preview_model` adds one the
+        zoo just downloaded.
+
+        :param settings: the module's settings, as collected from its form.
+        :param primary: the compartment the common controls target.
+        """
+        wanted, _key = _model_the_run_would_use(settings, primary)
+        if not wanted:
+            return
+        idx = self._model_box.findText(wanted)
+        if idx < 0 and (_is_a_real_model_name(wanted)
+                        or _checkpoint_is_missing(wanted)):
+            # A checkpoint that is NOT on disk is still offered, on purpose.
+            # It is what the run is configured with, and hiding it would put
+            # the preview back to showing cpsam while saying nothing --
+            # exactly the silence this method exists to end. The pass itself
+            # falls back and states the fallback; see
+            # :meth:`_model_for_this_pass`.
+            self._model_box.addItem(wanted)
+            idx = self._model_box.count() - 1
+        if idx >= 0:
+            self._model_box.setCurrentIndex(idx)
+            self._model_seeded_to = self._model_box.currentText()
+
+    def _reseed_the_model_for_the_object(self) -> None:
+        """Follow the object selector onto that object's model.
+
+        THE MODEL IS A PER-OBJECT SETTING AND THIS PANEL HAS ONE COMBO, so
+        without this the pathogen case -- the case this was reported for
+        -- never fires: the panel opens on ``cell``, seeds ``cell_model_name``,
+        and a user who switches the selector to ``pathogen`` to look at the
+        parasites is shown cpsam while the run would use their checkpoint.
+        The channel selector already follows the object for the same reason
+        (:meth:`_follow_object_channel`).
+
+        A MODEL THE USER PICKED IS NEVER OVERWRITTEN. The panel re-seeds only
+        while the combo still holds what the panel itself put there, so
+        choosing a checkpoint from the zoo and then flipping the object
+        selector does not silently undo the choice -- which would be the very
+        defect this follows the object to avoid, committed by the fix for it.
+        """
+        if not self._settings:
+            return
+        if (self._model_seeded_to is not None
+                and self._model_box.currentText() != self._model_seeded_to):
+            return
+        self._seed_the_model(self._settings, self._primary_object())
 
     def current_params(self) -> dict:
         """Snapshot for tests + external callers."""
@@ -3175,7 +3360,52 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._cycle_index = 0
         self._composite_roles = ()
         self._follow_object_channel()
+        self._reseed_the_model_for_the_object()
         self._refresh_cycle_controls()
+
+    def _model_for_this_pass(self) -> Tuple[str, str]:
+        """The model this preview will really load, and what to say about it.
+
+        A MODEL THAT IS NOT ON DISK MUST NOT COST THE PREVIEW. The run stops
+        on one -- see :func:`_checkpoint_is_missing` -- and a preview that did
+        the same would leave the user with an error where the picture goes
+        while they are trying to decide whether the settings are right. So
+        the pass runs with what is available and the fallback is stated; it
+        is never substituted in silence, which is the defect this whole
+        mechanism exists to end.
+
+        :returns: ``(model, note)``. ``note`` is empty when the model that
+            loads is the model that was asked for.
+        """
+        chosen = str(self._model_box.currentText() or "").strip()
+        if not _checkpoint_is_missing(chosen):
+            return chosen, ""
+        return _STOCK_MODEL, f"{chosen} is not on this machine"
+
+    def _model_provenance(self) -> str:
+        """One clause naming the model that made the picture on screen.
+
+        Read from the last pass rather than from the combo: changing the
+        combo does not re-segment, so captioning the masks with the current
+        selection would name a model that never touched them.
+
+        COMPOSED RATHER THAN TRANSLATED, and that is a constraint rather
+        than a preference. A new literal caption anywhere under
+        ``spacr/qt`` enters the generated i18n layer, whose inventory is
+        pinned by count AND digest in
+        ``tests/qt/test_i18n_caption_ratchet.py``; adding one means
+        regenerating nine locale catalogues. ``Model`` is already a
+        catalogue source, so the word is translated, and the rest follows
+        the object-count sentence it is appended to, which has never been
+        translated either.
+
+        :returns: the clause, e.g. ``Model: cpsam.``
+        """
+        model = self._model_that_ran or self._model_box.currentText()
+        label = tr("Model")
+        if self._model_note:
+            return f"{label}: {model} \u2014 {self._model_note}."
+        return f"{label}: {model}."
 
     def _build_request(self) -> PreviewRequest:
         """Assemble a preview request from the current controls.
@@ -3198,9 +3428,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             merged.update(self._compartment_settings())
         pre = merged
         post = merged
+        model, note = self._model_for_this_pass()
+        self._model_that_ran = model
+        self._model_note = note
         return PreviewRequest(
             image=self._image,
-            model=self._model_box.currentText(),
+            model=model,
             diameter=self._diameter.value(),
             flow_threshold=self._flow.value(),
             cellprob=self._prob.value(),
@@ -3525,7 +3758,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._masks = out
         counts = [f"{k}={int(v.max() if v.size else 0)}"
                     for k, v in out.items()]
-        self._status.setText(f"Found {', '.join(counts)}.")
+        self._status.setText(
+            f"Found {', '.join(counts)}.  {self._model_provenance()}")
         self._refresh_canvases()
         if snapshot:
             self._snapshot_run(out, counts)
@@ -3543,7 +3777,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "norm": self._normalise_check.isChecked(),
             "lo": float(self._lo_pct.value()),
             "hi": float(self._hi_pct.value()),
-            "model": self._model_box.currentText(),
+            # The model that RAN, not the one now selected: the history is
+            # scrubbed back to compare passes, and a pass labelled with a
+            # model chosen after it is a comparison of the wrong two things.
+            "model": self._model_that_ran or self._model_box.currentText(),
             "object": _combo_value(self._object_box),
             "summary": ", ".join(counts),
         }

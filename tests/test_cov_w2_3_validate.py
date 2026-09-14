@@ -554,10 +554,6 @@ def test_a_plugin_app_joins_the_function_table_and_the_alias_table(monkeypatch):
     assert module._normalize_app("  PROBE ") == "probe_app"
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "validate.py:167 registers a plugin alias with '-' folded to '_', but "
-    "_normalize_app (line 239) only strips and lowercases, so the hyphenated "
-    "spelling the plugin declared never resolves"))
 def test_a_hyphenated_plugin_alias_resolves_by_the_spelling_it_declared(
         monkeypatch):
     """An alias is reachable by the text the plugin wrote down.

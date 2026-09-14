@@ -76,15 +76,30 @@ class _WellChoice(QDialog):
 
 #: Map Measurement Compare plot names to :mod:`spacr.graph_types` names.
 #:
-#: ``jitter_box`` uses the same data-shape compatibility rules as
-#: ``bar_jitter`` while retaining the panel's established display choice.
+#: ``jitter_box`` USED TO MAP TO ``bar_jitter``, with a note saying the
+#: fitness table had no entry for a box with points over it. It has one --
+#: ``box_jitter``, which is also the table's default for groups against a
+#: measurement -- so the old mapping had stopped being a compatibility
+#: translation and become a silent substitution: the panel's own list said
+#: "jitter over box", the live plot drew a BAR with jitter over it, and the
+#: Matplotlib fallback beside it drew the box the label promised.
 _SPEC_KINDS = {
-    "jitter_box": "bar_jitter",
+    "jitter_box": "box_jitter",
     "box": "box",
     "jitter": "jitter",
     "violin": "violin",
     "bar": "bar",
 }
+
+#: The inverse of :data:`_SPEC_KINDS`: which entry of
+#: :data:`~spacr.gene_measurement_compare.PLOTS` draws a graph type.
+#:
+#: NOT EVERY GRAPH TYPE HAS ONE. This panel offers five plots and the table
+#: names eight, so a user whose DEFAULT GRAPH TYPE is "Bar with jitter" has
+#: asked for something this panel cannot draw. It keeps its own first
+#: choice then, rather than silently drawing the nearest thing and calling
+#: it what was asked for.
+_PLOTS_OF_KIND = {kind: plot for plot, kind in _SPEC_KINDS.items()}
 
 
 class MeasurementComparePanel(QWidget):
@@ -181,6 +196,7 @@ class MeasurementComparePanel(QWidget):
         self.kind = QComboBox()
         for value, label in PLOTS:
             self.kind.addItem(label, value)
+        self.kind.setCurrentIndex(self._plot_to_start_on())
         self.kind.currentIndexChanged.connect(self.refresh)
         self.kind.currentIndexChanged.connect(self._offer_the_spread)
         row.addWidget(self.kind)
@@ -694,6 +710,28 @@ class MeasurementComparePanel(QWidget):
         return [str(g) for g in
                 self._comparison.frame["group"].astype(str).unique()]
 
+    def _plot_to_start_on(self) -> int:
+        """Which of :data:`~spacr.gene_measurement_compare.PLOTS` to open on.
+
+        :returns: an index into the plot box; ``0`` -- the panel's own first
+            choice -- when the user has chosen no default graph type, or has
+            chosen one this panel does not draw.
+
+        THE SETTING DECIDES THE STARTING POINT HERE TOO. A comparison is
+        groups against a measurement, so the default graph type saved for
+        that shape is the one this box should open on; changing the box
+        still changes this comparison, exactly as before.
+        """
+        try:
+            from ...graph_types import chosen_for
+
+            chosen = chosen_for("categorical_continuous")
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the default graph type", exc_info=True)
+            return 0
+        index = self.kind.findData(_PLOTS_OF_KIND.get(chosen, ""))
+        return index if index >= 0 else 0
+
     def _has_an_error_bar(self) -> bool:
         """Does the chosen graph type draw a whisker at all?
 
@@ -789,7 +827,7 @@ class MeasurementComparePanel(QWidget):
             from .grouped_plot import GroupedPlot, PlotSpec
 
             kind = _SPEC_KINDS.get(
-                str(self.kind.currentData() or ""), "bar_jitter")
+                str(self.kind.currentData() or ""), "box_jitter")
             spec = PlotSpec(
                 frame=frame, value="value", group="group", kind=kind,
                 spread=(str(self.spread.currentData() or SPREAD_SEM)

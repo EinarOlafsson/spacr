@@ -2,11 +2,23 @@
 THE XFAIL BACKLOG IS FIFTEEN UNFIXED BUGS THE LEDGER CANNOT SEE
 ================================================================================
 
-Status:    filed 2026-08-15. ELEVEN OF FIFTEEN FIXED the same day (group A,
-           B1, B2, B3, B5, C1, C4, D1). Four remain: B4, C2, C3, D2 -- see
-           WHAT IS LEFT at the end, which also records that C3's repair as
-           stated below is WRONG. Found while running the CI fast leg locally
-           to pre-verify instruction 82.
+Status:    filed 2026-08-15. THE ORIGINAL FIFTEEN ARE ALL FIXED (RESULT
+           2026-08-16). THE HEADER THAT USED TO STAND HERE -- "eleven of
+           fifteen fixed ... four remain: B4, C2, C3, D2" -- WAS ALREADY WRONG
+           WHEN IT WAS WRITTEN, and so is the WHAT IS LEFT section it points
+           at: B4, C2 and D2 were fixed, and only C3 is correctly described
+           there. Read RESULT 2026-08-16 before either of them.
+
+           A SECOND backlog of nine grew afterwards; RE-AUDIT 2026-08-25
+           records it. 2026-09-14: FOUR OF THOSE NINE ARE NOW FIXED AND THEIR
+           MARKERS DELETED -- remote_execution, validate, hit_attribution and
+           qt/widgets/sweep_runs. The other FIVE of the nine were fixed
+           elsewhere between 2026-08-25 and today. See 2026-09-14 at the
+           end for what survives, and for the two markers the re-audit never
+           counted.
+
+           Found while running the CI fast leg locally to pre-verify
+           instruction 82.
 Requested: 2026-08-15 - "please look through the instructions list then take a
            look at the state of the spacr code, do a sweep (not to deep) and
            tell me what you think."
@@ -442,3 +454,218 @@ These are nine production bugs in nine modules, not one repair, so they are
 reported rather than half-fixed here. The rule this file states still stands:
 a defect decided against is closed by DELETING the test and recording the
 decision, not by leaving an xfail for the next sweep to recount.
+
+--------------------------------------------------------------------------------
+2026-09-14 - FOUR OF THE RE-AUDIT'S NINE FIXED. TWO MARKERS LEFT IN THE
+WHOLE TREE, NEITHER OF THEM ONE OF THE NINE.
+--------------------------------------------------------------------------------
+
+WHAT THIS FILE SAID TO DO, AND WHY IT WAS NOT WHAT WAS DONE. The task handed
+out for this pass quoted the Status header -- "four remain: B4, C2, C3, D2".
+That is the header this file's own RESULT 2026-08-16 section already refuted,
+and it had been left standing for a month. The header is now rewritten. The
+four actually carrying markers were four of the NINE from RE-AUDIT 2026-08-25,
+in four different modules; the original fifteen were not touched and did not
+need to be.
+
+THE RE-AUDIT'S OWN COUNT IS ALSO NOW STALE, in both directions. Re-grepped
+2026-09-14, `grep -rn "mark\.xfail" tests/`:
+
+  * Of its nine, FOUR were already fixed and unmarked before today --
+    parameter_sweep's per-trial CSV write, hyperparam's SVC/
+    CalibratedClassifierCV mismatch, model_check.py:174's KNOWN_MODELS import
+    and model_check.py:87's class_names raise. A fifth,
+    setting_animations' duplicate `_animation_frames`, is likewise gone. So
+    five of the nine closed between 2026-08-25 and today without this file
+    hearing about it.
+  * TWO markers it did not count exist:
+      tests/test_analysis_submodules_real_data.py:153 -- an UPSTREAM cellpose
+        defect (bsize=224 gives 28x28 against vit_sam.py:61's 32), carrying
+        `@pytest.mark.gpu` and `@pytest.mark.slow`, so it is deselected by the
+        marker expression this file's HOW TO KNOW IT WORKED specifies and was
+        invisible to the audit that wrote "nine".
+      tests/test_cov_w3_8_dnd.py:143 -- `_find_console` searches
+        `reversed(visit_order + list(screens))`, so the registered screens are
+        consulted before the most recently visited one. A real defect in
+        spacr/qt, untouched here because it is outside this pass's files.
+
+A COUNT TAKEN UNDER A MARKER EXPRESSION IS NOT A COUNT OF THE BACKLOG. That
+is the same failure this instruction was filed about, one level down: the gpu
+marker hid a real xfail from the audit whose whole purpose was to find them.
+Any future re-audit of this file should grep, not run.
+
+THE FOUR FIXED TODAY. Each marker was DELETED, not left to XPASS.
+
+  1. remote_execution -- THE TIMEOUT SENTENCE NAMED A TIME NOBODY WAITED.
+     `_run_command` passed `max(1.0, float(timeout))` to `subprocess.run` but
+     formatted the message from the raw `timeout`, so a 0.1 s request that
+     waited a whole second reported "timed out after 0.1s".
+     FIX: the floored value is computed once into `waited`
+     (spacr/remote_execution.py:96) and that is what both the call and the
+     message use (line 113). The floor is documented in the docstring rather
+     than left as a bare `max()`.
+     TEST: test_a_timeout_message_names_the_time_that_was_actually_waited,
+     marker removed, in tests/test_cov_w2_4_remote_execution.py.
+
+  2. validate -- A PLUGIN'S HYPHENATED ALIAS WAS UNREACHABLE.
+     Registration folds `-` to `_` (spacr/validate.py:146) while
+     `_normalize_app` only stripped and lowercased, so the fold could only
+     ever HIDE the spelling the plugin declared.
+     FIX: `_normalize_app` (spacr/validate.py:192) tries the exact key first
+     (line 208) and falls back to the folded one (line 210). TWO DECISIONS
+     ARE RECORDED IN THE DOCSTRING because either could have gone the other
+     way: the exact key wins so a table entry genuinely carrying a hyphen
+     stays reachable, and an UNKNOWN key passes through in the spelling it
+     arrived in rather than the folded one, because the fold exists to reach
+     a registered alias and a miss should be reported in the words the caller
+     typed.
+     TEST: test_a_hyphenated_plugin_alias_resolves_by_the_spelling_it_declared,
+     marker removed, in tests/test_cov_w2_3_validate.py.
+     STALE LINE NUMBERS: the re-audit cites "validate.py:167/239". The real
+     sites are 146 and 192. Both had drifted.
+
+  3. hit_attribution -- THE SCORE OPT-OUT ADMITTED A PERFECT PROXY.
+     `build_hit_cell_frame` derives `candidate_rank` and
+     `candidate_percentile` from `score_column` ALONE, and neither name
+     matches any entry in `_IDENTIFIER_HINTS`, so `include_original_score=
+     False` excluded the score and then handed the model a monotone transform
+     of it -- without the warning the explicit opt-in attaches. The file's own
+     test_the_within_well_rank_of_the_score_is_a_perfect_proxy_for_it already
+     asserted the within-well Spearman correlation is exactly 1.
+     FIX: the derived columns are named in one place,
+     `SCORE_DERIVED_COLUMNS` (spacr/hit_attribution.py:82), and
+     `_default_features` treats them exactly as it treats the score itself --
+     kept if and only if `include_score` (line 711).
+     NOT DONE, DELIBERATELY: they are not added to `_IDENTIFIER_HINTS`. That
+     list is matched as a SUBSTRING against every column name, and "rank" or
+     "percentile" as substrings would silently drop real morphology features.
+     An exact-name list is the narrower instrument.
+     NOT DONE, DELIBERATELY (2): the leak guards in `fit_hit_attribution` and
+     the candidate path are unchanged. They police an EXPLICIT
+     `feature_columns=`, which is the caller's own choice, exactly as
+     `score_column` itself is exempted there.
+     SECOND CALL SITE FIXED FOR FREE: the candidate classifier's
+     `_default_features(..., include_score=False)` was leaking the same two
+     columns and now does not.
+     TEST: test_the_default_features_exclude_every_transform_of_the_score,
+     marker removed, in tests/test_cov_w2_5_hit_attribution.py.
+
+  4. qt/widgets/sweep_runs -- A ROW VANISHED WHILE ITS FOLDER SURVIVED.
+     `_delete_folders` appended failures as the pre-formatted sentence
+     `f"{folder} ({why})"`, and `_deletion_finished` built `keep` out of those
+     strings and compared them against absolute paths. No path ever matched,
+     so EVERY row came off the table whether or not its folder went -- leaving
+     a finished run on disk that only Reload could find again, under a status
+     line saying the opposite.
+     FIX: a failure is now a `(folder, why)` PAIR
+     (spacr/qt/widgets/sweep_runs.py:237). `keep` is built from the folder
+     half, normalised the same way the records are (line 1397), and the
+     sentence is composed where it is shown by the new `_format_failures`
+     (line 243). `_failed_folder` (line 259) accepts either shape, so a
+     pre-formatted entry from an older build still yields a path.
+     TEST: test_a_folder_that_will_not_delete_keeps_its_row, marker removed,
+     in tests/test_cov_w2_5_qt_sweep_runs.py.
+
+TEN GUARD TESTS WERE ADDED, in tests/test_xfail_backlog_item_100_repairs.py
+and tests/test_xfail_backlog_item_100_sweep_runs.py -- two files rather than
+one because the Qt half needs `importorskip("PySide6")`, and a module-level
+skip put where it would cover the other three modules' guards is exactly the
+"a suite full of them is indistinguishable from a suite with none" failure
+this instruction is about. They were added because each of the four xfails
+carried exactly ONE assertion and each could
+be satisfied by a repair that is wrong in a different way. They pin what the
+repair must NOT do: that the timeout sentence is not simply hardcoded to "1s";
+that an unregistered hyphenated key is not rewritten, and that an exact
+hyphenated entry still beats its folded twin; that the score transforms come
+BACK when `include_original_score=True`, rather than being deleted outright;
+that `SCORE_DERIVED_COLUMNS` still names the columns `build_hit_cell_frame`
+actually writes; and that fixing the folder matching did not cost the words
+that say WHICH folder would not go.
+
+EVERY ONE OF THE FOURTEEN TESTS WAS PROVEN NON-VACUOUS by mutating the source
+and watching it redden -- eleven mutations, each reddening exactly the test it
+was aimed at and nothing else. Four of the eleven were re-introductions of the
+original defect; the other seven were the plausible-but-wrong repairs listed
+above.
+
+WHAT IS STILL MARKED, and it is not nothing:
+
+  tests/test_cov_w3_8_dnd.py:143       spacr/qt/.../dnd.py `_find_console`
+                                       consults registered screens before the
+                                       most recently visited one.
+  tests/test_analysis_submodules_real_data.py:153
+                                       upstream cellpose bsize; gpu+slow, so
+                                       it never runs in the fast leg.
+
+Neither is in this pass's blast radius. The dnd one is an ordinary unfixed
+defect and should be picked up by whoever owns spacr/qt/dnd.py. The cellpose
+one is the only marker in the tree that arguably EARNS its xfail under this
+file's own rule -- it records a defect in a dependency, not in spaCR -- but
+that is a judgement, not a decision anyone has recorded, and it should be
+written down one way or the other rather than surviving on the gpu marker.
+
+FIVE FAILURES IN THE VERIFICATION RUN ARE NOT FROM THIS WORK, and the check
+that establishes that is worth recording rather than asserting. Running the
+102 test files that import these four modules gives:
+
+    5 failed, 1283 passed in 6:39
+
+all five being repo-wide API-SURFACE COUNT RATCHETS --
+test_public_docstrings_matches_reviewed_visible_coverage,
+test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary,
+test_public_callable_inventory_is_source_derived_not_docstring_derived,
+test_callable_boundary_is_cross_checked_with_i18n_extractor and
+test_generated_constructor_ivar_reduction_is_exact_and_rendered.
+
+Reverting all four source files to HEAD and re-running those five gives
+BYTE-IDENTICAL numbers -- 10530 public docstrings, 8695 public callables, 43
+required ivars, against reviewed baselines of 10478, 8651 and 38. So this
+work contributes ZERO to every one of them; everything added here is private
+(`_format_failures`, `_failed_folder`) or a module constant. The ivar failure
+names `spacr.curation_queue.QueueItem`, a module that does not exist in HEAD
+at all, which places the cause in another change in flight in the same tree.
+The counts also MOVED between two runs twenty minutes apart (10526 -> 10530,
+8699 -> 8695), which a single settled tree cannot do.
+
+WHOEVER LANDS THOSE OTHER CHANGES OWNS THE RATCHET BUMP. It is named in the
+assertion message: bump the count, say what it admitted, and regenerate with
+tools/build_documentation_i18n.py.
+
+--------------------------------------------------------------------------------
+2026-09-14 - ADVERSARIAL REVIEW OF THE FOUR REPAIRS. ONE VACUOUS ASSERTION
+FOUND AND CLOSED; NOTHING ELSE.
+--------------------------------------------------------------------------------
+
+All four repairs re-verified against the code rather than the summary above,
+with eight independent mutations (the original defect re-introduced in each of
+the four modules, plus fold-unconditionally, hardcode-"1s", drop-the-derived-
+columns-outright, keep-built-from-the-whole-pair, and drop-the-reason-from-the-
+sentence). Every one reddened exactly the test it was aimed at, and all four
+source files were restored byte-identically afterwards (sha256 verified).
+
+THE ONE CORRECTION. "Every one of the fourteen tests was proven non-vacuous"
+was one test short.
+`test_every_score_derived_column_is_one_build_hit_cell_frame_writes` iterated
+`SCORE_DERIVED_COLUMNS` and asserted nothing else, so emptying that tuple --
+the single mutation that reopens the leak while leaving the constant in place
+-- made it pass on an empty loop. It now pins the membership of the tuple
+before iterating it, and reddens on that mutation.
+
+ALSO CHECKED, AND CLEAN. The five repo-wide ratchet failures are confirmed
+foreign to this work by construction, not only by the revert: the extractor's
+own `public_docstrings()` and `_additional_assignment_docs()` were called
+directly and neither carries `spacr.hit_attribution.SCORE_DERIVED_COLUMNS` or
+either new private function, so this change cannot move any of the three
+counts. The docstring total also moved 10530 -> 10531 with nothing of this
+item's touched, which is the concurrent-tree effect the section above records.
+The ledger, suite-hygiene, `__all__` and module-documentation meta-suites all
+pass (616 tests), and the 106 test files importing the four modules give 5
+failed / 3866 passed -- the same five, and nothing else.
+
+ONE RESIDUAL, OUT OF SCOPE AND NOT A DEFECT OF THIS CHANGE. `_normalize_app`
+is not the only place a caller's app key meets `APP_ALIASES`. `ports.py:468`
+(`module_ports`, whose docstring promises "every alias APP_ALIASES accepts"),
+`ports.py:556` and `chaining.py:427` all still do a bare
+`APP_ALIASES.get(key, key)`, so a plugin's hyphenated alias resolves through
+validate and not through those three. Same defect, three call sites, in files
+outside this pass.

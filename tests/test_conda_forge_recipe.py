@@ -159,13 +159,22 @@ def test_conda_forge_bot_tracks_pypi_and_automerge_is_limited_to_versions():
 #: `opencv-python-headless 4.9.0.80` is a wrapper whose fourth component is
 #: the wrapper build, not the OpenCV release; conda-forge ships the library
 #: itself as `opencv 4.9.0`, so the two spellings name the same floor.
-#: PyPI's maintained `nvidia-ml-py` distribution uses NVIDIA driver-branch
-#: versions such as `11.450.51`, whereas conda-forge exposes the compatible
-#: `pynvml` line as `11.5`. The translated floors are the minimum compatible
-#: releases in their respective package indexes.
+#: THERE IS NO nvidia-ml-py ROW, and the one that used to sit here was wrong,
+#: not merely dead. It read `"pynvml": {"11.450.51": "11.5"}` under the claim
+#: that "conda-forge exposes the compatible `pynvml` line as 11.5" -- i.e.
+#: that the two names are one project versioned differently. They are not.
+#: conda-forge/nvidia-ml-py is NVIDIA's own (home nvidia.com), 25 releases
+#: running 11.450.51 ... 13.610.43, the same driver-numbered sequence PyPI
+#: serves; conda-forge/pynvml is github.com/gpuopenanalytics/pynvml, the
+#: retired wrapper, whose 11.x releases are that wrapper's own implementation
+#: and only become a shim over `nvidia-ml-py` at 12.0.0. So `11.5` was not a
+#: translation of `11.450.51` into another index -- it was a different
+#: package. The recipe names `nvidia-ml-py` with setup.py's own floor and
+#: needs no translation; tests/test_dependency_bounds.py::
+#: test_the_conda_recipe_names_nvidias_bindings_and_not_the_retired_wrapper
+#: is what keeps it from being renamed back.
 FLOOR_TRANSLATIONS = {
     "opencv": {"4.9.0.80": "4.9.0"},
-    "pynvml": {"11.450.51": "11.5"},
 }
 
 

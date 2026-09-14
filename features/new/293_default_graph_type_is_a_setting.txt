@@ -1,5 +1,120 @@
 293 — The default graph type is a setting, and it governs every graph
 
+Status: MOSTLY DONE — the mechanism is in place and the live Qt graphs consume
+        it; the Matplotlib pipeline figures do not yet. Verified against the
+        tree 2026-09-14.
+
+        THE MECHANISM. `spacr.graph_types` is the chokepoint, and it is Qt-free
+        so a headless render answers the same question the same way:
+          - `chosen_for` (graph_types.py:240) reads the saved DEFAULT GRAPH
+            TYPE for a data shape and returns "" for "nothing was chosen",
+            which is a different answer from the table's own default;
+          - `default_for` (:272) is `chosen_for(shape) or DEFAULTS[shape]`;
+          - `start_for` (:350) is the one call a widget makes: it returns
+            `(graph_type, note)`, taking the caller's OWN starting form as the
+            fallback, and falling back OUT LOUD when the saved choice cannot
+            be honoured;
+          - `too_thin_for` (:319) with `HIDES_THE_OBSERVATIONS` (:87) and
+            `MIN_N_FOR_DISTRIBUTION` (:103) is the "violin of two points"
+            rule;
+          - `MARKS` (:67) with `mark_for` (:290) / `type_of_mark` (:301)
+            translates between the graph-type vocabulary the setting is stored
+            in and the mark vocabulary the live plots draw with.
+
+        THE CONSUMERS THAT NOW HONOUR IT.
+          - `grouped_plot.PlotSpec.default_kind` — already did, through
+            `default_for`. Unchanged (not this session's file).
+          - `fast_plots.GroupedPlot` — Control separation and Guide agreement,
+            the live regression panels. `DATA_SHAPE` (fast_plots.py:7544) says
+            which saved answer applies, `starting_mark` (:7563) reads it,
+            `_settle_mark` (:7595) re-reads it once the group sizes exist, and
+            the two draw paths call it (:7778, :7959). `set_mark` settles the
+            mark (:7642) so right-click still wins afterwards, and the
+            fallback sentence goes on the plot through `mark_note` (:7677).
+            With nothing chosen, `DEFAULT_MARK` is unchanged — a preference
+            nobody expressed must not move existing views.
+          - `measurement_compare_dialog` — the plot box opens on the saved
+            choice (`_plot_to_start_on`, :713, called at :199), and keeps the
+            panel's own first plot for a choice this panel cannot draw
+            (`_PLOTS_OF_KIND`, :102).
+
+        WHAT STILL DOES NOT. Named rather than implied, and all outside this
+        session's file set:
+          - `spacr/ml.py:7306,7337,7357` — the three regression QC figures are
+            hard-coded `'graph_type':'jitter_bar'`. THIS IS THE
+            "bar-with-jitter" THE NOTE BELOW IS ABOUT; it is a Matplotlib
+            `_qc_plot` call, not the pyqtgraph panel.
+          - `spacr/settings.py:1029,5613,5790` — `setdefault('graph_type',
+            'jitter_box')` for the pipeline figures.
+          - `spacr/qt/widgets/graph_spec.py:455` `infer_kind` — the Graph
+            Builder infers BOX for one categorical against one continuous and
+            never asks the setting.
+          - `spacr/plot.py` `spacrGraph` — takes whatever graph_type it is
+            handed.
+        Each is a one-line change once its owner points it at
+        `graph_types.start_for`; none of them was touched here because the
+        instruction batch this was done in owns only the three files above.
+
+        WHAT THE NOTE GOT WRONG. "Today Regression has most of this: it draws
+        bar-with-jitter and the user can right-click to change it" is two
+        different graphs run together. The graph you right-click is the
+        pyqtgraph panel, and it drew a JITTER, not a bar-with-jitter
+        (`GroupedPlot.DEFAULT_MARK`); the bar-with-jitter is the Matplotlib QC
+        figure from `ml.py`, which has no right-click retype of its own. The
+        starting point was wrong in both, which is what the instruction says,
+        but they are fixed in different files and only the first is fixed here.
+
+        A STALE MAPPING FOUND AND FIXED. `measurement_compare_dialog`
+        `_SPEC_KINDS` mapped `jitter_box` to `bar_jitter` with a comment
+        saying the fitness table had no entry for a box with points over it.
+        It has had one for some time -- `box_jitter`, which is also
+        `DEFAULTS['categorical_continuous']` -- so that mapping had stopped
+        being a translation and become a substitution: the panel's own list
+        said "jitter over box", the live plot drew a BAR with jitter, and the
+        Matplotlib fallback two lines below it drew the box the label
+        promised. Now `"jitter_box": "box_jitter"` (:87), and the spread
+        control correctly disappears for it, a box having no whisker to
+        describe.
+
+        ONE TABLE IS WRITTEN TWICE. `graph_types.MARKS` and
+        `grouped_plot.MARKS` are the same eight pairs, and
+        `graph_types.MIN_N_FOR_DISTRIBUTION` and
+        `fast_plots.MIN_N_FOR_DISTRIBUTION` are the same number. Both
+        duplicates are deliberate -- `fast_plots` imports no other spaCR
+        module at import time, and `grouped_plot` was not this session's file
+        -- and both are asserted equal by TestTheTablesAgree in
+        `tests/qt/test_every_graph_starts_where_the_setting_says.py`, so
+        neither can drift in silence. Collapsing `grouped_plot.MARKS` into
+        `graph_types.MARKS` is left to whoever owns that file.
+
+        TESTS. `tests/test_the_default_graph_type_starts_every_graph.py` (32)
+        for the mechanism and
+        `tests/qt/test_every_graph_starts_where_the_setting_says.py` (29) for
+        the widgets. Every one of the 61 was seen to fail against a
+        deliberately broken source: 30 mutations were run, each killed at
+        least one test, and no test survived all 30.
+        The older `tests/test_the_default_graph_type_is_a_setting.py` still
+        passes unchanged; its claim that `default_for` is the single
+        chokepoint is now half the story -- `start_for` is the other half.
+
+        FOUND IN REVIEW, FIXED. `_settle_mark` latched on the FIRST table
+        rather than on the user, so a panel that fell back off a violin over
+        a three-point run kept the jitter -- and kept the sentence naming
+        the three -- when four hundred points were loaded into it next. One
+        panel draws many tables: `RegressionResults.refresh_views` re-draws
+        these from a narrowed frame and a fit run twice is two tables in the
+        same widget, so the caption came to contradict the group sizes
+        printed beside it. The latch is now the user's right-click only; the
+        setting is re-read against each table's own sizes.
+        `test_a_second_table_in_the_same_panel_is_measured_again` holds it.
+
+        ALSO FOUND IN REVIEW. The `_settle_mark` call in
+        `GuideAgreementPlot.set_support` was reachable by no test: deleting
+        it left all 61 green, because that panel's only test chose a type
+        the size rule never objects to. `test_the_other_live_panel_is_
+        measured_too` kills that deletion. 63 tests now, and a 21-mutation
+        sweep over the three files killed every one.
+
 Asked 2026-08-28.
 
 In settings there is a DEFAULT GRAPH TYPE -- Bar, Jitter, Bar+Jitter, Box,

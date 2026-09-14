@@ -470,3 +470,210 @@ def test_no_dependency_declares_an_empty_range(dep):
             f"{dep!r} declares a floor at or above its ceiling — no release "
             f"can satisfy it"
         )
+
+
+# ---------------------------------------------------------------------------
+# 6. Dependencies that left with the Tkinter interface
+# ---------------------------------------------------------------------------
+#
+# ``test_the_unimported_dependencies_stay_removed`` above guards the 2026-07-27
+# census, whose members were removed for never having been imported at all.
+# These two are a different shape and are kept apart from it deliberately: both
+# were REAL dependencies with a real importer, and both outlived it. The only
+# import of either lived in ``spacr/gui_elements.py``, the Tk interface's
+# widget module, which no longer exists.
+#
+#     sympy       `from sympy import root` at gui_elements.py:26.
+#     screeninfo  monitor geometry for the Tk windows. The Qt interface asks
+#                 Qt instead.
+#
+# Removing them is one coordinated edit across three files, because each is
+# guarded by a different test: setup.py (the declaration), the minimum
+# constraints profile (where every pin must name a declared dependency, so the
+# pin cannot outlive it), and the conda-forge recipe (whose run list is
+# compared to setup.py's by set equality). This section holds all three
+# together, and holds the other direction too -- if either import ever comes
+# back, the declaration has to come back with it in the same commit.
+
+#: distribution -> the top-level module it installs, for the two dependencies
+#: that outlived their only importer.
+DEAD_TK_DEPENDENCIES = {
+    "sympy": "sympy",
+    "screeninfo": "screeninfo",
+}
+
+CONSTRAINTS = REPO_ROOT / ".github" / "constraints" / "minimum-py39.txt"
+RECIPE = REPO_ROOT / "conda-forge" / "recipe" / "recipe.yaml"
+
+#: A dependency that IS imported, and only from inside function bodies. It is
+#: the control for the census below: a scan that cannot see
+#: ``import mpmath as mp`` four levels into a method cannot see a revived
+#: ``import sympy`` either, and would report "no importers" for the best
+#: possible reason and the worst possible cause.
+FUNCTION_LOCAL_CONTROL = ("mpmath", "qt/widgets/fractal_mandelbrot.py")
+
+
+def _module_importers() -> dict[str, set[str]]:
+    """Map top-level module name -> the spacr/ files that import it.
+
+    ``ast.walk`` rather than a line regex, so an import inside a function
+    body, a ``try:``/``except ImportError`` guard or a class body counts
+    exactly as much as one at module scope. Those are the forms spaCR uses
+    for everything optional or expensive, and they are precisely the forms a
+    ``^import x`` grep misses.
+    """
+    found: dict[str, set[str]] = {}
+    for path in sorted(PKG.rglob("*.py")):
+        if "i18n_catalogs" in path.parts:
+            continue
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except SyntaxError as error:            # pragma: no cover - defensive
+            pytest.fail(f"{path} does not parse: {error}")
+        where = path.relative_to(PKG).as_posix()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    found.setdefault(alias.name.split(".")[0], set()).add(where)
+            elif isinstance(node, ast.ImportFrom):
+                if node.level:                  # a relative import is spaCR's own
+                    continue
+                if node.module:
+                    found.setdefault(
+                        node.module.split(".")[0], set()).add(where)
+    return found
+
+
+def test_the_import_census_sees_a_function_local_import():
+    """The control for the two-sided test below, and not a formality.
+
+    A census that silently returns nothing makes every "this is not imported"
+    assertion pass for the wrong reason -- the failure mode this whole file
+    exists to prevent, applied to the tool doing the checking. ``mpmath`` is
+    imported four times inside ``fractal_mandelbrot.py``'s function bodies and
+    nowhere at module scope, so it is exactly the hit a weaker scan loses.
+    """
+    module, where = FUNCTION_LOCAL_CONTROL
+    importers = _module_importers()
+    assert module in importers, (
+        f"the import census found no importer of {module!r}. Either the "
+        f"Mandelbrot backdrop stopped using it -- in which case update "
+        f"FUNCTION_LOCAL_CONTROL to another function-local import -- or the "
+        f"census is broken and every 'not imported' assertion below it is "
+        f"passing vacuously."
+    )
+    assert where in importers[module], (
+        f"{where} no longer imports {module!r}; the census control is stale"
+    )
+    source = _src(where)
+    assert not re.search(rf"^import {module}\b", source, re.MULTILINE), (
+        f"{where} now imports {module!r} at column 0, i.e. at module scope, "
+        f"so it no longer proves a function-local import is visible to the "
+        f"census"
+    )
+    assert re.search(rf"^\s+import {module}\b", source, re.MULTILINE), (
+        f"{where} no longer spells the import as an indented statement; the "
+        f"control has to be a function-local import to be a control"
+    )
+
+
+@pytest.mark.parametrize("dist", sorted(DEAD_TK_DEPENDENCIES))
+def test_the_dead_tk_only_dependencies_stay_removed(dist):
+    """Both halves: no import under spacr/, and no declaration anywhere.
+
+    The direction that matters is whichever one moved last. If the import
+    comes back, this test demands the declaration come back with it -- in all
+    three files, because a conda user and a floor-pinned user resolve from
+    different ones. If the declaration comes back without an import, it is
+    install weight on every headless cluster install and a bound somebody has
+    to keep re-justifying.
+    """
+    module = DEAD_TK_DEPENDENCIES[dist]
+    importers = sorted(_module_importers().get(module, ()))
+    core = {_norm(re.split(r"[<>=!~ ,\[;]", d.strip())[0])
+            for d in _core_dependencies()}
+
+    if importers:
+        assert _norm(dist) in core, (
+            f"{', '.join(importers)} imports {module!r} again, but "
+            f"{dist} is not a declared dependency. It arrives today only "
+            f"because something else pulls it in, which is an ImportError "
+            f"waiting for that package to change its mind. Declare it in "
+            f"setup.py, pin it in {CONSTRAINTS.name}, and add it to the "
+            f"conda-forge recipe -- the recipe's run list is compared to "
+            f"setup.py's by set equality, so two of the three is a red test."
+        )
+        return
+
+    assert _norm(dist) not in core, (
+        f"{dist} is a core dependency in setup.py again while nothing under "
+        f"spacr/ imports {module!r}. Its only importer was the Tk interface's "
+        f"spacr/gui_elements.py, which no longer exists."
+    )
+
+    constraints = CONSTRAINTS.read_text(encoding="utf-8")
+    # The control: if this file were misread or moved, every "not pinned"
+    # assertion under it would pass on an empty string.
+    assert re.search(r"^mpmath==", constraints, re.MULTILINE), (
+        f"{CONSTRAINTS} no longer pins mpmath, so this check cannot tell a "
+        f"profile without a {dist} pin from a profile it failed to read"
+    )
+    assert not re.search(rf"^{dist}==", constraints, re.MULTILINE | re.I), (
+        f"{CONSTRAINTS.name} pins {dist}, which setup.py no longer declares. "
+        f"tests/test_optimal_dependency_versions.py rejects a pin that names "
+        f"no declared dependency, so this is red there too."
+    )
+
+    if not RECIPE.exists():                     # the recipe is optional
+        return
+    recipe = RECIPE.read_text(encoding="utf-8")
+    assert re.search(r"^\s+- mpmath\b", recipe, re.MULTILINE), (
+        f"{RECIPE} no longer lists mpmath, so this check cannot tell a run "
+        f"list without {dist} from a run list it failed to parse"
+    )
+    assert not re.search(rf"^\s+- {dist}\b", recipe, re.MULTILINE | re.I), (
+        f"the conda-forge recipe still lists {dist} in its run requirements "
+        f"while setup.py does not declare it. "
+        f"tests/test_conda_forge_recipe.py compares the two by set equality."
+    )
+
+
+def test_the_conda_recipe_names_nvidias_bindings_and_not_the_retired_wrapper():
+    """``pynvml`` on conda-forge is a DIFFERENT PROJECT, not another spelling.
+
+    setup.py declares ``nvidia-ml-py``, NVIDIA's own bindings, and the recipe
+    used to translate that to ``pynvml`` on the assumption that conda-forge
+    versions the same project differently. It does not:
+
+        conda-forge/nvidia-ml-py   nvidia.com, 11.450.51 ... 13.610.43 -- the
+                                   same driver-numbered releases PyPI serves.
+        conda-forge/pynvml         github.com/gpuopenanalytics/pynvml, the
+                                   retired compatibility wrapper. 11.5.0
+                                   depends on nothing but `python >=3.5`; only
+                                   from 12.0.0 does it become a shim that
+                                   depends on `nvidia-ml-py`.
+
+    So ``pynvml >=11.5,<14`` let conda resolve 11.5.0 or 11.5.3 -- the wrapper
+    implementation itself, which is the package setup.py deliberately stopped
+    declaring because importing it makes both spaCR and ``torch.cuda`` print a
+    FutureWarning at startup. Checked against the conda-forge channel on
+    2026-09-14, not inferred from the names.
+    """
+    if not RECIPE.exists():                     # the recipe is optional
+        pytest.skip("no conda-forge recipe in this checkout")
+    recipe = RECIPE.read_text(encoding="utf-8")
+    assert re.search(r"^\s+- nvidia-ml-py\s+>=", recipe, re.MULTILINE), (
+        "the conda-forge recipe no longer requires nvidia-ml-py with a lower "
+        "bound; setup.py declares it as a core dependency"
+    )
+    assert not re.search(r"^\s+- pynvml\b", recipe, re.MULTILINE), (
+        "the conda-forge recipe requires `pynvml`, which on conda-forge is "
+        "the retired gpuopenanalytics wrapper rather than NVIDIA's bindings. "
+        "Name `nvidia-ml-py`, the package setup.py declares."
+    )
+    core = {_norm(re.split(r"[<>=!~ ,\[;]", d.strip())[0])
+            for d in _core_dependencies()}
+    assert "nvidia-ml-py" in core, (
+        "setup.py stopped declaring nvidia-ml-py, so the recipe would be the "
+        "only file naming it and this check no longer compares two halves"
+    )

@@ -4,6 +4,15 @@ The module distinguishes categorical, continuous, and ordered axes. It lists
 compatible graph types first and supplies a reason for each incompatible
 option, allowing interfaces to disable unsupported choices without hiding
 them.
+
+IT IS ALSO WHERE EVERY GRAPH IN spaCR GETS ITS STARTING FORM. The DEFAULT
+GRAPH TYPE setting is stored per data shape (`spacr.qt.preferences`), read
+back through :func:`chosen_for`, and turned into "what is drawn before the
+first right-click" by :func:`default_for` and :func:`start_for`. A widget
+asks one of those two and gets an answer that already accounts for the
+user's choice, whether that choice fits the data, and whether the data is
+thick enough to support it -- so the setting reaches a new graph by the
+graph doing the ordinary thing rather than by remembering to.
 """
 from __future__ import annotations
 
@@ -38,6 +47,60 @@ GRAPH_NAMES: Dict[str, str] = {
     "line": "Line",
     "scatter": "Scatter",
 }
+
+
+#: Which MARK on a live pyqtgraph plot draws each graph type.
+#:
+#: THE TWO VOCABULARIES USE DIFFERENT WORDS FOR THE SAME PICTURE. This module
+#: names a graph after the question it answers (``bar_jitter``); the live plot
+#: names the mark that draws it (``jitter_bar``), and a plot's menu, its
+#: starting form and its right-click all speak the second. The preference is
+#: stored in the first, so the translation has to live somewhere, and here --
+#: beside the table that decides what fits -- is the one place every consumer
+#: already imports.
+#:
+#: ``spacr.qt.widgets.grouped_plot.MARKS`` is the SAME TABLE, written first
+#: and owned by that module; the two agreeing is asserted by
+#: `tests/qt/test_every_graph_starts_where_the_setting_says.py`
+#: (TestTheTablesAgree) so the copy cannot drift in silence. Collapsing it
+#: into this one is left to whoever owns that file.
+MARKS: Dict[str, str] = {
+    "bar": "bar",
+    "bar_jitter": "jitter_bar",
+    "box_jitter": "jitter_box",
+    "jitter": "jitter",
+    "box": "box",
+    "violin": "violin",
+    "line": "line",
+    "scatter": "points",
+}
+
+#: Graph types that REPLACE the observations with a summary of them.
+#:
+#: A bar is one height, a box is five numbers, a violin is a smoothed
+#: density and a line is one point per group: none of them show a reader how
+#: many observations are behind the mark, so each of them can be drawn over
+#: data too thin to support it. The composites (``bar_jitter``,
+#: ``box_jitter``) and the point marks keep the observations on the picture,
+#: which is why they are not here -- and why they are what a summary falls
+#: back TO.
+HIDES_THE_OBSERVATIONS: Tuple[str, ...] = ("bar", "box", "violin", "line")
+
+#: At or below this many observations in a group, a summary is a claim the
+#: data cannot support.
+#:
+#: The house rule, stated as a number: with eight or fewer points per group
+#: the individual points ARE the figure, a box's quartiles come from a
+#: handful of values, and a violin draws a smooth density through points that
+#: never described one.
+#:
+#: ``spacr.qt.widgets.fast_plots.MIN_N_FOR_DISTRIBUTION`` is the same number,
+#: where the rule was written down first. It is repeated here because this
+#: module is the Qt-free one and the fallback has to work in a headless
+#: render; the two are asserted equal by
+#: `tests/qt/test_every_graph_starts_where_the_setting_says.py`
+#: (TestTheTablesAgree).
+MIN_N_FOR_DISTRIBUTION: int = 8
 
 
 #: Supported combinations of axis data types.
@@ -174,6 +237,38 @@ def types_for(shape: str) -> Tuple[str, ...]:
     return FITS[str(shape)]
 
 
+def chosen_for(shape: str) -> str:
+    """The graph type the user asked to see FIRST for ``shape``, or ``""``.
+
+    :param shape: one of the keys of :data:`DATA_SHAPES`.
+    :returns: the saved graph type, or an empty string when the user has
+        expressed no preference for this shape -- or expressed one this shape
+        cannot take.
+
+    EMPTY MEANS "NOTHING WAS CHOSEN", which is not the same answer as the
+    table's default: a widget with a starting form of its own keeps it when
+    nothing was chosen, and the preference overrides it when something was.
+    :func:`default_for` is the caller that turns "nothing" into the table's
+    own answer.
+
+    A SAVED CHOICE THAT DOES NOT FIT THE DATA IS NOT A CHOICE FOR IT.
+    Someone who prefers bars has not asked for a bar of a continuous x
+    against a continuous y -- that is a different graph of different data,
+    and :data:`WHY_NOT` says so.
+
+    A MISSING PREFERENCE STORE IS NOT AN ERROR. A headless render has no Qt
+    and no QSettings, and a figure still has to be drawn.
+    """
+    shape = str(shape)
+    try:
+        from .qt.preferences import get_default_graph_type
+
+        chosen = str(get_default_graph_type(shape) or "")
+    except Exception:                                        # noqa: BLE001
+        return ""
+    return chosen if chosen and fits(shape, chosen) else ""
+
+
 def default_for(shape: str) -> str:
     """The graph type drawn FIRST for ``shape``.
 
@@ -183,24 +278,114 @@ def default_for(shape: str) -> str:
 
     THE USER'S CHOICE COMES FIRST. The preference decides which compatible
     graph is drawn first, and right-click can still change it afterwards.
-    Every graph in spaCR reaches its starting form through this function, so
-    the preference applies consistently across screens.
-
-    A SAVED CHOICE THAT DOES NOT FIT THE DATA IS IGNORED. Someone who
-    prefers bars has not asked for a bar of a continuous x against a
-    continuous y -- that is a different graph of different data, and
-    :data:`WHY_NOT` says so. The table's own default is used instead, which
-    is what a user who never expressed a preference gets.
+    Every graph in spaCR reaches its starting form through this function or
+    through :func:`start_for`, so the preference applies consistently across
+    screens.
     """
     shape = str(shape)
     fallback = DEFAULTS[shape]
-    try:
-        from .qt.preferences import get_default_graph_type
+    return chosen_for(shape) or fallback
 
-        chosen = str(get_default_graph_type(shape) or "")
-    except Exception:
-        return fallback
-    return chosen if chosen and fits(shape, chosen) else fallback
+
+def mark_for(graph_type: str, fallback: str = "") -> str:
+    """The live-plot mark that draws ``graph_type``.
+
+    :param graph_type: a graph type from :data:`GRAPH_TYPES`.
+    :param fallback: what to answer for a name :data:`MARKS` has no entry
+        for.
+    :returns: a mark key from ``spacr.qt.widgets.fast_plots.MARK_TYPES``.
+    """
+    return MARKS.get(str(graph_type), str(fallback))
+
+
+def type_of_mark(mark: str, fallback: str = "") -> str:
+    """The graph type a live plot's ``mark`` draws.
+
+    :param mark: a mark key from ``spacr.qt.widgets.fast_plots.MARK_TYPES``.
+    :param fallback: what to answer for a mark no graph type draws.
+    :returns: a graph type from :data:`GRAPH_TYPES`.
+
+    The inverse of :func:`mark_for`, so a widget whose own starting form is
+    written in marks can state it once and still be compared against a
+    preference written in graph types.
+    """
+    wanted = str(mark)
+    for graph_type, drawn in MARKS.items():
+        if drawn == wanted:
+            return graph_type
+    return str(fallback)
+
+
+def too_thin_for(graph_type: str, counts) -> str:
+    """Why ``graph_type`` cannot summarise groups this small, or ``""``.
+
+    :param graph_type: the graph type about to be drawn.
+    :param counts: observations per group. Unknown sizes -- an empty
+        iterable -- are not an objection: a graph that has not been handed
+        its data yet is not yet drawing a claim.
+    :returns: a sentence naming the smallest group, or an empty string when
+        the graph type is supported by the data.
+
+    Only the types that REPLACE the observations can be too thin; see
+    :data:`HIDES_THE_OBSERVATIONS`. A jitter of two points is two points,
+    which is the truth; a violin of two points is a density that was never
+    measured.
+    """
+    if str(graph_type) not in HIDES_THE_OBSERVATIONS:
+        return ""
+    try:
+        sizes = [int(n) for n in counts if int(n) > 0]
+    except Exception:                                        # noqa: BLE001
+        return ""
+    if not sizes:
+        return ""
+    smallest = min(sizes)
+    if smallest > MIN_N_FOR_DISTRIBUTION:
+        return ""
+    name = GRAPH_NAMES.get(str(graph_type), str(graph_type))
+    return (f"{name} needs more than {MIN_N_FOR_DISTRIBUTION} observations "
+            f"in a group and the smallest here has {smallest}")
+
+
+def start_for(shape: str, counts=(), fallback: str = "") -> Tuple[str, str]:
+    """What to draw FIRST, and why that is not what was asked for.
+
+    :param shape: one of the keys of :data:`DATA_SHAPES`.
+    :param counts: observations per group, when they are known.
+    :param fallback: the caller's OWN starting form, for when the user has
+        expressed no preference. It is answered as given -- a widget knows
+        what it can draw -- and an empty one means :data:`DEFAULTS`.
+    :returns: ``(graph_type, note)``. The note is empty whenever the graph
+        being drawn is the one that was asked for.
+    :raises KeyError: if ``shape`` is unsupported and no usable fallback was
+        given.
+
+    THE FALLBACK IS SAID OUT LOUD. A preference is a blanket statement --
+    "draw violins" -- and a blanket statement meets data it cannot describe
+    eventually. Drawing the points instead and saying nothing would leave a
+    user who asked for violins looking at a jitter with no explanation, so
+    the sentence comes back with the answer and the caller puts it on the
+    plot.
+
+    THE TABLE'S OWN DEFAULT IS NEVER OVERRIDDEN THIS WAY. Only a saved
+    choice is re-examined against the data: :data:`DEFAULTS` already picks
+    types that keep the observations, and a line of one point per x -- the
+    ordered default -- would otherwise be talked out of itself every time.
+    """
+    shape = str(shape)
+    chosen = chosen_for(shape)
+    if not chosen:
+        return (str(fallback) or DEFAULTS[shape]), ""
+    floor = str(fallback) if fits(shape, str(fallback)) else DEFAULTS[shape]
+    thin = too_thin_for(chosen, counts)
+    if not thin:
+        return chosen, ""
+    instead = "jitter" if fits(shape, "jitter") else floor
+    if instead == chosen:
+        return chosen, ""
+    return instead, (f"{thin}, so {GRAPH_NAMES.get(instead, instead)} is "
+                     f"drawn instead. Right-click to draw the "
+                     f"{GRAPH_NAMES.get(chosen, chosen)} anyway.")
 
 
 def fits(shape: str, graph_type: str) -> bool:

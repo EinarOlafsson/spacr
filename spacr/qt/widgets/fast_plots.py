@@ -194,6 +194,12 @@ MARK_TYPES = (
 #: eight or fewer points per group the individual points ARE the figure, a box
 #: plot's quartiles come from a handful of values, and a violin draws a smooth
 #: density through points that never described one.
+#:
+#: ``spacr.graph_types.MIN_N_FOR_DISTRIBUTION`` is the same number. This
+#: module imports no other spaCR module at import time -- which is the point
+#: of it -- so the rule is stated in both places and
+#: `tests/qt/test_every_graph_starts_where_the_setting_says.py` fails if the
+#: two ever disagree.
 MIN_N_FOR_DISTRIBUTION = 8
 
 #: The colour scales offered for "colour the points by a numeric column".
@@ -7521,9 +7527,21 @@ class GroupedPlot(FastPlot):
 
     mark_changed = Signal(str)
 
-    #: Initial group mark. Jitter preserves individual observations and keeps
-    #: existing control and guide-support views unchanged.
+    #: The mark these groups start as WHEN THE USER HAS ASKED FOR NOTHING
+    #: ELSE. Jitter preserves individual observations and keeps existing
+    #: control and guide-support views unchanged.
+    #:
+    #: The DEFAULT GRAPH TYPE setting outranks it: a user who chose a first
+    #: graph for groups against a measurement chose it for these panels too,
+    #: which is what :meth:`starting_mark` reads. This value is what a user
+    #: who chose nothing still gets.
     DEFAULT_MARK = "jitter"
+    #: Which `spacr.graph_types` data shape these groups are.
+    #:
+    #: Named rather than inferred: a subclass knows what it draws, and the
+    #: preference is stored per shape, so this is the one line that tells the
+    #: setting which of its answers applies to this plot.
+    DATA_SHAPE = "categorical_continuous"
     #: How wide one group's mark is, in x units.
     MARK_WIDTH = 0.6
     #: Which summary the line across a points/jitter group is; see
@@ -7533,8 +7551,74 @@ class GroupedPlot(FastPlot):
     def __init__(self, *args, **kwargs):
         """Build the plot and its controls."""
         super().__init__(*args, **kwargs)
-        self._mark = self.DEFAULT_MARK
+        #: Why the mark is not the one the setting asked for, or ``""``.
+        self._start_note = ""
+        #: True once the USER has picked a mark. Only a right-click sets it:
+        #: a mark the size rule chose is not a choice the user made, so it is
+        #: re-derived from the setting every time data arrives, while a mark
+        #: the user picked is never taken back from them.
+        self._mark_settled = False
+        self._mark, self._start_note = self.starting_mark()
         self._offer_marks()
+
+    @classmethod
+    def starting_mark(cls, counts=()) -> tuple:
+        """The mark to draw first, and why it is not the one chosen.
+
+        :param counts: observations per group, when they are known. An empty
+            one asks only "what was chosen", which is all that can be
+            answered before the data arrives.
+        :returns: ``(mark, note)``. The note is empty whenever the mark drawn
+            is the mark asked for.
+
+        THE SETTING DECIDES, NOT THE WIDGET. A saved DEFAULT GRAPH TYPE for
+        this plot's :attr:`DATA_SHAPE` is what gets drawn before the first
+        right-click; with nothing saved the plot keeps :attr:`DEFAULT_MARK`,
+        because a preference nobody expressed must not move existing views.
+
+        A BROKEN PREFERENCE STORE DRAWS THE PLOT ANYWAY. This is the opening
+        frame of a panel; refusing to draw it over a settings read would cost
+        the whole figure.
+        """
+        try:
+            from ...graph_types import (chosen_for, mark_for, start_for,
+                                        type_of_mark)
+
+            if not chosen_for(cls.DATA_SHAPE):
+                return cls.DEFAULT_MARK, ""
+            kind, note = start_for(
+                cls.DATA_SHAPE, counts,
+                fallback=type_of_mark(cls.DEFAULT_MARK))
+            return mark_for(kind, cls.DEFAULT_MARK), note
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the default graph type", exc_info=True)
+            return cls.DEFAULT_MARK, ""
+
+    def _settle_mark(self, counts) -> None:
+        """Re-read the starting mark now that the group sizes are known.
+
+        :param counts: observations per group.
+
+        THE SIZES ARRIVE AFTER THE WIDGET DOES. A preference is read when the
+        panel is built and the data lands later, so a chosen violin can only
+        meet the two-point group it cannot describe at draw time.
+
+        EVERY TABLE IS MEASURED AGAIN, because the sizes change under one
+        panel: `RegressionResults.refresh_views` re-draws these from a
+        narrowed frame, and a fit run twice is two tables in the same widget.
+        Deciding only on the first would leave the jitter a three-point run
+        fell back to drawn over four hundred points, still carrying the
+        sentence that named the three -- a caption contradicting the group
+        sizes printed beside it. Only the USER's own right-click stops the
+        re-reading: that mark is theirs and later data must not move it.
+        """
+        if self._mark_settled:
+            return
+        mark, note = self.starting_mark(counts)
+        self._start_note = note
+        if mark != self._mark:
+            self._mark = mark
+            self._offer_marks()
 
     def _offer_marks(self) -> None:
         """(Re)build the menu so the tick sits on the current mark."""
@@ -7559,6 +7643,11 @@ class GroupedPlot(FastPlot):
             raise ValueError(
                 f"unknown mark {kind!r}; known marks: {', '.join(known)}")
         changed = kind != self._mark
+        #: The mark is the user's from here on: the DEFAULT GRAPH TYPE
+        #: setting chooses the STARTING point and right-click still changes
+        #: it afterwards, so a later redraw must not take this back.
+        self._mark_settled = True
+        self._start_note = ""
         self._mark = kind
         self._offer_marks()
         self.redraw()
@@ -7583,12 +7672,17 @@ class GroupedPlot(FastPlot):
     def mark_note(self) -> str:
         """The sentence about the CURRENT mark, or ``""``.
 
-        Two things, because a user who picks "bar" has done two at once: they
-        have chosen a mark that may misrepresent the spread, and they have
-        given up the ability to click a guide -- one rectangle stands for
-        forty-one rows and cannot honestly select one of them.
+        Three things now. A start that could not honour the DEFAULT GRAPH
+        TYPE setting says so first -- a user who asked for violins and got a
+        jitter is owed the reason on the plot rather than in a log. Then the
+        two a user who picks "bar" has done at once: they have chosen a mark
+        that may misrepresent the spread, and they have given up the ability
+        to click a guide -- one rectangle stands for forty-one rows and
+        cannot honestly select one of them.
         """
         parts = []
+        if self._start_note:
+            parts.append(self._start_note)
         advice = mark_advice(self._mark, self.group_sizes())
         if advice:
             parts.append(advice)
@@ -7685,6 +7779,10 @@ class ControlSeparation(GroupedPlot):
             self._effects = np.empty(0)
             self.set_status("No controls identified.")
             return 0
+
+        # The preference meets the data here: the sizes are known now and
+        # not when the panel was built. See :meth:`GroupedPlot._settle_mark`.
+        self._settle_mark(self.group_sizes())
 
         flat_keys: list = []
         columns: list = []
@@ -7861,6 +7959,11 @@ class GuideAgreementPlot(GroupedPlot):
             self.set_status("No guide-level terms were fitted, so guide "
                             "support is unknown.")
             return 0
+
+        # The preference meets the data here: the genes per guide count are
+        # known now and not when the panel was built. See
+        # :meth:`GroupedPlot._settle_mark`.
+        self._settle_mark(self.group_sizes())
 
         frame = support.reset_index() if support.index.name else support
         self._frame = frame

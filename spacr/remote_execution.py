@@ -85,14 +85,22 @@ def _run_command(
     input_text: Optional[str] = None,
     timeout: float = 60.0,
 ) -> CommandResult:
-    """Run one argument vector without a shell and capture UTF-8 output."""
+    """Run one argument vector without a shell and capture UTF-8 output.
+
+    ``timeout`` is floored at one second: a sub-second budget is shorter than
+    process startup on any real machine, so honouring it literally would kill
+    every command. The floored value is what is WAITED and therefore what the
+    timeout message must name -- reporting the raw request would print a
+    number the user cannot reconcile with the wall clock.
+    """
+    waited = max(1.0, float(timeout))
     try:
         result = subprocess.run(
             list(argv),
             input=input_text,
             text=True,
             capture_output=True,
-            timeout=max(1.0, float(timeout)),
+            timeout=waited,
             check=False,
         )
     except FileNotFoundError as exc:
@@ -102,7 +110,7 @@ def _run_command(
         ) from exc
     except subprocess.TimeoutExpired as exc:
         raise RemoteExecutionError(
-            f"Command timed out after {timeout:g}s: {argv[0]}"
+            f"Command timed out after {waited:g}s: {argv[0]}"
         ) from exc
     except OSError as exc:
         raise RemoteExecutionError(

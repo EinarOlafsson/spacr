@@ -13,3 +13,65 @@ Asked 2026-08-28. The font ships in the repository:
 Related: the application font was registered but never applied, so the app
 font was "Sans Serif" while the resource sat loaded. Applying it is not the
 same as registering it.
+
+
+Status 2026-09-14 — DONE for the figure path that was still on DejaVu Sans.
+
+The registration half already existed and was NOT rebuilt:
+`spacr/figure_font.py:64 use_open_sans_for_figures()` adds every file in
+`spacr/resources/font/open_sans/static` to matplotlib's font manager, and the
+two house-style helpers already called it -- `spacr/figure_style.py:262` and
+`spacr/figures/style.py:265`. The application half is also already done and
+was left alone: `spacr/qt/app.py:4761 _use_open_sans()` calls `app.setFont()`
+and is invoked from startup at `spacr/qt/app.py:4995`, covered by
+`tests/qt/test_the_interface_uses_open_sans.py` (13 passing).
+
+What was still broken was the FigureStyle dataclass path -- the volcano and
+the gene-measurement comparison. Measured before the change, on this machine,
+with a default `VolcanoStyle`:
+
+    title fontname: DejaVu Sans
+    xlabel fontname: DejaVu Sans
+
+Two causes, both fixed:
+
+1. `spacr/style_base.py:86  font_family: str = FONT_FAMILY` -- the default was
+   the string "sans-serif", which matplotlib resolves through `font.sans-serif`
+   whose head is DejaVu Sans. It is now the face spaCR ships.
+2. `spacr/volcano_style.py:407  with mpl.rc_context(font_rc(style)):` -- the
+   renderer used to hand matplotlib a hand-written `{"font.family":
+   style.font_family}` and register nothing, which is the silent-fallback case
+   the item names. `spacr/style_base.py:165 font_names()` registers the bundled
+   files BEFORE naming the family, and `spacr/style_base.py:197 font_rc()`
+   builds the rcParams from it.
+
+Also:
+
+* `spacr/style_base.py:263  text.set_fontfamily(list(names))` in `apply_page`
+  puts the face on the title, the axis labels and the tick labels themselves,
+  so a renderer drawing outside a font rc_context -- `gene_measurement_compare`
+  -- gets it too.
+* `spacr/volcano_style.py:84` puts the house face first in `FONT_FAMILIES`.
+  It was absent, and the explorer's control sync does
+  `setCurrentIndex(max(findData(value), 0))`
+  (`spacr/qt/widgets/volcano_explorer.py:954`), so a default the combo does not
+  carry is rewritten to its first entry -- opening the style panel would have
+  put every volcano back on "sans-serif", and so back on DejaVu Sans.
+
+Nothing is listed after Open Sans in the fallback chain. An earlier draft ended
+it with Helvetica/Arial/DejaVu Sans; because the bundled face always resolves,
+those names were unreachable and only made matplotlib log
+"findfont: Font family 'Arial' not found." once per drawn string.
+
+Proof: tests/test_a_figure_drawn_without_open_sans_still_gets_it.py (8 tests).
+Every assertion is on the font FILE matplotlib resolved, never on the rcParam
+string, and each test runs against a font manager with every Open Sans on the
+machine removed and the registration latch reset -- the machine the item is
+about. `test_the_bare_machine_really_is_bare` is the control: with nothing
+registered, that manager resolves to DejaVuSans.ttf.
+
+Stale in the note above: nothing. The two claims it makes -- that the font
+ships, and that registering is not applying -- both still hold. What the note
+does not say, and what cost the time here, is that the rcParam half had been
+done for `figure_style`/`figures.style` and not for the `FigureStyle`
+dataclasses, so the item read as entirely done to a grep for "Open Sans".

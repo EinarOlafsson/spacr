@@ -18,8 +18,9 @@ import json
 import os
 from dataclasses import asdict, dataclass, field, fields
 
+from .style_base import FONT_FAMILY as _FONT_FAMILY
 from .style_base import SCALES as _SCALES
-from .style_base import SHARED_CHOICES, FigureStyle
+from .style_base import SHARED_CHOICES, FigureStyle, font_rc
 from typing import Any, Sequence
 
 import numpy as np
@@ -75,7 +76,12 @@ COLORMAPS: dict[str, tuple[str, ...]] = {
                     "Paired", "Accent"),
 }
 
+#: Families the explorer offers, house face FIRST -- it is the default, and a
+#: value the combo does not carry is silently rewritten to its first entry by
+#: the control sync, which would have put every volcano back on "sans-serif"
+#: (and so on DejaVu Sans) the moment its style panel was opened.
 FONT_FAMILIES: tuple[str, ...] = (
+    _FONT_FAMILY,
     "sans-serif", "serif", "monospace", "DejaVu Sans", "DejaVu Serif",
     "DejaVu Sans Mono", "Arial", "Helvetica", "Times New Roman", "Courier New",
 )
@@ -395,11 +401,10 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
     else:
         figure.clear()
 
-    with mpl.rc_context({
-        "font.family": style.font_family,
-        "font.size": style.font_size,
-        "font.weight": style.font_weight,
-    }):
+    # `font_rc`, not a hand-written `font.family`: naming a family matplotlib
+    # has not been given the FILE for falls back to DejaVu Sans without
+    # failing, so the faces spaCR ships have to be registered first.
+    with mpl.rc_context(font_rc(style)):
         if style.split_axis and style.split_y_lims:
             lower, upper = style.split_y_lims
             ratio = max(min(float(style.split_height_ratio), 0.9), 0.1)

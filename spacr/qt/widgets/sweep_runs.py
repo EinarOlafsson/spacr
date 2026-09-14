@@ -219,6 +219,12 @@ def _delete_folders(folders) -> tuple:
     and a worker that throws never reaches `_deletion_finished` -- so the
     rows would stay on the table under a "Deleting…" that never resolves,
     with no way to tell whether the folders went.
+
+    A FAILURE IS A ``(folder, why)`` PAIR, NOT A SENTENCE. `_deletion_finished`
+    has to match these folders against the rows it was given to decide which
+    rows survive; a pre-formatted ``"<folder> (<why>)"`` matches no path, so
+    every row came off the table whether or not its folder actually went.
+    The sentence is composed where it is shown, by `_format_failures`.
     """
     import shutil
 
@@ -228,10 +234,33 @@ def _delete_folders(folders) -> tuple:
             shutil.rmtree(folder)
         except Exception as error:                           # noqa: BLE001
             why = getattr(error, "strerror", None) or error
-            failed.append(f"{folder} ({why})")
+            failed.append((folder, str(why)))
         else:
             deleted.append(folder)
     return deleted, failed
+
+
+def _format_failures(failed) -> str:
+    """Render ``(folder, why)`` pairs as the half-sentence the user reads.
+
+    Tolerates a bare string as well, so a record written by an older build --
+    or a caller handing back the pre-formatted form -- still reads.
+    """
+    parts = []
+    for item in failed or []:
+        if isinstance(item, (tuple, list)) and len(item) == 2:
+            folder, why = item
+            parts.append(f"{folder} ({why})")
+        else:
+            parts.append(str(item))
+    return "; ".join(parts)
+
+
+def _failed_folder(item) -> str:
+    """The folder out of a failure entry, whichever shape it arrived in."""
+    if isinstance(item, (tuple, list)) and len(item) == 2:
+        return str(item[0])
+    return str(item)
 
 
 def _readable_size(total: int) -> str:
@@ -1361,7 +1390,12 @@ class SweepRunsPanel(QWidget):
         to take down -- leaving "Deleting…" up for the rest of the session.
         """
         deleted, failed = outcome if outcome else ([], [])
-        keep = {folder for folder in failed}
+        # A ROW AND ITS FOLDER ARE ONE CLAIM. A folder that would not delete
+        # is still on disk with the whole run in it, so its row has to stay
+        # on the table; `keep` is therefore built from the folder half of
+        # each failure, which is what the records carry.
+        keep = {os.path.abspath(os.path.expanduser(_failed_folder(item)))
+                for item in failed}
         gone = [record for record in records
                 if os.path.abspath(os.path.expanduser(
                     str(record.get("folder") or ""))) not in keep]
@@ -1373,7 +1407,7 @@ class SweepRunsPanel(QWidget):
         note = (f"Deleted {len(deleted)} run folder"
                 + ("s" if len(deleted) != 1 else "") + " from disk.")
         if failed:
-            note += " Could not delete " + "; ".join(failed) + "."
+            note += " Could not delete " + _format_failures(failed) + "."
         self._say(note)
         self._deleted_count = len(deleted)
         self._stop_waiting()

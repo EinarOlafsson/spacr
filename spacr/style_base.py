@@ -9,13 +9,22 @@ passing ``save_path`` also writes the result with spaCR's export settings.
 from __future__ import annotations
 
 from dataclasses import dataclass, fields
-from typing import Any, ClassVar, Dict, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Tuple
+
+from .figure_font import FAMILY as FONT_FAMILY
+from .figure_font import use_open_sans_for_figures
 
 #: Axis scales any figure may use.
 SCALES: Tuple[str, ...] = ("linear", "log", "symlog", "logit")
 
 #: Where a grid may be drawn.
 GRID_AXES: Tuple[str, ...] = ("x", "y", "both", "none")
+
+#: Families matplotlib resolves through its own rcParam lists rather than by
+#: name, so they are passed through untouched.
+GENERIC_FAMILIES: Tuple[str, ...] = ("serif", "monospace", "cursive",
+                                     "fantasy")
+
 
 
 @dataclass
@@ -39,7 +48,8 @@ class FigureStyle:
     :param invert_x: whether to reverse the horizontal axis after limits apply.
     :param invert_y: whether to reverse the vertical axis after limits apply.
     :param font_family: font-family preference available to renderers that
-        support a figure-wide family.
+        support a figure-wide family. Defaults to the face spaCR ships; see
+        :func:`font_names`.
     :param font_size: base text size available for plot-specific prose.
     :param title_font_size: title size in points.
     :param label_font_size: axis-label size in points.
@@ -73,7 +83,7 @@ class FigureStyle:
     invert_x: bool = False
     invert_y: bool = False
 
-    font_family: str = "sans-serif"
+    font_family: str = FONT_FAMILY
     font_size: float = 10.0
     title_font_size: float = 12.0
     label_font_size: float = 8.0
@@ -152,6 +162,60 @@ def style_kind(style: Any) -> str:
     return name.lower() or "figure"
 
 
+def font_names(style: FigureStyle) -> List[str]:
+    """The families to ask matplotlib for, best first, face REGISTERED.
+
+    :param style: figure style whose ``font_family`` is the first choice.
+    :returns: a family list suitable for ``font.family``, a ``FontProperties``
+        or :meth:`matplotlib.text.Text.set_fontfamily`. A generic family is
+        returned alone, because matplotlib resolves it through its own list.
+
+    Naming a family is not the same as having it. Matplotlib answers a name it
+    cannot find by falling back -- silently, bar a ``findfont`` warning -- to
+    DejaVu Sans, so a style saying "Open Sans" on a machine where Open Sans
+    was never installed drew in DejaVu Sans and looked nothing like the
+    interface around it. This REGISTERS the faces spaCR ships before naming
+    them, which is what makes the name resolve on that machine, and puts
+    :data:`FONT_FAMILY` last so a chosen family the machine lacks lands on the
+    house face instead of DejaVu Sans.
+
+    Nothing is listed after :data:`FONT_FAMILY`: it is registered from a file
+    in the package, so it always resolves, and an unreachable name in the list
+    would only make matplotlib warn once per drawn string about a font it was
+    never going to use.
+    """
+    use_open_sans_for_figures()
+    requested = str(getattr(style, "font_family", "") or "").strip()
+    if requested in GENERIC_FAMILIES:
+        return [requested]
+    names = [requested] if requested and requested != "sans-serif" else []
+    if FONT_FAMILY not in names:
+        names.append(FONT_FAMILY)
+    return names
+
+
+def font_rc(style: FigureStyle) -> Dict[str, Any]:
+    """The Matplotlib font parameters a style asks for.
+
+    :param style: figure style supplying family, size and weight.
+    :returns: ``rcParams`` entries to draw inside, as
+        ``matplotlib.rc_context`` takes them.
+
+    Hand this to ``rc_context`` rather than assembling ``font.*`` by hand: the
+    family arrives as the resolvable list :func:`font_names` builds, with the
+    bundled face already registered.
+    """
+    names = font_names(style)
+    params: Dict[str, Any] = {
+        "font.family": list(names),
+        "font.size": float(style.font_size),
+        "font.weight": str(style.font_weight),
+    }
+    if names and names[0] not in GENERIC_FAMILIES:
+        params["font.sans-serif"] = list(names)
+    return params
+
+
 def apply_page(figure, axes, style: FigureStyle) -> None:
     """Apply shared axes, typography, grid, spine, and page settings.
 
@@ -160,7 +224,10 @@ def apply_page(figure, axes, style: FigureStyle) -> None:
     :param style: shared figure-style settings to apply.
 
     Call this after drawing plot-specific marks. It changes figure and axes
-    presentation only; it does not add or remove data marks.
+    presentation only; it does not add or remove data marks. The title, the
+    axis labels and the tick labels are put into the style's family --
+    :func:`font_names` -- so a renderer that draws outside a font
+    ``rc_context`` still gets the face spaCR ships rather than DejaVu Sans.
     """
     figure.set_size_inches(float(style.figure_width),
                            float(style.figure_height))
@@ -186,6 +253,14 @@ def apply_page(figure, axes, style: FigureStyle) -> None:
     if style.invert_y:
         axes.invert_yaxis()
     axes.tick_params(labelsize=style.tick_font_size)
+
+    # The face, on the text objects themselves. A renderer that drew outside
+    # a font `rc_context` would otherwise keep whatever the process-wide
+    # default was -- DejaVu Sans, unless something else had changed it.
+    names = font_names(style)
+    for text in (axes.title, axes.xaxis.label, axes.yaxis.label,
+                 *axes.get_xticklabels(), *axes.get_yticklabels()):
+        text.set_fontfamily(list(names))
 
     wanted = bool(style.grid) and str(style.grid_axis) != "none"
     if wanted:

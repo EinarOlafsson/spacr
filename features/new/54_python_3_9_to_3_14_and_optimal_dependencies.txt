@@ -2,18 +2,31 @@
 spaCR MUST RUN ON PYTHON 3.9 THROUGH 3.14, ON THE RIGHT DEPENDENCY VERSIONS
 ================================================================================
 
-Status:    "optimal" is DEFINED and enforced -- spaCR means the newest in
-           each declared range, the floor is a promise rather than advice,
-           and both ends have a blocking CI job. The Python range is settled
-           and every claimed interpreter has a cell. EVERY DECLARED FLOOR NOW
-           NAMES A RELEASE THAT EXISTS: nvidia-ml-py was the last that did
-           not, and its `>=11.5` is now `>=11.450.51`, which is the same set
-           of releases and the first one the minimum profile can pin. What is
-           left is the conda-forge half of that -- the recipe names `pynvml`,
-           which on conda-forge is a DIFFERENT package -- and the removal of
-           two dead Tk-only dependencies. Both are in WHAT IS LEFT and both
-           need conda-forge/recipe/recipe.yaml, which is why neither is done
-           here.
+Status:    Done. Both entries in WHAT IS LEFT are applied; "optimal" is
+           DEFINED and enforced, the Python range is settled, and every
+           declared floor names a release that exists.
+
+           #1, the conda-forge naming, was ALREADY APPLIED on 2026-08-25 and
+           this Status block went on claiming otherwise for three weeks. The
+           tree says so: conda-forge/recipe/recipe.yaml:75 reads
+           `- nvidia-ml-py >=11.450.51,<14`, and CONDA_NAMES in
+           tests/test_conda_forge_recipe.py:18 carries no `pynvml` row.
+           Re-verified against the conda-forge channel itself rather than
+           the name, 2026-09-14 -- see the note at the end of this file.
+
+           #2, the two dead Tk-only dependencies, is done 2026-09-14. `sympy`
+           and `screeninfo` are gone from all three files that had to move
+           together (setup.py, .github/constraints/minimum-py39.txt,
+           conda-forge/recipe/recipe.yaml), and
+           tests/test_dependency_bounds.py::
+           test_the_dead_tk_only_dependencies_stay_removed holds every one of
+           them plus the import census in a single parametrised test.
+
+           ONE CONSEQUENCE CANNOT BE CHECKED FROM HERE and is written up
+           below: dropping `sympy==1.12` hands the version choice to torch
+           2.1.0's UNBOUNDED `sympy` requirement, and the `Minimum
+           dependencies` job on CPython 3.9 is the only thing that resolves
+           it.
 Requested: 2026-08-08 — "make sure spacr works on python 3.9-3.14 and that the optimal dependency versions are allways used."
 
 --------------------------------------------------------------------------------
@@ -638,3 +651,151 @@ coupling-exceptions paragraph whose only worked example is `sympy==1.12`.
 Re-confirmed that both really are dead -- no `import sympy` and no
 `import screeninfo` anywhere under spacr/ -- and that setup.py:104 and :618
 still cite `spacr/gui_elements.py:26`, a file that no longer exists.
+
+--------------------------------------------------------------------------------
+2026-09-14 - WHAT IS LEFT IS EMPTY. #1 WAS ALREADY DONE; #2 IS DONE NOW.
+--------------------------------------------------------------------------------
+
+#1 NEEDED NO EDIT, AND THE HEADER OF THIS FILE WAS THE STALE PART. The
+2026-08-25 re-audit at the bottom of this file records applying the two-line
+repair. It did. conda-forge/recipe/recipe.yaml:75 is
+`- nvidia-ml-py >=11.450.51,<14` and CONDA_NAMES has no `pynvml` row. The
+Status block at the top -- the part anybody reads first -- still said the
+recipe named `pynvml`. Three weeks, and the file contradicted itself across
+its own length.
+
+VERIFIED AGAINST conda-forge, NOT THE NAMES, on 2026-09-14 via
+api.anaconda.org, because the whole defect was a name that looked like a
+spelling variant:
+
+    conda-forge/nvidia-ml-py   home nvidia.com, dev_url NVIDIA's NVML page.
+                               25 releases, 11.450.51 ... 13.610.43 -- the
+                               same driver-numbered sequence PyPI serves, and
+                               its EARLIEST release is exactly the floor
+                               setup.py declares.
+    conda-forge/pynvml         home and dev_url github.com/gpuopenanalytics/
+                               pynvml. 11 releases, 8.0.1 ... 13.0.1.
+                               pynvml 11.5.0 depends on `python >=3.5` AND
+                               NOTHING ELSE -- it is the wrapper
+                               implementation itself. Only from 12.0.0 does it
+                               become a shim: 12.0.0 depends on
+                               `nvidia-ml-py ~=12.0`, 13.0.1 on
+                               `nvidia-ml-py >=12.0.0`.
+
+So the old `pynvml >=11.5,<14` really did let conda resolve 11.5.0 or 11.5.3 --
+the retired implementation, not NVIDIA's bindings and not a shim over them.
+Every clause of the 2026-08-12 note is confirmed.
+tests/test_dependency_bounds.py::
+test_the_conda_recipe_names_nvidias_bindings_and_not_the_retired_wrapper now
+holds it, with those measurements in its docstring, so the "obvious" rename
+back has a test standing in front of it rather than a paragraph.
+
+#2 IS APPLIED, AS ONE EDIT ACROSS THREE FILES:
+
+    setup.py                        `'sympy>=1.12,<2.0'` and
+                                    `'screeninfo>=0.8.1,<1.0'` replaced by
+                                    REMOVED notes in the form the rest of the
+                                    list already uses.
+    minimum-py39.txt                `sympy==1.12` and `screeninfo==0.8.1`
+                                    dropped; the coupling-exceptions paragraph
+                                    rewritten.
+    conda-forge/recipe/recipe.yaml  both run entries dropped, or
+                                    test_conda_recipe_covers_every_core_
+                                    dependency fails on set equality.
+
+RE-CONFIRMED BEFORE REMOVING, not taken from this file: an `ast.walk` census
+over every .py under spacr/ -- so a function-local or `try:`-guarded import
+counts -- finds ZERO importers of either module, and a tree-wide grep finds no
+string form either. The nearest thing to a live reference is tests/conftest.py,
+which STUBS screeninfo when it is absent; that keeps working, because it
+already builds a fake module when the import fails.
+
+mpmath IS NOT IN THE SAME POSITION and stays declared. spacr/qt/widgets/
+fractal_mandelbrot.py imports it inside four function bodies (285, 339, 359,
+967) and never at module scope. It is the control the new census test uses: a
+scan that cannot see those four cannot see a revived `import sympy` either.
+
+FOUR THINGS IN THIS FILE WERE WRONG OR STALE, recorded here rather than only
+in a report:
+
+  1. The Status block, above. Fixed.
+
+  2. "`sympy==1.12` is one of the named coupling exceptions -- torch 2.1.0 and
+     torchvision 0.16.0 pull it up" is NOT TRUE and never was. sympy's pin
+     equalled its declared floor exactly (1.12 == 1.12), so it was not an
+     exception at all. Measured against the two files: the pins that really do
+     sit above their floors are scikit-learn (1.5.0 -> 1.6.0), torch
+     (2.0 -> 2.1.0), torchvision (0.15 -> 0.16.0) and protobuf
+     (5.28.3 -> 6.31.1). Four, and sympy is not among them.
+
+     THE SENTENCE STILL COULD NOT BE DELETED WHOLESALE, for a reason the note
+     did not see: test_every_constraint_pin_is_the_floor_or_explains_itself
+     whitelists a gap by looking for the package's NAME anywhere in the
+     constraints file's comments, and that sentence was the only place "torch"
+     and "torchvision" appeared. Deleting it would have turned two real,
+     documented exceptions into unexplained ones and reddened that test. It is
+     rewritten with the coupling that is actually there and is verified rather
+     than asserted: torchvision pins torch to an EXACT release -- 0.16.0
+     requires `torch==2.1.0`, and the declared floor 0.15.0 requires
+     `torch==2.0.0+cu117`, a local version PyPI does not serve -- so the pair
+     moves together.
+
+  3. "setup.py:104 and :618 still cite `spacr/gui_elements.py:26`" -- 104 was
+     right, 618 was not; the second citation was at 666, in the comment above
+     the sympy requirement. Both are now rewritten to say the file is gone.
+     While there: the same census paragraph cited nvidia-ml-py as imported at
+     "spacr/qt/widgets/home.py:729 and :743". There is ONE import site today,
+     in `_nvml()` around home.py:1153. Corrected to name the function instead
+     of line numbers that drift.
+
+  4. tests/test_conda_forge_recipe.py:166 still carries a dead
+     FLOOR_TRANSLATIONS row, `"pynvml": {"11.450.51": "11.5"}`, under a
+     comment saying "conda-forge exposes the compatible `pynvml` line as
+     11.5". That premise is the one the 2026-08-12 note disproved and the
+     measurements above confirm is false. The row is unreachable now -- no
+     recipe entry and no setup.py requirement normalises to `pynvml` -- so it
+     changes no result, but it is a wrong claim sitting exactly where somebody
+     would look before renaming the recipe entry back.
+
+     REMOVED 2026-09-14 IN REVIEW, in the file WHAT IS LEFT #1 itself names.
+     The row is gone and the comment above it now records what the two
+     packages actually are -- conda-forge/nvidia-ml-py is NVIDIA's own, 25
+     releases 11.450.51 ... 13.610.43; conda-forge/pynvml is the retired
+     gpuopenanalytics wrapper -- so `11.5` was never a translation of
+     `11.450.51` into another index, it was a different package. Verified
+     dead before deleting: FLOOR_TRANSLATIONS is keyed by the name that
+     appears in the RECIPE's run list, nothing in the recipe or setup.py
+     normalises to `pynvml` any more, and tests/test_conda_forge_recipe.py
+     plus tests/test_dependency_bounds.py are 81 passed, 1 skipped after.
+
+     STILL NOT FIXED, and genuinely outside the files this item names:
+     tests/test_optimal_dependency_versions.py:221 offers
+     "torch/torchvision/sympy" as the worked example of a coupling exception
+     in the docstring of test_every_constraint_pin_is_the_floor_or_explains_
+     itself. sympy was never an exception (its pin equalled its floor) and is
+     no longer a declared dependency at all, so the example is now false
+     twice over. Docstring only -- the assertions below it are correct and
+     green.
+
+WHAT WAS RUN. tests/test_dependency_bounds.py, test_conda_forge_recipe.py,
+test_optimal_dependency_versions.py, test_minimum_constraints_match_setup.py,
+test_dependency_floors_name_a_published_release.py,
+test_dependency_floors_have_the_api.py,
+test_declared_dependencies_match_imports.py, test_dependency_profiles.py,
+test_the_conda_recipe_matches_the_package.py, test_conda_publication_docs.py,
+test_packaging_metadata.py, test_optional_dependency_python_markers.py and
+test_startup_warnings.py: 219 passed, 5 skipped, 1 failed. The failure is
+test_packaging_metadata.py::test_the_conda_recipe_names_the_version_this_repo_
+ships -- the recipe builds 1.5.0.6 while setup.py's VERSION is 1.5.0.7 -- and
+it was already red before any of this, on the same assertion. It belongs to
+the release bump, not here. test_test_suite_hygiene.py is 37 passed.
+
+WHAT IS NOT VERIFIED, AND ONLY CI CAN VERIFY IT. The minimum profile no longer
+pins sympy, so the `Minimum dependencies` job resolves it from torch 2.1.0's
+metadata -- which declares a bare `sympy` with NO bound (checked on PyPI for
+2.0.0, 2.0.1 and 2.1.0). That is this file's own stated rule for transitive
+packages, applied to one more package, and it is also the first time that job
+will install a sympy nobody chose. If it goes red on a sympy/torch
+interaction, the fix is NOT to re-pin sympy here -- a pin must name a declared
+dependency or test_optimal_dependency_versions rejects it -- it is to cap
+sympy in torch's own resolve, or to accept the newer sympy.

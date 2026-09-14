@@ -190,11 +190,25 @@ METADATA_REGEXES: Dict[str, str] = {
 
 
 def _normalize_app(app_key: Any) -> str:
-    """Canonicalize a caller-supplied app key; unknown keys pass through."""
+    """Canonicalize a caller-supplied app key; unknown keys pass through.
+
+    Plugin aliases are REGISTERED with ``-`` folded to ``_`` (see the
+    ``plugin_apps`` loop above), so the lookup has to fold the caller's key
+    the same way or the fold only ever hides the spelling the plugin wrote
+    down. The exact key is tried first, so a table entry that genuinely
+    carries a hyphen still wins over its folded twin.
+
+    An UNKNOWN key passes through in the spelling it arrived in, not the
+    folded one: the fold exists to reach a registered alias, and rewriting a
+    key nothing matched would hand the caller back a name it never used.
+    """
     if not isinstance(app_key, str):
         return ""
     key = app_key.strip().lower()
-    return APP_ALIASES.get(key, key)
+    if key in APP_ALIASES:
+        return APP_ALIASES[key]
+    folded = key.replace("-", "_")
+    return APP_ALIASES.get(folded, key)
 
 
 
