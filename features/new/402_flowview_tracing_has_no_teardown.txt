@@ -1,3 +1,34 @@
+Status:    FIXED 2026-09-14. `tests/conftest.py` carries an autouse fixture
+           that hands the next test the collector this one was given, and
+           `tests/flowview_trace_state.py` holds the snapshot/restore pair.
+           tests/flowview/ goes 150 passed + 7 errors -> 171 passed, and
+           removing `autouse` reproduces the original failure exactly.
+
+           AT THE ROOT, NOT IN tests/flowview/, and the difference is the
+           whole fix. The leak was MEASURED in tests/flowview/, but the tests
+           that install a stub collector are in tests/qt/ and plain tests/ as
+           well, and a conftest covers only the directory beneath it. A
+           fixture in tests/flowview/conftest.py makes every test in that
+           directory pass while leaving the files that actually leak
+           unguarded -- and no test in that directory can tell the
+           difference, because a local fixture reaches them just as well.
+           `test_the_guard_is_at_the_root_and_not_in_this_directory` asks a
+           CHILD pytest, with --fixtures-per-test, which fixtures a test in
+           plain tests/ actually gets and which file defined it. Two details
+           make it real rather than decorative: verbosity must be positive or
+           pytest hides every underscore-prefixed fixture, and the child must
+           be asserted to have collected its one item or a moved nodeid gives
+           an empty list and a failure pointing at the wrong thing.
+
+           THIS FILE'S OWN DIAGNOSIS WAS INVERTED. It said the leak is a
+           `global` assignment monkeypatch cannot observe, "so the files that
+           patch the FUNCTION are safe". The first clause is true and the
+           conclusion is backwards: the one test that produced the measured
+           failure patches the function --
+           `spacr/qt/screens/classify.py:305` ends with `return
+           enable(collector)`, so patching `get_collector` still lets
+           `enable` write the process global.
+
 ================================================================================
 FLOWVIEW'S COLLECTOR IS A PROCESS-WIDE GLOBAL THAT NOTHING PUTS BACK
 ================================================================================

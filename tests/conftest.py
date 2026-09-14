@@ -2461,3 +2461,49 @@ def _the_app_registry_is_left_as_it_was_found():
         yield
     finally:
         restore_app_registry_to(app_mod, snapshot)
+
+
+@pytest.fixture(autouse=True)
+def _the_flowview_collector_is_put_back():
+    """Hand the next test the collector this one was given.
+
+    AT THE ROOT, NOT IN ``tests/flowview/``, and that is the whole point. The
+    leak was MEASURED in ``tests/flowview/`` -- seven errors reading
+    ``'_Live' object has no attribute 'drain'`` -- but the tests that install
+    a stub collector live in ``tests/qt/`` and plain ``tests/`` as well, and a
+    conftest covers only the directory beneath it. A fixture in
+    ``tests/flowview/conftest.py`` would make every test in that directory
+    pass while leaving the files that actually leak unguarded.
+
+    ``spacr.flowview.trace`` keeps ONE collector for the whole process and
+    ``disable()`` does not put it back, so a test that installs a stub is
+    choosing the collector for every test that runs after it, in every other
+    file. monkeypatch does not cover it: the leak is a ``global`` assignment
+    inside ``enable()``, and the test that produced the measured failure
+    patches the FUNCTION rather than the module attribute.
+
+    Teardown, not setup, and it asks ``sys.modules`` rather than importing:
+    a session that never touches FlowView has no collector to protect and
+    pays nothing.
+    """
+    from tests.flowview_trace_state import (
+        flowview_trace_module,
+        flowview_trace_snapshot,
+        give_back_an_untraced_process,
+        restore_flowview_trace_to,
+    )
+
+    before = flowview_trace_module()
+    snapshot = flowview_trace_snapshot(before) if before is not None else None
+    yield
+    after = flowview_trace_module()
+    if after is None:
+        return
+    if snapshot is None:
+        # THIS test imported the tracer. There is no before to go back to, so
+        # the import-time state is the only honest baseline -- otherwise the
+        # next test snapshots this test's stub and every restore afterwards
+        # faithfully puts the stub back.
+        give_back_an_untraced_process(after)
+        return
+    restore_flowview_trace_to(after, snapshot)
