@@ -2,8 +2,14 @@
 IMAGE UMAP AND THE GATE EDITOR TAKE MORE THAN ONE DATABASE, AND MERGE THEM
 ================================================================================
 
-Status:    2026-08-15: the shared mechanism is BUILT and the Gate Editor uses
-           it. Image UMAP is NOT wired yet. See RESULT at the end.
+Status:    CLOSED 2026-08-20, re-verified 2026-09-13. The header used to say
+           Image UMAP was NOT wired; it is -- settings_model.py:7695-7696
+           builds the `DatabaseSetWidget` for app_key "umap", key "src", and
+           tests/qt/test_a_dropped_folder_joins_the_source_set.py drives the
+           real umap screen. The merge machinery is spacr/multi_database.py
+           (`describe_merge`:608, `decision_for`:744). WHAT REMAINS below is
+           2026-08-15 history, superseded by the 2026-08-20 and 2026-08-27
+           notes at the end.
 Requested: 2026-08-15 - "add to instructions, make user that moduals like
            image UMAP and gate editor can take multiple databases and gerge
            them."

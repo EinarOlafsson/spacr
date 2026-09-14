@@ -1,6 +1,13 @@
 335 — LIVE PREVIEW LOSES THE LOADED IMAGE AFTER A SETTINGS CHANGE
 ==================================================================
 
+Status: DONE 2026-09-01, re-verified 2026-09-13. `_carry_preview_state` at
+        spacr/qt/app.py:59 moves the loaded image, its path and the settings
+        onto the rebuilt screen, and `rebuild_app_screen` calls it at
+        app.py:3947; tests/qt/test_the_preview_survives_a_form_rebuild.py
+        drives it and asserts the call site is still in the source. The
+        "WHY THIS IS FILED RATHER THAN FIXED" section below is history.
+
 REPORTED (2026-09-01, verbatim)
 --------------------------------
 "sometimes when i loade the example images and press live the images dont

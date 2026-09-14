@@ -2,7 +2,14 @@
 THE INSTALLER ASKS CPU OR GPU, AND SAYS WHAT CPU COSTS
 ================================================================================
 
-Status:    complete, 2026-08-14
+Status:    complete 2026-08-14, re-verified 2026-09-13:
+           packaging/online/install_spacr_unix.sh probes `nvidia-smi -L`
+           (:159) and passes `--torch-backend` to uv (:433), with the measured
+           RTX 3090 comparison printed at :262;
+           packaging/online/install_spacr_windows.ps1 does the same at :39-40,
+           :154 and :93. The choice is recorded as `install-profile.json` by
+           spacr/install_profile.py and read back by spacr/doctor.py:1147-1160,
+           which compares requested_backend against active_backend.
 Requested: 2026-08-08 - "add to installation, a section where the user
            chooses CPU vs GPU version and explain that not using the GPU
            version is very slow for segmentation and classification tasks."

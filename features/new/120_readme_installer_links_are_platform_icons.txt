@@ -2,7 +2,14 @@
 THE README'S INSTALLER LINKS ARE PLATFORM ICONS, IN WHITE LINE ART
 ================================================================================
 
-Status:    completed 2026-08-19.
+Status:    completed 2026-08-19; re-verified 2026-09-13 -- all four assets in
+           spacr/resources/icons/platforms/ exist and README.rst:128-143 wires
+           them repository-relative, with docs/source/installers.rst as the
+           legacy target. Two details in the RESULT sections below have drifted
+           from the assets: the tile is #15181F
+           (packaging/generate_platform_icons.py:41), not #2B2F3A, and there is
+           no "Legacy" caption -- its absence is asserted by
+           tests/test_readme_installer_icons.py:300.
 Requested: 2026-08-16 - "add to instructions in the readme the links for the
            installer downloads should be icons for linux (the penguin, but
            just with white lines) osx (the apple, just a white apple) and

@@ -2,7 +2,12 @@
 THE TESTS MEASURE A FONT SCALE NO USER HAS
 ================================================================================
 
-Status:   DONE by a later explicit product decision and regression guards.
+Status:   DONE, verified 2026-09-13. spacr/qt/preferences.py:537 is now
+          DEFAULT_FONT_SCALE = 1.0, so a fresh install matches the fixture's
+          1.0 and the disagreement this file is named for is gone; guarded by
+          tests/qt/test_preferences.py:186 test_font_scale_default_is_100pct
+          and tests/qt/test_home_layout.py:413, which drives Home at 1.5. The
+          line under THE FACT below still quotes the old 1.5.
 Severity: the geometry records do not describe what ships
 
 --------------------------------------------------------------------------------

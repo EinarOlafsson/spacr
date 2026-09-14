@@ -2,10 +2,15 @@
 IMAGE UMAP REBUILT THE starplast WAY: TABLE, VIEWER, GRID, WALK, GPU
 ================================================================================
 
-Status:    reopened, 2026-08-14. The original starplast-style viewer is
-           complete; the maintainer requested a second usability and reducer
-           expansion pass quoted below. Supersedes the "no grid at the end"
-           half of instruction 75.
+Status:    DONE 2026-08-14, re-verified against the tree 2026-09-13. The
+           second usability and reducer pass shipped: reducer settings grouped
+           into tabs at spacr/qt/screens/hyperparam.py:2595, the sortable
+           search table with neighbors/min dist/backend/clusters at
+           hyperparam.py:1116, the one GPU toggle at
+           spacr/qt/screens/app_screen.py:5329, and `UmapAppearanceDialog`
+           plus `axis_frame` at spacr/qt/widgets/umap_search_viewer.py:205
+           and :156. Used to read "reopened, 2026-08-14". Still supersedes
+           the "no grid at the end" half of instruction 75.
 Requested: 2026-08-13, verbatim:
 
     "i asked for the first option (the cluster montage). but then we built

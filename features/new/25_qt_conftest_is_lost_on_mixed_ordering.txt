@@ -2,10 +2,15 @@
 tests/qt/conftest.py IS LOST WHEN QT AND NON-QT FILES ARE INTERLEAVED
 ================================================================================
 
-Status:    FIXED. The reproduction below runs clean, a recurrence stops
-           the run with a message that names the cause it can show, and the
-           sys.modules eviction this was first blamed on is ruled out by
-           measurement rather than by argument.
+Status:    FIXED; re-checked in the tree 2026-09-13 by reading it, not by
+           running pytest. tests/conftest.py:1284
+           `canonical_directory_children` and the `_OneNodePerDirectory`
+           plugin at :1304, registered at :398, give one node per directory,
+           and the recurrence guard at :1541/:1544 separates "Collected
+           twice" from "Collected once" -- the ordering-versus-eviction
+           distinction. The fixture the bug loses, `qt_theme_applied`, is at
+           tests/qt/conftest.py:75. The pass count quoted below was not
+           re-run today.
 Requested: not requested; found while verifying the auto-annotate and
            surrogate work
 

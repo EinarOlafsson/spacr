@@ -2,8 +2,18 @@
 THE CELLS TAB HAS TWO MODES, AND THE ANNOTATOR'S CONTROL OVER THE PICTURE
 ================================================================================
 
-Status:    filed 2026-08-19. PRIORITISED at the maintainer's request, ahead of
-           167, 168 and 169.
+Status:    DONE 2026-08-19, re-verified 2026-09-13. Both modes ship with the
+           annotator's controls over them: picture_settings.to_crop_settings
+           (:370) and draw_crop (:502) are called from cell_montage_view.py
+           :531 and :1387, the choosers are built by available_arrays (:567)
+           and available_coordinate_columns (:586), annotate defaults to
+           'png' (settings.py:5495) and offers both modes
+           (settings_model.py:667), crop_shape has a default
+           (settings.py:2020), and the guards are in
+           tests/test_load_images_and_stream_images.py:201/225/240. The header
+           used to say only "filed 2026-08-19, PRIORITISED ahead of 167, 168
+           and 169", with no status word, while the file's own closing note
+           already said the last three items were closed.
 Requested: 2026-08-19 -- "for the cells tab. as i stated when discribing this
            feature origionally. there should be 2 ways of doing this ... so to
            start with there should be a mode setting that defaults to saved

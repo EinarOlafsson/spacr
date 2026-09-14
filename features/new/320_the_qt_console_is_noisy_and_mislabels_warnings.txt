@@ -1,6 +1,16 @@
 320 — THE QT CONSOLE IS NOISY, DUPLICATES EVERY LINE, AND CALLS WARNINGS ERRORS
 ==============================================================================
 
+Status:    DONE 2026-09-13; the file used to open as three unfixed defects
+           with no status line at all. (1) and (2) are guarded by
+           tests/qt/test_a_qt_warning_reaches_the_console_once.py, and (3) is
+           repaired rather than filtered: `_LateCaptionTranslator.eventFilter`
+           (spacr/qt/screens/app_screen.py:855) no longer calls
+           `event.child()` but defers to `_on_arrivals_in`:893, and the
+           addMetaMethod line is gone from `_QT_NOISE`. What stays open is a
+           question, not work -- whether the kept arm also poisons on Linux,
+           which the file declines to claim.
+
 REPORTED (2026-08-31), opening Mask Generation on macOS
 -------------------------------------------------------
 Dozens of these, and each one appears TWICE -- once under a

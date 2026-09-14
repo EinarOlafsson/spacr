@@ -2,7 +2,12 @@
 SEGMENTATION QC -> FIELD BROWSER + QUARANTINE
 ================================================================================
 
-Status: DONE — shipped in 075adb21 and reverified on 2026-08-29.
+Status: DONE — shipped in 17404898e "Add a field browser and reversible
+        segmentation quarantine", re-verified against the tree 2026-09-13:
+        spacr/qc_quarantine.py and spacr/qt/widgets/qc_field_browser.py both
+        exist, spacr/qt/prerun.py:951-958 opens QCFieldBrowser on the clicked
+        field and prerun.py:112 keeps BLOCKS_RUN = False. Used to cite
+        075adb21 and cde2b73d, neither of which is an object in this history.
 
 Feature request, scoped against the code on 2026-08-06 but NOT built.
 

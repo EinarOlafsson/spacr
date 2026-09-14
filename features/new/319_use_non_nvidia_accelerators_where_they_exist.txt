@@ -1,6 +1,16 @@
 319 — USE NON-NVIDIA ACCELERATORS WHERE THEY EXIST, AND SAY SO IN SETUP
 ======================================================================
 
+Status: DONE 2026-09-01, re-verified 2026-09-13. One resolver answers the
+        three questions separately: spacr/accelerator.py KINDS:62,
+        resolve:384, is_gpu:501, is_cuda:510, capabilities:682, _directml:329,
+        with PYTORCH_ENABLE_MPS_FALLBACK set before torch is imported
+        (spacr/__init__.py:9) and a per-backend table at README.rst:86-102.
+        The last open piece landed in 9493a7b79: grep -c 'ROCm\|Metal\|XPU'
+        docs/i18n/readme/*.rst returns 5 in each of the nine files. This file
+        carried no status line, and the section below still ends "THE NINE
+        TRANSLATED READMEs ... STILL SAY CUDA ONLY", which stopped being true.
+
 ASKED FOR (2026-08-31, verbatim)
 --------------------------------
 "for the CUDA accelerated tasks in spacr. if these have radeon/ intel

@@ -3,7 +3,13 @@ THE REGRESSION PANEL: DEFAULTS, COLOURING, THE GRID, MORE TABS, PLOT TYPES,
 AND A WIDER LEFT PANEL
 ================================================================================
 
-Status:    filed 2026-08-17, in progress.
+Status:    DONE 2026-08-20, re-verified against the tree 2026-09-13. A-R all
+           shipped: the two-fit route at spacr/ml.py:4670, Q3's owed decision
+           as `gene_freedman_lane_test` (spacr/guide_permutation.py:867), H's
+           Residuals tab at spacr/qt/widgets/regression_results.py:789, P1 as
+           `_screen_figure_folders` (spacr/ml.py:515). Used to read "in
+           progress"; the H and P headings below still read "NOT SHIPPED
+           YET" and "NOT YET DIAGNOSED" and are stale.
 Requested: 2026-08-17 --
 
            "in regression make gene the default of volcano"

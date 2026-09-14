@@ -2,7 +2,15 @@
 THE MEASUREMENTS TAB IS A WORKFLOW, NOT A REPORT
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    DONE -- sections A-G shipped 2026-08-18/19, re-verified against the
+           tree 2026-09-13. The header used to say only "filed 2026-08-18".
+           WORKFLOW_STEPS, regressable_columns, write_merged_frame,
+           column_run_settings, run_column_fits and ColumnRegressionPanel are
+           all in spacr/qt/widgets/measurement_scan_panel.py (lines 978-2867);
+           the freeze fix is the JobRunner that panel now builds at :1468 and
+           :2938; G's one missing connection is app_screen.py:4874. The SHAs
+           in the trailing note no longer resolve in this history, so the code
+           state is the evidence, not them.
 Requested: 2026-08-18, after loading four measurements.db files --
 
   "i dont understand how this is all set up, its probably broken. the point of

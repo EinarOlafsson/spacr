@@ -2,7 +2,13 @@
 THE MONTAGE'S COUNT TABLES ARE READ LIKE EVERY OTHER TABLE
 ================================================================================
 
-Status:    filed and FIXED 2026-08-18, commit fc029a91.
+Status:    DONE 2026-08-18, re-verified 2026-09-13.
+           `cell_montage.fractions_from_counts` canonicalises each count table
+           through `schema.correct_metadata_column_names` before reading it
+           (spacr/cell_montage.py:1810-1811), then falls back to the grna and
+           count aliases and refuses by naming the columns the file has. The
+           header used to cite commit fc029a91, which no longer resolves; the
+           surviving commit is 6ef7304d4.
 Requested: 2026-08-18 -- "the cell montage failed because the column grna was
            not found in any of the count tables"
 

@@ -2,7 +2,13 @@
 AN UNAVAILABLE OPTION OFFERS TO MAKE ITSELF AVAILABLE
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    DONE 2026-08-20, re-verified against the tree 2026-09-13; this
+           header said only "filed 2026-08-18" and never recorded the close.
+           The last wire named in WHAT REMAINS is in:
+           spacr/qt/screens/hyperparam.py:1534 request_gpu_enabled calls
+           availability_panel.explain (:780) with gpu_reduce.availability_entry()
+           (:286) and holds no QMessageBox. tests/qt/test_umap_gpu_button.py
+           guards it.
 Requested: 2026-08-18 --
 
   "I want all of these to be options, just add some text in the tooltip about

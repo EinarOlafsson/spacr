@@ -2,7 +2,14 @@
 THE USER PICKS THE BACKEND, AND IS TOLD WHAT EACH ONE IS
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    CLOSED 2026-08-20, re-checked 2026-09-13 -- the header used to
+           say only "filed 2026-08-18". All eight backends are registered
+           (REGRESSION_BACKENDS, spacr/regression_spec.py:251), the run
+           summary emits a de-duplicated `backend` row
+           (spacr/regression_summary.py:758-765), and the cuML and pymer4
+           refusals are stored as backend text in
+           spacr/regression_backends.py rather than only as prose here. The
+           three items in the closing note are deliberate non-goals.
 Requested: 2026-08-18 --
 
   "i would like to add anything and everything that could speed up any of the

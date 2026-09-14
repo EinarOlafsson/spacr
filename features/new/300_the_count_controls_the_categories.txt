@@ -1,5 +1,15 @@
 300 — The organelle count controls its settings AND their categories
 
+Status:    DONE 2026-08-28, re-verified against the tree 2026-09-13. This file
+           carried no Status header at all. organelle_types.py:447 sets
+           DEFAULT_NUMBER_OF_ORGANELLES = 0, with organelle_count:607 and
+           _count_implied_by_the_slots:629 for legacy files; empty headings go
+           via settings_model.py:585 section_shows_anything; the key is
+           registered at settings.py:3335 and settings_spec.py:244.
+           tests/qt/test_the_count_controls_the_categories.py pins
+           test_no_organelle_categories_at_zero, test_no_category_is_empty and
+           test_cell_is_never_gated.
+
 Reported 2026-08-28, with visible irritation and fairly: "this seems like it
 should be an easy task".
 

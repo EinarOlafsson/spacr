@@ -1,5 +1,18 @@
 301 — The Mandelbrot deep-zoom theme in spaceout
 
+Status:    DONE 2026-08-28, verified against the tree 2026-09-13; this file
+           carried no Status line at all. spacr/qt/widgets/fractal_mandelbrot.py
+           ships the pattern -- DEFAULTS at :75 is the second (superseding)
+           default set verbatim, the Misiurewicz seed is at :98, and
+           plan_guided_step (:591) with SteeringCamera (:672) do the guided
+           path; the reference orbit is built off the GUI thread
+           (fractal_travel.py:1846, thread "spacr-mandelbrot-orbit"). mpmath is
+           declared at setup.py:466 and tests/qt/test_the_mandelbrot_theme.py
+           pins the defaults. Two later deliberate changes the DONE note below
+           predates: DEFAULTS["path"] is now "tour", and DEFAULT_PATTERN in
+           spacr/qt/fractal_defaults.py is "orbit" because mandelbrot is in
+           GPU_ONLY_PATTERNS and has no CPU renderer.
+
 Asked 2026-08-28, with the renderer pasted (v3.2.0) and two sets of
 defaults given.
 

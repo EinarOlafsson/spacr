@@ -270,6 +270,14 @@ _TRACE_SKIP_MODULES = (
     "spacr.qt.widgets.ambient",
     "spacr.qt.widgets.fractal_travel",
     "spacr.qt.widgets.fractal_cascade",
+    # The third spaceout pattern, and it was missed when the other two were
+    # listed. Its own docstring places it "beside the orbit fold and the
+    # fold-inversion cascade", and its CPU path shares `fractal_travel`'s
+    # star-field kernels -- so it draws per frame through the same kind of
+    # small unremarkably-named helpers that `_TRACE_SKIP_NAMES` cannot catch.
+    # A skip list that covers two of three siblings is the shape of an
+    # omission rather than a decision.
+    "spacr.qt.widgets.fractal_space",
 )
 
 

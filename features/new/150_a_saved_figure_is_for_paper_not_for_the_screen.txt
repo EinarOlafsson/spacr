@@ -2,7 +2,14 @@
 A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    DONE 2026-08-20, re-audited 2026-08-27, re-verified 2026-09-13.
+           figure_style.export_colour (584) and saved_figure_appearance (761)
+           both exist, and FastPlot.export at qt/widgets/fast_plots.py:5157
+           wraps the WHOLE export in _wear_the_print_look with a finally
+           restore; tests/qt/test_a_saved_pyqtgraph_figure_is_for_paper.py
+           pins it. This line used to read "filed 2026-08-18", which made a
+           landed item read as open; what is still owed belongs to 118 and
+           108/147, not here.
 Requested: 2026-08-18 --
 
   "when a graph is saved and the user is in dark mode white elements are

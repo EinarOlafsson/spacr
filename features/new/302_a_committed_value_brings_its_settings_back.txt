@@ -1,5 +1,15 @@
 302 — A committed value brings its settings back
 
+Status:    DONE 2026-08-28, re-verified 2026-09-13. The reveal works:
+           `AppScreen.values_the_next_screen_is_built_for`
+           (spacr/qt/screens/app_screen.py:2366) carries the committed values
+           into the rebuilt screen and is set and cleared by
+           `MainWindow.rebuild_app_screen` (spacr/qt/app.py:3912-3920);
+           asserted by test_a_committed_channel_brings_its_settings_back in
+           tests/qt/test_the_count_controls_the_categories.py:193. Everything
+           from "WHAT DOES NOT" to "WHERE TO LOOK NEXT" below is the
+           2026-08-28 diagnosis, not the current state.
+
 Reported 2026-08-28: hiding the settings was right, but "if i type 1 in
 nucleus channel i then need to be able to see the nucleus segmentation
 settings, which does not happen at present. same for the other object

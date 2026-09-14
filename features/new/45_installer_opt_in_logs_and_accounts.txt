@@ -2,7 +2,18 @@
 INSTALLER: OPT-IN LOG SHARING, ACCOUNT SIGN-IN, AND THE ISSUE TOGGLE
 ================================================================================
 
-Status:    complete, 2026-08-14
+Status:    complete 2026-08-14, re-verified 2026-09-13. All three switches are
+           off by default in every install path: ConsentPage/ConsentPageLeave
+           in packaging/online/spacr_online_installer.nsi (:31, the three
+           unchecked boxes at :69-74, their values zeroed at :55-58), the same
+           three asked only on a TTY in
+           packaging/online/install_spacr_unix.sh:202-212, and the first-launch
+           counterpart `maybe_show_installer_consent`
+           (spacr/qt/install_consent.py:145). Accounts are delegated to the
+           official vendor CLIs rather than collected. The requested
+           spacr@gmail.com transport was settled by the maintainer on
+           2026-08-10 in favour of the public spaCR issue tracker, recorded
+           below.
 Requested: 2026-08-08 - "Add to the installation an opt in to save and send
            logs to spacr@gmail.com for developmental purposes. You would
            have to setup an automatic mechanism that sends user logs to this

@@ -2,7 +2,14 @@
 AN UPGRADE NEVER REPLACES THE CHECKOUT IT RUNS FROM
 ================================================================================
 
-Status:    filed and FIXED 2026-08-18, commit 592c4659.
+Status:    DONE 2026-08-18, re-verified 2026-09-13. `run_pip_upgrade`
+           (spacr/updater.py:231) calls `editable_install_location` (:184),
+           which reads the PEP 610 `direct_url.json` and falls back to the
+           site-packages location test (:224), and refuses with the "installed
+           in editable mode from ..." message (:243) instead of shelling out
+           to `pip install --upgrade spacr`. The header used to name commit
+           592c4659, which is not an object in this repository; the change is
+           commit 286f28ad8.
 Requested: 2026-08-18 -- an OLS run's console carried
 
     Uninstalling spacr-1.5.0.4:

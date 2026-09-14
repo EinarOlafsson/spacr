@@ -2,8 +2,17 @@
 A LABEL-FREE EMBEDDING FOR EVERY OBJECT, ALONGSIDE THE MEASURED FEATURES
 ================================================================================
 
-Status:    ENGINE BUILT 2026-09-10 -- steps 1, 2 and half of 4. The hold is
-           lifted: 1.5.0.5 is tagged, DOI 10.5281/zenodo.22692340.
+Status:    DONE 2026-09-12, verified against the tree 2026-09-13; this header
+           led with "ENGINE BUILT ... steps 1, 2 and half of 4", which the
+           six step records below have long since overtaken. spacr/embeddings.py
+           (EmbeddingSpec, embed_array, encoder_entry), "encoder" in
+           model_zoo.KINDS, the emb_ family in feature_dict.parse_column and
+           the screen at spacr/qt/screens/embeddings.py registered in
+           app.py:1517 all exist. The measurement ran and the answer is NO --
+           kNN gene balanced accuracy 0.695 embeddings against 0.894 panel --
+           and the follow-up is filed as 395 in features/future/
+           (395_measure_an_encoder_that_was_trained_on_cells.txt).
+           The hold is lifted: 1.5.0.5 is tagged, DOI 10.5281/zenodo.22692340.
 
            `spacr/embeddings.py` takes the crops spacr.crops already produces
            and returns a float32 matrix keyed by object id. STEP 2 IS
@@ -53,12 +62,11 @@ Status:    ENGINE BUILT 2026-09-10 -- steps 1, 2 and half of 4. The hold is
            unless all three match. Fourteen tests; verified end to end
            through the real backbone at 6 objects x 1024 dimensions.
 
-           WHAT 386 HAS NOT HAD is its own "HOW TO KNOW IT WORKED": the
-           retrieval measurement. That section asks for kNN accuracy on gene
-           identity, embeddings against the measured panel, on a plate with a
-           known-phenotype positive control. Every piece needed to run it now
-           exists and no one has run it. THAT is the remaining work on this
-           item, and it needs labelled data rather than code.
+           WHAT 386 HAD NOT HAD, until 2026-09-12, was its own "HOW TO KNOW
+           IT WORKED": the retrieval measurement. It has now been run, with
+           its controls and its nulls, and the result is recorded in full at
+           the end of this file. Nothing on this item is outstanding; the
+           encoder question it raises is filed as 395.
 
            THE HOLD LIFTED at 1.5.0.5, which spacr/_version.py reached
            on 2026-09-10 in merge 82918f29d. Filed 2026-09-09, held at the

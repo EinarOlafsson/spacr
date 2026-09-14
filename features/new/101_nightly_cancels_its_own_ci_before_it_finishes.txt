@@ -2,7 +2,16 @@
 NIGHTLY CANCELS ITS OWN CI BEFORE IT CAN EVER FINISH
 ================================================================================
 
-Status:    filed 2026-08-15, fix applied the same day.
+Status:    DONE, verified 2026-09-13. This header said "fix applied the same
+           day"; in fact only tests.yml was repaired on 2026-08-15 and
+           compat-matrix.yml followed on 2026-08-16. Both now carry
+           group: <name>-${{ github.ref }}-${{ github.event_name }} with
+           cancel-in-progress exempting workflow_dispatch (tests.yml:54-56,
+           compat-matrix.yml:64-66), and origin/nightly carries the same, so
+           the "NOT pushed" caveat at the end of this file is spent.
+           tests/test_ci_concurrency.py holds the property off the evaluated
+           YAML. The gh workflow run confirmation in HOW TO KNOW IT WORKED
+           has still not been run from here.
 Requested: 2026-08-15 - "please look through the instructions list then take a
            look at the state of the spacr code, do a sweep (not to deep) and
            tell me what you think." Found while trying to produce the evidence

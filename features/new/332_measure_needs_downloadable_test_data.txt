@@ -1,6 +1,18 @@
 332 — MEASURE NEEDS DOWNLOADABLE TEST DATA, LIKE MASK HAS
 ==========================================================
 
+Status: DONE 2026-09-01, re-verified 2026-09-13. The set is published as
+        MEASURE_EXAMPLE_REPO = "einarolafsson/spacr-example-measure"
+        (spacr/example_archives.py:70), fetched by download_measure_example
+        (spacr/qt/hf_download.py:771) into ~/.cache/spacr/example_data/plate1
+        (example_archives.py:99), from the button app_screen.py:3732 installs
+        in Measure's "Input & Experiment" section (EXAMPLE_DATA_SECTIONS,
+        app_screen.py:1142); covered by
+        tests/qt/test_measure_has_downloadable_example_data.py. This file
+        carried no status line. One acceptance check is not asserted by any
+        test -- that the downloaded measurements.db opens in the Plate Viewer
+        and in Regression rests on the 2026-09-01 manual run.
+
 ASKED FOR (2026-09-01)
 ----------------------
 "the measure modual should also have test data that is dowloadable from

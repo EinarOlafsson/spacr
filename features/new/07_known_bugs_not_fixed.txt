@@ -4,6 +4,11 @@ FOUND, CONFIRMED, DELIBERATELY LEFT
 
 Status: DONE — every reachable defect is fixed or explicitly accepted, and
         the reviewed Korean ``min_cell_count`` entry is in the final catalog.
+        Re-verified 2026-09-13: the reviewed record
+        docs/i18n/reviewed/runtime/ko/2026-08-30-min-cell-count.json and
+        SOURCE_HASHES at spacr/qt/i18n_catalogs/ko.py:7114 carry the same
+        source hash a560bc25, and commits 27bf3a46 and 93bf9e95 both
+        resolve. The reproductions below are historical present tense.
 
 Each of these was measured rather than suspected. Each has a reason for
 not being fixed, and the reason is the useful part -- otherwise the next

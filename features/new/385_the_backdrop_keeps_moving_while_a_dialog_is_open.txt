@@ -22,8 +22,15 @@ Status:    FOUND AND FIXED 2026-09-09 by the other session. The gate is
            902 ms with the backdrop stopped for all of it, and is now 139 ms.
            That is instruction 380, not this one.
 
-           WHAT REMAINS: nothing here. Q-385-A in 357 is now moot and should
-           be struck from the answer sheet.
+           WHAT REMAINS IN CODE: nothing, re-verified 2026-09-13.
+           `a_popup_is_on_screen` is left only in popup_state.py:28 and
+           fractal_travel.py:119,2163 -- it is gone from
+           `AmbientWidget._on_tick`, and tests/qt/test_cov_r8_popup_state.py
+           asserts it cannot come back silently. This header used to send the
+           reader to "Q-385-A in 357"; no 357 file exists under features/ any
+           more. What is genuinely left is the maintainer's own
+           NVIDIA/compositing display check, per the 2026-09-10 note at the
+           foot of this file.
 Requested: 2026-09-09 -- "when the preferences menue or help menu is open the
            theme in the background stops, the theme should continue."
 Owner:     spacr/qt/widgets/ambient.py (the hold), and `fractal_travel`'s

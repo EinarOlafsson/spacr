@@ -1,6 +1,15 @@
 326 — THE ORGANELLE COUNT MUST BE ARBITRARY
 ============================================
 
+Status:    COMPLETE 2026-09-04, re-verified 2026-09-13. The ceiling is gone:
+           `MAX_ORGANELLES = 702` (spacr/organelle_types.py:433) and
+           `schema.ORGANELLE_ROLES` is generated from the same carried-letter
+           rule at the same ceiling (`_MAX_ORGANELLES = 702`,
+           spacr/schema.py:240 and :285), so the two statements of the
+           lettering rule agree element for element. The section below citing
+           `MAX_ORGANELLES = 26` at organelle_types.py:449 is the 2026-08-31
+           diagnosis, not the current state.
+
 ASKED FOR (2026-08-31)
 ----------------------
 "organelle is arbitrary -- implement a prefix scheme that survives being

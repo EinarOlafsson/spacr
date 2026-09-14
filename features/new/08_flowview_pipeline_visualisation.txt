@@ -2,7 +2,14 @@
 FLOWVIEW — OPTIONAL PIPELINE VISUALISATION PANEL
 ================================================================================
 
-Status:   DONE — implemented for Classify, audited on 2026-08-30.
+Status:   DONE — implemented for Classify, audited 2026-08-30, re-verified
+          against the tree 2026-09-13: spacr/flowview/ is imported lazily by
+          spacr/qt/screens/classify.py:290-292 behind the collapsed footer,
+          the theme hook is register_widget_qss(FLOWVIEW_SECTION_NAME) at
+          classify.py:108, setup.py:1091 carries the 'flowview' extra, and
+          tests/flowview/ holds 18 modules. The "STILL BLOCKED, AND ON WHAT"
+          section further down is superseded by that audit — what it still
+          names is a maintainer placement preference, not a blocker.
 Source:   written by the maintainer; reproduced here in full and unedited
           below the line, because it is an implementation specification and
           summarising it would lose the parts that are load-bearing.

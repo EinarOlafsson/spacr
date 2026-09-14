@@ -2,7 +2,16 @@
 A CLEAR FIGURES CONTROL: PLAIN TEXT THAT FLICKERS BLUE WHEN CLICKED
 ================================================================================
 
-Status:    BUILT 2026-08-15. See RESULT at the end.
+Status:    DONE, re-verified 2026-09-13; the header used to say only "BUILT
+           2026-08-15. See RESULT at the end." `_ClearFiguresLabel`
+           (spacr/qt/widgets/figure_queue.py:441, built at :653) is the
+           plain-text control, and it flashes through the single
+           `FLASH_MS = 650` in spacr/qt/widgets/flash.py, whose only other
+           importer is console_panel.py:55; tests/test_clear_figures_control.py
+           holds the seven tests. One stale detail left in the body: RESULT and
+           VERIFIED still give the resting colour as fg_dim / #6b6f76, and the
+           code rests on the palette's error role, as the 2026-08-26 re-audit
+           at the foot records.
 Requested: 2026-08-15 - "add to instructions list, if the there shoud be a
            clear figures button button like just text that lights up blue when
            you click it, so it should just 'flicker blue'"

@@ -2,9 +2,15 @@
 SHOW SEARCH FIGURES AS THEY ARRIVE, ON A GRID THAT FITS THE CONTAINER
 ================================================================================
 
-Status:    the end state is FIXED and PDFs are reachable (2026-08-09).
-           The reopen was right; my design was the bug. The Gate Editor inherits the
-           widget and is wired by instruction 49.
+Status:    DONE for the hyperparameter search, 2026-08-09, re-verified
+           2026-09-13: `SearchFigureGrid` at
+           spacr/qt/widgets/figure_grid.py:220 with `figure_path` at :324,
+           built at hyperparam.py:1173, figures kept beside the run by
+           `_search_figure_dir` (hyperparam.py:503), and
+           `_show_summary_instead_of_grid` (hyperparam.py:2282) now shows the
+           grid AND the summary. The header used to say the Gate Editor
+           inherits the widget and is wired by instruction 49; gate_editor.py
+           references no figure grid, so that half is NOT in the tree.
 Requested: 2026-08-07 - "when evaluating hyperparameters, show each graph as soon as it is generated on a grid defined by the width and height of the container, which is dynamic. whether to show each as a png (which takes less compute) or as a pdf (editable but takes more compute) is defined by the spacr preference figure format and PNG resolution." Also, for the Gate Editor: "the figures should map onto a grid where each figure is a pdf or png defined by the general settings in preferences, and the grid should map onto the hyperparameter search space."
 
 --------------------------------------------------------------------------------

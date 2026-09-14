@@ -2,7 +2,16 @@
 THE REGRESSION SETTINGS ARE ONE PAGE A USER CAN READ
 ================================================================================
 
-Status:    filed 2026-08-17. The maintainer's own walk through every category.
+Status:    DONE 2026-08-26, re-verified against the tree 2026-09-13. The
+           maintainer's own walk through every category, all of it shipped:
+           the seven regression sections in the stated order at
+           spacr/qt/screens/settings_model.py:1170-1219, score_column popped
+           at spacr/settings.py:2510, the sixth retired key at
+           settings.py:2605 (`settings.pop('split_axis_lims', None)`) with
+           its case at
+           tests/test_the_regression_settings_fit_on_one_page.py:163, and the
+           plate_count greying route at settings.py:5174. Used to carry no
+           status word at all.
 Requested: 2026-08-17, verbatim --
 
   "score column and Dependent variable seem to be essentially the same thing

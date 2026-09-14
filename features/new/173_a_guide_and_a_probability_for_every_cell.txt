@@ -2,7 +2,13 @@
 A GUIDE AND A PROBABILITY FOR EVERY CELL
 ================================================================================
 
-Status:    filed 2026-08-19.
+Status:    DONE 2026-09-13 -- the header used to say only "filed
+           2026-08-19". Both items the last STILL OWED block left open are
+           in the tree: spacr/cell_montage.py:1430 imports `preflight` from
+           spacr/guide_attribution.py:389 and appends `verdict.note()` to the
+           caption notes, and spacr/attribution_columns.py writes the five
+           grna_attributed* columns only when `confirmed=True`. The earlier
+           STILL OWED blocks are superseded by the closing 2026-08-20 section.
 Requested: 2026-08-19 -- "can i get a grna annotation for each cell based on
            the fraction of each gran in each well and its classification
            score. however this would only work for grnas that have a

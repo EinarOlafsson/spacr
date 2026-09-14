@@ -2,9 +2,17 @@
 THE SETTING ANIMATIONS MUST SHOW WHAT THE SETTING ACTUALLY DOES
 ================================================================================
 
-Status:    audited, and the VALIDATOR NOW EXISTS (2026-08-09). The 27
-           silent animations are caught automatically; regenerating
-           them is what is left.
+Status:    DONE -- closed 2026-08-20, re-checked 2026-09-13. The header used
+           to say the 27 silent animations still had to be regenerated;
+           features/62_anim_audit.json now records 86 animations with GOOD 86
+           and WEAK 0, and spacr/resources/setting_animations/manifest.json and
+           gifs/ hold the same 86 with no entry lacking a GIF and no GIF
+           lacking an entry. 86 rather than the 94 the closing note counts,
+           because the eight intensity-percentile slugs went with the retired
+           intensity band (`removed_2026_09_13` in that JSON). The validator is
+           `validate_setting_animation_assets`
+           (spacr/setting_animations.py:545). The body still calls the audit
+           file instructions/62_anim_audit.json; it lives at features/ now.
 Requested: 2026-08-08 — "evaluate all tooltips animations and make sure they are acurate (i know for example that remove edge objects annimation shows removing one edge object and one not edge object because of animation missallignment during animation generation)"
 
 --------------------------------------------------------------------------------

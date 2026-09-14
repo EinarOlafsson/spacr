@@ -2,12 +2,15 @@
 CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
 ================================================================================
 
-Status:    OPEN — the complete 2026-08-30 current-history rewrite is pushed
-           and verified, and GitHub's REST/graph indexes list only the two
-           human contributors. The separately cached homepage/sidebar still
-           lists Claude and github-actions[bot]. GitHub Support ticket
-           #4711257 now asks GitHub to rebuild that server-owned cache and
-           reindex or exclude its immutable pull-request refs.
+Status:    CLOSED 2026-09-09, re-verified 2026-09-13. The header used to read
+           OPEN against the 2026-08-30 cache state; the rewrite has since
+           landed and the page agrees with the API. Checked against the
+           history rather than the prose: `git cat-file -e
+           542bb45b1dfcce72be87eaec69e2a9b0d6c4b30e` succeeds, a trailer scan
+           of the whole history returns zero credited co-authors, and no
+           commit is authored or committed by github-actions[bot]. The three
+           guards exist: tests/test_no_commit_credits_claude.py,
+           tools/hooks/commit-msg and tools/hooks/pre-push.
 Requested: 2026-08-08 — "remove claude as a contributoa on the spacr github page"
            2026-08-08 — approving the rewrite, on being told it "changes
            every commit hash after the earliest rewritten one": "i want you

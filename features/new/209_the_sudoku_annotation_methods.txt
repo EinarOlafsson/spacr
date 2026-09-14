@@ -2,10 +2,14 @@
 THE SUDOKU ANNOTATION METHODS
 ================================================================================
 
-Status:    filed 2026-08-21, GATE PASSED and IMPLEMENTED 2026-08-21.
-           Gated on the maintainer's approval of the explanation -- see the
-           gate below, which is the first line of this instruction for a
-           reason.
+Status:    DONE 2026-08-21 after the gate below was passed; re-verified
+           2026-09-13. spacr/sudoku.py defines anchors_for:93,
+           similarity_graph:143, propagate:199, constrain_to_fractions:254,
+           sudoku:320 and sudoku_all:437; spacr/annotation_validation.py the
+           baselines and permutation null (score_annotation:186, permuted:268,
+           benchmark:330, baseline_majority:373, baseline_chance:394). It is
+           wired, not shelved -- cell_montage.py:1197 imports sudoku -- and
+           six test files exercise it.
 Requested: 2026-08-21.
 Owner:     Sequencing annotation (`guide_attribution.py`)
 

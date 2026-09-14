@@ -1,6 +1,17 @@
 322 — REGRESSION MUST SHOW ITS DIAGNOSTICS, WHICH ARE ALREADY WRITTEN
 =====================================================================
 
+Status:    DONE -- all four items landed 2026-08-31 (a76f4223e, "322: call the
+           regression diagnostics that were already written") and 2026-09-01;
+           re-verified against the tree 2026-09-13. This file carried no
+           Status header, and its body still says "AND NOTHING CALLS ANY OF
+           IT", which stopped being true with that commit: ml.py:6373
+           RESIDUAL_FREE_MODELS is read at :6493 and the reason written at
+           :6513, and the screen button is DiagnosticsOpener at
+           spacr/qt/screens/regression.py:480, registered on the fold strip at
+           :698, its verdict():522 reading only the suite row. Covered by
+           tests/qt/test_the_diagnostics_button_wears_the_runs_verdict.py.
+
 ASKED FOR (2026-08-31, verbatim)
 --------------------------------
 "in the regression module make sure qq-plots, fit vs. residuals,

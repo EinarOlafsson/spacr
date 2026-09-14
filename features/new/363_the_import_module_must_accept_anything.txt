@@ -2,15 +2,16 @@
 THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
 ================================================================================
 
-Status:    END TO END, GUI INCLUDED. Corpus, inference, file metadata,
-           reviewable plan, saved plans, project writing AND the screen all
-           work, and all 10 corpus layouts import to a plate spaCR's own
-           parser reads -- against 2 of 10 for the fixed convention list.
-           Tiles are stitched back into their field, which the maintainer
-           decided on 2026-09-02, so the filename needs no tile slot. LEFT:
-           retiring `metadata_type` and `consolidate`, which is deliberately
-           a separate change. Filed as 360, renumbered to 363 the same day
-           (see 362 for why).
+Status:    DONE, verified 2026-09-13. spacr/foreign.py and
+           spacr/qt/screens/foreign.py carry the module and the screen; the ten
+           layouts are the BUILDERS tuple in tests/import_corpus.py
+           (cellvoyager through tiled), enforced by
+           tests/test_the_import_corpus_is_the_specification.py, with the
+           reviewable plan, the project writing, the workbench and the tile
+           stitching each pinned by their own suite. Filed as 360, renumbered
+           to 363 the same day (see 362 for why). This block used to leave
+           "retiring `metadata_type` and `consolidate`" open; 375 resolved that
+           as NO CHANGE on 2026-09-13, so nothing is owed here.
 Requested: 2026-09-02, verbatim -- "spacr has an import data module, this
            module should make it easy for users to import their images
            irrespective of format or naming structure into spacr so that the

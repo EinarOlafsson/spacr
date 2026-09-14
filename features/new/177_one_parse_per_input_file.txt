@@ -2,10 +2,15 @@
 ONE PARSE PER INPUT FILE, NOT ONE PER PAIR ROW
 ================================================================================
 
-Status:    closed. The reader, the intermediate, the silence AND the last
-           producer -- the Measurements panel -- all go through the handoff;
-           nothing writes a CSV that nothing reads back. Measured numbers
-           under WHAT IT COST AND WHAT IT COSTS NOW.
+Status:    DONE, re-verified against the tree 2026-09-13. The reader, the
+           intermediate, the silence AND the last producer -- the Measurements
+           panel -- all go through the handoff; nothing writes a CSV that
+           nothing reads back. spacr/frame_handoff.py holds hold:80, held:99,
+           release:133, stage:167 over a weakref _OFFERED:62; ml.py:5333-5337
+           asks frame_handoff.held(path) before it will parse; the panel
+           offers at _offer_frame:3127 and releases at :3316. The timings
+           under WHAT IT COST AND WHAT IT COSTS NOW are the original run's and
+           were not re-measured.
 Reported:  2026-08-19 -- "i merged the measurements and ran pathogen_area as a
            regression but it looks like it is not running while it does say
            that it is running ... do you see anything running?"

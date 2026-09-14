@@ -2,7 +2,12 @@
 THE MONTAGE USES THE SCORES THE RUN ALREADY HAS
 ================================================================================
 
-Status:    filed 2026-08-19. Reproduced on the maintainer's own screen.
+Status:    DONE 2026-08-20; re-verified 2026-09-13 -- this line used to read
+           "filed 2026-08-19", which looked open. A, B and C all resolve:
+           load_montage_objects(..., scores=) at spacr/cell_montage.py:1897,
+           no_score_refusal() and write_scores_into_the_databases(confirm=) at
+           spacr/qt/widgets/cell_montage_view.py:537 and :2247, with 9 tests in
+           tests/qt/test_the_montage_uses_the_scores_the_run_has.py.
 Requested: 2026-08-19 -- "when i try to show cells i get: No attached database
            yielded per-object rows with a classification score. measurements.db:
            'png_list' in .../plate1/measurements/measurements.db has no 'pred'

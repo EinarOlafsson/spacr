@@ -1,5 +1,14 @@
 297 — Verbose logging is broken
 
+Status:    DONE 2026-08-28, re-checked 2026-09-13. All three points are in
+           the tree: `get_log_file_levels` (spacr/qt/preferences.py) ORs
+           DEBUG in on read while verbose is on, `_trace_profile`
+           (spacr/logging_util.py:532) wraps its body in `except
+           BaseException`, and `_CompactTraceFormat`:60 shortens the trace
+           line, installed on the file handler at :367 and :429. The "STILL
+           OPEN: point 3" paragraph below is superseded by the note under
+           it, and the default is off.
+
 Reported 2026-08-28: "write on verbose logging (broken)".
 
 MEASURED THE SAME DAY, through the real `apply_preferences_to_app` path.

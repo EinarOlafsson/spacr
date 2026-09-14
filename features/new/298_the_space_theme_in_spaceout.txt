@@ -1,5 +1,14 @@
 298 — The space theme, in spaceout
 
+Status: DONE, verified 2026-09-13. spacr/qt/widgets/fractal_space.py holds
+        both backends -- GLSL `space_object`/`space_star_field` and the
+        numba `sample_space`/`render_space_frame` with a no-numba refusal
+        stub -- and "space" is a pattern in fractal_defaults.PATTERNS, wired
+        at fractal_travel.py:786 (CPU SpaceEngine) and :1695 (GPU) behind
+        `platform_can_do_opengl`; nothing under spacr/ imports PyQt6. Pinned
+        by tests/qt/test_the_space_theme.py and
+        tests/qt/test_fractal_space_uncovered_paths.py.
+
 Asked 2026-08-28: "incorporate the space theme from here into spaceout",
 with the unified psychedelic-themes script (v1.7.2) pasted in full.
 

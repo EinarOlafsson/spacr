@@ -3,7 +3,12 @@ A PANEL CANNOT WRITE AN IMPOSSIBLE NUMBER
 ================================================================================
 
 Status:    filed AND closed 2026-08-19, from a run that failed on the
-           maintainer's own screen.
+           maintainer's own screen. Re-verified 2026-09-13:
+           settings_model._float_domain (3678) hands the float branch its
+           range and step at settings_model.py:7857-7861, and
+           ml._reject_impossible_probabilities (275) refuses anything outside
+           (0, 1) -- both pinned by
+           tests/test_a_probability_cannot_be_scrolled_negative.py.
 Reported:  2026-08-19 -- a regression ran for forty seconds, wrote its
            figures, its regression_data.csv and three QC plots, and then died:
 

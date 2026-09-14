@@ -2,7 +2,12 @@
 MODULES THAT OVERLAP — ANALYSIS ONLY, NOT ACTIONED
 ================================================================================
 
-Status:   DONE — measured and delivered. NO CODE WRITTEN, on purpose.
+Status:   DONE — measured and delivered; re-checked 2026-09-13. The one
+          code change made in passing is in the tree: spacr/qt/app.py:1051
+          now describes Make Masks as the mask editor, and the Train
+          Cellpose text it wrongly carried is gone from spacr/. The header
+          used to say "NO CODE WRITTEN, on purpose" -- true of the merges,
+          which are still not actioned, but not of that row.
 Why:      which modules exist is a product decision, not a refactor.
 
 --------------------------------------------------------------------------------

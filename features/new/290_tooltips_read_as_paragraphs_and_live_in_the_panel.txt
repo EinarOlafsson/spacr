@@ -1,5 +1,18 @@
 290 — Tooltips read as paragraphs, and Preferences shows them in its own strip
 
+Status:    DONE, verified against the tree 2026-09-13. This file carried no
+           Status header and nothing in it claimed any of a-e was built; all
+           five are. (a) hover_tooltip.py:459 and hint_bar.py:61 set
+           Qt.AlignJustify. (b, c) preferences.py:6041-6050 builds the HintBar
+           and runs explain_every_row then
+           _everything_explains_itself_in_the_strip, which moves every
+           remaining tooltip -- the Clear RAM/VRAM/CPU/disk and Quit buttons
+           included -- into the strip. (d) :6043-6047 inserts it at the button
+           box's index, above the buttons. (e) no "apply instantly" sentence
+           survives in preferences.py. Drift worth knowing: ask (d) names the
+           Defaults / Close / Open buttons; that box is now Save / Cancel /
+           Reset to defaults.
+
 Asked 2026-08-28.
 
 a) Tooltip text is JUSTIFIED.

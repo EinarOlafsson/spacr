@@ -2,9 +2,16 @@
 A PERFORMANCE SWEEP: NOTHING THAT LOADS BELONGS ON THE GUI THREAD
 ================================================================================
 
-Status:    THREE causes fixed (2026-08-08). MainWindow build
-           5107 ms -> 1457 ms; worst stall 6087 ms -> 2551 ms.
-           The pandas question is settled: not worth doing.
+Status:    CLOSED 2026-08-13, re-verified 2026-09-13; this header stopped at
+           "THREE causes fixed (2026-08-08)" and predates the handoff to 74.
+           The closure condition this file set -- "close once 74 lands" -- is
+           met: 74 is DONE, spacr/qt/widgets/loading_screen.py exists, and
+           spacr/qt/app.py installs it (_install_loading_screen at :2109)
+           ahead of _PipelinePreloader (:324, started at :2048). MainWindow
+           build 5107 ms -> 1457 ms; worst stall 6087 ms -> 2551 ms. The
+           pandas question is settled: not worth doing. The ~50 ms tick
+           ceiling was traded away for the loading screen, per the 2026-08-26
+           re-audit below.
 Requested: 2026-08-08 — "do a performance optemization sweep, where loading of data for example is allways kept of the main app thred, and that background loading is generally kept on the background threads so the main application remains smooth. i noticed that there is a stutter at the beggining of starting the application."
 
 --------------------------------------------------------------------------------

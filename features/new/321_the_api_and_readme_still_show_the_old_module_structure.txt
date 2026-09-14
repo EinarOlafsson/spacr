@@ -1,6 +1,15 @@
 321 — THE API AND README STILL SHOW THE OLD MODULE STRUCTURE
 ============================================================
 
+Status: DONE, confirmed 2026-09-13 -- satisfied by the generated-grid work
+        rather than by an edit made from this file. README.rst carries zero
+        `App_` badges; the grid is generated as |Module_*| between
+        README.rst:300 and :445 and repeated in the nine
+        docs/i18n/readme/*.rst, pinned by
+        tests/test_the_readme_describes_the_build_that_ships.py and
+        tests/test_the_api_homepage_shows_the_module_structure.py. The spec
+        below assumes 38 stale |App_*| badges and 21 tiles; it is 0 and 22.
+
 ASKED FOR (2026-08-31, verbatim)
 --------------------------------
 "fix the API and README to reflect the new module structure in spacr. the

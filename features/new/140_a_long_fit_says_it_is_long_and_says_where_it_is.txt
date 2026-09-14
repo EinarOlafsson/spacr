@@ -2,7 +2,15 @@
 A LONG FIT SAYS IT WILL BE LONG, AND SAYS WHERE IT HAS GOT TO
 ================================================================================
 
-Status:    filed 2026-08-18.
+Status:    DONE 2026-08-20, re-verified 2026-09-13. C shipped: ml.py:1185
+           _answering_stop wraps a model instance's loglike with
+           cancellation.checkpoint (cancellation.py:93, PipelineCancelled:28),
+           and run_journal.py:1094 records "cancelled" apart from "failed";
+           A and B are app_screen.py:5946 (the design scan goes to the job
+           runner) and :5998 (_due_heartbeat), with 8 tests in
+           tests/test_a_long_fit_can_be_stopped.py. The header used to say
+           only "filed 2026-08-18", and section C below still says the ml.py
+           cancellation grep returns nothing -- it no longer does.
 Requested: 2026-08-18 -- "im running the mixed model now and it is taking much
            longer than before is that normal?" ... "it is still going, cpu at
            100 percent"

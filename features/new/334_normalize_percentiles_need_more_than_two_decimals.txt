@@ -1,6 +1,15 @@
 334 — NORMALIZE PERCENTILES ARE CAPPED AT TWO DECIMALS
 =======================================================
 
+Status:    DONE 2026-09-13. The control the body says "was not located in
+           the time available" is found, and in four places, not one:
+           spacr/qt/widgets/percentile_pair.py:46 `DECIMALS = 6`, plus the
+           three pairs the 2026-09-01 note does not mention --
+           live_preview.py:1428/1434, measure_preview.py:523/529 and
+           screens/annotate.py:1590/1595 -- which now import that constant
+           instead of keeping QDoubleSpinBox's default of two. Guarded by
+           tests/qt/test_a_percentile_keeps_every_decimal_the_user_typed.py.
+
 ASKED FOR (2026-09-01)
 ----------------------
 "normalize should be compatible with any float now only 2 decimals are

@@ -2,7 +2,13 @@
 FIVE QT TESTS THAT PASS ALONE AND FAIL IN THE SUITE
 ================================================================================
 
-Status:   DONE, 2026-08-29 — the exact combined-order reproducer is green.
+Status:   DONE — the five closed 2026-08-29 with the combined-order
+          reproducer green, and the two further leaks found 2026-09-13 are
+          fixed in the tree too: autouse `_no_mouse_button_is_held` at
+          tests/qt/test_cov_r5_fractal_travel.py:82, and the named logger in
+          `caplog.at_level("DEBUG", logger=app_module.LOG.name)` at
+          tests/qt/test_cov_r8_dialog_filters.py:88. Checked 2026-09-13 by
+          reading those fixtures, not by a fresh suite run.
 Severity: test-only. None of these affects the running application.
 
 --------------------------------------------------------------------------------

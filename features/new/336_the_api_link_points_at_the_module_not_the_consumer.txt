@@ -1,6 +1,17 @@
 336 — A SETTING'S API LINK POINTS AT THE MODULE, NOT AT WHAT READS IT
 =====================================================================
 
+Status:    DONE, shipped in 05b7301b0 ("336: link a setting to the function
+           that reads it, not to the screen"); verified 2026-09-13. This file
+           carried no Status line, and WHAT THE STATE IS below still reads as
+           if nothing had shipped. tools/build_setting_consumer_map.py
+           generates spacr/qt/screens/setting_api_targets.py, which
+           settings_model.py reads at :3304 and :3461-3462 when composing a
+           link; organelle_type resolves to spacr.organelle_types.apply_preset
+           (whose docstring names it), and a setting with no addressable
+           consumer -- cell_background -> ('spacr.io', '', False) -- carries an
+           empty symbol, which :3479 turns into no link rather than a wrong one.
+
 ASKED FOR (2026-09-01, verbatim)
 --------------------------------
 "for all functions that are nested in other functions the API dosnt link to

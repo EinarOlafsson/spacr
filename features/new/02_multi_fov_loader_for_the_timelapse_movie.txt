@@ -2,7 +2,12 @@
 THE TIMELAPSE MOVIE SHOWS ONE FIELD; IT WAS ASKED FOR SEVERAL
 ================================================================================
 
-Status:   DONE, 2026-08-29 — sibling fields stream in off the GUI thread.
+Status:   DONE, 2026-08-29 — sibling fields stream in off the GUI thread on
+          `self._movie_jobs` (spacr/qt/widgets/timelapse_preview.py:1140), with
+          `_desired_movie_sources` and `_cancel_pending_movie_field` beside it
+          and tests/qt/test_timelapse_multi_field_loading.py over it. The
+          commit is b1a551ac3; this line used to cite 0646283e, which is not in
+          the object store. Re-verified 2026-09-13.
 Severity: a requested feature that looks finished and is not
 
 --------------------------------------------------------------------------------

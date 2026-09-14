@@ -2,7 +2,13 @@
 EVERY PLOT IN PYQTGRAPH, A TAB EACH, AND GENE/gRNA AS A RIGHT-CLICK FILTER
 ================================================================================
 
-Status:    filed 2026-08-17, in progress.
+Status:    filed 2026-08-17; A, B and C DONE 2026-08-20 -- this line used to
+           say "in progress". Re-verified 2026-09-13: EffectRankPlot and
+           EffectDistribution at spacr/qt/widgets/fast_plots.py:6585 and :7113
+           are mounted as tabs by spacr/qt/widgets/regression_results.py, the
+           right-click level filter is LEVELS at regression_results.py:2418,
+           and FigureGridView.set_live_tiles / live_tile_keys are at
+           spacr/qt/widgets/figure_grid_view.py:517 and :509.
 Requested: 2026-08-17 --
 
            "instead of having a gene and a grna mode, id like the option to
