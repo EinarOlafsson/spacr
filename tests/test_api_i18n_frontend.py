@@ -57,7 +57,7 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 #: case the assertion below distinguishes: the constant was the stale thing,
 #: not the catalog. A two-way message would have sent the reader to rebuild
 #: something already correct.
-REAL_SYMBOL_COUNT = 10_478
+REAL_SYMBOL_COUNT = 10_531  # 2026-09-14: +53 / -0, see test_docstring_correctness
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

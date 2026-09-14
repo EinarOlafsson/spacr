@@ -2005,7 +2005,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Measured by diffing the symbol set against 5a2825f67, not by
     # subtracting totals: a +63 that was really +64/-1 would read the same
     # from the total alone, and this test exists to catch exactly that.
-    assert len(callables) == len(by_symbol) == 8_651
+    # 2026-09-14: 8,651 -> 8,696. Set-differenced against 49c1189f7 rather
+    # than subtracted: +45 / -0, every arrival attributable -- 29
+    # spacr.curation_queue and 7 spacr.cli_make_masks (396, both new
+    # modules), 5 spacr.graph_types and 2 spacr.style_base (293 and 291),
+    # 2 under spacr.qt. A +45 that was really +46/-1 reads identically from
+    # the total, which is what this measurement style exists to catch.
+    assert len(callables) == len(by_symbol) == 8_696
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2043,12 +2049,18 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # inherited_or_default_constructor) are the ones a recategorisation
     # would have disturbed.
     assert Counter(item.category for item in callables) == {
-        "function": 3_745,
-        "method": 3_837,
+        # 2026-09-14, +45 total measured per category against 49c1189f7:
+        # function +32, method +5, dataclass_constructor +5,
+        # exception_constructor +3, and the three constructor buckets
+        # unmoved. The per-category split is the point -- a +45 arriving as
+        # +45 functions would be a different event from this one, and the
+        # total alone cannot tell them apart.
+        "function": 3_777,
+        "method": 3_842,
         "constructor": 396,
-        "dataclass_constructor": 467,
+        "dataclass_constructor": 472,
         "namedtuple_constructor": 8,
-        "exception_constructor": 142,
+        "exception_constructor": 145,
         "inherited_or_default_constructor": 56,
     }
     # 8,493 -> 8,530, the same +37: every new callable is rendered by
@@ -2069,7 +2081,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `compatibility` are unmoved. Those two are the buckets that would catch
     # a symbol reaching the user by some other route.
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_646,
+        # 8,646 -> 8,691, the same +45: every new callable is rendered by
+        # autoapi and by nothing else, so `cli_only` and `compatibility` are
+        # unmoved. Those two are the buckets that would catch a symbol
+        # reaching the user by some other route.
+        "autoapi": 8_691,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2101,11 +2117,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # for one and the seven two-variant entries are unchanged. That last part
     # is the one worth asserting -- a new overload pair would be a different
     # event from a new callable.
-    assert sum(item.variant_count for item in callables) == 8_658
+    # 8,658 -> 8,703, the same +45: each new callable has exactly one
+    # variant, so this tracks the inventory rather than diverging from it.
+    # Diverging is the interesting case and the reason it is counted apart.
+    assert sum(item.variant_count for item in callables) == 8_703
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_644,
+        1: 8_689,   # +45; the seven two-variant callables are unmoved
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2205,12 +2224,25 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # parameter sets against 5a2825f67, not inferred from the totals: +129
     # against +127 is a two-parameter discrepancy that a total alone reports
     # as an unremarkable increase.
-    assert sum(len(item.parameters) for item in callables) == 17_192
+    # 17,192 -> 17,293 on 2026-09-14, +101 -- AND ONLY 99 OF THOSE COME FROM
+    # THE 45 NEW CALLABLES. The other two are `row_offsets`, added to the
+    # EXISTING `spacr.ops_layout.WellLayout` and
+    # `spacr.ops_phenotype.phenotype_site_map` by 372. Diffing per-symbol
+    # parameter sets says so; the total alone reports +101 as an unremarkable
+    # increase and cannot distinguish 101 arrivals from 99 arrivals and two
+    # existing signatures widening. Both are optional, which is why the
+    # REQUIRED sum below moves by exactly the 60 the new callables bring.
+    assert sum(len(item.parameters) for item in callables) == 17_293
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
     # has a default on both sequencing functions, so neither is required.
-    assert sum(len(item.required_parameters) for item in callables) == 8_755
+    # 8,755 -> 8,815, +60, and ALL 60 come from the new callables -- the two
+    # `row_offsets` parameters 372 added to existing signatures both carry a
+    # default, so they move the parameter sum above and not this one. That
+    # asymmetry is the check: an optional parameter that moved this number
+    # would be a required one, and a different event.
+    assert sum(len(item.required_parameters) for item in callables) == 8_815
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -2254,7 +2286,18 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # that failed to match would have read as "something unexplained moved"
     # when what had actually moved was my reconstruction. Subtract using the
     # recorded baseline LINE, not a field-by-field rebuild of it.
-) == "487529aa5a65899e84b7948f9a6deece4c56bf5a50ee3aeadbd794dbdc5a092a"
+) == "1b89c25e6f019bfa7e7038e5e31aaa639307524e72472076faadf8847826f6e5"
+    # Moved 2026-09-14, and PROVED rather than assumed, the way this file
+    # asks: the same digest recomputed over the tree at 49c1189f7 returns
+    # 487529aa5a65... byte for byte, which is the value this line carried
+    # before. So the apparatus is right and the move is only what changed.
+    #
+    # Line-level diff against that baseline: +45 / -0, and TWO EXISTING
+    # LINES CHANGED -- spacr.ops_layout.WellLayout and
+    # spacr.ops_phenotype.phenotype_site_map, both gaining `row_offsets`
+    # from 372. That is precisely what this digest exists to catch and no
+    # count above reports it on its own: the parameter sum moves, the
+    # required sum does not, and the symbol count cannot see it at all.
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2660,7 +2703,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # this cross-check is for: the two are measured by different code and
     # agreeing is the evidence. One moving alone would mean the two disagree
     # about what the public surface is.
-    assert len(docs) == 10_478
+    # 2026-09-14: 10,478 -> 10,531, +53 / -0 by set difference. THIS IS ONE
+    # OF FOUR FILES CARRYING THIS NUMBER -- the others are
+    # test_api_i18n_extractor (twice), test_api_i18n_frontend and
+    # test_documentation_i18n. Moving one and not the rest is how a full
+    # sweep found three of them a day late; grep for the literal before
+    # believing a single edit was enough.
+    assert len(docs) == 10_531
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -2685,7 +2734,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # is both rendered and documented, so this tracks the inventory instead
     # of diverging from it. A divergence here would mean a new callable that
     # the API pages do not render.
-    assert len(rendered_documented_callables) == 8_646
+    # 8,646 -> 8,691, the same +45 as the exposure counter above.
+    assert len(rendered_documented_callables) == 8_691
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2742,7 +2792,10 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     #   arriving. Measured by set-differencing the symbol map against
     #   0e619178c rather than by subtracting totals: exactly one symbol added,
     #   none removed, no field set changed on any symbol present in both.
-    assert len(required_ivars) == 38
+    # 2026-09-14: 38 -> 43, +5 / -0, all five spacr.curation_queue -- its
+    # five dataclasses arriving with 396, which is a module landing rather
+    # than a docstring format change.
+    assert len(required_ivars) == 43
     # 156 -> 165 on 2026-09-10: nine fields across Alignment and
     # StitchedWell, the two dataclasses the count above admitted.
     # 165 -> 171, +6: the six fields of `BarcodeSearchPlan` named above.
@@ -2750,7 +2803,12 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # pair worth asserting -- one moving without the other would mean a
     # dataclass changed shape rather than arrived.
     # 171 -> 172, +1: `BarcodeEntry`'s `name`, per the note above.
-    assert sum(map(len, required_ivars.values())) == 172
+    # 172 -> 192, +20 fields across the five spacr.curation_queue
+    # dataclasses added above. Set-differenced: five symbols added, none
+    # removed, and NO FIELD SET CHANGED on any symbol present in both --
+    # which is what distinguishes a module arriving from a docstring format
+    # change, the two events this pair of ratchets exists to tell apart.
+    assert sum(map(len, required_ivars.values())) == 192
     # 30 -> 32 and 145 -> 154: Alignment and StitchedWell again, with
     # their nine fields between them.
     # 32 -> 33 and 154 -> 160: `BarcodeSearchPlan` and its six fields. The
@@ -2762,15 +2820,21 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # GENERATED half and the ordinary counterexamples below are untouched,
     # which is the control that says a dataclass was admitted rather than an
     # ordinary callable growing `:ivar:` fields.
-    assert len(generated) == 34
-    assert sum(map(len, generated.values())) == 161
+    # 34 -> 39, the five spacr.curation_queue dataclasses whose generated
+    # constructor docstring is reduced to :ivar: fields.
+    assert len(generated) == 39
+    # 161 -> 181, the 20 fields of the five curation_queue dataclasses.
+    assert sum(map(len, generated.values())) == 181
     # `dataclass_constructor` 31 -> 32: `BarcodeSearchPlan`. The namedtuple
     # bucket is unchanged, which is the part worth asserting -- a namedtuple
     # arriving here would be a different event.
     assert Counter(by_symbol[symbol].category for symbol in generated) == {
         # 32 -> 33: `BarcodeEntry`, a dataclass. The namedtuple bucket is
         # unchanged, which is the part worth asserting.
-        "dataclass_constructor": 33,
+        # 33 -> 38: the five spacr.curation_queue dataclasses. The namedtuple
+        # bucket is unchanged, which is the part worth asserting -- a
+        # namedtuple arriving here would be a different event.
+        "dataclass_constructor": 38,
         "namedtuple_constructor": 1,
     }
     assert Counter(
@@ -2781,7 +2845,9 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         # 149 -> 155: the six fields of `BarcodeSearchPlan`. The namedtuple
         # bucket is unchanged.
         # 155 -> 156: `BarcodeEntry`'s one required field, `name`.
-        "dataclass_constructor": 156,
+        # 156 -> 176 on 2026-09-14: the 20 required fields across the five
+        # spacr.curation_queue dataclasses. The namedtuple bucket is unchanged.
+        "dataclass_constructor": 176,
         "namedtuple_constructor": 5,
     }
     assert len(ordinary) == 4
@@ -2801,7 +2867,10 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # still documents every required field, which is what the zero on the
     # next line asserts and is the point of this test.
     # 33 -> 34, tracking `generated` above.
-    assert sum(not names for names in remaining.values()) == 34
+    # 34 -> 39 on 2026-09-14, tracking `generated` above: every one of the
+    # five new curation_queue constructors documents every required field,
+    # which is what the zero on the next line asserts.
+    assert sum(not names for names in remaining.values()) == 39
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(

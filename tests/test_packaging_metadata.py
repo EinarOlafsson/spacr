@@ -1415,6 +1415,48 @@ def test_setup_py_still_exposes_what_the_packaging_scripts_parse():
     assert _literal_kwarg("install_requires") is not None
 
 
+def test_no_console_script_name_is_declared_twice():
+    """setuptools REFUSES a duplicate entry point, so a repeat is not a tidy-up.
+
+    `spacr-make-masks` was declared twice on 2026-09-14 -- same name, same
+    target, about twenty lines apart, and EACH DECLARATION CARRIED ITS OWN
+    COMMENT explaining why the command exists. That is how it survived two
+    readings: from where either copy sits it reads as the only one, and
+    neither looks like a duplicate.
+
+    The cost was out of all proportion to the mistake. The build fails before
+    it starts --
+
+        error in spacr setup command: Duplicate element EntryPoint(
+          name='spacr-make-masks', ...) encountered.
+        ERROR Backend subprocess exited when trying to invoke
+          get_requires_for_build_sdist
+
+    -- so every packaging and wheel-install cell of the compatibility matrix
+    went red on a build that never ran, and the entry point itself was never
+    the thing under test. Nothing in the suite could see it: the tests that
+    read this dict all ask whether a particular script is PRESENT, and a
+    duplicate is present twice.
+
+    One Counter is the whole guard.
+    """
+    from collections import Counter
+
+    entry_points = _literal_kwarg("entry_points") or {}
+    duplicates = {}
+    for group, declarations in entry_points.items():
+        names = Counter(
+            str(declaration).split("=", 1)[0].strip()
+            for declaration in declarations
+        )
+        repeated = {name: count for name, count in names.items() if count > 1}
+        if repeated:
+            duplicates[group] = repeated
+    assert duplicates == {}, (
+        f"a duplicate entry point stops the build before it starts: {duplicates}"
+    )
+
+
 def test_console_scripts_and_extras_agree_about_qt():
     """`spacr` is the default console script and it launches the Qt GUI, but
     PySide6 lives in the `qt` extra, not the core deps — so a plain

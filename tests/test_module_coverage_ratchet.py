@@ -313,7 +313,12 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # coverage test and was found a day later by a full sweep. A merge that
     # adds a module moves counts in at least three unrelated files, and
     # there is no list of them anywhere.
-    assert len(shipped) == 565
+    # 565 -> 567 on 2026-09-14, +2/-0: spacr/curation_queue.py and
+    # spacr/cli_make_masks.py, both arriving with 396. Measured by diffing
+    # the shipped set against 49c1189f7, which returns exactly those two.
+    # The note above predicted this: a module landing moves counts in at
+    # least three unrelated files. It moved four this time.
+    assert len(shipped) == 567
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -575,7 +580,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     )
     assert "coverage combine --keep" in combine_script
     assert "coverage json --pretty-print" in combine_script
-    assert "--expected-file-count 565" in combine_script
+    assert "--expected-file-count 567" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
     assert "coverage-combine" in jobs["release-gate"]["needs"]

@@ -650,9 +650,9 @@ _CROP_SOURCE_OPTIONS = [
 ]
 
 #: The SAME choice as :data:`_CROP_SOURCE_OPTIONS`, in the spelling training
-#: stores it under. Instruction 171 is that LOAD IMAGES and STREAM IMAGES are
-#: the only two names anywhere, and the sentences here are word-for-word the
-#: ones above so that a user reading the annotation panel and the training
+#: stores it under. LOAD IMAGES and STREAM IMAGES are the only two names for
+#: these two things anywhere in spaCR, and the sentences here are word-for-word
+#: the ones above so that a user reading the annotation panel and the training
 #: panel can see they are being asked one question.
 #:
 #: It had to exist as a SEPARATE table because the stored values differ and
@@ -673,8 +673,8 @@ _CROP_SOURCE_OPTIONS = [
 #: `crop_source.CROP_SOURCE_ALIASES` and refused the run at the door.
 #:
 #: 'generate' is deliberately NOT offered. It is an ACTION -- it WRITES a
-#: crop set -- rather than one of the two sources, exactly as instruction
-#: 171's rule D says; `crop_source.CROP_SOURCE_OPTIONS` still carries it for
+#: crop set -- rather than one of the two sources, which is why it is not one
+#: of the two names; `crop_source.CROP_SOURCE_OPTIONS` still carries it for
 #: readers that need the third entry, and the training panel's own
 #: `generate_training_dataset` switch is where a user asks for the write.
 #:

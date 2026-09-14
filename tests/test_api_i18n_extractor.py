@@ -1065,7 +1065,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # protected literals and the gates REFUSED them. Those stay English on
     # purpose: English prose on an API page is a gap, and corrupted Icelandic
     # that looks like a translation is worse.
-    expected = 10_478
+    expected = 10_531  # 2026-09-14: +53 / -0, see test_docstring_correctness
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1098,7 +1098,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # docstring as well. The nine catalogs were regenerated against this
     # inventory before the number was touched, which is the order this
     # file's own message asks for.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_478
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_531
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1295,7 +1295,12 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # and the only way to know it is the shape this one has is to measure
     # both halves -- the opposite-direction case looks identical from either
     # half alone, which the `layout_policy` note above records.
-    assert 10_696 - len(docs) == 218
+    # 218 -> 165 on 2026-09-14. The autoapi total is UNCHANGED at 10,696;
+    # what moved is the documented set, +53, so the excluded boundary shrinks
+    # by exactly that. A boundary that had grown instead would mean new
+    # symbols arriving OUTSIDE the documented surface, which is a different
+    # event and the one this subtraction exists to separate.
+    assert 10_696 - len(docs) == 165
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
