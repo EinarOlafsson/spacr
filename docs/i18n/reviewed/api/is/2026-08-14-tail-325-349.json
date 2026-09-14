@@ -32,9 +32,10 @@
     {
       "context": "The Graph Builder already facets — it has to, since dragging a column onto Facet ↓ has to do something. What is here and not there:",
       "label": "spacr.qt.widgets.trellis_spec#6",
+      "notes": "",
       "source": "The Graph Builder already facets — it has to, since dragging a column onto Facet ↓ has to do something. What is here and not there:",
       "source_sha256": "038e6beb6b8703cc8d9b2345bed33aa675ad73b5730e9b6ed729e24fbafe8614",
-      "translation": "Grafasmiðurinn hefur þegar andlit — það verður að gera það, þar sem það að draga dálk yfir á Facet ↓ verður að gera eitthvað. Hvað er hérna og ekki þarna:"
+      "translation": "Graph Builder hefur þegar andlit — það verður að gera það, þar sem það að draga dálk yfir á Facet ↓ verður að gera eitthvað. Hvað er hérna og ekki þarna:"
     },
     {
       "context": "**A file that exists is not a file that finished.** ``spacr.io._load_and_concatenate_arrays`` writes ``merged/<field>.npy`` with a bare ``np.save`` straight onto the destination path, so a crash mid-write leaves a short, structurally valid-looking ``.npy`` on disk. A resume that skips on ``os.path.exists`` would accept that truncated field, measure whatever bytes happened to land, and put the result in the same table as the good fields. So :func:`completed_fields_in_merged` *validates*: it parses the ``.npy`` header and checks that the file is actually as long as its own shape claims. Anything short is reported as rejected and re-queued, never skipped. (io.py now also writes merged arrays atomically, so files produced from here on cannot be truncated — but the ones already on disk from previous processing sessions can be.)",

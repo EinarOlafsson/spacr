@@ -102,9 +102,10 @@
     {
       "context": "The shipped ``QTabBar``/``QTabWidget::pane`` rules paint ``P[\"surface\"]`` and ``P[\"surface_alt\"]`` — **raw hex**, so a tab strip that is the main content of a screen (machine-learning classification model Evaluation, Run History) sat there as a flat opaque slab while the cards beside it thinned with the slider.",
       "label": "spacr.qt.theme.page_tabs_qss#1",
+      "notes": "",
       "source": "The shipped ``QTabBar``/``QTabWidget::pane`` rules paint ``P[\"surface\"]`` and ``P[\"surface_alt\"]`` — **raw hex**, so a tab strip that is the main content of a screen (Classifier Evaluation, Run History) sat there as a flat opaque slab while the cards beside it thinned with the slider.",
       "source_sha256": "fd021f45ab60bade245174606a8fc3f6cc31f479968898b921864277bbe584ab",
-      "translation": "Reglurnar sem fylgja fyrir ``QTabBar``/``QTabWidget::pane`` mála ``P[\"surface\"]`` og ``P[\"surface_alt\"]`` — **hrá sextándagildi**. Flipastika sem er megininnihald forritssýnar (mat á vélrænu flokkunarlíkani, keyrslusaga) varð því flöt, ógegnsæ plata á meðan spjöldin við hliðina urðu gegnsærri með sleðanum."
+      "translation": "Reglurnar sem fylgja fyrir ``QTabBar``/``QTabWidget::pane`` mála ``P[\"surface\"]`` og ``P[\"surface_alt\"]`` — **hrá sextándagildi**. Flipastika sem er megininnihald forritssýnar (mat á vélrænu flokkunarlíkani, Run History) varð því flöt, ógegnsæ plata á meðan spjöldin við hliðina urðu gegnsærri með sleðanum."
     },
     {
       "context": "``None`` on a bound means unbounded on that side, which is what a threshold dragged to the edge should mean rather than \"exclude everything\". At least one bound is required: a data-selection boundary with neither is the whole population, and naming that is a way to lose track of it.",

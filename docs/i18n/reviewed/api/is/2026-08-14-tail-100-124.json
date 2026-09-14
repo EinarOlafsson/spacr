@@ -11,9 +11,10 @@
     {
       "context": "The Graph Builder's *spec*: what is on which channel, and nothing else.",
       "label": "spacr.qt.widgets.graph_spec#0",
+      "notes": "",
       "source": "The Graph Builder's *spec*: what is on which channel, and nothing else.",
       "source_sha256": "50ed7aca1a9b2e3a38f5115ed0995fe74cf41a53b9fabc2868034d97acd99287",
-      "translation": "Upplýsingagerðarmaðurinn *spec*: hvað er á hvaða rás, og ekkert annað."
+      "translation": "*spec* fyrir Graph Builder: hvað er á hvaða rás, og ekkert annað."
     },
     {
       "context": "Density therefore changes the *texture* of the field — how many shapes it is made of, and how strongly each one states itself — and not how loud the field is. That is the only reading of the control that leaves the backdrop legible at both ends of its range.",
