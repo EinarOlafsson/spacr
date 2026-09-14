@@ -225,3 +225,57 @@ SO THE SPLIT IS NOW COMPLETE AND NOTHING IN THE 77 IS A DEAD ROW:
 The one duplicate row remains recorded rather than removed, per the warning at
 the head of this file and for the reason given above: removing it is a change
 to a generated table and belongs with the generator's next pass.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- ONE KEY, TWO MODULES, TWO DEFAULTS: PROSE CANNOT FIX IT
+--------------------------------------------------------------------------------
+
+A sharper instance of this item's subject, and an attempt that FAILED, written
+down so the next one starts further along.
+
+`z_handling` is declared once, by `external_masks.register_defaults`, and read
+by TWO modules with different contracts:
+
+    spacr.convert.convert_folder   accepts keep / max / first, DEFAULT 'keep'
+    spacr.external_masks           rejects 'keep',             DEFAULT 'max'
+
+`register_defaults` raises if a second module registers differing text for one
+key, so the single shared tooltip is whatever the first registrar wrote -- and
+it describes External Masks alone. A reader of Format Convert is told the
+default is 'max' when it is 'keep', and is never told 'keep' exists.
+
+  IT IS THE 77's SHAPE ONE STEP ON. This item is about rows whose declaration
+  `expected_types` cannot see. Here the declaration is visible and SINGULAR
+  where the truth is PLURAL: one string cannot be the help for two contracts,
+  and the table has no way to say so.
+
+WHAT WAS TRIED, AND WHAT IT COST. Broadening the text to cover both consumers
+is the obvious fix and was attempted three times:
+
+    5 sentences, 6 quoted literals   zh_CN, hi, is refused   ("lack target script")
+    6 sentences, 5 quoted literals   zh_CN, hi, is refused
+    3 sentences, 3 quoted literals   zh_CN took it; hi, is refused
+
+Three nine-language repair passes, several GPU-hours, and the third version has
+the SAME literal density as the original that translates cleanly -- so length
+and quoting are not the variable. The hypothesis that "Format Convert" and
+"External Masks" are protected product tokens was tested and is false; neither
+is in `_PROTECTED_TERMS`.
+
+IT ALSO INVALIDATES REVIEWED WORK. Three human-reviewed records are pinned to
+the old source hash -- ko and is in `2026-08-27-external-masks-tooltips.json`,
+hi inside `2026-09-08-release-gaps.json` -- and a review of the previous
+sentence is not a review of a new one. Any wording change retires all three.
+
+REVERTED. The original text is restored byte-for-byte, confirmed by recomputing
+its sha256 as `3ed5e5258...`, which is exactly what the reviewed records carry.
+All nine locales translate it. The three reviewed records are back.
+
+WHAT WOULD ACTUALLY FIX IT: a per-app tooltip override, so a module can
+register help scoped to its own app key rather than to the setting name. That
+is a mechanism -- it touches `register_defaults`, the settings model and the Qt
+panels -- and it is the honest size of this problem. Every attempt to solve it
+with words is an attempt to make one sentence true of two different contracts.
+
+  DO NOT RE-ATTEMPT THE PROSE. The measurements above are the evidence that it
+  does not converge.

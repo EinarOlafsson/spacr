@@ -876,3 +876,56 @@ Worth stating as a habit rather than three anecdotes.
   pointed at the more dramatic conclusion. A measurement that cannot be checked
   against a differently-shaped measurement of the same thing should be reported
   with that said out loud.
+
+### Do not read a background job's log until the process has exited
+
+Item 83 already carries the neighbouring rule -- "NEVER READ AN EXIT CODE
+THROUGH A PIPE" -- after two sessions were fooled by `... | tail` reporting
+success for a command that failed. This is the same family and I hit it THREE
+TIMES in one afternoon:
+
+* A 66-file probe run was reported as "0 failures" at 39% because the log had
+  no `FAILED` line YET. It had one four lines later.
+* A catalog repair was reported as "all three locales took it" because the
+  grep for the failure string found nothing. The run was at 936 of 2,774.
+* A waiter keyed on `pgrep -f 'pytest tests/qt/test_a_dialog'` fired
+  immediately, because the file list had been re-ordered and the real process
+  matched a different first filename.
+
+  THE SHAPE IS ALWAYS THE SAME: absence of a failure line is read as absence
+  of failure, when it only means the job has not got there. A grep over a
+  growing file answers a question about the PAST, and the question being asked
+  is about the FUTURE.
+
+WHAT TO DO INSTEAD, and the PID matters more than the pattern:
+
+    PID=$(ps -eo pid,args | grep '[p]ython tools/thing' | awk 'NR==1{print $1}')
+    while kill -0 $PID 2>/dev/null; do sleep 30; done
+    # only now is the log complete
+    grep -E 'FAILED|Error' "$LOG"
+
+`pgrep -f <pattern>` is the trap twice over: it matches the waiter's own
+command line -- which cost an hour earlier the same night, and cost a `pkill`
+that killed six of this session's own waiters -- and it matches on a spelling
+of the command that may not be the one running.
+
+### A header that claims MORE work than exists is invisible to every gate
+
+Two items in one afternoon, both found by reading rather than by any check:
+
+    377   finished 2026-09-04 with `health_percentage 42 -> 100` measured and
+          the commit named; header said OPEN for nine days
+    388   all three steps landed and the blocker cleared itself; header said
+          OPEN AND ACTIONABLE
+
+Nothing fails when a done thing says it is open. The ledger's consistency guard
+checks the other direction -- a "not started" header over a finished tail --
+because that one is unambiguous, and its docstring measures why the reverse
+cannot be gated: 31 files trip it and nearly all are healthy.
+
+  388 IS THE INTERESTING ONE. Its last blocker was a runtime catalog rebuild
+  "that has not landed". The rebuild landed today as a side effect of
+  unrelated work -- the `_set_status` wrapper fix carried 117 captions into the
+  catalogs and took the two bystander tooltips with them. AN ITEM CAN BE
+  UNBLOCKED BY A CHANGE MADE FOR ANOTHER REASON, and nothing tells it. When a
+  file says it waits on X, and you have just done X, go and read it.

@@ -867,14 +867,10 @@ def register_settings(replace: bool = False) -> bool:
             "detects the supported layout from the filenames. Default "
             "'auto'.",
         "z_handling":
-            "(str) - How multiple Z planes are handled. 'keep' writes every "
-            "plane under its own Z number and loses nothing. 'max' takes a "
-            "maximum-intensity projection, collapsing a stack to one plane "
-            "while leaving a single-plane input untouched. 'first' keeps only "
-            "the first plane and discards the rest. Format Convert accepts "
-            "all three and defaults to 'keep', so a conversion is lossless "
-            "unless you ask otherwise. External Masks needs a 2-D input, so "
-            "it rejects 'keep' and defaults to 'max'.",
+            "(str) - How multiple Z planes become a 2-D Measure input. "
+            "'max' takes a maximum-intensity projection and 'first' keeps "
+            "only the first plane; inputs that still contain separate planes "
+            "are rejected. Default 'max'.",
         "plate_naming":
             "(str) - How imported plates are named when the source does not "
             "provide one. 'index' assigns stable plate numbers in discovered "

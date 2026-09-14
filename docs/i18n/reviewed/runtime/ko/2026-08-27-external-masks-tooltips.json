@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "z_handling",
+      "source_sha256": "3ed5e52586513e70542edb8e1d62320663bd1b40bc2b5d301a900cb8288360cb",
+      "source": "How multiple Z planes become a 2-D Measure input. 'max' takes a maximum-intensity projection and 'first' keeps only the first plane; inputs that still contain separate planes are rejected. Default 'max'.",
+      "translation": "여러 Z 평면을 2-D Measure 입력으로 변환하는 방법입니다. 'max' 옵션은 최대 강도 투영을 사용하고 'first' 옵션은 첫 번째 평면만 유지합니다. 여전히 개별 평면을 포함하는 입력은 거부됩니다. 기본값은 'max' 옵션입니다."
+    }
+  ]
+}

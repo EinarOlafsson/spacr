@@ -2,7 +2,15 @@
 WHAT AN INFECTED CELL DOES TO ITS NEIGHBOURS: BYSTANDERS AND NEIGHBOURHOODS
 ================================================================================
 
-Status:    OPEN AND ACTIONABLE from 2026-09-10. THE HOLD IS LIFTED: the
+Status:    DONE, confirmed 2026-09-13. All three steps are in the tree and
+           the last blocker cleared itself. Step 1's setting is declared
+           (`bystander_reach_in_diameters`, `bystander_measurements`:
+           expected_types, tooltips, and the Measurements category), the
+           measure pipeline reads it at `measure.py:1281`, and both
+           tooltips are translated in all nine locales -- the rebuild
+           this file was waiting on landed 2026-09-13. 68 tests across
+           three bystander files pass. Was OPEN AND ACTIONABLE from
+           2026-09-10; THE HOLD WAS LIFTED: the
            condition was the version bump, and `spacr/_version.py` reached
            1.5.0.5 on 2026-09-10 (merge 82918f29d, "Merge main into nightly:
            the 1.5.0.5 bump and the Qt merge"). Nothing else gates this file.
@@ -384,3 +392,31 @@ WHAT IS ACTUALLY LEFT, and only one of the two is anybody's to do:
     named ones are `spacr.align` and `spacr.barcode_search`, and
     `barcode_search.py` arrived on 2026-09-12 with Map Barcodes. Recorded here
     so nobody reads a red docstring ratchet as bystander fallout.
+
+--------------------------------------------------------------------------------
+2026-09-13 -- THE LAST BLOCKER CLEARED ITSELF, AND NOBODY TOLD THIS FILE
+--------------------------------------------------------------------------------
+
+Step 1 recorded what was left: "exposing it as a SETTING with `expected_types`,
+`tooltips` and a `categories` entry -- held because the runtime catalog rebuild
+that would carry the new tooltip into nine locales is home's and has not
+landed."
+
+VERIFIED 2026-09-13, all of it already true:
+
+    bystander_reach_in_diameters   typed, tooltipped, category Measurements
+    bystander_measurements         typed, tooltipped, category Measurements
+    both tooltips                  translated in all nine locales
+    measure.py:1281                reads `bystander_measurements` and the reach
+    68 tests pass across the three bystander test files
+
+The rebuild it was waiting on landed today as part of unrelated work -- the
+`_set_status` wrapper fix took 117 captions into the catalogs and carried these
+two with it. A file can be unblocked by a change made for another reason, and
+nothing tells it.
+
+  THAT IS THE SECOND ITEM IN ONE AFTERNOON whose status outlived its work. 377
+  was finished on 2026-09-04 and said OPEN until today. Both were found by
+  reading the file rather than by any check, because a header claiming MORE
+  work than exists is invisible to every gate: nothing fails when a done thing
+  says it is open.
