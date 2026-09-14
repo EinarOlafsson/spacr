@@ -46,8 +46,13 @@ def test_every_propagated_key_is_one_measure_ships(panel):
     # when the run declares the slot, so comparing against a one-organelle
     # factory would call the panel's own organelleb controls unread when the
     # only thing missing is the count.
+    #
+    # `_slots_built` since 2026-09-14, when the panel stopped building a
+    # control per declared slot: `len(panel._mask_dims)` used to BE the slot
+    # count because every one of the 702 had a spin box, and it is now the
+    # fixed roles plus whatever the run asked for.
     known = set(get_measure_crop_settings(
-        {"number_of_organelles": len(panel._mask_dims)}))
+        {"number_of_organelles": panel._slots_built}))
     propagated = set(panel.settings_for_propagation())
 
     unread = sorted(propagated - known)
@@ -57,7 +62,14 @@ def test_every_propagated_key_is_one_measure_ships(panel):
 
 
 def test_the_organelle_size_floor_is_the_surviving_name(panel):
-    """The specific key that was discarded, named so a rename cannot lose it."""
+    """The specific key that was discarded, named so a rename cannot lose it.
+
+    THROUGH A DECLARED SLOT since 2026-09-14: the panel builds a control per
+    object the run HAS and the default organelle count is zero, so the key
+    under test is propagated by a run that asked for an organelle. The
+    spelling is the subject either way.
+    """
+    panel.apply_settings({"number_of_organelles": 1})
     propagated = panel.settings_for_propagation()
 
     assert "organelle_min_area" in propagated

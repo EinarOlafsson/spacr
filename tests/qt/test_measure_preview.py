@@ -116,9 +116,15 @@ def test_settings_dialog_has_pipeline_tabs_and_valid_normalize_contract(qtbot):
 
 
 def test_cells_are_grouped_by_nucleus_pathogen_and_organelle(qtbot, tmp_path):
+    """THE RUN DECLARES THE SLOT FIRST, since 2026-09-14. A panel builds a
+    control only for the objects the run has, and the default count is zero,
+    so `_mask_dims["organelle"]` exists because the settings asked for one
+    organelle -- which is also the only way the run would have a plane 7 to
+    group on."""
     from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
     panel = MeasurePreviewPanel(threaded=False)
     qtbot.addWidget(panel)
+    panel.apply_settings({"number_of_organelles": 1})
     panel._mask_dims["organelle"].setValue(7)
     assert panel.load_array(_categorised_merged_npy(tmp_path))
     categories = {entry["label"]: entry["category"] for entry in panel._crops}

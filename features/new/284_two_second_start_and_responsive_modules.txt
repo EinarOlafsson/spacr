@@ -108,6 +108,56 @@ HOW TO KNOW IT WORKED
     multi-second GUI gap" bullet above.)
 
 
+FIXED 2026-09-14, AND MEASURED EITHER SIDE. Measure now opens in 3.59 s
+with a 3,267 ms worst stall, against 13.05 s and 12,713 ms before -- two
+consecutive runs at load ~5 differing ONLY in how many controls the panel
+builds, with mask, regression, classify_merged and annotate unchanged on both
+sides, which is what makes the difference Measure's own. Repeats at loads 9.0,
+13.5, 17.6 and 18.4 give 3.39-4.05 s, so it is inside the 10 s budget at every
+load measured, and Measure is no longer the worst stall in the run.
+
+    per-object controls   2,117 -> 11
+    widgets on the screen 4,105 -> 595   (below Mask's 946)
+    Crop settings... open  1.53 s -> 0.036 s
+
+THE WORK WAS REMOVED, NOT MOVED TO A THREAD, so the total and the freeze fell
+together. `MeasurePreviewPanel` builds controls for the roles the run actually
+has -- the fixed objects plus `active_organelle_roles` -- and
+`set_organelle_count` now BUILDS as well as shows, creating and wiring a slot's
+three controls the first time the count asks for it.
+
+THE FREEZE IS NOT GONE. 12.7 s became 3.3 s, a 3.9x cut; the residual is the
+screen-build cost every heavy module pays and is not this defect. The
+acceptance bullet forbidding "a stopped animation or multi-second GUI gap" is
+therefore still not met by Measure alone, and regression (8,307 ms) and mask
+(5,469 ms) are now the worst stalls in the run, both untouched by this change.
+
+THREE THINGS WORTH KEEPING FROM THE FIX:
+
+  * A TEST WAS ENFORCING THE BUG. `test_an_unset_count_shows_every_slot`
+    required an unseeded panel to show all 702 slots. It is replaced rather
+    than deleted, and the replacement records where the fear it encoded is now
+    answered: a run that uses a slot says so, through the count or through its
+    keys.
+  * ONE WIRING PATH. A control created later must be connected exactly as one
+    created at build time, or it is a dead control that looks right and changes
+    nothing. `_connect_controls` and `_build_slot_controls` now call one
+    `_wire_object_control`, so they cannot drift.
+  * SETTINGS BEYOND THE COUNT STILL ROUND-TRIP. `apply_settings` applies the
+    count FIRST and then builds for `declared_organelle_roles(settings)`, so a
+    file written at seven slots and opened at two keeps controls for three
+    through seven and hands their values back untouched -- the grid's rule,
+    "cut from the view, not from the settings".
+
+WHAT IS STILL OWED HERE: peak resident memory has no threshold at all
+(`tools/spacr_startup_benchmark.py:491` asks only that it be "reported and
+positive") while this item's acceptance text asks for "explicit,
+hardware-normalized thresholds", and `MODULE_BUDGET = 20.0` in
+`tests/qt/test_opening_things_does_not_hang.py` remains a hang detector rather
+than a performance gate. Neither is fixed here. A gate set at today's numbers
+would bake in the regression that is left.
+
+
 RE-MEASURED 2026-09-14 AND THE BUDGETS ARE NOT MET. The item's own closing
 paragraph asks for a re-measurement before closing; this is it, and it fails.
 

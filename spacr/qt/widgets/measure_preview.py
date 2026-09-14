@@ -13,11 +13,12 @@ retained by the current filter settings.
 """
 from __future__ import annotations
 
+import itertools
 import logging
 import os
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from PySide6.QtCore import QRectF, Qt, Signal
@@ -58,12 +59,70 @@ from ..hidpi import logical_size, scaled_for
 from ..job_runner import JobRunner
 from ...crops import DEFAULT_MASK_DIMS
 from ...object_roles import ALL_ROLES, ORGANELLE_ROLES, organelle_label
+from ...organelle_types import (
+    DEFAULT_NUMBER_OF_ORGANELLES, MAX_ORGANELLES, declared_organelle_roles,
+    organelle_count, organelle_number, organelle_role_of, organelle_roles,
+)
 
 LOG = logging.getLogger("spacr.qt.measure_preview")
 
-_MASK_DIMS = dict(DEFAULT_MASK_DIMS)
-_OBJECTS = tuple(ALL_ROLES)
+#: The organelle slots, as a set to test membership against. There are 702 of
+#: them because `MAX_ORGANELLES` is 702, and this panel used to build a
+#: mask-slice spin box, a crop-mode toggle and a minimum-area spin box for
+#: every one of them -- 2,117 controls and 4,113 QWidgets against 63 settings
+#: rows -- for a default `number_of_organelles` of ZERO.
+_ORGANELLE_SLOTS = frozenset(ORGANELLE_ROLES)
+
+#: The roles that are not slots, split either side of the organelle block so
+#: that the order `ALL_ROLES` declares survives a run with any number of
+#: slots: cell, nucleus, pathogen, <slots>, cytoplasm. Derived rather than
+#: spelled out, so a role added to the schema reaches this panel too.
+_BEFORE_THE_SLOTS: Tuple[str, ...] = tuple(itertools.takewhile(
+    lambda role: role not in _ORGANELLE_SLOTS, ALL_ROLES))
+_AFTER_THE_SLOTS: Tuple[str, ...] = tuple(
+    role for role in ALL_ROLES[len(_BEFORE_THE_SLOTS):]
+    if role not in _ORGANELLE_SLOTS)
+
+#: Mask-slice defaults for the fixed roles. The slots are left out because
+#: every slot control starts at -1 ("Not present") whatever
+#: :data:`DEFAULT_MASK_DIMS` says -- which is what building from the whole
+#: dict did as well, only 702 times over.
+_MASK_DIMS = {name: value for name, value in DEFAULT_MASK_DIMS.items()
+              if name not in _ORGANELLE_SLOTS}
 _SUPPORTED = (".npy",)
+
+#: Where an organelle slot control starts out. See :data:`_MASK_DIMS`.
+_SLOT_MASK_DIM = -1
+
+
+def _objects_for(count: int) -> Tuple[str, ...]:
+    """The object roles a run with ``count`` organelle slots has.
+
+    The panel's object vocabulary, in the order `ALL_ROLES` declares: the
+    fixed roles with exactly as many organelle slots between them as the run
+    says it has. A count of zero -- the default, and the common case --
+    answers the four fixed roles alone.
+
+    :param count: how many organelle slots the run declares.
+    :returns: the roles, in display order.
+    """
+    return (*_BEFORE_THE_SLOTS, *organelle_roles(count), *_AFTER_THE_SLOTS)
+
+
+def _slots_the_settings_speak_for(settings: Dict[str, Any]) -> int:
+    """How many organelle slots a settings dict needs controls for.
+
+    THE COUNT IS NOT THE WHOLE ANSWER. `active_organelle_roles` is what the
+    panel SHOWS, but a file written at seven and opened at two still carries
+    slots three to seven, and this panel writes its controls back out: a slot
+    with no control propagates nothing, so lowering the count would rewrite
+    the user's file. :func:`declared_organelle_roles` is the union the
+    settings machinery already uses for exactly that reason.
+
+    :param settings: the settings about to be applied.
+    :returns: the number of slots to have controls for.
+    """
+    return len(declared_organelle_roles(settings))
 
 
 def resolve_merged_source(path, rng=None):
@@ -460,6 +519,35 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         retarget_field_tooltips(self)
 
 
+    def _object_names(self, count: Optional[int] = None) -> Tuple[str, ...]:
+        """The objects this panel has controls for, in display order.
+
+        :param count: how many organelle slots to name. Defaults to the slots
+            already built, which is what every consumer of the control dicts
+            wants; :meth:`_build_slot_controls` passes the new total.
+        :returns: the role names.
+        """
+        if count is None:
+            count = getattr(self, "_slots_built",
+                            DEFAULT_NUMBER_OF_ORGANELLES)
+        return _objects_for(count)
+
+    @staticmethod
+    def _in_role_order(controls: Dict[str, QWidget],
+                       order: Tuple[str, ...]) -> Dict[str, QWidget]:
+        """``controls`` re-keyed into ``order``.
+
+        The control dicts are iterated to lay the dialog out, to propagate and
+        to take the widget census, so their ORDER is the order the user reads.
+        A slot built on demand is appended, which would put Organelle 1 after
+        Cytoplasm; this puts it back where `ALL_ROLES` says it goes.
+
+        :param controls: the per-object controls.
+        :param order: the roles, in the order they should be read in.
+        :returns: the same widgets, in ``order``.
+        """
+        return {name: controls[name] for name in order if name in controls}
+
     @staticmethod
     def _spin(
         lo: int,
@@ -486,16 +574,29 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         return widget
 
     def _build_controls(self) -> None:
-        """Build the control row: object, crop modes and sizes."""
+        """Build the control row: object, crop modes and sizes.
+
+        FOR THE OBJECTS THE RUN HAS, not for every object spaCR can name.
+        :data:`ALL_ROLES` carries 702 organelle slots and this built three
+        controls for each of them, so opening Measure constructed ~2,117
+        controls -- 4,113 QWidgets, each spin box dragging a QLineEdit and a
+        validator and each toggle a QPropertyAnimation -- against 63 settings
+        rows, while the default `number_of_organelles` is ZERO. The slots a
+        run declares arrive later through :meth:`set_organelle_count`, which
+        builds and wires them then.
+        """
+        #: The slots this panel has controls for. Grows with the declared
+        #: count and never shrinks: lowering the count HIDES its rows, and
+        #: the controls keep their answers so raising it again brings them
+        #: back rather than a row of defaults.
+        self._slots_built = DEFAULT_NUMBER_OF_ORGANELLES
+        self._organelle_count = DEFAULT_NUMBER_OF_ORGANELLES
         self._experiment = QLineEdit("experiment", self)
         self._measurement_channels = QLineEdit("0,1,2,3", self)
         self._object_box = QComboBox(self)
-        self._object_box.addItems(_OBJECTS)
+        self._object_box.addItems(self._object_names())
         self._mask_dims = {
-            name: self._spin(
-                -1, 64, value if name not in ORGANELLE_ROLES else -1,
-                special="Not present", parent=self,
-            )
+            name: self._spin(-1, 64, value, special="Not present", parent=self)
             for name, value in _MASK_DIMS.items()
         }
         self._cytoplasm = Toggle(parent=self)
@@ -507,7 +608,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._save_png.setChecked(True)
         self._save_arrays = Toggle(parent=self)
         self._crop_mode_checks = {
-            name: Toggle(name.capitalize(), self) for name in _OBJECTS
+            name: Toggle(name.capitalize(), self)
+            for name in self._object_names()
         }
         self._crop_mode_checks["cell"].setChecked(True)
         self._crop_width = self._spin(16, 2048, 224, parent=self)
@@ -541,7 +643,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
         self._min_sizes = {
             name: self._spin(0, 10_000_000, 0, parent=self)
-            for name in _OBJECTS
+            for name in self._object_names()
         }
         self._uninfected = Toggle(parent=self)
         self._uninfected.setChecked(True)
@@ -687,6 +789,53 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         ]
         return widgets
 
+    #: The signal a control announces a change on, most specific first. The
+    #: FIRST one it has is the one connected: a spin box has `valueChanged`
+    #: and `editingFinished` both, and wiring both re-previews twice.
+    _REFRESH_SIGNALS = ("valueChanged", "currentTextChanged",
+                        "editingFinished", "toggled")
+    #: The same, plus the one a line edit announces on.
+    _PROPAGATE_SIGNALS = _REFRESH_SIGNALS + ("textChanged",)
+
+    @staticmethod
+    def _wire(widget: QWidget, signal_names: Tuple[str, ...], slot) -> bool:
+        """Connect ``slot`` to the first of ``signal_names`` ``widget`` has.
+
+        THE ONE PLACE A CONTROL IS WIRED, so that a slot control built later
+        by :meth:`_build_slot_controls` is wired exactly as one built at
+        startup. A lazily created widget nobody connected is a silent dead
+        control: it looks right and changes nothing.
+
+        :param widget: the control to wire.
+        :param signal_names: candidate signals, most specific first.
+        :param slot: what to call when it changes.
+        :returns: whether anything was connected.
+        """
+        for signal_name in signal_names:
+            signal = getattr(widget, signal_name, None)
+            if signal is None:
+                continue
+            try:
+                signal.connect(slot)
+                return True
+            except (TypeError, RuntimeError):
+                pass
+        return False
+
+    def _wire_object_control(self, widget: QWidget, *,
+                             refreshes: bool) -> None:
+        """Wire one per-object control the way `_connect_controls` does.
+
+        :param widget: the mask-slice, minimum-area or crop-mode control.
+        :param refreshes: True for the controls the preview re-crops for --
+            the mask slices and the size floors; False for the crop-mode
+            toggles, which only propagate.
+        """
+        if refreshes:
+            self._wire(widget, self._REFRESH_SIGNALS, self._on_setting_changed)
+        else:
+            self._wire(widget, self._PROPAGATE_SIGNALS, self._maybe_propagate)
+
     def _connect_controls(self) -> None:
         """Wire each control to the refresh it should trigger."""
         self._object_box.currentTextChanged.connect(self._on_object_changed)
@@ -702,32 +851,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             self._max_area, self._max_crops, self._group_cells,
         ]
         for widget in refresh_widgets:
-            for signal_name in (
-                "valueChanged", "currentTextChanged", "editingFinished",
-                "toggled",
-            ):
-                signal = getattr(widget, signal_name, None)
-                if signal is not None:
-                    try:
-                        signal.connect(self._on_setting_changed)
-                        break
-                    except (TypeError, RuntimeError):
-                        pass
+            self._wire(widget, self._REFRESH_SIGNALS, self._on_setting_changed)
 
         for widget in self._managed_widgets():
             if widget in refresh_widgets or widget is self._propagate_btn:
                 continue
-            for signal_name in (
-                "valueChanged", "currentTextChanged", "editingFinished",
-                "toggled", "textChanged",
-            ):
-                signal = getattr(widget, signal_name, None)
-                if signal is not None:
-                    try:
-                        signal.connect(self._maybe_propagate)
-                        break
-                    except (TypeError, RuntimeError):
-                        pass
+            self._wire(widget, self._PROPAGATE_SIGNALS, self._maybe_propagate)
         self._propagate_btn.toggled.connect(self._on_propagate_toggled)
         self._refresh_control_gates()
 
@@ -752,6 +881,64 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         """
         self._crop_settings_dialog = None
 
+    def _build_slot_controls(self, count) -> None:
+        """Bring the controls for organelle slots 1..``count`` into existence.
+
+        THE SLOTS ARE BUILT HERE AND NOWHERE ELSE, which is what keeps
+        opening Measure from constructing 2,117 controls for a run that
+        declares no organelle at all. Each new control is wired through
+        :meth:`_wire_object_control` in the same breath as it is made: a
+        control created later that nobody connected is a dead control, and
+        it looks exactly like a working one.
+
+        GROWS ONLY. Lowering the count HIDES rows -- see
+        :meth:`CropSettingsDialog.refresh_organelle_slots` -- so a slot built
+        once keeps its answers and raising the count again brings them back
+        rather than a row of defaults. That is the settings grid's rule, cut
+        from the view and not from the settings.
+
+        :param count: how many slots to have controls for.
+        """
+        try:
+            wanted = max(0, min(int(count), MAX_ORGANELLES))
+        except (TypeError, ValueError):
+            return
+        if wanted <= self._slots_built:
+            return
+        for role in organelle_roles(wanted):
+            if role in self._mask_dims:
+                continue
+            mask_dim = self._spin(-1, 64, _SLOT_MASK_DIM,
+                                  special="Not present", parent=self)
+            min_size = self._spin(0, 10_000_000, 0, parent=self)
+            crop_mode = Toggle(role.capitalize(), self)
+            self._mask_dims[role] = mask_dim
+            self._min_sizes[role] = min_size
+            self._crop_mode_checks[role] = crop_mode
+            self._object_box.insertItem(
+                len(_BEFORE_THE_SLOTS) + organelle_number(role) - 1, role)
+            self._wire_object_control(mask_dim, refreshes=True)
+            self._wire_object_control(min_size, refreshes=True)
+            self._wire_object_control(crop_mode, refreshes=False)
+            for widget in (mask_dim, min_size, crop_mode):
+                widget.hide()
+        self._slots_built = wanted
+        order = self._object_names()
+        self._mask_dims = self._in_role_order(self._mask_dims, order)
+        self._min_sizes = self._in_role_order(self._min_sizes, order)
+        self._crop_mode_checks = self._in_role_order(
+            self._crop_mode_checks, order)
+
+    def _refresh_slot_rows(self) -> None:
+        """Let an open crop-settings dialog catch up with the slots.
+
+        Both halves of it: rows for controls built since the dialog was laid
+        out, and the gate that hides the slots the count does not ask for.
+        """
+        dialog = getattr(self, "_crop_settings_dialog", None)
+        if dialog is not None:
+            dialog.refresh_organelle_slots()
+
     def set_organelle_count(self, count) -> None:
         """How many organelle slots the crop settings should offer.
 
@@ -760,17 +947,23 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         crop settings offered a fixed four -- so a one-organelle run had three
         mask-slice and three minimum-area fields for objects it does not have,
         and each of them propagates into the settings the run reads.
+
+        IT BUILDS THEM AS WELL AS SHOWING THEM. This used to change only what
+        was SHOWN, over 702 slots' worth of controls that `_build_controls`
+        had already made -- so the answer to "a run with no organelle" was
+        2,117 controls hidden behind a gate. The count is now what brings a
+        slot's controls into existence, which is why raising it is the only
+        route that has to work.
         """
         try:
-            wanted = max(0, int(count))
+            wanted = max(0, min(int(count), MAX_ORGANELLES))
         except (TypeError, ValueError):
             return
         if wanted == getattr(self, "_organelle_count", None):
             return
         self._organelle_count = wanted
-        dialog = getattr(self, "_crop_settings_dialog", None)
-        if dialog is not None:
-            dialog.refresh_organelle_slots()
+        self._build_slot_controls(wanted)
+        self._refresh_slot_rows()
 
     def _refresh_control_gates(self, *_args) -> None:
         """Enable each control only when the current crop mode reads it."""
@@ -1116,6 +1309,25 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         """
         settings = dict(settings or {})
 
+        # THE COUNT FIRST, because it is what brings the slot controls into
+        # existence: a value written into a slot whose control does not exist
+        # yet is a value dropped on the floor. Absent is still LEFT ALONE --
+        # a dict that mentions no slot and no count is not claiming the run
+        # has none, it is making no claim, which is the rule `_set` below
+        # follows for every other field.
+        speaks_to_the_count = (
+            settings.get("number_of_organelles") is not None
+            or any(organelle_role_of(key) is not None for key in settings))
+        if speaks_to_the_count:
+            self.set_organelle_count(organelle_count(settings))
+        # AND THE SLOTS THE FILE CARRIES BEYOND IT. `declared_organelle_roles`
+        # is the wider of the two -- the slots shown, plus any further slot
+        # this dict already has keys for -- so a file written at seven and
+        # opened at two keeps controls for slots three to seven and hands
+        # their values back untouched instead of dropping them.
+        self._build_slot_controls(_slots_the_settings_speak_for(settings))
+        self._refresh_slot_rows()
+
         def _set(fn, key, cast=None):
             """Apply one setting, skipping keys that are absent or None.
 
@@ -1134,7 +1346,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         _set(self._experiment.setText, "experiment", str)
         _set(self._measurement_channels.setText, "channels",
              lambda v: ",".join(str(int(c)) for c in v))
-        for name in _OBJECTS:
+        for name in self._object_names():
             if name == "cytoplasm":
                 continue
             key = f"{name}_mask_dim"
@@ -1189,9 +1401,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
         if "png_channel_mapping" in settings or "png_dims" in settings:
             self._png_dims.set_value(_resolve_png_mapping(settings))
-
-        if settings.get("number_of_organelles") is not None:
-            self.set_organelle_count(settings["number_of_organelles"])
 
         if settings.get("src"):
             self._auto_load_from_src(settings["src"])
@@ -1251,13 +1460,20 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         Taken on the GUI thread and handed to the worker as plain data. The
         worker must never read a widget.
         """
+        #: The three companions the crop grid groups cells by. `organelle`
+        #: is the FIRST SLOT and a run may declare none, in which case it has
+        #: no controls to read: `annotate_crops` reads these with `.get`, and
+        #: a missing dimension renders as "Organelle n/a" -- which is what a
+        #: run with no organelle should say.
+        companions = [name for name in ("nucleus", "pathogen", "organelle")
+                      if name in self._mask_dims]
         return {
             "object": self._object_box.currentText(),
             "cell_dim": _optional_spin_value(self._mask_dims["cell"]),
             "dims": {name: _optional_spin_value(self._mask_dims[name])
-                     for name in ("nucleus", "pathogen", "organelle")},
+                     for name in companions},
             "minima": {name: int(self._min_sizes[name].value())
-                       for name in ("nucleus", "pathogen", "organelle")},
+                       for name in companions},
             "uninfected": bool(self._uninfected.isChecked()),
         }
 
@@ -1512,6 +1728,70 @@ class CropSettingsDialog(QDialog):
         on, which is what lets a morphology change re-gate them.
     """
 
+    def _insert_organelle_row(self, form: QFormLayout, role: str,
+                              label: str, widget: QWidget) -> None:
+        """Put one slot row back inside the organelle block.
+
+        AT THE TAIL OF THE BLOCK, not at the foot of the form: the mask
+        slices are followed by "Measure cytoplasm" and the size floors by
+        "Cytoplasm minimum area", so appending would file Organelle 3 under
+        the cytoplasm.
+
+        :param form: the form to insert into.
+        :param role: the slot the row belongs to.
+        :param label: the row's caption.
+        :param widget: the control.
+        """
+        at = self._organelle_tail.get(id(form), form.rowCount())
+        form.insertRow(at, label, widget)
+        self._organelle_tail[id(form)] = at + 1
+        self._organelle_rows.append((role, form, widget))
+        widget.show()
+
+    def _adopt_new_slot_controls(self) -> bool:
+        """Lay out the slot controls built since this dialog was.
+
+        `MeasurePreviewPanel.set_organelle_count` is what BUILDS a slot's
+        controls, and it can be called while this dialog is on screen -- the
+        Measure form's `number_of_organelles` is a live setting. A control
+        with no row is as invisible as one that was never made.
+
+        :returns: whether anything was laid out.
+        """
+        # The last of the three layouts this reaches, so a call made while
+        # the dialog is still being built finds nothing half-laid-out.
+        if getattr(self, "_filter_form", None) is None:
+            return False
+        panel = self._panel
+        added = False
+        for role, widget in panel._mask_dims.items():
+            if role not in _ORGANELLE_SLOTS or role in self._mask_rows:
+                continue
+            self._mask_rows.add(role)
+            self._insert_organelle_row(
+                self._general_form, role,
+                f"{organelle_label(role)} mask slice", widget)
+            added = True
+        for role, widget in panel._min_sizes.items():
+            if role not in _ORGANELLE_SLOTS or role in self._floor_rows:
+                continue
+            self._floor_rows.add(role)
+            self._insert_organelle_row(
+                self._filter_form, role,
+                f"{role.capitalize()} minimum area", widget)
+            added = True
+        order = list(panel._crop_mode_checks)
+        for role, widget in panel._crop_mode_checks.items():
+            if role in self._mode_rows:
+                continue
+            self._mode_rows.add(role)
+            self._mode_layout.insertWidget(order.index(role), widget)
+            widget.show()
+            added = True
+        if added:
+            self._install_tooltips()
+        return added
+
     def refresh_organelle_slots(self) -> None:
         """Show one organelle slot per slot the run declares.
 
@@ -1520,12 +1800,17 @@ class CropSettingsDialog(QDialog):
         there -- the same promise `spacr.settings._set_organelle_defaults`
         makes for the settings themselves.
 
-        An unset count shows every slot, which is what this dialog did before
-        the count reached it: better to offer a field too many than to hide
-        one a run is using.
-        """
-        from ...organelle_types import organelle_number
+        IT LAYS OUT AS WELL AS GATING. The panel builds a slot's controls
+        when the count reaches it rather than building all 702 up front, so
+        a count that rises while this dialog is open arrives as controls
+        with no rows; `_adopt_new_slot_controls` puts them in the block
+        before the gate below decides which are shown.
 
+        An unset count shows every slot that exists, which is what this
+        dialog did before the count reached it: better to offer a field too
+        many than to hide one a run is using.
+        """
+        self._adopt_new_slot_controls()
         count = getattr(self._panel, "_organelle_count", None)
         for role, form, widget in getattr(self, "_organelle_rows", ()):
             try:
@@ -1560,12 +1845,24 @@ class CropSettingsDialog(QDialog):
         #: hide the ones a run does not have. Recorded as they are added:
         #: hiding a row needs the FORM as well as the widget.
         self._organelle_rows: List[tuple] = []
+        #: Where the next slot row goes in each form, per form: the end of
+        #: the organelle block rather than the end of the form.
+        self._organelle_tail: Dict[int, int] = {}
+        #: Which slots already have a row, per kind, so a slot built later
+        #: is laid out once and only once.
+        self._mask_rows: set = set()
+        self._floor_rows: set = set()
+        self._mode_rows: set = set()
+        self._general_form = form
         for name, widget in panel._mask_dims.items():
             label = (organelle_label(name) if name in ORGANELLE_ROLES
                      else name.capitalize())
             form.addRow(f"{label} mask slice", widget)
             if name in ORGANELLE_ROLES:
                 self._organelle_rows.append((name, form, widget))
+                self._mask_rows.add(name)
+            if name not in _AFTER_THE_SLOTS:
+                self._organelle_tail[id(form)] = form.rowCount()
         form.addRow("Measure cytoplasm", panel._cytoplasm)
         form.addRow("Plot run diagnostics", panel._plot)
         form.addRow("Test mode", panel._test_mode)
@@ -1578,8 +1875,10 @@ class CropSettingsDialog(QDialog):
         crops_form.addRow("Save raw arrays", panel._save_arrays)
         mode_group = QGroupBox("Crop modes")
         mode_layout = QVBoxLayout(mode_group)
-        for widget in panel._crop_mode_checks.values():
+        self._mode_layout = mode_layout
+        for name, widget in panel._crop_mode_checks.items():
             mode_layout.addWidget(widget)
+            self._mode_rows.add(name)
         crops_form.addRow(mode_group)
         crops_form.addRow("Crop width", panel._crop_width)
         crops_form.addRow("Crop height", panel._crop_height)
@@ -1600,10 +1899,14 @@ class CropSettingsDialog(QDialog):
         filter_form.addRow("Keep uninfected cells", panel._uninfected)
         filter_form.addRow(
             "Merge edge-pathogen cells", panel._merge_edge_pathogen_cells)
+        self._filter_form = filter_form
         for name, widget in panel._min_sizes.items():
             filter_form.addRow(f"{name.capitalize()} minimum area", widget)
             if name in ORGANELLE_ROLES:
                 self._organelle_rows.append((name, filter_form, widget))
+                self._floor_rows.add(name)
+            if name not in _AFTER_THE_SLOTS:
+                self._organelle_tail[id(filter_form)] = filter_form.rowCount()
         tabs.addTab(filters, "Filter settings")
 
         preview = QWidget()
@@ -1623,7 +1926,21 @@ class CropSettingsDialog(QDialog):
         buttons.rejected.connect(self.close)
         outer.addWidget(buttons)
         panel._refresh_control_gates()
+        self._install_tooltips()
+        self.resize(620, 720)
+
+    def _install_tooltips(self) -> None:
+        """Give every row on this dialog its API help.
+
+        SPLIT OUT SO IT CAN BE RE-RUN. A row laid out by
+        `_adopt_new_slot_controls` after the dialog was built has had no
+        tooltip pass at all, and the pass reads the panel's control dicts,
+        so running it again picks the new rows up and leaves the rest as
+        they were.
+        """
         from ..screens.settings_model import install_api_tooltips
+
+        panel = self._panel
         widget_keys = {
             panel._experiment: "experiment",
             panel._measurement_channels: "channels",
@@ -1660,7 +1977,6 @@ class CropSettingsDialog(QDialog):
         for name, widget in panel._min_sizes.items():
             widget_keys[widget] = panel._size_floor_key(name)
         install_api_tooltips(self, "measure", widget_keys)
-        self.resize(620, 720)
 
     def closeEvent(self, event):
         """Remember the dialog's geometry before it goes.
