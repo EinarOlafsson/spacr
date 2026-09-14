@@ -10,13 +10,41 @@ Status:    SUBSTANTIALLY BUILT, corrected 2026-09-13. This line said "not
            measure all interpolate `*ORGANELLE_ROLES` (7, 2, 2, 2, 9 and 13
            references respectively).
 
-           TWO THINGS REMAIN, both re-checked today and both still true:
-             * `run_compare.OBJECT_TABLES` is ('cell', 'nucleus', 'pathogen',
-               'cytoplasm', 'png_list') -- no organelle table, so a
-               run-to-run comparison cannot see that one run wrote organelle
-               rows and another wrote none.
-             * `gene_measurement_compare.OBJECT_TABLES` (line 982) omits them
-               the same way.
+           THE TWO REMAINING ITEMS ARE DONE, 2026-09-13 (later the same day).
+           Both comparison modules now build their table list the way
+           `merge_tables.py:103` already did, by interpolating
+           `*ORGANELLE_ROLES` rather than naming four fixed strings:
+             * `run_compare.OBJECT_TABLES` is now 707 entries -- the four
+               object tables, the 702 organelle slots, and `png_list` LAST.
+               The order matters and is tested: `png_list` is documented as
+               last because it is a crop index rather than an object table,
+               and `_metric_order` prints tables in declaration order, so
+               splatting the roles onto the end would have moved the crop
+               index into the middle of the organelles.
+             * `gene_measurement_compare.OBJECT_TABLES` is now 706 -- the same
+               four plus the slots, and still no `png_list`, which that module
+               documents as something the caller adds.
+           Neither call site pays for the extra names: both filter by what the
+           database actually has (`run_compare.py:694` and `:831`), so the 702
+           slots cost a set lookup each and never a query.
+
+           WHAT THE OMISSION ACTUALLY COST, since the note above did not say:
+           comparing a run that measured organelles against one that did not
+           reported NO DIFFERENCE. Nothing raised -- the comparison simply had
+           no opinion about the rows that differed, which is the one thing it
+           exists to have an opinion about. That is the behaviour pinned by
+           `tests/test_a_run_comparison_can_see_an_organelle_table.py`, whose
+           eight assertions were each checked against three deliberate
+           mutations of the source (the four fixed names restored; the roles
+           splatted after `png_list`; a `png_list` added to the gene
+           comparison). Every mutation reddened exactly the tests naming that
+           invariant and no others.
+
+           ONE LINE NUMBER IN THIS FILE WAS STALE: it cited
+           `gene_measurement_compare.OBJECT_TABLES` at line 982; it was at
+           892. Recorded because a cited line number is a claim about a tree
+           that has moved, in the same family as the "verified by grep" dates
+           elsewhere in this ledger.
 
            ONE CLAIM IN THE NOTE BELOW IS TOO STRONG. It lists
            `external_masks.py` among the files that interpolate the registry.

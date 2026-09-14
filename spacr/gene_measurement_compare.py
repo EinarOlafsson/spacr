@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 
 from .figures.style import figure_style, theme_target
+from .object_roles import ORGANELLE_ROLES
 from .style_base import SHARED_CHOICES, FigureStyle
 
 #: Explanations for the controls in the measurement-comparison panel.
@@ -888,8 +889,13 @@ ANNOTATION_COLUMNS: frozenset = frozenset({
 
 #: The object tables, without the crop table. `_read_and_join_tables`
 #: defaults to these PLUS `png_list`, so leaving it out has to be said
-#: explicitly.
-OBJECT_TABLES: Tuple[str, ...] = ("cell", "cytoplasm", "nucleus", "pathogen")
+#: explicitly. The organelle slots are named for the same reason they are
+#: named in :data:`spacr.run_compare.OBJECT_TABLES`: a comparison that cannot
+#: see an organelle table cannot report that one run measured organelles and
+#: another did not.
+OBJECT_TABLES: Tuple[str, ...] = (
+    "cell", "cytoplasm", "nucleus", "pathogen", *ORGANELLE_ROLES,
+)
 
 
 def join_measurements(objects: "pd.DataFrame",

@@ -57,6 +57,7 @@ from dataclasses import dataclass, field
 from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
                     Tuple, Union)
 
+from .object_roles import ORGANELLE_ROLES
 from .qt.settings_diff import SettingsDiff, diff_settings_grouped
 
 __all__ = [
@@ -87,8 +88,17 @@ __all__ = [
 #: table lists them. ``png_list`` is last because it is a crop index rather
 #: than an object table — it is counted because a run that measured the same
 #: cells but exported half the crops is a real and confusing failure.
+#:
+#: The organelle slots are here for the same reason ``png_list`` is: a run
+#: that wrote organelle rows and a run that wrote none is exactly the
+#: difference this module exists to report, and while the four fixed names
+#: were the whole list that difference was invisible. Both call sites filter
+#: by what the database actually has, so naming all
+#: :data:`~spacr.object_roles.ORGANELLE_ROLES` costs a set lookup per slot
+#: and never a query. :data:`spacr.merge_tables.OBJECT_TABLES` is built the
+#: same way.
 OBJECT_TABLES: Tuple[str, ...] = (
-    "cell", "nucleus", "pathogen", "cytoplasm", "png_list",
+    "cell", "nucleus", "pathogen", "cytoplasm", *ORGANELLE_ROLES, "png_list",
 )
 
 #: Acquisition-level metrics, derived from whichever object table is
