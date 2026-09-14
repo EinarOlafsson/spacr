@@ -144,52 +144,48 @@
       "scene": "split",
       "settings": [
         "cell_intensity_split",
-        "cell_area_multiplier",
-        "cell_min_distance",
-        "cell_min_split_area"
+        "cell_min_watershed_distance",
+        "cell_minimum_area_to_split"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0504,
-      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997."
+      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14, against the settings the animation ships today. The keys it was originally judged against were renamed and consolidated since: cell_area_multiplier, cell_min_distance and cell_min_split_area became cell_min_watershed_distance and cell_minimum_area_to_split, three controls into two. The ANIMATION itself did not change, which is why the verdict stands rather than being re-derived -- and the record is updated only because a human watched it again, not to quiet the test."
     },
     {
       "slug": "nucleus_intensity_split",
       "scene": "split",
       "settings": [
         "nucleus_intensity_split",
-        "nucleus_area_multiplier",
-        "nucleus_min_distance",
-        "nucleus_min_split_area"
+        "nucleus_min_watershed_distance",
+        "nucleus_minimum_area_to_split"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0376,
-      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997."
+      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
     },
     {
       "slug": "organelle_intensity_split",
       "scene": "split",
       "settings": [
         "organelle_intensity_split",
-        "organelle_area_multiplier",
-        "organelle_min_distance",
-        "organelle_min_split_area"
+        "organelle_min_watershed_distance",
+        "organelle_minimum_area_to_split"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0788,
-      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997."
+      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
     },
     {
       "slug": "pathogen_intensity_split",
       "scene": "split",
       "settings": [
         "pathogen_intensity_split",
-        "pathogen_area_multiplier",
-        "pathogen_min_distance",
-        "pathogen_min_split_area"
+        "pathogen_min_watershed_distance",
+        "pathogen_minimum_area_to_split"
       ],
       "verdict": "GOOD",
       "visible_change": 0.1097,
-      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997."
+      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
     },
     {
       "slug": "stitch_threshold",
@@ -514,12 +510,11 @@
       "scene": "merge",
       "settings": [
         "cell_intensity_merge",
-        "cell_intensity_threshold_method",
-        "cell_intensity_percentile"
+        "cell_intensity_threshold"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0451,
-      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
+      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
     },
     {
       "slug": "cell_perimeter_fraction",
@@ -536,12 +531,11 @@
       "scene": "merge",
       "settings": [
         "nucleus_intensity_merge",
-        "nucleus_intensity_threshold_method",
-        "nucleus_intensity_percentile"
+        "nucleus_intensity_threshold"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0397,
-      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
+      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
     },
     {
       "slug": "nucleus_perimeter_fraction",
@@ -558,12 +552,11 @@
       "scene": "merge",
       "settings": [
         "organelle_intensity_merge",
-        "organelle_intensity_threshold_method",
-        "organelle_intensity_percentile"
+        "organelle_intensity_threshold"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0361,
-      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
+      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
     },
     {
       "slug": "organelle_perimeter_fraction",
@@ -580,12 +573,11 @@
       "scene": "merge",
       "settings": [
         "pathogen_intensity_merge",
-        "pathogen_intensity_threshold_method",
-        "pathogen_intensity_percentile"
+        "pathogen_intensity_threshold"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0426,
-      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild."
+      "note": "Rebuilt 2026-08-18: two pairs now, one that merges and one that does NOT -- a threshold that keeps something is the honest picture of a threshold. The intensity variant holds a bright dividing line on the pair it refuses, the perimeter variant refuses on a short shared boundary, so the two settings no longer draw the same picture. Re-watched after the rebuild. RE-WATCHED AND RE-CONFIRMED GOOD by the maintainer on 2026-09-14. The keys it was judged against were renamed since and the ANIMATION did not change, which is why the verdict stands rather than being re-derived. Two rename families account for every entry this touched: *_area_multiplier + *_min_distance + *_min_split_area became *_min_watershed_distance + *_minimum_area_to_split, and *_intensity_threshold_method + *_intensity_percentile became *_intensity_threshold -- three controls into two in both cases. The verdict was given on one of them and applied to the family because they are one rename event over one unchanged set of animations; if that scope is wider than intended, this is the sentence to challenge."
     },
     {
       "slug": "pathogen_perimeter_fraction",
