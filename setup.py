@@ -816,6 +816,16 @@ setup(
             # machine. Importing spacr.cli_make_masks pulls no Qt, so a
             # missing folder and an unreadable layout are both refused with
             # a sentence over SSH rather than with a Qt crash.
+            #
+            # DECLARED ONCE. It was declared twice on 2026-09-14 -- same name,
+            # same target, two comments -- and setuptools refuses a duplicate
+            # outright: "Duplicate element EntryPoint(name='spacr-make-masks'
+            # ...)" killed `get_requires_for_build_sdist`, so every packaging
+            # and wheel-install cell of compat-matrix went red on a build that
+            # never started. The reasoning from the second copy is kept here:
+            # the editor is mouse-driven, but choosing and ORDERING the work is
+            # not, and a curation session that cannot be pointed at a folder
+            # from a shell cannot be resumed on a second machine.
             'spacr-make-masks=spacr.cli_make_masks:main',
             # spacr-run <module> --settings f — headless pipeline runner for
             # clusters: no Qt, no display. Importing spacr.cli pulls
@@ -834,11 +844,6 @@ setup(
             'spacr-plugins=spacr.cli_plugins:main',
             # Standalone classifier train/test leakage audit.
             'spacr-leakage=spacr.cli_leakage:main',
-            # Open Make Masks on a folder, as a resumable curation queue.
-            # The editor is mouse-driven, but choosing and ORDERING the work
-            # is not, and a curation session that cannot be pointed at a
-            # folder from a shell cannot be resumed on a second machine.
-            'spacr-make-masks=spacr.cli_make_masks:main',
             # SQLite health, integrity, locking, and reader/writer probe.
             'spacr-db-audit=spacr.cli_database:main',
             # Whole-installation diagnosis: which spacr is actually running
