@@ -1,0 +1,80 @@
+================================================================================
+DINOCELL AS A SEGMENTATION BACKEND
+================================================================================
+
+Status:    FUTURE, filed 2026-09-14. Not blocking.
+Requested: 2026-09-14, verbatim -- "we should add to future features to add
+           support for DINOCell  https://github.com/kadenstillwagon/DINOCell"
+Owner:     unassigned. `spacr/model_zoo.py` holds `ModelEntry` and its `kind`
+           field; `spacr/object.py` is where a mask is produced.
+
+--------------------------------------------------------------------------------
+WHAT DINOCELL IS, READ FROM THE REPOSITORY 2026-09-14
+--------------------------------------------------------------------------------
+
+An automated cell-segmentation model for LIVE CELL microscopy. A DINOv2 ViT
+encoder pretrained on 1.2B images, domain-adapted on 130k unlabelled cell
+images. MIT licence. `pip install dinocell`. A Python entry point
+`segment(img_path)` returning `output_segmentations`, and a CLI
+`dinocell segment image.png --output results/`.
+
+THE DETAIL THAT MAKES THIS CHEAP RATHER THAN A REWRITE: it predicts
+CELLPOSE-STYLE FLOWS rather than binary masks. spaCR's whole mask path already
+consumes Cellpose flows, so a backend that emits them plugs into what exists
+instead of needing a second post-processing pipeline beside it.
+
+Its README claims it outperforms Cellpose-SAM and SAMCell on both held-out
+test sets and zero-shot cross-dataset evaluation, and claims zero-shot
+generalisation to novel cell types and microscopes. THOSE ARE ITS CLAIMS AND
+NOT MEASUREMENTS OF OURS -- see below.
+
+NOT STATED IN THE REPOSITORY and needing a look before anyone builds: the
+image modality it expects, channel count, whether it is 2-D only, and where
+its checkpoints come from. The README does not say.
+
+--------------------------------------------------------------------------------
+WHY IT IS WORTH HAVING
+--------------------------------------------------------------------------------
+
+Every model in the zoo today is Cellpose or a YOLO detector, and all three
+entries are Toxoplasma-specific (`toxoplasma_pv_v1`, `toxoplasma_plaque_v1`,
+`toxoplasma_well_detector_v1`). A model whose selling point is zero-shot
+generalisation to cell types it has not seen is the opposite of that, and is
+what a user with an unfamiliar assay actually needs on day one.
+
+Live-cell microscopy is also exactly where spaCR is weakest: the Cellpose
+models in the zoo are trained on fluorescence, and timelapse work is often
+label-free.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+  * A `kind` FOR IT IN THE MODEL ZOO. `ModelEntry.kind` is already the
+    discriminator -- 'cellpose' and 'detector' both exist -- so this is an
+    addition to an existing mechanism rather than a new one. If its flows are
+    genuinely Cellpose-shaped it may not even need a separate mask path.
+  * AN OPTIONAL DEPENDENCY, not a core one. `dinocell` pulls a ViT and its
+    weights; a user who never opens it must not pay for it. spaCR's
+    lazy-import discipline (item 282) is the standard to meet, and
+    `tests/test_perf_guard.py` is what enforces it.
+  * A SCORECARD BEFORE A RECOMMENDATION. `spacr/scorecard.py` exists and
+    scores a segmentation against ground truth with Dice, IoU, boundary F1
+    and AUPRC. Item 370 asks that every published model carry one. A vendor's
+    benchmark is not evidence about a user's images, and the whole point of
+    370 is that the comparison is run on OUR held-out set, not quoted.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+DINOCell segments a spaCR project end to end through the ordinary Mask path,
+with no import of `dinocell` in a process that does not use it -- proved the
+way 282 proves it, by asserting the module is absent from `sys.modules` after
+the Qt launch path. And a scorecard against the same held-out set that
+`toxoplasma_pv_v1` was scored on, so the two numbers are comparable, published
+beside them.
+
+BLOCKED ON THE SAME THING 370 IS: the held-out set is labelled data and does
+not exist yet. The integration can land before the scorecard; the
+RECOMMENDATION cannot.

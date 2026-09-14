@@ -2,7 +2,22 @@
 SEVENTY-SEVEN API ROWS NAME A SETTING THAT DOES NOT EXIST
 ================================================================================
 
-Status:    OPEN, filed 2026-09-12. Not blocking. Measured, not estimated.
+Status:    PINNED 2026-09-14, and the third WHAT-TO-DO bullet is what was
+           outstanding: the 77 are now a NAMED SET, not a number.
+           `ABSENT_FROM_EXPECTED_TYPES` at line 103 of
+           tools/build_setting_consumer_map.py lists every one grouped by
+           cause; `ABSENCE_CAUSES` (:168), `CATALOG_ONLY_NOTES` (:182) and
+           `CATALOG_ONLY_UNREAD` (:206) carry the reasons;
+           `classify_absence` (:216) re-derives a cause from the live
+           package. The test file is
+           tests/test_the_rows_expected_types_cannot_see_are_pinned.py and
+           it fails with ARRIVED and LEFT spelled out separately, so a
+           one-for-one swap can no longer read as no change.
+           STILL OPEN, AND THIS ENTRY DID NOT DO IT: the SECOND bullet.
+           Twenty-one keys have prose a user reads and no type
+           `check_settings` can validate; the 2026-09-14 section below pins
+           that class and says so.
+           Filed 2026-09-12. Not blocking. Measured, not estimated.
 Requested: not requested -- found while clearing 391's own stale rows, and
            filed rather than chased on the other session's advice: "a number
            nobody has explained is worth an item, not an evening".
@@ -279,3 +294,137 @@ with words is an attempt to make one sentence true of two different contracts.
 
   DO NOT RE-ATTEMPT THE PROSE. The measurements above are the evidence that it
   does not converge.
+
+--------------------------------------------------------------------------------
+2026-09-14 -- THE REMAINDER IS PINNED BY NAME, AND THE SPLIT IS NOT THE ONE
+THE 09-13 ENTRIES SETTLED ON
+--------------------------------------------------------------------------------
+
+The third WHAT TO DO bullet was the one still open: the first two were done in
+the notes above, this one asked for "a named, committed list with a reason
+each" and there was no list, only counts inside this file. A count in a note
+is not a pin. Seventy-seven rows leaving and seventy-seven others arriving
+reads identically from a total, which is 364's failure exactly.
+
+WHAT NOW EXISTS:
+
+    tools/build_setting_consumer_map.py:103   ABSENT_FROM_EXPECTED_TYPES
+                                              all 77 keys, grouped by cause
+    ...:168   ABSENCE_CAUSES        the cause vocabulary, one line each
+    ...:182   CATALOG_ONLY_NOTES    a reason per key for the unexplained two
+    ...:206   CATALOG_ONLY_UNREAD   which of those two nothing reads
+    ...:209   pinned_absences()     flattened key -> cause
+    ...:216   classify_absence()    re-derives a cause from the live package
+
+    tests/test_the_rows_expected_types_cannot_see_are_pinned.py
+        seven tests. The set is measured in a CHILD INTERPRETER, because
+        "absent from expected_types" depends on how much of the package has
+        been imported and in a pytest process that is decided by test order.
+        The failure names ARRIVED and LEFT separately.
+
+THE SPLIT, MEASURED 2026-09-14 (and the whole of it, no residue):
+
+    late_registration       51   typed after all -- but only once the module
+                                 that registers the key has been imported
+    tooltip_without_type    21   in `spacr.settings.tooltips` from the first
+                                 import, in `expected_types` never
+    app_key                  3   cellpose_all, cellpose_masks, measure
+    catalog_only             2   barcode_qc, umap.reduction_method
+
+FIFTY-ONE OF THE 77 ARE TYPED. `import spacr.settings` sees 77 rows absent;
+after the package's modules have been imported, 26 are. That is trap 3c and
+this item being one fact, which the 09-13 entry below already suspected --
+but the size of it did not get measured. The 77 was never a population of
+under-declared rows; two thirds of it is a snapshot taken too early.
+
+    WHICH MAKES THE 77 AN ARTEFACT OF WHEN, not only of where. Anyone
+    subtracting this baseline from a stranded-row count should subtract the
+    SET, since the number depends on the import graph of the process that
+    measured it.
+
+THE 09-13 ENTRY IS INVERTED ABOUT THE TOOLTIPS, and the original guess at the
+head of this file was right. It says "In fact ALL 77 have a tooltip ... Tooltip
+presence cannot discriminate anything here. The 21/17/4/35 breakdown above was
+a guess at the shape and should not be used." It was measuring the EN
+CATALOG's `SETTING_TOOLTIPS`, which every row has BY CONSTRUCTION because the
+catalog is unioned into the generator's vocabulary -- so that reading is true
+and empty. Measured against the MODULE-SCOPE `spacr.settings.tooltips`, which
+is the table the original bullet meant, exactly 21 of the 77 have a tooltip
+and no type, and they are the same class the original named: blue_channel,
+columnID, control_sgrnas and csv are all four of them in it. The 17 `hit_*`
+reproduce exactly too. The 21/17 halves of that breakdown are good; only the
+4/35 remainder was a guess.
+
+  SO THE ITEM'S SECOND BULLET IS STILL LIVE AND STILL WORTH DOING: twenty-one
+  keys have prose a user reads and no type `check_settings` can validate.
+  Adding a type is the safer error, as the bullet says. It is not done here --
+  this entry pins the set, it does not fix the class.
+
+THREE OF THE 77 ARE NOT SETTINGS AT ALL. `cellpose_all`, `cellpose_masks` and
+`measure` are keys of `spacr.settings.descriptions`, the per-APP blurbs, and
+the EN catalog carries them inside `SETTING_TOOLTIPS` beside the real
+per-setting prose -- byte for byte, which is how they can be told apart in
+code. The name of a PANEL therefore enters the generator's vocabulary and
+earns an API row. No such key can ever be in `expected_types`.
+
+  WHICH CORRECTS THE 09-13 ENTRY ON `measure`. That entry establishes at
+  length that `measure` is "live, read through `resolved`" and counts it among
+  the 76 real settings. The reads are real -- `spacr/foreign.py:3448` and
+  `:3458` read `bool(resolved.get('measure'))` to decide whether Import
+  Project also measures -- but they are not why the ROW exists. The row exists
+  because the Measure app's blurb is in the settings vocabulary. Two different
+  things share the name.
+
+THE GENUINE REMAINDER IS TWO, and each has its reason committed beside it:
+
+    barcode_qc              a live flag -- `spacr/sequencing.py:1056` reads
+                            `settings.get('barcode_qc', False)` -- and also
+                            the APP_KEY of spacr/sequencing_qc.py:68. Typed
+                            nowhere; only the catalog knows it. Giving it a
+                            type is the safer fix, and then nothing depends on
+                            which module got imported.
+    umap.reduction_method   the duplicate recorded on 09-13, unchanged and
+                            still not removed: row 817 of the generated table,
+                            ('spacr.validate', '', False), the only dotted key
+                            of the 836. Confirmed today that nothing reads it,
+                            and that `umap.metric` and `umap.n_neighbors` still
+                            have no row at all.
+
+STALE CITATIONS IN THIS FILE, AND IN THE ARTEFACT IT QUOTES. The 09-13-later
+entry cites `spacr/convert.py:2176`, `spacr/foreign.py:3584/3609/3619` and
+`spacr/external_masks.py:551`. None of those lines hold those reads now --
+convert.py is 2124 lines long today. The current sites are convert.py:2090,
+external_masks.py:542, foreign.py:3427 for `layout` and foreign.py:3448/:3458
+for `measure`. The line numbers came from `docs/setting_consumers.json`, which
+is a COMMITTED GENERATED ARTEFACT whose only guard is `target_count` matching
+the runtime table (test_setting_api_links_point_at_the_consumer.py:78), so its
+recorded lines drift silently as files move. Its record for
+`umap.reduction_method` -- a dynamic read at spacr/validate.py:1991 -- points
+at unrelated code today. Nothing in the new pin depends on that file.
+
+MEASURED AGAINST origin/nightly, NOT ACCEPTED AS A TOTAL. The same probe run
+against a clean `git archive origin/nightly spacr` gives 77 with ZERO arrived
+and ZERO left versus the pinned set, so the pin describes the baseline rather
+than this worktree. `spacr/qt/screens/setting_api_targets.py` and
+`docs/setting_consumers.json` were not regenerated and are byte-identical to
+origin/nightly; the only source file this entry changes is the generator, and
+it changes no output it writes.
+
+  REVIEWED 2026-09-14. The pin was re-measured from an independent probe and
+  from a clean `git archive origin/nightly spacr`: 836 rows, 77 absent, and
+  every group reproduces member for member (51/21/3/2) on both, with ARRIVED 0
+  and LEFT 0 -- so it describes the baseline and not this worktree, and the
+  concurrent `grna` retirement cannot move it because `grna` has no row. The
+  citations above were checked line by line and all hold. Two small things
+  were changed in the test during review:
+
+    * THE PROBE SWALLOWED IMPORT FAILURES SILENTLY. Fifty-one of the pinned
+      keys are typed only once the registering module imports, so a module
+      that fails to import -- an optional dependency missing on some other
+      machine -- makes a key look ARRIVED for a reason that has nothing to do
+      with the table. The probe now records which modules failed and the
+      set test prints them above the ARRIVED list. Zero fail on this machine.
+    * `from child_env import child_env` after inserting `tests/` on sys.path
+      became `from tests.child_env import child_env`, which is what the other
+      four callers of that helper do and does not put the test directory on
+      the import path.

@@ -2,9 +2,34 @@
 spaCR FEATURES -- NEW, AND FUTURE
 ================================================================================
 
-Regenerated 2026-09-14 by `tools/build_instruction_index.py`, from the files
-themselves. Do not hand-edit: it went nine days stale last time, and an index
-that disagrees with the folder is worse than none, because it is believed.
+Regenerated 2026-09-14 by `tools/build_instruction_index.py`, from the files in
+these globs and nothing else:
+
+  features/future/*.txt
+  features/new/*.txt
+
+Do not hand-edit: it went nine days stale last time, and an index that
+disagrees with the folder is worse than none, because it is believed.
+
+features/ ITSELF IS NOT SCANNED, and the .txt files below sit there, in
+neither list. They are globbed on every run rather than counted once in
+prose, so this list is right on the day it is read and shrinks when one is
+resolved; item 398 holds what becomes of the ledger ones. Where the number
+a name here opens with also has a row below, 398 measured this top-level
+copy as the staler of the two -- and it is the one a reader reaches first.
+
+  01_pip_upgrade_is_broken_for_installed_builds.txt
+  02_multi_fov_loader_for_the_timelapse_movie.txt
+  03_five_order_dependent_qt_failures.txt
+  04_font_scale_default_disagrees_with_the_tests.txt
+  05_version_bump_and_github_actions.txt
+  06_module_overlap_and_merge_candidates.txt
+  07_known_bugs_not_fixed.txt
+  08_flowview_pipeline_visualisation.txt
+  31_gate_editor_redesign.txt
+  segmentation_qc_field_browser.txt
+  TEMPLATE.txt
+  update_tutorials_README.txt
 
 Each file says the same four things: what the state is, why it matters, what
 to do, and how to know it worked. Where something is NOT worth doing, that is
@@ -18,7 +43,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-393 in features/new, 6 in features/future. NEITHER LIST BLOCKS A RELEASE.
+393 in features/new, 9 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -43,6 +68,15 @@ FUTURE FEATURES
 
   396  MAKE MASKS SHOULD CURATE A QUEUE, NOT ONE FIELD AT A TIME
        396_make_masks_should_curate_a_queue_not_one_field.txt
+
+  403  MAP BARCODES IS GENERAL BEYOND THREE NAMED REFERENCES
+       403_map_barcodes_is_general_beyond_three_named_references.txt
+
+  404  DINOCELL AS A SEGMENTATION BACKEND
+       404_dinocell_as_a_segmentation_backend.txt
+
+  405  SAMCELL AND LIVECELL, FOR TIMELAPSE
+       405_samcell_and_livecell_for_timelapse.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -440,4 +474,4 @@ NEW FEATURES
   399  MAP BARCODES SEARCHES FOR BARCODES, SETS ITS OWN SETTINGS, AND COLOURS READS
   400  EVERY COMMENT LEAVES THE MODULES AND THE REASONS MOVE TO docs/notes
   401  CUDA IS PROTECTED AND METAL IS NOT, SO ONE GPU BACKEND SURVIVES TRANSLATION
-  402  FLOWVIEW'S COLLECTOR IS A PROCESS-WIDE GLOBAL THAT NOTHING PUTS BACK
+  402  Status:    FIXED 2026-09-14. `tests/conftest.py` carries an autouse fixture

@@ -5,6 +5,14 @@ ELEVEN STALE LEDGER FILES SIT OUTSIDE THE INDEX
 Status:    OPEN, filed 2026-09-13. Not blocking. Measured, not estimated.
            NOT FIXED HERE deliberately -- deleting ledger files is the
            maintainer's call, and two of the eleven are not duplicates.
+           THE FOURTH "WHAT TO DO" BULLET IS CLOSED, 2026-09-14. The index
+           header now names the two globs it is generated from and lists,
+           BY NAME and re-globbed on every run, the top-level files it is
+           not: `SCANNED` at build_instruction_index.py:55, read by
+           `_files_for_number` (195), `_duplicate_numbers` (225) and
+           `render` (242); `_unscanned_top_level` at 203, printed at 265
+           and 289. Nothing was deleted or moved -- the three bullets that
+           carry a decision are still the maintainer's, untouched.
 Requested: not requested. Found while sweeping for stale `instructions/`
            paths after the folder rename.
 Owner:     unassigned. `features/*.txt` at the top level;
@@ -172,3 +180,113 @@ morning with two fresh order-dependent failures. The shallow copy still says
 "NOT DIAGNOSED". The gap it hides has grown by 62 lines since this file was
 written, which is the argument for resolving the nine rather than leaving
 them.
+
+
+--------------------------------------------------------------------------------
+2026-09-14 -- THE GENERATOR SAYS SO NOW, AND SAYS IT BY NAME
+--------------------------------------------------------------------------------
+
+The fourth bullet -- "MAKE THE GENERATOR SAY SO" -- was the one of the four
+that needed nobody's decision, and it is the one that is now done. The other
+three all end in "delete, move, or give an owner", which is not this session's
+call and has not been made.
+
+WHAT THE INDEX SAID AND WHAT IT SAYS. It said it was regenerated "from the
+files themselves", which was true of two folders out of three. It now opens:
+
+    Regenerated <date> by `tools/build_instruction_index.py`, from the files in
+    these globs and nothing else:
+
+      features/future/*.txt
+      features/new/*.txt
+
+    ...
+
+    features/ ITSELF IS NOT SCANNED, and the .txt files below sit there, in
+    neither list. They are globbed on every run rather than counted once in
+    prose, so this list is right on the day it is read and shrinks when one is
+    resolved; item 398 holds what becomes of the ledger ones. Where a name
+    here also appears below, 398 measured the top-level copy as the staler of
+    the two -- and it is the one a reader reaches first.
+
+      01_pip_upgrade_is_broken_for_installed_builds.txt
+      ... (the rest, one per line)
+
+NO NUMBER IS WRITTEN ANYWHERE IN IT. The names come from
+`_unscanned_top_level()` (build_instruction_index.py:203), which globs
+`features/*.txt` on each run and excludes only the index itself -- a file
+cannot be an input to its own generation. A pinned count is precisely what
+this item keeps being caught by. CHECKED RATHER THAN ASSERTED, because the
+first version of this paragraph got it wrong: the WORD "eleven" is in this
+file's own title and in
+`tests/test_a_ledger_file_does_not_contradict_itself.py::_ledger_files`
+(line 125) -- two places, not three. The third is the same ratchet in another
+form: `tests/test_a_ledger_file_is_not_shadowed_by_a_staler_twin.py` never
+writes the count, it PINS the eleven NAMES, nine in `KNOWN_SHADOWED` and two
+in `KNOWN_UNIQUE`, and says "Nine of them" in its docstring. All three go
+wrong on the day somebody resolves one file. The header is the one place that
+cannot.
+
+TWELVE NAMES, NOT ELEVEN, AND THE DIFFERENCE IS NOT A DRIFT. The glob prints
+what is there: the eleven ledger files this item is about, plus `TEMPLATE.txt`,
+which is structural rather than a ledger item but is just as unscanned. The
+header claims only that they are in neither list, which is true of all twelve,
+and points at this item for "what becomes of the LEDGER ones". Hiding
+`TEMPLATE.txt` would have meant a hand-maintained exception list, which is the
+same defect one level down.
+
+THE FOLDERS ARE NAMED ONCE, IN CODE, SO THE HEADER CANNOT DRIFT FROM THE SCAN.
+`SCANNED = ("future", "new")` (line 55) is what `_files_for_number`,
+`_duplicate_numbers` and the header all read, and `render` now builds its rows
+as `{folder: _entries(folder) for folder in SCANNED}` (242), so a folder READ
+and not named, or dropped from `SCANNED` and still named, is a KeyError on the
+next run rather than a header that quietly describes the wrong scan. THE ONE
+DIRECTION THAT IS NOT CAUGHT, measured rather than assumed: ADDING a third
+folder to `SCANNED` prints its glob in the header and globs its files, and its
+rows then go into no list, because `render` still unpacks `rows["future"]` and
+`rows["new"]` by hand. A third folder needs a list of its own below, and the
+comment at 242 now says so.
+
+THE GAP THIS ITEM COMPLAINED OF IS NOW CLOSED FROM BOTH ENDS. "Nothing counts
+these eleven" was true when this was filed;
+`tests/test_a_ledger_file_is_not_shadowed_by_a_staler_twin.py` closed the
+count on 2026-09-13, and printing the names closes the other half: `--check`
+compares the committed index against a fresh render, so a file arriving at
+`features/` top level now makes the index STALE and CI says so. A top-level
+file used to be the one change to this folder that no check could see.
+
+Covered by `tests/test_the_index_header_names_what_it_scans.py`:
+
+    test_the_header_names_every_folder_it_is_generated_from
+    test_the_header_lists_every_top_level_file_it_does_not_scan
+    test_the_index_does_not_list_itself_as_unscanned
+    test_the_list_is_globbed_on_every_run_and_not_pinned
+    test_a_new_top_level_file_now_makes_the_committed_index_stale
+
+The last two run against a fabricated `features/` tree, because "it is read
+off the filesystem every run" cannot be shown against the one filesystem this
+repository happens to have. Each was watched red: dropping the glob lines from
+the header, returning `[]`, returning a list PINNED TO TODAY'S TWELVE CORRECT
+NAMES, and removing the index's own exclusion. The pinned-but-correct mutation
+is the one that matters -- it leaves the real tree passing and fails only the
+two tests that add a file, which is the drift this is for.
+
+WHAT WAS STALE IN THIS FILE, checked rather than assumed:
+
+  * `build_instruction_index.py:154-155` (cited at the top of WHAT IS THERE as
+    where the two folders are scanned) no longer points at that. Line 155 is
+    the `return sorted(...)` of `_entries`. The folder names were at 178 and
+    189 before today's edit and are at 55, 195, 225 and 242 after it. The
+    claim it supports was still true; the line numbers were not.
+  * The `new` column of the 2026-09-13 diff table has moved under it: `03` is
+    351 lines today, not the 197 recorded there or the 283 in the table above
+    it; `31` is 639, not 505; `05` is 122, not 86. The "lines only in the
+    stale copy" column is the column that mattered and it still holds where
+    re-measured -- `31` unique 0, `05` unique 24, by
+    `comm -23` over the sorted files.
+  * The re-measurement note says `03` is "107 against 345". It is 107 against
+    351 as of today. It moved again, which is the note's own point.
+
+STILL NOT DECIDED, AND STILL NOT THIS SESSION'S TO DECIDE: the nine, and the
+two singletons. Nothing here deletes, moves or renames a ledger file. The
+index now admits they exist, which is all the fourth bullet asked for.

@@ -1,0 +1,73 @@
+================================================================================
+SAMCELL AND LIVECELL, FOR TIMELAPSE
+================================================================================
+
+Status:    FUTURE, filed 2026-09-14. Not blocking.
+Requested: 2026-09-14, verbatim -- "we shuld also support SAMCell-LIVECell
+           especislly for timelapse"
+Owner:     unassigned. Related to 404 (DINOCell) -- both are the same
+           question, "what segments a cell spaCR was not trained on", and
+           they should share one backend seam rather than growing two.
+
+--------------------------------------------------------------------------------
+WHAT IS KNOWN, AND WHAT IS NOT
+--------------------------------------------------------------------------------
+
+READ FROM github.com/NathanMalta/SAMCell ON 2026-09-14: MIT licence,
+copyright 2023 Nathan Malta, folders `dataset_processing` and `src`, and a
+`requirements.txt`. THE REPOSITORY HAS NO README. Backbone, training data,
+checkpoints, entry points and whether LIVECell is among its training sets are
+all UNSTATED there, and this file does not guess at them. Anyone taking this
+item starts by establishing those facts, not by trusting this paragraph.
+
+Corroborating, from a third party rather than from SAMCell itself: DINOCell's
+README (item 404) names "SAMCell" as one of the two baselines it claims to
+beat, alongside Cellpose-SAM. So it is a real and current point of comparison
+in this space, which is worth something and is not a specification.
+
+WHY LIVECELL IS THE PART THAT MATTERS. LIVECell is a large label-free
+phase-contrast segmentation dataset. A model trained on it is trained on the
+modality timelapse actually produces. Every Cellpose model in spaCR's zoo
+today is fluorescence-oriented, and the three published entries are all
+Toxoplasma-specific. A live-cell run in brightfield or phase contrast is
+currently asking a fluorescence model to do something it was not trained for.
+
+--------------------------------------------------------------------------------
+WHY TIMELAPSE SPECIFICALLY
+--------------------------------------------------------------------------------
+
+Timelapse is where a segmentation failure compounds rather than stays local.
+A single bad frame is one bad measurement; a model that is systematically
+weaker on label-free images produces a track that breaks, and a broken track
+is a lineage error that propagates through every downstream number. The
+maintainer's "especially for timelapse" is the right emphasis for that reason.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD, AND THE ORDER
+--------------------------------------------------------------------------------
+
+  1. ESTABLISH THE FACTS FIRST. Which checkpoint, trained on what, emitting
+     what -- masks, flows, or SAM-style prompts. That decides whether it
+     shares 404's seam or needs its own mask path, and it is not knowable
+     from the repository page today.
+  2. ONE BACKEND SEAM, NOT TWO. If 404 lands first, this should extend the
+     same `ModelEntry.kind` mechanism. Two parallel non-Cellpose paths added
+     a month apart is how a mask pipeline acquires a second way of doing
+     everything.
+  3. OPTIONAL DEPENDENCY, as 404 says and item 282 requires.
+  4. SCORED ON TIMELAPSE DATA, not on still frames. The claim being made is
+     about label-free live-cell imaging, so the held-out set that tests it
+     has to be that -- and `spacr/scorecard.py` scores splits and merges,
+     which are exactly the failures that break a track.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+A phase-contrast or brightfield timelapse runs end to end and produces tracks,
+with a scorecard against a labelled held-out set of the same modality, beside
+whatever Cellpose does on the same frames. The comparison is the deliverable:
+"better on label-free" is the claim, and a number on fluorescence data does
+not test it.
+
+BLOCKED, like 404 and 370, on labelled held-out data that does not exist yet.

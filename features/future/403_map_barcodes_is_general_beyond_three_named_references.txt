@@ -1,0 +1,83 @@
+================================================================================
+MAP BARCODES IS GENERAL BEYOND THREE NAMED REFERENCES
+================================================================================
+
+Status:    FUTURE, filed 2026-09-14. Not blocking. Asked for directly:
+           "is there an item to make map barcodes more generalizable?"
+           There was not -- this is it.
+Requested: 2026-09-14, by the maintainer.
+Owner:     unassigned. `spacr/barcode_search.py` is the search,
+           `spacr/sequencing.py:1078 generate_barecode_mapping` is the
+           mapping, and `spacr/settings.py:3445-3448` is where the shape is
+           fixed.
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY GENERAL, SO THAT NOBODY REBUILDS IT
+--------------------------------------------------------------------------------
+
+Item 399 closed on 2026-09-13 and it DID generalise the search half. The
+screen "takes any number of barcodes" (c753b7de7), finds its own settings, and
+colours each barcode's matches. That work is done and this item is not about
+it.
+
+--------------------------------------------------------------------------------
+WHAT IS STILL FIXED, MEASURED 2026-09-14
+--------------------------------------------------------------------------------
+
+THE PIPELINE STILL NAMES EXACTLY THREE REFERENCES, even though the search no
+longer does. `spacr/settings.py:3445-3448` declares `column_csv`, `grna_csv`
+and `row_csv` as three separate string settings, and settings.py:537 says so
+in prose: "by ``column_csv``, ``grna_csv`` and ``row_csv``, exactly as every
+...". So a screen that can find seven barcodes hands them to a mapper that has
+three slots with three names.
+
+That is the same shape as the organelle registry before item 76: a fixed
+vocabulary of roles, where the general case is "N of them, named by the run".
+It is worth noting that 76's answer -- interpolate a registry -- had a cost
+that took a year to surface (see 284: 702 roles times one widget each), so the
+lesson for this item is to make the COUNT come from the data rather than from
+a maximum.
+
+THE ALPHABET IS DNA AND ONLY DNA. `barcode_search.py:136` is
+`_COMPLEMENT = str.maketrans("ACGTNacgtn", "TGCANtgcan")`. Reverse-complement
+matching is therefore nucleotide-only. That is correct for every assay spaCR
+runs today and it is an assumption rather than a general rule -- protein tags,
+amino-acid barcodes and non-ACGT alphabets would all silently take the wrong
+path rather than be refused.
+
+THE TUNING CONSTANTS ARE MODULE-LEVEL, not per-run: `DEFAULT_SAMPLE_READS`
+20000, `DEFAULT_CHUNK_READS` 2000, `MIN_ENRICHMENT` 3.0, `MIN_USABLE_RATE`
+0.10, `MAX_OFFSET_SPAN` 6, `OFFSET_WINDOW_COVERAGE` 0.80,
+`MIN_READS_FOR_VERDICT` 500 (`barcode_search.py:120-133`). Every one is a
+judgement about a library, and a library that differs in read depth or barcode
+length gets someone else's judgement with no way to say so.
+
+--------------------------------------------------------------------------------
+WHAT "GENERALIZABLE" SHOULD MEAN HERE
+--------------------------------------------------------------------------------
+
+  * A RUN DECLARES ITS REFERENCES, as a list with names it chooses, rather
+    than filling three slots the code named in advance. `row` and `column`
+    are plate geometry and `grna` is a library; a different screen may have
+    two of those, or five, or none.
+  * THE MAPPING READS THAT LIST. `generate_barecode_mapping` is the legacy
+    helper and the place this stops being cosmetic.
+  * THE ALPHABET IS DECLARED OR THE INPUT IS REFUSED. Silently reverse-
+    complementing something that is not DNA is worse than saying no.
+  * THE THRESHOLDS ARE SETTINGS with the current values as defaults, and
+    each says what it is judging.
+
+--------------------------------------------------------------------------------
+HOW IT WILL BE CHECKED
+--------------------------------------------------------------------------------
+
+A run with TWO references and a run with FIVE both map end to end, on planted
+data, with no setting named `row_csv`, `column_csv` or `grna_csv` anywhere in
+either. A non-ACGT alphabet is refused with a message naming the character.
+And the existing three-reference screens still run unchanged from their
+current settings files -- a generalisation that breaks every saved settings
+file is a rewrite, not a generalisation.
+
+NOTE FOR WHOEVER TAKES IT: `grna` (the setting, not `grna_csv`) is being
+retired under item 364 as a setting no pipeline reads. Do not confuse the two.
+`grna_csv` is the live one.

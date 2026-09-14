@@ -558,6 +558,90 @@ creating anything, and prefer `Edit` over `Write` for a path that may exist.
 
 ## 3. Traps
 
+### 3.0. AN EXIT CODE IS A CLAIM ABOUT THE CHECKS, NEVER ABOUT THE CONTENT
+
+**Read this before you run any repair pass, 2026-09-14.** Between them the two
+audits check key coverage, source hashes, protected literals, markup, English
+residue, a fixed false-friend list and target script. Neither of them reads. A
+repair that satisfies every check can still change what a row MEANS, and the
+exit code will not move. **So diff the rows against `origin/nightly` and revert
+every one the audit did not require.**
+
+**The face that looks wrong the moment anyone reads it: English substituted.**
+`--repair-invalid-only --languages zh_CN ko` took 85 invalid rows to 17. Among
+the 68 it "repaired" was the UI row `Filter rows — type a gene, a guide,
+anything in the table`, which is `'筛选行 — 键入基因、引导 RNA或表格中的任何内容'`
+at HEAD (the `UI` table of `spacr/qt/i18n_catalogs/zh_CN.py`) and came back as
+the English source verbatim. A following `--repair-untranslated` then
+rewrote 3,160 rows and still left 17. Nothing reported any of it; it was
+caught by diffing ONE row against HEAD.
+
+**The face that does not, and it is the one that gets committed: fluent
+nonsense.** A repair pass rewrote 87 zh_CN rows where CI had named 3, and the
+runtime audit exited 0 on all of them:
+
+| key | before | after the "repair" | what the repair says |
+|---|---|---|---|
+| `pca_whiten` | `白色PCA` | `白色白色` | "white white" |
+| `guide_permutations` | `引导 RNA转换` | `导游转换` | "tour guide" |
+| `surrogate_model` | `Surrogate 模型` | `超越模型` | "surpass model" |
+
+The last two were reverted and read as "before" today. `pca_whiten` is now
+`'Pca 白化'`, which is what the repair should have produced: it drops the
+invented literal and keeps the meaning.
+
+THE MECHANISM IS THE PART TO RECORD. The audit had been FAILING the old
+`pca_whiten`: the source label is `'Pca whiten'`
+(`SETTING_LABELS` in `spacr/qt/i18n_catalogs/en.py`), no uppercase `PCA` in
+it, so the old Chinese had INVENTED a protected literal. The repair removed
+the invented literal by removing the meaning, and the gate cannot tell those
+two apart. Reproducible against the tree as it stands, with
+`tools/build_i18n_catalogs.py` imported:
+
+    _syntax_preserved_or_reviewed('Pca whiten', '白色PCA',  'zh_CN')  -> False
+    _syntax_preserved_or_reviewed('Pca whiten', '白色白色', 'zh_CN')  -> True
+    _looks_degenerate('Pca whiten', '白色白色', 'zh_CN')              -> False
+
+`白色白色` is two repeats and `_looks_degenerate` (`build_i18n_catalogs.py:4879`)
+wants four -- `([\u3400-\u9fff]{1,6})\1{3,}` -- before it calls a loop. A row
+can get worse in every way a reader cares about and still go green.
+
+**THE COROLLARY, which is not obvious and cost a near-miss: DIFFING THE ROWS IS
+NECESSARY AND NOT SUFFICIENT — READ THE ENGLISH BEFORE YOU REVERT.**
+`spacr.crops.apply_display_order` in Korean went `RGB의 변환` -> `색상의 순열`,
+which reads as a dropped protected literal until you read the source it
+translates: `:raises CropError: an order that is not a permutation of rgb.`
+(`spacr/crops.py:3538`) — LOWERCASE rgb. The old Korean had invented the
+uppercase `RGB`, and 순열 ("permutation") is more accurate than 변환
+("conversion") besides. A row that looks degraded may be one that stopped
+lying.
+
+Here the GATE was right and the READER was about to be wrong, which is the
+reverse of everything above it. Block 5 of that symbol is what `audit()` hands
+to `_syntax_preserved` (`tools/build_documentation_i18n.py:6339`):
+
+    _syntax_preserved('an order that is not a permutation of rgb.',
+                      'RGB의 변환이 아닌 순서입니다.')  -> False   # HEAD
+    _syntax_preserved('an order that is not a permutation of rgb.',
+                      '색상의 순열이 아닌 순서입니다.')  -> True    # the "damage"
+
+`_PROTECT_RE` matches a bare `RGB`, so the old row carries a protected literal
+its source does not have -- and `build_documentation_i18n.py --audit` says so
+today, exit 1:
+
+    ko: 10 API blocks changed protected code/literals
+    (spacr.crops.apply_display_order#5, spacr.crops.display_order_indices#3, ...)
+    zh_CN: 3 API blocks changed protected code/literals
+    (spacr.crops.apply_display_order#5, ...)
+
+zh_CN carries the same invented literal in the same block --
+`命令不是RGB的转换。` -- and neither row is new: the Korean has been in the
+tree since `dc68f7b0d` and the Chinese since `774b9a7e8`, both 2026-08-14.
+Reverting the repair to "restore the literal" would have put a rejected row
+back; leaving it alone leaves one there. THE REPAIR WAS RIGHT ON THIS ROW.
+Diff every row, then read the English for each one before you decide which way
+it moved.
+
 ### 3a. A changed public DOCSTRING obliges an i18n rebuild — not a new module
 
 **THE RULE WAS TOO NARROW AND THE SYMBOL COUNT IS BLIND TO THE DIFFERENCE,

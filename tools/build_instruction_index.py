@@ -17,6 +17,18 @@ Everything here is read off the filesystem at run time. The only hand-written
 part is the small table of stages and blockers below, which is the one thing
 the files themselves do not say in a machine-readable way.
 
+TWO FOLDERS, NOT THREE, AND THE HEADER NOW SAYS WHICH. The scan is
+``features/future/*.txt`` and ``features/new/*.txt`` -- the folders named in
+``SCANNED`` -- and nothing else. ``features/`` itself still holds ledger files
+the rename from ``instructions/`` left behind, and an index that told a reader
+it was generated "from the files themselves" while skipping them is what item
+398 was filed about. They are globbed per run by ``_unscanned_top_level`` and
+printed in the index header BY NAME, never as a count: a number written into
+prose does not move when the folder does, and this ledger has been caught by
+exactly that several times. Listing them also puts them under ``--check``, so
+a file arriving at the top level makes the committed index stale instead of
+being invisible to every check that exists.
+
 Usage::
 
     python tools/build_instruction_index.py            # rewrite
@@ -36,6 +48,11 @@ from typing import Dict, List, Tuple
 REPO = Path(__file__).resolve().parent.parent
 INSTRUCTIONS = REPO / "features"
 INDEX = INSTRUCTIONS / "00_INDEX.txt"
+
+#: The folders this index is generated from, named once. Every scan below
+#: reads this tuple and the header prints it, so the folders the tool claims
+#: to read cannot drift from the folders it does read.
+SCANNED: Tuple[str, ...] = ("future", "new")
 
 #: Instructions owned by the concurrent codex session. Named here rather than
 #: inferred, because "do not touch this" is not something a file says about
@@ -175,7 +192,7 @@ def _sort_key(number: str) -> tuple[int, str]:
 def _files_for_number(number: str) -> List[str]:
     """Every feature file whose name starts with this item number."""
     found: List[str] = []
-    for folder in ("future", "new"):
+    for folder in SCANNED:
         base = INSTRUCTIONS / folder
         if not base.is_dir():
             continue
@@ -183,10 +200,29 @@ def _files_for_number(number: str) -> List[str]:
     return found
 
 
+def _unscanned_top_level() -> List[str]:
+    """``features/*.txt`` files that no list in this index is built from.
+
+    GLOBBED PER RUN, NEVER PINNED AT A NUMBER. Item 398 is the record of what
+    these are: `instructions/` held files in three places -- `open/`, `done/`
+    and its own top level -- and the rename carried all three across, so the
+    top level kept ledger files that neither ``SCANNED`` folder contains. The
+    count of them has been written into prose three times and has been wrong
+    since the day it was written each time; the index prints the names this
+    call returns instead, so it is right on the run and shrinks when somebody
+    resolves one.
+
+    The index itself is excluded: a file cannot be an input to its own
+    generation.
+    """
+    return sorted((path.name for path in INSTRUCTIONS.glob("*.txt")
+                   if path.name != INDEX.name), key=str.lower)
+
+
 def _duplicate_numbers() -> set:
     """Item numbers carried by more than one file, across both lists."""
     seen: Dict[str, int] = {}
-    for folder in ("future", "new"):
+    for folder in SCANNED:
         base = INSTRUCTIONS / folder
         if not base.is_dir():
             continue
@@ -200,8 +236,16 @@ def _duplicate_numbers() -> set:
 
 def render(today: str = "") -> str:
     """The whole index as text."""
-    future_rows = _entries("future")
-    new_rows = _entries("new")
+    # Keyed off SCANNED, which the header also prints, so the folders named
+    # and the folders read are one list. DROPPING a folder from SCANNED is a
+    # KeyError on the next two lines rather than a header that quietly
+    # describes the wrong scan. ADDING one is not: it would be globbed, and
+    # printed in the header, while its rows went into no list -- so a third
+    # folder needs a list of its own below, which is why the two lookups are
+    # spelled out here instead of iterated.
+    rows = {folder: _entries(folder) for folder in SCANNED}
+    future_rows = rows["future"]
+    new_rows = rows["new"]
     # Kept under the old names below so the rest of this renderer, which
     # predates the split into two lists, does not have to be rewritten to
     # say the same thing.
@@ -210,17 +254,51 @@ def render(today: str = "") -> str:
     percent = (len(done_rows) * 100 // total) if total else 0
     stamp = today or datetime.date.today().isoformat()
 
+    unscanned = _unscanned_top_level()
+
     lines = [
         "=" * 80,
         "spaCR FEATURES -- NEW, AND FUTURE",
         "=" * 80,
         "",
-        f"Regenerated {stamp} by `tools/build_instruction_index.py`, from the "
-        "files",
-        "themselves. Do not hand-edit: it went nine days stale last time, and "
-        "an index",
-        "that disagrees with the folder is worse than none, because it is "
+        f"Regenerated {stamp} by `tools/build_instruction_index.py`, from "
+        "the files in",
+        "these globs and nothing else:",
+        "",
+    ]
+    lines += [f"  features/{folder}/*.txt" for folder in SCANNED]
+    lines += [
+        "",
+        "Do not hand-edit: it went nine days stale last time, and an index "
+        "that",
+        "disagrees with the folder is worse than none, because it is "
         "believed.",
+        "",
+    ]
+    if unscanned:
+        lines += [
+            "features/ ITSELF IS NOT SCANNED, and the .txt files below sit "
+            "there, in",
+            "neither list. They are globbed on every run rather than counted "
+            "once in",
+            "prose, so this list is right on the day it is read and shrinks "
+            "when one is",
+            "resolved; item 398 holds what becomes of the ledger ones. Where "
+            "the number",
+            "a name here opens with also has a row below, 398 measured this "
+            "top-level",
+            "copy as the staler of the two -- and it is the one a reader "
+            "reaches first.",
+            "",
+        ]
+        lines += [f"  {name}" for name in unscanned]
+    else:
+        lines += [
+            "features/ ITSELF IS NOT SCANNED, and today it holds no .txt "
+            "file but this",
+            "one, so the globs above are the whole ledger.",
+        ]
+    lines += [
         "",
         "Each file says the same four things: what the state is, why it "
         "matters, what",
