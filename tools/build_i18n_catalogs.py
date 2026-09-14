@@ -4650,6 +4650,15 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
     return corrected
 
 
+#: Acronyms a target language may name where the English only implied them,
+#: as ``{acronym: source pattern that licenses it}``. Deliberately tiny and
+#: evidence-led: each entry is here because real reviewed output needed it,
+#: and the source pattern keeps the allowance from becoming "RNA anywhere".
+_IMPLIED_BY_THE_SOURCE: Mapping[str, str] = {
+    "RNA": r"(?<![A-Za-z0-9_])(?:guides?|gRNAs?|sgRNAs?)(?![A-Za-z0-9_])",
+}
+
+
 def _syntax_preserved(
     source: str,
     value: str,
@@ -4790,10 +4799,41 @@ def _syntax_preserved(
 
     protected_products = product_matches(source)
     rendered_products = product_matches(value)
+    # A TARGET MAY NAME AN ACRONYM THE SOURCE ONLY IMPLIED, in two narrow
+    # cases, and refusing them makes the translation worse rather than safer.
+    #
+    # The no-new-products rule exists to stop a model INVENTING a product --
+    # rendering something as "Cellpose" where the English never said it. That
+    # is a real hazard and the rule stays. These two are not inventions:
+    #
+    #   CASE. The source writes the acronym in lower case and the target
+    #   canonicalizes it: "the figure as pdf and png" -> "PDF". The token is
+    #   the source's own, and `_syntax_preserved_or_reviewed` already accepts
+    #   this shape for reviewed labels (``pca`` -> ``PCA``).
+    #
+    #   IMPLIED DOMAIN TERM. Chinese renders "guides" as ``引导 RNA``, because
+    #   引导 alone is "guidance/lead" and is ambiguous in a CRISPR screen. All
+    #   57 rows that do this on 2026-09-14 follow a source that says guide,
+    #   guides, gRNA or sgRNA -- zero exceptions, which is why the trigger is
+    #   a source pattern rather than a blanket allowance for RNA.
+    #
+    # THESE WERE INVISIBLE UNTIL THE TERM BOUNDARY WAS FIXED. ``RNA具有`` put
+    # a CJK character after the acronym, and the old ``(?!\w)`` could not see
+    # it, so 85 zh_CN rows passed a check that had never actually read them.
+    # They are not newly wrong; they were never examined.
+    unexpected = rendered_products - protected_products
+    for literal in list(unexpected):
+        if re.search(r"(?<![A-Za-z0-9_])" + re.escape(literal)
+                     + r"(?![A-Za-z0-9_])", str(source), re.IGNORECASE):
+            del unexpected[literal]
+            continue
+        trigger = _IMPLIED_BY_THE_SOURCE.get(literal)
+        if trigger is not None and re.search(trigger, str(source), re.IGNORECASE):
+            del unexpected[literal]
     product_mismatch = (
         any(rendered_products[literal] < count
             for literal, count in protected_products.items())
-        or bool(rendered_products - protected_products)
+        or bool(unexpected)
     )
     return (
         structural

@@ -78,3 +78,53 @@ def test_the_boundary_is_ascii_rather_than_unicode_aware():
         r"the term boundary is back to \w, which is Unicode-aware and "
         r"therefore treats CJK and Hangul as word characters -- see this "
         r"module's docstring for the three bugs that caused")
+
+
+# ---------------------------------------------------------------------------
+# The other half: what a TARGET may name that the source only implied.
+# ---------------------------------------------------------------------------
+
+def _syntax_preserved():
+    sys.path.insert(0, TOOLS)
+    try:
+        import build_i18n_catalogs
+        return build_i18n_catalogs._syntax_preserved
+    finally:
+        sys.path.remove(TOOLS)
+
+
+def test_chinese_may_say_guide_rna_where_the_english_says_guides():
+    """引导 alone is "guidance/lead" and is ambiguous in a CRISPR screen.
+
+    All 57 rows doing this on 2026-09-14 followed a source saying guide,
+    guides, gRNA or sgRNA -- no exceptions -- so the allowance is triggered
+    by the source rather than granted to RNA generally.
+    """
+    assert _syntax_preserved()(
+        "uses a sparse prior when most guides have small effects",
+        "使用稀疏先验，当大多数引导 RNA具有小效应时",
+    ), ("the Chinese expansion of 'guides' to '引导 RNA' is domain-correct and "
+        "must not be rejected as an invented product name")
+
+
+def test_a_target_may_canonicalise_an_acronym_the_source_lower_cased():
+    assert _syntax_preserved()(
+        "Writes a FOLDER: the figure as pdf and png",
+        "写一个文件夹：图像为 PDF 和 png",
+    ), "the token is the source's own; only its case changed"
+
+
+def test_an_invented_product_name_is_still_refused():
+    """The hazard the rule exists for, unchanged.
+
+    RNA is licensed only by a source that mentions a guide, and nothing
+    licenses naming a segmentation library the English never mentioned.
+    """
+    assert not _syntax_preserved()(
+        "segments the objects in the channel",
+        "使用 Cellpose 分割通道中的对象",
+    ), "a product the source never named must still be refused"
+    assert not _syntax_preserved()(
+        "counts the rows in the table",
+        "统计表中的 RNA 行数",
+    ), "RNA without a guide in the source must still be refused"
