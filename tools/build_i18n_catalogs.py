@@ -567,10 +567,27 @@ _PROTECT_PATTERNS = (
     re.compile(r"%(?:\d+\$)?[sd]"),
 )
 
+#: ASCII IDENTIFIER BOUNDARIES, NOT ``\w`` -- the same choice the snake_case
+#: protector made on 2026-09-13, and for the same reason. Python's ``\w`` is
+#: Unicode-aware, so CJK and Hangul characters ARE word characters and every
+#: "word boundary" idiom silently stops firing beside them. A protected term
+#: next to Chinese or Korean text then becomes invisible to the checker, which
+#: reports a CORRECT translation as having dropped the term.
+#:
+#: Three faces of it in one night, all against real reviewed translations:
+#:   ``Mask는``           a trailing Hangul particle defeats ``(?!\w)``
+#:   ``是Run History``     a leading CJK character defeats ``(?<!\w)``
+#:   ``Apple Silicon에서``  the same, in a record that was already correct
+#:
+#: The boundary that is actually meant is "not part of a LATIN word": ``Masking``
+#: must not match ``Mask``, and ``CUDA_PATH`` must not match ``CUDA``, while a
+#: Hangul particle or a CJK character is a perfectly good place for the term to
+#: end. An ASCII class says that; ``\w`` says something else and is wrong
+#: wherever a script has no spaces.
 _PRODUCT_PROTECT_RE = re.compile(
-    r"(?<!\w)(?:"
+    r"(?<![A-Za-z0-9_])(?:"
     + "|".join(re.escape(term) for term in _PROTECTED_TERMS)
-    + r")(?:s)?(?!\w)"
+    + r")(?:s)?(?![A-Za-z0-9_])"
 )
 
 _PROTECT_RE = re.compile(
