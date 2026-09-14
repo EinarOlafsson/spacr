@@ -128,3 +128,34 @@ def test_an_invented_product_name_is_still_refused():
         "counts the rows in the table",
         "统计表中的 RNA 行数",
     ), "RNA without a guide in the source must still be refused"
+
+
+#: Probes contributed by the work session on 2026-09-14, kept because the
+#: `guidebook` one is what separates an allowance from a hole and the original
+#: tests did not have it.
+IMPLIED_TERM_CASES = [
+    ("uses a sparse prior when most guides have small effects",
+     "使用稀疏先验，当大多数引导 RNA具有小效应时", True,
+     "RNA licensed by 'guides' -- the real case"),
+    ("counts the rows in the table", "统计表中的 RNA 行数", False,
+     "RNA with no guide anywhere in the source"),
+    ("segments the objects in the channel", "使用 Cellpose 分割通道中的对象", False,
+     "a product the English never named"),
+    ("open the guidebook for an explanation", "打开 RNA 手册以获得解释", False,
+     "'guidebook' must not license RNA -- the substring trap"),
+    ("most guides have small effects", "大多数引导 DNA具有小效应", False,
+     "DNA is not the licensed token"),
+    ("each sgRNA is counted once", "每条 sgRNA 引导 RNA计数一次", True,
+     "sgRNA licenses RNA"),
+]
+
+
+@pytest.mark.parametrize("source,target,allowed,why", IMPLIED_TERM_CASES)
+def test_the_implied_term_allowance_is_an_allowance_not_a_hole(
+        source, target, allowed, why):
+    got = _syntax_preserved()(source, target)
+    assert got is allowed, (
+        f"{why}: expected {'accepted' if allowed else 'refused'}, got "
+        f"{'accepted' if got else 'refused'}. _IMPLIED_BY_THE_SOURCE licenses "
+        f"an acronym only where the source earns it; widening that to 'RNA "
+        f"anywhere' would let a model invent a domain term.")
