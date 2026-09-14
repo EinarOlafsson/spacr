@@ -11,6 +11,38 @@ Status:    THE MEASUREMENT HALF IS BUILT -- `spacr/scorecard.py`, by the
            exist; read `spacr/scorecard.py` first. What remains is the
            held-out SET itself -- labelled data, not code -- and publishing.
            Filed 2026-09-02; re-checked 2026-09-05.
+
+           ALL FOUR SURFACES ARE WIRED, verified 2026-09-14 by grepping for
+           each one rather than trusting this file, which has been wrong about
+           itself twice:
+             * TOOLTIP -- `model_zoo.py:541,554,569` carry `scorecard_known`,
+               `scorecard_holdout` and `scorecard_lines`, and `describe()` is
+               what `screens/model_zoo.py` passes to `setToolTip`.
+             * CSV and the measurement -- `spacr/scorecard.py`, with Dice, IoU,
+               boundary F1, AUPRC, splits/merges, `HoldoutScore` and the
+               writer.
+             * API PAGE -- `docs/source/_generated/model_zoo_table.rst` already
+               renders a "Hold-out performance" column with real numbers:
+               `toxoplasma_pv_v1` reads "F1 0.867 against 0.713 for stock
+               cpsam, at IoU 0.5".
+             * HUGGING FACE -- the catalogue publishes to
+               `einarolafsson/models` via `REMOTE_CATALOGUE_URI`.
+
+           SO NOTHING HERE IS BLOCKED ON CODE. What is left needs the
+           maintainer and cannot be done by a session:
+             * THE LABELLED HELD-OUT SET, published beside the models. This is
+               data. The item's own crux paragraph is right that a number
+               computed on fields chosen at call time is not comparable
+               between two models or two days, and no amount of code supplies
+               the labels.
+             * THE PUBLISH ACTION to Hugging Face, which is the maintainer's
+               decision and credential.
+
+           Do not re-derive this. The section below headed "WHAT EXISTS, AND
+           THE ONE THING THAT DOES NOT" says accuracy does not exist; it did
+           when it was written and it does now, and reading it without this
+           header is how a session rebuilds `spacr/scorecard.py` a third
+           time.
 Requested: 2026-09-02, in two messages, verbatim --
            "for every model that is uploaded to model zoo, a table should
            accompany each model showing a comparison between the finetuned
