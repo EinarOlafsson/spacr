@@ -600,6 +600,41 @@ content had never been examined.
 to a protect pattern, a term list or an identity rule must be verified with
 BOTH AUDITS before pushing.**
 
+### 3a-ter. Four states, not two, when a measurement disagrees with you
+
+Both sessions lost time on 2026-09-13/14 by collapsing these into "regression"
+or "no regression". They are distinct and the response to each differs:
+
+| state | what it looks like | what to do |
+|---|---|---|
+| real pattern, right explanation | fix reproduces and survives a revert | fix it |
+| **real pattern, WRONG explanation** | the fix works for a reason you did not give | keep looking; the wrong story will mislead the next person |
+| **real observation, NO pattern** | two clean measurements agree, and the thing measured moves on its own | measure again on a quiet machine before believing either |
+| no observation | you misread the output | re-read before acting |
+
+Lived examples, all from one night:
+* The Slow segfault was blamed on `stall_watch.py` from a partial faulthandler
+  dump. The crashing thread is the one labelled **`Current thread`**; the rest
+  are merely listed. Right area, wrong thread.
+* `_lay_out` was "fixed" against two tests that state the opposite contract on
+  purpose. Right defect class, wrong remedy.
+* 85 zh_CN rows were blamed on the word "guide" being a protected term. It is
+  not one — but "guide" WAS the cause, as the SOURCE TRIGGER for an expansion
+  the Chinese makes. Right pattern, wrong mechanism, then talked out of the
+  right answer entirely.
+* A flowview red reproduced cleanly on two trees and was not a regression at
+  all — see item 402. `git bisect` even named a first-bad commit, and that
+  commit tests GOOD while its parent tests BAD.
+
+**BISECT IS MEANINGLESS ON A NON-MONOTONIC PROPERTY.** It will still return a
+commit, confidently. Before trusting one, test the named commit AND its parent
+explicitly; if the answer inverts, the property is flaky and the bisect is
+noise with a hash attached.
+
+**A RED RECORDED WHILE THE MACHINE WAS BUSY IS A WORKLIST ITEM, NOT A
+FINDING.** Re-check it on a quiet box before it becomes anybody's evidence.
+
+
     python tools/build_documentation_i18n.py --audit
     QT_QPA_PLATFORM=offscreen python tools/build_i18n_catalogs.py --audit
 
