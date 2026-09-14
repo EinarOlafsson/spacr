@@ -227,6 +227,13 @@ def track_speech_text(lesson_id, language, voice, display_text, speech_text):
     Match it explicitly so neither the second CUDA mention nor another voice
     is silently changed. The resolved speech text enters the fingerprint.
     """
+    if (lesson_id, language, display_text) == (
+        "12_map_barcodes", "en",
+        "This Python verification figure displays read depth from the saved three-barcode GUI run.",
+    ):
+        if speech_text.count("read depth") != 1:
+            raise ValueError("The Map read-depth pronunciation premise changed")
+        return speech_text.replace("read depth", "[read](/ɹˈid/) depth")
     if (lesson_id, language, voice, display_text) == (
         "04_platform_installers", "en", "af_heart",
         "Here the request was auto and the selected backend is CUDA on NVIDIA hardware.",

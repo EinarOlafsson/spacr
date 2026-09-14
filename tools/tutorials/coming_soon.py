@@ -46,7 +46,7 @@ def first_placeholder(lessons):
     raise ValueError('This placeholder check requires an actually unavailable lesson')
 
 
-def release_catalog(source, language, *, recording_stage=None, model_promotions=()):
+def release_catalog(source, language, *, recording_stage=None, model_promotions=(), barcode_promotion=False):
     """Preserve every ready lesson verbatim and replace only approved holds."""
     result = deepcopy(source)
     ids = [lesson['id'] for lesson in result['lessons']]
@@ -54,6 +54,14 @@ def release_catalog(source, language, *, recording_stage=None, model_promotions=
     model_promotions = set(model_promotions)
     if not model_promotions <= set(MODELS) or not model_promotions <= set(ids):
         raise ValueError('Only the two explicitly recorded model lessons can be promoted here')
+    promoted = set(model_promotions)
+    if barcode_promotion:
+        from barcode_promotion import IDENTITY, require_recorded_map
+        matches = [lesson for lesson in result['lessons'] if lesson['id'] == IDENTITY]
+        if len(matches) != 1:
+            raise ValueError('Expected exactly one recorded Map Barcodes lesson')
+        require_recorded_map(recording_stage, language, matches[0])
+        promoted.add(IDENTITY)
     for lesson in result['lessons']:
         if lesson['id'] in model_promotions:
             require_recorded_model(recording_stage, language, lesson)
@@ -81,7 +89,7 @@ def release_catalog(source, language, *, recording_stage=None, model_promotions=
         require_recorded_ops(recording_stage, language, recorded_ops)
     title, description = COPY[language]
     for lesson in result['lessons']:
-        if lesson['id'] in HELD and lesson['id'] not in model_promotions:
+        if lesson['id'] in HELD and lesson['id'] not in promoted:
             # Retain identity, title and routing, not stale promises or media.
             for field in ('silent', 'poster', 'example_files'):
                 lesson.pop(field, None)
