@@ -5,9 +5,19 @@ HIGH PRIORITY: TWO-SECOND STARTUP AND RESPONSIVE MODULE LOADING
 Status:    OPEN, filed 2026-08-27. HIGH PRIORITY.
 Owner:     spacr/qt startup, application registration, module factories,
            optional-dependency boundaries, preload policy, and timing.
-Depends:   276 for animation continuity and 282 for lazy loading and memory
-           budgets. This instruction supplies their user-visible performance
-           targets and cannot close while either dependency still fails them.
+Depends:   282 for lazy loading and memory budgets, which the 2026-09-14
+           triage found ALREADY DONE.
+
+           ITEM 276 DOES NOT EXIST AND NEVER DID. This line named it for
+           "animation continuity" and the clause below made closure
+           conditional on it, so the item was blocked on a phantom. Checked
+           2026-09-14 three ways: there is no `features/new/276_*`;
+           `features/00_INDEX.txt:337-339` runs 274, 275, 277 with no 276;
+           and `git log --all -- 'features/*276*'` is empty. Nothing else in
+           the ledger cites it -- every other "276" is a byte count or a test
+           tally. The animation-continuity criterion it was supposed to supply
+           is stated in this file's own acceptance text, so nothing is lost by
+           dropping the reference; what is gained is that the item can close.
 
 --------------------------------------------------------------------------------
 WHAT WAS ASKED
@@ -92,8 +102,77 @@ HOW TO KNOW IT WORKED
     peak resident memory and worst GUI/frame interval are written as a
     reproducible benchmark artifact and guarded by tests with explicit,
     hardware-normalized thresholds;
-  * item 276's responsiveness criteria and item 282's memory/lazy-loading
-    criteria are complete, not merely referenced.
+  * item 282's memory/lazy-loading criteria are complete, not merely
+    referenced. (This bullet also named item 276; see the header -- 276 has
+    never existed, and its criterion is the "no stopped animation or
+    multi-second GUI gap" bullet above.)
+
+
+RE-MEASURED 2026-09-14 AND THE BUDGETS ARE NOT MET. The item's own closing
+paragraph asks for a re-measurement before closing; this is it, and it fails.
+
+    module            this note   2026-09-14   budget   worst stall
+    measure                1.45        13.23     10.0     12,926 ms   OVER
+    regression             4.68         9.16     10.0      8,558 ms
+    mask                   4.26         6.38     10.0      5,734 ms
+    classify_merged        1.56         6.24     10.0      5,538 ms
+    annotate               0.15         0.25     10.0        251 ms
+    peak resident memory  651 MB      1728 MB     none
+
+`passed: false`, 50 violations, and 15 of 47 measured intervals breach the
+500 ms event-loop stall ceiling. THE INTERFACE IS FROZEN FOR 12.9 SECONDS when
+Measure opens, which is precisely what the acceptance bullet above forbids --
+"no stopped animation or multi-second GUI gap". `annotate` moved 0.15 -> 0.25 s
+over the same interval, which is the control that rules out anything globally
+inflating the table.
+
+THE CAUSE, bisected and then confirmed by reading the source.
+
+    b0e2f80c9  2026-09-04  "326: schema and organelle_types agree"
+        parent fcc2734bb : measure 1.94 s / 2.00 s, stall ~1,800 ms
+        this commit      : measure 10.65 s / 10.75 s, stall ~10,500 ms
+
+23 measurements across the window show a clean plateau-step-plateau with no
+non-monotonic point. The step is 8.7 s of the 11; the remaining ~2.5 s accrued
+gradually between 09-04 and 09-14 and is not attributable to one commit.
+
+THE CHAIN. That commit raised `schema.ORGANELLE_ROLES` from four string
+literals to `_organelle_roles(702)`. `object_roles` re-exports it, so
+`ALL_ROLES` went 8 -> 706. `spacr/qt/widgets/measure_preview.py:65` reads
+`_OBJECTS = tuple(ALL_ROLES)` and builds a control per entry in three
+comprehensions -- 706 Toggles at :509, 706 QSpinBox at :542, 705 QSpinBox at
+:494, plus a 706-item combo at :493. Measured: 4,113 QWidgets for 63 settings
+rows, against 84 for annotate. Ten application-wide event filters then run for
+every Qt event delivered, so one Measure open costs 323,780 events, 3.2 M
+filter invocations and 6.5 M enum constructions -- 69% of its 14.1 M Python
+calls.
+
+MEASURE_PREVIEW.PY WAS NOT EDITED. Its cost rose 88-fold because a constant it
+reads grew, in another file, in a commit about object-key collisions. The
+default organelle count is zero, so in the ordinary case all 702 of those slots
+are controls for objects the run does not have.
+
+WHAT THIS SAYS ABOUT THE ORIGINAL COMMIT, which was careful. Its message reads
+"TWO OBVIOUS APPROACHES WERE WRONG AND BOTH WERE CAUGHT BY MEASURING RATHER
+THAN BY REVIEW", and it turned membership into a frozenset with the comment
+"asked per object id, so it is a set rather than a scan of 702 names". The
+author measured the cost they expected -- per-key lookups on the hot path they
+were changing -- and the cost landed somewhere else entirely, in a UI that
+builds one widget per vocabulary entry. A 175x growth in a shared vocabulary
+is not a local change, and the place to look is every consumer that iterates
+it, not only the one being edited.
+
+WHY NO TEST FAILED. `tests/qt/test_opening_things_does_not_hang.py:36` sets
+`MODULE_BUDGET = 20.0`, with a comment above it saying "Measured here at 1.34 s
+for the slowest module ... these are the ceilings a hang would blow through,
+not a target to tune against". It is a hang detector at ~15x the real figure
+and it is the only gate on module-open time, so 13 s passes green. The four
+benchmark guard suites (97 tests) also pass, because they ratchet the artifact
+SCHEMA from fixtures rather than the machine -- which their own docstring
+states. And `tools/spacr_startup_benchmark.py:491` requires only that
+`resources.peak_rss_mb` be "reported and positive", so 651 MB -> 1,728 MB went
+unremarked while this item's acceptance text asks for "explicit,
+hardware-normalized thresholds".
 
 
 MET 2026-08-28. Measured through the real user path -- a `MainWindow` shown,
