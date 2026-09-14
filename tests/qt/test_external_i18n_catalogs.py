@@ -566,6 +566,18 @@ def test_runtime_catalogs_have_no_unreviewed_exact_english_fallbacks():
                 if (
                     table[key] == source
                     and builder._looks_translatable(source)
+                    # AND THERE IS SOMETHING IN IT TO TRANSLATE. The two
+                    # predicates are not the same question and the builder's
+                    # own audit asks both. `_looks_translatable` decides what
+                    # ENTERS the inventory and deliberately keeps all-protected
+                    # rows, because dropping them orphans the reviewed records
+                    # written against them. This one asks whether demanding a
+                    # translation is even satisfiable: for 'extra_performance',
+                    # 'Image UMAP…' and '[{severity}] {object_type}: {flags}'
+                    # it is not -- every locale correctly leaves them alone,
+                    # and without this clause the test calls all nine of them
+                    # an untranslated fallback.
+                    and builder._has_prose_outside_protected_literals(source)
                     and builder._reviewed_translation(source, language)
                     != source
                 )

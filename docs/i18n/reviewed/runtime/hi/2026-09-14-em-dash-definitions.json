@@ -1,0 +1,20 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Cylinder — an oval drawn on one plane of the 3D view, extended along the third measurement",
+      "source": "Cylinder — an oval drawn on one plane of the 3D view, extended along the third measurement",
+      "source_sha256": "f35e13a06fd425aacdde94e8d36a3a70880ec903bca8190e0d60432dff951815",
+      "table": "ui",
+      "translation": "सिलिंडर — 3D दृश्य के एक तल पर खींचा गया अंडाकार, जिसे तीसरे माप के अनुदिश विस्तारित किया गया है"
+    },
+    {
+      "key": "Prism — a polygon drawn on one plane of the 3D view, extended along the third measurement",
+      "source": "Prism — a polygon drawn on one plane of the 3D view, extended along the third measurement",
+      "source_sha256": "24fe4ba773203ddcf0588abb7221b1352f07bda5ecb2501c49ab169ee0b41655",
+      "table": "ui",
+      "translation": "प्रिज़्म — 3D दृश्य के एक तल पर खींचा गया बहुभुज, जिसे तीसरे माप के अनुदिश विस्तारित किया गया है"
+    }
+  ],
+  "schema": 1
+}

@@ -3153,7 +3153,24 @@ def _reviewed_translation(source: str, language: str) -> str | None:
     )
     if static is not None or language in _REVIEWED_RUNTIME_LOADING:
         return static
-    return reviewed_runtime_translations(language).get(str(source))
+    record = reviewed_runtime_translations(language).get(str(source))
+    if record is not None:
+        return record
+    # AN IMPLICIT IDENTITY DECISION, for a row with no prose outside its
+    # protected literals. `_IDENTITY_TEXT` above is the same decision written
+    # out by hand, and answering here rather than at each call site is what
+    # makes every downstream check agree: the exact-English audits, the
+    # incremental-repair fixed point, and `_translate_batches` all ask this
+    # function what a reviewed answer would be.
+    #
+    # PLACED AFTER THE RECORD LOOKUP ON PURPOSE. `{location}: {path}` is made
+    # entirely of protected literals AND carries a deliberate hand-written
+    # record in all nine locales, where a reviewer added the word
+    # path/Pfad/chemin/sökväg to make the string readable. Asking this
+    # question before reading the records would discard all nine.
+    if not _has_prose_outside_protected_literals(str(source)):
+        return str(source)
+    return None
 
 
 def _call_name(node: ast.Call) -> str:
@@ -3671,6 +3688,7 @@ def canonical_sources() -> dict[str, object]:
     from spacr.qt.screens.settings_model import (
         _APP_TOOLTIP_OVERRIDES,
         _FOLDED_DEFAULTS_MODULES,
+        _REGRESSION_MENU_UI_SOURCES,
         _SETTINGS_MODEL_UI_SOURCES,
         CATEGORY_TOOLTIPS,
         CATEGORY_TOOLTIPS_BY_APP,
@@ -3800,6 +3818,14 @@ def canonical_sources() -> dict[str, object]:
     ui_sources = set(extract_static_ui_sources())
     ui_sources.update(_GENE_TILE_UI_SOURCES)
     ui_sources.update(_SETTINGS_MODEL_UI_SOURCES)
+    # THE REGRESSION-MODEL MENU, which is composed at run time from
+    # `spacr.regression_families` and so is invisible to the literal-string
+    # extractor at its `addItem` call site. `settings_model` declares the set
+    # for exactly this reason -- and nothing consumed it, so all 21 captions
+    # ("auto -- chosen from the response by check_distribution", "lasso --
+    # parametric: normal errors plus an L1 penalty", ...) were absent from
+    # every catalog and English in all nine languages.
+    ui_sources.update(_REGRESSION_MENU_UI_SOURCES)
     ui_sources.update(_SETTINGS_ADVISOR_UI_SOURCES)
     ui_sources.update(str(value) for value in APP_INTROS.values())
     ui_sources.update(str(value) for value in APP_TITLES.values())
@@ -4947,6 +4973,11 @@ def _invalid_catalog_sources(
     retried when it is missing, source-stale, blank, exact English without an
     explicit reviewed-identity decision, or rejected by the current
     syntax/script/semantic/context contracts.
+
+    EXACT ENGLISH IS NOT ALWAYS A FALLBACK.  A row with no prose outside its
+    protected literals -- a bare identifier, a caption whose every word is a
+    product name, a format string of nothing but placeholders -- is CORRECT in
+    English, in all nine locales, and is not retried.
     """
     namespace: dict[str, object] = {}
     catalog_path = CATALOG_DIR / f"{language}.py"
@@ -4994,6 +5025,14 @@ def _invalid_catalog_sources(
                 or (
                     value == source
                     and _looks_translatable(source)
+                    # ...AND there is prose in it to translate. Without this,
+                    # a row made entirely of protected literals is retried on
+                    # every incremental repair forever: it comes back English
+                    # because English is the only correct answer, and coming
+                    # back English is what marks it invalid. The catalogs
+                    # could never become the fixed point this function is
+                    # asked to certify.
+                    and _has_prose_outside_protected_literals(source)
                     and reviewed != source
                 )
                 or _contextualize(str(value), language, source) != str(value)
@@ -5266,6 +5305,33 @@ def _translate_batches(
                 if language == "zh_CN" else reviewed_value,
                 language, source,
             )
+        elif not _has_prose_outside_protected_literals(source):
+            # NOTHING HERE A TRANSLATOR COULD CHANGE, so asking for a
+            # translation can only produce damage. Placed BELOW the two
+            # reviewed branches on purpose: `{location}: {path}` has a
+            # hand-written record in all nine locales that deliberately adds
+            # the word "path" to make the string readable, and that is a
+            # reviewer's decision, not model noise. Everything below this
+            # point -- compact, cache, fresh generation -- is machine output,
+            # and on these rows the machine has no information to add.
+            #
+            # `_IDENTITY_TEXT` above is the ENUMERATED half of this rule and
+            # its own comment records the failure it was written for
+            # (``viridis`` to Korean "virus", ``slurm`` to German "mud").
+            # Enumeration cannot keep up: every new identifier-shaped caption
+            # reintroduces the bug until someone notices and appends to the
+            # list. Tonight's rebuild produced, with no reviewed record and
+            # nothing to translate:
+            #     'extra_performance'  -> 'extra_performance oder'   (de)
+            #     'extra_performance'  -> 'extra_performance에 해당되는 글 1건' (ko)
+            #     'Image UMAP…'        -> 'Image UMAP...'            (de)
+            #     '[{severity}] {object_type}: {flags}'
+            #                          -> '({severity}] {object_type}: {flags}'
+            # That last one turns a matched bracket pair into a mismatched
+            # one in a user-facing severity line, and no audit saw any of it:
+            # all four differ from English, so every one scored as TRANSLATED.
+            translated[source] = source
+            cache.pop(source_cache_key, None)
         elif (
             compact_value is not None
             and candidate_valid(source, compact_value)
