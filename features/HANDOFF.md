@@ -558,13 +558,56 @@ creating anything, and prefer `Edit` over `Write` for a path that may exist.
 
 ## 3. Traps
 
-### 3a. A new public module obliges an i18n rebuild
+### 3a. A changed public DOCSTRING obliges an i18n rebuild — not a new module
 
-Adding a public module turns the docs job red until
-`python tools/build_documentation_i18n.py --sources-only` is run (writes only
-`en.json`). **STILL TRUE, and lived again on 2026-09-13**: Map Barcodes added
+**THE RULE WAS TOO NARROW AND THE SYMBOL COUNT IS BLIND TO THE DIFFERENCE,
+corrected 2026-09-14.** This entry used to say "a new public module obliges a
+rebuild". A new module is only the loudest case. The obligation is on the
+SOURCE TEXT: any change to a public docstring moves its source hash, and the
+catalogs then owe a translation for it.
+
+Lived on 2026-09-13: cherry-picking 372 part 14-I edited existing docstrings in
+`ops_layout` and `ops_phenotype`. The API symbol count did not move — 10,531
+before and after — and three source hashes did. A rebuild triggered on "new
+modules landed" would have missed all three, and the docs audit would have
+caught it later and further away.
+
+So the trigger is `git diff` touching a docstring, not `git status` showing a
+new file. `python tools/build_documentation_i18n.py --sources-only` writes only
+`en.json`; the nine locales follow.
+
+**The new-module case is still true and still costly**: Map Barcodes added
 `spacr/barcode_search.py` and with it 77 API entries, which took six tests red
 across two files until both catalog lanes were rebuilt.
+
+### 3a-bis. Changing what a CHECKER can see invalidates content written while it was blind
+
+Three instances in one night, 2026-09-13/14, and the shape is stable enough to
+predict:
+
+| change | what it invalidated |
+|---|---|
+| 20 UI screen names added to `_PROTECTED_TERMS` | 8 reviewed API records, in 4 locales |
+| an identity rule added to `_translate_batches` | 4 machine rows revealed as damage, incl. a mismatched bracket pair |
+| the term boundary widened from `\w` to `[A-Za-z0-9_]` | 87 runtime catalog rows, 85 of them zh_CN |
+
+In all three the failure surfaced FAR from the change and read as bad content
+rather than a moved goalpost. In all three the right response was to fix the
+CONTENT, not to narrow the checker back — the checker had been wrong, and the
+content had never been examined.
+
+**THE COROLLARY, which is the part that costs time if you skip it: any change
+to a protect pattern, a term list or an identity rule must be verified with
+BOTH AUDITS before pushing.**
+
+    python tools/build_documentation_i18n.py --audit
+    QT_QPA_PLATFORM=offscreen python tools/build_i18n_catalogs.py --audit
+
+NOT with `check_reviewed_api_evidence.py` / `check_reviewed_runtime_evidence.py`.
+Those validate reviewed EVIDENCE against its sources; the audits validate the
+GENERATED CATALOG rows, and the audits are what `docs.yml` fails on. Verifying
+the boundary widening with the evidence checkers alone reported 1,296 records
+clean while 87 catalog rows were broken.
 
 ~~Forgetting `_SUBMODULES` itself turns every compat-matrix cell red.~~
 **NO LONGER POSSIBLE, checked 2026-09-13.** `_SUBMODULES` is computed --
