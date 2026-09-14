@@ -47,7 +47,8 @@ def test_counts_reconcile_including_unassigned_reads(tmp_path):
     assert proof['accepted'] and not proof['biological_validation_claimed']
 
 
-@pytest.mark.parametrize('corruption', ['wrong_name', 'wrong_count', 'duplicate_count', 'too_many_reads'])
+@pytest.mark.parametrize('corruption', ['wrong_name', 'wrong_count', 'duplicate_count',
+                                      'too_many_reads', 'fractional_count', 'wrong_qc'])
 def test_corrupted_realistic_outputs_are_rejected(tmp_path, corruption):
     references = output(tmp_path)
     pairs = 5
@@ -59,6 +60,10 @@ def test_corrupted_realistic_outputs_are_rejected(tmp_path, corruption):
         csv(tmp_path / 'unique_combinations.csv', 'columnID,count\na,1\nb,2\n')
     elif corruption == 'duplicate_count':
         csv(tmp_path / 'unique_combinations.csv', 'columnID,count\na,2\nb,1\na,2\n')
+    elif corruption == 'fractional_count':
+        csv(tmp_path / 'unique_combinations.csv', 'columnID,count\na,2.5\nb,1\n')
+    elif corruption == 'wrong_qc':
+        csv(tmp_path / 'qc.csv', 'columnID,total_reads\n0,4\n')
     else:
         pairs = 2
     with pytest.raises(ValueError):

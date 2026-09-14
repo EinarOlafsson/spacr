@@ -60,6 +60,7 @@ def main() -> int:
     parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
     parser.add_argument('--classify-overview', action='store_true', help='Record only native family choices and nested Classify navigation; never start a model')
     parser.add_argument('--model-zoo-inventory', action='store_true', help='Record actual Model Zoo inventory/provenance only; no download, training or benchmark')
+    parser.add_argument('--barcode-search-tour', action='store_true', help='Record the real barcode search, explicit Apply and a verified mapped-count run')
     parser.add_argument('--model-compare-api-introduction', action='store_true', help='Record only the real Model Compare route and field loading before a separately verified mask-comparison API example')
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
     parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
@@ -72,6 +73,8 @@ def main() -> int:
     parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
+    if args.barcode_search_tour and (args.module != 'map_barcodes' or not args.download or not args.run):
+        parser.error('--barcode-search-tour requires map_barcodes with --download and --run')
     if args.model_compare_api_introduction and (args.module != 'model_compare' or args.run or args.download or args.preview):
         parser.error('--model-compare-api-introduction requires model_compare without run/download/preview')
     if args.model_zoo_inventory and (args.module != 'model_zoo' or args.run or args.download or args.preview):
@@ -721,6 +724,9 @@ def main() -> int:
                 write_json(captures / 'dataset.json', {
                     'image_count': len(images), 'images': [p.name for p in images],
                     'bytes': sum(p.stat().st_size for p in images)})
+        if args.barcode_search_tour:
+            from capture_barcode_search import record_search
+            record_search(app, screen, stage, captures, capture, settle, write_json, args.timeout)
         if args.measure_preview_controls:
             from capture_measure_controls import record_controls
             record_controls(app, window, screen, captures, capture, settle,
@@ -1240,6 +1246,12 @@ def main() -> int:
                 from capture_sequencing import inspect_mapping
                 write_json(captures / 'mapping_outputs.json',
                            inspect_mapping(Path(settings['src']), sequence_choice['run'], 10000))
+                if args.barcode_search_tour:
+                    from map_barcodes_data import verify_counts
+                    references = json.loads((captures / 'mapping_reference_selection.json').read_text())
+                    proof = verify_counts(Path(settings['src']) / (sequence_choice['run'] + '_paired'),
+                                          references, 10000)
+                    write_json(captures / 'scientific_acceptance.json', proof)
             if args.settings_tour and args.module == 'regression':
                 from capture_settings import record_results
                 record_results(screen, captures, capture, settle, write_json)

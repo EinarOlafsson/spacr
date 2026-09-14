@@ -83,6 +83,15 @@ def verify_counts(folder, references, expected_pairs):
     folder = Path(folder)
     reads = pd.read_hdf(folder / 'annotated_reads.h5', key='df')
     counts = pd.read_csv(folder / 'unique_combinations.csv')
+    qc = pd.read_csv(folder / 'qc.csv')
+    if len(qc) != 1 or qc.iloc[0].get('total_reads') != len(reads):
+        raise ValueError('Saved QC totals do not reconcile with extracted reads')
+    for key in qc.columns:
+        expected = len(reads) if key == 'total_reads' else int(reads[key].isna().sum())
+        if qc.iloc[0][key] != expected:
+            raise ValueError('Saved QC missing-value counts disagree with annotated reads')
+    if counts['count'].isna().any() or (counts['count'] % 1 != 0).any():
+        raise ValueError('Read counts must be finite whole numbers')
     columns = {'column': ('column_sequence', 'columnID'),
                'row': ('row_sequence', 'rowID'), 'grna': ('grna_sequence', 'grna_name')}
     # Legacy output uses these historically misspelled sequence-column names.
