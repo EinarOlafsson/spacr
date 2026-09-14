@@ -212,18 +212,23 @@ Til að draga eftirfarandi breytingar, frá innri klóna::
 Að setja upp úr ljósið (Light)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Fullt klón: 427 MB. Kjarnklón: 76 MB.
+Tilboðsmenn þurfa sögu; til að hlaupa aðeins spaCR, taka einn af þeim, mættur 2026-09-14 með ``packaging/measure_clone_forms.sh``::
 
-::
+    # One commit instead of every version: 595 MB downloaded, 31 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 86 MB on disk, 5 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Skips ``docs/``, ``tests/`` og Cellpose athygli, skráðir tölur og útbreiddar þýðingar.
-
-Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-docs``, ``--with-translations``, ``--no-install``.
-
-``packaging/source_install_excludes.txt`` listar hvert skipað leið.
+Full klón hættir niður 5,8 GB fyrir 941 MB checkout. Að bæta ``--filter=blob:none`` til þessarar klón sparar ekkert: checkaut fær blobs alls.
 
 
 Skipanalínuskipanir

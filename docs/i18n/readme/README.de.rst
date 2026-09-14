@@ -212,18 +212,23 @@ Die zweite Zeile wird nur benötigt, wenn Abhängigkeiten oder Eingabepunkte ge�
 Installieren aus der Quelle (Licht)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Vollständiger Klon: 427 MB. Kernklon: 76 MB.
+Beitragende benötigen die Geschichte; um nur spaCR laufen, nehmen Sie eine dieser, gemessen 2026-09-14 durch ``packaging/measure_clone_forms.sh``::
 
-::
+    # One commit instead of every version: 595 MB downloaded, 31 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 86 MB on disk, 5 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Skips ``docs/``, ``tests/``, Cellpose Checkpoints, archivierte Figuren und die erweiterten Übersetzungskataloge. Das Ergebnis ist eine normale Kasse.
-
-Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-docs``, ``--with-translations``, ``--no-install``.
-
-``packaging/source_install_excludes.txt`` listet jeden übersprungenen Pfad auf.
+Der vollständige Klon lädt 5.8 GB für eine 941 MB Kasse herunter. Das Hinzufügen von ``--filter=blob:none`` zu diesem Klon spart nichts: die Kasse holt sowieso die Blobs.
 
 
 Befehle für die Kommandozeile

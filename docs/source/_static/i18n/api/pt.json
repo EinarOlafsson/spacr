@@ -5822,10 +5822,10 @@
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ],
       "source_sha256": "57b68696336e5f7a72e7b9edd916bee844220e0122721a66480c65afef6a3999",
-      "text": "``spacr.batch`` empilhar tarefas arbitrárias de módulo+configurações em uma lista de tarefas de software e executá-las desacompanhadas.\n\nA lista de processamento de placas (:mod:`spacr.qt.plate_queue`) encadeia *placas* em *um* fluxo de trabalho com *um* mapeamento de configurações entre chaves e valores. Este módulo representa o outro eixo: uma lista de tarefas de software ``(module, settings)`` arbitrárias, em qualquer ordem — ``Mask → Measure → Classify (CV) → Classify (ML)``, depois as mesmas quatro novamente com outro diâmetro e, em seguida, a etapa Mask de uma quinta placa —, que corresponde ao trabalho real de uma noite de processamento em escala de placas.\n\nUm trabalho em fila **is** uma invocação ``spacr-run``. Nada aqui re-implementa o envio do módulo ou o carregamento de configurações: :mod:`spacr.cli` possui o registro do módulo, o carregador de configurações, a coerção ``--set`` e o contrato de código de saída (0 ok, 1 o módulo levantado, 2 argumentos ruins ou configurações), e este módulo o impulsiona. Da mesma forma, uma lista de empregos de software é um **ledger de ledgers**: o veredicto da própria lista de trabalho de software são :class:`spacr.errors.RunLedger`, carimbado ao lado do arquivo de lista de tarefas do software, e o selo :func:`spacr.errors.read_run_status` de cada trabalho é lido de volta para que um trabalho que saiu 0 tendo pulado silenciosamente 40 campos seja relatado como *partial* em vez de como um sucesso.\n\nO que faz uma lista de trabalho sobreviver a uma noite que ninguém está assistindo:\n\n* **Todo trabalho é validado quando é adicionado, não quando é executado.** Descobrindo às 3 da manhã que o trabalho 9 ``src`` É um desperdício ortográfico a noite inteira. :func:`validate_queue` relatórios *todos* problemas de uma só vez e :func:`run_queue` Recusa-se a começar enquanto qualquer um deles é um erro.\n* **State é persistido após cada transição, atomicamente.** Uma máquina que reinicia durante o processamento da lista de tarefas do software é retomada com :func:`resume_queue`, não reiniciada. O arquivo é gravado em um nome temporário e ``os.replace`` d, porque um arquivo de lista de trabalho truncado por uma falha é pior do que nenhum arquivo de listas de trabalho.\n* **Uma tarefa cuja dependência falhou fica SKIPPED, em vez de ser executada.** Executar Measure depois de uma falha em Mask produz um banco de dados que parece um resultado verdadeiro. ``skipped`` (deliberadamente não executada), ``failed`` e ``not_run`` (a lista de tarefas de software foi interrompida antes de chegar a ela) são três estados distintos e continuam sendo tratados assim.\n* **continuar em caso de erro pára de esconder uma falha sistemática.** Se os três primeiros trabalhos morreram da mesma forma os nove restantes também morrerão; ``max_consecutive_failures`` interrompe a lista de tarefas do software e diz isso.\n* **Os logs por trabalho vão para o seu próprio arquivo** um registo intercalado de doze postos de trabalho durante a noite é ilegível e o caminho está no registo de trabalho.\n\nConcorrência: os trabalhos são executados **strictly um de cada vez**. Eles competem por um GPU, e dois trabalhos Cellpose compartilhando um cartão é como uma sessão de processamento noturno se transforma em um OOM CUDA. Não existe deliberadamente ``max_workers``; executar duas listas de trabalho de software em dois processos, se você realmente tem duas cartas.\n\nCusto de importação: este módulo importa apenas a biblioteca padrão mais :mod:`spacr.cli`, :mod:`spacr.errors` e :mod:`spacr.validate`, todos os quais são livres de torch. Um arquivo de lista de tarefas de software pode ser lido, validado e planejado em um nó de login sem uma pilha GPU o fluxo de trabalho em si só é importado dentro do subprocesso que executa um trabalho.\n\nUso típico::\n\n    from spacr.batch import Job, Queue, run_queue, save_queue\n\n    q = Queue(name='overnight')\n    q.add(Job(module='mask',    settings='/data/p1/settings/mask.csv'))\n    q.add(Job(module='measure', settings='/data/p1/settings/measure.csv',\n              depends_on=['mask-1']))\n    save_queue(q, '/data/overnight.queue.json')\n    result = run_queue(q, path='/data/overnight.queue.json')\n    print(result.summary())",
+      "text": "``spacr.batch`` — stack arbitrary module+settings jobs into one software job list and run them unattended.\n\nThe Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* workflow with *one* settings key-value mapping. This module is the other axis: a software job list of arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — which is what a night of plate-scale work actually looks like.\n\nA queued job **is** a ``spacr-run`` invocation. Nothing here re-implements module dispatch or settings loading: :mod:`spacr.cli` owns the module registry, the settings loader, the ``--set`` coercion and the exit-code contract (0 ok, 1 the module raised, 2 bad arguments or settings), and this module drives it. Likewise a software job list is a **ledger of ledgers**: the software job list's own verdict is a :class:`spacr.errors.RunLedger`, stamped next to the software job list file, and each job's :func:`spacr.errors.read_run_status` stamp is read back so a job that exited 0 having silently skipped 40 fields is reported as *partial* rather than as a success.\n\nO que faz uma lista de trabalho sobreviver a uma noite que ninguém está assistindo:\n\n* **Every job is validated when it is added, not when it executes.** Discovering at 3 a.m. that job 9's ``src`` is misspelled wastes the whole night. :func:`validate_queue` reports *all* problems at once and :func:`run_queue` refuses to start while any of them is an error.\n* **State é persistido após cada transição, atomicamente.** Uma máquina que reinicia durante o processamento da lista de tarefas do software é retomada com  :func:`resume_queue`, não reiniciada. O arquivo é gravado em um nome temporário e  ``os.replace`` d, porque um arquivo de lista de trabalho truncado por uma falha é pior do que nenhum arquivo de listas de trabalho.\n* **Um trabalho cuja dependência falhou é  SKIPPED, não executado.** Medir depois de uma máscara falhada produz um banco de dados que se parece com um resultado real. ``skipped`` (deliberadamente não executado),  ``failed`` e ``not_run`` (a lista de tarefas de software interrompida antes de alcançá-lo) são três coisas diferentes e permanecem assim.\n* **continuar em caso de erro pára de esconder uma falha sistemática.** Se os três primeiros trabalhos morreram da mesma forma que os nove restantes também;  ``max_consecutive_failures`` interrompe a lista de tarefas do software e diz isso.\n* **Per-job logs go to their own file** — one interleaved log from twelve overnight jobs is unreadable — and the path is on the job record.\n\nConcurrency: jobs run **strictly one at a time**. They compete for one GPU, and two Cellpose jobs sharing a card is how an overnight processing session turns into an overnight CUDA OOM. There is deliberately no ``max_workers``; run two software job lists in two processes if you really have two cards.\n\nCusto de importação: este módulo importa apenas a biblioteca padrão mais :mod:`spacr.cli`,  :mod:`spacr.errors` e :mod:`spacr.validate`, todos os quais são  torch-livres. Um arquivo de lista de tarefas de software pode ser lido, validado e planejado em um nó de login sem uma pilha   - GPU o fluxo de trabalho em si só é importado dentro do subprocesso que executa uma tarefa.\n\nUso típico::\n\n    from spacr.batch import Job, Queue, run_queue, save_queue\n\n    q = Queue(name='overnight')\n    q.add(Job(module='mask',    settings='/data/p1/settings/mask.csv'))\n    q.add(Job(module='measure', settings='/data/p1/settings/measure.csv',\n              depends_on=['mask-1']))\n    save_queue(q, '/data/overnight.queue.json')\n    result = run_queue(q, path='/data/overnight.queue.json')\n    print(result.summary())",
       "translation_source_blocks_sha256": [
         "b2d244da2d4f05aedb097e99668d52ffe6621ae91e3f21871e7ae285f14e1a77",
-        "f6c4518a414f90e0b88fc5087c68295de2d6578a243e87953439661c5dd2ac37",
+        "4f65676ed47ed2709cf6f9bd978104f538a180ae5783251da43b81ed313f8f41",
         "c961c02af8bce019a2f70d0c4fb3484f666598c396ff22e9db688609ed374171",
         "765e2a04d96a94aea04b77b9730304fdc30239f92553fa2c50da333d33e4bbd5",
         "7348135caf02cee1b4338694486afe39c3699fabd0d1555660e98c3342263276",
@@ -11254,6 +11254,134 @@
         "3a8aced33675b173459c19aefe00de29c8f2e40e1f70dc55c5389fd990dffe5c"
       ]
     },
+    "spacr.cli_make_masks": {
+      "source_blocks_sha256": [
+        "3baedc6c4989969aa27e64caf192ff8bba05ef2705ba4267459d08aa21653531",
+        "d25681d36ab0a15210aa5aa27ebf0439f006e7a5fd2f26c27526c41f67a67e00",
+        "158e4c55397fec0051adb73c82ab56a64eccb65e63d56ac2ee44eee4c4e136a2",
+        "8c25c51e8afc34eba3409ea557d1dfd0265da96aff0931cc8a33f40e50b27f29",
+        "c1008441c62cba47dea840b01e15422e026cd5fbac60264c1bec99f0158532ea",
+        "000b6618d8bf928a329d827924ff9469fbb606519263b3dff08f78d1ecfb4877",
+        "12ad8cf01d18f20dc4cbd1f5269726b0458a980e9b5c2b57ad9d0d3e3803361c",
+        "29e9facf24e02b1e9c0a112daa5cb3c697339b348af4be2387e912c64a3395f8",
+        "1ee6750c36f6b8bbc4d071c9ee68e841f62dddc6d2b255bbddeda2c51213a3e7",
+        "7363751daaad89105b37f38c2fa402450602751da13289cff1031eac506560a6"
+      ],
+      "source_sha256": "429175565f3e602f8c7c24de9f66c05b3677c0cb6b550743c3bfe270ad3b6b6f",
+      "text": "``spacr-make-masks`` — open the mask editor on a folder, as a work list.\n\nO item 396 do Ledger pede uma sessão de curadoria que pode ser iniciada a partir de um terminal, apontada para uma pasta, delimitada e retomada. A curadoria é feita sobre SSH e em mais de uma máquina, e a resposta até agora era  ``spacr/cli.py`` recusa plana  *\" Make Masks é um editor de máscara manual; execute-o no GUI\"*. Essa frase ainda é falsa.::\n\n    spacr-make-masks --folder <dir>\n    spacr-make-masks --folder <dir> --order value --limit 25\n    spacr-make-masks --folder <dir> --dry-run      # no display needed\n\n:mod:`spacr.curation_queue` faz o pensamento quais campos estão esperando, em que ordem, e o que já foi decidido sobre cada um. Este módulo é a parte fina: analisar quatro argumentos, construir a lista de trabalho, dizer o que a sessão é, e só então iniciar  Qt.\n\nNada é importado de :mod:`spacr.qt` até que a pasta tenha sido lida e aceita. Essa ordem é o ponto do módulo em vez de um detalhe dele: uma pasta que não existe, ou que não possui layout  spaCR reconhece, é respondida com uma frase em um nó de login sem exibição, não com uma falha  Qt após uma importação de dez segundos.\n\nO que é impresso antes da abertura do editor\n--------------------------------------------\n\nO resumo da sessão, nos próprios termos do livro-razão::\n\n    nested layout at /data/pv: 500 bundles, 366 done, 29 skip, 105 remaining;\n    25 this session, sorted by easy\n\nAssim, um curador vê o que eles estão retomando, e vê-lo na casca que eles começaram, em vez de apenas em uma janela.\n\nUm layout abre o editor, três abrem a lista de trabalho\n-------------------------------------------------------\n\n:func:`spacr.curation_queue.detect_layout` reads three layouts. The editor edits ONE of them: Make Masks reads a draft from ``<folder>/masks/<stem>.tif`` and writes the curated mask back to the same place, which is the ``nested`` layout and nothing else. So a ``sibling`` or ``seg`` folder is summarised, ordered and listed by ``--dry-run`` — and the editor is refused, by name, with what it would have done wrong. Opening a sibling set on its ``images`` folder would read and write ``images/masks``, silently orphaning every draft mask the set already has; that is worse than a refusal, and it is the failure mode the ledger's \"loaded as empty\" warning is about.\n\nCódigos de saída::\n\n    0   the editor ran, or --dry-run printed the queue, or there was\n        nothing left to curate\n    1   the Qt interface could not start\n    2   bad arguments, a folder that is not there, a folder holding no\n        recognisable layout, or a layout the editor cannot edit in place",
+      "translation_source_blocks_sha256": [
+        "4f366c4ce446a02acaed8de389f7b45ec73bf8d77573a096502a4df5a1e1374c",
+        "d25681d36ab0a15210aa5aa27ebf0439f006e7a5fd2f26c27526c41f67a67e00",
+        "1426e2d66d0ec2569f520de2b3fdf6f9341071b8d253664df7b3fe1a8aa7936a",
+        "8c25c51e8afc34eba3409ea557d1dfd0265da96aff0931cc8a33f40e50b27f29",
+        "c1008441c62cba47dea840b01e15422e026cd5fbac60264c1bec99f0158532ea",
+        "000b6618d8bf928a329d827924ff9469fbb606519263b3dff08f78d1ecfb4877",
+        "12ad8cf01d18f20dc4cbd1f5269726b0458a980e9b5c2b57ad9d0d3e3803361c",
+        "6d2e9cb76245fb265581393dea13c43569b385a56a82bb8717ecaa712a67b557",
+        "1ee6750c36f6b8bbc4d071c9ee68e841f62dddc6d2b255bbddeda2c51213a3e7",
+        "7363751daaad89105b37f38c2fa402450602751da13289cff1031eac506560a6"
+      ]
+    },
+    "spacr.cli_make_masks.build_parser": {
+      "source_blocks_sha256": [
+        "541b663d52d5fb2d2717bdc1f03bcebf07799da8337b46edf61c0f36a0456bd4",
+        "e5632165eaa3c355d2f6102e544fd8fa4142598e39d19a47df01cd3170f4b257"
+      ],
+      "source_sha256": "843ee477b8c996bdf62abb4ecf7e3a1f4d7a4547239c2491d9363f7a82c45c95",
+      "text": "Crie o analisador de argumentos ``spacr-make-masks``.\n\n:returns: o analisador, com ``--folder``,  ``--order``,``--limit`` e ``--dry-run`` nele.",
+      "translation_source_blocks_sha256": [
+        "541b663d52d5fb2d2717bdc1f03bcebf07799da8337b46edf61c0f36a0456bd4",
+        "e5632165eaa3c355d2f6102e544fd8fa4142598e39d19a47df01cd3170f4b257"
+      ]
+    },
+    "spacr.cli_make_masks.editor_refusal": {
+      "source_blocks_sha256": [
+        "259fa8186d3f1d67b0b5ef274fceb1ad6924ed48b094b61d03c485691c1574b7",
+        "1bdaf5b71942f84af6319afde1d326c698269443b3f2e28a627f431fcdc3fc6e",
+        "5fe4798aae2e56c4a83f092d6bb48d17e54afd1251531d378b142d0ba8a77525"
+      ],
+      "source_sha256": "ad03f0a1afac5fe53bd781e871c7e8067cac6dec52cb79ed55cfa65aa306e569",
+      "text": "Diga por que o editor não abrirá esse layout no lugar.\n\n:param queue: a lista de trabalho que foi construída, em um layout Make Masks não pode editar.\n:returns: a recusa, nomeando o que o editor teria lido e escrito, e o que ainda funciona nesta pasta.",
+      "translation_source_blocks_sha256": [
+        "259fa8186d3f1d67b0b5ef274fceb1ad6924ed48b094b61d03c485691c1574b7",
+        "960aff22e7e8e870d07414891d8aa744de74ec94007e573cf813aebb16b2e4df",
+        "5fe4798aae2e56c4a83f092d6bb48d17e54afd1251531d378b142d0ba8a77525"
+      ]
+    },
+    "spacr.cli_make_masks.hand_over": {
+      "source_blocks_sha256": [
+        "40caf946c9b4421d8b47e2654f3626cff9d263937c4662dbce436c3758243ba4",
+        "272261c1f8e72febdac3dd3102e548eb78573a48228fbb8cb9b867db293b5379"
+      ],
+      "source_sha256": "367bf1d1ce0dfa568e841ed9c22a3d7f58d1683ce6fdd019485c04b7cda467e1",
+      "text": "Deixe ``queue`` para a próxima exibição de aplicativo  Make Masks que é construída.\n\n:param queue: a sessão para entregar, ou ``None`` para limpar o slot.",
+      "translation_source_blocks_sha256": [
+        "4e7cb59884c4939f502827e2dfe302f77f879033a572f2647194232b768737fb",
+        "272261c1f8e72febdac3dd3102e548eb78573a48228fbb8cb9b867db293b5379"
+      ]
+    },
+    "spacr.cli_make_masks.has_display": {
+      "source_blocks_sha256": [
+        "d5b4cbae93c6cde5c52ebf6dced12b6ab29a3257b68dacdb79cab0087e808408",
+        "d77f7d23b956800dc04a73073d318e5cb7a0b9f002d17d68668625d4af317e73",
+        "73cffa7c2ead9a0ff1f4715fd75ad9af1269b13df4119e9e96f7c0fca5116979",
+        "2862c45bd7892857633cf64ce5373267821bf33870117c212e4f900e717ef66b"
+      ],
+      "source_sha256": "f5617edb7ea8d5cf70a814eb80c4bdce380a9cd39fa387c7857cbaa14a727e63",
+      "text": "Se existe um sistema de janelas para o editor abrir.\n\nThe same three-line question :func:`spacr.cli.use_agg_if_headless` asks of matplotlib, asked of Qt and asked BEFORE Qt is imported: an SSH session with no X forwarding otherwise gets \"could not load the Qt platform plugin xcb\" and an abort, which says nothing about the work list that was perfectly readable a moment earlier.\n\nUm ``QT_QPA_PLATFORM`` explícito conta como uma exibição. É como a renderização offscreen, o VNC e as plataformas incorporadas são solicitadas, e alguém que o definiu já disse qual superfície  Qt é usar.\n\n:returns: O editor pode ser aberto aqui.",
+      "translation_source_blocks_sha256": [
+        "d5b4cbae93c6cde5c52ebf6dced12b6ab29a3257b68dacdb79cab0087e808408",
+        "898757548d8ced87414c26e359409d4fca459c420cc2c8a6d50194f88bfa0179",
+        "73cffa7c2ead9a0ff1f4715fd75ad9af1269b13df4119e9e96f7c0fca5116979",
+        "2862c45bd7892857633cf64ce5373267821bf33870117c212e4f900e717ef66b"
+      ]
+    },
+    "spacr.cli_make_masks.main": {
+      "source_blocks_sha256": [
+        "26d6e3977f9932c4d972206bcb86be8e3114f9a3f7e0a799bbb4f1fa70294830",
+        "85ff624e69170021eed0e661d341640e80dc9bcf4532544cca76ab763b85c1ae",
+        "1f3321b681e92804830e73b756927e5e461473615ab7402081148ac7f7cfb37e",
+        "15cb64f4244e135c7eadb4d0a9eb5e0342f79bb03a7df05feb9fd4d59118f78f"
+      ],
+      "source_sha256": "3635dc35fbd156cd37783f04b34b728a49078d1723763bd79e478a4a3c0a3802",
+      "text": "Abra uma pasta como uma sessão de curadoria ou diga por que ela não pode ser aberta.\n\n:param argv: argumentos de linha de comando sem o nome do programa. ``None`` lê  :data:`sys.argv`.\n:returns: um código de saída do processo; veja o módulo docstring para o que cada um significa.\n:raises SystemExit: com status ``2`` quando os próprios argumentos são inválidos, que é a própria recusa de argparse.",
+      "translation_source_blocks_sha256": [
+        "26d6e3977f9932c4d972206bcb86be8e3114f9a3f7e0a799bbb4f1fa70294830",
+        "85ff624e69170021eed0e661d341640e80dc9bcf4532544cca76ab763b85c1ae",
+        "1f3321b681e92804830e73b756927e5e461473615ab7402081148ac7f7cfb37e",
+        "15cb64f4244e135c7eadb4d0a9eb5e0342f79bb03a7df05feb9fd4d59118f78f"
+      ]
+    },
+    "spacr.cli_make_masks.open_editor": {
+      "source_blocks_sha256": [
+        "e42eb085045e3d382e4054de83f4b38072f556c6730668b310fff8e4d5222718",
+        "53ef2d646dc8eb6ae9b793d2feeaeafe0e30a5314d5e986bba6d6401f2aa3da2",
+        "7195e08d7ad0ccaeb9c18879ce24ed845adef6b797520d25d6b0a5d68630af63",
+        "a9225b6e4b67ea85fbc27faeb542d463b6215d40eaed7aed0938bb86b6cd044f"
+      ],
+      "source_sha256": "109c5b40c42dcc4d02ddc79342af62adfbb642508d65a8bed1fcc8aeb46a19be",
+      "text": "Inicie o GUI em  ``queue`` e retorne o código de saída do processo.\n\nQt é importado AQUI e em nenhum lugar acima: tudo o que pode ser recusado foi recusado no momento em que isso é chamado.\n\n:param queue: A sessão em que o editor abre.\n:returns: o código de saída :func:`spacr.qt.run` retorna, ou  :data:`EXIT_NO_GUI` quando não há exibição para abrir, ou quando a interface Qt não está instalada.",
+      "translation_source_blocks_sha256": [
+        "e42eb085045e3d382e4054de83f4b38072f556c6730668b310fff8e4d5222718",
+        "53ef2d646dc8eb6ae9b793d2feeaeafe0e30a5314d5e986bba6d6401f2aa3da2",
+        "7195e08d7ad0ccaeb9c18879ce24ed845adef6b797520d25d6b0a5d68630af63",
+        "a9225b6e4b67ea85fbc27faeb542d463b6215d40eaed7aed0938bb86b6cd044f"
+      ]
+    },
+    "spacr.cli_make_masks.take_handover": {
+      "source_blocks_sha256": [
+        "f0efc69ebab621905de3cd83618a578554312ad7254388a92a909c85d664ccce",
+        "932dd35a832d0cd531aff34816108f2ed60db77423a9070282e46a71d6ca1930",
+        "7d452baf77bcfdcf129ffa489d9ee312e112ad9438d4d994ea53da5f006b4bdc"
+      ],
+      "source_sha256": "fb89ecb17e601ab7c4014317a00b32a6abd97d8e7187decaae966919ffe14fef",
+      "text": "Pegue a programação do terminal entregue, se houver um.\n\nEsvaziar o slot é metade do que esta chamada é: uma triagem reconstruída mais tarde no mesmo processo - o usuário navegando de volta para Make Masks - deve abrir em nada em vez de em uma sessão que já foi trabalhada.\n\n:returns: the handed-over :class:`~spacr.curation_queue.CurationQueue`, or ``None`` when the screen was opened the ordinary way.",
+      "translation_source_blocks_sha256": [
+        "fa2300fe0bb2f0926d0a7e495233b11163e2bba68fd32bac6f2676c1522cb155",
+        "932dd35a832d0cd531aff34816108f2ed60db77423a9070282e46a71d6ca1930",
+        "7d452baf77bcfdcf129ffa489d9ee312e112ad9438d4d994ea53da5f006b4bdc"
+      ]
+    },
     "spacr.cli_plugins": {
       "source_blocks_sha256": [
         "e1b1133ce9f3e5064a7a0ffe8195c56ee2ded9bdc1a4999a230ed31303370581"
@@ -15948,6 +16076,668 @@
         "ebf0b1dbc50dc7b24e54bd4fa445510d2ad9d9ffe76f0b96a96437091a3b37c5",
         "64f08fc3f0445cba7743bdb2c03f36dc3f48e49ed6c9474d39dad61a451dca2b",
         "ff43fa5c4d60d9c4f80761f0ffc84a8903ad694ce7774a2e74e1111c142f78d1"
+      ]
+    },
+    "spacr.curation_queue": {
+      "source_blocks_sha256": [
+        "0bbd169eb9929ab7061364bdc8fc6802a45b137394948ecbae0fe5034abe94a6",
+        "52486fea20c4ed0652a6c6bb76140fb21b0b42dbc54f6575582bbe560f98e164",
+        "9b14eeb9553889a3cf4b1c6552a0af1733cd8a63f7dc714fa449850e000078b0",
+        "e84bb3c694fa720014d12b0c0a4fdd156c41d3f94981f3e7ba826f0da245edae",
+        "6bfdcd3500939f2ad0ca906ff531ad869adbb1649561bdb4951bb0d14b2c7419",
+        "f0d74236a0c40bc9045240207551b0d6ab5e42d33fd4632b5663e81ecbedcd9e",
+        "6b42c4c6e101a79dd824b9093710e5a02d1465c2c6ed41eb2cd31d346b50b6fc",
+        "dfbdfeed0c3e4a8bf0508ee3f983a61a10fd4162e26f0aa616592e1c798f6084",
+        "fc576d870096e7e160796d7f42562a3d85871ab519cc16333d5bb5523927ede4",
+        "35266cd2f21aca524f388c9a8f49f2698327570bd43900ff3e388fac48f8f683",
+        "8f179fa8bfb1588bc7b4234433245917af3e83225a418600968657e4c6e0557d",
+        "d236f1d489406825e6dc7b26bece524f1d07b33ee08265ac0e3a1f95936dfd2a",
+        "b59095229ee3b3f5f9255a4362d11c3158e7000b5f832961f7b3739f53594eee",
+        "86d88b32f09a14c984f2ebdd37b178f1f927693d146809c6cbe239e802e55e49",
+        "5c5df93fb22c6b573faf7d3900d9b75f26076ea05c3950e4393a18ba1d8ba6f5",
+        "af956af5bdc87f857d8be7cd17912893a34adcd60d97ef2e6af91a6edd0aa405",
+        "4f3c87252ac9a32ae011cc9973f8de97b939dd21cda5a9793c39007d3b3134c7",
+        "45a4d1c15a80957ff6d90169f51d4ffcfc304d4c0ad450f5ff6a1db94eb04e28",
+        "7f6fde93c06417b8e5361eb7300eefc3b3c1b02f89c8ebc72462a1e38006c5b2"
+      ],
+      "source_sha256": "8891def183a7b457d1f32a9645e6291476bdd93d64099641bb8ac5a6ab0cd115",
+      "text": "``396`` uma sessão de curadoria é uma lista de trabalho com uma memória, não um campo.\n\nMake Masks é o melhor editor e a ferramenta sob medida fora do repositório é o fluxo de trabalho melhor, e o item de registro 396 é a observação de que nenhum dos dois é ambos. Este módulo é a metade do fluxo de trabalhos, puxado para dentro de  spaCR: quais campos estão esperando, qual ordem para oferecê-los, quantos oferecer antes que a sessão termine e o que já foi decidido sobre cada um.\n\nIt holds no pixels and draws nothing. That is deliberate and it is the whole argument for bringing the work in here: the external tool's defects are found in the middle of a curation session, because there is no way to test a 2,000-line Qt application, whereas everything below is ordinary Python over a folder and a CSV, so a defect is found by ``tests/test_a_curation_session_resumes_where_it_stopped.py`` instead. The module imports no Qt, needs no display, and touches ``numpy`` only inside the functions that actually read a draft mask off the disk.\n\nTrês layouts, todos aceitos\n---------------------------\n\nO item 396 do Ledger nomeia a incompatibilidade de layout como a coisa a ser resolvida primeiro, e adverte que assumir silenciosamente um é como uma pasta cheia de trabalho é carregada como vazia. Então todos os três são aceitos e o que está na nossa frente é detectado::\n\n    nested    <folder>/*.tif           + <folder>/masks/*.tif\n    sibling   <folder>/images/*.tif    + <folder>/masks/*.tif\n    seg       <folder>/*_seg.npy       (Cellpose pickles, the external tool)\n\nAceitar todos os três é estritamente mais seguro do que escolher um vencedor: um conjunto de curadoria existente abre não convertido, e nada precisa ser movido antes que o trabalho possa começar. O que é *não* aceito é um palpite. Uma pasta que não corresponde a nenhum deles, ou que corresponde a dois deles, aumenta  :class:`LayoutError` porque a alternativa é uma lista de trabalho vazia e a lista de trabalhos vazios é lida como \"all done\".\n\nTrês estados revistos, não dois\n-------------------------------\n\n:data:`REVIEWED` is ``done``, ``skip`` and ``recropped``. The ledger note says two; it is wrong. ``skip`` is not a lesser ``done`` — it records \"this one cannot be curated\", and collapsing the two means the same unusable field is offered again every session. ``recropped`` is what the external tool writes when a bundle has been split into children: the parent is out of the work list and its pieces are in it.\n\nO registro vive em ``<folder>/curate_status.csv``, dentro da pasta de lista de trabalho em vez de ao lado dele, então ele sincroniza com as imagens e uma sessão é retomada na outra máquina. Uma linha sobre um caule que não está nesta pasta é mantida em reescrever exatamente por esse motivo: o curador pode estar retomando em algum lugar o resto do conjunto ainda não chegou, e deixar essas linhas devolveria o trabalho já feito.\n\nEncomendar\n----------\n\nO pedido é o recurso de produtividade: o julgamento de um curador vale mais nos campos duros do que nos primeiros cem fáceis. As quatro ordens, e as constantes dentro delas, são da ferramenta externa, escolhida após um conjunto real de curadoria de 500 pacotes. :func:`order_items` diz o que cada um significa.\n\nOnde isso difere conscientemente da ferramenta externa\n------------------------------------------------------\n\nCinco lugares, cada um porque este módulo deve servir três layouts e um conjunto de testes em vez de uma pasta de picles Cellpose:\n\n* Os objetos são contados como rótulos distintos não nulos, não ``masks.max()``. Veja  :func:`count_draft_objects` para os dois casos em que esses diferem.\n* O diâmetro médio do objeto é calculado diretamente em vez de através de ``skimage.measure.regionprops``, de modo a ordenar uma lista de trabalho precisa  numpy sozinho. É o mesmo número, e um teste fixa a igualdade.\n* Um ``order`` desconhecido produz um erro em vez de silenciosamente se tornar  ``value``. Uma reordenação silenciosa é a falha com a qual este módulo é mais cuidadoso.\n* ``name`` ordena por stem em vez de por nome de arquivo, de modo que a ordem não muda quando um campo é um  PNG e o próximo  TIFF.\n* As linhas de estado são escritas ordenadas por haste, atomicamente. O arquivo sincroniza entre máquinas; uma ordem estável mantém o diff para as linhas que foram alteradas, e o renomeamento mantém um registro de currículo semi-escrito fora do disco.\n\nOs layouts aninhados e irmãos também oferecem uma imagem cuja máscara está faltando, em vez de emparelhar estritamente como o construtor de pacotes da ferramenta externa: um campo de visão de microscópio sem rascunho é trabalho, desenho do zero e ``easy`` já sabe oferecê-lo por último.",
+      "translation_source_blocks_sha256": [
+        "d1aedc0f3f2fb4c0cc8d4cbe6f6463ba7430d8a0e09086145a3d9a152aae817c",
+        "52486fea20c4ed0652a6c6bb76140fb21b0b42dbc54f6575582bbe560f98e164",
+        "9b14eeb9553889a3cf4b1c6552a0af1733cd8a63f7dc714fa449850e000078b0",
+        "e84bb3c694fa720014d12b0c0a4fdd156c41d3f94981f3e7ba826f0da245edae",
+        "6bfdcd3500939f2ad0ca906ff531ad869adbb1649561bdb4951bb0d14b2c7419",
+        "f6f854d1df24e3008d17ea38e3d7001e838507820de62b48bed82de5cad4e33c",
+        "6b42c4c6e101a79dd824b9093710e5a02d1465c2c6ed41eb2cd31d346b50b6fc",
+        "1d55da409b610beddef5e3a7b6e8957cca8659bd2c6a6aa15eb34debc25cdf65",
+        "0f0b5f230296b08a4a156243d59090aa7d72f01d5c718ecc9cd7118a26620107",
+        "35266cd2f21aca524f388c9a8f49f2698327570bd43900ff3e388fac48f8f683",
+        "8f179fa8bfb1588bc7b4234433245917af3e83225a418600968657e4c6e0557d",
+        "d236f1d489406825e6dc7b26bece524f1d07b33ee08265ac0e3a1f95936dfd2a",
+        "b59095229ee3b3f5f9255a4362d11c3158e7000b5f832961f7b3739f53594eee",
+        "86d88b32f09a14c984f2ebdd37b178f1f927693d146809c6cbe239e802e55e49",
+        "d6e0ad00cb733293072fc1c798e09e0cac56600369b582a0a49a92125a9c59e0",
+        "947a951454e63d37aafc8408abc6059dc61f786ce3724b2b438f783d7465a1fe",
+        "4f3c87252ac9a32ae011cc9973f8de97b939dd21cda5a9793c39007d3b3134c7",
+        "45a4d1c15a80957ff6d90169f51d4ffcfc304d4c0ad450f5ff6a1db94eb04e28",
+        "4db2006f96abc227e5ca957a814e1fb5ef366b9a962d061101fa4bbf17927ce9"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue": {
+      "source_blocks_sha256": [
+        "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
+        "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
+        "0d7015fa5eb2fa05fbc2429359754bdd958766003043bc0e550d1cf5e0478948",
+        "f1f7a40c9dff9b5edc90e660045e20716eab4d2e141f47b8ca23ab7f10b0dfa7",
+        "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
+        "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
+        "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
+        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce"
+      ],
+      "source_sha256": "4e0c3cd3f10f0e465113c0bf338e7183f37744b3b14afdd2f880caad985b95fa",
+      "text": "Uma sessão limitada de trabalho de curadoria em uma pasta.\n\n:ivar layout: O que foi encontrado e onde.\n:ivar items: os campos para oferecer esta sessão sem revisão, ordem e corte para ``limit``.\n:ivar status: todas as linhas de status lidas, incluindo linhas sobre hastes que não estão nesta pasta.\n:ivar order: A ordem que foi pedida.\n:ivar effective_order: o pedido realmente usado, que difere de ``order`` quando  ``prob`` ou  ``easy`` caiu de volta para ``value`` por falta de probabilidades.\n:ivar limit: a tampa que foi aplicada, ou ``None``.\n:ivar summary: contagens sobre a pasta whole, não sobre esta sessão.",
+      "translation_source_blocks_sha256": [
+        "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
+        "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
+        "0d7015fa5eb2fa05fbc2429359754bdd958766003043bc0e550d1cf5e0478948",
+        "f1f7a40c9dff9b5edc90e660045e20716eab4d2e141f47b8ca23ab7f10b0dfa7",
+        "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
+        "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
+        "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
+        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.all_items": {
+      "source_blocks_sha256": [
+        "4ef16b1a0829bc8edb1fced048e2e5a00bc6f96761b2a5d79cc935e3fadc297b"
+      ],
+      "source_sha256": "ca71936167c7bcd9d8819ae050820d6aab8cd3a5cff2ec2304020eaec648abd5",
+      "text": ":returns: todos os campos da pasta, incluindo os revisados.",
+      "translation_source_blocks_sha256": [
+        "4ef16b1a0829bc8edb1fced048e2e5a00bc6f96761b2a5d79cc935e3fadc297b"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.describe": {
+      "source_blocks_sha256": [
+        "410478fc68e5fb14508f28d407d84689bbd5fb811a0d41e84eac3d4bfa680cce"
+      ],
+      "source_sha256": "04d67d74e53385f01d5a3a1214d9a2e10164277447bbeccfb24bb76b310987a8",
+      "text": ":returns: uma linha imprimível que nomeia o layout, a ordem e as contagens.",
+      "translation_source_blocks_sha256": [
+        "410478fc68e5fb14508f28d407d84689bbd5fb811a0d41e84eac3d4bfa680cce"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.folder": {
+      "source_blocks_sha256": [
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927"
+      ],
+      "source_sha256": "cfcc382aa7e899e658f95dd5c03eb3ae2cbbde6d817e7f06d9ec175215233fe7",
+      "text": ":returns: a pasta da lista de trabalho.",
+      "translation_source_blocks_sha256": [
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f"
+      ]
+    },
+    "spacr.curation_queue.CurationQueueError": {
+      "source_blocks_sha256": [
+        "cc7c517f771ccc2589544bedd65b11755da030466e056c00c19a0329fcb46d54",
+        "389ef729de19545a40d3552e5aa66bd495a7a531693e1426a10d1ebd8c6aa3e4"
+      ],
+      "source_sha256": "fdcd7cf88eff52c8259c8a8b7f2675b65177ac1fc3262a74d8d180df2cf64966",
+      "text": "Uma lista de trabalho de curadoria não pôde ser construída, lida ou escrita.\n\nSubclasse de :class:`spacr.errors.SpacrError`, então um chamador que pega os próprios erros do  spaCR também os pega.",
+      "translation_source_blocks_sha256": [
+        "214d3b6c7d50f4e9214024c2f6e9a73c92614924dea033faabd0140a87a739a5",
+        "389ef729de19545a40d3552e5aa66bd495a7a531693e1426a10d1ebd8c6aa3e4"
+      ]
+    },
+    "spacr.curation_queue.LayoutError": {
+      "source_blocks_sha256": [
+        "94e8f674965dbef9724344e55104410bada7a8f4c40ddafa2fe3fecf30adaf66",
+        "c5aeac511a201b7da507eaf82a5f5e975be96cbbabd29a5bb9460d9cc4b00ebd"
+      ],
+      "source_sha256": "e2f50d713c33afd517f70141854fe30d77603b3034d017092d052cea924331a7",
+      "text": "A pasta não contém inequivocamente um dos três layouts.\n\nUma lista de trabalho vazia é lida como \"all done\", que é a resposta errada que uma ferramenta de curadoria nunca deve dar sobre uma pasta cheia de trabalho.",
+      "translation_source_blocks_sha256": [
+        "94e8f674965dbef9724344e55104410bada7a8f4c40ddafa2fe3fecf30adaf66",
+        "70ec52381cd160330809cc763b5f6e4b69fc3f01200c92b5fcbfc0f4c1eae2b9"
+      ]
+    },
+    "spacr.curation_queue.QueueItem": {
+      "source_blocks_sha256": [
+        "76bf0001be9a494ebd972c3d4b57750f6082bf3a4e781d1f636527672bf3a2a8",
+        "c4e8e69047fb694ca26c0b049dba4226baeb80c1df9af122bdc7a95b44fb0b28",
+        "887456f4a1e4fba2dd2f762e0c8380cee6e9d64df89cbed63fe5bd9f3bb0e870",
+        "6581c197615b529ed48c82f6914a7dcaf36159f067340573eb5fc315e075c90b",
+        "c8fa22584f70ae0e9729462b2e6b476db5caf0c66f8045dfe73f43483ec59f1e",
+        "21a33c25fb49b95ea46af484730b4afd570e86af5ba423f6d94dd3fc78c22597"
+      ],
+      "source_sha256": "ffaca66c659eedae38516835dc5a37e7c517f9f791eeac8f82f5792db1c0a2d2",
+      "text": "Um campo à espera de ser curado.\n\n:ivar stem: a identidade do campo e o nome dos dados estruturados de sua linha de status.\n:ivar layout: qual de :data:`LAYOUTS` este item veio.\n:ivar image: o arquivo de imagem, quando o layout tem um no disco. ``None`` para um pacote  ``seg`` que carrega sua própria imagem, a menos que uma imagem de exibição do mesmo tronco fique ao lado dele.\n:ivar mask: o arquivo de máscara de rascunho, ou ``None`` quando ainda não existe rascunho.\n:ivar bundle: o pickle ``_seg.npy``, apenas para o layout  ``seg``.",
+      "translation_source_blocks_sha256": [
+        "76bf0001be9a494ebd972c3d4b57750f6082bf3a4e781d1f636527672bf3a2a8",
+        "63916e8a9ee44e2194a4d81029c386ef07b266e8dea9bea2683fdef0cdac7c52",
+        "887456f4a1e4fba2dd2f762e0c8380cee6e9d64df89cbed63fe5bd9f3bb0e870",
+        "6581c197615b529ed48c82f6914a7dcaf36159f067340573eb5fc315e075c90b",
+        "c8fa22584f70ae0e9729462b2e6b476db5caf0c66f8045dfe73f43483ec59f1e",
+        "21a33c25fb49b95ea46af484730b4afd570e86af5ba423f6d94dd3fc78c22597"
+      ]
+    },
+    "spacr.curation_queue.QueueItem.draft": {
+      "source_blocks_sha256": [
+        "efef956d4d0ace4455dd1b889fb8703b93e3eb1ccf4046521080b5ee6a5975eb",
+        "a5498021d9b223d2ab6738c9f74641ffcee48a498f4dab2149f2067edb7025e1"
+      ],
+      "source_sha256": "851e3118dfb94ef69a3189cc6eeb1958820190ff399bfc71f6e2185c4b432fea",
+      "text": "O arquivo que contém as etiquetas de rascunho deste item, ou ``None``.\n\n:returns: o pacote para um item ``seg``, o arquivo de máscara para os outros dois layouts e  ``None`` quando não há rascunho o que significa desenhar do zero, não um erro.",
+      "translation_source_blocks_sha256": [
+        "efef956d4d0ace4455dd1b889fb8703b93e3eb1ccf4046521080b5ee6a5975eb",
+        "a5498021d9b223d2ab6738c9f74641ffcee48a498f4dab2149f2067edb7025e1"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout": {
+      "source_blocks_sha256": [
+        "ebbd44fa4a6bd3ede03dd9208012b8f656c07f0732060865491b5ef71f8ceb41",
+        "f8c35582bbe3c99bb9da163d5b6c65f0dd8c94b7680293bf84302cecfda641ac",
+        "7c142576fd2f5c3625b96b4c4f3e7351d8c24cdc81e3b8e82e33ebb91f57097b",
+        "51af67851f9d4ed276ba4304f7497173a2a334208080cb1fceba96e35ee8ee56",
+        "113b4334b61ed57cdd5de917b15c3b6436b9a2b797f02be2d0f0f04bd3ca968c",
+        "77ca0d5d1ecf25b1a192ce71266eaf72e3d70e1e9609d843caa7cf30f910c126"
+      ],
+      "source_sha256": "9d2b4af947d987b5bfac8efbaedd64e44e009ac370ab019bad7950e184c18c49",
+      "text": "O que foi encontrado na pasta e onde.\n\n:ivar kind: um de :data:`LAYOUTS`.\n:ivar folder: a pasta de lista de trabalho, que também é onde o arquivo de status vai.\n:ivar images_dir: onde as imagens estão, quando elas estão no disco.\n:ivar masks_dir: onde as máscaras são lidas e escritas de volta.\n:ivar items: todos os campos encontrados, classificados por stem.",
+      "translation_source_blocks_sha256": [
+        "ebbd44fa4a6bd3ede03dd9208012b8f656c07f0732060865491b5ef71f8ceb41",
+        "f8c35582bbe3c99bb9da163d5b6c65f0dd8c94b7680293bf84302cecfda641ac",
+        "c1b20568bd681673f5b2acce23ed34f1b14e2ff505135d9b13bc8e9cf228d38e",
+        "51af67851f9d4ed276ba4304f7497173a2a334208080cb1fceba96e35ee8ee56",
+        "113b4334b61ed57cdd5de917b15c3b6436b9a2b797f02be2d0f0f04bd3ca968c",
+        "77ca0d5d1ecf25b1a192ce71266eaf72e3d70e1e9609d843caa7cf30f910c126"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout.mask_destination": {
+      "source_blocks_sha256": [
+        "fd761eff222c90217c9ecb4b59ab225f78d15d9e96741307de98ddf39531bc33",
+        "2d63b3a828593c97de92fa1861a7cc9ca12b466dc00d0cff42db20d373fc2b92",
+        "e5db885eb6cdeb1832a450d2bdda9ca1281dd0fffb0378f239f9396b7f22fa2c",
+        "b16276b0a9d63bfc1e7095faa6ff7ab566acb1b71de4b9dc0c00d53fe66c04c7",
+        "10fb5c29379c6eca0adbdefa8b3afd565dfeb4e401b96e259910950d6d4195b2"
+      ],
+      "source_sha256": "4144c54761a80d374d3487d27b23150e763bd586d31f297b53b8f9db8bf418df",
+      "text": "Onde uma máscara com curadoria para ``stem`` é escrita.\n\nO layout ``seg`` escreve de volta para o pacote do qual foi lido, como a ferramenta externa faz; os outros dois escrevem  ``<masks_dir>/<stem>.tif``, que é o que  :func:`spacr.qt.mask_engine.mask_save_path` já produz para o layout aninhado.\n\n:param stem: O tronco do campo.\n:returns: o caminho em que uma máscara curada pertence.\n:raises CurationQueueError: quando ``stem`` não está nesta lista de trabalho.",
+      "translation_source_blocks_sha256": [
+        "fd761eff222c90217c9ecb4b59ab225f78d15d9e96741307de98ddf39531bc33",
+        "2d63b3a828593c97de92fa1861a7cc9ca12b466dc00d0cff42db20d373fc2b92",
+        "e5db885eb6cdeb1832a450d2bdda9ca1281dd0fffb0378f239f9396b7f22fa2c",
+        "b16276b0a9d63bfc1e7095faa6ff7ab566acb1b71de4b9dc0c00d53fe66c04c7",
+        "01e9d63fce80e10357d70b9126c3fa7a58ce1b94ea6da148a29994fdf4b12d98"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout.status_path": {
+      "source_blocks_sha256": [
+        "3f0f53f44e5d01e6408c9f24021119fc8f05bc425c402d49ea8b53d36c9c5923"
+      ],
+      "source_sha256": "0ded3dcd9808ba064f0d32c545d37e7669f1a22be3a7180709c5af4c2b5dcf38",
+      "text": ":returns: o caminho desta lista de trabalho é ``curate_status.csv``.",
+      "translation_source_blocks_sha256": [
+        "a0a91b654669aac808b4ecea9906522ef39377953ac15563a653f1678dbd8d05"
+      ]
+    },
+    "spacr.curation_queue.QueueSummary": {
+      "source_blocks_sha256": [
+        "17b2462737cf8f542af2aa8b5a871344bf4729a7a5097a0b239325a2c08bc673",
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
+        "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",
+        "da33edf76b0e258f813f937d76259eae1ed7e06caf4d9a6d49e3e5a22e470b37",
+        "e8afaecea4ffc5d11913e96816725ff56806be5723e4489189bdc656579e051f",
+        "2378a787d3f94701ea33c20e200e573a4891969c220330378b7b15417bfbc414"
+      ],
+      "source_sha256": "ccb6ef2fd498d15ada5ab38b597183047fd212c34b7ad734c77a456c1e7b92f8",
+      "text": "O que resta a fazer, nos termos do item 396 do livro-razão pede.\n\n:ivar total: campos na pasta.\n:ivar done: Curadoria.\n:ivar skip: recusado – não pode ser curado, e não deve ser oferecido novamente.\n:ivar recropped: dividido em crianças, que estão na lista de trabalho em vez disso.\n:ivar remaining: campos sem estado revisado.\n:ivar unknown: estado linhas sobre hastes que não estão nesta pasta. Mantido, nunca caiu, e relatado aqui em vez de silenciosamente: em uma segunda máquina eles são geralmente trabalho já feito em outro lugar.",
+      "translation_source_blocks_sha256": [
+        "17b2462737cf8f542af2aa8b5a871344bf4729a7a5097a0b239325a2c08bc673",
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
+        "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",
+        "ba7e218fe5eee970508138a213cbb1914ba26c249c31c29da3283be009322b36",
+        "e8afaecea4ffc5d11913e96816725ff56806be5723e4489189bdc656579e051f",
+        "2378a787d3f94701ea33c20e200e573a4891969c220330378b7b15417bfbc414"
+      ]
+    },
+    "spacr.curation_queue.QueueSummary.describe": {
+      "source_blocks_sha256": [
+        "30f66421ba9a830c69a6ef0cd1ec9f90c7f0551095cae3016fe78383dbd8bb35",
+        "4e2496459fc8362b25877de0861d9ab2fe47888b2e855f09f7b567828c3e88b6",
+        "20aa333053bb65022b960e8a92ad68ab78f69b7eff359b9cbba1bcc68b25487a"
+      ],
+      "source_sha256": "0c8fc0758a733632749ab9605942d158ce348a37cc190c62f7374c2204b34092",
+      "text": "Uma linha que um chamador pode imprimir.\n\nO estado medido do livro-razão, ``500 bundles, 366 done, 29 skip, 105 remaining``, é exatamente o que isso retorna para ele. As duas contagens mais raras são anexadas apenas quando não são zero, então a frase comum permanece a curta.\n\n:returns: um resumo fácil de ler da lista de trabalho.",
+      "translation_source_blocks_sha256": [
+        "30f66421ba9a830c69a6ef0cd1ec9f90c7f0551095cae3016fe78383dbd8bb35",
+        "4e2496459fc8362b25877de0861d9ab2fe47888b2e855f09f7b567828c3e88b6",
+        "62d985de11ec4f07ee7249ba0cb22d96356c5439739327049db1004e672655ed"
+      ]
+    },
+    "spacr.curation_queue.StatusFileError": {
+      "source_blocks_sha256": [
+        "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57"
+      ],
+      "source_sha256": "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57",
+      "text": "``curate_status.csv`` existe, mas não pode ser lido como um registro de currículo.",
+      "translation_source_blocks_sha256": [
+        "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57"
+      ]
+    },
+    "spacr.curation_queue.StatusRow": {
+      "source_blocks_sha256": [
+        "7482bbfb1e45194f6a49473faefaafe9795f83da95a442d39a377bf376de4c36",
+        "d7b033ac6a14c014f9f6f7fae1744461ee6a4bcaae1c940ac48630d5573763c8",
+        "5d037e707ecb21c5046b165062522b36e7da2858dddc52043f229ec5c4107725",
+        "ef6f07e29158143b2943542e6952319a9234a6373f688013a0a0fcf40fb5c093",
+        "3bd6da4235b71c11cbce48da83c1fdab6901f33b4a6617ce778176c97928c527"
+      ],
+      "source_sha256": "17d8dbf6d1ba4a6f2f28e393a90aa6aa89e8446a2b6deb1cd70a506dbb5adbff",
+      "text": "Uma linha de ``curate_status.csv``.\n\n:ivar stem: de qual campo se trata.\n:ivar state: ``done``,  ``skip``,``recropped``, ou qualquer outra coisa, que conta como pendente. Normalizado para reduzir o caso com o espaço em branco circundante despojado, então uma linha digitada à mão como  ``Done`` ainda termina a vez do caule.\n:ivar n_objects: quantos objetos o campo de visão do microscópio tinha quando foi revisado, ou ``None`` quando o arquivo não disse.\n:ivar updated: ISO-8601 timestamp, como está escrito.",
+      "translation_source_blocks_sha256": [
+        "7482bbfb1e45194f6a49473faefaafe9795f83da95a442d39a377bf376de4c36",
+        "d7b033ac6a14c014f9f6f7fae1744461ee6a4bcaae1c940ac48630d5573763c8",
+        "5d037e707ecb21c5046b165062522b36e7da2858dddc52043f229ec5c4107725",
+        "33fa20c17af770be8816193bceb87c95bc7c3908494498089a0f9a06b44c8343",
+        "3bd6da4235b71c11cbce48da83c1fdab6901f33b4a6617ce778176c97928c527"
+      ]
+    },
+    "spacr.curation_queue.StatusRow.reviewed": {
+      "source_blocks_sha256": [
+        "bec90481f344dbb28ba76d99a8df5a9e118bf0621df3f935e74896d8995dd838"
+      ],
+      "source_sha256": "c8e174f9f05c8f51f3c19f4f7126458fee37a7ac5f889c6d27cdb665670b26cd",
+      "text": ":returns: se esta linha retira seu caule da lista de trabalho.",
+      "translation_source_blocks_sha256": [
+        "97465fe60ce78a161e9ccd20c74d71e080d68e7649b60b37b1617d82471e6f25"
+      ]
+    },
+    "spacr.curation_queue.build_queue": {
+      "source_blocks_sha256": [
+        "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
+        "a7ece0725e57b5801218a905de7e1460717ae20c1cf034cd7d51a2fd2ade0fed",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "acbc65f159e6a0fe53b1154b8d64dc1bc03924978bffc8d459290c8b2048d7be",
+        "d0170800c2bb550e12f3b67a71c1dd0363204b95f557016b001dc4162f2f2dbf",
+        "8a247677246f65558a399f92d208e5458852ea672a51c07542d2d6b259d3c916",
+        "f2ed96eca899632a7f81f567a8d2304a55991ffc6fa5240df9aafeef2b57715e",
+        "e29975c5200eccb28213ff58fb94904472c5080b0d39eb020cd0a6b46f998291",
+        "06c3e4e2a456fbbcc5a0bede8a2dbef0325cbc9aef5c155f8df85888f751ef65",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
+        "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
+        "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ],
+      "source_sha256": "db641a7f12c3c5190e03c47662498d587c921e1729f5e5d44049377d2a3e72f6",
+      "text": "Abra uma pasta como uma sessão de curadoria limitada.\n\nEm ordem: detecte o layout, leia o registro do currículo, largue tudo o que já foi revisado, ordene o que resta, e somente ENTO aplique o limite então ``--limit 20`` significa os vinte campos mais valiosos ainda a serem feitos, não os primeiros vinte encontrados.\n\n:param folder: a pasta da lista de trabalho.\n:param order: um de :data:`ORDERS`;  :data:`DEFAULT_ORDER` por padrão.\n:param limit: quantos campos esta sessão oferece, ou ``None`` para todos.\n:param probs: probabilidades de usar em vez de ler ``curate_scores.csv``.\n:param counts: Contagens de rascunho para usar em vez de ler os rascunhos.\n:param announce: onde os avisos vão; padrões para :func:`print`.\n:param include_reviewed: Ofereça campos revisados também. Desativado por padrão; isso é o que \"resume\" significa.\n:param min_objects: passou para :func:`value_key`.\n:param min_diameter: passou para :func:`value_key`.\n:param cache_counts: se ``easy`` pode escrever seu cache de contagem.\n:returns: o :class:`CurationQueue`.\n:raises LayoutError: quando a pasta não é um layout inequívoco.\n:raises StatusFileError: quando o arquivo de status não pode ser lido.\n:raises ValueError: quando ``order`` não é um de  :data:`ORDERS`.",
+      "translation_source_blocks_sha256": [
+        "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
+        "a7ece0725e57b5801218a905de7e1460717ae20c1cf034cd7d51a2fd2ade0fed",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "acbc65f159e6a0fe53b1154b8d64dc1bc03924978bffc8d459290c8b2048d7be",
+        "d0170800c2bb550e12f3b67a71c1dd0363204b95f557016b001dc4162f2f2dbf",
+        "8a247677246f65558a399f92d208e5458852ea672a51c07542d2d6b259d3c916",
+        "f2ed96eca899632a7f81f567a8d2304a55991ffc6fa5240df9aafeef2b57715e",
+        "e29975c5200eccb28213ff58fb94904472c5080b0d39eb020cd0a6b46f998291",
+        "06c3e4e2a456fbbcc5a0bede8a2dbef0325cbc9aef5c155f8df85888f751ef65",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
+        "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
+        "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ]
+    },
+    "spacr.curation_queue.count_draft_objects": {
+      "source_blocks_sha256": [
+        "8b939ea2da00733fb12e88698c2d9f4c964295e1ddc9f952b5d26f58e0aa9b93",
+        "3c8f24434e24a622e8a199151e5a5601f4987829095c03482d9cbbcdcd1e3109",
+        "6c7c64a05f6ec77ad3383f4c7dcff1ddc8edc3bf5afe22ca511d4b171847cc31",
+        "b78054b87351cf0955949c441d98e72b9a368f6e04c3bfe0b961d837ec4eb534"
+      ],
+      "source_sha256": "0a94d88e927e29632875c8b440f8f725d50f63a2cc167d0d025c20264f3d4cfb",
+      "text": "Quantos objetos o rascunho contém.\n\nContados como rótulos distintos não-zero, em vez de como ``masks.max()``, que é o que a ferramenta externa usa. Os dois concordam em um picles  Cellpose fresco, cujos ids são executados 1..N, e discordam nos dois lugares que importam aqui: um rótulo  TIFF que teve objetos excluídos tem lacunas em seus id, então ``max()`` overcounts; e um 0/255 binário pode conter perfeitamente o relatório, que bem aninhado.\n\n:param item: campo para contar.\n:returns: o número de objetos e ``0`` para um rascunho que está faltando ou ilegível como o cache de contagem da ferramenta externa também faz, já que conta apenas a ordem da unidade.",
+      "translation_source_blocks_sha256": [
+        "8b939ea2da00733fb12e88698c2d9f4c964295e1ddc9f952b5d26f58e0aa9b93",
+        "624926a075af0a076009f384d18d97dec1242b1389e32942376840fbe3b5397e",
+        "6c7c64a05f6ec77ad3383f4c7dcff1ddc8edc3bf5afe22ca511d4b171847cc31",
+        "b78054b87351cf0955949c441d98e72b9a368f6e04c3bfe0b961d837ec4eb534"
+      ]
+    },
+    "spacr.curation_queue.detect_layout": {
+      "source_blocks_sha256": [
+        "5c66b3c4ea4c358588e365e24efc110cd69e835158f8bf648005ebb8a532bf2a",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "afee221f18fa62a1591265219ed85d64a234933f0e029a5a229c4cbfa1a249db",
+        "dae11af6273decb8f8639115a19c3a5f681a89c88f1ad017bfe0a69d9a8f72d6",
+        "8ac1d439c1588410321891a82e82769f76a022a1503073e7a7c1859b7b00c513",
+        "bab1ea9c97149e5b21cd79a03daab5c25f7c19870d269e11982c7843a16193db"
+      ],
+      "source_sha256": "cbc1afdd3df1ea85136945722b4e5f387f203eab1853014ca4df442f7d8cba1c",
+      "text": "Descubra qual dos três layouts ``folder`` contém e leia-o.\n\n:param folder: a pasta da lista de trabalho.\n:returns: o :class:`QueueLayout`, com todos os campos encontrados nele.\n:raises LayoutError: quando ``folder`` não é um diretório, não corresponde a nenhum dos três layouts ou corresponde a mais de um deles.\n:raises CurationQueueError: quando dois arquivos nele compartilham um caule.\n\nAmbas as recusas são altas de propósito. Adivinhar entre dois layouts carrega metade de uma pasta; assumindo que um que não esteja lá não carrega nada disso, e relata isso como uma lista de trabalho concluída.",
+      "translation_source_blocks_sha256": [
+        "5c66b3c4ea4c358588e365e24efc110cd69e835158f8bf648005ebb8a532bf2a",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "afee221f18fa62a1591265219ed85d64a234933f0e029a5a229c4cbfa1a249db",
+        "dae11af6273decb8f8639115a19c3a5f681a89c88f1ad017bfe0a69d9a8f72d6",
+        "8ac1d439c1588410321891a82e82769f76a022a1503073e7a7c1859b7b00c513",
+        "0ca410566eadc59b6723eeb76f0297154e10e6efc78bcea34cd888d61930b3fc"
+      ]
+    },
+    "spacr.curation_queue.discover_items": {
+      "source_blocks_sha256": [
+        "63bfc425de3a71beab6efdf02a8105a0ddbd14081b03657c327577df3178d8cb",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "8b4e18ae48c7734e4f8dd3ee49835c1495f8a21e32433f2fece3671a741841c7",
+        "54c094eed0595ab8629b4cb722ae130e4cbc64d6b6a3900b8a298905a000c8a2"
+      ],
+      "source_sha256": "2a93954f42955edade38b9edfa06b81b5f5deaf29a4a3b250154b2ce494ec185",
+      "text": "Cada campo em ``folder``, qualquer que seja o layout em que esteja.\n\n:param folder: a pasta da lista de trabalho.\n:returns: os itens, classificados por stem.\n:raises LayoutError: como :func:`detect_layout` faz.",
+      "translation_source_blocks_sha256": [
+        "63bfc425de3a71beab6efdf02a8105a0ddbd14081b03657c327577df3178d8cb",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "8b4e18ae48c7734e4f8dd3ee49835c1495f8a21e32433f2fece3671a741841c7",
+        "54c094eed0595ab8629b4cb722ae130e4cbc64d6b6a3900b8a298905a000c8a2"
+      ]
+    },
+    "spacr.curation_queue.draft_stats": {
+      "source_blocks_sha256": [
+        "0f63855d032023f7c97e1d0223cc305b57c6301c1d2c5f914f1796b258d8884a",
+        "7990e590f4591bcecd4c6a23a3e17c5a5c44e1c0dcb49cf6cefc9ec90e3a0eec",
+        "50d72f6e0d68c4aa38fa6f0b824dd1325f2825e0ee80b42185e8d558f49c500e"
+      ],
+      "source_sha256": "087296c40c0d52921effd5c3938f0905cefbe046068a10d2e8fb9b91f38416aa",
+      "text": ":param item: campo para medir.\n\n:returns: ``(n_objects, median_diameter)`` para o seu rascunho.\n:raises Exception: qualquer que seja a leitura de um rascunho ilegível. A ordem ``value`` captura isso e classifica o campo morto por último.",
+      "translation_source_blocks_sha256": [
+        "0f63855d032023f7c97e1d0223cc305b57c6301c1d2c5f914f1796b258d8884a",
+        "7990e590f4591bcecd4c6a23a3e17c5a5c44e1c0dcb49cf6cefc9ec90e3a0eec",
+        "50d72f6e0d68c4aa38fa6f0b824dd1325f2825e0ee80b42185e8d558f49c500e"
+      ]
+    },
+    "spacr.curation_queue.is_reviewed": {
+      "source_blocks_sha256": [
+        "61f7f0a46c76447835c2b5233d51499ffacd1656287aa6bfefdc4427bf370286",
+        "086baeb658a5161555c8843b51dd902bc7c4f573001c72738bf46518b2370ed7"
+      ],
+      "source_sha256": "5dda2d921aff187106a2e54df52bed5c47943735df81ea371719b731b2c5d9cf",
+      "text": ":param state: uma cadeia de caracteres de estado, ou ``None``.\n\n:returns: se esse estado retira um caule da lista de trabalho. ``done``,  ``skip`` e  ``recropped`` todos fazem, e eles permanecem distintos: ``skip`` significa -\"cannot be curated\", o que não é um menor  --``done``.",
+      "translation_source_blocks_sha256": [
+        "61f7f0a46c76447835c2b5233d51499ffacd1656287aa6bfefdc4427bf370286",
+        "4b8dc8bfc38dfe18219883832fd94342078de44fd9b67f57fea3be74ce462201"
+      ]
+    },
+    "spacr.curation_queue.load_draft_counts": {
+      "source_blocks_sha256": [
+        "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
+        "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
+        "65597ad02f41874555b7fc2f460e612dae991973078bc46d5b88cd0664fb86b0",
+        "bb21c19763a09394e3dca3d4d61ca817b991cc6100dcfbdfa24efea3729ec43d",
+        "bf17bb1c4effb28cd91f2f9bc8a056c7bba72100c4f88307aa24a4f96599b158"
+      ],
+      "source_sha256": "1e13ebc7fce0ef9b4c4832f46ac2b7aa9c6ad843ffb9beb09ecc293bd310c6f1",
+      "text": "O objeto de rascunho conta para ``items``, armazenado em cache em  ``curate_drafts.csv``.\n\nA leitura de trezentos rascunhos em cada lançamento é lenta, então as contagens são armazenadas em cache por caule e apenas os caules ausentes do cache são lidos. Contagens unidade ORDERING apenas: um antigo um mis-classifica um campo, ele nunca perde o trabalho.\n\n:param folder: a pasta da lista de trabalho.\n:param items: campos para contar.\n:param write_cache: Uma falha de gravação é anunciada, nunca relatada como um erro uma pasta somente leitura ainda deve ser aberta.\n:param announce: onde o progresso vai; padrão para :func:`print`.\n:returns: ``{stem: n_objects}`` para cada item dado.",
+      "translation_source_blocks_sha256": [
+        "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
+        "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
+        "014239bb03bc76df3aecf670715a66b54e045d7dbc57ae1df8052aa85b42b5dc",
+        "bb21c19763a09394e3dca3d4d61ca817b991cc6100dcfbdfa24efea3729ec43d",
+        "bf17bb1c4effb28cd91f2f9bc8a056c7bba72100c4f88307aa24a4f96599b158"
+      ]
+    },
+    "spacr.curation_queue.load_probabilities": {
+      "source_blocks_sha256": [
+        "ba1cb9b1b11b449a33926001fda24cfe64c608076d888fd71a33c36674f546f3",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "ea55c37fb16531cbf2b399974a99c82896ebd425bf538f10f08aefa3e89011f8",
+        "e73dc3eb33b37b7f2f46b461ebf24f2e5e892cfe06f5a126825e64471ab0ad87"
+      ],
+      "source_sha256": "a91c47cb80761fab032899f5a8f8469aae77953b6d51aba9203f05f92744ad2f",
+      "text": "Leia ``curate_scores.csv``, quando há um.\n\n:param folder: a pasta da lista de trabalho.\n:returns: ``{stem: probability}`` e  ``{}`` quando o arquivo está ausente que é o que faz  ``prob`` e ``easy`` voltarem, em voz alta.\n:raises CurationQueueError: quando o arquivo está presente, mas não tem coluna de haste ou nenhuma coluna de probabilidade reconhecida. Um arquivo de pontuações que existe e não pode ser usado é um erro pelo qual vale a pena parar; um ausente é um estado comum.",
+      "translation_source_blocks_sha256": [
+        "ba1cb9b1b11b449a33926001fda24cfe64c608076d888fd71a33c36674f546f3",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "ea55c37fb16531cbf2b399974a99c82896ebd425bf538f10f08aefa3e89011f8",
+        "e73dc3eb33b37b7f2f46b461ebf24f2e5e892cfe06f5a126825e64471ab0ad87"
+      ]
+    },
+    "spacr.curation_queue.mark_state": {
+      "source_blocks_sha256": [
+        "3ab374aa9b45173c962dd4d39bc3f5f110ffa2adbbe593dfce686d37767ec9be",
+        "e011ea330e0abb3e3577b3659508ebbcf08159d36cecf1f14420b645361178f0",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "e695a1c30a97d8cd8da9995238498c775c7bbbea32ac055e1d36df86df53e844",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "757e4c9a20f3f6abab8a6bf939b10901ecd68c0364d1acbfbf24a2de37f09d46",
+        "9c2ac47ee18089d32b8d2411d16b525195429f47b24207b3676f53e1a00d50b7",
+        "f12f7a47ec196f380dbdc77d5af80a571c4ead7b2d4ab6b5549eabc799efb8ad"
+      ],
+      "source_sha256": "cf9f8aa392559708f6f96078730a540a4aaea56aca84ff603ce2cb6391b98655",
+      "text": "Grave uma decisão e escreva o arquivo, mantendo todas as outras linhas.\n\nEsta é a única chamada que uma sessão de curadoria faz por campo, e é a chamada em que linhas sobre hastes ausentes seriam perdidas.\n\n:param folder: a pasta da lista de trabalho.\n:param stem: campo a ser decidido.\n:param state: O Estado para registrar.\n:param n_objects: Quantos objetos ele tinha, se conhecido.\n:param updated: o timestamp para gravar; padrão para agora.\n:returns: as linhas como estão agora no disco.\n:raises StatusFileError: quando o arquivo não pode ser lido ou escrito.",
+      "translation_source_blocks_sha256": [
+        "3ab374aa9b45173c962dd4d39bc3f5f110ffa2adbbe593dfce686d37767ec9be",
+        "e011ea330e0abb3e3577b3659508ebbcf08159d36cecf1f14420b645361178f0",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "e695a1c30a97d8cd8da9995238498c775c7bbbea32ac055e1d36df86df53e844",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "757e4c9a20f3f6abab8a6bf939b10901ecd68c0364d1acbfbf24a2de37f09d46",
+        "9c2ac47ee18089d32b8d2411d16b525195429f47b24207b3676f53e1a00d50b7",
+        "f12f7a47ec196f380dbdc77d5af80a571c4ead7b2d4ab6b5549eabc799efb8ad"
+      ]
+    },
+    "spacr.curation_queue.median_equivalent_diameter": {
+      "source_blocks_sha256": [
+        "e9bf553c638ff14bb2e7b0ee38705b88c689822b172d055fd765bdd382d8edea",
+        "e36098ecf19a34cbb33b8d078525a91781c514ba01bab23a0a79da48607d8380",
+        "f3430aa7b319332165c939fdf9c19c3c02949f1a81a525314d58a5fed7af3459",
+        "ef8094a6b39a30713f9c793297cdc1e8479e88e36c318d68bc351dbfc0c415fb"
+      ],
+      "source_sha256": "5909578745942044cefd187f18bf199c7842922bd1521edb3473cbe30c2d8fb2",
+      "text": "Diâmetro equivalente a círculo mediano dos objetos em uma imagem de rótulo.\n\nThis is ``skimage.measure.regionprops``'s ``equivalent_diameter_area`` for 2-D input, computed directly as ``sqrt(4 * area / pi)`` so that ordering a work list needs numpy and not scikit-image. The equality is pinned by a test rather than asserted here.\n\n:param labels: uma imagem de etiqueta inteira 2-D.\n:returns: o diâmetro médio em pixels, ou ``0.0`` quando não há objetos.",
+      "translation_source_blocks_sha256": [
+        "e9bf553c638ff14bb2e7b0ee38705b88c689822b172d055fd765bdd382d8edea",
+        "3eca7540aeee7aba5852d84dc56bd088679d0c3e9b85e01c8bba7a993e36a61e",
+        "f3430aa7b319332165c939fdf9c19c3c02949f1a81a525314d58a5fed7af3459",
+        "ef8094a6b39a30713f9c793297cdc1e8479e88e36c318d68bc351dbfc0c415fb"
+      ]
+    },
+    "spacr.curation_queue.order_items": {
+      "source_blocks_sha256": [
+        "d17b0c56b2a86cd98fcde98d22072d6c0c0cbadf5345c240b7cbbec2e9ca1c72",
+        "72584e8bd2ba5c978f03add619cec7cf7ba7ecf37e1857bbae146a09cb8893cb",
+        "e2af5044c4581a6b5cfa6fc82f6f5c5809d437d51ba343161a74e8bd9c15a116",
+        "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
+        "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
+        "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
+        "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
+        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
+        "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "318b1709471e21082b039d2c485117f295418a331f5cb037cfaa56e9bba46db6",
+        "a0ab1793eaf6d30a2bd1ccd5609af399b772fe7d28f91203ced34a1619d57d64",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ],
+      "source_sha256": "e356a7d09cc45a84f33168050cf679a8908bc0f48973eb41b8c5154a45c76817",
+      "text": "Encomende uma lista de trabalho, com a semântica da ferramenta externa.\n\n``name`` Por haste, e nada mais é lido não as probabilidades, não os rascunhos. Por haste em vez de pelo nome do arquivo para que a ordem não mude quando um campo é um  PNG e o próximo a  TIFF.\n\n``prob`` Muito provavelmente primeiro: o nome de dados estruturados é  ``-probs.get(stem, -1.0)``. O padrão é o ponto. Um campo não marcado produz  ``+1.0``, maior do que qualquer probabilidade negada real, então ele classifica LTIMA em vez de fingir ser probabilidade zero.\n\n``easy`` ``(0 if n > 0 else 1, -probs.get(stem, -1.0), -n)``. A populated draft is accept-or-light-edit; an EMPTY draft means drawing from scratch, so empty ones go last REGARDLESS of probability. Within each group, most likely first, then most objects.\n\n``value`` Por  :func:`value_key`: quanto rascunho há para corrigir.\n\nOs laços são quebrados por haste, porque a lista é ordenada por haste antes de qualquer uma destas e a classificação de Python é estável.\n\n:param items: os campos a serem ordenados.\n:param order: um de :data:`ORDERS`.\n:param probs: ``{stem: probability}``, ou um callable retornando um, ou  ``None`` para nenhum disponível.\n:param counts: ``{stem: n_objects}``, ou um callable retornando um. Quando  ``None``, ``easy`` lê os rascunhos em si.\n:param announce: onde o aviso de fallback vai; padrão para :func:`print`, então ele pousa no stdout como a ferramenta externa faz.\n:param min_objects: passou para :func:`value_key`.\n:param min_diameter: passou para :func:`value_key`.\n:param scores_hint: o arquivo de pontuações nomeado no aviso de fallback.\n:returns: Uma nova lista, ordenada.\n:raises ValueError: quando ``order`` não é um de  :data:`ORDERS`.",
+      "translation_source_blocks_sha256": [
+        "a865fdeef1fd5908cfca4338e7fe8229002f97c9daa29590f3cfeac7bb74a6eb",
+        "72584e8bd2ba5c978f03add619cec7cf7ba7ecf37e1857bbae146a09cb8893cb",
+        "890cfc6f25af9afe386f77d1b15c118ab52bccebbd3f73b0e845107acde273d3",
+        "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
+        "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
+        "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
+        "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
+        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
+        "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "318b1709471e21082b039d2c485117f295418a331f5cb037cfaa56e9bba46db6",
+        "a0ab1793eaf6d30a2bd1ccd5609af399b772fe7d28f91203ced34a1619d57d64",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ]
+    },
+    "spacr.curation_queue.pending_items": {
+      "source_blocks_sha256": [
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "a14e85587438fbf295cf32022a4130b5416006a2a808bc4e8324cff36b1d85e5"
+      ],
+      "source_sha256": "30b5a5d81ea7e359974fe53fd75ca94fcb660879cae08a96c73a0b57ed659cb1",
+      "text": ":param items: campos na pasta.\n\n:param status: as linhas lidas a partir do arquivo de status.\n:returns: os itens sem estado revisado, na ordem dada.",
+      "translation_source_blocks_sha256": [
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "a14e85587438fbf295cf32022a4130b5416006a2a808bc4e8324cff36b1d85e5"
+      ]
+    },
+    "spacr.curation_queue.read_status": {
+      "source_blocks_sha256": [
+        "da823dca6315e7262d6cbcc48c46e71d3ff0b4b69f5f4c420ec768b176da75fc",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b15ac808dbbe05024deb7e499edd728925f07d53e4db60eca52b960176c40017",
+        "8048219255aa9d7c33f8ffaaa167801e8e8b2f863e2b864bb69a9d03036b23f9"
+      ],
+      "source_sha256": "1b8559101df778e57da214047b4bee11ff49454e4dffe6e7c3feedb7cc9395fb",
+      "text": "Leia o currículo.\n\n:param folder: a pasta da lista de trabalho.\n:returns: ``{stem: StatusRow}``, vazio quando nenhum arquivo de status ainda existe. Linhas sobre hastes que não estão na pasta estão incluídas; elas são a razão pela qual  :func:`write_status` grava de volta tudo o que é dado.\n:raises StatusFileError: quando o arquivo existe, mas não tem coluna ``stem``, o que significa que não é um arquivo de status.",
+      "translation_source_blocks_sha256": [
+        "da823dca6315e7262d6cbcc48c46e71d3ff0b4b69f5f4c420ec768b176da75fc",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b15ac808dbbe05024deb7e499edd728925f07d53e4db60eca52b960176c40017",
+        "8048219255aa9d7c33f8ffaaa167801e8e8b2f863e2b864bb69a9d03036b23f9"
+      ]
+    },
+    "spacr.curation_queue.record_state": {
+      "source_blocks_sha256": [
+        "ea13fc50170c34e0616a5cfeab022bfac653188288d936996e6365995f0ddf94",
+        "b218b3f4bf8306e4df130a2958b1909aa83bec6ca8ae78a3da3151c978dcfd0d",
+        "f154e3aac448e8a01d43822df4e91f3ecd16d9493c5dfd7d13a63bff24dece3d",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "5e64c93bec3411052adb20abf5037a6a047d4e48369064d71bf109ce34872458",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "4e98cf45aaaa533114e3557810ee898efcef89c22a05b5d48c31f508ca0ed6b6",
+        "415c87344c01339f00f80723032ef91b69189092cafbcff957a8c1839f8a4825"
+      ],
+      "source_sha256": "f79bba6c432e81ba4fd5b3366b9d32201b0b6b89d07a4d7baf7cb30ae241b0f0",
+      "text": "Retornar ``rows`` com a decisão de um caule registrada.\n\nPuro: o mapeamento passado não é modificado, então um chamador pode decidir se a mudança atinge o disco.\n\n:param rows: As linhas são lidas até agora.\n:param stem: campo a ser decidido.\n:param state: ``done``,  ``skip``,``recropped``, ou qualquer outra cadeia de caracteres, que deixa o caule pendente.\n:param n_objects: Quantos objetos ele tinha, se conhecido.\n:param updated: o timestamp para gravar; padrão para agora, para o segundo.\n:returns: um novo mapeamento, incluindo a linha gravada.",
+      "translation_source_blocks_sha256": [
+        "ea13fc50170c34e0616a5cfeab022bfac653188288d936996e6365995f0ddf94",
+        "b218b3f4bf8306e4df130a2958b1909aa83bec6ca8ae78a3da3151c978dcfd0d",
+        "f154e3aac448e8a01d43822df4e91f3ecd16d9493c5dfd7d13a63bff24dece3d",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "5e64c93bec3411052adb20abf5037a6a047d4e48369064d71bf109ce34872458",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "4e98cf45aaaa533114e3557810ee898efcef89c22a05b5d48c31f508ca0ed6b6",
+        "415c87344c01339f00f80723032ef91b69189092cafbcff957a8c1839f8a4825"
+      ]
+    },
+    "spacr.curation_queue.resolve_order": {
+      "source_blocks_sha256": [
+        "99f5c30f0f05ecd4937fb1cdbab0dd4d60e38f5a3f5d940926ff9d3b1ba722f6",
+        "aecbdc2dbe0551c990ff124538382804c9ae4964d45e85cdc28fce01e1dd3cd5",
+        "d03eb21e2930daef0938cb12364be3574123a662506175c5df058b67db983fff",
+        "979b73f081e2958411ed83a7e99ab2c980313210b85e6eb6d5aa9f454c13e313",
+        "d3f0adeafe3cbfad84cdb9ead013bbb72a3bc78990e17f2ce090f2d9b5216966",
+        "64846805df3ef5797bc6cab94a3a9d2434cc5f658147586cb13333a7d1746f1a",
+        "a11a8dd17e2f2aa36ce60171f2af6c0be04b38602288649247a5319c96818bb0"
+      ],
+      "source_sha256": "20253639e660f24e21ca38919026724175535a1ef50ec163514dfdf828fc2061",
+      "text": "Decida qual ordem será realmente usada e o que dizer sobre isso.\n\n``prob`` e  ``easy`` ambos precisam de probabilidades. Sem eles, eles voltam para ``value`` E DIZEM ISSO. O anúncio é metade do comportamento: uma reordenação silenciosa deixa o curador acreditando que eles estão trabalhando nos campos incertos primeiro quando não estão.\n\n:param order: o pedido solicitado, um de :data:`ORDERS`.\n:param probabilities: as probabilidades disponíveis, possivelmente vazias.\n:param scores_hint: o arquivo de pontuações que teria fornecido, nomeado na mensagem para que a correção seja óbvia.\n:returns: ``(effective_order, announcement)``, sendo o anúncio  ``None`` quando nada mudou.\n:raises ValueError: quando ``order`` não é um de  :data:`ORDERS`. Um erro de digitação não deve silenciosamente tornar-se uma ordem diferente.",
+      "translation_source_blocks_sha256": [
+        "99f5c30f0f05ecd4937fb1cdbab0dd4d60e38f5a3f5d940926ff9d3b1ba722f6",
+        "aecbdc2dbe0551c990ff124538382804c9ae4964d45e85cdc28fce01e1dd3cd5",
+        "d03eb21e2930daef0938cb12364be3574123a662506175c5df058b67db983fff",
+        "979b73f081e2958411ed83a7e99ab2c980313210b85e6eb6d5aa9f454c13e313",
+        "d3f0adeafe3cbfad84cdb9ead013bbb72a3bc78990e17f2ce090f2d9b5216966",
+        "64846805df3ef5797bc6cab94a3a9d2434cc5f658147586cb13333a7d1746f1a",
+        "a11a8dd17e2f2aa36ce60171f2af6c0be04b38602288649247a5319c96818bb0"
+      ]
+    },
+    "spacr.curation_queue.status_path": {
+      "source_blocks_sha256": [
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "2a86f2932eea2e21e8fb3e101cbe26e6ae7e334bed4925ec17a8800109fb9179"
+      ],
+      "source_sha256": "13d3efb3c86cebc69e873382fdd4fba16f310b17e0c1026293e51941db3f2c4d",
+      "text": ":param folder: a pasta da lista de trabalho.\n\n:returns: ``<folder>/curate_status.csv``, dentro da pasta lista de trabalho para que ele viaja com as imagens quando o conjunto é sincronizado entre máquinas.",
+      "translation_source_blocks_sha256": [
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "34fc749e093308e4387c094711566edbcbe945f66b07e189cb6e2c8c38abc45d"
+      ]
+    },
+    "spacr.curation_queue.summarize": {
+      "source_blocks_sha256": [
+        "756d0507e7059f2fe14cb23877552e734e60a938facf34517653ffa79a9bea70",
+        "49bf6d302ceb0b3d4589949f20b79411dfbc7a05a83d911a4b52c956e2d30ff4",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "fda7055940bc4012d25a0e7c8f07857a04bfc8a962533d6624cb125279817259"
+      ],
+      "source_sha256": "701343fa73f47220c21396b3a252f9a09ef42b132e0cba110c566e3e9fc678e5",
+      "text": "Conte a pasta da maneira que o livro pede.\n\n:param items: todos os campos da pasta.\n:param status: as linhas lidas a partir do arquivo de status.\n:returns: as :class:`QueueSummary`. Contagens são sobre campos que estão realmente aqui, então  ``done + skip + recropped + remaining == total``; linhas sobre hastes que não estão aqui são relatadas separadamente como  ``unknown`` em vez de subtraídas do que resta fazer.",
+      "translation_source_blocks_sha256": [
+        "756d0507e7059f2fe14cb23877552e734e60a938facf34517653ffa79a9bea70",
+        "49bf6d302ceb0b3d4589949f20b79411dfbc7a05a83d911a4b52c956e2d30ff4",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "fda7055940bc4012d25a0e7c8f07857a04bfc8a962533d6624cb125279817259"
+      ]
+    },
+    "spacr.curation_queue.value_key": {
+      "source_blocks_sha256": [
+        "eb3a1e50233adbc5f93199ba97042ab6cbacf3b7531654273109d7b5cd80ec9c",
+        "3e0651def8fdf5d1a5180a36f9f195247b33e6567ac3bf51fab142113f9c1315",
+        "5013c2d937903c95ef56c336bb460c1e0c2b4cc5cfcc957bec7ca94ded9f4754",
+        "a5cf0b5df83e61083b2460fae62618a4deeff8d1c8b9eb785ef21f776def36f9",
+        "cb8b5d3443e628ee31a6669097d1dcb3264d23d44c1386e0cf48533e9fd413a4",
+        "fa1d9a3b11b2f549f69e2658172b3f3332507d2edcbbee91cfa64a4856427cd9"
+      ],
+      "source_sha256": "111f8fff6ff0de2c04b5b3d792596d75c9c177f44b1059c04e5ae0e016a96acc",
+      "text": "Classificar a chave para a ordem ``value``: quanto rascunho há para corrigir.\n\nExatamente a ferramenta externa ``_value``::\n\n    n == 0                     -> (2, 0, 0)   nothing to correct, last\n    unreadable                 -> (3, 0, 0)   dead last\n    otherwise                  -> (0 if rich else 1, -diameter, -n)\n\n:param item: campo para ranquear.\n:param min_objects: objetos a \"rich\" necessidades de rascunho. Específico de placa.\n:param min_diameter: diâmetro médio a \"rich\" necessidades de rascunho, em pixels. Placa-específica.\n:returns: A chave de tipo.",
+      "translation_source_blocks_sha256": [
+        "eb3a1e50233adbc5f93199ba97042ab6cbacf3b7531654273109d7b5cd80ec9c",
+        "3e0651def8fdf5d1a5180a36f9f195247b33e6567ac3bf51fab142113f9c1315",
+        "5013c2d937903c95ef56c336bb460c1e0c2b4cc5cfcc957bec7ca94ded9f4754",
+        "a5cf0b5df83e61083b2460fae62618a4deeff8d1c8b9eb785ef21f776def36f9",
+        "cb8b5d3443e628ee31a6669097d1dcb3264d23d44c1386e0cf48533e9fd413a4",
+        "fa1d9a3b11b2f549f69e2658172b3f3332507d2edcbbee91cfa64a4856427cd9"
+      ]
+    },
+    "spacr.curation_queue.write_status": {
+      "source_blocks_sha256": [
+        "9e9b5105667f6987290807d434357ecfda07dc6a4433981f0feea257ead5a62a",
+        "9ba3b2157859174ad1384044407711d2c36535bb29da9bcddeed3a32b26aabea",
+        "b084cd5d0c165f16ae1ed30ff6c4efa67b18ab81a000c183caec71cc40a20b9a",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b54acd52c7d031efa4ae33386fd04970fddf0461e19faee7960df142da4b4e99",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
+      ],
+      "source_sha256": "fa66c254675592456e81675da7729d170460f5801610586e4fdcb2b5a7c1ccc5",
+      "text": "Escreva o currículo, atomicamente e na íntegra.\n\nCada linha dada é escrita, incluindo linhas sobre hastes que não estão nesta pasta: o curador pode estar retomando em uma máquina onde parte do conjunto não chegou, e deixar cair essas linhas oferece trabalho de volta que já estava concluído em outro lugar.\n\nAs linhas são escritas ordenadas por haste. O arquivo sincroniza entre máquinas e uma ordem estável mantém uma diferença de sincronização para as linhas que realmente foram alteradas.\n\n:param folder: a pasta da lista de trabalho.\n:param rows: ``{stem: StatusRow}``, como  :func:`read_status` retorna.\n:returns: O caminho escrito.\n:raises StatusFileError: quando o arquivo não pode ser escrito.",
+      "translation_source_blocks_sha256": [
+        "9e9b5105667f6987290807d434357ecfda07dc6a4433981f0feea257ead5a62a",
+        "9ba3b2157859174ad1384044407711d2c36535bb29da9bcddeed3a32b26aabea",
+        "b084cd5d0c165f16ae1ed30ff6c4efa67b18ab81a000c183caec71cc40a20b9a",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b54acd52c7d031efa4ae33386fd04970fddf0461e19faee7960df142da4b4e99",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
       ]
     },
     "spacr.custom_features": {
@@ -27583,13 +28373,35 @@
     "spacr.graph_types": {
       "source_blocks_sha256": [
         "b7b7fb90d40b589357a22cfd20bbb2a7172420122d712996f196163632d9089f",
-        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e"
+        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e",
+        "ca5a49948ea2c1590b5accddbbdadc86dafd396440b161f6095900325f14ba26"
       ],
-      "source_sha256": "a52c53508f6b7cb003741199b67f8f3e79ed0ae1a31f0704ba9c2267dbc62b57",
-      "text": "Corresponder tipos de gráficos e padrões à estrutura dos dados plotados.\n\nO módulo distingue eixos categóricos, contínuos e ordenados. Ele lista os tipos de gráficos compatíveis primeiro e fornece uma razão para cada opção incompatível, permitindo que as interfaces desativem as opções não suportadas sem escondê-las.",
+      "source_sha256": "f647a564e6b91e83e942197ea9f7c8b041b813ab14457654ec94544b9c942b1b",
+      "text": "Corresponder tipos de gráficos e padrões à estrutura dos dados plotados.\n\nO módulo distingue eixos categóricos, contínuos e ordenados. Ele lista os tipos de gráficos compatíveis primeiro e fornece uma razão para cada opção incompatível, permitindo que as interfaces desativem as opções não suportadas sem escondê-las.\n\nIt is also WHERE every graph in spaCR gets its starting form. The default graph type setting is stored per data shape (`spacr.qt.preferences`), read back through :func:`chosen_for`, and turned into \"what is drawn before the first right-click\" by :func:`default_for` and :func:`start_for`. A widget asks one of those two and gets an answer that already accounts for the user's choice, whether that choice fits the data, and whether the data is thick enough to support it -- so the setting reaches a new graph by the graph doing the ordinary thing rather than by remembering to.",
       "translation_source_blocks_sha256": [
         "b7b7fb90d40b589357a22cfd20bbb2a7172420122d712996f196163632d9089f",
-        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e"
+        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e",
+        "0b7562408da39fd1afa818e31c04ce8c92604e0f0dfc2bc24196cb6e8fa4e122"
+      ]
+    },
+    "spacr.graph_types.chosen_for": {
+      "source_blocks_sha256": [
+        "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "36e0747e2961f019848164bb8e1fcf15f4067d08539884465b185836b2c73d2d",
+        "187f8df40ea02eeb39e838fce20fb4bd34191d4ccbfee3718a676823e6560c2c",
+        "01e87595a1bc615f3b954c02ca1e083d55ddce391a6859f115e7159ace02df59",
+        "ae7e6c2c8fe27579b0c49a55bd09dada72b89dbdde57e493e2f5af33cf177db1"
+      ],
+      "source_sha256": "268e8cecba5b39a3eed59681f0c9841a606910b03a37d6119fe026b786d516ac",
+      "text": "O tipo de gráfico que o usuário pediu para ver PRIMEIRO para ``shape``, ou  ``\"\"``.\n\n:param shape: uma das chaves de :data:`DATA_SHAPES`.\n:returns: o tipo de gráfico salvo, ou uma cadeia de caracteres vazia quando o usuário não expressou nenhuma preferência por essa forma - ou expressou uma que essa forma não pode assumir.\n\nEmpty means \"NOTHING WAS CHOSEN\", which is not the same answer as the table's default: a widget with a starting form of its own keeps it when nothing was chosen, and the preference overrides it when something was. :func:`default_for` is the caller that turns \"nothing\" into the table's own answer.\n\nUma escolha salva que não se encaixa nos dados não é uma escolha para ela. Alguém que prefere barras não pediu uma barra de um x contínuo contra um y contínuo -- esse é um gráfico diferente de dados diferentes, e :data:`WHY_NOT` diz isso.\n\nUm armazenamento de preferências ausente não é um erro. Uma renderização sem interface gráfica não tem Qt e não tem QSettings, e uma figura ainda precisa ser desenhada.",
+      "translation_source_blocks_sha256": [
+        "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "36e0747e2961f019848164bb8e1fcf15f4067d08539884465b185836b2c73d2d",
+        "a490496054b0582f805bf6babe7a79e5e83993685c0b41856ca3f1f50ec12c43",
+        "d72a9b242e6b2c3a14b16d3e50e5b4bed462e23424495dbd817caa885e1d5246",
+        "42e031a9f11dcecce82a6accb26b800b3b40f83e5bb80f92678e4c267a7db992"
       ]
     },
     "spacr.graph_types.default_for": {
@@ -27598,18 +28410,16 @@
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "ca40183b18a07c1acf9338fa6ba0c16334207d18f0e577d1bf569e13b98fc11e",
-        "ae77864009fe703da06f771c097819695f3bb2b55c7b17411278503df5ece071",
-        "415b833fa93f16585ebabd1ad74519d3f881d16ce31e5acb04fd1af70bf32f1d"
+        "184cbb8cfd97e315e1d24ee77329fa4c12fb4a95689b6015160fd821f1c8b14c"
       ],
-      "source_sha256": "f5183164038a770de6500b3410b6a7e709980bf5c269de7d35722dcbfc259f09",
-      "text": "O tipo de gráfico desenhado PRIMEIRO para ``shape``.\n\n:param shape: uma das chaves de :data:`DATA_SHAPES`.\n:returns: um tipo de gráfico de :data:`GRAPH_TYPES`.\n:raises KeyError: Se ``shape`` não for suportado.\n\nA escolha do usuário vem em primeiro lugar. A preferência decide qual gráfico compatível é desenhado primeiro, e o botão direito do mouse ainda pode alterá-lo depois. Cada gráfico em spaCR atinge sua forma inicial por meio dessa função, então a preferência se aplica consistentemente em todas as triagens.\n\nUma escolha salva que não se encaixa nos dados é ignorada. Alguém que prefere barras não pediu uma barra de um x contínuo contra um y contínuo -- esse é um gráfico diferente de dados diferentes, e :data:`WHY_NOT` diz isso. O próprio padrão da tabela é usado em vez disso, que é o que um usuário que nunca expressou uma preferência obtém.",
+      "source_sha256": "44fbc69e8cb773adb82af02cc51612c0efe11f6914e82e2dffab410182dd8b9a",
+      "text": "O tipo de gráfico desenhado PRIMEIRO para ``shape``.\n\n:param shape: uma das chaves de :data:`DATA_SHAPES`.\n:returns: um tipo de gráfico de :data:`GRAPH_TYPES`.\n:raises KeyError: Se ``shape`` não for suportado.\n\nA escolha do usuário vem em primeiro lugar. A preferência decide qual gráfico compatível é desenhado primeiro, e o botão direito do mouse ainda pode alterá-lo depois. Cada gráfico em spaCR atinge sua forma inicial através desta função ou através de  :func:`start_for`, então a preferência se aplica consistentemente em todas as triagens.",
       "translation_source_blocks_sha256": [
         "84658b6ad17b22f8485589a508d19743d4daf13b3498499d2fa806b19709bdb5",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "ca40183b18a07c1acf9338fa6ba0c16334207d18f0e577d1bf569e13b98fc11e",
-        "e3c262c6df324285700da459a6a2855f0e995a6be14014bbb815f6f1d59971e3",
-        "e76a57f8634dfd9907c5d0296d7112c2fde6814da0b2303e101ac79d57b6fad6"
+        "3b158aa4ffda8b39dc31f30e5adef47cdddaf815e0504395081d2576bdc43968"
       ]
     },
     "spacr.graph_types.fits": {
@@ -27624,6 +28434,22 @@
         "ee39075c3407ebc70fa187a8dde9b452765844f892e41b6133e9963db15d6c25",
         "67828e2afce9790e7391260e3203e7fac518b1a1156d15477c838912a99badad",
         "3b3abff0ffb49a9466ef2354f48a062ffec6d06e5d23bf3508031ed006347993"
+      ]
+    },
+    "spacr.graph_types.mark_for": {
+      "source_blocks_sha256": [
+        "e25dd3cdba9fc042bc68e720fcd9b2a6bd5ccc7cc35c88597f1e7bc1cdf7f134",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
+      ],
+      "source_sha256": "f20e73ffc738cc611b885ef2b908d241a3c11644de7d1e68f26360a326f68ea9",
+      "text": "A marca live-plot que desenha ``graph_type``.\n\n:param graph_type: um tipo de gráfico de :data:`GRAPH_TYPES`.\n:param fallback: o que responder para um nome :data:`MARKS` não tem entrada para.\n:returns: uma tecla de marca de ``spacr.qt.widgets.fast_plots.MARK_TYPES``.",
+      "translation_source_blocks_sha256": [
+        "e25dd3cdba9fc042bc68e720fcd9b2a6bd5ccc7cc35c88597f1e7bc1cdf7f134",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
       ]
     },
     "spacr.graph_types.offer": {
@@ -27662,6 +28488,66 @@
         "43b3dba91ad594058f75e5c4b7707a900a0e4b7bd3ea5f1044e65d05b04d1852",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "3e1de6ff51fffc9a432a872e26f2a3aaf904fdcefcb8d31e468b7c4e62a35563"
+      ]
+    },
+    "spacr.graph_types.start_for": {
+      "source_blocks_sha256": [
+        "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "6a90db024703a75ea0fa470b991eb4e039ca7960bd04e85d53373b7395953f02",
+        "85a76ec422f130c440b388919b360860b37526cb772586ef6a3e882a85a13ac9",
+        "cd32d3d7554953e9f06be55110581dc54ec0758ccb0f809f9925462cf5fce688",
+        "08b08d9fdfa34e224c65c2c684e80ac546aee90fb716f72ebc0560a5561adb89",
+        "6eea7dc4e7d0b2e983cb442f62586c75ada46a685d2bff3b11103de43b2d2acd",
+        "0e1cc82393976b04a02aaf20d1bf57c3c94540f5c1b6ae15893992fd1ce11a66"
+      ],
+      "source_sha256": "d13ff9364522e3b9c3ccd11fbae2c821aa9d02ff88f1f64b69ef1a5bce12ae87",
+      "text": "O que desenhar primeiro, e por que isso não é o que foi pedido.\n\n:param shape: uma das chaves de :data:`DATA_SHAPES`.\n:param counts: observações por grupo, quando são conhecidas.\n:param fallback: o formulário inicial do chamador, para quando o usuário não expressou nenhuma preferência. Ele é respondido como dado - um widget sabe o que pode desenhar - e um vazio significa :data:`DEFAULTS`.\n:returns: ``(graph_type, note)``. A nota está vazia sempre que o gráfico que está sendo desenhado é aquele que foi solicitado.\n:raises KeyError: se ``shape`` não é suportado e nenhum fallback utilizável foi dado.\n\nO fallback é dito em voz alta. Uma preferência é uma declaração geral -- \"draw violins\" -- e uma declaração de cobertor atende aos dados que não pode descrever eventualmente. Desenhar os pontos em vez e dizer nada deixaria um usuário que pediu violinos olhando para um jitter sem explicação, então a frase volta com a resposta e o chamador coloca-o no enredo.\n\nO padrão da própria tabela nunca é substituído dessa maneira. Somente uma escolha salva é reexaminada contra os dados: :data:`DEFAULTS` já seleciona tipos que mantêm as observações, e uma linha de um ponto por x - o padrão ordenado - seria de outra forma falada fora de si mesma toda vez.",
+      "translation_source_blocks_sha256": [
+        "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "6a90db024703a75ea0fa470b991eb4e039ca7960bd04e85d53373b7395953f02",
+        "85a76ec422f130c440b388919b360860b37526cb772586ef6a3e882a85a13ac9",
+        "cd32d3d7554953e9f06be55110581dc54ec0758ccb0f809f9925462cf5fce688",
+        "08b08d9fdfa34e224c65c2c684e80ac546aee90fb716f72ebc0560a5561adb89",
+        "a6beb6d696a0a4f94f81b168552e13bc119b46bfa6638b18d0115fe6037d9b56",
+        "8904e5a2b50e6b1ccc667f81d8dee09b0dbc4a2141358c809a5f0c20fdb74745"
+      ]
+    },
+    "spacr.graph_types.too_thin_for": {
+      "source_blocks_sha256": [
+        "546392a39717e8ae8e39f0dba112b09dba3500dd2d684adf933be52070a1ebd8",
+        "a7565130a1326537e3c1f33e197e91b0d9e065aa5e792af3f0b27a8062b3401f",
+        "d524502c70edb11dbfe6f1cd803bcc9ddc6895b86520061d8ab945f365b8b648",
+        "727209af1d9d581ebce9b5737d1361bdd1c0bc43223b6d783ab4c0d6a1448333",
+        "70ba3a18522ca357214b14ad116300860ec164d105aacf4ffd053f5b877f17d2"
+      ],
+      "source_sha256": "d85c3db27e28d89c01cec085e42b9eca56a83c688c3694574b5bfac19ff50131",
+      "text": "Por que ``graph_type`` não pode resumir grupos tão pequenos, ou  ``\"\"``.\n\n:param graph_type: o tipo de gráfico prestes a ser desenhado.\n:param counts: observações por grupo. Tamanhos desconhecidos - um iterável vazio - não são uma objeção: um gráfico que ainda não recebeu seus dados ainda não está recebendo uma reivindicação.\n:returns: uma frase nomeando o menor grupo, ou uma cadeia de caracteres vazia quando o tipo de gráfico é suportado pelos dados.\n\nApenas os tipos que substituem as observações podem ser muito finos; veja :data:`HIDES_THE_OBSERVATIONS`. Um jitter de dois pontos é dois pontos, que é a verdade; um violino de dois ponto é uma densidade que nunca foi medida.",
+      "translation_source_blocks_sha256": [
+        "546392a39717e8ae8e39f0dba112b09dba3500dd2d684adf933be52070a1ebd8",
+        "a7565130a1326537e3c1f33e197e91b0d9e065aa5e792af3f0b27a8062b3401f",
+        "d524502c70edb11dbfe6f1cd803bcc9ddc6895b86520061d8ab945f365b8b648",
+        "727209af1d9d581ebce9b5737d1361bdd1c0bc43223b6d783ab4c0d6a1448333",
+        "70ba3a18522ca357214b14ad116300860ec164d105aacf4ffd053f5b877f17d2"
+      ]
+    },
+    "spacr.graph_types.type_of_mark": {
+      "source_blocks_sha256": [
+        "6d4b68aa2344342ce7a3e2381b2cec19c7ebde2478db4bbcd2d20356c9e43af6",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b",
+        "464c4a047431e216d7e4cbf92d9afbd86b40e09089dc4aef7a47ed4629b2a1a1",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "68a3c56d0d9cf7541a9039491b90162854d2eae50ef6a960f88183c25d0a73e3"
+      ],
+      "source_sha256": "234d408705d774dcf5b32ab5ed1df8909e86c4ca014de1f625e109b828073e46",
+      "text": "O gráfico digita os desenhos ``mark`` de um gráfico ao vivo.\n\n:param mark: uma tecla de marca de ``spacr.qt.widgets.fast_plots.MARK_TYPES``.\n:param fallback: o que responder por uma marca sem desenho gráfico.\n:returns: um tipo de gráfico de :data:`GRAPH_TYPES`.\n\nO inverso de :func:`mark_for`, portanto, um widget cuja própria forma inicial é escrita em marcas pode indicar uma vez e ainda ser comparado com uma preferência escrita em tipos de gráfico.",
+      "translation_source_blocks_sha256": [
+        "6d4b68aa2344342ce7a3e2381b2cec19c7ebde2478db4bbcd2d20356c9e43af6",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b",
+        "464c4a047431e216d7e4cbf92d9afbd86b40e09089dc4aef7a47ed4629b2a1a1",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "68a3c56d0d9cf7541a9039491b90162854d2eae50ef6a960f88183c25d0a73e3"
       ]
     },
     "spacr.graph_types.types_for": {
@@ -61777,9 +62663,9 @@
         "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074"
       ],
       "source_sha256": "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074",
-      "text": "Use uma pasta de imagem suspensa (ou um campo de imagem de microscópio) como entrada Align & Stitch.",
+      "text": "Use uma pasta de imagem suspensa (ou um bloco) como entrada Align & Stitch.",
       "translation_source_blocks_sha256": [
-        "b5d1aef621c991bde10670ab5fdc262a0746cf49f8ed3dc05e8a73550ad18149"
+        "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074"
       ]
     },
     "spacr.qt.dnd_handlers.AlignDropHandler.apply": {
@@ -63585,9 +64471,9 @@
         "3e9e63e8b896570b41536cde9aa33d8de1c4317ca17b23c153e753087d73b155"
       ],
       "source_sha256": "3e9e63e8b896570b41536cde9aa33d8de1c4317ca17b23c153e753087d73b155",
-      "text": "Histórico de processamento-sessão: selecione a sessão de processamento à qual uma pasta de processamento/sessões suspensa pertence.",
+      "text": "Run History: selecione a sessão de processamento à qual pertence uma pasta de sessão de processo descartada.",
       "translation_source_blocks_sha256": [
-        "53a1498a5406dbad1488b05a516c31427e643d38a2e8dadb71d886de0370c86f"
+        "0f9917e036c21b92a005a1fa597804d66b5f5e59d568511c826fa856a1b6d39c"
       ]
     },
     "spacr.qt.dnd_handlers.RunHistoryDropHandler.apply": {
@@ -70394,10 +71280,10 @@
         "b011aea47be76a073eee0e8a277928369c7ea894bd9d259cf2c0115ce5fcb36c"
       ],
       "source_sha256": "301549162e8ff6a3b6dc8c7c47addd6fb6cab5a1896ae0ff42c52071499976a9",
-      "text": "Permitir (ou proibir) o modo de edição no Navegador de Banco de Dados.\n\nAfundou-se imediatamente. QSettings escreve de volta preguiçosamente, e o navegador de banco de dados relê esse nome de dados estruturado em cada atualização UI - uma leitura obsoleta logo após o usuário marcar a caixa diria que a edição ainda está desativada. Uma pequena escrita do INI vale a pena não ter que explicar isso.",
+      "text": "Permitir (ou proibir) o modo de edição no Database Browser.\n\nFlushed imediatamente. QSettings escreve de volta preguiçosamente, e o Database Browser relê esta chave em cada atualização  UI uma leitura obsoleta logo após o usuário marcar a caixa diria que a edição ainda está desligada. Uma pequena gravação INI vale a pena não ter que explicar isso.",
       "translation_source_blocks_sha256": [
         "e6b2a9b3a50f9d20a5c769c55e0ca7c764a6a91bd4d2dadd2b8a2ebd6278801d",
-        "e24961041b3136f3eb7be8c942ba18d818d2363e881feed33bd85e2d804f20f6"
+        "b011aea47be76a073eee0e8a277928369c7ea894bd9d259cf2c0115ce5fcb36c"
       ]
     },
     "spacr.qt.preferences.set_default_graph_type": {
@@ -71391,10 +72277,10 @@
         "3b9c6c6bb7985689262dca59b323bbc382b9a31290624d2773984f4c06e8f41f"
       ],
       "source_sha256": "f9fa9ebcdd1cbc78ace869fa71f5be9315234d0c1b78f1ad5c6295eed67dc91f",
-      "text": "Quais módulos recebem uma Visualização ao vivo e como um está conectado de fora.\n\nQuatro módulos têm uma pré-visualização - Máscara, Medição, Timelapse, Motilidade - e cada um custa um braço de treze linhas em ``AppScreen._build_runtime_panel``, dois nomes de atributos em um bloco null-fora, e uma linha em uma tabela de alternância duzentas linhas mais para baixo. O quinto custaria o mesmo, e é por isso que nunca houve um quinto: os módulos que mais obviamente se beneficiariam de um são os dois cujo trabalho inteiro é \"a máscara saiu bem\" Cellpose Masks e Plaque Assay – e nenhum deles valeu a pena tocar na tela compartilhada.\n\nEste módulo é a costura que torna o quinto livre. Um módulo declara uma pré-visualização aqui; a tira acima do formulário de configurações cresce uma alternância para ele; o cartão é inserido acima da linha de sessão de processamento através dos mesmos ``_runtime_wrap`` / ``_actions_row`` âncoras :mod:`spacr.qt.prerun` usos. Nada dentro do ``AppScreen`` muda, e as quatro visualizações que ele já constrói são deixadas sozinhas – um módulo que a visualização de aplicativo compartilhada já serviu é ignorado aqui em vez de receber uma segunda placa.\n\nUm módulo que foi FOLDED em um host atinge a mesma máquina da outra extremidade. Sua própria visão de aplicativo não é construída mais, então ``install`` - que responde pela própria chave da exibição do aplicativo - nunca pode anexar seu painel;  :func:`attach_folded` permite que o host peça pelo nome e o mantenha escondido atrás de qualquer que seja o host usado para revelar o resto desse módulo. O switch de rastreamento da Mask Generation é o caso para o qual foi escrito.\n\n**O contrato de amostragem é herdado, não reimplementado.** Os painéis alcançados através deste registro são os enviados, que agrupam uma microplaca de laboratório em conjuntos de imagens a partir de nomes de arquivos sozinhos e abrem uma amostra aleatória limitada e reproduzível. Nada aqui enumera, abre ou lista um diretório, então nada aqui pode regredir isso. Um novo painel registrado através desta costura deve manter a mesma promessa veja :mod:`spacr.qt.widgets.preview_controls`.",
+      "text": "Quais módulos recebem uma Visualização ao vivo e como um está conectado de fora.\n\nFour modules have a preview — Mask, Measure, Timelapse, Motility — and each one costs a thirteen-line arm in ``AppScreen._build_runtime_panel``, two attribute names in a null-out block, and a row in a toggle table two hundred lines further down. The fifth would cost the same, which is why there has never been a fifth: the modules that would most obviously benefit from one are the two whose entire job is \"did the mask come out right\" — Cellpose Masks and Plaque Assay — and neither was worth touching the shared application view for.\n\nEste módulo é a costura que torna o quinto livre. Um módulo declara uma visualização aqui; a tira acima do formulário de configurações cresce uma alternância para ele; o cartão é inserido acima da linha de sessão de processamento através do mesmo ``_runtime_wrap`` /  ``_actions_row`` âncoras  :mod:`spacr.qt.prerun` usa. Nada dentro ``AppScreen`` muda, e as quatro visualizações que já constrói são deixadas sozinhas - um módulo que a visualização do aplicativo compartilhado já serviu é ignorado aqui.\n\nUm módulo que foi FOLDED em um host atinge a mesma máquina da outra extremidade. Sua própria visão de aplicativo não é construída mais, então ``install`` - que responde pela própria chave da exibição do aplicativo - nunca pode anexar seu painel;  :func:`attach_folded` permite que o host peça pelo nome e o mantenha escondido atrás de qualquer que seja o host usado para revelar o resto desse módulo. O switch de rastreamento da Mask Generation é o caso para o qual foi escrito.\n\n**The sampling contract is inherited, not reimplemented.** The panels reached through this registry are the shipped ones, which group a laboratory microplate into image sets from file names alone and open a bounded, reproducible random sample of it. Nothing here enumerates, opens or lists a directory, so nothing here can regress that. A new panel registered through this seam must keep the same promise — see :mod:`spacr.qt.widgets.preview_controls`.",
       "translation_source_blocks_sha256": [
         "e22891fc56dcb0281bc3eb48fd883a3fe95ef1318ca150b5898ed6cc82b2f7bc",
-        "26e1dd822c9da721f33b6947857c5736e491a0e154f39b3f0a8b72d12bec47b8",
+        "08350b57ba4d040bbee0efba91c28a73d7b2c4a3749eabda903edc2db778d11c",
         "a46c9d15fa19ac498628ae725fc7fef96c5ad7bf9dffbb46688a1ec392a82074",
         "3f35efce446a3ba1180889555aff9344b5fc38813fc5d493f4d265e59d8d2113",
         "dfff0c448165b2826bcb6c40ccc98f69e7bf200439bcdc4aa56e2d64ac8fadab"
@@ -73320,10 +74206,10 @@
         "181fbc0154ee955b623beefb9d1e277ea9a52fef141791261b86344e69eac83c"
       ],
       "source_sha256": "ea18292108fadb51f1d041e199d5f6c50c96972b1e690e9c9b9e899273a97ffa",
-      "text": "Retornar os controles como um mapeamento de valor de chave :func:`spacr.align.default_settings`.\n\nMantido público para que o Batch Runner e a lista de tarefas do Software possam capturar esta triagem da maneira como eles capturam todos os outros.",
+      "text": "Retornar os controles como um mapeamento de chave-valor :func:`spacr.align.default_settings`.\n\nMantido público para que o Batch Runner e a lista de trabalho possam capturar esta triagem da maneira como eles capturam todos os outros.",
       "translation_source_blocks_sha256": [
         "ca2c8465fb84fd1bf4b136d4dfa12617f0b7ae3c35f5c8ed4fa7238442a73186",
-        "79d7b10146775d90982aba4d119be7137394f66af6b9ab2e448c45e7b51babe9"
+        "e86370735a949246554c30c5e339f92c850656d479ef7e87bb8e408350541c9c"
       ]
     },
     "spacr.qt.screens.align.AlignScreen.status_text": {
@@ -74636,10 +75522,10 @@
         "d3270ed7b82996bd4db6d910c8ac53eeae040f31daf3360205800f05c5257d9d"
       ],
       "source_sha256": "ab2fb75525e570acd568b2c2aa12aa222429595c08e4e490725a7fce514f56c6",
-      "text": "Batch Runner o módulo Ferramentas que passa a noite para você.\n\nA lista de processamento de placas encadeia *placas* em *um* único fluxo de trabalho. Esta triagem representa o outro eixo: tarefas ``(module, settings)`` arbitrárias em qualquer ordem — ``Mask → Measure → Classify (CV) → Classify (ML)``, depois as mesmas quatro novamente com outro diâmetro e, em seguida, a tarefa Mask de uma quinta placa — são criadas, validadas, salvas em um arquivo e executadas sem supervisão.\n\nA visão da aplicação é deliberadamente fina. Tudo o que ele sabe sobre uma lista de trabalho de software que ele aprende a partir de :mod:`spacr.batch`, que é sem interface gráfica, livre de torch e testado sem Qt. Este arquivo é apenas a parte que tem que ser um GUI: escolha um módulo e um arquivo de configurações, duplique um trabalho e edite-o, reordene, valide, salve / carregue, execute e observe o status, o progresso e o log por tarefa.\n\nTrês decisões são visíveis para o usuário:\n\n* **Os trabalhos são validados quando são adicionados, não quando são executados.** Um trabalho cujo arquivo de configurações está faltando, cujo ``src`` está incorreto ou cujo módulo é somente GUI é recusado no botão Adicionar, com o motivo inline. Descobrir isso às 3h da tarefa 9 de 12 é o que todo esse módulo existe para evitar.\n* **Sem diálogos modais, nunca.** Toda falha é exibida no painel de problemas em linha e em :attr:`BatchScreen.last_error`. A ``QMessageBox`` trava uma execução sem interface gráfica (ela foi executada, em ``MakeMasksScreen``), e essa triagem é exercida sem interface gráfica.\n* A execução usa um worker. **Modelo de execução:**a conclusão retorna ao threads da GUI. ``PipelineWorker.finished`` é emitido *dentro do thread de trabalho*; portanto, cada receptor que altera um widget usa uma conexão de fila explícita para um método vinculado deste GUI- Widget de thread.\n\nOs trabalhos são executados um de cada vez – eles competem por um GPU e cada um é seu próprio processo  ``spacr-run``, então um segfault em cellpose mata esse trabalho em vez dessa janela.",
+      "text": "Batch Runner o módulo Ferramentas que passa a noite para você.\n\nO fluxo de trabalho Plate Queue cadeias  *placas* através de  *um*. Esta triagem é o outro eixo: tarefas arbitrárias ``(module, settings)`` em qualquer ordem  ``Mask → Measure → Classify (CV) → Classify (ML)``, então os mesmos quatro novamente com um diâmetro diferente, então a Máscara de uma quinta placa construída, validada, salva em um arquivo e executada sem vigilância.\n\nA visualização do aplicativo é deliberadamente fina. Tudo o que ele sabe sobre uma lista de tarefas de software que aprende com :mod:`spacr.batch`, que é sem interface gráfica,  torch-livre e testado sem Qt. Este arquivo é apenas a parte que tem que ser um  GUI: escolha um módulo e um arquivo de configurações, duplique um trabalho e edite-o, reordene, valide, salve / carregue, execute e observe o status por trabalho, progresso e log.\n\nTrês decisões são visíveis para o usuário:\n\n* **Os trabalhos são validados quando são adicionados, não quando são executados.** Um trabalho cujo arquivo de configurações está faltando, cujo  ``src`` está incorreto ou cujo módulo é  GUI-somente é recusado no botão Adicionar, com o motivo inline. Descobrir isso às 3 da manhã do trabalho 9 de 12 é o que todo esse módulo existe para evitar.\n* **Sem diálogos modais, nunca.** Cada falha é exibida no painel de problemas em linha e em  :attr:`BatchScreen.last_error`. A ``QMessageBox`` trava uma execução sem interface gráfica (ele fez, em ?``MakeMasksScreen``), e esta triagem é exercida sem interface gráfica.\n* A execução usa um worker. **Modelo de execução:**a conclusão retorna para o thread  GUI. ?``PipelineWorker.finished`` é emitido *dentro do worker ththread*; portanto, cada receptor que altera um widget usa uma conexão enfileirada explícita para um método encadernado deste widget  GUI-thread.\n\nOs trabalhos são executados um de cada vez – eles competem por um GPU e cada um é seu próprio processo  ``spacr-run``, então um segfault em cellpose mata esse trabalho em vez dessa janela.",
       "translation_source_blocks_sha256": [
         "d353b2be6e5a4e8b7ef8cdea508889fc11f961d6d7ed128b048187afbb46a3d7",
-        "ee75ddb3106cff964da74613bd2f96e86810953094934e7f5ed5d990ca49b675",
+        "1fa4efe857864111c5565de1a29769a5a38e06bbdd53d8f050d85fa37a5c6966",
         "954b2c03ab87ece545a991194f2373ac4b8a1d7a0342c2d75b402e149eabb9f8",
         "d62e3e8e8b5b95ead1572c0a75e10e6af3b6109d57c105ccc86509802bebbb60",
         "4afe1d057ae0f0ca852c123bc1e831d2f64bcbaffefef070b45c08e9919822ef",
@@ -81996,6 +82882,22 @@
         "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9"
       ]
     },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue": {
+      "source_blocks_sha256": [
+        "02b416d874f39d781fdbb5c0b86bea91328abd01f436faf5f5c3d99d62ac13d3",
+        "12a40f07166ff8bf5ea5434a82693a1b5578efd4d6c857e05fa9f870b42bb58d",
+        "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
+        "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ],
+      "source_sha256": "6c01ca3aa7809b200caf42c80357389b5d0207bcb6d7f1d671ebc65db532fa8c",
+      "text": "Abra os campos que uma sessão de curadoria oferece, na ordem que ela oferece.\n\nThe session decides WHICH microscope fields of view and in what order -- reviewed ones already dropped, ``--limit`` already applied -- and this application view shows them. Only the nested layout is opened: this editor reads a draft from ``<folder>/masks/<stem>.tif`` and saves back to the same place, so a sibling or ``_seg.npy`` set would be read and written somewhere other than where its masks are. ``spacr-make-masks`` refuses those before Qt is imported; this is the second half of the same refusal, for anything that reaches the application view another way.\n\n:param queue: a :class:`spacr.curation_queue.CurationQueue`.\n:returns: Se o editor já está nessa sessão.",
+      "translation_source_blocks_sha256": [
+        "02b416d874f39d781fdbb5c0b86bea91328abd01f436faf5f5c3d99d62ac13d3",
+        "3f55f57491196e8a12c49a213235554ac668a17173c21cad97ddabadac5a43ff",
+        "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
+        "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ]
+    },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
       "source_blocks_sha256": [
         "1ad20f1f585f70d42375c162c01e8589a66bc96e3334465908e399e87c427b72",
@@ -84963,9 +85865,9 @@
         "d8e2205b5f03eb00af5759fde4d8f9ef667773ff560678f1a4937c5344073c52"
       ],
       "source_sha256": "a977f345fa01c47dc9c8ac17faa1e453c98b3ca32513458c91c44292c43d688e",
-      "text": "Gráfico de fluxo de trabalho – o que produziu o quê e qual deles ainda é verdade.\n\nUm projeto spaCR acumula arquivos mais rápido do que qualquer um pode segurar em sua cabeça: máscaras, um banco de dados de medidas, regiões de imagem extraídas, pesos de modelo, previsões, tabelas de regressão, figuras. Alguns deles foram feitos um do outro. Alguns foram feitos a partir de uma versão *previous* do outro, porque a etapa de máscara foi executada novamente com um diâmetro diferente na terça-feira e nada a jusante foi. Nada no GUI mostrou isso, e um número obsoleto não parece.\n\nEsta triagem desenha o DAG:\n\n::\n\n    ┌──────────────┐   ┌────────────────┐   ┌───────────────┐\n    │ mask         │──▶│ measure        │──▶│ classify      │\n    │ masks   OK   │   │ db      STALE  │   │ preds   STALE │\n    └──────────────┘   └────────────────┘   └───────────────┘\n\nAs caixas são artefatos, as setas são \"was made from\", e a cor é o veredito :func:`spacr.artifacts.Registry.is_stale` retorna com seu ``reasons`` mostrado no painel ao lado do gráfico, porque o \"stale\" por si só é uma acusação, não uma explicação. Clique em uma caixa e o painel nomeia a sessão de processamento que a produziu, as configurações digerem, a versão spaCR e o que a reexecuta invalidaria.\n\nTrês escolhas deliberadas:\n\n**O gráfico é extraído da proveniência, não da lista de módulos.** O que é o fluxo de trabalho *Supostamente* para fazer é :data:`spacr.ports.PORTS`, e isso é desenhado também - esmaecido, por baixo, como o \"declared order\" strip mas as caixas e setas são o que realmente aconteceu. Um projeto onde as máscaras da semana passada não se parecem com o diagrama arrumado, e essa diferença é o valor total da triagem.\n\n**A falta não é obsoleta.** Um arquivo excluído é vermelho e diz isso; um desatualizado é âmbar. :mod:`spacr.artifacts` se recusa a conflacioná-los e nem isso.\n\n**Nada aqui escreve.** Nenhum botão de repetição-execução, nenhum \"mark as fresh\", nenhum delete. A triagem responde a uma pergunta; agindo sobre a resposta é o trabalho do módulo, e uma execução de um clique novamente ligado a um gráfico é como alguém substitui o artefato que eles estavam tentando verificar.\n\nO layout é calculado por uma função pura (:func:`layout_rects`) fora das camadas do gráfico, de modo que o arranjo é testável sem pixels, e a parte pesada - abrindo o registro e perguntando sobre cada artefato - é executada através de :class:`spacr.qt.job_runner.JobRunner`, fora do caminho de execução GUI principal.",
+      "text": "Pipeline Graph — what produced what, and which of it is still true.\n\nA spaCR project accumulates files faster than anyone can hold in their head: masks, a measurements database, extracted image regions, model weights, predictions, regression tables, figures. Some of those were made from each other. Some were made from a *previous* version of each other, because the mask step was executed again with a different diameter on Tuesday and nothing downstream was. Nothing in the GUI showed that, and a stale number does not look stale — it looks like a number.\n\nEsta triagem desenha o DAG:\n\n::\n\n    ┌──────────────┐   ┌────────────────┐   ┌───────────────┐\n    │ mask         │──▶│ measure        │──▶│ classify      │\n    │ masks   OK   │   │ db      STALE  │   │ preds   STALE │\n    └──────────────┘   └────────────────┘   └───────────────┘\n\nBoxes are artifacts, arrows are \"was made from\", and the colour is the verdict :func:`spacr.artifacts.Registry.is_stale` returns — with its ``reasons`` shown in the panel beside the graph, because \"stale\" on its own is an accusation, not an explanation. Click a box and the panel names the processing session that produced it, the settings digest, the spaCR version, and what re-executing it would invalidate.\n\nTrês escolhas deliberadas:\n\n**O gráfico é extraído da proveniência, não da lista de módulos.** O que o fluxo de trabalho é  *suposto* a fazer é ? :data:`spacr.ports.PORTS`, e isso é desenhado também esmaecido, por baixo, como a faixa  \"declared order\", mas as caixas e setas são o que realmente aconteceu. Um projeto onde a medida lida na semana passada máscaras não se parece com o diagrama inteiro arrumado, e essa diferença de triagem.\n\n**Missing não é obsoleto.** Um arquivo excluído é vermelho e diz isso; um desatualizado é âmbar.  :mod:`spacr.artifacts` se recusa a conflacioná-los e nem isso.\n\n**Nada aqui escreve.** Nenhum botão de repetição-execução, nenhum  \"mark as fresh\", nenhum delete. A triagem responde a uma pergunta; agir na resposta é o trabalho do módulo, e uma execução de um clique novamente ligada a um gráfico é como alguém substitui o artefato que eles estavam tentando verificar.\n\nO layout é calculado por uma função pura (:func:`layout_rects`) fora das camadas do gráfico, de modo que o arranjo é testável sem pixels, e a parte pesada - abrindo o registro e perguntando sobre cada artefato - é executada através de :class:`spacr.qt.job_runner.JobRunner`, fora do caminho de execução principal  GUI.",
       "translation_source_blocks_sha256": [
-        "df1c99457b8ce0c37943514f84ac506298ea5666143caa394760825057d86569",
+        "cc336587bd11778fa86bb6415c9057803804cfb498829ceaaf341f9c298e36aa",
         "0342dade2a52f115582471d9fa4c9ab4118c491a18c07a656f4e858782f34866",
         "3b40a516e729e213f0484074e9adb854f95a638de500d3e6185dff600b3e1685",
         "3e2bff20cb05e1da58daf636c30bbeddf4e82d5ceba6fe5f2bf6e91b7d899b3a",
@@ -85198,9 +86100,9 @@
         "2c0bb3219c2d17d0262353b5e4c94f5ade9b915e5a1135e6be299b12bd22edbe"
       ],
       "source_sha256": "a27eaabd84a18cbccc2b9333a726a55e5d41854da5943efecc52ab65463d46aa",
-      "text": "Adicione o Workflow Graph ao registro do aplicativo. idempotente.\n\n:returns: True quando essa chamada adicionou a linha,  False quando ela já estava lá que é o que uma segunda importação, ou um plugin que puxa o módulo novamente, não deve tratar como um erro.",
+      "text": "Adicione Pipeline Graph ao registro do aplicativo. idempotente.\n\n:returns: True quando essa chamada adicionou a linha,  False quando ela já estava lá que é o que uma segunda importação, ou um plugin que puxa o módulo novamente, não deve tratar como um erro.",
       "translation_source_blocks_sha256": [
-        "d35c2d1394c5ced845e988cf139da188de257d76b8d7f94b80a647f8c8fd3562",
+        "02bd9fcf7dfbeadbafa5dd9c30e32564168992ae011e1c7c266c60976f0bc432",
         "2c0bb3219c2d17d0262353b5e4c94f5ade9b915e5a1135e6be299b12bd22edbe"
       ]
     },
@@ -88899,9 +89801,9 @@
         "ef62f64cc5cbd08e37bc944795d646cd522870360f8dc1d35cd437011a763e0e"
       ],
       "source_sha256": "4975944bffc69ae2e49fda9bb0566eacff7bd67700363766a679013acda60f33",
-      "text": "Sessões de processamento de treinamento várias curvas de sessões de processamento em um eixo, com as configurações diferidas.\n\nA pergunta que esta visualização de aplicativo existe para responder é \"por que é executado B melhor do que executar A\", que hoje é respondida abrindo duas pastas de PDFs em uma janela, duas configurações CSVs em outra e mantendo a diferença em sua cabeça.\n\nLayout de tela::\n\n    ┌──────────────────────────────────────────────────────────────────────┐\n    │ /data/screen1/model                     [Choose folder…]  [Scan]     │\n    ├──────────────────────┬───────────────────────────────────────────────┤\n    │ Runs found (4)       │            ┌───────────────────────────┐      │\n    │ ☑ maxvit_t/…/ep_25   │            │   accuracy, 5 series      │      │\n    │   25 epochs · tr+val │            │   ╱‾‾‾‾  B val            │      │\n    │ ☑ maxvit_t/…/ep_10   │            │  ╱ ─ ─   A val            │      │\n    │ ☐ resnet50/…/ep_8    │            └───────────────────────────┘      │\n    │   8 ep x 3 folds     ├───────────────────────────────────────────────┤\n    │ ☐ maxvit_t/…/ep_3 !  │ 2 settings changed · 1 env drift · 0 drift    │\n    │                      │ bucket   setting        A        B            │\n    │ Metric [accuracy ▾]  │ changed  learning_rate  1e-4     1e-3         │\n    │ Folds  [per fold ▾]  │ changed  batch_size     64       32           │\n    │ [Overlay selected]   │ env      n_jobs         30       8            │\n    ├──────────────────────┴───────────────────────────────────────────────┤\n    │ ! maxvit_t/…/epochs_3: no per-epoch curves in this folder            │\n    │ Clicked: maxvit_t/…/epochs_25 · val — best 0.87 @ 18, last 0.85 @ 25 │\n    └──────────────────────────────────────────────────────────────────────┘\n\nNotas de design:\n\n* **Discovery é executado fora do caminho de execução GUI principal.** Uma varredura percorre uma árvore de modelo e analisa cada progresso CSV sob ele, que em uma triagem real é centenas de arquivos. Ele passa por :func:`spacr.qt.bridge.make_thread` como qualquer outro trabalho spaCR; os testes passam ``threaded=False``, que executa o mesmo código em linha. O desenho permanece no caminho de execução GUI principal até lá, os dados já estão na memória.\n* **Sem diálogos modais em qualquer caminho de erro.** Uma pasta sem execuções, uma sessão de processamento sem curvas, uma métrica nada registrada — tudo isso pousa no status em linha e rótulos de problemas. Um QMessageBox trava uma execução sem interface gráfica.\n* As sessões de processamento **Broken são listadas, não ocultas.** Uma pasta que contém pontos de verificação, mas não aparece ainda ``train.csv``, marcada, com a sua nota na linha de problema. Uma verificação que deixa cair silenciosamente a pasta que você estava procurando é pior do que aquela que diz o que há de errado com ela.\n* **O diff está em balde, nunca flat.** Ele renderiza :func:`spacr.train_compare.diff_settings`, que reutiliza a caçamba de proveniência de :mod:`spacr.run_journal`: deriva do ambiente (caminhos, anfitriões, contagens do trabalhador) é mostrado em seu próprio balde em vez de ser contado como algo que o usuário mudou, e schema drift é resumido. Quando duas sessões de processamento coincidem, a tabela diz \"no differences\" em palavras, em vez de ficar em branco.\n* **Toda série diz executar · split · fold.** Clicar em uma linha nomeia sua execução, pasta e sua melhor e última época, porque uma legenda que carrega apenas o ID de sessão de processamento convida a leitura de uma curva de trem como um resultado suspenso.",
+      "text": "Training Runs — several processing sessions' curves on one axis, with the settings diffed.\n\nA pergunta que esta visualização de aplicativo existe para responder é \"por que é executado B melhor do que executar A\", que hoje é respondida abrindo duas pastas de PDFs em uma janela, duas configurações  CSVs em outra, e segurando a diferença em sua cabeça.\n\nLayout de tela::\n\n    ┌──────────────────────────────────────────────────────────────────────┐\n    │ /data/screen1/model                     [Choose folder…]  [Scan]     │\n    ├──────────────────────┬───────────────────────────────────────────────┤\n    │ Runs found (4)       │            ┌───────────────────────────┐      │\n    │ ☑ maxvit_t/…/ep_25   │            │   accuracy, 5 series      │      │\n    │   25 epochs · tr+val │            │   ╱‾‾‾‾  B val            │      │\n    │ ☑ maxvit_t/…/ep_10   │            │  ╱ ─ ─   A val            │      │\n    │ ☐ resnet50/…/ep_8    │            └───────────────────────────┘      │\n    │   8 ep x 3 folds     ├───────────────────────────────────────────────┤\n    │ ☐ maxvit_t/…/ep_3 !  │ 2 settings changed · 1 env drift · 0 drift    │\n    │                      │ bucket   setting        A        B            │\n    │ Metric [accuracy ▾]  │ changed  learning_rate  1e-4     1e-3         │\n    │ Folds  [per fold ▾]  │ changed  batch_size     64       32           │\n    │ [Overlay selected]   │ env      n_jobs         30       8            │\n    ├──────────────────────┴───────────────────────────────────────────────┤\n    │ ! maxvit_t/…/epochs_3: no per-epoch curves in this folder            │\n    │ Clicked: maxvit_t/…/epochs_25 · val — best 0.87 @ 18, last 0.85 @ 25 │\n    └──────────────────────────────────────────────────────────────────────┘\n\nNotas de design:\n\n* **Discovery é executado fora do caminho de execução principal  GUI.** Um scan percorre uma árvore de modelos e analisa cada progresso  CSV sob ele, que em uma triagem real é centenas de arquivos. Ele passa por :func:`spacr.qt.bridge.make_thread` como qualquer outro trabalho - spaCR; os testes passam  - ``threaded=False``, que executa o mesmo código inline. O desenho permanece no caminho principal de memória _ GUI\n* **Sem diálogos modais em qualquer caminho de erro.** Uma pasta sem execuções, uma sessão de processamento sem curvas, uma métrica sem registro tudo isso fica no status em linha e nos rótulos do problema. Um QMessageBox trava uma execução sem interface gráfica.\n* **Sessões de processamento quebradas são listadas, não ocultas.** Uma pasta que contém pontos de verificação, mas não  ``train.csv`` ainda aparece, marcada, com sua nota na linha do problema. Uma varredura que solta silenciosamente a pasta que você estava procurando é pior do que aquela que diz o que está errado com ela.\n* **O diff é bucketed, nunca flat.** Ele renderiza  :func:`spacr.train_compare.diff_settings`, que reutiliza o bucketing de proveniência de  :mod:`spacr.run_journal`: drift de ambiente (caminhos, hosts, contagens de processos worker) é mostrado em seu próprio bucket em vez de ser contado como algo que o usuário mudou e schema dridge é resumido. Quando duas sessões de processamento correspondem, a tabela diz \"no differences\" em palavras ao invés de em branco.\n* **Every series says run · split · fold.** Clicking a line names its run, folder and both its best and last epoch, because a legend that only carries the processing-session id invites reading a train curve as a held-out result.",
       "translation_source_blocks_sha256": [
-        "2be15032782e43e09c930ab274f0cf4fb4ab320e66f9bc42c78ba2d95eab5fd8",
+        "3979f7d7c36de67669d9509d17b4717ca64a07640df13554a4606e31dc57ccfc",
         "0260a07648ad4000c97172cfc1cc3a43944722bd41e8756958185edfc98bc2a4",
         "7387692812ec038cf24df502c80f07bf4f1e6600d300a1acd18f6fbf484cdfc9",
         "1ecd6071c7a598fe8fe7efe0f3a4c2869822595ce3f8a3b7e7b8bea000242b39",
@@ -106093,13 +106995,13 @@
     "spacr.qt.widgets.fast_plots.GroupedPlot.mark_note": {
       "source_blocks_sha256": [
         "5fbfacf854edddeb4f77da3cfcdaf7180c03699c10a250065f57ea05d197ae2f",
-        "9ebb5966af493e4796eb2bc7f466086a58187dd01d90cfe25d10c16d3640010c"
+        "e4eece877c64134c81a4ee7da481164e2e40f51f684de6f5a1682a25ed9c28d5"
       ],
-      "source_sha256": "8bd19e4f93197e47dbac81ebb134d74e0946018fc86755fc4e9eeeb53d55767b",
-      "text": "A frase sobre a marca CURRENT, ou ``\"\"``.\n\nDuas coisas, porque um usuário que escolhe \"bar\" fez duas ao mesmo tempo: eles escolheram uma marca que pode deturpar o spread, e eles desistiram da capacidade de clicar em um guia - um retângulo representa quarenta e uma linhas e não pode honestamente selecionar uma delas.",
+      "source_sha256": "4a4249400b342abf3e0ff0019af17250bfbb19153ea08fe87027c2baf1fd9240",
+      "text": "A frase sobre a marca CURRENT, ou ``\"\"``.\n\nTrês coisas agora. Um começo que não poderia honrar a configuração padrão do tipo gráfico diz isso primeiro - um usuário que pediu violinos e obteve um jitter é devido o motivo no enredo, em vez de em um log. Então os dois um usuário quem escolhe \"bar\" fez de uma só vez: eles escolheram uma marca que pode deturpar o spread, e eles desistiram da capacidade de clicar em um guia - um retângulo representa quarenta e uma linhas e não pode selecionar honestamente.",
       "translation_source_blocks_sha256": [
         "5fbfacf854edddeb4f77da3cfcdaf7180c03699c10a250065f57ea05d197ae2f",
-        "9ebb5966af493e4796eb2bc7f466086a58187dd01d90cfe25d10c16d3640010c"
+        "15d1c8abb211e97d39678333a36ae3cf0ea2d496cdf9885584f0053f71a3f9f2"
       ]
     },
     "spacr.qt.widgets.fast_plots.GroupedPlot.redraw": {
@@ -106124,6 +107026,24 @@
       "translation_source_blocks_sha256": [
         "6a22fa5747b575184a58020f11de4643cf98293778f00faaf1b90ec2a45ebd85",
         "56bc96221a8d4abc1d25a16990e1544917d8c9cf820c6f2c786d1ecb41c9b294"
+      ]
+    },
+    "spacr.qt.widgets.fast_plots.GroupedPlot.starting_mark": {
+      "source_blocks_sha256": [
+        "65efafa55a21f5c532a70222e8d1e8ae1338f160f6bc70c8aedfc0eaa03a157f",
+        "19aa9671e8846b171c052c82ae47812c0bc061848f43c98b60255255376ab28c",
+        "448466673fcb89a9d9d89a1dd7c0a7fe4c7fa1502e7148aa18a116ff0c515293",
+        "a8f348b6c678e5d77642c99a6986ecb0926d2185920a20fe8ace028a4400493c",
+        "f1d4185184f6c1a90491d9034e6e760338917535f96e6a6caec3ec5d7d27488d"
+      ],
+      "source_sha256": "46f57040d7ffd27bcdcfa4e88183389c8a8c56ebcbdc84595895d0d8a1845c3a",
+      "text": "A marca para desenhar primeiro, e por que não é o escolhido.\n\n:param counts: observações por grupo, quando são conhecidas. Um vazio pede apenas \"what was chosen\", que é tudo o que pode ser respondido antes que os dados cheguem.\n:returns: ``(mark, note)``. A nota está vazia sempre que a marca desenhada é a marca solicitada.\n\nA configuração decide, não o widget. Um tipo de gráfico padrão salvo para o :attr:`DATA_SHAPE` deste gráfico é o que é desenhado antes do primeiro clique com o botão direito do mouse; sem nada salvo, o gráfico mantém  :attr:`DEFAULT_MARK`, porque uma preferência que ninguém expressou não deve mover visualizações existentes.\n\nUma loja de preferência quebrada desenha o gráfico de qualquer maneira. Este é o quadro de abertura de um painel; recusar-se a desenhá-lo sobre uma configuração lida custaria toda a figura.",
+      "translation_source_blocks_sha256": [
+        "65efafa55a21f5c532a70222e8d1e8ae1338f160f6bc70c8aedfc0eaa03a157f",
+        "19aa9671e8846b171c052c82ae47812c0bc061848f43c98b60255255376ab28c",
+        "448466673fcb89a9d9d89a1dd7c0a7fe4c7fa1502e7148aa18a116ff0c515293",
+        "a86f60768e6696ffec4b20eb8d344152943ef90d8367d069903e5c94c3248298",
+        "8106bd065f9182b9d0a30f58a7dab80579543b046584d14f81205b4a4ae91ea8"
       ]
     },
     "spacr.qt.widgets.fast_plots.GuideAgreementPlot": {
@@ -120078,11 +120998,12 @@
         "5878326aaecbc6206f51afe49dbfe609a31a6785544a929b16f3e6bf98eb32c0",
         "22fd81664192bb9c8c5addb8009c3e9c5fd5be1a914d8c770eb719ecd742dc66",
         "f8210cc3da27eb1579585930c2b614634cd1463fccab3c86a714c77fb8fe15fa",
+        "3c6e9bfbbc858d51cfdf4dd2e8dcbf3ec4a8a3311ba302e9dc5fbb2a53ab2eda",
         "1a93d461a5de1c3a147bd635510e301e8a17895d33421d21ae355a3ab21c71ff",
         "3761f835eecd2d8ff9cff4060a6421d68b408203e2ba8166567b2ad02219b3cd"
       ],
-      "source_sha256": "bfd3e3626f1f6fc20e01f7841fe4c0672023b9853ddba19254068a728482c363",
-      "text": "Widget de segmentação de visualização ao vivo v2.\n\nSuperfície de ajuste interativa Cellpose para a visualização do aplicativo Mask. Ele fornece:\n\n* **Canvas zootable (Ctrl+scroll, em sincronia).** Tanto o original quanto a máscara sobrepõem ao vivo em um par compartilhado de  :class:`QGraphicsView` pan e zoom em uma e nas outras faixas pixel por pixel.\n* **Hover tooltip.** Mover o cursor sobre o original e uma linha de status fixada mostra a intensidade do pixel para cada canal de dados de imagem mais, quando presente, o rótulo do objeto nessa posição da última segmentação. Mesma dica de ferramenta, independentemente de qual exibição mantém o cursores.\n* **Normalise alternância.** Extensão percentil opcional 298 % (por canal de dados de imagem para  RGB) para que as peças cruas de baixo contraste sejam legíveis.\n* **Model-aware options.** Cada modelo mostra o conjunto completo de segmentação. Cellpose-SAM faz *não* ignorar ``flow_threshold``, ``cellprob`` ou ``diameter`` ver :data:`DIAMETER_TOOLTIP` para a medida que matou essa crença.\n* **Cor de contorno + espessura.** Escolhido a partir da barra de ferramentas; o efeito é ativo quando uma máscara existe.  ``color (random)`` atribui uma cor categórica estável a cada etiqueta de objeto para que as máscaras tocantes permaneçam distinguíveis.\n* **Segmentação multi-objeto.** Um combo \"object type\" escolhe entre ``cell``, ``nucleus`` e ``cell + nucleus``. No modo célula + núcleo, o painel executa duas passagens Cellpose e sobrepõe ambas as máscaras em cores distintas.\n* **Pre / Post filters.** Quando o tipo de objeto é ``cell`` (ou o modo combinado), o painel roteia as configurações de pré / pós-processamento do aplicativo Mask (``cell_min_size``, ``cell_max_size``, ``remove_background_cell``, intensidade de fundo, ...) através da segmentação. Os usuários alternam esses rótulos ativados / desativados com etiquetas clicáveis \"Pre\" / \"Post\" dedicadas ao lado de \"Run preview\" no mesmo estilo visual que as alternâncias de LP / AI.\n\nTodo o arquivo permanece seguro para importar sem cellpose cada chamada  cellpose é importada com preguiça dentro da unidade de execução em segundo plano.",
+      "source_sha256": "18ed7e2c4708db2e7af60762c061a58a0de3e03b6327b4c93c7b07a6b86d3d01",
+      "text": "Widget de segmentação de visualização ao vivo v2.\n\nSuperfície de ajuste interativa Cellpose para a visualização do aplicativo Mask. Ele fornece:\n\n* **Canvas zootable (Ctrl+scroll, em sincronia).** Tanto o original quanto a máscara sobrepõem ao vivo em um par compartilhado de  :class:`QGraphicsView` pan e zoom em uma e nas outras faixas pixel por pixel.\n* **Hover tooltip.** Mover o cursor sobre o original e uma linha de status fixada mostra a intensidade do pixel para cada canal de dados de imagem mais, quando presente, o rótulo do objeto nessa posição da última segmentação. Mesma dica de ferramenta, independentemente de qual exibição mantém o cursores.\n* **Normalise alternância.** Extensão percentil opcional 298 % (por canal de dados de imagem para  RGB) para que as peças cruas de baixo contraste sejam legíveis.\n* **Model-aware options.** Cada modelo mostra o conjunto completo de segmentação. Cellpose-SAM faz *não* ignorar ``flow_threshold``, ``cellprob`` ou ``diameter`` ver :data:`DIAMETER_TOOLTIP` para a medida que matou essa crença.\n* **Cor de contorno + espessura.** Escolhido a partir da barra de ferramentas; o efeito é ativo quando uma máscara existe.  ``color (random)`` atribui uma cor categórica estável a cada etiqueta de objeto para que as máscaras tocantes permaneçam distinguíveis.\n* **Segmentação multi-objeto.** Um combo \"object type\" escolhe entre ``cell``, ``nucleus`` e ``cell + nucleus``. No modo célula + núcleo, o painel executa duas passagens Cellpose e sobrepõe ambas as máscaras em cores distintas.\n* **O modelo que a sessão de processamento usará, e ele diz qual.** O painel lê a mesma configuração que o fluxo de trabalho lê --  ``pathogen_model`` sobre ``pathogen_model_name`` para patógenos,  ``<object>_model_name`` de outra forma ( :func:`_model_keys_for`) -- oferece o modelo zoo ao lado do combo, e nomeia o modelo que produziu as máscaras na linha de status. Um ponto de verificação que não está nesta máquina visualiza com cpsam e diz assim:\n* **Pre / Post filters.** Quando o tipo de objeto é ``cell`` (ou o modo combinado), o painel roteia as configurações de pré / pós-processamento do aplicativo Mask (``cell_min_size``, ``cell_max_size``, ``remove_background_cell``, intensidade de fundo, ...) através da segmentação. Os usuários alternam esses rótulos ativados / desativados com etiquetas clicáveis \"Pre\" / \"Post\" dedicadas ao lado de \"Run preview\" no mesmo estilo visual que as alternâncias de LP / AI.\n\nTodo o arquivo permanece seguro para importar sem cellpose cada chamada  cellpose é importada com preguiça dentro da unidade de execução em segundo plano.",
       "translation_source_blocks_sha256": [
         "0074cc62e6d86b0ea70902892d80e6080c8203b1bb25121cb66261680e3f9203",
         "cdb6453814e3d70d1f357134515b1feda39c99082ff0a4243e6363eef6046c1a",
@@ -120092,6 +121013,7 @@
         "5878326aaecbc6206f51afe49dbfe609a31a6785544a929b16f3e6bf98eb32c0",
         "22fd81664192bb9c8c5addb8009c3e9c5fd5be1a914d8c770eb719ecd742dc66",
         "f8210cc3da27eb1579585930c2b614634cd1463fccab3c86a714c77fb8fe15fa",
+        "d9f77a0d70c8dc2494f89f5f29a03d9c7a394686af58ce6e9330fa695e0f600e",
         "1a93d461a5de1c3a147bd635510e301e8a17895d33421d21ae355a3ab21c71ff",
         "b2a59cec1f0888e2cead0dbe58edc17f18a00fa267efd603d5c2270f331e9823"
       ]
@@ -120330,12 +121252,16 @@
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.settings_for_propagation": {
       "source_blocks_sha256": [
-        "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338"
+        "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338",
+        "35ae37377e98f0d9f678969ee4850abac850ce3b7d7731897e2db33abac4133e",
+        "2a864d4c8be7ce885cceed2f677095e55e4acd767d8ccda5e834aa13b3f1dcfb"
       ],
-      "source_sha256": "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338",
-      "text": "Mapeie os valores do widget de visualização ao vivo para os nomes de configuração do painel principal.",
+      "source_sha256": "5f9d33342181f7e188cf3b1b913e0a6c6ce5f08012b0836bf914be2a646f0f3e",
+      "text": "Mapeie os valores do widget de visualização ao vivo para os nomes de configuração do painel principal.\n\nO modelo é escrito de volta para a chave da qual foi lido. Propagação usada para escrever apenas ``model_name`` e  ``<primary>_model_name``, e para patógenos a sessão de processamento não lê primeiro:  ``pathogen_model`` substitui ambos quando é definido. Um usuário semeado de um ponto de verificação ``pathogen_model``, trocou o modelo ao vivo e se propagou, e a sessão do processamento continuou usando o ponto de controle - o mesmo desacordo de visualização / execução como antes, apontando o outro.\n\nOnly when the settings the panel holds ALREADY set that structured-data name. Writing it otherwise would newly switch the override on for a user who never asked for it, and ``pathogen_model`` is validated harder than the name structured-data name (:mod:`spacr.validate` stops a processing session on a path that is not there).",
       "translation_source_blocks_sha256": [
-        "9e4ffff2b2c3003230b0e59c904a23b118fb5d176c844caba6555e0d5b24b343"
+        "9e4ffff2b2c3003230b0e59c904a23b118fb5d176c844caba6555e0d5b24b343",
+        "3d83fe658951c9629e6217e718a9e91ea61ebeb715709da90b38035b9f53af7f",
+        "5d249c288323b58ca9b2096e4d7e33e62e7a89c79c1f500d1cb12aaa19003b0d"
       ]
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.showEvent": {
@@ -151513,7 +152439,7 @@
         "edee7f9d1ea29396078d952939a391d81458ff77f0bf3a0b0b4d0d5a61de95ad",
         "bca9f4ec20123c4b2c6a8cc212582955d4f5a99b46c7e8d7ea099d72cac6e8cb",
         "4a1282da69f9a0d22507b5a03fc04356147178691ac76678464f9273df9b8a84",
-        "169583af1d20022394196192edafcf6c57d642806338e163555bdb56e4b1001c",
+        "fb881cf77c5f5861ec786d118e734e149495b1c424fa27392e20b0200bc39e2c",
         "48342522ce71cfb8267f9c6e585ae9e99e0ae92508e47c871600cedb213b668e",
         "00b9b602b11f9b33ea44d3f40da5c86b2606b92b7443263bfc6a90da88769b69",
         "8d3a3ccb363ad646140582676a0bb2454033bba0fa85238e393c8f0987ecc5d6",
@@ -151532,8 +152458,8 @@
         "2ad9c559dde2223be68a57759ab1362182dd8905d0c06bfd902e3834d3142344",
         "5f49a191e85fa871451f0dcb697e2cca9f2c5b3b30c00073a87d46375f7f8ae1"
       ],
-      "source_sha256": "b990667ca60e3c59280e24849eaf6828e657c26c2f1f15f828742fe85ebb0018",
-      "text": "Configurações de aparência compartilhadas por cada figura spaCR.\n\nAs opções específicas de parcelamento, como um limite de tamanho de efeito ou uma coluna de cores, pertencem à subclasse correspondente. Manter apenas valores portáteis aqui permite que um estilo de casa salvo seja aplicado em todos os tipos de parcelas.\n\n:param x_label: etiqueta de eixo horizontal fornecido ao renderizador; vazio permite renderizador-específico ou comportamento padrão.\n:param y_label: Rótulo de eixo vertical fornecido ao renderizador; permite vazio renderizador-específico ou comportamento padrão.\n:param title: title; vazio suprime a operação de título compartilhado.\n:param x_scale: Escala horizontal Matplotlib de :data:`SCALES`.\n:param y_scale: Escala vertical Matplotlib de :data:`SCALES`.\n:param x_lim: limites ``(minimum, maximum)`` horizontais explícitos, ou  ``None`` para limites derivados de dados.\n:param y_lim: limites verticais explícitos ``(minimum, maximum)`` ou  ``None``.\n:param invert_x: Reverter o eixo horizontal após a aplicação dos limites.\n:param invert_y: para inverter o eixo vertical após a aplicação de limites.\n:param font_family: preferência fonte-família disponível para renderizadores que suportam uma família de figuras.\n:param font_size: tamanho do texto base disponível para prosa específica do gráfico.\n:param title_font_size: tamanho do título em pontos.\n:param label_font_size: tamanho do eixo-rótulo em pontos.\n:param tick_font_size: tamanho do rótulo em pontos.\n:param font_weight: compartilhado Matplotlib peso do texto.\n:param figure_width: figura-canvas largura em polegadas para uso vivo e salvo.\n:param figure_height: figura-canvas altura em polegadas para uso vivo e salvo.\n:param dpi: pontos por polegada usados para saída raster.\n:param grid: se a grade selecionada é visível.\n:param grid_axis: eixos que recebem linhas de grade: ``\"x\"``,  ``\"y\"``,``\"both\"`` ou ``\"none\"``.\n:param grid_color: Cor de linha de grade compatível com Matplotlib.\n:param grid_width: largura da linha de grade em pontos.\n:param hide_top_right_spines: se deve remover as linhas de quadro superior e direita.\n:param legend: Se renderizadores com marcas chaveadas devem desenhar uma lenda.\n:param legend_location: Colocação de legenda Matplotlib a partir de :data:`SHARED_CHOICES`.\n:param background_color: nome da página e cor dos eixos; ``\"none\"`` delega a escolha de plano de fundo ao renderizador.\n:param transparent: se os fundos de figuras exportadas são transparentes.",
+      "source_sha256": "348f3e629a63979999bf29dc77034414bb66a0c9d5771441ac6242aa6fb1d09d",
+      "text": "Configurações de aparência compartilhadas por cada figura spaCR.\n\nAs opções específicas de parcelamento, como um limite de tamanho de efeito ou uma coluna de cores, pertencem à subclasse correspondente. Manter apenas valores portáteis aqui permite que um estilo de casa salvo seja aplicado em todos os tipos de parcelas.\n\n:param x_label: etiqueta de eixo horizontal fornecido ao renderizador; vazio permite renderizador-específico ou comportamento padrão.\n:param y_label: Rótulo de eixo vertical fornecido ao renderizador; permite vazio renderizador-específico ou comportamento padrão.\n:param title: title; vazio suprime a operação de título compartilhado.\n:param x_scale: Escala horizontal Matplotlib de :data:`SCALES`.\n:param y_scale: Escala vertical Matplotlib de :data:`SCALES`.\n:param x_lim: limites ``(minimum, maximum)`` horizontais explícitos, ou  ``None`` para limites derivados de dados.\n:param y_lim: limites verticais explícitos ``(minimum, maximum)`` ou  ``None``.\n:param invert_x: Reverter o eixo horizontal após a aplicação dos limites.\n:param invert_y: para inverter o eixo vertical após a aplicação de limites.\n:param font_family: font-family preference available to renderers that support a figure-wide family. Defaults to the face spaCR ships; see :func:`font_names`.\n:param font_size: tamanho do texto base disponível para prosa específica do gráfico.\n:param title_font_size: tamanho do título em pontos.\n:param label_font_size: tamanho do eixo-rótulo em pontos.\n:param tick_font_size: tamanho do rótulo em pontos.\n:param font_weight: compartilhado Matplotlib peso do texto.\n:param figure_width: figura-canvas largura em polegadas para uso vivo e salvo.\n:param figure_height: figura-canvas altura em polegadas para uso vivo e salvo.\n:param dpi: pontos por polegada usados para saída raster.\n:param grid: se a grade selecionada é visível.\n:param grid_axis: eixos que recebem linhas de grade: ``\"x\"``,  ``\"y\"``,``\"both\"`` ou ``\"none\"``.\n:param grid_color: Cor de linha de grade compatível com Matplotlib.\n:param grid_width: largura da linha de grade em pontos.\n:param hide_top_right_spines: se deve remover as linhas de quadro superior e direita.\n:param legend: Se renderizadores com marcas chaveadas devem desenhar uma lenda.\n:param legend_location: Colocação de legenda Matplotlib a partir de :data:`SHARED_CHOICES`.\n:param background_color: nome da página e cor dos eixos; ``\"none\"`` delega a escolha de plano de fundo ao renderizador.\n:param transparent: se os fundos de figuras exportadas são transparentes.",
       "translation_source_blocks_sha256": [
         "94309949f2246e352cb2054d59f1d1c9d6a12eaa8bd7150e5022635d8dd58b4f",
         "589e268a839e19002d5d4c53d280abb7a2174a05190328093aa577003f437882",
@@ -151546,7 +152472,7 @@
         "edee7f9d1ea29396078d952939a391d81458ff77f0bf3a0b0b4d0d5a61de95ad",
         "bca9f4ec20123c4b2c6a8cc212582955d4f5a99b46c7e8d7ea099d72cac6e8cb",
         "4a1282da69f9a0d22507b5a03fc04356147178691ac76678464f9273df9b8a84",
-        "169583af1d20022394196192edafcf6c57d642806338e163555bdb56e4b1001c",
+        "fb881cf77c5f5861ec786d118e734e149495b1c424fa27392e20b0200bc39e2c",
         "48342522ce71cfb8267f9c6e585ae9e99e0ae92508e47c871600cedb213b668e",
         "00b9b602b11f9b33ea44d3f40da5c86b2606b92b7443263bfc6a90da88769b69",
         "8d3a3ccb363ad646140582676a0bb2454033bba0fa85238e393c8f0987ecc5d6",
@@ -151596,16 +152522,50 @@
         "da0b061dc09f9673c38139b7500165976216ad5932d410049754f656f18bdbdd",
         "e993553c53c637bdca0f8378febfd003fc5f2699d4c46df9acb8f0eadbc40877",
         "5e9c12cd9955a633f83378505074113861479f2295339e72f48ab501e18fbab7",
-        "1e3f7183794c034dcf22f39fa3e2eaf2d49e02e79110e6cec0a58840614c6fbf"
+        "091c7b4f5b0db8c265b543edca6bee3221d0f98c777983ea962caf30687d7eaa"
       ],
-      "source_sha256": "d3f31d71c3b09bf78737928299186b9ea9bf870d29e42088a68a2bb37fbc4220",
-      "text": "Aplique eixos compartilhados, tipografia, grade, coluna e configurações de página.\n\n:param figure: Figura de Matplotlib cuja aparência da página é atualizada.\n:param axes: Eixos Matplotlib cuja apresentação é atualizada.\n:param style: configurações de estilo de figura compartilhada para aplicar.\n\nChame isso depois de desenhar marcas específicas do gráfico. Ele altera apenas a apresentação de figuras e eixos; ele não adiciona ou remove marcas de dados.",
+      "source_sha256": "c35d48336173096d79a57e8764067d48205f017f5eac750861a109285d53d999",
+      "text": "Aplique eixos compartilhados, tipografia, grade, coluna e configurações de página.\n\n:param figure: Figura de Matplotlib cuja aparência da página é atualizada.\n:param axes: Eixos Matplotlib cuja apresentação é atualizada.\n:param style: configurações de estilo de figura compartilhada para aplicar.\n\nChame isso depois de desenhar marcas específicas de plotagem. Ele altera apenas a apresentação de figuras e eixos; ele não adiciona ou remove marcas de dados. O título, os rótulos do eixo e os rótulos de carrapatos são colocados na família do estilo -- :func:`font_names` -- então um renderizador que desenha fora de uma fonte  ``rc_context`` ainda recebe o rosto spaCR navios em vez de DejaVu Sans.",
       "translation_source_blocks_sha256": [
         "d570e0b6162b99057a01a87f815e4f85e3a6aade4df86edb0e07737b55895354",
         "da0b061dc09f9673c38139b7500165976216ad5932d410049754f656f18bdbdd",
         "e993553c53c637bdca0f8378febfd003fc5f2699d4c46df9acb8f0eadbc40877",
         "5e9c12cd9955a633f83378505074113861479f2295339e72f48ab501e18fbab7",
-        "1e3f7183794c034dcf22f39fa3e2eaf2d49e02e79110e6cec0a58840614c6fbf"
+        "091c7b4f5b0db8c265b543edca6bee3221d0f98c777983ea962caf30687d7eaa"
+      ]
+    },
+    "spacr.style_base.font_names": {
+      "source_blocks_sha256": [
+        "0691fea055689963fd25797fff713d5b919aa6162c56641f6b84c12fceebbe1a",
+        "ea7d761f3e2acb03074e71cd91835f5658f50fedea0ba66cc3b872898c67b905",
+        "d3a4d759b9bf6df1a081ca6ed3d572eb943c921cebe944614dbfe3ae619d0a48",
+        "9ea43d42e2670a767398f1993adf8a2ffa3691831ead752eecb1a594f6a53544",
+        "e2b6676ee22a9bb92cde99a4480f7bcf93da4337b714cdd870ff6c8b51568340"
+      ],
+      "source_sha256": "135b3ca98bd81f976d7dbf1f096bc2764c57e29cbaff3609b97cfdd3b2793a85",
+      "text": "As famílias para pedir matplotlib para, o melhor primeiro, rosto REGISTRADO.\n\n:param style: estilo figura cujo ``font_family`` é a primeira escolha.\n:returns: uma lista de família adequada para ``font.family``, um  ``FontProperties`` ou  :meth:`matplotlib.text.Text.set_fontfamily`. Uma família genérica é retornada sozinha, porque matplotlib resolve-a através de sua própria lista.\n\nNaming a family is not the same as having it. Matplotlib answers a name it cannot find by falling back -- silently, bar a ``findfont`` warning -- to DejaVu Sans, so a style saying \"Open Sans\" on a machine where Open Sans was never installed drew in DejaVu Sans and looked nothing like the interface around it. This REGISTERS the faces spaCR ships before naming them, which is what makes the name resolve on that machine, and puts :data:`FONT_FAMILY` last so a chosen family the machine lacks lands on the house face instead of DejaVu Sans.\n\nNada é listado depois de :data:`FONT_FAMILY`: ele é registrado a partir de um arquivo no pacote, então ele sempre resolve, e um nome inacessível na lista só faria  matplotlib avisar uma vez por cadeia de caracteres desenhada sobre uma fonte que nunca iria usar.",
+      "translation_source_blocks_sha256": [
+        "0691fea055689963fd25797fff713d5b919aa6162c56641f6b84c12fceebbe1a",
+        "ea7d761f3e2acb03074e71cd91835f5658f50fedea0ba66cc3b872898c67b905",
+        "d3a4d759b9bf6df1a081ca6ed3d572eb943c921cebe944614dbfe3ae619d0a48",
+        "9ea43d42e2670a767398f1993adf8a2ffa3691831ead752eecb1a594f6a53544",
+        "e2b6676ee22a9bb92cde99a4480f7bcf93da4337b714cdd870ff6c8b51568340"
+      ]
+    },
+    "spacr.style_base.font_rc": {
+      "source_blocks_sha256": [
+        "0dde586c76e4be446d7b00b1a2c56781259fb4c3566656a6a598991d066e0c1c",
+        "a44ee56931e3116b9159e5e17ee2ae663bfe2a870af42fbf183ce34619139047",
+        "ac63a0bbdd75a1614e03f37ae21b0427c628998168defa4a16d9170ab22f73a2",
+        "c11a002c41d36eb43fb5bdba9b9451d2ea7d0973339bcaad29c7307494649039"
+      ],
+      "source_sha256": "4cd61eae40cb935843c172278b180dbc3632bee64f24692affb329684bb9fde4",
+      "text": "Os parâmetros de fonte Matplotlib um estilo pede.\n\n:param style: figura estilo fornecendo família, tamanho e peso.\n:returns: ``rcParams`` entradas para desenhar dentro, como  ``matplotlib.rc_context`` leva-los.\n\nPasse isso para ``rc_context`` em vez de montar  ``font.*`` à mão: a família chega como a lista resolvível  :func:`font_names` constrói, com o rosto empacotado já registrado.",
+      "translation_source_blocks_sha256": [
+        "0dde586c76e4be446d7b00b1a2c56781259fb4c3566656a6a598991d066e0c1c",
+        "a44ee56931e3116b9159e5e17ee2ae663bfe2a870af42fbf183ce34619139047",
+        "ac63a0bbdd75a1614e03f37ae21b0427c628998168defa4a16d9170ab22f73a2",
+        "c11a002c41d36eb43fb5bdba9b9451d2ea7d0973339bcaad29c7307494649039"
       ]
     },
     "spacr.style_base.style_kind": {

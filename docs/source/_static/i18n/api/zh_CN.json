@@ -5823,10 +5823,10 @@
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ],
       "source_sha256": "57b68696336e5f7a72e7b9edd916bee844220e0122721a66480c65afef6a3999",
-      "text": "``spacr.batch`` — 将任意的模块+设置工作插入一个软件工作列表并无期望运行。\n\n平板处理列表(:mod:`spacr.qt.plate_queue`)链条 *平板*通过 *一个*工作流与 *一*设置关键值地图. 这个模块是另一个轴:一个软件工作列表的任意 ``(module, settings)``工作在任何顺序 - ``Mask → Measure → Classify (CV) → Classify (ML)``,然后相同的四次再次与不同的直径,然后一个第五平板的掩膜 - 这是什么一个夜晚的平板工作实际上看起来像。\n\n排队的任务**就是**一次 ``spacr-run`` 调用。这里不会重新实现模块分派或设置加载：:mod:`spacr.cli` 负责模块注册表、设置加载器、``--set`` 的类型转换以及退出码约定（0 表示正常，1 表示模块抛出异常，2 表示参数或设置错误），本模块只是驱动它。同样，软件任务列表是一个**账本的账本**：任务列表自身的结论记录在 :class:`spacr.errors.RunLedger` 中并写在任务列表文件旁边；随后还会读回每项任务的 :func:`spacr.errors.read_run_status` 标记。因此，即使某项任务以 0 退出，只要它静默跳过了 40 个视野，也会被报告为*部分完成*而不是成功。\n\n什么使工作列表生存一个夜晚,没有人观看:\n\n* **每份工作在添加时都是验证的,而不是在执行时。** 下午3点发现工作9的 ``src`` 是错误的,整个晚上都浪费了. :func:`validate_queue` 报告 *所有* 问题一次,而 :func:`run_queue` 拒绝开始,而其中任何一个都是错误。\n* **状态在每个过渡后持续,原子**在处理软件工作列表时重新启动的机器以 :func:`resume_queue` 重启,而不是重启. 该文件以 temp 名称和 ``os.replace``\\ d 写作,因为由故障折断的工作名单文件比没有工作列码文件更糟。\n* **A 工作,其依赖失败是 SKIPPED,未执行** 测量后失败的掩膜产生一个数据库,看起来像一个真实的结果。 ``skipped``(故意未执行),``failed``和``not_run``(软件工作列表在到达之前停止)是三个不同的事情,并保持同样的方式。\n* **continue-on-error 停止隐藏一个系统的失败.** 如果前三份工作死亡,剩下的九份工作也同样; ``max_consecutive_failures`` 保持软件工作列表并这样说。\n* **工作日志进入自己的文件** - 十二个夜间工作中的一份中间日志是不可读的 - 路径在工作日志上。\n\n汇率:工作运行 **严格一次**. 他们为一个 GPU 竞争,两个 Cellpose 工作共享一个卡是如何一个夜间处理会议转变为夜间 CUDA OOM. 有故意没有 ``max_workers``; 运行两个软件工作列表在两个过程,如果你真的有两个卡。\n\n进口成本:此模块仅进口标准图书馆加上 :mod:`spacr.cli`、 :mod:`spacr.errors` 和 :mod:`spacr.validate`,所有这些都是 torch 免费的。 软件工作列表文件可以在没有 GPU 插入节点上阅读、验证和编程 - 工作流本身仅在执行工作的子过程中进口。\n\n典型使用::\n\n    from spacr.batch import Job, Queue, run_queue, save_queue\n\n    q = Queue(name='overnight')\n    q.add(Job(module='mask',    settings='/data/p1/settings/mask.csv'))\n    q.add(Job(module='measure', settings='/data/p1/settings/measure.csv',\n              depends_on=['mask-1']))\n    save_queue(q, '/data/overnight.queue.json')\n    result = run_queue(q, path='/data/overnight.queue.json')\n    print(result.summary())",
+      "text": "``spacr.batch`` — 将任意的模块+设置工作插入一个软件工作列表并无期望运行。\n\nThe Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* workflow with *one* settings key-value mapping. This module is the other axis: a software job list of arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — which is what a night of plate-scale work actually looks like.\n\nA queued job **is** a ``spacr-run`` invocation. Nothing here re-implements module dispatch or settings loading: :mod:`spacr.cli` owns the module registry, the settings loader, the ``--set`` coercion and the exit-code contract (0 ok, 1 the module raised, 2 bad arguments or settings), and this module drives it. Likewise a software job list is a **ledger of ledgers**: the software job list's own verdict is a :class:`spacr.errors.RunLedger`, stamped next to the software job list file, and each job's :func:`spacr.errors.read_run_status` stamp is read back so a job that exited 0 having silently skipped 40 fields is reported as *partial* rather than as a success.\n\n什么使工作列表生存一个夜晚,没有人观看:\n\n* **每份工作在添加时都是验证的,而不是在执行时。** 下午3点发现工作9的 ``src`` 是错误的,整个晚上都浪费了. :func:`validate_queue` 报告 *所有* 问题一次,而 :func:`run_queue` 拒绝开始,而其中任何一个都是错误。\n* **状态在每个过渡后持续,原子**在处理软件工作列表时重新启动的机器以 :func:`resume_queue` 重启,而不是重启. 该文件以 temp 名称和 ``os.replace``\\ d 写作,因为由故障折断的工作名单文件比没有工作列码文件更糟。\n* **A 工作,其依赖失败是 SKIPPED,未执行** 测量后失败的掩膜产生一个数据库,看起来像一个真实的结果。 ``skipped``(故意未执行),``failed``和``not_run``(软件工作列表在到达之前停止)是三个不同的事情,并保持同样的方式。\n* **continue-on-error 停止隐藏一个系统的失败.** 如果前三份工作死亡,剩下的九份工作也同样; ``max_consecutive_failures`` 保持软件工作列表并这样说。\n* **工作日志进入自己的文件** - 十二个夜间工作中的一个中间日志是不可读的 - 路径在工作记录上。\n\n汇率:工作运行 **严格一次**. 他们为一个 GPU 竞争,两个 Cellpose 工作共享一个卡是如何一个夜间处理会议转变为夜间 CUDA OOM. 有故意没有 ``max_workers``; 运行两个软件工作列表在两个过程,如果你真的有两个卡。\n\n进口成本:此模块仅进口标准图书馆加上 :mod:`spacr.cli`、 :mod:`spacr.errors` 和 :mod:`spacr.validate`,所有这些都是 torch 免费的。 软件工作列表文件可以在没有 GPU 插入节点上阅读、验证和编程 - 工作流本身仅在执行工作的子过程中进口。\n\n典型使用::\n\n    from spacr.batch import Job, Queue, run_queue, save_queue\n\n    q = Queue(name='overnight')\n    q.add(Job(module='mask',    settings='/data/p1/settings/mask.csv'))\n    q.add(Job(module='measure', settings='/data/p1/settings/measure.csv',\n              depends_on=['mask-1']))\n    save_queue(q, '/data/overnight.queue.json')\n    result = run_queue(q, path='/data/overnight.queue.json')\n    print(result.summary())",
       "translation_source_blocks_sha256": [
         "b2d244da2d4f05aedb097e99668d52ffe6621ae91e3f21871e7ae285f14e1a77",
-        "f6c4518a414f90e0b88fc5087c68295de2d6578a243e87953439661c5dd2ac37",
+        "4f65676ed47ed2709cf6f9bd978104f538a180ae5783251da43b81ed313f8f41",
         "c961c02af8bce019a2f70d0c4fb3484f666598c396ff22e9db688609ed374171",
         "765e2a04d96a94aea04b77b9730304fdc30239f92553fa2c50da333d33e4bbd5",
         "7348135caf02cee1b4338694486afe39c3699fabd0d1555660e98c3342263276",
@@ -11255,6 +11255,134 @@
         "3a8aced33675b173459c19aefe00de29c8f2e40e1f70dc55c5389fd990dffe5c"
       ]
     },
+    "spacr.cli_make_masks": {
+      "source_blocks_sha256": [
+        "3baedc6c4989969aa27e64caf192ff8bba05ef2705ba4267459d08aa21653531",
+        "d25681d36ab0a15210aa5aa27ebf0439f006e7a5fd2f26c27526c41f67a67e00",
+        "158e4c55397fec0051adb73c82ab56a64eccb65e63d56ac2ee44eee4c4e136a2",
+        "8c25c51e8afc34eba3409ea557d1dfd0265da96aff0931cc8a33f40e50b27f29",
+        "c1008441c62cba47dea840b01e15422e026cd5fbac60264c1bec99f0158532ea",
+        "000b6618d8bf928a329d827924ff9469fbb606519263b3dff08f78d1ecfb4877",
+        "12ad8cf01d18f20dc4cbd1f5269726b0458a980e9b5c2b57ad9d0d3e3803361c",
+        "29e9facf24e02b1e9c0a112daa5cb3c697339b348af4be2387e912c64a3395f8",
+        "1ee6750c36f6b8bbc4d071c9ee68e841f62dddc6d2b255bbddeda2c51213a3e7",
+        "7363751daaad89105b37f38c2fa402450602751da13289cff1031eac506560a6"
+      ],
+      "source_sha256": "429175565f3e602f8c7c24de9f66c05b3677c0cb6b550743c3bfe270ad3b6b6f",
+      "text": "``spacr-make-masks`` - 在文件夹中打开掩膜编辑器,作为工作列表。\n\nLedger 项目 396 要求从一个终端开始的愈合会,指向一个文件夹,结束,并重复. 愈合是通过 SSH 和超过一个机器进行的,到目前为止的答案是 ``spacr/cli.py`` 的平面拒绝 — *\"Make Masks 是一个手动掩膜编辑器; 执行它在 GUI\"*. 这个句子仍然是真实的关于刷和错误的会议。::\n\n    spacr-make-masks --folder <dir>\n    spacr-make-masks --folder <dir> --order value --limit 25\n    spacr-make-masks --folder <dir> --dry-run      # no display needed\n\n:mod:`spacr.curation_queue`做思维 - 哪个字段正在等待,在什么顺序,以及已经决定了什么。 这个模块是薄部分:分为四个论点,构建工作列表,说什么是会议,然后才开始 Qt。\n\nNothing is imported from :mod:`spacr.qt` until the folder has been read and accepted. That order is the point of the module rather than a detail of it: a folder that does not exist, or that holds no layout spaCR recognises, is answered with a sentence on a login node with no display, not with a Qt crash after a ten-second import.\n\n编辑打开之前打印的内容\n---------------------------------------\n\n会议总结,在主持人自己的条件下::\n\n    nested layout at /data/pv: 500 bundles, 366 done, 29 skip, 105 remaining;\n    25 this session, sorted by easy\n\n因此,一个修炼者看到他们正在重复什么,并看到它从他们开始的阴影,而不是只是在一个窗口。\n\n一个布局打开编辑器,三个打开工作列表\n-------------------------------------------------\n\n:func:`spacr.curation_queue.detect_layout` reads three layouts. The editor edits ONE of them: Make Masks reads a draft from ``<folder>/masks/<stem>.tif`` and writes the curated mask back to the same place, which is the ``nested`` layout and nothing else. So a ``sibling`` or ``seg`` folder is summarised, ordered and listed by ``--dry-run`` — and the editor is refused, by name, with what it would have done wrong. Opening a sibling set on its ``images`` folder would read and write ``images/masks``, silently orphaning every draft mask the set already has; that is worse than a refusal, and it is the failure mode the ledger's \"loaded as empty\" warning is about.\n\n出口代码::\n\n    0   the editor ran, or --dry-run printed the queue, or there was\n        nothing left to curate\n    1   the Qt interface could not start\n    2   bad arguments, a folder that is not there, a folder holding no\n        recognisable layout, or a layout the editor cannot edit in place",
+      "translation_source_blocks_sha256": [
+        "4f366c4ce446a02acaed8de389f7b45ec73bf8d77573a096502a4df5a1e1374c",
+        "d25681d36ab0a15210aa5aa27ebf0439f006e7a5fd2f26c27526c41f67a67e00",
+        "1426e2d66d0ec2569f520de2b3fdf6f9341071b8d253664df7b3fe1a8aa7936a",
+        "8c25c51e8afc34eba3409ea557d1dfd0265da96aff0931cc8a33f40e50b27f29",
+        "c1008441c62cba47dea840b01e15422e026cd5fbac60264c1bec99f0158532ea",
+        "000b6618d8bf928a329d827924ff9469fbb606519263b3dff08f78d1ecfb4877",
+        "12ad8cf01d18f20dc4cbd1f5269726b0458a980e9b5c2b57ad9d0d3e3803361c",
+        "6d2e9cb76245fb265581393dea13c43569b385a56a82bb8717ecaa712a67b557",
+        "1ee6750c36f6b8bbc4d071c9ee68e841f62dddc6d2b255bbddeda2c51213a3e7",
+        "7363751daaad89105b37f38c2fa402450602751da13289cff1031eac506560a6"
+      ]
+    },
+    "spacr.cli_make_masks.build_parser": {
+      "source_blocks_sha256": [
+        "541b663d52d5fb2d2717bdc1f03bcebf07799da8337b46edf61c0f36a0456bd4",
+        "e5632165eaa3c355d2f6102e544fd8fa4142598e39d19a47df01cd3170f4b257"
+      ],
+      "source_sha256": "843ee477b8c996bdf62abb4ecf7e3a1f4d7a4547239c2491d9363f7a82c45c95",
+      "text": "创建 ``spacr-make-masks`` 论点。\n\n:returns: 与 ``--folder``、 ``--order``、``--limit`` 和 ``--dry-run`` 相同。",
+      "translation_source_blocks_sha256": [
+        "541b663d52d5fb2d2717bdc1f03bcebf07799da8337b46edf61c0f36a0456bd4",
+        "e5632165eaa3c355d2f6102e544fd8fa4142598e39d19a47df01cd3170f4b257"
+      ]
+    },
+    "spacr.cli_make_masks.editor_refusal": {
+      "source_blocks_sha256": [
+        "259fa8186d3f1d67b0b5ef274fceb1ad6924ed48b094b61d03c485691c1574b7",
+        "1bdaf5b71942f84af6319afde1d326c698269443b3f2e28a627f431fcdc3fc6e",
+        "5fe4798aae2e56c4a83f092d6bb48d17e54afd1251531d378b142d0ba8a77525"
+      ],
+      "source_sha256": "ad03f0a1afac5fe53bd781e871c7e8067cac6dec52cb79ed55cfa65aa306e569",
+      "text": "告诉你为什么编辑器不会在现场打开此布局。\n\n:param queue: 创建的工作列表,在 Make Masks 配置中无法编辑。\n:returns: 拒绝,命名编辑会读和写什么,以及该文件夹上仍然工作的内容。",
+      "translation_source_blocks_sha256": [
+        "259fa8186d3f1d67b0b5ef274fceb1ad6924ed48b094b61d03c485691c1574b7",
+        "960aff22e7e8e870d07414891d8aa744de74ec94007e573cf813aebb16b2e4df",
+        "5fe4798aae2e56c4a83f092d6bb48d17e54afd1251531d378b142d0ba8a77525"
+      ]
+    },
+    "spacr.cli_make_masks.hand_over": {
+      "source_blocks_sha256": [
+        "40caf946c9b4421d8b47e2654f3626cff9d263937c4662dbce436c3758243ba4",
+        "272261c1f8e72febdac3dd3102e548eb78573a48228fbb8cb9b867db293b5379"
+      ],
+      "source_sha256": "367bf1d1ce0dfa568e841ed9c22a3d7f58d1683ce6fdd019485c04b7cda467e1",
+      "text": "将 ``queue`` 留在下一个 Make Masks 应用程序视图中。\n\n:param queue: 会议交付,或 ``None`` 清除插槽。",
+      "translation_source_blocks_sha256": [
+        "4e7cb59884c4939f502827e2dfe302f77f879033a572f2647194232b768737fb",
+        "272261c1f8e72febdac3dd3102e548eb78573a48228fbb8cb9b867db293b5379"
+      ]
+    },
+    "spacr.cli_make_masks.has_display": {
+      "source_blocks_sha256": [
+        "d5b4cbae93c6cde5c52ebf6dced12b6ab29a3257b68dacdb79cab0087e808408",
+        "d77f7d23b956800dc04a73073d318e5cb7a0b9f002d17d68668625d4af317e73",
+        "73cffa7c2ead9a0ff1f4715fd75ad9af1269b13df4119e9e96f7c0fca5116979",
+        "2862c45bd7892857633cf64ce5373267821bf33870117c212e4f900e717ef66b"
+      ],
+      "source_sha256": "f5617edb7ea8d5cf70a814eb80c4bdce380a9cd39fa387c7857cbaa14a727e63",
+      "text": "是否有窗口系统,编辑器可以打开。\n\nThe same three-line question :func:`spacr.cli.use_agg_if_headless` asks of matplotlib, asked of Qt and asked BEFORE Qt is imported: an SSH session with no X forwarding otherwise gets \"could not load the Qt platform plugin xcb\" and an abort, which says nothing about the work list that was perfectly readable a moment earlier.\n\nAn explicit ``QT_QPA_PLATFORM`` counts as a display. It is how offscreen rendering, VNC and the embedded platforms are asked for, and somebody who set it has already said which surface Qt is to use.\n\n:returns: 编辑器可以在这里打开。",
+      "translation_source_blocks_sha256": [
+        "d5b4cbae93c6cde5c52ebf6dced12b6ab29a3257b68dacdb79cab0087e808408",
+        "898757548d8ced87414c26e359409d4fca459c420cc2c8a6d50194f88bfa0179",
+        "73cffa7c2ead9a0ff1f4715fd75ad9af1269b13df4119e9e96f7c0fca5116979",
+        "2862c45bd7892857633cf64ce5373267821bf33870117c212e4f900e717ef66b"
+      ]
+    },
+    "spacr.cli_make_masks.main": {
+      "source_blocks_sha256": [
+        "26d6e3977f9932c4d972206bcb86be8e3114f9a3f7e0a799bbb4f1fa70294830",
+        "85ff624e69170021eed0e661d341640e80dc9bcf4532544cca76ab763b85c1ae",
+        "1f3321b681e92804830e73b756927e5e461473615ab7402081148ac7f7cfb37e",
+        "15cb64f4244e135c7eadb4d0a9eb5e0342f79bb03a7df05feb9fd4d59118f78f"
+      ],
+      "source_sha256": "3635dc35fbd156cd37783f04b34b728a49078d1723763bd79e478a4a3c0a3802",
+      "text": "打开一个文件夹作为治疗会议,或者说为什么它不能打开。\n\n:param argv: 命令线没有程序名称的论点. ``None`` 阅读 :data:`sys.argv`。\n:returns: 一个过程输出代码; 查看模块为每一个意味着什么。\n:raises SystemExit: 有 ``2`` 状态,当论点本身是无效的,这是 argparse 自己的拒绝。",
+      "translation_source_blocks_sha256": [
+        "26d6e3977f9932c4d972206bcb86be8e3114f9a3f7e0a799bbb4f1fa70294830",
+        "85ff624e69170021eed0e661d341640e80dc9bcf4532544cca76ab763b85c1ae",
+        "1f3321b681e92804830e73b756927e5e461473615ab7402081148ac7f7cfb37e",
+        "15cb64f4244e135c7eadb4d0a9eb5e0342f79bb03a7df05feb9fd4d59118f78f"
+      ]
+    },
+    "spacr.cli_make_masks.open_editor": {
+      "source_blocks_sha256": [
+        "e42eb085045e3d382e4054de83f4b38072f556c6730668b310fff8e4d5222718",
+        "53ef2d646dc8eb6ae9b793d2feeaeafe0e30a5314d5e986bba6d6401f2aa3da2",
+        "7195e08d7ad0ccaeb9c18879ce24ed845adef6b797520d25d6b0a5d68630af63",
+        "a9225b6e4b67ea85fbc27faeb542d463b6215d40eaed7aed0938bb86b6cd044f"
+      ],
+      "source_sha256": "109c5b40c42dcc4d02ddc79342af62adfbb642508d65a8bed1fcc8aeb46a19be",
+      "text": "启动 GUI 在 ``queue`` 中,然后返回过程输出代码。\n\nQt is imported HERE and nowhere above: everything that can be refused has been refused by the time this is called.\n\n:param queue: 编辑会开启。\n:returns: 输出代码 :func:`spacr.qt.run` 返回,或 :data:`EXIT_NO_GUI` 当没有显示器打开时,或当 Qt 接口未安装时。",
+      "translation_source_blocks_sha256": [
+        "e42eb085045e3d382e4054de83f4b38072f556c6730668b310fff8e4d5222718",
+        "53ef2d646dc8eb6ae9b793d2feeaeafe0e30a5314d5e986bba6d6401f2aa3da2",
+        "7195e08d7ad0ccaeb9c18879ce24ed845adef6b797520d25d6b0a5d68630af63",
+        "a9225b6e4b67ea85fbc27faeb542d463b6215d40eaed7aed0938bb86b6cd044f"
+      ]
+    },
+    "spacr.cli_make_masks.take_handover": {
+      "source_blocks_sha256": [
+        "f0efc69ebab621905de3cd83618a578554312ad7254388a92a909c85d664ccce",
+        "932dd35a832d0cd531aff34816108f2ed60db77423a9070282e46a71d6ca1930",
+        "7d452baf77bcfdcf129ffa489d9ee312e112ad9438d4d994ea53da5f006b4bdc"
+      ],
+      "source_sha256": "fb89ecb17e601ab7c4014317a00b32a6abd97d8e7187decaae966919ffe14fef",
+      "text": "接收交付的终端时间表,如果有一个。\n\n关闭插槽是这个呼叫的一半:在同一过程后重建的筛选 - 用户重新导航到 Make Masks - 必须在任何东西上打开,而不是在已经工作过的会议上。\n\n:returns: 转换为 :class:`~spacr.curation_queue.CurationQueue`,或 ``None``,当筛选按常规方式打开时。",
+      "translation_source_blocks_sha256": [
+        "fa2300fe0bb2f0926d0a7e495233b11163e2bba68fd32bac6f2676c1522cb155",
+        "932dd35a832d0cd531aff34816108f2ed60db77423a9070282e46a71d6ca1930",
+        "7d452baf77bcfdcf129ffa489d9ee312e112ad9438d4d994ea53da5f006b4bdc"
+      ]
+    },
     "spacr.cli_plugins": {
       "source_blocks_sha256": [
         "e1b1133ce9f3e5064a7a0ffe8195c56ee2ded9bdc1a4999a230ed31303370581"
@@ -15949,6 +16077,668 @@
         "ebf0b1dbc50dc7b24e54bd4fa445510d2ad9d9ffe76f0b96a96437091a3b37c5",
         "64f08fc3f0445cba7743bdb2c03f36dc3f48e49ed6c9474d39dad61a451dca2b",
         "ff43fa5c4d60d9c4f80761f0ffc84a8903ad694ce7774a2e74e1111c142f78d1"
+      ]
+    },
+    "spacr.curation_queue": {
+      "source_blocks_sha256": [
+        "0bbd169eb9929ab7061364bdc8fc6802a45b137394948ecbae0fe5034abe94a6",
+        "52486fea20c4ed0652a6c6bb76140fb21b0b42dbc54f6575582bbe560f98e164",
+        "9b14eeb9553889a3cf4b1c6552a0af1733cd8a63f7dc714fa449850e000078b0",
+        "e84bb3c694fa720014d12b0c0a4fdd156c41d3f94981f3e7ba826f0da245edae",
+        "6bfdcd3500939f2ad0ca906ff531ad869adbb1649561bdb4951bb0d14b2c7419",
+        "f0d74236a0c40bc9045240207551b0d6ab5e42d33fd4632b5663e81ecbedcd9e",
+        "6b42c4c6e101a79dd824b9093710e5a02d1465c2c6ed41eb2cd31d346b50b6fc",
+        "dfbdfeed0c3e4a8bf0508ee3f983a61a10fd4162e26f0aa616592e1c798f6084",
+        "fc576d870096e7e160796d7f42562a3d85871ab519cc16333d5bb5523927ede4",
+        "35266cd2f21aca524f388c9a8f49f2698327570bd43900ff3e388fac48f8f683",
+        "8f179fa8bfb1588bc7b4234433245917af3e83225a418600968657e4c6e0557d",
+        "d236f1d489406825e6dc7b26bece524f1d07b33ee08265ac0e3a1f95936dfd2a",
+        "b59095229ee3b3f5f9255a4362d11c3158e7000b5f832961f7b3739f53594eee",
+        "86d88b32f09a14c984f2ebdd37b178f1f927693d146809c6cbe239e802e55e49",
+        "5c5df93fb22c6b573faf7d3900d9b75f26076ea05c3950e4393a18ba1d8ba6f5",
+        "af956af5bdc87f857d8be7cd17912893a34adcd60d97ef2e6af91a6edd0aa405",
+        "4f3c87252ac9a32ae011cc9973f8de97b939dd21cda5a9793c39007d3b3134c7",
+        "45a4d1c15a80957ff6d90169f51d4ffcfc304d4c0ad450f5ff6a1db94eb04e28",
+        "7f6fde93c06417b8e5361eb7300eefc3b3c1b02f89c8ebc72462a1e38006c5b2"
+      ],
+      "source_sha256": "8891def183a7b457d1f32a9645e6291476bdd93d64099641bb8ac5a6ab0cd115",
+      "text": "``396`` - 治愈会议是包含一个记忆的工作列表,而不是一个字段。\n\nMake Masks is the better editor and the bespoke tool outside the repository is the better workflow, and ledger item 396 is the observation that neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.\n\nIt holds no pixels and draws nothing. That is deliberate and it is the whole argument for bringing the work in here: the external tool's defects are found in the middle of a curation session, because there is no way to test a 2,000-line Qt application, whereas everything below is ordinary Python over a folder and a CSV, so a defect is found by ``tests/test_a_curation_session_resumes_where_it_stopped.py`` instead. The module imports no Qt, needs no display, and touches ``numpy`` only inside the functions that actually read a draft mask off the disk.\n\n三个排序,全部接受\n---------------------------\n\nLedger 项目 396 命名布局不匹配是要先安排的事情,并警告沉默地假设一个是如何一个充满工作的文件夹被加载为空。::\n\n    nested    <folder>/*.tif           + <folder>/masks/*.tif\n    sibling   <folder>/images/*.tif    + <folder>/masks/*.tif\n    seg       <folder>/*_seg.npy       (Cellpose pickles, the external tool)\n\n接受所有三个是严格安全的,而不是选择一个获胜者:一个现有修复组打开不变,并且工作可以开始之前没有什么需要移动。 什么是 *not* 被接受是一种猜测. 一个文件夹匹配其中任何一个,或匹配两个,升高 :class:`LayoutError` - 因为替代品是一个空的工作列表,而一个空工作列表被阅读为 \"all done\"。\n\n三个国家审查,而不是两个国家\n------------------------------\n\n:data:`REVIEWED` is ``done``, ``skip`` and ``recropped``. The ledger note says two; it is wrong. ``skip`` is not a lesser ``done`` — it records \"this one cannot be curated\", and collapsing the two means the same unusable field is offered again every session. ``recropped`` is what the external tool writes when a bundle has been split into children: the parent is out of the work list and its pieces are in it.\n\n记录生活在 ``<folder>/curate_status.csv``,在工作列表文件夹内部而不是旁边,所以它与图像同步,一个会议在另一台机器上重复。 一个关于一个不在这个文件夹的字符串被保留在重写,正是因为这个原因: 调节器可能会重复在某个地方,其余的组尚未到达,并将这些序列将返回已经完成的工作。\n\n命令\n--------\n\n命令是生产力特征:一个库拉特的判断比第一百个简单的更值得。 四个命令,以及它们内部的常态,是外部工具,选择后一个真正的500个包的治疗组。 :func:`order_items` 说每一个意味着什么。\n\n在这种情况下,它与外部工具有意识地不同。\n---------------------------------------------------\n\n五个位置,每一个,因为这个模块必须提供三个布局和一个测试套件,而不是一个 Cellpose 点的文件夹:\n\n* 对象被计算为不同的非零标签,而不是 ``masks.max()``. 查看 :func:`count_draft_objects` 在两种情况下,这些标签不同。\n* 平均对象直径是直接计算的,而不是通过 ``skimage.measure.regionprops``,所以订购工作列表需要单独 numpy。\n* 一个未知的 ``order`` 会产生一个错误,而不是沉默地变成 ``value``. 一个沉默的重新订单是这个模块的失败是最谨慎的。\n* ``name`` 命令按字符串而不是文件名,所以当一个字段为 PNG 和下一个字符号为 TIFF 时,命令不会改变。\n* 文件在机器之间同步;一个稳定的顺序保留了变更的行的Dif,而名称保留了一个半写的重写记录在磁盘上。\n\n同步的布局也提供了一个图像,其掩膜是缺乏的,而不是紧密相结合,因为外部工具的包装构造器:一个微镜的视野没有草案是工作,从切割中绘制,并且``easy``已经知道如何提供最后一个。",
+      "translation_source_blocks_sha256": [
+        "d1aedc0f3f2fb4c0cc8d4cbe6f6463ba7430d8a0e09086145a3d9a152aae817c",
+        "52486fea20c4ed0652a6c6bb76140fb21b0b42dbc54f6575582bbe560f98e164",
+        "9b14eeb9553889a3cf4b1c6552a0af1733cd8a63f7dc714fa449850e000078b0",
+        "e84bb3c694fa720014d12b0c0a4fdd156c41d3f94981f3e7ba826f0da245edae",
+        "6bfdcd3500939f2ad0ca906ff531ad869adbb1649561bdb4951bb0d14b2c7419",
+        "f6f854d1df24e3008d17ea38e3d7001e838507820de62b48bed82de5cad4e33c",
+        "6b42c4c6e101a79dd824b9093710e5a02d1465c2c6ed41eb2cd31d346b50b6fc",
+        "1d55da409b610beddef5e3a7b6e8957cca8659bd2c6a6aa15eb34debc25cdf65",
+        "0f0b5f230296b08a4a156243d59090aa7d72f01d5c718ecc9cd7118a26620107",
+        "35266cd2f21aca524f388c9a8f49f2698327570bd43900ff3e388fac48f8f683",
+        "8f179fa8bfb1588bc7b4234433245917af3e83225a418600968657e4c6e0557d",
+        "d236f1d489406825e6dc7b26bece524f1d07b33ee08265ac0e3a1f95936dfd2a",
+        "b59095229ee3b3f5f9255a4362d11c3158e7000b5f832961f7b3739f53594eee",
+        "86d88b32f09a14c984f2ebdd37b178f1f927693d146809c6cbe239e802e55e49",
+        "d6e0ad00cb733293072fc1c798e09e0cac56600369b582a0a49a92125a9c59e0",
+        "947a951454e63d37aafc8408abc6059dc61f786ce3724b2b438f783d7465a1fe",
+        "4f3c87252ac9a32ae011cc9973f8de97b939dd21cda5a9793c39007d3b3134c7",
+        "45a4d1c15a80957ff6d90169f51d4ffcfc304d4c0ad450f5ff6a1db94eb04e28",
+        "4db2006f96abc227e5ca957a814e1fb5ef366b9a962d061101fa4bbf17927ce9"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue": {
+      "source_blocks_sha256": [
+        "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
+        "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
+        "0d7015fa5eb2fa05fbc2429359754bdd958766003043bc0e550d1cf5e0478948",
+        "f1f7a40c9dff9b5edc90e660045e20716eab4d2e141f47b8ca23ab7f10b0dfa7",
+        "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
+        "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
+        "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
+        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce"
+      ],
+      "source_sha256": "4e0c3cd3f10f0e465113c0bf338e7183f37744b3b14afdd2f880caad985b95fa",
+      "text": "一个有限的治疗会议在一个文件夹上工作。\n\n:ivar layout: 找到了什么,以及在哪里。\n:ivar items: 该会议提供的字段 - 未审查,订单,并将其切成 ``limit``。\n:ivar status: 阅读每个状态行,包括关于此文件夹中不存在的字符的行。\n:ivar order: 请求的命令。\n:ivar effective_order: 实际使用的订单,与 ``order`` 不同,当 ``prob`` 或 ``easy`` 因需要概率而落后为 ``value``。\n:ivar limit: 所应用的字符串,或 ``None``。\n:ivar summary: 计算到所有文件夹上,而不是这个会议上。",
+      "translation_source_blocks_sha256": [
+        "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
+        "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
+        "0d7015fa5eb2fa05fbc2429359754bdd958766003043bc0e550d1cf5e0478948",
+        "f1f7a40c9dff9b5edc90e660045e20716eab4d2e141f47b8ca23ab7f10b0dfa7",
+        "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
+        "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
+        "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
+        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.all_items": {
+      "source_blocks_sha256": [
+        "4ef16b1a0829bc8edb1fced048e2e5a00bc6f96761b2a5d79cc935e3fadc297b"
+      ],
+      "source_sha256": "ca71936167c7bcd9d8819ae050820d6aab8cd3a5cff2ec2304020eaec648abd5",
+      "text": ":returns: 文件夹中的每个字段,审查的包含。",
+      "translation_source_blocks_sha256": [
+        "4ef16b1a0829bc8edb1fced048e2e5a00bc6f96761b2a5d79cc935e3fadc297b"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.describe": {
+      "source_blocks_sha256": [
+        "410478fc68e5fb14508f28d407d84689bbd5fb811a0d41e84eac3d4bfa680cce"
+      ],
+      "source_sha256": "04d67d74e53385f01d5a3a1214d9a2e10164277447bbeccfb24bb76b310987a8",
+      "text": ":returns: 印刷线,命名布局、顺序和计算。",
+      "translation_source_blocks_sha256": [
+        "410478fc68e5fb14508f28d407d84689bbd5fb811a0d41e84eac3d4bfa680cce"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.folder": {
+      "source_blocks_sha256": [
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927"
+      ],
+      "source_sha256": "cfcc382aa7e899e658f95dd5c03eb3ae2cbbde6d817e7f06d9ec175215233fe7",
+      "text": ":returns: 工作列表文件夹。",
+      "translation_source_blocks_sha256": [
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f"
+      ]
+    },
+    "spacr.curation_queue.CurationQueueError": {
+      "source_blocks_sha256": [
+        "cc7c517f771ccc2589544bedd65b11755da030466e056c00c19a0329fcb46d54",
+        "389ef729de19545a40d3552e5aa66bd495a7a531693e1426a10d1ebd8c6aa3e4"
+      ],
+      "source_sha256": "fdcd7cf88eff52c8259c8a8b7f2675b65177ac1fc3262a74d8d180df2cf64966",
+      "text": "治愈工作列表不能构建、阅读或写作。\n\n下级为 :class:`spacr.errors.SpacrError`,因此捕获 spaCR 自己的错误的呼叫器也捕获这些错误。",
+      "translation_source_blocks_sha256": [
+        "214d3b6c7d50f4e9214024c2f6e9a73c92614924dea033faabd0140a87a739a5",
+        "389ef729de19545a40d3552e5aa66bd495a7a531693e1426a10d1ebd8c6aa3e4"
+      ]
+    },
+    "spacr.curation_queue.LayoutError": {
+      "source_blocks_sha256": [
+        "94e8f674965dbef9724344e55104410bada7a8f4c40ddafa2fe3fecf30adaf66",
+        "c5aeac511a201b7da507eaf82a5f5e975be96cbbabd29a5bb9460d9cc4b00ebd"
+      ],
+      "source_sha256": "e2f50d713c33afd517f70141854fe30d77603b3034d017092d052cea924331a7",
+      "text": "文件夹不毫无疑问地包含三个配置之一。\n\n一个空的工作列表被阅读为 \"all done\",这是一个错误的答案,一个治疗工具永远不会给一个充满工作的文件夹。",
+      "translation_source_blocks_sha256": [
+        "94e8f674965dbef9724344e55104410bada7a8f4c40ddafa2fe3fecf30adaf66",
+        "70ec52381cd160330809cc763b5f6e4b69fc3f01200c92b5fcbfc0f4c1eae2b9"
+      ]
+    },
+    "spacr.curation_queue.QueueItem": {
+      "source_blocks_sha256": [
+        "76bf0001be9a494ebd972c3d4b57750f6082bf3a4e781d1f636527672bf3a2a8",
+        "c4e8e69047fb694ca26c0b049dba4226baeb80c1df9af122bdc7a95b44fb0b28",
+        "887456f4a1e4fba2dd2f762e0c8380cee6e9d64df89cbed63fe5bd9f3bb0e870",
+        "6581c197615b529ed48c82f6914a7dcaf36159f067340573eb5fc315e075c90b",
+        "c8fa22584f70ae0e9729462b2e6b476db5caf0c66f8045dfe73f43483ec59f1e",
+        "21a33c25fb49b95ea46af484730b4afd570e86af5ba423f6d94dd3fc78c22597"
+      ],
+      "source_sha256": "ffaca66c659eedae38516835dc5a37e7c517f9f791eeac8f82f5792db1c0a2d2",
+      "text": "一个等待被治愈的田野。\n\n:ivar stem: 该领域的身份,以及其状态序列的结构数据名称。\n:ivar layout: 哪个 :data:`LAYOUTS` 这个项目来自?\n:ivar image: 图像文件,当布局有一个在磁盘上. ``None`` 为一个 ``seg`` 带有自己的图像的包,除非显示相同的图像坐在旁边。\n:ivar mask: 草案掩膜文件,或 ``None`` 如果还没有草案。\n:ivar bundle: ``_seg.npy`` pickle,仅适用于 ``seg`` 布局。",
+      "translation_source_blocks_sha256": [
+        "76bf0001be9a494ebd972c3d4b57750f6082bf3a4e781d1f636527672bf3a2a8",
+        "63916e8a9ee44e2194a4d81029c386ef07b266e8dea9bea2683fdef0cdac7c52",
+        "887456f4a1e4fba2dd2f762e0c8380cee6e9d64df89cbed63fe5bd9f3bb0e870",
+        "6581c197615b529ed48c82f6914a7dcaf36159f067340573eb5fc315e075c90b",
+        "c8fa22584f70ae0e9729462b2e6b476db5caf0c66f8045dfe73f43483ec59f1e",
+        "21a33c25fb49b95ea46af484730b4afd570e86af5ba423f6d94dd3fc78c22597"
+      ]
+    },
+    "spacr.curation_queue.QueueItem.draft": {
+      "source_blocks_sha256": [
+        "efef956d4d0ace4455dd1b889fb8703b93e3eb1ccf4046521080b5ee6a5975eb",
+        "a5498021d9b223d2ab6738c9f74641ffcee48a498f4dab2149f2067edb7025e1"
+      ],
+      "source_sha256": "851e3118dfb94ef69a3189cc6eeb1958820190ff399bfc71f6e2185c4b432fea",
+      "text": "该文件包含该项目的草案标签,或 ``None``。\n\n:returns: 对 ``seg`` 项目的包,对其它两种配置的掩膜文件,以及 ``None`` 如果没有草案 - 这意味着从切割中绘制,而不是错误。",
+      "translation_source_blocks_sha256": [
+        "efef956d4d0ace4455dd1b889fb8703b93e3eb1ccf4046521080b5ee6a5975eb",
+        "a5498021d9b223d2ab6738c9f74641ffcee48a498f4dab2149f2067edb7025e1"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout": {
+      "source_blocks_sha256": [
+        "ebbd44fa4a6bd3ede03dd9208012b8f656c07f0732060865491b5ef71f8ceb41",
+        "f8c35582bbe3c99bb9da163d5b6c65f0dd8c94b7680293bf84302cecfda641ac",
+        "7c142576fd2f5c3625b96b4c4f3e7351d8c24cdc81e3b8e82e33ebb91f57097b",
+        "51af67851f9d4ed276ba4304f7497173a2a334208080cb1fceba96e35ee8ee56",
+        "113b4334b61ed57cdd5de917b15c3b6436b9a2b797f02be2d0f0f04bd3ca968c",
+        "77ca0d5d1ecf25b1a192ce71266eaf72e3d70e1e9609d843caa7cf30f910c126"
+      ],
+      "source_sha256": "9d2b4af947d987b5bfac8efbaedd64e44e009ac370ab019bad7950e184c18c49",
+      "text": "在文件夹中发现了什么,以及在哪里。\n\n:ivar kind: one of :data:`LAYOUTS`.\n:ivar folder: 工作列表文件夹,这也是状态文件去的地方。\n:ivar images_dir: 图像在哪里,当它们在磁盘上。\n:ivar masks_dir: 掩膜是从哪里读出来的,又写出来的。\n:ivar items: 每个发现的领域,按根分类。",
+      "translation_source_blocks_sha256": [
+        "ebbd44fa4a6bd3ede03dd9208012b8f656c07f0732060865491b5ef71f8ceb41",
+        "f8c35582bbe3c99bb9da163d5b6c65f0dd8c94b7680293bf84302cecfda641ac",
+        "c1b20568bd681673f5b2acce23ed34f1b14e2ff505135d9b13bc8e9cf228d38e",
+        "51af67851f9d4ed276ba4304f7497173a2a334208080cb1fceba96e35ee8ee56",
+        "113b4334b61ed57cdd5de917b15c3b6436b9a2b797f02be2d0f0f04bd3ca968c",
+        "77ca0d5d1ecf25b1a192ce71266eaf72e3d70e1e9609d843caa7cf30f910c126"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout.mask_destination": {
+      "source_blocks_sha256": [
+        "fd761eff222c90217c9ecb4b59ab225f78d15d9e96741307de98ddf39531bc33",
+        "2d63b3a828593c97de92fa1861a7cc9ca12b466dc00d0cff42db20d373fc2b92",
+        "e5db885eb6cdeb1832a450d2bdda9ca1281dd0fffb0378f239f9396b7f22fa2c",
+        "b16276b0a9d63bfc1e7095faa6ff7ab566acb1b71de4b9dc0c00d53fe66c04c7",
+        "10fb5c29379c6eca0adbdefa8b3afd565dfeb4e401b96e259910950d6d4195b2"
+      ],
+      "source_sha256": "4144c54761a80d374d3487d27b23150e763bd586d31f297b53b8f9db8bf418df",
+      "text": "在那里写着``stem``的治疗掩膜。\n\n``seg`` 布局重写到它被阅读的包中,因为外部工具这样做;其余两者写入 ``<masks_dir>/<stem>.tif``,这就是 :func:`spacr.qt.mask_engine.mask_save_path` 已经为粘贴布局产生的内容。\n\n:param stem: 田野的声音。\n:returns: 治愈的掩膜的路径属于它。\n:raises CurationQueueError: 如果 ``stem`` 不在此工作列表中。",
+      "translation_source_blocks_sha256": [
+        "fd761eff222c90217c9ecb4b59ab225f78d15d9e96741307de98ddf39531bc33",
+        "2d63b3a828593c97de92fa1861a7cc9ca12b466dc00d0cff42db20d373fc2b92",
+        "e5db885eb6cdeb1832a450d2bdda9ca1281dd0fffb0378f239f9396b7f22fa2c",
+        "b16276b0a9d63bfc1e7095faa6ff7ab566acb1b71de4b9dc0c00d53fe66c04c7",
+        "01e9d63fce80e10357d70b9126c3fa7a58ce1b94ea6da148a29994fdf4b12d98"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout.status_path": {
+      "source_blocks_sha256": [
+        "3f0f53f44e5d01e6408c9f24021119fc8f05bc425c402d49ea8b53d36c9c5923"
+      ],
+      "source_sha256": "0ded3dcd9808ba064f0d32c545d37e7669f1a22be3a7180709c5af4c2b5dcf38",
+      "text": ":returns: 该工作列表的路径为 ``curate_status.csv``。",
+      "translation_source_blocks_sha256": [
+        "a0a91b654669aac808b4ecea9906522ef39377953ac15563a653f1678dbd8d05"
+      ]
+    },
+    "spacr.curation_queue.QueueSummary": {
+      "source_blocks_sha256": [
+        "17b2462737cf8f542af2aa8b5a871344bf4729a7a5097a0b239325a2c08bc673",
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
+        "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",
+        "da33edf76b0e258f813f937d76259eae1ed7e06caf4d9a6d49e3e5a22e470b37",
+        "e8afaecea4ffc5d11913e96816725ff56806be5723e4489189bdc656579e051f",
+        "2378a787d3f94701ea33c20e200e573a4891969c220330378b7b15417bfbc414"
+      ],
+      "source_sha256": "ccb6ef2fd498d15ada5ab38b597183047fd212c34b7ad734c77a456c1e7b92f8",
+      "text": "要做什么,在条款中,Ledger 项目 396 请求。\n\n:ivar total: 文件夹中的字段。\n:ivar done: 治愈。\n:ivar skip: 被拒绝 - 不能治愈,不得再次提供。\n:ivar recropped: 分成儿童,而不是在工作列表中。\n:ivar remaining: 未经审查的国家。\n:ivar unknown: Kept,从来没有落下来,并在这里做得更好,而不是沉默:在第二台机器上,它们通常已经在其他地方工作。",
+      "translation_source_blocks_sha256": [
+        "17b2462737cf8f542af2aa8b5a871344bf4729a7a5097a0b239325a2c08bc673",
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
+        "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",
+        "ba7e218fe5eee970508138a213cbb1914ba26c249c31c29da3283be009322b36",
+        "e8afaecea4ffc5d11913e96816725ff56806be5723e4489189bdc656579e051f",
+        "2378a787d3f94701ea33c20e200e573a4891969c220330378b7b15417bfbc414"
+      ]
+    },
+    "spacr.curation_queue.QueueSummary.describe": {
+      "source_blocks_sha256": [
+        "30f66421ba9a830c69a6ef0cd1ec9f90c7f0551095cae3016fe78383dbd8bb35",
+        "4e2496459fc8362b25877de0861d9ab2fe47888b2e855f09f7b567828c3e88b6",
+        "20aa333053bb65022b960e8a92ad68ab78f69b7eff359b9cbba1bcc68b25487a"
+      ],
+      "source_sha256": "0c8fc0758a733632749ab9605942d158ce348a37cc190c62f7374c2204b34092",
+      "text": "一个字符串可以打印。\n\nLedger 的测量状态, ``500 bundles, 366 done, 29 skip, 105 remaining``, 正是这对它带来了什么。 两个更罕见的计算只有当它们不是零时才被添加,所以常见的句子仍然是短语。\n\n:returns: 工作列表的简要概述。",
+      "translation_source_blocks_sha256": [
+        "30f66421ba9a830c69a6ef0cd1ec9f90c7f0551095cae3016fe78383dbd8bb35",
+        "4e2496459fc8362b25877de0861d9ab2fe47888b2e855f09f7b567828c3e88b6",
+        "62d985de11ec4f07ee7249ba0cb22d96356c5439739327049db1004e672655ed"
+      ]
+    },
+    "spacr.curation_queue.StatusFileError": {
+      "source_blocks_sha256": [
+        "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57"
+      ],
+      "source_sha256": "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57",
+      "text": "``curate_status.csv`` 是存在的,但不能被阅读为重新记录。",
+      "translation_source_blocks_sha256": [
+        "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57"
+      ]
+    },
+    "spacr.curation_queue.StatusRow": {
+      "source_blocks_sha256": [
+        "7482bbfb1e45194f6a49473faefaafe9795f83da95a442d39a377bf376de4c36",
+        "d7b033ac6a14c014f9f6f7fae1744461ee6a4bcaae1c940ac48630d5573763c8",
+        "5d037e707ecb21c5046b165062522b36e7da2858dddc52043f229ec5c4107725",
+        "ef6f07e29158143b2943542e6952319a9234a6373f688013a0a0fcf40fb5c093",
+        "3bd6da4235b71c11cbce48da83c1fdab6901f33b4a6617ce778176c97928c527"
+      ],
+      "source_sha256": "17d8dbf6d1ba4a6f2f28e393a90aa6aa89e8446a2b6deb1cd70a506dbb5adbff",
+      "text": "一行``curate_status.csv``。\n\n:ivar stem: 这是关于什么领域的。\n:ivar state: ``done``、 ``skip``、``recropped``、或其他任何事物,等于等待。 正常化到下面的案例,周围的白空间被切断,所以手写的序列如 ``Done`` 仍然结束了该字符的旋转。\n:ivar n_objects: 在审查时,显微镜的视野有多少对象,或者当文件没有说明时 ``None``。\n:ivar updated: ISO 8601 按书面方式。",
+      "translation_source_blocks_sha256": [
+        "7482bbfb1e45194f6a49473faefaafe9795f83da95a442d39a377bf376de4c36",
+        "d7b033ac6a14c014f9f6f7fae1744461ee6a4bcaae1c940ac48630d5573763c8",
+        "5d037e707ecb21c5046b165062522b36e7da2858dddc52043f229ec5c4107725",
+        "33fa20c17af770be8816193bceb87c95bc7c3908494498089a0f9a06b44c8343",
+        "3bd6da4235b71c11cbce48da83c1fdab6901f33b4a6617ce778176c97928c527"
+      ]
+    },
+    "spacr.curation_queue.StatusRow.reviewed": {
+      "source_blocks_sha256": [
+        "bec90481f344dbb28ba76d99a8df5a9e118bf0621df3f935e74896d8995dd838"
+      ],
+      "source_sha256": "c8e174f9f05c8f51f3c19f4f7126458fee37a7ac5f889c6d27cdb665670b26cd",
+      "text": ":returns: 这个行是否会从工作列表中取出它的底部。",
+      "translation_source_blocks_sha256": [
+        "97465fe60ce78a161e9ccd20c74d71e080d68e7649b60b37b1617d82471e6f25"
+      ]
+    },
+    "spacr.curation_queue.build_queue": {
+      "source_blocks_sha256": [
+        "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
+        "a7ece0725e57b5801218a905de7e1460717ae20c1cf034cd7d51a2fd2ade0fed",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "acbc65f159e6a0fe53b1154b8d64dc1bc03924978bffc8d459290c8b2048d7be",
+        "d0170800c2bb550e12f3b67a71c1dd0363204b95f557016b001dc4162f2f2dbf",
+        "8a247677246f65558a399f92d208e5458852ea672a51c07542d2d6b259d3c916",
+        "f2ed96eca899632a7f81f567a8d2304a55991ffc6fa5240df9aafeef2b57715e",
+        "e29975c5200eccb28213ff58fb94904472c5080b0d39eb020cd0a6b46f998291",
+        "06c3e4e2a456fbbcc5a0bede8a2dbef0325cbc9aef5c155f8df85888f751ef65",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
+        "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
+        "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ],
+      "source_sha256": "db641a7f12c3c5190e03c47662498d587c921e1729f5e5d44049377d2a3e72f6",
+      "text": "打开一个文件夹作为一个有限的治疗会议。\n\n顺序:检测布局,阅读回复记录,放下已经审查的一切,订购剩下的东西,并仅适用限制 - 因此 ``--limit 20`` 意味着二十个最有价值的字段仍然要做,而不是第一个二十个发现。\n\n:param folder: 工作列表文件夹。\n:param order: :data:`ORDERS`; :data:`DEFAULT_ORDER` 默认情况下。\n:param limit: 这个会议提供多少个字段,或 ``None`` 为所有。\n:param probs: 使用的概率,而不是阅读 ``curate_scores.csv``。\n:param counts: 建议使用草案,而不是阅读草案。\n:param announce: 通知去哪里;默认到 :func:`print`。\n:param include_reviewed: 按默认方式关闭;这就是 \"resume\" 的意思。\n:param min_objects: 转到 :func:`value_key`。\n:param min_diameter: 转到 :func:`value_key`。\n:param cache_counts: 是否 ``easy`` 可以编写其计算缓存。\n:returns: the :class:`CurationQueue`.\n:raises LayoutError: 当文件夹不是一个毫无疑问的布局时。\n:raises StatusFileError: 当状态文件无法阅读时。\n:raises ValueError: 如果 ``order`` 不是 :data:`ORDERS` 的一个。",
+      "translation_source_blocks_sha256": [
+        "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
+        "a7ece0725e57b5801218a905de7e1460717ae20c1cf034cd7d51a2fd2ade0fed",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "acbc65f159e6a0fe53b1154b8d64dc1bc03924978bffc8d459290c8b2048d7be",
+        "d0170800c2bb550e12f3b67a71c1dd0363204b95f557016b001dc4162f2f2dbf",
+        "8a247677246f65558a399f92d208e5458852ea672a51c07542d2d6b259d3c916",
+        "f2ed96eca899632a7f81f567a8d2304a55991ffc6fa5240df9aafeef2b57715e",
+        "e29975c5200eccb28213ff58fb94904472c5080b0d39eb020cd0a6b46f998291",
+        "06c3e4e2a456fbbcc5a0bede8a2dbef0325cbc9aef5c155f8df85888f751ef65",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
+        "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
+        "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ]
+    },
+    "spacr.curation_queue.count_draft_objects": {
+      "source_blocks_sha256": [
+        "8b939ea2da00733fb12e88698c2d9f4c964295e1ddc9f952b5d26f58e0aa9b93",
+        "3c8f24434e24a622e8a199151e5a5601f4987829095c03482d9cbbcdcd1e3109",
+        "6c7c64a05f6ec77ad3383f4c7dcff1ddc8edc3bf5afe22ca511d4b171847cc31",
+        "b78054b87351cf0955949c441d98e72b9a368f6e04c3bfe0b961d837ec4eb534"
+      ],
+      "source_sha256": "0a94d88e927e29632875c8b440f8f725d50f63a2cc167d0d025c20264f3d4cfb",
+      "text": "该草案包含多少个项目。\n\nCounted as distinct non-zero labels rather than as ``masks.max()``, which is what the external tool uses. The two agree on a fresh Cellpose pickle, whose ids run 1..N, and disagree in the two places that matter here: a label TIFF that has had objects deleted has gaps in its ids, so ``max()`` overcounts; and a 0/255 binary mask, which the nested and sibling layouts can perfectly well hold, would report 255 objects.\n\n:param item: 要计算的田野。\n:returns: 对象的数量,以及缺少或不可读的草案的 ``0`` - 因为外部工具的计算缓存也是如此,因为只计算驱动器的订单。",
+      "translation_source_blocks_sha256": [
+        "8b939ea2da00733fb12e88698c2d9f4c964295e1ddc9f952b5d26f58e0aa9b93",
+        "624926a075af0a076009f384d18d97dec1242b1389e32942376840fbe3b5397e",
+        "6c7c64a05f6ec77ad3383f4c7dcff1ddc8edc3bf5afe22ca511d4b171847cc31",
+        "b78054b87351cf0955949c441d98e72b9a368f6e04c3bfe0b961d837ec4eb534"
+      ]
+    },
+    "spacr.curation_queue.detect_layout": {
+      "source_blocks_sha256": [
+        "5c66b3c4ea4c358588e365e24efc110cd69e835158f8bf648005ebb8a532bf2a",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "afee221f18fa62a1591265219ed85d64a234933f0e029a5a229c4cbfa1a249db",
+        "dae11af6273decb8f8639115a19c3a5f681a89c88f1ad017bfe0a69d9a8f72d6",
+        "8ac1d439c1588410321891a82e82769f76a022a1503073e7a7c1859b7b00c513",
+        "bab1ea9c97149e5b21cd79a03daab5c25f7c19870d269e11982c7843a16193db"
+      ],
+      "source_sha256": "cbc1afdd3df1ea85136945722b4e5f387f203eab1853014ca4df442f7d8cba1c",
+      "text": "工作哪个3个配置 ``folder`` 持有,然后阅读它。\n\n:param folder: 工作列表文件夹。\n:returns: :class:`QueueLayout`,其中包含的每个字段。\n:raises LayoutError: 如果 ``folder`` 不是目录,则不匹配三个配置中的任何一个,或者匹配其中一个以上。\n:raises CurationQueueError: 当两个档案在它分享一个声音时。\n\n两个配置之间的调查充电了一半的文件夹;假设一个没有充电,并报告它作为完成的工作列表。",
+      "translation_source_blocks_sha256": [
+        "5c66b3c4ea4c358588e365e24efc110cd69e835158f8bf648005ebb8a532bf2a",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "afee221f18fa62a1591265219ed85d64a234933f0e029a5a229c4cbfa1a249db",
+        "dae11af6273decb8f8639115a19c3a5f681a89c88f1ad017bfe0a69d9a8f72d6",
+        "8ac1d439c1588410321891a82e82769f76a022a1503073e7a7c1859b7b00c513",
+        "0ca410566eadc59b6723eeb76f0297154e10e6efc78bcea34cd888d61930b3fc"
+      ]
+    },
+    "spacr.curation_queue.discover_items": {
+      "source_blocks_sha256": [
+        "63bfc425de3a71beab6efdf02a8105a0ddbd14081b03657c327577df3178d8cb",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "8b4e18ae48c7734e4f8dd3ee49835c1495f8a21e32433f2fece3671a741841c7",
+        "54c094eed0595ab8629b4cb722ae130e4cbc64d6b6a3900b8a298905a000c8a2"
+      ],
+      "source_sha256": "2a93954f42955edade38b9edfa06b81b5f5deaf29a4a3b250154b2ce494ec185",
+      "text": "每个字段在 ``folder`` ,无论它的配置是什么。\n\n:param folder: 工作列表文件夹。\n:returns: 物品,分类为 stem。\n:raises LayoutError: as :func:`detect_layout` does.",
+      "translation_source_blocks_sha256": [
+        "63bfc425de3a71beab6efdf02a8105a0ddbd14081b03657c327577df3178d8cb",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "8b4e18ae48c7734e4f8dd3ee49835c1495f8a21e32433f2fece3671a741841c7",
+        "54c094eed0595ab8629b4cb722ae130e4cbc64d6b6a3900b8a298905a000c8a2"
+      ]
+    },
+    "spacr.curation_queue.draft_stats": {
+      "source_blocks_sha256": [
+        "0f63855d032023f7c97e1d0223cc305b57c6301c1d2c5f914f1796b258d8884a",
+        "7990e590f4591bcecd4c6a23a3e17c5a5c44e1c0dcb49cf6cefc9ec90e3a0eec",
+        "50d72f6e0d68c4aa38fa6f0b824dd1325f2825e0ee80b42185e8d558f49c500e"
+      ],
+      "source_sha256": "087296c40c0d52921effd5c3938f0905cefbe046068a10d2e8fb9b91f38416aa",
+      "text": ":param item: 要测量的领域。\n\n:returns: ``(n_objects, median_diameter)`` 为其草案。\n:raises Exception: 无论如何阅读一个不可读的草案,都会升起。 ``value`` 命令捕捉到这一点,并将死亡的字段分类到最后。",
+      "translation_source_blocks_sha256": [
+        "0f63855d032023f7c97e1d0223cc305b57c6301c1d2c5f914f1796b258d8884a",
+        "7990e590f4591bcecd4c6a23a3e17c5a5c44e1c0dcb49cf6cefc9ec90e3a0eec",
+        "50d72f6e0d68c4aa38fa6f0b824dd1325f2825e0ee80b42185e8d558f49c500e"
+      ]
+    },
+    "spacr.curation_queue.is_reviewed": {
+      "source_blocks_sha256": [
+        "61f7f0a46c76447835c2b5233d51499ffacd1656287aa6bfefdc4427bf370286",
+        "086baeb658a5161555c8843b51dd902bc7c4f573001c72738bf46518b2370ed7"
+      ],
+      "source_sha256": "5dda2d921aff187106a2e54df52bed5c47943735df81ea371719b731b2c5d9cf",
+      "text": ":param state: 一个状态字符串,或 ``None``。\n\n:returns: ``done``、``skip``和``recropped``都是这样做的,而且它们仍然是不同的: ``skip`` 意味着 \"cannot be curated\",而不是更小的 ``done``。",
+      "translation_source_blocks_sha256": [
+        "61f7f0a46c76447835c2b5233d51499ffacd1656287aa6bfefdc4427bf370286",
+        "4b8dc8bfc38dfe18219883832fd94342078de44fd9b67f57fea3be74ce462201"
+      ]
+    },
+    "spacr.curation_queue.load_draft_counts": {
+      "source_blocks_sha256": [
+        "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
+        "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
+        "65597ad02f41874555b7fc2f460e612dae991973078bc46d5b88cd0664fb86b0",
+        "bb21c19763a09394e3dca3d4d61ca817b991cc6100dcfbdfa24efea3729ec43d",
+        "bf17bb1c4effb28cd91f2f9bc8a056c7bba72100c4f88307aa24a4f96599b158"
+      ],
+      "source_sha256": "1e13ebc7fce0ef9b4c4832f46ac2b7aa9c6ad843ffb9beb09ecc293bd310c6f1",
+      "text": "图案对象计算为 ``items``,在 ``curate_drafts.csv`` 中隐藏。\n\n每次发射时阅读三百个草案是缓慢的,所以计算是基于字体的,只有从字体中丢失的字体是阅读的。\n\n:param folder: 工作列表文件夹。\n:param items: 要计算的田野。\n:param write_cache: 是否要重新编写缓存. 未能编写的通知,从未报告为错误 - 只需要阅读的文件夹仍然必须打开。\n:param announce: 进展在哪里;默认为 :func:`print`。\n:returns: ``{stem: n_objects}`` 对于每个项目。",
+      "translation_source_blocks_sha256": [
+        "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
+        "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
+        "014239bb03bc76df3aecf670715a66b54e045d7dbc57ae1df8052aa85b42b5dc",
+        "bb21c19763a09394e3dca3d4d61ca817b991cc6100dcfbdfa24efea3729ec43d",
+        "bf17bb1c4effb28cd91f2f9bc8a056c7bba72100c4f88307aa24a4f96599b158"
+      ]
+    },
+    "spacr.curation_queue.load_probabilities": {
+      "source_blocks_sha256": [
+        "ba1cb9b1b11b449a33926001fda24cfe64c608076d888fd71a33c36674f546f3",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "ea55c37fb16531cbf2b399974a99c82896ebd425bf538f10f08aefa3e89011f8",
+        "e73dc3eb33b37b7f2f46b461ebf24f2e5e892cfe06f5a126825e64471ab0ad87"
+      ],
+      "source_sha256": "a91c47cb80761fab032899f5a8f8469aae77953b6d51aba9203f05f92744ad2f",
+      "text": "阅读 ``curate_scores.csv``,当有一个。\n\n:param folder: 工作列表文件夹。\n:returns: ``{stem: probability}``,和 ``{}`` 当文件缺席时 - 这就是为什么 ``prob`` 和 ``easy`` 落后,大声。\n:raises CurationQueueError: 当文件存在但没有基列或没有认可的概率列时,一个存在并且无法使用的分数文件是一种错误,值得停止;一个失踪的文件是一个普通状态。",
+      "translation_source_blocks_sha256": [
+        "ba1cb9b1b11b449a33926001fda24cfe64c608076d888fd71a33c36674f546f3",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "ea55c37fb16531cbf2b399974a99c82896ebd425bf538f10f08aefa3e89011f8",
+        "e73dc3eb33b37b7f2f46b461ebf24f2e5e892cfe06f5a126825e64471ab0ad87"
+      ]
+    },
+    "spacr.curation_queue.mark_state": {
+      "source_blocks_sha256": [
+        "3ab374aa9b45173c962dd4d39bc3f5f110ffa2adbbe593dfce686d37767ec9be",
+        "e011ea330e0abb3e3577b3659508ebbcf08159d36cecf1f14420b645361178f0",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "e695a1c30a97d8cd8da9995238498c775c7bbbea32ac055e1d36df86df53e844",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "757e4c9a20f3f6abab8a6bf939b10901ecd68c0364d1acbfbf24a2de37f09d46",
+        "9c2ac47ee18089d32b8d2411d16b525195429f47b24207b3676f53e1a00d50b7",
+        "f12f7a47ec196f380dbdc77d5af80a571c4ead7b2d4ab6b5549eabc799efb8ad"
+      ],
+      "source_sha256": "cf9f8aa392559708f6f96078730a540a4aaea56aca84ff603ce2cb6391b98655",
+      "text": "记录一个决定,写下文件,保持每个其他行。\n\n这是一个呼叫一个治愈的会议做一个字段,这是呼叫,在那里关于缺席的字符的行将否则失去。\n\n:param folder: 工作列表文件夹。\n:param stem: 该领域决定了。\n:param state: 国家要记录。\n:param n_objects: 它有多少物品,如果知道。\n:param updated: 到目前为止,时间记录;假设到现在。\n:returns: 如同他们现在站在磁盘上。\n:raises StatusFileError: 当文件无法阅读或写作时。",
+      "translation_source_blocks_sha256": [
+        "3ab374aa9b45173c962dd4d39bc3f5f110ffa2adbbe593dfce686d37767ec9be",
+        "e011ea330e0abb3e3577b3659508ebbcf08159d36cecf1f14420b645361178f0",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "e695a1c30a97d8cd8da9995238498c775c7bbbea32ac055e1d36df86df53e844",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "757e4c9a20f3f6abab8a6bf939b10901ecd68c0364d1acbfbf24a2de37f09d46",
+        "9c2ac47ee18089d32b8d2411d16b525195429f47b24207b3676f53e1a00d50b7",
+        "f12f7a47ec196f380dbdc77d5af80a571c4ead7b2d4ab6b5549eabc799efb8ad"
+      ]
+    },
+    "spacr.curation_queue.median_equivalent_diameter": {
+      "source_blocks_sha256": [
+        "e9bf553c638ff14bb2e7b0ee38705b88c689822b172d055fd765bdd382d8edea",
+        "e36098ecf19a34cbb33b8d078525a91781c514ba01bab23a0a79da48607d8380",
+        "f3430aa7b319332165c939fdf9c19c3c02949f1a81a525314d58a5fed7af3459",
+        "ef8094a6b39a30713f9c793297cdc1e8479e88e36c318d68bc351dbfc0c415fb"
+      ],
+      "source_sha256": "5909578745942044cefd187f18bf199c7842922bd1521edb3473cbe30c2d8fb2",
+      "text": "标签图像中的物体中间圆等直径。\n\n这是 ``skimage.measure.regionprops`` 的 ``equivalent_diameter_area`` 为 2-D 输入,直接计算为 ``sqrt(4 * area / pi)`` 以便订购工作列表需要 numpy 而不是 scikit-image。\n\n:param labels: 2D 完整标签图像。\n:returns: 中间直径在像素,或 ``0.0`` 如果没有对象。",
+      "translation_source_blocks_sha256": [
+        "e9bf553c638ff14bb2e7b0ee38705b88c689822b172d055fd765bdd382d8edea",
+        "3eca7540aeee7aba5852d84dc56bd088679d0c3e9b85e01c8bba7a993e36a61e",
+        "f3430aa7b319332165c939fdf9c19c3c02949f1a81a525314d58a5fed7af3459",
+        "ef8094a6b39a30713f9c793297cdc1e8479e88e36c318d68bc351dbfc0c415fb"
+      ]
+    },
+    "spacr.curation_queue.order_items": {
+      "source_blocks_sha256": [
+        "d17b0c56b2a86cd98fcde98d22072d6c0c0cbadf5345c240b7cbbec2e9ca1c72",
+        "72584e8bd2ba5c978f03add619cec7cf7ba7ecf37e1857bbae146a09cb8893cb",
+        "e2af5044c4581a6b5cfa6fc82f6f5c5809d437d51ba343161a74e8bd9c15a116",
+        "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
+        "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
+        "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
+        "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
+        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
+        "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "318b1709471e21082b039d2c485117f295418a331f5cb037cfaa56e9bba46db6",
+        "a0ab1793eaf6d30a2bd1ccd5609af399b772fe7d28f91203ced34a1619d57d64",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ],
+      "source_sha256": "e356a7d09cc45a84f33168050cf679a8908bc0f48973eb41b8c5154a45c76817",
+      "text": "订购工作列表,与外部工具的语法。\n\n``name`` 按字符串,而没有其他东西是阅读的 - 不是概率,不是图案. 通过字符符串而不是文件名,以便顺序不会改变,当一个字段是 PNG 和接下来的 TIFF。\n\n``prob`` 最有可能的第一:结构化数据名称是 ``-probs.get(stem, -1.0)``. 默认是点. 一个未排序的字段产生 ``+1.0``,比任何真正否认的概率更大,因此它分类为 LAST 而不是假装是概率零。\n\n``easy`` ``(0 if n > 0 else 1, -probs.get(stem, -1.0), -n)``. 一张被人口编辑的草案是接受的或光的编辑;一张EMPTY草案意味着从切割中绘制,所以空的去最后无疑的概率。\n\n``value`` 按 :func:`value_key`:有多少草案要修正。\n\n连接分裂为根,因为列表分类为根之前任何一个,而 Python 的类型是稳定的。\n\n:param items: 命令的田野。\n:param order: one of :data:`ORDERS`.\n:param probs: ``{stem: probability}``,或可召回一个,或 ``None`` 没有可用的。\n:param counts: ``{stem: n_objects}``,或一个可召回一个. 当 ``None``, ``easy`` 阅读草案本身。\n:param announce: 落后通知去的地方;默认情况为 :func:`print`,所以它在外部工具的样子下滑。\n:param min_objects: 转到 :func:`value_key`。\n:param min_diameter: 转到 :func:`value_key`。\n:param scores_hint: 点数文件在落后通知中命名。\n:returns: 一份新订单,订单。\n:raises ValueError: 如果 ``order`` 不是 :data:`ORDERS` 的一个。",
+      "translation_source_blocks_sha256": [
+        "a865fdeef1fd5908cfca4338e7fe8229002f97c9daa29590f3cfeac7bb74a6eb",
+        "72584e8bd2ba5c978f03add619cec7cf7ba7ecf37e1857bbae146a09cb8893cb",
+        "890cfc6f25af9afe386f77d1b15c118ab52bccebbd3f73b0e845107acde273d3",
+        "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
+        "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
+        "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
+        "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
+        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
+        "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "318b1709471e21082b039d2c485117f295418a331f5cb037cfaa56e9bba46db6",
+        "a0ab1793eaf6d30a2bd1ccd5609af399b772fe7d28f91203ced34a1619d57d64",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ]
+    },
+    "spacr.curation_queue.pending_items": {
+      "source_blocks_sha256": [
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "a14e85587438fbf295cf32022a4130b5416006a2a808bc4e8324cff36b1d85e5"
+      ],
+      "source_sha256": "30b5a5d81ea7e359974fe53fd75ca94fcb660879cae08a96c73a0b57ed659cb1",
+      "text": ":param items: 文件夹中的字段。\n\n:param status: 序列从状态文件中阅读。\n:returns: 没有审查状态的物品,按所提供的顺序。",
+      "translation_source_blocks_sha256": [
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "a14e85587438fbf295cf32022a4130b5416006a2a808bc4e8324cff36b1d85e5"
+      ]
+    },
+    "spacr.curation_queue.read_status": {
+      "source_blocks_sha256": [
+        "da823dca6315e7262d6cbcc48c46e71d3ff0b4b69f5f4c420ec768b176da75fc",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b15ac808dbbe05024deb7e499edd728925f07d53e4db60eca52b960176c40017",
+        "8048219255aa9d7c33f8ffaaa167801e8e8b2f863e2b864bb69a9d03036b23f9"
+      ],
+      "source_sha256": "1b8559101df778e57da214047b4bee11ff49454e4dffe6e7c3feedb7cc9395fb",
+      "text": "阅读回复记录。\n\n:param folder: 工作列表文件夹。\n:returns: ``{stem: StatusRow}`` 是空的,当尚未存在状态文件时. 文件夹中不存在的字符串被包含; 它们是原因 :func:`write_status` 返回所提供的一切。\n:raises StatusFileError: 当文件存在但没有 ``stem`` 列时,这意味着它根本不是状态文件。",
+      "translation_source_blocks_sha256": [
+        "da823dca6315e7262d6cbcc48c46e71d3ff0b4b69f5f4c420ec768b176da75fc",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b15ac808dbbe05024deb7e499edd728925f07d53e4db60eca52b960176c40017",
+        "8048219255aa9d7c33f8ffaaa167801e8e8b2f863e2b864bb69a9d03036b23f9"
+      ]
+    },
+    "spacr.curation_queue.record_state": {
+      "source_blocks_sha256": [
+        "ea13fc50170c34e0616a5cfeab022bfac653188288d936996e6365995f0ddf94",
+        "b218b3f4bf8306e4df130a2958b1909aa83bec6ca8ae78a3da3151c978dcfd0d",
+        "f154e3aac448e8a01d43822df4e91f3ecd16d9493c5dfd7d13a63bff24dece3d",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "5e64c93bec3411052adb20abf5037a6a047d4e48369064d71bf109ce34872458",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "4e98cf45aaaa533114e3557810ee898efcef89c22a05b5d48c31f508ca0ed6b6",
+        "415c87344c01339f00f80723032ef91b69189092cafbcff957a8c1839f8a4825"
+      ],
+      "source_sha256": "f79bba6c432e81ba4fd5b3366b9d32201b0b6b89d07a4d7baf7cb30ae241b0f0",
+      "text": "返回 ``rows`` 与一个字符的决定记录。\n\n清洁:输入的地图不被修改,因此呼叫者可以决定是否变更到达磁盘。\n\n:param rows: 到目前为止,字符串已经读了。\n:param stem: 该领域决定了。\n:param state: ``done``、``skip``、 ``recropped`` 或任何其他行,留下根挂着。\n:param n_objects: 它有多少物品,如果知道。\n:param updated: 到目前为止,到记录时间;到现在,到第二。\n:returns: 一个新的地图,包括记录的序列。",
+      "translation_source_blocks_sha256": [
+        "ea13fc50170c34e0616a5cfeab022bfac653188288d936996e6365995f0ddf94",
+        "b218b3f4bf8306e4df130a2958b1909aa83bec6ca8ae78a3da3151c978dcfd0d",
+        "f154e3aac448e8a01d43822df4e91f3ecd16d9493c5dfd7d13a63bff24dece3d",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "5e64c93bec3411052adb20abf5037a6a047d4e48369064d71bf109ce34872458",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "4e98cf45aaaa533114e3557810ee898efcef89c22a05b5d48c31f508ca0ed6b6",
+        "415c87344c01339f00f80723032ef91b69189092cafbcff957a8c1839f8a4825"
+      ]
+    },
+    "spacr.curation_queue.resolve_order": {
+      "source_blocks_sha256": [
+        "99f5c30f0f05ecd4937fb1cdbab0dd4d60e38f5a3f5d940926ff9d3b1ba722f6",
+        "aecbdc2dbe0551c990ff124538382804c9ae4964d45e85cdc28fce01e1dd3cd5",
+        "d03eb21e2930daef0938cb12364be3574123a662506175c5df058b67db983fff",
+        "979b73f081e2958411ed83a7e99ab2c980313210b85e6eb6d5aa9f454c13e313",
+        "d3f0adeafe3cbfad84cdb9ead013bbb72a3bc78990e17f2ce090f2d9b5216966",
+        "64846805df3ef5797bc6cab94a3a9d2434cc5f658147586cb13333a7d1746f1a",
+        "a11a8dd17e2f2aa36ce60171f2af6c0be04b38602288649247a5319c96818bb0"
+      ],
+      "source_sha256": "20253639e660f24e21ca38919026724175535a1ef50ec163514dfdf828fc2061",
+      "text": "决定哪个订单实际上将使用,以及该怎么说。\n\n``prob`` 和 ``easy`` 都需要概率. 没有它们,它们会回到 ``value`` - 说是的. 公告是行动的一半:一个沉默的评论让评论家相信他们在不确定的领域工作时首先。\n\n:param order: 请求的订单,其中一个是 :data:`ORDERS`。\n:param probabilities: 可用的可能性,可能是空的。\n:param scores_hint: 得分文件将提供给他们,在消息中命名,所以修复是显而易见的。\n:returns: ``(effective_order, announcement)``,当没有任何变化时,通知为 ``None``。\n:raises ValueError: 当 ``order`` 不属于 :data:`ORDERS` 时,一个字符号不得静静地变成另一个订单。",
+      "translation_source_blocks_sha256": [
+        "99f5c30f0f05ecd4937fb1cdbab0dd4d60e38f5a3f5d940926ff9d3b1ba722f6",
+        "aecbdc2dbe0551c990ff124538382804c9ae4964d45e85cdc28fce01e1dd3cd5",
+        "d03eb21e2930daef0938cb12364be3574123a662506175c5df058b67db983fff",
+        "979b73f081e2958411ed83a7e99ab2c980313210b85e6eb6d5aa9f454c13e313",
+        "d3f0adeafe3cbfad84cdb9ead013bbb72a3bc78990e17f2ce090f2d9b5216966",
+        "64846805df3ef5797bc6cab94a3a9d2434cc5f658147586cb13333a7d1746f1a",
+        "a11a8dd17e2f2aa36ce60171f2af6c0be04b38602288649247a5319c96818bb0"
+      ]
+    },
+    "spacr.curation_queue.status_path": {
+      "source_blocks_sha256": [
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "2a86f2932eea2e21e8fb3e101cbe26e6ae7e334bed4925ec17a8800109fb9179"
+      ],
+      "source_sha256": "13d3efb3c86cebc69e873382fdd4fba16f310b17e0c1026293e51941db3f2c4d",
+      "text": ":param folder: 工作列表文件夹。\n\n:returns: ``<folder>/curate_status.csv``,在工作列表文件夹中,以便在机器之间同步时与图像一起旅行。",
+      "translation_source_blocks_sha256": [
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "34fc749e093308e4387c094711566edbcbe945f66b07e189cb6e2c8c38abc45d"
+      ]
+    },
+    "spacr.curation_queue.summarize": {
+      "source_blocks_sha256": [
+        "756d0507e7059f2fe14cb23877552e734e60a938facf34517653ffa79a9bea70",
+        "49bf6d302ceb0b3d4589949f20b79411dfbc7a05a83d911a4b52c956e2d30ff4",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "fda7055940bc4012d25a0e7c8f07857a04bfc8a962533d6624cb125279817259"
+      ],
+      "source_sha256": "701343fa73f47220c21396b3a252f9a09ef42b132e0cba110c566e3e9fc678e5",
+      "text": "计算文件夹的方式,Ledger要求它。\n\n:param items: 文件夹中的每个字段。\n:param status: 序列从状态文件中阅读。\n:returns: :class:`QueueSummary`. 计算在实际上在这里的字段上,所以 ``done + skip + recropped + remaining == total``; 关于这里不存在的字符的行列分别被称为 ``unknown`` 而不是从剩下的字符中提取出来。",
+      "translation_source_blocks_sha256": [
+        "756d0507e7059f2fe14cb23877552e734e60a938facf34517653ffa79a9bea70",
+        "49bf6d302ceb0b3d4589949f20b79411dfbc7a05a83d911a4b52c956e2d30ff4",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "fda7055940bc4012d25a0e7c8f07857a04bfc8a962533d6624cb125279817259"
+      ]
+    },
+    "spacr.curation_queue.value_key": {
+      "source_blocks_sha256": [
+        "eb3a1e50233adbc5f93199ba97042ab6cbacf3b7531654273109d7b5cd80ec9c",
+        "3e0651def8fdf5d1a5180a36f9f195247b33e6567ac3bf51fab142113f9c1315",
+        "5013c2d937903c95ef56c336bb460c1e0c2b4cc5cfcc957bec7ca94ded9f4754",
+        "a5cf0b5df83e61083b2460fae62618a4deeff8d1c8b9eb785ef21f776def36f9",
+        "cb8b5d3443e628ee31a6669097d1dcb3264d23d44c1386e0cf48533e9fd413a4",
+        "fa1d9a3b11b2f549f69e2658172b3f3332507d2edcbbee91cfa64a4856427cd9"
+      ],
+      "source_sha256": "111f8fff6ff0de2c04b5b3d792596d75c9c177f44b1059c04e5ae0e016a96acc",
+      "text": "按 ``value`` 命令排序密钥:有多少草案要修正。\n\n正确的外部工具的 ``_value``::\n\n    n == 0                     -> (2, 0, 0)   nothing to correct, last\n    unreadable                 -> (3, 0, 0)   dead last\n    otherwise                  -> (0 if rich else 1, -diameter, -n)\n\n:param item: 要排序的田野。\n:param min_objects: 对象需要一个 \"rich\" 草案。\n:param min_diameter: 中间直径需要 \"rich\" 图案,在像素。\n:returns: 那种类型的钥匙。",
+      "translation_source_blocks_sha256": [
+        "eb3a1e50233adbc5f93199ba97042ab6cbacf3b7531654273109d7b5cd80ec9c",
+        "3e0651def8fdf5d1a5180a36f9f195247b33e6567ac3bf51fab142113f9c1315",
+        "5013c2d937903c95ef56c336bb460c1e0c2b4cc5cfcc957bec7ca94ded9f4754",
+        "a5cf0b5df83e61083b2460fae62618a4deeff8d1c8b9eb785ef21f776def36f9",
+        "cb8b5d3443e628ee31a6669097d1dcb3264d23d44c1386e0cf48533e9fd413a4",
+        "fa1d9a3b11b2f549f69e2658172b3f3332507d2edcbbee91cfa64a4856427cd9"
+      ]
+    },
+    "spacr.curation_queue.write_status": {
+      "source_blocks_sha256": [
+        "9e9b5105667f6987290807d434357ecfda07dc6a4433981f0feea257ead5a62a",
+        "9ba3b2157859174ad1384044407711d2c36535bb29da9bcddeed3a32b26aabea",
+        "b084cd5d0c165f16ae1ed30ff6c4efa67b18ab81a000c183caec71cc40a20b9a",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b54acd52c7d031efa4ae33386fd04970fddf0461e19faee7960df142da4b4e99",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
+      ],
+      "source_sha256": "fa66c254675592456e81675da7729d170460f5801610586e4fdcb2b5a7c1ccc5",
+      "text": "写回复记录,原子和完整。\n\n每行都写下来,包括关于此文件夹中不存在的字符串的行列:库拉特可能在一台机器上重复,其中一部分组尚未到达,并将这些行列倒下,提供了已经在其他地方完成的工作。\n\n文件在机器之间同步,一个稳定的顺序保持一个同步DIF到实际上改变的行。\n\n:param folder: 工作列表文件夹。\n:param rows: ``{stem: StatusRow}``,如 :func:`read_status` 返回。\n:returns: 路是写的。\n:raises StatusFileError: 当文件无法写下时",
+      "translation_source_blocks_sha256": [
+        "9e9b5105667f6987290807d434357ecfda07dc6a4433981f0feea257ead5a62a",
+        "9ba3b2157859174ad1384044407711d2c36535bb29da9bcddeed3a32b26aabea",
+        "b084cd5d0c165f16ae1ed30ff6c4efa67b18ab81a000c183caec71cc40a20b9a",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b54acd52c7d031efa4ae33386fd04970fddf0461e19faee7960df142da4b4e99",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
       ]
     },
     "spacr.custom_features": {
@@ -27584,13 +28374,35 @@
     "spacr.graph_types": {
       "source_blocks_sha256": [
         "b7b7fb90d40b589357a22cfd20bbb2a7172420122d712996f196163632d9089f",
-        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e"
+        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e",
+        "ca5a49948ea2c1590b5accddbbdadc86dafd396440b161f6095900325f14ba26"
       ],
-      "source_sha256": "a52c53508f6b7cb003741199b67f8f3e79ed0ae1a31f0704ba9c2267dbc62b57",
-      "text": "相匹配图表类型和默认数据的结构。\n\n该模块区分类别、连续和订单轴,它首先列出兼容图形类型,并为每个不兼容选项提供一个理由,允许界面禁用未支持的选项而不隐藏它们。",
+      "source_sha256": "f647a564e6b91e83e942197ea9f7c8b041b813ab14457654ec94544b9c942b1b",
+      "text": "相匹配图表类型和默认数据的结构。\n\n该模块区分类别、连续和订单轴,它首先列出兼容图形类型,并为每个不兼容选项提供一个理由,允许界面禁用未支持的选项而不隐藏它们。\n\n它也是 WHERE 每个图表在 spaCR 得到它的起始形式. 默认图表类型设置是根据数据格式(`spacr.qt.preferences`)存储,通过 :func:`chosen_for` 重新阅读,并转换为“在第一个右键点击之前提取什么”由 :func:`default_for` 和 :func:`start_for`. 一个 widget 问其中一个,并获得一个答案,已经负责用户的选择,是否该选择适合数据,以及是否数据是足够厚的支持它 - 因此设置达到一个新的图表,图表做正常的事情而不是记住。",
       "translation_source_blocks_sha256": [
         "b7b7fb90d40b589357a22cfd20bbb2a7172420122d712996f196163632d9089f",
-        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e"
+        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e",
+        "0b7562408da39fd1afa818e31c04ce8c92604e0f0dfc2bc24196cb6e8fa4e122"
+      ]
+    },
+    "spacr.graph_types.chosen_for": {
+      "source_blocks_sha256": [
+        "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "36e0747e2961f019848164bb8e1fcf15f4067d08539884465b185836b2c73d2d",
+        "187f8df40ea02eeb39e838fce20fb4bd34191d4ccbfee3718a676823e6560c2c",
+        "01e87595a1bc615f3b954c02ca1e083d55ddce391a6859f115e7159ace02df59",
+        "ae7e6c2c8fe27579b0c49a55bd09dada72b89dbdde57e493e2f5af33cf177db1"
+      ],
+      "source_sha256": "268e8cecba5b39a3eed59681f0c9841a606910b03a37d6119fe026b786d516ac",
+      "text": "图表输入用户请求看到第一个为 ``shape``,或 ``\"\"``。\n\n:param shape: 其中一个是:data:`DATA_SHAPES`的关键。\n:returns: 保存的图形类型,或者当用户没有表达对此格式的偏好时,一个空的条纹 - 或者表达了一个格式不能采取。\n\nEmpty means \"NOTHING WAS CHOSEN\", which is not the same answer as the table's default: a widget with a starting form of its own keeps it when nothing was chosen, and the preference overrides it when something was. :func:`default_for` is the caller that turns \"nothing\" into the table's own answer.\n\n一个不符合数据的保存选项不是一个选择,谁喜欢条纹没有要求一个连续 x 对一个连续 y 的条纹 - 这是不同数据的图表,而 :data:`WHY_NOT` 这样说。\n\n缺失的偏好仓库不是一个错误. 没有标题的序列没有 Qt 和没有 QSettings,并且仍然需要引导一个数字。",
+      "translation_source_blocks_sha256": [
+        "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "36e0747e2961f019848164bb8e1fcf15f4067d08539884465b185836b2c73d2d",
+        "a490496054b0582f805bf6babe7a79e5e83993685c0b41856ca3f1f50ec12c43",
+        "d72a9b242e6b2c3a14b16d3e50e5b4bed462e23424495dbd817caa885e1d5246",
+        "42e031a9f11dcecce82a6accb26b800b3b40f83e5bb80f92678e4c267a7db992"
       ]
     },
     "spacr.graph_types.default_for": {
@@ -27599,18 +28411,16 @@
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "ca40183b18a07c1acf9338fa6ba0c16334207d18f0e577d1bf569e13b98fc11e",
-        "ae77864009fe703da06f771c097819695f3bb2b55c7b17411278503df5ece071",
-        "415b833fa93f16585ebabd1ad74519d3f881d16ce31e5acb04fd1af70bf32f1d"
+        "184cbb8cfd97e315e1d24ee77329fa4c12fb4a95689b6015160fd821f1c8b14c"
       ],
-      "source_sha256": "f5183164038a770de6500b3410b6a7e709980bf5c269de7d35722dcbfc259f09",
-      "text": "图表类型为 ``shape`` 提前绘制。\n\n:param shape: 其中一个是:data:`DATA_SHAPES`的关键。\n:returns: 图表类型为 :data:`GRAPH_TYPES`。\n:raises KeyError: 如果 ``shape`` 不支持。\n\n用户的选择首先到来. 偏好决定哪个兼容的图表首先被绘制,右键仍然可以随后改变它. 每个图表在 spaCR 通过这个功能达到其起始形式,因此偏好连续应用在筛选上。\n\n一个不符合数据的保存选项被忽略了. 喜欢栏的人没有要求一个连续 x 对一个连续 y 的栏 - 这是不同数据的图表,而 :data:`WHY_NOT` 这样说。",
+      "source_sha256": "44fbc69e8cb773adb82af02cc51612c0efe11f6914e82e2dffab410182dd8b9a",
+      "text": "图表类型为 ``shape`` 提前绘制。\n\n:param shape: 其中一个是:data:`DATA_SHAPES`的关键。\n:returns: 图表类型为 :data:`GRAPH_TYPES`。\n:raises KeyError: 如果 ``shape`` 不支持。\n\n用户的选择首先到来. 偏好决定哪个兼容的图表首先被绘制,右键仍然可以随后改变它. 每个图表在 spaCR 通过此功能或通过 :func:`start_for` 达到其起始形式,因此偏好在筛选上连续应用。",
       "translation_source_blocks_sha256": [
         "84658b6ad17b22f8485589a508d19743d4daf13b3498499d2fa806b19709bdb5",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "ca40183b18a07c1acf9338fa6ba0c16334207d18f0e577d1bf569e13b98fc11e",
-        "e3c262c6df324285700da459a6a2855f0e995a6be14014bbb815f6f1d59971e3",
-        "e76a57f8634dfd9907c5d0296d7112c2fde6814da0b2303e101ac79d57b6fad6"
+        "3b158aa4ffda8b39dc31f30e5adef47cdddaf815e0504395081d2576bdc43968"
       ]
     },
     "spacr.graph_types.fits": {
@@ -27625,6 +28435,22 @@
         "ee39075c3407ebc70fa187a8dde9b452765844f892e41b6133e9963db15d6c25",
         "67828e2afce9790e7391260e3203e7fac518b1a1156d15477c838912a99badad",
         "3b3abff0ffb49a9466ef2354f48a062ffec6d06e5d23bf3508031ed006347993"
+      ]
+    },
+    "spacr.graph_types.mark_for": {
+      "source_blocks_sha256": [
+        "e25dd3cdba9fc042bc68e720fcd9b2a6bd5ccc7cc35c88597f1e7bc1cdf7f134",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
+      ],
+      "source_sha256": "f20e73ffc738cc611b885ef2b908d241a3c11644de7d1e68f26360a326f68ea9",
+      "text": "引用 ``graph_type`` 的 Live-plot 标志。\n\n:param graph_type: 图表类型为 :data:`GRAPH_TYPES`。\n:param fallback: 如何回答一个名称 :data:`MARKS` 没有输入。\n:returns: 从 ``spacr.qt.widgets.fast_plots.MARK_TYPES`` 标记密钥。",
+      "translation_source_blocks_sha256": [
+        "e25dd3cdba9fc042bc68e720fcd9b2a6bd5ccc7cc35c88597f1e7bc1cdf7f134",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
       ]
     },
     "spacr.graph_types.offer": {
@@ -27663,6 +28489,66 @@
         "43b3dba91ad594058f75e5c4b7707a900a0e4b7bd3ea5f1044e65d05b04d1852",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "3e1de6ff51fffc9a432a872e26f2a3aaf904fdcefcb8d31e468b7c4e62a35563"
+      ]
+    },
+    "spacr.graph_types.start_for": {
+      "source_blocks_sha256": [
+        "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "6a90db024703a75ea0fa470b991eb4e039ca7960bd04e85d53373b7395953f02",
+        "85a76ec422f130c440b388919b360860b37526cb772586ef6a3e882a85a13ac9",
+        "cd32d3d7554953e9f06be55110581dc54ec0758ccb0f809f9925462cf5fce688",
+        "08b08d9fdfa34e224c65c2c684e80ac546aee90fb716f72ebc0560a5561adb89",
+        "6eea7dc4e7d0b2e983cb442f62586c75ada46a685d2bff3b11103de43b2d2acd",
+        "0e1cc82393976b04a02aaf20d1bf57c3c94540f5c1b6ae15893992fd1ce11a66"
+      ],
+      "source_sha256": "d13ff9364522e3b9c3ccd11fbae2c821aa9d02ff88f1f64b69ef1a5bce12ae87",
+      "text": "首先要做什么,为什么这不是我所要求的。\n\n:param shape: 其中一个是:data:`DATA_SHAPES`的关键。\n:param counts: 每个观察,当他们被认识时。\n:param fallback: 通话者的 OWN 开始表格,因为当用户没有表达任何偏好时,它被回答为所提供的 - 一个 widget 知道它可以绘制什么 - 而一个空白的一个意味着 :data:`DEFAULTS`。\n:returns: ``(graph_type, note)``. 笔记是空的,每当图表被绘制时,它是被要求的。\n:raises KeyError: 如果 ``shape`` 未支持,并且没有可用的回报。\n\n一个偏好是一个表格声明 - \"draw violins\" - 一个表格的声明相遇的数据,它不能最终描述。 绘制点而不是说什么会留下一个用户谁要求的紫色看着一个没有解释,所以句子回来了答案,召唤者把它放在字幕上。\n\n只有一个保存的选择对数据进行重新审查: :data:`DEFAULTS` 已经保持观察的类型,并且每 x 的一个点线 - 订购的默认错误 - 否则每次都会自行发言。",
+      "translation_source_blocks_sha256": [
+        "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "6a90db024703a75ea0fa470b991eb4e039ca7960bd04e85d53373b7395953f02",
+        "85a76ec422f130c440b388919b360860b37526cb772586ef6a3e882a85a13ac9",
+        "cd32d3d7554953e9f06be55110581dc54ec0758ccb0f809f9925462cf5fce688",
+        "08b08d9fdfa34e224c65c2c684e80ac546aee90fb716f72ebc0560a5561adb89",
+        "a6beb6d696a0a4f94f81b168552e13bc119b46bfa6638b18d0115fe6037d9b56",
+        "8904e5a2b50e6b1ccc667f81d8dee09b0dbc4a2141358c809a5f0c20fdb74745"
+      ]
+    },
+    "spacr.graph_types.too_thin_for": {
+      "source_blocks_sha256": [
+        "546392a39717e8ae8e39f0dba112b09dba3500dd2d684adf933be52070a1ebd8",
+        "a7565130a1326537e3c1f33e197e91b0d9e065aa5e792af3f0b27a8062b3401f",
+        "d524502c70edb11dbfe6f1cd803bcc9ddc6895b86520061d8ab945f365b8b648",
+        "727209af1d9d581ebce9b5737d1361bdd1c0bc43223b6d783ab4c0d6a1448333",
+        "70ba3a18522ca357214b14ad116300860ec164d105aacf4ffd053f5b877f17d2"
+      ],
+      "source_sha256": "d85c3db27e28d89c01cec085e42b9eca56a83c688c3694574b5bfac19ff50131",
+      "text": "为什么 ``graph_type`` 不能总结这个小组,或 ``\"\"``。\n\n:param graph_type: 图形类型即将被绘制。\n:param counts: 未知的尺寸 - 一个空虚无可承认的 - 不是一个异议:一个图表尚未交付其数据,但尚未提出索赔。\n:returns: 一个名为最小组的句子,或者一个空行,当图形类型被数据支持时。\n\n只有反思观察的类型可以太薄;见 :data:`HIDES_THE_OBSERVATIONS`. 两个点的滑板是两个点,这就是真相;两个点之紫色是从未测量的密度。",
+      "translation_source_blocks_sha256": [
+        "546392a39717e8ae8e39f0dba112b09dba3500dd2d684adf933be52070a1ebd8",
+        "a7565130a1326537e3c1f33e197e91b0d9e065aa5e792af3f0b27a8062b3401f",
+        "d524502c70edb11dbfe6f1cd803bcc9ddc6895b86520061d8ab945f365b8b648",
+        "727209af1d9d581ebce9b5737d1361bdd1c0bc43223b6d783ab4c0d6a1448333",
+        "70ba3a18522ca357214b14ad116300860ec164d105aacf4ffd053f5b877f17d2"
+      ]
+    },
+    "spacr.graph_types.type_of_mark": {
+      "source_blocks_sha256": [
+        "6d4b68aa2344342ce7a3e2381b2cec19c7ebde2478db4bbcd2d20356c9e43af6",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b",
+        "464c4a047431e216d7e4cbf92d9afbd86b40e09089dc4aef7a47ed4629b2a1a1",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "68a3c56d0d9cf7541a9039491b90162854d2eae50ef6a960f88183c25d0a73e3"
+      ],
+      "source_sha256": "234d408705d774dcf5b32ab5ed1df8909e86c4ca014de1f625e109b828073e46",
+      "text": "图表输入一个直播插图的 ``mark`` 引导。\n\n:param mark: 从 ``spacr.qt.widgets.fast_plots.MARK_TYPES`` 标记密钥。\n:param fallback: 如何回答一个没有图形类型的标志引导。\n:returns: 图表类型为 :data:`GRAPH_TYPES`。\n\n相反的 :func:`mark_for`,所以一个自己的起始表格写在标志,可以表示它一次,仍然可以与一个偏好写在图形类型相比。",
+      "translation_source_blocks_sha256": [
+        "6d4b68aa2344342ce7a3e2381b2cec19c7ebde2478db4bbcd2d20356c9e43af6",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b",
+        "464c4a047431e216d7e4cbf92d9afbd86b40e09089dc4aef7a47ed4629b2a1a1",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "68a3c56d0d9cf7541a9039491b90162854d2eae50ef6a960f88183c25d0a73e3"
       ]
     },
     "spacr.graph_types.types_for": {
@@ -61778,9 +62664,9 @@
         "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074"
       ],
       "source_sha256": "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074",
-      "text": "使用丢失的图像文件夹(或一个显微镜图像字段)作为 Align & Stitch 输入。",
+      "text": "使用丢失的图像文件夹(或一个字符串)作为 Align & Stitch 输入。",
       "translation_source_blocks_sha256": [
-        "b5d1aef621c991bde10670ab5fdc262a0746cf49f8ed3dc05e8a73550ad18149"
+        "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074"
       ]
     },
     "spacr.qt.dnd_handlers.AlignDropHandler.apply": {
@@ -63586,9 +64472,9 @@
         "3e9e63e8b896570b41536cde9aa33d8de1c4317ca17b23c153e753087d73b155"
       ],
       "source_sha256": "3e9e63e8b896570b41536cde9aa33d8de1c4317ca17b23c153e753087d73b155",
-      "text": "处理会议历史:选择处理会议一个落的处理会议文件夹属于。",
+      "text": "Run History: 选择一个落下处理会议文件夹属于处理会议。",
       "translation_source_blocks_sha256": [
-        "53a1498a5406dbad1488b05a516c31427e643d38a2e8dadb71d886de0370c86f"
+        "0f9917e036c21b92a005a1fa597804d66b5f5e59d568511c826fa856a1b6d39c"
       ]
     },
     "spacr.qt.dnd_handlers.RunHistoryDropHandler.apply": {
@@ -70395,10 +71281,10 @@
         "b011aea47be76a073eee0e8a277928369c7ea894bd9d259cf2c0115ce5fcb36c"
       ],
       "source_sha256": "301549162e8ff6a3b6dc8c7c47addd6fb6cab5a1896ae0ff42c52071499976a9",
-      "text": "允许(或禁止)编辑模式在数据库浏览器中。\n\nQSettings 随心所欲地写回来,数据库浏览器每次更新 UI 重新阅读此结构化数据名称 - 用户点击后立即阅读一个字符将告诉他们编辑仍在关闭。",
+      "text": "在 Database Browser 中允许(或禁止)编辑模式。\n\nQSettings 随心所欲地写回来,而 Database Browser 每次 UI 更新时都会重新阅读此密钥 - 用户点击后立即阅读一个字符将告诉他们编辑仍在关闭。",
       "translation_source_blocks_sha256": [
         "e6b2a9b3a50f9d20a5c769c55e0ca7c764a6a91bd4d2dadd2b8a2ebd6278801d",
-        "e24961041b3136f3eb7be8c942ba18d818d2363e881feed33bd85e2d804f20f6"
+        "b011aea47be76a073eee0e8a277928369c7ea894bd9d259cf2c0115ce5fcb36c"
       ]
     },
     "spacr.qt.preferences.set_default_graph_type": {
@@ -71392,10 +72278,10 @@
         "3b9c6c6bb7985689262dca59b323bbc382b9a31290624d2773984f4c06e8f41f"
       ],
       "source_sha256": "f9fa9ebcdd1cbc78ace869fa71f5be9315234d0c1b78f1ad5c6295eed67dc91f",
-      "text": "哪些模块获得现场预览,以及如何从外部附上。\n\n四个模块有一个预览 - 掩膜, 测量, 时间, 动态 - 每一个花费一个十三个线的手臂 ``AppScreen._build_runtime_panel``,两个属性名称在一个零出区块,和一个序列在一个图表两百行进一步下方。第五会付出相同的代价,这就是为什么从未有过第五:最显然有利于一个的模块是两个,其整个工作是“把掩膜出去正确” — Cellpose 掩膜和板块评估 - 也不值得触摸共享界面。\n\n这个模块是让第五个免费的标志。 一个模块在这里宣布预览; 上方的条形状上方的线条为它生长一个条形; 该卡通过相同的 ``_runtime_wrap`` / ``_actions_row`` anchors :mod:`spacr.qt.prerun` 使用的处理会议顺序上插入。 ``AppScreen`` 内部没有任何变化,它已经构建的四个预览只剩下 - 共享应用程序视图已经服务的模块在这里被转移,而不是给第二张卡。\n\n已 FOLDED 到主机的模块从另一端到达相同的机器. 其自己的应用程序视图不再构建,所以 ``install`` - 答案应用程序观图的自己的密钥 - 永远不能插入其面板; :func:`attach_folded` 允许主机以名称要求它,并保留它隐藏在主机所使用的一切后面揭示该模块的剩余。\n\n**采样合同是继承的,未重新实施的.** 通过该注册表达成的面板是发送的面板,这些面板将实验室微板集成到单独的文件名中的图像集中,并打开一个有限的,可重复的随机样本。 这里没有任何东西列出,打开或列出一个目录,所以这里没有什么可以回归它。 通过此标签注册的新面板必须遵守相同的承诺 - 见 :mod:`spacr.qt.widgets.preview_controls`.",
+      "text": "哪些模块获得现场预览,以及如何从外部粘贴。\n\nFour modules have a preview — Mask, Measure, Timelapse, Motility — and each one costs a thirteen-line arm in ``AppScreen._build_runtime_panel``, two attribute names in a null-out block, and a row in a toggle table two hundred lines further down. The fifth would cost the same, which is why there has never been a fifth: the modules that would most obviously benefit from one are the two whose entire job is \"did the mask come out right\" — Cellpose Masks and Plaque Assay — and neither was worth touching the shared application view for.\n\n这个模块是让第五个免费的标志。 一个模块在这里宣布预览; 上方的条形状上方的线条为它生长一个条形; 该卡通过相同的 ``_runtime_wrap`` / ``_actions_row`` anchors :mod:`spacr.qt.prerun` 使用的处理会议顺序上插入。 ``AppScreen`` 内部没有任何变化,它已经构建的四个预览只剩下 - 共享应用程序视图已经服务的模块在这里被转移,而不是给第二张卡。\n\n已 FOLDED 到主机的模块从另一端到达相同的机器. 其自己的应用程序视图不再构建,所以 ``install`` - 答案应用程序观图的自己的密钥 - 永远不能插入其面板; :func:`attach_folded` 允许主机以名称要求它,并保留它隐藏在主机所使用的一切后面揭示该模块的剩余。\n\n**采样合同是继承的,未重新实施的.** 通过该注册表达成的面板是发送的面板,这些面板将实验室微板集成到单独的文件名中的图像集中,并打开一个有限的,可重复的随机样本。 这里没有任何东西列出,打开或列出一个目录,所以这里没有什么可以回归它。 通过此标签注册的新面板必须遵守相同的承诺 - 见 :mod:`spacr.qt.widgets.preview_controls`.",
       "translation_source_blocks_sha256": [
         "e22891fc56dcb0281bc3eb48fd883a3fe95ef1318ca150b5898ed6cc82b2f7bc",
-        "26e1dd822c9da721f33b6947857c5736e491a0e154f39b3f0a8b72d12bec47b8",
+        "08350b57ba4d040bbee0efba91c28a73d7b2c4a3749eabda903edc2db778d11c",
         "a46c9d15fa19ac498628ae725fc7fef96c5ad7bf9dffbb46688a1ec392a82074",
         "3f35efce446a3ba1180889555aff9344b5fc38813fc5d493f4d265e59d8d2113",
         "dfff0c448165b2826bcb6c40ccc98f69e7bf200439bcdc4aa56e2d64ac8fadab"
@@ -73321,10 +74207,10 @@
         "181fbc0154ee955b623beefb9d1e277ea9a52fef141791261b86344e69eac83c"
       ],
       "source_sha256": "ea18292108fadb51f1d041e199d5f6c50c96972b1e690e9c9b9e899273a97ffa",
-      "text": "将控制器作为 :func:`spacr.align.default_settings` 关键值地图。\n\n要公开,所以Batch Runner和软件工作列表可以拍摄这个筛选的方式,他们拍摄每一个。",
+      "text": "将控制器作为 :func:`spacr.align.default_settings` 关键值地图。\n\n要公开,所以 Batch Runner 和工作列表可以拍摄此筛选的方式,他们拍摄每一个。",
       "translation_source_blocks_sha256": [
         "ca2c8465fb84fd1bf4b136d4dfa12617f0b7ae3c35f5c8ed4fa7238442a73186",
-        "79d7b10146775d90982aba4d119be7137394f66af6b9ab2e448c45e7b51babe9"
+        "e86370735a949246554c30c5e339f92c850656d479ef7e87bb8e408350541c9c"
       ]
     },
     "spacr.qt.screens.align.AlignScreen.status_text": {
@@ -74637,10 +75523,10 @@
         "d3270ed7b82996bd4db6d910c8ac53eeae040f31daf3360205800f05c5257d9d"
       ],
       "source_sha256": "ab2fb75525e570acd568b2c2aa12aa222429595c08e4e490725a7fce514f56c6",
-      "text": "行走者 - 为您度过夜晚的工具模块。\n\n板处理列表链 *plates* 通过 *one* 工作流。 这个筛选是另一个轴:随意的 ``(module, settings)`` 工作在任何顺序 - ``Mask → Measure → Classify (CV) → Classify (ML)``,然后相同的四次再次与不同的直径,然后一个第五盘掩膜 - 建造,验证,保存到一个文件,运行不等待。\n\n应用程序视图是故意薄的. 它所知道的一切关于一个软件工作列表,它从 :mod:`spacr.batch` 学习,这是无图形界面, torch 免费,并且没有 Qt 测试. 此文件仅是必须是一个 GUI 的部分:选择一个模块和设置文件,复制一个工作并编辑它,重新订单,验证,保存/加载,运行,并观看每工作状态,进展和登录。\n\n用户可以看到三种选择:\n\n* **工作在添加时被验证,而不是在运行时.** 缺少设置文件的工作,错过了 ``src`` 或模块为 GUI - 仅在“添加”按钮上被拒绝。\n* **没有模型对话,从未发生过。** 每个失败都落入了内线问题板和 :attr:`BatchScreen.last_error`. ``QMessageBox`` 挂着一个无图形界面运行(它做了,在 ``MakeMasksScreen``),并且这个筛选是无图形界面运行。\n* 运行使用一个工作者. **执行模式:**完成返回 GUI 条纹。 ``PipelineWorker.finished`` 发出 *在工作者条纹* 内;因此,每个更改 widget 的接收者使用一个明确的 queued 连接到这个 GUI-条纹 Widget 的连接方法。\n\n工作一次运行一个,他们为一个 GPU 竞争,每个人都有自己的 ``spacr-run`` 过程,所以在 cellpose 中的一个分区杀死了这个工作而不是这个窗口。",
+      "text": "Batch Runner - 为您度过夜晚的工具模块。\n\nThe Plate Queue chains *plates* through *one* workflow. This screen is the other axis: arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — built, validated, saved to a file and run unattended.\n\n应用程序视图是故意薄的. 它所知道的一切关于一个软件工作列表,它从 :mod:`spacr.batch` 学习,这是无图形界面, torch 免费,并且没有 Qt 测试. 此文件仅是必须是一个 GUI 的部分:选择一个模块和设置文件,复制一个工作并编辑它,重新订单,验证,保存/加载,运行,并观看每工作状态,进展和登录。\n\n对于用户来说,有三种选择可见:\n\n* **工作在添加时被验证,而不是在运行时.** 缺少设置文件的工作,错过了 ``src`` 或模块为 GUI - 仅在“添加”按钮上被拒绝。\n* **没有模型对话,从未** 每个失败都落在内线问题面板和 :attr:`BatchScreen.last_error`. A ``QMessageBox`` 挂上一个无头的行程(它做了,在 ``MakeMasksScreen``),并且这个筛选是无头练习。\n* 运行使用一个工作者. **执行模式:**完成返回 GUI 条纹。 ``PipelineWorker.finished`` 发出 *在工作者条纹* 内;因此,每个更改 widget 的接收者使用一个明确的 queued 连接到这个 GUI-条纹 Widget 的连接方法。\n\n工作一次运行一个,他们为一个 GPU 竞争,每个人都有自己的 ``spacr-run`` 过程,所以在 cellpose 中的一个分区杀死了这个工作而不是这个窗口。",
       "translation_source_blocks_sha256": [
         "d353b2be6e5a4e8b7ef8cdea508889fc11f961d6d7ed128b048187afbb46a3d7",
-        "ee75ddb3106cff964da74613bd2f96e86810953094934e7f5ed5d990ca49b675",
+        "1fa4efe857864111c5565de1a29769a5a38e06bbdd53d8f050d85fa37a5c6966",
         "954b2c03ab87ece545a991194f2373ac4b8a1d7a0342c2d75b402e149eabb9f8",
         "d62e3e8e8b5b95ead1572c0a75e10e6af3b6109d57c105ccc86509802bebbb60",
         "4afe1d057ae0f0ca852c123bc1e831d2f64bcbaffefef070b45c08e9919822ef",
@@ -81997,6 +82883,22 @@
         "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9"
       ]
     },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue": {
+      "source_blocks_sha256": [
+        "02b416d874f39d781fdbb5c0b86bea91328abd01f436faf5f5c3d99d62ac13d3",
+        "12a40f07166ff8bf5ea5434a82693a1b5578efd4d6c857e05fa9f870b42bb58d",
+        "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
+        "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ],
+      "source_sha256": "6c01ca3aa7809b200caf42c80357389b5d0207bcb6d7f1d671ebc65db532fa8c",
+      "text": "打开一个治疗会议提供的领域,按照它提供的顺序。\n\n会议决定什么显微镜的视野和在什么顺序 - 审查的已经落下, ``--limit`` 已经应用 - 并显示这些应用程序的视图. 只有粘贴的布局是开放的: 这个编辑器从 ``<folder>/masks/<stem>.tif`` 阅读一个草案,并保存到同一个地方,所以一个兄弟或 ``_seg.npy`` 组将被阅读和写在其他地方,而不是它的掩膜在哪里. ``spacr-make-masks`` 拒绝那些之前 Qt 被进口; 这是同一拒绝的第二半,为任何达到应用程序视图的方式。\n\n:param queue: a :class:`spacr.curation_queue.CurationQueue`.\n:returns: 编辑是否现在在这个会议上。",
+      "translation_source_blocks_sha256": [
+        "02b416d874f39d781fdbb5c0b86bea91328abd01f436faf5f5c3d99d62ac13d3",
+        "3f55f57491196e8a12c49a213235554ac668a17173c21cad97ddabadac5a43ff",
+        "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
+        "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ]
+    },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
       "source_blocks_sha256": [
         "1ad20f1f585f70d42375c162c01e8589a66bc96e3334465908e399e87c427b72",
@@ -84964,9 +85866,9 @@
         "d8e2205b5f03eb00af5759fde4d8f9ef667773ff560678f1a4937c5344073c52"
       ],
       "source_sha256": "a977f345fa01c47dc9c8ac17faa1e453c98b3ca32513458c91c44292c43d688e",
-      "text": "工作流图 - 什么产生了什么,哪一个仍然是真实的。\n\nspaCR 项目积累文件的速度远超人能记忆：掩模、测量数据库、提取图像区域、模型权重、预测、回归表和图形。其中一些由另一些生成；另一些则来自对方的*旧版本*，例如周二用不同直径重新执行了掩模步骤，却没有更新任何下游结果。GUI 过去不会显示这种情况，而过期数值看起来并不像过期——它只像一个普通数值。\n\n此筛选拍摄了DAG:\n\n::\n\n    ┌──────────────┐   ┌────────────────┐   ┌───────────────┐\n    │ mask         │──▶│ measure        │──▶│ classify      │\n    │ masks   OK   │   │ db      STALE  │   │ preds   STALE │\n    └──────────────┘   └────────────────┘   └───────────────┘\n\n盒子是艺术品,箭头是 \"was made from\"颜色是判决 :func:`spacr.artifacts.Registry.is_stale` 回归 - 与其 ``reasons`` 显示在图表旁边的面板上,因为 \"stale\" 单独是一个指控,而不是一个解释. 点击一个框,并在面板名称的处理会议产生它,设置消化, spaCR 版本,以及如何重新执行它将破坏。\n\n三个有意志的选择:\n\n**图表是从起源,而不是从模块列表中提取的。** 工作流是 *假设* 要做的是 :data:`spacr.ports.PORTS`,而且它也提取 - 模糊,下面,如 \"declared order\" 条 - 但盒子和箭是实际发生的事情。\n\n**错误不是** 删除的文件是红色的,并说是这样; 过时的文件是:mod:`spacr.artifacts` 拒绝冲突它们,也不会这样做。\n\n**没有在这里写的** 没有重复执行按钮,没有 \"mark as fresh\",没有删除。 筛选回答一个问题。 对答案的行动是模块的工作,一个单击执行再次连接到图表是如何有人过写他们试图检查的作品。\n\n布局是由一个纯功能(:func:`layout_rects`)计算在图表的层,所以安排是可测试的没有像素,而重部分 - 打开记录并询问它关于每个作品 - 通过 :class:`spacr.qt.job_runner.JobRunner`,从主要 GUI 执行路径。",
+      "text": "Pipeline Graph - 什么产生了什么,哪一个仍然是真实的。\n\nA spaCR project accumulates files faster than anyone can hold in their head: masks, a measurements database, extracted image regions, model weights, predictions, regression tables, figures. Some of those were made from each other. Some were made from a *previous* version of each other, because the mask step was executed again with a different diameter on Tuesday and nothing downstream was. Nothing in the GUI showed that, and a stale number does not look stale — it looks like a number.\n\n这个筛选拍摄了这一天:\n\n::\n\n    ┌──────────────┐   ┌────────────────┐   ┌───────────────┐\n    │ mask         │──▶│ measure        │──▶│ classify      │\n    │ masks   OK   │   │ db      STALE  │   │ preds   STALE │\n    └──────────────┘   └────────────────┘   └───────────────┘\n\n盒子是艺术品,箭头是 \"was made from\"颜色是判决 :func:`spacr.artifacts.Registry.is_stale` 回归 - 与其 ``reasons`` 显示在图表旁边的面板上,因为 \"stale\" 单独是一个指控,而不是一个解释. 点击一个框,并在面板名称的处理会议产生它,设置消化, spaCR 版本,以及如何重新执行它将破坏。\n\n三个有意义的选择:\n\n**图表是从起源,而不是从模块列表中提取的。** 工作流是 *假设* 要做的是 :data:`spacr.ports.PORTS`,而且它也提取 - 模糊,下面,如 \"declared order\" 条 - 但盒子和箭是实际发生的事情。\n\n**错误不变** 删除的文件是红色的,并这样说; 过时的文件是不变的。 :mod:`spacr.artifacts` 拒绝冲突它们,也不会这样做。\n\n**没有在这里写的** 没有重复执行按钮,没有 \"mark as fresh\",没有删除。 筛选回答一个问题。 对答案的行动是模块的工作,一个单击执行再次连接到图表是如何有人过写他们试图检查的作品。\n\n布局是由一个纯功能(:func:`layout_rects`)计算在图表的层,所以安排是可测试的没有像素,而重部分 - 打开记录并询问它关于每个作品 - 通过 :class:`spacr.qt.job_runner.JobRunner`,从主要 GUI 执行路径。",
       "translation_source_blocks_sha256": [
-        "df1c99457b8ce0c37943514f84ac506298ea5666143caa394760825057d86569",
+        "cc336587bd11778fa86bb6415c9057803804cfb498829ceaaf341f9c298e36aa",
         "0342dade2a52f115582471d9fa4c9ab4118c491a18c07a656f4e858782f34866",
         "3b40a516e729e213f0484074e9adb854f95a638de500d3e6185dff600b3e1685",
         "3e2bff20cb05e1da58daf636c30bbeddf4e82d5ceba6fe5f2bf6e91b7d899b3a",
@@ -85199,9 +86101,9 @@
         "2c0bb3219c2d17d0262353b5e4c94f5ade9b915e5a1135e6be299b12bd22edbe"
       ],
       "source_sha256": "a27eaabd84a18cbccc2b9333a726a55e5d41854da5943efecc52ab65463d46aa",
-      "text": "将 Workflow Graph 添加到应用程序注册表中。\n\n:returns: True 当这个呼叫添加序列时, False 当它已经存在时 - 这是一个第二次进口,或者一个插件将模块重新引入,不应该被视为错误。",
+      "text": "将 Pipeline Graph 添加到应用程序注册表中。\n\n:returns: True when this call added the row, False when it was already there — which is what a second import, or a plugin that pulls the module in again, must not treat as an error.",
       "translation_source_blocks_sha256": [
-        "d35c2d1394c5ced845e988cf139da188de257d76b8d7f94b80a647f8c8fd3562",
+        "02bd9fcf7dfbeadbafa5dd9c30e32564168992ae011e1c7c266c60976f0bc432",
         "2c0bb3219c2d17d0262353b5e4c94f5ade9b915e5a1135e6be299b12bd22edbe"
       ]
     },
@@ -88900,9 +89802,9 @@
         "ef62f64cc5cbd08e37bc944795d646cd522870360f8dc1d35cd437011a763e0e"
       ],
       "source_sha256": "4975944bffc69ae2e49fda9bb0566eacff7bd67700363766a679013acda60f33",
-      "text": "培训处理会议 - 多个处理会议的曲线在一个轴上,设置分散。\n\n这个应用程序视图的答案是“为什么运行B比运行A更好”,今天通过在一个窗口打开两个 PDFs 文件夹,两个设置 CSVs 在另一个,并保持差异在你的头部。\n\n界面布局::\n\n    ┌──────────────────────────────────────────────────────────────────────┐\n    │ /data/screen1/model                     [Choose folder…]  [Scan]     │\n    ├──────────────────────┬───────────────────────────────────────────────┤\n    │ Runs found (4)       │            ┌───────────────────────────┐      │\n    │ ☑ maxvit_t/…/ep_25   │            │   accuracy, 5 series      │      │\n    │   25 epochs · tr+val │            │   ╱‾‾‾‾  B val            │      │\n    │ ☑ maxvit_t/…/ep_10   │            │  ╱ ─ ─   A val            │      │\n    │ ☐ resnet50/…/ep_8    │            └───────────────────────────┘      │\n    │   8 ep x 3 folds     ├───────────────────────────────────────────────┤\n    │ ☐ maxvit_t/…/ep_3 !  │ 2 settings changed · 1 env drift · 0 drift    │\n    │                      │ bucket   setting        A        B            │\n    │ Metric [accuracy ▾]  │ changed  learning_rate  1e-4     1e-3         │\n    │ Folds  [per fold ▾]  │ changed  batch_size     64       32           │\n    │ [Overlay selected]   │ env      n_jobs         30       8            │\n    ├──────────────────────┴───────────────────────────────────────────────┤\n    │ ! maxvit_t/…/epochs_3: no per-epoch curves in this folder            │\n    │ Clicked: maxvit_t/…/epochs_25 · val — best 0.87 @ 18, last 0.85 @ 25 │\n    └──────────────────────────────────────────────────────────────────────┘\n\n设计笔记:\n\n* **Discovery 走出主要 GUI 执行路径.** 一个扫描器走了一棵模特树,并在它下面打破每一个进展 CSV,在一个真实的筛选上有数百个文件。 它通过 :func:`spacr.qt.bridge.make_thread` 像任何其他 spaCR 工作一样; 测试通过``threaded=False``,运行相同的代码。 绘图保持在 GUI 执行路径上 - 从那时起,数据已经在记忆中。\n* **在任何错误路径上没有模型对话.** 没有运行的文件夹,没有曲线的处理会议,没有登录的测量 - 所有这些都落入了内线状态和问题标签。\n* **破碎的处理会议列出,不隐藏.** 持有检查点的文件夹,但没有 ``train.csv`` 仍然出现,标记,其笔记在问题线上。\n* **差异会分桶，绝不会平铺。** 它渲染 :func:`spacr.train_compare.diff_settings`，该函数复用 :mod:`spacr.run_journal` 的来源分桶：环境漂移（路径、主机、工作进程数量）显示在独立分桶中，不会计作用户修改，同时还会汇总架构漂移。当两个处理会话一致时，表格会明确写出 \"no differences\"，而不是显示空白。\n* **每个系列都说运行 · 分裂 · 字符串.** 点击一行名称其运行,文件夹和其最好的和最后的时代,因为一个传说只携带处理会议ID邀请阅读列车曲线作为一个持久的结果。",
+      "text": "Training Runs - 在一个轴上有多个处理会议的曲线,设置差异化。\n\n这个应用程序视图的答案是“为什么运行B比运行A更好”,今天通过在一个窗口打开两个 PDFs 文件夹,两个设置 CSVs 在另一个,并保持差异在你的头部。\n\n界面布局::\n\n    ┌──────────────────────────────────────────────────────────────────────┐\n    │ /data/screen1/model                     [Choose folder…]  [Scan]     │\n    ├──────────────────────┬───────────────────────────────────────────────┤\n    │ Runs found (4)       │            ┌───────────────────────────┐      │\n    │ ☑ maxvit_t/…/ep_25   │            │   accuracy, 5 series      │      │\n    │   25 epochs · tr+val │            │   ╱‾‾‾‾  B val            │      │\n    │ ☑ maxvit_t/…/ep_10   │            │  ╱ ─ ─   A val            │      │\n    │ ☐ resnet50/…/ep_8    │            └───────────────────────────┘      │\n    │   8 ep x 3 folds     ├───────────────────────────────────────────────┤\n    │ ☐ maxvit_t/…/ep_3 !  │ 2 settings changed · 1 env drift · 0 drift    │\n    │                      │ bucket   setting        A        B            │\n    │ Metric [accuracy ▾]  │ changed  learning_rate  1e-4     1e-3         │\n    │ Folds  [per fold ▾]  │ changed  batch_size     64       32           │\n    │ [Overlay selected]   │ env      n_jobs         30       8            │\n    ├──────────────────────┴───────────────────────────────────────────────┤\n    │ ! maxvit_t/…/epochs_3: no per-epoch curves in this folder            │\n    │ Clicked: maxvit_t/…/epochs_25 · val — best 0.87 @ 18, last 0.85 @ 25 │\n    └──────────────────────────────────────────────────────────────────────┘\n\n设计笔记:\n\n* **Discovery 走出主要 GUI 执行路径.** 一个扫描器走了一棵模特树,并在它下面打破每一个进展 CSV,在一个真实的筛选上有数百个文件。 它通过 :func:`spacr.qt.bridge.make_thread` 像任何其他 spaCR 工作一样; 测试通过``threaded=False``,运行相同的代码。 绘图保持在 GUI 执行路径上 - 从那时起,数据已经在记忆中。\n* **在任何错误路径上没有模型对话.** 没有运行的文件夹,没有曲线的处理会议,没有登录的测量 - 所有这些都落入了内线状态和问题标签。\n* **破碎的处理会议列出,不隐藏.** 持有检查点的文件夹,但没有 ``train.csv`` 仍然出现,标记,其笔记在问题线上。\n* **The diff is bucketed, never flat.** It renders :func:`spacr.train_compare.diff_settings`, which reuses the provenance bucketing from :mod:`spacr.run_journal`: environment drift (paths, hosts, worker counts) is shown in its own bucket instead of being counted as something the user changed, and schema drift is summarised. When two processing sessions match, the table says \"no differences\" in words rather than going blank.\n* **每个系列都说运行 · 分裂 · 字符串.** 点击一行名称其运行,文件夹和其最好的和最后的时代,因为一个传说只携带处理会议ID邀请阅读列车曲线作为一个持久的结果。",
       "translation_source_blocks_sha256": [
-        "2be15032782e43e09c930ab274f0cf4fb4ab320e66f9bc42c78ba2d95eab5fd8",
+        "3979f7d7c36de67669d9509d17b4717ca64a07640df13554a4606e31dc57ccfc",
         "0260a07648ad4000c97172cfc1cc3a43944722bd41e8756958185edfc98bc2a4",
         "7387692812ec038cf24df502c80f07bf4f1e6600d300a1acd18f6fbf484cdfc9",
         "1ecd6071c7a598fe8fe7efe0f3a4c2869822595ce3f8a3b7e7b8bea000242b39",
@@ -106094,13 +106996,13 @@
     "spacr.qt.widgets.fast_plots.GroupedPlot.mark_note": {
       "source_blocks_sha256": [
         "5fbfacf854edddeb4f77da3cfcdaf7180c03699c10a250065f57ea05d197ae2f",
-        "9ebb5966af493e4796eb2bc7f466086a58187dd01d90cfe25d10c16d3640010c"
+        "e4eece877c64134c81a4ee7da481164e2e40f51f684de6f5a1682a25ed9c28d5"
       ],
-      "source_sha256": "8bd19e4f93197e47dbac81ebb134d74e0946018fc86755fc4e9eeeb53d55767b",
-      "text": "关于CURRENT标志的句子,或 ``\"\"``。\n\n两件事,因为一个按 \"bar\" 的用户同时做了两件事:他们选择了一个可能不代表传播的标志,他们放弃了点击引导 RNA的能力 - 一个直角为四十一行,不能诚实地选择其中一个。",
+      "source_sha256": "4a4249400b342abf3e0ff0019af17250bfbb19153ea08fe87027c2baf1fd9240",
+      "text": "关于CURRENT标志的句子,或 ``\"\"``。\n\nThree things now. A start that could not honour the default graph type setting says so first -- a user who asked for violins and got a jitter is owed the reason on the plot rather than in a log. Then the two a user who picks \"bar\" has done at once: they have chosen a mark that may misrepresent the spread, and they have given up the ability to click a guide -- one rectangle stands for forty-one rows and cannot honestly select one of them.",
       "translation_source_blocks_sha256": [
         "5fbfacf854edddeb4f77da3cfcdaf7180c03699c10a250065f57ea05d197ae2f",
-        "9ebb5966af493e4796eb2bc7f466086a58187dd01d90cfe25d10c16d3640010c"
+        "15d1c8abb211e97d39678333a36ae3cf0ea2d496cdf9885584f0053f71a3f9f2"
       ]
     },
     "spacr.qt.widgets.fast_plots.GroupedPlot.redraw": {
@@ -106125,6 +107027,24 @@
       "translation_source_blocks_sha256": [
         "6a22fa5747b575184a58020f11de4643cf98293778f00faaf1b90ec2a45ebd85",
         "56bc96221a8d4abc1d25a16990e1544917d8c9cf820c6f2c786d1ecb41c9b294"
+      ]
+    },
+    "spacr.qt.widgets.fast_plots.GroupedPlot.starting_mark": {
+      "source_blocks_sha256": [
+        "65efafa55a21f5c532a70222e8d1e8ae1338f160f6bc70c8aedfc0eaa03a157f",
+        "19aa9671e8846b171c052c82ae47812c0bc061848f43c98b60255255376ab28c",
+        "448466673fcb89a9d9d89a1dd7c0a7fe4c7fa1502e7148aa18a116ff0c515293",
+        "a8f348b6c678e5d77642c99a6986ecb0926d2185920a20fe8ace028a4400493c",
+        "f1d4185184f6c1a90491d9034e6e760338917535f96e6a6caec3ec5d7d27488d"
+      ],
+      "source_sha256": "46f57040d7ffd27bcdcfa4e88183389c8a8c56ebcbdc84595895d0d8a1845c3a",
+      "text": "标志要先绘制,为什么它不是选择的。\n\n:param counts: observations per group, when they are known. An empty one asks only \"what was chosen\", which is all that can be answered before the data arrives.\n:returns: ``(mark, note)``. 笔记是空的,每当标志被提取时,标志是请求的。\n\n设置决定,而不是 widget. 这个字符串的默认图形类型保存为 :attr:`DATA_SHAPE` 是在第一个右键点击之前提取的; 没有保存的字符符串保持 :attr:`DEFAULT_MARK`,因为一个偏好没有人表达不得移动现有视图。\n\n这就是一个面板的开幕框;拒绝将其拖到一个设置阅读将花费整个数字。",
+      "translation_source_blocks_sha256": [
+        "65efafa55a21f5c532a70222e8d1e8ae1338f160f6bc70c8aedfc0eaa03a157f",
+        "19aa9671e8846b171c052c82ae47812c0bc061848f43c98b60255255376ab28c",
+        "448466673fcb89a9d9d89a1dd7c0a7fe4c7fa1502e7148aa18a116ff0c515293",
+        "a86f60768e6696ffec4b20eb8d344152943ef90d8367d069903e5c94c3248298",
+        "8106bd065f9182b9d0a30f58a7dab80579543b046584d14f81205b4a4ae91ea8"
       ]
     },
     "spacr.qt.widgets.fast_plots.GuideAgreementPlot": {
@@ -120079,11 +120999,12 @@
         "5878326aaecbc6206f51afe49dbfe609a31a6785544a929b16f3e6bf98eb32c0",
         "22fd81664192bb9c8c5addb8009c3e9c5fd5be1a914d8c770eb719ecd742dc66",
         "f8210cc3da27eb1579585930c2b614634cd1463fccab3c86a714c77fb8fe15fa",
+        "3c6e9bfbbc858d51cfdf4dd2e8dcbf3ec4a8a3311ba302e9dc5fbb2a53ab2eda",
         "1a93d461a5de1c3a147bd635510e301e8a17895d33421d21ae355a3ab21c71ff",
         "3761f835eecd2d8ff9cff4060a6421d68b408203e2ba8166567b2ad02219b3cd"
       ],
-      "source_sha256": "bfd3e3626f1f6fc20e01f7841fe4c0672023b9853ddba19254068a728482c363",
-      "text": "直播预览分区 widget — v2.\n\n互动 Cellpose 涂层表面为掩膜应用程序视图. 它提供:\n\n* **Zoomable 通道(Ctrl+scroll,在同步)。** 原始和掩膜的表面都生活在一个共享的 :class:`QGraphicsView` 对 - 面板和聚焦在一个和另一个跟踪像素为像素。\n* **Hover tooltip.** 将光标移到原始图像上,固定的状态线将显示每个图像数据通道的像素强度,以及上次分割时该位置的对象标签(如果有 ) 。  无论哪个视图持有光标,都会显示相同的工具提示。\n* **Normalise toggle.** 可选 2-98% 百分位数拉伸(每个图像数据通道为 RGB ), 因此原始低对比度图块可读。\n* **模型注意选项.** 每个模型都显示了完整的分区组。 Cellpose-SAM 会忽略 *不* ``flow_threshold``、 ``cellprob`` 或 ``diameter`` - 请参见 :data:`DIAMETER_TOOLTIP` 为杀死这个信念的测量。\n* **外线颜色 + 厚度.** 从工具栏中选择;效果一旦掩膜存在,就活着。 ``color (random)`` 将每个对象标签的稳定的类别颜色分配给每件物品标签,以便触摸掩膜仍然可区分。\n* **多对象分区** 一个 \"object type\" 组合在 ``cell``、 ``nucleus`` 和 ``cell + nucleus`` 之间的峰值. 在细胞 + 核模式中,面板运行两个 Cellpose 通道,并以不同的颜色将两掩膜放在上面。\n* **预 / 邮件过滤器**当对象类型为 ``cell``(或组合模式)时,面板路由掩膜应用程序(``cell_min_size``,``cell_max_size``, ``remove_background_cell``,背景强度, ...)通过分区设置前 / 后处理设置,用户将这些标签与专门的 \"Pre\" / \"Post\" 点击标签坐在 \"Run preview\" 旁边,与LP / AI 标签相同的视觉风格。\n\n整个档案保持安全输入,没有 cellpose - 每个 cellpose 通话都会在背景执行单位内轻松输入。",
+      "source_sha256": "18ed7e2c4708db2e7af60762c061a58a0de3e03b6327b4c93c7b07a6b86d3d01",
+      "text": "直播预览分区 widget — v2.\n\n互动 Cellpose 涂层表面为掩膜应用程序视图. 它提供:\n\n* **Zoomable canvases (Ctrl+scroll, in sync).** Both the original and the mask overlay live in a shared :class:`QGraphicsView` pair — pan and zoom on one and the other tracks pixel-for-pixel.\n* **Hover tooltip.** Move the cursor over the original and a pinned status line shows the pixel intensity for every image data channel plus, when present, the object label at that position from the last segmenta- tion. Same tooltip regardless of which view holds the cursor.\n* **Normalise toggle.** Optional 2–98 % percentile stretch (per image data channel for RGB) so raw low-contrast tiles are legible.\n* **模型注意选项.** 每个模型都显示了完整的分区组。 Cellpose-SAM 会忽略 *不* ``flow_threshold``、 ``cellprob`` 或 ``diameter`` - 请参见 :data:`DIAMETER_TOOLTIP` 为杀死这个信念的测量。\n* **外线颜色 + 厚度.** 从工具栏中选择;效果一旦掩膜存在,就活着。 ``color (random)`` 将每个对象标签的稳定的类别颜色分配给每件物品标签,以便触摸掩膜仍然可区分。\n* **多对象分区** 一个 \"object type\" 组合在 ``cell``、 ``nucleus`` 和 ``cell + nucleus`` 之间的峰值. 在细胞 + 核模式中,面板运行两个 Cellpose 通道,并以不同的颜色将两掩膜放在上面。\n* **处理会使用的模型,它说什么.** 面板阅读相同的设置工作流阅读 - ``pathogen_model`` ``pathogen_model_name`` 病原体, ``<object>_model_name`` 否则(:func:`_model_keys_for`) - 提供模型动物园旁边的组合,并命名模型生产的掩膜在状态线上。\n* **预 / 邮件过滤器**当对象类型为 ``cell``(或组合模式)时,面板路由掩膜应用程序(``cell_min_size``,``cell_max_size``, ``remove_background_cell``,背景强度, ...)通过分区设置前 / 后处理设置,用户将这些标签与专门的 \"Pre\" / \"Post\" 点击标签坐在 \"Run preview\" 旁边,与LP / AI 标签相同的视觉风格。\n\n整个档案保持安全输入,没有 cellpose - 每个 cellpose 通话都会在背景执行单位内轻松输入。",
       "translation_source_blocks_sha256": [
         "0074cc62e6d86b0ea70902892d80e6080c8203b1bb25121cb66261680e3f9203",
         "cdb6453814e3d70d1f357134515b1feda39c99082ff0a4243e6363eef6046c1a",
@@ -120093,6 +121014,7 @@
         "5878326aaecbc6206f51afe49dbfe609a31a6785544a929b16f3e6bf98eb32c0",
         "22fd81664192bb9c8c5addb8009c3e9c5fd5be1a914d8c770eb719ecd742dc66",
         "f8210cc3da27eb1579585930c2b614634cd1463fccab3c86a714c77fb8fe15fa",
+        "d9f77a0d70c8dc2494f89f5f29a03d9c7a394686af58ce6e9330fa695e0f600e",
         "1a93d461a5de1c3a147bd635510e301e8a17895d33421d21ae355a3ab21c71ff",
         "b2a59cec1f0888e2cead0dbe58edc17f18a00fa267efd603d5c2270f331e9823"
       ]
@@ -120331,12 +121253,16 @@
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.settings_for_propagation": {
       "source_blocks_sha256": [
-        "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338"
+        "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338",
+        "35ae37377e98f0d9f678969ee4850abac850ce3b7d7731897e2db33abac4133e",
+        "2a864d4c8be7ce885cceed2f677095e55e4acd767d8ccda5e834aa13b3f1dcfb"
       ],
-      "source_sha256": "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338",
-      "text": "将直播预览 widget 值地图到主面板设置名称。",
+      "source_sha256": "5f9d33342181f7e188cf3b1b913e0a6c6ce5f08012b0836bf914be2a646f0f3e",
+      "text": "将直播预览 widget 值地图到主面板设置名称。\n\n模型是从它被阅读的密钥写回的. 宣传只用来写 ``model_name`` 和 ``<primary>_model_name``,对于病原体,处理会不会读到第一: ``pathogen_model``在设置时都超越。 一个用户从一个 ``pathogen_model`` 检查点种植,转换了直播模型,并传播,并且处理会继续使用检查点 - 相同的预览 / 运行不一致,指出另一种方式。\n\n只有在设置时,面板保持 ALREADY 设置这个结构化数据名称. 写它否则会重新更换一个用户从未请求过的上线,而 ``pathogen_model`` 是验证的更困难的名称结构化信息名称(:mod:`spacr.validate` 停止处理会议在一个不存在的路径上)。",
       "translation_source_blocks_sha256": [
-        "9e4ffff2b2c3003230b0e59c904a23b118fb5d176c844caba6555e0d5b24b343"
+        "9e4ffff2b2c3003230b0e59c904a23b118fb5d176c844caba6555e0d5b24b343",
+        "3d83fe658951c9629e6217e718a9e91ea61ebeb715709da90b38035b9f53af7f",
+        "5d249c288323b58ca9b2096e4d7e33e62e7a89c79c1f500d1cb12aaa19003b0d"
       ]
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.showEvent": {
@@ -151514,7 +152440,7 @@
         "edee7f9d1ea29396078d952939a391d81458ff77f0bf3a0b0b4d0d5a61de95ad",
         "bca9f4ec20123c4b2c6a8cc212582955d4f5a99b46c7e8d7ea099d72cac6e8cb",
         "4a1282da69f9a0d22507b5a03fc04356147178691ac76678464f9273df9b8a84",
-        "169583af1d20022394196192edafcf6c57d642806338e163555bdb56e4b1001c",
+        "fb881cf77c5f5861ec786d118e734e149495b1c424fa27392e20b0200bc39e2c",
         "48342522ce71cfb8267f9c6e585ae9e99e0ae92508e47c871600cedb213b668e",
         "00b9b602b11f9b33ea44d3f40da5c86b2606b92b7443263bfc6a90da88769b69",
         "8d3a3ccb363ad646140582676a0bb2454033bba0fa85238e393c8f0987ecc5d6",
@@ -151533,8 +152459,8 @@
         "2ad9c559dde2223be68a57759ab1362182dd8905d0c06bfd902e3834d3142344",
         "5f49a191e85fa871451f0dcb697e2cca9f2c5b3b30c00073a87d46375f7f8ae1"
       ],
-      "source_sha256": "b990667ca60e3c59280e24849eaf6828e657c26c2f1f15f828742fe85ebb0018",
-      "text": "每个 spaCR 数字共享显示设定。\n\n定位的选项,如效果大小边界或颜色列,属于相应的子类。 只保留可携带值在这里允许一个保存的房间风格应用到各个字符类型。\n\n:param x_label: 垂直轴标签提供给雷达;空允许雷达特定的或默认的行为。\n:param y_label: 垂直轴标签提供给雷达;空允许雷达特定的或默认的行为。\n:param title: 数字标题;空白抑制共享标题操作。\n:param x_scale: Matplotlib 从 :data:`SCALES` 的垂直尺寸。\n:param y_scale: Matplotlib 从 :data:`SCALES` 的垂直尺寸。\n:param x_lim: 明确的水平 ``(minimum, maximum)`` 限制,或 ``None`` 数据衍生限制。\n:param y_lim: 明确的垂直 ``(minimum, maximum)`` 限制,或 ``None``。\n:param invert_x: 是否要在限制适用后逆转垂直轴。\n:param invert_y: 是否要逆转垂直轴后,限制适用。\n:param font_family: 字体家庭偏好可用于支持一个全方位家庭的 renderers。\n:param font_size: 基本文本尺寸可用于字体特定的预测。\n:param title_font_size: 标题大小点。\n:param label_font_size: 轴标签尺寸在点。\n:param tick_font_size: 标签尺寸在点。\n:param font_weight: 分享 Matplotlib 文本重量。\n:param figure_width: 图形容器宽度为直播和保存使用的英寸。\n:param figure_height: 尺寸在英寸的高度,可用于生存和保存使用。\n:param dpi: 每英寸点用于拉斯特输出。\n:param grid: 是否选择的网络是可见的。\n:param grid_axis: 接收网线的轴: ``\"x\"``、 ``\"y\"``、``\"both\"``、或 ``\"none\"``。\n:param grid_color: Matplotlib 相容的网线颜色。\n:param grid_width: 线路宽度在点。\n:param hide_top_right_spines: 是否要移除顶部和右边框线。\n:param legend: 是否有关键标志的雷达人应该绘制一个传奇。\n:param legend_location: Matplotlib 传奇从 :data:`SHARED_CHOICES` 的位置。\n:param background_color: 名为页面和轴颜色; ``\"none\"`` 将背景选项分配给播放器。\n:param transparent: 是否出口的数字背景是透明的。",
+      "source_sha256": "348f3e629a63979999bf29dc77034414bb66a0c9d5771441ac6242aa6fb1d09d",
+      "text": "每个 spaCR 数字共享显示设定。\n\n定位的选项,如效果大小边界或颜色列,属于相应的子类。 只保留可携带值在这里允许一个保存的房间风格应用到各个字符类型。\n\n:param x_label: 垂直轴标签提供给雷达;空允许雷达特定的或默认的行为。\n:param y_label: 垂直轴标签提供给雷达;空允许雷达特定的或默认的行为。\n:param title: 数字标题;空白抑制共享标题操作。\n:param x_scale: Matplotlib 从 :data:`SCALES` 的垂直尺寸。\n:param y_scale: Matplotlib 从 :data:`SCALES` 的垂直尺寸。\n:param x_lim: 明确的水平 ``(minimum, maximum)`` 限制,或 ``None`` 数据衍生限制。\n:param y_lim: 明确的垂直 ``(minimum, maximum)`` 限制,或 ``None``。\n:param invert_x: 是否要在限制适用后逆转垂直轴。\n:param invert_y: 是否要逆转垂直轴后,限制适用。\n:param font_family: 字体家庭偏好可用于支持图形宽的家庭的传递器. 对面 spaCR 船舶的缺陷; 见 :func:`font_names`。\n:param font_size: 基本文本尺寸可用于字体特定的预测。\n:param title_font_size: 标题大小点。\n:param label_font_size: 轴标签尺寸在点。\n:param tick_font_size: 标签尺寸在点。\n:param font_weight: 分享 Matplotlib 文本重量。\n:param figure_width: 图形容器宽度为直播和保存使用的英寸。\n:param figure_height: 尺寸在英寸的高度,可用于生存和保存使用。\n:param dpi: 每英寸点用于拉斯特输出。\n:param grid: 是否选择的网络是可见的。\n:param grid_axis: 接收网线的轴: ``\"x\"``、 ``\"y\"``、``\"both\"``、或 ``\"none\"``。\n:param grid_color: Matplotlib 相容的网线颜色。\n:param grid_width: 线路宽度在点。\n:param hide_top_right_spines: 是否要移除顶部和右边框线。\n:param legend: 是否有关键标志的雷达人应该绘制一个传奇。\n:param legend_location: Matplotlib 传奇从 :data:`SHARED_CHOICES` 的位置。\n:param background_color: 名为页面和轴颜色; ``\"none\"`` 将背景选项分配给播放器。\n:param transparent: 是否出口的数字背景是透明的。",
       "translation_source_blocks_sha256": [
         "94309949f2246e352cb2054d59f1d1c9d6a12eaa8bd7150e5022635d8dd58b4f",
         "589e268a839e19002d5d4c53d280abb7a2174a05190328093aa577003f437882",
@@ -151547,7 +152473,7 @@
         "edee7f9d1ea29396078d952939a391d81458ff77f0bf3a0b0b4d0d5a61de95ad",
         "bca9f4ec20123c4b2c6a8cc212582955d4f5a99b46c7e8d7ea099d72cac6e8cb",
         "4a1282da69f9a0d22507b5a03fc04356147178691ac76678464f9273df9b8a84",
-        "169583af1d20022394196192edafcf6c57d642806338e163555bdb56e4b1001c",
+        "fb881cf77c5f5861ec786d118e734e149495b1c424fa27392e20b0200bc39e2c",
         "48342522ce71cfb8267f9c6e585ae9e99e0ae92508e47c871600cedb213b668e",
         "00b9b602b11f9b33ea44d3f40da5c86b2606b92b7443263bfc6a90da88769b69",
         "8d3a3ccb363ad646140582676a0bb2454033bba0fa85238e393c8f0987ecc5d6",
@@ -151597,16 +152523,50 @@
         "da0b061dc09f9673c38139b7500165976216ad5932d410049754f656f18bdbdd",
         "e993553c53c637bdca0f8378febfd003fc5f2699d4c46df9acb8f0eadbc40877",
         "5e9c12cd9955a633f83378505074113861479f2295339e72f48ab501e18fbab7",
-        "1e3f7183794c034dcf22f39fa3e2eaf2d49e02e79110e6cec0a58840614c6fbf"
+        "091c7b4f5b0db8c265b543edca6bee3221d0f98c777983ea962caf30687d7eaa"
       ],
-      "source_sha256": "d3f31d71c3b09bf78737928299186b9ea9bf870d29e42088a68a2bb37fbc4220",
-      "text": "应用共享轴、字体图、网络、脊椎和页面设置。\n\n:param figure: Matplotlib 图,其页面显示已更新。\n:param axes: Matplotlib 轴,其演示文稿已更新。\n:param style: 共享图形风格设置适用。\n\n它只会改变图像和轴演示;它不会添加或删除数据标志。",
+      "source_sha256": "c35d48336173096d79a57e8764067d48205f017f5eac750861a109285d53d999",
+      "text": "应用共享轴、字体图、网络、脊椎和页面设置。\n\n:param figure: Matplotlib 图,其页面显示已更新。\n:param axes: Matplotlib 轴,其演示文稿已更新。\n:param style: 共享图形风格设置适用。\n\n它只改变图像和轴的呈现;它不添加或删除数据标志. 标题,轴标签和点标签被放入风格的家庭 - :func:`font_names` - 因此,引导一个字体 ``rc_context`` 仍然得到面部 spaCR 船,而不是 DejaVu Sans。",
       "translation_source_blocks_sha256": [
         "d570e0b6162b99057a01a87f815e4f85e3a6aade4df86edb0e07737b55895354",
         "da0b061dc09f9673c38139b7500165976216ad5932d410049754f656f18bdbdd",
         "e993553c53c637bdca0f8378febfd003fc5f2699d4c46df9acb8f0eadbc40877",
         "5e9c12cd9955a633f83378505074113861479f2295339e72f48ab501e18fbab7",
-        "1e3f7183794c034dcf22f39fa3e2eaf2d49e02e79110e6cec0a58840614c6fbf"
+        "091c7b4f5b0db8c265b543edca6bee3221d0f98c777983ea962caf30687d7eaa"
+      ]
+    },
+    "spacr.style_base.font_names": {
+      "source_blocks_sha256": [
+        "0691fea055689963fd25797fff713d5b919aa6162c56641f6b84c12fceebbe1a",
+        "ea7d761f3e2acb03074e71cd91835f5658f50fedea0ba66cc3b872898c67b905",
+        "d3a4d759b9bf6df1a081ca6ed3d572eb943c921cebe944614dbfe3ae619d0a48",
+        "9ea43d42e2670a767398f1993adf8a2ffa3691831ead752eecb1a594f6a53544",
+        "e2b6676ee22a9bb92cde99a4480f7bcf93da4337b714cdd870ff6c8b51568340"
+      ],
+      "source_sha256": "135b3ca98bd81f976d7dbf1f096bc2764c57e29cbaff3609b97cfdd3b2793a85",
+      "text": "家庭请求 matplotlib 为,最好首先,面部注册。\n\n:param style: 图形风格,其 ``font_family`` 是第一个选择。\n:returns: 家庭列表适合 ``font.family``、 ``FontProperties`` 或 :meth:`matplotlib.text.Text.set_fontfamily`. 一般家庭单独返回,因为 matplotlib 通过自己的列表解决。\n\nMatplotlib 回答一个名字它不能找到,落后 - 沉默,打破一个 ``findfont`` 警告 - 到 DejaVu Sans,所以一个风格说 \"Open Sans\" 在一个机器上,在那里 Open Sans 从未安装在 Deja Vu Sans 和看起来不像界面周围. 这个注册面孔 spaCR 船只之前命名他们,这就是什么使名称解决在那个机器,并放置 :data:`FONT_FAMILY` 最后,这样一个选择的家庭机器没有土地在房子面孔而不是 Dejavu Sans。\n\n没有什么在 :data:`FONT_FAMILY` 之后列出:它是从包中的文件中注册的,所以它总是解决的,并且列表中的一个不可访问的名称只会使 matplotlib 警告一次,每条拖动的字符串,它将永远不会使用的字体。",
+      "translation_source_blocks_sha256": [
+        "0691fea055689963fd25797fff713d5b919aa6162c56641f6b84c12fceebbe1a",
+        "ea7d761f3e2acb03074e71cd91835f5658f50fedea0ba66cc3b872898c67b905",
+        "d3a4d759b9bf6df1a081ca6ed3d572eb943c921cebe944614dbfe3ae619d0a48",
+        "9ea43d42e2670a767398f1993adf8a2ffa3691831ead752eecb1a594f6a53544",
+        "e2b6676ee22a9bb92cde99a4480f7bcf93da4337b714cdd870ff6c8b51568340"
+      ]
+    },
+    "spacr.style_base.font_rc": {
+      "source_blocks_sha256": [
+        "0dde586c76e4be446d7b00b1a2c56781259fb4c3566656a6a598991d066e0c1c",
+        "a44ee56931e3116b9159e5e17ee2ae663bfe2a870af42fbf183ce34619139047",
+        "ac63a0bbdd75a1614e03f37ae21b0427c628998168defa4a16d9170ab22f73a2",
+        "c11a002c41d36eb43fb5bdba9b9451d2ea7d0973339bcaad29c7307494649039"
+      ],
+      "source_sha256": "4cd61eae40cb935843c172278b180dbc3632bee64f24692affb329684bb9fde4",
+      "text": "Matplotlib 字体参数 一个风格要求。\n\n:param style: 图形风格提供家庭、尺寸和体重。\n:returns: ``rcParams`` 输入引入,因为 ``matplotlib.rc_context`` 采取它们。\n\n把它放在 ``rc_context`` 而不是手动收集 ``font.*``:当可解决的列表 :func:`font_names` 构建时,家庭会到达,连接的面孔已经注册了。",
+      "translation_source_blocks_sha256": [
+        "0dde586c76e4be446d7b00b1a2c56781259fb4c3566656a6a598991d066e0c1c",
+        "a44ee56931e3116b9159e5e17ee2ae663bfe2a870af42fbf183ce34619139047",
+        "ac63a0bbdd75a1614e03f37ae21b0427c628998168defa4a16d9170ab22f73a2",
+        "c11a002c41d36eb43fb5bdba9b9451d2ea7d0973339bcaad29c7307494649039"
       ]
     },
     "spacr.style_base.style_kind": {

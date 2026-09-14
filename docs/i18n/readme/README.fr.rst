@@ -212,18 +212,23 @@ La deuxième ligne n'est nécessaire que lorsque les dépendances ou les points 
 Installer à partir de la source (lumière)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-clone complet: 427 Mo. clone de base: 76 Mo.
+Les contributeurs ont besoin de l'historique; pour exécuter seulement spaCR, prenez l'un d'eux, mesuré 2026-09-14 par ``packaging/measure_clone_forms.sh``::
 
-::
+    # One commit instead of every version: 595 MB downloaded, 31 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 86 MB on disk, 5 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Passer ``docs/``, ``tests/``, les points de contrôle Cellpose, des chiffres archivés et les catalogues de traduction étendus. Le résultat est une commande normale.
-
-Options : ``--dir``, ``--branch`` (par défaut ``main``), ``--with-tests``,``--with-docs``, [``--with-translations`` et ``--no-install``.
-
-``packaging/source_install_excludes.txt`` liste tous les chemins échappés.
+Le clone complet télécharge 5,8 Go pour une caisse de 941 Mo. Ajouter ``--filter=blob:none`` à ce clone ne sauve rien: la caisse récupère les blobs de toute façon.
 
 
 Points d’entrée en ligne de commande

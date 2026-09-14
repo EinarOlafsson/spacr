@@ -5822,10 +5822,10 @@
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ],
       "source_sha256": "57b68696336e5f7a72e7b9edd916bee844220e0122721a66480c65afef6a3999",
-      "text": "``spacr.batch`` - 자발적인 모듈+설정 작업을 하나의 소프트웨어 작업 목록에 삽입하고 예상치 못하게 실행합니다.\n\n플레이트 처리 목록 (:mod:`spacr.qt.plate_queue`) 쇠사슬 *플레이트* *one* 작업 흐름을 통해 *One* 설정 키 가치 맵링.이 모듈은 다른 좌석입니다 : 소프트웨어 작업 목록 자발적인 ``(module, settings)`` 작업 어떤 순서 - ``Mask → Measure → Classify (CV) → Classify (ML)``, 다음 같은 네 다시 다른 직경, 다음 다섯 번째 플레트의 마스크 - 그것은 플레드 스케일 작업의 밤이 실제로 보인다.\n\n일자리 **is** ``spacr-run`` 호출. 여기서 아무것도 모듈 배송 또는 설정 충전을 다시 구현하지 않습니다 : :mod:`spacr.cli`은 모듈 레지스트리, 설정을 충전, ``--set`` 강제 및 출력 코드 계약을 소유하고 있습니다 (0 OK, 1 모듈 상승, 2 나쁜 논쟁 또는 설정을), 이 모듈은 그것을 운전합니다. 마찬가지로 소프트웨어 일자리 목록은 ledgers**의**ledger입니다: 소프트웨이 일자리의 자체 판단은 :class:`spacr.errors.RunLedger`입니다. 소프트웨어 작업 목록 파일 옆에 표시, 그리고 각 작업의 :func:`spacr.errors.read_run_status` 표지판이 다시 읽어지므로 40 필드를 조용히 뛰어 넘어서 0을 벗어난 작업은 *partial*가 아니라 성공으로 알려져 있습니다.\n\n일자리 목록이 밤에 살아남는 것을 만드는 것은 아무도 보지 않는다 :\n\n* **모든 작업이 추가되면 검증되며 실행되지 않습니다.** 오전 3시에 작업 9의 ``src``가 잘못 녹는 것을 발견하면 밤새 낭비됩니다. :func:`validate_queue` *all* 문제를 한 번에 보고하고 :func:`run_queue` 실수 중 하나가있는 동안 시작하기를 거부합니다.\n* **상태는 각 전환 후에 지속됩니다, 원자로.** 소프트웨어 작업 목록을 처리하는 동안 다시 시작하는 기계는 :func:`resume_queue`로 재시작되지 않습니다.이 파일은 속도 이름으로 작성되며 ``os.replace``\\d, 왜냐하면 작업 목록 파일이 충돌에 의해 흔들리기 때문에 작업 리스트 파일이 전혀 없습니다.\n* **실패한 의존성의 작업은 SKIPPED, 실행되지 않습니다.** 실패한 마스크 후 측정은 실제 결과처럼 보이는 데이터베이스를 생성합니다. ``skipped`` (실의적으로 실행하지 않은), ``failed`` 및 ``not_run`` (소프트웨어 작업 목록이 그것을 달성하기 전에 중단되었습니다)는 세 가지 다른 것들입니다.\n* **continue-on-error는 체계적인 실패를 숨기지 않습니다.** 첫 3 개의 직업이 같은 방식으로 사망하면 나머지 9 개도 마찬가지입니다; ``max_consecutive_failures`` 소프트웨어 작업 목록을 유지하고 그렇게 말합니다.\n* **일자리 로그는 자신의 파일**로 이동합니다 - 12 개의 밤에 일자리에서 한 개의 간격 로그는 읽을 수 없습니다 - 그리고 경로는 일자리 기록에 있습니다.\n\n상품명 : 일자리 실행 **한 번에 엄격히 하나**그들은 하나를 위해 경쟁한다. GPU 그리고 두 Cellpose 일자리 카드를 공유하는 방법은 밤중 처리 세션이 밤중으로 변하는 방법입니다. CUDA 의도적으로 존재하지 않는다. ``max_workers``실제로 두 개의 카드를 가지고 있다면 두 가지 프로세스에서 2 개의 소프트웨어 작업 목록을 실행합니다.\n\n수입 비용: 이 모듈은 표준 라이브러리 플러스 :mod:`spacr.cli`, :mod:`spacr.errors` 및 :mod:`spacr.validate`만 수입하며, 이 모두는 torch-무료입니다. 소프트웨어 작업 목록 파일은 GPU 스택없이 로그인 노드에서 읽고, 검증하고, 계획할 수 있습니다.\n\n전형적인 사용::\n\n    from spacr.batch import Job, Queue, run_queue, save_queue\n\n    q = Queue(name='overnight')\n    q.add(Job(module='mask',    settings='/data/p1/settings/mask.csv'))\n    q.add(Job(module='measure', settings='/data/p1/settings/measure.csv',\n              depends_on=['mask-1']))\n    save_queue(q, '/data/overnight.queue.json')\n    result = run_queue(q, path='/data/overnight.queue.json')\n    print(result.summary())",
+      "text": "``spacr.batch`` - 자발적인 모듈+설정 작업을 하나의 소프트웨어 작업 목록에 삽입하고 예상치 못하게 실행합니다.\n\nThe Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* workflow with *one* settings key-value mapping. This module is the other axis: a software job list of arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — which is what a night of plate-scale work actually looks like.\n\nA queued job **is** a ``spacr-run`` invocation. Nothing here re-implements module dispatch or settings loading: :mod:`spacr.cli` owns the module registry, the settings loader, the ``--set`` coercion and the exit-code contract (0 ok, 1 the module raised, 2 bad arguments or settings), and this module drives it. Likewise a software job list is a **ledger of ledgers**: the software job list's own verdict is a :class:`spacr.errors.RunLedger`, stamped next to the software job list file, and each job's :func:`spacr.errors.read_run_status` stamp is read back so a job that exited 0 having silently skipped 40 fields is reported as *partial* rather than as a success.\n\n일자리 목록이 밤에 살아남는 것을 만드는 것은 아무도 보지 않는다 :\n\n* **모든 작업이 추가되면 검증되며 실행되지 않습니다.** 오전 3시에 작업 9의 ``src``가 잘못 녹는 것을 발견하면 밤새 낭비됩니다. :func:`validate_queue` *all* 문제를 한 번에 보고하고 :func:`run_queue` 실수 중 하나가있는 동안 시작하기를 거부합니다.\n* **상태는 각 전환 후에 지속됩니다, 원자로.** 소프트웨어 작업 목록을 처리하는 동안 다시 시작하는 기계는 :func:`resume_queue`로 재시작되지 않습니다.이 파일은 속도 이름으로 작성되며 ``os.replace``\\d, 왜냐하면 작업 목록 파일이 충돌에 의해 흔들리기 때문에 작업 리스트 파일이 전혀 없습니다.\n* **실패한 의존성의 작업은 SKIPPED, 실행되지 않습니다.** 실패한 마스크 후 측정은 실제 결과처럼 보이는 데이터베이스를 생성합니다. ``skipped`` (실의적으로 실행하지 않은), ``failed`` 및 ``not_run`` (소프트웨어 작업 목록이 그것을 달성하기 전에 중단되었습니다)는 세 가지 다른 것들입니다.\n* **continue-on-error는 체계적인 실패를 숨기지 않습니다.** 첫 3 개의 직업이 같은 방식으로 사망하면 나머지 9 개도 마찬가지입니다; ``max_consecutive_failures`` 소프트웨어 작업 목록을 유지하고 그렇게 말합니다.\n* **Per-job 로그는 자신의 파일**로 이동합니다 - 12 개의 밤에 일하는 중간 로그는 읽을 수 없습니다 - 그리고 경로는 작업 기록에 있습니다.\n\nConcurrency: jobs run **strictly one at a time**. They compete for one GPU, and two Cellpose jobs sharing a card is how an overnight processing session turns into an overnight CUDA OOM. There is deliberately no ``max_workers``; run two software job lists in two processes if you really have two cards.\n\n수입 비용: 이 모듈은 표준 라이브러리 플러스 :mod:`spacr.cli`, :mod:`spacr.errors` 및 :mod:`spacr.validate`만 수입하며, 이 모두는 torch-무료입니다. 소프트웨어 작업 목록 파일은 GPU 스택없이 로그인 노드에서 읽고, 검증하고, 계획할 수 있습니다.\n\n전형적인 사용::\n\n    from spacr.batch import Job, Queue, run_queue, save_queue\n\n    q = Queue(name='overnight')\n    q.add(Job(module='mask',    settings='/data/p1/settings/mask.csv'))\n    q.add(Job(module='measure', settings='/data/p1/settings/measure.csv',\n              depends_on=['mask-1']))\n    save_queue(q, '/data/overnight.queue.json')\n    result = run_queue(q, path='/data/overnight.queue.json')\n    print(result.summary())",
       "translation_source_blocks_sha256": [
         "b2d244da2d4f05aedb097e99668d52ffe6621ae91e3f21871e7ae285f14e1a77",
-        "f6c4518a414f90e0b88fc5087c68295de2d6578a243e87953439661c5dd2ac37",
+        "4f65676ed47ed2709cf6f9bd978104f538a180ae5783251da43b81ed313f8f41",
         "c961c02af8bce019a2f70d0c4fb3484f666598c396ff22e9db688609ed374171",
         "765e2a04d96a94aea04b77b9730304fdc30239f92553fa2c50da333d33e4bbd5",
         "7348135caf02cee1b4338694486afe39c3699fabd0d1555660e98c3342263276",
@@ -11254,6 +11254,134 @@
         "3a8aced33675b173459c19aefe00de29c8f2e40e1f70dc55c5389fd990dffe5c"
       ]
     },
+    "spacr.cli_make_masks": {
+      "source_blocks_sha256": [
+        "3baedc6c4989969aa27e64caf192ff8bba05ef2705ba4267459d08aa21653531",
+        "d25681d36ab0a15210aa5aa27ebf0439f006e7a5fd2f26c27526c41f67a67e00",
+        "158e4c55397fec0051adb73c82ab56a64eccb65e63d56ac2ee44eee4c4e136a2",
+        "8c25c51e8afc34eba3409ea557d1dfd0265da96aff0931cc8a33f40e50b27f29",
+        "c1008441c62cba47dea840b01e15422e026cd5fbac60264c1bec99f0158532ea",
+        "000b6618d8bf928a329d827924ff9469fbb606519263b3dff08f78d1ecfb4877",
+        "12ad8cf01d18f20dc4cbd1f5269726b0458a980e9b5c2b57ad9d0d3e3803361c",
+        "29e9facf24e02b1e9c0a112daa5cb3c697339b348af4be2387e912c64a3395f8",
+        "1ee6750c36f6b8bbc4d071c9ee68e841f62dddc6d2b255bbddeda2c51213a3e7",
+        "7363751daaad89105b37f38c2fa402450602751da13289cff1031eac506560a6"
+      ],
+      "source_sha256": "429175565f3e602f8c7c24de9f66c05b3677c0cb6b550743c3bfe270ad3b6b6f",
+      "text": "``spacr-make-masks`` - 작업 목록으로 폴더에 마스크 편집기를 열어줍니다.\n\nLedger item 396 asks for a curation session that can be started from a terminal, pointed at a folder, bounded, and resumed. Curation is done over SSH and on more than one machine, and the answer until now was ``spacr/cli.py``'s flat refusal — *\"Make Masks is a manual mask editor; run it in the GUI\"*. That sentence is still true about the brush and false about the session. This module is the session::\n\n    spacr-make-masks --folder <dir>\n    spacr-make-masks --folder <dir> --order value --limit 25\n    spacr-make-masks --folder <dir> --dry-run      # no display needed\n\n:mod:`spacr.curation_queue` does the thinking — which fields are waiting, in what order, and what was already decided about each one. This module is the thin part: parse four arguments, build the work list, say what the session is, and only then start Qt.\n\n폴더가 읽고 받아 들일 때까지 :mod:`spacr.qt`에서 아무것도 가져오지 않습니다.이 명령은 모듈의 포인트가 아닌 그것의 세부 사항입니다 : 존재하지 않는 폴드, 또는 spaCR 레이아웃을 가지고 있지 않은 인식, 표시가없는 로그인 노드에 문장으로 응답됩니다, 10 초 수입 후 Qt 충돌이 아닙니다.\n\n편집자가 열기 전에 인쇄되는 것\n---------------------------------------\n\n세션의 요약, 리더의 자신의 조건에서::\n\n    nested layout at /data/pv: 500 bundles, 366 done, 29 skip, 105 remaining;\n    25 this session, sorted by easy\n\n그러므로 큐레이터는 그들이 다시 들어오고 있는 것을 보며, 창문이 아닌 그들이 시작한 구멍 속에서 그것을 보게 된다.\n\n하나의 레이아웃은 편집기를 열고, 세 개는 작업 목록을 열어줍니다.\n----------------------------------------------------------------\n\n:func:`spacr.curation_queue.detect_layout` reads three layouts. The editor edits ONE of them: Make Masks reads a draft from ``<folder>/masks/<stem>.tif`` and writes the curated mask back to the same place, which is the ``nested`` layout and nothing else. So a ``sibling`` or ``seg`` folder is summarised, ordered and listed by ``--dry-run`` — and the editor is refused, by name, with what it would have done wrong. Opening a sibling set on its ``images`` folder would read and write ``images/masks``, silently orphaning every draft mask the set already has; that is worse than a refusal, and it is the failure mode the ledger's \"loaded as empty\" warning is about.\n\n출구 코드::\n\n    0   the editor ran, or --dry-run printed the queue, or there was\n        nothing left to curate\n    1   the Qt interface could not start\n    2   bad arguments, a folder that is not there, a folder holding no\n        recognisable layout, or a layout the editor cannot edit in place",
+      "translation_source_blocks_sha256": [
+        "4f366c4ce446a02acaed8de389f7b45ec73bf8d77573a096502a4df5a1e1374c",
+        "d25681d36ab0a15210aa5aa27ebf0439f006e7a5fd2f26c27526c41f67a67e00",
+        "1426e2d66d0ec2569f520de2b3fdf6f9341071b8d253664df7b3fe1a8aa7936a",
+        "8c25c51e8afc34eba3409ea557d1dfd0265da96aff0931cc8a33f40e50b27f29",
+        "c1008441c62cba47dea840b01e15422e026cd5fbac60264c1bec99f0158532ea",
+        "000b6618d8bf928a329d827924ff9469fbb606519263b3dff08f78d1ecfb4877",
+        "12ad8cf01d18f20dc4cbd1f5269726b0458a980e9b5c2b57ad9d0d3e3803361c",
+        "6d2e9cb76245fb265581393dea13c43569b385a56a82bb8717ecaa712a67b557",
+        "1ee6750c36f6b8bbc4d071c9ee68e841f62dddc6d2b255bbddeda2c51213a3e7",
+        "7363751daaad89105b37f38c2fa402450602751da13289cff1031eac506560a6"
+      ]
+    },
+    "spacr.cli_make_masks.build_parser": {
+      "source_blocks_sha256": [
+        "541b663d52d5fb2d2717bdc1f03bcebf07799da8337b46edf61c0f36a0456bd4",
+        "e5632165eaa3c355d2f6102e544fd8fa4142598e39d19a47df01cd3170f4b257"
+      ],
+      "source_sha256": "843ee477b8c996bdf62abb4ecf7e3a1f4d7a4547239c2491d9363f7a82c45c95",
+      "text": "``spacr-make-masks`` 논쟁 파세어를 구축합니다.\n\n:returns: the parser, with ``--folder``, ``--order``, ``--limit`` and ``--dry-run`` on it.",
+      "translation_source_blocks_sha256": [
+        "541b663d52d5fb2d2717bdc1f03bcebf07799da8337b46edf61c0f36a0456bd4",
+        "e5632165eaa3c355d2f6102e544fd8fa4142598e39d19a47df01cd3170f4b257"
+      ]
+    },
+    "spacr.cli_make_masks.editor_refusal": {
+      "source_blocks_sha256": [
+        "259fa8186d3f1d67b0b5ef274fceb1ad6924ed48b094b61d03c485691c1574b7",
+        "1bdaf5b71942f84af6319afde1d326c698269443b3f2e28a627f431fcdc3fc6e",
+        "5fe4798aae2e56c4a83f092d6bb48d17e54afd1251531d378b142d0ba8a77525"
+      ],
+      "source_sha256": "ad03f0a1afac5fe53bd781e871c7e8067cac6dec52cb79ed55cfa65aa306e569",
+      "text": "왜 편집자가 이 배열을 장소에서 열지 않는지 말해 주십시오.\n\n:param queue: 작성된 작업 목록은 Make Masks 레이아웃에서 편집할 수 없습니다.\n:returns: 거부, 편집자가 읽고 쓰는 것을 명칭하고,이 폴더에서 여전히 작동하는 것을.",
+      "translation_source_blocks_sha256": [
+        "259fa8186d3f1d67b0b5ef274fceb1ad6924ed48b094b61d03c485691c1574b7",
+        "960aff22e7e8e870d07414891d8aa744de74ec94007e573cf813aebb16b2e4df",
+        "5fe4798aae2e56c4a83f092d6bb48d17e54afd1251531d378b142d0ba8a77525"
+      ]
+    },
+    "spacr.cli_make_masks.hand_over": {
+      "source_blocks_sha256": [
+        "40caf946c9b4421d8b47e2654f3626cff9d263937c4662dbce436c3758243ba4",
+        "272261c1f8e72febdac3dd3102e548eb78573a48228fbb8cb9b867db293b5379"
+      ],
+      "source_sha256": "367bf1d1ce0dfa568e841ed9c22a3d7f58d1683ce6fdd019485c04b7cda467e1",
+      "text": "다음 Make Masks 응용 프로그램 보기에 ``queue``를 남겨 두십시오.\n\n:param queue: 세션을 전달하거나 ``None`` 슬롯을 삭제합니다.",
+      "translation_source_blocks_sha256": [
+        "4e7cb59884c4939f502827e2dfe302f77f879033a572f2647194232b768737fb",
+        "272261c1f8e72febdac3dd3102e548eb78573a48228fbb8cb9b867db293b5379"
+      ]
+    },
+    "spacr.cli_make_masks.has_display": {
+      "source_blocks_sha256": [
+        "d5b4cbae93c6cde5c52ebf6dced12b6ab29a3257b68dacdb79cab0087e808408",
+        "d77f7d23b956800dc04a73073d318e5cb7a0b9f002d17d68668625d4af317e73",
+        "73cffa7c2ead9a0ff1f4715fd75ad9af1269b13df4119e9e96f7c0fca5116979",
+        "2862c45bd7892857633cf64ce5373267821bf33870117c212e4f900e717ef66b"
+      ],
+      "source_sha256": "f5617edb7ea8d5cf70a814eb80c4bdce380a9cd39fa387c7857cbaa14a727e63",
+      "text": "편집자가 열 수 있는 창 시스템이 있는지 여부.\n\nThe same three-line question :func:`spacr.cli.use_agg_if_headless` asks of matplotlib, asked of Qt and asked BEFORE Qt is imported: an SSH session with no X forwarding otherwise gets \"could not load the Qt platform plugin xcb\" and an abort, which says nothing about the work list that was perfectly readable a moment earlier.\n\nAn explicit ``QT_QPA_PLATFORM`` counts as a display. It is how offscreen rendering, VNC and the embedded platforms are asked for, and somebody who set it has already said which surface Qt is to use.\n\n:returns: 편집자가 여기에 열릴 수 있는지 여부.",
+      "translation_source_blocks_sha256": [
+        "d5b4cbae93c6cde5c52ebf6dced12b6ab29a3257b68dacdb79cab0087e808408",
+        "898757548d8ced87414c26e359409d4fca459c420cc2c8a6d50194f88bfa0179",
+        "73cffa7c2ead9a0ff1f4715fd75ad9af1269b13df4119e9e96f7c0fca5116979",
+        "2862c45bd7892857633cf64ce5373267821bf33870117c212e4f900e717ef66b"
+      ]
+    },
+    "spacr.cli_make_masks.main": {
+      "source_blocks_sha256": [
+        "26d6e3977f9932c4d972206bcb86be8e3114f9a3f7e0a799bbb4f1fa70294830",
+        "85ff624e69170021eed0e661d341640e80dc9bcf4532544cca76ab763b85c1ae",
+        "1f3321b681e92804830e73b756927e5e461473615ab7402081148ac7f7cfb37e",
+        "15cb64f4244e135c7eadb4d0a9eb5e0342f79bb03a7df05feb9fd4d59118f78f"
+      ],
+      "source_sha256": "3635dc35fbd156cd37783f04b34b728a49078d1723763bd79e478a4a3c0a3802",
+      "text": "치유 세션으로 폴더를 열거나 왜 열 수 없다고 말하십시오.\n\n:param argv: 프로그램 이름이 없는 명령 라인 논쟁. ``None``는 :data:`sys.argv`를 읽습니다.\n:returns: 프로세스 출력 코드; 각각의 의미에 대한 모듈 도크스트링을 참조하십시오.\n:raises SystemExit: ``2`` 상태로 논쟁 자체가 무효한 경우, 이는 argparse 자체의 거부입니다.",
+      "translation_source_blocks_sha256": [
+        "26d6e3977f9932c4d972206bcb86be8e3114f9a3f7e0a799bbb4f1fa70294830",
+        "85ff624e69170021eed0e661d341640e80dc9bcf4532544cca76ab763b85c1ae",
+        "1f3321b681e92804830e73b756927e5e461473615ab7402081148ac7f7cfb37e",
+        "15cb64f4244e135c7eadb4d0a9eb5e0342f79bb03a7df05feb9fd4d59118f78f"
+      ]
+    },
+    "spacr.cli_make_masks.open_editor": {
+      "source_blocks_sha256": [
+        "e42eb085045e3d382e4054de83f4b38072f556c6730668b310fff8e4d5222718",
+        "53ef2d646dc8eb6ae9b793d2feeaeafe0e30a5314d5e986bba6d6401f2aa3da2",
+        "7195e08d7ad0ccaeb9c18879ce24ed845adef6b797520d25d6b0a5d68630af63",
+        "a9225b6e4b67ea85fbc27faeb542d463b6215d40eaed7aed0938bb86b6cd044f"
+      ],
+      "source_sha256": "109c5b40c42dcc4d02ddc79342af62adfbb642508d65a8bed1fcc8aeb46a19be",
+      "text": "Start the GUI on ``queue`` and return the process exit code.\n\nQt is imported HERE and nowhere above: everything that can be refused has been refused by the time this is called.\n\n:param queue: 편집자가 열리는 세션입니다.\n:returns: 출력 코드 :func:`spacr.qt.run` 또는 :data:`EXIT_NO_GUI`가 열려 있는 디스플레이가 없거나 Qt 인터페이스가 설치되지 않은 경우에 반환됩니다.",
+      "translation_source_blocks_sha256": [
+        "e42eb085045e3d382e4054de83f4b38072f556c6730668b310fff8e4d5222718",
+        "53ef2d646dc8eb6ae9b793d2feeaeafe0e30a5314d5e986bba6d6401f2aa3da2",
+        "7195e08d7ad0ccaeb9c18879ce24ed845adef6b797520d25d6b0a5d68630af63",
+        "a9225b6e4b67ea85fbc27faeb542d463b6215d40eaed7aed0938bb86b6cd044f"
+      ]
+    },
+    "spacr.cli_make_masks.take_handover": {
+      "source_blocks_sha256": [
+        "f0efc69ebab621905de3cd83618a578554312ad7254388a92a909c85d664ccce",
+        "932dd35a832d0cd531aff34816108f2ed60db77423a9070282e46a71d6ca1930",
+        "7d452baf77bcfdcf129ffa489d9ee312e112ad9438d4d994ea53da5f006b4bdc"
+      ],
+      "source_sha256": "fb89ecb17e601ab7c4014317a00b32a6abd97d8e7187decaae966919ffe14fef",
+      "text": "전달된 터미널의 일정을 취하십시오, 하나가 있다면.\n\nEmptying the slot is half of what this call is for: a screen rebuilt later in the same process — the user navigating back to Make Masks — must open on nothing rather than on a session that has already been worked through.\n\n:returns: :class:`~spacr.curation_queue.CurationQueue`, 또는 ``None``을 전달하면 화면이 일반적인 방식으로 열렸습니다.",
+      "translation_source_blocks_sha256": [
+        "fa2300fe0bb2f0926d0a7e495233b11163e2bba68fd32bac6f2676c1522cb155",
+        "932dd35a832d0cd531aff34816108f2ed60db77423a9070282e46a71d6ca1930",
+        "7d452baf77bcfdcf129ffa489d9ee312e112ad9438d4d994ea53da5f006b4bdc"
+      ]
+    },
     "spacr.cli_plugins": {
       "source_blocks_sha256": [
         "e1b1133ce9f3e5064a7a0ffe8195c56ee2ded9bdc1a4999a230ed31303370581"
@@ -15948,6 +16076,668 @@
         "ebf0b1dbc50dc7b24e54bd4fa445510d2ad9d9ffe76f0b96a96437091a3b37c5",
         "64f08fc3f0445cba7743bdb2c03f36dc3f48e49ed6c9474d39dad61a451dca2b",
         "ff43fa5c4d60d9c4f80761f0ffc84a8903ad694ce7774a2e74e1111c142f78d1"
+      ]
+    },
+    "spacr.curation_queue": {
+      "source_blocks_sha256": [
+        "0bbd169eb9929ab7061364bdc8fc6802a45b137394948ecbae0fe5034abe94a6",
+        "52486fea20c4ed0652a6c6bb76140fb21b0b42dbc54f6575582bbe560f98e164",
+        "9b14eeb9553889a3cf4b1c6552a0af1733cd8a63f7dc714fa449850e000078b0",
+        "e84bb3c694fa720014d12b0c0a4fdd156c41d3f94981f3e7ba826f0da245edae",
+        "6bfdcd3500939f2ad0ca906ff531ad869adbb1649561bdb4951bb0d14b2c7419",
+        "f0d74236a0c40bc9045240207551b0d6ab5e42d33fd4632b5663e81ecbedcd9e",
+        "6b42c4c6e101a79dd824b9093710e5a02d1465c2c6ed41eb2cd31d346b50b6fc",
+        "dfbdfeed0c3e4a8bf0508ee3f983a61a10fd4162e26f0aa616592e1c798f6084",
+        "fc576d870096e7e160796d7f42562a3d85871ab519cc16333d5bb5523927ede4",
+        "35266cd2f21aca524f388c9a8f49f2698327570bd43900ff3e388fac48f8f683",
+        "8f179fa8bfb1588bc7b4234433245917af3e83225a418600968657e4c6e0557d",
+        "d236f1d489406825e6dc7b26bece524f1d07b33ee08265ac0e3a1f95936dfd2a",
+        "b59095229ee3b3f5f9255a4362d11c3158e7000b5f832961f7b3739f53594eee",
+        "86d88b32f09a14c984f2ebdd37b178f1f927693d146809c6cbe239e802e55e49",
+        "5c5df93fb22c6b573faf7d3900d9b75f26076ea05c3950e4393a18ba1d8ba6f5",
+        "af956af5bdc87f857d8be7cd17912893a34adcd60d97ef2e6af91a6edd0aa405",
+        "4f3c87252ac9a32ae011cc9973f8de97b939dd21cda5a9793c39007d3b3134c7",
+        "45a4d1c15a80957ff6d90169f51d4ffcfc304d4c0ad450f5ff6a1db94eb04e28",
+        "7f6fde93c06417b8e5361eb7300eefc3b3c1b02f89c8ebc72462a1e38006c5b2"
+      ],
+      "source_sha256": "8891def183a7b457d1f32a9645e6291476bdd93d64099641bb8ac5a6ab0cd115",
+      "text": "``396`` - 치유 세션은 하나의 필드가 아닌 메모리가있는 작업 목록입니다.\n\nMake Masks is the better editor and the bespoke tool outside the repository is the better workflow, and ledger item 396 is the observation that neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.\n\nIt holds no pixels and draws nothing. That is deliberate and it is the whole argument for bringing the work in here: the external tool's defects are found in the middle of a curation session, because there is no way to test a 2,000-line Qt application, whereas everything below is ordinary Python over a folder and a CSV, so a defect is found by ``tests/test_a_curation_session_resumes_where_it_stopped.py`` instead. The module imports no Qt, needs no display, and touches ``numpy`` only inside the functions that actually read a draft mask off the disk.\n\n세 개의 레이아웃, 모두 받아 들여졌다\n------------------------------------\n\nLedger 항목 396은 레이아웃 오류를 먼저 정리해야 할 것이라고 이름하고, 조용히 하나를 가정하는 것은 작업으로 가득 찬 폴더가 텅 비어있는 방법이라고 경고합니다. 그래서 세 가지 모두 받아 들여지고 우리 앞에있는 하나가 발견됩니다.::\n\n    nested    <folder>/*.tif           + <folder>/masks/*.tif\n    sibling   <folder>/images/*.tif    + <folder>/masks/*.tif\n    seg       <folder>/*_seg.npy       (Cellpose pickles, the external tool)\n\n모든 세 가지를 받아들이는 것은 우승자를 선택하는 것보다 엄격히 안전합니다 : 기존의 치유 세트는 변환되지 않고 열리고 작업이 시작되기 전에 움직일 필요가 없습니다. *not*가 받아 들여지는 것은 추측입니다. 그들 중 하나와 일치하지 않거나 두 가지를 일치하는 폴더는 :class:`LayoutError`를 올립니다. - 대안은 빈 작업 목록이기 때문에, 빈 작품 목록은 \"all done\"로 읽습니다.\n\n세 개의 검토 된 국가, 두 개가 아닙니다.\n---------------------------------------\n\n:data:`REVIEWED`은 ``done``, ``skip`` 및 ``recropped``입니다. 리더 노트는 두 가지를 말한다; 그것은 잘못된 것입니다. ``skip``은 작은 ``done``가 아닙니다 - 그것은 \"이것은 치유 될 수 없습니다\"를 기록하고 두 가지가 붕괴하면 동일한 사용 불가능 필드가 매 세션마다 다시 제공됩니다. ``recropped``는 외부 도구가 아이들로 분할되었을 때 쓰는 것입니다 : 부모는 작업 목록에서 나와 그것의 조각이있다.\n\n기록은 ``<folder>/curate_status.csv``에 살고, 작업 목록 폴더의 내부는 그 옆이 아닌, 그래서 그것은 이미지와 동기화하고 세션은 다른 기계에서 재설정.이 폴드에 있지 않은 막대에 대한 순서가 정확히 그 이유로 다시 쓰고있다 : 큐레이터는 다른 세트가 아직 도착하지 않은 어딘가에 재설정을 할 수 있으며, 그 순서를 떨어 뜨리면 이미 수행 된 작업을 반환 할 것입니다.\n\n주문\n--------\n\n명령은 생산성의 특징입니다 : 코라터의 판단은 하드 필드보다 첫 번째 백 간단한 필드에 더 가치가 있습니다. 4 명의 명령과 그 안에있는 일정은 실제 500 밴드 치유 세트 후에 선택된 외부 도구입니다. :func:`order_items` 각각의 의미를 말합니다.\n\n이것이 의식적으로 외부 도구와 다르다.\n---------------------------------------------------\n\n다섯 개의 장소, 각 모듈이 Cellpose 픽클의 하나의 폴더 대신 세 개의 레이아웃과 테스트 스위트를 제공해야하기 때문에 :\n\n* 개체는 ``masks.max()``이 아닌 별도의 0 표지판으로 계산됩니다. :func:`count_draft_objects`을 참조하십시오.\n* The median object diameter is computed directly rather than through ``skimage.measure.regionprops``, so ordering a work list needs numpy alone. It is the same number, and a test pins the equality.\n* 알려지지 않은 ``order``은 조용히 ``value``이되는 대신 오류를 생성합니다.\n* ``name`` order sorts by stem rather than by file name, so the order does not change when one field is a PNG and the next a TIFF.\n* 상태 라인은 원자로 분류됩니다.파일은 기계 사이에 동기화; 안정적인 순서가 변경 된 라인에 디프를 유지하고, 이름은 디스크에서 반 글자로 다시 기록을 유지합니다.\n\n둥근 및 형제 레이아웃은 또한 마스크가 부족한 이미지를 제공하는 대신 외부 도구의 패널 건축가가하는 것처럼 엄격하게 조화 : 디자인이없는 미크로스코프 시야가 작동하고, 스크래치에서 그리며 ``easy``는 이미 마지막을 제공 할 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "d1aedc0f3f2fb4c0cc8d4cbe6f6463ba7430d8a0e09086145a3d9a152aae817c",
+        "52486fea20c4ed0652a6c6bb76140fb21b0b42dbc54f6575582bbe560f98e164",
+        "9b14eeb9553889a3cf4b1c6552a0af1733cd8a63f7dc714fa449850e000078b0",
+        "e84bb3c694fa720014d12b0c0a4fdd156c41d3f94981f3e7ba826f0da245edae",
+        "6bfdcd3500939f2ad0ca906ff531ad869adbb1649561bdb4951bb0d14b2c7419",
+        "f6f854d1df24e3008d17ea38e3d7001e838507820de62b48bed82de5cad4e33c",
+        "6b42c4c6e101a79dd824b9093710e5a02d1465c2c6ed41eb2cd31d346b50b6fc",
+        "1d55da409b610beddef5e3a7b6e8957cca8659bd2c6a6aa15eb34debc25cdf65",
+        "0f0b5f230296b08a4a156243d59090aa7d72f01d5c718ecc9cd7118a26620107",
+        "35266cd2f21aca524f388c9a8f49f2698327570bd43900ff3e388fac48f8f683",
+        "8f179fa8bfb1588bc7b4234433245917af3e83225a418600968657e4c6e0557d",
+        "d236f1d489406825e6dc7b26bece524f1d07b33ee08265ac0e3a1f95936dfd2a",
+        "b59095229ee3b3f5f9255a4362d11c3158e7000b5f832961f7b3739f53594eee",
+        "86d88b32f09a14c984f2ebdd37b178f1f927693d146809c6cbe239e802e55e49",
+        "d6e0ad00cb733293072fc1c798e09e0cac56600369b582a0a49a92125a9c59e0",
+        "947a951454e63d37aafc8408abc6059dc61f786ce3724b2b438f783d7465a1fe",
+        "4f3c87252ac9a32ae011cc9973f8de97b939dd21cda5a9793c39007d3b3134c7",
+        "45a4d1c15a80957ff6d90169f51d4ffcfc304d4c0ad450f5ff6a1db94eb04e28",
+        "4db2006f96abc227e5ca957a814e1fb5ef366b9a962d061101fa4bbf17927ce9"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue": {
+      "source_blocks_sha256": [
+        "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
+        "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
+        "0d7015fa5eb2fa05fbc2429359754bdd958766003043bc0e550d1cf5e0478948",
+        "f1f7a40c9dff9b5edc90e660045e20716eab4d2e141f47b8ca23ab7f10b0dfa7",
+        "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
+        "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
+        "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
+        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce"
+      ],
+      "source_sha256": "4e0c3cd3f10f0e465113c0bf338e7183f37744b3b14afdd2f880caad985b95fa",
+      "text": "제한된 치유 세션은 하나의 폴더를 통해 작동합니다.\n\n:ivar layout: 무엇이 발견되었는지, 그리고 어디에 있는지.\n:ivar items: 이 세션을 제공하는 필드 - 검토되지 않은, 주문 및 ``limit``로 절단.\n:ivar status: 각 상태 라인을 읽고, 이 폴더에 포함되지 않은 문자열에 대한 라인을 포함합니다.\n:ivar order: 요청한 명령에 대하여\n:ivar effective_order: the ordering actually used, which differs from ``order`` when ``prob`` or ``easy`` fell back to ``value`` for want of probabilities.\n:ivar limit: 적용된 캡 또는 ``None``.\n:ivar summary: 모든 폴더를 계산하고, 이 세션을 계산하지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
+        "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
+        "0d7015fa5eb2fa05fbc2429359754bdd958766003043bc0e550d1cf5e0478948",
+        "f1f7a40c9dff9b5edc90e660045e20716eab4d2e141f47b8ca23ab7f10b0dfa7",
+        "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
+        "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
+        "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
+        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.all_items": {
+      "source_blocks_sha256": [
+        "4ef16b1a0829bc8edb1fced048e2e5a00bc6f96761b2a5d79cc935e3fadc297b"
+      ],
+      "source_sha256": "ca71936167c7bcd9d8819ae050820d6aab8cd3a5cff2ec2304020eaec648abd5",
+      "text": ":returns: 폴더에 있는 각 필드, 검토된 필드가 포함되어 있습니다.",
+      "translation_source_blocks_sha256": [
+        "4ef16b1a0829bc8edb1fced048e2e5a00bc6f96761b2a5d79cc935e3fadc297b"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.describe": {
+      "source_blocks_sha256": [
+        "410478fc68e5fb14508f28d407d84689bbd5fb811a0d41e84eac3d4bfa680cce"
+      ],
+      "source_sha256": "04d67d74e53385f01d5a3a1214d9a2e10164277447bbeccfb24bb76b310987a8",
+      "text": ":returns: 레이아웃, 순서 및 계산을 명칭하는 인쇄 가능한 라인.",
+      "translation_source_blocks_sha256": [
+        "410478fc68e5fb14508f28d407d84689bbd5fb811a0d41e84eac3d4bfa680cce"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.folder": {
+      "source_blocks_sha256": [
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927"
+      ],
+      "source_sha256": "cfcc382aa7e899e658f95dd5c03eb3ae2cbbde6d817e7f06d9ec175215233fe7",
+      "text": ":returns: 작업 목록 폴더.",
+      "translation_source_blocks_sha256": [
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f"
+      ]
+    },
+    "spacr.curation_queue.CurationQueueError": {
+      "source_blocks_sha256": [
+        "cc7c517f771ccc2589544bedd65b11755da030466e056c00c19a0329fcb46d54",
+        "389ef729de19545a40d3552e5aa66bd495a7a531693e1426a10d1ebd8c6aa3e4"
+      ],
+      "source_sha256": "fdcd7cf88eff52c8259c8a8b7f2675b65177ac1fc3262a74d8d180df2cf64966",
+      "text": "치유 작업 목록은 만들거나 읽거나 작성할 수 없었습니다.\n\nSubclass of :class:`spacr.errors.SpacrError`, so a caller that catches spaCR's own errors catches these too.",
+      "translation_source_blocks_sha256": [
+        "214d3b6c7d50f4e9214024c2f6e9a73c92614924dea033faabd0140a87a739a5",
+        "389ef729de19545a40d3552e5aa66bd495a7a531693e1426a10d1ebd8c6aa3e4"
+      ]
+    },
+    "spacr.curation_queue.LayoutError": {
+      "source_blocks_sha256": [
+        "94e8f674965dbef9724344e55104410bada7a8f4c40ddafa2fe3fecf30adaf66",
+        "c5aeac511a201b7da507eaf82a5f5e975be96cbbabd29a5bb9460d9cc4b00ebd"
+      ],
+      "source_sha256": "e2f50d713c33afd517f70141854fe30d77603b3034d017092d052cea924331a7",
+      "text": "폴더는 의심 할 여지없이 세 개의 레이아웃 중 하나를 유지하지 않습니다.\n\n공허한 작업 목록은 \"all done\"로 읽을 수 있으며, 이는 유일한 잘못된 대답입니다 치유 도구는 결코 작업으로 가득 찬 폴더에 대해 제공해서는 안됩니다.",
+      "translation_source_blocks_sha256": [
+        "94e8f674965dbef9724344e55104410bada7a8f4c40ddafa2fe3fecf30adaf66",
+        "70ec52381cd160330809cc763b5f6e4b69fc3f01200c92b5fcbfc0f4c1eae2b9"
+      ]
+    },
+    "spacr.curation_queue.QueueItem": {
+      "source_blocks_sha256": [
+        "76bf0001be9a494ebd972c3d4b57750f6082bf3a4e781d1f636527672bf3a2a8",
+        "c4e8e69047fb694ca26c0b049dba4226baeb80c1df9af122bdc7a95b44fb0b28",
+        "887456f4a1e4fba2dd2f762e0c8380cee6e9d64df89cbed63fe5bd9f3bb0e870",
+        "6581c197615b529ed48c82f6914a7dcaf36159f067340573eb5fc315e075c90b",
+        "c8fa22584f70ae0e9729462b2e6b476db5caf0c66f8045dfe73f43483ec59f1e",
+        "21a33c25fb49b95ea46af484730b4afd570e86af5ba423f6d94dd3fc78c22597"
+      ],
+      "source_sha256": "ffaca66c659eedae38516835dc5a37e7c517f9f791eeac8f82f5792db1c0a2d2",
+      "text": "치유를 기다리는 한 마을.\n\n:ivar stem: 필드의 정체성, 그리고 그 상태 라인의 구조화된 데이터 이름.\n:ivar layout: :data:`LAYOUTS` 이 항목은 어떤 항목에서 나왔는지.\n:ivar image: 그림 파일, 레이아웃이 디스크에 하나를 가지고있을 때. ``None`` 자신의 이미지를 가지고 ``seg`` 팩에 대 한, 그 옆에 동일한 기둥의 이미지를 표시하지 않는 한.\n:ivar mask: 제안 마스크 파일, 또는 ``None`` 아직 제안이 존재하지 않는 경우.\n:ivar bundle: ``_seg.npy`` 픽셀, ``seg`` 레이아웃에만 해당합니다.",
+      "translation_source_blocks_sha256": [
+        "76bf0001be9a494ebd972c3d4b57750f6082bf3a4e781d1f636527672bf3a2a8",
+        "63916e8a9ee44e2194a4d81029c386ef07b266e8dea9bea2683fdef0cdac7c52",
+        "887456f4a1e4fba2dd2f762e0c8380cee6e9d64df89cbed63fe5bd9f3bb0e870",
+        "6581c197615b529ed48c82f6914a7dcaf36159f067340573eb5fc315e075c90b",
+        "c8fa22584f70ae0e9729462b2e6b476db5caf0c66f8045dfe73f43483ec59f1e",
+        "21a33c25fb49b95ea46af484730b4afd570e86af5ba423f6d94dd3fc78c22597"
+      ]
+    },
+    "spacr.curation_queue.QueueItem.draft": {
+      "source_blocks_sha256": [
+        "efef956d4d0ace4455dd1b889fb8703b93e3eb1ccf4046521080b5ee6a5975eb",
+        "a5498021d9b223d2ab6738c9f74641ffcee48a498f4dab2149f2067edb7025e1"
+      ],
+      "source_sha256": "851e3118dfb94ef69a3189cc6eeb1958820190ff399bfc71f6e2185c4b432fea",
+      "text": "이 항목의 디자인 라벨을 가진 파일, 또는 ``None``.\n\n:returns: ``seg`` 항목에 대한 패널, 다른 두 배열에 대한 마스크 파일, 그리고 ``None`` 디자인이 없을 때 - 그것은 실수가 아닌 스크래치에서 인쇄를 의미합니다.",
+      "translation_source_blocks_sha256": [
+        "efef956d4d0ace4455dd1b889fb8703b93e3eb1ccf4046521080b5ee6a5975eb",
+        "a5498021d9b223d2ab6738c9f74641ffcee48a498f4dab2149f2067edb7025e1"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout": {
+      "source_blocks_sha256": [
+        "ebbd44fa4a6bd3ede03dd9208012b8f656c07f0732060865491b5ef71f8ceb41",
+        "f8c35582bbe3c99bb9da163d5b6c65f0dd8c94b7680293bf84302cecfda641ac",
+        "7c142576fd2f5c3625b96b4c4f3e7351d8c24cdc81e3b8e82e33ebb91f57097b",
+        "51af67851f9d4ed276ba4304f7497173a2a334208080cb1fceba96e35ee8ee56",
+        "113b4334b61ed57cdd5de917b15c3b6436b9a2b797f02be2d0f0f04bd3ca968c",
+        "77ca0d5d1ecf25b1a192ce71266eaf72e3d70e1e9609d843caa7cf30f910c126"
+      ],
+      "source_sha256": "9d2b4af947d987b5bfac8efbaedd64e44e009ac370ab019bad7950e184c18c49",
+      "text": "폴더에서 무엇이 발견되었는지, 그리고 어디에 있는지.\n\n:ivar kind: :data:`LAYOUTS`에 해당되는 글 1건\n:ivar folder: 작업 목록 폴더, 또한 상태 파일이 이동하는 곳입니다.\n:ivar images_dir: 사진이 어디에 있는지, 디스크에 있을 때.\n:ivar masks_dir: 마스크를 읽고 다시 쓰는 곳.\n:ivar items: 각 필드가 발견되며, 기름에 따라 분류됩니다.",
+      "translation_source_blocks_sha256": [
+        "ebbd44fa4a6bd3ede03dd9208012b8f656c07f0732060865491b5ef71f8ceb41",
+        "f8c35582bbe3c99bb9da163d5b6c65f0dd8c94b7680293bf84302cecfda641ac",
+        "c1b20568bd681673f5b2acce23ed34f1b14e2ff505135d9b13bc8e9cf228d38e",
+        "51af67851f9d4ed276ba4304f7497173a2a334208080cb1fceba96e35ee8ee56",
+        "113b4334b61ed57cdd5de917b15c3b6436b9a2b797f02be2d0f0f04bd3ca968c",
+        "77ca0d5d1ecf25b1a192ce71266eaf72e3d70e1e9609d843caa7cf30f910c126"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout.mask_destination": {
+      "source_blocks_sha256": [
+        "fd761eff222c90217c9ecb4b59ab225f78d15d9e96741307de98ddf39531bc33",
+        "2d63b3a828593c97de92fa1861a7cc9ca12b466dc00d0cff42db20d373fc2b92",
+        "e5db885eb6cdeb1832a450d2bdda9ca1281dd0fffb0378f239f9396b7f22fa2c",
+        "b16276b0a9d63bfc1e7095faa6ff7ab566acb1b71de4b9dc0c00d53fe66c04c7",
+        "10fb5c29379c6eca0adbdefa8b3afd565dfeb4e401b96e259910950d6d4195b2"
+      ],
+      "source_sha256": "4144c54761a80d374d3487d27b23150e763bd586d31f297b53b8f9db8bf418df",
+      "text": "``stem``에 대한 치유 된 마스크가 쓰여진 곳.\n\n``seg`` 레이아웃은 외부 도구가 하는 것처럼 읽은 팩으로 다시 쓰고, 나머지 두 개는 ``<masks_dir>/<stem>.tif``를 쓰며, 이는 :func:`spacr.qt.mask_engine.mask_save_path`이 이미 둥근 레이아팅을 위해 생성하는 것입니다.\n\n:param stem: 밭의 목소리.\n:returns: 치유된 마스크의 길은 그 길에 속한다.\n:raises CurationQueueError: ``stem``이 작업 목록에 포함되어 있지 않은 경우.",
+      "translation_source_blocks_sha256": [
+        "fd761eff222c90217c9ecb4b59ab225f78d15d9e96741307de98ddf39531bc33",
+        "2d63b3a828593c97de92fa1861a7cc9ca12b466dc00d0cff42db20d373fc2b92",
+        "e5db885eb6cdeb1832a450d2bdda9ca1281dd0fffb0378f239f9396b7f22fa2c",
+        "b16276b0a9d63bfc1e7095faa6ff7ab566acb1b71de4b9dc0c00d53fe66c04c7",
+        "01e9d63fce80e10357d70b9126c3fa7a58ce1b94ea6da148a29994fdf4b12d98"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout.status_path": {
+      "source_blocks_sha256": [
+        "3f0f53f44e5d01e6408c9f24021119fc8f05bc425c402d49ea8b53d36c9c5923"
+      ],
+      "source_sha256": "0ded3dcd9808ba064f0d32c545d37e7669f1a22be3a7180709c5af4c2b5dcf38",
+      "text": ":returns: 이 작업 목록의 경로는 ``curate_status.csv``입니다.",
+      "translation_source_blocks_sha256": [
+        "a0a91b654669aac808b4ecea9906522ef39377953ac15563a653f1678dbd8d05"
+      ]
+    },
+    "spacr.curation_queue.QueueSummary": {
+      "source_blocks_sha256": [
+        "17b2462737cf8f542af2aa8b5a871344bf4729a7a5097a0b239325a2c08bc673",
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
+        "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",
+        "da33edf76b0e258f813f937d76259eae1ed7e06caf4d9a6d49e3e5a22e470b37",
+        "e8afaecea4ffc5d11913e96816725ff56806be5723e4489189bdc656579e051f",
+        "2378a787d3f94701ea33c20e200e573a4891969c220330378b7b15417bfbc414"
+      ],
+      "source_sha256": "ccb6ef2fd498d15ada5ab38b597183047fd212c34b7ad734c77a456c1e7b92f8",
+      "text": "무엇이 남아 있는지, 제 396 항목의 조건에서 요청합니다.\n\n:ivar total: 폴더에 있는 필드.\n:ivar done: 치유된\n:ivar skip: 거절 - 치유 될 수 없으며 다시 제공 할 수 없습니다.\n:ivar recropped: 대신 작업 목록에있는 어린이로 분할됩니다.\n:ivar remaining: 검토된 국가가 없는 영역.\n:ivar unknown: 이 폴더에 있지 않은 스테임에 대한 상태 라인.Kept, 절대 떨어지지 않았고, 침묵하는 대신 여기에 언급했습니다 : 두 번째 기계에서 그들은 일반적으로 이미 다른 곳에서 작동합니다.",
+      "translation_source_blocks_sha256": [
+        "17b2462737cf8f542af2aa8b5a871344bf4729a7a5097a0b239325a2c08bc673",
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
+        "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",
+        "ba7e218fe5eee970508138a213cbb1914ba26c249c31c29da3283be009322b36",
+        "e8afaecea4ffc5d11913e96816725ff56806be5723e4489189bdc656579e051f",
+        "2378a787d3f94701ea33c20e200e573a4891969c220330378b7b15417bfbc414"
+      ]
+    },
+    "spacr.curation_queue.QueueSummary.describe": {
+      "source_blocks_sha256": [
+        "30f66421ba9a830c69a6ef0cd1ec9f90c7f0551095cae3016fe78383dbd8bb35",
+        "4e2496459fc8362b25877de0861d9ab2fe47888b2e855f09f7b567828c3e88b6",
+        "20aa333053bb65022b960e8a92ad68ab78f69b7eff359b9cbba1bcc68b25487a"
+      ],
+      "source_sha256": "0c8fc0758a733632749ab9605942d158ce348a37cc190c62f7374c2204b34092",
+      "text": "하나의 라인은 호출자가 인쇄 할 수 있습니다.\n\n리더의 측정 상태, ``500 bundles, 366 done, 29 skip, 105 remaining``, 이것이 그것에 대해 정확히 무엇을 반환하는지입니다. 두 개의 희귀 계산은 0이 아닌 경우에만 추가됩니다, 그래서 일반 문장은 짧은 하나로 남아 있습니다.\n\n:returns: 작업 목록에 대한 간단하게 읽을 수있는 요약.",
+      "translation_source_blocks_sha256": [
+        "30f66421ba9a830c69a6ef0cd1ec9f90c7f0551095cae3016fe78383dbd8bb35",
+        "4e2496459fc8362b25877de0861d9ab2fe47888b2e855f09f7b567828c3e88b6",
+        "62d985de11ec4f07ee7249ba0cb22d96356c5439739327049db1004e672655ed"
+      ]
+    },
+    "spacr.curation_queue.StatusFileError": {
+      "source_blocks_sha256": [
+        "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57"
+      ],
+      "source_sha256": "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57",
+      "text": "``curate_status.csv``은 존재하지만 다시 기록으로 읽을 수 없습니다.",
+      "translation_source_blocks_sha256": [
+        "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57"
+      ]
+    },
+    "spacr.curation_queue.StatusRow": {
+      "source_blocks_sha256": [
+        "7482bbfb1e45194f6a49473faefaafe9795f83da95a442d39a377bf376de4c36",
+        "d7b033ac6a14c014f9f6f7fae1744461ee6a4bcaae1c940ac48630d5573763c8",
+        "5d037e707ecb21c5046b165062522b36e7da2858dddc52043f229ec5c4107725",
+        "ef6f07e29158143b2943542e6952319a9234a6373f688013a0a0fcf40fb5c093",
+        "3bd6da4235b71c11cbce48da83c1fdab6901f33b4a6617ce778176c97928c527"
+      ],
+      "source_sha256": "17d8dbf6d1ba4a6f2f28e393a90aa6aa89e8446a2b6deb1cd70a506dbb5adbff",
+      "text": "1개의 라인 ``curate_status.csv``입니다.\n\n:ivar stem: 이것이 어떤 분야에 관한 것인가.\n:ivar state: ``done``, ``skip``, ``recropped``, or anything else, which counts as pending. Normalised to lower case with the surrounding whitespace stripped, so a row typed by hand as ``Done`` still ends that stem's turn.\n:ivar n_objects: 검토되었을 때 미크로스코프 시각 필드가 얼마나 많은 개체를 가지고 있었는지, 또는 파일이 말하지 않았을 때 ``None``.\n:ivar updated: ISO-8601 시계 표지판, 서면대로.",
+      "translation_source_blocks_sha256": [
+        "7482bbfb1e45194f6a49473faefaafe9795f83da95a442d39a377bf376de4c36",
+        "d7b033ac6a14c014f9f6f7fae1744461ee6a4bcaae1c940ac48630d5573763c8",
+        "5d037e707ecb21c5046b165062522b36e7da2858dddc52043f229ec5c4107725",
+        "33fa20c17af770be8816193bceb87c95bc7c3908494498089a0f9a06b44c8343",
+        "3bd6da4235b71c11cbce48da83c1fdab6901f33b4a6617ce778176c97928c527"
+      ]
+    },
+    "spacr.curation_queue.StatusRow.reviewed": {
+      "source_blocks_sha256": [
+        "bec90481f344dbb28ba76d99a8df5a9e118bf0621df3f935e74896d8995dd838"
+      ],
+      "source_sha256": "c8e174f9f05c8f51f3c19f4f7126458fee37a7ac5f889c6d27cdb665670b26cd",
+      "text": ":returns: 이 순서가 작업 목록에서 그것의 흔적을 꺼내는지 여부.",
+      "translation_source_blocks_sha256": [
+        "97465fe60ce78a161e9ccd20c74d71e080d68e7649b60b37b1617d82471e6f25"
+      ]
+    },
+    "spacr.curation_queue.build_queue": {
+      "source_blocks_sha256": [
+        "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
+        "a7ece0725e57b5801218a905de7e1460717ae20c1cf034cd7d51a2fd2ade0fed",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "acbc65f159e6a0fe53b1154b8d64dc1bc03924978bffc8d459290c8b2048d7be",
+        "d0170800c2bb550e12f3b67a71c1dd0363204b95f557016b001dc4162f2f2dbf",
+        "8a247677246f65558a399f92d208e5458852ea672a51c07542d2d6b259d3c916",
+        "f2ed96eca899632a7f81f567a8d2304a55991ffc6fa5240df9aafeef2b57715e",
+        "e29975c5200eccb28213ff58fb94904472c5080b0d39eb020cd0a6b46f998291",
+        "06c3e4e2a456fbbcc5a0bede8a2dbef0325cbc9aef5c155f8df85888f751ef65",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
+        "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
+        "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ],
+      "source_sha256": "db641a7f12c3c5190e03c47662498d587c921e1729f5e5d44049377d2a3e72f6",
+      "text": "제한된 치유 세션으로 폴더를 열어보세요.\n\n순서: 레이아웃을 발견하고, 리즈미 레코드를 읽고, 이미 검토 된 모든 것을 떨어 뜨리고, 남아있는 것을 주문하고, 그 제한을 적용하는 것만으로도 ``--limit 20``은 여전히 할 가치가있는 20 개의 필드를 의미하며, 첫 번째 20 개가 발견되지 않습니다.\n\n:param folder: 작업 목록 폴더.\n:param order: :data:`ORDERS`; :data:`DEFAULT_ORDER`은 기본적으로 하나입니다.\n:param limit: 이 세션에서 얼마나 많은 필드가 제공되었는지, 또는 ``None`` 모두를 위해.\n:param probs: 읽기 대신 사용 가능성 ``curate_scores.csv``.\n:param counts: 제안은 제안을 읽는 대신 사용해야합니다.\n:param announce: 메시지가 어디로 가는지; :func:`print`로 지정됩니다.\n:param include_reviewed: 또한 검토 된 필드를 제공합니다. 기본적으로 끄기; 이것이 \"resume\"의 의미입니다.\n:param min_objects: 그것은 :func:`value_key`로 옮겨졌습니다.\n:param min_diameter: 그것은 :func:`value_key`로 옮겨졌습니다.\n:param cache_counts: ``easy``이 숫자 캐시를 작성할 수 있는지 여부.\n:returns: :class:`CurationQueue`에 해당되는 글 1건\n:raises LayoutError: 폴더가 하나의 무관심한 레이아웃이 아닌 경우.\n:raises StatusFileError: 상태 파일이 읽을 수 없을 때.\n:raises ValueError: ``order``이 :data:`ORDERS` 중 하나가 아닌 경우.",
+      "translation_source_blocks_sha256": [
+        "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
+        "a7ece0725e57b5801218a905de7e1460717ae20c1cf034cd7d51a2fd2ade0fed",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "acbc65f159e6a0fe53b1154b8d64dc1bc03924978bffc8d459290c8b2048d7be",
+        "d0170800c2bb550e12f3b67a71c1dd0363204b95f557016b001dc4162f2f2dbf",
+        "8a247677246f65558a399f92d208e5458852ea672a51c07542d2d6b259d3c916",
+        "f2ed96eca899632a7f81f567a8d2304a55991ffc6fa5240df9aafeef2b57715e",
+        "e29975c5200eccb28213ff58fb94904472c5080b0d39eb020cd0a6b46f998291",
+        "06c3e4e2a456fbbcc5a0bede8a2dbef0325cbc9aef5c155f8df85888f751ef65",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
+        "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
+        "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ]
+    },
+    "spacr.curation_queue.count_draft_objects": {
+      "source_blocks_sha256": [
+        "8b939ea2da00733fb12e88698c2d9f4c964295e1ddc9f952b5d26f58e0aa9b93",
+        "3c8f24434e24a622e8a199151e5a5601f4987829095c03482d9cbbcdcd1e3109",
+        "6c7c64a05f6ec77ad3383f4c7dcff1ddc8edc3bf5afe22ca511d4b171847cc31",
+        "b78054b87351cf0955949c441d98e72b9a368f6e04c3bfe0b961d837ec4eb534"
+      ],
+      "source_sha256": "0a94d88e927e29632875c8b440f8f725d50f63a2cc167d0d025c20264f3d4cfb",
+      "text": "프로젝트가 얼마나 많은 물건을 보유하고 있는지.\n\nCounted as distinct non-zero labels rather than as ``masks.max()``, which is what the external tool uses. The two agree on a fresh Cellpose pickle, whose ids run 1..N, and disagree in the two places that matter here: a label TIFF that has had objects deleted has gaps in its ids, so ``max()`` overcounts; and a 0/255 binary mask, which the nested and sibling layouts can perfectly well hold, would report 255 objects.\n\n:param item: 셀 수 있는 필드입니다.\n:returns: 개체의 숫자, 그리고 ``0``가 부족하거나 읽을 수없는 디자인에 대 한 - 외부 도구의 계산 캐시 또한, 계산 드라이브 주문만.",
+      "translation_source_blocks_sha256": [
+        "8b939ea2da00733fb12e88698c2d9f4c964295e1ddc9f952b5d26f58e0aa9b93",
+        "624926a075af0a076009f384d18d97dec1242b1389e32942376840fbe3b5397e",
+        "6c7c64a05f6ec77ad3383f4c7dcff1ddc8edc3bf5afe22ca511d4b171847cc31",
+        "b78054b87351cf0955949c441d98e72b9a368f6e04c3bfe0b961d837ec4eb534"
+      ]
+    },
+    "spacr.curation_queue.detect_layout": {
+      "source_blocks_sha256": [
+        "5c66b3c4ea4c358588e365e24efc110cd69e835158f8bf648005ebb8a532bf2a",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "afee221f18fa62a1591265219ed85d64a234933f0e029a5a229c4cbfa1a249db",
+        "dae11af6273decb8f8639115a19c3a5f681a89c88f1ad017bfe0a69d9a8f72d6",
+        "8ac1d439c1588410321891a82e82769f76a022a1503073e7a7c1859b7b00c513",
+        "bab1ea9c97149e5b21cd79a03daab5c25f7c19870d269e11982c7843a16193db"
+      ],
+      "source_sha256": "cbc1afdd3df1ea85136945722b4e5f387f203eab1853014ca4df442f7d8cba1c",
+      "text": "``folder``의 세 가지 레이아웃 중 어느 쪽이 붙어 있는지 작업하고 그것을 읽으십시오.\n\n:param folder: 작업 목록 폴더.\n:returns: :class:`QueueLayout`, 그 안에 있는 모든 필드와 함께.\n:raises LayoutError: ``folder``가 디렉토리가 아닌 경우, 세 개의 레이아웃 중 하나와 일치하지 않거나, 그 중 하나 이상과 일치합니다.\n:raises CurationQueueError: 두 개의 파일이 그 안에 기름을 공유 할 때.\n\n두 개의 레이아웃 사이를 탐색하면 폴더의 절반이 충전됩니다; 하나가 없다는 것을 가정하면 그 중 하나가 충전되지 않으며, 완료 된 작업 목록으로 보고됩니다.",
+      "translation_source_blocks_sha256": [
+        "5c66b3c4ea4c358588e365e24efc110cd69e835158f8bf648005ebb8a532bf2a",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "afee221f18fa62a1591265219ed85d64a234933f0e029a5a229c4cbfa1a249db",
+        "dae11af6273decb8f8639115a19c3a5f681a89c88f1ad017bfe0a69d9a8f72d6",
+        "8ac1d439c1588410321891a82e82769f76a022a1503073e7a7c1859b7b00c513",
+        "0ca410566eadc59b6723eeb76f0297154e10e6efc78bcea34cd888d61930b3fc"
+      ]
+    },
+    "spacr.curation_queue.discover_items": {
+      "source_blocks_sha256": [
+        "63bfc425de3a71beab6efdf02a8105a0ddbd14081b03657c327577df3178d8cb",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "8b4e18ae48c7734e4f8dd3ee49835c1495f8a21e32433f2fece3671a741841c7",
+        "54c094eed0595ab8629b4cb722ae130e4cbc64d6b6a3900b8a298905a000c8a2"
+      ],
+      "source_sha256": "2a93954f42955edade38b9edfa06b81b5f5deaf29a4a3b250154b2ce494ec185",
+      "text": "``folder``의 각 필드, 그것의 레이아웃이 무엇이든.\n\n:param folder: 작업 목록 폴더.\n:returns: 주제에 따라 분류된 항목.\n:raises LayoutError: :func:`detect_layout`에 해당되는 글 1건",
+      "translation_source_blocks_sha256": [
+        "63bfc425de3a71beab6efdf02a8105a0ddbd14081b03657c327577df3178d8cb",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "8b4e18ae48c7734e4f8dd3ee49835c1495f8a21e32433f2fece3671a741841c7",
+        "54c094eed0595ab8629b4cb722ae130e4cbc64d6b6a3900b8a298905a000c8a2"
+      ]
+    },
+    "spacr.curation_queue.draft_stats": {
+      "source_blocks_sha256": [
+        "0f63855d032023f7c97e1d0223cc305b57c6301c1d2c5f914f1796b258d8884a",
+        "7990e590f4591bcecd4c6a23a3e17c5a5c44e1c0dcb49cf6cefc9ec90e3a0eec",
+        "50d72f6e0d68c4aa38fa6f0b824dd1325f2825e0ee80b42185e8d558f49c500e"
+      ],
+      "source_sha256": "087296c40c0d52921effd5c3938f0905cefbe046068a10d2e8fb9b91f38416aa",
+      "text": ":param item: 측정할 필드가 있습니다.\n\n:returns: ``(n_objects, median_diameter)`` 그것의 제안에 대 한.\n:raises Exception: ``value`` 명령은 그것을 잡고 마지막으로 죽은 필드를 분류합니다.",
+      "translation_source_blocks_sha256": [
+        "0f63855d032023f7c97e1d0223cc305b57c6301c1d2c5f914f1796b258d8884a",
+        "7990e590f4591bcecd4c6a23a3e17c5a5c44e1c0dcb49cf6cefc9ec90e3a0eec",
+        "50d72f6e0d68c4aa38fa6f0b824dd1325f2825e0ee80b42185e8d558f49c500e"
+      ]
+    },
+    "spacr.curation_queue.is_reviewed": {
+      "source_blocks_sha256": [
+        "61f7f0a46c76447835c2b5233d51499ffacd1656287aa6bfefdc4427bf370286",
+        "086baeb658a5161555c8843b51dd902bc7c4f573001c72738bf46518b2370ed7"
+      ],
+      "source_sha256": "5dda2d921aff187106a2e54df52bed5c47943735df81ea371719b731b2c5d9cf",
+      "text": ":param state: 상태 라인 또는 ``None``\n\n:returns: ``done``, ``skip`` 및 ``recropped`` 모두 할 수 있으며, 그들은 분리되어 있습니다 : ``skip``는 \"cannot be curated\"를 의미하며, 이는 ``done``보다 작은 것이 아닙니다.",
+      "translation_source_blocks_sha256": [
+        "61f7f0a46c76447835c2b5233d51499ffacd1656287aa6bfefdc4427bf370286",
+        "4b8dc8bfc38dfe18219883832fd94342078de44fd9b67f57fea3be74ce462201"
+      ]
+    },
+    "spacr.curation_queue.load_draft_counts": {
+      "source_blocks_sha256": [
+        "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
+        "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
+        "65597ad02f41874555b7fc2f460e612dae991973078bc46d5b88cd0664fb86b0",
+        "bb21c19763a09394e3dca3d4d61ca817b991cc6100dcfbdfa24efea3729ec43d",
+        "bf17bb1c4effb28cd91f2f9bc8a056c7bba72100c4f88307aa24a4f96599b158"
+      ],
+      "source_sha256": "1e13ebc7fce0ef9b4c4832f46ac2b7aa9c6ad843ffb9beb09ecc293bd310c6f1",
+      "text": "디자인 개체는 ``items``로 계산되며 ``curate_drafts.csv``로 암호화됩니다.\n\n각 발사에서 300 개의 디자인을 읽는 것은 느린, 그래서 계산은 기름에 의해 암호화되고 캐시에서 잃어버린 단어만 읽을 수 있습니다. 계산 드라이브 오직 주문 : 하나의 스틸 하나의 잘못된 종류의 필드, 그것은 결코 작업을 잃지 않습니다.\n\n:param folder: 작업 목록 폴더.\n:param items: 계산할 필드가 있습니다.\n:param write_cache: 글쓰기 실패가 발표되며 결코 오류로 보고되지 않습니다 - 읽기만한 폴더가 여전히 열려 있어야합니다.\n:param announce: 진보가 진행되는 곳; :func:`print`로 지정됩니다.\n:returns: ``{stem: n_objects}`` 각 항목에 대 한.",
+      "translation_source_blocks_sha256": [
+        "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
+        "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
+        "014239bb03bc76df3aecf670715a66b54e045d7dbc57ae1df8052aa85b42b5dc",
+        "bb21c19763a09394e3dca3d4d61ca817b991cc6100dcfbdfa24efea3729ec43d",
+        "bf17bb1c4effb28cd91f2f9bc8a056c7bba72100c4f88307aa24a4f96599b158"
+      ]
+    },
+    "spacr.curation_queue.load_probabilities": {
+      "source_blocks_sha256": [
+        "ba1cb9b1b11b449a33926001fda24cfe64c608076d888fd71a33c36674f546f3",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "ea55c37fb16531cbf2b399974a99c82896ebd425bf538f10f08aefa3e89011f8",
+        "e73dc3eb33b37b7f2f46b461ebf24f2e5e892cfe06f5a126825e64471ab0ad87"
+      ],
+      "source_sha256": "a91c47cb80761fab032899f5a8f8469aae77953b6d51aba9203f05f92744ad2f",
+      "text": "``curate_scores.csv``을 읽으십시오, 하나가있을 때.\n\n:param folder: 작업 목록 폴더.\n:returns: ``{stem: probability}``, 그리고 ``{}`` 파일이 없을 때 - 그것은 ``prob``와 ``easy``가 다시 떨어지는 것입니다, 큰 소리로.\n:raises CurationQueueError: 파일이 존재하지만 기둥 열이 없거나 인식 가능성 열이 없습니다. 존재하고 사용할 수없는 점수 파일은 멈출 가치가있는 오류입니다; 잃어버린 하나는 일반 상태입니다.",
+      "translation_source_blocks_sha256": [
+        "ba1cb9b1b11b449a33926001fda24cfe64c608076d888fd71a33c36674f546f3",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "ea55c37fb16531cbf2b399974a99c82896ebd425bf538f10f08aefa3e89011f8",
+        "e73dc3eb33b37b7f2f46b461ebf24f2e5e892cfe06f5a126825e64471ab0ad87"
+      ]
+    },
+    "spacr.curation_queue.mark_state": {
+      "source_blocks_sha256": [
+        "3ab374aa9b45173c962dd4d39bc3f5f110ffa2adbbe593dfce686d37767ec9be",
+        "e011ea330e0abb3e3577b3659508ebbcf08159d36cecf1f14420b645361178f0",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "e695a1c30a97d8cd8da9995238498c775c7bbbea32ac055e1d36df86df53e844",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "757e4c9a20f3f6abab8a6bf939b10901ecd68c0364d1acbfbf24a2de37f09d46",
+        "9c2ac47ee18089d32b8d2411d16b525195429f47b24207b3676f53e1a00d50b7",
+        "f12f7a47ec196f380dbdc77d5af80a571c4ead7b2d4ab6b5549eabc799efb8ad"
+      ],
+      "source_sha256": "cf9f8aa392559708f6f96078730a540a4aaea56aca84ff603ce2cb6391b98655",
+      "text": "하나의 결정을 기록하고 파일을 작성하고 다른 각 행을 유지합니다.\n\n이것은 하나의 호출 치유 세션은 필드에 따라 수행하고, 그렇지 않으면 잃어버린 부재에 대한 라인이있는 호출입니다.\n\n:param folder: 작업 목록 폴더.\n:param stem: 필드가 결정된다.\n:param state: 녹음하기 위한 국가입니다.\n:param n_objects: 얼마나 많은 물건이 있었는지 알 수 있다면.\n:param updated: 녹음하기 위한 시간표; 지금까지의 결함.\n:returns: 그들이 지금 디스크에 서있는 것처럼 라인.\n:raises StatusFileError: 파일을 읽거나 쓰지 못할 경우",
+      "translation_source_blocks_sha256": [
+        "3ab374aa9b45173c962dd4d39bc3f5f110ffa2adbbe593dfce686d37767ec9be",
+        "e011ea330e0abb3e3577b3659508ebbcf08159d36cecf1f14420b645361178f0",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "e695a1c30a97d8cd8da9995238498c775c7bbbea32ac055e1d36df86df53e844",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "757e4c9a20f3f6abab8a6bf939b10901ecd68c0364d1acbfbf24a2de37f09d46",
+        "9c2ac47ee18089d32b8d2411d16b525195429f47b24207b3676f53e1a00d50b7",
+        "f12f7a47ec196f380dbdc77d5af80a571c4ead7b2d4ab6b5549eabc799efb8ad"
+      ]
+    },
+    "spacr.curation_queue.median_equivalent_diameter": {
+      "source_blocks_sha256": [
+        "e9bf553c638ff14bb2e7b0ee38705b88c689822b172d055fd765bdd382d8edea",
+        "e36098ecf19a34cbb33b8d078525a91781c514ba01bab23a0a79da48607d8380",
+        "f3430aa7b319332165c939fdf9c19c3c02949f1a81a525314d58a5fed7af3459",
+        "ef8094a6b39a30713f9c793297cdc1e8479e88e36c318d68bc351dbfc0c415fb"
+      ],
+      "source_sha256": "5909578745942044cefd187f18bf199c7842922bd1521edb3473cbe30c2d8fb2",
+      "text": "레이블 이미지의 물체의 중간 회로 동등한 직경.\n\nThis is ``skimage.measure.regionprops``'s ``equivalent_diameter_area`` for 2-D input, computed directly as ``sqrt(4 * area / pi)`` so that ordering a work list needs numpy and not scikit-image. The equality is pinned by a test rather than asserted here.\n\n:param labels: 2D 전체 레이블 이미지.\n:returns: 중간 직경은 픽셀, 또는 ``0.0``에 있는 물체가 없을 때.",
+      "translation_source_blocks_sha256": [
+        "e9bf553c638ff14bb2e7b0ee38705b88c689822b172d055fd765bdd382d8edea",
+        "3eca7540aeee7aba5852d84dc56bd088679d0c3e9b85e01c8bba7a993e36a61e",
+        "f3430aa7b319332165c939fdf9c19c3c02949f1a81a525314d58a5fed7af3459",
+        "ef8094a6b39a30713f9c793297cdc1e8479e88e36c318d68bc351dbfc0c415fb"
+      ]
+    },
+    "spacr.curation_queue.order_items": {
+      "source_blocks_sha256": [
+        "d17b0c56b2a86cd98fcde98d22072d6c0c0cbadf5345c240b7cbbec2e9ca1c72",
+        "72584e8bd2ba5c978f03add619cec7cf7ba7ecf37e1857bbae146a09cb8893cb",
+        "e2af5044c4581a6b5cfa6fc82f6f5c5809d437d51ba343161a74e8bd9c15a116",
+        "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
+        "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
+        "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
+        "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
+        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
+        "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "318b1709471e21082b039d2c485117f295418a331f5cb037cfaa56e9bba46db6",
+        "a0ab1793eaf6d30a2bd1ccd5609af399b772fe7d28f91203ced34a1619d57d64",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ],
+      "source_sha256": "e356a7d09cc45a84f33168050cf679a8908bc0f48973eb41b8c5154a45c76817",
+      "text": "외부 도구의 세만틱스와 함께 작업 목록을 주문합니다.\n\n``name`` By stem, and nothing else is read — not the probabilities, not the drafts. By stem rather than by file name so that the order does not change when one field is a PNG and the next a TIFF.\n\n``prob`` 가장 확실한 첫 번째 : 구조화 된 데이터 이름은 ``-probs.get(stem, -1.0)``입니다. 기본은 포인트입니다. 무선 필드는 ``+1.0``, 실제 거부 된 확률보다 더 큰 결과를 얻으므로 확률이 0이 될 것이라고 주장하는 대신 LAST을 나타냅니다.\n\n``easy`` ``(0 if n > 0 else 1, -probs.get(stem, -1.0), -n)``. 인구화된 디자인은 받아들여지거나 조명으로 편집된다; EMPTY 디자인은 스크래치에서 그리는 것을 의미한다, 그래서 텅 비어있는 것은 확률의 마지막이 아닙니다. 각 그룹 내에서, 가장 가능성이 먼저, 그 다음 대부분의 개체.\n\n``value`` :func:`value_key` : 얼마나 많은 프로젝트를 수정해야 하는지.\n\nTies are broken by stem, because the list is sorted by stem before any of this and Python's sort is stable.\n\n:param items: 주문할 필드가 있습니다.\n:param order: :data:`ORDERS`에 해당되는 글 1건\n:param probs: ``{stem: probability}``, 또는 전화를받을 수있는 반환 하나, 또는 ``None`` 아무것도 사용할 수 없습니다.\n:param counts: ``{stem: n_objects}``, 또는 전화가 하나를 반환합니다. ``None``에서 ``easy``는 디자인 자체를 읽습니다.\n:param announce: fallback 알림이 가는 곳; 기본적으로 :func:`print`로, 그래서 그것은 외부 도구가하는 것처럼 stdout에 내려갑니다.\n:param min_objects: 그것은 :func:`value_key`로 옮겨졌습니다.\n:param min_diameter: 그것은 :func:`value_key`로 옮겨졌습니다.\n:param scores_hint: Fallback 알림에 명명된 점수 파일.\n:returns: 주문한 새로운 목록입니다.\n:raises ValueError: ``order``이 :data:`ORDERS` 중 하나가 아닌 경우.",
+      "translation_source_blocks_sha256": [
+        "a865fdeef1fd5908cfca4338e7fe8229002f97c9daa29590f3cfeac7bb74a6eb",
+        "72584e8bd2ba5c978f03add619cec7cf7ba7ecf37e1857bbae146a09cb8893cb",
+        "890cfc6f25af9afe386f77d1b15c118ab52bccebbd3f73b0e845107acde273d3",
+        "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
+        "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
+        "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
+        "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
+        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
+        "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "318b1709471e21082b039d2c485117f295418a331f5cb037cfaa56e9bba46db6",
+        "a0ab1793eaf6d30a2bd1ccd5609af399b772fe7d28f91203ced34a1619d57d64",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ]
+    },
+    "spacr.curation_queue.pending_items": {
+      "source_blocks_sha256": [
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "a14e85587438fbf295cf32022a4130b5416006a2a808bc4e8324cff36b1d85e5"
+      ],
+      "source_sha256": "30b5a5d81ea7e359974fe53fd75ca94fcb660879cae08a96c73a0b57ed659cb1",
+      "text": ":param items: 폴더에 있는 필드.\n\n:param status: 상태 파일에서 읽은 라인.\n:returns: 재검토된 상태가 없는 물건, 주어진 순서대로.",
+      "translation_source_blocks_sha256": [
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "a14e85587438fbf295cf32022a4130b5416006a2a808bc4e8324cff36b1d85e5"
+      ]
+    },
+    "spacr.curation_queue.read_status": {
+      "source_blocks_sha256": [
+        "da823dca6315e7262d6cbcc48c46e71d3ff0b4b69f5f4c420ec768b176da75fc",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b15ac808dbbe05024deb7e499edd728925f07d53e4db60eca52b960176c40017",
+        "8048219255aa9d7c33f8ffaaa167801e8e8b2f863e2b864bb69a9d03036b23f9"
+      ],
+      "source_sha256": "1b8559101df778e57da214047b4bee11ff49454e4dffe6e7c3feedb7cc9395fb",
+      "text": "다시 기록을 읽어보세요.\n\n:param folder: 작업 목록 폴더.\n:returns: ``{stem: StatusRow}``, 상태 파일이 아직 존재하지 않을 때 텅 비어 있습니다. 폴더에 포함되어 있지 않은 문자에 대한 문자열이 포함되어 있습니다; 그 이유는 :func:`write_status`가 주어진 모든 것을 다시 쓰는 것입니다.\n:raises StatusFileError: 파일이 존재하지만 ``stem`` 열이 없으면 상태 파일이 아닙니다.",
+      "translation_source_blocks_sha256": [
+        "da823dca6315e7262d6cbcc48c46e71d3ff0b4b69f5f4c420ec768b176da75fc",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b15ac808dbbe05024deb7e499edd728925f07d53e4db60eca52b960176c40017",
+        "8048219255aa9d7c33f8ffaaa167801e8e8b2f863e2b864bb69a9d03036b23f9"
+      ]
+    },
+    "spacr.curation_queue.record_state": {
+      "source_blocks_sha256": [
+        "ea13fc50170c34e0616a5cfeab022bfac653188288d936996e6365995f0ddf94",
+        "b218b3f4bf8306e4df130a2958b1909aa83bec6ca8ae78a3da3151c978dcfd0d",
+        "f154e3aac448e8a01d43822df4e91f3ecd16d9493c5dfd7d13a63bff24dece3d",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "5e64c93bec3411052adb20abf5037a6a047d4e48369064d71bf109ce34872458",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "4e98cf45aaaa533114e3557810ee898efcef89c22a05b5d48c31f508ca0ed6b6",
+        "415c87344c01339f00f80723032ef91b69189092cafbcff957a8c1839f8a4825"
+      ],
+      "source_sha256": "f79bba6c432e81ba4fd5b3366b9d32201b0b6b89d07a4d7baf7cb30ae241b0f0",
+      "text": "반환 ``rows`` 하나의 투표 결정이 기록되어 있습니다.\n\n순수: 통과된 맵은 변경되지 않으므로 호출자가 변경이 디스크에 도달하는지 여부를 결정할 수 있습니다.\n\n:param rows: 지금까지 라인을 읽고 있습니다.\n:param stem: 필드가 결정된다.\n:param state: ``done``, ``skip``, ``recropped``, or any other string, which leaves the stem pending.\n:param n_objects: 얼마나 많은 물건이 있었는지 알 수 있다면.\n:param updated: 시간표를 기록하려면; 지금까지, 두 번째까지.\n:returns: 녹음된 순서를 포함한 새로운 맵링.",
+      "translation_source_blocks_sha256": [
+        "ea13fc50170c34e0616a5cfeab022bfac653188288d936996e6365995f0ddf94",
+        "b218b3f4bf8306e4df130a2958b1909aa83bec6ca8ae78a3da3151c978dcfd0d",
+        "f154e3aac448e8a01d43822df4e91f3ecd16d9493c5dfd7d13a63bff24dece3d",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "5e64c93bec3411052adb20abf5037a6a047d4e48369064d71bf109ce34872458",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "4e98cf45aaaa533114e3557810ee898efcef89c22a05b5d48c31f508ca0ed6b6",
+        "415c87344c01339f00f80723032ef91b69189092cafbcff957a8c1839f8a4825"
+      ]
+    },
+    "spacr.curation_queue.resolve_order": {
+      "source_blocks_sha256": [
+        "99f5c30f0f05ecd4937fb1cdbab0dd4d60e38f5a3f5d940926ff9d3b1ba722f6",
+        "aecbdc2dbe0551c990ff124538382804c9ae4964d45e85cdc28fce01e1dd3cd5",
+        "d03eb21e2930daef0938cb12364be3574123a662506175c5df058b67db983fff",
+        "979b73f081e2958411ed83a7e99ab2c980313210b85e6eb6d5aa9f454c13e313",
+        "d3f0adeafe3cbfad84cdb9ead013bbb72a3bc78990e17f2ce090f2d9b5216966",
+        "64846805df3ef5797bc6cab94a3a9d2434cc5f658147586cb13333a7d1746f1a",
+        "a11a8dd17e2f2aa36ce60171f2af6c0be04b38602288649247a5319c96818bb0"
+      ],
+      "source_sha256": "20253639e660f24e21ca38919026724175535a1ef50ec163514dfdf828fc2061",
+      "text": "어떤 주문이 실제로 사용될 것인지, 그리고 그것에 대해 무엇을 말할 것인지 결정하십시오.\n\n``prob``과 ``easy`` 둘 다 확률이 필요합니다.그들이 없으면 ``value``로 돌아갑니다. - 그리고 그렇게 말하십시오.이 발표는 행동의 절반입니다 : 조용한 기록은 코레이터가 불확실한 필드를 처음으로 작동한다고 믿는 것을 떠나지 않습니다.\n\n:param order: 주문을 요청한 경우, :data:`ORDERS`의 하나입니다.\n:param probabilities: 가능성, 가능성이 텅 비어있다.\n:param scores_hint: 그들을 제공 할 수있는 점수 파일, 메시지에 명명 그래서 수정은 명백합니다.\n:returns: ``(effective_order, announcement)``, 광고가 ``None``이 될 때 아무것도 변경되지 않습니다.\n:raises ValueError: ``order``이 :data:`ORDERS` 중 하나가 아닌 경우, 타이포는 조용히 다른 주문이 될 수 없습니다.",
+      "translation_source_blocks_sha256": [
+        "99f5c30f0f05ecd4937fb1cdbab0dd4d60e38f5a3f5d940926ff9d3b1ba722f6",
+        "aecbdc2dbe0551c990ff124538382804c9ae4964d45e85cdc28fce01e1dd3cd5",
+        "d03eb21e2930daef0938cb12364be3574123a662506175c5df058b67db983fff",
+        "979b73f081e2958411ed83a7e99ab2c980313210b85e6eb6d5aa9f454c13e313",
+        "d3f0adeafe3cbfad84cdb9ead013bbb72a3bc78990e17f2ce090f2d9b5216966",
+        "64846805df3ef5797bc6cab94a3a9d2434cc5f658147586cb13333a7d1746f1a",
+        "a11a8dd17e2f2aa36ce60171f2af6c0be04b38602288649247a5319c96818bb0"
+      ]
+    },
+    "spacr.curation_queue.status_path": {
+      "source_blocks_sha256": [
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "2a86f2932eea2e21e8fb3e101cbe26e6ae7e334bed4925ec17a8800109fb9179"
+      ],
+      "source_sha256": "13d3efb3c86cebc69e873382fdd4fba16f310b17e0c1026293e51941db3f2c4d",
+      "text": ":param folder: 작업 목록 폴더.\n\n:returns: ``<folder>/curate_status.csv``, 작업 목록 폴더 내부에서 그것은 기계 사이에 세트를 합성 할 때 이미지와 함께 여행합니다.",
+      "translation_source_blocks_sha256": [
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "34fc749e093308e4387c094711566edbcbe945f66b07e189cb6e2c8c38abc45d"
+      ]
+    },
+    "spacr.curation_queue.summarize": {
+      "source_blocks_sha256": [
+        "756d0507e7059f2fe14cb23877552e734e60a938facf34517653ffa79a9bea70",
+        "49bf6d302ceb0b3d4589949f20b79411dfbc7a05a83d911a4b52c956e2d30ff4",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "fda7055940bc4012d25a0e7c8f07857a04bfc8a962533d6624cb125279817259"
+      ],
+      "source_sha256": "701343fa73f47220c21396b3a252f9a09ef42b132e0cba110c566e3e9fc678e5",
+      "text": "리더가 요청하는 방식으로 폴더를 계산하십시오.\n\n:param items: 폴더에 있는 각 필드.\n:param status: 상태 파일에서 읽은 라인.\n:returns: :class:`QueueSummary`. 계산은 실제로 여기에있는 필드 위에있다, 그래서 ``done + skip + recropped + remaining == total``; 여기에 있지 않은 조각에 대한 라인은 ``unknown``로 별도로 언급되며 남아있는 것에서 추출되지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "756d0507e7059f2fe14cb23877552e734e60a938facf34517653ffa79a9bea70",
+        "49bf6d302ceb0b3d4589949f20b79411dfbc7a05a83d911a4b52c956e2d30ff4",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "fda7055940bc4012d25a0e7c8f07857a04bfc8a962533d6624cb125279817259"
+      ]
+    },
+    "spacr.curation_queue.value_key": {
+      "source_blocks_sha256": [
+        "eb3a1e50233adbc5f93199ba97042ab6cbacf3b7531654273109d7b5cd80ec9c",
+        "3e0651def8fdf5d1a5180a36f9f195247b33e6567ac3bf51fab142113f9c1315",
+        "5013c2d937903c95ef56c336bb460c1e0c2b4cc5cfcc957bec7ca94ded9f4754",
+        "a5cf0b5df83e61083b2460fae62618a4deeff8d1c8b9eb785ef21f776def36f9",
+        "cb8b5d3443e628ee31a6669097d1dcb3264d23d44c1386e0cf48533e9fd413a4",
+        "fa1d9a3b11b2f549f69e2658172b3f3332507d2edcbbee91cfa64a4856427cd9"
+      ],
+      "source_sha256": "111f8fff6ff0de2c04b5b3d792596d75c9c177f44b1059c04e5ae0e016a96acc",
+      "text": "``value`` 순서의 키를 정렬: 얼마나 많은 디자인이 수정해야 하는지.\n\n정확히 외부 도구의 ``_value``::\n\n    n == 0                     -> (2, 0, 0)   nothing to correct, last\n    unreadable                 -> (3, 0, 0)   dead last\n    otherwise                  -> (0 if rich else 1, -diameter, -n)\n\n:param item: 랭킹을 위한 필드입니다.\n:param min_objects: 개체는 \"rich\" 디자인 필요. 플래크-특정.\n:param min_diameter: 중간 직경 \"rich\" 디자인 필요, 픽셀.\n:returns: 열쇠의 종류입니다.",
+      "translation_source_blocks_sha256": [
+        "eb3a1e50233adbc5f93199ba97042ab6cbacf3b7531654273109d7b5cd80ec9c",
+        "3e0651def8fdf5d1a5180a36f9f195247b33e6567ac3bf51fab142113f9c1315",
+        "5013c2d937903c95ef56c336bb460c1e0c2b4cc5cfcc957bec7ca94ded9f4754",
+        "a5cf0b5df83e61083b2460fae62618a4deeff8d1c8b9eb785ef21f776def36f9",
+        "cb8b5d3443e628ee31a6669097d1dcb3264d23d44c1386e0cf48533e9fd413a4",
+        "fa1d9a3b11b2f549f69e2658172b3f3332507d2edcbbee91cfa64a4856427cd9"
+      ]
+    },
+    "spacr.curation_queue.write_status": {
+      "source_blocks_sha256": [
+        "9e9b5105667f6987290807d434357ecfda07dc6a4433981f0feea257ead5a62a",
+        "9ba3b2157859174ad1384044407711d2c36535bb29da9bcddeed3a32b26aabea",
+        "b084cd5d0c165f16ae1ed30ff6c4efa67b18ab81a000c183caec71cc40a20b9a",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b54acd52c7d031efa4ae33386fd04970fddf0461e19faee7960df142da4b4e99",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
+      ],
+      "source_sha256": "fa66c254675592456e81675da7729d170460f5801610586e4fdcb2b5a7c1ccc5",
+      "text": "다시 기록을 작성하십시오, 원자 및 전체.\n\n각 라인은 이 폴더에 포함되지 않은 스탬프에 대한 라인을 포함하여 작성됩니다 : 코레이터는 세트의 일부가 도착하지 않은 기계에서 재생 될 수 있으며, 그 라인을 떨어 뜨리는 것은 이미 다른 곳에서 완료 된 작업을 제공합니다.\n\n파일은 기계 사이를 동기화하고 안정적인 순서가 실제로 변경 된 라인에 대한 동기화를 유지합니다.\n\n:param folder: 작업 목록 폴더.\n:param rows: ``{stem: StatusRow}``, :func:`read_status`이 반환되는 경우.\n:returns: 그 길은 글을 쓴다.\n:raises StatusFileError: 파일을 작성할 수 없을 때",
+      "translation_source_blocks_sha256": [
+        "9e9b5105667f6987290807d434357ecfda07dc6a4433981f0feea257ead5a62a",
+        "9ba3b2157859174ad1384044407711d2c36535bb29da9bcddeed3a32b26aabea",
+        "b084cd5d0c165f16ae1ed30ff6c4efa67b18ab81a000c183caec71cc40a20b9a",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b54acd52c7d031efa4ae33386fd04970fddf0461e19faee7960df142da4b4e99",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
       ]
     },
     "spacr.custom_features": {
@@ -27583,13 +28373,35 @@
     "spacr.graph_types": {
       "source_blocks_sha256": [
         "b7b7fb90d40b589357a22cfd20bbb2a7172420122d712996f196163632d9089f",
-        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e"
+        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e",
+        "ca5a49948ea2c1590b5accddbbdadc86dafd396440b161f6095900325f14ba26"
       ],
-      "source_sha256": "a52c53508f6b7cb003741199b67f8f3e79ed0ae1a31f0704ba9c2267dbc62b57",
-      "text": "일치 그래픽 유형 및 기본 데이터의 구조와 일치합니다.\n\n모듈은 카테고리, 연속 및 주문 좌석을 구별합니다.그것은 먼저 호환되는 그래픽 유형을 나열하고 각 호환되지 않은 옵션에 대한 이유를 제공하며 인터페이스가 지원되지 않은 선택을 숨기지 않고 방해 할 수 있습니다.",
+      "source_sha256": "f647a564e6b91e83e942197ea9f7c8b041b813ab14457654ec94544b9c942b1b",
+      "text": "일치 그래픽 유형 및 기본 데이터의 구조와 일치합니다.\n\n모듈은 카테고리, 연속 및 주문 좌석을 구별합니다.그것은 먼저 호환되는 그래픽 유형을 나열하고 각 호환되지 않은 옵션에 대한 이유를 제공하며 인터페이스가 지원되지 않은 선택을 숨기지 않고 방해 할 수 있습니다.\n\nIt is also WHERE every graph in spaCR gets its starting form. The default graph type setting is stored per data shape (`spacr.qt.preferences`), read back through :func:`chosen_for`, and turned into \"what is drawn before the first right-click\" by :func:`default_for` and :func:`start_for`. A widget asks one of those two and gets an answer that already accounts for the user's choice, whether that choice fits the data, and whether the data is thick enough to support it -- so the setting reaches a new graph by the graph doing the ordinary thing rather than by remembering to.",
       "translation_source_blocks_sha256": [
         "b7b7fb90d40b589357a22cfd20bbb2a7172420122d712996f196163632d9089f",
-        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e"
+        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e",
+        "0b7562408da39fd1afa818e31c04ce8c92604e0f0dfc2bc24196cb6e8fa4e122"
+      ]
+    },
+    "spacr.graph_types.chosen_for": {
+      "source_blocks_sha256": [
+        "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "36e0747e2961f019848164bb8e1fcf15f4067d08539884465b185836b2c73d2d",
+        "187f8df40ea02eeb39e838fce20fb4bd34191d4ccbfee3718a676823e6560c2c",
+        "01e87595a1bc615f3b954c02ca1e083d55ddce391a6859f115e7159ace02df59",
+        "ae7e6c2c8fe27579b0c49a55bd09dada72b89dbdde57e493e2f5af33cf177db1"
+      ],
+      "source_sha256": "268e8cecba5b39a3eed59681f0c9841a606910b03a37d6119fe026b786d516ac",
+      "text": "그래픽은 사용자가 ``shape`` 또는 ``\"\"``를 위해 FIRST를 볼 것을 요청합니다.\n\n:param shape: :data:`DATA_SHAPES`의 열쇠 중 하나입니다.\n:returns: 저장된 그래픽 유형, 또는 사용자가 이 모양에 대한 선호도를 표현하지 않은 경우 빈 스트립 - 또는 표현 한이 모양은 취할 수 없습니다.\n\n빈은 테이블의 기본 대답과 동일한 대답이 아닌 \"NOTHING WAS CHOSEN\"을 의미합니다 : 시작 형식을 가진 위젯은 아무것도 선택되지 않았을 때 그것을 유지하고 선호도는 무언가가있을 때 그를 초과합니다. :func:`default_for`은 \"nothing\"을 테이ブル의 자신의 대답으로 바꾸는 호출자입니다.\n\n데이터에 맞지 않는 저장된 선택은 그것을위한 선택이 아닙니다.바를 선호하는 사람은 지속적인 y에 대 한 지속적인 x의 바를 요청하지 않았습니다.이것은 다른 데이터의 차트이며, :data:`WHY_NOT`은 그렇게 말합니다.\n\n잃어버린 선호 스토어는 오류가 아닙니다. 헤드없는 렌더에는 Qt 및 QSettings가 없으며 숫자는 여전히 끌려야합니다.",
+      "translation_source_blocks_sha256": [
+        "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "36e0747e2961f019848164bb8e1fcf15f4067d08539884465b185836b2c73d2d",
+        "a490496054b0582f805bf6babe7a79e5e83993685c0b41856ca3f1f50ec12c43",
+        "d72a9b242e6b2c3a14b16d3e50e5b4bed462e23424495dbd817caa885e1d5246",
+        "42e031a9f11dcecce82a6accb26b800b3b40f83e5bb80f92678e4c267a7db992"
       ]
     },
     "spacr.graph_types.default_for": {
@@ -27598,18 +28410,16 @@
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "ca40183b18a07c1acf9338fa6ba0c16334207d18f0e577d1bf569e13b98fc11e",
-        "ae77864009fe703da06f771c097819695f3bb2b55c7b17411278503df5ece071",
-        "415b833fa93f16585ebabd1ad74519d3f881d16ce31e5acb04fd1af70bf32f1d"
+        "184cbb8cfd97e315e1d24ee77329fa4c12fb4a95689b6015160fd821f1c8b14c"
       ],
-      "source_sha256": "f5183164038a770de6500b3410b6a7e709980bf5c269de7d35722dcbfc259f09",
-      "text": "그래픽 형식은 ``shape``을 위해 첫 번째로 끌어 들이고 있습니다.\n\n:param shape: :data:`DATA_SHAPES`의 열쇠 중 하나입니다.\n:returns: 그래픽 형식은 :data:`GRAPH_TYPES`에서 나온다.\n:raises KeyError: ``shape``이 지원되지 않은 경우\n\n사용자의 선택은 먼저 온다.이 선호도는 어떤 호환 그래픽이 먼저 끌려가는지 결정하고, 오른쪽 클릭은 여전히 나중에 그것을 변경할 수 있습니다. spaCR 이 기능을 통해 시작 형식에 도달하므로 선호도는 화면에 따라 일관되게 적용됩니다.\n\n데이터에 맞지 않는 저장된 선택은 무시됩니다. bars를 선호하는 사람은 continuous y에 대 한 continuous x의 bar를 요청하지 않았습니다 - 이것은 다른 데이터의 차트이며, :data:`WHY_NOT`는 그렇게 말합니다.",
+      "source_sha256": "44fbc69e8cb773adb82af02cc51612c0efe11f6914e82e2dffab410182dd8b9a",
+      "text": "그래픽 형식은 ``shape``을 위해 첫 번째로 끌어 들이고 있습니다.\n\n:param shape: :data:`DATA_SHAPES`의 열쇠 중 하나입니다.\n:returns: 그래픽 형식은 :data:`GRAPH_TYPES`에서 나온다.\n:raises KeyError: ``shape``이 지원되지 않은 경우\n\nThe user's choice comes first. The preference decides which compatible graph is drawn first, and right-click can still change it afterwards. Every graph in spaCR reaches its starting form through this function or through :func:`start_for`, so the preference applies consistently across screens.",
       "translation_source_blocks_sha256": [
         "84658b6ad17b22f8485589a508d19743d4daf13b3498499d2fa806b19709bdb5",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "ca40183b18a07c1acf9338fa6ba0c16334207d18f0e577d1bf569e13b98fc11e",
-        "e3c262c6df324285700da459a6a2855f0e995a6be14014bbb815f6f1d59971e3",
-        "e76a57f8634dfd9907c5d0296d7112c2fde6814da0b2303e101ac79d57b6fad6"
+        "3b158aa4ffda8b39dc31f30e5adef47cdddaf815e0504395081d2576bdc43968"
       ]
     },
     "spacr.graph_types.fits": {
@@ -27624,6 +28434,22 @@
         "ee39075c3407ebc70fa187a8dde9b452765844f892e41b6133e9963db15d6c25",
         "67828e2afce9790e7391260e3203e7fac518b1a1156d15477c838912a99badad",
         "3b3abff0ffb49a9466ef2354f48a062ffec6d06e5d23bf3508031ed006347993"
+      ]
+    },
+    "spacr.graph_types.mark_for": {
+      "source_blocks_sha256": [
+        "e25dd3cdba9fc042bc68e720fcd9b2a6bd5ccc7cc35c88597f1e7bc1cdf7f134",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
+      ],
+      "source_sha256": "f20e73ffc738cc611b885ef2b908d241a3c11644de7d1e68f26360a326f68ea9",
+      "text": "``graph_type``를 끌어 올리는 라이브 플로트 표시입니다.\n\n:param graph_type: 그래픽 형식은 :data:`GRAPH_TYPES`에서 나온다.\n:param fallback: 이름 :data:`MARKS`에 대한 답변은 입력이 없습니다.\n:returns: ``spacr.qt.widgets.fast_plots.MARK_TYPES``에서 표시 키를 입력합니다.",
+      "translation_source_blocks_sha256": [
+        "e25dd3cdba9fc042bc68e720fcd9b2a6bd5ccc7cc35c88597f1e7bc1cdf7f134",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
       ]
     },
     "spacr.graph_types.offer": {
@@ -27662,6 +28488,66 @@
         "43b3dba91ad594058f75e5c4b7707a900a0e4b7bd3ea5f1044e65d05b04d1852",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "3e1de6ff51fffc9a432a872e26f2a3aaf904fdcefcb8d31e468b7c4e62a35563"
+      ]
+    },
+    "spacr.graph_types.start_for": {
+      "source_blocks_sha256": [
+        "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "6a90db024703a75ea0fa470b991eb4e039ca7960bd04e85d53373b7395953f02",
+        "85a76ec422f130c440b388919b360860b37526cb772586ef6a3e882a85a13ac9",
+        "cd32d3d7554953e9f06be55110581dc54ec0758ccb0f809f9925462cf5fce688",
+        "08b08d9fdfa34e224c65c2c684e80ac546aee90fb716f72ebc0560a5561adb89",
+        "6eea7dc4e7d0b2e983cb442f62586c75ada46a685d2bff3b11103de43b2d2acd",
+        "0e1cc82393976b04a02aaf20d1bf57c3c94540f5c1b6ae15893992fd1ce11a66"
+      ],
+      "source_sha256": "d13ff9364522e3b9c3ccd11fbae2c821aa9d02ff88f1f64b69ef1a5bce12ae87",
+      "text": "무엇을 먼저 끌어내고, 왜 그것이 요구되지 않았는지.\n\n:param shape: :data:`DATA_SHAPES`의 열쇠 중 하나입니다.\n:param counts: 그룹에 따라 관찰, 그들이 알려져있을 때.\n:param fallback: 초대자의 OWN 시작 양식, 사용자가 선호도를 표현하지 않은 경우에 대답 - 위젯은 그것이 끌 수있는 것을 알고 - 그리고 빈 하나는 :data:`DEFAULTS`을 의미합니다.\n:returns: ``(graph_type, note)``. 노트가 텅 비어있을 때마다 그림이 그려진 것은 요청된 것입니다.\n:raises KeyError: ``shape``가 지원되지 않고 사용 가능한 붕괴가 제공되지 않은 경우.\n\n붕괴는 큰 소리로 말한다. 선호도는 양식 성명서입니다 - \"draw violins\" - 그리고 양식성 성명서는 최종적으로 설명 할 수없는 데이터를 만납니다. 대신 포인트를 그리며 아무것도 말하지 않으면 바이올린을 요청하는 사용자가 설명이없는 히터를보고있을 것입니다, 그래서 문장은 답변과 함께 돌아와서 호출자는 그것을 스크립트에 넣습니다.\n\n단지 저장된 옵션만이 데이터에 대해 재검토됩니다: :data:`DEFAULTS` 이미 관찰을 유지하는 타입을 고정하고, x 당 1 포인트 라인 - 주문한 기본 - 그렇지 않으면 매번 스스로 말할 것입니다.",
+      "translation_source_blocks_sha256": [
+        "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "6a90db024703a75ea0fa470b991eb4e039ca7960bd04e85d53373b7395953f02",
+        "85a76ec422f130c440b388919b360860b37526cb772586ef6a3e882a85a13ac9",
+        "cd32d3d7554953e9f06be55110581dc54ec0758ccb0f809f9925462cf5fce688",
+        "08b08d9fdfa34e224c65c2c684e80ac546aee90fb716f72ebc0560a5561adb89",
+        "a6beb6d696a0a4f94f81b168552e13bc119b46bfa6638b18d0115fe6037d9b56",
+        "8904e5a2b50e6b1ccc667f81d8dee09b0dbc4a2141358c809a5f0c20fdb74745"
+      ]
+    },
+    "spacr.graph_types.too_thin_for": {
+      "source_blocks_sha256": [
+        "546392a39717e8ae8e39f0dba112b09dba3500dd2d684adf933be52070a1ebd8",
+        "a7565130a1326537e3c1f33e197e91b0d9e065aa5e792af3f0b27a8062b3401f",
+        "d524502c70edb11dbfe6f1cd803bcc9ddc6895b86520061d8ab945f365b8b648",
+        "727209af1d9d581ebce9b5737d1361bdd1c0bc43223b6d783ab4c0d6a1448333",
+        "70ba3a18522ca357214b14ad116300860ec164d105aacf4ffd053f5b877f17d2"
+      ],
+      "source_sha256": "d85c3db27e28d89c01cec085e42b9eca56a83c688c3694574b5bfac19ff50131",
+      "text": "왜 ``graph_type``이 작은 그룹, 또는 ``\"\"``을 요약 할 수 없습니다.\n\n:param graph_type: 그래프 타입은 끌려가고 있습니다.\n:param counts: 알려지지 않은 크기 - 텅 비어 있지 않은 -는 반대가 아닙니다 : 데이터가 전달되지 않은 그래픽은 여전히 주장을 제시하지 않습니다.\n:returns: 가장 작은 그룹을 지정하는 문장, 또는 그래픽 유형이 데이터에 의해 지원되는 경우 빈 줄.\n\n관찰을 반영하는 유형만이 너무 얇아질 수 있습니다. :data:`HIDES_THE_OBSERVATIONS` 참조. 두 점의 흔들리는 것은 두 점이며, 이것은 진실입니다. 2 점의 바이올린은 결코 측정되지 않은 밀도입니다.",
+      "translation_source_blocks_sha256": [
+        "546392a39717e8ae8e39f0dba112b09dba3500dd2d684adf933be52070a1ebd8",
+        "a7565130a1326537e3c1f33e197e91b0d9e065aa5e792af3f0b27a8062b3401f",
+        "d524502c70edb11dbfe6f1cd803bcc9ddc6895b86520061d8ab945f365b8b648",
+        "727209af1d9d581ebce9b5737d1361bdd1c0bc43223b6d783ab4c0d6a1448333",
+        "70ba3a18522ca357214b14ad116300860ec164d105aacf4ffd053f5b877f17d2"
+      ]
+    },
+    "spacr.graph_types.type_of_mark": {
+      "source_blocks_sha256": [
+        "6d4b68aa2344342ce7a3e2381b2cec19c7ebde2478db4bbcd2d20356c9e43af6",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b",
+        "464c4a047431e216d7e4cbf92d9afbd86b40e09089dc4aef7a47ed4629b2a1a1",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "68a3c56d0d9cf7541a9039491b90162854d2eae50ef6a960f88183c25d0a73e3"
+      ],
+      "source_sha256": "234d408705d774dcf5b32ab5ed1df8909e86c4ca014de1f625e109b828073e46",
+      "text": "그래픽은 라이브 플랫의 ``mark``를 끌어 올립니다.\n\n:param mark: ``spacr.qt.widgets.fast_plots.MARK_TYPES``에서 표시 키를 입력합니다.\n:param fallback: 어떤 표지판에 대답할 수 있는지, 그래프 타입을 끌지 않는지.\n:returns: 그래픽 형식은 :data:`GRAPH_TYPES`에서 나온다.\n\n:func:`mark_for`의 반대, 그래서 자신의 시작 형식이 표지판으로 쓰여진 위젯은 그래픽 유형에 쓰여있는 선호와 비교할 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "6d4b68aa2344342ce7a3e2381b2cec19c7ebde2478db4bbcd2d20356c9e43af6",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b",
+        "464c4a047431e216d7e4cbf92d9afbd86b40e09089dc4aef7a47ed4629b2a1a1",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "68a3c56d0d9cf7541a9039491b90162854d2eae50ef6a960f88183c25d0a73e3"
       ]
     },
     "spacr.graph_types.types_for": {
@@ -61777,9 +62663,9 @@
         "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074"
       ],
       "source_sha256": "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074",
-      "text": "떨어진 이미지 폴더 (또는 미생물 이미지 필드)를 Align & Stitch 입력으로 사용하십시오.",
+      "text": "Align & Stitch 입력으로 떨어진 이미지 폴더 (또는 하나의 테이블)를 사용합니다.",
       "translation_source_blocks_sha256": [
-        "b5d1aef621c991bde10670ab5fdc262a0746cf49f8ed3dc05e8a73550ad18149"
+        "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074"
       ]
     },
     "spacr.qt.dnd_handlers.AlignDropHandler.apply": {
@@ -63585,9 +64471,9 @@
         "3e9e63e8b896570b41536cde9aa33d8de1c4317ca17b23c153e753087d73b155"
       ],
       "source_sha256": "3e9e63e8b896570b41536cde9aa33d8de1c4317ca17b23c153e753087d73b155",
-      "text": "처리 세션 역사: 삭제된 처리 세션 폴더에 속하는 처리세션 세션을 선택합니다.",
+      "text": "Run History: 삭제된 처리-세션 폴더가 속한 처리 세션을 선택합니다.",
       "translation_source_blocks_sha256": [
-        "53a1498a5406dbad1488b05a516c31427e643d38a2e8dadb71d886de0370c86f"
+        "0f9917e036c21b92a005a1fa597804d66b5f5e59d568511c826fa856a1b6d39c"
       ]
     },
     "spacr.qt.dnd_handlers.RunHistoryDropHandler.apply": {
@@ -70394,10 +71280,10 @@
         "b011aea47be76a073eee0e8a277928369c7ea894bd9d259cf2c0115ce5fcb36c"
       ],
       "source_sha256": "301549162e8ff6a3b6dc8c7c47addd6fb6cab5a1896ae0ff42c52071499976a9",
-      "text": "데이터베이스 브라우저에서 편집 모드를 허용 (또는 금지)합니다.\n\nQSettings는 깔끔하게 다시 쓰고, 데이터베이스 브라우저는 각 UI 업그레이드에서이 구조화 된 데이터 이름을 다시 읽습니다 - 사용자가 문자열 상자를 눌러 그들에게 편집이 여전히 꺼져 있다고 말한 직후에 스틸 읽기.",
+      "text": "Allow (or forbid) edit mode in the Database Browser.\n\nFlushed immediately. QSettings writes back lazily, and the Database Browser re-reads this key on every UI refresh — a stale read right after the user ticked the box would tell them editing is still off. One tiny INI write is worth not having to explain that.",
       "translation_source_blocks_sha256": [
         "e6b2a9b3a50f9d20a5c769c55e0ca7c764a6a91bd4d2dadd2b8a2ebd6278801d",
-        "e24961041b3136f3eb7be8c942ba18d818d2363e881feed33bd85e2d804f20f6"
+        "b011aea47be76a073eee0e8a277928369c7ea894bd9d259cf2c0115ce5fcb36c"
       ]
     },
     "spacr.qt.preferences.set_default_graph_type": {
@@ -71391,10 +72277,10 @@
         "3b9c6c6bb7985689262dca59b323bbc382b9a31290624d2773984f4c06e8f41f"
       ],
       "source_sha256": "f9fa9ebcdd1cbc78ace869fa71f5be9315234d0c1b78f1ad5c6295eed67dc91f",
-      "text": "어떤 모듈이 라이브 프레비전을 얻고, 어떻게 하나가 외부에서 붙어있다.\n\n4 개의 모듈은 사전 보기 - 마스크, 측정, 타이멜라프스, 모틸리티 - 각각 ``AppScreen._build_runtime_panel``에서 열두 라인 팔, 0에서 블록에서 두 가지 속성 이름, 그리고 테이블에서 두 백 라인 아래로 라인. 다섯 번째는 동일한 비용이 들었을 것입니다, 그래서 결코 다섯 번째가 없었다 : 가장 분명히 하나에서 이익을 얻을 수있는 모듈은 두 개입니다 그들의 전체 작업은 \"마스크가 올바르게 나왔다\" - Cellpose 마스크와 플레크 평가 - 그리고 공유 화면을 만질 가치가 없었다.\n\n이 모듈은 다섯 번째를 무료로 만드는 세임입니다.모듈은 여기에서 미리 보기를 선언합니다; 설정 형식 위의 스트립은 그것을위한 타그글을 자랍니다; 카드는 동일한 ``_runtime_wrap`` / ``_actions_row`` 앵커 :mod:`spacr.qt.prerun` 사용을 통해 처리 세션 라인 위에 입력됩니다. ``AppScreen`` 내부에 아무것도 변경되지 않으며 이미 구축하고있는 네 개의 미리보기만 남아 있습니다.\n\n호스트에 FOLDED 된 모듈은 다른 끝에서 동일한 기계에 도달합니다. 자신의 응용 프로그램 전망은 더 이상 구축되지 않으므로 ``install`` - 애플리케이션 전망의 자신의 키에 대한 응답 - 그것의 패널을 결코 붙일 수 없습니다; :func:`attach_folded` 호스트가 이름으로 그것을 요청하고 호스트는 그 모듈의 나머지를 드러내기 위해 사용하는 무엇이든 뒤에 숨겨져 있습니다.\n\n**샘플링 계약은 유산되지 않고 재현되지 않습니다.**이 레지스트리를 통해 도달하는 패널은 배송된 패널이며, 실험실 마이크로 플레이트를 파일 이름에서만 이미지 세트로 그룹화하고 그것의 제한되고 재현 가능한 우연한 샘플을 열어줍니다. 여기서 아무것도 목록을 나열하거나, 열거나, 디렉토리를 나열하지 않으므로 여기서 다시 돌아갈 수 없습니다.이 시엄을 통해 등록된 새로운 패널이 동일한 약속을 지켜야합니다. :mod:`spacr.qt.widgets.preview_controls`를 참조하십시오.",
+      "text": "어떤 모듈은 라이브 프레비전을 얻고, 어떻게 하나가 외부에서 붙어있다.\n\n4 개의 모듈은 미리 보기 - 마스크, 측정, 타이멜라프스, 모틸리티 - 각각 ``AppScreen._build_runtime_panel``에서 열두 라인 팔, null-out 블록에서 두 명의 속성 이름, 그리고 타그글 테이블에서 200 라인 아래로 한 줄이 있습니다. 다섯 번째는 동일한 비용을 지불 할 것입니다, 그래서 그것은 결코 다섯째가되지 않았습니다 : 가장 분명히 하나에서 이익을 얻을 수있는 모듈이 두 개입니다 그들의 전체 작업은 \"마스크가 오른쪽으로 나왔다\" - Cellpose 마스크와 Plaque Assay - 그리고 공유 응용 프로그램 전망을 만질 가치가 없었다.\n\n이 모듈은 다섯 번째를 무료로 만드는 세임입니다.모듈은 여기에서 미리 보기를 선언합니다; 설정 형식 위의 스트립은 그것을위한 타그글을 자랍니다; 카드는 동일한 ``_runtime_wrap`` / ``_actions_row`` 앵커 :mod:`spacr.qt.prerun` 사용을 통해 처리 세션 라인 위에 입력됩니다. ``AppScreen`` 내부에 아무것도 변경되지 않으며 이미 구축하고있는 네 개의 미리보기만 남아 있습니다.\n\n호스트에 FOLDED 된 모듈은 다른 끝에서 동일한 기계에 도달합니다. 자신의 응용 프로그램 전망은 더 이상 구축되지 않으므로 ``install`` - 애플리케이션 전망의 자신의 키에 대한 응답 - 그것의 패널을 결코 붙일 수 없습니다; :func:`attach_folded` 호스트가 이름으로 그것을 요청하고 호스트는 그 모듈의 나머지를 드러내기 위해 사용하는 무엇이든 뒤에 숨겨져 있습니다.\n\n**샘플링 계약은 유산되지 않고 재현되지 않습니다.**이 레지스트리를 통해 도달하는 패널은 배송된 패널이며, 실험실 마이크로 플레이트를 파일 이름에서만 이미지 세트로 그룹화하고 그것의 제한되고 재현 가능한 우연한 샘플을 열어줍니다. 여기서 아무것도 목록을 나열하거나, 열거나, 디렉토리를 나열하지 않으므로 여기서 다시 돌아갈 수 없습니다.이 시엄을 통해 등록된 새로운 패널이 동일한 약속을 지켜야합니다. :mod:`spacr.qt.widgets.preview_controls`를 참조하십시오.",
       "translation_source_blocks_sha256": [
         "e22891fc56dcb0281bc3eb48fd883a3fe95ef1318ca150b5898ed6cc82b2f7bc",
-        "26e1dd822c9da721f33b6947857c5736e491a0e154f39b3f0a8b72d12bec47b8",
+        "08350b57ba4d040bbee0efba91c28a73d7b2c4a3749eabda903edc2db778d11c",
         "a46c9d15fa19ac498628ae725fc7fef96c5ad7bf9dffbb46688a1ec392a82074",
         "3f35efce446a3ba1180889555aff9344b5fc38813fc5d493f4d265e59d8d2113",
         "dfff0c448165b2826bcb6c40ccc98f69e7bf200439bcdc4aa56e2d64ac8fadab"
@@ -73320,10 +74206,10 @@
         "181fbc0154ee955b623beefb9d1e277ea9a52fef141791261b86344e69eac83c"
       ],
       "source_sha256": "ea18292108fadb51f1d041e199d5f6c50c96972b1e690e9c9b9e899273a97ffa",
-      "text": "컨트롤을 :func:`spacr.align.default_settings` 키 가치 맵링으로 반환합니다.\n\nBatch Runner와 소프트웨어 작업 목록이 이 스크린을 그들이 각각의 다른 스크립트를 촬영하는 방식으로 촬영 할 수 있도록 대중을 잡으십시오.",
+      "text": "컨트롤을 :func:`spacr.align.default_settings` 키 가치 맵링으로 반환합니다.\n\nBatch Runner 및 작업 목록이 각각 다른 스크린을 스크립트하는 방식으로 이 화면을 촬영할 수 있도록 공개적으로 캡처하십시오.",
       "translation_source_blocks_sha256": [
         "ca2c8465fb84fd1bf4b136d4dfa12617f0b7ae3c35f5c8ed4fa7238442a73186",
-        "79d7b10146775d90982aba4d119be7137394f66af6b9ab2e448c45e7b51babe9"
+        "e86370735a949246554c30c5e339f92c850656d479ef7e87bb8e408350541c9c"
       ]
     },
     "spacr.qt.screens.align.AlignScreen.status_text": {
@@ -74636,10 +75522,10 @@
         "d3270ed7b82996bd4db6d910c8ac53eeae040f31daf3360205800f05c5257d9d"
       ],
       "source_sha256": "ab2fb75525e570acd568b2c2aa12aa222429595c08e4e490725a7fce514f56c6",
-      "text": "배치 실행기 - 당신을 위해 밤을 보내는 도구 모듈.\n\n플레이트 처리 목록 체인 *플레이트*를 통해 *one* 작업 흐름.이 화면은 다른 좌석입니다 : 자발적인 ``(module, settings)`` 작업 어떤 순서 - ``Mask → Measure → Classify (CV) → Classify (ML)``, 다음 같은 네 다시 다른 직경, 다음 다섯 번째 플레트의 마스크 - 구축, 검증, 파일에 저장 및 예상치 못한 실행.\n\n응용 프로그램의 전망은 의도적으로 얇습니다. 소프트웨어 작업 목록에 대해 알고있는 모든 것 :mod:`spacr.batch`무지한 자는 무지하고, torch- 무료 및 테스트되지 않고 Qt 이 파일은 단지 부분이 되어야 하는 부분입니다. GUI: 모듈과 설정 파일을 선택하고, 작업을 복제하고 편집하고, 다시 주문하고, 검증하고, 저장/로드하고, 실행하고, 각 작업 상태, 진행 및 로그를 확인합니다.\n\n사용자에게는 세 가지 결정이 눈에 띄게 나타납니다 :\n\n* **일은 그들이 추가 될 때, 실행 할 때가 아닙니다.** 설정 파일이 부족한 작업, ``src``가 잘못 표시되거나 GUI 모듈이 단지 추가 버튼에서 거부됩니다.\n* **모델 대화가 없음, 언제나.** 각 실패는 인리 문제 패널과 :attr:`BatchScreen.last_error`에 앉아 있습니다. ``QMessageBox``는 헤드없는 실행 (그것은 ``MakeMasksScreen``에서 이루어졌습니다)을 묶어 놓고이 화면은 헤드없는 실행됩니다.\n* 운전자는 노동자를 사용한다. **실행 모델 :** 완성으로 돌아가기 위해서는 GUI 트레일러 ``PipelineWorker.finished`` 발행된 *노동자 트레일드 내부*따라서 위젯을 변경하는 각 수신자는 명시적인 링크를 사용하여 이 방법의 연결된 방법을 사용합니다. GUI 트레이드 위젯\n\n일자리는 한 번에 하나를 실행합니다 - 그들은 하나를 위해 경쟁합니다. GPU - 그리고 각각은 자신의 ``spacr-run`` 과정, 그래서 세그팔트에서 cellpose 이 창이 아니라 그 작업을 죽인다.",
+      "text": "Batch Runner - 당신을 위해 밤을 보내는 도구 모듈.\n\nPlate Queue 체인 *plates*를 통해 *one* 작업 흐름.이 화면은 다른 좌석입니다 : 자발적인 ``(module, settings)`` 작업 어떤 순서 - ``Mask → Measure → Classify (CV) → Classify (ML)``, 다음 같은 네 다시 다른 직경, 다음 다섯 번째 플레이트의 마스크 - 구축, 검증, 파일에 저장 및 예상치 못한 실행.\n\nThe application view is deliberately thin. Everything it knows about a software job list it learns from :mod:`spacr.batch`, which is headless, torch-free and tested without Qt. This file is only the part that has to be a GUI: pick a module and a settings file, duplicate a job and edit it, reorder, validate, save/load, run, and watch per-job status, progress and log.\n\n사용자에게는 세 가지 결정이 눈에 띄게 나타납니다 :\n\n* **일은 그들이 추가 될 때, 실행 할 때가 아닙니다.** 설정 파일이 부족한 작업, ``src``가 잘못 표시되거나 GUI 모듈이 단지 추가 버튼에서 거부됩니다.\n* **모델 대화가 없음, 결코.** 각 실패는 인라인 문제 패널과 :attr:`BatchScreen.last_error`에 내려갑니다. ``QMessageBox``는 헤드없는 실행 (그것은 ``MakeMasksScreen``에서 이루어졌습니다), 이 화면은 헤드없이 실행됩니다.\n* The run uses a worker. **Execution model:** completion returns to the GUI thread. ``PipelineWorker.finished`` is emitted *inside the worker thread*; therefore each receiver that changes a widget uses an explicit queued connection to a bound method of this GUI-thread widget.\n\nJobs run one at a time — they compete for one GPU — and each one is its own ``spacr-run`` process, so a segfault in cellpose kills that job rather than this window.",
       "translation_source_blocks_sha256": [
         "d353b2be6e5a4e8b7ef8cdea508889fc11f961d6d7ed128b048187afbb46a3d7",
-        "ee75ddb3106cff964da74613bd2f96e86810953094934e7f5ed5d990ca49b675",
+        "1fa4efe857864111c5565de1a29769a5a38e06bbdd53d8f050d85fa37a5c6966",
         "954b2c03ab87ece545a991194f2373ac4b8a1d7a0342c2d75b402e149eabb9f8",
         "d62e3e8e8b5b95ead1572c0a75e10e6af3b6109d57c105ccc86509802bebbb60",
         "4afe1d057ae0f0ca852c123bc1e831d2f64bcbaffefef070b45c08e9919822ef",
@@ -81996,6 +82882,22 @@
         "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9"
       ]
     },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue": {
+      "source_blocks_sha256": [
+        "02b416d874f39d781fdbb5c0b86bea91328abd01f436faf5f5c3d99d62ac13d3",
+        "12a40f07166ff8bf5ea5434a82693a1b5578efd4d6c857e05fa9f870b42bb58d",
+        "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
+        "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ],
+      "source_sha256": "6c01ca3aa7809b200caf42c80357389b5d0207bcb6d7f1d671ebc65db532fa8c",
+      "text": "필드를 열어 그것이 제공하는 순서에 치유 세션을 제공합니다.\n\nThe session decides WHICH microscope fields of view and in what order -- reviewed ones already dropped, ``--limit`` already applied -- and this application view shows them. Only the nested layout is opened: this editor reads a draft from ``<folder>/masks/<stem>.tif`` and saves back to the same place, so a sibling or ``_seg.npy`` set would be read and written somewhere other than where its masks are. ``spacr-make-masks`` refuses those before Qt is imported; this is the second half of the same refusal, for anything that reaches the application view another way.\n\n:param queue: a :class:`spacr.curation_queue.CurationQueue`.\n:returns: 편집자가 현재 그 세션에 있는지 여부.",
+      "translation_source_blocks_sha256": [
+        "02b416d874f39d781fdbb5c0b86bea91328abd01f436faf5f5c3d99d62ac13d3",
+        "3f55f57491196e8a12c49a213235554ac668a17173c21cad97ddabadac5a43ff",
+        "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
+        "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ]
+    },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
       "source_blocks_sha256": [
         "1ad20f1f585f70d42375c162c01e8589a66bc96e3334465908e399e87c427b72",
@@ -84963,9 +85865,9 @@
         "d8e2205b5f03eb00af5759fde4d8f9ef667773ff560678f1a4937c5344073c52"
       ],
       "source_sha256": "a977f345fa01c47dc9c8ac17faa1e453c98b3ca32513458c91c44292c43d688e",
-      "text": "작업 흐름 그래프 - 무엇이 무엇을 생산했는지, 그리고 어느 것이 여전히 사실입니다.\n\nA spaCR 프로젝트는 누군가가 머리에 들 수있는 것보다 더 빨리 파일을 축적 : 마스크, 측정 데이터베이스, 추출 된 이미지 지역, 모델 무게, 예측, 회전 테이블, 숫자. *이전* 서로의 버전, 왜냐하면 마스크 단계는 화요일에 다른 직경으로 다시 실행되었고 아무것도 아래로 흐르지 않았기 때문입니다. GUI 그것을 보여주고, 숫자는 숫자처럼 보이지 않는다 - 그것은 숫자를 보인다.\n\n이 스크린은 DAG를 촬영합니다 :\n\n::\n\n    ┌──────────────┐   ┌────────────────┐   ┌───────────────┐\n    │ mask         │──▶│ measure        │──▶│ classify      │\n    │ masks   OK   │   │ db      STALE  │   │ preds   STALE │\n    └──────────────┘   └────────────────┘   └───────────────┘\n\n상자는 유물이며, 끈은 \"was made from\"이며, 색상은 판결 :func:`spacr.artifacts.Registry.is_stale` 반환입니다 - 그것의 ``reasons``는 그림 옆에있는 패널에 표시되기 때문에 \"stale\" 자체는 비난이 아니라 설명입니다. 상자를 클릭하고 패널은 그것을 생성 한 처리 세션, 설정을 소화, spaCR 버전, 그리고 무엇을 다시 실행 그것을 무효화 할 것입니다 이름을 지정합니다.\n\n세 가지 의도적 선택:\n\n**그래프는 모듈 목록이 아닌 출처에서 추출됩니다.** 작업 흐름은 무엇인가 *추정되는* 할 수 있는 것은 :data:`spacr.ports.PORTS`그리고 그것은 또한 끌려 가고있다 - 구름, 아래와 같이, \"declared order\" 스트립 - 하지만 상자와 스트립은 실제로 무슨 일이 일어 났는지.지난 주의 마스크를 측정하는 프로젝트는 타이디 차트와 같지 않으며, 그 차이점은 화면의 전체 가치입니다.\n\n**실패는 잔인하지 않습니다.** 삭제된 파일은 빨간색이며 그렇게 말합니다; 오래된 파일은 잔인합니다. :mod:`spacr.artifacts` 그들을 갈등시키는 것을 거부하고 그렇게하지 않습니다.\n\n**여기서 아무것도 쓰지 않는다.** 반복 실행 버튼이 없습니다, \"mark as fresh\", 삭제하지 않습니다. 화면은 질문에 대답합니다; 대답에 행동하는 것은 모듈의 작업이며, 그래픽에 다시 묶여있는 한 번의 클릭 실행은 누군가가 그들이 확인하려고 시도했던 문자를 과장하는 방법입니다.\n\n레이아웃은 차트의 층에서 순수한 기능 (:func:`layout_rects`)에 의해 계산되므로 배열은 픽셀없이 테스트 할 수 있으며, 무거운 부분 - 레지스트리를 열고 각 유물에 대해 물어보면 - 주요 GUI 실행 경로에서 :class:`spacr.qt.job_runner.JobRunner`를 통해 실행됩니다.",
+      "text": "Pipeline Graph - 무엇이 무엇을 생산했는지, 그리고 그것 중 어느 것이 여전히 사실입니다.\n\nA spaCR project accumulates files faster than anyone can hold in their head: masks, a measurements database, extracted image regions, model weights, predictions, regression tables, figures. Some of those were made from each other. Some were made from a *previous* version of each other, because the mask step was executed again with a different diameter on Tuesday and nothing downstream was. Nothing in the GUI showed that, and a stale number does not look stale — it looks like a number.\n\n이 스크린은 DAG를 촬영합니다 :\n\n::\n\n    ┌──────────────┐   ┌────────────────┐   ┌───────────────┐\n    │ mask         │──▶│ measure        │──▶│ classify      │\n    │ masks   OK   │   │ db      STALE  │   │ preds   STALE │\n    └──────────────┘   └────────────────┘   └───────────────┘\n\nBoxes are artifacts, arrows are \"was made from\", and the colour is the verdict :func:`spacr.artifacts.Registry.is_stale` returns — with its ``reasons`` shown in the panel beside the graph, because \"stale\" on its own is an accusation, not an explanation. Click a box and the panel names the processing session that produced it, the settings digest, the spaCR version, and what re-executing it would invalidate.\n\n세 가지 의도적인 선택:\n\n**The graph is drawn from provenance, not from the module list.** What the workflow is *supposed* to do is :data:`spacr.ports.PORTS`, and that is drawn too — dimmed, underneath, as the \"declared order\" strip — but the boxes and arrows are what actually happened. A project where measure read last week's masks does not look like the tidy diagram, and that difference is the entire value of the screen.\n\n**Missing is not stale.** A deleted file is red and says so; an outdated one is amber. :mod:`spacr.artifacts` refuses to conflate them and neither does this.\n\n**여기서 아무것도 쓰지 않는다.** 반복 실행 버튼이 없습니다, \"mark as fresh\", 삭제하지 않습니다. 화면은 질문에 대답합니다; 대답에 행동하는 것은 모듈의 작업이며, 그래픽에 다시 묶여있는 한 번의 클릭 실행은 누군가가 그들이 확인하려고 시도했던 문자를 과장하는 방법입니다.\n\n레이아웃은 차트의 층에서 순수한 기능(:func:`layout_rects`)에 의해 계산되므로, 레이아팅은 픽셀없이 테스트 할 수 있으며, 무거운 부분 - 레지스트리를 열고 각 유물에 대해 물어보면 - 주요 GUI 실행 경로에서 :class:`spacr.qt.job_runner.JobRunner`를 통해 실행됩니다.",
       "translation_source_blocks_sha256": [
-        "df1c99457b8ce0c37943514f84ac506298ea5666143caa394760825057d86569",
+        "cc336587bd11778fa86bb6415c9057803804cfb498829ceaaf341f9c298e36aa",
         "0342dade2a52f115582471d9fa4c9ab4118c491a18c07a656f4e858782f34866",
         "3b40a516e729e213f0484074e9adb854f95a638de500d3e6185dff600b3e1685",
         "3e2bff20cb05e1da58daf636c30bbeddf4e82d5ceba6fe5f2bf6e91b7d899b3a",
@@ -85198,9 +86100,9 @@
         "2c0bb3219c2d17d0262353b5e4c94f5ade9b915e5a1135e6be299b12bd22edbe"
       ],
       "source_sha256": "a27eaabd84a18cbccc2b9333a726a55e5d41854da5943efecc52ab65463d46aa",
-      "text": "앱 레지스트리에 Workflow Graph를 추가합니다.Idempotent.\n\n:returns: True 이 호출이 라인을 추가했을 때, False 이미 존재했을 때 - 두 번째 수입, 또는 모듈을 다시 끌어 올리는 플러그인은 오류로 취급해서는 안됩니다.",
+      "text": "Add Pipeline Graph to the app registry. Idempotent.\n\n:returns: True when this call added the row, False when it was already there — which is what a second import, or a plugin that pulls the module in again, must not treat as an error.",
       "translation_source_blocks_sha256": [
-        "d35c2d1394c5ced845e988cf139da188de257d76b8d7f94b80a647f8c8fd3562",
+        "02bd9fcf7dfbeadbafa5dd9c30e32564168992ae011e1c7c266c60976f0bc432",
         "2c0bb3219c2d17d0262353b5e4c94f5ade9b915e5a1135e6be299b12bd22edbe"
       ]
     },
@@ -88899,9 +89801,9 @@
         "ef62f64cc5cbd08e37bc944795d646cd522870360f8dc1d35cd437011a763e0e"
       ],
       "source_sha256": "4975944bffc69ae2e49fda9bb0566eacff7bd67700363766a679013acda60f33",
-      "text": "훈련 처리 세션 - 하나의 좌석에 여러 처리 세션의 곡선, 설정을 분산.\n\n이 응용 프로그램 전망이 존재하는 질문에 대답하기 위해 \"왜 실행 B는 실행 A보다 더 잘\", 오늘은 두 개의 폴더를 열어 대답합니다. PDFs 하나의 창에서, 두 개의 설정 CSVs 다른 곳에서, 그리고 당신의 머리에 차이를 잡고.\n\n스크린 레이아웃::\n\n    ┌──────────────────────────────────────────────────────────────────────┐\n    │ /data/screen1/model                     [Choose folder…]  [Scan]     │\n    ├──────────────────────┬───────────────────────────────────────────────┤\n    │ Runs found (4)       │            ┌───────────────────────────┐      │\n    │ ☑ maxvit_t/…/ep_25   │            │   accuracy, 5 series      │      │\n    │   25 epochs · tr+val │            │   ╱‾‾‾‾  B val            │      │\n    │ ☑ maxvit_t/…/ep_10   │            │  ╱ ─ ─   A val            │      │\n    │ ☐ resnet50/…/ep_8    │            └───────────────────────────┘      │\n    │   8 ep x 3 folds     ├───────────────────────────────────────────────┤\n    │ ☐ maxvit_t/…/ep_3 !  │ 2 settings changed · 1 env drift · 0 drift    │\n    │                      │ bucket   setting        A        B            │\n    │ Metric [accuracy ▾]  │ changed  learning_rate  1e-4     1e-3         │\n    │ Folds  [per fold ▾]  │ changed  batch_size     64       32           │\n    │ [Overlay selected]   │ env      n_jobs         30       8            │\n    ├──────────────────────┴───────────────────────────────────────────────┤\n    │ ! maxvit_t/…/epochs_3: no per-epoch curves in this folder            │\n    │ Clicked: maxvit_t/…/epochs_25 · val — best 0.87 @ 18, last 0.85 @ 25 │\n    └──────────────────────────────────────────────────────────────────────┘\n\n디자인 노트 :\n\n* **Discovery는 주요 GUI 실행 경로를 벗어난다.** 스캔은 모델 나무를 걷고 실제 화면에 수백 개의 파일이있는 그 아래의 모든 CSV 진보를 파시합니다. 그것은 다른 모든 spaCR 작업과 마찬가지로 :func:`spacr.qt.bridge.make_thread`을 통과합니다. 테스트는 ``threaded=False``을 통과하여 동일한 코드를 실행합니다. 그림은 주요 GUI 실행 경로에 남아있다 - 그 이후로 데이터는 이미 기억에 있습니다.\n* **어떠한 오류 경로도 모드 대화가 없습니다.** 실행이 없는 폴더, 곡선이 없는 처리 세션, 로그인되지 않은 메트릭 - 모두 인라인 상태와 문제 라벨에 떨어집니다. QMessageBox는 헤드없는 실행을 묶습니다.\n* **깨진 처리 세션은 나열되어 있고 숨겨져 있지 않습니다.** 폴더는 체크 포인트를 가지고 있지만 ``train.csv``는 여전히 나타나지 않습니다, 문제 라인에 그것의 메모를 표시합니다.\n* **The diff는 뷔페되며, 결코 깔끔하지 않습니다.** 그것은 :func:`spacr.train_compare.diff_settings`을 회전합니다. :mod:`spacr.run_journal`에서 출처 버켓링을 다시 사용 : 환경 드리프트 (도로, 호스트는 노동자 계산)은 사용자가 변경한 것으로 계산되는 대신 자신의 뷔페에 표시됩니다. 그리고 스케줄 드라이브는 요약됩니다. 두 개의 처리 세션이 일치하면 테이블은 흰색이 아닌 단어로 \"no differences\"을 말합니다.\n* **모든 시리즈는 · 분할 · 폴더를 실행한다고 말합니다.** 클릭하는 라인은 실행, 포스터 및 그것의 최고와 마지막 시대를 모두 이름, 왜냐하면 전설은 단지 처리 세션 ID를 가지고 있기 때문에 열차 곡선을 읽는 것을 초대합니다.",
+      "text": "Training Runs - 하나의 좌석에 여러 개의 처리 세션의 곡선, 설정이 차별화되어 있습니다.\n\nThe question this application view exists to answer is \"why is executed B better than run A\", which today is answered by opening two folders of PDFs in one window, two settings CSVs in another, and holding the difference in your head.\n\n스크린 레이아웃::\n\n    ┌──────────────────────────────────────────────────────────────────────┐\n    │ /data/screen1/model                     [Choose folder…]  [Scan]     │\n    ├──────────────────────┬───────────────────────────────────────────────┤\n    │ Runs found (4)       │            ┌───────────────────────────┐      │\n    │ ☑ maxvit_t/…/ep_25   │            │   accuracy, 5 series      │      │\n    │   25 epochs · tr+val │            │   ╱‾‾‾‾  B val            │      │\n    │ ☑ maxvit_t/…/ep_10   │            │  ╱ ─ ─   A val            │      │\n    │ ☐ resnet50/…/ep_8    │            └───────────────────────────┘      │\n    │   8 ep x 3 folds     ├───────────────────────────────────────────────┤\n    │ ☐ maxvit_t/…/ep_3 !  │ 2 settings changed · 1 env drift · 0 drift    │\n    │                      │ bucket   setting        A        B            │\n    │ Metric [accuracy ▾]  │ changed  learning_rate  1e-4     1e-3         │\n    │ Folds  [per fold ▾]  │ changed  batch_size     64       32           │\n    │ [Overlay selected]   │ env      n_jobs         30       8            │\n    ├──────────────────────┴───────────────────────────────────────────────┤\n    │ ! maxvit_t/…/epochs_3: no per-epoch curves in this folder            │\n    │ Clicked: maxvit_t/…/epochs_25 · val — best 0.87 @ 18, last 0.85 @ 25 │\n    └──────────────────────────────────────────────────────────────────────┘\n\n디자인 노트 :\n\n* **Discovery runs off the main GUI execution path.** A scan walks a model tree and parses every progress CSV under it, which on a real screen is hundreds of files. It goes through :func:`spacr.qt.bridge.make_thread` like every other spaCR job; tests pass ``threaded=False``, which runs the same code inline. Drawing stays on the main GUI execution path — by then the data is already in memory.\n* **어떠한 오류 경로도 모드 대화가 없습니다.** 실행이 없는 폴더, 곡선이 없는 처리 세션, 로그인되지 않은 메트릭 - 모두 인라인 상태와 문제 라벨에 떨어집니다. QMessageBox는 헤드없는 실행을 묶습니다.\n* **깨진 처리 세션은 나열되어 있고 숨겨져 있지 않습니다.** 폴더는 체크 포인트를 가지고 있지만 ``train.csv``는 여전히 나타나지 않습니다, 문제 라인에 그것의 메모를 표시합니다.\n* **The diff is bucketed, never flat.** It renders :func:`spacr.train_compare.diff_settings`, which reuses the provenance bucketing from :mod:`spacr.run_journal`: environment drift (paths, hosts, worker counts) is shown in its own bucket instead of being counted as something the user changed, and schema drift is summarised. When two processing sessions match, the table says \"no differences\" in words rather than going blank.\n* **모든 시리즈는 · 분할 · 폴더를 실행한다고 말합니다.** 클릭하는 라인은 실행, 포스터 및 그것의 최고와 마지막 시대를 모두 이름, 왜냐하면 전설은 단지 처리 세션 ID를 가지고 있기 때문에 열차 곡선을 읽는 것을 초대합니다.",
       "translation_source_blocks_sha256": [
-        "2be15032782e43e09c930ab274f0cf4fb4ab320e66f9bc42c78ba2d95eab5fd8",
+        "3979f7d7c36de67669d9509d17b4717ca64a07640df13554a4606e31dc57ccfc",
         "0260a07648ad4000c97172cfc1cc3a43944722bd41e8756958185edfc98bc2a4",
         "7387692812ec038cf24df502c80f07bf4f1e6600d300a1acd18f6fbf484cdfc9",
         "1ecd6071c7a598fe8fe7efe0f3a4c2869822595ce3f8a3b7e7b8bea000242b39",
@@ -106093,13 +106995,13 @@
     "spacr.qt.widgets.fast_plots.GroupedPlot.mark_note": {
       "source_blocks_sha256": [
         "5fbfacf854edddeb4f77da3cfcdaf7180c03699c10a250065f57ea05d197ae2f",
-        "9ebb5966af493e4796eb2bc7f466086a58187dd01d90cfe25d10c16d3640010c"
+        "e4eece877c64134c81a4ee7da481164e2e40f51f684de6f5a1682a25ed9c28d5"
       ],
-      "source_sha256": "8bd19e4f93197e47dbac81ebb134d74e0946018fc86755fc4e9eeeb53d55767b",
-      "text": "CURRENT 표지판에 관한 문장, 또는 ``\"\"``.\n\n\"bar\"을 픽업하는 사용자가 한 번에 두 가지를 했기 때문에 두 가지가 있습니다 : 그들은 확산을 잘못 표현할 수있는 표시를 선택했으며 가이드를 클릭 할 수있는 능력을 포기했습니다 - 한 개의 직경은 40 개의 라인을 나타내며 정직하게 하나를 선택할 수 없습니다.",
+      "source_sha256": "4a4249400b342abf3e0ff0019af17250bfbb19153ea08fe87027c2baf1fd9240",
+      "text": "CURRENT 표지판에 관한 문장, 또는 ``\"\"``.\n\n세 가지 지금. 기본 그래픽 형식 설정을 칭찬 할 수없는 시작은 먼저 말한다 - 바이올린을 요청하고 히터를 얻는 사용자는 로고가 아닌 플레이트에 대한 이유를 빚지고있다. 다음 두 사용자는 \"bar\"를 픽스 한 번에했다 : 그들은 확산을 잘못 나타낼 수있는 표시를 선택하고, 그들은 가이드를 클릭 할 수있는 능력을 포기했다 - 한 개의 직경은 40 라인을 나타내고 정직하게 그 중 하나를 선택할 수 없습니다.",
       "translation_source_blocks_sha256": [
         "5fbfacf854edddeb4f77da3cfcdaf7180c03699c10a250065f57ea05d197ae2f",
-        "9ebb5966af493e4796eb2bc7f466086a58187dd01d90cfe25d10c16d3640010c"
+        "15d1c8abb211e97d39678333a36ae3cf0ea2d496cdf9885584f0053f71a3f9f2"
       ]
     },
     "spacr.qt.widgets.fast_plots.GroupedPlot.redraw": {
@@ -106124,6 +107026,24 @@
       "translation_source_blocks_sha256": [
         "6a22fa5747b575184a58020f11de4643cf98293778f00faaf1b90ec2a45ebd85",
         "56bc96221a8d4abc1d25a16990e1544917d8c9cf820c6f2c786d1ecb41c9b294"
+      ]
+    },
+    "spacr.qt.widgets.fast_plots.GroupedPlot.starting_mark": {
+      "source_blocks_sha256": [
+        "65efafa55a21f5c532a70222e8d1e8ae1338f160f6bc70c8aedfc0eaa03a157f",
+        "19aa9671e8846b171c052c82ae47812c0bc061848f43c98b60255255376ab28c",
+        "448466673fcb89a9d9d89a1dd7c0a7fe4c7fa1502e7148aa18a116ff0c515293",
+        "a8f348b6c678e5d77642c99a6986ecb0926d2185920a20fe8ace028a4400493c",
+        "f1d4185184f6c1a90491d9034e6e760338917535f96e6a6caec3ec5d7d27488d"
+      ],
+      "source_sha256": "46f57040d7ffd27bcdcfa4e88183389c8a8c56ebcbdc84595895d0d8a1845c3a",
+      "text": "마크를 먼저 끌어, 그리고 왜 그것은 선택되지 않습니다.\n\n:param counts: 빈 사람은 단지 \"what was chosen\"을 묻는다, 이는 데이터가 도착하기 전에 대답 할 수있는 모든 것입니다.\n:returns: ``(mark, note)``. 노트는 매번 끌려온 표지판이 요청된 표지가 될 때마다 텅 비어 있습니다.\n\n이 플랫폼의 :attr:`DATA_SHAPE`에 대한 저장된 기본 그래픽 유형은 첫 번째 오른쪽 클릭 전에 끌어 들이는 것입니다; 아무것도 저장되지 않고, 플랜은 :attr:`DEFAULT_MARK`을 유지합니다, 왜냐하면 선호도는 누구도 표현되어 있지 않기 때문에 기존 뷰를 움직이지 않아야합니다.\n\n이것은 패널의 개방 프레임입니다; 설정을 읽는 것을 거부하면 전체 숫자가 비용이 들 것입니다.",
+      "translation_source_blocks_sha256": [
+        "65efafa55a21f5c532a70222e8d1e8ae1338f160f6bc70c8aedfc0eaa03a157f",
+        "19aa9671e8846b171c052c82ae47812c0bc061848f43c98b60255255376ab28c",
+        "448466673fcb89a9d9d89a1dd7c0a7fe4c7fa1502e7148aa18a116ff0c515293",
+        "a86f60768e6696ffec4b20eb8d344152943ef90d8367d069903e5c94c3248298",
+        "8106bd065f9182b9d0a30f58a7dab80579543b046584d14f81205b4a4ae91ea8"
       ]
     },
     "spacr.qt.widgets.fast_plots.GuideAgreementPlot": {
@@ -120078,11 +120998,12 @@
         "5878326aaecbc6206f51afe49dbfe609a31a6785544a929b16f3e6bf98eb32c0",
         "22fd81664192bb9c8c5addb8009c3e9c5fd5be1a914d8c770eb719ecd742dc66",
         "f8210cc3da27eb1579585930c2b614634cd1463fccab3c86a714c77fb8fe15fa",
+        "3c6e9bfbbc858d51cfdf4dd2e8dcbf3ec4a8a3311ba302e9dc5fbb2a53ab2eda",
         "1a93d461a5de1c3a147bd635510e301e8a17895d33421d21ae355a3ab21c71ff",
         "3761f835eecd2d8ff9cff4060a6421d68b408203e2ba8166567b2ad02219b3cd"
       ],
-      "source_sha256": "bfd3e3626f1f6fc20e01f7841fe4c0672023b9853ddba19254068a728482c363",
-      "text": "라이브 프레비전 분할 위젯 — v2.\n\n인터랙티브 Cellpose 마스크 응용 프로그램 보기에 대한 튜닝 표면.\n\n* **Zoomable 캔버스 (Ctrl+scroll, sync).** 원본과 마스크의 덮개 모두 공유 :class:`QGraphicsView` 쌍에서 살아있다 - 하나의 패널과 짐과 다른 픽셀-피크셀 트랙.\n* **Hover tooltip.** 원본을 넘어 코커를 움직이고 스크린 된 상태 라인은 각 이미지 데이터 채널의 픽셀 강도를 나타내며, 존재할 때 마지막 세그먼트에서 그 위치에있는 개체 라인을 표시합니다.\n* **Normalise toggle.** 옵션 2–98 % 센티일 스트레치 (사진 데이터 채널 당 RGB) 그래서 원료 낮은 대조 타일은 읽을 수 있습니다.\n* **모델 인식 옵션** 각 모델은 전체 분할 세트를 보여줍니다. Cellpose-SAM 그럼에도 불구하고 *아니요* 무시하라 ``flow_threshold``, ``cellprob`` 또는 ``diameter`` - 보기 :data:`DIAMETER_TOOLTIP` 그 믿음을 죽인 측정에 대하여.\n* **외선 색상 + 두께.** 도구 바에서 선택; 효과는 마스크가 존재하면 살아있다. ``color (random)`` 각 개체 라벨에 안정적인 분류 색상을 부여하여 터치 마스크는 분리 될 수 있습니다.\n* **Multi-object segmentation.** \"object type\"의 조합은 ``cell``, ``nucleus``, 및 ``cell + nucleus`` 사이에 픽업합니다. cell+nucleus 모드에서 패널은 두 개의 Cellpose 통과를 실행하고 두 개의 마스크를 다른 색상으로 덮습니다.\n* **프리 / 포스트 필터.** 객체 유형이 ``cell`` (또는 조합 모드)이면 패널은 마스크 앱 (``cell_min_size``, ``cell_max_size`` , ``remove_background_cell``, 배경 강도, ...)에서 미리 / 후 처리 설정을 분류합니다.사용자는 LP / AI와 동일한 시각적 스타일로 \"Run preview\" 옆에 앉아있는 전용 \"Pre\" / \"Post\" 클릭 가능한 라벨을 사용하여 이러한 분류를 포장합니다.\n\n전체 파일은 cellpose 없이 가져오기 위해 안전하게 유지됩니다 - 각 cellpose 통화는 배경 실행 단위 내에서 가볍게 가져옵니다.",
+      "source_sha256": "18ed7e2c4708db2e7af60762c061a58a0de3e03b6327b4c93c7b07a6b86d3d01",
+      "text": "라이브 프레비전 분할 위젯 — v2.\n\n인터랙티브 Cellpose 마스크 응용 프로그램 보기에 대한 튜닝 표면.\n\n* **Zoomable canvases (Ctrl+scroll, in sync).** Both the original and the mask overlay live in a shared :class:`QGraphicsView` pair — pan and zoom on one and the other tracks pixel-for-pixel.\n* **Hover tooltip.** 원본을 넘어 코커를 움직이고 스크린 된 상태 라인은 각 이미지 데이터 채널의 픽셀 강도를 나타내며, 존재할 때 마지막 세그먼트에서 그 위치에있는 개체 라인을 표시합니다.\n* **Normalise toggle.** 옵션 2–98 % 센티일 스트레치 (사진 데이터 채널 당 RGB) 그래서 원료 낮은 대조 타일은 읽을 수 있습니다.\n* **모델 인식 옵션** 각 모델은 전체 분할 세트를 보여줍니다. Cellpose-SAM 그럼에도 불구하고 *아니요* 무시하라 ``flow_threshold``, ``cellprob`` 또는 ``diameter`` - 보기 :data:`DIAMETER_TOOLTIP` 그 믿음을 죽인 측정에 대하여.\n* **외선 색상 + 두께.** 도구 바에서 선택; 효과는 마스크가 존재하면 살아있다. ``color (random)`` 각 개체 라벨에 안정적인 분류 색상을 부여하여 터치 마스크는 분리 될 수 있습니다.\n* **Multi-object segmentation.** An \"object type\" combo picks between ``cell``, ``nucleus``, and ``cell + nucleus``. In cell+nucleus mode the panel runs two Cellpose passes and overlays both masks in distinct colours.\n* **모델은 처리 세션을 사용할 것이고, 그것은 무엇을 말한다.** 패널은 작업 흐름을 읽는 동일한 설정 - ``pathogen_model`` ``pathogen_model_name`` 병원균, ``<object>_model_name`` 그렇지 않으면 (:func:`_model_keys_for`) - 모델 동물원 옆에 제공하고, 상태 라인에 마스크를 생산하는 모델을 이름합니다.\n* **프리 / 포스트 필터.** 객체 유형이 ``cell`` (또는 조합 모드)이면 패널은 마스크 앱 (``cell_min_size``, ``cell_max_size`` , ``remove_background_cell``, 배경 강도, ...)에서 미리 / 후 처리 설정을 분류합니다.사용자는 LP / AI와 동일한 시각적 스타일로 \"Run preview\" 옆에 앉아있는 전용 \"Pre\" / \"Post\" 클릭 가능한 라벨을 사용하여 이러한 분류를 포장합니다.\n\n전체 파일은 cellpose 없이 가져오기 위해 안전하게 유지됩니다 - 각 cellpose 통화는 배경 실행 단위 내에서 가볍게 가져옵니다.",
       "translation_source_blocks_sha256": [
         "0074cc62e6d86b0ea70902892d80e6080c8203b1bb25121cb66261680e3f9203",
         "cdb6453814e3d70d1f357134515b1feda39c99082ff0a4243e6363eef6046c1a",
@@ -120092,6 +121013,7 @@
         "5878326aaecbc6206f51afe49dbfe609a31a6785544a929b16f3e6bf98eb32c0",
         "22fd81664192bb9c8c5addb8009c3e9c5fd5be1a914d8c770eb719ecd742dc66",
         "f8210cc3da27eb1579585930c2b614634cd1463fccab3c86a714c77fb8fe15fa",
+        "d9f77a0d70c8dc2494f89f5f29a03d9c7a394686af58ce6e9330fa695e0f600e",
         "1a93d461a5de1c3a147bd635510e301e8a17895d33421d21ae355a3ab21c71ff",
         "b2a59cec1f0888e2cead0dbe58edc17f18a00fa267efd603d5c2270f331e9823"
       ]
@@ -120330,12 +121252,16 @@
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.settings_for_propagation": {
       "source_blocks_sha256": [
-        "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338"
+        "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338",
+        "35ae37377e98f0d9f678969ee4850abac850ce3b7d7731897e2db33abac4133e",
+        "2a864d4c8be7ce885cceed2f677095e55e4acd767d8ccda5e834aa13b3f1dcfb"
       ],
-      "source_sha256": "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338",
-      "text": "Live-preview widget 값을 메인 패널 설정 이름으로 지도합니다.",
+      "source_sha256": "5f9d33342181f7e188cf3b1b913e0a6c6ce5f08012b0836bf914be2a646f0f3e",
+      "text": "Live-preview widget 값을 메인 패널 설정 이름으로 지도합니다.\n\n모델은 읽은 키로 다시 작성됩니다.프로파이션은 ``model_name`` 및 ``<primary>_model_name``만 쓰기 위해 사용되었으며, 병원균의 경우 처리 세션은 먼저 읽지 않습니다: ``pathogen_model`` 설정할 때 둘 다 녹음됩니다.사용자가 ``pathogen_model`` 체크 포인트에서 씨앗을 뿌리고, 라이브 모델을 전환하고, 퍼졌으며, 처리는 세션이 체크포인트를 사용하여 계속되었습니다 - 이전과 동일한 예보 / 실행 분쟁, 다른 방법을 지적합니다.\n\n설정에서만 패널이 ALREADY를 유지하면 그 구조화된 데이터 이름을 설정합니다.그렇지 않으면 사용자가 그것을 요청한 적이없는 사용자에 대해 새로 스위치를 옮기고 ``pathogen_model``는 구조화 된 데이터 이름보다 더 어려워집니다 (:mod:`spacr.validate`는 거기에 있지 않은 경로에서 처리 세션을 중지합니다).",
       "translation_source_blocks_sha256": [
-        "9e4ffff2b2c3003230b0e59c904a23b118fb5d176c844caba6555e0d5b24b343"
+        "9e4ffff2b2c3003230b0e59c904a23b118fb5d176c844caba6555e0d5b24b343",
+        "3d83fe658951c9629e6217e718a9e91ea61ebeb715709da90b38035b9f53af7f",
+        "5d249c288323b58ca9b2096e4d7e33e62e7a89c79c1f500d1cb12aaa19003b0d"
       ]
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.showEvent": {
@@ -151513,7 +152439,7 @@
         "edee7f9d1ea29396078d952939a391d81458ff77f0bf3a0b0b4d0d5a61de95ad",
         "bca9f4ec20123c4b2c6a8cc212582955d4f5a99b46c7e8d7ea099d72cac6e8cb",
         "4a1282da69f9a0d22507b5a03fc04356147178691ac76678464f9273df9b8a84",
-        "169583af1d20022394196192edafcf6c57d642806338e163555bdb56e4b1001c",
+        "fb881cf77c5f5861ec786d118e734e149495b1c424fa27392e20b0200bc39e2c",
         "48342522ce71cfb8267f9c6e585ae9e99e0ae92508e47c871600cedb213b668e",
         "00b9b602b11f9b33ea44d3f40da5c86b2606b92b7443263bfc6a90da88769b69",
         "8d3a3ccb363ad646140582676a0bb2454033bba0fa85238e393c8f0987ecc5d6",
@@ -151532,8 +152458,8 @@
         "2ad9c559dde2223be68a57759ab1362182dd8905d0c06bfd902e3834d3142344",
         "5f49a191e85fa871451f0dcb697e2cca9f2c5b3b30c00073a87d46375f7f8ae1"
       ],
-      "source_sha256": "b990667ca60e3c59280e24849eaf6828e657c26c2f1f15f828742fe85ebb0018",
-      "text": "각 spaCR 숫자에 의해 공유되는 출현 설정.\n\n효과 크기 한도 또는 색상 각 열과 같은 플로트 특정 옵션은 해당 하위 클래스에 속합니다. 여기서 휴대용 값만 유지하면 저장된 가정 스타일이 플로이트 유형에 적용될 수 있습니다.\n\n:param x_label: 렌더에 제공되는 수평 좌석 라벨; 빈 허용 렌터 특정 또는 기본 행동.\n:param y_label: 렌더에 제공되는 수직 좌석 레이블; 빈 허용 렌터 특정 또는 기본 행동.\n:param title: 숫자 제목; 빈은 공유 제목 작업을 억제합니다.\n:param x_scale: :data:`SCALES`에서 Matplotlib 수평 스케일.\n:param y_scale: :data:`SCALES`에서 Matplotlib 수직 스케일.\n:param x_lim: 명시적인 수평 ``(minimum, maximum)`` 제한, 또는 ``None`` 데이터 추출 제한.\n:param y_lim: 명확한 수직 ``(minimum, maximum)`` 제한, 또는 ``None``.\n:param invert_x: 제한이 적용되는 후에 수평 좌석을 뒤집어야 하는지 여부.\n:param invert_y: 제한이 적용되면 수직 좌석을 뒤집어야 하는지 여부.\n:param font_family: 숫자 전반적인 가족을 지원하는 렌더에 사용할 수있는 글꼴 가족 선호도.\n:param font_size: 기본 텍스트 크기는 플랫 스페셜 프로세스에 사용할 수 있습니다.\n:param title_font_size: 제목 크기 포인트\n:param label_font_size: 포인트에 있는 좌석 크기.\n:param tick_font_size: 티크 레이블 크기 포인트.\n:param font_weight: 공유 Matplotlib 텍스트 무게.\n:param figure_width: 숫자 캔버스 폭 인치 라이브 및 저장 사용을 위해.\n:param figure_height: 숫자 캔버스 높이 인치 라이브 및 저장 사용을 위해.\n:param dpi: 1 인치 포인트는 래스터 출력에 사용됩니다.\n:param grid: 선택한 네트워크가 눈에 띄는지 여부.\n:param grid_axis: 네트워크 라인을 수신하는 좌석 : ``\"x\"`` , ``\"y\"``, ``\"both\"`` 또는 ``\"none\"``.\n:param grid_color: Matplotlib - 호환되는 네트워크 라인 색상.\n:param grid_width: 지점에서 네트워크 라인 폭.\n:param hide_top_right_spines: 상단 및 오른쪽 프레임 라인을 제거하십시오.\n:param legend: 열쇠를 가진 렌더가 전설을 그려야하는지 여부.\n:param legend_location: :data:`SHARED_CHOICES`에서 Matplotlib 전설 배치.\n:param background_color: 이름 페이지 및 좌석 색상; ``\"none\"`` 배경 선택을 렌더에 전달합니다.\n:param transparent: 수출 된 숫자 배경이 투명한지 여부.",
+      "source_sha256": "348f3e629a63979999bf29dc77034414bb66a0c9d5771441ac6242aa6fb1d09d",
+      "text": "각 spaCR 숫자에 의해 공유되는 출현 설정.\n\n효과 크기 한도 또는 색상 각 열과 같은 플로트 특정 옵션은 해당 하위 클래스에 속합니다. 여기서 휴대용 값만 유지하면 저장된 가정 스타일이 플로이트 유형에 적용될 수 있습니다.\n\n:param x_label: 렌더에 제공되는 수평 좌석 라벨; 빈 허용 렌터 특정 또는 기본 행동.\n:param y_label: 렌더에 제공되는 수직 좌석 레이블; 빈 허용 렌터 특정 또는 기본 행동.\n:param title: 숫자 제목; 빈은 공유 제목 작업을 억제합니다.\n:param x_scale: :data:`SCALES`에서 Matplotlib 수평 스케일.\n:param y_scale: :data:`SCALES`에서 Matplotlib 수직 스케일.\n:param x_lim: 명시적인 수평 ``(minimum, maximum)`` 제한, 또는 ``None`` 데이터 추출 제한.\n:param y_lim: 명확한 수직 ``(minimum, maximum)`` 제한, 또는 ``None``.\n:param invert_x: 제한이 적용되는 후에 수평 좌석을 뒤집어야 하는지 여부.\n:param invert_y: 제한이 적용되면 수직 좌석을 뒤집어야 하는지 여부.\n:param font_family: 숫자 광범위한 가족을 지원하는 렌더에 사용할 수있는 글꼴 가족 선호도. spaCR 배의 얼굴에 대한 결함; :func:`font_names`을 참조하십시오.\n:param font_size: 기본 텍스트 크기는 플랫 스페셜 프로세스에 사용할 수 있습니다.\n:param title_font_size: 제목 크기 포인트\n:param label_font_size: 포인트에 있는 좌석 크기.\n:param tick_font_size: 티크 레이블 크기 포인트.\n:param font_weight: 공유 Matplotlib 텍스트 무게.\n:param figure_width: 숫자 캔버스 폭 인치 라이브 및 저장 사용을 위해.\n:param figure_height: 숫자 캔버스 높이 인치 라이브 및 저장 사용을 위해.\n:param dpi: 1 인치 포인트는 래스터 출력에 사용됩니다.\n:param grid: 선택한 네트워크가 눈에 띄는지 여부.\n:param grid_axis: 네트워크 라인을 수신하는 좌석 : ``\"x\"`` , ``\"y\"``, ``\"both\"`` 또는 ``\"none\"``.\n:param grid_color: Matplotlib - 호환되는 네트워크 라인 색상.\n:param grid_width: 지점에서 네트워크 라인 폭.\n:param hide_top_right_spines: 상단 및 오른쪽 프레임 라인을 제거하십시오.\n:param legend: 열쇠를 가진 렌더가 전설을 그려야하는지 여부.\n:param legend_location: :data:`SHARED_CHOICES`에서 Matplotlib 전설 배치.\n:param background_color: 이름 페이지 및 좌석 색상; ``\"none\"`` 배경 선택을 렌더에 전달합니다.\n:param transparent: 수출 된 숫자 배경이 투명한지 여부.",
       "translation_source_blocks_sha256": [
         "94309949f2246e352cb2054d59f1d1c9d6a12eaa8bd7150e5022635d8dd58b4f",
         "589e268a839e19002d5d4c53d280abb7a2174a05190328093aa577003f437882",
@@ -151546,7 +152472,7 @@
         "edee7f9d1ea29396078d952939a391d81458ff77f0bf3a0b0b4d0d5a61de95ad",
         "bca9f4ec20123c4b2c6a8cc212582955d4f5a99b46c7e8d7ea099d72cac6e8cb",
         "4a1282da69f9a0d22507b5a03fc04356147178691ac76678464f9273df9b8a84",
-        "169583af1d20022394196192edafcf6c57d642806338e163555bdb56e4b1001c",
+        "fb881cf77c5f5861ec786d118e734e149495b1c424fa27392e20b0200bc39e2c",
         "48342522ce71cfb8267f9c6e585ae9e99e0ae92508e47c871600cedb213b668e",
         "00b9b602b11f9b33ea44d3f40da5c86b2606b92b7443263bfc6a90da88769b69",
         "8d3a3ccb363ad646140582676a0bb2454033bba0fa85238e393c8f0987ecc5d6",
@@ -151596,16 +152522,50 @@
         "da0b061dc09f9673c38139b7500165976216ad5932d410049754f656f18bdbdd",
         "e993553c53c637bdca0f8378febfd003fc5f2699d4c46df9acb8f0eadbc40877",
         "5e9c12cd9955a633f83378505074113861479f2295339e72f48ab501e18fbab7",
-        "1e3f7183794c034dcf22f39fa3e2eaf2d49e02e79110e6cec0a58840614c6fbf"
+        "091c7b4f5b0db8c265b543edca6bee3221d0f98c777983ea962caf30687d7eaa"
       ],
-      "source_sha256": "d3f31d71c3b09bf78737928299186b9ea9bf870d29e42088a68a2bb37fbc4220",
-      "text": "공유 좌석, 타이포그래피, 네트워크, 척추 및 페이지 설정을 적용합니다.\n\n:param figure: Matplotlib 페이지가 업데이트되는 숫자입니다.\n:param axes: Matplotlib 좌석은 업데이트 된 프레젠테이션을 제공합니다.\n:param style: 공유 숫자 스타일 설정이 적용됩니다.\n\n그것은 숫자와 좌석 프레젠테이션만 변경; 그것은 데이터 표지판을 추가하거나 제거하지 않습니다.",
+      "source_sha256": "c35d48336173096d79a57e8764067d48205f017f5eac750861a109285d53d999",
+      "text": "공유 좌석, 타이포그래피, 네트워크, 척추 및 페이지 설정을 적용합니다.\n\n:param figure: Matplotlib 페이지가 업데이트되는 숫자입니다.\n:param axes: Matplotlib 좌석은 업데이트 된 프레젠테이션을 제공합니다.\n:param style: 공유 숫자 스타일 설정이 적용됩니다.\n\n그것은 숫자와 좌석 프레젠테이션만 변경; 그것은 데이터 표지판을 추가하거나 제거하지 않습니다. 제목, 좌표 및 꼬리표는 스타일의 가족에 배치됩니다 - :func:`font_names` - 그래서 글꼴 ``rc_context`` 밖으로 끌어 들이는 렌더는 여전히 얼굴 spaCR 배를 얻는 대신 DejaVu Sans.",
       "translation_source_blocks_sha256": [
         "d570e0b6162b99057a01a87f815e4f85e3a6aade4df86edb0e07737b55895354",
         "da0b061dc09f9673c38139b7500165976216ad5932d410049754f656f18bdbdd",
         "e993553c53c637bdca0f8378febfd003fc5f2699d4c46df9acb8f0eadbc40877",
         "5e9c12cd9955a633f83378505074113861479f2295339e72f48ab501e18fbab7",
-        "1e3f7183794c034dcf22f39fa3e2eaf2d49e02e79110e6cec0a58840614c6fbf"
+        "091c7b4f5b0db8c265b543edca6bee3221d0f98c777983ea962caf30687d7eaa"
+      ]
+    },
+    "spacr.style_base.font_names": {
+      "source_blocks_sha256": [
+        "0691fea055689963fd25797fff713d5b919aa6162c56641f6b84c12fceebbe1a",
+        "ea7d761f3e2acb03074e71cd91835f5658f50fedea0ba66cc3b872898c67b905",
+        "d3a4d759b9bf6df1a081ca6ed3d572eb943c921cebe944614dbfe3ae619d0a48",
+        "9ea43d42e2670a767398f1993adf8a2ffa3691831ead752eecb1a594f6a53544",
+        "e2b6676ee22a9bb92cde99a4480f7bcf93da4337b714cdd870ff6c8b51568340"
+      ],
+      "source_sha256": "135b3ca98bd81f976d7dbf1f096bc2764c57e29cbaff3609b97cfdd3b2793a85",
+      "text": "The families to ask matplotlib for, best first, face REGISTERED.\n\n:param style: 숫자 스타일 ``font_family``이 첫 번째 선택입니다.\n:returns: a family list suitable for ``font.family``, a ``FontProperties`` or :meth:`matplotlib.text.Text.set_fontfamily`. A generic family is returned alone, because matplotlib resolves it through its own list.\n\n가족 이름은 그것을 가지고 같은 것이 아닙니다. Matplotlib는 그것을 찾을 수없는 이름을 응답합니다 - 조용히, ``findfont`` 경고를 제거 - DejaVu Sans에, 그래서 스타일을 말하는 \"Open Sans\" 기계에 Open Sans는 결코 설치되지 않았다 끌어 들이고 그것 주위의 인터페이스와 같지 않았다. 이 등록은 이름을 지정하기 전에 spaCR 선박의 얼굴, 그것은 그 기계에서 이름을 해결하고 :data:`FONT_FAMILY` 마지막으로 선택한 가족 기계는 Deja Vu Sans 대신 집의 얼굴에 땅이 없습니다.\n\n:data:`FONT_FAMILY` 후에 아무것도 나열되지 않습니다 : 그것은 패키지에있는 파일에서 기록되어 있으므로 항상 해결되며 목록에있는 접근 할 수없는 이름은 단지 matplotlib 경고를 한 번씩 끌어 올린 글꼴에 대해 그것은 결코 사용하지 않을 것입니다.",
+      "translation_source_blocks_sha256": [
+        "0691fea055689963fd25797fff713d5b919aa6162c56641f6b84c12fceebbe1a",
+        "ea7d761f3e2acb03074e71cd91835f5658f50fedea0ba66cc3b872898c67b905",
+        "d3a4d759b9bf6df1a081ca6ed3d572eb943c921cebe944614dbfe3ae619d0a48",
+        "9ea43d42e2670a767398f1993adf8a2ffa3691831ead752eecb1a594f6a53544",
+        "e2b6676ee22a9bb92cde99a4480f7bcf93da4337b714cdd870ff6c8b51568340"
+      ]
+    },
+    "spacr.style_base.font_rc": {
+      "source_blocks_sha256": [
+        "0dde586c76e4be446d7b00b1a2c56781259fb4c3566656a6a598991d066e0c1c",
+        "a44ee56931e3116b9159e5e17ee2ae663bfe2a870af42fbf183ce34619139047",
+        "ac63a0bbdd75a1614e03f37ae21b0427c628998168defa4a16d9170ab22f73a2",
+        "c11a002c41d36eb43fb5bdba9b9451d2ea7d0973339bcaad29c7307494649039"
+      ],
+      "source_sha256": "4cd61eae40cb935843c172278b180dbc3632bee64f24692affb329684bb9fde4",
+      "text": "Matplotlib 글꼴 매개 변수는 스타일이 요구합니다.\n\n:param style: 가족, 크기 및 무게를 공급하는 숫자 스타일.\n:returns: ``rcParams`` 입력은 ``matplotlib.rc_context``이 그들을 가져 오는 것처럼 내부를 끌어 올립니다.\n\n손으로 ``rc_context`` 대신 ``font.*``를 모으십시오 : 가족은 :func:`font_names`의 해결 가능한 목록이 구축되면 이미 등록되어 있습니다.",
+      "translation_source_blocks_sha256": [
+        "0dde586c76e4be446d7b00b1a2c56781259fb4c3566656a6a598991d066e0c1c",
+        "a44ee56931e3116b9159e5e17ee2ae663bfe2a870af42fbf183ce34619139047",
+        "ac63a0bbdd75a1614e03f37ae21b0427c628998168defa4a16d9170ab22f73a2",
+        "c11a002c41d36eb43fb5bdba9b9451d2ea7d0973339bcaad29c7307494649039"
       ]
     },
     "spacr.style_base.style_kind": {

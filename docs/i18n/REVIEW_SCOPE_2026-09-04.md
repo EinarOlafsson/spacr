@@ -51,19 +51,23 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,664 | Remainder | Reviewed API blocks | Of 10,478 | Remainder |
+| Language | Reviewed runtime records | Of 5,664 | Remainder | Reviewed API blocks | Of 10,531 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.08% | 5,546 | 468 | 4.47% | 10,010 |
-| German | 85 | 1.50% | 5,579 | 422 | 4.03% | 10,056 |
-| Spanish | 99 | 1.75% | 5,565 | 287 | 2.74% | 10,191 |
-| Simplified Chinese | 267 | 4.71% | 5,397 | 507 | 4.84% | 9,971 |
-| Portuguese | 99 | 1.75% | 5,565 | 446 | 4.26% | 10,032 |
-| Hindi | 128 | 2.26% | 5,536 | 461 | 4.40% | 10,017 |
-| Korean | 246 | 4.34% | 5,418 | 453 | 4.32% | 10,025 |
-| Icelandic | 151 | 2.67% | 5,513 | 1,022 | 9.75% | 9,456 |
-| French | 98 | 1.73% | 5,566 | 465 | 4.44% | 10,013 |
+| Swedish | 118 | 2.08% | 5,546 | 468 | 4.44% | 10,063 |
+| German | 85 | 1.50% | 5,579 | 422 | 4.01% | 10,109 |
+| Spanish | 99 | 1.75% | 5,565 | 287 | 2.73% | 10,244 |
+| Simplified Chinese | 267 | 4.71% | 5,397 | 507 | 4.81% | 10,024 |
+| Portuguese | 99 | 1.75% | 5,565 | 446 | 4.24% | 10,085 |
+| Hindi | 128 | 2.26% | 5,536 | 461 | 4.38% | 10,070 |
+| Korean | 246 | 4.34% | 5,418 | 453 | 4.30% | 10,078 |
+| Icelandic | 151 | 2.67% | 5,513 | 1,022 | 9.70% | 9,509 |
+| French | 98 | 1.73% | 5,566 | 465 | 4.42% | 10,066 |
 
-*Regenerated 2026-09-14. The runtime denominator moved 5,361 -> 5,664: 283
+*Regenerated 2026-09-14. The API denominator moved 10,478 -> 10,531 as well:
+53 public symbols arrived and none left, set-differenced against the
+baseline rather than subtracted -- 44 from the new curation-queue modules,
+7 from the default-graph-type work and 2 from the figure-font work.
+The runtime denominator moved 5,361 -> 5,664: 283
 captions reached the extractor through fourteen runtime registries that an AST
 walk could only see as a variable, and 21 more were the regression-model menu,
 which `settings_model` DECLARED for exactly this purpose and which nothing

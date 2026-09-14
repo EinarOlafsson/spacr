@@ -212,18 +212,23 @@ Den andra raden behövs bara när beroenden eller ingångspunkter ändras; Pytho
 Installera från källa (ljus)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Full klon: 427 MB. Kärnklon: 76 MB.
+Bidragsgivarna behöver historiken; för att bara köra spaCR, ta en av dessa, mätt 2026-09-14 med ``packaging/measure_clone_forms.sh``::
 
-::
+    # One commit instead of every version: 595 MB downloaded, 31 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 86 MB on disk, 5 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Hoppar över ``docs/``, ``tests/`` och Cellpose kontrollpunkter, arkiverade siffror och utökade översättningskataloger. Resultatet är en normal checkout.
-
-Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-docs``, ``--with-translations``, ``--no-install``.
-
-``packaging/source_install_excludes.txt`` listar varje överhoppad sökväg.
+Den fullständiga klonen laddar ner 5,8 GB för en checkout på 941 MB. Att lägga till ``--filter=blob:none`` till den klonen sparar ingenting: kassan hämtar ändå klumparna.
 
 
 Kommandoradskommandon

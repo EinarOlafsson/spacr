@@ -125,7 +125,19 @@ TOOLS = ROOT / "tools"
 #: spacr.qt.screens, 14 spacr.settings, 12 spacr.qt.widgets. All nine API
 #: catalogs were regenerated AND repaired before this number moved, which is
 #: the order the assertion's own message asks for.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_478
+# 2026-09-14: 10,478 -> 10,531. Moved by SET DIFFERENCE against the symbol
+# list at f15be8dd2, not by accepting the new total: 53 added, 0 removed, and
+# every addition attributable --
+#     36  spacr.curation_queue        (396, a new module)
+#      8  spacr.cli_make_masks        (396, a new module)
+#      5  spacr.graph_types           (293)
+#      2  spacr.style_base            (291: font_names, font_rc)
+#      1  MakeMasksScreen.open_queue  (396)
+#      1  GroupedPlot.starting_mark   (293)
+# A total that merely rose by 53 would look the same if 53 arrived and 53 of
+# something else quietly left, which is why the baseline set is differenced
+# rather than the counts subtracted.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_531
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

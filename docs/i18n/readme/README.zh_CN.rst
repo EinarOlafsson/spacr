@@ -212,18 +212,23 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
 从源头安装(光)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-全克隆:427 MB 核心克隆:76 MB。
+捐助者需要历史;只需运行 spaCR,请采取其中一个,测量为 2026-09-14 以 ``packaging/measure_clone_forms.sh``。::
 
-::
+    # One commit instead of every version: 595 MB downloaded, 31 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 86 MB on disk, 5 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Skips ``docs/``、``tests/``、 Cellpose 检查点、存档数字和扩展翻译目录。
-
-Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-docs``, ``--with-translations``, ``--no-install``.
-
-``packaging/source_install_excludes.txt`` 列出每条路径。
+完整的克隆下载 5.8 GB 为 941 MB 支票. 添加 ``--filter=blob:none`` 到该克隆节省了什么:支票随之抓住了泡沫。
 
 
 命令行入口

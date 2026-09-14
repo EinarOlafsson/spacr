@@ -212,18 +212,23 @@ La segunda línea sólo es necesaria cuando las dependencias o los puntos de ent
 Instalar desde la fuente (luz)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Clon completo: 427 MB. Clon central: 76 MB.
+Los colaboradores necesitan el historial; sólo para ejecutar spaCR, tomar uno de estos, medido 2026-09-14 por ``packaging/measure_clone_forms.sh``::
 
-::
+    # One commit instead of every version: 595 MB downloaded, 31 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 86 MB on disk, 5 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Saltar ``docs/``, ``tests/``, puntos de control Cellpose, cifras archivadas y los catálogos de traducción extendidos. El resultado es una compra normal.
-
-Options: ``--dir``, ``--branch`` (default ``main``), ``--with-tests``, ``--with-docs``, ``--with-translations``, ``--no-install``.
-
-``packaging/source_install_excludes.txt`` enumera cada ruta omitida.
+El clon completo descarga 5,8 GB para una compra de 941 MB. Añadir ``--filter=blob:none`` a ese clon no ahorra nada: la compra obtiene las manchas de todos modos.
 
 
 Comandos de línea de comandos

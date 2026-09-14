@@ -5822,10 +5822,10 @@
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ],
       "source_sha256": "57b68696336e5f7a72e7b9edd916bee844220e0122721a66480c65afef6a3999",
-      "text": "``spacr.batch`` — stack þjálfarlegur modul+setningar vinnu í einn hugbúnaður vinnu lista og hlaða þá óþekkt.\n\nDiskahandbókunarlistinn (:mod:`spacr.qt.plate_queue`) keðjar *diskar* í gegnum *eina* vinnuflæði með *einni* stillingarlyklum-gildamerkingu. Þessi eining er hinn ásinn: hugbúnaðarvinnulisti af handahófskenndum ``(module, settings)`` verkefnum í hvaða röð sem er — ``Mask → Measure → Classify (CV) → Classify (ML)``, síðan sömu fjórar aftur með öðru þvermáli, síðan fimmti diskurinn Mask — sem er það sem nótt á diskastigi vinnu raunverulega lítur út eins og.\n\nA queued vinnu **is** á ``spacr-run`` viðbót. Það er ekkert hér að endurtekinu uppsetningu eða settingar loading: :mod:`spacr.cli` eigir innsetningu skrá, settings loader, ``--set`` þörf og útgangskódamálið (0 ok, 1 uppsetning, 2 slæmt arguments eða settings), og þetta innsetning gerir það. Líklega er töflutími á hugbúnaður **ledger af ledgers**: sjálfstæð lögmáli á töflútinu á hug búnaður er :class:`spacr.errors.RunLedger`, sem er stjótan í viðbúnaður vinnu lista faili, og :func:`spacr.errors.read_run_status` stykki á hverri vinnu er læst aftur þannig að vinnu sem kom út 0 með því að hlýtur 40 sviði er talin eins og *partial* en ekki eins og árangur.\n\nHvað gerir vinnu lista lifandi nótt er enginn að horfa á:\n\n* **Ekki vinnu er staðfest þegar það er lagt, ekki þegar það fer.** Að finna um 3 kl.m. að vinnu 9's ``src`` er mispellur eyðir allan nótt. :func:`validate_queue` rapporter *all* vandamál á einu og :func:`run_queue` neita að byrja meðan einhver þeirra er mistök.\n* **Státur er kvartaður eftir hverri breytingu, atómlega.** Hugbúnaðurinn sem byrjar á meðan við meðhöndla hugbúnað verkefni listan er endurnýjandi með :func:`resume_queue`, ekki endurnýja. Failinn er skrifað til temp nafn og ``os.replace``\\ d, vegna þess að verkefni lista faili er skammt af brot er verra en engin verkefni lista skrá alls.\n* **Einn vinnu sem svipað er SKIPPED, ekki framkvæmd.** Mæðing eftir mismunandi Mask framleiðir gögn sem lítur út eins og raunverulegt niðurstöður. ``skipped`` (þekkt ekki framkvæmdas), ``failed`` og ``not_run`` (software vinnu lista hættir áður en það er að ná) eru þrjár mismunuð hluti og halda áfram þannig.\n* **þrýst á mistök hættir að fela systematískra mismunandi.** Ef fyrstu þremur vinnu deyja eins og eftirfarandi tíu munu líka; ``max_consecutive_failures`` haldið vinnuleikinn á hugbúnaður og segir það.\n* **Per-job logs fara til eigin skáld** — einn innblástur log frá tólf yfirnötum vinnu er ólesandi — og leiðin er á vinnufélinu.\n\nKonkuruðu: vinnur fara **strítið einn á sama tíma**. Þeir keppa fyrir einn GPU, og tveir Cellpose vinnur að deila kort er hvernig nótt meðhöndlun fer í nótt CUDA OOM. Það er áætlað engin ``max_workers``; vinnur tvö vinnur listanir í tvö ferli ef þú hefur í raun tvö kort.\n\nImport kostnaður: Þessi mótulinn importir aðeins standa bókasafninu plus :mod:`spacr.cli`, :mod:`spacr.errors` og :mod:`spacr.validate`, sem eru allir torch-frí. Software starfslista faili er hægt að lesa, staðfest og skipuleggja á tengslum án GPU stack - vinnuflokkinn sjálfur er aðeins importir inn í subprozessin sem fer vinnu.\n\nTýpna notkun::\n\n    from spacr.batch import Job, Queue, run_queue, save_queue\n\n    q = Queue(name='overnight')\n    q.add(Job(module='mask',    settings='/data/p1/settings/mask.csv'))\n    q.add(Job(module='measure', settings='/data/p1/settings/measure.csv',\n              depends_on=['mask-1']))\n    save_queue(q, '/data/overnight.queue.json')\n    result = run_queue(q, path='/data/overnight.queue.json')\n    print(result.summary())",
+      "text": "``spacr.batch`` — stack þjálfarlegur modul+setningar vinnu í einn hugbúnaður vinnu lista og hlaða þá óþekkt.\n\nThe Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* workflow with *one* settings key-value mapping. This module is the other axis: a software job list of arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — which is what a night of plate-scale work actually looks like.\n\nA queued vinnu **is** á ``spacr-run`` viðbót. Það er ekkert hér að endurtekinu uppsetningu eða settingar loading: :mod:`spacr.cli` eigir innsetningu skrá, settings loader, ``--set`` þörf og útgangskódamálið (0 ok, 1 uppsetning, 2 slæmt arguments eða settings), og þetta innsetning gerir það. Líklega er töflutími á hugbúnaður **ledger af ledgers**: sjálfstæð lögmáli á töflútinu á hug búnaður er :class:`spacr.errors.RunLedger`, sem er stjótan í viðbúnaður vinnu lista faili, og :func:`spacr.errors.read_run_status` stykki á hverri vinnu er læst aftur þannig að vinnu sem kom út 0 með því að hlýtur 40 sviði er talin eins og *partial* en ekki eins og árangur.\n\nHvað gerir vinnu lista lifandi nótt er enginn að horfa á:\n\n* **Ekki vinnu er staðfest þegar það er lagt, ekki þegar það fer.** Að finna um 3 kl.m. að vinnu 9's ``src`` er mispellur eyðir allan nótt. :func:`validate_queue` rapporter *all* vandamál á einu og :func:`run_queue` neita að byrja meðan einhver þeirra er mistök.\n* **Státur er kvartaður eftir hverri breytingu, atómlega.** Hugbúnaðurinn sem byrjar á meðan við meðhöndla hugbúnað verkefni listan er endurnýjandi með :func:`resume_queue`, ekki endurnýja. Failinn er skrifað til temp nafn og ``os.replace``\\ d, vegna þess að verkefni lista faili er skammt af brot er verra en engin verkefni lista skrá alls.\n* **Einn vinnu sem svipað er SKIPPED, ekki framkvæmd.** Mæðing eftir mismunandi Mask framleiðir gögn sem lítur út eins og raunverulegt niðurstöður. ``skipped`` (þekkt ekki framkvæmdas), ``failed`` og ``not_run`` (software vinnu lista hættir áður en það er að ná) eru þrjár mismunuð hluti og halda áfram þannig.\n* **þrýst á mistök hættir að fela systematískra mismunandi.** Ef fyrstu þremur vinnu deyja eins og eftirfarandi tíu munu líka; ``max_consecutive_failures`` haldið vinnuleikinn á hugbúnaður og segir það.\n* **Per-job logs fara til eigin síma** — einn interleaved log frá tólf yfirnötum vinnum er ekki lesanlegt — og leiðin er á vinnumrekjunni.\n\nKonkuruðu: vinnur fara **strítið einn á sama tíma**. Þeir keppa fyrir einn GPU, og tveir Cellpose vinnur að deila kort er hvernig nótt meðhöndlun fer í nótt CUDA OOM. Það er áætlað engin ``max_workers``; vinnur tvö vinnur listanir í tvö ferli ef þú hefur í raun tvö kort.\n\nImport kostnaður: Þessi mótulinn importir aðeins standa bókasafninu plus :mod:`spacr.cli`, :mod:`spacr.errors` og :mod:`spacr.validate`, sem eru allir torch-frí. Software starfslista faili er hægt að lesa, staðfest og skipuleggja á tengslum án GPU stack - vinnuflokkinn sjálfur er aðeins importir inn í subprozessin sem fer vinnu.\n\nÞýskalandi notkun::\n\n    from spacr.batch import Job, Queue, run_queue, save_queue\n\n    q = Queue(name='overnight')\n    q.add(Job(module='mask',    settings='/data/p1/settings/mask.csv'))\n    q.add(Job(module='measure', settings='/data/p1/settings/measure.csv',\n              depends_on=['mask-1']))\n    save_queue(q, '/data/overnight.queue.json')\n    result = run_queue(q, path='/data/overnight.queue.json')\n    print(result.summary())",
       "translation_source_blocks_sha256": [
         "b2d244da2d4f05aedb097e99668d52ffe6621ae91e3f21871e7ae285f14e1a77",
-        "f6c4518a414f90e0b88fc5087c68295de2d6578a243e87953439661c5dd2ac37",
+        "4f65676ed47ed2709cf6f9bd978104f538a180ae5783251da43b81ed313f8f41",
         "c961c02af8bce019a2f70d0c4fb3484f666598c396ff22e9db688609ed374171",
         "765e2a04d96a94aea04b77b9730304fdc30239f92553fa2c50da333d33e4bbd5",
         "7348135caf02cee1b4338694486afe39c3699fabd0d1555660e98c3342263276",
@@ -11254,6 +11254,134 @@
         "3a8aced33675b173459c19aefe00de29c8f2e40e1f70dc55c5389fd990dffe5c"
       ]
     },
+    "spacr.cli_make_masks": {
+      "source_blocks_sha256": [
+        "3baedc6c4989969aa27e64caf192ff8bba05ef2705ba4267459d08aa21653531",
+        "d25681d36ab0a15210aa5aa27ebf0439f006e7a5fd2f26c27526c41f67a67e00",
+        "158e4c55397fec0051adb73c82ab56a64eccb65e63d56ac2ee44eee4c4e136a2",
+        "8c25c51e8afc34eba3409ea557d1dfd0265da96aff0931cc8a33f40e50b27f29",
+        "c1008441c62cba47dea840b01e15422e026cd5fbac60264c1bec99f0158532ea",
+        "000b6618d8bf928a329d827924ff9469fbb606519263b3dff08f78d1ecfb4877",
+        "12ad8cf01d18f20dc4cbd1f5269726b0458a980e9b5c2b57ad9d0d3e3803361c",
+        "29e9facf24e02b1e9c0a112daa5cb3c697339b348af4be2387e912c64a3395f8",
+        "1ee6750c36f6b8bbc4d071c9ee68e841f62dddc6d2b255bbddeda2c51213a3e7",
+        "7363751daaad89105b37f38c2fa402450602751da13289cff1031eac506560a6"
+      ],
+      "source_sha256": "429175565f3e602f8c7c24de9f66c05b3677c0cb6b550743c3bfe270ad3b6b6f",
+      "text": "``spacr-make-masks`` — opna töflun útgáfa á mappuna, sem vinnuleikinn.\n\nLedger grein 396 spyr um heilbrigðisýning sem hægt er að byrja frá terminál, sýnt á mappinn, tengdur, og endurheimt. Heilingu er gerð yfir SSH og á meira en einn vél, og svarið til nú var ``spacr/cli.py`` fljóta neyðingu — *\"Make Masks er manuell maska útgáfa; hlaða það í GUI\"*. Þessi orð er enn sannur um brush og falsi um session.::\n\n    spacr-make-masks --folder <dir>\n    spacr-make-masks --folder <dir> --order value --limit 25\n    spacr-make-masks --folder <dir> --dry-run      # no display needed\n\n:mod:`spacr.curation_queue` gerir hugsanir - hvaða sviði eru að bíða, í hvaða orði, og hvað hefur þegar verið ákveðið um hvern. Þessi aðal er þinn hluti: parse fjögur ástæður, byggja vinnuleikinn, segja hvað séð er, og aðeins þá byrja Qt.\n\nNothing is imported from :mod:`spacr.qt` until the folder has been read and accepted. That order is the point of the module rather than a detail of it: a folder that does not exist, or that holds no layout spaCR recognises, is answered with a sentence on a login node with no display, not with a Qt crash after a ten-second import.\n\nHvað kemur fram áður en útgáfurinn opnar\n----------------------------------------\n\nSamkvæmt ráðstefnunni, í eigin skilyrði::\n\n    nested layout at /data/pv: 500 bundles, 366 done, 29 skip, 105 remaining;\n    25 this session, sorted by easy\n\nsvo kurator sé það sem þeir eru að endurheimta inn, og sé það í skál sem þeir byrjaðu frá en ekki bara í gluggi.\n\nEinn áætlun opnar útgáfurinn, þrír opnar vinnuleikinn\n-----------------------------------------------------\n\n:func:`spacr.curation_queue.detect_layout` lesa þremur áætlanir. Redigerinn breyta einn af þeim: Make Masks lesa áætlun frá ``<folder>/masks/<stem>.tif`` og skrifa heilbrigð mask aftur til sömu staðar, sem er ``nested`` áætluna og ekkert annað. Svo ``sibling`` eða ``seg`` fóllur er summarized, beðið og listed af ``--dry-run`` - og redigerinn er nefndur, með því sem það hefði gert rangt. Opnar bróður setur á ``images`` fóli hans myndi lesa og skrifa ``images/masks``, þöglu orphaning hvert áætlama mask sem set hefur þegar; það er verra en nefna, og það er misnotandi aðferð ledgerins \"loaded as empty\" varning er um.\n\nKóða útflutning::\n\n    0   the editor ran, or --dry-run printed the queue, or there was\n        nothing left to curate\n    1   the Qt interface could not start\n    2   bad arguments, a folder that is not there, a folder holding no\n        recognisable layout, or a layout the editor cannot edit in place",
+      "translation_source_blocks_sha256": [
+        "4f366c4ce446a02acaed8de389f7b45ec73bf8d77573a096502a4df5a1e1374c",
+        "d25681d36ab0a15210aa5aa27ebf0439f006e7a5fd2f26c27526c41f67a67e00",
+        "1426e2d66d0ec2569f520de2b3fdf6f9341071b8d253664df7b3fe1a8aa7936a",
+        "8c25c51e8afc34eba3409ea557d1dfd0265da96aff0931cc8a33f40e50b27f29",
+        "c1008441c62cba47dea840b01e15422e026cd5fbac60264c1bec99f0158532ea",
+        "000b6618d8bf928a329d827924ff9469fbb606519263b3dff08f78d1ecfb4877",
+        "12ad8cf01d18f20dc4cbd1f5269726b0458a980e9b5c2b57ad9d0d3e3803361c",
+        "6d2e9cb76245fb265581393dea13c43569b385a56a82bb8717ecaa712a67b557",
+        "1ee6750c36f6b8bbc4d071c9ee68e841f62dddc6d2b255bbddeda2c51213a3e7",
+        "7363751daaad89105b37f38c2fa402450602751da13289cff1031eac506560a6"
+      ]
+    },
+    "spacr.cli_make_masks.build_parser": {
+      "source_blocks_sha256": [
+        "541b663d52d5fb2d2717bdc1f03bcebf07799da8337b46edf61c0f36a0456bd4",
+        "e5632165eaa3c355d2f6102e544fd8fa4142598e39d19a47df01cd3170f4b257"
+      ],
+      "source_sha256": "843ee477b8c996bdf62abb4ecf7e3a1f4d7a4547239c2491d9363f7a82c45c95",
+      "text": "Að byggja ``spacr-make-masks`` skilaboð parser.\n\n:returns: the parser, with ``--folder``, ``--order``, ``--limit`` and ``--dry-run`` on it.",
+      "translation_source_blocks_sha256": [
+        "541b663d52d5fb2d2717bdc1f03bcebf07799da8337b46edf61c0f36a0456bd4",
+        "e5632165eaa3c355d2f6102e544fd8fa4142598e39d19a47df01cd3170f4b257"
+      ]
+    },
+    "spacr.cli_make_masks.editor_refusal": {
+      "source_blocks_sha256": [
+        "259fa8186d3f1d67b0b5ef274fceb1ad6924ed48b094b61d03c485691c1574b7",
+        "1bdaf5b71942f84af6319afde1d326c698269443b3f2e28a627f431fcdc3fc6e",
+        "5fe4798aae2e56c4a83f092d6bb48d17e54afd1251531d378b142d0ba8a77525"
+      ],
+      "source_sha256": "ad03f0a1afac5fe53bd781e871c7e8067cac6dec52cb79ed55cfa65aa306e569",
+      "text": "Segðu hvers vegna útgáfurinn mun ekki opna þessa uppsetningu á staðnum.\n\n:param queue: verkefni listan sem var byggð, í áætlunum Make Masks er ekki hægt að breyta.\n:returns: að neyðja, nafnun hvað útgáfur hefði lesið og skrifað, og hvað enn virkar á þessari mapp.",
+      "translation_source_blocks_sha256": [
+        "259fa8186d3f1d67b0b5ef274fceb1ad6924ed48b094b61d03c485691c1574b7",
+        "960aff22e7e8e870d07414891d8aa744de74ec94007e573cf813aebb16b2e4df",
+        "5fe4798aae2e56c4a83f092d6bb48d17e54afd1251531d378b142d0ba8a77525"
+      ]
+    },
+    "spacr.cli_make_masks.hand_over": {
+      "source_blocks_sha256": [
+        "40caf946c9b4421d8b47e2654f3626cff9d263937c4662dbce436c3758243ba4",
+        "272261c1f8e72febdac3dd3102e548eb78573a48228fbb8cb9b867db293b5379"
+      ],
+      "source_sha256": "367bf1d1ce0dfa568e841ed9c22a3d7f58d1683ce6fdd019485c04b7cda467e1",
+      "text": "Leyfðu ``queue`` fyrir næsta Make Masks umsókn sýningu sem er byggð.\n\n:param queue: Sessionin til að veita, eða ``None`` til að fjarlægja slottinn.",
+      "translation_source_blocks_sha256": [
+        "4e7cb59884c4939f502827e2dfe302f77f879033a572f2647194232b768737fb",
+        "272261c1f8e72febdac3dd3102e548eb78573a48228fbb8cb9b867db293b5379"
+      ]
+    },
+    "spacr.cli_make_masks.has_display": {
+      "source_blocks_sha256": [
+        "d5b4cbae93c6cde5c52ebf6dced12b6ab29a3257b68dacdb79cab0087e808408",
+        "d77f7d23b956800dc04a73073d318e5cb7a0b9f002d17d68668625d4af317e73",
+        "73cffa7c2ead9a0ff1f4715fd75ad9af1269b13df4119e9e96f7c0fca5116979",
+        "2862c45bd7892857633cf64ce5373267821bf33870117c212e4f900e717ef66b"
+      ],
+      "source_sha256": "f5617edb7ea8d5cf70a814eb80c4bdce380a9cd39fa387c7857cbaa14a727e63",
+      "text": "Eða það er vinstri kerfi fyrir útgáfurinn að opna á.\n\nSama þriggja línu spurning :func:`spacr.cli.use_agg_if_headless` spurningar af matplotlib, spurningar frá Qt og spurningar áður en Qt er inntalið: SSH árás með engin X sending annars fá \"það gæti ekki lendað Qt plöntu xcb\" og abortur, sem segir ekkert um vinnu lista sem var fullkomlega lesandi stundum áður.\n\nAn explicit ``QT_QPA_PLATFORM`` counts as a display. It is how offscreen rendering, VNC and the embedded platforms are asked for, and somebody who set it has already said which surface Qt is to use.\n\n:returns: Þannig er hægt að opna útgáfurinn hér.",
+      "translation_source_blocks_sha256": [
+        "d5b4cbae93c6cde5c52ebf6dced12b6ab29a3257b68dacdb79cab0087e808408",
+        "898757548d8ced87414c26e359409d4fca459c420cc2c8a6d50194f88bfa0179",
+        "73cffa7c2ead9a0ff1f4715fd75ad9af1269b13df4119e9e96f7c0fca5116979",
+        "2862c45bd7892857633cf64ce5373267821bf33870117c212e4f900e717ef66b"
+      ]
+    },
+    "spacr.cli_make_masks.main": {
+      "source_blocks_sha256": [
+        "26d6e3977f9932c4d972206bcb86be8e3114f9a3f7e0a799bbb4f1fa70294830",
+        "85ff624e69170021eed0e661d341640e80dc9bcf4532544cca76ab763b85c1ae",
+        "1f3321b681e92804830e73b756927e5e461473615ab7402081148ac7f7cfb37e",
+        "15cb64f4244e135c7eadb4d0a9eb5e0342f79bb03a7df05feb9fd4d59118f78f"
+      ],
+      "source_sha256": "3635dc35fbd156cd37783f04b34b728a49078d1723763bd79e478a4a3c0a3802",
+      "text": "Öppna mappinn sem lækningssession, eða segja hvers vegna það er ekki hægt að opna.\n\n:param argv: Hugsanir sem ekki er nefndur. ``None`` lesa :data:`sys.argv`.\n:returns: a process exit code; see the module docstring for what each one means.\n:raises SystemExit: með staðsetningu ``2`` þegar sjálfur argumenn eru neikvæð, sem er eigin neikvöld argparse.",
+      "translation_source_blocks_sha256": [
+        "26d6e3977f9932c4d972206bcb86be8e3114f9a3f7e0a799bbb4f1fa70294830",
+        "85ff624e69170021eed0e661d341640e80dc9bcf4532544cca76ab763b85c1ae",
+        "1f3321b681e92804830e73b756927e5e461473615ab7402081148ac7f7cfb37e",
+        "15cb64f4244e135c7eadb4d0a9eb5e0342f79bb03a7df05feb9fd4d59118f78f"
+      ]
+    },
+    "spacr.cli_make_masks.open_editor": {
+      "source_blocks_sha256": [
+        "e42eb085045e3d382e4054de83f4b38072f556c6730668b310fff8e4d5222718",
+        "53ef2d646dc8eb6ae9b793d2feeaeafe0e30a5314d5e986bba6d6401f2aa3da2",
+        "7195e08d7ad0ccaeb9c18879ce24ed845adef6b797520d25d6b0a5d68630af63",
+        "a9225b6e4b67ea85fbc27faeb542d463b6215d40eaed7aed0938bb86b6cd044f"
+      ],
+      "source_sha256": "109c5b40c42dcc4d02ddc79342af62adfbb642508d65a8bed1fcc8aeb46a19be",
+      "text": "Byrjaðu GUI á ``queue`` og hættu útgangskódinn.\n\nQt er innritað hér og ekkert yfir: allt sem hægt er að neita hefur verið neitað frá þeim tíma sem þetta er kallað.\n\n:param queue: Sessioninn sem útgáfur opnar á.\n:returns: útgangskódinn :func:`spacr.qt.run` kemur aftur, eða :data:`EXIT_NO_GUI` þegar það er engin sýning til að opna, eða þegar Qt tengsl er ekki sett.",
+      "translation_source_blocks_sha256": [
+        "e42eb085045e3d382e4054de83f4b38072f556c6730668b310fff8e4d5222718",
+        "53ef2d646dc8eb6ae9b793d2feeaeafe0e30a5314d5e986bba6d6401f2aa3da2",
+        "7195e08d7ad0ccaeb9c18879ce24ed845adef6b797520d25d6b0a5d68630af63",
+        "a9225b6e4b67ea85fbc27faeb542d463b6215d40eaed7aed0938bb86b6cd044f"
+      ]
+    },
+    "spacr.cli_make_masks.take_handover": {
+      "source_blocks_sha256": [
+        "f0efc69ebab621905de3cd83618a578554312ad7254388a92a909c85d664ccce",
+        "932dd35a832d0cd531aff34816108f2ed60db77423a9070282e46a71d6ca1930",
+        "7d452baf77bcfdcf129ffa489d9ee312e112ad9438d4d994ea53da5f006b4bdc"
+      ],
+      "source_sha256": "fb89ecb17e601ab7c4014317a00b32a6abd97d8e7187decaae966919ffe14fef",
+      "text": "Taktu áætlun sem terminalinn er sendur yfir, ef það er einn.\n\nLeyfing spjallinn er hálfa af því sem þetta samtal er fyrir: skrin endurbyggð síðar í sömu ferli — notandi sem ferðast aftur til Make Masks — þarf að opna á ekkert en á uppsetningu sem hefur þegar verið vinnu í gegnum.\n\n:returns: skrefinn er gefið yfir :class:`~spacr.curation_queue.CurationQueue`, eða ``None`` þegar skrin var opnað í venjulegu hátt.",
+      "translation_source_blocks_sha256": [
+        "fa2300fe0bb2f0926d0a7e495233b11163e2bba68fd32bac6f2676c1522cb155",
+        "932dd35a832d0cd531aff34816108f2ed60db77423a9070282e46a71d6ca1930",
+        "7d452baf77bcfdcf129ffa489d9ee312e112ad9438d4d994ea53da5f006b4bdc"
+      ]
+    },
     "spacr.cli_plugins": {
       "source_blocks_sha256": [
         "e1b1133ce9f3e5064a7a0ffe8195c56ee2ded9bdc1a4999a230ed31303370581"
@@ -15948,6 +16076,668 @@
         "ebf0b1dbc50dc7b24e54bd4fa445510d2ad9d9ffe76f0b96a96437091a3b37c5",
         "64f08fc3f0445cba7743bdb2c03f36dc3f48e49ed6c9474d39dad61a451dca2b",
         "ff43fa5c4d60d9c4f80761f0ffc84a8903ad694ce7774a2e74e1111c142f78d1"
+      ]
+    },
+    "spacr.curation_queue": {
+      "source_blocks_sha256": [
+        "0bbd169eb9929ab7061364bdc8fc6802a45b137394948ecbae0fe5034abe94a6",
+        "52486fea20c4ed0652a6c6bb76140fb21b0b42dbc54f6575582bbe560f98e164",
+        "9b14eeb9553889a3cf4b1c6552a0af1733cd8a63f7dc714fa449850e000078b0",
+        "e84bb3c694fa720014d12b0c0a4fdd156c41d3f94981f3e7ba826f0da245edae",
+        "6bfdcd3500939f2ad0ca906ff531ad869adbb1649561bdb4951bb0d14b2c7419",
+        "f0d74236a0c40bc9045240207551b0d6ab5e42d33fd4632b5663e81ecbedcd9e",
+        "6b42c4c6e101a79dd824b9093710e5a02d1465c2c6ed41eb2cd31d346b50b6fc",
+        "dfbdfeed0c3e4a8bf0508ee3f983a61a10fd4162e26f0aa616592e1c798f6084",
+        "fc576d870096e7e160796d7f42562a3d85871ab519cc16333d5bb5523927ede4",
+        "35266cd2f21aca524f388c9a8f49f2698327570bd43900ff3e388fac48f8f683",
+        "8f179fa8bfb1588bc7b4234433245917af3e83225a418600968657e4c6e0557d",
+        "d236f1d489406825e6dc7b26bece524f1d07b33ee08265ac0e3a1f95936dfd2a",
+        "b59095229ee3b3f5f9255a4362d11c3158e7000b5f832961f7b3739f53594eee",
+        "86d88b32f09a14c984f2ebdd37b178f1f927693d146809c6cbe239e802e55e49",
+        "5c5df93fb22c6b573faf7d3900d9b75f26076ea05c3950e4393a18ba1d8ba6f5",
+        "af956af5bdc87f857d8be7cd17912893a34adcd60d97ef2e6af91a6edd0aa405",
+        "4f3c87252ac9a32ae011cc9973f8de97b939dd21cda5a9793c39007d3b3134c7",
+        "45a4d1c15a80957ff6d90169f51d4ffcfc304d4c0ad450f5ff6a1db94eb04e28",
+        "7f6fde93c06417b8e5361eb7300eefc3b3c1b02f89c8ebc72462a1e38006c5b2"
+      ],
+      "source_sha256": "8891def183a7b457d1f32a9645e6291476bdd93d64099641bb8ac5a6ab0cd115",
+      "text": "``396`` — lækningssession er vinnuleikinn með minningu, ekki einn sviði.\n\nMake Masks er betri útgáfur og viðbótin verkfæri fyrir utan skipa er betra vinnuflokk, og ledger hlutinn 396 er athygli sem ekki er bæði. Þessi einkenn er vinnu flokk haldið inn í spaCR: hvaða sviði eru að bíða, hvaða orðin til að bjóða þeim í, hversu mikið til að gefa áður en sammála endar, og hvað var þegar ákveðið um hvern.\n\nIt holds no pixels and draws nothing. That is deliberate and it is the whole argument for bringing the work in here: the external tool's defects are found in the middle of a curation session, because there is no way to test a 2,000-line Qt application, whereas everything below is ordinary Python over a folder and a CSV, so a defect is found by ``tests/test_a_curation_session_resumes_where_it_stopped.py`` instead. The module imports no Qt, needs no display, and touches ``numpy`` only inside the functions that actually read a draft mask off the disk.\n\nÞrír ákvarðanir, allir samþykkt\n-------------------------------\n\nLedger hlutinn 396 heitir áætlun mismatch sem hlutinn til að setja upp fyrst, og varnar um að þögulega að taka einn er hvernig mappinn fullur vinnu verður laddur eins leitt.::\n\n    nested    <folder>/*.tif           + <folder>/masks/*.tif\n    sibling   <folder>/images/*.tif    + <folder>/masks/*.tif\n    seg       <folder>/*_seg.npy       (Cellpose pickles, the external tool)\n\nAccepting all three is strictly safer than picking a winner: an existing curation set opens unconverted, and nothing has to be moved before work can start. What is *not* accepted is a guess. A folder matching none of them, or matching two of them, raises :class:`LayoutError` — because the alternative is an empty work list, and an empty work list reads as \"all done\".\n\nÞremur endurskoðað ríkis, ekki tveir\n------------------------------------\n\n:data:`REVIEWED` er ``done``, ``skip`` og ``recropped``. Ledger notan segir tvö; það er rangt. ``skip`` er ekki minna ``done`` - það skráir \"þetta er ekki hægt að lækna\", og brjóta tveimur þýðir að sömu notandi sviði er tilbúinn aftur á hverjum árangri. ``recropped`` er það sem útlendis tól er skrifað þegar bundla hefur verið skipt inn í börn: foreldri er út úr vinnuleiknum og hlutum hans eru í henni.\n\nRekordin lifir á ``<folder>/curate_status.csv``, inn í vinnuféldu síma en ekki við hana, þannig að það synkrósa með myndum og uppsetningu endurheimtir á annarra vélinu. A röð um stóm sem er ekki í þessari síma er haldið á endurheimtu af nákvæmlega því ástæðu: kuratorinn getur verið endurheimt einhvers staðar af uppsetunni hefur ekki komist enn, og að kasta þessar röð myndi taka upp vinnu sem hefur verið gerst.\n\nOrðið\n--------\n\nOrðið er framleiðslueigandi eiginleika: dómur kuratora er meira verðmæt á harða sviði en á fyrstu hundruð auðvelt. Fjórir orðin, og stöðvarnar í þeim, eru ytra tól, sem velur eftir raunverulegu 500-bundle curation set. :func:`order_items` segir hvað hver þýðir.\n\nÞar sem þetta skilur skilvirkt frá útlendum tólum\n---------------------------------------------------\n\nFimm stöðu, hver vegna þess að þetta samfélagi þarf að þjóna þrjá áætlun og prófþjóta í stað þess að einn skáld af Cellpose klímum:\n\n* Objektum eru ritað sem skilgrein ekki-zero tákn, ekki ``masks.max()``. Sjá :func:`count_draft_objects` fyrir tveimur tilfellum þar sem þau eru mismunandi.\n* Miðarlegur hlutdiameter er reiknað beint en ekki í gegnum ``skimage.measure.regionprops``, svo að panta vinnu lista þarf numpy ein. Það er sama tölur, og próf pins sama.\n* Unknown ``order`` framleiðir mistök í stað þess að hljóðlega verða ``value``.\n* ``name`` orðin eru af stemmum en ekki af skrána, þannig að orðin breytist ekki þegar einn sviði er PNG og næsta TIFF.\n* Status ránir eru skrifaðar í röð, atómlega. failinn synkrósa á milli vél; stöðugt orðin haldi diff til breytinga ránna, og nefninn haldi hálft skrifuð endurskoðun af skálinu.\n\nThe nested and sibling layouts also offer an image whose mask is missing, rather than pairing strictly as the external tool's bundle builder does: a microscope field of view with no draft is work, drawing from scratch, and ``easy`` already knows to offer it last.",
+      "translation_source_blocks_sha256": [
+        "d1aedc0f3f2fb4c0cc8d4cbe6f6463ba7430d8a0e09086145a3d9a152aae817c",
+        "52486fea20c4ed0652a6c6bb76140fb21b0b42dbc54f6575582bbe560f98e164",
+        "9b14eeb9553889a3cf4b1c6552a0af1733cd8a63f7dc714fa449850e000078b0",
+        "e84bb3c694fa720014d12b0c0a4fdd156c41d3f94981f3e7ba826f0da245edae",
+        "6bfdcd3500939f2ad0ca906ff531ad869adbb1649561bdb4951bb0d14b2c7419",
+        "f6f854d1df24e3008d17ea38e3d7001e838507820de62b48bed82de5cad4e33c",
+        "6b42c4c6e101a79dd824b9093710e5a02d1465c2c6ed41eb2cd31d346b50b6fc",
+        "1d55da409b610beddef5e3a7b6e8957cca8659bd2c6a6aa15eb34debc25cdf65",
+        "0f0b5f230296b08a4a156243d59090aa7d72f01d5c718ecc9cd7118a26620107",
+        "35266cd2f21aca524f388c9a8f49f2698327570bd43900ff3e388fac48f8f683",
+        "8f179fa8bfb1588bc7b4234433245917af3e83225a418600968657e4c6e0557d",
+        "d236f1d489406825e6dc7b26bece524f1d07b33ee08265ac0e3a1f95936dfd2a",
+        "b59095229ee3b3f5f9255a4362d11c3158e7000b5f832961f7b3739f53594eee",
+        "86d88b32f09a14c984f2ebdd37b178f1f927693d146809c6cbe239e802e55e49",
+        "d6e0ad00cb733293072fc1c798e09e0cac56600369b582a0a49a92125a9c59e0",
+        "947a951454e63d37aafc8408abc6059dc61f786ce3724b2b438f783d7465a1fe",
+        "4f3c87252ac9a32ae011cc9973f8de97b939dd21cda5a9793c39007d3b3134c7",
+        "45a4d1c15a80957ff6d90169f51d4ffcfc304d4c0ad450f5ff6a1db94eb04e28",
+        "4db2006f96abc227e5ca957a814e1fb5ef366b9a962d061101fa4bbf17927ce9"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue": {
+      "source_blocks_sha256": [
+        "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
+        "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
+        "0d7015fa5eb2fa05fbc2429359754bdd958766003043bc0e550d1cf5e0478948",
+        "f1f7a40c9dff9b5edc90e660045e20716eab4d2e141f47b8ca23ab7f10b0dfa7",
+        "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
+        "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
+        "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
+        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce"
+      ],
+      "source_sha256": "4e0c3cd3f10f0e465113c0bf338e7183f37744b3b14afdd2f880caad985b95fa",
+      "text": "A takmarkaður upplifun af lækningu virkar yfir einn skáld.\n\n:ivar layout: Hvað fannst og hvar.\n:ivar items: fólkið til að bjóða upp á þessari síðu — unreviewed, ordered, og cut til ``limit``.\n:ivar status: hverri stöðu stefnu lesa, þar á meðal stefnu um stems sem eru ekki í þessari mapp.\n:ivar order: Orðið sem var bað um.\n:ivar effective_order: bestu notuð, sem er mismunandi frá ``order`` þegar ``prob`` eða ``easy`` fellur aftur til ``value`` fyrir vilji á líkamanum.\n:ivar limit: hliðið sem var notað, eða ``None``.\n:ivar summary: Þess vegna er hægt að fylgjast með öllu, ekki í þessari síðu.",
+      "translation_source_blocks_sha256": [
+        "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
+        "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
+        "0d7015fa5eb2fa05fbc2429359754bdd958766003043bc0e550d1cf5e0478948",
+        "f1f7a40c9dff9b5edc90e660045e20716eab4d2e141f47b8ca23ab7f10b0dfa7",
+        "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
+        "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
+        "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
+        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.all_items": {
+      "source_blocks_sha256": [
+        "4ef16b1a0829bc8edb1fced048e2e5a00bc6f96761b2a5d79cc935e3fadc297b"
+      ],
+      "source_sha256": "ca71936167c7bcd9d8819ae050820d6aab8cd3a5cff2ec2304020eaec648abd5",
+      "text": ":returns: Allir felur í skáldinu, endurskoðað þeirra innihalda.",
+      "translation_source_blocks_sha256": [
+        "4ef16b1a0829bc8edb1fced048e2e5a00bc6f96761b2a5d79cc935e3fadc297b"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.describe": {
+      "source_blocks_sha256": [
+        "410478fc68e5fb14508f28d407d84689bbd5fb811a0d41e84eac3d4bfa680cce"
+      ],
+      "source_sha256": "04d67d74e53385f01d5a3a1214d9a2e10164277447bbeccfb24bb76b310987a8",
+      "text": ":returns: printable linni sem nafnast áætlun, orðin og tölur.",
+      "translation_source_blocks_sha256": [
+        "410478fc68e5fb14508f28d407d84689bbd5fb811a0d41e84eac3d4bfa680cce"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.folder": {
+      "source_blocks_sha256": [
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927"
+      ],
+      "source_sha256": "cfcc382aa7e899e658f95dd5c03eb3ae2cbbde6d817e7f06d9ec175215233fe7",
+      "text": ":returns: Verkefnið á vinnu listanum.",
+      "translation_source_blocks_sha256": [
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f"
+      ]
+    },
+    "spacr.curation_queue.CurationQueueError": {
+      "source_blocks_sha256": [
+        "cc7c517f771ccc2589544bedd65b11755da030466e056c00c19a0329fcb46d54",
+        "389ef729de19545a40d3552e5aa66bd495a7a531693e1426a10d1ebd8c6aa3e4"
+      ],
+      "source_sha256": "fdcd7cf88eff52c8259c8a8b7f2675b65177ac1fc3262a74d8d180df2cf64966",
+      "text": "A helga vinnu lista gæti ekki verið byggð, lesið eða skrifað.\n\nSubklasið :class:`spacr.errors.SpacrError`, þannig að samtalandi sem taka spaCR eigin mistök fá þetta líka.",
+      "translation_source_blocks_sha256": [
+        "214d3b6c7d50f4e9214024c2f6e9a73c92614924dea033faabd0140a87a739a5",
+        "389ef729de19545a40d3552e5aa66bd495a7a531693e1426a10d1ebd8c6aa3e4"
+      ]
+    },
+    "spacr.curation_queue.LayoutError": {
+      "source_blocks_sha256": [
+        "94e8f674965dbef9724344e55104410bada7a8f4c40ddafa2fe3fecf30adaf66",
+        "c5aeac511a201b7da507eaf82a5f5e975be96cbbabd29a5bb9460d9cc4b00ebd"
+      ],
+      "source_sha256": "e2f50d713c33afd517f70141854fe30d77603b3034d017092d052cea924331a7",
+      "text": "Fólkið er ekki óþekkt að halda einn af þremur áætlunum.\n\nVegnað í stað þess að endurtekinu völum vinnu lista. Völur vinnu listan lætur eins og \"all done\", sem er eina rangt svarið að helsa tól ætti aldrei að gefa um mappinn full af vinnu.",
+      "translation_source_blocks_sha256": [
+        "94e8f674965dbef9724344e55104410bada7a8f4c40ddafa2fe3fecf30adaf66",
+        "70ec52381cd160330809cc763b5f6e4b69fc3f01200c92b5fcbfc0f4c1eae2b9"
+      ]
+    },
+    "spacr.curation_queue.QueueItem": {
+      "source_blocks_sha256": [
+        "76bf0001be9a494ebd972c3d4b57750f6082bf3a4e781d1f636527672bf3a2a8",
+        "c4e8e69047fb694ca26c0b049dba4226baeb80c1df9af122bdc7a95b44fb0b28",
+        "887456f4a1e4fba2dd2f762e0c8380cee6e9d64df89cbed63fe5bd9f3bb0e870",
+        "6581c197615b529ed48c82f6914a7dcaf36159f067340573eb5fc315e075c90b",
+        "c8fa22584f70ae0e9729462b2e6b476db5caf0c66f8045dfe73f43483ec59f1e",
+        "21a33c25fb49b95ea46af484730b4afd570e86af5ba423f6d94dd3fc78c22597"
+      ],
+      "source_sha256": "ffaca66c659eedae38516835dc5a37e7c517f9f791eeac8f82f5792db1c0a2d2",
+      "text": "Eitt sviði sem bíður eftir að lækna.\n\n:ivar stem: nafnið á sviði, og byggð gögn nafni á staðsetningu hennar.\n:ivar layout: Hvaða af :data:`LAYOUTS` þetta hlut kemur frá.\n:ivar image: Myndfilið, þegar áætlunin hefur einn á skálinu. ``None`` fyrir ``seg`` pakka sem bori eigin mynd, nema sýningmynd af sömu stefnu situr við það.\n:ivar mask: skammt skammtafa, eða ``None`` þegar engin skammti er enn til.\n:ivar bundle: ``_seg.npy`` pickle, fyrir ``seg`` skipti aðeins.",
+      "translation_source_blocks_sha256": [
+        "76bf0001be9a494ebd972c3d4b57750f6082bf3a4e781d1f636527672bf3a2a8",
+        "63916e8a9ee44e2194a4d81029c386ef07b266e8dea9bea2683fdef0cdac7c52",
+        "887456f4a1e4fba2dd2f762e0c8380cee6e9d64df89cbed63fe5bd9f3bb0e870",
+        "6581c197615b529ed48c82f6914a7dcaf36159f067340573eb5fc315e075c90b",
+        "c8fa22584f70ae0e9729462b2e6b476db5caf0c66f8045dfe73f43483ec59f1e",
+        "21a33c25fb49b95ea46af484730b4afd570e86af5ba423f6d94dd3fc78c22597"
+      ]
+    },
+    "spacr.curation_queue.QueueItem.draft": {
+      "source_blocks_sha256": [
+        "efef956d4d0ace4455dd1b889fb8703b93e3eb1ccf4046521080b5ee6a5975eb",
+        "a5498021d9b223d2ab6738c9f74641ffcee48a498f4dab2149f2067edb7025e1"
+      ],
+      "source_sha256": "851e3118dfb94ef69a3189cc6eeb1958820190ff399bfc71f6e2185c4b432fea",
+      "text": "Skilinn sem hentar skýrslum þessarar hlutar, eða ``None``.\n\n:returns: pakka fyrir ``seg`` hlutinn, maskafili fyrir hinum tveimur áætlunum, og ``None`` þegar það er engin skreyting - sem þýðir að ritna frá skrapa, ekki mistök.",
+      "translation_source_blocks_sha256": [
+        "efef956d4d0ace4455dd1b889fb8703b93e3eb1ccf4046521080b5ee6a5975eb",
+        "a5498021d9b223d2ab6738c9f74641ffcee48a498f4dab2149f2067edb7025e1"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout": {
+      "source_blocks_sha256": [
+        "ebbd44fa4a6bd3ede03dd9208012b8f656c07f0732060865491b5ef71f8ceb41",
+        "f8c35582bbe3c99bb9da163d5b6c65f0dd8c94b7680293bf84302cecfda641ac",
+        "7c142576fd2f5c3625b96b4c4f3e7351d8c24cdc81e3b8e82e33ebb91f57097b",
+        "51af67851f9d4ed276ba4304f7497173a2a334208080cb1fceba96e35ee8ee56",
+        "113b4334b61ed57cdd5de917b15c3b6436b9a2b797f02be2d0f0f04bd3ca968c",
+        "77ca0d5d1ecf25b1a192ce71266eaf72e3d70e1e9609d843caa7cf30f910c126"
+      ],
+      "source_sha256": "9d2b4af947d987b5bfac8efbaedd64e44e009ac370ab019bad7950e184c18c49",
+      "text": "Hvað var fundið í fótbolta, og hvar.\n\n:ivar kind: Það er eitt af :data:`LAYOUTS`.\n:ivar folder: vinnu lista mappinn, sem er einnig þar sem staðurfili fer.\n:ivar images_dir: hvar myndirnar eru, þegar þeir eru á skítanum.\n:ivar masks_dir: þar sem maskar eru lesið frá og skrifað aftur til.\n:ivar items: hvert leyti sem er fundið, rangt eftir stóð.",
+      "translation_source_blocks_sha256": [
+        "ebbd44fa4a6bd3ede03dd9208012b8f656c07f0732060865491b5ef71f8ceb41",
+        "f8c35582bbe3c99bb9da163d5b6c65f0dd8c94b7680293bf84302cecfda641ac",
+        "c1b20568bd681673f5b2acce23ed34f1b14e2ff505135d9b13bc8e9cf228d38e",
+        "51af67851f9d4ed276ba4304f7497173a2a334208080cb1fceba96e35ee8ee56",
+        "113b4334b61ed57cdd5de917b15c3b6436b9a2b797f02be2d0f0f04bd3ca968c",
+        "77ca0d5d1ecf25b1a192ce71266eaf72e3d70e1e9609d843caa7cf30f910c126"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout.mask_destination": {
+      "source_blocks_sha256": [
+        "fd761eff222c90217c9ecb4b59ab225f78d15d9e96741307de98ddf39531bc33",
+        "2d63b3a828593c97de92fa1861a7cc9ca12b466dc00d0cff42db20d373fc2b92",
+        "e5db885eb6cdeb1832a450d2bdda9ca1281dd0fffb0378f239f9396b7f22fa2c",
+        "b16276b0a9d63bfc1e7095faa6ff7ab566acb1b71de4b9dc0c00d53fe66c04c7",
+        "10fb5c29379c6eca0adbdefa8b3afd565dfeb4e401b96e259910950d6d4195b2"
+      ],
+      "source_sha256": "4144c54761a80d374d3487d27b23150e763bd586d31f297b53b8f9db8bf418df",
+      "text": "Hvar er skrifað heilluð maska fyrir ``stem``.\n\nThe ``seg`` layout writes back into the bundle it was read from, as the external tool does; the other two write ``<masks_dir>/<stem>.tif``, which is what :func:`spacr.qt.mask_engine.mask_save_path` already produces for the nested layout.\n\n:param stem: Hluti á sviði.\n:returns: Á leiðinni er meðhöndlaður maska.\n:raises CurationQueueError: þegar ``stem`` er ekki í þessari vinnu lista.",
+      "translation_source_blocks_sha256": [
+        "fd761eff222c90217c9ecb4b59ab225f78d15d9e96741307de98ddf39531bc33",
+        "2d63b3a828593c97de92fa1861a7cc9ca12b466dc00d0cff42db20d373fc2b92",
+        "e5db885eb6cdeb1832a450d2bdda9ca1281dd0fffb0378f239f9396b7f22fa2c",
+        "b16276b0a9d63bfc1e7095faa6ff7ab566acb1b71de4b9dc0c00d53fe66c04c7",
+        "01e9d63fce80e10357d70b9126c3fa7a58ce1b94ea6da148a29994fdf4b12d98"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout.status_path": {
+      "source_blocks_sha256": [
+        "3f0f53f44e5d01e6408c9f24021119fc8f05bc425c402d49ea8b53d36c9c5923"
+      ],
+      "source_sha256": "0ded3dcd9808ba064f0d32c545d37e7669f1a22be3a7180709c5af4c2b5dcf38",
+      "text": ":returns: leiðin á þessari vinnu lista er ``curate_status.csv``.",
+      "translation_source_blocks_sha256": [
+        "a0a91b654669aac808b4ecea9906522ef39377953ac15563a653f1678dbd8d05"
+      ]
+    },
+    "spacr.curation_queue.QueueSummary": {
+      "source_blocks_sha256": [
+        "17b2462737cf8f542af2aa8b5a871344bf4729a7a5097a0b239325a2c08bc673",
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
+        "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",
+        "da33edf76b0e258f813f937d76259eae1ed7e06caf4d9a6d49e3e5a22e470b37",
+        "e8afaecea4ffc5d11913e96816725ff56806be5723e4489189bdc656579e051f",
+        "2378a787d3f94701ea33c20e200e573a4891969c220330378b7b15417bfbc414"
+      ],
+      "source_sha256": "ccb6ef2fd498d15ada5ab38b597183047fd212c34b7ad734c77a456c1e7b92f8",
+      "text": "Hvað er eftir að gera, í skilyrðum ledger grein 396 spyrja fyrir.\n\n:ivar total: Fólkið í fólkinni.\n:ivar done: meðhöndlað .\n:ivar skip: Það er ekki hægt að lækna, og það þarf ekki að bjóða upp aftur.\n:ivar recropped: Skilið í börn, sem eru í vinnuleiknum í staðinn.\n:ivar remaining: Fólkið með engin endurskoðun.\n:ivar unknown: status rows about stems that are not in this folder. Kept, never dropped, and reported here rather than silently: on a second machine they are usually work already done elsewhere.",
+      "translation_source_blocks_sha256": [
+        "17b2462737cf8f542af2aa8b5a871344bf4729a7a5097a0b239325a2c08bc673",
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
+        "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",
+        "ba7e218fe5eee970508138a213cbb1914ba26c249c31c29da3283be009322b36",
+        "e8afaecea4ffc5d11913e96816725ff56806be5723e4489189bdc656579e051f",
+        "2378a787d3f94701ea33c20e200e573a4891969c220330378b7b15417bfbc414"
+      ]
+    },
+    "spacr.curation_queue.QueueSummary.describe": {
+      "source_blocks_sha256": [
+        "30f66421ba9a830c69a6ef0cd1ec9f90c7f0551095cae3016fe78383dbd8bb35",
+        "4e2496459fc8362b25877de0861d9ab2fe47888b2e855f09f7b567828c3e88b6",
+        "20aa333053bb65022b960e8a92ad68ab78f69b7eff359b9cbba1bcc68b25487a"
+      ],
+      "source_sha256": "0c8fc0758a733632749ab9605942d158ce348a37cc190c62f7374c2204b34092",
+      "text": "Einn rita getur ritað.\n\nThe ledger's measured state, ``500 bundles, 366 done, 29 skip, 105 remaining``, is exactly what this returns for it. The two rarer counts are appended only when they are not zero, so the common sentence stays the short one.\n\n:returns: Ein auðvelt að lesa samræmi af vinnu listanum.",
+      "translation_source_blocks_sha256": [
+        "30f66421ba9a830c69a6ef0cd1ec9f90c7f0551095cae3016fe78383dbd8bb35",
+        "4e2496459fc8362b25877de0861d9ab2fe47888b2e855f09f7b567828c3e88b6",
+        "62d985de11ec4f07ee7249ba0cb22d96356c5439739327049db1004e672655ed"
+      ]
+    },
+    "spacr.curation_queue.StatusFileError": {
+      "source_blocks_sha256": [
+        "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57"
+      ],
+      "source_sha256": "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57",
+      "text": "``curate_status.csv`` er til, en ekki hægt að lesa sem endurskoðun.",
+      "translation_source_blocks_sha256": [
+        "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57"
+      ]
+    },
+    "spacr.curation_queue.StatusRow": {
+      "source_blocks_sha256": [
+        "7482bbfb1e45194f6a49473faefaafe9795f83da95a442d39a377bf376de4c36",
+        "d7b033ac6a14c014f9f6f7fae1744461ee6a4bcaae1c940ac48630d5573763c8",
+        "5d037e707ecb21c5046b165062522b36e7da2858dddc52043f229ec5c4107725",
+        "ef6f07e29158143b2943542e6952319a9234a6373f688013a0a0fcf40fb5c093",
+        "3bd6da4235b71c11cbce48da83c1fdab6901f33b4a6617ce778176c97928c527"
+      ],
+      "source_sha256": "17d8dbf6d1ba4a6f2f28e393a90aa6aa89e8446a2b6deb1cd70a506dbb5adbff",
+      "text": "Eitt líni á ``curate_status.csv``.\n\n:ivar stem: Hvaða sviði þetta er um.\n:ivar state: ``done``, ``skip``, ``recropped``, or anything else, which counts as pending. Normalised to lower case with the surrounding whitespace stripped, so a row typed by hand as ``Done`` still ends that stem's turn.\n:ivar n_objects: hve mörgum hlutum mikroskópurinn var að sjá þegar það var skoðað, eða ``None`` þegar skrifinn sagði ekki.\n:ivar updated: ISO-8601 timestamp, eins og skrifað.",
+      "translation_source_blocks_sha256": [
+        "7482bbfb1e45194f6a49473faefaafe9795f83da95a442d39a377bf376de4c36",
+        "d7b033ac6a14c014f9f6f7fae1744461ee6a4bcaae1c940ac48630d5573763c8",
+        "5d037e707ecb21c5046b165062522b36e7da2858dddc52043f229ec5c4107725",
+        "33fa20c17af770be8816193bceb87c95bc7c3908494498089a0f9a06b44c8343",
+        "3bd6da4235b71c11cbce48da83c1fdab6901f33b4a6617ce778176c97928c527"
+      ]
+    },
+    "spacr.curation_queue.StatusRow.reviewed": {
+      "source_blocks_sha256": [
+        "bec90481f344dbb28ba76d99a8df5a9e118bf0621df3f935e74896d8995dd838"
+      ],
+      "source_sha256": "c8e174f9f05c8f51f3c19f4f7126458fee37a7ac5f889c6d27cdb665670b26cd",
+      "text": ":returns: hvort þessi stefnu tekur stóð sitt út úr vinnu listanum.",
+      "translation_source_blocks_sha256": [
+        "97465fe60ce78a161e9ccd20c74d71e080d68e7649b60b37b1617d82471e6f25"
+      ]
+    },
+    "spacr.curation_queue.build_queue": {
+      "source_blocks_sha256": [
+        "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
+        "a7ece0725e57b5801218a905de7e1460717ae20c1cf034cd7d51a2fd2ade0fed",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "acbc65f159e6a0fe53b1154b8d64dc1bc03924978bffc8d459290c8b2048d7be",
+        "d0170800c2bb550e12f3b67a71c1dd0363204b95f557016b001dc4162f2f2dbf",
+        "8a247677246f65558a399f92d208e5458852ea672a51c07542d2d6b259d3c916",
+        "f2ed96eca899632a7f81f567a8d2304a55991ffc6fa5240df9aafeef2b57715e",
+        "e29975c5200eccb28213ff58fb94904472c5080b0d39eb020cd0a6b46f998291",
+        "06c3e4e2a456fbbcc5a0bede8a2dbef0325cbc9aef5c155f8df85888f751ef65",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
+        "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
+        "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ],
+      "source_sha256": "db641a7f12c3c5190e03c47662498d587c921e1729f5e5d44049377d2a3e72f6",
+      "text": "Öppna mappinn sem takmarkaður lækningssæsi.\n\nTil að: uppgötva áætlun, lesa endurskoðun, hætta allt sem hefur verið skoðað, beita það sem er eftir, og aðeins THEN notar takmörk — svo ``--limit 20`` þýðir tíu mest verðmætum sviðum enn að gera, ekki fyrstu tíu fundið.\n\n:param folder: Verkefnið á vinnu listanum.\n:param order: Einn af :data:`ORDERS`; :data:`DEFAULT_ORDER` í staðsetningu.\n:param limit: hve mörg sviði sýningurinn bjóða, eða ``None`` fyrir alla.\n:param probs: Sannleikur til að nota í stað þess að lesa ``curate_scores.csv``.\n:param counts: Hugmyndin þarf að nota í stað þess að lesa áætlanir.\n:param announce: hvar notendur fara; staðsetningar til :func:`print`.\n:param include_reviewed: gefur endurskoðað sviði líka. Off á staðsetningu; þetta er það sem \"resume\" þýðir.\n:param min_objects: Farið á :func:`value_key`\n:param min_diameter: Farið á :func:`value_key`\n:param cache_counts: hvort ``easy`` gæti skrifað reikningarnar sínar.\n:returns: Þetta er :class:`CurationQueue`.\n:raises LayoutError: þegar skjölin er ekki einn óþekkt uppsetningu.\n:raises StatusFileError: þegar aðstæðurfilið er ekki hægt að lesa.\n:raises ValueError: þegar ``order`` er ekki einn af :data:`ORDERS`.",
+      "translation_source_blocks_sha256": [
+        "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
+        "a7ece0725e57b5801218a905de7e1460717ae20c1cf034cd7d51a2fd2ade0fed",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "acbc65f159e6a0fe53b1154b8d64dc1bc03924978bffc8d459290c8b2048d7be",
+        "d0170800c2bb550e12f3b67a71c1dd0363204b95f557016b001dc4162f2f2dbf",
+        "8a247677246f65558a399f92d208e5458852ea672a51c07542d2d6b259d3c916",
+        "f2ed96eca899632a7f81f567a8d2304a55991ffc6fa5240df9aafeef2b57715e",
+        "e29975c5200eccb28213ff58fb94904472c5080b0d39eb020cd0a6b46f998291",
+        "06c3e4e2a456fbbcc5a0bede8a2dbef0325cbc9aef5c155f8df85888f751ef65",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
+        "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
+        "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ]
+    },
+    "spacr.curation_queue.count_draft_objects": {
+      "source_blocks_sha256": [
+        "8b939ea2da00733fb12e88698c2d9f4c964295e1ddc9f952b5d26f58e0aa9b93",
+        "3c8f24434e24a622e8a199151e5a5601f4987829095c03482d9cbbcdcd1e3109",
+        "6c7c64a05f6ec77ad3383f4c7dcff1ddc8edc3bf5afe22ca511d4b171847cc31",
+        "b78054b87351cf0955949c441d98e72b9a368f6e04c3bfe0b961d837ec4eb534"
+      ],
+      "source_sha256": "0a94d88e927e29632875c8b440f8f725d50f63a2cc167d0d025c20264f3d4cfb",
+      "text": "Hversu mörg hlutur áætlunin hefur.\n\nCounted as distinct non-zero labels rather than as ``masks.max()``, which is what the external tool uses. The two agree on a fresh Cellpose pickle, whose ids run 1..N, and disagree in the two places that matter here: a label TIFF that has had objects deleted has gaps in its ids, so ``max()`` overcounts; and a 0/255 binary mask, which the nested and sibling layouts can perfectly well hold, would report 255 objects.\n\n:param item: Fólkið til að tákna.\n:returns: fjölda hlutum, og ``0`` fyrir verkefni sem er mismunandi eða óreiðanlegur - eins og útlendisverkefni tölva cache líka, þar sem það talar bara að beita.",
+      "translation_source_blocks_sha256": [
+        "8b939ea2da00733fb12e88698c2d9f4c964295e1ddc9f952b5d26f58e0aa9b93",
+        "624926a075af0a076009f384d18d97dec1242b1389e32942376840fbe3b5397e",
+        "6c7c64a05f6ec77ad3383f4c7dcff1ddc8edc3bf5afe22ca511d4b171847cc31",
+        "b78054b87351cf0955949c441d98e72b9a368f6e04c3bfe0b961d837ec4eb534"
+      ]
+    },
+    "spacr.curation_queue.detect_layout": {
+      "source_blocks_sha256": [
+        "5c66b3c4ea4c358588e365e24efc110cd69e835158f8bf648005ebb8a532bf2a",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "afee221f18fa62a1591265219ed85d64a234933f0e029a5a229c4cbfa1a249db",
+        "dae11af6273decb8f8639115a19c3a5f681a89c88f1ad017bfe0a69d9a8f72d6",
+        "8ac1d439c1588410321891a82e82769f76a022a1503073e7a7c1859b7b00c513",
+        "bab1ea9c97149e5b21cd79a03daab5c25f7c19870d269e11982c7843a16193db"
+      ],
+      "source_sha256": "cbc1afdd3df1ea85136945722b4e5f387f203eab1853014ca4df442f7d8cba1c",
+      "text": "Hugsaðu út hvaða af þremur áætlunum ``folder`` halda, og lesa það.\n\n:param folder: Verkefnið á vinnu listanum.\n:returns: :class:`QueueLayout`, með hvert leyti sem er í henni.\n:raises LayoutError: þegar ``folder`` er ekki reikning, mattir enginn af þremur áætlunum, eða mattir meira en einn af þeim.\n:raises CurationQueueError: þegar tveir skálir í henni deila rödd.\n\nBæði neyðingar eru hár á tilgangi. að hugsa á milli tveimur áætlunum ladda hálf mappuna; að viðurkenna einn sem er ekki það ladda enginn af því, og að segja að sem ferða vinnu lista.",
+      "translation_source_blocks_sha256": [
+        "5c66b3c4ea4c358588e365e24efc110cd69e835158f8bf648005ebb8a532bf2a",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "afee221f18fa62a1591265219ed85d64a234933f0e029a5a229c4cbfa1a249db",
+        "dae11af6273decb8f8639115a19c3a5f681a89c88f1ad017bfe0a69d9a8f72d6",
+        "8ac1d439c1588410321891a82e82769f76a022a1503073e7a7c1859b7b00c513",
+        "0ca410566eadc59b6723eeb76f0297154e10e6efc78bcea34cd888d61930b3fc"
+      ]
+    },
+    "spacr.curation_queue.discover_items": {
+      "source_blocks_sha256": [
+        "63bfc425de3a71beab6efdf02a8105a0ddbd14081b03657c327577df3178d8cb",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "8b4e18ae48c7734e4f8dd3ee49835c1495f8a21e32433f2fece3671a741841c7",
+        "54c094eed0595ab8629b4cb722ae130e4cbc64d6b6a3900b8a298905a000c8a2"
+      ],
+      "source_sha256": "2a93954f42955edade38b9edfa06b81b5f5deaf29a4a3b250154b2ce494ec185",
+      "text": "Hversu sviði í ``folder``, hvað skipti það er í.\n\n:param folder: Verkefnið á vinnu listanum.\n:returns: Eitt hlutur, mismunandi með stóð.\n:raises LayoutError: eins og :func:`detect_layout` gerir.",
+      "translation_source_blocks_sha256": [
+        "63bfc425de3a71beab6efdf02a8105a0ddbd14081b03657c327577df3178d8cb",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "8b4e18ae48c7734e4f8dd3ee49835c1495f8a21e32433f2fece3671a741841c7",
+        "54c094eed0595ab8629b4cb722ae130e4cbc64d6b6a3900b8a298905a000c8a2"
+      ]
+    },
+    "spacr.curation_queue.draft_stats": {
+      "source_blocks_sha256": [
+        "0f63855d032023f7c97e1d0223cc305b57c6301c1d2c5f914f1796b258d8884a",
+        "7990e590f4591bcecd4c6a23a3e17c5a5c44e1c0dcb49cf6cefc9ec90e3a0eec",
+        "50d72f6e0d68c4aa38fa6f0b824dd1325f2825e0ee80b42185e8d558f49c500e"
+      ],
+      "source_sha256": "087296c40c0d52921effd5c3938f0905cefbe046068a10d2e8fb9b91f38416aa",
+      "text": ":param item: Fólkið til að mæta.\n\n:returns: ``(n_objects, median_diameter)`` fyrir verkefnið.\n:raises Exception: Hvað sem lesur óreiðanlegt skýrsluna hækkar. ``value`` orðin tekur það og skiptir síðasta töluðu sviði.",
+      "translation_source_blocks_sha256": [
+        "0f63855d032023f7c97e1d0223cc305b57c6301c1d2c5f914f1796b258d8884a",
+        "7990e590f4591bcecd4c6a23a3e17c5a5c44e1c0dcb49cf6cefc9ec90e3a0eec",
+        "50d72f6e0d68c4aa38fa6f0b824dd1325f2825e0ee80b42185e8d558f49c500e"
+      ]
+    },
+    "spacr.curation_queue.is_reviewed": {
+      "source_blocks_sha256": [
+        "61f7f0a46c76447835c2b5233d51499ffacd1656287aa6bfefdc4427bf370286",
+        "086baeb658a5161555c8843b51dd902bc7c4f573001c72738bf46518b2370ed7"
+      ],
+      "source_sha256": "5dda2d921aff187106a2e54df52bed5c47943735df81ea371719b731b2c5d9cf",
+      "text": ":param state: aðstæða stefnu eða ``None``.\n\n:returns: ``done``, ``skip`` og ``recropped`` allir gera, og þeir halda sérstakt: ``skip`` þýðir \"cannot be curated\", sem er ekki minna ``done``.",
+      "translation_source_blocks_sha256": [
+        "61f7f0a46c76447835c2b5233d51499ffacd1656287aa6bfefdc4427bf370286",
+        "4b8dc8bfc38dfe18219883832fd94342078de44fd9b67f57fea3be74ce462201"
+      ]
+    },
+    "spacr.curation_queue.load_draft_counts": {
+      "source_blocks_sha256": [
+        "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
+        "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
+        "65597ad02f41874555b7fc2f460e612dae991973078bc46d5b88cd0664fb86b0",
+        "bb21c19763a09394e3dca3d4d61ca817b991cc6100dcfbdfa24efea3729ec43d",
+        "bf17bb1c4effb28cd91f2f9bc8a056c7bba72100c4f88307aa24a4f96599b158"
+      ],
+      "source_sha256": "1e13ebc7fce0ef9b4c4832f46ac2b7aa9c6ad843ffb9beb09ecc293bd310c6f1",
+      "text": "Hugbúnaður reikna fyrir ``items``, cached í ``curate_drafts.csv``.\n\nLesa þremur hundruð verkefni á hverjum upplifunum er lágt, þannig að tölur eru skammt af stóð og aðeins saknar stóð frá skamminu eru lesin.\n\n:param folder: Verkefnið á vinnu listanum.\n:param items: Fólkið til að tákna.\n:param write_cache: Það er nauðsynlegt að skrifa ekki, aldrei notið sem mistök – lesið bara skammtur þarf enn að opna.\n:param announce: þar sem framtíðin fer; staðsetningar til :func:`print`.\n:returns: ``{stem: n_objects}`` fyrir hvert gefið hlut.",
+      "translation_source_blocks_sha256": [
+        "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
+        "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
+        "014239bb03bc76df3aecf670715a66b54e045d7dbc57ae1df8052aa85b42b5dc",
+        "bb21c19763a09394e3dca3d4d61ca817b991cc6100dcfbdfa24efea3729ec43d",
+        "bf17bb1c4effb28cd91f2f9bc8a056c7bba72100c4f88307aa24a4f96599b158"
+      ]
+    },
+    "spacr.curation_queue.load_probabilities": {
+      "source_blocks_sha256": [
+        "ba1cb9b1b11b449a33926001fda24cfe64c608076d888fd71a33c36674f546f3",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "ea55c37fb16531cbf2b399974a99c82896ebd425bf538f10f08aefa3e89011f8",
+        "e73dc3eb33b37b7f2f46b461ebf24f2e5e892cfe06f5a126825e64471ab0ad87"
+      ],
+      "source_sha256": "a91c47cb80761fab032899f5a8f8469aae77953b6d51aba9203f05f92744ad2f",
+      "text": "Lestu ``curate_scores.csv``, þegar það er eitt.\n\n:param folder: Verkefnið á vinnu listanum.\n:returns: ``{stem: probability}``, og ``{}`` þegar skjölin er óþekkt — sem er það sem gerir ``prob`` og ``easy`` falla aftur, hljóðlega.\n:raises CurationQueueError: þegar skráin er til staðar en hefur engin stóru eða engin viðurkennd sannleikanarstóru. A skóre skrá sem er til og ekki hægt að nota er mistök sem er þess virði að hætta fyrir; saknar einn er venjulega tilstand.",
+      "translation_source_blocks_sha256": [
+        "ba1cb9b1b11b449a33926001fda24cfe64c608076d888fd71a33c36674f546f3",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "ea55c37fb16531cbf2b399974a99c82896ebd425bf538f10f08aefa3e89011f8",
+        "e73dc3eb33b37b7f2f46b461ebf24f2e5e892cfe06f5a126825e64471ab0ad87"
+      ]
+    },
+    "spacr.curation_queue.mark_state": {
+      "source_blocks_sha256": [
+        "3ab374aa9b45173c962dd4d39bc3f5f110ffa2adbbe593dfce686d37767ec9be",
+        "e011ea330e0abb3e3577b3659508ebbcf08159d36cecf1f14420b645361178f0",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "e695a1c30a97d8cd8da9995238498c775c7bbbea32ac055e1d36df86df53e844",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "757e4c9a20f3f6abab8a6bf939b10901ecd68c0364d1acbfbf24a2de37f09d46",
+        "9c2ac47ee18089d32b8d2411d16b525195429f47b24207b3676f53e1a00d50b7",
+        "f12f7a47ec196f380dbdc77d5af80a571c4ead7b2d4ab6b5549eabc799efb8ad"
+      ],
+      "source_sha256": "cf9f8aa392559708f6f96078730a540a4aaea56aca84ff603ce2cb6391b98655",
+      "text": "Skrifaðu eitt ákvörðun og skrifaðu skrifinn, halda hverri annarri röð.\n\nÞetta er það sem hringir á lækningssæsi gerir á sviði, og það er hringinn þar sem ránir um óþekktum stímum væri annars tapt.\n\n:param folder: Verkefnið á vinnu listanum.\n:param stem: Landið er ákveðið.\n:param state: ríkisstjórnin til að skrá.\n:param n_objects: Hversu mörg hlutur hann hafði, ef þekkt.\n:param updated: Tímamálið til að skrá; óþægilegt til núna.\n:returns: Þannig sem þeir eru nú á skítanum.\n:raises StatusFileError: þegar skjölin er ekki hægt að lesa eða skrifa.",
+      "translation_source_blocks_sha256": [
+        "3ab374aa9b45173c962dd4d39bc3f5f110ffa2adbbe593dfce686d37767ec9be",
+        "e011ea330e0abb3e3577b3659508ebbcf08159d36cecf1f14420b645361178f0",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "e695a1c30a97d8cd8da9995238498c775c7bbbea32ac055e1d36df86df53e844",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "757e4c9a20f3f6abab8a6bf939b10901ecd68c0364d1acbfbf24a2de37f09d46",
+        "9c2ac47ee18089d32b8d2411d16b525195429f47b24207b3676f53e1a00d50b7",
+        "f12f7a47ec196f380dbdc77d5af80a571c4ead7b2d4ab6b5549eabc799efb8ad"
+      ]
+    },
+    "spacr.curation_queue.median_equivalent_diameter": {
+      "source_blocks_sha256": [
+        "e9bf553c638ff14bb2e7b0ee38705b88c689822b172d055fd765bdd382d8edea",
+        "e36098ecf19a34cbb33b8d078525a91781c514ba01bab23a0a79da48607d8380",
+        "f3430aa7b319332165c939fdf9c19c3c02949f1a81a525314d58a5fed7af3459",
+        "ef8094a6b39a30713f9c793297cdc1e8479e88e36c318d68bc351dbfc0c415fb"
+      ],
+      "source_sha256": "5909578745942044cefd187f18bf199c7842922bd1521edb3473cbe30c2d8fb2",
+      "text": "Miðar circle-equivalent diameter af hlutum í merki mynd.\n\nÞetta er ``skimage.measure.regionprops``'s ``equivalent_diameter_area`` fyrir 2-D inntali, sem er reiknað strax sem ``sqrt(4 * area / pi)`` þannig að að beita vinnu lista þarf numpy og ekki scikit-image.\n\n:param labels: 2D fullorðna ljósmynd.\n:returns: um miðjald í pixelum, eða ``0.0`` þegar það eru engar hlutar.",
+      "translation_source_blocks_sha256": [
+        "e9bf553c638ff14bb2e7b0ee38705b88c689822b172d055fd765bdd382d8edea",
+        "3eca7540aeee7aba5852d84dc56bd088679d0c3e9b85e01c8bba7a993e36a61e",
+        "f3430aa7b319332165c939fdf9c19c3c02949f1a81a525314d58a5fed7af3459",
+        "ef8094a6b39a30713f9c793297cdc1e8479e88e36c318d68bc351dbfc0c415fb"
+      ]
+    },
+    "spacr.curation_queue.order_items": {
+      "source_blocks_sha256": [
+        "d17b0c56b2a86cd98fcde98d22072d6c0c0cbadf5345c240b7cbbec2e9ca1c72",
+        "72584e8bd2ba5c978f03add619cec7cf7ba7ecf37e1857bbae146a09cb8893cb",
+        "e2af5044c4581a6b5cfa6fc82f6f5c5809d437d51ba343161a74e8bd9c15a116",
+        "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
+        "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
+        "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
+        "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
+        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
+        "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "318b1709471e21082b039d2c485117f295418a331f5cb037cfaa56e9bba46db6",
+        "a0ab1793eaf6d30a2bd1ccd5609af399b772fe7d28f91203ced34a1619d57d64",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ],
+      "source_sha256": "e356a7d09cc45a84f33168050cf679a8908bc0f48973eb41b8c5154a45c76817",
+      "text": "Bestu vinnuleikinn, með útlendisverkefni semantikum.\n\n``name`` Með stóð, og ekkert annað er lesið — ekki líkamanum, ekki skýrslum. með stóð en ekki með skránafn þannig að orðin breytist ekki þegar einn sviði er PNG og næsta TIFF.\n\n``prob`` Sannlegast fyrst: byggð gögn-nafn er ``-probs.get(stem, -1.0)``. Þannig er punktinn. Óskorðri sviði kemur ``+1.0``, stærri en hvaða raunveruleg neitað sannleika, þannig að það eru LAST í stað þess að trúa til að vera sannleikanum null.\n\n``easy`` ``(0 if n > 0 else 1, -probs.get(stem, -1.0), -n)``. Ein vinsamleg verkefni er samþykkt-eða ljótar-reitingu; EMPTY verkefni þýðir að ritna frá skreytingu, þannig að vöru þeir fara síðast REGARDLESS sannleika. Í hverjum hópum, líklegast fyrst, þá meirihluti hlutum.\n\n``value`` Með :func:`value_key`: hversu mikið verkefni er til að korrigera.\n\nRíkir eru brotnar af stóð, vegna þess að listan er rættur með stóð fyrir hvaða af þessum og Python sorti er stöðugt.\n\n:param items: Fólkið til að beita.\n:param order: Það er eitt af :data:`ORDERS`.\n:param probs: ``{stem: probability}``, eða hringandi endurnýja einn, eða ``None`` fyrir enginn til staðar.\n:param counts: ``{stem: n_objects}``, or a callable returning one. When ``None``, ``easy`` reads the drafts itself.\n:param announce: þar sem fallback skilaboð fer; standa til :func:`print`, svo það landar á stdout eins og útlendis tóls gerir.\n:param min_objects: Farið á :func:`value_key`\n:param min_diameter: Farið á :func:`value_key`\n:param scores_hint: Skilinn er notuð í fallback skilaboðinu.\n:returns: Ný listan, sem er beðið.\n:raises ValueError: þegar ``order`` er ekki einn af :data:`ORDERS`.",
+      "translation_source_blocks_sha256": [
+        "a865fdeef1fd5908cfca4338e7fe8229002f97c9daa29590f3cfeac7bb74a6eb",
+        "72584e8bd2ba5c978f03add619cec7cf7ba7ecf37e1857bbae146a09cb8893cb",
+        "890cfc6f25af9afe386f77d1b15c118ab52bccebbd3f73b0e845107acde273d3",
+        "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
+        "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
+        "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
+        "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
+        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
+        "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "318b1709471e21082b039d2c485117f295418a331f5cb037cfaa56e9bba46db6",
+        "a0ab1793eaf6d30a2bd1ccd5609af399b772fe7d28f91203ced34a1619d57d64",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ]
+    },
+    "spacr.curation_queue.pending_items": {
+      "source_blocks_sha256": [
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "a14e85587438fbf295cf32022a4130b5416006a2a808bc4e8324cff36b1d85e5"
+      ],
+      "source_sha256": "30b5a5d81ea7e359974fe53fd75ca94fcb660879cae08a96c73a0b57ed659cb1",
+      "text": ":param items: Fólkið í fólkinni.\n\n:param status: Lesið ræðin frá statúsögnum.\n:returns: hlutum sem ekki eru endurskoðað, í þeim orðum sem gefið er.",
+      "translation_source_blocks_sha256": [
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "a14e85587438fbf295cf32022a4130b5416006a2a808bc4e8324cff36b1d85e5"
+      ]
+    },
+    "spacr.curation_queue.read_status": {
+      "source_blocks_sha256": [
+        "da823dca6315e7262d6cbcc48c46e71d3ff0b4b69f5f4c420ec768b176da75fc",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b15ac808dbbe05024deb7e499edd728925f07d53e4db60eca52b960176c40017",
+        "8048219255aa9d7c33f8ffaaa167801e8e8b2f863e2b864bb69a9d03036b23f9"
+      ],
+      "source_sha256": "1b8559101df778e57da214047b4bee11ff49454e4dffe6e7c3feedb7cc9395fb",
+      "text": "Lestu endurskoðun rekstrar.\n\n:param folder: Verkefnið á vinnu listanum.\n:returns: ``{stem: StatusRow}``, þreytt þegar engin tilstandsfili er enn til. Röfur um stems sem eru ekki í mappinn eru inniheldur; þeir eru ástæðan fyrir að :func:`write_status` skrifa aftur allt sem það er gefið.\n:raises StatusFileError: þegar skrifinn er til, en hefur engin ``stem`` stefnu, sem þýðir að það er ekki aðstæður skrif alls.",
+      "translation_source_blocks_sha256": [
+        "da823dca6315e7262d6cbcc48c46e71d3ff0b4b69f5f4c420ec768b176da75fc",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b15ac808dbbe05024deb7e499edd728925f07d53e4db60eca52b960176c40017",
+        "8048219255aa9d7c33f8ffaaa167801e8e8b2f863e2b864bb69a9d03036b23f9"
+      ]
+    },
+    "spacr.curation_queue.record_state": {
+      "source_blocks_sha256": [
+        "ea13fc50170c34e0616a5cfeab022bfac653188288d936996e6365995f0ddf94",
+        "b218b3f4bf8306e4df130a2958b1909aa83bec6ca8ae78a3da3151c978dcfd0d",
+        "f154e3aac448e8a01d43822df4e91f3ecd16d9493c5dfd7d13a63bff24dece3d",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "5e64c93bec3411052adb20abf5037a6a047d4e48369064d71bf109ce34872458",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "4e98cf45aaaa533114e3557810ee898efcef89c22a05b5d48c31f508ca0ed6b6",
+        "415c87344c01339f00f80723032ef91b69189092cafbcff957a8c1839f8a4825"
+      ],
+      "source_sha256": "f79bba6c432e81ba4fd5b3366b9d32201b0b6b89d07a4d7baf7cb30ae241b0f0",
+      "text": "Til baka ``rows`` með því að ákvörðun einn stem er skráð.\n\nPure: greiningin sem er kominn inn er ekki breytt, þannig að hringandi getur ákveðið hvort breytingurinn ná til skreksins.\n\n:param rows: Hins vegar lesu ræðin ennþá.\n:param stem: Landið er ákveðið.\n:param state: ``done``, ``skip``, ``recropped``, or any other string, which leaves the stem pending.\n:param n_objects: Hversu mörg hlutur hann hafði, ef þekkt.\n:param updated: tími til að skrá; defaðir til núna, til annarra.\n:returns: nýja mapping, þar á meðal skráð rán.",
+      "translation_source_blocks_sha256": [
+        "ea13fc50170c34e0616a5cfeab022bfac653188288d936996e6365995f0ddf94",
+        "b218b3f4bf8306e4df130a2958b1909aa83bec6ca8ae78a3da3151c978dcfd0d",
+        "f154e3aac448e8a01d43822df4e91f3ecd16d9493c5dfd7d13a63bff24dece3d",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "5e64c93bec3411052adb20abf5037a6a047d4e48369064d71bf109ce34872458",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "4e98cf45aaaa533114e3557810ee898efcef89c22a05b5d48c31f508ca0ed6b6",
+        "415c87344c01339f00f80723032ef91b69189092cafbcff957a8c1839f8a4825"
+      ]
+    },
+    "spacr.curation_queue.resolve_order": {
+      "source_blocks_sha256": [
+        "99f5c30f0f05ecd4937fb1cdbab0dd4d60e38f5a3f5d940926ff9d3b1ba722f6",
+        "aecbdc2dbe0551c990ff124538382804c9ae4964d45e85cdc28fce01e1dd3cd5",
+        "d03eb21e2930daef0938cb12364be3574123a662506175c5df058b67db983fff",
+        "979b73f081e2958411ed83a7e99ab2c980313210b85e6eb6d5aa9f454c13e313",
+        "d3f0adeafe3cbfad84cdb9ead013bbb72a3bc78990e17f2ce090f2d9b5216966",
+        "64846805df3ef5797bc6cab94a3a9d2434cc5f658147586cb13333a7d1746f1a",
+        "a11a8dd17e2f2aa36ce60171f2af6c0be04b38602288649247a5319c96818bb0"
+      ],
+      "source_sha256": "20253639e660f24e21ca38919026724175535a1ef50ec163514dfdf828fc2061",
+      "text": "Að ákveða hvaða bestu verður í raun notað, og hvað að segja um það.\n\n``prob`` og ``easy`` báðir þurfa líkamanum. án þeirra falla þeir aftur til ``value`` — Og segja svo. Upplýsingar eru hálft hegðun: hljóð reorder yfirgefur kuratorinn að trúa að þeir eru að vinna óþekktum sviðum fyrst þegar þeir eru ekki.\n\n:param order: sem er tilkynnt fyrir, einn af :data:`ORDERS`.\n:param probabilities: Sannleikurinn er í boði, kannski óþægilegt.\n:param scores_hint: the scores file that would have supplied them, named in the message so the fix is obvious.\n:returns: ``(effective_order, announcement)``, viðtalið er ``None`` þegar ekkert breytist.\n:raises ValueError: þegar ``order`` er ekki einn af :data:`ORDERS`. A typo ætti ekki að verða öðruvísi bestu.",
+      "translation_source_blocks_sha256": [
+        "99f5c30f0f05ecd4937fb1cdbab0dd4d60e38f5a3f5d940926ff9d3b1ba722f6",
+        "aecbdc2dbe0551c990ff124538382804c9ae4964d45e85cdc28fce01e1dd3cd5",
+        "d03eb21e2930daef0938cb12364be3574123a662506175c5df058b67db983fff",
+        "979b73f081e2958411ed83a7e99ab2c980313210b85e6eb6d5aa9f454c13e313",
+        "d3f0adeafe3cbfad84cdb9ead013bbb72a3bc78990e17f2ce090f2d9b5216966",
+        "64846805df3ef5797bc6cab94a3a9d2434cc5f658147586cb13333a7d1746f1a",
+        "a11a8dd17e2f2aa36ce60171f2af6c0be04b38602288649247a5319c96818bb0"
+      ]
+    },
+    "spacr.curation_queue.status_path": {
+      "source_blocks_sha256": [
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "2a86f2932eea2e21e8fb3e101cbe26e6ae7e334bed4925ec17a8800109fb9179"
+      ],
+      "source_sha256": "13d3efb3c86cebc69e873382fdd4fba16f310b17e0c1026293e51941db3f2c4d",
+      "text": ":param folder: Verkefnið á vinnu listanum.\n\n:returns: ``<folder>/curate_status.csv``, inn í vinnu lista mappinn þannig að það ferðast með myndum þegar seturinn er synkródd milli vél.",
+      "translation_source_blocks_sha256": [
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "34fc749e093308e4387c094711566edbcbe945f66b07e189cb6e2c8c38abc45d"
+      ]
+    },
+    "spacr.curation_queue.summarize": {
+      "source_blocks_sha256": [
+        "756d0507e7059f2fe14cb23877552e734e60a938facf34517653ffa79a9bea70",
+        "49bf6d302ceb0b3d4589949f20b79411dfbc7a05a83d911a4b52c956e2d30ff4",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "fda7055940bc4012d25a0e7c8f07857a04bfc8a962533d6624cb125279817259"
+      ],
+      "source_sha256": "701343fa73f47220c21396b3a252f9a09ef42b132e0cba110c566e3e9fc678e5",
+      "text": "Sumir skáldina eins og leiðin sem ledgerinn biður um það.\n\n:param items: Allir felur í mótum.\n:param status: Lesið ræðin frá statúsögnum.\n:returns: the :class:`QueueSummary`. Counts are over fields that are actually here, so ``done + skip + recropped + remaining == total``; rows about stems that are not here are reported separately as ``unknown`` rather than subtracted from what is left to do.",
+      "translation_source_blocks_sha256": [
+        "756d0507e7059f2fe14cb23877552e734e60a938facf34517653ffa79a9bea70",
+        "49bf6d302ceb0b3d4589949f20b79411dfbc7a05a83d911a4b52c956e2d30ff4",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "fda7055940bc4012d25a0e7c8f07857a04bfc8a962533d6624cb125279817259"
+      ]
+    },
+    "spacr.curation_queue.value_key": {
+      "source_blocks_sha256": [
+        "eb3a1e50233adbc5f93199ba97042ab6cbacf3b7531654273109d7b5cd80ec9c",
+        "3e0651def8fdf5d1a5180a36f9f195247b33e6567ac3bf51fab142113f9c1315",
+        "5013c2d937903c95ef56c336bb460c1e0c2b4cc5cfcc957bec7ca94ded9f4754",
+        "a5cf0b5df83e61083b2460fae62618a4deeff8d1c8b9eb785ef21f776def36f9",
+        "cb8b5d3443e628ee31a6669097d1dcb3264d23d44c1386e0cf48533e9fd413a4",
+        "fa1d9a3b11b2f549f69e2658172b3f3332507d2edcbbee91cfa64a4856427cd9"
+      ],
+      "source_sha256": "111f8fff6ff0de2c04b5b3d792596d75c9c177f44b1059c04e5ae0e016a96acc",
+      "text": "Sættu key fyrir ``value`` orðin: hversu mikið áætlun er til að korriggja.\n\nSérstaklega útlendisverkefni ``_value``::\n\n    n == 0                     -> (2, 0, 0)   nothing to correct, last\n    unreadable                 -> (3, 0, 0)   dead last\n    otherwise                  -> (0 if rich else 1, -diameter, -n)\n\n:param item: Fólkið til að rangast.\n:param min_objects: Þörf fyrir \"rich\" skreyting þarf. plakk-specific.\n:param min_diameter: Median diameter \"rich\" þörf á skýrsluna, í pixlar.\n:returns: Þessar lykill eru.",
+      "translation_source_blocks_sha256": [
+        "eb3a1e50233adbc5f93199ba97042ab6cbacf3b7531654273109d7b5cd80ec9c",
+        "3e0651def8fdf5d1a5180a36f9f195247b33e6567ac3bf51fab142113f9c1315",
+        "5013c2d937903c95ef56c336bb460c1e0c2b4cc5cfcc957bec7ca94ded9f4754",
+        "a5cf0b5df83e61083b2460fae62618a4deeff8d1c8b9eb785ef21f776def36f9",
+        "cb8b5d3443e628ee31a6669097d1dcb3264d23d44c1386e0cf48533e9fd413a4",
+        "fa1d9a3b11b2f549f69e2658172b3f3332507d2edcbbee91cfa64a4856427cd9"
+      ]
+    },
+    "spacr.curation_queue.write_status": {
+      "source_blocks_sha256": [
+        "9e9b5105667f6987290807d434357ecfda07dc6a4433981f0feea257ead5a62a",
+        "9ba3b2157859174ad1384044407711d2c36535bb29da9bcddeed3a32b26aabea",
+        "b084cd5d0c165f16ae1ed30ff6c4efa67b18ab81a000c183caec71cc40a20b9a",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b54acd52c7d031efa4ae33386fd04970fddf0461e19faee7960df142da4b4e99",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
+      ],
+      "source_sha256": "fa66c254675592456e81675da7729d170460f5801610586e4fdcb2b5a7c1ccc5",
+      "text": "Skrifa endurskoðun, atómlega og í fullu.\n\nHver rán er skrifað, þar á meðal rán um stíms sem eru ekki í þessari mapp: kuratorinn getur verið aftur á vél þar sem hluti af uppsetningu hefur ekki komist, og að kasta þessar ránir bjóða upp vinnu sem hefur verið lokið annars staðar.\n\nRöfur eru skrifuð í röðum. failinn synkrósa milli vélum, og stöðugt orði halda synkrón diff við röðum sem virkilega breytist.\n\n:param folder: Verkefnið á vinnu listanum.\n:param rows: ``{stem: StatusRow}``, eins og :func:`read_status` kemur aftur.\n:returns: leiðin er skrifað.\n:raises StatusFileError: þegar skjölin er ekki hægt að skrifa.",
+      "translation_source_blocks_sha256": [
+        "9e9b5105667f6987290807d434357ecfda07dc6a4433981f0feea257ead5a62a",
+        "9ba3b2157859174ad1384044407711d2c36535bb29da9bcddeed3a32b26aabea",
+        "b084cd5d0c165f16ae1ed30ff6c4efa67b18ab81a000c183caec71cc40a20b9a",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b54acd52c7d031efa4ae33386fd04970fddf0461e19faee7960df142da4b4e99",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
       ]
     },
     "spacr.custom_features": {
@@ -27583,13 +28373,35 @@
     "spacr.graph_types": {
       "source_blocks_sha256": [
         "b7b7fb90d40b589357a22cfd20bbb2a7172420122d712996f196163632d9089f",
-        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e"
+        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e",
+        "ca5a49948ea2c1590b5accddbbdadc86dafd396440b161f6095900325f14ba26"
       ],
-      "source_sha256": "a52c53508f6b7cb003741199b67f8f3e79ed0ae1a31f0704ba9c2267dbc62b57",
-      "text": "Samskipti grafi tegundir og staðsetningar við byggingu flutninga gögnum.\n\nMúulinn skiljar kategorískt, stöðugt og beint axes. Það listar samskipt graftíp fyrst og veitir ástæðu fyrir hvert samskipti val, leyfa tengslum að deaktivera óþekkt val án þess að fela þá.",
+      "source_sha256": "f647a564e6b91e83e942197ea9f7c8b041b813ab14457654ec94544b9c942b1b",
+      "text": "Samskipti grafi tegundir og staðsetningar við byggingu flutninga gögnum.\n\nMúulinn skiljar kategorískt, stöðugt og beint axes. Það listar samskipt graftíp fyrst og veitir ástæðu fyrir hvert samskipti val, leyfa tengslum að deaktivera óþekkt val án þess að fela þá.\n\nÞað er einnig WHERE hvert grafi í spaCR fær upphafið form. Þýskalandi grafi tegundsetningu er geymt á gögn form (`spacr.qt.preferences`), lesa aftur í gegnum :func:`chosen_for`, og snúið inn í \"það er draðið áður en fyrstu hægra klicka\" með :func:`default_for` og :func:`start_for`. A widget spyr einn af þeim tveimur og fær svarið sem þegar ber á val notanda, hvort að valin passar gögn, og hvort gögn er nóg þyngt til að styðja það - svo setting ná nýr grafi með grafi að gera venjulega hlutina en ekki með því að muna.",
       "translation_source_blocks_sha256": [
         "b7b7fb90d40b589357a22cfd20bbb2a7172420122d712996f196163632d9089f",
-        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e"
+        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e",
+        "0b7562408da39fd1afa818e31c04ce8c92604e0f0dfc2bc24196cb6e8fa4e122"
+      ]
+    },
+    "spacr.graph_types.chosen_for": {
+      "source_blocks_sha256": [
+        "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "36e0747e2961f019848164bb8e1fcf15f4067d08539884465b185836b2c73d2d",
+        "187f8df40ea02eeb39e838fce20fb4bd34191d4ccbfee3718a676823e6560c2c",
+        "01e87595a1bc615f3b954c02ca1e083d55ddce391a6859f115e7159ace02df59",
+        "ae7e6c2c8fe27579b0c49a55bd09dada72b89dbdde57e493e2f5af33cf177db1"
+      ],
+      "source_sha256": "268e8cecba5b39a3eed59681f0c9841a606910b03a37d6119fe026b786d516ac",
+      "text": "Í greininni skal notandi spyrja að sjá FIRST fyrir ``shape`` eða ``\"\"``.\n\n:param shape: Það er einn af lykillunum á :data:`DATA_SHAPES`.\n:returns: geymt grafi tegund, eða leyti stringa þegar notandi hefur útskýrt engin forrit fyrir þessa form - eða útskýrð einn þessi form getur ekki tekið.\n\nLeiður þýðir \"NOTHING WAS CHOSEN\", sem er ekki sama svarið eins og standa á tablanum: widget með upphafi form af sjálfum sig halda það þegar ekkert var valið, og forritin yfirborðar það þegar eitthvað var. :func:`default_for` er kallaðurinn sem snúa \"nothing\" í svarið eigin á tabla.\n\nEinhver sem forðast rán hefur ekki beðið um rán á stöðugt x gegn stöðugt y - það er öðruvísi graf af mismunandi gögnum, og :data:`WHY_NOT` segir það.\n\nÞað er ekki mistök á að missa áætlanir.A hlaupless render hefur engin Qt og engin QSettings, og tölur verður enn að draga.",
+      "translation_source_blocks_sha256": [
+        "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "36e0747e2961f019848164bb8e1fcf15f4067d08539884465b185836b2c73d2d",
+        "a490496054b0582f805bf6babe7a79e5e83993685c0b41856ca3f1f50ec12c43",
+        "d72a9b242e6b2c3a14b16d3e50e5b4bed462e23424495dbd817caa885e1d5246",
+        "42e031a9f11dcecce82a6accb26b800b3b40f83e5bb80f92678e4c267a7db992"
       ]
     },
     "spacr.graph_types.default_for": {
@@ -27598,18 +28410,16 @@
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "ca40183b18a07c1acf9338fa6ba0c16334207d18f0e577d1bf569e13b98fc11e",
-        "ae77864009fe703da06f771c097819695f3bb2b55c7b17411278503df5ece071",
-        "415b833fa93f16585ebabd1ad74519d3f881d16ce31e5acb04fd1af70bf32f1d"
+        "184cbb8cfd97e315e1d24ee77329fa4c12fb4a95689b6015160fd821f1c8b14c"
       ],
-      "source_sha256": "f5183164038a770de6500b3410b6a7e709980bf5c269de7d35722dcbfc259f09",
-      "text": "Gráfi tegund skráð fyrst fyrir ``shape``.\n\n:param shape: Það er einn af lykillunum á :data:`DATA_SHAPES`.\n:returns: Sýni graf frá :data:`GRAPH_TYPES`.\n:raises KeyError: ef ``shape`` er ekki stuðlaður.\n\nValinn notandans kemur fyrst. forritin ákveður hvaða samskipt graf er skráð fyrst, og hægra klicka getur enn breytt það síðar. Hver graf í spaCR ná að upphafi forminn sínum í gegnum þessari virði, þannig að forriturinn er að velja stöðugt í gegnum skreinn.\n\nÞað er sparað val sem ekki virkar gögnum er óþekkt.Einn sem forðast rán hefur ekki beðið um rán á stöðugt x gegn stöðugt y - það er mismunandi grafi af mismunum gögjum, og :data:`WHY_NOT` segir það.",
+      "source_sha256": "44fbc69e8cb773adb82af02cc51612c0efe11f6914e82e2dffab410182dd8b9a",
+      "text": "Gráfi tegund skráð fyrst fyrir ``shape``.\n\n:param shape: Það er einn af lykillunum á :data:`DATA_SHAPES`.\n:returns: Sýni graf frá :data:`GRAPH_TYPES`.\n:raises KeyError: ef ``shape`` er ekki stuðlaður.\n\nValinn notanda kemur fyrst. forritin ákveður hvaða samskipt graf er skreytt fyrst, og hægra klicka getur enn breytt það síðar. Hver graf í spaCR ná að upphafi formum sínum í gegnum þetta hlutverk eða í gegnum :func:`start_for`, þannig að forriturinn er að velja stöðugt á skrinum.",
       "translation_source_blocks_sha256": [
         "84658b6ad17b22f8485589a508d19743d4daf13b3498499d2fa806b19709bdb5",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "ca40183b18a07c1acf9338fa6ba0c16334207d18f0e577d1bf569e13b98fc11e",
-        "e3c262c6df324285700da459a6a2855f0e995a6be14014bbb815f6f1d59971e3",
-        "e76a57f8634dfd9907c5d0296d7112c2fde6814da0b2303e101ac79d57b6fad6"
+        "3b158aa4ffda8b39dc31f30e5adef47cdddaf815e0504395081d2576bdc43968"
       ]
     },
     "spacr.graph_types.fits": {
@@ -27624,6 +28434,22 @@
         "ee39075c3407ebc70fa187a8dde9b452765844f892e41b6133e9963db15d6c25",
         "67828e2afce9790e7391260e3203e7fac518b1a1156d15477c838912a99badad",
         "3b3abff0ffb49a9466ef2354f48a062ffec6d06e5d23bf3508031ed006347993"
+      ]
+    },
+    "spacr.graph_types.mark_for": {
+      "source_blocks_sha256": [
+        "e25dd3cdba9fc042bc68e720fcd9b2a6bd5ccc7cc35c88597f1e7bc1cdf7f134",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
+      ],
+      "source_sha256": "f20e73ffc738cc611b885ef2b908d241a3c11644de7d1e68f26360a326f68ea9",
+      "text": "Live-plot tákn sem taka ``graph_type``.\n\n:param graph_type: Sýni graf frá :data:`GRAPH_TYPES`.\n:param fallback: Hvað á að svara fyrir nafn :data:`MARKS` hefur engin innfang fyrir.\n:returns: Takið key frá ``spacr.qt.widgets.fast_plots.MARK_TYPES``.",
+      "translation_source_blocks_sha256": [
+        "e25dd3cdba9fc042bc68e720fcd9b2a6bd5ccc7cc35c88597f1e7bc1cdf7f134",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
       ]
     },
     "spacr.graph_types.offer": {
@@ -27662,6 +28488,66 @@
         "43b3dba91ad594058f75e5c4b7707a900a0e4b7bd3ea5f1044e65d05b04d1852",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "3e1de6ff51fffc9a432a872e26f2a3aaf904fdcefcb8d31e468b7c4e62a35563"
+      ]
+    },
+    "spacr.graph_types.start_for": {
+      "source_blocks_sha256": [
+        "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "6a90db024703a75ea0fa470b991eb4e039ca7960bd04e85d53373b7395953f02",
+        "85a76ec422f130c440b388919b360860b37526cb772586ef6a3e882a85a13ac9",
+        "cd32d3d7554953e9f06be55110581dc54ec0758ccb0f809f9925462cf5fce688",
+        "08b08d9fdfa34e224c65c2c684e80ac546aee90fb716f72ebc0560a5561adb89",
+        "6eea7dc4e7d0b2e983cb442f62586c75ada46a685d2bff3b11103de43b2d2acd",
+        "0e1cc82393976b04a02aaf20d1bf57c3c94540f5c1b6ae15893992fd1ce11a66"
+      ],
+      "source_sha256": "d13ff9364522e3b9c3ccd11fbae2c821aa9d02ff88f1f64b69ef1a5bce12ae87",
+      "text": "Hvað á að draga fyrst, og hvers vegna það er ekki það sem var bað um.\n\n:param shape: Það er einn af lykillunum á :data:`DATA_SHAPES`.\n:param counts: Stundum á hópur, þegar þau eru þekktar.\n:param fallback: OWN útgangsform, fyrir þegar notandi hefur útskýrt engin forrit. Það er svarað eins og gefið - widget veit hvað það er hægt að draga - og tomt einn þýðir :data:`DEFAULTS`.\n:returns: ``(graph_type, note)``. notan er leyti þegar gráfið er að draga er það sem var spurð um.\n:raises KeyError: ef ``shape`` er ekki stuðlaður og engin notað fallback hefur verið gefið.\n\nThe fallback is said out loud. A preference is a blanket statement -- \"draw violins\" -- and a blanket statement meets data it cannot describe eventually. Drawing the points instead and saying nothing would leave a user who asked for violins looking at a jitter with no explanation, so the sentence comes back with the answer and the caller puts it on the plot.\n\nÞað er aðeins sparað val endurskoðað gegn gögnum: :data:`DEFAULTS` hefur þegar upplifað tegundir sem halda athygli, og línu af eitt punkt á x - bestu þekkingu - væri annars talað út úr sjálfum sér á hverjum degi.",
+      "translation_source_blocks_sha256": [
+        "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "6a90db024703a75ea0fa470b991eb4e039ca7960bd04e85d53373b7395953f02",
+        "85a76ec422f130c440b388919b360860b37526cb772586ef6a3e882a85a13ac9",
+        "cd32d3d7554953e9f06be55110581dc54ec0758ccb0f809f9925462cf5fce688",
+        "08b08d9fdfa34e224c65c2c684e80ac546aee90fb716f72ebc0560a5561adb89",
+        "a6beb6d696a0a4f94f81b168552e13bc119b46bfa6638b18d0115fe6037d9b56",
+        "8904e5a2b50e6b1ccc667f81d8dee09b0dbc4a2141358c809a5f0c20fdb74745"
+      ]
+    },
+    "spacr.graph_types.too_thin_for": {
+      "source_blocks_sha256": [
+        "546392a39717e8ae8e39f0dba112b09dba3500dd2d684adf933be52070a1ebd8",
+        "a7565130a1326537e3c1f33e197e91b0d9e065aa5e792af3f0b27a8062b3401f",
+        "d524502c70edb11dbfe6f1cd803bcc9ddc6895b86520061d8ab945f365b8b648",
+        "727209af1d9d581ebce9b5737d1361bdd1c0bc43223b6d783ab4c0d6a1448333",
+        "70ba3a18522ca357214b14ad116300860ec164d105aacf4ffd053f5b877f17d2"
+      ],
+      "source_sha256": "d85c3db27e28d89c01cec085e42b9eca56a83c688c3694574b5bfac19ff50131",
+      "text": "Hvers vegna ``graph_type`` getur ekki sumnað hópur þessa litla, eða ``\"\"``.\n\n:param graph_type: Gráfi tegundin á að vera skreytt.\n:param counts: Óþekkt stærð - tomt óþekkur - eru ekki ákvarðanir: graf sem hefur ekki verið veitt gögnum sínum enn er ekki enn að tegundar krav.\n:returns: frétta sem nafnast minnsta hópinn, eða leyti ringi þegar grafið tegund er stuðlað af gögnum.\n\nAðeins tegundirnar sem endurspegla athygli geta verið of þinn; sjá :data:`HIDES_THE_OBSERVATIONS`. Kvíttur af tveimur stigum er tvö stigum, sem er sannleikur; Kvíllur af tvö punkum er þunglyndi sem hefur aldrei verið mætt.",
+      "translation_source_blocks_sha256": [
+        "546392a39717e8ae8e39f0dba112b09dba3500dd2d684adf933be52070a1ebd8",
+        "a7565130a1326537e3c1f33e197e91b0d9e065aa5e792af3f0b27a8062b3401f",
+        "d524502c70edb11dbfe6f1cd803bcc9ddc6895b86520061d8ab945f365b8b648",
+        "727209af1d9d581ebce9b5737d1361bdd1c0bc43223b6d783ab4c0d6a1448333",
+        "70ba3a18522ca357214b14ad116300860ec164d105aacf4ffd053f5b877f17d2"
+      ]
+    },
+    "spacr.graph_types.type_of_mark": {
+      "source_blocks_sha256": [
+        "6d4b68aa2344342ce7a3e2381b2cec19c7ebde2478db4bbcd2d20356c9e43af6",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b",
+        "464c4a047431e216d7e4cbf92d9afbd86b40e09089dc4aef7a47ed4629b2a1a1",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "68a3c56d0d9cf7541a9039491b90162854d2eae50ef6a960f88183c25d0a73e3"
+      ],
+      "source_sha256": "234d408705d774dcf5b32ab5ed1df8909e86c4ca014de1f625e109b828073e46",
+      "text": "Í greininni er tekin á live plot ``mark`` skreytingu.\n\n:param mark: Takið key frá ``spacr.qt.widgets.fast_plots.MARK_TYPES``.\n:param fallback: Hvað á að svara fyrir merki engin grafi tegund.\n:returns: Sýni graf frá :data:`GRAPH_TYPES`.\n\nÁ móti :func:`mark_for`, þannig að widgetur sem eigin byrjunarmynd er skrifað í merki getur sagt það einu sinni og enn verið samanburður gegn áætlun skrifuð í grafi tegundir.",
+      "translation_source_blocks_sha256": [
+        "6d4b68aa2344342ce7a3e2381b2cec19c7ebde2478db4bbcd2d20356c9e43af6",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b",
+        "464c4a047431e216d7e4cbf92d9afbd86b40e09089dc4aef7a47ed4629b2a1a1",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "68a3c56d0d9cf7541a9039491b90162854d2eae50ef6a960f88183c25d0a73e3"
       ]
     },
     "spacr.graph_types.types_for": {
@@ -61777,9 +62663,9 @@
         "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074"
       ],
       "source_sha256": "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074",
-      "text": "Notaðu hlipað myndahús (eða mikroskópmyndahús) sem Align & Stitch innfang.",
+      "text": "Notaðu hliðarmyndarfólkið (eða einn tile) sem Align & Stitch inntali.",
       "translation_source_blocks_sha256": [
-        "b5d1aef621c991bde10670ab5fdc262a0746cf49f8ed3dc05e8a73550ad18149"
+        "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074"
       ]
     },
     "spacr.qt.dnd_handlers.AlignDropHandler.apply": {
@@ -63585,9 +64471,9 @@
         "3e9e63e8b896570b41536cde9aa33d8de1c4317ca17b23c153e753087d73b155"
       ],
       "source_sha256": "3e9e63e8b896570b41536cde9aa33d8de1c4317ca17b23c153e753087d73b155",
-      "text": "Samskipti-síðasti: velja meðferð samskipti að hætta meðferð samanskipti mappinn tilheyrir.",
+      "text": "Run History: Veldu meðhöndlaðakstur sem hættir meðhaldakstur mappinn tilheyrir.",
       "translation_source_blocks_sha256": [
-        "53a1498a5406dbad1488b05a516c31427e643d38a2e8dadb71d886de0370c86f"
+        "0f9917e036c21b92a005a1fa597804d66b5f5e59d568511c826fa856a1b6d39c"
       ]
     },
     "spacr.qt.dnd_handlers.RunHistoryDropHandler.apply": {
@@ -70394,10 +71280,10 @@
         "b011aea47be76a073eee0e8a277928369c7ea894bd9d259cf2c0115ce5fcb36c"
       ],
       "source_sha256": "301549162e8ff6a3b6dc8c7c47addd6fb6cab5a1896ae0ff42c52071499976a9",
-      "text": "Til að leyfa (eða banna) breyta áætlun í Database Browser.\n\nFlushed strax. QSettings skrifar aftur slæmt, og Database Browser re-lesur þetta struktured-data nafn á hverjum UI refresh — stall lesa strax eftir að notandi ticked laun myndi segja þeim redigering er enn off.",
+      "text": "Leyfðu (eða bannað) aðgerðir í Database Browser.\n\nFlushed strax. QSettings skrifar aftur slæmt, og Database Browser lesa þetta key á hverjum UI refresh — stall lesa strax eftir að notandi ticked boðið myndi segja þeim að útgáfa er enn off. Einn smá INI skrifa er þess virði að ekki þurfa að útskýra það.",
       "translation_source_blocks_sha256": [
         "e6b2a9b3a50f9d20a5c769c55e0ca7c764a6a91bd4d2dadd2b8a2ebd6278801d",
-        "e24961041b3136f3eb7be8c942ba18d818d2363e881feed33bd85e2d804f20f6"
+        "b011aea47be76a073eee0e8a277928369c7ea894bd9d259cf2c0115ce5fcb36c"
       ]
     },
     "spacr.qt.preferences.set_default_graph_type": {
@@ -71391,10 +72277,10 @@
         "3b9c6c6bb7985689262dca59b323bbc382b9a31290624d2773984f4c06e8f41f"
       ],
       "source_sha256": "f9fa9ebcdd1cbc78ace869fa71f5be9315234d0c1b78f1ad5c6295eed67dc91f",
-      "text": "Hvaða mólum fá Live Preview, og hvernig einn er tengdur frá utan.\n\nFjórir einingar hafa forskoðun — Gríma, Mæla, Tímalögn, Hreyfanleiki — og hver kostar þrettán línu arm í ``AppScreen._build_runtime_panel``, tvö eignanafn í núll-stilla blokk, og röð í skiptingartöflu tvöhundruð línur lengra niður. Sú fimmta myndi kosta það sama, þess vegna hefur aldrei verið fimmti: módelin sem myndu augljóslega hafa mest gagn af einu eru þau tvö sem hela starf þeirra er „kom maskinn rétt út“ — Cellpose Grímur og plökupróf — og hvorugt var þess virði að snerta sameiginlega skjáinn fyrir.\n\nÞessi hugbúnaður er seam sem gerir fimmtinn frjáls. A hugbúnað segir fyrirmynd hér; rita yfir settunarmyndanum er búinn að greina fyrir það; kortin er sett upp yfir meðferðarhlutinn í gegnum sömu ``_runtime_wrap`` / ``_actions_row`` annkur :mod:`spacr.qt.prerun` notkun. ekkert í ``AppScreen`` breytingar, og fjórar fyrirmynd sem það er búin eru boðið einn - hugbúnið sem shared application view hefur þegar þjónað er skipt hér í stað þess að gefa annað kort.\n\nMúddur sem hefur verið FOLDED í herbergi fær sama vél frá öðrum endum. Sjálfur app sýning er ekki byggð neitt lengur, þannig að ``install`` - sem svarar fyrir app sýningu eigin lykill - getur aldrei tengjast panelinn; :func:`attach_folded` leyfir herbergi að spyrja það með nafni og haldið það gömlu fyrir hvað herbergi notar til að uppgötva aðrar múdd. Mask Generation tracking switch er tilfellin sem það var skrifað fyrir.\n\n**Sampling samning er erfitt, ekki endurnýjandi.** Panelnar sem náð er í gegnum þetta skrá eru sendir, sem hópur mikróplata í myndum settar út af skrána einn og opna tengd, uppreiðanleg slæmt samning af henni. ekkert hér er listar, opnar eða listar reikning, þannig að ekkert hér getur endurnýja það. Nýtt skál sem skráð er með þessari sýning verður að halda sömu loforð — sjá :mod:`spacr.qt.widgets.preview_controls`.",
+      "text": "Hvaða myndavélir fá Live Preview, og hvernig einn er tengdur frá utan.\n\nFour modules have a preview — Mask, Measure, Timelapse, Motility — and each one costs a thirteen-line arm in ``AppScreen._build_runtime_panel``, two attribute names in a null-out block, and a row in a toggle table two hundred lines further down. The fifth would cost the same, which is why there has never been a fifth: the modules that would most obviously benefit from one are the two whose entire job is \"did the mask come out right\" — Cellpose Masks and Plaque Assay — and neither was worth touching the shared application view for.\n\nÞessi hugbúnaður er seam sem gerir fimmtinn frjáls. A hugbúnað segir fyrirmynd hér; rita yfir settunarmyndanum er búinn að greina fyrir það; kortin er sett upp yfir meðferðarhlutinn í gegnum sömu ``_runtime_wrap`` / ``_actions_row`` annkur :mod:`spacr.qt.prerun` notkun. ekkert í ``AppScreen`` breytingar, og fjórar fyrirmynd sem það er búin eru boðið einn - hugbúnið sem shared application view hefur þegar þjónað er skipt hér í stað þess að gefa annað kort.\n\nMúddur sem hefur verið FOLDED í herbergi fær sama vél frá öðrum endum. Sjálfur app sýning er ekki byggð neitt lengur, þannig að ``install`` - sem svarar fyrir app sýningu eigin lykill - getur aldrei tengjast panelinn; :func:`attach_folded` leyfir herbergi að spyrja það með nafni og haldið það gömlu fyrir hvað herbergi notar til að uppgötva aðrar múdd. Mask Generation tracking switch er tilfellin sem það var skrifað fyrir.\n\n**Sampling samning er erfitt, ekki endurnýjandi.** Panelnar sem náð er í gegnum þetta skrá eru sendir, sem hópur mikróplata í myndum settar út af skrána einn og opna tengd, uppreiðanleg slæmt samning af henni. ekkert hér er listar, opnar eða listar reikning, þannig að ekkert hér getur endurnýja það. Nýtt skál sem skráð er með þessari sýning verður að halda sömu loforð — sjá :mod:`spacr.qt.widgets.preview_controls`.",
       "translation_source_blocks_sha256": [
         "e22891fc56dcb0281bc3eb48fd883a3fe95ef1318ca150b5898ed6cc82b2f7bc",
-        "26e1dd822c9da721f33b6947857c5736e491a0e154f39b3f0a8b72d12bec47b8",
+        "08350b57ba4d040bbee0efba91c28a73d7b2c4a3749eabda903edc2db778d11c",
         "a46c9d15fa19ac498628ae725fc7fef96c5ad7bf9dffbb46688a1ec392a82074",
         "3f35efce446a3ba1180889555aff9344b5fc38813fc5d493f4d265e59d8d2113",
         "dfff0c448165b2826bcb6c40ccc98f69e7bf200439bcdc4aa56e2d64ac8fadab"
@@ -73320,10 +74206,10 @@
         "181fbc0154ee955b623beefb9d1e277ea9a52fef141791261b86344e69eac83c"
       ],
       "source_sha256": "ea18292108fadb51f1d041e199d5f6c50c96972b1e690e9c9b9e899273a97ffa",
-      "text": "Til baka tengslum sem :func:`spacr.align.default_settings` key-value mapping.\n\nopinbert svo Batch Runner og hugbúnaðarlistalistinn geti tekið mynd af þessum skjá eins og þeir taka mynd af öllum öðrum.",
+      "text": "Til baka tengslum sem :func:`spacr.align.default_settings` key-value mapping.\n\nKept public so the Batch Runner and the Work list can snapshot this screen the way they snapshot every other one.",
       "translation_source_blocks_sha256": [
         "ca2c8465fb84fd1bf4b136d4dfa12617f0b7ae3c35f5c8ed4fa7238442a73186",
-        "79d7b10146775d90982aba4d119be7137394f66af6b9ab2e448c45e7b51babe9"
+        "e86370735a949246554c30c5e339f92c850656d479ef7e87bb8e408350541c9c"
       ]
     },
     "spacr.qt.screens.align.AlignScreen.status_text": {
@@ -74636,10 +75522,10 @@
         "d3270ed7b82996bd4db6d910c8ac53eeae040f31daf3360205800f05c5257d9d"
       ],
       "source_sha256": "ab2fb75525e570acd568b2c2aa12aa222429595c08e4e490725a7fce514f56c6",
-      "text": "Batch Runner - Verkfæri eining sem eyðir nóttinni fyrir þig.\n\nDiskvinnslu listinn keðjar *diskar* í gegnum *einn* vinnuflæði. Þessi skimun er hin ásinn: handahófskennd ``(module, settings)`` verkefni í hvaða röð sem er — ``Mask → Measure → Classify (CV) → Classify (ML)``, síðan sömu fjórar aftur með annarri þvermál, síðan Maski fimmta disksins — byggt, sannreynt, vistað í skrá og keyrt án eftirlits.\n\nSýn forritsins er viljandi þunn. Allt sem það veit um lista yfir hugbúnaðarvinnu lærir það frá :mod:`spacr.batch`, sem er án grafísks viðmóts, torch-laust og prófað án Qt. Þessi skrá er aðeins sá hluti sem þarf að vera GUI: veldu einingu og stillingarskrá, tvöfalda vinnu og breyta henni, endurraða, staðfesta, vista/hlaða, keyra og fylgjast með stöðu, framvindu og skráningu hverrar vinnu.\n\nÞrír ákvörðun eru sýnilegar fyrir notandinn:\n\n* **Tíðir eru staðfest þegar þeir eru lagt, ekki þegar þeir fara.** Tíður sem settings faili er saknað, sem ``src`` er mispelin eða sem mólum er GUI-eina er neitað á viðtalið, með ástæðu ílin.\n* **Engin móttalegum samskiptum, aldrei.** Hver missa landar í innlinjandi vandamál pan og í :attr:`BatchScreen.last_error`. A ``QMessageBox`` hentar hlauplaus rök (það gerðist, í ``MakeMasksScreen``), og þetta skrin er þjálfað hlauplaust.\n* **Execution modell:** fullnægjur kemur aftur til GUI hliðar. ``PipelineWorker.finished`` er geymt *innan vinnandi hliðs*; því hver viðbótandi sem breytir widget notar útskýrt kviktir tengsl til tengda aðferð þessa GUI-hliðar widget.\n\nJobs fara einn á sama tíma - þeir keppa fyrir einn GPU - og hver er eigin ``spacr-run`` ferli, svo segfault í cellpose drepi það vinnu en ekki þetta vetrinn.",
+      "text": "Batch Runner — tól sem eyðir nóttina fyrir þig.\n\nThe Plate Queue chains *plates* through *one* workflow. This screen is the other axis: arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — built, validated, saved to a file and run unattended.\n\nThe application view is deliberately thin. Everything it knows about a software job list it learns from :mod:`spacr.batch`, which is headless, torch-free and tested without Qt. This file is only the part that has to be a GUI: pick a module and a settings file, duplicate a job and edit it, reorder, validate, save/load, run, and watch per-job status, progress and log.\n\nÞrír ákvörðun eru sýnilegar fyrir notandinn:\n\n* **Jobs are validated when they are added, not when they run.** A job whose settings file is missing, whose ``src`` is misspelled or whose module is GUI-only is refused at the Add button, with the reason inline. Finding that out at 3 a.m. from job 9 of 12 is what this whole module exists to prevent.\n* **Þetta er engin aðferðaleg samskipti, aldrei.** Hver missa landar í inline vandamálið og í :attr:`BatchScreen.last_error`. A ``QMessageBox`` hangar hlaupless run (það gerðist, í ``MakeMasksScreen``), og þetta skreinn er þjálfað hlauflessly.\n* **Execution modell:** fullnægjur kemur aftur til GUI hliðar. ``PipelineWorker.finished`` er geymt *innan vinnandi hliðs*; því hver viðbótandi sem breytir widget notar útskýrt kviktir tengsl til tengda aðferð þessa GUI-hliðar widget.\n\nJobs hlaupa einn á sama tíma - þeir keppa fyrir einn GPU - og hver er eigin ``spacr-run`` ferli, svo segfault í cellpose drepa þá vinnu í stað þessara glugga.",
       "translation_source_blocks_sha256": [
         "d353b2be6e5a4e8b7ef8cdea508889fc11f961d6d7ed128b048187afbb46a3d7",
-        "ee75ddb3106cff964da74613bd2f96e86810953094934e7f5ed5d990ca49b675",
+        "1fa4efe857864111c5565de1a29769a5a38e06bbdd53d8f050d85fa37a5c6966",
         "954b2c03ab87ece545a991194f2373ac4b8a1d7a0342c2d75b402e149eabb9f8",
         "d62e3e8e8b5b95ead1572c0a75e10e6af3b6109d57c105ccc86509802bebbb60",
         "4afe1d057ae0f0ca852c123bc1e831d2f64bcbaffefef070b45c08e9919822ef",
@@ -81996,6 +82882,22 @@
         "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9"
       ]
     },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue": {
+      "source_blocks_sha256": [
+        "02b416d874f39d781fdbb5c0b86bea91328abd01f436faf5f5c3d99d62ac13d3",
+        "12a40f07166ff8bf5ea5434a82693a1b5578efd4d6c857e05fa9f870b42bb58d",
+        "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
+        "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ],
+      "source_sha256": "6c01ca3aa7809b200caf42c80357389b5d0207bcb6d7f1d671ebc65db532fa8c",
+      "text": "Öppuðu sviðina með heilbrigðisferli í orði sem það býr.\n\nThe session decides WHICH microscope fields of view and in what order -- reviewed ones already dropped, ``--limit`` already applied -- and this application view shows them. Only the nested layout is opened: this editor reads a draft from ``<folder>/masks/<stem>.tif`` and saves back to the same place, so a sibling or ``_seg.npy`` set would be read and written somewhere other than where its masks are. ``spacr-make-masks`` refuses those before Qt is imported; this is the second half of the same refusal, for anything that reaches the application view another way.\n\n:param queue: a :class:`spacr.curation_queue.CurationQueue`.\n:returns: Þannig að útgáfurinn er nú á þessum sammála.",
+      "translation_source_blocks_sha256": [
+        "02b416d874f39d781fdbb5c0b86bea91328abd01f436faf5f5c3d99d62ac13d3",
+        "3f55f57491196e8a12c49a213235554ac668a17173c21cad97ddabadac5a43ff",
+        "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
+        "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ]
+    },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
       "source_blocks_sha256": [
         "1ad20f1f585f70d42375c162c01e8589a66bc96e3334465908e399e87c427b72",
@@ -84963,9 +85865,9 @@
         "d8e2205b5f03eb00af5759fde4d8f9ef667773ff560678f1a4937c5344073c52"
       ],
       "source_sha256": "a977f345fa01c47dc9c8ac17faa1e453c98b3ca32513458c91c44292c43d688e",
-      "text": "Workflow Graph – hvað gerði hvað og hvaða af þeim er enn satt.\n\nA spaCR verkefni safnar skjölum hraðar en einhver getur haldið í höfuðinu: maskar, mæðingar gögnum, útgreiddar myndar svæðum, mönnun þyngd, áætlanir, regressions tabla, tölur. Sumir þeirra voru gert frá öðrum. Sumar voru gert úr *framgangs* útgáfu öðru, vegna þess að maska skref var gerð aftur með mismunandi miðjunni á þriðjudaginn og ekkert var niður. ekkert í GUI sýndi það, og stallnum er ekki lítið stall - það virðist eins og fjöldi.\n\nÞessi skreinn tekur daginn:\n\n::\n\n    ┌──────────────┐   ┌────────────────┐   ┌───────────────┐\n    │ mask         │──▶│ measure        │──▶│ classify      │\n    │ masks   OK   │   │ db      STALE  │   │ preds   STALE │\n    └──────────────┘   └────────────────┘   └───────────────┘\n\nBókir eru tegundir, strákar eru \"was made from\", og liturinn er skugga :func:`spacr.artifacts.Registry.is_stale` koma — með ``reasons`` sýnt í skugganum við gráfið, vegna þess að \"stale\" í sjálfum sér er ákvarðanir, ekki útskýringu. Klikkaðu á skuggi og skuggarinn nefnir meðferð uppsetningu sem framleiða það, settingar burt, spaCR útgáfu, og hvað endurnýjandi það myndi ekki.\n\nÞrír áætlaðar val:\n\n**Grafinn er tekin frá útgangi, ekki úr mólum listanum.** Það sem vinnufluðið er *þættuð* að gera er :data:`spacr.ports.PORTS`, og það er tekinn líka - dæmdur, undir, eins og \"declared order\" rita - en boði og strákur eru það sem virkilega gerðist.\n\n**Missing er ekki stale.** Hlutinn skrif er rauður og segir svo; eldri er amber. :mod:`spacr.artifacts` neita að berjast þeim og gerir það ekki.\n\n**Það er ekkert hér að skrifa.** Engin endurtekin-tókn, engin \"mark as fresh\", ekki fjarlægja. skrin svara spurningu; að virka á svarið er vinnu modúla, og einn klukkustund verkur aftur gjald á graf er hvernig einhver skreytur upp artifaktu sem þeir voru að reyna að skoða.\n\nLayout er tölulegt með hreinu virki (:func:`layout_rects`) út af lagum grafsins, þannig að áætlunin er prófað án pixels, og þyngd hluti - opna skrá og spyrja það um hvert tegund - fer í gegnum :class:`spacr.qt.job_runner.JobRunner`, út úr heiminum GUI útferð.",
+      "text": "Pipeline Graph — hvað gerði hvað, og hver af því er enn sann.\n\nA spaCR verkefni safnar skjölum hraðar en einhver getur haldið í höfuðinu: maskar, mæðingar gögnum, útgreiddar myndar svæðum, mönnun þyngd, áætlanir, regressions tabla, tölur. Sumir þeirra voru gert frá öðrum. Sumar voru gert úr *framgangs* útgáfu öðru, vegna þess að maska skref var gerð aftur með mismunandi miðjunni á þriðjudaginn og ekkert var niður. ekkert í GUI sýndi það, og stallnum er ekki lítið stall - það virðist eins og fjöldi.\n\nÞessar myndar taka daginn:\n\n::\n\n    ┌──────────────┐   ┌────────────────┐   ┌───────────────┐\n    │ mask         │──▶│ measure        │──▶│ classify      │\n    │ masks   OK   │   │ db      STALE  │   │ preds   STALE │\n    └──────────────┘   └────────────────┘   └───────────────┘\n\nBókir eru tegundir, strákar eru \"was made from\", og liturinn er skugga :func:`spacr.artifacts.Registry.is_stale` koma — með ``reasons`` sýnt í skugganum við gráfið, vegna þess að \"stale\" í sjálfum sér er ákvarðanir, ekki útskýringu. Klikkaðu á skuggi og skuggarinn nefnir meðferð uppsetningu sem framleiða það, settingar burt, spaCR útgáfu, og hvað endurnýjandi það myndi ekki.\n\nÞrír hugsanlega val:\n\n**Grafinn er tekin frá útgangi, ekki úr mólum listanum.** Það sem vinnufluðið er *þættuð* að gera er :data:`spacr.ports.PORTS`, og það er tekinn líka - dæmdur, undir, eins og \"declared order\" rita - en boði og strákur eru það sem virkilega gerðist.\n\n**Missing er ekki stale.** Eitt fjarlægð skrá er rauður og segir svo; eldri einn er amber. :mod:`spacr.artifacts` neita að berjast við þá og gerir það ekki.\n\n**Það er ekkert hér að skrifa.** Engin endurtekin-tókn, engin \"mark as fresh\", ekki fjarlægja. skrin svara spurningu; að virka á svarið er vinnu modúla, og einn klukkustund verkur aftur gjald á graf er hvernig einhver skreytur upp artifaktu sem þeir voru að reyna að skoða.\n\nLayout er tölulegt með hreinu virki (:func:`layout_rects`) út af lagum grafsins, þannig að áætlunin er prófað án pixels, og þyngd hluti - opna skrá og spyrja það um hvert tegund - fer í gegnum :class:`spacr.qt.job_runner.JobRunner`, út úr heiminum GUI útferð.",
       "translation_source_blocks_sha256": [
-        "df1c99457b8ce0c37943514f84ac506298ea5666143caa394760825057d86569",
+        "cc336587bd11778fa86bb6415c9057803804cfb498829ceaaf341f9c298e36aa",
         "0342dade2a52f115582471d9fa4c9ab4118c491a18c07a656f4e858782f34866",
         "3b40a516e729e213f0484074e9adb854f95a638de500d3e6185dff600b3e1685",
         "3e2bff20cb05e1da58daf636c30bbeddf4e82d5ceba6fe5f2bf6e91b7d899b3a",
@@ -85198,9 +86100,9 @@
         "2c0bb3219c2d17d0262353b5e4c94f5ade9b915e5a1135e6be299b12bd22edbe"
       ],
       "source_sha256": "a27eaabd84a18cbccc2b9333a726a55e5d41854da5943efecc52ab65463d46aa",
-      "text": "Að bæta Workflow Graph til app registry. ómögulegt er.\n\n:returns: True þegar þetta hring er lagt á stefnu, False þegar það var þegar þar — sem er það sem annað innfang, eða plug-in sem trekkar mólinn aftur, ætti ekki að líta sem mistök.",
+      "text": "Að bæta Pipeline Graph til app registry.\n\n:returns: True þegar þetta hring er lagt á stefnu, False þegar það var þegar þar — sem er það sem annað innfang, eða plug-in sem trekkar mólinn aftur, ætti ekki að líta sem mistök.",
       "translation_source_blocks_sha256": [
-        "d35c2d1394c5ced845e988cf139da188de257d76b8d7f94b80a647f8c8fd3562",
+        "02bd9fcf7dfbeadbafa5dd9c30e32564168992ae011e1c7c266c60976f0bc432",
         "2c0bb3219c2d17d0262353b5e4c94f5ade9b915e5a1135e6be299b12bd22edbe"
       ]
     },
@@ -88899,9 +89801,9 @@
         "ef62f64cc5cbd08e37bc944795d646cd522870360f8dc1d35cd437011a763e0e"
       ],
       "source_sha256": "4975944bffc69ae2e49fda9bb0566eacff7bd67700363766a679013acda60f33",
-      "text": "Þjálfun meðferðarstæðingar — nokkrar meðferðirstæðingu krúfur á einum axis, með settunum mismunandi.\n\nSpurningin í þessari sýningu er til að svara er \"hvers vegna B er betra en A\", sem í dag er svarað með því að opna tveimur mótum af PDFs í einum gluggi, tveimur settum CSVs í öðrum, Að halda munurinn í höfuðinu þinni.\n\nSkjósögn Layout::\n\n    ┌──────────────────────────────────────────────────────────────────────┐\n    │ /data/screen1/model                     [Choose folder…]  [Scan]     │\n    ├──────────────────────┬───────────────────────────────────────────────┤\n    │ Runs found (4)       │            ┌───────────────────────────┐      │\n    │ ☑ maxvit_t/…/ep_25   │            │   accuracy, 5 series      │      │\n    │   25 epochs · tr+val │            │   ╱‾‾‾‾  B val            │      │\n    │ ☑ maxvit_t/…/ep_10   │            │  ╱ ─ ─   A val            │      │\n    │ ☐ resnet50/…/ep_8    │            └───────────────────────────┘      │\n    │   8 ep x 3 folds     ├───────────────────────────────────────────────┤\n    │ ☐ maxvit_t/…/ep_3 !  │ 2 settings changed · 1 env drift · 0 drift    │\n    │                      │ bucket   setting        A        B            │\n    │ Metric [accuracy ▾]  │ changed  learning_rate  1e-4     1e-3         │\n    │ Folds  [per fold ▾]  │ changed  batch_size     64       32           │\n    │ [Overlay selected]   │ env      n_jobs         30       8            │\n    ├──────────────────────┴───────────────────────────────────────────────┤\n    │ ! maxvit_t/…/epochs_3: no per-epoch curves in this folder            │\n    │ Clicked: maxvit_t/…/epochs_25 · val — best 0.87 @ 18, last 0.85 @ 25 │\n    └──────────────────────────────────────────────────────────────────────┘\n\nSkilinn notasögn:\n\n* **Discovery fer út úr helstu GUI framkvæmd stefnu.** Skenni fer út á myndavél tré og fer á hverri CSV þróun undir það, sem á raunveruleikanum er hundruð skrá. Það fer í gegnum :func:`spacr.qt.bridge.make_thread` eins og allir önnur spaCR vinnu; prófa fer út ``threaded=False``, sem fer sömu kóða inline. Tragningin er á heiminum GUI útgáfu - síðan er gögnin þegar í minningu.\n* **Þetta er engin móddalögur á mismunandi leiðinni.** Fólkið með engum rúnum, meðferðarhús með engin krúfur, metrískt ekkert skráður - allt það landar í inline tilstand og vandamálið.\n* **Broted processing sessions eru listuð, ekki fela.** Fólkið sem hallar athygli en engin ``train.csv`` birtast enn, merkinn, með notanum í vandamáliðinu. A skáning sem hljóðlega drepa fólkin sem þú ert að leita er verra en einn sem segir hvað er rangt með því.\n* **Dif er bucketed, aldrei flatt.** Það gengur :func:`spacr.train_compare.diff_settings`, sem endurnýta afleiðing bucketing frá :mod:`spacr.run_journal`: umhverfis drif (þáttar, hermenn, starfsmenn tölur) er sýnt í eigin bucket í stað þess að vera ritað sem eitthvað sem notandinn breytti, og skema drif er sumnað. Þegar tvö meðferð árás saman, tólin segir \"no differences\" í orðum en ekki fara blank.\n* **Hver setur segir að fara · split · fold.** Klicking á línu nafnun fer, mappur og bæði bestu og síðasta æra, vegna þess að leyndardómur sem aðeins bori meðferð-session id bjóða til að lesa rúmi sem hold-out árangur.",
+      "text": "Training Runs — nokkrar meðferð ákvarðanir á einum axis, með settunum mismunandi.\n\nSpurningin í þessari sýningu er til að svara er \"hvers vegna B er betra en A\", sem í dag er svarað með því að opna tveimur mótum af PDFs í einum gluggi, tveimur settum CSVs í öðrum, Að halda munurinn í höfuðinu þinni.\n\nSkjósögn Layout::\n\n    ┌──────────────────────────────────────────────────────────────────────┐\n    │ /data/screen1/model                     [Choose folder…]  [Scan]     │\n    ├──────────────────────┬───────────────────────────────────────────────┤\n    │ Runs found (4)       │            ┌───────────────────────────┐      │\n    │ ☑ maxvit_t/…/ep_25   │            │   accuracy, 5 series      │      │\n    │   25 epochs · tr+val │            │   ╱‾‾‾‾  B val            │      │\n    │ ☑ maxvit_t/…/ep_10   │            │  ╱ ─ ─   A val            │      │\n    │ ☐ resnet50/…/ep_8    │            └───────────────────────────┘      │\n    │   8 ep x 3 folds     ├───────────────────────────────────────────────┤\n    │ ☐ maxvit_t/…/ep_3 !  │ 2 settings changed · 1 env drift · 0 drift    │\n    │                      │ bucket   setting        A        B            │\n    │ Metric [accuracy ▾]  │ changed  learning_rate  1e-4     1e-3         │\n    │ Folds  [per fold ▾]  │ changed  batch_size     64       32           │\n    │ [Overlay selected]   │ env      n_jobs         30       8            │\n    ├──────────────────────┴───────────────────────────────────────────────┤\n    │ ! maxvit_t/…/epochs_3: no per-epoch curves in this folder            │\n    │ Clicked: maxvit_t/…/epochs_25 · val — best 0.87 @ 18, last 0.85 @ 25 │\n    └──────────────────────────────────────────────────────────────────────┘\n\nSönnun skýrslur:\n\n* **Discovery fer út úr helstu GUI framkvæmd stefnu.** Skenni fer út á myndavél tré og fer á hverri CSV þróun undir það, sem á raunveruleikanum er hundruð skrá. Það fer í gegnum :func:`spacr.qt.bridge.make_thread` eins og allir önnur spaCR vinnu; prófa fer út ``threaded=False``, sem fer sömu kóða inline. Tragningin er á heiminum GUI útgáfu - síðan er gögnin þegar í minningu.\n* **Þetta er engin móddalögur á mismunandi leiðinni.** Fólkið með engum rúnum, meðferðarhús með engin krúfur, metrískt ekkert skráður - allt það landar í inline tilstand og vandamálið.\n* **Broted processing sessions eru listuð, ekki fela.** Fólkið sem hallar athygli en engin ``train.csv`` birtast enn, merkinn, með notanum í vandamáliðinu. A skáning sem hljóðlega drepa fólkin sem þú ert að leita er verra en einn sem segir hvað er rangt með því.\n* **Dif er bucketed, aldrei flatt.** Það gengur :func:`spacr.train_compare.diff_settings`, sem endurnýta afleiðing bucketing frá :mod:`spacr.run_journal`: umhverfis drif (þáttar, hermenn, starfsmenn tölur) er sýnt í eigin bucket í stað þess að vera ritað sem eitthvað sem notandinn breytti, og skema drif er sumnað. Þegar tvö meðferð árás saman, tólin segir \"no differences\" í orðum en ekki fara blank.\n* **Hver setur segir að fara · split · fold.** Klicking á línu nafnun fer, mappur og bæði bestu og síðasta æra, vegna þess að leyndardómur sem aðeins bori meðferð-session id bjóða til að lesa rúmi sem hold-out árangur.",
       "translation_source_blocks_sha256": [
-        "2be15032782e43e09c930ab274f0cf4fb4ab320e66f9bc42c78ba2d95eab5fd8",
+        "3979f7d7c36de67669d9509d17b4717ca64a07640df13554a4606e31dc57ccfc",
         "0260a07648ad4000c97172cfc1cc3a43944722bd41e8756958185edfc98bc2a4",
         "7387692812ec038cf24df502c80f07bf4f1e6600d300a1acd18f6fbf484cdfc9",
         "1ecd6071c7a598fe8fe7efe0f3a4c2869822595ce3f8a3b7e7b8bea000242b39",
@@ -106093,13 +106995,13 @@
     "spacr.qt.widgets.fast_plots.GroupedPlot.mark_note": {
       "source_blocks_sha256": [
         "5fbfacf854edddeb4f77da3cfcdaf7180c03699c10a250065f57ea05d197ae2f",
-        "9ebb5966af493e4796eb2bc7f466086a58187dd01d90cfe25d10c16d3640010c"
+        "e4eece877c64134c81a4ee7da481164e2e40f51f684de6f5a1682a25ed9c28d5"
       ],
-      "source_sha256": "8bd19e4f93197e47dbac81ebb134d74e0946018fc86755fc4e9eeeb53d55767b",
-      "text": "Hugsanir um CURRENT mark eða ``\"\"``.\n\nTveir hlutir, vegna þess að notandi sem taka \"bar\" hefur gert tvær á einu: þeir hafa valið merk sem gæti misrepreist útbreiðslu, og þeir hafa gefið upp tækifæri til að smella á leiðbeiningu - einn rektangle stendur fyrir fjörutíu og getur ekki heiðarlega valið einn af þeim.",
+      "source_sha256": "4a4249400b342abf3e0ff0019af17250bfbb19153ea08fe87027c2baf1fd9240",
+      "text": "Hugsanir um CURRENT mark eða ``\"\"``.\n\nÞrír hluti núna. byrjun sem gæti ekki heiðrað skammt graftíp setting segir svo fyrst - notandi sem spurði um violins og fékk jitter er skyldur ástæðu á plötum en ekki í log. Þá tveir notandi að picks \"bar\" hefur gert á einu sinni: þeir hafa valið mark sem getur misrepresent útbreiðslu, og þeir hafa gefið upp tækifæri til að smella á leiðbeiningu - einn rektangle stendur fyrir fjögur-einn röð og getur ekki honnilega valið einn af þeim.",
       "translation_source_blocks_sha256": [
         "5fbfacf854edddeb4f77da3cfcdaf7180c03699c10a250065f57ea05d197ae2f",
-        "9ebb5966af493e4796eb2bc7f466086a58187dd01d90cfe25d10c16d3640010c"
+        "15d1c8abb211e97d39678333a36ae3cf0ea2d496cdf9885584f0053f71a3f9f2"
       ]
     },
     "spacr.qt.widgets.fast_plots.GroupedPlot.redraw": {
@@ -106124,6 +107026,24 @@
       "translation_source_blocks_sha256": [
         "6a22fa5747b575184a58020f11de4643cf98293778f00faaf1b90ec2a45ebd85",
         "56bc96221a8d4abc1d25a16990e1544917d8c9cf820c6f2c786d1ecb41c9b294"
+      ]
+    },
+    "spacr.qt.widgets.fast_plots.GroupedPlot.starting_mark": {
+      "source_blocks_sha256": [
+        "65efafa55a21f5c532a70222e8d1e8ae1338f160f6bc70c8aedfc0eaa03a157f",
+        "19aa9671e8846b171c052c82ae47812c0bc061848f43c98b60255255376ab28c",
+        "448466673fcb89a9d9d89a1dd7c0a7fe4c7fa1502e7148aa18a116ff0c515293",
+        "a8f348b6c678e5d77642c99a6986ecb0926d2185920a20fe8ace028a4400493c",
+        "f1d4185184f6c1a90491d9034e6e760338917535f96e6a6caec3ec5d7d27488d"
+      ],
+      "source_sha256": "46f57040d7ffd27bcdcfa4e88183389c8a8c56ebcbdc84595895d0d8a1845c3a",
+      "text": "Markið til að draga fyrst, og hvers vegna er það ekki sá sem valið er.\n\n:param counts: Ótta maður spyr aðeins \"what was chosen\", sem er allt sem hægt er að svara áður en gögnin koma.\n:returns: ``(mark, note)``. notan er óttinn hvenær merkið er ritað er merkið sem er spurð um.\n\nÁætlunin ákveður, ekki widgetinn. A sparaður skammt grafið tegund fyrir þessa skamms :attr:`DATA_SHAPE` er það sem er tekin áður en fyrstu hægri klicka; með ekkert sparað skammtur er :attr:`DEFAULT_MARK`, vegna þess að neinn útskýrðað forrit þarf ekki að flytja áverandi sýningar.\n\nÞetta er opnar ramma panelsins; neitað að taka það yfir setningar lesa myndi kosta allan tölvu.",
+      "translation_source_blocks_sha256": [
+        "65efafa55a21f5c532a70222e8d1e8ae1338f160f6bc70c8aedfc0eaa03a157f",
+        "19aa9671e8846b171c052c82ae47812c0bc061848f43c98b60255255376ab28c",
+        "448466673fcb89a9d9d89a1dd7c0a7fe4c7fa1502e7148aa18a116ff0c515293",
+        "a86f60768e6696ffec4b20eb8d344152943ef90d8367d069903e5c94c3248298",
+        "8106bd065f9182b9d0a30f58a7dab80579543b046584d14f81205b4a4ae91ea8"
       ]
     },
     "spacr.qt.widgets.fast_plots.GuideAgreementPlot": {
@@ -120078,11 +120998,12 @@
         "5878326aaecbc6206f51afe49dbfe609a31a6785544a929b16f3e6bf98eb32c0",
         "22fd81664192bb9c8c5addb8009c3e9c5fd5be1a914d8c770eb719ecd742dc66",
         "f8210cc3da27eb1579585930c2b614634cd1463fccab3c86a714c77fb8fe15fa",
+        "3c6e9bfbbc858d51cfdf4dd2e8dcbf3ec4a8a3311ba302e9dc5fbb2a53ab2eda",
         "1a93d461a5de1c3a147bd635510e301e8a17895d33421d21ae355a3ab21c71ff",
         "3761f835eecd2d8ff9cff4060a6421d68b408203e2ba8166567b2ad02219b3cd"
       ],
-      "source_sha256": "bfd3e3626f1f6fc20e01f7841fe4c0672023b9853ddba19254068a728482c363",
-      "text": "Live-preview segmentað widget — v2.\n\nÁhuggjandi Cellpose tune yfirborði fyrir Mask app sýning. Það gefur:\n\n* **Zoomable kanvases (Ctrl+scroll, í samræmi).** Bæði upprunalega og maska yfirliti lifandi í sameiginlegum :class:`QGraphicsView` par - pan og zoom á einu og annar spyrja pixel-for-pixel.\n* **Hover tooltip.** Flytja cursor yfir upprunalega og staðsettri stefnu sýnir pixelintæmi fyrir hverri mynd gögn kanna plus, þegar til staðar, objektetik á þessum stöðu frá síðasta segment-tion.\n* **Staðla rofann.** Valfrjálst 2–98 % prósentilspennubreyt (fyrir gögn í hverjum myndarás fyrir RGB) svo hráar lághraðatengdar flísar séu læsilegar.\n* **Valkostir sem vita af líkönum.** Hvert líkan sýnir allan aðskilnaðarsafninn. Cellpose-SAM hunsar *ekki* ``flow_threshold``, ``cellprob`` eða ``diameter`` — sjá :data:`DIAMETER_TOOLTIP` fyrir mælinguna sem drap þá trú.\n* **Outline litur + þyngd.** Valinn úr tólbarinu; áhrif er lifandi þegar maska er til. ``color (random)`` veitir stöðugt kategorískt lit á hverri efni merki þannig að touching masks eru að skilja.\n* **Multi-object segmentation.** A \"object type\" kombo toppar á milli ``cell``, ``nucleus`` og ``cell + nucleus``. Í cell+nucleus aðferðin fer tólinn tvö Cellpose passes og yfirliðar bæði maskar í mismunandi litum.\n* **Pre / Post filters.** Þegar efni tegund er ``cell`` (eða sameiginlegur aðferð) panel leiðir fyrir / eftir meðferð settingar frá Mask app (``cell_min_size``, ``cell_max_size``, ``remove_background_cell``, bakgrundsins, ...) í gegnum segmenningu. Notendur taka þetta upp/off með dedíðum \"Pre\" / \"Post\" klukkandi merki sem situr við \"Run preview\" í sama sýnilegum stílum sem LP / AI toggles.\n\nskráin er örugg til að flytja inn án cellpose - sérhver cellpose símtal er latur-innflutt inni í bakgrunni framkvæmd eining.",
+      "source_sha256": "18ed7e2c4708db2e7af60762c061a58a0de3e03b6327b4c93c7b07a6b86d3d01",
+      "text": "Live-preview segmentað widget — v2.\n\nÁhuggjandi Cellpose tune yfirborði fyrir Mask app sýning. Það gefur:\n\n* **Zoomable kanvases (Ctrl+scroll, í samræmi).** Bæði upprunalega og maska yfirliti lifandi í sameiginlegum :class:`QGraphicsView` par - pan og zoom á einu og annar spyrja pixel-for-pixel.\n* **Hover tooltip.** Flytja cursor yfir upprunalega og staðsettri stefnu sýnir pixelintæmi fyrir hverri mynd gögn kanna plus, þegar til staðar, objektetik á þessum stöðu frá síðasta segment-tion.\n* **Normalise toggle.** Optional 2–98 % percentile stretch (per image data channel for RGB) so raw low-contrast tiles are legible.\n* **Model-aware options.** Every model shows the full segmentation set. Cellpose-SAM does *not* ignore ``flow_threshold``, ``cellprob`` or ``diameter`` — see :data:`DIAMETER_TOOLTIP` for the measurement that killed that belief.\n* **Outline litur + þyngd.** Valinn úr tólbarinu; áhrif er lifandi þegar maska er til. ``color (random)`` veitir stöðugt kategorískt lit á hverri efni merki þannig að touching masks eru að skilja.\n* **Multi-object segmentation.** A \"object type\" kombo toppar á milli ``cell``, ``nucleus`` og ``cell + nucleus``. Í cell+nucleus aðferðin fer tólinn tvö Cellpose passes og yfirliðar bæði maskar í mismunandi litum.\n* **Mólið sem meðhöndlun fer að nota, og það segir sem.** Panelinn les sama settar vinnuflokkinn lesar - ``pathogen_model`` yfir ``pathogen_model_name`` fyrir sjúkdómur, ``<object>_model_name`` annars (:func:`_model_keys_for`) - bjóða upp á mönnun zoo við kombo, og nafnun mönnu sem framleiðti maskar á stöðu línu.\n* **Pre / Post filters.** Þegar efni tegund er ``cell`` (eða sameiginlegur aðferð) panel leiðir fyrir / eftir meðferð settingar frá Mask app (``cell_min_size``, ``cell_max_size``, ``remove_background_cell``, bakgrundsins, ...) í gegnum segmenningu. Notendur taka þetta upp/off með dedíðum \"Pre\" / \"Post\" klukkandi merki sem situr við \"Run preview\" í sama sýnilegum stílum sem LP / AI toggles.\n\nThe whole file stays safe to import without cellpose — every cellpose call is lazy-imported inside the background execution unit.",
       "translation_source_blocks_sha256": [
         "0074cc62e6d86b0ea70902892d80e6080c8203b1bb25121cb66261680e3f9203",
         "cdb6453814e3d70d1f357134515b1feda39c99082ff0a4243e6363eef6046c1a",
@@ -120092,6 +121013,7 @@
         "5878326aaecbc6206f51afe49dbfe609a31a6785544a929b16f3e6bf98eb32c0",
         "22fd81664192bb9c8c5addb8009c3e9c5fd5be1a914d8c770eb719ecd742dc66",
         "f8210cc3da27eb1579585930c2b614634cd1463fccab3c86a714c77fb8fe15fa",
+        "d9f77a0d70c8dc2494f89f5f29a03d9c7a394686af58ce6e9330fa695e0f600e",
         "1a93d461a5de1c3a147bd635510e301e8a17895d33421d21ae355a3ab21c71ff",
         "b2a59cec1f0888e2cead0dbe58edc17f18a00fa267efd603d5c2270f331e9823"
       ]
@@ -120330,12 +121252,16 @@
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.settings_for_propagation": {
       "source_blocks_sha256": [
-        "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338"
+        "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338",
+        "35ae37377e98f0d9f678969ee4850abac850ce3b7d7731897e2db33abac4133e",
+        "2a864d4c8be7ce885cceed2f677095e55e4acd767d8ccda5e834aa13b3f1dcfb"
       ],
-      "source_sha256": "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338",
-      "text": "Kartaðu live-preview widgetar til heildaraðna í höfuðpanna.",
+      "source_sha256": "5f9d33342181f7e188cf3b1b913e0a6c6ce5f08012b0836bf914be2a646f0f3e",
+      "text": "Kartaðu live-preview widgetar til heildaraðna í höfuðpanna.\n\nThe model is written back to the key it was read from. Propagation used to write ``model_name`` and ``<primary>_model_name`` only, and for pathogens the processing session reads neither first: ``pathogen_model`` overrides both when it is set. A user seeded from a ``pathogen_model`` checkpoint, switched the live model, and propagated, and the processing session went on using the checkpoint -- the same preview/run disagreement as before, pointing the other way.\n\nAð skrifa það annars myndi nýlega breyta yfirliti á fyrir notandi sem aldrei spurði um það, og ``pathogen_model`` er hættari en nafn struktured-data nafn (:mod:`spacr.validate` hættir meðferð árangur á leið sem er ekki til).",
       "translation_source_blocks_sha256": [
-        "9e4ffff2b2c3003230b0e59c904a23b118fb5d176c844caba6555e0d5b24b343"
+        "9e4ffff2b2c3003230b0e59c904a23b118fb5d176c844caba6555e0d5b24b343",
+        "3d83fe658951c9629e6217e718a9e91ea61ebeb715709da90b38035b9f53af7f",
+        "5d249c288323b58ca9b2096e4d7e33e62e7a89c79c1f500d1cb12aaa19003b0d"
       ]
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.showEvent": {
@@ -151513,7 +152439,7 @@
         "edee7f9d1ea29396078d952939a391d81458ff77f0bf3a0b0b4d0d5a61de95ad",
         "bca9f4ec20123c4b2c6a8cc212582955d4f5a99b46c7e8d7ea099d72cac6e8cb",
         "4a1282da69f9a0d22507b5a03fc04356147178691ac76678464f9273df9b8a84",
-        "169583af1d20022394196192edafcf6c57d642806338e163555bdb56e4b1001c",
+        "fb881cf77c5f5861ec786d118e734e149495b1c424fa27392e20b0200bc39e2c",
         "48342522ce71cfb8267f9c6e585ae9e99e0ae92508e47c871600cedb213b668e",
         "00b9b602b11f9b33ea44d3f40da5c86b2606b92b7443263bfc6a90da88769b69",
         "8d3a3ccb363ad646140582676a0bb2454033bba0fa85238e393c8f0987ecc5d6",
@@ -151532,8 +152458,8 @@
         "2ad9c559dde2223be68a57759ab1362182dd8905d0c06bfd902e3834d3142344",
         "5f49a191e85fa871451f0dcb697e2cca9f2c5b3b30c00073a87d46375f7f8ae1"
       ],
-      "source_sha256": "b990667ca60e3c59280e24849eaf6828e657c26c2f1f15f828742fe85ebb0018",
-      "text": "Upplýsingar um aðstæður birtist með hverjum spaCR tölvu.\n\nPlot-specific valkostur, eins og áhrif-sæmi þyngd eða litur-framt, eru á viðeigandi subklasa. Haldið aðeins flytandi verð hér leyfa sparað hússtíl að vera notuð í gegnum plötu tegundir.\n\n:param x_label: Horisontal-axis tákn gefur til renderera; leyti leyfa renderer-specifi eða óþekkt hegðun.\n:param y_label: vertikal-axis tákn gefur til renderera; leyti leyfa renderer-specifi eða óþekkt hegðun.\n:param title: Títur tákn; tomt hættir aðgerðir táknina.\n:param x_scale: Matplotlib horisontal skala frá :data:`SCALES`.\n:param y_scale: Matplotlib vertikal skala frá :data:`SCALES`.\n:param x_lim: útskýrt horisontal ``(minimum, maximum)`` takmörk, eða ``None`` fyrir gögn-framleiðandi takmörkur.\n:param y_lim: Hugsanlega vertikal ``(minimum, maximum)`` takmörk eða ``None``.\n:param invert_x: hvort að snúast horisontalska axis eftir að takmarkanir gildir.\n:param invert_y: hvort til að snúa upp vertikal axis eftir að takmarkanir gildir.\n:param font_family: Font-family preference er til staðar fyrir renderendur sem styðja tölva-fullt fjölskyldu.\n:param font_size: grunn texta stærð er til staðar fyrir plot-specific prosa.\n:param title_font_size: Títulögð í stigum.\n:param label_font_size: Hugbúnaður á axis í stigum.\n:param tick_font_size: Tick-label stærð í stigum.\n:param font_weight: Matplotlib texta þyngd.\n:param figure_width: Figu-canvas breiður í centimeterum fyrir lifandi og bjargað notkun.\n:param figure_height: Hætur á hæð í centimeterum fyrir lifandi og bjargað notkun.\n:param dpi: Dott per inch notað fyrir raster útleiðingu.\n:param grid: hvort valda gríðið sé sýnilegt.\n:param grid_axis: Axir sem fá hálfsliðum: ``\"x\"``, ``\"y\"``,``\"both\"``, eða ``\"none\"``.\n:param grid_color: Matplotlib-kompatible grid-line litur.\n:param grid_width: Gríðarhæð í punktur.\n:param hide_top_right_spines: hvort að fjarlægja topp og hægri ramma línur.\n:param legend: hvort renderendur með lykilmarka ættu að teikna leyndarmál.\n:param legend_location: Matplotlib leyndarmál frá :data:`SHARED_CHOICES`.\n:param background_color: nafnið síðu og axes litur; ``\"none\"`` veitir bakgrunnsvalinn til renderera.\n:param transparent: hvort útlendingar eru yfirlýsandi.",
+      "source_sha256": "348f3e629a63979999bf29dc77034414bb66a0c9d5771441ac6242aa6fb1d09d",
+      "text": "Upplýsingar um aðstæður birtist með hverjum spaCR tölvu.\n\nPlot-specific valkostur, eins og áhrif-sæmi þyngd eða litur-framt, eru á viðeigandi subklasa. Haldið aðeins flytandi verð hér leyfa sparað hússtíl að vera notuð í gegnum plötu tegundir.\n\n:param x_label: Horisontal-axis tákn gefur til renderera; leyti leyfa renderer-specifi eða óþekkt hegðun.\n:param y_label: vertikal-axis tákn gefur til renderera; leyti leyfa renderer-specifi eða óþekkt hegðun.\n:param title: Títur tákn; tomt hættir aðgerðir táknina.\n:param x_scale: Matplotlib horisontal skala frá :data:`SCALES`.\n:param y_scale: Matplotlib vertikal skala frá :data:`SCALES`.\n:param x_lim: útskýrt horisontal ``(minimum, maximum)`` takmörk, eða ``None`` fyrir gögn-framleiðandi takmörkur.\n:param y_lim: Hugsanlega vertikal ``(minimum, maximum)`` takmörk eða ``None``.\n:param invert_x: hvort að snúast horisontalska axis eftir að takmarkanir gildir.\n:param invert_y: hvort til að snúa upp vertikal axis eftir að takmarkanir gildir.\n:param font_family: Skrif-family forrit er til staðsett fyrir renderendur sem styðja skrif-fullt fjölskyldu. Þýskalir á persónu spaCR skip; sjá :func:`font_names`.\n:param font_size: grunn texta stærð er til staðar fyrir plot-specific prosa.\n:param title_font_size: Títulögð í stigum.\n:param label_font_size: Hugbúnaður á axis í stigum.\n:param tick_font_size: Tick-label stærð í stigum.\n:param font_weight: Matplotlib texta þyngd.\n:param figure_width: Figu-canvas breiður í centimeterum fyrir lifandi og bjargað notkun.\n:param figure_height: Hætur á hæð í centimeterum fyrir lifandi og bjargað notkun.\n:param dpi: Dott per inch notað fyrir raster útleiðingu.\n:param grid: hvort valda gríðið sé sýnilegt.\n:param grid_axis: Axir sem fá hálfsliðum: ``\"x\"``, ``\"y\"``,``\"both\"``, eða ``\"none\"``.\n:param grid_color: Matplotlib-kompatible grid-line litur.\n:param grid_width: Gríðarhæð í punktur.\n:param hide_top_right_spines: hvort að fjarlægja topp og hægri ramma línur.\n:param legend: hvort renderendur með lykilmarka ættu að teikna leyndarmál.\n:param legend_location: Matplotlib leyndarmál frá :data:`SHARED_CHOICES`.\n:param background_color: nafnið síðu og axes litur; ``\"none\"`` veitir bakgrunnsvalinn til renderera.\n:param transparent: hvort útlendingar eru yfirlýsandi.",
       "translation_source_blocks_sha256": [
         "94309949f2246e352cb2054d59f1d1c9d6a12eaa8bd7150e5022635d8dd58b4f",
         "589e268a839e19002d5d4c53d280abb7a2174a05190328093aa577003f437882",
@@ -151546,7 +152472,7 @@
         "edee7f9d1ea29396078d952939a391d81458ff77f0bf3a0b0b4d0d5a61de95ad",
         "bca9f4ec20123c4b2c6a8cc212582955d4f5a99b46c7e8d7ea099d72cac6e8cb",
         "4a1282da69f9a0d22507b5a03fc04356147178691ac76678464f9273df9b8a84",
-        "169583af1d20022394196192edafcf6c57d642806338e163555bdb56e4b1001c",
+        "fb881cf77c5f5861ec786d118e734e149495b1c424fa27392e20b0200bc39e2c",
         "48342522ce71cfb8267f9c6e585ae9e99e0ae92508e47c871600cedb213b668e",
         "00b9b602b11f9b33ea44d3f40da5c86b2606b92b7443263bfc6a90da88769b69",
         "8d3a3ccb363ad646140582676a0bb2454033bba0fa85238e393c8f0987ecc5d6",
@@ -151596,16 +152522,50 @@
         "da0b061dc09f9673c38139b7500165976216ad5932d410049754f656f18bdbdd",
         "e993553c53c637bdca0f8378febfd003fc5f2699d4c46df9acb8f0eadbc40877",
         "5e9c12cd9955a633f83378505074113861479f2295339e72f48ab501e18fbab7",
-        "1e3f7183794c034dcf22f39fa3e2eaf2d49e02e79110e6cec0a58840614c6fbf"
+        "091c7b4f5b0db8c265b543edca6bee3221d0f98c777983ea962caf30687d7eaa"
       ],
-      "source_sha256": "d3f31d71c3b09bf78737928299186b9ea9bf870d29e42088a68a2bb37fbc4220",
-      "text": "Ákvarða sameiginlegur axes, typography, grít, spin, og síðu settingar.\n\n:param figure: Matplotlib tákn sem síðuna birtist er uppfærður.\n:param axes: Matplotlib axes sem sýningurinn er uppfærður.\n:param style: Sameinuðu tegundar-stíl settingar til að nota.\n\nÞað breytir síma og axes sýninguna aðeins; það bætir ekki eða fjarlægir gögn merki.",
+      "source_sha256": "c35d48336173096d79a57e8764067d48205f017f5eac750861a109285d53d999",
+      "text": "Ákvarða sameiginlegur axes, typography, grít, spin, og síðu settingar.\n\n:param figure: Matplotlib tákn sem síðuna birtist er uppfærður.\n:param axes: Matplotlib axes sem sýningurinn er uppfærður.\n:param style: Sameinuðu tegundar-stíl settingar til að nota.\n\nÞað breytir síma og axes sýningu aðeins; það mun ekki bæta eða fjarlægja gögn tákna. titilinn, axis táknar og tick tákn eru sett í fjölskyldu stíl - :func:`font_names` - þannig að renderer sem trekkar út úr táknum ``rc_context`` fær enn lítið spaCR skipum en DejaVu Sans.",
       "translation_source_blocks_sha256": [
         "d570e0b6162b99057a01a87f815e4f85e3a6aade4df86edb0e07737b55895354",
         "da0b061dc09f9673c38139b7500165976216ad5932d410049754f656f18bdbdd",
         "e993553c53c637bdca0f8378febfd003fc5f2699d4c46df9acb8f0eadbc40877",
         "5e9c12cd9955a633f83378505074113861479f2295339e72f48ab501e18fbab7",
-        "1e3f7183794c034dcf22f39fa3e2eaf2d49e02e79110e6cec0a58840614c6fbf"
+        "091c7b4f5b0db8c265b543edca6bee3221d0f98c777983ea962caf30687d7eaa"
+      ]
+    },
+    "spacr.style_base.font_names": {
+      "source_blocks_sha256": [
+        "0691fea055689963fd25797fff713d5b919aa6162c56641f6b84c12fceebbe1a",
+        "ea7d761f3e2acb03074e71cd91835f5658f50fedea0ba66cc3b872898c67b905",
+        "d3a4d759b9bf6df1a081ca6ed3d572eb943c921cebe944614dbfe3ae619d0a48",
+        "9ea43d42e2670a767398f1993adf8a2ffa3691831ead752eecb1a594f6a53544",
+        "e2b6676ee22a9bb92cde99a4480f7bcf93da4337b714cdd870ff6c8b51568340"
+      ],
+      "source_sha256": "135b3ca98bd81f976d7dbf1f096bc2764c57e29cbaff3609b97cfdd3b2793a85",
+      "text": "Fjölskyldur til að spyrja matplotlib fyrir, best fyrst, anskað.\n\n:param style: Stíl sem ``font_family`` er fyrsta val.\n:returns: fjölskyldunarlist sem passar fyrir ``font.family``, ``FontProperties`` eða :meth:`matplotlib.text.Text.set_fontfamily`. Generic fjölskylda er aftur einn, vegna þess að matplotlib leyfa það með eigin listanum.\n\nMatplotlib svara nafn sem það er ekki hægt að finna með því að falla aftur - hljómarlega, bar ``findfont`` varning - til DejaVu Sans, svo stíl að segja \"Open Sans\" á vél þar sem Open Sans var aldrei staðsett dregið í Deja Vu Sans og lítur ekkert eins og grínin um það. Þetta REGISTER sönnun spaCR skipum áður en að nafnast þá, sem er það sem gerir nafn leyfa á þeim vél, og setja :data:`FONT_FAMILY` síðast þannig að valinn fjölskyldu vélin saknar land á húsnæmi í stað Dejavu Sans.\n\nÞað er ekkert listat eftir :data:`FONT_FAMILY`: það er skráður frá faili í pakka, þannig að það er alltaf leyft, og ótilgengilegt nafn í listanum myndi aðeins gera matplotlib varn einu sinni á þreytingu um skrifstofu sem það væri aldrei að nota.",
+      "translation_source_blocks_sha256": [
+        "0691fea055689963fd25797fff713d5b919aa6162c56641f6b84c12fceebbe1a",
+        "ea7d761f3e2acb03074e71cd91835f5658f50fedea0ba66cc3b872898c67b905",
+        "d3a4d759b9bf6df1a081ca6ed3d572eb943c921cebe944614dbfe3ae619d0a48",
+        "9ea43d42e2670a767398f1993adf8a2ffa3691831ead752eecb1a594f6a53544",
+        "e2b6676ee22a9bb92cde99a4480f7bcf93da4337b714cdd870ff6c8b51568340"
+      ]
+    },
+    "spacr.style_base.font_rc": {
+      "source_blocks_sha256": [
+        "0dde586c76e4be446d7b00b1a2c56781259fb4c3566656a6a598991d066e0c1c",
+        "a44ee56931e3116b9159e5e17ee2ae663bfe2a870af42fbf183ce34619139047",
+        "ac63a0bbdd75a1614e03f37ae21b0427c628998168defa4a16d9170ab22f73a2",
+        "c11a002c41d36eb43fb5bdba9b9451d2ea7d0973339bcaad29c7307494649039"
+      ],
+      "source_sha256": "4cd61eae40cb935843c172278b180dbc3632bee64f24692affb329684bb9fde4",
+      "text": "Matplotlib tákn parametrar stíl spyrja fyrir.\n\n:param style: Slíkur stíl að veita fjölskyldu, stærð og þyngd.\n:returns: ``rcParams`` skrá til að draga inn, eins og ``matplotlib.rc_context`` tekur þá.\n\nHættu þetta á ``rc_context`` en að safna ``font.*`` með hand: fjölskylda kemur eins og hættu listan :func:`font_names` byggir, með bundlað persónu þegar skráður.",
+      "translation_source_blocks_sha256": [
+        "0dde586c76e4be446d7b00b1a2c56781259fb4c3566656a6a598991d066e0c1c",
+        "a44ee56931e3116b9159e5e17ee2ae663bfe2a870af42fbf183ce34619139047",
+        "ac63a0bbdd75a1614e03f37ae21b0427c628998168defa4a16d9170ab22f73a2",
+        "c11a002c41d36eb43fb5bdba9b9451d2ea7d0973339bcaad29c7307494649039"
       ]
     },
     "spacr.style_base.style_kind": {

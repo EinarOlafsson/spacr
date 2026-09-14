@@ -5822,10 +5822,10 @@
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
       ],
       "source_sha256": "57b68696336e5f7a72e7b9edd916bee844220e0122721a66480c65afef6a3999",
-      "text": "``spacr.batch`` - एक सॉफ्टवेयर नौकरी सूची में स्वैच्छिक मॉड्यूल + सेटिंग्स नौकरियों को स्टैक करें और उन्हें अप्रत्याशित रूप से चलाएं।\n\nप्लेट-प्रसंस्करण सूची (:mod:`spacr.qt.plate_queue`) श्रृंखला *प्लेट* के माध्यम से *one* कार्यप्रवाह के साथ *on* सेटिंग्स कुंजी-मूल्य मानचित्रण. यह मॉड्यूल दूसरा ध्रुव है: किसी भी क्रम में अनुकूलित ``(module, settings)`` नौकरियों की एक सॉफ्टवेयर नौकरी सूची - ``Mask → Measure → Classify (CV) → Classify (ML)``, फिर एक ही चार फिर से एक अलग व्यास के साथ, फिर पांचवें प्लेट का मास्क - जो कि प्लेट स्केल काम की एक रात वास्तव में क्या दिखता है।\n\n**is** एक ``spacr-run`` निमंत्रण है। यहाँ कुछ भी मॉड्यूल डिस्प्ले या सेटिंग्स लोड को फिर से लागू नहीं करता है: :mod:`spacr.cli` मॉड्यूल रजिस्ट्री, सेटिंग लोडर, ``--set`` कोरशन और आउटपुट कोड अनुबंध का स्वामित्व करता है (0 ठीक है, 1 मॉडुल उठाया गया है, 2 बुरे तर्क या समायोजन), और यह मॉडल इसे चलाता है। इसी तरह, एक सॉफ्टवेयर नौकरियों की सूची एक **ledger ledgers** है: सॉफ़्टवेयर कामों की सूची का स्वयं का फैसला एक :class:`spacr.errors.RunLedger` है, सॉफ्टवेयर नौकरी सूची फ़ाइल के बगल में प्रिंट, और प्रत्येक नौकरी के :func:`spacr.errors.read_run_status` चिह्न को वापस पढ़ा जाता है, इसलिए एक नौकरी जो चुपचाप 40 फ़ील्डों को छोड़कर 0 से बाहर निकलती है, एक सफलता के बजाय *partial* के रूप में रिपोर्ट की जाती है।\n\nक्या एक कार्य सूची एक रात को जीवित रहने के लिए बनाता है कोई भी नहीं देख रहा है:\n\n* **प्रत्येक नौकरी जोड़ने पर वैध की जाती है, जब यह निष्पादित नहीं होती है.** 3 बजे पता चलता है कि नौकरी 9 के ``src`` को गलत तरीके से रखा गया है पूरे रात बर्बाद हो जाता है. :func:`validate_queue` रिपोर्ट *all* समस्याएं एक बार में और :func:`run_queue` शुरू करने से इनकार करता है जबकि उनमें से कोई भी एक त्रुटि है.\n* **स्थिति प्रत्येक संक्रमण के बाद जारी रहती है, परमाणु रूप से.** एक मशीन जो सॉफ्टवेयर नौकरी सूची को संसाधित करते समय पुनरारंभ करती है, :func:`resume_queue` के साथ पुनः प्रारंभ नहीं की जाती है. फ़ाइल को एक टाइम नाम और ``os.replace``\\d के लिए लिखा जाता है, क्योंकि एक टूटने से टूट गया एक कार्य सूची फाइल किसी भी काम सूची फ़ाइलें की तुलना में बदतर है.\n* **एक नौकरी जिसकी निर्भरता विफल हो गई है SKIPPED, निष्पादित नहीं किया गया है.** एक विफल मास्क के बाद माप एक डेटाबेस बनाता है जो एक वास्तविक परिणाम की तरह दिखता है. ``skipped`` (अवैध रूप से निष्पादक नहीं), ``failed`` और ``not_run`` (सॉफ्टवेयर नौकरी सूची इसे प्राप्त करने से पहले रोक दी गई है) तीन अलग चीजें हैं और इस तरह रहें।\n* **continue-on-error एक व्यवस्थित विफलता को छिपाना बंद कर देता है.** यदि पहले तीन नौकरियां उसी तरह मर जाती हैं, तो शेष नौ भी होंगे; ``max_consecutive_failures`` सॉफ्टवेयर नौकरियों की सूची बनाए रखता है और ऐसा कहता है।\n* **पर-काम लॉग अपने स्वयं के फ़ाइल में जाते हैं** — 12 रातों के काम से एक इंटरलेव लॉग अनलॉक है — और मार्ग नौकरी रिकॉर्ड पर है।\n\nमुद्रा: नौकरियां एक समय में **सख्ती से एक चलाती हैं**. वे एक GPU के लिए प्रतिस्पर्धा करते हैं, और दो Cellpose नौकरियां एक कार्ड साझा करती हैं कि कैसे एक रात भर प्रसंस्करण सत्र CUDA OOM में बदल जाता है। ``max_workers`` नहीं है; दो प्रक्रियाओं में दो सॉफ्टवेयर नौकरी सूची चलाएं यदि आपके पास वास्तव में दो कार्ड हैं।\n\nआयात लागत: यह मॉड्यूल केवल मानक लाइब्रेरी प्लस :mod:`spacr.cli`, :mod:`spacr.errors` और :mod:`spacr.validate` आयात करता है, जिनमें से सभी torch-मुक्त हैं. एक सॉफ्टवेयर नौकरी सूची फ़ाइल को बिना एक GPU स्टैक के लॉगिन नोड पर पढ़ा जा सकता है, सत्यापित किया और योजना बनाई जा सकती है – कार्यप्रवाह स्वयं केवल एक नौकरी को निष्पादित करने वाले उपप्रक्रिया के अंदर आयात किया जाता है.\n\nसामान्य उपयोग::\n\n    from spacr.batch import Job, Queue, run_queue, save_queue\n\n    q = Queue(name='overnight')\n    q.add(Job(module='mask',    settings='/data/p1/settings/mask.csv'))\n    q.add(Job(module='measure', settings='/data/p1/settings/measure.csv',\n              depends_on=['mask-1']))\n    save_queue(q, '/data/overnight.queue.json')\n    result = run_queue(q, path='/data/overnight.queue.json')\n    print(result.summary())",
+      "text": "``spacr.batch`` - एक सॉफ्टवेयर नौकरी सूची में स्वैच्छिक मॉड्यूल + सेटिंग्स नौकरियों को स्टैक करें और उन्हें अप्रत्याशित रूप से चलाएं।\n\nPlate Queue (:mod:`spacr.qt.plate_queue`) श्रृंखला *प्लेटें* के माध्यम से *one* कार्यप्रवाह के साथ *on* सेटिंग्स कुंजी-मूल्य मानचित्रण. यह मॉड्यूल दूसरा ध्रुव है: किसी भी क्रम में स्वाभाविक ``(module, settings)`` नौकरियों की एक सॉफ्टवेयर नौकरी सूची - ``Mask → Measure → Classify (CV) → Classify (ML)``, फिर एक ही चार फिर से एक अलग व्यास के साथ, फिर पांचवें प्लेट का मास्क - जो कि प्लेट-स्केल काम की एक रात वास्तव में क्या दिखता है।\n\n**is** एक ``spacr-run`` निमंत्रण है। यहाँ कुछ भी मॉड्यूल डिस्प्ले या सेटिंग्स लोड को फिर से लागू नहीं करता है: :mod:`spacr.cli` मॉड्यूल रजिस्ट्री, सेटिंग लोडर, ``--set`` कोरशन और आउटपुट कोड अनुबंध का स्वामित्व करता है (0 ठीक है, 1 मॉडुल उठाया गया है, 2 बुरे तर्क या समायोजन), और यह मॉडल इसे चलाता है। इसी तरह, एक सॉफ्टवेयर नौकरियों की सूची एक **ledger ledgers** है: सॉफ़्टवेयर कामों की सूची का स्वयं का फैसला एक :class:`spacr.errors.RunLedger` है, सॉफ्टवेयर नौकरी सूची फ़ाइल के बगल में प्रिंट, और प्रत्येक नौकरी के :func:`spacr.errors.read_run_status` चिह्न को वापस पढ़ा जाता है, इसलिए एक नौकरी जो चुपचाप 40 फ़ील्डों को छोड़कर 0 से बाहर निकलती है, एक सफलता के बजाय *partial* के रूप में रिपोर्ट की जाती है।\n\nक्या एक कार्य सूची एक रात को जीवित रहने के लिए बनाता है कोई भी नहीं देख रहा है:\n\n* **प्रत्येक नौकरी जोड़ने पर वैध की जाती है, जब यह निष्पादित नहीं होती है.** 3 बजे पता चलता है कि नौकरी 9 के ``src`` को गलत तरीके से रखा गया है पूरे रात बर्बाद हो जाता है. :func:`validate_queue` रिपोर्ट *all* समस्याएं एक बार में और :func:`run_queue` शुरू करने से इनकार करता है जबकि उनमें से कोई भी एक त्रुटि है.\n* **स्थिति प्रत्येक संक्रमण के बाद जारी रहती है, परमाणु रूप से.** एक मशीन जो सॉफ्टवेयर नौकरी सूची को संसाधित करते समय पुनरारंभ करती है, :func:`resume_queue` के साथ पुनः प्रारंभ नहीं की जाती है. फ़ाइल को एक टाइम नाम और ``os.replace``\\d के लिए लिखा जाता है, क्योंकि एक टूटने से टूट गया एक कार्य सूची फाइल किसी भी काम सूची फ़ाइलें की तुलना में बदतर है.\n* **एक नौकरी जिसकी निर्भरता विफल हो गई है SKIPPED, निष्पादित नहीं किया गया है.** एक विफल मास्क के बाद माप एक डेटाबेस बनाता है जो एक वास्तविक परिणाम की तरह दिखता है. ``skipped`` (अवैध रूप से निष्पादक नहीं), ``failed`` और ``not_run`` (सॉफ्टवेयर नौकरी सूची इसे प्राप्त करने से पहले रोक दी गई है) तीन अलग चीजें हैं और इस तरह रहें।\n* **continue-on-error एक व्यवस्थित विफलता को छिपाना बंद कर देता है.** यदि पहले तीन नौकरियां उसी तरह मर जाती हैं, तो शेष नौ भी होंगे; ``max_consecutive_failures`` सॉफ्टवेयर नौकरियों की सूची बनाए रखता है और ऐसा कहता है।\n* **पर-काम लॉग अपने स्वयं के फ़ाइल में जाते हैं** - 12 रातों के काम से एक इंटरलेव लॉग पढ़ा नहीं जा सकता है - और मार्ग नौकरी रिकॉर्ड पर है।\n\nमुद्रा: नौकरियां एक समय में **सख्ती से एक चलाती हैं**. वे एक GPU के लिए प्रतिस्पर्धा करते हैं, और दो Cellpose नौकरियां एक कार्ड साझा करती हैं कि कैसे एक रात भर प्रसंस्करण सत्र CUDA OOM में बदल जाता है। ``max_workers`` नहीं है; दो प्रक्रियाओं में दो सॉफ्टवेयर नौकरी सूची चलाएं यदि आपके पास वास्तव में दो कार्ड हैं।\n\nआयात लागत: यह मॉड्यूल केवल मानक लाइब्रेरी प्लस :mod:`spacr.cli`, :mod:`spacr.errors` और :mod:`spacr.validate` आयात करता है, जिनमें से सभी torch-मुक्त हैं. एक सॉफ्टवेयर नौकरी सूची फ़ाइल को बिना एक GPU स्टैक के लॉगिन नोड पर पढ़ा जा सकता है, सत्यापित किया और योजना बनाई जा सकती है – कार्यप्रवाह स्वयं केवल एक नौकरी को निष्पादित करने वाले उपप्रक्रिया के अंदर आयात किया जाता है.\n\nविशिष्ट उपयोग::\n\n    from spacr.batch import Job, Queue, run_queue, save_queue\n\n    q = Queue(name='overnight')\n    q.add(Job(module='mask',    settings='/data/p1/settings/mask.csv'))\n    q.add(Job(module='measure', settings='/data/p1/settings/measure.csv',\n              depends_on=['mask-1']))\n    save_queue(q, '/data/overnight.queue.json')\n    result = run_queue(q, path='/data/overnight.queue.json')\n    print(result.summary())",
       "translation_source_blocks_sha256": [
         "b2d244da2d4f05aedb097e99668d52ffe6621ae91e3f21871e7ae285f14e1a77",
-        "f6c4518a414f90e0b88fc5087c68295de2d6578a243e87953439661c5dd2ac37",
+        "4f65676ed47ed2709cf6f9bd978104f538a180ae5783251da43b81ed313f8f41",
         "c961c02af8bce019a2f70d0c4fb3484f666598c396ff22e9db688609ed374171",
         "765e2a04d96a94aea04b77b9730304fdc30239f92553fa2c50da333d33e4bbd5",
         "7348135caf02cee1b4338694486afe39c3699fabd0d1555660e98c3342263276",
@@ -11254,6 +11254,134 @@
         "3a8aced33675b173459c19aefe00de29c8f2e40e1f70dc55c5389fd990dffe5c"
       ]
     },
+    "spacr.cli_make_masks": {
+      "source_blocks_sha256": [
+        "3baedc6c4989969aa27e64caf192ff8bba05ef2705ba4267459d08aa21653531",
+        "d25681d36ab0a15210aa5aa27ebf0439f006e7a5fd2f26c27526c41f67a67e00",
+        "158e4c55397fec0051adb73c82ab56a64eccb65e63d56ac2ee44eee4c4e136a2",
+        "8c25c51e8afc34eba3409ea557d1dfd0265da96aff0931cc8a33f40e50b27f29",
+        "c1008441c62cba47dea840b01e15422e026cd5fbac60264c1bec99f0158532ea",
+        "000b6618d8bf928a329d827924ff9469fbb606519263b3dff08f78d1ecfb4877",
+        "12ad8cf01d18f20dc4cbd1f5269726b0458a980e9b5c2b57ad9d0d3e3803361c",
+        "29e9facf24e02b1e9c0a112daa5cb3c697339b348af4be2387e912c64a3395f8",
+        "1ee6750c36f6b8bbc4d071c9ee68e841f62dddc6d2b255bbddeda2c51213a3e7",
+        "7363751daaad89105b37f38c2fa402450602751da13289cff1031eac506560a6"
+      ],
+      "source_sha256": "429175565f3e602f8c7c24de9f66c05b3677c0cb6b550743c3bfe270ad3b6b6f",
+      "text": "``spacr-make-masks`` — एक फ़ोल्डर पर मास्क संपादक खोलें, एक कार्य सूची के रूप में।\n\nLedger आइटम 396 एक चिकित्सीय सत्र के लिए पूछता है जो एक टर्मिनल से शुरू किया जा सकता है, एक फ़ोल्डर पर इंगित किया गया है, बंधे हुए, और पुन:. चिकित्सा SSH और एक से अधिक मशीन पर किया जाता है, और अब तक का जवाब ``spacr/cli.py`` का फ्लैट अस्वीकृति था — *\"Make Masks एक मैनुअल मास्क संपादक है; इसे GUI\"* में चलाएं. यह वाक्यांश अभी भी सच है ब्रश के बारे में और नकली है सत्र. यह मॉड्यूल सत्र है::\n\n    spacr-make-masks --folder <dir>\n    spacr-make-masks --folder <dir> --order value --limit 25\n    spacr-make-masks --folder <dir> --dry-run      # no display needed\n\n:mod:`spacr.curation_queue` सोचता है - कौन से क्षेत्र इंतजार कर रहे हैं, किस क्रम में, और पहले से ही प्रत्येक के बारे में क्या तय किया गया है. यह मॉड्यूल पतला हिस्सा है: चार तर्क साझा करें, कार्य सूची बनाएं, बताएं कि सत्र क्या है, और केवल फिर शुरू करें Qt।\n\nNothing is imported from :mod:`spacr.qt` until the folder has been read and accepted. That order is the point of the module rather than a detail of it: a folder that does not exist, or that holds no layout spaCR recognises, is answered with a sentence on a login node with no display, not with a Qt crash after a ten-second import.\n\nसंपादक खोलने से पहले क्या प्रिंट किया जाता है\n-------------------------------------------\n\nसत्र का सारांश, लेजर के स्वयं के शब्दों में::\n\n    nested layout at /data/pv: 500 bundles, 366 done, 29 skip, 105 remaining;\n    25 this session, sorted by easy\n\nतो एक क्यूरेटर देखता है कि वे क्या पुनर्जीवित कर रहे हैं, और इसे एक खिड़की के बजाय वे से शुरू किए गए ढाल में देखता हैं।\n\nएक लेआउट संपादक खोलता है, तीन काम सूची खोलते हैं\n-------------------------------------------------\n\n:func:`spacr.curation_queue.detect_layout` तीन लेआउट पढ़ता है. संपादक उनमें से एक को संपादित करता है: Make Masks ``<folder>/masks/<stem>.tif`` से एक डिज़ाइन पढ़ती है और ठीक मास्क को उसी स्थान पर वापस लिखती है, जो ``nested`` रीसेट है और कुछ और नहीं. इसलिए एक ``sibling`` या ``seg`` फ़ोल्डर को संक्षेप में संकलित किया जाता है, आदेश दिया जाता है और ``--dry-run`` द्वारा सूचीबद्ध किया गया है - और संपादकों को नाम से अस्वीकार कर दिया जाता था, जिसके साथ वह गलत हो गया था. अपने ``images`` फ़ॉल्डर पर एक बहन सेट खोलने के लिए पढ़ना और लिखना होगा ``images/masks``, चुपचाप सेट के हर डिजाइन मास्क का अपमान करता है; यह एक अस्वीकृति से बदतर है, और यह लीडर के \"loaded as empty\" चेतावनी के बारे में है।\n\nआउटपुट कोड::\n\n    0   the editor ran, or --dry-run printed the queue, or there was\n        nothing left to curate\n    1   the Qt interface could not start\n    2   bad arguments, a folder that is not there, a folder holding no\n        recognisable layout, or a layout the editor cannot edit in place",
+      "translation_source_blocks_sha256": [
+        "4f366c4ce446a02acaed8de389f7b45ec73bf8d77573a096502a4df5a1e1374c",
+        "d25681d36ab0a15210aa5aa27ebf0439f006e7a5fd2f26c27526c41f67a67e00",
+        "1426e2d66d0ec2569f520de2b3fdf6f9341071b8d253664df7b3fe1a8aa7936a",
+        "8c25c51e8afc34eba3409ea557d1dfd0265da96aff0931cc8a33f40e50b27f29",
+        "c1008441c62cba47dea840b01e15422e026cd5fbac60264c1bec99f0158532ea",
+        "000b6618d8bf928a329d827924ff9469fbb606519263b3dff08f78d1ecfb4877",
+        "12ad8cf01d18f20dc4cbd1f5269726b0458a980e9b5c2b57ad9d0d3e3803361c",
+        "6d2e9cb76245fb265581393dea13c43569b385a56a82bb8717ecaa712a67b557",
+        "1ee6750c36f6b8bbc4d071c9ee68e841f62dddc6d2b255bbddeda2c51213a3e7",
+        "7363751daaad89105b37f38c2fa402450602751da13289cff1031eac506560a6"
+      ]
+    },
+    "spacr.cli_make_masks.build_parser": {
+      "source_blocks_sha256": [
+        "541b663d52d5fb2d2717bdc1f03bcebf07799da8337b46edf61c0f36a0456bd4",
+        "e5632165eaa3c355d2f6102e544fd8fa4142598e39d19a47df01cd3170f4b257"
+      ],
+      "source_sha256": "843ee477b8c996bdf62abb4ecf7e3a1f4d7a4547239c2491d9363f7a82c45c95",
+      "text": "``spacr-make-masks`` तर्क पैसर का निर्माण करें।\n\n:returns: उस पर ``--folder``, ``--order``, ``--limit`` और ``--dry-run`` के साथ पारसर होता है।",
+      "translation_source_blocks_sha256": [
+        "541b663d52d5fb2d2717bdc1f03bcebf07799da8337b46edf61c0f36a0456bd4",
+        "e5632165eaa3c355d2f6102e544fd8fa4142598e39d19a47df01cd3170f4b257"
+      ]
+    },
+    "spacr.cli_make_masks.editor_refusal": {
+      "source_blocks_sha256": [
+        "259fa8186d3f1d67b0b5ef274fceb1ad6924ed48b094b61d03c485691c1574b7",
+        "1bdaf5b71942f84af6319afde1d326c698269443b3f2e28a627f431fcdc3fc6e",
+        "5fe4798aae2e56c4a83f092d6bb48d17e54afd1251531d378b142d0ba8a77525"
+      ],
+      "source_sha256": "ad03f0a1afac5fe53bd781e871c7e8067cac6dec52cb79ed55cfa65aa306e569",
+      "text": "बताएं कि संपादक इस स्थान पर इस व्यवस्था को क्यों नहीं खोलता है।\n\n:param queue: एक डिज़ाइन Make Masks में बनाए गए कार्य सूची को संपादित नहीं किया जा सकता है।\n:returns: इनकार, नाम जो संपादक पढ़ा और लिखा होगा, और क्या अभी भी इस फ़ोल्डर पर काम करता है।",
+      "translation_source_blocks_sha256": [
+        "259fa8186d3f1d67b0b5ef274fceb1ad6924ed48b094b61d03c485691c1574b7",
+        "960aff22e7e8e870d07414891d8aa744de74ec94007e573cf813aebb16b2e4df",
+        "5fe4798aae2e56c4a83f092d6bb48d17e54afd1251531d378b142d0ba8a77525"
+      ]
+    },
+    "spacr.cli_make_masks.hand_over": {
+      "source_blocks_sha256": [
+        "40caf946c9b4421d8b47e2654f3626cff9d263937c4662dbce436c3758243ba4",
+        "272261c1f8e72febdac3dd3102e548eb78573a48228fbb8cb9b867db293b5379"
+      ],
+      "source_sha256": "367bf1d1ce0dfa568e841ed9c22a3d7f58d1683ce6fdd019485c04b7cda467e1",
+      "text": "अगले Make Masks अनुप्रयोग दृश्य के लिए ``queue`` छोड़ दें जो बनाया गया है।\n\n:param queue: सत्र को स्थानांतरित करने के लिए, या ``None`` स्लॉट को हटाने के लिए।",
+      "translation_source_blocks_sha256": [
+        "4e7cb59884c4939f502827e2dfe302f77f879033a572f2647194232b768737fb",
+        "272261c1f8e72febdac3dd3102e548eb78573a48228fbb8cb9b867db293b5379"
+      ]
+    },
+    "spacr.cli_make_masks.has_display": {
+      "source_blocks_sha256": [
+        "d5b4cbae93c6cde5c52ebf6dced12b6ab29a3257b68dacdb79cab0087e808408",
+        "d77f7d23b956800dc04a73073d318e5cb7a0b9f002d17d68668625d4af317e73",
+        "73cffa7c2ead9a0ff1f4715fd75ad9af1269b13df4119e9e96f7c0fca5116979",
+        "2862c45bd7892857633cf64ce5373267821bf33870117c212e4f900e717ef66b"
+      ],
+      "source_sha256": "f5617edb7ea8d5cf70a814eb80c4bdce380a9cd39fa387c7857cbaa14a727e63",
+      "text": "क्या कोई विंडोइंग सिस्टम है कि संपादक को खोलने के लिए।\n\nएक ही तीन-लाइन प्रश्न :func:`spacr.cli.use_agg_if_headless` matplotlib के बारे में पूछता है, Qt से पूछा गया है और Qt से पहले पूछा जाता है आयात किया जाता है: एक SSH सत्र जिसमें कोई X प्रसारण नहीं होता है अन्यथा \"एक Qt प्लेटफॉर्म प्लगइन xcb को लोड नहीं किया जा सकता है\" और एक गर्भपात, जो काम की सूची के लिए कुछ भी नहीं कहता है जो एक पल पहले पूरी तरह से पढ़ा जा सकता था।\n\nAn explicit ``QT_QPA_PLATFORM`` counts as a display. It is how offscreen rendering, VNC and the embedded platforms are asked for, and somebody who set it has already said which surface Qt is to use.\n\n:returns: यह संपादक यहां खोला जा सकता है।",
+      "translation_source_blocks_sha256": [
+        "d5b4cbae93c6cde5c52ebf6dced12b6ab29a3257b68dacdb79cab0087e808408",
+        "898757548d8ced87414c26e359409d4fca459c420cc2c8a6d50194f88bfa0179",
+        "73cffa7c2ead9a0ff1f4715fd75ad9af1269b13df4119e9e96f7c0fca5116979",
+        "2862c45bd7892857633cf64ce5373267821bf33870117c212e4f900e717ef66b"
+      ]
+    },
+    "spacr.cli_make_masks.main": {
+      "source_blocks_sha256": [
+        "26d6e3977f9932c4d972206bcb86be8e3114f9a3f7e0a799bbb4f1fa70294830",
+        "85ff624e69170021eed0e661d341640e80dc9bcf4532544cca76ab763b85c1ae",
+        "1f3321b681e92804830e73b756927e5e461473615ab7402081148ac7f7cfb37e",
+        "15cb64f4244e135c7eadb4d0a9eb5e0342f79bb03a7df05feb9fd4d59118f78f"
+      ],
+      "source_sha256": "3635dc35fbd156cd37783f04b34b728a49078d1723763bd79e478a4a3c0a3802",
+      "text": "एक फ़ोल्डर को चिकित्सीय सत्र के रूप में खोलें, या बताएं कि इसे क्यों नहीं खोला जा सकता है।\n\n:param argv: प्रोग्राम नाम के बिना कमांड-लाइन तर्क. ``None`` :data:`sys.argv` पढ़ता है.\n:returns: एक प्रक्रिया आउटपुट कोड; प्रत्येक का क्या मतलब है के लिए मॉड्यूल दस्तावेज देखें।\n:raises SystemExit: स्थिति ``2`` के साथ जब तर्क स्वयं वैध हैं, जो कि argparse की खुद की अस्वीकृति है।",
+      "translation_source_blocks_sha256": [
+        "26d6e3977f9932c4d972206bcb86be8e3114f9a3f7e0a799bbb4f1fa70294830",
+        "85ff624e69170021eed0e661d341640e80dc9bcf4532544cca76ab763b85c1ae",
+        "1f3321b681e92804830e73b756927e5e461473615ab7402081148ac7f7cfb37e",
+        "15cb64f4244e135c7eadb4d0a9eb5e0342f79bb03a7df05feb9fd4d59118f78f"
+      ]
+    },
+    "spacr.cli_make_masks.open_editor": {
+      "source_blocks_sha256": [
+        "e42eb085045e3d382e4054de83f4b38072f556c6730668b310fff8e4d5222718",
+        "53ef2d646dc8eb6ae9b793d2feeaeafe0e30a5314d5e986bba6d6401f2aa3da2",
+        "7195e08d7ad0ccaeb9c18879ce24ed845adef6b797520d25d6b0a5d68630af63",
+        "a9225b6e4b67ea85fbc27faeb542d463b6215d40eaed7aed0938bb86b6cd044f"
+      ],
+      "source_sha256": "109c5b40c42dcc4d02ddc79342af62adfbb642508d65a8bed1fcc8aeb46a19be",
+      "text": "GUI को ``queue`` पर शुरू करें और प्रक्रिया आउटपुट कोड वापस करें।\n\nQt यहां आयात किया जाता है और ऊपर कहीं भी नहीं है: इस समय से जो कुछ भी अस्वीकार किया जा सकता है, उससे इनकार कर दिया गया है।\n\n:param queue: संपादक की बैठक शुरू हो जाती है।\n:returns: बाहर निकलने का कोड :func:`spacr.qt.run` लौटता है, या :data:`EXIT_NO_GUI` जब कोई डिस्प्ले नहीं खुलता है या जब Qt इंटरफ़ेस स्थापित नहीं किया गया है।",
+      "translation_source_blocks_sha256": [
+        "e42eb085045e3d382e4054de83f4b38072f556c6730668b310fff8e4d5222718",
+        "53ef2d646dc8eb6ae9b793d2feeaeafe0e30a5314d5e986bba6d6401f2aa3da2",
+        "7195e08d7ad0ccaeb9c18879ce24ed845adef6b797520d25d6b0a5d68630af63",
+        "a9225b6e4b67ea85fbc27faeb542d463b6215d40eaed7aed0938bb86b6cd044f"
+      ]
+    },
+    "spacr.cli_make_masks.take_handover": {
+      "source_blocks_sha256": [
+        "f0efc69ebab621905de3cd83618a578554312ad7254388a92a909c85d664ccce",
+        "932dd35a832d0cd531aff34816108f2ed60db77423a9070282e46a71d6ca1930",
+        "7d452baf77bcfdcf129ffa489d9ee312e112ad9438d4d994ea53da5f006b4bdc"
+      ],
+      "source_sha256": "fb89ecb17e601ab7c4014317a00b32a6abd97d8e7187decaae966919ffe14fef",
+      "text": "स्थानांतरित टर्मिनल का समय निर्धारित करें, यदि कोई है।\n\nस्लॉट को खाली करना आधा है जो इस कॉल के लिए है: एक स्क्रीनिंग जो बाद में उसी प्रक्रिया में पुनर्निर्माण की जाती है - उपयोगकर्ता Make Masks पर वापस जा रहा है - पहले से ही काम कर चुका सत्र के बजाय कुछ भी नहीं खोलना चाहिए।\n\n:returns: जब डिस्प्ले सामान्य तरीके से खोला जाता है तो :class:`~spacr.curation_queue.CurationQueue`, या ``None`` पर हस्तांतरित किया जाता है।",
+      "translation_source_blocks_sha256": [
+        "fa2300fe0bb2f0926d0a7e495233b11163e2bba68fd32bac6f2676c1522cb155",
+        "932dd35a832d0cd531aff34816108f2ed60db77423a9070282e46a71d6ca1930",
+        "7d452baf77bcfdcf129ffa489d9ee312e112ad9438d4d994ea53da5f006b4bdc"
+      ]
+    },
     "spacr.cli_plugins": {
       "source_blocks_sha256": [
         "e1b1133ce9f3e5064a7a0ffe8195c56ee2ded9bdc1a4999a230ed31303370581"
@@ -15948,6 +16076,668 @@
         "ebf0b1dbc50dc7b24e54bd4fa445510d2ad9d9ffe76f0b96a96437091a3b37c5",
         "64f08fc3f0445cba7743bdb2c03f36dc3f48e49ed6c9474d39dad61a451dca2b",
         "ff43fa5c4d60d9c4f80761f0ffc84a8903ad694ce7774a2e74e1111c142f78d1"
+      ]
+    },
+    "spacr.curation_queue": {
+      "source_blocks_sha256": [
+        "0bbd169eb9929ab7061364bdc8fc6802a45b137394948ecbae0fe5034abe94a6",
+        "52486fea20c4ed0652a6c6bb76140fb21b0b42dbc54f6575582bbe560f98e164",
+        "9b14eeb9553889a3cf4b1c6552a0af1733cd8a63f7dc714fa449850e000078b0",
+        "e84bb3c694fa720014d12b0c0a4fdd156c41d3f94981f3e7ba826f0da245edae",
+        "6bfdcd3500939f2ad0ca906ff531ad869adbb1649561bdb4951bb0d14b2c7419",
+        "f0d74236a0c40bc9045240207551b0d6ab5e42d33fd4632b5663e81ecbedcd9e",
+        "6b42c4c6e101a79dd824b9093710e5a02d1465c2c6ed41eb2cd31d346b50b6fc",
+        "dfbdfeed0c3e4a8bf0508ee3f983a61a10fd4162e26f0aa616592e1c798f6084",
+        "fc576d870096e7e160796d7f42562a3d85871ab519cc16333d5bb5523927ede4",
+        "35266cd2f21aca524f388c9a8f49f2698327570bd43900ff3e388fac48f8f683",
+        "8f179fa8bfb1588bc7b4234433245917af3e83225a418600968657e4c6e0557d",
+        "d236f1d489406825e6dc7b26bece524f1d07b33ee08265ac0e3a1f95936dfd2a",
+        "b59095229ee3b3f5f9255a4362d11c3158e7000b5f832961f7b3739f53594eee",
+        "86d88b32f09a14c984f2ebdd37b178f1f927693d146809c6cbe239e802e55e49",
+        "5c5df93fb22c6b573faf7d3900d9b75f26076ea05c3950e4393a18ba1d8ba6f5",
+        "af956af5bdc87f857d8be7cd17912893a34adcd60d97ef2e6af91a6edd0aa405",
+        "4f3c87252ac9a32ae011cc9973f8de97b939dd21cda5a9793c39007d3b3134c7",
+        "45a4d1c15a80957ff6d90169f51d4ffcfc304d4c0ad450f5ff6a1db94eb04e28",
+        "7f6fde93c06417b8e5361eb7300eefc3b3c1b02f89c8ebc72462a1e38006c5b2"
+      ],
+      "source_sha256": "8891def183a7b457d1f32a9645e6291476bdd93d64099641bb8ac5a6ab0cd115",
+      "text": "``396`` - एक चिकित्सीय सत्र एक स्मृति के साथ एक कार्य सूची है, एक फ़ील्ड नहीं।\n\nMake Masks बेहतर संपादक है और रिपोर्टर के बाहर संबोधित उपकरण बेहतर कार्यप्रवाह है, और लीडर आइटम 396 यह अवलोकन है कि दोनों नहीं हैं. यह मॉड्यूल कार्यप्रणाली का आधा है, spaCR के अंदर खींचा गया है: कौन से फ़ील्ड इंतजार कर रहे हैं, किस क्रम में उन्हें पेश करने के लिए, सत्र समाप्त होने से पहले कितने की पेशकश की जाएगी, और क्या पहले से ही प्रत्येक के बारे में तय किया गया था.\n\nयह कोई पिक्सेल नहीं रखता है और कुछ भी नहीं खींचता है. यह जानबूझकर है और यह यहां काम लाने के लिए पूरे तर्क है: बाहरी टूल की विफलताओं को एक चिकित्सीय सत्र के बीच में पाया जाता है, क्योंकि एक 2,000-लाइन Qt अनुप्रयोग का परीक्षण करने का कोई तरीका नहीं है, जबकि नीचे की सभी चीजें एक फ़ोल्डर और एक CSV पर सामान्य Python हैं, इसलिए एक विफल ``tests/test_a_curation_session_resumes_where_it_stopped.py`` द्वारा पाई जाती है इसके बजाय. मॉड्यूल में कोई Qt आयात नहीं होता है, कोई डिस्प्ले की आवश्यकता नहीं होती है, और केवल उन कार्यों के अंदर ``numpy`` को छूता है जो वास्तव में डिस्क से एक डिजाइन मास्क को पढ़ते हैं.\n\n3 लेआउट, सभी स्वीकार किए गए\n---------------------------\n\nLedger आइटम 396 पहले से ही समायोजित करने के लिए चीज के रूप में लेआउट त्रुटि का नाम देता है, और चेतावनी देता है कि चुपचाप एक का मानना है कि कैसे एक फ़ोल्डर काम से भरा है उतना ही खाली लोड किया जाता है. इसलिए सभी तीन स्वीकार किए जाते हैं और हमारे सामने एक का पता लगाया जाता है::\n\n    nested    <folder>/*.tif           + <folder>/masks/*.tif\n    sibling   <folder>/images/*.tif    + <folder>/masks/*.tif\n    seg       <folder>/*_seg.npy       (Cellpose pickles, the external tool)\n\nसभी तीनों को स्वीकार करना एक विजेता को चुनने की तुलना में सख्ती से सुरक्षित है: एक मौजूदा चिकित्सीय सेट अपरिवर्तित खुलता है, और काम शुरू करने से पहले कुछ भी स्थानांतरित नहीं किया जाना चाहिए. क्या *नहीं* स्वीकार किया जाता है, यह एक अनुमान है. एक फ़ोल्डर जो उनमें से किसी को फिट नहीं करता है, या दो से फिट होता है, :class:`LayoutError` उठाता है - क्योंकि विकल्प एक खाली कार्य सूची है, जबकि एक खाली काम सूची \"all done\" के रूप में पढ़ी जाती है.\n\nतीन राज्यों की समीक्षा की गई है, दो नहीं\n--------------------------------------\n\n:data:`REVIEWED` ``done``, ``skip`` और ``recropped`` है. लेजर नोट दो कहता है; यह गलत है. ``skip`` एक छोटा ``done`` नहीं है — यह रिकॉर्ड करता है \"इस को ठीक नहीं किया जा सकता है\", और दोनों को तोड़ने का मतलब है कि एक ही अप्रयुक्त फ़ील्ड हर सत्र में फिर से प्रदान की जाती है। ``recropped`` वह है जो बाहरी टूल लिखता है जब एक पैकेज को बच्चों में विभाजित किया गया है: माता-पिता कार्य सूची से बाहर है और उसके टुकड़े इसमें हैं.\n\nरिकॉर्ड ``<folder>/curate_status.csv`` पर रहता है, कार्य सूची फ़ोल्डर के अंदर इसके बजाय, इसलिए यह छवियों के साथ सिंक्रनाइज़ होता है और दूसरी मशीन पर एक सत्र पुनरावृत्ति होती है. इस फ़ॉल्डर में नहीं है कि एक स्टेम के बारे में एक पंक्ति को फिर से लिखने पर रखा जाता है, यही कारण है: क्यूरेटर कहीं भी पुनः हो सकता है कि सेट का बाकी अभी तक नहीं आया है, और उन पंक्तियों को फेंकने से पहले से ही काम को वापस कर दिया जाएगा।\n\nआदेश\n--------\n\nऑर्डर करना उत्पादकता की विशेषता है: क्यूरेटर का निर्णय कठिन क्षेत्रों पर पहले सौ आसान क्षेत्रों की तुलना में अधिक मूल्यवान है. चार आदेश, और उनके अंदर की स्थिरताएं, बाहरी उपकरणों की हैं, जो एक वास्तविक 500-bundle चिकित्सा सेट के बाद चुने जाते हैं. :func:`order_items` बताता है कि प्रत्येक का क्या मतलब है.\n\nजहां यह जानबूझकर बाहरी उपकरण से अलग है\n---------------------------------------------------\n\nपांच स्थान, प्रत्येक क्योंकि इस मॉड्यूल को Cellpose पिक्के के एक फ़ोल्डर के बजाय तीन लेआउट और एक परीक्षण सूट की सेवा करनी चाहिए:\n\n* वस्तुओं को अलग-अलग गैर-शून्य लेबल के रूप में गिना जाता है, ``masks.max()`` नहीं. इन दो मामलों के लिए :func:`count_draft_objects` देखें जहां वे अलग हैं.\n* मध्यम वस्तु का व्यास सीधे के बजाय ``skimage.measure.regionprops`` के माध्यम से गणना की जाती है, इसलिए एक कार्य सूची को ऑर्डर करने के लिए केवल numpy की आवश्यकता होती है।\n* एक अज्ञात ``order`` चुपचाप ``value`` बनने के बजाय एक त्रुटि पैदा करता है. एक चुप रिकॉर्ड इस मॉड्यूल की विफलता के बारे में सबसे सावधान है.\n* ``name`` फ़ाइल नाम के बजाय स्टैम द्वारा आदेश प्रकार, इसलिए आदेश तब नहीं बदलता जब एक फ़ील्ड PNG और अगला TIFF है।\n* फ़ाइल मशीनों के बीच सिंक्रनाइज़ करता है; एक स्थिर आदेश परिवर्तित पंक्तियों के लिए डिफ़ को बनाए रखता है, और रीनाम डिस्क से एक आधा-लेखित पुनरावृत्ति रिकॉर्ड बनाए रखा है।\n\nनस्टेड और भाई-बहन लेआउट भी एक छवि प्रदान करते हैं जिसकी मास्क गायब है, बजाय बाहरी उपकरण के पैकेज निर्माता के रूप में सख्ती से जोड़ते हैं: कोई डिजाइन के साथ एक माइक्रोस्कोप दृश्य क्षेत्र काम करता है, स्क्रैच से चित्रित होता है, और ``easy`` पहले से ही इसे अंतिम प्रदान करने के लिए जानता है।",
+      "translation_source_blocks_sha256": [
+        "d1aedc0f3f2fb4c0cc8d4cbe6f6463ba7430d8a0e09086145a3d9a152aae817c",
+        "52486fea20c4ed0652a6c6bb76140fb21b0b42dbc54f6575582bbe560f98e164",
+        "9b14eeb9553889a3cf4b1c6552a0af1733cd8a63f7dc714fa449850e000078b0",
+        "e84bb3c694fa720014d12b0c0a4fdd156c41d3f94981f3e7ba826f0da245edae",
+        "6bfdcd3500939f2ad0ca906ff531ad869adbb1649561bdb4951bb0d14b2c7419",
+        "f6f854d1df24e3008d17ea38e3d7001e838507820de62b48bed82de5cad4e33c",
+        "6b42c4c6e101a79dd824b9093710e5a02d1465c2c6ed41eb2cd31d346b50b6fc",
+        "1d55da409b610beddef5e3a7b6e8957cca8659bd2c6a6aa15eb34debc25cdf65",
+        "0f0b5f230296b08a4a156243d59090aa7d72f01d5c718ecc9cd7118a26620107",
+        "35266cd2f21aca524f388c9a8f49f2698327570bd43900ff3e388fac48f8f683",
+        "8f179fa8bfb1588bc7b4234433245917af3e83225a418600968657e4c6e0557d",
+        "d236f1d489406825e6dc7b26bece524f1d07b33ee08265ac0e3a1f95936dfd2a",
+        "b59095229ee3b3f5f9255a4362d11c3158e7000b5f832961f7b3739f53594eee",
+        "86d88b32f09a14c984f2ebdd37b178f1f927693d146809c6cbe239e802e55e49",
+        "d6e0ad00cb733293072fc1c798e09e0cac56600369b582a0a49a92125a9c59e0",
+        "947a951454e63d37aafc8408abc6059dc61f786ce3724b2b438f783d7465a1fe",
+        "4f3c87252ac9a32ae011cc9973f8de97b939dd21cda5a9793c39007d3b3134c7",
+        "45a4d1c15a80957ff6d90169f51d4ffcfc304d4c0ad450f5ff6a1db94eb04e28",
+        "4db2006f96abc227e5ca957a814e1fb5ef366b9a962d061101fa4bbf17927ce9"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue": {
+      "source_blocks_sha256": [
+        "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
+        "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
+        "0d7015fa5eb2fa05fbc2429359754bdd958766003043bc0e550d1cf5e0478948",
+        "f1f7a40c9dff9b5edc90e660045e20716eab4d2e141f47b8ca23ab7f10b0dfa7",
+        "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
+        "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
+        "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
+        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce"
+      ],
+      "source_sha256": "4e0c3cd3f10f0e465113c0bf338e7183f37744b3b14afdd2f880caad985b95fa",
+      "text": "एक सीमित उपचार सत्र एक फ़ोल्डर पर काम करता है।\n\n:ivar layout: क्या पाया गया, और कहां।\n:ivar items: इस सत्र की पेशकश करने के लिए फ़ील्ड - अनदेखा, ऑर्डर, और ``limit`` के लिए कटौती।\n:ivar status: प्रत्येक स्थिति पंक्ति पढ़ें, जिसमें इस फ़ोल्डर में नहीं हैं कि धाराओं के बारे में पंक्तियां शामिल हैं।\n:ivar order: जिस आदेश की मांग की गई थी।\n:ivar effective_order: वास्तव में उपयोग किए गए आदेश, जो ``order`` से अलग है जब ``prob`` या ``easy`` संभावनाओं की इच्छा के लिए ``value`` पर वापस गिर गया।\n:ivar limit: जिस कवर को लागू किया गया था, या ``None``।\n:ivar summary: इस फ़ोल्डर के माध्यम से गिनती करें, न कि इस सत्र पर।",
+      "translation_source_blocks_sha256": [
+        "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
+        "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
+        "0d7015fa5eb2fa05fbc2429359754bdd958766003043bc0e550d1cf5e0478948",
+        "f1f7a40c9dff9b5edc90e660045e20716eab4d2e141f47b8ca23ab7f10b0dfa7",
+        "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
+        "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
+        "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
+        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.all_items": {
+      "source_blocks_sha256": [
+        "4ef16b1a0829bc8edb1fced048e2e5a00bc6f96761b2a5d79cc935e3fadc297b"
+      ],
+      "source_sha256": "ca71936167c7bcd9d8819ae050820d6aab8cd3a5cff2ec2304020eaec648abd5",
+      "text": ":returns: फ़ोल्डर में प्रत्येक फ़ील्ड, समीक्षा किए गए शामिल हैं।",
+      "translation_source_blocks_sha256": [
+        "4ef16b1a0829bc8edb1fced048e2e5a00bc6f96761b2a5d79cc935e3fadc297b"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.describe": {
+      "source_blocks_sha256": [
+        "410478fc68e5fb14508f28d407d84689bbd5fb811a0d41e84eac3d4bfa680cce"
+      ],
+      "source_sha256": "04d67d74e53385f01d5a3a1214d9a2e10164277447bbeccfb24bb76b310987a8",
+      "text": ":returns: एक प्रिंट लाइन जिसका नाम लेआउट, आदेश और गिनती है।",
+      "translation_source_blocks_sha256": [
+        "410478fc68e5fb14508f28d407d84689bbd5fb811a0d41e84eac3d4bfa680cce"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.folder": {
+      "source_blocks_sha256": [
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927"
+      ],
+      "source_sha256": "cfcc382aa7e899e658f95dd5c03eb3ae2cbbde6d817e7f06d9ec175215233fe7",
+      "text": ":returns: कार्य सूची फ़ोल्डर।",
+      "translation_source_blocks_sha256": [
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f"
+      ]
+    },
+    "spacr.curation_queue.CurationQueueError": {
+      "source_blocks_sha256": [
+        "cc7c517f771ccc2589544bedd65b11755da030466e056c00c19a0329fcb46d54",
+        "389ef729de19545a40d3552e5aa66bd495a7a531693e1426a10d1ebd8c6aa3e4"
+      ],
+      "source_sha256": "fdcd7cf88eff52c8259c8a8b7f2675b65177ac1fc3262a74d8d180df2cf64966",
+      "text": "एक चिकित्सीय कार्य सूची बनाई नहीं जा सकती थी, पढ़ी या लिखी नहीं हो सकती थी।\n\nउप-क्लास :class:`spacr.errors.SpacrError` है, इसलिए एक कॉलर जो spaCR की अपनी गलतियों को पकड़ता है, उन्हें भी पकड़ लेता है।",
+      "translation_source_blocks_sha256": [
+        "214d3b6c7d50f4e9214024c2f6e9a73c92614924dea033faabd0140a87a739a5",
+        "389ef729de19545a40d3552e5aa66bd495a7a531693e1426a10d1ebd8c6aa3e4"
+      ]
+    },
+    "spacr.curation_queue.LayoutError": {
+      "source_blocks_sha256": [
+        "94e8f674965dbef9724344e55104410bada7a8f4c40ddafa2fe3fecf30adaf66",
+        "c5aeac511a201b7da507eaf82a5f5e975be96cbbabd29a5bb9460d9cc4b00ebd"
+      ],
+      "source_sha256": "e2f50d713c33afd517f70141854fe30d77603b3034d017092d052cea924331a7",
+      "text": "फ़ोल्डर असंगत रूप से तीन लेआउट में से एक को पकड़ता नहीं है।\n\nएक खाली कार्य सूची \"all done\" के रूप में पढ़ी जाती है, जो एक गलत जवाब है एक चिकित्सीय उपकरण को कभी भी काम से भरा फ़ोल्डर के बारे में नहीं देना चाहिए।",
+      "translation_source_blocks_sha256": [
+        "94e8f674965dbef9724344e55104410bada7a8f4c40ddafa2fe3fecf30adaf66",
+        "70ec52381cd160330809cc763b5f6e4b69fc3f01200c92b5fcbfc0f4c1eae2b9"
+      ]
+    },
+    "spacr.curation_queue.QueueItem": {
+      "source_blocks_sha256": [
+        "76bf0001be9a494ebd972c3d4b57750f6082bf3a4e781d1f636527672bf3a2a8",
+        "c4e8e69047fb694ca26c0b049dba4226baeb80c1df9af122bdc7a95b44fb0b28",
+        "887456f4a1e4fba2dd2f762e0c8380cee6e9d64df89cbed63fe5bd9f3bb0e870",
+        "6581c197615b529ed48c82f6914a7dcaf36159f067340573eb5fc315e075c90b",
+        "c8fa22584f70ae0e9729462b2e6b476db5caf0c66f8045dfe73f43483ec59f1e",
+        "21a33c25fb49b95ea46af484730b4afd570e86af5ba423f6d94dd3fc78c22597"
+      ],
+      "source_sha256": "ffaca66c659eedae38516835dc5a37e7c517f9f791eeac8f82f5792db1c0a2d2",
+      "text": "इलाज के लिए इंतजार करने वाला एक क्षेत्र है।\n\n:ivar stem: फ़ील्ड की पहचान, और इसकी स्थिति पंक्ति के संरचित डेटा नाम।\n:ivar layout: :data:`LAYOUTS` से यह आइटम कौन से आया है।\n:ivar image: छवि फ़ाइल, जब लेआउट में डिस्क पर एक है. ``None`` एक ``seg`` पैकेज के लिए जो अपनी खुद की छवि ले जाता है, जब तक कि एक प्रदर्शित छवि एक ही स्टेम के बगल में बैठता है.\n:ivar mask: डिज़ाइन मास्क फ़ाइल, या ``None`` जब कोई डिज़ाक अभी तक मौजूद नहीं है।\n:ivar bundle: ``_seg.npy`` पिकल, केवल ``seg`` लेआउट के लिए।",
+      "translation_source_blocks_sha256": [
+        "76bf0001be9a494ebd972c3d4b57750f6082bf3a4e781d1f636527672bf3a2a8",
+        "63916e8a9ee44e2194a4d81029c386ef07b266e8dea9bea2683fdef0cdac7c52",
+        "887456f4a1e4fba2dd2f762e0c8380cee6e9d64df89cbed63fe5bd9f3bb0e870",
+        "6581c197615b529ed48c82f6914a7dcaf36159f067340573eb5fc315e075c90b",
+        "c8fa22584f70ae0e9729462b2e6b476db5caf0c66f8045dfe73f43483ec59f1e",
+        "21a33c25fb49b95ea46af484730b4afd570e86af5ba423f6d94dd3fc78c22597"
+      ]
+    },
+    "spacr.curation_queue.QueueItem.draft": {
+      "source_blocks_sha256": [
+        "efef956d4d0ace4455dd1b889fb8703b93e3eb1ccf4046521080b5ee6a5975eb",
+        "a5498021d9b223d2ab6738c9f74641ffcee48a498f4dab2149f2067edb7025e1"
+      ],
+      "source_sha256": "851e3118dfb94ef69a3189cc6eeb1958820190ff399bfc71f6e2185c4b432fea",
+      "text": "फ़ाइल इस आइटम के डिजाइन लेबल रखती है, या ``None``।\n\n:returns: एक ``seg`` आइटम के लिए पैकेज, अन्य दो लेआउट के लिए मास्क फ़ाइल, और ``None`` जब कोई डिज़ाइन नहीं है - जिसका अर्थ है स्क्रैच से ड्रिलिंग, कोई त्रुटि नहीं।",
+      "translation_source_blocks_sha256": [
+        "efef956d4d0ace4455dd1b889fb8703b93e3eb1ccf4046521080b5ee6a5975eb",
+        "a5498021d9b223d2ab6738c9f74641ffcee48a498f4dab2149f2067edb7025e1"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout": {
+      "source_blocks_sha256": [
+        "ebbd44fa4a6bd3ede03dd9208012b8f656c07f0732060865491b5ef71f8ceb41",
+        "f8c35582bbe3c99bb9da163d5b6c65f0dd8c94b7680293bf84302cecfda641ac",
+        "7c142576fd2f5c3625b96b4c4f3e7351d8c24cdc81e3b8e82e33ebb91f57097b",
+        "51af67851f9d4ed276ba4304f7497173a2a334208080cb1fceba96e35ee8ee56",
+        "113b4334b61ed57cdd5de917b15c3b6436b9a2b797f02be2d0f0f04bd3ca968c",
+        "77ca0d5d1ecf25b1a192ce71266eaf72e3d70e1e9609d843caa7cf30f910c126"
+      ],
+      "source_sha256": "9d2b4af947d987b5bfac8efbaedd64e44e009ac370ab019bad7950e184c18c49",
+      "text": "फ़ोल्डर में क्या पाया गया, और कहां।\n\n:ivar kind: एक :data:`LAYOUTS` के बारे में।\n:ivar folder: कार्य सूची फ़ोल्डर, जो भी है जहां स्थिति फ़ाइल चला जाता है।\n:ivar images_dir: जहां तस्वीरें हैं, जब वे डिस्क पर हैं।\n:ivar masks_dir: जहां से मास्क पढ़े जाते हैं और वापस लिखे जाते हैं।\n:ivar items: हर फ़ील्ड पाया, स्टेम द्वारा वर्गीकृत।",
+      "translation_source_blocks_sha256": [
+        "ebbd44fa4a6bd3ede03dd9208012b8f656c07f0732060865491b5ef71f8ceb41",
+        "f8c35582bbe3c99bb9da163d5b6c65f0dd8c94b7680293bf84302cecfda641ac",
+        "c1b20568bd681673f5b2acce23ed34f1b14e2ff505135d9b13bc8e9cf228d38e",
+        "51af67851f9d4ed276ba4304f7497173a2a334208080cb1fceba96e35ee8ee56",
+        "113b4334b61ed57cdd5de917b15c3b6436b9a2b797f02be2d0f0f04bd3ca968c",
+        "77ca0d5d1ecf25b1a192ce71266eaf72e3d70e1e9609d843caa7cf30f910c126"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout.mask_destination": {
+      "source_blocks_sha256": [
+        "fd761eff222c90217c9ecb4b59ab225f78d15d9e96741307de98ddf39531bc33",
+        "2d63b3a828593c97de92fa1861a7cc9ca12b466dc00d0cff42db20d373fc2b92",
+        "e5db885eb6cdeb1832a450d2bdda9ca1281dd0fffb0378f239f9396b7f22fa2c",
+        "b16276b0a9d63bfc1e7095faa6ff7ab566acb1b71de4b9dc0c00d53fe66c04c7",
+        "10fb5c29379c6eca0adbdefa8b3afd565dfeb4e401b96e259910950d6d4195b2"
+      ],
+      "source_sha256": "4144c54761a80d374d3487d27b23150e763bd586d31f297b53b8f9db8bf418df",
+      "text": "जहां ``stem`` के लिए एक चिकित्सीय मास्क लिखा जाता है।\n\n``seg`` लेआउट उस पैकेज में वापस लिखता है जिसे पढ़ा गया था, जैसा कि बाहरी टूल करता है; अन्य दो लिखते हैं ``<masks_dir>/<stem>.tif``, जो कि :func:`spacr.qt.mask_engine.mask_save_path` पहले से ही नाजुक लेआऊट के लिए क्या उत्पन्न करता है।\n\n:param stem: मैदान की ध्वनि है।\n:returns: रास्ते में एक चिकित्सीय मास्क होता है।\n:raises CurationQueueError: जब ``stem`` इस कार्य सूची में नहीं है।",
+      "translation_source_blocks_sha256": [
+        "fd761eff222c90217c9ecb4b59ab225f78d15d9e96741307de98ddf39531bc33",
+        "2d63b3a828593c97de92fa1861a7cc9ca12b466dc00d0cff42db20d373fc2b92",
+        "e5db885eb6cdeb1832a450d2bdda9ca1281dd0fffb0378f239f9396b7f22fa2c",
+        "b16276b0a9d63bfc1e7095faa6ff7ab566acb1b71de4b9dc0c00d53fe66c04c7",
+        "01e9d63fce80e10357d70b9126c3fa7a58ce1b94ea6da148a29994fdf4b12d98"
+      ]
+    },
+    "spacr.curation_queue.QueueLayout.status_path": {
+      "source_blocks_sha256": [
+        "3f0f53f44e5d01e6408c9f24021119fc8f05bc425c402d49ea8b53d36c9c5923"
+      ],
+      "source_sha256": "0ded3dcd9808ba064f0d32c545d37e7669f1a22be3a7180709c5af4c2b5dcf38",
+      "text": ":returns: इस कार्य सूची में मार्ग ``curate_status.csv`` है।",
+      "translation_source_blocks_sha256": [
+        "a0a91b654669aac808b4ecea9906522ef39377953ac15563a653f1678dbd8d05"
+      ]
+    },
+    "spacr.curation_queue.QueueSummary": {
+      "source_blocks_sha256": [
+        "17b2462737cf8f542af2aa8b5a871344bf4729a7a5097a0b239325a2c08bc673",
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
+        "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",
+        "da33edf76b0e258f813f937d76259eae1ed7e06caf4d9a6d49e3e5a22e470b37",
+        "e8afaecea4ffc5d11913e96816725ff56806be5723e4489189bdc656579e051f",
+        "2378a787d3f94701ea33c20e200e573a4891969c220330378b7b15417bfbc414"
+      ],
+      "source_sha256": "ccb6ef2fd498d15ada5ab38b597183047fd212c34b7ad734c77a456c1e7b92f8",
+      "text": "क्या करने के लिए छोड़ दिया है, शब्दों में लेजर आइटम 396 के लिए पूछता है।\n\n:ivar total: फ़ोल्डर में फ़ॉल्डर।\n:ivar done: चिकित्सक\n:ivar skip: अस्वीकार कर दिया - इलाज नहीं किया जा सकता है, और फिर से प्रस्तावित नहीं किया जाना चाहिए।\n:ivar recropped: बच्चों में विभाजित, जो काम की सूची में हैं, इसके बजाय।\n:ivar remaining: जिनके पास कोई समीक्षा नहीं की गई है।\n:ivar unknown: इस फ़ोल्डर में नहीं हैं कि स्टेम के बारे में स्थिति पंक्तियां. कपट, कभी नहीं गिराया, और यहां शांत होने के बजाय जानते हैं: एक दूसरी मशीन पर वे आमतौर पर पहले से ही कहीं और काम कर रहे हैं।",
+      "translation_source_blocks_sha256": [
+        "17b2462737cf8f542af2aa8b5a871344bf4729a7a5097a0b239325a2c08bc673",
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
+        "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",
+        "ba7e218fe5eee970508138a213cbb1914ba26c249c31c29da3283be009322b36",
+        "e8afaecea4ffc5d11913e96816725ff56806be5723e4489189bdc656579e051f",
+        "2378a787d3f94701ea33c20e200e573a4891969c220330378b7b15417bfbc414"
+      ]
+    },
+    "spacr.curation_queue.QueueSummary.describe": {
+      "source_blocks_sha256": [
+        "30f66421ba9a830c69a6ef0cd1ec9f90c7f0551095cae3016fe78383dbd8bb35",
+        "4e2496459fc8362b25877de0861d9ab2fe47888b2e855f09f7b567828c3e88b6",
+        "20aa333053bb65022b960e8a92ad68ab78f69b7eff359b9cbba1bcc68b25487a"
+      ],
+      "source_sha256": "0c8fc0758a733632749ab9605942d158ce348a37cc190c62f7374c2204b34092",
+      "text": "एक लाइन एक कॉलर प्रिंट कर सकता है।\n\nलेजर की मापा स्थिति, ``500 bundles, 366 done, 29 skip, 105 remaining``, यह ठीक है कि यह इसके लिए वापस आता है. दो दुर्लभ गिनती केवल तभी जोड़ी जाती हैं जब वे शून्य नहीं होते हैं, इसलिए सामान्य वाक्यांश छोटा रहता है.\n\n:returns: काम की सूची का एक आसानी से पढ़े जाने वाला सारांश।",
+      "translation_source_blocks_sha256": [
+        "30f66421ba9a830c69a6ef0cd1ec9f90c7f0551095cae3016fe78383dbd8bb35",
+        "4e2496459fc8362b25877de0861d9ab2fe47888b2e855f09f7b567828c3e88b6",
+        "62d985de11ec4f07ee7249ba0cb22d96356c5439739327049db1004e672655ed"
+      ]
+    },
+    "spacr.curation_queue.StatusFileError": {
+      "source_blocks_sha256": [
+        "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57"
+      ],
+      "source_sha256": "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57",
+      "text": "``curate_status.csv`` मौजूद है लेकिन एक पुनरावृत्ति रिकॉर्ड के रूप में नहीं पढ़ा जा सकता है।",
+      "translation_source_blocks_sha256": [
+        "cd66e85f2a0845bf35ef70e5470255a2ecd8cb3db5268f37c70e09835c809b57"
+      ]
+    },
+    "spacr.curation_queue.StatusRow": {
+      "source_blocks_sha256": [
+        "7482bbfb1e45194f6a49473faefaafe9795f83da95a442d39a377bf376de4c36",
+        "d7b033ac6a14c014f9f6f7fae1744461ee6a4bcaae1c940ac48630d5573763c8",
+        "5d037e707ecb21c5046b165062522b36e7da2858dddc52043f229ec5c4107725",
+        "ef6f07e29158143b2943542e6952319a9234a6373f688013a0a0fcf40fb5c093",
+        "3bd6da4235b71c11cbce48da83c1fdab6901f33b4a6617ce778176c97928c527"
+      ],
+      "source_sha256": "17d8dbf6d1ba4a6f2f28e393a90aa6aa89e8446a2b6deb1cd70a506dbb5adbff",
+      "text": "एक लाइन ``curate_status.csv`` है।\n\n:ivar stem: यह किस क्षेत्र के बारे में है।\n:ivar state: ``done``, ``skip``, ``recropped``, or anything else, which counts as pending. Normalised to lower case with the surrounding whitespace stripped, so a row typed by hand as ``Done`` still ends that stem's turn.\n:ivar n_objects: कितने वस्तुओं माइक्रोस्कोप के दृश्य क्षेत्र में था जब यह समीक्षा की गई थी, या ``None`` जब फ़ाइल ने नहीं कहा था।\n:ivar updated: आईएसओ 8601 टाइमस्टैम्प, जैसा कि लिखा गया है।",
+      "translation_source_blocks_sha256": [
+        "7482bbfb1e45194f6a49473faefaafe9795f83da95a442d39a377bf376de4c36",
+        "d7b033ac6a14c014f9f6f7fae1744461ee6a4bcaae1c940ac48630d5573763c8",
+        "5d037e707ecb21c5046b165062522b36e7da2858dddc52043f229ec5c4107725",
+        "33fa20c17af770be8816193bceb87c95bc7c3908494498089a0f9a06b44c8343",
+        "3bd6da4235b71c11cbce48da83c1fdab6901f33b4a6617ce778176c97928c527"
+      ]
+    },
+    "spacr.curation_queue.StatusRow.reviewed": {
+      "source_blocks_sha256": [
+        "bec90481f344dbb28ba76d99a8df5a9e118bf0621df3f935e74896d8995dd838"
+      ],
+      "source_sha256": "c8e174f9f05c8f51f3c19f4f7126458fee37a7ac5f889c6d27cdb665670b26cd",
+      "text": ":returns: क्या यह पंक्ति काम की सूची से बाहर निकलती है।",
+      "translation_source_blocks_sha256": [
+        "97465fe60ce78a161e9ccd20c74d71e080d68e7649b60b37b1617d82471e6f25"
+      ]
+    },
+    "spacr.curation_queue.build_queue": {
+      "source_blocks_sha256": [
+        "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
+        "a7ece0725e57b5801218a905de7e1460717ae20c1cf034cd7d51a2fd2ade0fed",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "acbc65f159e6a0fe53b1154b8d64dc1bc03924978bffc8d459290c8b2048d7be",
+        "d0170800c2bb550e12f3b67a71c1dd0363204b95f557016b001dc4162f2f2dbf",
+        "8a247677246f65558a399f92d208e5458852ea672a51c07542d2d6b259d3c916",
+        "f2ed96eca899632a7f81f567a8d2304a55991ffc6fa5240df9aafeef2b57715e",
+        "e29975c5200eccb28213ff58fb94904472c5080b0d39eb020cd0a6b46f998291",
+        "06c3e4e2a456fbbcc5a0bede8a2dbef0325cbc9aef5c155f8df85888f751ef65",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
+        "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
+        "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ],
+      "source_sha256": "db641a7f12c3c5190e03c47662498d587c921e1729f5e5d44049377d2a3e72f6",
+      "text": "एक फ़ोल्डर को एक सीमित चिकित्सीय सत्र के रूप में खोलें।\n\nक्रम में: लेआउट का पता लगाएं, पुनरावृत्ति रिकॉर्ड पढ़ें, पहले से ही समीक्षा की गई सभी चीजों को फेंक दें, जो कुछ छोड़ दिया गया है उसे ऑर्डर करें, और केवल वही सीमा लागू करें - इसलिए ``--limit 20`` का मतलब है कि अभी भी करने के लिए 20 सबसे मूल्यवान फ़ील्ड हैं, पहले 20 नहीं पाए गए हैं।\n\n:param folder: कार्य सूची फ़ोल्डर।\n:param order: एक :data:`ORDERS`; :data:`DEFAULT_ORDER` डिफ़ॉल्ट रूप से।\n:param limit: इस सत्र में कितने फ़ील्ड प्रदान किए जाते हैं, या सभी के लिए ``None``।\n:param probs: संभावनाओं का उपयोग करने के बजाय पढ़ने ``curate_scores.csv``।\n:param counts: डिजाइनों को पढ़ने के बजाय उपयोग करने के लिए गिनती।\n:param announce: जहां नोट्स जाते हैं; डिफ़ॉल्ट :func:`print` के लिए।\n:param include_reviewed: डिफ़ॉल्ट रूप से बंद करें; यही \"resume\" का मतलब है।\n:param min_objects: इसे :func:`value_key` में स्थानांतरित किया गया है।\n:param min_diameter: इसे :func:`value_key` में स्थानांतरित किया गया है।\n:param cache_counts: क्या ``easy`` अपनी गिनती कैश लिख सकता है।\n:returns: the :class:`CurationQueue`.\n:raises LayoutError: जब फ़ोल्डर एक असंगत लेआउट नहीं है।\n:raises StatusFileError: जब स्थिति फ़ाइल को पढ़ा नहीं जा सकता है।\n:raises ValueError: जब ``order`` :data:`ORDERS` में से एक नहीं है।",
+      "translation_source_blocks_sha256": [
+        "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
+        "a7ece0725e57b5801218a905de7e1460717ae20c1cf034cd7d51a2fd2ade0fed",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "acbc65f159e6a0fe53b1154b8d64dc1bc03924978bffc8d459290c8b2048d7be",
+        "d0170800c2bb550e12f3b67a71c1dd0363204b95f557016b001dc4162f2f2dbf",
+        "8a247677246f65558a399f92d208e5458852ea672a51c07542d2d6b259d3c916",
+        "f2ed96eca899632a7f81f567a8d2304a55991ffc6fa5240df9aafeef2b57715e",
+        "e29975c5200eccb28213ff58fb94904472c5080b0d39eb020cd0a6b46f998291",
+        "06c3e4e2a456fbbcc5a0bede8a2dbef0325cbc9aef5c155f8df85888f751ef65",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
+        "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
+        "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ]
+    },
+    "spacr.curation_queue.count_draft_objects": {
+      "source_blocks_sha256": [
+        "8b939ea2da00733fb12e88698c2d9f4c964295e1ddc9f952b5d26f58e0aa9b93",
+        "3c8f24434e24a622e8a199151e5a5601f4987829095c03482d9cbbcdcd1e3109",
+        "6c7c64a05f6ec77ad3383f4c7dcff1ddc8edc3bf5afe22ca511d4b171847cc31",
+        "b78054b87351cf0955949c441d98e72b9a368f6e04c3bfe0b961d837ec4eb534"
+      ],
+      "source_sha256": "0a94d88e927e29632875c8b440f8f725d50f63a2cc167d0d025c20264f3d4cfb",
+      "text": "योजना में कितने वस्तुएं हैं।\n\nCounted as distinct non-zero labels rather than as ``masks.max()``, which is what the external tool uses. The two agree on a fresh Cellpose pickle, whose ids run 1..N, and disagree in the two places that matter here: a label TIFF that has had objects deleted has gaps in its ids, so ``max()`` overcounts; and a 0/255 binary mask, which the nested and sibling layouts can perfectly well hold, would report 255 objects.\n\n:param item: गिनती करने के लिए मैदान।\n:returns: वस्तुओं की संख्या, और ``0`` एक डिज़ाइन के लिए जो अनुपस्थित है या पढ़ने योग्य नहीं है - जैसा कि बाहरी टूल की गिनती कैश भी करता है, क्योंकि यह केवल ड्राइव ऑर्डर की गणना करता है।",
+      "translation_source_blocks_sha256": [
+        "8b939ea2da00733fb12e88698c2d9f4c964295e1ddc9f952b5d26f58e0aa9b93",
+        "624926a075af0a076009f384d18d97dec1242b1389e32942376840fbe3b5397e",
+        "6c7c64a05f6ec77ad3383f4c7dcff1ddc8edc3bf5afe22ca511d4b171847cc31",
+        "b78054b87351cf0955949c441d98e72b9a368f6e04c3bfe0b961d837ec4eb534"
+      ]
+    },
+    "spacr.curation_queue.detect_layout": {
+      "source_blocks_sha256": [
+        "5c66b3c4ea4c358588e365e24efc110cd69e835158f8bf648005ebb8a532bf2a",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "afee221f18fa62a1591265219ed85d64a234933f0e029a5a229c4cbfa1a249db",
+        "dae11af6273decb8f8639115a19c3a5f681a89c88f1ad017bfe0a69d9a8f72d6",
+        "8ac1d439c1588410321891a82e82769f76a022a1503073e7a7c1859b7b00c513",
+        "bab1ea9c97149e5b21cd79a03daab5c25f7c19870d269e11982c7843a16193db"
+      ],
+      "source_sha256": "cbc1afdd3df1ea85136945722b4e5f387f203eab1853014ca4df442f7d8cba1c",
+      "text": "काम करें कि तीन सेटिंग्स ``folder`` में कौन सा है, और इसे पढ़ें।\n\n:param folder: कार्य सूची फ़ोल्डर।\n:returns: :class:`QueueLayout`, इसमें पाए जाने वाले प्रत्येक फ़ील्ड के साथ।\n:raises LayoutError: जब ``folder`` एक निर्देशिका नहीं है, तो तीन सेटिंग्स में से कोई भी फिट नहीं होता है, या उनमें से एक से अधिक फिट होता है।\n:raises CurationQueueError: जब इसमें दो फ़ाइलें एक ध्वनि साझा करती हैं।\n\nदोनों अस्वीकृति उद्देश्य पर जोर से हैं. दो लेआउट के बीच का पता लगाना आधा फ़ोल्डर लोड करता है; एक का मानना है कि वहाँ नहीं है, इसमें से कोई भी लोड नहीं करता है, और रिपोर्ट करता है कि एक समाप्त कार्य सूची के रूप में।",
+      "translation_source_blocks_sha256": [
+        "5c66b3c4ea4c358588e365e24efc110cd69e835158f8bf648005ebb8a532bf2a",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "afee221f18fa62a1591265219ed85d64a234933f0e029a5a229c4cbfa1a249db",
+        "dae11af6273decb8f8639115a19c3a5f681a89c88f1ad017bfe0a69d9a8f72d6",
+        "8ac1d439c1588410321891a82e82769f76a022a1503073e7a7c1859b7b00c513",
+        "0ca410566eadc59b6723eeb76f0297154e10e6efc78bcea34cd888d61930b3fc"
+      ]
+    },
+    "spacr.curation_queue.discover_items": {
+      "source_blocks_sha256": [
+        "63bfc425de3a71beab6efdf02a8105a0ddbd14081b03657c327577df3178d8cb",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "8b4e18ae48c7734e4f8dd3ee49835c1495f8a21e32433f2fece3671a741841c7",
+        "54c094eed0595ab8629b4cb722ae130e4cbc64d6b6a3900b8a298905a000c8a2"
+      ],
+      "source_sha256": "2a93954f42955edade38b9edfa06b81b5f5deaf29a4a3b250154b2ce494ec185",
+      "text": "प्रत्येक फ़ील्ड ``folder`` में है, जो भी लेआउट में है।\n\n:param folder: कार्य सूची फ़ोल्डर।\n:returns: वस्तुओं को, स्टेम द्वारा वर्गीकृत किया जाता है।\n:raises LayoutError: जैसा कि :func:`detect_layout` करता है।",
+      "translation_source_blocks_sha256": [
+        "63bfc425de3a71beab6efdf02a8105a0ddbd14081b03657c327577df3178d8cb",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "8b4e18ae48c7734e4f8dd3ee49835c1495f8a21e32433f2fece3671a741841c7",
+        "54c094eed0595ab8629b4cb722ae130e4cbc64d6b6a3900b8a298905a000c8a2"
+      ]
+    },
+    "spacr.curation_queue.draft_stats": {
+      "source_blocks_sha256": [
+        "0f63855d032023f7c97e1d0223cc305b57c6301c1d2c5f914f1796b258d8884a",
+        "7990e590f4591bcecd4c6a23a3e17c5a5c44e1c0dcb49cf6cefc9ec90e3a0eec",
+        "50d72f6e0d68c4aa38fa6f0b824dd1325f2825e0ee80b42185e8d558f49c500e"
+      ],
+      "source_sha256": "087296c40c0d52921effd5c3938f0905cefbe046068a10d2e8fb9b91f38416aa",
+      "text": ":param item: मैदान को मापने के लिए।\n\n:returns: ``(n_objects, median_diameter)`` अपने डिजाइन के लिए।\n:raises Exception: कोई फर्क नहीं पड़ता कि पढ़ने के लिए एक अनूठा डिज़ाइन उठाता है. ``value`` आदेश यह पकड़ता है और अंतिम मृत फ़ील्ड का वर्गीकरण करता है.",
+      "translation_source_blocks_sha256": [
+        "0f63855d032023f7c97e1d0223cc305b57c6301c1d2c5f914f1796b258d8884a",
+        "7990e590f4591bcecd4c6a23a3e17c5a5c44e1c0dcb49cf6cefc9ec90e3a0eec",
+        "50d72f6e0d68c4aa38fa6f0b824dd1325f2825e0ee80b42185e8d558f49c500e"
+      ]
+    },
+    "spacr.curation_queue.is_reviewed": {
+      "source_blocks_sha256": [
+        "61f7f0a46c76447835c2b5233d51499ffacd1656287aa6bfefdc4427bf370286",
+        "086baeb658a5161555c8843b51dd902bc7c4f573001c72738bf46518b2370ed7"
+      ],
+      "source_sha256": "5dda2d921aff187106a2e54df52bed5c47943735df81ea371719b731b2c5d9cf",
+      "text": ":param state: एक राज्य श्रृंखला, या ``None``।\n\n:returns: ``done``, ``skip`` और ``recropped`` सभी करते हैं, और वे अलग रहते हैं: ``skip`` का मतलब \"cannot be curated\" है, जो एक छोटा ``done`` नहीं है।",
+      "translation_source_blocks_sha256": [
+        "61f7f0a46c76447835c2b5233d51499ffacd1656287aa6bfefdc4427bf370286",
+        "4b8dc8bfc38dfe18219883832fd94342078de44fd9b67f57fea3be74ce462201"
+      ]
+    },
+    "spacr.curation_queue.load_draft_counts": {
+      "source_blocks_sha256": [
+        "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
+        "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
+        "65597ad02f41874555b7fc2f460e612dae991973078bc46d5b88cd0664fb86b0",
+        "bb21c19763a09394e3dca3d4d61ca817b991cc6100dcfbdfa24efea3729ec43d",
+        "bf17bb1c4effb28cd91f2f9bc8a056c7bba72100c4f88307aa24a4f96599b158"
+      ],
+      "source_sha256": "1e13ebc7fce0ef9b4c4832f46ac2b7aa9c6ad843ffb9beb09ecc293bd310c6f1",
+      "text": "डिजाइन ऑब्जेक्ट ``items`` के लिए गिनती करता है, ``curate_drafts.csv`` में कैश किया जाता है।\n\nप्रत्येक लॉन्च पर तीन सौ डिजाइनों को पढ़ना धीमा है, इसलिए गिनती को स्टेम द्वारा कैश किया जाता है और केवल कैश से गायब तत्व पढ़े जाते हैं।\n\n:param folder: कार्य सूची फ़ोल्डर।\n:param items: फ़ील्डों की गिनती करने के लिए।\n:param write_cache: एक लिखने में विफलता की घोषणा की जाती है, कभी भी एक त्रुटि के रूप में रिपोर्ट नहीं किया जाता है - एक केवल पढ़ने वाले फ़ोल्डर को अभी भी खुला होना चाहिए।\n:param announce: जहां प्रगति चलती है; डिफ़ॉल्ट :func:`print` के लिए।\n:returns: ``{stem: n_objects}`` प्रत्येक दिए गए आइटम के लिए।",
+      "translation_source_blocks_sha256": [
+        "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
+        "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
+        "014239bb03bc76df3aecf670715a66b54e045d7dbc57ae1df8052aa85b42b5dc",
+        "bb21c19763a09394e3dca3d4d61ca817b991cc6100dcfbdfa24efea3729ec43d",
+        "bf17bb1c4effb28cd91f2f9bc8a056c7bba72100c4f88307aa24a4f96599b158"
+      ]
+    },
+    "spacr.curation_queue.load_probabilities": {
+      "source_blocks_sha256": [
+        "ba1cb9b1b11b449a33926001fda24cfe64c608076d888fd71a33c36674f546f3",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "ea55c37fb16531cbf2b399974a99c82896ebd425bf538f10f08aefa3e89011f8",
+        "e73dc3eb33b37b7f2f46b461ebf24f2e5e892cfe06f5a126825e64471ab0ad87"
+      ],
+      "source_sha256": "a91c47cb80761fab032899f5a8f8469aae77953b6d51aba9203f05f92744ad2f",
+      "text": "पढ़ो ``curate_scores.csv``, जब एक है।\n\n:param folder: कार्य सूची फ़ोल्डर।\n:returns: ``{stem: probability}``, और ``{}`` जब फ़ाइल अनुपस्थित है - जो कि ``prob`` और ``easy`` को वापस लाता है, जोर से।\n:raises CurationQueueError: जब फ़ाइल मौजूद है लेकिन इसमें कोई स्टेम स्तंभ या कोई पहचाना जाने वाला संभावना स्तंर नहीं है. एक स्कोर फ़ाइलें जो मौजूद हैं और उपयोग नहीं की जा सकती हैं, एक त्रुटि है जिसे रोकने के लायक है; एक खोया हुआ एक सामान्य स्थिति है.",
+      "translation_source_blocks_sha256": [
+        "ba1cb9b1b11b449a33926001fda24cfe64c608076d888fd71a33c36674f546f3",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "ea55c37fb16531cbf2b399974a99c82896ebd425bf538f10f08aefa3e89011f8",
+        "e73dc3eb33b37b7f2f46b461ebf24f2e5e892cfe06f5a126825e64471ab0ad87"
+      ]
+    },
+    "spacr.curation_queue.mark_state": {
+      "source_blocks_sha256": [
+        "3ab374aa9b45173c962dd4d39bc3f5f110ffa2adbbe593dfce686d37767ec9be",
+        "e011ea330e0abb3e3577b3659508ebbcf08159d36cecf1f14420b645361178f0",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "e695a1c30a97d8cd8da9995238498c775c7bbbea32ac055e1d36df86df53e844",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "757e4c9a20f3f6abab8a6bf939b10901ecd68c0364d1acbfbf24a2de37f09d46",
+        "9c2ac47ee18089d32b8d2411d16b525195429f47b24207b3676f53e1a00d50b7",
+        "f12f7a47ec196f380dbdc77d5af80a571c4ead7b2d4ab6b5549eabc799efb8ad"
+      ],
+      "source_sha256": "cf9f8aa392559708f6f96078730a540a4aaea56aca84ff603ce2cb6391b98655",
+      "text": "एक निर्णय रिकॉर्ड करें और फ़ाइल लिखें, प्रत्येक अन्य पंक्ति को बनाए रखें।\n\nयह वह है जिसने एक चिकित्सीय सत्र को फ़ील्ड के अनुसार किया है, और यह वह कॉल है जहां अनुपस्थिति के बारे में पंक्तियां अन्यथा खो दी जाएंगी।\n\n:param folder: कार्य सूची फ़ोल्डर।\n:param stem: क्षेत्र तय किया जा रहा है।\n:param state: रिकॉर्ड करने के लिए राज्य।\n:param n_objects: कितने वस्तुएं थीं, यदि ज्ञात हो।\n:param updated: रिकॉर्ड करने के लिए समय सीमा; अब तक डिफ़ॉल्ट।\n:returns: जैसा कि वे अब डिस्क पर खड़े हैं।\n:raises StatusFileError: जब फ़ाइल को पढ़ना या लिखना असंभव है।",
+      "translation_source_blocks_sha256": [
+        "3ab374aa9b45173c962dd4d39bc3f5f110ffa2adbbe593dfce686d37767ec9be",
+        "e011ea330e0abb3e3577b3659508ebbcf08159d36cecf1f14420b645361178f0",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "e695a1c30a97d8cd8da9995238498c775c7bbbea32ac055e1d36df86df53e844",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "757e4c9a20f3f6abab8a6bf939b10901ecd68c0364d1acbfbf24a2de37f09d46",
+        "9c2ac47ee18089d32b8d2411d16b525195429f47b24207b3676f53e1a00d50b7",
+        "f12f7a47ec196f380dbdc77d5af80a571c4ead7b2d4ab6b5549eabc799efb8ad"
+      ]
+    },
+    "spacr.curation_queue.median_equivalent_diameter": {
+      "source_blocks_sha256": [
+        "e9bf553c638ff14bb2e7b0ee38705b88c689822b172d055fd765bdd382d8edea",
+        "e36098ecf19a34cbb33b8d078525a91781c514ba01bab23a0a79da48607d8380",
+        "f3430aa7b319332165c939fdf9c19c3c02949f1a81a525314d58a5fed7af3459",
+        "ef8094a6b39a30713f9c793297cdc1e8479e88e36c318d68bc351dbfc0c415fb"
+      ],
+      "source_sha256": "5909578745942044cefd187f18bf199c7842922bd1521edb3473cbe30c2d8fb2",
+      "text": "एक लेबल छवि में वस्तुओं का मध्यम चक्र-समान व्यास।\n\nयह 2 डी इनपुट के लिए ``skimage.measure.regionprops`` का ``equivalent_diameter_area`` है, जो सीधे ``sqrt(4 * area / pi)`` के रूप में गणना की जाती है ताकि एक कार्य सूची को ऑर्डर करने में numpy की आवश्यकता हो और scikit-image नहीं।\n\n:param labels: एक 2-D पूर्ण लेबल छवि।\n:returns: पिक्सेल में औसत व्यास, या ``0.0`` जब कोई वस्तु नहीं है।",
+      "translation_source_blocks_sha256": [
+        "e9bf553c638ff14bb2e7b0ee38705b88c689822b172d055fd765bdd382d8edea",
+        "3eca7540aeee7aba5852d84dc56bd088679d0c3e9b85e01c8bba7a993e36a61e",
+        "f3430aa7b319332165c939fdf9c19c3c02949f1a81a525314d58a5fed7af3459",
+        "ef8094a6b39a30713f9c793297cdc1e8479e88e36c318d68bc351dbfc0c415fb"
+      ]
+    },
+    "spacr.curation_queue.order_items": {
+      "source_blocks_sha256": [
+        "d17b0c56b2a86cd98fcde98d22072d6c0c0cbadf5345c240b7cbbec2e9ca1c72",
+        "72584e8bd2ba5c978f03add619cec7cf7ba7ecf37e1857bbae146a09cb8893cb",
+        "e2af5044c4581a6b5cfa6fc82f6f5c5809d437d51ba343161a74e8bd9c15a116",
+        "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
+        "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
+        "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
+        "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
+        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
+        "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "318b1709471e21082b039d2c485117f295418a331f5cb037cfaa56e9bba46db6",
+        "a0ab1793eaf6d30a2bd1ccd5609af399b772fe7d28f91203ced34a1619d57d64",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ],
+      "source_sha256": "e356a7d09cc45a84f33168050cf679a8908bc0f48973eb41b8c5154a45c76817",
+      "text": "ऑर्डर एक कार्य सूची, बाहरी उपकरण के सेमैंटिक के साथ।\n\n``name`` स्तंभ के माध्यम से, और कुछ और नहीं पढ़ा जाता है - संभावनाओं के साथ नहीं, डिज़ाइनों के साथ. स्लोभ के बजाय फ़ाइल नाम के साथ ताकि आदेश बदल न जाए जब एक फ़ील्ड PNG और अगला TIFF है।\n\n``prob`` सबसे अधिक संभावना पहले: संरचित डेटा नाम ``-probs.get(stem, -1.0)`` है. डिफ़ॉल्ट बिंदु है. एक अनगिनत फ़ील्ड रिटर्न ``+1.0`` है, किसी भी वास्तविक अस्वीकार की संभावना से बड़ा है, इसलिए यह संभावना शून्य होने का दावा करने के बजाय LAST का वर्गीकरण करता है.\n\n``easy`` ``(0 if n > 0 else 1, -probs.get(stem, -1.0), -n)``. एक लोकप्रिय डिजाइन को स्वीकार-या-प्रकाश-संपादित किया जाता है; एक ईएमपीटीई डिज़ाइन का मतलब स्क्रैच से खींचना है, इसलिए खाली लोग संभावनाओं के बिना आते हैं. प्रत्येक समूह के भीतर, सबसे अधिक संभावना है, पहले, फिर अधिकांश वस्तुओं।\n\n``value`` द्वारा :func:`value_key`: कितने डिज़ाइन को ठीक करने के लिए है।\n\nतारों को स्टेम द्वारा तोड़ दिया जाता है, क्योंकि सूची को इस में से किसी एक से पहले स्टेमर द्वारा वर्गीकृत किया जाता है और Python का वर्गीकरण स्थिर है।\n\n:param items: आदेश के लिए मैदान।\n:param order: एक :data:`ORDERS` के बारे में।\n:param probs: ``{stem: probability}``, या एक कॉल करने योग्य वापस एक, या ``None`` के लिए उपलब्ध नहीं है।\n:param counts: ``{stem: n_objects}``, or a callable returning one. When ``None``, ``easy`` reads the drafts itself.\n:param announce: जहां गिरावट नोटिस चलता है; डिफ़ॉल्ट :func:`print`, इसलिए यह बाहरी उपकरण के रूप में स्टडॉट पर उतरता है।\n:param min_objects: इसे :func:`value_key` में स्थानांतरित किया गया है।\n:param min_diameter: इसे :func:`value_key` में स्थानांतरित किया गया है।\n:param scores_hint: स्कोर फ़ाइल को Fallback नोटिस में नामित किया गया है।\n:returns: एक नई सूची, आदेश दिया गया है।\n:raises ValueError: जब ``order`` :data:`ORDERS` में से एक नहीं है।",
+      "translation_source_blocks_sha256": [
+        "a865fdeef1fd5908cfca4338e7fe8229002f97c9daa29590f3cfeac7bb74a6eb",
+        "72584e8bd2ba5c978f03add619cec7cf7ba7ecf37e1857bbae146a09cb8893cb",
+        "890cfc6f25af9afe386f77d1b15c118ab52bccebbd3f73b0e845107acde273d3",
+        "8a4539d4840c0fb9f020d0fa288b67d7627decdad2ddd3db6ae59cac5bc1de00",
+        "f49638cf8782d42587b5c6edc9ce8c736db01bb5706862ab31cf0af5acaa5132",
+        "2e56c27b239f47a61450253adaeaee88662a0db3b9873b16ea288f4bb5e7352c",
+        "becf42ff6ecf8c15166a896cf414eb439b9caa2dee7218f78d12f9891b9467b9",
+        "ff8a0c9448a5906979bca804d19cddcf2c85df6698ce2d65663578bb98655891",
+        "e05d67e63abb2f383aa8cc82dee5a6c19f7ab048071dd147be3d921298f10278",
+        "08f5c4b93b4e2bb3fa0faf3d265fe01748e815f8ccd1aa74668e4f6a0806b110",
+        "d5d9affd47ac2288cd304bac425a775c6067fd6e518be7386743dd907991198d",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
+        "318b1709471e21082b039d2c485117f295418a331f5cb037cfaa56e9bba46db6",
+        "a0ab1793eaf6d30a2bd1ccd5609af399b772fe7d28f91203ced34a1619d57d64",
+        "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
+      ]
+    },
+    "spacr.curation_queue.pending_items": {
+      "source_blocks_sha256": [
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "a14e85587438fbf295cf32022a4130b5416006a2a808bc4e8324cff36b1d85e5"
+      ],
+      "source_sha256": "30b5a5d81ea7e359974fe53fd75ca94fcb660879cae08a96c73a0b57ed659cb1",
+      "text": ":param items: फ़ोल्डर में फ़ॉल्डर।\n\n:param status: स्थिति फ़ाइल से पढ़े गए पंक्तियां।\n:returns: वस्तुओं की कोई समीक्षा नहीं की गई स्थिति, दिए गए आदेश में।",
+      "translation_source_blocks_sha256": [
+        "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "a14e85587438fbf295cf32022a4130b5416006a2a808bc4e8324cff36b1d85e5"
+      ]
+    },
+    "spacr.curation_queue.read_status": {
+      "source_blocks_sha256": [
+        "da823dca6315e7262d6cbcc48c46e71d3ff0b4b69f5f4c420ec768b176da75fc",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b15ac808dbbe05024deb7e499edd728925f07d53e4db60eca52b960176c40017",
+        "8048219255aa9d7c33f8ffaaa167801e8e8b2f863e2b864bb69a9d03036b23f9"
+      ],
+      "source_sha256": "1b8559101df778e57da214047b4bee11ff49454e4dffe6e7c3feedb7cc9395fb",
+      "text": "पुनरावृत्ति रिकॉर्ड पढ़ें।\n\n:param folder: कार्य सूची फ़ोल्डर।\n:returns: ``{stem: StatusRow}``, खाली है जब कोई स्थिति फ़ाइल अभी तक मौजूद नहीं है. फ़ोल्डर में नहीं हैं कि धाराओं के बारे में त्रुटि शामिल हैं; वे कारण हैं :func:`write_status` सब कुछ वापस लिखता है यह दिया जाता है.\n:raises StatusFileError: जब फ़ाइल मौजूद है लेकिन इसमें कोई ``stem`` स्तंभ नहीं है, जिसका अर्थ है कि यह बिल्कुल भी एक स्टेटफ़ाइल नहीं है।",
+      "translation_source_blocks_sha256": [
+        "da823dca6315e7262d6cbcc48c46e71d3ff0b4b69f5f4c420ec768b176da75fc",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b15ac808dbbe05024deb7e499edd728925f07d53e4db60eca52b960176c40017",
+        "8048219255aa9d7c33f8ffaaa167801e8e8b2f863e2b864bb69a9d03036b23f9"
+      ]
+    },
+    "spacr.curation_queue.record_state": {
+      "source_blocks_sha256": [
+        "ea13fc50170c34e0616a5cfeab022bfac653188288d936996e6365995f0ddf94",
+        "b218b3f4bf8306e4df130a2958b1909aa83bec6ca8ae78a3da3151c978dcfd0d",
+        "f154e3aac448e8a01d43822df4e91f3ecd16d9493c5dfd7d13a63bff24dece3d",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "5e64c93bec3411052adb20abf5037a6a047d4e48369064d71bf109ce34872458",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "4e98cf45aaaa533114e3557810ee898efcef89c22a05b5d48c31f508ca0ed6b6",
+        "415c87344c01339f00f80723032ef91b69189092cafbcff957a8c1839f8a4825"
+      ],
+      "source_sha256": "f79bba6c432e81ba4fd5b3366b9d32201b0b6b89d07a4d7baf7cb30ae241b0f0",
+      "text": "रिटर्न ``rows`` एक स्तंभ के निर्णय के साथ रिकॉर्ड किया गया है।\n\nशुद्ध: पास किए गए मैपिंग को संशोधित नहीं किया जाता है, इसलिए एक कॉलकर्ता यह तय कर सकता है कि क्या परिवर्तन डिस्क तक पहुंचता है या नहीं।\n\n:param rows: अब तक की किताबें पढ़ी जा रही हैं।\n:param stem: क्षेत्र तय किया जा रहा है।\n:param state: ``done``, ``skip``, ``recropped``, or any other string, which leaves the stem pending.\n:param n_objects: कितने वस्तुएं थीं, यदि ज्ञात हो।\n:param updated: समय-समय रिकॉर्ड करने के लिए; अब तक, दूसरी तक डिफ़ॉल्ट।\n:returns: एक नया मैपिंग, जिसमें रिकॉर्ड की पंक्ति शामिल है।",
+      "translation_source_blocks_sha256": [
+        "ea13fc50170c34e0616a5cfeab022bfac653188288d936996e6365995f0ddf94",
+        "b218b3f4bf8306e4df130a2958b1909aa83bec6ca8ae78a3da3151c978dcfd0d",
+        "f154e3aac448e8a01d43822df4e91f3ecd16d9493c5dfd7d13a63bff24dece3d",
+        "aa766b9a3aaabe735f5025a05e4c66878738271cd6548e5abf4b56050b580045",
+        "5e64c93bec3411052adb20abf5037a6a047d4e48369064d71bf109ce34872458",
+        "b2f02fbf1e4423310537dc7c9f1248275c396f7c77681bbce80fac321a9a1418",
+        "4e98cf45aaaa533114e3557810ee898efcef89c22a05b5d48c31f508ca0ed6b6",
+        "415c87344c01339f00f80723032ef91b69189092cafbcff957a8c1839f8a4825"
+      ]
+    },
+    "spacr.curation_queue.resolve_order": {
+      "source_blocks_sha256": [
+        "99f5c30f0f05ecd4937fb1cdbab0dd4d60e38f5a3f5d940926ff9d3b1ba722f6",
+        "aecbdc2dbe0551c990ff124538382804c9ae4964d45e85cdc28fce01e1dd3cd5",
+        "d03eb21e2930daef0938cb12364be3574123a662506175c5df058b67db983fff",
+        "979b73f081e2958411ed83a7e99ab2c980313210b85e6eb6d5aa9f454c13e313",
+        "d3f0adeafe3cbfad84cdb9ead013bbb72a3bc78990e17f2ce090f2d9b5216966",
+        "64846805df3ef5797bc6cab94a3a9d2434cc5f658147586cb13333a7d1746f1a",
+        "a11a8dd17e2f2aa36ce60171f2af6c0be04b38602288649247a5319c96818bb0"
+      ],
+      "source_sha256": "20253639e660f24e21ca38919026724175535a1ef50ec163514dfdf828fc2061",
+      "text": "यह तय करें कि वास्तव में किस ऑर्डर का उपयोग किया जाएगा, और इसके बारे में क्या कहना है।\n\n``prob`` और ``easy`` दोनों संभावनाओं की जरूरत है. उनके बिना वे ``value`` में वापस आते हैं — और हाँ कहें. घोषणा व्यवहार का आधा है: एक चुप रिकॉर्ड क्यूरेटर को विश्वास छोड़ देता है कि वे पहले अनिश्चित क्षेत्रों पर काम कर रहे हैं जब वे नहीं हैं.\n\n:param order: आदेश के लिए अनुरोध किया गया है, :data:`ORDERS` का एक।\n:param probabilities: संभावनाएं उपलब्ध हैं, संभवतः खाली हैं।\n:param scores_hint: स्कोर फ़ाइल जो उन्हें प्रदान किया जाएगा, संदेश में नामित है ताकि सुधार स्पष्ट हो।\n:returns: ``(effective_order, announcement)``, घोषणा ``None`` है जब कुछ भी नहीं बदलता है।\n:raises ValueError: जब ``order`` :data:`ORDERS` में से एक नहीं है. एक टाइपो को चुपचाप एक अलग ऑर्डर नहीं बनना चाहिए.",
+      "translation_source_blocks_sha256": [
+        "99f5c30f0f05ecd4937fb1cdbab0dd4d60e38f5a3f5d940926ff9d3b1ba722f6",
+        "aecbdc2dbe0551c990ff124538382804c9ae4964d45e85cdc28fce01e1dd3cd5",
+        "d03eb21e2930daef0938cb12364be3574123a662506175c5df058b67db983fff",
+        "979b73f081e2958411ed83a7e99ab2c980313210b85e6eb6d5aa9f454c13e313",
+        "d3f0adeafe3cbfad84cdb9ead013bbb72a3bc78990e17f2ce090f2d9b5216966",
+        "64846805df3ef5797bc6cab94a3a9d2434cc5f658147586cb13333a7d1746f1a",
+        "a11a8dd17e2f2aa36ce60171f2af6c0be04b38602288649247a5319c96818bb0"
+      ]
+    },
+    "spacr.curation_queue.status_path": {
+      "source_blocks_sha256": [
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "2a86f2932eea2e21e8fb3e101cbe26e6ae7e334bed4925ec17a8800109fb9179"
+      ],
+      "source_sha256": "13d3efb3c86cebc69e873382fdd4fba16f310b17e0c1026293e51941db3f2c4d",
+      "text": ":param folder: कार्य सूची फ़ोल्डर।\n\n:returns: ``<folder>/curate_status.csv``, कार्य सूची फ़ोल्डर के अंदर ताकि यह मशीनों के बीच सिंथेटेड होने पर छवियों के साथ यात्रा करे।",
+      "translation_source_blocks_sha256": [
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "34fc749e093308e4387c094711566edbcbe945f66b07e189cb6e2c8c38abc45d"
+      ]
+    },
+    "spacr.curation_queue.summarize": {
+      "source_blocks_sha256": [
+        "756d0507e7059f2fe14cb23877552e734e60a938facf34517653ffa79a9bea70",
+        "49bf6d302ceb0b3d4589949f20b79411dfbc7a05a83d911a4b52c956e2d30ff4",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "fda7055940bc4012d25a0e7c8f07857a04bfc8a962533d6624cb125279817259"
+      ],
+      "source_sha256": "701343fa73f47220c21396b3a252f9a09ef42b132e0cba110c566e3e9fc678e5",
+      "text": "फ़ोल्डर की गिनती करें जैसा कि लीडर इसके लिए पूछता है।\n\n:param items: फ़ोल्डर में हर फ़ील्ड\n:param status: स्थिति फ़ाइल से पढ़े गए पंक्तियां।\n:returns: :class:`QueueSummary`. गिनती वास्तव में यहां मौजूद फ़ील्डों के ऊपर है, इसलिए ``done + skip + recropped + remaining == total``; यहाँ मौजूद नहीं होने वाले ध्रुवों के बारे में पंक्तियों को अलग-अलग ``unknown`` के रूप में बताया जाता है, बजाय जो करने के लिए छोड़ दिया गया है उससे बाहर निकाला जाता है।",
+      "translation_source_blocks_sha256": [
+        "756d0507e7059f2fe14cb23877552e734e60a938facf34517653ffa79a9bea70",
+        "49bf6d302ceb0b3d4589949f20b79411dfbc7a05a83d911a4b52c956e2d30ff4",
+        "100bc4a67efe3e61f1457bd121cd1c5ae053fc8ca62f3bc4c7af6decd193230e",
+        "fda7055940bc4012d25a0e7c8f07857a04bfc8a962533d6624cb125279817259"
+      ]
+    },
+    "spacr.curation_queue.value_key": {
+      "source_blocks_sha256": [
+        "eb3a1e50233adbc5f93199ba97042ab6cbacf3b7531654273109d7b5cd80ec9c",
+        "3e0651def8fdf5d1a5180a36f9f195247b33e6567ac3bf51fab142113f9c1315",
+        "5013c2d937903c95ef56c336bb460c1e0c2b4cc5cfcc957bec7ca94ded9f4754",
+        "a5cf0b5df83e61083b2460fae62618a4deeff8d1c8b9eb785ef21f776def36f9",
+        "cb8b5d3443e628ee31a6669097d1dcb3264d23d44c1386e0cf48533e9fd413a4",
+        "fa1d9a3b11b2f549f69e2658172b3f3332507d2edcbbee91cfa64a4856427cd9"
+      ],
+      "source_sha256": "111f8fff6ff0de2c04b5b3d792596d75c9c177f44b1059c04e5ae0e016a96acc",
+      "text": "``value`` आदेश के लिए कुंजी सेट करें: कितना डिज़ाइन ठीक करने के लिए है।\n\nसटीक रूप से बाहरी टूल का ``_value``::\n\n    n == 0                     -> (2, 0, 0)   nothing to correct, last\n    unreadable                 -> (3, 0, 0)   dead last\n    otherwise                  -> (0 if rich else 1, -diameter, -n)\n\n:param item: रैंक करने के लिए मैदान।\n:param min_objects: वस्तुओं को एक \"rich\" डिज़ाइन की आवश्यकता होती है. प्लेक-विशिष्ट.\n:param min_diameter: मध्यम व्यास एक \"rich\" डिजाइन की आवश्यकता है, पिक्सेल में. प्लेक-विशिष्ट.\n:returns: कुंजी की तरह है।",
+      "translation_source_blocks_sha256": [
+        "eb3a1e50233adbc5f93199ba97042ab6cbacf3b7531654273109d7b5cd80ec9c",
+        "3e0651def8fdf5d1a5180a36f9f195247b33e6567ac3bf51fab142113f9c1315",
+        "5013c2d937903c95ef56c336bb460c1e0c2b4cc5cfcc957bec7ca94ded9f4754",
+        "a5cf0b5df83e61083b2460fae62618a4deeff8d1c8b9eb785ef21f776def36f9",
+        "cb8b5d3443e628ee31a6669097d1dcb3264d23d44c1386e0cf48533e9fd413a4",
+        "fa1d9a3b11b2f549f69e2658172b3f3332507d2edcbbee91cfa64a4856427cd9"
+      ]
+    },
+    "spacr.curation_queue.write_status": {
+      "source_blocks_sha256": [
+        "9e9b5105667f6987290807d434357ecfda07dc6a4433981f0feea257ead5a62a",
+        "9ba3b2157859174ad1384044407711d2c36535bb29da9bcddeed3a32b26aabea",
+        "b084cd5d0c165f16ae1ed30ff6c4efa67b18ab81a000c183caec71cc40a20b9a",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "b54acd52c7d031efa4ae33386fd04970fddf0461e19faee7960df142da4b4e99",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
+      ],
+      "source_sha256": "fa66c254675592456e81675da7729d170460f5801610586e4fdcb2b5a7c1ccc5",
+      "text": "पुनरावृत्ति रिकॉर्ड लिखें, परमाणु रूप से और पूर्ण में।\n\nप्रत्येक दिए गए पंक्तियों को लिखा जाता है, जिसमें इस फ़ोल्डर में नहीं होने वाले स्टेम के बारे में पंक्तियां भी शामिल हैं: क्यूरेटर एक मशीन पर पुनरावृत्ति कर सकता है जहां सेट का एक हिस्सा नहीं आया है, और उन पंक्तिओं को फेंकने से काम वापस मिलता है जो पहले से ही कहीं और समाप्त हो चुका है।\n\nफ़ाइल मशीनों के बीच सिंक्रनाइज़ करता है, और एक स्थिर आदेश वास्तव में बदलने वाली पंक्तियों के लिए एक सिंक्नाइज डिफ़ रखता है।\n\n:param folder: कार्य सूची फ़ोल्डर।\n:param rows: ``{stem: StatusRow}``, जैसा कि :func:`read_status` वापस आता है।\n:returns: लिखित मार्ग है।\n:raises StatusFileError: जब फ़ाइल नहीं लिखी जा सकती है।",
+      "translation_source_blocks_sha256": [
+        "9e9b5105667f6987290807d434357ecfda07dc6a4433981f0feea257ead5a62a",
+        "9ba3b2157859174ad1384044407711d2c36535bb29da9bcddeed3a32b26aabea",
+        "b084cd5d0c165f16ae1ed30ff6c4efa67b18ab81a000c183caec71cc40a20b9a",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "b54acd52c7d031efa4ae33386fd04970fddf0461e19faee7960df142da4b4e99",
+        "8138d15977925d7bbd3244f9f1ee67e7e1720c96671be8079d459f85932c86a7",
+        "28aad44dafa807f4941e980fc6467e403f9545695fa3dfa99daa9f2326652439"
       ]
     },
     "spacr.custom_features": {
@@ -27583,13 +28373,35 @@
     "spacr.graph_types": {
       "source_blocks_sha256": [
         "b7b7fb90d40b589357a22cfd20bbb2a7172420122d712996f196163632d9089f",
-        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e"
+        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e",
+        "ca5a49948ea2c1590b5accddbbdadc86dafd396440b161f6095900325f14ba26"
       ],
-      "source_sha256": "a52c53508f6b7cb003741199b67f8f3e79ed0ae1a31f0704ba9c2267dbc62b57",
-      "text": "मिश्रित डेटा के संरचना के लिए ग्राफिक्स प्रकार और मान्यताओं को संरेखित करें।\n\nमॉड्यूल श्रेणी, निरंतर और ऑर्डर किए गए ध्रुवों को अलग करता है. यह पहले संगत ग्राफिक्स प्रकारों को सूचीबद्ध करता है और प्रत्येक असंगत विकल्प के लिए एक कारण प्रदान करता है, जिससे इंटरफ़ेस उन्हें छिपाने के बिना असहाय विकल्पों को अक्षम कर सकते हैं.",
+      "source_sha256": "f647a564e6b91e83e942197ea9f7c8b041b813ab14457654ec94544b9c942b1b",
+      "text": "मिश्रित डेटा के संरचना के लिए ग्राफिक्स प्रकार और मान्यताओं को संरेखित करें।\n\nमॉड्यूल श्रेणी, निरंतर और ऑर्डर किए गए ध्रुवों को अलग करता है. यह पहले संगत ग्राफिक्स प्रकारों को सूचीबद्ध करता है और प्रत्येक असंगत विकल्प के लिए एक कारण प्रदान करता है, जिससे इंटरफ़ेस उन्हें छिपाने के बिना असहाय विकल्पों को अक्षम कर सकते हैं.\n\nIt is also WHERE every graph in spaCR gets its starting form. The default graph type setting is stored per data shape (`spacr.qt.preferences`), read back through :func:`chosen_for`, and turned into \"what is drawn before the first right-click\" by :func:`default_for` and :func:`start_for`. A widget asks one of those two and gets an answer that already accounts for the user's choice, whether that choice fits the data, and whether the data is thick enough to support it -- so the setting reaches a new graph by the graph doing the ordinary thing rather than by remembering to.",
       "translation_source_blocks_sha256": [
         "b7b7fb90d40b589357a22cfd20bbb2a7172420122d712996f196163632d9089f",
-        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e"
+        "342a95a2c1e814fce7ec6535d44f91e803c1e7cc2cb3a6de57a97bd8ac644d8e",
+        "0b7562408da39fd1afa818e31c04ce8c92604e0f0dfc2bc24196cb6e8fa4e122"
+      ]
+    },
+    "spacr.graph_types.chosen_for": {
+      "source_blocks_sha256": [
+        "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "36e0747e2961f019848164bb8e1fcf15f4067d08539884465b185836b2c73d2d",
+        "187f8df40ea02eeb39e838fce20fb4bd34191d4ccbfee3718a676823e6560c2c",
+        "01e87595a1bc615f3b954c02ca1e083d55ddce391a6859f115e7159ace02df59",
+        "ae7e6c2c8fe27579b0c49a55bd09dada72b89dbdde57e493e2f5af33cf177db1"
+      ],
+      "source_sha256": "268e8cecba5b39a3eed59681f0c9841a606910b03a37d6119fe026b786d516ac",
+      "text": "चार्ट को टाइप करें जिस उपयोगकर्ता को ``shape``, या ``\"\"`` के लिए प्रथम देखने के लिए कहा गया है।\n\n:param shape: :data:`DATA_SHAPES` की कुंजी में से एक है।\n:returns: संरक्षित ग्राफिक्स प्रकार, या एक खाली श्रृंखला जब उपयोगकर्ता ने इस प्रारूप के लिए कोई प्राथमिकता व्यक्त नहीं की है - या एक व्यक्त किया है यह प्रारूप नहीं ले सकता है।\n\nखाली का मतलब \"NOTHING WAS CHOSEN\" है, जो तालिका के डिफ़ॉल्ट के समान जवाब नहीं है: एक प्रारंभिक रूप के साथ एक विगेट इसे तब रखता है जब कुछ भी नहीं चुना गया है, और प्राथमिकता इसे तब पार करती है जब कोई चीज थी. :func:`default_for` वह कॉलर है जो \"nothing\" को तालिका का अपना जवाब में बदल देता है.\n\nजो कोई बार पसंद करता है वह एक निरंतर x के बजाय निरंतर y का एक बार नहीं पूछता है - यह अलग-अलग डेटा का एक अलग चार्ट है, और :data:`WHY_NOT` ऐसा कहता है।\n\nएक शीर्षक के बिना रेंडर में कोई Qt और कोई QSettings नहीं है, और अभी भी एक आंकड़ा खींचना है।",
+      "translation_source_blocks_sha256": [
+        "03676fa2a74dc55ff04c23cbe3b958c0c9e25d4d98ee011210af42da23082410",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "36e0747e2961f019848164bb8e1fcf15f4067d08539884465b185836b2c73d2d",
+        "a490496054b0582f805bf6babe7a79e5e83993685c0b41856ca3f1f50ec12c43",
+        "d72a9b242e6b2c3a14b16d3e50e5b4bed462e23424495dbd817caa885e1d5246",
+        "42e031a9f11dcecce82a6accb26b800b3b40f83e5bb80f92678e4c267a7db992"
       ]
     },
     "spacr.graph_types.default_for": {
@@ -27598,18 +28410,16 @@
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "ca40183b18a07c1acf9338fa6ba0c16334207d18f0e577d1bf569e13b98fc11e",
-        "ae77864009fe703da06f771c097819695f3bb2b55c7b17411278503df5ece071",
-        "415b833fa93f16585ebabd1ad74519d3f881d16ce31e5acb04fd1af70bf32f1d"
+        "184cbb8cfd97e315e1d24ee77329fa4c12fb4a95689b6015160fd821f1c8b14c"
       ],
-      "source_sha256": "f5183164038a770de6500b3410b6a7e709980bf5c269de7d35722dcbfc259f09",
-      "text": "ग्राफिक्स टाइप ``shape`` के लिए पहला चित्रित किया गया है।\n\n:param shape: :data:`DATA_SHAPES` की कुंजी में से एक है।\n:returns: एक ग्राफिक्स प्रकार :data:`GRAPH_TYPES` से है।\n:raises KeyError: यदि ``shape`` का समर्थन नहीं किया गया है।\n\nउपयोगकर्ता का विकल्प पहले आता है. प्राथमिकता यह तय करती है कि कौन सा संगत चार्ट पहले खींचा जाता है, और दाहिने क्लिक के बाद भी इसे बदल सकता है. spaCR में प्रत्येक चार्ट इस फ़ंक्शन के माध्यम से अपना प्रारंभिक रूप प्राप्त करता है, इसलिए प्राथमिकता लगातार स्क्रीनिंग पर लागू होती है.\n\nएक सुरक्षित विकल्प जो डेटा के अनुरूप नहीं है अनदेखा किया जाता है. जो कोई बार पसंद करता है वह एक निरंतर x के बजाय निरंतर y का एक बार नहीं पूछता है - यह विभिन्न डेटा का एक अलग चार्ट है, और :data:`WHY_NOT` ऐसा कहता है. तालिका का स्वयं का डिफ़ॉल्ट उपयोग होता है, जो एक उपयोगकर्ता है जिसने कभी भी एक प्राथमिकता व्यक्त नहीं की है।",
+      "source_sha256": "44fbc69e8cb773adb82af02cc51612c0efe11f6914e82e2dffab410182dd8b9a",
+      "text": "ग्राफिक्स टाइप ``shape`` के लिए पहला चित्रित किया गया है।\n\n:param shape: :data:`DATA_SHAPES` की कुंजी में से एक है।\n:returns: एक ग्राफिक्स प्रकार :data:`GRAPH_TYPES` से है।\n:raises KeyError: यदि ``shape`` का समर्थन नहीं किया गया है।\n\nउपयोगकर्ता का विकल्प पहले आता है. प्राथमिकता यह तय करती है कि कौन सा संगत चार्ट पहले खींचा जाता है, और दाईं क्लिक अभी भी इसे बाद में बदल सकता है. spaCR में प्रत्येक चार्ट इस फ़ंक्शन या :func:`start_for` के माध्यम से अपनी प्रारंभिक फॉर्म तक पहुंचता है, इसलिए प्राथमिकता लगातार स्क्रीनिंग पर लागू होती है.",
       "translation_source_blocks_sha256": [
         "84658b6ad17b22f8485589a508d19743d4daf13b3498499d2fa806b19709bdb5",
         "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
         "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
         "ca40183b18a07c1acf9338fa6ba0c16334207d18f0e577d1bf569e13b98fc11e",
-        "e3c262c6df324285700da459a6a2855f0e995a6be14014bbb815f6f1d59971e3",
-        "e76a57f8634dfd9907c5d0296d7112c2fde6814da0b2303e101ac79d57b6fad6"
+        "3b158aa4ffda8b39dc31f30e5adef47cdddaf815e0504395081d2576bdc43968"
       ]
     },
     "spacr.graph_types.fits": {
@@ -27624,6 +28434,22 @@
         "ee39075c3407ebc70fa187a8dde9b452765844f892e41b6133e9963db15d6c25",
         "67828e2afce9790e7391260e3203e7fac518b1a1156d15477c838912a99badad",
         "3b3abff0ffb49a9466ef2354f48a062ffec6d06e5d23bf3508031ed006347993"
+      ]
+    },
+    "spacr.graph_types.mark_for": {
+      "source_blocks_sha256": [
+        "e25dd3cdba9fc042bc68e720fcd9b2a6bd5ccc7cc35c88597f1e7bc1cdf7f134",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
+      ],
+      "source_sha256": "f20e73ffc738cc611b885ef2b908d241a3c11644de7d1e68f26360a326f68ea9",
+      "text": "लाइव-प्लॉट चिह्न जो ``graph_type`` खींचता है।\n\n:param graph_type: एक ग्राफिक्स प्रकार :data:`GRAPH_TYPES` से है।\n:param fallback: एक नाम के लिए क्या जवाब देना है :data:`MARKS` के लिए कोई प्रवेश नहीं है।\n:returns: एक चिह्न कुंजी ``spacr.qt.widgets.fast_plots.MARK_TYPES`` से है।",
+      "translation_source_blocks_sha256": [
+        "e25dd3cdba9fc042bc68e720fcd9b2a6bd5ccc7cc35c88597f1e7bc1cdf7f134",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "5d98b5f02573f7cc57d8bf5439235eca90f39a79d225e81f682025095be90a6e",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b"
       ]
     },
     "spacr.graph_types.offer": {
@@ -27662,6 +28488,66 @@
         "43b3dba91ad594058f75e5c4b7707a900a0e4b7bd3ea5f1044e65d05b04d1852",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "3e1de6ff51fffc9a432a872e26f2a3aaf904fdcefcb8d31e468b7c4e62a35563"
+      ]
+    },
+    "spacr.graph_types.start_for": {
+      "source_blocks_sha256": [
+        "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "6a90db024703a75ea0fa470b991eb4e039ca7960bd04e85d53373b7395953f02",
+        "85a76ec422f130c440b388919b360860b37526cb772586ef6a3e882a85a13ac9",
+        "cd32d3d7554953e9f06be55110581dc54ec0758ccb0f809f9925462cf5fce688",
+        "08b08d9fdfa34e224c65c2c684e80ac546aee90fb716f72ebc0560a5561adb89",
+        "6eea7dc4e7d0b2e983cb442f62586c75ada46a685d2bff3b11103de43b2d2acd",
+        "0e1cc82393976b04a02aaf20d1bf57c3c94540f5c1b6ae15893992fd1ce11a66"
+      ],
+      "source_sha256": "d13ff9364522e3b9c3ccd11fbae2c821aa9d02ff88f1f64b69ef1a5bce12ae87",
+      "text": "क्या पहला खींचना है, और क्यों यह नहीं है कि मांग की गई थी।\n\n:param shape: :data:`DATA_SHAPES` की कुंजी में से एक है।\n:param counts: समूह के अनुसार, जब वे ज्ञात होते हैं।\n:param fallback: यह जवाब दिया जाता है जैसा दिया गया है - एक विगेट जानता है कि यह क्या खींच सकता है - और एक खाली एक :data:`DEFAULTS` का मतलब है।\n:returns: ``(graph_type, note)``. नोट खाली है जब भी चार्ट को खींच लिया जाता है वह है जिसके लिए पूछा गया था।\n:raises KeyError: यदि ``shape`` का समर्थन नहीं किया गया है और कोई उपयोगी गिरावट नहीं दी गई है।\n\nएक प्राथमिकता एक सूचकांक बयान है - \"draw violins\" - और एक सूचक बयान डेटा से मिलता है वह अंततः वर्णन नहीं कर सकता है. इसके बजाय बिंदुओं को खींचना और कुछ भी नहीं कहना एक उपयोगकर्ता को छोड़ देगा जो कोई स्पष्टीकरण के बिना एक जेटर को देखने के लिए वाइलिंग के लिए पूछता है, इसलिए वाक्यांश जवाब के साथ वापस आता है और कॉलर इसे स्क्रैप पर रखता है।\n\nकेवल एक सुरक्षित विकल्प डेटा के खिलाफ फिर से समीक्षा की जाती है: :data:`DEFAULTS` पहले से ही उन प्रकारों को पिक करता है जो अवलोकनों को बनाए रखते हैं, और एक बिंदु प्रति x की रेखा - आदेशित डिफ़ॉल्ट - अन्यथा हर बार खुद से बाहर निकल जाएगी।",
+      "translation_source_blocks_sha256": [
+        "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
+        "30b0b6840291bde27912e6a10a8eb091a672f8f18dc904ea846a8a4f998878f4",
+        "6a90db024703a75ea0fa470b991eb4e039ca7960bd04e85d53373b7395953f02",
+        "85a76ec422f130c440b388919b360860b37526cb772586ef6a3e882a85a13ac9",
+        "cd32d3d7554953e9f06be55110581dc54ec0758ccb0f809f9925462cf5fce688",
+        "08b08d9fdfa34e224c65c2c684e80ac546aee90fb716f72ebc0560a5561adb89",
+        "a6beb6d696a0a4f94f81b168552e13bc119b46bfa6638b18d0115fe6037d9b56",
+        "8904e5a2b50e6b1ccc667f81d8dee09b0dbc4a2141358c809a5f0c20fdb74745"
+      ]
+    },
+    "spacr.graph_types.too_thin_for": {
+      "source_blocks_sha256": [
+        "546392a39717e8ae8e39f0dba112b09dba3500dd2d684adf933be52070a1ebd8",
+        "a7565130a1326537e3c1f33e197e91b0d9e065aa5e792af3f0b27a8062b3401f",
+        "d524502c70edb11dbfe6f1cd803bcc9ddc6895b86520061d8ab945f365b8b648",
+        "727209af1d9d581ebce9b5737d1361bdd1c0bc43223b6d783ab4c0d6a1448333",
+        "70ba3a18522ca357214b14ad116300860ec164d105aacf4ffd053f5b877f17d2"
+      ],
+      "source_sha256": "d85c3db27e28d89c01cec085e42b9eca56a83c688c3694574b5bfac19ff50131",
+      "text": "क्यों ``graph_type`` इस छोटे, या ``\"\"`` समूहों को संक्षेप में नहीं कर सकता है।\n\n:param graph_type: ग्रेड टाइप को खींचने के लिए तैयार किया गया है।\n:param counts: अज्ञात आकार - एक खाली अविश्वसनीय - एक विरोध नहीं है: एक चार्ट जो अभी तक अपने डेटा को वितरित नहीं किया गया है, अभी तक एक दावा नहीं बना रहा है।\n:returns: एक वाक्यांश जिसमें सबसे छोटी समूह का नाम दिया जाता है, या एक खाली श्रृंखला जब ग्राफिक्स प्रकार डेटा द्वारा समर्थित होता है।\n\nकेवल उन प्रकारों को जो अवलोकनों को प्रतिबिंबित करते हैं, वे बहुत पतले हो सकते हैं; देखें :data:`HIDES_THE_OBSERVATIONS`. दो बिंदुओं का एक जेटर दो अंक है, जो सच्चाई है; दो अंक का एक विलोन एक घनत्व है जिसे कभी मापा नहीं गया है।",
+      "translation_source_blocks_sha256": [
+        "546392a39717e8ae8e39f0dba112b09dba3500dd2d684adf933be52070a1ebd8",
+        "a7565130a1326537e3c1f33e197e91b0d9e065aa5e792af3f0b27a8062b3401f",
+        "d524502c70edb11dbfe6f1cd803bcc9ddc6895b86520061d8ab945f365b8b648",
+        "727209af1d9d581ebce9b5737d1361bdd1c0bc43223b6d783ab4c0d6a1448333",
+        "70ba3a18522ca357214b14ad116300860ec164d105aacf4ffd053f5b877f17d2"
+      ]
+    },
+    "spacr.graph_types.type_of_mark": {
+      "source_blocks_sha256": [
+        "6d4b68aa2344342ce7a3e2381b2cec19c7ebde2478db4bbcd2d20356c9e43af6",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b",
+        "464c4a047431e216d7e4cbf92d9afbd86b40e09089dc4aef7a47ed4629b2a1a1",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "68a3c56d0d9cf7541a9039491b90162854d2eae50ef6a960f88183c25d0a73e3"
+      ],
+      "source_sha256": "234d408705d774dcf5b32ab5ed1df8909e86c4ca014de1f625e109b828073e46",
+      "text": "चार्ट एक लाइव प्लेट ``mark`` का टाइप करता है।\n\n:param mark: एक चिह्न कुंजी ``spacr.qt.widgets.fast_plots.MARK_TYPES`` से है।\n:param fallback: एक चिह्न के लिए क्या जवाब देना है कोई ग्राफिक्स टाइप नहीं छीनता है।\n:returns: एक ग्राफिक्स प्रकार :data:`GRAPH_TYPES` से है।\n\nइसके विपरीत :func:`mark_for`, इसलिए एक विगेट जिसका अपना प्रारंभिक रूप चिह्नों में लिखा गया है, इसे एक बार और अभी भी ग्राफिक्स प्रकारों में लिखे गए एक प्राथमिकता के खिलाफ तुलना की जा सकती है।",
+      "translation_source_blocks_sha256": [
+        "6d4b68aa2344342ce7a3e2381b2cec19c7ebde2478db4bbcd2d20356c9e43af6",
+        "e3babd913b1b0f96a60fa2447eb9eac7bfb69693de7db661ff1691135c181d0b",
+        "464c4a047431e216d7e4cbf92d9afbd86b40e09089dc4aef7a47ed4629b2a1a1",
+        "e5ca9624d38eab58937a1d1cc4595c7d9edde10a06347b9bda1ffdefd9a04209",
+        "68a3c56d0d9cf7541a9039491b90162854d2eae50ef6a960f88183c25d0a73e3"
       ]
     },
     "spacr.graph_types.types_for": {
@@ -61777,9 +62663,9 @@
         "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074"
       ],
       "source_sha256": "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074",
-      "text": "एक ड्रॉप छवि फ़ोल्डर (या एक माइक्रोस्कोप छवि क्षेत्र) का उपयोग Align & Stitch इनपुट के रूप में करें।",
+      "text": "एक छवि फ़ोल्डर (या एक टाइल) का उपयोग Align & Stitch इनपुट के रूप में करें।",
       "translation_source_blocks_sha256": [
-        "b5d1aef621c991bde10670ab5fdc262a0746cf49f8ed3dc05e8a73550ad18149"
+        "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074"
       ]
     },
     "spacr.qt.dnd_handlers.AlignDropHandler.apply": {
@@ -63585,9 +64471,9 @@
         "3e9e63e8b896570b41536cde9aa33d8de1c4317ca17b23c153e753087d73b155"
       ],
       "source_sha256": "3e9e63e8b896570b41536cde9aa33d8de1c4317ca17b23c153e753087d73b155",
-      "text": "प्रसंस्करण-सत्र इतिहास: एक छेड़छाड़ प्रसंष्करण- सत्र फ़ोल्डर से संबंधित प्रसंधान सत्र का चयन करें।",
+      "text": "Run History: प्रसंस्करण सत्र का चयन करें एक ड्रॉप प्रोसेसिंग सत्र फ़ोल्डर से संबंधित है।",
       "translation_source_blocks_sha256": [
-        "53a1498a5406dbad1488b05a516c31427e643d38a2e8dadb71d886de0370c86f"
+        "0f9917e036c21b92a005a1fa597804d66b5f5e59d568511c826fa856a1b6d39c"
       ]
     },
     "spacr.qt.dnd_handlers.RunHistoryDropHandler.apply": {
@@ -70394,10 +71280,10 @@
         "b011aea47be76a073eee0e8a277928369c7ea894bd9d259cf2c0115ce5fcb36c"
       ],
       "source_sha256": "301549162e8ff6a3b6dc8c7c47addd6fb6cab5a1896ae0ff42c52071499976a9",
-      "text": "डेटाबेस ब्राउज़र में संपादित मोड की अनुमति (या प्रतिबंधित)।\n\nQSettings लाज़ली से लिखता है, और डेटाबेस ब्राउज़र हर UI रिफ्रेश पर इस संरचित डेटा नाम को फिर से पढ़ता है - उपयोगकर्ता के टिकर बॉक्स के तुरंत बाद एक स्टाइल पढ़ने से उन्हें संपादित करने के लिए कहा जाएगा अभी भी बंद है. एक छोटे से आईएनआई लिखने के लायक है इसे समझाने की जरूरत नहीं है.",
+      "text": "अनुमति दें (या प्रतिबंधित) संपादन मोड Database Browser में।\n\nQSettings लाज़ली से वापस लिखता है, और Database Browser हर UI रिफ्रेश पर इस कुंजी को फिर से पढ़ता है - उपयोगकर्ता के तुरंत बाद एक स्टाइल पढ़ने के बाद बॉक्स टिक किया जाएगा उन्हें संपादित करने के लिए अभी भी बंद है. एक छोटे से आईएनआई लिखने के लायक है इसे समझाने की जरूरत नहीं है.",
       "translation_source_blocks_sha256": [
         "e6b2a9b3a50f9d20a5c769c55e0ca7c764a6a91bd4d2dadd2b8a2ebd6278801d",
-        "e24961041b3136f3eb7be8c942ba18d818d2363e881feed33bd85e2d804f20f6"
+        "b011aea47be76a073eee0e8a277928369c7ea894bd9d259cf2c0115ce5fcb36c"
       ]
     },
     "spacr.qt.preferences.set_default_graph_type": {
@@ -71391,10 +72277,10 @@
         "3b9c6c6bb7985689262dca59b323bbc382b9a31290624d2773984f4c06e8f41f"
       ],
       "source_sha256": "f9fa9ebcdd1cbc78ace869fa71f5be9315234d0c1b78f1ad5c6295eed67dc91f",
-      "text": "कौन से मॉड्यूल एक लाइव पूर्वावलोकन प्राप्त करते हैं, और कैसे एक बाहर से जोड़ा जाता है।\n\nचार मॉड्यूलों में एक पूर्वावलोकन है - मास्क, माप, टाइमलाप, मोटिलता - और प्रत्येक में ``AppScreen._build_runtime_panel`` में एक तीस-लाइन हाथ की लागत होती है, एक शून्य-आउट ब्लॉक में दो अनुष्ठान नाम, और एक टोग्लिंग टेबल में दो सौ लाइनों की एक पंक्ति नीचे की ओर होती है. पांचवा एक ही लागत होगी, जिसके कारण कभी भी एक पांचवा नहीं हुआ है: मॉड्यूल जो सबसे स्पष्ट रूप से एक से लाभ उठाते हैं वे दो हैं जिनके पूरे काम \"मास्क को सही से बाहर लाया गया है\" - Cellpose मास्क और प्लेक सत्यापन - और न ही साझा स्क्रीन को छूने के लायक था।\n\nएक मॉड्यूल यहाँ एक पूर्वावलोकन घोषित करता है; सेटिंग फॉर्म के ऊपर की पट्टी इसके लिए एक टुकड़ा विकसित करती है; कार्ड को प्रसंस्करण सत्र पंक्ति के ऊपर दर्ज किया जाता है, उसी ``_runtime_wrap`` / ``_actions_row`` एंकरों :mod:`spacr.qt.prerun` उपयोग के माध्यम से. ``AppScreen`` के अंदर कुछ भी नहीं बदलता है, और पहले से ही बनाए गए चार पूर्वानुमान अकेले छोड़ दिए जाते हैं - एक मॉडल जो साझा अनुप्रयोग दृश्य पहले से सेवा की गई है, एक दूसरा कार्ड देने के बजाय यहां छोड़ दिया जाता है।\n\nएक मॉड्यूल जो एक होस्ट में फ़ोल्ड किया गया है, दूसरी तरफ से एक ही मशीन तक पहुंचता है. इसके स्वयं के एप्लिकेशन दृश्य को अब कोई नहीं बनाया जाता है, इसलिए ``install`` - जो एप्लेशन दृश्य के स्वयं के कुंजी के लिए जवाब देता है - कभी भी अपने पैनल को जोड़ नहीं सकता है; :func:`attach_folded` होस्ट को नाम से पूछने की अनुमति देता है और इसे छिपाता है जो भी होस्ट उस मॉडल के बाकी को प्रकट करने के लिए उपयोग करता है. मास्क पीढ़ी का ट्रैकिंग स्विच इस मामले में लिखा गया था.\n\n**नमूना अनुबंध विरासत में है, पुन: लागू नहीं किया जाता है.** इस रिकॉर्ड के माध्यम से पहुंचने वाले पैनल भेजे गए हैं, जो एक प्रयोगशाला माइक्रोप्लेट को फ़ाइल नामों से इमेजिंग सेट में जोड़ते हैं और इसकी एक सीमित, पुनरावृत्ति योग्य यादृच्छिक नमूनी खोलते हैं. यहां कुछ भी सूचीबद्ध नहीं है, खुलता है या एक निर्देशिका सूचीबद्ध करता है, इसलिए यहाँ कुछ भी इसे वापस नहीं कर सकता है. इस साइम के साथ पंजीकृत एक नया पैनलों को उसी वादे को बनाए रखना चाहिए — देखें :mod:`spacr.qt.widgets.preview_controls`.",
+      "text": "कौन से मॉड्यूल एक लाइव पूर्वावलोकन प्राप्त करते हैं, और कैसे एक बाहर से जोड़ा जाता है।\n\nचार मॉड्यूलों में एक पूर्वावलोकन होता है - मास्क, माप, टाइमलापस, मोटिलता - और प्रत्येक में ``AppScreen._build_runtime_panel`` में एक तीस-लाइन हाथ की लागत होती है, एक शून्य-आउट ब्लॉक में दो एसिटिव नाम होते हैं, और एक टोग्लिंग टेबल में दो सौ लाइनों की एक पंक्ति नीचे जाती है. पांचवा एक ही लागत होगी, जिसके कारण कभी भी एक पांचवा नहीं हुआ है: मॉडुल जो सबसे स्पष्ट रूप से एक से लाभ उठाते हैं वे दो हैं जिनका पूरा काम \"मास्क को सही से बाहर लाया गया है\" - Cellpose मास्क और Plaque Assay - और इसके लिए साझा अनुप्रयोग दृश्य को छूने के लायक नहीं था।\n\nएक मॉड्यूल यहाँ एक पूर्वावलोकन घोषित करता है; सेटिंग फॉर्म के ऊपर की पट्टी इसके लिए एक टुकड़ा विकसित करती है; कार्ड को प्रसंस्करण सत्र पंक्ति के ऊपर दर्ज किया जाता है, उसी ``_runtime_wrap`` / ``_actions_row`` एंकरों :mod:`spacr.qt.prerun` उपयोग के माध्यम से. ``AppScreen`` के अंदर कुछ भी नहीं बदलता है, और पहले से ही बनाए गए चार पूर्वानुमान अकेले छोड़ दिए जाते हैं - एक मॉडल जो साझा अनुप्रयोग दृश्य पहले से सेवा की गई है, एक दूसरा कार्ड देने के बजाय यहां छोड़ दिया जाता है।\n\nएक मॉड्यूल जो एक होस्ट में फ़ोल्ड किया गया है, दूसरी तरफ से एक ही मशीन तक पहुंचता है. इसके स्वयं के एप्लिकेशन दृश्य को अब कोई नहीं बनाया जाता है, इसलिए ``install`` - जो एप्लेशन दृश्य के स्वयं के कुंजी के लिए जवाब देता है - कभी भी अपने पैनल को जोड़ नहीं सकता है; :func:`attach_folded` होस्ट को नाम से पूछने की अनुमति देता है और इसे छिपाता है जो भी होस्ट उस मॉडल के बाकी को प्रकट करने के लिए उपयोग करता है. मास्क पीढ़ी का ट्रैकिंग स्विच इस मामले में लिखा गया था.\n\n**नमूना अनुबंध विरासत में है, पुन: लागू नहीं किया जाता है.** इस रिकॉर्ड के माध्यम से पहुंचने वाले पैनल भेजे गए हैं, जो एक प्रयोगशाला माइक्रोप्लेट को फ़ाइल नामों से इमेजिंग सेट में जोड़ते हैं और इसकी एक सीमित, पुनरावृत्ति योग्य यादृच्छिक नमूनी खोलते हैं. यहां कुछ भी सूचीबद्ध नहीं है, खुलता है या एक निर्देशिका सूचीबद्ध करता है, इसलिए यहाँ कुछ भी इसे वापस नहीं कर सकता है. इस साइम के साथ पंजीकृत एक नया पैनलों को उसी वादे को बनाए रखना चाहिए — देखें :mod:`spacr.qt.widgets.preview_controls`.",
       "translation_source_blocks_sha256": [
         "e22891fc56dcb0281bc3eb48fd883a3fe95ef1318ca150b5898ed6cc82b2f7bc",
-        "26e1dd822c9da721f33b6947857c5736e491a0e154f39b3f0a8b72d12bec47b8",
+        "08350b57ba4d040bbee0efba91c28a73d7b2c4a3749eabda903edc2db778d11c",
         "a46c9d15fa19ac498628ae725fc7fef96c5ad7bf9dffbb46688a1ec392a82074",
         "3f35efce446a3ba1180889555aff9344b5fc38813fc5d493f4d265e59d8d2113",
         "dfff0c448165b2826bcb6c40ccc98f69e7bf200439bcdc4aa56e2d64ac8fadab"
@@ -73320,10 +74206,10 @@
         "181fbc0154ee955b623beefb9d1e277ea9a52fef141791261b86344e69eac83c"
       ],
       "source_sha256": "ea18292108fadb51f1d041e199d5f6c50c96972b1e690e9c9b9e899273a97ffa",
-      "text": "नियंत्रण को :func:`spacr.align.default_settings` कुंजी मूल्य मैपिंग के रूप में वापस करें।\n\nसार्वजनिक होने के लिए, बैच रनर और सॉफ्टवेयर नौकरियों की सूची इस स्क्रीनिंग को इस तरह से चित्रित कर सकती है कि वे प्रत्येक को चित्रित करते हैं।",
+      "text": "नियंत्रण को :func:`spacr.align.default_settings` कुंजी मूल्य मैपिंग के रूप में वापस करें।\n\nइसे सार्वजनिक करें ताकि Batch Runner और कार्य सूची इस स्क्रीनिंग को इस तरह से चित्रित कर सके कि वे प्रत्येक को चित्रित करते हैं।",
       "translation_source_blocks_sha256": [
         "ca2c8465fb84fd1bf4b136d4dfa12617f0b7ae3c35f5c8ed4fa7238442a73186",
-        "79d7b10146775d90982aba4d119be7137394f66af6b9ab2e448c45e7b51babe9"
+        "e86370735a949246554c30c5e339f92c850656d479ef7e87bb8e408350541c9c"
       ]
     },
     "spacr.qt.screens.align.AlignScreen.status_text": {
@@ -74636,10 +75522,10 @@
         "d3270ed7b82996bd4db6d910c8ac53eeae040f31daf3360205800f05c5257d9d"
       ],
       "source_sha256": "ab2fb75525e570acd568b2c2aa12aa222429595c08e4e490725a7fce514f56c6",
-      "text": "बैच रनर – टूल मॉड्यूल जो आपके लिए रात बिताता है।\n\nप्लेट-प्रसंस्करण सूची श्रृंखला *प्लेट* के माध्यम से *one* कार्यप्रवाह. यह स्क्रीनिंग दूसरी धुरी है: स्वाभाविक ``(module, settings)`` काम किसी भी क्रम में - ``Mask → Measure → Classify (CV) → Classify (ML)``, फिर एक ही चार फिर से एक अलग व्यास के साथ, फिर पांचवें प्लेट का मास्क - बनाया, वैध किया, एक फ़ाइल में सहेजा और अप्रत्याशित चला गया.\n\nएप्लिकेशन दृश्य जानबूझकर पतला है. सब कुछ वह एक सॉफ्टवेयर नौकरी सूची के बारे में जानता है वह :mod:`spacr.batch` से सीखता है, जो शीर्षक के बिना है, torch-मुक्त है और Qt के बिना परीक्षण किया गया है. यह फ़ाइल केवल उस हिस्से है जो एक GUI होना चाहिए: एक मॉड्यूल और एक सेटिंग फ़ाइलें चुनें, एक नौकरी को दोहराएं और इसे संपादित करें, फिर से आदेश दें, वैध करें, सहेजें / लोड करें, चलाएं, और प्रति नौकरी स्थिति, प्रगति और लॉग देखें.\n\nउपयोगकर्ता के लिए तीन निर्णय दिखाई देते हैं:\n\n* **नौकरियां जब जोड़ी जाती हैं, तब वैध हो जाती हैं, जब वे चलती नहीं होती हैं.** एक नौकरी जिसकी सेटिंग्स फ़ाइल गायब हो जाती है, जिसकी ``src`` गलत है या जिसकी मॉड्यूल GUI है-केवल Add बटन पर अस्वीकार कर दिया जाता है, कारण के साथ इनलाइन. यह खोजने के लिए 3 बजे से नौकरी 9 से 12 है कि यह पूरे मॉड्यूल को रोकने के लिए क्या है.\n* **कोई मॉडल संवाद, कभी भी.** प्रत्येक विफलता इनलाइन समस्या पैनल और :attr:`BatchScreen.last_error` में गिरती है. एक ``QMessageBox`` एक सिरहीन चलता है (यह किया, ``MakeMasksScreen`` में), और यह स्क्रीनिंग सिरहीन रूप से अभ्यास किया जाता है.\n* run worker पर चलता है। **Execution model:** पूरा होने का signal GUI thread पर लौटता है। ``PipelineWorker.finished`` *worker thread के भीतर* emit होता है; इसलिए widget बदलने वाला हर receiver इस GUI-thread widget की bound method के लिए explicit queued connection उपयोग करता है।\n\nनौकरियां एक बार में एक को चलाती हैं - वे एक GPU के लिए प्रतिस्पर्धा करते हैं - और प्रत्येक अपना ``spacr-run`` प्रक्रिया है, इसलिए cellpose में एक सेगफ़ॉल्ट इस खिड़की के बजाय उस नौकरी को मारता है।",
+      "text": "Batch Runner - टूल मॉड्यूल जो आपके लिए रात बिताता है।\n\nPlate Queue श्रृंखला *प्लेट* के माध्यम से *one* कार्यप्रवाह. यह स्क्रीनिंग दूसरी छोर है: किसी भी क्रम में अनुकूलित ``(module, settings)`` कार्य - ``Mask → Measure → Classify (CV) → Classify (ML)``, फिर एक ही चार फिर से एक अलग व्यास के साथ, फिर पांचवें प्लेट का मास्क - बनाया, वैध किया, एक फ़ाइल में सहेजा गया और अप्रत्याशित चलाया।\n\nएप्लिकेशन दृश्य जानबूझकर पतला है. सब कुछ वह एक सॉफ्टवेयर नौकरी सूची के बारे में जानता है वह :mod:`spacr.batch` से सीखता है, जो शीर्षक के बिना है, torch-मुक्त है और Qt के बिना परीक्षण किया गया है. यह फ़ाइल केवल उस हिस्से है जो एक GUI होना चाहिए: एक मॉड्यूल और एक सेटिंग फ़ाइलें चुनें, एक नौकरी को दोहराएं और इसे संपादित करें, फिर से आदेश दें, वैध करें, सहेजें / लोड करें, चलाएं, और प्रति नौकरी स्थिति, प्रगति और लॉग देखें.\n\nउपयोगकर्ता के लिए तीन निर्णय दिखाई देते हैं:\n\n* **नौकरियां जोड़ने पर वैध की जाती हैं, जब वे चलाते नहीं.** एक नौकरी जिसकी सेटिंग्स फ़ाइल गायब है, जिसका ``src`` गलत है या जिसका मॉड्यूल GUI है-केवल अतिरिक्त बटन पर अस्वीकार कर दिया जाता है, कारण इनलाइन के साथ।\n* **कोई मॉडल वार्तालाप, कभी भी.** प्रत्येक विफलता इनलाइन समस्या पैनल और :attr:`BatchScreen.last_error` में उतरती है. एक ``QMessageBox`` एक सिर के बिना चलता है (यह किया, ``MakeMasksScreen`` में), और इस स्क्रीनिंग को सिर के साथ अभ्यास किया जाता है.\n* The run uses a worker. **Execution model:** completion returns to the GUI thread. ``PipelineWorker.finished`` is emitted *inside the worker thread*; therefore each receiver that changes a widget uses an explicit queued connection to a bound method of this GUI-thread widget.\n\nनौकरियां एक बार में एक को चलाती हैं - वे एक GPU के लिए प्रतिस्पर्धा करते हैं - और प्रत्येक अपना ``spacr-run`` प्रक्रिया है, इसलिए cellpose में एक सेगफ़ॉल्ट इस खिड़की के बजाय उस नौकरी को मारता है।",
       "translation_source_blocks_sha256": [
         "d353b2be6e5a4e8b7ef8cdea508889fc11f961d6d7ed128b048187afbb46a3d7",
-        "ee75ddb3106cff964da74613bd2f96e86810953094934e7f5ed5d990ca49b675",
+        "1fa4efe857864111c5565de1a29769a5a38e06bbdd53d8f050d85fa37a5c6966",
         "954b2c03ab87ece545a991194f2373ac4b8a1d7a0342c2d75b402e149eabb9f8",
         "d62e3e8e8b5b95ead1572c0a75e10e6af3b6109d57c105ccc86509802bebbb60",
         "4afe1d057ae0f0ca852c123bc1e831d2f64bcbaffefef070b45c08e9919822ef",
@@ -81996,6 +82882,22 @@
         "0ea94706b3bf1f136a6d773610571e4a3f3a674623a6c327f3aa8c20c88f94c9"
       ]
     },
+    "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue": {
+      "source_blocks_sha256": [
+        "02b416d874f39d781fdbb5c0b86bea91328abd01f436faf5f5c3d99d62ac13d3",
+        "12a40f07166ff8bf5ea5434a82693a1b5578efd4d6c857e05fa9f870b42bb58d",
+        "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
+        "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ],
+      "source_sha256": "6c01ca3aa7809b200caf42c80357389b5d0207bcb6d7f1d671ebc65db532fa8c",
+      "text": "फ़ील्डों को खोलने के लिए एक उपचार सत्र की पेशकश, जिस क्रम में यह प्रदान करता है।\n\nसत्र यह तय करता है कि माइक्रोस्कोप दृश्य के क्षेत्र क्या हैं और किस क्रम में - समीक्षा की गई हैं जो पहले से ही गिर गई हैं, ``--limit`` पहले से लागू किया गया है - और यह एप्लिकेशन दृश्य उन्हें दिखाता है. केवल नास्टेड लेआउट खुलता है: यह संपादक ``<folder>/masks/<stem>.tif`` से एक डिज़ाइन पढ़ता है और एक ही स्थान पर वापस बचाता है, इसलिए एक भाई या ``_seg.npy`` सेट कहीं और पढ़ा और लिखा जाएगा जहां इसके मास्क हैं. ``spacr-make-masks`` इनकार करता है जो पहले Qt आयात किया जाता है; यह एक ही अस्वीकृति का दूसरा आधा है, किसी भी चीज के लिए जो अनुप्रयोग दृश्य को दूसरे तरीके से पहुंचता है।\n\n:param queue: a :class:`spacr.curation_queue.CurationQueue`.\n:returns: वर्तमान में संपादक उस सत्र में है या नहीं।",
+      "translation_source_blocks_sha256": [
+        "02b416d874f39d781fdbb5c0b86bea91328abd01f436faf5f5c3d99d62ac13d3",
+        "3f55f57491196e8a12c49a213235554ac668a17173c21cad97ddabadac5a43ff",
+        "aa679939852f8e3ecd381889b4816f97d007356151d6caa60997004039c8ec36",
+        "7d878dc1a6d7ed5b738873e5c9e61aa1563f2b0c1752e4c5f22b22ed982823d8"
+      ]
+    },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
       "source_blocks_sha256": [
         "1ad20f1f585f70d42375c162c01e8589a66bc96e3334465908e399e87c427b72",
@@ -84963,9 +85865,9 @@
         "d8e2205b5f03eb00af5759fde4d8f9ef667773ff560678f1a4937c5344073c52"
       ],
       "source_sha256": "a977f345fa01c47dc9c8ac17faa1e453c98b3ca32513458c91c44292c43d688e",
-      "text": "कार्यप्रवाह ग्राफ - क्या बनाया क्या, और कौन सा अभी भी सच है।\n\nएक spaCR परियोजना फ़ाइलों को तेजी से जमा करती है कि कोई भी उनके सिर में रख सकता है: मास्क, एक माप डेटाबेस, निकाले गए छवि क्षेत्रों, मॉडल वजन, पूर्वानुमान, पुनरावृत्ति तालिकाओं, आंकड़ों. उनमें से कुछ एक-दूसरे से बनाए गए थे. कुछ एक दूसरे के *पहले* संस्करण से बनाया गया था, क्योंकि मास्क कदम मंगलवार को एक अलग व्यास के साथ फिर से निष्पादित किया गया था और कुछ भी नीचे नहीं था. GUI में कुछ भी दिखाई नहीं देता था कि, और एक स्टैल नंबर एक स्टेल की तरह नहीं दिखता है – यह एक संख्या की तरह लगता है.\n\nइस स्क्रीनिंग को दिन के लिए आकर्षित करता है:\n\n::\n\n    ┌──────────────┐   ┌────────────────┐   ┌───────────────┐\n    │ mask         │──▶│ measure        │──▶│ classify      │\n    │ masks   OK   │   │ db      STALE  │   │ preds   STALE │\n    └──────────────┘   └────────────────┘   └───────────────┘\n\nबॉक्स कलाकृतियां हैं, पंक्तियां \"was made from\" हैं, और रंग है फैसला :func:`spacr.artifacts.Registry.is_stale` लौटता है - इसके साथ ``reasons`` चार्ट के बगल में पैनल में प्रदर्शित होता है, क्योंकि \"stale\" अपने आप में एक आरोप है, एक स्पष्टीकरण नहीं है. एक बॉक्स पर क्लिक करें और बोर्ड उस प्रसंस्करण सत्र को नाम देता है जिसने इसे उत्पन्न किया, सेटिंग्स पाप, spaCR संस्करण, और क्या पुन: निष्पादित करना इसे अक्षम करेगा.\n\n3 जानबूझकर विकल्प:\n\n**ग्राफ आउटपुट से खींचा जाता है, मॉड्यूल सूची से नहीं.** क्या कार्यप्रवाह *उदाहरण के लिए* करने के लिए है :data:`spacr.ports.PORTS`, और यह भी खींच लिया जाता है - अंधेरे, नीचे, \"declared order\" पट्टी के रूप में - लेकिन बॉक्स और तार वास्तव में क्या हुआ है. एक परियोजना जहां माप पिछले हफ्ते के मास्क को पढ़ने के लिए नहीं दिखता है, और इस अंतर स्क्रीनिंग का पूरा मूल्य है।\n\n**ग़लत नहीं है.** एक हटाए गए फ़ाइल लाल है और ऐसा कहता है; एक पुराना है. :mod:`spacr.artifacts` उन्हें संघर्ष करने से इनकार करता है और ऐसा नहीं करता है.\n\n**यहां कुछ भी नहीं लिखता.** कोई पुनरावृत्ति निष्पादन बटन, कोई \"mark as fresh\", कोई हटाने नहीं. स्क्रीनिंग एक सवाल का जवाब देती है; जवाब पर कार्य करना मॉड्यूल का काम है, और एक-क्लिक निष्पादन फिर से एक चार्ट में लटका हुआ है कि कैसे कोई उस आर्टिफिशियल को अतिरंजित करता है जिसे वे जांचने की कोशिश कर रहे थे.\n\nलेआउट ग्राफ की परतों से एक शुद्ध फ़ंक्शन (:func:`layout_rects`) द्वारा गणना की जाती है, इसलिए व्यवस्था पिक्सेल के बिना परीक्षण की जा सकती है, और भारी हिस्सा - रिकॉर्ड खोलने और प्रत्येक आर्टिफैक्ट के बारे में पूछने के लिए - :class:`spacr.qt.job_runner.JobRunner` के माध्यम से, मुख्य GUI निष्पादन मार्ग से बाहर चला जाता है।",
+      "text": "Pipeline Graph - क्या बनाया क्या, और कौन सा अभी भी सच है।\n\nएक spaCR परियोजना फ़ाइलों को तेजी से जमा करती है कि कोई भी उनके सिर में रख सकता है: मास्क, एक माप डेटाबेस, निकाले गए छवि क्षेत्रों, मॉडल वजन, पूर्वानुमान, पुनरावृत्ति तालिकाओं, आंकड़ों. उनमें से कुछ एक-दूसरे से बनाए गए थे. कुछ एक दूसरे के *पहले* संस्करण से बनाया गया था, क्योंकि मास्क कदम मंगलवार को एक अलग व्यास के साथ फिर से निष्पादित किया गया था और कुछ भी नीचे नहीं था. GUI में कुछ भी दिखाई नहीं देता था कि, और एक स्टैल नंबर एक स्टेल की तरह नहीं दिखता है – यह एक संख्या की तरह लगता है.\n\nयह स्क्रीनिंग दिन को छूती है:\n\n::\n\n    ┌──────────────┐   ┌────────────────┐   ┌───────────────┐\n    │ mask         │──▶│ measure        │──▶│ classify      │\n    │ masks   OK   │   │ db      STALE  │   │ preds   STALE │\n    └──────────────┘   └────────────────┘   └───────────────┘\n\nबॉक्स कलाकृतियां हैं, पंक्तियां \"was made from\" हैं, और रंग है फैसला :func:`spacr.artifacts.Registry.is_stale` लौटता है - इसके साथ ``reasons`` चार्ट के बगल में पैनल में प्रदर्शित होता है, क्योंकि \"stale\" अपने आप में एक आरोप है, एक स्पष्टीकरण नहीं है. एक बॉक्स पर क्लिक करें और बोर्ड उस प्रसंस्करण सत्र को नाम देता है जिसने इसे उत्पन्न किया, सेटिंग्स पाप, spaCR संस्करण, और क्या पुन: निष्पादित करना इसे अक्षम करेगा.\n\n3 जानबूझकर चुनें:\n\n**ग्राफ आउटपुट से खींचा जाता है, मॉड्यूल सूची से नहीं.** क्या कार्यप्रवाह *उदाहरण के लिए* करने के लिए है :data:`spacr.ports.PORTS`, और यह भी खींच लिया जाता है - अंधेरे, नीचे, \"declared order\" पट्टी के रूप में - लेकिन बॉक्स और तार वास्तव में क्या हुआ है. एक परियोजना जहां माप पिछले हफ्ते के मास्क को पढ़ने के लिए नहीं दिखता है, और इस अंतर स्क्रीनिंग का पूरा मूल्य है।\n\n**Missing is not stale.** A deleted file is red and says so; an outdated one is amber. :mod:`spacr.artifacts` refuses to conflate them and neither does this.\n\n**यहां कुछ भी नहीं लिखता.** कोई पुनरावृत्ति निष्पादन बटन, कोई \"mark as fresh\", कोई हटाने नहीं. स्क्रीनिंग एक सवाल का जवाब देती है; जवाब पर कार्य करना मॉड्यूल का काम है, और एक-क्लिक निष्पादन फिर से एक चार्ट में लटका हुआ है कि कैसे कोई उस आर्टिफिशियल को अतिरंजित करता है जिसे वे जांचने की कोशिश कर रहे थे.\n\nलेआउट ग्राफ की परतों से एक शुद्ध फ़ंक्शन (:func:`layout_rects`) द्वारा गणना की जाती है, इसलिए व्यवस्था पिक्सेल के बिना परीक्षण की जा सकती है, और भारी हिस्सा - रिकॉर्ड खोलने और प्रत्येक आर्टिफैक्ट के बारे में पूछने के लिए - :class:`spacr.qt.job_runner.JobRunner` के माध्यम से, मुख्य GUI निष्पादन मार्ग से बाहर चला जाता है।",
       "translation_source_blocks_sha256": [
-        "df1c99457b8ce0c37943514f84ac506298ea5666143caa394760825057d86569",
+        "cc336587bd11778fa86bb6415c9057803804cfb498829ceaaf341f9c298e36aa",
         "0342dade2a52f115582471d9fa4c9ab4118c491a18c07a656f4e858782f34866",
         "3b40a516e729e213f0484074e9adb854f95a638de500d3e6185dff600b3e1685",
         "3e2bff20cb05e1da58daf636c30bbeddf4e82d5ceba6fe5f2bf6e91b7d899b3a",
@@ -85198,9 +86100,9 @@
         "2c0bb3219c2d17d0262353b5e4c94f5ade9b915e5a1135e6be299b12bd22edbe"
       ],
       "source_sha256": "a27eaabd84a18cbccc2b9333a726a55e5d41854da5943efecc52ab65463d46aa",
-      "text": "एप्लिकेशन रजिस्ट्री में Workflow Graph जोड़ें. Idempotent.\n\n:returns: True जब यह कॉल क्रम में जोड़ा गया, False जब पहले से ही वहां था - जो कि एक दूसरा आयात, या एक प्लगइन जो मॉड्यूल को फिर से खींचता है, एक त्रुटि के रूप में व्यवहार नहीं करना चाहिए।",
+      "text": "एप्लिकेशन रजिस्ट्री में Pipeline Graph जोड़ें. Idempotent.\n\n:returns: True जब यह कॉल क्रम में जोड़ा गया, False जब पहले से ही वहां था - जो कि एक दूसरा आयात, या एक प्लगइन जो मॉड्यूल को फिर से खींचता है, एक त्रुटि के रूप में व्यवहार नहीं करना चाहिए।",
       "translation_source_blocks_sha256": [
-        "d35c2d1394c5ced845e988cf139da188de257d76b8d7f94b80a647f8c8fd3562",
+        "02bd9fcf7dfbeadbafa5dd9c30e32564168992ae011e1c7c266c60976f0bc432",
         "2c0bb3219c2d17d0262353b5e4c94f5ade9b915e5a1135e6be299b12bd22edbe"
       ]
     },
@@ -88899,9 +89801,9 @@
         "ef62f64cc5cbd08e37bc944795d646cd522870360f8dc1d35cd437011a763e0e"
       ],
       "source_sha256": "4975944bffc69ae2e49fda9bb0566eacff7bd67700363766a679013acda60f33",
-      "text": "प्रशिक्षण प्रसंस्करण सत्र - एक छोर पर कई प्रसाधन सत्रों के कोर, सेटिंग्स अलग हैं।\n\nइस एप्लिकेशन दृश्य के सवाल का जवाब देने के लिए मौजूद है \"क्यों B को चलाने की तुलना में बेहतर क्यों किया जाता है\", जो आज एक विंडो में PDFs के दो फ़ोल्डर खोलकर, दूसरे में दो सेटिंग्स CSVs और आपके सिर में अंतर रखकर जवाब दिया जाता है।\n\nस्क्रीन लेआउट::\n\n    ┌──────────────────────────────────────────────────────────────────────┐\n    │ /data/screen1/model                     [Choose folder…]  [Scan]     │\n    ├──────────────────────┬───────────────────────────────────────────────┤\n    │ Runs found (4)       │            ┌───────────────────────────┐      │\n    │ ☑ maxvit_t/…/ep_25   │            │   accuracy, 5 series      │      │\n    │   25 epochs · tr+val │            │   ╱‾‾‾‾  B val            │      │\n    │ ☑ maxvit_t/…/ep_10   │            │  ╱ ─ ─   A val            │      │\n    │ ☐ resnet50/…/ep_8    │            └───────────────────────────┘      │\n    │   8 ep x 3 folds     ├───────────────────────────────────────────────┤\n    │ ☐ maxvit_t/…/ep_3 !  │ 2 settings changed · 1 env drift · 0 drift    │\n    │                      │ bucket   setting        A        B            │\n    │ Metric [accuracy ▾]  │ changed  learning_rate  1e-4     1e-3         │\n    │ Folds  [per fold ▾]  │ changed  batch_size     64       32           │\n    │ [Overlay selected]   │ env      n_jobs         30       8            │\n    ├──────────────────────┴───────────────────────────────────────────────┤\n    │ ! maxvit_t/…/epochs_3: no per-epoch curves in this folder            │\n    │ Clicked: maxvit_t/…/epochs_25 · val — best 0.87 @ 18, last 0.85 @ 25 │\n    └──────────────────────────────────────────────────────────────────────┘\n\nडिजाइन नोट्स:\n\n* **Discovery मुख्य GUI निष्पादन मार्ग से बाहर चलाता है.** एक स्कैन एक मॉडल पेड़ पर चलता है और इसके नीचे हर प्रगति CSV को पार करता है, जो एक वास्तविक स्क्रीनिंग पर सैकड़ों फ़ाइलों के माध्यम से जाता है. यह किसी भी अन्य spaCR नौकरी की तरह :func:`spacr.qt.bridge.make_thread` के माध्यम में जाता है; परीक्षण पास ``threaded=False``, जो उसी कोड को लाइन में चलाता हैं. ड्राइंग मुख्य GUI निष्पादित मार्ग पर रहती है - तब तक डेटा पहले से ही स्मृति में है.\n* **कोई भी त्रुटि मार्ग पर कोई मॉडल डायलॉग नहीं.** कोई चलने वाला फ़ोल्डर, कोई घूर्णन के बिना एक प्रसंस्करण सत्र, कोई मैट्रिक नहीं लॉग किया गया - यह सब इनलाइन स्थिति और समस्या लेबल में उतरता है. एक QMessageBox एक सिरहीन चलता है।\n* **टूटे हुए प्रसंस्करण सत्र सूचीबद्ध हैं, छिपे नहीं हैं.** एक फ़ोल्डर जो चेकपॉइंट रखता है लेकिन कोई ``train.csv`` अभी भी दिखाई देता है, चिह्नित, समस्या लाइन में अपने नोट के साथ. एक स्कैन जो चुपचाप आपके द्वारा खोजे गए फ़ॉल्डर को फेंक देता है वह उससे भी बदतर है जो कहता है कि इसके साथ क्या गलत है.\n* **डिफ़ बक्केट किया जाता है, कभी फ्लैट नहीं होता है.** यह :func:`spacr.train_compare.diff_settings` रेंजर करता है, जो :mod:`spacr.run_journal` से उत्पन्न बक्किंग का पुन: उपयोग करता है: पर्यावरण ड्रिफ्ट (मार्ग, मेजबान, वर्कर प्रोसेसों की गिनती) अपने स्वयं के बक्के में दिखाई देता है, उपयोगकर्ता द्वारा परिवर्तित होने के बजाय, और शेड्यूल ड्रिफ संक्षेप में संकलित होता है. जब दो प्रसंस्करण सत्र मिलते हैं, तो तालिका शब्दों में \"no differences\" कहती है बल्कि सफेद हो जाती है.\n* **प्रत्येक श्रृंखला कहती है कि चल रहा है · विभाजित · फ़ोल्डर.** क्लिक करने के लिए एक लाइन का नाम है इसकी चल रही है, फ़ॉल्डर और दोनों इसके सर्वश्रेष्ठ और अंतिम युग, क्योंकि एक किंवदंती जो केवल प्रसंस्करण-सत्र आईडी लेती है एक ट्रेन कोर को एक निष्क्रिय परिणाम के रूप में पढ़ने के लिए आमंत्रित करता है।",
+      "text": "Training Runs — कई प्रसंस्करण सत्रों के कोर एक एक्स पर, सेटिंग्स भेदभाव के साथ।\n\nइस एप्लिकेशन दृश्य के सवाल का जवाब देने के लिए मौजूद है \"क्यों B को चलाने की तुलना में बेहतर क्यों किया जाता है\", जो आज एक विंडो में PDFs के दो फ़ोल्डर खोलकर, दूसरे में दो सेटिंग्स CSVs और आपके सिर में अंतर रखकर जवाब दिया जाता है।\n\nस्क्रीन लेआउट::\n\n    ┌──────────────────────────────────────────────────────────────────────┐\n    │ /data/screen1/model                     [Choose folder…]  [Scan]     │\n    ├──────────────────────┬───────────────────────────────────────────────┤\n    │ Runs found (4)       │            ┌───────────────────────────┐      │\n    │ ☑ maxvit_t/…/ep_25   │            │   accuracy, 5 series      │      │\n    │   25 epochs · tr+val │            │   ╱‾‾‾‾  B val            │      │\n    │ ☑ maxvit_t/…/ep_10   │            │  ╱ ─ ─   A val            │      │\n    │ ☐ resnet50/…/ep_8    │            └───────────────────────────┘      │\n    │   8 ep x 3 folds     ├───────────────────────────────────────────────┤\n    │ ☐ maxvit_t/…/ep_3 !  │ 2 settings changed · 1 env drift · 0 drift    │\n    │                      │ bucket   setting        A        B            │\n    │ Metric [accuracy ▾]  │ changed  learning_rate  1e-4     1e-3         │\n    │ Folds  [per fold ▾]  │ changed  batch_size     64       32           │\n    │ [Overlay selected]   │ env      n_jobs         30       8            │\n    ├──────────────────────┴───────────────────────────────────────────────┤\n    │ ! maxvit_t/…/epochs_3: no per-epoch curves in this folder            │\n    │ Clicked: maxvit_t/…/epochs_25 · val — best 0.87 @ 18, last 0.85 @ 25 │\n    └──────────────────────────────────────────────────────────────────────┘\n\nडिजाइन नोट्स:\n\n* **Discovery मुख्य GUI निष्पादन मार्ग से बाहर चलाता है.** एक स्कैन एक मॉडल पेड़ पर चलता है और इसके नीचे हर प्रगति CSV को पार करता है, जो एक वास्तविक स्क्रीनिंग पर सैकड़ों फ़ाइलों के माध्यम से जाता है. यह किसी भी अन्य spaCR नौकरी की तरह :func:`spacr.qt.bridge.make_thread` के माध्यम में जाता है; परीक्षण पास ``threaded=False``, जो उसी कोड को लाइन में चलाता हैं. ड्राइंग मुख्य GUI निष्पादित मार्ग पर रहती है - तब तक डेटा पहले से ही स्मृति में है.\n* **कोई भी त्रुटि मार्ग पर कोई मॉडल डायलॉग नहीं.** कोई चलने वाला फ़ोल्डर, कोई घूर्णन के बिना एक प्रसंस्करण सत्र, कोई मैट्रिक नहीं लॉग किया गया - यह सब इनलाइन स्थिति और समस्या लेबल में उतरता है. एक QMessageBox एक सिरहीन चलता है।\n* **टूटे हुए प्रसंस्करण सत्र सूचीबद्ध हैं, छिपे नहीं हैं.** एक फ़ोल्डर जो चेकपॉइंट रखता है लेकिन कोई ``train.csv`` अभी भी दिखाई देता है, चिह्नित, समस्या लाइन में अपने नोट के साथ. एक स्कैन जो चुपचाप आपके द्वारा खोजे गए फ़ॉल्डर को फेंक देता है वह उससे भी बदतर है जो कहता है कि इसके साथ क्या गलत है.\n* **डिफ़ बक्केट किया जाता है, कभी फ्लैट नहीं होता है.** यह :func:`spacr.train_compare.diff_settings` रेंजर करता है, जो :mod:`spacr.run_journal` से उत्पन्न बक्किंग का पुन: उपयोग करता है: पर्यावरण ड्रिफ्ट (मार्ग, मेजबान, वर्कर प्रोसेसों की गिनती) अपने स्वयं के बक्के में दिखाई देता है, उपयोगकर्ता द्वारा परिवर्तित होने के बजाय, और शेड्यूल ड्रिफ संक्षेप में संकलित होता है. जब दो प्रसंस्करण सत्र मिलते हैं, तो तालिका शब्दों में \"no differences\" कहती है बल्कि सफेद हो जाती है.\n* **प्रत्येक श्रृंखला कहती है कि चल रहा है · विभाजित · फ़ोल्डर.** क्लिक करने के लिए एक लाइन का नाम है इसकी चल रही है, फ़ॉल्डर और दोनों इसके सर्वश्रेष्ठ और अंतिम युग, क्योंकि एक किंवदंती जो केवल प्रसंस्करण-सत्र आईडी लेती है एक ट्रेन कोर को एक निष्क्रिय परिणाम के रूप में पढ़ने के लिए आमंत्रित करता है।",
       "translation_source_blocks_sha256": [
-        "2be15032782e43e09c930ab274f0cf4fb4ab320e66f9bc42c78ba2d95eab5fd8",
+        "3979f7d7c36de67669d9509d17b4717ca64a07640df13554a4606e31dc57ccfc",
         "0260a07648ad4000c97172cfc1cc3a43944722bd41e8756958185edfc98bc2a4",
         "7387692812ec038cf24df502c80f07bf4f1e6600d300a1acd18f6fbf484cdfc9",
         "1ecd6071c7a598fe8fe7efe0f3a4c2869822595ce3f8a3b7e7b8bea000242b39",
@@ -106093,13 +106995,13 @@
     "spacr.qt.widgets.fast_plots.GroupedPlot.mark_note": {
       "source_blocks_sha256": [
         "5fbfacf854edddeb4f77da3cfcdaf7180c03699c10a250065f57ea05d197ae2f",
-        "9ebb5966af493e4796eb2bc7f466086a58187dd01d90cfe25d10c16d3640010c"
+        "e4eece877c64134c81a4ee7da481164e2e40f51f684de6f5a1682a25ed9c28d5"
       ],
-      "source_sha256": "8bd19e4f93197e47dbac81ebb134d74e0946018fc86755fc4e9eeeb53d55767b",
-      "text": "CURRENT चिह्न के बारे में वाक्यांश, या ``\"\"``।\n\nदो चीजें, क्योंकि एक उपयोगकर्ता जो \"bar\" पिक करता है, एक बार में दो करता है: उन्होंने एक चिह्न चुना है जो प्रसार को गलत तरीके से प्रतिनिधित्व कर सकता है, और उन्होंने एक गाइड पर क्लिक करने की क्षमता छोड़ दी है - एक सीधे कोने चालीस-एक पंक्तियों के लिए है और ईमानदारी से उनमें से एक को चुनने में सक्षम नहीं है।",
+      "source_sha256": "4a4249400b342abf3e0ff0019af17250bfbb19153ea08fe87027c2baf1fd9240",
+      "text": "CURRENT चिह्न के बारे में वाक्यांश, या ``\"\"``।\n\nतीन चीजें अब. एक शुरुआत जो डिफ़ॉल्ट ग्राफिक्स प्रकार सेटिंग का सम्मान नहीं कर सकता है, पहले यह कहता है - एक उपयोगकर्ता जो विलियन्स के लिए पूछता है और एक जेटर प्राप्त करता है, एक लॉग के बजाय प्लेट पर कारण के लिए जिम्मेदार है. फिर दो उपयोगकर्ता जिनके पास \"bar\" है, उन्होंने एक बार में किया है: उन्होंने एक चिह्न चुना है जो प्रसार को गलत तरीके से दर्शाता है, और उन्होंने एक गाइड पर क्लिक करने की क्षमता छोड़ दी है- एक रेटिंग चालीस-एक पंक्तियों के लिए है और ईमानदारी से उनमें से एक को चुनने में सक्षम नहीं है।",
       "translation_source_blocks_sha256": [
         "5fbfacf854edddeb4f77da3cfcdaf7180c03699c10a250065f57ea05d197ae2f",
-        "9ebb5966af493e4796eb2bc7f466086a58187dd01d90cfe25d10c16d3640010c"
+        "15d1c8abb211e97d39678333a36ae3cf0ea2d496cdf9885584f0053f71a3f9f2"
       ]
     },
     "spacr.qt.widgets.fast_plots.GroupedPlot.redraw": {
@@ -106124,6 +107026,24 @@
       "translation_source_blocks_sha256": [
         "6a22fa5747b575184a58020f11de4643cf98293778f00faaf1b90ec2a45ebd85",
         "56bc96221a8d4abc1d25a16990e1544917d8c9cf820c6f2c786d1ecb41c9b294"
+      ]
+    },
+    "spacr.qt.widgets.fast_plots.GroupedPlot.starting_mark": {
+      "source_blocks_sha256": [
+        "65efafa55a21f5c532a70222e8d1e8ae1338f160f6bc70c8aedfc0eaa03a157f",
+        "19aa9671e8846b171c052c82ae47812c0bc061848f43c98b60255255376ab28c",
+        "448466673fcb89a9d9d89a1dd7c0a7fe4c7fa1502e7148aa18a116ff0c515293",
+        "a8f348b6c678e5d77642c99a6986ecb0926d2185920a20fe8ace028a4400493c",
+        "f1d4185184f6c1a90491d9034e6e760338917535f96e6a6caec3ec5d7d27488d"
+      ],
+      "source_sha256": "46f57040d7ffd27bcdcfa4e88183389c8a8c56ebcbdc84595895d0d8a1845c3a",
+      "text": "पहला चिह्न खींचना है, और क्यों यह चुना नहीं है।\n\n:param counts: एक खाली व्यक्ति केवल \"what was chosen\" पूछता है, जो डेटा पहुंचने से पहले जवाब दिया जा सकता है।\n:returns: ``(mark, note)``. नोट खाली होता है जब भी चिह्न खींचा जाता है तो चिहमी के लिए पूछा जाता है.\n\nइस प्लेट के :attr:`DATA_SHAPE` के लिए एक बचाया डिफ़ॉल्ट ग्राफिक्स प्रकार है जो पहली दाईं क्लिक से पहले खींचा जाता है; कुछ भी बचाया नहीं है, प्लेट :attr:`DEFAULT_MARK` बनाए रखता है, क्योंकि कोई भी अभिव्यक्ति की एक प्राथमिकता मौजूदा दृश्यों को स्थानांतरित नहीं करनी चाहिए।\n\nयह एक पैनल का उद्घाटन ढांचा है; इसे एक सेटिंग पढ़ने से इनकार करना पूरे आंकड़े की लागत होगी।",
+      "translation_source_blocks_sha256": [
+        "65efafa55a21f5c532a70222e8d1e8ae1338f160f6bc70c8aedfc0eaa03a157f",
+        "19aa9671e8846b171c052c82ae47812c0bc061848f43c98b60255255376ab28c",
+        "448466673fcb89a9d9d89a1dd7c0a7fe4c7fa1502e7148aa18a116ff0c515293",
+        "a86f60768e6696ffec4b20eb8d344152943ef90d8367d069903e5c94c3248298",
+        "8106bd065f9182b9d0a30f58a7dab80579543b046584d14f81205b4a4ae91ea8"
       ]
     },
     "spacr.qt.widgets.fast_plots.GuideAgreementPlot": {
@@ -120078,11 +120998,12 @@
         "5878326aaecbc6206f51afe49dbfe609a31a6785544a929b16f3e6bf98eb32c0",
         "22fd81664192bb9c8c5addb8009c3e9c5fd5be1a914d8c770eb719ecd742dc66",
         "f8210cc3da27eb1579585930c2b614634cd1463fccab3c86a714c77fb8fe15fa",
+        "3c6e9bfbbc858d51cfdf4dd2e8dcbf3ec4a8a3311ba302e9dc5fbb2a53ab2eda",
         "1a93d461a5de1c3a147bd635510e301e8a17895d33421d21ae355a3ab21c71ff",
         "3761f835eecd2d8ff9cff4060a6421d68b408203e2ba8166567b2ad02219b3cd"
       ],
-      "source_sha256": "bfd3e3626f1f6fc20e01f7841fe4c0672023b9853ddba19254068a728482c363",
-      "text": "लाइव-प्रीव्यू सेगमेंटेशन विजेट — v2.\n\nइंटरैक्टिव Cellpose ट्यूनिंग सतह के लिए मास्क ऐप एप्लिकेशन दृश्य. यह प्रदान करता है:\n\n* **ज़ूमबल कैनवास (Ctrl+scroll, सिंक्रनाइज़ेशन में)** दोनों मूल और मास्क ओवरले एक साझा :class:`QGraphicsView` जोड़ी में रहते हैं - एक पर पैन और ज़ूम और दूसरे पिकल-पिकल-पिकल ट्रैक।\n* **Hover tooltip.** मूल के ऊपर क्यूसर को स्थानांतरित करें और एक पिकनिक स्टेट लाइन प्रत्येक छवि डेटा चैनल के लिए पिक्सेल तीव्रता को दर्शाती है प्लस, जब मौजूद होता है, तो अंतिम सेगमेंट-टियन से उस स्थिति में वस्तु लेबल।\n* **Normalize toggle.** वैकल्पिक 2–98% सेंटिकल स्टेच (प्रत्येक छवि डेटा चैनल के लिए RGB) ताकि कच्चे कम-विरोधाभास टाइल पढ़ा जा सके।\n* **मॉडल जागरूकता विकल्प.** प्रत्येक मॉडल पूर्ण विभाजन सेट प्रदर्शित करता है. Cellpose-SAM *not* को अनदेखा करता है ``flow_threshold``, ``cellprob`` या ``diameter`` — उस मान्यता को मारने वाले माप के लिए :data:`DIAMETER_TOOLTIP` देखें.\n* **आउटलाइन रंग + मोटाई.** टूलबार से चुना गया; प्रभाव एक बार एक मास्क मौजूद है. ``color (random)`` प्रत्येक वस्तु लेबल के लिए एक स्थिर श्रेणी रंग निर्धारित करता है ताकि स्पर्श करने वाले मास्क अलग-अलग रहें।\n* **Multi-object segmentation.** एक \"object type\" combo picks के बीच ``cell``, ``nucleus``, और ``cell + nucleus``. सेल + परमाणु मोड में, पैनल दो Cellpose पार करता है और दोनों मास्क को अलग-अलग रंगों में ले जाता है।\n* **पहले / पोस्ट फ़िल्टर.** जब ऑब्जेक्ट प्रकार ``cell`` (या संयुक्त मोड) होता है, तो पैनल मास्क ऐप से प्री / पोस्ट-प्रसंस्करण सेटिंग्स (``cell_min_size``, ``cell_max_size`` , ``remove_background_cell``, पृष्ठभूमि तीव्रता, ...) को विभाजन के माध्यम से चलाता है. उपयोगकर्ताओं को समर्पित \"Pre\" / \"Post\" क्लिक करने योग्य लेबल के साथ इन पर-ऑफ़ टोग्लिंग करते हैं, जो \"Run preview\" के बगल में बैठे हैं, उसी दृश्य शैली में एलपी / एआई टोगल्स के साथ।\n\nपूरे फ़ाइल cellpose के बिना आयात करने के लिए सुरक्षित रहता है - प्रत्येक cellpose कॉल पृष्ठभूमि निष्पादन इकाई के अंदर लेज़ी-आयात किया जाता है।",
+      "source_sha256": "18ed7e2c4708db2e7af60762c061a58a0de3e03b6327b4c93c7b07a6b86d3d01",
+      "text": "Live-preview segmentation widget — v2.\n\nइंटरैक्टिव Cellpose ट्यूनिंग सतह के लिए मास्क ऐप एप्लिकेशन दृश्य. यह प्रदान करता है:\n\n* **Zoomable canvases (Ctrl+scroll, in sync).** Both the original and the mask overlay live in a shared :class:`QGraphicsView` pair — pan and zoom on one and the other tracks pixel-for-pixel.\n* **Hover tooltip.** मूल के ऊपर क्यूसर को स्थानांतरित करें और एक पिकनिक स्टेट लाइन प्रत्येक छवि डेटा चैनल के लिए पिक्सेल तीव्रता को दर्शाती है प्लस, जब मौजूद होता है, तो अंतिम सेगमेंट-टियन से उस स्थिति में वस्तु लेबल।\n* **Normalize toggle.** वैकल्पिक 2–98% सेंटिकल स्टेच (प्रत्येक छवि डेटा चैनल के लिए RGB) ताकि कच्चे कम-विरोधाभास टाइल पढ़ा जा सके।\n* **मॉडल जागरूकता विकल्प.** प्रत्येक मॉडल पूर्ण विभाजन सेट प्रदर्शित करता है. Cellpose-SAM *not* को अनदेखा करता है ``flow_threshold``, ``cellprob`` या ``diameter`` — उस मान्यता को मारने वाले माप के लिए :data:`DIAMETER_TOOLTIP` देखें.\n* **आउटलाइन रंग + मोटाई.** टूलबार से चुना गया; प्रभाव एक बार एक मास्क मौजूद है. ``color (random)`` प्रत्येक वस्तु लेबल के लिए एक स्थिर श्रेणी रंग निर्धारित करता है ताकि स्पर्श करने वाले मास्क अलग-अलग रहें।\n* **Multi-object segmentation.** एक \"object type\" combo picks के बीच ``cell``, ``nucleus``, और ``cell + nucleus``. सेल + परमाणु मोड में, पैनल दो Cellpose पार करता है और दोनों मास्क को अलग-अलग रंगों में ले जाता है।\n* **प्रसंस्करण सत्र का उपयोग करेगा मॉडल, और यह कहता है कि.** पैनल एक ही सेटिंग पढ़ता है कार्यप्रवाह पढ़ता - ``pathogen_model`` पर ``pathogen_model_name`` रोगजनकों के लिए, ``<object>_model_name`` अन्यथा (:func:`_model_keys_for`) - मॉडल ज़ियो को कॉम्बो के बगल में प्रदान करता है, और स्थिति लाइन पर मास्क का उत्पादन करने वाला मॉडल नाम देता है।\n* **पहले / पोस्ट फ़िल्टर.** जब ऑब्जेक्ट प्रकार ``cell`` (या संयुक्त मोड) होता है, तो पैनल मास्क ऐप से प्री / पोस्ट-प्रसंस्करण सेटिंग्स (``cell_min_size``, ``cell_max_size`` , ``remove_background_cell``, पृष्ठभूमि तीव्रता, ...) को विभाजन के माध्यम से चलाता है. उपयोगकर्ताओं को समर्पित \"Pre\" / \"Post\" क्लिक करने योग्य लेबल के साथ इन पर-ऑफ़ टोग्लिंग करते हैं, जो \"Run preview\" के बगल में बैठे हैं, उसी दृश्य शैली में एलपी / एआई टोगल्स के साथ।\n\nपूरे फ़ाइल cellpose के बिना आयात करने के लिए सुरक्षित रहता है - प्रत्येक cellpose कॉल पृष्ठभूमि निष्पादन इकाई के अंदर लेज़ी-आयात किया जाता है।",
       "translation_source_blocks_sha256": [
         "0074cc62e6d86b0ea70902892d80e6080c8203b1bb25121cb66261680e3f9203",
         "cdb6453814e3d70d1f357134515b1feda39c99082ff0a4243e6363eef6046c1a",
@@ -120092,6 +121013,7 @@
         "5878326aaecbc6206f51afe49dbfe609a31a6785544a929b16f3e6bf98eb32c0",
         "22fd81664192bb9c8c5addb8009c3e9c5fd5be1a914d8c770eb719ecd742dc66",
         "f8210cc3da27eb1579585930c2b614634cd1463fccab3c86a714c77fb8fe15fa",
+        "d9f77a0d70c8dc2494f89f5f29a03d9c7a394686af58ce6e9330fa695e0f600e",
         "1a93d461a5de1c3a147bd635510e301e8a17895d33421d21ae355a3ab21c71ff",
         "b2a59cec1f0888e2cead0dbe58edc17f18a00fa267efd603d5c2270f331e9823"
       ]
@@ -120330,12 +121252,16 @@
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.settings_for_propagation": {
       "source_blocks_sha256": [
-        "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338"
+        "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338",
+        "35ae37377e98f0d9f678969ee4850abac850ce3b7d7731897e2db33abac4133e",
+        "2a864d4c8be7ce885cceed2f677095e55e4acd767d8ccda5e834aa13b3f1dcfb"
       ],
-      "source_sha256": "27c4fa427a34ab03f630973ab003e04a12b9aa2b76ca8accc2754503946bc338",
-      "text": "मुख्य पैनल सेटिंग नामों के लिए लाइव-प्रीव्यू विजेट मूल्यों का नक्शा।",
+      "source_sha256": "5f9d33342181f7e188cf3b1b913e0a6c6ce5f08012b0836bf914be2a646f0f3e",
+      "text": "मुख्य पैनल सेटिंग नामों के लिए लाइव-प्रीव्यू विजेट मूल्यों का नक्शा।\n\nप्रोग्रामिंग केवल ``model_name`` और ``<primary>_model_name`` लिखने के लिए इस्तेमाल किया जाता है, और रोगजनकों के लिए प्रसंस्करण सत्र पहले भी नहीं पढ़ता है: ``pathogen_model`` जब यह सेट किया गया है तो दोनों को पार करता है. एक उपयोगकर्ता एक ``pathogen_model`` चेकपॉइंट से बीज हो गया, लाइव मॉडल को स्विच किया गया, और प्रसारित किया गया था, और प्रोसेसिंग सत्र चेक पॉइंट का उपयोग करके जारी रहा - पहले की तरह एक ही पूर्वावलोकन / चलने की असहमति, दूसरे तरीके से संकेत।\n\nकेवल जब सेटिंग्स पैनल ALREADY रखता है उस संरचित-डेटा नाम सेट. लिखना अन्यथा एक उपयोगकर्ता के लिए ओवररिड को फिर से स्विच करेगा जो कभी नहीं पूछता है, और ``pathogen_model`` नाम संरचित डेटा नाम की तुलना में अधिक कठिन वैध है (:mod:`spacr.validate` एक मार्ग पर एक प्रसंस्करण सत्र को रोकता है जो वहां नहीं है)।",
       "translation_source_blocks_sha256": [
-        "9e4ffff2b2c3003230b0e59c904a23b118fb5d176c844caba6555e0d5b24b343"
+        "9e4ffff2b2c3003230b0e59c904a23b118fb5d176c844caba6555e0d5b24b343",
+        "3d83fe658951c9629e6217e718a9e91ea61ebeb715709da90b38035b9f53af7f",
+        "5d249c288323b58ca9b2096e4d7e33e62e7a89c79c1f500d1cb12aaa19003b0d"
       ]
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.showEvent": {
@@ -151513,7 +152439,7 @@
         "edee7f9d1ea29396078d952939a391d81458ff77f0bf3a0b0b4d0d5a61de95ad",
         "bca9f4ec20123c4b2c6a8cc212582955d4f5a99b46c7e8d7ea099d72cac6e8cb",
         "4a1282da69f9a0d22507b5a03fc04356147178691ac76678464f9273df9b8a84",
-        "169583af1d20022394196192edafcf6c57d642806338e163555bdb56e4b1001c",
+        "fb881cf77c5f5861ec786d118e734e149495b1c424fa27392e20b0200bc39e2c",
         "48342522ce71cfb8267f9c6e585ae9e99e0ae92508e47c871600cedb213b668e",
         "00b9b602b11f9b33ea44d3f40da5c86b2606b92b7443263bfc6a90da88769b69",
         "8d3a3ccb363ad646140582676a0bb2454033bba0fa85238e393c8f0987ecc5d6",
@@ -151532,8 +152458,8 @@
         "2ad9c559dde2223be68a57759ab1362182dd8905d0c06bfd902e3834d3142344",
         "5f49a191e85fa871451f0dcb697e2cca9f2c5b3b30c00073a87d46375f7f8ae1"
       ],
-      "source_sha256": "b990667ca60e3c59280e24849eaf6828e657c26c2f1f15f828742fe85ebb0018",
-      "text": "उपस्थिति सेटिंग्स प्रत्येक spaCR आंकड़े द्वारा साझा की जाती हैं।\n\nप्लेट-विशिष्ट विकल्प, जैसे कि एक प्रभाव-आकार सीमा या एक रंग-एक स्तंभ, संबंधित उपक्लास में शामिल हैं. यहां केवल पोर्टेबल मूल्यों को बनाए रखने से एक बचाए गए घर शैली को प्लेट प्रकारों के बीच लागू किया जा सकता है.\n\n:param x_label: रेंडर को प्रदान किए गए क्षैतिज-एक्स लेबल; खाली रेंडर्स-विशिष्ट या डिफ़ॉल्ट व्यवहार की अनुमति देता है।\n:param y_label: रेंडर के लिए प्रदान की गई ऊर्ध्वाधर-एक्स लेबल; खाली अनुमति देता है रंडर-विशिष्ट या डिफ़ॉल्ट व्यवहार।\n:param title: फ़ाइल शीर्षक; खाली साझा शीर्षक ऑपरेशन को अवरुद्ध करता है।\n:param x_scale: Matplotlib क्षैतिज स्केल से :data:`SCALES`।\n:param y_scale: Matplotlib ऊर्ध्वाधर स्केल से :data:`SCALES`।\n:param x_lim: स्पष्ट क्षैतिज ``(minimum, maximum)`` सीमा, या ``None`` डेटा-उत्पादित सीमाओं के लिए।\n:param y_lim: स्पष्ट ऊर्ध्वाधर ``(minimum, maximum)`` सीमा, या ``None``।\n:param invert_x: क्या सीमा लागू होने के बाद क्षैतिज ध्रुव को उल्टा करना है।\n:param invert_y: सीमा लागू होने के बाद ऊर्ध्वाधर ध्रुव को उल्टा करना या नहीं।\n:param font_family: फ़ॉन्ट-परिवार प्राथमिकता उन रेंडरों के लिए उपलब्ध है जो एक आंकड़े-विस्तृत परिवार का समर्थन करते हैं।\n:param font_size: आधार टेक्स्ट आकार प्लेट-विशिष्ट प्रोजेक्ट के लिए उपलब्ध है।\n:param title_font_size: बिंदुओं में शीर्षक का आकार।\n:param label_font_size: बिंदुओं में एसिड लेबल आकार।\n:param tick_font_size: बिंदुओं में टैटू का आकार।\n:param font_weight: मैटप्लोटलिब पाठ वजन साझा करता है।\n:param figure_width: लाइव और बचाए गए उपयोग के लिए इंच में आंकड़ों-कैनवस चौड़ाई।\n:param figure_height: लाइव और बचाए गए उपयोग के लिए इंच में आंकड़े-कैनव ऊंचाई।\n:param dpi: रैस्टर आउटपुट के लिए इस्तेमाल किए जाने वाले टुकड़े प्रति इंच।\n:param grid: क्या चुना गया नेटवर्क दिखाई देता है।\n:param grid_axis: ग्रेड लाइनों को प्राप्त करने वाले ध्रुव: ``\"x\"``, ``\"y\"``,``\"both\"``, या ``\"none\"``।\n:param grid_color: Matplotlib- संगत ग्रिड-लाइन रंग।\n:param grid_width: बिंदुओं में लाइन चौड़ाई।\n:param hide_top_right_spines: ऊपर और दाईं ओर फ्रेम लाइनों को हटाने के लिए।\n:param legend: क्या कुंजी चिह्नों के साथ रेंडरों को एक किंवदंती खींचनी चाहिए।\n:param legend_location: Matplotlib पौराणिक स्थान :data:`SHARED_CHOICES` से।\n:param background_color: नामित पृष्ठ और ध्रुव रंग; ``\"none\"`` पृष्ठभूमि विकल्प को रेंडर को सौंप देता है।\n:param transparent: क्या निर्यात किए गए आंकड़ों का पृष्ठभूमि पारदर्शी है।",
+      "source_sha256": "348f3e629a63979999bf29dc77034414bb66a0c9d5771441ac6242aa6fb1d09d",
+      "text": "उपस्थिति सेटिंग्स प्रत्येक spaCR आंकड़े द्वारा साझा की जाती हैं।\n\nप्लेट-विशिष्ट विकल्प, जैसे कि एक प्रभाव-आकार सीमा या एक रंग-एक स्तंभ, संबंधित उपक्लास में शामिल हैं. यहां केवल पोर्टेबल मूल्यों को बनाए रखने से एक बचाए गए घर शैली को प्लेट प्रकारों के बीच लागू किया जा सकता है.\n\n:param x_label: रेंडर को प्रदान किए गए क्षैतिज-एक्स लेबल; खाली रेंडर्स-विशिष्ट या डिफ़ॉल्ट व्यवहार की अनुमति देता है।\n:param y_label: रेंडर के लिए प्रदान की गई ऊर्ध्वाधर-एक्स लेबल; खाली अनुमति देता है रंडर-विशिष्ट या डिफ़ॉल्ट व्यवहार।\n:param title: फ़ाइल शीर्षक; खाली साझा शीर्षक ऑपरेशन को अवरुद्ध करता है।\n:param x_scale: Matplotlib क्षैतिज स्केल से :data:`SCALES`।\n:param y_scale: Matplotlib ऊर्ध्वाधर स्केल से :data:`SCALES`।\n:param x_lim: स्पष्ट क्षैतिज ``(minimum, maximum)`` सीमा, या ``None`` डेटा-उत्पादित सीमाओं के लिए।\n:param y_lim: स्पष्ट ऊर्ध्वाधर ``(minimum, maximum)`` सीमा, या ``None``।\n:param invert_x: क्या सीमा लागू होने के बाद क्षैतिज ध्रुव को उल्टा करना है।\n:param invert_y: सीमा लागू होने के बाद ऊर्ध्वाधर ध्रुव को उल्टा करना या नहीं।\n:param font_family: फ़ॉन्ट-परिवार प्राथमिकता उपलब्ध है रेंडर जो एक आंकड़-विस्तृत परिवार का समर्थन करते हैं. चेहरे spaCR जहाजों के लिए दोष; देखें :func:`font_names`.\n:param font_size: आधार टेक्स्ट आकार प्लेट-विशिष्ट प्रोजेक्ट के लिए उपलब्ध है।\n:param title_font_size: बिंदुओं में शीर्षक का आकार।\n:param label_font_size: बिंदुओं में एसिड लेबल आकार।\n:param tick_font_size: बिंदुओं में टैटू का आकार।\n:param font_weight: मैटप्लोटलिब पाठ वजन साझा करता है।\n:param figure_width: लाइव और बचाए गए उपयोग के लिए इंच में आंकड़ों-कैनवस चौड़ाई।\n:param figure_height: लाइव और बचाए गए उपयोग के लिए इंच में आंकड़े-कैनव ऊंचाई।\n:param dpi: रैस्टर आउटपुट के लिए इस्तेमाल किए जाने वाले टुकड़े प्रति इंच।\n:param grid: क्या चुना गया नेटवर्क दिखाई देता है।\n:param grid_axis: ग्रेड लाइनों को प्राप्त करने वाले ध्रुव: ``\"x\"``, ``\"y\"``,``\"both\"``, या ``\"none\"``।\n:param grid_color: Matplotlib- संगत ग्रिड-लाइन रंग।\n:param grid_width: बिंदुओं में लाइन चौड़ाई।\n:param hide_top_right_spines: ऊपर और दाईं ओर फ्रेम लाइनों को हटाने के लिए।\n:param legend: क्या कुंजी चिह्नों के साथ रेंडरों को एक किंवदंती खींचनी चाहिए।\n:param legend_location: Matplotlib पौराणिक स्थान :data:`SHARED_CHOICES` से।\n:param background_color: नामित पृष्ठ और ध्रुव रंग; ``\"none\"`` पृष्ठभूमि विकल्प को रेंडर को सौंप देता है।\n:param transparent: क्या निर्यात किए गए आंकड़ों का पृष्ठभूमि पारदर्शी है।",
       "translation_source_blocks_sha256": [
         "94309949f2246e352cb2054d59f1d1c9d6a12eaa8bd7150e5022635d8dd58b4f",
         "589e268a839e19002d5d4c53d280abb7a2174a05190328093aa577003f437882",
@@ -151546,7 +152472,7 @@
         "edee7f9d1ea29396078d952939a391d81458ff77f0bf3a0b0b4d0d5a61de95ad",
         "bca9f4ec20123c4b2c6a8cc212582955d4f5a99b46c7e8d7ea099d72cac6e8cb",
         "4a1282da69f9a0d22507b5a03fc04356147178691ac76678464f9273df9b8a84",
-        "169583af1d20022394196192edafcf6c57d642806338e163555bdb56e4b1001c",
+        "fb881cf77c5f5861ec786d118e734e149495b1c424fa27392e20b0200bc39e2c",
         "48342522ce71cfb8267f9c6e585ae9e99e0ae92508e47c871600cedb213b668e",
         "00b9b602b11f9b33ea44d3f40da5c86b2606b92b7443263bfc6a90da88769b69",
         "8d3a3ccb363ad646140582676a0bb2454033bba0fa85238e393c8f0987ecc5d6",
@@ -151596,16 +152522,50 @@
         "da0b061dc09f9673c38139b7500165976216ad5932d410049754f656f18bdbdd",
         "e993553c53c637bdca0f8378febfd003fc5f2699d4c46df9acb8f0eadbc40877",
         "5e9c12cd9955a633f83378505074113861479f2295339e72f48ab501e18fbab7",
-        "1e3f7183794c034dcf22f39fa3e2eaf2d49e02e79110e6cec0a58840614c6fbf"
+        "091c7b4f5b0db8c265b543edca6bee3221d0f98c777983ea962caf30687d7eaa"
       ],
-      "source_sha256": "d3f31d71c3b09bf78737928299186b9ea9bf870d29e42088a68a2bb37fbc4220",
-      "text": "साझा एक्स, टाइपोग्राफी, नेटवर्क, रस्सी, और पृष्ठ सेटिंग्स लागू करें।\n\n:param figure: Matplotlib आंकड़ा जिसकी पृष्ठ उपस्थिति अद्यतन की जाती है।\n:param axes: Matplotlib axes जिनकी प्रस्तुति अद्यतन की जाती है।\n:param style: साझा आकार-स्टाइल सेटिंग्स लागू करने के लिए।\n\nयह केवल आंकड़ों और एक्स प्रस्तुति को बदलता है; यह डेटा चिह्नों को नहीं जोड़ता है या हटाता है।",
+      "source_sha256": "c35d48336173096d79a57e8764067d48205f017f5eac750861a109285d53d999",
+      "text": "साझा एक्स, टाइपोग्राफी, नेटवर्क, रस्सी, और पृष्ठ सेटिंग्स लागू करें।\n\n:param figure: Matplotlib आंकड़ा जिसकी पृष्ठ उपस्थिति अद्यतन की जाती है।\n:param axes: Matplotlib axes जिनकी प्रस्तुति अद्यतन की जाती है।\n:param style: साझा आकार-स्टाइल सेटिंग्स लागू करने के लिए।\n\nयह केवल आंकड़ों और एक्स प्रस्तुति को बदलता है; यह डेटा चिह्नों को नहीं जोड़ता है या हटाता है. शीर्षक, एक्स लेबल और टिक लेबल स्टाइल के परिवार में रखा जाता है - :func:`font_names` - इसलिए एक रेंडर जो एक फ़ॉन्ट ``rc_context`` के बाहर खींचता है, अभी भी चेहरे spaCR जहाजों को प्राप्त करता है।",
       "translation_source_blocks_sha256": [
         "d570e0b6162b99057a01a87f815e4f85e3a6aade4df86edb0e07737b55895354",
         "da0b061dc09f9673c38139b7500165976216ad5932d410049754f656f18bdbdd",
         "e993553c53c637bdca0f8378febfd003fc5f2699d4c46df9acb8f0eadbc40877",
         "5e9c12cd9955a633f83378505074113861479f2295339e72f48ab501e18fbab7",
-        "1e3f7183794c034dcf22f39fa3e2eaf2d49e02e79110e6cec0a58840614c6fbf"
+        "091c7b4f5b0db8c265b543edca6bee3221d0f98c777983ea962caf30687d7eaa"
+      ]
+    },
+    "spacr.style_base.font_names": {
+      "source_blocks_sha256": [
+        "0691fea055689963fd25797fff713d5b919aa6162c56641f6b84c12fceebbe1a",
+        "ea7d761f3e2acb03074e71cd91835f5658f50fedea0ba66cc3b872898c67b905",
+        "d3a4d759b9bf6df1a081ca6ed3d572eb943c921cebe944614dbfe3ae619d0a48",
+        "9ea43d42e2670a767398f1993adf8a2ffa3691831ead752eecb1a594f6a53544",
+        "e2b6676ee22a9bb92cde99a4480f7bcf93da4337b714cdd870ff6c8b51568340"
+      ],
+      "source_sha256": "135b3ca98bd81f976d7dbf1f096bc2764c57e29cbaff3609b97cfdd3b2793a85",
+      "text": "परिवारों के लिए पूछने के लिए matplotlib के लिए, सबसे अच्छा पहले, चेहरा पंजीकृत है।\n\n:param style: आंकड़े शैली जिसका ``font_family`` पहला विकल्प है।\n:returns: एक परिवार सूची ``font.family``, एक ``FontProperties`` या :meth:`matplotlib.text.Text.set_fontfamily` के लिए उपयुक्त है. एक सामान्य परिवार अकेले लौटता है, क्योंकि matplotlib इसे अपनी खुद की सूची के माध्यम से हल करता है.\n\nएक परिवार का नाम लेना ऐसा नहीं है. Matplotlib एक नाम का जवाब देता है जिसे वह वापस गिरकर नहीं पा सकता है - चुपचाप, एक ``findfont`` चेतावनी लेता है - DejaVu Sans, इसलिए एक मशीन पर एक स्टाइल कहता है कि \"Open Sans\" जहां Open Sans कभी स्थापित नहीं किया गया था, में ड्राइव किया गया है और इसके चारों ओर इंटरफ़ेस की तरह कुछ भी नहीं दिखता है. यह पंजीकरण उनके नाम से पहले spaCR जहाजों का चेहरा है, जो कि उस मशीनें पर नाम को हल करने के लिए क्या है, और :data:`FONT_FAMILY` देर रखता है ताकि एक चुनी हुई परिवार को डिजावु Sans के बजाय घर के चेहरे पर भूमि नहीं मिलती है.\n\n:data:`FONT_FAMILY` के बाद कुछ भी सूचीबद्ध नहीं है: यह पैकेज में एक फ़ाइल से रिकॉर्ड किया जाता है, इसलिए यह हमेशा हल होता है, और सूची में एक अप्रत्याशित नाम केवल matplotlib चेतावनी बनाता है एक बार एक चिह्न के बारे में जो कभी उपयोग नहीं किया जाएगा।",
+      "translation_source_blocks_sha256": [
+        "0691fea055689963fd25797fff713d5b919aa6162c56641f6b84c12fceebbe1a",
+        "ea7d761f3e2acb03074e71cd91835f5658f50fedea0ba66cc3b872898c67b905",
+        "d3a4d759b9bf6df1a081ca6ed3d572eb943c921cebe944614dbfe3ae619d0a48",
+        "9ea43d42e2670a767398f1993adf8a2ffa3691831ead752eecb1a594f6a53544",
+        "e2b6676ee22a9bb92cde99a4480f7bcf93da4337b714cdd870ff6c8b51568340"
+      ]
+    },
+    "spacr.style_base.font_rc": {
+      "source_blocks_sha256": [
+        "0dde586c76e4be446d7b00b1a2c56781259fb4c3566656a6a598991d066e0c1c",
+        "a44ee56931e3116b9159e5e17ee2ae663bfe2a870af42fbf183ce34619139047",
+        "ac63a0bbdd75a1614e03f37ae21b0427c628998168defa4a16d9170ab22f73a2",
+        "c11a002c41d36eb43fb5bdba9b9451d2ea7d0973339bcaad29c7307494649039"
+      ],
+      "source_sha256": "4cd61eae40cb935843c172278b180dbc3632bee64f24692affb329684bb9fde4",
+      "text": "Matplotlib फ़ॉन्ट पैरामीटर एक शैली के लिए पूछता है।\n\n:param style: आकृति शैली परिवार, आकार और वजन की आपूर्ति करता है।\n:returns: ``rcParams`` इनपुटों को अंदर खींचने के लिए, क्योंकि ``matplotlib.rc_context`` उन्हें लेता है।\n\nइसे ``rc_context`` के बजाय मैन्युअल रूप से संकलित करें ``font.*``: परिवार समाप्त करने योग्य सूची :func:`font_names` के निर्माण के रूप में आता है, जिसके साथ संलग्न चेहरा पहले से ही पंजीकृत है।",
+      "translation_source_blocks_sha256": [
+        "0dde586c76e4be446d7b00b1a2c56781259fb4c3566656a6a598991d066e0c1c",
+        "a44ee56931e3116b9159e5e17ee2ae663bfe2a870af42fbf183ce34619139047",
+        "ac63a0bbdd75a1614e03f37ae21b0427c628998168defa4a16d9170ab22f73a2",
+        "c11a002c41d36eb43fb5bdba9b9451d2ea7d0973339bcaad29c7307494649039"
       ]
     },
     "spacr.style_base.style_kind": {

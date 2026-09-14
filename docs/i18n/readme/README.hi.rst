@@ -212,18 +212,23 @@ conda-forge से इंस्टॉलेशन
 स्रोत से स्थापित करें (प्रकाश)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-पूर्ण क्लोन: 427 एमबी. कोर क्लन: 76 एमबी।
+योगदानकर्ताओं को इतिहास की आवश्यकता है; केवल spaCR चलाने के लिए, इनमें से एक लें, ``packaging/measure_clone_forms.sh`` द्वारा मापा 2026-09-14::
 
-::
+    # One commit instead of every version: 595 MB downloaded, 31 s.
+    # No history, so no git log, no git blame and no git bisect.
+    # git pull still works, but stays shallow until git fetch --unshallow.
+    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    cd spacr && pip install -e .
 
+    # Only the files spaCR runs from: 86 MB on disk, 5 s. No history
+    # either, and no docs, tests, tools or example data.
+    # --with-docs, --with-tests and --with-translations put those back;
+    # --dir, --branch, --no-install and --help do the obvious things.
+    # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-स्काइप ``docs/``, ``tests/`` , Cellpose चेक पॉइंट, संग्रहीत आंकड़े और विस्तारित अनुवाद कैटलॉग. परिणाम एक सामान्य चेकअप है.
-
-विकल्प: ``--dir``, ``--branch`` (डिफ़ॉल्ट ``main``), ``--with-tests``, [``--with-docs``,] ``--with-translations`` और [``--no-install``।
-
-``packaging/source_install_excludes.txt`` प्रत्येक पारित मार्ग को सूचीबद्ध करता है।
+पूर्ण क्लोन एक 941 एमबी चेकअप के लिए 5.8 जीबी डाउनलोड करता है. ``--filter=blob:none`` जोड़ने से उस क्लोना में कुछ भी नहीं बचाता है: चेकआउट किसी भी तरह से ब्लोब को पकड़ता है.
 
 
 कमांड-लाइन प्रवेश बिंदु
