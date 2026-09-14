@@ -51,17 +51,29 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,244 | Remainder | Reviewed API blocks | Of 10,478 | Remainder |
+| Language | Reviewed runtime records | Of 5,664 | Remainder | Reviewed API blocks | Of 10,478 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.20% | 5,243 | 468 | 4.47% | 10,010 |
-| German | 85 | 1.59% | 5,276 | 424 | 4.05% | 10,054 |
-| Spanish | 99 | 1.85% | 5,262 | 287 | 2.74% | 10,191 |
-| Simplified Chinese | 266 | 4.96% | 5,095 | 507 | 4.84% | 9,971 |
-| Portuguese | 99 | 1.85% | 5,262 | 448 | 4.28% | 10,030 |
-| Hindi | 126 | 2.35% | 5,235 | 461 | 4.40% | 10,017 |
-| Korean | 245 | 4.57% | 5,116 | 453 | 4.32% | 10,025 |
-| Icelandic | 151 | 2.82% | 5,210 | 1,025 | 9.78% | 9,453 |
-| French | 98 | 1.83% | 5,263 | 465 | 4.44% | 10,013 |
+| Swedish | 118 | 2.08% | 5,546 | 468 | 4.47% | 10,010 |
+| German | 85 | 1.50% | 5,579 | 422 | 4.03% | 10,056 |
+| Spanish | 99 | 1.75% | 5,565 | 287 | 2.74% | 10,191 |
+| Simplified Chinese | 267 | 4.71% | 5,397 | 507 | 4.84% | 9,971 |
+| Portuguese | 99 | 1.75% | 5,565 | 446 | 4.26% | 10,032 |
+| Hindi | 128 | 2.26% | 5,536 | 461 | 4.40% | 10,017 |
+| Korean | 246 | 4.34% | 5,418 | 453 | 4.32% | 10,025 |
+| Icelandic | 151 | 2.67% | 5,513 | 1,022 | 9.75% | 9,456 |
+| French | 98 | 1.73% | 5,566 | 465 | 4.44% | 10,013 |
+
+*Regenerated 2026-09-14. The runtime denominator moved 5,361 -> 5,664: 283
+captions reached the extractor through fourteen runtime registries that an AST
+walk could only see as a variable, and 21 more were the regression-model menu,
+which `settings_model` DECLARED for exactly this purpose and which nothing
+consumed -- so all 21 read English in all nine locales. Three API counts fall
+by one or two (de 424 -> 422, pt 448 -> 446, is 1,025 -> 1,022): protecting the
+twenty UI screen names invalidated reviewed records that had TRANSLATED a
+screen name, which sent a reader to a screen their interface does not have.
+Those records were wrong the day they were written; nothing could see it until
+the term was protected. Two locales gain a runtime record (zh_CN 266 -> 267,
+hi 126 -> 128) for the three em-dash definition rows no model would take.*
 
 *Regenerated 2026-09-13. The runtime denominator moved 5,244 -> 5,361 because
 a one-line `_set_status` wrapper had hidden 117 user-facing status captions
@@ -175,6 +187,6 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 118, de 85, es 99, zh_CN 262, pt 99, hi 126, ko 245,
-is 151, fr 98 -- 1,283 runtime records across nine locales.
+Reviewed totals today: sv 118, de 85, es 99, zh_CN 267, pt 99, hi 128, ko 246,
+is 151, fr 98 -- 1,291 runtime records across nine locales.
 
