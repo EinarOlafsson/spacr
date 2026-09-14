@@ -1,13 +1,14 @@
 """Which modules get a Live Preview, and how one is attached from outside.
 
-Four modules have a preview — Mask, Measure, Timelapse, Motility — and each
-one costs a thirteen-line arm in ``AppScreen._build_runtime_panel``, two
-attribute names in a null-out block, and a row in a toggle table two hundred
-lines further down. The fifth would cost the same, which is why there has
-never been a fifth: the modules that would most obviously benefit from one
-are the two whose entire job is "did the mask come out right" — Cellpose
-Masks and Plaque Assay — and neither was worth touching the shared screen
-for.
+Four modules have a preview: Mask, Measure, Timelapse and Motility. Each one
+costs a thirteen-line arm in ``AppScreen._build_runtime_panel``, two attribute
+names in a null-out block, and a row in a toggle table two hundred lines
+further down.
+
+A fifth would cost the same, which is why there has never been one. The two
+modules that would benefit most are the ones whose entire job is "did the mask
+come out right", Cellpose Masks and Plaque Assay, and neither was worth
+touching the shared screen for.
 
 This module is the seam that makes the fifth free. A module declares a
 preview here; the strip above the settings form grows a toggle for it; the

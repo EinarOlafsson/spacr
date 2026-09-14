@@ -107,11 +107,32 @@ def test_chinese_may_say_guide_rna_where_the_english_says_guides():
         "must not be rejected as an invented product name")
 
 
-def test_a_target_may_canonicalise_an_acronym_the_source_lower_cased():
-    assert _syntax_preserved()(
+def test_case_canonicalisation_is_NOT_free_in_the_generic_gate():
+    """It goes through the reviewed path, and that separation is deliberate.
+
+    An earlier version of this file asserted the opposite -- that the
+    generic gate may accept a target upper-casing the source's own token --
+    and that contradicted a contract this repository already states:
+
+        tests/test_documentation_i18n.py
+          assert not _syntax_preserved("pca", "PCA")
+          assert _syntax_preserved_or_reviewed("pca", MANUAL_UI["pca"]["de"], "de")
+
+    The reason is visible in that pair. For a string that IS the acronym,
+    upper-casing it is not a translation at all, and letting the generic
+    gate accept it would let a model do nothing and score as having worked.
+    `_syntax_preserved_or_reviewed` and the
+    `allow_reviewed_product_normalization` flag are the sanctioned route,
+    and they require a human record rather than model output.
+    """
+    assert not _syntax_preserved()("pca", "PCA"), (
+        "the generic gate accepted a pure case change; a model that only "
+        "upper-cases an acronym has translated nothing")
+    assert not _syntax_preserved()(
         "Writes a FOLDER: the figure as pdf and png",
         "写一个文件夹：图像为 PDF 和 png",
-    ), "the token is the source's own; only its case changed"
+    ), ("model output may not canonicalise an acronym's case either -- if a "
+        "target genuinely needs it, it goes through the reviewed path")
 
 
 def test_an_invented_product_name_is_still_refused():

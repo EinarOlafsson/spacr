@@ -2,11 +2,13 @@
 run them unattended.
 
 The Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one*
-pipeline with *one* settings dict. This module is the other axis: a queue of
-arbitrary ``(module, settings)`` jobs in any order —
+pipeline with *one* settings dict.
+
+This module is the other axis. It holds a queue of arbitrary
+``(module, settings)`` jobs in any order:
 ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again
-with a different diameter, then a fifth plate's Mask — which is what a night
-of plate-scale work actually looks like.
+with a different diameter, then a fifth plate's Mask. That is what a night of
+plate-scale work actually looks like.
 
 A queued job **is** a ``spacr-run`` invocation. Nothing here re-implements
 module dispatch or settings loading: :mod:`spacr.cli` owns the module

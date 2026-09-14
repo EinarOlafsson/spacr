@@ -28,8 +28,9 @@ Layout::
 Design notes:
 
 * **Read-only, structurally.** Every query goes through
-  :mod:`spacr.plate_qc`, which opens the file with ``file:…?mode=ro`` and
-  ``PRAGMA query_only = ON`` — the same approach as the Database Browser.
+  :mod:`spacr.plate_qc`. It opens the file with ``file:…?mode=ro`` and
+  ``PRAGMA query_only = ON``, the same approach the Database Browser
+  takes.
 * **The statistics live outside the GUI.** All of the analysis is in
   :mod:`spacr.plate_qc`, which imports neither torch nor cellpose, so it
   is testable headless and the screen stays a view.

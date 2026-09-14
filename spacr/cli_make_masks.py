@@ -222,11 +222,13 @@ def _session_lines(queue: CurationQueue) -> List[str]:
 def has_display() -> bool:
     """Whether there is a windowing system for the editor to open on.
 
-    The same three-line question :func:`spacr.cli.use_agg_if_headless` asks
-    of matplotlib, asked of Qt and asked BEFORE Qt is imported: an SSH
-    session with no X forwarding otherwise gets "could not load the Qt
-    platform plugin xcb" and an abort, which says nothing about the queue
-    that was perfectly readable a moment earlier.
+    This is the three-line question :func:`spacr.cli.use_agg_if_headless`
+    asks of matplotlib, asked here of Qt instead. It runs BEFORE Qt is
+    imported.
+
+    Without it an SSH session with no X forwarding gets "could not load the
+    Qt platform plugin xcb" and aborts. That message says nothing about the
+    queue, which was perfectly readable a moment earlier.
 
     An explicit ``QT_QPA_PLATFORM`` counts as a display. It is how offscreen
     rendering, VNC and the embedded platforms are asked for, and somebody

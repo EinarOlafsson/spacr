@@ -26,11 +26,12 @@ empty. So all three are accepted and the one in front of us is detected::
     sibling   <folder>/images/*.tif    + <folder>/masks/*.tif
     seg       <folder>/*_seg.npy       (Cellpose pickles, the external tool)
 
-Accepting all three is strictly safer than picking a winner: an existing
-curation set opens unconverted, and nothing has to be moved before work can
-start. What is *not* accepted is a guess. A folder matching none of them, or
-matching two of them, raises :class:`LayoutError` — because the alternative
-is an empty queue, and an empty queue reads as "all done".
+Accepting all three is safer than picking a winner. An existing curation
+set opens unconverted, so nothing has to be moved before work can start.
+
+A guess is not accepted. A folder that matches none of the three, or that
+matches two of them, raises :class:`LayoutError`. The alternative would be an
+empty queue, and an empty queue reads as "all done".
 
 Three reviewed states, not two
 ------------------------------

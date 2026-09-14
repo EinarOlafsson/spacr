@@ -28,10 +28,10 @@ Layout::
 Design notes:
 
 * **Read-only, structurally.** Every connection goes through
-  :mod:`spacr.agreement`, which opens the file with ``file:…?mode=ro``
-  and ``PRAGMA query_only = ON`` — the same approach as the Database
-  Browser. Adjudicating a disagreement is a job for the Annotate app;
-  this screen only ever looks.
+  :mod:`spacr.agreement`. It opens the file with ``file:…?mode=ro`` and
+  ``PRAGMA query_only = ON``, the same approach the Database Browser
+  takes. Adjudicating a disagreement is a job for the Annotate app. This
+  screen only ever looks.
 * **Off the GUI thread.** The report reads the whole ``png_list``
   annotation block, so it runs through :func:`spacr.qt.bridge.make_thread`
   like every other spaCR job. Tests pass ``threaded=False``.

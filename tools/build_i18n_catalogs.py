@@ -4823,10 +4823,6 @@ def _syntax_preserved(
     # They are not newly wrong; they were never examined.
     unexpected = rendered_products - protected_products
     for literal in list(unexpected):
-        if re.search(r"(?<![A-Za-z0-9_])" + re.escape(literal)
-                     + r"(?![A-Za-z0-9_])", str(source), re.IGNORECASE):
-            del unexpected[literal]
-            continue
         trigger = _IMPLIED_BY_THE_SOURCE.get(literal)
         if trigger is not None and re.search(trigger, str(source), re.IGNORECASE):
             del unexpected[literal]
