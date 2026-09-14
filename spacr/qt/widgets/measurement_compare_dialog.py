@@ -55,15 +55,7 @@ class _WellChoice(QDialog):
             "An excluded well is removed from both groups; it is not moved "
             "into the comparison group."))
         for well in offered:
-            # `Toggle`, not a bare check box: it subclasses one, so nothing
-            # about the behaviour changes, and it is what every other boolean
-            # in spaCR looks like. A test greps the Qt package for the bare
-            # constructor precisely to stop the two drifting -- which is why
-            # this comment does not write it out.
             box = Toggle(str(well), self)
-            # EVERYTHING ON BY DEFAULT. `None` means "all of them", and a
-            # panel that opened with nothing ticked would read as "nothing
-            # is being compared", which is not what was happening.
             box.setChecked(chosen is None or str(well) in chosen)
             outer.addWidget(box)
             self._boxes.append(box)
@@ -95,12 +87,6 @@ _SPEC_KINDS = {
 }
 
 
-# THE ARGUMENTS ARE DOCUMENTED ON `__init__`, ONCE. They were listed here
-# too, as a NumPy ``Parameters`` section, and AutoAPI runs with
-# ``class_content='both'``: the class docstring and ``__init__``'s are
-# concatenated before Napoleon sees them, the section became a field list,
-# and ``__init__``'s opening prose then ended it mid-way -- "Field list
-# ends without a blank line", which `sphinx-build -W` makes fatal.
 class MeasurementComparePanel(QWidget):
     """Compare measurements between selected cell groups and a reference."""
 
@@ -141,22 +127,12 @@ class MeasurementComparePanel(QWidget):
         self._settings = dict(settings or {})
         self._databases = tuple(databases or ())
         self._counts = counts
-        # THE JOIN RUNS OFF THE GUI THREAD. It reads every object table out
-        # of every attached database and joins them onto the crop rows:
-        # measured at 3.2 s for one plate's 553 objects, so a four-plate
-        # screen of 60,000 is minutes with the window frozen solid --
-        # reported as "pressing join the measurements table in the cell tab
-        # in the regression module makes spacr unresponsive".
         from ..job_runner import JobRunner
 
         self._jobs = JobRunner(self, app_key="join measurements")
         self._joining = False
         self._comparison = None
         self._canvas = None
-        # THE WELLS THE USER LEFT IN. `None` means "all of them", which is
-        # not the same as the full list: a well that appears after a re-run
-        # should be included, and a stored full list would silently exclude
-        # it.
         self._chosen_wells: Optional[set] = None
 
         #: The volcano's guide selection, and the well set derived from it.
@@ -175,18 +151,11 @@ class MeasurementComparePanel(QWidget):
 
         row.addWidget(self._heading("measurement"))
         self.measurement = QComboBox()
-        # OFFERED FROM THE DATA, never typed: the same rule every other
-        # chooser in spaCR follows, and the reason `object_array` stopped
-        # being a text box.
         for name in self._numeric_columns():
             self.measurement.addItem(str(name), str(name))
         self.measurement.currentIndexChanged.connect(self.refresh)
         row.addWidget(self.measurement, 1)
 
-        # THE SECOND MEASUREMENT AND THE OPERATOR (179 B). "one mes minus,
-        # plus, multiplied by or devided by another mes" -- and the combined
-        # column is named for the expression, so the table, the legend and
-        # the settings file all say the same thing.
         self.operator = QComboBox()
         for value, label in OPERATORS:
             self.operator.addItem(label, value)
@@ -204,7 +173,7 @@ class MeasurementComparePanel(QWidget):
         for value, why in LEVELS:
             self.level.addItem(value, value)
             self.level.setItemData(self.level.count() - 1, why, Qt.ToolTipRole)
-        self.level.setCurrentIndex(1)          # well: the unit the screen randomises
+        self.level.setCurrentIndex(1)
         self.level.currentIndexChanged.connect(self.refresh)
         row.addWidget(self.level)
 
@@ -216,20 +185,6 @@ class MeasurementComparePanel(QWidget):
         self.kind.currentIndexChanged.connect(self._offer_the_spread)
         row.addWidget(self.kind)
 
-        # WHAT THE WHISKER MEANS, WHEN THERE IS ONE. "for the cell table
-        # graphs if bar is chosen the user should be able to choose SD, Var,
-        # or SEM error bars."
-        #
-        # THEY ARE NOT INTERCHANGEABLE: SD describes the cells, SEM the
-        # confidence in their mean, and at n=3000 they differ by a factor of
-        # fifty-five -- a reader who assumes the wrong one reads a real
-        # effect as noise or noise as a real effect. So the caption under the
-        # plot names the one that was drawn, not only this box.
-        #
-        # ABSENT, NOT INERT, for a graph type that has no error bar (106): a
-        # box already draws its quartiles and a jitter draws every point, and
-        # a control that cannot change either is a promise that was kept
-        # once.
         self.spread = QComboBox()
         for value, label in SPREAD_CHOICES:
             self.spread.addItem(label, value)
@@ -244,18 +199,7 @@ class MeasurementComparePanel(QWidget):
         self.spread.currentIndexChanged.connect(self._draw_and_report)
         row.addWidget(self.spread)
 
-        # B2, asked for 2026-08-20: "it should be possible to show only one
-        # class". A FILTER ON THE DRAW, not on the build -- the statistics
-        # below still describe the whole comparison, because a test computed
-        # on one of two groups is not a comparison at all and a panel that
-        # quietly re-ran it on the visible half would be reporting a
-        # different question than the one on screen.
         row.addWidget(self._heading("show"))
-        # THE THREE POPULATIONS (instruction 205). Beside the class filter
-        # rather than merged into it: "which objects are on the plot" and
-        # "which of the classes on it to draw" are different questions, and
-        # one box answering both would have a list whose entries mean two
-        # different things.
         from ...well_scope import SCOPES
 
         self.scope = QComboBox()
@@ -288,11 +232,6 @@ class MeasurementComparePanel(QWidget):
         row.addWidget(self.save_button)
         layout.addLayout(row)
 
-        # ------------------------------------------------------------ 187 B
-        # THE CONTRAST IS A SEPARATE ROW because it is a separate decision.
-        # The row above chooses WHAT is measured; this one chooses WHAT IT IS
-        # HELD AGAINST, and the same cells under three contrasts give three
-        # different p-values.
         second_row = QHBoxLayout()
         second_row.addWidget(self._heading("compare"))
         self.contrast = QComboBox()
@@ -303,9 +242,6 @@ class MeasurementComparePanel(QWidget):
         self.contrast.currentIndexChanged.connect(self._on_contrast)
         second_row.addWidget(self.contrast, 1)
 
-        # THE CONTROLS, resolved through `spacr.control_names` (184) -- so a
-        # gene, a guide, a prefixed name and a bare one all work, and this
-        # panel does not grow a fifth opinion about what a control is.
         self.controls = QLineEdit()
         self.controls.setPlaceholderText("control gene or guide, comma "
                                           "separated")
@@ -316,14 +252,6 @@ class MeasurementComparePanel(QWidget):
         self.controls.setEnabled(False)
         second_row.addWidget(self.controls, 1)
 
-        # AND WHICH OF THE GENE'S WELLS COUNT. "i whould be able to choose
-        # which wells to include from the gene annotation" -- a well that
-        # failed for an unrelated reason should not have to poison the
-        # contrast.
-        #
-        # A CHECKLIST RATHER THAN 185's PLATE MAP: an annotation's wells span
-        # plates, and a plate map can only show one plate at a time. The
-        # NAMES are the same either way, which is the part that had to agree.
         self.wells_button = QPushButton("wells…")
         self.wells_button.setToolTip(
             "Choose which of the annotation's wells to include. A well left "
@@ -332,12 +260,6 @@ class MeasurementComparePanel(QWidget):
         second_row.addWidget(self.wells_button)
         layout.addLayout(second_row)
 
-        # ------------------------------------------------------------ 187 A
-        # THE JOIN IS OFFERED, NOT SILENTLY SKIPPED. `png_list` holds the
-        # crop path and the classification score; every morphological
-        # measurement is in the object tables beside it. Offering a short
-        # list of measurements with no reason for its shortness is what this
-        # is against.
         self._join_row = QHBoxLayout()
         self.join_note = QLabel("")
         self.join_note.setObjectName("Muted")
@@ -352,10 +274,6 @@ class MeasurementComparePanel(QWidget):
         self._join_row.addWidget(self.join_button)
         layout.addLayout(self._join_row)
 
-        # TWO MORE BOXES (instruction 213 A). `png_list` and the dependent
-        # variable are already the substance of the analysis and neither
-        # could be reached from this control -- which offered the four object
-        # tables and no reason for stopping there.
         from PySide6.QtWidgets import QCheckBox
 
         extras = QHBoxLayout()
@@ -391,7 +309,6 @@ class MeasurementComparePanel(QWidget):
         self.resize(900, 720)
         self.refresh()
 
-    # ------------------------------------------------------------- the data
 
     def _numeric_columns(self) -> list:
         """Every measurement on these objects, identifiers left out."""
@@ -447,7 +364,6 @@ class MeasurementComparePanel(QWidget):
         """
         return self._comparison
 
-    # ------------------------------------------------------- 187 B: contrast
 
     def _on_contrast(self, *_args):
         """The controls field only means anything for one of the three."""
@@ -495,8 +411,6 @@ class MeasurementComparePanel(QWidget):
         """
         if self._chosen_wells is None:
             return None
-        # INTERSECTED WITH WHAT IS THERE NOW, so a choice made before a
-        # re-run cannot name a well the new montage does not have.
         return [w for w in self.wells_on_offer() if w in self._chosen_wells]
 
     def choose_wells(self, *_args) -> bool:
@@ -524,7 +438,6 @@ class MeasurementComparePanel(QWidget):
         self.refresh()
         return True
 
-    # ---------------------------------------------------------- 187 A: join
 
     def _say_about_the_join(self) -> None:
         """Say whether the measurement list is the short one, and why."""
@@ -562,13 +475,9 @@ class MeasurementComparePanel(QWidget):
             return "no measurements database is attached"
         if self._joining:
             return ""
-        # READ ON THE GUI THREAD, because a worker may not touch a widget.
         png_list = bool(self.join_png_list.isChecked())
         objects, databases = self._objects, self._databases
         self._joining = True
-        # THE BUTTON BECOMES THE CANCEL. A join of a four-plate screen is
-        # minutes of reading, and a run that can only be waited out is the
-        # freeze this moved off the GUI thread to avoid, one step removed.
         self.join_button.setEnabled(True)
         self.join_button.setText(self.CANCEL_LABEL)
 
@@ -586,19 +495,6 @@ class MeasurementComparePanel(QWidget):
 
         started = self._jobs.submit(work, self._finish_join)
         if not started:
-            # PUT BOTH BACK. `_joining` and the Cancel label were set
-            # BEFORE the submit, because the submit is the part that takes
-            # minutes. Left set after a refusal the panel is stuck: the
-            # button offers to cancel a job that is not running, and
-            # `_joining` makes every later press return early.
-            #
-            # This used to be marked `no cover - JobRunner always returns
-            # True today`, and that reason was wrong. `JobRunner.submit`
-            # returns False whenever it is UNTHREADED and the work or the
-            # completion callback raises. Only this panel's runner, built
-            # threaded, cannot reach it -- so the guard covers a real
-            # contract and is driven in
-            # tests/qt/test_a_refused_join_puts_the_button_back.py.
             self._joining = False
             self._reset_the_join_button()
         return ""
@@ -650,8 +546,6 @@ class MeasurementComparePanel(QWidget):
         wide, dependent_note = self._join_the_dependent_variable(wide)
         if dependent_note:
             trouble = f"{trouble} {dependent_note}".strip()
-        # THE GROUPS SURVIVE because `join_measurements` keeps the index, and
-        # `set_data` re-reads them from the same values.
         self.set_data(wide, self._groups)
         if trouble:
             self.join_note.setText(
@@ -660,7 +554,7 @@ class MeasurementComparePanel(QWidget):
 
     def _on_scope(self, *_args) -> None:
         """The population changed: re-derive the wells and redraw."""
-        self._selected_wells = None      # derived again from the guides
+        self._selected_wells = None
         self.refresh()
 
     def set_selected_guides(self, guides) -> None:
@@ -708,10 +602,6 @@ class MeasurementComparePanel(QWidget):
         try:
             from ..screens.settings_model import _ApiTooltipFilter
 
-            # HELD ON `self`, not made and dropped. Qt keeps a bare pointer
-            # to an event filter, so one that only this call referenced is
-            # collected as soon as the call returns -- after which the
-            # heading stops responding and nothing says why.
             if getattr(self, "_heading_filter", None) is None:
                 self._heading_filter = _ApiTooltipFilter(self)
             label.setProperty("apiTooltipHtml", label.toolTip())
@@ -719,8 +609,6 @@ class MeasurementComparePanel(QWidget):
             label.removeEventFilter(self._heading_filter)
             label.installEventFilter(self._heading_filter)
         except Exception:                                    # noqa: BLE001
-            # The plain Qt tooltip still shows; only the stay-open behaviour
-            # is lost, which is a worse tooltip rather than none.
             LOG.debug("could not install the hover tooltip", exc_info=True)
         self.headings[str(field)] = label
         return label
@@ -754,8 +642,6 @@ class MeasurementComparePanel(QWidget):
             out, report = join(wide, frame)
         except Exception as exc:                             # noqa: BLE001
             LOG.debug("could not join the dependent variable", exc_info=True)
-            # REPORTED, NOT SWALLOWED. A route that matches nothing is a
-            # failure rather than an empty answer.
             return wide, f"the dependent variable did not join: {exc}"
         return out, describe(report)
 
@@ -770,7 +656,6 @@ class MeasurementComparePanel(QWidget):
         """
         self._dependent_frame = frame
 
-    # ------------------------------------------------------------ the build
 
     def refresh(self, *_args):
         """Rebuild, retest and redraw. Returns the comparison, or ``None``."""
@@ -884,18 +769,6 @@ class MeasurementComparePanel(QWidget):
             frame = showing.frame
             showing = replace(showing,
                               frame=frame[frame["group"].astype(str) == only])
-        # PYQTGRAPH, NOT MATPLOTLIB. Asked for four times: "I WANT ALL
-        # FIGURES TO BE IN pyqtgraph NOT matplotlib ... i also want to be
-        # able to right click on the graph and change the graph typem to
-        # whatever is possibel with the underlying data ... and i want to be
-        # able to save the figure intp afolder as stats, data, ong figure
-        # and pdf figure".
-        #
-        # THE THREE ARE ONE ASK. A plot that HOLDS ITS DATA can be redrawn
-        # as any kind the data supports and can write that data and its
-        # statistics beside the picture; a rendered Figure in a layout can
-        # do neither, which is why the retyping and the folder save had to
-        # be bolted on beside it and kept drifting out of reach.
         self._canvas = self._live_plot(showing)
         if self._canvas is None:
             return
@@ -924,9 +797,6 @@ class MeasurementComparePanel(QWidget):
                 title=str(self.measurement.currentText() or ""),
                 y_label=str(self.measurement.currentText() or "value"),
                 unit=str(self.level.currentData() or "observation"),
-                # "the rest" is the population the selected genes are being
-                # compared AGAINST, so it is grey: the ink goes on the
-                # claim, not on what the claim is measured against.
                 background=REST)
             plot_widget = GroupedPlot(spec, parent=self)
             plot_widget.setMinimumHeight(260)
@@ -953,8 +823,6 @@ class MeasurementComparePanel(QWidget):
         lines = [f"{comparison.measurement} · {comparison.level} level"]
         if comparison.note:
             lines.append(comparison.note)
-        # FIRST AMONG THE REASONS, because it is the one the reader can act
-        # on and the one that explains an empty-looking graph.
         one_sided = self.nothing_to_compare_against()
         if one_sided:
             lines.append(one_sided)
@@ -986,7 +854,6 @@ class MeasurementComparePanel(QWidget):
                          "something in them.")
         self.report.setPlainText("\n".join(lines))
 
-    # ------------------------------------------------------------- saving
 
     def save_everything(self, folder: str = "") -> dict:
         """Write everything into one folder. Returns what was written."""
@@ -1057,8 +924,6 @@ class MeasurementCompareDialog(QDialog):
         layout.addWidget(self.panel)
         self.resize(900, 720)
 
-    # The window forwards what the button and the tests ask of it, rather
-    # than reimplementing any of it.
     def refresh(self, *args):
         """Forwarded to the panel this dialog wraps.
 

@@ -148,9 +148,6 @@ MAX_DEPTH = 40
 KEYWORDS = frozenset({"and", "or", "not"})
 
 
-# ---------------------------------------------------------------------------
-# Tokens
-# ---------------------------------------------------------------------------
 
 _NUMBER = "number"
 _NAME = "name"
@@ -276,9 +273,6 @@ def tokenize(expression: str) -> Tuple[_Token, ...]:
     return tuple(tokens)
 
 
-# ---------------------------------------------------------------------------
-# The AST — five node types and a base, all frozen
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Node:
@@ -324,9 +318,6 @@ class Call(Node):
     args: Tuple[Node, ...]
 
 
-# ---------------------------------------------------------------------------
-# The functions
-# ---------------------------------------------------------------------------
 
 def _elementwise(fn):
     """Wrap a numpy ufunc so a divide/overflow warning is not printed.
@@ -436,7 +427,6 @@ def _quantile(values, q):
 #: ``area / mean(area)`` is each object relative to the table. Elementwise
 #: functions map value to value.
 FUNCTIONS: Dict[str, Tuple[Any, int, int, bool]] = {
-    # -- elementwise --------------------------------------------------
     "abs": (_elementwise(np.abs), 1, 1, False),
     "sqrt": (_elementwise(np.sqrt), 1, 1, False),
     "exp": (_elementwise(np.exp), 1, 1, False),
@@ -460,7 +450,6 @@ FUNCTIONS: Dict[str, Tuple[Any, int, int, bool]] = {
                  1, 1, False),
     "zscore": (_zscore, 1, 1, False),
     "rank": (_rank, 1, 1, False),
-    # -- aggregates ---------------------------------------------------
     "mean": (_aggregate(np.mean), 1, 1, True),
     "median": (_aggregate(np.median), 1, 1, True),
     "std": (lambda v: _sample_std(np.asarray(v, dtype=float)), 1, 1, True),
@@ -524,9 +513,6 @@ _COMPARISONS = {"<", "<=", ">", ">=", "==", "!="}
 _ARITHMETIC = {"+", "-", "*", "/", "//", "%", "**"}
 
 
-# ---------------------------------------------------------------------------
-# The parser
-# ---------------------------------------------------------------------------
 
 class _Parser:
     """Recursive descent over the grammar in the module docstring.
@@ -552,7 +538,6 @@ class _Parser:
         self._nodes = 0
         self._depth = 0
 
-    # -- token helpers -------------------------------------------------
     @property
     def _current(self) -> _Token:
         """The token the parser is looking at, without consuming it."""
@@ -607,7 +592,6 @@ class _Parser:
                 f"big should be built as several columns, each with a name")
         return node
 
-    # -- the grammar ---------------------------------------------------
     def parse(self) -> Node:
         """Parse the whole expression and require that it ends.
 
@@ -720,9 +704,6 @@ class _Parser:
         token = self._accept_op("**")
         if token is None:
             return node
-        # Right-associative, and the exponent goes through `_unary` so
-        # `2 ** -1` parses. `-a ** 2` is `-(a ** 2)`, as in Python and as in
-        # every maths textbook.
         return self._count(Binary("**", node, self._nest(self._unary)))
 
     def _atom(self) -> Node:
@@ -781,7 +762,7 @@ class _Parser:
                 f"there is no function called {name}(){self._where(name_token)}"
                 f"{suggestion} The functions are: "
                 f"{', '.join(sorted(FUNCTIONS))}")
-        self._advance()                      # the '('
+        self._advance()
         args: List[Node] = []
         if self._current.kind != _RPAREN:
             args.append(self._nest(self._or))
@@ -862,9 +843,6 @@ def unparse(node: Node) -> str:
     raise FormulaError(f"cannot print a {type(node).__name__}")
 
 
-# ---------------------------------------------------------------------------
-# Evaluation
-# ---------------------------------------------------------------------------
 
 def _numeric_column(frame: pd.DataFrame, name: str) -> np.ndarray:
     """``frame[name]`` as float, or a message naming the column and the problem."""
@@ -883,8 +861,6 @@ def _numeric_column(frame: pd.DataFrame, name: str) -> np.ndarray:
         return pd.to_numeric(series, errors="coerce").to_numpy(dtype=float)
     coerced = pd.to_numeric(series, errors="coerce")
     if coerced.notna().any():
-        # Numbers stored as text — a CSV column read as object. Usable, and
-        # the values that are not numbers become NaN rather than an error.
         return coerced.to_numpy(dtype=float)
     raise FormulaError(
         f"column {name!r} is text, not a number, so there is nothing to "
@@ -935,9 +911,6 @@ def evaluate(node: Node, frame: pd.DataFrame) -> Any:
             return _binary(item, walk(item.left), walk(item.right))
         if isinstance(item, Call):
             return _call(item, [walk(arg) for arg in item.args], length)
-        # A NODE THE PARSER DOES NOT PRODUCE TODAY. Named rather than
-        # merely refused: a formula error the user sees has to say what
-        # it could not do.
         raise FormulaError(
             f"cannot evaluate a {type(item).__name__}")
 
@@ -983,8 +956,6 @@ def _binary(item: Binary, left: Any, right: Any) -> Any:
             return a // b
         if op == "%":
             return a % b
-        # `**`. Floats throughout, so a huge exponent is `inf` rather than a
-        # bignum allocation that never returns — see the module docstring.
         return a ** b
 
 
@@ -1016,9 +987,6 @@ def _call(item: Call, args: List[Any], length: int) -> Any:
             f"{item.func}() could not be computed: {exc}") from None
 
 
-# ---------------------------------------------------------------------------
-# The user-facing objects
-# ---------------------------------------------------------------------------
 
 def _valid_name(name: str) -> str:
     """Validate and normalise a computed column's name.
@@ -1081,8 +1049,6 @@ class ColumnFormula:
         object.__setattr__(self, "name", _valid_name(self.name))
         object.__setattr__(self, "expression", str(self.expression).strip())
         object.__setattr__(self, "replace", bool(self.replace))
-        # Parse now, so an unparseable formula cannot be stored, serialised,
-        # or reach a redraw.
         object.__setattr__(self, "_ast", parse(self.expression))
 
     @property
@@ -1093,7 +1059,7 @@ class ColumnFormula:
         compare equal on their name and text — which is what a saved formula
         is — rather than on two structurally identical trees.
         """
-        return self._ast          # set in __post_init__; not a field
+        return self._ast
 
     def inputs(self) -> Tuple[str, ...]:
         """The columns this formula reads."""
@@ -1242,10 +1208,6 @@ def _apply_one(frame: pd.DataFrame, formula: ColumnFormula) -> ColumnResult:
             f"this table already has a column called {formula.name!r}. Pick "
             f"another name, or tick 'replace' if you mean to shadow it")
     if formula.name in formula.inputs() and formula.name not in frame.columns:
-        # `area = area * 2` with ``replace`` on is a rescale, and legitimate:
-        # `compute` always starts from a fresh copy of the loaded table, so it
-        # reads the measured column and is idempotent however often it is
-        # re-applied. `x = x + 1` where no `x` exists is a genuine circle.
         raise FormulaError(
             f"{formula.name!r} refers to itself and there is no column called "
             f"that to read; a computed column cannot be defined in terms of "

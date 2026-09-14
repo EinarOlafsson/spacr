@@ -115,9 +115,6 @@ def _utcnow() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
-# ---------------------------------------------------------------------------
-# Walking a digest
-# ---------------------------------------------------------------------------
 
 def _walk(value: Any) -> Iterable[Any]:
     """Yield every leaf of a nested mapping/sequence, containers included."""
@@ -177,8 +174,6 @@ def digest_numbers(digest: Mapping[str, Any]) -> Set[float]:
         elif isinstance(leaf, str):
             token = leaf.strip()
             if _NUMBER.fullmatch(token):
-                # _NUMBER accepts a strict subset of Python's float syntax,
-                # so a fully matched token is always convertible.
                 found.add(float(token))
     return found
 
@@ -379,9 +374,6 @@ def check_draft(methods: str, results: str,
             verify_numbers(results, digest))
 
 
-# ---------------------------------------------------------------------------
-# Building the digest
-# ---------------------------------------------------------------------------
 
 def _safe(step: str, notes: List[str], fn, *args, **kwargs):
     """Run one collector; record its failure rather than losing the digest.
@@ -780,9 +772,6 @@ def _finite(value: Any) -> Optional[float]:
     return number if math.isfinite(number) else None
 
 
-# ---------------------------------------------------------------------------
-# Caveats
-# ---------------------------------------------------------------------------
 
 def caveats_for(digest: Mapping[str, Any]) -> List[str]:
     """The sentences a methods section is not allowed to leave out.
@@ -879,9 +868,6 @@ def caveats_for(digest: Mapping[str, Any]) -> List[str]:
     return caveats
 
 
-# ---------------------------------------------------------------------------
-# The deterministic renderers
-# ---------------------------------------------------------------------------
 
 def render_methods(digest: Mapping[str, Any]) -> str:
     """Write the methods section from the digest, with no model involved.
@@ -1034,9 +1020,6 @@ def render_results(digest: Mapping[str, Any]) -> str:
     return "\n".join(lines).rstrip("\n")
 
 
-# ---------------------------------------------------------------------------
-# The prompt
-# ---------------------------------------------------------------------------
 
 def system_prompt() -> str:
     """The instruction the model is held to. Names the rule it must not break."""

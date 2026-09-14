@@ -18,14 +18,6 @@ def main(argv: list[str] | None = None) -> int:
         ``sys.argv[1:]``.
     :returns: Application exit code from :func:`spacr.qt.run`.
     """
-    # Before the application: `run` builds the stylesheet from
-    # `theme.palette_for`, and the palette has to already be re-hued by then
-    # or the first window paints in the undressed colours and only later
-    # screens pick the new ones up.
-    # BEFORE THE THEME, which resolves fonts: Qt reports "OpenType support
-    # missing for Open Sans" while a face is being loaded, and `run` does not
-    # install the filter until later -- so the warnings that leaked were the
-    # ones emitted on the way in.
     from . import _prefer_a_context_the_shaders_can_run_on
 
     _prefer_a_context_the_shaders_can_run_on()

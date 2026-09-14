@@ -63,7 +63,6 @@ class FigureStyle:
     :param transparent: whether exported figure backgrounds are transparent.
     """
 
-    # ---- axes ---------------------------------------------------------
     x_label: str = ""
     y_label: str = ""
     title: str = ""
@@ -74,7 +73,6 @@ class FigureStyle:
     invert_x: bool = False
     invert_y: bool = False
 
-    # ---- type ---------------------------------------------------------
     font_family: str = "sans-serif"
     font_size: float = 10.0
     title_font_size: float = 12.0
@@ -82,7 +80,6 @@ class FigureStyle:
     tick_font_size: float = 9.0
     font_weight: str = "normal"
 
-    # ---- the page -----------------------------------------------------
     figure_width: float = 6.2
     figure_height: float = 4.8
     dpi: int = 200
@@ -190,12 +187,6 @@ def apply_page(figure, axes, style: FigureStyle) -> None:
         axes.invert_yaxis()
     axes.tick_params(labelsize=style.tick_font_size)
 
-    # THE GRID IS OFF WHEN IT IS OFF. matplotlib warns -- "First parameter to
-    # grid() is false, but line properties are supplied. The grid will be
-    # enabled." -- and then enables it, which is how a "draw a grid" tick box
-    # drew one whichever way it was set. The same fault was found and fixed
-    # in the save dialog; it is spelled once here so a third renderer cannot
-    # meet it again.
     wanted = bool(style.grid) and str(style.grid_axis) != "none"
     if wanted:
         axes.grid(True, axis=str(style.grid_axis or "y"),

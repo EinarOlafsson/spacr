@@ -110,9 +110,6 @@ class NotEnoughLabels(AnnotationStrategyError):
     """Raised when the selected labels cannot support model fitting."""
 
 
-# ---------------------------------------------------------------------------
-# The menu
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Strategy:
@@ -358,10 +355,6 @@ def missing_requirement(key: Any, frame: Optional[pd.DataFrame],
                 "empty, so nothing would be selected, fitted or measured.")
     needs = tuple(entry.needs or ())
 
-    # THE REFERENCE LABEL, WHICH EVERY STRATEGY NEEDS. It is what the
-    # hold-out is scored against, so a strategy that fits nothing still
-    # cannot run without one -- `prepare` refuses the same table for the
-    # same reason.
     annotated = usable_annotations(frame, label_column)
     scored = scored_cells(frame, score_column)
     if not annotated and scored < 4:
@@ -406,9 +399,6 @@ def missing_requirement(key: Any, frame: Optional[pd.DataFrame],
     return ""
 
 
-# ---------------------------------------------------------------------------
-# What a run is asked for
-# ---------------------------------------------------------------------------
 
 @dataclass
 class AnnotationRequest:
@@ -503,9 +493,6 @@ class AnnotationRequest:
         return self
 
 
-# ---------------------------------------------------------------------------
-# Columns
-# ---------------------------------------------------------------------------
 
 def _numeric_columns(frame: pd.DataFrame) -> List[str]:
     """Numeric columns of ``frame`` that vary, in table order."""
@@ -723,9 +710,6 @@ def feature_views(columns: Sequence[str]) -> Dict[str, Tuple[str, ...]]:
     }
 
 
-# ---------------------------------------------------------------------------
-# Wells, labels, and the hold-out no strategy may choose from
-# ---------------------------------------------------------------------------
 
 #: What the splitter joins a group's identity parts with. It is a unit
 #: separator, which prints as nothing at all -- so a well written straight
@@ -771,8 +755,6 @@ def wells_selected(groups: Sequence[Any],
     tokens = [t for t in (_identity_tokens(name) for name in names) if t]
     if not tokens:
         return np.zeros(len(values), dtype=bool)
-    # ONE ANSWER PER DISTINCT GROUP, not per cell: a screen has half a
-    # million objects and a few hundred wells.
     as_text = values.astype(str)
     matched = {group for group in set(as_text.tolist())
                if any(t <= _identity_tokens(group) for t in tokens)}
@@ -986,26 +968,7 @@ def prepare(request: AnnotationRequest,
             "is reported; add independent measurement features before "
             "interpreting its morphology-related performance.")
 
-    # THE SPLIT RUNS OVER THE LABELLED ROWS ONLY. Stratifying over rows that
-    # carry no annotation would balance the hold-out on a label nobody
-    # wrote, and the wells it drew would be drawn for the wrong reason.
-    # NO `labelled.size < 4` GUARD. Both routes into `known` already
-    # guarantee at least four:
-    #
-    #   the SCORE route refuses earlier, at `pool.size < 4` -- "Only N
-    #   scored cell(s) are in the chosen wells" -- and `known` is drawn
-    #   from that pool;
-    #   the ANNOTATION route only supplies labels when
-    #   `known.sum() >= 4`, and otherwise falls back to the score route
-    #   above.
-    #
-    # So this raise could not fire. Argued, then searched: 45
-    # combinations of well count, cell count and n_positive all hit an
-    # earlier guard, none reached this one.
     labelled = np.flatnonzero(np.asarray(known, dtype=bool))
-    # THE SPLITTER REFUSES A DESIGN IT CANNOT MAKE HONEST, and its refusal
-    # is the message a user needs; it is re-raised in this module's own type
-    # so a caller has one exception to catch.
     try:
         _, held, split = grouped_split(
             groups[labelled], labels[labelled],
@@ -1017,9 +980,6 @@ def prepare(request: AnnotationRequest,
         raise AnnotationStrategyError(str(refusal)) from refusal
     holdout = np.sort(labelled[np.asarray(held, dtype=int)])
     holdout_groups = {str(g) for g in groups[holdout]}
-    # WHOLE WELLS, not whole labels. A strategy that could pick an
-    # unannotated cell out of a hold-out well would be choosing inside the
-    # group its own score is measured on.
     outside = ~np.isin(groups.astype(str), list(holdout_groups))
     selectable = np.flatnonzero(outside)
     chosen = np.flatnonzero(outside & chosen_mask)
@@ -1056,9 +1016,6 @@ def prepare(request: AnnotationRequest,
         notes=tuple(notes))
 
 
-# ---------------------------------------------------------------------------
-# The model, and what a fit is allowed to claim
-# ---------------------------------------------------------------------------
 
 def xgboost_available() -> bool:
     """Return whether XGBoost can be imported."""
@@ -1269,16 +1226,6 @@ def _score_holdout(prepared: Prepared, probabilities: Any, n_train: int,
     except ValueError:
         auc = None
     if auc is not None and not np.isfinite(auc):
-        # NOT ONLY AN EXCEPTION. A hold-out that came out all-positive or
-        # all-negative -- routine on a small screen -- made scikit-learn raise
-        # ValueError up to 1.6 and makes it return NaN with an
-        # UndefinedMetricWarning from 1.7. Both mean "undefined", and only the
-        # first was being turned into None.
-        #
-        # NaN here is worse than it looks. `lift_over_chance` falls back to
-        # balanced accuracy on None and cannot on NaN, so it returns NaN --
-        # and that lift is the number the named-method leak check compares.
-        # `summary` prints "ROC AUC nan" where it means "n/a".
         auc = None
     return FitReport(
         model=str(model), features=tuple(str(c) for c in columns),
@@ -1383,9 +1330,6 @@ def _leakage_report(prepared: Prepared, train: Sequence[int],
     return report, leaking_model, prepared.features
 
 
-# ---------------------------------------------------------------------------
-# What a run produces
-# ---------------------------------------------------------------------------
 
 #: The roles a selected cell can carry, and what each one means.
 ROLES: Dict[str, str] = {
@@ -1758,9 +1702,6 @@ def _fitted_result(prepared: Prepared, request: AnnotationRequest,
                                    else len(predictions))))
 
 
-# ---------------------------------------------------------------------------
-# The strategies
-# ---------------------------------------------------------------------------
 
 def _run_top_score_random(prepared: Prepared,
                           request: AnnotationRequest) -> AnnotationResult:
@@ -1918,10 +1859,6 @@ def _run_pu_learning(prepared: Prepared,
     is_positive = np.zeros(len(prepared.frame), dtype=int)
     is_positive[positives] = 1
     columns = prepared.honest_features or prepared.features
-    # THE LABELLING RATE IS ESTIMATED WHERE THE MODEL DID NOT FIT. Estimating
-    # it on the rows the model was fitted on returns the model's own
-    # confidence rather than the rate, and the rescaling it produces is
-    # therefore always about 1.
     try:
         inner_train, inner_test, inner_split = grouped_split(
             prepared.groups[train], is_positive[train], 0.3,
@@ -2186,8 +2123,6 @@ def _run_neighbour_propagation(prepared: Prepared,
     train, labels, notes = _seed_training(prepared, request)
     columns = prepared.honest_features or prepared.features
     pool, sampled = _sampled_pool(prepared.selectable, request.seed)
-    # THE SEEDS STAY IN THE POOL whatever the sample took: a seed that fell
-    # out of it could label nothing, which would look like a tight cut.
     pool = np.union1d(pool, np.intersect1d(np.asarray(train, dtype=int),
                                            prepared.selectable))
     matrix = _standardised(prepared.frame.iloc[pool], columns)
@@ -2203,8 +2138,6 @@ def _run_neighbour_propagation(prepared: Prepared,
     finder = NearestNeighbors(n_neighbors=k).fit(matrix)
     rows = np.asarray([position_of[int(p)] for p in seeds], dtype=int)
     distances, neighbours = finder.kneighbors(matrix[rows])
-    # THE CUT IS A QUANTILE OF THE DISTANCES ACTUALLY OBSERVED, so it is a
-    # number this screen produced rather than one carried in from another.
     observed = distances[:, 1:].reshape(-1)
     observed = observed[np.isfinite(observed)]
     if request.distance_cut is not None:
@@ -2251,9 +2184,6 @@ def _run_neighbour_propagation(prepared: Prepared,
             f"No neighbour lies inside the radius {radius:.3g} ({how}), so "
             "nothing propagates. Raise distance_cut or distance_quantile, or "
             "annotate more seeds.")
-    # A LABEL THAT CROSSED A WELL BOUNDARY is the one to watch: it says the
-    # nearest cell in feature space was in another well, which is either the
-    # phenotype repeating or the plate showing through.
     share = crossed / float(max(1, reached))
     train_all = np.sort(np.concatenate([seeds, order]))
     lines = list(notes)

@@ -144,7 +144,6 @@ class ImportWorkbench(QWidget):
 
         outer = QVBoxLayout(self)
 
-        # ------------------------------------------------------------ A
         top = QHBoxLayout()
         self.dropped = QLabel("")
         self.dropped.setObjectName("Muted")
@@ -158,7 +157,6 @@ class ImportWorkbench(QWidget):
         top.addWidget(self.clear_button)
         outer.addLayout(top)
 
-        # ------------------------------------------------------------ B/D
         row = QHBoxLayout()
         row.addWidget(QLabel("regex"))
         self.regex = QLineEdit(self)
@@ -179,7 +177,6 @@ class ImportWorkbench(QWidget):
         self.evidence.setWordWrap(True)
         outer.addWidget(self.evidence)
 
-        # ------------------------------------------------------------ C
         self.roles_row = QHBoxLayout()
         self.roles_holder = QWidget(self)
         self.roles_holder.setLayout(self.roles_row)
@@ -188,7 +185,6 @@ class ImportWorkbench(QWidget):
         self.role_trouble.setWordWrap(True)
         outer.addWidget(self.role_trouble)
 
-        # ------------------------------------------- the table and the tree
         split = QSplitter(Qt.Horizontal, self)
         self.table = QTableWidget(0, 2, self)
         install_sorting(self.table)
@@ -207,7 +203,6 @@ class ImportWorkbench(QWidget):
             self.regex.setText(regex)
         self.set_files(self._files)
 
-    # ------------------------------------------------------------ A: drops
 
     def dragEnterEvent(self, event):                 # noqa: N802 - Qt
         """Accept a drag carrying images.
@@ -274,23 +269,9 @@ class ImportWorkbench(QWidget):
         wanted = [str(p) for p in paths or ()]
         if not wanted:
             return
-        # SAID BEFORE THE WALK, not after: on a sleeping share the walk is
-        # the part that takes seconds, and a panel that says nothing in the
-        # meantime looks like a drop that was ignored. `refresh` replaces it
-        # with the plan summary the moment there is one -- and `_walk` makes
-        # sure there IS one even when the walk fails.
-        #
-        # THE CATALOGS ALREADY CARRY "Working…" in all nine languages. A
-        # wordier caption invented here would be English-only until someone
-        # noticed, and `tests/qt/test_i18n_caption_ratchet.py` fails on it.
         self._scan_trouble = ""
         self.dropped.setText("Working…")
         if not self._scanner.submit(lambda: _walk(wanted), self._files_found):
-            # `submit` answers False only for a job that ran INLINE -- a
-            # runner built `threaded=False`, which is how some tests drive
-            # this panel -- and whose handler raised. Nothing is coming to
-            # replace the caption above, so put the summary back rather than
-            # leave the panel claiming to be working.
             self.refresh()
 
     def _files_found(self, answer: Optional[Any]) -> None:
@@ -303,8 +284,6 @@ class ImportWorkbench(QWidget):
         found, trouble = answer if answer else ((), "")
         self._scan_trouble = str(trouble or "")
         seen = set(self._files)
-        # `_show`, NOT `set_files`: `set_files` cancels, and a second drop
-        # landing must not abandon the first drop's walk.
         self._show(self._files + [p for p in (found or ()) if p not in seen])
 
     def _scan_failed(self, message: str) -> None:
@@ -363,9 +342,6 @@ class ImportWorkbench(QWidget):
         :meth:`_files_found`.
         """
         self._files = files
-        # A REGEX PROPOSED FOR THE OLD SET IS NOT PROPOSED FOR THIS ONE, so
-        # the first drop offers one and a later drop does not overwrite what
-        # the user has since edited.
         if self._files and not self.regex.text().strip():
             self.propose_from_the_names()
         self.refresh()
@@ -377,7 +353,6 @@ class ImportWorkbench(QWidget):
         """
         return list(self._files)
 
-    # ------------------------------------------------------------ B
 
     def propose_from_the_names(self) -> str:
         """Infer a regex from the dropped names. Returns what it set."""
@@ -403,7 +378,6 @@ class ImportWorkbench(QWidget):
             f"{label}: matches {hits} of {len(names)} name(s).")
         return pattern
 
-    # ------------------------------------------------------------ C: roles
 
     def _rebuild_roles(self, groups: Sequence[str]) -> None:
         """One dropdown per group, keeping any choice already made."""
@@ -426,9 +400,6 @@ class ImportWorkbench(QWidget):
             for value, why in ROLES:
                 box.addItem(value or "(ignore)", value)
                 box.setItemData(box.count() - 1, why, Qt.ToolTipRole)
-            # THE GROUP'S OWN NAME IS THE DEFAULT when it is already a role:
-            # a proposal that named its groups `wellID` should not make the
-            # user say so again.
             chosen = self._roles.get(group, group if group in known else "")
             index = box.findData(chosen)
             box.setCurrentIndex(index if index >= 0 else box.count() - 1)
@@ -458,7 +429,6 @@ class ImportWorkbench(QWidget):
                 out[group] = self._roles.get(group, "")
         return out
 
-    # ------------------------------------------------------------ D
 
     def refresh(self):
         """Re-run the plan and redraw. Returns it."""
@@ -470,9 +440,6 @@ class ImportWorkbench(QWidget):
                           plate=self._plate_name())
         said = self._plan.summary()
         if self._scan_trouble:
-            # SAID, NOT SWALLOWED. A walk that failed leaves the table short
-            # by a whole folder, and a summary that counts only what did
-            # arrive reads as if that folder had held nothing.
             said += (f" · Could not read what you dropped: "
                      f"{self._scan_trouble}")
         self.dropped.setText(said)
@@ -504,9 +471,6 @@ class ImportWorkbench(QWidget):
         for index, row in enumerate(rows):
             self.table.setItem(index, 0, table_item(row.before))
             self.table.setItem(index, 1, table_item(row.after))
-        # UNMATCHED LAST AND NAMED, never dropped in silence: "412 of 480
-        # matched" with the other 68 listed is an answer, and 412 files
-        # appearing without comment is how half a plate goes missing.
         for offset, name in enumerate(missed):
             index = len(rows) + offset
             self.table.setItem(index, 0, table_item(name))
@@ -525,7 +489,6 @@ class ImportWorkbench(QWidget):
         """
         return self._plan
 
-    # ------------------------------------------------------------ shutdown
 
     def shutdown(self) -> None:
         """Abandon any walk in flight, briefly waiting for its thread.
@@ -576,7 +539,7 @@ class ImportWorkbenchDialog(QDialog):
         buttons.rejected.connect(self.reject)
         outer.addWidget(buttons)
 
-    def done(self, result: int) -> None:              # Qt override
+    def done(self, result: int) -> None:
         """Close, and let no walk outlive the dialog.
 
         ``done`` rather than ``closeEvent`` because it is the one funnel:

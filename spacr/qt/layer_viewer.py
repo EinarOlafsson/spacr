@@ -102,9 +102,6 @@ LAYER_VIEWER_APP_KEY = "layer_viewer"
 LINK_SOURCE = "layer_viewer"
 
 
-# ---------------------------------------------------------------------------
-# Styling, through the seam rather than through theme.py
-# ---------------------------------------------------------------------------
 
 def _layer_viewer_qss(palette: Dict[str, Any], opacity) -> str:
     """The viewer's own QSS block, appended to every generated stylesheet.
@@ -157,9 +154,6 @@ QLabel#LayerViewerHeading {{
 register_widget_qss("LayerViewer", _layer_viewer_qss, replace=True)
 
 
-# ---------------------------------------------------------------------------
-# Loading, reusing the preview stack's readers
-# ---------------------------------------------------------------------------
 
 def stack_from_paths(image_path=None, labels_path=None, *,
                      spacing: Optional[Spacing] = None,
@@ -186,8 +180,6 @@ def stack_from_paths(image_path=None, labels_path=None, *,
         array = load_preview_image(image_path)
         channel_axis = None
         if array.ndim == 3:
-            # `frame_channel` owns the channels-first/last heuristic; asking it
-            # for channel 0 tells us which axis it decided was channels.
             from .widgets.timelapse_preview import frame_channel
             first = frame_channel(array, 0)
             channel_axis = next(
@@ -204,9 +196,6 @@ def stack_from_paths(image_path=None, labels_path=None, *,
     return stack
 
 
-# ---------------------------------------------------------------------------
-# Tools — what takes the canvas's mouse away from picking
-# ---------------------------------------------------------------------------
 
 class CanvasTool:
     """Something that borrows the canvas's mouse: an ROI pen, a counter.
@@ -265,9 +254,6 @@ class CanvasTool:
         """The tool was taken off the canvas. Drop anything half-drawn."""
 
 
-# ---------------------------------------------------------------------------
-# The canvas
-# ---------------------------------------------------------------------------
 
 class LayerCanvas(QFrame):
     """Paints a :class:`~spacr.layers.LayerStack` through a world window.
@@ -309,7 +295,6 @@ class LayerCanvas(QFrame):
         self._tool: Optional[CanvasTool] = None
         self._stack.subscribe(self._on_layers_changed)
 
-    # -- model ----------------------------------------------------------
     @property
     def stack(self) -> LayerStack:
         """The layer stack this canvas paints.
@@ -340,7 +325,6 @@ class LayerCanvas(QFrame):
         if event.kind in LayerEvent.REPAINT:
             self.update()
 
-    # -- tools ------------------------------------------------------------
     @property
     def tool(self) -> Optional[CanvasTool]:
         """The :class:`CanvasTool` currently borrowing the mouse, if any."""
@@ -377,7 +361,6 @@ class LayerCanvas(QFrame):
             return None
         return canvas.world_at(*self._pixel(event))
 
-    # -- the world window -----------------------------------------------
     @property
     def canvas(self) -> Optional[Canvas]:
         """The world window being shown, or ``None`` for an empty stack."""
@@ -431,7 +414,6 @@ class LayerCanvas(QFrame):
             self._canvas = self._canvas.resized(height, width)
         return self._canvas
 
-    # -- painting -------------------------------------------------------
     def paintEvent(self, event) -> None:
         """Draw every visible layer through the current world window.
 
@@ -451,13 +433,10 @@ class LayerCanvas(QFrame):
                                       normalise=False)
             painter.drawPixmap(1, 1, pixmap)
         except Exception:
-            # A paint handler that raises takes the window with it, and the
-            # traceback never reaches the console panel.
             LOG.exception("Could not paint the layer canvas")
         finally:
             painter.end()
 
-    # -- interaction ----------------------------------------------------
     @staticmethod
     def _pixel(event) -> tuple:
         """Canvas pixel under an event, allowing for the 1 px frame inset."""
@@ -566,17 +545,12 @@ class LayerCanvas(QFrame):
             self._drag = None
             self.unsetCursor()
             return
-        # Offered to the tool AFTER the pan check, so releasing a shift-drag
-        # pan never reads as the end of a brush stroke.
         canvas = self._ensure_canvas()
         if self._tool is not None and canvas is not None and self._tool.release(
                 self, canvas.world_at(*self._pixel(event)), event):
             self.update()
 
 
-# ---------------------------------------------------------------------------
-# The layer list
-# ---------------------------------------------------------------------------
 
 class LayerListWidget(QListWidget):
     """The stack as a list, top layer first — the order the user sees it in.
@@ -616,7 +590,6 @@ class LayerListWidget(QListWidget):
         """Stop listening to the model. Call from ``closeEvent``."""
         self._stack.unsubscribe(self._on_layers_changed)
 
-    # -- model -> list ---------------------------------------------------
     def refresh(self) -> None:
         """Rebuild every row from the model."""
         self._syncing = True
@@ -639,11 +612,6 @@ class LayerListWidget(QListWidget):
             self._syncing = False
 
     def _on_layers_changed(self, event: LayerEvent) -> None:
-        # Not while this list is the one making the change. `refresh()` clears
-        # every row, and the handler that started it is still holding the
-        # QListWidgetItem it was called with — using it after the rebuild is
-        # a "C++ object already deleted" RuntimeError raised inside a Qt
-        # signal, where no `except` in this file can reach it.
         """Rebuild the rows for a stack that has changed."""
         if self._syncing:
             return
@@ -651,7 +619,6 @@ class LayerListWidget(QListWidget):
                           "selected") or event.detail == "visible":
             self.refresh()
 
-    # -- list -> model ---------------------------------------------------
     def _layer_for(self, item: QListWidgetItem):
         """The layer one row stands for, or None if it has since gone.
 
@@ -711,7 +678,6 @@ class LayerListWidget(QListWidget):
         names = [self.item(i).data(Qt.UserRole) for i in range(self.count())]
         self._syncing = True
         try:
-            # The list is top-first; the model is bottom-first.
             for position, name in enumerate(reversed(names)):
                 self._stack.move(name, position)
         except LayerError:
@@ -721,9 +687,6 @@ class LayerListWidget(QListWidget):
         self.refresh()
 
 
-# ---------------------------------------------------------------------------
-# The viewer
-# ---------------------------------------------------------------------------
 
 class LayerViewer(LinkedView, QWidget):
     """Canvas, layer list and per-layer controls over one
@@ -751,12 +714,9 @@ class LayerViewer(LinkedView, QWidget):
         self._stack.subscribe(self._on_layers_changed)
         self.link_selection(LINK_SOURCE)
         self._sync_controls()
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from .dnd import install_for
         install_for(self, "layer_viewer")
 
-    # -- construction ----------------------------------------------------
     def _build(self) -> None:
         """Lay out the canvas, the list and the control column."""
         outer = QVBoxLayout(self)
@@ -809,9 +769,6 @@ class LayerViewer(LinkedView, QWidget):
         self.lower_button = FlatButton("↓", side, tooltip="Move layer down")
         self.lower_button.clicked.connect(
             lambda: self._reorder(self._stack.lower_layer))
-        # THE APPLICATION'S CLOSE MARK, not a flat text button that happens
-        # to hold an X. Red under the pointer is the whole point on the one
-        # control in this row that destroys something.
         self.remove_button = close_mark_button(
             side, tooltip="Remove the selected layer")
         self.remove_button.clicked.connect(self._on_remove)
@@ -852,7 +809,6 @@ class LayerViewer(LinkedView, QWidget):
         self.status.setObjectName("LayerViewerStatus")
         outer.addWidget(self.status)
 
-    # -- model ------------------------------------------------------------
     @property
     def stack(self) -> LayerStack:
         """The layer stack this viewer shows.
@@ -904,7 +860,6 @@ class LayerViewer(LinkedView, QWidget):
         self.status.setText(
             f"{layer.describe()} · {layer.spacing.describe()}")
 
-    # -- control handlers --------------------------------------------------
     def _on_opacity(self, value: int) -> None:
         """Set the selected layer's opacity.
 
@@ -1020,7 +975,6 @@ class LayerViewer(LinkedView, QWidget):
         self._stack.add_shapes(name="shapes", ndim=2,
                                spacing=self._default_spacing())
 
-    # -- picking ----------------------------------------------------------
     def _on_picked(self, layer, world, value) -> None:
         """Select the picked layer and describe what is under the pointer.
 
@@ -1046,9 +1000,6 @@ class LayerViewer(LinkedView, QWidget):
         :param value: the value there.
         """
         key = self._object_key(layer, world, value)
-        # Asked rather than caught: with nothing registered to show crops, a
-        # double click should do nothing visible, not raise NoObjectOpener out
-        # of a mouse handler.
         if key is None or not has_object_opener(DEFAULT_OPEN_KIND):
             return
         try:
@@ -1101,7 +1052,6 @@ class LayerViewer(LinkedView, QWidget):
                 f"{axis} {coordinate:.6g}"
                 for axis, coordinate in world.items()))
 
-    # -- the shared selection ---------------------------------------------
     def on_linked_selection_changed(self, selection) -> None:
         """Highlight the object another view selected, when we hold it."""
         if selection.keys is None or len(selection.keys) != 1:
@@ -1132,9 +1082,6 @@ class LayerViewer(LinkedView, QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Registration
-# ---------------------------------------------------------------------------
 
 def make_layer_viewer_screen(**_kwargs) -> LayerViewer:
     """Build the viewer as an app screen. The ``factory=`` for
@@ -1142,11 +1089,6 @@ def make_layer_viewer_screen(**_kwargs) -> LayerViewer:
     return LayerViewer()
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(LAYER_VIEWER_APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc
@@ -1170,10 +1112,6 @@ APP_CLI_NOTE = _ROW.cli_note
 #: row like everything else. Both calls land on the same idempotent function.
 #: This table is kept for a companion that has no declared row of its own.
 COMPANION_APPS = (
-    # Image Scatter used to ride in here. It is folded onto Image UMAP now --
-    # a button on that masthead, opened already pointed at the same
-    # measurements database -- so it has no row to register and nothing to
-    # ride in on. `spacr.qt.screens.image_scatter` is imported by its host.
     ("spacr.qt.screens.lineage", "register"),
 )
 

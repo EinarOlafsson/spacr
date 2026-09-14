@@ -92,9 +92,6 @@ def reflow_shape(count: int,
     aspect = float(aspect) if aspect and aspect > 0 else DEFAULT_CELL_ASPECT
     spacing = max(0, int(spacing))
 
-    # The most columns the width allows at all, ignoring how many figures
-    # there are. One column is always offered: a container too narrow for a
-    # readable cell still has to show something.
     fitting = max(1, (width + spacing) // (min_cell + spacing))
     columns_cap = int(min(count, fitting))
 
@@ -107,8 +104,6 @@ def reflow_shape(count: int,
             continue
         cell_h = cell_w / aspect
         used_h = cell_h * rows + spacing * (rows - 1)
-        # Prefer the shape that comes closest to filling the height without
-        # overflowing it; among those, the larger cell.
         overflow = used_h > height and height > 0
         waste = (abs(height - used_h) / max(1.0, float(height))
                  if height > 0 else 0.0)
@@ -150,8 +145,6 @@ def axis_layout(coordinates: Sequence[Mapping[str, Any]],
     if not coordinates:
         return [], [], []
     if not names:
-        # No axes to speak of: arrival order, one long row. The widget
-        # reflows it; there is nothing meaningful to say about position.
         return [], [], [(0, i) for i in range(len(coordinates))]
 
     def distinct(name: str) -> List[Any]:
@@ -263,9 +256,6 @@ class SearchFigureGrid(QWidget):
 
         self._page = QWidget(self._scroll)
         self._page.setObjectName("SearchFigureGridPage")
-        # An anonymous QWidget inherits the blanket `QWidget { background:
-        # bg }` rule and paints the window colour as a solid rectangle over
-        # whatever is behind it. See INVARIANTS 1 and 3.
         make_transparent(self._page)
         self._grid = QGridLayout(self._page)
         self._grid.setContentsMargins(6, 6, 6, 6)
@@ -287,7 +277,6 @@ class SearchFigureGrid(QWidget):
         self._scroll.viewport().installEventFilter(self)
         self._update_empty()
 
-    # -- content -----------------------------------------------------------
 
     def set_parameters(self, parameters: Sequence[str]) -> None:
         """Set the parameters whose values place a figure, then re-lay out."""
@@ -355,7 +344,6 @@ class SearchFigureGrid(QWidget):
         self._cells.clear()
         self.relayout()
 
-    # -- layout ------------------------------------------------------------
 
     def eventFilter(self, obj, event):
         """Debounce reflow while the container is being resized."""
@@ -390,9 +378,6 @@ class SearchFigureGrid(QWidget):
             placed = [(index // columns, index % columns)
                       for index in range(len(self._cells))]
         else:
-            # The axes decide the columns; the container decides how wide
-            # each one is. A search space is not free to be reshaped to fit
-            # a window -- moving a cell would change what it claims.
             cell_w = max(
                 1,
                 (width - self._grid.spacing() * (columns - 1)) // columns)
@@ -424,9 +409,6 @@ class SearchFigureGrid(QWidget):
                 cell.pixmap, label,
                 QSize(cell_w, int(cell_w / DEFAULT_CELL_ASPECT))))
         else:
-            # A figure that failed to render is a missing result, not a
-            # missing widget: the cell stays so the grid keeps its shape and
-            # says which configuration produced nothing.
             label.setText(cell.caption or "no figure")
             label.setWordWrap(True)
         label.mouseReleaseEvent = (
@@ -439,7 +421,6 @@ class SearchFigureGrid(QWidget):
         self._empty.setVisible(empty)
         self._scroll.setVisible(not empty)
 
-    # -- preferences -------------------------------------------------------
 
     @staticmethod
     def figure_format() -> str:

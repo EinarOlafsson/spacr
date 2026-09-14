@@ -125,11 +125,23 @@ def test_n_gene_is_wells_times_guides_not_guides():
 
 def test_the_meaning_is_written_down():
     """It was not, and the names invite exactly the wrong reading -- which is
-    why the maintainer had to ask."""
-    import inspect
+    why the maintainer had to ask.
 
-    from spacr.ml import _perform_regression
+    WHAT the numbers count is asserted against behaviour, just above; this
+    holds the reader's half, which has no behaviour to point at. The note
+    left `_perform_regression` when every non-directive comment under
+    `spacr/` moved to `docs/notes/<module path>.md`, so the phrasing is
+    pinned where the contract now lives.
+    """
+    from pathlib import Path
 
-    source = inspect.getsource(_perform_regression)
-    assert "wells MULTIPLIED BY guides" in source
-    assert "n_grna  for a guide = the number of WELLS" in source
+    import spacr.ml
+
+    notes = (Path(spacr.ml.__file__).resolve().parents[1]
+             / "docs" / "notes" / "spacr" / "ml.md")
+    assert notes.is_file(), (
+        f"the module's notes are missing, so what n_grna and n_gene mean is "
+        f"written down nowhere: {notes}")
+    recorded = notes.read_text(encoding="utf-8")
+    assert "wells MULTIPLIED BY guides" in recorded
+    assert "n_grna  for a guide = the number of WELLS" in recorded

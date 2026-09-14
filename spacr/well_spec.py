@@ -20,11 +20,6 @@ WELL_SETTINGS = (
     "filter_value", "metadata_item_1_value", "mix", "neg",
     "negative_control_id", "pathogen_loc", "pathogen_plate_metadata", "pos",
     "positive_control_id", "treatment_loc", "treatment_plate_metadata",
-    # The three control blocks (221). They were added to WELL_ONLY_SETTINGS
-    # -- which grants the plate button -- without being added here, and the
-    # audit caught it: `WELL_ONLY_SETTINGS` must be a SUBSET of this, since
-    # a setting cannot be "entirely wells" without being "may contain
-    # wells". That is the check working, not a formality.
     "positive_control_wells", "negative_control_wells",
     "mixed_control_wells",
 )
@@ -36,8 +31,6 @@ WELL_ONLY_SETTINGS = (
     "cell_loc", "stain_baseline_wells", "analysis_excluded_wells",
     "filter_value", "pathogen_loc",
     "treatment_loc",
-    # Control-block settings contain only wells, so the plate-map picker can
-    # replace their complete value without discarding mixed metadata.
     "positive_control_wells", "negative_control_wells",
     "mixed_control_wells",
 )
@@ -132,8 +125,6 @@ def row_label(row: int) -> str:
     """
     if row <= 26:
         return string.ascii_uppercase[row - 1]
-    # A 1536 has 32 rows, so the last six are AA..AF. Two letters is as far
-    # as any real plate goes.
     return "A" + string.ascii_uppercase[row - 27]
 
 

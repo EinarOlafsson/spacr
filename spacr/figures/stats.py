@@ -215,12 +215,6 @@ def check_normality(groups: Sequence[np.ndarray]) -> Assumption:
             f"normality test to have power — treated as NOT normal, which is "
             f"the safe direction",
             passed=False)
-    # A GROUP WITH NO SPREAD IS NOT A NORMAL GROUP. scipy hands back p = 1.0
-    # and a NaN statistic for constant input rather than raising, and 1.0 read
-    # as a p-value says "as consistent with normal as data gets" -- so a column
-    # where every object in an arm was called class 0 used to PASS the
-    # normality check and license a parametric test. Real input in this
-    # package, not a contrived one.
     flat = [group for group in groups if float(np.ptp(group)) == 0.0]
     if flat:
         return Assumption(
@@ -229,9 +223,6 @@ def check_normality(groups: Sequence[np.ndarray]) -> Assumption:
             f"has nothing to describe — treated as NOT normal, which is the "
             f"safe direction",
             passed=False)
-    # Start above 1.0 so the first group always records its statistic. Starting
-    # AT 1.0 meant a group whose p came back exactly 1.0 never updated
-    # `worst_stat`, and the result reported a NaN statistic beside a real p.
     worst_p, worst_stat, tested = float("inf"), float("nan"), 0
     for group in groups:
         try:
@@ -247,18 +238,6 @@ def check_normality(groups: Sequence[np.ndarray]) -> Assumption:
         return Assumption("Shapiro-Wilk", float("nan"), float("nan"), False,
                           "could not be computed", passed=False)
 
-    # THE MINIMUM OF k TESTS IS NOT A p-VALUE.
-    #
-    # Taking the worst group and comparing it to 0.05 tests normality k
-    # times and reports the most extreme, which is a multiple-comparison
-    # problem in the assumption check itself: with four normal groups of 40
-    # there is a ~19% chance the worst one falls below 0.05 by luck, and the
-    # whole comparison then flips to a rank test on data that was fine.
-    #
-    # Bonferroni across the groups. Conservative in the direction that
-    # matters -- it makes "not normal" harder to claim, and the cost of
-    # wrongly claiming it is only a little power, while the cost of the
-    # opposite is a parametric test on data that does not support one.
     threshold = 0.05 / max(tested, 1)
     normal = worst_p >= threshold
     return Assumption(
@@ -289,21 +268,12 @@ def check_equal_variance(groups: Sequence[np.ndarray]) -> Assumption:
             f"below does not assume what it could not check",
             passed=False)
     try:
-        # Levene's denominator is zero when every group is constant. The NaN it
-        # produces is handled below, so the numpy warning on the way there is
-        # noise in a caller's console, not information.
         with np.errstate(invalid="ignore", divide="ignore"):
             statistic, p = stats.levene(*groups, center="median")
     except Exception:
         return Assumption("Levene (median-centred)", float("nan"),
                           float("nan"), False, "could not be computed",
                           passed=False)
-    # NaN IS NOT A SMALL p. Levene returns NaN rather than raising when every
-    # group is constant (its denominator is zero), and `nan >= 0.05` is False,
-    # so the check used to write "variances differ (p < 0.05)" into a results
-    # table on the strength of a number that does not exist. The branch it
-    # picks is the safe one either way; the sentence a reviewer reads was a
-    # false statement.
     if not np.isfinite(p):
         return Assumption("Levene (median-centred)", float("nan"),
                           float("nan"), False,
@@ -332,8 +302,6 @@ def _hedges_g(a: np.ndarray, b: np.ndarray) -> tuple:
     d = float((np.mean(a) - np.mean(b)) / pooled)
     total = na + nb
     if total < 50:
-        # Hedges' correction. On the replicate counts this field actually
-        # uses, Cohen's d is biased upward by several percent.
         return d * (1 - 3 / (4 * total - 9)), "Hedges' g"
     return d, "Cohen's d"
 
@@ -388,10 +356,6 @@ def compare(groups: Mapping[str, Sequence], *, unit: str = "observation",
 
     normality = check_normality(arrays)
     variance = check_equal_variance(arrays)
-    # READ THE CHECK'S OWN VERDICT. Re-deriving it here from `p_value >= 0.05`
-    # is what discarded the Bonferroni correction the normality check applies
-    # across groups, and sent 18% of four-group comparisons on perfectly
-    # normal data to a rank test instead of 5%.
     normal = normality.passed
     equal = variance.passed
 
@@ -454,10 +418,6 @@ def _run(name: str, arrays: Sequence[np.ndarray], *, paired: bool) -> tuple:
     if name == "Wilcoxon signed-rank":
         return stats.wilcoxon(arrays[0], arrays[1])
     if name == "Mann-Whitney U":
-        # SciPy 1.18 returns NaN from the asymptotic tie correction when the
-        # pooled sample is entirely constant.  The two empirical
-        # distributions are identical in that case: every pair is a tie,
-        # U is half of n1*n2, and the two-sided p-value is exactly 1.
         pooled = np.concatenate((arrays[0], arrays[1]))
         if pooled.size and float(np.ptp(pooled)) == 0.0:
             return arrays[0].size * arrays[1].size / 2.0, 1.0
@@ -509,10 +469,6 @@ def _difference_ci(a: np.ndarray, b: np.ndarray, *, equal: bool,
         se = np.sqrt(pooled * (1 / na + 1 / nb))
     else:
         se = np.sqrt(va / na + vb / nb)
-    # Bail on a degenerate spread BEFORE the degrees of freedom are computed.
-    # With zero variance the Welch df is 0/0, which prints a RuntimeWarning on
-    # the way to a number this function is about to discard -- and two constant
-    # arms is a real case, not a contrived one.
     if not np.isfinite(se) or se == 0:
         return None
     df = (na + nb - 2) if equal else (
@@ -568,8 +524,6 @@ def table(comparisons: Sequence[Comparison], *, correction: str = "fdr_bh"):
             "why_this_test": comparison.reason,
         }
         for assumption in comparison.assumptions:
-            # A column name that goes into a CSV a reviewer will open:
-            # "shapiro", not "Shapiro-Wilk" or "shapiro-wilk".
             key = "".join(ch for ch in assumption.name.split()[0].lower()
                           if ch.isalnum() or ch == "_").split("wilk")[0]
             key = key.rstrip("_-") or "check"

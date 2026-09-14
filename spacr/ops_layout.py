@@ -103,7 +103,6 @@ class WellLayout:
     centre: Tuple[int, int] = (MEASURED_WELL[2], MEASURED_WELL[3])
     snake: bool = True
 
-    # -- the geometry --------------------------------------------------
     def span(self, column: int) -> Optional[Tuple[int, int]]:
         """``(first row, last row)`` of one column, or None if it is empty.
 
@@ -133,7 +132,6 @@ class WellLayout:
         """How many tiles the well holds."""
         return len(_index(self)[0])
 
-    # -- site index <-> grid position ----------------------------------
     def _walk(self) -> Iterator[Tuple[int, int]]:
         """Every ``(column, row)`` in acquisition order."""
         for column in range(self.columns):
@@ -174,7 +172,6 @@ class WellLayout:
         """
         return _index(self)[1].get((column, row))
 
-    # -- adjacency -----------------------------------------------------
     def neighbours(self, site: int) -> Dict[str, int]:
         """The sites physically adjacent to one site.
 
@@ -221,8 +218,6 @@ class WellLayout:
         seen: List[Tuple[int, int, str]] = []
         for place, site in index.items():
             column, row = place
-            # DOWN AND RIGHT ONLY, which is what makes each pair appear
-            # once AND puts the tiles in geometric order at the same time.
             for name in ("down", "right"):
                 dcol, drow = DIRECTIONS[name]
                 other = index.get((column + dcol, row + drow))
@@ -232,7 +227,6 @@ class WellLayout:
                 seen.append((site, other, axis))
         return sorted(seen)
 
-    # -- the reference model -------------------------------------------
     def micron_position(self, site: int,
                         pitch: float = TILE_PITCH_UM) -> Tuple[float, float]:
         """Where the reference implementation says a tile is, in microns.
@@ -290,9 +284,6 @@ def round_well_layout(site_count: int = 333,
         return WellLayout()
     if site_count < 1:
         raise ValueError("a well holds at least one field")
-    # A circle of radius r spans 2r + 1 columns, so the radius is bounded
-    # by the count itself; step finely enough that no integer span is
-    # skipped between one radius and the next.
     step = 0.05
     radius = 0.5
     while radius <= site_count:

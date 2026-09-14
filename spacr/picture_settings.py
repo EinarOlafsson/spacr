@@ -25,11 +25,6 @@ from .crops import (DEFAULT_PERCENTILES, DEFAULT_PNG_CHANNEL_MAPPING,
 #: Settings that shape the picture AFTER it has been obtained, so they mean
 #: the same thing whichever route produced it.
 BOTH_MODES: Tuple[str, ...] = (
-    # THE SHAPE OF THE CUT, and it left STREAM_ONLY because a crop already
-    # on disk still has a mask to cut against -- so an object-shaped crop
-    # is a real choice there too. The one route that cannot offer it is
-    # the database one, which has coordinates and no outline, and that is
-    # said in `applies_to` rather than by filing it under a mode.
     "crop_shape",
     "img_size",
     "normalize_channels",
@@ -41,32 +36,13 @@ BOTH_MODES: Tuple[str, ...] = (
     "edge_transparency",
     "edge_image",
     "object_size",
-    # Which channels are shown. It means "of the PNG" when loading and "of
-    # the merged array" when streaming, which is the same question asked of
-    # two sources -- not two settings.
     "channels",
-    # THE WELL, OR THE CANDIDATES. Asked for 2026-08-19: "an option to show
-    # all the images from each well and highlight the cells most likely to be
-    # whatever gene is picked". Not the default, because the two answer
-    # different questions -- the filtered view asks which cells look like the
-    # effect, this asks what the whole well looks like and where they are in
-    # it -- and a reader who cannot see the well cannot judge the window.
     "show_all_in_well",
-    # THE MONTAGE'S OWN CONTROLS, moved off the toolbar 2026-08-19: "the
-    # half-width baseline, score column, and max objects can be moved to the
-    # settings panel", and the three combos beside them read as stray labels
-    # once the row was crowded. A toolbar is for what you change constantly;
-    # these are set once for a screen.
     "crop_source",
     "half_widths",
     "baseline",
     "score_column",
     "cap",
-    # WHICH CELLS BELONG TO THE COEFFICIENT (instructions 172 and 173).
-    # 'rank' is heuristic 1 -- the top x by score. 'attributed' is each
-    # cell's posterior of carrying the guide. 'assigned' is the constrained
-    # assignment, where every cell in the well gets exactly one guide and each
-    # guide gets exactly the cells its reads imply.
     "cell_picking",
     "picking_threshold",
 )
@@ -74,25 +50,10 @@ BOTH_MODES: Tuple[str, ...] = (
 #: Defaults for the keys that are this panel's own rather than the
 #: annotator's. Everything else comes from `set_annotate_default_settings`.
 OWN_DEFAULTS: Dict[str, object] = {
-    # ON BY DEFAULT (207). Asked for 2026-08-21: "change that to default by
-    # the way", and the reason is the report it came from -- with it OFF the
-    # only objects on screen are the ones already annotated to the guide, so
-    # every visible object is a hit and every visible fraction is 1. That is
-    # what produced "a tone of dotts at 1 and a tone of datapoints at 0".
-    #
-    # A VIEW THAT SHOWS ONLY THE CELLS AGREEING WITH THE ANNOTATION CANNOT
-    # DISAGREE WITH IT, which makes it useless as a check and misleading as
-    # a picture.
     "show_all_in_well": True,
     "object_type": "cell",
     "crop_source": LOAD_IMAGES,
-    # EMPTY MEANS THE OBJECT TYPE'S OWN PLANE. A number names a specific
-    # plane of the merged array instead.
     "object_array": "",
-    # THE SHIPPED MAPPING, so a panel nobody touches cuts what it always
-    # cut. spaCR's own default is r=2, g=1, b=0 -- the inverted order the
-    # PNG path has always used -- and stating it here is what makes it
-    # visible and changeable instead of implicit.
     "red_channel": DEFAULT_PNG_CHANNEL_MAPPING.get("r", 2),
     "green_channel": DEFAULT_PNG_CHANNEL_MAPPING.get("g", 1),
     "blue_channel": DEFAULT_PNG_CHANNEL_MAPPING.get("b", 0),
@@ -102,22 +63,9 @@ OWN_DEFAULTS: Dict[str, object] = {
     "cap": 2000,
     "cell_picking": "rank",
     "picking_threshold": 0.55,
-    # NAMED, not left to fall out of the dialog. Without an entry here the
-    # settings dict said None while the settings WINDOW showed "object" --
-    # the user reads one thing and the crop is cut by another.
     "crop_shape": "object",
-    # "NOTHING NORMALISED" AND "NOTHING OUTLINED", spelled the way the
-    # chooser spells them. The annotator ships None for both and
-    # `_as_channel_list` reads None and '' identically, so this changes no
-    # behaviour -- it makes the dialog's default one of the options it
-    # offers, instead of a value that matches none of them and so opened the
-    # chooser on an entry the settings did not hold.
     "normalize_channels": "",
     "outline": "",
-    # A REAL BOOLEAN. `set_annotate_default_settings` ships the STRING
-    # 'False' for this, and a non-empty string is TRUE -- so "draw the
-    # outline over the picture" was on by default everywhere it was read as
-    # a flag, and the settings window drew a text box saying False.
     "edge_image": False,
 }
 
@@ -139,28 +87,9 @@ PICKING_ONLY: Dict[str, Tuple[str, str]] = {
 
 #: Settings that only mean something when the crops are cut on demand.
 STREAM_ONLY: Dict[str, str] = {
-    # THE PLANE THE ARRAY ROUTE READS ITS LABELS FROM. There used to be two
-    # fields for this -- `object_array` and `mask_array` -- described
-    # differently and doing the same job, which left the panel asking the
-    # same question twice and the two able to disagree. One field, and it
-    # is this one.
-    #
-    # The database route has no use for it: it locates a row by the
-    # coordinate columns its object type names, and a crop already on disk
-    # was located when it was written.
     "object_array": (
         "names the labelled plane the object number is read from, and only "
         "the array route reads one"),
-    # WHICH SOURCE CHANNEL FEEDS EACH COLOUR. Cutting from merged/*.npy
-    # means choosing planes out of an array that may hold any number of
-    # them; a crop already on disk was made from a choice taken when it
-    # was written.
-    #
-    # THE PROBLEM THESE SOLVE: the mapping used to be fixed, so an array
-    # whose nucleus is plane 0 came out with the nucleus in whichever
-    # colour the default put plane 0 in -- "with stream i get the nucleus
-    # red". They also let a plane be picked that is not one of the first
-    # three: 1, 2 and 4 out of five is a mapping, not a slice.
     "red_channel": (
         "chooses the array plane drawn in red, and a crop already on disk "
         "was made from a choice taken when it was written"),
@@ -219,23 +148,14 @@ ALL_KEYS: Tuple[str, ...] = (
 #: the very controls whose greyed reason explains the mode, and greyed-never-
 #: hidden is this panel's rule.
 CATEGORY_SPEC: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
-    # WHERE THE PIXELS COME FROM, and how the object is found in them.
     ("Source", ("crop_source", "image_type", "object_type", "object_array",
                 "crop_shape")),
-    # WHICH SOURCE PLANE IS DRAWN IN WHICH COLOUR, and which colours survive
-    # into the picture. Four controls that are one question.
     ("Channels", ("channels", "red_channel", "green_channel",
                   "blue_channel")),
-    # HOW THE OBTAINED CROP IS DRAWN: its size and its contrast.
     ("Picture", ("img_size", "object_size", "normalize_channels",
                  "percentiles")),
-    # The outline is six controls of its own and nothing else depends on
-    # them, which is exactly what a tab is for.
     ("Outline", ("outline", "outline_threshold_factor", "outline_sigma",
                  "edge_thickness", "edge_transparency", "edge_image")),
-    # WHICH OBJECTS ARE DRAWN AT ALL -- the montage's own question, and the
-    # only group here that changes what is in the picture rather than how it
-    # looks.
     ("Which cells", ("cell_picking", "picking_threshold", "show_all_in_well",
                      "score_column", "baseline", "half_widths", "cap")),
 )
@@ -326,20 +246,10 @@ def applies_to(key: str, mode: str) -> bool:
     if name in LOAD_ONLY:
         return not streaming
     if name == "object_array":
-        # ONLY THE ARRAY ROUTE READS A PLANE. The database route locates a
-        # row by the coordinate columns its object type names, so a plane
-        # index there would be a setting that changes nothing.
         return chosen == STREAM_IMAGES
     if name in DATABASE_ONLY:
-        # ONLY THE DATABASE ROUTE ASKS WHICH OBJECT. The type is how that
-        # route finds its coordinates -- it names the columns -- so it is
-        # the question there and silent everywhere else.
         return chosen == STREAM_FROM_DB
     if name == "crop_shape":
-        # THE DATABASE ROUTE HAS NOTHING TO FOLLOW. Coordinates give a
-        # rectangle; an outline needs the labelled plane the array route
-        # reads, or the mask a written crop was cut against. So the shape
-        # is a real choice in both of those and a box in the third.
         return chosen != STREAM_FROM_DB
     if name in STREAM_ONLY:
         return streaming
@@ -386,10 +296,6 @@ def bounding_box_only(settings) -> bool:
         chosen = str(settings.get("crop_source") or LOAD_IMAGES).lower()
     except AttributeError:
         return False
-    # THE DATABASE ROUTE HAS NOTHING TO FOLLOW. Coordinates give a
-    # rectangle; only the labelled plane the array route reads carries the
-    # object's own outline. The other two routes both have one, so the box
-    # is a choice there rather than the only answer.
     return chosen == STREAM_FROM_DB
 
 
@@ -430,9 +336,6 @@ def _as_channel_mapping(value, picture) -> Optional[Dict[str, object]]:
     known = (picture or {}).get("png_channel_mapping")
     base = dict(known) if isinstance(known, dict) else dict(
         DEFAULT_PNG_CHANNEL_MAPPING)
-    # A COLOUR THE USER DID NOT PICK IS BLANK, not absent: an absent key
-    # would fall back to the default and quietly put a plane back that they
-    # turned off.
     return {key: (base.get(key) if key in parts else None)
             for key in PNG_COLOR_KEYS}
 
@@ -486,53 +389,18 @@ def to_crop_settings(picture) -> Dict[str, object]:
         if value in (None, "", [], ()):
             continue
         if theirs == "png_dims":
-            # COLOUR LETTERS ARE THE VOCABULARY, and they are translated
-            # rather than dropped. Asked for 2026-08-19: "in the anotation
-            # app, r,g,b is used. i want this to be consistent, so use r,g,b
-            # in the regression cell feature."
-            #
-            # THROUGH THE SCREEN'S OWN MAPPING, never by position. spaCR's
-            # default is {r: 2, g: 1, b: 0} -- 'r' is source channel TWO --
-            # so reading 'r,g,b' as 0,1,2 would hand the streamer the planes
-            # in reverse and produce a crop that looks plausible and is
-            # wrong. `png_channel_mapping` is emitted rather than a
-            # `png_dims` list because the list's positional convention is the
-            # legacy inverted one; the mapping says what it means.
             mapping = _as_channel_mapping(value, items)
             if mapping is not None:
                 out["png_channel_mapping"] = mapping
                 continue
-            # THE ANNOTATOR'S `channels` IS NOT THE CROP LAYER'S `png_dims`,
-            # and this mapping treated them as one thing. `channels` defaults
-            # to 'r,g,b' -- which COLOUR PLANES OF AN EXISTING PNG to show,
-            # a display choice the renderer makes with the annotator's own
-            # `filter_channels_pil`. `png_dims` is which SOURCE ARRAY
-            # CHANNELS to cut, and it must be indices.
-            #
-            # Handed the letters, `resolve_png_channel_mapping` reached
-            # int('r') and the montage died with "invalid literal for int()
-            # with base 10: 'r'" -- from inside the worker, so what the user
-            # saw was "The montage load failed" with no mention of a setting.
-            # This is 145 exactly: one idea, two vocabularies, and the code
-            # in between assuming they agree.
-            #
-            # So only an INDEX form crosses over. Letters stay a display
-            # setting and reach the renderer, which is where they mean
-            # something.
             indices = _as_indices(value)
             if indices is None:
                 continue
             value = indices
         if theirs == "png_size" and isinstance(value, (int, float)) \
                 and not isinstance(value, bool):
-            # `img_size` is ONE number -- a single spin box -- and `png_size`
-            # is a (width, height) pair. Handed the scalar,
-            # `crop_spec_from_settings` raised "'int' object is not
-            # subscriptable" from inside the montage worker.
             value = [int(value), int(value)]
         out[theirs] = value
-    # The SHAPE of the cut, which only streaming decides -- a crop already
-    # written to disk was cut when it was written.
     if applies_to("crop_shape", mode):
         shape = str(items.get("crop_shape") or "").strip().lower()
         if shape in ("bbox", "bounding_box", "box"):
@@ -541,22 +409,10 @@ def to_crop_settings(picture) -> Dict[str, object]:
             out["use_bounding_box"] = False
 
     if mode in STREAMING_SOURCES:
-        # WHICH OBJECT, AND HOW IT IS FOUND -- and the two routes answer
-        # that with different things, which is why each is asked for in
-        # exactly one mode.
-        #
-        # The DATABASE route is located by object type: the type names the
-        # coordinate columns through `stream_dataset.coordinate_column`, so
-        # asking for the columns as well would be asking the user to repeat
-        # what they just said, and to be wrong about it.
         if mode == STREAM_FROM_DB:
             object_type = str(items.get("object_type") or "").strip().lower()
             if object_type:
                 out["object_array"] = object_type
-        # THE COLOURS THE USER MAPPED, which beat the letters: a mapping
-        # says which plane is red, and the letters can only say whether
-        # red is drawn at all. A field left blank means that colour is
-        # not drawn, which is how a two-channel picture is asked for.
         chosen = {}
         for colour, key in (("r", "red_channel"), ("g", "green_channel"),
                             ("b", "blue_channel")):
@@ -572,34 +428,18 @@ def to_crop_settings(picture) -> Dict[str, object]:
         if any(v is not None for v in chosen.values()):
             out["png_channel_mapping"] = chosen
 
-        # THE SOURCE IS THE METHOD. Two entries in one list rather than a
-        # mode and a second setting that has to agree with it.
         if mode == STREAM_FROM_DB:
             out["stream_method"] = "column"
         else:
-            # The ARRAY route is located by a labelled plane, and
-            # `object_array` names it. Blank means the object type's own
-            # plane, which is what a panel nobody touched should cut.
             out["stream_method"] = "array"
             plane = str(items.get("object_array", "")).strip()
             if plane not in ("", "None"):
-                # ALWAYS `object_array`, WHICH IS WHAT THE CROP LAYER READS.
-                # This used to write an integer plane index to `mask_array`,
-                # a setting `stream_dataset` never consulted -- it takes the
-                # plane from `object_array` for both methods -- so a panel
-                # that named a plane by index was answered by silence.
-                # `mask_array` was retired on 2026-09-09 (357-Q4).
                 out["object_array"] = plane
-        # AND THE BOX WINS WHERE IT IS THE ONLY CUT AVAILABLE, rather than
-        # the panel promising an outline the route cannot follow.
         if bounding_box_only(items):
             out["use_bounding_box"] = True
     return out
 
 
-# --------------------------------------------------------------------------- #
-#  Drawing a crop the way the annotator would
-# --------------------------------------------------------------------------- #
 
 #: Settings that change how an obtained crop is DRAWN rather than how it is
 #: cut. They are applied here, by the annotator's own functions, so a crop in
@@ -715,8 +555,6 @@ def draw_crop(array, picture):
                 outline_threshold_factor=float(
                     items.get("outline_threshold_factor") or 1.0),
                 object_size=bounds)
-        # LAST, because zeroing a channel before the outline is computed would
-        # outline a channel that is no longer there.
         shown = _as_channel_list(items.get("channels"))
         if shown and all(c in ("r", "g", "b") for c in shown):
             image = filter_channels_pil(image, shown)
@@ -725,9 +563,6 @@ def draw_crop(array, picture):
         return array
 
 
-# --------------------------------------------------------------------------- #
-#  What THIS screen actually offers
-# --------------------------------------------------------------------------- #
 
 def available_arrays(source) -> Tuple[str, ...]:
     """The mask planes this screen's merged arrays actually record.
@@ -757,8 +592,6 @@ def available_coordinate_columns(frame) -> Tuple[str, ...]:
     that offered them singly would let a user assemble a request that cannot
     be met.
     """
-    # `or ()` on a pandas Index raises -- an Index has no truth value. The
-    # guard has to be an explicit None check.
     names = getattr(frame, "columns", None)
     if names is None:
         return ()
@@ -859,26 +692,11 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
     name = str(key or "").strip()
     if name == "object_array":
         return available_arrays(source)
-    # `coordinate_columns` is deliberately not offered: the database route
-    # derives its columns from the object type, and a second control for
-    # the same fact is one the user can set to disagree with the first.
-    # `available_coordinate_columns` stays -- it is what the derivation
-    # checks against.
     if name == "crop_shape":
         return ("object", "bbox")
     if name == "crop_source":
-        # THROUGH `modes()`, NOT A SECOND LIST. This built its own pair and
-        # dropped the database route entirely, so the panel offered two of
-        # the three modes it implements and no amount of filling in the
-        # database settings could reach one. `modes()` is the table; a
-        # second copy of it is a mode that exists everywhere except where
-        # the user can choose it.
         return modes()
     if name == "channels":
-        # WHICH PLANES SURVIVE INTO THE PICTURE -- the annotator's own
-        # `filter_channels_pil` question. Offered for the same reason as the
-        # two below: "showing only one channel ... none of this works" was a
-        # free-text box with no statement of what it wanted.
         return (
             ("r,g,b", "all three"),
             ("r", "red only"),
@@ -889,15 +707,6 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
             ("g,b", "green and blue"),
         )
     if name in ("normalize_channels", "outline"):
-        # OFFERED, NOT TYPED. These were blank QLineEdits: nothing on screen
-        # said that the answer is a channel list, so a user who typed
-        # nothing got nothing and a user who typed "0,1,2" -- which is what
-        # every other channel setting in spaCR takes -- got a control that
-        # accepted their input and did nothing. Reported twice.
-        #
-        # The stored value stays the annotator's comma-separated string, so
-        # a settings CSV written before this still means what it meant, and
-        # free text is still accepted by `_as_channel_list`.
         what = ("normalised" if name == "normalize_channels" else "outlined")
         return (
             ("", f"none — nothing is {what}"),
@@ -910,8 +719,6 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
             ("r,g,b", f"every channel"),
         )
     if name == "object_type":
-        # Every object a measure run can write a plane for, in the order
-        # the pipeline names them.
         return ("cell", "nucleus", "pathogen", "cytoplasm",
                 "organelle", "organelleb", "organellec", "organelled")
     if name == "baseline":
@@ -930,9 +737,6 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
     return ()
 
 
-# --------------------------------------------------------------------------- #
-#  What a cap actually costs
-# --------------------------------------------------------------------------- #
 
 #: How many crops fit on one page of a well tab, measured across the viewport
 #: sizes the Cells tab is really used at.

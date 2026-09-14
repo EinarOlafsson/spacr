@@ -57,20 +57,12 @@ from .dnd import (
     has_images_in,
 )
 
-# Two extension sets, deliberately: IMAGE_EXTS (above) is what the filename
-# preview will *sample*, containers included; RASTER_EXTS is what counts as
-# one image on disk.
 from .folder_metadata import IMAGE_EXTS as RASTER_EXTS
 from .job_runner import JobRunner
 
 LOG = logging.getLogger("spacr.qt.dnd_handlers")
 
 
-# ---------------------------------------------------------------------------
-# Shared setter — every AppScreen exposes the src widget through
-# _settings_model._widgets["src"]; AnnotateScreen / MakeMasksScreen
-# have their own _open_source / _open_folder methods.
-# ---------------------------------------------------------------------------
 
 def _add_to_source_set(screen, path):
     """Add paths to a screen's multi-source control without replacing it.
@@ -92,10 +84,6 @@ def _add_to_source_set(screen, path):
         adder(values)
     except Exception:
         return None
-    # ALREADY IN THE SET IS A SUCCESSFUL DROP. `add_sources` returns how many
-    # were NEW, which is a different question: a user who drops plate2 twice
-    # has a screen pointing where they pointed it, and reporting failure
-    # would put "this module has no source field" in front of them.
     try:
         present = set(widget.sources())
     except Exception:
@@ -164,22 +152,6 @@ def _log(screen, msg: str) -> None:
             pass
 
 
-# ---------------------------------------------------------------------------
-# Scanning a dropped folder without freezing the window
-#
-# A drop is delivered inside Qt's event dispatch, so everything a handler
-# does happens on the GUI thread with the event loop stopped. Reading a
-# directory is not "a bit of I/O": a user dropped a 100 000-file plate folder
-# and the window froze for over a second -- three separate recursive walks of
-# the same tree, one to detect a folder layout and two more inside the
-# extraction planner, which called the detector again.
-#
-# So the walking moves to a worker via :class:`spacr.qt.job_runner.JobRunner`,
-# and only the walking. ``handler.apply`` still runs -- and returns --
-# synchronously; what changes is that the answer arrives a moment later,
-# through a completion handler that runs back on the GUI thread and is the
-# only place allowed to touch a widget.
-# ---------------------------------------------------------------------------
 
 #: How many image files the folder-layout guess looks at. The layout repeats,
 #: so a probe is enough -- and stopping here means a folder with no layout to
@@ -199,7 +171,7 @@ def _is_alive(obj) -> bool:
     the answer, not an error.
     """
     if not isinstance(obj, QObject):
-        return True          # a plain Python screen cannot be half-deleted
+        return True
     try:
         from shiboken6 import isValid
     except Exception:
@@ -232,35 +204,16 @@ class _DropScanner(QObject):
     """
 
     def __init__(self, screen) -> None:
-        # Assigned BEFORE super().__init__: parenting can deliver a ChildAdded
-        # event synchronously, and this object is an event filter, so it must
-        # already be able to answer for itself. (The same race that put the
-        # assignment first in ``_DropzoneFilter.__init__``.)
         """Watch ``screen`` for drops, parenting to it when it is a QObject."""
         self._screen = screen
         parent = screen if isinstance(screen, QObject) else None
         super().__init__(parent)
-        # `user_visible=False`: NOTHING THE USER STARTED IN THE HOME SENSE.
-        # A drop is a gesture, not a run, and `home._on_runs_changed` filters
-        # run banners on exactly this flag -- so without it every drop on
-        # every screen flashes a blue "folder scan - running" box across the
-        # top of Home, the same mistake the usage poller and the home journal
-        # walk each made once. It still turns the activity spinner, because a
-        # thread genuinely is running. Nothing else submits to this runner:
-        # `_scan_then` is its only caller and it carries drop scans alone.
         self._runner = JobRunner(self, app_key="folder scan",
                                  user_visible=False)
         if parent is not None:
             parent.installEventFilter(self)
 
-    # -- lifecycle --------------------------------------------------------
     def eventFilter(self, obj, event):     # noqa: N802  (Qt naming)
-        # Every event delivered to the screen comes through here, so the
-        # cheap discriminator goes first and the attribute lookup second.
-        # ``getattr`` rather than ``self._screen`` for the reason spelled out
-        # in ``_DropzoneFilter.eventFilter``: Qt keeps delivering events to a
-        # filter after PySide6 has emptied its wrapper's __dict__, and an
-        # AttributeError raised there has no Python caller to catch it.
         """Shut the scanner down when the screen it serves closes.
 
         ``getattr`` rather than a direct attribute read: Qt keeps delivering
@@ -276,7 +229,7 @@ class _DropScanner(QObject):
         if (event.type() == QEvent.Close
                 and obj is getattr(self, "_screen", None)):
             self.shutdown()
-        return False                        # never consume the event
+        return False
 
     def shutdown(self) -> None:
         """Drop the results in flight and wait briefly for their threads.
@@ -292,7 +245,6 @@ class _DropScanner(QObject):
         except RuntimeError:
             pass
 
-    # -- work -------------------------------------------------------------
     def submit(self, fn: Callable[[], Any],
                on_done: Callable[[Any], None]) -> bool:
         """Run ``fn`` on a worker thread, then ``on_done`` on the GUI thread."""
@@ -306,7 +258,6 @@ class _DropScanner(QObject):
             return
         on_done(result)
 
-    # -- state (used by tests and by anything that wants to wait) ----------
     def is_busy(self) -> bool:
         """Whether a dropped path is still being scanned.
 
@@ -391,7 +342,6 @@ def _scan_then(screen, fn: Callable[[], Any],
             scanner.submit(guarded, landed)
             return True
         except Exception:
-            # Qt refused to start a thread. Better a stall than no report.
             LOG.debug("falling back to an inline folder scan", exc_info=True)
     landed(guarded())
     return False
@@ -418,32 +368,6 @@ def active_scan_jobs(screen) -> int:
     return scanner.active_jobs()
 
 
-# ---------------------------------------------------------------------------
-# Deciding whether a drop is acceptable, without waiting for a sleeping mount
-# ---------------------------------------------------------------------------
-#
-# ``_scan_then`` above is the right shape whenever there is a callback to
-# report into. ``DropHandler.can_accept`` has none: the boolean has to come
-# back before the drop can be routed anywhere, so there is no "later" to
-# report it in.
-#
-# WHERE THE ACCEPT TESTS ACTUALLY RUN. ``spacr.qt.dnd._route_drop`` hands the
-# whole classification -- ``can_accept``, ``error_message``,
-# ``suggest_alternatives`` -- to a worker through ``_scan_then``, so the
-# ORDINARY path is already off the GUI thread and blocking there is not a
-# freeze, it is what the worker is for. Two paths are not:
-#
-#   * ``_route_drop``'s own fallback. When the screen cannot hold a scanner it
-#     classifies INLINE, on the GUI thread, "better a stall than a drop that
-#     reports nothing".
-#   * ``handler.apply``, which stays on the GUI thread by contract because it
-#     touches widgets -- and which asks these same questions again.
-#
-# So the budget below is real, and it is applied WHERE IT IS NEEDED AND
-# NOWHERE ELSE. Spending it on a worker would be worse than useless: it would
-# answer ``default`` for a share that was going to reply in half a second,
-# turning a correct rejection -- with its message and its "did you mean" list
-# -- into a silent accept. See :func:`_on_gui_thread`.
 
 #: How long a drop decision ON THE GUI THREAD waits for the filesystem before
 #: it stops waiting. A decision taken on a worker has no budget: see
@@ -540,8 +464,6 @@ def _remember(key: tuple, value: Any, seq: int) -> None:
             return
         for stale in [k for k, v in _decisions.items() if v[0] <= now]:
             del _decisions[stale]
-        # Still over the cap means every entry is live, which the expiry sweep
-        # alone cannot fix. Drop the ones due to expire first.
         excess = len(_decisions) - _DECISION_CAP
         if excess > 0:
             for stale, _ in sorted(_decisions.items(),
@@ -640,8 +562,6 @@ def _decide(key: tuple, work: Callable[[], Any], default: Any) -> Any:
         try:
             answer = work()
         except Exception:                                        # noqa: BLE001
-            # A path that cannot be read is a rejection, not an answer worth
-            # keeping: the share may be back in a moment.
             LOG.debug("drop decision %r failed", key, exc_info=True)
             return default
         _remember(key, answer, seq)
@@ -656,15 +576,10 @@ def _decide(key: tuple, work: Callable[[], Any], default: Any) -> Any:
         Outlives the wait below whenever the share is asleep, which is why
         :func:`_remember` refuses an answer older than the one it holds.
         """
-        # Registered BEFORE ``work`` starts, because what it hands back part
-        # of the way through is the whole point: see :func:`_settled_so_far`.
         _settled_partials[threading.get_ident()] = box
         try:
             answer = work()
         except Exception:
-            # An unreadable path is not an acceptable reason to raise out of
-            # a Qt event filter, so the optimistic answer stands and the drop
-            # is reported on by whatever runs next.
             LOG.debug("drop decision %r failed", key, exc_info=True)
         else:
             box[0] = answer
@@ -685,7 +600,6 @@ def forget_decisions() -> None:
         _decisions.clear()
 
 
-# -- the scans themselves. Worker-thread code: no Qt, no widgets, data out. --
 
 def scan_mask_folder(path, sample: int = 20) -> Dict[str, Any]:
     """List the top level of a dropped folder once. Worker-safe.
@@ -705,9 +619,6 @@ def scan_mask_folder(path, sample: int = 20) -> Dict[str, Any]:
         return {"names": [], "total": 0}
     names = [p.name for p in entries
              if p.suffix.lower() in IMAGE_EXTS][:sample]
-    # The count deliberately uses the narrower raster set, as it always has:
-    # it is quoted as "N of M total sampled" beside a filename-regex preview,
-    # and one .nd2 container is not M images yet.
     total = sum(1 for p in entries if p.suffix.lower() in RASTER_EXTS)
     return {"names": names, "total": total}
 
@@ -776,13 +687,6 @@ def scan_mask_drop(path) -> Dict[str, Any]:
         except OSError:
             out["accepted"] = False
         if not out["accepted"]:
-            # THE DROP IS DECIDED BY THE LINE ABOVE, and the walk below is no
-            # part of deciding it -- it lists the parent, every sibling and
-            # every child to fill the "did you mean" list, which is the
-            # neighbourhood's cost and not the dropped folder's. Hand the
-            # decided half over before paying it, or a caller on the budget
-            # gets the optimistic guess and ACCEPTS a folder this function has
-            # already read and found empty. See :func:`_settled_so_far`.
             _settled_so_far(dict(out))
             try:
                 out["alternatives"] = list(find_image_folders_nearby(path))
@@ -867,14 +771,12 @@ def scan_folder_structure(path) -> Dict[str, Any]:
     try:
         walk = fm.iter_image_files(path)
         probe = list(islice(walk, _FOLDER_PROBE))
-        # Reached through the module, not a from-import, so that patching
-        # ``spacr.qt.folder_metadata.detect_folder_metadata`` still works.
         template = fm.detect_folder_metadata(path, files=probe)
     except Exception:
         return out
     labels = getattr(template, "depth_labels", None) if template else None
     if not labels:
-        return out                    # the rest of the tree is never walked
+        return out
     out["labels"] = tuple(labels)
     try:
         out["rows"] = ip.plan_folder_extraction(
@@ -884,9 +786,6 @@ def scan_folder_structure(path) -> Dict[str, Any]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Mask — the star handler with regex-preview canvas
-# ---------------------------------------------------------------------------
 
 class MaskDropHandler(DropHandler):
     """Accept a folder of raw microscopy images and preview its filename
@@ -967,13 +866,6 @@ class MaskDropHandler(DropHandler):
         if not facts.get("undecided"):
             self._apply_facts(path, screen, facts)
             return
-        # NOTHING IS KNOWN YET -- the budget in :func:`_decide` ran out and
-        # this record is the optimistic guess, not an answer. Fill ``src``
-        # from it, because a person who just let go of a folder is owed the
-        # path appearing in the field, and send the question that actually
-        # matters -- folder or container? -- to a worker. Deciding it here
-        # would read a ``.nd2`` as a folder and print "no images found in the
-        # top level of plate.nd2"; see :func:`_mask_drop_unknown`.
         _set_src_on(screen, str(path))
         _log(screen, f"[drop] mask src = {path}\n")
         _scan_then(
@@ -1002,15 +894,6 @@ class MaskDropHandler(DropHandler):
             _set_src_on(screen, str(src))
             _log(screen, f"[drop] mask src = {src}\n")
         if not facts.get("is_file"):
-            # Read the folder on a worker thread and render the report when
-            # it comes back.
-            #
-            # What this replaced: ``QTimer.singleShot(50, ...)``, commented
-            # "asynchronously so the UI doesn't stall". It is not
-            # asynchronous. A single-shot timer defers to the next turn of
-            # the event loop and then runs everything ON the GUI thread, with
-            # the loop stopped — the freeze just started 50 ms later than the
-            # drop, which is why it was never traced back to here.
             _scan_then(
                 screen,
                 lambda: scan_mask_folder(path),
@@ -1019,9 +902,6 @@ class MaskDropHandler(DropHandler):
                     screen, f"[drop] could not read {path}: {exc}\n"),
             )
             return
-        # A single container file. Describing it is a FILE OPEN, which is the
-        # call that froze on the sleeping share, so it goes to a worker too
-        # and only the widget half comes back. See :func:`scan_mask_container`.
         _scan_then(
             screen,
             lambda: scan_mask_container(path),
@@ -1056,12 +936,10 @@ def _report_regex_on_mask(path: Path, screen) -> None:
         ``.nd2`` / multi-page tiff / big ``.npy``) — reported via
         :mod:`spacr.qt.multi_format`.
     """
-    # ── Folder path ─────────────────────────────────
     if not path.is_file():
         _render_mask_report(path, screen, scan_mask_folder(path))
         return
 
-    # ── Single-file dataset path ─────────────────────
     _render_container_report(path, screen, scan_mask_container(path))
 
 
@@ -1082,10 +960,6 @@ def _render_container_report(path, screen, scan: Dict[str, Any]) -> None:
         _log(screen, f"[drop] dropped file {Path(path).name} — unrecognised "
                      f"single-file dataset format.\n")
         return
-    # Container formats (nd2/czi/lif/multi-page tiff/npz) are expanded
-    # to the canonical Yokogawa layout by the pipeline's auto converter.
-    # Set metadata_type='auto' so that conversion actually runs, and
-    # point src at the containing folder.
     _set_screen_setting(screen, "metadata_type", "auto")
     _log(screen,
          f"[drop] single-file dataset: {scan.get('summary', '')}\n"
@@ -1093,10 +967,6 @@ def _render_container_report(path, screen, scan: Dict[str, Any]) -> None:
          f"every image (channels/z/fields) from this container into the "
          f"canonical filename structure on the first Run, and write a "
          f"filename_map.csv linking each generated file back to it.\n")
-    # Preview the planned extraction and let the user edit the
-    # plate/well/field/channel assignment before committing. A planner that
-    # failed on the worker is reported in the same words it was reported in
-    # when the planning happened here.
     failure = scan.get("error") or ""
     if failure:
         _log(screen, f"[drop] metadata preview unavailable: {failure}\n")
@@ -1130,7 +1000,6 @@ def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
         return
     total_images = int(scan.get("total") or 0)
 
-    # Read the user's current custom_regex (may be empty)
     custom = ""
     try:
         w = screen._settings_model._widgets.get("custom_regex")
@@ -1139,7 +1008,6 @@ def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
     except Exception:
         pass
 
-    # Auto-detect if the user has no custom regex or if it fails
     if custom:
         records, missed = rd.apply_regex(filenames, custom)
         pattern, label = custom, "custom"
@@ -1165,8 +1033,6 @@ def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
     if warnings:
         for w in warnings:
             _log(screen, f"⚠ {w}\n")
-        # Offer folder-structure metadata as an alternative to a filename regex
-        # (useful when the plate/well/field/channel live in directory names).
         _report_folder_structure(path, screen)
         _log(screen, "→ Opening the regex editor so you can enter a custom "
                      "pattern that matches your filenames live. Use the "
@@ -1176,16 +1042,6 @@ def _render_mask_report(path: Path, screen, scan: Dict[str, Any]) -> None:
     else:
         _log(screen, "✓ All required fields captured "
                      "(wellID / fieldID, chanID).\n")
-        # Confirm even when nothing looks wrong. A regex that captures every
-        # required field can still be capturing the WRONG field -- a well ID
-        # read as a field ID validates perfectly and silently mislabels the
-        # whole plate. The check that catches that is a person reading the
-        # parsed columns, which only happens if they are shown.
-        #
-        # Previously this branch pushed the pattern with no prompt, so the
-        # editor appeared only when validation failed. That made the common
-        # case (a naming dialect that fits) the one case nobody ever
-        # verified, and made the prompt read as an error rather than a step.
         _log(screen, "→ Confirm the parsed columns above match your naming "
                      "before running. Edit the pattern if a column is "
                      "holding the wrong value.\n")
@@ -1249,9 +1105,6 @@ def _render_folder_structure(path, screen, result: Dict[str, Any]) -> None:
     if error:
         _log(screen, f"[drop] folder-structure preview unavailable: {error}\n")
         return
-    # Make the detection actionable: the preview of how each image would be
-    # named opens in the editable metadata table so the user can accept or
-    # correct it, writing a filename_map.csv the pipeline consumes.
     rows = result.get("rows") or []
     if not rows:
         return
@@ -1278,10 +1131,6 @@ def _open_metadata_table(rows, dst, screen) -> None:
         """Note where the metadata map was written."""
         _log(screen, f"[drop] wrote metadata map → {csv_path}\n")
 
-    # ``dst`` arrives as the FOLDER the data lives in, but the dialog hands
-    # it straight to folder_metadata.save_filename_map(), which treats its
-    # argument as the CSV file to open() for writing. Passing a directory
-    # made every Apply raise IsADirectoryError and silently write nothing.
     dst = Path(dst)
     if dst.is_dir() or dst.suffix.lower() != ".csv":
         dst = dst / "filename_map.csv"
@@ -1296,9 +1145,6 @@ def _open_metadata_table(rows, dst, screen) -> None:
     except Exception as e:
         _log(screen, f"[drop] could not open metadata table: {e}\n")
         return
-    # Show modeless (never exec()) so the drop handler never blocks — a
-    # blocking modal would hang headless/offscreen runs. Keep a reference on
-    # the screen so the dialog isn't garbage-collected while open.
     try:
         holder = getattr(screen, "_metadata_dialogs", None)
         if holder is None:
@@ -1306,10 +1152,6 @@ def _open_metadata_table(rows, dst, screen) -> None:
             try:
                 screen._metadata_dialogs = holder
             except Exception:
-                # The screen refuses new attributes (__slots__, proxy, …).
-                # Park the reference module-side: the dialog is parentless
-                # here, so without SOME live reference it is collected the
-                # moment this function returns and the user never sees it.
                 holder = _ORPHAN_DIALOGS
         holder.append(dlg)
         dlg.finished.connect(lambda *_: holder.remove(dlg)
@@ -1317,7 +1159,6 @@ def _open_metadata_table(rows, dst, screen) -> None:
         dlg.setModal(False)
         dlg.show()
     except Exception:
-        # Non-interactive / headless — leave the console report in place.
         pass
 
 
@@ -1334,8 +1175,6 @@ def _open_regex_editor(filenames: list, initial: str, screen,
     try:
         from .regex_editor import RegexEditorDialog
     except Exception:
-        # No editor available. A validated pattern is still better than none,
-        # so a confirmation that cannot be shown must not lose it.
         if confirming and fallback:
             _push_regex_to_screen(fallback, screen)
         return
@@ -1343,10 +1182,6 @@ def _open_regex_editor(filenames: list, initial: str, screen,
         from PySide6.QtWidgets import QDialog
         dlg = RegexEditorDialog(filenames, initial_regex=initial,
                                  multichannel=True, parent=screen)
-        # QDialog.Accepted, not dlg.Accepted: PySide6 exposes the enum on the
-        # class, not on instances. This only ever ran when validation failed,
-        # so the AttributeError sat here until the editor started opening on
-        # every import to confirm a good match.
         if dlg.exec() == QDialog.Accepted and dlg.regex:
             _push_regex_to_screen(dlg.regex, screen)
             _log(screen, f"[drop] saved custom regex: {dlg.regex}\n")
@@ -1378,15 +1213,8 @@ def _push_regex_to_screen(pattern: Optional[str], screen) -> None:
         pass
 
 
-# NOTE: ``_count_images`` used to live here, and the report called it right
-# after ``sample_image_names`` -- two listings of the same directory, both on
-# the GUI thread. :func:`scan_mask_folder` produces the sample and the count
-# from one listing, on a worker.
 
 
-# ---------------------------------------------------------------------------
-# Measure — must be `merged` or contain merged/
-# ---------------------------------------------------------------------------
 
 class MeasureDropHandler(DropHandler):
     """Accept the ``merged`` folder produced by the mask module, or a
@@ -1403,10 +1231,8 @@ class MeasureDropHandler(DropHandler):
             return path.suffix.lower() in (".npy", ".tif", ".tiff")
         if not path.is_dir():
             return False
-        # Direct: dropped `merged` folder itself
         if path.name == "merged" and has_images_in(path, exts=(".tif", ".tiff", ".npy")):
             return True
-        # Contains: dropped a plate parent that HAS merged/
         merged = path / "merged"
         return merged.is_dir()
 
@@ -1420,7 +1246,6 @@ class MeasureDropHandler(DropHandler):
         :returns: nearby paths that WOULD be accepted.
         """
         hits: List[Path] = []
-        # Look for merged/ under nearby folders
         if path.is_dir():
             for child in path.iterdir():
                 if child.is_dir() and (child / "merged").is_dir():
@@ -1442,18 +1267,6 @@ class MeasureDropHandler(DropHandler):
                 "plate folder that contains one).")
 
     def apply(self, path: Path, screen) -> None:
-        # The plate folder, not ``merged/`` inside it.
-        #
-        # This used to drill *into* ``merged``, and auto-chaining fills the
-        # same field with the plate — so dropping a folder and letting the
-        # chain fill it produced two different strings for one project. Both
-        # run (``spacr.ports.project_root`` hops a trailing ``merged``), which
-        # is exactly why the disagreement survived: it only showed up when a
-        # settings CSV written by one was compared against the other.
-        #
-        # :func:`spacr.chaining.resolve_drop` is the single answer now, and it
-        # asks the registry first, so a plate whose merged arrays were written
-        # somewhere unusual resolves to where the producer says they are.
         """
         Set `src` to the PLATE folder, not to `merged/` inside it.
 
@@ -1481,9 +1294,6 @@ class MeasureDropHandler(DropHandler):
         _log(screen, f"[drop] measure src = {path}\n")
 
 
-# ---------------------------------------------------------------------------
-# Annotate — expects a measurements DB
-# ---------------------------------------------------------------------------
 
 class AnnotateDropHandler(DropHandler):
     """Accept a plate folder with ``measurements/measurements.db`` or
@@ -1514,11 +1324,6 @@ class AnnotateDropHandler(DropHandler):
                 "measure module).")
 
     def apply(self, path: Path, screen) -> None:
-        # Drop-db: use its containing plate folder as src.
-        # The canonical layout is <plate>/measurements/measurements.db, so
-        # climb two levels ONLY when the db really sits in a measurements/
-        # folder — a loose .db (which can_accept also allows) must resolve
-        # to its own directory, not that directory's parent.
         """
         Resolve a dropped database to the plate folder that owns it.
 
@@ -1539,9 +1344,6 @@ class AnnotateDropHandler(DropHandler):
         _log(screen, f"[drop] annotate src = {path}\n")
 
 
-# ---------------------------------------------------------------------------
-# Classify — same DB requirement as annotate, plus optional model dir
-# ---------------------------------------------------------------------------
 
 class ClassifyDropHandler(DropHandler):
     """Accept a plate folder with ``measurements/measurements.db`` or
@@ -1604,9 +1406,6 @@ class ClassifyDropHandler(DropHandler):
             _log(screen, f"[drop] classify plates = {paths}\n")
 
 
-# ---------------------------------------------------------------------------
-# Make Masks — image folder, optional companion masks/
-# ---------------------------------------------------------------------------
 
 class MakeMasksDropHandler(DropHandler):
     """Accept a folder with images (or image+mask pairs)."""
@@ -1650,9 +1449,6 @@ class MakeMasksDropHandler(DropHandler):
         _log(screen, f"[drop] make_masks folder = {path}\n")
 
 
-# ---------------------------------------------------------------------------
-# Map Barcodes — fastq file OR folder with fastqs
-# ---------------------------------------------------------------------------
 
 class MapBarcodesDropHandler(DropHandler):
     """Accept a FASTQ file (``.fastq``/``.fastq.gz``) or a folder
@@ -1745,9 +1541,6 @@ class MapBarcodesDropHandler(DropHandler):
         _log(screen, f"[drop] map_barcodes src = {src_path}\n")
 
 
-# ---------------------------------------------------------------------------
-# Generic "measurements DB" downstream handler — UMAP / ML / regression
-# ---------------------------------------------------------------------------
 
 class MeasurementsDropHandler(DropHandler):
     """Accept a database, its measurements folder, or its plate folder.
@@ -1813,8 +1606,6 @@ class MeasurementsDropHandler(DropHandler):
         return None
 
     def apply(self, path: Path, screen) -> None:
-        # A screen whose inputs are one row per plate wants the database on a
-        # PLATE ROW; `src` is not where its measurements live.
         """
         Attach the database to a PLATE ROW, not to `src`.
 
@@ -1833,10 +1624,6 @@ class MeasurementsDropHandler(DropHandler):
             LOG.info("measurements drop: %s", message)
             _log(screen, f"[drop] {message}\n")
             return
-        # Same resolution as auto-chaining, for the same reason as in
-        # :meth:`MeasureDropHandler.apply`: the registry knows where the
-        # producer actually wrote, and the declared layout answers when no
-        # run was ever registered.
         app_key = str(getattr(screen, "app_key", "") or "")
         resolution = _resolve_for(self, app_key, path) if app_key else None
         target = (resolution.target_for(_kinds.MEASUREMENTS_DB)
@@ -2112,8 +1899,6 @@ class RegressionDropHandler(MeasurementsDropHandler):
     """
 
     def accepts_multiple(self) -> bool:
-        # The sweep half takes many CSVs at once, which is the gesture the
-        # card exists for -- one plate's scores and counts arrive together.
         """
         Yes. The sweep half takes many CSVs at once, which is the gesture the
         card exists for -- one plate's scores and counts arrive together.
@@ -2152,8 +1937,6 @@ class RegressionDropHandler(MeasurementsDropHandler):
             return
         if _sweep_panel(screen) is None:
             raise TypeError("Regression has no parameter-sweep inputs.")
-        # Handed the HOST, not the card: the sweep handler resolves the panel
-        # itself, and the console the drop reports to is the host's.
         SweepInputsDropHandler().apply(path, screen)
 
 
@@ -2356,10 +2139,6 @@ class ExternalMasksDropHandler(DropHandler):
         )
 
 
-# ---------------------------------------------------------------------------
-# Tool and results screens — these are not SettingsWidgets/AppScreens, so
-# each handler calls the screen's small public configuration API directly.
-# ---------------------------------------------------------------------------
 
 _MODEL_SUFFIXES = (
     ".cp_model", ".pth", ".pt", ".ckpt", ".onnx", ".h5", ".keras",
@@ -2700,10 +2479,6 @@ class PlateQueueDropHandler(DropHandler):
                     str(settings_path), setting_key="Key",
                     setting_value="Value")
             except Exception:
-                # The two-column spelling is the one spaCR writes; the
-                # single-argument call is the documented default and is what
-                # a hand-made snapshot is likely to use. Only the SECOND
-                # failure means the file is unreadable.
                 try:
                     settings = load_settings(str(settings_path))
                 except Exception as exc:
@@ -2725,10 +2500,6 @@ class PlateQueueDropHandler(DropHandler):
         if not added:
             raise ValueError(f"No readable settings snapshots found in {path}.")
         if skipped:
-            # A partial drop used to report plain success: one unreadable
-            # snapshot among several meant that plate quietly never reached
-            # the queue, and the user found out when the run they expected
-            # was not in the list.
             _log(screen,
                  f"Queued {added} of {len(snapshots)} settings snapshots "
                  f"from {path.name}. Skipped: {', '.join(skipped)}.")
@@ -2863,21 +2634,10 @@ class ModelZooDropHandler(DropHandler):
         :param screen: the screen to wire the drop into.
         """
         source = path.parent if path.is_file() else path
-        # The cheap answers first, inline: a dropped checkpoint, or a
-        # checkpoint sitting at the top level of the dropped folder. That is
-        # one directory listing which stops at the first hit — and it is what
-        # a real model folder looks like, so the common drop stays fully
-        # synchronous.
         if ((path.is_file() and path.name.lower().endswith(_MODEL_SUFFIXES))
                 or _contains_suffix(source, _MODEL_SUFFIXES)):
             screen.scan(str(source))
             return
-        # Nothing up top. Answering "is there one further down?" means
-        # walking the entire tree, and it is the NO that costs — ``any()``
-        # short-circuits on a hit but a negative answer visits every file.
-        # That is exactly the "dropped a plate folder on the wrong screen"
-        # case: 100 000 files, a second of dead window. Off the GUI thread it
-        # goes, and the branch it decides goes with it.
         _scan_then(
             screen,
             lambda: _contains_suffix(source, _MODEL_SUFFIXES, recursive=True),
@@ -2892,10 +2652,6 @@ def _apply_model_zoo_source(source: Path, screen, is_model: bool) -> None:
         return
     if screen.set_fields_source(str(source)) is not False:
         return
-    # ``apply`` returned long ago, so raising here would surface as an
-    # unhandled exception in the Qt event loop instead of being caught by
-    # ``dnd._on_drop`` — and the user would be told nothing at all. Report it
-    # exactly as that handler would have.
     reason = (getattr(screen, "last_error", "")
               or f"Could not load fields from {source}.")
     _report_drop_problem(
@@ -2989,26 +2745,6 @@ class ReportDropHandler(DropHandler):
                              or f"Could not scan {path}.")
 
 
-# ---------------------------------------------------------------------------
-# Layout-aware drops
-#
-# "It should be possible to drag-n-drop folders and files into every module,
-# and every module should be aware of the spaCR folder structure": drop the
-# project on a screen that reads a database and it finds
-# ``measurements/measurements.db``; drop it on one that reads a table and it
-# offers the tables in that database; drop the database itself and that still
-# works.
-#
-# None of the layout knowledge lives here. :func:`spacr.chaining.resolve_drop`
-# answers "where is the X in this project?" by asking the artifact registry
-# first -- the same question, through the same call, that auto-chaining asks --
-# and falling back to the declared paths in :data:`spacr.ports.PORTS`. Two
-# answers to "where is the database" is how a screen and the run it launches
-# come to disagree, so there is only one.
-#
-# What a handler adds is the last step: which of this screen's fields the
-# answer goes into.
-# ---------------------------------------------------------------------------
 
 def _resolve_for(handler, app_key: str, path: Path):
     """Resolve ``path`` for ``app_key``, memoised for one drop.
@@ -3144,7 +2880,6 @@ class LayoutDropHandler(DropHandler):
         self.app_key = app_key or self.label or type(self).__name__
         self._last_resolution = None
 
-    # -- the subclass hook -------------------------------------------------
     def deliver(self, screen, value: str, target) -> None:
         """Put ``value`` into the screen. Runs on the GUI thread.
 
@@ -3155,7 +2890,6 @@ class LayoutDropHandler(DropHandler):
         """
         raise NotImplementedError
 
-    # -- DropHandler -------------------------------------------------------
     def _direct(self, path: Path) -> bool:
         """True when the dropped file is already the artifact wanted."""
         return bool(path.is_file() and self.suffixes
@@ -3324,9 +3058,6 @@ class ProjectRootsDropHandler(ProjectFolderDropHandler):
         return True
 
     def deliver(self, screen, value: str, target) -> None:
-        # ``add_root`` returns False for a root that is already listed, which
-        # is not a failure and must not be reported as one: dropping a folder
-        # the browser already watches should be a no-op, not an error dialog.
         """
         Add the root, treating an already-watched folder as a no-op.
 
@@ -3405,7 +3136,7 @@ class TableDropHandler(LayoutDropHandler):
         :param target: the port the vocabulary matched, or ``None``.
         """
         table = self._choose_table(screen, value)
-        if table is False:                     # the chooser was cancelled
+        if table is False:
             return
         screen.load_path(value, table or None)
 
@@ -3598,8 +3329,6 @@ class LayerStackDropHandler(LabelMaskDropHandler):
         chosen = self._one_mask(screen, value, target)
         if chosen is None:
             return
-        # A file that came out of ``masks/`` is a label array; anything else
-        # the user dropped is the image they want to look at.
         as_labels = (target is not None and target.kind == _kinds.MASKS) or (
             "mask" in Path(chosen).parent.name.lower())
         if as_labels:
@@ -3774,9 +3503,6 @@ def _ask_for_one(screen, headline: str, question: str,
         return None
 
 
-# ---------------------------------------------------------------------------
-# Registry
-# ---------------------------------------------------------------------------
 
 _HANDLERS = {
     "mask":            MaskDropHandler,
@@ -3784,29 +3510,18 @@ _HANDLERS = {
     "external_masks":  ExternalMasksDropHandler,
     "annotate":        AnnotateDropHandler,
     "classify":        ClassifyDropHandler,
-    # THE MERGED SCREEN DROPS LIKE THE ONE IT REPLACED. Without a row it
-    # falls back to the generic source handler, which replaces `src` with
-    # ONE path -- and the merged screen's `src` is a list, so four plates
-    # dropped together silently became one.
     "classify_merged": ClassifyDropHandler,
     "make_masks":      MakeMasksDropHandler,
     "map_barcodes":    MapBarcodesDropHandler,
     "umap":            MeasurementsDropHandler,
     "ml_analyze":      MeasurementsDropHandler,
-    # Not MeasurementsDropHandler: the screen also hosts the sweep card, whose
-    # CSV inputs a measurements-only handler turns away. See the class.
     "regression":      RegressionDropHandler,
     "recruitment":     MeasurementsDropHandler,
     "activation":      MeasurementsDropHandler,
     "invasion":        MeasurementsDropHandler,
-    "analyze_plaques": MakeMasksDropHandler,      # plaque images
-    "train_cellpose":  MakeMasksDropHandler,      # image + mask pairs
+    "analyze_plaques": MakeMasksDropHandler,
+    "train_cellpose":  MakeMasksDropHandler,
     "cellpose_masks":  MakeMasksDropHandler,
-    # The "Mask the whole folder" key. It shares the applying half's screen
-    # rather than owning one, so nothing asks for its handler today -- but a
-    # key that falls through to `SourceDropHandler` answers a dropped folder
-    # of images with "here is a source path", which is the wrong reading of
-    # the same gesture on the same folder.
     "cellpose_all":    MakeMasksDropHandler,
     "db_browser":      DatabaseDropHandler,
     "foreign":         ForeignProjectDropHandler,
@@ -3822,11 +3537,6 @@ _HANDLERS = {
     "train_compare":   TrainingRunsDropHandler,
     "report":          ReportDropHandler,
 
-    # -- the layout-aware screens ------------------------------------------
-    # One table out of a measurement database, or a CSV. All nine expose the
-    # same ``load_path(path, table=None)``, which is why one handler covers
-    # them: the difference between these screens is what they draw, not what
-    # they read.
     "graph_builder":    TableDropHandler,
     "trellis":          TableDropHandler,
     "gate_editor":      TableDropHandler,
@@ -3839,7 +3549,6 @@ _HANDLERS = {
     "image_scatter":    ScatterTableDropHandler,
     "lineage":          LineageDropHandler,
 
-    # A whole project, from anywhere inside it.
     "pipeline_graph":   ProjectFolderDropHandler,
     "run_compare":      ProjectFolderDropHandler,
     "qc_dashboard":     ProjectFolderDropHandler,
@@ -3848,7 +3557,6 @@ _HANDLERS = {
     "run_history":      RunHistoryDropHandler,
     "methods_export":   MethodsSourcesDropHandler,
 
-    # One artifact out of the layout.
     "profiler":         CoefficientsDropHandler,
     "hit_list":         ResultsFolderDropHandler,
     "curate":           LabelMaskDropHandler,
@@ -3858,9 +3566,6 @@ _HANDLERS = {
     "distributed_jobs": SubmissionSettingsDropHandler,
     "explain_cv":       ExplainCvInputsDropHandler,
     "investigate_hit":  InvestigateHitInputsDropHandler,
-    # Kept although the sweep has no tile any more: the handler is still the
-    # one that fills the card, reached through RegressionDropHandler, and
-    # get_handler("parameter_sweep") stays a working way to ask for it.
     "parameter_sweep":  SweepInputsDropHandler,
 }
 
@@ -3890,8 +3595,6 @@ def get_handler(app_key: str) -> DropHandler:
     """
     cls = _HANDLERS.get(app_key)
     if cls is not None and issubclass(cls, LayoutDropHandler):
-        # The layout-aware handlers resolve against the module they are
-        # installed on, so they need to be told which one that is.
         return cls(app_key)
     if cls is None:
         try:
@@ -3916,6 +3619,3 @@ def get_handler(app_key: str) -> DropHandler:
         return cls(app_key)
     cls = cls or SourceDropHandler
     return cls()
-    # NOTE: an ``accepts_multiple`` override used to sit here, after the
-    # return, indented as if it were a method of this *function*. It was
-    # unreachable in both readings, so nothing it claimed was ever true.

@@ -87,27 +87,10 @@ def note_that_a_launch_began() -> int:
     """
     marker = os.path.join(_folder(), _MARKER)
     unclean = _read_counter()
-    # isfile, NOT exists. `exists` is also True for a DIRECTORY at this path,
-    # and `os.remove` cannot delete one -- it raises IsADirectoryError, which
-    # `note_a_clean_shutdown` swallows with everything else. A stray directory
-    # here (a botched restore, a sync tool that materialises a name as a
-    # folder) was therefore read as "the last run died" on every launch, and
-    # no clean shutdown could ever clear it: the marker cannot be written
-    # either, so the next launch found the same directory and counted again.
-    # The user lost the backdrop permanently with no crash and no setting to
-    # point at. Confining the test to files we could actually have written
-    # confines the mechanism to what it is evidence of.
     if os.path.isfile(marker):
-        # The last run wrote this and never removed it.
         unclean += 1
         _write_counter(unclean)
     elif os.path.exists(marker):
-        # Something that is not a file is sitting on the name. Neither
-        # counting it nor ignoring it silently is right: this launch cannot
-        # write a marker, so a REAL crash after it will leave no evidence and
-        # recovery is off until the obstruction goes. Say so at WARNING --
-        # the whole failure this entry records is a mechanism that was wrong
-        # about itself and never mentioned it.
         LOG.warning(
             "crash detection is disabled: %s exists but is not a file, so "
             "spaCR can neither write nor clear its running marker", marker)
@@ -155,10 +138,5 @@ def take_the_backdrop_out_of_this_launch() -> None:
     back on its own. Writing it to the store would turn a diagnosis into a
     setting the user never made and cannot explain.
     """
-    # ONLY THE BACKDROP. Reading every preference as its default -- what
-    # safe mode does -- would be the right response to "a saved setting is
-    # killing it" and the wrong one here: the evidence points at the
-    # backdrop, and silently resetting the user's language, theme and paths
-    # to diagnose a driver crash is a bigger surprise than the crash.
     os.environ["SPACR_NO_GL"] = "1"
     os.environ["SPACR_NO_BACKDROP"] = "1"

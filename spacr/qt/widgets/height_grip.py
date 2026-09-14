@@ -82,9 +82,6 @@ class HeightGrip(QWidget):
         self._base_default = 0
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self._offer_reset)
-        # THE HANDLE IS A TAB STOP. Everything this widget offers is otherwise
-        # reachable only with a pointer, and a nested container a keyboard
-        # user cannot enlarge is the one that stays too small to read.
         self.setFocusPolicy(Qt.StrongFocus)
         self.setCursor(Qt.SizeVerCursor)
         self.setToolTip("Drag to resize, or focus it and use the arrow keys")
@@ -92,7 +89,6 @@ class HeightGrip(QWidget):
         make_transparent(self)
         self.rescale()
 
-    # ------------------------------------------------------------------ size
     def rescale(self) -> None:
         """Re-read the font scale and re-apply the bounds.
 
@@ -136,8 +132,6 @@ class HeightGrip(QWidget):
         if scale == self._scale:
             return
         was = self._scale
-        # IN BASE PX, taken BEFORE `rescale` moves the clamp: converting after
-        # would divide a height by the new scale and keep the old pixels.
         base = (int(round(self.target_height() / max(was, 0.01)))
                 if self._sized else 0)
         self.rescale()
@@ -191,7 +185,6 @@ class HeightGrip(QWidget):
         self.height_changed.emit(height)
         return height
 
-    # --------------------------------------------------------------- drawing
     def paintEvent(self, event):                # noqa: N802 - Qt naming
         """Three short lines, centred, brighter under the pointer or focus."""
         P = active_palette()
@@ -244,7 +237,6 @@ class HeightGrip(QWidget):
         self.update()
         super().focusOutEvent(event)
 
-    # ---------------------------------------------------------------- events
     def mousePressEvent(self, event):           # noqa: N802 - Qt naming
         """Remember where the drag started, in GLOBAL coordinates.
 

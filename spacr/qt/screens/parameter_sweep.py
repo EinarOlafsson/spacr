@@ -84,8 +84,6 @@ def _make_screen(app_key=None, host=None):
         """
 
         def __init__(self, host=None):
-            # `host` is the main window the registry passes for navigation,
-            # not a Qt parent.
             """Build the sweep screen. ``host`` is the window, not a Qt parent."""
             super().__init__()
             self.host = host
@@ -96,7 +94,6 @@ def _make_screen(app_key=None, host=None):
             splitter = QSplitter(Qt.Horizontal, self)
             outer.addWidget(splitter)
 
-            # ---- left: what to sweep --------------------------------------
             left = QScrollArea(self)
             left.setWidgetResizable(True)
             left.setMinimumWidth(420)
@@ -131,8 +128,6 @@ def _make_screen(app_key=None, host=None):
                 row_layout = QHBoxLayout(row)
                 row_layout.setContentsMargins(0, 0, 0, 0)
                 include = QCheckBox(row)
-                # Default on for the axes the comparison is actually about;
-                # the filtration cutoffs are usually pinned by the user.
                 include.setChecked(key not in (
                     "fraction_threshold", "min_cells_per_well", "fdr_alpha",
                     "min_observations_per_hit", "outlier_detection", "threshold_method"))
@@ -176,12 +171,6 @@ def _make_screen(app_key=None, host=None):
             self.worker_note = QLabel("", panel)
             self.worker_note.setWordWrap(True)
             self._set_worker_note(worker_budget)
-            # WHETHER THE KERNEL CAP IS ACTUALLY THERE (114 point 1). The
-            # sweep took this user's desktop down seven times, and the only
-            # thing that has ever held is the kernel enforcing a ceiling --
-            # so a screen that let them believe a cap existed when it does
-            # not would be sending them back into exactly that. Red when
-            # there is none, because it changes what they should do next.
             from ...parameter_sweep import (
                 TRIAL_CPU_QUOTA, TRIAL_MEMORY_MAX, containment_available,
             )
@@ -242,7 +231,6 @@ def _make_screen(app_key=None, host=None):
             left.setWidget(panel)
             splitter.addWidget(left)
 
-            # ---- right: what came back ------------------------------------
             right = QWidget(self)
             right_layout = QVBoxLayout(right)
             self.status = QLabel("Nothing running.", right)
@@ -253,14 +241,6 @@ def _make_screen(app_key=None, host=None):
             right_layout.addWidget(self.progress)
             self.table = QTableWidget(0, 0, right)
             install_sorting(self.table)
-            # CLICK A ROW TO GET THAT REGRESSION BACK.
-            #
-            # A sweep row carries every setting its trial was given, so it is
-            # enough to reproduce the trial exactly. Running it here rather
-            # than opening the saved page matters: these come back as live
-            # matplotlib Figures, so they land in the figure queue below and
-            # can be restyled -- thresholds, colours, legend, axis limits --
-            # which is the whole reason for looking at a condition again.
             self.table.setSelectionBehavior(QTableWidget.SelectRows)
             self.table.setEditTriggers(QTableWidget.NoEditTriggers)
             self.table.setSortingEnabled(True)
@@ -289,12 +269,6 @@ def _make_screen(app_key=None, host=None):
             self.trial_status.setWordWrap(True)
             right_layout.addWidget(self.trial_status)
 
-            # THE WHOLE SET OF GRAPHS FOR THE CLICKED ROW.
-            #
-            # Re-running was the expensive half and it already worked, but
-            # showing one figure at a time in a queue means the user still
-            # cannot put a run's residual plot beside its volcano -- which is
-            # the comparison that decides whether a configuration is any good.
             from ..widgets.regression_results import RegressionResultsPanel
             self.results = RegressionResultsPanel(right)
             self.results.setMinimumHeight(320)
@@ -303,22 +277,15 @@ def _make_screen(app_key=None, host=None):
             from ..widgets.figure_queue import FigureQueue
             self.figures = FigureQueue(parent=right)
             self.figures.setMinimumHeight(200)
-            self.figures.hide()      # shown only when a re-run makes figures
+            self.figures.hide()
             right_layout.addWidget(self.figures, 1)
             splitter.addWidget(right)
             splitter.setStretchFactor(0, 1)
             splitter.setStretchFactor(1, 2)
 
-            # Every screen that reads a path takes a drop, and a sweep reads
-            # more paths than anything else in spaCR -- a plate per pair. The
-            # policy is SweepInputsDropHandler, which sorts each CSV into the
-            # score or the count list from its header. install_for never
-            # raises: a Qt build without drag-and-drop loses the convenience,
-            # not the screen.
             from ..dnd import install_for
             install_for(self, APP_KEY, self)
 
-        # ------------------------------------------------------------ space
 
         def space(self):
             """Build the sweep space from the ticked axes.
@@ -378,9 +345,6 @@ def _make_screen(app_key=None, host=None):
                 self.dependent_variable.setText(str(response))
             source = settings.get("src")
             if source and not self.destination.text().strip():
-                # Beside the data rather than inside it: a sweep writes
-                # thousands of folders and they should not be mixed in with
-                # the user's inputs.
                 self.destination.setText(os.path.join(str(source), "sweep"))
             for key, (include, editor) in self._axis_rows.items():
                 if key in settings and settings[key] is not None:
@@ -389,8 +353,6 @@ def _make_screen(app_key=None, host=None):
                     if not include.isChecked():
                         editor.setText(text)
                     elif text not in editor.text():
-                        # Keep the user's value in the swept range, so their
-                        # own condition is one of the trials that gets run.
                         editor.setText(f"{text}, {editor.text()}")
 
         def base_settings(self):
@@ -403,7 +365,6 @@ def _make_screen(app_key=None, host=None):
                 "verbose": False,
             }
 
-        # ---------------------------------------------------------- actions
 
         def _set_worker_note(self, budget):
             """Show the worker calculation through translatable templates."""
@@ -491,7 +452,6 @@ def _make_screen(app_key=None, host=None):
                     controls={"positive": str(base.get("positive_control_id",
                                                        "239740"))})
 
-            # Bound method, so the handler runs on the GUI thread.
             self._runner.submit(job, self._sweep_finished)
 
         def _sweep_finished(self, results):
@@ -534,8 +494,6 @@ def _make_screen(app_key=None, host=None):
             row_index = self.table.currentRow()
             if row_index < 0:
                 return
-            # The table may be sorted, so trust the trial_id in the row
-            # rather than the table's row number.
             key_item = self.table.item(row_index, 0)
             frame = self._results
             record = None
@@ -559,11 +517,6 @@ def _make_screen(app_key=None, host=None):
                     f"{record.get('error', 'no reason recorded')}")
                 return
 
-            # A SAVED RUN IS INSTANT; A RE-FIT IS A MINUTE.
-            #
-            # The trial wrote its results when the sweep ran, so prefer them.
-            # Re-fitting to see something already on disk is a minute of
-            # waiting for an identical answer.
             folder = record.get("folder")
             if folder and self.results.load(folder):
                 self.trial_status.setText(
@@ -599,8 +552,6 @@ def _make_screen(app_key=None, host=None):
                     pass
             if figures:
                 self.figures.show()
-            # The re-fit wrote its results too, so the full panel can show
-            # them exactly as it would for a saved trial.
             output = payload.get("output") or {}
             settings = payload.get("settings") or {}
             try:
@@ -623,12 +574,6 @@ def _make_screen(app_key=None, host=None):
                 "That trial produced no figures.")
 
         def _show(self, frame):
-            # The columns worth reading first, when they exist. The rest are
-            # still in the CSV; this is a view, not a filter.
-            # Settings first, then WHAT WENT IN, then what came out. A hit
-            # count means little without the size of the design it came from:
-            # two trials differing only by a filtration cutoff can fit
-            # completely different data.
             """Put the results in the table, useful columns first.
 
             A VIEW AND NOT A FILTER: every column is still in the CSV. The order is
@@ -655,35 +600,12 @@ def _make_screen(app_key=None, host=None):
                                        table_item(str(value)))
 
     screen = ParameterSweepScreen(host=host)
-    # THE BLACK BOX BEHIND THE SWEEP, reported 2026-09-04: the regression
-    # module's parameter sweep had a black box background where it should
-    # have been transparent. (Paraphrased rather than quoted: the report
-    # misspelt "parameter", and the suite keeps that spelling out of the
-    # package so the back-compat alias stays the only place it appears --
-    # which is why this comment cannot name the test that does it either.)
-    #
-    # Measured, the screen rendered over magenta: the screen came back
-    # `#000000` and so did its `QSplitter`. Both are plain `QWidget`s with no
-    # QSS rule of their own, so both take the blanket
-    # `QWidget { background-color: bg }` -- which is the window colour, not a
-    # surface, so no value of the page-opacity preference could ever reach
-    # them and the panel sat as a slab over the animated backdrop.
-    #
-    # `clear_container_surfaces` tags what is UNDER a root, splitters by
-    # type; the root itself needs `make_transparent`, which is why both are
-    # here. 135 containers were tagged on this screen.
     from ..theme import clear_container_surfaces, make_transparent
     make_transparent(screen)
     clear_container_surfaces(screen)
     return screen
 
 
-# NO REGISTRY ROW. The sweep is reached as the Regression screen's sweep card
-# -- :func:`build_parameter_sweep_card`, built from the same
-# :func:`_make_screen` factory the tile used. The card is the superset of the
-# two: it seeds its axes from the regression form beside it, which a
-# standalone tile has nothing to seed from. The strings above are kept because
-# they are this module's public description and the i18n catalogs carry them.
 
 
 #: Text on the toggle that reveals the card, and its hover help. Mirrors
@@ -711,18 +633,6 @@ def build_parameter_sweep_card(host):
     from ..widgets.card import Card
     card = Card(title="Parameter sweep")
     card.setMinimumHeight(320)
-    # BUILT WHEN IT IS FIRST SHOWN, not when the Regression screen is built.
-    #
-    # The panel is a whole second screen: it carries its own results panel,
-    # and that panel builds ELEVEN pyqtgraph plots. Measured on the Regression
-    # screen, those eleven were 0.32 s of a 0.88 s construction -- a third of
-    # the cost of opening the module, paid by every user, for a card that
-    # starts collapsed behind a toggle and that most runs never open.
-    #
-    # Nothing is switched off: the card, the toggle and the panel are all
-    # exactly as they were, and the first time the card is opened the panel is
-    # there. This is the optimisation the laptop item asks for rather than the
-    # feature removal it calls the fallback.
     holder = _lazy_sweep_panel(host)
     card.body_layout.addWidget(holder)
     return holder, card

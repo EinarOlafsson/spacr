@@ -111,9 +111,6 @@ class FilmStrip(QScrollArea):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setFixedHeight(THUMB_H + 34)
-        # Scaffolding: it positions thumbnails and must paint nothing, or it
-        # is one more opaque rectangle over the page. See
-        # `spacr.qt.theme.make_transparent`.
         self.viewport().setAutoFillBackground(False)
 
         self._body = QWidget()
@@ -193,8 +190,6 @@ class FovMovie(QWidget):
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(4)
 
-        # The strip lives ABOVE the movie and starts collapsed: the request
-        # was that clicking the movie "expands upwards into a row of frames".
         self._strip = FilmStrip(self)
         self._strip.hide()
         self._strip.frame_picked.connect(self.show_frame)
@@ -238,7 +233,6 @@ class FovMovie(QWidget):
         self._timer.setInterval(int(1000 / DEFAULT_FPS))
         self._timer.timeout.connect(self._advance)
 
-    # -- content -------------------------------------------------------
     def set_sequence(self, images, labels=None, tracks=None,
                      channel: int = 0) -> None:
         """Bind one field's frames, its per-frame labels and its tracks.
@@ -277,7 +271,6 @@ class FovMovie(QWidget):
         """
         return 0 if self._images is None else int(len(self._images))
 
-    # -- rendering -----------------------------------------------------
     def _rendered(self, index: int) -> Optional[np.ndarray]:
         """One composited frame, from the cache when it is already made."""
         if self._images is None or not len(self._images):
@@ -355,7 +348,6 @@ class FovMovie(QWidget):
         self._counter.setText(f"{self._frame + 1} / {total}" if total
                               else "0 / 0")
         if self._scrub.value() != self._frame:
-            # Without the guard this re-enters through `valueChanged`.
             self._scrub.blockSignals(True)
             self._scrub.setValue(self._frame)
             self._scrub.blockSignals(False)
@@ -369,7 +361,6 @@ class FovMovie(QWidget):
             pixmap = scaled_for(pixmap, self._canvas, target)
         self._canvas.setPixmap(pixmap)
 
-    # -- playback ------------------------------------------------------
     def toggle_play(self) -> None:
         """Play if paused, pause if playing."""
         if self._timer.isActive():
@@ -416,7 +407,6 @@ class FovMovie(QWidget):
             return
         self.show_frame((self._frame + 1) % total)
 
-    # -- the strip -----------------------------------------------------
     def toggle_strip(self) -> None:
         """Open the filmstrip if closed, close it if open."""
         self.set_strip_open(not self.strip_is_open())
@@ -518,13 +508,9 @@ class TimelapseMoviePanel(QWidget):
         self._empty.setObjectName("Muted")
         self._empty.setAlignment(Qt.AlignCenter)
         column.addWidget(self._empty)
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- content -------------------------------------------------------
     def set_fields(self, fields: Sequence[dict]) -> None:
         """Show one movie per entry, up to the user's ceiling.
 
@@ -596,7 +582,6 @@ class TimelapseMoviePanel(QWidget):
         """
         return list(self._movies)
 
-    # -- controls ------------------------------------------------------
     def _sync_overlays(self, *_args) -> None:
         """Apply the overlay switches to every movie at once.
 

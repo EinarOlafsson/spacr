@@ -39,9 +39,6 @@ from PySide6.QtWidgets import (
 from .eliding import ElidingLabel
 
 
-# ---------------------------------------------------------------------------
-# Classic square Tile (kept for backwards compatibility)
-# ---------------------------------------------------------------------------
 
 class _TileButton(QPushButton):
     """Button with an animated ``iconPixels`` property so the icon
@@ -159,9 +156,6 @@ class Tile(QWidget):
         return self._text
 
 
-# ---------------------------------------------------------------------------
-# Horizontal Tile — the new minimalist home-screen card
-# ---------------------------------------------------------------------------
 
 class HTile(QPushButton):
     """Horizontal card: icon left, name + description right.
@@ -197,22 +191,13 @@ class HTile(QPushButton):
         """
         super().__init__(parent)
         self._text = text
-        # Set before any layout work: Qt can ask for sizeHint() while the
-        # widget is still being built, and the hint reads this attribute.
         self._name_lbl = None
 
-        # Icon size and all icon-adjacent geometry track the user's font-size
-        # preference so the tile grows with the text and nothing clips when
-        # the font is bumped up. ``icon_size`` is the base (100 %) side length.
-        # (No hover zoom — the icon/text stay a fixed size on hover.)
         from ..preferences import scaled_px
         self._base_icon = scaled_px(int(icon_size))
 
         self.setObjectName("HTile")
         self.setCursor(Qt.PointingHandCursor)
-        # Accessibility: screen readers announce the app name + one-line
-        # description as the button's role. Tooltip stays for sighted
-        # hover; the accessible bits are what NVDA / VoiceOver read.
         self.setAccessibleName(text)
         if description:
             self.setAccessibleDescription(description)
@@ -220,16 +205,9 @@ class HTile(QPushButton):
             self.setIcon(icon)
             self.setIconSize(QSize(self._base_icon, self._base_icon))
 
-        # Height tracks the font scale (scaled_px) but keeps the original
-        # proportions — the earlier icon-driven height made the tiles too
-        # tall. Width is handled by the caller (also via scaled_px).
         self.setMinimumHeight(scaled_px(72))
-        # Tooltip leads with the NAME even when there's a description, so
-        # a tile too narrow for its label is still identifiable on hover.
         self.setToolTip(f"{text} — {description}" if description else text)
 
-        # Two-line label stack next to the icon. Left padding (scaled) leaves
-        # room for the QIcon the button paints on the left edge.
         layout = QHBoxLayout(self)
         layout.setContentsMargins(self._base_icon + scaled_px(24),
                                   scaled_px(8), scaled_px(16), scaled_px(8))
@@ -239,24 +217,14 @@ class HTile(QPushButton):
         text_col.setContentsMargins(0, 0, 0, 0)
         text_col.setSpacing(2)
 
-        # The name is an ElidingLabel, not a plain QLabel: a plain one
-        # silently clips ("Annotator Agreeme") when the tile is narrower
-        # than the name, which is unreadable and unclickable. This one
-        # shortens with an ellipsis and moves the full name into the
-        # tooltip — and :meth:`sizeHint` below makes sure the tile is
-        # usually wide enough that it never has to.
         name_lbl = ElidingLabel(text)
         name_lbl.setObjectName("HTileName")
-        # Don't clip — the tile stretches to accommodate the label
-        # when longer app names appear. Explicit minimum width so
-        # short names still look proportionate.
         name_lbl.setMinimumWidth(0)
         from PySide6.QtWidgets import QSizePolicy
         name_lbl.setSizePolicy(QSizePolicy.Expanding,
                                  QSizePolicy.Preferred)
         self._name_lbl = name_lbl
         if description:
-            # Description shown BELOW the name (two-line tile).
             text_col.addStretch(1)
             text_col.addWidget(name_lbl)
             desc_lbl = QLabel(description)
@@ -265,23 +233,12 @@ class HTile(QPushButton):
             text_col.addWidget(desc_lbl)
             text_col.addStretch(1)
         else:
-            # Name-only tile: vertically centre the label so it sits
-            # in the middle rather than pinned to the top-left.
             text_col.addStretch(1)
             text_col.addWidget(name_lbl)
             text_col.addStretch(1)
 
         layout.addLayout(text_col, 1)
 
-    # -- geometry ------------------------------------------------------
-    #
-    # HTile draws its name in a CHILD QLabel, not in the button's own
-    # text. QPushButton.sizeHint()/minimumSizeHint() only measure the
-    # button's own text + icon, so without these overrides the label's
-    # width requirement never reaches the layout: every tile reported
-    # the same ~92 px hint no matter how long the app name was, callers
-    # that did `max(floor, tile.sizeHint().width())` always got the
-    # floor, and anything longer than the floor left over got clipped.
 
     def required_width(self) -> int:
         """Width in px at which this tile shows its whole name.
@@ -292,7 +249,6 @@ class HTile(QPushButton):
         """
         layout = self.layout()
         if self._name_lbl is None or layout is None:
-            # Asked mid-construction — fall back to the plain button hint.
             return QPushButton.sizeHint(self).width()
         self.ensurePolished()
         self._name_lbl.ensurePolished()

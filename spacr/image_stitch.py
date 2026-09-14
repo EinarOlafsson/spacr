@@ -183,9 +183,6 @@ def arrangement_of(index: int, rows: int, cols: int,
     raise ValueError(f"unknown arrangement {arrangement!r}")
 
 
-# ---------------------------------------------------------------------------
-# 1. The file's own stage coordinates
-# ---------------------------------------------------------------------------
 
 def read_stage_positions(paths: Sequence) -> Optional[List[Tuple[float, float]]]:
     """``(y, x)`` in PIXELS for each path, or None when any file lacks them.
@@ -250,9 +247,6 @@ def _position_from(handle) -> Optional[Tuple[float, float]]:
     return (y_um / px_y, x_um / px_x)
 
 
-# ---------------------------------------------------------------------------
-# 2. The pixels
-# ---------------------------------------------------------------------------
 
 def _sliding_ncc(first, second):
     """Zero-mean NCC for every displacement, computed for all at once.
@@ -300,9 +294,6 @@ def _sliding_ncc(first, second):
     displacements = np.arange(width)
     overlap = width - displacements
     count = rows * overlap
-    # A contributes its RIGHT-hand columns and B its LEFT-hand ones: that is
-    # what "B sits d to the right" means, and getting it the other way round
-    # scores every pair against the wrong half of itself.
     total_a = sum_a[width] - sum_a[displacements]
     total_aa = sum_aa[width] - sum_aa[displacements]
     total_b = sum_b[overlap] - sum_b[0]
@@ -404,9 +395,6 @@ def _pair_shift(first, second, axis: str) -> Tuple[Tuple[int, int], float]:
             best_offset, best_displacement = offset, peak + low
             best_coarse = float(band[peak])
 
-    # Exactly, at full resolution, around the coarse winner: the sample of
-    # lines cannot see a shift of three of them, and the placement is what
-    # this number becomes.
     found, score = (0, 0), 0.0
     for offset in range(best_offset - coarse, best_offset + coarse + 1):
         dy, dx = ((offset, best_displacement) if axis == "x"
@@ -439,16 +427,10 @@ def _read_tiles(paths: Sequence):
         tiles.append(array)
     shapes = {tile.shape for tile in tiles}
     if len(shapes) != 1:
-        # TILES OF TWO SIZES ARE NOT A GRID. A mosaic of mixed shapes needs
-        # per-tile placement, which needs stage coordinates; without them
-        # there is nothing to place them by.
         return None
     return tiles
 
 
-# ---------------------------------------------------------------------------
-# The plan
-# ---------------------------------------------------------------------------
 
 def plan_mosaic(paths: Sequence, tiles: Optional[Sequence] = None) -> Optional[Mosaic]:
     """Work out where each tile of one field goes. Reads; writes nothing.
@@ -468,9 +450,6 @@ def plan_mosaic(paths: Sequence, tiles: Optional[Sequence] = None) -> Optional[M
         if images is None:
             return None
         height, width = images[0].shape
-        # ONE TILE IS NOT A MOSAIC, and calling it a stage placement
-        # would claim evidence that was never read. It is placed because
-        # there is nowhere else for it to go.
         return Mosaic(placements=(Placement(names[0], 0, 0, 0, 0),),
                       height=height, width=width, rows=1, cols=1,
                       arrangement="row_major", how="single", confidence=1.0)
@@ -492,8 +471,6 @@ def plan_mosaic(paths: Sequence, tiles: Optional[Sequence] = None) -> Optional[M
         if best is None or candidate.confidence > best.confidence:
             best = candidate
     if rows != cols:
-        # THE OTHER WAY ROUND IS A DIFFERENT GRID, not a different order: 6
-        # tiles are 2x3 or 3x2 and the squarest shape cannot say which.
         for arrangement in ARRANGEMENTS:
             candidate = _mosaic_by_correlation(images, names, cols, rows,
                                                arrangement, height, width)
@@ -573,9 +550,6 @@ def _mosaic_by_correlation(images, names, rows, cols, arrangement,
     step_y = int(sum(dy_values) / len(dy_values)) if dy_values else height
     confidence = sum(scores) / len(scores) if scores else 0.0
 
-    # Walked out from the first tile along the edges that were believed;
-    # anything the walk cannot reach takes the average step, which is the
-    # best guess available for a seam that could not be measured.
     origin = (0, 0)
     positions: Dict[Tuple[int, int], Tuple[int, int]] = {origin: (0, 0)}
     frontier = [origin]
@@ -619,9 +593,6 @@ def _butt_joined(names, rows, cols, height, width, confidence) -> Mosaic:
                   confidence=confidence, overlap=(0, 0))
 
 
-# ---------------------------------------------------------------------------
-# The image
-# ---------------------------------------------------------------------------
 
 def stitch_tiles(paths: Sequence, tiles: Optional[Sequence] = None,
                  mosaic: Optional[Mosaic] = None):
@@ -646,9 +617,6 @@ def stitch_tiles(paths: Sequence, tiles: Optional[Sequence] = None,
         return None, None
     if mosaic is None:
         mosaic = plan_mosaic(paths, tiles)
-    # A readable nonempty tile set always receives either a stage-derived,
-    # correlated, or explicitly assumed plan.  Keep that contract loud if a
-    # future planner change breaks it instead of disguising it as read failure.
     assert mosaic is not None
 
     dtype = images[0].dtype

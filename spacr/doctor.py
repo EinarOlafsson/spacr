@@ -70,9 +70,6 @@ __all__ = [
     "main",
 ]
 
-# ---------------------------------------------------------------------------
-# verdicts
-# ---------------------------------------------------------------------------
 
 PASS = "PASS"
 WARN = "WARN"
@@ -156,9 +153,6 @@ def _register(label: str) -> Callable[[Callable], Callable]:
     return decorate
 
 
-# ---------------------------------------------------------------------------
-# small shared helpers
-# ---------------------------------------------------------------------------
 
 def _canonical(name: str) -> str:
     """Normalise a distribution name the way PEP 503 does."""
@@ -195,8 +189,6 @@ def _declared_requirement(name: str) -> Optional[str]:
         text = raw.strip()
         if ";" in text:
             head, _, marker = text.partition(";")
-            # Requirements guarded by `extra == "..."` belong to an extra, not
-            # to the core dependency set the check is asking about.
             if "extra" in marker:
                 continue
             text = head.strip()
@@ -206,19 +198,6 @@ def _declared_requirement(name: str) -> Optional[str]:
     return None
 
 
-# Version comparison, PEP 440 subset, stdlib only.
-#
-# ``packaging`` would be one import away and is installed in practically every
-# environment — which is exactly the reasoning that put five undeclared
-# module-scope imports into this project (requests via huggingface-hub, joblib
-# via scikit-learn, ...), each one upstream decision away from an ImportError.
-# A tool whose job is to explain broken environments cannot itself depend on
-# an environment being unbroken, so the comparison is implemented here.
-#
-# The subset covers what spaCR's own metadata uses: `>= <= == != < > ~= ===`,
-# comma-joined clauses, `.*` prefix matching, local segments (`2.9.1+cu128`)
-# and pre/post/dev suffixes. Anything outside it returns ``None`` — "cannot
-# tell" — rather than a guess.
 
 #: Longest first: `==` must be tried before `=`-prefixed shorter operators,
 #: and `===` before `==`.
@@ -529,9 +508,6 @@ def _nvidia_driver() -> Optional[str]:
     return lines[0] if lines else None
 
 
-# ---------------------------------------------------------------------------
-# 1. the interpreter
-# ---------------------------------------------------------------------------
 
 #: Used only when the installed metadata cannot be read (a source tree that was
 #: never installed). Kept in sync with pyproject.toml's ``requires-python``.
@@ -590,9 +566,6 @@ def check_python(ctx: Context) -> Result:
     )
 
 
-# ---------------------------------------------------------------------------
-# 2-5. which spacr am I actually running, and where did it come from
-# ---------------------------------------------------------------------------
 
 def _import_spacr() -> Any:
     """Import the ``spacr`` package. Split out so checks can be tested."""
@@ -956,9 +929,6 @@ def check_command_on_path(ctx: Context) -> Result:
     return Result("PATH", PASS, f"`{script.name}` on PATH comes from {prefix}.")
 
 
-# ---------------------------------------------------------------------------
-# 6-7. optional extras
-# ---------------------------------------------------------------------------
 
 def _import_qt_app() -> Any:
     """Import the Qt GUI entry point exactly the way ``spacr`` does."""
@@ -1068,10 +1038,6 @@ CORE_MODULES: Tuple[Tuple[str, str], ...] = (
     ("torch", "torch"),
     ("torchvision", "torchvision"),
     ("cellpose", "cellpose"),
-    # VisPy backs the installed application's default Mandelbrot renderer.
-    # It remains available through the historical ``fractal`` extra spelling,
-    # but it is a core dependency now; a missing install is therefore a broken
-    # environment, not an optional feature the doctor may report as absent.
     ("vispy", "vispy"),
 )
 
@@ -1174,9 +1140,6 @@ def check_optional_extras(ctx: Context) -> Result:
     return Result("optional extras", PASS, summary)
 
 
-# ---------------------------------------------------------------------------
-# 8-10. compute
-# ---------------------------------------------------------------------------
 
 @_register("installer backend")
 def check_installer_backend(ctx: Context) -> Result:
@@ -1270,26 +1233,9 @@ def check_gpu(ctx: Context) -> Result:
     driver = _nvidia_driver()
     built = getattr(getattr(torch, "version", None), "cuda", None)
 
-    # ANOTHER VENDOR'S ACCELERATOR IS NOT A CUDA FAILURE, and this is the
-    # one place where confusing the two is user-facing. Everything below
-    # diagnoses CUDA and ends in `nvidia-smi`, and the very first branch --
-    # "a CPU-only torch: segmentation and training will be very slow" -- is
-    # the exact verdict a Mac gets. On the machine this was written on that
-    # sentence was wrong by two orders of magnitude: the AMD card it does
-    # not mention segments 139x faster than the CPU it is warning about.
-    #
-    # ASKED BEFORE `built`, because a stock macOS torch has no CUDA version
-    # at all and would never reach a check placed lower. NOT taken when the
-    # accelerator IS CUDA -- that path must keep every diagnostic below,
-    # including the allocation probe that catches a driver mismatch
-    # `torch.cuda.is_available()` reports as fine. Instruction 319.
     try:
         from .accelerator import capabilities, inspect_torch
 
-        # ASKED ABOUT THIS torch, not the cached answer for this machine:
-        # the torch above comes through `_import_torch` precisely so the
-        # diagnosis can be exercised against a stand-in, and a cached
-        # global would report the developer's own card instead.
         found = inspect_torch(torch)
         if found.is_gpu and not found.is_cuda:
             slow = [task for task, ok, _ in capabilities() if not ok]
@@ -1304,16 +1250,11 @@ def check_gpu(ctx: Context) -> Result:
                           f"{found.label} — spaCR will use it.",
                           details=tuple(details))
         if found.detected and not found.usable and not driver:
-            # FOUND AND UNUSABLE is its own verdict rather than "no GPU":
-            # the fix differs and the reader can act on it.
             return Result("gpu", WARN,
                           f"{found.label} was detected but spaCR cannot "
                           f"use it.",
                           details=(found.note,) if found.note else ())
     except Exception:                                        # noqa: BLE001
-        # Silent on purpose: this module has no logger, and a doctor has to
-        # keep reporting on a machine where something is broken. Falling
-        # through to the CUDA diagnosis is the right behaviour anyway.
         pass
 
     if not built:
@@ -1622,9 +1563,6 @@ def _parse_environment_pins(env_yaml: Path) -> Dict[str, str]:
     return pins
 
 
-# ---------------------------------------------------------------------------
-# 11-12. project data
-# ---------------------------------------------------------------------------
 
 @_register("database")
 def check_database(ctx: Context) -> Union[Result, List[Result]]:
@@ -1966,9 +1904,6 @@ def check_settings(ctx: Context) -> Union[Result, List[Result]]:
     return rows
 
 
-# ---------------------------------------------------------------------------
-# running and reporting
-# ---------------------------------------------------------------------------
 
 def run_checks(
     ctx: Context, checks: Optional[Sequence[Callable[[Context], Any]]] = None

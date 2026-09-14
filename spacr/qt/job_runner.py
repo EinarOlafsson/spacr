@@ -136,9 +136,6 @@ class JobRunner(QObject):
             nobody asked for.
         """
         super().__init__(parent)
-        # REGISTERED THE MOMENT IT EXISTS, so a runner cannot be created and
-        # then missed by the quit-time drain. Weak, so this holds nothing
-        # alive that Qt would otherwise collect.
         _LIVE_RUNNERS.add(self)
         self._threaded = bool(threaded)
         self._app_key = app_key or "loading"
@@ -152,7 +149,6 @@ class JobRunner(QObject):
         self._busy = False
         self._settled.connect(self._on_settled)
 
-    # -- submitting -------------------------------------------------------
 
     def submit(self, fn: Callable[[], Any],
                on_done: Optional[Callable[[Any], None]] = None) -> bool:
@@ -183,35 +179,20 @@ class JobRunner(QObject):
         self._next_id += 1
         job_id = self._next_id
         box: Dict[str, Any] = {}
-        # journal=False: this is read-only UI housekeeping, not an analysis
-        # run. A reproducibility record for "the user opened a table" is
-        # noise, and `RunRegistry.cancel_all` treats journalled jobs as a
-        # reason to refuse to close the application.
         thread, worker = make_thread(
             lambda payload, _fn=fn: _capture(_fn, payload), box,
             app_key=self._app_key, journal=False,
             user_visible=self._user_visible, capture_figures=False)
-        # Strong references. PySide6 does not keep the worker alive through
-        # the started->run connection alone, and a collected worker means the
-        # thread spins forever without ever calling run().
         self._jobs[job_id] = (thread, worker)
         self._pending[job_id] = (box, on_done, self._generation)
         worker.error.connect(self._on_worker_error_text)
-        # A closure -- deliberately. `worker.finished` is emitted on the
-        # WORKER thread, and all this one does is call `_relay`, which
-        # re-emits a Signal; emitting is safe from any thread. The Signal's
-        # receiver (`_on_settled`) is a bound method of this GUI-thread
-        # object, so Qt queues the real work back onto the GUI thread.
         worker.finished.connect(
             lambda ok, jid=job_id: self._relay(jid, ok))
-        # A BOUND METHOD -- and the contrast with the line above is the whole
-        # point. See the module docstring.
         thread.finished.connect(self._retire_finished_jobs)
         self._set_busy(True)
         thread.start()
         return True
 
-    # -- completion -------------------------------------------------------
 
     def _relay(self, job_id: int, ok: bool) -> None:
         """Re-emit a worker-thread completion as a GUI-thread call.
@@ -232,12 +213,6 @@ class JobRunner(QObject):
         try:
             self._settled.emit(job_id, bool(ok))
         except RuntimeError:
-            # The runner's C++ half died with its parent before this worker
-            # finished.  No queued receiver remains to retire the pending
-            # result, but the Python closure still owns ``self`` and may clear
-            # its bookkeeping safely under the GIL.  Do not drop ``_jobs``
-            # here: its strong references keep the QThread alive until the
-            # worker has actually stopped.
             self._pending.pop(job_id, None)
             self._busy = bool(self._pending)
 
@@ -248,9 +223,6 @@ class JobRunner(QObject):
             return
         box, on_done, generation = entry
         ok = bool(ok)
-        # Bookkeeping happens for every job; only *use* of the result is
-        # conditional. A cancelled load that skipped this would leave the
-        # runner permanently busy.
         if ok and on_done is not None and generation == self._generation:
             try:
                 on_done(box.get("result"))
@@ -295,7 +267,6 @@ class JobRunner(QObject):
         LOG.info("background job failed", exc_info=True)
         self.job_failed.emit(str(exc) or exc.__class__.__name__)
 
-    # -- state ------------------------------------------------------------
 
     def _set_busy(self, busy: bool) -> None:
         """Announce a change in whether work is in flight.
@@ -320,7 +291,6 @@ class JobRunner(QObject):
         """How many results have not been delivered yet."""
         return len(self._pending)
 
-    # -- cancelling -------------------------------------------------------
 
     def cancel(self) -> None:
         """Abandon the results of everything in flight.

@@ -180,9 +180,6 @@ class MissingScores(MontageError):
     """The object frame carries no usable per-object classification score."""
 
 
-# ---------------------------------------------------------------------------
-# The count rule
-# ---------------------------------------------------------------------------
 
 def round_half_up(value: float) -> int:
     """Round ``value`` to the nearest integer, halves away from zero.
@@ -301,10 +298,6 @@ def effects_grid_from_results(path) -> Optional["pd.DataFrame"]:
     try:
         grid = pd.read_csv(target, index_col=0)
     except Exception:                                            # noqa: BLE001
-        # Silent, like `effects_from_results` beside it: an unreadable grid
-        # means "no sweep to use", and the caller's own message says what
-        # that costs. Raising here would take the montage down over a file
-        # it can do without.
         return None
     if not len(grid) or not len(grid.columns):
         return None
@@ -330,8 +323,6 @@ def write_effects_grid(effects, folder) -> str:
         os.makedirs(str(folder), exist_ok=True)
         effects.to_csv(target)
     except Exception:                                            # noqa: BLE001
-        # A sweep that produced its answer has not failed because the grid
-        # could not be filed beside it.
         return ""
     return target
 
@@ -382,7 +373,6 @@ def _guide_of_term(term: str) -> str:
         return ""
     if "[" in text and text.endswith("]"):
         inside = text[text.rindex("[") + 1:-1].strip()
-        # statsmodels writes `C(rowID)[T.r2]` for a factor level.
         if inside.startswith("T."):
             inside = inside[2:]
         return inside
@@ -435,8 +425,6 @@ def normalised_share(well_fractions, fraction: float) -> Tuple[float, float]:
     if total <= 0.0 or not math.isfinite(total):
         return share, 1.0
     factor = 1.0 / total
-    # Capped at 1: a share above 1 would mean this guide is more than all of
-    # the well, which is a join that did not line up rather than a number.
     return min(share * factor, 1.0), factor
 
 
@@ -465,9 +453,6 @@ def objects_to_show(n_objects: int, fraction: float) -> int:
     return round_half_up(count * share)
 
 
-# ---------------------------------------------------------------------------
-# The coefficient
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Coefficient:
@@ -503,9 +488,6 @@ class Coefficient:
         return f"{self.name} ({self.level}, effect {self.effect:+.3f})"
 
 
-# ---------------------------------------------------------------------------
-# The score window
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ScoreWindow:
@@ -651,10 +633,6 @@ def score_window(objects: pd.DataFrame, effect: float, *,
     mad = float(np.median(np.abs(values - median)))
     scale = 1.4826 * mad
     if scale <= 0:
-        # Every score identical, or a distribution so concentrated the MAD
-        # underflows. Fall back to the plain standard deviation rather than
-        # inventing a width; if that is zero too the window is degenerate and
-        # says so instead of admitting nothing.
         scale = float(np.std(values))
     degenerate = not (scale > 0)
 
@@ -670,9 +648,6 @@ def score_window(objects: pd.DataFrame, effect: float, *,
         observed_high=float(values.max()), degenerate=degenerate)
 
 
-# ---------------------------------------------------------------------------
-# Wells
-# ---------------------------------------------------------------------------
 
 def _require(frame: pd.DataFrame, columns: Sequence[str], what: str) -> None:
     """Require every named column or raise an error identifying what lacks it."""
@@ -845,9 +820,6 @@ def wells_for_coefficient(counts: pd.DataFrame, name: str, *,
     return present.sort_values(sort_key).reset_index(drop=True)
 
 
-# ---------------------------------------------------------------------------
-# The plan
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class WellSelection:
@@ -1106,13 +1078,6 @@ class MontagePlan:
             lines.append(
                 f"  (the grid holds {self.n_objects}; the difference is the "
                 "cap, named above)")
-        # THE GUIDES SHARE CELLS, AND A READER SHOULD NOT FIND THAT OUT BY
-        # ARITHMETIC (172, last open item). Every guide in a well is given
-        # `round(n x share)` of the SAME top-ranked cells, so the counts of a
-        # well's guides can add to more than the well holds -- measured on
-        # the maintainer's four plates, 190 of 1,366 wells. It is correct for
-        # this heuristic and it is exactly the flaw instruction 173 exists to
-        # fix, but unsaid it reads as a bug in the count.
         crowded = sum(w.n_selected for w in self.wells
                       if w.n_selected > 0 and w.n_objects
                       and w.n_selected > w.n_objects)
@@ -1174,10 +1139,6 @@ def _well_labels(frame: pd.DataFrame, keys: Sequence[str]) -> pd.Series:
     """Join complete well-key rows while preserving incomplete rows as null."""
     columns = frame.loc[:, list(keys)]
     missing = columns.isna().any(axis=1)
-    # pandas 3 preserves missing values while casting string-dtype columns to
-    # ``str``. Joining the whole frame can therefore hand ``"_".join`` a float
-    # NaN. Exclude incomplete identities before conversion: those rows are
-    # deliberately ``None`` and never have a join key.
     labels = [
         None if row_missing else "_".join(str(value) for value in row)
         for row_missing, row in zip(
@@ -1243,10 +1204,6 @@ def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
             notes.append("sudoku: no cell carries a classification score")
             return None
 
-        # THE FEATURES ARE THE MEASUREMENTS, NOT THE SCORE. The anchors are
-        # chosen BY the score, so a graph built on it would place every
-        # high-scoring cell beside every guide's anchors and affirm all of
-        # them. `spacr.sudoku` leaves the score out for the same reason.
         numeric = frame.select_dtypes(include=[np.number])
         features = numeric.drop(
             columns=[c for c in numeric.columns
@@ -1270,31 +1227,6 @@ def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
                          "the propagation")
             return None
 
-        # SCOPE: THIS GUIDE'S WELLS, PLUS THE WELLS THAT ANCHOR ITS RIVALS.
-        #
-        # THE FIRST VERSION OF THIS TRIMMED TO THIS GUIDE'S WELLS ALONE AND
-        # THAT WAS WRONG, on an argument that conflated two different parts
-        # of the method. The WELL CONSTRAINT is per well, so a guide absent
-        # from a well genuinely cannot claim cells there -- that much held.
-        # The GRAPH is not per well at all: it links cells by how they look,
-        # across the screen, and that is where a guide's appearance is
-        # learned.
-        #
-        # So trimming the cells also trimmed the ANCHORS. `anchors_for`
-        # takes a guide's examples from wells where that guide DOMINATES,
-        # and a rival's best wells are usually not this guide's wells -- so
-        # the rivals were being characterised from whatever share they
-        # happened to have here, which is the weakest sample available
-        # rather than the strongest. Raised by the maintainer: "other guides
-        # in the chosen guides wells do [share wells], so that information
-        # can be used, no?" -- yes, and it was being thrown away.
-        #
-        # The scope is therefore the union of this guide's wells and, for
-        # every guide that appears in them, the wells where that guide is
-        # large enough to anchor. Those extra wells inform the graph and the
-        # anchors; only this guide's wells are drawn.
-        # THE COEFFICIENT'S GUIDES, not its name. A gene is never a key in
-        # `here`, which is guide -> fraction.
         wanted = {str(g) for g in (guides or ())} or {str(name)}
         mine = [label for label, here in fractions.items()
                 if any(g in here for g in wanted)]
@@ -1331,20 +1263,8 @@ def _sudoku_calls(work, counts, keys, guide_column, fraction_column,
             f"sudoku: {result.called():,} of {len(frame):,} cell(s) "
             f"annotated across {len(fractions)} well(s); "
             f"{result.report.get('abstained', 0):,} abstained")
-        # KEYED BY THE FRAME'S INDEX, NOT BY POSITION.
-        #
-        # THIS WAS THE BUG, and it was silent: the caller matches these
-        # against `ranked`, which is the well's rows SORTED BY SCORE, while
-        # this list was in the order the rows arrived. Same length, different
-        # cells -- so the calls landed on the wrong objects, and where the
-        # lengths disagreed nothing was marked at all. A real run reported
-        # "59 of 1,076 cells annotated" and then highlighted zero in every
-        # well.
-        #
-        # An index cannot be misaligned by a sort.
         return dict(zip(frame.index, result.guides))
     except Exception as exc:                                 # noqa: BLE001
-        # A PICKER THAT CANNOT RUN SAYS SO AND THE MONTAGE STILL DRAWS.
         notes.append(f"sudoku could not run ({type(exc).__name__}: {exc}); "
                      f"the montage fell back to rank")
         return None
@@ -1457,22 +1377,6 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
     scores = pd.to_numeric(work[score_column], errors="coerce").to_numpy(
         dtype=float)
     work["montage_distance"] = np.abs(scores - window.target)
-    # THE EXCLUSION HAPPENS FIRST, ONCE, AND ON THE COUNT TABLE ITSELF.
-    # Asked for 2026-08-21: "make sure it is removed first. right?" -- and
-    # right, for a reason that a later per-call filter would not have fixed.
-    # `well_totals` below sums the fraction column over the FULL table, and
-    # `normalised_share` divides by that sum. A contaminant removed further
-    # downstream would still be sitting in that denominator, holding every
-    # real guide's share down by its own -- which on one real plate was a
-    # fifth of all the reads.
-    #
-    # So there is exactly one exclusion point and it is above every path:
-    # the ranking, the per-well fractions, the posteriors and the totals all
-    # read a table the contaminant has already left.
-    #
-    # GUIDES AND GENES, several of each, resolved by `control_names` -- the
-    # same resolver `controls` and `positive_control_id` use, so an exclusion
-    # is typed in the spelling those already accept.
     excluded_note = ""
     if exclude_grnas:
         try:
@@ -1488,9 +1392,6 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                 excluded_note = (f"excluded {len(drop)} guide(s) named by "
                                  f"exclude_grnas before any fraction was "
                                  f"formed")
-            # A MISSPELLED EXCLUSION EXCLUDES NOTHING AND LOOKS LIKE IT
-            # WORKED, which is how a known contaminant survives the filter
-            # that was meant to remove it.
             missing = unmatched_exclusions(exclude_grnas, names, genes)
             if missing:
                 excluded_note = ((excluded_note + " · ") if excluded_note
@@ -1503,18 +1404,9 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
     work["_montage_in_window"] = window.contains(scores)
     work["_montage_tiebreak"] = _object_sort_key(work)
 
-    # Always key on a tuple. ``groupby(['prc'])`` yields a bare string on
-    # pandas 1.x and a 1-tuple on 2.2+, so a lookup written for either one
-    # silently matches nothing on the other -- and "nothing matched" here is
-    # an empty montage with a caption that still reads as if it worked.
     grouped: Dict[Tuple[Any, ...], pd.DataFrame] = {}
     for label, frame in work.groupby(keys, dropna=False):
         grouped[label if isinstance(label, tuple) else (label,)] = frame
-    # EVERY GUIDE'S FRACTION IN EACH WELL, which is what the normalisation
-    # divides by (instruction 172). It comes from the FULL count table and
-    # not from `selected_counts`: the latter holds only the chosen
-    # coefficient, so summing it would always give that guide's own fraction
-    # and a factor of exactly 1 -- a normalisation that never normalised.
     well_totals: Dict[str, float] = {}
     try:
         totals = counts.copy()
@@ -1532,20 +1424,6 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
     chosen: List[pd.DataFrame] = []
     mismatched: List[str] = []
 
-    # CAN THIS GUIDE BE ATTRIBUTED AT ALL -- asked BEFORE any cell is
-    # attributed, which is instruction 173's own wording. Until now this was
-    # a library function with no caller, so the answer existed and nobody
-    # saw it.
-    #
-    # IT IS THE DIFFERENCE BETWEEN AN EMPTY MONTAGE AND AN EXPLAINED ONE. A
-    # guide whose effect is too small against the spread of scores can never
-    # reach the threshold in any well, so the attributed picker selects
-    # nothing and the montage comes back blank -- which reads as a bug in the
-    # viewer rather than as arithmetic about the guide.
-    #
-    # The scale and centre are taken over ALL the objects, not per well:
-    # centring per well destroys the between-well signal that identifies the
-    # effect at all.
     if str(picking or "rank") in ("attributed", "assigned", "multivariate") \
             and effects:
         try:
@@ -1560,10 +1438,6 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                     fractions_by_well[label] = here
             finite = scores[np.isfinite(scores)]
             if fractions_by_well and finite.size:
-                # Fractions and effects are guide-keyed.  A gene-level
-                # coefficient therefore has to pre-flight the guides it
-                # covers; asking for the gene name itself always produces
-                # the false verdict "no well carries it".
                 targets = covered if resolved_level == "gene" else [name]
                 for target in targets:
                     verdict = preflight(
@@ -1573,15 +1447,8 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                         threshold=float(threshold))
                     notes.append(verdict.note())
         except Exception:                                    # noqa: BLE001
-            # A pre-flight is a courtesy, not a precondition. It must never
-            # be the reason a montage does not draw.
             pass
 
-    # SUDOKU RUNS ONCE, OVER THE WHOLE SCREEN, BEFORE THE WELL LOOP.
-    # Every other picker decides a well from that well's own cells, so it
-    # can be computed inside the loop. Sudoku cannot: what a guide's cells
-    # look like is learned from every well the guide is in, and running it
-    # per well would throw away the one thing it is for.
     sudoku_calls = None
     if str(picking or "rank") == "sudoku":
         sudoku_calls = _sudoku_calls(
@@ -1607,28 +1474,11 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
         if n_reported is not None and n_reported != n_objects:
             mismatched.append(f"{label} ({n_reported} reported, {n_objects} present)")
 
-        # HOW MANY (instruction 172). The guide's share of what the count
-        # table still holds for this well, times the number of cells that
-        # actually carry a classification score -- not the number of rows.
-        # An object with no score cannot be ranked, so counting it would
-        # promise cells the ranking cannot deliver.
         total_here = float(well_totals.get(label, 0.0))
         if normalise_fraction:
             share, factor = normalised_share(
                 [total_here] if total_here else [], fraction)
         else:
-            # THE RAW FRACTION, WHICH IS THE CONSERVATIVE ONE (207 D).
-            # Normalising divides by what SURVIVED the threshold, so the
-            # reads of every filtered-out guide are redistributed onto the
-            # ones that remain -- measured on a real screen, the filtered
-            # sums fall to a median of 0.5526, so each survivor is inflated
-            # by about 1.8x. A guide with few reads in a well can come out
-            # of that with a high share, and the ranking then takes cells on
-            # the strength of a number normalisation created.
-            #
-            # Raw keeps the discarded reads in the denominator, where they
-            # dilute a marginal guide instead of being handed to it. Neither
-            # is right for every screen, which is why it is a choice.
             share, factor = float(fraction), 1.0
         here_scores = pd.to_numeric(here[score_column], errors="coerce")
         n_classified = int(here_scores.notna().sum())
@@ -1636,15 +1486,6 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
         admissible = here[here["_montage_in_window"]]
         n_in_window = int(len(admissible))
         if expected == 0:
-            # THE SAME FOUR NUMBERS AS THE NON-ZERO CASE. This said
-            # round(n_objects x fraction), and the count is
-            # round(n_classified x share) -- a different count off a different
-            # base. It named the UN-NORMALISED fraction, which is the one
-            # number instruction 172 exists to stop anyone reading: on the
-            # maintainer's four plates the factor runs to 6.6x, so a reader
-            # checking this line would work out a share up to six times too
-            # small and conclude the montage had dropped their well. It
-            # covers 153 of 5,615 guide-well pairs that hold cells.
             note = (f"round({share:.4g} x {n_classified}) rounds to zero, so "
                     f"the design expects no object from this well "
                     f"({share:.4g} is this guide's {fraction:.4g} normalised "
@@ -1657,31 +1498,15 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                 n_selected=0, note=note))
             continue
 
-        # WHICH ONES (instruction 172). "rank all cells by classefication
-        # score and take the top x cells".
-        #
-        # THE DIRECTION FOLLOWS THE COEFFICIENT. Highest scores for a positive
-        # effect, lowest for a negative one, because the cells a coefficient
-        # points at are the ones whose phenotype moved the way it says.
-        # Always-descending would show a negative coefficient the cells LEAST
-        # consistent with it.
         ranked = here.assign(_montage_score=here_scores)
         ranked = ranked.dropna(subset=["_montage_score"]).sort_values(
             ["_montage_score", "_montage_tiebreak"],
             ascending=[coefficient.effect < 0, True])
         top = ranked.head(expected)
 
-        # THE OTHER TWO PICKERS (instruction 173). Both need every guide's
-        # fraction AND effect in this well, because a posterior is a
-        # comparison: comparing a guide against nothing returns the prior.
         picked_by = "rank"
         wanted = str(picking or "rank")
         if wanted == "multivariate" and effects_grid is None:
-            # SAID, NOT SUBSTITUTED SILENTLY. Option C needs one effect per
-            # MEASUREMENT per guide, which is the gene x measurement sweep's
-            # grid; a run that has not swept has nothing to read. Falling
-            # back to the single-score attribution is the right answer, and
-            # a montage that quietly changed how it chose its cells is not.
             wanted = "attributed"
             picked_by = "attributed (no sweep grid for multivariate)"
         if wanted == "multivariate" and effects_grid is not None:
@@ -1708,19 +1533,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                 picked_by = ("attributed (this well has one guide, or none of "
                              "the swept measurements are on the objects)")
         if wanted == "sudoku":
-            # ACROSS WELLS, WHICH IS THE WHOLE POINT (209), and also the
-            # reason it cannot be computed inside this per-well loop the way
-            # the others are: a guide's appearance is learned from every
-            # well it is in. `_sudoku_calls` runs once for the whole screen
-            # before the loop and this reads its answer for these rows.
-            #
-            # BY INDEX. `ranked` is sorted by score, so a positional lookup
-            # would put each cell's call on a different cell.
             if sudoku_calls:
-                # AGAINST THE COEFFICIENT'S GUIDES. `sudoku` calls a cell
-                # for a GUIDE; a gene-level montage is named for the gene,
-                # and comparing the two matched nothing -- which is a
-                # montage of unringed cells and no error anywhere.
                 _wanted = {str(g) for g in (covered or ())} or {str(name)}
                 mask = np.array([sudoku_calls.get(i) in _wanted
                                  for i in ranked.index], dtype=bool)
@@ -1739,10 +1552,6 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                 middle = float(ranked["_montage_score"].median())
                 values = ranked["_montage_score"].to_numpy()
                 if wanted == "assigned":
-                    # EVERY cell in the well gets exactly one guide and each
-                    # guide gets exactly the cells its reads imply, so this
-                    # picker's count is x by construction rather than by
-                    # rounding.
                     outcome = assign_well(values, here_fractions, effects,
                                           centre=middle, scale=spread)
                     mask = np.array([g == name for g in outcome.guides])
@@ -1756,41 +1565,10 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                     top = ranked[mask]
                     picked_by = "attributed"
             else:
-                # A WELL WITH ONE GUIDE CANNOT BE ATTRIBUTED, and until now it
-                # did not say so. Attribution is a comparison; with a single
-                # guide there is nothing to compare against, so control fell
-                # through to rank with `picked_by` still "rank" and no note.
-                # Both sibling pickers disclose their fallback -- multivariate
-                # above, sudoku below -- so in a montage mixing single-guide
-                # and multi-guide wells, two wells were chosen by different
-                # rules and only one of them said which.
-                # The prefix is "rank" ON PURPOSE. `_by_rank` below keys off
-                # it, and rank arithmetic is genuinely what chose these cells,
-                # so the caption must still show the round(share x n) line that
-                # explains them. Saying "fell back to rank" instead would both
-                # suppress the true explanation and read "...fell back to rank
-                # chose 6 of 20 classified cell(s)".
                 picked_by = (f"rank ({wanted} needs more than one guide in a "
                              f"well; this one holds a single guide)")
         direction = "lowest" if coefficient.effect < 0 else "highest"
-        # THE NOTE MUST DESCRIBE THE PICKER THAT RAN. The fraction
-        # arithmetic below is how `rank` decides; every other picker decides
-        # some other way and does not consult it. Printing it regardless
-        # reported a calculation that did not happen -- observed on a sudoku
-        # montage that highlighted nothing and still said "round(0.1267 x
-        # 187) = 24", which is a number the run never used.
-        #
-        # `expected` stays computed either way: it is the count the
-        # SEQUENCING supports, which is worth stating next to what the
-        # picker actually chose, because the gap between them is the
-        # interesting part.
         _by_rank = str(picked_by).startswith("rank")
-        # A RANK FALLBACK STILL OWES THE REASON IT FELL BACK, and the two are
-        # not alternatives. `_by_rank` decides whether the round(share x n)
-        # arithmetic is shown, and for a fallback that arithmetic IS what chose
-        # the cells -- so it has to stay. But the branch that shows it never
-        # printed `picked_by`, so a qualifier attached there vanished. It rides
-        # with the arithmetic instead of replacing it.
         _fallback = str(picked_by)[len("rank"):].strip() if _by_rank else ""
         if not _by_rank:
             chosen_here = int(len(top))
@@ -1807,9 +1585,6 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                           f"normalised by {factor:.4g} (the well's fractions "
                           f"sum to {total_here:.4g})")
         else:
-            # SAY WHICH FRACTION IT USED. The two differ by the
-            # normalisation factor, and a count that cannot be traced to a
-            # fraction is a count nobody can check.
             arithmetic = (f"round({share:.4g} x {n_classified}) = {expected}, "
                           f"where {share:.4g} is this guide's RAW fraction "
                           f"(un-normalised; the well's kept fractions sum to "
@@ -1817,21 +1592,9 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
         if _fallback:
             arithmetic += f"; {_fallback}"
         if show_all:
-            # EVERY CELL IN THE WELL, with the chosen ones marked rather than
-            # the rest removed. "show all the images from each well and
-            # highlight the cells most likely to be whatever gene is picked".
             take = ranked.copy()
             take["montage_candidate"] = take.index.isin(top.index)
             _n_marked = int(take["montage_candidate"].sum())
-            # AND THE REST ARE NAMED, NOT MERELY UNMARKED (207 B). Asked for
-            # 2026-08-21: "i an the non annotated datapoints to be annotated
-            # as Non_annotated and shown".
-            #
-            # A CELL THAT IS SHOWN AND CARRIES NO LABEL IS COUNTED BY THE
-            # EYE AND BY NOTHING ELSE. Giving it a name puts it in the
-            # legend, in the group-by, and in the denominator -- which is
-            # where it has to be, because a fraction computed over only the
-            # annotated cells is the fraction that came out as 1.
             take[ANNOTATION_COLUMN] = np.where(
                 take["montage_candidate"], str(name), NOT_ANNOTATED)
             n_taken = int(len(take))
@@ -1839,9 +1602,6 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                 marked = (f"the {_n_marked} with the {direction} scores are "
                           f"highlighted and the rest are {NOT_ANNOTATED}")
             elif _n_marked:
-                # NOT "the N with the highest scores" -- a picker that is not
-                # `rank` did not choose by score, and saying it did explains
-                # the picture with the wrong rule.
                 marked = (f"{_n_marked} are highlighted and the rest are "
                           f"{NOT_ANNOTATED}")
             else:
@@ -1852,8 +1612,6 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
         else:
             take = top.copy()
             take["montage_candidate"] = True
-            # The same column either way, so a consumer does not have to
-            # know which view produced the frame.
             take[ANNOTATION_COLUMN] = str(name)
             n_taken = int(len(take))
             note = arithmetic
@@ -1896,10 +1654,6 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
 
     picked = picked.sort_values(
         ["montage_well", "montage_distance", "_montage_tiebreak"])
-    # WHICH OF THEM THE COEFFICIENT POINTS AT, kept as a column so the panel
-    # can mark them. In the filtered view every row is a candidate by
-    # construction; in the show-all view it is the distinction the whole
-    # option exists for.
     if "montage_candidate" not in picked.columns:
         picked["montage_candidate"] = True
     picked["montage_candidate"] = picked["montage_candidate"].fillna(False).astype(bool)
@@ -1971,9 +1725,6 @@ def select_montage_per_guide(objects: pd.DataFrame, counts: pd.DataFrame,
     return plans
 
 
-# ---------------------------------------------------------------------------
-# Inputs
-# ---------------------------------------------------------------------------
 
 #: What the two obvious-looking QC CSVs actually hold. Measured against
 #: ``spacr.ml.grna_metricks`` and its contract test -- neither names a well
@@ -2016,12 +1767,6 @@ def read_well_guide_fractions(path: str) -> pd.DataFrame:
         raise MontageError(
             f"{target} does not exist. A montage needs {FRACTION_CSV} from "
             "the regression results folder.")
-    # THROUGH THE FUNNEL (145). `_well_key` composes prc from plateID,
-    # rowID and columnID, and a results folder written by an older spaCR --
-    # or by a plate whose png_list spells them row_name / column_name -- gave
-    # it none of the three. It raised nothing; it produced a frame with no
-    # well key, and the montage then drew nothing for wells holding 244
-    # objects.
     frame = _read_table(target, report=None)
     _well_key(frame, target)
     _require(frame, ["grna", "gene", "fraction"], target)
@@ -2051,46 +1796,22 @@ def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
     """
     frames: List[pd.DataFrame] = []
     problems: List[str] = []
-    # ENUMERATED, and the index is used even for the files that are skipped.
-    # A count CSV names its plate in a column or not at all -- the real ones
-    # carry `row_name, column_name, grna_name, count` and nothing else -- so
-    # the plate comes from WHICH FILE it is, exactly as
-    # `ml.load_regression_input_pairs` resolves it: own column, then pair-row
-    # order. Letting an unreadable file collapse the numbering would shift
-    # every later plate's label by one and silently mislabel the wells.
     for index, path in enumerate(paths):
         text = os.fspath(path)
         if not text or not os.path.isfile(text):
             continue
         try:
-            # The count CSVs are the case 145 measured: `row_name`,
-            # `column_name`, `grna_name` and NO plate column at all, so four
-            # plates' r1/c1 pooled into one well -- 384 wells instead of
-            # 1,536 -- and the fractions still summed to 1.
             frame = _read_table(text, report=None)
         except Exception as error:                               # noqa: BLE001
             problems.append(f"{os.path.basename(text)}: {error}")
             continue
 
-        # CANONICALISE FIRST, the way every other reader in spaCR does.
-        # Reported 2026-08-18: "the cell montage failed because the column grna
-        # was not found in any of the count tables" -- and the tables had the
-        # identifier under one of the spellings `correct_metadata_column_names`
-        # exists to absorb (`grna_name`, and whatever `schema.canonicalise_frame`
-        # maps). Reading the CSV raw made this function the ONE reader that did
-        # not, which is exactly the "one vocabulary" failure instruction 145 is
-        # about, introduced while fixing something else.
         try:
             from .schema import correct_metadata_column_names
             frame = correct_metadata_column_names(frame)
         except Exception:                                        # noqa: BLE001
             pass
 
-        # AND THE ALIASES THE REST OF THE PROJECT ALREADY ACCEPTS. `utils`
-        # looks for a gRNA identifier under seven spellings when reading
-        # metadata; a count table is the same identifier in the same shape, so
-        # refusing it here for its header would be this module inventing a
-        # stricter rule than the code around it.
         if "grna" not in frame.columns:
             for alias in ("grna_name", "name", "sgrna", "sgRNA", "guide",
                           "sequence"):
@@ -2103,20 +1824,11 @@ def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
                     frame = frame.rename(columns={alias: "count"})
                     break
 
-        # THE PLATE, from the pair row, and only when the file does not say.
-        # Without this the four plates' wells pool: `prc` composed from row
-        # and column alone makes plate1 r1/c1 and plate2 r1/c1 ONE well, and
-        # every fraction below is then a share of four plates' reads. That is
-        # a wrong number that looks right -- the fractions still sum to 1.
         if "plateID" not in frame.columns or frame["plateID"].isna().all():
             frame["plateID"] = f"plate{index + 1}"
 
         missing = [c for c in ("grna", "count") if c not in frame.columns]
         if missing:
-            # NAME WHAT THE FILE ACTUALLY HAS. "column grna was not found" is
-            # true and unactionable: the user cannot tell whether they picked
-            # the wrong file or whether their header is spelled differently,
-            # and those have different answers.
             problems.append(
                 f"{os.path.basename(text)} has no {' or '.join(missing)} "
                 f"column; it has {list(frame.columns)[:12]}")
@@ -2233,23 +1945,6 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
             "there are no per-object crops to show.") from exc
     finally:
         conn.close()
-    # CANONICALISE FIRST, the way every other reader in spaCR does -- and the
-    # way `fractions_from_counts` was taught to earlier the same day, for the
-    # same reason and by the same failure. Instruction 145.
-    #
-    # Measured on the maintainer's four plates, `png_list`:
-    #
-    #     plate1  rowID / columnID   and plateID = 'pplate1'
-    #     plate2  row_name / column_name
-    #     plate3  row_name / column_name
-    #     plate4  row_name / column_name
-    #
-    # So plates 2-4 could not compose a `prc` at all, and plate1 composed one
-    # against a doubled plate name that matches nothing in the counts. Every
-    # well then reported "no object in the imported databases comes from this
-    # well" and the montage drew nothing, while the baseline was happily
-    # computed over all 226,467 objects -- which is what made it look like a
-    # selection problem rather than a join one.
     try:
         from .schema import correct_metadata_column_names
 
@@ -2264,16 +1959,6 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
         pass
 
     if score_column not in frame.columns and scores is not None:
-        # THE SCORES THE RUN ALREADY HAS (instruction 167). A screen whose
-        # png_list has no `pred` is not a screen without scores: the score
-        # CSVs the regression module is holding carry one row per cell, and
-        # the fit was run on exactly those numbers. Joined through
-        # `predictions.attach_predictions`, which is the SAME key choice
-        # `merge_prediction_results` makes, so a montage reading them here and
-        # a database that had them merged in cannot disagree.
-        #
-        # NOTHING IS WRITTEN. A montage is a read, which is the same rule the
-        # crop-path re-rooting follows.
         from .predictions import attach_predictions
 
         table_of_scores = _read_scores(scores)
@@ -2299,25 +1984,11 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
     joined = crop_rows_from_png_list(db_path, frame, object_type=object_type,
                                      verbose=verbose)
     if joined.empty:
-        # The join keeps only rows that can be cut from merged/. A PNG folder
-        # alone is still a montage, so fall back rather than returning none.
         joined = frame.copy()
         joined["object_type"] = object_type
-    # RE-ROOT BEFORE ANYTHING READS A PATH. The crop source is resolved from
-    # the folder the user is looking at, so it is found correctly; it was the
-    # per-object rows that still pointed at the machine the screen was
-    # measured on, and a montage over 60,000 dead paths draws nothing and
-    # blames the crops.
     root = src or portable_paths.source_root_for_database(db_path)
     for column in ("png_path", "path_name"):
         report = portable_paths.reroot_column(joined, column, root)
-        # SAID WHEN IT CANNOT, not only when it can -- a crop that could not
-        # be placed is returned unchanged and fails later as a missing file,
-        # somewhere with less context (instruction 155 F). But a column where
-        # NOTHING resolved is a route that is not on this machine, not 60,816
-        # failures: a screen with PNG crops and no `merged/` folder is
-        # healthy, and saying otherwise is the false alarm that teaches a
-        # reader to ignore the true one.
         if report.partial or (report.moved and verbose) or (
                 report.absent and verbose):
             print(report.describe())
@@ -2332,9 +2003,6 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
     return joined
 
 
-# ---------------------------------------------------------------------------
-# The crop source
-# ---------------------------------------------------------------------------
 
 #: Columns a row can carry an object's integer label in, in the order
 #: :meth:`spacr.crops.MergedCropSource.spec_for` reads them.
@@ -2474,7 +2142,6 @@ def montage_route_requirements(source, objects=None, *,
             route="png", shapes=(), missing=tuple(missing),
             detail="the run's exported crops, read as written")
 
-    # -- the merged routes ---------------------------------------------------
     spec = getattr(choice, "spec", None)
     declared = bool(channels) if channels_declared is None else bool(channels_declared)
     spec_channels = tuple(getattr(spec, "channels", ()) or ())
@@ -2487,8 +2154,6 @@ def montage_route_requirements(source, objects=None, *,
 
     mask_dims = dict(getattr(spec, "mask_dims", None) or {})
     if object_type == "cytoplasm":
-        # Derived as cell minus nucleus/pathogen/organelle, so it needs the
-        # cell plane and at least one to subtract.
         has_mask = "cell" in mask_dims and bool(
             {"nucleus", "pathogen"} & set(mask_dims))
         mask_detail = ("cytoplasm is derived as cell minus "
@@ -2613,10 +2278,6 @@ def resolve_montage_crop_source(src, *, object_type: str = "cell",
                                     route="none", missing=(str(exc),)))
     declared = bool(channels)
     if not declared:
-        # WHETHER A CHANNEL LIST EXISTS AT ALL, which is a different question
-        # from whether the spec has channels: `crop_spec_from_settings`
-        # always produces some, so an unrecorded run silently draws planes
-        # 0,1,2 and looks like a deliberate choice.
         root = src.get("src") if isinstance(src, Mapping) else src
         if isinstance(root, (list, tuple)):
             root = root[0] if root else None

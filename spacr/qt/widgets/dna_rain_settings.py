@@ -67,10 +67,6 @@ class DnaRainSettingsPopover(QFrame):
 
     def __init__(self, bar: DnaRainSettingsBar,
                  parent: Optional[QWidget] = None):
-        # Parented, but still a window: a Qt.Popup with a parent is
-        # destroyed with it and lands on the parent's screen, which is
-        # what a per-screen popover wants. It is never laid out inside
-        # the parent.
         """Build the popover holding the DNA rain settings bar.
 
         Parented but still a window: a ``Qt.Popup`` with a parent is destroyed
@@ -96,9 +92,6 @@ class DnaRainSettingsPopover(QFrame):
         layout.setContentsMargins(SPACING["xs"], SPACING["xs"],
                                   SPACING["xs"], SPACING["xs"])
         layout.setSpacing(0)
-        # addWidget does the reparenting. An explicit setParent() first
-        # would mark the bar hidden and it would stay blank inside a
-        # shown popover.
         layout.addWidget(bar)
         self.apply_theme()
 
@@ -129,7 +122,6 @@ class DnaRainSettingsPopover(QFrame):
         )
         self._bar.restyle_for_theme()
 
-    # -- open / close ---------------------------------------------------
     def open_near(self, anchor: QWidget) -> None:
         """Show the popover just above (or below) ``anchor``."""
         self.apply_theme()
@@ -160,7 +152,7 @@ class DnaRainSettingsPopover(QFrame):
             top_left = anchor.mapToGlobal(anchor.rect().topLeft())
             bottom_left = anchor.mapToGlobal(anchor.rect().bottomLeft())
             centre_x = top_left.x() + anchor.width() // 2
-        except RuntimeError:      # anchor's C++ side is gone
+        except RuntimeError:
             top_left = bottom_left = QPoint(0, 0)
             centre_x = 0
 
@@ -176,7 +168,6 @@ class DnaRainSettingsPopover(QFrame):
             y = min(max(area.top(), y), area.bottom() - self.height() + 1)
         self.move(x, y)
 
-    # -- Qt events ------------------------------------------------------
     def mousePressEvent(self, event):   # noqa: N802 (Qt override)
         """Notice the press that is about to close us *and* be replayed.
 
@@ -270,8 +261,6 @@ class DnaSettingsButton(AiToggleLabel):
             self._popover.hide()
             return
         if self._popover.just_closed():
-            # The click that closed the popover reached us as well.
-            # Stay closed rather than flickering straight back open.
             self.setChecked(False)
             return
         self._popover.open_near(self)

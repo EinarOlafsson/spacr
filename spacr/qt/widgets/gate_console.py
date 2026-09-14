@@ -66,9 +66,6 @@ class _ChatInput(QPlainTextEdit):
         super().__init__(parent)
         self.setTabChangesFocus(True)
         metrics = self.fontMetrics()
-        # Sized in LINES rather than pixels so it follows the font scale.
-        # A pixel height picked at one zoom level is the wrong height at
-        # every other one.
         self.setFixedHeight(
             metrics.lineSpacing() * CHAT_VISIBLE_LINES
             + self.frameWidth() * 2 + 10)
@@ -155,9 +152,6 @@ def evaluate(expression: str, frame: Optional[pd.DataFrame]) -> str:
             scope[name] = frame[column]
 
     try:
-        # eval, not exec: an expression has a VALUE, which is the thing being
-        # asked for. Statements would let the user rebind `df` and then
-        # wonder why the plot disagrees with the console.
         value = eval(text, {"__builtins__": _builtins()}, scope)  # noqa: S307
     except Exception as exc:
         LOG.debug("console expression failed", exc_info=True)
@@ -215,14 +209,7 @@ class GateConsole(QWidget):
         self.log = QTextEdit(self)
         self.log.setObjectName("GateConsoleLog")
         self.log.setReadOnly(True)
-        # A transcript worth reading. It already stretched, but with nothing
-        # holding a floor the entry rows below could squeeze it to a couple
-        # of lines -- and a console you have to scroll to read one answer in
-        # is the moment you least want to be scrolling.
         self.log.setMinimumHeight(CONSOLE_MIN_HEIGHT)
-        # Width floor on the PANEL, not the log: the entry rows below it
-        # are what a narrow column really ruins, since a QLineEdit cannot
-        # wrap and simply scrolls.
         self.setMinimumWidth(CONSOLE_MIN_WIDTH)
         outer.addWidget(self.log, 1)
 
@@ -246,12 +233,6 @@ class GateConsole(QWidget):
 
         chat_row = QHBoxLayout()
         chat_row.setContentsMargins(0, 0, 0, 0)
-        # Multi-line, because a question in words is often a paragraph and
-        # a QLineEdit is one line by construction -- it cannot be made
-        # taller, only wider. Enter still SENDS: that habit is already
-        # built, and taking it away to gain a newline is a bad trade. The
-        # newline lives on Shift+Enter, which is where a chat box usually
-        # keeps it.
         self.chat = _ChatInput(self)
         self.chat.setObjectName("GateChatInput")
         self.chat.setPlaceholderText("ask in words — Shift+Enter for a new line")
@@ -262,7 +243,6 @@ class GateConsole(QWidget):
         chat_row.addWidget(send)
         outer.addLayout(chat_row)
 
-    # -- state ------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
         """Point the console at a table to gate.
 
@@ -286,7 +266,6 @@ class GateConsole(QWidget):
         """
         return self.log.toPlainText()
 
-    # -- asking -----------------------------------------------------------
     def write(self, line: str, *, prefix: str = "") -> None:
         """Append one line to the log.
 

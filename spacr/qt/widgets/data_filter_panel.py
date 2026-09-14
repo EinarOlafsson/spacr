@@ -123,8 +123,6 @@ def classify_columns(frame: pd.DataFrame) -> Dict[str, str]:
     try:
         _KINDS_CACHE[key] = (weakref.ref(frame), frame.shape, kinds)
     except TypeError:
-        # Not weak-referenceable. Skip the cache rather than risk an
-        # id-reuse false hit.
         pass
     return dict(kinds)
 
@@ -140,8 +138,6 @@ def _classify_columns_uncached(frame: pd.DataFrame) -> Dict[str, str]:
         series = frame[name]
         if pd.api.types.is_numeric_dtype(series) and not \
                 pd.api.types.is_bool_dtype(series):
-            # A numeric column with a handful of values (a class label, a
-            # plate number) is far more useful as ticks than as a range.
             distinct = series.nunique(dropna=True)
             kinds[name] = ("category" if distinct <= 12 else "range")
             continue
@@ -179,18 +175,12 @@ class _ClauseRow(QFrame):
         head.addWidget(label, 1)
         drop = QPushButton()
         drop.setObjectName("FilterClauseRemove")
-        # THE APPLICATION'S CLOSE MARK. The glyph, its square and its two
-        # colours come from the theme, which is also what keeps the target
-        # from shrinking when the mark grows. See `theme.apply_close_mark`.
         apply_close_mark(drop, tooltip=f"Stop filtering on {column}")
         drop.clicked.connect(lambda: self.removed.emit(self.column))
         head.addWidget(drop)
         self._outer.addLayout(head)
 
     def clause(self):
-        # THE CONTRACT EVERY ROW IS HELD TO. A subclass that forgets it
-        # fails loudly here rather than filtering on nothing, which reads
-        # as a filter that silently matches everything.
         """Return the filter clause this row describes.
 
         :returns: the clause.
@@ -223,8 +213,6 @@ class _RangeRow(_ClauseRow):
         lo = float(np.nanmin(values)) if values.notna().any() else 0.0
         hi = float(np.nanmax(values)) if values.notna().any() else 1.0
         if hi <= lo:
-            # A constant column would give a spinbox with no travel; widen it
-            # so the control is still usable rather than inert.
             hi = lo + 1.0
 
         row = QHBoxLayout()
@@ -233,9 +221,6 @@ class _RangeRow(_ClauseRow):
         self._high = QDoubleSpinBox()
         for box, value in ((self._low, lo), (self._high, hi)):
             box.setDecimals(3)
-            # The bounds are widened well past the data so a user can type a
-            # cut-off outside the observed range — which is exactly what you do
-            # when you want "everything above what this plate happens to show".
             box.setRange(lo - abs(lo) - 1e6, hi + abs(hi) + 1e6)
             box.setValue(value)
             box.valueChanged.connect(lambda _v: self.changed.emit())
@@ -366,8 +351,6 @@ class DataFilterPanel(QWidget):
         """
         super().__init__(parent)
         self.setObjectName("DataFilterPanel")
-        # Injectable so a test can drive a private instance rather than the
-        # process-wide one, which every other open view is also listening to.
         self._link = link if link is not None else linked_selection()
         self._frame: Optional[pd.DataFrame] = None
         self._rows: Dict[str, _ClauseRow] = {}
@@ -406,14 +389,11 @@ class DataFilterPanel(QWidget):
         self._clear.clicked.connect(self.clear)
         outer.addWidget(self._clear)
 
-        # One shared debounce: a burst of edits across several clauses still
-        # costs one re-filter.
         self._debounce = QTimer(self)
         self._debounce.setSingleShot(True)
         self._debounce.setInterval(DEBOUNCE_MS)
         self._debounce.timeout.connect(self._publish)
 
-    # -- population ----------------------------------------------------
     def set_frame(self, frame: pd.DataFrame) -> None:
         """Point the panel at a table and offer its filterable columns.
 
@@ -434,7 +414,6 @@ class DataFilterPanel(QWidget):
         """The columns the picker is offering, in order."""
         return [self._picker.itemText(i) for i in range(self._picker.count())]
 
-    # -- clauses -------------------------------------------------------
     def add_column(self, column: str) -> None:
         """Add a clause row for ``column``. Adding twice is a no-op."""
         if self._frame is None or column in self._rows:
@@ -480,7 +459,6 @@ class DataFilterPanel(QWidget):
         if text:
             self.add_column(text)
 
-    # -- publishing ----------------------------------------------------
     def _schedule(self) -> None:
         """Queue a re-filter.
 
@@ -489,10 +467,6 @@ class DataFilterPanel(QWidget):
         """
         self._debounce.start()
 
-    # -- saving a filter set -------------------------------------------
-    # Gates have had Save/Load since the beginning and filters had not, so a
-    # filter set -- which is as much of an analysis decision as a gate -- had
-    # to be rebuilt by hand every session.
 
     def state(self) -> dict:
         """The whole panel, as plain data.
@@ -501,10 +475,6 @@ class DataFilterPanel(QWidget):
         version it does not know refuses rather than guessing, since a
         half-applied filter set silently selects the wrong rows.
         """
-        # `_rows` is a dict and dicts keep insertion order, which IS the
-        # order the user added the filters in and the order they read on
-        # screen. Restoring in the same order matters for a category filter
-        # whose box list is built from what earlier filters left.
         rows = [row.state() for row in self._rows.values()
                 if hasattr(row, "state")]
         return {"version": 1, "filters": rows}

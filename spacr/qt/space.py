@@ -115,9 +115,6 @@ from typing import Optional, Tuple
 
 import numpy as np
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
 
 #: Bumped whenever the generators change output, so old cached PNGs are
 #: not reused for a different-looking sky.
@@ -153,9 +150,6 @@ MIN_BACKGROUND = (1920, 1200)
 ENV_CACHE_DIR = "SPACR_SPACE_CACHE"
 
 
-# ---------------------------------------------------------------------------
-# Small numpy helpers
-# ---------------------------------------------------------------------------
 
 def _clampi(value: int, lo: int, hi: int) -> int:
     """Clamp an integer into a range.
@@ -257,9 +251,6 @@ def _box_blur(img: np.ndarray, radius: int) -> np.ndarray:
     return out.astype(np.float32, copy=False)
 
 
-# ---------------------------------------------------------------------------
-# Stellar colour — blackbody locus, sRGB
-# ---------------------------------------------------------------------------
 
 #: Temperature (K) -> sRGB of a blackbody normalised to peak channel.
 #: Anchors from the standard Planckian-locus tables; interpolated
@@ -268,29 +259,29 @@ _BB_T = np.array(
     [2000, 3000, 4000, 5000, 6000, 7000, 8000, 10000, 12000, 20000, 40000],
     dtype=np.float64)
 _BB_RGB = np.array([
-    [255, 137, 18],    # 2000 K — deep orange M
-    [255, 180, 107],   # 3000 K — orange K/M
-    [255, 209, 163],   # 4000 K — warm white K
-    [255, 228, 206],   # 5000 K — G
-    [255, 244, 242],   # 6000 K — sun-white
-    [245, 243, 255],   # 7000 K — F
-    [227, 233, 255],   # 8000 K — A
-    [201, 215, 255],   # 10000 K — hot A
-    [191, 207, 255],   # 12000 K — B
-    [175, 195, 255],   # 20000 K — hot B
-    [168, 189, 255],   # 40000 K — O
+    [255, 137, 18],
+    [255, 180, 107],
+    [255, 209, 163],
+    [255, 228, 206],
+    [255, 244, 242],
+    [245, 243, 255],
+    [227, 233, 255],
+    [201, 215, 255],
+    [191, 207, 255],
+    [175, 195, 255],
+    [168, 189, 255],
 ], dtype=np.float64)
 
 #: Rough naked-eye spectral-class mix. Not the IMF (which is almost all
 #: M dwarfs, none of them visible) — this is what the sky looks like.
 _CLASS_WEIGHTS = np.array([0.10, 0.22, 0.19, 0.14, 0.20, 0.15])
 _CLASS_TRANGE = np.array([
-    [15000., 33000.],   # O/B
-    [7500., 10000.],    # A
-    [6000., 7500.],     # F
-    [5200., 6000.],     # G
-    [3700., 5200.],     # K
-    [2400., 3700.],     # M
+    [15000., 33000.],
+    [7500., 10000.],
+    [6000., 7500.],
+    [5200., 6000.],
+    [3700., 5200.],
+    [2400., 3700.],
 ])
 
 
@@ -315,9 +306,6 @@ def sample_star_temperatures(rng, n: int) -> np.ndarray:
     return lo + rng.random(n) * (hi - lo)
 
 
-# ---------------------------------------------------------------------------
-# Magnitude distribution
-# ---------------------------------------------------------------------------
 
 #: Slope of the cumulative number counts. 1.5 is the Euclidean value
 #: for sources spread uniformly through space: N(>F) ∝ F^-1.5. Inverse
@@ -342,15 +330,11 @@ def sample_star_fluxes(rng, n: int) -> np.ndarray:
     if n <= 0:
         return np.zeros(0, dtype=np.float64)
     u = rng.random(n)
-    # u == 0 would divide to infinity; nextafter keeps it finite.
     u = np.clip(u, np.finfo(np.float64).tiny, 1.0)
     flux = u ** (-1.0 / COUNT_SLOPE)
     return np.minimum(flux, FLUX_SATURATION)
 
 
-# ---------------------------------------------------------------------------
-# Starfield
-# ---------------------------------------------------------------------------
 
 #: Stars per megapixel. Dense enough to read as sky, sparse enough that
 #: it does not turn into luminance noise.
@@ -360,9 +344,6 @@ STAR_DENSITY = 2600.0
 #: spike on every star reads as a filter, not as a telescope.
 SPIKE_COUNT = 14
 
-# HDR star pixels above this level are point-source cores. They are restored
-# after the final whole-frame legibility solve: dozens of isolated pixels do
-# not move a text-window mean, while dimming them turns the sky uniformly grey.
 STAR_CORE_HDR = 1.0
 STAR_CORE_GAIN = 1.2
 
@@ -461,13 +442,8 @@ def starfield(width: int, height: int, seed: int = DEFAULT_SEED,
     temps = sample_star_temperatures(rng, n)
     colors = star_colors(temps)
 
-    # Brightness -> visual size. Real point sources all have the same
-    # PSF; what makes a bright star look bigger is the wings clipping
-    # above threshold, which a gentle power law imitates cheaply.
     scale = max(0.6, min(width, height) / 1400.0)
     radii = (0.62 + 0.42 * flux ** 0.32) * scale
-    # HDR amplitude spanning ~80x from the faintest star to a saturated
-    # core, so the tone map has something to clip to white.
     amp = 8.0 * (flux / FLUX_SATURATION) ** 0.8
 
     buf = _splat(width, height, xs, ys, amp, colors, radii)
@@ -479,9 +455,6 @@ def starfield(width: int, height: int, seed: int = DEFAULT_SEED,
     return buf
 
 
-# ---------------------------------------------------------------------------
-# Galaxy
-# ---------------------------------------------------------------------------
 
 #: Downsample factor for the smooth (galaxy / sun / nebula) components.
 #: They contain no detail finer than a few pixels, so computing them at
@@ -526,40 +499,32 @@ def galaxy(width: int, height: int, seed: int = DEFAULT_SEED,
     r = np.sqrt(xr * xr + yr * yr) / scale + 1e-4
     theta = np.arctan2(yr, xr)
 
-    # Spiral phase: distance (in angle) to the nearest arm ridge.
     arm_theta = np.log(r + 1e-4) / pitch
     phase = (theta - arm_theta) % (2.0 * np.pi / arms)
     half = np.pi / arms
-    d = np.abs(phase - half)          # 0 at the ridge, `half` between arms
+    d = np.abs(phase - half)
 
-    # Arms narrow at large radius, and fade out with the disc.
     width_arm = 0.34 + 0.30 * np.exp(-r * 1.4)
     ridge = np.exp(-(d / width_arm) ** 2).astype(np.float32)
     disc = np.exp(-r * 1.85).astype(np.float32)
     arm = ridge * disc
 
-    # Dust lanes trail the arm ridge on the inner edge — a second,
-    # phase-shifted ridge that *removes* light.
     d_dust = np.abs((phase - half * 0.55))
     dust = np.exp(-(d_dust / (width_arm * 0.42)) ** 2).astype(np.float32)
     dust *= np.exp(-r * 1.5).astype(np.float32)
 
-    # Warm core bulge, Sérsic-ish, falling off into the disc.
     bulge = np.exp(-(r / 0.19) ** 0.72).astype(np.float32)
 
-    # Clumpy HII knots along the arms.
     knots = _value_noise(sh, sw, rng, octaves=4, base=6)
     arm = arm * (0.62 + 0.85 * knots)
 
     smooth_disc = disc * 0.16
 
     out = np.zeros((sh, sw, 3), dtype=np.float32)
-    # Young blue arms, a cooler blue haze between them, and a warm
-    # old-population core — the colour gradient every spiral has.
     arm_col = np.array([0.44, 0.66, 1.00], dtype=np.float32)
     haze_col = np.array([0.36, 0.48, 0.95], dtype=np.float32)
     core_col = np.array([1.00, 0.78, 0.44], dtype=np.float32)
-    knot_col = np.array([1.00, 0.52, 0.66], dtype=np.float32)   # HII pink
+    knot_col = np.array([1.00, 0.52, 0.66], dtype=np.float32)
     out += arm[:, :, None] * arm_col[None, None, :] * 1.05
     out += (arm * np.clip(knots - 0.62, 0.0, 1.0) * 1.6
             )[:, :, None] * knot_col[None, None, :]
@@ -571,9 +536,6 @@ def galaxy(width: int, height: int, seed: int = DEFAULT_SEED,
     return _bilinear_upsample(out, width, height)
 
 
-# ---------------------------------------------------------------------------
-# Sun
-# ---------------------------------------------------------------------------
 
 #: Linear limb-darkening coefficient. 0.6 is the standard visual-band
 #: value for a solar-type photosphere.
@@ -599,23 +561,17 @@ def sun(width: int, height: int, seed: int = DEFAULT_SEED,
     r = np.sqrt(xx * xx + yy * yy)
 
     inside = r < R
-    # µ = cos(angle from disc centre as seen from the star's centre).
     mu = np.sqrt(np.clip(1.0 - (r / R) ** 2, 0.0, 1.0)).astype(np.float32)
     disc = np.where(inside,
                     (1.0 - LIMB_DARKENING_U * (1.0 - mu)), 0.0
                     ).astype(np.float32)
 
-    # Granulation: convective cells, ±9 % on the photosphere only.
     gran = _value_noise(sh, sw, rng, octaves=3, base=10)
     disc = disc * (0.91 + 0.18 * gran)
 
-    # Corona — smooth exponential falloff outside the limb, plus a few
-    # radial streamers so it does not read as a plain glow.
     outside = np.maximum(r - R, 0.0)
     corona = np.exp(-outside / (R * corona_scale)).astype(np.float32)
     ang = np.arctan2(yy, xx).astype(np.float32)
-    # Two harmonics at low amplitude. One strong harmonic gives the
-    # corona symmetric "ears"; two weak ones read as structure.
     streamers = (1.0
                  + 0.16 * np.cos(ang * 7.0 + 0.7)
                  + 0.10 * np.cos(ang * 13.0 - 1.9))
@@ -631,9 +587,6 @@ def sun(width: int, height: int, seed: int = DEFAULT_SEED,
     return _bilinear_upsample(out, width, height)
 
 
-# ---------------------------------------------------------------------------
-# Nebula haze — ties the composition together
-# ---------------------------------------------------------------------------
 
 def _nebula(width: int, height: int, seed: int) -> np.ndarray:
     """Render the nebula layer of the space backdrop.
@@ -658,9 +611,6 @@ def _nebula(width: int, height: int, seed: int) -> np.ndarray:
     return _bilinear_upsample(out, width, height)
 
 
-# ---------------------------------------------------------------------------
-# Composition + tone mapping
-# ---------------------------------------------------------------------------
 
 #: Per-variant weights: (galaxy, sun, star density multiplier, nebula).
 _VARIANT_MIX = {
@@ -788,9 +738,6 @@ def _tone_map(hdr: np.ndarray) -> np.ndarray:
     return _apply_tone_curve(hdr, tone_exposure(_luma(hdr)))
 
 
-# ---------------------------------------------------------------------------
-# The legibility solve
-# ---------------------------------------------------------------------------
 
 def exposure_target() -> float:
     """Luminance the brightest text-line-sized region is aimed at.
@@ -864,9 +811,6 @@ def _compress_highlights(smooth: np.ndarray, ceiling: float,
         return smooth
     foot = ceiling * knee
     span = ceiling - foot
-    # Exponential shoulder: identity below `foot`, asymptotic to
-    # `ceiling`, C1 at the join (both value and slope match), so a
-    # smooth gradient crossing it gains no Mach band.
     bent = foot + span * (1.0 - np.exp(-np.maximum(luma - foot, 0.0) / span))
     scale = np.where(luma <= foot, np.float32(1.0),
                      bent / np.maximum(luma, 1e-9)).astype(np.float32)
@@ -929,9 +873,6 @@ def _enforce_legibility(arr: np.ndarray,
     if mask is None or not mask.any():
         return dimmed
 
-    # Restoring point sources adds a tiny amount back to the measured window.
-    # Re-solve the non-core pixels until the *composited* output satisfies the
-    # same guarantee; normally this takes one additional iteration.
     dimmed[mask] = arr[mask]
     for _ in range(8):
         measured, _ = imagery.brightest_window(_measure_probe(dimmed))
@@ -1010,23 +951,11 @@ def render(width: int, height: int, variant: str = DEFAULT_VARIANT,
                       density=STAR_DENSITY * mix["stars"])
     hdr = smooth + stars
 
-    # Mild bloom so bright things bleed the way a lens does. The
-    # downsample has to *average* — point-sampling a 1 px star into a
-    # 1/8-scale buffer and box-blurring it paints a visible 70 px
-    # square, which is how the first cut of this looked. Two blur
-    # passes then turn the box kernel into a tent so no hard edge
-    # survives the upsample.
-    #
-    # Bloom counts as a smooth layer: it is a blur, it has no detail
-    # finer than ~100 px by construction, and a star's bloom really does
-    # cover a text window even though the star itself does not.
     small = _area_downsample(hdr, 8)
     small = _box_blur(_box_blur(small, 3), 3)
     smooth += _bilinear_upsample(small, width, height) * 0.85
     np.add(smooth, stars, out=hdr)
 
-    # Solved on the composed frame, before any ceiling, so the sky
-    # anchor sees exactly what it always saw.
     exposure = tone_exposure(_luma(hdr))
     if legible:
         _compress_highlights(smooth, highlight_ceiling(exposure))
@@ -1050,12 +979,9 @@ def to_qimage(arr: np.ndarray):
     arr = np.ascontiguousarray(arr, dtype=np.uint8)
     h, w = arr.shape[:2]
     img = QImage(arr.data, w, h, 3 * w, QImage.Format_RGB888)
-    return img.copy()          # detach from the numpy buffer
+    return img.copy()
 
 
-# ---------------------------------------------------------------------------
-# Disk cache
-# ---------------------------------------------------------------------------
 
 def cache_dir() -> Path:
     """Directory holding generated backgrounds.
@@ -1163,20 +1089,12 @@ def screen_size(default: Tuple[int, int] = (2560, 1440)) -> Tuple[int, int]:
         h = int(round(geo.height() * ratio))
         if w < MIN_DIM[0] or h < MIN_DIM[1]:
             return default
-        # Never smaller than MIN_BACKGROUND. The QSS centres the image
-        # without repeating it, so a background narrower than the window
-        # letterboxes into hard-edged bands of flat colour. That cannot
-        # happen when the screen is bigger than the window, but a
-        # virtual/offscreen display can report almost anything.
         return (_clampi(w, MIN_BACKGROUND[0], MAX_DIM[0]),
                 _clampi(h, MIN_BACKGROUND[1], MAX_DIM[1]))
     except Exception:
         return default
 
 
-# ---------------------------------------------------------------------------
-# Optional real imagery — NASA / ESA public domain
-# ---------------------------------------------------------------------------
 
 #: NASA still images, audio, and video are generally not copyrighted and
 #: may be used for any purpose; see
@@ -1284,20 +1202,11 @@ def download_nasa_background(key: str = "carina", timeout: float = 20.0,
         fname = f"{entry['key']}.jpg"
         tmp = directory / (fname + ".part")
         tmp.write_bytes(blob)
-        # Only accept it if Qt can actually decode it — a captive-portal
-        # HTML error page is 2 kB of "valid" bytes that would otherwise
-        # be installed as the wallpaper.
         from PySide6.QtGui import QImage
         probe = QImage()
         if not probe.load(str(tmp)):
             tmp.unlink(missing_ok=True)
             return None
-        # This file becomes the Space wallpaper *directly* — the
-        # stylesheet points at it, nothing renders it per screen — so it
-        # is the one path by which an unbounded picture could still get
-        # behind the app's text. A solar flare frame is exactly that.
-        # Solve it here or refuse it; the procedural sky is the fallback
-        # and it is bounded.
         from . import imagery
         if not imagery.solve_image_file(tmp, "space"):
             tmp.unlink(missing_ok=True)

@@ -17,6 +17,44 @@ def _source(module):
     return pathlib.Path(inspect.getsourcefile(module)).read_text()
 
 
+def _permutation_screen(n_genes=6, guides_per_gene=3, wells=90, seed=0):
+    """A long table shaped like spaCR's saved regression_data.csv."""
+    rng = np.random.default_rng(seed)
+    genes = [f"G{i}" for i in range(n_genes)]
+    guides = [(g, f"{g}_{k}") for g in genes for k in range(guides_per_gene)]
+    rows = []
+    for well in range(wells):
+        plate = f"plate{well % 3 + 1}"
+        prc = f"{plate}_r{well // 12 + 1}_c{well % 12 + 1}"
+        chosen = rng.choice(len(guides), size=4, replace=False)
+        share = rng.dirichlet(np.ones(4))
+        # One gene really does move the phenotype, so the gene pass has
+        # something to find and the test is not reading an empty frame.
+        hit = sum(share[i] for i, c in enumerate(chosen)
+                  if guides[c][0] == "G0")
+        pred = float(np.clip(0.2 + 0.6 * hit + rng.normal(0, 0.05),
+                             0.01, 0.99))
+        for i, c in enumerate(chosen):
+            gene, guide = guides[c]
+            rows.append({"prc": prc, "grna": guide, "gene": gene,
+                         "fraction": float(share[i]), "pred": pred,
+                         "cell_count": 120, "plateID": plate,
+                         "rowID": f"r{well // 12 + 1}",
+                         "columnID": f"c{well % 12 + 1}"})
+    return pd.DataFrame(rows)
+
+
+def _permutation_settings(level):
+    return dict(guide_min_wells=[1], guide_primary_min_wells=1,
+                guide_permutations=60, guide_permutation_seed=0,
+                guide_permutation_block="plateID", guide_nuisance_columns=[],
+                multiple_testing_method="fdr_bh", fdr_alpha=0.05,
+                guide_presence_threshold=0.0,
+                guide_permutation_batch_size=30, grna_statistic="pearson",
+                analysis_unit="well", agg_type="mean",
+                regression_type="beta", level=level)
+
+
 class TestAFieldThatLoadedNothing:
 
     def test_a_field_with_no_readable_array_is_skipped(self):
@@ -33,16 +71,49 @@ class TestAFieldThatLoadedNothing:
         with pytest.raises(ValueError):
             np.stack(arrays, axis=0)
 
-    def test_the_stack_stays_inside_the_per_field_loop(self):
-        """The comment there records a real regression: dedented, the
-        name was unbound when no filename matched. Pinned, because the
-        indentation is the whole of the fix."""
+    def test_the_stack_stays_inside_the_per_field_loop(self, tmp_path,
+                                                       monkeypatch):
+        """A real regression, pinned by what it cost rather than by the
+        indentation that fixes it. Dedented, the stack ran once after
+        the loop: ``arrays`` was unbound when no filename matched, and
+        only the LAST field ever got a movie -- every other one was
+        silently dropped."""
+        import spacr.timelapse as TL
         from spacr import io as IO
 
-        source = _source(IO)
-        assert "this loop must stay INSIDE the per-(plate, well, field) loop" \
-            in source
-        assert "was unbound if no filename matched" in source
+        made = []
+        monkeypatch.setattr(
+            TL, "_npz_to_movie",
+            lambda arrays, names, path, fps: made.append(
+                pathlib.Path(path).name))
+
+        fields = tmp_path / "npy"
+        fields.mkdir()
+        for field in ("1", "2"):
+            for time_point in (0, 1):
+                np.save(fields / f"plate1_A01_{field}_{time_point}.npy",
+                        np.zeros((4, 5, 2), dtype=np.uint16))
+
+        IO._create_movies_from_npy_per_channel(str(fields), fps=5)
+
+        assert sorted(made) == ["plate1_A01_1_channel_0.mp4",
+                                "plate1_A01_1_channel_1.mp4",
+                                "plate1_A01_2_channel_0.mp4",
+                                "plate1_A01_2_channel_1.mp4"], (
+            "not every field got a movie, which is what a dedented stack "
+            "does: it runs once, on whatever the last field left behind")
+
+        # The other half of the same regression: nothing matched the
+        # regex, so a dedented stack reaches np.stack with `arrays`
+        # unbound rather than simply finding no groups to make.
+        unmatched = tmp_path / "unmatched"
+        unmatched.mkdir()
+        np.save(unmatched / "not-a-field-name.npy", np.zeros((2, 2, 1)))
+        made.clear()
+
+        IO._create_movies_from_npy_per_channel(str(unmatched), fps=5)
+
+        assert made == []
 
 
 class TestTheEmptyMaskWarning:
@@ -128,12 +199,32 @@ class TestTheLevelColumn:
         assert "levelled['level'] = 'grna'" in source
         assert "if 'level' not in gene_rows.columns:" not in source
 
-    def test_the_reader_asking_for_genes_gets_genes(self):
-        from spacr import ml as M
+    def test_the_reader_asking_for_genes_gets_genes(self, tmp_path):
+        """What ``level='gene'`` means is that the reader asked for
+        genes, so genes are what the primary table reports.
 
-        source = _source(M)
-        assert "What level='gene' means is that the reader asked for genes" \
-            in source
+        The guide pass runs either way -- a gene's regressor is the sum
+        of its guides' fractions, so there is no gene answer without it
+        -- and results_grna.csv still holds those rows. Driven, because
+        which table carries which level is the whole of the rule.
+        """
+        from spacr.ml import _run_guide_permutation_analysis
+
+        destination = tmp_path / "gene_level"
+        destination.mkdir()
+        _run_guide_permutation_analysis(
+            _permutation_screen(), "pred", str(destination),
+            _permutation_settings("gene"))
+
+        primary = pd.read_csv(destination / "results.csv")
+        guides = pd.read_csv(destination / "results_grna.csv")
+
+        assert set(primary["level"].dropna().unique()) == {"gene"}, (
+            "results.csv no longer reports genes to a reader who asked "
+            "for them, so the rows exist in a file the panel never opens")
+        assert len(guides) > 0, (
+            "the guide pass stopped writing results_grna.csv, which runs "
+            "either way because the gene regressor is built out of it")
 
 
 class TestTheShrunkCoefficientWarning:
@@ -264,14 +355,42 @@ class TestRebuildingALayoutRow:
         assert "item = layout.takeAt(position + 1)" in source
         assert "if item is not None:" in source
 
-    def test_the_tail_is_taken_off_and_put_back_around_the_new_widget(self):
-        """Why the row is rebuilt at all: replaceWidget cannot update a
-        layout's reading order."""
-        from spacr.qt.widgets import column_picker as C
+    def test_the_tail_is_taken_off_and_put_back_around_the_new_widget(
+            self, qtbot):
+        """Why the row is rebuilt at all: Python ``QLayout`` subclasses
+        do not expose Qt's protected ``replaceAt``, so ``replaceWidget``
+        cannot update them and answers None. Retaining the layout ITEMS
+        puts the replacement where the old widget was -- the tail goes
+        back AROUND it rather than the replacement going on the end.
 
-        source = _source(C)
-        assert "their reading order instead of appending the replacement" \
-            in source
+        Driven on ``FlowLayout``, which is one of those subclasses, so
+        the rebuild is the arm that actually runs.
+        """
+        from PySide6.QtWidgets import QLabel, QWidget
+
+        from spacr.qt.widgets.column_picker import _replace_layout_widget
+        from spacr.qt.widgets.flow import FlowLayout
+
+        host = QWidget()
+        qtbot.addWidget(host)
+        flow = FlowLayout(host)
+        first, middle, last = QLabel("a"), QLabel("b"), QLabel("c")
+        for widget in (first, middle, last):
+            flow.addWidget(widget)
+        replacement = QLabel("x")
+
+        # The premise: Qt's own replaceWidget is no use on this layout.
+        assert flow.replaceWidget(middle, replacement) is None
+        assert [flow.itemAt(i).widget().text()
+                for i in range(flow.count())] == ["a", "b", "c"]
+
+        removed = _replace_layout_widget(flow, middle, replacement)
+
+        assert [flow.itemAt(i).widget().text()
+                for i in range(flow.count())] == ["a", "x", "c"], (
+            "the replacement was appended at the end instead of taking "
+            "the slot it replaced, so the row no longer reads in order")
+        assert removed is not None and removed.widget() is middle
 
 
 class TestRemovingADragPatch:
@@ -337,18 +456,54 @@ class TestRemovingADragPatch:
 
 class TestTheGenePanelShutdown:
 
-    def test_the_quit_hook_covers_the_path_close_event_does_not(self):
+    def test_the_quit_hook_covers_the_path_close_event_does_not(self, qtbot,
+                                                                monkeypatch):
         """THE PIN, for ``application is not None``.
 
         ``closeEvent`` covers the ordinary path; this covers the one
         where nobody closed anything -- a tab rebuilt, a screen
         replaced, an interpreter shutting down -- and a warming thread
         left running past that is a process that will not exit.
+
+        Driven through a stand-in application, so what is pinned is that
+        the panel REGISTERS the hook and that the hook stops the warming
+        without any close event having happened.
         """
         from spacr.qt.widgets import gene_panel as G
 
-        source = _source(G)
-        assert "closeEvent` covers the ordinary path" in source
-        assert "this covers the one where nobody closed anything" in source
-        assert "application.aboutToQuit.connect(self._shut_down_warming)" \
-            in source
+        connected = []
+
+        class _AboutToQuit:
+            @staticmethod
+            def connect(slot):
+                connected.append(slot)
+
+        class _Application:
+            aboutToQuit = _AboutToQuit()
+
+        class _QApplication:
+            @staticmethod
+            def instance():
+                return _Application()
+
+        monkeypatch.setattr(G, "QApplication", _QApplication)
+        panel = G.GenePanel(threaded=False)
+        qtbot.addWidget(panel)
+
+        assert connected, (
+            "nothing is connected to aboutToQuit, so a panel dropped "
+            "without being closed leaves its warming thread running")
+        hook = connected[0]
+        assert getattr(hook, "__self__", None) is panel, (
+            "the quit hook is not a bound method of the panel, so it "
+            "cannot reach the runner it is supposed to shut down")
+
+        stopped = []
+        monkeypatch.setattr(panel._runner, "shutdown",
+                            lambda: stopped.append(True))
+
+        hook()
+
+        assert stopped == [True], (
+            "the quit hook no longer shuts the warming down, which is "
+            "the path closeEvent does not cover")

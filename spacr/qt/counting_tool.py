@@ -79,9 +79,6 @@ QLabel#CountingTotal {{
 register_widget_qss("CountingPanel", _counting_qss, replace=True)
 
 
-# ---------------------------------------------------------------------------
-# The tool
-# ---------------------------------------------------------------------------
 
 class CountingTool(CanvasTool):
     """Turns clicks on a :class:`~spacr.qt.layer_viewer.LayerCanvas` into counts.
@@ -136,9 +133,6 @@ class CountingTool(CanvasTool):
         return False
 
 
-# ---------------------------------------------------------------------------
-# The panel
-# ---------------------------------------------------------------------------
 
 class CountingPanel(QWidget):
     """The tally beside the image, and the button that writes it out.
@@ -187,7 +181,6 @@ class CountingPanel(QWidget):
         self._canvas.stack.subscribe(self._on_layers_changed)
         self.refresh()
 
-    # -- construction -------------------------------------------------------
     def _build(self) -> None:
         """Lay out the count toggle, the class list, the tally and the exports."""
         outer = QVBoxLayout(self)
@@ -242,7 +235,6 @@ class CountingPanel(QWidget):
         exports.addWidget(self.summary_button, 1)
         outer.addLayout(exports)
 
-    # -- model --------------------------------------------------------------
     @property
     def session(self) -> CountingSession:
         """The counting session this panel drives."""
@@ -276,8 +268,6 @@ class CountingPanel(QWidget):
             self.stop_counting()
 
     def _on_layers_changed(self, event: LayerEvent) -> None:
-        # Derived, not stored: a marker removed through the layer list changes
-        # the number here too.
         """Refresh the tally when the markers change.
 
         The counts are derived from the layer rather than stored, so a marker
@@ -288,7 +278,6 @@ class CountingPanel(QWidget):
         if event.kind in ("data", "inserted", "removed"):
             self.refresh()
 
-    # -- actions ------------------------------------------------------------
     def add_class(self, name: Optional[str] = None) -> str:
         """Count one more thing; returns the class name."""
         if not isinstance(name, str) or not name.strip():
@@ -360,7 +349,6 @@ class CountingPanel(QWidget):
         if row < len(names):
             self._session.active = names[row]
 
-    # -- the tally ----------------------------------------------------------
     def refresh(self) -> None:
         """Redraw the tally from the marker layers."""
         counts = self._session.counts()

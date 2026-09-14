@@ -89,9 +89,6 @@ class SettingsError(Exception):
     """
 
 
-# ---------------------------------------------------------------------------
-# module registry
-# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -151,24 +148,6 @@ class Module:
         return ""
 
 
-# The mapping below is not invented: every entry is a callable that some
-# existing dispatcher already runs. The sources, in order of authority:
-#
-#   * spacr/qt/bridge.py :: resolve_pipeline_entry  — the PySide6 GUI
-#   * spacr/gui_utils.py :: run_function_gui        — the Tk GUI
-#   * spacr/validate.py  :: APP_FUNCTIONS           — the pre-flight registry
-#
-# and the defaults helper for each is the one the pipeline itself calls to
-# canonicalize its settings (grep "from .settings import" in the target
-# module), not the one a GUI screen happens to show.
-#
-# Every app in spacr.qt.app.APPS is either here or in INTERACTIVE_ONLY below,
-# and tests/test_app_registry_parity.py fails when one is in neither. Three
-# were in neither until that test was written: `invasion` and `replication`
-# (both Toxo assays with a Qt button, a settings panel and a submodules entry
-# point, but no `spacr-run`) and `foreign`, which even had a validate entry.
-# An app that ships with a GUI button and no headless path is an app nobody
-# can run on a cluster, and nothing said so.
 _MODULE_LIST: Tuple[Module, ...] = (
     Module(
         key="mask",
@@ -564,12 +543,6 @@ _MODULE_LIST: Tuple[Module, ...] = (
         note=("No set_default_* helper exists for the simulator, so every key must "
               "come from the settings file."),
     ),
-    # Hand-written, and it has to be: the seam that publishes an app's other
-    # strings cannot derive `requires`, `writes` or `note`, which are the
-    # three things `--describe` exists to print. There is no app row to
-    # take them from either -- the export folded onto the Measure masthead
-    # and its registration went with the tile -- so this entry is the
-    # whole of what `spacr-run anndata_export` knows about itself.
     Module(
         key="anndata_export",
         summary="Export the measurement tables as AnnData (.h5ad) for scanpy and scvi-tools.",
@@ -593,8 +566,6 @@ _MODULE_LIST: Tuple[Module, ...] = (
 
 MODULES: Dict[str, Module] = {m.key: m for m in _MODULE_LIST}
 
-# Friendly spellings. Seeded from spacr.validate.APP_ALIASES so a name that
-# works there works here, plus the function names themselves.
 ALIASES: Dict[str, str] = {
     "sequencing": "map_barcodes",
     "barcodes": "map_barcodes",
@@ -633,11 +604,6 @@ ALIASES: Dict[str, str] = {
     "anndata": "anndata_export",
     "h5ad": "anndata_export",
     "run_anndata_export": "anndata_export",
-    # cellpose_all was "benchmark every Cellpose model on one folder". Cellpose
-    # 4 ships exactly one model, so the comparison had a single entrant and the
-    # run was `cellpose_masks` under another name -- which already defaults
-    # model_name to the same stock 'cpsam'. Kept as an alias, not deleted, so a
-    # script or settings CSV that still says cellpose_all keeps running.
     "cellpose_all": "cellpose_masks",
 }
 
@@ -677,29 +643,7 @@ def _register_plugin_modules() -> None:
 
 _register_plugin_modules()
 
-# Apps the GUI offers that have NO headless-runnable callable. Naming them in
-# the error message is kinder than "unknown module": the user did not typo, the
-# thing simply cannot run without a person looking at a screen.
 INTERACTIVE_ONLY: Dict[str, str] = {
-    # ------------------------------------------------------------------
-    # THE SIX THE FOLD TOOK OFF THE COMMAND LINE, added 2026-09-07.
-    #
-    # None had a row in `_MODULE_LIST`. They answered to `spacr-run` because
-    # `_absorb_registered_gui_only` pulls `cli_note=` out of the Qt registry
-    # -- and that pull only happens in a process that has imported
-    # `spacr.qt.app`, which a headless `spacr-run` deliberately does not.
-    # `571b6e77c` and `00f166a7f` then folded them into host screens. So
-    # `spacr-run outliers` answers "unknown module 'outliers'", which tells
-    # the user they mistyped a name that was removed.
-    #
-    # WRITTEN HERE, not absorbed -- the same decision as `curate`,
-    # `image_scatter` and `pca` above, and for the same reason. FOUR OF THEM
-    # STILL HAVE A CATALOG ROW, and the text below is that row's `cli_note`
-    # COPIED VERBATIM: `INTERACTIVE_ONLY.setdefault` means a hand-written
-    # entry outranks the registry, so a paraphrase here would silently
-    # replace the sentence the screen declares. That duplication is guarded
-    # -- `test_the_gui_only_sentence_reaches_spacr_run` fails the moment the
-    # two drift, which is how the first version of this block was caught.
     "outliers": "For headless use, call "
                 "spacr.qt.widgets.outlier_model.detect_outliers() to compute "
                 "the same object flags, well scores, and report.",
@@ -714,8 +658,6 @@ INTERACTIVE_ONLY: Dict[str, str] = {
                         "spacr.qt.widgets.feature_rank.rank_features(frame, "
                         "spec) to return the same feature-level statistics "
                         "and ranking.",
-    # The other two have NO catalog row left to copy from, so these are
-    # written rather than mirrored, and name where the thing went.
     "import_images": "Image import folded into the foreign-format importer. "
                      "In the GUI open 'foreign'; headless, call "
                      "spacr.image_import.apply_import, which is what that "
@@ -752,11 +694,6 @@ INTERACTIVE_ONLY: Dict[str, str] = {
     "model_zoo": "Model Zoo is an interactive browser; headless, call "
                  "spacr.model_zoo.discover_local + format_zoo, and "
                  "benchmark(entry, source=...) to test one on three fields.",
-    # WRITTEN HERE, not absorbed. Curate is folded into Make Masks and has
-    # no registry row left to carry a `cli_note=`, so the sentence
-    # `_absorb_registered_gui_only` used to pull out of the row has to live
-    # in this table -- otherwise `spacr-run curate` stops explaining itself
-    # and starts guessing that the user meant `convert`.
     "curate": "Curate is hand correction of a mask or a track table -- the "
               "brush and the track surgery are the whole feature; run it in "
               "the GUI (spacr-qt), where it is a button on Make Masks. "
@@ -781,12 +718,6 @@ INTERACTIVE_ONLY: Dict[str, str] = {
                     "sizes, plan_prune(src) for exactly what is regenerable "
                     "and what is being kept, then prune(plan, "
                     "confirm=plan.token) once you have read the plan.",
-    # WRITTEN HERE, not absorbed. These three are folded -- Image Scatter and
-    # PCA onto Image UMAP, Volcano Explorer onto Regression -- and have no
-    # registry row left to carry a `cli_note=`, so the sentence
-    # `_absorb_registered_gui_only` used to pull out of the row has to live in
-    # this table. Without it `spacr-run pca` stops explaining itself and
-    # starts guessing the user meant something else.
     "image_scatter": "Image Scatter is an interactive plot — the hover "
                      "preview is the whole feature; run it in the GUI "
                      "(spacr-qt), where it is a button on Image UMAP. "
@@ -806,11 +737,6 @@ INTERACTIVE_ONLY: Dict[str, str] = {
                         "is the renderer this screen draws through, so the "
                         "figure is the same one, vector at publication "
                         "size.",
-    # THE OTHER THREE FOLDED ROWS. A folded module keeps its key everywhere
-    # a key is written, and `spacr-run <key>` is one of those places: a key
-    # the registry no longer holds and this table does not name answers
-    # "unknown module" and then guesses at a near spelling, which tells a
-    # user who typed the right name that they typed the wrong one.
     "hit_list": "Hit List is an interactive ranked table — filtering, "
                 "annotating and clicking through to the cells is the "
                 "feature; run it in the GUI (spacr-qt), where it is a tab "
@@ -853,9 +779,6 @@ def _absorb_registered_gui_only() -> None:
     above, which is what it had before this existed.
     """
     app = sys.modules.get("spacr.qt.app")
-    # `getattr(..., None)`: the Qt registry may be half-built when this
-    # runs, in which case nothing has registered yet and the push half of
-    # the seam delivers every row later.
     pull = getattr(app, "registered_metadata", None) if app else None
     if pull is None:
         return
@@ -892,9 +815,6 @@ def _unknown_module_message(name: str) -> str:
             f"  Run 'spacr-run --list' to see every module that can run headless.")
 
 
-# ---------------------------------------------------------------------------
-# settings: defaults, file, overrides
-# ---------------------------------------------------------------------------
 
 
 def module_defaults(module: Module) -> Dict[str, Any]:
@@ -945,10 +865,6 @@ def module_defaults(module: Module) -> Dict[str, Any]:
     return dict(produced) if isinstance(produced, dict) else {}
 
 
-# Column-name pairs a spaCR settings CSV can use. ('Key', 'Value') is what
-# spacr.utils.save_settings writes next to every run and what the GUI's
-# "Export settings" button produces; ('setting_key', 'setting_value') is the
-# documented default of spacr.utils.load_settings.
 _CSV_COLUMNS: Tuple[Tuple[str, str], ...] = (
     ("Key", "Value"),
     ("setting_key", "setting_value"),
@@ -1027,9 +943,6 @@ def _load_settings_csv(path: str) -> Dict[str, Any]:
             raw = row.get(value_col)
             overflow = row.get(None)
             if overflow and value_col == fieldnames[-1]:
-                # A hand-edited CSV with an unquoted list — `channels,[0, 1, 2]`
-                # — splits across columns. Rejoin rather than silently storing
-                # the fragment '[0'.
                 raw = ",".join([str(raw)] + [str(x) for x in overflow])
             out[str(key).strip()] = _parse_csv_value(raw)
     return out
@@ -1080,21 +993,12 @@ def load_settings_file(path: Any) -> Dict[str, Any]:
         raise SettingsError(f"could not parse {path}: {exc}") from exc
 
 
-# expected_types declares a few keys more narrowly than the code that reads
-# them. Mirrors _EXPECTED_TYPE_OVERRIDES in spacr.validate — kept in step with
-# it deliberately, so a value the validator accepts is a value --set can write.
 _TYPE_OVERRIDES: Dict[str, Tuple[type, ...]] = {
     "src": (str, list),
     "normalize": (bool, list),
     "save": (bool, list),
 }
 
-# Per-module narrowings, for keys whose name two pipelines share. Mirrors
-# _APP_TYPE_OVERRIDES in spacr.validate for the same reason as above, and
-# tests/test_app_registry_parity.py asserts the two are equal so the mirror
-# cannot rot: `masks` is declared bool in expected_types (the mask pipeline's
-# save switch), but spacr.foreign.import_project takes it as their mask folder,
-# so `--set masks=/their/masks` was rejected as "cannot be read as bool".
 _APP_TYPE_OVERRIDES: Dict[str, Dict[str, Tuple[type, ...]]] = {
     "foreign": {"masks": (str, list)},
 }
@@ -1123,8 +1027,6 @@ def _allowed_types(key: str, current: Any, expected_types: Mapping[str, Any],
     if key in expected_types:
         declared = expected_types[key]
         raw = declared if isinstance(declared, tuple) else (declared,)
-        # expected_types spells NoneType two ways: type(None) for most keys and
-        # a bare None for 'sample' / 'x_lim'. Normalize both.
         out = tuple(type(None) if t is None else t for t in raw if isinstance(t, type) or t is None)
         if out:
             return out
@@ -1226,8 +1128,6 @@ def coerce_value(key: str, text: str, current: Any,
         try:
             return int(stripped)
         except ValueError:
-            # '4.0' for an int setting is a float that happens to be whole —
-            # accept it rather than making the user retype it.
             try:
                 as_float = float(stripped)
             except ValueError:
@@ -1255,8 +1155,6 @@ def coerce_value(key: str, text: str, current: Any,
         items = [_literal_scalar(part) for part in stripped.split(",")] if stripped else []
         return tuple(items) if (allow(tuple) and not allow(list)) else items
 
-    # Only reachable with a non-empty ``types``: when nothing is declared every
-    # branch above is allowed and the ``str`` one always returns.
     raise SettingsError(
         f"--set {key}={text!r} cannot be read as {_type_label(types)}.\n"
         f"  {key} expects {_type_label(types)}; the current value is {current!r}.")
@@ -1338,9 +1236,6 @@ def resolve_settings(module: Module, settings_path: Optional[str],
     return resolved
 
 
-# ---------------------------------------------------------------------------
-# headless environment
-# ---------------------------------------------------------------------------
 
 
 def _has_display() -> bool:
@@ -1367,7 +1262,7 @@ def use_agg_if_headless() -> bool:
     try:
         import matplotlib
         matplotlib.use("Agg", force=True)
-    except Exception:  # matplotlib is optional for --list / --describe
+    except Exception:
         return False
     return True
 
@@ -1455,17 +1350,11 @@ def _quiet_progress_bars() -> bool:
         is_tty = False
     if is_tty:
         return False
-    # tqdm reads TQDM_DISABLE; spaCR's own print_progress already emits whole
-    # lines, but the handful of `print(..., end='\r')` sites in io / utils /
-    # sim do not, so a redirected log gets one long line from those.
     os.environ.setdefault("TQDM_DISABLE", "1")
     os.environ.setdefault("SPACR_NO_PROGRESS", "1")
     return True
 
 
-# ---------------------------------------------------------------------------
-# rendering
-# ---------------------------------------------------------------------------
 
 
 def _format_value(value: Any) -> str:
@@ -1526,7 +1415,7 @@ def render_module_description(module: Module) -> str:
 
     try:
         defaults = module_defaults(module)
-    except Exception:  # a broken settings helper must not break --describe
+    except Exception:
         defaults = {}
     if defaults:
         lines.append(f"  settings    {len(defaults)} keys, all optional unless listed below")
@@ -1578,9 +1467,6 @@ def _error_count(problems: Sequence[Any]) -> int:
     return sum(1 for p in problems if getattr(p, "is_error", False))
 
 
-# ---------------------------------------------------------------------------
-# commands
-# ---------------------------------------------------------------------------
 
 
 def import_entry(module: Module) -> Callable[..., Any]:
@@ -1659,11 +1545,6 @@ def cmd_validate(args: argparse.Namespace) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE
 
-    # --hash-inputs / --no-hash-inputs, applied AFTER the settings file so
-    # the flag wins. `None` means neither was given, in which case whatever
-    # the settings file says stands -- a settings file written by the GUI
-    # already carries the user's preference, and a CLI run of that file
-    # should reproduce the GUI run rather than silently differ.
     if getattr(args, "hash_inputs", None) is not None:
         settings["hash_inputs"] = bool(args.hash_inputs)
 
@@ -1778,9 +1659,6 @@ def cmd_run(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
-# ---------------------------------------------------------------------------
-# argument parsing
-# ---------------------------------------------------------------------------
 
 
 class _Parser(argparse.ArgumentParser):

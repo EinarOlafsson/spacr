@@ -140,7 +140,6 @@ class DropWell(QWidget):
         head.addWidget(title, 1)
         clear = QPushButton(self)
         clear.setObjectName("PivotWellClear")
-        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
         apply_close_mark(clear, tooltip=f"Empty the {AXIS_LABELS[axis]} well")
         clear.clicked.connect(self.clear)
         head.addWidget(clear)
@@ -153,7 +152,6 @@ class DropWell(QWidget):
         self._list.remove_requested.connect(self._on_remove)
         outer.addWidget(self._list, 1)
 
-    # -- state ------------------------------------------------------------
     def columns(self) -> Tuple[str, ...]:
         """The columns dropped into this well.
 
@@ -365,9 +363,6 @@ class PivotTable(QTableWidget):
         self.setHorizontalHeaderLabels(headers)
 
         if result.n_cells > MAX_RENDERED_CELLS:
-            # Build the shape but not the contents: a QTableWidget with a
-            # million items takes minutes to construct, for a table nobody is
-            # going to scroll to the end of.
             self._truncated = result.n_cells
             note = table_item(
                 f"{result.n_cells:,} cells is past the {MAX_RENDERED_CELLS:,} "
@@ -397,7 +392,6 @@ class PivotTable(QTableWidget):
                         QBrush(QColor(str(palette["warning"]))))
                 self.setItem(r, len(key_columns) + c, item)
 
-    # -- one cell ---------------------------------------------------------
     @staticmethod
     def _smallest_n(result: PivotResult, row: int, col: int) -> Optional[int]:
         """Return the smallest object count behind one cell.
@@ -529,9 +523,6 @@ class PivotPanel(QWidget):
             box.setToolTip(AGGREGATION_LABELS[agg])
             box.setChecked(agg in (N, MEAN, SD))
             if agg == N:
-                # n is not a choice. Every cell carries it, and a table where
-                # the user could turn it off is a table where a mean over four
-                # objects looks like a mean over four thousand.
                 box.setEnabled(False)
             box.toggled.connect(self._on_axis_changed)
             self._agg_boxes[agg] = box
@@ -572,8 +563,6 @@ class PivotPanel(QWidget):
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(SPACING["xs"])
         self.table = PivotTable(right)
-        # The shelf half of the splitter has `PivotShelf` for a surface;
-        # the grid is the other half and sits straight on the page.
         mark_surface(self.table)
         right_layout.addWidget(self.table, 1)
         self.notice = QLabel("", right)
@@ -589,13 +578,9 @@ class PivotPanel(QWidget):
         self._debounce.setSingleShot(True)
         self._debounce.setInterval(DEBOUNCE_MS)
         self._debounce.timeout.connect(self.recompute)
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- data -------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
         """Point the panel at a table.
 
@@ -657,7 +642,6 @@ class PivotPanel(QWidget):
             return pd.DataFrame()
         return self._result.to_long()
 
-    # -- computing ---------------------------------------------------------
     def recompute(self) -> Optional[PivotResult]:
         """Rebuild the table. Refusals become a message, never a traceback."""
         self._debounce.stop()
@@ -683,10 +667,6 @@ class PivotPanel(QWidget):
             self.notice.setText(str(exc))
             return None
         except Exception as exc:
-            # ANYTHING THAT IS NOT A PivotError. That one is the expected
-            # refusal and carries its own explanation; this is a fault
-            # inside the pivot, and the "could not build that table"
-            # wrapper is what tells the two apart on screen.
             LOG.info("the pivot failed", exc_info=True)
             self._result = None
             self.table.set_result(None)
@@ -757,9 +737,6 @@ class PivotPanel(QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Styling, through the seam
-# ---------------------------------------------------------------------------
 
 def _pivot_qss(palette, opacity) -> str:
     """Build the pivot shelf's stylesheet.
@@ -797,12 +774,4 @@ QTableWidget#PivotTable {{
 """
 
 
-# Registered at import of this module, which happens when the screen module
-# is imported — and the row that does that lives in ``app.py``'s
-# ``_SELF_REGISTERING_APPS``, whose loop runs while ``app.py`` itself is being
-# imported. That is before ``launch()`` calls ``stylesheet()``, which is the
-# deadline: a block registered after the stylesheet is built is missing from
-# the one the application was actually given. `spacr.qt.widgets.__init__`
-# imports `graph_builder` eagerly for exactly this reason; this module needs no
-# such entry only because its screen is imported earlier still.
 register_widget_qss("Pivot", _pivot_qss, replace=True)

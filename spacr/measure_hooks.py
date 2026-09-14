@@ -291,10 +291,6 @@ class RegionContext:
             if labels.size == 0:
                 self._centroids = np.zeros((0, self.ndim), dtype=float)
             else:
-                # scipy is imported here rather than at module scope: this
-                # module is on the import path of anything that merely wants
-                # to *register* a hook, and most filters never ask for a
-                # centroid at all.
                 from scipy.ndimage import center_of_mass
                 weights = np.ones(self.mask.shape, dtype=np.uint8)
                 found = center_of_mass(weights, labels=self.mask,
@@ -321,9 +317,6 @@ def _read_only(mapping: Mapping[str, Any]) -> Mapping[str, Any]:
     return mapping
 
 
-# ---------------------------------------------------------------------------
-# The registries
-# ---------------------------------------------------------------------------
 
 _LOCK = threading.RLock()
 _SEQUENCE = itertools.count()
@@ -348,7 +341,6 @@ def _default_name(registry, hook) -> str:
     base = f'{module}.{qualname}'
     existing = registry.get(base)
     if existing is None or existing.func is hook:
-        # Free, or already this exact callable: re-registering is idempotent.
         return base
     candidate = 2
     while f'{base}#{candidate}' in registry:
@@ -371,8 +363,6 @@ def _register(registry, kind: str, hook, name: Optional[str], priority: int,
             f'{priority!r}. Nothing was registered.') from exc
     with _LOCK:
         key = str(name) if name is not None else _default_name(registry, hook)
-        # Replace rather than append: an extension that re-installs itself on
-        # every GUI run must not end up applying its correction twice.
         registry.pop(key, None)
         registry[key] = RegisteredHook(name=key, func=hook, priority=priority,
                                        sequence=next(_SEQUENCE), source=source)
@@ -554,9 +544,6 @@ def describe_hooks() -> str:
     return '\n'.join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Application
-# ---------------------------------------------------------------------------
 
 def _raise_hook_failure(kind: str, entry: RegisteredHook, detail: str,
                         file_name: str,

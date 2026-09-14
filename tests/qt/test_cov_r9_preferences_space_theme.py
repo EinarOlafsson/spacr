@@ -5,10 +5,10 @@ preferences -- the theme and its variant -- into one token the settings
 combo box holds, and expand it again on the way back. Both carry a
 ``space:`` arm, and both are dead:
 
-  * ``theme_choices`` says so in a comment -- "Space is gone; its
-    variants are no longer offered" -- so no ``space:`` token exists for
-    ``set_theme_choice`` to receive, and its guard refuses anything not
-    in that set;
+  * ``theme_choices`` offers no ``space:`` token and names no wallpaper
+    after it -- the variants are titled for what they show -- so nothing
+    exists for ``set_theme_choice`` to receive, and its guard refuses
+    anything not in that set;
   * ``get_theme`` filters what it reads against ``VALID_THEMES``, which
     no longer contains ``"space"``, so it cannot return the value
     ``get_theme_choice`` tests for. A settings file left over from
@@ -64,11 +64,28 @@ class TestWhyTheSpaceArmsCannotRun:
             "the arm in get_theme_choice is live again")
 
     def test_no_space_token_is_offered(self):
-        """THE PIN for ``if choice.startswith("space:")``."""
-        assert not [t for t in _every_token() if t.startswith("space:")]
+        """THE PIN for ``if choice.startswith("space:")``.
 
-        source = inspect.getsource(P.theme_choices)
-        assert "Space is gone" in source
+        Asked of the offered choices themselves, which is what
+        ``set_theme_choice`` measures a token against: Space is gone and
+        its variants are no longer offered, so neither a token nor a
+        label on the Theme control names it -- the wallpapers are titled
+        for what they show rather than prefixed with a retired theme.
+        """
+        choices = P.theme_choices()
+
+        assert not [token for _label, token in choices
+                    if token.startswith("space:")], (
+            "a space: token is offered again, so the arm in "
+            "set_theme_choice that reads one is live")
+        assert not [label for label, _token in choices
+                    if "space" in label.lower()], (
+            "a Theme entry names Space again, and the variants were "
+            "renamed for what they show precisely so none does")
+        assert [token for _label, token in choices
+                if token.startswith("cell:")], (
+            "no image variant is offered at all, so the assertion above "
+            "passes on an empty control rather than on a renamed one")
 
     def test_a_stale_space_setting_reads_back_as_the_default(self):
         """DRIVEN, because this is the case the dead arm was for.

@@ -74,9 +74,6 @@ class MotilityInputError(ValueError):
     """The chosen folder is not a usable motility input, with the reason."""
 
 
-# ---------------------------------------------------------------------------
-# Units — stated, never assumed
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Calibration:
@@ -127,9 +124,6 @@ class Calibration:
             "fields to convert.")
 
 
-# ---------------------------------------------------------------------------
-# Reading merged arrays — lazily, and only a few frames of them
-# ---------------------------------------------------------------------------
 
 def resolve_merged_dir(path) -> str:
     """Return the ``merged`` directory for ``path``.
@@ -250,9 +244,6 @@ def build_point_table(merged_dir: str, metas: "List[dict]", n_channels: int,
     return pd.concat(rows, ignore_index=True)
 
 
-# ---------------------------------------------------------------------------
-# Metrics — cheap, recomputed live from the cached point table
-# ---------------------------------------------------------------------------
 
 TRACK_KEYS = ["plateID", "wellID", "fieldID", "cellID"]
 
@@ -278,8 +269,6 @@ def smooth_and_filter_tracks(points, max_displacement: float):
     for _key, g in points.sort_values(TRACK_KEYS + ["frame"]).groupby(
             TRACK_KEYS, sort=False):
         g = g.copy()
-        # Interpolation edits these arrays; pandas 3 may expose the group
-        # columns as read-only views.
         x = g["x"].to_numpy(dtype=float, copy=True)
         y = g["y"].to_numpy(dtype=float, copy=True)
         n = x.size
@@ -434,9 +423,6 @@ def summarise(tracks, calibration: Calibration, min_length: int,
     return s
 
 
-# ---------------------------------------------------------------------------
-# Plot — matplotlib Agg into an RGB array (no Qt backend needed)
-# ---------------------------------------------------------------------------
 
 def render_motility_figure(points, tracks, calibration: Calibration,
                            min_length: int, straightness_threshold: float,
@@ -470,7 +456,6 @@ def render_motility_figure(points, tracks, calibration: Calibration,
 
     ax_tracks, ax_len, ax_vel = axes
 
-    # 1 — origin-centred tracks
     ax_tracks.set_title("Tracks (from origin)", fontsize=8)
     ax_tracks.set_xlabel("Δx (px)", fontsize=7)
     ax_tracks.set_ylabel("Δy (px)", fontsize=7)
@@ -493,7 +478,6 @@ def render_motility_figure(points, tracks, calibration: Calibration,
         ax_tracks.axhline(0, color="#555555", linewidth=0.5)
         ax_tracks.axvline(0, color="#555555", linewidth=0.5)
 
-    # 2 — track-length distribution with the cutoff marked
     ax_len.set_title("Track length", fontsize=8)
     ax_len.set_xlabel("frames per track", fontsize=7)
     ax_len.set_ylabel("tracks", fontsize=7)
@@ -507,7 +491,6 @@ def render_motility_figure(points, tracks, calibration: Calibration,
                     transform=ax_len.transAxes, ha="right", va="top",
                     color="#ffcc44", fontsize=7)
 
-    # 3 — velocity + straightness, split by infection, unit stated
     ax_vel.set_title("Velocity by infection state", fontsize=8)
     ax_vel.set_ylabel(f"velocity ({calibration.unit})", fontsize=7)
     if tracks is not None and not tracks.empty:
@@ -542,9 +525,6 @@ def render_motility_figure(points, tracks, calibration: Calibration,
     return np.ascontiguousarray(rgba[..., :3])
 
 
-# ---------------------------------------------------------------------------
-# Worker — the expensive half only
-# ---------------------------------------------------------------------------
 
 @dataclass
 class MotilityRequest:
@@ -571,7 +551,7 @@ class _MotilityWorker(QThread):
     caught inside :meth:`run` and emitted as a string; nothing escapes.
     """
 
-    finished_result = Signal(object, str)   # (DataFrame or None, error)
+    finished_result = Signal(object, str)
 
     def __init__(self, request: MotilityRequest, parent=None):
         """Prepare the worker.
@@ -599,9 +579,6 @@ class _MotilityWorker(QThread):
             self.finished_result.emit(None, str(e))
 
 
-# ---------------------------------------------------------------------------
-# Panel
-# ---------------------------------------------------------------------------
 
 def scan_plate_payload(path) -> Dict[str, Any]:
     """Resolve a plate's ``merged`` folder and group it. No Qt: worker-safe.
@@ -668,7 +645,7 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         diverging.
     """
 
-    preview_ready = Signal(object)   # MotilitySummary, or None on failure
+    preview_ready = Signal(object)
 
     PREVIEW_SOURCE_HINT = "Load a plate folder first."
 
@@ -688,20 +665,8 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
             behaviour diverging.
         """
         super().__init__(parent)
-        # Scanning a plate lists every file in `merged/` and parses each name:
-        # thousands of entries on a 384-well plate, and not GUI-thread work.
-        # `threaded=False` runs each job inline, emitting the same signals in
-        # the same order, so a test can drive this panel synchronously without
-        # the behaviour diverging.
         self._jobs = JobRunner(self, threaded=threaded,
                                app_key="motility preview")
-        # A SECOND runner, and the separation is load-bearing twice over.
-        # `_loads_in_flight` reports `self._jobs`' pending work as "a plate is
-        # still being scanned", and a plane-count read is not a plate scan;
-        # and `user_visible=False` keeps `spacr.qt.widgets.home` -- which
-        # filters run banners on exactly that flag -- from flashing
-        # "motility preview - running" for a read the user never started.
-        # Nothing user-started is ever submitted here.
         self._plane_jobs = JobRunner(self, threaded=threaded,
                                      app_key="motility plane layout",
                                      user_visible=False)
@@ -722,32 +687,22 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         #: Bumped whenever a newer plane-count read supersedes the one in
         #: flight, so a late result cannot paint the wrong plate's layout.
         self._plane_token = 0
-        self._points = None          # cached — the expensive half
+        self._points = None
         self._tracks = None
         self._summary: Optional[MotilitySummary] = None
         self._groups: "Dict[tuple, List[dict]]" = {}
         self._merged_dir: str = ""
         self._worker: Optional[_MotilityWorker] = None
-        # A worker whose result has landed but whose QThread may still be
-        # unwinding. Held until ``finished`` so it is never collected mid-run.
         self._retired_worker: Optional[_MotilityWorker] = None
-        # Bumped whenever the pass in flight is superseded (a new plate, an
-        # explicit cancel); a stale result is dropped. See LivePreviewContract.
         self._run_token = 0
         self._pending_token = 0
         self._propagate_cb = None
-        # Bounded, reproducible sample of the plate's time series — the
-        # dropdown never lists them all. See ImageSetSampler.
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._build_ui()
         self.setAcceptDrops(True)
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self):
         """Lay out the plate pickers, the array layout controls and the plot."""
@@ -755,8 +710,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
 
-        # FOV and channel dropdowns sit immediately LEFT of the Choose
-        # control; all three wear the flat "Live toggle" look.
         pick = QHBoxLayout()
         self._pick_row = pick
         self._path_label = QLabel(
@@ -773,8 +726,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
                      "previewed. Each group is one time series. Lists a "
                      "random sample of the plate, not all of it."))
         self._fov_box.currentIndexChanged.connect(self._on_group_changed)
-        # Kept under its historical name for the integrations and tests that
-        # already drive it.
         self._group_box = self._fov_box
         self._channel_box = FlatComboBox(
             self,
@@ -792,7 +743,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         pick.addWidget(self._pick_btn)
         root.addLayout(pick)
 
-        # -- array layout (changing one re-reads the merged arrays) ----------
         self._tracked_object = QComboBox(self)
         self._tracked_object.addItems(list(TRACKED_OBJECTS))
         self._tracked_object.setToolTip(
@@ -822,7 +772,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
             "(int) How many frames of the series the preview reads. The rest "
             "is never loaded.")
 
-        # -- metrics (live — recomputed from the cached point table) ---------
         self._min_len = QSpinBox(self)
         self._min_len.setRange(2, 500)
         self._min_len.setValue(3)
@@ -902,15 +851,12 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         self._straightness_filter.toggled.connect(self._on_metric_changed)
         self._tracked_object.currentTextChanged.connect(
             self._on_tracked_object_changed)
-        # One plane, two surfaces: the settings spinner and the flat dropdown
-        # in the pick row stay in step.
         self._tracked_plane.valueChanged.connect(
             self._sync_plane_combo_from_spin)
 
         act = QHBoxLayout()
         self._run_btn = QPushButton(PREVIEW_RUN_TEXT, self)
         self._run_btn.clicked.connect(self.run_preview)
-        # Same control, same place, same words as the Mask live preview.
         self._cancel_btn = QPushButton(PREVIEW_CANCEL_TEXT, self)
         self._cancel_btn.setToolTip(
             "Abandon the read in flight. The arrays already being read finish "
@@ -945,7 +891,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
 
         self._refresh_unit_label()
 
-    # -- drag & drop -------------------------------------------------------
 
     def _dropped_path(self, event) -> Optional[str]:
         """The first local folder in a drag, decided without touching the disk.
@@ -1008,7 +953,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         event.acceptProposedAction()
         self.load_folder_async(p)
 
-    # -- public API --------------------------------------------------------
 
     @property
     def _loads_in_flight(self) -> List[int]:
@@ -1118,7 +1062,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         self._tracks = None
         self._sampler.invalidate()
         self._populate_group_box()
-        # Off the GUI thread: reading the plane count opens a merged array.
         self._refresh_plane_layout()
         self._path_label.setText(
             f"{os.path.basename(os.path.dirname(merged.rstrip(os.sep)) or merged)}"
@@ -1267,7 +1210,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
             "fov": self._fov_box.currentText(),
         }
 
-    # -- running -----------------------------------------------------------
 
     def _preview_blocked_reason(self) -> str:
         """Why this panel cannot read a plate right now, or ``""``."""
@@ -1297,18 +1239,9 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         self._status.setText("Reading merged arrays…")
         self._release_worker()
         worker = _MotilityWorker(req, self)
-        # The generation this pass belongs to. Cancelling bumps the panel's
-        # token, and a result whose token no longer matches is dropped.
         worker.preview_token_value = self.preview_token()
         self._pending_token = worker.preview_token_value
-        # Bound method, not a closure — a plain callable would be invoked on
-        # the worker thread and every widget touch below would be off-thread.
         worker.finished_result.connect(self._on_worker_done)
-        # NOT worker.deleteLater — that hands Qt a second owner for an object
-        # Python already holds, and the two race (the measured account is in
-        # spacr.qt.bridge.make_thread). The Mask preview was fixed away from
-        # this pattern; keeping it here left a running QThread owned by
-        # nobody when the user closed the screen mid-read.
         worker.finished.connect(self._on_worker_finished)
         self._worker = worker
         worker.start()
@@ -1350,9 +1283,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         if self.preview_stale(self._result_token()):
             LOG.debug("dropping a superseded motility preview result")
             return
-        # The pass is over as far as the panel is concerned, so a new one may
-        # start; the reference is kept until ``QThread.finished`` because a
-        # QThread collected while it is still unwinding aborts the process.
         if self._worker is not None:
             self._retired_worker = self._worker
             self._worker = None
@@ -1372,7 +1302,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
             "metric changes below are recomputed from this cache.")
         self.recompute()
 
-    # -- metrics (GUI thread — cheap) --------------------------------------
 
     def _on_metric_changed(self, *_):
         """Restate the units and recompute, if there is anything to recompute.
@@ -1437,7 +1366,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
             return
         self._plot.setPixmap(numpy_to_qpixmap(rgb))
 
-    # -- misc --------------------------------------------------------------
 
     def _refresh_unit_label(self) -> None:
         """Say which units velocities are in, or why they are only pixels per frame.
@@ -1456,7 +1384,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
             self._unit_label.setText(cal.caveat())
             self._unit_label.setStyleSheet("color: #ffcc44;")
 
-    # -- plane layout (read off the GUI thread, applied on it) -------------
 
     def _selected_group_key(self):
         """The (plate, well, field) key the field dropdown is showing.
@@ -1496,8 +1423,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         merged = self._merged_dir
         filename = str(metas[0]["filename"]) if metas else ""
         if not merged or not filename:
-            # No plate, or a group with no files. The old code arrived at the
-            # same answer through `except StopIteration` -- 0 planes.
             self._apply_plane_layout(0)
             return
         if self._plane_busy:
@@ -1572,7 +1497,6 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         self._pathogen_plane.setValue(
             pathogen if pathogen is not None else -1)
 
-    # -- FOV / channel selectors -------------------------------------------
 
     def _plane_count(self) -> int:
         """Planes held by the first merged array of the selected group.
@@ -1674,11 +1598,7 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         A ``QThread`` collected while running aborts the process; the worker
         outlives the emit that produced its result by a few instructions.
         """
-        # Cancel the scan before waiting on the motility worker: leaving the
-        # screen mid-scan must not leave a QThread behind either.
         self.shutdown()
-        # Both of them: the pass in flight, and the one whose result has
-        # landed while its thread was still unwinding.
         for worker in (self._worker, getattr(self, "_retired_worker", None)):
             if worker is not None:
                 try:

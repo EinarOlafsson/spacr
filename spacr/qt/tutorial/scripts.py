@@ -73,9 +73,6 @@ def build_steps(app_key: str, window) -> List[Step]:
                        f"Choose from {AVAILABLE_TUTORIALS}")
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 
 def _go_home(window):
     """Build an action that navigates Home.
@@ -170,19 +167,11 @@ def _find_menu(window, title: str):
     Delegates to :func:`spacr.qt.first_run.find_menu`, which is the same
     lookup; a second copy is a second thing to get wrong.
     """
-    # Demos is a Help submenu and MainWindow deliberately retains the QMenu
-    # wrapper that owns its actions. Qt may reparent that submenu when it is
-    # inserted under Help, so it is not reliably returned by the menu bar's
-    # child walk on every PySide6 version. Use the retained owner first.
     if title == "Demos":
         menu = getattr(window, "_demo_menu", None)
         try:
-            # ``_demo_menu`` is the semantic owner, independent of the
-            # currently selected language. Comparing its rendered title to
-            # the English lookup key made the tutorial lose the menu after a
-            # retranslation within the same application session.
             if menu is not None:
-                menu.title()  # prove that the retained Qt wrapper is live
+                menu.title()
                 return menu
         except RuntimeError:
             pass
@@ -215,21 +204,11 @@ def _menu_target(window, title: str):
         rect = mb.actionGeometry(menu.menuAction())
         if rect.isValid() and rect.width():
             return (mb, (rect.center().x(), rect.center().y()))
-        # A SUBMENU HAS NO PLACE ON THE BAR. Demos moved under Help on
-        # 2026-08-23, so its own geometry is empty and the cursor would aim
-        # at (0, 0). Point at the top-level menu you actually click to
-        # reach it, which is where a user's hand goes.
         parent = _top_level_menu_containing(window, menu)
         if parent is not None:
             rect = mb.actionGeometry(parent.menuAction())
             return (mb, (rect.center().x(), rect.center().y()))
     if title == "Demos":
-        # The target users click is Help, not the submenu itself. During a
-        # long tutorial-test session Qt can briefly detach the submenu action
-        # while pages are being rebuilt even though ``_demo_menu`` remains
-        # live. Target the stable top-level Help action directly in that
-        # state. The final-action fallback is language-independent; spaCR and
-        # Help are the only top-level menus in the current compact bar.
         actions = list(mb.actions())
         help_action = next(
             (action for action in actions
@@ -248,11 +227,6 @@ def _top_level_menu_containing(window, menu):
     """The menu-bar menu that ``menu`` is a submenu of, or None."""
     mb = window.menuBar()
     try:
-        # A real rectangle on the bar proves this is already a top-level
-        # menu.  Check that first: during long PySide test sessions a
-        # released submenu wrapper can be recycled and acquire the same
-        # rendered title as an unrelated menu, so title-only relation scans
-        # must never be allowed to reclassify a bar menu as its own child.
         rect = mb.actionGeometry(menu.menuAction())
         if rect.isValid() and rect.width():
             return None
@@ -263,20 +237,12 @@ def _top_level_menu_containing(window, menu):
     except RuntimeError:
         return None
     for action in mb.actions():
-        # Retrieve the bar-owned QMenu wrapper through the same stable lookup
-        # used elsewhere. Returning ``action.menu()`` directly can leave the
-        # caller with a deleted temporary PySide wrapper after ``action`` is
-        # released.
         top = _find_menu(window, action.text().replace("&", ""))
         if top is None:
             continue
         for entry in top.actions():
             try:
                 nested = entry.menu()
-                # Compare semantic titles only. Temporary PySide wrappers can
-                # be recycled after Qt releases them, so Python object
-                # identity is not a safe submenu relation across event-loop
-                # turns.
                 if (nested is not None and
                         nested.title().replace("&", "") == target_title):
                     return top
@@ -307,9 +273,6 @@ def _find_button(screen, label: str):
     return prefix_hit
 
 
-# ---------------------------------------------------------------------------
-# Home tour
-# ---------------------------------------------------------------------------
 
 def _build_home_steps(window) -> List[Step]:
     """Build the Home tutorial's steps.
@@ -389,9 +352,6 @@ def _open_demos_menu(window):
     return menu
 
 
-# ---------------------------------------------------------------------------
-# Mask module tutorial
-# ---------------------------------------------------------------------------
 
 def _build_mask_steps(window) -> List[Step]:
     """Build the Mask tutorial's steps.
@@ -475,9 +435,6 @@ def _build_mask_steps(window) -> List[Step]:
     ]
 
 
-# ---------------------------------------------------------------------------
-# Measure module tutorial
-# ---------------------------------------------------------------------------
 
 def _build_measure_steps(window) -> List[Step]:
     """Build the Measure tutorial's steps.
@@ -549,9 +506,6 @@ def _build_measure_steps(window) -> List[Step]:
     ]
 
 
-# ---------------------------------------------------------------------------
-# Crop module tutorial
-# ---------------------------------------------------------------------------
 
 def _build_crop_steps(window) -> List[Step]:
     """Build the Crop tutorial's steps.
@@ -612,9 +566,6 @@ def _build_crop_steps(window) -> List[Step]:
     ]
 
 
-# ---------------------------------------------------------------------------
-# Classify module tutorial — hosted in AnnotateScreen
-# ---------------------------------------------------------------------------
 
 def _build_classify_steps(window) -> List[Step]:
     """Build the Classify tutorial's steps.
@@ -679,10 +630,6 @@ def _build_classify_steps(window) -> List[Step]:
             highlight=lambda: screen_ref[0],
             hold_ms=500,
         ),
-        # ONE BUTTON NOW, NOT TWO. "Train CV" and "Train XG" were merged
-        # into a single `Train...` with a menu, and this step was not moved
-        # with them -- so its target resolved to None and the tutorial
-        # pointed at nothing. The narration named both old buttons too.
         Step(
             "Train opens a menu with the two destinations: on the images "
             "trains a Torch CNN or Transformer on the crops themselves, on "
@@ -692,12 +639,6 @@ def _build_classify_steps(window) -> List[Step]:
             highlight=lambda: _find_button(screen_ref[0], "Train"),
             hold_ms=500,
         ),
-        # AND THEN IT OPENS CLASSIFY. Until 2026-09-04 the tutorial called
-        # "classify" stopped here, at Annotate's Train button, having said
-        # "both open in the consolidated Classify module" and never opened
-        # it. That is the stale module boundary instruction 358 was filed
-        # about: a polished lesson teaching a structure the application no
-        # longer has.
         Step(
             "Classify is where the training runs. The settings column carries "
             "the model, the split and the training schedule; the actions row "
@@ -709,10 +650,6 @@ def _build_classify_steps(window) -> List[Step]:
             show_pointer=True,
             hold_ms=700,
         ),
-        # FIVE MODULES WERE FOLDED IN HERE, and instruction 358 asks that each
-        # one be named and located rather than left for the reader to find.
-        # The specialist lessons that still explain them accurately are kept
-        # and pointed at rather than re-narrated.
         Step(
             "Five modules that used to be their own tiles now live on this "
             "masthead. Classifier Evaluation judges the trained model, "
@@ -741,13 +678,6 @@ def _build_classify_steps(window) -> List[Step]:
 
 
 
-# ---------------------------------------------------------------------------
-# Map Barcodes tutorial — the one Core module that reads sequencing, not images
-# ---------------------------------------------------------------------------
-# THE ODD ONE OUT, and the tutorial has to say so early. Every other Core
-# module takes microscopy; this one takes FASTQ and produces the table that
-# tells Regression which well got which perturbation. A reader who arrives
-# expecting images needs that said before anything else.
 
 def _build_map_barcodes_steps(window) -> List[Step]:
     """Build the Map Barcodes tutorial's steps.
@@ -814,14 +744,6 @@ def _build_map_barcodes_steps(window) -> List[Step]:
     ]
 
 
-# ---------------------------------------------------------------------------
-# Regression tutorial — the module that consumes what everything else produces
-# ---------------------------------------------------------------------------
-# NO DEMO OF ITS OWN, and that is honest rather than a gap: regression needs a
-# measured screen AND a barcode mapping, so its live data is the OUTPUT of the
-# two tutorials before it. The script says which ones and in what order,
-# rather than pretending a synthetic single-module dataset would teach the
-# thing that matters here.
 
 def _build_regression_steps(window) -> List[Step]:
     """Build the Regression tutorial's steps.
@@ -892,20 +814,6 @@ def _build_regression_steps(window) -> List[Step]:
 
 
 
-# ---------------------------------------------------------------------------
-# The three downstream readers: Training Runs, Prediction Profiler,
-# Investigate Hit
-# ---------------------------------------------------------------------------
-# NONE OF THEM HAS A DEMO, and none of them should. Each reads an artefact an
-# earlier module WROTE -- a set of training runs, a fitted model, a regression
-# hit -- so a synthetic single-module dataset would teach a workflow nobody
-# has. Each lesson therefore names the module that produces its input, in the
-# same way the Regression lesson does.
-#
-# Two of the three are also reachable from Classify's masthead. Instruction
-# 358 asks that a folded action be named and located rather than narrated
-# twice, so these lessons say where the button is instead of the Classify
-# lesson explaining what the module does.
 
 def _build_train_compare_steps(window) -> List[Step]:
     """Build the Train and Compare tutorial's steps.
@@ -930,10 +838,6 @@ def _build_train_compare_steps(window) -> List[Step]:
         host_ref[0] = window._screens.get("classify_merged")
 
     return [
-        # NOT IN THE SIDEBAR, and the lesson has to open by saying so. This
-        # module has no sidebar row: it is reached from Classify's masthead,
-        # because comparing runs is something you do while working on a
-        # model rather than a place you navigate to.
         Step(
             "Training Runs has no sidebar row. It hangs on Classify's "
             "masthead, because comparing two runs is something you do while "
@@ -1131,15 +1035,6 @@ def _build_investigate_hit_steps(window) -> List[Step]:
     ]
 
 
-# ---------------------------------------------------------------------------
-# Timelapse tutorial — the tracking switch on Mask Generation
-# ---------------------------------------------------------------------------
-# Timelapse has no destination of its own: it is the mask pipeline with
-# tracking turned on, so what is its own is a couple of settings CATEGORIES
-# and a switch on the Mask masthead that reveals them. The script therefore
-# lands on Mask, loads the timelapse demo -- whose settings file carries
-# `timelapse=True`, which moves the switch as it is applied -- and narrates
-# the switch and the categories it just revealed.
 
 def _build_timelapse_steps(window) -> List[Step]:
     """Build the Timelapse tutorial's steps.
@@ -1212,9 +1107,6 @@ def _build_timelapse_steps(window) -> List[Step]:
     ]
 
 
-# ---------------------------------------------------------------------------
-# Widget lookup helpers
-# ---------------------------------------------------------------------------
 
 def _settings_panel(screen):
     """Return the settings scroll area on ``screen``, or ``None``.

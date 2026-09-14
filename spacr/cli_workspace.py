@@ -54,9 +54,6 @@ def main(argv=None) -> int:
 
     doc = load(run_dir)
     if doc is None:
-        # NAMED, not "not found". A run saved with the feature off is a
-        # different thing from a run whose bundle failed to write, and the
-        # user's next step differs.
         print(f"{run_dir} carries no {DOC_NAME} — it was saved with "
               f"save_workspace='off', or predates workspace bundles.",
               file=sys.stderr)

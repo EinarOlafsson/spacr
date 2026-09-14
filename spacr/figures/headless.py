@@ -72,7 +72,7 @@ def application():
     from PySide6.QtWidgets import QApplication
 
     app = QApplication.instance()
-    if app is None:                       # ready() usually made it
+    if app is None:
         return None, NO_PLATFORM
     return app, ""
 
@@ -118,10 +118,6 @@ def render_offscreen(spec, path: str, *, size: Optional[Tuple[int, int]] = None,
         if not plot.show_spec(spec):
             LOG.debug("nothing to draw for %s", target)
             return None
-        # PROCESS EVENTS BEFORE EXPORTING. Offscreen, `resize` posts a layout
-        # that nothing has delivered yet, so an export taken straight after
-        # it photographs the widget's startup geometry -- which is how a
-        # figure comes out with its axes in the wrong place.
         app.processEvents()
         written = plot.export(target)
     finally:

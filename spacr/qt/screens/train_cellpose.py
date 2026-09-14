@@ -190,14 +190,6 @@ class CellposeWorkbenchScreen(QWidget):
         self._screens: List[AppScreen] = []
         for app_key, label, _instruction in TABS:
             screen = AppScreen(app_key=app_key)
-            # One masthead per page. A module's own is 30px of title
-            # under this page's own 30px of title, and the applying half
-            # no longer has a registry row for its to read a name or a
-            # description out of, so it would render "Cellpose_Masks"
-            # over nothing. The tab bar says which half you are on, the
-            # line under the title says what that half reads, and the
-            # API link on this page's header follows the visible tab
-            # (see `_sync_instruction`).
             header = getattr(screen, "_header", None)
             if header is not None:
                 header.setVisible(False)
@@ -220,7 +212,6 @@ class CellposeWorkbenchScreen(QWidget):
         self._current = self._tabs.currentIndex()
         self._tabs.currentChanged.connect(self._on_tab_changed)
 
-    # -- the two halves -----------------------------------------------------
 
     @property
     def train_screen(self) -> AppScreen:
@@ -264,7 +255,6 @@ class CellposeWorkbenchScreen(QWidget):
         screen = self.active_screen()
         return screen.app_key, dict(screen._settings_model.collect())
 
-    # -- taking settings from outside ---------------------------------------
 
     def apply_settings_dict(self, settings: Dict) -> int:
         """Push ``settings`` into whichever tab the dict is for.
@@ -314,7 +304,6 @@ class CellposeWorkbenchScreen(QWidget):
         :meth:`apply_settings_dict`, which decides where it lands."""
         return self.apply_settings_dict(seed)
 
-    # -- carrying between the tabs ------------------------------------------
 
     def _on_tab_changed(self, index: int) -> None:
         """Carry the knobs into the tab being opened, and say what src means."""
@@ -336,11 +325,6 @@ class CellposeWorkbenchScreen(QWidget):
         label.setProperty("_spacr_i18n_text", instruction)
         label.setText(tr(instruction))
         label.setVisible(True)
-        # One masthead serves two modules, so its help has to link to the
-        # one on screen. The app key moves rather than the URL alone: a
-        # later language change repoints the help from the key the label
-        # carries, and would otherwise send the reader to the other tab's
-        # documentation.
         help_label = getattr(self._header, "api_help", None)
         if help_label is not None and hasattr(help_label, "set_api_app_key"):
             help_label.set_api_app_key(self.active_app_key())

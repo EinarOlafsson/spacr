@@ -72,9 +72,6 @@ def use_open_sans_for_figures() -> bool:
     """
     global _registered
     if _registered:
-        # ALREADY DONE THIS PROCESS. The check below is a set comprehension
-        # over every font matplotlib knows, which is not free either, and
-        # this function is called before every figure is styled.
         return _resolved
 
     try:
@@ -87,17 +84,11 @@ def use_open_sans_for_figures() -> bool:
     except Exception:
         available = set()
 
-    # ASK BEFORE ADDING. `addfont` is expensive -- it reads the file, builds
-    # a FontProperties and resolves alternative family names, and measured on
-    # the Mask screen the eight bundled faces cost 23 SECONDS of a 13-second
-    # module open, because this ran while the settings panel was being built.
-    # A machine that already has Open Sans installed needs none of it.
     if FAMILY not in available:
         for path in bundled_faces():
             try:
                 font_manager.fontManager.addfont(path)
             except Exception:
-                # One unreadable face must not cost the other seven.
                 continue
         try:
             available = {f.name for f in font_manager.fontManager.ttflist}

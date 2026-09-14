@@ -48,11 +48,6 @@ RESOURCE_KEY = "_regression_resources"
 STAGE_KEY = "_regression_stage"
 
 
-# Resource accounting deliberately lives behind private names until the Qt
-# preference and every worker entry point have one settled integration seam.
-# Keeping these names private also means adding the recorder does not silently
-# expand the translated public API.  The persisted schema, not a Python class,
-# is the interface users and support tooling consume.
 _PERFORMANCE_LOG_ENV = "SPACR_PERFORMANCE_LOG"
 _PERFORMANCE_MODES = frozenset({"off", "summary", "detailed"})
 _PERFORMANCE_SCHEMA_VERSION = 1

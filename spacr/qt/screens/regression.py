@@ -94,14 +94,6 @@ FOLDED_APPS: Tuple[str, ...] = ("volcano_explorer", "hit_list",
                                 "methods_export", "investigate_hit",
                                 "profiler", DIAGNOSTICS_KEY)
 
-# NONE OF THE THREE HAS A REGISTRY ROW. What each said as a TILE -- the
-# name, the sentence and the maturity colour a button has to go on carrying
-# now that the registry answers "stable" and a title-cased key for all three
-# -- lives in `spacr.qt.screens.map_barcodes.FOLD_FALLBACK`, because
-# `map_barcodes.fold_description` is what `restate_fold_button` reads, and
-# that is the only table it looks in; `fold_strip.folded_fallback` reaches
-# the same entries by walking the hosts. A second copy stood here, beside
-# these three keys, and nothing consulted it.
 
 #: What the "Hits" tab is called, and the tab it is inserted after.
 HITS_TAB_TITLE = "Hits"
@@ -121,9 +113,6 @@ PUBLICATION_FIGURE_LABEL = "Publication figure…"
 #: same rows to a different renderer.
 PUBLICATION_FIGURE_SECTION = "Publication figure"
 
-# ---------------------------------------------------------------------------
-# One correction family per volcano
-# ---------------------------------------------------------------------------
 
 def single_correction_family(frame):
     """``frame`` reduced to ONE multiple-testing family, ready to plot.
@@ -194,9 +183,6 @@ def install_correction_families(panel) -> bool:
     return True
 
 
-# ---------------------------------------------------------------------------
-# The publication figure
-# ---------------------------------------------------------------------------
 
 def _run_folder(panel) -> str:
     """The run folder behind ``panel``, or "" when it came from nowhere."""
@@ -291,9 +277,6 @@ def install_publication_figure(panel, opener: Callable[[], object]) -> bool:
     return True
 
 
-# ---------------------------------------------------------------------------
-# The Hits tab
-# ---------------------------------------------------------------------------
 
 def install_hits_tab(panel):
     """Add the Hit List to ``panel`` as a tab, beside Guide support.
@@ -373,9 +356,6 @@ def raise_hits_tab(panel) -> bool:
     return True
 
 
-# ---------------------------------------------------------------------------
-# Methods & Results
-# ---------------------------------------------------------------------------
 
 def project_path(screen) -> str:
     """Resolve the project directory associated with a regression screen.
@@ -430,9 +410,6 @@ def build_methods_export(host_window: Optional[QWidget] = None,
                                results_folder=_run_folder(panel))
 
 
-# ---------------------------------------------------------------------------
-# The strip
-# ---------------------------------------------------------------------------
 
 def results_panel(screen):
     """``screen``'s results panel, or None on a screen that has none."""
@@ -482,11 +459,6 @@ def _build_profiler(host_window: Optional[QWidget] = None,
 BUILDERS: Dict[str, Callable[..., Optional[QWidget]]] = {
     "volcano_explorer": open_publication_figure,
     "methods_export": build_methods_export,
-    # BOTH STILL HOLD REGISTRY ROWS, unlike the three above. They keep
-    # their name, sentence and maturity colour from the registry, so
-    # neither needs a `FOLD_FALLBACK` entry -- and both stay reachable
-    # from the command palette, which is the route that must cover every
-    # module whether or not it has a tile.
     "investigate_hit": _build_investigate_hit,
     "profiler": _build_profiler,
 }
@@ -497,13 +469,6 @@ BUILDERS: Dict[str, Callable[..., Optional[QWidget]]] = {
 #: the shared fold records -- and this is in none of them, because it is a
 #: view of files a run wrote rather than a module.
 FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
-    # SHADOWED SINCE f37f7d553, and kept in step rather than deleted.
-    # `map_barcodes.FOLD_FALLBACK` gained a `regression_diagnostics` row
-    # that `fold_description` reaches first, so this one no longer decides
-    # anything -- but two tables answering the same question must not
-    # DISAGREE, and this said "beta" where the registry row and the shared
-    # record both say "alpha". A reader comparing them would not know which
-    # was current.
     DIAGNOSTICS_KEY: (
         "Diagnostics",
         "Show the diagnostic panels the last regression run wrote beside "
@@ -545,10 +510,6 @@ class DiagnosticsOpener:
         candidate = os.path.join(str(root), RESULTS_DIRNAME)
         if not os.path.isdir(candidate):
             return None
-        # THE NEWEST RUN, not the first found. A project accumulates
-        # results folders and the one the user just produced is the one
-        # they mean; offering an older one silently would show panels for
-        # a fit they are not looking at.
         newest, newest_at = None, -1.0
         for base, dirs, _files in os.walk(candidate):
             if DIAGNOSTICS_DIRNAME in dirs:
@@ -592,8 +553,6 @@ class DiagnosticsOpener:
                         elif row.get("metric") == "verdict":
                             detail = str(row.get("value") or "")
         except Exception:                                    # noqa: BLE001
-            # A summary that cannot be read is not a verdict. The button
-            # still opens the folder, which is where the panels are.
             LOG.debug("could not read the diagnostics summary", exc_info=True)
             return "", ""
         return level, detail
@@ -611,11 +570,6 @@ class DiagnosticsOpener:
             return
         note = os.path.join(folder, "residual_panels_not_available.txt")
         if os.path.isfile(note):
-            # THE REASON, NOT AN EMPTY FOLDER. `ml` writes this file when
-            # the backend cannot produce residuals -- RRA ranks rather
-            # than fits, so "residual" has no meaning for it. A reader who
-            # opens a folder with fewer panels than they expected cannot
-            # tell that from a failure.
             try:
                 with open(note, encoding="utf-8") as handle:
                     QMessageBox.information(
@@ -690,10 +644,6 @@ def install_extras(screen: QWidget) -> bool:
     if panel is None:
         return False
     install_correction_families(panel)
-    # "Investigate selected…" used to be connected by the registry factory,
-    # which ran only while the hit list was still a tile. It is a tab now, so
-    # the connection is made where the tab is built -- otherwise the button
-    # emits the selected result into nothing.
     from .hit_list import connect_investigation
 
     connect_investigation(install_hits_tab(panel), screen.window())
@@ -754,23 +704,12 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
         else:
             openers.append(FoldOpener(screen, key,
                                       partial(BUILDERS[key], screen=screen)))
-    # The panel is prepared BEFORE the buttons exist, so no button can be
-    # pressed into a panel that has not got its tab yet.
     install_extras(screen)
     try:
         strip = FoldStrip([(o.key, o.open) for o in openers], header)
         for opener in openers:
             button = strip.button_for(opener.key)
             restate_fold_button(button, opener.key)
-            # THE BADGE, item 3 of instruction 322. Only the diagnostics
-            # opener has a verdict to show; the rest are modules, and a
-            # module has no verdict on a run.
-            #
-            # Read once, here, rather than on every repaint: it is a file
-            # on disk, and a run finishing is what changes it. Failing to
-            # read it leaves the button unbadged, which is the same thing
-            # a run that has not happened yet shows -- and is right,
-            # because in both cases there is no verdict to report.
             if hasattr(opener, "verdict") and hasattr(button, "set_verdict"):
                 try:
                     level, detail = opener.verdict()
@@ -782,7 +721,6 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     except Exception:
         LOG.debug("Could not build the regression fold strip", exc_info=True)
         return None
-    # The openers outlive this call only because the screen holds them.
     screen._fold_openers = openers
     screen._fold_strip = strip
     return strip

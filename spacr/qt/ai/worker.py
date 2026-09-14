@@ -86,11 +86,7 @@ class StreamWorker(QObject):
             else:
                 self.finished.emit(True, "".join(buf))
         except BaseException as e:
-            # BaseException — even a KeyboardInterrupt during a
-            # blocking network call should let the UI recover instead
-            # of leaving _thread wedged forever.
             tb = traceback.format_exc()
-            # Print to real stderr so users can see it while we iterate.
             try:
                 print(f"[AI worker] error: {tb}", file=sys.__stderr__, flush=True)
             except Exception:
@@ -147,11 +143,9 @@ def make_stream_thread(
     from PySide6.QtCore import Qt
     thread = QThread(parent)
     worker = StreamWorker(provider, messages, system=system, model=model)
-    worker.setParent(None)              # worker moves to thread, no parent
+    worker.setParent(None)
     worker.moveToThread(thread)
     thread.started.connect(worker.run)
     worker.finished.connect(thread.quit, Qt.DirectConnection)
-    # The QThread is GUI-affine, so its deferred delete is flushed by the
-    # GUI thread's own loop. That one is safe, and it is the only one.
     thread.finished.connect(thread.deleteLater, Qt.QueuedConnection)
     return thread, worker

@@ -181,7 +181,6 @@ def axis_frame(coords: Any, width: int, height: int, *, yaw: float = 0.0,
 
     low = np.min(xyz, axis=0)
     high = np.max(xyz, axis=0)
-    # Degenerate dimensions still receive a visible axis of finite length.
     high = np.where(np.isclose(high, low), low + 1.0, high)
     origin = low.copy()
     axes = []
@@ -193,8 +192,6 @@ def axis_frame(coords: Any, width: int, height: int, *, yaw: float = 0.0,
 
     grid = []
     fractions = (0.2, 0.4, 0.6, 0.8)
-    # A readable base-plane grid: X/Y in both 2D and 3D. The third axis rises
-    # from the same origin in 3D and rotates with the map.
     for fraction in fractions:
         x = low[0] + (high[0] - low[0]) * fraction
         grid.append(tuple(projected(((x, low[1], low[2]),

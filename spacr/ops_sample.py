@@ -262,11 +262,6 @@ def barcode_rows(objects: Sequence, values: np.ndarray, *,
             "n_cycles": int(values.shape[1]),
         }
         if mapped is not None:
-            # `correct_to_library` returns None for a read that is equally
-            # close to two library barcodes -- "AMBIGUITY IS DISCARDED, NOT
-            # GUESSED". That None must survive into the table as an empty
-            # cell rather than the string "None", which would look like a
-            # guide called None and join against nothing.
             entry = mapped[index]
             row["mapped_guide"] = "" if entry is None else str(entry)
         rows.append(row)

@@ -115,15 +115,39 @@ class TestThePreferenceFields:
         assert layout.indexOf(QLabel("elsewhere")) == -1, (
             "indexOf no longer answers -1 for a widget it does not hold")
 
-    def test_the_hint_goes_above_the_buttons(self):
+    def test_the_hint_goes_above_the_buttons(self, qtbot):
         """The placement is the point: a hint under the buttons reads as
         a footnote to them rather than as the answer to the control the
-        pointer is on."""
+        pointer is on.
+
+        Asked of a built dialog, which is where the placement actually
+        happens -- the insertion is by row, and a row is only above the
+        buttons if the finished layout says so.
+        """
+        from PySide6.QtWidgets import QDialogButtonBox
+
         from spacr.qt import preferences as P
+        from spacr.qt.widgets.hint_bar import HintBar
 
         source = _source(P)
         assert "layout.insertWidget(row_of_buttons, hints)" in source
-        assert "footnote to the buttons rather than as the answer" in source
+
+        dialog = P.PreferencesDialog()
+        qtbot.addWidget(dialog)
+        layout = dialog.layout()
+        buttons = dialog.findChild(QDialogButtonBox)
+        assert buttons is not None
+
+        row_of_buttons = layout.indexOf(buttons)
+        assert row_of_buttons > 0, "the buttons are in the dialog's own layout"
+
+        hints = dialog.findChild(HintBar)
+        assert hints is not None, "the dialog has no hint strip at all"
+        assert layout.indexOf(hints) == row_of_buttons - 1, (
+            "the hint strip is no longer directly above the buttons, so it "
+            "reads as a footnote to them rather than as the answer to the "
+            "control the pointer is on -- and it sits furthest from the "
+            "tabs it describes")
 
 
 class TestTheTracebackFrameFilter:
@@ -297,41 +321,97 @@ class TestTheAbstractClauseRow:
 
 class TestSweepingBeforeNaming:
 
-    def test_home_clears_by_rule_before_it_names_anything(self):
+    def test_home_clears_by_rule_before_it_names_anything(self, monkeypatch):
         """THE PIN, for the generic sweep's position.
 
         Home used to hand-list five widgets it guessed were responsible,
         and measuring found three that were not on it -- the hero's own
         QLabels, Qt's internal `qt_tabwidget_tabbar`, and the anonymous
         row hosts the tiles sit in. Naming widgets one at a time cannot
-        keep up with a layout; sweeping by rule can.
+        keep up with a layout; sweeping by rule can -- so the sweep runs
+        FIRST and the named widgets are what is left over, which is what
+        this drives and records the order of.
         """
+        from spacr.qt import theme as T
         from spacr.qt.widgets import home as H
 
-        source = inspect.getsource(H.HomePage._clear_page_surfaces)
-        sweep = source.index("clear_container_surfaces(self)")
+        order = []
+        monkeypatch.setattr(T, "clear_container_surfaces",
+                            lambda *a, **k: order.append("swept by rule"))
+        monkeypatch.setattr(T, "make_transparent",
+                            lambda *a, **k: order.append("named one by one"))
 
-        assert "The generic sweep FIRST" in source[:sweep]
-        assert "Naming widgets one at a time cannot keep up" in source
+        class _Page:
+            """Home with nothing on it: only the calls are of interest."""
+
+            _running_host = object()
+            _hint_bar = object()
+            _tabs = None
+
+            def findChildren(self, *args, **kwargs):
+                return []
+
+            def findChild(self, *args, **kwargs):
+                return None
+
+            def layout(self):
+                return None
+
+        H.HomePage._clear_page_surfaces(_Page())
+
+        assert order, "nothing was cleared at all"
+        assert order[0] == "swept by rule", (
+            "Home names widgets before it sweeps by rule, so the sweep can "
+            "no longer be what covers the ones nobody thought to name")
+        assert "named one by one" in order[1:], (
+            "the named widgets are gone from the method, so this no longer "
+            "says anything about the order of the two")
 
 
 class TestTheAgreementPlot:
 
-    def test_an_agreement_plot_needs_an_effect_and_a_feature_column(self):
-        """THE ARC: ``key == "agreement"``.
+    def test_an_agreement_plot_needs_an_effect_and_a_feature_column(
+            self, qtbot):
+        """THE ARC that is now the ``else``: the agreement panel.
 
-        Concordance is measured between guides of one gene on one
-        feature, so both are required -- and answering None is what
-        leaves the tile empty rather than drawing a plot of nothing.
+        ``FAST_PANELS`` is exhaustive and the six keys above are named, so
+        the final arm IS ``agreement`` -- asserted here rather than read
+        off a comment naming the ``elif`` it used to be. Concordance is
+        measured between guides of one gene on one feature, so both an
+        effect column and a feature column are required, and answering
+        None is what leaves the tile empty rather than drawing a plot of
+        nothing.
         """
         from spacr.figures import fast_render as FR
 
         source = _source(FR)
-        assert 'elif key == "agreement":' in source
         assert 'if effect is None or "feature" not in frame.columns:' in source
 
-        frame = pd.DataFrame({"coefficient": [1.0]})
-        assert "feature" not in frame.columns
+        named_above = {"volcano", "effect_rank", "effect_distribution",
+                       "p_histogram", "qq", "controls"}
+        assert set(FR.FAST_PANELS) - named_above == {"agreement"}, (
+            "the else arm is no longer the agreement panel, so the guard "
+            "below it is speaking for some other key")
+
+        guides = ["fraction:grna[TGGT1_A_1]", "fraction:grna[TGGT1_A_2]",
+                  "fraction:grna[TGGT1_B_1]", "fraction:grna[TGGT1_B_2]"]
+        frame = pd.DataFrame({"feature": guides,
+                              "coefficient": [1.0, 0.8, -0.5, 0.6],
+                              "p_value": [0.001, 0.02, 0.3, 0.4]})
+
+        whole = FR.build_fast_plot("agreement", frame)
+        assert whole is not None, (
+            "a table with guides, an effect and p-values draws nothing, so "
+            "the two refusals below pass on a table nothing could plot")
+        whole.deleteLater()
+
+        assert FR.build_fast_plot(
+            "agreement", frame.drop(columns=["feature"])) is None, (
+            "concordance is drawn without the feature column that says "
+            "which guides belong to which gene")
+        assert FR.build_fast_plot(
+            "agreement", frame.drop(columns=["coefficient"])) is None, (
+            "concordance is drawn without an effect to agree about")
 
     def test_a_controls_plot_needs_two_groups(self):
         """The neighbouring arm, driven on the same shape: one group has

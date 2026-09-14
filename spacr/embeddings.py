@@ -335,9 +335,6 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     return run
 
 
-# ---------------------------------------------------------------------------
-# The zoo entry: what produced these numbers, and can it be reproduced
-# ---------------------------------------------------------------------------
 
 #: Key prefix for an encoder's model-zoo entry. Distinct from a checkpoint's
 #: filename-derived key because an encoder has no file of spaCR's own -- it is

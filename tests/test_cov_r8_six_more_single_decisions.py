@@ -19,6 +19,35 @@ import pytest
 # crops -- a region that does not overlap the window at all
 # ---------------------------------------------------------------------------
 
+def _merged_field(tmp_path, mask):
+    """A merged .npy plus its open field: two intensity planes, then a mask.
+
+    A gradient rather than a constant, so a crop that was masked to its
+    region is distinguishable from one that was not.
+    """
+    from spacr import crops as C
+
+    shape = mask.shape
+    intensity = (np.arange(shape[0] * shape[1], dtype=np.uint32)
+                 .reshape(shape) * 7 + 500).astype(np.uint16)
+    stack = np.stack([intensity, intensity // 2 + 1, mask.astype(np.uint16)],
+                     axis=-1)
+    path = str(tmp_path / "plate1_A01_F001.npy")
+    np.save(path, stack)
+    return path, C.open_merged_field(path, {"cell": 2})
+
+
+def _awkward_mask():
+    """Two objects chosen to stress the centroid: one flush with the frame
+    corner, and a C whose centre of mass is off the object entirely."""
+    mask = np.zeros((40, 40), dtype=np.uint16)
+    mask[0:6, 0:6] = 1
+    mask[20:34, 10:14] = 2
+    mask[20:34, 24:28] = 2
+    mask[30:34, 14:24] = 2
+    return mask
+
+
 class TestMaskingACropToItsRegion:
 
     def _overlap(self, window, region):
@@ -34,19 +63,22 @@ class TestMaskingACropToItsRegion:
         assert oy1 > oy0 and ox1 > ox0
         assert (oy0, oy1, ox0, ox1) == (2, 6, 3, 7)
 
-    def test_a_region_entirely_outside_the_window_keeps_nothing(self):
-        """THE UNCOVERED ARC: the two rectangles do not meet.
+    def test_a_region_entirely_outside_the_window_keeps_nothing(self, tmp_path):
+        """THE ARC THAT CANNOT BE TAKEN: the two rectangles do not meet.
 
-        The crop window is centred on an OBJECT and the region is the
-        cell it belongs to; a cell whose centroid is near the frame edge
-        gets a window clamped inside the image, and an object assigned
-        to a cell in a neighbouring field gets a region that does not
-        meet it at all.
+        If they ever did, slicing with a reversed range would give an
+        empty selection on the left and a non-empty one on the right,
+        so the assignment would raise "could not broadcast" -- after
+        the window has already been read off disk.
 
-        Slicing with a reversed range gives an empty selection on the
-        left and a non-empty one on the right, so the assignment would
-        raise "could not broadcast" -- after the window has already been
-        read off disk.
+        ``_crop_from_field`` carries no ``if oy1 > oy0 and ox1 > ox0:``
+        guard against that, because the window is centred on the
+        rounded centroid and every branch of ``_region_for`` computes
+        that centroid from pixels inside the bounds it returns
+        alongside it. So the INVARIANT is what is pinned, over the two
+        shapes most likely to break it: an object flush with the frame
+        corner, whose window is clamped, and a C whose centre of mass
+        is not on the object at all.
         """
         oy0, oy1, ox0, ox1 = self._overlap((0, 10, 0, 10), (20, 26, 30, 37))
 
@@ -59,26 +91,77 @@ class TestMaskingACropToItsRegion:
 
         from spacr import crops as C
 
-        source = inspect.getsource(C)
-        assert "if oy1 > oy0 and ox1 > ox0:" in source
+        path, field = _merged_field(tmp_path, _awkward_mask())
+        for label in (1, 2):
+            for use_bbox in (False, True):
+                spec = C.CropSpec(merged_path=path, object_type="cell",
+                                  label=label, channels=(0, 1), size=(8, 8),
+                                  mask_dims={"cell": 2},
+                                  use_bounding_box=use_bbox)
+                centroid, (ry0, ry1, rx0, rx1), region = C._region_for(
+                    field, spec)
+                wy0, wx0 = int(centroid[0]) - 4, int(centroid[1]) - 4
+                gy0, gy1 = max(wy0, ry0), min(wy0 + 8, ry1)
+                gx0, gx1 = max(wx0, rx0), min(wx0 + 8, rx1)
+                assert gy1 > gy0 and gx1 > gx0, (
+                    f"label {label} (use_bounding_box={use_bbox}) came back "
+                    "with a region the crop window does not meet, so masking "
+                    "the crop to it raises 'could not broadcast' after the "
+                    "window has been read off disk")
+                assert region[gy0 - ry0:gy1 - ry0,
+                              gx0 - rx0:gx1 - rx0].shape == \
+                    (gy1 - gy0, gx1 - gx0)
 
-    def test_no_region_at_all_leaves_the_crop_whole(self):
-        """THE UNCOVERED ARC above it: ``region is None``.
+        # And the crop the invariant protects really is cut, corner
+        # object included: the assignment does not raise, and the half
+        # outside the region is zero.
+        crop = C.extract_crop(path, "cell", 1, channels=(0, 1), size=(8, 8),
+                              mask_dims={"cell": 2}, use_bounding_box=False,
+                              normalize=None)
+        assert crop.shape == (8, 8, 3)
+        assert not crop[:2, :, 0].any() and not crop[:, :2, 0].any(), (
+            "the window clamped at the frame edge no longer zero-pads, so "
+            "the region it was masked to was not the one it overlapped")
+        assert crop[2:, 2:, 0].any()
 
-        A crop taken without an object mask -- the raw-window path the
-        montage uses -- has no region to clip to, and building the keep
-        array for it would be a full-frame allocation per crop for
-        nothing.
+    def test_no_region_at_all_leaves_the_crop_whole(self, tmp_path):
+        """THE ARC ABOVE IT: ``region is None``.
+
+        ``_crop_from_field`` carries no ``if region is not None:``
+        either. ``_region_for`` has a single ``return`` and every path
+        through it binds ``region`` to a boolean array -- ``np.ones``
+        on the bounding-box branch, ``window == label`` on the outline
+        branch, which raises ``LabelMissing`` rather than handing back
+        an empty one. That contract is asserted here, because a None
+        region would mean a crop nothing masked: the whole neighbouring
+        field left in the thumbnail.
         """
         from spacr import crops as C
 
-        source = inspect.getsource(C)
-        assert "if region is not None:" in source
-        region_check = source.index("if region is not None:")
-        overlap_check = source.index("if oy1 > oy0 and ox1 > ox0:")
-        assert region_check < overlap_check, (
-            "the overlap is computed before the region is checked, so a "
-            "crop with no region now allocates a keep array anyway")
+        path, field = _merged_field(tmp_path, _awkward_mask())
+        for label in (1, 2):
+            for use_bbox in (False, True):
+                spec = C.CropSpec(merged_path=path, object_type="cell",
+                                  label=label, channels=(0, 1), size=(8, 8),
+                                  mask_dims={"cell": 2},
+                                  use_bounding_box=use_bbox)
+                _centroid, bounds, region = C._region_for(field, spec)
+                assert region is not None, (label, use_bbox)
+                assert region.dtype == bool, (label, use_bbox)
+                ry0, ry1, rx0, rx1 = bounds
+                assert region.shape == (ry1 - ry0, rx1 - rx0), (
+                    "the region is no longer restricted to the bounds "
+                    "returned with it")
+                assert region.any(), (
+                    f"label {label} (use_bounding_box={use_bbox}) came back "
+                    "with an all-false region, so the crop it masks is "
+                    "entirely black")
+
+        with pytest.raises(C.LabelMissing):
+            C._region_for(field, C.CropSpec(
+                merged_path=path, object_type="cell", label=97,
+                channels=(0, 1), size=(8, 8), mask_dims={"cell": 2},
+                use_bounding_box=False))
 
 
 # ---------------------------------------------------------------------------

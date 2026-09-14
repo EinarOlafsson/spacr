@@ -76,7 +76,7 @@ def paint_tile(painter: QPainter, w: float, h: float, pixmap, *,
     :param current: whether the cursor (or the keyboard) is on this tile.
     """
     painter.setRenderHint(QPainter.Antialiasing, True)
-    painter.setBrush(painter.brush().__class__())    # Qt.NoBrush equivalent
+    painter.setBrush(painter.brush().__class__())
     inner = QRectF(TILE_INSET, TILE_INSET,
                    max(0.0, w - 2 * TILE_INSET), max(0.0, h - 2 * TILE_INSET))
     if (pixmap is not None and not pixmap.isNull()

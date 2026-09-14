@@ -65,7 +65,6 @@ def somebody_is_there() -> bool:
     app = QApplication.instance()
     if app is None:
         return False
-    # An offscreen platform is a test or a render farm, not a person.
     if os.environ.get("QT_QPA_PLATFORM", "").startswith("offscreen"):
         return False
     return True
@@ -103,8 +102,6 @@ def ask_for_a_folder(
                       f"this run stops here rather than waiting for an "
                       f"answer that cannot come.")
 
-    # THE PRODUCTION PATH. `chooser` is injected by tests and by
-    # nothing else, so this is what the application always takes.
     if chooser is None:
         from PySide6.QtWidgets import QFileDialog
 
@@ -121,7 +118,6 @@ def ask_for_a_folder(
         if complaint is None:
             _ANSWERED[key] = chosen
             return chosen, f"{what}: using {chosen}, chosen just now"
-        # Rejected IN the dialog rather than accepted and failed afterwards.
         tried = complaint
 
 
@@ -237,8 +233,6 @@ def ask_for_a_database_column(
                       f"this run stops here rather than waiting for an "
                       f"answer that cannot come.")
 
-    # THE PRODUCTION PATH. `chooser` is injected by tests and by
-    # nothing else, so this is what the application always takes.
     if chooser is None:
         from PySide6.QtWidgets import QFileDialog
 
@@ -265,15 +259,12 @@ def ask_for_a_database_column(
                           f"error it would have given anyway.")
         tables = tables_in(database)
         if not tables:
-            # Rejected IN the form: a file that is not a database, or one
-            # with no tables, is the same failure one step later.
             complaint = (f"{os.path.basename(database)} holds no tables. "
                          f"Choose the database that does.")
             continue
 
         table = pick(what, f"Table in {os.path.basename(database)}", tables)
         if table is None:
-            # Back out to the database rather than abandoning the form.
             complaint = tried
             continue
 

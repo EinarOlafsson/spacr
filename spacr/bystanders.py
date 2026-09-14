@@ -95,8 +95,6 @@ def _median_cell_diameter(cell_mask, spacing=None) -> float:
     if not areas.size:
         return 0.0
     scale = _as_neighbour_scale(spacing, 2)
-    # AREA IS A PRODUCT OF BOTH AXES, so the pixel area is the product of
-    # the two spacings; the diameter is its square root's companion.
     pixel_area = float(scale[0]) * float(scale[1])
     return float(np.median(2.0 * np.sqrt(areas * pixel_area / np.pi)))
 
@@ -170,10 +168,6 @@ def distance_to_infected(cell_mask, infected_labels: Iterable[int], *,
             "distance_to_infected": np.full(labels.size, np.inf, dtype=float)})
 
     field = surface_distance_transform(infected, spacing=spacing)
-    # THE MINIMUM OVER THE CELL, NOT THE VALUE AT ITS CENTROID. A large or
-    # bent cell can have its centroid far from an infected neighbour while
-    # its membrane touches one, and it is the membrane that is exposed.
-    # `labeled_comprehension` walks each label once.
     from scipy.ndimage import labeled_comprehension
 
     smallest = labeled_comprehension(
@@ -286,8 +280,6 @@ def neighbourhood(cell_mask, infected_labels: Iterable[int], *, k: int = 6,
     infected = np.isin(labels, list(wanted)) if wanted else np.zeros(
         len(labels), dtype=bool)
 
-    # +1 BECAUSE THE FIRST HIT IS ALWAYS THE CELL ITSELF. Asking for k and
-    # dropping the nearest would silently return k-1 neighbours.
     take = min(int(k) + 1, len(labels)) if int(k) > 0 else 1
     tree = cKDTree(points)
     _distance, index = tree.query(points, k=take)
@@ -373,13 +365,6 @@ def compare(frame: pd.DataFrame, feature: str, *,
         rows.append({
             "neighbourhood": name,
             "n": int(values.size),
-            # `ddof=1`, WHICH IS THE POINT OF THIS ITEM. The confound it
-            # exists to remove is an inflated control variance, so the
-            # spread reported here has to be the sample estimate a reader
-            # would compare against -- not the population one, which is
-            # smaller and would understate exactly the effect being
-            # looked for. NaN at n < 2 rather than 0: one cell has no
-            # spread, and 0 would read as a perfectly consistent group.
             "mean": float(values.mean()) if values.size else np.nan,
             "std": float(values.std(ddof=1)) if values.size > 1 else np.nan,
             "median": float(values.median()) if values.size else np.nan,

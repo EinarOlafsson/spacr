@@ -77,8 +77,6 @@ class FeatureExplorerScreen(QWidget):
         self.setObjectName("FeatureExplorerScreen")
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
-        # Injectable, so a test drives a private link rather than the
-        # process-wide one every other open view is also listening to.
         self._link = link if link is not None else linked_selection()
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_load_failed)
@@ -128,14 +126,6 @@ class FeatureExplorerScreen(QWidget):
         body.addWidget(self.explorer)
 
         side = QTabWidget(self)
-        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
-        # settings column eating the figure beside it, and 340 px is the
-        # right answer at 100 %% -- and only there. The glyphs inside it
-        # double at 200 %% and the box did not, which is the same defect
-        # instruction 350 already fixed on UsageBar's fixed 48 px caption
-        # column. Measured on Control Charts: the column's own sizeHint
-        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
-        # cap that stayed 330 in all three.
         from ..preferences import scaled_px
         side.setMaximumWidth(scaled_px(340))
         self.filters = DataFilterPanel(self, link=link)
@@ -148,17 +138,11 @@ class FeatureExplorerScreen(QWidget):
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 0)
         outer.addWidget(body, 1)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "feature_explorer")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Point the screen at a table to rank.
 
@@ -210,7 +194,6 @@ class FeatureExplorerScreen(QWidget):
         """Recompute the derived columns and push the frame back to the panel."""
         self._push_frame()
 
-    # -- loading ----------------------------------------------------------
     def choose_table(self) -> None:
         """Ask which table in the project to rank."""
         path, _ = QFileDialog.getOpenFileName(
@@ -297,7 +280,6 @@ class FeatureExplorerScreen(QWidget):
         """
         return self._jobs.is_busy()
 
-    # -- export -----------------------------------------------------------
     def choose_export(self) -> None:
         """Ask where to write the ranking."""
         path, _ = QFileDialog.getSaveFileName(
@@ -368,11 +350,6 @@ def make_feature_explorer_screen(app_key: Optional[str] = None) -> QWidget:
     return FeatureExplorerScreen()
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc

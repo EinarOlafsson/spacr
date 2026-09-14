@@ -9,9 +9,6 @@ import numpy as np
 
 from .tiff_io import write_tiff
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib
-# only inside its own functions, so naming it here costs
-# nothing at import time.
 from .figures.style import figure_style, theme_target
 
 class _DiskFeatureStore:
@@ -31,7 +28,7 @@ class _DiskFeatureStore:
         self.max_ram = int(max_ram_items)
         self.verbose = bool(verbose)
         self._ram: "OrderedDict[str, Dict[str, np.ndarray]]" = OrderedDict()
-        self._lru_lock = threading.Lock()  # NEW
+        self._lru_lock = threading.Lock()
 
     @staticmethod
     def _key_for_path(path: str) -> str:
@@ -51,13 +48,11 @@ class _DiskFeatureStore:
 
     def get(self, path: str) -> Optional[Dict[str, np.ndarray]]:
         """Return the cached feature dict for ``path`` (RAM or disk), or ``None`` if missing."""
-        # LRU hit
         with self._lru_lock:
             if path in self._ram:
                 v = self._ram.pop(path)
                 self._ram[path] = v
                 return v
-        # Disk hit (no lock while reading disk)
         pz = self._npz_path(path)
         if os.path.exists(pz):
             try:
@@ -72,16 +67,6 @@ class _DiskFeatureStore:
                         W=int(Z["W"]),
                     )
             except Exception as e:
-                # A truncated/corrupt NPZ (e.g. a run killed mid-write) must not
-                # poison the cache forever: drop it and report a miss so the
-                # caller recomputes and rewrites the entry.
-                #
-                # But delete ONLY for errors that mean the bytes are bad.
-                # A transient OSError, PermissionError or MemoryError on read
-                # says nothing about the file's contents, and unlinking there
-                # destroys a perfectly good cache entry -- and on a full disk
-                # or under memory pressure it would destroy the whole cache,
-                # one entry per attempt. Those report a miss and leave the file.
                 corrupt = isinstance(e, (ValueError, EOFError, zipfile.BadZipFile,
                                          KeyError, TypeError))
                 if self.verbose:
@@ -93,7 +78,6 @@ class _DiskFeatureStore:
                     except OSError:
                         pass
                 return None
-            # insert into LRU
             with self._lru_lock:
                 self._ram[path] = feat
                 if len(self._ram) > self.max_ram:
@@ -103,7 +87,6 @@ class _DiskFeatureStore:
 
     def put(self, path: str, feat: Dict[str, np.ndarray]) -> None:
         """Persist ``feat`` to disk and insert it at the front of the RAM LRU."""
-        # Save to disk
         np.savez_compressed(self._npz_path(path),
                             ds8=feat["ds8"],
                             pts=feat["pts"],
@@ -112,7 +95,6 @@ class _DiskFeatureStore:
                             Wds=np.int32(feat["Wds"]),
                             H=np.int32(feat["H"]),
                             W=np.int32(feat["W"]))
-        # Insert in RAM LRU
         with self._lru_lock:
             self._ram[path] = feat
             if len(self._ram) > self.max_ram:
@@ -207,7 +189,6 @@ class spacrStitcher:
       t_index  : int  choose time index if T exists.
     """
 
-    # ----------------------------- init ---------------------------------
     def __init__(self,
                  detector: str = "ORB",
                  nfeatures: int = 6000,
@@ -216,11 +197,7 @@ class spacrStitcher:
                  ransac_thresh_px: float = 3.0,
                  allow_scale: bool = False,
                  allow_rotation: bool = False,
-                 # QC outlines (DS)
                  outline_source: str = "otsu",
-                 # Only read when outline_source='cellpose'. 'cpsam' is the
-                 # one model Cellpose 4 ships; a path to a .CP_model / .pth
-                 # checkpoint from Train Cellpose is loaded as given.
                  cellpose_model: str = "cpsam",
                  cellpose_diameter: Optional[float] = None,
                  canny: Tuple[int, int] = (40, 120),
@@ -228,29 +205,24 @@ class spacrStitcher:
                  dilate_ksize: int = 0,
                  line_thickness: int = 1,
                  outline_alpha: float = 1.0,
-                 # IO
                  outdir: str = "./sbs_out",
                  save_qc: bool = True,
                  save_stitched_default: bool = True,
-                 # scoring & control
                  all_scores: bool = False,
                  score_threshold: Optional[float] = None,
                  verbose: bool = False,
-                 # robustness / scaling controls
-                 feature_cache_mode: str = "disk",          # "ram" | "disk"
-                 feature_cache_dir: Optional[str] = None,   # where to store DS features if disk
-                 max_ram_features: int = 256,               # LRU size if disk mode
-                 n_workers_features: Optional[int] = None,  # feature threads
-                 pair_batch_size: int = 8000,               # max pairs processed per batch
-                 stream_csv: bool = True,                   # write rows as we go
-                 opencv_threads: int = 1,                   # avoid thread oversubscription
-                 # axis/Z/time handling
+                 feature_cache_mode: str = "disk",
+                 feature_cache_dir: Optional[str] = None,
+                 max_ram_features: int = 256,
+                 n_workers_features: Optional[int] = None,
+                 pair_batch_size: int = 8000,
+                 stream_csv: bool = True,
+                 opencv_threads: int = 1,
                  arr_axes: str = "AUTO",
                  mip: bool = False,
                  z_index: int = 0,
                  t_index: int = 0,
                  squeeze_singleton: bool = True,
-                 # hardware
                  ops_gpu: bool = True,
                  ):
         """Configure the feature detector and the match tolerances.
@@ -268,18 +240,12 @@ class spacrStitcher:
         self.allow_scale = bool(allow_scale)
         self.allow_rotation = bool(allow_rotation)
     
-        # WHETHER THIS RUN MAY TAKE THE CARD. Not "is there one" --
-        # `spacr.accelerator` answers that -- but whether this run is
-        # allowed to, which is a different question on a machine whose GPU
-        # is running somebody else's screen. False keeps every step on the
-        # CPU even where a device resolves.
         self.ops_gpu = bool(ops_gpu)
 
         self.outline_source = outline_source.lower()
         self.cellpose_model = cellpose_model
         self.cellpose_diameter = (None if cellpose_diameter is None
                                   else float(cellpose_diameter))
-        # Built lazily by _get_cellpose_model and reused for every tile.
         self._cp_model = None
         self.canny = tuple(canny)
         self.blur_sigma = float(blur_sigma)
@@ -296,7 +262,6 @@ class spacrStitcher:
         self.score_threshold = None if score_threshold is None else float(score_threshold)
         self.verbose = bool(verbose)
     
-        # detector init
         if self.detector == "ORB":
             self._det = cv2.ORB_create(nfeatures=self.nfeatures, fastThreshold=5)
             self._bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
@@ -310,14 +275,12 @@ class spacrStitcher:
         else:
             raise ValueError("detector must be 'ORB' or 'SIFT'")
     
-        # OpenCV threads
         try:
             cv2.setNumThreads(int(opencv_threads))
         except Exception:
             pass
         self._opencv_threads = int(opencv_threads)
     
-        # Feature cache
         self.feature_cache_mode = feature_cache_mode.lower()
         if self.feature_cache_mode not in ("ram", "disk"):
             raise ValueError("feature_cache_mode must be 'ram' or 'disk'")
@@ -335,13 +298,11 @@ class spacrStitcher:
         self.pair_batch_size = int(pair_batch_size)
         self.stream_csv = bool(stream_csv)
     
-        # default metadata regex (10X_c1_A1_..._Site-5.tif)
         self._meta_re = re.compile(
             r'(?P<mag>\d+X)_c(?P<chan>\d+)_?(?P<well>[A-H]\d{1,2}).*?Site[-_](?P<site>\d+)\.(?:tif|tiff)$',
             re.IGNORECASE
         )
     
-        # Axis/Z/time handling
         self.arr_axes = str(arr_axes).upper()
         self.mip = bool(mip)
         self.z_index = int(z_index)
@@ -351,7 +312,6 @@ class spacrStitcher:
             if "Y" not in self.arr_axes or "X" not in self.arr_axes:
                 raise ValueError("arr_axes must include 'Y' and 'X' (or use 'AUTO').")
 
-    # ------------------------- utilities (static) ------------------------
     @staticmethod
     def _ensure_dir(p: str) -> str:
         """Create ``p`` if needed and return its absolute path."""
@@ -379,23 +339,19 @@ class spacrStitcher:
         Zero-mean normalized cross-correlation of Sobel gradient energy between a and b.
         If `mask` is provided, the ZNCC is computed only over mask==True.
         """
-        # ensure float32
         a = a.astype(np.float32, copy=False)
         b = b.astype(np.float32, copy=False)
     
-        # gradient energy images
         ea = cv2.Sobel(a, cv2.CV_32F, 1, 0, ksize=3)**2 + cv2.Sobel(a, cv2.CV_32F, 0, 1, ksize=3)**2
         eb = cv2.Sobel(b, cv2.CV_32F, 1, 0, ksize=3)**2 + cv2.Sobel(b, cv2.CV_32F, 0, 1, ksize=3)**2
     
         if mask is not None:
             idx = mask.astype(bool)
-            # require some overlap
             if idx.sum() < 25:
                 return 0.0
             ea = ea[idx]
             eb = eb[idx]
     
-        # ZNCC on gradient energy
         ea = ea - ea.mean()
         eb = eb - eb.mean()
         den = (ea.std() * eb.std()) + 1e-9
@@ -420,7 +376,6 @@ class spacrStitcher:
         A = np.eye(3, dtype=np.float32); A[:2, :3] = M2x3.astype(np.float32)
         return A
 
-    # --------------------------- masks (Otsu/Cellpose) -------------------
     def _get_cellpose_model(self):
         """Return this stitcher's ``CellposeModel``, building it once.
 
@@ -455,9 +410,6 @@ class spacrStitcher:
 
         pretrained = _resolve_cellpose_pretrained(self.cellpose_model)
         if not getattr(self, "ops_gpu", True):
-            # ASKED FOR THE CPU, SO TAKE THE CPU. The card may exist and be
-            # busy with an AlphaFold screen; "there is a GPU" and "this run
-            # may use it" are different questions.
             kwargs = {"gpu": False}
         else:
             try:
@@ -466,14 +418,6 @@ class spacrStitcher:
                 kwargs = cellpose_kwargs()
             except Exception:
                 kwargs = {"gpu": False}
-        # THE DEVICE IS NOT POPPED ANY MORE. `cellpose_kwargs` produces
-        # `gpu`, `device` and `use_bfloat16` TOGETHER because they have to
-        # agree -- cellpose branches on `gpu` before it looks at `device`,
-        # and dropping the resolved device left this call site picking
-        # cellpose's default rather than the one the resolver chose. On a
-        # machine with two cards that is the wrong card.
-        # No model_type= / diam_mean=: Cellpose 4 logs "not used in v4.0.1+"
-        # and drops both.
         self._cp_model = cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
         return self._cp_model
 
@@ -485,16 +429,8 @@ class spacrStitcher:
         """
         model = self._get_cellpose_model()
         x = img_u8.astype(np.float32) / 255.0
-        # eval(channels=) went away with Cellpose 4 ("channels deprecated in
-        # v4.0.1+"): the network takes up to three channels as given. The
-        # old [0, 0] pair reached a parameter Cellpose ignores. diameter,
-        # by contrast, is still honoured — the image is rescaled by
-        # 30/diameter — so it is exposed as cellpose_diameter.
         out = model.eval(x, diameter=self.cellpose_diameter,
                          flow_threshold=0.4, cellprob_threshold=0.0)
-        # Cellpose 4 returns (masks, flows, styles); Cellpose 3 returned a
-        # fourth `diams`. The old `masks, _, _, _ = ...` unpack would have
-        # raised on 4.x even if the Cellpose class had survived.
         masks = out[0]
         return np.asarray(masks).astype(np.int32)
 
@@ -506,13 +442,10 @@ class spacrStitcher:
         if self.outline_source == "cellpose":
             return self._cellpose_labels(img_u8) > 0
 
-        # Otsu (default)
         I = img_u8
         if self.blur_sigma and self.blur_sigma > 0:
             ksz = max(1, int(2 * round(3 * self.blur_sigma) + 1))
             I = cv2.GaussianBlur(I, (ksz, ksz), self.blur_sigma)
-        # cv2.threshold returns (computed_threshold, binarised_image); the
-        # first value is the Otsu level we need here.
         th, _ = cv2.threshold(I, 0, 255, cv2.THRESH_OTSU)
         mask = (I >= th)
         if self.dilate_ksize and self.dilate_ksize > 0:
@@ -535,7 +468,6 @@ class spacrStitcher:
             th, _ = cv2.threshold(I, 0, 255, cv2.THRESH_OTSU)
             mask = (I >= th).astype(np.uint8)
     
-        # NOTE: use dilate_ksize here (bugfix). line_thickness is for edge thickening later.
         if self.dilate_ksize and self.dilate_ksize > 0:
             k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (self.dilate_ksize, self.dilate_ksize))
             mask = cv2.dilate(mask, k)
@@ -548,7 +480,6 @@ class spacrStitcher:
     
         return edges > 0
 
-    # --------------------------- Axis helpers ----------------------------
     @staticmethod
     def _is_large_dim(n: int) -> bool:
         """Whether ``n`` is big enough to be an image axis rather than a stack.
@@ -605,7 +536,6 @@ class spacrStitcher:
         return "CZYX" if nd >= 4 else "CYX"
 
     def _normalize_to_yx(self, arr: np.ndarray, ch: int, axes_hint: Optional[str] = None) -> np.ndarray:
-        # Choose base axes
         """Reduce any TCZYX array to one 2-D ``(Y, X)`` plane of float32.
 
         Axes come from ``arr_axes`` when it is set, then from ``axes_hint``, and
@@ -620,11 +550,7 @@ class spacrStitcher:
         else:
             axes = self._guess_axes_from_shape(arr.shape)
     
-        # Align axes length to array rank
         ax = list(axes)
-        # If too many labels, drop T/C first.  Stop as soon as a pass removes
-        # nothing, otherwise an axes string with no T/C to give up (e.g.
-        # arr_axes="ZYX" against a 2-D plane) spins forever here.
         while len(ax) > arr.ndim:
             removed = False
             for d in ("T", "C"):
@@ -633,10 +559,8 @@ class spacrStitcher:
                     removed = True
             if not removed:
                 break
-        # If still too many, drop from the left (safest for unexpected leading dims)
         while len(ax) > arr.ndim:
             ax.pop(0)
-        # If too few labels, pad (prefer adding missing T then C at the front)
         while len(ax) < arr.ndim:
             if "T" not in ax:
                 ax.insert(0, "T")
@@ -646,7 +570,6 @@ class spacrStitcher:
                 ax.insert(0, "Z")
         axes = "".join(ax)
     
-        # Build slicers
         slicers = []
         for a in axes:
             if a == "T": slicers.append(self.t_index)
@@ -657,7 +580,6 @@ class spacrStitcher:
     
         sub = arr[tuple(slicers)]
     
-        # Max-project if Z kept
         if self.mip and sub.ndim == 3:
             z_axis = 0 if (self._is_large_dim(sub.shape[-1]) and self._is_large_dim(sub.shape[-2])) else int(np.argmin(sub.shape))
             sub = sub.max(axis=z_axis)
@@ -665,7 +587,7 @@ class spacrStitcher:
         if self.squeeze_singleton:
             sub = np.squeeze(sub)
     
-        if sub.ndim == 3:  # defensively drop a small stray axis
+        if sub.ndim == 3:
             small = [i for i, n in enumerate(sub.shape) if n <= 8]
             if small:
                 sub = sub.take(indices=0, axis=small[0])
@@ -675,24 +597,20 @@ class spacrStitcher:
     
         return sub.astype(np.float32, copy=False)
 
-    # --------------------------- IO & metadata ---------------------------
     def _read_plane(self, path: str, ch: int = 0) -> np.ndarray:
         """Load a single 2D YX plane from a possibly multi-axis TIFF."""
         with tifffile.TiffFile(path) as tf:
             series = tf.series[0]
             axes_hint = getattr(series, "axes", None)
             if axes_hint:
-                # Keep only T/C/Z/Y/X symbols
                 axes_hint = "".join(a for a in axes_hint.upper() if a in "TCZYX")
             arr = series.asarray()
     
         if arr.ndim == 2:
             return arr.astype(np.float32, copy=False)
     
-        # If no axes hint and 3-D, pick CYX vs ZYX sensibly
         if axes_hint is None and arr.ndim == 3:
             fn = os.path.basename(path).lower()
-            # If filename contains a channel token like _c1_/_c2_, treat first axis as C
             if re.search(r'(^|[_\-])c\d+([_\-]|$)', fn):
                 axes_hint = "CYX"
             else:
@@ -725,7 +643,6 @@ class spacrStitcher:
             out["chan"] = int(m.group("chan")) if "chan" in m.groupdict() else None
             out["mag"]  = m.group("mag") if "mag" in m.groupdict() else None
             return out
-        # lenient fallbacks
         mw = re.search(r"([A-H]\d{1,2})", fn, re.IGNORECASE)
         ms = re.search(r"Site[-_](\d+)", fn, re.IGNORECASE)
         mc = re.search(r"_c(\d+)_", fn, re.IGNORECASE)
@@ -734,7 +651,6 @@ class spacrStitcher:
         if mc: out["chan"] = int(mc.group(1))
         return out
 
-    # ----------------------- feature extraction/cache --------------------
     def _detect_and_describe(self, I8: np.ndarray):
         """Keypoints and descriptors for an 8-bit image.
 
@@ -747,7 +663,6 @@ class spacrStitcher:
             pts = np.zeros((0, 2), np.float32)
             desc = np.zeros((0, 32), np.uint8) if self.detector == "ORB" else np.zeros((0, 128), np.float32)
             return pts, desc
-        # Top-K by response
         if self.max_keypoints is not None and len(kp) > self.max_keypoints:
             idx = np.argsort([-k.response for k in kp])[:self.max_keypoints]
             kp = [kp[i] for i in idx]
@@ -765,18 +680,13 @@ class spacrStitcher:
         I = self._read_plane(path, ch=channel_index)
         H, W = I.shape
         s = self.downsample if self.downsample > 0 else 1.0
-        # ensure at least 1 px after DS (robust to extreme s)
         Hds = max(1, int(round(H * s)))
         Wds = max(1, int(round(W * s)))
         I_ds = cv2.resize(I, (Wds, Hds), interpolation=cv2.INTER_LINEAR)
         I8 = self._to_uint8(I_ds)
         pts, desc = self._detect_and_describe(I8)
-        # post-cap (if requested)
         if self.max_keypoints is not None and pts.shape[0] > self.max_keypoints:
             distances = np.linalg.norm(pts - pts.mean(0), axis=1)
-            # NumPy's default quicksort does not define which equal-distance
-            # point wins. Use the original index as an explicit descending
-            # tie-break so minimum and newest NumPy keep the same descriptors.
             idx = np.lexsort((-np.arange(pts.shape[0]), -distances))[
                 :self.max_keypoints]
             pts = pts[idx]
@@ -802,7 +712,6 @@ class spacrStitcher:
             num_workers = self.n_workers_features
 
         if self.feature_cache_mode == "disk":
-            # only compute for items missing on disk
             todo = []
             for p in paths:
                 if self._store.get(p) is None:
@@ -834,9 +743,6 @@ class spacrStitcher:
                 try:
                     p, feat = fut.result()
                 except Exception as e:
-                    # One unreadable tile must not abort a whole plate: report it
-                    # loudly (never silently) and let the pairs that need it fail
-                    # individually in run_folder's per-pair handler.
                     print(f"[features] WARNING: skipping {os.path.basename(futs[fut])}: {e}",
                           flush=True)
                     done += 1
@@ -870,7 +776,6 @@ class spacrStitcher:
                     self._feat_cache[path] = f
             return f
 
-    # ---------------------------- matching/RANSAC ------------------------
     def _match(self, fA: Dict[str, np.ndarray], fB: Dict[str, np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
         """Matched point pairs between two feature dicts.
 
@@ -930,7 +835,6 @@ class spacrStitcher:
     
         return M.astype(np.float32), inlier_mask, inlier_ratio
 
-    # ------------------------------ helpers ------------------------------
     @staticmethod
     def _closest_rotation(A: np.ndarray) -> np.ndarray:
         """Project 2x2 matrix A to the nearest proper rotation (det=+1)."""
@@ -941,14 +845,12 @@ class spacrStitcher:
             R = U @ Vt
         return R.astype(np.float32)
 
-    # ------------------------------ stitch one ---------------------------
     def stitch_pair(self,
                     pathA: str,
                     pathB: str,
                     channel_index: int = 0,
                     score_threshold: Optional[float] = None,
                     save_stitched: Optional[bool] = None,
-                    # NEW: QC gating (safe defaults preserve current behavior)
                     force_no_qc: bool = False,
                     qc_only_if_score_ge: Optional[float] = None) -> Optional[Dict]:
         """Estimate the B-to-A affine, score the overlap, and optionally write the stitched pair.
@@ -964,7 +866,6 @@ class spacrStitcher:
         """
         t0 = time.time()
     
-        # ---- helpers for dtype preservation ----
         def _series_dtype(p: str) -> np.dtype:
             """Return the NumPy dtype of TIFF ``p``'s first series."""
             with tifffile.TiffFile(p) as tf:
@@ -980,14 +881,12 @@ class spacrStitcher:
                 return np.clip(np.rint(arr), info.min, info.max).astype(dtype, copy=False)
             return arr.astype(dtype, copy=False)
     
-        # DS features (8-bit only for keypoints)
         fA = self._get_features(pathA, channel_index)
         fB = self._get_features(pathB, channel_index)
         A_ds8, B_ds8 = fA["ds8"], fB["ds8"]
         Hds, Wds = int(fA["Hds"]), int(fA["Wds"])
         s = self.downsample if self.downsample > 0 else 1.0
     
-        # match & model @ DS
         ptsA, ptsB = self._match(fA, fB)
         if ptsA.shape[0] < 4:
             if self.verbose:
@@ -999,7 +898,6 @@ class spacrStitcher:
                 print(f"[stitch_pair] {os.path.basename(pathA)} vs {os.path.basename(pathB)}: RANSAC failed → skip")
             return None
     
-        # inliers for constrained recompute
         if inlier_mask is not None and inlier_mask.any():
             pA = ptsA[inlier_mask]; pB = ptsB[inlier_mask]
         else:
@@ -1016,7 +914,6 @@ class spacrStitcher:
             t_mean = (pA - (pB @ A_rot.T)).mean(axis=0).astype(np.float32)
             M_ds = np.zeros((2, 3), dtype=np.float32); M_ds[:, :2] = A_rot; M_ds[:, 2] = t_mean
     
-        # DS masks & score
         mA_ds = self._foreground_mask(A_ds8)
         mB_ds = self._foreground_mask(B_ds8)
         B_ds_warp = cv2.warpAffine(B_ds8, M_ds, (Wds, Hds), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
@@ -1026,7 +923,6 @@ class spacrStitcher:
         edge_zncc_fg = self._edge_zncc(A_ds8.astype(np.float32), B_ds_warp.astype(np.float32), mask=m_int_ds)
         score = float(edge_zncc_fg * inlier_ratio)
     
-        # lift DS → full-res
         M_full = M_ds.astype(np.float32).copy()
         M_full[0, 2] /= s
         M_full[1, 2] /= s
@@ -1036,14 +932,12 @@ class spacrStitcher:
         scale = float(np.sqrt(max(1e-12, (a * d - b * c))))
         theta = float(np.degrees(np.arctan2(c, a)))
     
-        # ---- QC overlay (DS) with gating ----
         qc_paths = {}
         do_qc = (self.save_qc and not bool(force_no_qc))
         if do_qc and (qc_only_if_score_ge is not None):
             try:
                 do_qc = do_qc and (score >= float(qc_only_if_score_ge))
             except Exception:
-                # if threshold is malformed, fall back to current do_qc
                 pass
     
         if do_qc:
@@ -1053,33 +947,23 @@ class spacrStitcher:
                                          flags=cv2.INTER_NEAREST, borderMode=cv2.BORDER_CONSTANT) > 0
             bg = self._norm01(A_ds8)
             qc_rgb = np.dstack([bg, bg, bg]).astype(np.float32)
-            colA = np.array([0.0000, 0.4470, 0.6980], np.float32)  # blue
-            colB = np.array([0.8350, 0.3650, 0.0000], np.float32)  # orange
+            colA = np.array([0.0000, 0.4470, 0.6980], np.float32)
+            colB = np.array([0.8350, 0.3650, 0.0000], np.float32)
             qc_rgb = (1 - self.outline_alpha) * qc_rgb + self.outline_alpha * np.where(edgesA[..., None], colA, qc_rgb)
             qc_rgb = (1 - self.outline_alpha) * qc_rgb + self.outline_alpha * np.where(edgesB_warp[..., None], colB, qc_rgb)
     
             stem = f"{os.path.splitext(os.path.basename(pathA))[0]}__{os.path.splitext(os.path.basename(pathB))[0]}"
             p_outline = os.path.join(self.outdir, f"{stem}__qc_outlines.png")
-            # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-            # rcParams reach an artist when it is CREATED, so a
-            # context opened after `plt.subplots` would leave the
-            # spines, ticks and labels at the caller's globals.
             with figure_style(theme_target()):
                 fig, ax = plt.subplots(figsize=(8, 8))
                 ax.imshow(np.clip(qc_rgb, 0, 1)); ax.set_axis_off()
                 ax.set_title(f"score={score:.3f} (edge_zncc_fg={edge_zncc_fg:.3f} · inliers={inlier_ratio:.3f})")
-                # 108 point 6: the resolution and the repaint for paper.
-                # `fmt` STAYS PNG because the key this is stored under is
-                # `qc_outline_png` and the stitch result's schema names it
-                # that way -- a preference must not rename a file the rest
-                # of the pipeline refers to by extension.
                 from .plot import save_figure
 
                 p_outline = save_figure(fig, p_outline, fmt="png",
                                         close=True, bbox_inches="tight")
                 qc_paths["qc_outline_png"] = p_outline
     
-        # decide whether to stitch now
         if save_stitched is None:
             save_stitched = self.save_stitched_default
         save_stitched = bool(save_stitched)
@@ -1089,7 +973,6 @@ class spacrStitcher:
         if save_stitched:
             thr = score_threshold if score_threshold is not None else self.score_threshold
             if (thr is not None) and (score >= float(thr)):
-                # Read full-res (float32 workspace), but keep input dtypes for final cast
                 A_full = self._read_plane(pathA, ch=channel_index)
                 B_full = self._read_plane(pathB, ch=channel_index)
                 H, W = A_full.shape
@@ -1098,7 +981,6 @@ class spacrStitcher:
                 dtypeB = _series_dtype(pathB)
                 out_dtype = _common_dtype(dtypeA, dtypeB)
     
-                # Canvas geometry
                 corners = np.array([[0, 0], [W, 0], [0, H], [W, H]], dtype=np.float32).reshape(-1, 1, 2)
                 B_c = cv2.transform(corners, M_full).reshape(-1, 2)
                 all_x = np.concatenate([corners.reshape(-1, 2)[:, 0], B_c[:, 0]])
@@ -1109,13 +991,10 @@ class spacrStitcher:
                 off_x, off_y = int(-x_min), int(-y_min)
                 T = np.array([[1, 0, off_x], [0, 1, off_y]], np.float32)
     
-                # Blend in native intensity space (no normalization)
                 canvas = np.zeros((Hc, Wc), np.float32)
                 wgt = np.zeros_like(canvas)
-                # A contribution
                 canvas[off_y:off_y + H, off_x:off_x + W] += A_full
                 wgt[off_y:off_y + H, off_x:off_x + W] += 1.0
-                # B contribution (warp image + warp 1-mask to get coverage)
                 M_canvas = (T @ self._affine_to_3x3(M_full))[:2, :]
                 B_can = cv2.warpAffine(B_full, M_canvas, (Wc, Hc),
                                        flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
@@ -1124,9 +1003,6 @@ class spacrStitcher:
                 canvas += B_can
                 wgt += maskB
     
-                # Pixels no tile covers must stay at background level; dividing
-                # a leaked interpolation value by the 1e-6 floor would saturate
-                # them to the dtype maximum and draw a white seam.
                 stitched = np.where(wgt > 0, np.divide(canvas, np.maximum(wgt, 1e-6)), 0.0)
     
                 stem = f"{os.path.splitext(os.path.basename(pathA))[0]}__{os.path.splitext(os.path.basename(pathB))[0]}"
@@ -1141,7 +1017,6 @@ class spacrStitcher:
                     msg_thr = self.score_threshold if score_threshold is None else score_threshold
                     print(f"[stitch_pair] score {score:.3f} < threshold {msg_thr} → no stitch")
     
-        # optional full-res metrics (unchanged)
         edge_zncc_full = ""
         fg_corr = ""
         fg_iou = ""
@@ -1193,7 +1068,6 @@ class spacrStitcher:
             fg_xor_frac = float(fg_xor_frac_v)
             fg_xor_entropy = float(fg_xor_entropy_v)
     
-        # choose canvas dims for CSV row
         if (Hc > 0) and (Wc > 0):
             canvas_H_out, canvas_W_out = int(Hc), int(Wc)
         else:
@@ -1230,17 +1104,6 @@ class spacrStitcher:
             series = tf.series[0]
             axes = getattr(series, "axes", None)
             shape = series.shape
-        # A DECLARED AXIS ORDER IS TAKEN AT ITS WORD, and a file that names
-        # no channel axis has one channel. That is deliberate, not an
-        # oversight: `tifffile` labels a bare 3-D write 'QYX' or 'SYX' --
-        # "unspecified" -- and a stack of three planes with no metadata could
-        # equally be three channels, three z-planes or three timepoints.
-        # Guessing turns a z-stack's planes into channels silently, which is
-        # worse than declining. Multi-channel tiles must say so:
-        # `tifffile.imwrite(path, stack, metadata={"axes": "CYX"})`.
-        #
-        # The shape fallback below applies only when the file declares NO
-        # axes at all, where a guess is the only thing available.
         if axes:
             axes = "".join(a for a in axes.upper() if a in "TCZYX")
             return int(shape[axes.index("C")]) if "C" in axes else 1
@@ -1257,9 +1120,8 @@ class spacrStitcher:
         planes = []
         for c in range(nC):
             planes.append(self._read_plane(path, ch=c).astype(np.float32, copy=False))
-        return np.stack(planes, axis=0)  # (C,H,W)
+        return np.stack(planes, axis=0)
 
-    # ------------------------ auto-knee + plotting -----------------------
     @staticmethod
     def _auto_elbow_threshold(scores: List[float]) -> float:
         """
@@ -1294,10 +1156,6 @@ class spacrStitcher:
         the caller set it so a human can see how many pairs it accepts.
         """
         s = np.array(sorted(scores), dtype=np.float64)
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             fig, ax = plt.subplots(figsize=(8,6))
             ax.plot(np.arange(len(s)), s, lw=1)
@@ -1305,16 +1163,11 @@ class spacrStitcher:
             ax.set_title(f"Sorted pairwise scores (n={len(s)}), threshold={thr:.3f}")
             ax.set_xlabel("pair index (sorted)")
             ax.set_ylabel("score = edge_zncc_fg(DS) × inlier_ratio")
-            # 108 point 6: the resolution and the repaint for paper.
-            # `fmt` STAYS PNG for the same reason as the outline QC above --
-            # `score_sorted_line.png` is a fixed name the run's own output
-            # is checked by, and a preference must not rename it.
             from .plot import save_figure
 
             out_png = save_figure(fig, out_png, fmt="png", close=True,
                                   bbox_inches="tight")
 
-    # ------------------------------ pairing ------------------------------
     @staticmethod
     def _list_tifs(folder: str, recursive: bool, exts: Tuple[str,...]) -> List[str]:
         """Every image under ``folder`` with one of ``exts``, sorted.
@@ -1359,18 +1212,6 @@ class spacrStitcher:
         """
         n = len(files)
         site = [self._parse_meta(p).get("site") for p in files]
-        # EVERY INDEX AT A SITE, not one. A site holds one file PER CHANNEL,
-        # and `idx_by_site[s] = i` kept only the last of them -- so every
-        # candidate partner was a channel-2 file, two tiles of the same
-        # channel were never compared with each other, and the c1/c2 rows in
-        # the pairs CSV were the same comparison written twice.
-        #
-        # It also ORPHANED a tile. With the files ordered
-        # c1_S1, c2_S1, c1_S2, c2_S2, ... the map is {1:1, 2:3, 3:5, 4:7},
-        # so `10X_c1_A1_Site-4.tif` at index 6 had exactly one candidate --
-        # index 5, which fails `j > i` -- and appeared in no pair at all.
-        # No pair means no features, which means no place in the mosaic:
-        # a corner arrived with no channel-1 data and no warning.
         idx_by_site: Dict[Any, List[int]] = {}
         for i, s in enumerate(site):
             if s is not None:
@@ -1389,7 +1230,6 @@ class spacrStitcher:
                             cand.add((files[i], files[j]))
         return sorted(list(cand))
 
-    # ------------------------------ driver -------------------------------
     def run_folder(self,
                    folder: str,
                    csv_path: str,
@@ -1403,16 +1243,13 @@ class spacrStitcher:
                    stitch: bool = True,
                    score_threshold: Optional[float] = None,
                    meta_regex: Optional[Union[str, re.Pattern]] = None,
-                   # mosaic controls
                    mosaic: bool = False,
                    mosaic_out: Optional[str] = None,
                    mosaic_min_score: Optional[float] = None,
                    mosaic_csv_out: Optional[str] = None,
-                   # NEW: multi-channel mosaic controls
                    mosaic_all_channels: bool = False,
                    mosaic_channel_count: Optional[int] = None,
                    mosaic_channel_index_order: Optional[List[int]] = None,
-                   # NEW: QC gating controls (do not break existing calls)
                    qc_pairs_threshold: int = 1000,
                    qc_only_above_threshold_when_many: bool = True) -> str:
         """Score every candidate pair in ``folder`` and optionally build a whole-well mosaic.
@@ -1459,7 +1296,6 @@ class spacrStitcher:
             "seconds","well","siteA","siteB"
         ]
     
-        # Handle no files
         if not paths:
             os.makedirs(os.path.dirname(os.path.abspath(csv_path)) or ".", exist_ok=True)
             with open(csv_path, "w", newline="") as f:
@@ -1481,7 +1317,6 @@ class spacrStitcher:
             if self.verbose:
                 print(f"[run_folder] same_well_only=False; candidate pairs={len(pairs)}", flush=True)
     
-        # Precompute DS features (disk-backed)
         self.prepare_features(list(set([p for pair in pairs for p in pair])), channel_index, num_workers=self.n_workers_features)
         if self.verbose:
             print("[run_folder] feature cache ready; scoring pairs…", flush=True)
@@ -1505,9 +1340,6 @@ class spacrStitcher:
                 thr_now = score_threshold if score_threshold is not None else self.score_threshold
                 do_stitch_now = (stitch is True) and (thr_now is not None)
     
-                # QC gating for the first (threaded) pass
-                # - If too many pairs and threshold unknown: suppress QC now
-                # - If too many pairs and threshold known: only QC when score >= threshold
                 if too_many_pairs:
                     if thr_now is None:
                         force_no_qc = True
@@ -1524,17 +1356,10 @@ class spacrStitcher:
                     channel_index=channel_index,
                     score_threshold=thr_now,
                     save_stitched=do_stitch_now,
-                    # NEW controls (default keep behavior)
                     force_no_qc=force_no_qc,
                     qc_only_if_score_ge=qc_only_if_score_ge
                 )
             except Exception as e:
-                # ALWAYS report, never only when verbose. This was gated on
-                # self.verbose, so a systematic failure -- every tile
-                # unreadable, a bad channel index -- produced a short or empty
-                # pairwise CSV and a run that looked like it succeeded. A
-                # silently-skipped pair and a pair that genuinely did not
-                # overlap were indistinguishable.
                 print(f"[run_folder] WARNING: pair {os.path.basename(A)} vs "
                       f"{os.path.basename(B)} failed: {e}", flush=True)
                 return None
@@ -1565,7 +1390,6 @@ class spacrStitcher:
         f_csv.flush()
         f_csv.close()
     
-        # threshold
         thr = score_threshold if score_threshold is not None else self.score_threshold
         if thr is None:
             if self.verbose:
@@ -1576,7 +1400,6 @@ class spacrStitcher:
             if self.verbose:
                 print(f"[run_folder] Auto threshold = {thr:.4f}; plot → {plot_png}", flush=True)
     
-        # optional second pass (stitch winners and, if many pairs, generate QC only for winners)
         if stitch and (score_threshold is None and self.score_threshold is None):
             winners = []
             with open(csv_path, "r", newline="") as f:
@@ -1597,7 +1420,6 @@ class spacrStitcher:
                     channel_index=channel_index,
                     score_threshold=thr,
                     save_stitched=True,
-                    # If too many pairs, now allow QC but only for score≥thr (these are winners anyway)
                     force_no_qc=False,
                     qc_only_if_score_ge=thr if (too_many_pairs and qc_only_above_threshold_when_many) else None
                 )
@@ -1607,12 +1429,10 @@ class spacrStitcher:
         if self.verbose:
             print(f"[run_folder] Done. CSV → {csv_path}", flush=True)
     
-        # ---- mosaic output(s) ----
         if mosaic:
             if mosaic_out is None:
                 if self.verbose:
                     print(f"[run_folder] mosaic_out: {mosaic_out}, skipping masaic tif, only generating csv", flush=True)
-            #    mosaic_out = os.path.join(self.outdir, "mosaic_full.tif")
             min_sc = mosaic_min_score if mosaic_min_score is not None else float(thr)
     
             if mosaic_all_channels:
@@ -1626,8 +1446,6 @@ class spacrStitcher:
                     out_csv=mosaic_csv_out
                 )
             else:
-                # mosaic_out may legitimately be None (manifest-only mode);
-                # os.path.splitext(None) would raise.
                 mosaic_png = (os.path.splitext(mosaic_out)[0] + ".png") if mosaic_out else None
                 if self.verbose:
                     print(f"[run_folder] rendering single-channel mosaic (min_score={min_sc:.4f}) → {mosaic_out}", flush=True)
@@ -1645,7 +1463,7 @@ class spacrStitcher:
         out_tif: str,
         out_png: Optional[str] = None,
         channel_indices: Optional[List[int]] = None,
-        blend: str = "max",           # "max" or "overwrite"
+        blend: str = "max",
         tmp_dir: Optional[str] = None,
         preview_downsample: int = 8
     ):
@@ -1684,14 +1502,12 @@ class spacrStitcher:
         * If `tmp_dir` is provided (or available from self.feature_cache_dir), the output
           workspace uses a disk memmap to reduce RAM.
         """
-        # --- Default tmp_dir: reuse feature cache root if available ---
         if tmp_dir is None:
             base_cache = getattr(self, "feature_cache_dir", None)
             root = base_cache if base_cache else (os.path.dirname(out_tif) or ".")
             tmp_dir = os.path.join(root, "mosaic_tmp")
         os.makedirs(tmp_dir, exist_ok=True)
     
-        # --- Read manifest rows and basic integrity checks ---
         rows = []
         with open(manifest_csv, newline="") as f:
             rdr = csv.DictReader(f)
@@ -1709,12 +1525,6 @@ class spacrStitcher:
                                   [float(r["M10"]), float(r["M11"]), float(r["M12"])]],
                                  dtype=np.float32)
                 except Exception as exc:
-                    # Dropping the row silently left the tile out of the
-                    # stitched image, wrote the file anyway and returned its
-                    # path as if the mosaic were whole. A hole in a mosaic is
-                    # data the user never gets back and never gets told about,
-                    # so this refuses the same way the "no usable rows" check
-                    # below already does.
                     raise RuntimeError(
                         f"{manifest_csv}: the mosaic row for {os.path.basename(p)} "
                         f"has a size or transform that will not parse ({exc}). "
@@ -1725,7 +1535,6 @@ class spacrStitcher:
         if not rows:
             raise RuntimeError("build_multichannel_mosaic_from_manifest: no usable rows in manifest.")
     
-        # --- Helpers to read channels from TIFFs (local, minimal axis handling) ---
         def _get_channel_count_tif_local(path: str) -> int:
             """Infer and return TIFF ``path``'s channel count from axes or shape."""
             with tifffile.TiffFile(path) as tf:
@@ -1749,11 +1558,8 @@ class spacrStitcher:
                 return arr.astype(np.float32, copy=False)
             labels = [a for a in (axes or "").upper() if a in "TCZYX"]
             if len(labels) != arr.ndim:
-                labels = []          # the hint does not describe this array
+                labels = []
             if labels:
-                # Keep the label list in step with the array: slicing out C
-                # shifts every axis after it, so the Z index has to be looked
-                # up again afterwards or the projection hits the wrong axis.
                 if "C" in labels:
                     cidx = labels.index("C")
                     slicers = [slice(None)] * arr.ndim
@@ -1773,14 +1579,12 @@ class spacrStitcher:
                 raise ValueError(f"Expected 2D plane from {os.path.basename(path)}, got shape {arr.shape}")
             return arr.astype(np.float32, copy=False)
     
-        # --- Decide which channels to mosaic ---
         if channel_indices is None:
             nC = _get_channel_count_tif_local(rows[0]["path"])
             ch_list = list(range(nC))
         else:
             ch_list = [int(c) for c in channel_indices]
     
-        # --- Compute canvas bounds from affines ---
         xs, ys = [], []
         for r in rows:
             H, W = r["H"], r["W"]
@@ -1791,10 +1595,8 @@ class spacrStitcher:
         x_min, y_min = float(np.floor(xs.min())), float(np.floor(ys.min()))
         x_max, y_max = float(np.ceil(xs.max())),  float(np.ceil(ys.max()))
         Wc, Hc = int(max(1, x_max - x_min)), int(max(1, y_max - y_min))
-        off = np.array([[1,0,-x_min],[0,1,-y_min]], dtype=np.float32)  # canvas origin at (0,0)
+        off = np.array([[1,0,-x_min],[0,1,-y_min]], dtype=np.float32)
     
-        # --- Allocate output stack (float32 workspace); pick output dtype later ---
-        # If tmp_dir is set, use an on-disk memmap to reduce RAM.
         mmap_path = os.path.join(tmp_dir, f"_mosaic_{os.path.splitext(os.path.basename(out_tif))[0]}.mmap")
         try:
             out_stack = np.memmap(mmap_path, mode="w+", dtype=np.float32, shape=(len(ch_list), Hc, Wc))
@@ -1804,12 +1606,10 @@ class spacrStitcher:
             use_memmap = False
     
         if blend == "max":
-            out_stack[:] = -np.inf  # sentinel for max blending
+            out_stack[:] = -np.inf
     
-        # track dtypes across input tiles (to pick safe output dtype)
         in_dtypes: List[np.dtype] = []
     
-        # --- Composite ---
         for r in rows:
             p, H, W, M = r["path"], r["H"], r["W"], r["M"]
             M_can = (off @ np.vstack([M, [0,0,1]]) )[:2,:]
@@ -1832,7 +1632,6 @@ class spacrStitcher:
         if blend == "max":
             out_stack[np.isneginf(out_stack)] = 0.0
     
-        # --- Save BigTIFF with axes metadata; choose common dtype over inputs ---
         out_dtype = np.result_type(*in_dtypes) if in_dtypes else np.float32
         write_tiff(
             out_tif,
@@ -1840,7 +1639,6 @@ class spacrStitcher:
             metadata={"axes": "CYX"},
         )
     
-        # --- Optional preview (channel 0 min-max normalized, downsampled) ---
         if out_png:
             c0 = np.asarray(out_stack[0])
             if preview_downsample and preview_downsample > 1:
@@ -1853,13 +1651,11 @@ class spacrStitcher:
             prev = np.zeros_like(c0_prev, dtype=np.float32) if mx <= mn else (c0_prev - mn) / (mx - mn + 1e-12)
             plt.imsave(out_png, prev, cmap="gray")
     
-        # ensure memmap data hits disk
         if use_memmap and hasattr(out_stack, "flush"):
             out_stack.flush()
     
         return out_tif
 
-    # --------------------------- mosaic helpers --------------------------
     @staticmethod
     def _invert_affine(M: np.ndarray) -> np.ndarray:
         """
@@ -1900,7 +1696,7 @@ class spacrStitcher:
         'R' (0°), 'U' (90°), 'L' (±180°), 'D' (-90°).
         Return None if the vector is too diagonal (outside tolerance).
         """
-        ang = np.degrees(np.arctan2(ty, tx))  # [-180,180]
+        ang = np.degrees(np.arctan2(ty, tx))
         candidates = {'R': 0.0, 'U': 90.0, 'L': 180.0, 'D': -90.0}
         best_dir, best_err = None, 1e9
         for k, a0 in candidates.items():
@@ -1934,7 +1730,6 @@ class spacrStitcher:
             print(f"[mosaic] estimated steps: step_x≈{step_x:.1f}, step_y≈{step_y:.1f}", flush=True)
         return step_x, step_y
 
-    # ---------------------- mosaic: transforms & render -------------------
     def _compute_mosaic_transforms(self,
                                    rows: List[Dict],
                                    min_score: float,
@@ -1957,7 +1752,6 @@ class spacrStitcher:
           - T2: dict path -> 2x3 affine mapping that path's pixels into root coordinates
           - used_edges: list of (src, dst, score) in the MST
         """
-        # Nodes present
         nodes = set()
         for r in rows:
             nodes.add(r["pathA"]); nodes.add(r["pathB"])
@@ -1965,10 +1759,8 @@ class spacrStitcher:
         if not nodes:
             return {}, []
 
-        # Step estimates from high-score pairs
         step_x, step_y = self._estimate_grid_steps(rows, min_score, angle_tol_deg=max(30.0, angle_tol_deg))
 
-        # Helper to check geometry/tolerances for one directed edge (src->dst)
         def edge_ok(tx, ty, theta, scale, dbin):
             """Return True when the candidate ``(tx, ty, theta, scale, dbin)`` alignment is within the allowed limits.
 
@@ -1997,27 +1789,22 @@ class spacrStitcher:
             """
             if dbin is None:
                 return False
-            # rotation/scale limits (if disallowed)
             if not self.allow_rotation and abs(theta) > float(rot_tol_deg):
                 return False
             if not self.allow_scale and abs(scale - 1.0) > float(scale_tol):
                 return False
-            # step gating
             if dbin in ("R", "L"):
                 if step_x <= 0:
                     return False
                 if abs(abs(tx) - step_x) > step_tol_frac * step_x:
                     return False
-            else:  # U/D
+            else:
                 if step_y <= 0:
                     return False
                 if abs(abs(ty) - step_y) > step_tol_frac * step_y:
                     return False
             return True
 
-        # Gather candidate edges. With `cap_one_per_dir` the best per
-        # (tile, direction) wins; without it every edge that passes `edge_ok`
-        # survives and the spanning tree chooses among them.
         best_per_node_dir: Dict[Tuple[str,str], Tuple[float, str, str, np.ndarray]] = {}
         all_edges: List[Tuple[float, str, str, np.ndarray]] = []
         for r in rows:
@@ -2026,17 +1813,15 @@ class spacrStitcher:
                 continue
             A, B = r["pathA"], r["pathB"]
 
-            # B->A from CSV row; also add A->B via inverse
             for (src, dst, M_src_to_dst) in (
-                (B, A, self._affine_from_row(r)),  # B->A
-                (A, B, None)                       # A->B (inverse later)
+                (B, A, self._affine_from_row(r)),
+                (A, B, None)
             ):
                 if M_src_to_dst is None:
                     M_src_to_dst = self._invert_affine(self._affine_from_row(r))
 
                 tx = float(M_src_to_dst[0,2]); ty = float(M_src_to_dst[1,2])
 
-                # Recover theta, scale of this directed transform (approx)
                 a,b = float(M_src_to_dst[0,0]), float(M_src_to_dst[0,1])
                 c,d = float(M_src_to_dst[1,0]), float(M_src_to_dst[1,1])
                 theta = np.degrees(np.arctan2(c, a))
@@ -2052,17 +1837,6 @@ class spacrStitcher:
                     if (prev is None) or (sc > prev[0]):
                         best_per_node_dir[key] = (sc, src, dst, M_src_to_dst)
                 else:
-                    # `cap_one_per_dir=False` is asked for when the
-                    # best-scoring edge in a direction is a FALSE match -- a
-                    # repeated background pattern outscoring the true
-                    # neighbour. Keeping only the winner then hands the
-                    # spanning tree the wrong edge and no alternative, which
-                    # is the whole reason to be able to turn the cap off.
-                    #
-                    # The cap used to run unconditionally: this parameter is
-                    # declared here and on both public mosaic APIs
-                    # (align_mosaic_from_csv, ops_align_mosaic), documented on
-                    # all three, threaded down -- and never read.
                     all_edges.append((sc, src, dst, M_src_to_dst))
 
         cand: List[Tuple[str,str,float,np.ndarray]] = []
@@ -2083,7 +1857,6 @@ class spacrStitcher:
                 hist[v] = hist.get(v, 0) + 1
             print(f"[mosaic] candidate edges after gating: {len(cand)}; degree histogram {hist}", flush=True)
 
-        # Kruskal MST on pruned edges (max spanning)
         idx = {p:i for i,p in enumerate(nodes)}
         N = len(nodes)
         parent = list(range(N))
@@ -2109,25 +1882,19 @@ class spacrStitcher:
 
         cand.sort(key=lambda t: t[2], reverse=True)
 
-        # Build adjacency for traversal using the selected MST edges
         adj: Dict[str, List[Tuple[str, np.ndarray, float]]] = {p:[] for p in nodes}
         used_edges: List[Tuple[str,str,float]] = []
         for src, dst, sc, M in cand:
             isrc, idst = idx[src], idx[dst]
             if union(isrc, idst):
-                # The BFS below reads adj[u] as (v, M_v_to_u), so each entry must
-                # carry the transform *into* the key's frame: from src that is
-                # dst->src (the inverse of M), and from dst it is src->dst (M).
                 adj[src].append((dst, self._invert_affine(M), sc))
                 adj[dst].append((src, M, sc))
                 used_edges.append((src, dst, sc))
             if len(used_edges) >= N-1:
                 break
 
-        # Choose root = node with max degree in MST
         root = max(nodes, key=lambda p: len(adj[p]))
 
-        # BFS to compute transforms to root (homogeneous 3x3 to avoid shape bugs)
         T3: Dict[str, np.ndarray] = {}
         T3[root] = np.eye(3, dtype=np.float32)
         stack = [root]
@@ -2144,7 +1911,6 @@ class spacrStitcher:
                 visited.add(v)
                 stack.append(v)
 
-        # Convert to 2x3 for rendering
         T2: Dict[str, np.ndarray] = {k: v[:2,:] for k,v in T3.items()}
         return T2, used_edges
 
@@ -2180,7 +1946,6 @@ class spacrStitcher:
         :param out_csv: optional path to the per-tile manifest CSV.
         :returns: tuple ``(out_tif, out_png)``.
         """
-        # dtype helpers
         def _series_dtype(p: str) -> np.dtype:
             """Return the NumPy dtype of TIFF ``p``'s first series."""
             with tifffile.TiffFile(p) as tf:
@@ -2194,13 +1959,10 @@ class spacrStitcher:
                 return np.clip(np.rint(arr), info.min, info.max).astype(dtype, copy=False)
             return arr.astype(dtype, copy=False)
     
-        # NEW: manifest-only mode (no mosaic rendering)
         manifest_only = (out_csv is not None) and (out_tif is None)
         if manifest_only:
-            # No point accepting a PNG target if we aren't rendering
             out_png = None
     
-        # Load rows
         rows: List[Dict] = []
         with open(csv_path, "r", newline="") as f:
             rdr = csv.DictReader(f)
@@ -2211,14 +1973,12 @@ class spacrStitcher:
         if not rows:
             raise RuntimeError("render_mosaic_from_csv: CSV has no usable rows.")
     
-        # Threshold
         if min_score is None:
             scores = [float(r["score"]) for r in rows if r["score"] != ""]
             min_score = self._auto_elbow_threshold(scores)
             if self.verbose:
                 print(f"[mosaic] auto min_score = {min_score:.4f}", flush=True)
     
-        # Transforms to a common root using pruned graph
         T, used_edges = self._compute_mosaic_transforms(
             rows, float(min_score),
             angle_tol_deg=angle_tol_deg,
@@ -2233,10 +1993,9 @@ class spacrStitcher:
         if not kept_nodes:
             raise RuntimeError("render_mosaic_from_csv: no nodes remained after pruning.")
     
-        # Determine canvas bounds (+ optionally remember per-node dtype)
         all_x, all_y = [], []
         shapes: Dict[str, Tuple[int, int]] = {}
-        node_dtype: Dict[str, np.dtype] = {}  # only used when writing out_tif
+        node_dtype: Dict[str, np.dtype] = {}
     
         for p in kept_nodes:
             I = self._read_plane(p, ch=channel_index)
@@ -2264,7 +2023,6 @@ class spacrStitcher:
                            [0, 1, off_y],
                            [0, 0,   1 ]], dtype=np.float32)
     
-        # Only allocate + blend if we are actually rendering
         if not manifest_only:
             canvas = np.zeros((Hc, Wc), np.float32)
             wgt    = np.zeros((Hc, Wc), np.float32)
@@ -2285,7 +2043,6 @@ class spacrStitcher:
             if not manifest_only:
                 I = self._read_plane(p, ch=channel_index).astype(np.float32)
     
-                # warp image and a 1-mask (coverage)
                 warped = cv2.warpAffine(I, M_can, (Wc, Hc), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
                 cov    = cv2.warpAffine(np.ones((H, W), np.float32), M_can, (Wc, Hc),
                                         flags=cv2.INTER_NEAREST, borderMode=cv2.BORDER_CONSTANT)
@@ -2293,7 +2050,6 @@ class spacrStitcher:
                 canvas += warped
                 wgt    += cov
     
-            # Top-left of warped bbox (for manifest)
             corners = np.array([[0, 0], [W, 0], [0, H], [W, H]], dtype=np.float32).reshape(-1, 1, 2)
             C = cv2.transform(corners, M_can).reshape(-1, 2)
             x0, y0 = float(np.min(C[:, 0])), float(np.min(C[:, 1]))
@@ -2310,7 +2066,6 @@ class spacrStitcher:
             if self.verbose and (i % max(1, len(kept_nodes) // 10) == 0 or i == len(kept_nodes)):
                 print(f"[mosaic] placed {i}/{len(kept_nodes)} images", flush=True)
     
-        # Write manifest CSV (works in both modes)
         if out_csv is not None:
             os.makedirs(os.path.dirname(os.path.abspath(out_csv)) or ".", exist_ok=True)
             with open(out_csv, "w", newline="") as f:
@@ -2325,9 +2080,8 @@ class spacrStitcher:
                 for r in manifest_rows:
                     w.writerow(r)
     
-        # If manifest-only, stop here (no mosaic image)
         if manifest_only:
-            return out_tif, out_png  # both None in this mode
+            return out_tif, out_png
 
         if out_tif is None:
             raise ValueError(
@@ -2335,8 +2089,6 @@ class spacrStitcher:
                 "pass out_csv to run in manifest-only mode."
             )
 
-        # Otherwise, build and save mosaic image(s)
-        # uncovered canvas stays at background level (see stitch_pair)
         out = np.where(wgt > 0, np.divide(canvas, np.maximum(wgt, 1e-6)), 0.0)
     
         out_dtype = np.result_type(*[node_dtype[p] for p in kept_nodes])
@@ -2379,7 +2131,6 @@ class spacrStitcher:
         :param out_csv: optional per-tile manifest CSV path.
         :returns: path to the mosaic TIFF (or ``None`` in manifest-only mode).
         """
-        # ---- helpers for dtype preservation ----
         def _series_dtype(p: str) -> np.dtype:
             """Return the NumPy dtype of TIFF ``p``'s first series."""
             with tifffile.TiffFile(p) as tf:
@@ -2393,10 +2144,8 @@ class spacrStitcher:
                 return np.clip(np.rint(arr), info.min, info.max).astype(dtype, copy=False)
             return arr.astype(dtype, copy=False)
     
-        # NEW: manifest-only mode (no mosaic rendering)
         manifest_only = (out_csv is not None) and (out_tif is None)
     
-        # ---- load rows ----
         rows: List[Dict] = []
         with open(csv_path, "r", newline="") as f:
             rdr = csv.DictReader(f)
@@ -2407,14 +2156,12 @@ class spacrStitcher:
         if not rows:
             raise RuntimeError("mosaic_all_channels_from_csv: CSV has no usable rows.")
     
-        # ---- threshold (auto-knee if needed) ----
         if min_score is None:
             scores = [float(r["score"]) for r in rows if r["score"] != ""]
             min_score = self._auto_elbow_threshold(scores)
             if self.verbose:
                 print(f"[mosaic-all] auto min_score = {min_score:.4f}", flush=True)
     
-        # ---- compute transforms and nodes ----
         T, used_edges = self._compute_mosaic_transforms(
             rows, float(min_score),
             angle_tol_deg=angle_tol_deg,
@@ -2429,7 +2176,6 @@ class spacrStitcher:
         if not kept_nodes:
             raise RuntimeError("mosaic_all_channels_from_csv: no nodes remained after pruning.")
     
-        # ---- per-node shape (and dtype/channel info only if rendering) ----
         shapes: Dict[str, Tuple[int, int]] = {}
         node_dtype: Dict[str, np.dtype] = {}
         node_channels: Dict[str, int] = {}
@@ -2442,7 +2188,6 @@ class spacrStitcher:
                 node_dtype[p] = _series_dtype(p)
                 node_channels[p] = self._get_channel_count_tif(p)
     
-        # decide which channels to mosaic (only if rendering)
         if not manifest_only:
             if channel_index_order is not None and len(channel_index_order) > 0:
                 ch_list = [int(c) for c in channel_index_order]
@@ -2455,7 +2200,6 @@ class spacrStitcher:
                 ch_info = {p: node_channels[p] for p in kept_nodes}
                 print(f"[mosaic-all] channel plan: {ch_list} ; per-node channel counts: {ch_info}", flush=True)
     
-        # ---- determine canvas bounds (from transforms on geometry) ----
         all_x, all_y = [], []
         for p in kept_nodes:
             H, W = shapes[p]
@@ -2478,7 +2222,6 @@ class spacrStitcher:
                            [0, 1, off_y],
                            [0, 0,   1 ]], dtype=np.float32)
     
-        # ---- optional manifest (works in both modes) ----
         if out_csv is not None:
             os.makedirs(os.path.dirname(os.path.abspath(out_csv)) or ".", exist_ok=True)
             best_edge_score: Dict[str, float] = {}
@@ -2513,11 +2256,9 @@ class spacrStitcher:
                         best_pair_score=float(best_edge_score.get(p, float("nan")))
                     ))
     
-        # ---- manifest-only: stop here ----
         if manifest_only:
-            return out_tif  # None in this mode
+            return out_tif
     
-        # ---- otherwise, render and save mosaic TIFF ----
         if out_tif is None:
             raise ValueError("mosaic_all_channels_from_csv: out_tif is None but manifest_only is False.")
     
@@ -2608,7 +2349,6 @@ class StitchedMultiAligner:
                  allow_rotation: bool = False,
                  outdir: str = "./align_out",
                  opencv_threads: int = 1,
-                 # axes/time/Z
                  arr_axes: str = "AUTO",
                  mip: bool = False,
                  z_index: int = 0,
@@ -2635,14 +2375,12 @@ class StitchedMultiAligner:
         except Exception:
             pass
 
-        # axes
         self.arr_axes = str(arr_axes).upper()
         self.mip = bool(mip)
         self.z_index = int(z_index)
         self.t_index = int(t_index)
         self.squeeze_singleton = bool(squeeze_singleton)
 
-        # detector init
         if self.detector == "ORB":
             self._det = cv2.ORB_create(nfeatures=self.nfeatures, fastThreshold=5)
             self._bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
@@ -2656,7 +2394,6 @@ class StitchedMultiAligner:
         else:
             raise ValueError("detector must be 'ORB' or 'SIFT'")
 
-    # ---------------------- basic IO / axis helpers ----------------------
     @staticmethod
     def _is_large_dim(n: int) -> bool:
         """Whether ``n`` is big enough to be an image axis rather than a stack.
@@ -2724,9 +2461,6 @@ class StitchedMultiAligner:
             axes = self._guess_axes_from_shape(arr.shape)
 
         ax = list(axes)
-        # Stop as soon as a pass removes nothing, otherwise an axes string with
-        # no T/C to give up (e.g. arr_axes="ZYX" against a 2-D plane) spins
-        # forever here.
         while len(ax) > arr.ndim:
             removed = False
             for d in ("T", "C"):
@@ -2845,9 +2579,8 @@ class StitchedMultiAligner:
         """
         nC = self._get_channel_count_tif(path)
         planes = [self._read_plane(path, ch=c).astype(np.float32, copy=False) for c in range(nC)]
-        return np.stack(planes, axis=0)  # (C,H,W)
+        return np.stack(planes, axis=0)
 
-    # --------------------------- feature/matching ------------------------
     def _detect_and_describe(self, I8: np.ndarray):
         """Keypoints and descriptors for an 8-bit image.
 
@@ -2936,7 +2669,6 @@ class StitchedMultiAligner:
             R = U @ Vt
         return R.astype(np.float32)
 
-    # ------------------------------- driver ------------------------------
     def align(self,
               paths: List[str],
               nuclei_channel_indices: Optional[List[int]] = None,
@@ -2965,7 +2697,6 @@ class StitchedMultiAligner:
         if csv_path is None:
             csv_path = os.path.join(self.outdir, "aligned_manifest.csv")
     
-        # dtype helpers (local)
         def _series_dtype(p: str) -> np.dtype:
             """Return the NumPy dtype of TIFF ``p``'s first series."""
             with tifffile.TiffFile(p) as tf:
@@ -2981,13 +2712,11 @@ class StitchedMultiAligner:
                 return np.clip(np.rint(arr), info.min, info.max).astype(dtype, copy=False)
             return arr.astype(dtype, copy=False)
     
-        # Reference
         ref_path = paths[0]
         ref_ch = int(nuclei_channel_indices[0])
         Iref = self._read_plane(ref_path, ch=ref_ch)
         H, W = Iref.shape
     
-        # DS ref for features (8-bit only here)
         s = float(self.downsample)
         Hds = max(1, int(round(H * s))); Wds = max(1, int(round(W * s)))
         Iref_ds = cv2.resize(Iref, (Wds, Hds), interpolation=cv2.INTER_LINEAR)
@@ -2995,14 +2724,11 @@ class StitchedMultiAligner:
         ref_kp, ref_desc = self._detect_and_describe(Iref_u8)
         Fref = {"pts": ref_kp, "desc": ref_desc}
     
-        # Output buffer
         all_arrays: List[np.ndarray] = []
         manifest_rows: List[Dict[str, Union[str, int, float]]] = []
     
-        # Keep track of input dtypes to choose a common output dtype
         input_dtypes: List[np.dtype] = [_series_dtype(ref_path)]
     
-        # Reference channels (no warp)
         A0 = self._read_all_channels_cyx(ref_path)
         C0 = A0.shape[0]
         all_arrays.append(A0)
@@ -3016,7 +2742,6 @@ class StitchedMultiAligner:
                 score=1.0, inlier_ratio=1.0
             ))
     
-        # Others: estimate M (B -> ref), warp all channels at full-res
         for k in range(1, len(paths)):
             p = paths[k]
             input_dtypes.append(_series_dtype(p))
@@ -3030,7 +2755,7 @@ class StitchedMultiAligner:
             kp, desc = self._detect_and_describe(Iu8)
             Fb = {"pts": kp, "desc": desc}
     
-            ptsA, ptsB = self._match(Fref, Fb)  # A=ref, B=curr
+            ptsA, ptsB = self._match(Fref, Fb)
             score = 0.0
             inlier_ratio = 0.0
             if ptsA.shape[0] >= 4:
@@ -3040,7 +2765,6 @@ class StitchedMultiAligner:
             if M_ds is None:
                 continue
     
-            # constraints
             A_lin = M_ds[:, :2].astype(np.float32)
             pA = ptsA[inmask] if (inmask is not None and inmask.any()) else ptsA
             pB = ptsB[inmask] if (inmask is not None and inmask.any()) else ptsB
@@ -3053,7 +2777,6 @@ class StitchedMultiAligner:
                 t_mean = (pA - (pB @ A_rot.T)).mean(axis=0).astype(np.float32)
                 M_ds = np.zeros((2, 3), dtype=np.float32); M_ds[:, :2] = A_rot; M_ds[:, 2] = t_mean
     
-            # lift to full res
             M_full = M_ds.copy()
             M_full[0, 2] /= s
             M_full[1, 2] /= s
@@ -3063,14 +2786,12 @@ class StitchedMultiAligner:
             scale = float(np.sqrt(max(1e-12, (a * d - b * c))))
             theta = float(np.degrees(np.arctan2(c, a)))
     
-            # score on DS (foreground of ref)
             B_warp_ds = cv2.warpAffine(Iu8, M_ds, (Wds, Hds), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
             th, _ = cv2.threshold(Iref_u8, 0, 255, cv2.THRESH_OTSU)
             mA = (Iref_u8 >= th)
             score = float(self._edge_zncc(Iref_u8.astype(np.float32), B_warp_ds.astype(np.float32), mask=mA)) * float(inlier_ratio)
     
-            # warp all channels
-            B_all = self._read_all_channels_cyx(p)  # float32 workspace
+            B_all = self._read_all_channels_cyx(p)
             outC = np.zeros((B_all.shape[0], H, W), np.float32)
             for cidx in range(B_all.shape[0]):
                 outC[cidx] = cv2.warpAffine(B_all[cidx], M_full, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
@@ -3087,7 +2808,6 @@ class StitchedMultiAligner:
                     score=score, inlier_ratio=float(inlier_ratio)
                 ))
     
-        # concatenate (float32 workspace) and SAVE using common input dtype
         out = np.concatenate(all_arrays, axis=0)
         out_dtype = _common_dtype(input_dtypes)
         write_tiff(
@@ -3131,12 +2851,10 @@ def stitch_cycle_wells(settings):
     :returns: dict with keys ``organized`` (move/symlink summary) and
         ``wells`` (per-well output paths).
     """
-    # ---- Apply defaults (single flat dict) ----
     settings = get_preprocess_ops_settings(settings)
 
     vprint = print if settings.get("verbose", False) else (lambda *a, **k: None)
 
-    # ---- Required/assumed inputs ----
     src = settings.get("src")
     if not src or not os.path.isdir(src):
         raise ValueError("settings['src'] must point to an existing directory")
@@ -3152,21 +2870,18 @@ def stitch_cycle_wells(settings):
     recursive = bool(settings.get("recursive", True))
     exts = tuple(x.lower() for x in settings.get("exts", (".tif", ".tiff")))
     dry_run = bool(settings.get("dry_run", False))
-    collision = settings.get("collision", "rename")       # {'rename','skip','overwrite'}
-    on_missing = settings.get("on_missing", "error")      # {'error','skip'}
+    collision = settings.get("collision", "rename")
+    on_missing = settings.get("on_missing", "error")
     do_organize = bool(settings.get("do_organize", True))
     do_nuc_stitch = bool(settings.get("do_nuc_stitch", True))
     do_multichannel = bool(settings.get("do_multichannel", True))
     nuc_channel_index = int(settings.get("channel_index", 0))
 
-    # plate id for filenames (plate + well metadata in all CSV names)
     plate_id = settings.get("plate") or settings.get("plate_id") or settings.get("experiment") or os.path.basename(os.path.normpath(dst_root))
     plate_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(plate_id)).strip("_") or "plate"
 
-    # Compile metadata regex
     meta_re = re.compile(meta_regex, re.IGNORECASE)
 
-    # ---- Scan files ----
     def _iter_files(root: str, recursive_flag: bool, _exts: tuple):
         """Yield matching files from ``root``, recursively when requested."""
         if recursive_flag:
@@ -3183,7 +2898,6 @@ def stitch_cycle_wells(settings):
     files = list(_iter_files(src, recursive, exts))
     vprint(f"[organize] scanned {len(files)} files from {src}")
 
-    # ---- Group by well using regex ----
     grouped: Dict[str, List[str]] = {}
     skipped_missing = 0
     for p in files:
@@ -3208,13 +2922,12 @@ def stitch_cycle_wells(settings):
             "wells": {},
         }
 
-    # ---- Organize into per-well folders (or create symlinks if not organizing) ----
     moved = 0
     skipped = skipped_missing
     linked = 0
     by_well_outpaths: Dict[str, List[str]] = {}
 
-    link_root = os.path.join(dst_root, "_links")  # used when do_organize=False
+    link_root = os.path.join(dst_root, "_links")
     if not do_organize:
         os.makedirs(link_root, exist_ok=True)
 
@@ -3226,7 +2939,6 @@ def stitch_cycle_wells(settings):
             return None
         if collision == "overwrite":
             return dst_path
-        # rename: add numeric suffix
         base, ext = os.path.splitext(dst_path)
         for k in range(1, 10000):
             cand = f"{base}_{k:03d}{ext}"
@@ -3265,7 +2977,6 @@ def stitch_cycle_wells(settings):
                     moved += 1
                 out_paths.append(rp if rp is not None else dp)
             else:
-                # create a symlink into link_well_dir
                 dp = os.path.join(link_well_dir, fn)
                 rp = _resolve_collision(dp)
                 if rp is None:
@@ -3281,7 +2992,6 @@ def stitch_cycle_wells(settings):
                     linked += 1
                 out_paths.append(rp if rp is not None else dp)
 
-        # sort by site number if present
         def _site_key(pth: str) -> int:
             """Return the filename's site number, or a large sort-last key."""
             m = re.search(r"Site[-_](\d+)", os.path.basename(pth), re.IGNORECASE)
@@ -3301,30 +3011,22 @@ def stitch_cycle_wells(settings):
     if not do_nuc_stitch:
         return {"organized": organized_summary, "wells": {}}
 
-    # ---- Per-well stitch + mosaic ----
     results_by_well: Dict[str, Dict[str, Any]] = {}
 
     for well, well_files in by_well_outpaths.items():
         if not well_files:
             continue
 
-        # Where run_folder will scan (keep your behavior)
         scan_dir = os.path.dirname(well_files[0])
 
-        # Final per-well root (always under dst_root/{well})
         well_root = os.path.join(dst_root, well)
         os.makedirs(well_root, exist_ok=True)
 
-        # ---- Desired layout ----
-        # images moved to:     {dst_root}/{well}/{well}
-        # qc images saved in:  {dst_root}/{well}/qc/pairs
-        # stitch outputs in:   {dst_root}/{well}/{well}/stitch
-        # csv files in:        {dst_root}/{well}/results
-        orig_outdir = os.path.join(well_root, well)                  # {src}/{well}/{well}
-        qc_pairs_dir = os.path.join(well_root, "qc", "pairs")         # {src}/{well}/qc/pairs
-        stitch_outdir = os.path.join(well_root, "stitch")           # {src}/{well}/{well}/stitch
-        results_outdir = os.path.join(well_root, "results")           # {src}/{well}/results
-        feat_cache_dir = os.path.join(well_root, "cache")             # tidy cache
+        orig_outdir = os.path.join(well_root, well)
+        qc_pairs_dir = os.path.join(well_root, "qc", "pairs")
+        stitch_outdir = os.path.join(well_root, "stitch")
+        results_outdir = os.path.join(well_root, "results")
+        feat_cache_dir = os.path.join(well_root, "cache")
 
         os.makedirs(orig_outdir, exist_ok=True)
         os.makedirs(qc_pairs_dir, exist_ok=True)
@@ -3334,27 +3036,18 @@ def stitch_cycle_wells(settings):
 
         prefix = f"{plate_id}_{well}"
 
-        # Pairwise CSV + mosaic outputs
         pairwise_csv = os.path.join(results_outdir, f"{prefix}_pairs.csv")
         mosaic_csv = os.path.join(results_outdir, f"{prefix}_mosaic.csv")
 
-        # Single-channel mosaic (if multichannel=False)
         mosaic_tif_sc = os.path.join(stitch_outdir, f"{prefix}_mosaic_full.tif")
         mosaic_png_sc = os.path.splitext(mosaic_tif_sc)[0] + ".png"
 
-        # Multi-channel mosaic (if multichannel=True)
         mosaic_tif_mc = os.path.join(stitch_outdir, f"{prefix}_mosaic_allc.tif")
 
         do_mc = bool(do_multichannel)
 
-        # THE PATH IS ALWAYS PREPARED; whether a mosaic is BUILT is decided
-        # by `want_mosaic` below. This read the other way round -- asking for
-        # a mosaic set the output path to None -- so `write_mosaic=True` was
-        # the one value guaranteed to produce nothing.
         mosaic_out = mosaic_tif_mc if do_mc else mosaic_tif_sc
 
-        # Instantiate stitcher with your settings
-        # NOTE: outdir now points at qc/pairs (so qc is not mixed with tiles)
         stitcher = spacrStitcher(
             detector=settings.get("detector", "ORB"),
             nfeatures=int(settings.get("nfeatures", 8000)),
@@ -3364,9 +3057,6 @@ def stitch_cycle_wells(settings):
             allow_scale=bool(settings.get("allow_scale", False)),
             allow_rotation=bool(settings.get("allow_rotation", False)),
             outline_source=str(settings.get("outline_source", "otsu")),
-            # Not str(...): str(None) is the four-character string "None",
-            # which _resolve_cellpose_pretrained would report as an unknown
-            # model name rather than as "no model named".
             cellpose_model=settings.get("cellpose_model") or "cpsam",
             cellpose_diameter=settings.get("cellpose_diameter", None),
             canny=tuple(settings.get("canny", (40, 120))),
@@ -3395,9 +3085,8 @@ def stitch_cycle_wells(settings):
             ops_gpu=bool(settings.get("ops_gpu", True)),
         )
 
-        # Run per-well; enable mosaic here (single- or multi-channel)
         
-        ch_order = settings.get("channel_indices", None)  # None → infer from tiles
+        ch_order = settings.get("channel_indices", None)
         mosaic_min_score = settings.get("mosaic_min_score", None)
 
         csv_out = stitcher.run_folder(
@@ -3411,23 +3100,17 @@ def stitch_cycle_wells(settings):
             n_workers=int(settings.get("n_workers", max(1, (os.cpu_count() or 8) // 2))),
             stitch=settings.get("stitch", False),
             score_threshold=settings.get("score_threshold", None),
-            meta_regex=meta_re,  # use compiled regex here
-            # `write_mosaic` and `mosaic` are synonyms, and either turns it
-            # on. They were separate keys with separate defaults, so the one
-            # a reader would reach for -- `write_mosaic` -- was not the one
-            # `run_folder` consulted, and this function never built the
-            # mosaic its own docstring promises.
+            meta_regex=meta_re,
             mosaic=bool(settings.get("write_mosaic", False)
                         or settings.get("mosaic", False)),
             mosaic_out=mosaic_out,
             mosaic_min_score=mosaic_min_score,
             mosaic_csv_out=mosaic_csv,
             mosaic_all_channels=do_mc,
-            mosaic_channel_count=None,  # infer min across tiles unless order provided
+            mosaic_channel_count=None,
             mosaic_channel_index_order=ch_order,
         )
 
-        # ---- Move (or mirror) tiles into {well_root}/{well}/{...} after stitching ----
         moved_tiles: List[str] = []
         for sp in well_files:
             fn = os.path.basename(sp)
@@ -3438,7 +3121,6 @@ def stitch_cycle_wells(settings):
 
             if not dry_run:
                 if do_organize:
-                    # move file into orig_outdir
                     if collision == "overwrite" and os.path.exists(dp) and rp == dp:
                         try:
                             os.remove(dp)
@@ -3446,7 +3128,6 @@ def stitch_cycle_wells(settings):
                             pass
                     shutil.move(sp, rp)
                 else:
-                    # create a symlink into orig_outdir (keep source untouched)
                     target = os.path.realpath(sp)
                     try:
                         if os.path.lexists(rp):
@@ -3457,7 +3138,6 @@ def stitch_cycle_wells(settings):
 
             moved_tiles.append(rp if rp is not None else dp)
 
-        # keep return metadata consistent with the new layout
         by_well_outpaths[well] = moved_tiles
 
         results_by_well[well] = {
@@ -3479,7 +3159,6 @@ def stitch_cycle_wells(settings):
         }
         vprint(f"[stitch] well {well}: pairs→{csv_out}")
 
-    # update organized_summary to reflect the final tile locations
     organized_summary["by_well"] = by_well_outpaths
 
     return {"organized": organized_summary, "wells": results_by_well}
@@ -3491,14 +3170,11 @@ def get_preprocess_ops_settings(settings):
     :param settings: user-supplied settings dict, updated in place with defaults.
     :returns: the settings dict with all defaults populated.
     """
-    # high-level sources
     settings.setdefault("phenotype_source", "path")
     settings.setdefault("genotype_source", "path")
 
-    # IO / basic parsing
     settings.setdefault("src", None)
     settings.setdefault("dst_root", None)
-    #settings.setdefault("meta_regex",r"(?P<mag>\d+X)_c(?P<chan>\d+)_?(?P<well>[A-H]\d{1,2}).*?Site[-_](?P<site>\d+)\.(?:tif|tiff)$")
     settings.setdefault("meta_regex",r'(?P<mag>\d+X)_c(?P<chan>\d+)_?(?P<well>[A-H]\d{1,2}).*?Site[-_](?P<site>\d+)(?:_[0-9]+)?\.(?:tif|tiff)$')
 
     
@@ -3506,61 +3182,25 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("exts", [".tif", ".tiff"])
 
     settings.setdefault("recursive", True)
-    settings.setdefault("collision", "rename")   # {'rename','skip','overwrite'}
-    settings.setdefault("on_missing", "error")   # {'error','skip'}
+    settings.setdefault("collision", "rename")
+    settings.setdefault("on_missing", "error")
     settings.setdefault("dry_run", False)
     settings.setdefault("verbose", True)
 
-    # HARDWARE. Named `ops_gpu` and not `gpu` on purpose: `gpu` is already
-    # declared by Image UMAP, where it means "use the RAPIDS cuML backend",
-    # and two modules disagreeing about what a shared key means is the bug
-    # `register_defaults` refuses `src` to prevent. Same reasoning, applied
-    # before the collision rather than after it.
     settings.setdefault("ops_gpu", True)
 
-    # THE TWO SWITCHES THE PIPELINE'S OWN PURPOSE DEPENDS ON, and they were
-    # not here. `stitch_cycle_wells` reads both with a `False` fallback
-    # (~:3178 and ~:3181) and this factory never set either, so a settings
-    # panel generated from it would not OFFER them -- and a default run
-    # therefore wrote no mosaic, after which `align_image_to_stitch` found
-    # none and returned `{}` WITH NO ERROR. The pipeline succeeded and
-    # produced nothing.
-    #
-    # FALSE, WHICH IS WHAT THEY ALREADY WERE. Adding them here changes no
-    # run: the fallback at the read sites is `False` and that is what is set.
-    # What changes is that a panel generated from this factory now OFFERS
-    # them, which was the audit's actual complaint -- the switches existed
-    # and were unreachable.
-    #
-    # THEY PROBABLY SHOULD DEFAULT TRUE AND THAT IS NOT MINE TO DECIDE.
-    # `ops_preprocess`'s docstring is "per-genotype stitching + phenotype
-    # alignment", and with `mosaic` off the alignment half has nothing to
-    # align to, so the default run succeeds and produces nothing. But
-    # flipping it was tried and it turns that silent no-op into a RAISE on
-    # input that cannot be mosaicked --
-    # `test_the_post_stitch_move_never_finds_a_tile_already_at_its_target`
-    # goes from passing to `RuntimeError: mosaic_all_channels_from_csv: CSV
-    # has no usable rows`. Silence and a crash are both wrong and the choice
-    # between them is a product decision about what an OPS run is FOR, made
-    # with the maintainer awake. Recorded in instruction 372.
     settings.setdefault("stitch", False)
     settings.setdefault("mosaic", False)
 
-    # Read at ~:2931 as `plate` or `plate_id` or `experiment`, falling back to
-    # the destination folder's name. Offered here so a panel can show it; ""
-    # is falsy, so leaving it empty keeps the existing fallback exactly.
     settings.setdefault("plate", "")
 
-    # pipeline toggles
     settings.setdefault("do_organize", True)
     settings.setdefault("do_nuc_stitch", True)
     settings.setdefault("do_multichannel", True)
 
-    # alignment / nuclei channel
     settings.setdefault("channel_index", 0)
     settings.setdefault("relative_scale", 2.0)
 
-    # --- spacrStitcher(...) core parameters ---
     settings.setdefault("detector", "ORB")
     settings.setdefault("nfeatures", 8000)
     settings.setdefault("max_keypoints", 4000)
@@ -3571,8 +3211,6 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("score_threshold", 0.001)
     settings.setdefault("all_scores", False)
     settings.setdefault("outline_source", "otsu")
-    # Only read when outline_source='cellpose'. 'cpsam' is the stock Cellpose
-    # 4 model; a path here loads a checkpoint from Train Cellpose instead.
     settings.setdefault("cellpose_model", "cpsam")
     settings.setdefault("cellpose_diameter", None)
     settings.setdefault("save_qc", False)
@@ -3583,14 +3221,7 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("line_thickness", 1)
     settings.setdefault("outline_alpha", 1.0)
     settings.setdefault("feature_cache_mode", "disk")
-    # REMOVED 2026-09-03: `max_qc_plots_total` and `plot_only_above_threshold`
-    # were read by nothing. Each appeared exactly once in the package -- on
-    # its own `setdefault` here -- so the cap was never applied and the
-    # threshold never consulted. Instruction 364's standard is that a setting
-    # offered and never acted on is deleted rather than documented, because a
-    # tooltip on a dead control teaches the user a lie about what the run
-    # will do. Found by 372's audit.
-    settings.setdefault("feature_cache_dir", None)     # per well
+    settings.setdefault("feature_cache_dir", None)
     settings.setdefault("max_ram_features", 256)
     settings.setdefault("n_workers_features", None)
     settings.setdefault("pair_batch_size", 8192)
@@ -3601,29 +3232,19 @@ def get_preprocess_ops_settings(settings):
     settings.setdefault("z_index", 0)
     settings.setdefault("t_index", 0)
     settings.setdefault("squeeze_singleton", True)
-    # FALSE, and the docstring of `stitch_cycle_wells` was corrected to match
-    # rather than the other way round. Defaulting it True was tried and
-    # reverted: `mosaic_all_channels_from_csv` RAISES when the pairs CSV has
-    # no usable rows, so a plate with too few overlapping tiles would go from
-    # succeeding quietly to failing loudly, for a mosaic nobody asked for.
-    # The flag now WORKS when set, which is the fix that was wanted.
     settings.setdefault("write_mosaic", False)
 
-    # --- st.run_folder(...) ---
     settings.setdefault("n_workers", 26)
     settings.setdefault("max_site_gap", 64)
-    settings.setdefault("mosaic_min_score", None)      # auto elbow
+    settings.setdefault("mosaic_min_score", None)
 
-    # per-well outputs (filled by caller, if desired)
     settings.setdefault("mosaic_out", None)
     settings.setdefault("mosaic_csv_out", None)
 
-    # --- multichannel (CYX mosaic build) ---
-    settings.setdefault("channel_indices", None)       # infer from first tile
+    settings.setdefault("channel_indices", None)
     settings.setdefault("blend", "max")
     settings.setdefault("preview_downsample", 8)
 
-    # per-well outputs (filled by caller)
     settings.setdefault("tmp_dir", None)
     settings.setdefault("out_tif", None)
     settings.setdefault("out_png", None)
@@ -3666,7 +3287,6 @@ class FOVAlignAndCropper:
                  allow_rotation: bool = False,
                  outdir: str = "./fov_out",
                  opencv_threads: int = 1,
-                 # axes/time/Z
                  arr_axes: str = "AUTO",
                  mip: bool = False,
                  z_index: int = 0,
@@ -3684,16 +3304,9 @@ class FOVAlignAndCropper:
         self.outdir = os.path.abspath(outdir)
         os.makedirs(self.outdir, exist_ok=True)
     
-        # New: default scale to use if run(folder_image_scale=None)
         self.folder_image_scale = float(folder_image_scale) if folder_image_scale and folder_image_scale > 0 else 1.0
 
 
-    # Small proxies for IO helpers.
-    #
-    # DELEGATED RATHER THAN INHERITED OR COPIED. The cropper is not a kind of
-    # aligner -- it holds one -- so the eight helpers it shares with
-    # :class:`StitchedMultiAligner` are forwarded to that instance. One
-    # definition, and changing the aligner's reader changes the cropper's too.
     def _read_plane(self, *a, **k):
         """One channel of an image, as the aligner reads it."""
         return self._aligner._read_plane(*a, **k)
@@ -3795,19 +3408,16 @@ class FOVAlignAndCropper:
         :param folder_image_scale: FOV-to-mosaic pixel-scale factor; falls back to ``self.folder_image_scale``.
         :returns: path to the manifest CSV.
         """
-        # Outputs
         if csv_path is None:
             csv_path = os.path.join(self.outdir, "fov_align_manifest.csv")
         if npy_dir is None:
             npy_dir = os.path.join(self.outdir, "npy")
         os.makedirs(npy_dir, exist_ok=True)
     
-        # Load mosaic (all channels) and nuclei for features
-        mosa_all = self._read_all_channels_cyx(stitched_path)   # (C_m, Hm, Wm)
+        mosa_all = self._read_all_channels_cyx(stitched_path)
         mosa_nuc = mosa_all[int(stitched_nuclei_idx)]
         Hm, Wm = mosa_nuc.shape
     
-        # Feature DS for mosaic
         s = float(self._aligner.downsample)
         Hmds = max(1, int(round(Hm * s)))
         Wmds = max(1, int(round(Wm * s)))
@@ -3816,7 +3426,6 @@ class FOVAlignAndCropper:
         ref_kp, ref_desc = self._detect_and_describe(mosa_u8)
         Fref = {"pts": ref_kp, "desc": ref_desc}
     
-        # Known FOV→mosaic scale
         s_known = (float(folder_image_scale) if folder_image_scale is not None
                    else float(getattr(self, "folder_image_scale", 1.0)))
         if not (s_known > 0):
@@ -3837,20 +3446,17 @@ class FOVAlignAndCropper:
     
             for p in files:
                 try:
-                    # --- FOV nuclei (full-res) ---
                     fov_nuc = self._read_plane(p, ch=int(fov_nuclei_idx))
                     Hf, Wf = fov_nuc.shape
     
-                    # DS for FOV features *including known scale*
-                    Wfds = max(1, int(round(Wf * s * s_known)))   # FIXED name
-                    Hfds = max(1, int(round(Hf * s * s_known)))   # FIXED name
-                    fov_ds = cv2.resize(fov_nuc, (Wfds, Hfds), interpolation=cv2.INTER_LINEAR)  # FIXED usage
+                    Wfds = max(1, int(round(Wf * s * s_known)))
+                    Hfds = max(1, int(round(Hf * s * s_known)))
+                    fov_ds = cv2.resize(fov_nuc, (Wfds, Hfds), interpolation=cv2.INTER_LINEAR)
                     fov_u8 = self._to_uint8(fov_ds)
     
                     kp, desc = self._detect_and_describe(fov_u8)
                     Fb = {"pts": kp, "desc": desc}
     
-                    # Match (A=mosaic_ds, B=fov_ds)
                     ptsA, ptsB = self._match(Fref, Fb)
                     if ptsA.shape[0] < 4:
                         continue
@@ -3859,7 +3465,6 @@ class FOVAlignAndCropper:
                     if M_ds is None:
                         continue
     
-                    # Optional constraints (keep known scale separate from "disallowed scale")
                     A_lin = M_ds[:, :2].astype(np.float32)
                     pA = ptsA[inmask] if (inmask is not None and inmask.any()) else ptsA
                     pB = ptsB[inmask] if (inmask is not None and inmask.any()) else ptsB
@@ -3873,24 +3478,16 @@ class FOVAlignAndCropper:
                         t_mean = (pA - (pB @ R.T)).mean(axis=0).astype(np.float32)
                         M_ds = np.zeros((2, 3), np.float32); M_ds[:, :2] = R; M_ds[:, 2] = t_mean
     
-                    # ---- Lift DS → full-res with known scale ----
-                    # DS relation:
-                    #   x_mosa_ds = A_ds * x_fov_ds + t_ds,
-                    #   x_fov_ds  = s*s_known*x_fov_full,  x_mosa_ds = s*x_mosa_full
-                    # ⇒ x_mosa_full = A_ds*(s_known)*x_fov_full + t_ds/s
-                    # ⇒ A_full = s_known * A_ds ; t_full = t_ds / s
                     M_full = M_ds.astype(np.float32).copy()
                     M_full[:2, :2] *= float(s_known)
                     M_full[0, 2] /= float(s)
                     M_full[1, 2] /= float(s)
     
-                    # Decompose
                     a, b, tx = float(M_full[0, 0]), float(M_full[0, 1]), float(M_full[0, 2])
                     c, d, ty = float(M_full[1, 0]), float(M_full[1, 1]), float(M_full[1, 2])
                     scale = float(np.sqrt(max(1e-12, (a * d - b * c))))
                     theta = float(np.degrees(np.arctan2(c, a)))
     
-                    # Score on DS (foreground of mosaic nuclei)
                     B_warp_ds = cv2.warpAffine(fov_u8, M_ds, (Wmds, Hmds),
                                                flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
                     th, _ = cv2.threshold(mosa_u8, 0, 255, cv2.THRESH_OTSU)
@@ -3899,21 +3496,16 @@ class FOVAlignAndCropper:
                                                   B_warp_ds.astype(np.float32),
                                                   mask=mA)) * float(inlier_ratio)
     
-                    # Compute FOV bbox top-left in mosaic coords (using M_full)
                     corners = np.array([[0, 0], [Wf, 0], [0, Hf], [Wf, Hf]], dtype=np.float32).reshape(-1, 1, 2)
                     C = cv2.transform(corners, M_full).reshape(-1, 2)
                     mosaic_x0 = float(np.min(C[:, 0]))
                     mosaic_y0 = float(np.min(C[:, 1]))
     
-                    # Read full FOV & Mosaic channels and build stacked output:
-                    #   [FOV channels; mosaic channels warped into FOV frame]
-                    fov_all = self._read_all_channels_cyx(p)         # (C_f, Hf, Wf), float32
-                    mosa_all_full = mosa_all                         # (C_m, Hm, Wm), already loaded
+                    fov_all = self._read_all_channels_cyx(p)
+                    mosa_all_full = mosa_all
     
-                    # Inverse transform (mosaic -> FOV)
                     M_inv = self._invert_affine(M_full)
     
-                    # Warp mosaic channels into FOV frame
                     C_f = fov_all.shape[0]
                     C_m = mosa_all_full.shape[0]
                     out = np.zeros((C_f + C_m, Hf, Wf), np.float32)
@@ -3924,12 +3516,10 @@ class FOVAlignAndCropper:
                                                 flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
                         out[C_f + ci] = warped
     
-                    # Save npy
                     base = os.path.splitext(os.path.basename(p))[0]
                     npy_path = os.path.join(npy_dir, f"{base}__with_mosaic.npy")
                     np.save(npy_path, out)
     
-                    # Write CSV row
                     w.writerow(dict(
                         fov_path=p,
                         stitched_path=stitched_path,
@@ -3940,9 +3530,6 @@ class FOVAlignAndCropper:
                     ))
     
                 except Exception as e:
-                    # Skip the FOV, but never silently: an unreadable file or a
-                    # bad transform would otherwise leave an empty manifest with
-                    # no explanation at all.
                     print(f"[FOVAlignAndCropper.run] Skipping {os.path.basename(p)}: {e}",
                           flush=True)
                     continue
@@ -3956,7 +3543,7 @@ def align_image_to_stitch(
     meta_regex: str = r"(?P<mag>\d+X)_c(?P<chan>\d+)_?(?P<well>[A-H]\d{1,2}).*?Site[-_](?P<site>\d+)\.(?:tif|tiff)$",
     well_group: str = "well",
     channel_index: int = 0,
-    relative_scale: float = 2.0,   # 20× vs 10× → ~2.0; adjust as needed
+    relative_scale: float = 2.0,
     downsample: float = 0.5,
     nfeatures: int = 4000,
     ransac_thresh_px: float = 3.0,
@@ -3997,7 +3584,6 @@ def align_image_to_stitch(
     import os, re, shutil
     from typing import Dict, List
 
-    # ---------- helpers ----------
     def _scan_tifs(root: str, recursive: bool, exts: tuple) -> List[str]:
         """Return matching TIFF paths from ``root``, optionally recursively."""
         out = []
@@ -4024,7 +3610,6 @@ def align_image_to_stitch(
             if not w:
                 continue
             buckets.setdefault(w, []).append(p)
-        # sort per site if present
         def _site_key(p):
             """Return a site, field, or FOV number, or a large sort-last key."""
             m = re.search(r"(?:Site|Field|FOV)[-_]?(\d+)", os.path.basename(p), re.IGNORECASE)
@@ -4052,8 +3637,6 @@ def align_image_to_stitch(
             made.append(dp)
         return made
 
-    # ---------- 1) find per-well mosaics built by stitch_cycle_wells ----------
-    # Expected location from your pipeline: <stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif
     wells_with_mosaic: Dict[str, str] = {}
     if not os.path.isdir(stitch_dst_root):
         raise ValueError(f"stitch_dst_root does not exist: {stitch_dst_root}")
@@ -4063,37 +3646,30 @@ def align_image_to_stitch(
             continue
         mpath = os.path.join(well_dir, "_stitch", "mosaic_allc.tif")
         if not os.path.isfile(mpath):
-            # stitch_cycle_wells writes <well>/stitch/<plate>_<well>_mosaic_allc.tif;
-            # without this the two halves of the pipeline never meet.
             import glob as _glob
             found = sorted(_glob.glob(os.path.join(well_dir, "stitch", "*mosaic_allc.tif")))
             mpath = found[0] if found else None
         if mpath and os.path.isfile(mpath):
             wells_with_mosaic[entry.upper()] = mpath
 
-    # ---------- 2) group 20× (align) images by well ----------
     meta_re = re.compile(meta_regex, re.IGNORECASE)
     align_files = _scan_tifs(align_src, recursive_align_src, exts)
     by_well_align = _group_by_well(align_files, meta_re, well_group)
 
-    # ---------- 3) per-well FOV→mosaic alignment via FOVAlignAndCropper ----------
     results: Dict[str, Dict[str, str]] = {}
     links_root = os.path.join(stitch_dst_root, "_links", "align20x")
     os.makedirs(links_root, exist_ok=True)
 
     for well, mosaic_path in sorted(wells_with_mosaic.items()):
         if well not in by_well_align:
-            continue  # no 20× images for this well
+            continue
         well_align_srcs = by_well_align[well]
-        # make a light per-well link folder so paths are clean/reproducible
         link_well = os.path.join(links_root, well)
         _symlink_list(well_align_srcs, link_well)
 
         crops_dir = os.path.join(os.path.dirname(mosaic_path), "crops_20x")
         os.makedirs(crops_dir, exist_ok=True)
 
-        # Instantiate the aligner per well so its outdir lands next to that
-        # well's mosaic instead of polluting the caller's working directory.
         aligner = FOVAlignAndCropper(
             folder_image_scale=relative_scale,
             downsample=downsample,
@@ -4139,25 +3715,20 @@ def ops_preprocess(settings):
         folder beside its mosaic.
     """
     import os
-    # Fill in defaults for all stitching / alignment-related keys
     settings = get_preprocess_ops_settings(settings)
 
     phenotype_src = settings["phenotype_source"]
     genotype_src = settings["genotype_source"]
 
-    # ---- Normalize phenotype_src ----
     if not isinstance(phenotype_src, (str, os.PathLike)):
         raise ValueError("settings['phenotype_source'] must be a path to a folder.")
     phenotype_src = str(phenotype_src)
 
-    # Where to store npy outputs (you can change this if you like)
     npy_out_root = os.path.join(phenotype_src, "output")
     os.makedirs(npy_out_root, exist_ok=True)
 
-    # ---- Normalize genotype_src into a list of folders ----
     if isinstance(genotype_src, (str, os.PathLike)):
         genotype_src = str(genotype_src)
-        # List subdirectories; if none, treat the folder itself as one genotype
         subdirs = [
             os.path.join(genotype_src, d)
             for d in os.listdir(genotype_src)
@@ -4178,8 +3749,7 @@ def ops_preprocess(settings):
     align_results = []
 
     for geno_fldr in genotype_folders:
-        # ---- 1) per-genotype stitching ----
-        stitch_settings = dict(settings)  # shallow copy is fine for simple values
+        stitch_settings = dict(settings)
         stitch_settings["src"] = geno_fldr
         if stitch_settings.get("dst_root") is None:
             stitch_settings["dst_root"] = geno_fldr
@@ -4190,8 +3760,6 @@ def ops_preprocess(settings):
             "summary": summary,
         })
 
-        # ---- 2) alignment of phenotype images to stitched mosaics ----
-        # Only run if align_image_to_stitch is available in this module.
         if "align_image_to_stitch" in globals():
             dst_root = stitch_settings["dst_root"]
             ar = align_image_to_stitch(
@@ -4200,13 +3768,6 @@ def ops_preprocess(settings):
                 meta_regex=stitch_settings["meta_regex"],
                 channel_index=stitch_settings["channel_index"],
                 relative_scale=stitch_settings["relative_scale"],
-                # `qc_outlines` is NOT passed. It was, and that was the whole
-                # of its life: the ops defaults set it True, this line read it,
-                # align_image_to_stitch accepted it, and nothing switched on --
-                # the *__qc_outlines.png overlays belong to spacrStitcher and
-                # are gated on its own `save_qc`, which defaults False. A key
-                # whose only reader hands it to an inert parameter is not a
-                # read; use save_qc on the stitching step.
             )
             align_results.append({
                 "genotype_folder": geno_fldr,

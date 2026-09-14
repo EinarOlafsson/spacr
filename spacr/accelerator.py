@@ -169,11 +169,6 @@ def _cuda_or_rocm(torch) -> Optional[Accelerator]:
             return None
     except Exception:                                        # noqa: BLE001
         return None
-    # ROCm builds set torch.version.hip and leave torch.version.cuda None.
-    # `torch.version` is fetched defensively rather than dotted into: a
-    # partially-built torch, and any stand-in that implements only the
-    # `cuda` namespace, has no `version` at all -- and an AttributeError
-    # here would demote a working CUDA card to the CPU.
     version_module = getattr(torch, "version", None)
     hip = getattr(version_module, "hip", None)
     try:
@@ -184,9 +179,6 @@ def _cuda_or_rocm(torch) -> Optional[Accelerator]:
         return Accelerator(
             kind="rocm", device="cuda:0",
             label=f"{name} (AMD ROCm {hip})", name=name,
-            # ROCm is a full CUDA-shaped backend: double precision and
-            # autocast both work, which is why it needs no capability
-            # carve-outs the way Metal does.
             float64=True, autocast=True)
     version = getattr(version_module, "cuda", None)
     label = f"{name} (NVIDIA CUDA {version})" if version else name
@@ -200,13 +192,6 @@ def _mps(torch) -> Optional[Accelerator]:
         return None
     try:
         if not backend.is_available():
-            # Built but unavailable is a real and confusing state, and it
-            # has SEVERAL causes that a user can act on differently. This
-            # used to answer all of them with "this system does not offer a
-            # Metal device", which on an Intel Mac with Intel graphics is
-            # simply false -- the machine has a Metal device, drives its
-            # display with it, and torch still cannot use it. Reported by
-            # the maintainer on a 2020 Intel Mac.
             if backend.is_built():
                 label, note = _why_metal_is_unavailable()
                 return Accelerator(
@@ -219,7 +204,6 @@ def _mps(torch) -> Optional[Accelerator]:
     return Accelerator(
         kind="mps", device="mps", label=f"{metal_name} (Apple Metal)",
         name=metal_name,
-        # MEASURED, not assumed -- see this module's docstring.
         float64=False, autocast=False, fallback=True)
 
 
@@ -265,8 +249,6 @@ def _why_metal_is_unavailable() -> Tuple[str, str]:
     release = platform.mac_ver()[0]
     intel_mac = platform.machine() in ("x86_64", "i386")
 
-    # ASKED FIRST, because on macOS 12.2 an Apple Silicon Mac reaches here
-    # too and "upgrade macOS" is the true answer for it as well.
     if release:
         try:
             major, minor = (int(part) for part in release.split(".")[:2])
@@ -339,9 +321,6 @@ def _xpu(torch) -> Optional[Accelerator]:
         name = xpu.get_device_name(0)
     except Exception:                                        # noqa: BLE001
         name = "Intel GPU"
-    # Intel's XPU backend has no float64 on most consumer parts and its
-    # autocast support depends on the torch build, so both are claimed
-    # conservatively: a wrong "yes" here is a crash in a training run.
     return Accelerator(kind="xpu", device="xpu", label=f"{name} (Intel XPU)",
                        name=name, float64=False, autocast=False,
                        fallback=True)
@@ -429,8 +408,6 @@ def resolve(refresh: bool = False) -> Accelerator:
         try:
             found = probe()
         except Exception:                                    # noqa: BLE001
-            # A backend that throws while being ASKED whether it exists is
-            # exactly the half-installed case this must survive.
             LOG.debug("accelerator probe failed", exc_info=True)
             found = None
         if found is not None:
@@ -443,12 +420,6 @@ def resolve(refresh: bool = False) -> Accelerator:
     if found.usable and found.kind != "cpu":
         found = _measure_dtypes(torch, found)
     if found.usable and found.fallback:
-        # THE FLAG ITSELF IS SET IN `spacr/__init__.py`, NOT HERE. torch
-        # reads it when the MPS backend registers, which is at `import
-        # torch` -- long before this resolver runs. Setting it now would
-        # look like it worked and change nothing; measured. What is
-        # recorded here is only whether the fallback is in force, so a
-        # caller can report it.
         found = replace(found, fallback=bool(
             os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK", "")))
     _CACHED = found
@@ -512,9 +483,6 @@ def _forced_device(wanted: str, found: Accelerator) -> Accelerator:
                        fallback=wanted.startswith("mps"))
 
 
-# ---------------------------------------------------------------------------
-# The shorthands call sites actually want
-# ---------------------------------------------------------------------------
 
 def torch_device():
     """``torch.device`` for the resolved accelerator.
@@ -708,9 +676,6 @@ def empty_cache(torch_module=None) -> str:
         LOG.debug("empty_cache failed for %s", accelerator.kind,
                   exc_info=True)
         return ""
-    # THE CALL IS RETURNED, NOT A GENERIC PHRASE. Preferences shows this
-    # verbatim, and "torch.cuda.empty_cache()" is the line a user can look
-    # up; "device cache released" is a euphemism they cannot check.
     return made
 
 
@@ -741,10 +706,6 @@ def capabilities() -> Tuple[Tuple[str, bool, str], ...]:
          "on the GPU" if gpu else "CPU only"),
         ("Live backdrop and spaceout", True,
          "GPU shader" if _opengl_likely() else "CPU renderer"),
-        # cuML IS NOT PORTABLE, and saying so here is the point. RAPIDS
-        # ships for CUDA only -- there is no AMD, Intel or macOS build --
-        # so this row is red on every machine in this list except NVIDIA,
-        # and a user on Metal should not wait for it to get faster.
         ("UMAP / t-SNE / clustering", found.is_cuda,
          "on the GPU via cuML" if found.is_cuda
          else "CPU — cuML is built for CUDA only"),

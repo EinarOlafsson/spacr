@@ -226,8 +226,6 @@ def plan(filenames: Sequence[str], regex: str,
             missed.append(name)
             continue
         got = match.groupdict()
-        # THE ROLE WINS OVER THE GROUP NAME, because the dropdown is what the
-        # user actually said and the group name may be `g1`.
         values: Dict[str, str] = {}
         for group, value in got.items():
             role = str(roles.get(group, group))
@@ -284,10 +282,6 @@ def for_get_regex(pattern: str) -> str:
     text = str(pattern or "").strip()
     if text.endswith("$"):
         text = text[:-1]
-    # ANY ALTERNATION OF IMAGE EXTENSIONS, not one exact spelling of it.
-    # `auto_detect_regex` returns the full five -- `(?:tif|tiff|png|jpg|jpeg)`
-    # -- while the bundled YOKOGAWA pattern carries `(?:tif|tiff)`, and a
-    # literal comparison against one of them silently left the other on.
     match = _TRAILING_EXTENSION.search(text)
     if match:
         return text[:match.start()]

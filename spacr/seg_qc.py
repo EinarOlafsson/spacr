@@ -203,9 +203,6 @@ __all__ = [
     "write_scorecard",
 ]
 
-# ---------------------------------------------------------------------------
-# vocabulary
-# ---------------------------------------------------------------------------
 
 #: no object at all in the field.
 FLAG_EMPTY = "empty_field"
@@ -239,10 +236,6 @@ FLAGS: Tuple[str, ...] = (
     FLAG_OUTLIERS,
 )
 
-# How bad each flag is. 'fail' means the field's measurements would be wrong,
-# not merely noisy; 'warn' means look at it before you trust it. The severity
-# classes are semantics and live here; the numbers that decide whether a flag
-# fires are thresholds and live in QC_DEFAULTS.
 _FLAG_SEVERITY: Dict[str, str] = {
     FLAG_UNREADABLE: "fail",
     FLAG_EMPTY: "fail",
@@ -310,9 +303,6 @@ class SegmentationQCFailed(RuntimeError):
         self.summary = dict(summary or {})
 
 
-# ---------------------------------------------------------------------------
-# result type
-# ---------------------------------------------------------------------------
 
 @dataclass
 class FieldQC:
@@ -352,9 +342,6 @@ class FieldQC:
         return f"{self.field}: {self.n_objects} objects [{self.severity}] {flags}"
 
 
-# ---------------------------------------------------------------------------
-# settings glue
-# ---------------------------------------------------------------------------
 
 def _as_number(value: Any) -> Optional[float]:
     """Coerce a settings value to a float, or None if it is not one.
@@ -433,9 +420,6 @@ def _resolve(overrides: Mapping[str, Any]) -> Dict[str, float]:
     return th
 
 
-# ---------------------------------------------------------------------------
-# per-field measurement
-# ---------------------------------------------------------------------------
 
 def _as_labels(mask: Any) -> np.ndarray:
     """Return ``mask`` as a 2-D non-negative integer label image.
@@ -582,10 +566,6 @@ def score_field(
             ),
         )
 
-    # ---- border-touching objects ------------------------------------------
-    # Border objects are counted, reported, and then excluded from every size
-    # statistic below: a truncated object's area understates its size, exactly
-    # as diameter._region_diameters argues.
     edge = np.concatenate([labels[0, :], labels[-1, :], labels[:, 0], labels[:, -1]])
     border_ids = np.unique(edge)
     border_ids = border_ids[border_ids > 0]
@@ -610,9 +590,6 @@ def score_field(
             f"so their crops will be truncated"
         )
 
-    # ---- robust size statistics -------------------------------------------
-    # Only with enough interior objects to have a distribution. Below the floor
-    # a MAD is one object's opinion, so no size flag may be raised from it.
     enough = interior_areas.size >= th["min_objects"]
     if enough:
         median_d = float(np.median(diameters))
@@ -641,11 +618,6 @@ def score_field(
                 f"{object_type}s"
             )
 
-    # ---- fusion, the way diameter.py argues it -----------------------------
-    # Both halves required: dense enough for fusion to be the explanation, AND
-    # the mask under-counting what the pixels support. The distance transform
-    # is only run when the first half holds, so a healthy plate never pays for
-    # it.
     confluent = metrics["foreground_fraction"] >= th["foreground_fraction"]
     giant = metrics["max_object_fraction"] >= th["max_object_fraction"]
     outnumbered = False
@@ -670,7 +642,6 @@ def score_field(
             "objects look fused (" + "; ".join(evidence) + ")"
         )
 
-    # ---- too few objects to be a field ------------------------------------
     if n_objects < th["min_objects"]:
         flags.append(FLAG_NEAR_EMPTY)
         reasons.append(
@@ -718,9 +689,6 @@ def _compose_note(
     return head + ". " + "; ".join(reasons) + "."
 
 
-# ---------------------------------------------------------------------------
-# plate context
-# ---------------------------------------------------------------------------
 
 def _apply_plate_context(field_qcs: List[FieldQC], th: Mapping[str, float]) -> List[FieldQC]:
     """Add the flags that only exist relative to the rest of the plate.
@@ -814,9 +782,6 @@ def _add(qc: FieldQC, flag: str) -> bool:
     return True
 
 
-# ---------------------------------------------------------------------------
-# plate-level entry points
-# ---------------------------------------------------------------------------
 
 def _iter_masks(source: Any):
     """Yield ``(field_name, loader)`` pairs for whatever the caller passed.
@@ -843,12 +808,6 @@ def _iter_masks(source: Any):
 
     if isinstance(source, _abc.Mapping):
         for name, mask in source.items():
-            # A CALLABLE VALUE IS A THUNK, not a mask. That is what lets a
-            # caller whose masks are not one-file-per-field -- the v2
-            # pipeline, whose mask is a channel of a merged stack -- be
-            # scored without materialising the plate: a mapping of already
-            # loaded arrays would hold all 1536 fields at once, which is
-            # exactly what the file path above goes out of its way to avoid.
             if callable(mask):
                 yield str(name), mask
             else:
@@ -889,7 +848,7 @@ def score_masks(
     for name, load in _iter_masks(source):
         try:
             mask = load()
-        except Exception as exc:                       # truncated or corrupt .npy
+        except Exception as exc:
             out.append(
                 FieldQC(
                     field=name,
@@ -934,9 +893,6 @@ def summarize_qc(
         for flag in qc.flags:
             flag_counts[flag] = flag_counts.get(flag, 0) + 1
 
-    # A mask that could not be read contributes no count and no size: folding
-    # its zero into the plate medians would let one corrupt file drag the
-    # reference every other field is judged against.
     scored = [q for q in field_qcs if FLAG_UNREADABLE not in q.flags]
     counts = [q.metrics.get("n_objects", float(q.n_objects)) for q in scored]
     diams = [
@@ -982,9 +938,6 @@ def summarize_qc(
     }
 
 
-# ---------------------------------------------------------------------------
-# reporting
-# ---------------------------------------------------------------------------
 
 _CARD_COLUMNS = (
     ("field", lambda q: q.field),
@@ -1102,9 +1055,6 @@ def write_scorecard(
     os.makedirs(qc_dir, exist_ok=True)
     path = os.path.join(qc_dir, f"segmentation_qc_{object_type}.csv")
 
-    # 'n_objects' is already a column of its own; carrying the metric copy too
-    # would put the same header in the file twice, which csv.DictReader
-    # silently collapses.
     metric_names: List[str] = []
     for qc in field_qcs:
         for name in qc.metrics:
@@ -1209,14 +1159,6 @@ def run_segmentation_qc(
         "flags": flags,
     }
 
-    # THE GATE. Raised LAST, after the scorecard and the flags are on disk and
-    # the verdict has been printed, so stopping the run costs none of the
-    # evidence for why -- a gate that stops before it writes the card leaves
-    # the user with a failure and nothing to read.
-    #
-    # Only on `fail`. A `warn` plate is one the thresholds are unsure about,
-    # and halting a plate on an unsure verdict trains people to turn the gate
-    # off, which is worse than not having it.
     if mode == "stop" and summary.get("verdict") == "fail":
         raise SegmentationQCFailed(
             f"Segmentation QC ({object_type}) FAILED and seg_qc='stop': "
@@ -1228,19 +1170,6 @@ def run_segmentation_qc(
     return result
 
 
-# ===========================================================================
-# Plain language: what each flag means, what causes it, what to do
-# ===========================================================================
-#
-# The scorecard above is precise and unreadable to anyone who has not read
-# this module. "3 plates failed QC" is nearly useless; what changes a decision
-# is "plate2 rows E-H hold 4x the objects of rows A-D, which is usually uneven
-# illumination or a threshold set too low". Everything below exists to get
-# from the first sentence to the second.
-#
-# One entry per member of FLAGS, checked by tests/test_seg_qc_banner.py: a
-# flag added to the vocabulary without an explanation is a flag a user will
-# read as a nine-letter identifier.
 
 
 @dataclass(frozen=True)
@@ -1520,9 +1449,6 @@ def explain_flag(flag: str) -> FlagGuidance:
     return FLAG_GUIDANCE[str(flag)]
 
 
-# ---------------------------------------------------------------------------
-# Where a field is: plate, well, row, column
-# ---------------------------------------------------------------------------
 
 #: ``plate1_E07_3`` — what ``spacr.io._rename_and_organize_image_files`` names
 #: a merged field and what ``spacr.object`` therefore names its mask.
@@ -1630,9 +1556,6 @@ def _column_range(columns: Sequence[int]) -> str:
     )
 
 
-# ---------------------------------------------------------------------------
-# Findings: what to tell the user, in the order they should hear it
-# ---------------------------------------------------------------------------
 
 #: Ratio between the two halves of a plate at which a positional step stops
 #: being seeding variation. Seeding density across a plate varies with a CV of
@@ -1705,7 +1628,7 @@ def _flag_findings(
     out: List[Finding] = []
     for (plate, flag, object_type), members in grouped.items():
         guidance = FLAG_GUIDANCE.get(flag)
-        if guidance is None:                       # a flag with no entry
+        if guidance is None:
             continue
         addresses = [parse_field_name(q.field) for q in members]
         wells = tuple(sorted({a.well for a in addresses if a.well}))
@@ -1717,13 +1640,6 @@ def _flag_findings(
             where += f", wells {located}"
         elif named_fields:
             where += f", fields {named_fields}"
-        # The severity is the flag's own, with one exception that has to be
-        # honoured: `_apply_plate_context` demotes empty and near-empty fields
-        # on a sparse plate, because with a plate median of 2 pathogens per
-        # field a field with none is the assay. `_severity_of` takes the worst
-        # flag, so a field carrying an undemoted 'fail' flag is itself 'fail';
-        # if not one member field is, the flag was demoted, and calling it a
-        # failure here would contradict the verdict the card already printed.
         severity = _FLAG_SEVERITY.get(flag, "warn")
         if severity == "fail" and not any(q.severity == "fail" for q in members):
             severity = "warn"
@@ -1784,8 +1700,6 @@ def _axis_step(
     lo, hi = (ma, mb) if ma <= mb else (mb, ma)
     lo_keys, hi_keys = (first, second) if ma <= mb else (second, first)
     if lo <= 0:
-        # A half with a median of zero is an empty half, not a gradient; the
-        # empty-field flag is the honest report of that and already fired.
         return None
     fold = hi / lo
     if fold < ratio:
@@ -1961,21 +1875,6 @@ def format_findings(findings: Sequence[Finding]) -> str:
     return "\n".join(blocks)
 
 
-# ===========================================================================
-# Reading the verdict back off disk
-# ===========================================================================
-#
-# `run_segmentation_qc` already scored these masks once, at mask time, and
-# wrote `<plate>/qc/segmentation_qc_<object_type>.csv`. Everything below reads
-# that file. Nothing below opens a mask -- opening a plate's worth of masks
-# costs seconds to minutes, and a screen that pays that on every visit is a
-# screen that gets switched off. `score_digest` is the one exception and it
-# only runs when a user asks for it by name.
-#
-# Freshness is the price of not recomputing, and it is paid explicitly: each
-# card's mtime is compared against the newest file in the mask stack it
-# describes, so a card written before the last re-mask is reported as OUT OF
-# DATE rather than quietly believed.
 
 #: Prefix `write_scorecard` gives every card it writes.
 CARD_PREFIX = "segmentation_qc_"
@@ -2147,8 +2046,6 @@ def qc_roots(src: Any) -> Tuple[str, ...]:
             continue
         root = os.path.abspath(os.path.expanduser(text))
         _add(root)
-        # `<plate>/merged` and `<plate>/norm_channel_stack` both name a folder
-        # INSIDE the plate; the card lives beside them, not in them.
         parent = os.path.dirname(os.path.normpath(root))
         base = os.path.basename(os.path.normpath(root))
         if base.endswith("merged") or base.endswith("_stack"):
@@ -2216,15 +2113,6 @@ def read_scorecard(path: str) -> Tuple[List["FieldQC"], str]:
             reader = csv.DictReader(handle)
             header = list(reader.fieldnames or [])
 
-            # THE NUL CHECK HAS TO LOOK AT THE HEADER, and this is why.
-            # CPython's csv module used to raise `_csv.Error: line contains
-            # NUL`, so a corrupted card was caught by the `except csv.Error`
-            # below and reported as unreadable. PYTHON 3.12 STOPPED RAISING:
-            # it parses the NUL straight through into a FIELD NAME. The check
-            # here only ever looked at `row.values()`, so a NUL in the header
-            # became a key it could not see, every real column went missing,
-            # every default applied, and a damaged scorecard came back "ok"
-            # on exactly the interpreters this project targets.
             if any("\x00" in str(name) for name in header):
                 return [], f"{os.path.basename(path)} is not CSV (NUL byte)"
             missing = sorted(required - set(header))
@@ -2261,10 +2149,6 @@ def read_scorecard(path: str) -> Tuple[List["FieldQC"], str]:
     except OSError as exc:
         return [], f"{os.path.basename(path)} unreadable ({type(exc).__name__})"
     except csv.Error as exc:
-        # Python <=3.11 rejects a NUL while iterating the CSV; 3.12+ accepts
-        # it and the explicit checks above reject it. Keep one diagnosis on
-        # every supported interpreter so callers do not have to parse a
-        # version-specific stdlib message.
         if "nul" in str(exc).lower():
             return [], f"{os.path.basename(path)} is not CSV (NUL byte)"
         return [], f"{os.path.basename(path)} is not readable as CSV ({exc})"
@@ -2345,8 +2229,6 @@ def _subhead(digest: "QCDigest") -> str:
     n_warn = sum(int(c.summary.get("n_warn", 0)) for c in digest.scorecards)
     if not n_fail and not n_warn:
         if digest.findings:
-            # Worth saying out loud: every field passed on its own, and the
-            # problem is only visible when they are laid out on the plate.
             return (
                 f"{n_fields} {types} field(s){where} scored; no single field "
                 f"was flagged — what is wrong is the pattern across the plate."
@@ -2370,9 +2252,6 @@ def _headline(digest: "QCDigest") -> str:
         return "The segmentation scorecard could not be read: " + (
             errors[0] if errors else "unknown error")
     if digest.findings:
-        # The worst finding, not the counts: "12 of 96 fields failed" is a
-        # number, "plate2 rows E-H hold 4x the count of rows A-D" is a
-        # decision. `diagnose` has already sorted the worst one to the front.
         return digest.findings[0].headline
     return "Segmentation QC passed: nothing was flagged on these masks."
 
@@ -2447,9 +2326,6 @@ def read_digest(src: Any, **kwargs) -> QCDigest:
             summary=summary,
             mtime=mtime,
             masks_mtime=masks_mtime,
-            # Only a mask that is genuinely newer counts. Equal mtimes are a
-            # coarse filesystem timestamp on a card written moments after the
-            # masks, which is the normal case and not a staleness.
             stale=bool(masks_mtime and mtime and masks_mtime > mtime + 1.0),
             error=error,
         ))

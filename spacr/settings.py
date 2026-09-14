@@ -71,7 +71,6 @@ def canonical_feature_selection(value):
         except ValueError:
             return text
     if isinstance(value, bool):
-        # bool is an Integral, but True is not an honest spelling of channel 1.
         raise ValueError(
             f"channel_of_interest={value!r} is a boolean; it names no "
             "channel. Use a channel number, 'morphology', or None for "
@@ -164,9 +163,7 @@ def _clone_organelle_registry(mapping, *, tooltip=False):
             mapping.setdefault(_organelle_slot_key(key, role), cloned)
     return mapping
 
-#from wsgiref import types
 
-#from spacr_nightly.spacr.build.lib.spacr import settings
 
 
 DEFAULT_BARCODE_REGEX = (
@@ -471,11 +468,6 @@ class BarcodeSet:
             else:
                 message += " This regex defines no named groups at all."
             raise ValueError(message)
-        # AND NO TWO BARCODES MAY LAND ON ONE GROUP. A barcode that accepts
-        # an older spelling of its group can fall back onto the group another
-        # barcode was given, and then both are handed the same captured text
-        # and counted as though they were different -- silently, because
-        # every column of the output is full.
         taken = {}
         for name, group in resolved.items():
             if group in taken:
@@ -554,12 +546,6 @@ def barcode_set_from_settings(settings):
     if isinstance(value, BarcodeSet):
         return value
     if not value:
-        # ABSENT, BLANK, OR EMPTIED IN A PANEL ARE ONE ANSWER. A settings
-        # file written before sets existed has no key at all, a panel field
-        # cleared by hand arrives as an empty string, and a list a user
-        # emptied arrives as an empty list. All three mean the run decodes
-        # the three barcodes spaCR shipped, which is the only reading that
-        # cannot surprise somebody.
         return None
     count_columns = ()
     if isinstance(value, dict):
@@ -574,8 +560,6 @@ def barcode_set_from_settings(settings):
     entries = []
     for item in value:
         if isinstance(item, BarcodeEntry):
-            # Already spelled out in full by whoever built it. Nothing is
-            # filled in over an explicit decision.
             entry = item
         else:
             if isinstance(item, str):
@@ -611,45 +595,10 @@ def barcode_set_from_settings(settings):
     if not count_columns and sorted(
             entry.id_column for entry in entries) == sorted(
                 _SHIPPED_COUNT_COLUMNS):
-        # THE THREE SHIPPED BARCODES KEEP THEIR COUNTING ORDER. Counts have
-        # always been grouped by row, then column, then guide, while the
-        # reads list the column first, so taking the entry order here would
-        # reorder the rows and the header of every count table a user
-        # already has for no reason they asked for.
         count_columns = _SHIPPED_COUNT_COLUMNS
     return BarcodeSet(entries, count_columns=count_columns)
 
 
-# ---------------------------------------------------------------------------
-# The defaults seam — how a module ships settings without editing this file
-# ---------------------------------------------------------------------------
-# Everything below this block is the settings of the modules that existed
-# when this file was one file: ~3800 lines of defaults factories, types,
-# tooltips and categories, all of which a new module used to have to
-# append to. Six workstreams appending to the same file is six merge
-# conflicts, and the file is nobody's to own.
-#
-# A module registers instead, at import time, from its own file:
-#
-#     from spacr.settings import register_defaults
-#
-#     def _defaults(settings=None):
-#         settings = dict(settings or {})
-#         settings.setdefault("src", "")
-#         settings.setdefault("bins", 32)
-#         return settings
-#
-#     register_defaults(
-#         "graph_builder", _defaults,
-#         expected_types={"bins": int},
-#         tooltips={"bins": "(int) - Histogram bins. Default 32."},
-#         categories={"General": ["bins"]})
-#
-# The existing `set_default_*` / `get_*_settings` functions are NOT
-# touched and NOT auto-registered: they are reached through the dispatch
-# in `qt.screens.settings_model.resolve_default_settings`, and mirroring
-# them here would create a second answer to "what are Mask's defaults?".
-# This registry holds only what registers itself.
 
 #: app key → defaults factory. Written by :func:`register_defaults`.
 _DEFAULTS_REGISTRY = {}
@@ -733,21 +682,9 @@ def _merge_declarations(app_key, types_, tips, cats, description):
         for key in keys:
             if key not in bucket:
                 bucket.append(key)
-        # KEEP THE SNAPSHOT IN STEP. `category_keys` is built once, at import,
-        # as `list(categories.keys())` -- and a module registering through
-        # this seam adds a category AFTERWARDS. Power/Design does exactly
-        # that, so importing its screen left `category_keys` one entry short
-        # of `categories`, and `check_settings` (settings.py, "key not in
-        # category_keys") then treated that heading's own keys as unknown.
-        # Order-dependent, so it only appeared when a Qt import ran first.
         if new_category and name not in category_keys:
             category_keys.append(name)
         if new_category:
-            # Recorded so "declared in the literal below" and "added at
-            # import by a module registering through this seam" are
-            # DISTINGUISHABLE. Without it, anything comparing the source
-            # literal against the live dict is order-dependent: it passes
-            # alone and fails after any test that imported Power/Design.
             REGISTERED_CATEGORIES.add(name)
     if description is not None:
         existing = descriptions.get(app_key, description)
@@ -834,7 +771,7 @@ def _takes_an_argument(fn):
     try:
         params = inspect.signature(fn).parameters
     except (TypeError, ValueError):
-        return True  # not introspectable — assume the common shape
+        return True
     for param in params.values():
         if param.kind in (inspect.Parameter.POSITIONAL_ONLY,
                           inspect.Parameter.POSITIONAL_OR_KEYWORD,
@@ -883,34 +820,9 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     """
     if settings is None:
         settings = {}
-    # THE OLD NAMES MUST MOVE BEFORE ANY DEFAULT IS FILLED IN, and this
-    # factory had no fold at all -- which is the largest half of the defect
-    # 364 recorded. Every `<role>_FT`, `<role>_CP_prob`,
-    # `<role>_Signal_to_noise` and `<role>_min_object_area` is declared here,
-    # and `_set_organelle_defaults` owns `organelle_min_area`/`_max_area`; so
-    # a settings CSV written before b7ae412af (2026-09-02) reached this
-    # function, matched nothing, and had every one of those values replaced
-    # by a default with nothing said. Measured before the fix:
-    # `cell_FT=0.42` came out as `cell_flow_threshold=100`.
     _fold_renamed_settings(settings)
-    # ── pipeline flavour ──────────────────────────────────────────────
-    # 'v1' — the original multi-copy chain (rename → channel folders →
-    #        npy → npz → mask npy → merged/). Stable, well-tested.
-    # 'v2' — streaming pipeline (spacr.pipeline_v2). Reads originals
-    #        directly, writes one npy per field to merged/ with masks
-    #        appended in-place. ~60-80% less disk. Opt-in for one
-    #        release, then default.
-    # Default to the v1 disk-based pipeline: it is the fully-tested path and
-    # produces the channel/stack/mask_stack folder layout the rest of spaCR
-    # (measure, annotate, downstream tools, the e2e suite) depends on. The v2
-    # streaming pipeline (no .npz on disk) is opt-in via pipeline_style='v2'
-    # until it reproduces that layout and fixes real-data channel indexing.
     settings.setdefault('pipeline_style', 'v1')
-    # v2-only: how many field stacks to load into memory per Cellpose
-    # batch. Bigger = faster, more RAM.
     settings.setdefault('batch_fields', 8)
-    # v2-only: keep the in-memory NPZ batch on disk under merged/_scratch/
-    # for debugging. Default False → NPZ never touches disk.
     settings.setdefault('keep_npz', False)
 
     settings.setdefault('src', 'path')
@@ -921,9 +833,6 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('consolidate', False)
     settings.setdefault('batch_size', 50)
     settings.setdefault('test_mode', False)
-    # Validate-only: preprocess_generate_masks runs the pre-flight checks in
-    # spacr.validate, prints the report plus the plan, and returns before any
-    # model loads or any file is written.
     settings.setdefault('dry_run', False)
     settings.setdefault('test_images', 10)
     settings.setdefault('magnification', 40)
@@ -935,20 +844,6 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('remove_background_cell', False)
     settings.setdefault('remove_background_nucleus', False)
     settings.setdefault('remove_background_pathogen', True)
-    # DECLARED 2026-09-12 (364). `spacr/io.py` has read
-    # `remove_background_organelle`, `organelle_background` and
-    # `organelle_signal_to_noise` since the per-channel loop was written, each
-    # through a `.get` with a fallback -- so nothing raised, nothing logged,
-    # and organelle was the ONLY object channel whose background could not be
-    # removed, because no declared setting turned it on.
-    #
-    # THE VALUES ARE THE FALLBACKS, NOT A NEW OPINION. io.py resolved these to
-    # `settings.get('background', 100)`, `settings.get('Signal_to_noise', 10)`
-    # and `settings.get('remove_background', False)`, so declaring 100 / 10 /
-    # False changes no run that exists. Copying `remove_background_pathogen`'s
-    # True would silently start clipping every organelle channel in every
-    # settings file already written, which is a behaviour change and belongs
-    # in release notes with the maintainer's say-so, not here.
     settings.setdefault('remove_background_organelle', False)
     
     settings.setdefault('cell_diameter', None)
@@ -956,19 +851,10 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('pathogen_diameter', None)
     settings.setdefault('diameter_estimate_n_fields', 5)
 
-    # Cellpose 4 ships one stock model, so the only real choice these keys
-    # carry is "stock weights" vs "the checkpoint I trained". A legacy value
-    # in an old settings file is mapped forward by
-    # normalize_cellpose_model_name when _get_object_settings reads it.
     settings.setdefault('cell_model_name', 'cpsam')
     settings.setdefault('nucleus_model_name', 'cpsam')
     settings.setdefault('pathogen_model_name', 'cpsam')
 
-    # Segmentation QC — scored on the masks the moment they exist, so a plate
-    # that segmented badly is caught here rather than after measure_crop has
-    # spent hours on it. 'report' computes, saves and prints; it never filters.
-    # The thresholds are spacr.seg_qc.QC_DEFAULTS, documented there and in the
-    # tooltips below.
     settings.setdefault('seg_qc', 'report')
     settings.setdefault('seg_qc_min_objects', 10)
     settings.setdefault('seg_qc_count_ratio', 0.25)
@@ -983,7 +869,6 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('seg_qc_max_object_fraction', 0.25)
     settings.setdefault('seg_qc_plate_fail_fraction', 0.1)
 
-    # Channel settings
     settings.setdefault('cell_channel', None)
     settings.setdefault('nucleus_channel', None)
     settings.setdefault('pathogen_channel', None)
@@ -1001,20 +886,17 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('cell_flow_threshold', 100)
     settings.setdefault('pathogen_flow_threshold', 100)
     
-    # Plot settings
     settings.setdefault('plot', False)
     settings.setdefault('figuresize', 10)
     settings.setdefault('cmap', 'inferno')
     settings.setdefault('normalize', True)
     settings.setdefault('examples_to_plot', 1)
 
-    # Analasys settings
     settings.setdefault('pathogen_model', None)
     settings.setdefault('merge_pathogens', True)
     settings.setdefault('filter', False)
     settings.setdefault('lower_percentile', 2)
 
-    # Timelapse settings
     settings.setdefault('timelapse', False)
     settings.setdefault('fps', 2)
     settings.setdefault('timelapse_displacement', None)
@@ -1030,16 +912,11 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('ultrack_n_workers', 1)
     settings.setdefault('timelapse_objects', ['cell'])
 
-    # Misc settings
     settings.setdefault('save_original_images', True)
     settings.setdefault('keep_intermediate', False)
     settings.setdefault('keep_original_images', False)
     settings.setdefault('adjust_cells', True)
 
-    # 3D (Beta). Off by default and read only through
-    # spacr.zstack.plan_from_settings, which returns None whenever `z_stack`
-    # is falsy -- so with these defaults not one line of z code executes and
-    # the 2-D path is bit-identical to a run from before these keys existed.
     settings.setdefault('z_stack', False)
     settings.setdefault('z_segmentation_mode', 'project')
     settings.setdefault('z_axis', None)
@@ -1049,15 +926,6 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('voxel_size_xy_um', None)
     settings.setdefault('stitch_threshold', 0.25)
 
-    # 4D (Beta). The time axis on top of the z axis, read only through
-    # spacr.zstack.plan_4d_from_settings, which returns None whenever
-    # `t_stack` is falsy -- so with these defaults not one line of 4-D code
-    # executes and both the 2-D and the 3-D path stay bit-identical to a run
-    # from before these keys existed. `t_axis_order` deliberately has no
-    # usable default: (T,Z,Y,X) and (Z,T,Y,X) are both written by real
-    # microscopes and a 4-D shape cannot tell them apart, so a run that turns
-    # t_stack on without saying which it has is stopped rather than guessed
-    # at -- guessing wrong links objects across z and calls it a trajectory.
     settings.setdefault('t_stack', False)
     settings.setdefault('t_axis_order', None)
     settings.setdefault('t_axis', None)
@@ -1067,23 +935,10 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('t_max_displacement_px', None)
     settings.setdefault('t_max_displacement_um', None)
     settings.setdefault('t_project_for_tracking', False)
-    #settings.setdefault(False)
-    #settings.setdefault(False)
-    #settings.setdefault(False)
     
-    # ORGANELLE DEFAULTS, from the one function that owns them.
-    #
-    # Forty-odd `settings.setdefault('organelle_*', ...)` lines stood here,
-    # a second hand-written copy of `_set_organelle_defaults`. They agreed
-    # exactly and NOTHING ENFORCED THAT: a run takes whichever factory it
-    # went through and never compares the two, so a value corrected in one
-    # copy and not the other measures the same plate two ways with no error
-    # and nothing in the log. `tests/test_organelle_defaults_agree.py` was
-    # the holding pattern; deleting the duplication is the fix.
     _set_organelle_defaults(settings)
     settings.setdefault('summarize_organelles_by', 'cell')
 
-    #merge_split
     settings.setdefault('cell_perimeter_fraction', 0)
     settings.setdefault('nucleus_perimeter_fraction',  0)
     settings.setdefault('pathogen_perimeter_fraction',  0)
@@ -1092,11 +947,6 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('nucleus_intensity_merge', False)
     settings.setdefault('pathogen_intensity_merge', False)
     settings.setdefault('organelle_intensity_merge', False)
-    # NO DEFAULT, AND THAT IS THE ANSWER RATHER THAN AN OMISSION (391). The
-    # threshold is in RAW IMAGE UNITS, so any number here would be right for
-    # the one acquisition it was chosen on and wrong for every other exposure
-    # and gain. `None` makes the merge refuse and say what the boundaries in
-    # the field actually were, which is a number the user can then type.
     settings.setdefault('cell_intensity_threshold', None)
     settings.setdefault('nucleus_intensity_threshold', None)
     settings.setdefault('pathogen_intensity_threshold', None)
@@ -1113,18 +963,9 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('nucleus_minimum_area_to_split', 100)
     settings.setdefault('pathogen_minimum_area_to_split', 100)
     settings.setdefault('organelle_minimum_area_to_split', 100)
-    #settings.setdefault(False)
-    #settings.setdefault(False)
-    #settings.setdefault(False)
-    #settings.setdefault(False)
     settings.setdefault('cell_min_area', 0)
     settings.setdefault('nucleus_min_area', 0)
     settings.setdefault('pathogen_min_area', 0)
-    # The organelle pair is NOT set here. `_set_organelle_defaults` owns it,
-    # per organelle type, and a hand-written 0 beside it is what let the live
-    # preview and the batch run disagree in the first place: the preview read
-    # 0 and filtered nothing while the batch read the retired
-    # `organelle_min_size` of 10 and filtered.
     settings.setdefault('cell_max_area', 0)
     settings.setdefault('nucleus_max_area', 0)
     settings.setdefault('pathogen_max_area', 0)
@@ -1133,32 +974,13 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('pathogen_remove_border_objects', False)
     settings.setdefault('organelle_remove_border_objects', False)
     _clone_primary_organelle_values(settings)
-    # NOTE: `timelapse`, the `timelapse_*` knobs above and `motility_analysis`
-    # are deliberately still defaulted here even though the Mask *module* no
-    # longer surfaces them in its GUI (they moved to the standalone Timelapse
-    # and Motility Assay modules — see get_timelapse_settings and
-    # get_automated_motility_assay_default_settings). spacr.object reads
-    # settings['timelapse'] on every mask run and settings['motility_analysis']
-    # inside the timelapse branch, and old settings CSVs still carry both, so
-    # removing the defaults would break the pipeline and every archived CSV.
     settings.setdefault('motility_analysis', False)
 
 
 
-    # Fail-loud policy. None means "not set here" and defers to the
-    # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
-    # it on for a whole batch without editing every settings file. True/False
-    # here is an explicit per-run choice and wins over the environment.
     settings.setdefault('strict_errors', None)
     settings.setdefault('max_failure_rate', None)
-    # Continue an interrupted run instead of starting over. Opt-in:
-    # spacr.resume validates what is already on disk rather than trusting it,
-    # and clears a field's existing rows before re-measuring it.
     settings.setdefault('resume', False)
-    # Mask estimates the same optical field as Measure but applies it only to
-    # private Cellpose inputs; the persisted stack remains raw. Call the
-    # illumination module's factory so both screens expose one vocabulary and
-    # new controls cannot land in only one of them.
     from .illumination import illumination_settings
     for _key, _value in illumination_settings({}).items():
         if _key.startswith('illumination_'):
@@ -1204,19 +1026,6 @@ def set_default_plot_data_from_db(settings):
     settings.setdefault('pathogen_plate_metadata', None)
     settings.setdefault('treatments', None)
     settings.setdefault('treatment_plate_metadata', None)
-    # A BOX WITH JITTER, NOT A BAR WITH JITTER. Instruction 139 B, asked for
-    # on 2026-08-18: "the bargraphs with jutter plot backgrounds should be
-    # boxplots with jutter".
-    #
-    # It is a statistical correction rather than a preference, which is why
-    # the DEFAULT moves rather than the option merely existing. A bar drawn at
-    # a mean with points behind it shows ONE number and hides the shape: two
-    # groups with the same mean and completely different spreads draw the same
-    # bar. A box shows the median, the quartiles and the whiskers, so the
-    # reader sees the distribution the points already imply -- and the jitter
-    # stays, because the box summarises and the points are the evidence.
-    #
-    # `jitter_box` already existed as an option; only the default was wrong.
     settings.setdefault('graph_type', 'jitter_box')
     settings.setdefault('theme', 'deep')
     settings.setdefault('save', True)
@@ -1292,8 +1101,6 @@ def _read_cellpose_models():
     try:
         names += list(cp_models.get_user_models() or ())
     except Exception:
-        # A malformed ~/.cellpose/models/gui_models.txt must not cost the
-        # user the stock models as well.
         LOG.debug("Could not read the Cellpose user-model registry",
                   exc_info=True)
 
@@ -1337,8 +1144,6 @@ def cellpose_model_choices(block=False, refresh=False):
     if block or sys.modules.get("cellpose.models") is not None:
         names = _read_cellpose_models()
         if names:
-            # Cache only a real answer. A miss because Cellpose is not
-            # loaded yet must not pin the fallback for the process.
             _CELLPOSE_MODELS_CACHE = _cpsam_first(names)
             return _CELLPOSE_MODELS_CACHE
     return tuple(CELLPOSE_MODEL_CHOICES)
@@ -1423,31 +1228,12 @@ def downloaded_zoo_models():
 
         from . import model_zoo
 
-        # include_bundled=False, AND THAT IS NOT AN OPTIMISATION. It is the
-        # flag that runs `discover_local`, which SCANDIRS resources/models --
-        # and this function is called while a settings panel is being built,
-        # on the GUI thread. `tests/qt/test_preview_registry.py::
-        # test_the_registry_never_touches_the_filesystem` exists to catch
-        # exactly that and did: the first version of this walked the disk
-        # every time a panel opened.
-        #
-        # The remote rows carry the paths anyway, so nothing is lost: what is
-        # skipped is the walk looking for models nobody declared.
         out = []
-        # block=False, AND THAT IS THE SAME KIND OF FLAG AS THE ONE ABOVE.
-        # `remote=True` reaches `model_zoo.shared_catalogue`, which fetched
-        # the community catalogue over HTTPS -- here, on the GUI thread,
-        # while a settings panel was being built. Measured 2026-09-05 with
-        # the host non-routable: opening Mask took 32.2 s, and GNOME's
-        # "force quit" dialog is what the user saw. The community rows are
-        # taken from the cache instead; the entries this function keeps are
-        # the ones already on disk anyway.
         for entry in model_zoo.catalogue(remote=True, include_bundled=False,
                                          include_plugins=False, block=False):
             if entry.kind != "cellpose":
                 continue
             path = str(getattr(entry, "path", "") or "")
-            # One stat per declared entry, not a directory walk.
             if path and os.path.isfile(path):
                 out.append(path)
         return tuple(out)
@@ -1506,9 +1292,6 @@ def _get_object_settings(object_type, settings):
     object_settings['merge'] = False
     object_settings['resample'] = True
     object_settings['remove_border_objects'] = False
-    # 'cpsam' unless the user pointed at their own checkpoint. A legacy name
-    # from an old settings file is mapped forward here rather than carried
-    # into segmentation as if it still selected different weights.
     object_settings['model_name'] = normalize_cellpose_model_name(
         settings.get(f'{object_type}_model_name'),
         object_type=object_type, key=f'{object_type}_model_name')
@@ -1520,7 +1303,6 @@ def _get_object_settings(object_type, settings):
         object_settings['restore_type'] = settings.get('cell_restore_type', None)
         if settings['cell_diameter'] is not None:
             try:
-                # Coerce — CSV-imported settings arrive as strings ("30.0").
                 object_settings['diameter'] = float(settings['cell_diameter'])
                 object_settings['minimum_size'] = (object_settings['diameter']**2)/4
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
@@ -1540,10 +1322,6 @@ def _get_object_settings(object_type, settings):
                 object_settings['maximum_size'] = (object_settings['diameter']**2)*10
             except (TypeError, ValueError):
                 print(f'Nucleus diameter must be an integer or float, got {settings["nucleus_diameter"]!r}')
-        # (A commented-out `use_sam_nucleus -> model_name = 'sam'` sat here.
-        #  There is no model named 'sam': Cellpose 4 IS SAM and calls its one
-        #  model 'cpsam', which is already what nucleus_model_name defaults
-        #  to. Removed rather than left as a suggestion that would not work.)
 
     elif object_type == 'pathogen':
         object_settings['min_size'] = settings['pathogen_min_area']
@@ -1561,7 +1339,6 @@ def _get_object_settings(object_type, settings):
             except (TypeError, ValueError):
                 print(f'Pathogen diameter must be an integer or float, got {settings["pathogen_diameter"]!r}')
 
-        # (Same for the commented-out `use_sam_pathogen` branch — see above.)
 
 
     else:
@@ -1580,10 +1357,6 @@ def set_default_umap_image_settings(settings=None):
     """
     if settings is None:
         settings = {}
-    # BEFORE THE DEFAULTS: this factory declares `reduction_method`, so it is
-    # where a file carrying the misspelt `redunction_method` has to be folded.
-    # `RETIRED_SETTINGS` has recorded that rename all along and the run never
-    # performed it.
     _fold_renamed_settings(settings)
     settings.setdefault('src', 'path')
     settings.setdefault('row_limit', 1000)
@@ -1598,9 +1371,6 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('n_neighbors', 1000)
     settings.setdefault('min_dist', 0.1)
     settings.setdefault('metric', 'euclidean')
-    # Reducer-specific controls stay in the settings dict even when another
-    # reducer is selected.  Qt greys the inactive family rather than removing
-    # it, so switching methods preserves the values the user chose.
     settings.setdefault('tsne_perplexity', 30.0)
     settings.setdefault('tsne_learning_rate', 200.0)
     settings.setdefault('tsne_early_exaggeration', 12.0)
@@ -1612,25 +1382,12 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('spectral_affinity', 'nearest_neighbors')
     settings.setdefault('spectral_n_neighbors', 15)
     settings.setdefault('random_seed', 42)
-    # This is controlled by the GPU label in the action strip, not duplicated
-    # as a form row.  It is nevertheless a real run setting so notebooks, the
-    # CLI and the run journal all record the selected backend request.
     settings.setdefault('gpu', False)
     settings.setdefault('eps', 0.9)
     settings.setdefault('min_samples', 100)
     settings.setdefault('filter_by', 'channel_0')
     settings.setdefault('img_zoom', 0.5)
     settings.setdefault('plot_by_cluster', True)
-    # OFF by default (2026-08-12, instruction 75). The cluster grid is a
-    # SECOND, montage figure emitted AFTER the embedding, so with it on the
-    # last thing an Image UMAP run put on screen -- and therefore the thing
-    # a user who steps away is left looking at -- was a sheet of cluster
-    # panels rather than the graph: "i don't want to see a grid with plots,
-    # i want the normal figure view i have in other modules ... no grid at
-    # the end, just normal behaviour". The since-removed Tk GUI always
-    # passed False here, so this made the default agree with the one
-    # surface that already had it right. The
-    # figure is one checkbox away for anyone who wants it.
     settings.setdefault('plot_cluster_grids', False)
     settings.setdefault('remove_cluster_noise', True)
     settings.setdefault('remove_highly_correlated', True)
@@ -1666,9 +1423,6 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('analyze_clusters', False)
     settings.setdefault('resnet_features', False)
     settings.setdefault('verbose',True)
-    # 'auto' uses the PNG crop folder when one exists and falls back to
-    # cutting crops out of merged/*.npy on demand; 'png' and 'merged'
-    # force one source. See spacr.crops.resolve_crop_source.
     settings.setdefault('crop_source', 'auto')
     return settings
 
@@ -1682,21 +1436,8 @@ def get_measure_crop_settings(settings=None):
     """
     if settings is None:
         settings = {}
-    # BEFORE THE ORGANELLE COUNT IS INFERRED, not merely before the defaults.
-    # A measure-crop CSV carries the organelle `_size` pair exactly as a mask
-    # CSV does, and `organelle_count` reads `organelle_*` keys to decide how
-    # many slots the file asked for -- so folding after it would count the
-    # old spellings as slots.
     _fold_renamed_settings(settings)
-    # Infer a pre-count settings file before defaults add placeholder
-    # ``organelle_*`` keys. Once those placeholders exist they cannot be
-    # distinguished from a legacy file that genuinely requested slot one.
     _requested_organelle_count = organelle_count(settings)
-    # Coerce bracketed strings (e.g. channels "[0,1,2,3]" imported from a CSV) back into
-    # Python lists/tuples. The Qt drag-and-drop settings import reads CSV cells as raw
-    # strings and does not run them through check_settings(), so without this measure_crop
-    # rejects channels / crop_mode / png_size / ... as "not a list". Idempotent: values
-    # that are already lists, or ordinary strings, are left untouched.
     import ast as _ast
     for _k, _v in list(settings.items()):
         if isinstance(_v, str) and _v.strip()[:1] in "[(":
@@ -1709,46 +1450,16 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('verbose', False)
     settings.setdefault('experiment', 'experiment')
     
-    # Test mode
     settings.setdefault('test_mode', False)
-    # Validate-only: measure_crop runs the pre-flight checks in spacr.validate,
-    # prints the report plus the plan, and returns before the worker pool
-    # starts or anything is written to measurements.db.
     settings.setdefault('dry_run', False)
     settings.setdefault('test_nr', 10)
     settings.setdefault('channels', [0,1,2,3])
 
-    #measurement settings
     settings.setdefault('save_measurements',True)
     settings.setdefault('radial_dist', True)
-    # ON BY DEFAULT since 2026-09-01, by the maintainer's decision: these
-    # are the measurements a host-pathogen screen is run FOR, and a
-    # default run that omitted them was discovered after the run, when
-    # measuring again costs twenty minutes a plate. The KD-tree and
-    # boundary pass they cost are paid for by not repeating the run.
     settings.setdefault('spatial_measurements', True)
-    # The radius is part of the COLUMN NAME (neighbors_within_50), so it
-    # is declared rather than read raw from the dict: an undeclared key
-    # has no widget and is refused by check_settings, which would leave
-    # the neighbourhood size settable only by editing the source.
     settings.setdefault('spatial_neighbor_radius', 50)
-    # EVERY DISTANCE WORTH MEASURING. On by default for the same reason as
-    # spatial_measurements above; it is real time on a 3-D field and that
-    # is the cheaper half of the trade.
-    # WHICH UNINFECTED CELLS ARE NEXT TO AN INFECTED ONE (instruction 388).
-    # OFF BY DEFAULT, unlike the two families above, and the difference is
-    # deliberate: those were turned on by the maintainer AFTER plates had
-    # been measured with them, and this one adds a column family nobody has
-    # seen on a real plate yet. The cost is one distance transform and one
-    # KD-tree over the cell mask, which is cheaper than either of them --
-    # so the reason to leave it off is unfamiliarity, not time, and it is
-    # a one-line decision to flip once a plate has been measured with it.
     settings.setdefault('bystander_measurements', False)
-    # THE REACH IS IN CELL DIAMETERS, NOT MICRONS, so it means the same
-    # thing at 20x and 63x and on a plate whose cells are simply larger.
-    # The diameter is measured from the cell mask of the field being
-    # measured; a hard-coded distance would be right for one dataset and
-    # silently wrong for the next.
     settings.setdefault('bystander_reach_in_diameters', 1.0)
     settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
@@ -1757,26 +1468,14 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('homogeneity', True)
     settings.setdefault('homogeneity_distances', [8,16,32])
 
-    # Voxel geometry. Measure needs these for the same reason segmentation
-    # does: on a 3-D mask every regionprops and distance-transform call takes
-    # a spacing, and without one the z axis is treated as if a plane step were
-    # one xy pixel. Left at None a 2-D run is unaffected (spacing is not
-    # applied in 2-D at all, or *_area would silently change units) and a 3-D
-    # run stops rather than guessing.
     settings.setdefault('voxel_size_z_um', None)
     settings.setdefault('voxel_size_xy_um', None)
     settings.setdefault('anisotropy', None)
 
-    # Cropping settings
     settings.setdefault('save_arrays', False)
     settings.setdefault('save_png',True)
     settings.setdefault('use_bounding_box',False)
     settings.setdefault('png_size',[224,224])
-    # `png_dims` is left in place, unset, on purpose: an older settings CSV
-    # supplies it and spacr.crops.resolve_png_channel_mapping translates it.
-    # Defaulting it here as well would mean the default mapping and a default
-    # png_dims both existed, and the precedence between them would decide the
-    # colours of every crop without anyone having chosen it.
     settings.setdefault('png_channel_mapping', {'r': 2, 'g': 1, 'b': 0})
     settings.setdefault('normalize',False)
     settings.setdefault('normalize_by','png')
@@ -1784,15 +1483,12 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('dialate_pngs', False)
     settings.setdefault('dialate_png_ratios', [0.2])
 
-    # Timelapsed settings
     settings.setdefault('timelapse', False)
     settings.setdefault('timelapse_objects', ['cell'])
 
-    # Operational settings
     settings.setdefault('plot',False)
     settings.setdefault('n_jobs', _default_worker_count(reserve=2))
 
-    # Object settings
     settings.setdefault('cell_mask_dim',4)
     settings.setdefault('nucleus_mask_dim',5)
     settings.setdefault('pathogen_mask_dim',6)
@@ -1800,57 +1496,18 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('cytoplasm',True)
     settings.setdefault('uninfected',True)
     settings.setdefault('cell_min_size',8000)
-    # UPPER BOUNDS, off by default so no existing run changes.
     settings.setdefault('cell_max_size',None)
     settings.setdefault('nucleus_max_size',None)
     settings.setdefault('pathogen_max_size',None)
     settings.setdefault('nucleus_min_size',2000)
     settings.setdefault('pathogen_min_size',500)
-    # WHAT KIND OF ORGANELLE, on the measure side as well as the mask side.
-    # Measure has to know it to say which of its own numbers mean what they
-    # usually mean: "how many, and how spread out" is the phenotype for a
-    # punctate organelle and is a segmentation artefact for a reticular one.
-    # Defaults to 'custom', which makes no claim, so a settings file written
-    # before this existed still means exactly what it meant.
-    # THE FIRST ORGANELLE IS SEEDED BY HAND, so it has to be given the
-    # size floor the loop below gives every other slot. Without it
-    # `measure_crop` asked for a key the factory never shipped and the
-    # organelle filter silently never ran, while the form had no row
-    # to show. 0 rather than Mask's 10: Measure consumes labels that
-    # are already segmented, so it filters nothing unless asked.
     settings.setdefault('organelle_min_area', 0)
     settings.setdefault('organelle_type', DEFAULT_ORGANELLE_TYPE)
-    # HOW MANY ORGANELLES THIS RUN HAS. Measure reads the same count the mask
-    # side does, because it is the same objects being measured: a run that
-    # segmented five organelles has five sets of masks to measure and a panel
-    # that offered two would leave three of them unreachable.
     settings.setdefault(NUMBER_OF_ORGANELLES, _requested_organelle_count)
     for _role in declared_organelle_roles(settings)[1:]:
         settings.setdefault(f'{_role}_mask_dim', None)
         settings.setdefault(f'{_role}_min_area', 0)
         settings.setdefault(f'{_role}_type', DEFAULT_ORGANELLE_TYPE)
-    # NO FIXED FLOOR OF FOUR. Removed 2026-09-02 on the maintainer's
-    # instruction: "if the user chooses 2 organelles settings for 2 organells
-    # if the user chooses 100 organelles settings for 100 organells"
-    # (instruction 326).
-    #
-    # This loop used to seed every role in `schema.ORGANELLE_ROLES` -- four of
-    # them -- with a disabled placeholder "even when number_of_organelles is
-    # zero or one", so that downstream readers could iterate a fixed schema.
-    # The cost was that a two-organelle run carried FOUR slots' keys, which is
-    # what the maintainer objected to, and it put those keys into every
-    # settings CSV, run journal and reproducibility hash.
-    #
-    # IT WAS ALSO THE THING THAT MADE RAISING THE CEILING IMPOSSIBLE. Widening
-    # the role vocabulary so a hundred slots could be KEYED widened this loop
-    # with it, so a five-organelle run came back carrying twenty-six. The
-    # attempt on 2026-09-02 was reverted for exactly that, and this is the
-    # coupling that caused it.
-    #
-    # The loop above already seeds `declared_organelle_roles(settings)`, which
-    # is the count the user asked for plus any slot the file already carries.
-    # A reader that needs to know which organelle tables a run has should ask
-    # that, not a constant.
     settings.setdefault('cytoplasm_min_size',0)
     settings.setdefault('merge_edge_pathogen_cells', True)
     
@@ -1862,60 +1519,14 @@ def get_measure_crop_settings(settings=None):
         test_imgs = settings['test_nr']
         print(f'Test mode enabled with {test_imgs} images, plotting set to True')
 
-    # Fail-loud policy. None means "not set here" and defers to the
-    # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
-    # it on for a whole batch without editing every settings file. True/False
-    # here is an explicit per-run choice and wins over the environment.
     settings.setdefault('strict_errors', None)
     settings.setdefault('max_failure_rate', None)
-    # Continue an interrupted run instead of starting over. Opt-in:
-    # spacr.resume validates what is already on disk rather than trusting it,
-    # and clears a field's existing rows before re-measuring it.
     settings.setdefault('resume', False)
-    # Which parent compartments organelle measurements roll up into. Its
-    # absence here silenced an entire output: measure.py gates all four
-    # organelle writes on `is not None`, so a measure run wrote no organelle
-    # table at all -- even though every merged stack carries real organelle
-    # labels in `organelle_mask_dim`, and the demo ships 64 of them per field.
-    # The key was only ever defaulted in
-    # `set_default_settings_preprocess_generate_masks` (the MASK pipeline),
-    # which never reaches the measure settings, so nothing downstream could
-    # tell "the user asked for no organelle summary" from "nobody asked".
-    #
-    # 'cell' is the documented default and is what the mask pipeline already
-    # sets. Raw per-object tables are controlled solely by each slot's
-    # ``*_mask_dim``; this setting controls only the optional parent rollups.
     settings.setdefault('summarize_organelles_by', 'cell')
 
-    # SAY WHAT THE NUMBERS WILL AND WILL NOT MEAN. Nothing is switched off:
-    # a family the organelle type makes doubtful is still measured, because
-    # a value that vanished without being asked to is worse than one that
-    # comes with a caveat. It is said out loud in the same voice the type
-    # preset uses to say what it set and what is weak about it.
     if settings.get('verbose'):
         explain_organelle_measurements(settings)
 
-    # Illumination / flat-field correction. It divides the microscope's
-    # uneven lighting out of every field BEFORE any intensity feature is
-    # computed, so it is a property of the measure run it changes, not of a
-    # separate one: measure_crop calls
-    # `spacr.illumination.prepare_illumination_correction(settings)` and that
-    # call reads these keys. Without them here the switch was unreachable
-    # from Measure -- the only way to throw it was another screen, which
-    # leaves process environment variables a later run silently inherits, so
-    # whether a table's intensities carried a position-dependent bias
-    # depended on what had been run in the same process beforehand.
-    #
-    # Filled by CALLING the illumination module's own factory rather than by
-    # copying its keys, so a knob added there appears on the Measure panel
-    # without a second edit. Imported inside the function because
-    # spacr.illumination registers itself with this module at import, and a
-    # top-level import would close that loop.
-    #
-    # `setdefault` per key, not `update`: the factory also fills `src` and
-    # `channels`, and Measure's own values for those win. The estimate reads
-    # the fields the run measures, so Illumination's three-channel default
-    # would drop the fourth channel of a four-channel measure run.
     from .illumination import illumination_settings
     for _key, _value in illumination_settings({}).items():
         settings.setdefault(_key, _value)
@@ -1940,17 +1551,6 @@ def set_default_classify(settings):
     set_default_analyze_screen(settings)
     deep_spacr_defaults(settings)
 
-    # `location_column`, `positive_control_id` and `negative_control_id`
-    # come from
-    # the ML factory, and the Classes dict now says the same thing better: a
-    # control well IS a class defined by a metadata column, which is exactly a
-    # row of that dict. Three settings saying it a second way were three ways
-    # for the two to disagree, and nothing said which one won.
-    #
-    # Dropped from the MERGED module only. Classify (ML) on its own still
-    # offers them, and an old settings CSV that sets them still trains on the
-    # same wells -- spacr.classify_classes.normalize_settings turns them into
-    # class rules before anything reads them.
     for retired in ("location_column", "positive_control_id", "negative_control_id"):
         settings.pop(retired, None)
     return settings
@@ -1962,26 +1562,8 @@ def set_default_analyze_screen(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
-    # BEFORE ANY DEFAULT IS FILLED IN (364). A settings file naming a
-    # renamed key must reach the new name carrying its VALUE, and a
-    # `setdefault` that ran first would already have put the default
-    # there -- so the user's number would be silently replaced by ours.
     _fold_renamed_settings(settings)
     settings.setdefault('src', 'path')
-    # The shared training basis. `resolve_basis` is what keeps an older
-    # settings CSV -- which selected the basis IMPLICITLY, by whether
-    # annotation_column was set -- behaving exactly as it did.
-    #
-    # It has to be asked BEFORE annotation_column is defaulted, and the
-    # answer has to become the default rather than 'metadata'. A plain
-    # `setdefault('dataset_mode', 'metadata')` here made that promise
-    # unkeepable: it runs before `resolve_basis` is ever consulted, and
-    # once dataset_mode is set explicitly the implicit rule cannot fire for
-    # any real run. A project whose settings named an annotation_column and
-    # no dataset_mode therefore trained on plate metadata controls instead
-    # of the user's manual annotations -- silently, reporting success, with
-    # the wrong labels. That is precisely what resolve_basis's own
-    # docstring says must not happen.
     from .training_basis import resolve_basis
     if not settings.get('dataset_mode'):
         settings['dataset_mode'] = resolve_basis(settings)
@@ -2011,9 +1593,6 @@ def set_default_analyze_screen(settings):
     settings.setdefault('batch_correction', 'none')
     settings.setdefault('batch_column', 'plateID')
     settings.setdefault('batch_control_column', None)
-    # Keep this blank so control_center follows the module's current
-    # negative_control_id value instead of silently retaining a stale 'c1' when
-    # the user changes the plate layout.
     settings.setdefault('batch_control_values', None)
     settings.setdefault('batch_covariate_column', None)
     settings.setdefault('batch_combat_mean_only', False)
@@ -2052,69 +1631,15 @@ def _set_classifier_evaluation_defaults(settings):
 #: -- seven at once is one commit nobody can review and one mistake nobody
 #: can bisect.
 RENAMED_SETTINGS = {
-    # "window length, not an end coordinate" is what the parameter's own
-    # docstring already had to say, which is the argument for the name.
     "expected_end": "window_length",
-    # "min_n" says the minimum of an unnamed n. The n is OBSERVATIONS --
-    # wells behind a hit -- and the tooltip had to spell that out twice
-    # over ("gRNA hits need n_grna > min_n, gene hits need n_gene > min_n").
     "min_n": "min_observations_per_hit",
-    # "min_cell_count" counts cells and drops WELLS, and the count is
-    # per well -- which the tooltip has to say ("Wells with fewer than
-    # this many cells are dropped") because the name does not.
     "min_cell_count": "min_cells_per_well",
-    # THE SETTING IS AN IDENTIFIER, NOT A WELL AND NOT A CONDITION, and
-    # its own tooltip has always had to say so: "Identifier of the
-    # positive-control class. In ML screening it is the value in
-    # location_column". Three neighbouring settings name WELLS --
-    # `positive_control_wells`, `negative_control_wells`,
-    # `mixed_control_wells` -- so a reader meeting `positive_control`
-    # beside them has no way to tell that this one is a value looked up
-    # in a metadata column rather than a plate address.
-    #
-    # THE FUNCTION PARAMETERS ARE NOT RENAMED WITH IT.
-    # `generate_ml_scores` and `_resolve_controls` take
-    # `positive_control='c2'` as PUBLIC arguments, and four call sites
-    # already pass them as `pc=`/`nc=` -- so the setting name and the
-    # kwarg are already decoupled, and renaming a public signature is a
-    # break this rename does not need to make. The tooltips say which is
-    # which.
     "positive_control": "positive_control_id",
     "negative_control": "negative_control_id",
-    # `controls` IS A COMMON WORD DOING FOUR JOBS, and the setting is only
-    # one of them. Its own tooltip already says the true meaning --
-    # "Non-targeting control gRNA identifiers" -- and `object_roles` has
-    # carried a label OVERRIDE for it since before this rename, with the
-    # reason written beside it: "`controls` names guide or gene
-    # identifiers, whereas the neighbouring control settings name wells".
-    # A setting that needs a label override to be understood is a setting
-    # whose name is wrong.
     "controls": "nontargeting_control_grnas",
-    # A SPLIT, NOT A RENAME (357-Q6). One key meant the invasion assay's
-    # stain baseline AND the wells Regression and sequencing drop before
-    # fitting, with different defaults and no way for a user to set one
-    # without setting the other. The old value goes to BOTH new names, so a
-    # settings file written before the split behaves exactly as it did.
     "control_wells": ("stain_baseline_wells", "analysis_excluded_wells"),
-    # THE FOUR THE DOCTOR ALREADY REPORTED AND THE RUN NEVER PERFORMED.
-    # `spacr.validate.RETIRED_SETTINGS` has named all four as renames since
-    # they landed, so `spacr-doctor` said "renamed to X" about a file whose
-    # value the run then dropped on the floor and replaced with a default.
-    # Measured before adding them: each was absent here, the new key was
-    # never created, and the old key sat in the dict inert.
-    #
-    # NOTHING CHECKED THAT THE TWO TABLES AGREED, which is how four of them
-    # accumulated. `tests/test_the_two_settings_tables_agree.py` now does.
     "minimum_cell_count": "min_cells_per_well",
     "redunction_method": "reduction_method",
-    # `organelle_min_size` / `organelle_max_size` ARE DELIBERATELY NOT HERE.
-    # They are the first spelling of a ROLE-FAMILY rename, and
-    # `object_roles.RENAMED_SETTING_SUFFIXES` already carries
-    # `min_size -> min_area` for every slot -- so a literal entry would be a
-    # second route to the same answer for `organelle` and no route at all for
-    # `organelleq`, which is the shape of the bug being fixed. Verified by
-    # deleting them: the agreement test still passes, because the suffix rule
-    # performs them.
 }
 
 #: Retired names whose migration is SEMANTIC and must not be a plain move.
@@ -2180,8 +1705,6 @@ def _resolve_rename(key):
             if direct is None:
                 direct = _renamed_suffix_name(name)
             if direct is None:
-                # Already terminal: carry it, so a split whose halves have
-                # different chain lengths does not lose the shorter one.
                 step += (name,)
             elif isinstance(direct, str):
                 step += (direct,)
@@ -2190,9 +1713,6 @@ def _resolve_rename(key):
         if step == names:
             return names, hops
         if any(name in seen for name in step):
-            # A CYCLE LEAVES THE KEY ALONE rather than guessing. The key
-            # keeps its own name and the unknown-key check reports it, which
-            # is much better than migrating it somewhere arbitrary.
             return (), hops
         seen.update(step)
         names, hops = step, hops + 1
@@ -2229,8 +1749,6 @@ def surviving_setting_name(key):
     """
     key = str(key)
     if key in SEMANTIC_FOLDS:
-        # Not a move. Its own fold performs it; saying otherwise here would
-        # put a boolean where an int() is waiting.
         return ()
     live = expected_types
     if key in live:
@@ -2276,9 +1794,6 @@ def _fold_renamed_settings(settings):
     """
     if not isinstance(settings, dict):
         return settings
-    # Resolve first, mutate second: `surviving_setting_name` consults
-    # `expected_types`, and editing while resolving would let one migration
-    # change another's answer.
     moves = []
     for old in list(settings):
         if not isinstance(old, str):
@@ -2287,8 +1802,6 @@ def _fold_renamed_settings(settings):
         if targets:
             _names, hops = _resolve_rename(old)
             moves.append((hops, old, targets))
-    # NEAREST FIRST, then alphabetically so the answer cannot depend on the
-    # order the CSV happened to list its columns in.
     for _hops, old, targets in sorted(moves, key=lambda row: (row[0], row[1])):
         value = settings.pop(old, None)
         for name in targets:
@@ -2350,8 +1863,8 @@ def set_default_train_test_model(settings):
     settings.setdefault('class_folder_names', ['nc','pc'])
     settings.setdefault('model_type','maxvit_t')
     settings.setdefault('optimizer_type','adamw')
-    settings.setdefault('schedule','cosine') #reduce_lr_on_plateau, step_lr
-    settings.setdefault('loss_type','focal_loss') # binary_cross_entropy_with_logits
+    settings.setdefault('schedule','cosine')
+    settings.setdefault('loss_type','focal_loss')
     settings.setdefault('normalize',True)
     settings.setdefault('image_size',224)
     settings.setdefault('batch_size',64)
@@ -2382,15 +1895,8 @@ def set_default_train_test_model(settings):
     settings.setdefault('cv_group_by','well')
     settings.setdefault('holdout_plate', None)
     _set_classifier_evaluation_defaults(settings)
-    # Fail-loud policy. None means "not set here" and defers to the
-    # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
-    # it on for a whole batch without editing every settings file. True/False
-    # here is an explicit per-run choice and wins over the environment.
     settings.setdefault('strict_errors', None)
     settings.setdefault('max_failure_rate', None)
-    # 'auto' uses the PNG crop folder when one exists and falls back to
-    # cutting crops out of merged/*.npy on demand; 'png' and 'merged'
-    # force one source. See spacr.crops.resolve_crop_source.
     settings.setdefault('crop_source', 'auto')
     return settings
 
@@ -2404,27 +1910,14 @@ def set_generate_training_dataset_defaults(settings):
     settings.setdefault('tables', ['cell', 'nucleus', 'pathogen', 'cytoplasm'])
     settings.setdefault('dataset_mode','metadata')
     settings.setdefault('annotation_column','test')
-    # class_metadata holds VALUES OF the class column ('columnID'), so the
-    # entries have to be well ids. It was set twice, and the first call won:
-    # ['nc','pc'] -- the CLASS NAMES from deep_spacr_defaults' 'classes' key,
-    # pasted onto the wrong setting. No columnID is ever so the shipped
-    # default selected zero crops in both classes and the second, correct
-    # assignment below was dead. Same for 'tables', set to the four object
-    # tables and then to None.
-    settings.setdefault('metadata_item_1_name',None) # e.g. ['nc','pc']
-    settings.setdefault('metadata_item_1_value',None) # e.g. [['c19','c2'],['c3','c4']]
-    settings.setdefault('metadata_item_2_name',None) # e.g. ['sample1','sample2']
-    settings.setdefault('metadata_item_2_value',None) #e.g. [['r1','r2'],['r3','r4']]
+    settings.setdefault('metadata_item_1_name',None)
+    settings.setdefault('metadata_item_1_value',None)
+    settings.setdefault('metadata_item_2_name',None)
+    settings.setdefault('metadata_item_2_value',None)
     settings.setdefault('test_split',0.1)
     settings.setdefault('cv_group_by','well')
     settings.setdefault('holdout_plate', None)
     settings.setdefault('class_metadata',[['c1'],['c2']])
-    # AND THEN `classes` OVERRULES BOTH (instruction 229). The Classes
-    # editor already names the column each class is defined by and the value
-    # that defines it, so `annotation_column` and `class_metadata` are two
-    # more places for the same two facts -- and nothing downstream reads
-    # both and compares them. Derived here, AFTER the defaults, so a
-    # settings file that defines no class keeps exactly what it had.
     _fold_the_classes(settings)
     settings.setdefault('channel_of_interest',3)
     settings.setdefault('nuclei_limit',True)
@@ -2442,16 +1935,8 @@ def deep_spacr_defaults(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
-    # The retired Classify boolean shared a name with Cellpose's checkpoint
-    # path. It is not a compatibility input: classifier selection is entirely
-    # determined by custom_model_path and model_type.
     settings.pop('custom_model', None)
 
-    # BEFORE ANY DEFAULT LANDS (instruction 230 A). `extract_channels` is
-    # removed and `train_channels` takes its place -- the channels that
-    # matter are the ones the model sees. A settings file that set the old
-    # key and not the new one MEANT those channels, so the value is moved
-    # rather than being silently outvoted by the default filled in below.
     if settings.get('extract_channels') and not settings.get(
             'train_channels'):
         settings['train_channels'] = list(settings['extract_channels'])
@@ -2467,9 +1952,6 @@ def deep_spacr_defaults(settings):
     settings.setdefault('test_split',0.1)
     settings.setdefault('class_metadata',[['c1'],['c2']])
     settings.setdefault('channel_of_interest',3)
-    # THE FOUR OBJECTS spaCR MEASURES, which is what the default should
-    # always have been (instruction 230 A). `None` meant "work it out", and
-    # what it worked out was frequently nothing.
     settings.setdefault('tables', ['cell', 'nucleus', 'pathogen',
                                    'cytoplasm'])
     settings.setdefault('custom_model_path','')
@@ -2521,30 +2003,17 @@ def deep_spacr_defaults(settings):
     settings.setdefault('tar_path','')
     settings.setdefault('n_top_examples',20)
     settings.setdefault('random_seed',42)
-    # ---- instruction 230 A: renamed, merged and derived ---------------
-    #
-    # `crop_source` is IMAGE SOURCE now, and its two values are the two
-    # things a user actually chooses between. The old spellings are
-    # accepted, because every settings CSV in existence carries one.
     settings.setdefault('image_source', settings.get('crop_source')
                         or 'load_images')
     settings['image_source'] = _canonical_image_source(
         settings['image_source'])
-    settings['crop_source'] = settings['image_source']   # the old reader
+    settings['crop_source'] = settings['image_source']
 
-    # ONE PATTERN, NOT THREE. `file_metadata`, `path_string` and `file_type`
-    # between them described one thing, which is three chances to describe
-    # it inconsistently. The old three are read when present so an old CSV
-    # still loads.
 
     settings.setdefault('object_array', 'cell')
-    # DERIVED, NOT ASKED FOR. "coordinate column will always be the same so
-    # figure that out from object array" -- asking is asking the user to
-    # restate something spaCR knows, and giving them a way to get it wrong.
     settings['coordinate_columns'] = _coordinate_columns_for(
         settings.get('object_array'))
 
-    # ---- instruction 230 B: the stream method and its settings ---------
     settings.setdefault('stream_method', 'column')
     settings.setdefault('channel_arrays', [0, 1, 2])
     settings.setdefault('bounding_box', True)
@@ -2626,20 +2095,7 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('pathogen_plate_metadata',[['c1', 'c2', 'c3'],['c4','c5', 'c6']])
     settings.setdefault('treatments',['cm', 'lovastatin'])
     settings.setdefault('treatment_plate_metadata',[['r1', 'r2','r3'], ['r4', 'r5','r6']])
-    #settings.setdefault('metadata_types',['columnID', 'columnID', 'rowID'])
     settings.setdefault('channel_dims',[0,1,2,3])
-    # NO `*_mask_dim` HERE. Instruction 364 measured it and this closes it:
-    # `analyze_recruitment` is the only consumer of these settings and reads
-    # `cell_mask_dim`, `nucleus_mask_dim` and `pathogen_mask_dim` ZERO times,
-    # against four each for the `*_chann_dim` twins beside them. They are not
-    # referenced anywhere in `spacr/submodules.py` at all.
-    #
-    # NOT ADDED TO `RETIRED_SETTINGS`, and that is the point of scoping this to
-    # recruitment. The same three keys are live in `get_measure_crop_settings`
-    # and `set_default_plot_merge_settings`, where they name a plane of the
-    # merged stack and are read. RETIRED_SETTINGS carries its own warning
-    # against exactly this -- naming a key there that `spacr.settings` still
-    # declares would warn a user off a setting that works.
     settings.setdefault('cell_chann_dim',3)
     settings.setdefault('nucleus_chann_dim',0)
     settings.setdefault('pathogen_chann_dim',2)
@@ -2726,9 +2182,6 @@ def get_map_barcodes_default_settings(settings):
     :returns: the settings dict with defaults applied.
     """
     settings.setdefault('src', 'path')
-    # These legacy keys are retained for older callers, but their defaults
-    # must be portable. The active Qt workflow uses the corresponding
-    # row_csv/column_csv/grna_csv keys populated from these same resources.
     settings.setdefault('grna', bundled_barcode_path('grna'))
     settings.setdefault('barcodes', bundled_barcode_path('column'))
     settings.setdefault('test', False)
@@ -2754,9 +2207,6 @@ def get_train_cellpose_default_settings(settings):
     settings.setdefault('diameter',30)
     settings.setdefault('resize',False)
     settings.setdefault('width_height',[1000,1000])
-    # train_cellpose and CellposeLazyDataset consume these keys directly.
-    # Keeping target_size aligned with the historical width/height default
-    # makes the defaults helper a complete runnable contract.
     settings.setdefault('target_size', 1000)
     settings.setdefault('augment', False)
     settings.setdefault('verbose',True)
@@ -2772,9 +2222,6 @@ def set_generate_dataset_defaults(settings):
     settings.setdefault('file_metadata',None)
     settings.setdefault('experiment','experiment_1')
     settings.setdefault('sample',None)
-    # 'auto' uses the PNG crop folder when one exists and falls back to
-    # cutting crops out of merged/*.npy on demand; 'png' and 'merged'
-    # force one source. See spacr.crops.resolve_crop_source.
     settings.setdefault('crop_source', 'auto')
     return settings
 
@@ -2790,7 +2237,6 @@ INFERENCE_MODES = {
     'auto': None,
     'parametric': 'regression',
     'nonparametric': 'guide_permutation',
-    # Accepted spellings so a settings CSV can say either.
     'permutation': 'guide_permutation',
     'regression': 'regression',
     'guide_permutation': 'guide_permutation',
@@ -2866,21 +2312,8 @@ def _resolve_regression_analysis_choices(settings):
             f"first; 'cell' regresses the individual objects.")
     settings['analysis_unit'] = unit
     if unit == 'cell':
-        # Per-object fitting is exactly agg_type=None. Recorded rather than
-        # silently applied, because it changes what one row of the design is.
         settings['agg_type'] = None
 
-        # AND THE INFERENCE FOLLOWS THE UNIT (219). The permutation test
-        # works well by well and 'cell' gives one row per object, so the
-        # only inference that can run here is the parametric one.
-        #
-        # CHOSEN WHEN IT WAS NOT ASKED FOR, SAID WHEN IT WAS. Left at
-        # 'auto', this is not a conflict -- the user expressed no
-        # preference and 'auto' means "pick what the design supports", so
-        # picking it is the whole job. Set to 'nonparametric' explicitly, it
-        # IS a conflict: two deliberate choices that cannot both hold, and
-        # resolving that quietly would run something other than what was
-        # asked for.
         chosen = str(settings.get('inference', 'auto')).strip().lower()
         if chosen in ('', 'auto'):
             settings['inference'] = 'parametric'
@@ -2894,15 +2327,8 @@ def _resolve_regression_analysis_choices(settings):
                 "as 'mean' to keep the permutation test, or "
                 "inference='parametric' to keep per-object fitting.")
     elif settings.get('agg_type') is None and unit == 'well':
-        # A well-level run needs a statistic. 'mean' is the historical default.
         settings['agg_type'] = 'mean'
 
-    # `level` DEFAULTS HERE TOO, not only in
-    # get_perform_regression_default_settings, because this function is the one
-    # place the analysis choices are resolved and a caller that assembled its
-    # own dict (spacr.refit, a sweep trial, a settings CSV written before
-    # 2026-08-17) reaches the fit through it. Absent means 'both', which is
-    # what every one of those older runs meant.
     level = str(settings.get('level', 'both')).strip().lower()
     if level not in REGRESSION_LEVELS:
         raise ValueError(
@@ -2967,8 +2393,6 @@ def _reject_a_threshold_that_cannot_mean_what_it_says(settings):
                 f"{value!r}. A probability is a fraction: 0.05, not 5.")
 
     _number('p_threshold_alpha', 0, 1)
-    # (0, 1]: rra_alpha=1 scores the whole ranked list, which is the
-    # degenerate but meaningful "no cut-off" end of the sweep.
     _number('rra_alpha', 0, 1, high_open=False)
     permutations = settings['rra_permutations']
     if isinstance(permutations, bool) or not isinstance(permutations, int) \
@@ -2978,15 +2402,9 @@ def _reject_a_threshold_that_cannot_mean_what_it_says(settings):
             f"{permutations!r}. The smallest P value the null can report is "
             f"about 1/rra_permutations.")
     penalty = settings['group_lasso_lambda']
-    # 'auto' and a blank both mean "cross-validate it", which is what the
-    # panel now posts for this backend -- see the group_lasso branch of
-    # `spacr.ml.regression_model`.
     unanswered = penalty is None or (
         isinstance(penalty, str) and penalty.strip().lower() in ('', 'auto'))
     if unanswered:
-        # ONE SPELLING DOWNSTREAM. A blank cell, a missing key and the word
-        # typed in any case all mean "choose it for me", and the fit should
-        # not have to know which of the three it was handed.
         settings['group_lasso_lambda'] = 'auto'
     chose_the_penalty = not unanswered
     if chose_the_penalty and (
@@ -3041,75 +2459,18 @@ def get_perform_regression_default_settings(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
-    # BEFORE ANY DEFAULT IS FILLED IN (364). A settings file naming a
-    # renamed key must reach the new name carrying its VALUE, and a
-    # `setdefault` that ran first would already have put the default
-    # there -- so the user's number would be silently replaced by ours.
     _fold_renamed_settings(settings)
     inference_was_supplied = 'inference' in settings
 
-    # One row states one score/count relationship. Legacy score_data and
-    # count_data keys supplied by an older settings file remain in ``settings``
-    # and are migrated by ml.normalize_regression_input_pairs; they are not
-    # defaulted into new files, which now write the explicit paired form.
-    # A blank output root places results beside the first count table. See
-    # ``spacr.ml.resolve_regression_src`` for resolution and creation rules.
     settings.setdefault('src', '')
     settings.setdefault('paired_data', [])
-    # Optional, programmatic publication contract. It is deliberately not a
-    # GUI category: a manifest is a structured figure specification (usually
-    # a versioned JSON file), not a value that can be edited safely in one
-    # line of a settings panel.
     settings.setdefault('regression_panel_manifest', None)
-    # ``regression`` preserves the historical simultaneous model.  The
-    # alternative is a within-plate marginal guide test with empirical
-    # P-values and an explicit multiple-testing family; it consumes the same
-    # score/count inputs and therefore belongs at this entry point rather than
-    # in a disconnected manuscript-only script.
     settings.setdefault('analysis_mode', 'regression')
-    # THE TWO CHOICES THAT DECIDE THE ANALYSIS, in the words a biologist uses.
-    #
-    # `inference` and `analysis_unit` are the plain-language front ends for
-    # two decisions that were previously spelled as side effects of other
-    # keys: analysis_mode ('regression' vs 'guide_permutation') and agg_type
-    # (a statistic vs the None that silently switched the whole model from
-    # per-well to per-object). Both are resolved to those historical keys at
-    # the bottom of this function, so ml.perform_regression is unchanged and a
-    # settings CSV written before this still loads and runs.
-    #
-    # inference='auto' is not a coin flip. It measures the design: a
-    # simultaneous fit needs more wells than guides, and this screen has 824
-    # guides in 587 wells, which is rank deficient -- the fit returns a
-    # coefficient per guide that is not identifiable from the data. Auto
-    # therefore chooses the permutation test whenever the design cannot
-    # support the simultaneous model, and says so in the log.
-    #
-    # The DEFAULT is 'parametric', not 'auto', and that is deliberate.
-    # Defaulting to 'auto' would silently switch existing settings files from
-    # the simultaneous fit to the permutation test the first time they were
-    # re-run -- a different estimand, different columns and different numbers,
-    # with nothing in the file changed. A user opts into auto; they are never
-    # moved onto it. What the default DOES do is refuse to be quiet about a
-    # design it cannot support: perform_regression prints an unmissable
-    # warning naming the counts when the parametric path is asked to fit more
-    # parameters than it has wells. See ml.resolve_auto_inference.
-    # The permutation test is the conservative default for
-    # well-level analysis. It assumes neither normal residuals nor equal
-    # variance, although it is slower and its P-value resolution is bounded
-    # by 1/(permutations + 1).
     settings.setdefault('inference', 'nonparametric')
-    # Preserve the historical, public ``agg_type=None`` spelling for a
-    # per-cell analysis.  New settings use the explicit dropdown, but an old
-    # CSV must not silently become per-well merely because this readable
-    # front-end key did not exist when it was written.
     if 'analysis_unit' not in settings:
         settings['analysis_unit'] = (
             'cell' if 'agg_type' in settings and settings['agg_type'] is None
             else 'well')
-    # A cell-level fit cannot use the well-blocked permutation test. When the
-    # caller selected only the unit (including legacy ``agg_type=None``), let
-    # the resolver choose the compatible parametric path. An explicitly
-    # requested nonparametric analysis remains a conflict and is rejected.
     if settings['analysis_unit'] == 'cell' and not inference_was_supplied:
         settings['inference'] = 'auto'
     settings.setdefault('guide_min_wells', [1, 2, 3, 4])
@@ -3117,150 +2478,35 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('guide_permutations', 200000)
     settings.setdefault('guide_permutation_seed', 0)
     settings.setdefault('guide_permutation_block', 'plateID')
-    # ROW AND COLUMN BY DEFAULT (224). A real run came back with
-    # Durbin-Watson 1.22 against 2 for none -- substantial positive
-    # autocorrelation in row order -- and the permutation test's whole
-    # validity rests on the residuals being exchangeable WITHIN a block.
-    # Position left in the residual is position the shuffle treats as
-    # noise.
-    #
-    # Absent columns are dropped at the call site with a note, so a dataset
-    # without them still runs and the user is told which were not removed.
     settings.setdefault('guide_nuisance_columns', ['rowID', 'columnID'])
     settings.setdefault('grna_statistic', 'pearson')
     settings.setdefault('guide_presence_threshold', 0.0)
     settings.setdefault('guide_permutation_batch_size', 500)
-    # 'none' by default: the correction to apply is a judgement about the
-    # family being tested, not something spaCR should decide silently. The
-    # dropdown offers all thirteen; picking one is a deliberate act.
-    # fdr_bh, requested 2026-08-19. The DESCRIPTION already said
-    # "fdr_bh (Benjamini--Hochberg, default)" while the code defaulted to
-    # 'none', so the documentation and the behaviour had been disagreeing:
-    # a user reading the tooltip believed their screen was corrected and it
-    # was not. 'none' also writes a q_value EQUAL to the raw p, which is what
-    # greys the volcano's adjusted axis -- so the default run could not offer
-    # the axis its own menu is built around.
     settings.setdefault('multiple_testing_method', 'fdr_bh')
     settings.setdefault('fdr_alpha', 0.05)
-    # WHAT "SIGNIFICANT" MEANT, DECIDED BY THE RUN AND NOT BY THE PICTURE.
-    #
-    # Instruction 135: "add a setting that setts what alpha the p threshold is
-    # set at and if adjusted p or raw p is used". The volcano already offers
-    # raw-vs-adjusted on its right-click menu and the RUN had no say in it, so
-    # results_significant.csv and the figure printed beside it could be drawn
-    # to two different rules with nothing on either saying which.
-    #
-    # THE LINE FOLLOWS THE CORRECTION LEVEL UNLESS IT IS MOVED, which is what
-    # stops this becoming a second `score_column`: two controls for one
-    # question, where the only thing the second can express is a disagreement
-    # with the first. Every existing caller moves `fdr_alpha` alone and means
-    # "call hits at this level"; a hard 0.05 here would silently ignore them.
-    #
-    # They stay separate controls because they answer different questions --
-    # `fdr_alpha` is what Benjamini-Hochberg TARGETS, an input to the
-    # procedure, and this is the level a coefficient is CALLED at. Correcting
-    # at 0.05 and reporting at 0.01 is an ordinary thing to want.
     settings.setdefault('p_threshold_alpha', settings['fdr_alpha'])
     settings.setdefault('p_threshold_kind', 'adjusted')
-    # Robust rank aggregation's two knobs, declared here because the hit
-    # caller that reads them is being written in another file: a setting no
-    # defaults factory produces cannot be reached from the Tk panel, the Qt
-    # panel or `spacr-run regression`, which all build their dict here.
     settings.setdefault('rra_alpha', 0.25)
     settings.setdefault('rra_permutations', 10000)
     settings.setdefault('positive_control_id','239740')
     settings.setdefault('negative_control_id','233460')
     settings.setdefault('min_observations_per_hit', 0)
-    # THE GENE, NOT THIRTY OF ITS GUIDES (195). Asked for 2026-08-21:
-    # "default for controlls in regression should be 000000".
-    #
-    # This was a hand-typed list of thirty `000000_*` names, and it showed
-    # what it was: `000000_2` and `000000_7` are absent, not because those
-    # guides do not exist but because the screen somebody read them off did
-    # not have them. A library with a thirty-first non-cutting guide lost it
-    # silently, and one whose guides keep an organism prefix matched none of
-    # the thirty at all.
-    #
-    # `spacr.control_names` resolves a GENE to every guide assigned to it,
-    # measured from the library in hand, in any of the four spellings a
-    # library writes (184). The old list still loads -- `resolve_controls`
-    # takes a mixture of genes and guides -- so a settings CSV written
-    # before this reproduces.
-    #
-    # NOT `negative_control_id`, which stays '233460'. The two are different
-    # things: 233460 is a real gene knocked out and expected to show
-    # nothing; 000000 binds without cutting and is the empirical null every
-    # threshold is measured against.
     settings.setdefault('nontargeting_control_grnas', ['000000'])
     settings.setdefault('exclude_grnas', None)
     settings.setdefault('normalise_fraction', True)
     settings.setdefault('positive_control_wells', None)
     settings.setdefault('negative_control_wells', None)
     settings.setdefault('mixed_control_wells', None)
-    # Normalize legacy scalar values before type validation. Declaring these
-    # settings as lists gives the GUI a chip editor while settings CSVs that
-    # contain one unbracketed value continue to load.
     for _key in ('exclude_grnas', 'positive_control_wells',
                  'negative_control_wells', 'mixed_control_wells'):
         _value = settings.get(_key)
         if isinstance(_value, str):
             _value = _value.strip()
             settings[_key] = [_value] if _value else None
-    # 0.02 BY DEFAULT, at the maintainer's direction 2026-08-19. None meant
-    # "work one out", which ran `graph_sequencing_stats` on every default run
-    # -- the path that produced the KeyError fixed this morning -- and made
-    # the cut different from screen to screen. A stated number is reproducible
-    # and is reported in the run summary's exclusions, which now counts what
-    # it removed rather than only printing it (156).
     settings.setdefault('fraction_threshold', 0.02)
-    # MEASURE THE THRESHOLD INSTEAD OF NAMING IT, when the plate design
-    # says which wells are pure control.
-    #
-    # `fraction_threshold` is a number the user picks, and there is no
-    # obvious right one: too low and bleed-through gRNAs survive, too high
-    # and real ones are stripped. The control wells can answer it -- refit
-    # imaging on sequencing at each candidate cut-off and keep the one where
-    # the two agree best -- and `spacr.fraction_calibration` does that.
-    #
-    # OFFERED, NOT DEFAULTED. Turning it on changes which gRNAs survive in
-    # every well of the screen, so it is a decision the user takes rather
-    # than one a version bump takes for them. Off, `fraction_threshold` is
-    # read exactly as before.
     settings.setdefault('calibrate_fraction_threshold', False)
-    # THE FOUR OBJECT-OUTLIER FILTERS ARE NOT OFFERED HERE, and the reason
-    # is the order of the pipeline rather than a preference.
-    #
-    # Each one excludes objects by a robust z-score over a MEASUREMENT --
-    # area, or mean intensity. This module reads a score table and a count
-    # table, and the measurements are joined to the scores AFTER the fit.
-    # So at the moment these would run there is no column to take a median
-    # absolute deviation over: the control read as doing something and did
-    # nothing.
-    #
-    # Still DEFAULTED, so a settings file that names all four loads and
-    # runs unchanged -- removing a control must not turn an old run into an
-    # error. It is the panel entry that goes, not the key.
     for _criterion, _caption in _outlier_criteria():
         settings.setdefault(f'{_criterion}_outlier_mads', None)
-    # ONE COLUMN, NOT TWO (instruction 135 A). `score_column` named the column
-    # `minimum_cell_simulation` resamples to find how many objects a well
-    # needs before its mean stops moving, and it has been
-    # `setdefault('score_column', settings['dependent_variable'])` ever since
-    # the two were reconciled -- one measurement under two names. All a second
-    # control could add was a way to simulate the minimum cell count on a
-    # column the model does not fit, and then keep or drop wells on it.
-    #
-    # MIGRATED, NOT DROPPED, the way `toxo` -> `Toxoplasma` is below: every
-    # regression settings CSV written before today carries it. A file with no
-    # `dependent_variable` gets the old value; a file whose two keys DISAGREE
-    # is told which one this run fits, because that disagreement is what
-    # changed the old run's answer and silence about it is what makes the
-    # re-run inexplicable.
-    #
-    # THE KEY ITSELF IS NOT RETIRED. `interpret_vision_model` and
-    # `hit_investigation` use `score_column` for the CNN score column
-    # ('cv_predictions'), so it keeps its type, its tooltip and a category
-    # there; what is retired is the REGRESSION module's duplicate.
     if 'score_column' in settings:
         legacy_score_column = settings.pop('score_column')
         if settings.get('dependent_variable') in (None, ''):
@@ -3274,149 +2520,21 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('threshold_method','std')
     settings.setdefault('threshold_multiplier',3)
     settings.setdefault('target_unique_count',5)
-    # log by default: screen responses are fractions and skew hard, and the
-    # normality check fails on the raw column far more often than not.
     settings.setdefault('transform', 'log')
     settings.setdefault('outlier_detection',True)
     settings.setdefault('agg_type','mean')
-    # 100 cells: below that a well's score is noise dressed as a measurement.
     settings.setdefault('min_cells_per_well', 100)
-    # MIXED IS THE DEFAULT, and the maintainer's reason is the design
-    # rationale rather than a preference: "mixed answers the most central
-    # question best" (2026-08-17, instruction 132). The central question a
-    # CRISPR screen asks is about the GENE, and mixed is the only model here
-    # that says what a guide is -- a biological replicate of one intended
-    # perturbation, nested inside its gene -- instead of a second independent
-    # variable competing with it for the same variance.
-    #
-    # It was 'ols' until 2026-08-17. This is a setdefault, so a settings CSV
-    # that names a type still gets that type; only a dict that never chose one
-    # moves.
     settings.setdefault('regression_type', 'mixed')
-    # WHAT THE INTERCEPT IS, offered rather than assumed.
-    #
-    # 'fitted' estimates it from the data, which is what every run before
-    # this key existed did and is why it is the default. The other three
-    # exist because a fitted intercept answers a question a screen does not
-    # always ask: it is the response of a well whose every predictor is at
-    # its reference level, which for a one-hot gene design is whichever gene
-    # patsy happened to drop. 'control' pins it at the negative controls, so
-    # every coefficient reads as a difference FROM the controls -- the thing
-    # a screen is usually asking about. 'zero' fits through the origin, and
-    # 'value' pins it at `intercept_value`.
     settings.setdefault('intercept', 'fitted')
-    # Read only under intercept='value'; the panel greys it otherwise.
     settings.setdefault('intercept_value', 0.0)
-    # WHO FITS IT, as opposed to WHAT is fitted (instruction 141 A). The two
-    # are independent: the same mixed model can be fitted by statsmodels on
-    # the CPU or by spacr.mixed_gpu on the GPU, and the answer should be the
-    # same while the time is not.
-    #
-    # DEFAULT 'statsmodels', and this one is not a preference. Every
-    # results.csv, every volcano and every hit list this project has produced
-    # came out of statsmodels, so a default that moved would change the
-    # numbers under a user who changed nothing -- which is not a default.
-    #
-    # NORMALISED, not just defaulted, because both GUIs render a combo's
-    # options verbatim and instruction 141 C requires each option to read
-    # '(CPU)' or '(GPU)'. So the option strings ARE the labels, the panel
-    # posts 'torch (GPU)', and this is where it becomes 'torch'. An old
-    # settings CSV has no such key at all and gets the default, which is what
-    # every one of those files meant.
     settings['regression_backend'] = _resolve_regression_backend(
         settings.get('regression_backend'))
-    # WHICH LEVEL A FIXED-EFFECTS FIT REPORTS AT. No settings CSV written
-    # before 2026-08-17 carries this key, and every regression run before then
-    # wrote one, so the default has to be the behaviour those files meant:
-    # 'both' levels. Read only by the non-mixed families; see
-    # get_setting_dependencies, which greys the control out under 'mixed' and
-    # says why, rather than hiding it or leaving it present and inert.
     settings.setdefault('level', 'both')
-    # IS PLATE POSITION IN THE MODEL AT ALL (instruction 143 A: "is rowID +
-    # columnID always run? this should be an opt in"). It was: prepare_formula
-    # ended with an unconditional "+ rowID + columnID", and
-    # random_row_column_effects only chose FIXED or RANDOM for terms that were
-    # already in. There are three states now -- out, fixed, random -- and this
-    # key picks the first one. Out plus random is a contradiction and is
-    # refused by ml._reconcile_random_row_column_effects, not resolved.
-    #
-    # DEFAULT ON, AGAINST THE INSTRUCTION'S SUGGESTION OF OFF, because the
-    # instruction asked for the default to be MEASURED and the measurement
-    # says on. Fitting the maintainer's TSG101 screen (1945 rows, 610 wells)
-    # twice per level: the 35 position terms are jointly significant at
-    # F = 5.781, p = 6.71e-23 (guide) and F = 6.277, p = 2.33e-26 (gene);
-    # eight of the nine real screens on that machine reject the same null at
-    # p < 0.05. Dropping them costs 8.4 points of R2 (0.5477 -> 0.4634),
-    # inflates the residual sd 7.2% and so makes standard errors 5.5% LARGER,
-    # moves the median guide coefficient 0.271 of its standard error, and
-    # swaps named genes in and out of the exported hit list (277230 out at
-    # q 0.0394 -> 0.4071, 258462 in at q 0.1134 -> 0.0146). On synthetic data
-    # with the truth planted it loses 17% of the true hits at BH.
-    #
-    # Default ON is wrong only on a plate with no position effect at all, and
-    # there it costs 35 parameters, 3% of the residual degrees of freedom,
-    # 1.6% on the standard errors and 0.02 hits out of 20. The two mistakes
-    # are more than an order of magnitude apart, so the default is the cheap
-    # one to be wrong about. See ml.prepare_formula for the whole measurement.
-    #
-    # AND IT IS THE MIGRATION. Unlike `toxo` -> `Toxoplasma` or the retired
-    # `score_column` there is no old key to pop and no old value to carry
-    # across: no settings CSV written before 2026-08-18 has this key at all,
-    # and what every one of those files MEANT is plate position in the model.
-    # A setdefault of True is therefore what makes an old file still mean what
-    # it meant -- and the same setdefault is what keeps an old CSV carrying
-    # random_row_column_effects=True from landing in the refused fourth state.
-    # OFF BY DEFAULT, at the maintainer's direction 2026-08-19. Instruction
-    # 143 chose True on a measurement -- omitting a real plate-position effect
-    # cost more than carrying an absent one -- and that measurement stands as
-    # a description of the two errors. The DEFAULT is a judgement about which
-    # error to take by default across everybody's screens, and that judgement
-    # is the maintainer's. An old settings CSV without the key now means
-    # "position out" rather than "position in": stated here because the
-    # comment above says the opposite about files written before 2026-08-18,
-    # and a reader of one line without the other would be misled.
     settings.setdefault('model_plate_position', False)
     settings.setdefault('random_row_column_effects',False)
     settings.setdefault('cov_type',None)
-    # A PENALTY OF 1 IS NOT A DEFAULT, IT IS A FAILURE, for these families.
-    #
-    # A fraction design's coefficients live around 1e-2, so alpha=1 shrinks
-    # every one of them to exactly zero: measured on a real screen, all 1,208
-    # of them, and the fit then raises rather than reporting a table of zeros.
-    # A default that cannot succeed on the data the module is for is worse
-    # than no default. 'auto' cross-validates the penalty instead.
-    #
-    # Only for the penalised families. quantile REFUSES any alpha but 1 (it
-    # uses its own `quantile` key and an alpha there means the user has
-    # confused the two), and the unpenalised families ignore it.
     if settings.get('regression_type') in PENALISED_REGRESSION_TYPES:
         settings.setdefault('alpha', 'auto')
-        # AND THE POSTED DEFAULT COUNTS AS ABSENT. `setdefault` never fired
-        # from the GUI: the panel posts every key it shows, so `alpha` arrived
-        # as the integer 1 -- the default for the families that ignore it --
-        # and the penalised fit then refused, every time, on the first run a
-        # user made. Measured on the reference screen: alpha=1 shrank all 790
-        # coefficients to exactly zero.
-        #
-        # 1 IS NOT A PENALTY ANYBODY CHOOSES for a design of fractions; it is
-        # the value the panel had lying around. Cross-validating instead is
-        # strictly better than a guaranteed refusal, and it is ANNOUNCED
-        # rather than done quietly -- a penalty chosen for the user and never
-        # named is one they cannot put in a methods section.
-        #
-        # ANY 1, WHATEVER ITS TYPE. This used to spare a FLOAT 1.0, on the
-        # reading that an integer is the posted default and a float is a
-        # deliberate answer. That was true of the Tk panel and is not true of
-        # this one: the Qt field is a double spin box and the settings CSV it
-        # writes says `alpha,1.0`, so the rescue never fired for anyone
-        # running the current GUI. Driven on the tsg101 screen's own saved
-        # settings (236 C7), lasso and elasticnet both refused the run --
-        # "shrank all 298 coefficients to exactly zero at alpha=1.0" -- from
-        # a settings file in which nobody had ever touched alpha.
-        #
-        # Nothing is lost by dropping the escape hatch: a literal penalty of
-        # exactly 1 on a fraction-scale design is the value the guard
-        # downstream refuses anyway, and any other number is honoured.
         if settings.get('alpha') == 1:
             settings['alpha'] = 'auto'
             print(f"alpha=1 is the unpenalised families' default and shrinks a "
@@ -3426,48 +2544,16 @@ def get_perform_regression_default_settings(settings):
                   f"to choose it yourself.")
     else:
         settings.setdefault('alpha', 1)
-    # Every knob below is read by spacr.ml.regression_model for at least one
-    # regression_type, and each one is INDEXED (settings[...]) by
-    # perform_regression, not .get()-ed: a model that reads a setting must have
-    # a default here or the module is unstartable from every entry point, which
-    # is exactly how six other keys took regression down.
-    #
-    # The defaults match regression_model's own signature defaults, because
-    # _reject_unused_settings compares against them to tell "the user asked for
-    # this" from "the panel posted its default".
     settings.setdefault('l1_ratio', 0.5)
     settings.setdefault('quantile', 0.5)
     settings.setdefault('hinge_threshold', None)
     settings.setdefault('hinge_n_boot', 200)
     settings.setdefault('huber_t', 1.345)
-    # The spline basis. Read only by regression_type 'spline', where the
-    # COVARIATES are given a basis and the guide columns are left alone.
     settings.setdefault('spline_knots', 4)
     settings.setdefault('spline_degree', 3)
     settings.setdefault('lasso_n_boot', 200)
     settings.setdefault('lasso_selection_threshold', 0.6)
-    # The group lasso's penalty weight. Declared here for the same reason as
-    # the RRA pair above -- the family that reads it lives in spacr/ml.py and
-    # a knob no defaults factory produces is a knob no entry point can set.
-    #
-    # WHICH FAMILY READS IT IS NOT WRITTEN BY HAND, for any of the three.
-    # `regression_spec.REGRESSION_SETTINGS_USED` claims them for
-    # 'group_lasso' and 'rra', so `_name_the_family_in_every_estimator_tooltip`
-    # ends each tooltip with "Read by regression_type '...'", and the same
-    # table generates the rule that greys the control out. A second,
-    # hand-written list would be the one that drifted.
-    # 'auto' RATHER THAN A NUMBER. A penalty is only large or small
-    # relative to the design it is applied to, and 0.05 is nearly half of
-    # the tsg101 screen's own ceiling -- it emptied all 297 gene blocks and
-    # the run was refused, from settings nobody had touched (236 C7).
     settings.setdefault('group_lasso_lambda', 'auto')
-    # AND A SAVED 0.05 IS THE OLD DEFAULT, not an answer. It was what the
-    # panel posted for the whole of this setting's life, so every settings
-    # file written before today carries it -- and now that it is no longer
-    # the default, leaving it in place would make those files ask for a
-    # penalty under every OTHER regression type, which refuses a setting it
-    # cannot read. Converted rather than tolerated, so the old file means
-    # today what it meant when it was written: nobody chose this.
     if settings.get('group_lasso_lambda') == LEGACY_GROUP_LASSO_LAMBDA:
         settings['group_lasso_lambda'] = 'auto'
         if settings.get('regression_type') == 'group_lasso':
@@ -3476,75 +2562,14 @@ def get_perform_regression_default_settings(settings):
                   f"fraction-scale design, so the penalty is being cross-"
                   f"validated instead (group_lasso_lambda='auto'). Set a "
                   f"number to choose it yourself.")
-    # The diagnostic suite, on by default because one analysis wants it and
-    # the person running one analysis is the one who will not think to ask.
-    # It is NOT a per-family knob: every regression_type is fitted through the
-    # same `regression()` call and every one of them can be badly specified,
-    # so it is deliberately outside REGRESSION_SETTINGS_USED and is not
-    # policed by _reject_unused_settings. A parameter sweep turns it off in
-    # `parameter_sweep._trial_settings`, where a hundred trials would be ten
-    # minutes and two thousand figures nobody opens.
-    #
-    # STILL A PARAMETER, THOUGH THE PANEL NO LONGER OFFERS ONE. Instruction
-    # 135 asks for it hard-coded True and says to check the sweep first, and
-    # the check says do not: the sweep's escape route IS this key.
-    # `parameter_sweep._trial_settings` writes `regression_qc=False` into the
-    # trial's dict, `perform_regression` re-applies THIS function to that dict
-    # (ml.py:4922) and only then reads `settings.get('regression_qc', True)`,
-    # so forcing True here would overwrite the sweep's False and put ~5.8 s
-    # and ~19 figures per trial back on all hundred of them. setdefault leaves
-    # the parameter reachable by the sweep while the GUI control goes.
-    #
-    # THE SWEEP'S OWN ESCAPE IS HALF BROKEN ALREADY, measured the same day and
-    # reported rather than fixed here because parameter_sweep is another
-    # file: its `setdefault("regression_qc", False)` does nothing when the
-    # base dict already carries the key, and every base dict built by the Tk
-    # panel, the Qt panel or `spacr-run` carries it at True -- because all
-    # three build it HERE. Pinned by
-    # tests/test_the_regression_settings_fit_on_one_page.py. That is an
-    # argument for keeping the key, not for removing it: it is the only way
-    # the sweep has of saying no at all.
     settings.setdefault('regression_qc', True)
     settings.setdefault('filter_value',['c1', 'c2', 'c3'])
     settings.setdefault('filter_column','columnID')
-    # THE COUNT TABLE'S TWO COLUMNS, WHICH WERE HARD-CODED (instruction 135 B:
-    # "i think these are hardcoded and dont have a settins"). spacr.ml demands
-    # ['rowID', 'columnID', 'grna', 'count'] of the count CSV and raises "The
-    # CSV file must contain 'grna', 'count', 'rowID', and 'columnID' columns"
-    # -- naming the four it wants and none of the ones the file HAS, which is
-    # the failure that instruction's whole section is about. The plate
-    # coordinates are resolved elsewhere; these two are the ones a sequencing
-    # pipeline spells differently ('sgRNA', 'reads', 'n').
     settings.setdefault('count_grna_column', 'grna')
     settings.setdefault('count_value_column', 'count')
-    # Count inputs may be one row per (well, guide) or one row per well with
-    # one guide per column. ``auto`` recognizes the former from the paired
-    # guide/value columns and otherwise uses the wide-column path. The model
-    # layout is a separate choice: a long input can be collapsed to one row
-    # per well for fixed-effects estimators, while a wide input can be melted
-    # for the historical formula and permutation paths.
     settings.setdefault('independent_variable_layout', 'auto')
     settings.setdefault('wide_predictor_columns', [])
     settings.setdefault('model_data_layout', 'long')
-    # sequencing.graph_sequencing_stats iterates
-    # settings['analysis_excluded_wells'] and drops those wells from the
-    # count table before it sweeps for the fraction threshold, exactly as
-    # ml.clean_controls drops filter_value from the score table. The two must
-    # name the same wells or the threshold is fitted on wells the regression
-    # never sees, so this follows filter_value. It is indexed, not .get(),
-    # and it is iterated, so None is not a legal value here.
-    #
-    # IT WAS `control_wells` UNTIL 2026-09-09 AND THAT KEY MEANT TWO THINGS.
-    # The invasion assay used the same name for its STAIN BASELINE wells and
-    # defaulted it to None, so one settings file set both at once and a user
-    # changing one silently changed the other. Split into
-    # `analysis_excluded_wells` here and `stain_baseline_wells` there
-    # (364, 357-Q6); an old value migrates to both.
-    # AND THE THREE CONTROL BLOCKS ARE PART OF IT (221). `filter_value`
-    # gains them in `_perform_regression`, which runs after this, so
-    # deriving from `filter_value` alone left the sequencing sweep fitting
-    # its threshold on wells the regression had already dropped -- the exact
-    # divergence the comment above says must not happen.
     _blocks: list = []
     try:
         from .well_spec import control_block_wells
@@ -3565,40 +2590,8 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('batch_combat_mean_only', False)
     settings.setdefault('batch_min_samples', 3)
     settings.setdefault('batch_missing_control', 'error')
-    # Acquisition-specific annotations cannot have a meaningful machine-wide
-    # default. An empty list makes the optional input explicit and portable.
     settings.setdefault('metadata_files', [])
-    # grna: the per-gRNA table is the one that shows whether a gene's signal
-    # is carried by every guide or by a single outlier.
-    # `volcano` IS GONE. It chose which coefficient table the volcano was
-    # drawn from -- 'gene' | 'grna' | 'all' -- before the run. The
-    # interactive volcano filters between genes and guides by right-click now
-    # (instruction 129 A), on the same fit and with no re-run, so a setting
-    # that could answer the question once was redundant.
-    #
-    # A settings CSV that still carries it is ACCEPTED AND DROPPED rather
-    # than refused: every regression run before 2026-08-17 wrote one, and a
-    # saved settings file that suddenly fails to load is a worse outcome than
-    # a key nothing reads. Same treatment `location_column`,
-    # `positive_control_id` and `negative_control_id` already get above.
     settings.pop('volcano', None)
-    # THE REGRESSION PLOT SETTINGS STOP BEING SETTINGS (instruction 135):
-    # "Regression plot can be removed . hard code regression qc and guide
-    # permutation plot to true, logx and logy to false and x and y lim should
-    # be set automatically and can be changed on the plot."
-    #
-    # None of the six was a question about the SCREEN. They styled the figures
-    # a run draws, which is a decision better made while looking at the figure
-    # than before the fit: x_lim/y_lims absent means the plotting code scales
-    # to the data and the interactive volcano rescales afterwards, log_x and
-    # log_y are False, guide_permutation_plot is True, and split_axis_lims was
-    # read by nothing at all.
-    #
-    # ACCEPTED AND DROPPED rather than refused, exactly like `volcano` above:
-    # every regression settings CSV written before today carries all six, and
-    # a saved file that suddenly fails to load is a worse outcome than a key
-    # nothing reads. A value that DISAGREED with the hard-coded one changed
-    # what that run drew, so it is named on the way out instead of vanishing.
     for _retired, _forced in (('log_x', False), ('log_y', False),
                               ('x_lim', None), ('y_lims', None),
                               ('guide_permutation_plot', True)):
@@ -3609,71 +2602,20 @@ def get_perform_regression_default_settings(settings):
             print(f"{_retired}={_was!r} was dropped: it is hard-coded to "
                   f"{_forced!r} now. The regression plots scale to the data "
                   f"and are changed on the plot itself.")
-    # `split_axis_lims` retires with the five above but LEAVES IN SILENCE.
-    # The other five each decided something a run drew, so a value that
-    # disagreed with the hard-coded one changed a figure and is worth naming.
-    # Nothing ever read this one, so there is no behaviour to report a change
-    # in -- and an old settings CSV that carries it would otherwise keep an
-    # undeclared key in the dict every downstream reader then has to ignore.
     settings.pop('split_axis_lims', None)
-    # `toxo` BECAME `Toxoplasma` on 2026-08-17 (instruction 133): "change
-    # the toxo settings to Toxoplasma". An old settings CSV carries the old
-    # spelling, and dropping it would turn the annotation off without saying
-    # so -- so the value MIGRATES rather than being ignored.
-    #
-    # POPPED, not kept alongside. Keeping both would put two controls for one
-    # question on the panel and give `toxo` a category it is no longer
-    # entitled to. Every reader goes through `ml._toxoplasma_is_on`, which
-    # accepts either spelling, so a caller that hands ml.py a raw dict with
-    # the old key still works.
-    #
-    # ONE POP RATHER THAN AN INDEXED READ BEHIND AN `in`. The two lines meant
-    # the same thing, but the contract test that walks perform_regression and
-    # the helpers it hands the dict to (test_regression_entry_points) reads
-    # `settings['toxo']` as a key that must have a default -- it cannot see
-    # the guard -- and `toxo` is a key this function exists to REMOVE, so it
-    # never can have one. That assertion has been failing on the old spelling
-    # since the rename; taking the value out with the pop that was always
-    # coming answers it without changing what any run does.
     if 'toxo' in settings:
         settings.setdefault('Toxoplasma', settings.pop('toxo'))
     settings.setdefault('Toxoplasma', True)
-    # `Toxoplasma` BECAME A FIELD on 2026-08-23: "it would be cool if that
-    # was a field that you could fill with any uniprot id or organism name
-    # and it would pull what uniprot has. Defaults to Toxo and Toxo data
-    # hardcoded as before."
-    #
-    # The boolean is kept and still read, because every settings CSV in
-    # existence carries it and because `ml._toxoplasma_is_on` is what the
-    # bundled path asks. True means the bundled Toxoplasma tables, which is
-    # what `annotation_source` defaults to; False means no annotation at
-    # all, which is the one thing a NAME cannot express -- so it maps to the
-    # empty string and `spacr.uniprot.resolve` reads that as the bundled
-    # path being off.
     settings.setdefault(
         'annotation_source',
         'toxoplasma' if settings.get('Toxoplasma', True) else '')
-    # perform_regression prints a per-stage row count and display()s the whole
-    # per-object score table under verbose, which is millions of rows on a real
-    # screen, so this pipeline is one of the False ones.
     settings.setdefault('verbose', False)
-    # minimum_cell_simulation reads settings['tolerance'] and accepts an int
-    # (percent) or a float (fraction); anything else raises ValueError. 0.02 is
-    # the 2% the function's own worked example uses.
     settings.setdefault('tolerance', 0.02)
-    # process_scores: False/0 = as measured, True/1 = 1 - x, -1 = 1 / x.
     settings.setdefault('invert_dependent_variable', False)
 
     _resolve_regression_analysis_choices(settings)
 
     if settings['regression_type'] == 'quantile':
-        # alpha USED to double as the quantile here, which was a silent
-        # overload of a key whose tooltip, GUI label and every other regression
-        # type call a penalty weight: a settings CSV reading alpha=0.9 meant
-        # "the 90th percentile" under one regression_type and "shrink hard"
-        # under the next. The quantile now has its own key, and an alpha left
-        # over from the old spelling is refused rather than ignored - silently
-        # dropping it would fit the median and label the output 0.9.
         if settings['alpha'] != 1:
             raise ValueError(
                 f"regression_type='quantile' does not use alpha "
@@ -3688,15 +2630,6 @@ def get_perform_regression_default_settings(settings):
             raise ValueError(
                 f"quantile must be a number strictly inside (0, 1); got "
                 f"{q!r}. 0.5 fits the median, 0.9 the upper tail.")
-        # ONLY WHEN THE QUANTILE FIT IS THE ONE THAT RUNS.
-        #
-        # Under analysis_mode='guide_permutation' -- the default since
-        # 2026-08-19 -- regression_type is never read: the permutation test
-        # is the analysis. Forcing agg_type=None on its behalf left the run
-        # with one row per OBJECT feeding a test that needs one per WELL, and
-        # it died on "Phenotype/block/nuisance values are not constant within
-        # well". A setting that will not be used must not be able to break
-        # the analysis that will.
         if str(settings.get('analysis_mode')) == 'guide_permutation':
             print(f"regression_type='quantile' is not read under "
                   f"analysis_mode='guide_permutation' -- the permutation "
@@ -3706,35 +2639,9 @@ def get_perform_regression_default_settings(settings):
         else:
             print(f"Fitting the {float(q):g} quantile of "
                   f"{settings['dependent_variable']}")
-            # Quantile regression on per-well MEANS would be the quantile of
-            # an average, which is not the quantile of the response.
             settings['agg_type'] = None
             print(f'agg_type set to None for quantile regression')
 
-    # A COUNT MODEL'S RESPONSE IS A COUNT, AND log(count) IS NOT ONE.
-    #
-    # `poisson` and `horseshoe` are fitted as Npositive ~ ... +
-    # offset(log(Ntotal)). ml.process_scores already knows this and overrides
-    # agg_type to 'count' for exactly these two families, taking the well's
-    # SUM instead of its mean -- and then applies `transform` to that sum like
-    # any other response. With the default transform='log' the integer count
-    # becomes a float, and _validate_poisson_response refuses it with
-    # "Poisson regression requires integer count data". Every entry point
-    # builds its dict here, so the effect was that neither count family could
-    # be run at all from Tk, Qt or the CLI without knowing to set transform
-    # off by hand.
-    #
-    # The log belongs to the fraction responses it was defaulted on for
-    # ("screen responses are fractions and skew hard"); a count model already
-    # has a log LINK, so transforming the response as well would log it twice.
-    # Resolved here beside the quantile rule because it is the same kind of
-    # thing -- a model choice that decides how the response must be prepared
-    # -- and because doing it here fixes all three dispatchers at once.
-    #
-    # NOTE: the narrower repair belongs in ml.process_scores, next to the
-    # count_models override it sits beside, so that a direct call to
-    # regression()/process_scores() with transform='log' is covered too. This
-    # rule makes the settings path correct; it does not make that one safe.
     if settings['regression_type'] in ('poisson', 'horseshoe'):
         if settings.get('transform') is not None:
             print(f"transform set to None for "
@@ -3743,10 +2650,6 @@ def get_perform_regression_default_settings(settings):
                   f"a log link plus an offset(log(cell_count)) exposure.")
         settings['transform'] = None
 
-    # Fail-loud policy. None means "not set here" and defers to the
-    # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
-    # it on for a whole batch without editing every settings file. True/False
-    # here is an explicit per-run choice and wins over the environment.
     settings.setdefault('strict_errors', None)
     settings.setdefault('max_failure_rate', None)
     _reject_a_threshold_that_cannot_mean_what_it_says(settings)
@@ -3889,10 +2792,6 @@ descriptions = {
 
 expected_types = {
     "src": (str, list),
-    # THE FLAT-FIELD CORRECTION, declared here because Measure offers it
-    # now and Illumination still does: two modules reading one setting is
-    # exactly the case this table exists to make deterministic, rather
-    # than leaving the type to whichever module imported first.
     "illumination_correction": bool,
     "illumination_per_plate": bool,
     "illumination_qc": bool,
@@ -3902,9 +2801,6 @@ expected_types = {
     "illumination_estimator": str,
     "illumination_model": str,
     "illumination_on_missing": str,
-    # Shared file/output seams used by independently registered analysis
-    # modules. Declaring them here makes tooltip/type ownership deterministic
-    # instead of whichever module happened to import first.
     "dst": str,
     "db_path": str,
     "predictions_file": str,
@@ -3915,10 +2811,6 @@ expected_types = {
     "experiment": str,
     "channels": list,
     "magnification": int,
-    # Plaque analysis can optionally split a plate image into wells and use
-    # their physical diameter as a ruler. These six keys are all exposed by
-    # get_analyze_plaque_settings, so each needs the same declared contract
-    # the worker consumes rather than being dropped by check_settings.
     "plaque_model": str,
     "well_detection": (str, bool),
     "well_confidence": float,
@@ -3947,8 +2839,7 @@ expected_types = {
     "timelapse": bool,
     "timelapse_displacement": int,
     "timelapse_memory": int,
-    "timelapse_frame_limits": (list, type(None)),  # This can be a list of lists
-    #"timelapse_frame_limits": (list, type(None)),  # This can be a list of lists
+    "timelapse_frame_limits": (list, type(None)),
     "timelapse_remove_transient": bool,
     "timelapse_mode": str,
     "trackastra_model": str,
@@ -3969,7 +2860,6 @@ expected_types = {
     "voxel_size_z_um": (int, float, type(None)),
     "voxel_size_xy_um": (int, float, type(None)),
     "stitch_threshold": (int, float),
-    # 4D (Beta)
     "t_stack": bool,
     "t_axis_order": (str, type(None)),
     "t_axis": (int, type(None)),
@@ -3986,12 +2876,6 @@ expected_types = {
     "plot": bool,
     "tensorboard": bool,
     "verbose": bool,
-    # None, and see the `*_chann_dim` trio further down for the argument.
-    # These three now agree with `organelle_mask_dim`, which has always
-    # declared it, and with the code that reads them: measure_crop tests
-    # every one through `is not None` and skips that object's measurements,
-    # crops and links when it is unset, so the declaration was narrower than
-    # the pipeline it describes.
     "cell_mask_dim": (int, type(None)),
     "cell_min_size": int,
     "cytoplasm_min_size": int,
@@ -4002,7 +2886,7 @@ expected_types = {
     "save_png": bool,
     "crop_mode": list,
     "use_bounding_box": bool,
-    "png_size": list,  # This can be a list of lists 
+    "png_size": list,
     "png_dims": list,
     "png_channel_mapping": dict,
     "classifier_family": str,
@@ -4014,51 +2898,18 @@ expected_types = {
     "cells": list,
     "cell_loc": list,
     "pathogens": list,
-    "pathogen_loc": (list, list),  # This can be a list of lists 
+    "pathogen_loc": (list, list),
     "treatments": list,
-    "treatment_loc": (list, list),  # This can be a list of lists
-    # NOT `int` ALONE. `utils.filter_dataframe_features` has always taken a
-    # list, 'morphology' and a free-text column fragment, and this
-    # declaration admitted exactly one of the four -- so three documented
-    # ways of choosing what a model trains on were unreachable from the
-    # panel and refused by `check_settings` (236 A2).
+    "treatment_loc": (list, list),
     "channel_of_interest": (int, str, list, type(None)),
     "measurement": str,
     "nr_imgs": int,
     "um_per_pixel": (int, float),
-    # Their own tooltip says "(int, bool, or None)" and four factories ship
-    # True (analyze_screen, deep_spacr, generate_training_dataset,
-    # analyze_recruitment's siblings), but they were declared plain int -- so
-    # check_settings answered those modules' OWN defaults with "Expected type
-    # int for 'nuclei_limit', but got 'True'" and gui_core's `if len(errors) >
-    # 0: return` refused to start the run.
-    #
-    # (bool, int) rather than (bool, int, type(None)): the three-way tuple has
-    # no branch of its own and would fall into the generic loop, where bool()
-    # is tried first and bool('10') is True -- turning "keep cells with 10 or
-    # fewer nuclei" into "keep single-nucleus cells only". The (bool, int)
-    # branch already handles None, the true/false spellings and an integer,
-    # which is exactly the documented set of values.
     "pathogen_limit": (bool, int),
     "nuclei_limit": (bool, int),
     "filter_min_max": (list, type(None)),
     "channel_dims": list,
     "backgrounds": list,
-    # (int, float), NOT str. Declared `str` and contradicted by everything
-    # around it: the tooltip says "(float) - Per-channel background level in
-    # raw intensity units", every factory ships a number (100, and 200 for
-    # Cellpose training and plaque analysis), and `io.py` compares it to
-    # pixels -- `np.where(image < background, 0, image)`.
-    #
-    # THE COST WAS NOT COSMETIC. `validate._check_types` returned severity
-    # ERROR -- "background=200 is a int, but str is expected" -- for
-    # analyze_plaques, cellpose_masks and cellpose_all on their UNTOUCHED
-    # defaults, printed on every GUI run and blocking in the batch queue. And
-    # `coerce_expected_types`, whose whole job is restoring types after a CSV
-    # round trip, dutifully PRESERVED the string, so the comparison above
-    # raised UFuncTypeError on a value the user never chose.
-    #
-    # Found by instruction 364's audit of the assay sub-modules, 2026-09-02.
     "background": (int, float),
     "outline_thickness": int,
     "outline_palette": str,
@@ -4124,7 +2975,6 @@ expected_types = {
     "exclude": (str, type(None)),
     "exclude_grnas": (list, type(None)),
     "normalise_fraction": bool,
-    # ---- instruction 230 ---------------------------------------------
     "image_source": str,
     "stream_method": str,
     "channel_arrays": list,
@@ -4189,8 +3039,6 @@ expected_types = {
     "n_repeats": int,
     "top_features": int,
     "remove_low_variance_features": bool,
-    # The class DEFINITIONS. The ordered training-folder names
-    # are `class_folder_names`; see spacr.classify_classes.
     "classes": dict,
     "class_folder_names": list,
     "schedule": str,
@@ -4202,11 +3050,6 @@ expected_types = {
     "init_weights": bool,
     "amsgrad": bool,
     "use_checkpoint": bool,
-    # `gradient_accumulation` IS NOT HERE ANY MORE. It was retired into
-    # `gradient_accumulation_steps` -- `steps = 1` already says "do not
-    # accumulate" -- and `spacr.validate.RETIRED_SETTINGS` names it, so
-    # leaving the type row behind declared it live and withdrawn at once.
-    # `_fold_gradient_accumulation` still honours a stored `false`.
     "mixed_precision": bool,
     "gradient_accumulation_steps": int,
     "intermedeate_save": (bool, list, tuple, type(None)),
@@ -4216,19 +3059,8 @@ expected_types = {
     "cell_types": list,
     "cell_plate_metadata": (list, list),
     "pathogen_types": list,
-    "pathogen_plate_metadata": (list, list),  # This can be a list of lists 
-    "treatment_plate_metadata": (list, list),  # This can be a list of lists
-    # AN OBJECT THAT IS NOT IN THE RUN NAMES NO PLANE. Every key that points
-    # at a plane of the stack -- the raw channel an object is imaged in, the
-    # channel paired with its mask, and the plane its mask sits on -- accepts
-    # None, because a screen with no nucleus has no nucleus channel and no
-    # nucleus mask plane, and a settings file made to carry a number for one
-    # is made to make a claim about an object that is not there.
-    #
-    # These three were the odd ones out: `organelle_chann_dim` and every
-    # `*_channel` already declared None, `analyze_recruitment` already
-    # DOCUMENTS None here ("leave it None and cells are not filtered at
-    # all"), and the declaration was the only thing still saying otherwise.
+    "pathogen_plate_metadata": (list, list),
+    "treatment_plate_metadata": (list, list),
     "cell_chann_dim": (int, type(None)),
     "nucleus_chann_dim": (int, type(None)),
     "pathogen_chann_dim": (int, type(None)),
@@ -4238,11 +3070,6 @@ expected_types = {
     "target": str,
     "grna": str,
     "barcodes": str,
-    # A list fits every named response in one run, correcting each as its own
-    # multiple-testing family. The screen this was built for has two
-    # independently trained classifiers (XGBoost and MaxViT) whose agreement
-    # is the evidence, and running them as two separate jobs made that
-    # comparison a manual step.
     "dependent_variable": (str, list),
     "regression_panel_manifest": (dict, str, type(None)),
     "analysis_mode": str,
@@ -4259,63 +3086,23 @@ expected_types = {
     "guide_permutation_batch_size": int,
     "multiple_testing_method": str,
     "fdr_alpha": (int, float),
-    # The significance line the RUN draws, so the exported hit list and the
-    # volcano cannot be cut to two different rules (instruction 135).
     "p_threshold_alpha": (int, float),
     "p_threshold_kind": str,
-    # Robust rank aggregation, and the group lasso's penalty. Declared before
-    # their readers exist because a knob with no entry here is dropped by
-    # check_settings ("Warning: Key ... not found in expected types"), which
-    # is how a Tk panel once discarded the regression_type a user picked.
     "rra_alpha": (int, float),
     "rra_permutations": int,
     "group_lasso_lambda": (int, float, str, type(None)),
-    # The count CSV's two variable column names, hard-coded in spacr.ml until
-    # instruction 135 B.
     "count_grna_column": str,
     "count_value_column": str,
     "independent_variable_layout": str,
     "wide_predictor_columns": list,
     "model_data_layout": str,
-    # The regression keys perform_regression indexes directly. They had no
-    # entry here at all, so the GUIs could not render them, check_settings could
-    # not coerce them out of a settings CSV and validate could not type-check
-    # them -- see get_perform_regression_default_settings.
     "tolerance": (int, float),
     "invert_dependent_variable": (bool, int),
-    # NOT a regression key any more (instruction 135 A): the regression
-    # module's duplicate of `dependent_variable` is retired in
-    # get_perform_regression_default_settings. It stays declared for
-    # `interpret_vision_model` and `hit_investigation`, where it names the CNN
-    # score column.
     "score_column": str,
-    # y_lims styles the volcano and the regression module no longer offers it
-    # -- the plot scales to the data and is rescaled on the plot. It stays
-    # declared for the plotting helpers that take it directly.
     "y_lims": (list, type(None)),
-    # The model-choice keys. The first three -- regression_type, alpha and
-    # random_row_column_effects -- were categorised, tooltipped and defaulted
-    # but had NO entry here, and check_settings DROPS any key it cannot type
-    # ("Warning: Key 'regression_type' not found in expected types"), so the
-    # Tk panel discarded whichever model the user picked and
-    # get_perform_regression_default_settings then restored 'ols'. A run
-    # configured as 'mixed' fitted OLS, wrote it to results/<...>/ols/ and said
-    # nothing anywhere. The rest are the per-model knobs spacr.ml's backends
-    # read; see spacr.ml.REGRESSION_SETTINGS_USED for which type reads which.
-    #
-    # regression_type is (str, NoneType) because None is the documented
-    # "choose from the response distribution" value; alpha is (int, float, str,
-    # NoneType) because 'auto'/None select it by cross-validation.
     "regression_type": (str, type(None)),
-    # WHO fits it (instruction 141). str, never None: an unset backend is
-    # 'statsmodels' by name, filled in by
-    # get_perform_regression_default_settings, so nothing downstream has to
-    # decide what None meant.
     "regression_backend": str,
     "alpha": (int, float, str, type(None)),
-    # Instruction 143 A: whether rowID and columnID are terms at all, which
-    # random_row_column_effects never decided -- it only chose fixed vs
-    # random for terms that were always in.
     "model_plate_position": bool,
     "random_row_column_effects": bool,
     "l1_ratio": float,
@@ -4342,15 +3129,6 @@ expected_types = {
     "learning_rate": float,
     "weight_decay": float,
     "batch_size": int,
-    # The three v1/v2 pipeline keys. They were defaulted by
-    # set_default_settings_preprocess_generate_masks and listed under the
-    # "Advanced" category -- so both GUIs built a widget for them -- but were
-    # declared nowhere, and an undeclared key is not merely untyped: Tk's
-    # check_settings reports "not found in expected types" and `continue`s,
-    # dropping the key from the dict it returns, and Qt's
-    # _coerce_to_expected_type hands the raw widget string through. Switching
-    # the pipeline to v2 in the panel therefore did nothing at all, and
-    # batch_fields reached the streaming loop as the string '8'.
     "pipeline_style": str,
     "batch_fields": int,
     "keep_npz": bool,
@@ -4369,11 +3147,6 @@ expected_types = {
     'model_path':str,
     'dataset':str,
     'score_threshold':float,
-    # (int, list or None), as the description says. It was the VALUE None,
-    # which is not a type at all: validate.validate_settings does
-    # `isinstance(value, (None,))` on it and died with
-    # "TypeError: isinstance() arg 2 must be a type" -- the preflight check
-    # crashed on any run that set 'sample'.
     'sample':(int, list, type(None)),
     'file_metadata':(str, type(None), list),
     "train":bool,
@@ -4473,7 +3246,7 @@ expected_types = {
     "Toxoplasma":bool,
     "metadata_files":list,
     "filter_value":list,
-    "x_lim":(list, type(None)),   # was (list, None) -- None is not a type
+    "x_lim":(list, type(None)),
     "log_x":bool,
     "log_y":bool,
     "reg_alpha":(int,float),
@@ -4668,34 +3441,10 @@ expected_types = {
     'pathogen_remove_border_objects':bool,
     'organelle_remove_border_objects':bool,
 
-    # ------------------------------------------------------------------
-    # Keys their module ships AND puts a widget on, but that nothing ever
-    # declared. Undeclared is not "untyped and otherwise fine": the settings
-    # panel builds its widget map from the module's own defaults factory, so
-    # each of these became a field, and check_settings answers a field it
-    # cannot type with
-    #     errors.append("Warning: Key '<k>' not found in expected types")
-    # and `continue`. gui_core.import_settings then does
-    #     if len(errors) > 0: return
-    # -- so pressing Run did nothing at all, with the reason only in the log
-    # queue. Map Barcodes was unstartable from the Tk GUI for eleven of these
-    # at once; Training Dataset, Activation Maps, Endodyogeny, Class
-    # Proportion and Check Cellpose Models each had their own.
-    #
-    # Every type below is the type of the value that module already ships,
-    # and tests/test_settings_full_coverage.py round-trips each factory's
-    # defaults through check_settings to prove it: a wrong type here would
-    # show up as a value that does not survive its own default.
     'regex': str,
     'target_sequence': str,
     'window_length': int,
     'column_csv': str,
-    # A LIST OF BARCODES INSTEAD OF THREE NAMED ONES. Absent, which is
-    # what every settings file written so far has, means the three
-    # above: `barcode_set_from_settings` returns None and the run
-    # decodes exactly what it decoded before sets existed. Declared
-    # rather than merely tolerated so a panel can collect one and
-    # `check_settings` keeps the value instead of dropping it.
     'barcode_set': (list, tuple, dict, type(None)),
     'grna_csv': str,
     'row_csv': str,
@@ -4766,13 +3515,6 @@ DYNAMIC_ORGANELLE_SETTINGS = frozenset(
 #:
 #: They stay declared rather than being deleted so that an old settings CSV
 #: still loads far enough to be told, by name, what to use instead.
-# NOT here, deliberately: `png_type`, `size` and
-# `write_random_annotation_column`. They were renamed rather than retired, and
-# each still HAS A READER -- the alias translation in spacr.training_basis and
-# spacr.classify_classes, plus io.py's direct fallback for png_type. A setting
-# with a reader is an alias, not a dead setting, and the registry guard is
-# right to refuse it. They stop being OFFERED (their defaults are gone, so no
-# control is built) while an old settings CSV still runs unchanged.
 
 #: The old `crop_source` spellings and what they mean now. ACCEPTED, NOT
 #: REFUSED: every settings CSV in existence carries one of them.
@@ -4857,17 +3599,6 @@ def _outlier_criteria():
 
 
 tooltips = {
-    # ---------------------------------------------------------------- #
-    #  The AI Console's own settings.                                   #
-    #                                                                   #
-    #  These five had no entry at all, so `install_api_tooltips` found  #
-    #  no description, retargeted nothing onto a label and left the     #
-    #  controls with an empty tooltip -- the only settings dialog in    #
-    #  spaCR with no hover help on any row.                             #
-    # ---------------------------------------------------------------- #
-    # ---------------------------------------------------------------- #
-    #  Streaming crops instead of reading them off disk (230).          #
-    # ---------------------------------------------------------------- #
     'image_source':
         "(str) - Source of classification images. 'load_images' reads "
         "previously exported object crops; 'stream_images' generates crops "
@@ -4894,9 +3625,6 @@ tooltips = {
         "only pixels within the object mask and sets surrounding pixels to "
         "zero. Default True.",
 
-    # ---------------------------------------------------------------- #
-    #  Optional outlier removal before annotation.                       #
-    # ---------------------------------------------------------------- #
     'holdout_plate':
         "(str | list | None) - Train without this plate and score on it. "
         "None -- the default -- splits within the available data. "
@@ -5031,15 +3759,6 @@ tooltips = {
         "Empty uses spaCR's own prompt unchanged. "
         "Default ''.",
 
-    # ---------------------------------------------------------------- #
-    #  The Cells tab's picture settings (instruction 176 B).            #
-    #                                                                   #
-    #  HERE AND NOT IN A NEW TABLE. The settings window already reads   #
-    #  this dict; seventeen of its twenty-five keys simply had no entry #
-    #  and so no hover help. A second table beside it would be a second #
-    #  answer to what "normalize" means, which is the 145 failure this  #
-    #  tab has already made once with the channel names.                #
-    # ---------------------------------------------------------------- #
     "image_type": "(str) - Exported crop folder to read: 'cell_png', 'nucleus_png', 'pathogen_png', or 'cytoplasm_png'. This setting applies only to pre-generated image loading and is not used when crops are streamed from merged/. Default 'cell_png'.",
     "img_size": "(int) - How many pixels across each cell is drawn. One number: the crop is square. Larger fills the tab with fewer cells per page; the pagination follows it. Default 200.",
     "normalize_channels": "(bool/list) - Percentile-stretch each channel before drawing, so a dim stain is visible beside a bright one. Uses 'percentiles'. This changes only the displayed image; the stored crop and all measurements remain unchanged. Default None (off).",
@@ -5162,9 +3881,6 @@ tooltips = {
     "adjust_cells": "(bool) - After segmentation, merge cell labels that divide a single pathogen or nucleus, and absorb an anucleate cell fragment into the neighbouring label with which it shares the largest perimeter. Requires cell, nucleus, and pathogen channels and is skipped for timelapse runs. Enable when large infected cells are systematically fragmented by segmentation. Default True.",
     "agg_type": "(str) - How per-object scores are collapsed to one value per well before regression: 'mean', 'median', 'quantile' (75th percentile), or None to skip aggregation and regress on individual objects. Median resists a handful of extreme cells; None keeps power but ignores within-well correlation. Forced to a per-well sum for poisson and to None for quantile. Default 'mean'.",
     "alpha": "(float) - Regularisation strength for penalised models only: the L1 penalty for 'lasso', the L2 penalty for 'ridge', the combined penalty for 'elasticnet', and the inverse margin for 'hinge'. Larger values shrink more coefficients toward zero. Set it to 'auto' or None to select the value by five-fold cross-validation; the default 1 may over-regularise fraction-scale designs. Other model families reject a non-default alpha rather than ignoring it. Default 1.",
-    # --- 3D (Beta) -------------------------------------------------------
-    # These describe what the z plumbing does, and say plainly where it stops.
-    # A user must not read these and believe spaCR measures volumes today.
     "z_stack": '(bool) - When True, spaCR requires the array to contain an explicit z dimension and raises an error instead of inferring the axis; this enables z_segmentation_mode, anisotropy and stitch_threshold. Standard ingestion collapses z by maximum-intensity projection while organising raw files, so its output has no z axis to segment; supply volumetric arrays directly to spacr.zstack instead. When False, no z-stack code runs and masks match a two-dimensional run. Default False.',
     "z_segmentation_mode": "(str) - How the z dimension is handled. The three modes answer different questions and their masks are not comparable, so the choice is recorded alongside them. 'project' collapses the stack with z_projection and segments one plane; it is the only mode the Measure module can consume. 'stitch' segments each plane in 2-D and links labels through the stack. 'volumetric' segments the 3-D volume directly and requires anisotropy or voxel sizes. Default 'project'.",
     "z_axis": "(int or None) - Axis of the incoming array that holds z, specified as 0, 1 or 2. None infers it from shape only when one axis is clearly shorter than the other two, such as a 21x512x512 or 512x512x21 stack. An ambiguous shape such as 64x64x64 raises an error because an incorrect axis segments a transposed volume and produces invalid masks. Set this explicitly whenever the acquisition shape is ambiguous. Default None.",
@@ -5173,10 +3889,6 @@ tooltips = {
     "voxel_size_z_um": "(float or None) - Spacing between consecutive z planes in micrometres, obtained from the acquisition metadata. Together with voxel_size_xy_um it determines anisotropy and converts object volumes from voxel counts into cubic micrometres. Changing it rescales every physical z quantity and the anisotropy used for segmentation; it has no effect on a 'project' run. Measure uses the pair to report 3-D morphology in physical units and records the units in measurement_units. Default None.",
     "voxel_size_xy_um": "(float or None) - Width of one pixel in micrometres in the image plane, assumed square. Used with voxel_size_z_um to derive anisotropy and to turn voxel counts into physical volumes and surface areas. Note this is a different setting from um_per_pixel, which only sizes the scale bar drawn on figures and never reaches a measurement. This one does reach measurements, but only on a 3-D run: a 2-D run never applies it, because doing so would turn every *_area from px2 into um2 under an unchanged column name. Default None.",
     "stitch_threshold": "(float) - Minimum overlap, as an intersection-over-union between 0 and 1, for a label in one plane to be treated as the same object as a label in the plane below when z_segmentation_mode is 'stitch'. Raising it splits objects that drift or change shape between planes into several shorter ones; lowering it fuses neighbouring objects that merely overlap in projection. Matching is one-to-one, so when two objects both overlap the same object below only the better match inherits its label and the other starts a new one. Ignored by the other two modes. Default 0.25.",
-    # --- 4D (Beta) -------------------------------------------------------
-    # The time axis on top of the z axis. These say plainly where the 4-D
-    # plumbing stops, for the same reason the 3D ones above do: a user must
-    # not read them and believe spaCR tracks objects through volumes today.
     "t_stack": '(bool) - When enabled, spaCR requires each field to be a (T, Z, Y, X) volume. Standard image ingestion collapses z by maximum-intensity projection, so a run using that path stops with an error instead of pretending the projected data are 4-D. Enable this setting only when passing volumes to spacr.zstack.segment_4d through the Python API, and specify t_axis_order because shape alone cannot identify the time axis. When disabled, no 4-D processing occurs. Default False.',
     "t_axis_order": "(str or None) - Which of the two leading axes is time and which is z: 'TZYX' for a stack per timepoint, 'ZTYX' for a time series per plane. Real microscopes write both and the array shape cannot distinguish them, so spaCR raises an error until the axis order is specified. An incorrect value does not raise an exception; it links objects at corresponding lateral positions in adjacent z planes and interprets those displacements as temporal motion, producing invalid velocity estimates. Verify the setting against the acquisition axis order. Default None.",
     "t_axis": "(int or None) - Index of the time axis in the incoming array, as an alternative to spelling out the whole order in t_axis_order; the z axis is then taken to be the other of the two leading axes, or whatever z_axis says. Use it for an acquisition whose axes are not in either of the two standard orders. When both this and t_axis_order are set they must agree, and spaCR stops if they do not rather than silently preferring one. Default None.",
@@ -5611,7 +4323,6 @@ tooltips = {
     'nucleus_remove_border_objects': "(bool) - After segmentation, delete every nucleus label touching any of the four image edges, then renumber the rest. Enable it when measuring nucleus area or total intensity, since clipped nuclei bias those downward; leave it off for counts or positions, as it discards real objects at every field boundary. Default False.",
     'pathogen_remove_border_objects': "(bool) - Delete any pathogen label touching the first or last row or column of the image. Enable it so partially imaged parasites do not enter area and intensity statistics with truncated values; leave it off when parasites are sparse and losing edge objects costs too much data. Default False.",
     'organelle_remove_border_objects': "(bool) - Delete organelle labels touching any image edge during the shared post-segmentation filter (the Qt live preview path). The batch organelle mask writer does the same job from organelle_remove_border, so set that one for a real run. Default False. Enable to keep clipped rim objects out of area and intensity statistics.",
-    # --- Descriptions filled in for settings that previously had no tooltip ---
     "annotation_column": "(str) - Integer column in the png_list table that stores manual class labels. The Annotate app adds it with ALTER TABLE if it is absent and writes labels to it. This column provides the reference labels when dataset_mode is 'annotation' and is the fallback when annotation_columns is unset. Supplying it while dataset_mode is unset also selects annotation mode for compatibility with older settings files. Default None.",
     'cmap': "(str) - Matplotlib colormap applied to single-channel image previews and plate heatmaps. Perceptually uniform maps ('viridis', 'inferno', 'magma') preserve the relative visibility of intensity differences; 'gray' resembles the raw single-channel microscope image. Any registered matplotlib name is accepted, with an '_r' suffix to reverse it. Default 'inferno' for image plots and 'viridis' for plate heatmaps.",
     'nontargeting_control_grnas': "(list) - Non-targeting control gRNA identifiers. Their coefficients set the volcano effect-size cutoff: abs(median(control coefficients)) + threshold_multiplier × spread, with threshold_method selecting the spread estimator. A wider control distribution raises the cutoff; None disables it. Default ['000000'] names the non-cutting control gene, which spaCR resolves to all associated guides in the loaded library. Individual guide identifiers also work, with or without the organism prefix.",
@@ -5635,12 +4346,6 @@ tooltips = {
     'group_column': "(str) - Column whose values become the experimental conditions compared against each other; 'condition' is the combined host-cell / pathogen / treatment label built from the plate-metadata maps. Point it at 'pathogen' or 'treatment' to compare on one factor alone. Rows with no value here are dropped before anything is counted. Default 'condition'.",
     'inflation_warn': '(float) - Additional invasion efficiency, in proportion units, that increasing the threshold by threshold_sensitivity may add to a well before the well is flagged. Only the upward change is monitored because decreasing the threshold can only reclassify invaded parasites as attached and cannot create a positive invasion result. A value of 0.05 flags a well whose efficiency would increase by more than five percentage points. Default 0.05.',
     'intensity_statistic': "(str) - Per-object statistic of the pre-permeabilisation channel used for thresholding. Because the stain is localized to the parasite surface, the object mean divides rim signal by the full area and can classify a larger parasite as dimmer than a smaller parasite with equivalent surface staining. A percentile of rim-pixel intensity reduces this size-dependent bias. Default 'mean'. Invasion starts at 'auto': it chooses periphery_95 when present, otherwise percentile_95, and uses mean only as a warned last resort.",
-    # ONE KEY, TWO MODULES. 'level' was the proportion plots' unit of
-    # replication long before instruction 132 gave the regression a level
-    # of its own, and this table is keyed by NAME with no module scope --
-    # so the hover has to be right in both panels or it is wrong in one.
-    # Renaming either side was not available: a new tooltip key has to
-    # exist in all nine i18n catalogs, which are generated elsewhere.
     'level': "(str) - Result level. For regression, 'both' writes results_grna.csv and results_gene.csv and corrects each family separately; 'grna' reports guide effects, and 'gene' pools guides by gene. Nonparametric inference also honours this choice. Mixed models disable it because they estimate gene effects with guides nested inside genes. For proportion plots, the same key selects 'object', 'well', or 'plate' aggregation. Default 'both' for regression and 'object' for proportions.",
     'max_parasite_area': '(float or None) - Largest object area in pixels kept as a parasite. Anything bigger is several parasites merged by the mask, whose rim statistic mixes them and whose single classification then stands for all of them. None keeps everything. Default None.',
     'min_control_objects': "(int) - Minimum number of objects required from a plate's control wells before their quantile is used as a threshold. Below this value, the plate uses the automatic per-field method and records the fallback rather than estimating a 99th percentile from an insufficient sample. Default 10.",
@@ -5681,14 +4386,6 @@ tooltips = {
     'queue_measure': "(str) - Method used to score uncertainty for the annotation queue. 'entropy' incorporates all classes and is the preferred default for three or more classes; 'least_confidence' ranks samples by the highest class score; 'margin' ranks them by the difference between the two highest scores. With exactly two classes, margin and least_confidence produce identical rankings, including ties, and diverge only with three or more classes. These values are uncertainty scores rather than calibrated probabilities. Default 'entropy'.",
     'queue_diversity': "(str) - Metadata level across which the annotation queue is distributed. Ranking solely by uncertainty can concentrate the highest-ranked crops in one or two wells, repeatedly sampling the same source of ambiguity. Distribution across wells or plates increases experimental coverage at a modest cost in per-item uncertainty. Default 'well'.",
     'queue_limit': "(int) - Maximum number of crops in the annotation queue. 0 queues the complete unlabelled pool. When the limit is smaller than the number of wells, queue_diversity selects approximately one crop from each represented well rather than the globally highest-uncertainty crops. Default 0.",
-    # NOTE: a SECOND 'crop_source' description used to sit here,
-    # documenting values 'auto' / 'png' / 'merged'. Those are not what
-    # the code accepts -- crop_source.CROP_SOURCES is
-    # ('pre_generated', 'on_demand', 'generate'), with 'auto' kept only
-    # as an alias for pre_generated. Being a duplicate key in the same
-    # dict, it was silently shadowed by the correct entry further down,
-    # so the right tooltip showed by luck of ordering rather than by
-    # design. Removed; the accurate one is the only one now.
     'class_balance': "(str) - Correction for imbalance among training classes. 'none' preserves sampling and reports class counts, their ratio and a recommendation. 'weighted_sampler' samples classes approximately equally using 1/n. 'sqrt_weighted_sampler' uses 1/sqrt(n), reducing the risk that repeated sampling of a very small class causes memorization. 'weighted_loss' preserves sampling and weights the loss. Use one of the latter three when the reported ratio exceeds approximately 3:1. Default 'none'.",
     'cross_validation': "(bool) - Score the classifier with 5-fold stratified cross-validation instead of a single train/test split, so every control object receives an out-of-fold prediction and an optimal probability threshold is picked per fold. Gives a far more stable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
     'cross_validation_folds': "(int) - Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the regression pipeline.",
@@ -5798,29 +4495,15 @@ def _name_the_family_in_every_estimator_tooltip():
         text = tooltips.get(key)
         if not text or 'Read by regression_type' in text:
             continue
-        # ALREADY SAID IS ALREADY SAID. Some of these tooltips end with the
-        # project's existing "Read only by regression_type 'x'." convention,
-        # which answers the same question in the same place; appending a
-        # second sentence saying it again reads as a mistake.
         if 'Read only by regression_type' in text:
             continue
         listed = ', '.join(f"'{one}'" for one in sorted(owners))
-        # SHORT. The greyed-out state carries its own reason -- the
-        # dependency rule writes "not read when regression_type is 'x'" onto
-        # the disabled control -- so repeating it here spends the tooltip
-        # budget saying twice what the panel already says once.
         tooltips[key] = (
             f"{text.rstrip()} Read by regression_type {listed}.")
 
 
 _name_the_family_in_every_estimator_tooltip()
 
-# Keys owned by the standalone Timelapse module (spacr.qt app key 'timelapse').
-# NOTE `timelapse` itself is NOT in this list: it lives in the "General"
-# category because the Tk GUI reveals the "Timelapse" category only once that
-# box is ticked (see category_dependencies), so the toggle cannot live inside
-# the category it controls. Consumers that want "everything timelapse" should
-# use `timelapse_settings + ['timelapse']`.
 timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
@@ -5832,68 +4515,20 @@ motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_
                      'infection_pca_umap_search','infection_pca_umap_n_neighbors_grid','infection_pca_umap_min_dist_grid','infection_pca_pathogen_weight', 'infection_pca_log_intensity','infection_pca_tsne_search','infection_pca_tsne_perplexity_grid',
                      'infection_pca_tsne_learning_rate_grid', 'infection_pca_umap_n_neighbors','infection_pca_umap_min_dist','infection_pca_tsne_perplexity', 'infection_pca_min_silhouette','infection_pca_min_gt_separation','infection_pca_max_cells']
 
-# How the settings panel is grouped: the Qt section boxes
-# (qt/screens/settings_model.SettingsWidgets.build_sections) read this map and
-# nothing else. One entry = one heading, rendered in the order written here.
-#
-# Three rules keep it usable, and tests/test_settings_categories.py enforces
-# all three:
-#   1. Every key produced by a module's set_default_* / get_*_settings helper
-#      appears here. An uncategorised key is not grouped at all: Tk pins it to
-#      the top of the panel as an always-visible field and Qt dumps it in the
-#      trailing "Other" section.
-#   2. No key appears twice. A duplicate renders twice in Tk (and each copy is
-#      shown/hidden by a different heading) and is silently dropped from the
-#      second section in Qt.
-#   3. A setting that TRIGGERS a category - see category_dependencies and
-#      category_integer_dependencies below - must live outside the category it
-#      reveals, or ticking it off hides the control that turns it back on.
-#      That is why `timelapse` sits in General and not in "Timelapse", and why
-#      organelle_channel / organelle_mask_dim sit in General and not in
-#      "Organelle".
-# ORGANELLE, SPLIT IN TWO. Instruction 72 item 5.
-#
-# One heading used to hold FIFTY-THREE settings -- the most over-configured
-# object class in the tool, and a biologist who knew they were imaging
-# lysosomes had to scroll past organelle_ridge_sigmas to reach the diameter.
-#
-# `organelle_basic_settings` keeps only what a biologist recognises without
-# knowing how segmentation works. Everything else is advanced. The membership
-# is DERIVED from `organelle_types.BASIC_SETTINGS`, not typed out here, so the
-# split cannot drift from the module that defines what basic means -- but both
-# NAMES appear in the `categories` literal below, the way motility's two do,
-# because that literal is where category names are declared and checked.
-#
-# MOVED, NOT HIDDEN. Every advanced setting is still in the panel, still
-# editable, still in the settings dict. A setting that leaves the UI while
-# staying in the dict is how a run gets a value nobody can see; this project
-# has eleven phantom settings from exactly that (instruction 61).
 _organelle_all_settings = [
-        # what to detect
         "organelle_morphology", "organelle_method", "organelle_diameter",
-        # clean the image first
         "organelle_mask_within_cells", "organelle_rolling_ball", "organelle_rolling_ball_radius", "organelle_clahe", "organelle_clahe_clip_limit",
-        # method: adaptive
         "organelle_adaptive_block_size", "organelle_adaptive_offset",
-        # method: otsu / adaptive / log / dog (spots)
         "organelle_tophat_radius", "organelle_watershed_spots", "organelle_log_min_sigma", "organelle_log_max_sigma", "organelle_log_num_sigma", "organelle_log_threshold", "organelle_dog_sigma_low", "organelle_dog_sigma_high",
-        # method: ridge / hysteresis (networks)
         "organelle_ridge_filter", "organelle_ridge_sigmas", "organelle_skeletonize", "organelle_network_threshold", "organelle_hysteresis_low", "organelle_hysteresis_high",
-        # morphology: ring
         "organelle_ring_sigma_inner", "organelle_ring_sigma_outer", "organelle_ring_min_prominence", "organelle_ring_fill_method",
-        # morphology: irregular
         "organelle_morph_radius", "organelle_fill_holes",
-        # method: cellpose
         "organelle_model_name", "organelle_cellprob_threshold", "organelle_flow_threshold", "organelle_resample",
-        # method: unet
         "organelle_unet_model_path", "organelle_unet_threshold",
-        # filter the detected objects
         "remove_background_organelle", "organelle_background", "organelle_signal_to_noise", "organelle_min_area", "organelle_max_area", "organelle_minimum_area_to_split", "organelle_min_watershed_distance", "organelle_perimeter_fraction", "organelle_intensity_merge", "organelle_intensity_threshold", "organelle_intensity_split", "organelle_remove_border", "organelle_remove_border_objects",
-        # what to write out
         "summarize_organelles_by",
 ]
 
-# The one visible choice goes first, ahead of the six it stands in for.
 _organelle_all_settings.insert(0, "organelle_type")
 
 
@@ -5908,25 +4543,14 @@ def _partition_organelle_settings(members):
 organelle_basic_settings, organelle_advanced_settings = (
     _partition_organelle_settings(_organelle_all_settings))
 
-# HOW MANY ORGANELLES leads the category whose size it decides. It is not one
-# of the per-slot settings -- it belongs to no slot, and the generators below
-# skip it because it does not carry a slot's prefix -- so it is placed here
-# rather than in `organelle_types.BASIC_SETTINGS`, which says which of ONE
-# slot's settings a biologist meets first.
 organelle_basic_settings.insert(0, NUMBER_OF_ORGANELLES)
 
 
 categories = {
     "Paths": ["src", "grna", "barcodes", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
 
-    # 'normalize' moved here from "Advanced". It is a top-level toggle for how
-    # every image in the run is scaled, set by seven different modules, and
-    # burying it under "rarely-touched knobs" was wrong in all of them - not
-    # least Classify, where it shapes the training set.
     "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected"],
 
-    # How Cellpose runs, including the optional saved Cellpose checkpoint.
-    # Classify uses custom_model_path instead and never receives this key.
     "Cellpose": ["custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width", "plaque_model"],
 
 
@@ -5936,12 +4560,6 @@ categories = {
 
     "Pathogen": ["pathogen_model_name", "pathogen_diameter", "pathogen_background", "pathogen_signal_to_noise", "pathogen_cellprob_threshold", "pathogen_flow_threshold", "pathogen_model", "remove_background_pathogen", "pathogen_max_area", "pathogen_min_area", "pathogen_remove_border_objects", "pathogen_perimeter_fraction", "pathogen_intensity_merge", "pathogen_intensity_threshold", "pathogen_intensity_split", "pathogen_min_watershed_distance", "pathogen_minimum_area_to_split"],
 
-    # One heading for the whole organelle workflow, ordered the way it is set
-    # up: what to detect -> clean the image -> the knobs of the chosen
-    # organelle_method -> filter the objects -> what to summarise. The
-    # per-method blocks used to be eight separate headings gated on
-    # organelle_method; they are sub-ordered here instead, so the knobs that do
-    # not apply to your method are simply further down the list.
     "Organelle": organelle_basic_settings,
     "Organelle advanced": organelle_advanced_settings,
 
@@ -5949,126 +4567,28 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    # Which objects are measured, which features are computed, and which of
-    # them survive into the analysis table. Plot-only knobs that used to live
-    # here (image_nr, dot_size, remove_image_canvas) moved to "Plot".
-    #
-    # Three groups arrived here in the regroup:
-    #   * the per-object minimum sizes and merge_edge_pathogen_cells, which
-    #     only measure_crop sets. They sat under the Cell / Nucleus / Pathogen
-    #     SEGMENTATION headings, so the Measure module rendered three headings
-    #     holding one or two size filters each and no segmentation at all.
-    #   * nuclei_limit / pathogen_limit, from "Advanced". They decide whether
-    #     the nucleus and pathogen tables are joined onto the object table --
-    #     which rows exist, not a tuning knob.
-    #   * parasite_table / compartment, from "Invasion Assay", which name the
-    #     table and compartment the objects are read from. Leaving them there
-    #     made the Replication module render a heading called "Invasion Assay".
     "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
-    # The flat-field correction Measure applies before it measures anything.
-    # One heading, not the four the Illumination screen splits them across:
-    # from inside a measure run they are a single decision -- correct these
-    # fields or do not -- and the estimator, the sampling and the QC are how
-    # that one decision is carried out.
-    #
-    # Listed here rather than contributed by spacr.illumination through
-    # `register_defaults`, because a category registered at import time is in
-    # the map only for a process that imported that module, and this heading
-    # has to exist for anything that groups the Measure settings.
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing"],
 
-    # png_dims stays listed although it is no longer rendered: it has no
-    # default any more, so convert_settings_dict_for_gui never builds a
-    # widget for it, but it is still a key the pipeline reads from an older
-    # CSV and a key that falls out of `categories` altogether is one nothing
-    # can tell a user about.
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
 
-    # The plate map: which wells hold which condition, which wells are the
-    # controls, and how they are labelled. Gathers the per-object condition
-    # lists that used to sit inside the Cell / Nucleus / Pathogen segmentation
-    # headings, where they had nothing to do with segmentation.
-    # ...plus how the wells are grouped for reporting: group_column / level /
-    # change_plate came from "Invasion Assay", where they were shared with the
-    # replication assay and so gave that module a heading named after an assay
-    # it does not run.
     "Plate Layout & Controls": ["well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
-    # How the labelled set is assembled, in the order it is assembled:
-    # which rule defines a class -> what the classes are -> which crops ->
-    # how many -> how they are split. 'test_split' came from "Model Training":
-    # generate_training_dataset is what consumes it, writing the train/ and
-    # test/ folders before any model exists. The four metadata_item_* keys had
-    # no category at all and printed under "Other".
 
-    # Which classifier model, and how it is fitted.
 
-    # The classical (non-image) screen classifier fitted on measured features -
-    # spacr's "Classify (ML)" module. These knobs used to be split three ways
-    # between General, Advanced and the regression heading.
-    # WHAT DEFINES A CLASS -- and nothing about where the pixels come from.
-    # `png_type`, `size` and `write_random_annotation_column` are gone from
-    # here because they are in DEAD_SETTINGS: renamed, duplicated, or replaced
-    # by the Classes dict. An old CSV still runs; the panel stops offering two
-    # controls for one thing.
-    # `write_random_annotation_column` is kept in the map although nothing
-    # offers it any more: it is an ALIAS, not a dead setting (the Classes
-    # translation still reads it), and a key that falls out of `categories`
-    # altogether is one nothing can ever group again.
     "Training Classes": ["dataset_mode", "classes", "class_folder_names", "class_metadata", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "annotation_column", "annotated_classes", "write_random_annotation_column"],
 
-    # WHERE THE PIXELS COME FROM, whichever way they are obtained: crops
-    # already on disk, cut on demand from merged, or generated first.
-    # `crop_source` decides which of these apply and greys the rest.
-    # INSTRUCTION 230 A AND B. `crop_source` becomes `image_source`;
-    # `extract_channels` is gone and `train_channels` is what the model
-    # sees; `coordinate_columns` is DERIVED from `object_array` and so is
-    # not a control at all. The regex that once stood for the three path
-    # settings is retired too -- nothing ever read it.
     "Computer Vision Data Source": ["image_source", "image_size", "size", "train_channels", "stream_method", "object_array", "channel_arrays", "bounding_box", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment",
-        # GROUPED BUT NOT OFFERED. These four are what `image_source` and
-        # the `object_array` derivation replaced, and
-        # they stay in the settings dict because the RUNTIME still reads
-        # them -- `crop_source.py` and the streamer both do. So they need a
-        # category (an uncategorised key renders ungrouped at the top of the
-        # panel), and `_APP_HIDDEN_KEYS` is what keeps them off the form.
-        # The same split `png_type` would have if anything still read it.
         "crop_source", "file_metadata", "file_type", "coordinate_columns"],
 
-    # WHICH MODEL, and how its input is scaled. A custom model path that loads
-    # supersedes model_type, so no boolean is needed to say which to believe.
     "Computer Vision Model": ["model_type", "model_name", "init_weights", ],
 
-    # HOW IT IS FITTED: the optimisation and the loss.
     "Computer Vision Training": ["train", "test", "epochs", "learning_rate", "optimizer_type", "schedule", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "amsgrad", "mixed_precision", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "intermedeate_save", "tensorboard", "random_seed",
-        # CV-ONLY by `classify.FAMILY_SETTINGS` (instruction 233).
         "n_top_examples"],
 
-    # WHAT KEEPS IT FROM OVERFITTING. Its own heading because these are the
-    # knobs reached for when a model has learned the training set and nothing
-    # else, which is a different question from how fast it learns.
     "Computer Vision Optimization and Regularization": ["use_checkpoint", "dropout_rate", "weight_decay"],
 
-    # HOW IT IS JUDGED. Shared by both families: an evaluation is an
-    # evaluation, so the headings below say nothing about which family is
-    # running.
-    # INSTRUCTION 233. One list of fifteen, split BY CATEGORY -- and only
-    # two of them split by family, because the audit said so.
-    #
-    # THE AUDIT WAS THE WORK, and it corrected the guess. `classify.py`'s
-    # FAMILY_SETTINGS is the authoritative table of what each family reads
-    # exclusively, and against it only `n_top_examples` is CV-only (the
-    # one ML-only member of the fifteen has since been retired, unread).
-    # EVERY OTHER ONE OF THE FIFTEEN IS SHARED --
-    # so filing them under "Computer Vision Evaluation", which is what the
-    # names suggest, would tell the user they apply to one path when they
-    # apply to both. That is the one hard rule this item states, and the
-    # first attempt at the split broke it on eleven settings out of
-    # fifteen.
-    #
-    # So the headings below are NEUTRAL, and the two exclusives went to the
-    # family headings that already exist.
     "Model Evaluation": ["cross_validation_enabled", "cross_validation_folds",
                          "cv_group_by", "holdout_plate", "nested_cv_inner_folds"],
 
@@ -6076,59 +4596,13 @@ categories = {
                            "evaluation_bins", "score_threshold",
                            "score_column"],
 
-    # THE LEAKAGE AUDIT IS ITS OWN QUESTION. Four settings about whether the
-    # train and test sets share objects is not "evaluation" in the sense the
-    # rest of the list means -- it is a check on the SPLIT, and a reader
-    # looking for it under a metrics heading would not find it.
     "Leakage Audit": ["evaluation_fail_on_leakage", "leakage_audit_train_test",
                       "leakage_hash_content", "leakage_require_identity"],
 
-    # THE FEATURE-BASED CLASSIFIER: which model, and which features it may
-    # see. Feature preparation and feature importance were two headings asking
-    # one question -- which features the model uses -- so they are one.
-    # ML-ONLY (instruction 233). `score_column` names the column
-    # generate_ml_scores writes its prediction into -- it is not read on
-    # the computer-vision path, and it was in a list a CV user was
-    # reading top to bottom.
     "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", ],
 
     "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "tsne_perplexity", "tsne_learning_rate", "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten", "pca_svd_solver", "isomap_n_neighbors", "isomap_path_method", "spectral_affinity", "spectral_n_neighbors", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
 
-    # REGRESSION, SPLIT IN SIX.
-    #
-    # This was one heading holding thirty-eight settings, ordered by the
-    # accident of when each was added. Reading it, you could not tell that
-    # `alpha` does nothing unless regression_type is one of four penalised
-    # families, that the nine `guide_*` keys do nothing unless the permutation
-    # test is selected, or that `agg_type=None` silently changes the unit of
-    # analysis from the well to the cell. Three settings named a threshold and
-    # none of them thresholded the same thing.
-    #
-    # The split follows the order the questions are actually asked:
-    #
-    #   1. What am I measuring?      -> Response
-    #   2. How should it be tested?  -> Model
-    #   3. ...with which knobs?      -> Model Tuning     (per-family)
-    #   4. ...or which permutation?  -> Permutation Test (per-mode)
-    #   5. What counts as a hit?     -> Significance
-    #   6. What gets thrown away?    -> Quality Filters
-    #
-    # MOVED, NOT REMOVED. Every one of the thirty-eight is still here, still
-    # editable, still in the settings dict, under the same key -- this is a
-    # regrouping, not a redesign. Two keys are new (`inference`,
-    # `analysis_unit`) and both are readable front ends for decisions that
-    # were previously side effects of `analysis_mode` and `agg_type`; see
-    # _resolve_regression_analysis_choices.
-    # `score_column` LEFT on 2026-08-18 (instruction 135 A). It was the
-    # regression's duplicate of `dependent_variable` -- one measurement under
-    # two names -- and it is retired in
-    # get_perform_regression_default_settings. The key lives on under "Model
-    # Evaluation" for Explain CV, which uses it for the CNN score column.
-    #
-    # The count table's two column names sit here because this heading is
-    # where a column is NAMED: `dependent_variable` names the score table's
-    # response, and these two name the guide and the read count in the count
-    # table. The Qt regression layout shows them under "Input Tables".
     "Regression: Response": [
         "dependent_variable", "invert_dependent_variable",
         "count_grna_column", "count_value_column",
@@ -6136,41 +4610,18 @@ categories = {
         "model_data_layout",
         "analysis_unit", "agg_type", "transform",
     ],
-    # inference and regression_type lead: they decide whether anything in
-    # "Model Tuning" or "Permutation Test" does anything at all.
-    # `model_plate_position` sits immediately before
-    # `random_row_column_effects` because the two are one decision read in
-    # order: the first says whether plate row and column are in the model at
-    # all, the second says fixed or random for a term that is. Reversed, the
-    # panel offers the refinement before the question.
-    # `regression_backend` sits immediately after `regression_type` because
-    # the two are one decision read in order (instruction 141 A): the first
-    # says WHAT is fitted, the second says WHO fits it, and the second's
-    # options are greyed by the first's value.
-    # `intercept` and `intercept_value` sit after the backend and before
-    # the plate-position pair because they are still part of WHAT is
-    # fitted rather than which terms are in it: they say where the
-    # fitted line is anchored, and every coefficient below is read
-    # relative to that anchor.
     "Regression: Model": [
         "inference", "analysis_mode", "regression_type", "regression_backend",
         "intercept", "intercept_value",
         "model_plate_position", "random_row_column_effects", "cov_type",
     ],
-    # Per-family knobs. spacr.ml.REGRESSION_SETTINGS_USED says which family
-    # reads which, and a family REFUSES the ones it cannot read rather than
-    # ignoring them, so a wrong setting here is an error and not a silent no-op.
     "Regression: Model Tuning": [
         "alpha", "l1_ratio", "quantile", "huber_t", "hinge_threshold",
         "spline_knots", "spline_degree",
         "hinge_n_boot", "lasso_n_boot", "lasso_selection_threshold",
         "group_lasso_lambda",
     ],
-    # Read only when inference resolves to the permutation test.
     "Regression: Permutation Test": [
-        # FIRST, because it says WHAT is measured. Everything below it says
-        # how the null is built and who is eligible, which are answers to a
-        # question this setting asks.
         "grna_statistic",
         "guide_min_wells", "guide_primary_min_wells", "guide_permutations",
         "guide_permutation_seed", "guide_permutation_block",
@@ -6179,44 +4630,16 @@ categories = {
     ],
     "Regression: Significance": [
         "multiple_testing_method", "fdr_alpha", "threshold_method",
-        # `volcano` is not here because it is RETIRED (see the note at
-        # `settings.pop('volcano', None)`): the interactive volcano filters
-        # between genes and guides by right-click now, so a setting that
-        # chose which table it drew has nothing left to choose. Leaving the
-        # name in a category made the panel offer a control with no
-        # expected_types entry and no default.
-        # `Toxoplasma` LEFT THE PANEL. `annotation_source` says everything
-        # it said and more -- an organism name, a taxon id or an accession
-        # instead of one hard-coded parasite -- and two controls for one
-        # fact is two controls that can disagree. The key is still READ:
-        # every settings file in existence carries it, and it is what
-        # `annotation_source` defaults from when a file predates the
-        # field. It is no longer OFFERED, which is the difference between
-        # migrating a setting and breaking one.
         "threshold_multiplier", "annotation_source",
-        # WHAT THE RUN MEANS BY SIGNIFICANT, which the plot could previously
-        # contradict from its right-click menu (instruction 135), and the two
-        # knobs of the RRA hit caller.
         "p_threshold_alpha", "p_threshold_kind",
         "rra_alpha", "rra_permutations",
     ],
-    # Everything that decides which rows reach the model. These were spread
-    # across the old list with the fitting knobs between them, so it was not
-    # obvious that four separate settings each drop data.
     "Regression: Quality Filters": [
         "min_cells_per_well", "min_observations_per_hit", "fraction_threshold",
         "calibrate_fraction_threshold",
-        # DIRECTLY UNDER THE THRESHOLD IT DIVIDES BY. It is only
-        # meaningful in terms of what that threshold removed, so a
-        # reader who meets it anywhere else has to go and find the
-        # other one first.
         "normalise_fraction",
         "target_unique_count", "tolerance", "outlier_detection", "other",
     ],
-    # Not "was this gRNA significant" but "does this fit deserve to be
-    # believed" -- which is a different question and belongs under a heading
-    # of its own rather than beside the thresholds that decide hits. One key
-    # today; the QC suite is where further diagnostic toggles will land.
     "Regression: Diagnostics": ["regression_qc"],
 
     "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input"],
@@ -6224,10 +4647,6 @@ categories = {
     "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "window_length", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
     "Plot": ["cmap", "figuresize", "black_background", "save_figure", "log_x", "log_y", "x_lim", "y_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max"],
-    # Replication-specific vacuole assignment and scoring. The shared parasite
-    # area filters and empty-well seeding control remain listed once under
-    # "Invasion Assay"; the Qt app-specific category map presents those shared
-    # keys under Replication's Object Filtering/Scoring sections.
     "Replication Assay": [
         "vacuole_key", "vacuole_link_distance", "vacuole_link_factor",
         "parasite_count_column", "max_parasites_per_vacuole",
@@ -6251,15 +4670,8 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    # Rarely-touched knobs only. 'normalize' left for "General" and
-    # nuclei_limit / pathogen_limit for "Measurements": all three change what
-    # the run produces rather than how it is tuned, and hiding them here is
-    # what put them at the bottom of the Classify (CV) dataset settings.
     "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "verbose", "n_jobs", "gpu", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
-    # Experimental volumetric controls are deliberately split by dimensional
-    # contract. `z_axis` lives with 3D because 4D builds on the same z plan;
-    # the 4D panel contains only time-axis and inter-frame tracking controls.
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
         "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",
@@ -6275,51 +4687,7 @@ categories = {
     "Motility Advanced (beta)": motility_advanced_settings,
 }
 
-# ---------------------------------------------------------------------------
-# ORGANELLE, SPLIT. Instruction 72 item 5.
-# ---------------------------------------------------------------------------
-# One "Organelle" category held FIFTY-THREE settings -- the most
-# over-configured object class in the tool. A biologist who knows they are
-# imaging lysosomes should not have to scroll past organelle_ridge_sigmas and
-# organelle_hysteresis_high to find the channel.
-#
-# "Organelle" now keeps only what a biologist recognises without knowing how
-# segmentation works; everything else moves to "Organelle advanced".
-#
-# MOVED, NOT HIDDEN, and the distinction matters: every advanced setting is
-# still in the panel, still editable, and still in the settings dict. A
-# setting removed from the UI while staying in the dict is how a run gets a
-# value nobody can see, which is exactly how this project acquired eleven
-# phantom settings (instruction 61).
-#
-# Derived from `organelle_types.BASIC_SETTINGS` rather than hand-listed, so
-# the split cannot drift from the module that defines what "basic" means.
 
-# ---------------------------------------------------------------------------
-# ADVANCED SETTINGS, GROUPED BY WHAT THEY DO. Instruction 73.
-# ---------------------------------------------------------------------------
-# The panel groups by OBJECT: everything about cells together, everything
-# about nuclei together. The request adds a second axis, and the reason it is
-# worth doing is exact: `cell_min_size` and `nucleus_min_size` do the SAME
-# THING to different objects. Filed under two headings they read as two
-# unrelated knobs; filed under one heading they read as one decision applied
-# four times, which is what they are.
-#
-# THE STRUCTURE IS THREE LEVELS: an "Advanced settings" umbrella, one
-# heading per family under it, and one sub-heading per object under that.
-# `SettingsWidgets.build_sections` carries the tree; the flat
-# `(title, rows)` pairs it has always returned are still the outer half of
-# it, so a panel that cannot draw a tree still draws every control exactly
-# once. `CATEGORY_PARENTS` below is what says which family sits under the
-# umbrella; the per-object level is derived from the key prefix, so a family
-# never has to repeat the object list.
-#
-# Within each heading the keys are ORDERED BY OBJECT, so the four
-# `*_min_size` settings sit together and read as the group they are whether
-# or not the panel drawing them can nest.
-#
-# ORGANELLE FOLDS IN rather than keeping the separate scheme instruction 72
-# shipped, per that instruction's item 6: one structure, not two.
 #: The umbrella every advanced family hangs under.
 #:
 #: NOT "Advanced". That heading already exists and holds the RUN's advanced
@@ -6348,21 +4716,7 @@ PER_OBJECT_PREPROCESSING = 'Image preprocessing (per object)'
 #: see one of them would split a decision in half.
 _ADVANCED_FAMILIES = (
     (PER_OBJECT_PREPROCESSING, (
-        # `signal_to_noise`, lower-case, since b7ae412af renamed
-        # <object>_Signal_to_noise to <object>_signal_to_noise. The suffix
-        # here kept the old capitalisation and so matched nothing, which
-        # took the signal-to-noise anchor out of this family for cell,
-        # nucleus and pathogen -- the panel showed each of them a
-        # background floor and a remove-background switch and nothing
-        # else, while the docstring of the test that covers it still said
-        # three. Nothing errored: a family that matches no key just has
-        # one fewer row.
         "background", "signal_to_noise",
-        # What organelle can already do to its channel before anything is
-        # segmented, and cell / nucleus / pathogen cannot. Grouping does not
-        # hide the gap -- each object's sub-heading shows exactly the keys
-        # that object has -- it makes it visible, which is the first step to
-        # closing it.
         "rolling_ball", "rolling_ball_radius", "clahe", "clahe_clip_limit",
     ), (
         "remove_background",
@@ -6436,17 +4790,8 @@ def _advanced_family_members(table, family_suffixes, family_prefixes=()):
     last -- so a family is not split in half by spaCR's own inconsistency
     about which end the object name goes on.
     """
-    # A key an exempt category owns is NOT a member of the family heading.
-    # Without this it would end up in both, and a duplicate renders twice in
-    # Tk (each copy shown or hidden by a different heading) and is silently
-    # dropped from the second section in Qt.
     spoken_for = {k for c in _ADVANCED_REGROUP_EXEMPT
                   for k in table.get(c, ())}
-    # ONE SET, BUILT ONCE. "Is this key filed anywhere?" used to be asked as
-    # a scan of every category list per candidate, which is
-    # objects x suffixes x every key in the table -- and the object list is
-    # now as long as `number_of_organelles` may go, so that product grew by
-    # more than an order of magnitude and was paid at import.
     filed = {key for members in table.values() for key in members}
     found = []
     for obj in ADVANCED_OBJECT_ORDER:
@@ -6468,11 +4813,6 @@ def _regroup_advanced(table):
     meant. `test_the_regroup_does_not_change_which_keys_a_module_offers`
     is the guard.
     """
-    # IDENTITY IS PRESERVED FOR EVERY CATEGORY THIS DOES NOT TOUCH. Several
-    # headings are the module-level lists themselves -- `categories`
-    # ["Motility (beta)"] IS `motility_settings` -- and a test asserts that
-    # `is` relationship. Rebuilding the whole dict with fresh lists broke it
-    # for categories the regroup has no business changing.
     out = dict(table)
     moved = set()
     for _heading, suffixes, prefixes in _ADVANCED_FAMILIES:
@@ -6482,7 +4822,7 @@ def _regroup_advanced(table):
         if category in _ADVANCED_REGROUP_EXEMPT:
             continue
         if not any(k in moved for k in keys):
-            continue            # untouched: keep the original list object
+            continue
         out[category] = [k for k in keys if k not in moved]
 
     family_headings = {heading for heading, _s, _p in _ADVANCED_FAMILIES}
@@ -6493,9 +4833,6 @@ def _regroup_advanced(table):
     return {k: v for k, v in out.items() if v or k in family_headings}
 
 
-# Filter ONCE rather than once per role. The predicate does not depend on
-# `_role`, so re-testing it inside the loop re-walked both lists 364 times for
-# an answer that could not change. Same keys, same order.
 _organelle_basic_slots = [key for key in organelle_basic_settings
                           if key.startswith('organelle_')]
 _organelle_advanced_slots = [key for key in organelle_advanced_settings
@@ -6507,8 +4844,6 @@ for _role in ORGANELLE_SLOT_ROLES[1:]:
         _organelle_slot_key(key, _role) for key in _organelle_advanced_slots)
     for _suffix in ('channel', 'mask_dim', 'chann_dim'):
         _key = f'{_role}_{_suffix}'
-        # Every generated slot key is declared and the base General list owns
-        # none of them; the settings contract tests pin both premises.
         categories['General'].append(_key)
 del _organelle_basic_slots, _organelle_advanced_slots
 _regrouped_categories = _regroup_advanced(categories)
@@ -6521,28 +4856,17 @@ category_dependencies = {
     'motility_analysis': ['Motility (beta)', 'Motility Advanced (beta)'],
 }
 
-# Compatibility hook for callers that still inspect the settings dependency
-# tables. No live setting currently gates a category by group membership.
 category_group_dependencies = {}
 
 category_integer_dependencies = {
     ('cell_channel', 'cell_mask_dim'): ['Cell'],
     ('nucleus_channel', 'nucleus_mask_dim'): ['Nucleus'],
     ('pathogen_channel', 'pathogen_mask_dim'): ['Pathogen'],
-    # Both organelle categories are gated on the channel, not just the
-    # first: splitting the category would otherwise leave "Organelle
-    # advanced" showing on a run that does no organelle segmentation at all.
     tuple(key for role in ORGANELLE_SLOT_ROLES
           for key in (f'{role}_channel', f'{role}_mask_dim')): [
               'Organelle', 'Organelle advanced'],
 }
 
-# Per-setting applicability is deliberately data rather than Qt code.  Each
-# entry is populated lazily by :func:`get_setting_dependencies`, because
-# importing ``spacr.ml`` while it is importing this module would be circular.
-# Predicates receive ``(current_settings, lightweight_data_context)`` and the
-# reason callable receives the same pair.  The Tk front end can consume this
-# table too; the first consumer is the regression SettingsBuilder.
 setting_dependencies = {}
 
 
@@ -6556,13 +4880,6 @@ def get_setting_dependencies():
     if setting_dependencies:
         return setting_dependencies
 
-    # FROM THE SPEC, NOT FROM ml. `spacr.ml` imports `spacr.plot`, which
-    # imports torch, cv2 and IPython -- so this one lookup of a dict of
-    # strings cost 2.2 seconds and 900 MB every time a settings panel was
-    # built, on the GUI thread, for every module. There is a test asserting
-    # panel-building does not import the plotting stack; it was written when
-    # that import cost 770 ms and was "the whole remaining cost of opening
-    # the first module", and torch made it four times worse.
     from .regression_spec import REGRESSION_SETTINGS_USED
 
     def rule(sources, predicate, reason):
@@ -6623,11 +4940,6 @@ def get_setting_dependencies():
         )
 
     guide_keys = (
-        # `grna_statistic` sits FIRST in the Permutation Test category and is
-        # read only by that path -- it says WHAT is measured, and nothing
-        # measures it on a fitted run. It was the one control in that section
-        # with no rule, so a parametric run greyed its eight neighbours and
-        # left it live.
         'grna_statistic',
         'guide_min_wells', 'guide_primary_min_wells', 'guide_permutations',
         'guide_permutation_seed', 'guide_permutation_block',
@@ -6677,33 +4989,10 @@ def get_setting_dependencies():
         selected = INFERENCE_MODES.get(inference, None)
         if selected is not None:
             return selected == 'guide_permutation'
-        # No usable `inference`: fall back to an explicit analysis_mode, and
-        # 'auto' is never certain.
         return (inference != 'auto'
                 and str(settings.get('analysis_mode') or '').lower()
                 == 'guide_permutation')
 
-    # AND THE MIRROR OF IT: the model settings are dead under permutation.
-    #
-    # Asked on 2026-08-20 -- "if i use a mixed model an nonparametric, is that
-    # still regression or multiple linear regression" -- and the honest answer
-    # is that you do not get both. `inference='nonparametric'` selects
-    # `analysis_mode='guide_permutation'`, which NEVER CALLS
-    # `regression_model`: it is a per-guide marginal association test with
-    # Freedman-Lane permutations, and it fits no simultaneous model at all.
-    # `regression_type` is read, stored, saved into the settings CSV, and
-    # then not used.
-    #
-    # The run summary already says so AFTERWARDS. Saying it at the point of
-    # choosing is 106's rule, and this is exactly the case for it: a user
-    # picking `mixed` here is choosing a model they will not get.
-    #
-    # NOT UNDER 'auto', for the same reason the permutation controls stay
-    # live there: its real resolution counts guides and wells, which this
-    # cannot see, so greying a setting the run may well read is the worse
-    # error of the two.
-    # `intercept` and `intercept_value` say where a fitted line is anchored.
-    # A permutation test fits no line, so there is nothing to anchor.
     for key in ('regression_type', 'regression_backend', 'cov_type',
                 'intercept', 'intercept_value',
                 'model_plate_position', 'random_row_column_effects'):
@@ -6727,25 +5016,6 @@ def get_setting_dependencies():
                 "value is kept and saved."),
         )
 
-    # THE GROUP LASSO'S PENALTY IS DEAD UNTIL THE GROUP LASSO IS CHOSEN.
-    #
-    # setdefault, not assignment: the loop above generates exactly this rule
-    # for every key `REGRESSION_SETTINGS_USED` claims, and the moment
-    # regression_spec lists 'group_lasso' there the generated rule -- which
-    # cannot drift from the family table or from the tooltip generator that
-    # reads the same table -- takes over and this one stops being used.
-    # A LINK-LIKE TRANSFORM IS DEAD ON A GLM, so the control says so.
-    #
-    # A glm fits the response as measured and lets its family's own link do
-    # the transforming, so a `transform` that is itself a link -- 'log' or
-    # 'logit' -- is read and then ignored. A control the run silently
-    # discards has to say so.
-    #
-    # ONLY the link-like transforms, and only on a glm. 'sqrt' and 'square'
-    # are not links and are applied normally, and a regression type that
-    # does not choose its own family has no conflict to resolve. Greying
-    # `transform` for those would be a control disabled for a reason that is
-    # not true of it.
     setting_dependencies['transform'] = _combined(
         setting_dependencies.get('transform'),
         ('regression_type',),
@@ -6761,12 +5031,6 @@ def get_setting_dependencies():
             "value is kept and saved."),
     )
 
-    # THE PINNED NUMBER IS DEAD UNLESS THE INTERCEPT IS PINNED.
-    #
-    # `intercept_value` is read by exactly one of the four modes. Under the
-    # other three the field is still shown -- so the user can see what it
-    # would be -- but greyed, with the reason naming the mode that is
-    # actually in force rather than the one that would read it.
     setting_dependencies['intercept_value'] = _combined(
         setting_dependencies.get('intercept_value'),
         ('intercept',),
@@ -6790,16 +5054,6 @@ def get_setting_dependencies():
             f"penalty weight. The value is kept and saved."),
     ))
 
-    # `analysis_mode` IS DEAD WHILE `inference` IS DECIDING IT.
-    #
-    # Instruction 134, and instruction 106's rule about how: greyed out with
-    # the reason on it, never silently inert. `inference` is the readable
-    # front end that SETS `analysis_mode`
-    # (_resolve_regression_analysis_choices), and it does so for every value
-    # except 'auto'. A user who picks 'nonparametric' and then reads a live
-    # `analysis_mode` box still saying 'regression' is looking at two
-    # controls that contradict each other, and the one they can edit is the
-    # one that loses.
     setting_dependencies['analysis_mode'] = rule(
         ('inference',),
         lambda settings, context: str(
@@ -6812,38 +5066,11 @@ def get_setting_dependencies():
             f"kept and saved."),
     )
 
-    # THE LEVEL IS DEAD UNDER A MIXED MODEL, AND THE PANEL SAYS SO.
-    #
-    # Instruction 132 A, and instruction 106's rule about how: disabled and
-    # SAYING WHY, never absent and never present-but-inert. A mixed model
-    # already answers both levels at once -- the gene is a fixed effect and
-    # each guide a random effect nested inside it -- so there is no single
-    # level left to choose, and a dropdown that still looked live would be
-    # accepting a choice nothing would honour.
-    #
-    # random_row_column_effects IS PART OF THE CONDITION, not an afterthought.
-    # ml._reconcile_random_row_column_effects rewrites regression_type to
-    # 'mixed' before anything is fitted, so ticking that box with
-    # regression_type='ols' and level='grna' fits a mixed model and ignores
-    # the level. Reading only regression_type here would leave the control
-    # enabled for a run that cannot use it, which is the exact failure the
-    # rule exists to prevent.
-    #
-    # HARMLESS IN THE OTHER MODULES THAT OWN A 'level'. The proportion and
-    # endodyogeny panels use the same key for 'object'/'well'/'plate' and
-    # carry no regression_type, so the predicate reads '' != 'mixed' -> True
-    # -> applicable, and their control is never greyed by this.
     def _is_nonparametric(settings):
         """Whether inference is the nonparametric permutation test."""
         return str(settings.get('inference') or '').lower() == 'nonparametric'
 
     def _level_is_read(settings, _context):
-        # THE PERMUTATION TEST READS IT. It fits no model, so regression_type
-        # says nothing about it and neither does random_row_column_effects --
-        # both are parametric answers to a parametric question. Greying the
-        # control here left the nonparametric side with no way to ask for
-        # genes at all, because the key that gated its gene pass has no
-        # control of its own.
         """Whether the level setting is read at all under these settings.
 
         THE PERMUTATION TEST READS IT. It fits no model, so `regression_type`
@@ -6877,9 +5104,6 @@ def get_setting_dependencies():
         ('regression_type', 'random_row_column_effects', 'inference'),
         _level_is_read, _level_reason)
 
-    # Cell-level analysis keeps one row per object, whereas the permutation
-    # test requires one row per well. Reflect that constraint in the enabled
-    # state so the GUI explains the selected inference mode before a run.
     _cell_unit = lambda settings, context: str(
         settings.get('analysis_unit') or 'well').lower() == 'cell'
     setting_dependencies['inference'] = rule(
@@ -6941,61 +5165,11 @@ def get_setting_dependencies():
                 "is kept."),
         )
 
-    # THE EFFECT-SIZE CUT APPLIES TO A PERMUTATION RUN TOO, so these two are
-    # no longer greyed out under it.
-    #
-    # The rule used to read "guide permutation uses corrected P values", and
-    # that reason is now false. It was true only because `perform_regression`
-    # RETURNED from the permutation branch about eighty lines before the block
-    # that computes the cut -- an accident of control flow, not a statement
-    # about the method. The permutation table carries a real `coefficient`
-    # (aliased from `standardized_marginal_effect`), and an effect-size cut
-    # asks how BIG an effect is, which is a separate question from how its P
-    # value was obtained.
-    #
-    # The maintainer reported it as "why cant i see the coefficient threshold
-    # if im running nonparametric regression?", and was told the greying was
-    # correct. It was not.
 
-    # THE DATA-DEPENDENT HALF, and the reason `context` exists at all.
-    #
-    # Every rule above reads only the other SETTINGS. This one reads the
-    # loaded data: `context['plate_count']` is filled by the panel from the
-    # inputs the user actually dropped in.
-    #
-    # UNKNOWN MUST NOT GREY ANYTHING. `plate_count` is None when nothing is
-    # loaded, or when the inputs were too large to scan cheaply. A control
-    # disabled because a file was big is indistinguishable, to the person
-    # looking at it, from one disabled on purpose -- so absence of knowledge
-    # leaves the control alone.
-    #
-    # `guide_permutation_block` names the column permutations are blocked
-    # within, and residuals are never shuffled between its levels. With one
-    # plate, blocking on the plate is the whole dataset and constrains
-    # nothing.
-    #
-    # All three input keys are listed because a panel has whichever of them
-    # it has -- the regression screen takes pairs in one `paired_data` table
-    # (instruction 107) and has neither of the other two --
-    # and _connect_setting_dependency_signals skips the ones that are absent.
-    #
-    # ADDED TO the rule already there, never assigned over it. This dict
-    # holds ONE rule per setting, and `guide_permutation_block` already has
-    # one -- parametric inference greys every permutation control. Assigning
-    # here replaced it, so choosing parametric silently left this one field
-    # enabled among its greyed siblings. A setting is applicable only if
-    # EVERY rule that mentions it says so.
     _existing = setting_dependencies.get('guide_permutation_block')
     setting_dependencies['guide_permutation_block'] = _combined(
         _existing,
         ('paired_data', 'score_data', 'count_data'),
-        # TRUE MEANS APPLICABLE, matching every rule above -- the estimator
-        # rules return True when the setting IS read. So: enabled when the
-        # plate count is unknown, or when there is more than one plate.
-        # `context or {}` because a caller with no loaded inputs passes None,
-        # and every other predicate here tolerates that. Raising instead made
-        # this one rule the only way to crash a panel that is merely asking
-        # whether to grey a control.
         lambda settings, context: (
             (context or {}).get('plate_count') is None
             or (context or {}).get('plate_count') != 1),
@@ -7007,22 +5181,6 @@ def get_setting_dependencies():
             "kept and saved."),
     )
 
-    # AND BATCH CORRECTION, for the same reason and by the same route
-    # (instruction 135's last open line). Correcting BETWEEN batches when
-    # there is one batch removes nothing -- the run already says so out loud
-    # ("fewer than two batches means there is nothing between batches to
-    # remove, and batch_correction='none' gives an identical result") -- but
-    # saying it AFTER the run is saying it too late. The control is greyed
-    # before the user chooses.
-    #
-    # THE SAME `_combined`, never an assignment: `batch_correction` may
-    # already carry a rule, and a setting is applicable only if EVERY rule
-    # that mentions it says so. Assigning here would silently drop the other.
-    #
-    # And the same "unknown greys nothing": `plate_count` is None with nothing
-    # loaded or with inputs too large to scan cheaply, and a control disabled
-    # because a file was big is indistinguishable from one disabled on
-    # purpose.
     for _key in ('batch_correction', 'batch_column', 'batch_control_column',
                  'batch_control_values', 'batch_covariate_column',
                  'batch_combat_mean_only', 'batch_min_samples',
@@ -7030,9 +5188,6 @@ def get_setting_dependencies():
         setting_dependencies[_key] = _combined(
             setting_dependencies.get(_key),
             ('paired_data', 'score_data', 'count_data'),
-            # See the note on `guide_permutation_block` above: a caller with
-            # no loaded inputs passes None, and a greying question must not
-            # be the thing that raises.
             lambda settings, context: (
                 (context or {}).get('plate_count') is None
                 or (context or {}).get('plate_count') != 1),
@@ -7043,20 +5198,6 @@ def get_setting_dependencies():
                 f"The value is kept and saved."),
         )
 
-    # WHERE THE PIXELS COME FROM, and what each route actually reads.
-    # `image_source` chooses between reading exported crops and cutting them
-    # from merged planes, and `stream_method` chooses how the streamer finds
-    # its objects. The settings the chosen route does not read must not sit
-    # on screen asking to be filled in: a control that changes nothing is
-    # indistinguishable from one that does, and the user finds out at run
-    # time or not at all.
-    #
-    # FROM `stream_dataset.METHOD_SETTINGS`, never a second list here. That
-    # table is what the STREAMER reads; a copy in the settings module would
-    # drift from it, and the symptom would be a live control the run ignores
-    # -- which is the exact failure this gate exists to prevent. The module
-    # imports numpy and pandas and nothing heavier, so this stays off the
-    # plotting stack the panel build is tested for.
     from .stream_dataset import METHOD_SETTINGS as _METHOD_SETTINGS
 
     def _streaming(settings) -> bool:
@@ -7065,10 +5206,6 @@ def get_setting_dependencies():
             settings.get('image_source', settings.get('crop_source'))
         ) == 'stream_images'
 
-    # `load_path_regex` had a dependency rule here saying when it did not
-    # apply. The setting was retired on 2026-09-09 (357-Q4) because nothing
-    # read it in either case, and a rule explaining when an unread control
-    # is inapplicable explains nothing.
 
     _stream_only = tuple(dict.fromkeys(
         ['stream_method',
@@ -7084,10 +5221,6 @@ def get_setting_dependencies():
                 f"value is kept and saved."),
         )
 
-    # AND WITHIN STREAMING, ONLY THE CHOSEN METHOD'S OWN SETTINGS. An
-    # unrecognised method greys nothing: a control disabled because a
-    # settings file named a method spaCR never had is a control nobody can
-    # re-enable from the panel.
     for _key in _stream_only[1:]:
         setting_dependencies[_key] = _combined(
             setting_dependencies.get(_key),
@@ -7101,17 +5234,6 @@ def get_setting_dependencies():
                 f"saved."),
         )
 
-    # ---- Mask input and metadata -------------------------------------
-    # `custom_regex` is only read by two conventions, so under the other two
-    # it is a control that changes nothing.
-    #
-    # 'auto' IS INCLUDED, and that is the part worth stating: it is not the
-    # obvious reading of "grey it out unless metadata type is custom". The
-    # description for `metadata_type` says 'auto' renames the folder to
-    # Yokogawa naming "using custom_regex when supplied, otherwise automatic
-    # detection" -- so a user on 'auto' who has a regex CAN use it, and
-    # greying the field there would take away a documented behaviour while
-    # looking like a tidy-up.
     setting_dependencies['custom_regex'] = _combined(
         setting_dependencies.get('custom_regex'),
         ('metadata_type',),
@@ -7124,9 +5246,6 @@ def get_setting_dependencies():
             f"{settings.get('metadata_type')!r}. The value is kept and saved."),
     )
 
-    # ---- Organelle segmentation --------------------------------------
-    # Every other organelle_method is a threshold or a filter and takes no
-    # checkpoint; only cellpose loads one.
     setting_dependencies['organelle_model_name'] = _combined(
         setting_dependencies.get('organelle_model_name'),
         ('organelle_method',),
@@ -7141,14 +5260,6 @@ def get_setting_dependencies():
 
     return setting_dependencies
 
-# Categories shown only when a setting equals a specific value.
-#
-# gui_core._get_visible_categories blocks the categories of every option that
-# does NOT match the current value, so a category listed under two or more
-# options can never be shown. The eight per-method organelle headings are now a
-# single "Organelle" category (ordered by method instead of gated on it), so
-# organelle_method no longer gates anything and its map is empty. The mechanism
-# itself is still wired up in both GUIs for the next setting that needs it.
 category_value_dependencies = {
     'organelle_method': {},
 }
@@ -7179,9 +5290,6 @@ def parse_list(value):
                 return parsed_value
             raise ValueError("List contains mixed types or unsupported types")
         if isinstance(parsed_value, tuple):
-            # A one-element tuple is what `(3,)` parses to; it means the same
-            # single value the user typed, so it stays one element rather
-            # than being flattened away.
             return list(parsed_value) if len(parsed_value) > 1 else [parsed_value[0]]
         raise ValueError(f"Expected a list but got {type(parsed_value).__name__}")
     except (ValueError, SyntaxError) as e:
@@ -7209,7 +5317,7 @@ def check_settings(vars_dict, expected_types, q=None):
         q = Queue()
 
     settings = {}
-    errors = []  # Collect errors instead of stopping at the first one
+    errors = []
 
     for key, (label, widget, var, _) in vars_dict.items():
         if key not in expected_types and key not in category_keys:
@@ -7225,21 +5333,6 @@ def check_settings(vars_dict, expected_types, q=None):
         try:
             if key in ["cell_plate_metadata", "timelapse_frame_limits", "png_size", "png_dims", "pathogen_plate_metadata", "treatment_plate_metadata", "timelapse_objects", "class_metadata", "crop_mode", "dialate_png_ratios"]:
                 if value is None:
-                    # Blank means "not set", and for these keys that is a
-                    # legal, shipped value: cell_/pathogen_/treatment_plate_
-                    # metadata default to None in eight factories (recruitment,
-                    # invasion, replication, endodyogeny, class proportion,
-                    # plot_data_from_db) and timelapse_frame_limits is declared
-                    # (list, NoneType) outright.
-                    #
-                    # This used to assign `parsed_value = None` and fall
-                    # straight into the `else` two lines below, which raised
-                    # "Expected a list ... but got NoneType" -- so every one of
-                    # those modules reported errors and dropped its own default
-                    # the moment it was run from the Tk panel untouched. The
-                    # assignment was evidence of the intent and nothing else:
-                    # no value of `value` could reach the list branch through
-                    # it.
                     settings[key] = None
                     continue
 
@@ -7285,10 +5378,6 @@ def check_settings(vars_dict, expected_types, q=None):
                     raise ValueError(f"Expected an integer or float for '{key}', but got '{value}'.")
 
             elif expected_type == (bool, int):
-                # invert_dependent_variable: False/0 = as measured, True/1 =
-                # 1 - x, -1 = 1 / x. The generic tuple branch at the bottom
-                # would reach bool('False') first, which is True, and silently
-                # invert every score in the screen.
                 if value is None:
                     settings[key] = None
                 else:
@@ -7305,11 +5394,6 @@ def check_settings(vars_dict, expected_types, q=None):
                                 f"Expected True, False or an integer for '{key}', but got '{value}'.")
 
             elif expected_type == (list, type(None)):
-                # y_lims / x_lim / stain_baseline_wells / filter_min_max. The
-                # tuple branch would reach list('[0, 5]') first and hand the
-                # pipeline ['[', '0', ',', ' ', '5', ']']. literal_eval also
-                # keeps the nested form y_lims uses for a broken axis, which
-                # parse_list rejects as "mixed types".
                 if value is None:
                     settings[key] = None
                 else:
@@ -7330,11 +5414,6 @@ def check_settings(vars_dict, expected_types, q=None):
 
             elif expected_type == (str, type(None), list):
                 if isinstance(value, list):
-                    # Already a list: keep it. This used to call parse_list,
-                    # which ast.literal_eval()s its argument and so raises on
-                    # anything that is not a string -- the one branch reached
-                    # by a value that is already the declared type was the one
-                    # that threw the value away and logged a format error.
                     settings[key] = list(value) if value else None
                 elif isinstance(value, str):
                     settings[key] = str(value)
@@ -7342,9 +5421,6 @@ def check_settings(vars_dict, expected_types, q=None):
                     settings[key] = None
 
             elif expected_type == (str, bool):
-                # A detector switch may be off/on OR name a model/path.
-                # bool("False") is True and str(False) is "False", so the
-                # generic tuple coercer cannot preserve this union.
                 if value is None or isinstance(value, bool):
                     settings[key] = value
                 elif str(value).strip().lower() in ("true", "false"):
@@ -7388,7 +5464,6 @@ def check_settings(vars_dict, expected_types, q=None):
             expected_type_name = ' or '.join([t.__name__ for t in expected_type]) if isinstance(expected_type, tuple) else expected_type.__name__
             errors.append(f"Error: '{key}' has invalid format. Expected type: {expected_type_name}. Got value: '{value}'. Error: {e}")
 
-    # Send all collected errors to the queue
     for error in errors:
         q.put(error)
         
@@ -7414,27 +5489,10 @@ def set_annotate_default_settings(settings):
     settings.setdefault('edge_image', 'False')
     settings.setdefault('object_size', (0,0))
     settings.setdefault('percentiles', [2, 98])
-    settings.setdefault('measurement', '') #'cytoplasm_channel_3_mean_intensity,pathogen_channel_3_mean_intensity')
-    settings.setdefault('threshold', '') #'2')
+    settings.setdefault('measurement', '')
+    settings.setdefault('threshold', '')
     settings.setdefault('threshold_direction', 'higher')
-    # 'auto' uses the PNG crop folder when one exists and falls back to
-    # cutting crops out of merged/*.npy on demand; 'png' and 'merged'
-    # force one source. See spacr.crops.resolve_crop_source.
-    # LOAD IMAGES BY DEFAULT, BY NAME (instructions 170 and 171).
-    #
-    # This shipped 'auto', which takes the PNG folder whenever one exists --
-    # the right answer for the wrong reason, and unaskable when a user wants
-    # the other. Asked 2026-08-19: "in the annotation app how do i choose to
-    # stream images from database or dataset". The answer was that you did
-    # not: the setting was here and the choice was never offered.
-    #
-    # 'png' IS "load images" and 'merged' is "stream images". The stored value
-    # does not change, so no settings file already on disk changes meaning,
-    # and `resolve_crop_source` falls back to the other route when this one's
-    # folder is absent -- saying so in its reason.
     settings.setdefault('crop_source', 'png')
-    # Active-learning queue (spacr.active_learning). Off by default: it
-    # needs model scores in png_list, which only exist after Classify (CV).
     settings.setdefault('queue_by_uncertainty', False)
     settings.setdefault('queue_measure', 'entropy')
     settings.setdefault('queue_diversity', 'well')
@@ -7450,15 +5508,8 @@ def set_default_generate_barecode_mapping(settings=None):
     """
     if settings is None:
         settings = {}
-    # BEFORE ANY DEFAULT IS FILLED IN. A settings file naming the old key
-    # must reach the new one carrying its VALUE, and a `setdefault` that
-    # ran first would have already put the default there.
     _fold_renamed_settings(settings)
     settings.setdefault('src', 'path')
-    # Group names MUST be columnID / rowID (not column / row): the read
-    # processors in sequencing.py read match.group('columnID') /
-    # match.group('rowID'), so a default regex naming them column/row raised
-    # "IndexError: no such group" — the shipped default was unusable.
     settings.setdefault('barcode_mismatches', 0)
     settings.setdefault('regex', DEFAULT_BARCODE_REGEX)
     settings.setdefault('target_sequence', 'TGCTGTTTCCAGCATAGCTCTTAAAC')
@@ -7501,9 +5552,6 @@ def get_default_generate_activation_map_settings(settings):
     settings.setdefault('correlation', True)
     settings.setdefault('manders_thresholds', [15,50, 75])
     settings.setdefault('n_jobs', None)
-    # Attribution methods and their analyses (spacr.attribution). The
-    # sanity check is on by default because a map that ignores the model's
-    # weights is an edge detector, not an explanation.
     settings.setdefault('smoothgrad_samples', 0)
     settings.setdefault('smoothgrad_sigma', 0.15)
     settings.setdefault('occlusion_window', 8)
@@ -7524,29 +5572,10 @@ def get_analyze_plaque_settings(settings):
     """
     settings.setdefault('src', 'path')
     settings.setdefault('masks', True)
-    # Which checkpoint segments the plaques: 'bundled' (the pre-2026 model
-    # that ships with spaCR), a model_zoo key such as 'toxoplasma_plaque_v1'
-    # (fetched from Hugging Face and checksum-verified the first time it is
-    # CHOSEN), or a path to your own.
-    #
-    # THE DEFAULT STAYS 'bundled' ON PURPOSE, even though toxoplasma_plaque_v1
-    # is markedly better (F1 0.856 vs 0.718 in-domain; the bundled model
-    # recalls 0.631 on the literature set, missing about a third of the
-    # plaques). Two reasons to make it a choice rather than a default:
-    # a default that downloads 1.2 GB the first time anyone runs the module is
-    # a surprise, and changing which model runs would silently change the
-    # counts in every existing pipeline that never asked for a new model.
-    # Selecting it is one setting; both of those are irreversible for someone
-    # who did not notice.
     settings.setdefault('plaque_model', 'bundled')
-    # False for images that each hold one plaque field (the original
-    # behaviour); True to find the wells first and analyse each separately.
-    # A path or model_zoo key selects a different detector.
     settings.setdefault('well_detection', False)
     settings.setdefault('well_confidence', 0.25)
     settings.setdefault('well_pad', 0)
-    # The ruler. Without one of these, areas stay in pixels -- which are a
-    # property of the microscope, so they cannot be pooled across scopes.
     settings.setdefault('plate_format', None)
     settings.setdefault('well_diameter_mm', None)
     settings.setdefault('background', 200)
@@ -7563,36 +5592,12 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('rescale', False)
     settings.setdefault('resample', False)
     settings.setdefault('fill_in', True)
-    # THE SEVEN THIS MODULE READS AND DID NOT DECLARE, added 2026-09-08.
-    #
-    # `analyze_plaques` hands its dict to
-    # `spacr.spacr_cellpose.identify_masks_finetune`, which reads 24 keys.
-    # Seven were declared by neither this factory nor `analyze_plaques`,
-    # and `settings['normalize']` is read unconditionally inside the
-    # per-batch loop -- so `masks=True`, THE DEFAULT, raised
-    # `KeyError: 'normalize'` on the first image. The module could not run
-    # from its own settings.
-    #
-    # Nothing caught it because the only test driving `analyze_plaques`
-    # passes `masks=False`, which skips the mask step: the covered path was
-    # the one the user does not take.
-    #
-    # THE VALUES ARE `get_identify_masks_finetune_default_settings`'s,
-    # unchanged -- that factory feeds the same function and is where this
-    # contract is already written down. Declared here rather than injected
-    # in `analyze_plaques` because the settings panel is built from this
-    # factory, and `normalize`, `percentiles`, `invert` and
-    # `remove_background` all change results: they should be visible and
-    # editable, not hidden defaults.
     settings.setdefault('normalize', True)
     settings.setdefault('channels', [0, 0])
     settings.setdefault('percentiles', None)
     settings.setdefault('invert', False)
     settings.setdefault('grayscale', True)
     settings.setdefault('remove_background', False)
-    # Only read on the branch where `custom_model` is None, which
-    # `analyze_plaques` never takes -- declared so the contract is complete
-    # rather than complete by luck.
     settings.setdefault('model_name', 'cpsam')
     return settings
 
@@ -7605,19 +5610,6 @@ def set_graph_importance_defaults(settings):
     settings.setdefault('csvs','list of paths')
     settings.setdefault('grouping_column','compartment')
     settings.setdefault('data_column','compartment_importance_sum')
-    # A BOX WITH JITTER, NOT A BAR WITH JITTER. Instruction 139 B, asked for
-    # on 2026-08-18: "the bargraphs with jutter plot backgrounds should be
-    # boxplots with jutter".
-    #
-    # It is a statistical correction rather than a preference, which is why
-    # the DEFAULT moves rather than the option merely existing. A bar drawn at
-    # a mean with points behind it shows ONE number and hides the shape: two
-    # groups with the same mean and completely different spreads draw the same
-    # bar. A box shows the median, the quartiles and the whiskers, so the
-    # reader sees the distribution the points already imply -- and the jitter
-    # stays, because the box summarises and the points are the evidence.
-    #
-    # `jitter_box` already existed as an option; only the default was wrong.
     settings.setdefault('graph_type','jitter_box')
     settings.setdefault('save',False)
     return settings
@@ -7648,7 +5640,6 @@ def set_interpret_vision_model_defaults(settings):
     return settings
 
 
-# Backward compatibility for the misspelling published in earlier releases.
 set_interperate_vision_model_defaults = set_interpret_vision_model_defaults
 
 
@@ -7658,10 +5649,6 @@ def set_analyze_invasion_defaults(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
-    # BEFORE ANY DEFAULT IS FILLED IN (364). A settings file naming a
-    # renamed key must reach the new name carrying its VALUE, and a
-    # `setdefault` that ran first would already have put the default
-    # there -- so the user's number would be silently replaced by ours.
     _fold_renamed_settings(settings)
     settings.setdefault('src','path')
     settings.setdefault('parasite_table','pathogen')
@@ -7672,9 +5659,6 @@ def set_analyze_invasion_defaults(settings):
     settings.setdefault('background_correction','none')
     settings.setdefault('outside_threshold_method','otsu')
     settings.setdefault('outside_threshold',None)
-    # THE STAINING CONTROLS, and this key used to be `control_wells` --
-    # which Regression and sequencing also used, for the unrelated list of
-    # wells to DROP before fitting. Split on 2026-09-09 (364, 357-Q6).
     settings.setdefault('stain_baseline_wells', None)
     settings.setdefault('control_quantile',0.99)
     settings.setdefault('min_control_objects',10)
@@ -7803,19 +5787,6 @@ def get_plot_data_from_csv_default_settings(settings):
     settings.setdefault('src','path')
     settings.setdefault('data_column','choose column')
     settings.setdefault('grouping_column','choose column')
-    # A BOX WITH JITTER, NOT A BAR WITH JITTER. Instruction 139 B, asked for
-    # on 2026-08-18: "the bargraphs with jutter plot backgrounds should be
-    # boxplots with jutter".
-    #
-    # It is a statistical correction rather than a preference, which is why
-    # the DEFAULT moves rather than the option merely existing. A bar drawn at
-    # a mean with points behind it shows ONE number and hides the shape: two
-    # groups with the same mean and completely different spreads draw the same
-    # bar. A box shows the median, the quartiles and the whiskers, so the
-    # reader sees the distribution the points already imply -- and the jitter
-    # stays, because the box summarises and the points are the evidence.
-    #
-    # `jitter_box` already existed as an option; only the default was wrong.
     settings.setdefault('graph_type','jitter_box')
     settings.setdefault('save',False)
     settings.setdefault('y_lim',None)
@@ -7856,7 +5827,7 @@ def set_default_stitch(settings=None):
     settings.setdefault('line_thickness', 1)
     settings.setdefault('outline_alpha', 1.0)
     settings.setdefault('feature_cache_mode', 'disk')
-    settings.setdefault('feature_cache_dir', None)  # set per well by caller
+    settings.setdefault('feature_cache_dir', None)
     settings.setdefault('max_ram_features', 256)
     settings.setdefault('n_workers_features', None)
     settings.setdefault('pair_batch_size', 8192)
@@ -7868,11 +5839,9 @@ def set_default_stitch(settings=None):
     settings.setdefault('t_index', 0)
     settings.setdefault('squeeze_singleton', True)
 
-    # run_folder settings
     settings.setdefault('n_workers', max(1, (os.cpu_count() or 8) // 2))
     settings.setdefault('max_site_gap', 64)
-    settings.setdefault('mosaic_min_score', None)   # None => auto elbow
-    # per-well outputs are set by caller:
+    settings.setdefault('mosaic_min_score', None)
     settings.setdefault('mosaic_out', None)
     settings.setdefault('mosaic_csv_out', None)
     return settings
@@ -7884,12 +5853,12 @@ def set_default_multichannel(settings=None):
     :returns: the settings dict with defaults applied (a shallow copy of the input).
     """
     settings = {} if settings is None else dict(settings)
-    settings.setdefault('channel_indices', None)   # infer from first tile if None
-    settings.setdefault('blend', 'max')            # {'max','overwrite'}
+    settings.setdefault('channel_indices', None)
+    settings.setdefault('blend', 'max')
     settings.setdefault('preview_downsample', 8)
-    settings.setdefault('tmp_dir', None)           # set per well by caller
-    settings.setdefault('out_tif', None)           # set per well by caller
-    settings.setdefault('out_png', None)           # set per well by caller
+    settings.setdefault('tmp_dir', None)
+    settings.setdefault('out_tif', None)
+    settings.setdefault('out_png', None)
     return settings
 
 def set_default_general(settings=None):
@@ -7905,14 +5874,14 @@ def set_default_general(settings=None):
     settings.setdefault('well_group', 'well')
     settings.setdefault('exts', ['.tif', '.tiff', '.png'])
     settings.setdefault('recursive', True)
-    settings.setdefault('collision', 'rename')     # {'rename','skip','overwrite'}
-    settings.setdefault('on_missing', 'error')     # {'error','skip'}
+    settings.setdefault('collision', 'rename')
+    settings.setdefault('on_missing', 'error')
     settings.setdefault('dry_run', False)
     settings.setdefault('verbose', True)
     settings.setdefault('do_organize', True)
     settings.setdefault('do_nuc_stitch', True)
     settings.setdefault('do_multichannel', True)
-    settings.setdefault('channel_index', 0)        # nuclei channel in each tile
+    settings.setdefault('channel_index', 0)
     return settings
 
 def get_automated_motility_assay_default_settings(settings):
@@ -7927,10 +5896,6 @@ def get_automated_motility_assay_default_settings(settings):
     if settings is None:
         settings = {}
 
-    # array settings
-    # `src` is the plate folder holding merged/*.npy. It used to be inherited
-    # from the mask settings this dict was merged into; the Motility Assay is
-    # now a module of its own, so it has to carry its own source folder.
     settings.setdefault('src', 'path')
     settings.setdefault('channels', [0, 1, 2, 3])
     settings.setdefault('cell_channel', 2)
@@ -7941,28 +5906,22 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('infection_intensity_qc_scope', "per_well")
     settings.setdefault('motility_analysis', False)
 
-    # filter settings
     settings.setdefault('n_jobs', 8)
     settings.setdefault('max_displacement', 50.0)
     settings.setdefault('zscore_thresh', 3.0)
     settings.setdefault('straightness_filter', False)
     settings.setdefault('straightness_threshold', 0.95)
-    settings.setdefault('infection_intensity_strategy', 'xgboost')  # 'pca' | 'umap' | 'tsne' | 'histogram' | 'xgb'
-    settings.setdefault('infection_intensity_mode', "relabel")  # or 'remove'
+    settings.setdefault('infection_intensity_strategy', 'xgboost')
+    settings.setdefault('infection_intensity_mode', "relabel")
     settings.setdefault('db_table_name', "timelapse_object_measurements")
     settings.setdefault('infection_intensity_n_bins', 64)
-    # Read by _make_intensity_motility_panel; previously undefaulted, so the
-    # standalone module had no widget for it. Exposing it lets users skip the
-    # QC plotting work on large runs.
     settings.setdefault('infection_intensity_qc_graphs', True)
 
-    # motility plot settings
     settings.setdefault('pixels_per_um', 1.78)
     settings.setdefault('seconds_per_frame', 60)
     settings.setdefault('motility_xlim', (100, -100))
     settings.setdefault('motility_ylim', (100, -100))
 
-    # xgboost settings
     settings.setdefault('infection_xgb_n_estimators', 200)
     settings.setdefault('infection_xgb_max_depth', 3)
     settings.setdefault('infection_xgb_learning_rate', 0.1)
@@ -7980,7 +5939,6 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('infection_xgb_ambiguous_high', 0.75)
     settings.setdefault('infection_xgb_min_cells_per_class', 10)
 
-    # PCA / embedding-common settings
     settings.setdefault('infection_pca_n_clusters', 2)
     settings.setdefault('infection_pca_random_state', 42)
     settings.setdefault('infection_pca_pathogen_weight', 2.0)
@@ -7989,39 +5947,19 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('infection_pca_min_gt_separation', 0.2)
     settings.setdefault('infection_pca_min_silhouette', 0.05)
 
-    # UMAP
     settings.setdefault('infection_pca_umap_search', True)
     settings.setdefault('infection_pca_umap_n_neighbors_grid', [5, 10, 15, 30])
     settings.setdefault('infection_pca_umap_min_dist_grid', [0.0, 0.05, 0.1, 0.3])
-    # used if infection_pca_umap_search == False
     settings.setdefault('infection_pca_umap_n_neighbors', 15)
     settings.setdefault('infection_pca_umap_min_dist', 0.1)
 
-    # t-SNE
     settings.setdefault('infection_pca_tsne_search', True)
     settings.setdefault('infection_pca_tsne_perplexity_grid', [15.0, 30.0, 45.0])
     settings.setdefault('infection_pca_tsne_learning_rate_grid', [200.0, 500.0])
-    # used if infection_pca_tsne_search == False
     settings.setdefault('infection_pca_tsne_perplexity', 30.0)
     
     return settings
 
-# ---------------------------------------------------------------------------
-# WHICH MEASUREMENTS MEAN SOMETHING FOR WHICH ORGANELLE
-# ---------------------------------------------------------------------------
-#
-# "How many, and how spread out" is the phenotype for a punctate or vesicular
-# organelle and is not a question at all for a reticular one. An ER meshwork
-# is ONE connected object filling the cell: its neighbour count is zero, its
-# nearest-neighbour distance is undefined, and a screen that regressed on
-# either would be regressing on whether the segmentation happened to break
-# the network in two that day.
-#
-# THE MEASUREMENTS ARE STILL COMPUTED. Nothing here switches a family off --
-# a user who wants the number gets the number, and a value that vanished
-# without being asked to is worse than one that comes with a caveat. What
-# this does is SAY SO, in the same voice the type preset already uses to say
-# what it set and what is weak about it.
 
 #: Measurement families whose meaning depends on there being MANY separable
 #: objects of the kind inside one cell.
@@ -8161,16 +6099,9 @@ def _set_organelle_defaults(settings):
     and every write is a ``setdefault``. Lowering the number is therefore
     reversible -- raising it again finds the old answers still there.
     """
-    # Read legacy intent before adding placeholder slot values. An explicit
-    # count wins; otherwise a non-empty old slot activates that slot while a
-    # genuinely empty mapping stays at zero.
     settings.setdefault(NUMBER_OF_ORGANELLES, organelle_count(settings))
     defaults = {
-        # General
         'organelle_channel': None,
-        # ONE visible choice in front of fifty-three. Defaults to 'custom',
-        # which recommends nothing: a settings file written before this
-        # existed has no opinion about it and must keep its exact meaning.
         'organelle_type': DEFAULT_ORGANELLE_TYPE,
         'organelle_morphology': 'spots',
         'organelle_method': 'otsu',
@@ -8180,16 +6111,6 @@ def _set_organelle_defaults(settings):
         'organelle_max_area': None,
         'organelle_remove_border': False,
 
-        # Preprocessing
-        # THESE TWO BELONG HERE AND NOT IN THE GENERIC BLOCK, and the reason is
-        # worth the line: `_count_implied_by_the_slots` treats ANY non-blank
-        # `organelle_*` key as evidence that slot one is in use. Setting them
-        # unconditionally beside the cell/nucleus/pathogen defaults made every
-        # settings file infer one organelle instead of zero -- exactly the trap
-        # `get_measure_crop_settings` already warns about, "once those
-        # placeholders exist they cannot be distinguished from a legacy file
-        # that genuinely requested slot one". This function reads the count
-        # first, so a key written here cannot imply one.
         'organelle_background': 100,
         'organelle_signal_to_noise': 10,
         'organelle_rolling_ball': False,
@@ -8198,7 +6119,6 @@ def _set_organelle_defaults(settings):
         'organelle_clahe_clip_limit': 0.01,
         'organelle_mask_within_cells': False,
 
-        # Spots
         'organelle_log_min_sigma': 1,
         'organelle_log_max_sigma': 10,
         'organelle_log_num_sigma': 10,
@@ -8208,7 +6128,6 @@ def _set_organelle_defaults(settings):
         'organelle_tophat_radius': 5,
         'organelle_watershed_spots': True,
 
-        # Network
         'organelle_ridge_sigmas': [1, 2, 3],
         'organelle_ridge_filter': 'frangi',
         'organelle_skeletonize': False,
@@ -8216,54 +6135,27 @@ def _set_organelle_defaults(settings):
         'organelle_hysteresis_low': 0.2,
         'organelle_hysteresis_high': 0.6,
 
-        # U-Net
         'organelle_unet_model_path': None,
         'organelle_unet_threshold': 0.5,
 
-        # Irregular
         'organelle_adaptive_block_size': 51,
         'organelle_adaptive_offset': 5,
         'organelle_morph_radius': 3,
         'organelle_fill_holes': 64,
 
-        # Ring
         'organelle_ring_sigma_inner': 1.0,
         'organelle_ring_sigma_outer': 3.0,
         'organelle_ring_min_prominence': 0.1,
         'organelle_ring_fill_method': 'flood',
 
-        # Cellpose
         'organelle_cellprob_threshold': 0.0,
         'organelle_flow_threshold': 0.4,
         'organelle_resample': True,
     }
-    # THREE TIERS, AND THE ORDER IS THE WHOLE DESIGN:
-    #
-    #   what the USER set        wins over
-    #   what the PRESET advises  wins over
-    #   the bare DEFAULT
-    #
-    # So the preset runs FIRST, against the caller's own dict, where the
-    # only keys present are the ones they chose. It fills the gaps it has an
-    # opinion about and never touches a key that is already there -- that is
-    # "preset, do not override": pick 'punctate', change organelle_method to
-    # 'adaptive', and the change sticks.
-    #
-    # Running it after `setdefault` was the first attempt and it was wrong:
-    # the defaults had already filled organelle_method with 'otsu', the
-    # preset saw a set key, kept it, and naming a type did nothing at all.
-    # UPDATED IN PLACE, not rebound. `apply_preset` returns a NEW dict, and
-    # every caller here does `_set_organelle_defaults(settings)` without
-    # taking the return value -- so rebinding the local name silently threw
-    # forty defaults away onto a copy, and the mask panel lost every
-    # detection setting it had. Measured: 53 organelle keys became 13.
     settings.update(apply_preset(settings,
                                  explain=bool(settings.get('verbose'))))
     for key, val in defaults.items():
         settings.setdefault(key, val)
-    # Each secondary slot gets the same defaults and its own independent type
-    # preset. Translate only at this boundary so the preset implementation has
-    # one vocabulary and one set of tests.
     for role in declared_organelle_roles(settings)[1:]:
         view = {'verbose': settings.get('verbose', False)}
         prefix = f'{role}_'
@@ -8278,27 +6170,5 @@ def _set_organelle_defaults(settings):
     return settings
 
 
-# THE ILLUMINATION HELP ARRIVES WITH THE MODULE THAT OWNS IT.
-#
-# `expected_types` types the nine illumination_* keys and `categories` files
-# them under "Illumination Correction", both in the literals above -- so every
-# session's Measure panel offers those nine controls. Their tooltips, though,
-# are contributed by spacr.illumination through `register_defaults` at ITS
-# import, so a session that had no other reason to import that module drew
-# nine controls with no help beside them, and
-# `test_every_typed_setting_has_a_tooltip` passed or failed on which files
-# pytest was pointed at.
-#
-# Importing the module here rather than copying its help text in keeps one
-# owner for that prose: `_merge_declarations` refuses a second, different
-# definition of a tooltip, so a copy would have to be kept in step by hand and
-# would announce itself only as an ImportError.
-#
-# LAST IN THE FILE, after every name this module defines, because registering
-# calls back into it.
 from . import illumination as _illumination  # noqa: E402,F401
-# OPS registers here for the same reason illumination does: the tables
-# above must exist first. Its factory is LAZY, so this costs an import
-# of `typing` and nothing else -- `spacrops` reaches OpenCV and SciPy
-# and is not wanted on the path a module screen opens through.
 from . import ops_settings as _ops_settings  # noqa: E402,F401

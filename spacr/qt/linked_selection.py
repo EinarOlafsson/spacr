@@ -140,7 +140,6 @@ class LinkedSelection(QObject):
         self._selection = Selection.none()
         self._openers: Dict[str, ObjectOpener] = {}
 
-    # -- filter --------------------------------------------------------
     @property
     def filter(self) -> DataFilter:
         """The active filter. Mutate through :meth:`set_filter`, not in place.
@@ -172,7 +171,6 @@ class LinkedSelection(QObject):
         """
         self.set_filter(DataFilter())
 
-    # -- selection -----------------------------------------------------
     @property
     def selection(self) -> Selection:
         """What is currently selected across the linked views.
@@ -207,7 +205,6 @@ class LinkedSelection(QObject):
         self.set_selection(
             Selection.from_frame(frame, source=source, timelapse=timelapse))
 
-    # -- convenience for views -----------------------------------------
     def visible(self, frame: pd.DataFrame) -> pd.DataFrame:
         """``frame`` narrowed by the active filter.
 
@@ -217,7 +214,6 @@ class LinkedSelection(QObject):
         """
         return self._filter.apply(frame)
 
-    # -- routing objects to whatever can show them ----------------------
     def register_object_opener(self, kind: str,
                                fn: ObjectOpener) -> Optional[ObjectOpener]:
         """Offer to open objects of ``kind``, and return whoever had it before.
@@ -363,7 +359,6 @@ class LinkedView:
     _link_connected: bool = False
     _link_echo: bool = False
 
-    # -- opting in ------------------------------------------------------
     def link_selection(self, source: str, *,
                        link: Optional[LinkedSelection] = None,
                        echo: bool = False) -> LinkedSelection:
@@ -414,7 +409,6 @@ class LinkedView:
         """
         return self._link if self._link is not None else linked_selection()
 
-    # -- what the view overrides ----------------------------------------
     def on_linked_filter_changed(self, data_filter: DataFilter) -> None:
         """The shared population moved: re-query and re-lay-out.
 
@@ -431,7 +425,6 @@ class LinkedView:
         Default: nothing, so a view can subscribe for the filter alone.
         """
 
-    # -- publishing ------------------------------------------------------
     def publish_selection(self, keys: Any, *,
                           timelapse: bool = False) -> Selection:
         """Publish ``keys`` as the shared highlight, stamped with this view.
@@ -468,7 +461,6 @@ class LinkedView:
             keys, reason=reason, kind=kind, source=self.link_source,
             timelapse=timelapse, context=context)
 
-    # -- internals -------------------------------------------------------
     def _linked_filter_changed(self) -> None:
         """Hand the link's new filter to this view."""
         self.on_linked_filter_changed(self.link.filter)

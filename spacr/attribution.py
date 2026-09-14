@@ -63,7 +63,6 @@ from typing import (Any, Callable, Dict, List, Optional, Sequence, Tuple,
 
 import numpy as np
 
-# np.trapz was removed in numpy 2.0; np.trapezoid is the replacement.
 _trapezoid = getattr(np, 'trapezoid', None) or np.trapz
 import torch
 import torch.nn as nn
@@ -103,9 +102,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Messages surfaced verbatim by the GUI, the CLI and the search
-# ---------------------------------------------------------------------------
 
 #: Attached to every reported attribution result. Never suppressed.
 NOT_AN_EXPLANATION = (
@@ -169,9 +165,6 @@ class NoSpatialLayerError(AttributionError):
     """
 
 
-# ---------------------------------------------------------------------------
-# Head-shape handling: one logit or C logits, one contract
-# ---------------------------------------------------------------------------
 
 class ClassScoreModel(nn.Module):
     """Present any spaCR classifier head as ``C >= 2`` per-class scores.
@@ -299,9 +292,6 @@ def _resolve_target(wrapped: ClassScoreModel, x: torch.Tensor,
     return target
 
 
-# ---------------------------------------------------------------------------
-# Layers
-# ---------------------------------------------------------------------------
 
 def conv_layer_names(model: nn.Module) -> List[str]:
     """Every ``Conv2d`` layer name in ``model``, in definition order.
@@ -470,9 +460,6 @@ def _check_spatial_activation(module: nn.Module, wrapped: ClassScoreModel,
             f"explicitly. Pass allow_pre_attention=True to override.")
 
 
-# ---------------------------------------------------------------------------
-# Result
-# ---------------------------------------------------------------------------
 
 @dataclass
 class Attribution:
@@ -569,9 +556,6 @@ def _finite_2d(values: torch.Tensor, size: Tuple[int, int]) -> np.ndarray:
     return t.cpu().numpy().astype(np.float32)
 
 
-# ---------------------------------------------------------------------------
-# Adapters — torchcam
-# ---------------------------------------------------------------------------
 
 _TORCHCAM_CLASSES = {
     "gradcam": "GradCAM",
@@ -646,18 +630,16 @@ def _eigen_cam(spec: "MethodSpec", wrapped: ClassScoreModel, x: torch.Tensor,
             wrapped(x)
     finally:
         handle.remove()
-    act = captured[0][0]                       # (C, H, W)
+    act = captured[0][0]
     c, h, w = act.shape
-    flat = act.reshape(c, h * w).T             # (H*W, C)
+    flat = act.reshape(c, h * w).T
     flat = flat - flat.mean(dim=0, keepdim=True)
-    # full_matrices=False keeps this cheap for wide feature maps; a rank-0
-    # (all-constant) activation makes SVD degenerate, so fall back to the mean.
     try:
         _u, _s, vh = torch.linalg.svd(flat.double(), full_matrices=False)
         proj = (flat.double() @ vh[0]).reshape(h, w)
     except Exception:
         proj = act.mean(dim=0).double()
-    if float(proj.sum()) < 0:                  # sign of a singular vector is free
+    if float(proj.sum()) < 0:
         proj = -proj
     proj = proj - proj.min()
     return (_finite_2d(proj.float(), (int(x.shape[-2]), int(x.shape[-1]))),
@@ -667,9 +649,6 @@ def _eigen_cam(spec: "MethodSpec", wrapped: ClassScoreModel, x: torch.Tensor,
              "model distinguished the classes."])
 
 
-# ---------------------------------------------------------------------------
-# Adapters — captum
-# ---------------------------------------------------------------------------
 
 def _captum_baseline(kind: Any, x: torch.Tensor) -> torch.Tensor:
     """Build the reference input a baseline-dependent method integrates from.
@@ -782,12 +761,6 @@ def _captum_attribute(spec: "MethodSpec", wrapped: ClassScoreModel,
             f"{name!r} is registered as a captum method but this adapter has "
             f"no branch for it; the registry and the adapter disagree.")
 
-    # captum warns rather than raises for the conditions that silently corrupt
-    # a result — most importantly a model that reuses one ReLU instance across
-    # layers, which torchvision's ResNets do and which makes DeepLIFT's rescale
-    # rule attribute through the wrong activation. A warning printed once to
-    # stderr during a batch job is a warning nobody reads, so it is captured
-    # and carried on the result instead.
     import warnings as _warnings
     try:
         with _warnings.catch_warnings(record=True) as caught:
@@ -802,11 +775,6 @@ def _captum_attribute(spec: "MethodSpec", wrapped: ClassScoreModel,
             else:
                 result = attributor.attribute(inp, **kwargs)
     except RuntimeError as exc:
-        # torchvision's ResNets — spaCR's most common backbone after MaxViT —
-        # build one `nn.ReLU(inplace=True)` and call it at several points.
-        # DeepLIFT's rescale rule needs one hook per activation *use*, so it
-        # dies here with a message about module attributes that does not tell a
-        # user what to do next.
         if "more than once" in str(exc) or "required for DeepLift" in str(exc):
             raise AttributionError(
                 f"{name} cannot run on this model: it reuses one activation "
@@ -856,9 +824,6 @@ def _sigma_to_stdev(sigma: float, x: torch.Tensor) -> float:
     return max(float(sigma) * span, 1e-12)
 
 
-# ---------------------------------------------------------------------------
-# Adapter — attention rollout
-# ---------------------------------------------------------------------------
 
 def _ask_for_attention_weights(blocks):
     """Make each MHA block return its weights. Returns an undo callable.
@@ -968,19 +933,6 @@ def attention_rollout(model: nn.Module, image: Any, *,
             captured.append(out[1].detach())
 
     handles = [b.register_forward_hook(_hook) for b in blocks]
-    # THE BLOCKS ARE ASKED FOR THEIR WEIGHTS, not merely watched.
-    #
-    # A hook can only capture what `forward` RETURNS, and torchvision's ViT
-    # calls `self.self_attention(x, x, x, need_weights=False)` -- so nothing
-    # was ever returned to capture, and this method raised on the only
-    # architecture family it exists for. Driven on vit_b_16, which is one of
-    # the ten backbones spaCR offers: "has MultiheadAttention blocks but
-    # none returned attention weights". The docstring described what the
-    # blocks would do if they were asked, which nobody was doing.
-    #
-    # `need_weights=True` also takes PyTorch off its fused kernel, which is
-    # the point: the fused path computes no explicit attention matrix at
-    # all. It is slower and it runs once, under no_grad, for one image.
     restore = _ask_for_attention_weights(blocks)
     try:
         with torch.no_grad():
@@ -1007,9 +959,9 @@ def attention_rollout(model: nn.Module, image: Any, *,
     rolled: Optional[torch.Tensor] = None
     for attn in captured:
         a = attn.double()
-        if a.ndim == 4:                      # (B, heads, L, S)
+        if a.ndim == 4:
             a = fuse[head_fusion](a)
-        a = a[0]                             # (L, S)
+        a = a[0]
         if a.shape[0] != a.shape[1]:
             raise NoSpatialLayerError(
                 f"an attention block returned a non-square {tuple(a.shape)} "
@@ -1028,7 +980,7 @@ def attention_rollout(model: nn.Module, image: Any, *,
     n_tokens = int(rolled.shape[0])
     grid = int(round(math.sqrt(n_tokens - 1)))
     if grid * grid == n_tokens - 1:
-        weights = rolled[0, 1:]              # class token -> patches
+        weights = rolled[0, 1:]
     else:
         grid = int(round(math.sqrt(n_tokens)))
         if grid * grid != n_tokens:
@@ -1062,9 +1014,6 @@ def _attention_adapter(spec: "MethodSpec", wrapped: ClassScoreModel,
     return att.map, None, None, list(att.notes)
 
 
-# ---------------------------------------------------------------------------
-# Registry
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class MethodSpec:
@@ -1106,7 +1055,6 @@ def _spec(name, family, backend, fn, needs_layer=False, description=""):
 
 
 ATTRIBUTION_METHODS: Dict[str, MethodSpec] = {
-    # -- CAM family: a weighted sum of one conv layer's feature maps.
     "gradcam": _spec("gradcam", "cam", "torchcam", _torchcam_cam, True,
                      "gradient-weighted feature maps; the default"),
     "gradcam_pp": _spec("gradcam_pp", "cam", "torchcam", _torchcam_cam, True,
@@ -1124,7 +1072,6 @@ ATTRIBUTION_METHODS: Dict[str, MethodSpec] = {
     "eigencam": _spec("eigencam", "cam", "spacr", _eigen_cam, True,
                       "Eigen-CAM: first principal component of the "
                       "activations; class-agnostic, useful as a control"),
-    # -- Gradient family: derivative of the class score w.r.t. the input.
     "saliency": _spec("saliency", "gradient", "captum", _captum_attribute,
                       False, "absolute input gradient; the original saliency "
                              "map"),
@@ -1141,9 +1088,6 @@ ATTRIBUTION_METHODS: Dict[str, MethodSpec] = {
         "input times gradient: a first-order Taylor term"),
     "deeplift": _spec("deeplift", "gradient", "captum", _captum_attribute,
                       False, "DeepLIFT rescale rule against a baseline"),
-    # -- Perturbation family: the only family that does not need gradients to
-    #    be meaningful. Slow, model-agnostic, and the closest thing here to a
-    #    direct measurement of what the model uses.
     "occlusion": _spec("occlusion", "perturbation", "captum",
                        _captum_attribute, False,
                        "slide a blanking window over the image and record the "
@@ -1151,7 +1095,6 @@ ATTRIBUTION_METHODS: Dict[str, MethodSpec] = {
     "feature_ablation": _spec(
         "feature_ablation", "perturbation", "captum", _captum_attribute, False,
         "blank one tile at a time and record the score drop"),
-    # -- Transformers.
     "attention_rollout": _spec(
         "attention_rollout", "attention", "spacr", _attention_adapter, False,
         "attention rollout for transformer backbones with no convolution to "
@@ -1173,9 +1116,6 @@ def methods_by_family() -> Dict[str, List[str]]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# The public entry point
-# ---------------------------------------------------------------------------
 
 def attribute(model: nn.Module, image: Any, method: str = "gradcam", *,
               target: Optional[int] = None, layer: Optional[str] = None,
@@ -1325,9 +1265,6 @@ def smoothgrad(model: nn.Module, image: Any, base_method: str = "saliency", *,
     maps: List[np.ndarray] = []
     template: Optional[Attribution] = None
     for _ in range(n_samples):
-        # Every sample is noisy, including the only one when n_samples == 1 —
-        # that is what captum's NoiseTunnel does, and the two paths must not
-        # disagree about what "SmoothGrad with one sample" means.
         noisy = x + torch.randn_like(x) * stdev
         one = _attribute_with_spec(spec, model, noisy, target=target,
                                    layer=layer, model_type=model_type, **kw)
@@ -1402,9 +1339,6 @@ def compare_methods(model: nn.Module, image: Any,
     return out
 
 
-# ---------------------------------------------------------------------------
-# Analysis 1 — deletion and insertion curves
-# ---------------------------------------------------------------------------
 
 @dataclass
 class Curve:
@@ -1592,9 +1526,6 @@ def faithfulness(model: nn.Module, image: Any, amap: Any, *,
     return out
 
 
-# ---------------------------------------------------------------------------
-# Analysis 2 — the pointing game against spaCR's own object masks
-# ---------------------------------------------------------------------------
 
 def pointing_game(amap: Any, mask: Any, *, tolerance: int = 0) -> float:
     """Does the map's brightest pixel land inside the object?
@@ -1679,9 +1610,6 @@ def pointing_game_rate(maps: Sequence[Any], masks: Sequence[Any], *,
             "hits": hits, "n": scored, "skipped": skipped, "notes": notes}
 
 
-# ---------------------------------------------------------------------------
-# Analysis 3 — the model-randomisation sanity check (Adebayo et al. 2018)
-# ---------------------------------------------------------------------------
 
 @dataclass
 class SanityCheck:
@@ -1877,12 +1805,6 @@ def randomization_sanity_check(
         _randomize_module(dict(probe.named_modules())[name], generator)
         stages.append((name, _rank_correlation(reference, _run(probe))))
 
-    # The verdict is taken from a model in which EVERY layer is noise, whatever
-    # max_stages capped the reported stages at. A method judged on a partly
-    # randomised model gets an easy pass. Its generator is seeded separately
-    # from the stage loop's, so the verdict does not depend on how many stages
-    # happened to run before it — otherwise the same seed gives two different
-    # answers for max_stages=1 and max_stages=None.
     full_generator = torch.Generator().manual_seed(int(seed) + 991)
     full = copy.deepcopy(model)
     full.eval()
@@ -1910,9 +1832,6 @@ def randomization_sanity_check(
     return result
 
 
-# ---------------------------------------------------------------------------
-# Analysis 4 — agreement between methods
-# ---------------------------------------------------------------------------
 
 @dataclass
 class Agreement:
@@ -2012,9 +1931,6 @@ def method_agreement(attributions: Sequence[Any]) -> Agreement:
     return result
 
 
-# ---------------------------------------------------------------------------
-# Drop-in generator for the existing activation-map pipeline
-# ---------------------------------------------------------------------------
 
 class AttributionMapGenerator:
     """Batch adapter with the interface ``generate_activation_map`` already uses.
@@ -2083,7 +1999,6 @@ class AttributionMapGenerator:
         return (torch.from_numpy(np.stack(maps, axis=0)),
                 torch.tensor(preds, dtype=torch.long))
 
-    # Aliases so this drops into either branch of the existing batch loop.
     compute_gradcam_and_predictions = compute_maps_and_predictions
     compute_saliency_and_predictions = compute_maps_and_predictions
 

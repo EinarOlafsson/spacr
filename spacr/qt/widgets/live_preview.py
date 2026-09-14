@@ -110,10 +110,6 @@ DIAMETER_TOOLTIP = (
     "no-op (30/30 = 1) and 0 means 'unset', which is the same thing."
 )
 
-# Object types the panel understands. Order matters — it drives the
-# order of the combo. cell/nucleus can be previewed together; pathogen and
-# organelle are single-compartment selections whose settings panels light up
-# when chosen.
 OBJECT_TYPES = ("cell", "nucleus", "cell + nucleus", "pathogen", "organelle")
 
 #: The object choices that are never per-slot, in the order they are offered.
@@ -148,13 +144,8 @@ def object_role(label: str) -> str:
     except (TypeError, ValueError):
         return "organelle"
 
-# The four segmentation compartments, in the left→right order their settings
-# panels appear in the Live settings dialog.
 COMPARTMENTS = ("cell", "nucleus", "pathogen", "organelle")
 
-# Overlay colours for individual object types. Cell = green (matches
-# the classic v1 boundary colour), nucleus = magenta, and when both
-# are shown together those colours read cleanly on top of most stains.
 OBJECT_COLORS: Dict[str, Tuple[int, int, int]] = {
     "cell":      (32, 220, 32),
     "nucleus":   (222, 82, 200),
@@ -162,8 +153,6 @@ OBJECT_COLORS: Dict[str, Tuple[int, int, int]] = {
     "organelle": (255, 220, 32),
 }
 
-# Stable offsets keep the random categorical outline map distinct between
-# compartments without making colours flicker whenever the preview refreshes.
 RANDOM_OUTLINE_SEEDS: Dict[str, int] = {
     "cell": 11,
     "nucleus": 37,
@@ -171,11 +160,6 @@ RANDOM_OUTLINE_SEEDS: Dict[str, int] = {
     "organelle": 89,
 }
 
-# Per-compartment tuning settings, shown (greyed unless the compartment is the
-# chosen object) in that compartment's panel. Each entry is
-# ``(key_suffix, label, kind, spin_args)`` where the real setting key is
-# ``f"{compartment}_{key_suffix}"`` and kind is one of int/float/bool/method.
-# spin_args = (min, max, default) for int/float; ignored otherwise.
 #: The organelle's own segmentation settings, grouped the way the pipeline
 #: dispatches them.
 #:
@@ -234,85 +218,24 @@ ORGANELLE_METHOD_FIELDS: Dict[Optional[str], tuple] = {
 #: The morphologies, in the order the settings panel offers them.
 ORGANELLE_MORPHOLOGIES = ("spots", "network", "irregular", "ring")
 
-# THE RELATIVE SCHEME IS GONE FROM THIS TABLE (391), MEASURED AGAINST WHAT
-# THE RUN READS RATHER THAN TRIMMED BY EYE.
-#
-# `spacr.object.merge_split_filter_masks` is the only reader of these
-# per-compartment keys, and it now looks up exactly eight suffixes plus one
-# absolute threshold. Comparing the table against it, and against
-# `spacr.settings.set_default_settings_preprocess_generate_masks`:
-#
-#   LEFT (5 suffixes x 4 compartments = 20 keys that nothing read):
-#     area_multiplier, intensity_threshold_method, intensity_percentile,
-#     min_intensity_percentile, max_intensity_percentile
-#   ARRIVED (1 suffix x 4 compartments = 4 keys the run reads and the panel
-#   could not send at all):
-#     intensity_threshold
-#
-# The twenty were not merely inert. Every one of them is listed in
-# `spacr.object_roles.WITHDRAWN_SETTING_SUFFIXES`, i.e. the settings loader
-# already tells a user who opens a saved file that these are no longer read
-# -- while this panel went on offering them as live controls and writing
-# them into the run. And the absent `intensity_threshold` was the worse half:
-# the "Intensity merge" toggle below propagates fine, but with no threshold
-# beside it the run has nothing to compare a shared boundary against, so it
-# refuses to merge. The preview said "merging on"; the run merged nothing.
 COMPARTMENT_FIELDS = (
     ("min_area",                   "Min area (px²)",        "int",   (0, 100_000_000, 0)),
     ("max_area",                   "Max area (px²)",        "int",   (0, 100_000_000, 0)),
-    # BOTH RENAMED 2026-09-12 (391), KEYS AND LABELS, and both are honest
-    # corrections rather than cosmetics:
-    #
-    #   "Min object area" was NOT a minimum object area. An object smaller
-    #   than it is KEPT -- it is simply never split -- so a user reading the
-    #   old name would reasonably expect small objects to be discarded.
-    #   "Min distance" is the minimum separation between watershed seeds and
-    #   means nothing outside that algorithm.
-    #
-    # These are written WITHOUT the leading underscore, which is how the
-    # previous rename (`b7ae412af`) missed them: a suffix substitution
-    # anchored on `_` does not see a bare suffix. Worth remembering for the
-    # next one.
     ("minimum_area_to_split",      "Minimum area to split", "int",   (0, 100_000_000, 100)),
     ("min_watershed_distance",     "Minimum watershed distance", "int", (0, 100_000, 10)),
-    # Defaults MUST match spacr.settings.set_default_settings_preprocess_generate_masks.
-    # They are both what the preview filters with and what the Propagate
-    # button writes into the main settings panel, so any drift silently
-    # re-tunes the real run. That is also how the five withdrawn rows named
-    # at the top of this table were caught: they had no pipeline default to
-    # match, because the pipeline had stopped shipping them.
     ("perimeter_fraction",         "Perimeter fraction",    "float", (0.0, 1.0, 0.0)),
-    # ONE ABSOLUTE INTENSITY, IN THE IMAGE'S OWN RAW UNITS, replacing the
-    # method dropdown and the three percentiles. It is the boundary mean two
-    # touching labels must reach before "Intensity merge" joins them.
-    #
-    # The pipeline ships it as None -- "no number, so refuse to merge and
-    # report the boundary intensities found" -- and a spin box cannot hold
-    # None, so 0 is what says it here and `_off_as_the_run_spells_it` turns
-    # that back into None on the way out. The cost of the sentinel is that a
-    # literal threshold of 0 ("merge every pair that touches") has to be
-    # asked for as a very small positive number instead; the alternative is a
-    # preview that cannot express the run's own default, which is how the
-    # panel came to disagree with the run in the first place.
     ("intensity_threshold",        "Intensity threshold",   "float", (0.0, 1_000_000.0, 0.0)),
     ("intensity_merge",            "Intensity merge",       "bool",  None),
     ("intensity_split",            "Intensity split",       "bool",  None),
     ("remove_border_objects",      "Remove border objects", "bool",  None),
 )
 
-# What the outline-colour dropdown offers, in the order it offers it.
-# ``auto`` is one colour per compartment and ``color (random)`` one colour
-# per object; the rest are the fixed colours in :data:`OUTLINE_COLOURS`.
 OUTLINE_CHOICES = ("auto", "color (random)", "green", "magenta",
                    "yellow", "cyan", "white", "red")
 
-# What the right-hand canvas can show.
 VIEW_MODES = ("Overlay", "Masks", "Flows")
 
 
-# ---------------------------------------------------------------------------
-# Pure numpy helpers — no Qt, safe to unit-test without a display
-# ---------------------------------------------------------------------------
 
 def load_preview_image(path: Path) -> np.ndarray:
     """Read *path* into an (H, W) or (H, W, C) uint8/uint16 array.
@@ -355,9 +278,6 @@ def load_preview_mip(paths) -> np.ndarray:
             projected = plane
             continue
         if plane.shape != projected.shape:
-            # A field whose planes disagree is not a stack. Showing the first
-            # plane is wrong quietly; refusing is wrong loudly, which is the
-            # one the user can act on.
             raise ValueError(
                 f"plane {Path(path).name} is {plane.shape}, expected "
                 f"{projected.shape} — these files are not one z-stack")
@@ -407,14 +327,6 @@ def _to_uint8(img: np.ndarray, normalise: bool = True,
     :param lo_pct: lower percentile for the stretch (default 2 %).
     :param hi_pct: upper percentile for the stretch (default 98 %).
     """
-    # Channels-last is this module's convention everywhere else (see
-    # :func:`_select_channel` and :meth:`LivePreviewPanel._label_rgb`), so a
-    # single-channel tile collapses to grayscale and anything wider maps its
-    # first three channels onto R/G/B. This used to be gated on
-    # ``shape[-1] in (2, 3, 4)``, which sent (H, W, 1) and (H, W, 5+) tiles
-    # down the 2-D branch and returned an array with a trailing channel axis —
-    # :func:`numpy_to_qpixmap` then handed Qt a stride three times the real
-    # row length and read past the end of the buffer.
     if img.ndim == 3 and img.shape[-1] == 1:
         img = img[..., 0]
     full_max = _full_range_max(img) or 1.0
@@ -475,8 +387,6 @@ def _labelled_boundary(mask: np.ndarray, thickness: int = 1) -> np.ndarray:
     boundary = _boundary_mask(labels)
     owners = np.where(boundary & (labels > 0), labels, 0)
 
-    # Give exterior boundary pixels the label of an adjacent object. This
-    # preserves the two-sided outline produced by the pre-existing renderer.
     neighbours = np.zeros_like(labels)
     neighbours[1:, :] = np.maximum(neighbours[1:, :], labels[:-1, :])
     neighbours[:-1, :] = np.maximum(neighbours[:-1, :], labels[1:, :])
@@ -550,9 +460,6 @@ def safe_outline_palette() -> Optional[List[Tuple[int, int, int]]]:
             return None
         hexes = color_blind_categorical_palette()
     except Exception:
-        # No QSettings, no Qt, or a preferences module that moved: a random
-        # colour is the historic behaviour and is never worse than crashing
-        # the renderer over a palette.
         return None
     out: List[Tuple[int, int, int]] = []
     for value in hexes:
@@ -647,9 +554,6 @@ def overlay_masks(image: np.ndarray,
             continue
         mask = np.asarray(mask)
         if mask.ndim != 2 or mask.shape != rgb.shape[:2]:
-            # A mask left over from a previously loaded image. Drawing it
-            # raised ``IndexError: boolean index did not match indexed array``
-            # (or a broadcast ValueError) instead of simply being ignored.
             LOG.debug("overlay_masks: skipping %s mask %s — image is %s",
                       obj_type, mask.shape, rgb.shape[:2])
             continue
@@ -672,7 +576,6 @@ def overlay_masks(image: np.ndarray,
             continue
         boundary = _boundary_mask(mask.astype(np.int32))
         for _ in range(outline_thickness - 1):
-            # Dilate by one pixel: OR-shift in each cardinal direction
             b2 = boundary.copy()
             b2[1:, :]  |= boundary[:-1, :]
             b2[:-1, :] |= boundary[1:, :]
@@ -718,9 +621,6 @@ def numpy_to_qpixmap(arr: np.ndarray, normalise: bool = True,
     return QPixmap.fromImage(img.copy())
 
 
-# ---------------------------------------------------------------------------
-# Image discovery/loading + segmentation workers
-# ---------------------------------------------------------------------------
 
 def first_supported_image(source: Path) -> Optional[Path]:
     """Return the first supported image at or below ``source``.
@@ -792,18 +692,12 @@ def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
                 out["sets"] = sets
                 out["channels"] = channels
                 if sets and source.is_dir():
-                    # Open on one of the sampled sets. Whichever file sorts
-                    # first is A01 field 1, which on a plate-ordered folder is
-                    # exactly the corner the sample exists to stop the preview
-                    # from standing in for.
                     picked = sample_image_sets(
                         sets, max_sets,
                         sample_seed(path.parent, len(sets), max_sets))
                     if picked:
                         path = picked[0].path()
             except Exception:
-                # A folder we cannot group is still a folder we can show one
-                # image from; the panel falls back to per-file sets.
                 LOG.exception("Could not enumerate image sets under %s",
                               path.parent)
         out["path"] = path
@@ -835,9 +729,7 @@ class PreviewRequest:
 class _PreviewWorker(QThread):
     """Runs one (or two) Cellpose passes in the background."""
 
-    # ({obj: mask, ...} or None, err, run token)
     finished_masks = Signal(object, str, int)
-    # ({obj: flow_rgb} — may be empty, run token)
     flows_ready = Signal(object, int)
 
     def __init__(self, request: PreviewRequest, parent=None, token: int = 0):
@@ -871,8 +763,6 @@ class _PreviewWorker(QThread):
         """
         try:
             res = _segment_multi(self._request)
-            # _segment_multi may return masks only (the stubbed test path) or
-            # (masks, flows). Handle both.
             if isinstance(res, tuple):
                 masks, flows = res
             else:
@@ -907,17 +797,11 @@ def _classical_organelle_mask(image_2d: np.ndarray, role: str,
     from ...object import _extract_classical_settings, _segment_single_image
     from ...settings import _set_organelle_defaults
 
-    # Slot 2's keys are `organelleb_*`; the segmentation function reads
-    # `organelle_*`. Remapped rather than passed through, so every slot
-    # previews with its own values instead of slot 1's.
     remapped = dict(settings)
     if role != "organelle":
         for key, value in settings.items():
             if key.startswith(role + "_"):
                 remapped["organelle_" + key[len(role) + 1:]] = value
-    # Defaults for anything the panel was never given -- the classical
-    # routines index their settings directly, so a missing key is a KeyError
-    # in a worker thread rather than a preview that says what is wrong.
     try:
         _set_organelle_defaults(remapped)
     except Exception:                                        # noqa: BLE001
@@ -937,10 +821,6 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
     applied per-object-type after the model returns, using the
     ``postprocess_settings`` dict on the request.
     """
-    # ONE constructor for every live view — see
-    # `preview_contract.preview_cellpose_model` for why `model_type=` may
-    # never appear here. The Timelapse preview calls the same helper, so the
-    # next Cellpose API change is one fix rather than two.
     model = preview_cellpose_model(req.model)
 
     out: Dict[str, np.ndarray] = {}
@@ -949,36 +829,13 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         ch_idx = req.channels.get(obj, 0)
         image_2d = _select_channel(req.image, ch_idx)
 
-        # Preprocess — remove background if the user opted in, doing exactly
-        # what a real run does. `spacr.io._normalize_img_batch` runs
-        #
-        #     single_channel[single_channel < background] = 0
-        #
-        # per channel, reading `{obj}_background`. This used to subtract the
-        # background and clip at zero instead, which is a different image:
-        # thresholding leaves everything above the background where it is,
-        # subtraction shifts all of it down. And it read a plain `background`
-        # key that nothing writes -- the panel emits `{obj}_background` -- so
-        # the value was always the 100.0 default and turning the toggle on
-        # did nothing visible on any image whose real background was not
-        # near 100.
-        #
-        # Both keys are per-object on purpose: with "cell + nucleus"
-        # selected, the two channels get their own background and their own
-        # on/off, the same way the pipeline treats them.
         if req.preprocess_settings.get(f"remove_background_{obj}"):
             bg = float(req.preprocess_settings.get(
                 f"{obj}_background",
                 req.preprocess_settings.get("background", 100.0)))
-            # `_select_channel` hands back a view into `req.image`. Writing
-            # through it would zero the source for every object type after
-            # this one, and for the raw pane the panel shows beside the mask.
             image_2d = image_2d.copy()
             image_2d[image_2d < bg] = 0
 
-        # NOT EVERY OBJECT IS A CELLPOSE OBJECT. An organelle whose method
-        # is anything but 'cellpose' is segmented by the classical routines
-        # the run itself uses; only 'cellpose' reaches the model below.
         method = str(req.preprocess_settings.get(
             f"{obj}_method",
             req.preprocess_settings.get("organelle_method", "cellpose"))
@@ -999,8 +856,6 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
             mask = mask[0]
         mask = np.asarray(mask).astype(np.int32)
 
-        # Capture the RGB flow visualisation (flows[0]) if Cellpose returned
-        # one, so the panel can show a Flows view alongside the masks.
         try:
             flows = result[1]
             flow_rgb = flows[0] if isinstance(flows, (list, tuple)) else flows
@@ -1010,9 +865,6 @@ def _segment_multi(req: PreviewRequest) -> Dict[str, np.ndarray]:
         except Exception:
             pass
 
-        # Return the RAW (unfiltered) mask — the panel applies the per-
-        # compartment filters afterwards so the user can re-tune filters
-        # without re-running Cellpose (see LivePreviewPanel._recompute_masks).
         out[obj] = mask
     return out, flows_out
 
@@ -1050,12 +902,6 @@ def _apply_size_filter(mask: np.ndarray,
     min_area = _num(f"{obj}_min_area", _num(f"{obj}_min_size", 0))
     max_area = _num(f"{obj}_max_area", _num(f"{obj}_max_size", 0))
     remove_border = bool(settings.get(f"{obj}_remove_border_objects", False))
-    # THE INTENSITY PERCENTILES ARE GONE (391). The comment below used to
-    # record that this preview once defaulted them to 1/99 where the pipeline
-    # used 0/100, so the preview silently dropped the dimmest and brightest
-    # object in every field. That defect is now unreachable rather than fixed:
-    # a quantile band always removes its share, so there was no value of it
-    # that meant "do nothing" except the endpoints.
 
     if not (min_area > 0 or max_area > 0 or remove_border):
         return mask
@@ -1073,9 +919,6 @@ def _apply_size_filter(mask: np.ndarray,
         return mask
 
 
-# ---------------------------------------------------------------------------
-# Twin zoomable views with a shared transform
-# ---------------------------------------------------------------------------
 
 #: How far the pointer may travel and still count as a click rather than a
 #: drag. This view pans with the left button, so without a slop threshold
@@ -1104,8 +947,8 @@ class _ZoomView(QGraphicsView):
     :param parent: parent widget; ownership only.
     """
 
-    hover_pixel = Signal(int, int)   # (x, y) in image coords
-    zoom_changed = Signal(float)     # new scale factor
+    hover_pixel = Signal(int, int)
+    zoom_changed = Signal(float)
     #: A press-and-release with no drag in between. Distinct from a pan,
     #: which this view already uses the left button for -- so a listener
     #: gets "the user clicked the picture" without stealing dragging.
@@ -1127,11 +970,6 @@ class _ZoomView(QGraphicsView):
         self.setMouseTracking(True)
         self.viewport().setMouseTracking(True)
         self.setFrameShape(QGraphicsView.NoFrame)
-        # Panning has to be mirrored the same way zoom is. `ScrollHandDrag`
-        # moves the scroll bars rather than the transform, so `_apply_zoom`
-        # never sees a drag and the twin canvases stayed locked in scale
-        # while drifting apart in position -- zoom in, drag one, and the
-        # mask no longer sits over the cell it was drawn from.
         self.horizontalScrollBar().valueChanged.connect(self._mirror_pan)
         self.verticalScrollBar().valueChanged.connect(self._mirror_pan)
 
@@ -1144,8 +982,6 @@ class _ZoomView(QGraphicsView):
         self._scene.clear()
         self._pixmap_item = self._scene.addPixmap(pixmap)
         self._scene.setSceneRect(QRectF(pixmap.rect()))
-        # Fit-in-view on load, and forget any previous user zoom so the
-        # new image starts at 100 % of the canvas.
         self._user_zoomed = False
         self._scale = 1.0
         self.resetTransform()
@@ -1173,7 +1009,6 @@ class _ZoomView(QGraphicsView):
         if self._pixmap_item is not None:
             self.fitInView(self._scene.sceneRect(), Qt.KeepAspectRatio)
 
-    # -- events ------------------------------------------------------------
 
     def wheelEvent(self, event):
         """Plain wheel = zoom around cursor. Shift+wheel = scroll."""
@@ -1206,10 +1041,6 @@ class _ZoomView(QGraphicsView):
         self._user_zoomed = True
         self.zoom_changed.emit(self._scale)
         if broadcast and self._peer is not None:
-            # Guard THIS view while the peer catches up, not the peer: the
-            # flag makes _apply_zoom a no-op, so setting it on the peer meant
-            # the peer's own zoom was skipped and the twin canvases never
-            # actually tracked each other.
             self._syncing = True
             try:
                 self._peer._apply_zoom(factor, broadcast=False)
@@ -1280,9 +1111,6 @@ class _ZoomView(QGraphicsView):
         super().mouseMoveEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Widget
-# ---------------------------------------------------------------------------
 
 #: Last resort if `spacr.settings` cannot be reached at all — a stub in
 #: sys.modules, a partially-installed tree. A dropdown with nothing in it
@@ -1398,7 +1226,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         diverging.
     """
 
-    preview_ready = Signal(object)   # {object_type: mask}
+    preview_ready = Signal(object)
 
     PREVIEW_SOURCE_HINT = "Load an image first."
 
@@ -1419,38 +1247,15 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._flows: Dict[str, np.ndarray] = {}
         self._settings: Dict[str, Any] = {}
         self._worker: Optional[_PreviewWorker] = None
-        # Every preview load goes through here rather than through a QThread
-        # this file owns. That is not tidiness: `JobRunner` submits via
-        # `bridge.make_thread`, which is what puts the job in the process-wide
-        # run registry, and the registry is the *only* thing the activity
-        # spinner watches. The hand-rolled loader this replaced ran off the GUI
-        # thread perfectly well and still left the user staring at a frozen-
-        # looking window with no spinner, because nothing ever told the
-        # registry it existed.
         self._load_jobs = JobRunner(self, threaded=threaded,
                                     app_key="preview image")
         self._image_load_token: int = 0
-        # Bumped whenever the run in flight is superseded (a new image, an
-        # explicit cancel). A worker's result is only accepted when the token
-        # it carries still matches.
         self._run_token: int = 0
-        # Callback(dict) that pushes tuned live settings into the main panel.
         self._propagate_cb = None
-        # One random colour per compartment for the 'auto' outline mode,
-        # re-rolled on every preview run (see _roll_auto_outline_colours).
         self._auto_outline_colours: Dict[str, Tuple[int, int, int]] = {}
-        # Guards the FOV dropdown against re-entering itself while the image
-        # it just asked for is being installed.
         self._loading_fov = False
-        # Groups the source folder into image sets from file names alone and
-        # hands out a bounded, reproducible random sample of them. Caches the
-        # enumeration per folder, so stepping through fields costs nothing.
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
-        # Off until the user asks; only meaningful where z_count > 1.
         self._mip_enabled = False
-        # Which cell the table is showing, so clicking a channel
-        # header keeps the field and clicking a field keeps the
-        # channel instead of resetting to the first of either.
         self._table_row = 0
         self._table_col = 0
         #: (row, col) cells the user has shift-selected, in click order.
@@ -1461,24 +1266,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._selected_cells = [(0, 0)]
         self._build_ui()
         self._build_compartment_widgets()
-        # Accept image files dropped anywhere on the panel. QGraphicsView
-        # enables acceptDrops by default and would otherwise swallow drops
-        # over the image canvases; turning it off on the views lets the drag
-        # events propagate up to this panel's handlers.
         self.setAcceptDrops(True)
         for _v in (getattr(self, "_src_view", None),
                    getattr(self, "_mask_view", None)):
             if _v is not None:
                 _v.setAcceptDrops(False)
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
-        # LAST, so it sees every control this constructor made. See the
-        # method: the panel's settings controls belong to the panel but are
-        # laid out by `LiveSettingsDialog`, so between dialogs they are
-        # parented here with no layout -- which is the top-left corner.
         self._stow_free_widgets()
 
     def _stow_free_widgets(self) -> int:
@@ -1534,32 +1328,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 QWidget, options=Qt.FindDirectChildrenOnly):
             if child is container or id(child) in laid_out:
                 continue
-            # A WINDOW IS NOT A STRAY. `LiveSettingsDialog` is parented to
-            # the panel and is in no layout, but it carries Qt::Window, so
-            # the window manager places it and it never paints inside the
-            # panel at all. Stowing it would re-parent a live dialog into a
-            # hidden container, which is a worse bug than the one being
-            # fixed here.
             if child.isWindow():
                 continue
-            # Parented, NOT added to the container's layout: these are not
-            # meant to be seen in it, only to have a home that is never
-            # painted. Adding them would also fight the dialog, which takes
-            # them out of whatever layout holds them each time it opens.
-            # PARENT ONLY, NO setVisible(False). The container is never
-            # shown, so its children cannot paint -- that is the whole
-            # mechanism, and an explicit hide adds nothing to it. What an
-            # explicit hide DOES add is `WA_WState_ExplicitShowHide`, which
-            # makes the widget stay hidden when a layout later takes it:
-            # `LiveSettingsDialog` shows the widgets it borrows, but only
-            # the ones `_managed_widgets()` names, and the rest arrived in
-            # their rows already hidden for good. It cost one settings row
-            # its hover help, which is how it was found.
             child.setParent(container)
             moved += 1
         return moved
 
-    # -- drag & drop -------------------------------------------------------
 
     _DND_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp",
                  ".gif", ".webp")
@@ -1601,13 +1375,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             event.ignore()
             return
         event.acceptProposedAction()
-        # Asynchronously — the drop handler must return to the event loop
-        # immediately. The decode is the small half; the expensive half is
-        # enumerating the folder the dropped file came out of, which is what
-        # froze the window for 643 ms on a 98 304-file plate.
         self.load_source_async(path)
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self):
         """Build every parameter widget and lay out the collapsed panel.
@@ -1621,32 +1390,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         root = QVBoxLayout(self)
         root.setContentsMargins(8, 8, 8, 8)
 
-        # -- HIDDEN state widgets ----------------------------------------
-        # Every parameter widget lives here even though only a subset
-        # appears in the collapsed layout. The Live Settings dialog
-        # re-parents them into its own form when it opens, then hands
-        # them back on close so their values persist across opens.
-        # All widgets are children of `self` so they're never
-        # garbage-collected while re-parented.
-        # Read from the Cellpose API, not from a literal — see
-        # `spacr.settings.cellpose_model_menu`. It returns whatever
-        # `cellpose.models` reports plus any checkpoint the user has
-        # registered, then the accepted-but-mapped aliases cyto3/cyto2/
-        # nuclei so a saved preview setting still loads. Those are NOT four
-        # choices: Cellpose 4 drops model_type= with a "not used in v4.0.1+"
-        # log line, so all four run the same cpsam weights. The pipeline maps
-        # them forward in settings.normalize_cellpose_model_name.
         self._model_box = QComboBox(self)
         self._model_box.addItems(list(_model_menu()))
         self._model_box.currentIndexChanged.connect(
             self._on_model_or_object_changed)
 
         self._object_box = QComboBox(self)
-        # The caption is read by a user and the entry is read by the code:
-        # every `{object}_…` setting key, the channel map handed to the
-        # worker and `_selected_object_types` are all spelled in English.
-        # Translating the caption in place used to rewrite the value with
-        # it, so a Swedish screen asked the worker to segment `cellen`.
         set_translatable_items(self._object_box, OBJECT_TYPES)
         self._object_box.currentIndexChanged.connect(
             self._on_model_or_object_changed)
@@ -1654,11 +1403,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._cell_channel = QSpinBox(self); self._cell_channel.setRange(0, 8)
         self._nucleus_channel = QSpinBox(self); self._nucleus_channel.setRange(0, 8)
         self._nucleus_channel.setValue(1)
-        # Pathogen and organelle are in OBJECT_TYPES and each has its own
-        # settings panel in the dialog, but neither had a channel control.
-        # `_build_request` built its channel map from cell and nucleus only,
-        # so `channels.get(obj, 0)` fell back to 0 and picking "pathogen"
-        # segmented the cell channel while appearing to work.
         self._pathogen_channel = QSpinBox(self)
         self._pathogen_channel.setRange(0, 8); self._pathogen_channel.setValue(2)
         #: One channel per organelle slot, behind the single spinner below.
@@ -1671,49 +1415,19 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._diameter.setRange(0, 400); self._diameter.setValue(30.0)
         self._diameter.setSuffix(" px")
         self._flow = QDoubleSpinBox(self)
-        # UP TO 100, WHICH IS WHAT MASK SHIPS. The useful range is about 0 to
-        # 3 -- Cellpose's own default is 0.4, and that is what this box opens
-        # on for the single-object modules that also reach this panel. But
-        # Mask ships 100 per object, documented as "accepts every candidate",
-        # and a box that stops at 3 CANNOT HOLD ITS OWN SETTING: seeding the
-        # panel from Mask clamped 100 to 3 silently, and propagating handed
-        # that 3 back as if the user had chosen it.
-        #
-        # The step stays at 0.05, so the useful end is still reachable a
-        # notch at a time; 100 is typed, not scrolled to.
         self._flow.setRange(-1, 100); self._flow.setSingleStep(0.05)
         self._flow.setValue(0.4)
         self._prob = QDoubleSpinBox(self)
         self._prob.setRange(-6, 6); self._prob.setSingleStep(0.1)
         self._prob.setValue(0.0)
 
-        # Two-field percentile stretch — user asked for this shape
-        # explicitly (was a single toggle before).
         self._normalise_check = Toggle("Normalise", self)
         self._normalise_check.setChecked(True)
         self._normalise_check.toggled.connect(self._refresh_canvases)
-        # setDecimals BEFORE setRange/setValue. A QDoubleSpinBox rounds both
-        # to the precision it holds at the time, so ordering these the other
-        # way stores 100.0 for a 99.9999 default and the box looks broken
-        # rather than imprecise -- the same note make_masks.py carries.
-        #
-        # SIX DECIMALS, not Qt's default two. Nobody chose two; it is what
-        # QDoubleSpinBox ships with and neither box ever overrode it. The cap
-        # does not merely round the DISPLAY -- the box stores what it shows,
-        # so a user typing 99.995 got 100.0, the top of the range, and the
-        # stretch they asked for silently became no stretch at all. On a 4 MP
-        # field 99.9 spares 4,000 pixels, 99.99 spares 400 and 99.999 spares
-        # 40; two decimals cannot express the difference between the last two,
-        # and those are the ones that decide whether a hot pixel pins the
-        # display range. Matches `percentile_pair.DECIMALS` rather than being
-        # a third opinion about the same quantity.
         self._lo_pct = QDoubleSpinBox(self)
         self._lo_pct.setDecimals(PERCENTILE_DECIMALS)
         self._lo_pct.setRange(0, 50); self._lo_pct.setValue(2.0)
         self._lo_pct.setSuffix(" %")
-        # The step stays coarse on purpose. A step of 1e-6 would need a
-        # million clicks to cross a percent; the fine end is typed, the
-        # coarse end is scrolled, which is what make_masks settled on.
         self._lo_pct.setSingleStep(0.01)
         self._lo_pct.valueChanged.connect(self._refresh_canvases)
         self._hi_pct = QDoubleSpinBox(self)
@@ -1723,22 +1437,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._hi_pct.setSingleStep(0.01)
         self._hi_pct.valueChanged.connect(self._refresh_canvases)
 
-        # Outline appearance
         self._outline_colour = QComboBox(self)
-        # The colour a user picks is read back out of the entry's DATA, so
-        # the caption is free to follow the language. Reading it back by
-        # text is what made these entries untranslatable before: every
-        # choice missed the colour mapping and silently fell back to the
-        # per-compartment default (green for cells) — an outline colour
-        # that could never be changed.
         set_translatable_items(self._outline_colour, OUTLINE_CHOICES)
-        # Random is the default. A fixed colour is a coin flip against the
-        # image -- green outlines on a green channel are invisible exactly
-        # when you most need to see whether the mask landed -- and `auto`
-        # picks per compartment, so two touching objects of the same type
-        # share an outline and read as one. Set before the signal is
-        # connected so choosing it here does not fire a render on a panel
-        # that has no image yet.
         self._outline_colour.setCurrentIndex(
             self._outline_colour.findData("color (random)"))
         self._outline_colour.currentIndexChanged.connect(
@@ -1749,7 +1449,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._outline_thickness.valueChanged.connect(
             self._refresh_canvases)
 
-        # Tooltips for the segmentation controls (type + what they do).
         self._model_box.setToolTip(
             "(str) Cellpose model. Cellpose 4 ships exactly one, 'cpsam'. "
             "cyto3/cyto2/nuclei are kept only so older saved settings still "
@@ -1790,8 +1489,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._outline_thickness.setToolTip(
             "(int, px) Overlay outline thickness.")
 
-        # Keep every hidden helper widget parented but invisible so it
-        # doesn't render in the compact layout.
         for w in (self._model_box, self._object_box,
                     self._cell_channel, self._nucleus_channel,
                     self._diameter, self._flow, self._prob,
@@ -1799,10 +1496,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                     self._outline_colour, self._outline_thickness):
             w.hide()
 
-        # -- VISIBLE compact layout --------------------------------------
 
-        # File picker row — FOV and channel dropdowns sit immediately LEFT of
-        # the Choose control, all three wearing the flat "Live toggle" look.
         pick_row = QHBoxLayout()
         self._pick_row = pick_row
         self._path_label = QLabel(
@@ -1810,34 +1504,18 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self)
         self._path_label.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Preferred)
-        # Explicit rather than load-bearing: QLabel already defaults to a
-        # minimum width of 0, and a mutation confirmed removing this changes
-        # nothing. It stays as a statement that the label is MEANT to be
-        # squeezable, because the thing that actually keeps the row intact is
-        # the eliding below -- without which the label's sizeHint is the FULL
-        # path, routinely longer than the panel is wide, and the MIP toggle,
-        # both spin boxes and the Choose button are pushed past the right
-        # edge. On screen that reads as the top-left field overlapping the
-        # path, which is how it was reported.
         self._path_label.setMinimumWidth(0)
         #: The path in full. The label shows an elided version sized to
         #: whatever width it actually gets, so the text can never be the thing
         #: that decides the layout; this is what the tooltip and any reader
         #: needs.
         self._path_full = ""
-        # Same widget as the AI and Live switches, so the row of toggles
-        # reads as one row. Disabled until a folder is found to hold stacks:
-        # an enabled control that cannot do anything is worse than an absent
-        # one, and the tooltip says which case this folder is.
         from .ai_toggle_label import AiToggleLabel
         self._mip_toggle = AiToggleLabel(
             self, text="MIP",
             tooltip="Load an image folder to determine whether z-stacks are available.")
         self._mip_toggle.setEnabled(False)
         self._mip_toggle.toggled.connect(self._on_mip_toggled)
-        # How many images may be on screen at once. Separate from the set
-        # count: that one bounds what is *listed*, this one bounds what is
-        # *drawn*, and drawing is what costs memory and redraw time.
         self._max_images_box = FlatSpinBox(
             self, value=DEFAULT_MAX_IMAGES,
             tooltip=("Maximum images shown at once.\n\n"
@@ -1868,13 +1546,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._localise_channel_combo()
         self._pick_btn = FlatButton("Choose image…", self)
         self._pick_btn.clicked.connect(self._pick_file)
-        # This button is why the field dropdown can be hidden below. It was
-        # hidden once before on the assumption the table would always be
-        # populated, and when enumeration finds no sets -- every folder whose
-        # names the configured regex does not match -- that left an empty
-        # table and no way at all to choose an image, so it went back. The
-        # answer is not a redundant dropdown but this dialog: it opens any
-        # file, grouped or not, and pins its set into the table.
         self._set_table = QTableWidget(0, 0, self)
         install_sorting(self._set_table)
         self._set_table.setObjectName("PreviewSetTable")
@@ -1896,10 +1567,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._set_table.verticalHeader().sectionClicked.connect(
             self._on_set_header_clicked)
 
-        # CYCLING THE VIEW BETWEEN THE OBJECTS BEING SEGMENTED. With
-        # "cell + nucleus" chosen the panel runs Cellpose on two channels, and
-        # the source view could only ever show one of them -- so half of what
-        # was being tuned was never on screen.
         self._cycle_prev_btn = FlatButton("◀", self)
         self._cycle_prev_btn.setToolTip(
             "Show the previous object's channel. Cycles cell, nucleus, both.")
@@ -1921,27 +1588,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         pick_row.addWidget(self._cycle_prev_btn)
         pick_row.addWidget(self._cycle_label)
         pick_row.addWidget(self._cycle_next_btn)
-        # MIP sits with the set controls it applies to.
         pick_row.addWidget(self._mip_toggle)
         pick_row.addWidget(self._max_images_box)
         pick_row.addWidget(self._max_sets_box)
         pick_row.addWidget(self._pick_btn)
-        # The field and channel dropdowns are NOT added. The table
-        # picks both, and two controls for one choice can disagree.
-        # They stay constructed because apply_sample_to_combo fills
-        # one, the saved view state names a field through it, and
-        # selected_channel() reads the other.
-        # OUT OF THE PANEL, not merely hidden. Both were parented to `self`
-        # and never added to a layout, and a widget in that state occupies
-        # (0, 0) -- the top left, exactly where the loaded-path label sits. It
-        # is only setVisible(False) that keeps it off screen, and that is one
-        # stray show() away from a combo box drawn over the path, which is how
-        # this was reported twice.
-        #
-        # They cannot simply be deleted: apply_sample_to_combo fills the fov
-        # box, the saved view state names a field through it, and
-        # selected_channel() reads the other. So they keep working and stop
-        # being able to appear, by living in a container that is never shown.
         self._offscreen_controls = QWidget(self)
         self._offscreen_controls.setVisible(False)
         _offscreen = QVBoxLayout(self._offscreen_controls)
@@ -1954,13 +1604,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._channel_box.setVisible(False)
         root.addLayout(pick_row)
 
-        # Action row — Run + Live settings + status
         act = QHBoxLayout()
         self._run_btn = QPushButton(PREVIEW_RUN_TEXT, self)
         self._run_btn.clicked.connect(self.run_preview)
-        # Cancel sits beside Run in every live view, disabled until a pass
-        # is in flight. Before the shared contract only this panel could be
-        # cancelled at all, and only from Python.
         self._cancel_btn = QPushButton(PREVIEW_CANCEL_TEXT, self)
         self._cancel_btn.setToolTip(
             "Abandon the preview in flight. Cellpose cannot be interrupted, "
@@ -1970,11 +1616,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._cancel_btn.clicked.connect(self.cancel_preview)
         self._live_settings_btn = QPushButton("Live settings…", self)
         self._live_settings_btn.clicked.connect(self.open_live_settings)
-        # What the right-hand canvas shows: outline overlay, the raw label
-        # mask, or the Cellpose flow field.
         self._view_mode = QComboBox(self)
-        # _refresh_canvases reads the entry's data, so the caption is
-        # translated and the mode it names is not.
         set_translatable_items(self._view_mode, VIEW_MODES)
         self._view_mode.setToolTip(
             "Right canvas: outline overlay · label masks · Cellpose flows")
@@ -1989,7 +1631,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         act.addWidget(self._status, 1)
         root.addLayout(act)
 
-        # Twin zoomable canvases in a synchronised pair.
         canvas = QHBoxLayout()
         self._src_view = _ZoomView(self)
         self._src_view.setMinimumHeight(160)
@@ -2014,16 +1655,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._table_split.setSizes([170, 600])
         root.addWidget(self._table_split, 1)
 
-        # Pinned hover info line
         self._hover_label = QLabel("Hover over the image to inspect pixels.",
                                      self)
         self._hover_label.setStyleSheet("color: #ffffff; "
                                             "font-family: monospace;")
         root.addWidget(self._hover_label)
 
-        # Comparison scrubber — scrub back/forth through previous preview runs
-        # to compare how different settings changed the segmentation. Hidden
-        # until at least two runs exist.
         from PySide6.QtWidgets import QSlider
         self._history: list = []
         self._compare_row = QWidget(self)
@@ -2041,12 +1678,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._compare_row.setVisible(False)
         root.addWidget(self._compare_row)
 
-        # Book-keeping for the dialog-based settings surface. Kept as
-        # a member so tests + external hooks can introspect / drive it.
         self._live_settings_dialog: Optional["LiveSettingsDialog"] = None
         self._on_model_or_object_changed()
 
-    # -- public API --------------------------------------------------------
 
     def load_image(self, path):
         """Synchronously load one image.
@@ -2084,8 +1718,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             picked = None
         if picked is None or picked.z_count <= 1:
             return load_preview_image(path)
-        # Project the channel this file belongs to, not the whole set: the
-        # view is showing one channel and the ingest projects per channel.
         channel = None
         for chan, name in picked.channels.items():
             if name == path.name:
@@ -2186,15 +1818,9 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             try:
                 projected = self._load_for_display(Path(path))
             except Exception:
-                # A field that cannot be projected still has an image to show.
                 projected = None
             if projected is not None:
                 arr = projected
-        # A new image invalidates everything derived from the old one,
-        # including the run in flight. The raw masks and the flow images used
-        # to survive this, so the next filter change — or an in-flight preview
-        # landing a moment later — re-drew the previous image's masks over the
-        # new one and raised IndexError as soon as the two differed in size.
         self.cancel_preview()
         self._image = arr
         self._image_path = Path(path)
@@ -2237,10 +1863,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         try:
             self._show_elided_path()
         except Exception:                                    # noqa: BLE001
-            # Cosmetic: a failure here must never stop the panel resizing.
             pass
 
-    # -- FOV / channel selectors ------------------------------------------
 
     def _refresh_source_selectors(self) -> None:
         """Re-fill the sets and channel dropdowns for the loaded image.
@@ -2258,11 +1882,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._sample_note = apply_sample_to_combo(
             self._fov_box, self._max_sets_box, self._sampler,
             self._image_path, tooltip="Field of view")
-        # Channel count from the array when the file holds a channel axis,
-        # and from the enumeration when it does not. One .tif per channel is
-        # the normal cellvoyager layout, and those arrays are 2-D — reading
-        # the count off shape[2] alone meant the dropdown offered nothing but
-        # "All channels" for exactly the folders that have the most channels.
         channels = (int(self._image.shape[2])
                     if self._image is not None and self._image.ndim == 3
                     else 0)
@@ -2271,18 +1890,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 channels = max(channels, len(self._sampler.channels or ()))
             except Exception:
                 pass
-        # Keyed on the entry rather than the caption: the caption is
-        # translated, so a Swedish screen re-selecting by text would find
-        # nothing and silently drop back to "All channels".
         canonical = self._channel_box.currentData()
         populate_channel_combo(
             self._channel_box, channels,
             keep=canonical if isinstance(canonical, str) else None)
         self._localise_channel_combo()
-        # Both of these describe the enumeration that just ran, so they belong
-        # here rather than at the call sites: this is the one function every
-        # load path goes through, which is why hanging them off a caller left
-        # the table empty and the MIP switch dead on a real folder drop.
         self._populate_set_table()
         self._refresh_mip_toggle()
 
@@ -2308,7 +1920,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """
         meta, custom = DEFAULT_METADATA_TYPE, None
         widget = self
-        for _ in range(12):                    # bounded; parents are shallow
+        for _ in range(12):
             widget = widget.parent() if hasattr(widget, "parent") else None
             if widget is None:
                 break
@@ -2335,9 +1947,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             sets = list(self._sampler.sample())
         except Exception:
             sets = []
-        # A set chosen through "Choose image" joins the table even when the
-        # random sample did not draw it — otherwise picking a specific field
-        # showed it once and then lost it, with no row to click back to.
         pinned = getattr(self, "_pin_path", None)
         if pinned is not None:
             try:
@@ -2362,17 +1971,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                     if not name:
                         continue
                     planes = len(image_set.planes.get(chan) or ()) or 1
-                    # Say the depth in the cell rather than hiding it: a field
-                    # with 21 planes and one with 1 looked identical before,
-                    # and only one of them is affected by the MIP switch.
                     text = name if planes <= 1 else f"{name}  ({planes}z)"
                     item = table_item(text)
                     item.setToolTip(str(image_set.path(chan)))
                     item.setData(Qt.UserRole, str(image_set.path(chan)))
                     table.setItem(row, col, item)
             table.resizeColumnsToContents()
-            # Fill the width: content-width columns left the table
-            # ending mid-panel with dead space beside it.
             header = table.horizontalHeader()
             header.setSectionResizeMode(QHeaderView.Stretch)
         finally:
@@ -2497,18 +2101,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._selected_cells = [(row, column)]
         self._table_row, self._table_col = row, column
         table.setCurrentCell(row, column)
-        # Load the file the cell names, rather than routing through the field
-        # dropdown. That dropdown is keyed by SET — one entry per field, at
-        # its representative channel — so asking it for channel 2 of a field
-        # it lists under channel 1 found nothing and fell through to an async
-        # reload, which is why clicking a channel header changed nothing.
-        # The cell already knows the exact file; a cell click is not a field
-        # change, it is a field-and-channel change.
         self._fov_box.blockSignals(True)
         try:
             index = self._fov_box.findData(path)
             if index >= 0:
-                self._fov_box.setCurrentIndex(index)   # keeps saved state honest
+                self._fov_box.setCurrentIndex(index)
         finally:
             self._fov_box.blockSignals(False)
         self.load_image(Path(path))
@@ -2545,8 +2142,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         try:
             self._reload_for_mip()
         except Exception:
-            # Redrawing is best-effort; the next selection change picks the
-            # new mode up regardless.
             pass
         self._announce_sample()
 
@@ -2578,8 +2173,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         path = self._fov_box.currentData()
         if not path:
             return
-        # The loaded file may be a different channel of the very set the combo
-        # points at; comparing raw paths would reload it for no reason.
         picked = self._sampler.set_for_path(path)
         if picked is not None and picked == self._sampler.set_for_path(
                 self._image_path):
@@ -2589,10 +2182,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             return
         self._loading_fov = True
         try:
-            # enumerate_sets=False: this path came *out* of the sampler, so the
-            # folder is already enumerated. Re-scanning would spend a full pass
-            # over the plate to rediscover the listing we are holding, which is
-            # the cost the sampling work in 5d5c5c92 removed.
             self.load_source_async(path, enumerate_sets=False)
         finally:
             self._loading_fov = False
@@ -2688,16 +2277,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             background = self._background_for_channel(channel)
             if background is None:
                 return shown
-            # `channel_view` returns a VIEW into `self._image`. Writing
-            # zeros through it would destroy the loaded image, so the next
-            # render -- and the segmentation worker, which reads the same
-            # array -- would see an image already thresholded once, again.
             out = shown.copy()
             out[out < background] = 0
             return out
 
-        # "All channels": each one takes its own object's background, so a
-        # composite cannot show a cleaned cell channel beside a raw nucleus.
         if getattr(shown, "ndim", 0) != 3:
             return shown
         out = None
@@ -2772,35 +2355,15 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
     def settings_for_propagation(self) -> dict:
         """Map the live-preview widget values to main-panel settings keys."""
         model = self._model_box.currentText()
-        # The tuned value belongs to the compartment being segmented. With
-        # "nucleus" selected the panel runs Cellpose on the nucleus, so
-        # writing the result to `cell_diameter` left `nucleus_diameter`
-        # untouched and the run used neither the tuned number nor the one on
-        # screen. "cell" is the default selection, so the ordinary case is
-        # unchanged.
         primary = self._primary_object()
         out = {
             "model_name": model,
-            # AND THE COMPARTMENT'S OWN MODEL FIELD. `model_name` is the
-            # TRAINING module's key; the Mask panel holds one checkpoint per
-            # object -- `pathogen_model_name`, `cell_model_name` and so on --
-            # so propagating only `model_name` left a custom pathogen model
-            # chosen in the live preview writing to a field the Mask panel
-            # does not show. The user tuned against a zoo checkpoint, pressed
-            # Propagate, and the run still used cpsam.
             f"{primary}_model_name": model,
             "cell_channel": int(self._cell_channel.value()),
             "nucleus_channel": int(self._nucleus_channel.value()),
-            # Propagated like the other two, so tuning a pathogen or
-            # organelle channel here reaches the main settings panel
-            # instead of being lost when the dialog closes.
             "pathogen_channel": int(self._pathogen_channel.value()),
             f"{self._active_organelle_role}_channel": int(
                 self._organelle_channel.value()),
-            # `_unclamped` for the three the panel seeds: a spin box that
-            # could not hold what it was given shows the clamp, and handing
-            # that back would rewrite the user's setting with the editor's
-            # limit. Untouched means unchanged.
             f"{primary}_diameter": self._unclamped(
                 self._diameter, float(self._diameter.value())),
             f"{primary}_flow_threshold": self._unclamped(
@@ -2810,8 +2373,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "normalize": bool(self._normalise_check.isChecked()),
             "lower_percentile": float(self._lo_pct.value()),
         }
-        # Per-compartment + common tuning settings (only present once the
-        # compartment widgets have been built).
         if hasattr(self, "_compartment_widgets"):
             out.update(self._compartment_settings())
         return out
@@ -2868,16 +2429,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """
         settings = dict(settings or {})
         self._settings = settings
-        # THE SLOT COUNT FIRST. Everything below reads the primary object, and
-        # with `number_of_organelles` at 2 the second slot is not offered at
-        # all until the dropdown has been rebuilt -- so seeding before this
-        # would seed a panel that cannot represent what it was given.
         try:
             self._rebuild_object_choices(organelle_count(settings))
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not rebuild the object choices", exc_info=True)
-        # Each slot's channel, so switching between them shows what the run
-        # will actually use rather than slot 1's value carried across.
         for role in organelle_roles(max(1, organelle_count(settings))):
             raw = settings.get(f"{role}_channel")
             if raw is None:
@@ -2921,28 +2476,14 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                       "CP_prob": self._prob}[native]
             _seed(widget, (native, f"{primary}_{suffix}"), float)
 
-        # Pathogen and organelle are propagated OUT of this panel, so they
-        # are read back in as well: a round trip that drops two of its four
-        # channels is how the panel came to disagree with the run.
         for comp in COMPARTMENTS:
-            # The organelle spinner shows the SELECTED slot, which need not be
-            # slot 1, so it is seeded from that slot's own key.
             key = (f"{self._active_organelle_role}_channel"
                    if comp == "organelle" else f"{comp}_channel")
             _seed(getattr(self, f"_{comp}_channel"), (key,), int)
 
-        # The organelle column, from the SELECTED slot's keys with the plain
-        # `organelle_` spelling as the fallback -- a settings file written
-        # before slots existed carries only the latter.
         self._seed_organelle_column(settings)
 
         _seed(self._lo_pct, ("lower_percentile",), float)
-        # SEEDED BECAUSE IT IS PROPAGATED. This toggle was written out by
-        # `settings_for_propagation` and never read in, so it always sent the
-        # unchecked box it was built with -- and Mask ships `adjust_cells`
-        # True. Propagating from an untouched preview therefore switched off
-        # the adjustment of cell masks by the nucleus and pathogen masks,
-        # without the user having touched the control that did it.
         if settings.get("adjust_cells") is not None:
             try:
                 self._adjust_cells.setChecked(bool(settings["adjust_cells"]))
@@ -2950,32 +2491,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 LOG.debug("apply_settings: bad adjust_cells", exc_info=True)
         if settings.get("normalize") is not None:
             try:
-                # Mask declares a bool; the crop-preview vocabulary allows a
-                # [lo, hi] percentile pair, which is equally "normalise on".
                 self._normalise_check.setChecked(bool(settings["normalize"]))
             except Exception:
                 LOG.debug("apply_settings: bad normalize", exc_info=True)
         if settings.get("model_name") is not None:
-            # NOT OFFERED IS NOT THE SAME AS NOT ACCEPTED. The live menu drops
-            # the pre-SAM spellings, because all four resolve to cpsam and
-            # offering them is four labels for one model. But a SAVED settings
-            # file naming `cyto2` still has to round-trip: dropping it here
-            # would leave the combo on whatever it happened to show, so the
-            # preview would quietly use a different model than the settings
-            # say -- which is the defect the menu change was meant to reduce,
-            # reintroduced at the other end.
-            #
-            # The same add-if-missing rule serves a zoo checkpoint whose path
-            # was not on disk when the panel was built.
             wanted = str(settings["model_name"])
             idx = self._model_box.findText(wanted)
             if idx < 0 and _is_a_real_model_name(wanted):
-                # ADDED ONLY IF IT NAMES SOMETHING. A retired alias and a
-                # checkpoint on disk are both real answers the menu simply does
-                # not offer; a typo is not, and accepting one would put junk in
-                # the combo and preview with it. The existing contract that an
-                # unknown name is IGNORED is kept -- see
-                # test_apply_settings_ignores_none_channels_and_unknown_models.
                 self._model_box.addItem(wanted)
                 idx = self._model_box.count() - 1
             if idx >= 0:
@@ -3020,14 +2542,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         worker = _PreviewWorker(req, self, token=self._run_token)
         worker.finished_masks.connect(self._on_worker_done)
         worker.flows_ready.connect(self._on_flows_ready)
-        # NOT worker.deleteLater. ``finished`` is emitted from inside the
-        # worker thread, so scheduling the object's C++ deletion off it hands
-        # Qt a second owner for an object Python already owns, and the two
-        # race — see the measured account in spacr.qt.bridge.make_thread
-        # (3 crashes in 8 runs of the stress harness). The relay below is a
-        # bound method rather than a lambda so Qt can see a receiving QObject
-        # with GUI-thread affinity and queues the call onto the GUI thread; a
-        # plain closure would be invoked directly on the worker thread.
         worker.finished.connect(self._on_worker_finished)
         self._worker = worker
         worker.start()
@@ -3059,9 +2573,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """
         self.set_preview_busy(False)
 
-    # -- internals ---------------------------------------------------------
 
-    # -- per-compartment tuning widgets -----------------------------------
 
     def _build_compartment_widgets(self) -> None:
         """Create the common + per-compartment tuning widgets.
@@ -3092,59 +2604,35 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             elif kind == "bool":
                 w = Toggle(parent=self)
             else:
-                # NO `method` KIND ANY MORE (391). Its only field was
-                # `intensity_threshold_method`, whose `mean`/`percentile`
-                # choice the run no longer makes -- see the note on
-                # COMPARTMENT_FIELDS. Left in place it would be a combo box
-                # waiting for the withdrawn setting to be re-added by
-                # someone who found the branch and assumed it had a user.
                 raise ValueError(kind)
             w.hide()
             return w
 
-        # Pull the informative spaCR setting descriptions for tooltips.
         try:
             from spacr.settings import descriptions as _spacr_desc
         except Exception:
             _spacr_desc = {}
 
-        # Common controls — one widget each, retargeted to the chosen object
-        # at propagation time (see settings_for_propagation).
         self._common_widgets: Dict[str, QWidget] = {
             "signal_to_noise": _spin("int", (0, 100_000, 10)),
             "remove_background": _spin("bool", None),
             "background": _spin("int", (0, 100_000, 100)),
         }
-        # Both reach the displayed intensity image, not only the worker, so
-        # both have to repaint. Without this the toggle looked inert until
-        # the next Run: the pixels it removes were already gone from the
-        # segmentation and still on screen.
         self._common_widgets["remove_background"].toggled.connect(
             self._refresh_canvases)
         self._common_widgets["background"].valueChanged.connect(
             self._refresh_canvases)
-        # Which channel gets thresholded depends on the cell/nucleus channel
-        # indices and on which object is selected, so moving any of those has
-        # to repaint too -- otherwise pointing "cell" at a different channel
-        # leaves the cleaned pixels on the old one.
         self._cell_channel.valueChanged.connect(self._refresh_canvases)
         self._nucleus_channel.valueChanged.connect(self._refresh_canvases)
         self._pathogen_channel.valueChanged.connect(self._refresh_canvases)
         self._organelle_channel.valueChanged.connect(self._refresh_canvases)
         self._object_box.currentIndexChanged.connect(self._refresh_canvases)
-        # AND THE VIEW FOLLOWS THE OBJECT. Choosing "cell" while looking at
-        # the nucleus plane left the user tuning cell settings against a
-        # nucleus image -- the channel each object is segmented from is
-        # already stated in its spinner, so the view can simply follow it.
         self._object_box.currentIndexChanged.connect(
             self._on_primary_object_changed)
         self._refresh_cycle_controls()
         for _channel_spinner in (self._cell_channel, self._nucleus_channel,
                                  self._pathogen_channel,
                                  self._organelle_channel):
-            # NOT `_spin`: that name is a local widget factory further down
-            # this same method, and binding over it made the next call to it
-            # raise "QSpinBox object is not callable".
             _channel_spinner.valueChanged.connect(self._follow_object_channel)
         self._common_widgets["signal_to_noise"].setToolTip(
             "(int) Signal-to-noise ratio used to set the normalisation "
@@ -3158,19 +2646,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "(int) Pixels below this intensity are set to 0 in the chosen "
             "object's channel when 'Remove background' is on. Everything "
             "above it is left where it is.")
-        # -- the organelle's own segmentation controls -------------------
-        #
-        # Built here with everything else, hidden, so their values survive an
-        # open/close of the dialog the same way the compartment widgets do.
         def _organelle_widget(kind, spin_args):
             """The control an organelle setting needs, by its kind."""
             if kind == "morphology":
                 widget = QComboBox(self)
                 set_translatable_items(widget, list(ORGANELLE_MORPHOLOGIES))
             elif kind == "method_choice":
-                # Filled from LEGAL_METHODS whenever the morphology changes:
-                # a method the morphology cannot use is not a choice, and
-                # offering it produces a preview that raises.
                 widget = QComboBox(self)
             elif kind == "ridge":
                 widget = QComboBox(self)
@@ -3200,7 +2681,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self._on_organelle_morphology_changed)
         self._refresh_organelle_methods()
 
-        # Cell-only extra.
         self._adjust_cells = _spin("bool", None)
         self._adjust_cells.setToolTip(
             "(bool) Adjust cell masks using the nucleus/pathogen masks.")
@@ -3209,13 +2689,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         #: ``id(widget) -> (what it holds, what it was given)`` for a
         #: seeded value the widget could not represent.
         self._clamped_on_seeding: Dict[int, tuple] = {}
-        # THE PIPELINE'S OWN DEFAULT PER COMPARTMENT, not one constant for
-        # all of them. `COMPARTMENT_FIELDS` carries a single fallback per
-        # field, so when the pipeline gave `organelle_min_area` a default of
-        # 10 while cell, nucleus and pathogen kept 0, the preview went on
-        # showing 0 for the organelle -- and Propagate then wrote that 0 into
-        # the run. A preview whose defaults disagree with the run is the
-        # fault the per-object filters were unified to remove.
         try:
             from spacr.settings import (
                 set_default_settings_preprocess_generate_masks as _mask_defaults)
@@ -3237,8 +2710,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 group[suffix] = w
             self._compartment_widgets[comp] = group
 
-        # Re-filter the cached masks live whenever any filter widget changes,
-        # so tuning updates the preview instantly (no Cellpose re-run).
         for w in self._all_compartment_widgets():
             for sig_name in ("valueChanged", "currentTextChanged", "toggled"):
                 sig = getattr(w, sig_name, None)
@@ -3276,8 +2747,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if isinstance(w, Toggle):
             return bool(w.isChecked())
         if isinstance(w, QComboBox):
-            # The value, not the caption: a translated caption would land
-            # in the settings dict as the setting's value.
             return _combo_value(w)
         return w.value()
 
@@ -3309,12 +2778,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 shipped = _d({})
             except Exception:                                # noqa: BLE001
                 shipped = {}
-            # `_intensity_threshold` ADDED WITH THE ABSOLUTE SCHEME (391).
-            # `spacr.object.merge_split_filter_masks` defaults it to None and
-            # `spacr.utils._merge_by_intensity` reads None as "no threshold
-            # was given, so merge nothing and print the boundary intensities
-            # you found". A propagated 0 would instead read as a real
-            # threshold of zero and merge every pair that touches.
             cls._OFF_IS_NONE = frozenset(
                 key for key, value in shipped.items()
                 if value is None and key.endswith(
@@ -3350,22 +2813,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """Map every compartment + common tuning widget to its setting key."""
         out: dict = {}
         for comp, group in self._compartment_widgets.items():
-            # The organelle panel is ONE set of widgets serving whichever slot
-            # is selected, so its keys carry that slot's role rather than the
-            # generic "organelle" -- otherwise tuning slot 2 wrote slot 1.
             prefix = (self._active_organelle_role
                       if comp == "organelle" else comp)
             for suffix, w in group.items():
                 key = f"{prefix}_{suffix}"
                 out[key] = self._off_as_the_run_spells_it(
                     key, self._widget_value(w))
-        # The common controls are one widget each, retargeted to whatever is
-        # selected. Written for EVERY selected object type, not just the
-        # primary: with "cell + nucleus" chosen, keying them off
-        # `_primary_object()` alone wrote `remove_background_cell` and left
-        # the nucleus channel with no key at all, so the segmentation worker
-        # -- which looks up `remove_background_{obj}` per object in its loop
-        # -- silently skipped it and the toggle appeared to do half a job.
         for obj in self._selected_object_types():
             out[f"{obj}_signal_to_noise"] = self._widget_value(
                 self._common_widgets["signal_to_noise"])
@@ -3374,9 +2827,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             out[f"{obj}_background"] = self._widget_value(
                 self._common_widgets["background"])
         out["adjust_cells"] = self._widget_value(self._adjust_cells)
-        # The organelle column, under the selected slot's prefix. Only when an
-        # organelle is what is being segmented -- otherwise a cell run would
-        # propagate a morphology and a method nothing in it reads.
         if self._primary_object().startswith("organelle"):
             out.update(self._organelle_settings())
         return out
@@ -3392,9 +2842,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if not widgets:
             return
         role = self._active_organelle_role
-        # The morphology first, because it decides which methods are legal --
-        # seeding the method against the previous morphology's list would
-        # drop it.
         ordered = ["morphology"] + [k for k in widgets if k != "morphology"]
         for suffix in ordered:
             widget = widgets.get(suffix)
@@ -3531,10 +2978,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._cycle_index %= len(stops)
         roles = stops[self._cycle_index]
         if len(roles) == 1:
-            # A single object is the ORDINARY view, driven through the channel
-            # dropdown -- so it goes through the same path as every other
-            # channel change rather than becoming a second way to show one
-            # plane, which could then disagree with the first.
             self._composite_roles = ()
             self._select_display_channel(self._channel_for_object(roles[0]))
         else:
@@ -3643,11 +3086,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         box = self._channel_box
         target = f"Ch {wanted}"
         for index in range(box.count()):
-            # `itemData` holds the entry AS WRITTEN, because the captions are
-            # translated -- "All channels" reads "Alla kanaler" on a Swedish
-            # screen. Falling back to the caption covers the window before
-            # `_localise_channel_combo` has run, when `populate_channel_combo`
-            # has added plain items with no data.
             written = box.itemData(index)
             if not isinstance(written, str) or not written:
                 written = box.itemText(index)
@@ -3734,9 +3172,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """Swap the slot's channel in, then move the view onto it. In that
         order: following first would follow the outgoing slot's channel."""
         self._swap_organelle_channel()
-        # The stops belong to the new selection, so an index into the old
-        # one means nothing -- start at the first object rather than
-        # wherever the previous cycle had got to.
         self._cycle_index = 0
         self._composite_roles = ()
         self._follow_object_channel()
@@ -3758,10 +3193,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "pathogen":  self._pathogen_channel.value(),
             "organelle": self._organelle_channel.value(),
         }
-        # One unified settings dict drives both background subtraction
-        # (pre) and filtering (post): the common "remove background" +
-        # "background" controls and the per-compartment filter values. No more
-        # Pre/Post checkboxes — the settings apply whenever they're set.
         merged = dict(self._settings)
         if hasattr(self, "_compartment_widgets"):
             merged.update(self._compartment_settings())
@@ -3875,7 +3306,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         elif mode == "Masks" and self._masks:
             self._mask_view.set_pixmap(numpy_to_qpixmap(
                 self._label_rgb()))
-        elif self._masks:   # Overlay (default)
+        elif self._masks:
             overlay = overlay_masks(
                 shown, self._masks,
                 outline_rgb=self._outline_rgb(),
@@ -3919,8 +3350,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             if not present.any():
                 continue
             if random_mode:
-                # Same categorical map the overlay uses, so 'color (random)'
-                # means one thing in both views.
                 ids = np.unique(labels[present])
                 palette = _random_outline_palette(
                     ids, RANDOM_OUTLINE_SEEDS.get(obj, 0))
@@ -3932,7 +3361,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 base_rgb = auto_colours.get(
                     obj, OBJECT_COLORS.get(obj, (200, 200, 200)))
             base = np.array(base_rgb, dtype=np.uint8)
-            # Vary brightness a little per label so neighbours are separable.
             shade = (0.5 + 0.5 * ((labels % 7) / 6.0)).astype(np.float32)
             for c in range(3):
                 out[..., c] = np.where(
@@ -3960,8 +3388,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         only shown inside the Live Settings dialog when it's open).
         The dialog re-reads visibility rules on open, so nothing to
         do here at rest."""
-        # Kept as a hook so any observers subscribed to model/object
-        # combo changes still fire.
         dlg = self._live_settings_dialog
         if dlg is not None:
             try:
@@ -3987,8 +3413,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._live_settings_dialog.show()
 
     def _on_settings_closed(self, *_):
-        # Refresh canvases in case a visual-only setting changed (e.g.
-        # outline colour) while the dialog was open.
         """Redraw the canvases after the Live Settings dialog closes.
 
         A visual-only change -- an outline colour, say -- alters nothing the
@@ -4010,8 +3434,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "Images (*.tif *.tiff *.png *.jpg *.jpeg)",
         )
         if path:
-            # The chosen file may live in a folder the sampler has never seen,
-            # so this one does enumerate — off the GUI thread.
             self._pin_path = Path(path)
             self.load_source_async(path)
 
@@ -4025,13 +3447,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self._hover_label.setText(
                 "Hover over the image to inspect pixels.")
             return
-        # Intensities across every channel
         if self._image.ndim == 3:
             vals = tuple(int(v) for v in self._image[y, x])
             i_str = f"channels={vals}"
         else:
             i_str = f"intensity={int(self._image[y, x])}"
-        # Mask hit-tests
         hits = []
         for obj, mask in self._masks.items():
             if mask is None or mask.size == 0:
@@ -4074,7 +3494,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if masks is None or not masks or self._image is None:
             self._status.setText("Preview returned no masks.")
             return
-        # Cache the raw masks so filters can be re-applied live, then filter.
         self._raw_masks = masks
         self._recompute_masks(snapshot=True)
 
@@ -4094,9 +3513,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if not raw or self._image is None:
             return
         if snapshot:
-            # A new run gets a new 'auto' colour. Re-rolling here rather than
-            # on every repaint keeps the outline steady while the user drags
-            # thickness or percentile sliders.
             self._roll_auto_outline_colours()
         post = dict(self._settings)
         if hasattr(self, "_compartment_widgets"):
@@ -4115,7 +3531,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self._snapshot_run(out, counts)
         self.preview_ready.emit(out)
 
-    # -- comparison scrubber ----------------------------------------------
 
     def _snapshot_run(self, masks, counts) -> None:
         """Record a preview run (image + masks + display params) so the user
@@ -4133,14 +3548,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             "summary": ", ".join(counts),
         }
         self._history.append(snap)
-        # Cap the history so memory stays bounded on long tuning sessions.
         if len(self._history) > 50:
             self._history = self._history[-50:]
         n = len(self._history)
         self._compare_row.setVisible(n >= 2)
         self._compare_slider.blockSignals(True)
         self._compare_slider.setMaximum(n - 1)
-        self._compare_slider.setValue(n - 1)      # newest
+        self._compare_slider.setValue(n - 1)
         self._compare_slider.blockSignals(False)
         self._compare_label.setText(f"{n}/{n}")
 
@@ -4155,10 +3569,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             _to_uint8(img, normalise=norm, lo_pct=lo, hi_pct=hi))
         self._src_view.set_pixmap(src_pix)
         if snap["masks"]:
-            # The random and auto modes have to be forwarded here too. They
-            # were not, so scrubbing back through history repainted every
-            # outline in the per-compartment default — green for cells —
-            # whatever the user had chosen.
             overlay = overlay_masks(
                 img, snap["masks"], outline_rgb=self._outline_rgb(),
                 outline_thickness=self._outline_thickness.value(),
@@ -4175,7 +3585,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             f"{idx + 1}/{len(self._history)}  "
             f"{snap['model']}/{snap['object']}  {snap['summary']}")
 
-    # -- the model list is live ------------------------------------------
     def refresh_model_choices(self) -> None:
         """Re-read the Cellpose model list and add anything new.
 
@@ -4203,9 +3612,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self.refresh_model_choices()
 
 
-# ---------------------------------------------------------------------------
-# Live Settings dialog
-# ---------------------------------------------------------------------------
 
 from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QFormLayout, QGroupBox, QScrollArea,
@@ -4252,28 +3658,18 @@ class LiveSettingsDialog(QDialog):
         """
         super().__init__(panel)
         self._panel = panel
-        # So a morphology change can re-gate the rows: the widgets live on the
-        # panel, and it is this dialog that knows which rows they sit on.
         panel._live_settings_dialog = self
         self.setWindowTitle(tr("Live settings"))
         outer = QVBoxLayout(self)
 
-        # Show the widgets we'll be adding, then re-hide them on close.
         for w in self._managed_widgets():
             w.show()
 
-        # Row of side-by-side panels: the segmentation + common controls on the
-        # left, then one greyed-until-chosen panel per compartment to the right.
         panels_row = QHBoxLayout()
         panels_row.setSpacing(12)
 
         seg_group = QGroupBox("Segmentation")
         form = QFormLayout(seg_group)
-        # THE MODEL ROW CARRIES THE ZOO BUTTON, the same as every object model
-        # name on the settings panel. Without it the live view offered cpsam
-        # and nothing else, so a zoo model could be selected for the RUN and
-        # not for the PREVIEW -- which is the preview showing a different model
-        # than the run will use, while the user tunes against it.
         model_row = QWidget(seg_group)
         model_row_layout = QHBoxLayout(model_row)
         model_row_layout.setContentsMargins(0, 0, 0, 0)
@@ -4299,7 +3695,6 @@ class LiveSettingsDialog(QDialog):
         form.addRow("Upper percentile", panel._hi_pct)
         form.addRow("Outline colour", panel._outline_colour)
         form.addRow("Outline thickness", panel._outline_thickness)
-        # Common controls — apply to whichever object is chosen.
         panel._common_widgets["signal_to_noise"].show()
         panel._common_widgets["remove_background"].show()
         panel._common_widgets["background"].show()
@@ -4308,7 +3703,6 @@ class LiveSettingsDialog(QDialog):
         form.addRow("Background", panel._common_widgets["background"])
         panels_row.addWidget(seg_group)
 
-        # One panel per compartment, greyed unless it's the chosen object.
         self._compartment_groupboxes: Dict[str, QGroupBox] = {}
         for comp in COMPARTMENTS:
             box = QGroupBox(comp.capitalize())
@@ -4323,13 +3717,6 @@ class LiveSettingsDialog(QDialog):
             self._compartment_groupboxes[comp] = box
             panels_row.addWidget(box)
 
-        # THE ORGANELLE'S OWN COLUMN, one section wider than the rest.
-        #
-        # Every other compartment is a Cellpose object and the generic filters
-        # are all it has. An organelle is dispatched by morphology and method
-        # into a different routine with its own half-dozen knobs, and none of
-        # those were reachable here -- so the only organelle setting that
-        # could be previewed was the Cellpose model.
         self._organelle_group = QGroupBox("Organelle segmentation")
         organelle_form = QFormLayout(self._organelle_group)
         self._organelle_rows: Dict[str, tuple] = {}
@@ -4341,8 +3728,6 @@ class LiveSettingsDialog(QDialog):
                 self._organelle_rows[suffix] = (morphology, widget)
         panels_row.addWidget(self._organelle_group)
 
-        # Wrap the (wide) panel row in a horizontal scroll area so it fits on
-        # screen no matter how many compartments are shown.
         row_host = QWidget()
         row_host.setLayout(panels_row)
         scroll = QScrollArea()
@@ -4351,16 +3736,11 @@ class LiveSettingsDialog(QDialog):
         scroll.setWidget(row_host)
         outer.addWidget(scroll, 1)
 
-        # Run button lives in the dialog so settings can be iterated without
-        # closing it — edit a value, hit Run, see the result, repeat.
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
         self._run_btn = QPushButton("Run preview")
         self._run_btn.setDefault(True)
         self._run_btn.clicked.connect(self._panel.run_preview)
         buttons.addButton(self._run_btn, QDialogButtonBox.ActionRole)
-        # Propagate toggle — when on (blue, like the AI / Live toggles), edits
-        # here are pushed into the main settings panel so tuning in the live
-        # preview updates the run configuration.
         self._propagate_btn = QPushButton("Propagate settings")
         self._propagate_btn.setObjectName("ToggleButton")
         self._propagate_btn.setCheckable(True)
@@ -4373,14 +3753,10 @@ class LiveSettingsDialog(QDialog):
         buttons.accepted.connect(self.close)
         outer.addWidget(buttons)
 
-        # Re-gate the form whenever the object type or model changes, so
-        # irrelevant settings grey out live.
         panel._object_box.currentTextChanged.connect(self.refresh_visibility)
         panel._model_box.currentTextChanged.connect(self.refresh_visibility)
         panel._normalise_check.toggled.connect(self.refresh_visibility)
 
-        # Widgets whose changes propagate to the main panel while the toggle
-        # is on — the segmentation controls plus every compartment/common knob.
         self._propagate_sources = [
             panel._model_box, panel._object_box, panel._cell_channel,
             panel._nucleus_channel, panel._diameter, panel._flow,
@@ -4389,10 +3765,6 @@ class LiveSettingsDialog(QDialog):
 
         self.refresh_visibility()
 
-        # Open wide enough to show the Segmentation panel + all four compartment
-        # panels without the user having to drag the window wider. Clamp to the
-        # available screen so it still fits on small displays (the horizontal
-        # scroll area handles any remaining overflow).
         try:
             avail = self.screen().availableGeometry()
             want = row_host.sizeHint().width() + 48
@@ -4415,7 +3787,7 @@ class LiveSettingsDialog(QDialog):
                 except (TypeError, RuntimeError):
                     pass
         if on:
-            self._panel.propagate_settings()   # push current values now
+            self._panel.propagate_settings()
 
     def _managed_widgets(self):
         """List the panel controls this dialog re-parents.
@@ -4477,11 +3849,6 @@ class LiveSettingsDialog(QDialog):
         """
         p = self._panel
 
-        # -- model: cpsam uses all three. `diameter` used to be disabled
-        #    here with the tooltip "Ignored by Cellpose-SAM", which was
-        #    false: Cellpose 4 rescales the image by 30/diameter before
-        #    it runs (see DIAMETER_TOOLTIP for the measured counts), so
-        #    the UI was greying out a control that changes the result. --
         p._diameter.setEnabled(True)
         p._diameter.setToolTip(DIAMETER_TOOLTIP)
         p._flow.setEnabled(True)
@@ -4489,15 +3856,10 @@ class LiveSettingsDialog(QDialog):
         p._flow.setToolTip("")
         p._prob.setToolTip("")
 
-        # -- object: which channel spinners apply --
         selected = set(p._selected_object_types())
         p._cell_channel.setEnabled("cell" in selected)
         p._nucleus_channel.setEnabled("nucleus" in selected)
 
-        # -- compartment panels: show only the primary object's panel plus,
-        #    for 'cell + nucleus', a secondary Nucleus panel. The other
-        #    compartments' panels are hidden entirely (their settings are the
-        #    same shape and only the chosen object's are relevant). --
         ordered = list(p._selected_object_types())
         primary = ordered[0] if ordered else "cell"
         for comp, box in self._compartment_groupboxes.items():
@@ -4511,9 +3873,6 @@ class LiveSettingsDialog(QDialog):
             elif is_secondary:
                 box.setTitle("Nucleus (secondary object)")
 
-        # -- the organelle column: only for an organelle, and within it only
-        #    the knobs the chosen morphology actually reads. Showing all
-        #    twenty-one at once is a wall nobody can tune. --
         organelle_primary = primary.startswith("organelle")
         self._organelle_group.setVisible(organelle_primary)
         if organelle_primary:
@@ -4527,9 +3886,6 @@ class LiveSettingsDialog(QDialog):
                 if position >= 0:
                     form.setRowVisible(position, wanted)
 
-        # -- Normalisation is always available (independent of the Pre step
-        #    and of the model, incl. cpsam). The percentile bounds only apply
-        #    while normalisation is on. --
         p._normalise_check.setEnabled(True)
         p._normalise_check.setToolTip("")
         norm_on = p._normalise_check.isChecked()
@@ -4538,8 +3894,6 @@ class LiveSettingsDialog(QDialog):
             w.setToolTip("" if norm_on
                          else "Enable 'Normalise' to set percentile bounds")
 
-        # Overlay / outline knobs are always relevant (they style the overlay
-        # view), so they stay enabled.
         for w in (p._outline_colour, p._outline_thickness):
             w.setEnabled(True)
         self._install_api_tooltips()
@@ -4592,9 +3946,6 @@ class LiveSettingsDialog(QDialog):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Back-compat shims for callers that predate the multi-object rewrite
-# ---------------------------------------------------------------------------
 
 def overlay_mask(image: np.ndarray, mask: np.ndarray) -> np.ndarray:
     """Legacy single-mask overlay retained for older imports."""

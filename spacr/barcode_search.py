@@ -121,33 +121,10 @@ DEFAULT_SAMPLE_READS = 20000
 #: How many reads each incremental step consumes from each file.
 DEFAULT_CHUNK_READS = 2000
 
-# THE THRESHOLDS, AND THE MEASUREMENTS THAT SET THEM.
-#
-# These were chosen against a real paired run whose two mates were measured
-# read by read, rather than picked for roundness.  On that run the tables that
-# were genuinely part of the library reached enrichments of nineteen, twenty
-# nine and several million over their own chance rates, while every table that
-# was truly absent sat between a fifth of its chance rate and one and a fraction
-# times it, the highest coincidence reaching one point zero two.  A cut at three
-# leaves the coincidence ceiling far below it and the weakest true signal far
-# above it, so neither side is close to the boundary.
 MIN_ENRICHMENT = 3.0
 
-# The same run also carried a small number of reads in the wrong orientation,
-# about one guide barcode in six hundred, which index hopping and chimeric
-# fragments produce in every pooled run.  Those hits are thousands of times
-# above chance and completely real, and mapping from them would still be
-# hopeless.  A barcode that belongs to the construct appears in most reads, so
-# a table found in under a tenth of them is reported honestly as enriched but
-# not usable rather than being offered as a source of settings.
 MIN_USABLE_RATE = 0.10
 
-# The narrowest run of offsets accounting for most of the hits was one to three
-# bases wide for every true finding, the width above one coming from guide
-# sequences of twenty or twenty one bases shifting everything downstream of them
-# by a base.  For the adapter that masqueraded as a column table the same
-# measurement needed forty five bases.  Six bases allows a construct with more
-# length variation than this one while still refusing anything adapter shaped.
 MAX_OFFSET_SPAN = 6
 #: The share of hits the narrowest offset window has to account for.
 OFFSET_WINDOW_COVERAGE = 0.80
@@ -947,10 +924,6 @@ def _decide(reads, hits, observed, expected, enrichment, span,
             f"only {reads} reads sampled so far, which is too few to separate "
             f"a real match from coincidence")
     if not hits:
-        # Deciding this by the ratio alone fails for a table whose coincidence
-        # rate rounds to nothing, such as a single long anchor sequence, because
-        # the bar the observation has to clear is then also nothing and no
-        # observation can fall below it.  Nothing matched, so nothing is there.
         return ABSENT, (
             f"not one of {reads} reads carried a barcode from this table in "
             f"this orientation")

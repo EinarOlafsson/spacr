@@ -53,9 +53,6 @@ def column_for(frame: pd.DataFrame, criterion: str) -> Optional[str]:
     for name in COLUMNS.get(str(criterion), ()):
         if name in getattr(frame, "columns", ()):
             return name
-    # An intensity column carries its channel in its name, and the channel is
-    # the user's -- so accept the first that matches the shape rather than
-    # insisting on channel 1.
     if "intensity" in str(criterion):
         stem = str(criterion).split("_")[0]
         for name in getattr(frame, "columns", ()):
@@ -141,9 +138,6 @@ def apply(frame: pd.DataFrame, settings: Optional[Dict[str, Any]] = None
             continue
         column = column_for(frame, criterion)
         if column is None:
-            # NOT SILENT. A filter the user switched on that found no column
-            # removed nothing, and a run that says nothing about it looks
-            # exactly like one where the filter worked and found nothing.
             report.append({"criterion": criterion, "caption": caption,
                            "column": "", "mads": mads, "removed": 0,
                            "note": f"this table has no {caption} column, so "

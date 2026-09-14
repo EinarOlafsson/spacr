@@ -90,8 +90,6 @@ def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
     cancel = box.addButton("Cancel", QMessageBox.RejectRole)
     box.setDefaultButton(cancel)
     box.setEscapeButton(cancel)
-    # Red, because it is the one that loses data. The role alone does not
-    # colour it on every style.
     force.setObjectName("DangerButton")
     if restart is not None:
         restart.setObjectName("DangerButton")
@@ -136,17 +134,11 @@ def restart_spacr(module: str, settings=None, *, running=(), run_folders=(),
         if launcher is None:
             import subprocess
 
-            # DETACHED. `start_new_session` puts the child in its own process
-            # group, so the signal that takes this process down does not
-            # follow it, and it survives the terminal that started us.
             subprocess.Popen(started, start_new_session=True,
                              close_fds=True)
         else:
             launcher(started)
     except Exception as exc:                          # noqa: BLE001
-        # THE STATE IS LEFT ON DISK DELIBERATELY. spaCR did not restart, so
-        # the user will start it themselves, and when they do they should
-        # land back where they were.
         LOG.error("could not start spaCR again (%s); NOT quitting", exc)
         return False
 
@@ -169,17 +161,11 @@ def force_quit_now(exit_code: int = 1) -> None:
         try:
             handler.flush()
         except Exception:
-            # A BROKEN SINK MUST NOT BLOCK. This runs when a graceful
-            # stop has already failed, so a handler that will not flush
-            # cannot be what stops the process leaving -- a force quit
-            # that hangs is the original complaint, twice.
             pass
     for stream in (sys.stdout, sys.stderr):
         try:
             stream.flush()
         except Exception:
-            # Same contract for stdout and stderr: a terminal that has
-            # gone takes its flush with it.
             pass
     os._exit(exit_code)
 
@@ -322,21 +308,7 @@ def style_as_danger(button: QPushButton, palette: Optional[dict] = None) -> None
 
     P = palette or active_palette()
     colour = P.get("danger") or P.get("error") or "#e5484d"
-    # The ink on a FILLED danger surface is `bg`, not white. theme.py's
-    # CONTRAST_RULES carries ("bg", "error", 4.5) with the comment "`bg` is
-    # the ink on filled accent/danger surfaces: the selected menu row, a
-    # pressed button, DangerButton on hover", and the application sheet's
-    # own `#DangerButton:pressed` rule inks with `P["bg"]` for that reason.
-    # This helper hard-coded `#ffffff` instead, which is only right on the
-    # light theme: `error` is a PALE red on cell and glass, so white ink on
-    # the hover fill measured 2.20:1 and 2.04:1 — below AA-large, on the
-    # one control that force-quits a run. `bg` measures 6.23:1 (light)
-    # through 9.55:1 (glass) and is guaranteed by the contrast rule above.
     ink = P.get("bg") or "#000000"
-    # Key the rule on whatever the button is already called. Setting a
-    # name here would take the caller's: `QuitSpacrButton` became
-    # `DangerButton` and every lookup for it stopped finding anything --
-    # a styling helper must not decide a widget's identity.
     name = button.objectName()
     if not name:
         name = "DangerButton"

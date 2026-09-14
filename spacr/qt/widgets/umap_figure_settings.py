@@ -62,7 +62,7 @@ class Field(NamedTuple):
 
     key: str
     label: str
-    kind: str            # int | float | text | bool | choice | int_or_none
+    kind: str
     low: float
     high: float
     tier: str
@@ -76,12 +76,10 @@ class Field(NamedTuple):
 #: cannot drift into offering different sets of knobs. The rest are the
 #: reduction and clustering settings needed to reproduce or rerun the view.
 IMAGE_UMAP_FIELDS: Tuple[Field, ...] = (
-    # -- applies to the artists already drawn ------------------------------
     Field("dot_size",        "Dot size",        "int",   1, 4000, TIER_STYLE),
     Field("point_color",     "Dot colour",      "text",  0, 0,    TIER_STYLE),
     Field("point_alpha",     "Dot opacity",     "float", 0.0, 1.0, TIER_STYLE),
     Field("outline_width",   "Outline width",   "float", 0.0, 10.0, TIER_STYLE),
-    # -- needs the same embedding replotted --------------------------------
     Field("figuresize",      "Figure size",     "float", 1.0, 60.0, TIER_REDRAW),
     Field("image_nr",        "Images shown",    "int",   0, 100000, TIER_REDRAW),
     Field("img_zoom",        "Image zoom",      "float", 0.001, 5.0, TIER_REDRAW),
@@ -92,7 +90,6 @@ IMAGE_UMAP_FIELDS: Tuple[Field, ...] = (
     Field("plot_by_cluster", "Sample per cluster", "bool", 0, 0,  TIER_REDRAW),
     Field("remove_image_canvas", "Cut image canvas", "bool", 0, 0, TIER_REDRAW),
     Field("black_background", "Black background", "bool", 0, 0,   TIER_REDRAW),
-    # -- changes the embedding: next run -----------------------------------
     Field("reduction_method", "Reduction", "choice", 0, 0, TIER_RERUN,
           ("umap", "tsne", "pca", "isomap", "spectral")),
     Field("n_neighbors",     "Neighbours",      "int",   2, 1000000, TIER_RERUN),
@@ -156,9 +153,6 @@ def live_keys() -> Tuple[str, ...]:
                  if f.tier in (TIER_STYLE, TIER_REDRAW))
 
 
-# ---------------------------------------------------------------------------
-# Applying values to a finished figure
-# ---------------------------------------------------------------------------
 
 def _is_fixed_colour(point_color) -> bool:
     """Whether ``point_color`` names one colour rather than "per cluster"."""
@@ -296,12 +290,7 @@ def redraw_umap_figure(fig, payload: Dict[str, Any],
                 colors, bool(_get("plot_by_cluster", True)),
                 bool(_get("remove_image_canvas", False)), False)
         except Exception:
-            # A montage is decoration; the embedding is the result. Losing
-            # the thumbnails must never lose the figure (INVARIANTS 10).
             LOG.debug("could not redraw the image overlay", exc_info=True)
-    # `Figure.clear` drops artists, not attributes -- restated rather than
-    # relied on, because a figure that loses its payload can never be
-    # edited a second time.
     fig._spacr_umap_payload = payload
     return True
 
@@ -326,9 +315,6 @@ def apply_to_figure(fig, payload: Dict[str, Any], values: Dict[str, Any],
     return ""
 
 
-# ---------------------------------------------------------------------------
-# The form
-# ---------------------------------------------------------------------------
 
 class UmapFigureSettings(QWidget):
     """Edit Image UMAP figure settings with debounced live application.
@@ -408,7 +394,6 @@ class UmapFigureSettings(QWidget):
         self._applied: Dict[str, Any] = dict(self.values())
         self._initial: Dict[str, Any] = dict(self._applied)
 
-    # -- construction ------------------------------------------------------
 
     def _refresh_reducer_fields(self, *_args) -> None:
         """Grey reducer settings the selected static-figure recipe ignores."""
@@ -506,16 +491,12 @@ class UmapFigureSettings(QWidget):
                     pass
             spin.valueChanged.connect(self._schedule)
             return spin
-        # text and int_or_none. `row_limit` is genuinely nullable -- None
-        # means "every row" -- and a spin box has no way to say that, so it
-        # is typed rather than clamped.
         edit = QLineEdit()
         if value is not None:
             edit.setText(str(value))
         edit.textChanged.connect(self._schedule)
         return edit
 
-    # -- values ------------------------------------------------------------
 
     def values(self) -> Dict[str, Any]:
         """Every setting the window holds, keyed as the settings dict keys."""
@@ -547,7 +528,6 @@ class UmapFigureSettings(QWidget):
         """What the window opened on -- what Cancel puts back."""
         return dict(self._initial)
 
-    # -- change plumbing ---------------------------------------------------
 
     def _schedule(self, *_args) -> None:
         """Queue an emit after a control changed.

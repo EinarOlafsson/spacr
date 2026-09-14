@@ -199,20 +199,6 @@ def settings_from_pack(app_key: str, pack_dir: str, *,
             settings[moved] = value
             report.renamed.append((key, moved))
             continue
-        # THE PACKAGE'S OWN RENAME TABLE, consulted after this app's.
-        # `PACK_RENAMES` is curated per app and is empty for both of them,
-        # which used to mean a pack written before 391 lost every key that
-        # instruction renamed: `cell_FT`, `cell_CP_prob` and their nucleus
-        # and pathogen siblings were reported as DROPPED while
-        # `spacr.settings` knew exactly what each had become. Measured
-        # 2026-09-13 on a four-key pack: applied 2, renamed 0, dropped 4,
-        # and all four resolvable.
-        #
-        # `surviving_setting_name` follows a rename CHAIN, so a key renamed
-        # twice still lands. It can return more than one name where a
-        # setting was split; a value cannot be sent to two places without
-        # inventing a meaning for it, so that case is left to
-        # `PACK_RENAMES`, which can say what was intended.
         for survivor in _package_renames(key):
             if survivor in settings:
                 settings[survivor] = value
@@ -222,10 +208,6 @@ def settings_from_pack(app_key: str, pack_dir: str, *,
             report.dropped.append(key)
 
     if src is not None:
-        # LAST, and unconditionally. The pack's own `src` is a path on the
-        # machine that produced it; applying it would point the run at a
-        # folder that is not there, which fails much later and blames the
-        # dataset rather than the pack.
         settings["src"] = str(src)
         if "src" in report.dropped:
             report.dropped.remove("src")

@@ -305,13 +305,6 @@ def refine_similarity(source: np.ndarray, target: np.ndarray, seed,
     """
     scale, rotation, translation = seed
     result = None
-    # WIDE FIRST, THEN TIGHT. The seed is poor by construction, so the
-    # first pass has to accept correspondences a long way out or there is
-    # nothing to re-solve from; the last pass has to accept only close ones
-    # or it re-solves from coincidences. One radius cannot be both, and
-    # using the scoring radius throughout refused every noisy case that
-    # this schedule now recovers. The final pass is always at `radius`, so
-    # what comes back is measured at the radius the caller asked for.
     widths = [radius * 4.0, radius * 2.0]
     schedule = widths + [radius] * max(1, int(rounds))
     for width in schedule:
@@ -517,23 +510,7 @@ def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
     rng = np.random.default_rng(seed)
     best = None
     best_score = 1
-    # A SEED IS SCORED LOOSELY, and this is not the same number the answer
-    # is scored with. Two points fix a transform exactly at those two
-    # points and approximately everywhere else, and the error grows with
-    # the distance from them -- so scoring a seed at the final radius asks
-    # it to already be the answer. It only has to be in the right basin.
     seed_radius = radius * 4.0
-    # AND A SEED NEEDS A BASELINE. A pair of nuclei 10 px apart fixes the
-    # rotation to within the centroid noise, which is to say not at all;
-    # the same noise on a pair a third of the field apart is a fraction of
-    # a degree. Short pairs are also where the separation test stops
-    # discriminating, because almost any target pair passes it.
-    # `np.ptp(a)` AND NOT `a.ptp()`: NumPy 2.0 removed the ndarray METHOD
-    # and kept only the function. Every other `ptp` in this package was
-    # already written the surviving way, so this line was the one that
-    # raised AttributeError on any NumPy 2 install -- which is every
-    # install now, and is why this module measured 52% in the coverage
-    # sweep: seven tests could not reach past it.
     extent = float(max(np.ptp(src[:, 0]), np.ptp(src[:, 1])))
     min_span = 0.2 * extent
     for _ in range(max(1, int(trials))):
@@ -550,17 +527,6 @@ def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
             got = float(np.hypot(*(dst[l] - dst[k])))
             if abs(got - want) > want * tolerance:
                 continue
-            # Two points fix the rotation: the angle between the source
-            # separation and the target separation.
-            #
-            # BOTH ANGLES ARE TAKEN THE SAME WAY ROUND, and it has to be
-            # the way the rotation matrix below reads. These are (row,
-            # column) points, so a separation is (dy, dx) and the angle
-            # that matches `[[cos, -sin], [sin, cos]]` acting on (row,
-            # column) is `arctan2(dy, dx)`. Written as `arctan2(dx, dy)`
-            # the two angles are each the complement of the right one, so
-            # their difference comes out NEGATED -- a seed rotated the
-            # wrong way, which the refinement then has to climb out of.
             source_angle = np.arctan2(*(src[j] - src[i]))
             target_angle = np.arctan2(*(dst[l] - dst[k]))
             angle = target_angle - source_angle

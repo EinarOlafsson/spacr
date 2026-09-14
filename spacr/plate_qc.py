@@ -119,9 +119,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
 
 #: Standard SBS plate formats as ``n_wells -> (n_rows, n_columns)``, in
 #: ascending size. Inference picks the *smallest* format whose nominal
@@ -178,9 +175,6 @@ LAYOUT_COLUMNS: Tuple[str, ...] = (
 )
 
 
-# ---------------------------------------------------------------------------
-# Small numeric helpers
-# ---------------------------------------------------------------------------
 
 def _finite(value: Any) -> Optional[float]:
     """Return ``value`` as a float, or ``None`` if it is not finite.
@@ -245,9 +239,6 @@ def _rank_compare(a: np.ndarray, b: np.ndarray) -> Tuple[Optional[float], Option
     return _finite(res.pvalue), _finite(delta)
 
 
-# ---------------------------------------------------------------------------
-# Well / row / column labels
-# ---------------------------------------------------------------------------
 
 _ROW_NUMERIC_RE = re.compile(r"^\s*(?:row)?[\s_-]*r?[\s_-]*(\d+)\s*$", re.IGNORECASE)
 _COL_NUMERIC_RE = re.compile(r"^\s*(?:col(?:umn)?)?[\s_-]*c?[\s_-]*(\d+)\s*$", re.IGNORECASE)
@@ -389,9 +380,6 @@ def infer_plate_format(n_rows: int, n_cols: int) -> Tuple[Optional[int], int, in
     return None, n_rows, n_cols
 
 
-# ---------------------------------------------------------------------------
-# Read-only database access (mirrors spacr.agreement / the Database Browser)
-# ---------------------------------------------------------------------------
 
 def _quote_ident(name: str) -> str:
     """Double-quote a SQL identifier that has already been schema-checked."""
@@ -542,9 +530,6 @@ def load_plate_frame(db_path: str, table: str, value_col: str,
     return pd.DataFrame(rows, columns=ids + [value_col])
 
 
-# ---------------------------------------------------------------------------
-# Long frame → well grid
-# ---------------------------------------------------------------------------
 
 def _prc_parts(series: pd.Series) -> Optional[pd.DataFrame]:
     """Split a ``prc`` column into ``plateID``/``rowID``/``columnID``.
@@ -559,9 +544,6 @@ def _prc_parts(series: pd.Series) -> Optional[pd.DataFrame]:
     n_parts = split.shape[1]
     if n_parts < 3:
         return None
-    # Candidate (row, column) token offsets, most likely first:
-    #   1,2 -> plateID_rowID_columnID[_fieldID]   (what spacr.io writes)
-    #   2,3 -> a plate name containing one underscore
     best: Optional[Tuple[int, int]] = None
     best_score = 0.0
     for r_i, c_i in ((1, 2), (2, 3)):
@@ -830,7 +812,6 @@ def plate_layout(df: pd.DataFrame,
     located["row_index"] = located["row_index"].astype(int)
     located["column_index"] = located["column_index"].astype(int)
 
-    # -- aggregate ---------------------------------------------------------
     if grouping == "count":
         located["__value__"] = 1.0
     else:
@@ -852,7 +833,6 @@ def plate_layout(df: pd.DataFrame,
         values = grouped["__value__"].agg(grouping).rename("value")
     wells = pd.concat([counts, values], axis=1).reset_index()
 
-    # -- min_count ---------------------------------------------------------
     n_dropped = 0
     if min_count and min_count > 0:
         keep = wells["n"] >= int(min_count)
@@ -865,9 +845,6 @@ def plate_layout(df: pd.DataFrame,
                 f"not zero.")
 
     if not len(wells):
-        # Everything was filtered away. There is no grid to infer — a
-        # 2x3 "plate" invented from an empty extent would be a lie with
-        # a shape.
         empty = _empty_layout()
         meta = dict(empty.attrs)
         meta.update({"plate": str(plate), "value_col": value_col,
@@ -880,7 +857,6 @@ def plate_layout(df: pd.DataFrame,
         empty.attrs = meta
         return empty
 
-    # -- geometry ----------------------------------------------------------
     obs_rows = int(wells["row_index"].max())
     obs_cols = int(wells["column_index"].max())
     if plate_format:
@@ -1035,9 +1011,6 @@ def write_layout_csv(layout: pd.DataFrame, path: str) -> str:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Row / column trends
-# ---------------------------------------------------------------------------
 
 def _spearman(x: np.ndarray, y: np.ndarray) -> Tuple[Optional[float], Optional[float]]:
     """Two-sided Spearman of ``x`` vs ``y``, ``(rho, p)``, never NaN.
@@ -1121,9 +1094,6 @@ def row_column_trends(df: pd.DataFrame,
     return out
 
 
-# ---------------------------------------------------------------------------
-# The report
-# ---------------------------------------------------------------------------
 
 @dataclass
 class RingStats:
@@ -1469,16 +1439,13 @@ def detect_edge_effect(df: pd.DataFrame,
             p is not None and delta is not None
             and p < alpha and abs(delta) >= min_effect)
 
-    # -- ring-by-ring profile ---------------------------------------------
     report.rings = _ring_profile(values, ring_index, core_depth, max_rings,
                                  report)
 
-    # -- gradients ---------------------------------------------------------
     report.gradients = _gradient_profile(usable, values, alpha,
                                          min_gradient_rho)
     report.gradient_detected = any(g.detected for g in report.gradients)
 
-    # -- which pattern wins ------------------------------------------------
     report.dominant = _dominant(report)
     return report
 
@@ -1504,8 +1471,6 @@ def _ring_profile(values: np.ndarray, ring_index: np.ndarray,
     max_ring = int(ring_index.max()) if ring_index.size else 0
     for k in range(min(int(max_rings), max_ring + 1)):
         if k >= depth:
-            # This ring is part of the core; comparing it against itself
-            # would be circular, so the profile stops here.
             break
         vals = values[ring_index == k]
         if vals.size == 0:
@@ -1568,9 +1533,6 @@ def _dominant(report: EdgeEffectReport) -> str:
     return "edge" if edge_mag >= grad_mag else "gradient"
 
 
-# ---------------------------------------------------------------------------
-# Text rendering
-# ---------------------------------------------------------------------------
 
 def _fmt_num(value: Optional[float], places: int = 3) -> str:
     """Format a statistic, or say it is undefined — never print ``nan``."""

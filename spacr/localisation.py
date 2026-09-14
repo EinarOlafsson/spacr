@@ -75,8 +75,6 @@ def table() -> Dict[str, str]:
             continue
         if place_text.lower() in NOT_A_COMPARTMENT or _looks_numeric(place_text):
             continue
-        # `gene_nr` reads as a float when the column has a blank in it, so
-        # 244480 arrives as "244480.0" and joins to nothing at all.
         if gene_text.endswith(".0"):
             gene_text = gene_text[:-2]
         out.setdefault(gene_text, place_text)

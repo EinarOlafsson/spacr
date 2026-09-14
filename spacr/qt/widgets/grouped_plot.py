@@ -139,7 +139,6 @@ class GroupedPlot(FastPlot):
         if spec is not None:
             self.show_spec(spec)
 
-    # ------------------------------------------------------------ drawing
 
     def show_spec(self, spec: PlotSpec) -> int:
         """Draw ``spec``. Returns the number of groups drawn."""
@@ -189,10 +188,6 @@ class GroupedPlot(FastPlot):
             return 0
 
         mark = MARKS.get(str(spec.kind), "jitter_bar")
-        # A SCATTER IS NOT A GROUPED MARK. It is two continuous axes, and
-        # forcing it through `add_group_mark` would put every point at one
-        # categorical position -- a jitter under another name, which is
-        # exactly what `graph_types` refuses to offer.
         if str(spec.kind) in ("scatter", "line") and spec.group \
                 and spec.group in getattr(spec.frame, "columns", ()) \
                 and pd.api.types.is_numeric_dtype(spec.frame[spec.group]):
@@ -207,10 +202,6 @@ class GroupedPlot(FastPlot):
             self.add_group_mark(float(position), groups[label], mark,
                                 colour=colour, seed=position,
                                 spread=str(getattr(spec, "spread", "sem")))
-        # THE n IS ON THE AXIS, not only in the caption. A three-point
-        # group and a three-hundred-point group are the same bar, and the
-        # label is the only place a reader meets the difference before they
-        # have read the sentence underneath.
         self.plot.getAxis("bottom").setTicks(
             [[(position, f"{label}\n(n={len(groups[label]):,})")
               for position, label in enumerate(labels)]])
@@ -253,10 +244,6 @@ class GroupedPlot(FastPlot):
 
             from .fast_plots import colour_for
 
-            # SORTED BY x, because a line joins points in the order it is
-            # given and an unsorted series draws a scribble. `graph_types`
-            # only offers a line for an ordered x, and this is the other
-            # half of that promise.
             order = np.argsort(x)
             self.plot.plot(x[order], y[order],
                            pen=pg.mkPen(colour_for(0), width=2))
@@ -291,9 +278,6 @@ class GroupedPlot(FastPlot):
         counts = "; ".join(f"{label} n={len(values):,}"
                            for label, values in groups.items())
         spec = self.spec
-        # THE MARK THAT WAS DRAWN, not the kind that was asked for: an
-        # unrecognised kind falls back to the bar, and a caption that read
-        # the kind would leave that bar's whisker unnamed.
         mark = MARKS.get(str(getattr(spec, "kind", "") or ""), "jitter_bar")
         if mark not in ("bar", "jitter_bar"):
             return counts
@@ -305,7 +289,6 @@ class GroupedPlot(FastPlot):
         said = spread_label(spread)
         return f"{counts} — {said}" if counts else said
 
-    # -------------------------------------------------- what the menu asks
 
     def comparison_groups(self) -> Optional[dict]:
         """Return grouped values for export-time statistical comparison.

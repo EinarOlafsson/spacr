@@ -111,9 +111,6 @@ def guide_support(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
         p_values = block["_p"].to_numpy(dtype="float64")
         finite = effects[np.isfinite(effects)]
         if len(finite):
-            # Sign of the MEAN, not of the strongest guide: asking whether the
-            # guides agree with each other is the question, and letting the
-            # largest one define "correct" would make disagreement invisible.
             direction = np.sign(np.mean(finite)) or 1.0
             same = int(np.sum(np.sign(finite) == direction))
         else:
@@ -122,9 +119,6 @@ def guide_support(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
         rows.append({
             "gene": gene,
             "n_guides": int(len(block)),
-            # `nansum` over a comparison is safe -- NaN <= alpha is False --
-            # so this counts zero significant guides, which is correct when
-            # there are no p values to be significant.
             "n_guides_significant": int(np.nansum(p_values <= alpha)),
             "n_same_direction": same,
             "concordance": (same / len(block)) if len(block) else np.nan,
@@ -132,15 +126,6 @@ def guide_support(results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
             "gene_p": float(gene_row["_p"].min()) if len(gene_row) else np.nan,
             "gene_coefficient": (float(gene_row["_effect"].iloc[0])
                                  if len(gene_row) else np.nan),
-            # `nanmin` OF AN ALL-NaN SLICE WARNS AND RETURNS NaN, and every
-            # gene warns separately -- three lines of RuntimeWarning per run
-            # on a screen where the answer is simply "there are no guide p
-            # values". THE ABSENCE IS EXPECTED, NOT EXCEPTIONAL: a mixed
-            # model makes the guide a RANDOM effect, so each guide gets a
-            # shrunken BLUP and no p value at all, which the run already says
-            # in words. Asking the question and reporting NaN quietly is the
-            # honest response; warning about it is noise that hides real
-            # warnings.
             "best_guide_p": _best_p(p_values),
         })
     if not rows:

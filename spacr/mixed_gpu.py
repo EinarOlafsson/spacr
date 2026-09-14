@@ -95,10 +95,6 @@ def torch_available() -> bool:
     return importlib.util.find_spec("torch") is not None
 
 
-# ONE PROBE, NOT TWO. The cheap "is there a driver" question is answered in
-# :mod:`spacr.regression_backends`, which a settings panel may import (it
-# touches nothing heavier than stdlib). Re-exported here so a caller holding
-# this module does not have to know that.
 from .regression_backends import cuda_present_without_importing_torch  # noqa: E402,F401
 
 #: How much of the memory a device reports the dense design may take. A fit
@@ -241,9 +237,6 @@ def resolve_device(device: str = GPU_DEVICE):
     return torch.device(wanted)
 
 
-# ---------------------------------------------------------------------------
-# The design: one integer code per row per random-effects term
-# ---------------------------------------------------------------------------
 
 def _codes(labels: Sequence) -> tuple:
     """Integer codes plus the level order, matching pandas' factorize.
@@ -302,9 +295,6 @@ class _RandomTerm:
         return len(self.level_names)
 
 
-# ---------------------------------------------------------------------------
-# The result, shaped like MixedLMResults on purpose
-# ---------------------------------------------------------------------------
 
 @dataclass
 class TorchMixedResults:
@@ -396,9 +386,6 @@ class TorchMixedResults:
                 f"converged={self.converged}")
 
 
-# ---------------------------------------------------------------------------
-# The fit
-# ---------------------------------------------------------------------------
 
 def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
                          max_iter: int = 400, verbose: bool = False):
@@ -515,25 +502,10 @@ def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
             f"{n - p} residual degrees of freedom and no residual variance "
             f"to estimate. Reduce the fixed part, or fit more wells.")
 
-    dtype = torch.float64  # a variance ratio spans decades; float32 loses it
+    dtype = torch.float64
     Xt = torch.as_tensor(X_values, dtype=dtype, device=torch_device)
     yt = torch.as_tensor(y_values, dtype=dtype, device=torch_device)
 
-    # THE CROSS-PRODUCTS, FORMED ONCE. Everything the deviance needs is a
-    # function of these and of theta, so `n` leaves the optimiser's inner
-    # loop entirely and the q x q Cholesky becomes the whole per-iteration
-    # cost. That is the operation measured at 204 ms CPU / 7.69 ms GPU.
-    # WHAT THIS WILL COST, BEFORE ASKING FOR IT. `Z` is DENSE and n x q, and
-    # the shape is known exactly here -- so the bytes are known exactly here.
-    # Reported 2026-08-18: running an OLS and then a mixed fit hung the whole
-    # machine twice, badly enough to need a restart. An allocation that asks
-    # the operating system for more than it has does not fail politely; it
-    # takes the session, and everything else the user had open, with it.
-    #
-    # So the fit says the number and refuses. A refusal a user can read beats
-    # a machine they have to power-cycle, and the alternatives are real ones:
-    # `regression_type='ols'` does not build this matrix at all, and fitting
-    # at well level rather than cell level is usually what was meant.
     _refuse_if_too_large(n, q, dtype=dtype, device=torch_device)
     Z = torch.zeros((n, q), dtype=dtype, device=torch_device)
     offset = 0
@@ -554,8 +526,6 @@ def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
     yty = float(yt @ yt)
 
     eye_q = torch.eye(q, dtype=dtype, device=torch_device)
-    # A rank-deficient fixed part has no identified coefficients and MixedLM
-    # reports it three frames deep as a bare LinAlgError. Caught here, named.
     rank = int(np.linalg.matrix_rank(X_values))
     if rank < p:
         raise ValueError(
@@ -587,7 +557,7 @@ def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
         """
         state["evals"] += 1
         theta = torch.exp(log_theta)
-        lam = torch.sqrt(theta)[expand]              # q
+        lam = torch.sqrt(theta)[expand]
         AA = (lam[:, None] * ZtZ) * lam[None, :]
         L = torch.linalg.cholesky(AA + eye_q)
         AX = lam[:, None] * ZtX
@@ -598,7 +568,6 @@ def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
         RX = torch.linalg.cholesky(S)
         rhs = Xty[:, None] - RZX.T @ cu
         beta = torch.cholesky_solve(rhs, RX)
-        # r^2 = (y - Xb)' W^-1 (y - Xb), through the same factorisation.
         pwrss = (yty - (cu * cu).sum()) - (beta * rhs).sum()
         log_det_M = 2.0 * torch.log(torch.diagonal(L)).sum()
         log_det_S = 2.0 * torch.log(torch.diagonal(RX)).sum()
@@ -629,15 +598,6 @@ def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
                   f"{torch.exp(log_theta).detach().cpu().numpy()}")
         return deviance
 
-    # RESTARTED UNTIL THE DEVIANCE STOPS MOVING, not run once. L-BFGS stops
-    # on its own line-search tolerance, and a single call leaves the variance
-    # components differing from statsmodels in the 4th significant figure --
-    # measured 1.0e-4 relative on the nested fixture. A warm restart from the
-    # stopping point is what separates "the line search gave up" from "the
-    # gradient is flat"; three of them take the disagreement to 1e-7 and cost
-    # about a third of the fit. The loop exits on the deviance, not on a
-    # fixed count, so a hard problem gets the passes it needs and an easy one
-    # does not pay for them.
     started = time.perf_counter()
     previous = float("inf")
     for _restart in range(_MAX_RESTARTS):
@@ -659,21 +619,11 @@ def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
         theta = torch.exp(log_theta).detach()
         scale = float(pwrss) / dof
         beta_flat = beta.detach().ravel()
-        # cov(beta) = sigma^2 (X' W^-1 X)^-1, and S IS X' W^-1 X -- the same
-        # matrix already factorised as RX, so the standard errors come from
-        # the fit rather than from a second, possibly different, solve.
         S_inv = torch.cholesky_inverse(RX)
         se = torch.sqrt(torch.diagonal(S_inv) * scale)
-        # u = L^-T (cu - RZX beta), and the random effect on the response
-        # scale is Lambda u.
         u = torch.linalg.solve_triangular(
             L.T, (cu - RZX @ beta), upper=True).ravel()
         b = (lam * u).cpu().numpy()
-        # CONDITIONAL, not marginal. MixedLMResults.fittedvalues adds each
-        # group's random effects to X.beta, so `resid` is the conditional
-        # residual -- and spacr.ml.fit_mixed_model plots exactly that. A
-        # marginal residual here would have looked right and been a
-        # histogram of the random effects.
         Zb_np = (Z_dense @ torch.as_tensor(
             b, dtype=dtype, device=torch_device)).cpu().numpy()
         fitted = (Xt @ beta.ravel()).cpu().numpy() + Zb_np
@@ -692,13 +642,9 @@ def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
                     index=params.index)
     with np.errstate(divide="ignore", invalid="ignore"):
         t_values = params.to_numpy() / bse.to_numpy()
-    # z, not t: MixedLMResults carries use_t=False, so matching it is what
-    # makes the p-values in results.csv comparable across backends.
     from scipy import stats as _stats
     p_values = 2.0 * _stats.norm.sf(np.abs(t_values))
 
-    # THE BLUPS, keyed and named exactly as MixedLM keys and names them, so
-    # `spacr.ml._blup_guide_name` parses this backend's output unchanged.
     random_effects = {}
     for term, piece in zip(terms, slices):
         values = b[piece]
@@ -786,14 +732,6 @@ def mixedlm_torch(formula, data, groups, vc_formula=None, *,
     import patsy
 
     y_design, X_design = patsy.dmatrices(formula, data, return_type="dataframe")
-    # THE ROWS PATSY KEPT, taken by INDEX and not by position. patsy drops a
-    # row whose predictor is NaN, so `groups[:len(X_design)]` would take the
-    # first n labels rather than the surviving ones and shift every remaining
-    # row into the wrong cluster from the first dropped row onwards. Nothing
-    # about the result would look wrong -- the fit completes, the standard
-    # errors are simply computed against the wrong grouping. spacr.ml.
-    # regression() takes weights, groups and exposure through the same index
-    # for the same reason.
     kept = X_design.index
     if isinstance(groups, str):
         groups = data[groups]

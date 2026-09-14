@@ -194,9 +194,6 @@ class BenchmarkController(QObject):
             return
         self._disarm_timeout()
         self._pending = dict(entry)
-        # Let the 16 ms watchdog report a timer delayed by the click handler
-        # before this interval is sealed.  The readiness timestamp remains
-        # the first settled paint; only the stall inventory waits two frames.
         QTimer.singleShot(SETTLE_MS, self._settle_ready)
 
     @staticmethod
@@ -237,11 +234,6 @@ class BenchmarkController(QObject):
         state = timing.snapshot()
         start = float(entry.get("started_at", 0.0))
         interval_stalls = timing.stalls_between(start, end, state["stalls"])
-        # Preserve the exact window used for the derived stall fields.  The
-        # readiness timestamp precedes the two-frame settling interval above,
-        # so ``started_at``/``at`` alone cannot reproduce this calculation.
-        # The parent benchmark driver independently recomputes every value
-        # below from the raw watchdog trace and these two boundaries.
         entry["stall_window_started_at"] = start
         entry["stall_window_ended_at"] = end
         entry["worst_event_loop_stall_ms"] = max(
@@ -252,10 +244,6 @@ class BenchmarkController(QObject):
             entry["worst_event_loop_stall_ms"] < timing.STALL_BUDGET_MS
         )
         entry["stall_samples"] = len(interval_stalls)
-        # ONLY A MODULE HAS A DOOR. Home is the screen the window opens on
-        # and Preferences is a dialog; stamping either with "sidebar" would
-        # be a field that says how it was reached and is wrong about it,
-        # which is precisely the failure this field was added to stop.
         if self.phase == "module":
             entry.setdefault("door", self._door)
         self.results.append(entry)
@@ -287,8 +275,6 @@ class BenchmarkController(QObject):
                 return
             self._advance()
 
-        # Unit environments may not install the production watchdog; ``None``
-        # deliberately falls through after the same two-frame settle.
         QTimer.singleShot(SETTLE_MS, _after_beat)
 
     def _advance(self) -> None:
@@ -308,40 +294,6 @@ class BenchmarkController(QObject):
             button for button in getattr(self.window._sidebar, "_items", ())
             if str(button.property("navKey") or "") == key
         ]
-        # NINE KEYS ONCE HAD TWO ROWS, and neither was a mistake: a module
-        # folded onto a host's masthead kept its registry row as well, drawn
-        # once from the registry and once as an indented child of its host.
-        # This driver demanded exactly one and errored on all nine, which is
-        # how instruction 284's ratchet stopped measuring nine modules
-        # without anyone noticing -- 314's own suspicion, that "the ratchet
-        # is not running on the path the user actually takes", made
-        # concrete. The fix was to prefer the registry row.
-        #
-        # THAT FIX HAS SINCE STOPPED WORKING, AND SO HAS THE ROW IT PREFERRED.
-        # Measured 2026-09-11 on a real `MainWindow` with the app drawer
-        # open: NO button anywhere in the window carries the `navKey` of
-        # `feature_explorer`, `convert`, `external_masks`, `lineage`,
-        # `layer_viewer`, `tabulate`, `outliers`, `control_chart`,
-        # `train_compare`, `plate_view`, `profiler`, `investigate_hit`,
-        # `feature_dict` or `trellis` -- fourteen of forty-five. The
-        # `isFoldChild` property this branch discriminated on is READ here
-        # and SET NOWHERE in the tree, so the rows are gone and the
-        # preference is guarding nothing. The count of unmeasured modules
-        # went from nine to fourteen and the artifact said `passed: false`
-        # with 463 violations, which reads as a broken application rather
-        # than as a driver that cannot find fourteen doors.
-        #
-        #   A RATCHET THAT ERRORS IS NOT A RATCHET THAT FAILED, and the
-        #   difference is invisible from the summary line.
-        #
-        # SO THE SECOND DOOR IS OPENED HERE, and it is a real one rather
-        # than a constructor proxy. Every one of the fourteen is in
-        # `TILELESS_APPS`, reached from a host module's button, from Help,
-        # or from the command palette -- and the palette reaches ALL of
-        # them uniformly: `CommandPalette._nav` is `window._on_nav_selected(key)`,
-        # the same slot `Sidebar.nav_selected` fires into. Pressing the
-        # button stays the primary path and is unchanged; this is what
-        # happens when there is no button to press.
         if len(buttons) > 1:
             registry_rows = [b for b in buttons
                              if not b.property("isFoldChild")]
@@ -352,8 +304,6 @@ class BenchmarkController(QObject):
                 key, f"expected one live sidebar button, found {len(buttons)}")
             return
         if not buttons:
-            # WHICH DOOR IS RECORDED, because a number that does not say how
-            # it was obtained is the thing this whole comment is about.
             self._door = "command palette"
             try:
                 self.window._on_nav_selected(key)
@@ -367,10 +317,6 @@ class BenchmarkController(QObject):
         if not button.isEnabled():
             self._record_error(key, "the live sidebar button is disabled")
             return
-        # QAbstractButton.click() is the same signal path as a user release:
-        # Sidebar.nav_selected -> MainWindow._on_nav_selected.  Calling the
-        # screen factory directly is the constructor proxy this benchmark
-        # exists to replace.
         try:
             button.click()
         except BaseException as error:                      # noqa: BLE001
@@ -465,9 +411,6 @@ class BenchmarkController(QObject):
             detail = str(self.current_key)
         self._timeout_pending = True
         timing.cancel_interactive(detail=str(detail))
-        # Let an overdue watchdog beat run before sealing the failed interval.
-        # Readiness is rejected while this is pending, so the deadline stays
-        # decisive even when a paint was queued behind the same long block.
         QTimer.singleShot(
             SETTLE_MS,
             lambda: self._record_error(
@@ -479,9 +422,6 @@ class BenchmarkController(QObject):
 
     def _record_error(self, detail: str, message: str, *,
                       already_stopped: bool = False) -> None:
-        # ``already_stopped`` means the Qt single-shot has fired; its wall
-        # timer is independent and must still be cancelled before this method
-        # checkpoints or advances.
         """Record a failure without losing the timings already taken.
 
         :param detail: what was being done.
@@ -528,18 +468,12 @@ class BenchmarkController(QObject):
             "stall_samples": len(interval_stalls),
             "error": str(message),
         }
-        # SAME RULE AS THE SUCCESS PATH: only a module was reached through a
-        # door, so only a module's record carries one. A refusal for Home or
-        # Preferences stamped with the last module's door would be a field
-        # that is confidently wrong.
         if self.phase == "module":
             record["door"] = self._door
         self.results.append(record)
         self._checkpoint()
         print(f"benchmark failed: {detail}: {message}", flush=True)
         if self.phase == "home":
-            # Without a usable Home, no click path exists to benchmark.  Do
-            # not disguise that by calling private factories instead.
             self._finish("Home never became interactive")
             return
         if self.phase == "preferences":
@@ -548,10 +482,6 @@ class BenchmarkController(QObject):
             self._advance_after_watchdog()
             return
         self.index += 1
-        # The screen can finish painting after its overdue timeout has been
-        # delivered.  Clear the key before the next settled advance so
-        # that late readiness cannot terminate this attempt a second time and
-        # skip the following registry row.
         self.current_key = None
         self._advance_after_watchdog()
 

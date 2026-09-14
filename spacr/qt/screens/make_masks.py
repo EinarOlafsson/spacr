@@ -186,11 +186,6 @@ FOLD_FALLBACK = {
         "Apply the selected segmentation model to every image in the open "
         "folder.",
         "beta"),
-    # STABLE, not alpha: `spacr.qt.maturity` promoted both at launch on the
-    # evidence in its own table, and it is the promoted stage the tile lit
-    # in. A fallback copied from `app.py`'s literal records the colour
-    # before that rewrite, which is a button lighting green-cyan where the
-    # tile it replaced lit blue.
     "model_compare": (
         "Model Compare",
         "Compare two Cellpose models on the same fields using side-by-side "
@@ -206,9 +201,6 @@ FOLD_FALLBACK = {
         "Correct segmentation masks and tracking assignments manually while "
         "recording each edit in the curation log.",
         "alpha"),
-    # THE ONLY SOURCE, not a fallback: the bridge registered its own row
-    # until the screen folded in here, so nothing puts one in the registry
-    # any more and this is what the button reads.
     "napari_bridge": (
         "Napari Bridge",
         "Correct a segmentation mask in napari and import the revised labels "
@@ -222,7 +214,6 @@ FOLD_FALLBACK = {
 #: other tab segments with, and a second copy of the screen would not have it.
 FOLD_HOSTS = {MASK_FOLDER_KEY: "train_cellpose"}
 
-# Qt platform plugins that have no way for a human to click a dialog button.
 _HEADLESS_PLATFORMS = ("offscreen", "minimal", "minimalegl", "vnc")
 
 
@@ -253,9 +244,6 @@ def is_headless() -> bool:
     return (not name) or name in _HEADLESS_PLATFORMS
 
 
-# ---------------------------------------------------------------------------
-# Canvas — image + mask overlay with brush/erase mouse handling
-# ---------------------------------------------------------------------------
 
 MODE_NONE = "none"
 MODE_BRUSH = "brush"
@@ -292,18 +280,9 @@ TOOL_MODES: List[tuple] = [
     (MODE_ERASE_OBJECT, "Erase object", "erase_object"),
     (MODE_WAND_ADD,     "Wand +",       "wand_add"),
     (MODE_WAND_ERASE,   "Wand −",       "wand_erase"),
-    # THE TWO REGION TOOLS SIT BESIDE THE WAND, not after Zoom. All three
-    # answer the same question -- which pixels are one object -- where
-    # brush and erase answer it a pixel at a time, and Zoom is not a tool
-    # for changing a mask at all. Reaching the row through the fallback
-    # put them last in alphabetical order; named here they are placed.
     (MODE_DRAW,         "Draw",         "draw"),
     (MODE_DIVIDE,       "Divide",       "divide"),
     (MODE_ZOOM,         "Zoom",         "zoom"),
-    # RECROP IS LAST, past the tools that change a mask, because it is not
-    # one of them: every button left of it edits the field in view, and this
-    # one replaces the field in view with the several fields it should have
-    # been. Beside Divide it would read as another way to split an object.
     (MODE_RECROP,       "Recrop",       "recrop"),
 ]
 
@@ -333,11 +312,6 @@ def tool_row_entries() -> List[tuple]:
     return entries
 
 
-# Held with the left button, these pan from ANY tool. Two of them because
-# window managers eat one or the other: Alt+drag moves the window on most
-# Linux desktops, and Shift+drag is taken by some tablet drivers. Whichever
-# one survives on this machine, panning still works without putting the
-# brush down.
 PAN_MODIFIERS = Qt.ShiftModifier | Qt.AltModifier
 
 #: Smallest zoom viewport, in image pixels. Below a handful of pixels the
@@ -416,9 +390,9 @@ class _MaskCanvas(QLabel):
     :param parent: parent widget; ownership only.
     """
 
-    stroke_started = Signal()      # emitted just before self.mask is mutated
-    stroke_finished = Signal()     # emitted after a stroke completes
-    zoom_changed = Signal(bool)    # emitted with True when zoom entered / False on reset
+    stroke_started = Signal()
+    stroke_finished = Signal()
+    zoom_changed = Signal(bool)
     #: A recrop box was dragged, in FULL-image pixels: (x0, y0, x1, y1).
     #: The canvas neither writes it nor judges it — the box may be too
     #: small, or a re-draw of one already cut — because what it becomes is
@@ -428,8 +402,8 @@ class _MaskCanvas(QLabel):
     def __init__(self, parent: Optional[QWidget] = None):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
         super().__init__(parent)
-        self.image: Optional[np.ndarray] = None       # uint16 grayscale
-        self.mask: Optional[np.ndarray] = None        # uint8 labels
+        self.image: Optional[np.ndarray] = None
+        self.mask: Optional[np.ndarray] = None
         self.mode: str = MODE_NONE
         self.brush_radius: int = 10
         self.norm_lo: float = 1.0
@@ -454,9 +428,6 @@ class _MaskCanvas(QLabel):
         self.wand_gradient_erode: int = 3
         self.wand_salvage_over_cap: bool = True
         self.zoom_speed: float = 1.15
-        # The field is composited once and stays up between edits, and a
-        # window dragged to another screen fires no resize -- so the
-        # recomposite has to be asked for.
         follow_device_ratio(self, self.refresh)
 
         #: What the stroke that just finished did — ``{"kind", "target",
@@ -465,16 +436,11 @@ class _MaskCanvas(QLabel):
         #: so a handler reads the edit it was told about, not the one before.
         self.last_edit: Optional[dict] = None
 
-        # Zoom viewport in image coords; None = full-image view.
         self._zoom_x0: Optional[int] = None
         self._zoom_y0: Optional[int] = None
         self._zoom_x1: Optional[int] = None
         self._zoom_y1: Optional[int] = None
 
-        # Zoom-rectangle drag state (widget-local pixel coords). The recrop
-        # box is dragged the same way and reuses them, so the two rectangle
-        # tools cannot get out of step with each other; which one is being
-        # aimed is `self.mode`.
         self._zoom_drag_start: Optional[QPoint] = None
         self._zoom_drag_end: Optional[QPoint] = None
 
@@ -485,9 +451,6 @@ class _MaskCanvas(QLabel):
         #: which is how one object reached disk as three crops.
         self.recrop_boxes: List[tuple] = []
 
-        # The draw outline / divide line in flight, in widget coords. Both
-        # gestures change nothing until the button comes up, so the path is
-        # collected here and converted to image pixels once, on release.
         self._gesture_points: List[QPoint] = []
 
         self.setAlignment(Qt.AlignCenter)
@@ -497,17 +460,11 @@ class _MaskCanvas(QLabel):
         self._last_pt: Optional[QPoint] = None
         self._stroke_in_progress = False
 
-        # Right-button sweep-delete: one gesture, one undo step, one ledger
-        # entry naming every object it took out.
         self._sweeping = False
         self._sweep_labels: List[int] = []
 
-        # Shift/Alt + left-drag pan, in widget coords.
         self._pan_from: Optional[QPoint] = None
 
-    # ------------------------------------------------------------------
-    # Data
-    # ------------------------------------------------------------------
     def set_image_and_mask(self, image: np.ndarray, mask: np.ndarray) -> None:
         """Load a new image + mask pair and rerender at full-image zoom.
 
@@ -516,13 +473,7 @@ class _MaskCanvas(QLabel):
         """
         self.image = image
         self.mask = mask
-        # A gesture belongs to the field it was started on. The arrow keys
-        # move to the next field from anywhere, including the middle of a
-        # traced outline, and the points collected on the old field name
-        # nothing on the new one.
         self._gesture_points = []
-        # The boxes belong to the field they were cut out of; on the next
-        # field they would be rectangles drawn over unrelated pixels.
         self.recrop_boxes = []
         self.reset_zoom(silent=True)
         self.refresh()
@@ -569,20 +520,10 @@ class _MaskCanvas(QLabel):
         pixmap = QPixmap.fromImage(qimg)
         avail_w = max(200, self.width())
         avail_h = max(200, self.height())
-        # Composited at the panel's real pixel density. Everything below
-        # that maps a mouse position onto this picture therefore asks
-        # `logical_size`, not `pixmap.width()`: the two differ by the device
-        # pixel ratio, and a drawn outline that is out by that factor lands
-        # on the wrong object.
         pixmap = scaled_for(pixmap, self, avail_w, avail_h)
         self.setPixmap(pixmap)
 
-    # ------------------------------------------------------------------
-    # Coordinate mapping (widget-local px  ↔  full image px)
-    # ------------------------------------------------------------------
     def _canvas_to_image(self, x: float, y: float) -> Optional[tuple]:
-        # NB: QLabel.pixmap() returns a *null* QPixmap (never None) when no
-        # pixmap is set, so the emptiness test has to be isNull().
         """Widget coordinates to IMAGE pixel coordinates, or ``None``.
 
         ``None`` means the point is outside the drawn pixmap -- in the letterbox
@@ -609,7 +550,6 @@ class _MaskCanvas(QLabel):
         sub_h = max(1, y1 - y0)
         img_x = int(x0 + cx * sub_w / pw)
         img_y = int(y0 + cy * sub_h / ph)
-        # Clamp to image bounds
         img_x = max(0, min(self.mask.shape[1] - 1, img_x))
         img_y = max(0, min(self.mask.shape[0] - 1, img_y))
         return img_x, img_y
@@ -772,9 +712,6 @@ class _MaskCanvas(QLabel):
         sub_w = max(1, x1 - x0)
         return max(1, int(self.brush_radius * sub_w / shown.width()))
 
-    # ------------------------------------------------------------------
-    # Painting (adds a zoom-rectangle overlay while dragging)
-    # ------------------------------------------------------------------
     def paintEvent(self, event):
         """Draw the base pixmap plus whichever gesture is in flight.
 
@@ -783,10 +720,6 @@ class _MaskCanvas(QLabel):
         without the preview the user is dragging an invisible line.
         """
         super().paintEvent(event)
-        # The boxes already cut are drawn under everything else and in
-        # every mode: they are the record of what this field has already
-        # given up, and they have to be visible while the next box is being
-        # aimed as well as after the tool has been put down.
         self._paint_recrop_boxes()
         if self.mode in (MODE_DRAW, MODE_DIVIDE):
             self._paint_gesture()
@@ -813,12 +746,6 @@ class _MaskCanvas(QLabel):
         three times as three near-identical crops, because the user could
         only tell a box had worked by drawing it again.
         """
-        # The pixmap is checked here rather than per box, because it is what
-        # every box is mapped through: a paint that arrives before refresh()
-        # has composited anything (a resize on a screen that has not loaded
-        # a field yet) has nothing to place a rectangle against, and boxes
-        # placed at the widget origin instead would each be a blue square
-        # over an object they name nothing about.
         rendered = self.pixmap()
         if not self.recrop_boxes or self.mask is None \
                 or rendered is None or rendered.isNull():
@@ -872,9 +799,6 @@ class _MaskCanvas(QLabel):
         painter.setPen(closing)
         painter.drawLine(self._gesture_points[-1], self._gesture_points[0])
 
-    # ------------------------------------------------------------------
-    # Mouse events
-    # ------------------------------------------------------------------
     def _emit_stroke_start(self):
         """Open a stroke, once. A stroke already open is not reopened.
 
@@ -901,9 +825,6 @@ class _MaskCanvas(QLabel):
                            "detail": dict(detail)}
         self.stroke_finished.emit()
 
-    # ------------------------------------------------------------------
-    # Right-button sweep-delete
-    # ------------------------------------------------------------------
     def _sweep_delete_at(self, pt) -> bool:
         """Delete the object under ``pt`` as part of the open sweep.
 
@@ -964,11 +885,6 @@ class _MaskCanvas(QLabel):
             return
 
         if self.mode in (MODE_DRAW, MODE_DIVIDE):
-            # No stroke is opened here: neither tool touches the mask until
-            # the button comes up, and an outline that encloses nothing or a
-            # line that separates nothing must leave no undo step and no
-            # ledger entry behind it — the same rule the sweep-delete
-            # follows in :meth:`_sweep_delete_at`.
             self._gesture_points = [event.position().toPoint()]
             self.update()
             return
@@ -991,10 +907,6 @@ class _MaskCanvas(QLabel):
                 **self.wand_rescue_settings(),
             )
             self.refresh()
-            # The report goes in the ledger with the click: which way the
-            # flood leaked, what tolerance the rescue settled on and whether
-            # the budget stopped it are the reasons the wand took what it
-            # took, and a mask nobody can explain is a mask nobody trusts.
             self._emit_stroke_end(
                 kind="wand", target=(255 if action == "add" else 0),
                 action=action, tolerance=round(float(tolerance), 3),
@@ -1002,7 +914,6 @@ class _MaskCanvas(QLabel):
             )
             return
 
-        # Brush / erase strokes
         radius = self._mask_radius_for_brush()
         value = 255 if self.mode == MODE_BRUSH else 0
         engine.paint_disk(self.mask, pt[0], pt[1], radius, value)
@@ -1022,9 +933,6 @@ class _MaskCanvas(QLabel):
             now = event.position().toPoint()
             dx, dy = self._image_delta(now.x() - self._pan_from.x(),
                                         now.y() - self._pan_from.y())
-            # Only re-anchor once the drag has actually moved the view:
-            # discarding sub-pixel drags instead of accumulating them is
-            # what makes a slow pan at high zoom stall completely.
             if (dx or dy) and self.pan_by(dx, dy):
                 self._pan_from = now
             return
@@ -1038,8 +946,6 @@ class _MaskCanvas(QLabel):
                 and event.buttons() & Qt.LeftButton:
             now = event.position().toPoint()
             if self.mode == MODE_DIVIDE:
-                # A divide is one straight cut, so the drag moves the far end
-                # of the line instead of adding a bend to it.
                 self._gesture_points = [self._gesture_points[0], now]
             else:
                 self._gesture_points.append(now)
@@ -1049,9 +955,6 @@ class _MaskCanvas(QLabel):
             pt = self._canvas_to_image(event.position().x(), event.position().y())
             if pt is None:
                 return
-            # A drag that *began* outside the pixmap never fired
-            # stroke_started, so without this the resulting edit would
-            # never be pushed onto the undo history. Idempotent.
             self._emit_stroke_start()
             radius = self._mask_radius_for_brush()
             value = 255 if self.mode == MODE_BRUSH else 0
@@ -1069,8 +972,6 @@ class _MaskCanvas(QLabel):
         if event.button() == Qt.RightButton and self._sweeping:
             self._sweeping = False
             labels, self._sweep_labels = self._sweep_labels, []
-            # ONE entry for the whole sweep. Six deletes in the ledger would
-            # say six decisions were made; the user made one.
             self._emit_stroke_end(kind="sweep_delete", target=list(labels),
                                    n_objects=len(labels))
             return
@@ -1081,7 +982,6 @@ class _MaskCanvas(QLabel):
         if self.mode in (MODE_ZOOM, MODE_RECROP) \
                 and self._zoom_drag_start is not None \
                 and self._zoom_drag_end is not None:
-            # Convert both endpoints to image coords and commit
             p0 = self._canvas_to_image(self._zoom_drag_start.x(),
                                         self._zoom_drag_start.y())
             p1 = self._canvas_to_image(self._zoom_drag_end.x(),
@@ -1089,10 +989,6 @@ class _MaskCanvas(QLabel):
             self._zoom_drag_start = None
             self._zoom_drag_end = None
             if self.mode == MODE_RECROP:
-                # Handed on rather than acted on, and handed on even when it
-                # is obviously too small: the screen owns the refusal, so the
-                # user gets the same sentence for every box that will not be
-                # cut instead of silence for some of them.
                 if p0 is not None and p1 is not None:
                     self.recrop_requested.emit(int(p0[0]), int(p0[1]),
                                                 int(p1[0]) + 1,
@@ -1135,11 +1031,6 @@ class _MaskCanvas(QLabel):
         """
         if self.mask is None:
             return
-        # Points that left the pixmap mid-drag are dropped rather than
-        # clamped to its edge, which would drag the outline onto the border
-        # of the image. A path that lost every point this way arrives as an
-        # empty list and is refused below by the same guards that refuse a
-        # click: two points do not make a cut, three do not make an outline.
         image_points = [p for p in
                         (self._canvas_to_image(q.x(), q.y()) for q in points)
                         if p is not None]
@@ -1154,9 +1045,6 @@ class _MaskCanvas(QLabel):
             self._emit_stroke_start()
             self.mask = divided
             self.refresh()
-            # The ledger names both ends of the split: which object was cut
-            # and which id the piece that came off it was given, so a later
-            # reader can follow one object through the division.
             self._emit_stroke_end(
                 kind="divide",
                 target=[int(source) for source, _ in splits],
@@ -1180,13 +1068,7 @@ class _MaskCanvas(QLabel):
         self.refresh()
 
 
-# ---------------------------------------------------------------------------
-# Folded modules
-# ---------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------
-# Cellpose-SAM: the segmentation, and its two intermediate outputs
-# ---------------------------------------------------------------------------
 
 #: Cellpose's own default for the threshold on the cell-probability map.
 #: Lowering it keeps dimmer pixels, raising it keeps only confident ones.
@@ -1273,14 +1155,7 @@ def flow_rgb(flow: np.ndarray) -> Optional[np.ndarray]:
     if flow is None:
         return None
     array = np.asarray(flow)
-    # THE VECTOR SHAPE IS TESTED FIRST. A `(2, H, W)` field also satisfies
-    # "three dimensions with at least three along the last one" whenever
-    # the image is three pixels wide or more, so testing for a picture
-    # first slices the vectors as though they were one and produces a
-    # 2-pixel-tall smear.
     if array.ndim == 3 and array.shape[0] == 2:
-        # (dY, dX) -> two colour channels plus their magnitude, each
-        # stretched on its own so a weak field is still visible.
         dy, dx = stretch_to_uint8(array[0]), stretch_to_uint8(array[1])
         mag = stretch_to_uint8(np.hypot(array[0], array[1]))
         return np.ascontiguousarray(np.stack([dx, dy, mag], axis=-1))
@@ -1335,9 +1210,6 @@ def load_cellpose_model(model_name: str):
     from ...utils import _resolve_cellpose_pretrained
 
     pretrained = _resolve_cellpose_pretrained(model_name)
-    # gpu= AND device= from the one resolver. Mask Generation is the
-    # module people open first, so leaving it CUDA-only while every other
-    # entry point took any accelerator was the confusing half-state.
     from ...accelerator import cellpose_kwargs
 
     return cp_models.CellposeModel(pretrained_model=pretrained,
@@ -1384,21 +1256,12 @@ def cellpose_detect(image: np.ndarray, model, *,
         cellprob_threshold=float(cellprob_threshold),
         min_size=int(min_size),
     )
-    # Cellpose has removed eval arguments between minor versions (4.2 has
-    # no `invert`, 3.x had no `max_size_fraction`). Offering only what THIS
-    # install accepts keeps the screen working across the versions spaCR
-    # supports instead of raising TypeError on the one it was written on.
     try:
         params = inspect.signature(model.eval).parameters
     except (TypeError, ValueError):
         params = None
     if params is not None and not any(
             p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values()):
-        # Only filter against a signature that LISTS what it takes. An
-        # eval declared `(self, x, **kw)` names nothing, and filtering
-        # against it drops every setting the user chose while the run
-        # still succeeds -- the thresholds on the panel would then do
-        # nothing at all, silently.
         kwargs = {k: v for k, v in kwargs.items() if k in params}
 
     output = model.eval([field], **kwargs)
@@ -1436,9 +1299,6 @@ class _FlowPane(QLabel):
         self.setStyleSheet(f"background: {active_palette()['bg']};")
         self.setWordWrap(True)
         self._pixmap: Optional[QPixmap] = None
-        # The flow picture is composited once per run and then left up, so
-        # a move onto a denser screen has to redraw it or it stays soft for
-        # the rest of the session.
         follow_device_ratio(self, self._rescale)
         self.clear_view()
 
@@ -1446,9 +1306,6 @@ class _FlowPane(QLabel):
         """Display one ``(H, W, 3)`` uint8 array."""
         data = np.ascontiguousarray(np.asarray(rgb, dtype=np.uint8))
         height, width = data.shape[:2]
-        # The QImage borrows the buffer, so it is copied before `data`
-        # goes out of scope and the pixmap is left pointing at freed
-        # memory — which shows up as a garbled pane, not as a crash.
         image = QImage(data.data, width, height, 3 * width,
                        QImage.Format_RGB888).copy()
         self._pixmap = QPixmap.fromImage(image)
@@ -1554,15 +1411,10 @@ class FoldedModulePanel(QWidget):
             button = self.buttons.addButton(label,
                                             QDialogButtonBox.ActionRole)
             button.setToolTip(tooltip)
-            # The bool ``clicked`` emits is swallowed here rather than in
-            # every callback: these are the host's own methods, and one that
-            # took a stray positional would fail only when pressed.
             button.clicked.connect(
                 lambda _checked=False, cb=callback: cb())
             self.actions[label] = button
         self.buttons.rejected.connect(self.close)
-        # An empty row would be a strip of padding under the module saying
-        # nothing; it appears the moment there is a button to put in it.
         self.buttons.setVisible(bool(self.actions))
         column.addWidget(self.buttons)
 
@@ -1582,9 +1434,6 @@ class FoldedModulePanel(QWidget):
         self.resize(1120, 780)
 
 
-# ---------------------------------------------------------------------------
-# The napari bridge, folded in
-# ---------------------------------------------------------------------------
 
 #: The file dialogs the bridge opens. A mask is a label image and an image is
 #: whatever the microscope wrote, so the two filters are not the same one.
@@ -1670,16 +1519,11 @@ class NapariBridgeScreen(QWidget):
         self.status.setReadOnly(True)
         self.status.setPlaceholderText(
             "Choose a mask and press Open in napari.")
-        # The log IS this screen's body — nothing is behind it — so it
-        # keeps a surface where the sweep would leave it see-through.
         mark_surface(self.status)
         outer.addWidget(self.status, 1)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "napari_bridge")
 
-    # -- the form -----------------------------------------------------------
     def _path_row(self, label: str, edit: QLineEdit, chooser) -> QHBoxLayout:
         """One labelled path field with a browse button beside it.
 
@@ -1731,7 +1575,6 @@ class NapariBridgeScreen(QWidget):
         """Return the optional source-image path entered in the form."""
         return self._image_edit.text().strip()
 
-    # -- saying things ------------------------------------------------------
     def say(self, text: str, *, append: bool = False) -> str:
         """Display a status message and return the complete displayed text."""
         text = str(text)
@@ -1754,7 +1597,6 @@ class NapariBridgeScreen(QWidget):
             return self.say(f"Could not read {os.path.basename(path)}: {exc}")
         return self.say(handoff.describe())
 
-    # -- the bridge ---------------------------------------------------------
     def open_in_napari(self) -> Any:
         """Open the selected image and mask in napari.
 
@@ -1780,7 +1622,6 @@ class NapariBridgeScreen(QWidget):
         try:
             viewer = open_in_napari(handoff)
         except NapariExtraMissing as exc:
-            # The one refusal that is an instruction rather than an error.
             self.say(str(exc))
             return None
         except Exception as exc:
@@ -1812,9 +1653,6 @@ class NapariBridgeScreen(QWidget):
             corrected = labels_from_viewer(self._viewer,
                                            name=self._handoff.name)
         except Exception as exc:
-            # Every refusal `to_spacr_mask` raises is written to be read by
-            # the person who has to act on it, so it is shown verbatim rather
-            # than replaced with a house apology.
             self.say(str(exc))
             return None
         try:
@@ -1825,9 +1663,6 @@ class NapariBridgeScreen(QWidget):
             return None
         self.say(result.describe(), append=False)
         if result.written:
-            # The handoff now holds what is on disk, so pressing the button
-            # twice reports "unchanged" rather than recording the same edit
-            # a second time.
             self._handoff = self._reloaded(result)
             self.corrected.emit(result.mask_path)
         return result
@@ -1864,9 +1699,6 @@ class NapariBridgeScreen(QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# MakeMasksScreen
-# ---------------------------------------------------------------------------
 
 class MakeMasksScreen(QWidget):
     """Qt widget for the Make Masks app — the successor to Tk ModifyMaskApp.
@@ -1917,21 +1749,15 @@ class MakeMasksScreen(QWidget):
         self._install_shortcuts()
         self._sync_button_states()
 
-        # Drag & drop — accepts a folder of images to fine-tune against.
         try:
             from ..dnd import install_dropzone
             from ..dnd_handlers import MakeMasksDropHandler
             install_dropzone(self, MakeMasksDropHandler(), self)
         except Exception:
             pass
-        # HOVER HELP BELONGS TO THE SETTING'S NAME, never to the box
-        # you type in. Built here on the field, it is moved onto the
-        # label as the last step, so every panel in the application
-        # explains itself the same way.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # ------------------------------------------------------------------
     def _build_ui(self):
         """Lay out the canvas, the tool panel and the navigation row."""
         outer = QVBoxLayout(self)
@@ -1939,8 +1765,6 @@ class MakeMasksScreen(QWidget):
                                   SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        # Masthead — the module's own name and blurb, the folder in force,
-        # and the strip of modules that fold into this one.
         self._header = ModuleHeader(
             HEADER_TITLE,
             description=HEADER_DESCRIPTION,
@@ -1949,9 +1773,6 @@ class MakeMasksScreen(QWidget):
         )
         self._src_label = QLabel("No folder selected — click Open folder…")
         self._src_label.setObjectName("SubtitleSmall")
-        # A deep folder path must never widen the window or push the fold
-        # buttons off the end of the row: the label may shrink below its
-        # ideal width, and the tooltip carries what is cut off.
         self._src_label.setSizePolicy(QSizePolicy.Maximum,
                                       QSizePolicy.Preferred)
         self._src_label.setMinimumWidth(0)
@@ -1961,15 +1782,9 @@ class MakeMasksScreen(QWidget):
         outer.addWidget(self._header)
         outer.addWidget(Divider())
 
-        # The one row of tools, across the top of the body. It is above the
-        # canvas and the settings both, so the settings toggle at its far
-        # end cannot hide the button that brings the settings back.
-        # `_tool_row` is the scroller the row rides in; the row itself is
-        # `_tool_row_layout`.
         self._tool_row = self._build_tool_row()
         outer.addWidget(self._tool_row)
 
-        # Body — a stack: EmptyState until a folder is opened, then splitter
         self._body_stack = QStackedWidget()
 
         self._empty_state = EmptyState(
@@ -1995,10 +1810,6 @@ class MakeMasksScreen(QWidget):
         self._canvas.recrop_requested.connect(self._on_recrop_requested)
         self._body_splitter.addWidget(self._build_view_tabs())
 
-        # THE SETTINGS, AS ONE GROUP. Everything the settings button
-        # toggles is inside this one scroll area, so hiding them is one
-        # call and the canvas — the splitter's other child — takes the
-        # width they give up.
         self._settings_scroll = QScrollArea()
         self._settings_scroll.setWidgetResizable(True)
         self._settings_scroll.setFrameShape(QScrollArea.NoFrame)
@@ -2009,14 +1820,11 @@ class MakeMasksScreen(QWidget):
         self._body_splitter.setSizes([900, SETTINGS_WIDTH])
         self._body_stack.addWidget(self._body_splitter)
         self._body_stack.setCurrentWidget(self._empty_state)
-        # The row belongs to the editor, not to the empty state: there is
-        # nothing to brush before a folder is open.
         self._body_stack.currentChanged.connect(self._sync_tool_row_visibility)
         self._sync_tool_row_visibility()
 
         outer.addWidget(self._body_stack, 1)
 
-        # Bottom nav bar
         nav = QWidget()
         nav_row = QHBoxLayout(nav)
         nav_row.setContentsMargins(0, 0, 0, 0)
@@ -2054,9 +1862,6 @@ class MakeMasksScreen(QWidget):
         nav_row.addWidget(self._status_label)
         outer.addWidget(nav)
 
-    # ------------------------------------------------------------------
-    # The folded modules
-    # ------------------------------------------------------------------
     def _build_fold_strip(self) -> FoldStrip:
         """The masthead's strip of folded modules.
 
@@ -2093,9 +1898,6 @@ class MakeMasksScreen(QWidget):
         button.setAccessibleName(name)
         if button.property("stage") != stage:
             button.setProperty("stage", stage)
-            # A property the stylesheet selects on is only read at polish, so
-            # a button already on screen keeps the old colour until it is
-            # polished again.
             button.style().unpolish(button)
             button.style().polish(button)
 
@@ -2133,9 +1935,6 @@ class MakeMasksScreen(QWidget):
         if key == "model_zoo":
             from .model_zoo import ModelZooScreen
             screen = ModelZooScreen()
-            # The zoo's "compare these two" hand-off is wired by whoever
-            # hosts it. Folded, that is this screen, or the button would
-            # select two models and open nothing.
             screen.compare_requested.connect(self._on_zoo_compare_requested)
             return screen
         if key == "curate":
@@ -2143,10 +1942,6 @@ class MakeMasksScreen(QWidget):
             return CurateScreen()
         if key == "napari_bridge":
             return NapariBridgeScreen()
-        # A module with no screen of its own gets the generic settings
-        # page — the same page its tile opened. Every key this screen
-        # folds today has a screen; this is what the next one gets if it
-        # does not.
         from .app_screen import AppScreen
         return AppScreen(app_key=key)
 
@@ -2226,8 +2021,6 @@ class MakeMasksScreen(QWidget):
             return {"folder": self._folder}
         if key in ("curate", "napari_bridge"):
             return self._seed_mask_editor(screen, key)
-        # A module with no screen of its own: a settings page, whose one
-        # path is the folder this screen already has open.
         screen.apply_settings_dict({"src": self._folder})
         return {"src": self._folder}
 
@@ -2373,9 +2166,6 @@ class MakeMasksScreen(QWidget):
         for panel in list(self._fold_dialogs.values()):
             panel.close()
 
-    # ------------------------------------------------------------------
-    # The toolbar row and the settings toggle
-    # ------------------------------------------------------------------
     def _build_tool_row(self) -> QWidget:
         """The one row that holds every tool, along the top of the screen.
 
@@ -2422,13 +2212,8 @@ class MakeMasksScreen(QWidget):
         self._btn_wand_erase = self._mode_buttons[MODE_WAND_ERASE]
         self._btn_zoom = self._mode_buttons[MODE_ZOOM]
         self._btn_recrop = self._mode_buttons[MODE_RECROP]
-        # The one tool in the row whose result is not on the canvas, so it
-        # is the one that has to say what it does before it is pressed.
         self._btn_recrop.setToolTip(RECROP_TOOLTIP)
 
-        # Reset zoom, undo and redo ride in the same row: they are pressed
-        # between strokes, so hiding them with the settings would hide the
-        # two buttons a correction session leans on hardest.
         row.addWidget(Divider(Qt.Vertical))
         self._btn_reset_zoom = QPushButton("Reset zoom")
         self._btn_reset_zoom.setIcon(iconset.icon("zoom_reset"))
@@ -2460,21 +2245,10 @@ class MakeMasksScreen(QWidget):
             "Show or hide the settings — brush, wand, display, auto-filter "
             "and object operations, as one group. The canvas takes the "
             "width they give up.")
-        # Checked before it is connected: the settings start on screen and
-        # the toggle starts lit, and neither half announces a change that
-        # did not happen.
         self._btn_settings.setChecked(True)
         self._btn_settings.toggled.connect(self._on_toggle_settings)
         row.addWidget(self._btn_settings)
 
-        # A ROW THAT CANNOT FORCE THE WINDOW WIDER THAN THE DISPLAY.
-        # Measured with every tool in it, the row asks for well over
-        # 1300px, and a layout minimum that large is not a wide toolbar —
-        # it is a window that refuses to be narrowed, so the canvas and
-        # the settings go off the right edge with it on a 1366px laptop.
-        # Inside a scroll area the row keeps its natural width and the
-        # viewport gives up first: a scrollbar on a narrow display, and
-        # on a wide one the whole set visible at once, which is the point.
         scroller = QScrollArea()
         scroller.setObjectName("MakeMasksToolScroll")
         scroller.setWidgetResizable(True)
@@ -2482,10 +2256,6 @@ class MakeMasksScreen(QWidget):
         scroller.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroller.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         scroller.setWidget(bar)
-        # The bar's own height plus room for the scrollbar that appears
-        # when it does not fit: reserved always, so the row does not grow
-        # a pixel taller the moment a tool is added and shove the canvas
-        # down with it.
         scroller.setFixedHeight(
             bar.sizeHint().height()
             + scroller.horizontalScrollBar().sizeHint().height())
@@ -2535,10 +2305,6 @@ class MakeMasksScreen(QWidget):
                 self._settings_width = sizes[1]
         self._settings_scroll.setVisible(shown)
         if shown:
-            # A splitter that has never been laid out reports zero for
-            # everything; splitting nothing gives the panel a negative
-            # width and Qt clamps it to a pane the user cannot see. Fall
-            # back to the widths it was born with.
             sizes = splitter.sizes()
             total = sum(sizes) or (900 + SETTINGS_WIDTH)
             side = max(min(self._settings_width, total - 1), 1)
@@ -2554,7 +2320,6 @@ class MakeMasksScreen(QWidget):
         col.setContentsMargins(0, 0, 0, 0)
         col.setSpacing(SPACING["md"])
 
-        # Brush size slider
         brush_card = Card(title="Brush")
         brush_form = QFormLayout()
         self._brush_slider = QSlider(Qt.Horizontal)
@@ -2577,7 +2342,6 @@ class MakeMasksScreen(QWidget):
         brush_card.body_layout.addLayout(brush_form)
         col.addWidget(brush_card)
 
-        # Magic wand card
         wand_card = Card(title="Magic wand")
         wand_form = QFormLayout()
         self._wand_relative = QCheckBox("Tolerance is % of image range")
@@ -2641,10 +2405,6 @@ class MakeMasksScreen(QWidget):
         wand_form.addRow("", self._wand_salvage)
         wand_card.body_layout.addLayout(wand_form)
 
-        # The three rescues for a flood that escapes down a bright seam.
-        # Grouped and defaulted so the panel does not open as a wall of
-        # knobs: the group's own checkbox is the master switch, and the
-        # numbers under it only matter when the detector misjudges an image.
         runaway = QGroupBox("Trim a runaway flood")
         runaway.setCheckable(True)
         runaway.setChecked(True)
@@ -2787,14 +2547,9 @@ class MakeMasksScreen(QWidget):
 
         col.addWidget(wand_card)
 
-        # Display card — contrast percentiles and wheel-zoom speed.
         norm_card = Card(title="Display")
         norm_form = QFormLayout()
         self._norm_lo = QDoubleSpinBox()
-        # setDecimals BEFORE setRange/setValue: a QDoubleSpinBox rounds
-        # both to the precision it has at the time, so setting 99.9999
-        # against the default two decimals stores 100.0 and the control
-        # looks broken rather than imprecise.
         self._norm_lo.setDecimals(PERCENTILE_DECIMALS)
         self._norm_lo.setRange(0.0, 100.0)
         self._norm_lo.setSingleStep(0.01)
@@ -2834,7 +2589,6 @@ class MakeMasksScreen(QWidget):
         norm_card.body_layout.addLayout(norm_form)
         col.addWidget(norm_card)
 
-        # Auto-filter card — size/intensity bounds applied on load.
         filter_card = Card(
             title="Auto-filter objects",
             subtitle="Applied when a field loads. 0 switches a bound off.",
@@ -2874,7 +2628,6 @@ class MakeMasksScreen(QWidget):
         filter_card.body_layout.addWidget(self._btn_filter)
         col.addWidget(filter_card)
 
-        # Object ops card
         obj_card = Card(title="Object operations")
         ops_col = QVBoxLayout()
         ops_col.setSpacing(SPACING["xs"])
@@ -2920,11 +2673,6 @@ class MakeMasksScreen(QWidget):
             "Off: take the dark side instead, for brightfield or stain.")
         detect_row.addWidget(self._otsu_bright)
         self._combine_mode = QComboBox()
-        # THE MODE IS THE ITEM'S DATA, NOT ITS LABEL. `replace` and `merge`
-        # are shown to the user and a language switch rewrites the item text
-        # in place; reading the mode back off that text would hand
-        # `engine.combine_masks` a translated word it has never heard of, so
-        # the untranslated key travels with the item instead.
         for _mode in ("replace", "merge"):
             self._combine_mode.addItem(_mode, _mode)
         self._combine_mode.setToolTip(
@@ -2964,17 +2712,12 @@ class MakeMasksScreen(QWidget):
         QShortcut(QKeySequence("D"), self, lambda: self._set_mode(MODE_DRAW))
         QShortcut(QKeySequence("V"), self, lambda: self._set_mode(MODE_DIVIDE))
         QShortcut(QKeySequence("Z"), self, lambda: self._set_mode(MODE_ZOOM))
-        # R for recrop. Free: B/E/W/D/V/Z are the other six tools and
-        # Ctrl+S / Ctrl+Z / Ctrl+Y / Escape / the arrows are the rest.
         QShortcut(QKeySequence("R"), self, lambda: self._set_mode(MODE_RECROP))
         QShortcut(QKeySequence("Escape"), self, self._on_reset_zoom)
         QShortcut(QKeySequence("Ctrl+Z"), self, self._on_undo)
         QShortcut(QKeySequence("Ctrl+Y"), self, self._on_redo)
         QShortcut(QKeySequence("Ctrl+Shift+Z"), self, self._on_redo)
 
-    # ------------------------------------------------------------------
-    # Mode / brush plumbing
-    # ------------------------------------------------------------------
     def _set_mode(self, mode: str):
         """Switch the canvas between draw, erase and wand.
 
@@ -3037,9 +2780,6 @@ class MakeMasksScreen(QWidget):
         """
         self._canvas.wand_max_pixels = int(v)
 
-    # Rescue controls. Each writes one canvas attribute; the canvas builds
-    # the dict the flood reads in wand_rescue_settings(), so a control is
-    # wired by setting the attribute it names and nothing else.
     def _on_wand_salvage_changed(self, on: bool):
         """Keep or discard a fill that hit the cap.
 
@@ -3162,10 +2902,6 @@ class MakeMasksScreen(QWidget):
         prev = self._history.undo()
         if prev is None or self._canvas.mask is None:
             return
-        # Diffed against what is ON the canvas, not against the history
-        # head: undo() has already popped, so the head IS `prev` by now and
-        # comparing the two would measure every undo as having changed
-        # nothing — which is exactly how they went unrecorded.
         changed = self._diff(self._canvas.mask, prev)
         self._canvas.mask = prev
         self._canvas.refresh()
@@ -3188,9 +2924,6 @@ class MakeMasksScreen(QWidget):
         self._btn_undo.setEnabled(self._history.can_undo())
         self._btn_redo.setEnabled(self._history.can_redo())
 
-    # ------------------------------------------------------------------
-    # The curation ledger
-    # ------------------------------------------------------------------
     def _record(self, kind: str, target=None, n_changed: int = 0, **detail):
         """Append one edit to this field's ledger, if it changed anything.
 
@@ -3228,9 +2961,6 @@ class MakeMasksScreen(QWidget):
         """
         return self._diff(self._history.head(), after)
 
-    # ------------------------------------------------------------------
-    # Size / intensity auto-filter
-    # ------------------------------------------------------------------
     def _filter_bounds(self) -> dict:
         """The four filter bounds as :func:`mask_engine.filter_objects` wants."""
         return {
@@ -3300,9 +3030,6 @@ class MakeMasksScreen(QWidget):
             return
         found = int(detected.max())
         if not found:
-            # Replacing with nothing would silently wipe the mask on a flat
-            # field, or on one where the minimum area rejected everything.
-            # Clearing a mask is what the Clear button is for, and it asks.
             self._status_label.setText(
                 "Otsu found no objects — the mask is unchanged. Lower the "
                 "minimum area, or try the other side."
@@ -3327,9 +3054,6 @@ class MakeMasksScreen(QWidget):
         )
 
 
-    # ------------------------------------------------------------------
-    # Cellpose-SAM on the open field, and its two intermediates
-    # ------------------------------------------------------------------
     def _build_view_tabs(self) -> QTabWidget:
         """The canvas and Cellpose's two intermediates, as tabs.
 
@@ -3395,10 +3119,6 @@ class MakeMasksScreen(QWidget):
         form = QFormLayout()
 
         self._cp_model = QComboBox()
-        # THE NAME IS THE ITEM'S DATA, not its label, for the same reason
-        # the replace/merge combo carries its mode that way: a language
-        # switch rewrites item text in place, and Cellpose has never
-        # heard of a translated model name.
         for name in cellpose_model_choices():
             self._cp_model.addItem(name, name)
         self._cp_model.setToolTip(
@@ -3533,9 +3253,6 @@ class MakeMasksScreen(QWidget):
         self._status_label.setText(f"Cellpose-SAM ({model_name}) running…")
         if app is not None:
             app.setOverrideCursor(Qt.WaitCursor)
-            # The button is disabled first, so painting the status line
-            # cannot let a second click start a second run on top of this
-            # one.
             app.processEvents()
         try:
             labels, cellprob, flow = cellpose_detect(
@@ -3561,8 +3278,6 @@ class MakeMasksScreen(QWidget):
 
         found = int(labels.max()) if labels.size else 0
         if not found:
-            # Replacing with nothing would wipe a mask the user may have
-            # spent an hour on, over a threshold that was one notch out.
             self._status_label.setText(
                 "Cellpose-SAM found no objects — the mask is unchanged. The "
                 "Cell probability tab shows what it had to work with.")
@@ -3595,9 +3310,6 @@ class MakeMasksScreen(QWidget):
         """Toolbar handler for the Cellpose-SAM detect button."""
         self.run_cellpose()
 
-    # ------------------------------------------------------------------
-    # User messaging (headless-safe — see :func:`is_headless`)
-    # ------------------------------------------------------------------
     def _warn(self, title: str, text: str) -> None:
         """Report a non-fatal failure to the user.
 
@@ -3625,9 +3337,6 @@ class MakeMasksScreen(QWidget):
             return False
         return QMessageBox.question(self, title, text) == QMessageBox.Yes
 
-    # ------------------------------------------------------------------
-    # Actions
-    # ------------------------------------------------------------------
     def _on_pick_folder(self):
         """Ask for a folder of images and open it."""
         d = QFileDialog.getExistingDirectory(self, "Pick images folder",
@@ -3693,7 +3402,6 @@ class MakeMasksScreen(QWidget):
                     >= threshold
                 )
         except (OSError, ValueError):
-            # Let the real loader report corrupt/unreadable inputs.
             return False
 
     def _start_background_load(
@@ -3768,8 +3476,6 @@ class MakeMasksScreen(QWidget):
 
     def _handle_load_failure(self, error: Exception) -> None:
         """Clear stale canvas state and visibly report an image-load error."""
-        # Leaving the previous field visible while _current_index names the
-        # failed file would let Save write the old mask under a new filename.
         self._canvas.image = None
         self._canvas.mask = None
         self._canvas.reset_zoom(silent=True)
@@ -3791,15 +3497,8 @@ class MakeMasksScreen(QWidget):
         if token != self._load_token:
             return
         self._canvas.set_image_and_mask(image, mask)
-        # In lockstep with the canvas clearing its own boxes: the cuts
-        # belong to the field they were made on, and carrying them onto the
-        # next one would retire the wrong file.
         self._recrop_children = []
-        # The probability and flow panes described the LAST field's
-        # Cellpose run; on this one they would be a picture of the
-        # wrong image with nothing on screen saying so.
         self._reset_flow_panes()
-        # Reset undo history for the new image and seed with the loaded mask
         self._history.clear()
         self._history.push(mask)
         self._refresh_history_buttons()
@@ -3809,8 +3508,6 @@ class MakeMasksScreen(QWidget):
             f"{filename}  "
             f"({self._current_index + 1}/{len(self._image_files)})"
         )
-        # Last, so its status message and its undo step sit on top of the
-        # freshly seeded history rather than being wiped by it.
         self.apply_object_filter(on_load=True)
 
     def _open_ledger(self, filename: str) -> CurationLog:
@@ -3827,9 +3524,6 @@ class MakeMasksScreen(QWidget):
         try:
             log = CurationLog.read_beside(artifact)
         except Exception as exc:
-            # A damaged sidecar must not cost the user the edit they are
-            # about to make. Start a fresh log, and say so rather than
-            # quietly overwriting a record nobody can read.
             LOG.warning("Unreadable curation ledger beside %s: %s",
                         artifact, exc)
             log = CurationLog()
@@ -3838,9 +3532,6 @@ class MakeMasksScreen(QWidget):
             log.source = engine.CURATION_SOURCE
         return log
 
-    # ------------------------------------------------------------------
-    # Recrop — one field becoming the several fields it should have been
-    # ------------------------------------------------------------------
     def _on_recrop_requested(self, x0: int, y0: int, x1: int, y1: int) -> None:
         """Handle a box dragged with the Recrop tool."""
         self.recrop(x0, y0, x1, y1)
@@ -3877,23 +3568,13 @@ class MakeMasksScreen(QWidget):
         name = os.path.splitext(written.name)[0]
         self._canvas.recrop_boxes.append((*box, name))
         self._canvas.update()
-        # Straight after the field it came from, and after any sibling
-        # already cut out of it, so the children come out in the order they
-        # were drawn rather than in reverse.
         self._image_files.insert(
             self._current_index + len(self._recrop_children) + 1, written.name)
         self._recrop_children.append(written.name)
-        # On the PARENT's ledger, because this is something that was done to
-        # the parent: an area of it left. The child's own ledger says the
-        # other half of it — see :func:`mask_engine.write_recrop`.
         area = (box[2] - box[0]) * (box[3] - box[1])
         self._record(engine.RECROP_KIND, written.name, area,
                       box=[int(v) for v in box],
                       n_objects=int(written.n_objects))
-        # The object COUNT is the half of this the user cannot see: a box
-        # drawn a little too tight round two touching cells cuts both of
-        # them and writes a field with nothing in it, and the box on screen
-        # looks the same either way.
         self._status_label.setText(
             f"Recrop {name}: {box[2] - box[0]}x{box[3] - box[1]} px, "
             f"{written.n_objects} whole object(s), queued next "
@@ -3917,16 +3598,11 @@ class MakeMasksScreen(QWidget):
         children = list(self._recrop_children)
         boxes = [tuple(int(v) for v in box[:4])
                  for box in self._canvas.recrop_boxes]
-        # The parent's mask and ledger are written before it is moved, so
-        # the record of the boxes travels into the archive with the file
-        # they were cut out of rather than being lost with the session.
         if self._canvas.mask is not None:
             try:
                 engine.save_mask(self._folder, filename, self._canvas.mask,
                                   log=self._log)
             except Exception as exc:
-                # The archive is the recovery, so a mask that will not write
-                # must not also stop the original being put somewhere safe.
                 LOG.warning("Could not save %s before retiring it: %s",
                             filename, exc)
         try:
@@ -3958,9 +3634,6 @@ class MakeMasksScreen(QWidget):
         return True
 
     def _on_prev(self):
-        # Leaving the field retires it if it was cut up, whichever way the
-        # user leaves: the parent must not be reachable again as though it
-        # were still a field to curate.
         """Go to the previous field, retiring this one if it was cut up."""
         self.finish_recrop()
         if not self._image_files or self._current_index <= 0:
@@ -3969,8 +3642,6 @@ class MakeMasksScreen(QWidget):
         self._load_current()
 
     def _on_next(self):
-        # A retirement has already moved the queue onto the first child, so
-        # Next has done what Next does and must not step past it.
         """Go to the next field, retiring this one if it was cut up."""
         if self.finish_recrop():
             return
@@ -4051,9 +3722,6 @@ class MakeMasksScreen(QWidget):
         self._apply_op(engine.clear_mask, "clear")
 
     def _on_stroke_started(self):
-        # Brush/erase strokes mutate the mask in place; nothing to record
-        # until the stroke ends. History already has the pre-stroke mask
-        # from the previous op/load.
         """Snapshot the mask before a stroke mutates it in place.
 
         BRUSH STROKES EDIT IN PLACE, so undo has nothing to go back to unless
@@ -4078,15 +3746,10 @@ class MakeMasksScreen(QWidget):
         self._history.push(self._canvas.mask)
         self._refresh_history_buttons()
 
-    # ------------------------------------------------------------------
     def _sync_button_states(self):
         """Enable each control only when it has something to act on."""
         has_files = bool(self._image_files)
         editable = has_files and not self._loading
-        # EVERY tool in the row, read off the row itself rather than
-        # listed here: a tool added to the mode table is disabled until a
-        # folder is open like the rest of them, without anyone having to
-        # remember this method exists.
         for b in (self._btn_prev, self._btn_next, self._btn_save,
                    self._btn_filter, self._btn_otsu,
                    *self._mode_buttons.values()):

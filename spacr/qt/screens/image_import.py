@@ -173,7 +173,6 @@ class ProposalModel(QAbstractTableModel):
             return ""
         return self.row(index)[self._header.index(column)] if self.row(index) else ""
 
-    # -- QAbstractTableModel ----------------------------------------------
 
     def rowCount(self, parent=QModelIndex()) -> int:
         """How many proposed rows the plan holds.
@@ -288,7 +287,6 @@ class AnswerModel(QAbstractTableModel):
         """Type into one row's answer cell, the way the editor would."""
         return self.setData(self.index(row, 2), text, Qt.EditRole)
 
-    # -- QAbstractTableModel ----------------------------------------------
 
     def rowCount(self, parent=QModelIndex()) -> int:
         """How many unnamed values are waiting for an answer.
@@ -411,9 +409,6 @@ class ImageImportScreen(QWidget):
 
         self._job_settled.connect(self._on_job_settled)
         self._build_ui()
-        # A DROPPED FOLDER IS THE GESTURE THIS MODULE IS FOR. The handler
-        # also takes a saved plan, so last week's answers arrive the same
-        # way this week's images do.
         from ..dnd import install_dropzone
         from ..dnd_handlers import get_handler
         install_dropzone(self, get_handler("import_images"), self)
@@ -422,22 +417,13 @@ class ImageImportScreen(QWidget):
             "out the naming from the folder itself — nothing is written until "
             "you press Import.")
         self._update_controls()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
-        # ITS OWN REGISTRY KEY -- what `install_folds_on` and the drop
-        # handlers dispatch on.
         """Lay out the source row, the scan options, the proposal, the questions and the report."""
         self.app_key = "import_images"
-        # IMPORTED HERE, NOT AT MODULE LEVEL: `app_screen` imports the screen
-        # registry, which reaches this module, and a top-level import would
-        # close that circle at startup rather than at first build.
         from .app_screen import ModuleHeader
 
         outer = QVBoxLayout(self)
@@ -465,7 +451,6 @@ class ImageImportScreen(QWidget):
 
         outer.addWidget(Divider())
 
-        # ── Source ────────────────────────────────────────────────────
         src_row = QHBoxLayout()
         src_row.setSpacing(SPACING["sm"])
         self._root_edit = QLineEdit(self)
@@ -480,7 +465,6 @@ class ImageImportScreen(QWidget):
         src_row.addWidget(self._btn_pick_root)
         outer.addLayout(src_row)
 
-        # ── Scan options ──────────────────────────────────────────────
         opt_row = QHBoxLayout()
         opt_row.setSpacing(SPACING["sm"])
         self._sample_box = QSpinBox(self)
@@ -508,12 +492,9 @@ class ImageImportScreen(QWidget):
         opt_row.addWidget(self._btn_scan)
         outer.addLayout(opt_row)
 
-        # ── The proposal ──────────────────────────────────────────────
         self._model = ProposalModel(self)
         self._table = QTableView(self)
         self._table.setModel(self._model)
-        # After setModel: the helper puts a sorting proxy over the model,
-        # which replaces the view's model and its selection model.
         install_sorting(self._table)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setAlternatingRowColors(True)
@@ -522,7 +503,6 @@ class ImageImportScreen(QWidget):
         self._table.verticalHeader().setVisible(False)
         outer.addWidget(self._table, 1)
 
-        # ── The questions ─────────────────────────────────────────────
         self._answers = AnswerModel(self)
         self._answers.answers_edited.connect(self._on_answer_edited)
         self._answer_table = QTableView(self)
@@ -535,7 +515,6 @@ class ImageImportScreen(QWidget):
         self._answer_table.verticalHeader().setVisible(False)
         outer.addWidget(self._answer_table)
 
-        # ── The report ────────────────────────────────────────────────
         self._report = QPlainTextEdit(self)
         self._report.setReadOnly(True)
         self._report.setMaximumHeight(170)
@@ -545,7 +524,6 @@ class ImageImportScreen(QWidget):
             "unlike the rest and therefore not interpreted.")
         outer.addWidget(self._report)
 
-        # ── Destination + actions ─────────────────────────────────────
         dst_row = QHBoxLayout()
         dst_row.setSpacing(SPACING["sm"])
         self._dst_edit = QLineEdit(self)
@@ -615,7 +593,6 @@ class ImageImportScreen(QWidget):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
-    # -- inline reporting --------------------------------------------------
 
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Deliberately never a QMessageBox — a modal dialog
@@ -641,7 +618,6 @@ class ImageImportScreen(QWidget):
         """
         self._report.setPlainText(text or "")
 
-    # -- configuration -----------------------------------------------------
 
     def set_root(self, path: str) -> None:
         """Point the screen at a folder of images without opening a dialog.
@@ -738,7 +714,6 @@ class ImageImportScreen(QWidget):
         """Whether tiles will be assembled into the field they came from."""
         return self.tile_policy() == "stitch"
 
-    # -- pickers -----------------------------------------------------------
 
     def _pick_root(self) -> None:
         """Ask which folder the images are in."""
@@ -767,7 +742,6 @@ class ImageImportScreen(QWidget):
         if path:
             self.load_plan(path)
 
-    # -- scan --------------------------------------------------------------
 
     def scan(self) -> bool:
         """Work out what the folder holds. Writes nothing.
@@ -917,7 +891,6 @@ class ImageImportScreen(QWidget):
         if self._plan is not None:
             self._refresh_report()
 
-    # -- what the screen is showing ----------------------------------------
 
     def plan(self) -> Optional["imp.ImportPlan"]:
         """The plan currently on screen, or None."""
@@ -955,7 +928,6 @@ class ImageImportScreen(QWidget):
         """Everything that would make this import wrong, in plain sentences."""
         return self._plan.problems() if self._plan is not None else []
 
-    # -- the plan file -----------------------------------------------------
 
     def save_plan(self, path: str) -> bool:
         """Write the plan on screen where a later run can load it back."""
@@ -991,7 +963,6 @@ class ImageImportScreen(QWidget):
         self._on_plan_ready(plan)
         return True
 
-    # -- import ------------------------------------------------------------
 
     def run_import(self) -> bool:
         """Write the project. Off the GUI thread unless ``threaded=False``.
@@ -1087,7 +1058,6 @@ class ImageImportScreen(QWidget):
                 f"now, and no convention has to be chosen.")
         self._update_controls()
 
-    # -- controls ----------------------------------------------------------
 
     def _on_input_changed(self, *_args) -> None:
         """The folder changed: whatever is on screen describes the old one."""
@@ -1129,7 +1099,6 @@ class ImageImportScreen(QWidget):
         """How many worker threads are still winding down."""
         return len(self._jobs)
 
-    # -- job plumbing ------------------------------------------------------
 
     def _run_job(self, fn: Callable[[], Any],
                  on_done: Callable[[Any], None]) -> bool:
@@ -1160,9 +1129,6 @@ class ImageImportScreen(QWidget):
 
         box: Dict[str, Any] = {}
         thread, worker = make_thread(partial(self._capture, fn), box)
-        # Strong references: PySide6 will not keep the worker alive through
-        # the started→run connection alone, and a QThread garbage-collected
-        # while still running takes the process down with it.
         self._jobs.append((thread, worker))
         self._thread, self._worker = thread, worker
         self._pending.append((box, on_done))

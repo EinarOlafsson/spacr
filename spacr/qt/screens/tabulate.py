@@ -108,9 +108,6 @@ class TabulateScreen(QWidget):
         self.setObjectName("TabulateScreen")
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
-        # Every table read goes through here, so it never runs on the GUI
-        # thread and always shows up in the run registry (and so in the
-        # background-activity spinner).
         self._jobs = JobRunner(self, threaded=threaded, app_key="tabulate")
         self._jobs.job_failed.connect(self._on_load_failed)
 
@@ -162,14 +159,6 @@ class TabulateScreen(QWidget):
         body.addWidget(stack)
 
         self.filters = DataFilterPanel(self, link=link)
-        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
-        # settings column eating the figure beside it, and 320 px is the
-        # right answer at 100 %% -- and only there. The glyphs inside it
-        # double at 200 %% and the box did not, which is the same defect
-        # instruction 350 already fixed on UsageBar's fixed 48 px caption
-        # column. Measured on Control Charts: the column's own sizeHint
-        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
-        # cap that stayed 330 in all three.
         from ..preferences import scaled_px
         self.filters.setMaximumWidth(scaled_px(320))
         body.addWidget(self.filters)
@@ -186,17 +175,11 @@ class TabulateScreen(QWidget):
         self._refilter.timeout.connect(self._recompute_filtered)
         self._link = self.graph.canvas.link
         self._link.filter_changed.connect(self._on_filter_changed)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "tabulate")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- data -------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Pivot ``frame``. The one call a host needs."""
         self._frame = frame
@@ -260,10 +243,6 @@ class TabulateScreen(QWidget):
             self._table_picker.setCurrentText(table)
         self._table_picker.blockSignals(False)
         chosen = table or (self._table_picker.currentText() or None)
-        # A second load supersedes the first. Without this, switching table
-        # twice in quick succession delivers the frames in whatever order the
-        # reads happen to finish, and the picker ends up disagreeing with the
-        # pivot below it.
         self._jobs.cancel()
         self._source.setText(
             f"loading {os.path.basename(path)}"
@@ -307,7 +286,6 @@ class TabulateScreen(QWidget):
         if self._path and name:
             self.load_path(self._path, table=name)
 
-    # -- filter -----------------------------------------------------------
     def _on_filter_changed(self) -> None:
         """Queue a re-aggregation after the shared filter changed.
 
@@ -327,7 +305,6 @@ class TabulateScreen(QWidget):
         if frame is not None:
             self.pivot.set_frame(frame)
 
-    # -- results ----------------------------------------------------------
     def _on_computed(self, result) -> None:
         """Say how many source rows became how large a table.
 
@@ -358,10 +335,6 @@ class TabulateScreen(QWidget):
             f"X and a statistic onto Y")
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
-        # Abandon an in-flight read rather than let it outlive the
-        # screen: Qt aborts the process if a running QThread is
-        # destroyed, and a worker that delivers into a closed widget
-        # is a use-after-free.
         """Stop background work and unlink before going away.
 
         :param event: the Qt close event.
@@ -382,11 +355,6 @@ def make_tabulate_screen(app_key: Optional[str] = None) -> QWidget:
     return TabulateScreen()
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc

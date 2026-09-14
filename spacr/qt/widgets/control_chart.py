@@ -219,9 +219,6 @@ class ControlChartError(ValueError):
     """
 
 
-# ---------------------------------------------------------------------------
-# The constants, and where they come from
-# ---------------------------------------------------------------------------
 
 #: d2 for a subgroup of two — the unbiasing constant that turns the mean
 #: absolute difference of consecutive normal observations into an estimate of
@@ -301,23 +298,13 @@ def c4(n: int) -> float:
             f"individuals / moving-range chart ({ESTIMATOR_MOVING_RANGE!r}) "
             f"exists for.")
     if size > 342:
-        # Γ(171) overflows a float; c4 is within 1e-3 of 1 long before then.
         return 1.0 - 0.75 / size
-    # Imported here, not at the top: this is the module's only remaining use
-    # of scipy, and it is reached when a subgroup chart is actually computed.
-    # `math.lgamma` would remove the dependency altogether and is NOT used —
-    # it disagrees with this ratio in the last one or two bits, and a
-    # published constant that changes in its fifteenth digit because a launch
-    # got faster is not a trade worth making.
     from scipy.special import gamma as _gamma_fn
 
     return math.sqrt(2.0 / (size - 1)) * float(
         _gamma_fn(size / 2.0) / _gamma_fn((size - 1) / 2.0))
 
 
-# ---------------------------------------------------------------------------
-# Estimators
-# ---------------------------------------------------------------------------
 
 #: Choose from the subgroup size: I-MR when every plate has one control well,
 #: X-bar/S when any has more. The default, and the choice is named in the
@@ -350,9 +337,6 @@ ESTIMATOR_LABELS: Dict[str, str] = {
 }
 
 
-# ---------------------------------------------------------------------------
-# The rules
-# ---------------------------------------------------------------------------
 
 #: **Rule 1 — one point beyond 3 sigma.** A spike: one plate that was not like
 #: the others. A dispensing failure, a plate read on the wrong gain, a control
@@ -504,9 +488,6 @@ ZPRIME_PLATE = "plate"
 ZPRIME_ORDER = "order_index"
 
 
-# ---------------------------------------------------------------------------
-# Ordering
-# ---------------------------------------------------------------------------
 
 _DIGITS = re.compile(r"(\d+)")
 
@@ -566,9 +547,6 @@ def _cutoff_key(value: Any, kind: str) -> Any:
     return _natural_key(value)
 
 
-# ---------------------------------------------------------------------------
-# Column offers
-# ---------------------------------------------------------------------------
 
 def candidate_value_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     """The columns worth offering as the charted measurement, sorted.
@@ -602,9 +580,6 @@ def candidate_key_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     return tuple(sorted(wanted))
 
 
-# ---------------------------------------------------------------------------
-# The spec
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ControlChartSpec:
@@ -730,7 +705,6 @@ class ControlChartSpec:
                 f"but no column to find it in; set control_column.")
         object.__setattr__(self, "reestimate", bool(self.reestimate))
 
-    # -- edits -----------------------------------------------------------
     def with_columns(self, *, value: Optional[str] = None,
                      plate: Optional[str] = None,
                      order: Optional[str] = None) -> "ControlChartSpec":
@@ -765,7 +739,6 @@ class ControlChartSpec:
             baseline_before=(self.baseline_before if before is None
                              else before))
 
-    # -- serialisation ----------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
         """A plain JSON-able dict. Every field, always — a stable schema beats
         a compact one for something a QC configuration is stored as."""
@@ -829,9 +802,6 @@ class ControlChartSpec:
                 f"{','.join(str(r) for r in self.rules) or 'none'}")
 
 
-# ---------------------------------------------------------------------------
-# One violation
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Violation:
@@ -925,9 +895,6 @@ class Violation:
         return f"rule {self.rule} — {RULE_NAMES[self.rule]}: {detail}{baseline}."
 
 
-# ---------------------------------------------------------------------------
-# The reference nobody should use as limits
-# ---------------------------------------------------------------------------
 
 def sd_reference_limits(values: Sequence[float]
                         ) -> Tuple[float, float, float, float]:
@@ -953,9 +920,6 @@ def sd_reference_limits(values: Sequence[float]
     return centre, sigma, centre - 3.0 * sigma, centre + 3.0 * sigma
 
 
-# ---------------------------------------------------------------------------
-# The result
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ControlChartResult:
@@ -1023,7 +987,6 @@ class ControlChartResult:
     n_control_rows: int = 0
     notes: Tuple[str, ...] = ()
 
-    # -- shape -----------------------------------------------------------
     def __len__(self) -> int:
         """Plates on the chart."""
         return len(self.plates)
@@ -1069,17 +1032,9 @@ class ControlChartResult:
                 f"plate(s)")
         magnitude = abs(float(self.z[int(index)]))
         if not np.isfinite(magnitude):
-            # ``value - centre`` overflows to infinity when a plate sits at the
-            # far end of the float range from the centre line — rare, but a raw
-            # intensity column reaches it. Such a point is further outside the
-            # limits than any finite one, so the outermost band is the honest
-            # answer: ``int(inf)`` raises, and calling it zone 0 would paint the
-            # worst plate of the campaign the colour of one that never left one
-            # sigma, while rule 1 flags it in the same breath.
             return 3
         return min(3, int(magnitude))
 
-    # -- frames ----------------------------------------------------------
     def points_frame(self) -> pd.DataFrame:
         """One row per plate — what the chart draws, and its CSV.
 
@@ -1119,7 +1074,6 @@ class ControlChartResult:
             "description": [v.describe() for v in self.violations],
         })
 
-    # -- saying it in words -----------------------------------------------
     @property
     def baseline_violations(self) -> Tuple[Violation, ...]:
         """The violations that fell inside Phase I."""
@@ -1290,9 +1244,6 @@ class ControlChartResult:
         return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# The rule detectors
-# ---------------------------------------------------------------------------
 
 def _maximal_runs(mask: np.ndarray, length: int) -> List[Tuple[int, int]]:
     """``(start, end)`` of every maximal run of ``True`` at least ``length`` long.
@@ -1457,9 +1408,6 @@ def _detect(z: np.ndarray, rules: Sequence[int], plates: Sequence[str],
     return tuple(found)
 
 
-# ---------------------------------------------------------------------------
-# Estimation
-# ---------------------------------------------------------------------------
 
 def _moving_ranges(values: np.ndarray) -> np.ndarray:
     """``|x_i - x_{i-1}|`` over consecutive points. The whole point of the
@@ -1571,9 +1519,6 @@ def _baseline_indices(spec: ControlChartSpec, plates: Sequence[str],
     return np.arange(count, dtype=int)
 
 
-# ---------------------------------------------------------------------------
-# The computation
-# ---------------------------------------------------------------------------
 
 def _control_rows(frame: pd.DataFrame, spec: ControlChartSpec
                   ) -> Tuple[pd.DataFrame, int]:
@@ -1724,11 +1669,6 @@ def control_chart(frame: pd.DataFrame,
             f"cut-off.")
 
     if baseline.size == total:
-        # Not a refusal — a chart of a campaign that is still short is worth
-        # drawing. But Phase I and Phase II being the same plates means the
-        # limits and the points they judge are the same data, and a rule
-        # firing there is a statement about the estimate rather than a test
-        # of anything, so it is said rather than left to be noticed.
         notes.append(
             f"all {total} plates are Phase I, so the limits and the points "
             f"they judge are the same data — this describes the campaign "
@@ -1792,7 +1732,6 @@ def control_chart(frame: pd.DataFrame,
     if not spec.reestimate or not result.baseline_violations:
         return result
 
-    # One pass, not iterations to convergence — see the module docstring.
     offending = {p for v in result.baseline_violations for p in v.points}
     kept = np.asarray([i for i in baseline if i not in offending], dtype=int)
     if kept.size < MIN_BASELINE:
@@ -1812,9 +1751,6 @@ def control_chart(frame: pd.DataFrame,
     return _finish(centre, sigma_within, kept, excluded)
 
 
-# ---------------------------------------------------------------------------
-# Z-prime
-# ---------------------------------------------------------------------------
 
 def zprime_frame(frame: pd.DataFrame, spec: ControlChartSpec) -> pd.DataFrame:
     """Per-plate Z-factor, one row per plate, in run order.
@@ -1906,9 +1842,6 @@ def zprime_frame(frame: pd.DataFrame, spec: ControlChartSpec) -> pd.DataFrame:
                       key=lambda i: (keys[i], records[i][ZPRIME_PLATE]))
     ordered = [records[i] for i in position]
     for index, record in enumerate(ordered):
-        # The run order is already resolved, so the chart of this frame must
-        # not have to guess it again: a plain 0..k-1 index is the one order
-        # column that cannot be mis-sorted.
         record[ZPRIME_ORDER] = index
     return pd.DataFrame(ordered)
 

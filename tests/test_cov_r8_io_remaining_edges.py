@@ -254,14 +254,43 @@ class TestTheRemainingDecisions:
         package has never had -- a typo in a settings file. Naming it AND
         naming the two that are legal is the difference between a
         fixable message and a KeyError several frames down.
-        """
-        from spacr.training_basis import TrainingBasisError, resolve_basis
 
-        with pytest.raises(TrainingBasisError, match="not one of"):
+        Driven rather than read: the refusal is asserted by MESSAGE, and
+        the exhaustiveness of the else is asserted by exercising every
+        spelling the resolver accepts and showing the answer is always
+        one of the two the dispatch below handles.
+        """
+        from spacr.training_basis import (RETIRED_BASES, TRAINING_BASES,
+                                          TrainingBasisError, resolve_basis)
+
+        with pytest.raises(TrainingBasisError) as raised:
             resolve_basis({"dataset_mode": "not-real"})
+        message = str(raised.value)
+        assert "not one of" in message
+        assert "not-real" in message, (
+            "the refusal no longer names the value that was typed")
+        for legal in TRAINING_BASES:
+            assert legal in message, (
+                f"the refusal no longer names {legal!r} as a legal mode")
+
+        # The vocabulary is two wide, and the retired spelling migrates
+        # into it rather than reaching the dispatch, so the else arm is
+        # exhaustive rather than a fallback guess.
+        assert set(TRAINING_BASES) == {"metadata", "annotation"}
+        assert resolve_basis({"dataset_mode": "measurement"}) == "annotation"
+        every = tuple(TRAINING_BASES) + tuple(RETIRED_BASES)
+        assert {resolve_basis({"dataset_mode": name}) for name in every} == \
+            set(TRAINING_BASES)
+        assert resolve_basis({}) in TRAINING_BASES
+        assert resolve_basis({"annotation_column": "x"}) in TRAINING_BASES
+
         source = inspect.getsource(io.generate_training_dataset)
         assert "Invalid dataset_mode:" not in source
-        assert "else:" in source and "resolve_basis has already reduced" in source
+        dispatch = source[source.index("if mode == 'metadata':"):]
+        dispatch = dispatch[:dispatch.index("if class_path_list is None:")]
+        assert "\n        else:\n" in dispatch, (
+            "the second mode is no longer reached by an unconditional else, "
+            "so a legal mode could fall through the dispatch entirely")
 
     def test_balancing_nothing_returns_nothing_rather_than_raising(self):
         """``_balance_lists``: ``min()`` over an empty list raises.

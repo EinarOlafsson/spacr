@@ -205,5 +205,5 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     return 0
 
 
-if __name__ == "__main__":  # exercised as a module by runpy in the tests
+if __name__ == "__main__":
     raise SystemExit(main())

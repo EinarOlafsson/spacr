@@ -256,7 +256,7 @@ def measure_visible_change(path) -> float:
     try:
         import numpy as np
         from PIL import Image
-    except Exception:                       # no imaging
+    except Exception:
         return 1.0
     try:
         frames = []
@@ -312,7 +312,7 @@ def _animation_frames(path):
     try:
         import numpy as np
         from PIL import Image
-    except Exception:                       # no imaging
+    except Exception:
         return None
     frames = []
     try:
@@ -350,7 +350,7 @@ def measure_border_artifact(path) -> float:
     """
     try:
         import numpy as np
-    except Exception:                       # no imaging
+    except Exception:
         return 0.0
     frames = _animation_frames(path)
     if not frames or len(frames) < 2:

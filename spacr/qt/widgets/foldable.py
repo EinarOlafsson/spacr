@@ -99,15 +99,10 @@ class Folder:
         self._refresh_tooltip()
         self._filter = _ClickToFold(heading, self.toggle)
         heading.installEventFilter(self._filter)
-        # A HEADING IS COMPOSED, NOT WRITTEN. The line reads as an arrow, the
-        # panel name and sometimes an alert, so asking the catalog for the
-        # finished line asks for a key that cannot exist. Keep the generic
-        # language pass off it and rebuild it from the translated parts.
         heading.setProperty("i18nSkipText", True)
         heading.retranslate_dynamic_content = self._retranslate
         self._repaint()
 
-    # ------------------------------------------------------------- state
 
     @property
     def shut(self) -> bool:
@@ -133,9 +128,6 @@ class Folder:
         self._shut = shut
         self.body.setVisible(not shut)
         if not shut:
-            # ARRIVING IS SEEING. An alert that survived the unfold would
-            # keep claiming there is something to look at after the user has
-            # looked at it.
             self._alert = ""
         self._repaint()
         if self._on_change is not None:
@@ -163,9 +155,6 @@ class Folder:
         self._repaint(language)
 
     def _refresh_tooltip(self, language: Optional[str] = None) -> None:
-        # THE NAME LOOKS CLICKABLE BEFORE IT IS CLICKED. A gesture nobody
-        # knows about is not a feature, and the pointer is the only hint a
-        # heading can carry without a second widget beside it.
         """Write the heading's hover text.
 
         The name has to look clickable before it is clicked: a gesture nobody

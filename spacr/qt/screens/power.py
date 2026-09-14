@@ -182,12 +182,6 @@ _HELD_FIELDS = (
 )
 
 
-# SECTION NOTE, 2026-09-03: the sections were restructured to Core / Data /
-# Tools / Assays, and SECTION_DESIGN / SECTION_EXPLORE / SECTION_RESULTS are
-# still declared but are no longer in SECTION_ORDER. Every screen below now
-# files under Data. The docstrings keep their original reasoning because it
-# still says what each screen IS -- and they are published, translated API
-# prose, so editing them invalidates reviewed translations in nine languages.
 
 def _power_qss(palette: dict, opacity: Optional[float] = None) -> str:
     """QSS for this screen, contributed through :func:`register_widget_qss`.
@@ -224,15 +218,9 @@ def _power_qss(palette: dict, opacity: Optional[float] = None) -> str:
 """
 
 
-# `replace=True` and at import: this module is reachable from two paths
-# (the screens package and a direct import), and a second import must
-# refresh the block rather than raise. Same posture as `pivot_builder`.
 register_widget_qss("PowerDesign", _power_qss, replace=True)
 
 
-# ---------------------------------------------------------------------------
-# The job — a plain function, so it is testable without a QThread
-# ---------------------------------------------------------------------------
 
 def run_power_sweep(payload: Dict[str, Any]) -> Dict[str, Any]:
     """Run both sweeps for ``payload['spec']`` and put the result in ``payload``.
@@ -297,19 +285,7 @@ def run_power_sweep(payload: Dict[str, Any]) -> Dict[str, Any]:
             return None
         return _hook
 
-    # The spec travels WITH the result. Rendering against whatever is on the
-    # form when the sweep lands would label a three-minute run with a design
-    # the user edited while waiting for it.
     results: Dict[str, Any] = {"cancelled": False, "spec": spec}
-    # `always`, not the default `once`: the abundance-clipping warning is
-    # emitted from one source line, so the default filter would report the
-    # first simulated screen that clipped and silently swallow the other
-    # twenty-six — turning "most of this sweep clipped" into "one did".
-    #
-    # `catch_warnings` swaps the process-wide filter list, which is not
-    # thread-safe. It is used anyway because only one sweep runs at a time
-    # and the window is the sweep itself; the cost of getting it wrong is a
-    # mis-counted clip warning, not a wrong power.
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
 
@@ -351,9 +327,6 @@ def run_power_sweep(payload: Dict[str, Any]) -> Dict[str, Any]:
     return results
 
 
-# ---------------------------------------------------------------------------
-# The curve
-# ---------------------------------------------------------------------------
 
 class PowerCurveView(QWidget):
     """Detection probability against one swept axis, painted directly.
@@ -385,13 +358,10 @@ class PowerCurveView(QWidget):
         self._threshold: float = 0.8
         self._x_label = ""
         self._palette = active_palette()
-        # The panel drawn in `paintEvent` is the surface; the widget itself
-        # must not also paint the blanket window fill underneath it.
         make_transparent(self)
         self.setMinimumHeight(180)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-    # -- content -----------------------------------------------------------
 
     def set_curve(self, curve, x_label: str, marker: Optional[float] = None,
                   threshold: float = 0.8) -> None:
@@ -427,7 +397,6 @@ class PowerCurveView(QWidget):
         """Whether there is anything to draw."""
         return not self._points
 
-    # -- painting ----------------------------------------------------------
 
     def paintEvent(self, event):  # noqa: N802 - Qt name
         """Draw the power curve.
@@ -446,10 +415,6 @@ class PowerCurveView(QWidget):
         width = max(1, self.width() - left - right)
         height = max(1, self.height() - top - bottom)
 
-        # A rounded translucent panel, not `fillRect(rect, surface)`: that
-        # hex carries no alpha, so the fill was opaque by construction
-        # whatever the page-opacity preference said, and the two curve views
-        # were the only flat rectangles on a page of panels.
         paint_panel(painter, self, role="surface", inset=0.5)
         painter.setPen(QPen(QColor(palette["fg"]), 1))
         painter.drawText(6, metrics.ascent() + 2, self._title)
@@ -470,8 +435,6 @@ class PowerCurveView(QWidget):
             return (left + width * (x - x_lo) / span,
                     top + height * (1.0 - max(0.0, min(1.0, y))))
 
-        # y grid at 0 / 0.5 / 1, because a power curve is read against those
-        # three and nothing else.
         painter.setPen(QPen(QColor(palette["border_soft"]), 1, Qt.DotLine))
         for level in (0.0, 0.5, 1.0):
             _, py = to_px(x_lo, level)
@@ -515,9 +478,6 @@ class PowerCurveView(QWidget):
         painter.end()
 
 
-# ---------------------------------------------------------------------------
-# The caveat panel
-# ---------------------------------------------------------------------------
 
 class CaveatPanel(QWidget):
     """The port's departures from spaCRPower, rendered where they are read.
@@ -610,9 +570,6 @@ class CaveatPanel(QWidget):
         return "\n".join(label.text() for label in self._labels)
 
 
-# ---------------------------------------------------------------------------
-# The screen
-# ---------------------------------------------------------------------------
 
 class PowerScreen(QWidget):
     """The Power / Design app.
@@ -679,13 +636,9 @@ class PowerScreen(QWidget):
 
         self._sync_derived()
         self._update_controls()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction ------------------------------------------------------
 
     def _build_form(self) -> QWidget:
         """Build the left column: library, plates, effect, acquisition and run.
@@ -748,10 +701,6 @@ class PowerScreen(QWidget):
             0.0001, 0.99, defaults.background_positive_rate, decimals=4, step=0.01)
         self._background.setToolTip(
             _setting_tooltip("power_background_positive_rate"))
-        # The floor is below 1 on purpose. A spin box that refuses the
-        # keystroke teaches nothing; one that accepts a protective effect and
-        # then says why the model cannot score it teaches the thing worth
-        # knowing — see DesignSpec.validate.
         self._effect = self._float_box(0.05, 50.0, defaults.effect_fold,
                                        decimals=3, step=0.1)
         self._effect.setToolTip(_setting_tooltip("power_effect_fold"))
@@ -775,11 +724,6 @@ class PowerScreen(QWidget):
         self._reads.setToolTip(_setting_tooltip("power_reads_per_well"))
         form.addRow("Cells imaged / well", self._cells)
         form.addRow("Reads / well", self._reads)
-        # Everything the simulator needs that the form does not ask for is
-        # printed rather than left implicit: a power analysis defended in a
-        # methods section needs every number that went into it, and a
-        # parameter that only exists in a dataclass default is a parameter
-        # nobody knows they accepted.
         self._held_note = QLabel("")
         self._held_note.setWordWrap(True)
         self._held_note.setToolTip(
@@ -812,13 +756,6 @@ class PowerScreen(QWidget):
         form.addRow(self._cost_note)
         layout.addWidget(run)
 
-        # This is a hand-built form, but these are still ordinary registered
-        # settings.  Carry the same semantic identity as SettingsWidgets so
-        # the post-construction tooltip pass can use the source-hashed
-        # SETTING_TOOLTIPS catalog and a later language switch can rebuild the
-        # help.  Without these properties retarget_field_tooltips merely moved
-        # the authored English string from editor to label; all nine locale
-        # translations existed in the catalog and none could reach this form.
         self._setting_fields = {
             "power_n_genes": self._genes,
             "power_n_grnas_per_gene": self._grnas,
@@ -902,9 +839,6 @@ class PowerScreen(QWidget):
         self._table.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
         self._table.setMinimumHeight(140)
-        # The caveat list and the sample-size table are the two regions
-        # of this column with nothing behind them; the two curve views
-        # between them paint their own panel in `paintEvent`.
         mark_surface(self._caveats, self._table)
         layout.addWidget(self._table, 1)
         return panel
@@ -942,7 +876,6 @@ class PowerScreen(QWidget):
         box.setValue(float(value))
         return box
 
-    # -- the design --------------------------------------------------------
 
     def spec(self) -> DesignSpec:
         """The design currently on the form.
@@ -1044,7 +977,6 @@ class PowerScreen(QWidget):
             return f"{seconds / 60:.0f} min"
         return f"{seconds / 3600:.1f} h"
 
-    # -- running -----------------------------------------------------------
 
     def run(self) -> bool:
         """Start both sweeps. Returns whether one was started.
@@ -1088,20 +1020,11 @@ class PowerScreen(QWidget):
 
         from ..bridge import make_thread
 
-        # journal=False: the sweep reads no user data and writes no files, so
-        # there is no artefact for a reproducibility manifest to describe —
-        # and a housekeeping job that blocks shutdown is what
-        # `RunRegistry.cancel_all` documents as the way to hang a headless run.
-        # The record that matters (seed, backend, every parameter) is the
-        # DesignSpec, which is on screen.
         thread, worker = make_thread(run_power_sweep, payload,
                                      app_key=APP_KEY, journal=False)
         self._jobs.append((thread, worker))
         self._pending.append(payload)
         worker.error.connect(self._on_worker_error_text)
-        # Bound QWidget methods: Qt queues these back onto the GUI thread. A
-        # closure would run on PipelineWorker's thread and must never touch a
-        # label or a table.
         worker.line_ready.connect(self._on_worker_line)
         worker.finished.connect(self._on_job_settled)
         thread.finished.connect(self._retire_finished_jobs)
@@ -1156,7 +1079,6 @@ class PowerScreen(QWidget):
             if match:
                 self.progressed.emit(int(match.group(1)), int(match.group(2)))
 
-    # -- results -----------------------------------------------------------
 
     def result(self) -> Optional[Dict[str, Any]]:
         """The last sweep's result dict, or ``None``."""
@@ -1278,7 +1200,6 @@ class PowerScreen(QWidget):
         """The inline status line."""
         return self._status.text()
 
-    # -- job plumbing ------------------------------------------------------
 
     def _on_job_settled(self, ok: bool) -> None:
         """Apply the finished sweep on the GUI thread.
@@ -1395,7 +1316,6 @@ class PowerScreen(QWidget):
                 "Simulate the screen at each point on both sweeps, fit the "
                 "model to each, and report how often it found the hits.")
 
-    # -- shutdown ----------------------------------------------------------
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
         """Let every in-flight sweep stop before the widget dies."""
@@ -1410,20 +1330,12 @@ class PowerScreen(QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Registration
-# ---------------------------------------------------------------------------
 
 def make_power_screen(app_key: Optional[str] = None) -> QWidget:
     """Factory handed to :func:`spacr.qt.app.register_app`."""
     return PowerScreen()
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc
@@ -1599,17 +1511,8 @@ def register() -> bool:
     a worse interface to :func:`spacr.power_model.scan_parameters` than
     calling it, which is exactly what the note tells the user to do.
     """
-    # The declared row names this module as its defaults owner, but a caller
-    # has already imported the module in order to call this function.  The
-    # generic resolver therefore cannot rely on a later import side effect to
-    # install the defaults.  Keep the app row and its settings atomic, as the
-    # pre-declaration registration path did.
     register_settings()
     return register_declared(__name__) is not None
 
 
-# ``defaults_module`` means importing this lazily loaded owner establishes
-# its defaults.  Without this call, asking for Power settings after another
-# test imported the screen returned a different inventory from asking in a
-# fresh process.
 register_settings()

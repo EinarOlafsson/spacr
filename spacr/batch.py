@@ -136,7 +136,6 @@ LOG = logging.getLogger('spacr.batch')
 #: change; :func:`load_queue` refuses a newer one rather than guessing.
 QUEUE_FORMAT = 1
 
-# -- job lifecycle ----------------------------------------------------------
 
 #: Never attempted; still runnable.
 STATUS_PENDING = 'pending'
@@ -209,9 +208,6 @@ def fmt_duration(seconds: Optional[float]) -> str:
     return f'{int(seconds // 3600)}h {int((seconds % 3600) // 60):02d}m'
 
 
-# ---------------------------------------------------------------------------
-# problems
-# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -276,9 +272,6 @@ def format_problems(problems: Sequence[Problem], title: str = 'queue check') -> 
     return '\n'.join(lines)
 
 
-# ---------------------------------------------------------------------------
-# jobs and queues
-# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -325,7 +318,6 @@ class Job:
     log_path: str = ''
     run_status: Optional[Dict[str, Any]] = None
 
-    # -- derived ----------------------------------------------------------
 
     @property
     def override_args(self) -> List[str]:
@@ -383,7 +375,6 @@ class Job:
             target = os.path.basename(str(self.settings))
         return f'{self.module} {target}'.strip()
 
-    # -- persistence ------------------------------------------------------
 
     def to_dict(self) -> Dict[str, Any]:
         """Return the job as a JSON-serialisable dict, in a stable key order."""
@@ -487,7 +478,6 @@ class Queue:
     created: str = field(default_factory=_now_iso)
     name: str = 'queue'
 
-    # -- container ---------------------------------------------------------
 
     def __len__(self) -> int:
         """Return the number of jobs currently in the queue."""
@@ -522,7 +512,6 @@ class Queue:
                 return i
         return -1
 
-    # -- editing -----------------------------------------------------------
 
     def mint_id(self, module: str) -> str:
         """Return an unused, human-typable id for a job of ``module``.
@@ -614,7 +603,6 @@ class Queue:
             out[job.status] = out.get(job.status, 0) + 1
         return out
 
-    # -- persistence -------------------------------------------------------
 
     def to_dict(self) -> Dict[str, Any]:
         """Return the whole queue as a JSON-serialisable dict."""
@@ -665,9 +653,6 @@ class Queue:
         return queue
 
 
-# ---------------------------------------------------------------------------
-# the queue file
-# ---------------------------------------------------------------------------
 
 
 def _atomic_write(path: Union[str, os.PathLike], text: str) -> Path:
@@ -741,9 +726,6 @@ def load_queue(path: Union[str, os.PathLike]) -> Queue:
     return Queue.from_dict(data)
 
 
-# ---------------------------------------------------------------------------
-# validation
-# ---------------------------------------------------------------------------
 
 
 def _src_values(settings: Mapping[str, Any]) -> List[str]:
@@ -1088,9 +1070,6 @@ def plan(queue: Queue, detail: bool = False) -> str:
     return '\n'.join(lines)
 
 
-# ---------------------------------------------------------------------------
-# running
-# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -1140,7 +1119,6 @@ class QueueResult:
     ledger: RunLedger = field(default_factory=lambda: RunLedger('queue'))
     path: str = ''
 
-    # -- accessors ---------------------------------------------------------
 
     def jobs_with(self, status: str) -> List[Job]:
         """Every job that ended in ``status``.
@@ -1187,7 +1165,6 @@ class QueueResult:
             return None
         return (end - start).total_seconds()
 
-    # -- the deliverable ---------------------------------------------------
 
     def summary(self) -> str:
         """Render the end-of-queue report.
@@ -1274,7 +1251,6 @@ class QueueResult:
         return '\n'.join(lines)
 
 
-# -- the runners ------------------------------------------------------------
 
 
 def job_command(job: Job, settings_path: str,
@@ -1372,7 +1348,7 @@ def inprocess_runner(job: Job, settings_path: str, log_path: str) -> int:
 
     from .cli import main as cli_main
 
-    argv = job_command(job, settings_path)[3:]  # drop python -m spacr.cli
+    argv = job_command(job, settings_path)[3:]
     Path(log_path).parent.mkdir(parents=True, exist_ok=True)
     with open(log_path, 'w', encoding='utf-8', errors='replace') as handle:
         handle.write(f'# spaCR queue job {job.id} ({job.label}) — in-process\n')
@@ -1386,7 +1362,6 @@ def inprocess_runner(job: Job, settings_path: str, log_path: str) -> int:
     return code
 
 
-# -- run_status collection --------------------------------------------------
 
 
 def _status_artifacts(settings: Mapping[str, Any]) -> List[Path]:
@@ -1420,7 +1395,7 @@ def _status_snapshot(settings: Mapping[str, Any]) -> Dict[str, int]:
     for artifact in _status_artifacts(settings):
         try:
             snapshot[str(artifact)] = len(read_run_status(artifact))
-        except Exception:  # a locked or corrupt artifact must not stop the queue
+        except Exception:
             snapshot[str(artifact)] = 0
     return snapshot
 
@@ -1485,7 +1460,6 @@ def _collect_run_status(settings: Mapping[str, Any],
     }
 
 
-# -- failure classification -------------------------------------------------
 
 _EXC_LINE = re.compile(r'^(?P<type>[A-Za-z_][A-Za-z0-9_.]*(?:Error|Exception|Interrupt))'
                        r'(?::\s*(?P<msg>.*))?$')
@@ -1543,7 +1517,6 @@ def classify_failure(exit_code: int, log_path: str) -> Tuple[str, str]:
     return 'JobFailure', (last or f'exited with code {exit_code}')
 
 
-# -- the loop ---------------------------------------------------------------
 
 
 def _default_log_dir(queue: Queue, path: Optional[Union[str, os.PathLike]]) -> Path:
@@ -1565,7 +1538,7 @@ def _safe(fn: Optional[Callable[..., Any]], *args: Any) -> None:
         return
     try:
         fn(*args)
-    except Exception:  # a GUI callback must never kill an overnight run
+    except Exception:
         LOG.exception('batch: progress callback raised; the queue continues')
 
 
@@ -1658,7 +1631,7 @@ def run_queue(queue: Queue,
             return
         try:
             save_queue(queue, path)
-        except Exception as exc:  # a persistence problem must not end the night
+        except Exception as exc:
             LOG.error('batch: could not persist queue state to %s: %s — the run '
                       'continues but could not be resumed from here', path, exc)
 
@@ -1680,7 +1653,7 @@ def run_queue(queue: Queue,
                 job.status = STATUS_NOT_RUN
             continue
         if job.status in (STATUS_SUCCESS, STATUS_FAILED, STATUS_SKIPPED):
-            continue  # a resumed queue: already settled
+            continue
 
         blocker = _blocking_dependency(job, queue)
         if blocker is not None:
@@ -1748,7 +1721,7 @@ def run_queue(queue: Queue,
         except KeyboardInterrupt:
             code = 1
             interrupted = True
-        except Exception as exc:  # the runner itself broke; that is a job failure
+        except Exception as exc:
             code = 1
             Path(log_path).parent.mkdir(parents=True, exist_ok=True)
             with open(log_path, 'a', encoding='utf-8') as handle:
@@ -1851,7 +1824,7 @@ def _blocking_dependency(job: Job, queue: Queue) -> Optional[Job]:
     for dep_id in job.depends_on:
         dep = queue.find(dep_id)
         if dep is None:
-            continue  # validate_queue already reported this as an error
+            continue
         if dep.status != STATUS_SUCCESS:
             return dep
     return None

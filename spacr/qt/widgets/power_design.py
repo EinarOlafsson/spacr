@@ -107,9 +107,6 @@ SECONDS_PER_FIT_REFERENCE: float = 5.0
 _REFERENCE_CELLS_TIMES_WELLS: float = 1536.0 * 452.0
 
 
-# ---------------------------------------------------------------------------
-# The caveats, as data
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Caveat:
@@ -362,9 +359,6 @@ def changes_the_number() -> Tuple[Caveat, ...]:
     return tuple(c for c in CAVEATS if c.changes_the_number)
 
 
-# ---------------------------------------------------------------------------
-# The design
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class DesignSpec:
@@ -430,7 +424,6 @@ class DesignSpec:
         :func:`spacr.power_model.scan_parameters`.
     """
 
-    # -- what the form asks for ------------------------------------------
     n_genes: int = 452
     n_grnas_per_gene: int = 4
     score_per: str = "gene"
@@ -439,16 +432,10 @@ class DesignSpec:
     n_plates: int = 4
     constructs_per_well: float = 4.6
     background_positive_rate: float = 0.12
-    # 0.80 / 0.12 to three decimals — the form carries three, so this is the
-    # value a freshly-opened screen reads back and `DesignSpec() ==
-    # PowerScreen().spec()` holds. The rounding puts the hit-cell rate at
-    # 0.80004 rather than 0.80; expressing a pair of rates as their ratio
-    # cannot do better, and 4e-5 of a probability changes no power.
     effect_fold: float = 6.667
     hit_rate: float = 0.025
     reads_per_well: float = 30000.0
 
-    # -- held at the real screen's fitted values --------------------------
     gene_abundance_alpha: float = 0.6
     cells_per_well_var: float = 8000.0
     class_pos_var: float = 0.10
@@ -458,22 +445,15 @@ class DesignSpec:
     pcr_factor_mu: float = 2.0
     pcr_factor_var: float = 1.0
     read_depth_cv: float = 0.35
-    # Both default to the R behaviour rather than to the realistic value. A
-    # simulator whose baseline moved under a version bump would make every
-    # power figure already quoted from this screen wrong, and "the number
-    # changed because spaCR got more honest" is indistinguishable from "the
-    # number changed because something broke" to the person reading it.
     sequencing_error_rate: float = 0.0
     min_cells_per_well: int = 0
     imaging_split: str = "abundance"
 
-    # -- how the sweep is run ---------------------------------------------
     n_replicates: int = 3
     detection_auroc: float = 0.80
     seed: int = 0
     backend: str = "torch"
 
-    # -- derived -----------------------------------------------------------
 
     @property
     def n_wells(self) -> int:
@@ -583,9 +563,6 @@ class DesignSpec:
         return replace(self, **changes)
 
 
-# ---------------------------------------------------------------------------
-# Design -> library call
-# ---------------------------------------------------------------------------
 
 def simulator_kwargs(spec: DesignSpec) -> Dict[str, Any]:
     """The design as keyword arguments for the simulator, all held fixed.
@@ -682,9 +659,6 @@ def estimate_runtime_s(spec: DesignSpec) -> float:
                      * max(1, int(spec.n_replicates))))
 
 
-# ---------------------------------------------------------------------------
-# Scan output -> power curve
-# ---------------------------------------------------------------------------
 
 #: Columns :func:`power_curve` returns, in order.
 POWER_CURVE_COLUMNS: Tuple[str, ...] = (
@@ -747,10 +721,6 @@ def power_curve(scan: pd.DataFrame, sweep_column: str,
         baseline = pd.to_numeric(block["ap_baseline"], errors="coerce")
 
         ok = (status == "ok").to_numpy()
-        # A detection needs BOTH an ok status and a score over the bar. The
-        # `fillna(-inf)` is not cosmetic: a NaN comparison is False in numpy
-        # too, but writing it down is what stops a later refactor from
-        # "tidying" this into a dropna() and quietly changing the denominator.
         detected = ok & (auroc.fillna(-np.inf).to_numpy() >= threshold)
         rows.append({
             "value": float(value),
@@ -796,8 +766,6 @@ def plain_sentence(spec: DesignSpec, cells: Optional[pd.DataFrame],
     target = float(round(float(spec.cells_per_well)))
     row = cells.loc[cells["value"] == target]
     if len(row) == 0:
-        # Not interpolated. A power curve read between its own points is a
-        # number the simulation never produced.
         return (f"The sweep did not include {target:g} cells per well, so "
                 "there is no simulated answer for this exact design.")
     row = row.iloc[0]

@@ -116,7 +116,29 @@ class TestTheTransformNameIsCheckedTwice:
             assert f'== "{name}"' in threshold
         assert 'in ("ln", "log")' in transform
         assert 'in ("ln", "log")' not in threshold
-        assert "the only remaining accepted forms are the natural-log aliases" in threshold
+
+        # The rule the missing arm carries: _transform_x has already
+        # refused everything else, so the unlabelled ``return
+        # abs(np.log(t))`` IS the natural-log arm -- and it has to answer
+        # for BOTH aliases, since neither is named anywhere below.
+        # Driven, because what matters is the number it converts to.
+        import pandas as pd
+
+        frame = pd.DataFrame({"fc": [0.5, 1.0, 2.0],
+                              "p": [0.01, 0.2, 0.04]})
+        for alias in ("ln", "log"):
+            figure, axes, _ = P.volcano_plot(
+                frame, fold_change_col="fc", p_value_col="p",
+                x_transform=alias, fold_change_threshold=np.e, show=False)
+            verticals = sorted({round(float(line.get_xdata()[0]), 6)
+                                for line in axes.lines
+                                if len(set(line.get_xdata())) == 1})
+            P.plt.close(figure)
+
+            assert verticals == [-1.0, 0.0, 1.0], (
+                f"x_transform={alias!r} no longer converts its threshold "
+                f"with the natural log, so the fallback is not the arm "
+                f"the validated vocabulary leaves behind")
 
     def test_a_natural_log_threshold_is_converted_in_plot_units(self):
         """The fallback is natural log because validation already reduced

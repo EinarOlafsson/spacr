@@ -301,9 +301,6 @@ def split_by_confidence(rows: pd.DataFrame, threshold: float
             -pd.to_numeric(high[CONFIDENCE_COLUMN], errors="coerce")
             .to_numpy(dtype=float), kind="stable")]
     if not low.empty:
-        # NaN sorts last under argsort, which is what we want: a row with no
-        # confidence is not "the least confident", it is unknown, and it
-        # belongs after the rows that actually sat on the boundary.
         low = low.iloc[np.argsort(
             pd.to_numeric(low[CONFIDENCE_COLUMN], errors="coerce")
             .to_numpy(dtype=float), kind="stable")]
@@ -392,8 +389,6 @@ def rank_confusions(counts: pd.DataFrame) -> List[Confusion]:
     if values.shape[0] == values.shape[1]:
         total_errors = float(values.sum() - np.trace(values))
     else:
-        # A non-square matrix has no diagonal to trace; "off-diagonal" then
-        # means every cell whose row and column names differ.
         total_errors = float(sum(
             values[i, j] for i, r in enumerate(rows)
             for j, c in enumerate(columns) if r != c))

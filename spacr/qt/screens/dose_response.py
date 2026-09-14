@@ -116,12 +116,6 @@ _STATUS_LABELS = {
 }
 
 
-# SECTION NOTE, 2026-09-03: the sections were restructured to Core / Data /
-# Tools / Assays, and SECTION_DESIGN / SECTION_EXPLORE / SECTION_RESULTS are
-# still declared but are no longer in SECTION_ORDER. Every screen below now
-# files under Data. The docstrings keep their original reasoning because it
-# still says what each screen IS -- and they are published, translated API
-# prose, so editing them invalidates reviewed translations in nine languages.
 
 def _format(value) -> str:
     """One cell of the results grid, as text.
@@ -263,8 +257,6 @@ class DoseResponseScreen(QWidget):
 
         from matplotlib.figure import Figure
         palette = active_palette()
-        # No `facecolor`: the canvas paints the page panel in its own
-        # `paintEvent` under a transparent figure patch.
         self._figure = Figure(figsize=(6.5, 4.6))
         self.canvas = _canvas_class()(self._figure)
         self.canvas.setObjectName("DoseResponseCanvas")
@@ -290,9 +282,6 @@ class DoseResponseScreen(QWidget):
         self.report.setPlaceholderText(
             "Pick a concentration column and a response column, then Fit.")
         side.addWidget(self.report)
-        # The two halves of the side splitter are the page on this
-        # screen; the curve canvas beside them paints its own panel in
-        # `paintEvent`, and these two had nothing.
         mark_surface(self.table, self.report)
         side.setStretchFactor(0, 1)
         side.setStretchFactor(1, 1)
@@ -301,17 +290,11 @@ class DoseResponseScreen(QWidget):
         body.setStretchFactor(0, 3)
         body.setStretchFactor(1, 2)
         outer.addWidget(body, 1)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "dose_response")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- data --------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Offer ``frame``'s columns and wait to be told which ones to fit.
 
@@ -436,7 +419,6 @@ class DoseResponseScreen(QWidget):
         self._source.setText(message)
         self.report.setPlainText(message)
 
-    # -- fitting -----------------------------------------------------------
     def spec(self) -> DoseResponseSpec:
         """The spec the controls currently describe."""
         group = self.group_picker.currentText()
@@ -478,15 +460,11 @@ class DoseResponseScreen(QWidget):
                     value = "all rows"
                 text = _format(value)
                 if key == "note" and len(text) > NOTE_WIDTH:
-                    # The refusal messages are paragraphs by design; the grid
-                    # shows the first sentence and the tooltip has all of it.
                     text = text[:NOTE_WIDTH].rstrip() + "…"
                 item = table_item(text)
                 if status != STATUS_FITTED:
                     item.setToolTip(str(record["note"]))
                 if column == 0:
-                    # Which fit this row is, so a sorted table still draws
-                    # the curve the user clicked.
                     item.setData(Qt.UserRole, row)
                 self.table.setItem(row, column, item)
         self.table.resizeColumnsToContents()
@@ -507,8 +485,6 @@ class DoseResponseScreen(QWidget):
         if not rows or self._set is None:
             return
         item = self.table.item(sorted(rows)[0], 0)
-        # The fit index the row was built from, not the row number: the
-        # table sorts, and the top row is not always the first curve.
         fit = None if item is None else item.data(Qt.UserRole)
         self.show_group(sorted(rows)[0] if fit is None else int(fit))
 
@@ -524,7 +500,6 @@ class DoseResponseScreen(QWidget):
                 f"{fit.group or 'all rows'}: REFUSED\n\n{fit.error}")
         self._draw(index)
 
-    # -- drawing -----------------------------------------------------------
     def _draw(self, selected: Optional[int]) -> None:
         """Points, curves, and the selected group's EC50 with its interval.
 
@@ -537,7 +512,6 @@ class DoseResponseScreen(QWidget):
         """
         palette = active_palette()
         self._figure.clear()
-        # `clear()` restores the rc facecolor and its alpha with it.
         self._figure.patch.set_alpha(0.0)
         axes = self._figure.add_subplot(111)
         _page_surface_axes(axes, palette)
@@ -576,11 +550,6 @@ class DoseResponseScreen(QWidget):
         if selected is not None and 0 <= selected < len(self._set.fits):
             chosen = self._set.fits[selected].result
             if chosen is not None:
-                # The axis belongs to the measurements. An interval on a
-                # poorly determined midpoint can span twenty decades, and
-                # letting it set the limits would shrink the actual data to a
-                # single pixel — so the range is taken before the marker is
-                # drawn and put back afterwards.
                 limits = axes.get_xlim()
                 self._draw_ec50(axes, chosen, colours[selected % len(colours)],
                                 palette)
@@ -626,7 +595,6 @@ class DoseResponseScreen(QWidget):
                       xytext=(-4 if symbol == ">" else 4, 0),
                       textcoords="offset points")
 
-    # -- lifecycle ---------------------------------------------------------
     def result_set(self) -> Optional[DoseResponseSet]:
         """The last fit, or ``None``. What a test and an exporter both read."""
         return self._set
@@ -640,8 +608,6 @@ class DoseResponseScreen(QWidget):
         return self._jobs.is_busy()
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
-        # Abandon an in-flight fit rather than let it outlive the screen: Qt
-        # aborts the process if a running QThread is destroyed.
         """Stop background work and unlink before going away.
 
         :param event: the Qt close event.
@@ -658,11 +624,6 @@ def make_dose_response_screen(app_key: Optional[str] = None) -> QWidget:
     return DoseResponseScreen()
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc

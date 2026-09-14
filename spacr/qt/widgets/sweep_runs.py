@@ -80,15 +80,7 @@ PREFERRED_COLUMNS = (
 #: not know lands past the last sweep column, which is the far right of a
 #: twenty-column table -- recorded, and never seen.
 RUN_SETTING_COLUMNS = (
-    # WHAT WAS FITTED, first. Instruction 154 F queues one run per column of
-    # the merged measurements, so a table of those runs differs in the
-    # RESPONSE and in nothing else -- and a comparison table whose only
-    # varying column is missing is a list of identical-looking rows.
     "dependent_variable",
-    # WHICH ENGINE AND HOW MANY SHUFFLES. Two permutation runs a thousand
-    # shuffles apart were one row apart in this table and identical on it,
-    # which is the comparison the table exists for. `guide_permutations` is
-    # copied only for a run that actually permuted -- see `_run_settings_row`.
     "regression_type", "regression_backend", "inference",
     "guide_permutations", "analysis_unit", "agg_type", "transform",
     "multiple_testing_method", "fdr_alpha", "fraction_threshold",
@@ -113,10 +105,6 @@ SOURCE_MEASUREMENT = "measurement column"
 STATUS_RUNNING = "running"
 
 
-# What :meth:`SweepRunsPanel.delete_runs_from_disk` answers when the delete
-# has been STARTED rather than finished: the count is not knowable at return
-# time and pretending otherwise would be a lie the caller cannot detect. It is
-# truthy, because "the delete is under way" is what the menu wants to hear.
 _DELETION_STARTED = -1
 
 
@@ -166,8 +154,6 @@ def _read_results_table(path: str):
             return None, ""
         return pd.read_csv(path), ""
     except Exception as error:                               # noqa: BLE001
-        # NAMED EVEN WHEN THE EXCEPTION IS NOT. An empty message would be
-        # read as "no table here yet", which is the one thing it is not.
         return None, str(error) or type(error).__name__
 
 
@@ -189,9 +175,6 @@ def _find_the_run(folder: str):
         return "", {}
     if not table:
         return "", {}
-    # ITS OWN SETTINGS, so an old run is described by the same columns as a
-    # new one. Without them the row is a name and a folder, and two runs
-    # cannot be compared on the settings that differ.
     try:
         from ...refit import settings_of_run
 
@@ -259,11 +242,6 @@ def _readable_size(total: int) -> str:
             return f"{size:.0f} {unit}" if unit == "B" or size >= 10 \
                 else f"{size:.1f} {unit}"
         size /= 1024
-    # NO TRAILING RETURN. "GB" is the last unit and the condition carries
-    # `or unit == "GB"`, so the final iteration returns whatever the size
-    # is -- the loop cannot fall out of the bottom. Checked against 20,000
-    # values spanning zero to 2**63-1 and negatives; every one returned
-    # from inside.
     raise AssertionError(                                # pragma: no cover
         "the unit table no longer ends at GB")
 
@@ -304,23 +282,12 @@ def save_run_states(folders, app_key: str = "") -> tuple:
         try:
             on_disk = os.path.isdir(path)
         except Exception as error:                           # noqa: BLE001
-            # INSIDE THE TRY LIKE EVERYTHING ELSE. This runs on a worker, and
-            # a worker that throws never reaches `_on_states_saved` -- so one
-            # unaskable path would leave "Saving the state of 3 runs…" on the
-            # line for the rest of the session and say nothing about the two
-            # that could have been saved.
             failures.append((path, f"{type(error).__name__}: {error}"))
             continue
         if not on_disk:
-            # `save_for_run` would CREATE this folder, leaving a directory
-            # holding nothing but a workspace file where a deleted run used
-            # to be. A run that is gone from disk is not a run to save.
             failures.append((path, "the run folder is not on disk any more"))
             continue
         try:
-            # `reference` rather than `copy`: the run's own files are already
-            # on disk beside it, and copying them again to save a state would
-            # double a screen's worth of crops.
             written = save_for_run(path, {"save_workspace": "reference"})
         except Exception as error:                           # noqa: BLE001
             failures.append((path, f"{type(error).__name__}: {error}"))
@@ -502,20 +469,6 @@ class SweepRunsPanel(QWidget):
 
         self._threaded = _should_thread() if threaded is None else bool(
             threaded)
-        # TWO RUNNERS, because one of them is CANCELLED. A tab change can ask
-        # for the sweep table again while the last read is still out on a
-        # slow mount, and the answer that must win is the newest -- so the
-        # table reads have a runner of their own that `load` can cancel
-        # without abandoning a delete or a save half-way through.
-        #
-        # `user_visible=False` ON BOTH, and the reason is Preferences' rather
-        # than the usage poller's: a right-click that saves a bundle or
-        # deletes a folder IS something the user started, but it is not a RUN
-        # -- and `home.py` filters that flag to decide which of them gets a
-        # blue "<module> — running" banner across the top of Home. None of
-        # this work had a banner before, because none of it had a thread; the
-        # flag hides nothing the user saw, and without it every right-click
-        # on this tab flashes one.
         self._jobs = JobRunner(self, threaded=self._threaded,
                                app_key="sweep runs", user_visible=False)
         self._load_jobs = JobRunner(self, threaded=self._threaded,
@@ -530,10 +483,6 @@ class SweepRunsPanel(QWidget):
         self._status = QLabel("Nothing run yet.")
         self._status.setWordWrap(True)
         header.addWidget(self._status, 1)
-        # A RUN ON DISK IS A FIRST-CLASS RUN (154 G). An earlier session's
-        # results folder is opened here, gets a row beside this session's own,
-        # and becomes the loaded run -- rather than being something the user
-        # can only reach by re-running a fit that already finished.
         self._open = QPushButton("Load run…")
         self._open.setToolTip(
             "Open a run's results folder from disk — including one from an "
@@ -549,48 +498,21 @@ class SweepRunsPanel(QWidget):
         header.addWidget(self._reload)
         layout.addLayout(header)
 
-        # The same table widget the results use: it already sorts numerically,
-        # filters, and copies as TSV, and a second implementation of those is
-        # a second set of bugs.
         self.table = ResultsTable()
-        # Its own words. The coefficient table's "type a gene, a guide" and
-        # "significant only" belong to a table of findings; over a list of
-        # trials the first is wrong and the second cannot do anything.
         self.table.configure(
             placeholder="Filter runs — a model, a cutoff, anything in the row",
             significance_filter=False)
         self.table.table.itemSelectionChanged.connect(self._on_selection)
-        # THE TWO GESTURES A USER LOOKS FOR (instruction 146 B): a context
-        # menu on the row, and the Delete key on the selection. Multi-select
-        # is the QTableWidget default and is kept -- a sweep writes one
-        # folder per trial, and clearing up after one by hand twenty times is
-        # not a feature.
-        # SAID RATHER THAN INHERITED. ExtendedSelection is the QTableWidget
-        # default today, and "several rows at once" is a requirement of
-        # instruction 146 B rather than a happy accident of a default that
-        # could change.
         from PySide6.QtWidgets import QAbstractItemView
 
         self.table.table.setSelectionMode(
             QAbstractItemView.ExtendedSelection)
         self.table.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.table.customContextMenuRequested.connect(self._run_menu)
-        # DOUBLE-CLICK IS THE GESTURE THAT LOADS (190). It used to be the
-        # second way in, beside a selection that also loaded; as of
-        # 2026-08-20 it is the only one, because selecting a row to read its
-        # name should not cost a multi-second read. It still FORCES the load
-        # rather than asking politely, so a run refused for any reason can be
-        # insisted on.
         self.table.table.doubleClicked.connect(self._on_double_click)
         self.table.table.installEventFilter(self)
         layout.addWidget(self.table, 1)
 
-        # THE STILL OF A RUN THAT IS NOT LIVE (instruction 116's last line).
-        # A run opened beside the loaded one is photographed when it closes;
-        # this is where that photograph is finally SHOWN, beside the row it
-        # belongs to. Hidden when there is none, which is most rows -- an
-        # empty frame under the table would read as a run that failed to draw
-        # rather than as one nobody has opened beside.
         self._photo = QLabel()
         self._photo.setAlignment(Qt.AlignCenter)
         self._photo.setObjectName("RunPhotograph")
@@ -663,21 +585,10 @@ class SweepRunsPanel(QWidget):
         self._waiting_note = ""
         self._note_before_waiting = ""
 
-        # THE OTHER END OF EVERY HANDLER BELOW. `JobRunner` calls `on_done`
-        # only for a job that SUCCEEDED, so a worker that raises leaves the
-        # placeholder on the line and the "Load run…" button disabled by the
-        # click that started it -- for the rest of the session. Connected
-        # last, after `_open` and the state above exist, because a job can
-        # fail the moment it is submitted.
         for runner in (self._jobs, self._load_jobs):
             runner.job_failed.connect(self._on_job_failed)
 
     def closeEvent(self, event):                              # noqa: N802
-        # Qt ABORTS THE PROCESS if a running QThread is destroyed, and a run
-        # folder on a sleeping mount is exactly the job that is still going
-        # when the user closes the screen it belongs to. Both runners are
-        # asked to stop and are waited for a bounded time; a job that outlasts
-        # the budget is parked rather than killed mid-delete.
         """Stop background work and unlink before going away.
 
         :param event: the Qt close event.
@@ -692,7 +603,6 @@ class SweepRunsPanel(QWidget):
                 LOG.debug("could not stop a runs-tab job", exc_info=True)
         super().closeEvent(event)
 
-    # ------------------------------------------------------------------ load
 
     def load(self, folder) -> bool:
         """Read ``sweep_results.csv`` from a sweep's destination folder.
@@ -715,9 +625,6 @@ class SweepRunsPanel(QWidget):
         path = folder if folder.lower().endswith(".csv") else os.path.join(
             folder, RESULTS_FILENAME)
         self._load_answer = False
-        # LAST ASK WINS. A tab flipped twice queues two reads of the same
-        # folder, and the older one landing second would put a stale table
-        # back. Cancelling drops the result rather than joining the thread.
         self._load_jobs.cancel()
         self._start_waiting(f"Reading {path}…")
         started = self._load_jobs.submit(
@@ -741,18 +648,11 @@ class SweepRunsPanel(QWidget):
             if error:
                 self._rebuild(f"Could not read {path}: {error}")
             else:
-                # NOT a wipe, and the note goes THROUGH the rebuild. The
-                # sweep's table being absent says nothing about the runs this
-                # session has made; setting the status here and clearing the
-                # table would be how opening the tab before a sweep exists
-                # used to empty it.
                 self._rebuild(f"No results table at {path} yet.")
             self._load_answer = False
             self._stop_waiting()
             return
         self._folder = folder
-        # The chooser opens here next time, and asking now means the answer
-        # is in the cache by then rather than being stat-ed under the click.
         path_probe.isdir(folder)
         self._load_answer = self.set_frame(frame, source=path)
         self._stop_waiting()
@@ -762,14 +662,6 @@ class SweepRunsPanel(QWidget):
         return self.load(self._folder) if self._folder else False
 
     def set_frame(self, frame, source: str = "") -> bool:
-        # Takes THE SWEEP'S HALF of the table and returns whether the tab now
-        # shows a row -- which is no longer the same question, because this
-        # session's own runs are rows too. Deliberately left as a comment
-        # rather than a docstring: a docstring here is public API surface, and
-        # `tests/test_api_i18n_extractor.py` holds an exact count of that, so
-        # promoting this to a docstring means bumping the count in the same
-        # commit. (It used to say the count file "belongs to another session
-        # right now" -- true on 2026-08-17, not a constraint today.)
         """Point the panel at a table of runs.
 
         :param frame: the runs, or None to clear.
@@ -779,7 +671,6 @@ class SweepRunsPanel(QWidget):
             source = "The sweep has recorded no trials yet."
         return self._rebuild(source)
 
-    # ------------------------------------------------------- this session's
 
     def record_run(self, label: str, source: str = SOURCE_RUN,
                     settings=None, folder: str = "") -> int:
@@ -825,31 +716,10 @@ class SweepRunsPanel(QWidget):
             return False
         row.update({name: value for name, value in fields.items()
                     if value is not None})
-        # A RUN FINISHING IS WHEN A BUNDLE APPEARS, which is the whole reason
-        # `_has_workspace` asks the folder rather than the row. A "no
-        # workspace" answer cached from a right-click while the run was still
-        # going would otherwise grey the restore entry for the rest of the
-        # session.
         folder = str(row.get("folder") or "")
         if folder:
             self._workspace_answers.pop(folder, None)
-            # AND THE PROBE THAT IS STILL OUT IS DROPPED WITH IT. A
-            # right-click while the run was going submitted a `has_workspace`
-            # on a folder with no bundle in it yet; dropping only the cached
-            # answer leaves that probe free to land afterwards and write the
-            # same "no" back, which greys the restore entry for the rest of
-            # the session -- the exact thing the paragraph above is for.
             self._workspace_pending.pop(folder, None)
-        # A RUN THAT FINISHES BECOMES THE LOADED RUN, with no step in
-        # between (154 G): "i just ran a regression so that should be loaded
-        # automatically". The views were being told nothing had been loaded
-        # by the run the user had just watched finish.
-        #
-        # AND THEY ARE TOLD NOW (157). This line moved the mark and stopped
-        # there, so a second run finishing left the first run's coefficients,
-        # figures and summary on screen under a mark naming the second. The
-        # key the mark was on is carried into the rebuild, which announces
-        # the change once everything else has settled.
         before = self._loaded_key
         if _is_ok(row):
             self._loaded_key = self._row_key(row)
@@ -883,12 +753,6 @@ class SweepRunsPanel(QWidget):
         if not folder:
             from PySide6.QtWidgets import QFileDialog
 
-            # NOT `self._folder` DIRECTLY. Qt stats the start directory
-            # before it draws the dialog, so handing it a remembered
-            # ``/nas_mnt`` path freezes the click that opened the chooser.
-            # `path_probe.isdir` answers from its cache and says no to a path
-            # it has not seen -- the dialog opens at its default place, and
-            # the next click gets the remembered folder back.
             start = self._folder if path_probe.isdir(self._folder) else ""
             folder = QFileDialog.getExistingDirectory(
                 self, "Choose a run's results folder", start)
@@ -901,12 +765,6 @@ class SweepRunsPanel(QWidget):
             return False
 
         self._open_answer = False
-        # A SECOND CLICK MUST NOT QUEUE A SECOND WALK. Re-enabled by
-        # `_run_arrived` when the search answers and by `_on_job_failed` when
-        # it does not -- and BOTH are needed, because `JobRunner` hands a
-        # result to `on_done` only for a job that came back cleanly. A button
-        # disabled by a click and re-enabled by nothing is the silent no-op
-        # this repository keeps fixing.
         self._open.setEnabled(False)
         self._start_waiting(f"Looking for a run in {folder}…")
         started = self._jobs.submit(
@@ -926,8 +784,6 @@ class SweepRunsPanel(QWidget):
         if not table:
             from .regression_results import RESULT_FILENAMES
 
-            # NAMED, not a silent no-op. The user picked a folder; being told
-            # nothing happened is the failure this repository keeps fixing.
             self._rebuild(f"No run in {folder}: none of "
                           f"{', '.join(RESULT_FILENAMES)} is in it or under "
                           f"it.")
@@ -951,9 +807,6 @@ class SweepRunsPanel(QWidget):
 
         before = self._loaded_key
         self._loaded_key = self._row_key(self._recorded[handle])
-        # AND THE VIEWS FOLLOW IT -- through the same funnel every other path
-        # uses (157). This used to emit the two signals itself, which is how
-        # the finishing path came to be the only one that did not.
         self._rebuild(f"Loaded the run in {run_folder}.", since=before)
         self._open_answer = True
         self._stop_waiting()
@@ -993,7 +846,6 @@ class SweepRunsPanel(QWidget):
         """This session's runs, oldest first."""
         return [dict(row) for _handle, row in sorted(self._recorded.items())]
 
-    # ------------------------------------------------------ which is loaded
 
     @staticmethod
     def _row_key(row) -> str:
@@ -1054,17 +906,9 @@ class SweepRunsPanel(QWidget):
                 changed = self._loaded_key != key
                 self._loaded_key = key
                 if changed:
-                    # The note describes the LAST LOAD, which this supersedes.
-                    # Left alone it produced "Loaded: ols_1. Loaded the run in
-                    # .../ols_2." -- one sentence naming two runs.
                     self._source_note = ""
                 self._paint_the_loaded_mark()
                 if changed:
-                    # AND THE VIEWS FOLLOW THE CHOICE. Moving the mark and
-                    # leaving the results panel, the summary and the figure
-                    # grid on the previous run is the failure 154 G is about:
-                    # the choice has to be visible from the views that depend
-                    # on it, not only from the tab that sets it.
                     self._announce_the_loaded_run(before)
                 return True
         return False
@@ -1080,40 +924,11 @@ class SweepRunsPanel(QWidget):
             return False
         record = self.loaded_run()
         if record is None:
-            # The key names a row the composed frame does not hold, which is
-            # not a run anybody can be shown. Say nothing rather than hand a
-            # view a record it cannot open.
             return False
         self._previous_loaded_key = before
-        # BOTH NAMES FOR ONE EVENT. `loaded_run_changed` is the question the
-        # screen connects ("which run is on screen"); `trial_activated`
-        # predates it and is what the sweep's own listeners were written
-        # against. They are emitted together and the screen's handler is
-        # idempotent on the run already showing, so connecting either -- or
-        # both -- costs one load.
-        # SET BEFORE THE EMITS. A listener that refuses SYNCHRONOUSLY -- which
-        # is how the screen behaved before the read moved to a worker, and how
-        # a test drives it -- calls back into `the_load_failed` from inside
-        # these two lines, and the token has to already name this announcement
-        # or its own refusal is rejected as stale.
         self._undo_answers = self._loaded_key
         self.loaded_run_changed.emit(dict(record))
         self.trial_activated.emit(dict(record))
-        # THE UNDO IS KEPT, AND IT NAMES WHAT IT ANSWERS.
-        #
-        # It used to be spent right here, on the reasoning that the window in
-        # which a load can fail IS the emission -- true while the listener read
-        # the run synchronously, and false since instruction 159 moved that
-        # read onto a worker. The failure now arrives after this method has
-        # returned, so an undo consumed here is gone before the only caller
-        # that needs it: a run whose folder does not exist kept the mark, which
-        # is 157's disagreement pointing the other way.
-        #
-        # Kept, but not open-ended. `_undo_answers` records WHICH announcement
-        # the undo belongs to, so a listener coming back later -- a click on a
-        # trial that failed two choices ago -- cannot drag the mark backwards:
-        # `the_load_failed` checks that the mark is still on the run it was
-        # told about, and does nothing when it is not.
         return True
 
     def the_load_succeeded(self) -> None:
@@ -1136,26 +951,14 @@ class SweepRunsPanel(QWidget):
         :returns: Whether the mark moved back.
         """
         previous = self._previous_loaded_key
-        # ONLY THE ANNOUNCEMENT THIS ANSWERS. An asynchronous read reports back
-        # after the mark may have moved again; rolling back then would undo a
-        # choice the user has since made.
         answers = getattr(self, "_undo_answers", None)
         if answers is not None and answers != self._loaded_key:
             return False
         if previous == self._loaded_key:
             return False
         if not previous:
-            # NOTHING TO GO BACK TO, so the mark stays on the run that
-            # finished. Clearing it here would answer "no run is loaded"
-            # immediately after a run the user watched finish -- which is
-            # 154 G's report, arrived at from the other direction. The run IS
-            # the loaded one; what failed is drawing it, and the status line
-            # says so. The rule this rolls back is "the mark must not point
-            # at a run OTHER than the one on screen", and with nothing on
-            # screen there is no other run to point at.
             return False
         self._loaded_key = previous
-        # Spent: this undo has been used and must not be used twice.
         self._undo_answers = previous
         self._source_note = str(why or "")
         self._paint_the_loaded_mark()
@@ -1195,7 +998,7 @@ class SweepRunsPanel(QWidget):
             item = table.item(row, column)
             if item is None:
                 continue
-            index = item.data(0x0100)              # Qt.UserRole: the frame row
+            index = item.data(0x0100)
             if index is None or not 0 <= int(index) < len(marks):
                 continue
             item.setText(marks[int(index)])
@@ -1218,9 +1021,6 @@ class SweepRunsPanel(QWidget):
         elif len(ok) == 1:
             self._loaded_key = ok[0]
         else:
-            # A key naming no row is worse than none: `loaded_run` would
-            # answer None while the column showed nothing, and the two
-            # disagreeing is how a stale mark survives a reload.
             self._loaded_key = ""
         frame[LOADED_COLUMN] = pd.Series(
             [LOADED_MARK if key and key == self._loaded_key else ""
@@ -1255,9 +1055,6 @@ class SweepRunsPanel(QWidget):
             if "source" not in trials.columns:
                 trials["source"] = SOURCE_SWEEP
             if "run" not in trials.columns and "trial_id" in trials.columns:
-                # A trial's name IS its number; saying so in the same column
-                # the session's runs use is what lets one glance answer
-                # "which run is this row".
                 trials["run"] = ["trial " + str(value)
                                  for value in trials["trial_id"]]
             frames.append(trials)
@@ -1272,27 +1069,16 @@ class SweepRunsPanel(QWidget):
         if len(frames) == 1:
             frame = frames[0]
         else:
-            # WHICH COLUMNS WERE WHOLE NUMBERS BEFORE THE CONCAT. A session
-            # run has no `trial_id` and no `n_below_alpha`, so concatenating
-            # it in fills those with NaN and pandas promotes the column to
-            # float -- and the sweep's trial 1 becomes "1.0", its 12 hits
-            # become "12.0". Recorded here, restored below.
             whole = {name for part in frames for name in part.columns
                      if part[name].dtype.kind in "iu"}
             frame = pd.concat(frames, ignore_index=True, sort=False)
             frame = self._keep_whole_numbers_whole(frame, whole)
-        # WHICH ROW IS THE LOADED ONE, decided over the composed frame --
-        # the session's runs and the sweep's trials are one population, and
-        # "there is only one run so it is the loaded one" has to count both.
         self._settle_the_loaded_run(frame)
         self._frame = frame[ordered_columns(frame)].reset_index(drop=True)
         self._rebuilding = True
         try:
             self.table.set_frame(self._frame, key_column=(
                 "run" if "run" in self._frame.columns else None))
-            # THE LOADED RUN IS THE SELECTED ROW. Refilling the table clears
-            # the selection, so without this the highlight jumped off the run
-            # being shown every time another one was recorded.
             record = self.loaded_run()
             if record is not None and isinstance(record.get("run"), str):
                 self.table.select_key(record["run"])
@@ -1301,12 +1087,6 @@ class SweepRunsPanel(QWidget):
         self._source_note = source
         self._status.setText(self._describe(self._frame, source))
         self.loaded.emit(len(self._frame))
-        # LAST, AND OUTSIDE `_rebuilding`. A listener re-points the results
-        # panel and the figure grid, and one that came back into this method
-        # would be refilling a table Qt is still holding items from -- the
-        # crash `_paint_the_loaded_mark` exists to avoid. Nothing below this
-        # line reads `_loaded_key`, so a listener that hands the mark back
-        # (:meth:`the_load_failed`) cannot leave the table half-built.
         self._announce_the_loaded_run(before)
         return True
 
@@ -1365,13 +1145,9 @@ class SweepRunsPanel(QWidget):
             note += (f". Loaded: {name}" if isinstance(name, str) and name
                      else ". One run is loaded")
         elif len(frame) > 1:
-            # SAID, rather than left as an empty column. Several runs and no
-            # choice made is a state the user has to resolve, and a blank
-            # column is indistinguishable from a feature that is not working.
             note += ". No run is loaded — pick one to show it everywhere else"
         return f"{note}. {source}" if source else note
 
-    # ------------------------------------------------------------- selection
 
     def selected_trial(self) -> Optional[dict]:
         """The selected row as a dict, or ``None``.
@@ -1385,20 +1161,11 @@ class SweepRunsPanel(QWidget):
         items = self.table.table.selectedItems()
         if not items:
             return None
-        index = items[0].data(0x0100)          # Qt.UserRole: the frame row
+        index = items[0].data(0x0100)
         if index is None or not 0 <= int(index) < len(self._frame):
             return None
         return self._frame.iloc[int(index)].to_dict()
 
-    # -------------------------------------------------------------- delete
-    #
-    # Instruction 146, requested 2026-08-18: "the user should be able to
-    # delete runs from the figures (currently possible) and from the run tab
-    # (not possible)".
-    #
-    # TWO DIFFERENT THINGS A USER COULD MEAN, and a single "Delete" that does
-    # not distinguish them is how a screen's results are lost. Both are
-    # legitimate; the DEFAULT gesture is the safe one.
 
     def selected_runs(self) -> list:
         """Every selected row as a dict, in the order the table shows them.
@@ -1411,7 +1178,7 @@ class SweepRunsPanel(QWidget):
             return []
         rows, seen = [], set()
         for item in self.table.table.selectedItems():
-            index = item.data(0x0100)              # Qt.UserRole: frame row
+            index = item.data(0x0100)
             if index is None:
                 continue
             index = int(index)
@@ -1487,13 +1254,6 @@ class SweepRunsPanel(QWidget):
             if self._row_key(row) in wanted:
                 del self._recorded[handle]
         if self._sweep_frame is not None and len(self._sweep_frame):
-            # BY TRIAL NUMBER AS WELL AS BY KEY, because a sweep trial's
-            # NAME is derived during the rebuild ("trial 2" from `trial_id`)
-            # and its row in the raw sweep frame has neither a `run` column
-            # nor a `folder` -- so `_row_key` answers "" for every one of
-            # them and a match on the key alone removed nothing at all. That
-            # is the whole of what "reload brings it back" was promising
-            # about rows that had never left.
             trials = {str(record.get("trial_id"))
                       for record in (records or [])
                       if record.get("trial_id") is not None}
@@ -1508,18 +1268,12 @@ class SweepRunsPanel(QWidget):
 
         before = self._loaded_key
         if self._loaded_key in wanted:
-            # The mark cannot stay on a run that is no longer a row: a key
-            # naming nothing makes `loaded_run` answer None while the column
-            # shows a tick, and the two disagreeing is how a stale mark
-            # survives (see `_settle_the_loaded_run`).
             self._loaded_key = ""
         count = len(wanted)
         self._rebuild(f"Removed {count} run" + ("s" if count != 1 else "")
                       + " from the list; Reload brings "
                       + ("them" if count != 1 else "it") + " back.",
                       since=before)
-        # AFTER the rebuild, so a listener that re-points the results panel
-        # is looking at the table as it now is.
         self.runs_removed.emit([dict(record) for record in gone])
         return count
 
@@ -1545,8 +1299,6 @@ class SweepRunsPanel(QWidget):
         records = [record for record in (records or []) if record]
         refused = [record for record in records if self._is_running(record)]
         if refused:
-            # NEVER DELETE WHAT IS RUNNING, and say why rather than ignoring
-            # the gesture (instruction 106).
             self._say(self._why_it_cannot_be_deleted(refused))
             return 0
         folders = []
@@ -1560,12 +1312,6 @@ class SweepRunsPanel(QWidget):
             self._say("Nothing to delete: these runs have no folder on disk.")
             return 0
 
-        # NEITHER HALF OF THE QUESTION CAN BE ASKED HERE. Which of these
-        # folders is still on disk is a stat each, and what is in one is an
-        # `os.walk` of a whole run -- and the answer is needed BEFORE the
-        # modal, because the modal is what says what is about to be
-        # destroyed. So the description goes to a worker and the confirmation
-        # is shown from its callback.
         self._deleted_count = 0
         self._start_waiting("Working out what these runs hold…")
         started = self._jobs.submit(
@@ -1594,14 +1340,6 @@ class SweepRunsPanel(QWidget):
                    + "\n".join(lines))
         ask = confirm if callable(confirm) else self._confirm_deletion
         if not ask(message, list(folders)):
-            # NO IS AN ANSWER, and the line goes back to what it said before
-            # the delete was asked for. Saying nothing was already the
-            # behaviour -- declining the modal left the status line exactly
-            # as it was -- and the placeholder is the one thing that has to
-            # be taken back down. NOTHING ELSE WILL: no worker is running any
-            # more, so no arrival handler and no `job_failed` is coming, and
-            # without this "Working out what these runs hold…" is the last
-            # sentence this tab ever shows.
             self._abandon_waiting()
             return False
         self._start_waiting("Deleting…")
@@ -1629,8 +1367,6 @@ class SweepRunsPanel(QWidget):
                     str(record.get("folder") or ""))) not in keep]
         self.remove_runs(gone)
         for folder in deleted:
-            # The caches answer "it is there" until told otherwise, and this
-            # is the moment they are wrong.
             path_probe.forget(folder)
             self._workspace_answers.pop(folder, None)
             self._workspace_pending.pop(folder, None)
@@ -1669,7 +1405,6 @@ class SweepRunsPanel(QWidget):
             self._status.setText(self._describe(self._frame,
                                                 self._source_note))
 
-    # --------------------------------------------------- the waiting line
 
     def _start_waiting(self, note: str) -> None:
         """Say what is being waited for, and remember what that replaced.
@@ -1734,12 +1469,6 @@ class SweepRunsPanel(QWidget):
         time it fails this panel's C++ half may be gone.
         """
         try:
-            # THE BUTTON FIRST. It is the one thing here that a user cannot
-            # work around, and the failure that disabled it is exactly the
-            # case `_run_arrived` does not cover. UNCONDITIONALLY, and that
-            # is the safe direction: narrowing it to "only the search's own
-            # failure" needs an attribution `job_failed` cannot give, and
-            # being wrong the other way leaves the button dead for good.
             self._open.setEnabled(True)
             if self._waiting_note:
                 self._stop_waiting()
@@ -1776,8 +1505,6 @@ class SweepRunsPanel(QWidget):
                 lambda target=key: _has_workspace(target),
                 lambda answer, target=key, mark=stamp:
                     self._remember_workspace(target, answer, mark))
-        # Unthreaded the job above has already answered, so this reads the
-        # truth rather than the optimism.
         return self._workspace_answers.get(key, True)
 
     def _remember_workspace(self, folder: str, answer, stamp=None) -> None:
@@ -1823,19 +1550,12 @@ class SweepRunsPanel(QWidget):
         count = len(records)
         plural = "s" if count != 1 else ""
         menu = QMenu(self)
-        # LOAD FIRST, because it is what a user opens this menu for. The menu
-        # offered Remove, Open beside and Delete and no way to LOAD -- so the
-        # only route to a different run was a single click, and when that was
-        # refused there was no second route at all.
         load = None
         if count == 1:
             load = menu.addAction("Load this run")
             load.setData("load")
             load.setToolTip("Show this run's results, figures and summary.")
             menu.addSeparator()
-        # SAVE, FOR ONE OR FOR SEVERAL. Restore below is single-run because
-        # two workspaces cannot both be put on screen; SAVING several is a
-        # different thing and is what was asked for.
         keep = menu.addAction(
             f"Save the state of {count} run{plural}"
             if count != 1 else "Save this run's state")
@@ -1853,9 +1573,6 @@ class SweepRunsPanel(QWidget):
                     "coefficient, and restore the view built on every figure. "
                     "Says what it put back and what it could not.")
             else:
-                # Instruction 106: OFFERED AND DISABLED, saying why. An entry
-                # that appeared only for runs that happen to have a bundle is
-                # one nobody learns exists.
                 restore.setEnabled(False)
                 restore.setToolTip(
                     "This run saved no workspace — it was run with 'Saved "
@@ -1880,16 +1597,7 @@ class SweepRunsPanel(QWidget):
                           "cannot be undone; you are shown the path first.")
         running = [record for record in records if self._is_running(record)]
         if running:
-            # GREYED OUT AND SAYING WHY (instruction 106), not silently
-            # ignored. Both entries: removing the row of a run this session
-            # is still updating would leave `update_run` writing to a handle
-            # with nothing to show for it.
             why = self._why_it_cannot_be_deleted(running)
-            # LOAD IS GREYED TOO, and for its own reason rather than the
-            # delete reason: a run still going has produced no results table,
-            # no figures and no summary, so loading it would put an empty
-            # screen under a mark claiming a run. That is worse than a
-            # disabled entry, which at least says why.
             if load is not None:
                 load.setEnabled(False)
                 load.setToolTip(
@@ -1938,8 +1646,6 @@ class SweepRunsPanel(QWidget):
         self._source_note = ""
         self._paint_the_loaded_mark()
         if not self._announce_the_loaded_run(before):
-            # Nothing listened to the loaded-run signal; the results panel
-            # still has to be told, and `trial_activated` is the other door.
             self.trial_activated.emit(dict(record))
         return True
 
@@ -1973,20 +1679,8 @@ class SweepRunsPanel(QWidget):
             folders = [folder for folder in folders if folder]
             self._saved_state = False
             if not folders:
-                # Nothing to hand the writer, and the note still has to be
-                # written -- a menu entry that does nothing and says nothing
-                # is the failure instruction 106 is about.
                 self._on_states_saved(([], []))
                 return False
-            # THE WRITE GOES TO A WORKER. `save_run_states` stats each folder
-            # and then writes a bundle into it, both on paths the user chose.
-            #
-            # `_start_waiting` RATHER THAN `_say`, because this sentence is a
-            # placeholder and has to be registered as one: `_on_job_failed`
-            # only takes down a line it can see is outstanding, so a save
-            # written with `_say` and then raised on -- `_on_states_saved`
-            # rebuilding the table is the throw that reaches it -- would
-            # leave "Saving the state of 3 runs…" up for good.
             plural = "" if len(folders) == 1 else "s"
             self._start_waiting(
                 f"Saving the state of {len(folders)} run{plural}…")
@@ -1996,9 +1690,6 @@ class SweepRunsPanel(QWidget):
             return bool(started) if self._threaded else self._saved_state
 
         if verb == "load" and records:
-            # The menu greys it, and so does this: a menu is one door and
-            # `_apply_run_menu` is the seam tests drive, so a guard on the
-            # paint alone would be a guard a test could walk straight past.
             if self._is_running(records[0]):
                 return False
             return self.load_this_run(records[0])
@@ -2008,11 +1699,6 @@ class SweepRunsPanel(QWidget):
             self.compare_requested.emit(dict(records[0]))
             return True
         if verb == "restore" and records:
-            # THE SAME NON-BLOCKING ANSWER THE MENU WAS DRAWN FROM, rather
-            # than a blocking check "to be sure": the menu has already been
-            # built and shown from it, so a stat here would only add the
-            # freeze back at the click. `AppScreen.restore_run_workspace` is
-            # where a bundle that turns out not to be readable is reported.
             if not self._workspace_answer(str(records[0].get("folder") or "")):
                 return False
             self.workspace_restore_requested.emit(dict(records[0]))
@@ -2036,7 +1722,6 @@ class SweepRunsPanel(QWidget):
         saved, failures = result if result else ([], [])
         self._saved_state = bool(saved)
         for folder in saved:
-            # A save is the moment a cached "no bundle" answer goes stale.
             self._workspace_answers.pop(str(folder), None)
             self._workspace_pending.pop(str(folder), None)
         self._source_note = describe_saved_states(saved, failures)
@@ -2064,7 +1749,6 @@ class SweepRunsPanel(QWidget):
                 return True
         return super().eventFilter(watched, event)
 
-    # ------------------------------------------------------------- selection
 
     def set_photo_provider(self, provider) -> None:
         """Tell this panel where a run's still comes from.
@@ -2115,26 +1799,9 @@ class SweepRunsPanel(QWidget):
         """
         self._show_photograph(self.selected_trial())
         if self._rebuilding:
-            # The re-select at the end of `_rebuild` is this panel putting
-            # the highlight back, not the user choosing a run.
             return
         record = self.selected_trial()
         if record is None:
             return
-        # PICKING A RUN IS NOT LOADING IT (190). Reported 2026-08-20: "for
-        # some reason clicking once on a run shows the results. double click
-        # should loade the results".
-        #
-        # This used to load on selection, which meant ARROWING DOWN A LIST OF
-        # FIVE RUNS LOADED FIVE RUNS -- five multi-second reads nobody asked
-        # for, to look at five names. Selection now does what selection does:
-        # it shows this run's photograph and its detail, and nothing else.
-        # `_load_selected` on double-click is the gesture that costs time,
-        # and it was already wired.
-        #
-        # THE FAILURE MESSAGE STILL BELONGS TO SELECTION, though. A trial that
-        # failed or is still going has no results to show ever, and saying so
-        # when it is picked is the difference between a table that ignores
-        # clicks and one that explains them -- it costs nothing to say.
         if not _is_ok(record):
             self.trial_activated.emit(record)

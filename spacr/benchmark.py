@@ -104,12 +104,9 @@ def _rss_bytes() -> int:
     """Resident set size now, in bytes, or 0 where it cannot be read."""
     try:
         import resource
-    except ImportError:                      # Windows
+    except ImportError:
         return 0
     usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    # ru_maxrss is KILOBYTES on Linux and BYTES on macOS. Getting this
-    # backwards is a factor of 1024 in a memory budget, which would either
-    # recommend one worker on a large machine or forty on a small one.
     import sys
     return int(usage) if sys.platform == "darwin" else int(usage) * 1024
 
@@ -234,9 +231,6 @@ def recommend_workers(measurement: Optional[Measurement] = None, *,
                     else available_memory_bytes())
 
     if measurement is None or measurement.work_rss_bytes <= 0:
-        # No measurement, or the work was too small to register above the
-        # interpreter. Fall back to the core count rather than inventing a
-        # memory bound from a number that is not there.
         workers = max(1, min(cores, maximum))
         return Recommendation(
             workers=workers,

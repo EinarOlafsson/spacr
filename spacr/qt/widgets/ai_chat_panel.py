@@ -54,9 +54,6 @@ from .divider import Divider
 from .empty_state import EmptyState
 
 
-# ---------------------------------------------------------------------------
-# Message bubble
-# ---------------------------------------------------------------------------
 
 class _MessageBubble(QWidget):
     """Aligned QLabel bubble — right-aligned for ``"user"``, left for other.
@@ -76,8 +73,6 @@ class _MessageBubble(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(SPACING["sm"])
         self._text = QLabel(text)
-        # User and provider output must never be translated by a later
-        # whole-window language refresh.
         self._text.setProperty("i18nSkipText", True)
         self._text.setWordWrap(True)
         self._text.setTextInteractionFlags(
@@ -100,9 +95,6 @@ class _MessageBubble(QWidget):
         self._text.setText(text)
 
 
-# ---------------------------------------------------------------------------
-# Provider setup dialog — install + login guidance
-# ---------------------------------------------------------------------------
 
 class _ProvidersDialog(QDialog):
     """Tabbed dialog: install + login guidance for each vendor CLI on
@@ -118,12 +110,6 @@ class _ProvidersDialog(QDialog):
         from ..preferences import scaled_px
         
         self.setMinimumWidth(scaled_px(620))
-        # `scaled_px`, NOT 560. The width beside it was already scaled and
-        # the height was not, so at a doubled font the dialog kept its
-        # device-pixel floor while every caption in it grew -- and the
-        # intro paragraph was squeezed to 81 px of the 180 it needs. Same
-        # defect class as the seven settings columns capped in device
-        # pixels; found by adding this dialog to the text-fit sweep.
         self.setMinimumHeight(scaled_px(560))
         outer = QVBoxLayout(self)
 
@@ -148,7 +134,6 @@ class _ProvidersDialog(QDialog):
         })
         retranslate_widget_tree(self)
 
-    # -- Providers tab -------------------------------------------------
     def _build_providers_tab(self) -> QWidget:
         """The page listing each provider and how to sign in to it."""
         page = QWidget()
@@ -179,21 +164,6 @@ class _ProvidersDialog(QDialog):
         note.setTextFormat(Qt.RichText)
         col.addWidget(note)
         col.addStretch(1)
-        # THE PAGE SCROLLS, BECAUSE A QTabWidget WILL NOT ASK IT HOW TALL
-        # IT IS. The intro paragraph wraps to one line more in German than
-        # in English -- 108 px against the 97 it was given -- and the
-        # dialog cannot discover that: `heightForWidth` does not propagate
-        # through a tab widget, so the wrapped label's real height never
-        # reaches the dialog's own sizeHint and the paragraph is squeezed.
-        #
-        # A height-for-width size policy on the label was tried first and
-        # changed nothing, for exactly that reason.
-        #
-        # Scrolling is 350's own rule for this -- "use a visible,
-        # accessible fallback rather than silently clipping" -- and it
-        # costs nothing where the content already fits: a scroll area with
-        # `setWidgetResizable(True)` shows no bar until it needs one, so
-        # English is unchanged.
         holder = QScrollArea()
         holder.setWidgetResizable(True)
         holder.setFrameShape(QScrollArea.NoFrame)
@@ -201,14 +171,12 @@ class _ProvidersDialog(QDialog):
         holder.setWidget(page)
         return holder
 
-    # -- Settings tab --------------------------------------------------
     def _build_settings_tab(self) -> QWidget:
         """The page for response speed, the system prompt and issue filing."""
         page = QWidget()
         col = QVBoxLayout(page)
         col.setSpacing(SPACING["md"])
 
-        # Response speed --------------------------------------------------
         speed_label = QLabel(
             "<b>Response speed</b><br>"
             "<span style='color:gray;'>Same three levels for every provider. "
@@ -230,18 +198,11 @@ class _ProvidersDialog(QDialog):
                 self._speed_combo.setCurrentIndex(i)
                 break
         self._speed_combo.currentIndexChanged.connect(self._on_speed_changed)
-        # THE HEADING IS THIS FIELD'S LABEL, and `install_api_tooltips` has no
-        # way to work that out: it finds labels through QFormLayout and QGrid,
-        # and this tab is a plain column of heading-then-control pairs. Without
-        # the pointer the helper concludes there is no label and deliberately
-        # installs no help at all -- which is why this was the one settings
-        # dialog in spaCR with no hover help on its combo or its editor.
         self._speed_combo._spacr_setting_label = speed_label
         col.addWidget(self._speed_combo)
 
         col.addWidget(Divider())
 
-        # Auto-file GitHub issue on error --------------------------------
         auto_label = QLabel(
             "<b>Report errors as GitHub issues</b><br>"
             "<span style='color:gray;'>Adds a \"File as GitHub issue\" "
@@ -260,8 +221,6 @@ class _ProvidersDialog(QDialog):
         self._auto_issue_chk.stateChanged.connect(self._on_auto_issue_changed)
         col.addWidget(self._auto_issue_chk)
 
-        # Route errors through AI (on by default) — on a pipeline error the AI
-        # explains it first; the raw traceback stays hidden unless asked.
         self._route_errors_chk = Toggle(
             "Route errors through AI — show the AI's explanation instead of "
             "the raw traceback"
@@ -273,10 +232,6 @@ class _ProvidersDialog(QDialog):
                 self._route_errors_chk.isChecked()))
         col.addWidget(self._route_errors_chk)
 
-        # Console aware — replaces the three-mode combo that used to sit
-        # beside the chat input. On by default: the chat gets switched on
-        # after something has already gone wrong, so the question it exists
-        # to answer needs the console that is already on screen.
         self._console_aware_chk = Toggle(
             "Console aware — send the console with your question so the AI "
             "can explain what went wrong"
@@ -287,7 +242,6 @@ class _ProvidersDialog(QDialog):
                 self._console_aware_chk.isChecked()))
         col.addWidget(self._console_aware_chk)
 
-        # GitHub sign-in — the official CLI owns credential storage --------
         col.addWidget(Divider())
         from ..ai import github_auth
         gh_label = QLabel(
@@ -313,7 +267,6 @@ class _ProvidersDialog(QDialog):
 
         col.addWidget(Divider())
 
-        # System prompt --------------------------------------------------
         prompt_label = QLabel(
             "<b>System prompt</b><br>"
             "<span style='color:gray;'>The persona spaCR sends to the "
@@ -324,7 +277,6 @@ class _ProvidersDialog(QDialog):
         col.addWidget(prompt_label)
 
         self._prompt_edit = QTextEdit()
-        # Its heading, for the same reason as the speed combo above.
         self._prompt_edit._spacr_setting_label = prompt_label
         self._prompt_edit.setPlainText(ai_settings.get_system_prompt())
         self._prompt_edit.setMinimumHeight(240)
@@ -348,7 +300,6 @@ class _ProvidersDialog(QDialog):
 
         return page
 
-    # -- Settings handlers --------------------------------------------
     def _on_speed_changed(self, _idx: int) -> None:
         """Store the chosen speed, ignoring a value the store would reject.
 
@@ -425,7 +376,6 @@ class _ProvidersDialog(QDialog):
                                 SPACING["sm"], SPACING["sm"])
         col.setSpacing(2)
 
-        # Header line with status
         header = QHBoxLayout()
         title = QLabel(f"<b>{provider.label}</b>")
         title.setProperty("i18nSkipText", True)
@@ -444,7 +394,6 @@ class _ProvidersDialog(QDialog):
         header_wrap = QWidget(); header_wrap.setLayout(header)
         col.addWidget(header_wrap)
 
-        # Install command
         install_row = QHBoxLayout()
         install_row.addWidget(QLabel("Install:"))
         install_edit = QLineEdit(provider.install_hint)
@@ -456,7 +405,6 @@ class _ProvidersDialog(QDialog):
         install_wrap = QWidget(); install_wrap.setLayout(install_row)
         col.addWidget(install_wrap)
 
-        # Login command
         login_row = QHBoxLayout()
         login_row.addWidget(QLabel("Login:"))
         login_edit = QLineEdit(provider.login_command)
@@ -489,9 +437,6 @@ class _ProvidersDialog(QDialog):
             cb.setText(text)
 
 
-# ---------------------------------------------------------------------------
-# Chat input — Enter = send, Shift+Enter = newline
-# ---------------------------------------------------------------------------
 
 class _ChatInput(QTextEdit):
     """Multi-line input: Enter sends, Shift+Enter inserts a newline.
@@ -519,9 +464,6 @@ class _ChatInput(QTextEdit):
         super().keyPressEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# AIChatPanel
-# ---------------------------------------------------------------------------
 
 class AIChatPanel(QWidget):
     """Full chat panel — embed inside a QDockWidget or any container.
@@ -536,21 +478,15 @@ class AIChatPanel(QWidget):
         """
         super().__init__(parent)
         self._messages: List[Dict] = []
-        # Keep BOTH thread AND worker references — Qt's signal delivery
-        # relies on the worker still being reachable.
         self._thread: Optional[QThread] = None
         self._worker: Optional[StreamWorker] = None
         self._pending_bubble: Optional[_MessageBubble] = None
         self._pending_buf: List[str] = []
-        # (QThread, StreamWorker) pairs whose stream finished but whose OS
-        # thread may still be winding down. Held so Python can't GC a
-        # still-running QThread — see _prune_retired().
         self._retired: List = []
 
         self._build_ui()
         self.refresh_provider_combo()
 
-    # ------------------------------------------------------------------
     def _build_ui(self):
         """Lay out the transcript over the input row."""
         outer = QVBoxLayout(self)
@@ -558,7 +494,6 @@ class AIChatPanel(QWidget):
                                   SPACING["md"], SPACING["md"])
         outer.setSpacing(SPACING["sm"])
 
-        # Toolbar
         toolbar = QHBoxLayout()
         toolbar.setSpacing(SPACING["sm"])
         toolbar.addWidget(QLabel("Provider"))
@@ -585,7 +520,6 @@ class AIChatPanel(QWidget):
 
         outer.addWidget(Divider())
 
-        # Empty state ↔ chat stack
         self._empty_state = EmptyState(
             title="Install a vendor CLI to chat",
             subtitle=(
@@ -613,7 +547,6 @@ class AIChatPanel(QWidget):
         self._stack.addWidget(self._chat_scroll)
         outer.addWidget(self._stack, 1)
 
-        # Input area
         input_row = QHBoxLayout()
         input_row.setSpacing(SPACING["sm"])
         self._input = _ChatInput()
@@ -631,15 +564,11 @@ class AIChatPanel(QWidget):
         input_wrap = QWidget(); input_wrap.setLayout(input_row)
         outer.addWidget(input_wrap)
 
-        # Status
         self._status = QLabel("")
         self._status.setObjectName("SubtitleSmall")
         outer.addWidget(self._status)
         retranslate_widget_tree(self)
 
-    # ------------------------------------------------------------------
-    # Provider
-    # ------------------------------------------------------------------
     def refresh_provider_combo(self) -> None:
         """Rebuild the provider dropdown from the currently configured CLIs."""
         self._provider_combo.blockSignals(True)
@@ -652,9 +581,6 @@ class AIChatPanel(QWidget):
             self._stack.setCurrentWidget(self._chat_scroll)
             self._input.setEnabled(True)
             self._set_send_mode("send")
-            # Re-enable — the empty-state branch below disables the button,
-            # and a later refresh (the Providers dialog's "Refresh", after
-            # the user installed a CLI) has to undo that or Send stays dead.
             self._btn_send.setEnabled(True)
         else:
             self._stack.setCurrentWidget(self._empty_state)
@@ -676,9 +602,6 @@ class AIChatPanel(QWidget):
         if dlg.exec() == QDialog.Accepted:
             self.refresh_provider_combo()
 
-    # ------------------------------------------------------------------
-    # Send / cancel
-    # ------------------------------------------------------------------
     def _set_send_mode(self, mode: str):
         """Switch between sending a question and cancelling a stream.
 
@@ -705,7 +628,6 @@ class AIChatPanel(QWidget):
             except Exception:
                 pass
             self._btn_send.clicked.connect(self._send_from_input)
-        # Re-polish so QSS picks up the new objectName
         self._btn_send.style().unpolish(self._btn_send)
         self._btn_send.style().polish(self._btn_send)
 
@@ -755,17 +677,12 @@ class AIChatPanel(QWidget):
                                         self._pending_bubble)
         self._scroll_to_bottom()
 
-        # `parent=self` is mandatory: it ties the QThread's C++ lifetime
-        # to the panel instead of to our Python refcount, so dropping
-        # self._thread in _on_stream_finished can't abort with
-        # "QThread: Destroyed while thread is still running".
         thread, worker = make_stream_thread(
             provider, list(self._messages), system=system, parent=self,
         )
         worker.stage_changed.connect(self._on_stage_changed)
         worker.chunk_ready.connect(self._on_chunk)
         worker.finished.connect(self._on_stream_finished)
-        # Hold references so nothing is GC'd mid-flight.
         self._thread = thread
         self._worker = worker
         self._set_send_mode("cancel")
@@ -800,9 +717,6 @@ class AIChatPanel(QWidget):
             self._scroll_to_bottom()
 
     def _on_stream_finished(self, ok: bool, final_text: str):
-        # Retire the (thread, worker) pair — keep BOTH Python refs until
-        # the OS thread has actually exited, otherwise Python can drop
-        # the last reference while QThread.isRunning() is still True.
         """Close off the answer, successfully or not.
 
         :param ok: True when the stream completed.
@@ -810,7 +724,6 @@ class AIChatPanel(QWidget):
         """
         self._prune_retired()
         thread, worker = self._thread, self._worker
-        # Reset streaming state so a fast follow-up send works.
         self._thread = None
         self._worker = None
         if thread is not None:
@@ -819,7 +732,6 @@ class AIChatPanel(QWidget):
         if ok:
             self._messages.append({"role": "assistant", "content": final_text})
             if self._pending_bubble is not None and not self._pending_buf:
-                # Provider returned no chunks — surface an obvious message
                 self._pending_bubble.set_text(tr(
                     "(empty response — try again or switch provider)"))
             set_translatable_text(self._status, "Ready.")
@@ -901,10 +813,6 @@ class AIChatPanel(QWidget):
     def clear_chat(self) -> None:
         """Discard chat history and remove every bubble from the scroll area."""
         self._messages.clear()
-        # Forget the in-flight assistant bubble BEFORE deleting the widgets.
-        # Keeping the reference would leave _on_chunk writing into a widget
-        # whose C++ half deleteLater() already destroyed, which raises
-        # "Internal C++ object already deleted" inside a Qt slot.
         self._pending_bubble = None
         self._pending_buf = []
         while self._chat_layout.count() > 1:
@@ -914,9 +822,6 @@ class AIChatPanel(QWidget):
                 w.setParent(None)
                 w.deleteLater()
 
-    # ------------------------------------------------------------------
-    # Public API used by AppScreen's Explain-error
-    # ------------------------------------------------------------------
     def open_error_flow(self, traceback_text: str, active_app: str = "") -> None:
         """Send a traceback to the AI explainer and stream the reply.
 

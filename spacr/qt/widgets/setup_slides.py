@@ -47,22 +47,6 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      "distinguishable without colour vision. Both take effect as you pick "
      "them, so you can see what you are choosing.",
      ("theme", "colour_blind")),
-    # FIVE LEVELS, NOT THREE. This text described the old three-value
-    # posture -- Extra Performance, Performance, Balanced -- and stayed
-    # behind when the screen was pointed at PERFORMANCE_LEVELS, so it
-    # explained a control the reader was not looking at.
-    #
-    # SHORT ON PURPOSE, AND THIS IS THE CEILING. The first version of this
-    # ran to 667 characters and named all five levels with a clause each.
-    # Nobody reads a 667-character caption in any language, and every one
-    # of these strings is translated into nine -- so length here is a cost
-    # paid nine times over, in text no reviewer can check against the
-    # English at a glance. The five levels are listed in the control right
-    # beside this sentence; the caption says what the control DOES and what
-    # it does not affect, which is the part the list cannot say.
-    #
-    # ORDERED AS THE CONTROL IS, least of the machine kept to most, so
-    # reading the sentence and reading the list agree.
     ("How it runs",
      "How much of this machine spaCR keeps between runs: processes, "
      "caches and GPU memory. Laptop keeps the least — for 8 GB or on "
@@ -78,19 +62,11 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      "What may leave this machine, and under whose name. Nothing is ever "
      "sent without you seeing it first and pressing send yourself.",
      ("issue_prompt", "share_logs")),
-    # THE ONE SLIDE THAT IS NOT A PREFERENCE. Every other question here has
-    # a working default and can be answered by dismissing the screen; this
-    # one is the condition the licence names, so it is the one slide that
-    # has to be answered before the screen can finish.
     ("Terms of use",
      "Review the terms of use and scroll to the end to enable acceptance. "
      "Use the license link to read the full BSD 3-Clause "
      "License.",
      ()),
-    # THE LAST SLIDE SAYS TWO THINGS AND NO MORE. "Done" is the answer to
-    # the six questions; "Welcome to spaCR" is what the screen is for. The
-    # paragraph that used to sit here explained where the settings live,
-    # which is a thing to find out when you go looking, not on the way in.
     ("Done", "Welcome to spaCR", ()),
 )
 
@@ -331,20 +307,10 @@ def graphics_card() -> Tuple[bool, str]:
 
         from ...accelerator import inspect_torch
 
-        # PROBED FOR THIS torch, not read from the cached answer for the
-        # machine: the slide is exercised against a stand-in torch, and a
-        # cached global reports the developer's own card instead.
         found = inspect_torch(_torch_module)
-        # ANY VENDOR, NOT ONLY NVIDIA. This used to ask
-        # `torch.cuda.is_available()`, so an AMD card driven perfectly well
-        # through Metal reported as "No compatible GPU" -- the machine this
-        # was fixed on segments 139x faster on the card the slide was
-        # denying. See instruction 319.
         if found.is_gpu:
             return True, found.name or found.label
         if found.detected and not found.usable:
-            # Found and not usable is its own answer, and the label
-            # carries which accelerator it was.
             return False, found.name or found.label
     except Exception:                                        # noqa: BLE001
         LOG.debug("the accelerator resolver could not be asked",
@@ -406,30 +372,17 @@ def _let_go_of(process) -> None:
     about to stop existing, and a `finished` delivered after that is the
     `libshiboken: Internal C++ object already deleted` crash.
     """
-    # PER SIGNAL, not `QObject.disconnect()`: the argument-less form is
-    # about connections FROM this object made through the QObject
-    # overload, and it left the `finished` lambda connected -- measured,
-    # not assumed.
     import warnings
 
     for signal in ("finished", "readyReadStandardOutput", "errorOccurred",
                    "readyReadStandardError"):
         try:
-            # PySide6 WARNS BEFORE IT RAISES. Disconnecting a signal that
-            # was never connected prints "libpyside: Failed to disconnect"
-            # through the warnings machinery and then raises RuntimeError,
-            # so catching the exception alone still left the user reading a
-            # warning about the ordinary case -- a process that never
-            # emitted. Suppressing it here and nowhere wider keeps every
-            # other libpyside warning visible.
             with warnings.catch_warnings():
                 warnings.filterwarnings(
                     "ignore", message=r".*Failed to disconnect.*",
                     category=RuntimeWarning)
                 getattr(process, signal).disconnect()
         except (RuntimeError, TypeError, AttributeError):
-            # RuntimeError is Qt's "nothing was connected", which is the
-            # ordinary case for a process that never emitted.
             pass
     try:
         process.setParent(None)
@@ -446,19 +399,11 @@ def _held_at_the_top(label: QLabel) -> QWidget:
     them.
     """
     holder = QWidget()
-    # THE WRAPPER PAINTS NOTHING. A bare QWidget with no rule of its own
-    # takes the blanket window fill, which over this card reads as a black
-    # box behind the caption -- the wrapper exists to position the label,
-    # not to put a surface under it.
     holder.setAttribute(Qt.WA_TranslucentBackground, True)
     holder.setStyleSheet("background: transparent;")
     column = QVBoxLayout(holder)
     column.setContentsMargins(0, 0, 0, 0)
     column.setSpacing(0)
-    # AS TALL AS THE ROW IT NAMES. The label then centres its own text in
-    # that height -- which is a QLabel's default -- and the caption lands
-    # level with the middle of the marks rather than at the top of a tile
-    # eighty pixels tall.
     try:
         from .provider_marks import ProviderMark
 
@@ -492,17 +437,6 @@ class SetupSlides(QDialog):
         self._editors: Dict[str, QWidget] = {}
         self._index = 0
 
-        # NO TITLE BAR HERE EITHER. The card this screen builds has rounded
-        # corners, and a square window frame around it -- with a close and a
-        # minimise button on top -- is the box the settings dialogs had
-        # until they went frameless. This screen builds its own card, so
-        # the glass filter deliberately leaves it alone, and leaving it
-        # alone left it with its frame.
-        #
-        # Same order as `glass.make_frameless`: the attribute BEFORE the
-        # flags, because the flags recreate the native window and a
-        # translucency asked for afterwards applies to one that no longer
-        # exists.
         self._go_frameless()
 
         outer = QVBoxLayout(self)
@@ -512,18 +446,12 @@ class SetupSlides(QDialog):
         from .setup_card import SetupCard
 
         self.card = SetupCard(self, radius=CARD_RADIUS)
-        # THE RIM FOLLOWS THE POINTER, so the card has to see it move even
-        # when no button is down -- which is not the default.
         self.card.setMouseTracking(True)
         self.setMouseTracking(True)
         column = QVBoxLayout(self.card)
         column.setContentsMargins(28, 28, 28, 22)
         column.setSpacing(12)
 
-        # CENTRED, NOT TOP-ALIGNED. One question in a card this size sat
-        # against the ceiling with a void under it, which reads as a page
-        # that failed to load the rest of itself. A slide is one thing, and
-        # one thing belongs in the middle.
         column.addStretch(1)
 
         self._title = QLabel("")
@@ -534,39 +462,17 @@ class SetupSlides(QDialog):
         self._blurb.setWordWrap(True)
         column.addWidget(self._blurb)
 
-        # THE GREETING HAS ITS OWN LINE. It used to be prepended to the
-        # explanation, so choosing a language rewrote the paragraph under
-        # the title and the one word that changed was buried in it.
-        # THE GREETING IS THE ANSWER TO THE LANGUAGE QUESTION, so it comes
-        # AFTER the question is answered rather than sitting under it while
-        # it is still being decided. It is hidden until the first Next.
-        # NOT IN THE COLUMN. The greeting used to be a row in the layout, so
-        # it took space on the language slide and had to be switched off the
-        # moment the next slide arrived -- and switched off is what it looked
-        # like: "the transition away from Hello is abrupt and bad".
-        #
-        # It floats over the card instead, low and centred, in a band the
-        # question rows never reach on any slide. Nothing has to move out of
-        # its way, so it can take its time leaving.
         self._greeting = QLabel("", self.card)
         self._greeting.setObjectName("CardTitle")
         self._greeting.setAlignment(Qt.AlignCenter)
         self._greeting.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self._greeting.setVisible(False)
 
-        # WHAT THIS MACHINE CAN RUN, in the row the greeting moved up out
-        # of. It floats over the card the same way, for the same reason:
-        # the question rows never reach this band, so nothing has to move
-        # for it and it can stay while the greeting comes and goes.
         self._gpu_note = QLabel("", self.card)
         self._gpu_note.setObjectName("Muted")
         self._gpu_note.setAlignment(Qt.AlignCenter)
         self._gpu_note.setWordWrap(True)
         self._gpu_note.setAttribute(Qt.WA_TransparentForMouseEvents, True)
-        # THE FIRST SLIDE ONLY. It answers "can this machine run spaCR",
-        # which is a question the reader has once, at the start; carried
-        # down the rest of the slides it would be a banner that stopped
-        # being read on slide two and took the space anyway.
         self._gpu_note.setVisible(False)
         self._say_what_the_gpu_is()
 
@@ -589,16 +495,6 @@ class SetupSlides(QDialog):
         row.addWidget(self._next)
         column.addLayout(row)
 
-        # NO BLACK BOXES INSIDE THE CARD (reported 2026-08-22). The card
-        # paints itself translucent over the drifting backdrop, but every
-        # plain QWidget between the two -- the page stack, each page, the
-        # provider strip -- is caught by the blanket `QWidget` rule and
-        # paints an opaque `bg`, which is a solid dark rectangle sitting on
-        # top of the animation the dialog just installed.
-        #
-        # THE CONTAINERS ONLY. The combos and buttons stay opaque: they are
-        # the readable surface, and a control you can see through is a
-        # control you cannot read.
         self._clear_the_containers()
         self._use_the_light_face()
 
@@ -650,7 +546,6 @@ class SetupSlides(QDialog):
         except Exception:                                    # noqa: BLE001
             LOG.debug("a container would not go transparent", exc_info=True)
 
-    # --------------------------------------------------------- the slides
 
     def _build_pages(self) -> None:
         """One page per slide, from the model's own question list."""
@@ -660,64 +555,25 @@ class SetupSlides(QDialog):
         answers = current()
         for index, (title, blurb, keys) in enumerate(SLIDES):
             if title == TERMS_SLIDE:
-                # NOT A FORM AND NOT THE CLOSING WORD. It writes no
-                # preference; it records an acceptance, and it is the one
-                # page the sequence will not let go of unanswered.
                 self._pages.addWidget(self._terms_page())
                 continue
             if index == len(SLIDES) - 1 and not keys:
-                # THE CLOSING SLIDE IS NOT A FORM, so it is not laid out
-                # like one. It says one word, in the middle, with the
-                # sentence that qualifies it underneath.
                 self._pages.addWidget(self._closing_page(title, blurb))
                 continue
             page = QWidget()
-            # ONE FORM PER PAGE, NOT ONE LAYOUT PER ROW.
-            #
-            # Every row used to be its own QHBoxLayout with a stretch
-            # between the label and the control, which does two bad things
-            # at once. It pushes the pair to opposite edges -- measured at
-            # 771 px apart on the language slide, so the eye has to travel
-            # the width of the card to find out what it is answering -- and
-            # because each row is an independent layout, nothing lines up
-            # with the row above it: every label starts in a different
-            # place and so does every control.
-            #
-            # A QFormLayout is two columns for the whole page. Labels align
-            # with labels, controls with controls, and the gap between them
-            # is a number rather than whatever is left over.
             form = QFormLayout(page)
-            # A MARGIN ON THE RIGHT. The controls are right-aligned, so with
-            # none they finish exactly on the card's content edge and their
-            # drop-down arrow is drawn flush against it -- which reads as a
-            # clipped control rather than as a control that fits.
             form.setContentsMargins(0, 8, 8, 0)
             form.setVerticalSpacing(14)
             form.setHorizontalSpacing(FORM_GAP_PX)
-            # LABELS SIT AGAINST THEIR CONTROL, vertically centred on it.
-            # The AI provider row is a strip of logo marks and is taller
-            # than a combo box; top-aligned, its caption floated above the
-            # marks while every other caption sat beside its control.
             form.setLabelAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             form.setFormAlignment(Qt.AlignLeft | Qt.AlignTop)
-            # The control column takes what it needs and no more, so a
-            # combo does not stretch to the card edge while a slider does
-            # not.
             form.setFieldGrowthPolicy(QFormLayout.FieldsStayAtSizeHint)
             signs_in = "issue_prompt" in keys
             for key in keys:
                 if key not in asked:
-                    # A QUESTION THAT REMOVED ITSELF LEAVES NO GAP. The
-                    # provider question is absent when no CLI is installed,
-                    # and an empty labelled row would read as a broken
-                    # control rather than as a question that does not apply.
                     continue
                 form.addRow(*self._row(asked[key], answers.get(key)))
                 if key == "theme":
-                    # IMMEDIATELY UNDER THE THEME, which is where it was
-                    # asked for and where it belongs: the backdrop is part
-                    # of what spaCR looks like, and a reader deciding on
-                    # the look decides on both in one place.
                     animation = self._animation_row()
                     if animation is not None:
                         form.addRow(*animation)
@@ -739,9 +595,6 @@ class SetupSlides(QDialog):
             self.setAttribute(Qt.WA_TranslucentBackground, True)
             self.setWindowFlags(self.windowFlags()
                                 | Qt.FramelessWindowHint)
-            # The window's own body paints nothing: `WA_TranslucentBackground`
-            # stops Qt filling it from the palette, and this stops the
-            # application stylesheet's `QDialog` rule doing it anyway.
             from .glass import _DragByBackground, _paint_nothing_behind_the_card
 
             _paint_nothing_behind_the_card(self)
@@ -770,20 +623,8 @@ class SetupSlides(QDialog):
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(10)
 
-        # THE MARK, WHICH IS THE STATE. "if spacr detects the login there
-        # should also be a github logo that gains colour" -- signed out it
-        # is drawn in the muted ink, signed in in GitHub's own black. The
-        # mark is the same widget the AI providers use, so one rule covers
-        # every sign-in on this screen.
         from .provider_marks import ProviderMark
 
-        # THE LOGO IS THE BUTTON, the way the three AI marks are. It used
-        # to be an indicator beside a "Sign in" push button, which the
-        # user asked to collapse into one thing on 2026-08-23: "i want the
-        # github button to also be a github logo just like the AI icons
-        # work". One control, so there is nothing for a second one to
-        # disagree with; what the click will DO is in the tooltip and
-        # spelled out in the status line beside it.
         self._gh_mark = ProviderMark("github", "GitHub", False, holder)
         self._gh_mark.chosen.connect(lambda *_a: self._on_github_mark())
         row.addWidget(self._gh_mark)
@@ -847,12 +688,6 @@ class SetupSlides(QDialog):
             source = None
         import shutil
 
-        # THE LOGO IS NEVER DEAD. All three states have something to do --
-        # sign in, sign in again, or install `gh` -- and two of them used
-        # to be greyed out, so on a machine where `gh` is already signed in
-        # the row read "Signed in" beside a control nothing happened on.
-        # Reported 2026-08-22 as "i cant click the github sign in", which
-        # is exactly what a disabled control looks like from the outside.
         mark = getattr(self, "_gh_mark", None)
         if source:
             if mark is not None:
@@ -869,10 +704,6 @@ class SetupSlides(QDialog):
             return
 
         if shutil.which("gh") is None:
-            # NAMED, not "sign-in failed". The CLI being absent and the CLI
-            # being logged out need different things from the user -- and
-            # what the absent one needs is the install page, which is
-            # something this button can actually do.
             if mark is not None:
                 self._light_the_github_mark(mark, mark.NOT_INSTALLED)
                 mark.setToolTip(
@@ -962,17 +793,10 @@ class SetupSlides(QDialog):
 
         self._gh_opened = False
         process = QProcess(self)
-        # ONE STREAM. `gh` prints the code on stderr and the prompt on
-        # stdout, and reading only one of them loses half the exchange.
         process.setProcessChannelMode(QProcess.MergedChannels)
         process.readyReadStandardOutput.connect(
             lambda: self._read_github_output(process))
         process.finished.connect(lambda *_a: self._refresh_github())
-        # AND IT IS CLEANED UP IF THE DIALOG GOES FIRST. A QProcess
-        # destroyed with its child still running prints "QProcess:
-        # Destroyed while process is still running" and leaves `gh`
-        # parented to nothing -- so the dialog's destruction detaches it
-        # rather than taking it down mid-login.
         self.destroyed.connect(lambda *_a: _let_go_of(process))
         try:
             process.start("gh", ["auth", "login", "--web",
@@ -987,9 +811,6 @@ class SetupSlides(QDialog):
             return False
         self._gh_process = process
         self._gh_status.setText(_say("starting GitHub sign-in…"))
-        # The logo stays live while `gh` runs. There is no second control to
-        # disable now, and disabling the only one would leave a user whose
-        # browser never opened with nothing to click.
         return True
 
     def _open_in_the_browser(self, url: str) -> bool:
@@ -1022,8 +843,6 @@ class SetupSlides(QDialog):
                      else self.GITHUB_DEVICE_PAGE)
             self._gh_status.setText(
                 _say("enter {code} in {where}", code=code, where=where))
-            # AND ANSWER THE PROMPT `gh` is sitting on, so it proceeds to
-            # poll GitHub. Without this it waits on Enter forever.
             try:
                 process.write(b"\n")
             except Exception:                                # noqa: BLE001
@@ -1045,17 +864,8 @@ class SetupSlides(QDialog):
         column.setSpacing(10)
         column.addStretch(1)
 
-        # AS IT IS WRITTEN, not shouted: "Done", not "DONE".
         self._done_word = QLabel(str(title))
         self._done_word.setAlignment(Qt.AlignCenter)
-        # THE SIZE GOES IN A STYLESHEET, not through setFont. The
-        # application sheet already gives every QLabel a font-size, and QSS
-        # beats a font set on the widget -- so setPointSize was overruled
-        # and the word came out the size of the sentence beneath it.
-        #
-        # THE ACCENT BLUE, which is the blue the wordmark uses and the same
-        # one the greeting arrives in -- one blue for the things this screen
-        # is saying, rather than a second one invented for the last slide.
         try:
             from ..theme import active_palette
 
@@ -1101,20 +911,12 @@ class SetupSlides(QDialog):
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(10)
 
-        # NOT TRANSLATED, and deliberately. A translated licence summary is
-        # not the licence, and offering one as though it were would have the
-        # screen promise something the document does not. The terms are shown
-        # in the language the licence is written in, with its name and its
-        # URL beside them; everything else on this page IS translated.
         body = QLabel(terms_module.terms_text())
         body.setObjectName("Muted")
         body.setWordWrap(True)
         body.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self._terms_body = body
 
-        # SCROLLED, BECAUSE THE TERMS MAY OUTGROW THE CARD. A card that
-        # clips the last clause is a card asking for agreement to something
-        # it did not show.
         scroll = QScrollArea(page)
         scroll.setWidgetResizable(True)
         scroll.setWidget(body)
@@ -1122,11 +924,6 @@ class SetupSlides(QDialog):
         scroll.setProperty("spacrClearContainer", True)
         scroll.viewport().setProperty("spacrClearContainer", True)
         self._terms_scroll = scroll
-        # BOTH SIGNALS, because there are two ways to arrive at the end.
-        # `valueChanged` is the reader scrolling; `rangeChanged` is the
-        # viewport growing until the whole document fits in it, which is the
-        # case a gate written as "the scroll bar moved" turns into a trap on
-        # a large monitor.
         bar = scroll.verticalScrollBar()
         if bar is not None:
             bar.valueChanged.connect(self._look_at_the_terms_gate)
@@ -1142,19 +939,12 @@ class SetupSlides(QDialog):
         where.setWordWrap(True)
         column.addWidget(where)
 
-        # WHY THE SWITCH IS DEAD, said before the reader has to ask. It is
-        # visible from the moment the slide opens and goes when the gate
-        # does, so the greyed control is never unexplained.
         self._scroll_hint = QLabel(_say(terms_module.SCROLL_HINT), page)
         self._scroll_hint.setObjectName("Muted")
         self._scroll_hint.setWordWrap(True)
         column.addWidget(self._scroll_hint)
 
-        # A SLIDER, like every other boolean on this screen. A tick box is a
-        # form control and this is not a form.
         self._agree = Toggle(_say(terms_module.AGREE_LABEL), page)
-        # AGREEING IS ITSELF THE ANSWER, so ticking the box clears the
-        # complaint rather than leaving it standing under a satisfied form.
         self._agree.toggled.connect(self._on_agreement_toggled)
         column.addWidget(self._agree)
 
@@ -1169,15 +959,10 @@ class SetupSlides(QDialog):
         except Exception:                                    # noqa: BLE001
             LOG.debug("no palette for the terms note", exc_info=True)
         column.addWidget(self._agree_note)
-        # CLOSED UNTIL PROVEN READ. The gate is drawn shut here rather than
-        # measured: the page has not been on screen yet, so there is nothing
-        # for "the end is on screen" to be true of, and the safe direction
-        # for a licence is the one that asks.
         self._terms_read = False
         self._draw_the_terms_gate(False)
         return page
 
-    # ------------------------------------------------- the reading gate
 
     def _look_at_the_terms_gate(self, *_args) -> None:
         """Re-read the gate and redraw it. The signal handler."""
@@ -1209,9 +994,6 @@ class SetupSlides(QDialog):
             box.setEnabled(bool(read))
         body = getattr(self, "_terms_body", None)
         if _still_a_widget(body):
-            # THE TEXT IS GREYED TOO, not only the switch. A live-looking
-            # document over a dead control reads as a broken control; one
-            # greyed page reads as a page waiting for something.
             body.setStyleSheet("" if read else f"color: {self._dim_ink()};")
         hint = getattr(self, "_scroll_hint", None)
         if _still_a_widget(hint):
@@ -1260,10 +1042,6 @@ class SetupSlides(QDialog):
                 said = f"{_say(terms_module.SCROLL_HINT)} {said}"
             note.setText(said)
             note.setVisible(True)
-        # THE KEYBOARD GOES WHERE THE WORK IS. A disabled switch cannot take
-        # focus, so a Next pressed before the end would leave the caret
-        # nowhere; the terms take it instead and Page Down carries on from
-        # where the reader is.
         target = getattr(self, "_agree" if read else "_terms_scroll", None)
         if target is not None:
             target.setFocus()
@@ -1281,15 +1059,6 @@ class SetupSlides(QDialog):
         editor = self._editor(key, choices, value)
         self._editors[key] = editor
         if key == "ai_provider":
-            # A CAPTION LINES UP WITH THE CONTROL, NOT WITH THE MIDDLE OF A
-            # COLUMN. Every other field here is one line tall, so centring
-            # the caption on it is right. The provider field is not: it is a
-            # row of logo marks with a status note underneath, and centred
-            # on the pair the caption landed in the gap between them --
-            # level with nothing, and 42 px below the marks it names.
-            #
-            # Held at the top of its cell, it sits beside the marks, which
-            # is the row it is the caption for.
             return _held_at_the_top(label), editor
         return label, editor
 
@@ -1310,24 +1079,14 @@ class SetupSlides(QDialog):
             box.setCurrentIndex(index if index >= 0 else 0)
             if key == "language":
                 box.currentIndexChanged.connect(self._say_hello)
-                # AND THE WHOLE SCREEN CHANGES LANGUAGE WITH IT. Reported
-                # 2026-08-23: "language in the startup is also not
-                # implemented (other than english...)". A screen whose
-                # first question is the language and which then goes on
-                # asking the rest of them in English is asking the user to
-                # take the setting on faith.
                 box.currentIndexChanged.connect(self._apply_language)
             if key in ("theme", "colour_blind"):
-                # APPLIED AS CHOSEN, for the same reason the greeting is:
-                # the only way to know a look took is to see it.
                 box.currentIndexChanged.connect(
                     lambda _i, k=key: self._apply_look(k))
             return box
 
         from .toggle import Toggle
 
-        # THE APPLICATION'S OWN SLIDER, not a second one, so the gesture and
-        # the look are the ones the user meets everywhere else.
         slider = Toggle()
         slider.setChecked(bool(value))
         return slider
@@ -1378,14 +1137,9 @@ class SetupSlides(QDialog):
         if where < 0:
             where = box.findData(DEFAULT_THEME)
         if where < 0:
-            # THE DEFAULT IS NOT IN THE LIST, which means the ambient module
-            # and its own default disagree. There is nothing better left to
-            # show than the first entry, and it is worth a line in the log.
             LOG.debug("no %s among the animations offered", DEFAULT_THEME)
             where = 0
         box.setCurrentIndex(where)
-        # APPLIED AS CHOSEN, like the theme above it: a backdrop is a look,
-        # and the only way to know a look took is to see it.
         box.currentIndexChanged.connect(self._apply_animation)
         self._animation = box
 
@@ -1413,7 +1167,6 @@ class SetupSlides(QDialog):
 
             set_ambient_animation(name)
         except Exception:                                    # noqa: BLE001
-            # A BACKDROP THAT WILL NOT APPLY IS NOT A REASON TO STOP SETUP.
             LOG.debug("could not store the animation choice", exc_info=True)
 
     def _provider_buttons(self, value) -> QWidget:
@@ -1428,12 +1181,7 @@ class SetupSlides(QDialog):
         from .provider_marks import ProviderMark
 
         holder = QWidget()
-        # Tagged so `_clear_the_containers` can find it without knowing the
-        # shape of the page it ended up on.
         holder.setProperty("spacrProviderStrip", True)
-        # A COLUMN: the marks on one line, and under them a note, so that
-        # choosing a provider can say what it started. Without somewhere to
-        # say it, the sign-in would begin with no sign of it.
         column = QVBoxLayout(holder)
         column.setContentsMargins(0, 0, 0, 0)
         column.setSpacing(4)
@@ -1448,9 +1196,6 @@ class SetupSlides(QDialog):
         holder._note.setWordWrap(True)
         column.addWidget(holder._note)
         for code, label, command in PROVIDERS:
-            # SIGNED IN, not merely installed -- that is what the colour is
-            # for. An installed-but-signed-out provider used to look exactly
-            # like one that was ready to answer.
             state = self.provider_status(code, command)
             ready = state == ProviderMark.READY
             mark = ProviderMark(code, label, ready, holder, status=state)
@@ -1698,11 +1443,7 @@ class SetupSlides(QDialog):
         note = self._start_provider_login(code)
         status = getattr(holder, "_note", None)
         if status is not None:
-            # SET EVEN WHEN EMPTY. A provider that is ready has nothing to
-            # say, and leaving the previous provider's note standing under
-            # it says something untrue about the one now selected.
             status.setText(note)
-        # The mark's colour is the login state, so it has to be re-asked.
         self._refresh_provider_marks(holder)
 
     def _refresh_provider_marks(self, holder) -> None:
@@ -1724,7 +1465,6 @@ class SetupSlides(QDialog):
                 f"Use {label}. Choosing it starts the sign-in; spaCR drives "
                 f"the vendor's own CLI and never sees the credential.")
 
-    # ------------------------------------------------------- what it shows
 
     def _say_hello(self, *_args) -> None:
         """Set the greeting text for the language currently chosen.
@@ -1735,9 +1475,6 @@ class SetupSlides(QDialog):
         box = self._editors.get("language")
         if box is None:
             return
-        # AS THE WORD IS WRITTEN in each language -- "Hello", "Hej", "Hallo",
-        # 你好 -- rather than shouted. GREETINGS already holds each in its
-        # own conventional form, so there is nothing to do to it.
         self._greeting.setText(greeting_for(box.currentData()))
 
     def _show_the_greeting(self) -> None:
@@ -1752,10 +1489,6 @@ class SetupSlides(QDialog):
             from ..theme import active_palette
 
             accent = active_palette()["accent"]
-            # THE SIZE GOES IN THE SHEET TOO. The application stylesheet
-            # gives every QLabel a font-size and QSS beats a font set on the
-            # widget, so setPointSize here would be overruled and the word
-            # would come out the size of the prose above it.
             self._greeting.setStyleSheet(
                 f"color: {accent}; font-family: '{SLIDE_FONT}'; "
                 f"font-weight: 300; font-size: {GREETING_POINTS}pt;")
@@ -1774,7 +1507,6 @@ class SetupSlides(QDialog):
             self._hello = animation
             animation.start()
         except Exception:                                    # noqa: BLE001
-            # INVARIANTS 10: without an animation it is simply there.
             LOG.debug("no fade for the greeting", exc_info=True)
             self._hello = None
 
@@ -1785,19 +1517,6 @@ class SetupSlides(QDialog):
         changed. Nothing depends on the word being gone -- it floats over a
         band no slide uses -- so it can be given the time to leave.
         """
-        # `isVisibleTo`, NOT `isVisible`. The latter is False whenever an
-        # ancestor is hidden -- a dialog built but not yet shown -- so the
-        # guard skipped the fade and left the word marked visible for
-        # whenever the dialog did appear. The question here is whether this
-        # widget is marked visible, which is what isVisibleTo answers.
-        # `getattr`, FOR THE SAME REASON `_place_the_greeting` FETCHES THE
-        # CARD THAT WAY. A resize can arrive while the dialog is still
-        # being built, and `_greeting` is created AFTER `card` -- so there
-        # is a window in which the card exists and this label does not.
-        # `_place_the_greeting` already survived it and this did not,
-        # which is the asymmetry instruction 310 A33 reports: the two
-        # methods disagreed about whether the label may be absent, and
-        # only one of them was right.
         greeting = getattr(self, "_greeting", None)
         card = getattr(self, "card", None)
         if greeting is None or card is None:
@@ -1812,14 +1531,11 @@ class SetupSlides(QDialog):
             animation.setStartValue(1.0)
             animation.setEndValue(0.0)
             animation.setEasingCurve(QEasingCurve.InCubic)
-            # HIDDEN AT THE END, not at the start: a hidden widget does not
-            # animate, so hiding first is the abrupt cut with extra steps.
             animation.finished.connect(
                 lambda: greeting.setVisible(False))
             self._goodbye = animation
             animation.start()
         except Exception:                                    # noqa: BLE001
-            # INVARIANTS 10: without an animation it simply goes.
             LOG.debug("no fade for the greeting", exc_info=True)
             greeting.setVisible(False)
             self._goodbye = None
@@ -1850,33 +1566,13 @@ class SetupSlides(QDialog):
         note = getattr(self, "_gpu_note", None)
         if card is None or note is None or note.isHidden():
             return
-        # ACROSS THE CARD, INSIDE ITS MARGINS. The greeting is one word and
-        # can be centred in the full width; this is two lines of prose and
-        # would otherwise run into the rounded corners.
         margin = 28
         width = max(1, card.width() - 2 * margin)
         note.setFixedWidth(width)
-        # HEIGHT FOR THIS WIDTH, not the bare size hint. A word-wrapped
-        # QLabel's `sizeHint()` is the height it would like if it could
-        # choose its own width, which for two sentences of prose is far
-        # taller than the wrapped text -- 323 px against a 700 px card.
-        # The box was then centred inside that, which put the words below
-        # the card's bottom edge: the verdict was written, coloured and
-        # placed, and simply not on screen.
         height = note.heightForWidth(width)
         if height <= 0:
             height = note.sizeHint().height()
         top = int(card.height() * GPU_NOTE_BAND)
-        # AND IT CANNOT HANG OFF THE BOTTOM, NOR OVER THE BUTTONS. A card
-        # short enough that the band plus the wrapped height overflows
-        # lifts the note instead of losing it -- the note is the answer to
-        # "can this machine run spaCR", so a small window must not be the
-        # reason it is missed.
-        #
-        # The floor is the NAV ROW, not the card's edge. The note grew a
-        # capability table on 2026-08-31 and the extra height put it
-        # straight over Back and the step counter, which is how a label
-        # that is only decoration ends up eating a button.
         floor = card.height() - margin
         back = getattr(self, "_back", None)
         if back is not None and back.parent() is not None:
@@ -1889,16 +1585,6 @@ class SetupSlides(QDialog):
             except (AttributeError, RuntimeError):
                 pass
             if not placed:
-                # THE BUTTON IS NOT LAID OUT YET, AND THAT IS THE COMMON
-                # CASE RATHER THAN THE EDGE ONE. Every caller of this
-                # method runs during slide setup, before the nav row has a
-                # geometry, so `mapTo` answers 0 and the clamp above was
-                # SKIPPED -- leaving the floor at the card's own edge and
-                # the note 18 px over Back at 900x640. The clamp read as
-                # protection and was inert exactly when it was needed.
-                #
-                # A sizeHint is available before layout, so the floor can
-                # be computed without waiting for one.
                 try:
                     reserved = back.sizeHint().height()
                 except (AttributeError, RuntimeError):
@@ -1918,20 +1604,11 @@ class SetupSlides(QDialog):
         usable, name = graphics_card()
         hint = ""
         if name:
-            # "GPU: <card>: <library>", with only the CARD coloured.
-            # Asked for on 2026-08-31. The eye should land on the thing
-            # that varies between machines; the word "GPU" and the
-            # library name are the same on every machine with that card,
-            # so colouring them too would just be more red or more green.
             library = _gpu_library()
             tail = f": {library}" if library else ""
             line = (f'{_say("GPU")}: <span style="color:{{ink}};">{name}</span>'
                     f'{tail}')
             if not usable:
-                # NAMED THE CARD, SO SAY WHAT TO DO ABOUT IT. Finding an
-                # NVIDIA card that torch cannot reach is a CUDA problem,
-                # not a hardware one, and the reader should not have to
-                # guess that from a red line.
                 hint = _say(GPU_DOCTOR_HINT)
         else:
             usable = False
@@ -1945,17 +1622,6 @@ class SetupSlides(QDialog):
             html.append(f'<div>{hint}</div>')
         html.extend(self._what_this_machine_can_do())
         self._gpu_note.setText("".join(html))
-        # RE-PLACED, BECAUSE THE TEXT JUST CHANGED ITS HEIGHT. The note is
-        # laid out by `_place_the_gpu_note`, which clamps it off the nav row
-        # using the height it has AT THAT MOMENT. This runs afterwards and
-        # makes it taller -- 94 px of prose became 125 with the capability
-        # table -- and the clamp had already been applied to the old height,
-        # so the note's BOTTOM grew back down over the Back button by 18 px.
-        # The clamp was doing its job on a number that then changed.
-        #
-        # Measured at 900x640: placed at y=487 for a floor of 581 and a
-        # height of 94; the final geometry is 125 tall, bottom 612, against
-        # a button top of 593.
         self._place_the_gpu_note()
 
     @staticmethod
@@ -2015,10 +1681,6 @@ class SetupSlides(QDialog):
             for library, prefix, task in GPU_TABLE_ROWS:
                 accelerated, _detail = _answer(prefix)
                 if accelerated is None:
-                    # A capability row was renamed. Drop the table row
-                    # rather than draw an empty cell: a blank middle
-                    # column reads as "spaCR does not know", which is a
-                    # worse thing to say than nothing.
                     LOG.debug("no capability row starts with %r", prefix)
                     continue
                 if library.startswith("Cellpose"):
@@ -2027,12 +1689,6 @@ class SetupSlides(QDialog):
                 where = _say("GPU") if accelerated else _say("CPU")
                 cells.append(
                     f'<tr>'
-                    # RIGHT-ALIGNED, asked for 2026-09-01. The library
-                    # names differ in length -- "UMAP / t-SNE / cluster"
-                    # against "Torch models" -- so ragging them left puts
-                    # the GPU/CPU column a different distance from each
-                    # one. Aligned right, the verdicts line up against a
-                    # straight edge and read as a column.
                     f'<td align="right" style="padding-right:14px;">'
                     f'{_say(library)}</td>'
                     f'<td style="padding-right:14px; color:{ink}; '
@@ -2040,18 +1696,11 @@ class SetupSlides(QDialog):
                     f'<td style="opacity:0.85;">{_say(task)}</td>'
                     f'</tr>')
             if cells:
-                # CENTRED. Qt's rich text does not honour `margin:auto`,
-                # so the table is centred by wrapping it in a block that
-                # is, which is the one construction that works in
-                # QLabel's subset of HTML.
                 rows.append(
                     '<div align="center">'
                     '<table style="margin-top:6px; border-collapse:collapse;">'
                     + "".join(cells) + '</table></div>')
             for engine in neural_engines():
-                # FOUND AND NOT USED, said in as many words. There is no
-                # portable torch device for a neural engine, so silence
-                # here would read as "spaCR did not look".
                 rows.append(
                     f'<div style="opacity:0.75;">• {engine} — '
                     f'{_say("detected, not used by spaCR")}</div>')
@@ -2097,9 +1746,6 @@ class SetupSlides(QDialog):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not retranslate the setup screen",
                       exc_info=True)
-        # THE TITLE AND THE BLURB ARE COMPOSED, so the walker sees the
-        # composition rather than the sentence, and the slide has to put
-        # them back itself.
         self._show_slide(self._index)
         self._say_hello()
 
@@ -2114,8 +1760,6 @@ class SetupSlides(QDialog):
         try:
             setter(editor.currentData())
         except Exception:                                    # noqa: BLE001
-            # A LOOK THAT WILL NOT APPLY MUST NOT LOSE THE ANSWER. It is
-            # still written with the rest on accept.
             LOG.debug("could not apply %s live", key, exc_info=True)
 
     def _show_slide(self, index: int, *, fade: bool = False) -> None:
@@ -2135,41 +1779,20 @@ class SetupSlides(QDialog):
         closing = index == len(SLIDES) - 1
         self._title.setVisible(not closing)
         self._blurb.setVisible(not closing)
-        # TRANSLATED HERE, not in the table. SLIDES holds the English the
-        # catalog is keyed on; a slide re-shown after the language changes
-        # picks up the new rendering because this runs again.
         self._title.setText(f"<b>{_say(title)}</b>")
         self._blurb.setText(_say(blurb))
-        # THE GREETING BELONGS TO THE LANGUAGE SLIDE and nowhere else: a
-        # "Hello" left standing over the theme question is a word with no
-        # job on that page.
-        # THE GREETING BELONGS TO THE MOMENT THE LANGUAGE IS CONFIRMED, not
-        # to a slide. It is shown by the first Next and hidden again by
-        # anything that leaves that moment behind.
         note = getattr(self, "_gpu_note", None)
         if note is not None:
             note.setVisible(index == 0)
-            # PLACED THE MOMENT IT IS SHOWN. Nothing else lays this label
-            # out, so a note made visible and left unplaced sits in the
-            # corner it was born in.
             self._place_the_gpu_note()
         if index != 0:
             self._fade_the_greeting_away()
-        # NOT ON THE FIRST SLIDE. Slide one carries the greeting and the
-        # capability table and has no room for a counter under them; "1 of
-        # 7" was landing on top of the note. It also says least there --
-        # nobody needs telling they are at the beginning.
         self._where.setText(
             "" if index == 0 else
             _say("{n} of {total}", n=index + 1, total=len(SLIDES)))
         self._back.setEnabled(index > 0)
         self._next.setText(_say("Start spaCR") if index == len(SLIDES) - 1
                            else _say("Next ›"))
-        # A LEFTOVER FADE IS DROPPED WHETHER OR NOT A NEW ONE STARTS. The
-        # effect belongs to the page STACK, not to a page, so one still
-        # running when the slide changes again leaves the new page wearing
-        # an opacity that stopped part-way -- which draws an empty card and
-        # is indistinguishable from a page that failed to build.
         self._drop_the_fade()
         if fade:
             self._fade_in()
@@ -2204,10 +1827,6 @@ class SetupSlides(QDialog):
         try:
             effect = QGraphicsOpacityEffect(self._pages)
             self._pages.setGraphicsEffect(effect)
-            # `setGraphicsEffect` takes ownership and deletes whatever was
-            # there, so the old animation is now driving a dead object.
-            # `_drop_the_fade` above has already stopped it; this is the
-            # note for anyone who moves that call.
             animation = QPropertyAnimation(effect, b"opacity", self)
             animation.setDuration(FADE_MS)
             animation.setStartValue(0.0)
@@ -2217,7 +1836,6 @@ class SetupSlides(QDialog):
             self._fade = animation
             animation.start()
         except Exception:                                    # noqa: BLE001
-            # INVARIANTS 10: the slide is shown either way.
             LOG.debug("no cross-fade on this platform", exc_info=True)
             self._fade = None
 
@@ -2239,7 +1857,6 @@ class SetupSlides(QDialog):
         except Exception:                                    # noqa: BLE001
             pass
 
-    # ------------------------------------------------------------ moving
 
     def next(self) -> int:
         """Forward one slide, and one CLOCKWISE circuit of the rim.
@@ -2260,8 +1877,6 @@ class SetupSlides(QDialog):
         which control is holding them.
         """
         if SLIDES[self._index][0] == TERMS_SLIDE and not self.agreed_to_terms():
-            # THE PRESS IS ANSWERED, just not with a page change. The button
-            # is live so the reader learns what is missing by using it.
             self.card.circuit(clockwise=True)
             return self._refuse_to_leave_the_terms()
         if self._index >= len(SLIDES) - 1:
@@ -2289,8 +1904,6 @@ class SetupSlides(QDialog):
             self._pending.timeout.connect(self._finish_the_greeting)
             self._pending.start(GREETING_MS)
         except Exception:                                    # noqa: BLE001
-            # INVARIANTS 10: without a timer the slides still advance, they
-            # just do not wait.
             LOG.debug("no timer for the greeting pause", exc_info=True)
             self._finish_the_greeting()
         return self._index
@@ -2326,7 +1939,6 @@ class SetupSlides(QDialog):
             pass
         super().mouseMoveEvent(event)
 
-    # ----------------------------------------------------------- answers
 
     def answers(self) -> Dict[str, Any]:
         """What the slides currently say."""
@@ -2388,13 +2000,9 @@ class SetupSlides(QDialog):
 
             terms_module.record_agreement(terms_module.TERMS_VERSION)
         except Exception:                                    # noqa: BLE001
-            # A STORE THAT WILL NOT TAKE THE RECORD ASKS AGAIN NEXT TIME,
-            # which is the safe direction: the alternative is treating an
-            # unwritten acceptance as given.
             LOG.warning("the terms acceptance could not be recorded",
                         exc_info=True)
 
-    # --------------------------------------------------------- decoration
 
     def _install_backdrop(self):
         """Stratified layers drifting at 1.5x, or ``None``.
@@ -2406,11 +2014,6 @@ class SetupSlides(QDialog):
         try:
             from .ambient import install_ambient
 
-            # ROUNDED TO THE CARD'S RADIUS. The dialog is frameless and
-            # translucent and holds exactly one card; a square backdrop
-            # behind a rounded card is a second surface, and looked like
-            # one -- "there is a square window with the theme and in front
-            # of that window is a dark square with rounded edges".
             return install_ambient(self, theme=BACKDROP_THEME,
                                    speed=BACKDROP_SPEED,
                                    corner_radius=CARD_RADIUS)
@@ -2424,20 +2027,9 @@ class SetupSlides(QDialog):
         :param event: the Qt resize event.
         """
         super().resizeEvent(event)
-        # NO MARGIN. The card used to be inset by 44px inside the ambient
-        # backdrop, which put a themed square around a rounded card and made
-        # the dialog read as two windows. The card now IS the window: same
-        # rectangle as the backdrop, same corner radius, so there is one
-        # rounded translucent surface and the settings sit on it rather
-        # than in a container floating over it.
         self.card.setGeometry(self.rect())
         self.card.raise_()
-        # A WINDOW MADE TALLER CAN PUT THE END OF THE TERMS ON SCREEN, and
-        # that is the whole of the gate's question.
         self._look_at_the_terms_gate()
-        # THE WINDOW IS CUT TO THE CARD'S SHAPE, the same way every glassed
-        # popup is, so the two surfaces are the same surface and not two
-        # takes on one idea.
         try:
             from .glass import round_the_corners
 
@@ -2463,10 +2055,6 @@ def _catalogue_this_screen() -> None:
     try:
         from ..i18n import add_translation
 
-        # THE ONE ROW THIS MODULE OWNS. Every other caption on the screen
-        # comes from `setup_screen.questions()` or from `terms`; the
-        # animation question is asked here, so its caption is catalogued
-        # here, through the same seam.
         add_translation(ANIMATION_LABEL, (
             "Animation", "Animation", "Animación", "动画",
             "Animação", "एनिमेशन",
@@ -2491,15 +2079,8 @@ def open_setup_if_needed(parent=None) -> Optional[SetupSlides]:
     from ..setup_screen import should_open, skipped_on_purpose
     from ..terms import needs_agreement
 
-    # WHETHER THIS PROFILE IS DUE and whether THIS LAUNCH CAN ASK are two
-    # different questions. `should_open` answers the first; a batch job on a
-    # server can be due and still have nobody to answer.
     if skipped_on_purpose():
         return None
-    # UNACCEPTED TERMS ARE THEIR OWN REASON TO ASK. Dismissing the screen
-    # marks the questions answered -- they all have defaults -- but a licence
-    # is not answered by a default, so terms that were never accepted, or
-    # accepted at an older version, bring the screen back.
     if not should_open() and not needs_agreement():
         return None
     dialog = SetupSlides(parent)

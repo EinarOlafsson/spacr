@@ -104,20 +104,10 @@ PNG_KEY = "png_path"
 #: hold annotations.
 _METADATA_COLUMNS = frozenset({
     "png_path", "file_name", "plateID", "rowID", "columnID", "fieldID",
-    # Both spellings of the timepoint. 'timeID' is what filepaths_to_database
-    # writes now, and what spacr.utils.rename_columns_in_db migrates an old
-    # database to on first read; 'time_id' is what a database written before
-    # that still carries until then. Either one is metadata, never an
-    # annotation -- and a timelapse database whose time column counted as a
-    # candidate annotation column would have been scored for agreement.
     "timeID", "time_id", "prcft",
     "prcfo", "prc", "cell_id", "nucleus_id", "pathogen_id",
     "cytoplasm_id", "object_label", "plate", "row", "column", "field",
     "well", "id", "index", "level_0",
-    # spacr.crops.CROP_FORMAT_DB_COLUMN, the channel-order version marker
-    # stamp_crop_format_in_db adds to png_list. One or two distinct small
-    # integers over every row -- the exact shape of an annotation pass, and
-    # not one.
     "crop_format",
 })
 
@@ -147,17 +137,9 @@ _METADATA_COLUMNS = frozenset({
 #: so that this module keeps its promise of importing nothing but pandas,
 #: numpy and the standard library.
 _MODEL_COLUMNS = frozenset({
-    # spacr.predictions: the convolutional classifier
     "pred", "cv_predictions",
-    # spacr.predictions: the classical-ML classifier
     "ml_pred", "predictions",
-    # spacr.active_learning.PRED_COLUMN_CANDIDATES, the two not already above
     "prediction", "score",
-    # The removed Tk Annotate app's built-in XGBoost pass wrote these. The
-    # columns are still in databases it produced, so the names stay listed
-    # even though nothing writes them any more. The name says "annotation"
-    # and it is not one -- it is a model's call, derived from a score in
-    # the very next column.
     "XGboost_annotation", "XGboost_score",
 })
 
@@ -214,9 +196,6 @@ CONVENTION = (
 _TOL = 1e-12
 
 
-# ---------------------------------------------------------------------------
-# Label normalisation
-# ---------------------------------------------------------------------------
 
 def _scalar_label(value: Any) -> Optional[Any]:
     """Normalise one stored cell into a class label, or ``None``.
@@ -289,9 +268,6 @@ def _sorted_labels(labels: Iterable[Any]) -> List[Any]:
     return sorted(labels, key=lambda x: (isinstance(x, str), x))
 
 
-# ---------------------------------------------------------------------------
-# Interpretation
-# ---------------------------------------------------------------------------
 
 def interpret_kappa(kappa: float) -> str:
     """Return the Landis & Koch band for ``kappa`` (a convention).
@@ -313,9 +289,6 @@ def interpret_kappa(kappa: float) -> str:
     return LANDIS_KOCH[-1][1]
 
 
-# ---------------------------------------------------------------------------
-# Pairwise agreement
-# ---------------------------------------------------------------------------
 
 @dataclass
 class PairAgreement:
@@ -489,7 +462,6 @@ def kappa_detail(a: Sequence[Any], b: Sequence[Any],
     a_classes = int(np.count_nonzero(counts.sum(axis=1)))
     b_classes = int(np.count_nonzero(counts.sum(axis=0)))
 
-    # -- the no-variance traps ------------------------------------------
     if a_classes <= 1 and b_classes <= 1:
         if p_o >= 1.0 - _TOL:
             only = universe[int(np.argmax(counts.sum(axis=1)))]
@@ -517,8 +489,6 @@ def kappa_detail(a: Sequence[Any], b: Sequence[Any],
             f"collapses onto the other's marginal and κ is identically 0 "
             f"however well they agree — so 0 would be misleading. Raw "
             f"agreement is {p_o:.1%}.")
-    # Past this point both annotators used >= 2 classes, so their marginals
-    # are not unit vectors and pₑ < 1 strictly: the denominator is safe.
     kappa = (p_o - p_e) / (1.0 - p_e)
     note = ""
     if p_o >= 0.90 and abs(kappa) < 0.20:
@@ -551,9 +521,6 @@ def cohens_kappa(a: Sequence[Any], b: Sequence[Any],
                         missing_values=missing_values).kappa
 
 
-# ---------------------------------------------------------------------------
-# Fleiss' kappa (3+ annotators)
-# ---------------------------------------------------------------------------
 
 def fleiss_kappa(matrix: Any) -> float:
     """Fleiss' κ from a subjects × categories count matrix.
@@ -619,9 +586,6 @@ def _fleiss_per_category(arr: np.ndarray, j: int) -> float:
     return 1.0 - disagreement / (big_n * n * (n - 1) * p_j * q_j)
 
 
-# ---------------------------------------------------------------------------
-# Database access — read-only, always
-# ---------------------------------------------------------------------------
 
 def _quote_ident(name: str) -> str:
     """Double-quote a SQL identifier (already schema-validated)."""
@@ -644,11 +608,6 @@ def _connect(db_path: str) -> sqlite3.Connection:
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
     if not os.path.isfile(path):
         raise FileNotFoundError(f"No such database: {path}")
-    # Through the shared helper, which sets a 30s busy timeout and
-    # query_only. A bare sqlite3.connect takes sqlite's 5s default, and
-    # Measure writes from many worker processes at once -- 5s is routinely
-    # exceeded there, so the reader fails with "database is locked" instead
-    # of waiting (issue #15).
     from .database_concurrency import connect as _connect_database
 
     return _connect_database(path, readonly=True)
@@ -769,9 +728,6 @@ def load_annotations(db_path: str, columns: Sequence[str],
     finally:
         con.close()
 
-    # dtype=object throughout: a column of ints with NULLs would otherwise
-    # come back as float64 with NaN, and "did this annotator abstain?"
-    # would stop being an ``is None`` question.
     data: Dict[str, pd.Series] = {
         key: pd.Series([r[0] for r in rows], dtype=object)}
     for i, col in enumerate(cols, start=1):
@@ -780,9 +736,6 @@ def load_annotations(db_path: str, columns: Sequence[str],
     return pd.DataFrame(data, columns=[key] + cols)
 
 
-# ---------------------------------------------------------------------------
-# Report
-# ---------------------------------------------------------------------------
 
 @dataclass
 class AgreementReport:
@@ -975,10 +928,6 @@ def agreement_report(db_path: str, columns: Sequence[str],
                           name_a=a, name_b=b)
              for a, b in itertools.combinations(cols, 2)]
 
-    # One pass over the table classifies every row as complete / partial /
-    # untouched and counts the real disagreements. Partial rows are
-    # abstentions: they never count towards n_disagreements unless the
-    # annotators who *did* commit chose differently.
     values = df[cols].to_numpy(dtype=object)
     n_complete = n_partial = n_unlabelled = n_disagreements = unanimous = 0
     complete_rows: List[Any] = []
@@ -1020,8 +969,6 @@ def agreement_report(db_path: str, columns: Sequence[str],
             arr = _label_counts(complete_arr, universe)
             overall = fleiss_kappa(arr)
             if math.isnan(overall):
-                # n_complete > 0 means every one of those rows carries a
-                # label from every annotator, so the universe is non-empty.
                 only = universe[int(np.argmax(arr.sum(axis=0)))]
                 overall_note = (
                     f"Fleiss' κ is undefined here: every one of the "
@@ -1057,9 +1004,6 @@ def agreement_report(db_path: str, columns: Sequence[str],
             f"Only {n_complete} row(s) are labelled by every annotator; κ is "
             f"very noisy at that size. Treat the value as indicative.")
 
-    # A caller can always name columns explicitly, and the Qt screen lets one
-    # be ticked. Saying so is the difference between a deliberate model
-    # validation and a κ quoted as inter-annotator agreement that is not one.
     model_cols = [c for c in cols if _is_model_column(c, table_columns(db_path, table))]
     if model_cols:
         warnings.append(
@@ -1080,9 +1024,6 @@ def agreement_report(db_path: str, columns: Sequence[str],
         percent_agreement=percent_agreement, warnings=warnings)
 
 
-# ---------------------------------------------------------------------------
-# Disagreement review
-# ---------------------------------------------------------------------------
 
 def disagreements(db_path: str, columns: Sequence[str],
                   table: str = PNG_TABLE, key: str = PNG_KEY,
@@ -1144,9 +1085,6 @@ def disagreements(db_path: str, columns: Sequence[str],
     return out
 
 
-# ---------------------------------------------------------------------------
-# Rendering
-# ---------------------------------------------------------------------------
 
 def _fmt_kappa(value: Any) -> str:
     """Format κ with a sign and three decimals, or return ``undefined``.

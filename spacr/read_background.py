@@ -96,9 +96,6 @@ def resolve_exclusions(exclude: Optional[Iterable[str]],
             out.update(series[np.asarray(mask, dtype=bool)].tolist())
         return out
     except Exception:                                        # noqa: BLE001
-        # A resolver that cannot run must not silently exclude NOTHING --
-        # that would leave a known contaminant in the denominator. Fall back
-        # to the exact names, which is the subset everybody agrees on.
         return {str(e) for e in wanted}
 
 
@@ -206,18 +203,8 @@ def suggest_threshold(measurement: Mapping[str, object], *,
     values = np.asarray(list(background.values()), dtype=float)
     middle = float(np.median(values))
 
-    # THE OUTLIERS ARE REMOVED BEFORE THE QUANTILE IS TAKEN, and leaving
-    # them in was a real fault rather than a rounding one: the quantile is
-    # contaminated by exactly the guides it is supposed to exclude. Caught
-    # on a 42-guide fixture where one outlier at 9% dragged the 99th
-    # percentile to 6.6% -- a threshold that would delete most of a real
-    # library. On a 1,325-guide screen the same outlier hid inside the
-    # quantile instead, which is worse, because nothing looked wrong.
-    #
-    # `factor` matches `suspicious`, so the guides excluded here are the
-    # guides that function reports. One rule, applied twice.
     keep = values[values < max(middle, 1e-12) * float(outlier_factor)]
-    if keep.size == 0:                       # every guide is an outlier
+    if keep.size == 0:
         keep = values
     suggested = float(np.quantile(keep, float(quantile)))
 
@@ -228,8 +215,6 @@ def suggest_threshold(measurement: Mapping[str, object], *,
         "guides_used": float(keep.size),
         "median_background": middle,
         "guides_above": float((values >= suggested).sum()),
-        # The ones a single threshold cannot serve, whatever it is set to:
-        # they were left out of the estimate and clear it anyway.
         "guides_needing_their_own": float(values.size - keep.size),
     }
 

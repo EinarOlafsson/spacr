@@ -148,9 +148,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Vocabulary
-# ---------------------------------------------------------------------------
 
 #: Bytes whose kind could not be determined. Never prunable — the whole point
 #: of a separate bucket is that nobody knows what it is.
@@ -232,8 +229,6 @@ _KIND_RANK: Dict[str, int] = {
 #: unregistered, and :func:`is_prunable` starts from the registry, not from a
 #: filename.
 _LAYOUT_RULES: Tuple[Tuple[str, str], ...] = (
-    # The bookkeeping, first: `artifacts.db` matches `*.db` further down and
-    # would otherwise be reported as somebody's measurements.
     ("artifacts.db", ports.SETTINGS_CSV),
     ("spacr_archive*.json", ports.SETTINGS_CSV),
     ("stack/*", ports.CHANNEL_STACKS),
@@ -283,9 +278,6 @@ MAX_RECORDED_FILES = 100_000
 _NEVER_DELETE = ("artifacts.db", ARCHIVE_LEDGER_NAME, ARCHIVE_MANIFEST_NAME)
 
 
-# ---------------------------------------------------------------------------
-# Errors
-# ---------------------------------------------------------------------------
 
 class DataManagerError(Exception):
     """Anything this module refuses to do."""
@@ -317,9 +309,6 @@ class ArchiveError(DataManagerError):
     """An archive could not be carried out, or could not be verified."""
 
 
-# ---------------------------------------------------------------------------
-# Small helpers
-# ---------------------------------------------------------------------------
 
 def human_bytes(size: float) -> str:
     """Render a byte count the way a disk report should read.
@@ -347,7 +336,7 @@ def _real(path: str) -> str:
     """Return ``path`` with symlinks resolved, for containment checks."""
     try:
         return os.path.realpath(path)
-    except OSError:                    # exotic filesystems that will not resolve
+    except OSError:
         return path
 
 
@@ -401,9 +390,6 @@ def _classify_by_layout(relative: str) -> str:
     return OTHER_KIND
 
 
-# ---------------------------------------------------------------------------
-# The usage report
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class KindUsage:
@@ -625,7 +611,6 @@ def scan_project(root: Any, *,
 
     files, symlinks, errors = _walk_project(project)
 
-    # Registered paths, grouped. Several artifacts may name one path.
     by_path: Dict[str, List[Artifact]] = {}
     outside: List[Artifact] = []
     for artifact in registered:
@@ -637,7 +622,6 @@ def scan_project(root: Any, *,
     for group in by_path.values():
         group.sort(key=lambda a: (-a.created_ns, a.artifact_id))
 
-    # Attribute every walked file to at most one registered path.
     owned_bytes: Dict[str, int] = {path: 0 for path in by_path}
     owned_files: Dict[str, int] = {path: 0 for path in by_path}
     unowned: Dict[str, int] = {}
@@ -662,8 +646,6 @@ def scan_project(root: Any, *,
         if not exists:
             missing.extend(group)
 
-    # Per-kind totals: registered bytes attributed to the path's ranked kind,
-    # unregistered bytes to whatever the layout suggests.
     stats: Dict[str, Dict[str, int]] = {}
 
     def _bucket(kind: str) -> Dict[str, int]:
@@ -758,9 +740,6 @@ def format_usage(usage: ProjectUsage, *, limit: int = 8) -> str:
     return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# The prunable predicate
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class PruneSkip:
@@ -873,9 +852,6 @@ def is_prunable(artifact: Artifact, *, root: Any,
     return ""
 
 
-# ---------------------------------------------------------------------------
-# The plan
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class PruneCandidate:
@@ -1043,12 +1019,6 @@ def plan_prune(root: Any, *,
             continue
         nested = _nested_registration(entry.path, registered_paths)
         if nested:
-            # Two registered artifacts, one inside the other. The bytes were
-            # attributed to the inner one (longest prefix wins), so deleting
-            # the outer would free more than the plan says and take an
-            # artifact nobody judged with it. Nothing declares such a pair
-            # today; the guard is here because a plan that under-reports what
-            # it deletes is the failure this whole module is about.
             kept.append(PruneSkip(
                 entry.path, entry.kind, entry.size_bytes,
                 f"another registered artifact is at {nested}, inside or "
@@ -1068,9 +1038,6 @@ def plan_prune(root: Any, *,
                 entry.artifacts[0].artifact_id))
             continue
 
-        # The row this candidate is *reported* as: the newest of the kind the
-        # path is filed under. It is only the label and the "how do I get it
-        # back" module — every artifact at the path still has to pass.
         newest = next((a for a in entry.artifacts if a.kind == entry.kind),
                       entry.artifacts[0])
         reason = is_prunable(newest, root=project, registry=target,
@@ -1173,9 +1140,6 @@ def format_prune_plan(plan: PrunePlan, *, limit: int = 20) -> str:
     return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Deleting, gated on a count
-# ---------------------------------------------------------------------------
 
 def _count_matching(connection, table: str, predicate: str,
                     params: Sequence[Any]) -> int:
@@ -1260,9 +1224,6 @@ def _mark_artifacts(registry: Registry, artifact_ids: Sequence[str],
         with transaction(connection, mode="IMMEDIATE", attempts=6,
                          busy_timeout=registry.timeout):
             if forget:
-                # Edges first: `artifacts` is the parent of a foreign key, and
-                # the two are one write either way. Both go through the same
-                # count-write-compare, on the same predicate.
                 _verified_write(connection, "artifact_inputs",
                                 predicate, ids,
                                 'DELETE FROM "artifact_inputs"',
@@ -1271,11 +1232,6 @@ def _mark_artifacts(registry: Registry, artifact_ids: Sequence[str],
                                        predicate, ids,
                                        'DELETE FROM "artifacts"',
                                        what="forget the pruned artifacts")
-            # The merged JSON is computed per row and staged in a temp table,
-            # so the UPDATE below can be ONE statement over ONE predicate --
-            # the same predicate the count is taken with. A loop of
-            # `WHERE artifact_id = ?` updates would be a write on a predicate
-            # nothing counted, which is the whole failure mode being avoided.
             connection.execute(
                 "CREATE TEMP TABLE IF NOT EXISTS _spacr_mark ("
                 "artifact_id TEXT PRIMARY KEY, extra_json TEXT)")
@@ -1379,7 +1335,6 @@ def prune(plan: PrunePlan, *, confirm: str,
     if not plan.candidates:
         return PruneResult(root=plan.root, finished_utc=_now())
 
-    # 2. Nothing is deleted until the whole plan still describes the disk.
     paths = [c.path for c in plan.candidates]
     for candidate in plan.candidates:
         if not _contained(candidate.path, plan.root):
@@ -1407,7 +1362,6 @@ def prune(plan: PrunePlan, *, confirm: str,
 
     target = _open_if_present(registry, plan.root)
 
-    # 3. The registry write, counted and verified, before any file goes.
     rows = 0
     if target is not None:
         try:
@@ -1423,7 +1377,6 @@ def prune(plan: PrunePlan, *, confirm: str,
                 f"happens before any file is removed, exactly so that this "
                 f"failure costs nothing.") from exc
 
-    # 4. Now delete.
     removed_files: List[str] = []
     truncated = False
     for candidate in plan.candidates:
@@ -1437,7 +1390,6 @@ def prune(plan: PrunePlan, *, confirm: str,
         elif os.path.exists(candidate.path):
             os.remove(candidate.path)
 
-    # 5. And check.
     left = [c.path for c in plan.candidates if os.path.exists(c.path)]
     if left:
         raise PruneIncomplete(
@@ -1458,9 +1410,6 @@ def prune(plan: PrunePlan, *, confirm: str,
         finished_utc=_now())
 
 
-# ---------------------------------------------------------------------------
-# Archiving
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ArchiveItem:
@@ -1604,10 +1553,6 @@ def plan_archive(root: Any, destination: Any, *,
     for source in chosen:
         if not os.path.exists(source):
             continue
-        # Every artifact this entry carries, not only one registered at
-        # exactly this path: a whole-project archive moves `measurements/`,
-        # and the database's provenance is inside it. Missing that is how the
-        # destination ends up describing four of a project's seven artifacts.
         inside = [entry for path, entry in by_path.items()
                   if path == source or path.startswith(source + os.sep)]
         listing = _enumerate(source)
@@ -1690,7 +1635,6 @@ def archive(plan: ArchivePlan, *, confirm: str,
         or source_registry.path == item.source
         for item in plan.items)
 
-    # Everything the artifacts know, read before the registry can move.
     provenance: List[Artifact] = []
     if source_registry is not None:
         known = {a.artifact_id: a for a in source_registry.by_project(plan.root)}
@@ -1703,9 +1647,6 @@ def archive(plan: ArchivePlan, *, confirm: str,
             [i for item in plan.items for i in item.artifact_ids],
             {"archived_utc": _now(), "archived_to": plan.destination})
 
-    # Read before the move: a whole-project archive moves the ledger too, and
-    # the origin's earlier archives must not be forgotten because the file
-    # that recorded them went with the data.
     ledger_path = os.path.join(plan.root, ARCHIVE_LEDGER_NAME)
     ledger = _read_ledger(ledger_path)
 
@@ -1723,8 +1664,6 @@ def archive(plan: ArchivePlan, *, confirm: str,
                 f"filesystem before doing anything else.")
         moved.append((item.source, item.destination))
 
-    # The destination is made self-describing: same module, kind, role,
-    # settings hash and inputs, at the new path.
     registered = 0
     if provenance:
         destination_registry = open_registry(plan.destination)

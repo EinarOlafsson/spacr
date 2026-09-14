@@ -80,10 +80,10 @@ class Verdict:
     :param n: total number of truth labels evaluated.
     """
 
-    coverage: float          # share of cells annotated at all
-    precision: float         # share of ANNOTATED cells that are right
-    recall: float            # share of ALL cells annotated correctly
-    per_guide: Dict[str, Tuple[float, float]]   # guide -> (precision, recall)
+    coverage: float
+    precision: float
+    recall: float
+    per_guide: Dict[str, Tuple[float, float]]
     confusion: Dict[Tuple[str, str], int]
     n: int
 
@@ -93,9 +93,6 @@ class Verdict:
                 f"those correct ({self.recall:.0%} of all cells)")
 
 
-# ---------------------------------------------------------------------------
-# 1. a screen whose truth is known
-# ---------------------------------------------------------------------------
 
 def synthesise(*,
                wells: int = 24,
@@ -146,20 +143,12 @@ def synthesise(*,
         counts = rng.multinomial(int(cells_per_well), weights)
         honest[label] = {names[g]: float(p) for g, p in zip(here, weights)}
 
-        # SHUFFLED WITHIN THE WELL, and this is not tidiness -- it is the
-        # difference between a benchmark and a lie. Emitting each guide's
-        # cells as a contiguous block leaves the ROW ORDER carrying the
-        # answer, and any method that hands out contiguous runs then scores
-        # far above what the data can support. It was caught by the
-        # `no_effect` scenario reporting 85% precision on features that
-        # contain no information at all, which is the scenario's whole job.
         block: List[Tuple[np.ndarray, float, str]] = []
         for guide_index, count in zip(here, counts):
             for _ in range(int(count)):
                 shows = rng.random() < float(penetrance)
                 centre = centres[guide_index] if shows else np.zeros(features)
                 point = centre + rng.normal(size=int(features))
-                # The score tracks the phenotype, then the classifier errs.
                 value = float(np.linalg.norm(centre)) + rng.normal(scale=0.5)
                 if rng.random() > float(classifier_accuracy):
                     value = -value
@@ -171,7 +160,6 @@ def synthesise(*,
             well_labels.append(label)
             truth.append(owner)
 
-        # What sequencing REPORTS: thresholded, biased, renormalised.
         seen = {names[g]: float(p) for g, p in zip(here, weights)}
         kept = {g: p for g, p in seen.items() if p >= float(fraction_threshold)}
         if not kept:
@@ -194,9 +182,6 @@ def synthesise(*,
     )
 
 
-# ---------------------------------------------------------------------------
-# 2. scoring
-# ---------------------------------------------------------------------------
 
 def score_annotation(truth: Sequence[str],
                      called: Sequence[str], *,
@@ -279,9 +264,6 @@ def calibration(truth: Sequence[str],
     return out
 
 
-# ---------------------------------------------------------------------------
-# 3. the null -- the check that runs on REAL data
-# ---------------------------------------------------------------------------
 
 def permuted(screen: Screen, *, seed: int = 0) -> Screen:
     """Return a screen with guide-to-well assignments permuted.
@@ -344,9 +326,6 @@ def order_sensitivity(run: Callable[[Sequence[Tuple[str, float]]], Sequence[str]
             "repeats": len(differences)}
 
 
-# ---------------------------------------------------------------------------
-# 4. every strategy, on the same screens
-# ---------------------------------------------------------------------------
 
 def benchmark(strategies: Mapping[str, Callable[[Screen], Sequence[str]]],
               scenarios: Optional[Mapping[str, Screen]] = None, *,
@@ -363,9 +342,6 @@ def benchmark(strategies: Mapping[str, Callable[[Screen], Sequence[str]]],
     sequencing-only majority and chance baselines are included automatically.
     """
     scenes = dict(scenarios if scenarios is not None else default_scenarios())
-    # THE BASELINES ARE NOT OPTIONAL. They are what separates "the method
-    # works" from "the fractions work", and a caller who forgot them would
-    # read the second as the first.
     everything = {**BASELINES, **dict(strategies)}
     out: Dict[str, Dict[str, object]] = {}
     for scene_name, screen in scenes.items():
@@ -388,7 +364,6 @@ def benchmark(strategies: Mapping[str, Callable[[Screen], Sequence[str]]],
                 continue
             here[name] = {
                 "real": real, "null": chance,
-                # What the data was worth, which is the number to read.
                 "gain": float(real.precision - chance.precision),
             }
         out[scene_name] = here
@@ -460,59 +435,19 @@ def default_scenarios(seed: int = 0) -> Dict[str, Screen]:
     realistic case.
     """
     return {
-        # Nothing wrong: the ceiling. A method that fails here is broken.
         "clean": synthesise(seed=seed),
-        # No signal at all: the floor. Everything must be at chance, and a
-        # method that beats chance here is reading its own anchors.
         "no_effect": synthesise(effect=0.0, seed=seed + 1),
-        # Half the cells do not show the phenotype.
         "penetrance_0.5": synthesise(penetrance=0.5, seed=seed + 2),
-        # The 207 mechanism: threshold, then renormalise, then inflate.
         "inflated_fractions": synthesise(fraction_threshold=0.10,
                                          fraction_bias=1.8, seed=seed + 3),
-        # The maintainer's stated classifier.
         "classifier_0.94": synthesise(classifier_accuracy=0.94, seed=seed + 4),
-        # Crowded wells: more guides sharing, so more chances to confuse.
         "crowded": synthesise(guides_per_well=8, guides=16, seed=seed + 5),
-        # Everything at once, which is the real screen.
         "realistic": synthesise(penetrance=0.6, fraction_threshold=0.10,
                                 fraction_bias=1.8, classifier_accuracy=0.94,
                                 guides_per_well=6, seed=seed + 6),
     }
 
 
-# ---------------------------------------------------------------------------
-# 5. mixed-ratio control wells -- ground truth on REAL data
-# ---------------------------------------------------------------------------
-#
-# The maintainer's proposal, 2026-08-21: "can the hold out be the mixed ratio
-# wells, where we dont know the identity of each cell but we do know how many
-# cells are PC and how many are NC from the sequencing. these were not use for
-# training."
-#
-# IT IS BETTER THAN THE SIMULATION AND BETTER THAN INSTRUCTION 214's SINGLE
-# POSITIVE CONTROL, for a reason worth stating precisely.
-#
-# 214 records that a single positive control cannot separate PENETRANCE from
-# FRACTION BIAS: the slope of imaging-fraction on sequencing-fraction is their
-# product. A RATIO SERIES separates them, because the two enter at different
-# places. A well that is a proportion `pi` of PC cells has a feature
-# distribution that is exactly the mixture
-#
-#     F_w  =  pi * F_PC  +  (1 - pi) * F_NC
-#
-# and `F_PC` is estimated from the extreme wells INCLUDING its non-penetrant
-# cells -- a PC cell showing no phenotype is still a PC cell and is still in
-# `F_PC`. So the mixture fit recovers the true CELLULAR proportion with
-# penetrance already absorbed, and comparing that to what sequencing reported
-# isolates the fraction bias on its own.
-#
-# WHAT IT DOES NOT SHOW, said here because it is the easy thing to forget:
-# PC-versus-NC is a two-class problem with the largest phenotype difference in
-# the screen. A method can be perfect on it and still fail at six guides in
-# one well, which is the actual task. This validates the calibration and the
-# discrimination; the simulation above remains the only check of the
-# multi-guide assignment.
 
 def mixture_proportion(features: np.ndarray,
                        positive: np.ndarray,
@@ -542,8 +477,6 @@ def mixture_proportion(features: np.ndarray,
     direction = centre_pos - centre_neg
     span = float(direction @ direction)
     if span <= 0:
-        # The two controls are indistinguishable: there is no line to
-        # project onto, and any number would be invented.
         return float("nan")
     return float(np.clip(((here.mean(axis=0) - centre_neg) @ direction) / span,
                          0.0, 1.0))
@@ -575,13 +508,6 @@ def mixed_ratio_calibration(features: np.ndarray,
     """
     values = np.asarray(features, dtype=float)
     labels = np.asarray([str(w) for w in wells])
-    # WHICH WELLS ARE PURE IS A FACT ABOUT THE PLATE, not about the numbers
-    # under test. Picking them by the REPORTED fraction is circular -- that
-    # fraction is precisely the biased quantity this is measuring, so a bias
-    # large enough to matter moves a pure well below the cut-off and the fit
-    # refuses to run on exactly the screens that need it. Caught that way:
-    # a 0.55 bias made every 100%-PC well report 0.55 and no pure well was
-    # found.
     circular = pure_pc_wells is None or pure_nc_wells is None
     if pure_pc_wells is not None:
         pure_pc = [str(w) for w in pure_pc_wells]

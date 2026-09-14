@@ -35,8 +35,6 @@ from ...settings import DEFAULT_BARCODE_REGEX
 
 REQUIRED_BARCODE_GROUPS = ("columnID", "grna", "rowID")
 
-# A real column barcode, gRNA and row barcode from the bundled reference
-# tables, surrounded by the constant sequence expected by the shipped regex.
 EXAMPLE_BARCODE_READ = (
     "TCATAGGCTGCTGTAAACGTACTATAATGATATTACGAC"
     "AACTTAGAAGCAATGTCG"
@@ -127,13 +125,6 @@ class BarcodeRegexDialog(QDialog):
         self.setWindowTitle("spaCR — Barcode regex tester")
         from ..preferences import scaled_px
 
-        # SIZED IN SCALED PIXELS, NOT RAW ONES. A dialog size set from
-        # Python does not grow when the stylesheet's font size does, so at
-        # the 200%% font scale the prose inside this window wrapped to more
-        # height than the window had and the last line was cut off. The
-        # size-policy fix on the label was necessary and not sufficient:
-        # a policy stops a parent handing a label less than it asks for, but
-        # it cannot make a window grow that has no room to give.
         self.setMinimumSize(scaled_px(760), scaled_px(430))
         self.regex = ""
 
@@ -147,12 +138,6 @@ class BarcodeRegexDialog(QDialog):
         )
         intro.setTextFormat(Qt.RichText)
         intro.setWordWrap(True)
-        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
-        # Preferred height a parent is free to hand it less than its
-        # heightForWidth. This is the house rule `prerun._label` documents.
-        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
-        # label clipped at 2.0x, because the container above it does not grow
-        # either. See 350; the remaining fix is the dialog's layout, not this.
         intro.setSizePolicy(QSizePolicy.Preferred,
                                QSizePolicy.Minimum)
         outer.addWidget(intro)
@@ -185,12 +170,6 @@ class BarcodeRegexDialog(QDialog):
         self._status = QLabel(self)
         self._status.setObjectName("BarcodeRegexStatus")
         self._status.setWordWrap(True)
-        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
-        # Preferred height a parent is free to hand it less than its
-        # heightForWidth. This is the house rule `prerun._label` documents.
-        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
-        # label clipped at 2.0x, because the container above it does not grow
-        # either. See 350; the remaining fix is the dialog's layout, not this.
         self._status.setSizePolicy(QSizePolicy.Preferred,
                                       QSizePolicy.Minimum)
         outer.addWidget(self._status)

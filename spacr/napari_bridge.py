@@ -195,13 +195,10 @@ def napari_available() -> bool:
 
     try:
         return find_spec("napari") is not None
-    except (ImportError, ValueError):         # a broken meta path
+    except (ImportError, ValueError):
         return False
 
 
-# ---------------------------------------------------------------------------
-# Reading the field
-# ---------------------------------------------------------------------------
 
 def read_image(path: Any) -> np.ndarray:
     """Read an image file for display beside the mask.
@@ -298,9 +295,6 @@ def load_handoff(mask_path: Any, image_path: Any = "", *,
                        scale=tuple(float(s) for s in scale))
 
 
-# ---------------------------------------------------------------------------
-# Across the bridge
-# ---------------------------------------------------------------------------
 
 def layer_specs(handoff: MaskHandoff) -> Tuple[Dict[str, Any], ...]:
     """What napari should be asked to add, as plain dictionaries.
@@ -321,14 +315,6 @@ def layer_specs(handoff: MaskHandoff) -> Tuple[Dict[str, Any], ...]:
     if handoff.image is not None:
         specs.append({"kind": "image", "data": np.asarray(handoff.image),
                       "name": IMAGE_LAYER_NAME, **common})
-    # A COPY, and this is not defensive tidiness. napari's brush edits the
-    # array it was handed IN PLACE, so handing over `handoff.mask` itself
-    # would mean the "before" spaCR is holding gets painted on too — and the
-    # diff in `write_back` would then be uniformly zero, silently, for every
-    # correction ever made through this bridge. The dtype is left alone:
-    # napari's labels layer takes any integer dtype, so there is nothing to
-    # convert on the way out; the conversion that matters is on the way back,
-    # in `to_spacr_mask`.
     specs.append({"kind": "labels", "data": np.array(handoff.mask, copy=True),
                   "name": handoff.name, "opacity": 0.6, **common})
     return tuple(specs)
@@ -495,9 +481,6 @@ def to_spacr_mask(data: Any) -> np.ndarray:
     return array.astype(MASK_DTYPE, copy=False)
 
 
-# ---------------------------------------------------------------------------
-# Taking it back
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class CorrectionResult:
@@ -622,11 +605,6 @@ def write_back(mask_path: Any, corrected: Any, *,
                                 changed_pixels=changed, added=added,
                                 removed=removed, altered=altered)
 
-    # The ledger goes beside the file that was actually written, not beside
-    # the path that was asked for. `save_mask` resolves a bare stem to
-    # `foo.tif`, and `log_path_for` keys on the full name including the
-    # extension -- so writing the ledger for `foo` would leave a second,
-    # orphaned history next to the one the brush writes for `foo.tif`.
     artifact = str(save_mask(target, mask))
     log = CurationLog.read_beside(artifact)
     if not log.artifact:

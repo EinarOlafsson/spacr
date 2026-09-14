@@ -177,9 +177,6 @@ class LazyScreenFactory:
         return self._resolved
 
     def __call__(self, **kwargs):
-        # `inspect` is imported here rather than at the top of the file: it
-        # costs a dozen modules of its own, and this module is read while the
-        # splash screen is up to avoid exactly that kind of bill.
         """Import the screen class if needed and build one.
 
         Keyword arguments the factory does not accept are dropped rather than
@@ -242,10 +239,6 @@ def register_declared(module: str, *, key=None, section=None, stage=None):
     row = _BY_MODULE.get(module)
     if row is None:
         return None
-    # Imported here rather than at the top: `app` reads this table while it is
-    # itself being imported, so a module-level import would be a cycle. By the
-    # time anything CALLS this, `register_app` is defined — that is what the
-    # ordering note in `spacr.qt` is about.
     from .app import APPS, register_app
 
     key = row.key if key is None else str(key)
@@ -359,12 +352,6 @@ DECLARED_APPS = (
     DeclaredApp(
         module='spacr.qt.screens.qc_dashboard',
         key='qc_dashboard',
-        # "QC", NOT "QC Dashboard". Asked for on 2026-08-31 as part of
-        # making ONE QC module: Layer Viewer and Control Charts folded in
-        # as buttons, and the module that hosts them is now just QC. The
-        # key is unchanged -- it is in saved sessions, run records and
-        # settings files, and renaming a display name must not rename
-        # anything that has been written to disk.
         name='QC',
         desc=(
             'Review stored checks for segmentation, units, leakage, plate '
@@ -387,14 +374,6 @@ DECLARED_APPS = (
             'format_dashboard() to read and format the same stored results.'
         ),
         api_module='qt/screens/qc_dashboard',
-        # ALL NINE IDENTICAL, and that is a rule rather than laziness.
-        # "QC" is declared in `tools/build_i18n_catalogs.py::_IDENTITY_TEXT`
-        # alongside PNG and RGB -- text that must stay byte-identical in
-        # every language because it is an identifier, not a word.
-        # Translating it to 质控 and Gæðaeftirlit, which is what the old
-        # "QC Dashboard" names did, breaks that rule; the test
-        # `test_standalone_technical_identity_values_remain_exact_in_every_language`
-        # is what caught it.
         translations=('QC',) * 9,
     ),
     DeclaredApp(
@@ -872,12 +851,6 @@ DECLARED_APPS = (
         section='Data',
         factory='make_embeddings_screen',
         stage='alpha',
-        # UNDER 500 CHARACTERS, MEASURED. The runtime catalog's translator
-        # returns a long row unchanged rather than failing, and the audit
-        # then calls it "exact English". Of the six longest intros in this
-        # file, `dose_response` at 495 translates and this one at 544 did
-        # not -- the only difference being length. Keep it near the shorter
-        # of those two.
         intro=(
             'Turns each segmented object into a vector with a pretrained '
             'image encoder, alongside the measured panel rather than instead '

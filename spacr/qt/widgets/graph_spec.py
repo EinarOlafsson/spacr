@@ -111,9 +111,6 @@ class SpecError(ValueError):
     """
 
 
-# ---------------------------------------------------------------------------
-# The six channels
-# ---------------------------------------------------------------------------
 
 X = "x"
 Y = "y"
@@ -132,9 +129,6 @@ POSITIONAL_CHANNELS: Tuple[str, ...] = (X, Y)
 #: The two that split one chart into a grid of them.
 FACET_CHANNELS: Tuple[str, ...] = (FACET_ROW, FACET_COL)
 
-# ---------------------------------------------------------------------------
-# The plot types
-# ---------------------------------------------------------------------------
 
 SCATTER = "scatter"
 LINE = "line"
@@ -172,9 +166,6 @@ PLOT_KINDS: Tuple[str, ...] = (
 #: *is* the answer, and computing it on a tenth of the rows would move it.
 AGGREGATE_KINDS = frozenset({HISTOGRAM, BAR, BOX, VIOLIN, HEATMAP})
 
-# ---------------------------------------------------------------------------
-# Column kinds
-# ---------------------------------------------------------------------------
 
 CONTINUOUS = "continuous"
 CATEGORICAL = "categorical"
@@ -245,9 +236,6 @@ def _axis_kind(column: Optional[str], kinds: Mapping[str, str]) -> Optional[str]
     return CONTINUOUS if kind == CONTINUOUS else CATEGORICAL
 
 
-# ---------------------------------------------------------------------------
-# The spec
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class GraphSpec:
@@ -318,8 +306,6 @@ class GraphSpec:
         """
         for channel in CHANNELS:
             value = getattr(self, channel)
-            # "" and None both mean "empty zone"; normalising here is what
-            # lets `if spec.x:` be the whole test everywhere else.
             object.__setattr__(self, channel,
                                str(value) if value else None)
         if self.kind is not None:
@@ -346,7 +332,6 @@ class GraphSpec:
         object.__setattr__(self, "shared_x", bool(self.shared_x))
         object.__setattr__(self, "shared_y", bool(self.shared_y))
 
-    # -- channels ------------------------------------------------------
     @property
     def channels(self) -> Dict[str, Optional[str]]:
         """``{channel: column or None}`` for all six, in :data:`CHANNELS` order."""
@@ -398,7 +383,6 @@ class GraphSpec:
         """Nothing on x and nothing on y: there is no chart to draw yet."""
         return not self.x and not self.y
 
-    # -- kinds ---------------------------------------------------------
     def kinds_for(self, frame: pd.DataFrame) -> Dict[str, str]:
         """:func:`column_kinds` of ``frame`` with this spec's overrides applied."""
         kinds = column_kinds(frame)
@@ -410,7 +394,6 @@ class GraphSpec:
         """The kind that will actually be drawn — the pin, or the inference."""
         return self.kind or infer_kind(self, kinds)
 
-    # -- serialisation --------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
         """A plain JSON-able dict. Every field, always — a stable schema beats
         a compact one for something later screens read."""
@@ -457,7 +440,6 @@ class GraphSpec:
         """
         return cls.from_dict(json.loads(text))
 
-    # -- for a caption --------------------------------------------------
     def describe(self, kinds: Optional[Mapping[str, str]] = None) -> str:
         """One human line, for the chart's caption and the window title."""
         kinds = dict(kinds or {})
@@ -508,9 +490,6 @@ def infer_kind(spec: GraphSpec, kinds: Mapping[str, str]) -> str:
     return BOX
 
 
-# ---------------------------------------------------------------------------
-# Faceting
-# ---------------------------------------------------------------------------
 
 _DIGIT_RUN = re.compile(r"(\d+)")
 
@@ -535,13 +514,11 @@ def _sort_key(text: str):
     except (TypeError, ValueError):
         pass
     else:
-        # NaN has no order, and one in a sort key makes the whole sort
-        # arbitrary rather than wrong in one place. Treat it as text.
         if value == value:
             return ((0, value, ""),)
     key = []
     for index, chunk in enumerate(_DIGIT_RUN.split(str(text))):
-        if index % 2:                       # split() alternates text, digits
+        if index % 2:
             key.append((1, float(chunk), ""))
         else:
             key.append((2, 0.0, chunk))
@@ -685,10 +662,6 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
             return (None,), 0
         levels, cut = _levels(source, column, max_levels)
         if not levels:
-            # A facet column with no levels at all — everything filtered out,
-            # or an all-NaN column. One panel, drawn empty. A zero-column grid
-            # is not a figure matplotlib (or anyone) can draw, and "your
-            # filter matches nothing" is an answer worth rendering.
             return (None,), 0
         if cut:
             notices.append(
@@ -699,27 +672,16 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
     row_levels, _row_cut = axis(spec.facet_row)
     col_levels, _col_cut = axis(spec.facet_col)
 
-    # Trim the *columns* axis first when the product is too big: a grid is
-    # read down the page, so losing a column costs less than losing a row.
     while len(row_levels) * len(col_levels) > max_panels:
         if len(col_levels) >= len(row_levels) and len(col_levels) > 1:
             col_levels = col_levels[:-1]
         elif len(row_levels) > 1:
             row_levels = row_levels[:-1]
         else:
-            # NEITHER AXIS CAN LOSE ANOTHER LEVEL. At one row and one
-            # column the product is 1, so the loop is only still running
-            # if the ceiling is below 1 -- which no caller in spaCR
-            # passes, but `max_panels` is a documented keyword and the
-            # cost of being wrong here is not a wrong picture, it is an
-            # infinite loop and a frozen window with nothing in the log.
             break
         notices.append(f"grid capped at {max_panels} panels")
 
     n = len(frame)
-    # Only split on an axis that actually has levels: an axis that degenerated
-    # to `(None,)` above is a single panel, and matching rows against a level
-    # of ``None`` would put every one of them nowhere.
     row_live = bool(spec.facet_row) and row_levels != (None,)
     col_live = bool(spec.facet_col) and col_levels != (None,)
     row_keys = (_level_series(frame, spec.facet_row).to_numpy()
@@ -754,9 +716,6 @@ def facet_grid(frame: pd.DataFrame, spec: GraphSpec, *,
         notice="; ".join(dict.fromkeys(notices)))
 
 
-# ---------------------------------------------------------------------------
-# Shared scales
-# ---------------------------------------------------------------------------
 
 def _numeric(frame: pd.DataFrame, column: Optional[str]) -> Optional[np.ndarray]:
     """Read one column as floats, or ``None`` when it is not there.
@@ -958,9 +917,6 @@ def _count_limit(frame: pd.DataFrame, spec: GraphSpec, grid: FacetGrid,
     return tallest * 1.08
 
 
-# ---------------------------------------------------------------------------
-# The large-data policy
-# ---------------------------------------------------------------------------
 
 #: Every row is an individual mark.
 FULL = "full"
@@ -1010,11 +966,6 @@ def prepare_data(frame: pd.DataFrame, spec: GraphSpec,
                           n_shown=total,
                           notice=(f"{total:,} rows" if total else "no rows"))
 
-    # Above the budget. Binning keeps every row, so it is preferred — but it
-    # can only draw what a raster can carry: a density, optionally shaded by
-    # the mean of a continuous colour column. A categorical colour or a size
-    # channel needs one mark per row, and for those the only honest option
-    # left is a sample the chart admits to.
     per_point_encoding = bool(spec.size) or (
         bool(spec.colour) and _axis_kind(spec.colour, kinds) == CATEGORICAL)
     if kind == SCATTER and not per_point_encoding:
@@ -1024,9 +975,6 @@ def prepare_data(frame: pd.DataFrame, spec: GraphSpec,
                     f"density — every row is counted"))
 
     budget = min(spec.point_budget, total)
-    # Positional, seeded, and sorted back into the frame's own order — not
-    # `DataFrame.sample`, whose result has to be re-sorted by *index*, which
-    # is not the row order for a frame that arrived from a filter or a join.
     picked = np.sort(np.random.default_rng(spec.seed).choice(
         total, size=budget, replace=False))
     sample = frame.iloc[picked]

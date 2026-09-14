@@ -193,7 +193,6 @@ class ColumnMapModel(QAbstractTableModel):
         self._maps: List[fgn.ColumnMap] = []
         self._status: Dict[str, str] = {}
 
-    # -- content -----------------------------------------------------------
 
     def set_maps(self, maps: Optional[List[fgn.ColumnMap]]) -> None:
         """Replace the whole mapping."""
@@ -231,7 +230,6 @@ class ColumnMapModel(QAbstractTableModel):
                 return index
         return -1
 
-    # -- QAbstractTableModel ----------------------------------------------
 
     def rowCount(self, parent=QModelIndex()) -> int:
         """How many source columns are waiting to be mapped.
@@ -369,13 +367,8 @@ class ForeignScreen(QWidget):
             "table, then Preview. Nothing is written until you press Import.")
         self._update_controls()
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
-        # ITS OWN REGISTRY KEY -- what `install_folds_on` dispatches
-        # on. A screen that builds itself has no `app_key` unless it says
-        # so, and without it this screen could declare folds and never be
-        # handed them.
         """Lay out the input rows over the mapping table and the report."""
         self.app_key = "foreign"
         outer = QVBoxLayout(self)
@@ -383,11 +376,6 @@ class ForeignScreen(QWidget):
                                  SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        # A ModuleHeader RATHER THAN A BARE LABEL, for the same reason
-        # Database Browser grew one: it draws the same `DisplayHeading`
-        # this built by hand, and its `add_trailing` is where the fold
-        # strip hangs. Without a masthead, Format Converter and External
-        # Masks have nowhere to appear.
         header = ModuleHeader(
             "Import",
             description="Convert microscope formats, map somebody else's "
@@ -410,7 +398,6 @@ class ForeignScreen(QWidget):
 
         outer.addWidget(Divider())
 
-        # ── Images ────────────────────────────────────────────────────
         img_row = QHBoxLayout()
         img_row.setSpacing(SPACING["sm"])
         self._images_edit = QLineEdit(self)
@@ -425,7 +412,6 @@ class ForeignScreen(QWidget):
         img_row.addWidget(self._btn_pick_images)
         outer.addLayout(img_row)
 
-        # ── Masks ─────────────────────────────────────────────────────
         mask_row = QHBoxLayout()
         mask_row.setSpacing(SPACING["sm"])
         self._object_box = QComboBox(self)
@@ -452,7 +438,6 @@ class ForeignScreen(QWidget):
         self._mask_list.setMaximumHeight(76)
         outer.addWidget(self._mask_list)
 
-        # ── Measurement table ─────────────────────────────────────────
         table_row = QHBoxLayout()
         table_row.setSpacing(SPACING["sm"])
         self._table_edit = QLineEdit(self)
@@ -467,7 +452,6 @@ class ForeignScreen(QWidget):
         table_row.addWidget(self._btn_pick_table)
         outer.addLayout(table_row)
 
-        # ── Options ───────────────────────────────────────────────────
         opt_row = QHBoxLayout()
         opt_row.setSpacing(SPACING["sm"])
         self._scale_edit = QLineEdit(self)
@@ -487,13 +471,10 @@ class ForeignScreen(QWidget):
         opt_row.addWidget(self._btn_preview)
         outer.addLayout(opt_row)
 
-        # ── The mapping table ─────────────────────────────────────────
         self._model = ColumnMapModel(self)
         self._model.mapping_edited.connect(self._on_mapping_edited)
         self._table = QTableView(self)
         self._table.setModel(self._model)
-        # After setModel: the helper puts a sorting proxy over the mapping
-        # model, which replaces the view's model and its selection model.
         install_sorting(self._table)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setAlternatingRowColors(True)
@@ -502,7 +483,6 @@ class ForeignScreen(QWidget):
         self._table.verticalHeader().setVisible(False)
         outer.addWidget(self._table, 1)
 
-        # ── The report ────────────────────────────────────────────────
         self._report = QPlainTextEdit(self)
         self._report.setReadOnly(True)
         self._report.setMaximumHeight(190)
@@ -512,7 +492,6 @@ class ForeignScreen(QWidget):
             "how many measurement rows found an object in the masks.")
         outer.addWidget(self._report)
 
-        # ── Destination + actions ─────────────────────────────────────
         dst_row = QHBoxLayout()
         dst_row.setSpacing(SPACING["sm"])
         self._dst_edit = QLineEdit(self)
@@ -547,7 +526,6 @@ class ForeignScreen(QWidget):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
-    # -- inline reporting --------------------------------------------------
 
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Deliberately never a QMessageBox — a modal dialog
@@ -573,7 +551,6 @@ class ForeignScreen(QWidget):
         """
         self._report.setPlainText(text or "")
 
-    # -- configuration -----------------------------------------------------
 
     def set_images(self, path: str) -> None:
         """Point the screen at their image folder without opening a dialog."""
@@ -748,7 +725,6 @@ class ForeignScreen(QWidget):
             on_conflict=self.on_conflict())
         self._refresh_report()
 
-    # -- pickers -----------------------------------------------------------
 
     def _pick_images(self) -> None:
         """Ask for a folder of images."""
@@ -797,7 +773,6 @@ class ForeignScreen(QWidget):
         if path:
             self.load_mapping(path)
 
-    # -- preview -----------------------------------------------------------
 
     def preview(self) -> bool:
         """Scan, pair and verify. Writes nothing.
@@ -816,10 +791,6 @@ class ForeignScreen(QWidget):
         masks = self.mask_folders()
         if not masks:
             self._set_status(
-                # TWO SENTENCES, NOT ONE EM-DASH CLAUSE. The Hindi
-                # checkpoint was the only one of the nine that would not take
-                # this line, and the repo's remedy for that is to shorten and
-                # split rather than to accept an English row.
                 "Add at least one mask folder. A spaCR project without "
                 "object masks has nothing to measure and nothing to crop.",
                 error=True)
@@ -935,7 +906,6 @@ class ForeignScreen(QWidget):
             on_conflict=self.on_conflict())
         self._refresh_report()
 
-    # -- the mapping file --------------------------------------------------
 
     def save_mapping(self, path: str) -> bool:
         """Write the mapping on screen to a reviewable CSV."""
@@ -971,7 +941,6 @@ class ForeignScreen(QWidget):
         self._update_controls()
         return True
 
-    # -- import ------------------------------------------------------------
 
     def run_import(self) -> bool:
         """Build the project. Off the GUI thread unless ``threaded=False``.
@@ -1032,7 +1001,6 @@ class ForeignScreen(QWidget):
                 error=True)
         self._update_controls()
 
-    # -- controls ----------------------------------------------------------
 
     def _update_controls(self) -> None:
         """Enable each control only when it has something to act on."""
@@ -1055,7 +1023,6 @@ class ForeignScreen(QWidget):
         """True when the Import button is live."""
         return self._btn_import.isEnabled()
 
-    # -- job plumbing ------------------------------------------------------
 
     def _run_job(self, fn: Callable[[], Any],
                  on_done: Callable[[Any], None]) -> bool:
@@ -1087,10 +1054,6 @@ class ForeignScreen(QWidget):
 
         box: Dict[str, Any] = {}
         thread, worker = make_thread(partial(self._capture, fn), box)
-        # Strong references: PySide6 will not keep the worker alive through
-        # the started→run connection alone, and a QThread garbage-collected
-        # while still running takes the process down with it. The worker is
-        # deliberately never deleteLater'd — see bridge.make_thread.
         self._jobs.append((thread, worker))
         self._thread, self._worker = thread, worker
         self._pending.append((box, on_done))
@@ -1186,9 +1149,6 @@ class ForeignScreen(QWidget):
         self._set_status(f"Import failed: {line}", error=True)
 
 
-# ---------------------------------------------------------------------------
-# Folded modules
-# ---------------------------------------------------------------------------
 
 from .app_screen import ModuleHeader
 from .map_barcodes import build_registered_screen

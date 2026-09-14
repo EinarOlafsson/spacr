@@ -100,8 +100,6 @@ def resolve_merged_source(path, rng=None):
         return candidate
     if not candidate.is_dir():
         return None
-    # `merged/` first: a run folder holds `merged/` beside `measurements/` and
-    # `qc/`, and an array loose in the run folder is not the one meant.
     for folder in (candidate / "merged", candidate):
         if not folder.is_dir():
             continue
@@ -129,8 +127,6 @@ def load_merged_array(path: str, enumerate_sets: bool = True
     """
     out: Dict[str, Any] = {"path": path, "data": None, "directory": None,
                            "sets": None, "channels": None, "error": ""}
-    # A FOLDER IS RESOLVED HERE, on the worker, because the walk is a disk
-    # scan and this function exists to keep those off the GUI thread.
     resolved = resolve_merged_source(path)
     if resolved is None:
         out["error"] = (f"No merged .npy found at {path}"
@@ -146,7 +142,6 @@ def load_merged_array(path: str, enumerate_sets: bool = True
             out["sets"] = sets
             out["channels"] = channels
         except Exception:
-            # A folder we cannot group is still one we can show an array from.
             LOG.exception("Could not enumerate merged arrays beside %s", path)
     try:
         data = np.load(path)
@@ -242,8 +237,6 @@ def annotate_crops(crops: List[Dict[str, Any]], data: Optional[np.ndarray],
             _phenotype_label("Pathogen", pathogen),
             _phenotype_label("Organelle", organelle),
         ))
-        # The pipeline requires a nucleus when all companion masks exist, and
-        # additionally requires a pathogen when uninfected is off.
         included = nucleus is not False
         if not allow_uninfected:
             included = included and pathogen is True
@@ -432,10 +425,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         diverging.
     """
 
-    # The list of crops a pass produced, or None when it produced nothing.
-    # The other three live views have announced their result since they were
-    # written; this one was the odd column out, so nothing outside the panel
-    # could tell that a crop pass had landed.
     preview_ready = Signal(object)
 
     PREVIEW_SOURCE_HINT = "Load a merged array first."
@@ -456,35 +445,20 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._propagate_cb = None
         self._thumb_px = 132
         self._crop_settings_dialog: Optional[CropSettingsDialog] = None
-        # Reading a merged array and cropping it are both far too slow for the
-        # GUI thread: a 1024x1024x8 array off a warm SSD froze the window for
-        # 2469 ms on a drop and 1441 ms on every single spinbox step. Both now
-        # go through the runner, which also registers them so the activity
-        # spinner turns. `threaded=False` runs each job inline, emitting the
-        # same signals in the same order, so a test can drive this panel
-        # synchronously without the behaviour diverging.
         self._jobs = JobRunner(self, threaded=threaded,
                                app_key="measure preview")
         #: Bumped whenever a load or a re-crop supersedes the one in flight.
         self._load_token = 0
         self._crop_token = 0
-        # Guards the FOV dropdown against re-entering itself while the array
-        # it just asked for is being installed.
         self._loading_fov = False
-        # Bounded, reproducible sample of the folder's image sets — the
-        # dropdown never lists a whole plate. See ImageSetSampler.
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         self._build_controls()
         self._build_ui()
         self._connect_controls()
         self.setAcceptDrops(True)
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction --------------------------------------------------
 
     @staticmethod
     def _spin(
@@ -512,11 +486,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         return widget
 
     def _build_controls(self) -> None:
-        # General
-        # "experiment", not "exp". The abbreviation was the DEFAULT VALUE
-        # of the field, so it also became the experiment name of every run
-        # left untouched -- a folder called `exp` says nothing six months
-        # later. Asked for on 2026-09-01 with the `src` label.
         """Build the control row: object, crop modes and sizes."""
         self._experiment = QLineEdit("experiment", self)
         self._measurement_channels = QLineEdit("0,1,2,3", self)
@@ -534,7 +503,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._test_mode = Toggle(parent=self)
         self._timelapse = Toggle(parent=self)
 
-        # Object crops
         self._save_png = Toggle(parent=self)
         self._save_png.setChecked(True)
         self._save_arrays = Toggle(parent=self)
@@ -546,28 +514,11 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._crop_height = self._spin(16, 2048, 224, parent=self)
         self._lock_aspect = Toggle(parent=self)
         self._lock_aspect.setChecked(True)
-        # R, G, B source channels in that order, defaulted to the shipped
-        # `png_channel_mapping` ({'r': 2, 'g': 1, 'b': 0}) rather than to
-        # "0,1,2". The text is handed straight to
-        # `crop_objects_from_array`, whose `channels` argument IS RGB order,
-        # so a default of "0,1,2" drew channel 0 RED while the run writes it
-        # BLUE -- measured on a three-channel array as preview (13, 128, 255)
-        # against run (200, 100, 10). A crop preview exists to answer "which
-        # stain lands where", and it answered with red and blue swapped.
-        # NAMED COLOUR SLOTS, not a comma list whose POSITION decides which
-        # colour a channel lands in. A positional list carries an unstated
-        # convention, and an unstated convention gets read backwards -- which
-        # is exactly how the 405 plane spent eleven days rendering red. The
-        # same editor the Measure settings page uses, so the two cannot
-        # disagree about what "channel 2" means.
         self._png_dims = ChannelMappingWidget(_default_png_mapping(), self)
         self._use_bbox = Toggle(parent=self)
         self._buffer = self._spin(0, 200, 10, parent=self)
         self._normalise = Toggle(parent=self)
         self._normalise.setChecked(True)
-        # Six decimals, and set BEFORE the range and the value -- see the
-        # same pair in `live_preview.py`. These carried Qt's default two,
-        # which stores what it shows: 99.995 became 100.0.
         self._lo_pct = QDoubleSpinBox(self)
         self._lo_pct.setDecimals(PERCENTILE_DECIMALS)
         self._lo_pct.setRange(0.0, 50.0)
@@ -588,7 +539,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._dilate_ratio.setSingleStep(0.05)
         self._dilate_ratio.setValue(0.2)
 
-        # Filtering
         self._min_sizes = {
             name: self._spin(0, 10_000_000, 0, parent=self)
             for name in _OBJECTS
@@ -598,18 +548,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._merge_edge_pathogen_cells = Toggle(parent=self)
         self._merge_edge_pathogen_cells.setChecked(True)
 
-        # Preview-only controls
         self._max_area = self._spin(0, 100_000_000, 0, parent=self)
         self._max_crops = self._spin(1, 1000, 60, parent=self)
         self._group_cells = Toggle(parent=self)
         self._group_cells.setChecked(True)
-        # A BUTTON, NOT A SLIDER. The Mask live settings dialog puts
-        # "Propagate settings" in its button box as a checkable ToggleButton;
-        # this one used a Toggle, which is the sliding switch used for
-        # ordinary boolean SETTINGS. Two different controls for the same
-        # action in two dialogs that sit side by side, and the slider reads as
-        # a setting of the crop preview rather than as something that reaches
-        # out of it.
         self._propagate_btn = QPushButton("Propagate settings", self)
         self._propagate_btn.setObjectName("ToggleButton")
         self._propagate_btn.setCheckable(True)
@@ -618,7 +560,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             "settings."
         )
 
-        # Compatibility names used by integrations and older tests.
         self._mask_dim = self._mask_dims["cell"]
         self._crop_size = self._crop_width
         self._min_area = self._min_sizes["cell"]
@@ -650,8 +591,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
 
-        # FOV and channel dropdowns sit immediately LEFT of the Choose
-        # control; all three wear the flat "Live toggle" look.
         pick_row = QHBoxLayout()
         self._pick_row = pick_row
         self._path_label = QLabel(
@@ -676,11 +615,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         populate_channel_combo(self._channel_box, 0)
         self._pick_btn = FlatButton("Choose merged array…", self)
         self._pick_btn.clicked.connect(self._pick_file)
-        # A PLACE TO PASTE. The file dialog cannot select a folder, and a run
-        # folder is what the user has in hand -- it is what `src` holds and
-        # what a Measure run is pointed at. Typing or pasting one here loads a
-        # field from its `merged/` without hunting through fifty-two arrays
-        # for one whose name says nothing about which is interesting.
         self._paste_box = QLineEdit(self)
         self._paste_box.setPlaceholderText("…or paste a path")
         self._paste_box.setToolTip(
@@ -699,10 +633,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         actions = QHBoxLayout()
         self._run_btn = QPushButton(PREVIEW_RUN_TEXT)
         self._run_btn.clicked.connect(self.run_preview)
-        # The old name for the same button. Kept so anything that reached for
-        # it by name still finds it, pointing at the one control.
         self._refresh_btn = self._run_btn
-        # Same control, same place, same words as the Mask live preview.
         self._cancel_btn = QPushButton(PREVIEW_CANCEL_TEXT)
         self._cancel_btn.setToolTip(
             "Abandon the crop pass in flight; its result is dropped.")
@@ -800,7 +731,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._propagate_btn.toggled.connect(self._on_propagate_toggled)
         self._refresh_control_gates()
 
-    # -- settings dialog ------------------------------------------------
 
     def open_crop_settings(self) -> None:
         """Open the crop-settings dialog for this preview."""
@@ -856,7 +786,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             self._crop_height.setValue(value)
 
     def _on_object_changed(self, name: str) -> None:
-        # A previewed object should also be one of the requested crop outputs.
         """Re-preview for a different object type."""
         check = self._crop_mode_checks.get(name)
         if check is not None:
@@ -882,7 +811,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         if on:
             self.propagate_settings()
 
-    # -- drag/drop + loading -------------------------------------------
 
     def _dropped_path(self, event) -> Optional[str]:
         """The usable path out of a drop, or None.
@@ -963,7 +891,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         if not text or text == getattr(self, "_auto_loaded_src", ""):
             return False
         if getattr(self, "_data", None) is not None:
-            # Something is already on screen; do not take it away.
             self._auto_loaded_src = text
             return False
         self._auto_loaded_src = text
@@ -1002,8 +929,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             return
         sets = payload.get("sets")
         if sets is not None:
-            # Adopt before installing, so the enumerate() inside
-            # _refresh_source_selectors is a cache hit rather than a re-scan.
             self._sampler.adopt(payload.get("directory"), sets,
                                 payload.get("channels") or [])
         if payload.get("error"):
@@ -1053,7 +978,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self.shutdown()
         super().closeEvent(event)
 
-    # -- FOV / channel selectors ---------------------------------------
 
     def _refresh_source_selectors(self) -> None:
         """Re-fill the sets and channel dropdowns for the loaded array.
@@ -1094,8 +1018,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             return
         self._loading_fov = True
         try:
-            # The path came out of the sampler, so the folder is already
-            # listed; re-scanning would rediscover what is in hand.
             self.load_array_async(path, enumerate_sets=False)
         finally:
             self._loading_fov = False
@@ -1108,7 +1030,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         """Re-render the crop grid from the newly selected channel."""
         self.refresh()
 
-    # -- propagation ---------------------------------------------------
 
     def _selected_crop_modes(self) -> List[str]:
         """Which crop modes are ticked.
@@ -1147,21 +1068,12 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             "png_size": [
                 int(self._crop_width.value()), int(self._crop_height.value())
             ],
-            # `png_channel_mapping`, NOT the legacy `png_dims` this control
-            # used to write. `resolve_png_channel_mapping` ignores png_dims
-            # whenever a mapping is set, and Measure sets one by default --
-            # so every value this control propagated was discarded by the
-            # run it was tuning.
             "png_channel_mapping": self._png_channel_mapping(),
             "use_bounding_box": self._use_bbox.isChecked(),
             "normalize": normalize,
             "normalize_by": self._normalize_by.currentText(),
             "dialate_pngs": self._dilate.isChecked(),
             "dialate_png_ratios": [float(self._dilate_ratio.value())],
-            # EVERY FLOOR THE PANEL OFFERS, built from the controls the way
-            # the mask dims above are. Written out as literals this listed
-            # five of the eight, so the organelleb, organellec and organelled
-            # spin boxes could be set and were dropped on propagate.
             **{self._size_floor_key(name): int(widget.value())
                for name, widget in self._min_sizes.items()},
             "uninfected": self._uninfected.isChecked(),
@@ -1188,8 +1100,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
 
     def _png_channel_mapping(self) -> Dict[str, Optional[int]]:
         """The RGB control, as the ``{r, g, b}`` mapping the run reads."""
-        # A colour left empty stays empty. The editor says so with "—", and
-        # the run must not put a plane back into a slot the user cleared.
         return dict(self._png_dims.get_value())
 
     def apply_settings(self, settings: dict) -> None:
@@ -1229,9 +1139,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                 continue
             key = f"{name}_mask_dim"
             if key in settings:
-                # -1 is the spinbox's "Not present" and None is the settings
-                # dict's. They have to translate, or an organelle declared
-                # absent comes back pointing at channel 0.
                 try:
                     value = settings[key]
                     self._mask_dims[name].setValue(
@@ -1267,8 +1174,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
              lambda v: float(list(v)[0]))
         _set(self._normalize_by.setCurrentText, "normalize_by", str)
 
-        # `normalize` is a bool OR a [lo, hi] percentile pair, and the pair
-        # is the only place the percentiles come from.
         if "normalize" in settings:
             value = settings["normalize"]
             if isinstance(value, (list, tuple)) and len(value) == 2:
@@ -1282,17 +1187,9 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             elif value is not None:
                 self._normalise.setChecked(bool(value))
 
-        # Through the run's own resolver, so a legacy `png_dims` settings
-        # file seeds the panel with the colours that file will produce.
         if "png_channel_mapping" in settings or "png_dims" in settings:
             self._png_dims.set_value(_resolve_png_mapping(settings))
 
-        # LAST, and after the settings above have landed: the crops are cut
-        # with these values, so loading first would show the panel's defaults
-        # and then re-cut. `src` is the folder the run will read, so the
-        # preview can answer for it without being asked.
-        # HOW MANY ORGANELLE SLOTS, the same rule Mask and the Mask live
-        # preview follow: the run declares it, every panel shows that many.
         if settings.get("number_of_organelles") is not None:
             self.set_organelle_count(settings["number_of_organelles"])
 
@@ -1315,7 +1212,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         except Exception:
             LOG.debug("crop-preview propagation failed", exc_info=True)
 
-    # -- crop/category computation ------------------------------------
 
     def _current_mask_dim(self) -> Optional[int]:
         """Which mask dimension the selected object uses.
@@ -1324,8 +1220,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         """
         name = self._object_box.currentText()
         if name == "cytoplasm":
-            # Cytoplasm is generated during measurement and has no stable
-            # input slice. Use cells for the preview footprint.
             name = "cell"
         return _optional_spin_value(self._mask_dims[name])
 
@@ -1420,8 +1314,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             return
         channels = _mapping_to_rgb_list(self._png_channel_mapping())
         channels = [c for c in channels if 0 <= c < self._data.shape[2]]
-        # The channel dropdown is a *view* control: it does not change the
-        # png_dims that a real run would write, only what this grid shows.
         one = self.display_channel()
         if one is not None and 0 <= one < self._data.shape[2]:
             channels = [one, one, one]
@@ -1475,10 +1367,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             f"{len(self._crops)} object(s) · {groups} categor"
             f"{'y' if groups == 1 else 'ies'}")
         self._maybe_propagate()
-        # Announced like every other live view's result.
         self.preview_ready.emit(self._crops)
 
-    # -- rendering -----------------------------------------------------
 
     def _clear_grid(self) -> None:
         """Empty the thumbnail grid and release its pixmaps.
@@ -1569,9 +1459,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         array = np.ascontiguousarray(crop.astype(np.uint8))
         primaries = self.display_primaries()
         if primaries != "rgb" and array.ndim == 3 and array.shape[2] >= 3:
-            # A DISPLAY transform and nothing else. `crop` is the array the
-            # pipeline would write and it is not touched -- only this thumb
-            # is recoloured, and set_preview_status names the mapping.
             from ...crops import apply_display_primaries
             array = np.ascontiguousarray(
                 apply_display_primaries(array, primaries))
@@ -1696,13 +1583,6 @@ class CropSettingsDialog(QDialog):
         crops_form.addRow(mode_group)
         crops_form.addRow("Crop width", panel._crop_width)
         crops_form.addRow("Crop height", panel._crop_height)
-        # A CROP BOX, NOT A GRAPH. This is neither of the two shape controls
-        # a figure has: it is not the shape of a plotted page ("Graph shape")
-        # and it is not the axis-scale lock that ties one y unit to n x units
-        # ("lock axis scales"). It is the pixel box each object is cut out
-        # into, and what the toggle does is hold that box square by carrying
-        # the width over to the height -- so it says that rather than
-        # borrowing a figure's word for a different quantity.
         crops_form.addRow("Match crop height to width", panel._lock_aspect)
         crops_form.addRow("RGB channel order", panel._png_dims)
         crops_form.addRow("Use bounding box", panel._use_bbox)
@@ -1783,7 +1663,6 @@ class CropSettingsDialog(QDialog):
         self.resize(620, 720)
 
     def closeEvent(self, event):
-        # Keep control values alive on the panel between dialog openings.
         """Remember the dialog's geometry before it goes.
 
         :param event: the Qt close event.

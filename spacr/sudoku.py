@@ -89,9 +89,6 @@ class SudokuResult:
         return int((~self.abstained).sum())
 
 
-# ---------------------------------------------------------------------------
-# 1. anchors
-# ---------------------------------------------------------------------------
 
 def anchors_for(guide: str,
                 wells: Sequence[str],
@@ -142,9 +139,6 @@ def anchors_for(guide: str,
     return np.array(sorted(set(picked)), dtype=int)
 
 
-# ---------------------------------------------------------------------------
-# 2. the graph
-# ---------------------------------------------------------------------------
 
 def similarity_graph(features: np.ndarray, *,
                      neighbours: int = 15,
@@ -181,7 +175,6 @@ def similarity_graph(features: np.ndarray, *,
 
     finder = NearestNeighbors(n_neighbors=k + 1).fit(values)
     distances, indices = finder.kneighbors(values)
-    # Column 0 is the cell itself.
     distances, indices = distances[:, 1:], indices[:, 1:]
     sigma = distances[:, -1].copy()
     sigma[sigma <= 0] = float(np.median(sigma[sigma > 0])) if np.any(
@@ -194,8 +187,6 @@ def similarity_graph(features: np.ndarray, *,
     weights = np.exp(-(distances.reshape(-1) ** 2) / scale)
     graph = sparse.csr_matrix((weights, (rows, cols)), shape=(n, n))
     if mutual:
-        # Both directions present: the elementwise minimum of W and W.T is
-        # zero wherever one direction is missing.
         graph = graph.minimum(graph.T)
     else:
         graph = graph.maximum(graph.T)
@@ -204,9 +195,6 @@ def similarity_graph(features: np.ndarray, *,
     return graph.tocsr()
 
 
-# ---------------------------------------------------------------------------
-# 3. propagation
-# ---------------------------------------------------------------------------
 
 def propagate(graph, seeds: np.ndarray, *,
               alpha: float = 0.9,
@@ -262,9 +250,6 @@ def propagate(graph, seeds: np.ndarray, *,
     return field_
 
 
-# ---------------------------------------------------------------------------
-# 4. the well constraint -- the sudoku step
-# ---------------------------------------------------------------------------
 
 def constrain_to_fractions(mass: np.ndarray,
                            wells: Sequence[str],
@@ -311,8 +296,6 @@ def constrain_to_fractions(mass: np.ndarray,
         if share.sum() <= 0:
             share = np.full(len(order), 1.0 / max(len(order), 1))
         target = share * rows.size
-        # A cell no anchor reached gets the well's prior rather than zero:
-        # it is a cell, it carries something, and "no idea" is the answer.
         empty = block.sum(axis=1) <= 0
         if empty.any():
             block[empty, :] = share
@@ -333,9 +316,6 @@ def constrain_to_fractions(mass: np.ndarray,
     return out
 
 
-# ---------------------------------------------------------------------------
-# 5. the method
-# ---------------------------------------------------------------------------
 
 def sudoku(features: np.ndarray,
            scores: np.ndarray,
@@ -408,15 +388,11 @@ def sudoku(features: np.ndarray,
     mass = propagate(graph, seeds, alpha=alpha)
     mass = np.clip(mass, 0.0, None)
 
-    # THE TWO SCORES, BEFORE ANY NORMALISATION.
     reach = mass.sum(axis=1)
     total = mass.sum(axis=1, keepdims=True)
     safe = np.where(total > 0, total, 1.0)
     affirm = mass / safe
     eliminate = 1.0 - affirm
-    # Reach relative to the typical cell: an absolute cut-off would depend
-    # on the graph's size and its edge weights, which are not the user's to
-    # reason about.
     typical = float(np.median(reach[reach > 0])) if np.any(reach > 0) else 0.0
     relative = reach / typical if typical > 0 else np.zeros_like(reach)
 
@@ -425,11 +401,11 @@ def sudoku(features: np.ndarray,
     called: list = []
     for row in range(n):
         if relative[row] < float(reach_floor):
-            called.append(ABSTAIN)                # unlike every anchor
+            called.append(ABSTAIN)
             continue
         best = int(np.argmax(posterior[row]))
         if float(posterior[row, best]) < float(decision):
-            called.append(ABSTAIN)                # a coin flip
+            called.append(ABSTAIN)
             continue
         called.append(names[best])
 
@@ -505,16 +481,6 @@ def sudoku_all(features: np.ndarray,
         live = np.flatnonzero(unclaimed)
         if live.size < 2:
             break
-        # EVERY GUIDE IN THE RUN, ONE GUIDE COMMITTED. Running this with
-        # `[guide]` alone is degenerate and was, briefly, the bug the
-        # benchmark caught: with ONE column, `constrain_to_fractions`
-        # normalises each row over a single guide, so every posterior is
-        # exactly 1.0, every cell clears the decision bar, and the first
-        # guide claims the entire screen. It scored at the null.
-        #
-        # A posterior is a COMPARISON. Comparing a guide against nothing
-        # returns the prior, which is the same lesson `attribute_well`
-        # records for its own per-well call.
         here = sudoku(values[live], np.asarray(scores)[live],
                       [labels[i] for i in live], fractions, names,
                       decision=decision, **kwargs)
@@ -525,9 +491,6 @@ def sudoku_all(features: np.ndarray,
             eliminate[index, column] = here.eliminate[position, mine]
             posterior[index, column] = here.posterior[position, mine]
             reach[index] = max(reach[index], here.reach[position])
-            # Only THIS guide's cells are claimed this round. The others
-            # were computed to make the comparison honest and are left for
-            # their own round, when the pool they compete over is smaller.
             if here.guides[position] == guide:
                 called[index] = guide
                 unclaimed[index] = False
@@ -535,9 +498,6 @@ def sudoku_all(features: np.ndarray,
         rounds.append({"guide": guide, "confidence": confidence,
                        "claimed": taken, "left": int(unclaimed.sum())})
         if taken == 0:
-            # THE STOPPING RULE, REACHED NOT COUNTED. Nothing this round
-            # cleared the decision bar, so nothing later will either -- the
-            # pool only shrinks and the guides only get less confident.
             break
 
     report = {

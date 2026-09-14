@@ -75,9 +75,6 @@ from .toggle import Toggle
 from .. import path_probe
 from ..job_runner import JobRunner
 
-# Reuse the Mask live preview's rendering + canvas primitives wholesale so
-# the two panels behave identically from the user's side: the same zoom/pan
-# pair, the same percentile stretch, the same boundary drawing.
 from .live_preview import (
     _boundary_mask,
     _select_channel,
@@ -111,9 +108,6 @@ TRACK_COLOURS: Tuple[Tuple[int, int, int], ...] = (
 )
 
 
-# These weak sets let the process-wide memory policy discover already-loaded
-# preview caches without importing this comparatively heavy module and without
-# keeping a closed preview alive.
 _LIVE_FRAME_SEQUENCES: "weakref.WeakSet[FrameSequence]" = weakref.WeakSet()
 _LIVE_PREVIEW_PANELS: "weakref.WeakSet[TimelapsePreviewPanel]" = \
     weakref.WeakSet()
@@ -147,9 +141,6 @@ class TrackerUnavailable(RuntimeError):
     """
 
 
-# ---------------------------------------------------------------------------
-# Lazy, bounded frame access
-# ---------------------------------------------------------------------------
 
 def _natural_key(name: str):
     """Sort key that orders ``f_2`` before ``f_10`` (frame indices are numbers)."""
@@ -206,7 +197,6 @@ class FrameSequence:
         self._memmap = None
         self.read_count = 0
 
-    # -- construction ------------------------------------------------------
 
     @classmethod
     def open(cls, path, max_frames: int = 12) -> "FrameSequence":
@@ -261,11 +251,6 @@ class FrameSequence:
                     shape = tuple(tf.series[0].shape)
                 except Exception:
                     shape = tuple(tf.pages[0].shape)
-            # A time series can be one page per frame (page-addressable, the
-            # cheapest read) or a single page holding a 3-D array, which is
-            # what tifffile writes for a plain (T, H, W) save. The second form
-            # is not page-addressable, so it is memory-mapped instead — still
-            # lazy, just at the OS page level rather than the TIFF page level.
             if n_pages > 1:
                 kind, n = "tiff", n_pages
             else:
@@ -281,7 +266,6 @@ class FrameSequence:
             f"{p.name}: unsupported input. Drop a folder of frames, a "
             "multi-page TIFF, or a (T, H, W) .npy stack.")
 
-    # -- access ------------------------------------------------------------
 
     def __len__(self) -> int:
         """How many frames this sequence shows.
@@ -417,9 +401,6 @@ def frame_channel(frame: np.ndarray, channel: int) -> np.ndarray:
     return _select_channel(arr, channel)
 
 
-# ---------------------------------------------------------------------------
-# Segmentation (expensive — cached by the panel)
-# ---------------------------------------------------------------------------
 
 def segment_frame(image: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
     """Segment one frame with Cellpose and return an ``int32`` label image.
@@ -430,9 +411,6 @@ def segment_frame(image: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
     counting stub to prove that tuning a *tracking* setting never reaches
     segmentation.
     """
-    # ONE constructor for every live view — see
-    # `preview_contract.preview_cellpose_model` for why `model_type=` may
-    # never appear here. The Mask preview calls the same helper.
     model = preview_cellpose_model(str(params.get("model", "cpsam")))
 
     plane = frame_channel(image, int(params.get("channel", 0)))
@@ -475,9 +453,6 @@ def segment_sequence(seq: "FrameSequence", params: Dict[str, Any]) -> np.ndarray
     return np.stack(masks, axis=0).astype(np.int32)
 
 
-# ---------------------------------------------------------------------------
-# Linking (cheap — re-run on every tracking-setting change)
-# ---------------------------------------------------------------------------
 
 def backend_available(mode: str) -> Tuple[bool, str]:
     """Whether linking backend ``mode`` can run, and why not when it cannot.
@@ -494,7 +469,7 @@ def backend_available(mode: str) -> Tuple[bool, str]:
         return False, f"Unknown linking mode {mode!r}."
     pkg = {"trackastra": "trackastra", "ultrack": "ultrack",
            "btrack": "btrack", "trackpy": "trackpy"}.get(mode)
-    if pkg is None:          # iou is pure numpy + scipy, always available
+    if pkg is None:
         return True, ""
     import importlib.util
     if importlib.util.find_spec(pkg) is not None:
@@ -509,12 +484,6 @@ def backend_available(mode: str) -> Tuple[bool, str]:
 def _tracks_from_features(tracks_df, features):
     """Attach centroids to a track table that only carries labels."""
     cols = ["frame", "original_label", "x", "y"]
-    # many_to_one: ``features`` comes from regionprops, so it holds exactly one
-    # row per (frame, label); the track table may name one label twice in a
-    # frame when two tracks claim it at a merge/split event, which is why the
-    # left side is not constrained. A duplicated label on the features side
-    # would invent extra track rows with fabricated centroids. Same contract as
-    # the identical join in timelapse._track_by_iou's caller.
     return tracks_df.merge(features[cols], on=["frame", "original_label"],
                            how="left", validate="many_to_one")
 
@@ -707,9 +676,6 @@ def relabel_by_track(masks: np.ndarray, tracks) -> np.ndarray:
     return _relabel_masks_based_on_tracks(np.asarray(masks), tracks)
 
 
-# ---------------------------------------------------------------------------
-# Track quality indicators
-# ---------------------------------------------------------------------------
 
 @dataclass
 class TrackStats:
@@ -800,9 +766,6 @@ def track_stats(tracks, n_frames: int, min_length: int = 3,
     return st
 
 
-# ---------------------------------------------------------------------------
-# Overlay rendering (pure numpy — unit-testable without a display)
-# ---------------------------------------------------------------------------
 
 def track_colour(track_id: int) -> Tuple[int, int, int]:
     """Deterministic colour for a track id, stable across frames and runs."""
@@ -866,12 +829,6 @@ def render_frame(image: np.ndarray, labels: Optional[np.ndarray] = None,
             rgb[edge & (labels == tid)] = np.array(
                 track_colour(int(tid)), dtype=np.uint8)
 
-    # Every column the block below actually touches, not just the two it
-    # used to name. `frame` and `track_id` are indexed and grouped by three
-    # lines down, so a tracks frame carrying x/y under a different id
-    # column -- `particle`, which is what trackpy returns before
-    # `_link_trackpy` renames it -- raised a KeyError from inside a
-    # renderer rather than being skipped like any other unusable input.
     _needed = {"x", "y", "frame", "track_id"}
     if tracks is not None and len(tracks) and _needed.issubset(tracks.columns):
         lo = max(0, int(frame) - int(tail))
@@ -890,9 +847,6 @@ def render_frame(image: np.ndarray, labels: Optional[np.ndarray] = None,
     return rgb
 
 
-# ---------------------------------------------------------------------------
-# Worker
-# ---------------------------------------------------------------------------
 
 @dataclass
 class TimelapseRequest:
@@ -1053,7 +1007,7 @@ class _TimelapseWorker(QThread):
     nothing ever propagates out of a Qt thread's ``run()``.
     """
 
-    finished_result = Signal(object, str)   # (result dict or None, error)
+    finished_result = Signal(object, str)
 
     def __init__(self, request: TimelapseRequest, parent=None):
         """Prepare the worker.
@@ -1081,9 +1035,6 @@ class _TimelapseWorker(QThread):
             self.finished_result.emit(None, str(e))
 
 
-# ---------------------------------------------------------------------------
-# Panel
-# ---------------------------------------------------------------------------
 
 #: Last resort if `spacr.settings` cannot be reached at all — a stub in
 #: sys.modules, a partially-installed tree. A dropdown with nothing in it
@@ -1145,23 +1096,11 @@ def open_sequence_payload(path, max_frames: int = 12,
     if list_siblings:
         target = Path(os.fspath(path))
         try:
-            # `seq.kind` already records the layout: `open` builds "files"
-            # from a directory listing and every other kind from a single
-            # file. Reading it back is free, where `target.is_dir()` is one
-            # more stat on a path that has just been opened.
             out["siblings"] = sibling_sources(
                 target, FRAME_SUFFIXES,
                 directories=(getattr(seq, "kind", "") == "files"))
         except Exception:
             LOG.exception("Could not list sequences beside %s", path)
-            # AND THE FIELD ITSELF IS STILL AN ANSWER. `siblings=None` means
-            # "nobody listed", which sends `_refresh_source_selectors` off to
-            # list the folder ITSELF -- on the GUI thread, on the very path
-            # whose listing has just failed here. If that failure was a
-            # sleeping /nas_mnt share, that retry is the twenty-second
-            # freeze. One entry is the same thing `sibling_sources` returns
-            # when it cannot read the parent, and it keeps the FOV dropdown
-            # honest: it lists what is known to be there.
             out["siblings"] = [target]
     return out
 
@@ -1185,7 +1124,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         behaviour diverging.
     """
 
-    preview_ready = Signal(object)   # TrackStats, or None on failure
+    preview_ready = Signal(object)
 
     PREVIEW_SOURCE_HINT = "Load a sequence first."
 
@@ -1196,22 +1135,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         :param threaded: whether work runs on a worker.
         """
         super().__init__(parent)
-        # Opening a sequence reads a TIFF header or memory-maps a stack, and
-        # then lists every sibling field of view. On a plate that is not GUI
-        # -thread work. `threaded=False` runs each job inline, emitting the
-        # same signals in the same order, so a test can drive this panel
-        # synchronously without the behaviour diverging.
         self._jobs = JobRunner(self, threaded=threaded,
                                app_key="timelapse preview")
-        # Additional fields are deliberately serialized through their own
-        # runner.  One Cellpose field at a time keeps the GUI responsive
-        # without multiplying model/GPU memory by the Fields setting, and a
-        # cap change can cancel this queue without disturbing a source open.
         self._movie_jobs = JobRunner(
             self, threaded=threaded, app_key="timelapse movie fields")
-        # A worker that raises never reaches its `on_done`, so a "Opening …"
-        # placeholder written before `submit()` would stay on screen for the
-        # life of the panel. This is the other half of `_set_transient_status`.
         self._jobs.job_failed.connect(self._on_job_failed)
         #: Bumped whenever a newer open supersedes the one in flight.
         self._load_token = 0
@@ -1240,23 +1167,14 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._movie_track_key: Optional[tuple] = None
         self._movie_failures: Dict[str, tuple] = {}
         self._worker: Optional[_TimelapseWorker] = None
-        # A worker whose result has landed but whose QThread may still be
-        # unwinding. Held until ``finished`` so it is never collected mid-run.
         self._retired_worker: Optional[_TimelapseWorker] = None
-        # Bumped whenever the pass in flight is superseded (a new sequence,
-        # an explicit cancel). A worker's result is only adopted while the
-        # token it carries still matches — see LivePreviewContract.
         self._run_token = 0
         self._pending_token = 0
         self._pending_signature: Optional[tuple] = None
         self._propagate_cb = None
         self._settings: Dict[str, Any] = {}
         self._sequence_path: Optional[Path] = None
-        # Guards the FOV dropdown against re-entering itself while the
-        # sequence it just asked for is being opened.
         self._loading_fov = False
-        # Bounded, reproducible sample of the folder's sequences — the
-        # dropdown never lists a whole plate. See ImageSetSampler.
         self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
         _LIVE_PREVIEW_PANELS.add(self)
         _ensure_cache_budget_sweep()
@@ -1266,13 +1184,9 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self.setAcceptDrops(True)
         for v in (self._src_view, self._out_view):
             v.setAcceptDrops(False)
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self):
         """Lay out the canvases over the scrub bar and the control row."""
@@ -1280,8 +1194,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         root.setContentsMargins(8, 8, 8, 8)
         root.setSpacing(6)
 
-        # FOV and channel dropdowns sit immediately LEFT of the Choose
-        # control; all of them wear the flat "Live toggle" look.
         pick = QHBoxLayout()
         self._pick_row = pick
         self._path_label = QLabel(
@@ -1319,9 +1231,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         pick.addWidget(self._mask_btn)
         root.addLayout(pick)
 
-        # -- segmentation settings (changing one invalidates the mask cache) --
-        # Read from the Cellpose API — see
-        # `spacr.settings.cellpose_model_menu`.
         self._model_box = QComboBox(self)
         self._model_box.addItems(list(_model_menu()))
         self._model_box.setToolTip(
@@ -1362,7 +1271,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._normalise.setToolTip(
             "(bool) Percentile-stretch each frame for display + segmentation.")
 
-        # -- tracking settings (changing one re-links only) -------------------
         self._mode_box = QComboBox(self)
         self._mode_box.addItems(list(TRACK_MODES))
         self._mode_box.setCurrentText("iou")
@@ -1433,26 +1341,18 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         groups.addWidget(trk_group, 1)
         root.addLayout(groups)
 
-        # Re-link (never re-segment) whenever a *linking* knob moves.
         for w in (self._displacement, self._memory, self._iou):
             w.valueChanged.connect(self._on_tracking_changed)
         self._mode_box.currentTextChanged.connect(self._on_tracking_changed)
         self._remove_transient.toggled.connect(self._on_tracking_changed)
-        # The minimum length only decides what counts as a fragment, so it
-        # re-scores the existing tracks — no linking, no segmentation.
         self._min_len.valueChanged.connect(self._on_scoring_changed)
-        # Pure display knobs never touch masks or tracks.
         self._tail.valueChanged.connect(lambda *_: self._refresh_canvases())
         self._normalise.toggled.connect(lambda *_: self._refresh_canvases())
-        # One channel, two surfaces: the settings spinner and the flat
-        # dropdown in the pick row are kept in step so the frame the user
-        # looks at is always the frame Cellpose is handed.
         self._channel.valueChanged.connect(self._sync_channel_combo_from_spin)
 
         act = QHBoxLayout()
         self._run_btn = QPushButton(PREVIEW_RUN_TEXT, self)
         self._run_btn.clicked.connect(self.run_preview)
-        # Same control, same place, same words as the Mask live preview.
         self._cancel_btn = QPushButton(PREVIEW_CANCEL_TEXT, self)
         self._cancel_btn.setToolTip(
             "Abandon the pass in flight. Cellpose cannot be interrupted, so "
@@ -1521,7 +1421,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._stats_label.setStyleSheet("font-family: monospace;")
         root.addWidget(self._stats_label)
 
-    # -- drag & drop -------------------------------------------------------
 
     def _dropped_path(self, event) -> Optional[str]:
         """The usable path out of a drop, or None.
@@ -1536,37 +1435,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             if not url.isLocalFile():
                 continue
             p = Path(url.toLocalFile())
-            # The suffix is a pure-string test, so it is free; ask the
-            # filesystem only when it does not already decide. And ask it
-            # through the cache, never with `p.is_dir()`: this runs from
-            # dragEnterEvent/dragMoveEvent/dropEvent on the GUI thread, on a
-            # path the user dragged in, and dragMoveEvent fires on every
-            # mouse-move. Measured 2026-09-04, a stat under /nas_mnt (autofs,
-            # share asleep) had not returned after twenty seconds -- one
-            # hover over the panel with a network folder held would freeze
-            # the whole window with no traceback.
-            #
-            # THE DEFAULT IS THE NAME, because the accept/reject answer is
-            # owed NOW and a probe queued this instant cannot have finished.
-            # `path_probe.isdir` returns the cached answer once there is one
-            # and this guess until then:
-            #
-            #   no extension  -> almost certainly a folder -> accept. This
-            #     is the field of view on the plate share, and accepting it
-            #     wrongly only costs a "Load failed" sentence in
-            #     `self._status`, because the open happens on the JobRunner
-            #     worker inside `load_sequence_async`.
-            #   some other extension -> a file this panel cannot read ->
-            #     refuse, exactly as the old `p.is_dir()` did for
-            #     `notes.txt`. Refusing on the name alone is what keeps the
-            #     "not allowed" drag cursor honest instead of accepting
-            #     every document and reporting the mistake afterwards.
-            #
-            # A folder that really does have a dot in its name is refused
-            # for the first hover only: asking queues the probe, and
-            # `dragMoveEvent` fires again on the next mouse-move, by which
-            # time the cache has the real answer. The drag itself is the
-            # retry, so there is no signal to subscribe to here.
             if (p.suffix.lower() in FRAME_SUFFIXES
                     or path_probe.isdir(str(p), default=not p.suffix)):
                 return str(p)
@@ -1604,7 +1472,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         event.acceptProposedAction()
         self.load_sequence_async(p)
 
-    # -- public API --------------------------------------------------------
 
     @property
     def _loads_in_flight(self) -> List[int]:
@@ -1651,8 +1518,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             self._transient_status = None
             self._status.setText(f"Load failed: {message}")
         except RuntimeError:
-            # The label's C++ half went with the panel while the worker was
-            # still unwinding. Nothing to tell anyone.
             self._transient_status = None
 
     def load_sequence_async(self, path, *, list_siblings: bool = True) -> bool:
@@ -1688,8 +1553,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             return
         siblings = payload.get("siblings")
         if siblings is not None:
-            # Adopt before installing, so `_refresh_source_selectors` finds
-            # the listing cached rather than walking the plate again.
             self._sampler.enumerate_paths(
                 Path(payload["path"]).parent, lambda: siblings, force=True)
         self._install_sequence(payload["path"], seq)
@@ -1709,8 +1572,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         :meth:`load_sequence_async`.
         """
         self._stop_playback()
-        # This install is authoritative, so anything already on its way is
-        # superseded here rather than allowed to land on top of it later.
         self._load_token += 1
         payload = open_sequence_payload(
             path, int(self._max_frames.value()), list_siblings=False)
@@ -1744,7 +1605,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._refresh_canvases()
         return True
 
-    # -- FOV / channel selectors -------------------------------------------
 
     def _frame_channel_count(self) -> int:
         """How many channels one frame of the loaded sequence holds."""
@@ -1756,10 +1616,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         except Exception:
             return 0
         if frame.ndim != 3:
-            # A plain 2-D frame still has one channel; reporting zero would
-            # leave the dropdown empty and looking broken.
             return 1
-        # Same channel-axis heuristic ``frame_channel`` applies.
         if frame.shape[-1] <= 8 and frame.shape[0] > 8:
             return int(frame.shape[-1])
         if frame.shape[0] <= 8 and frame.shape[-1] > 8:
@@ -1873,8 +1730,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             return
         self._loading_fov = True
         try:
-            # The path came out of the sampler, so the folder is already
-            # listed; re-listing would rediscover what is in hand.
             self.load_sequence_async(path, list_siblings=False)
         finally:
             self._loading_fov = False
@@ -1948,8 +1803,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         thread that calls it.
         """
         self._stop_playback()
-        # A synchronous open supersedes anything the picker started, or the
-        # in-flight job would install its own masks over these on arrival.
         self._mask_load_token += 1
         try:
             seq = FrameSequence.open(path, max_frames=self._max_frames.value())
@@ -2050,7 +1903,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             "fov": self._fov_box.currentText(),
         }
 
-    # -- cache key ---------------------------------------------------------
 
     def _cache_budget_entries(self):
         """Derived mask stacks retained for re-linking under new settings.
@@ -2131,7 +1983,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
                 self._settings.get("trackastra_linking", "greedy")),
         }
 
-    # -- running -----------------------------------------------------------
 
     def run_preview(self) -> None:
         """Segment (unless cached) then link, off the GUI thread."""
@@ -2176,8 +2027,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         """
         blocked = self.preview_blocked_reason()
         if not self.begin_preview():
-            # A missing tracking backend is a *result* as well as a refusal:
-            # the panel's listeners are told the preview produced nothing.
             if blocked and blocked != self.PREVIEW_SOURCE_HINT:
                 self.preview_ready.emit(None)
             return
@@ -2207,29 +2056,15 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         if cached is not None:
             note = "Re-linking cached masks…"
         elif req.mask_sequence is not None:
-            # It says what it is about to do. Loaded label images are read,
-            # not segmented, and claiming otherwise made a fast pass look
-            # like a Cellpose run that had hung.
             note = "Reading the label images, then linking…"
         else:
             note = "Segmenting frames, then linking…"
         self._status.setText(note)
         self._release_worker()
         worker = _TimelapseWorker(req, self)
-        # The generation this pass belongs to. Cancelling bumps the panel's
-        # token, and a result whose token no longer matches is dropped.
         worker.preview_token_value = self.preview_token()
         self._pending_token = worker.preview_token_value
-        # Bound method, not a closure: PySide6 delivers a plain-callable
-        # connection on the *worker* thread, which would put every widget
-        # touch below on the wrong thread.
         worker.finished_result.connect(self._on_worker_done)
-        # NOT worker.deleteLater — that hands Qt a second owner for an object
-        # Python already holds, and the two race (the measured account is in
-        # spacr.qt.bridge.make_thread). The Mask preview was fixed away from
-        # this pattern; keeping it here left a running QThread owned by
-        # nobody when the user closed the screen mid-pass, because the result
-        # slot dropped the panel's own reference before the thread had exited.
         worker.finished.connect(self._on_worker_finished)
         self._worker = worker
         worker.start()
@@ -2274,9 +2109,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         if self.preview_stale(self._result_token()):
             LOG.debug("dropping a superseded timelapse preview result")
             return
-        # The pass is over as far as the panel is concerned, so a new one may
-        # start; the reference is kept until ``QThread.finished`` because a
-        # QThread collected while it is still unwinding aborts the process.
         if self._worker is not None:
             self._retired_worker = self._worker
             self._worker = None
@@ -2402,8 +2234,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             siblings = [str(path) for path in sibling_sources(
                 current_path, FRAME_SUFFIXES,
                 directories=self._loaded_source_is_a_folder(current_path))]
-        # Preserve sibling_sources' deterministic order, but the field the
-        # user chose is unconditionally first.
         return [current] + [path for path in siblings if path != current]
 
     def _desired_movie_sources(self) -> List[str]:
@@ -2468,10 +2298,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         if pending is not None and (
                 pending not in desired_set
                 or self._movie_pending_key != wanted_key):
-            # Jobs are serialized, and build_movie_field checks the QThread's
-            # interruption flag between frames. Lowering the cap therefore
-            # cancels the one surplus field instead of letting a whole queue
-            # segment and then throwing its arrays away.
             self._cancel_pending_movie_field()
             pending = None
 
@@ -2582,9 +2408,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         images = self._movie_images
         needs_refresh = images is None and self._sequence is not None
         if images is None:
-            # A truthful, immediately available placeholder. It is replaced
-            # by raw source frames on the movie worker before being counted as
-            # a current/ready entry.
             images = self._masks
         self._movie_fields[source] = {
             "source": source,
@@ -2620,7 +2443,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
                 self._on_movie_field_limit_changed)
         self._push_to_movie()
 
-    # -- rendering ---------------------------------------------------------
 
     def _on_scrub(self, _value: int) -> None:
         """Show the frame the scrub bar now points at.
@@ -2691,7 +2513,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             len(seq) if seq is not None else 0)
         self._frame_label.setText(f"{idx + 1}/{max(1, total)}")
 
-    # -- misc --------------------------------------------------------------
 
     def _on_propagate_toggled(self, on: bool) -> None:
         """Turn settings propagation on or off.
@@ -2713,8 +2534,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         path = QFileDialog.getExistingDirectory(
             self, "Choose a folder of label images")
         if path:
-            # Async, like `_pick_sequence`: the open lists the folder, and
-            # the folder is whatever the user just pointed at.
             self.load_masks_async(path)
 
     def closeEvent(self, event):
@@ -2725,11 +2544,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         result by a few instructions.
         """
         self._stop_playback()
-        # Cancel the load before waiting on the segmentation worker: leaving
-        # the screen mid-open must not leave a QThread behind either.
         self.shutdown()
-        # Both of them: the pass in flight, and the one whose result has
-        # landed while its thread was still unwinding.
         for worker in (self._worker, getattr(self, "_retired_worker", None)):
             if worker is not None:
                 try:
@@ -2738,7 +2553,6 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
                     LOG.debug("worker already deleted", exc_info=True)
         super().closeEvent(event)
 
-    # -- the model list is live ------------------------------------------
     def refresh_model_choices(self) -> None:
         """Re-read the Cellpose model list and add anything new.
 
@@ -2784,10 +2598,6 @@ def build_timelapse_preview_card(host):
     panel = TimelapsePreviewPanel(card)
     card.body_layout.addWidget(panel)
 
-    # The movie sits under the tuning controls, not beside them: it is what
-    # you look at after a pass to find out WHY the numbers came out the way
-    # they did, and a track break is found by scrubbing frames rather than
-    # by reading a fragmentation figure.
     movie = TimelapseMoviePanel(card)
     card.body_layout.addWidget(movie, 1)
     panel.attach_movie_panel(movie)

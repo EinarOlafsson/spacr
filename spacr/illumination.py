@@ -224,9 +224,6 @@ class IlluminationError(ConfigurationError):
     """
 
 
-# ---------------------------------------------------------------------------
-# The estimated field
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class IlluminationField:
@@ -466,9 +463,6 @@ def load_illumination_model(path: str) -> IlluminationModel:
     return IlluminationModel.load(path)
 
 
-# ---------------------------------------------------------------------------
-# Estimation
-# ---------------------------------------------------------------------------
 
 def plate_of_field(file_name: str) -> str:
     """The plate a merged field belongs to, from its file name.
@@ -660,9 +654,6 @@ def _read_binned_field(path: str, channels: Sequence[int],
                 f"indices into the merged stack.")
         plane = np.asarray(data[..., int(channel)])
         if plane.ndim == 3:
-            # A z-stack is corrected with one 2-D field: the illumination is a
-            # property of the optics in x/y. The median over z is what the
-            # estimate sees, so an out-of-focus slice does not dominate it.
             plane = np.median(plane, axis=0)
         planes.append(_bin_image(plane, factor))
     return np.stack(planes, axis=0), factor, full_shape
@@ -757,10 +748,6 @@ def estimate_illumination(src, channels: Sequence[int], *,
             if full_shape is None:
                 full_shape = shape
             elif shape != full_shape:
-                # Mixed field sizes in one folder: correcting a 512x512 field
-                # with a 1024x1024 gain map is not a thing that can be made to
-                # mean anything, so those fields sit the estimate out and the
-                # corrector refuses them later by shape.
                 skipped += 1
                 continue
             stack.append(binned)
@@ -769,7 +756,7 @@ def estimate_illumination(src, channels: Sequence[int], *,
                 f"plate {plate!r} contributed no usable field to the "
                 f"illumination estimate ({skipped} had a different shape to "
                 f"the first).")
-        stack = np.stack(stack, axis=0)  # (K, C, y, x)
+        stack = np.stack(stack, axis=0)
         planes = []
         floored_total = 0
         for position in range(len(channels)):
@@ -837,9 +824,6 @@ def estimate_illumination(src, channels: Sequence[int], *,
     return IlluminationModel(fields=fields, meta=meta)
 
 
-# ---------------------------------------------------------------------------
-# Application: the preprocessing hook
-# ---------------------------------------------------------------------------
 
 class IlluminationCorrector:
     """The preprocessing hook that applies an :class:`IlluminationModel`.
@@ -902,7 +886,6 @@ class IlluminationCorrector:
         self._warned = 0
         self._cache: Dict[Tuple[str, Tuple[int, ...]], Tuple] = {}
 
-    # -- the hook ---------------------------------------------------------
     def __call__(self, channel_arrays: np.ndarray, context) -> np.ndarray:
         """Return ``channel_arrays`` corrected, in the same shape and dtype.
 
@@ -955,8 +938,6 @@ class IlluminationCorrector:
         info = np.iinfo(dtype)
         rounded = np.rint(corrected)
         result = np.clip(rounded, info.min, info.max).astype(dtype)
-        # Only signal this correction pushed out of range counts: a pixel the
-        # microscope had already saturated was never recoverable.
         lost = int(np.count_nonzero((rounded > info.max) &
                                     (original < info.max)))
         lost += int(np.count_nonzero((rounded < info.min) &
@@ -1425,9 +1406,6 @@ class SegmentationIlluminationSession:
         if resume:
             self._load_completed_fields()
         else:
-            # A fresh preprocessing run invalidates any previous completion
-            # claim immediately, but the explicit state says no field has yet
-            # been corrected or made durable.
             self._write_provenance(self._completed_fields, 'prepared')
         self._record_stage('running')
 
@@ -1482,8 +1460,6 @@ class SegmentationIlluminationSession:
                 f"its illumination correction was applied.")
         completed = set(self._completed_fields)
         completed.add(field_id)
-        # Assign only after os.replace succeeds: the in-memory state must not
-        # claim durability that the filesystem refused to record.
         self._write_provenance(completed, 'running')
         self._completed_fields = completed
         self._application_state = 'running'
@@ -1594,13 +1570,9 @@ class SegmentationIlluminationSession:
                 },
             )
         except Exception:
-            # Provenance must not replace a scientific result or its error.
             return
 
 
-# ---------------------------------------------------------------------------
-# Enabling it -- including in worker processes
-# ---------------------------------------------------------------------------
 
 def _env_entries(value: str) -> list:
     """Split a ``SPACR_MEASURE_HOOKS`` value into its non-empty entries."""
@@ -1660,7 +1632,7 @@ def enable_illumination_correction(model, *, path: Optional[str] = None,
     """
     if isinstance(model, (str, os.PathLike)):
         model_path = os.path.abspath(str(model))
-        IlluminationModel.load(model_path)  # fail here, not in a worker
+        IlluminationModel.load(model_path)
     else:
         if path is None:
             sources = model.meta.get('src') or []
@@ -1677,11 +1649,6 @@ def enable_illumination_correction(model, *, path: Optional[str] = None,
         entries.append(INSTALLER_ENTRY)
     os.environ[HOOKS_ENV_VAR] = ','.join(entries)
 
-    # Consulting the registry runs the environment installers, which is how
-    # this process ends up with a hook tagged 'env' -- the same tag a worker
-    # gets, and the one measure_crop's start-method warning knows not to shout
-    # about. If the variable was already read in this process (it is read once)
-    # that does nothing, so fall back to installing directly.
     registered = [entry.name for entry in preprocessing_hooks()]
     if HOOK_NAME not in registered:
         install()
@@ -1756,9 +1723,6 @@ def worker_delivery_status(start_method: Optional[str] = None
                    f"{HOOKS_ENV_VAR} and {MODEL_ENV_VAR}.")
 
 
-# ---------------------------------------------------------------------------
-# QC: show that it worked
-# ---------------------------------------------------------------------------
 
 def position_intensity_slope(intensities: Sequence[float],
                              coordinates: np.ndarray,
@@ -1974,15 +1938,6 @@ def _write_qc_figure(plate, item, channels, panels, metrics, save_dir,
                   if stage else '')
     infix = f'{safe_stage}_' if safe_stage else ''
     path = os.path.join(save_dir, f'illumination_qc_{infix}{plate}.png')
-    # 108 point 6: through the one writer for the resolution rule and the
-    # repaint for paper -- but `fmt` STAYS PNG. This path is RETURNED and
-    # recorded in the QC metrics under a name ending `.png`, and a format
-    # preference that renamed it would rename a value other code reads back.
-    #
-    # THE PATTERN, since this is the fourth: routing a save through
-    # `save_figure` always gains the DPI and the paper repaint; the FORMAT
-    # follows the preference only where nothing depends on the filename. A
-    # figure whose name is part of a contract keeps its extension.
     from .plot import save_figure
 
     return save_figure(figure, path, fmt="png")
@@ -2011,9 +1966,6 @@ def _radial_profile(image: np.ndarray, factor: int,
     return np.asarray(centres), np.asarray(means)
 
 
-# ---------------------------------------------------------------------------
-# Settings-driven preparation and stage entry points
-# ---------------------------------------------------------------------------
 
 def prepare_illumination_model(
         settings: Mapping[str, Any], *, src=None,
@@ -2066,10 +2018,6 @@ def prepare_illumination_model(
             max_fields=int(settings.get('illumination_max_fields', 50)),
             dark=float(settings.get('illumination_dark', 0.0)),
             verbose=talk)
-        # Keep Measure's established failure boundary: QC runs against the
-        # in-memory estimate, and only a successful QC leaves a reusable model
-        # on disk. ``enable_illumination_correction`` used to perform this save
-        # after QC; the stage-neutral preparer preserves that ordering.
         model_path = os.path.join(folder, 'illumination_model.npz')
     qc_artifacts = ()
     if settings.get('illumination_qc', True):

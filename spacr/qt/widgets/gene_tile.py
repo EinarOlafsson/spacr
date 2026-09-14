@@ -83,8 +83,6 @@ class GeneTilePanel(QWidget):
         self._view = QTextBrowser()
         self._view.setOpenLinks(False)
         self._view.setOpenExternalLinks(False)
-        # A gene id must survive translation intact: TGGT1_239740 is not a
-        # phrase, and a catalog that "translated" it would be renaming a gene.
         self._view.setProperty("i18nSkipText", True)
         self._view.anchorClicked.connect(self._open)
         self._view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -98,7 +96,6 @@ class GeneTilePanel(QWidget):
 
         self.clear()
 
-    # ------------------------------------------------------------------ state
 
     @property
     def tile(self) -> Optional[GeneTile]:
@@ -122,7 +119,6 @@ class GeneTilePanel(QWidget):
         """Point the panel at where the current results frame lives."""
         self._frame_provider = provider
 
-    # ------------------------------------------------------------------ slots
 
     def show_feature(self, key: str) -> None:
         """Build and show the tile for one clicked feature.
@@ -140,10 +136,6 @@ class GeneTilePanel(QWidget):
             try:
                 frame = self._frame_provider()
             except Exception:
-                # A BROKEN HOST, NOT A BROKEN TILE. The provider belongs
-                # to whatever screen owns this panel; if it raises, the
-                # tile still draws from no frame rather than letting the
-                # host's failure out through a click on a plot point.
                 LOG.exception("gene tile: could not reach the results frame")
         try:
             tile = gene_tile(key, frame)
@@ -205,7 +197,6 @@ class GeneTilePanel(QWidget):
         """Follow an external reference — on the click, never on the render."""
         QDesktopServices.openUrl(url)
 
-    # ------------------------------------------------------------------ grid
 
     def to_pixmap(self, width: int = TILE_WIDTH) -> QPixmap:
         """The current tile as a ``QPixmap``, for the figure grid.

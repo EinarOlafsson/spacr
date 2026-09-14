@@ -131,21 +131,49 @@ class TestOrderingTheGroupingColumn:
 
         The guards are still right: casting a column that is not there
         is a KeyError raised mid-draw. The pin is on the two facts that
-        keep them shut.
+        keep them shut, and each is driven rather than read.
         """
         source = inspect.getsource(P.spacrGraph)
+
+        # FACT ONE: the constructor derives the default order from the
+        # grouping column, so a frame without it never reaches a graph.
         assert "self.order = order or sorted(df[self.grouping_column]" in source
-        assert "group_cols, observed=False)[self.data_column].agg(" in source
-        assert ".reset_index()" in source
-
-        ordering = source[source.index("# 4) Handle ordering"):]
-        ordering = ordering[:ordering.index("return df")]
-        assert "elif self.grouping_column in df.columns:" not in ordering
-        assert "\n        else:\n" in ordering
-
         with pytest.raises(KeyError):
             P.spacrGraph(_frame().drop(columns=["grp"]), "grp", "val",
                          graph_type="bar")
+
+        # FACT TWO: the aggregation groups BY the grouping column and
+        # resets the index, which puts it back as a column -- so the
+        # guard is true on the far side of the aggregation too.
+        frame = _frame()
+        frame["prc"] = [f"p1_r1_c{i % 4}" for i in range(len(frame))]
+        aggregated = P.spacrGraph(frame, "grp", "val", graph_type="bar",
+                                  representation="well")
+        assert "grp" in aggregated.df.columns, (
+            "the grouping column did not survive the aggregation, so the "
+            "ordering guard can now be false")
+        assert list(aggregated.df["grp"].cat.categories) == ["control",
+                                                             "treated"]
+
+        # BOTH ARMS RUN, and the second is unconditional: whatever the
+        # order argument was, the column comes back ordered Categorical.
+        given = P.spacrGraph(_frame(), "grp", "val", graph_type="bar",
+                             order=["treated", "control"])
+        assert list(given.df["grp"].cat.categories) == ["treated", "control"]
+        assert given.df["grp"].cat.ordered
+
+        default = P.spacrGraph(_frame(), "grp", "val", graph_type="bar")
+        assert list(default.df["grp"].cat.categories) == ["control",
+                                                          "treated"], (
+            "no order was passed, so the else arm has to have supplied the "
+            "sorted default -- it cannot have been skipped")
+        assert default.df["grp"].cat.ordered
+
+        ordering = source[source.index(
+            "if self.order and (self.grouping_column in df.columns):"):]
+        ordering = ordering[:ordering.index("return df")]
+        assert "elif self.grouping_column in df.columns:" not in ordering
+        assert "\n        else:\n" in ordering
 
 
 class TestWhereTheXPositionsComeFrom:
@@ -189,7 +217,10 @@ class TestWhereTheXPositionsComeFrom:
         above raises for anything it does not recognise, and every type
         it does recognise has a branch here. Compared as SETS, so a
         ninth graph type added to the drawing chain and not to this one
-        fails here rather than at annotation time.
+        fails here rather than at annotation time -- and then DRIVEN, by
+        drawing every one of them, because an UnboundLocalError raised
+        past the drawing is exactly what the set comparison is standing
+        in for.
         """
         import ast
         import re
@@ -204,12 +235,13 @@ class TestWhereTheXPositionsComeFrom:
                 found.update(value if isinstance(value, list) else [value])
             return found
 
-        positions = source[source.index("def _get_positions(self, ax):"):]
-        positions = positions[:positions.index("return x_positions")]
+        start = source.index("def _get_positions(self, ax):")
+        end = source.index("return x_positions")
+        positions = source[start:end]
 
-        drawing = source[source.index(
-            "# Handle the different plot types based on `graph_type`"):]
-        drawing = drawing[:drawing.index("Unknown graph type")]
+        # The drawing chain is everything between the end of
+        # _get_positions and its own refusal.
+        drawing = source[end:source.index("Unknown graph type")]
 
         drawn, placed = _types(drawing), _types(positions)
 
@@ -219,7 +251,28 @@ class TestWhereTheXPositionsComeFrom:
         assert drawn - placed == {"line", "line_std"}, (
             "the final else in _get_positions is reserved for the two line "
             f"types, but instead covers {sorted(drawn - placed)}")
-        assert "the only remaining pair is line/line_std" in positions
+
+        # EVERY TYPE THE DRAWING CHAIN DRAWS gets all the way past the
+        # position read. The two line types take the final else, which
+        # has to bind x_positions rather than fall off the chain: a type
+        # that bound nothing would raise UnboundLocalError here, after a
+        # correct plot had already been drawn.
+        for graph_type in sorted(drawn):
+            columns = (["t", "val"] if graph_type in ("line", "line_std")
+                       else "val")
+            frame = _frame()
+            frame["t"] = [float(i % 6) for i in range(len(frame))]
+            graph = P.spacrGraph(frame, "grp", columns,
+                                 graph_type=graph_type)
+            try:
+                graph.create_plot()
+            except UnboundLocalError as unbound:      # pragma: no cover
+                raise AssertionError(
+                    f"{graph_type} drew, then read positions that were "
+                    f"never assigned: {unbound}") from unbound
+            assert graph.get_figure() is not None, (
+                f"{graph_type} did not reach the end of create_plot")
+            plt.close("all")
 
 
 class TestTrimmingOutliersFromTheDrawing:

@@ -158,9 +158,6 @@ def values_in(frame: Any, column: str,
     return tuple(values)
 
 
-# ---------------------------------------------------------------------------
-# Reading the setting
-# ---------------------------------------------------------------------------
 
 def class_rules(settings: Mapping[str, Any]) -> Tuple[ClassRule, ...]:
     """The classes a settings dict defines, in the order they were given.
@@ -179,18 +176,6 @@ def class_rules(settings: Mapping[str, Any]) -> Tuple[ClassRule, ...]:
         return ()
 
     if not isinstance(raw, Mapping):
-        # A plain list of names is the OLD shape. It says nothing about which
-        # objects belong to which class, so it cannot be turned into rules
-        # here -- `normalize_settings` translates it, using the other retired
-        # keys, before anything asks.
-        #
-        # It does NOT always translate it, and that is why this message says
-        # more than "run normalize_settings first". With no basis to derive
-        # rules from, normalize_settings deliberately leaves the names alone
-        # rather than guessing a column -- so the SHIPPED defaults
-        # (classes=['nc','pc'], nothing bound to a column) arrive here
-        # having already been normalized, and the old message sent the user
-        # to do the one thing they had just done.
         names = ", ".join(repr(str(n)) for n in raw)
         raise ClassDefinitionError(
             f"{CLASSES} names {len(raw)} class(es) ({names}) but nothing "
@@ -235,10 +220,6 @@ def class_names(settings: Mapping[str, Any]) -> List[str]:
     """
     raw = settings.get(CLASSES)
     if isinstance(raw, (list, tuple)):
-        # The old shape, either untranslated or left alone because nothing
-        # said what its names select. Reading the names off it is always
-        # right; `class_rules` refuses it because it cannot make RULES from
-        # names, which is a different question.
         return [str(n) for n in raw]
     return [r.name for r in class_rules(settings)]
 
@@ -265,26 +246,8 @@ def folder_names(settings: Mapping[str, Any]) -> List[str]:
     """
     legacy = settings.get(CLASSES)
     if isinstance(legacy, (list, tuple)):
-        # THE SHAPE OF `classes` SAYS WHICH FILE THIS IS. A list is the
-        # pre-split spelling, and in that file `classes` IS the folder list
-        # -- so it decides, including when it is empty, which is a caller
-        # saying "this run has no classes" and must keep aborting the run
-        # rather than picking up a default.
-        #
-        # It has to win over `class_folder_names` rather than lose to it,
-        # because the defaults factories inject that key into every settings
-        # dict they touch. Losing would mean every settings file ever
-        # written silently trained on ['nc','pc'] instead of its own
-        # classes, which is the opposite of what the split is for.
         return [str(n) for n in legacy]
 
-    # Current class definitions take precedence over the recorded output of a
-    # previous dataset-generation run.
-    #
-    # Only when classes are actually DEFINED. An empty definition means "this
-    # settings file says nothing about classes", and must not shadow a
-    # recorded folder list -- that would break every settings file written
-    # before the Classes editor existed.
     if isinstance(settings.get(CLASSES), Mapping) and settings.get(CLASSES):
         try:
             defined = class_names(settings)
@@ -299,8 +262,6 @@ def folder_names(settings: Mapping[str, Any]) -> List[str]:
     try:
         return class_names(settings)
     except ClassDefinitionError:
-        # A malformed definition is not a reason to refuse to name the
-        # folders; whoever needs the rules will raise on its own terms.
         return []
 
 
@@ -315,9 +276,6 @@ def _record_generated_folder_names(
     return recorded
 
 
-# ---------------------------------------------------------------------------
-# Translating what came before
-# ---------------------------------------------------------------------------
 
 def _rules_from_annotation(settings: Mapping[str, Any]) -> List[ClassRule]:
     """Rebuild rules from ``annotation_column`` + ``annotated_classes``."""
@@ -334,20 +292,11 @@ def _rules_from_annotation(settings: Mapping[str, Any]) -> List[ClassRule]:
     if not isinstance(values, (list, tuple)):
         values = [values]
 
-    # The names come from `folder_names`, which preserves a pre-split,
-    # list-shaped `classes` before consulting `class_folder_names`.
-    # Reading `classes` directly stopped working the moment it
-    # became the definitions dict: a settings file carrying the
-    # retired keys alongside the new default named its derived
-    # classes 'negative control' / 'positive control' instead of the
-    # names sitting right beside them.
     names = folder_names(settings)
 
     rules: List[ClassRule] = []
     for i, value in enumerate(values):
         name = str(names[i]) if i < len(names) else f"class_{value}"
-        # One column and several values is the common case; several columns
-        # pairs them off positionally, which is what the old readers did.
         column = columns[i] if i < len(columns) else columns[0]
         rules.append(ClassRule(name=name, column=column, value=value))
 
@@ -374,15 +323,8 @@ def _rules_from_metadata(settings: Mapping[str, Any]) -> List[ClassRule]:
         value = settings.get(key)
         if value in (None, ""):
             continue
-        # STRIP THE IDENTIFIER SUFFIX BEFORE SHOWING IT. These two settings
-        # were renamed to negative_control_id / positive_control_id, and this
-        # fallback is a DISPLAY name -- de-underscoring the key verbatim put
-        # "negative control id" on a user's class and on the folder written
-        # for it. The `_id` says what the setting holds, not what the class
-        # is called.
         name = (names[i] if i < len(names)
                 else key.removesuffix("_id").replace("_", " "))
-        # A control setting can name several wells.
         if isinstance(value, (list, tuple)):
             for item in value:
                 rules.append(ClassRule(name=name, column=column, value=item))
@@ -411,12 +353,6 @@ def normalize_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         if isinstance(raw, (list, tuple)) else None
     )
 
-    # `not raw` as well as `not isinstance(...)`: the default is now an EMPTY
-    # dict meaning "nothing defined yet", and an empty Mapping is still a
-    # Mapping -- so testing the type alone would skip the derivation for
-    # exactly the settings that need it most, and a plate with
-    # `class_metadata` set would train on no classes at all while reporting
-    # nothing. Empty means undefined, whichever shape it is empty in.
     if not isinstance(raw, Mapping) or not raw:
         from .training_basis import resolve_basis
 
@@ -424,18 +360,12 @@ def normalize_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         rules = (_rules_from_metadata(out) if basis == "metadata"
                  else _rules_from_annotation(out))
         if not rules and isinstance(raw, (list, tuple)) and raw:
-            # Names with nothing saying what they select. Left alone rather
-            # than invented: a guessed column would train on the wrong labels
-            # and report success.
             LOG.info("settings name %d class(es) but nothing says which "
                      "objects belong to them; leaving them as names", len(raw))
         elif rules:
             out[CLASSES] = {r.name: r.to_dict() for r in rules}
 
     if legacy_names is not None:
-        # Defaults inject class_folder_names=['nc', 'pc']; it is not evidence
-        # that a pre-split file chose those names. Carry the legacy list across
-        # the shape migration explicitly, including [] (which means stop).
         names = legacy_names
         out[CLASS_FOLDER_NAMES] = names
         out["class_names"] = names
@@ -444,15 +374,10 @@ def normalize_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         if CLASS_FOLDER_NAMES not in out and names:
             out[CLASS_FOLDER_NAMES] = names
         if names or isinstance(out.get(CLASS_FOLDER_NAMES), (list, tuple)):
-            # `class_names` is retained for older downstream readers, but is
-            # always synchronized with the one folder-name contract.
             out["class_names"] = names
     return out
 
 
-# ---------------------------------------------------------------------------
-# Applying it
-# ---------------------------------------------------------------------------
 
 def assign_classes(frame: Any, settings: Mapping[str, Any], *,
                    seed: Optional[int] = 0) -> Any:
@@ -477,11 +402,6 @@ def assign_classes(frame: Any, settings: Mapping[str, Any], *,
         raise ClassDefinitionError(
             "no classes are defined; set the column and name its values")
 
-    # IMPORTED HERE, NOT AT MODULE SCOPE. Everything else in this file is an
-    # annotation, and `from __future__ import annotations` makes those
-    # strings -- so a module-level import cost 0.30 s to load pandas for two
-    # lines that only run when classes are actually assigned. The Home page
-    # reaches this module through the class editor, so every launch paid it.
     import pandas as pd
 
     labels = pd.Series(pd.NA, index=frame.index, dtype="object")
@@ -495,9 +415,6 @@ def assign_classes(frame: Any, settings: Mapping[str, Any], *,
                 f"class {rule.name!r} is defined on column {rule.column!r}, "
                 f"which this table does not have")
         hit = frame[rule.column] == rule.value
-        # First rule wins. Two rules matching the same object is a definition
-        # the user has to fix, but silently relabelling is worse than keeping
-        # the order they wrote.
         take = hit & ~claimed
         labels[take] = rule.name
         claimed |= hit
@@ -519,9 +436,6 @@ def assign_classes(frame: Any, settings: Mapping[str, Any], *,
     return labels
 
 
-# ---------------------------------------------------------------------------
-# Compatibility values derived from class definitions
-# ---------------------------------------------------------------------------
 
 def annotation_column_of(settings) -> str:
     """Return the annotation column represented by class settings.

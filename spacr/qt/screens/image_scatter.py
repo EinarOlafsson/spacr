@@ -83,9 +83,6 @@ HOVER_DELAY_MS = 70
 POINT_RADIUS = 2.5
 
 
-# ---------------------------------------------------------------------------
-# Loading — off the GUI thread, and with no widget in sight
-# ---------------------------------------------------------------------------
 
 def load_scatter_frame(db_path: str, table: str,
                        *, limit: int = 200_000) -> pd.DataFrame:
@@ -110,10 +107,6 @@ def load_scatter_frame(db_path: str, table: str,
             f'SELECT * FROM "{str(table)}" LIMIT {int(limit)}', connection)
     finally:
         connection.close()
-    # The frame does not know what it is; this function does. Without the
-    # stamp a point in the nucleus table and a point in the pathogen table
-    # publish the same key when they share a label, and clicking one opens
-    # whichever crop the table happened to list first.
     return with_object_type(frame, table)
 
 
@@ -137,9 +130,6 @@ def numeric_columns(frame: pd.DataFrame) -> List[str]:
             if pd.api.types.is_numeric_dtype(frame[c])]
 
 
-# ---------------------------------------------------------------------------
-# The canvas
-# ---------------------------------------------------------------------------
 
 #: The object name the canvas is styled by, and what the QSS block below
 #: keys off. Named as a constant so a test can ask for it rather than
@@ -169,8 +159,6 @@ QFrame#{CANVAS_OBJECT} {{
 """
 
 
-# `replace=True`: reachable through the screens package and by direct
-# import, and a second import must refresh the block rather than raise.
 register_widget_qss("ImageScatter", _image_scatter_qss, replace=True)
 
 
@@ -209,7 +197,6 @@ class ScatterCanvas(QFrame):
         self._x_label = ""
         self._y_label = ""
 
-    # -- data ---------------------------------------------------------------
     def set_points(self, x: Sequence[float], y: Sequence[float], *,
                    x_label: str = "", y_label: str = "") -> int:
         """Plot ``x`` against ``y``. Returns how many points are plottable.
@@ -256,7 +243,6 @@ class ScatterCanvas(QFrame):
         """Return the number of plotted points."""
         return int(len(self._x))
 
-    # -- geometry -----------------------------------------------------------
     def _invalidate(self) -> None:
         """Drop the cached point cloud and the screen coordinates, then repaint.
 
@@ -283,12 +269,9 @@ class ScatterCanvas(QFrame):
         xs, ys = self._x[good], self._y[good]
         x0, x1 = float(np.min(xs)), float(np.max(xs))
         y0, y1 = float(np.min(ys)), float(np.max(ys))
-        # A constant column would divide by zero; centre it instead of
-        # collapsing every point onto the left edge.
         sx = width / (x1 - x0) if x1 > x0 else 0.0
         sy = height / (y1 - y0) if y1 > y0 else 0.0
         self._px[good] = (pad + (xs - x0) * sx if sx else pad + width / 2.0)
-        # Screen y grows downward; data y grows upward.
         self._py[good] = (pad + height - (ys - y0) * sy if sy
                           else pad + height / 2.0)
 
@@ -322,7 +305,6 @@ class ScatterCanvas(QFrame):
         self._invalidate()
         super().resizeEvent(event)
 
-    # -- painting -----------------------------------------------------------
     def paintEvent(self, event) -> None:
         """Draw the points and the hovered thumbnail.
 
@@ -364,12 +346,10 @@ class ScatterCanvas(QFrame):
                     int(Qt.AlignRight | Qt.AlignVCenter),
                     f"{self._x_label} ×  {self._y_label} ↑")
         except Exception:
-            # A paintEvent that raises takes the window with it.
             LOG.exception("Could not paint the image scatter")
         finally:
             painter.end()
 
-    # -- hit testing --------------------------------------------------------
     def _ensure_projection(self) -> None:
         """Make sure widget coordinates exist before anything reads them.
 
@@ -453,9 +433,6 @@ class ScatterCanvas(QFrame):
             self.point_clicked.emit(index)
 
 
-# ---------------------------------------------------------------------------
-# The screen
-# ---------------------------------------------------------------------------
 
 class ImageScatterScreen(LinkedView, QWidget):
     """A measurement scatter with the crop under the cursor beside it.
@@ -484,8 +461,6 @@ class ImageScatterScreen(LinkedView, QWidget):
         self._keys: List[str] = []
         self._paths: Dict[str, str] = {}
         self._thumbs = CropThumbnails()
-        # Debounce: the cursor crossing a cluster must not queue a decode per
-        # point it passed over. Only what it rests on is worth an image.
         self._hover_timer = QTimer(self)
         self._hover_timer.setSingleShot(True)
         self._hover_timer.setInterval(HOVER_DELAY_MS)
@@ -493,12 +468,9 @@ class ImageScatterScreen(LinkedView, QWidget):
         self._pending_hover = -1
         self._build()
         self.link_selection(LINK_SOURCE)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "image_scatter")
 
-    # -- construction -------------------------------------------------------
     def _build(self) -> None:
         """Lay out the source row, the axis pickers, the scatter and the crop preview."""
         outer = QVBoxLayout(self)
@@ -583,7 +555,6 @@ class ImageScatterScreen(LinkedView, QWidget):
         self.status.setWordWrap(True)
         outer.addWidget(self.status)
 
-    # -- source -------------------------------------------------------------
     def _choose_db(self) -> None:
         """Ask for a measurements database and open it."""
         path, _ = QFileDialog.getOpenFileName(
@@ -672,7 +643,6 @@ class ImageScatterScreen(LinkedView, QWidget):
         self.status.setText(message)
         self.status.setStyleSheet(f"color: {active_palette()['error']};")
 
-    # -- the frame ----------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *,
                   keys: Optional[Sequence[str]] = None,
                   paths: Optional[Dict[str, str]] = None,
@@ -696,8 +666,6 @@ class ImageScatterScreen(LinkedView, QWidget):
             self._keys = []
         self._paths = dict(paths or {})
         if not self._paths:
-            # A frame read straight from a crop table already carries the
-            # path; use it rather than going back to the database.
             for column in ("png_path", "sample", "path"):
                 if column in self._frame.columns and self._keys:
                     self._paths = {
@@ -747,7 +715,6 @@ class ImageScatterScreen(LinkedView, QWidget):
         """The crop path of point ``index``, or ``""``."""
         return self._paths.get(self.key_at(index), "")
 
-    # -- hover --------------------------------------------------------------
     def _on_hover(self, index: int) -> None:
         """Update the crop preview when the cursor enters or leaves a point.
 
@@ -805,7 +772,6 @@ class ImageScatterScreen(LinkedView, QWidget):
         self.caption.setText("")
         self._open_button.setEnabled(False)
 
-    # -- click --------------------------------------------------------------
     def _on_click(self, index: int) -> None:
         """A point was clicked: highlight it everywhere, and open its crop.
 
@@ -854,7 +820,6 @@ class ImageScatterScreen(LinkedView, QWidget):
         """
         return self.open_point(self.canvas.hovered)
 
-    # -- the shared selection ------------------------------------------------
     def on_linked_selection_changed(self, selection) -> None:
         """Ring the points another view selected."""
         self._apply_linked_selection(selection)
@@ -873,9 +838,6 @@ class ImageScatterScreen(LinkedView, QWidget):
         if selection.keys is None or not self._keys:
             self.canvas.set_selected([])
             return
-        # Matched by specificity rather than by equality: a view that states
-        # no object type still has to light up for one that does, and the
-        # other way round. See `spacr.selection.match_keys`.
         self.canvas.set_selected(
             list(match_keys(self._keys, selection.keys)))
 
@@ -902,9 +864,6 @@ class ImageScatterScreen(LinkedView, QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Registration
-# ---------------------------------------------------------------------------
 
 APP_NAME = "Image Scatter"
 APP_DESCRIPTION = "Hover a point to see the cell; click it to open the crop"
@@ -942,13 +901,3 @@ def make_image_scatter_screen(**_kwargs) -> ImageScatterScreen:
     return ImageScatterScreen()
 
 
-# NO REGISTRY ROW. The scatter is reached as a button on Image UMAP's
-# masthead -- :data:`spacr.qt.screens.image_umap.FOLDED_APPS` -- which builds
-# it through :func:`make_image_scatter_screen` and then points it at the
-# measurements database the UMAP screen is already reading. That seeding is
-# what makes the fold a superset of the tile: a standalone tile opened on an
-# empty path and made the user find the same file again.
-#
-# The strings above are kept because they are this module's public
-# description -- the fold button's name and sentence are asserted against
-# them, and the i18n catalogs carry the translations.

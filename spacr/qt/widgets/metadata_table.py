@@ -39,7 +39,6 @@ from PySide6.QtWidgets import (
 from ..ingest_preview import ROW_COLUMNS, _yokogawa_name, rows_to_mappings
 from .sortable_table import install_sorting, table_item
 
-# Columns the user may edit; "original" and "canonical" are read-only.
 _EDITABLE = {"plate", "well", "field", "channel", "time"}
 _INT_COLS = {"field", "channel", "time"}
 _HEADERS = ["Source", "Plate", "Well", "Field", "Channel", "Time", "Filename"]
@@ -83,13 +82,10 @@ class MetadataTablePanel(QWidget):
         lay.addWidget(self._summary)
         lay.addWidget(self._table)
 
-        self._guard = False  # re-entrancy guard while we rewrite cells
+        self._guard = False
         self._table.itemChanged.connect(self._on_item_changed)
         self.set_rows(rows or [])
 
-    # ------------------------------------------------------------------
-    # Population
-    # ------------------------------------------------------------------
     def set_rows(self, rows: List[Dict[str, Any]]) -> None:
         """Replace the table contents with ``rows``."""
         self._guard = True
@@ -124,9 +120,6 @@ class MetadataTablePanel(QWidget):
                 item.setTextAlignment(Qt.AlignCenter)
             self._table.setItem(row, col, item)
 
-    # ------------------------------------------------------------------
-    # Editing
-    # ------------------------------------------------------------------
     def _on_item_changed(self, item: QTableWidgetItem) -> None:
         """Coerce an edited cell and rebuild the filename it feeds.
 
@@ -144,7 +137,6 @@ class MetadataTablePanel(QWidget):
             return
         self._guard = True
         try:
-            # Coerce integer columns; revert bad input to 1.
             if key in _INT_COLS:
                 try:
                     n = max(1, int(float(item.text())))
@@ -162,7 +154,6 @@ class MetadataTablePanel(QWidget):
                          or table_item("")).text()
         plate = get("plate") or "plate1"
         well = get("well") or f"{plate}_A01"
-        # Keep the plate prefix on the well token, matching convert_to_yokogawa.
         if not well.startswith(plate + "_") and "_" not in well:
             well = f"{plate}_{well}"
         try:
@@ -176,9 +167,6 @@ class MetadataTablePanel(QWidget):
         if cell is not None:
             cell.setText(name)
 
-    # ------------------------------------------------------------------
-    # Read-back
-    # ------------------------------------------------------------------
     def rows(self) -> List[Dict[str, Any]]:
         """Return the current (possibly edited) rows as dicts."""
         out: List[Dict[str, Any]] = []

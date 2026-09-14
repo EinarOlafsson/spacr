@@ -202,9 +202,6 @@ DEFAULT_MIN_CELLS_PER_WELL = 25
 _EQUIDISPERSION_RTOL = 1e-9
 
 
-# ---------------------------------------------------------------------------
-# Errors and warnings
-# ---------------------------------------------------------------------------
 
 class PowerSimulationError(SpacrError):
     """Base class for every error this simulator raises deliberately.
@@ -265,9 +262,6 @@ class AbundanceClippedWarning(UserWarning):
     """
 
 
-# ---------------------------------------------------------------------------
-# Random number plumbing
-# ---------------------------------------------------------------------------
 
 def resolve_rng(
     rng: Optional[np.random.Generator] = None,
@@ -338,9 +332,6 @@ def _spawn(rng: np.random.Generator, count: int) -> list:
     return [np.random.default_rng(child) for child in parent_seq.spawn(count)]
 
 
-# ---------------------------------------------------------------------------
-# Distribution reparameterisations (mean/variance instead of shape/rate)
-# ---------------------------------------------------------------------------
 
 def _check_positive(name: str, value: float) -> float:
     """Return ``value`` as a float after asserting it is finite and positive.
@@ -529,8 +520,6 @@ def rbeta_mean_variance(
 
     max_var = mean * (1.0 - mean)
     if var == 0.0:
-        # Degenerate limit: a point mass at the mean. Kept out of the beta call
-        # because the shape parameters diverge.
         return np.full(n, mean, dtype=float)
     if var >= max_var:
         raise ImpossibleMomentsError(
@@ -613,14 +602,11 @@ def rdirichlet_stable(
             f'min={np.nanmin(alpha_array)!r}'
         )
 
-    # Boosted gammas: log G(a) = log G(a + 1) + log(U) / a.
     boosted = generator.gamma(shape=alpha_array + 1.0)
     uniforms = generator.random(alpha_array.shape)
     log_weights = np.log(boosted) + np.log(uniforms) / alpha_array
     log_weights -= logsumexp(log_weights)
     weights = np.exp(log_weights)
-    # exp() of the normalised logs sums to 1 only to within rounding; divide
-    # again so callers can assert `sum == 1` rather than `isclose`.
     return weights / weights.sum()
 
 
@@ -698,22 +684,11 @@ def sample_count_mean_variance(
     if var > mean:
         return rnbinom_mean_variance(n, mean=mean, var=var, rng=generator)
 
-    # Under-dispersed: binomial. n_trials = mean^2 / (mean - var) is generally
-    # not an integer. Round it, then recover p from the rounded n as `mean/n`
-    # rather than using the closed form `(mean - var)/mean`: that keeps the mean
-    # exact and pushes the whole rounding error into the variance. With the naive
-    # p the mean is short by up to half a count in *every* well, which a sweep
-    # over the variance turns into a drifting baseline that looks like signal.
     n_trials = int(round(mean ** 2 / (mean - var)))
-    # p <= 1 requires n_trials >= mean; the closed form satisfies that for any
-    # var >= 0, but rounding down can just cross it when var is tiny.
     n_trials = max(n_trials, int(np.ceil(mean)), 1)
     return generator.binomial(n=n_trials, p=mean / n_trials, size=n)
 
 
-# ---------------------------------------------------------------------------
-# Stage 1 — the library
-# ---------------------------------------------------------------------------
 
 def simulate_library(
     n_genes_in_library: int,
@@ -790,9 +765,6 @@ def simulate_library(
     })
 
 
-# ---------------------------------------------------------------------------
-# Stage 2 — the spot plate
-# ---------------------------------------------------------------------------
 
 def simulate_spot_plate(
     gene_library: pd.DataFrame,
@@ -887,7 +859,6 @@ def simulate_spot_plate(
         rng=generator,
     )
 
-    # expand_grid(gene, well): gene-major, well varying fastest.
     gene_index = np.repeat(np.arange(n_genes), n_wells_per_screen)
     well_index = np.tile(np.arange(n_wells_per_screen), n_genes)
 
@@ -929,9 +900,6 @@ def simulate_spot_plate(
     return frame
 
 
-# ---------------------------------------------------------------------------
-# Plate-frame plumbing shared by stages 3 and 4
-# ---------------------------------------------------------------------------
 
 def _require_columns(frame: pd.DataFrame, columns, label: str) -> None:
     """Raise :class:`MalformedPlateError` unless ``frame`` has every named column.
@@ -1048,9 +1016,6 @@ def _multinomial_pvals(weights: np.ndarray) -> np.ndarray:
     return pvals
 
 
-# ---------------------------------------------------------------------------
-# Stage 3 — the imaging plate
-# ---------------------------------------------------------------------------
 
 def simulate_imaging_plate(
     spot_plate: pd.DataFrame,
@@ -1163,8 +1128,6 @@ def simulate_imaging_plate(
     else:
         weight_source = np.ones(shape, dtype=float)
 
-    # One well total per well, drawn before the split so that the number of
-    # imaged cells does not depend on how many genes happened to land there.
     well_totals = sample_count_mean_variance(
         wells.size,
         mean=imaging_n_cells_per_well_mu,
@@ -1177,8 +1140,6 @@ def simulate_imaging_plate(
         weights = in_well[:, well_column] * weight_source[:, well_column]
         total = int(well_totals[well_column])
         if total == 0 or weights.sum() <= 0.0:
-            # R has this branch too: a well with no genes spotted into it still
-            # exists, it just has nothing to attribute its cells to.
             continue
         counts[:, well_column] = generator.multinomial(
             total, _multinomial_pvals(weights)
@@ -1187,10 +1148,6 @@ def simulate_imaging_plate(
     realised_well_totals = counts.sum(axis=0)
 
     n_rows = genes.size * wells.size
-    # Both classifier probabilities are drawn for every row and then selected
-    # between, exactly as R's `ifelse(hit, rbeta(...), rbeta(...))` does: the
-    # per-row draw is what makes the classifier's operating point vary between
-    # observations rather than being one number for the whole screen.
     prob_pos = rbeta_mean_variance(
         n_rows, mean=class_pos_mu, var=class_pos_var, rng=generator
     ).reshape(shape)
@@ -1203,11 +1160,6 @@ def simulate_imaging_plate(
 
     frame = _expand_grid_frame(genes, wells)
     frame['imaging_n_cells_per_well_mu'] = imaging_n_cells_per_well_mu
-    # Echo the variance the count model actually used, not the literal argument:
-    # `None` means Poisson, and a Poisson's variance is its mean. Writing NaN
-    # here instead would put a NaN column into the frame the model half consumes,
-    # where "this parameter was left at its default" is indistinguishable from
-    # "this number failed to compute".
     frame['imaging_n_cells_per_well_var'] = (
         imaging_n_cells_per_well_mu if imaging_n_cells_per_well_var is None
         else float(imaging_n_cells_per_well_var)
@@ -1224,9 +1176,6 @@ def simulate_imaging_plate(
     return frame
 
 
-# ---------------------------------------------------------------------------
-# Stage 4a — sequencing error
-# ---------------------------------------------------------------------------
 
 def misassign_reads(
     reads: np.ndarray,
@@ -1429,9 +1378,6 @@ def drop_low_cell_wells(
     return frame
 
 
-# ---------------------------------------------------------------------------
-# Stage 4 — the sequencing plate
-# ---------------------------------------------------------------------------
 
 def simulate_sequencing_plate(
     spot_plate: pd.DataFrame,
@@ -1579,9 +1525,6 @@ def simulate_sequencing_plate(
         mean=pcr_factor_mu, sigma=np.sqrt(pcr_factor_var), size=wells.size
     )
 
-    # Per-well sequencing depth. cv == 0 pins every well to the target exactly,
-    # which is what makes a "no depth variation" baseline reproducible against
-    # an arbitrary generator state.
     if read_depth_cv == 0.0 or n_reads_per_well == 0.0:
         well_depth = np.full(wells.size, n_reads_per_well, dtype=float)
     else:
@@ -1611,9 +1554,6 @@ def simulate_sequencing_plate(
                 f'sequencing_n_cells_per_well_lambda='
                 f'{sequencing_n_cells_per_well_lambda!r}.'
             )
-        # min() against the urn, not against round(sum(cells) * pcr): the two
-        # differ because the urn is rounded element-wise, and asking for more
-        # balls than the urn holds is a hard numpy error.
         draw = int(min(urn, well_depth[well_column]))
         if draw <= 0:
             continue
@@ -1621,8 +1561,6 @@ def simulate_sequencing_plate(
 
     frame = _expand_grid_frame(genes, wells)
     frame['sequencing_n_cells_per_well_lambda'] = sequencing_n_cells_per_well_lambda
-    # As in the imaging stage: echo the variance the count model used, so the
-    # column is never NaN. `None` means Poisson, whose variance is its mean.
     frame['sequencing_n_cells_per_well_var'] = (
         sequencing_n_cells_per_well_lambda
         if sequencing_n_cells_per_well_var is None
@@ -1641,9 +1579,6 @@ def simulate_sequencing_plate(
     return frame
 
 
-# ---------------------------------------------------------------------------
-# Orchestrator
-# ---------------------------------------------------------------------------
 
 def simulate_screen(
     n_genes_in_library: int,
@@ -1773,19 +1708,11 @@ def simulate_screen(
         rng=sequencing_rng,
     )
 
-    # validate='1:1' rather than a positional concat: dplyr::do() returns groups
-    # in sorted key order, not input order, so any positional assumption carried
-    # over from the R code would misalign genes without changing a single
-    # summary statistic.
     screen = spot_plate.merge(
         imaging_plate, on=['well', 'gene'], how='left', validate='1:1'
     ).merge(
         sequencing_plate, on=['well', 'gene'], how='left', validate='1:1'
     )
     screen.attrs['n_prob_clipped'] = spot_plate.attrs.get('n_prob_clipped', 0)
-    # Last, and after the join, because it is a decision about *wells* taken
-    # on the realised imaged cell total -- which is only known once the
-    # imaging plate exists, and which the sequencing plate knows nothing
-    # about. A well removed here takes its sequencing rows with it.
     screen = drop_low_cell_wells(screen, min_cells_per_well)
     return screen

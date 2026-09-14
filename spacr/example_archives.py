@@ -55,8 +55,6 @@ __all__ = [
 ]
 
 
-# Match the classic Tk GUI's demo endpoints so users see the same
-# dataset here they'd have seen in the Tk build.
 DATASET_REPO  = "einarolafsson/toxo_mito"
 DATASET_SUB   = "plate1"
 SETTINGS_REPO = "einarolafsson/spacr_settings"
@@ -253,11 +251,6 @@ def explain_download_failure(exc: BaseException) -> str:
             "Install it with:  pip install huggingface_hub\n\n"
             + offline_hint)
 
-    # The truncation check comes first: `IOError` IS `OSError`, and the
-    # builtin ConnectionError below is an OSError subclass, so ordering these
-    # the other way round would let a half-finished transfer be reported as
-    # "check your internet connection" — true but useless, because the
-    # connection was fine right up to the point it was not.
     if isinstance(exc, OSError) and "Truncated download" in str(exc):
         return (
             f"{exc}\n\n"
@@ -265,13 +258,6 @@ def explain_download_failure(exc: BaseException) -> str:
             "kept, so re-running the demo starts the file again.\n\n"
             + offline_hint)
 
-    # requests is an install-time dependency of huggingface_hub, but the
-    # import is kept local so a broken environment reports the missing
-    # package above rather than dying here. The builtins are in the tuple
-    # too: `requests.exceptions.ConnectionError` descends from OSError, not
-    # from the builtin ConnectionError, and a DNS failure raised by anything
-    # other than requests (urllib, socket, huggingface_hub's own client)
-    # arrives as one of these instead.
     network_errors: tuple = (ConnectionError, TimeoutError, socket.gaierror)
     try:
         import requests
@@ -427,8 +413,6 @@ def extract_example_archive(archive, dest) -> int:
         if hasattr(tarfile, "data_filter"):
             tar.extractall(str(dest), filter="data")
         else:
-            # No filter available: refuse anything that leaves the tree rather
-            # than trusting the archive.
             for member in members:
                 name = member.name
                 if name.startswith("/") or ".." in name.split("/"):
@@ -475,14 +459,10 @@ def expand_measure_arrays(merged: Path) -> None:
             continue
         try:
             with np.load(archive) as bundle:
-                # Written by the publisher under `image`; the first key is
-                # the fallback so a hand-made archive still loads.
                 key = "image" if "image" in bundle else bundle.files[0]
                 np.save(target, bundle[key])
             archive.unlink(missing_ok=True)
         except Exception:                                # noqa: BLE001
-            # One bad archive must not cost the other fifteen. It is left
-            # on disk, so what failed is visible rather than merely absent.
             LOG.warning("could not unpack %s", archive, exc_info=True)
 
 
@@ -511,22 +491,11 @@ def make_the_example_paths_absolute(root) -> int:
     prefix = str(root).rstrip("/") + "/"
     rewritten = 0
 
-    # WHEREVER THE DATABASE IS. spaCR keeps it at `measurements/measurements.db`
-    # inside a plate; the published archive used to carry it at the top. Both
-    # are checked so an already-unpacked older copy is still repaired.
     for database in (root / "measurements" / "measurements.db",
                      root / "measurements.db"):
         if database.is_file():
             break
     if database.is_file():
-        # THE HOUSE CONNECT, for its busy timeout. This ran without one for as
-        # long as it lived in `spacr/qt/hf_download.py`, where the
-        # concurrency audit does not look. Moving it here put it in scope and
-        # the audit caught it immediately: an untimed connection raises
-        # "database is locked" the instant a Measure writer holds the file,
-        # rather than waiting for it -- and this runs right after an example
-        # unpacks, which is exactly when something else may be opening the
-        # same database.
         connection = connect(database)
         try:
             tables = [r[0] for r in connection.execute(
@@ -536,9 +505,6 @@ def make_the_example_paths_absolute(root) -> int:
                     f'PRAGMA table_info("{table}")')]
                 for column in columns:
                     try:
-                        # Only the values that look like OUR relative paths.
-                        # A column holding prose is untouched, and one already
-                        # absolute is skipped by the same test.
                         cursor = connection.execute(
                             f'update "{table}" set "{column}" = ? || "{column}" '
                             f'where cast("{column}" as text) like \'data/%\' '
@@ -546,9 +512,6 @@ def make_the_example_paths_absolute(root) -> int:
                             (prefix,))
                         rewritten += cursor.rowcount or 0
                     except sqlite3.Error:
-                        # A column that cannot be updated -- a generated one,
-                        # or a type that will not concatenate -- is not a
-                        # reason to abandon the other forty.
                         continue
             connection.commit()
         finally:

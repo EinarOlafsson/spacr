@@ -86,37 +86,18 @@ class Problem:
         return f"{head}\n    fix: {self.fix}"
 
 
-# ---------------------------------------------------------------------------
-# app registry
-# ---------------------------------------------------------------------------
 
-# The names are the ``settings_type`` strings dispatched by
-# spacr.gui_utils.run_function_gui, so a caller can pass the same key the GUI
-# uses. Values are the function that would run.
-#
-# Every app in spacr.qt.app.APPS that is not GUI-only belongs here, and
-# tests/test_app_registry_parity.py fails when one does not. Four were missing
-# until that test existed: `timelapse`, `motility` and `activation` had a Qt
-# button and (for two of them) a CLI module but no entry here, so
-# validate_settings(settings, 'timelapse') answered "unknown app" and ran the
-# generic checks only; `invasion` had no entry in any registry outside the Qt
-# bridge, so `spacr-run invasion` did not exist either.
 APP_FUNCTIONS: Dict[str, str] = {
     "mask": "spacr.core.preprocess_generate_masks",
     "timelapse": "spacr.core.preprocess_generate_masks_timelapse",
     "motility": "spacr.timelapse.automated_motility_assay",
     "measure": "spacr.measure.measure_crop",
     "classify": "spacr.deep_spacr.deep_spacr",
-    # One entry point over both classifier families. It calls deep_spacr or
-    # generate_ml_scores unchanged, so this validates the same settings the
-    # two original modules validate.
     "classify_merged": "spacr.classify.classify",
     "activation": "spacr.deep_spacr.generate_activation_map",
     "foreign": "spacr.foreign.import_project",
     "external_masks": "spacr.external_masks.prepare_external_masks",
     "align": "spacr.align.align_folder",
-    # OPS folds onto Align & Stitch: it is stitching too, over a plate
-    # acquired in sequencing cycles.
     "ops": "spacr.spacrops.ops_preprocess",
     "umap": "spacr.core.generate_image_umap",
     "train_cellpose": "spacr.submodules.train_cellpose",
@@ -135,15 +116,9 @@ APP_FUNCTIONS: Dict[str, str] = {
     "simulation": "spacr.sim.run_multiple_simulations",
     "illumination": "spacr.illumination.prepare_illumination_correction",
     "barcode_qc": "spacr.sequencing_qc.barcode_qc",
-    # Reads a finished measurements.db and writes one file. It has no rules
-    # of its own in _check_app_specific yet, but being named here is what
-    # stops pre-flight answering "unknown app 'anndata_export'; only the
-    # generic checks were run" -- and for an exporter the generic checks
-    # (src exists, holds a project, types are right) are the ones that matter.
     "anndata_export": "spacr.anndata_export.run_anndata_export",
 }
 
-# Friendly spellings a caller (or a notebook) might reasonably use.
 APP_ALIASES: Dict[str, str] = {
     "sequencing": "map_barcodes",
     "barcodes": "map_barcodes",
@@ -157,10 +132,6 @@ APP_ALIASES: Dict[str, str] = {
     "embedding": "umap",
     "analyze_replication": "replication",
     "analyze_endodyogeny": "endodyogeny",
-    # Cellpose 4 ships one model, so "benchmark every model" had a single
-    # entrant and was cellpose_masks under another name. Aliased rather than
-    # dropped so pre-flight still recognises the old key instead of reporting
-    # it as an unknown app and running only the generic checks.
     "cellpose_all": "cellpose_masks",
 }
 
@@ -175,34 +146,16 @@ try:
                 _alias.strip().lower().replace("-", "_"), _plugin_app.key
             )
 except Exception:
-    # Plugin discovery records its own diagnostics; built-in validation remains
-    # useful even when third-party metadata cannot be loaded.
     pass
 
-# Apps whose ``src`` is a plate folder that must already contain
-# measurements/measurements.db — see spacr.ml.perform_regression
-# (``src + '/measurements/measurements.db'``), spacr.submodules
-# .analyze_recruitment and spacr.io._read_and_join_tables. The two Toxo assays
-# open it the same way: analyze_invasion via spacr.io._read_db and
-# analyze_endodyogeny via spacr.io._read_and_merge_data, both on
-# ``os.path.join(src, 'measurements/measurements.db')``.
 DB_APPS = frozenset({"umap", "ml_analyze", "regression", "recruitment",
                      "activation", "classify", "classify_merged",
                      "invasion", "replication", "endodyogeny"})
 
-# Apps that read the merged/*.npy stacks produced by the mask pipeline.
 MERGED_APPS = frozenset({"measure"})
 
-# Apps whose segmentation-channel rules are the mask pipeline's, because they
-# run the mask pipeline: preprocess_generate_masks_timelapse is
-# preprocess_generate_masks with tracking, and prints and returns on the same
-# "at least one of cell_channel / nucleus_channel / ..." check.
 MASK_APPS = frozenset({"mask", "timelapse"})
 
-# Apps whose input folder is not called ``src``. spacr.foreign.import_project
-# takes ``images`` / ``masks`` / ``measurements`` — someone else's project —
-# and writes a spaCR one to ``dst``; there is no ``src`` to check, and
-# reporting "src is missing" for it was simply wrong.
 ALT_SRC_KEYS: Dict[str, str] = {
     "foreign": "images",
     "external_masks": "inputs",
@@ -219,10 +172,6 @@ OBJECT_NAMES = SEGMENTED_ROLES
 
 IMAGE_EXTENSIONS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
-# Mirrors spacr.utils._get_regex. Reproduced here (rather than imported)
-# because spacr.utils pulls in torch, which would defeat the point of a
-# one-second pre-flight check. The trailing extension group replaces the
-# ``.{img_format}`` suffix that _get_regex interpolates.
 _EXT_SUFFIX = r"\.(?:tif|tiff|png|jpg|jpeg|bmp)$"
 METADATA_REGEXES: Dict[str, str] = {
     "cellvoyager": (
@@ -248,9 +197,6 @@ def _normalize_app(app_key: Any) -> str:
     return APP_ALIASES.get(key, key)
 
 
-# ---------------------------------------------------------------------------
-# known-key universe (for typo detection)
-# ---------------------------------------------------------------------------
 
 _KNOWN_KEYS_CACHE: Optional[frozenset] = None
 
@@ -302,9 +248,6 @@ def _known_setting_keys() -> frozenset:
     return _KNOWN_KEYS_CACHE
 
 
-# ---------------------------------------------------------------------------
-# dataset inspection
-# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -323,12 +266,9 @@ class _Inventory:
     stack_dir: Optional[str] = None
     stack_files: int = 0
 
-    # last-axis length of one merged/ (or stack/) array: image channels plus
-    # any appended mask planes. This is what *_mask_dim indexes into.
     array_planes: Optional[int] = None
     array_source: str = ""
 
-    # number of raw acquisition channels. This is what *_channel indexes into.
     raw_channels: Optional[int] = None
     raw_channel_ids: Tuple[str, ...] = ()
     raw_evidence: str = ""
@@ -376,7 +316,7 @@ def _peek_planes(directory: str) -> Tuple[Optional[int], str, int]:
     npys = sorted(f for f in _listdir(directory) if f.endswith(".npy"))
     if not npys:
         return None, "", 0
-    import numpy as np  # local: keeps module import free of numpy's cost
+    import numpy as np
 
     for name in npys[:3]:
         try:
@@ -496,8 +436,6 @@ def _inventory(src: Any, settings: Dict[str, Any], app: str) -> _Inventory:
         planes, example, count = _peek_planes(inv.stack_dir)
         inv.stack_files = count
         if planes is not None:
-            # stack/ holds image channels only (masks are appended later, in
-            # merged/) — see spacr.io._load_and_concatenate_arrays.
             inv.raw_channels = planes
             inv.raw_channel_ids = tuple(str(i) for i in range(planes))
             inv.raw_evidence = f"stack/{example} has {planes} channel planes"
@@ -557,9 +495,6 @@ def _src_values(settings: Dict[str, Any], app: str = "") -> List[Any]:
     return [src]
 
 
-# ---------------------------------------------------------------------------
-# individual checks
-# ---------------------------------------------------------------------------
 
 
 def _check_regression_output_src(raw: Any) -> List[Problem]:
@@ -633,14 +568,10 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
         fix = (
             "Set src to the folder holding the images (or, for measure, "
             "the merged folder).")
-    # Regression's ``src`` is an output root, not an image or project source.
-    # Its dedicated check also handles the blank automatic value.
     if app == "regression":
         return _check_regression_output_src(settings.get(key))
 
     if key not in settings:
-        # spacr.core.preprocess_generate_masks raises ValueError('src is a
-        # required parameter').
         return [Problem(ERROR, key, f"{key} is missing from the settings.", fix)]
 
     raw = settings.get(key)
@@ -677,8 +608,6 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
             continue
 
         if app in MERGED_APPS:
-            # measure_crop lists settings['src'] for *.npy — an absent or
-            # empty merged/ means it silently processes zero files.
             if not inv.merged_exists:
                 problems.append(Problem(
                     ERROR, "src",
@@ -691,22 +620,6 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
                     "Re-run the Mask module: merged/ is written at the end of mask generation and is empty here."))
         elif app in MASK_APPS:
             if inv.raw_files == 0 and inv.stack_files == 0 and inv.merged_files == 0:
-                # A NESTED TREE IS AN IMPORT JOB, AND `consolidate` WAS THE
-                # WRONG ANSWER TO OFFER FIRST. Measured on the two layouts
-                # consolidate's own tooltip names (instruction 375):
-                # consolidate flattens by prefixing the folder names onto the
-                # filename, and `_get_regex('cellvoyager')` then matched NONE
-                # of what it produced -- `A01_img_F001C01.tif`,
-                # `DAPI_plate1_A01_F001.tif` -- so following this advice cost
-                # a second copy of the plate and still found nothing.
-                # `spacr.image_import` reads the folder segments as part of
-                # the name and placed all 12 files of the per-well tree with
-                # well, field and channel.
-                #
-                # consolidate is still named, second, because it is NOT
-                # retired: a per-well tree whose filenames already carry
-                # cellvoyager metadata is the one shape it parses and Import
-                # refuses rather than guesses at.
                 problems.append(Problem(
                     ERROR, "src",
                     f"no image files found in {inv.src} (looked for {', '.join(IMAGE_EXTENSIONS)}).",
@@ -770,7 +683,7 @@ def _check_channels(settings: Dict[str, Any], app: str, inventories: Sequence[_I
             continue
         index = _as_int(value)
         if index is None:
-            continue  # the type check reports this
+            continue
         if index < 0:
             problems.append(Problem(
                 ERROR, key, f"{key}={value} is negative.",
@@ -823,9 +736,6 @@ def _check_channels(settings: Dict[str, Any], app: str, inventories: Sequence[_I
                 f"{n_planes} planes ({plane_evidence}).",
                 f"Reduce channels to indices within 0-{n_planes - 1}."))
 
-    # Collisions. Two objects segmented from the same stain is unusual but
-    # occasionally deliberate, so it is a warning; two objects reading the
-    # same *mask* plane always produces duplicate labels, so it is an error.
     problems.extend(_collision_problems(settings, CHANNEL_KEYS, WARNING,
                                         "are both assigned channel",
                                         "Give each object its own acquisition channel, unless you really mean to segment both from the same stain."))
@@ -862,28 +772,13 @@ def _type_name(expected: Any) -> str:
     return getattr(expected, "__name__", str(expected))
 
 
-# Keys whose expected_types entry is narrower than the code that reads them.
-# Enforcing the literal declaration here would reject correct settings.
 _EXPECTED_TYPE_OVERRIDES: Dict[str, Any] = {
-    # The expected_types literal declares "src" twice; the second entry (str)
-    # shadows the first ((str, list)), but core.preprocess_generate_masks and
-    # measure.measure_crop both loop over a list of folders.
     "src": (str, list),
-    # Declared bool for the mask pipeline, but measure_crop *requires* a
-    # [lower, upper] percentile pair and refuses a bare True.
     "normalize": (bool, list),
-    # core.preprocess_generate_masks expands a bool into [save]*3 itself, so
-    # either form arrives legitimately.
     "save": (bool, list),
 }
 
 
-# ``expected_types`` is one flat registry shared by every pipeline, so a key
-# name two pipelines both use can only be declared once. ``masks`` is a bool
-# there — the mask pipeline's "save the masks" switch — while
-# spacr.foreign.import_project takes ``masks`` as the other lab's mask folder,
-# or a list of them. Judging a foreign import by the mask pipeline's meaning
-# turned a perfectly good settings file into a blocking pre-flight error.
 _APP_TYPE_OVERRIDES: Dict[str, Dict[str, Any]] = {
     "foreign": {"masks": (str, list)},
 }
@@ -930,12 +825,7 @@ def coerce_expected_types(settings: Dict[str, Any],
             key, _EXPECTED_TYPE_OVERRIDES.get(key, expected_types[key]))
         types = expected if isinstance(expected, tuple) else (expected,)
         if str in types:
-            # The key legitimately holds text -- a path, a regex, a model
-            # name. "30" is a name here, not a number.
             continue
-        # BOOL BEFORE INT, because bool is a subclass of int: checking int
-        # first would turn "True" into an error and, worse, "1" into 1 for a
-        # key that wanted True.
         if bool in types:
             lowered = text.lower()
             if lowered in ("true", "yes", "1"):
@@ -948,9 +838,6 @@ def coerce_expected_types(settings: Dict[str, Any],
         except ValueError:
             continue
         if int in types and float not in types:
-            # EXACT ONLY. '60.0' is 60; '60.5' is not an int, and silently
-            # truncating it would change the run without saying so -- so it
-            # is left for the validator to report.
             if number.is_integer():
                 out[key] = int(number)
         elif float in types:
@@ -976,9 +863,6 @@ def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
             key, _EXPECTED_TYPE_OVERRIDES.get(key, expected_types[key]))
         types = expected if isinstance(expected, tuple) else (expected,)
         if value is None:
-            # None means "skip this object / leave it unset" nearly everywhere
-            # in spaCR, and expected_types declares NoneType for only some of
-            # the keys that accept it, so flagging None would be pure noise.
             continue
         if isinstance(value, tuple) and list in types:
             continue
@@ -989,7 +873,7 @@ def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
                 f"Set {key} to a {_type_name(expected)} value."))
             continue
         if isinstance(value, int) and not isinstance(value, bool) and float in types and int not in types:
-            continue  # an int is an acceptable float
+            continue
         if not isinstance(value, types):
             hint = ""
             if isinstance(value, str):
@@ -1003,17 +887,6 @@ def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
     return problems
 
 
-# Keys owned by a pipeline whose defaults factory lives outside
-# spacr.settings, so `_known_setting_keys` — which is built from spacr.settings
-# alone — cannot see them. Spelled out rather than imported because this module
-# deliberately imports nothing heavier than spacr.settings, and
-# spacr.foreign pulls spacr.convert with it. The list is pinned against
-# spacr.foreign.default_settings by tests/test_app_registry_parity.py, so it
-# cannot drift silently.
-#
-# Without this, `spacr-run foreign` told the user to rename `measurements` to
-# `measurement` — a key from a different pipeline that import_project does not
-# read at all.
 _APP_EXTRA_KEYS: Dict[str, frozenset] = {
     "foreign": frozenset({
         "images", "masks", "measurements", "dst", "layout", "z_handling",
@@ -1052,67 +925,14 @@ _APP_EXTRA_KEYS: Dict[str, frozenset] = {
 #: A value is the replacement's name, a TUPLE of names when the setting
 #: was split in two, or an empty string when there is no replacement.
 RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
-    # ONE FILTER FOR THE PREVIEW AND THE RUN. organelle carried both a
-    # `_size` pair and an `_area` pair meaning the same thing, and they were
-    # read by DIFFERENT code: `_size` by the batch mask writer, `_area` by
-    # the shared filter the Qt live preview uses. So tuning the preview until
-    # it looked right and then pressing run applied a different filter, with
-    # nothing saying so. cell, nucleus and pathogen only ever had `_area`.
-    # ONE QUESTION, ONE ANSWER. The boolean sat beside
-    # `gradient_accumulation_steps`, and `steps = 1` already IS the off
-    # state, so the pair could disagree -- on with one step, off with eight.
-    # `settings._fold_gradient_accumulation` honours a stored `false` by
-    # collapsing the step count to 1, so a settings file in the wild keeps
-    # meaning what it meant instead of quietly starting to accumulate.
     "gradient_accumulation": "gradient_accumulation_steps",
-    # RENAMED, NOT REMOVED (364). "Expected end" reads as a coordinate and
-    # the value is a LENGTH -- the parameter's own docstring had to say
-    # "window *length*, not an end coordinate", which is a name explaining
-    # itself away. `settings._fold_renamed_settings` moves an old key onto
-    # the new one before any default is filled in, so a settings file in
-    # the wild keeps working and this entry tells its owner what happened.
     "expected_end": "window_length",
-    # "min_n" is the minimum of an unnamed n. The n is OBSERVATIONS behind
-    # a hit -- wells -- which the tooltip had to spell out twice over.
     "min_n": "min_observations_per_hit",
-    # "min_cell_count" counts cells and drops WELLS. The count is per well
-    # and the name does not say so, which is why the tooltip had to.
     "min_cell_count": "min_cells_per_well",
-    # RENAMED, NOT WITHDRAWN. The setting is an IDENTIFIER looked up in
-    # `location_column`, and it sat beside three settings naming WELLS
-    # (`positive_control_wells` and friends) with nothing in the name to
-    # tell them apart. `settings._fold_renamed_settings` copies an old
-    # file's value to the new name before any default is filled in, so a
-    # settings CSV written before this keeps behaving exactly as it did.
-    #
-    # The `generate_ml_scores` PARAMETERS of the same name are unchanged
-    # -- a public signature, already decoupled from the setting at four
-    # call sites that pass `pc=`/`nc=`.
     "positive_control": "positive_control_id",
     "negative_control": "negative_control_id",
-    # RENAMED. `controls` named non-targeting control gRNAs and shared its
-    # spelling with a figure panel key, a sweep payload field, a dependency
-    # token and a column constant -- none of which moved. See 364's
-    # classification for the site-by-site split.
     "controls": "nontargeting_control_grnas",
-    # SPLIT, not renamed (357-Q6). It meant the invasion assay's stain
-    # baseline AND the wells Regression and sequencing drop before fitting,
-    # with different defaults and no way to set one without setting the
-    # other. `settings._fold_renamed_settings` sends an old value to BOTH,
-    # so a file written before the split behaves exactly as it did.
     "control_wells": ("stain_baseline_wells", "analysis_excluded_wells"),
-    # THE EIGHT THE PACKAGE READ NOWHERE (357-Q4, answered 2026-09-09:
-    # retire all eight). Each had exactly one consumer in the generated
-    # map and in every case it was the setting's own defaults setter --
-    # nothing read the value back. No replacement, so the message says the
-    # value has no effect rather than sending the reader somewhere.
-    #
-    # TWO OF THEM DOCUMENTED A JOB THEY DID NOT DO, which is worse than a
-    # dead control and is the reason this list is worth reading:
-    # `mask_array` said it chose the labelled plane for the 'array' stream
-    # method, and `stream_dataset` takes that plane from `object_array` for
-    # both methods; `load_path_regex` said it selected already-exported
-    # crops, and nothing consults it. A user setting either got silence.
     "denoise": "",
     "load_path_regex": "",
     "mask_array": "",
@@ -1123,12 +943,6 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "visualize": "",
     "organelle_min_size": "organelle_min_area",
     "organelle_max_size": "organelle_max_area",
-    # POINTS AT THE LIVE NAME, NOT AT THE ONE IT WAS MERGED INTO. This was
-    # `min_cell_count` until 2026-09-09, when that key was itself renamed to
-    # `min_cells_per_well` -- so the entry named a setting that no longer
-    # exists and sent its reader to a second dead end. A chain of renames is
-    # worse than no message: the user follows it, finds nothing, and has no
-    # reason to think the trail continues.
     "minimum_cell_count": "min_cells_per_well",
     "redunction_method": "reduction_method",
     "barcode_coordinates": "",
@@ -1155,12 +969,6 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "infection_xgb_proba": "",
     "highlight": "",
     "guide_permutation_plot": "",
-    # Retired 2026-09-02 with the deprecated M1_correlation_<t> /
-    # M2_correlation_<t> columns it used to switch on. The correct
-    # coefficients it gated -- manders_m1, manders_m2 and
-    # manders_overlap_coefficient -- are now written unconditionally,
-    # so there is nothing left for it to choose and no replacement to
-    # name.
     "corrected_manders": "",
 }
 #: NOT HERE: a setting withdrawn from ONE panel while `spacr.settings` still
@@ -1183,20 +991,10 @@ def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
             continue
         replacement = RETIRED_SETTINGS.get(key)
         if replacement is None:
-            # NOT IN THE TABLE IS NOT THE SAME AS NOT RENAMED. A rename that
-            # belongs to a role FAMILY cannot be written out here -- 705 roles
-            # carry `_flow_threshold` -- so the literal table names at most the
-            # first spelling. It named `organelle_min_size` and said nothing
-            # about `organelleq_min_size`, which is the same setting in the
-            # slot beside it. The resolver knows the suffix rules, so ask it.
             from .settings import surviving_setting_name
 
             survivors = surviving_setting_name(key)
             if not survivors:
-                # WITHDRAWN FROM A WHOLE ROLE FAMILY, which the literal table
-                # cannot hold: 705 roles carry each of these, so naming the
-                # first spelling would leave every generated organelle slot
-                # silent -- the `organelleq_min_size` failure again.
                 from .object_roles import (split_role_setting,
                                    withdrawn_setting_reason)
 
@@ -1211,9 +1009,6 @@ def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
             replacement = (survivors[0] if len(survivors) == 1
                            else tuple(survivors))
         if isinstance(replacement, (tuple, list)):
-            # A SPLIT. One key that meant two things is now two keys, and
-            # both need naming: a message that offered only one of them
-            # would send half the readers to the wrong control.
             names = ", ".join(f"'{one}'" for one in replacement)
             problems.append(Problem(
                 WARNING, key,
@@ -1272,39 +1067,13 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
         if not isinstance(key, str) or key in known:
             continue
         if key in RETIRED_SETTINGS:
-            # Answered by name, and better, in _check_retired_keys.
             continue
-        # AND THE ROLE-FAMILY RENAMES THE LITERAL TABLE CANNOT HOLD. Without
-        # this, a legacy file gets TWO warnings for one key: the retirement
-        # message naming the real successor, and a fuzzy "did you mean"
-        # guessing at it. `difflib` matches `pathogen_Signal_to_noise` to
-        # `pathogen_signal_to_noise` at the 0.85 cutoff, so the pair differ
-        # only in confidence, and two messages about one key reads as two
-        # problems.
         from .object_roles import withdrawn_setting_reason
         from .settings import surviving_setting_name
 
         if surviving_setting_name(key) or withdrawn_setting_reason(key):
-            # ALREADY ANSWERED BY NAME in _check_retired_keys, and better. For
-            # the withdrawn ones the fuzzy matcher is not merely redundant but
-            # WRONG: it pointed `<role>_intensity_threshold_method`, which held
-            # 'mean', at `<role>_intensity_threshold`, which holds a float.
             continue
         close = difflib.get_close_matches(key, sorted(known), n=5, cutoff=0.85)
-        # NEVER SUGGEST A NAME FROM A DIFFERENT OBJECT ROLE, because role is
-        # exactly the axis a user cannot see they crossed. `difflib` scores on
-        # characters, and `cell_`/`nucleus_`/`pathogen_`/`organelle_` keys share
-        # every character after the prefix -- so a typo in one role's setting
-        # matches another role's at well over the 0.85 cutoff, and the message
-        # reads as helpful.
-        #
-        # IT IS WORSE THAN SILENCE WHEN IT IS WRONG. Before the organelle
-        # preprocessing settings were declared (364), a user who worked out
-        # `remove_background_organelle` was told "did you mean
-        # 'remove_background_cell'?" -- and following that changes a DIFFERENT
-        # CHANNEL's preprocessing, quietly, on a run that then looks fine. A
-        # wrong suggestion gets FOLLOWED; silence at least gets investigated.
-        # 391 suppressed one instance of this; this is the rule behind it.
         mine = _object_role_in(key)
         if mine is not None:
             close = [c for c in close if _object_role_in(c) in (None, mine)]
@@ -1335,9 +1104,6 @@ def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
             continue
         number = _numeric(value)
 
-        # Cellpose object diameters are divided into and squared by
-        # spacr.settings._get_object_settings (min = d**2/4), so zero or
-        # negative is meaningless.
         if number is not None and (key.endswith("_diameter") or key == "diameter"):
             if number <= 0:
                 problems.append(Problem(
@@ -1353,8 +1119,6 @@ def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
                     ERROR, key, f"{key}={value} must be at least 1.",
                     f"Set {key} to a positive whole number."))
 
-        # spacr.measure.measure_crop overrides n_jobs with cpu_count()-4, but
-        # every other pipeline passes it straight to a Pool / DataLoader.
         if number is not None and key == "n_jobs":
             if number < 1 and number != -1:
                 problems.append(Problem(
@@ -1367,14 +1131,12 @@ def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
                     ERROR, key, f"{key}={value} is not a percentile (0-100).",
                     f"Set {key} between 0 and 100."))
 
-        # cellprob_threshold is clamped to about -6..6 by Cellpose itself.
         if number is not None and (key.endswith("_cellprob_threshold") or key in ("CP_prob", "CP_probability")):
             if not -6 <= number <= 6:
                 problems.append(Problem(
                     WARNING, key, f"{key}={value} is outside Cellpose's usable -6 to 6 range.",
                     "Lower it toward -6 to grow masks and keep faint objects; raise it toward 6 to shrink them."))
 
-        # flow_threshold: 0 keeps only perfect masks, above ~3 keeps everything.
         if number is not None and (key.endswith("_flow_threshold") or key in ("FT", "flow_threshold")):
             if not 0 <= number <= 3:
                 problems.append(Problem(
@@ -1449,8 +1211,6 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                 ERROR, key, f"{key} points at a file that does not exist: {value}", fix))
 
     if app == "map_barcodes":
-        # spacr.sequencing.generate_barecode_mapping reads all three CSVs to
-        # translate the row/column/gRNA barcodes it pulls out of the reads.
         for key, label in (("grna_csv", "the gRNA barcodes"),
                            ("row_csv", "the row barcodes"),
                            ("column_csv", "the column barcodes")):
@@ -1459,9 +1219,6 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                 f"Point {key} at a CSV with 'name' and 'sequence' columns.")
 
     if app == "foreign":
-        # spacr.foreign.import_project raises ConfigurationError("import_project
-        # needs '<key>'") for each of these before it plans anything, so a
-        # pre-flight that stayed quiet about them would be worse than useless.
         for key, purpose in (("images", "the import reads their images"),
                              ("masks", "the import reads their mask folder(s)"),
                              ("measurements", "the import reads their measurement table")):
@@ -1475,8 +1232,6 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                     ERROR, key, f"{key} points at a path that does not exist: {value}",
                     "Check the path, and that the share holding it is mounted."))
         if not settings.get("column_map") and not settings.get("preview_only"):
-            # import_project says so in the printed plan; saying it before the
-            # write starts is the point of a pre-flight.
             problems.append(Problem(
                 WARNING, "column_map",
                 "no reviewed column_map, so the import will run with the columns "
@@ -1520,9 +1275,6 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                     "Choose Cell, Nucleus, Pathogen or Organelle for every "
                     "mask group."))
 
-    # BOTH SPELLINGS. `classify_merged` is the screen that took this rule's
-    # job over; without it here, scoring a dataset with no model_path fell
-    # through to the run itself.
     if app in ("classify", "classify_merged"):
         train = settings.get("train", settings.get("generate_training_dataset", False))
         needs_model = bool(settings.get("apply_model_to_dataset", False)) or bool(settings.get("test", False))
@@ -1533,8 +1285,6 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
 
     custom_model = settings.get("custom_model")
     if isinstance(custom_model, str) and custom_model.strip():
-        # spacr.spacr_cellpose prints 'Custom model not found' and returns
-        # without segmenting anything when the path is wrong.
         if not os.path.exists(custom_model):
             problems.append(Problem(
                 ERROR, "custom_model",
@@ -1611,41 +1361,13 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 "Use the sign of the selected regression effect."))
 
     if app in MASK_APPS:
-        # core.preprocess_generate_masks prints 'At least one of cell_channel,
-        # nucleus_channel, pathogen_channel or organelle_channel must be
-        # defined' and returns.
         if all(settings.get(k) is None for k in CHANNEL_KEYS):
             problems.append(Problem(
                 ERROR, "cell_channel",
                 "no segmentation channel is set: every registered object channel is None.",
                 "Set at least one *_channel setting to an acquisition-channel index."))
-        # pathogen_model: A CHECKPOINT PATH HERE IS HONOURED.
-        #
-        # This used to warn that the setting was IGNORED, which was true
-        # while the only values anyone set were the pre-SAM toxo names.
-        # It stopped being true: `object.py` reads `pathogen_model` for
-        # `object_type == 'pathogen'` and hands it to
-        # `_resolve_cellpose_pretrained`, which returns an existing file
-        # as-is -- so a cpsam fine-tune loads. Saying "ignored" now would
-        # tell a user their working setting will be discarded.
-        #
-        # Two things are still worth saying, and they are opposites:
-        #
-        #   a MISSING file is an ERROR, not a warning. The resolver
-        #   raises FileNotFoundError rather than falling back to cpsam,
-        #   deliberately -- segmenting with the wrong weights silently is
-        #   worse than stopping. But it raises INSIDE the run, after the
-        #   images are batched. Catching it here is the whole purpose of
-        #   a validator: the same failure, before the time is spent.
-        #
-        #   a LEGACY NAME still resolves to cpsam with only a log line,
-        #   so it is the case that DOES pass silently and is the one the
-        #   original warning was really about.
         if settings.get("pathogen_channel") is not None:
             model = settings.get("pathogen_model")
-            # Read the dependency-light fallback used to build the settings
-            # menu. Importing the runtime resolver here would pull in
-            # torch/cv2 during a dry run, before any model is meant to load.
             from .settings import CELLPOSE_MODEL_CHOICES
             stock_model = CELLPOSE_MODEL_CHOICES[0]
 
@@ -1671,7 +1393,6 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                         f"{stock_model!r} to be explicit."))
 
     if app == "measure":
-        # measure_crop returns early on both of these.
         normalize = settings.get("normalize")
         if isinstance(normalize, bool) and normalize:
             problems.append(Problem(
@@ -1692,19 +1413,10 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 problems.append(Problem(
                     ERROR, "crop_mode", f"crop_mode contains unsupported entries: {bad}.",
                     f"crop_mode entries must come from {sorted(allowed)}."))
-            # dialate_png_ratios is indexed per crop mode. A single value --
-            # scalar or one-element list, which is the shipped default [0.2] --
-            # now broadcasts to every mode, exactly as png_size always has, so
-            # it is no longer an error. This used to be an ERROR, which BLOCKED
-            # a run that is now correct; it was written when measure.py raised
-            # IndexError on the second mode.
             ratios = settings.get("dialate_png_ratios")
             if settings.get("dialate_pngs") and isinstance(ratios, (list, tuple)):
                 needed = len([m for m in crop_mode if m != "cytoplasm"])
                 if 1 < len(ratios) < needed:
-                    # Short but not a single value: measure.py reuses the last
-                    # entry for the remaining modes and says so. Worth a
-                    # warning, not a refusal.
                     problems.append(Problem(
                         WARNING, "dialate_png_ratios",
                         f"dialate_png_ratios has {len(ratios)} entries but "
@@ -1772,9 +1484,6 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
     return problems
 
 
-# ---------------------------------------------------------------------------
-# public API
-# ---------------------------------------------------------------------------
 
 
 def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
@@ -1947,8 +1656,6 @@ def describe_plan(settings: Dict[str, Any], app_key: str = "") -> str:
 
     inv = inventories[0] if inventories else _Inventory()
     if app in MERGED_APPS and inv.merged_dir and inv.merged_dir != inv.src:
-        # measure_crop silently appends 'merged' when src does not end with
-        # it, so say where it would actually look.
         rows.append(("reads", inv.merged_dir))
 
     rows.append(("inputs found", _describe_inputs(inventories)))
@@ -2093,19 +1800,6 @@ def _describe_workload(settings: Dict[str, Any], app: str,
     return ", ".join(parts)
 
 
-# ---------------------------------------------------------------------------
-# The resource half of the dry-run card
-# ---------------------------------------------------------------------------
-#
-# WHY THIS IS SEPARATE FROM describe_plan. The plan answers "what would this
-# do"; every number in it is a count of things that exist. This answers "can
-# this machine finish it", and every number in it is a projection. Mixing
-# them would let a projection be read with the confidence of a count.
-#
-# THE RULE THIS MODULE FOLLOWS THROUGHOUT, AND WHICH MATTERS MOST HERE: a
-# figure that cannot be derived is NAMED AND LEFT OUT, never guessed. A
-# fabricated RAM ceiling that a run then sails past is worse than no card,
-# because the user stopped watching.
 
 #: Directory entries stat'ed when sizing one folder. A plate can hold a
 #: million PNG crops; the card must not read them all to say the merged
@@ -2167,7 +1861,7 @@ def _array_footprint(directory: Optional[str]) -> Optional[Tuple[Tuple[int, ...]
     names = sorted(f for f in _listdir(directory) if f.endswith(".npy"))
     if not names:
         return None
-    import numpy as np  # local: keeps module import free of numpy's cost
+    import numpy as np
 
     for name in names[:3]:
         try:
@@ -2263,7 +1957,6 @@ def describe_resources(settings: Dict[str, Any], app_key: str = "") -> str:
     rows: List[Tuple[str, str]] = []
     notes: List[str] = []
 
-    # -- what would be read --------------------------------------------
     read_bytes = 0
     read_floor = False
     for one in inventories:
@@ -2281,7 +1974,6 @@ def describe_resources(settings: Dict[str, Any], app_key: str = "") -> str:
         rows.append(("would read",
                      ("at least " if read_floor else "") + _fmt_bytes(read_bytes)))
 
-    # -- what one worker must hold -------------------------------------
     footprint = _array_footprint(
         inv.merged_dir if inv.merged_exists else inv.stack_dir)
     per_field: Optional[int] = None
@@ -2319,18 +2011,14 @@ def describe_resources(settings: Dict[str, Any], app_key: str = "") -> str:
                 "This is a floor, not a peak. spacr.benchmark measures the "
                 "real per-worker figure on this machine.")
 
-    # -- what would be written -----------------------------------------
     projected: Optional[int] = None
     fields = sum(one.merged_files or one.fields or 0 for one in inventories)
     if app == "mask" and per_field and fields:
         n_objects = len([k for k in CHANNEL_KEYS if settings.get(k) is not None])
-        # merged/ is an uncompressed .npy of the same pixels: a compressed
-        # source shrinks nothing here, and TIFF usually IS compressed, so
-        # this can exceed the input rather than match it.
         merged = per_field * fields
         masks = 0
         if footprint and len(footprint[0]) >= 2:
-            plane = footprint[0][0] * footprint[0][1] * 2  # uint16 labels
+            plane = footprint[0][0] * footprint[0][1] * 2
             masks = plane * fields * max(1, n_objects)
         projected = merged + masks
         rows.append(("would write",
@@ -2349,10 +2037,6 @@ def describe_resources(settings: Dict[str, Any], app_key: str = "") -> str:
                 "what this run exists to discover. Watch the free space "
                 "above rather than trusting a total.")
 
-        # Measurement converts merged signal planes to uint16. Looking only
-        # at one dtype cannot reveal whether values cross the ceiling, so the
-        # preflight performs the same plate scan the real run will use and
-        # says so before any database is opened.
         try:
             from .intensity_rescale import build_plate_plan
 
@@ -2403,9 +2087,6 @@ def describe_resources(settings: Dict[str, Any], app_key: str = "") -> str:
         rows.append(("gpu", gpu))
 
     if not read_bytes and footprint is None:
-        # A "disk free" row on its own is not a projection. Saying nothing
-        # was found is the honest answer; printing a card of zeros would
-        # read as a run that costs nothing.
         return ("Resources — nothing to project: no readable input was found "
                 "for this source.")
 
@@ -2444,10 +2125,6 @@ def run_preflight(settings: Dict[str, Any], app_key: str, printer=print,
     printer(format_report(problems, settings, app_key))
     printer("")
     printer(describe_plan(settings, app_key))
-    # The resource card is best-effort: it stats the disk and asks torch
-    # about the GPU, and neither is worth failing a dry run over. A
-    # pre-flight that raises has denied the user the report it exists to
-    # give them.
     try:
         printer("")
         printer(describe_resources(settings, app_key))

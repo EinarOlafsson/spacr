@@ -80,45 +80,28 @@ class ChannelMappingWidget(QWidget):
         for key, label_text, tip in _SLOTS:
             label = QLabel(label_text, self)
             label.setObjectName(f"ChannelMappingLabel{label_text}")
-            # The whole help, on the name (instruction 113). The spin box
-            # used to carry a longer variant of this text, so hovering the
-            # field the user was about to type in covered it with a tooltip
-            # they had already read on the label beside it.
             label.setToolTip(tip + ". “—” leaves this colour empty.")
             layout.addWidget(label)
 
             box = QSpinBox(self)
             box.setObjectName(f"ChannelMappingSpin{label_text}")
             box.setRange(_EMPTY, MAX_SOURCE_CHANNEL)
-            box.setSpecialValueText("—")     # shown when the value is _EMPTY
+            box.setSpecialValueText("—")
             box.valueChanged.connect(self._emit)
             layout.addWidget(box)
             self._boxes[key] = box
         layout.addStretch(1)
 
-        # A plain QWidget used as a layout container inherits the blanket
-        # `QWidget { background-color: bg }` rule and paints the window colour
-        # over whatever is behind it (INVARIANTS §1/§3). This widget registers
-        # no QSS of its own precisely so there is no new rule to forget to add
-        # to theme.WIDGET_QSS_MODULES -- the children are styled by the
-        # existing QSpinBox/QLabel rules, and the container paints nothing.
         try:
             from ..theme import make_transparent
             make_transparent(self)
         except Exception:
-            # Decoration must never be load-bearing (INVARIANTS §10): if the
-            # theme cannot be reached the field still works, it just sits on
-            # the window colour.
             pass
 
         self.set_value(value)
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- value -------------------------------------------------------------
 
     def get_value(self) -> Dict[str, Optional[int]]:
         """Return the mapping, with ``None`` for any colour left empty."""

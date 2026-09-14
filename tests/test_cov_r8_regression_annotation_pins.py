@@ -9,9 +9,32 @@ from __future__ import annotations
 import inspect
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from spacr import regression_annotation as A
+
+
+def _scored(n, wells=1):
+    """``n`` scored cells spread over ``wells`` columns of one row."""
+    columns = [f"c{1 + i % wells}" for i in range(n)]
+    return pd.DataFrame({
+        "plateID": "p1", "rowID": ["r1"] * n, "columnID": columns,
+        "fieldID": "f1",
+        "prcfo": [f"p1_r1_{columns[i]}_f1_o{i}" for i in range(n)],
+        "cell_area": np.linspace(800, 1000, n),
+        "cell_channel_1_mean_intensity": np.linspace(1100, 1300, n),
+        "pred": np.linspace(0.05, 0.95, n),
+    })
+
+
+def _request(frame, **overrides):
+    """A request naming every well the frame actually has."""
+    wells = sorted({f"r1_{c}" for c in frame["columnID"].unique()})
+    values = dict(frame=frame, score_column="pred", wells=wells,
+                  n_positive=2, holdout_fraction=0.25, seed=1)
+    values.update(overrides)
+    return A.AnnotationRequest(**values)
 
 
 class TestTheAuditSplit:
@@ -27,30 +50,52 @@ class TestTheAuditSplit:
         THE GUARD MOVED OUT OF ``prepare``, and this test moved with it
         rather than being deleted. ``prepare`` used to carry
         ``if labelled.size < 4``; it was removed once both routes into
-        ``known`` were shown to guarantee four already, and the module
-        says so where the guard used to be. So the refusal is still
-        asserted -- it is simply asserted where it now lives, and a
-        deleted guard with no replacement would still fail here.
+        ``known`` were shown to guarantee four already. So the refusal is
+        still asserted -- it is asserted against the two routes that now
+        carry it, by RUNNING them rather than by reading the module, and
+        a threshold moved below four fails here.
         """
         module = inspect.getsource(A)
-        assert "NO `labelled.size < 4` GUARD" in inspect.getsource(A.prepare), (
-            "prepare neither guards the count nor records why it need not; "
-            "one of the two has to be true")
 
-        # The score route: `known` is drawn from `pool`, and `pool` is
-        # refused below four with the count in the message.
+        # THE SCORE ROUTE refuses below four, and names the count it
+        # found -- which is the message the deleted guard would have had
+        # to duplicate.
         assert "if pool.size < 4:" in module
-        assert "is too few to define a top-scoring set." in module
+        for size in (1, 2, 3):
+            with pytest.raises(A.AnnotationStrategyError) as raised:
+                A.prepare(_request(_scored(size, wells=min(size, 2))))
+            message = str(raised.value)
+            assert f"Only {size} scored cell(s)" in message, message
+            assert "too few to define a top-scoring set" in message
 
-        # The annotation route: labels are only supplied at four or more,
-        # and it falls through to the score route otherwise.
+        # THE ANNOTATION ROUTE only supplies labels at four or more, and
+        # falls through to the score route below that -- so `known` is
+        # never a three-cell annotation set.
         assert "int(known.sum()) >= 4" in module
+        for size in (2, 3, 4, 5):
+            frame = _scored(20, wells=4)
+            frame["ann"] = [None] * len(frame)
+            for row in range(size):
+                frame.loc[row, "ann"] = "pos" if row % 2 == 0 else "neg"
+            labels, known, source, _, _ = A._reference_labels(
+                frame, _request(frame, label_column="ann").validated(),
+                np.ones(len(frame), dtype=bool))
+            if size < 4:
+                assert source == "a cut on 'pred'", (
+                    f"{size} annotations were used as the reference set, so "
+                    f"the split would hold {size} cells aside")
+                assert int(known.sum()) == len(frame)
+            else:
+                assert source == "annotations in 'ann'"
+                assert int(known.sum()) == size
+            assert int(known.sum()) >= 4
 
-        for size in (0, 1, 2, 3):
-            known = np.zeros(20, dtype=bool)
-            known[:size] = True
-            assert int(np.flatnonzero(known).size) == size
-            assert size < 4
+        # AND THE INVARIANT THE DELETED GUARD ASSERTED: anything that
+        # reaches the split carries at least four labelled rows.
+        for cells, wells in ((8, 2), (12, 3), (20, 4)):
+            prepared = A.prepare(_request(_scored(cells, wells=wells)))
+            assert int(np.asarray(prepared.known, dtype=bool).sum()) >= 4
+            assert prepared.holdout.size >= 1
 
     def test_the_split_runs_over_the_labelled_rows_only(self):
         """Stratifying over rows that carry no annotation would balance

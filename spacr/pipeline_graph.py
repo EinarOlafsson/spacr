@@ -98,9 +98,6 @@ def _utcnow() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
-# ---------------------------------------------------------------------------
-# Records
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Node:
@@ -360,9 +357,6 @@ class PipelineGraph:
         }
 
 
-# ---------------------------------------------------------------------------
-# The static module DAG
-# ---------------------------------------------------------------------------
 
 def module_graph(modules: Optional[Sequence[str]] = None, *,
                  ran: Sequence[str] = ()) -> ModuleGraph:
@@ -420,8 +414,6 @@ def _layer(nodes: Sequence[str],
             if all(parent in depth for parent in incoming[node])
         }
         if not settled:
-            # Everything left is in (or downstream of) a cycle. Park it one
-            # column past the deepest thing that resolved.
             base = max(depth.values(), default=-1) + 1
             for node in sorted(remaining):
                 depth[node] = base
@@ -438,9 +430,6 @@ def _layer(nodes: Sequence[str],
     )
 
 
-# ---------------------------------------------------------------------------
-# The artifact DAG
-# ---------------------------------------------------------------------------
 
 def build_graph(project: Union[str, os.PathLike, None] = None, *,
                 registry: Optional[Registry] = None,
@@ -482,7 +471,7 @@ def build_graph(project: Union[str, os.PathLike, None] = None, *,
                        "output yet.",))
         try:
             registry = Registry(path=target, project=root or None, create=False)
-        except OSError as exc:  # rare, but it is a race
+        except OSError as exc:
             return PipelineGraph(
                 project=root, registry_file=target, modules=module_graph(),
                 notes=(f"Could not open the artifact registry: {exc}",))
@@ -573,7 +562,7 @@ def _staleness(registry: Registry, records: Sequence[Artifact],
         try:
             verdicts[record.artifact_id] = registry.is_stale(
                 record.artifact_id, settings=settings)
-        except Exception:  # the registry raced us
+        except Exception:
             verdicts[record.artifact_id] = Staleness(
                 record.artifact_id, False,
                 ("Could not check this artifact's provenance.",), ())
@@ -606,9 +595,6 @@ def _node(record: Artifact, verdict: Optional[Staleness],
         inputs=tuple(record.inputs))
 
 
-# ---------------------------------------------------------------------------
-# Rendering
-# ---------------------------------------------------------------------------
 
 def stale_summary(graph: PipelineGraph) -> Dict[str, Any]:
     """Counts and cause tallies for a graph, for a one-line verdict.
@@ -676,7 +662,7 @@ def format_graph(graph: PipelineGraph, *, width: int = 100) -> str:
         lines.append(f"  Step {column + 1}")
         for artifact_id in row:
             node = graph.node(artifact_id)
-            if node is None:  # layers normally come from nodes
+            if node is None:
                 continue
             mark = {STATE_CURRENT: "ok", STATE_STALE: "STALE",
                     STATE_MISSING: "MISSING"}[node.state]

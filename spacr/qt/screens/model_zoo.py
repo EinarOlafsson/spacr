@@ -193,8 +193,6 @@ QLabel#{PREVIEW_NAME} {{
 """
 
 
-# `replace=True`: reachable through the screens package and by direct
-# import, and a second import must refresh the block rather than raise.
 register_widget_qss(ZOO_QSS_NAME, _model_zoo_qss, replace=True)
 
 
@@ -321,17 +319,11 @@ class ModelZooScreen(QWidget):
         self._opener: Optional[Callable] = None
         self._busy = False
         self._cancel = {"stop": False}
-        # Strong references to in-flight (QThread, worker) pairs: a QThread
-        # garbage-collected while still running takes the process down.
         self._jobs: List[tuple] = []
         self._pending: List[tuple] = []
         self._error_handler: Optional[Callable[[str], None]] = None
         self.last_error: str = ""
 
-        # `app.py` imports this module inside the branch that builds the
-        # screen, long after the launch stylesheet was generated, so the
-        # block registered above is not in the sheet that is live and every
-        # container opens bare. See `ensure_widget_qss_applied`.
         ensure_widget_qss_applied(ZOO_QSS_NAME, root=self)
 
         self._build_ui()
@@ -346,13 +338,9 @@ class ModelZooScreen(QWidget):
             "download. Every model shows what it was trained on — 'unknown' "
             "means nobody recorded it, not that it fits anything.")
         self._update_controls()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out the model list beside the details and the benchmark."""
@@ -374,7 +362,6 @@ class ModelZooScreen(QWidget):
         outer.addWidget(subtitle)
         outer.addWidget(Divider())
 
-        # ── scan row ──────────────────────────────────────────────────
         scan_row = QHBoxLayout()
         scan_row.setSpacing(SPACING["sm"])
         self._scan_edit = QLineEdit(self)
@@ -391,11 +378,8 @@ class ModelZooScreen(QWidget):
         scan_row.addWidget(self._btn_scan)
         outer.addLayout(scan_row)
 
-        # ── the listing ───────────────────────────────────────────────
         self._table = QTableWidget(0, len(_ZOO_HEADERS), self)
         install_sorting(self._table)
-        # The listing IS the container here — nothing is under it — so it
-        # keeps a surface rather than showing the page through.
         self._table.setObjectName(TABLE_NAME)
         self._table.setHorizontalHeaderLabels(list(_ZOO_HEADERS))
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -409,7 +393,6 @@ class ModelZooScreen(QWidget):
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
         outer.addWidget(self._table, 1)
 
-        # ── provenance card ───────────────────────────────────────────
         self._detail = QPlainTextEdit(self)
         self._detail.setObjectName(DETAIL_NAME)
         self._detail.setReadOnly(True)
@@ -419,7 +402,6 @@ class ModelZooScreen(QWidget):
             "on.")
         outer.addWidget(self._detail)
 
-        # ── download ──────────────────────────────────────────────────
         download = QGroupBox("Download", self)
         download.setObjectName(GROUP_NAME)
         dl = QVBoxLayout(download)
@@ -460,7 +442,6 @@ class ModelZooScreen(QWidget):
         dl.addWidget(self._progress)
         outer.addWidget(download)
 
-        # ── benchmark ─────────────────────────────────────────────────
         test = QGroupBox("Test on fields", self)
         test.setObjectName(GROUP_NAME)
         tl = QVBoxLayout(test)
@@ -509,10 +490,6 @@ class ModelZooScreen(QWidget):
         self._preview.setAlignment(Qt.AlignCenter)
         self._preview.setMinimumSize(PREVIEW_PX, PREVIEW_PX)
         self._preview.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # No inline stylesheet: it used to be
-        # `background: {active_palette()["bg"]}`, raw hex and the window
-        # colour, opaque by construction. The panel is a rule now, reached
-        # by this name.
         self._preview.setObjectName(PREVIEW_NAME)
         split.addWidget(self._preview)
         split.setSizes([700, 400])
@@ -530,7 +507,6 @@ class ModelZooScreen(QWidget):
         self._status.setTextInteractionFlags(Qt.TextSelectableByMouse)
         outer.addWidget(self._status)
 
-    # -- status ------------------------------------------------------------
 
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Never a QMessageBox — a modal hangs a headless run."""
@@ -552,7 +528,6 @@ class ModelZooScreen(QWidget):
         """The provenance card for the selected model, or ``''``."""
         return self._detail.toPlainText()
 
-    # -- listing -----------------------------------------------------------
 
     def entries(self) -> List[zoo.ModelEntry]:
         """Everything currently listed, in table order."""
@@ -576,18 +551,11 @@ class ModelZooScreen(QWidget):
                 entry.trained_by,
             )
             for c, text in enumerate(cells):
-                # The size column is printed in whichever unit reads best,
-                # so it sorts on the byte count behind it.
                 item = _cell(str(text),
                              key=entry.size_bytes if c == 4 else None)
                 if c == 0:
-                    # Which model the row stands for. The table sorts, so a
-                    # row number names nothing outside the moment it was read.
                     item.setData(Qt.UserRole, r)
                 if c == 6 and not entry.provenance_known:
-                    # Never blank, and never quiet: 'unknown' in the warning
-                    # colour, because a model with no provenance is the one you
-                    # are most likely to misapply.
                     item.setForeground(_brush(active_palette()["warning"]))
                 if c == 5 and entry.checksum_state == "none":
                     item.setForeground(_brush(active_palette()["warning"]))
@@ -674,7 +642,6 @@ class ModelZooScreen(QWidget):
         if path:
             self._dest_edit.setText(path)
 
-    # -- selection ---------------------------------------------------------
 
     def selected_rows(self) -> List[int]:
         """Indices of the selected rows, in order."""
@@ -728,7 +695,6 @@ class ModelZooScreen(QWidget):
             self._detail.setPlainText("")
         self._update_controls()
 
-    # -- download ----------------------------------------------------------
 
     def set_opener(self, opener: Optional[Callable]) -> None:
         """Override how bytes are fetched.
@@ -790,9 +756,6 @@ class ModelZooScreen(QWidget):
         :param entry: the model that arrived.
         """
         self._progress.setValue(100)
-        # The catalogue row this came from is replaced by the local file, not
-        # listed beside it: one model, one row, and the row now points at bytes
-        # that are here.
         listing = [e for e in self._entries
                    if not (e.uri and e.uri == entry.uri and not e.exists)]
         listing.append(entry)
@@ -853,7 +816,6 @@ class ModelZooScreen(QWidget):
         """The progress bar's current value (test helper)."""
         return int(self._progress.value())
 
-    # -- benchmark ---------------------------------------------------------
 
     def set_segment_fn(self, fn: Optional[Callable]) -> None:
         """Override the segmentation backend.
@@ -1000,8 +962,6 @@ class ModelZooScreen(QWidget):
         table.blockSignals(False)
         table.resizeColumnsToContents()
 
-        # The field set is named in the summary on purpose: this number is only
-        # meaningful next to another number from the same three fields.
         self._summary.setText(
             f"{result.summary}  Field set {result.fieldset} — "
             f"{result.fieldset_label}. seg_qc is a quality-control verdict on "
@@ -1061,7 +1021,6 @@ class ModelZooScreen(QWidget):
         shown = logical_size(self._preview.pixmap())
         return (shown.width(), shown.height())
 
-    # -- hand-off to Model Compare -----------------------------------------
 
     def compare_selected(self) -> bool:
         """Hand two selected models to the A/B comparison.
@@ -1126,7 +1085,6 @@ class ModelZooScreen(QWidget):
             screen.set_source(self._fields_folder)
         return screen
 
-    # -- job plumbing ------------------------------------------------------
 
     def _run_job(self, fn: Callable[[], Any],
                  on_done: Callable[[Any], None],
@@ -1170,9 +1128,6 @@ class ModelZooScreen(QWidget):
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)
-        # Strong references: PySide6 will not keep the worker alive through the
-        # started→run connection alone, and a QThread garbage-collected while
-        # still running takes the process down with it.
         self._jobs.append((thread, worker))
         self._pending.append((box, on_done, on_error))
         worker.error.connect(self._on_worker_error_text)
@@ -1275,7 +1230,6 @@ class ModelZooScreen(QWidget):
         else:
             self._set_status(line, error=True)
 
-    # -- enablement --------------------------------------------------------
 
     def _update_controls(self) -> None:
         """Enable each control only when it has something to act on."""
@@ -1294,7 +1248,6 @@ class ModelZooScreen(QWidget):
             not busy and one and bool(self._images) and chosen[0].exists)
         self._btn_compare.setEnabled(not busy and len(chosen) == 2)
 
-    # -- shutdown ----------------------------------------------------------
 
     def closeEvent(self, event):  # noqa: N802
         """Let every in-flight job finish before the widget dies.

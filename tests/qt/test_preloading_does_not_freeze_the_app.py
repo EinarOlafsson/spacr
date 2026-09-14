@@ -220,16 +220,116 @@ def test_the_preloader_imports_under_it():
     assert "HEAVY_IMPORT_LOCK" in inspect.getsource(_PipelinePreloader._work)
 
 
-def test_the_gl_canvas_is_built_under_it():
+class _RecordingLock:
+    """A heavy-import lock that remembers whether it was held, and when.
+
+    A real ``threading.Lock`` underneath, so the bounded acquire in the
+    constructor behaves exactly as it does in the application -- this only
+    watches.
+    """
+
+    def __init__(self):
+        self._inner = threading.Lock()
+        self.held = False
+        self.timeouts = []
+
+    def acquire(self, blocking=True, timeout=-1):
+        got = self._inner.acquire(blocking, timeout)
+        self.timeouts.append(timeout)
+        self.held = got
+        return got
+
+    def release(self):
+        self.held = False
+        self._inner.release()
+
+    # A real lock's context manager too, so a constructor that went back to
+    # `with lock:` is caught by how long it waits rather than by a TypeError.
+    def __enter__(self):
+        self.acquire()
+        return self
+
+    def __exit__(self, *_exception):
+        self.release()
+        return False
+
+
+def test_the_gl_canvas_is_built_under_it(qtbot, monkeypatch):
     """torch brings CUDA up and the fractal brings a GL context up; the two
-    must take turns."""
-    import inspect
+    must take turns.
+
+    DRIVEN, NOT READ. ``_make_gpu_widget`` builds its canvas class from
+    whatever ``vispy.app.Canvas`` names when it is called, so a stub in that
+    slot can report the lock's state at the instant a GL context would be
+    created. That is the rule itself. Matching the source for a lock
+    statement only ever described the shape of the code that keeps it -- and
+    described it wrongly, because the acquire has been a bounded one with a
+    refusal since the GUI-freeze fix.
+    """
+    import vispy.app
 
     from spacr.qt.widgets import fractal_travel
 
-    body = inspect.getsource(fractal_travel._make_gpu_widget)
-    assert "_heavy_import_lock()" in body
-    assert "with lock:" in body
+    built = []
+    lock = _RecordingLock()
+
+    class _StubCanvas:
+        """Records the lock instead of bringing a GL context up."""
+
+        def __init__(self, *_args, **_kwargs):
+            built.append(lock.held)
+            raise RuntimeError("no GL context is created in a test")
+
+    monkeypatch.setattr(vispy.app, "Canvas", _StubCanvas)
+    monkeypatch.setattr(fractal_travel, "_heavy_import_lock", lambda: lock)
+
+    def build():
+        return fractal_travel._make_gpu_widget(
+            fractal_travel.Settings(), fractal_travel.RuntimeControls(),
+            fractal_travel.HardwareProfile.detect())
+
+    # A free lock: the canvas is reached, and the lock is held while it is.
+    with pytest.raises(RuntimeError, match="no GL context is created"):
+        build()
+
+    assert built == [True], (
+        "the GL context was created without the heavy-import lock held, so "
+        "it can come up beside the CUDA initialisation the preloader's torch "
+        "import performs")
+    assert not lock.held, "the lock was not handed back after the build"
+
+    # A held lock: no context is attempted at all, and not waited out. The
+    # holder is a thread with a deadline of its own, so a constructor that
+    # went back to an unbounded acquire FAILS this -- five seconds late and
+    # with no refusal -- rather than deadlocking the suite.
+    built.clear()
+    holding = threading.Event()
+    done = threading.Event()
+
+    def hold():
+        with lock._inner:
+            holding.set()
+            done.wait(5.0)
+
+    holder = threading.Thread(target=hold, daemon=True)
+    holder.start()
+    try:
+        assert holding.wait(5.0), "the lock was never taken"
+        started = time.perf_counter()
+        with pytest.raises(fractal_travel._HeavyImportInProgress):
+            build()
+        waited = time.perf_counter() - started
+    finally:
+        done.set()
+        holder.join(10.0)
+
+    assert built == [], (
+        "a GL context was brought up while the heavy-import lock was held, "
+        "which is the concurrent Qt/CUDA/OpenGL initialisation the lock "
+        "exists to serialise")
+    assert waited < 1.0, (
+        f"the GUI thread waited {waited * 1000:.0f} ms on a lock whose other "
+        f"holder is a multi-second import")
 
 
 def test_the_widget_still_builds_with_no_application_around_it():

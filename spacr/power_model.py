@@ -184,9 +184,6 @@ class PowerFitError(SpacrError):
     """
 
 
-# ---------------------------------------------------------------------------
-# 1. Data preparation
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ModelData:
@@ -364,13 +361,10 @@ def prepare_model_data(
 
     wells = pd.Index(pd.unique(frame["well"]))
     genes = pd.Index(pd.unique(frame["gene"]))
-    # Sort so two runs on the same screen give the same column order and
-    # therefore the same beta ordering; pd.unique preserves row order,
-    # which depends on how the simulator happened to emit rows.
     try:
         wells = wells.sort_values()
         genes = genes.sort_values()
-    except TypeError:  # mixed types that do not compare -- keep first-seen order
+    except TypeError:
         pass
 
     expected = len(wells) * len(genes)
@@ -387,14 +381,9 @@ def prepare_model_data(
         full = pd.MultiIndex.from_product([wells, genes], names=["well", "gene"])
         frame = frame.set_index(["well", "gene"]).reindex(full).reset_index()
         if "imaging_n_cells_per_well" in frame.columns:
-            # This one is a property of the WELL, not of the (well, gene) pair.
-            # Zero-filling it would make the well's own total disagree with
-            # itself, and the consistency check below would then reject a table
-            # that we ourselves corrupted. Fill from the well's observed rows.
             frame["imaging_n_cells_per_well"] = frame.groupby("well")[
                 "imaging_n_cells_per_well"
             ].transform(lambda s: s.fillna(s.max()))
-        # Everything else really is a per-pair count, and "missing" means "none".
         frame = frame.fillna(0)
 
     count_columns = [
@@ -422,7 +411,6 @@ def prepare_model_data(
             )
         frame[column] = values.to_numpy(dtype=np.float64)
 
-    # ---- pivot to (well x gene) matrices -------------------------------
     def _matrix(column: str) -> np.ndarray:
         """Pivot ``column`` to captured well-by-gene order as float64."""
         wide = frame.pivot(index="well", columns="gene", values=column)
@@ -433,9 +421,6 @@ def prepare_model_data(
 
     if has_well_total:
         well_total_matrix = _matrix("imaging_n_cells_per_well")
-        # Constant within a well by definition; if it is not, the table has
-        # been joined wrongly and picking row 0 (which is what the R does)
-        # would quietly pick one arbitrary value.
         spread = np.nanmax(well_total_matrix, axis=1) - np.nanmin(
             well_total_matrix, axis=1
         )
@@ -454,7 +439,6 @@ def prepare_model_data(
     npositive = positive.sum(axis=1)
     total_reads = reads.sum(axis=1)
 
-    # ---- drop wells with no imaged cells (R: filter(Ntotal > 0)) --------
     keep = ntotal > 0
     dropped_wells = tuple(np.asarray(wells)[~keep].tolist())
     if not keep.any():
@@ -481,12 +465,6 @@ def prepare_model_data(
             "from the same well."
         )
 
-    # ---- log10 read fraction -------------------------------------------
-    # A well with zero reads gives 0/0. The fraction of a well's reads that
-    # belong to a gene, when the well produced no reads, is 0 for every gene
-    # -- not NaN. Such a well still has a valid Npositive/Ntotal and so still
-    # informs the intercept; it just carries no gene-level contrast, which is
-    # exactly what an all-equal covariate row expresses.
     zero_read_mask = total_reads <= 0
     zero_read_wells = tuple(wells_kept[zero_read_mask].tolist())
     if zero_read_wells:
@@ -504,7 +482,6 @@ def prepare_model_data(
     fraction[zero_read_mask, :] = 0.0
     log10expression = np.log10(fraction + EXPRESSION_PSEUDOCOUNT)
 
-    # ---- genes with no contrast are not estimable ----------------------
     column_spread = log10expression.max(axis=0) - log10expression.min(axis=0)
     unidentified = tuple(np.asarray(genes)[column_spread <= 0].tolist())
     if unidentified:
@@ -532,9 +509,6 @@ def prepare_model_data(
     )
 
 
-# ---------------------------------------------------------------------------
-# 2. Backend resolution
-# ---------------------------------------------------------------------------
 
 def _module_installed(name: str) -> bool:
     """Return True if ``name`` can be imported without importing it.
@@ -551,8 +525,6 @@ def _module_installed(name: str) -> bool:
     try:
         return importlib.util.find_spec(name) is not None
     except (ImportError, ValueError):
-        # A namespace package shadow or a partially uninstalled distribution
-        # can make find_spec itself raise. Treat that as "not usable".
         return False
 
 
@@ -625,9 +597,6 @@ def resolve_backend(backend: str = "auto") -> str:
     return choice
 
 
-# ---------------------------------------------------------------------------
-# 3. The fit
-# ---------------------------------------------------------------------------
 
 @dataclass
 class PowerFit:
@@ -758,9 +727,6 @@ def _prepare_design(
     X -= means[None, :]
     if standardize:
         scales = X.std(axis=0, ddof=0)
-        # Guard the constant columns: their sd is 0 and they are about to be
-        # zeroed anyway, so a scale of 1 keeps the division finite without
-        # inventing a contrast.
         scales = np.where(scales > 0, scales, 1.0)
         X /= scales[None, :]
     else:
@@ -814,11 +780,11 @@ def _fit_torch_advi(
     :raises PowerFitError: if the ELBO goes non-finite, which means the
         optimisation diverged and every number downstream of it is junk.
     """
-    import torch  # deferred: keeps `import spacr.power_model` off torch's ~4 s import
+    import torch
     import torch.nn.functional as F
 
     torch_device = torch.device(device)
-    dtype = torch.float64  # counts times exp() -- float32 loses the tail
+    dtype = torch.float64
 
     X_np, col_means, col_scales, identified = _prepare_design(model_data, standardize)
     n_wells, n_genes = X_np.shape
@@ -829,28 +795,20 @@ def _fit_torch_advi(
         torch.as_tensor(model_data.Ntotal, dtype=dtype, device=torch_device)
     )
 
-    # Locate the intercept prior at the empirical baseline log-rate. brms does
-    # the same thing (it centres the intercept prior on the data), and it
-    # matters: without it the optimiser spends its first few hundred steps
-    # walking the intercept from 0 down to about -5, and does so by inflating
-    # beta, which is exactly the parameter we are trying to keep at zero.
     total_positive = float(model_data.Npositive.sum())
     total_cells = float(model_data.Ntotal.sum())
     baseline = max(total_positive, 0.5) / max(total_cells, 1.0)
     mu0 = float(np.log(min(max(baseline, 1e-8), 1.0)))
 
-    n_params = 2 * n_genes + 3  # z, log_lambda, log_tau, log_c2, intercept
+    n_params = 2 * n_genes + 3
     generator = torch.Generator(device=torch_device)
     generator.manual_seed(int(seed))
 
     loc = torch.zeros(n_params, dtype=dtype, device=torch_device)
-    loc[2 * n_genes] = math.log(tau0)          # log tau
-    loc[2 * n_genes + 1] = math.log(scale_slab ** 2)  # log c2
-    loc[2 * n_genes + 2] = mu0                 # intercept
+    loc[2 * n_genes] = math.log(tau0)
+    loc[2 * n_genes + 1] = math.log(scale_slab ** 2)
+    loc[2 * n_genes + 2] = mu0
     loc = loc.requires_grad_(True)
-    # Start the variational scales small: the first draws then sit at the
-    # initialisation, which is a sane point, instead of scattered across a
-    # region where exp(eta) overflows.
     log_scale = torch.full(
         (n_params,), math.log(0.1), dtype=dtype, device=torch_device
     ).requires_grad_(True)
@@ -876,39 +834,30 @@ def _fit_torch_advi(
         """
         z, log_lambda, log_tau, log_c2, intercept = _unpack(theta)
 
-        # beta, bounded by the slab -- see the docstring.
         log_lambda_tilde = log_lambda - 0.5 * F.softplus(
             2.0 * log_tau + 2.0 * log_lambda - log_c2
         )
         beta = z * torch.exp(log_tau + log_lambda_tilde)
 
-        eta = intercept + beta @ X.T + log_offset  # (..., n_wells)
-        # Poisson log-pmf without the constant lgamma(y+1) term, which does
-        # not depend on the parameters and so cannot change the optimum.
+        eta = intercept + beta @ X.T + log_offset
         log_lik = (y * eta - torch.exp(eta)).sum(-1)
 
         log_prior = -0.5 * (z ** 2).sum(-1)
-        # half-StudentT(df_local, 1) on lambda, plus the log-Jacobian of
-        # lambda = exp(log_lambda), which is log_lambda itself.
         log_prior = log_prior + (
             -0.5 * (df_local + 1.0)
             * F.softplus(2.0 * log_lambda - math.log(df_local))
             + log_lambda
         ).sum(-1)
-        # half-StudentT(df_global, tau0) on tau, same Jacobian trick.
         log_prior = log_prior + (
             -0.5 * (df_global + 1.0)
             * F.softplus(2.0 * (log_tau - math.log(tau0)) - math.log(df_global))
             + log_tau
         ).sum(-1)
-        # InvGamma(a, b) on c2; the Jacobian of c2 = exp(log_c2) is log_c2.
         log_prior = log_prior + (
             -(inv_gamma_a + 1.0) * log_c2
             - inv_gamma_b * torch.exp(-log_c2)
             + log_c2
         ).sum(-1)
-        # Student-t(3, mu0, 2.5) on the intercept -- brms's default shape for
-        # an intercept, wide enough to be uninformative on the log-rate scale.
         log_prior = log_prior + (
             -2.0 * torch.log1p(((intercept - mu0) / 2.5) ** 2 / 3.0)
         ).sum(-1)
@@ -940,21 +889,12 @@ def _fit_torch_advi(
                 "Npositive vastly exceeds what Ntotal can support."
             )
         loss.backward()
-        # Clip before stepping. A single outsized gradient -- routine early on,
-        # when the intercept is still wrong and exp(eta) is enormous -- would
-        # otherwise throw the parameters somewhere exp() overflows, and every
-        # subsequent step is NaN. Clipping bounds the step length without
-        # moving the optimum.
         torch.nn.utils.clip_grad_norm_([loc, log_scale], max_norm=_GRAD_CLIP_NORM)
         optimizer.step()
         elbo_history.append(float(elbo.detach()))
 
     elapsed = time.perf_counter() - started
 
-    # Convergence for an optimiser is "it stopped improving". Compare the mean
-    # ELBO over the last eighth of the run with the eighth before it; a
-    # single-point comparison would be dominated by Monte-Carlo noise in the
-    # ELBO estimate.
     window = max(10, int(0.125 * len(elbo_history)))
     recent = float(np.mean(elbo_history[-window:]))
     previous = float(np.mean(elbo_history[-2 * window:-window]))
@@ -972,7 +912,6 @@ def _fit_torch_advi(
             tolerance,
         )
 
-    # ---- draw from the fitted approximation ----------------------------
     with torch.no_grad():
         eps = torch.randn(
             (int(n_draws), n_params),
@@ -991,9 +930,6 @@ def _fit_torch_advi(
     intercept_draws = intercept.detach().cpu().numpy().astype(np.float64).ravel()
 
     if standardize:
-        # beta was fit per SD of the covariate; report it that way and say so,
-        # rather than dividing back and leaving a number whose shrinkage was
-        # applied on a scale it is no longer expressed in.
         beta_scale = "per standard deviation of log10expression"
     else:
         beta_scale = "per unit log10expression"
@@ -1359,7 +1295,7 @@ def fit_model(
             max_tree_depth=max_tree_depth,
         )
         method = "nuts"
-    else:  # pymc -- resolve_backend has already rejected anything else
+    else:
         draws, intercept_draws, converged, diagnostics = _fit_pymc_nuts(
             model_data,
             seed=seed,
@@ -1390,9 +1326,6 @@ def fit_model(
     )
 
 
-# ---------------------------------------------------------------------------
-# 4. Summaries and evaluation
-# ---------------------------------------------------------------------------
 
 def gather_model_estimate(fit: PowerFit) -> pd.DataFrame:
     """Summarise the per-gene coefficients, one row per gene.
@@ -1442,8 +1375,6 @@ def gather_model_estimate(fit: PowerFit) -> pd.DataFrame:
 
     identified = ~np.all(np.isnan(draws), axis=0)
     with warnings.catch_warnings():
-        # All-NaN columns are the unidentified genes and are expected; numpy's
-        # "Mean of empty slice" is noise here, not news.
         warnings.simplefilter("ignore", category=RuntimeWarning)
         mean = np.nanmean(draws, axis=0)
         sd = np.nanstd(draws, axis=0, ddof=1) if draws.shape[0] > 1 else np.zeros(
@@ -1617,9 +1548,6 @@ def evaluate_model_fit(
             "ranking they imply is undefined"
         )
     else:
-        # Orientation: y_score = posterior mean of beta, higher = more
-        # hit-like. See the docstring for why this is the R's `-mean` scored
-        # against event level "no".
         model_auroc = float(roc_auc_score(y_true, y_score))
         model_ap = float(average_precision_score(y_true, y_score))
         ap_baseline = float(n_hits / len(y_true))
@@ -1666,9 +1594,6 @@ def fit_and_evaluate(
     return fit, estimate, evaluation
 
 
-# ---------------------------------------------------------------------------
-# 5. Parameter scan
-# ---------------------------------------------------------------------------
 
 _SCAN_RESULT_COLUMNS: Tuple[str, ...] = (
     "param_index",
@@ -1810,7 +1735,7 @@ def _call_simulator(
             p.kind is inspect.Parameter.VAR_KEYWORD
             for p in signature.parameters.values()
         )
-    except (TypeError, ValueError):  # builtins and C callables have no signature
+    except (TypeError, ValueError):
         accepted, has_var_kw = set(), True
 
     kwargs = dict(params)
@@ -1953,7 +1878,7 @@ def scan_parameters(
     resolved_backend = resolve_backend(backend)
     simulator = simulate_fn if simulate_fn is not None else _default_simulator()
     fit_options = dict(fit_kwargs or {})
-    fit_options.pop("backend", None)  # the sweep's backend wins; one method per sweep
+    fit_options.pop("backend", None)
 
     names = list(parameters)
     grids = [
@@ -1979,7 +1904,6 @@ def scan_parameters(
 
     result_columns = list(names) + list(_SCAN_RESULT_COLUMNS)
 
-    # ---- progress file ---------------------------------------------------
     done: Dict[str, Dict[str, Any]] = {}
     path: Optional[Path] = None
     if progress_file is not None:
@@ -2007,9 +1931,6 @@ def scan_parameters(
                     "that were run twice. Delete the file, or point "
                     "progress_file somewhere new."
                 )
-            # Round-tripping through TSV turns empty strings into NaN, which
-            # would then compare unequal to the "" that a fresh row carries and
-            # would print as 'nan' in the error column of a perfectly fine run.
             for column in ("run_key", "backend", "method", "status",
                            "seed_channel", "reason", "error"):
                 existing[column] = existing[column].fillna("").astype(str)
@@ -2045,9 +1966,6 @@ def scan_parameters(
             "resumed": resumed,
             "row": row,
         })
-        # `is False`, not falsy: a callback that returns 0, "" or an empty
-        # list has almost certainly returned something incidental, and
-        # stopping a five-minute sweep on that is not a decision to infer.
         return verdict is not False
 
     for point_index, combination in enumerate(combinations, start=1):
@@ -2063,9 +1981,6 @@ def scan_parameters(
                     break
                 continue
 
-            # Seed derived from the point's identity, not from iteration order,
-            # so re-running a single point reproduces the screen it produced
-            # inside the full sweep.
             point_seed = int(
                 np.random.SeedSequence(
                     [int(seed), int(point_index), int(replicate)]
@@ -2133,10 +2048,6 @@ def scan_parameters(
                     }
                 )
                 if not fit.converged:
-                    # Metrics stay NaN. A non-converged fit's coefficient
-                    # ordering is not a posterior ordering, and scoring it
-                    # would put a number on the plot that the fit does not
-                    # support.
                     row["status"] = "not_converged"
                     row["error"] = (
                         "the fit did not meet its convergence criterion; "
@@ -2182,8 +2093,6 @@ def scan_parameters(
 
             rows.append(row)
             if path is not None:
-                # Append one complete row at a time and close the handle, so a
-                # kill -9 between points leaves a file whose last line is whole.
                 pd.DataFrame([row], columns=result_columns).to_csv(
                     path,
                     sep="\t",
@@ -2191,8 +2100,6 @@ def scan_parameters(
                     mode="a",
                     header=not (path.exists() and path.stat().st_size > 0),
                 )
-            # After the progress file, so a cancelled sweep can still be
-            # resumed from the point it stopped at rather than redoing it.
             if not _report(row, point_index, replicate, False):
                 cancelled = True
                 break

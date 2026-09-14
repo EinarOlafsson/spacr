@@ -172,9 +172,6 @@ def _utcnow() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
-# ---------------------------------------------------------------------------
-# Where a macro lives
-# ---------------------------------------------------------------------------
 
 def macros_dir() -> str:
     """Return the folder holding one script per recorded chain.
@@ -205,9 +202,6 @@ def macro_path(run_dir: Any) -> str:
     return os.path.join(str(run_dir), MACRO_FILENAME)
 
 
-# ---------------------------------------------------------------------------
-# What a module key actually runs
-# ---------------------------------------------------------------------------
 
 def entry_for(module: str) -> Tuple[str, str]:
     """Return ``(import_path, function_name)`` for a module key.
@@ -262,8 +256,6 @@ def _registered_entry_text(key: str) -> str:
     try:
         from .qt.app import APP_META
     except Exception:                                   # noqa: BLE001
-        # No Qt in this process. A headless recorder is a supported install,
-        # and the shipped table above already answered for every built-in.
         return ""
     try:
         return str((APP_META.get(key) or {}).get("entry") or "")
@@ -281,9 +273,6 @@ def _plugin_entry_text(key: str) -> str:
     return str(getattr(contribution, "entrypoint", "") or "")
 
 
-# ---------------------------------------------------------------------------
-# Defaults, made explicit
-# ---------------------------------------------------------------------------
 
 def module_defaults(module: str) -> Tuple[Dict[str, Any], str]:
     """Return ``(defaults, source)`` for a module key.
@@ -392,9 +381,6 @@ def explicit_settings(module: str,
     return resolved, defaulted, source
 
 
-# ---------------------------------------------------------------------------
-# The record
-# ---------------------------------------------------------------------------
 
 @dataclass
 class MacroStep:
@@ -601,9 +587,6 @@ def reset() -> None:
         _MACROS.clear()
 
 
-# ---------------------------------------------------------------------------
-# Recording — the two calls run_journal.open_run makes
-# ---------------------------------------------------------------------------
 
 class _RunIdCapture(logging.Handler):
     """Read the run's id off its own log records.
@@ -758,8 +741,6 @@ def finish_recording(recording: Optional[Recording],
         _write_everywhere(macro, step)
         return step
     except Exception:                                   # noqa: BLE001
-        # The script is a record of the run, not the run. Losing it is
-        # worth a log line and nothing else.
         LOG.exception("could not record the macro for %s", recording.module)
         return None
 
@@ -876,9 +857,6 @@ def _version() -> str:
         return "unknown"
 
 
-# ---------------------------------------------------------------------------
-# Chaining — when two runs belong in one script
-# ---------------------------------------------------------------------------
 
 def _link(previous: MacroStep, step: MacroStep) -> str:
     """Return how ``step`` follows ``previous``, or ``""`` when it does not.
@@ -974,9 +952,6 @@ def _write_everywhere(macro: Macro, step: MacroStep) -> None:
                  " -> ".join(macro.modules), written[-1])
 
 
-# ---------------------------------------------------------------------------
-# Rendering
-# ---------------------------------------------------------------------------
 
 def _identifier(text: str) -> str:
     """Return ``text`` as a legal upper-case Python identifier fragment."""
@@ -1033,7 +1008,6 @@ class _Threader:
             so a project nested inside another is matched before its parent
             and does not lose its own constant to it.
         """
-        # Longest first, so a nested project does not lose to its parent.
         self.roots = sorted(
             ((os.path.normpath(path), name) for name, path in projects),
             key=lambda pair: len(pair[0]), reverse=True)
@@ -1236,12 +1210,6 @@ def render(macro: Macro) -> str:
     projects = _project_names(steps)
     threader = _Threader(projects)
 
-    # Everything that *uses* the project constants is rendered before the
-    # import block is built, though both are emitted later: rendering is
-    # what decides whether os.path.join appears, and therefore whether the
-    # script needs `import os`. Get that order wrong and a macro whose only
-    # joined path is in the MACRO record raises NameError on line one — the
-    # exact failure mode this recorder exists to avoid.
     blocks = [_render_settings(step, name, threader)
               for step, name in zip(steps, names)]
     metadata = _render_metadata(macro, steps, names, threader)
@@ -1318,9 +1286,6 @@ def _render_metadata(macro: Macro, steps: Sequence[MacroStep],
     return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Reading one back — the seam the methods exporter uses
-# ---------------------------------------------------------------------------
 
 class MacroError(ValueError):
     """A file is not a spaCR macro, or carries a schema this build cannot read."""

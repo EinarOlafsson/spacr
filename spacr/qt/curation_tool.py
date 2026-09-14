@@ -85,9 +85,6 @@ QLabel#CuratedBadge {{
 register_widget_qss("BrushPanel", _curation_qss, replace=True)
 
 
-# ---------------------------------------------------------------------------
-# The brush
-# ---------------------------------------------------------------------------
 
 class BrushTool(CanvasTool):
     """Turns a drag on a :class:`~spacr.qt.layer_viewer.LayerCanvas` into paint.
@@ -115,7 +112,6 @@ class BrushTool(CanvasTool):
         self._erasing = False
         self._painting = False
 
-    # -- the mouse ----------------------------------------------------------
     def press(self, view: LayerCanvas, world: Dict[str, float],
               event: Any) -> bool:
         """Open a stroke and lay the first dab."""
@@ -192,9 +188,6 @@ class BrushTool(CanvasTool):
             return 0
 
 
-# ---------------------------------------------------------------------------
-# The brush panel
-# ---------------------------------------------------------------------------
 
 class BrushPanel(QWidget):
     """The brush controls, the undo button, and the ledger beside the image.
@@ -245,11 +238,6 @@ class BrushPanel(QWidget):
         self._tool: Optional[BrushTool] = None
         self._build()
         self._canvas.stack.subscribe(self._on_layers_changed)
-        # Two subscriptions, because they fire at different moments. The
-        # stack fires per dab (mid-stroke, before anything is recorded); the
-        # session fires when a ledger entry lands, which is what this panel
-        # is showing. Listening only to the first left the ledger and the
-        # undo button one stroke behind for ever.
         self._session.subscribe(self._on_edit_recorded)
         self.refresh()
 
@@ -263,7 +251,6 @@ class BrushPanel(QWidget):
                 return layer
         return None
 
-    # -- construction --------------------------------------------------------
     def _build(self) -> None:
         """Lay out the paint toggle, the label picker and the radius."""
         outer = QVBoxLayout(self)
@@ -318,11 +305,6 @@ class BrushPanel(QWidget):
             tooltip="Write the correction ledger beside the mask")
         self.save_button.clicked.connect(self.save_log)
         actions.addWidget(self.save_button)
-        # "Save log" writes the record and not the pixels, and a record on
-        # its own asserts corrections to a file nothing edited -- which is
-        # the state `spacr.curation.is_curated` then reports as hand-edited.
-        # This is the control that makes the claim true, and it sits beside
-        # the one that makes it so the two are never separated.
         self.save_mask_button = FlatButton(
             "Save mask", self,
             tooltip="Write the corrected labels back to the mask file, with "
@@ -344,7 +326,6 @@ class BrushPanel(QWidget):
             "the mask so a curated dataset can be told from a raw one.")
         outer.addWidget(self.ledger, 1)
 
-    # -- model ---------------------------------------------------------------
     @property
     def session(self) -> MaskCuration:
         """The curation session this panel drives."""
@@ -378,9 +359,6 @@ class BrushPanel(QWidget):
             self.stop_painting()
 
     def _on_layers_changed(self, event: LayerEvent) -> None:
-        # Derived, not stored: the ledger and the badge follow the model, so
-        # a paint made through the tool and one made from a script look the
-        # same here.
         """Re-bind to the labels layer after the stack changed.
 
         :param event: which change it was.
@@ -392,7 +370,6 @@ class BrushPanel(QWidget):
         """A stroke closed (or was undone): the ledger has a new line."""
         self.refresh()
 
-    # -- actions -------------------------------------------------------------
     def _on_label_changed(self, value: int) -> None:
         """Paint with a different label from now on.
 
@@ -458,7 +435,6 @@ class BrushPanel(QWidget):
         self.refresh()
         return written
 
-    # -- the ledger ----------------------------------------------------------
     def refresh(self) -> None:
         """Redraw the ledger and the badge from the session."""
         self.undo_button.setEnabled(self._session.can_undo)
@@ -481,9 +457,6 @@ class BrushPanel(QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Track curation
-# ---------------------------------------------------------------------------
 
 class TrackCurationPanel(QWidget):
     """Join, split and delete tracks, with the ledger beside them.
@@ -530,7 +503,6 @@ class TrackCurationPanel(QWidget):
         self._build()
         self.refresh()
 
-    # -- construction --------------------------------------------------------
     def _build(self) -> None:
         """Lay out the track actions and their selection requirements."""
         outer = QVBoxLayout(self)
@@ -595,7 +567,6 @@ class TrackCurationPanel(QWidget):
         self.ledger.setSelectionMode(QAbstractItemView.NoSelection)
         outer.addWidget(self.ledger, 1)
 
-    # -- model ---------------------------------------------------------------
     @property
     def session(self) -> Optional[TrackCuration]:
         """The curation session, or ``None`` before a table is open."""
@@ -625,9 +596,6 @@ class TrackCurationPanel(QWidget):
         except CurationError as exc:
             self._session = None
             self.refresh()
-            # After refresh for the same reason as above: refresh() resets
-            # this label to "No tracks open", which is true and useless
-            # next to the sentence saying WHY nothing opened.
             self.status.setText(str(exc))
             return None
         self._session.log.artifact = path
@@ -639,7 +607,6 @@ class TrackCurationPanel(QWidget):
         """The track ids selected, in the list's order."""
         return [item.data(Qt.UserRole) for item in self.track_list.selectedItems()]
 
-    # -- operations ----------------------------------------------------------
     def join_selected(self) -> bool:
         """Join the two selected tracks. ``True`` when it happened."""
         return self._do(lambda s, ids: s.join(ids[0], ids[1]), needs=2)
@@ -675,15 +642,9 @@ class TrackCurationPanel(QWidget):
         try:
             edit = action(session, ids)
         except CurationError as exc:
-            # Said, not swallowed: a button that silently declines is
-            # indistinguishable from a broken one.
             self.status.setText(str(exc))
             return False
         self.refresh()
-        # After refresh, not before: refresh() writes the session summary
-        # into this same label, and setting the line first meant every
-        # successful action was immediately overwritten by the summary. Both
-        # facts matter, so both are shown.
         self.status.setText(f"{edit.describe()}\n{session.describe()}")
         return True
 
@@ -707,7 +668,6 @@ class TrackCurationPanel(QWidget):
         self.refresh()
         return written
 
-    # -- rendering -----------------------------------------------------------
     def refresh(self) -> None:
         """Redraw the track list, the ledger and the consistency line."""
         self.track_list.clear()

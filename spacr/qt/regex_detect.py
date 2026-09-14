@@ -30,9 +30,6 @@ import re
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence, Set, Tuple
 
-# ---------------------------------------------------------------------------
-# Built-in regex patterns
-# ---------------------------------------------------------------------------
 
 CELLVOYAGER = (
     r"(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)"
@@ -47,14 +44,11 @@ YOKOGAWA = (
     r"\.(?:tif|tiff)$"
 )
 
-# Yokogawa CQ1 naming: W<well>F<field>T<time>Z<slice>C<chan> (well is numeric).
-# Matches spacr.utils._get_regex('cq1', ...).
 CQ1 = (
     r"W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)"
     r"Z(?P<sliceID>.*)C(?P<chanID>.*)\.(?:tif|tiff|png|jpg|jpeg)$"
 )
 
-# Bare-bones canonical form spaCR generates when auto-normalising
 CANONICAL = (
     r"(?P<plateID>[^_]+)_(?P<wellID>[A-Z]\d{2})_"
     r"F(?P<fieldID>\d+)_C(?P<chanID>\d+)\.(?:tif|tiff|png)$"
@@ -73,9 +67,6 @@ BUILTIN_REGEXES: Dict[str, str] = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Required fields per dataset shape
-# ---------------------------------------------------------------------------
 
 #: For a multi-channel plate spaCR needs at least a channel field
 #: PLUS either a well or a field id (usually both).
@@ -95,9 +86,6 @@ KNOWN_FIELDS: Tuple[str, ...] = (
 )
 
 
-# ---------------------------------------------------------------------------
-# Record shape
-# ---------------------------------------------------------------------------
 
 @dataclass
 class MetadataRecord:
@@ -119,9 +107,6 @@ class MetadataRecord:
         return self.groups.get(name, default)
 
 
-# ---------------------------------------------------------------------------
-# apply_regex
-# ---------------------------------------------------------------------------
 
 def apply_regex(
     filenames: Sequence[str],
@@ -148,9 +133,6 @@ def apply_regex(
     return records, missed
 
 
-# ---------------------------------------------------------------------------
-# validate_records
-# ---------------------------------------------------------------------------
 
 def validate_records(
     records: Sequence[MetadataRecord],
@@ -174,13 +156,11 @@ def validate_records(
                 all_group_names.add(k)
 
     if multichannel:
-        # Need channel id
         if "chanID" not in all_group_names:
             warnings.append(
                 "Missing required field: chanID (multi-channel data "
                 "needs the regex to capture the channel number)."
             )
-        # Need at least one location field
         if not (all_group_names & LOCATION_FIELDS):
             warnings.append(
                 "Missing location field: at least one of wellID or "
@@ -193,7 +173,6 @@ def validate_records(
                 "Missing required field: fieldID (single-channel data "
                 "still needs a field id to distinguish images)."
             )
-    # plateID is optional but VERY handy — soft warn
     if "plateID" not in all_group_names:
         warnings.append(
             "Optional: no plateID captured. spaCR will name the "
@@ -203,9 +182,6 @@ def validate_records(
     return warnings
 
 
-# ---------------------------------------------------------------------------
-# auto_detect_regex
-# ---------------------------------------------------------------------------
 
 #: The metadata fields the import actually reads, by name. A proposal that
 #: captures none of them says nothing about a file whatever it matches.
@@ -242,7 +218,6 @@ def auto_detect_regex(
     if n == 0:
         return None, "empty", 0
 
-    # 1 + 2: try built-ins, remember the best
     best_label = "none"
     best_pattern: Optional[str] = None
     best_hits = -1
@@ -262,48 +237,20 @@ def auto_detect_regex(
     if best_hits >= n / 2:
         return best_pattern, best_label, best_hits
 
-    # 3: INFER IT FROM THE NAMES (instruction 137 B, `spacr.regex_infer`).
-    #
-    # BEFORE the old synthesiser, and the difference is what it works from:
-    # `_synthesise_regex` builds a template from ONE filename and routinely
-    # fails to match its siblings, which is why the hit count above had to be
-    # corrected. `regex_infer.propose` aligns the whole set -- the slots that
-    # VARY become groups and the parts that never vary are literals -- so on
-    # cellvoyager, cq1 and a microscope spaCR has never met it reaches 100%
-    # coverage with the right group NAMES.
-    #
-    # It is tried against the best built-in rather than instead of it: a
-    # bundled pattern that already matches everything is a known-good answer
-    # and does not need improving.
     try:
         from ..regex_infer import propose
 
         for proposal in propose(filenames):
-            # HIT COUNT ALONE IS NOT A RANKING, and this is what it cost:
-            # given `a.txt`, one cellvoyager image and `zz.txt`, inference
-            # offered `(?P<group0>[A-Za-z]+)\.txt` -- matching the two files
-            # that are not images at all -- and beat the cellvoyager pattern
-            # 2 to 1. A catch-all that captures NO ROLE is not a metadata
-            # regex however many names it happens to match.
-            #
-            # So a proposal has to name at least one of the fields the
-            # import actually reads before its count is even compared.
             named = {n for n in _group_names(proposal.pattern)
                      if n in _ROLE_NAMES}
             if named and proposal.matched > best_hits:
                 return proposal.pattern, "inferred", proposal.matched
     except Exception:                                # noqa: BLE001
-        # Inference is an improvement on the fallback, never a requirement:
-        # a failure here leaves the old path exactly as it was.
         pass
 
     synth = _synthesise_regex(filenames)
     if synth is None:
         return best_pattern, best_label, best_hits
-    # Report the TRUE hit count. The synthesiser works from a single
-    # template filename, so it routinely fails to match its siblings —
-    # blindly returning ``n`` told the caller "matched 3/3" for a regex
-    # that matched nothing, and the regex editor printed that lie.
     try:
         synth_rx = re.compile(synth)
     except re.error:
@@ -331,11 +278,8 @@ def _synthesise_regex(filenames: Sequence[str]) -> Optional[str]:
     """
     if not filenames:
         return None
-    # Take the "shortest, alphanumeric-only" as template — least
-    # likely to have noise like an underscore-suffixed acquisition tag.
     template = min(filenames, key=lambda s: (len(s), s))
 
-    # Map single-char prefixes to standard field names
     prefix_map = {
         "F": "fieldID",
         "T": "timeID",
@@ -354,13 +298,11 @@ def _synthesise_regex(filenames: Sequence[str]) -> Optional[str]:
         if tok in ("_", "-"):
             parts.append(re.escape(tok))
             continue
-        # Well id shape: single letter + 2-3 digits, or two-letter + digits
         wm = re.fullmatch(r"([A-Za-z])(\d{2,3})", tok)
         if wm and "wellID" not in used_groups:
             parts.append(r"(?P<wellID>[A-Z]\d{2,3})")
             used_groups.add("wellID")
             continue
-        # Single-letter prefix + digits combos (F001, T0001, ...)
         m = re.fullmatch(r"([A-Za-z])(\d+)", tok)
         if m and m.group(1).upper() in prefix_map:
             gname = prefix_map[m.group(1).upper()]
@@ -368,7 +310,6 @@ def _synthesise_regex(filenames: Sequence[str]) -> Optional[str]:
                 parts.append(f"{re.escape(m.group(1))}(?P<{gname}>\\d+)")
                 used_groups.add(gname)
                 continue
-        # Multi-prefix runs like "T0001F001L01A01Z01C01"
         multi = re.findall(r"([A-Za-z])(\d+)", tok)
         if multi and all(mp[0].upper() in prefix_map for mp in multi):
             for letter, digits in multi:
@@ -379,36 +320,21 @@ def _synthesise_regex(filenames: Sequence[str]) -> Optional[str]:
                     parts.append(f"{re.escape(letter)}(?P<{gname}>\\d+)")
                     used_groups.add(gname)
             continue
-        # Single letter + digits with an unrecognised prefix (e.g.
-        # `W1`, `M12`) — keep the letter literal, let the digits vary
-        # so plates that use W2, W3, … still match. Otherwise we'd
-        # bake the exact digits from the template into the regex and
-        # only match one file.
         if m:
             parts.append(f"{re.escape(m.group(1))}\\d+")
             continue
-        # Pure identifier → plateID (only first free identifier)
         if re.fullmatch(r"[A-Za-z0-9]+", tok) and "plateID" not in used_groups:
             parts.append(r"(?P<plateID>[A-Za-z0-9]+)")
             used_groups.add("plateID")
             continue
-        # Bare digit run with plateID already spent (e.g. the `0001` in
-        # `IMG_0001.tif`) — vary the digits for the same reason we do it
-        # for `W1`/`M12` above. Escaping the template's literal digits
-        # here produced a regex that matched exactly one file.
         if tok.isdigit():
             parts.append(r"\d+")
             continue
-        # Fallback: literal escaped shape
         parts.append(re.escape(tok))
-    # Suffix: allow any of the common image extensions
     exts = r"(?:tif|tiff|png|jpg|jpeg)$"
     return "".join(parts) + r"\." + exts
 
 
-# ---------------------------------------------------------------------------
-# tabulate_records — plain-text table for the Console
-# ---------------------------------------------------------------------------
 
 def tabulate_records(
     records: Sequence[MetadataRecord],
@@ -432,7 +358,6 @@ def tabulate_records(
     if not records:
         return "(no records — regex did not match any files)"
     if columns is None:
-        # Deterministic order — use KNOWN_FIELDS then any extras
         found: Set[str] = set()
         for r in records:
             found.update(r.groups.keys())
@@ -449,7 +374,6 @@ def tabulate_records(
     else:
         sample = list(records)
 
-    # Compute per-column widths
     widths = {c: max(len(c), max(
         (len(_render_cell(r, c)) for r in sample), default=len(c)
     )) for c in columns}

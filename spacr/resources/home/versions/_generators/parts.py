@@ -34,9 +34,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-# ---------------------------------------------------------------------------
-# Text that never clips
-# ---------------------------------------------------------------------------
 
 def elide_to_lines(text: str, font: QFont, width: int, lines: int) -> str:
     """Shorten ``text`` so it lays out in at most ``lines`` at ``width`` px.
@@ -124,18 +121,10 @@ def text_label(ctx: Ctx, text: str, *, size: int = 13, weight: int = 400,
     return lbl
 
 
-# ---------------------------------------------------------------------------
-# Page-level QSS for the widgets invented here
-# ---------------------------------------------------------------------------
 
 def extra_qss(ctx: Ctx) -> str:
     """Stylesheet for the object names this module introduces."""
     P = ctx.P
-    # The Space theme paints its sky on QMainWindow, which these pages
-    # are not. Reproduce the offline fallback sky (a deep-space
-    # gradient) so a Space render is not a flat near-black rectangle.
-    # These renders never load the generated star image — it is cached
-    # per user and would make the output non-deterministic.
     page_bg = P["bg"] if ctx.theme != "space" else (
         "qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, "
         f"stop: 0 {P['surface']}, stop: 0.55 {P['bg']}, "
@@ -295,9 +284,6 @@ QTabBar::tab:selected {{
 """
 
 
-# ---------------------------------------------------------------------------
-# Page scaffold
-# ---------------------------------------------------------------------------
 
 class Page(QWidget):
     """A 1440x900 home-screen canvas with optional window chrome.
@@ -423,9 +409,6 @@ def panel(ctx: Ctx, *, accent: bool = False, plain: bool = False,
     return frame, lay
 
 
-# ---------------------------------------------------------------------------
-# Headers
-# ---------------------------------------------------------------------------
 
 def hero(ctx: Ctx, *, compact: bool = False) -> QWidget:
     """The current home hero: logo + wordmark + one-line pitch."""
@@ -544,9 +527,6 @@ def chip(ctx: Ctx, text: str, on: bool = False) -> QPushButton:
     return btn
 
 
-# ---------------------------------------------------------------------------
-# App surfaces
-# ---------------------------------------------------------------------------
 
 #: Height an ``HTile`` needs for a given icon: the QSS pads it 12 px top
 #: and bottom, and the icon is the tallest thing inside.
@@ -822,9 +802,6 @@ def dense_list(ctx: Ctx, keys: Sequence[str], *, width: int,
     return w
 
 
-# ---------------------------------------------------------------------------
-# Elements that do not exist on the home screen today
-# ---------------------------------------------------------------------------
 
 def resume_banner(ctx: Ctx, *, width: int = 0) -> QWidget:
     """ADDED: "pick up where you left off" — the single biggest button.
@@ -1141,9 +1118,6 @@ def stat_row(ctx: Ctx, stats: Sequence[Tuple[str, str]], *,
     return w
 
 
-# ---------------------------------------------------------------------------
-# Navigation surfaces
-# ---------------------------------------------------------------------------
 
 def real_sidebar(ctx: Ctx) -> QWidget:
     """The app's actual ``Sidebar`` widget, unmodified.
@@ -1192,9 +1166,6 @@ def scroll_area(inner: QWidget, *, horizontal: bool = False) -> QScrollArea:
     area = QScrollArea()
     area.setWidgetResizable(True)
     area.setFrameShape(QScrollArea.NoFrame)
-    # Scoped to the scroll area itself. An unscoped `background:
-    # transparent` here cascades to every descendant and silently strips
-    # the fill off the buttons and panels inside it.
     area.setStyleSheet("QScrollArea { background: transparent; "
                        "border: none; }")
     area.viewport().setObjectName("ScrollViewport")

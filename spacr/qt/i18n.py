@@ -71,8 +71,6 @@ VALID_LANGUAGE_CODES = tuple(LANGUAGE_BY_CODE)
 DEFAULT_LANGUAGE = "en"
 ENV_LANGUAGE = "SPACR_LANGUAGE"
 
-# The compact row format makes catalog review practical: every row is ordered
-# sv, de, es, zh_CN, pt, hi, ko, is, fr. English is the source key.
 _TRANSLATED_CODES = VALID_LANGUAGE_CODES[1:]
 
 
@@ -107,20 +105,10 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "기본 모듈은 여기에서 Core, Data, Tools, Assays로 그룹화됩니다. 관련 워크플로는 해당 호스트 모듈에서 열립니다. 이름을 클릭하면 열립니다. Ctrl+1 부터 Ctrl+9 까지는 사이드바 순서대로 처음 아홉 개의 앱을 엽니다.",
         "Aðaleiningar eru flokkaðar hér í Core, Data, Tools og Assays; tengd vinnuferli eru opnuð frá hýsileiningu sinni. Smelltu á hvaða heiti sem er til að opna það. Ctrl+1 til Ctrl+9 opna fyrstu níu forritin í röð hliðarstikunnar.",
         "Les modules principaux sont regroupés ici en Core, Data, Tools et Assays ; les flux de travail associés s’ouvrent depuis leur module hôte. Cliquez sur un nom pour l’ouvrir. Ctrl+1 à Ctrl+9 ouvrent les neuf premières applications dans l’ordre de la barre latérale."),
-    # ---- HARDWARE STATUS AND PERFORMANCE LEVELS (instruction 316) ----
-    # Icelandic, Swedish and German REVIEWED BY EINAR on 2026-09-02,
-    # string by string, in VS Code. The other six locales are machine
-    # drafts with English fallback and are NOT claimed as reviewed --
-    # instruction 357 records who reviewed what and why the public claim
-    # has to be per-locale rather than "nine languages".
-    #
-    # CPU and GPU are deliberately absent: 316-A answered that they stay
-    # exact in every locale, as technical identifiers, like QC.
     "none detected": _row(
         "ingen upptäckt", "keine erkannt", "ninguno detectado", "未检测到", "nenhum detectado", "कोई नहीं मिला", "감지되지 않음", "ekkert greindist", "aucun détecté"),
     "detected, not used by spaCR": _row(
         "upptäckt, används inte av spaCR", "erkannt, wird von spaCR nicht verwendet", "detectado, no utilizado por spaCR", "已检测到，spaCR 未使用", "detectado, não utilizado pelo spaCR", "पाया गया, spaCR द्वारा उपयोग नहीं किया गया", "감지됨, spaCR에서 사용하지 않음", "greind, ekki notuð af spaCR", "détecté, non utilisé par spaCR"),
-    # Navigation and common actions.
     "Home": _row(
         "Hem", "Startseite", "Inicio", "主页", "Início",
         "मुखपृष्ठ", "홈", "Heim", "Accueil"),
@@ -141,9 +129,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Help": _row(
         "Hjälp", "Hilfe", "Ayuda", "帮助", "Ajuda",
         "सहायता", "도움말", "Hjálp", "Aide"),
-    # The "(web)" was dropped from both labels; the keys move with them or
-    # nine languages lose the row. Each translation loses its own bracket
-    # rather than keeping a parenthesis the English no longer has.
     "Tutorial": _row(
         "Handledning", "Tutorial", "Tutorial",
         "教程", "Tutorial", "ट्यूटोरियल",
@@ -157,8 +142,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Om spaCR", "Über spaCR", "Acerca de spaCR", "关于 spaCR",
         "Sobre o spaCR", "spaCR के बारे में", "spaCR 정보", "Um spaCR",
         "À propos de spaCR"),
-    # Keyboard-shortcut map. The bindings themselves remain platform-native
-    # key identifiers; only their labels, categories and scopes are copy.
     "Background": _row(
         "Bakgrund", "Hintergrund", "Fondo", "背景", "Plano de fundo",
         "पृष्ठभूमि", "배경", "Bakgrunnur", "Arrière-plan"),
@@ -243,8 +226,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Återställ zoomningen", "Zoom zurücksetzen", "Restablecer el zoom",
         "重置缩放", "Redefinir o zoom", "ज़ूम रीसेट करें", "확대/축소 초기화",
         "Endurstilla aðdrátt", "Réinitialiser le zoom"),
-    # 378's gesture, on the cheat sheet. Order matters here: "Resi" sorts
-    # before "Rest".
     "Resize the interface text": _row(
         "Ändra storlek på gränssnittstexten",
         "Größe des Oberflächentexts ändern",
@@ -435,9 +416,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "la pantalla Crear máscaras", "创建掩膜屏幕",
         "a tela Criar máscaras", "मास्क बनाएँ स्क्रीन", "마스크 만들기 화면",
         "skjárinn Búa til grímur", "l’écran Créer des masques"),
-    # Terms/setup chrome. The agreement document remains in English because
-    # a translated summary is not the governing licence; every instruction
-    # and control around it is translated exactly.
     "Terms of use": _row(
         "Användningsvillkor", "Nutzungsbedingungen", "Condiciones de uso",
         "使用条款", "Termos de uso", "उपयोग की शर्तें", "이용 약관",
@@ -524,11 +502,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Corrección de iluminación", "照明校正",
         "Correção de iluminação", "प्रदीपन सुधार", "조명 보정",
         "Lýsingarleiðrétting", "Correction de l’éclairage"),
-    # The strap line, one phase per row. Split rather than translated as one
-    # sentence because the loading screen lights the phases INDIVIDUALLY, so
-    # each has to stand alone -- and a language that reorders the clauses
-    # would otherwise light them in the wrong order.
-    # See spacr.qt.widgets.loading_screen.STRAP_PHASES.
     "End-to-end microscopy": _row(
         "Mikroskopi från början till slut", "Mikroskopie von Anfang bis Ende",
         "Microscopía de extremo a extremo", "端到端显微成像",
@@ -717,7 +690,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Språk", "Sprache", "Idioma", "语言", "Idioma",
         "भाषा", "언어", "Tungumál", "Langue"),
 
-    # Application registry — every user-visible module.
     "Mask": _row(
         "Masker", "Masken", "Máscaras", "掩膜", "Máscaras",
         "मास्क", "마스크", "Grímur", "Masques"),
@@ -729,16 +701,9 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Motilitetsanalys", "Motilitätsassay", "Ensayo de motilidad",
         "运动性分析", "Ensaio de motilidade", "गतिशीलता परीक्षण",
         "운동성 분석", "Hreyfanleikapróf", "Test de motilité"),
-    # The Import module (Format Converter and External Masks fold into it)
-    # and the Tools band. Both are single words with a settled equivalent
-    # in every one of the nine, which is why they are translated here
-    # rather than left for the review pass with the longer captions.
     "Import": _row(
         "Importera", "Importieren", "Importar", "导入", "Importar",
         "आयात", "가져오기", "Flytja inn", "Importer"),
-    # The Import module's own caption, distinct from the bare "Import" band
-    # name above it. Each locale reuses its established "Import" verb so the
-    # two read as one family on the same screen.
     "Import Images": _row(
         "Importera bilder", "Bilder importieren", "Importar imágenes",
         "导入图像", "Importar imagens", "छवियाँ आयात करें",
@@ -808,9 +773,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Träna Cellpose", "Cellpose trainieren", "Entrenar Cellpose",
         "训练 Cellpose", "Treinar Cellpose", "Cellpose प्रशिक्षित करें",
         "Cellpose 학습", "Þjálfa Cellpose", "Entraîner Cellpose"),
-    # The name `train_cellpose` registers under. "Train Cellpose" above is
-    # what the module used to be called and still appears in older prose,
-    # so both rows stand.
     "Cellpose Workbench": _row(
         "Cellpose-verkstad", "Cellpose-Werkbank", "Banco de trabajo Cellpose",
         "Cellpose 工作台", "Bancada Cellpose", "Cellpose वर्कबेंच",
@@ -852,14 +814,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Evaluación del clasificador", "分类器评估",
         "Avaliação do classificador", "वर्गीकारक मूल्यांकन",
         "분류기 평가", "Mat á flokkara", "Évaluation du classificateur"),
-    # NAMES THAT ARRIVED THROUGH `register_app(translations=...)`.
-    # Folding a module into a host screen deletes its registry row, and
-    # with it the only call that put its name in these nine catalogs --
-    # so a Korean window would head the folded page in English. The names
-    # are the module's, not the tile's, and the page still wears them, so
-    # they are written down here where the other module names are.
-    # `add_translation` is a no-op for a source already catalogued, so a
-    # module that still registers is unaffected.
     "Barcode QC": _row(
         "Streckkods-QC", "Barcode-QC", "CC de códigos de barras",
         "条形码质控", "CQ de código de barras", "बारकोड QC",
@@ -880,10 +834,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "AnnData-export", "AnnData-Export", "Exportar a AnnData",
         "导出 AnnData", "Exportar para AnnData", "AnnData निर्यात",
         "AnnData 내보내기", "AnnData-útflutningur", "Export AnnData"),
-    # Fold buttons no longer have an application-registry row to contribute
-    # their display name.  Keep every current folded name in the compact
-    # catalog: the icon-only button exposes this text through its tooltip and
-    # accessible name, so an English fallback there is still visible UI.
     "Curate": _row(
         "Kurera", "Kuratieren", "Curación", "校正", "Curadoria",
         "क्यूरेट", "큐레이트", "Grisja", "Curation"),
@@ -905,11 +855,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "PCA": _row(
         "PCA", "PCA", "PCA", "PCA", "PCA", "PCA", "PCA", "PCA",
         "ACP"),
-    # IDENTICAL IN ALL NINE, and that is the translation rather than a gap.
-    # OPS is optical pooled screening, a method named by its acronym in the
-    # literature every one of these locales publishes in; there is no local
-    # expansion for it the way French has ACP for PCA. Translating it would
-    # invent a term a reader could not look up.
     "OPS": _row(
         "OPS", "OPS", "OPS", "OPS", "OPS", "OPS", "OPS", "OPS", "OPS"),
     "Volcano Explorer": _row(
@@ -930,7 +875,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Rapport", "Bericht", "Informe", "报告", "Relatório",
         "रिपोर्ट", "보고서", "Skýrsla", "Rapport"),
 
-    # Distributed execution.
     "Execution profile": _row(
         "Körprofil", "Ausführungsprofil", "Perfil de ejecución", "执行配置",
         "Perfil de execução", "निष्पादन प्रोफ़ाइल", "실행 프로필",
@@ -1105,7 +1049,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "复制分析", "Ensaio de replicação", "प्रतिकृति परीक्षण",
         "복제 분석", "Fjölgunarpróf", "Test de réplication"),
 
-    # Registry sections.
     "Core": _row(
         "Kärna", "Kern", "Principal", "核心", "Principal",
         "मुख्य", "핵심", "Kjarni", "Cœur"),
@@ -1121,19 +1064,10 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Toxoplasma", "Toxoplasma", "Toxoplasma", "弓形虫",
         "Toxoplasma", "टोक्सोप्लाज़्मा", "톡소플라스마",
         "Toxoplasma", "Toxoplasma"),
-    # Data Manager registers itself but predates the `translations=`
-    # keyword on `register_app`, so its nine live here rather than beside
-    # its screen. Moving them into that call is a two-line change in
-    # `spacr/qt/screens/data_manager.py` and deleting this row.
     "Data Manager": _row(
         "Datahanterare", "Datenverwaltung", "Gestor de datos", "数据管理器",
         "Gerenciador de dados", "डेटा प्रबंधक", "데이터 관리자",
         "Gagnastjóri", "Gestionnaire de données"),
-    # Declared in `SECTION_ORDER` and drawn the day their first app
-    # registers. Written here when the section was named rather than when
-    # its tab appeared, for the same reason `_SECTION_NOTE_LIBRARY` is:
-    # the first module to claim an empty section must get a described,
-    # translated tab, not an English heading in nine languages.
     "Explore": _row(
         "Utforska", "Erkunden", "Explorar", "探索", "Explorar",
         "अन्वेषण", "탐색", "Kanna", "Explorer"),
@@ -1163,7 +1097,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "弓形虫分析", "Ensaios de Toxoplasma", "टोक्सोप्लाज़्मा परीक्षण",
         "톡소플라스마 분석", "Toxoplasma-próf", "Tests Toxoplasma"),
 
-    # Preferences and frequent dialog text.
     "spaCR — Preferences": _row(
         "spaCR — Inställningar", "spaCR — Einstellungen",
         "spaCR — Preferencias", "spaCR — 首选项", "spaCR — Preferências",
@@ -1251,9 +1184,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Resolução PNG", "PNG रिज़ॉल्यूशन", "PNG 해상도", "PNG-upplausn",
         "Résolution PNG"),
 
-    # AI/chat, console presentation and linked-help chrome. These strings are
-    # deliberately UI-only: provider replies, pipeline stdout, tracebacks,
-    # paths and generated outputs never pass through the translator.
     "Hover a tile to see what it does.": _row(
         "Håll pekaren över en modul för att se vad den gör.",
         "Bewegen Sie den Zeiger über ein Modul, um seine Funktion zu sehen.",
@@ -1500,9 +1430,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Dragðu til að breyta stærð þessa stjórnborðshluta. Tvísmelltu fyrir sjálfvirka hæð.",
         "Faites glisser pour redimensionner cette section de console. Double-cliquez pour une hauteur automatique."),
 
-    # Exact messages authored by spaCR. Dynamic values are deliberately kept
-    # as placeholders so paths, provider names, tracebacks and function names
-    # remain verbatim after formatting.
     "[AI] No provider configured. Open Providers…": _row(
         "[AI] Ingen leverantör är konfigurerad. Öppna Leverantörer…",
         "[KI] Kein Anbieter konfiguriert. Öffnen Sie Anbieter…",
@@ -1684,8 +1611,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Opnar forútyllt GitHub-mál með síðustu rakningu og umhverfisupplýsingum. Þú ferð yfir það áður en það er sent. Kveiktu eða slökktu í gervigreindarstillingum → Tilkynna villur sem GitHub-mál.",
         "Ouvre un ticket GitHub prérempli avec la dernière trace et l’environnement. Vous le vérifiez avant de l’envoyer. Activez ou désactivez cette option dans Paramètres de l’IA → Signaler les erreurs comme tickets GitHub."),
 
-    # AI provider/setup dialog and the legacy standalone chat surface. Rich
-    # text translations retain the exact markup consumed by Qt.
     "AI Console — providers & settings": _row(
         "AI-konsol — leverantörer och inställningar",
         "KI-Konsole – Anbieter und Einstellungen",
@@ -1940,10 +1865,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Settu fyrst upp CLI veitanda (Veitendur…).",
         "Installez d’abord une CLI de fournisseur (Fournisseurs…)."),
 
-    # ---- The first-run setup screen ---------------------------------
-    # Its own captions, which used to be the one screen in the program
-    # that never translated: it asks which language to use and then went
-    # on asking the rest in English.
     "How it runs": _row("Hur den körs", "Wie es läuft", "Cómo se ejecuta", "运行方式", "Como funciona", "यह कैसे चलता है", "실행 방식", "Hvernig hún keyrir", "Comment il s’exécute"),
     "The assistant": _row("Assistenten", "Der Assistent", "El asistente", "助手", "O assistente", "सहायक", "어시스턴트", "Aðstoðarmaðurinn", "L’assistant"),
     "When something breaks": _row("När något går fel", "Wenn etwas schiefgeht", "Cuando algo falla", "出现问题时", "Quando algo falha", "जब कुछ गड़बड़ हो", "문제가 생겼을 때", "Þegar eitthvað bilar", "Quand quelque chose casse"),
@@ -2017,20 +1938,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Hvað má fara af þessari vél og í hvers nafni. Ekkert er nokkurn tímann sent nema þú sjáir það fyrst og ýtir sjálf(ur) á senda.",
         "Ce qui peut quitter cette machine, et sous quel nom. Rien n’est jamais envoyé sans que vous l’ayez d’abord vu et appuyé vous-même sur envoyer."),
 
-    # ---- What the machine can run, on the first slide ----------------
-    # REPLACED, NOT ADDED, so the row count this catalog is ratcheted on
-    # does not move. Replaced twice now, both times because the sentence
-    # had stopped being true.
-    #
-    # It first said "need an NVIDIA GPU", which stopped being true when
-    # spaCR learned to dispatch to ROCm, Apple Metal and Intel XPU -- and
-    # it was wrong in the worst direction, telling people with a perfectly
-    # good AMD card that they had no GPU. Instruction 319.
-    #
-    # It then named segmentation and classification as THE two steps that
-    # want a card, which the slide now answers far better with a per-task
-    # table. The prose above the table says what the table cannot: which
-    # vendors work, and how much the acceleration is actually worth.
     "spaCR tasks are GPU accelerated and are compatible with NVIDIA, AMD, Apple, and Intel GPUs. GPU acceleration is orders of magnitude faster than CPU for matrix multiplication tasks.": _row(
         "spaCR-uppgifter är GPU-accelererade och fungerar med GPU:er från NVIDIA, AMD, Apple och Intel. GPU-acceleration är flera storleksordningar snabbare än CPU för matrismultiplikation.",
         "spaCR-Aufgaben sind GPU-beschleunigt und mit GPUs von NVIDIA, AMD, Apple und Intel kompatibel. GPU-Beschleunigung ist bei Matrixmultiplikationen um Größenordnungen schneller als die CPU.",
@@ -2070,11 +1977,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Ekkert samhæft skjákort — ekkert fannst",
         "Aucun GPU compatible — aucun détecté"),
 
-    # Compact first-run choices and captions.  These values are assembled
-    # from registries rather than literal widget constructors, so the large
-    # generated Qt catalog cannot discover them from the AST.  Keep them in
-    # the exact, hand-reviewed catalog and let the caption ratchet below the
-    # test suite catch the next choice added without a row.
     "ask": _row(
         "Fråga först", "Vorher fragen", "Preguntar antes", "提交前询问",
         "Perguntar antes", "पहले पूछें", "먼저 묻기", "Spyrja fyrst",
@@ -2140,15 +2042,9 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Balanced": _row(
         "Balanserat", "Ausgewogen", "Equilibrado", "均衡", "Equilibrado",
         "संतुलित", "균형", "Jafnvægi", "Équilibré"),
-    # THE OTHER TWO ENDS OF THE SAME SCALE. Laptop and Workstation reached
-    # the setup screen when it was pointed at PERFORMANCE_LEVELS instead of
-    # the three-value SPACR_MODES; the middle three already had rows, which
-    # is why only these two were missing.
     "Laptop": _row(
         "Bärbar dator", "Laptop", "Portátil", "笔记本电脑", "Notebook",
         "लैपटॉप", "노트북", "Fartölva", "Ordinateur portable"),
-    # German REVIEWED BY EINAR 2026-09-02: "Arbeitsstation", not the
-    # English loanword. Icelandic and Swedish were already right.
     "Workstation": _row(
         "Arbetsstation", "Arbeitsstation", "Estación de trabajo", "工作站",
         "Estação de trabalho", "वर्कस्टेशन", "워크스테이션", "Vinnustöð",
@@ -2325,7 +2221,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Hrunskýrslur fara í OPINBERT spaCR-safn á GitHub. Allir geta lesið þær, þær eru skráðar í leitarvélum og ekki er hægt að tryggja að þær verði afturkallaðar. Skýrslan er hreinsuð, sýnd í breytanlegri forskoðun og aðeins send þegar þú ýtir á Senda fyrir þá tilteknu skýrslu. Reikningsuppsetning notar opinber skipanalínuverkfæri GitHub, Claude, Codex (GPT) og Gemini; spaCR geymir hvorki lykilorð né aðgangslykla þeirra. Öll val eru valfrjáls og má afturkalla í Stillingum.",
         "Les rapports de plantage sont envoyés au dépôt GitHub PUBLIC de spaCR. Ils sont lisibles partout, indexés et ne peuvent pas être retirés de manière fiable. Le rapport est expurgé, affiché dans un aperçu modifiable et envoyé uniquement lorsque vous cliquez sur Envoyer pour ce rapport précis. La configuration des comptes utilise les interfaces en ligne de commande officielles de GitHub, Claude, Codex (GPT) et Gemini ; spaCR ne conserve ni mots de passe ni jetons. Tous les choix sont facultatifs et révocables dans les Préférences."),
 
-    # ---- Home screen chrome -----------------------------------------
     "Hit List": _row(
         "Träfflista", "Trefferliste", "Lista de aciertos", "命中列表",
         "Lista de acertos", "हिट सूची", "히트 목록", "Niðurstöðulisti",
@@ -2361,7 +2256,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Mælingar sem mæla líffræðilega prófun fremur en þrep í vinnsluferli.",
         "Mesures qui évaluent un essai biologique plutôt qu’une étape du flux."),
 
-    # ---- The GitHub row on the setup screen -------------------------
     "signed in through the GitHub CLI": _row("inloggad via GitHub CLI", "über die GitHub-CLI angemeldet", "sesión iniciada con la CLI de GitHub", "已通过 GitHub CLI 登录", "sessão iniciada através da CLI do GitHub", "GitHub CLI के माध्यम से साइन इन", "GitHub CLI로 로그인됨", "innskráð(ur) gegnum GitHub CLI", "connecté via la CLI GitHub"),
     "signed in through GITHUB_TOKEN": _row("inloggad via GITHUB_TOKEN", "über GITHUB_TOKEN angemeldet", "sesión iniciada con GITHUB_TOKEN", "已通过 GITHUB_TOKEN 登录", "sessão iniciada através de GITHUB_TOKEN", "GITHUB_TOKEN के माध्यम से साइन इन", "GITHUB_TOKEN으로 로그인됨", "innskráð(ur) gegnum GITHUB_TOKEN", "connecté via GITHUB_TOKEN"),
     "signed in with a stored token": _row("inloggad med en sparad token", "mit gespeichertem Token angemeldet", "sesión iniciada con un token guardado", "已使用已保存的令牌登录", "sessão iniciada com um token guardado", "संग्रहीत टोकन से साइन इन", "저장된 토큰으로 로그인됨", "innskráð(ur) með vistuðum aðgangslykli", "connecté avec un jeton enregistré"),
@@ -2371,7 +2265,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "`gh auth login` would not start — run it in a terminal": _row("`gh auth login` startade inte — kör det i en terminal", "`gh auth login` ließ sich nicht starten – führen Sie es im Terminal aus", "`gh auth login` no se pudo iniciar: ejecútelo en una terminal", "`gh auth login` 无法启动 — 请在终端中运行", "`gh auth login` não arrancou — execute-o num terminal", "`gh auth login` शुरू नहीं हुआ — इसे टर्मिनल में चलाएँ", "`gh auth login`을 시작할 수 없습니다 — 터미널에서 실행하세요", "`gh auth login` ræstist ekki — keyrðu það í skel", "`gh auth login` n’a pas démarré — lancez-le dans un terminal"),
     "enter {code} in {where}": _row("ange {code} i {where}", "{code} in {where} eingeben", "introduzca {code} en {where}", "在 {where} 中输入 {code}", "introduza {code} em {where}", "{where} में {code} दर्ज करें", "{where}에 {code} 입력", "sláðu {code} inn í {where}", "saisissez {code} dans {where}"),
 
-    # ---- The Demos menu ---------------------------------------------
     "Mask demo…": _row("Maskdemo…", "Masken-Demo…", "Demo de máscaras…", "掩膜演示…", "Demonstração de máscaras…", "मास्क डेमो…", "마스크 데모…", "Maskasýnishorn…", "Démo de masques…"),
     "Measure demo…": _row("Mätdemo…", "Mess-Demo…", "Demo de medición…", "测量演示…", "Demonstração de medição…", "मापन डेमो…", "측정 데모…", "Mælingasýnishorn…", "Démo de mesure…"),
     "Crop demo…": _row("Beskärningsdemo…", "Ausschnitt-Demo…", "Demo de recortes…", "裁剪演示…", "Demonstração de recortes…", "क्रॉप डेमो…", "크롭 데모…", "Útklippusýnishorn…", "Démo de découpe…"),
@@ -2381,7 +2274,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Choose source data": _row("Välj källdata", "Quelldaten wählen", "Elegir datos de origen", "选择源数据", "Escolher dados de origem", "स्रोत डेटा चुनें", "소스 데이터 선택", "Velja upprunagögn", "Choisir les données source"),
     "Open Demos menu": _row("Öppna Demo-menyn", "Demos-Menü öffnen", "Abrir el menú Demostraciones", "打开演示菜单", "Abrir o menu Demonstrações", "डेमो मेनू खोलें", "데모 메뉴 열기", "Opna Sýnishorn-valmynd", "Ouvrir le menu Démonstrations"),
 
-    # ---- The settings-count line under every panel -------------------
     "Showing {shown} of {total} settings": _row("Visar {shown} av {total} inställningar", "{shown} von {total} Einstellungen angezeigt", "Mostrando {shown} de {total} ajustes", "显示 {total} 项设置中的 {shown} 项", "A mostrar {shown} de {total} definições", "{total} में से {shown} सेटिंग दिख रही हैं", "설정 {total}개 중 {shown}개 표시", "Sýni {shown} af {total} stillingum", "Affichage de {shown} réglages sur {total}"),
     "Showing all {total} settings.": _row("Visar alla {total} inställningar.", "Alle {total} Einstellungen werden angezeigt.", "Mostrando los {total} ajustes.", "显示全部 {total} 项设置。", "A mostrar todas as {total} definições.", "सभी {total} सेटिंग दिख रही हैं।", "설정 {total}개 모두 표시.", "Sýni allar {total} stillingarnar.", "Affichage des {total} réglages."),
     "{total} settings.": _row("{total} inställningar.", "{total} Einstellungen.", "{total} ajustes.", "{total} 项设置。", "{total} definições.", "{total} सेटिंग।", "설정 {total}개.", "{total} stillingar.", "{total} réglages."),
@@ -2398,16 +2290,10 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Engin stilling passar. Hreinsaðu leitarreitinn eða skiptu yfir í Allar stillingar.",
         "Aucun réglage ne correspond. Videz le champ de recherche ou passez à Tous les réglages."),
 
-    # ---- Figure and settings panel chrome ---------------------------
     "Figures": _row("Figurer", "Abbildungen", "Figuras", "图表", "Figuras", "आकृतियाँ", "그림", "Myndir", "Figures"),
     "Live preview": _row("Direktförhandsvisning", "Live-Vorschau", "Vista previa en vivo", "实时预览", "Pré-visualização ao vivo", "लाइव पूर्वावलोकन", "실시간 미리보기", "Bein forskoðun", "Aperçu en direct"),
     "Clear figures": _row("Rensa figurer", "Abbildungen leeren", "Borrar figuras", "清除图表", "Limpar figuras", "आकृतियाँ हटाएँ", "그림 지우기", "Hreinsa myndir", "Effacer les figures"),
     "Normalise": _row("Normalisera", "Normalisieren", "Normalizar", "归一化", "Normalizar", "सामान्यीकृत करें", "정규화", "Staðla", "Normaliser"),
-    # FOUR PLOT WORDS THAT ARE ORDINARY ENGLISH WORDS TOO, and the bulk
-    # catalog picked the ordinary sense of each: "Legend" as the myth, "Grid"
-    # as a network (and, in Icelandic, as a person's name), "Opacity" as
-    # ruthlessness, "Colour" as something else entirely. A row here is read
-    # before the bulk catalog, so this is where the chart sense is pinned.
     "Colour": _row(
         "Färg", "Farbe", "Color", "颜色", "Cor", "रंग", "색상", "Litur",
         "Couleur"),
@@ -2441,10 +2327,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Haltu bendlinum yfir stillingaflokk til að sjá hvað hópurinn ræður, eða opnaðu einn til að halda honum hér.",
         "Survolez une catégorie de réglages pour voir ce que le groupe décide, ou ouvrez-en une pour la garder ici."),
 
-    # ---- What a sweep of six screens in Swedish found still English
-    # Section headings, menu entries, status lines and the hint strip:
-    # captions that reach tr() but had no row, and captions that were
-    # composed before the lookup so no row could ever have matched.
     "Click to fold {name} away, and click again to bring it back. The panel above takes the space.": _row(
         "Klicka för att fälla ihop {name}, och klicka igen för att fälla ut den. Panelen ovanför tar utrymmet.",
         "Klicken, um {name} einzuklappen, und erneut klicken, um es zurückzuholen. Der Bereich darüber nimmt den Platz ein.",
@@ -3156,7 +3038,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "það er þegar til flokkur fyrir slembiafgang; tveir flokkar sem báðir merkja 'allt hitt' hafa engin mörk sín á milli",
         "il existe déjà une classe reste aléatoire ; deux classes signifiant toutes deux 'tout le reste' n’ont aucune frontière entre elles"),
 
-    # The first-run tour's own chrome.
     "Step {n} / {total}": _row(
         "Steg {n} / {total}", "Schritt {n} / {total}", "Paso {n} / {total}",
         "第 {n} / {total} 步", "Passo {n} / {total}", "चरण {n} / {total}",
@@ -3173,10 +3054,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Þessi stutta fimm skrefa kynning sýnir uppsetningu heimaskjásins. Ýttu á Esc hvenær sem er til að sleppa henni.",
         "Cette courte visite en cinq étapes présente la disposition de l’accueil. Appuyez sur Échap à tout moment pour la passer."),
 
-    # HALF A TRANSLATION READS WORSE THAN NONE. Each of these
-    # matched a TERM inside itself, so the word-by-word fallback
-    # produced things like "Load the Mätning databases". An exact
-    # row is what overrides a term match.
     "Console context: no new output": _row(
         "Konsolkontext: ingen ny utdata",
         "Konsole-Kontext: keine neue Ausgabe",
@@ -3207,13 +3084,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "측정 데이터베이스 불러오기",
         "Hlaða mælingagagnagrunnunum",
         "Charger les bases de données de mesures"),
-    # THE HEADINGS OF THE ADVANCED-SETTINGS TREE. Every one of them is a
-    # phrase the word-by-word fallback half-translates -- "Objekt Filtration
-    # (all Objekt)", "Bild Preprocessing (per Objekt)", "Avancerat
-    # settings" -- so each needs an exact row, the same way "Intensity
-    # Handling (all objects)" already has one in the external catalog. They
-    # are looked up in the case written here and uppercased on the way to
-    # the header, so a row spelled in capitals would never be found.
     "Advanced settings": _row(
         "Avancerade inställningar", "Erweiterte Einstellungen",
         "Configuración avanzada", "高级设置", "Configurações avançadas",
@@ -3240,10 +3110,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "कोशिकांग विभाजन (उन्नत)", "소기관 분할 (고급)",
         "Hlutun frumulíffæra (ítarlegt)",
         "Segmentation des organites (avancée)"),
-    # The per-object sub-headings of that tree. Cell, Nucleus and Pathogen
-    # already resolve exactly; the four organelle slots did not, and a
-    # heading composed by the word-by-word fallback is one word away from
-    # reading half English the day a term row changes.
     "Organelle 1": _row(
         "Organell 1", "Organelle 1", "Orgánulo 1", "细胞器 1", "Organela 1", "कोशिकांग 1", "소기관 1", "Frumulíffæri 1", "Organite 1"),
     "Organelle 2": _row(
@@ -3252,11 +3118,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Organell 3", "Organelle 3", "Orgánulo 3", "细胞器 3", "Organela 3", "कोशिकांग 3", "소기관 3", "Frumulíffæri 3", "Organite 3"),
     "Organelle 4": _row(
         "Organell 4", "Organelle 4", "Orgánulo 4", "细胞器 4", "Organela 4", "कोशिकांग 4", "소기관 4", "Frumulíffæri 4", "Organite 4"),
-    # Captions a HANDLER writes, and the templates it writes them from.
-    # A sentence composed first and translated afterwards matches nothing --
-    # the finished line carries a count, a module name or a stage name that
-    # no catalog can hold -- so the sentence is a row with a placeholder and
-    # the value is substituted after the lookup.
     "Copied {count} lines": _row(
         "Kopierade {count} rader", "{count} Zeilen kopiert",
         "Se copiaron {count} líneas", "已复制 {count} 行",
@@ -3315,10 +3176,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Alla filer", "Alle Dateien", "Todos los archivos", "所有文件",
         "Todos os arquivos", "सभी फ़ाइलें", "모든 파일", "Allar skrár",
         "Tous les fichiers"),
-    # AN EXACT ROW IS WHAT BEATS THE WORD-BY-WORD FALLBACK. Without one,
-    # `_term_translation` finds "image" in the middle of this caption and
-    # leaves "Choose Bild…" on the live preview's button -- half English,
-    # half German, and the same shape in every other language.
     "Choose image…": _row(
         "Välj bild…", "Bild auswählen…", "Elegir imagen…", "选择图像…",
         "Escolher imagem…", "छवि चुनें…", "이미지 선택…", "Velja mynd…",
@@ -3334,16 +3191,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Enginn uppruni valinn — smelltu á Opna uppruna…",
         "Aucune source sélectionnée — cliquez sur Ouvrir la source…"),
 
-    # ---- THE LIVE PREVIEW'S VALUE-CARRYING DROPDOWNS ------------------
-    # Every entry below is BOTH a caption the user reads and a value the
-    # panel matches on, so the value lives in the entry's item data and
-    # only the caption is translated -- see :func:`set_translatable_items`.
-    # An exact row is what makes the caption right. Left to the word-by-word
-    # fallback, "auto" came back as the vehicle ("자동차", "汽车", "कार"),
-    # "Overlay" as "Surprise" in French, and "All channels" as the
-    # half-English "All Kanaler".
-    #
-    # The outline-colour dropdown.
     "auto": _row(
         "automatisk", "automatisch", "automático", "自动", "automático",
         "स्वचालित", "자동", "sjálfvirkt", "automatique"),
@@ -3369,7 +3216,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "red": _row(
         "röd", "Rot", "rojo", "红色", "vermelho", "लाल", "빨간색", "rauður",
         "rouge"),
-    # What the right-hand canvas shows.
     "View:": _row(
         "Vy:", "Ansicht:", "Vista:", "视图：", "Vista:", "दृश्य:", "보기:",
         "Sýn:", "Affichage :"),
@@ -3382,17 +3228,10 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "Flows": _row(
         "Flöden", "Flüsse", "Flujos", "流场", "Fluxos", "प्रवाह", "흐름",
         "Flæði", "Flux"),
-    # The channel view control. "Ch 3" names a plane and stays as written --
-    # a word touching a digit is part of an identifier, not prose.
     "All channels": _row(
         "Alla kanaler", "Alle Kanäle", "Todos los canales", "所有通道",
         "Todos os canais", "सभी चैनल", "모든 채널", "Allar rásir",
         "Tous les canaux"),
-    # THE SEGMENTATION COMPARTMENTS, whose English spelling is the key the
-    # worker and every `{object}_…` setting are written with. The bulk
-    # catalog had read them as everyday words -- "cell" as a spreadsheet
-    # celda, "nucleus" as an atomic nucleus (परमाणु), "organelle" as an
-    # organ, "pathogen" as pathology -- so these are the biological senses.
     "cell": _row(
         "cell", "Zelle", "célula", "细胞", "célula", "कोशिका", "세포",
         "fruma", "cellule"),
@@ -3409,9 +3248,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "cell + kärna", "Zelle + Zellkern", "célula + núcleo", "细胞 + 细胞核",
         "célula + núcleo", "कोशिका + केंद्रक", "세포 + 핵", "fruma + kjarni",
         "cellule + noyau"),
-    # How a compartment's intensity threshold is computed. Statistics, not
-    # prose: the fallback had offered "meaning" (意思, "Að segja") for the
-    # average and "a hundred percent" (百分之百) for the percentile.
     "mean": _row(
         "medelvärde", "Mittelwert", "media", "均值", "média", "माध्य", "평균",
         "meðaltal", "moyenne"),
@@ -3421,9 +3257,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
 }
 
 
-# Common settings words provide broad, conservative coverage for short labels
-# and section headings not yet promoted to an exact phrase above. Technical
-# identifiers (UMAP, Cellpose, XGBoost, CUDA, SQL, file suffixes) are retained.
 _TERM_ROWS: Dict[str, tuple[str, ...]] = {
     "Input": _row("Indata", "Eingabe", "Entrada", "输入", "Entrada", "इनपुट", "입력", "Inntak", "Entrée"),
     "Output": _row("Utdata", "Ausgabe", "Salida", "输出", "Saída", "आउटपुट", "출력", "Úttak", "Sortie"),
@@ -3555,9 +3388,6 @@ def add_translation(source: str, values: Iterable[str]) -> bool:
     _ROWS[source] = row
     for code, value in zip(_TRANSLATED_CODES, row):
         CATALOGS[code][source] = value
-    # A widget stamped by an earlier pass was compared against a catalog that
-    # did not have this row. Move the generation on so `only_new` re-visits it
-    # rather than leaving the new source in English for the process's life.
     global _CATALOG_GENERATION
     _CATALOG_GENERATION += 1
     return True
@@ -3577,11 +3407,6 @@ def _absorb_registered_app_names() -> None:
     nothing.
     """
     app = sys.modules.get("spacr.qt.app")
-    # `getattr(..., None)`, not a bare attribute read: `spacr.qt.app`
-    # imports the widget package (which imports this module) at its line
-    # 41, so it is present in `sys.modules` and only PARTIALLY built
-    # while this runs. There is nothing registered yet at that point --
-    # the push half delivers it later.
     pull = getattr(app, "registered_metadata", None) if app else None
     if pull is None:
         return
@@ -3591,7 +3416,6 @@ def _absorb_registered_app_names() -> None:
         try:
             add_translation(name, values)
         except ValueError:
-            # A bad row costs that app its translations, not the app.
             pass
 
 
@@ -3647,8 +3471,6 @@ def ui_language_resolved_once():
     """
     scope = _RESOLVED_LANGUAGE.get()
     if scope is not None:
-        # Already inside one. Do NOT reset it on the way out -- the outer
-        # scope is still using the dict.
         yield
         return
     token = _RESOLVED_LANGUAGE.set({})
@@ -3696,9 +3518,6 @@ def _exact_translation(source: str, language: str) -> Optional[str]:
     catalog = CATALOGS.get(language, {})
     if source in catalog:
         return catalog[source]
-    # TERM_CATALOGS also contains reviewed multi-word scientific phrases.
-    # The word-by-word fallback below cannot ever match those dictionary keys,
-    # so take an exact phrase before decomposing a short label into tokens.
     term_catalog = TERM_CATALOGS.get(language, {})
     if source in term_catalog:
         return term_catalog[source]
@@ -3708,8 +3527,6 @@ def _exact_translation(source: str, language: str) -> Optional[str]:
         if translated is not None:
             return translated
     except (ImportError, AttributeError):
-        # External catalogs add coverage; their absence must not make the
-        # compact core catalog unavailable.
         pass
     try:
         from spacr.plugins import discover_plugins
@@ -3718,11 +3535,8 @@ def _exact_translation(source: str, language: str) -> Optional[str]:
             if translated:
                 return translated
     except Exception:
-        # A plugin translation is optional metadata; core localization must
-        # remain available if discovery fails.
         pass
 
-    # Qt uses '&' for keyboard mnemonics and '&&' for a literal ampersand.
     literal = source.replace("&&", "&")
     mnemonic = literal.startswith("&") and not literal.startswith("&&")
     lookup = literal[1:] if mnemonic else literal
@@ -3741,7 +3555,6 @@ def _exact_translation(source: str, language: str) -> Optional[str]:
     except (ImportError, AttributeError):
         pass
 
-    # Section headers are often uppercased before they reach QLabel.
     if source.isupper():
         for english, translated in catalog.items():
             if english.upper() == source:
@@ -3939,10 +3752,6 @@ def _translate_qt_text(obj, getter_name: str, setter_name: str,
                 return
             obj.setProperty(property_name, str(source))
         elif last_rendered is not None and current != str(last_rendered):
-            # A setter outside the translator replaced the rendered value.
-            # QLabel/QAbstractButton contents can carry paths, metrics and
-            # provider output, so preserve them byte-for-byte until callers
-            # explicitly opt in with set_translatable_text().
             obj.setProperty(property_name, current)
             if property_name == "_spacr_i18n_text":
                 obj.setProperty("i18nSkipText", True)
@@ -3953,7 +3762,6 @@ def _translate_qt_text(obj, getter_name: str, setter_name: str,
         setter(rendered)
         obj.setProperty(rendered_property, rendered)
     except (AttributeError, RuntimeError, TypeError):
-        # A deferred-delete Qt wrapper may remain in findChildren briefly.
         return
 
 
@@ -3970,8 +3778,6 @@ def set_translatable_text(
     this helper because they intentionally remain untouched by localization.
     """
     widget.setProperty("_spacr_i18n_text_template", str(source))
-    # Python attributes reliably retain arbitrary values across all supported
-    # PySide versions; QVariant conversion of a dict is less consistent.
     widget._spacr_i18n_text_values = dict(values)
     widget.setText(tr(source, language, **values))
 
@@ -4027,10 +3833,6 @@ def set_translatable_items(
     finally:
         combo.blockSignals(blocked)
     combo._spacr_i18n_item_sources = list(captions)
-    # An explicit False, because the property may already be True from the
-    # widget's class -- FlatComboBox marks every entry untranslatable,
-    # which is right for the file names it usually lists and wrong for a
-    # caption that now keeps its value somewhere else.
     combo.setProperty("i18nSkipItems", False)
 
 
@@ -4063,20 +3865,6 @@ def _refresh_module_help(obj, language: str) -> None:
     name = tr(str(name_source or app_key), language)
     summary = module_summary(str(app_key), str(summary_source), language)
     style = str(obj.property("moduleTooltipStyle") or "")
-    # NO QWidget TOOLTIP ON A MODULE, since 2026-09-03: "remove the popup
-    # window tooltip on the moduals. the tooltip is shown at the botom of the
-    # screen."
-    #
-    # The sentence MOVES rather than disappearing. It goes to the accessible
-    # description, which is what a screen reader reads, and the strip along
-    # the bottom of the window says it to everyone else -- with an API link
-    # and a Tutorial link, which a native tooltip could never carry because
-    # it vanishes the moment the pointer moves toward it.
-    #
-    # `AppTile` has said "NO TOOLTIP on the tile" in its own constructor
-    # since the hint bar was introduced, and this function was quietly
-    # putting one back on the next language refresh -- which runs at startup.
-    # That is why the popups were still there.
     if style in ("sidebar", "tile"):
         obj.setToolTip("")
     if style == "sidebar":
@@ -4089,7 +3877,6 @@ def _refresh_module_help(obj, language: str) -> None:
         obj.setAccessibleDescription(
             f"{stage} — {summary}" if stage else summary)
     elif hasattr(obj, "setStatusTip"):
-        # QAction module entries have a status tip but no QWidget tooltip.
         obj.setStatusTip(summary)
 
 
@@ -4182,14 +3969,6 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
         pass
 
     stamp = _pass_stamp(code)
-    # A WIDGET WHOSE CAPTIONS ARE A COLLECTION IS NEVER "already done".
-    # `QTabWidget` renders its tabs, a combo its items, a table and a tree
-    # their headers -- all of which can GAIN an entry without the widget
-    # itself changing, and the pass caches the English sources in a list it
-    # refreshes only when the length moves. Measured as a real regression:
-    # open a second fold on the Classify screen and its tab arrives in
-    # English, because `_pass_root` correctly starts the pass at the STRIP
-    # and the strip was stamped when the first fold opened.
     collections = (QTabWidget, QComboBox, QTableWidget, QTreeWidget)
     for widget in widgets:
         if only_new:
@@ -4217,9 +3996,6 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
                 widget, "accessibleDescription", "setAccessibleDescription",
                 "_spacr_i18n_accessible_description", code)
 
-        # Chat messages, generated output and other dynamic labels opt out.
-        # Translating their contents during a language switch would mutate
-        # user/provider text rather than application chrome.
         dynamic_text = _refresh_dynamic_text(widget, code)
         semantic_setting_text = False
         setting_key = widget.property("settingKey")
@@ -4238,26 +4014,9 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
                             "_spacr_i18n_setting_text", str(source))
                 if source:
                     rendered = None
-                    # The compact catalog contains manually reviewed terms and
-                    # therefore remains authoritative when it has this exact
-                    # visible label.  The context-keyed catalog fills the much
-                    # larger settings surface and app-specific labels.
                     if str(source) in _ROWS or str(source) in _TERM_ROWS:
                         rendered = tr(str(source), code)
                     else:
-                        # GUARDED LIKE EVERY OTHER CATALOG IMPORT. The
-                        # contract is stated at the top of _exact_translation:
-                        # "External catalogs add coverage; their absence must
-                        # not make the compact core catalog unavailable."
-                        #
-                        # This one was the exception, and it was not
-                        # theoretical: a lightweight source install omits
-                        # spacr/qt/i18n_catalogs, and the ModuleNotFoundError
-                        # escaped -- the enclosing except catches
-                        # AttributeError, RuntimeError and TypeError, none of
-                        # which an ImportError is. Every screen change then
-                        # logged a traceback and gave up on translating that
-                        # screen, once per late settings panel.
                         try:
                             from .i18n_catalogs import setting_label
                         except (ImportError, AttributeError):
@@ -4347,24 +4106,7 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
                 retranslate_content(code)
             except (AttributeError, RuntimeError, TypeError, ValueError):
                 pass
-        # STAMPED LAST, so a widget the pass gave up on part way is left
-        # unstamped and gets another try. The combo-box arm above `continue`s
-        # past this on purpose: those widgets opt out of the rest of the body
-        # too, so they have not had a full pass and must not read as if they
-        # had.
         try:
-            # READ BEFORE WRITE, AND IT IS NOT A MICRO-OPTIMISATION. Qt
-            # sends a `DynamicPropertyChange` for EVERY `setProperty`,
-            # including one that writes the value already there, and an
-            # application-wide event filter sees every one of them --
-            # there are eight of those, so each redundant write is eight
-            # Python calls through shiboken.
-            #
-            # Measured on a window with two modules open: a repeat pass
-            # writes 5,820 stamps of which 5,820 are UNCHANGED. That is
-            # 100 %, on every pass after the first -- which is every
-            # preference save, every language change and every theme
-            # change that retranslates.
             if widget.property(_PASS_STAMP) != stamp:
                 widget.setProperty(_PASS_STAMP, stamp)
         except (AttributeError, RuntimeError):
@@ -4386,24 +4128,6 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
                 "_spacr_i18n_status_tip", code)
         _refresh_module_help(action, code)
 
-    # Settings tooltips are structured HTML (name, type, scientific prose and
-    # API link), so rebuild them semantically after the generic Qt pass.
-    #
-    # The same catalog errors as the settings-label block above, which is
-    # what this guard was missing: a malformed record raised TypeError out
-    # of `setting_label` there and was caught, and raised it out of the same
-    # catalog here and was not -- so a language switch stopped part way and
-    # left the window half English with no way back except another switch.
-    #
-    # NOT IMPORTED UNLESS IT ALREADY IS. `refresh_api_tooltips` rebuilds the
-    # tooltips that `settings_model` itself attached, so a tree can only hold
-    # one if that module has already been imported -- and if it has not, there
-    # is provably nothing here to refresh.
-    #
-    # Importing it anyway cost 0.3 s of a 1.4 s launch: the module reaches
-    # external_mask_inputs, which reaches external_masks, which reaches
-    # convert, which imports pandas. All of it paid at startup, to retranslate
-    # a Home page that has no settings on it.
     if "spacr.qt.screens.settings_model" not in sys.modules:
         return
     try:
@@ -4451,9 +4175,6 @@ def install_qt_translations(app, language: Optional[str] = None) -> bool:
         except Exception:                                    # noqa: BLE001
             pass
         app._spacr_qt_translator = None
-    # WHICH LANGUAGE IS LOADED, recorded whether or not one could be. Qt
-    # ships no catalog for Hindi or Icelandic, and without this the
-    # language pass would try to load one again on every dialog it sees.
     app._spacr_qt_translator_code = code
 
     catalog = QT_CATALOGS.get(code)
@@ -4465,8 +4186,6 @@ def install_qt_translations(app, language: Optional[str] = None) -> bool:
         if not translator.load(f"qtbase_{catalog}", path):
             return False
         app.installTranslator(translator)
-        # HELD ON THE APPLICATION. A QTranslator that is garbage collected
-        # is a QTranslator Qt goes on asking and getting nothing from.
         app._spacr_qt_translator = translator
         return True
     except Exception:                                        # noqa: BLE001

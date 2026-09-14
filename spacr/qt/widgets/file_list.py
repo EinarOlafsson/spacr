@@ -66,9 +66,6 @@ def _pair_tokens(path: str) -> set[str]:
 #: response is exactly the failure this column exists to remove.
 DATABASE_EXTENSIONS = (".db", ".sqlite", ".sqlite3")
 
-# Words every plate's database shares, so they cannot tell two plates apart.
-# 'measurements' is here because spaCR's own layout calls every plate's
-# database <plate>/measurements/measurements.db.
 _DATABASE_GENERIC = frozenset({
     "measurements", "measurement", "database", "sqlite", "data", "merged",
     "results", "result", "analysis"})
@@ -106,12 +103,6 @@ def _database_tokens(path, *, depth: int = 2) -> set[str]:
         tokens |= folder
         parent = os.path.dirname(parent)
         if folder:
-            # THE NEAREST FOLDER THAT SAYS ANYTHING IS ENOUGH. Climbing
-            # further collects whatever the tree above happens to be called,
-            # and one project folder with a number in its name would invent a
-            # plate token for every database underneath it. ``measurements``
-            # and its friends are skipped because they say nothing about
-            # WHICH plate -- which is the only reason to look up at all.
             break
     return tokens
 
@@ -153,9 +144,6 @@ def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str], *,
     unused = set(range(len(counts)))
     count_tokens = [_pair_tokens(path) for path in counts]
     rows = []
-    # PASS ONE, BY TOKEN, AND IT KEEPS PRIORITY. A user who named their files
-    # carefully must not have that overridden by arrival order, so every
-    # unambiguous token match is taken before position is consulted at all.
     for score in scores:
         left = _pair_tokens(score)
         match = _best_unique(left, count_tokens, unused)
@@ -167,13 +155,6 @@ def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str], *,
                      "count": os.fspath(counts[match]) if match is not None
                      else None,
                      "database": None})
-    # PASS TWO, BY POSITION. `scores.csv` and `counts.csv` share no token, so
-    # the token pass leaves both unmatched -- and the user got TWO half-empty
-    # rows with nothing to say the files belonged together. The engine has
-    # always accepted row order as the last resort (`load_regression_input_pairs`
-    # resolves plate identity "without filename guesses ... own column,
-    # partner column, then pair-row order"); it is this proposal step that
-    # never got the memo.
     leftover = iter(sorted(unused))
     for row in rows:
         if row["count"] is not None:
@@ -186,14 +167,6 @@ def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str], *,
     for index in sorted(unused):
         rows.append({"plate": "", "score": None,
                      "count": os.fspath(counts[index]), "database": None})
-    # NUMBERED LAST, AFTER THE DATABASES HAVE HAD THEIR SAY. A database
-    # folder NAMES a plate -- `_attach_databases` fills an empty plate cell
-    # from the folder it matched -- and that is a parsed fact, where a
-    # generated number is only a default. Numbering first made every cell
-    # truthy and silently took that away: `_attach_databases` fills the cell
-    # only `if not row.get("plate")`, so a database could never name a plate
-    # again. Caught by `test_a_database_names_the_plate_when_the_csvs_could_not`,
-    # which is what that test is for.
     return _number_unlabelled_plates(_attach_databases(rows, databases))
 
 
@@ -221,14 +194,6 @@ def _number_unlabelled_plates(rows: list[dict]) -> list[dict]:
     :returns: the same rows, with blank plate cells filled in.
     """
     for position, row in enumerate(rows, start=1):
-        # A PAIR, OR NOTHING. The request is about two files that do not share
-        # a name -- "if they do share a name it can be used if the files do
-        # not the name should be generated" -- and "the files" is the pair. A
-        # score still waiting for its partner, or a database waiting for its
-        # CSVs, is not a plate row yet, and numbering it would assert exactly
-        # the fact step 3 of 392 warns about: a label that reads as parsed
-        # when nothing parsed it. Those rows keep a blank cell, which is the
-        # honest state and the one the user is being asked to resolve.
         if row.get("score") and row.get("count") and not row.get("plate"):
             row["plate"] = f"plate {position}"
     return rows
@@ -282,12 +247,6 @@ def side_for_header(path) -> str:
             header = {str(name).strip().lower()
                       for name in next(_csv.reader(handle), [])}
     except (OSError, _csv.Error):
-        # csv.Error is 'line contains NUL': a BINARY file was asked this
-        # question. It used to escape from inside Qt's drop dispatch, where
-        # an exception is a crash rather than an error dialog -- so dropping
-        # a measurements database on the input table killed the window.
-        # Databases are now routed by extension before they get here
-        # (:func:`is_database_path`); this catch is for the next binary.
         return "score"
     return ("count" if {"grna", "grna_name"} & header and "count" in header
             else "score")
@@ -330,11 +289,6 @@ class PairedFileTableWidget(QWidget):
         self._scores: list[str] = []
         self._counts: list[str] = []
         self._databases: list[str] = []
-        # Databases the user placed on a row BY HAND, anchored to that row's
-        # identity rather than to its index. Every addition re-proposes the
-        # whole table, so without this an explicit attachment would be undone
-        # by the next CSV drop -- silently, which is the same class of bug as
-        # pairing by list position.
         self._pinned: dict[str, dict] = {}
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -347,9 +301,6 @@ class PairedFileTableWidget(QWidget):
         self.table.itemChanged.connect(lambda *_: self.value_changed.emit())
         self._fit_columns_to_their_headers()
         layout.addWidget(self.table)
-        # What the table just did, in words. A database attached to "the
-        # first row without one" that says nothing is a file the user
-        # believes is on another plate.
         self.status = QLabel(self._EMPTY_STATUS, self)
         self.status.setWordWrap(True)
         self.status.setProperty("role", "hint")
@@ -374,8 +325,6 @@ class PairedFileTableWidget(QWidget):
             buttons.addWidget(button)
         buttons.addStretch(1)
         layout.addLayout(buttons)
-        # The table is the drop target the user aims at, so the widget takes
-        # drops and the table does not swallow them first.
         self.setAcceptDrops(True)
         self.table.setAcceptDrops(False)
         self.set_value(value)
@@ -384,9 +333,6 @@ class PairedFileTableWidget(QWidget):
     #: aimed it rather than in whichever input the router reached first.
     SIDE_COLUMNS = {"score": 1, "count": 2, "database": 3}
 
-    # The read-only column that reports how the plate id was resolved. It
-    # moved right when the database column was inserted; it is named here so
-    # that the next column to arrive moves one number, not four.
     RULE_COLUMN = 4
 
     #: The Download buttons that sit above this table, and the column each one
@@ -428,9 +374,6 @@ class PairedFileTableWidget(QWidget):
         for column in range(self.table.columnCount()):
             item = self.table.horizontalHeaderItem(column)
             text = item.text() if item is not None else ""
-            # The sort indicator and the section's own padding both sit
-            # beside the text; 18 px covers them at every font scale this
-            # has been measured at.
             needed = metrics.horizontalAdvance(text) + 18
             if header.sectionSize(column) < needed:
                 header.resizeSection(column, needed)
@@ -472,40 +415,16 @@ class PairedFileTableWidget(QWidget):
                 continue
             wanted = button.sizeHint().width()
             current = header.sectionSize(column)
-            # NEVER AGAINST THE USER, AND THAT IS WHY THE WIDTH IS
-            # REMEMBERED RATHER THAN A FLAG BEING SET. A once-only guard
-            # answers "have we ever done this" when the question is "has
-            # the user moved it since": the caption is set in English when
-            # the row is built and REPLACED by the language pass
-            # afterwards, so a column sized once is sized for the wrong
-            # word. "Count" is 100 px and "Contagem" is 151.
-            #
-            # THE WIDTH IS RECORDED EVEN WHEN NOTHING IS RESIZED, which is
-            # the half that makes the rule work for a column that already
-            # fit. Otherwise "we have never touched this one" and "the
-            # user has not touched it either" are the same state, and a
-            # column dragged narrow before any caption grew would be
-            # dragged back the moment one did.
             ours = applied.get(column, self._NEVER_SET)
             if ours is self._THE_USERS:
                 continue
             if ours is not self._NEVER_SET and current != ours:
-                # THE USER HAS MOVED IT, so this column stops being
-                # managed -- for good, not until the next caption grows.
-                # A table that argued with a drag every time the language
-                # changed would be unusable.
                 applied[column] = self._THE_USERS
                 continue
             if current < wanted:
                 header.resizeSection(column, wanted)
                 applied[column] = header.sectionSize(column)
             elif ours is self._NEVER_SET:
-                # A BASELINE FOR A COLUMN THAT ALREADY FITS, which is the
-                # half that makes the rule work at all: without it, "we
-                # have never touched this one" and "the user has not
-                # touched it either" are the same state, and a column
-                # dragged narrow before any caption grew would be dragged
-                # back the moment one did.
                 applied[column] = current
 
     def showEvent(self, event):                               # noqa: N802
@@ -529,8 +448,6 @@ class PairedFileTableWidget(QWidget):
         try:
             self.align_download_buttons()
         except Exception:                                     # noqa: BLE001
-            # A strip that failed to align is a strip in the wrong place; a
-            # table that failed to show is no input at all.
             LOG.debug("could not align the Download row", exc_info=True)
 
     def align_download_buttons(self) -> bool:
@@ -550,10 +467,6 @@ class PairedFileTableWidget(QWidget):
             button = getattr(screen, name, None)
             if button is None:
                 return False
-            # ONE STRIP OR NONE. The four buttons share a parent because
-            # `_install_example_data_button` puts them in one row widget; if
-            # that ever stops being true, aligning some of them would leave
-            # the rest laid out by a layout that no longer holds them.
             if strip is None:
                 strip = button.parentWidget()
             elif button.parentWidget() is not strip:
@@ -563,15 +476,7 @@ class PairedFileTableWidget(QWidget):
             return False
         from .column_aligned_row import align_row_to_columns
 
-        # BEFORE the strip is handed to the layout: the layout centres a
-        # button in whatever the column is, so a column too narrow for its
-        # button has to be widened first or the caption is clipped by the
-        # alignment that was supposed to make it readable.
         self._widen_columns_for(columns)
-        # AND AGAIN WHENEVER A CAPTION CHANGES SIZE. The language pass runs
-        # after the row is built, so the first fit is against the English
-        # text; `ColumnAlignedRow.invalidate` reports the change and the
-        # table -- which owns the header -- acts on it.
         self._download_columns = list(columns)
         return align_row_to_columns(
             strip, self.table.horizontalHeader(), columns,
@@ -646,8 +551,6 @@ class PairedFileTableWidget(QWidget):
                 target.append(path)
                 added += 1
         if added:
-            # Re-propose so a count dropped after its score lands on the same
-            # row: the pairing is by filename token, not by drop order.
             self._repropose()
             self.value_changed.emit()
         return added
@@ -711,7 +614,6 @@ class PairedFileTableWidget(QWidget):
             current = next((index for index, row in enumerate(rows)
                             if row.get("database") == database), None)
             if current is None:
-                # The user removed it from the table; the pin goes with it.
                 self._pinned.pop(database, None)
                 continue
             target = self._row_for_anchor(rows, anchor)
@@ -764,7 +666,6 @@ class PairedFileTableWidget(QWidget):
         return ("database" if is_database_path(path)
                 else self._side_for_header(path))
 
-    # ------------------------------------------------------- the third column
 
     def attach_database(self, path, row=None) -> str:
         """Attach a measurements database to one plate row, and say which.
@@ -784,9 +685,6 @@ class PairedFileTableWidget(QWidget):
         Returns the sentence, so a caller with a console logs the same words
         the user is reading.
         """
-        # Stripped, because the table stores text and hands it back stripped:
-        # a path that is not equal to its own strip is one this widget could
-        # write and then never find again.
         database = os.fspath(path).strip()
         if not database:
             raise ValueError("attach_database needs a path to a database.")
@@ -805,9 +703,6 @@ class PairedFileTableWidget(QWidget):
             return message
 
         already = self._row_of_database(database)
-        # After this the path IS somewhere in the table: the side lists are
-        # rebuilt from the table itself, so a path that was not already on a
-        # row comes back on one of its own.
         self.add_paths_for_side([database], "database")
         index = self._row_of_database(database)
         if already is not None:
@@ -830,9 +725,6 @@ class PairedFileTableWidget(QWidget):
         self.table.blockSignals(True)
         self.table.removeRow(index)
         self.table.blockSignals(False)
-        # Asked again rather than adjusted by hand: removing a row shifts
-        # every index after it, and an off-by-one here attaches a database to
-        # the wrong plate, which is the one mistake this column cannot make.
         target = self._first_row_without_database()
         self._place_database(target, database)
         message = self._describe_row(target, database, "attached to")
@@ -857,9 +749,6 @@ class PairedFileTableWidget(QWidget):
         missing = []
         for index, row in enumerate(self.get_value(), start=1):
             database = row.get("database")
-            # `wait=True`: "is this database missing" is the whole
-            # question, and the optimistic default answers "present" for a
-            # path never seen -- so a genuinely absent file is never flagged.
             if database and not path_probe.exists(database, wait=True):
                 missing.append((index, row.get("plate") or "", database))
         return missing
@@ -916,9 +805,6 @@ class PairedFileTableWidget(QWidget):
         """
         item = table_item(str(value))
         if value and not path_probe.exists(str(value), wait=True):
-            # Marked, not discarded: the path may be right and the disk
-            # merely not mounted yet, and a silently emptied cell is worse
-            # than a red one.
             item.setForeground(Qt.red)
             item.setToolTip(f"{value}\n\nThis database is not on disk right "
                             "now, so this plate has no measurements to join.")
@@ -957,7 +843,6 @@ class PairedFileTableWidget(QWidget):
                          "the run: they are read after it starts.")
         self.status.setText(" ".join(parts) or self._EMPTY_STATUS)
 
-    # ---------------------------------------------------------- drag / drop
 
     @staticmethod
     def _dropped(event):
@@ -1013,11 +898,6 @@ class PairedFileTableWidget(QWidget):
             return
         position = event.position().toPoint() if hasattr(event, "position") \
             else event.pos()
-        # VIEWPORT coordinates, which is what columnAt and rowAt document
-        # themselves to take. Mapping into the table itself instead offsets
-        # every answer by the header: one whole row down, and one vertical
-        # header's width across. Nobody noticed while only the column was
-        # read -- columns are wide -- but a row aimed at is a row missed.
         local = self.table.viewport().mapFrom(self, position)
         inside = self.table.viewport().rect().contains(local)
         column = self.table.columnAt(local.x()) if inside else -1
@@ -1050,8 +930,6 @@ class PairedFileTableWidget(QWidget):
         paths, _ = QFileDialog.getOpenFileNames(self, title, "", filters)
         if not paths:
             return
-        # Through the same seam a drop uses, so the picker cannot pair by the
-        # order the file dialog happened to return.
         self.add_paths_for_side(paths, side)
 
     def _append_row(self, row: dict) -> None:
@@ -1126,8 +1004,6 @@ class PairedFileTableWidget(QWidget):
         rows = sorted({index.row() for index in self.table.selectedIndexes()},
                       reverse=True)
         for row in rows:
-            # A removed row takes its database's pin with it, or the next
-            # addition would put a file back that the user just deleted.
             self._pinned.pop(self._cell(row, self.SIDE_COLUMNS["database"]),
                              None)
             self.table.removeRow(row)
@@ -1216,8 +1092,6 @@ class FilePathListWidget(QWidget):
         self._kind = kind if kind in FILE_KIND_FILTERS else "any"
         self._title = title
         self._single = bool(single)
-        # A folder is not a file, and expanding one into "all the CSVs in
-        # here" cannot mean anything for a setting that names one of them.
         self._allow_folders = bool(allow_folders) and not self._single
         self._last_directory = ""
 
@@ -1230,7 +1104,6 @@ class FilePathListWidget(QWidget):
         self._list.setAlternatingRowColors(True)
         self._list.setMinimumHeight(48 if self._single else 96)
         self._list.setUniformItemSizes(True)
-        # The list itself must not swallow the drop before the widget sees it.
         self._list.setAcceptDrops(False)
         self._list.setDragDropMode(QAbstractItemView.NoDragDrop)
         outer.addWidget(self._list)
@@ -1262,17 +1135,12 @@ class FilePathListWidget(QWidget):
         else:
             self._add_folder_button = None
 
-        # One path has no order, so the two buttons that reorder the list are
-        # not built at all rather than built and left doing nothing.
         if self._single:
             self._up_button = self._down_button = None
         else:
             self._up_button = QPushButton("↑", self)
             self._up_button.setToolTip(
                 "Move the selected file earlier in the list")
-            # A CAP THAT CANNOT CUT (193). 30 px keeps the arrows compact,
-            # and `sizeHint` is the floor: at a large font or a glyph a
-            # theme renders wider, the button grows rather than clipping.
             self._up_button.setMaximumWidth(
                 max(30, self._up_button.sizeHint().width()))
             self._up_button.clicked.connect(lambda: self._move_selected(-1))
@@ -1299,7 +1167,6 @@ class FilePathListWidget(QWidget):
         self.setAcceptDrops(True)
         self.set_value(value)
 
-    # ------------------------------------------------------------------ value
 
     def set_value(self, value: Any) -> None:
         """Replace the contents. Accepts None, a str, or any iterable.
@@ -1332,8 +1199,6 @@ class FilePathListWidget(QWidget):
             return listed
         return listed[0] if listed else ""
 
-    # A settings CSV written before this widget existed can hold the literal
-    # placeholder 'list of paths'; it is not a path and must not become one.
     _PLACEHOLDERS = {"list of paths", "none", "", "[]"}
 
     @classmethod
@@ -1361,7 +1226,6 @@ class FilePathListWidget(QWidget):
             out.append(text)
         return out
 
-    # ------------------------------------------------------------------- edit
 
     def add_paths(self, paths: Iterable[Any]) -> int:
         """Append ``paths``, expanding folders. Returns how many were added.
@@ -1385,9 +1249,6 @@ class FilePathListWidget(QWidget):
         added = 0
         for raw in incoming:
             expanded = os.path.abspath(os.path.expanduser(raw))
-            # `wait=True`: the user just dropped or chose this, and is
-            # waiting on the result. Without it an unseen path answers
-            # "not a directory" and the folder is appended AS a file.
             if path_probe.isdir(expanded, wait=True):
                 for member in self._folder_members(expanded):
                     added += int(self._append(member))
@@ -1425,9 +1286,6 @@ class FilePathListWidget(QWidget):
         if path_probe.exists(resolved):
             item.setToolTip(resolved)
         else:
-            # Marked, not dropped: a settings file may legitimately be edited
-            # on one machine and run on another, and silently discarding the
-            # path would leave the user staring at an empty list.
             item.setToolTip(f"{resolved}\n\nThis path does not exist right now.")
             item.setForeground(Qt.red)
         self._list.addItem(item)
@@ -1512,7 +1370,6 @@ class FilePathListWidget(QWidget):
             try:
                 self._refresh_hint()
             except RuntimeError:
-                # The widget has gone; the signal outlived it.
                 pass
 
         self._path_probe_redraw = redraw
@@ -1535,7 +1392,6 @@ class FilePathListWidget(QWidget):
             self._hint.setText(
                 f"{count} file{'s' if count != 1 else ''} selected")
 
-    # -------------------------------------------------------------- drag/drop
 
     @staticmethod
     def _urls(event) -> List[str]:
@@ -1581,7 +1437,6 @@ class FilePathListWidget(QWidget):
         self.add_paths(paths)
         event.acceptProposedAction()
 
-    # ----------------------------------------------------------------- picker
 
     def pick_files(self) -> int:
         """Open the file dialog and take what is chosen.
@@ -1618,9 +1473,6 @@ class FilePathListWidget(QWidget):
 
     def _start_directory(self) -> str:
         """Reopen where the user last was, or beside the last file added."""
-        # `wait=True`: this answer chooses where a dialog the user is
-        # opening RIGHT NOW will land, so an unknown path must not silently
-        # mean "not a directory" and drop them at the default location.
         if self._last_directory and path_probe.isdir(self._last_directory,
                                                      wait=True):
             return self._last_directory

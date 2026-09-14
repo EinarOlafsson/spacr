@@ -322,9 +322,6 @@ def agreed_version() -> str:
     try:
         return str(_settings().value(_KEY_VERSION, "") or "")
     except Exception:                                        # noqa: BLE001
-        # A PROFILE THAT CANNOT BE READ HAS NOT AGREED. Answering "yes" when
-        # the store is unreachable would turn a broken settings file into a
-        # silent acceptance.
         return ""
 
 
@@ -366,9 +363,6 @@ def record_agreement(version: str = "") -> str:
     store.setValue(_KEY_VERSION, stamped)
     store.setValue(_KEY_WHEN, when)
     try:
-        # WRITTEN THROUGH IMMEDIATELY. QSettings flushes lazily, and an
-        # acceptance still sitting in a buffer when the process is killed is
-        # an acceptance the user gave and would be asked for again.
         store.sync()
     except Exception:                                        # noqa: BLE001
         pass
@@ -489,15 +483,11 @@ def register_translations() -> int:
     try:
         from .i18n import add_translation
     except Exception:                                        # noqa: BLE001
-        # A SCREEN WITH NO CATALOG IS STILL A SCREEN. Every caption falls
-        # back to the English it was written in.
         return 0
     added = 0
     for source, values in TRANSLATIONS:
         try:
             added += bool(add_translation(source, values))
         except ValueError:
-            # A row that does not fit the catalog's shape is skipped rather
-            # than allowed to stop the rest of the screen being catalogued.
             continue
     return added

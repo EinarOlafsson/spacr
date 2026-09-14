@@ -75,8 +75,6 @@ def resolve_model_source(settings: Mapping[str, Any]) -> Tuple[str, str]:
     if path and os.path.exists(path):
         return "custom", path
     if path:
-        # Named rather than ignored: a path that is set and missing is a
-        # mistake, not a preference for the built-in model.
         LOG.info("custom_model_path %r does not exist; using model_type", path)
     return "builtin", str(settings.get("model_type") or "").strip()
 
@@ -121,9 +119,6 @@ def _load_custom(path: str):
             f"this file cannot be read as a PyTorch model: {exc}") from exc
 
     if isinstance(loaded, dict):
-        # A state dict is weights with no architecture. It can be loaded INTO
-        # a model but is not one, and the difference is worth saying plainly
-        # rather than failing later with a missing-attribute error.
         if any(k in loaded for k in ("state_dict", "model_state_dict")):
             raise ValueError(
                 "this is a checkpoint of weights, not a model; set model_type "
@@ -201,10 +196,6 @@ def check_model(settings: Mapping[str, Any]) -> ModelReport:
     try:
         wanted_classes = expected_classes(settings)
     except ValueError as exc:
-        # ``class_names`` raises ClassDefinitionError (a ValueError) when the
-        # Classes editor has written an incomplete rule.  This checker is a
-        # click-time diagnostic, so that user error belongs in its report,
-        # not on the Qt event loop as an exception.
         wanted_classes = None
         classes_problem = True
         problems.append(f"the classes setting is invalid: {exc}")
@@ -247,9 +238,6 @@ def check_model(settings: Mapping[str, Any]) -> ModelReport:
         problems.append(
             f"only {wanted_classes} class is defined; a classifier needs two")
     elif head is not None and head != wanted_classes:
-        # The failure that silently half-works: a two-class head on a
-        # three-class problem trains happily and is wrong about every object
-        # of the third class.
         problems.append(
             f"the model has {head} output(s) but {wanted_classes} classes are "
             f"defined; its final layer has to be replaced or the classes "

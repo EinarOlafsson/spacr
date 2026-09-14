@@ -154,8 +154,5 @@ def mark_fold_sources(screen: QWidget) -> Dict[str, Tuple[str, ...]]:
 def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     """Put Measure's fold strip on ``screen``'s masthead."""
     strip = install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)
-    # The icons the folded modules brought with them go on their settings
-    # as well as on their buttons. After the strip: a mark that cannot be
-    # drawn must not cost the buttons.
     mark_fold_sources(screen)
     return strip

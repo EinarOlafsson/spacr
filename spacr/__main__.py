@@ -70,22 +70,13 @@ def main(argv: list[str] | None = None) -> int:
         print(version_str)
         return 0
 
-    # EVERY WINDOW COMMAND OPENS THE Qt APPLICATION. The seven Tk screens
-    # these used to start are tabs in it, so a script that still says
-    # `python -m spacr mask` lands on the Mask tab rather than failing to
-    # import a module that no longer exists.
     if args.command in ("gui", "mask", "measure", "classify", "annotate",
                         "sequencing", "umap", "make-masks"):
         from .qt import run
 
-        # `run` takes the argv the launcher would have had, and its first
-        # positional IS the screen to open on.
         key = _APP_KEYS.get(args.command)
         return int(run([key] if key else []) or 0)
 
-    # `parser.error` is annotated NoReturn and raises SystemExit(2); a
-    # `return 2` after it is unreachable, and an unreachable line is a line
-    # no test can ever justify.
     parser.error(f"Unknown command: {args.command}")
 
 

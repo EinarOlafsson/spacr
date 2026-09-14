@@ -99,9 +99,6 @@ class FilterError(ValueError):
     """A filter that cannot be built or written, with the reason."""
 
 
-# ---------------------------------------------------------------------------
-# Reading the database
-# ---------------------------------------------------------------------------
 
 def _connect(db_path: str, *, read_only: bool = True) -> sqlite3.Connection:
     """Open the measurements database with a busy timeout.
@@ -277,9 +274,6 @@ def read_identity(db_path: str, table: str) -> pd.DataFrame:
     return frame
 
 
-# ---------------------------------------------------------------------------
-# Building the table
-# ---------------------------------------------------------------------------
 
 def key_columns(frame: pd.DataFrame) -> List[str]:
     """The identity columns present, in join order.
@@ -378,8 +372,6 @@ def _png_paths(db_path: str) -> Optional[pd.DataFrame]:
     frame[OBJECT_COLUMN] = labels
     dropped = int(frame[OBJECT_COLUMN].isna().sum())
     if dropped:
-        # Not an error: 'omulti'/'onone'/'error'/NULL are states real crops
-        # are in. The object keeps its measurements and simply has no path.
         LOG.info("%d %s row(s) have no usable object id; those objects get "
                  "no crop path", dropped, PNG_TABLE)
     frame = frame.dropna(subset=[OBJECT_COLUMN]).copy()
@@ -446,8 +438,6 @@ def _attach_png_paths(frame: pd.DataFrame, paths: pd.DataFrame,
     wrong picture is worse than a missing one.
     """
     if crop_type is None or type_column not in frame.columns:
-        # No type axis to reason with. Matching labels blind is what caused
-        # this, so nothing is attached rather than something arbitrary.
         LOG.info("crop paths not attached: png_list's object type is unknown")
         return frame
 
@@ -462,7 +452,6 @@ def _attach_png_paths(frame: pd.DataFrame, paths: pd.DataFrame,
             own[shared + ["png_path"]], on=list(shared), how="left")
         frame.loc[is_own, "png_path"] = direct["png_path"].to_numpy()
 
-    # The child side: join the child's PARENT label onto the crop's label.
     if parent_column in frame.columns and parent_type_column in frame.columns:
         is_child = frame[parent_type_column].astype(str) == crop_type
         if is_child.any():
@@ -502,9 +491,6 @@ def build_filters_frame(db_path: str) -> pd.DataFrame:
     except FilterError:
         raise
     except Exception:
-        # The relationships route is the intended one; this fallback keeps a
-        # database whose relationships cannot be built (an unreadable table,
-        # a schema nobody anticipated) gateable rather than blocked.
         LOG.info("could not build %s from %s; falling back to the object "
                  "tables", FILTERS_TABLE, RELATIONSHIPS_TABLE, exc_info=True)
 
@@ -525,9 +511,6 @@ def build_filters_frame(db_path: str) -> pd.DataFrame:
             f"none of {', '.join(tables)} carries the identity columns a "
             f"filter needs")
 
-    # The anchor decides the key set. A table with fewer identity columns is
-    # merged on what it shares, rather than being dropped for lacking a
-    # column the others happen to have.
     keys = key_columns(frames[anchor])
     out = frames[anchor][keys].drop_duplicates().copy()
     out[f"{PRESENT_PREFIX}{anchor}"] = 1
@@ -554,19 +537,9 @@ def build_filters_frame(db_path: str) -> pd.DataFrame:
         if shared:
             paths = paths[shared + ["png_path"]].drop_duplicates(subset=shared)
             out = out.merge(paths, on=shared, how="left")
-            # This frame has no object_type axis -- it is one row per
-            # (field, object_label) with `in_<table>` flags -- so a row that
-            # is NOT of the cropped type must not keep a path matched on the
-            # label alone. `in_cell = 0` with a cell crop attached is exactly
-            # the mismatch `_attach_png_paths` exists to prevent; here the
-            # flag is the type axis.
             crop_type = png_crop_type(db_path)
             flag = f"{PRESENT_PREFIX}{crop_type}" if crop_type else None
             if flag and flag in out.columns:
-                # Pandas 3 may infer a nullable string dtype during the
-                # merge.  The public table distinguishes an absent crop as
-                # Python ``None``, so own an object-typed result before
-                # clearing paths for rows of another object type.
                 out["png_path"] = out["png_path"].astype(object)
                 out.loc[out[flag] != 1, "png_path"] = None
         else:
@@ -709,10 +682,6 @@ def build_filters_from_relationships(db_path: str) -> pd.DataFrame:
     """
     frame = ensure_relationships_table(db_path).copy()
 
-    # The `in_<table>` flags say the same thing `object_type` does, and are
-    # kept because a merge asks "is this object a nucleus" as a column test
-    # far more often than as a string comparison. Derived here rather than
-    # stored twice in the relationships table itself.
     for table in object_tables(db_path):
         frame[f"{PRESENT_PREFIX}{table}"] = (
             frame["object_type"] == table).astype("int64")
@@ -745,9 +714,6 @@ def write_filters_table(db_path: str, frame: pd.DataFrame) -> None:
         frame.to_sql(FILTERS_TABLE, db, if_exists="replace", index=False)
 
 
-# ---------------------------------------------------------------------------
-# Writing a gate
-# ---------------------------------------------------------------------------
 
 def column_name_for(gate_name: str) -> str:
     """The column a gate is written to.
@@ -772,8 +738,6 @@ def column_name_for(gate_name: str) -> str:
             f"gate name {gate_name!r} has no letters or digits in it, so it "
             f"cannot become a column name")
     if cleaned[0].isdigit():
-        # A leading digit is legal in a quoted SQLite column but trips up
-        # every tool that reads the table afterwards, pandas query included.
         cleaned = f"g_{cleaned}"
     return cleaned
 
@@ -835,9 +799,6 @@ def export_gate(db_path: str, frame: pd.DataFrame, inside: np.ndarray,
     marked[column] = 1
 
     if column in filters.columns:
-        # Re-exporting a gate REPLACES it. The alternative -- refusing, or
-        # suffixing -- leaves the user with filters_2, filters_3 and no way to
-        # tell which one is the gate currently on screen.
         LOG.info("replacing existing filter column %r", column)
         filters = filters.drop(columns=[column])
 
@@ -888,9 +849,6 @@ def gate_mask_over_table(db_path: str, table: str, gates, gate_name: str,
     return frame, np.asarray(mask, dtype=bool)
 
 
-# ---------------------------------------------------------------------------
-# Annotating from several gates at once
-# ---------------------------------------------------------------------------
 
 #: How several gates become ONE label.
 ANNOTATION_MODES: Tuple[str, ...] = ("binary", "multiclass")
@@ -1018,15 +976,10 @@ def export_annotation(db_path: str, frame: pd.DataFrame, labels: pd.Series,
     if name in filters.columns:
         filters = filters.drop(columns=[name])
     filters = filters.merge(marked, on=shared, how="left")
-    # Unlabelled objects are left blank rather than filled: a multiclass
-    # annotation has no zero, and inventing one would create a class.
     write_filters_table(db_path, filters)
     return name, int(filters[name].notna().sum())
 
 
-# ---------------------------------------------------------------------------
-# Sampling -- the reason the module is laggy on a real dataset
-# ---------------------------------------------------------------------------
 
 #: SQLite's names for the implicit row id. Any of them can be SHADOWED by a
 #: user column of that name, in which case it refers to the user's column

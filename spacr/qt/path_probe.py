@@ -84,7 +84,6 @@ def _worker() -> None:
             _cache[key] = answer
             _pending.discard(key)
         if changed:
-            # Queued to the GUI thread by Qt, because this is a worker.
             probes.answered.emit(path, answer)
         _queue.task_done()
 

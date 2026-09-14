@@ -30,7 +30,6 @@ import heapq
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence
 
-# The columns every preview row carries, in table order.
 ROW_COLUMNS = ("original", "plate", "well", "field", "channel", "time", "canonical")
 
 #: "Not supplied" for :func:`plan_folder_extraction`'s ``template``, which
@@ -129,10 +128,6 @@ def plan_folder_extraction(root: Any, plate: str = "plate1",
 
     if files is None:
         files = fm.iter_image_files(root)
-    # ``nsmallest`` is ``sorted(...)[:limit]`` without ever holding the whole
-    # tree in memory: it keeps ``limit`` candidates and drops the rest as it
-    # goes. The previous line materialised every path under the folder — for
-    # a 100 000-image plate, to then take 200 of them.
     files = (sorted(files) if limit is None
              else heapq.nsmallest(limit, files))
     if not files:

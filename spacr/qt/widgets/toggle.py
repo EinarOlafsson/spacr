@@ -20,9 +20,6 @@ class Toggle(QCheckBox):
         :param parent: parent widget.
         """
         super().__init__(text, parent)
-        # Approximately 75% of the original 40 x 22 px switch.
-        # Leave two physical pixels before the track: a track starting at x=0
-        # clips half of its antialiased 1.5 px outline.
         self._track_x = 2
         self._track_w = 30
         self._track_h = 17
@@ -53,14 +50,11 @@ class Toggle(QCheckBox):
         inset = (self._track_h - self._knob_d) // 2
         return self._track_x + self._track_w - self._knob_d - inset
 
-    # Custom paint — QCheckBox default indicator is hidden via QSS
-    # (we override paintEvent so we don't render it at all).
     def paintEvent(self, event):
         """Paint the switch track, knob, and (optional) trailing label."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         palette = active_palette()
-        # Track
         checked = self.isChecked()
         on_color = palette.get("button_accent", palette["accent"])
         off_color = palette.get(
@@ -80,13 +74,11 @@ class Toggle(QCheckBox):
                            (self.height() - self._track_h) // 2,
                             self._track_w, self._track_h)
         painter.drawRoundedRect(track_rect, self._track_h // 2, self._track_h // 2)
-        # Knob
         knob_x = int(self._knob_pos)
         knob_y = (self.height() - self._knob_d) // 2
         painter.setPen(Qt.NoPen)
         painter.setBrush(QBrush(state_color))
         painter.drawEllipse(QRect(knob_x, knob_y, self._knob_d, self._knob_d))
-        # Label
         if self.text():
             painter.setPen(QColor(palette["fg"]))
             painter.drawText(

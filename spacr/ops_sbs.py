@@ -188,10 +188,6 @@ def compensate_crosstalk(values: np.ndarray, *,
         else:
             chosen = flat[flat.argmax(axis=1) == channel]
         if chosen.shape[0] == 0:
-            # No spot claims this channel. Leave its axis as the identity
-            # rather than inventing one: a base absent from this field is a
-            # fact about the field, and a fabricated axis would rotate every
-            # other read to accommodate it.
             axes[channel, channel] = 1.0
             continue
         vector = chosen.mean(axis=0)
@@ -202,14 +198,7 @@ def compensate_crosstalk(values: np.ndarray, *,
     try:
         correction = np.linalg.inv(axes)
     except np.linalg.LinAlgError:
-        # Two dyes indistinguishable in this field. Correcting with a
-        # pseudo-inverse would quietly produce confident nonsense, so the
-        # uncorrected values are returned and the caller's quality scores
-        # will show what happened.
         return data
-    # THE BIG MULTIPLY, on whatever hardware there is. `correction` is
-    # 4 x 4 and `flat` is every spot of every cycle, so this is the one
-    # step in the chain whose cost scales with the plate.
     from .ops_accel import matmul
 
     return matmul(flat, correction, gpu=gpu).reshape(
@@ -353,10 +342,6 @@ def assign_reads_to_cells(peaks: np.ndarray, barcodes: Sequence[str],
         fraction = agreeing / len(indices)
         if fraction < min_fraction:
             continue
-        # A TIE IS NOT A WINNER. `max` picks one arbitrarily, so a cell whose
-        # reads split evenly between two barcodes would be assigned on
-        # dictionary order -- which is exactly the silent misassignment the
-        # fraction test exists to prevent.
         if sum(1 for value in counts.values() if value == agreeing) > 1:
             continue
         mean_quality = None

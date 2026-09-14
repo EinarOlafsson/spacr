@@ -168,8 +168,6 @@ class ActivitySpinner(QWidget):
         self._diameter = max(8, int(diameter))
         self.setFixedSize(self._diameter, self._diameter)
         self.setObjectName("ActivitySpinner")
-        # Nothing here reacts to the mouse, and a transparent-for-mouse
-        # widget cannot swallow a click meant for the button beside it.
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setAttribute(Qt.WA_NoSystemBackground, True)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -201,7 +199,6 @@ class ActivitySpinner(QWidget):
             self._connect_registry()
         self._sync()
 
-    # -- registry ---------------------------------------------------------
 
     def _connect_registry(self) -> None:
         """Follow the process-wide run registry.
@@ -216,9 +213,6 @@ class ActivitySpinner(QWidget):
             from ..bridge import registry
             registry().changed.connect(self._sync)
         except Exception:
-            # A spinner that cannot find the registry is a spinner that
-            # never turns. It must never be a spinner that stops the
-            # screen it lives on from opening.
             self._auto = False
 
     def _running_handles(self) -> List:
@@ -235,7 +229,6 @@ class ActivitySpinner(QWidget):
         except Exception:
             return []
 
-    # -- state ------------------------------------------------------------
 
     def is_busy(self) -> bool:
         """Whether the spinner considers spaCR to be working."""
@@ -291,8 +284,6 @@ class ActivitySpinner(QWidget):
         genuinely long stretch of work.
         """
         if not self.is_busy():
-            # Hiding is immediate and unconditional. Anything else would
-            # leave the widget saying something that is not true.
             self._delay.stop()
             self._due = False
             if self._timer.isActive():
@@ -331,10 +322,6 @@ class ActivitySpinner(QWidget):
         back.
         """
         self.setVisible(True)
-        # ``isVisible`` is False while an ancestor is hidden, and the whole
-        # idle-costs-zero claim rests on never running the animation timer
-        # for pixels nobody can see. ``showEvent`` starts it if and when the
-        # screen this lives on comes back.
         if self.isVisible() and not self._timer.isActive():
             self._timer.start()
         self.setToolTip(self._describe())
@@ -354,7 +341,6 @@ class ActivitySpinner(QWidget):
                 else "Running in the background:")
         return head + "\n• " + "\n• ".join(names)
 
-    # -- animation --------------------------------------------------------
 
     def _advance(self) -> None:
         """Step the rotation one frame and repaint."""
@@ -389,7 +375,6 @@ class ActivitySpinner(QWidget):
         if self._due and self.is_busy() and not self._timer.isActive():
             self._timer.start()
 
-    # -- painting ---------------------------------------------------------
 
     def paintEvent(self, event):     # noqa: N802 - Qt override
         """Draw the ring and the braid travelling around it.
@@ -423,9 +408,6 @@ class ActivitySpinner(QWidget):
             t = index / float(BRAID_POINTS - 1)
             theta = start + t * span
             twist = t * BRAID_TWISTS * 2.0 * math.pi
-            # The two strands are the same wave half a turn apart -- which
-            # is what makes it read as a double helix rather than as a
-            # wobbling line.
             for strand, phase in zip(strands, (0.0, math.pi)):
                 r = radius + amplitude * math.sin(twist + phase)
                 strand.append(QPointF(
@@ -478,8 +460,6 @@ def attach_activity_spinner(screen: QWidget) -> Optional[ActivitySpinner]:
         try:
             existing.objectName()
         except RuntimeError:
-            # Its C++ half is gone (the screen was rebuilt); fall through
-            # and install a fresh one.
             pass
         else:
             return existing
@@ -495,8 +475,6 @@ def attach_activity_spinner(screen: QWidget) -> Optional[ActivitySpinner]:
     try:
         layout.insertWidget(index + 1, spinner)
     except (AttributeError, TypeError):
-        # Not a box layout. Nothing sensible to insert into; the caller
-        # gets None and the screen opens exactly as before.
         spinner.setParent(None)
         return None
     host._activity_spinner = spinner

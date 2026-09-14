@@ -34,12 +34,9 @@ LOG_TAIL_LINES = 50
 #: Lines kept in the log file saved beside a report. Larger than
 #: :data:`LOG_TAIL_LINES` because this one is not going into a URL.
 LOG_BUNDLE_LINES = 2000
-MAX_URL_LEN = 7500   # GitHub caps the pre-filled issue URL at ~8 KB
+MAX_URL_LEN = 7500
 
 
-# ---------------------------------------------------------------------------
-# Sanitisation
-# ---------------------------------------------------------------------------
 
 #: Placeholder substituted for anything that looks like a credential.
 REDACTED = "<REDACTED>"
@@ -110,7 +107,6 @@ def sanitize_path(s: str) -> str:
     """
     home = str(Path.home())
     s = s.replace(home, "~")
-    # Redact any `.db` path suffix even if not under $HOME
     s = re.sub(r"[/\\][^\s'\"]+\.db\b", "<DB>", s)
     return redact_secrets(s)
 
@@ -191,15 +187,11 @@ def _traceback_hash(tb: str) -> str:
         elif not ln.startswith((" ", "\t")):
             if stripped.startswith("Traceback"):
                 continue
-            # "ValueError: channels must be a list" -> "ValueError"
             lines.append(stripped.split(":", 1)[0])
     key = "\n".join(lines) or tb
     return hashlib.sha256(key.encode()).hexdigest()[:6]
 
 
-# ---------------------------------------------------------------------------
-# Log tail
-# ---------------------------------------------------------------------------
 
 def log_tail(n_lines: int = LOG_TAIL_LINES,
               log_path: Optional[Path] = None) -> str:
@@ -262,9 +254,6 @@ def save_log_bundle(fingerprint: str,
     return target
 
 
-# ---------------------------------------------------------------------------
-# Report builder
-# ---------------------------------------------------------------------------
 
 def _env_lines() -> List[str]:
     """Return lines describing the current spacr / python / OS env."""
@@ -334,7 +323,6 @@ def build_report(
     tb_clean = sanitize_traceback(traceback_text)
     tb_hash = _traceback_hash(tb_clean)
 
-    # First non-empty error-type-looking line for the title
     err_line = ""
     for ln in reversed(tb_clean.splitlines()):
         if ln.strip() and not ln.startswith(" "):
@@ -358,17 +346,6 @@ def build_report(
     body_parts.append("```")
     body_parts.append("")
 
-    # AFTER THE TRACEBACK, BEFORE THE ENVIRONMENT. When the AI is on it has
-    # usually already diagnosed the crash by the time the user files, and that
-    # analysis is the most useful thing in the report after the traceback
-    # itself -- it is what a reader would otherwise spend the first hour
-    # reproducing. It goes below the traceback because `issue_url` trims the
-    # tail, and the traceback must survive that trim.
-    #
-    # MARKED AS MACHINE-GENERATED, and folded shut. It is a lead, not a
-    # finding: the analysis in the session this was written for was right
-    # about the cause and wrong about the fix, in a way that would have
-    # changed behaviour silently for every run that left a field blank.
     analysis = sanitize_path(str(ai_response or "")).strip()
     if analysis:
         if len(analysis) > AI_ANALYSIS_MAX_CHARS:
@@ -402,16 +379,6 @@ def build_report(
         body_parts.append("")
 
     if include_log_tail:
-        # THE LOG DOES NOT GO IN THE ISSUE. An issue on the public tracker
-        # is world-readable and permanent, and a log line carries whatever
-        # the run happened to be about -- a gene name, a plate barcode, a
-        # collaborator's folder, the name of an unpublished screen. None of
-        # that is credential-shaped, so no redaction pass catches it, and
-        # the person filing the bug has no way to know it is there.
-        #
-        # So the log is written BESIDE the report instead: a file on the
-        # user's own disk, whose path the issue names. The maintainer can
-        # ask for it, and the user decides then, having read it.
         saved = save_log_bundle(tb_hash)
         if saved is not None:
             body_parts.append("<details><summary>Log</summary>")
@@ -420,9 +387,6 @@ def build_report(
                 "The log is NOT attached: it can carry sample names, plate "
                 "barcodes and folder names, and this issue is public.")
             body_parts.append("")
-            # Through the same sanitiser as everything else: the bundle
-            # lives under the user's home, and the home path carries their
-            # account name.
             body_parts.append(f"It was saved on the reporter's machine at "
                               f"`{sanitize_path(str(saved))}`.")
             body_parts.append("")
@@ -430,16 +394,10 @@ def build_report(
                 "If you need it, ask -- and read it before sending it.")
             body_parts.append("</details>")
 
-    # `fingerprint` is returned, not just embedded in the body, so the
-    # caller can look for an existing issue carrying it before opening a
-    # new one. Without that the hash was written and never read.
     return {"title": title, "body": "\n".join(body_parts),
             "fingerprint": tb_hash}
 
 
-# ---------------------------------------------------------------------------
-# GitHub URL + browser opener
-# ---------------------------------------------------------------------------
 
 def issue_url(title: str, body: str, label: str = ISSUE_LABEL,
                repo: str = REPO) -> str:
@@ -455,32 +413,16 @@ def issue_url(title: str, body: str, label: str = ISSUE_LABEL,
     :param repo: ``owner/name`` slug.
     :returns: fully-quoted ``https://github.com/…`` URL.
     """
-    # Reserve room for the fixed URL scaffolding + title
     scaffold_len = (
         len(f"https://github.com/{repo}/issues/new?labels={label}&title=&body=")
         + len(urllib.parse.quote(title))
     )
     if scaffold_len + len(urllib.parse.quote(body)) > MAX_URL_LEN:
-        # Trim body — keep the traceback (most valuable), drop
-        # subsequent details blocks.
-        #
-        # Measured against the ENCODED length, not the raw one. This used to
-        # slice `body[:head_len]` with head_len computed from the URL budget
-        # in raw characters, which is a different unit: quoting expands, and
-        # a traceback is mostly newlines at three characters each (`%0A`).
-        # A realistic crash report came out at 11,924 characters against a
-        # 7,500 limit AFTER "truncation", and GitHub answers an over-long
-        # issues/new with a page that reads "page not found" -- which is the
-        # 404 users were getting.
         note = (
             "\n\n_[report truncated to fit GitHub URL limit — "
             "the full log lives at ~/.spacr/logs/spacr.log]_"
         )
         budget = MAX_URL_LEN - scaffold_len - len(urllib.parse.quote(note))
-        # Shrink until the QUOTED body fits. Halving converges in a few
-        # passes for any expansion ratio, where a fixed guess cannot: the
-        # ratio is 1x for plain ASCII and 3x for newline-dense text, and the
-        # body that matters most here is the newline-dense one.
         head = body
         while head and len(urllib.parse.quote(head)) > budget:
             head = head[:max(1, int(len(head) * 0.8))]
@@ -507,33 +449,12 @@ def open_issue_in_browser(url: str) -> bool:
 
 def submit_report(report: Dict[str, str]) -> str:
     """Submit one payload the user has already approved in the preview."""
-    # If the user is signed in to GitHub (stored token / env / gh CLI), create
-    # the issue directly via the API — no browser needed. Otherwise fall back to
-    # opening the pre-filled issues/new URL in the browser.
     try:
         from . import github_auth
-        # This check uses the module instance resolved NOW.  A broad batch once
-        # left this module holding a different instance from the one a test had
-        # patched; its process-wide allow flag then sent four real comments to
-        # issue #114.  A real transport is refused before credential discovery,
-        # while an explicitly substituted offline seam can exercise the flow.
         refusal = github_auth._transport_refusal()
         if refusal:
             return refusal
         if github_auth.is_authenticated():
-            # DEDUPE BY FINGERPRINT FIRST. `_traceback_hash` exists so the
-            # same bug hashes the same across runs and machines, and nothing
-            # consumed it: one crash produced one issue per occurrence -- ten
-            # in a single day on 2026-08-11 (#79-#81, #84-#90), which buries
-            # the reports that matter.
-            #
-            # A hit gets a COMMENT rather than a new issue, because the
-            # second occurrence is still information: it says the bug is
-            # reproducible and carries that run's environment.
-            #
-            # `searched` is distinguished from "found nothing" deliberately.
-            # If the search could not run we still file, because losing a
-            # crash report is worse than filing a duplicate.
             searched, existing = github_auth.find_issue_by_fingerprint(
                 REPO, report["fingerprint"])
             if searched and existing:
@@ -547,7 +468,7 @@ def submit_report(report: Dict[str, str]) -> str:
             ok, result = github_auth.create_issue(
                 REPO, report["title"], report["body"], labels=[ISSUE_LABEL])
             if ok and result:
-                return result   # the created issue's html_url
+                return result
     except Exception:
         pass
     url = issue_url(report["title"], report["body"])

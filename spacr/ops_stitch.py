@@ -75,7 +75,6 @@ class StitchedWell:
     overlap: Optional[int] = None
     _residuals: Optional[np.ndarray] = field(default=None, repr=False)
 
-    # -- what happened -------------------------------------------------
     @property
     def placed(self) -> int:
         """How many tiles got a position."""
@@ -245,12 +244,6 @@ def stitch_well(tiles, layout: Optional[WellLayout] = None, *,
                 tolerance=tolerance, gpu=gpu,
                 **({} if skew is None else {"skew": skew}), **kwargs)
         except Exception:                                # noqa: BLE001
-            # ONE UNREADABLE TILE IS NOT A FAILED WELL -- and the pair is
-            # RECORDED AS REFUSED rather than dropped. A pair that failed
-            # is a fact about the acquisition and belongs in
-            # `ops_geometry`; leaving it out of the table would make
-            # "624 of 624 edges" mean two different things depending on
-            # whether a file was readable.
             LOG.debug("could not register the pair %s-%s", a, b,
                       exc_info=True)
             edges[(a, b)] = Registration(dy=0, dx=0, peak_ratio=0.0,

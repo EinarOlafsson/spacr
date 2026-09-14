@@ -88,8 +88,6 @@ def find_results_table(path):
         candidate = os.path.join(path, name)
         if os.path.exists(candidate):
             return candidate
-    # One level down, so pointing at the run folder rather than its
-    # `guide_permutation/list` leaf still works.
     for entry in sorted(os.listdir(path)):
         child = os.path.join(path, entry)
         if os.path.isdir(child):
@@ -113,9 +111,6 @@ def load_results(path):
         primary = frame["minimum_wells_threshold"].min()
         frame = frame.loc[frame["minimum_wells_threshold"] == primary]
     if "outcome" in frame.columns and frame["outcome"].nunique() > 1:
-        # Several responses were fitted. Show the first; the explorer's own
-        # data controls can switch columns, and each response is its own
-        # correction family so they must not be pooled into one plot.
         first = frame["outcome"].iloc[0]
         frame = frame.loc[frame["outcome"] == first]
     return frame.reset_index(drop=True)
@@ -138,9 +133,6 @@ def _make_screen(app_key=None, host=None):
         """
 
         def __init__(self, host=None):
-            # `host` is the main window, passed by the registry for
-            # navigation -- NOT a Qt parent. Handing it to QWidget.__init__
-            # raises, because the registry's host is not always a QWidget.
             """Build the screen. ``host`` is the window, NOT a Qt parent.
 
             Handing it to ``QWidget.__init__`` raises, because the registry's host is
@@ -196,15 +188,3 @@ def _make_screen(app_key=None, host=None):
     return VolcanoScreen(host=host)
 
 
-# NO REGISTRY ROW. The explorer is reached from the module it publishes: it is
-# "Publication figure…" on the Regression volcano's own right-click menu and a
-# button on that screen's masthead, both going through
-# :func:`spacr.qt.screens.regression.publication_opener`, which builds it from
-# the same :func:`_make_screen` factory the tile used and seeds it with the
-# FRAME on screen. That seeding is why the fold is a superset of the tile: a
-# live run, a bare CSV or a frame handed in cannot be found again from a
-# folder, so a standalone tile could only ever publish a re-read of the disk.
-#
-# The strings above are kept because they are this module's public description
-# -- the fold button's name and sentence are asserted against them, and the
-# i18n catalogs carry the translations.

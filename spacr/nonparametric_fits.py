@@ -165,9 +165,6 @@ def refuse(name: str, *, rows: int = 0, ordered: bool = True,
     return None
 
 
-# ---------------------------------------------------------------------------
-# B. A DIAGNOSTIC LAID OVER THE DATA
-# ---------------------------------------------------------------------------
 
 @dataclass
 class Curve:
@@ -271,7 +268,6 @@ def smooth(x, y, *, method: str = "lowess", points: int = 200,
         model = GaussianProcessRegressor(kernel=kernel, normalize_y=True)
         model.fit(xz.reshape(-1, 1), ys)
         mean, sd = model.predict(gz.reshape(-1, 1), return_std=True)
-        # THE BAND IS THE POINT of choosing a Gaussian process at all.
         return Curve(method, grid, mean, lower=mean - 1.96 * sd,
                      upper=mean + 1.96 * sd,
                      note=f"{note}; band is +/- 1.96 sd" if note
@@ -280,9 +276,6 @@ def smooth(x, y, *, method: str = "lowess", points: int = 200,
     raise ValueError(f"no diagnostic named {method!r}")
 
 
-# ---------------------------------------------------------------------------
-# C. AN AGREEMENT CHECK
-# ---------------------------------------------------------------------------
 
 @dataclass
 class Agreement:
@@ -377,9 +370,6 @@ def agreement(design, response, linear_effect: Dict[str, float], *,
         model = HistGradientBoostingRegressor(random_state=seed)
 
     model.fit(values, y)
-    # PERMUTATION importance, not the tree's own impurity importance: the
-    # latter is biased toward columns with many distinct values, and a
-    # guide-abundance column has far more than a rare guide's does.
     importance = permutation_importance(model, values, y, n_repeats=5,
                                         random_state=seed, n_jobs=1)
     strength = dict(zip(names, importance.importances_mean))
@@ -407,9 +397,6 @@ def agreement(design, response, linear_effect: Dict[str, float], *,
               "guide can rank high here for an effect of either direction"))
 
 
-# ---------------------------------------------------------------------------
-# A. A FIT THAT ANSWERS IN THE SAME CURRENCY
-# ---------------------------------------------------------------------------
 
 #: How many spline basis functions a covariate is given. Enough to bend
 #: twice, which is what "the line is not straight" usually means, and few
@@ -445,8 +432,6 @@ def spline_design(frame, covariates: Sequence[str], *,
             continue
         column = pd.to_numeric(out[name], errors="coerce").to_numpy(float)
         if not np.isfinite(column).all() or np.unique(column).size <= degree:
-            # Too few distinct values to bend through; leave it linear
-            # rather than manufacturing a basis out of nothing.
             continue
         basis = SplineTransformer(
             n_knots=knots, degree=degree,
@@ -507,7 +492,6 @@ def report_agreement(coefficients, design, response, *,
     if len(effect) < 3:
         return ""
 
-    # The design's guide columns carry the same names, so the two line up.
     columns = {}
     for name in getattr(design, "columns", []):
         found = re.search(r"grna\[(?:T\.)?([^\]]+)\]", str(name))

@@ -121,9 +121,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Placeholders
-# ---------------------------------------------------------------------------
 
 #: The strings the shipped settings dicts use to mean "no folder chosen yet".
 #: ``set_default_settings_preprocess_generate_masks`` writes ``"path"``; the
@@ -185,9 +182,6 @@ def same_path(left: Any, right: Any) -> bool:
     return flatten(left) == flatten(right)
 
 
-# ---------------------------------------------------------------------------
-# The pin store — which paths the user typed by hand
-# ---------------------------------------------------------------------------
 
 #: Points the pin file somewhere else. Set by tests, and by a portable or
 #: multi-user install that keeps per-user state off the home directory.
@@ -234,7 +228,6 @@ class PinStore:
         self.path = os.path.abspath(os.path.expanduser(path or state_path()))
         self._data: Optional[Dict[str, Dict[str, Any]]] = None
 
-    # -- storage ----------------------------------------------------------
 
     def _load(self) -> Dict[str, Dict[str, Any]]:
         """Return the in-memory pin table, reading the file on first use."""
@@ -245,9 +238,6 @@ class PinStore:
             with open(self.path, "r", encoding="utf-8") as handle:
                 raw = json.load(handle)
         except (OSError, ValueError):
-            # No file, an unreadable one, or one someone hand-edited into
-            # invalid JSON. A lost pin costs one re-typed path; refusing to
-            # open the screen would cost the whole session.
             raw = {}
         if isinstance(raw, Mapping):
             for module, entries in raw.items():
@@ -272,8 +262,6 @@ class PinStore:
                 handle.close()
             os.replace(handle.name, self.path)
         except OSError:
-            # A read-only home, a full disk, a locked file on Windows. The
-            # pin still holds for this session; it simply will not outlive it.
             pass
 
     def reload(self) -> "PinStore":
@@ -284,7 +272,6 @@ class PinStore:
         self._data = None
         return self
 
-    # -- the pins ---------------------------------------------------------
 
     def pin(self, module: str, setting: str, value: Any) -> None:
         """Store an explicitly selected value for a module setting.
@@ -371,9 +358,6 @@ def pin_store(path: Optional[str] = None, *, refresh: bool = False) -> PinStore:
     return _STORE
 
 
-# ---------------------------------------------------------------------------
-# Bindings — which settings key an input port fills
-# ---------------------------------------------------------------------------
 
 #: The setting names the *project root* the artifact belongs to. This is what
 #: ``src`` is for every pipeline module: the ports resolve relative to it.
@@ -475,9 +459,6 @@ def binding_for(module: str, port: Port) -> Binding:
     return Binding(key, port.role, source_key(key), ROOT)
 
 
-# ---------------------------------------------------------------------------
-# Resolving an artifact into a settings value
-# ---------------------------------------------------------------------------
 
 def _artifact_root(artifact: Artifact, port: Port) -> str:
     """Return the project root ``artifact`` belongs to.
@@ -519,9 +500,6 @@ def _value_for(artifact: Artifact, port: Port, binding: Binding,
     return value
 
 
-# ---------------------------------------------------------------------------
-# Finding the registry to ask
-# ---------------------------------------------------------------------------
 
 def candidate_roots(module: str,
                     settings: Optional[Mapping[str, Any]] = None,
@@ -571,9 +549,6 @@ def _registry_for(root: str, registry: Optional[Registry]) -> Optional[Registry]
         return None
 
 
-# ---------------------------------------------------------------------------
-# Auto-chaining
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ChainedInput:
@@ -654,9 +629,6 @@ def chained_inputs(module: str,
     """
     spec = _ports.module_ports(module)
     search = candidate_roots(spec.key, settings, root=root, roots=roots)
-    # One registry per root for the whole call: opening one runs the schema
-    # DDL, and a module with three ports across three candidate roots would
-    # otherwise pay for nine of them on every keystroke.
     stores: Dict[str, Optional[Registry]] = {}
     found: List[ChainedInput] = []
     for port in spec.consumes:
@@ -782,14 +754,6 @@ def resolve_settings(module: str,
     store = pins if pins is not None else pin_store()
     resolved = dict(settings)
 
-    # A pin is restored BEFORE the lookup, so the candidate roots include the
-    # plate the user pinned. Chaining Measure's crops off a pinned src is the
-    # whole point of pinning it.
-    #
-    # Only the keys an input port binds to are consulted: a pin exists because
-    # auto-chaining offered to fill that key, and restoring one for a key
-    # nothing chains would let a stale state file quietly override a setting
-    # the user is looking at.
     bound = {binding_for(spec.key, port).setting for port in spec.consumes}
     pinned_values: Dict[str, Any] = {}
     for key in [k for k in resolved if k in bound]:
@@ -822,8 +786,6 @@ def resolve_settings(module: str,
         resolved[chained.setting] = chained.value
         filled[chained.setting] = chained
 
-    # A pin with nothing to chain against is still held: the interface should
-    # say the value is the user's, not that it came from a run.
     for key in pinned_values:
         held.setdefault(key, HeldPin(setting=key, value=resolved[key]))
 
@@ -831,9 +793,6 @@ def resolve_settings(module: str,
                       held=held, inputs=inputs)
 
 
-# ---------------------------------------------------------------------------
-# Staleness, said out loud
-# ---------------------------------------------------------------------------
 
 #: One sentence per :mod:`spacr.artifacts` cause code, in the user's terms.
 #: The cause is what makes the warning actionable — "re-run Mask" and "you
@@ -1061,9 +1020,6 @@ def staleness_notes(module: str,
             + stale_outputs(module, settings, root=root, registry=registry))
 
 
-# ---------------------------------------------------------------------------
-# Continue to the next step
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class NextStep:
@@ -1149,8 +1105,6 @@ def next_steps(module: str,
     spec = _ports.module_ports(module)
     resolved_root = root or _ports.project_root(settings, spec.key)
     produced = {port.kind for port in spec.produces}
-    # Opened once for the whole answer: every successor is checked against the
-    # same project, and each open runs the registry's schema DDL.
     store = _registry_for(resolved_root, registry)
     steps: List[NextStep] = []
     for candidate in _ports.next_modules(spec.key):
@@ -1166,9 +1120,6 @@ def next_steps(module: str,
             if is_empty_path(seed[chained.setting]):
                 seed[chained.setting] = chained.value
         if is_empty_path(seed.get(source_key(candidate))) and resolved_root:
-            # No registry row yet — the successor still runs in the project
-            # the finished module ran in, and saying so is better than
-            # handing over an empty screen.
             seed[source_key(candidate)] = resolved_root
         readiness = _ports.check_ready(candidate, seed, registry=store)
         step = NextStep(
@@ -1181,21 +1132,6 @@ def next_steps(module: str,
     return tuple(steps)
 
 
-# ---------------------------------------------------------------------------
-# Layout-aware drops
-# ---------------------------------------------------------------------------
-#
-# A dropped folder and an auto-chained one have to arrive at the same answer.
-# Two answers to "where is the database" is how a screen and the run it
-# launches come to disagree, so the drop path does not re-derive anything: it
-# asks the registry through :func:`chained_inputs` exactly as auto-chaining
-# does, and only when the registry has nothing does it fall back to the
-# declared layout in :data:`spacr.ports.PORTS`.
-#
-# The fallback is the difference between the two, and it is additive: where
-# auto-chaining leaves a field empty because no run was ever registered, a
-# drop still fills it from the folder the user just pointed at. Where the
-# registry *does* have a row, both produce the same string.
 
 #: Suffixes a SQLite measurements database is written with.
 DB_SUFFIXES: Tuple[str, ...] = (".db", ".sqlite", ".sqlite3")
@@ -1678,27 +1614,14 @@ def resolve_drop(module: str,
     stores: Dict[str, Optional[Registry]] = {}
     targets: List[DropTarget] = []
     if not ports and satisfied:
-        # A screen that takes the project itself. There is no port to resolve
-        # and nothing to look up: the answer is the folder the layout walk
-        # arrived at, which is the point of having walked it.
         targets.append(DropTarget(
             module=key, setting=source_key(key), role=PROJECT, kind=PROJECT,
             value=root, location=root, source=FROM_LAYOUT))
     filled: set = set()
     for port in ports:
-        # A port that is not declared by a module has no settings key of its
-        # own; its role stands in, so a screen asking for two kinds gets two
-        # answers rather than two ports fighting over ``src``.
         binding = (binding_for(key, port) if declared
                    else Binding(key, port.role, port.role, form))
         if binding.setting in filled:
-            # The key already has its answer. Classify declares both a
-            # measurements database and an optional ``data/**/*_png`` crop
-            # folder, and *both* bind to ``src`` — so resolving the second
-            # would recursively glob a folder of a hundred thousand crops to
-            # arrive at the string already in hand. A drop happens with the
-            # mouse button down; this is the difference between one
-            # millisecond and forty.
             continue
         current = None if settings is None else settings.get(binding.setting)
         if root not in stores:
@@ -1718,11 +1641,6 @@ def resolve_drop(module: str,
         resolved = _ports.resolve_port(port, root)
         if not resolved.exists:
             continue
-        # ``target`` and not ``paths[0]``: the port's declared location is the
-        # artifact, whether that is one file (``measurements/measurements.db``)
-        # or the folder a pattern selects inside (``merged/*.npy``). Naming
-        # the first matching file would make a re-drop of the same folder
-        # resolve differently as soon as another field was written.
         location = resolved.target
         value = root if binding.form == ROOT else location
         if isinstance(current, (list, tuple)):
@@ -1734,9 +1652,6 @@ def resolve_drop(module: str,
             paths=resolved.paths))
         filled.add(binding.setting)
 
-    # A database is the one artifact a project can legitimately hold two of.
-    # Picking the first would be exactly the silent wrong answer this is here
-    # to avoid.
     if any(t.kind == _ports.MEASUREMENTS_DB for t in targets):
         available = db_candidates(root)
         if len(available) > 1:

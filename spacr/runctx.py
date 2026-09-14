@@ -200,9 +200,6 @@ def _utcnow() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
-# ---------------------------------------------------------------------------
-# S7 — the run id, and getting it onto every log line
-# ---------------------------------------------------------------------------
 
 def new_run_id() -> str:
     """Mint a fresh run id.
@@ -404,8 +401,6 @@ def read_run_log(run_id: str,
             try:
                 record = json.loads(line)
             except ValueError:
-                # A run killed mid-write leaves a half line. Everything
-                # before it is still perfectly good evidence.
                 continue
             if threshold is not None and int(record.get("levelno", 0)) < threshold:
                 continue
@@ -517,8 +512,6 @@ class _RunLogHandler(logging.Handler):
                 stream.write(line + "\n")
                 stream.flush()
         except Exception:                              # noqa: BLE001
-            # A full disk must not take the run down with it: the run log
-            # is evidence, not the result.
             self.handleError(record)
 
     def close(self) -> None:
@@ -533,9 +526,6 @@ class _RunLogHandler(logging.Handler):
         super().close()
 
 
-# ---------------------------------------------------------------------------
-# S5 — one seed, and an honest account of where it does not reach
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class SeedReport:
@@ -645,9 +635,6 @@ def resolve_seed(settings: Optional[Mapping[str, Any]] = None,
         try:
             return int(text, 0)
         except ValueError:
-            # A word rather than a number: hash it, so `random_seed:
-            # "plate3-rerun"` is a usable, reproducible seed rather than a
-            # crash or a silent fall back to 42.
             return int(hashlib.sha256(text.encode("utf-8")).hexdigest()[:8], 16)
     try:
         return int(raw)
@@ -687,8 +674,6 @@ def seed_everything(seed: Optional[int] = None,
     :returns: a :class:`SeedReport`.
     """
     value = DEFAULT_SEED if seed is None else int(seed)
-    # Python's random and NumPy's legacy seeder want different ranges;
-    # 2**32 is the narrower of the two, so normalise once.
     narrow = int(value) % (2 ** 32)
     seeded: List[str] = []
     unavailable: List[str] = []
@@ -723,7 +708,6 @@ def seed_everything(seed: Optional[int] = None,
                 seeded.append("torch.cuda")
                 caveats.append(SEED_CAVEATS["cuda"])
         except Exception as exc:                        # noqa: BLE001
-            # A driver mismatch must not stop a CPU run from being seeded.
             LOG.debug("could not seed CUDA: %s", exc)
             unavailable.append("torch.cuda")
         if deterministic:
@@ -738,8 +722,6 @@ def seed_everything(seed: Optional[int] = None,
                 seeded.append("torch.deterministic-algorithms")
 
     if "cellpose" in sys.modules:
-        # Nothing to call — recorded so the report does not read as though
-        # Cellpose was overlooked.
         seeded.append("cellpose(via numpy+torch)")
 
     report = SeedReport(seed=value, seeded=tuple(seeded),
@@ -852,9 +834,6 @@ def seed_worker(worker_id: int) -> None:
     _random.seed(worker_seed)
 
 
-# ---------------------------------------------------------------------------
-# S9 — on_error: stop | skip | retry
-# ---------------------------------------------------------------------------
 
 class _SkippedType:
     """Sentinel returned by :meth:`ErrorPolicy.run` for a skipped unit."""
@@ -1060,7 +1039,6 @@ class ErrorPolicy:
             self.record = bool(record)
         return self
 
-    # -- what happened ----------------------------------------------------
 
     @property
     def skips(self) -> List[SkipRecord]:
@@ -1088,7 +1066,6 @@ class ErrorPolicy:
                  if self.mode == ON_ERROR_RETRY else "")
         return f"<ErrorPolicy {self.mode}{extra} skipped={self.n_skipped}>"
 
-    # -- the loop ---------------------------------------------------------
 
     def attempts_for(self, unit: Any,
                      stage: Optional[str] = None) -> Iterator[_Attempt]:
@@ -1133,8 +1110,6 @@ class ErrorPolicy:
                         stage_name, name, number, total)
                 return
             if attempt.exc is None:
-                # The body never ran, or `break`/`continue` skipped the
-                # `with`. Nothing to judge; leave the loop alone.
                 return
             last = attempt.exc
             if number < total:
@@ -1260,9 +1235,6 @@ def resolve_error_policy(settings: Optional[Mapping[str, Any]] = None,
                        logger=logger, run_id=run_id, sleep=sleep)
 
 
-# ---------------------------------------------------------------------------
-# The run context itself
-# ---------------------------------------------------------------------------
 
 @dataclass
 class RunContext:
@@ -1445,8 +1417,6 @@ def _performance_logging_preference(values: Mapping[str, Any]) -> Any:
     if "performance_logging" in values:
         return values.get("performance_logging")
     if "SPACR_PERFORMANCE_LOG" in os.environ:
-        # ``None`` asks the sampler to resolve the environment itself and
-        # preserve the fact that the environment, not a preference, won.
         return None
     if "PySide6.QtCore" not in sys.modules:
         return None
@@ -1652,9 +1622,6 @@ def run_context(module: str = "",
             handler.close()
 
 
-# ---------------------------------------------------------------------------
-# The settings seam
-# ---------------------------------------------------------------------------
 
 def _defaults(settings: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
     """Return the run-control defaults, filled into ``settings``."""
@@ -1745,8 +1712,6 @@ def _register_settings() -> None:
                     "after that and capped at 60s. Default 1.0."),
             })
     except ValueError as exc:
-        # Another module already declared one of these. Say so once rather
-        # than take the import of spacr.runctx down with it.
         LOG.debug("run-control settings not registered: %s", exc)
 
 

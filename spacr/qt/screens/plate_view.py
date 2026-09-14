@@ -138,8 +138,6 @@ def _cmap_lut(name: str, size: int = 256) -> List[QColor]:
     for i in range(size):
         t = i / (size - 1)
         if cmap is None:
-            # Greyscale fallback — a plate is still readable without
-            # matplotlib, which is better than a screen that won't paint.
             level = int(round(255 * t))
             out.append(QColor(level, level, level))
         else:
@@ -149,9 +147,6 @@ def _cmap_lut(name: str, size: int = 256) -> List[QColor]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# The grid
-# ---------------------------------------------------------------------------
 
 class PlateGridWidget(QWidget):
     """A plate drawn as coloured wells, with row letters and column numbers.
@@ -188,11 +183,8 @@ class PlateGridWidget(QWidget):
                              "then press Render.")
         self.setMinimumSize(320, 220)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # The panel is drawn in `paintEvent`; the widget must not also
-        # paint the blanket opaque window fill under it. See `paint_panel`.
         make_transparent(self)
 
-    # -- data --------------------------------------------------------------
 
     def set_plate(self, layout: Optional[pd.DataFrame],
                   vmin: float = 0.0, vmax: float = 1.0,
@@ -269,7 +261,6 @@ class PlateGridWidget(QWidget):
             self._selected = (int(row_index), int(column_index))
         self.update()
 
-    # -- geometry ----------------------------------------------------------
 
     def _cell_size(self) -> float:
         """Edge length of a square well, in pixels."""
@@ -310,7 +301,6 @@ class PlateGridWidget(QWidget):
             return None
         return row, col
 
-    # -- interaction -------------------------------------------------------
 
     def mousePressEvent(self, event) -> None:  # noqa: N802 (Qt naming)
         """Select the well under the pointer.
@@ -324,7 +314,6 @@ class PlateGridWidget(QWidget):
             self.well_clicked.emit(well[0], well[1])
         super().mousePressEvent(event)
 
-    # -- painting ----------------------------------------------------------
 
     def _colour(self, value: float) -> QColor:
         """Map a value onto the current colour scale.
@@ -346,9 +335,6 @@ class PlateGridWidget(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, False)
         palette = active_palette()
-        # A rounded panel at the page opacity. `fillRect(..., surface)` is
-        # opaque hex, which is why the "choose a database, a table, and a
-        # measurement, then press Render" state read as a bare dark area.
         paint_panel(painter, self, role="surface", inset=0.5)
 
         if not self.has_plate():
@@ -364,14 +350,12 @@ class PlateGridWidget(QWidget):
         font.setPointSizeF(max(min(size * 0.42, 11.0), 5.0))
         painter.setFont(font)
 
-        # Column numbers along the top.
         palette = active_palette()
         painter.setPen(QColor(palette["fg_muted"]))
         for c in range(1, self._n_cols + 1):
             rect = QRectF(_GRID_PAD + _ROW_LABEL_W + (c - 1) * size, _GRID_PAD,
                           size, _COL_LABEL_H)
             painter.drawText(rect, Qt.AlignCenter, str(c))
-        # Row letters down the side.
         for r in range(1, self._n_rows + 1):
             rect = QRectF(_GRID_PAD, _GRID_PAD + _COL_LABEL_H + (r - 1) * size,
                           _ROW_LABEL_W, size)
@@ -384,7 +368,6 @@ class PlateGridWidget(QWidget):
                 rect = self.cell_rect(r, c).adjusted(0.5, 0.5, -0.5, -0.5)
                 value = self._values.get((r, c))
                 if value is None:
-                    # Blank, and visibly so: an absent well is not a zero.
                     painter.setPen(empty_pen)
                     painter.setBrush(QBrush(QColor(palette["surface_alt"])))
                     painter.drawRect(rect)
@@ -405,9 +388,6 @@ class PlateGridWidget(QWidget):
         painter.end()
 
 
-# ---------------------------------------------------------------------------
-# Screen
-# ---------------------------------------------------------------------------
 
 class PlateViewScreen(LinkedView, QWidget):
     """Plate heatmap + edge-effect QC for a spaCR measurements database.
@@ -463,11 +443,6 @@ class PlateViewScreen(LinkedView, QWidget):
         self.last_error: str = ""
 
         self._job_settled.connect(self._on_job_settled)
-        # One aggregation per gesture rather than one per spin-box tick — see
-        # `_on_view_changed`. Unthreaded, there is no timer at all and an
-        # option change recomputes on the spot, which is the same rule
-        # `_run_job` already follows: `threaded=False` means "behave exactly
-        # as this did before any of it moved off the GUI thread".
         self._recompute_timer = QTimer(self)
         self._recompute_timer.setSingleShot(True)
         self._recompute_timer.setInterval(RECOMPUTE_COALESCE_MS)
@@ -481,14 +456,7 @@ class PlateViewScreen(LinkedView, QWidget):
             "measurements/measurements.db.")
         self._update_controls()
 
-        # Join the shared population. The mixin carries the rules this screen
-        # used to spell out itself: bound methods rather than lambdas (the
-        # link is process-wide and outlives every screen), a flag-guarded
-        # disconnect, and echo suppression.
         self.link_selection("plate_view")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
@@ -513,11 +481,9 @@ class PlateViewScreen(LinkedView, QWidget):
         try:
             self.unlink_selection()
         except (RuntimeError, TypeError):
-            # The singleton is gone during interpreter teardown.
             pass
         super().closeEvent(event)
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out the source row, the pickers, the heatmap and the edge-effect report."""
@@ -541,7 +507,6 @@ class PlateViewScreen(LinkedView, QWidget):
 
         outer.addWidget(Divider())
 
-        # ── Source row ────────────────────────────────────────────────
         src_row = QHBoxLayout()
         src_row.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit(self)
@@ -561,7 +526,6 @@ class PlateViewScreen(LinkedView, QWidget):
         src_row.addWidget(self._btn_open)
         outer.addLayout(src_row)
 
-        # ── Selection row ─────────────────────────────────────────────
         pick_row = QHBoxLayout()
         pick_row.setSpacing(SPACING["sm"])
         pick_row.addWidget(QLabel("Table", self))
@@ -586,7 +550,6 @@ class PlateViewScreen(LinkedView, QWidget):
         pick_row.addWidget(self._plate_combo)
         outer.addLayout(pick_row)
 
-        # ── Options row ───────────────────────────────────────────────
         opt_row = QHBoxLayout()
         opt_row.setSpacing(SPACING["sm"])
         opt_row.addWidget(QLabel("Per well", self))
@@ -626,7 +589,6 @@ class PlateViewScreen(LinkedView, QWidget):
         opt_row.addWidget(self._btn_render)
         outer.addLayout(opt_row)
 
-        # ── Heatmap | report ──────────────────────────────────────────
         split = QSplitter(Qt.Horizontal, self)
         self._grid = PlateGridWidget(split)
         self._grid.well_clicked.connect(self._on_well_clicked)
@@ -653,13 +615,11 @@ class PlateViewScreen(LinkedView, QWidget):
         split.setSizes([620, 520])
         outer.addWidget(split, 1)
 
-        # ── Well readout ──────────────────────────────────────────────
         self._well_label = QLabel("Click a well to see what is behind it.", self)
         self._well_label.setWordWrap(True)
         self._well_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         outer.addWidget(self._well_label)
 
-        # ── Footer ────────────────────────────────────────────────────
         foot_row = QHBoxLayout()
         foot_row.setSpacing(SPACING["sm"])
         self._scale_label = QLabel("", self)
@@ -676,7 +636,6 @@ class PlateViewScreen(LinkedView, QWidget):
         self._status.setTextInteractionFlags(Qt.TextSelectableByMouse)
         outer.addWidget(self._status)
 
-    # -- status ------------------------------------------------------------
 
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Deliberately never a QMessageBox — a modal dialog
@@ -718,7 +677,6 @@ class PlateViewScreen(LinkedView, QWidget):
         self._btn_export.setEnabled(self._layout_df is not None
                                     and len(self._layout_df) > 0)
 
-    # -- database ----------------------------------------------------------
 
     def _pick_database(self) -> None:
         """Ask for a measurements database and open it."""
@@ -858,7 +816,6 @@ class PlateViewScreen(LinkedView, QWidget):
 
         return self._run_job(_job, _done)
 
-    # -- rendering ---------------------------------------------------------
 
     def _on_view_changed(self, *_args) -> None:
         """Plate / grouping / scale / min_count changed — recompute only.
@@ -971,19 +928,6 @@ class PlateViewScreen(LinkedView, QWidget):
         value_col = self._frame_key[2] or None
         frame = self._frame
 
-        # Honour the shared Local Data Filter, so narrowing the population in
-        # one view narrows it here too. Applied to the frame already in
-        # memory rather than at the query, because the frame is cached across
-        # renders and a filter change must not cost a re-read of the database.
-        #
-        # It degrades to the unfiltered frame rather than refusing to draw: a
-        # filter carried over from another table can name columns this one
-        # does not have, and an empty heatmap is a worse answer than a
-        # complete one -- PROVIDED the view says which it is showing, which is
-        # what `_filter_note` puts on the status line.
-        #
-        # `is_empty` and `describe()` are read HERE, on the GUI thread, so the
-        # worker is handed a frame and a note and never looks at the link.
         note = ""
         narrow = None
         try:
@@ -1011,12 +955,6 @@ class PlateViewScreen(LinkedView, QWidget):
                 report = pqc.detect_edge_effect(
                     layout, value_col=value_col, grouping=grouping)
             except Exception as exc:
-                # Carried back as data rather than raised. An aggregation that
-                # refuses -- "no such column", "this plate is not in the
-                # frame" -- is a sentence for the status line, and it was
-                # written by this screen before the work moved to a thread.
-                # Letting it out as a worker error would relabel it "Plate
-                # view failed: …" and leave the old grid on screen.
                 return {"error": exc}
             return {"layout": layout, "report": report, "note": filter_note}
 
@@ -1062,9 +1000,6 @@ class PlateViewScreen(LinkedView, QWidget):
                       if report.n_dropped_min_count else "")
                    + (f", {n_blank} of the grid left blank" if n_blank else "")
                    + ". " + report.summary
-                   # A filtered heatmap that does not say it is filtered is how
-                   # an edge-effect verdict gets read as covering the whole
-                   # plate when it covers a third of it.
                    + getattr(self, "_filter_note", ""))
         self._set_status(message, error=False)
         self._update_controls()
@@ -1084,7 +1019,6 @@ class PlateViewScreen(LinkedView, QWidget):
         except Exception:
             return DEFAULT_CMAP
 
-    # -- well readout ------------------------------------------------------
 
     def _on_well_clicked(self, row_index: int, column_index: int) -> None:
         """Select the well the user clicked in the heatmap.
@@ -1129,7 +1063,6 @@ class PlateViewScreen(LinkedView, QWidget):
         self._well_label.setText(text)
         return text
 
-    # -- export ------------------------------------------------------------
 
     def _pick_export_path(self) -> None:
         """Ask where to write the well grid CSV, then write it."""
@@ -1163,7 +1096,6 @@ class PlateViewScreen(LinkedView, QWidget):
         self._set_status(f"Exported {len(self._layout_df)} well(s) → {written}")
         return True
 
-    # -- job plumbing ------------------------------------------------------
 
     def _run_job(self, fn: Callable[[], Any],
                  on_done: Callable[[Any], None]) -> bool:
@@ -1208,9 +1140,6 @@ class PlateViewScreen(LinkedView, QWidget):
             payload["result"] = fn()
 
         thread, worker = make_thread(_job, box)
-        # Strong references: PySide6 will not keep the worker alive through
-        # the started→run connection alone, and a QThread garbage-collected
-        # while still running takes the process down with it.
         self._jobs.append((thread, worker))
         self._thread, self._worker = thread, worker
         self._pending.append((box, on_done))

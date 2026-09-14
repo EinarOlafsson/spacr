@@ -29,18 +29,10 @@ from ipywidgets import IntSlider, interact
 from IPython.display import Image as ipyimage
 from matplotlib_venn import venn2
 
-# Fail-loud accounting: a missing annotation column silently pools every
-# condition together, which is far worse than a plot that refuses to render.
 from .errors import RunLedger, raise_if_strict
 from .image_colors import read_image_rgb, write_image_rgb
 from .tiff_io import write_tiff
 
-# THE HOUSE STYLE (`spacr/figures/style.py`), applied as a CONTEXT MANAGER
-# around every figure this module builds. A module-level `rcParams.update`
-# would be a process-wide mutation: spaCR draws from a long-lived GUI, so one
-# global write styles every later figure in every other module until the
-# process exits. That failure has already cost this repository a day, and this
-# file alone holds 45 of the ~133 figures spaCR draws.
 from .figures.style import (ROLES, TYPE_SCALE, WEIGHTS, Palette, descriptor,
                             figure_style, hide_unused, panel_letter,
                             reference_line, resolve_ink, rotate_ticks,
@@ -70,12 +62,6 @@ MAX_FIGURE_PX = 2 ** 16 - 1
 MAX_FIGURE_MEGAPIXELS = 200
 
 
-# The house type scale is anchored to a single-column DATA panel, about 5.6
-# inches wide. The image montages in this module are not that: `figuresize` is
-# a panel edge in inches and the figures come out 10 to 40 inches across, so
-# the absolute 7 pt label tier would be a title nobody can read at any size
-# the montage is looked at. The tiers keep their RATIOS and are scaled by the
-# canvas, which is what the skill states them as in the first place.
 _HOUSE_PANEL_INCHES = 5.6
 
 
@@ -198,23 +184,6 @@ def figure_path(path, fmt=None):
     return _with_extension(path, chosen)
 
 
-# ---------------------------------------------------------------------------
-# A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN (instruction 150).
-#
-# The DECISION -- which ground, which ink, whether to repaint at all -- is
-# `spacr.figure_style.saved_figure_appearance`, deliberately in a matplotlib-
-# free module so the pyqtgraph exporter can ask the same question and get the
-# same answer. What follows is only the matplotlib APPLICATION of it.
-#
-# WHY IT CANNOT BE rcParams ALONE, measured rather than assumed. rcParams are
-# read when an artist is CREATED. By the time `save_figure` runs the figure is
-# already drawn, so `rc_context({"text.color": "black"})` changes nothing that
-# is on it. Only `savefig.facecolor`, `savefig.edgecolor` and
-# `savefig.transparent` are read at write time, and those are exactly the three
-# set in the rc block below. The chrome has to be repainted artist by artist
-# and put back, which is what makes "the plot on screen is byte-identical
-# before and after the save" an assertion rather than a hope.
-# ---------------------------------------------------------------------------
 
 
 def _chrome(fig, ax=None):
@@ -230,7 +199,7 @@ def _chrome(fig, ax=None):
 
     if ax is None:
         yield "ground", fig.patch, fig.patch.get_facecolor, fig.patch.set_facecolor
-        for text in fig.texts:                       # suptitle lives here too
+        for text in fig.texts:
             yield "text", text, text.get_color, text.set_color
         for legend in getattr(fig, "legends", []):
             yield from _legend_chrome(legend)
@@ -321,11 +290,6 @@ def illegible_data_colours(fig, ground, floor=None):
     """
     from .figure_style import illegible_colours
 
-    # THE JUDGEMENT IS SHARED, ONLY THE HARVEST IS MATPLOTLIB'S. `data_colours`
-    # knows how to find a figure's marks; deciding which of them stops working
-    # on paper is the same question the pyqtgraph exporter asks of its pens,
-    # and a second copy of it here is how the two renderers would come to warn
-    # about different colours in the same palette.
     return illegible_colours(data_colours(fig), ground, floor)
 
 
@@ -370,11 +334,6 @@ def print_ready(fig, mode=None, announce=True):
                 current = getter()
             except Exception:                                    # noqa: BLE001
                 continue
-            # ONE DECISION, ASKED BY BOTH RENDERERS. `_chrome` says what each
-            # artist IS; `export_colour` says what that means for a save, and
-            # the pyqtgraph exporter asks the same function of its pens.
-            # `_chrome` yields "text" for the artists that are chrome made of
-            # letters, which is the same rule as a spine.
             new = export_colour(current,
                                 kind if kind in ("ground", "grid") else "chrome",
                                 look)
@@ -479,10 +438,6 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
     look = saved_figure_appearance(save_mode)
     rc = {"pdf.fonttype": 42}
     if look.ground is not None and "facecolor" not in kwargs:
-        # The three rcParams matplotlib reads at WRITE time rather than at
-        # artist-creation time, which is why the rest of the flip cannot be
-        # done here. `savefig.facecolor` covers the figure patch; the AXES
-        # patch is a separate artist and is repainted by `print_ready`.
         rc["savefig.facecolor"] = look.ground
         rc["savefig.edgecolor"] = look.ground
     rc["savefig.transparent"] = bool(look.transparent)
@@ -521,10 +476,10 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
 OUTLINE_PALETTES = {
     'default': {'cell': 'red', 'nucleus': 'blue',
                 'pathogen': 'green', 'organelle': 'yellow'},
-    'colourblind': {'cell': '#D55E00',        # vermillion
-                    'nucleus': '#56B4E9',     # sky blue
-                    'pathogen': '#009E73',    # bluish green
-                    'organelle': '#F0E442'},  # yellow
+    'colourblind': {'cell': '#D55E00',
+                    'nucleus': '#56B4E9',
+                    'pathogen': '#009E73',
+                    'organelle': '#F0E442'},
 }
 
 
@@ -627,16 +582,14 @@ def plot_image_mask_overlay(
 
         rng = np.random.default_rng(seed)
 
-        # Spread colors across hue space, then shuffle so different seeds give different maps
         hues = np.linspace(0, 1, n_labels, endpoint=False)
         rng.shuffle(hues)
 
-        # Keep colors vivid and bright so different objects are visually distinct
         sats = rng.uniform(0.70, 1.00, size=n_labels)
         vals = rng.uniform(0.85, 1.00, size=n_labels)
 
         rand_colors = mpl.colors.hsv_to_rgb(np.column_stack([hues, sats, vals]))
-        rand_colors = np.vstack([[0, 0, 0], rand_colors])  # background = black
+        rand_colors = np.vstack([[0, 0, 0], rand_colors])
         return ListedColormap(rand_colors)
 
     def _plot_merged_plot(
@@ -694,16 +647,9 @@ def plot_image_mask_overlay(
                 )
             return image
 
-        # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-        # and no axes to frame. What the house style gives a montage is the
-        # ground, the type scale and the theme's own ink -- applied as a
-        # context manager, so it does not follow the session out of here.
         with figure_style(theme_target()):
             num_channels = image.shape[-1]
             fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
-            # The grid is always num_channels + 1 wide, so a single channel still
-            # yields a 2-axes array -- the old `if num_channels == 1: ax = [ax]`
-            # wrapped that array in a list and made ax[0] the array, not an Axes.
             ax = np.atleast_1d(ax).ravel()
 
             channels_with_outlines = set(channel_to_outline.keys()) if channel_to_outline is not None else set()
@@ -730,8 +676,6 @@ def plot_image_mask_overlay(
                             channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
 
                 elif current_channel in channels_with_outlines:
-                    # Membership is tested against this mapping's own key set,
-                    # and every value is built from a concrete stack plane.
                     outline_info = channel_to_outline[current_channel]
                     outline = outline_info['mask']
                     color = outline_info['color']
@@ -770,9 +714,6 @@ def plot_image_mask_overlay(
                 ax[v].axis('off')
 
             if len(outlines) > 0:
-                # Priority order is the order in which outlines were added:
-                # cell < nucleus < pathogen < organelle
-                # Later objects overwrite earlier ones in overlapping pixels.
                 combined_mask = np.zeros_like(outlines[0], dtype=np.int64)
                 label_offset = 0
 
@@ -1038,7 +979,7 @@ def plot_image_mask_overlay_magenta_outlines(
         """
         np.random.seed(seed)
         rand_colors = np.random.rand(n_labels, 3)
-        rand_colors = np.vstack([[0, 0, 0], rand_colors])  # Ensure background is black
+        rand_colors = np.vstack([[0, 0, 0], rand_colors])
         cmap = ListedColormap(rand_colors)
         return cmap
 
@@ -1065,9 +1006,9 @@ def plot_image_mask_overlay_magenta_outlines(
 
         def _generate_colored_mask(mask, cmap):
             """Generate a colored mask using the given colormap."""
-            mask_norm = mask / (mask.max() + 1e-5)  # Normalize mask
+            mask_norm = mask / (mask.max() + 1e-5)
             colored_mask = cmap(mask_norm)
-            colored_mask[..., 3] = np.where(mask > 0, 1, 0)  # Alpha channel
+            colored_mask[..., 3] = np.where(mask > 0, 1, 0)
             return colored_mask
 
         def _overlay_mask(image, mask):
@@ -1093,7 +1034,7 @@ def plot_image_mask_overlay_magenta_outlines(
             unique_labels = np.unique(mask)
             for label in unique_labels:
                 if label == 0:
-                    continue  # Skip background
+                    continue
                 label_mask = (mask == label).astype(np.uint8)
                 contours = _generate_contours(label_mask)
                 cv2.drawContours(
@@ -1101,18 +1042,10 @@ def plot_image_mask_overlay_magenta_outlines(
                 )
             return image
 
-        # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-        # and no axes to frame. What the house style gives a montage is the
-        # ground, the type scale and the theme's own ink -- applied as a
-        # context manager, so it does not follow the session out of here.
         with figure_style(theme_target()):
             num_channels = image.shape[-1]
             fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
 
-            # The caller constructs every non-None role channel together
-            # with its extracted stack plane. Insert in reverse priority so
-            # a shared channel retains the old cell > nucleus > pathogen
-            # dispatch order.
             outlines_by_channel = {}
             if pathogen_channel is not None:
                 outlines_by_channel[pathogen_channel] = pathogen_outlines
@@ -1129,7 +1062,6 @@ def plot_image_mask_overlay_magenta_outlines(
                 current_channel = channels[v]
 
                 if all_on_all:
-                    # Apply all outlines to all channels
                     for outline, color in zip(outlines, outline_colors):
                         if mode == 'outlines':
                             channel_image_rgb = _apply_contours(
@@ -1140,10 +1072,8 @@ def plot_image_mask_overlay_magenta_outlines(
                             mask = _generate_colored_mask(outline, cmap)
                             channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
                 elif current_channel in outlines_by_channel:
-                    # Apply only the relevant outline to each channel
                     outline = outlines_by_channel[current_channel]
                     if mode == 'outlines':
-                        # Use magenta color when all_on_all=False
                         channel_image_rgb = _apply_contours(
                             channel_image_rgb, outline, '#FF00FF', thickness
                         )
@@ -1152,12 +1082,7 @@ def plot_image_mask_overlay_magenta_outlines(
                         mask = _generate_colored_mask(outline, cmap)
                         channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
                 else:
-                    # Channel without associated outlines
                     if all_outlines:
-                        # Apply all outlines with specified colors. The colours must
-                        # come from outline_colors (as the all_on_all branch above
-                        # does); a hard-coded list mislabels the objects and silently
-                        # truncates the zip when a fourth object type is present.
                         for outline, color in zip(outlines, outline_colors):
                             if mode == 'outlines':
                                 channel_image_rgb = _apply_contours(
@@ -1171,9 +1096,6 @@ def plot_image_mask_overlay_magenta_outlines(
                 ax[v].imshow(channel_image_rgb)
                 ax[v].set_title(f'Image - Channel {current_channel}')
 
-            # Create an image combining all objects filled with colors.
-            # outlines is empty when no object channel was supplied, and outlines[0]
-            # then raises IndexError instead of drawing an empty panel.
             if len(outlines) > 0:
                 combined_mask = np.zeros_like(outlines[0])
                 for outline in outlines:
@@ -1192,7 +1114,6 @@ def plot_image_mask_overlay_magenta_outlines(
 
             plt.tight_layout()
 
-            # Save the figure as a PDF
             if save_pdf:
                 pdf_dir = os.path.join(
                     os.path.dirname(os.path.dirname(file)), 'results', 'overlay'
@@ -1231,12 +1152,10 @@ def plot_image_mask_overlay_magenta_outlines(
         original_dtype = mask.dtype
         mask_int = mask.astype(np.int64)
         intensity_image = intensity_image.astype(np.float64)
-        # Compute properties for each labeled object
         unique_labels = np.unique(mask_int)
-        unique_labels = unique_labels[unique_labels != 0]  # Exclude background
+        unique_labels = unique_labels[unique_labels != 0]
         num_objects_before = len(unique_labels)
 
-        # Initialize lists to store area and intensity for each object
         areas = []
         mean_intensities = []
         labels_to_keep = []
@@ -1249,15 +1168,12 @@ def plot_image_mask_overlay_magenta_outlines(
             areas.append(area)
             mean_intensities.append(mean_intensity)
 
-            # Check if the object meets both area and intensity criteria
             if (min_max_area[0] <= area <= min_max_area[1]) and (min_max_intensity[0] <= mean_intensity <= min_max_intensity[1]):
                 labels_to_keep.append(label)
 
-        # Convert lists to numpy arrays for easier computation
         areas = np.array(areas)
         mean_intensities = np.array(mean_intensities)
         num_objects_after = len(labels_to_keep)
-        # Compute average area and intensity before and after filtering
         avg_area_before = areas.mean() if num_objects_before > 0 else 0
         avg_intensity_before = mean_intensities.mean() if num_objects_before > 0 else 0
         areas_after = areas[np.isin(unique_labels, labels_to_keep)]
@@ -1286,7 +1202,6 @@ def plot_image_mask_overlay_magenta_outlines(
         filename = os.path.splitext(os.path.basename(file))[0]
         _save_channels_as_tiff(stack, save_dir, filename)
 
-    # Convert to float for normalization and ensure correct handling of arrays
     if stack.dtype in (np.uint16, np.uint8):
         stack = stack.astype(np.float32)
 
@@ -1294,7 +1209,6 @@ def plot_image_mask_overlay_magenta_outlines(
     outlines = []
     outline_colors = []
 
-    # Define variables to hold individual outlines
     cell_outlines = None
     nucleus_outlines = None
     pathogen_outlines = None
@@ -1338,7 +1252,7 @@ def plot_image_mask_overlay_magenta_outlines(
         outline_colors=outline_colors,
         figuresize=figuresize,
         thickness=thickness,
-        percentiles=percentiles,  # Pass percentiles to the plotting function
+        percentiles=percentiles,
         mode=mode,
         all_on_all=all_on_all,
         all_outlines=all_outlines,
@@ -1374,18 +1288,11 @@ def plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr
     index = 0
     
     for image, mask, flow in zip(batch, masks, flows):
-        #if print_object_number:
-        #    num_objects = mask_object_count(mask)
-        #    print(f'Number of objects: {num_objects}')
         random_cmap = _generate_mask_random_cmap(mask)
         
         if index < nr:
             index += 1
             chans = image.shape[-1]
-            # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-            # and no axes to frame. What the house style gives a montage is the
-            # ground, the type scale and the theme's own ink -- applied as a
-            # context manager, so it does not follow the session out of here.
             with figure_style(theme_target()):
                 fig, ax = plt.subplots(1, image.shape[-1] + 2, figsize=(4 * figuresize, figuresize))
                 for v in range(0, image.shape[-1]):
@@ -1394,8 +1301,6 @@ def plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr
                 ax[chans].imshow(mask, cmap=random_cmap, interpolation='nearest')
                 ax[chans].set_title('Mask')
                 if print_object_number:
-                    # Drop the background label explicitly: [1:] assumes 0 sorts
-                    # first, so a mask with no background pixel loses a real object.
                     unique_objects = np.unique(mask)
                     unique_objects = unique_objects[unique_objects != 0]
                     for obj in unique_objects:
@@ -1432,22 +1337,15 @@ def plot_organelle_output(img_batch, masks, settings, cmap='inferno', figuresize
         random_cmap = _generate_mask_random_cmap(mask)
         num_objects = len(np.unique(mask)) - (1 if 0 in mask else 0)
 
-        # Generate diagnostic image based on morphology/method
         diag_img, diag_title = _organelle_diagnostic(img, morphology, method, settings)
 
-        # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-        # and no axes to frame. What the house style gives a montage is the
-        # ground, the type scale and the theme's own ink -- applied as a
-        # context manager, so it does not follow the session out of here.
         with figure_style(theme_target()):
             n_panels = 3
             fig, ax = plt.subplots(1, n_panels, figsize=(n_panels * figuresize, figuresize))
 
-            # Panel 1: Raw image
             ax[0].imshow(img, cmap=cmap, interpolation='nearest')
             ax[0].set_title(f'Organelle channel ({morphology}/{method})')
 
-            # Panel 2: Label mask
             ax[1].imshow(mask, cmap=random_cmap, interpolation='nearest')
             ax[1].set_title(f'Mask ({num_objects} objects)')
             if print_object_number:
@@ -1458,7 +1356,6 @@ def plot_organelle_output(img_batch, masks, settings, cmap='inferno', figuresize
                     ax[1].text(cx, cy, str(obj), color='white', fontsize=font,
                                ha='center', va='center')
 
-            # Panel 3: Diagnostic
             ax[2].imshow(diag_img, cmap='viridis', interpolation='nearest')
             ax[2].set_title(diag_title)
 
@@ -1489,11 +1386,6 @@ def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_ty
     if len(batch.shape) == 3:
         batch = np.expand_dims(batch, axis=0)
     if not isinstance(masks, list):
-        # `batch` takes either one image or a stack, so `masks` has to as well
-        # (the docstring promises "list or ndarray"). Blindly wrapping made an
-        # (N, H, W) stack a single "mask" and imshow died with
-        # "Invalid shape (N, H, W) for image data"; a swallowed pytest.skip in
-        # tests/test_all_plotting_functions.py hid that for the whole batch path.
         masks = np.asarray(masks)
         masks = [masks] if masks.ndim == 2 else list(masks)
     if not isinstance(flows, list):
@@ -1501,7 +1393,7 @@ def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_ty
     else:
         flows = flows[0]
     if file_type == 'png':
-        flows = [f[0] for f in flows]  # assuming this is what you want to do when file_type is 'png'
+        flows = [f[0] for f in flows]
     font = figuresize/2
     index = 0
     for image, mask, flow in zip(batch, masks, flows):
@@ -1516,26 +1408,20 @@ def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_ty
         if index < nr:
             index += 1
             chans = image.shape[-1]
-            # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-            # and no axes to frame. What the house style gives a montage is the
-            # ground, the type scale and the theme's own ink -- applied as a
-            # context manager, so it does not follow the session out of here.
             with figure_style(theme_target()):
                 fig, ax = plt.subplots(1, image.shape[-1] + 2, figsize=(4 * figuresize, figuresize))
                 for v in range(0, image.shape[-1]):
-                    ax[v].imshow(image[..., v], cmap=cmap) #_imshow
+                    ax[v].imshow(image[..., v], cmap=cmap)
                     ax[v].set_title('Image - Channel'+str(v))
-                ax[chans].imshow(mask, cmap=random_cmap) #_imshow
+                ax[chans].imshow(mask, cmap=random_cmap)
                 ax[chans].set_title('Mask')
                 if print_object_number:
-                    # Drop the background label explicitly: [1:] assumes 0 sorts
-                    # first, so a mask with no background pixel loses a real object.
                     unique_objects = np.unique(mask)
                     unique_objects = unique_objects[unique_objects != 0]
                     for obj in unique_objects:
                         cy, cx = ndi.center_of_mass(mask == obj)
                         ax[chans].text(cx, cy, str(obj), color='white', fontsize=font, ha='center', va='center')
-                ax[chans+1].imshow(flow, cmap='viridis') #_imshow
+                ax[chans+1].imshow(flow, cmap='viridis')
                 ax[chans+1].set_title('Flow')
                 plt.show()
     return
@@ -1563,23 +1449,15 @@ def _plot_4D_arrays(src, figuresize=10, cmap='inferno', nr_npz=1, nr=1):
         for i in range(min(nr, num_images)):
             img = stack[i]
 
-            # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-            # and no axes to frame. What the house style gives a montage is the
-            # ground, the type scale and the theme's own ink -- applied as a
-            # context manager, so it does not follow the session out of here.
             with figure_style(theme_target()):
-                # Create subplots
                 if num_channels == 1:
                     fig, axs = plt.subplots(1, 1, figsize=(figuresize, figuresize))
-                    axs = [axs]  # Make axs a list to use axs[c] later
+                    axs = [axs]
                 else:
                     fig, axs = plt.subplots(1, num_channels, figsize=(num_channels * figuresize, figuresize))
 
                 for c in range(num_channels):
-                    axs[c].imshow(img[:, :, c], cmap=cmap) #_imshow
-                    # 24 pt regardless of the canvas: on the 2-inch panels this
-                    # function is called with in a browse loop, the title was taller
-                    # than the image under it.
+                    axs[c].imshow(img[:, :, c], cmap=cmap)
                     axs[c].set_title(f'Channel {c}',
                                      size=_montage_type_size(figuresize))
                     axs[c].axis('off')
@@ -1648,15 +1526,15 @@ def _get_colours_merged(outline_color):
     """
 
     if outline_color == 'rgb':
-        outline_colors = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]  # rgb
+        outline_colors = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
     elif outline_color == 'bgr':
-        outline_colors = [[0, 0, 1], [0, 1, 0], [1, 0, 0]]  # bgr
+        outline_colors = [[0, 0, 1], [0, 1, 0], [1, 0, 0]]
     elif outline_color == 'gbr':
-        outline_colors = [[0, 1, 0], [0, 0, 1], [1, 0, 0]]  # gbr
+        outline_colors = [[0, 1, 0], [0, 0, 1], [1, 0, 0]]
     elif outline_color == 'rbg':
-        outline_colors = [[1, 0, 0], [0, 0, 1], [0, 1, 0]]  # rbg
+        outline_colors = [[1, 0, 0], [0, 0, 1], [0, 1, 0]]
     else:
-        outline_colors = [[1, 0, 0], [0, 0, 1], [0, 1, 0]]  # rbg
+        outline_colors = [[1, 0, 0], [0, 0, 1], [0, 1, 0]]
     return outline_colors
 
 def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, threshold=1000, extensions=None, overlay=False, max_nr=None, randomize=True):
@@ -1723,7 +1601,6 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
                             file_dict[file_name_wo_ext] = {}
                         file_dict[file_name_wo_ext][folder] = file_path
 
-        # Filter out files that don't have paths in all folders
         filtered_dict = {k: v for k, v in file_dict.items() if len(v) == len(folders)}
         return filtered_dict
 
@@ -1761,20 +1638,14 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
                     mask_data = data
 
             if image_data is not None and mask_data is not None:
-                # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-                # and no axes to frame. What the house style gives a montage is the
-                # ground, the type scale and the theme's own ink -- applied as a
-                # context manager, so it does not follow the session out of here.
                 with figure_style(theme_target()):
                     fig, axes = plt.subplots(1, 2, figsize=(15, 7))
                 
-                    # Display the mask with random colormap
                     cmap = random_cmap(num_objects=len(np.unique(mask_data)))
                     axes[0].imshow(mask_data, cmap=cmap)
                     axes[0].set_title(f"{filename} - Mask")
                     axes[0].axis('off')
 
-                    # Display the normalized image
                     axes[1].imshow(image_data, cmap='gray')
                     if overlay:
                         labeled_mask = label(mask_data)
@@ -1782,7 +1653,6 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
                             if region.image.shape[0] >= 2 and region.image.shape[1] >= 2:
                                 contours = find_contours(region.image, 0.75)
                                 for contour in contours:
-                                    # Adjust contour coordinates relative to the full image
                                     contour[:, 0] += region.bbox[0]
                                     contour[:, 1] += region.bbox[1]
                                     axes[1].plot(contour[:, 1], contour[:, 0], linewidth=2, color='magenta')
@@ -1828,16 +1698,6 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
     
     stack = _remove_outside_objects(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim)
 
-    # filter_min_max is in ROLE order -- [cell, nucleus, pathogen] -- while
-    # mask_dims is the COMPACTED list of the planes that exist. Indexing one
-    # by the other's position only agrees when every role is enabled.
-    #
-    # With cell_mask_dim=4, nucleus_mask_dim=None, pathogen_mask_dim=6,
-    # mask_dims is [4, 6]: i=0 gave the cell its own range, and i=1 gave the
-    # PATHOGEN the nucleus's range. So on any run with a disabled object, one
-    # object type was size-filtered by another's limits -- objects removed
-    # from the figure that the settings never asked to remove, and objects
-    # kept that they did.
     _role_index = {}
     for _position, _dim in enumerate((cell_mask_dim, nucleus_mask_dim,
                                       pathogen_mask_dim)):
@@ -1850,15 +1710,12 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
         else:
             _position = _role_index.get(mask_dim)
             if _position is None or _position >= len(filter_min_max):
-                # A plane that is not one of the three named roles has no
-                # declared range. Unfiltered beats borrowing a neighbour's.
                 min_max = [0, 100000000]
             else:
                 min_max = filter_min_max[_position]
 
         mask = np.take(stack, mask_dim, axis=2)
         props = measure.regionprops_table(mask, properties=['label', 'area'])
-        #props = measure.regionprops_table(mask, intensity_image=intensity_image, properties=['label', 'area', 'mean_intensity'])
         avg_size_before = np.mean(props['area'])
         total_count_before = len(props['label'])
 
@@ -1871,10 +1728,6 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
         total_count_after = len(props_after['label'])
 
         if mask_dim == cell_mask_dim:
-            # object_dim must be the dim each flag is named after: the two were
-            # swapped, so nuclei_limit=False dropped multi-infected cells and
-            # pathogen_limit=False dropped multinucleated ones. The inversion is
-            # invisible when both flags are False, which is why it survived.
             if nuclei_limit is False and nucleus_mask_dim is not None:
                 stack = _remove_multiobject_cells(stack, mask_dim, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, object_dim=nucleus_mask_dim)
             if pathogen_limit is False and cell_mask_dim is not None and pathogen_mask_dim is not None:
@@ -1931,30 +1784,23 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
         print(f'Image path: {path}')
         if path.endswith('.npz'):
             with np.load(path) as data:
-                key = list(data.keys())[0]  # assume first key
-                img = data[key][0]          # get first image in batch
+                key = list(data.keys())[0]
+                img = data[key][0]
         else:
             img = np.load(path)
 
         if normalize:
             if img.ndim == 2:
-                # normalize_to_dtype indexes array.shape[2], so a single-plane
-                # array raises IndexError; promote it for the call and drop the
-                # axis again so the 2-D display path below is unchanged.
                 img = normalize_to_dtype(array=img[:, :, np.newaxis], p1=q1, p2=q2)[:, :, 0]
             else:
                 img = normalize_to_dtype(array=img, p1=q1, p2=q2)
 
-        # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-        # and no axes to frame. What the house style gives a montage is the
-        # ground, the type scale and the theme's own ink -- applied as a
-        # context manager, so it does not follow the session out of here.
         with figure_style(theme_target()):
             if img.ndim == 3:
                 array_nr = img.shape[2]
                 fig, axs = plt.subplots(1, array_nr, figsize=(figuresize, figuresize))
                 if array_nr == 1:
-                    axs = [axs]  # ensure iterable
+                    axs = [axs]
                 for channel in range(array_nr):
                     i = img[:, :, channel]
                     axs[channel].imshow(i, cmap=plt.get_cmap(cmap))
@@ -1991,8 +1837,6 @@ def _normalize_and_outline(image, remove_background, normalize, normalization_pe
     """
     from .utils import normalize_to_dtype, _outline_and_overlay, _gen_rgb_image
 
-    # `image` is the caller's stack and the remove_background branch mutates it
-    # in place, so copy the label planes rather than aliasing them.
     raw_masks = {d: image[:, :, d].copy() for d in mask_dims}
 
     if remove_background:
@@ -2011,11 +1855,6 @@ def _normalize_and_outline(image, remove_background, normalize, normalization_pe
 
     rgb_image = _gen_rgb_image(image, channels=overlay_chans)
 
-    # Label values are categorical, not intensities. Percentile-rescaling them
-    # clips the background up to the lowest label (so that object merges into
-    # the background) and collapses a single-object mask to a constant image,
-    # from which no contour can be found. Restore the raw labels after the RGB
-    # build so the overlay image itself is unchanged.
     for d, raw in raw_masks.items():
         image[:, :, d] = raw
 
@@ -2024,7 +1863,6 @@ def _normalize_and_outline(image, remove_background, normalize, normalization_pe
 
         return overlayed_image, image, outlines
     else:
-        # Remove mask_dims from image
         channels_to_keep = [i for i in range(image.shape[-1]) if i not in mask_dims]
         image = np.take(image, channels_to_keep, axis=-1)
         return [], image, []
@@ -2051,21 +1889,16 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
         fig (Figure): The generated matplotlib figure.
     """
     
-    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-    # and no axes to frame. What the house style gives a montage is the
-    # ground, the type scale and the theme's own ink -- applied as a
-    # context manager, so it does not follow the session out of here.
     with figure_style(theme_target()):
         if overlay:
             fig, ax = plt.subplots(1, image.shape[-1] + len(mask_dims) + 1, figsize=(4 * figuresize, figuresize))
-            ax[0].imshow(overlayed_image) #_imshow
+            ax[0].imshow(overlayed_image)
             ax[0].set_title('Overlayed Image')
             ax_index = 1
         else:
             fig, ax = plt.subplots(1, image.shape[-1] + len(mask_dims), figsize=(4 * figuresize, figuresize))
             ax_index = 0
 
-        # Normalize and plot each channel with outlines
         for v in range(0, image.shape[-1]):
             channel_image = image[..., v]
             channel_image_normalized = channel_image.astype(float)
@@ -2073,22 +1906,18 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
             channel_image_normalized /= channel_image_normalized.max()
             channel_image_rgb = np.dstack((channel_image_normalized, channel_image_normalized, channel_image_normalized))
 
-            # Apply the outlines onto the RGB image
             for outline, color in zip(outlines, outline_colors):
                 for j in np.unique(outline)[1:]:
                     channel_image_rgb[outline == j] = mpl.colors.to_rgb(color)
 
             ax[v + ax_index].imshow(channel_image_rgb)
-            # 1-based, human-friendly channel label.
             ax[v + ax_index].set_title(f'Channel {v + 1}')
 
         for i, mask_dim in enumerate(mask_dims):
             mask = np.take(stack, mask_dim, axis=2)
             random_cmap = _generate_mask_random_cmap(mask)
             ax[i + image.shape[-1] + ax_index].imshow(mask, cmap=random_cmap)
-            # Name the mask by its object class + live object count, e.g.
-            # "Cell Mask - 200 objects".
-            n_obj = int(len(np.unique(mask)) - 1)   # exclude background 0
+            n_obj = int(len(np.unique(mask)) - 1)
             cls = (mask_names[i] if mask_names and i < len(mask_names)
                    else f'Mask {i + 1}')
             ax[i + image.shape[-1] + ax_index].set_title(
@@ -2131,8 +1960,6 @@ def plot_merged(src, settings):
     if settings['pathogen_mask_dim'] is None:
         settings['pathogen_limit'] = True
 
-    # nr=0 takes the else-branch on the very first file, so `fig` has to exist
-    # before the loop or `return fig` raises UnboundLocalError.
     fig = None
 
     for file in os.listdir(src):
@@ -2212,41 +2039,26 @@ def _plot_images_on_grid(image_files, channel_indices, um_per_pixel, scale_bar_l
     nr_of_images = len(image_files)
     cols = int(np.ceil(np.sqrt(nr_of_images)))
     rows = np.ceil(nr_of_images / cols)
-    # squeeze=False keeps the return a 2-D array: a single image gives a 1x1
-    # grid, which matplotlib otherwise collapses to a bare Axes with no
-    # .flatten().
-    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-    # and no axes to frame. What the house style gives a montage is the
-    # ground, the type scale and the theme's own ink -- applied as a
-    # context manager, so it does not follow the session out of here.
     with figure_style(theme_target()):
-        # THE GROUND COMES FROM THE STYLE, which is transparent: the standing
-        # preference is "not black not white just transparent", and this
-        # montage carries TEXT -- filenames and channel names -- so a ground
-        # baked to black forces the text to white, and white text on a white
-        # page is the failure rule 3 exists for.
         fig, axes = plt.subplots(int(rows), int(cols), figsize=(20, 20), squeeze=False)
         axes = axes.flatten()
-        # Calculate the scale bar length in pixels
-        scale_bar_length_px = int(scale_bar_length_um / um_per_pixel)  # Convert to pixels
+        scale_bar_length_px = int(scale_bar_length_um / um_per_pixel)
 
         channel_colors = ['red','green','blue']
         for i, image_file in enumerate(image_files):
             img_array = read_image_rgb(image_file, cv2.IMREAD_UNCHANGED)
-            # Handle different channel selections
             if channel_indices is not None:
-                if len(channel_indices) == 1:  # Single channel (grayscale)
+                if len(channel_indices) == 1:
                     img_array = img_array[:, :, channel_indices[0]]
                     cmap = 'gray'
-                elif len(channel_indices) == 2:  # Dual channels
+                elif len(channel_indices) == 2:
                     img_array = np.mean(img_array[:, :, channel_indices], axis=2)
                     cmap = 'gray'
-                else:  # RGB or more channels
+                else:
                     img_array = img_array[:, :, channel_indices]
                     cmap = None
             else:
                 cmap = None if img_array.ndim == 3 else 'gray'
-            # Normalize based on dtype
             if img_array.dtype == np.uint16:
                 img_array = img_array.astype(np.float32) / 65535.0
             elif img_array.dtype == np.uint8:
@@ -2256,28 +2068,18 @@ def _plot_images_on_grid(image_files, channel_indices, um_per_pixel, scale_bar_l
             ax.axis('off')
             if show_filename:
                 ax.set_title(os.path.basename(image_file), color=resolve_ink(theme_target()), fontsize=fontsize, pad=20)
-            # Add scale bar
             ax.plot([10, 10 + scale_bar_length_px], [img_array.shape[0] - 10] * 2, lw=2, color='white')
-        # Add channel names at the top if specified
-        initial_offset = 0.02  # Starting offset from the left side of the figure
-        increment = 0.05  # Fixed increment for each subsequent channel name, adjust based on figure width
+        initial_offset = 0.02
+        increment = 0.05
         if channel_names:
             current_offset = initial_offset
             for ci, channel_name in enumerate(channel_names):
-                # A channel name takes ITS CHANNEL'S colour -- the skill's rule
-                # for a micrograph column header. A channel beyond the three
-                # has no colour of its own and falls back to the theme's ink,
-                # which was a hard 'white'. The black box behind each name is
-                # gone: the style has no other boxes for it to match.
                 color = (channel_colors[ci] if ci < len(channel_colors)
                          else resolve_ink(theme_target()))
                 fig.text(current_offset, 0.99, channel_name, color=color, fontsize=fontsize,
                             verticalalignment='top', horizontalalignment='left')
                 current_offset += increment
 
-        # Pad from the image count, not from a leaked loop variable: the
-        # channel_names loop above used to rebind `i`, so the unused cells were
-        # blanked starting at the wrong index whenever channel_names was given.
         for j in range(nr_of_images, len(axes)):
             axes[j].axis('off')
 
@@ -2409,7 +2211,6 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
         Figure: The figure that was drawn. The 2D case also calls
         ``plt.show()`` before returning; the multi-channel case does not.
     """
-    #start = time.time()
     dim = stack.shape
     
     def plot_single_array(array, ax, title, chosen_cmap):
@@ -2441,9 +2242,6 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
         num_unique_values = len(unique_values)
 
         if num_unique_values <= threshold:
-            # The number of distinct values decides mask vs intensity, but the
-            # object count in the title must exclude the background label 0,
-            # otherwise a 3-object mask is annotated "4 (obj.)".
             num_objects = int(np.count_nonzero(unique_values))
             chosen_cmap = _generate_mask_random_cmap(array)
             title = f'{title}, {num_objects} (obj.)'
@@ -2452,10 +2250,6 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
         ax.set_title(title, size=_montage_type_size(figuresize))
         ax.axis('off')
 
-    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-    # and no axes to frame. What the house style gives a montage is the
-    # ground, the type scale and the theme's own ink -- applied as a
-    # context manager, so it does not follow the session out of here.
     with figure_style(theme_target()):
         if len(dim) == 2:
             fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
@@ -2465,13 +2259,10 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
         elif len(dim) > 2:
             num_channels = dim[2]
             fig, axs = plt.subplots(1, num_channels, figsize=(figuresize, figuresize))
-            # A single channel makes plt.subplots return a bare Axes, not an array,
-            # so axs[channel] below would raise TypeError.
             axs = np.atleast_1d(axs)
             for channel in range(num_channels):
                 plot_single_array(stack[:, :, channel], axs[channel], f'C. {channel}', plt.get_cmap(cmap))
             fig.tight_layout()    
-    #print(f'{filename}')
     return fig
     
 def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src, name, plot, filenames, object_type, mode='btrack', interactive=False):
@@ -2494,19 +2285,13 @@ def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src,
     from .io import _save_mask_timelapse_as_gif, _mask_movie_frame_geometry
 
     highest_label = max(np.max(mask) for mask in masks)
-    # Generate random colors for each label, including the background
     random_colors = np.random.rand(highest_label + 1, 4)
-    random_colors[:, 3] = 1  # Full opacity
-    random_colors[0] = [0, 0, 0, 1]  # Background color
+    random_colors[:, 3] = 1
+    random_colors[0] = [0, 0, 0, 1]
     cmap = plt.cm.colors.ListedColormap(random_colors)
-    # Ensure the normalization range covers all labels
     norm = plt.cm.colors.Normalize(vmin=0, vmax=highest_label)
-    # The same sizing the saved movie uses: 50 x 50 inches was a whole wall of
-    # figure for a mask a few hundred pixels across, and it was redrawn on
-    # every tick of the frame slider.
     geometry = _mask_movie_frame_geometry(masks)
 
-    # Function to plot a frame and overlay tracks
     def _view_frame_with_tracks(frame=0):
         """
         Display the frame with tracks overlaid.
@@ -2517,23 +2302,17 @@ def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src,
         Returns:
         None
         """
-        # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-        # and no axes to frame. What the house style gives a montage is the
-        # ground, the type scale and the theme's own ink -- applied as a
-        # context manager, so it does not follow the session out of here.
         with figure_style(theme_target()):
             fig, ax = plt.subplots(figsize=geometry['figsize'], dpi=geometry['dpi'])
             current_mask = masks[frame]
-            ax.imshow(current_mask, cmap=cmap, norm=norm)  # Apply both colormap and normalization
+            ax.imshow(current_mask, cmap=cmap, norm=norm)
             ax.set_title(f'Frame: {frame}', fontsize=geometry['title_pt'])
 
-            # Directly annotate each object with its label number from the mask
             for label_value in np.unique(current_mask):
-                if label_value == 0: continue  # Skip background
+                if label_value == 0: continue
                 y, x = np.mean(np.where(current_mask == label_value), axis=1)
                 ax.text(x, y, str(label_value), color='white', fontsize=geometry['label_pt'], ha='center', va='center')
 
-            # Overlay tracks
             for track in tracks_df['track_id'].unique():
                 _track = tracks_df[tracks_df['track_id'] == track]
                 ax.plot(_track['x'], _track['y'], '-k', linewidth=1)
@@ -2546,7 +2325,6 @@ def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src,
             interact(_view_frame_with_tracks, frame=IntSlider(min=0, max=len(masks)-1, step=1, value=0))
 
     if save:
-        # Save as gif
         gif_path = os.path.join(os.path.dirname(src), 'movies', 'gif')
         os.makedirs(gif_path, exist_ok=True)
         save_path_gif = os.path.join(gif_path, f'timelapse_masks_{object_type}_{name}.gif')
@@ -2565,14 +2343,6 @@ def _display_gif(path):
     Returns:
     None
     """
-    # `format='gif'` is stated rather than sniffed. IPython only learned to
-    # recognise the GIF87a/GIF89a magic bytes in 9.0.0; before that, raw bytes
-    # with no format fall through to 'png' and the animation is emitted with
-    # an `image/png` mime type. IPython 9 needs Python 3.11, so on the 3.9 and
-    # 3.10 ends of the range spaCR claims there is no version of IPython that
-    # would guess right -- setup.py's `IPython>=8.18.1` resolves to exactly
-    # 8.18.1 on 3.9. Saying what the file is costs nothing and is correct on
-    # every version.
     with open(path, 'rb') as file:
         display(ipyimage(file.read(), format='gif'))
 
@@ -2600,17 +2370,6 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
                   (55/255, 155/255, 255/255), 
                   (255/255, 55/255, 155/255)]
 
-    # The palette is set for THIS figure only. `sns.set_palette` writes
-    # matplotlib's global colour cycle, so drawing one recruitment plot
-    # used to recolour every plot the session drew afterwards -- including
-    # figures on other screens, and including the palette the user chose in
-    # figure preferences. `rc_context` keeps the colours while these axes
-    # are built and puts the cycle back when they are done.
-    # The four hues stay: here the CATEGORY IS THE DATA -- one colour per
-    # pathogen strain, held across all four panels -- which is the one case
-    # the style allows a categorical palette. Everything else about the
-    # figure is the house style, applied around the palette rather than
-    # instead of it.
     with mpl.rc_context({'axes.prop_cycle': mpl.cycler(color=color_list)}), \
             figure_style(theme_target()):
         font = figuresize/2
@@ -2634,24 +2393,17 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
         axes[3].set_xlabel(f'pathogen {df_type}', fontsize=font)
         axes[3].set_ylabel(f'pathogen_channel_{channel_of_interest}_mean_intensity', fontsize=font)
 
-        #axes[0].legend_.remove()
-        #axes[1].legend_.remove()
-        #axes[2].legend_.remove()
-        #axes[3].legend_.remove()
         
         handles, labels = axes[3].get_legend_handles_labels()
         axes[3].legend(handles, labels, bbox_to_anchor=(1.05, 0.5), loc='center left')
         for i in [0,1,2,3]:
             axes[i].tick_params(axis='both', which='major', labelsize=font)
-            # Right-aligned and anchored, not merely rotated: a condition name
-            # rotated about its centre drifts off the tick it belongs to.
             rotate_ticks(axes[i])
 
         fig.tight_layout()
         plt.show()
 
         columns = columns + ['pathogen_cytoplasm_mean_mean', 'pathogen_cytoplasm_q75_mean', 'pathogen_periphery_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_q75_mean']
-        #columns = columns + [f'pathogen_slope_channel_{channel_of_interest}', f'pathogen_cell_distance_channel_{channel_of_interest}', f'nucleus_cell_distance_channel_{channel_of_interest}']
 
         width = figuresize*2
         columns_per_row = math.ceil(len(columns) / 2)
@@ -2675,8 +2427,6 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
             if i <= 5:
                 ax.set_ylim(1, None)
 
-        # An empty framed box reads as a panel that failed to draw, which is
-        # worse than a gap.
         hide_unused(axes[len(columns):])
 
         fig.tight_layout()
@@ -2719,11 +2469,6 @@ def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
     if len(unique_conditions) ==1:
         unique_conditions=unique_conditions+unique_conditions
 
-    # The four components are ALREADY the x axis of every panel, so colouring
-    # them a second time argues nothing -- this is colour-by-category where
-    # the category is not the point, which the style names as the failure.
-    # One grey for all four; the panels differ by condition and channel, and
-    # those are what the descriptors say.
     color_list = [ROLES['data']] * 4
 
     with figure_style(theme_target()):
@@ -2732,10 +2477,6 @@ def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
         for idx_condition, condition in enumerate(unique_conditions):
             df_temp = df[df['condition'] == condition]
             for idx_channel, control_cols_c in enumerate(controls_cols):
-                # Build labels and colours alongside the data. The bar call used to
-                # pass all four component names unconditionally while the guard
-                # above skips missing columns, so any absent component (or a whole
-                # absent channel) made x and height different lengths and raised.
                 names = []
                 data = []
                 std_dev = []
@@ -2783,10 +2524,6 @@ def _imshow(img, labels, nrow=20, color='white', fontsize=12):
             idx = i * n_col + j
             if idx < n_images:
                 canvas[i * img_height:(i + 1) * img_height, j * img_width:(j + 1) * img_width] = np.transpose(img[idx], (1, 2, 0))        
-    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-    # and no axes to frame. What the house style gives a montage is the
-    # ground, the type scale and the theme's own ink -- applied as a
-    # context manager, so it does not follow the session out of here.
     with figure_style(theme_target()):
         fig = plt.figure(figsize=(50, 50))
         plt.imshow(canvas)
@@ -2811,31 +2548,25 @@ def _imshow_gpu(img, labels, nrow=20, color='white', fontsize=12):
         fontsize (int, optional): Font size of the label text. Defaults to 12.
     """
     if img.is_cuda:
-        img = img.cpu()  # Move to CPU if the tensor is on GPU
+        img = img.cpu()
 
     n_images = len(labels)
     n_col = nrow
     n_row = int(np.ceil(n_images / n_col))
 
-    img_height = img.shape[2]  # Height of the image
-    img_width = img.shape[3]   # Width of the image
+    img_height = img.shape[2]
+    img_width = img.shape[3]
 
-    # Prepare the canvas on CPU
     canvas = torch.zeros((img_height * n_row, img_width * n_col, 3))
 
     for i in range(n_row):
         for j in range(n_col):
             idx = i * n_col + j
             if idx < n_images:
-                # Place the image on the canvas
                 canvas[i * img_height:(i + 1) * img_height, j * img_width:(j + 1) * img_width] = img[idx].permute(1, 2, 0)
 
-    canvas = canvas.numpy()  # Convert to NumPy for plotting
+    canvas = canvas.numpy()
 
-    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-    # and no axes to frame. What the house style gives a montage is the
-    # ground, the type scale and the theme's own ink -- applied as a
-    # context manager, so it does not follow the session out of here.
     with figure_style(theme_target()):
         fig = plt.figure(figsize=(50, 50))
         plt.imshow(canvas)
@@ -2857,12 +2588,10 @@ def _plot_histograms_and_stats(df):
     for condition in conditions:
         subset = df[df['condition'] == condition]
         
-        # Calculate the statistics
         mean_pred = subset['pred'].mean()
         over_0_5 = sum(subset['pred'] > 0.5)
         under_0_5 = sum(subset['pred'] <= 0.5)
 
-        # Print the statistics
         print(f"Condition: {condition}")
         print(f"Number of rows: {len(subset)}")
         print(f"Mean of pred: {mean_pred}")
@@ -2872,18 +2601,11 @@ def _plot_histograms_and_stats(df):
         print(f"Percent negative: {(under_0_5/(over_0_5+under_0_5))*100}")
         print('-'*40)
         
-        # The distribution is the subject, so it carries the one fill colour
-        # the house style keeps for distributions; the mean is a REFERENCE and
-        # is drawn as one -- thin, dashed, grey. It was a bold red line, which
-        # reads as the finding rather than as the ruler you measure it with.
         with figure_style(theme_target()):
             fig, ax = plt.subplots(figsize=(10, 10))
             ax.hist(subset['pred'], bins=30, color=ROLES['fill'],
                     edgecolor='none')
             mean_line = reference_line(ax, x=mean_pred)
-            # The value stays in the legend rather than becoming a rotated
-            # in-plot annotation: a caller asserts on that legend entry, and a
-            # frameless legend is already what the style draws.
             mean_line.set_label(f"Mean = {mean_pred:.2f}")
             descriptor(ax, f'Histogram for pred - Condition: {condition}')
             ax.set_xlabel('Pred Value')
@@ -2900,11 +2622,9 @@ def _show_residules(model):
         plot, and residuals against fitted values.
     """
 
-    # Get the residuals
     residuals = model.resid
 
     with figure_style(theme_target()):
-        # Histogram of residuals
         fig, ax = plt.subplots()
         ax.hist(residuals, bins=30, color=ROLES['fill'], edgecolor='none')
         descriptor(ax, 'Histogram of Residuals')
@@ -2912,18 +2632,8 @@ def _show_residules(model):
         ax.set_ylabel('Frequency')
         plt.show()
 
-        # QQ plot. It gets its OWN axes, explicitly: `sm.qqplot` creates a
-        # figure and leaves ITS axes current, so the residuals-vs-fitted
-        # scatter below was landing on top of the QQ panel and its
-        # `set_title` was overwriting 'QQ Plot'. Measured on a 60-point OLS
-        # fit: two figures came back, not three, and the second held both
-        # diagnostics superimposed.
         qq_fig, qq_ax = plt.subplots()
         sm.qqplot(residuals, fit=True, line='45', ax=qq_ax)
-        # Recoloured after the fact rather than through plotkwargs: qqplot
-        # passes its own 'b' format string alongside them and matplotlib warns
-        # that the two disagree. The points are data (grey); the 45-degree
-        # line is a REFERENCE, and qqplot draws it bold red.
         for line in qq_ax.lines:
             if line.get_linestyle() == 'None':
                 line.set_color(ROLES['data'])
@@ -2936,7 +2646,6 @@ def _show_residules(model):
         descriptor(qq_ax, 'QQ Plot')
         plt.show()
 
-        # Residuals vs. Fitted values
         resid_fig, resid_ax = plt.subplots()
         resid_ax.scatter(model.fittedvalues, residuals, s=8,
                          color=ROLES['data'], edgecolors='none')
@@ -2946,7 +2655,6 @@ def _show_residules(model):
         reference_line(resid_ax, y=0)
         plt.show()
 
-    # Shapiro-Wilk test for normality
     W, p_value = stats.shapiro(residuals)
     print(f'Shapiro-Wilk Test W-statistic: {W}, p-value: {p_value}')
     
@@ -2956,25 +2664,13 @@ def _reg_v_plot(df, grouping=None, variable=None, plate_number=None):
     ``-log10(p)`` is added to ``df`` in place.  The other arguments are
     retained only for compatibility with historical call sites.
     """
-    # grouping/variable/plate_number are unused by the body but kept for
-    # call-site compatibility; they default so utils.MLR's `_reg_v_plot(df)`
-    # call works instead of raising TypeError.
     df['-log10(p)'] = -np.log10(df['p'])
 
-    # THE ONE RULE: everything grey except what the sentence is about. This
-    # volcano used to run `cmap='coolwarm'` over `np.sign(effect)`, which
-    # colours EVERY point by a fact the x-axis already states -- the exact
-    # failure the rule exists to prevent. Only the called genes (p < 0.05, the
-    # same rows that get a label) carry colour now, GREEN up and RUST down,
-    # and every other gene is the grey they are compared against.
     called = np.asarray(df['p'] < 0.05)
     effect = np.asarray(df['effect'], dtype=float)
     colours = np.where(called & (effect >= 0), ROLES['up'],
                        np.where(called, ROLES['down'], ROLES['data']))
 
-    # 40x30 inches was a poster, not a panel: at the 300 dpi the save
-    # preference asks for, that canvas is 12000x9000 px -- 108 megapixels for
-    # a scatter of a few thousand dots.
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(5.6, 4.4))
         ax.scatter(effect, df['-log10(p)'], c=colours, s=12,
@@ -2983,14 +2679,12 @@ def _reg_v_plot(df, grouping=None, variable=None, plate_number=None):
         ax.set_xlabel('Coefficient')
         ax.set_ylabel('-log10(P-value)')
 
-        # Add text for specified points
         for idx, row in df.iterrows():
-            if row['p'] < 0.05:# and abs(row['effect']) > 0.1:
+            if row['p'] < 0.05:
                 ax.text(row['effect'], -np.log10(row['p']), idx,
                         fontsize=TYPE_SCALE['annotation'], ha='center',
                         va='bottom', color=resolve_ink(theme_target()))
 
-        # line for p=0.05
         reference_line(ax, y=-np.log10(0.05))
         plt.show()
 
@@ -3066,35 +2760,16 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     if not isinstance(min_count, (int, float)):
         min_count = 0
 
-    # -- read the well out of prc -----------------------------------------
-    # prc is <plate>_<row>_<column>, read right to left: the last two tokens
-    # are the position and whatever precedes them is the plate. Left-to-right
-    # unpacking put the *row* in the plate slot for any identifier carrying
-    # an experiment prefix, and only ``prc.iloc[0]`` was ever probed for its
-    # length, so a frame mixing 3- and 4-token identifiers misaligned every
-    # row of the minority shape.
     prc_text = df['prc'].astype(str)
     parts = [text.split(_schema.KEY_SEPARATOR) for text in prc_text]
-    # A longer identifier carries an experiment prefix; the plate the caller
-    # asked for is then the authority on which plate it is, which is what the
-    # old 4-part rebuild did. Too short and there is no position at all — the
-    # rows are kept here precisely so they can be reported below.
     plate_token = np.array(
         [p[0] if len(p) == 3 else str(plate_number) for p in parts], dtype=object)
     row_token = np.array([p[-2] if len(p) >= 3 else '' for p in parts], dtype=object)
     col_token = np.array([p[-1] if len(p) >= 3 else '' for p in parts], dtype=object)
 
     if not all(len(p) == 3 for p in parts):
-        # A rebuilt identifier must not be written back onto the caller's
-        # frame. The plain 3-token path always has done, and is pinned.
         df = df.copy()
 
-    # THE WELL COMES FROM prc, AND ONLY FROM prc. A frame that also carries
-    # 'plate'/'plate_name' or 'column'/'column_name' columns is drawn from the
-    # identifier all the same, so two spellings of the same well can never
-    # place it in two different squares. Those columns held a copy that this
-    # function overwrites from `plate_token` and the axis labels below in
-    # every case, so reading them was a second answer nobody ever saw.
     row_index, row_label = _well_axis_labels(
         row_token, _plate_qc.parse_row_label, _schema.row_id)
     col_index, col_label = _well_axis_labels(
@@ -3102,9 +2777,6 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
 
     df['plateID'], df['rowID'], df['columnID'] = plate_token, row_label, col_label
 
-    # -- filter one plate, and say what could not be drawn ------------------
-    # dtype=bool explicitly: an empty frame gives an empty float array, and
-    # `~` on a float array is a TypeError rather than "nothing to report".
     on_plate = np.asarray(plate_token == str(plate_number), dtype=bool)
     placeable = np.array([r is not None and c is not None
                           for r, c in zip(row_index, col_index)], dtype=bool)
@@ -3122,14 +2794,10 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
 
     keep = on_plate & placeable
     df = df[keep].copy()
-    # Group on the integer position, not on the label: 'c10' sorts before
-    # 'c2' as text, and a Categorical of hard-coded labels was what silently
-    # deleted rows past P in the first place.
     df['_row_index'] = row_index[keep].astype(int)
     df['_col_index'] = col_index[keep].astype(int)
     keys = ['_row_index', '_col_index']
 
-    # Optional min_count filter on true per-well counts
     df['_well_count'] = df.groupby(
         keys, observed=False)['_row_index'].transform('count')
     if min_count > 0:
@@ -3137,18 +2805,17 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
 
     grouped = df.groupby(keys, observed=False)
 
-    # --- Aggregation ---
     if grouping == 'count':
-        plate = grouped.size().reset_index(name='value')               # per-well row counts
+        plate = grouped.size().reset_index(name='value')
     elif grouping in ('mean', 'sum'):
         if variable not in df.columns:
             raise KeyError(f"variable '{variable}' not in df")
-        vals = pd.to_numeric(df[variable], errors='coerce')            # ensure numeric
+        vals = pd.to_numeric(df[variable], errors='coerce')
         tmp  = df.assign(__val__=vals)
         if grouping == 'mean':
             plate = tmp.groupby(
                 keys, observed=False)['__val__'].mean().reset_index(name='value')
-        else:  # sum
+        else:
             plate = tmp.groupby(
                 keys, observed=False)['__val__'].sum().reset_index(name='value')
     else:
@@ -3156,15 +2823,11 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
 
     plate_map = pd.pivot_table(plate, values='value', index='_row_index',
                                columns='_col_index').fillna(0)
-    # Back to the ids the rest of spaCR speaks, in numeric order.
     plate_map.index = pd.Index([_schema.row_id(int(i)) for i in plate_map.index],
                                name='rowID')
     plate_map.columns = pd.Index([_schema.column_id(int(i)) for i in plate_map.columns],
                                  name='columnID')
 
-    # vmin/vmax selection. Guard against an empty pivot (e.g. a tiny plate
-    # where every well was filtered out): np.quantile / np.nanmin on a
-    # zero-size array raises, so fall back to a neutral [0, 1] range.
     if plate_map.values.size == 0:
         return plate_map, (0.0, 1.0)
     if min_max == 'all':
@@ -3179,7 +2842,6 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     else:
         vmin, vmax = float(np.nanmin(plate_map.values)), float(np.nanmax(plate_map.values))
 
-    # avoid degenerate colormap
     if vmin == vmax:
         vmax = vmin + 1e-6
 
@@ -3260,15 +2922,6 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
         print(f'No plate heatmap drawn: {panel.reason}')
 
     if dst is not None:
-        # NAMED FOR WHAT IT DRAWS, and rewritten in place. The old loop
-        # searched for the first free `plate_heatmap_<n>.pdf` and never
-        # overwrote, so the real screen's results folder holds twelve
-        # byte-identical copies of one figure from twelve runs -- and the
-        # figure grid showed all twelve. A run gets its own folder
-        # (`ml._next_results_folder`), so one file per measurement in it is
-        # the whole of what belongs there. The old loop also tested for a
-        # `.pdf` that `save_figure` may well write as `.png`, in which case
-        # it never found its own previous output at all.
         from .figures.plates import plate_figure_name
 
         filename = os.path.join(dst, plate_figure_name(variable))
@@ -3343,11 +2996,9 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
             contour solid instead of outlining it. Default ``2``.
         :returns: A new RGB array; the input ``image`` is not modified.
         """
-        # The sole caller reduces every accepted stack to a 2-D base plane.
         image = normalize_to_uint8(image)
         image_rgb = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
 
-        # Generate and draw contours
         contours = generate_contours(mask)
         cv2.drawContours(image_rgb, contours, -1, color, thickness)
 
@@ -3363,17 +3014,12 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
             negative values clip to black.
         :returns: A ``uint8`` array of the same shape.
         """
-        image = np.clip(image, 0, 1)  # Ensure values are between 0 and 1
-        return (image * 255).astype(np.uint8)  # Convert to uint8
+        image = np.clip(image, 0, 1)
+        return (image * 255).astype(np.uint8)
     
     
-    # Resize if necessary
     stack = resize_if_needed(stack, max_size)
     mask = resize_if_needed(mask, max_size)
-    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-    # and no axes to frame. What the house style gives a montage is the
-    # ground, the type scale and the theme's own ink -- applied as a
-    # context manager, so it does not follow the session out of here.
     with figure_style(theme_target()):
         if flows != None:
             flows = [resize_if_needed(flow, max_size) for flow in flows]
@@ -3385,11 +3031,10 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
         if stack.shape[-1] == 1:
             stack = np.squeeze(stack)
 
-        # Display original image
         if stack.ndim == 2:
             original_image = stack
         elif stack.ndim == 3:
-            original_image = stack[..., 0]  # Use the first channel as the base
+            original_image = stack[..., 0]
         else:
             raise ValueError("Unexpected stack dimensionality.")
 
@@ -3397,7 +3042,6 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
         axs[0].set_title('Original Image')
         axs[0].axis('off')
 
-        # Overlay mask outlines on original image if overlay is True
         if overlay:
             outlined_image = apply_contours_on_image(original_image, mask, color=(255, 0, 0), thickness=thickness)
             axs[1].imshow(outlined_image)
@@ -3409,11 +3053,10 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
 
         if flows != None:
 
-            # Display flow image or its first channel
             if flows and isinstance(flows, list) and flows[0].ndim in [2, 3]:
                 flow_image = flows[0]
                 if flow_image.ndim == 3:
-                    flow_image = flow_image[:, :, 0]  # Use first channel for 3D
+                    flow_image = flow_image[:, :, 0]
                 axs[2].imshow(flow_image, cmap='jet')
             else:
                 raise ValueError("Unexpected flow dimensionality or structure.")
@@ -3452,33 +3095,25 @@ def plot_resize(images, resized_images, labels, resized_labels):
             if img.shape[-1] == 1:
                 return np.squeeze(img, axis=-1), 'gray'
             elif img.shape[-1] == 3:
-                return img, None  # RGB
+                return img, None
             elif img.shape[-1] == 4:
-                return img, None  # RGBA
+                return img, None
             else:
-                # fallback: average across channels to show as grayscale
                 return np.mean(img, axis=-1), 'gray'
         else:
             raise ValueError(f"Unsupported image shape: {img.shape}")
 
-    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-    # and no axes to frame. What the house style gives a montage is the
-    # ground, the type scale and the theme's own ink -- applied as a
-    # context manager, so it does not follow the session out of here.
     with figure_style(theme_target()):
         fig, ax = plt.subplots(2, 2, figsize=(20, 20))
 
-        # Original Image
         img, cmap = prepare_image(images[0])
         ax[0, 0].imshow(img, cmap=cmap)
         ax[0, 0].set_title('Original Image')
 
-        # Resized Image
         img, cmap = prepare_image(resized_images[0])
         ax[0, 1].imshow(img, cmap=cmap)
         ax[0, 1].set_title('Resized Image')
 
-        # Labels (assumed grayscale or single-channel)
         lbl, cmap = prepare_image(labels[0])
         ax[1, 0].imshow(lbl, cmap=cmap)
         ax[1, 0].set_title('Original Label')
@@ -3500,21 +3135,17 @@ def normalize_and_visualize(image, normalized_image, title=""):
     :param title: Suffix appended to both panel titles. Default ``""``.
     :returns: None
     """
-    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-    # and no axes to frame. What the house style gives a montage is the
-    # ground, the type scale and the theme's own ink -- applied as a
-    # context manager, so it does not follow the session out of here.
     with figure_style(theme_target()):
         fig, ax = plt.subplots(1, 2, figsize=(12, 6))
-        if image.ndim == 3:  # Multi-channel image
-            ax[0].imshow(np.mean(image, axis=-1), cmap='gray')  # Display the average over channels for visualization
-        else:  # Grayscale image
+        if image.ndim == 3:
+            ax[0].imshow(np.mean(image, axis=-1), cmap='gray')
+        else:
             ax[0].imshow(image, cmap='gray')
         ax[0].set_title("Original " + title)
         ax[0].axis('off')
 
         if normalized_image.ndim == 3:
-            ax[1].imshow(np.mean(normalized_image, axis=-1), cmap='gray')  # Similarly, display the average over channels
+            ax[1].imshow(np.mean(normalized_image, axis=-1), cmap='gray')
         else:
             ax[1].imshow(normalized_image, cmap='gray')
         ax[1].set_title("Normalized " + title)
@@ -3531,21 +3162,13 @@ def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
     :param title: Figure suptitle. Default ``"Masks Comparison"``.
     :returns: None
     """
-    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-    # and no axes to frame. What the house style gives a montage is the
-    # ground, the type scale and the theme's own ink -- applied as a
-    # context manager, so it does not follow the session out of here.
     with figure_style(theme_target()):
         fig, axs = plt.subplots(1, 3, figsize=(30, 10))
-        # The loop variable must not be named `title`: it shadowed the parameter,
-        # so the suptitle below always read 'Mask 3' instead of the caller's title.
         for ax, mask, panel_title in zip(axs, [mask1, mask2, mask3], ['Mask 1', 'Mask 2', 'Mask 3']):
             cmap = generate_mask_random_cmap(mask)
-            # If the mask is binary, we can skip normalization
             if np.isin(mask, [0, 1]).all():
                 ax.imshow(mask, cmap=cmap)
             else:
-                # Normalize the image for displaying purposes
                 norm = plt.Normalize(vmin=0, vmax=mask.max())
                 ax.imshow(mask, cmap=cmap, norm=norm)
             ax.set_title(panel_title)
@@ -3595,23 +3218,15 @@ def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=
     if titles is None:
         titles = [f'Mask {i+1}' for i in range(len(masks))]
     
-    # Ensure the length of titles matches the number of masks
     assert len(titles) == len(masks), "Number of titles and masks must match"
     
-    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-    # and no axes to frame. What the house style gives a montage is the
-    # ground, the type scale and the theme's own ink -- applied as a
-    # context manager, so it does not follow the session out of here.
     with figure_style(theme_target()):
         num_masks = len(masks)
-        fig, axs = plt.subplots(1, num_masks, figsize=(10 * num_masks, 10))  # Adjusting figure size dynamically
-        # A single mask makes plt.subplots return a bare Axes, which zip() below
-        # cannot iterate.
+        fig, axs = plt.subplots(1, num_masks, figsize=(10 * num_masks, 10))
         axs = np.atleast_1d(axs)
 
         for ax, mask, title in zip(axs, masks, titles):
             cmap = generate_mask_random_cmap(mask)
-            # Normalize and display the mask
             norm = plt.Normalize(vmin=0, vmax=mask.max())
             ax.imshow(mask, cmap=cmap, norm=norm)
             ax.set_title(title)
@@ -3646,10 +3261,6 @@ def plot_comparison_results(comparison_results):
     df_boundary_f1 = df_melted[df_melted['metric'].str.contains('boundary_f1')]
     df_ap = df_melted[df_melted['metric'].str.contains('average_precision')]
 
-    # Four metrics of the same comparison, so no one panel is the claim and
-    # nothing here is coloured. The points are the data and the box is the
-    # summary drawn under them: GREY for the box, the darker grey for the
-    # marks, opaque -- overplotting is handled by point size, not by alpha.
     panels = (
         (df_jaccard, 'Jaccard Index by Comparison', 'Jaccard Index'),
         (df_dice, 'Dice Coefficient by Comparison', 'Dice Coefficient'),
@@ -3667,13 +3278,9 @@ def plot_comparison_results(comparison_results):
                           jitter=True, color=Palette.GREY_DARK, size=3.0,
                           linewidth=0)
             descriptor(ax, title)
-            # 45 degrees, right-aligned and anchored: a comparison name is a
-            # pair of filenames and runs off the panel at any other angle.
             rotate_ticks(ax)
             ax.set_xlabel('Comparison')
             ax.set_ylabel(ylabel)
-            # A four-panel figure is a figure sheet, and a sheet is read by
-            # its letters.
             panel_letter(ax, 'ABCD'[index])
 
         fig.tight_layout()
@@ -3707,8 +3314,6 @@ def plot_object_outlines(src, objects=None, channels=None, max_nr=10):
                                threshold=1000,
                                extensions=['.npy', '.tif', '.tiff', '.png'],
                                overlay=True,
-                               # Forward the caller's cap; the literal 10 made
-                               # the documented max_nr parameter dead.
                                max_nr=max_nr,
                                randomize=True)
                 
@@ -3721,10 +3326,6 @@ def plot_histogram(df, column, dst=None):
     :param dst: If set, save under ``<dst>/<column>_histogram.pdf``.
     :returns: None
     """
-    # A distribution is filled with the one pale hue the published figures
-    # keep for distributions and densities, solid. The old saturated teal at
-    # alpha 0.6 was the pattern the style names as wrong: overplotting is
-    # handled by a pale fill, not by making a strong colour translucent.
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(10, 10))
         sns.histplot(df[column], kde=False, color=ROLES['fill'],
@@ -3761,9 +3362,6 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         ``results/lorenz_curve_with_gini.pdf``. Default ``True``.
     :returns: None
     """
-    # remove_keys got the same mutable-default -> None treatment as x_lim/y_lim
-    # but never got the matching guard, so the documented default call died on
-    # `for remove in None`.
     if remove_keys is None:
         remove_keys = []
     if x_lim is None:
@@ -3805,9 +3403,6 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         n = len(data)
         cumulative_data = np.cumsum(sorted_data) / np.sum(sorted_data)
         cumulative_data = np.insert(cumulative_data, 0, 0)
-        # Trapezoid rule, not a left-Riemann sum: taking only the left endpoint
-        # under-counts the area by exactly 1/n, so a perfectly equal
-        # distribution reported 1/n instead of 0.
         gini = 1 - np.sum((cumulative_data[:-1] + cumulative_data[1:]) * np.diff(np.linspace(0, 1, n + 1)))
         return gini
 
@@ -3844,11 +3439,6 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
     combined_data = []
     gini_values = {}
 
-    # THE SENTENCE THIS FIGURE MAKES is "the library as a whole is this
-    # uneven"; the individual plates are the comparison it is made against.
-    # So the plates are grey and only the combined curve is coloured. The old
-    # figure gave every plate its own cycle colour and drew the combined curve
-    # in black -- eight arguments and no claim.
     entries = []
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(10, 10))
@@ -3856,18 +3446,15 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         for idx, csv_file in enumerate(csv_files):
             df = pd.read_csv(csv_file)
 
-            # Remove specified keys
             for remove in remove_keys:
                 df = df[df[name_column] != remove]
 
-            # Remove outliers
             if remove_outliers:
                 df = remove_outliers_by_wells(df, name_column, value_column)
 
             values = df[value_column].values
             combined_data.extend(values)
 
-            # Calculate Lorenz curve and Gini coefficient
             lorenz = lorenz_curve(values)
             gini = gini_coefficient(values)
             gini_values[f"plate {idx+1}"] = gini
@@ -3877,7 +3464,6 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
                     color=ROLES['data'])
             entries.append((name, ROLES['data']))
 
-        # Plot combined Lorenz curve
         combined_lorenz = lorenz_curve(np.array(combined_data))
         combined_gini = gini_coefficient(np.array(combined_data))
         gini_values["Combined"] = combined_gini
@@ -3894,9 +3480,6 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         descriptor(ax, 'Lorenz Curves')
         ax.set_xlabel('Cumulative Share of Individuals')
         ax.set_ylabel('Cumulative Share of Value')
-        # Coloured text, no frame and no marker swatches: the curve labels
-        # already carry the Gini, and a framed box would be the only box in
-        # the figure.
         text_legend(ax, entries)
 
         if save:
@@ -3909,7 +3492,6 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
 
         plt.show()
 
-    # Print Gini coefficients
     for plate, gini in gini_values.items():
         print(f"{plate}: Gini Coefficient = {gini:.4f}")
 
@@ -3921,26 +3503,16 @@ def plot_permutation(permutation_df):
     :returns: The generated ``Figure``.
     """
     num_features = len(permutation_df)
-    fig_height = max(8, num_features * 0.3)  # Set a minimum height of 8 and adjust height based on number of features
-    fig_width = 10  # Width can be fixed or adjusted similarly
-    font_size = max(10, 12 - num_features * 0.2)  # Adjust font size dynamically
+    fig_height = max(8, num_features * 0.3)
+    fig_width = 10
+    font_size = max(10, 12 - num_features * 0.2)
 
-    # The house type scale is anchored to a single-column panel. This canvas
-    # is not one: it grows to 0.3 inch per feature, so a 100-feature figure is
-    # 30 inches tall and the 7 pt label tier would be unreadable on it. The
-    # measured dynamic size stays; everything else is the house style.
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(fig_width, fig_height))
-        # Grey, opaque. A ranking IS the claim -- no single bar of it is --
-        # so nothing is singled out with colour, and the teal at alpha 0.6
-        # was a saturated hue made translucent, which the style forbids.
         ax.barh(permutation_df['feature'], permutation_df['importance_mean'],
                 xerr=permutation_df['importance_std'], color=ROLES['data'],
                 align="center", ecolor=resolve_ink(theme_target()),
                 error_kw={'lw': WEIGHTS['reference']})
-        # A permutation importance below zero means shuffling the feature made
-        # the model BETTER. Without a zero rule you cannot see which bars
-        # cross it, so it is drawn -- as a reference, only when it is needed.
         if float(np.nanmin(np.asarray(
                 permutation_df['importance_mean'], dtype=float))) < 0:
             reference_line(ax, x=0)
@@ -3963,15 +3535,10 @@ def plot_feature_importance(feature_importance_df, title=""):
     :returns: The generated ``Figure``.
     """
     num_features = len(feature_importance_df)
-    fig_height = max(8, num_features * 0.3)  # Set a minimum height of 8 and adjust height based on number of features
-    fig_width = 10  # Width can be fixed or adjusted similarly
-    font_size = max(10, 12 - num_features * 0.2)  # Adjust font size dynamically
+    fig_height = max(8, num_features * 0.3)
+    fig_width = 10
+    font_size = max(10, 12 - num_features * 0.2)
 
-    # Same reasoning as plot_permutation: the dynamic label size is kept
-    # because the canvas is not a single-column panel, the rest is the house
-    # style. The bars were solid blue at alpha 0.6 -- BLUE is the palette's
-    # highlight and means "the one thing being argued about", which is the
-    # opposite of what a whole ranking of bars is.
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(fig_width, fig_height))
         ax.barh(feature_importance_df['feature'],
@@ -3998,54 +3565,37 @@ def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time
     :param y_lim: Y-axis limits ``[lo, hi]``. Default ``[0.8, 0.9]``.
     :returns: None
     """
-    # List to store data from all CSV files
     if y_lim is None:
         y_lim = [0.8, 0.9]
     data_frames = []
 
     dst = os.path.join(base_dir, 'result')
-    # os.mkdir has no `exists` kwarg (nor `exist_ok`); the old call raised
-    # TypeError on every invocation, before any file was ever read.
     os.makedirs(dst, exist_ok=True)
 
-    # Walk through the directory
     for root, dirs, files in os.walk(base_dir):
         for file in files:
             if file.endswith("_test_result.csv"):
                 file_path = os.path.join(root, file)
-                # Extract model information from the file name
                 file_name = os.path.basename(file_path)
                 model = file_name.split(f'{name_split}')[0]
 
-                # The epoch comes from the directory name below; the dropped
-                # `file_name.split('_time')[1]` hard-coded the separator instead
-                # of using name_split and its result was never read, so it only
-                # ever raised IndexError on non-default naming.
                 base_folder = os.path.dirname(file_path)
                 epoch = os.path.basename(base_folder)
                 
-                # Read the CSV file
                 df = pd.read_csv(file_path)
                 df['model'] = model
                 df['epoch'] = epoch
                 
-                # Append the data frame to the list
                 data_frames.append(df)
     
-    # Concatenate all data frames
     if data_frames:
         result_df = pd.concat(data_frames, ignore_index=True)
         
-        # Calculate average y_axis per model
         avg_metric = result_df.groupby(
             'model', observed=False)[y_axis].mean().reset_index()
         avg_metric = avg_metric.sort_values(by=y_axis)
         print(avg_metric)
         
-        # Plotting the results. THE SENTENCE IS "this model scored best", and
-        # the rows are already sorted ascending, so the last bar is the one
-        # the figure is about and the rest are the comparison it is made
-        # against. One highlight out of N, never a bar per cycle colour.
         colours = [ROLES['data']] * len(avg_metric)
         if len(colours) > 1:
             colours[-1] = ROLES['highlight']
@@ -4105,27 +3655,16 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
                                     pathogen_limit=True)
         
         paths_df = _read_db(loc, tables=['png_list'])
-        # one_to_one: _read_and_merge_data returns one row per object keyed on
-        # 'prcfo', and png_list carries at most one crop per that key. A
-        # duplicated 'prcfo' in png_list (a crop step that ran twice, or two
-        # crop_modes whose object labels collide) would multiply the
-        # measurement rows, and the jitter plot would then draw the same cell
-        # two or four times as if they were independent observations.
         merged_df = pd.merge(df, paths_df[0], on='prcfo', how='left',
                              validate='one_to_one')
         return merged_df
 
-    # Read the CSV file into a DataFrame
     df = join_measurments_and_annotation(src, tables=['cell', 'nucleus', 'pathogen', 'cytoplasm'])
 
-    # Print column names for debugging
     print(f"Generated dataframe with: {df.shape[1]} columns and {df.shape[0]} rows")
-    #print("Columns in DataFrame:", df.columns.tolist())
 
-    # Replace NaN values with a specific label in x_column
     df[x_column] = df[x_column].fillna('NaN')
 
-    # Filter the DataFrame if filter_column and filter_values are provided
     if not filter_column is None:
         if isinstance(filter_column, str):
             df = df[df[filter_column].isin(filter_values)]
@@ -4134,12 +3673,6 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
                 print(f'hello {len(df)}')
                 df = df[df[val].isin(filter_values[i])]
 
-    # Resolve the well-identifier columns instead of hard-coding plate_x/row_x/
-    # col_x: spacr.io emits plateID/rowID/columnID, so those literals never
-    # match a current database and every call raised KeyError. The merge on
-    # 'prcfo' collides on all three, hence the _x/_y suffixes; the bare and _y
-    # forms are tried too so the lookup survives a non-colliding merge, and the
-    # pre-rename names stay accepted for older frames.
     def _resolve_well_column(frame, *bases):
         """Return the first ``_x``, bare, or ``_y`` well-column spelling."""
         for base in bases:
@@ -4154,25 +3687,16 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
     if any(column is None for column in required_columns):
         raise KeyError("DataFrame does not contain the necessary columns: ['plateID', 'rowID', 'columnID']")
 
-    # Filter to retain rows with non-NaN values in x_column and with matching plate, row, col values
     non_nan_df = df[df[x_column] != 'NaN']
     retained_rows = df[df[required_columns].apply(tuple, axis=1).isin(non_nan_df[required_columns].apply(tuple, axis=1))]
 
-    # Determine the minimum count of examples across all groups in x_column
     min_count = retained_rows[x_column].value_counts().min()
     print(f'Found {min_count} annotated images')
 
-    # Randomly sample min_count examples from each group in x_column
     balanced_df = retained_rows.groupby(
         x_column, observed=False, group_keys=False
     ).sample(n=min_count, random_state=42).reset_index(drop=True)
 
-    # Create the jitter plot. The annotation classes are the X AXIS, so
-    # painting them a second time with a viridis ramp said nothing the axis
-    # had not already said -- and a sequential colormap over unordered
-    # categories implies an order that is not there. Every point is grey; the
-    # hue split is kept only because it gives each class its own collection,
-    # which is how callers address a class's points.
     groups = list(pd.unique(balanced_df[x_column]))
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -4180,9 +3704,6 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
                       jitter=True, dodge=False, legend=False, size=3.0,
                       linewidth=0,
                       palette={group: ROLES['data'] for group in groups})
-        # A dot strip without its mean is a cloud. GREY_DARK is the palette's
-        # own role for a mean bar, and the bar is drawn as a Line2D so a
-        # caller counting per-class collections still counts classes.
         for index, group in enumerate(groups):
             mean = float(balanced_df.loc[balanced_df[x_column] == group,
                                          y_column].mean())
@@ -4193,12 +3714,8 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
         ax.set_xlabel(x_column)
         ax.set_ylabel(y_column)
 
-        # Customize the x-axis labels. Right-aligned and anchored: the old
-        # code rotated to 45 degrees and then re-centred them, so every label
-        # drifted off the tick it belonged to.
         rotate_ticks(ax)
 
-        # Save the plot to a file or display it
         if output_path:
             output_path = save_figure(fig, output_path,
                                       bbox_inches='tight')
@@ -4264,45 +3781,28 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
         If a bar plot receives an unsupported ``error_bar_type``.
     """
     
-    # The engine is imported inside the function, as sp_stats does it and for
-    # the same reason: `spacr.figures` eagerly builds the panel catalog, and
-    # `spacr.plot` is imported by callers that never draw a grouped plot.
     from .figures.stats import _clean, check_normality, compare
     from .sp_stats import _ENGINE_TEST_NAMES
 
-    # Remove NaN rows in grouping_column
     df = df.dropna(subset=[grouping_column])
 
-    # Ensure the output directory exists if save is True
     if save:
         os.makedirs(output_dir, exist_ok=True)
 
-    # Sorting and ordering
     if order:
         df[grouping_column] = pd.Categorical(df[grouping_column], categories=order, ordered=True)
     else:
         df[grouping_column] = pd.Categorical(df[grouping_column], categories=sorted(df[grouping_column].unique()), ordered=True)
 
-    # Get unique groups
     unique_groups = df[grouping_column].unique()
 
-    # Initialize test results
     test_results = []
 
-    # Test normality for each group. The check is the one engine's, so this
-    # function, spacrGraph and a sp_stats results table cannot disagree about
-    # the same plate. It used to be D'Agostino per group with
-    # `all(p > 0.05)`, which reads "the test had no power to reject" as
-    # "the data are normal" -- and normaltest needs eight observations before
-    # it can say anything at all.
     grouped_data = {group: _clean(df.loc[df[grouping_column] == group,
                                          data_column])
                     for group in unique_groups}
     is_normal = check_normality(list(grouped_data.values())).passed
 
-    # Add normality test results to the results_df. 'Normality test' is the
-    # ROW TYPE, not the name of a test: the schema here is four fixed columns
-    # and the check's own name lives in spacrGraph's richer table.
     for group, values in grouped_data.items():
         check = check_normality([values])
         test_results.append({
@@ -4312,22 +3812,6 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
             'Test Name': 'Normality test'
         })
 
-    # Perform pairwise statistical tests. EACH PAIR IS A TWO-GROUP
-    # COMPARISON and is now named as one. This used to pick a single test
-    # from the group count and apply it to every pair, so three normal groups
-    # produced three rows labelled 'One-way ANOVA' that were each an ANOVA
-    # across two groups -- arithmetically a t-test, reported under a name
-    # nobody could act on.
-    # A CONTINUOUS COLUMN IS NOT A GROUPING. Asked to compare by a column of
-    # measurements, every "group" holds one observation, every pair is
-    # untestable, and the pair count is quadratic -- which is how pressing
-    # Rank produced thousands of lines reading
-    #
-    #     0.735573 vs 0.778142: these groups have fewer than 2 usable
-    #     observations and cannot be tested
-    #
-    # Refused at the door, naming the column, rather than discovered one
-    # impossible pair at a time.
     from .figures.stats import MIN_N_FOR_TEST
 
     singletons = sum(1 for values in grouped_data.values()
@@ -4350,13 +3834,6 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
         try:
             result = compare(pair)
         except ValueError as refusal:
-            # A group too small to test. Reported rather than raised: the
-            # caller wants the figure and the other pairs.
-            #
-            # COLLECTED, NOT PRINTED HERE. One line per impossible pair is
-            # not a report -- it is the same sentence a quadratic number of
-            # times, and it buries whatever else the run said. Summarised
-            # once after the loop.
             untestable.append((group1, group2, str(refusal)))
             test_results.append({
                 'Comparison': f'{group1} vs {group2}',
@@ -4369,13 +3846,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
                              'Test Statistic': result.statistic,
                              'p-value': result.p_value, 'Test Name': name})
 
-    # ONE LINE FOR ALL OF THEM. The pairs that could not be tested are in
-    # `test_results` either way, named and marked 'not testable', so nothing
-    # is hidden -- what is not repeated is the sentence explaining why.
     if untestable:
-        # THE THIN GROUPS, not every group that appears in a failed pair. A
-        # pair fails because ONE side is too small, and naming both makes a
-        # healthy group look like the problem.
         thin = sorted(group for group, values in grouped_data.items()
                       if len(values) < MIN_N_FOR_TEST)
         print(f"{len(untestable)} of {len(comparisons)} comparison(s) could "
@@ -4385,47 +3856,31 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
               f"{'...' if len(thin) > 5 else ''}. "
               f"They are in the results table marked 'not testable'.")
 
-    # The title names every test that ran, because with the choice made per
-    # pair they need not all be the same one.
     test_name = ', '.join(dict.fromkeys(chosen_names)) or 'not testable'
 
-    # Post-hoc test (Tukey HSD for ANOVA)
     if is_normal and len(unique_groups) > 2:
         tukey_result = pairwise_tukeyhsd(df[data_column], df[grouping_column], alpha=0.05)
         for comparison, p_value in zip(tukey_result._results_table.data[1:], tukey_result.pvalues):
             test_results.append({
                 'Comparison': f'{comparison[0]} vs {comparison[1]}',
-                'Test Statistic': None,  # Tukey does not provide a test statistic in the same way
+                'Test Statistic': None,
                 'p-value': p_value,
                 'Test Name': 'Tukey HSD Post-hoc'
             })
 
-    # Create plot.
-    # `figure_style` is the same kind of scope the old `mpl.rc_context()` was
-    # -- `sns.set` writes a whole seaborn theme (style, context, palette,
-    # fonts) into matplotlib's process-wide rcParams, so a grouped plot used
-    # to decide how every later figure of the session looked. It also brought
-    # a GRID, which the house style does not have at all: a grid is the
-    # fastest way to make a panel look like a spreadsheet.
     with figure_style(theme_target()):
         fig = plt.figure(figsize=(10, 6))
 
         if colors:
             color_palette = colors
         else:
-            # `sns.color_palette("husl", n)` is a rainbow across the groups,
-            # and the groups are the x axis. The comparison between them is
-            # what the test above reports; the bars themselves are not the
-            # argument, so they are the one grey.
             color_palette = [ROLES['data']] * len(unique_groups)
     
-        # Choose graph type
         if graph_type == 'bar':
             summary_df = df.groupby(
                 grouping_column, observed=False)[data_column].agg(
                     [summary_func, 'std', 'sem'])
         
-            # Set error bars based on error_bar_type
             if error_bar_type == 'std':
                 error_bars = summary_df['std']
             elif error_bar_type == 'sem':
@@ -4438,7 +3893,6 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
                 data=summary_df.reset_index(), errorbar=None, order=order,
                 palette=color_palette, legend=False)
 
-            # Add error bars (standard deviation or standard error of the mean)
             plt.errorbar(x=np.arange(len(summary_df)), y=summary_df[summary_func], yerr=error_bars, fmt='none', c=resolve_ink(theme_target()), capsize=5, lw=WEIGHTS['reference'])
     
         elif graph_type == 'violin':
@@ -4455,14 +3909,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
                 x=grouping_column, y=data_column, hue=grouping_column,
                 data=df, order=order, palette=color_palette, legend=False)
         elif graph_type == 'jitter_box':
-            # The ink follows the theme, like every sibling branch here --
-            # a hard-coded black is invisible axes on the dark theme.
             _ink = resolve_ink(theme_target())
-            # THE BOX IS A REFERENCE OVER THE POINTS, NOT A BLOCK COMPETING
-            # WITH THEM. Instruction 139 B and the house rule it follows:
-            # the points are the data and carry the ink; the box summarises.
-            # A filled box per group is a rainbow behind a dot strip, and the
-            # reader's eye goes to the fill rather than to the observations.
             sns.boxplot(
                 x=grouping_column, y=data_column, hue=grouping_column,
                 data=df, order=order, palette=color_palette, legend=False,
@@ -4472,17 +3919,10 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
                 whiskerprops={'color': _ink, 'linewidth': WEIGHTS['spine']},
                 capprops={'color': _ink, 'linewidth': WEIGHTS['spine']},
                 medianprops={'color': _ink, 'linewidth': WEIGHTS['data']})
-            # OUTLIERS OFF ON THE BOX, and that is not hiding them: the strip
-            # below draws EVERY observation, so seaborn's own flier markers
-            # would double-plot the extreme points and only those -- which
-            # reads as the tails being twice as dense as they are.
             sns.stripplot(x=grouping_column, y=data_column, data=df,
                           jitter=True, color=ROLES['data'], size=3.0,
                           linewidth=0, order=order)
         elif graph_type == 'jitter_bar':
-            # THE BAR IS THE SUMMARY, THE POINTS ARE THE DATA -- the same
-            # rule as jitter_box above, so the fill is dropped and the
-            # observations carry the ink.
             _ink = resolve_ink(theme_target())
             summary_df = df.groupby(
                 grouping_column, observed=False)[data_column].agg(
@@ -4501,10 +3941,6 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
                           jitter=True, color=ROLES['data'], size=3.0,
                           linewidth=0, order=order)
         elif graph_type in ('line', 'line_std'):
-            # A LINE ACROSS THE GROUPS. One data column means there is no
-            # second column to put on x, so the group is the x axis and the
-            # point on each group is the same summary the bar chart would
-            # draw -- the two pictures agree about the data.
             _ink = resolve_ink(theme_target())
             summary_df = df.groupby(
                 grouping_column, observed=False)[data_column].agg(
@@ -4521,62 +3957,33 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
             plt.xlabel(str(grouping_column))
             plt.ylabel(str(data_column))
 
-        # THE BRANCH CHAIN COVERS EVERY TYPE THE MENU OFFERS. `line` and
-        # `jitter_bar` had no branch at all: they fell through it, drew
-        # nothing, and `plt.gcf()` below handed back an EMPTY figure. Two of
-        # the seven entries in the right-click Graph type menu blanked the
-        # plot and reported no error.
         else:
             raise ValueError(
                 f"graph_type={graph_type!r} is not one of bar, violin, "
                 f"jitter, box, jitter_box, jitter_bar, line")
 
-        # Create a DataFrame to summarize the test results
         results_df = pd.DataFrame(test_results)
 
-        # Set y-axis start if provided
         if isinstance(y_lim, list) and len(y_lim) == 2:
             plt.ylim(y_lim)
 
-        # THE FIGURE ON SCREEN IS THE FIGURE ON DISK. The title naming the
-        # test and the rotated group labels used to be applied inside the
-        # `save` branch only, so a user who looked at the plot saw an
-        # untitled one with horizontal labels and a user who saved it got a
-        # different picture out of the same call.
         axis = plt.gca()
         descriptor(axis, f'{test_name} results for {graph_type} plot')
         rotate_ticks(axis)
         plt.tight_layout()
 
-        # If save is True, save the plot and the results table
         if save:
-            # No extension: `save_figure` appends the one the figure-format
-            # preference selects. Naming the file .png here and then writing a
-            # PDF into it was the old behaviour, and it is a file no viewer
-            # opens.
             plot_path = os.path.join(output_dir, 'grouped_plot')
             plot_path = save_figure(plt.gcf(), plot_path)
             print(f"Plot saved to {plot_path}")
 
-            # Save the test results as a CSV file
             results_path = os.path.join(output_dir, 'test_results.csv')
             results_df.to_csv(results_path, index=False)
             print(f"Test results saved to {results_path}")
 
-        # Show the plot
         plt.show()
 
         figure = plt.gcf()
-        # THE RECIPE TRAVELS WITH THE FIGURE (178 A). "i should be able to
-        # right click on them and show them as: line, bar, jitter-bar,
-        # jitter-box, jitter, box, violin" -- which means something has to be
-        # able to draw the SAME data a different way, and the figure is the
-        # only thing the right-click menu has a reference to.
-        #
-        # The frame is kept rather than re-read from the summary CSV beside
-        # it: that file is already aggregated to whatever level the plot
-        # used, so a jitter rebuilt from it would draw the means and call
-        # them cells.
         try:
             figure._spacr_replot = {
                 "df": df, "grouping_column": grouping_column,
@@ -4665,14 +4072,12 @@ class spacrGraph:
 
         self.df = df
         self.grouping_column = grouping_column
-        #self.order = sorted(df[self.grouping_column].unique().tolist())
         self.order = order or sorted(df[self.grouping_column].dropna().unique().tolist())
         
         self.data_column = data_column if isinstance(data_column, list) else [data_column]
         
         self.graph_type = graph_type
         self.summary_func = summary_func
-        #self.order = order
         self.colors = colors
         self.output_dir = output_dir
         self.save = save
@@ -4758,21 +4163,15 @@ class spacrGraph:
         :raises ValueError: if ``representation`` is not ``'object'``,
             ``'well'`` or ``'plate'``.
         """
-        # 1) Remove NaNs in both the grouping column and each data column
         df = self.df.dropna(subset=[self.grouping_column] + self.data_column)
 
-        # 2) Decide how to handle grouping based on 'representation'
         if self.representation == 'object':
-            # -- No grouping at all --
-            # We do nothing except keep df as-is after removing NaNs
             group_cols = None
 
         elif self.representation == 'well':
-            # Group by ['prc', grouping_column]
             group_cols = ['prc', self.grouping_column]
 
         elif self.representation == 'plate':
-            # Make sure 'plateID' exists (split from 'prc' if needed)
             if 'plateID' not in df.columns:
                 if 'prc' in df.columns:
                     df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
@@ -4781,7 +4180,6 @@ class spacrGraph:
                         "Representation is 'plateID', but no 'plateID' column found. "
                         "Also cannot split from 'prc' because 'prc' column is missing."
                     )
-            # If the grouping column IS 'plateID', only group by ['plateID'] once
             if self.grouping_column == 'plateID':
                 group_cols = ['plateID']
             else:
@@ -4790,13 +4188,11 @@ class spacrGraph:
         else:
             raise ValueError(f"Unknown representation: {self.representation}, use object, well, or plate")
 
-        # 3) Perform grouping only if group_cols is set
         if group_cols is not None:
             df = df.groupby(
                 group_cols, observed=False)[self.data_column].agg(
                     self.summary_func).reset_index()
 
-        # 4) Handle ordering if specified (and if the grouping_column still exists)
         if self.order and (self.grouping_column in df.columns):
             df[self.grouping_column] = pd.Categorical(
                 df[self.grouping_column],
@@ -4804,8 +4200,6 @@ class spacrGraph:
                 ordered=True
             )
         else:
-            # The initial dropna and every aggregation require this column,
-            # so it is still present when no explicit order was supplied.
             df[self.grouping_column] = pd.Categorical(
                 df[self.grouping_column],
                 categories=sorted(df[self.grouping_column].unique()),
@@ -4816,11 +4210,6 @@ class spacrGraph:
    
     def remove_outliers_from_plot(self):
         """Remove outliers from the plot but keep them in the data."""
-        # self.data_column is a list, so the old code indexed with it and got a
-        # DataFrame: the bounds came out as per-column Series and the mask as a
-        # DataFrame, which cannot be combined with the group Series. Work one
-        # scalar column at a time, and collect the rows to drop instead of
-        # dropping inside the loop (that invalidates the group mask's index).
         filtered_df = self.df.copy()
         unique_groups = filtered_df[self.grouping_column].unique()
         drop_index = pd.Index([])
@@ -4879,10 +4268,6 @@ class spacrGraph:
                 n_samples = int(data.size)
 
                 if n_samples < 3:
-                    # Shapiro-Wilk needs three points to have a statistic at
-                    # all. A constant group is NOT skipped any more: the
-                    # engine reports it as "no spread to describe", which is
-                    # a verdict, where 'Skipped' was silence.
                     print(f"Skipping normality test for group '{group}' on "
                           f"column '{column}' - not enough data.")
                     normality_results.append({
@@ -4910,16 +4295,9 @@ class spacrGraph:
                     'Verdict': check.verdict,
                 })
 
-            # The verdict is the engine's own, taken across the groups
-            # together -- never re-derived from the per-group p-values above,
-            # because that would throw away the Bonferroni correction the
-            # check applies across groups.
             column_verdicts.append(
                 check_normality(list(groups.values())).passed)
 
-        # No column examined is not evidence of normality. `all([])` is True,
-        # and returning True there would license a parametric test off an
-        # empty call.
         is_normal = bool(column_verdicts) and all(column_verdicts)
         return is_normal, normality_results
 
@@ -4995,27 +4373,12 @@ class spacrGraph:
         comparison_label = ' vs '.join(labels[:2]) or 'no groups'
 
         test_results = []
-        for column in self.data_column:  # Iterate over each data column
+        for column in self.data_column:
             groups = self._grouped_values(column, unique_groups)
             arrays = list(groups.values())
             refusal = None
 
             if self.paired and len(arrays) == 2:
-                # THE ENGINE HAS NO GUARD FOR THIS ONE, so spacrGraph refuses
-                # on its behalf. `compare(paired=True)` hands the matched
-                # arrays straight to scipy, and when every pair differs by the
-                # same amount the standard error of the difference is zero:
-                # `ttest_rel` returns t = -inf and p = 0.0 with a
-                # RuntimeWarning. A figure would then carry p = 0 -- the
-                # strongest claim the software can make -- off an input that
-                # says nothing. All-identical arms break the signed-rank test
-                # the same way, with a NaN.
-                #
-                # This refuses one case the signed-rank test could survive:
-                # differences that are all the SAME non-zero number still
-                # carry sign information. Two arms matched to the last bit of
-                # a float is a synthetic input, and refusing it is the safe
-                # direction.
                 first, second = arrays
                 if first.size != second.size:
                     refusal = (f'paired groups of {first.size} and '
@@ -5030,11 +4393,6 @@ class spacrGraph:
                 try:
                     result = compare(groups, paired=self.paired)
                 except ValueError as engine_refusal:
-                    # Fewer than two groups, or a group too small to test.
-                    # Refusing is the engine's design: a comparison that could
-                    # not be made is not a comparison with an unknown answer.
-                    # Reported as a row rather than raised, because the caller
-                    # is drawing a figure and wants the other columns.
                     refusal = str(engine_refusal)
 
             if result is not None and not is_normal:
@@ -5062,18 +4420,6 @@ class spacrGraph:
                 'Effect': effect_name,
                 'Why This Test': why,
                 'Column': column,
-                # n_object FROM raw_df, n_well from self.df. Both used to come
-                # from `grouped_data`, which is built from self.df -- and
-                # self.df is what `preprocess_data` AGGREGATED. With
-                # representation='well' that made the two columns the same
-                # number: a plate of 4,382 cells in 12 wells reported
-                # n_object = 12.
-                #
-                # The post-hoc rows in the same CSV already did it correctly
-                # (n_object from raw_df, n_well from self.df), so the two row
-                # types disagreed about the same comparison in the same file
-                # -- which is how you get a Methods section citing whichever
-                # was read first.
                 'n_object': sum(
                     len(self.raw_df[self.raw_df[self.grouping_column] == group]
                         [column].dropna())
@@ -5115,7 +4461,6 @@ class spacrGraph:
 
         posthoc_results = []
         if is_normal and len(unique_groups) > 2 and self.all_to_all:
-            #tukey_result = pairwise_tukeyhsd(self.df[self.data_column], self.df[self.grouping_column], alpha=0.05)
             tukey_result = pairwise_tukeyhsd(self.df[self.data_column[0]], self.df[self.grouping_column], alpha=0.05)
             posthoc_results = []
             for comparison, p_value in zip(tukey_result._results_table.data[1:], tukey_result.pvalues):
@@ -5124,7 +4469,7 @@ class spacrGraph:
 
                 posthoc_results.append({
                     'Comparison': f'{comparison[0]} vs {comparison[1]}',
-                    'Test Statistic': None,  # Tukey does not provide a test statistic
+                    'Test Statistic': None,
                     'p-value': p_value,
                     'Test Name': 'Tukey HSD Post-hoc',
                     'n_object': len(raw_data1) + len(raw_data2),
@@ -5134,12 +4479,10 @@ class spacrGraph:
         elif len(unique_groups) > 2 and self.all_to_all:
             print('performing_dunns')
 
-            # Prepare data for Dunn's test in long format
             long_data = self.df[[self.data_column[0], self.grouping_column]].dropna()
 
             p_adjust_method = choose_p_adjust_method(num_groups=len(long_data[self.grouping_column].unique()),num_data_points=len(long_data) // len(long_data[self.grouping_column].unique()))
 
-            # Perform Dunn's test with Bonferroni correction
             dunn_result = sp.posthoc_dunn(
                 long_data, 
                 val_col=self.data_column[0], 
@@ -5153,14 +4496,11 @@ class spacrGraph:
 
                 posthoc_results.append({
                     'Comparison': f"{dunn_result.index[group_a]} vs {dunn_result.columns[group_b]}",
-                    'Test Statistic': None,  # Dunn's test does not return a specific test statistic
-                    'p-value': dunn_result.iloc[group_a, group_b],  # Extract the p-value from the matrix
+                    'Test Statistic': None,
+                    'p-value': dunn_result.iloc[group_a, group_b],
                     'Test Name': "Dunn's Post-hoc",
                     'p_adjust_method': p_adjust_method,
-                    'n_object': len(raw_data1) + len(raw_data2),  # Total objects
-                    # Both terms must index the frame with the mask. Without the
-                    # outer self.df[...] the second term is the mask itself, so
-                    # its len() is the row count of the whole frame.
+                    'n_object': len(raw_data1) + len(raw_data2),
                     'n_well': len(self.df[self.df[self.grouping_column] == dunn_result.index[group_a]]) +
                             len(self.df[self.df[self.grouping_column] == dunn_result.columns[group_b]])})
 
@@ -5186,32 +4526,26 @@ class spacrGraph:
 
         def _generate_tabels(unique_groups):
             """Generate row labels and a symbol table for multi-level grouping."""
-            # Create row labels: Include the grouping column and data columns
             row_labels = [self.grouping_column] + self.data_column
 
-            # Initialize table data
             table_data = []
 
-            # Create the grouping row: Alternate each group for every data column
             grouping_row = []
             for _ in self.data_column:
                 for group in unique_groups:
                     grouping_row.append(group)
-            table_data.append(grouping_row)  # Add the grouping row to the table
+            table_data.append(grouping_row)
 
-            # Create symbol rows for each data column
             for column in self.data_column:
-                column_row = []  # Initialize a row for this column
-                for data_col in self.data_column:  # Iterate over data columns to align with the structure
+                column_row = []
+                for data_col in self.data_column:
                     for group in unique_groups:
-                        # Assign '+' if the column matches, otherwise assign '-'
                         if column == data_col:
                             column_row.append('+')
                         else:
                             column_row.append('-')
-                table_data.append(column_row)  # Add this row to the table
+                table_data.append(column_row)
 
-            # Transpose the table to align with the plot layout
             transposed_table = list(map(list, zip(*table_data)))
             return row_labels, transposed_table
 
@@ -5226,28 +4560,22 @@ class spacrGraph:
             - x_positions: X-axis positions for each group to align the symbols.
             - ax: The matplotlib Axes object where the plot is drawn.
             """
-            # Get plot dimensions and adjust for different plot sizes
-            y_axis_min = ax.get_ylim()[0]  # Minimum y-axis value (usually 0)
-            symbol_start_y = y_axis_min - 0.05 * (ax.get_ylim()[1] - y_axis_min)  # Adjust a bit below the x-axis
+            y_axis_min = ax.get_ylim()[0]
+            symbol_start_y = y_axis_min - 0.05 * (ax.get_ylim()[1] - y_axis_min)
 
-            # Calculate spacing for the table rows (adjust as needed)
-            y_spacing = 0.04  # Adjust this for better spacing between rows
+            y_spacing = 0.04
 
-            # Determine the leftmost x-position for row labels (align with the y-axis)
-            label_x_pos = ax.get_xlim()[0] - 0.3  # Adjust offset from the y-axis
+            label_x_pos = ax.get_xlim()[0] - 0.3
 
-            # Place row labels vertically aligned with symbols
             for row_idx, title in enumerate(row_labels):
-                y_pos = symbol_start_y - (row_idx * y_spacing)  # Calculate vertical position for each label
+                y_pos = symbol_start_y - (row_idx * y_spacing)
                 ax.text(label_x_pos, y_pos, title, ha='right', va='center', fontsize=TYPE_SCALE['annotation'], fontweight='regular')
 
-            # Place symbols under each bar or jitter point based on x-positions
             for idx, (x_pos, column_data) in enumerate(zip(x_positions, transposed_table)):
                 for row_idx, text in enumerate(column_data):
-                    y_pos = symbol_start_y - (row_idx * y_spacing)  # Adjust vertical spacing for symbols
+                    y_pos = symbol_start_y - (row_idx * y_spacing)
                     ax.text(x_pos, y_pos, text, ha='center', va='center', fontsize=TYPE_SCALE['annotation'], fontweight='regular')
 
-            # Redraw to apply changes
             ax.figure.canvas.draw()
                     
         def _get_positions(self, ax):
@@ -5259,12 +4587,6 @@ class spacrGraph:
                 x_positions = [np.mean(violin.get_paths()[0].vertices[:, 0]) for violin in ax.collections if hasattr(violin, 'get_paths')]
 
             elif self.graph_type in ['box', 'jitter_box']:
-                # SORTED, not whatever a set iterates in. Every position here
-                # is consumed BY INDEX -- `_place_symbols` zips it against the
-                # symbol table -- and a set of floats has no order it promises,
-                # so the left-to-right order this happens to produce for small
-                # whole numbers is not one to rely on: a symbol under the wrong
-                # box is silent and reads as a real annotation.
                 x_positions = sorted({line.get_xdata().mean()
                                       for line in ax.lines
                                       if line.get_linestyle() == '-'})
@@ -5273,49 +4595,18 @@ class spacrGraph:
                 x_positions = [np.mean(collection.get_offsets()[:, 0]) for collection in ax.collections if collection.get_offsets().size > 0]
             
             else:
-                # The drawing dispatch rejects unknown graph types before
-                # positions are read; the only remaining pair is line/line_std.
                 x_positions = []
             
             return x_positions
         
-        # Optional: Remove outliers for plotting
-        # THE TRIM IS FOR THE PICTURE, NOT FOR THE TEST, and it used to be
-        # for both. `remove_outliers_from_plot` drops 1.5*IQR points PER
-        # GROUP, and it ran here -- before the normality test, before the
-        # comparison and before the post-hoc, all of which then read the
-        # trimmed frame.
-        #
-        # That inflates significance in the one direction nobody checks.
-        # Removing a group's tails shrinks its standard deviation, so the
-        # t-statistic grows for a difference in means that has not changed.
-        # Worse, trimming PER GROUP removes exactly the points that make two
-        # groups overlap. A caller asking not to have one point stretch the
-        # y-axis was silently also asking for a smaller p-value.
-        #
-        # No shipped caller passes remove_outliers=True, so nothing published
-        # came through here -- but `spacrGraph` is public API and the
-        # parameter is documented, so this is a live trap rather than a
-        # historical one.
-        #
-        # The statistics now run on every point, and only the drawing is
-        # trimmed. The results table says so, because a reader looking at a
-        # trimmed plot beside a p-value has to know which one used what.
         stats_df = self.df
         self.df_melted = pd.melt(stats_df, id_vars=[self.grouping_column], value_vars=self.data_column,var_name='Data Column', value_name='Value')
         unique_groups = stats_df[self.grouping_column].unique()
         is_normal, normality_results = self.perform_normality_tests()
-        # Both checks now happen inside `spacr.figures.stats.compare`, PER
-        # COLUMN, which is also what decides between the Student, Welch and
-        # rank forms. Levene used to be computed here into `levene_stat,
-        # levene_p` and never read again, while the test that depends on the
-        # assumption ran regardless. `perform_levene_test` stays as public API
-        # for callers that want the statistic itself.
         test_results = self.perform_statistical_tests(unique_groups, is_normal)
         posthoc_results = self.perform_posthoc_tests(is_normal, unique_groups)
         self.results_df = pd.DataFrame(normality_results + test_results + posthoc_results)
 
-        # Now, and only now, trim what gets drawn.
         if self.remove_outliers:
             self.df = self.remove_outliers_from_plot()
             self.results_df['outliers_removed_from_plot_only'] = True
@@ -5329,7 +4620,6 @@ class spacrGraph:
                 value_vars=self.data_column, var_name='Data Column',
                 value_name='Value')
 
-        #num_groups = len(self.data_column)*len(self.grouping_column)
         num_groups = len(self.df[self.grouping_column].unique())
         self.bar_width = 0.4
         spacing_between_groups = self.bar_width/0.5
@@ -5340,10 +4630,6 @@ class spacrGraph:
         if  self.graph_type in ['line','line_std']:
             self.fig_height, self.fig_width = 10, 10 
 
-        # THE WHOLE BUILD IS INSIDE THE HOUSE STYLE. spacrGraph is what
-        # the GUI's graph button produces, drawn from a long-lived
-        # process, so a global style write here would follow the user
-        # through every later figure of the session.
         with figure_style(theme_target()):
             if ax is None:
                 self.fig, ax = plt.subplots(figsize=(self.fig_height, self.fig_width))
@@ -5357,7 +4643,6 @@ class spacrGraph:
                 self.hue='Data Column'
                 self.jitter_bar_dodge = True
         
-            # Handle the different plot types based on `graph_type`
             if self.graph_type == 'bar':
                 self._create_bar_plot(ax)
             elif self.graph_type == 'jitter':
@@ -5381,7 +4666,6 @@ class spacrGraph:
                 num_groups = len(self.df[self.grouping_column].unique())
                 self._standerdize_figure_format(ax=ax, num_groups=num_groups, graph_type=self.graph_type)
 
-            # Set y-axis start
             if isinstance(self.y_lim, list):
                 if len(self.y_lim) == 2:
                     ax.set_ylim(self.y_lim[0], self.y_lim[1])
@@ -5404,15 +4688,13 @@ class spacrGraph:
                 legend = ax.get_legend()
                 if legend is not None:
                     legend.remove()
-                # Anchored as well as rotated: a group name turned about its
-                # centre lands beside the tick it belongs to, not under it.
                 rotate_ticks(ax)
 
             elif len(self.data_column) > 1 and not self.graph_type in ['line','line_std']:
                 ax.set_xticks([])
                 ax.tick_params(bottom=False)
                 ax.set_xticklabels([])
-                legend_ax = self.fig.add_axes([0.1, -0.2, 0.62, 0.2])  # Position the table closer to the graph
+                legend_ax = self.fig.add_axes([0.1, -0.2, 0.62, 0.2])
                 legend_ax.set_axis_off()
 
                 row_labels, table_data = _generate_tabels(unique_groups)
@@ -5498,12 +4780,6 @@ class spacrGraph:
             return 0
 
         positions = self._tick_positions(ax)
-        # A COMPARISON THAT COULD NOT BE MADE IS NOT A COMPARISON THAT CAME
-        # OUT NEGATIVE. `perform_statistical_tests` records a refused pair as
-        # `Test Name='not testable'` with a NaN p, and `_significance_marker`
-        # answers 'ns' for it -- so drawing it would put "no difference" on the
-        # figure where the truth is "no test", which is a stronger claim than
-        # the run made.
         drawable = [(a, b, p) for a, b, p in pairs
                     if a in positions and b in positions
                     and _finite_p_value(p) is not None]
@@ -5523,8 +4799,6 @@ class spacrGraph:
             x1, x2 = positions[first], positions[second]
             line_y = base + step * (index + 1)
             tick = step * 0.15
-            # A statistics bracket is drawn in the ink, at the spine's
-            # weight: it is annotation, not a series.
             ax.plot([x1, x1, x2, x2],
                     [line_y - tick, line_y, line_y, line_y - tick],
                     lw=WEIGHTS['spine'], c=ink)
@@ -5550,11 +4824,10 @@ class spacrGraph:
         """
         if graph_type in ['line', 'line_std']:
             print("Skipping layout adjustment for line graphs.")
-            return  # Skip layout adjustment for line graphs
+            return
         
         correction_factor = 4
 
-        # Set figure size to ensure it remains square with a minimum size
         fig_size = max(6, num_groups * 2)  / correction_factor
         
         if fig_size < 10:
@@ -5563,62 +4836,45 @@ class spacrGraph:
         
         ax.figure.set_size_inches(fig_size, fig_size)
 
-        # Configure layout based on the number of groups
         bar_width = min(0.8, 1.5 / num_groups) / correction_factor
         jitter_amount = min(0.1, 0.2 / num_groups) / correction_factor
         jitter_size = max(50 / num_groups, 200)
 
-        # Adjust axis limits to ensure bars are centered with respect to group labels
         ax.set_xlim(-0.5, num_groups - 0.5)
 
-        # Set ticks to match the group labels in your DataFrame
-        #group_labels = self.df[self.grouping_column].unique()
-        #group_labels = self.order
-        #ax.set_xticks(range(len(group_labels)))
-        #ax.set_xticklabels(group_labels, rotation=45, ha='right')
         rotate_ticks(ax)
 
-        # Customize elements based on the graph type
         if graph_type == 'bar':
-            # Adjust bars' width and position
             for bar in ax.patches:
                 bar.set_width(bar_width)
                 bar.set_x(bar.get_x() - bar_width / 2)
 
         elif graph_type in ['jitter', 'jitter_bar', 'jitter_box']:
-            # Adjust jitter points' position and size
             for coll in ax.collections:
                 offsets = coll.get_offsets()
-                offsets[:, 0] += jitter_amount  # Shift jitter points slightly
+                offsets[:, 0] += jitter_amount
                 coll.set_offsets(offsets)
-                coll.set_sizes([jitter_size]  * len(offsets))  # Adjust point size dynamically
+                coll.set_sizes([jitter_size]  * len(offsets))
 
         elif graph_type in ['box', 'violin']:
-            # Adjust box width for consistent spacing
             for artist in ax.artists:
                 artist.set_width(bar_width)
 
-        # Adjust legend and axis labels
         ax.tick_params(axis='x', labelsize=max(10, 15 - num_groups // 2))
         ax.tick_params(axis='y', labelsize=max(10, 15 - num_groups // 2))
 
         if ax.get_legend():
-            ax.get_legend().set_bbox_to_anchor((1.05, 1)) #loc='upper left',borderaxespad=0.
+            ax.get_legend().set_bbox_to_anchor((1.05, 1))
             ax.get_legend().prop.set_size(max(8, 12 - num_groups // 3))
 
-        # Redraw the figure to apply changes
         ax.figure.canvas.draw()
         
     def _create_bar_plot(self, ax):
         """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
-        # Flatten DataFrame: Combine grouping column and data column into one group if needed
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
-            # order must name levels of the column used for x. With multiple
-            # data columns x is 'Combined Group', so passing the raw group
-            # names selected nothing and seaborn drew an empty plot.
             plot_order = [f"{g} - {c}" for g in self.order for c in self.data_column]
             ax.set_ylabel('Value')
         else:
@@ -5640,23 +4896,19 @@ class spacrGraph:
             hue=plot_hue, palette=plot_palette, legend=show_legend, ax=ax,
             dodge=self.jitter_bar_dodge, errorbar=None, order=plot_order)
         
-        # Adjust the bar width manually
         if len(self.data_column) > 1:
             bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
             target_width = self.bar_width * 2
             for bar in bars:
-                bar.set_width(target_width)  # Set new width
-                # Center the bar on its x-coordinate
+                bar.set_width(target_width)
                 bar.set_x(bar.get_x() - target_width / 2)
             
-        # Adjust error bars alignment with bars
         bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
         for bar, (_, row) in zip(bars, summary_df.iterrows()):
             x_bar = bar.get_x() + bar.get_width() / 2
             err = row[self.error_bar_type]
             ax.errorbar(x=x_bar, y=bar.get_height(), yerr=err, fmt='none', c=resolve_ink(theme_target()), capsize=5, lw=WEIGHTS['data'])
     
-        # Set legend and labels
         ax.set_xlabel(self.grouping_column)
 
         if self.log_y:
@@ -5666,14 +4918,10 @@ class spacrGraph:
 
     def _create_jitter_plot(self, ax):
         """Helper method to create a jitter plot (strip plot) with consistent spacing."""
-        # Combine grouping column and data column if needed
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str)  + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
-            hue = None  # Disable hue to avoid two-level grouping
-            # order must name levels of the column used for x. With multiple
-            # data columns x is 'Combined Group', so passing the raw group
-            # names selected nothing and seaborn drew an empty plot.
+            hue = None
             plot_order = [f"{g} - {c}" for g in self.order for c in self.data_column]
             ax.set_ylabel('Value')
         else:
@@ -5685,7 +4933,6 @@ class spacrGraph:
         plot_hue = hue or x_axis_column
         plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
-        # Create the jitter plot
         self.summary_df = self.df_melted.copy()
         sns.stripplot(
             data=self.df_melted, x=x_axis_column, y='Value',
@@ -5693,10 +4940,8 @@ class spacrGraph:
             dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,
             alpha=0.6, size=16, order=plot_order)
     
-        # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
        
-        # Manage the legend
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
         if unique_labels:
@@ -5726,7 +4971,6 @@ class spacrGraph:
         if len(self.data_column) < 2:
             self._create_line_across_groups(ax)
             return
-        # Ensure epoch is used on the x-axis and accuracy on the y-axis
         x_axis_column = self.data_column[0]
         y_axis_column = self.data_column[1]
 
@@ -5736,16 +4980,13 @@ class spacrGraph:
         if self.log_x:
             self.df[x_axis_column] = np.log10(self.df[x_axis_column])
         
-        # Set hue to the grouping column to get one line per group
         hue = self.grouping_column
 
-        # Check if the required columns exist in the DataFrame
         required_columns = [x_axis_column, y_axis_column, self.grouping_column]
         for col in required_columns:
             if col not in self.df.columns:
                 raise ValueError(f"Column '{col}' not found in DataFrame.")
 
-        # Create the line graph with one line per group
         self.summary_df = self.df.copy()
         line_palette = self._plot_palette(
             self.df[hue].nunique(dropna=True))
@@ -5754,7 +4995,6 @@ class spacrGraph:
             palette=line_palette, ax=ax, marker='o', linewidth=1,
             markersize=6)
 
-        # Adjust axis labels
         ax.set_xlabel(f"{x_axis_column}")
         ax.set_ylabel(f"{y_axis_column}")
 
@@ -5804,38 +5044,25 @@ class spacrGraph:
         if self.log_x:
             self.df[x_axis_column] = np.log10(self.df[x_axis_column])
 
-        # Pivot the DataFrame to get mean and std for each epoch across plates
         summary_df = self.df.pivot_table(index=x_axis_column,values=y_axis_column,aggfunc=['mean', 'std']).reset_index()
         
-        # Flatten MultiIndex columns (result of pivoting)
         summary_df.columns = [x_axis_column, y_axis_column_mean, y_axis_column_std]
             
-        # Plot the mean accuracy as a line
         self.summary_df = summary_df.copy()
-        # One line, so the line IS the claim and takes the highlight hue. Its
-        # SD band is the same hue at 0.25 -- the one opacity the published
-        # figures use for a band, and enough to read at all; at 0.1 the band
-        # disappeared against a dark ground.
         sns.lineplot(data=summary_df,x=x_axis_column,y=y_axis_column_mean,ax=ax,marker='o',linewidth=WEIGHTS['data'],markersize=0,color=ROLES['highlight'],label=y_axis_column_mean)
 
 
-        # Fill the area representing the standard deviation
         ax.fill_between(summary_df[x_axis_column],summary_df[y_axis_column_mean] - summary_df[y_axis_column_std],summary_df[y_axis_column_mean] + summary_df[y_axis_column_std],color=ROLES['highlight'],  alpha=0.25 )
 
-        # Adjust axis labels
         ax.set_xlabel(f"{x_axis_column}")
         ax.set_ylabel(f"{y_axis_column}")
         
     def _create_box_plot(self, ax):
         """Helper method to create a box plot with consistent spacing."""
-        # Combine grouping column and data column if needed
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
-            # order must name levels of the column used for x. With multiple
-            # data columns x is 'Combined Group', so passing the raw group
-            # names selected nothing and seaborn drew an empty plot.
             plot_order = [f"{g} - {c}" for g in self.order for c in self.data_column]
             ax.set_ylabel('Value')
         else:
@@ -5847,17 +5074,14 @@ class spacrGraph:
         plot_hue = hue or x_axis_column
         plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
-        # Create the box plot
         self.summary_df = self.df_melted.copy()
         sns.boxplot(
             data=self.df_melted, x=x_axis_column, y='Value',
             hue=plot_hue, palette=plot_palette, legend=show_legend,
             ax=ax, order=plot_order)
 
-        # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
 
-        # Manage the legend
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
         if unique_labels:
@@ -5870,14 +5094,10 @@ class spacrGraph:
     
     def _create_violin_plot(self, ax):
         """Helper method to create a violin plot with consistent spacing."""
-        # Combine grouping column and data column if needed
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
-            # order must name levels of the column used for x. With multiple
-            # data columns x is 'Combined Group', so passing the raw group
-            # names selected nothing and seaborn drew an empty plot.
             plot_order = [f"{g} - {c}" for g in self.order for c in self.data_column]
             ax.set_ylabel('Value')
         else:
@@ -5889,18 +5109,15 @@ class spacrGraph:
         plot_hue = hue or x_axis_column
         plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
-        # Create the violin plot
         self.summary_df = self.df_melted.copy()
         sns.violinplot(
             data=self.df_melted, x=x_axis_column, y='Value',
             hue=plot_hue, palette=plot_palette, legend=show_legend,
             ax=ax, order=plot_order)
     
-        # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
         ax.set_ylabel('Value')
     
-        # Manage the legend
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
         if unique_labels:
@@ -5913,14 +5130,10 @@ class spacrGraph:
 
     def _create_jitter_bar_plot(self, ax):
         """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
-        # Flatten DataFrame: Combine grouping column and data column into one group if needed
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
-            # order must name levels of the column used for x. With multiple
-            # data columns x is 'Combined Group', so passing the raw group
-            # names selected nothing and seaborn drew an empty plot.
             plot_order = [f"{g} - {c}" for g in self.order for c in self.data_column]
             ax.set_ylabel('Value')
         else:
@@ -5948,23 +5161,14 @@ class spacrGraph:
             alpha=0.6, edgecolor='none', linewidth=0, size=16,
             order=plot_order)
         
-        # Adjust the bar width manually
         if len(self.data_column) > 1:
             bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
             target_width = self.bar_width * 2
             for bar in bars:
-                bar.set_width(target_width)  # Set new width
-                # Center the bar on its x-coordinate
+                bar.set_width(target_width)
                 bar.set_x(bar.get_x() - target_width / 2)
             
-        # Adjust error bars alignment with bars
-        #bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
-        #for bar, (_, row) in zip(bars, summary_df.iterrows()):
-        #    x_bar = bar.get_x() + bar.get_width() / 2
-        #    err = row[self.error_bar_type]
-        #    ax.errorbar(x=x_bar, y=bar.get_height(), yerr=err, fmt='none', c='black', capsize=5, lw=2)
     
-        # Set legend and labels
         ax.set_xlabel(self.grouping_column)
 
         if self.log_y:
@@ -5974,14 +5178,10 @@ class spacrGraph:
 
     def _create_jitter_box_plot(self, ax):
         """Helper method to create a box plot with consistent spacing."""
-        # Combine grouping column and data column if needed
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
             hue = None
-            # order must name levels of the column used for x. With multiple
-            # data columns x is 'Combined Group', so passing the raw group
-            # names selected nothing and seaborn drew an empty plot.
             plot_order = [f"{g} - {c}" for g in self.order for c in self.data_column]
             ax.set_ylabel('Value')
         else:
@@ -5993,7 +5193,6 @@ class spacrGraph:
         plot_hue = hue or x_axis_column
         plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
-        # Create the box plot
         self.summary_df = self.df_melted.copy()
         sns.boxplot(
             data=self.df_melted, x=x_axis_column, y='Value',
@@ -6006,10 +5205,8 @@ class spacrGraph:
             alpha=0.6, edgecolor='none', linewidth=0, size=12,
             order=plot_order)
     
-        # Adjust legend and labels
         ax.set_xlabel(self.grouping_column)
 
-        # Manage the legend
         handles, labels = ax.get_legend_handles_labels()
         unique_labels = dict(zip(labels, handles))
         if unique_labels:
@@ -6024,30 +5221,17 @@ class spacrGraph:
         """Save figure, stats, and all data used to generate the plot."""
         os.makedirs(self.output_dir, exist_ok=True)
 
-        # Figure
         plot_path = os.path.join(self.output_dir, f"{self.results_name}.pdf")
-        # dpi=600 was hard-coded here, and this is exactly the figure that
-        # cannot always take it: `_standerdize_figure_format` pins the
-        # canvas to >=10 inches square and grows it with the group count.
-        # `save_figure` follows the preference and says so when the number
-        # asked for is not deliverable at this size.
         plot_path = save_figure(self.fig, plot_path, bbox_inches='tight',
                                 transparent=True)
 
-        # Stats
         stats_path = os.path.join(self.output_dir, f"{self.results_name}_stats.csv")
         self.results_df.to_csv(stats_path, index=False)
         
-        # Data
         data_path = os.path.join(self.output_dir, f"{self.results_name}_data.csv")
         self.df.to_csv(data_path, index=False)
 
-        # Data: raw -> preprocessed -> melted (plot input) -> summary (if available)
-        #self.raw_df.to_csv(os.path.join(self.output_dir, f"{self.results_name}_raw.csv"), index=False)
-        #self.df.to_csv(os.path.join(self.output_dir, f"{self.results_name}_preprocessed.csv"),index=False)
         
-        #if hasattr(self, 'df_melted') and self.df_melted is not None:
-        #    self.df_melted.to_csv(os.path.join(self.output_dir, f"{self.results_name}_plotdata.csv"),index=False)
         
         if hasattr(self, 'summary_df') and self.summary_df is not None:
             data_path = os.path.join(self.output_dir, f"{self.results_name}_summary.csv")
@@ -6138,11 +5322,6 @@ def plot_data_from_db(settings):
     df = pd.concat(dfs, axis=0)
     df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
     
-    # Category B, not a per-item skip: the user asked for these conditions,
-    # so a missing annotation column means every well below is pooled under
-    # the wrong label. Historically this printed one line and produced a plot
-    # that looked entirely fine. The ledger makes the damage countable and
-    # SPACR_STRICT_ERRORS turns it into a hard stop.
     annotation_ledger = RunLedger('plot_data_from_db:annotation')
     for meta_key, column, label in (
             ('cell_plate_metadata', 'host_cells', 'host_cell'),
@@ -6193,29 +5372,26 @@ def plot_data_from_db(settings):
     os.makedirs(dst, exist_ok=True)
     
     spacr_graph = spacrGraph(
-        df=df,                                       # Your DataFrame
-        grouping_column=settings['grouping_column'], # Column for grouping the data (x-axis)
-        data_column=settings['data_column'],         # Column for the data (y-axis)
-        graph_type=settings['graph_type'],           # Type of plot ('bar', 'box', 'violin', 'jitter')
-        graph_name=settings['graph_name'],           # Name of the plot
-        summary_func='mean',                         # Function to summarize data (e.g., 'mean', 'median')
-        colors=None,                                 # Custom colors for the plot (optional)
-        output_dir=dst,                              # Directory to save the plot and results
-        save=settings['save'],                       # Whether to save the plot and results
-        y_lim=settings['y_lim'],                     # Starting point for y-axis (optional)
-        error_bar_type='std',                        # Type of error bar ('std' or 'sem')
+        df=df,
+        grouping_column=settings['grouping_column'],
+        data_column=settings['data_column'],
+        graph_type=settings['graph_type'],
+        graph_name=settings['graph_name'],
+        summary_func='mean',
+        colors=None,
+        output_dir=dst,
+        save=settings['save'],
+        y_lim=settings['y_lim'],
+        error_bar_type='std',
         representation=settings['representation'],
-        theme=settings['theme'],                     # Seaborn color palette theme (e.g., 'pastel', 'muted')
+        theme=settings['theme'],
     )
 
-    # Create the plot
     spacr_graph.create_plot()
 
-    # Get the figure object if needed
     fig = spacr_graph.get_figure()
     plt.show()
 
-    # Optional: Get the results DataFrame containing statistical test results
     results_df = spacr_graph.get_results()
     return fig, results_df, df
 
@@ -6279,15 +5455,10 @@ def plot_data_from_csv(settings):
     df = pd.concat(dfs, axis=0)
     
     if 'prc' in df.columns:
-        # Check if 'plateID', 'rowID', and 'columnID' are all missing from df.columns
         if not all(col in df.columns for col in ['plate', 'rowID', 'columnID']):
             try:
-                # Split 'prc' into 'plateID', 'rowID', and 'columnID'
                 df[['plateID', 'rowID', 'columnID']] = df['prc'].str.split('_', expand=True)
             except Exception as e:
-                # Category B: without plateID/rowID/columnID every downstream
-                # grouping falls back to whatever happens to be in the frame,
-                # so the plot groups by the wrong thing rather than not at all.
                 print(f"Could not split the prc column: {e}")
                 raise_if_strict(
                     "The 'prc' column could not be split into "
@@ -6313,34 +5484,30 @@ def plot_data_from_csv(settings):
     dst = os.path.join(os.path.dirname(src), 'results', settings['graph_name'])
     os.makedirs(dst, exist_ok=True)
     
-    #data_csv = os.path.join(dst, f"{settings['graph_name']}_data.csv")
-    #df.to_csv(data_csv, index=False)
     
     spacr_graph = spacrGraph(
-        df=df,                                       # Your DataFrame
-        grouping_column=settings['grouping_column'], # Column for grouping the data (x-axis)
-        data_column=settings['data_column'],         # Column for the data (y-axis)
-        graph_type=settings['graph_type'],           # Type of plot ('bar', 'box', 'violin', 'jitter')
-        graph_name=settings['graph_name'],           # Name of the plot
-        summary_func='mean',                         # Function to summarize data (e.g., 'mean', 'median')
-        colors=None,                                 # Custom colors for the plot (optional)
-        output_dir=dst,                              # Directory to save the plot and results
-        save=settings['save'],                       # Whether to save the plot and results
-        y_lim=settings['y_lim'],                     # Starting point for y-axis (optional)
-        log_y=settings['log_y'],                     # Log-transform the y-axis
-        log_x=settings['log_x'],                     # Log-transform the x-axis
-        error_bar_type='std',                        # Type of error bar ('std' or 'sem')
+        df=df,
+        grouping_column=settings['grouping_column'],
+        data_column=settings['data_column'],
+        graph_type=settings['graph_type'],
+        graph_name=settings['graph_name'],
+        summary_func='mean',
+        colors=None,
+        output_dir=dst,
+        save=settings['save'],
+        y_lim=settings['y_lim'],
+        log_y=settings['log_y'],
+        log_x=settings['log_x'],
+        error_bar_type='std',
         representation=settings['representation'],
-        theme=settings['theme'],                     # Seaborn color palette theme (e.g., 'pastel', 'muted')
+        theme=settings['theme'],
     )
 
-    # Create the plot
     spacr_graph.create_plot()
 
     fig = spacr_graph.get_figure()
     plt.show()
 
-    # Optional: Get the results DataFrame containing statistical test results
     results_df = spacr_graph.get_results()
     return fig, results_df
 
@@ -6456,69 +5623,51 @@ def plot_image_grid(image_paths, percentiles):
     def _normalize_image(image, percentiles=(2, 98)):
         """ Normalize the image to the given percentiles for each channel independently, preserving the input type (either PIL.Image or numpy.ndarray)."""
         
-        # Check if the input is a PIL image and convert it to a NumPy array
         is_pil_image = isinstance(image, Image.Image)
         if is_pil_image:
             image = np.array(image)
 
-        # If the image is single-channel, normalize directly
         if image.ndim == 2:
             v_min, v_max = np.percentile(image, percentiles)
             normalized_image = np.clip((image - v_min) / (v_max - v_min), 0, 1)
         else:
-            # If multi-channel, normalize each channel independently
             normalized_image = np.zeros_like(image, dtype=np.float32)
             for c in range(image.shape[-1]):
                 v_min, v_max = np.percentile(image[..., c], percentiles)
                 normalized_image[..., c] = np.clip((image[..., c] - v_min) / (v_max - v_min), 0, 1)
 
-        # If the input was a PIL image, convert the result back to PIL format
         if is_pil_image:
-            # Ensure the image is converted back to 8-bit range (0-255) for PIL
             normalized_image = (normalized_image * 255).astype(np.uint8)
             return Image.fromarray(normalized_image)
 
         return normalized_image
 
     N = len(image_paths)
-    # Calculate the smallest square grid size to fit all images
     grid_size = math.ceil(math.sqrt(N))  
 
-    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-    # and no axes to frame. What the house style gives a montage is the
-    # ground, the type scale and the theme's own ink -- applied as a
-    # context manager, so it does not follow the session out of here.
     with figure_style(theme_target()):
-        # Create the square grid of subplots with a black background
         fig, axs = plt.subplots(
             grid_size, grid_size,
             figsize=(grid_size * 2, grid_size * 2),
-            facecolor='black',  # Set figure background to black
-            # A single image gives a 1x1 grid, which matplotlib otherwise collapses
-            # to a bare Axes with no .flatten().
+            facecolor='black',
             squeeze=False
         )
 
-        # Flatten axs in case of a 2D array
         axs = axs.flatten()
 
         for i, img_path in enumerate(image_paths):
             ax = axs[i]
 
-            # Load the image
             img = Image.open(img_path)
             img = _normalize_image(img, percentiles)
 
-            # Display the image
             ax.imshow(img)
-            ax.axis('off')  # Hide axes
+            ax.axis('off')
 
-        # Fill any unused subplots with black
         for j in range(i + 1, len(axs)):
-            axs[j].imshow([[0, 0, 0]], cmap='gray')  # Black square
-            axs[j].axis('off')  # Hide axes
+            axs[j].imshow([[0, 0, 0]], cmap='gray')
+            axs[j].axis('off')
 
-        # Adjust layout to minimize white space
         plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, top=1, bottom=0)
 
     return fig
@@ -6568,7 +5717,6 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
     if save and not os.path.exists(overlay_folder):
         os.makedirs(overlay_folder)
 
-    # Get common filenames in both image and mask folders
     image_filenames = set(os.listdir(img_folder))
     mask_filenames = set(os.listdir(mask_folder))
     common_filenames = image_filenames.intersection(mask_filenames)
@@ -6577,62 +5725,43 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
         print("No matching filenames found in both folders.")
         return
 
-    # ONE BAD FILE MUST NOT COST THE WHOLE FOLDER. A name shared by an image
-    # and a mask is not a promise that both read: a truncated TIFF, a stray
-    # .db, or a mask of a different rank ends the loop, and every overlay
-    # after it is silently never written -- with no list of which ones were
-    # done. Each field is its own attempt; failures are named and counted.
     failed = []
     written = 0
     for filename in sorted(common_filenames):
       try:
-        # Load image and mask
         img_path = os.path.join(img_folder, filename)
         mask_path = os.path.join(mask_folder, filename)
 
         image = tiff.imread(img_path)
         mask = tiff.imread(mask_path)
 
-        # Normalize the image if requested
         if normalize:
             image = normalize_image(image)
 
-        # Ensure the mask is binary
         mask = (mask > 0).astype(np.uint8)
 
-        # Resize the mask if it doesn't match the image size
         if mask.shape != image.shape[:2]:
             mask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
 
-        # Generate contours from the mask
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        # Convert to RGB if grayscale
         if image.ndim == 2:
             image_rgb = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
         else:
             image_rgb = image.copy()
             
-        # Draw contours with alpha blending
         overlay = image_rgb.copy()
         cv2.drawContours(overlay, contours, -1, (255, 0, 0), thickness)
         blended = cv2.addWeighted(overlay, 0.7, image_rgb, 0.3, 0)
         
-        # Resize the final overlay if requested
         if resize:
             blended = cv2.resize(blended, (1000, 1000), interpolation=cv2.INTER_AREA)
 
-        # Save the overlay if requested
         if save:
             save_path = os.path.join(overlay_folder, filename)
             write_image_rgb(save_path, blended)
         
         if plot:
-            # Display the result
-            # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
-            # and no axes to frame. What the house style gives a montage is the
-            # ground, the type scale and the theme's own ink -- applied as a
-            # context manager, so it does not follow the session out of here.
             with figure_style(theme_target()):
                 plt.figure(figsize=(10, 10))
                 plt.imshow(blended)
@@ -6663,9 +5792,6 @@ def graph_importance(settings):
     from .settings import set_graph_importance_defaults
     from .utils import save_settings
     
-    # Wrap a scalar path: the guard used to assign the value to itself, so a
-    # single path string fell through and was iterated character by character.
-    # Only str/PathLike are wrapped -- a tuple or Series of paths already works.
     if isinstance(settings['csvs'], (str, os.PathLike)):
         settings['csvs'] = [settings['csvs']]
 
@@ -6703,7 +5829,6 @@ def graph_importance(settings):
         theme='muted',                    
     )
 
-    # Create the plot
     spacr_graph.create_plot()
 
     plt.show()
@@ -6739,21 +5864,12 @@ def proportions_per_unit(df, group_column, bin_column, unit_column):
         per bin holding a proportion in [0, 1]. Units contributing no
         objects do not appear.
     """
-    # Deduplicated, because a caller may GROUP BY the unit -- the
-    # replication tables group by `prc`, which is also the well. Passing
-    # 'prc' to groupby twice puts it in the index twice, and `reset_index`
-    # then raises "cannot insert prc, already exists" instead of choosing.
     keys = list(dict.fromkeys([group_column, unit_column, bin_column]))
     counts = (df.groupby(keys, observed=True).size()
               .unstack(fill_value=0))
     totals = counts.sum(axis=1)
     proportions = counts.div(totals.where(totals > 0), axis=0)
     proportions = proportions.dropna(how="all")
-    # `unstack` leaves the bin values as COLUMN names, and a caller's frame
-    # can already carry a column spelled like one of the index levels --
-    # `prc` is both the unit and, in the replication tables, a plain column.
-    # `reset_index` then raises "cannot insert prc, already exists" rather
-    # than choosing, so the clash is removed before it can happen.
     clashing = [name for name in proportions.index.names
                 if name in proportions.columns]
     if clashing:
@@ -6810,9 +5926,6 @@ def proportion_test_by_unit(df, group_column, bin_column, unit_column):
     differ, with n = the number of wells.
     """
     if unit_column == group_column:
-        # The unit of replication IS the thing being compared, so every
-        # group holds exactly one unit and there is nothing to test across.
-        # Saying so beats returning a p-value computed from one number each.
         return pd.DataFrame([{
             "test": f"not applicable: the groups ARE the {unit_column}s",
             "bin": None,
@@ -6892,7 +6005,7 @@ def proportion_mixed_model(df, group_column, bin_column, unit_column):
             wald = fit.wald_test(np.eye(len(design.columns))[terms],
                                  scalar=True)
             statistic, p = float(wald.statistic), float(wald.pvalue)
-        except Exception as error:      # singular, separated, or too few clusters
+        except Exception as error:
             print(f"mixed model for bin {bin_value!r} did not fit: {error}")
             statistic = p = float("nan")
         rows.append({
@@ -6928,34 +6041,16 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
 
     from .sp_stats import chi_pairwise
 
-    # The bins are an ORDERED quantity (volume), so their encoding is a
-    # single-hue ramp, light to dark -- the house sequential map. `'viridis'`
-    # is the literal every internal call site was written with rather than a
-    # choice anybody made, so it is treated as unset here exactly as
-    # `plot_plates` treats it; any other colormap is a choice and is honoured.
     if isinstance(cmap, str) and cmap.strip().lower() == LEGACY_PLATE_CMAP:
         cmap = Palette.SEQUENTIAL
 
-    # Calculate contingency table for overall chi-squared test
     raw_counts = df.groupby([group_column, bin_column], observed=True).size().unstack(fill_value=0)
     chi2, p, dof, expected = chi2_contingency(raw_counts)
     print(f"Chi-squared test statistic (raw data): {chi2:.4f}")
     print(f"p-value (raw data): {p:.4e}")
 
-    # Perform pairwise comparisons
     pairwise_results = chi_pairwise(raw_counts, verbose=settings.get('verbose', False))
 
-    # Plot based on level setting.
-    #
-    # 'plate' USED TO FALL THROUGH HERE. The check read
-    # `level in ['well', 'plateID']`, while the setting's own tooltip offers
-    # 'object', 'well' and 'plate' -- so a user who asked for plate-level bars
-    # got object-level pooling instead: every object in one bar per condition,
-    # no per-plate averaging and no SD whiskers, which is a different figure
-    # answering a different question with nothing to say it had happened.
-    #
-    # An unknown level is now named rather than silently pooled, because
-    # falling back to 'object' is exactly what made the typo invisible.
     _level = str(level or 'object').strip().lower()
     _AGGREGATED = {'well': prc_column, 'plate': 'plateID', 'plateid': 'plateID'}
     if _level not in _AGGREGATED and _level != 'object':
@@ -6966,11 +6061,6 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
     if _level in _AGGREGATED:
         prc_column = _AGGREGATED[_level]
         if prc_column not in df.columns:
-            # 'plateID' used to group by `prc` -- the WELL column -- so a
-            # plate-level request averaged wells and called them plates. It
-            # now groups by the plate, which means the plate column has to
-            # be present, and naming the missing one beats a bare KeyError
-            # raised from inside a groupby.
             raise ValueError(
                 f"level={level!r} groups by {prc_column!r}, which this table "
                 f"does not have. Available: {sorted(df.columns)[:12]}")
@@ -7012,17 +6102,6 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
         axis.set_ylim(0, 1)
         fig = axis.figure
 
-    # THREE NUMBERS, EACH LABELLED WITH ITS UNIT AND ITS N.
-    #
-    # The chi-squared above is computed over OBJECTS and was the only number
-    # this function reported, at every level -- object, well and plate gave
-    # byte-identical chi2 and p, while the level tooltip promised that "the
-    # reported statistics always treat the well as the unit of replication".
-    # It never did.
-    #
-    # The old number is kept as the first row rather than replaced: every
-    # figure already published came from it, and a reader comparing an old
-    # result with a new one has to be able to see why they differ.
     results_df = pd.DataFrame({
         'chi_squared_stat': [chi2],
         'p_value': [p],
@@ -7033,9 +6112,6 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
         'statistic': [float(chi2)],
     })
 
-    # `level='object'` still gets the well-level tests when a well column is
-    # there. Pooling objects does not make them independent, so the honest
-    # denominator is reported whether or not it was asked for.
     unit_column = _unit_column(level, prc_column) or prc_column
     if unit_column in df.columns:
         extra = [proportion_test_by_unit(df, group_column, bin_column,
@@ -7068,29 +6144,20 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
     :returns: ``{'overlap', 'unique_to_file1', 'unique_to_file2'}`` lists.
     :raises ValueError: if ``save`` is True but ``save_path`` is missing.
     """
-    # Read CSV files
     df1 = pd.read_csv(file1)
     df2 = pd.read_csv(file2)
 
-    # Filter based on coefficient
     if filter_coeff is not None:
         df1 = df1[df1['coefficient'] > filter_coeff] if filter_coeff >= 0 else df1[df1['coefficient'] < filter_coeff]
         df2 = df2[df2['coefficient'] > filter_coeff] if filter_coeff >= 0 else df2[df2['coefficient'] < filter_coeff]
 
-    # Extract gene columns and drop NaN values
     genes1 = set(df1[gene_column].dropna())
     genes2 = set(df2[gene_column].dropna())
 
-    # Calculate overlapping and non-overlapping genes
     overlapping_genes = genes1.intersection(genes2)
     unique_to_file1 = genes1.difference(genes2)
     unique_to_file2 = genes2.difference(genes1)
 
-    # Create a Venn diagram. THE SENTENCE A VENN MAKES IS THE OVERLAP, so the
-    # overlap is the only region that carries colour and the two private sets
-    # are the grey it is read against. matplotlib_venn's own defaults are a
-    # red circle and a green one at alpha 0.4 -- the one pair red-green
-    # deficiency removes, and two arguments where the figure has one.
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(8, 6))
         diagram = venn2([genes1, genes2], ('File 1 Genes', 'File 2 Genes'),
@@ -7099,7 +6166,6 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
                                ('01', Palette.GREY_DARK),
                                ('11', ROLES['highlight'])):
             patch = diagram.get_patch_by_id(region)
-            # A region with no genes in it has no patch at all.
             if patch is not None:
                 patch.set_color(colour)
                 patch.set_alpha(1.0)
@@ -7111,7 +6177,6 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
                 label.set_color(resolve_ink(theme_target()))
         descriptor(ax, "Venn Diagram of Overlapping Genes")
 
-        # Save or show the figure
         if save:
             if save_path is None:
                 raise ValueError("save_path must be provided when save=True.")
@@ -7121,7 +6186,6 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
         else:
             plt.show()
 
-    # Return the results
     return {
         "overlap": list(overlapping_genes),
         "unique_to_file1": list(unique_to_file1),
@@ -7134,16 +6198,12 @@ def volcano_plot(
     fold_change_col: str,
     p_value_col: str,
     name_col: Optional[str] = None,
-    # transforms
-    x_transform: str = "none",      # "none" | "log2" | "log10" | "ln"
-    y_transform: str = "-log10",    # "none" | "-log10" | "-ln" | "log10" | "ln"
-    # thresholds
+    x_transform: str = "none",
+    y_transform: str = "-log10",
     fold_change_threshold: Optional[float] = None,
     p_value_threshold: Optional[float] = None,
-    # annotation
     annotate: bool = True,
     annotate_max: Optional[int] = None,
-    # plotting
     point_size: float = 20.0,
     alpha: float = 0.7,
     figsize: Tuple[float, float] = (8.0, 6.0),
@@ -7156,7 +6216,6 @@ def volcano_plot(
     save_path: Optional[str] = None,
     show: bool = True,
     ax: Optional[plt.Axes] = None,
-    # excel options
     sheet_name: Union[int, str] = 0,
 ) -> Tuple[plt.Figure, plt.Axes, list]:
     """Read a table (CSV/TSV/XLS/XLSX or a DataFrame) and render a volcano plot.
@@ -7200,12 +6259,10 @@ def volcano_plot(
         cannot be coerced.
     """
 
-    # -------------------- I/O helpers --------------------
     def _read_table_auto(path: str) -> pd.DataFrame:
         """Read Excel or delimited text, sniffing comma versus tab as fallback."""
         lower = path.lower()
 
-        # Excel
         if lower.endswith((".xls", ".xlsx")):
             try:
                 return pd.read_excel(path, sheet_name=sheet_name)
@@ -7216,16 +6273,12 @@ def volcano_plot(
                     "For .xls:  pip install xlrd\n"
                 ) from e
 
-        # TSV-like
         if lower.endswith((".tsv", ".tab")):
             return pd.read_csv(path, sep="\t")
 
-        # CSV
         if lower.endswith(".csv"):
             return pd.read_csv(path)
 
-        # Fallback: sniff delimiter (comma vs tab) and try CSV reader
-        # (If it's actually Excel with a missing extension, user should pass a DataFrame or fix extension)
         with open(path, "r", encoding="utf-8", errors="ignore") as f:
             head = f.read(4096)
         comma = head.count(",")
@@ -7233,7 +6286,6 @@ def volcano_plot(
         sep = "\t" if tab > comma else ","
         return pd.read_csv(path, sep=sep)
 
-    # -------------------- transform helpers --------------------
     def _as_numeric(s: pd.Series, colname: str) -> np.ndarray:
         """Coerce a column to floats, refusing an entirely nonnumeric result."""
         arr = pd.to_numeric(s, errors="coerce").to_numpy(dtype=float)
@@ -7287,8 +6339,6 @@ def volcano_plot(
             return abs(np.log2(t))
         if x_transform.lower() == "log10":
             return abs(np.log10(t))
-        # _transform_x validates the vocabulary before this helper runs, so
-        # the only remaining accepted forms are the natural-log aliases.
         return abs(np.log(t))
 
     def _threshold_y_in_plot_units(pthresh: float) -> float:
@@ -7298,7 +6348,6 @@ def volcano_plot(
             raise ValueError("p_value_threshold must be > 0.")
         return float(_transform_y(np.array([pt], dtype=float), y_transform)[0])
 
-    # -------------------- load --------------------
     df = data.copy() if isinstance(data, pd.DataFrame) else _read_table_auto(str(data))
 
     if fold_change_col not in df.columns:
@@ -7319,7 +6368,6 @@ def volcano_plot(
     x = _transform_x(x_raw, x_transform)
     y = _transform_y(p_raw, y_transform)
 
-    # -------------------- thresholds & hit mask --------------------
     mask = np.ones(len(df), dtype=bool)
 
     x_thr_plot = None
@@ -7338,13 +6386,7 @@ def volcano_plot(
             else:
                 mask &= (y <= y_thr_plot)
 
-    # THE WHOLE BUILD SITS INSIDE THE HOUSE STYLE, as a context
-    # manager. A volcano is the figure spaCR shows most often and it
-    # is drawn from a long-lived GUI, so a global rcParams write here
-    # would restyle every later figure of the session in every other
-    # module until the process exits.
     with figure_style(theme_target()):
-        # -------------------- figure --------------------
         if ax is None:
             fig, ax = plt.subplots(figsize=figsize)
         else:
@@ -7354,13 +6396,6 @@ def volcano_plot(
         if scatter_kwargs:
             scatter_defaults.update(scatter_kwargs)
 
-        # color hits if thresholds are provided; otherwise all gray.
-        # The hues are the house roles, fixed across every spaCR panel: GREEN is
-        # upregulated / called positive, RUST is downregulated, and everything
-        # that was not called is the one grey every figure compares against. They
-        # were crimson, royalblue and lightgray -- three hues that appear in no
-        # other spaCR figure, so a reader who learned them here learned nothing
-        # they could carry to the next panel.
         if (fold_change_threshold is not None) or (p_value_threshold is not None):
             colors = np.where(mask & (x >= 0), ROLES["up"],
                               np.where(mask & (x < 0), ROLES["down"],
@@ -7370,7 +6405,6 @@ def volcano_plot(
 
         ax.scatter(x, y, c=colors, **scatter_defaults)
 
-        # labels
         xlab = fold_change_col if x_transform.lower() == "none" else f"{x_transform}({fold_change_col})"
         ylab = p_value_col if y_transform.lower() == "none" else f"{y_transform}({p_value_col})"
         ax.set_xlabel(xlab)
@@ -7378,9 +6412,6 @@ def volcano_plot(
         if title:
             ax.set_title(title)
 
-        # threshold lines. A THRESHOLD IS NOT A RESULT: thin, dashed and grey, so
-        # it cannot compete with the points it is there to sort. They were black
-        # at 1.0 pt, heavier than any mark on the panel.
         line_defaults = dict(color=ROLES["reference"], linestyle=(0, (4, 3)),
                              linewidth=WEIGHTS["reference"], alpha=1.0)
         if threshold_line_kwargs:
@@ -7397,18 +6428,14 @@ def volcano_plot(
         if ylim is not None:
             ax.set_ylim(ylim)
 
-        # cosmetics. The spines are set explicitly as well as by the style,
-        # because a caller may hand in an `ax` that was built outside it.
         ax.spines["right"].set_visible(False)
         ax.spines["top"].set_visible(False)
         reference_line(ax, x=0)
 
-        # -------------------- annotation --------------------
         hits: list = []
         if annotate and (name_col is not None):
             eligible = mask.copy()
 
-            # If no thresholds were set, annotate nothing unless annotate_max is provided
             if (fold_change_threshold is None) and (p_value_threshold is None) and (annotate_max is None):
                 eligible[:] = False
 

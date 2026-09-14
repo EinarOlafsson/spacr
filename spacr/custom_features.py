@@ -102,13 +102,11 @@ def discover_features() -> List[CustomFeature]:
             fn = getattr(mod, name)
             if not callable(fn):
                 continue
-            # Only include functions defined IN the file
             try:
                 if fn.__module__ != mod.__name__:
                     continue
             except Exception:
                 continue
-            # Require at least `mask` + `image` parameters
             try:
                 sig = inspect.signature(fn)
                 params = list(sig.parameters.values())

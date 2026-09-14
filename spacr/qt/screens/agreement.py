@@ -160,11 +160,8 @@ class AgreementScreen(QWidget):
         self._db_path: str = ""
         self._candidates: List[str] = []
         self._report: Optional[agree.AgreementReport] = None
-        self._disagreements = None      # pd.DataFrame | None
+        self._disagreements = None
         self._busy = False
-        # Ownership list for in-flight (QThread, worker) pairs — a QThread
-        # collected while still running takes the process down with it.
-        # Same idiom as DbBrowserScreen._jobs.
         self._jobs: List[tuple] = []
         self._pending: List[tuple] = []
         self._thread = None
@@ -180,13 +177,9 @@ class AgreementScreen(QWidget):
             "Choose a measurements.db (or a run folder), tick two or more "
             "annotation columns, then Compute agreement.")
         self._update_controls()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out the source row, the annotator list, the tables and the review pane."""
@@ -210,7 +203,6 @@ class AgreementScreen(QWidget):
 
         outer.addWidget(Divider())
 
-        # ── Source row ────────────────────────────────────────────────
         src_row = QHBoxLayout()
         src_row.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit(self)
@@ -230,7 +222,6 @@ class AgreementScreen(QWidget):
         src_row.addWidget(self._btn_open)
         outer.addLayout(src_row)
 
-        # ── Annotators | results ──────────────────────────────────────
         split = QSplitter(Qt.Horizontal, self)
 
         left = QWidget(split)
@@ -288,7 +279,6 @@ class AgreementScreen(QWidget):
         split.setSizes([260, 860])
         outer.addWidget(split, 1)
 
-        # ── Summary ───────────────────────────────────────────────────
         self._summary = QLabel("", self)
         self._summary.setWordWrap(True)
         self._summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
@@ -296,7 +286,6 @@ class AgreementScreen(QWidget):
 
         outer.addWidget(Divider())
 
-        # ── Disagreement review ───────────────────────────────────────
         review_row = QHBoxLayout()
         review_row.setSpacing(SPACING["sm"])
         self._review_label = QLabel("Disagreement review", self)
@@ -357,7 +346,6 @@ class AgreementScreen(QWidget):
         table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
         table.horizontalHeader().setStretchLastSection(True)
 
-    # -- status ------------------------------------------------------------
 
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Deliberately never a QMessageBox — a modal dialog
@@ -376,7 +364,6 @@ class AgreementScreen(QWidget):
         """The overall-κ summary line, or ``''`` before a report exists."""
         return self._summary.text()
 
-    # -- database ----------------------------------------------------------
 
     def _pick_database(self) -> None:
         """Ask for a measurements database and open whatever is chosen."""
@@ -442,8 +429,6 @@ class AgreementScreen(QWidget):
             self._update_controls()
             return False
         if len(candidates) == 1:
-            # Not a crash and not a dialog: one column is a legitimate
-            # state, it just cannot produce an agreement number.
             self._set_status(
                 f"Opened {resolved} — only one annotation column "
                 f"({candidates[0]}). Agreement needs at least two: have a "
@@ -453,8 +438,6 @@ class AgreementScreen(QWidget):
             self._update_controls()
             return True
 
-        # Two candidates is the common case — tick them so Compute works
-        # on the first click.
         for i in range(min(2, self._columns_list.count())):
             self._columns_list.item(i).setCheckState(Qt.Checked)
         self._set_status(
@@ -500,7 +483,6 @@ class AgreementScreen(QWidget):
             return False
         return True
 
-    # -- compute -----------------------------------------------------------
 
     def compute(self) -> bool:
         """Build the agreement report for the ticked columns.
@@ -564,7 +546,6 @@ class AgreementScreen(QWidget):
         """The most recent :class:`~spacr.agreement.AgreementReport`, or None."""
         return self._report
 
-    # -- result rendering --------------------------------------------------
 
     def _clear_results(self) -> None:
         """Empty every result pane and forget the last report.
@@ -643,7 +624,7 @@ class AgreementScreen(QWidget):
         if self._report is None or not (0 <= row < len(self._report.pairs)):
             return
         if self._pair_combo.currentIndex() != row:
-            self._pair_combo.setCurrentIndex(row)   # fires _show_confusion
+            self._pair_combo.setCurrentIndex(row)
         else:
             self._show_confusion(row)
 
@@ -748,7 +729,6 @@ class AgreementScreen(QWidget):
         """The ``png_path`` of every row in the review list."""
         return [row[0] for row in self.disagreement_rows()]
 
-    # -- crop preview ------------------------------------------------------
 
     def select_disagreement(self, row: int) -> bool:
         """Show the crop for review row ``row``.
@@ -814,7 +794,6 @@ class AgreementScreen(QWidget):
         """Text shown instead of a crop when there is no image."""
         return self._crop_label.text()
 
-    # -- job plumbing ------------------------------------------------------
 
     def _run_job(self, fn: Callable[[], Any],
                  on_done: Callable[[Any], None]) -> bool:
@@ -942,7 +921,6 @@ class AgreementScreen(QWidget):
         self._clear_results()
         self._set_status(f"Agreement failed: {exc}", error=True)
 
-    # -- enablement --------------------------------------------------------
 
     def _update_controls(self) -> None:
         """Enable the compute button, column list and row limit when they can be used.
@@ -957,7 +935,6 @@ class AgreementScreen(QWidget):
         self._columns_list.setEnabled(has_db and not self._busy)
         self._limit_box.setEnabled(has_db and not self._busy)
 
-    # -- shutdown ----------------------------------------------------------
 
     def closeEvent(self, event):  # noqa: N802
         """Let every in-flight compute thread finish before the widget dies."""

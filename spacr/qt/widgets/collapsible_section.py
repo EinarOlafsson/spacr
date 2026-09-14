@@ -62,32 +62,6 @@ class CollapsibleSection(QWidget):
         self._header.setAutoRaise(True)
         self._header.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self._header.setToolTip(f"Fold {self._title} away, or open it again")
-        # GRAY, TRANSPARENT, ROUNDED, BLUE ON HOVER. Asked for 2026-08-19:
-        # "the black dropdowns should be gray and they should have rounded
-        # edges when hovered blue, and they should be transparent". A
-        # QToolButton with no rule of its own paints the palette's button
-        # colour as an opaque block, which is the "black categories" in both
-        # this panel and the measure tab.
-        # AND THE RESTING HEADING IS THE THEME'S FOREGROUND (198). Asked for
-        # 2026-08-21: "the text in the measurements tab for the sub
-        # categories should be white when they are not highlighted (in dark
-        # mode oposite in bright mode)."
-        #
-        # It was `palette(mid)` at rest and `palette(text)` only when open --
-        # which is backwards. THE UNHIGHLIGHTED STATE IS THE ONE A USER
-        # READS: on a tab with four folded sections at most one is open, and
-        # the rest are what they are scanning to decide where to go. Dimming
-        # them says "secondary" about the only thing on screen that is not.
-        #
-        # `palette(text)`, NEVER A LITERAL. `#FFFFFF` here is the same fault
-        # instruction 178 removed from eleven figure call sites: it reads on
-        # one theme and vanishes on the other, and the author sees only the
-        # one they use. The palette answers "white or near-black" for
-        # whichever theme is live.
-        #
-        # THE HIGHLIGHT IS STILL VISIBLE, and that is the condition on this
-        # change: hover keeps its blue wash and the fold arrow still turns.
-        # What no longer distinguishes the states is the text going away.
         self._header.setStyleSheet(
             "QToolButton {"
             "  background: transparent;"
@@ -108,14 +82,9 @@ class CollapsibleSection(QWidget):
         content.setParent(self)
         layout.addWidget(content, 1)
 
-        # The minimum the CONTENT wants, remembered before anything folds it.
-        # Restoring the section has to put back the height that made the
-        # panel usable, and once folded that number is no longer readable off
-        # the widget.
         self._open_minimum = max(content.minimumHeight(), 0)
         self._apply(bool(expanded))
 
-    # ------------------------------------------------------------- folding
 
     def is_expanded(self) -> bool:
         """Whether the body is showing.
@@ -173,9 +142,6 @@ class CollapsibleSection(QWidget):
             self.setMaximumHeight(16777215)
             self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         else:
-            # BOTH BOUNDS. A minimum alone leaves the splitter free to hand
-            # the folded section the space it just gave up, which looks like
-            # the fold did nothing.
             self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
             self.setMinimumHeight(self.FOLDED_HEIGHT)
             self.setMaximumHeight(self.FOLDED_HEIGHT)

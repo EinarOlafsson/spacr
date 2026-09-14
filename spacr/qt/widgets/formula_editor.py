@@ -151,12 +151,6 @@ class FormulaPanel(QWidget):
         self._status = QLabel("", self)
         self._status.setObjectName("FormulaStatus")
         self._status.setWordWrap(True)
-        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
-        # Preferred height a parent is free to hand it less than its
-        # heightForWidth. This is the house rule `prerun._label` documents.
-        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
-        # label clipped at 2.0x, because the container above it does not grow
-        # either. See 350; the remaining fix is the dialog's layout, not this.
         self._status.setSizePolicy(QSizePolicy.Preferred,
                                       QSizePolicy.Minimum)
         self._status.setProperty("state", "idle")
@@ -185,12 +179,6 @@ class FormulaPanel(QWidget):
         self._help = QLabel(self._help_text(), self)
         self._help.setObjectName("FormulaHelp")
         self._help.setWordWrap(True)
-        # A WRAPPED LABEL NEEDS (Preferred, Minimum): with Qt's default
-        # Preferred height a parent is free to hand it less than its
-        # heightForWidth. This is the house rule `prerun._label` documents.
-        # NECESSARY BUT NOT SUFFICIENT HERE -- 350's sweep still reports this
-        # label clipped at 2.0x, because the container above it does not grow
-        # either. See 350; the remaining fix is the dialog's layout, not this.
         self._help.setSizePolicy(QSizePolicy.Preferred,
                                     QSizePolicy.Minimum)
         outer.addWidget(self._help)
@@ -203,13 +191,9 @@ class FormulaPanel(QWidget):
         self._name.textChanged.connect(self._schedule)
         self._replace.toggled.connect(self._schedule)
         self._expression.returnPressed.connect(self.commit)
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- the table -------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
         """Point the panel at a table.
 
@@ -238,7 +222,6 @@ class FormulaPanel(QWidget):
             return None
         return self._computed if self._computed is not None else self._frame
 
-    # -- the formulas ----------------------------------------------------
     def formulas(self) -> FormulaSet:
         """The defined formulas. The panel's own object — copy before editing."""
         return self._formulas
@@ -318,7 +301,6 @@ class FormulaPanel(QWidget):
         """The line under the boxes — the validation message or the notice."""
         return self._status.text()
 
-    # -- internals -------------------------------------------------------
     def _current_formula(self) -> Optional[ColumnFormula]:
         """Build a formula from what is currently typed.
 
@@ -484,17 +466,7 @@ class FormulaDialog(QDialog):
         outer.addWidget(close)
         from ..preferences import scaled_px
 
-        # SIZED IN SCALED PIXELS, NOT RAW ONES. A dialog size set from
-        # Python does not grow when the stylesheet's font size does, so at
-        # the 200%% font scale the prose inside this window wrapped to more
-        # height than the window had and the last line was cut off. The
-        # size-policy fix on the label was necessary and not sufficient:
-        # a policy stops a parent handing a label less than it asks for, but
-        # it cannot make a window grow that has no room to give.
         self.resize(scaled_px(560), scaled_px(460))
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 

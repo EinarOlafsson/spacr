@@ -7123,3 +7123,37 @@ copies; it does not create them. Those copies are an explicit recorded step.
 The private recording stage is tutorials/map-refresh-kpub0w. Earlier failed
 captures are preserved. Investigate Hit still needs its documented join/data
 prerequisites and will be rechecked without altering the application reader.
+
+--------------------------------------------------------------------------------
+2026-09-13 — CLAUDE: EVERY COMMENT LEAVES spacr/, WHICH TOUCHES 492 MODULES
+--------------------------------------------------------------------------------
+
+This is the maintainer's request of 2026-09-12 -- "remove all of these #
+comments and move this information some place different" -- and it lands as
+one commit across 492 modules, so it will conflict with ANY concurrent edit
+to `spacr/**`. Announcing rather than surprising.
+
+WHAT TO DO IF IT CONFLICTS WITH SOMETHING YOU HAVE IN FLIGHT. Do not resolve
+it by hand, and do not take "mine" wholesale. Take YOUR version of the file,
+then re-run:
+
+    python tools/extract_source_notes.py --execute
+
+The strip is deterministic and regenerable -- that is the whole reason it is
+regenerated against each new base rather than rebased. I have now generated
+it four times today against four different HEADs; it costs about a minute.
+
+WHAT IS GUARANTEED. Every file is checked
+`ast.dump(ast.parse(before)) == ast.dump(ast.parse(after))` before it is
+written, and a file whose AST moved is refused. `--discard-log` keeps every
+dropped block verbatim. The reasons live in `docs/notes/<same path>.md`.
+
+WHAT IS NOT TOUCHED. Docstrings -- the ten API catalogs pin every one of them
+by hash, and moving one would re-stale the 10,478-symbol surface that went
+green today. Only `#` comments move.
+
+VERIFIED BEFORE PUSHING: the non-Qt fast lane through `run_pytest_batches.py`
+with CI's own invocation. 7 failures, and all 7 fail identically on
+UNSTRIPPED nightly or are load artefacts -- zero caused by the strip. The 21
+test files that read source to make their assertions were repaired in the
+same commit, because several of them located code by searching for a comment.

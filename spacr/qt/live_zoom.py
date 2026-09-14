@@ -49,10 +49,6 @@ from typing import Optional
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QFont
 
-# LOCAL, NOT AT IMPORT TIME. `spacr.qt.i18n` pulls the catalogs in, and this
-# module is on the startup path; the readout is the only thing here that
-# needs a translated string, so the import lives in the one function that
-# uses it rather than costing every launch.
 from PySide6.QtWidgets import QApplication
 
 LOG = logging.getLogger(__name__)
@@ -139,8 +135,6 @@ def _scaled_font(base: QFont, ratio: float,
         font = QFont(base)
         font.setPointSizeF(target)
         return font
-    # A font with neither a pixel nor a point size is unresolved; leaving it
-    # alone lets it keep inheriting rather than pinning it at a guess.
     return None
 
 
@@ -181,13 +175,9 @@ class LiveZoomFilter(QObject):
         self._settle_timer = QTimer(self)
         self._settle_timer.setSingleShot(True)
         self._settle_timer.setInterval(_SETTLE_MS)
-        # NOT `self.settle` directly: the wheel going quiet ends the
-        # gesture but does NOT end the hold, and the two are different
-        # answers to "is Z still down?".
         self._settle_timer.timeout.connect(
             lambda: self.settle(released=False))
 
-    # -- the filter ------------------------------------------------------
 
     def eventFilter(self, watched, event):    # noqa: N802 - Qt naming
         """Watch the widgets this filter is installed on.
@@ -201,10 +191,6 @@ class LiveZoomFilter(QObject):
             if self._is_the_key(event) and not event.isAutoRepeat():
                 self._arm()
         elif kind == QEvent.KeyRelease:
-            # X11 sends a release/press PAIR for every auto-repeat tick, so a
-            # filter that trusts KeyRelease disarms itself a few hundred
-            # milliseconds into the hold and the rest of the gesture scrolls
-            # the list instead.
             if self._held and self._is_the_key(event) \
                     and not event.isAutoRepeat():
                 self.settle()
@@ -212,8 +198,6 @@ class LiveZoomFilter(QObject):
             if kind == QEvent.Wheel:
                 return self._wheeled(watched, event)
             if kind == QEvent.WindowDeactivate:
-                # Alt-tabbing away while Z is down means the KeyRelease is
-                # delivered to another application and never arrives here.
                 self.settle()
         return False
 
@@ -272,11 +256,6 @@ class LiveZoomFilter(QObject):
                 self._begin(watched)
             target = self._live_scale + FONT_SCALE_STEP * notches
             target = max(FONT_SCALE_MIN, min(FONT_SCALE_MAX, target))
-            # ROUNDED, because this number is read back with `int(x * 100)`.
-            # Four notches down from 1.0 in binary floating point is
-            # 0.7999999999999998, which the Preferences slider truncates to
-            # 79 % -- the gesture and the control disagreeing by a percent
-            # for no reason a user could ever discover.
             target = round(target, 4)
             if target != self._live_scale:
                 self._live_scale = target
@@ -284,7 +263,6 @@ class LiveZoomFilter(QObject):
         self._settle_timer.start()
         return True
 
-    # -- the live half ---------------------------------------------------
 
     def _begin(self, watched) -> None:
         """Snapshot the font of everything on screen.
@@ -302,12 +280,6 @@ class LiveZoomFilter(QObject):
             return
         self._base_scale = get_font_scale()
         self._live_scale = self._base_scale
-        # WA_SetFont says whether the font on the widget is the widget's
-        # own or one QSS resolved onto it -- Qt sets the attribute in
-        # `QWidget::setFont` and NOT in the style sheet's font pass. The
-        # settle needs the difference: putting a QSS-derived font back with
-        # `setFont` would pin it, and a pinned font outlives the sheet that
-        # was supposed to own it.
         self._baseline = [(w, QFont(w.font()), w.testAttribute(Qt.WA_SetFont))
                           for w in app.allWidgets() if w.isVisible()]
         self._touched = set()
@@ -338,8 +310,6 @@ class LiveZoomFilter(QObject):
                 widget.setFont(font)
                 self._touched.add(widget)
             except RuntimeError:
-                # Deleted mid-gesture -- a dialog the user closed, a screen
-                # that rebuilt itself. Ordinary, not exceptional.
                 continue
         self._announce()
 
@@ -378,11 +348,8 @@ class LiveZoomFilter(QObject):
                     percent=int(round(self._live_scale * 100))),
                 _SETTLE_MS * 2)
         except (RuntimeError, AttributeError):
-            # The window went away mid-gesture, or carries no real status
-            # bar. Feedback is not worth an exception on the input path.
             return
 
-    # -- the settle ------------------------------------------------------
 
     def settle(self, released: bool = True) -> None:
         """End the gesture: persist the scale and let the spacing catch up.
@@ -410,14 +377,6 @@ class LiveZoomFilter(QObject):
             self._window = None
             return
 
-        # PUT EACH WIDGET BACK THE WAY IT WAS HELD, not merely back at the
-        # old size. A widget whose font came from the sheet has to end this
-        # with no font of its own again: `setFont` sets WA_SetFont, and the
-        # only rule that then still reaches it is one the sheet names
-        # explicitly -- so a widget outside the blanket QWidget rule would
-        # keep this gesture's size for the rest of the session. A widget
-        # that really did own its font (the console's monospace, the AI
-        # toggle's size) gets that font back verbatim.
         for widget, base, own in self._baseline:
             try:
                 if widget in self._touched:
@@ -430,18 +389,6 @@ class LiveZoomFilter(QObject):
         scale, self._live_scale = self._live_scale, 1.0
         window, self._window = self._window, None
 
-        # RE-STYLE EVEN WHEN THE SCALE CAME BACK TO WHERE IT STARTED, and
-        # this is a fix rather than tidiness. Clearing a QSS-dressed widget
-        # with `setFont(QFont())` above leaves it INHERITING rather than
-        # styled -- the sheet's font-size does not come back until something
-        # re-polishes it. Returning here because the number happened to be
-        # unchanged left every widget the gesture touched with no styled
-        # font at all: measured, Z + one notch up + one notch down +
-        # release took the visible widgets from 13 px to unset, with
-        # nothing scheduled to repair them.
-        #
-        # `set_font_scale` is still skipped in that case -- there is nothing
-        # to persist -- but the re-polish is not optional.
         from .preferences import apply_preferences_to_app, set_font_scale
         if scale != self._base_scale:
             set_font_scale(scale)
@@ -449,11 +396,6 @@ class LiveZoomFilter(QObject):
             apply_preferences_to_app(QApplication.instance())
         except Exception:                                    # noqa: BLE001
             LOG.exception("could not apply the font scale the wheel chose")
-        # Icons, tile geometry and the dock are rebuilt from Python rather
-        # than from QSS; only the window knows how. Just the one window the
-        # wheel was over -- walking topLevelWidgets() reaches windows whose
-        # C++ side is already being torn down, and rebuilding one of those
-        # segfaults rather than raising (see `_refresh_owner_window`).
         if window is not None and _alive(window):
             refresh = getattr(window, "refresh_theme", None)
             if callable(refresh):

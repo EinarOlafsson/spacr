@@ -212,9 +212,6 @@ def canonical_labels(mask: np.ndarray) -> np.ndarray:
             used.add(candidate)
     top = int(out.max()) if out.size else 0
     if top > np.iinfo(np.uint16).max:
-        # Wrapping would fuse object 65536 with object 0 — background —
-        # and lose it silently. A mask is uint16 everywhere in spaCR, so
-        # this is a mask that cannot be written, not one to truncate.
         raise ValueError(
             f"mask carries label {top}, past what a uint16 mask can hold.")
     return out.astype(np.uint16)
@@ -290,9 +287,6 @@ def overlay_mask(image: np.ndarray, mask: np.ndarray, alpha: float = 0.5) -> np.
     return combined
 
 
-# ---------------------------------------------------------------------------
-# Mask edits — brush / erase / object-level ops
-# ---------------------------------------------------------------------------
 
 def paint_disk(mask: np.ndarray, cx: int, cy: int, radius: int,
                value: int = 255) -> None:
@@ -330,9 +324,6 @@ def paint_line(mask: np.ndarray, x0: int, y0: int, x1: int, y1: int,
             y += sy
 
 
-# ---------------------------------------------------------------------------
-# Region tools — the free-form outline and the dividing line
-# ---------------------------------------------------------------------------
 
 #: Width, in image pixels, of the cut a divide draws through an object.
 #:
@@ -399,9 +390,6 @@ def fill_polygon(mask: np.ndarray, points, label_value: Optional[int] = None):
     pts = np.asarray(list(points), dtype=float)
     if pts.ndim != 2 or pts.shape[0] < 3:
         return mask.copy(), 0
-    # Shoelace area of the closed path. skimage's polygon() hands back the
-    # traced pixels themselves for a degenerate outline, which would make a
-    # straight drag into a hairline "object".
     x, y = pts[:, 0], pts[:, 1]
     if abs(float(np.dot(x, np.roll(y, -1)) - np.dot(y, np.roll(x, -1)))) < 1.0:
         return mask.copy(), 0
@@ -427,8 +415,6 @@ def _segment_band(shape, p0, p1, width: float) -> np.ndarray:
     x0, y0 = float(p0[0]), float(p0[1])
     x1, y1 = float(p1[0]), float(p1[1])
     half = max(0.5, float(width) / 2.0)
-    # Only the segment's bounding box can be within half a width of it, so
-    # the distance is computed there instead of over the whole field.
     lo_x = max(0, int(np.floor(min(x0, x1) - half)))
     hi_x = min(width_px, int(np.ceil(max(x0, x1) + half)) + 1)
     lo_y = max(0, int(np.floor(min(y0, y1) - half)))
@@ -486,10 +472,10 @@ def divide_object(mask: np.ndarray, p0, p1,
         remainder = body & ~band
         pieces, count = _ndimage().label(remainder, structure=_EIGHT)
         if count < 2:
-            continue                      # the line stopped short: not a cut
+            continue
         areas = np.bincount(pieces.ravel())
         keeps = int(np.argmax(areas[1:])) + 1
-        out[body] = 0                     # drop the cut pixels with the rest
+        out[body] = 0
         out[pieces == keeps] = source
         for piece in range(1, count + 1):
             if piece == keeps:
@@ -631,17 +617,10 @@ def filter_objects(mask: np.ndarray, image: np.ndarray, *,
     grey = np.asarray(image, dtype=np.float32)
     if grey.ndim == 3:
         grey = grey.mean(axis=2)
-    # Measured on the canonical labelling, not on the raw array: two
-    # separate blobs a brush painted with the same value are one region to
-    # regionprops, and their combined area and mean intensity describe
-    # neither of them.
     labels = canonical_labels(mask)
     dropped: List[int] = []
     for region in regionprops(labels.astype(np.int32), intensity_image=grey):
         area = int(region.area)
-        # scikit-image renamed mean_intensity to intensity_mean and warns on
-        # the old spelling; both names are live across the versions spaCR
-        # supports, so ask for the new one and fall back.
         mean = float(region.intensity_mean
                      if hasattr(region, "intensity_mean")
                      else region.mean_intensity)
@@ -727,9 +706,6 @@ def combine_masks(old: np.ndarray, new: np.ndarray,
         added = np.where(incoming > 0, incoming + base, 0)
         free = out == 0
         out[free] = added[free]
-    # Width follows the values, as it does everywhere else a mask is made
-    # here: merging 300 detected objects into a uint8 mask and keeping uint8
-    # would wrap object 300 round to 44 and silently fuse it with another.
     top = int(out.max()) if out.size else 0
     if top > np.iinfo(np.uint16).max:
         raise ValueError(
@@ -738,9 +714,6 @@ def combine_masks(old: np.ndarray, new: np.ndarray,
     return out.astype(np.uint8 if top <= 255 else np.uint16)
 
 
-# ---------------------------------------------------------------------------
-# Magic wand — flood-fill by intensity tolerance (mirrors ModifyMaskApp)
-# ---------------------------------------------------------------------------
 
 #: How many pixels the wand may EXAMINE per pixel it is allowed to change.
 #:
@@ -790,23 +763,6 @@ def magic_wand(
     visited = np.zeros(image.shape[:2], dtype=bool)
     q = deque([(seed_x, seed_y)])
     added = 0
-    # A SECOND BUDGET, ON WORK RATHER THAN ON CHANGES.
-    #
-    # `added` counts only pixels that CHANGE state, which is the budget a
-    # user thinks in -- "fill at most this many". But a flood that changes
-    # nothing never increments it, so `added < max_pixels` stayed true
-    # forever and the search walked the entire frame. Erasing where the
-    # mask is already empty, or adding over ground the mask already owns,
-    # is the most ordinary wrong click there is: measured at 4.8 s on an
-    # 800x800 field with max_pixels=100, and roughly half a minute at
-    # 2048x2048, with the GUI unresponsive and no way to cancel.
-    #
-    # So visits are bounded too. The multiplier is generous on purpose --
-    # a legitimate fill examines its region AND the out-of-tolerance
-    # perimeter around it, and a thin structure can have as much perimeter
-    # as area -- so this stops the pathological case without shortening
-    # any fill a user would recognise. The floor keeps small budgets
-    # workable, since a max_pixels of 10 still needs room to look around.
     examined = 0
     visit_budget = max(VISIT_BUDGET_FACTOR * max_pixels,
                        max_pixels + VISIT_BUDGET_FLOOR)
@@ -836,9 +792,6 @@ def magic_wand(
     return out
 
 
-# ---------------------------------------------------------------------------
-# Undo history — small bounded ring of mask snapshots
-# ---------------------------------------------------------------------------
 
 class MaskHistory:
     """Bounded undo/redo stack of mask arrays. Deep-copies on push so
@@ -899,37 +852,6 @@ class MaskHistory:
         return np.array(snap, copy=True)
 
 
-# ---------------------------------------------------------------------------
-# Recrop — cutting one field into the several fields it should have been
-# ---------------------------------------------------------------------------
-#
-# Every other tool in this module edits the mask on the field in view.
-# Recrop is the one that changes WHICH field is in view: a staged crop that
-# holds several cells, wells or plaques is not one training example, and
-# curating it as though it were teaches the network that two objects are one
-# picture. So the user boxes each one, every box becomes a field of its own
-# carrying that region of BOTH the image and the draft mask, and the
-# multi-object original is retired rather than curated.
-#
-# WHAT spaCR CAN AND CANNOT RETIRE. The Make Masks queue is a FOLDER:
-# :func:`list_images` sorts the image files in it and the screen walks that
-# list, with each mask at ``<folder>/masks/<stem>.tif``. spaCR does have a
-# crop DATABASE -- ``png_list`` in ``measurements.db``, which is what the
-# Annotate app and the classifiers read -- but it is keyed on each crop's
-# absolute ``png_path`` and carries no lifecycle column: there is no field in
-# it that can be set to "recropped", and no row that a screen reading a
-# folder has any claim to rewrite. So the original CANNOT be marked retired
-# in spaCR's database the way the standalone marks it in its status CSV.
-#
-# The nearest thing that is recoverable, and what these functions do, is to
-# move the original out of the enumeration and leave every byte of it on
-# disk: image, mask and curation ledger go into ``<folder>/recropped_originals/``
-# (the mask keeping its ``masks/`` sub-layout), which :func:`list_images`
-# does not descend into, and :data:`RECROP_MANIFEST` inside that folder
-# records what was moved, which boxes were cut out of it and what the
-# children were called. A recrop drawn wrong is undone by moving two files
-# back; a dataset registered in ``png_list`` can be repointed from the
-# manifest rather than from a guess.
 
 #: Smallest side, in image pixels, a recrop box may have. A box smaller than
 #: this is a mis-click or the tail of a drag that never really started, and

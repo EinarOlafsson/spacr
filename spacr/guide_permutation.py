@@ -26,9 +26,6 @@ from .multiple_testing import (
     canonical_method,
 )
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib
-# only inside its own functions, so naming it here costs
-# nothing at import time.
 from .figures.style import figure_style, theme_target
 
 
@@ -85,8 +82,6 @@ def adjusted_value_label(method) -> str:
     }
     if key in short:
         return short[key]
-    # Every remaining method controls the family-wise error rate, which
-    # adjusts the P value rather than producing a q value.
     return "adjusted P"
 
 
@@ -395,14 +390,6 @@ def guide_freedman_lane_test(
     if not np.isfinite(y).all():
         raise ValueError(f"Outcome {outcome_column!r} must be finite")
     if statistic == "rank":
-        # RANKED BEFORE RESIDUALISING, not after. Ranking the residual would
-        # rank a quantity the nuisance fit has already shaped; ranking the
-        # phenotype first makes the whole statistic a function of order, and
-        # the nuisance projection then removes the block from the RANKS,
-        # which is what a Spearman-type partial correlation is.
-        #
-        # Average ranks for ties, which is what `scipy.stats.rankdata` gives
-        # and what every definition of Spearman assumes.
         from scipy.stats import rankdata
 
         y = rankdata(y).astype(float)
@@ -450,8 +437,6 @@ def guide_freedman_lane_test(
                     rng.permutation(len(indexes))
                 ]
             permuted_residuals[:, permutation_index] = permuted
-        # Freedman--Lane: y* = nuisance fit + permuted reduced-model residual;
-        # then remove nuisance effects before evaluating the same statistic.
         permuted_outcomes = y_fitted[:, None] + permuted_residuals
         permuted_outcomes = _residualize(permuted_outcomes, q_basis)
         permuted_norm = np.sqrt(np.sum(permuted_outcomes**2, axis=0))
@@ -708,10 +693,6 @@ def plot_guide_permutation_volcano(
     )
     significant = data["significant"].astype(bool)
     adjusted_label = adjusted_value_label(data["multiple_testing_method"].iloc[0])
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         fig, axis = plt.subplots(figsize=(6.2, 4.8))
         axis.scatter(
@@ -719,9 +700,6 @@ def plot_guide_permutation_volcano(
             data.loc[~significant, "minus_log10_adjusted_p"],
             s=24,
             color="#B8BDC5",
-            # 178 A: the page, not white -- an outline that is brighter than
-            # the marker it surrounds is the reverse of what a separator is
-            # for, and on the dark theme white is exactly that.
             edgecolor=_separator(),
             linewidth=0.35,
             label=f"{adjusted_label} >= {float(data['alpha'].iloc[0]):g}",
@@ -744,8 +722,6 @@ def plot_guide_permutation_volcano(
         axis.axvline(0, color="#777777", linewidth=0.7)
         cut = _drawable_threshold(effect_threshold)
         if cut is not None:
-            # Both lines, one legend entry: they are one cut with two sides, and
-            # a legend that lists it twice reads as two different rules.
             axis.axvline(
                 cut, color="#0072B2", linestyle=":", linewidth=1.1,
                 label=effect_threshold_label or f"|effect| >= {cut:.3g}",
@@ -762,8 +738,6 @@ def plot_guide_permutation_volcano(
             key=lambda item: item[1]["standardized_marginal_effect"]
         )
         for index, (label, row) in enumerate(labelled_rows):
-            # Alternate sides and vertical positions so nearby discoveries do not
-            # print on top of one another (as EAF1 g2 and GRA14 g3 otherwise do).
             if index % 2 == 0:
                 offset, horizontal = (-5, 8), "right"
             else:
@@ -787,12 +761,6 @@ def plot_guide_permutation_volcano(
         fig.tight_layout()
         save_path = Path(save_path)
         save_path.parent.mkdir(parents=True, exist_ok=True)
-        # THROUGH THE SCENE RENDERER, so the file a run writes is the same
-        # picture the screen draws rather than a second rendering of the
-        # same numbers. `write_figure` announces it to the gallery itself,
-        # which is what `publish` was here for; it falls back to the
-        # matplotlib page, with the reason recorded, when an artist is
-        # outside the translation's whitelist.
         from .figures.scene import write_figure
 
         try:
@@ -800,10 +768,6 @@ def plot_guide_permutation_volcano(
                 fig, str(save_path), fmt=fmt or _named_format(save_path),
                 dpi=dpi, title="Guide permutation volcano")
         finally:
-            # `publish(close=True)` clears the figure but does not release it:
-            # this one comes from `plt.subplots`, so pyplot holds a reference
-            # until `plt.close`. A sweep over thresholds and outcomes calls this
-            # dozens of times.
             plt.close(fig)
         return Path(written) if written else save_path
 
@@ -1009,10 +973,6 @@ def analyse_long_gene_table(
             min_wells=min_wells,
             block_column=block_column,
             nuisance_columns=nuisance_columns,
-            # THE SAME NULL AS THE GUIDE PASS. Same seed, same outcome, same
-            # nuisance design, so the permuted residual vectors are the same
-            # vectors -- which is what makes the two tables comparable rather
-            # than merely similar.
             random_state=int(random_state) + index,
             **kwargs,
         ))

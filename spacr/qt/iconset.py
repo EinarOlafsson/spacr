@@ -117,9 +117,6 @@ def _theme_palette(theme: Optional[str]) -> dict:
     return palette_for(theme or active_theme())
 
 
-# ---------------------------------------------------------------------------
-# qtawesome glyphs
-# ---------------------------------------------------------------------------
 
 def icon(name: str, color: Optional[str] = None, size: int = 16,
          theme: Optional[str] = None) -> QIcon:
@@ -138,10 +135,6 @@ def icon(name: str, color: Optional[str] = None, size: int = 16,
     fill = color or _theme_palette(theme)["fg_muted"]
     try:
         resolved = qta.icon(glyph, color=fill)
-        # qtawesome can fail softly: if its application font was unavailable
-        # (or invalidated during a long-lived Qt process), it returns a null
-        # QIcon instead of raising. Treat that exactly like an import/render
-        # failure so newly-created toolbar buttons never become blank.
         if resolved is not None and not resolved.isNull():
             return resolved
     except Exception:
@@ -161,9 +154,6 @@ def contrast_icon(name: str, theme: Optional[str] = None) -> QIcon:
                 theme=theme)
 
 
-# ---------------------------------------------------------------------------
-# Bundled PNGs — re-inked per theme
-# ---------------------------------------------------------------------------
 
 def _blend(a: str, b: str, t: float) -> str:
     """Linear blend from colour ``a`` (t=0) to colour ``b`` (t=1)."""
@@ -198,7 +188,7 @@ def veil_color(theme: str) -> str:
     ink = palette["fg"]
     surface = hardest_surface(theme)
     if contrast_ratio(surface, ink) < MIN_ICON_CONTRAST:
-        return ink            # palette can't do better; use full ink
+        return ink
     lo, hi = 0.0, 1.0
     for _ in range(24):
         mid = (lo + hi) / 2.0
@@ -224,9 +214,6 @@ def _load_rgba(path: str):
         with Image.open(path) as im:
             im = im.convert("RGBA")
             if max(im.size) > MAX_WORK_SIZE:
-                # reducing_gap makes PIL box-reduce by an integer factor
-                # first and only then resample — ~6x faster than going
-                # straight to LANCZOS from 3334 px, same result.
                 im.thumbnail((MAX_WORK_SIZE, MAX_WORK_SIZE),
                              Image.LANCZOS, reducing_gap=2.0)
             return np.asarray(im, dtype=np.float64)
@@ -343,16 +330,11 @@ def reink(rgba, theme: str):
            + 0.0722 * rgb[:, :, 2])
 
     if not carries_tonal_structure(rgba):
-        # Pure mask: paint it flat in the theme ink and let alpha —
-        # including its antialiased edges — do all the shaping.
         new = np.broadcast_to(ink_rgb, rgb.shape).copy()
     else:
         weights = alpha[visible]
         mean_lum = float((lum[visible] * weights).sum()
                          / max(weights.sum(), 1e-9))
-        # Which end of the tonal range is the drawing? A black glyph on
-        # transparent and a white glyph on transparent are the same
-        # picture with opposite polarity; guessing wrong inverts it.
         ink_is_bright = mean_lum > 127.5
         t = lum / 255.0 if ink_is_bright else 1.0 - lum / 255.0
         lo = float(np.percentile(t[visible], 2))
@@ -362,16 +344,11 @@ def reink(rgba, theme: str):
         chroma = rgb.max(axis=2) - rgb.min(axis=2)
         polychrome = float(np.percentile(chroma[visible], 98)) > CHROMA_MONO_MAX
         if polychrome:
-            # Keep the hue: scale each pixel toward the target luminance
-            # rather than replacing its colour outright.
             ink_l = relative_luminance(ink)
             veil_l = relative_luminance(veil)
             target = (veil_l + (ink_l - veil_l) * t) * 255.0
             scale = target / np.maximum(lum, 1.0)
             new = np.clip(rgb * scale[:, :, None], 0.0, 255.0)
-            # Where the source was pure black there is no hue to
-            # preserve, so lift it to the neutral target instead of
-            # multiplying zero.
             flat = lum < 1.0
             new[flat] = np.clip(target[flat], 0.0, 255.0)[:, None]
         else:
@@ -438,13 +415,7 @@ def _write_cached_icon(path: Path, array) -> None:
     try:
         from PIL import Image
         path.parent.mkdir(parents=True, exist_ok=True)
-        # Write-then-rename: a half-written PNG left by a crash or a full
-        # disk would be read as a corrupt icon on every later launch.
         tmp = path.with_suffix(".part")
-        # `format=` explicitly: PIL infers it from the extension, and the
-        # temp name ends in `.part`, which it does not recognise. Without
-        # this every write raised and the silent `except` below swallowed
-        # it -- a cache that logged nothing and stored nothing.
         Image.fromarray(array, "RGBA").save(tmp, format="PNG", optimize=False)
         os.replace(tmp, path)
     except Exception:
@@ -501,7 +472,7 @@ def themed_qimage(path: str, theme: Optional[str] = None):
     arr = np.ascontiguousarray(arr)
     h, w = arr.shape[:2]
     img = QImage(arr.data, w, h, 4 * w, QImage.Format_RGBA8888)
-    return img.copy()          # detach from the numpy buffer
+    return img.copy()
 
 
 def themed_pixmap(path: str, theme: Optional[str] = None):
@@ -678,10 +649,7 @@ def app_icon(key: str, override: Optional[str] = None,
     return icon(key, theme=theme)
 
 
-# Semantic name → Font Awesome glyph. Keep names short + generic so
-# callers don't have to think about the icon library.
 _NAME_TO_GLYPH = {
-    # File / source
     "open":            "fa5s.folder-open",
     "folder":          "fa5s.folder",
     "file":            "fa5s.file",
@@ -690,34 +658,19 @@ _NAME_TO_GLYPH = {
     "export":          "fa5s.file-export",
     "report":          "fa5s.file-alt",
     "invasion":        "fa5s.sign-in-alt",
-    # Navigation
     "prev":            "fa5s.chevron-left",
     "next":            "fa5s.chevron-right",
     "up":              "fa5s.chevron-up",
     "down":            "fa5s.chevron-down",
     "home":            "fa5s.home",
     "skip":            "fa5s.forward",
-    # Editing
     "brush":           "fa5s.paint-brush",
     "erase":           "fa5s.eraser",
     "erase_object":    "fa5s.trash-alt",
-    # Run History's "Clear all" asked for `trash` and this table had no
-    # such name, so the one button that throws away recorded runs drew the
-    # puzzle piece -- the artwork every unfiled key draws. A solid bin,
-    # distinct from `erase_object`'s outlined `trash-alt`; the two never
-    # share a screen (one is a Make Masks canvas tool, the other is a
-    # Run History toolbar button), so the family resemblance costs nothing.
     "trash":           "fa5s.trash",
     "wand":            "fa5s.magic",
     "wand_add":        "fa5s.plus-circle",
     "wand_erase":      "fa5s.minus-circle",
-    # The three Make Masks canvas tools that had no glyph. Each fell
-    # through to the shared puzzle piece, so Draw, Divide and Recrop sat
-    # in one toolbar row wearing one picture -- three different edits a
-    # user cannot tell apart, which is worse than a row with a gap in it.
-    # A closed outline traced point by point, scissors through an object,
-    # and a crop frame: what each tool does to the field, not what family
-    # it belongs to.
     "draw":            "fa5s.draw-polygon",
     "divide":          "fa5s.cut",
     "recrop":          "fa5s.crop-alt",
@@ -730,7 +683,6 @@ _NAME_TO_GLYPH = {
     "relabel":         "fa5s.tags",
     "remove":          "fa5s.filter",
     "clear":           "fa5s.times-circle",
-    # Actions
     "run":             "fa5s.play",
     "stop":            "fa5s.stop",
     "settings":        "fa5s.cog",
@@ -740,21 +692,13 @@ _NAME_TO_GLYPH = {
     "chart":           "fa5s.chart-bar",
     "tag":             "fa5s.tag",
     "search":          "fa5s.search",
-    # App keys mirrored from app.py for the sidebar / tiles.
     "mask":            "fa5s.mask",
     "measure":         "fa5s.ruler",
     "annotate":        "fa5s.tag",
     "make_masks":      "fa5s.paint-brush",
-    # Distinct from every other module's glyph on purpose -- two identical
-    # icons in the sidebar is a worse affordance than a missing one. Checked
-    # by tests/test_classify_merged.py.
     "classify_merged": "fa5s.sitemap",
     "classify":        "fa5s.layer-group",
     "umap":            "fa5s.project-diagram",
-    # A vector per object, not a graph of them -- `project-diagram` is
-    # already UMAP's and two identical icons in the sidebar is a worse
-    # affordance than a missing one. `vector-square` reads as "the thing
-    # itself is a vector", which is what this module produces.
     "embeddings":      "fa5s.vector-square",
     "ml_analyze":      "fa5s.chart-line",
     "regression":      "fa5s.wave-square",
@@ -766,52 +710,10 @@ _NAME_TO_GLYPH = {
     "analyze_plaques": "fa5s.microscope",
     "train_cellpose":  "fa5s.brain",
     "cellpose_masks":  "fa5s.shapes",
-    # One square divided into four by its own seams: tiles registered into
-    # a single canvas. Align & Stitch renders this glyph rather than a
-    # bundled PNG (spacr.qt.app._FORCE_GLYPH) because no bundled artwork
-    # says "stitched mosaic".
     "align":           "fa5s.border-all",
-    # Stacked photo frames: the module reads a FOLDER OF IMAGES off a
-    # microscope, and "images" is the whole thing that separates it from its
-    # host Import (`foreign.png`, a net funnelling into a down arrow) and
-    # from its two siblings on that fold strip -- Format Converter
-    # (`convert.png`, one field split raw/processed) and External Masks
-    # (`external_masks.png`, two crops arrowed into a folder). No bundled
-    # PNG says "image files", and without a line here the key fell through
-    # to the shared puzzle piece on both the dock row and the fold button.
     "import_images":   "fa5s.images",
     "map_barcodes":    "fa5s.barcode",
-    # A FIELD OF DOTS, NOT A BARCODE, and the distinction is the module.
-    # `map_barcodes` reads a barcode out of sequencing reads and draws one;
-    # OPS reads its code off the IMAGE, as a pattern of spots whose colour
-    # is one base per imaging cycle -- eleven cycles on the reference plate.
-    # Braille is the honest picture of that: a code carried by where the
-    # dots are rather than by a stripe, and it cannot be confused at 16 px
-    # with the barcode beside it on the same fold strip.
-    #
-    # Not `layer-group`, which is Classify's and says "stacked" without
-    # saying what is stacked. Not `border-all`, which is Align & Stitch's
-    # one registered canvas -- OPS is that canvas ELEVEN TIMES OVER, and a
-    # glyph that says "mosaic" would be the neighbour's story, not this
-    # module's.
     "ops":             "fa5s.braille",
     "ai_console":      "fa5s.robot",
-    # Stacked platters: the app is about what a project weighs on disk and
-    # what of it can safely go. Without an entry here a new key falls back
-    # to the shared puzzle piece, which is artwork every unfiled app draws
-    # — indistinguishable tiles on Home.
     "data_manager":    "fa5s.hdd",
-    # DELIBERATELY ABSENT: `regression_diagnostics`. It is the one key of
-    # the four instruction 355 measured on the fallback that is still
-    # there, and it is left there on purpose. Regression Diagnostics is
-    # residual-versus-fitted, scale-location, QQ, leverage and Cook's
-    # distance (see spacr/regression_diagnostics.py), so the mark that
-    # names it is a scatter about a zero line with one point flagged.
-    # Nothing bundled draws that and is free -- `outliers.png` is the
-    # closest and is the live Outliers QC module's own mark, so taking it
-    # would make two modules one picture -- and no FA5 glyph draws it;
-    # `stethoscope` and `heartbeat` say "diagnostics" the way a gear says
-    # "settings", which is the substitution instruction 355 rules out.
-    # A wrong-but-present icon is worse than the fallback, because the
-    # fallback at least reads as "nobody has chosen one yet".
 }

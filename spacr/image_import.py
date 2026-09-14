@@ -48,13 +48,6 @@ __all__ = [
     "ImportPlan",
     "InsideFile",
     "InferredLayout",
-    # `apply_import` RETURNS THIS and it was the one sibling type left out.
-    # Undocumented, Sphinx could not resolve the bare `ImportResult` in that
-    # function's signature against this module and searched every other one
-    # instead, finding `spacr.foreign.ImportResult` and
-    # `spacr.omero.ImportResult` -- "more than one target found", which
-    # `sphinx-build -W` makes fatal. A reader following the return type
-    # would have landed on a different importer's result object.
     "ImportResult",
     "TokenSlot",
     "apply_import",
@@ -196,9 +189,6 @@ def _resolve_marker(marker: str, seen_markers: set) -> str:
     marker = marker.lower()
     if marker in _AMBIGUOUS:
         first, second = _AMBIGUOUS[marker]
-        # `c` is a column only when an `r` sits beside it, as in Opera's
-        # r01c01; otherwise it is a channel. Same shape of question for `w`
-        # (a well in CQ1's W1F001, a wavelength in ImageXpress's _w1) and `p`.
         partner = {"column": "r", "well": "f", "z": "ch"}.get(first, "")
         return first if partner and partner in seen_markers else second
     return MARKERS.get(marker, "")
@@ -230,10 +220,6 @@ def infer_layout(root, *, sample: int = 400,
     if not paths:
         return layout
 
-    # The FOLDER segments are part of the name. A tree that puts the well in a
-    # directory encodes exactly as much as one that puts it in the filename,
-    # and reading only the basename is why per-well and per-channel trees
-    # recover nothing today.
     tokenised = {}
     for path in paths:
         rel = path.relative_to(root)
@@ -246,8 +232,6 @@ def infer_layout(root, *, sample: int = 400,
                if _shape(toks) == majority}
     layout.skipped = sorted(set(tokenised) - set(members))
 
-    # Collect what each digit slot takes across the folder, with the
-    # alphabetic run in front of it as its marker.
     slots: Dict[int, TokenSlot] = {}
     for toks in members.values():
         for i, (kind, text) in enumerate(toks):
@@ -260,23 +244,12 @@ def infer_layout(root, *, sample: int = 400,
     seen = {s.marker for s in slots.values() if s.marker}
     for slot in slots.values():
         if not slot.varies:
-            continue                    # a constant identifies nothing
+            continue
         slot.axis = _resolve_marker(slot.marker, seen)
         if not slot.axis:
             layout.unplaced[slot.index] = list(dict.fromkeys(slot.values))
     layout.slots = [slots[i] for i in sorted(slots)]
 
-    # A WELL LETTER IS ONE THAT VARIES. `A01` is a well name; so, by shape
-    # alone, are `L01`, `Z01` and `C01` in
-    # `plate1_A01_T0001F001L01A01Z01C01` -- and matching on shape marked all
-    # four as wells, the last of them overwriting the channel axis. Every
-    # plate then had four wells and no channels.
-    #
-    # The letter is what separates them: `A` takes A and B across the folder,
-    # while `L`, `Z` and `C` are the same letter in every file. A constant
-    # letter is part of the convention's punctuation; a varying one is an
-    # axis. This is the same variance rule the digit slots use, applied to
-    # the half of the name the first cut did not apply it to.
     alpha_values: Dict[int, List[str]] = defaultdict(list)
     for toks in members.values():
         for i, (kind, text) in enumerate(toks):
@@ -284,11 +257,8 @@ def infer_layout(root, *, sample: int = 400,
                 alpha_values[i].append(text)
     for i, values in alpha_values.items():
         if len(set(values)) < 2:
-            continue                    # constant: punctuation, not an axis
+            continue
         if not all(len(v) == 1 and v.isupper() for v in values):
-            # A varying word rather than a letter -- a dye name in a folder,
-            # say. It IS an axis, and one nothing here can name, so it is
-            # reported rather than guessed at.
             layout.unplaced[i] = list(dict.fromkeys(values))
             continue
         if i + 1 in slots and _WELL_NAME.match(values[0] + slots[i + 1].values[0]):
@@ -308,7 +278,6 @@ def infer_layout(root, *, sample: int = 400,
             else:
                 found[slot.axis] = int(text)
         if "row" in found and "column" in found and "well" not in found:
-            # Opera keeps them apart; spaCR's vocabulary is a well name.
             found["well"] = f"{chr(ord('A') + int(found['row']) - 1)}" \
                             f"{int(found['column']):02d}"
         if found:
@@ -367,7 +336,6 @@ def read_axes_inside(path) -> InsideFile:
 
     path = Path(path)
     if path.suffix.lower() not in (".tif", ".tiff"):
-        # Only TIFF carries this. A PNG or JPEG is one plane by construction.
         return InsideFile(pages=1 if path.is_file() else 0)
     try:
         with tifffile.TiffFile(str(path)) as handle:
@@ -377,21 +345,9 @@ def read_axes_inside(path) -> InsideFile:
             shape = tuple(series.shape) if series is not None else ()
             sizes = {a.lower(): int(n) for a, n in zip(axes, shape)
                      if a in "CZT"}
-            # DECLARED MEANS A NAMED NON-SPATIAL AXIS WAS FOUND, and nothing
-            # weaker. The first version accepted "any axis letter that is not
-            # Y, X or S", which let tifffile's own `Q` through -- and `Q` is
-            # precisely tifffile's word for "these pages exist and I do not
-            # know what they are". An unlabelled three-page stack came back
-            # declared, which is the guess this function exists not to make.
-            #
-            # is_ome and is_imagej are not sufficient either: a file can carry
-            # either container and still not say what its pages mean.
             return InsideFile(pages=pages, axes=axes, sizes=sizes,
                               declared=bool(sizes))
     except Exception:
-        # Truncated, unreadable, or not really a TIFF. Reported as unknown so
-        # the folder-level scan carries on and the caller can list what it
-        # could not read.
         return InsideFile(pages=0)
 
 
@@ -443,9 +399,6 @@ class ImportPlan:
             inside = self.inside.get(rel)
             if inside is not None:
                 for axis, size in inside.sizes.items():
-                    # A COUNT, not a position: the file holds `size` planes of
-                    # this axis, which is a different fact from "this file is
-                    # plane 3" and must not be written as one.
                     entry[f"{axis}_count"] = size
             for position, answers in self.mapping.items():
                 value = self._token_at(rel, position)
@@ -788,20 +741,11 @@ def _stitch_fields(plan: "ImportPlan", entries: Dict[str, Dict[str, object]],
         paths = [plan.root / rel for _tile, rel in members]
         array, mosaic = stitch(paths, tiles)
         if array is None:
-            # NOT WRITTEN AND NOT GUESSED AT. A field whose tiles cannot be
-            # read is a field nobody can stitch, and writing one tile of it
-            # under the field's name would be a quarter of a field wearing
-            # the name of the whole.
             for _tile, rel in members:
                 skipped[rel] = (f"the tiles of {name} could not be read as "
                                 f"one field, so it was not written")
             continue
         try:
-            # `write_tiff`, not `tifffile.imwrite`: a stitched mosaic can
-            # have three or four planes in its leading dimension, and
-            # tifffile guesses RGB for exactly that shape. The helper
-            # declares minisblack/contig so an intensity stack is not
-            # written as a colour image.
             from .tiff_io import write_tiff
 
             write_tiff(str(destination / name), array)
@@ -877,8 +821,6 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
     skipped: Dict[str, str] = {}
     used: Dict[str, str] = {}
 
-    # One field number per (field, tile) pair, assigned in a stable order so
-    # two runs of the same import produce the same names.
     tile_fields: Dict[Tuple[object, object, object], int] = {}
     if tiles_as_fields:
         pairs = sorted({(e.get("well"), e.get("field"), e.get("tile"))
@@ -889,10 +831,6 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
             by_well[well] = by_well.get(well, 0) + 1
             tile_fields[(well, fld, tile)] = by_well[well]
 
-    # THE TILES COME OUT OF THE LOOP FIRST, because a stitched field is one
-    # image made of several sources and the loop below writes one image per
-    # source. Everything else is untouched: a tree with no tile axis takes
-    # exactly the path it took before stitching existed.
     entries = dict(plan.files)
     stitched_count = 0
     unverified: Dict[str, str] = {}
@@ -912,10 +850,6 @@ def apply_import(plan: "ImportPlan", destination, *, link: bool = True,
                 (entry.get("well"), entry.get("field"), entry.get("tile"))]
         name = canonical_name(entry, plate=plate)
         if name in used:
-            # TWO IMAGES WITH ONE CANONICAL NAME means an axis is missing:
-            # they differ in something the plan did not capture. Overwriting
-            # would lose one silently, which is the failure this module exists
-            # to prevent, so both are reported instead.
             skipped[rel] = (f"would overwrite {name}, already written from "
                             f"{used[name]}; an axis is missing")
             continue

@@ -126,7 +126,7 @@ def residual_diagnostics(model) -> dict:
         out["jarque_bera_p"] = float(jb_p)
         out["residual_skew"] = float(skew)
         out["residual_kurtosis"] = float(kurtosis)
-    except Exception:  # statsmodels shape varies
+    except Exception:
         pass
 
     exog = getattr(model, "model", None)
@@ -140,21 +140,11 @@ def residual_diagnostics(model) -> dict:
             if len(exog) == residuals.size:
                 out["breusch_pagan_p"] = float(
                     het_breuschpagan(residuals, exog)[1])
-                # White's test squares every column pair; on a wide screen
-                # design that is thousands of terms and minutes of work, so it
-                # is only worth attempting on a narrow one.
                 if exog.shape[1] <= 30:
                     out["white_p"] = float(het_white(residuals, exog)[1])
-        except Exception:  # singular or too wide
+        except Exception:
             pass
 
-    # AGAINST `good`, NOT AGAINST THE MASKED RESIDUALS. `residuals` was already
-    # narrowed to its finite entries above, so comparing its length to the FULL
-    # fitted vector asks the wrong question twice: a fit with a single
-    # non-finite residual silently loses its trend slope, and a fit whose
-    # fitted values are a different length entirely reaches `fitted[good]` with
-    # a mask longer than the array and raises IndexError -- which every caller
-    # swallows, costing the whole residual block rather than this one statistic.
     if fitted.size == good.size and residuals.size > 2:
         try:
             slope, _intercept = np.polyfit(fitted[good], residuals, 1)
@@ -202,8 +192,6 @@ def control_recovery(results: pd.DataFrame, settings: Mapping[str, Any]) -> dict
     q_column = _first_column(results, "q_value", "adjusted_p_value")
     frame = results.copy()
     frame["_p"] = _numeric(frame, p_column)
-    # Rank among real coefficients: the intercept is not a candidate hit and
-    # counting it shifts every rank by one.
     frame = frame[~frame[feature].astype(str).str.lower()
                   .str.contains("intercept", na=False)]
     if not len(frame):
@@ -218,33 +206,21 @@ def control_recovery(results: pd.DataFrame, settings: Mapping[str, Any]) -> dict
         identifier = settings.get(key)
         if identifier in (None, ""):
             continue
-        # The size of the list the ranks are against. Emitted only once a
-        # control has actually been asked for, because a run that named no
-        # control must get no control columns at all -- an unexplained count
-        # sitting in the table invites someone to read it as a result.
         out["n_ranked"] = n_ranked
         hit = pd.DataFrame()
         if condition:
-            # spaCR's own annotation first. It was computed by the fit itself
-            # from these very settings, so it agrees with the volcano.
             hit = frame[frame[condition].astype(str).str.strip().str.lower()
                         == _CONDITION_LABELS[label]]
         if not len(hit):
-            # No annotation on this table (a permutation run writes none), so
-            # fall back to the substring rule spacr.ml uses to build it.
             hit = frame[frame[feature].astype(str).str.contains(
                 str(identifier), na=False, regex=False)]
         if not len(hit):
             out[f"{label}_control_found"] = False
             continue
-        # `frame` is sorted by p, and boolean masking preserves that order, so
-        # row 0 is the BEST-ranked coefficient belonging to this control. A
-        # control with several guides is recovered if any one of them is.
         best = hit.iloc[0]
         out[f"{label}_control_found"] = True
         out[f"{label}_control_n_coefficients"] = int(len(hit))
         out[f"{label}_control_rank"] = int(best["_rank"])
-        # 0 is the top of the list, 1 the bottom. This is the sortable one.
         out[f"{label}_control_percentile"] = float(
             (best["_rank"] - 1) / n_ranked) if n_ranked else float("nan")
         out[f"{label}_control_p"] = float(best["_p"]) \
@@ -255,8 +231,6 @@ def control_recovery(results: pd.DataFrame, settings: Mapping[str, Any]) -> dict
                     pd.to_numeric(best[q_column], errors="coerce"))
             except (TypeError, ValueError):
                 pass
-    # One number for "did the assay work": how far the positive control sits
-    # above the negative one in rank.
     if out.get("positive_control_rank") and out.get("negative_control_rank"):
         out["control_rank_separation"] = int(
             out["negative_control_rank"] - out["positive_control_rank"])
@@ -280,9 +254,6 @@ def calibration(results: pd.DataFrame) -> dict:
     median_expected = float(np.median(expected))
     if median_expected:
         out["genomic_inflation"] = float(np.median(observed) / median_expected)
-    # A screen with signal has a spike in the first bin; a flat histogram with
-    # no spike means nothing was found, and a SLOPING one means the model is
-    # misspecified regardless of how many hits it reports.
     counts, _edges = np.histogram(p, bins=20, range=(0.0, 1.0))
     out["p_first_bin_excess"] = int(max(counts[0] - p.size / 20, 0))
     out["n_tests"] = int(p.size)
@@ -341,11 +312,9 @@ def design_diagnostics(model) -> dict:
     n_parameters = int(exog.shape[1])
     rank = getattr(inner, "rank", None)
     if rank is None:
-        # Not a statsmodels regression model; pay for it once rather than
-        # leaving the identifiability question unanswered.
         try:
             rank = int(np.linalg.matrix_rank(exog))
-        except np.linalg.LinAlgError:  # degenerate exog
+        except np.linalg.LinAlgError:
             return out
     rank = int(rank)
     residual_df = getattr(model, "df_resid", None)
@@ -364,25 +333,6 @@ def design_diagnostics(model) -> dict:
         np.zeros(n_parameters)
     varying = variance > 0
 
-    # VIF, EXACTLY, WITHOUT ONE EXTRA REGRESSION.
-    #
-    # regression_diagnostics.variance_inflation_factors regresses each guide on
-    # every other guide -- one least-squares solve per column, 0.53 s for
-    # twenty-five of four hundred guides, and it truncates at `max_guides` so
-    # the largest VIF in a wide design is usually not even among the ones it
-    # looked at. For a model with an intercept the same quantity is already
-    # implied by the standard errors:
-    #
-    #     VIF_j = se_j^2 / sigma^2 * (n - 1) * var(x_j)
-    #
-    # because se_j^2 = sigma^2 * [(X'X)^-1]_jj and VIF_j = [(X'X)^-1]_jj * S_jj.
-    # Checked against that reference implementation to 2e-15 relative error,
-    # over ALL columns, in 9 ms on a 1,213-parameter design.
-    #
-    # Only when the design is full rank. On a rank-deficient one the standard
-    # errors come from a pseudo-inverse, VIF is not defined at all, and the
-    # number this identity produces would be meaningless -- so it is omitted
-    # rather than reported, and `design_identifiable` already says why.
     if out["design_identifiable"] and getattr(inner, "k_constant", 0):
         try:
             standard_errors = np.asarray(getattr(model, "bse"), dtype="float64")
@@ -397,10 +347,6 @@ def design_diagnostics(model) -> dict:
         except (AttributeError, TypeError, ValueError):
             pass
 
-    # How many predictor pairs are so alike the fit cannot separate them. The
-    # COUNT, not the table: regression_diagnostics.collinear_guide_pairs names
-    # the offenders but stops at `limit` pairs, so counting its rows would
-    # report the cap rather than the truth. 58 ms at 1,213 predictors.
     if 2 <= int(varying.sum()) <= _MAX_PREDICTORS_FOR_PAIRWISE:
         try:
             correlation = np.corrcoef(exog[:, varying], rowvar=False)
@@ -444,7 +390,7 @@ def guide_support_summary(results: pd.DataFrame, alpha: float = 0.05) -> dict:
         return out
     try:
         support = guide_support(results, alpha=alpha)
-    except Exception:  # odd table
+    except Exception:
         return out
     if support is None or not len(support) or "gene_p" not in support:
         return out
@@ -507,17 +453,7 @@ def qc_verdicts(row: Mapping[str, Any]) -> dict:
     """
     from .regression_diagnostics import score_design, score_inference
 
-    # THE SCORERS STAY THE ONE JUDGEMENT, and only the key names are
-    # translated. They read plain dicts -- `wells`, `wells_per_parameter`,
-    # `design_rank`, `genomic_inflation` -- and the row already carries every
-    # one of those statistics under spaCR's own column names. Re-deriving the
-    # verdicts here with fresh rules would be a second opinion about the same
-    # numbers, which is what a sweep table can least afford.
     out: dict[str, Any] = {}
-    # THE OBJECTS, not their levels, because `worst_verdict` compares
-    # PanelVerdicts -- it asks each one `worse_than`, which a string cannot
-    # answer. The Qt side has a string version; importing it here would drag
-    # PySide6 into a module that is deliberately headless.
     scored: list = []
     design = {
         "wells": row.get("n_wells"),
@@ -525,8 +461,6 @@ def qc_verdicts(row: Mapping[str, Any]) -> dict:
         "design_rank": row.get("design_rank"),
         "wells_per_parameter": row.get("wells_per_parameter"),
         "condition_number": row.get("condition_number"),
-        # A design is identifiable when it has no null directions. The row
-        # counts them, which is the same fact the other way up.
         "identifiable": not (row.get("non_identifiable_directions") or 0),
     }
     if design["wells"]:
@@ -534,7 +468,7 @@ def qc_verdicts(row: Mapping[str, Any]) -> dict:
             verdict = score_design(design)
             out["qc_design"] = str(getattr(verdict, "level", ""))
             scored.append(verdict)
-        except Exception:   # one panel must not sink a row
+        except Exception:
             pass
 
     inference = {
@@ -589,13 +523,11 @@ def summarise_trial(output: Mapping[str, Any],
     ):
         try:
             row.update(block())
-        except Exception:  # a metric must not sink a trial
+        except Exception:
             pass
-    # LAST, because it reads the statistics the blocks above just wrote --
-    # the verdicts are a judgement ON the row, not another measurement.
     try:
         row.update(qc_verdicts(row))
-    except Exception:  # see above
+    except Exception:
         pass
     return row
 
@@ -607,32 +539,24 @@ def summarise_trial(output: Mapping[str, Any],
 #: vocabulary here prevents diagnostic results such as ``r_squared`` or
 #: ``qc_verdict`` from being passed back to the regression API as settings.
 METRIC_COLUMNS: frozenset = frozenset({
-    # Diagnostic verdicts are results, not reconstructed regression settings.
     "qc_design", "qc_inference", "qc_verdict",
-    # hit counts
     "n_results", "n_significant", "n_primary", "n_below_alpha",
     "n_raw_below_alpha",
-    # design size and identifiability
     "n_rows_fitted", "n_wells", "n_guides", "n_cells", "n_parameters",
     "design_rank", "non_identifiable_directions",
     "residual_degrees_of_freedom", "design_identifiable",
     "wells_per_parameter", "max_vif", "n_vif_above_10", "n_collinear_pairs",
     "max_abs_predictor_correlation",
-    # fit quality
     "r_squared", "r_squared_adj", "aic", "bic", "log_likelihood", "f_pvalue",
     "condition_number", "residual_se", "n_observations",
-    # residual behaviour
     "durbin_watson", "jarque_bera_p", "residual_skew", "residual_kurtosis",
     "breusch_pagan_p", "white_p", "residual_trend_slope",
-    # controls
     "n_ranked", "control_rank_separation",
     *(f"{role}_control_{suffix}"
       for role in ("positive", "negative")
       for suffix in ("found", "rank", "percentile", "p", "q",
                      "n_coefficients")),
-    # calibration
     "genomic_inflation", "p_first_bin_excess", "n_tests",
-    # guide support
     "n_genes_tested", "n_gene_hits", "n_single_guide_hits",
     "n_discordant_hits", "median_guides_per_hit",
 })

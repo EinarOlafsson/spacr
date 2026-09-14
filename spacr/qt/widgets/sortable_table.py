@@ -64,15 +64,8 @@ __all__ = [
 #: sort on -- a duration shown as "2 h 5 m", a date shown as "yesterday".
 SORT_KEY_ROLE = Qt.UserRole + 90
 
-# The natural order is the order the cells were created in. A serial handed
-# out at construction records it without a second pass over the table, and a
-# table is filled row by row, so serials increase down a column whichever way
-# the loop that fills it is nested.
 _SERIAL = 0
 
-# Set only while this module is putting a table back into its natural order.
-# Sorting is synchronous and on the GUI thread, so a module-level flag is
-# read by exactly the comparisons of the sort that set it.
 _RESTORING = False
 
 _STATE_ATTR = "_spacr_sort_state"
@@ -96,8 +89,6 @@ def is_missing(value) -> bool:
 
         return bool(_pd.isna(value))
     except (ImportError, TypeError, ValueError):
-        # isna on an array-like returns an array; a cell holding one is not
-        # missing.
         return False
 
 
@@ -132,8 +123,6 @@ def numeric_value(text) -> Optional[float]:
 def _numeric_candidates(text: str):
     """The readings of ``text`` that could be a number, best first."""
     yield text
-    # 1,234,567 -- a separator only between digits, never a decimal comma,
-    # which would turn "1,5" into fifteen thousand.
     without_separators = _THOUSANDS.sub("", text)
     if without_separators != text:
         yield without_separators
@@ -141,8 +130,6 @@ def _numeric_candidates(text: str):
     if text.endswith("%"):
         yield text[:-1].strip()
         return
-    # "3.2 s", "12 MB", "0.4 µm" -- the unit is a word after a space, not a
-    # letter glued to digits, which is what an identifier looks like.
     head, sep, tail = text.rpartition(" ")
     if sep and head and tail and not tail[0].isdigit():
         yield head.strip().rstrip("%")
@@ -189,7 +176,6 @@ class _SortableMixin:
         else:
             self._sort_missing, self._sort_number = sort_key_of(value)
 
-    # -- the numbers a comparison needs -----------------------------------
 
     def _resolve_key(self):
         """The key this cell sorts on. Settled once, refreshed on an edit."""
@@ -228,24 +214,16 @@ class _SortableMixin:
         else:
             peer = getattr(other, "text", None)
             if not callable(peer):
-                # Declined, not guessed. ``sorted`` believes every answer it
-                # is given, so a cell that guessed would produce an order
-                # nobody could account for; NotImplemented lets Python raise.
                 return NotImplemented
             theirs_missing, theirs = sort_key_of(peer())
         if mine_missing or theirs_missing:
             if mine_missing and theirs_missing:
                 return False
-            # Missing goes last in BOTH directions, so it has to be the
-            # largest when Qt is ordering by "<" and the smallest when Qt is
-            # ordering by ">".
             return mine_missing if self._descending() else theirs_missing
         if mine is not None and theirs is not None:
             return mine < theirs
         if mine is None and theirs is None:
             return self._sort_text().casefold() < str(other.text()).casefold()
-        # A number and a word in one column: numbers first, always the same
-        # way round, so the order never depends on which cell Qt asked.
         return mine is not None
 
 
@@ -286,8 +264,6 @@ class SortableTableItem(_SortableMixin, QTableWidgetItem):
                 self._init_sort_key(self.text())
             else:
                 self._init_sort_key(None, key=override)
-            # The row keeps the place it was built in: an edit is not a new
-            # row, and the natural order must not shuffle under one.
             self._sort_serial = serial
 
     def _sort_text(self) -> str:
@@ -443,18 +419,10 @@ class _SortState(QObject):
         self._suspended = None
         self._resuming = False
         self._stamping = False
-        # A static ``QTimer.singleShot`` stores a queued call to the Python
-        # bound method.  A short-lived table can disappear before that call
-        # is delivered; PySide then tries to resolve a slot on the already
-        # torn-down ``_SortState`` and reports ``Slot '_SortState::' not
-        # found`` from the event loop.  An owned timer is disconnected and
-        # destroyed with this state, so no callback can outlive the view it
-        # is meant to sort.
         self._resume_timer = QTimer(self)
         self._resume_timer.setSingleShot(True)
         self._resume_timer.timeout.connect(self.resume_after_fill)
 
-    # -- keeping a fill from scrambling the rows ---------------------------
 
     @Slot(QModelIndex, int, int)
     def suspend_for_fill(self, *args) -> None:
@@ -497,7 +465,6 @@ class _SortState(QObject):
         finally:
             self._resuming = False
 
-    # -- the header's own contract ----------------------------------------
 
     @Slot()
     @Slot(QModelIndex, int, int)
@@ -601,9 +568,6 @@ def restore_natural_order(view) -> None:
     if model is None:
         return
     if not isinstance(view, (QTableWidget, QTreeWidget)):
-        # A proxy holds its source's order and hands it back when the sort
-        # column goes away. Asked through the model rather than through
-        # ``sortByColumn``, which declines a negative column.
         model.sort(-1, Qt.AscendingOrder)
         return
     _RESTORING = True
@@ -625,8 +589,6 @@ def install_sorting(view):
     if header is None:
         return view
     if getattr(view, _STATE_ATTR, None) is not None:
-        # Idempotent: a second call would wire the model signals twice and
-        # run every fill guard twice with it.
         getattr(view, _STATE_ATTR).stamp_initial_order()
         return view
 
@@ -637,11 +599,7 @@ def install_sorting(view):
     header.setSectionsClickable(True)
     header.setSortIndicatorShown(True)
     if hasattr(header, "setSortIndicatorClearable"):
-        # The third click. Without it Qt flips between two orders forever and
-        # the order the table was built in is unreachable.
         header.setSortIndicatorClearable(True)
-    # A fresh view already points its indicator at column 0, so the first
-    # click there would read as a flip and give ascending.
     header.setSortIndicator(-1, Qt.AscendingOrder)
 
     state = _SortState(view)

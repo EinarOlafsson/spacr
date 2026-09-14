@@ -193,7 +193,6 @@ def objects_in_window(window: Window, labels: np.ndarray, *,
         rows, cols = np.nonzero(mask)
         top, bottom = int(rows.min()), int(rows.max())
         left, right = int(cols.min()), int(cols.max())
-        # Touching an interior seam means this window cut the object short.
         touches = []
         if top == 0:
             touches.append(window.top > 0)
@@ -339,8 +338,6 @@ def number(groups: Sequence[Sequence[WindowObject]], *,
         if not complete:
             unseen.append(max(group, key=lambda one: one.area))
             continue
-        # The largest complete observation: all of them saw the whole object,
-        # so they differ only by segmentation noise at its border.
         chosen.append((max(complete, key=lambda one: one.area), len(group)))
 
     if unseen and strict:

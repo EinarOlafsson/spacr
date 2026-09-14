@@ -120,9 +120,6 @@ def write(db_path: str, rows: Iterable[Mapping], *,
         added = 0
         for name, kind in COLUMNS.items():
             if name not in present:
-                # SQLite has no ADD COLUMN IF NOT EXISTS, and re-running a
-                # write must not be an error -- an attribution is something
-                # a user redoes with a different threshold.
                 cursor.execute(
                     f"ALTER TABLE png_list ADD COLUMN {name} {kind}")
                 added += 1

@@ -60,7 +60,6 @@ class DatasetDescription:
     dtype:        Optional[str] = None
     notes:        List[str] = field(default_factory=list)
 
-    # ------------------------------------------------------------------
     def summary(self) -> str:
         """Human-readable one-line summary for the Console."""
         parts = [
@@ -82,9 +81,6 @@ class DatasetDescription:
         return line
 
 
-# ---------------------------------------------------------------------------
-# describe_file — top-level dispatcher
-# ---------------------------------------------------------------------------
 
 def describe_file(path: Any) -> Optional[DatasetDescription]:
     """Return a :class:`DatasetDescription` for ``path`` or None.
@@ -103,9 +99,6 @@ def describe_file(path: Any) -> Optional[DatasetDescription]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# Backend describers
-# ---------------------------------------------------------------------------
 
 def _describe_npz(p: Path) -> Optional[DatasetDescription]:
     """Describe a ``.npz`` archive without reading all of it.
@@ -129,8 +122,6 @@ def _describe_npz(p: Path) -> Optional[DatasetDescription]:
                 return None
             first = z[keys[0]]
         shape = tuple(first.shape)
-        # Heuristics: (fields, H, W)  or  (fields, H, W, C)  or
-        # (H, W, C)                      or  (H, W)
         n_fields = 1
         n_channels = 1
         img_shape: Optional[Tuple[int, int]] = None
@@ -138,19 +129,15 @@ def _describe_npz(p: Path) -> Optional[DatasetDescription]:
             n_fields, H, W, n_channels = shape
             img_shape = (int(H), int(W))
         elif len(shape) == 3:
-            # 3D — could be fields OR channels
             a, b, c = shape
             if a < 20 and b > 20 and c > 20:
-                # Fields first, then H, W (channels = 1)
                 n_fields, H, W = a, b, c
                 img_shape = (int(H), int(W))
             else:
-                # H, W, C
                 img_shape = (int(a), int(b))
                 n_channels = int(c)
         elif len(shape) == 2:
             img_shape = (int(shape[0]), int(shape[1]))
-        # Each named key inside the npz is often ONE field
         if len(keys) > 1:
             n_fields = max(n_fields, len(keys))
         return DatasetDescription(
@@ -176,7 +163,6 @@ def _describe_npy(p: Path) -> Optional[DatasetDescription]:
     """
     try:
         import numpy as np
-        # mmap_mode='r' → don't read the whole array into memory
         arr = np.load(p, mmap_mode="r")
         shape = tuple(arr.shape)
         n_fields = 1
@@ -219,11 +205,6 @@ def _describe_tif(p: Path) -> Optional[DatasetDescription]:
             H, W = page.shape[:2] if hasattr(page, "shape") \
                                   else (page.imagelength, page.imagewidth)
             dtype = str(page.dtype)
-            # Axis meaning: tifffile parses ImageJ / OME / plain TIFFs into
-            # series, and the series carries the axes string ("ZCYX", "TYX",
-            # "QYX" for an unlabelled stack). TiffFile itself has no `axes`
-            # / `ImageJ` / `OME` attributes — probing for those always came
-            # back empty, so the axis note was never emitted.
             series = getattr(tf, "series", None)
             axes = getattr(series[0], "axes", None) if series else None
             notes = [f"pages={n_pages}"]

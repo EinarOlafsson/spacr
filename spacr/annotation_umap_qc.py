@@ -106,10 +106,6 @@ def fit_on_controls(features: np.ndarray,
     if len(set(marks.tolist())) < 2:
         return {"error": "the controls carry only one label"}
 
-    # ONE SPLITTER FOR THE WHOLE PACKAGE. The grouped splitter refuses a
-    # design it cannot hold apart rather than falling back to a random one,
-    # which is the difference between an honest error and an optimistic
-    # score.
     level = str(group_by) if groups is not None else "cell"
     identities = (np.asarray(list(groups), dtype=object) if groups is not None
                   else np.arange(values.shape[0], dtype=object))
@@ -198,7 +194,6 @@ def neighbour_purity(embedding: np.ndarray,
     out = np.full(points.shape[0], np.nan)
     for row in range(points.shape[0]):
         neighbours = control_rows[indices[row]]
-        # Drop self, which is only present for a control cell.
         neighbours = neighbours[neighbours != row][:wanted]
         if neighbours.size == 0:
             continue

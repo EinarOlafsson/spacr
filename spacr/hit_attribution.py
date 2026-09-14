@@ -239,8 +239,6 @@ def build_hit_cell_frame(
     frame["candidate_percentile"] = (
         frame.groupby(wells, dropna=False)[score_column]
         .rank(method="average", pct=True, ascending=not ascending))
-    # High is always more hit-like. For a negative hit the descending=False
-    # rank above gives the lowest raw score the highest percentile.
     frame["candidate_for_review"] = frame["target_guide_fraction"] > 0
     frame.attrs.update({
         "well_columns": wells,
@@ -616,8 +614,6 @@ def crossfit_candidate_probabilities(
         sample_weight = np.ones(len(train), dtype=float)
         if "target_guide_fraction" in frame.columns:
             fraction = frame.iloc[train]["target_guide_fraction"].to_numpy(float)
-            # Fractions modulate evidence among positive bags but are not
-            # treated as known cell-label proportions.
             sample_weight[labels[train]] = 0.5 + np.sqrt(
                 np.clip(fraction[labels[train]], 0, 1))
         model.fit(values.iloc[train], labels[train], sample_weight=sample_weight)
@@ -793,9 +789,6 @@ def _refitted_permutation_p_values(
                 posterior, _folds, _fit_iterations = _crossfit_mixture(
                     values, permuted, groups)
             except HitAttributionError:
-                # A sparse permutation can leave one training fold with only
-                # one bag class. It is an unidentified null draw, not evidence;
-                # omit it and report the completed count explicitly.
                 continue
             temporary = pd.DataFrame({
                 "_well": well_keys,

@@ -32,10 +32,6 @@ from ..logging_util import (
     setup_logging as _package_setup_logging,
 )
 
-# ---------------------------------------------------------------------------
-# Path shims — kept for backwards compatibility with existing callers /
-# tests that import log_dir/log_path from spacr.qt.logging_util.
-# ---------------------------------------------------------------------------
 
 def log_dir() -> Path:
     """Return the folder where spacr log files live.
@@ -53,9 +49,6 @@ def log_path() -> Path:
     return _package_log_path()
 
 
-# ---------------------------------------------------------------------------
-# Qt-side log handler — bridges Python logging → Qt signal
-# ---------------------------------------------------------------------------
 
 
 class _RecordRelay(QObject):
@@ -94,8 +87,6 @@ class QtLogHandler(QObject, logging.Handler):
         QObject.__init__(self)
         logging.Handler.__init__(self, level=level)
         self._record_relay = _RecordRelay(self)
-        # Keep the existing ``handler.record_ready.connect(...)`` contract;
-        # only the QObject that owns the signal changes.
         self.record_ready = self._record_relay.record_ready
         self.setFormatter(logging.Formatter(
             "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -131,7 +122,6 @@ class QtLogHandler(QObject, logging.Handler):
             text = self.format(record)
             self.record_ready.emit(text + "\n", record.levelno)
         except Exception:
-            # Never let a logging failure crash the app
             self.handleError(record)
 
 
@@ -147,9 +137,6 @@ def get_signal_handler() -> QtLogHandler:
     return _SIGNAL_HANDLER
 
 
-# ---------------------------------------------------------------------------
-# One-time setup
-# ---------------------------------------------------------------------------
 
 def setup_logging(level: int = logging.INFO,
                     console_level: int = logging.INFO) -> None:
@@ -164,12 +151,8 @@ def setup_logging(level: int = logging.INFO,
     if _INITIALISED:
         return
 
-    # Package-scope file handler — installed once, shared by every
-    # spacr subsystem. Explicitly pass log_path() so tests that
-    # monkey-patch the Qt-side path are honoured.
     _package_setup_logging(level=level, log_file=log_path())
 
-    # Qt signal handler — only relevant when a QApplication exists.
     qt_h = get_signal_handler()
     qt_h.setLevel(console_level)
     logging.getLogger().addHandler(qt_h)

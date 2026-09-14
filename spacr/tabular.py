@@ -320,8 +320,6 @@ def _connect(db: Any, *, migrate: bool, read_only: bool = False):
         from .database_schema import ensure_database_schema
         ensure_database_schema(path)
     if read_only:
-        # Keep read-only table loads on the same URI escaping, busy-timeout,
-        # query-only and connection policy as every other database reader.
         from .database_concurrency import connect
         return connect(path, readonly=True)
     return sqlite3.connect(path, timeout=30)

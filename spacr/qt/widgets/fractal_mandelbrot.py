@@ -84,25 +84,8 @@ DEFAULTS: Final[dict] = {
     "precision_digits": 320,
     "initial_scale": 1.25,
     "tile_rows": 32,
-    # FP64 OFF. The double-precision shader needs GLSL 400, which many
-    # drivers lack or emulate at a cost far larger than the precision is
-    # worth: perturbation is what buys the depth, not the shader's float
-    # width.
     "gpu_fp64": False,
-    # THE TOUR, ON BY DEFAULT since 2026-09-10 at the maintainer's decision.
-    # 327(3) asked for "say 20 regions on the image that the camera will
-    # automatically smoothely float towards", and an opt-in nobody opens is
-    # not that.
-    #
-    # IT IS NOT "guided" AND CANNOT SHAKE THE WAY THAT DID. Guided SEARCHES
-    # while it draws, and moving the camera on a survey is what was reported
-    # as jumping. The tour visits coordinates found once and written down,
-    # eases out of one and into the next with zero velocity at both ends,
-    # and stops steering entirely once the view is narrower than the region's
-    # own measured half-width. "fixed" remains one dropdown away.
     "path": "tour",
-    # Kept so a guided path can still be asked for, at the values the
-    # original uses for it.
     "steering_strength": 0.09,
     "steering_interval_decades": 0.40,
     "steering_duration": 3.8,
@@ -271,14 +254,8 @@ def steering_from_one_number(steering: float, seconds_per_decade: float
                                          float(steering))
     seconds = max(0.1, float(seconds_per_decade))
 
-    # Restless steers about every 0.4 decades; calm about every 3.
     interval = 3.0 - 2.6 * amount
-    # And reaches less far when it is calm, so a rare move is also a small
-    # one rather than a lurch after a long wait.
     strength = 0.02 + 0.16 * amount
-    # HALF THE INTERVAL AT MOST, which is the rule that removes the
-    # jerkiness: however short the interval gets, the move finishes with
-    # time to spare before the next is planned.
     duration = min(6.0, 0.45 * interval * seconds)
     return {
         "steering_strength": round(strength, 4),
@@ -367,13 +344,6 @@ class ReferenceOrbit:
         self.center = (exact_misiurewicz_center(self.digits)
                        if center is None else mp.mpc(center))
         self.escaped_at: Optional[int] = None
-        # TWO ROWS, SIX FLOATS. Row 0 holds the high and middle words of
-        # each component and row 1 the low ones, because a texel has four
-        # channels and Z needs three floats apiece to be worth carrying.
-        #
-        # Two floats reproduce Z to 2.2e-16 -- about 15.7 decades, which is
-        # where the picture turned to mush. Three reach roughly 2^-72, and
-        # the depth follows.
         self.packed = np.zeros((2, self.max_iter + 1, 4), dtype=np.float32)
         self._build()
 
@@ -392,12 +362,6 @@ class ReferenceOrbit:
         z = mp.mpc(0)
         for n in range(self.max_iter + 1):
             real, imag = mp.re(z), mp.im(z)
-            # HIGH AND LOW, because one float32 cannot hold Z at this depth.
-            # The shader adds the pair back; the residual is what a single
-            # float would have thrown away.
-            # EACH WORD IS THE REMAINDER OF THE ONE BEFORE IT, which is
-            # what makes the sum more accurate than any single float: the
-            # error of the pair becomes the value of the third.
             re_hi = np.float32(float(real))
             re_rest = real - mp.mpf(float(re_hi))
             re_mid = np.float32(float(re_rest))
@@ -412,9 +376,6 @@ class ReferenceOrbit:
             self.packed[1, n] = (re_lo, 0.0, im_lo, 0.0)
             z = z * z + self.center
             if abs(z) > mp.mpf("256"):
-                # A REFERENCE THAT ESCAPES IS NOT A REFERENCE. Every pixel
-                # perturbs around it, so the rest is zeroed rather than left
-                # holding numbers that mean nothing.
                 self.escaped_at = n + 1
                 self.packed[:, n + 1:] = 0.0
                 break
@@ -477,20 +438,6 @@ def scale_at(depth: float, initial_scale: float = 1.25) -> float:
     return float(initial_scale) * 10.0 ** (-min(float(depth), 307.0))
 
 
-# ---------------------------------------------------------------------------
-# The guided path
-# ---------------------------------------------------------------------------
-#
-# WITHOUT THIS THE DIVE ALWAYS ENDS IN THE SAME PLACE. A fixed path descends
-# to one Misiurewicz point for ever: correct, and the same picture every
-# time. Guided steering looks around every so often, picks a nearby point on
-# the boundary that has structure worth arriving at, and eases the camera
-# onto it -- so the descent keeps finding new things instead of drilling one
-# shaft.
-#
-# THE LOOK-AROUND IS CHEAP ON PURPOSE. It renders a 96x54 escape map, which
-# is 5,184 points against the two million a frame draws, and it runs on a
-# worker thread. It is a decision about where to go, not a picture.
 
 
 def perturbation_escape_map(orbit, width, height, scale, max_iter,
@@ -590,8 +537,6 @@ def structure_mask(escaped: np.ndarray, iterations: np.ndarray,
                                   np.abs(times[:, 1:] - times[:, :-1]))
     if not np.isfinite(gradient).any() or gradient.max() <= 0.0:
         return np.zeros_like(escaped)
-    # The steepest tenth: enough candidates to choose between, few enough
-    # that they are all genuinely on a filament.
     threshold = float(np.quantile(gradient[gradient > 0.0], 0.90))
     steep = gradient >= max(threshold, 1e-9)
     steep[[0, -1], :] = False
@@ -679,25 +624,14 @@ def plan_guided_step(orbit, scale, max_iter, strength=0.09,
     screen_x = grid_x
     screen_y = grid_y
     radius = np.hypot(screen_x, screen_y)
-    # NOT THE POINT ALREADY UNDER THE CAMERA, and not the far corners: the
-    # first is where it is going anyway and the second is a lurch.
     eligible = edge & (radius >= 0.025) & (radius <= max(0.34, 2.2 * strength))
     if not eligible.any():
         eligible = edge
 
     best = None
-    phase = step_index * 2.399963229728653          # the golden angle
+    phase = step_index * 2.399963229728653
     count = max(1, int(candidates))
 
-    # THE HEADING IS A CONSTRAINT, NOT A PREFERENCE. Scoring every boundary
-    # point and merely penalising the distant ones lets the most structured
-    # point in the frame win whatever direction the step is supposed to be
-    # exploring -- measured, six consecutive steps chose two targets between
-    # them, which is a fixed path wearing a guided path's settings.
-    #
-    # Restricting the candidates to an arc around this step's own heading
-    # makes each step go somewhere it has not been, and the golden angle
-    # walks that arc around the frame without ever repeating a heading.
     point_angle = np.arctan2(screen_y, screen_x)
     difference = np.abs(np.angle(np.exp(1j * (point_angle - phase))))
     in_heading = eligible & (difference <= math.pi / 3.0)
@@ -705,20 +639,8 @@ def plan_guided_step(orbit, scale, max_iter, strength=0.09,
         eligible = in_heading
 
     for index in range(count):
-        # AN ARC PER STEP, not the whole circle. Spread over 360 degrees the
-        # candidate set is nearly the same however the phase is rotated, so
-        # the best-scoring point is the same every time -- which is a fixed
-        # path wearing a guided path's settings. Measured: six consecutive
-        # steps chose one target.
-        #
-        # A third of a circle around this step's own heading gives each step
-        # somewhere different to look while keeping the move a STEER: the
-        # golden angle then walks that window around the frame without ever
-        # repeating a heading.
         spread = 2.0 * math.pi / 3.0
         angle = phase + spread * (index / count - 0.5)
-        # Within the arc the candidates fan out, so the choice is still made
-        # between real alternatives rather than one point being scored.
         want_x = strength * math.cos(angle)
         want_y = strength * math.sin(angle)
         distance = (screen_x - want_x) ** 2 + (screen_y - want_y) ** 2
@@ -729,9 +651,6 @@ def plan_guided_step(orbit, scale, max_iter, strength=0.09,
             continue
         structure = candidate_score(escaped, iterations, int(row), int(col),
                                     int(max_iter))
-        # A CLOSER TARGET IS WORTH SOMETHING TOO. Left unpenalised the
-        # search would keep choosing the most interesting point in the
-        # frame, which is a jump rather than a steer.
         penalty = math.sqrt(float(masked[row, col])) / max(0.04, strength)
         score = structure - 0.32 * penalty
         if best is None or score > best[2]:
@@ -926,15 +845,11 @@ def a_more_interesting_anchor(orbit, budget: int = 600,
 
     rows, cols = np.nonzero(interesting)
     if len(rows) > int(candidates):
-        # Evenly through the list rather than the first N, which would all
-        # come from the top of the frame.
         pick = np.linspace(0, len(rows) - 1, int(candidates)).astype(int)
         rows, cols = rows[pick], cols[pick]
 
     shortlist = []
     for row, col in zip(rows, cols):
-        # NOT THE VERY EDGE OF THE FRAME: a point there is half outside the
-        # survey, so its neighbourhood is scored on missing data.
         if math.hypot(float(grid_x[row, col]),
                       float(grid_y[row, col])) > 0.85:
             continue
@@ -949,23 +864,16 @@ def a_more_interesting_anchor(orbit, budget: int = 600,
 
     best = None
     for _surface, dx, dy in shortlist[:8]:
-        # A HUNDREDTH OF THE SCALE: far enough in that anything shallow has
-        # been passed through, near enough that the reference orbit is still
-        # accurate there.
         deep_escaped, deep_iterations = perturbation_escape_map(
             orbit, 48, 27, 1.25 / 100.0, int(budget),
             dx * 1.25, dy * 1.25)
         spread = float(deep_iterations.astype(np.float64).std())
         share = float(deep_escaped.mean())
-        # A frame that entirely escapes or entirely does not is one colour,
-        # however busy its surface looked.
         if share < 0.02 or share > 0.98:
             continue
         if best is None or spread > best[0]:
             best = (spread, dx, dy)
     if best is None:
-        # Nothing survived the deeper look: the surface best is still a
-        # better guess than the middle of the frame.
         return shortlist[0][1], shortlist[0][2]
     return best[1], best[2]
 
@@ -1022,23 +930,9 @@ def best_reference_in_view(orbit, offset_re: float, offset_im: float,
     ys = ((np.arange(height, dtype=np.float64) + 0.5) / height * 2.0 - 1.0)
     grid_x, grid_y = np.meshgrid(xs, ys)
 
-    # IN THE SET, AND ON ITS EDGE. Both halves matter and they pull
-    # opposite ways.
-    #
-    # In the set, because a reference that escapes is not one. On the edge,
-    # because the interior is where the picture stops changing: taking the
-    # point furthest INSIDE was tried and gives a bounded reference whose
-    # neighbourhood is solid colour two decades down -- measured, detail
-    # 304 at the surface and 0.0 at depth two.
-    #
-    # A boundary point is bounded and has an escaping neighbour, which is
-    # exactly the pair of conditions.
     bounded = ~escaped
     edge = boundary_mask(escaped)
     if edge.any():
-        # Among the boundary points, the one whose neighbourhood varies
-        # most: that is where the structure is densest and so where a
-        # descent keeps finding something.
         best_row, best_col, best_score = -1, -1, -1.0
         rows, cols = np.nonzero(edge)
         for row, col in zip(rows, cols):
@@ -1048,13 +942,9 @@ def best_reference_in_view(orbit, offset_re: float, offset_im: float,
                 best_row, best_col, best_score = int(row), int(col), score
         row, col = best_row, best_col
     elif bounded.any():
-        # No edge in view: somewhere inside, which at least keeps the
-        # reference valid until the camera is moved again.
         row, col = np.unravel_index(int(np.argmax(bounded.astype(np.int8))),
                                     bounded.shape)
     else:
-        # Nothing of the set at all: the longest-lived point is the nearest
-        # thing to it this view contains.
         row, col = np.unravel_index(int(np.argmax(iterations)),
                                     iterations.shape)
 

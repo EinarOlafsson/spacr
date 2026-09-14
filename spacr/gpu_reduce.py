@@ -64,7 +64,6 @@ def rapids_available() -> bool:
 
         return bool(cupy.cuda.runtime.getDeviceCount())
     except Exception:
-        # cuML present without a working cupy runtime is not a usable GPU.
         return False
 
 
@@ -114,10 +113,6 @@ def make_reducer(method: str, *, prefer_gpu: bool = False, **kwargs) -> Tuple[An
         try:
             return _cuml_estimator(name, **kwargs), "cuml"
         except Exception:
-            # A cuML that imports but cannot build the estimator -- a version
-            # skew, a CUDA mismatch -- falls back rather than taking the run
-            # down. The whole promise of an extra is that its absence, or its
-            # misbehaviour, costs nothing.
             LOG.info("cuML could not build a %s estimator; using the CPU "
                      "implementation", name, exc_info=True)
 
@@ -144,9 +139,6 @@ def _cuml_estimator(name: str, **kwargs):
 def _cpu_estimator(name: str, **kwargs):
     """Construct the named CPU reducer or clusterer with ``kwargs``."""
     if name == "umap":
-        # The package-level ``umap`` import eagerly reaches parametric UMAP
-        # and TensorFlow. spaCR's lazy proxy loads only ``umap.umap_``, which
-        # is the CPU implementation this reducer actually needs.
         from .utils import umap
         return umap.UMAP(**kwargs)
     if name == "tsne":

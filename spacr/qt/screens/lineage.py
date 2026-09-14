@@ -101,12 +101,9 @@ class LineageScreen(LinkedView, QWidget):
         self._orphans = pd.DataFrame()
         self._build()
         self.link_selection(LINK_SOURCE)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "lineage")
 
-    # -- construction --------------------------------------------------------
     def _build(self) -> None:
         """Lay out the source row, the containment tree and the orphan list."""
         outer = QVBoxLayout(self)
@@ -189,8 +186,6 @@ class LineageScreen(LinkedView, QWidget):
         split.setStretchFactor(0, 1)
         split.setStretchFactor(1, 0)
         split.setSizes([620, 300])
-        # Both halves of the splitter sit straight on the page; the
-        # splitter itself is scaffolding and paints nothing.
         mark_surface(self.tree, self.orphan_list)
         outer.addWidget(split, 1)
 
@@ -199,7 +194,6 @@ class LineageScreen(LinkedView, QWidget):
         self.status.setWordWrap(True)
         outer.addWidget(self.status)
 
-    # -- loading -------------------------------------------------------------
     def _choose_db(self) -> None:
         """Ask for a measurements database and build the tree from it."""
         path, _ = QFileDialog.getOpenFileName(
@@ -292,10 +286,6 @@ class LineageScreen(LinkedView, QWidget):
                 "(none — every child names a parent that exists)"))
             return
         for _index, row in self._orphans.iterrows():
-            # `orphans` stamps each row with the table it came from, so the
-            # key an unattached child publishes says which child it is —
-            # the same identity the tree uses, rather than one that names
-            # every object with that label in the field.
             key = lin.node_key(row, str(row.get("table") or "") or None)
             claimed = str(row.get("parent_id") or "")
             text = (f"{row['table']} {row[lin.schema.OBJECT_LABEL_KEY]} → "
@@ -314,7 +304,6 @@ class LineageScreen(LinkedView, QWidget):
         self.status.setText(message)
         self.status.setStyleSheet(f"color: {active_palette()['error']};")
 
-    # -- reading the selection back out --------------------------------------
     def selected_keys(self) -> List[str]:
         """The object keys of the selected tree rows, in tree order."""
         return [str(item.data(0, _KEY_ROLE))
@@ -399,7 +388,6 @@ class LineageScreen(LinkedView, QWidget):
                 f"treats them as one object, so opening this family will "
                 f"show fewer crops than it has objects.")
 
-    # -- publishing ----------------------------------------------------------
     def _on_tree_selection(self) -> None:
         """A row was picked: highlight exactly it, everywhere.
 
@@ -471,7 +459,6 @@ class LineageScreen(LinkedView, QWidget):
             self.status.setText(f"Could not open those objects: {exc}")
             return None
 
-    # -- the shared selection ------------------------------------------------
     def on_linked_selection_changed(self, selection) -> None:
         """Reveal and highlight what another view selected, when we hold it."""
         if selection.keys is None:
@@ -512,15 +499,7 @@ class LineageScreen(LinkedView, QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Registration
-# ---------------------------------------------------------------------------
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc

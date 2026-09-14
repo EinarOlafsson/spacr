@@ -52,12 +52,7 @@ DATA_SHAPES: Tuple[Tuple[str, str], ...] = (
 FITS: Dict[str, Tuple[str, ...]] = {
     "categorical_continuous": ("box_jitter", "bar_jitter", "bar", "jitter",
                                "box", "violin"),
-    # NO BAR AND NO BOX HERE. Both need groups to summarise, and forming
-    # groups out of a continuous x means binning it -- which is a different
-    # graph of different data, not this one drawn another way.
     "continuous_continuous": ("scatter",),
-    # A LINE NEEDS AN ORDER. Through unordered categories it is a row of
-    # markers joined for no reason, which is why it is here and not above.
     "ordered_continuous": ("line", "scatter", "jitter"),
     "continuous_only": ("jitter", "box", "violin"),
 }
@@ -154,9 +149,6 @@ def shape_of(frame, x: str = "", y: str = "") -> str:
     if left == "absent":
         return "continuous_only"
     if left == "continuous" and right == "continuous":
-        # ORDERED IS A PROPERTY OF THE VALUES, not of the dtype. An x that
-        # is already sorted and unique is a series; one that is neither is a
-        # cloud, and joining a cloud with a line is 178 A's bug.
         try:
             values = frame[x].dropna()
             if values.is_monotonic_increasing and values.is_unique:
@@ -201,14 +193,12 @@ def default_for(shape: str) -> str:
     is what a user who never expressed a preference gets.
     """
     shape = str(shape)
-    fallback = DEFAULTS[shape]                    # KeyError for a bad shape
+    fallback = DEFAULTS[shape]
     try:
         from .qt.preferences import get_default_graph_type
 
         chosen = str(get_default_graph_type(shape) or "")
     except Exception:
-        # No Qt, no stored preferences, or a preference file that cannot be
-        # read: a figure still has to be drawn.
         return fallback
     return chosen if chosen and fits(shape, chosen) else fallback
 

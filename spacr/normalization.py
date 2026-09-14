@@ -134,9 +134,6 @@ def normalization_stats(mode: Any, *,
         return (CLIP_MEAN, CLIP_STD)
     if name in ("custom", "dataset"):
         if mean is None or std is None:
-            # Named, and NOT silently fallen back to: a run that asked for
-            # its own statistics and got ImageNet's would be a run whose
-            # model card says one thing and whose weights learned another.
             raise ValueError(
                 f"input_statistics={name!r} needs both mean and std. "
                 f"For 'dataset', compute them with "
@@ -215,10 +212,6 @@ def dataset_statistics(loader: Any, *, max_batches: Optional[int] = None
     total = None
     total_sq = None
     count = 0
-    # islice rather than a counter and a break: a `for` pulls the next item
-    # BEFORE the body can stop, so a counter reads one batch more than was
-    # asked for -- which matters for a loader with side effects, one that
-    # reads from disk or advances a shuffle.
     source = loader if max_batches is None else islice(loader, max_batches)
     for batch in source:
         images = batch[0] if isinstance(batch, (tuple, list)) else batch
@@ -226,7 +219,6 @@ def dataset_statistics(loader: Any, *, max_batches: Optional[int] = None
                             dtype=np.float64)
         if values.ndim != 4:
             continue
-        # (N, C, H, W) -> per channel over every pixel of every image.
         flat = values.transpose(1, 0, 2, 3).reshape(values.shape[1], -1)
         if total is None:
             total = flat.sum(axis=1)
@@ -240,8 +232,6 @@ def dataset_statistics(loader: Any, *, max_batches: Optional[int] = None
             "the loader yielded no images, so these would be the statistics "
             "of an empty set rather than of this dataset")
     mean = total / count
-    # max(0, ...): the identity can go a hair negative on a constant channel
-    # through floating-point cancellation, and sqrt of that is nan.
     variance = np.maximum(total_sq / count - mean ** 2, 0.0)
     return (tuple(float(v) for v in mean),
             _clean_std(tuple(float(v) for v in np.sqrt(variance)),
@@ -302,9 +292,6 @@ def apply_crop_dtype(array: np.ndarray, dtype: Any = "original") -> np.ndarray:
     if array.dtype == np.uint16:
         return array
     if np.issubdtype(array.dtype, np.floating):
-        # A float crop has no declared range, so the only honest widening is
-        # through the same narrowing rule the PNG path uses and back up --
-        # anything else invents a scale factor.
         from .crops import narrow_to_uint8
         return narrow_to_uint8(array).astype(np.uint16)
     return array.astype(np.uint16)

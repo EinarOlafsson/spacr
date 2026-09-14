@@ -104,10 +104,6 @@ QToolButton#{RECIPE_BUTTON_NAME}:hover {{
 """
 
 
-# AT IMPORT TIME, so the failure is not a missing background --
-# it is the module not importing, which takes down whatever
-# imports it. Driven in
-# tests/qt/test_a_theme_that_refuses_does_not_stop_an_import.py.
 try:
     from .theme import register_widget_qss as _register_widget_qss
     _register_widget_qss(RECIPE_BUTTON_NAME, _recipe_button_qss, replace=True)
@@ -221,9 +217,6 @@ class Recipe:
         )
 
 
-# ---------------------------------------------------------------------------
-# Store
-# ---------------------------------------------------------------------------
 
 def save_recipe(recipe: Recipe, directory: Optional[str] = None) -> str:
     """Write ``recipe`` and return its path.
@@ -291,9 +284,6 @@ def delete_recipe(recipe: Recipe) -> bool:
     return True
 
 
-# ---------------------------------------------------------------------------
-# Applying one
-# ---------------------------------------------------------------------------
 
 def version_note(recipe: Recipe, current: Optional[str] = None) -> str:
     """What to tell the user about the version gap, or ``""`` if there is none.
@@ -325,10 +315,6 @@ def compatibility_note(recipe: Recipe, model) -> str:
     :param recipe: the bundle.
     :param model: the screen's ``SettingsWidgets``.
     """
-    # Conditional settings stay supported while their rows are absent from
-    # this particular form shape. ``collect()`` carries them in ``_defaults``,
-    # so judging only the currently rendered widgets calls a fresh recipe
-    # stale and asks the user to confirm every ordinary apply.
     known = (set(getattr(model, "_widgets", {}) or {})
              | set(getattr(model, "_defaults", {}) or {}))
     if not known:
@@ -385,9 +371,6 @@ def capture_recipe(screen, name: str, notes: str = "") -> Recipe:
     )
 
 
-# ---------------------------------------------------------------------------
-# UI
-# ---------------------------------------------------------------------------
 
 class RecipeDialog(QDialog):
     """List, apply, share and delete the recipes for one module.
@@ -436,21 +419,6 @@ class RecipeDialog(QDialog):
         self._detail.setWordWrap(True)
         column.addWidget(self._detail)
 
-        # A FLOW, NOT A BOX, AND THE REASON IS A MEASURED CLIP. Five
-        # buttons in a `QHBoxLayout` want more width than this dialog's
-        # 520 px floor in German -- "Aktuelle Einstellungen speichern…"
-        # asks for 440 px and was given 399 -- and Qt's answer to a box it
-        # cannot satisfy is to shrink every child BELOW its hint rather
-        # than to wrap. The caption goes, silently.
-        #
-        # `app_screen._WrappingButtonStrip` records the same defect on the
-        # module action row, with its own numbers: a single box made that
-        # row's minimum 1,092 px in German against 908 in English. The
-        # remedy there and here is that buttons wrap instead of squeezing.
-        #
-        # WHAT IS LOST IS THE STRETCH between {Save, Import} and {Share,
-        # Delete, Apply}, which a flow layout has no notion of. That
-        # grouping was a nicety; a caption nobody can read is not.
         row = FlowLayout(spacing=6)
         self._btn_save = QPushButton("Save current settings…", self)
         self._btn_save.clicked.connect(self._on_save)
@@ -472,7 +440,6 @@ class RecipeDialog(QDialog):
 
         self.reload()
 
-    # -- public -------------------------------------------------------
     def recipes(self) -> List[Recipe]:
         """The recipes currently listed."""
         return list(self._recipes)
@@ -516,7 +483,6 @@ class RecipeDialog(QDialog):
         """
         self._confirmation_runner = runner
 
-    # -- slots --------------------------------------------------------
     def _on_selection_changed(self, _row: int) -> None:
         """Describe the selected recipe, including anything that will not carry.
 
@@ -664,9 +630,6 @@ def open_recipes(screen, parent: Optional[QWidget] = None) -> RecipeDialog:
     return dialog
 
 
-# ---------------------------------------------------------------------------
-# Installation
-# ---------------------------------------------------------------------------
 
 def install(screen) -> Optional[QToolButton]:
     """Add a Recipes button to ``screen``'s settings search strip.
@@ -683,11 +646,6 @@ def install(screen) -> Optional[QToolButton]:
         return None
     button = QToolButton(bar)
     button.setObjectName(RECIPE_BUTTON_NAME)
-    # The button joins the strip after the window has already run its one
-    # language pass over the screen, so it translates its own caption. The
-    # English stays on the widget as the source `retranslate_widget_tree`
-    # reads, so a later language change still has something to translate
-    # rather than a translation.
     caption = "Recipes"
     button.setProperty("_spacr_i18n_text", caption)
     button.setText(tr(caption))
@@ -797,10 +755,6 @@ def install_help_action(window: QMainWindow) -> Optional[QAction]:
         if act.text() == MENU_ACTION_TEXT:
             return None
     action = QAction(MENU_ACTION_TEXT, window)
-    # "Settings recipes…" contains the word "settings", which is enough for
-    # Qt to claim it as the macOS Preferences item and move it out of Help
-    # into the application menu -- where it opened instead of Preferences.
-    # NoRole is what stops that. See spacr.qt.menus.
     from .menus import set_menu_role
     set_menu_role(action, "none")
     action.setStatusTip(
@@ -866,16 +820,10 @@ def install_window_hooks(window: QMainWindow) -> Optional[_StackWatcher]:
         return window._recipe_watcher
     watcher = _StackWatcher(window)
     try:
-        # Queued after the search strip's own watcher, which is connected
-        # first in `shortcuts._install_window_hooks` — Qt delivers to slots
-        # in connection order, so the strip exists by the time this runs.
         stack.currentChanged.connect(watcher.on_current_changed)
     except Exception:
         LOG.debug("could not follow the screen stack", exc_info=True)
         return None
     window._recipe_watcher = watcher
-    # Scheduled after the search strip's own deferred install, because Qt
-    # runs zero-timers in the order they were started and `shortcuts`
-    # installs the strip first.
     QTimer.singleShot(0, watcher.install_current)
     return watcher

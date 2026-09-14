@@ -252,7 +252,7 @@ def dice(truth: np.ndarray, pred: np.ndarray,
     and nails one big one scores well on it and badly on the other.
     """
     matched = match_objects(truth, pred, threshold)
-    per_object = [2 * i / (1 + i) for i in matched.ious]   # Dice from IoU
+    per_object = [2 * i / (1 + i) for i in matched.ious]
     t_fg, p_fg = np.asarray(truth) > 0, np.asarray(pred) > 0
     pixel = _ratio(2 * float((t_fg & p_fg).sum()),
                    float(t_fg.sum() + p_fg.sum()))
@@ -420,28 +420,10 @@ def compare_against_baseline(truth: np.ndarray, finetuned: np.ndarray,
     delta = {key: a[key] - b[key] for key in a
              if isinstance(a.get(key), (int, float))
              and isinstance(b.get(key), (int, float))}
-    # `match_iou` is a SETTING, not a score. Subtracting it gives 0.0 and
-    # reads in a table as "the threshold did not change", which is true and
-    # is noise; leaving it in the delta invites someone to plot it.
     delta.pop("match_iou", None)
     return {"finetuned": a, "vanilla": b, "delta": delta}
 
 
-# ---------------------------------------------------------------------------
-# Classifiers
-#
-# A screen is unbalanced -- that is what a screen IS -- so several of these
-# exist only because accuracy is uninformative when 98% of objects are
-# negative. AUPRC comes first when positives are rare, which in a screen
-# they are, and balanced accuracy and MCC are here for the same reason.
-#
-# BUILT ON `spacr.classifier_quality.Confusion` RATHER THAN BESIDE IT. That
-# module already owns the confusion matrix, sensitivity, specificity and
-# accuracy, and already refuses to report a correction its inputs cannot
-# identify. A second implementation of the same four numbers is a second
-# thing to keep in step, and they would disagree first in the place nobody
-# is looking.
-# ---------------------------------------------------------------------------
 
 
 def _auroc(labels: np.ndarray, scores: np.ndarray) -> float:
@@ -457,8 +439,6 @@ def _auroc(labels: np.ndarray, scores: np.ndarray) -> float:
     order = np.argsort(scores, kind="mergesort")
     ranks = np.empty(len(scores), dtype=float)
     ranks[order] = np.arange(1, len(scores) + 1, dtype=float)
-    # Average the ranks of tied scores, or a model that outputs one constant
-    # scores 1.0 or 0.0 depending on sort order rather than the 0.5 it earns.
     values = np.asarray(scores)[order]
     start = 0
     for index in range(1, len(values) + 1):
@@ -539,13 +519,11 @@ def score_classifier(labels: Sequence[int], scores: Sequence[float], *,
     tn = int(((called == 0) & (labels == 0)).sum())
 
     precision = _ratio(tp, tp + fp)
-    recall = _ratio(tp, tp + fn)                     # sensitivity
+    recall = _ratio(tp, tp + fn)
     specificity = _ratio(tn, tn + fp)
     negative_precision = _ratio(tn, tn + fn)
     negative_recall = specificity
 
-    # MCC survives imbalance where accuracy and F1 do not: it is the only one
-    # of these that uses all four cells of the matrix symmetrically.
     denominator = float((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
     mcc = ((tp * tn - fp * fn) / np.sqrt(denominator)) if denominator else 0.0
 
@@ -557,8 +535,6 @@ def score_classifier(labels: Sequence[int], scores: Sequence[float], *,
         "true_positives": tp, "false_positives": fp,
         "true_negatives": tn, "false_negatives": fn,
         "accuracy": _ratio(tp + tn, labels.size),
-        # THE SECOND ONE BECAUSE SCREENS ARE UNBALANCED. With 98% negatives,
-        # calling everything negative scores 0.98 accuracy and 0.5 balanced.
         "balanced_accuracy": (recall + specificity) / 2.0,
         "precision": precision,
         "recall": recall,
@@ -573,8 +549,6 @@ def score_classifier(labels: Sequence[int], scores: Sequence[float], *,
         "mcc": float(mcc),
         "auroc": _auroc(labels, scores),
         "auprc": _auprc(labels, scores),
-        # Brier is the mean squared error of the probability itself, so it
-        # penalises a confident wrong answer more than a hesitant one.
         "brier": float(np.mean((scores - labels) ** 2)),
         "ece": _ece(labels, scores, calibration_bins),
     }
@@ -601,17 +575,6 @@ def compare_classifier_against_baseline(labels: Sequence[int],
     return {"finetuned": a, "vanilla": b, "delta": delta}
 
 
-# ---------------------------------------------------------------------------
-# A held-out SET, not a field
-#
-# Instruction 370: "A number computed on 'three fields' chosen at call time
-# is not comparable between two models, between two versions of one model, or
-# between two days. What makes the table worth publishing is that every model
-# is scored on the SAME named, versioned, labelled set."
-#
-# So the unit of a published number is the SET. Everything below aggregates
-# per-field scorecards into one, and the aggregation is not a mean of means.
-# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -694,8 +657,6 @@ def score_holdout(pairs: Sequence[Tuple[np.ndarray, np.ndarray]], *,
         "area_error_mean": weighted("area_error_mean"),
         "area_error_abs_mean": weighted("area_error_abs_mean"),
     }
-    # The pixel-wise and boundary measures are field-level by nature, so they
-    # are averaged over FIELDS and weighted by the objects each holds.
     for key in scored[0]:
         if key.startswith(("ap_", "boundary_", "dice_pixel")):
             pooled[key] = weighted(key, "n_truth")
@@ -731,9 +692,6 @@ def scorecard_rows(finetuned: HoldoutScore, vanilla: HoldoutScore
             "metric": key,
             "finetuned": a,
             "vanilla": b,
-            # `None` rather than 0.0 for a setting or a count: a "difference"
-            # in `match_iou` or `n_truth` is not a result, and a zero in that
-            # column reads as one.
             "delta": (a - b) if key not in _NOT_A_SCORE else None,
             "n_fields": finetuned.metrics.get("n_fields"),
             "n_objects": finetuned.metrics.get("n_truth"),
@@ -765,16 +723,6 @@ def scorecard_csv(rows: Sequence[Dict[str, object]]) -> str:
     return buffer.getvalue()
 
 
-# ---------------------------------------------------------------------------
-# The set itself: named, versioned, checksummed
-#
-# "What makes the table worth publishing is that every model is scored on the
-# SAME named, versioned, labelled set, and that the set is published beside
-# the models so the number can be checked by somebody else." -- 370.
-#
-# A manifest is what makes that checkable. Without one, "scored on the
-# hold-out set" is a claim about a folder on somebody's laptop.
-# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -962,9 +910,6 @@ def headline(metrics: Mapping[str, object], *,
         if baseline and key in baseline:
             try:
                 delta = value - float(baseline[key])         # type: ignore[arg-type]
-                # SIGNED AND EXPLICIT. "F1 0.867" alone answers "what is it";
-                # the request is "is it better", which only the difference
-                # answers.
                 text += f" ({delta:+.3f} vs stock)"
             except (TypeError, ValueError):
                 pass
@@ -974,7 +919,6 @@ def headline(metrics: Mapping[str, object], *,
     if not lines:
         return []
 
-    # EVERY NUMBER CARRIES ITS N, in the tooltip too.
     counted = []
     for key, label in (("n_truth", "objects"), ("n_fields", "fields"),
                        ("n", "predictions")):
@@ -1129,18 +1073,6 @@ def scorecard_figure(metrics: Mapping[str, object], path, *,
             f"empty chart published beside a model would read as a model that "
             f"scored zero.")
 
-    # INSIDE `figure_style`, and the context opens BEFORE `subplots`:
-    # rcParams reach an artist when it is CREATED, so a context entered
-    # afterwards leaves the spines, ticks and labels at whatever the
-    # caller's globals happened to be. A chart published beside a model
-    # is the last place to ship a figure in a second visual system.
-    #
-    # `dpi` DEFAULTS TO None, NOT 150, and that is load-bearing rather than
-    # tidy. `save_figure` reads the user's Resolution preference only when
-    # it is handed None; passing a number -- even the old default -- wins
-    # over the preference and the setting silently never reaches this
-    # figure. An explicit dpi from a caller still overrides, which is the
-    # behaviour a caller asking for one expects.
     from .figures.style import figure_style
 
     with figure_style():
@@ -1160,14 +1092,8 @@ def scorecard_figure(metrics: Mapping[str, object], path, *,
 
         axes.set_xticks(positions)
         axes.set_xticklabels(names)
-        # 0 TO 1 ALWAYS, never autoscaled. Every metric here is a fraction, and a
-        # y-axis that started at 0.8 would make a 0.02 gain look like a landslide
-        # -- which is exactly the misreading a published chart must not invite.
         axes.set_ylim(0.0, 1.08)
         axes.set_ylabel("score")
-        # OUTSIDE THE AXES. `lower right` sat on top of the recall bars, which is
-        # the corner a high-scoring model fills -- the legend would hide exactly
-        # the result the chart is published to show.
         axes.legend(frameon=False, loc="upper center", ncol=2,
                     bbox_to_anchor=(0.5, -0.12))
         axes.spines[["top", "right"]].set_visible(False)
@@ -1187,20 +1113,6 @@ def scorecard_figure(metrics: Mapping[str, object], path, *,
             axes.set_title("  -  ".join(caption), fontsize=10)
 
         figure.tight_layout()
-        # THROUGH `spacr.plot.save_figure`, the one writer. A scorecard is a
-        # figure the user KEEPS -- it is published beside the model -- so the
-        # figure-format and resolution preferences have to reach it like any
-        # other kept figure. A bare `savefig` here would hard-code PNG at
-        # whatever dpi this function was called with and ignore both.
-        #
-        # THE COST, SAID PLAINLY: `spacr.plot` imports torch, cv2, seaborn
-        # and scipy AT MODULE SCOPE, so DRAWING a scorecard now pulls the
-        # whole plotting stack. Reading one still does not -- the import is
-        # inside this function, which is what
-        # `test_importing_the_module_still_needs_no_plotting_stack` pins --
-        # but a caller who only wanted a picture pays for more than
-        # matplotlib. That is the price of one writer, and the alternative
-        # was a figure that ignores the user's format and resolution.
         from .plot import save_figure
 
         return save_figure(figure, path, dpi=dpi, close=True)

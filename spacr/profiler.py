@@ -94,9 +94,6 @@ def _erf(values: np.ndarray) -> np.ndarray:
     return np.vectorize(math.erf)(np.asarray(values, dtype=float))
 
 
-# ---------------------------------------------------------------------------
-# One prediction call for seventeen backends
-# ---------------------------------------------------------------------------
 
 def predict(model: Any, exog: pd.DataFrame, *,
             offset: Optional[Sequence[float]] = None) -> np.ndarray:
@@ -139,10 +136,6 @@ def predict(model: Any, exog: pd.DataFrame, *,
         try:
             return np.asarray(model.predict(frame), dtype=float).ravel()
         except Exception:
-            # A statsmodels results object whose design does not line up
-            # raises from deep inside patsy; fall through to the linear
-            # predictor, which aligns by column name and can say what is
-            # missing.
             pass
 
     linear = _linear_predictor(model, frame)
@@ -232,9 +225,6 @@ def response_scale(model: Any) -> str:
     return "response"
 
 
-# ---------------------------------------------------------------------------
-# Reading a written-out fit
-# ---------------------------------------------------------------------------
 
 @dataclass
 class FittedLinear:
@@ -341,9 +331,6 @@ def from_coefficients(source: Any, *, link: str = "identity",
                         label=label or "fitted coefficients")
 
 
-# ---------------------------------------------------------------------------
-# Where the other inputs are held
-# ---------------------------------------------------------------------------
 
 def reference_row(design: pd.DataFrame, *, method: str = "median",
                   at: Optional[Mapping[str, float]] = None) -> pd.Series:
@@ -372,8 +359,6 @@ def reference_row(design: pd.DataFrame, *, method: str = "median",
     else:
         row = numeric.median(numeric_only=True).astype(float)
     row = row.fillna(0.0)
-    # An intercept column is 1 by construction; holding it at its median is
-    # right by accident and at zero is wrong on purpose, so it is pinned.
     for name in row.index:
         if str(name).lower() in ("intercept", "const"):
             row[name] = 1.0
@@ -400,19 +385,12 @@ def _sweep(design: pd.DataFrame, variable: str, n: int,
     else:
         low, high = float(column.min()), float(column.max())
     if not math.isfinite(low) or not math.isfinite(high) or low == high:
-        # A column with a single observed value has no range to sweep. Widen
-        # it symmetrically rather than returning one point: "what if this
-        # were different" is the question, and a constant column is exactly
-        # when nobody knows the answer.
         centre = low if math.isfinite(low) else 0.0
         spread = abs(centre) if centre else 1.0
         low, high = centre - spread, centre + spread
     return np.linspace(low, high, max(2, int(n)))
 
 
-# ---------------------------------------------------------------------------
-# Profiles
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Profile:

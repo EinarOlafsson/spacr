@@ -119,9 +119,6 @@ class AnnotationStrategyPanel(QWidget):
         self._wells_provider = wells_provider
         self._score_provider = score_provider
         self._folder_provider = folder_provider
-        # EVERY PIECE OF STATE A CONTROL READS EXISTS BEFORE A SIGNAL IS
-        # CONNECTED, which is this package's rule for a widget whose
-        # handlers fire during construction.
         self._result = None
         self._running = False
 
@@ -129,10 +126,6 @@ class AnnotationStrategyPanel(QWidget):
         layout.setContentsMargins(6, 6, 6, 6)
         layout.setSpacing(6)
 
-        # THE CONTROLS SCROLL, THE REPORT DOES NOT. This panel is a tab in
-        # the left half of the figures splitter, which is often 500 px tall;
-        # without a scroll area the two forms are squashed until their rows
-        # overlap and every value on screen is unreadable.
         controls_host = QWidget()
         controls_layout = QVBoxLayout(controls_host)
         controls_layout.setContentsMargins(0, 0, 0, 0)
@@ -355,11 +348,6 @@ class AnnotationStrategyPanel(QWidget):
         self._report.setMinimumHeight(120)
         layout.addWidget(self._report, 2)
 
-        # THE PANEL SITS IN THE LEFT HALF OF THE FIGURES SPLITTER, which
-        # starts at 780 px and floors at 520. The prose in these choosers is
-        # what a combo measures itself by, so left alone the widget's minimum
-        # width forces the whole regression screen wider. The words live in
-        # the entries and the tooltips; the boxes elide.
         for box in (self._menu, self._split, self._leakage, self._model,
                     self._measure):
             box.setSizeAdjustPolicy(
@@ -370,9 +358,6 @@ class AnnotationStrategyPanel(QWidget):
                      self._negative_wells):
             edit.setMinimumWidth(90)
             edit.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
-        # A word-wrapped label asks for the width its longest paragraph
-        # wants. These two are paragraphs, so they say how narrow they can
-        # be and wrap instead.
         for prose in (self._about, self._status):
             prose.setMinimumWidth(160)
             prose.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
@@ -383,14 +368,6 @@ class AnnotationStrategyPanel(QWidget):
         self._jobs.job_failed.connect(self._on_job_failed)
 
         self._menu.currentIndexChanged.connect(self._on_strategy_changed)
-        # A FIELD THAT IS THE REASON HAS TO CLEAR THE REASON. Naming the
-        # control wells is what makes the anchor strategy runnable, and a
-        # button that stayed grey until something else happened would read
-        # as a button that does not work.
-        #
-        # ON THE EMPTINESS, NOT ON EVERY KEYSTROKE: re-checking asks the
-        # montage for its object rows, and a montage over a plate is not a
-        # thing to concatenate once per character typed.
         self._filled: Dict[str, bool] = {}
         for name, edit in (("positive", self._positive_wells),
                            ("negative", self._negative_wells),
@@ -399,17 +376,12 @@ class AnnotationStrategyPanel(QWidget):
             edit.textChanged.connect(partial(self._on_field_filled, name,
                                              edit))
 
-        # HOVER HELP BELONGS ON A SETTING'S NAME, not on the field the user
-        # is about to type into. Run BEFORE the first greying, because the
-        # greying puts its reason on the field and marks it so this pass
-        # leaves that reason where it can be read.
         from ..screens.settings_model import retarget_field_tooltips
 
         retarget_field_tooltips(self)
         self._on_strategy_changed()
         self.refresh()
 
-    # ------------------------------------------------------------- the menu
 
     @staticmethod
     def _entries():
@@ -481,8 +453,6 @@ class AnnotationStrategyPanel(QWidget):
             for part in (label, widget):
                 part.setEnabled(used)
             if used:
-                # The help goes back where the hover-help pass put it: on the
-                # name, not on the field.
                 label.setToolTip(self._row_help.get(key, ""))
                 widget.setToolTip("")
                 widget.setProperty(DISABLED_REASON_TOOLTIP, False)
@@ -490,14 +460,11 @@ class AnnotationStrategyPanel(QWidget):
             reason = (f"{entry.title} does not read this setting. It is "
                       "disabled for this strategy; its current value is "
                       "preserved for strategies that use it.")
-            # ON THE FIELD AS WELL AS THE NAME, and marked so the hover-help
-            # pass does not move a disabled control's reason off it.
             widget.setProperty(DISABLED_REASON_TOOLTIP, True)
             widget.setToolTip(reason)
             label.setToolTip(reason)
         self._refresh_controls()
 
-    # ------------------------------------------------------------- the run
 
     def refresh(self) -> None:
         """Refresh guide wells and control state from the current montage."""
@@ -539,9 +506,6 @@ class AnnotationStrategyPanel(QWidget):
                 negative_control_wells=self._named_wells(
                     self._negative_wells))
         except Exception:
-            # The execution path repeats this validation and reports a
-            # specific error. A preflight exception must not disable an
-            # otherwise valid strategy because of an unusual column dtype.
             LOG.debug("could not pre-flight the strategy", exc_info=True)
             return ""
 
@@ -558,10 +522,6 @@ class AnnotationStrategyPanel(QWidget):
             "Write selected cells, hold-out cells, predictions, and the run "
             "report as separate files." if savable else
             "Run a strategy before saving results.")
-        # A TAB THAT CANNOT BE FILLED SAYS WHY. The panel is present from the
-        # moment the Cells tab is built, so before a montage has loaded the
-        # reason is the only thing on it worth reading -- and it must not
-        # overwrite the report of a run that has already happened.
         if reason and self._result is None and not self._running:
             self._status.setText(reason)
 
@@ -678,7 +638,6 @@ class AnnotationStrategyPanel(QWidget):
         self._status.setText(f"The strategy failed: {message}")
         self._refresh_controls()
 
-    # ------------------------------------------------------------ the files
 
     def result(self):
         """Return the latest annotation result, or ``None``."""

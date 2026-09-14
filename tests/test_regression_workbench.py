@@ -1172,20 +1172,76 @@ class TestTheNonparametricTableMatchesTheParametricOne:
         for column in self.CONTRACT:
             assert column in out.columns
 
-    def test_the_source_columns_are_kept_not_replaced(self):
-        """A caller that wants the permutation quantities still has them."""
-        import inspect
+    #: What the permutation pass itself produces. The aliases are ADDED to
+    #: these, never put in their place.
+    SOURCE_COLUMNS = ("guide", "standardized_marginal_effect",
+                      "permutation_p_value", "adjusted_p_value")
 
-        from spacr.ml import perform_regression
-        source = inspect.getsource(perform_regression.__globals__["perform_regression"]) \
-            if "perform_regression" in perform_regression.__globals__ else ""
-        # The aliasing block adds columns; it must not drop the originals.
+    def test_the_source_columns_are_kept_not_replaced(self, tmp_path,
+                                                      monkeypatch):
+        """A caller that wants the permutation quantities still has them.
+
+        DRIVEN THROUGH THE REAL BLOCK. The permutation itself is stubbed --
+        200,000 shuffles are not what is under test -- and what comes back
+        out of ``_run_guide_permutation_analysis`` is read. Matching the
+        aliasing source for the absence of ``drop(`` could only ever say that
+        one spelling of losing a column was absent; this says the columns are
+        there.
+        """
+        import pandas as pd
+
+        import spacr.guide_permutation as guide_permutation
         import spacr.ml as ml
-        text = inspect.getsource(ml)
-        block = text[text.index("THE SAME ALIASES ON THE FULL TABLE"):]
-        block = block[:block.index("significant = primary_table")]
-        assert "results = results.copy()" in block
-        assert "drop(" not in block, "the permutation columns were dropped"
+
+        raw = pd.DataFrame({
+            "guide": ["TGGT1_225160_2", "TGGT1_239740_3"],
+            "gene": ["225160", "239740"],
+            "outcome": ["pred", "pred"],
+            "minimum_wells_threshold": [1, 1],
+            "standardized_marginal_effect": [1.4, -0.9],
+            "permutation_p_value": [5e-06, 5e-06],
+            "adjusted_p_value": [5e-06, 5e-06],
+            "significant": [True, True],
+            "n_wells": [6, 6],
+        })
+
+        monkeypatch.setattr(guide_permutation, "analyse_long_guide_table",
+                            lambda *a, **k: raw.copy())
+        monkeypatch.setattr(guide_permutation,
+                            "save_guide_permutation_results",
+                            lambda *a, **k: {})
+        monkeypatch.setattr(ml, "_report_exchangeability",
+                            lambda *a, **k: None)
+
+        wells = pd.DataFrame({"prc": ["w1", "w2"], "pred": [0.1, 0.2],
+                              "plateID": ["p1", "p1"]})
+        output = ml._run_guide_permutation_analysis(
+            wells, "pred", tmp_path,
+            {"guide_min_wells": [1],
+             "guide_permutation_plot": False,
+             "guide_permutation_gene_level": False,
+             "analysis_unit": "well",
+             "agg_type": "mean",
+             "fdr_alpha": 0.05})
+
+        results = output["results"]
+        for column in self.CONTRACT:
+            assert column in results.columns, (
+                f"{column!r} is missing, so every consumer of a coefficient "
+                f"table raises KeyError on permutation output")
+        for column in self.SOURCE_COLUMNS:
+            assert column in results.columns, (
+                f"{column!r} was replaced by its alias, so a caller that "
+                f"wants the permutation quantities has lost them")
+
+        # ADDED, not renamed: each alias still carries its source's values.
+        assert results["grna"].tolist() == results["guide"].tolist()
+        assert (results["coefficient"].tolist()
+                == results["standardized_marginal_effect"].tolist())
+        assert (results["p_value"].tolist()
+                == results["permutation_p_value"].tolist())
+        assert (results["q_value"].tolist()
+                == results["adjusted_p_value"].tolist())
 
     def test_guide_concordance_reads_permutation_output(self):
         """The consumer that broke, on the shape that broke it."""
@@ -1213,48 +1269,123 @@ class TestTheVolcanoIsNotAToxoplasmaFeature:
     user of the module got no volcano and no explanation.
     """
 
-    def test_the_fallback_is_reached_when_toxo_is_off(self):
+    @staticmethod
+    def _the_fallback_block():
+        """The real fallback ``if`` out of ``_perform_regression``, compiled.
+
+        The branch lives a thousand lines inside a function that reads CSVs
+        and fits models, so lifting it out is what makes the rule DRIVABLE
+        rather than readable. It is found by the condition it tests -- the
+        Toxoplasma switch and the legacy-volcano switch together -- so the
+        locator survives any rewording around it.
+        """
+        import ast
         import inspect
 
         import spacr.ml as ml
 
-        text = inspect.getsource(ml)
-        assert "A VOLCANO IS NOT A TOXOPLASMA FEATURE" in text
-        block = text[text.index("A VOLCANO IS NOT A TOXOPLASMA FEATURE"):]
-        block = block[:block.index("print('Significant Genes')")]
-        # Guarded on toxo being OFF, so the coloured version still wins when
-        # the metadata is there.
-        # The sentinel is `_toxoplasma_is_on(settings)` since the rename on
-        # 2026-08-17 (instruction 133, "change the toxo settings to
-        # Toxoplasma"). Reading the source for a literal is fragile by
-        # nature; what this test is really asserting is that the fallback
-        # volcano is guarded by the Toxoplasma switch and not drawn
-        # unconditionally, so it asks for the resolver by name.
-        assert "not _toxoplasma_is_on(settings)" in block
-        assert "volcano_plot" in block
+        tree = ast.parse(inspect.getsource(ml))
+        functions = [node for node in ast.walk(tree)
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "_perform_regression"]
+        assert len(functions) == 1, "_perform_regression was not found once"
+        guards = [node for node in ast.walk(functions[0])
+                  if isinstance(node, ast.If)
+                  and "_toxoplasma_is_on" in ast.unparse(node.test)
+                  and "draw_legacy_volcano" in ast.unparse(node.test)]
+        assert len(guards) == 1, (
+            "the fallback volcano is no longer a single branch guarded by "
+            "the Toxoplasma switch and the legacy-volcano switch together")
+        module = ast.Module(body=list(guards), type_ignores=[])
+        ast.fix_missing_locations(module)
+        return compile(module, "<spacr.ml: the fallback volcano>", "exec")
 
-    def test_it_still_announces_where_the_file_went(self):
+    @staticmethod
+    def _run(block, *, toxo, volcano_path, legacy=True):
+        """Run the branch with the locals ``_perform_regression`` gives it."""
+        import os
+
+        exec(block, {
+            "__name__": "spacr.ml",
+            "__package__": "spacr",
+            "os": os,
+            "_toxoplasma_is_on": lambda _settings: toxo,
+            "draw_legacy_volcano": legacy,
+            "settings": {"legacy_volcano": legacy, "fdr_alpha": 0.05,
+                         "regression_type": "ols"},
+            "results_path_gene": "results_gene.csv",
+            "reg_threshold": 0.5,
+            "volcano_path": str(volcano_path),
+        })
+
+    def test_the_fallback_is_reached_when_toxo_is_off(self, tmp_path,
+                                                     monkeypatch):
+        """The guard, exercised both ways rather than read.
+
+        The sentinel is ``_toxoplasma_is_on(settings)`` since the rename on
+        2026-08-17 (instruction 133, "change the toxo settings to
+        Toxoplasma") -- but the name is not the rule. The rule is that a run
+        with Toxoplasma OFF gets a volcano, and a run with it ON is left to
+        the compartment-coloured one rather than having a plain volcano drawn
+        over it.
+        """
+        import spacr.plot
+
+        drawn = []
+        monkeypatch.setattr(
+            spacr.plot, "volcano_plot",
+            lambda *_a, **kwargs: drawn.append(kwargs.get("save_path")))
+
+        block = self._the_fallback_block()
+        path = tmp_path / "regression_volcano_plot.pdf"
+
+        self._run(block, toxo=True, volcano_path=path)
+        assert drawn == [], (
+            "the plain volcano was drawn over the Toxoplasma-coloured one")
+
+        self._run(block, toxo=False, volcano_path=path)
+        assert drawn == [str(path)], (
+            "a run with Toxoplasma off drew no volcano at all, which is the "
+            "sixteen-diagnostics-and-not-the-figure silence this exists for")
+
+    def test_it_still_announces_where_the_file_went(self, tmp_path,
+                                                    monkeypatch, capsys):
         """Every other artefact says where it went; the volcano used not to,
         which made 'drew one' and 'drew none' indistinguishable."""
-        import inspect
+        import spacr.plot
 
-        import spacr.ml as ml
+        path = tmp_path / "regression_volcano_plot.pdf"
 
-        text = inspect.getsource(ml)
-        block = text[text.index("A VOLCANO IS NOT A TOXOPLASMA FEATURE"):]
-        block = block[:block.index("print('Significant Genes')")]
-        assert "Saved volcano plot to" in block
+        def draw(*_args, **kwargs):
+            with open(kwargs["save_path"], "w", encoding="utf-8") as handle:
+                handle.write("pdf")
 
-    def test_a_drawing_failure_does_not_sink_the_run(self):
-        """The regression is complete and written by this point."""
-        import inspect
+        monkeypatch.setattr(spacr.plot, "volcano_plot", draw)
+        self._run(self._the_fallback_block(), toxo=False, volcano_path=path)
 
-        import spacr.ml as ml
+        assert f"Saved volcano plot to {path}" in capsys.readouterr().out
 
-        text = inspect.getsource(ml)
-        block = text[text.index("A VOLCANO IS NOT A TOXOPLASMA FEATURE"):]
-        block = block[:block.index("print('Significant Genes')")]
-        assert "except Exception" in block
+    def test_a_drawing_failure_does_not_sink_the_run(self, tmp_path,
+                                                     monkeypatch, capsys):
+        """The regression is complete and written by this point, so a figure
+        that will not draw must be reported and stepped over -- not allowed
+        to take the finished run down with it.
+
+        Not raising IS the assertion; the printed line is what keeps the
+        failure from being silent.
+        """
+        import spacr.plot
+
+        def explode(*_args, **_kwargs):
+            raise ValueError("no q_value column to plot")
+
+        monkeypatch.setattr(spacr.plot, "volcano_plot", explode)
+        self._run(self._the_fallback_block(), toxo=False,
+                  volcano_path=tmp_path / "regression_volcano_plot.pdf")
+
+        printed = capsys.readouterr().out
+        assert "Could not draw the volcano plot" in printed
+        assert "ValueError" in printed
 
 
 class TestASettingThatCannotDoAnythingIsGreyedOut:

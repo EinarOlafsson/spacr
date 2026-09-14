@@ -164,12 +164,44 @@ class TestThePreprocessSourceList:
 
     def test_one_ledger_covers_the_whole_invocation(self):
         """A run over four plates that only managed three must not report
-        as if it did four."""
-        from spacr import core as C
+        as if it did four.
 
-        source = inspect.getsource(C)
-        assert "RunLedger('preprocess_generate_masks')" in source
-        assert "must not report as if it did four" in source
+        Two halves. The ledger is opened ONCE, above the loop over the
+        source folders, so it spans the invocation rather than the
+        plate -- a ledger per plate would finalize four times, each one
+        complete, and the plate that failed would be the only run that
+        said so. And a ledger that saw three successes and one failure
+        reports four attempted, three succeeded, and a partial run.
+        """
+        from spacr import core as C
+        from spacr.errors import RunLedger
+
+        source = inspect.getsource(C.preprocess_generate_masks)
+        assert "ledger = RunLedger('preprocess_generate_masks')" in source
+        assert "for source_folder in source_folders:" in source
+        opened = source.index("ledger = RunLedger('preprocess_generate_masks')")
+        loop = source.index("for source_folder in source_folders:")
+        assert opened < loop, (
+            "the ledger is now opened inside the per-plate loop, so each "
+            "plate gets a fresh one and a run over four that managed three "
+            "reports as four clean runs")
+
+        ledger = RunLedger('preprocess_generate_masks')
+        for plate in ("plate1", "plate2", "plate3"):
+            ledger.record_success(plate, stage='mask')
+        ledger.record_failure("plate4", stage='mask',
+                              exc=RuntimeError("no images"))
+
+        assert ledger.n_attempted == 4
+        assert ledger.n_succeeded == 3
+        assert ledger.n_failed == 1
+        assert ledger.status == 'partial', (
+            "a run over four plates that only managed three now reports as "
+            "if it did four")
+        assert ledger.is_complete is False
+        assert [failure.item for failure in ledger.failures] == ["plate4"], (
+            "the ledger no longer names the plate a human has to go and "
+            "look at")
 
 
 # ---------------------------------------------------------------------------

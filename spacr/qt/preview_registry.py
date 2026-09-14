@@ -85,17 +85,6 @@ PREVIEWS: Dict[str, PreviewSpec] = {
         builder="spacr.qt.widgets.motility_preview:"
                 "build_motility_preview_card",
         title="Track preview", owned_by_screen=True),
-    # -- attached through this seam ---------------------------------------
-    #
-    # Both of these run Cellpose over one field and are judged entirely by
-    # whether the mask came out right, which is exactly the question the
-    # Mask panel answers. Their settings even share its names — the panel
-    # reads `diameter`, `flow_threshold` and `CP_prob` straight out of the
-    # dict, which is what makes reuse honest rather than approximate.
-    #
-    # The reverse direction does need translating: the panel speaks Mask's
-    # per-compartment names, and `cell_diameter` means nothing to a module
-    # that has one object type and calls it `diameter`.
     "cellpose_masks": PreviewSpec(
         builder="spacr.qt.screens.app_screen:_build_live_preview_card",
         tooltip="Segment one sampled field with these settings before "
@@ -336,8 +325,6 @@ def _attach(screen: QWidget, app_key: str,
     if bar is not None and hasattr(bar, "add_trailing_widget"):
         bar.add_trailing_widget(toggle)
     else:
-        # No strip on this screen — put the toggle above the card so the
-        # preview is still reachable rather than permanently hidden.
         toggle.setParent(screen)
         _insert_above_actions(screen, toggle)
     return host

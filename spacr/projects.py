@@ -145,9 +145,6 @@ def _stamp(nanoseconds: int) -> str:
                                       timespec="seconds")
 
 
-# ---------------------------------------------------------------------------
-# The pipeline order, read off the port graph
-# ---------------------------------------------------------------------------
 
 def producing_modules() -> Tuple[str, ...]:
     """Every declared module that writes something, sorted.
@@ -192,9 +189,6 @@ def pipeline_order() -> Tuple[str, ...]:
     return tuple(order)
 
 
-# ---------------------------------------------------------------------------
-# Stage reached
-# ---------------------------------------------------------------------------
 
 def _newest_mtime_ns(resolved: "_ports.ResolvedPort") -> int:
     """When this port was last written, in ``time_ns`` units. 0 if absent.
@@ -380,9 +374,6 @@ def module_states(root: Any, *, modules: Sequence[str] = (),
 
         rows = recorded.get(module) or []
         if rows and state == STATE_ABSENT:
-            # The registry watched this run finish. Whether its outputs are
-            # still on disk is a different question, and the one PARTIAL is
-            # for.
             alive = [row for row in rows if row.exists]
             state = STATE_DONE if len(alive) == len(rows) else STATE_PARTIAL
             evidence = SOURCE_REGISTRY
@@ -397,9 +388,6 @@ def module_states(root: Any, *, modules: Sequence[str] = (),
     return tuple(states)
 
 
-# ---------------------------------------------------------------------------
-# Finding projects
-# ---------------------------------------------------------------------------
 
 def looks_like_project(root: Any) -> bool:
     """Whether a folder is a spaCR project, judged without the registry.
@@ -427,12 +415,8 @@ def looks_like_project(root: Any) -> bool:
     for state in module_states(project):
         if state.ran:
             return True
-    # No output anywhere: is there raw data waiting to have something run on
-    # it? The mask pipeline's own input declaration answers that.
     try:
         inputs = _ports.declared_inputs("mask", root=project)
-    # 'mask' is declared by spaCR itself; a build that dropped it, or a
-    # plugin registry that replaced PORTS, is what this guards against.
     except _ports.UnknownModule:
         return False
     return any(resolved.exists for resolved in inputs)
@@ -491,7 +475,7 @@ def discover(roots: Iterable[Any], *, depth: int = DEFAULT_DEPTH,
             try:
                 if not entry.is_dir(follow_symlinks=False):
                     continue
-            except OSError:                  # a mount that went away
+            except OSError:
                 continue
             _walk(entry.path, level + 1)
 
@@ -502,9 +486,6 @@ def discover(roots: Iterable[Any], *, depth: int = DEFAULT_DEPTH,
     return tuple(sorted(set(found)))
 
 
-# ---------------------------------------------------------------------------
-# The summary
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class StaleArtifact:
@@ -610,7 +591,6 @@ class ProjectSummary:
     usage: Optional[ProjectUsage] = field(default=None, repr=False,
                                           compare=False)
 
-    # -- stage --------------------------------------------------------------
     @property
     def stage_label(self) -> str:
         """The stage as a table cell: the module, and whether it finished."""
@@ -620,14 +600,13 @@ class ProjectSummary:
             if state.module == self.stage:
                 return (self.stage if state.state == STATE_DONE
                         else f"{self.stage} (partial)")
-        return self.stage                    # a summary with no states
+        return self.stage
 
     @property
     def ran(self) -> Tuple[str, ...]:
         """Every module that left something behind, in pipeline order."""
         return tuple(s.module for s in self.modules if s.ran)
 
-    # -- staleness ----------------------------------------------------------
     @property
     def n_stale(self) -> int:
         """How many recorded results are out of date."""
@@ -710,7 +689,7 @@ def _stale_of(registry: Registry, records: Sequence[Artifact]
     for record in records:
         try:
             verdict: Staleness = registry.is_stale(record)
-        except Exception as exc:             # corrupt row
+        except Exception as exc:
             LOG.debug("staleness check failed for %s: %s",
                       record.artifact_id, exc)
             continue
@@ -775,35 +754,25 @@ def scan(root: Any, *, registry: Optional[Registry] = None,
     if usage is None:
         try:
             usage = _dm.scan_project(project, registry=registry)
-        except _dm.DataManagerError as exc:  # raced delete
+        except _dm.DataManagerError as exc:
             LOG.debug("cannot measure %s: %s", project, exc)
             return ProjectSummary(root=project, name=name, exists=False,
                                   scanned_utc=scanned)
         except Exception as exc:
-            # The walk reconciles against the registry, so a corrupt or
-            # half-written ``artifacts.db`` breaks the measurement rather
-            # than the folder. The project is still there and still worth
-            # listing: its bytes go unmeasured, with the reason recorded,
-            # instead of the whole row -- or the whole browse -- vanishing.
             LOG.debug("cannot measure %s: %s", project, exc)
             usage = ProjectUsage(root=project, errors=(f"{project}: {exc}",),
                                  scanned_utc=scanned)
 
-    # The registry first: it is the authority on what ran, and
-    # `module_states` takes it into account rather than guessing from files
-    # alone wherever it has an answer.
     try:
         store = _registry_for(project, registry)
     except Exception as exc:
-        # Opening it is as fallible as reading it, and a browser that raises
-        # here shows no list at all.
         LOG.debug("cannot open the registry for %s: %s", project, exc)
         store = None
     records: List[Artifact] = []
     if store is not None:
         try:
             records = list(store.by_project(project))
-        except Exception as exc:             # locked db
+        except Exception as exc:
             LOG.debug("cannot read the registry for %s: %s", project, exc)
 
     states = module_states(project, records=records)
@@ -821,9 +790,6 @@ def scan(root: Any, *, registry: Optional[Registry] = None,
         last_ns = max(record.created_ns for record in records)
         source = SOURCE_REGISTRY
     else:
-        # Nothing recorded. The outputs themselves still carry a date, and it
-        # is a weaker claim reported as a weaker claim rather than dressed up
-        # as a run record.
         last_ns = max((state.newest_ns for state in states), default=0)
         if last_ns:
             source = SOURCE_FILESYSTEM
@@ -872,15 +838,12 @@ def browse(roots: Iterable[Any], *, depth: int = DEFAULT_DEPTH,
         if on_progress is not None:
             try:
                 on_progress(index, len(projects), project)
-            except Exception:                # caller's bug
+            except Exception:
                 LOG.debug("progress callback raised", exc_info=True)
     summaries.sort(key=lambda s: (-s.last_run_ns, s.name.lower()))
     return tuple(summaries)
 
 
-# ---------------------------------------------------------------------------
-# Rendering
-# ---------------------------------------------------------------------------
 
 def format_project(summary: ProjectSummary, *, limit: int = 6) -> str:
     """Render one :class:`ProjectSummary` as a block of text.

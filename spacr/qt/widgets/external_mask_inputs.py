@@ -221,8 +221,6 @@ class ExternalMaskInputWidget(QWidget):
             if len(group.paths) == 1:
                 source = group.paths[0]
             source_item = table_item(source)
-            # Which group the row was built from. The table sorts, so the
-            # third row is not the third group after a header click.
             source_item.setData(Qt.UserRole, row)
             source_item.setToolTip("\n".join(group.paths[:20]))
             self._table.setItem(row, 0, source_item)

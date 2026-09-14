@@ -269,7 +269,6 @@ def _memory(psutil_module, process) -> Tuple[Optional[int], Optional[str]]:
     except psutil_module.NoSuchProcess:
         raise
     except Exception:                                            # noqa: BLE001
-        # The private figures need permissions the resident one does not.
         LOG.debug("no private memory figures for pid %s",
                   getattr(process, "pid", None), exc_info=True)
     if full is not None:
@@ -440,8 +439,6 @@ def tree_sample(level: Optional[str] = None, process: Any = None,
         try:
             rows.append(_process_row(psutil_module, member, detailed))
         except (psutil_module.NoSuchProcess, psutil_module.AccessDenied):
-            # A child exiting between enumeration and reading is what a
-            # short-lived worker DOES. Skip it, keep the rest, and say so.
             missed += 1
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not read a process in the tree", exc_info=True)
@@ -501,9 +498,6 @@ def summarise(samples: Sequence[Mapping[str, Any]]) -> Dict[str, Any]:
     if largest is not None:
         out["peak_process"] = largest
 
-    # Cumulative counters, so the largest sample is the run's total rather
-    # than a sum over samples, which would count the same seconds again once
-    # a second.
     burned = []
     for row in rows:
         seconds = [value for member in row.get("processes") or []
@@ -718,8 +712,6 @@ class ResourceSampler:
         if self.level == "off":
             return None
         with self._lock:
-            # The header is written before the first reading is taken, so a
-            # file always names its measure before it carries a figure.
             self._ensure_log()
             sample = tree_sample(self.level, now=self._clock())
             self._samples.append(sample)
@@ -756,8 +748,6 @@ class ResourceSampler:
             try:
                 self.sample_once()
             except Exception:                                    # noqa: BLE001
-                # A sampler that dies on a bad reading stops recording the
-                # run at exactly the point the run started going wrong.
                 LOG.debug("a reading failed; sampling continues",
                           exc_info=True)
             if self._stop.wait(self.interval):

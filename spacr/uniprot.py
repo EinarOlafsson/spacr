@@ -92,7 +92,6 @@ BUNDLED_NAMES = frozenset({
 #: ME49 and P. falciparum 3D7 ARE indexed that way, which is why they stay
 #: strain-level -- there is no rule here, only what UniProt actually holds.
 ORGANISMS: Dict[str, int] = {
-    # -- hosts people culture and image -----------------------------------
     "homo sapiens": 9606,
     "human": 9606,
     "mus musculus": 10090,
@@ -142,8 +141,7 @@ ORGANISMS: Dict[str, int] = {
     "arabidopsis thaliana": 3702,
     "arabidopsis": 3702,
 
-    # -- apicomplexa ------------------------------------------------------
-    "toxoplasma gondii": 508771,          # ME49
+    "toxoplasma gondii": 508771,
     "toxoplasma gondii me49": 508771,
     "toxoplasma gondii gt1": 507601,
     "toxoplasma gondii rh": 383379,
@@ -154,7 +152,7 @@ ORGANISMS: Dict[str, int] = {
     "cystoisospora suis": 483139,
     "sarcocystis neurona": 42890,
     "cyclospora cayetanensis": 88456,
-    "plasmodium falciparum": 36329,       # 3D7
+    "plasmodium falciparum": 36329,
     "plasmodium falciparum 3d7": 36329,
     "p. falciparum": 36329,
     "plasmodium vivax": 126793,
@@ -178,9 +176,6 @@ ORGANISMS: Dict[str, int] = {
     "theileria annulata": 5874,
     "theileria": 5875,
     "cytauxzoon felis": 88764,
-    # The three tissue-cyst and intestinal apicomplexans the genus name
-    # alone was missing. Each points at the species a screen would be run
-    # on rather than at the genus taxon, which carries no proteome.
     "sarcocystis neurona": 42890,
     "sarcocystis": 42890,
     "cyclospora cayetanensis": 88456,
@@ -188,7 +183,6 @@ ORGANISMS: Dict[str, int] = {
     "cystoisospora suis": 483139,
     "cystoisospora": 483139,
 
-    # -- other parasites --------------------------------------------------
     "trypanosoma brucei": 185431,
     "t. brucei": 185431,
     "trypanosoma cruzi": 353153,
@@ -287,8 +281,6 @@ def near_misses(name, limit: int = 5) -> Tuple[str, ...]:
                                       cutoff=0.6)
     if close:
         return tuple(close)
-    # A GENUS ON ITS OWN is the common miss -- "plasmodium", "leishmania" --
-    # and difflib does not rate a prefix highly against a two-word name.
     head = name.split()[0]
     return tuple(sorted(n for n in ORGANISMS if n.startswith(head))[:limit])
 
@@ -300,9 +292,6 @@ def organisms_for(group: str = "") -> Tuple[str, ...]:
                         or n.startswith(group)))
 
 
-# ---------------------------------------------------------------------------
-# fetching
-# ---------------------------------------------------------------------------
 
 def _cache_path(cache_dir, key: str) -> str:
     """Return the ``uniprot_<key>.json`` path beneath ``cache_dir``."""
@@ -353,13 +342,6 @@ def _next_page(link_header: str) -> str:
     human is twenty thousand entries and TP53 is not in the first five
     hundred.
     """
-    # NOT split(","). A Link header is comma-separated, but the URL inside
-    # it carries `fields=accession,id,protein_name,...` with literal commas,
-    # so splitting cut the URL into fragments and the one holding
-    # `rel="next"` had lost its opening bracket. The header parsed as having
-    # no next page, every fetch stopped at 500 rows, and a "proteome" was
-    # the first five hundred entries of one -- which is why a human screen
-    # looking for TP53 matched nothing.
     found = re.search(r'<([^>]+)>\s*;\s*rel="next"', str(link_header or ""))
     return found.group(1) if found else ""
 
@@ -483,8 +465,6 @@ def fetch_genes(resolution: Resolution, genes, *, cache_dir=None):
     if cached is not None:
         return pd.DataFrame(cached)
 
-    # gene: AND accession, because a screen library names its targets one
-    # way or the other and neither spelling is wrong.
     clauses = " OR ".join(
         f"gene:{n}" if not ACCESSION.match(n) else f"accession:{n}"
         for n in names)
@@ -530,24 +510,11 @@ def annotation_for(text, *, cache_dir=None, genes=None):
             f"an accession"
             + (f" -- did you mean {near}?" if near else "")
             + ". Results are not annotated.")
-    # ASK FOR WHAT IS NEEDED FIRST. A table naming a few genes gets a query
-    # naming those genes, which is seconds; only a table naming more than
-    # `TARGETED_MAX` of them pulls the whole proteome.
     frame = fetch_genes(resolution, genes, cache_dir=cache_dir)
     if frame is None or not len(frame):
         frame = fetch(resolution, cache_dir=cache_dir)
     note = ""
     if (frame is None or not len(frame)) and resolution.kind == "organism":
-        # NO REVIEWED ENTRIES IS NORMAL for most parasites. Swiss-Prot has
-        # a few hundred proteins for Plasmodium and none at all for some
-        # strain-level taxa -- Babesia bovis and Leishmania major both came
-        # back empty on the reviewed query while having thousands of
-        # unreviewed entries. Refusing to annotate those organisms because
-        # nobody has curated them by hand would make the field useless for
-        # exactly the organisms it was asked for.
-        #
-        # So the fallback is taken and SAID, because a TrEMBL annotation is
-        # a prediction and the reader is entitled to know which they have.
         frame = fetch(resolution, cache_dir=cache_dir, reviewed=False)
         if frame is not None and len(frame):
             note = (f"{resolution.text} has no reviewed (Swiss-Prot) "

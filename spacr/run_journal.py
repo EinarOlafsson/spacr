@@ -65,12 +65,6 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple
 
-# The macro recorder. Imported at the top rather than inside `open_run`
-# because it costs nothing to: `spacr.macro` imports only the standard
-# library, and reaches for spacr.ports / spacr.artifacts / spacr.settings
-# lazily, inside the functions that need them. Both calls swallow every
-# exception on purpose — the emitted script is a record of the run, never
-# a condition of it.
 from .macro import begin_recording, finish_recording
 
 LOG = logging.getLogger("spacr.run_journal")
@@ -102,9 +96,6 @@ _IGNORED_TREE_NAMES = frozenset({
 })
 
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
 
 def runs_root() -> Path:
     """Return ``~/.spacr/runs``; created on first access."""
@@ -192,9 +183,6 @@ def _new_run_dir(app_key: str) -> Path:
     return d
 
 
-# ---------------------------------------------------------------------------
-# Environment + version snapshot
-# ---------------------------------------------------------------------------
 
 def _pkg_version(name: str) -> str:
     """Return an installed distribution version or ``"not installed"``."""
@@ -542,9 +530,6 @@ def _inventory_signature(path: Path) -> Optional[Tuple[int, int]]:
         return None
 
 
-# ---------------------------------------------------------------------------
-# Run object
-# ---------------------------------------------------------------------------
 
 @dataclass
 class Run:
@@ -602,7 +587,6 @@ class Run:
     )
     _start_cpu_s: float = field(default_factory=time.process_time, repr=False)
 
-    # -- external mutations ------------------------------------------------
     def record_model(self, name: str, checkpoint_path: Any) -> None:
         """Fingerprint ``checkpoint_path`` and remember it under ``name``.
 
@@ -698,8 +682,6 @@ class Run:
         """
         text = str(message or "").strip()
         if text and text not in self.run_warnings:
-            # Bound the manifest if a library repeats the same warning with
-            # field-specific text thousands of times.
             if len(self.run_warnings) < 500:
                 self.run_warnings.append(text)
 
@@ -773,7 +755,6 @@ class Run:
             except BaseException:
                 pass
 
-    # -- private -----------------------------------------------------------
     def _record_tree(
         self,
         path: Path,
@@ -851,9 +832,6 @@ class Run:
         if path.is_dir():
             return path
         if output_only or _is_output_key(key):
-            # An output FILE: the run may well write siblings next to it --
-            # a report beside its figures, a tar beside its manifest -- so
-            # the directory is the honest unit here.
             return path.parent
         return None
 
@@ -917,10 +895,6 @@ class Run:
         for key, path, _output_only in self._path_candidates:
             root = self._inventory_root(key, path, _output_only)
             if root is None:
-                # The same narrowing as the baseline, and it MUST match it:
-                # a file inventoried at the start and re-walked as a whole
-                # directory at the end would report every sibling as an
-                # output this run created.
                 signature = _inventory_signature(path)
                 if (signature is not None
                         and self._baseline.get(str(path)) != signature):
@@ -980,12 +954,6 @@ class Run:
         manifest = {
             "schema_version": MANIFEST_SCHEMA_VERSION,
             "hash_algorithm": _HASH_ALGORITHM,
-            # Stated, not implied. A manifest that simply LACKS hashes is
-            # indistinguishable from one whose hashes were computed and
-            # matched, and telling those apart is the whole value of the
-            # record. Top level rather than under `performance`, because
-            # "were the digests taken" is a claim about provenance and not
-            # a timing.
             "input_hashing": "on" if self.hashing_enabled() else "skipped",
             "app_key":       self.app_key,
             "start_utc":     datetime.fromtimestamp(
@@ -1019,12 +987,10 @@ class Run:
 
     def _write_settings(self) -> None:
         """Write exact machine- and human-readable settings snapshots."""
-        # Machine-friendly JSON (source of truth)
         _atomic_write_text(
             self.dir / "settings.json",
             json.dumps(self.settings, indent=2, default=str, sort_keys=True),
         )
-        # Human-friendly CSV (Key,Value — spacr.utils.load_settings compatible)
         with open(self.dir / "settings.csv", "w", newline="") as f:
             w = csv.writer(f)
             w.writerow(["Key", "Value"])
@@ -1041,10 +1007,6 @@ class Run:
                 with open(src, encoding="utf-8", errors="replace") as f:
                     lines = f.readlines()
         except Exception as exc:
-            # This is the run's own record of what it printed, and it is the
-            # first thing anyone opens when a run went wrong. A folder with no
-            # log.txt reads as "nothing was logged" rather than "the copy
-            # failed", so say which it was — but do not fail the run over it.
             LOG.warning("could not copy the last %d log lines into %s (%s)",
                         n, self.dir, exc)
         try:
@@ -1078,9 +1040,6 @@ class Run:
             )
 
 
-# ---------------------------------------------------------------------------
-# Context manager
-# ---------------------------------------------------------------------------
 
 _RUN_LOCAL = threading.local()
 
@@ -1121,12 +1080,8 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     run.environment = _env_snapshot()
     run._write_settings()
     run._capture_initial_provenance()
-    # A running manifest makes an interrupted process visible and auditable.
     run._write_manifest()
     LOG.info("run opened → %s", run.dir)
-    # Macro recorder, half one: start watching for the run id the pipeline
-    # is about to mint. See spacr/macro.py — the script lands next to this
-    # manifest when the run closes.
     macro = begin_recording(app_key, run.settings, run_dir=run.dir)
     prev_active = current_run()
     _RUN_LOCAL.active = run
@@ -1136,15 +1091,6 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
             run.status = "success"
     except BaseException as e:
         import traceback as _tb
-        # A RUN THE USER STOPPED IS NOT A RUN THAT FAILED, and instruction
-        # 140 C asks for a folder they can see afterwards. Recorded as
-        # "cancelled" so the Runs tab, `recent_runs` and a reviewer reading
-        # the manifest can all tell "I pressed Stop" from "this screen broke
-        # the model" -- which are different things to do next, and the folder
-        # is otherwise identical.
-        #
-        # The traceback is still kept: where a long fit was interrupted is
-        # exactly what a user asks afterwards.
         run.status = ("cancelled" if type(e).__name__ == "PipelineCancelled"
                       else "failed")
         run.error_traceback = "".join(
@@ -1164,30 +1110,17 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
             run._snapshot_log_tail()
             run._write_manifest()
         except Exception:
-            # A manifest failure is never silent, but it also must not mask the
-            # original pipeline exception during context-manager unwinding.
             LOG.exception("Could not finalize run manifest in %s", run.dir)
-        # Instruction 180: what was OPEN around the run, when anything was.
-        # Imported here and not at module scope so a pipeline that never
-        # touches the GUI does not import it at all, and inside its own try
-        # because a workspace bundle is a convenience -- a run that produced
-        # results must not be reported as failed because a panel could not
-        # describe itself.
         try:
             from .workspace import save_for_run
             save_for_run(run.dir, run.settings, app_key=run.app_key)
         except Exception:
             LOG.exception("Could not save the workspace for %s", run.dir)
-        # Macro recorder, half two: write the Python script that repeats
-        # this run — and, when it continues one, the whole chain before it.
         finish_recording(macro, status=run.status, settings=run.settings)
         LOG.info("run closed [%s] in %.1fs → %s",
                   run.status, run.end_ts - run.start_ts, run.dir)
 
 
-# ---------------------------------------------------------------------------
-# Listing + lookup
-# ---------------------------------------------------------------------------
 
 def _run_dir_names(root: Path) -> List[str]:
     """Every run-folder name under ``root``, from ONE directory read.
@@ -1241,20 +1174,6 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
     all_entries: List[Dict[str, Any]] = []
     root = runs_root()
 
-    # Newest-first BY FOLDER NAME before opening anything. Run folders are
-    # named `{YYYY-MM-DD_HHMMSS}_{tag}__{app}`, so the name sorts to the
-    # second without touching the disk.
-    #
-    # This used to read and parse EVERY manifest in the journal and then
-    # keep ten. On a real machine that was 3521 folders and ~0.85 s of
-    # json.loads on the GUI thread at startup, to populate a ten-row list
-    # -- and it grows with every run the user has ever done, so the launch
-    # gets slower the more the tool is used.
-    #
-    # Only `limit` are needed, but the name truncates to the second while
-    # `start_utc` does not, so runs inside one second can reorder. Reading a
-    # margin past the limit and sorting those precisely keeps the documented
-    # ordering while bounding the work.
     candidates = [
         root / name
         for name in sorted(_run_dir_names(root), reverse=True)
@@ -1269,10 +1188,6 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
         try:
             m = json.loads(manifest_path.read_text())
         except Exception as exc:
-            # Not fatal — one unreadable folder must not empty Run History —
-            # but not silent either. This dropped the run from the list with
-            # no trace anywhere, so a run the user can see on disk simply was
-            # not there in the app, and nothing said why.
             LOG.warning("skipping run folder %s: its manifest.json could not "
                         "be read (%s)", d.name, exc)
             continue
@@ -1284,8 +1199,6 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
             "elapsed_s": m.get("elapsed_s"),
             "manifest":  m,
         })
-    # Sort by parsed timestamp (with folder-mtime as tiebreaker for
-    # any manifests missing / mangled start_utc).
     def _sort_key(e):
         """Sort a recent-run entry by parsed start time, then folder mtime."""
         s = e.get("start_utc") or ""
@@ -1354,15 +1267,10 @@ def search_runs(
             values = manifest.get(key) or []
             if isinstance(values, (list, tuple)):
                 warnings_list.extend(str(value) for value in values if value)
-            # Falsy values became ``[]`` above and took the list arm, so every
-            # remaining JSON scalar is truthy and represents one warning.
             else:
                 warnings_list.append(str(values))
         warnings_list.extend(str(error) for error in rec["errors"])
 
-        # Legacy manifests did not structure warnings. Their bounded log tail
-        # is still useful, so surface warning-looking lines without failing a
-        # history scan on encoding or permissions.
         if "warnings" not in manifest:
             log_path = directory / "log.txt"
             try:
@@ -1534,20 +1442,6 @@ def journal_totals() -> Dict[str, int]:
     if not root.exists():
         return totals
 
-    # INCREMENTAL. This has to read every manifest -- the answer is an
-    # aggregate over all runs, so it cannot be bounded the way recent_runs
-    # can -- but a journal is append-only in practice, so it does not have
-    # to read them all TWICE.
-    #
-    # The docstring below used to say "cheap enough to call on Home-screen
-    # construction: one iterdir + a file read per run folder". That was true
-    # at fifty runs. At 3521 it was 671 ms on the GUI thread at startup, and
-    # it got worse with every run the user ever did.
-    #
-    # So the counted folder names are remembered alongside the totals, and
-    # only folders not already counted are parsed. A DELETED folder cannot
-    # be undone incrementally -- nothing records what it contributed -- so
-    # that case falls back to a full recount, which is correct and rare.
     names = _run_dir_names(root)
     present = set(names)
     cached = _read_totals_cache()
@@ -1567,10 +1461,6 @@ def journal_totals() -> Dict[str, int]:
         try:
             m = json.loads(manifest_path.read_text())
         except Exception as exc:
-            # The Home dashboard's run count is this number. Skipping a folder
-            # in silence made it quietly short — "you have run 12 masks" when
-            # the answer is 13 and one manifest is damaged — and a total that
-            # is wrong by an unknown amount is worse than one that says so.
             LOG.warning("run folder %s is not counted: its manifest.json "
                         "could not be read (%s)", d.name, exc)
             continue
@@ -1578,16 +1468,11 @@ def journal_totals() -> Dict[str, int]:
         app_key = m.get("app_key", "")
         if app_key in ("mask", "measure", "classify"):
             totals[f"{app_key}_runs"] += 1
-        # Per-run model record. The manifest stores these under
-        # ``model_hashes`` as a {name: "filename:digest"} dict (see
-        # Run._write_manifest) — NOT a ``models`` list, which never
-        # matched and left models_recorded stuck at 0.
         hashes = m.get("model_hashes") or {}
         if isinstance(hashes, dict):
             for digest in hashes.values():
                 if digest:
                     seen_models.add(digest)
-        # Back-compat: also honour a legacy ``models`` list of dicts.
         for model in m.get("models", []) or []:
             sha = model.get("sha256") if isinstance(model, dict) else None
             if sha:
@@ -1625,21 +1510,7 @@ def _read_settings_csv(path: Path) -> Dict[str, Any]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Provenance diff — "what actually changed between run A and run B?"
-# ---------------------------------------------------------------------------
-#
-# Why this is not a plain key-by-key dict diff: spaCR's settings schema
-# moves between releases. Diffing a run recorded on 1.4.3.7 (204 keys)
-# against one recorded on 1.4.8.7 (38 keys) turns up ~196 "differences",
-# of which *zero* are decisions the user made — they are keys that simply
-# did not exist on one side. The signal (a knob the user turned) drowns
-# in schema drift. So the diff buckets keys by presence first and only
-# calls a key "changed" when it exists in BOTH runs.
 
-# Strings that stand in for "unset" once a value has round-tripped
-# through CSV (``None`` is written as an empty cell) or through
-# ``json.dumps(..., default=str)``.
 _NULLISH_STRINGS = frozenset({"", "none", "null"})
 
 _LITERAL_LEAD = "([{'\"-+.0123456789"
@@ -1819,14 +1690,11 @@ def _read_run_record(ref: Any) -> Dict[str, Any]:
         "dir": d, "settings": {}, "manifest": {}, "errors": [],
     }
 
-    # -- settings ----------------------------------------------------------
     try:
         rec["settings"] = load_run_settings(d) or {}
     except FileNotFoundError:
         rec["errors"].append("no settings.json / settings.csv in run folder")
     except Exception as e:
-        # settings.json exists but is unreadable — try the CSV twin
-        # before giving up; they are written together.
         rec["errors"].append(f"settings.json unreadable ({e.__class__.__name__})")
         csv_path = d / "settings.csv"
         if csv_path.exists():
@@ -1841,7 +1709,6 @@ def _read_run_record(ref: Any) -> Dict[str, Any]:
             f"settings is {type(rec['settings']).__name__}, not a dict")
         rec["settings"] = {}
 
-    # -- manifest ----------------------------------------------------------
     mp = d / "manifest.json"
     if not mp.exists():
         rec["errors"].append("no manifest.json (run may still be in flight)")
@@ -1979,9 +1846,6 @@ def _diff_env(man_a: Dict[str, Any], man_b: Dict[str, Any]) -> List[Dict[str, An
     return out
 
 
-# ---------------------------------------------------------------------------
-# Rendering
-# ---------------------------------------------------------------------------
 
 def _render_value(v: Any, width: int = 46) -> str:
     """One-line, length-capped rendering of a settings value."""
@@ -2063,7 +1927,6 @@ def format_run_diff(diff: Dict[str, Any], max_drift_names: int = 6) -> str:
             " — their settings schemas were never meant to line up"
         )
 
-    # -- the signal --------------------------------------------------------
     changed = diff.get("changed") or []
     shared = len(changed) + int(diff.get("same") or 0)
     lines.append("")
@@ -2076,7 +1939,6 @@ def format_run_diff(diff: Dict[str, Any], max_drift_names: int = 6) -> str:
     else:
         lines.append(f"Settings changed (0 of {shared} shared keys) — identical")
 
-    # -- environment -------------------------------------------------------
     env = diff.get("env") or []
     lines.append("")
     if env:
@@ -2090,7 +1952,6 @@ def format_run_diff(diff: Dict[str, Any], max_drift_names: int = 6) -> str:
     else:
         lines.append("Environment changed (0) — same versions on both runs")
 
-    # -- schema drift, summarised (never enumerated) -----------------------
     only_a = diff.get("only_in_a") or []
     only_b = diff.get("only_in_b") or []
     lines.append("")

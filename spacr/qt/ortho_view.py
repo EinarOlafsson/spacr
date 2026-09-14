@@ -93,9 +93,6 @@ QLabel#OrthoPanelName {{
 register_widget_qss("OrthoView", _ortho_qss, replace=True)
 
 
-# ---------------------------------------------------------------------------
-# One panel
-# ---------------------------------------------------------------------------
 
 class OrthoPanel(QFrame):
     """One plane of an orthogonal view, with the crosshair drawn on it.
@@ -176,7 +173,6 @@ class OrthoPanel(QFrame):
                 painter.drawLine(int(column) + 1, 1,
                                  int(column) + 1, 1 + self._canvas.height)
         except Exception:
-            # A paint handler that raises takes the window with it.
             LOG.exception("Could not paint the %s panel", self._name)
         finally:
             painter.end()
@@ -196,9 +192,6 @@ class OrthoPanel(QFrame):
                           float(position.x()) - 1.0)
 
 
-# ---------------------------------------------------------------------------
-# The three-panel view
-# ---------------------------------------------------------------------------
 
 class OrthoView(LinkedView, QWidget):
     """XY, ZX and YZ over one volume, with a slider per extra dimension.
@@ -251,7 +244,6 @@ class OrthoView(LinkedView, QWidget):
         self.set_stack(self._stack)
         self.link_selection(ORTHO_LINK_SOURCE)
 
-    # -- construction ------------------------------------------------------
     def _build(self) -> None:
         """Lay out the three panels and their sliders."""
         outer = QVBoxLayout(self)
@@ -305,7 +297,6 @@ class OrthoView(LinkedView, QWidget):
         self.status.setObjectName("OrthoStatus")
         outer.addWidget(self.status)
 
-    # -- the model ---------------------------------------------------------
     @property
     def stack(self) -> LayerStack:
         """The stack being shown."""
@@ -343,9 +334,6 @@ class OrthoView(LinkedView, QWidget):
             if widget is not None:
                 widget.deleteLater()
             elif item.layout() is not None:
-                # The rows are nested layouts; draining the widgets and then
-                # the layout keeps `set_stack` from leaving an empty row
-                # behind every time it is called.
                 self._drain(item.layout())
                 item.layout().deleteLater()
         self._sliders = {}
@@ -411,7 +399,6 @@ class OrthoView(LinkedView, QWidget):
         self.frame_slider = slider
         self.slider_box.addLayout(row)
 
-    # -- the crosshair -----------------------------------------------------
     def _tick(self, axis: str, world: float) -> int:
         """The slider position for a world coordinate.
 
@@ -535,7 +522,6 @@ class OrthoView(LinkedView, QWidget):
                 self.object_picked.emit(key)
                 self.publish_selection([key])
 
-    # -- zoom ---------------------------------------------------------------
     def zoom_in(self) -> None:
         """Every panel one step closer, about the crosshair."""
         self._zoom(1.25)
@@ -566,7 +552,6 @@ class OrthoView(LinkedView, QWidget):
         self._zoom(1.2 if event.angleDelta().y() > 0 else 1 / 1.2)
         event.accept()
 
-    # -- painting -----------------------------------------------------------
     def _repaint(self) -> None:
         """Redraw all three panels, with the crosshair where the views put it.
 
@@ -584,7 +569,6 @@ class OrthoView(LinkedView, QWidget):
             f"{self._views.describe()} · {self._views.scale:.4g} "
             f"{self._views.xy.units}/px")
 
-    # -- the shared selection ----------------------------------------------
     def on_linked_selection_changed(self, selection) -> None:
         """Move the crosshair onto the object another view selected."""
         if selection.keys is None or len(selection.keys) != 1:

@@ -40,9 +40,6 @@ def _index() -> Dict[str, dict]:
             _INDEX = {str(k): v for k, v in lessons.items()
                       if isinstance(v, dict)}
         except Exception:                                        # noqa: BLE001
-            # No resource in this wheel, or an unreadable one. A missing
-            # Tutorial link is the right failure; a traceback out of a hover
-            # handler is not.
             _INDEX = {}
     return _INDEX
 

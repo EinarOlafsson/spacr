@@ -78,10 +78,6 @@ def hint_for(before: str) -> str:
         A role from :data:`KNOWN_ROLES`, or an empty string when the literal
         provides no recognized hint.
     """
-    # THE TRAILING ALPHA RUN ONLY, stopping at the first non-letter. Reading
-    # every letter in the run made `plate1_` end in "PLATE" and claim the well
-    # letter after it as a plate id -- the separator is exactly what says the
-    # word is not about this slot.
     run = str(before or "")
     text = ""
     for ch in reversed(run):
@@ -314,8 +310,7 @@ def _proposal_for(names: Sequence[str], all_names: Sequence[str]) -> Optional[Pr
     if not any(varies):
         return None
 
-    # -- pass one: what varies, and what literal sits in front of it --------
-    pieces: List[dict] = []          # {"literal": str} or {"slot": FieldEvidence}
+    pieces: List[dict] = []
     literal_run = ""
     for i in range(width):
         column = tuple(row[i] for row in rows)
@@ -459,14 +454,12 @@ def _assign_roles(slots: Sequence[FieldEvidence]) -> None:
             return True
         return False
 
-    # 1. a well is a well, whatever is in front of it.
     for info in slots:
         if info.role or not info.values:
             continue
         if all(any(p.match(v) for p in WELL_PATTERNS) for v in info.values):
             claim(info, "wellID", "every value looks like a well")
 
-    # 2. the vendor letters, which are the strongest thing a name carries.
     for info in slots:
         if info.role:
             continue
@@ -474,7 +467,6 @@ def _assign_roles(slots: Sequence[FieldEvidence]) -> None:
         if hint:
             claim(info, hint, f"follows {info.before.strip('_-.')!r}")
 
-    # 3. and only then the shape of the values themselves.
     for info in slots:
         if info.role:
             continue
@@ -528,17 +520,11 @@ def propose(names: Iterable[str], limit: int = 4) -> List[Proposal]:
         proposal = _proposal_for(family, basenames)
         if proposal is None or proposal.pattern in seen:
             continue
-        # TWO MICROSCOPES ARE NOT ONE FAMILY. A mask family varying in many
-        # non-digit positions has merged unrelated names, and its regex would
-        # match everything while meaning nothing.
         if sum(1 for info in proposal.fields.values() if not info.numeric
                ) > MAX_VARYING_LITERALS:
             continue
         seen.add(proposal.pattern)
         proposals.append(proposal)
-    # By coverage, then by how many groups it found: between two patterns
-    # that match every file, the one that pulled out more metadata is the
-    # more useful answer and the one a user can always simplify.
     proposals.sort(key=lambda p: (p.matched, len(p.fields)), reverse=True)
     return proposals[:limit]
 

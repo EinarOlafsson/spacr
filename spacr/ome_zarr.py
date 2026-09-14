@@ -201,9 +201,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Errors and the optional extra
-# ---------------------------------------------------------------------------
 
 class OmeZarrError(ValueError):
     """An OME-Zarr that cannot mean what it says, or a request that cannot be met.
@@ -365,11 +362,11 @@ def require_codec(codec_id: str,
 
     stdlib = STDLIB_CODECS.get(name)
     if stdlib is not None:
-        try:                       # zstd only exists in the stdlib on 3.14+
+        try:
             stdlib(b"")
         except ImportError:
             stdlib = None
-        except Exception:          # an empty buffer is not valid input; fine
+        except Exception:
             pass
     if stdlib is not None:
         return stdlib
@@ -447,9 +444,6 @@ def _encoder(codec_id: Optional[str], level: int
     return codec.get_config(), lambda raw: bytes(memoryview(codec.encode(raw)))
 
 
-# ---------------------------------------------------------------------------
-# Axes and units
-# ---------------------------------------------------------------------------
 
 #: NGFF axis type for a spatial axis. Only these axes go into a
 #: :class:`spacr.layers.Spacing`.
@@ -611,7 +605,6 @@ def spacr_unit_to_ngff(units: str) -> Optional[str]:
     name = SPACR_UNIT_TO_NGFF.get(text)
     if name:
         return name
-    # A caller who already holds the NGFF name is not wrong; accept it.
     if text.lower() in NGFF_SPACE_UNITS or text.lower() in NGFF_TIME_UNITS:
         return text.lower()
     raise OmeZarrError(
@@ -780,7 +773,7 @@ class Axis:
 
 def _axis_from_ngff(entry: Any, index: int) -> Axis:
     """Build an :class:`Axis` from one ``axes`` entry, inferring what is absent."""
-    if isinstance(entry, str):          # NGFF 0.3 wrote bare names
+    if isinstance(entry, str):
         name = entry
         kind = _TYPE_BY_AXIS_NAME.get(name.lower(), AXIS_SPACE)
         return Axis(name=name, type=kind)
@@ -791,8 +784,6 @@ def _axis_from_ngff(entry: Any, index: int) -> Axis:
     name = entry.get("name")
     if not name:
         raise OmeZarrError(f"axes[{index}] has no \"name\"; NGFF requires it")
-    # `type` is SHOULD, not MUST, in 0.4, and files in the wild omit it. The
-    # name carries the answer for every axis NGFF actually defines.
     kind = entry.get("type") or _TYPE_BY_AXIS_NAME.get(str(name).lower(),
                                                        AXIS_SPACE)
     return Axis(name=str(name), type=str(kind), unit=entry.get("unit"))
@@ -837,9 +828,6 @@ def spacing_from_axes(axes: Sequence[Axis]) -> Spacing:
                        axes=tuple(a.name for a in space),
                        units=distinct.pop())
     except LayerError as exc:
-        # Spacing's own refusals (a zero voxel size, a duplicated axis name)
-        # are the right refusals; they just need to say which file they are
-        # about, since the caller asked about a path, not about a Spacing.
         raise OmeZarrError(
             f"the space axes {[a.name for a in space]} do not make a usable "
             f"spacing: {exc}") from exc
@@ -902,9 +890,6 @@ def axes_from_spacing(spacing: Spacing, ndim: Optional[int] = None,
     return tuple(out)
 
 
-# ---------------------------------------------------------------------------
-# Levels
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Level:
@@ -990,9 +975,6 @@ class Level:
                 f"chunks {self.chunks}, {codec}")
 
 
-# ---------------------------------------------------------------------------
-# The zarr v2 chunk layer, in pure Python
-# ---------------------------------------------------------------------------
 
 def _read_chunk_bytes(path: Path) -> Optional[bytes]:
     """Read one stored chunk. **The only place chunk data is ever read.**
@@ -1046,7 +1028,7 @@ def _fill_value(raw: Any, dtype: np.dtype, where: str) -> np.ndarray:
                 raise OmeZarrError(
                     f"{where}: fill_value {raw!r} on a {dtype.str} array")
             return np.array(special[raw], dtype=dtype)
-        try:                     # base64, the spec's escape hatch for raw bits
+        try:
             buf = base64.b64decode(raw, validate=True)
         except Exception as exc:
             raise OmeZarrError(
@@ -1212,7 +1194,6 @@ class _ZarrArray:
                    zarr_format=3, codec_specs=specs, transpose=transpose,
                    codec_id=specs[0][0] if specs else None)
 
-    # -- reading --------------------------------------------------------
     def chunk_path(self, index: Sequence[int]) -> Path:
         """Where the chunk at grid position ``index`` is stored."""
         key = self.separator.join(str(int(i)) for i in index)
@@ -1261,7 +1242,7 @@ class _ZarrArray:
         grids = []
         for (start, stop), chunk in zip(box, self.chunks):
             if stop <= start:
-                return out                       # empty selection, no I/O
+                return out
             grids.append(range(start // chunk, (stop - 1) // chunk + 1))
         decoders = self.decoders()
         for index in itertools.product(*grids):
@@ -1370,9 +1351,6 @@ def _read_json(path: Path) -> Dict[str, Any]:
     return data
 
 
-# ---------------------------------------------------------------------------
-# The image
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class OmeZarrImage:
@@ -1438,7 +1416,6 @@ class OmeZarrImage:
                     f"{len(self.axes)} ({[a.name for a in self.axes]}). NGFF "
                     f"requires one axis entry per array dimension.")
 
-    # -- axes -----------------------------------------------------------
     @property
     def axis_names(self) -> Tuple[str, ...]:
         """Axis names in array order, e.g. ``("t", "c", "z", "y", "x")``."""
@@ -1492,13 +1469,12 @@ class OmeZarrImage:
         """
         lvl = self.level(level)
         space = [(i, a) for i, a in enumerate(self.axes) if a.is_space]
-        base = self.spacing                       # validates units once
+        base = self.spacing
         return Spacing(scale=tuple(lvl.scale[i] for i, _ in space),
                        translate=tuple(lvl.translation[i] for i, _ in space),
                        axes=tuple(a.name for _, a in space),
                        units=base.units)
 
-    # -- levels ---------------------------------------------------------
     @property
     def shape(self) -> Tuple[int, ...]:
         """Level 0's shape."""
@@ -1561,7 +1537,6 @@ class OmeZarrImage:
                 best = i
         return best
 
-    # -- reading --------------------------------------------------------
     def resolve_region(self, level: Union[int, str] = 0,
                        region: Any = None,
                        world_region: Optional[Mapping[str, Sequence[float]]] = None
@@ -1700,13 +1675,8 @@ class OmeZarrImage:
         store = Path(self.path) / lvl.path
         if prefer_zarr and _zarr_is_installed():
             return _read_with_zarr(store, box)
-        # Re-reading the level's `.zarray` here rather than caching a handle
-        # on the image keeps this dataclass frozen and picklable — it can
-        # cross into a worker process — at the cost of one small JSON read per
-        # call, against however many chunk decodes follow it.
         return _ZarrArray.open(store).read_region(box)
 
-    # -- reporting ------------------------------------------------------
     def describe(self) -> str:
         """A short report: version, axes, spacing and every level.
 
@@ -1757,9 +1727,6 @@ def _read_with_zarr(store: Path, box: Sequence[Tuple[int, int]]) -> np.ndarray:
     return np.asarray(array[tuple(slice(a, b) for a, b in box)])
 
 
-# ---------------------------------------------------------------------------
-# Reading
-# ---------------------------------------------------------------------------
 
 def _compose(group_transforms: Sequence[Mapping[str, Any]],
              dataset_transforms: Sequence[Mapping[str, Any]],
@@ -1922,7 +1889,6 @@ def read_ome_zarr(path: Union[str, os.PathLike], *,
             f"{root}: multiscales[{multiscale_index}] lists no `datasets`, so "
             f"nothing says where the arrays are.")
 
-    # Levels first: their rank is what an absent `axes` has to be inferred from.
     arrays = []
     for i, dataset in enumerate(datasets):
         if not isinstance(dataset, Mapping) or not dataset.get("path"):
@@ -1936,8 +1902,6 @@ def read_ome_zarr(path: Union[str, os.PathLike], *,
     if raw_axes:
         axes = [_axis_from_ngff(a, i) for i, a in enumerate(raw_axes)]
     else:
-        # 0.1-0.3 had no `axes`. The canonical tczyx tail is what those files
-        # meant, and inferring it beats refusing to open old data.
         axes = [Axis(name=n, type=_TYPE_BY_AXIS_NAME.get(n, AXIS_SPACE))
                 for n in CANONICAL_AXIS_ORDER[len(CANONICAL_AXIS_ORDER) - ndim:]]
     if len(axes) != ndim:
@@ -1966,10 +1930,6 @@ def read_ome_zarr(path: Union[str, os.PathLike], *,
     base = levels[0]
     axes = [Axis(name=a.name, type=a.type, unit=a.unit, scale=base.scale[i],
                  translate=base.translation[i]) for i, a in enumerate(axes)]
-    # Validate the units HERE, not on first use of `.spacing`. The code path
-    # that reads shapes and never asks for a spacing is exactly the one that
-    # would carry an untranslatable unit all the way into a measurement
-    # without anything raising, so the refusal has to happen at the door.
     spacing_from_axes(axes)
 
     omero = attrs.get("omero") or ome.get("omero") or {}
@@ -2009,9 +1969,6 @@ def read_ome_zarr_array(path: Union[str, os.PathLike],
                                     prefer_zarr=prefer_zarr)
 
 
-# ---------------------------------------------------------------------------
-# Writing
-# ---------------------------------------------------------------------------
 
 #: Default chunk edge for the two fastest-varying spatial axes. 256 x 256 of
 #: uint16 is 128 KiB, and with a z chunk of :data:`DEFAULT_Z_CHUNK` a chunk is
@@ -2057,16 +2014,9 @@ def _downsample_axis(array: np.ndarray, axis: int, method: str) -> np.ndarray:
     if method == "stride":
         return array[tuple(slice(None) if i != axis else slice(None, None, 2)
                            for i in range(array.ndim))]
-    # Captured before anything else touches the array: np.concatenate below
-    # returns NATIVE byte order, so `array.dtype` at the end of this function
-    # is not the dtype that came in. A silently byte-swapped pyramid level
-    # reads back as different numbers, not as an error.
     dtype = array.dtype
     half = (n + 1) // 2
     if n % 2:
-        # Duplicate the last element so the tail block is a full pair. Its
-        # mean is that element, which is exactly the partial-block mean — the
-        # padding is arithmetic bookkeeping, not an invented sample.
         edge = array[tuple(slice(None) if i != axis else slice(n - 1, n)
                            for i in range(array.ndim))]
         array = np.concatenate([array, edge], axis=axis)
@@ -2087,7 +2037,7 @@ def _pyramid(array: np.ndarray, axes: Sequence[Axis], levels: int,
         for axis in downsample_axes:
             current = _downsample_axis(current, axis, method)
         if current.shape == out[-1].shape:
-            break        # every downsampled axis is already 1; stop early
+            break
         out.append(current)
     return out
 
@@ -2139,7 +2089,7 @@ def _write_zarr_v2_array(root: Path, array: np.ndarray,
                       for i, c, n in zip(index, chunks, array.shape))
         slab = array[slabs]
         if not write_empty_chunks and slab.size and bool(np.all(slab == fill)):
-            continue          # an unwritten chunk reads back as fill_value
+            continue
         if slab.shape != tuple(chunks):
             padded = np.full(tuple(chunks), fill, dtype=dtype)
             padded[tuple(slice(0, s) for s in slab.shape)] = slab
@@ -2324,12 +2274,7 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
             str(dimension_separator), fill_value, bool(write_empty_chunks))
         factor = [2.0 ** k if i in halved else 1.0 for i in range(data.ndim)]
         scale = [a.scale * f for a, f in zip(axis_list, factor)]
-        # Block mean: element 0 of level k covers level-0 elements [0, 2^k),
-        # whose centre is (2^k - 1)/2. Stride: element 0 IS level-0 element 0.
         shift = 0.0 if method == "stride" else 1.0
-        # scale * ((f - 1) / 2) rather than scale * (f - 1) / 2: (f - 1) / 2
-        # is exact in binary for a power-of-two f, so this is one rounding
-        # instead of two.
         translation = [a.translate + a.scale * ((f - 1.0) / 2.0 * shift)
                        for a, f in zip(axis_list, factor)]
         datasets.append({
@@ -2346,9 +2291,6 @@ def write_ome_zarr(path: Union[str, os.PathLike], array: Any, *,
         "name": str(name if name is not None else target.name),
         "axes": [a.to_ngff() for a in axis_list],
         "datasets": datasets,
-        # 0.4 defines `type` and `metadata` on a multiscale for exactly this:
-        # saying how the pyramid was built, so a reader knows whether the
-        # coarse levels can be trusted for a measurement (they cannot).
         "type": "local mean" if method == "mean" else "nearest (stride)",
         "metadata": {
             "method": "spacr.ome_zarr.write_ome_zarr",
@@ -2386,10 +2328,6 @@ def _spacr_version() -> str:
     if resolved and resolved != "unknown":
         return resolved
 
-    # A checkout on PYTHONPATH may have no installed distribution metadata,
-    # but it still carries the release helper's synchronized version literal.
-    # Metadata remains authoritative for installed packages; this is only
-    # the source-tree fallback used when that lookup explicitly found none.
     try:
         from ._version import __version__ as checkout_version
         fallback = str(checkout_version)

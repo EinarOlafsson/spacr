@@ -65,12 +65,6 @@ from ..theme import (RADIUS, SPACING, block_surface, register_widget_qss)
 CONTROLS_OBJECT = "OutlierControls"
 
 
-# SECTION NOTE, 2026-09-03: the sections were restructured to Core / Data /
-# Tools / Assays, and SECTION_DESIGN / SECTION_EXPLORE / SECTION_RESULTS are
-# still declared but are no longer in SECTION_ORDER. Every screen below now
-# files under Data. The docstrings keep their original reasoning because it
-# still says what each screen IS -- and they are published, translated API
-# prose, so editing them invalidates reviewed translations in nine languages.
 
 def _outliers_qss(palette: dict, opacity=None) -> str:
     """This screen's QSS block, appended to every generated stylesheet.
@@ -90,8 +84,6 @@ QWidget#{CONTROLS_OBJECT} {{
 """
 
 
-# `replace=True`: reachable through the screens package and by direct
-# import, and a second import must refresh the block rather than raise.
 register_widget_qss("Outliers", _outliers_qss, replace=True)
 from ..widgets.outlier_model import (
     DEFAULT_ALPHA, DEFAULT_IQR_C, DEFAULT_MAD_K, DEFAULT_MIN_WELL_OBJECTS,
@@ -245,17 +237,11 @@ class OutliersScreen(QWidget):
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 0)
         outer.addWidget(body, 1)
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "outliers")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction ------------------------------------------------------
     def _make_table(self, name: str) -> QTableWidget:
         """A read-only results grid. Two of them, built the same way."""
         table = QTableWidget(self)
@@ -273,19 +259,9 @@ class OutliersScreen(QWidget):
         """The right-hand column: what to test, how, and where the line is."""
         panel = QWidget(self)
         panel.setObjectName(CONTROLS_OBJECT)
-        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
-        # settings column eating the figure beside it, and 360 px is the
-        # right answer at 100 %% -- and only there. The glyphs inside it
-        # double at 200 %% and the box did not, which is the same defect
-        # instruction 350 already fixed on UsageBar's fixed 48 px caption
-        # column. Measured on Control Charts: the column's own sizeHint
-        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
-        # cap that stayed 330 in all three.
         from ..preferences import scaled_px
         panel.setMaximumWidth(scaled_px(360))
         layout = QVBoxLayout(panel)
-        # Room for the panel's own rounded surface: the column sits ON a
-        # page surface now rather than straight on the window.
         layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
                                   SPACING["sm"], SPACING["sm"])
         layout.setSpacing(SPACING["sm"])
@@ -371,7 +347,6 @@ class OutliersScreen(QWidget):
         self.threshold.setSingleStep(step)
         self.threshold.setValue(default)
 
-    # -- state -------------------------------------------------------------
     def current_method(self) -> str:
         """The :data:`spacr.qt.widgets.outlier_model.METHODS` member picked."""
         return self.method.currentData() or METHOD_MAD
@@ -408,7 +383,6 @@ class OutliersScreen(QWidget):
         """The loaded table with the flag columns added, or ``None``."""
         return self._objects
 
-    # -- data --------------------------------------------------------------
     def set_frame(self, frame: pd.DataFrame, *, label: str = "",
                   scan: bool = True) -> None:
         """Scan ``frame``. The one call a host needs.
@@ -453,8 +427,6 @@ class OutliersScreen(QWidget):
                 names = table_names(path)
             except Exception as exc:
                 LOG.info("could not list tables in %s", path, exc_info=True)
-                # Same seam as a failed job, so a host that only listens for
-                # `failed` hears about an unreadable file too.
                 self._report_failure(
                     f"could not read {os.path.basename(path)}: {exc}")
                 return
@@ -466,8 +438,6 @@ class OutliersScreen(QWidget):
             self._table_picker.setCurrentText(table)
         self._table_picker.blockSignals(False)
         chosen = table or (self._table_picker.currentText() or None)
-        # A second load supersedes the first, so switching table twice does
-        # not deliver the frames in whatever order the reads happen to finish.
         self._jobs.cancel()
         self._source.setText(
             f"loading {os.path.basename(path)}"
@@ -520,7 +490,6 @@ class OutliersScreen(QWidget):
         self.report.setPlainText(message)
         self._report_failure(message)
 
-    # -- the scan ----------------------------------------------------------
     def scan(self) -> None:
         """Run the engine over the loaded table, off the GUI thread."""
         frame = self._frame
@@ -567,8 +536,6 @@ class OutliersScreen(QWidget):
         columns += [names[key] for key in ("outlier", "score", "reason")
                     if names.get(key) in frame.columns]
         shown = frame.loc[:, columns]
-        # Sort by score, NaN last: an unscorable object is not the most
-        # interesting row on the screen, but it must not disappear either.
         order = shown[names["score"]].sort_values(
             ascending=False, na_position="last").index
         _fill_table(self.object_table, shown.loc[order].head(MAX_TABLE_ROWS))
@@ -592,7 +559,6 @@ class OutliersScreen(QWidget):
         """True while a read or a scan is in flight."""
         return self._jobs.is_busy()
 
-    # -- export ------------------------------------------------------------
     def export_csv(self) -> None:
         """Write the flags out: the whole table, the flagged rows, the wells.
 
@@ -631,9 +597,6 @@ class OutliersScreen(QWidget):
             + " .csv and _report.txt")
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
-        # Abandon an in-flight read or scan rather than let it outlive the
-        # screen: Qt aborts the process if a running QThread is destroyed, and
-        # a worker that delivers into a closed widget is a use-after-free.
         """Stop background work and unlink before going away.
 
         :param event: the Qt close event.
@@ -665,7 +628,7 @@ def _cell(value) -> str:
     if isinstance(value, bool):
         return "yes" if value else "no"
     if isinstance(value, float):
-        if value != value:                    # NaN, without importing math
+        if value != value:
             return ""
         return f"{value:.6g}"
     return "" if value is None else str(value)
@@ -676,11 +639,6 @@ def make_outliers_screen(app_key: Optional[str] = None) -> QWidget:
     return OutliersScreen()
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc

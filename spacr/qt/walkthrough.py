@@ -62,9 +62,6 @@ def _settings():
     return QSettings(_ORG, _APP)
 
 
-# ---------------------------------------------------------------------------
-# Seen state, per module
-# ---------------------------------------------------------------------------
 
 def was_seen(app_key: str) -> bool:
     """True once ``app_key``'s walkthrough has been finished or dismissed."""
@@ -91,9 +88,6 @@ def reset(app_key: Optional[str] = None) -> None:
         store.remove(f"{_KEY_SEEN}/{app_key}")
 
 
-# ---------------------------------------------------------------------------
-# Steps
-# ---------------------------------------------------------------------------
 
 @dataclass
 class WalkStep:
@@ -299,9 +293,6 @@ def _run_button(screen: QWidget) -> Optional[QWidget]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# Showing one
-# ---------------------------------------------------------------------------
 
 def _already_current(window, app_key: str) -> bool:
     """Whether ``app_key``'s screen is the one the window is already showing.
@@ -448,9 +439,6 @@ def maybe_show(window: QMainWindow, app_key: str) -> Optional[_TourOverlay]:
     return show_walkthrough(window, app_key, force=True)
 
 
-# ---------------------------------------------------------------------------
-# Installation
-# ---------------------------------------------------------------------------
 
 class _WalkthroughHandler(QObject):
     """Bound-method targets for the menu entries and the screen stack."""
@@ -475,9 +463,6 @@ class _WalkthroughHandler(QObject):
             return
         if not app_key or was_seen(app_key):
             return
-        # Only for modules that render the shared settings form; a bespoke
-        # screen has no groups to describe and the derived steps would be
-        # three sentences of nothing.
         if getattr(screen, "_settings_model", None) is None:
             return
         maybe_show(self._window, app_key)
@@ -538,11 +523,6 @@ def install_help_menu(window: QMainWindow) -> Optional[QMenu]:
     for key, name, desc, _section in rows:
         action = QAction(str(name), submenu)
         action.setStatusTip(str(desc))
-        # Carry the module identity so the retranslation pass rebuilds this
-        # status tip through the reviewed per-module summaries instead of
-        # translating the sentence word by word. Two thirds of the module
-        # descriptions have no catalog row of their own, so the word-level
-        # fallback leaves them wholly English; the summaries cover them all.
         action.setProperty("moduleAppKey", key)
         action.setProperty("moduleNameSource", str(name))
         action.setProperty("moduleSummarySource", str(desc))
@@ -568,12 +548,6 @@ def install_help_menu(window: QMainWindow) -> Optional[QMenu]:
         help_menu.insertMenu(before, submenu)
     else:
         help_menu.addMenu(submenu)
-    # Every action here, and the submenu's own action, gets an explicit
-    # macOS role. None of these texts happens to contain "settings" or
-    # "options" today -- but leaving the role unset means Qt decides from the
-    # text, so RENAMING a walkthrough could move it into the application
-    # menu on macOS, and nobody makes that connection while renaming a menu
-    # item. See spacr.qt.menus.
     from .menus import pin_menu_roles
     pin_menu_roles(list(submenu.actions()) + [submenu.menuAction()])
 

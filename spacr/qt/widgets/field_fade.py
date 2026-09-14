@@ -66,9 +66,6 @@ _filter: Optional["_FieldFadeFilter"] = None
 _enabled: Optional[bool] = None
 
 
-# ---------------------------------------------------------------------------
-# The preference, read once and cached
-# ---------------------------------------------------------------------------
 
 def field_fade_enabled() -> bool:
     """Whether fields fade. Cached — this is read on every paint event.
@@ -86,9 +83,6 @@ def field_fade_enabled() -> bool:
             from ..preferences import get_field_fade_enabled
             _enabled = bool(get_field_fade_enabled())
         except Exception:
-            # An unreadable settings store falls back to the shipped
-            # look, not to "off" — the same rule every other preference
-            # in this app follows.
             _enabled = True
     return _enabled
 
@@ -124,7 +118,6 @@ def fades(widget) -> bool:
     if isinstance(widget, QLineEdit) and isinstance(
             parent, (QAbstractSpinBox, QComboBox)):
         return False
-    # Editors are parented to the view's VIEWPORT, not to the view.
     grandparent = parent.parentWidget()
     if (isinstance(grandparent, QAbstractItemView)
             and grandparent.viewport() is parent):
@@ -132,9 +125,6 @@ def fades(widget) -> bool:
     return True
 
 
-# ---------------------------------------------------------------------------
-# The paint
-# ---------------------------------------------------------------------------
 
 #: Built gradients, keyed by ``(colour, alpha, left, right)``. A form of
 #: thirty settings repaints two gradients of seventeen stops per field,
@@ -193,9 +183,6 @@ def paint_field_fade(widget, painter: QPainter, theme: Optional[str] = None
     chrome = field_chrome(theme)
     radius = float(chrome["radius"])
 
-    # Half-pixel inset so the 1px outline lands ON the widget's edge
-    # pixels rather than straddling them, which is what keeps the left
-    # end reading as a hard edge rather than a 50 % smear.
     inset = FIELD_BORDER_PX / 2.0
     rect = QRectF(widget.rect()).adjusted(inset, inset, -inset, -inset)
     if rect.width() <= 0.0 or rect.height() <= 0.0:
@@ -229,8 +216,6 @@ class _FieldFadeFilter(QObject):
     """Paints the ramp under every field, just before the field paints."""
 
     def eventFilter(self, obj, event):  # noqa: N802 - Qt contract
-        # First line of a filter that sees every event in the process:
-        # one enum compare, then out.
         """Start the fade when the watched field changes.
 
         :param obj: the field.
@@ -241,10 +226,6 @@ class _FieldFadeFilter(QObject):
             return False
         if not field_fade_enabled() or not fades(obj):
             return False
-        # A child wrapper does not keep its top-level Python owner reachable.
-        # If cyclic GC collects that owner while a painter is active, Qt
-        # deletes the child's native paint device and ``QPainter.end()``
-        # segfaults. Keep the owner alive until the native painter is closed.
         paint_owner = obj.window()
         painter = None
         try:
@@ -252,19 +233,12 @@ class _FieldFadeFilter(QObject):
             if painter.isActive():
                 paint_field_fade(obj, painter)
         except Exception:
-            # A cosmetic effect must never be the reason a screen fails to
-            # draw. Logged rather than swallowed, so a broken palette is
-            # discoverable instead of merely invisible.
             LOG.exception("Field fade could not paint %s",
                           type(obj).__name__)
         finally:
-            # Explicit, not left to refcounting: a painter still active on
-            # this widget would break the widget's own paint two lines
-            # later, which is a blank field rather than an unstyled one.
             if painter is not None and painter.isActive():
                 painter.end()
             del paint_owner
-        # False, always: the widget still has to draw its text on top.
         return False
 
 
@@ -280,8 +254,6 @@ def install_field_fade(app=None) -> bool:
     if app is None:
         return False
     if _filter is not None:
-        # Re-install on the (possibly new) app. Qt ignores a duplicate
-        # install of the same filter on the same object.
         app.installEventFilter(_filter)
         return False
     _filter = _FieldFadeFilter()
@@ -320,9 +292,6 @@ def repaint_fields(app=None) -> int:
     return count
 
 
-# ---------------------------------------------------------------------------
-# The QSS that gets out of the painter's way
-# ---------------------------------------------------------------------------
 
 #: Every selector the effect has to neutralise. Listed once, because a
 #: state whose rule is missed here paints an opaque box over the ramp and

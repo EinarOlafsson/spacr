@@ -132,19 +132,33 @@ class TestTheGraphTypeDispatch:
     def test_an_unknown_type_is_refused_rather_than_blanked(self):
         """THE ARC, and the defect it was written for.
 
-        The comment above records it: an unhandled type fell through,
-        drew nothing, and ``plt.gcf()`` handed back an EMPTY figure --
-        so two of the seven entries in the right-click Graph type menu
-        blanked the plot and reported no error.
+        An unhandled type fell through, drew nothing, and ``plt.gcf()``
+        handed back an EMPTY figure -- so two of the seven entries in
+        the right-click Graph type menu blanked the plot and reported no
+        error. Driven rather than read, because the guard IS the
+        refusal: what must not happen is a quiet return.
         """
-        source = inspect.getsource(P.create_grouped_plot)
+        frame = pd.DataFrame({"grp": ["a", "a", "a", "b", "b", "b"],
+                              "val": [1.0, 1.1, 1.2, 2.0, 2.1, 2.3]})
 
-        assert "else:" in source
-        assert "raise ValueError(" in source
-        # The sentence wraps across two comment lines, so match a half.
-        assert "blanked the" in source and "reported no error" in source, (
-            "the reason this refusal exists is no longer written down, so "
-            "the next reader may take it for defensive noise and remove it")
+        drawn = "not called"
+        try:
+            with pytest.raises(ValueError) as caught:
+                drawn = P.create_grouped_plot(frame, "grp", "val",
+                                              graph_type="jitter_line")
+
+            assert drawn == "not called", (
+                "an unhandled graph type returned instead of raising, "
+                "which is the blank-plot defect back again")
+            assert "jitter_line" in str(caught.value)
+
+            # The contrast that makes the refusal mean something: a type
+            # the dispatch DOES handle comes back with a drawn figure.
+            figure, _ = P.create_grouped_plot(frame, "grp", "val",
+                                              graph_type="box")
+            assert figure.get_axes(), "a handled type drew nothing"
+        finally:
+            P.plt.close("all")
 
     def test_the_refusal_names_every_type_that_works(self):
         """A user who picked a bad type needs the list, not the fact."""
@@ -202,12 +216,36 @@ class TestTheJitterPositions:
         assert x_positions == []
 
     def test_the_dispatch_uses_the_validated_final_else(self):
+        """The final ``else`` is the line pair's arm and nothing else
+        reaches it: the drawing dispatch refuses an unknown graph type
+        before positions are ever read, so the only remaining pair is
+        line/line_std."""
         source = inspect.getsource(P)
 
         positions = source[source.index("def _get_positions(self, ax):"):]
         positions = positions[:positions.index("return x_positions")]
         assert "elif self.graph_type in ['line', 'line_std']:" not in positions
-        assert "the only remaining pair is line/line_std" in positions
+
+        frame = pd.DataFrame({"grp": ["a", "a", "b", "b"],
+                              "val": [1.0, 1.1, 2.0, 2.1]})
+        try:
+            with pytest.raises(ValueError) as caught:
+                P.spacrGraph(frame, "grp", "val",
+                             graph_type="jitter_line").create_plot()
+
+            assert "Unknown graph type" in str(caught.value), (
+                "an unknown graph type now reaches _get_positions instead "
+                "of being refused by the drawing dispatch, so the final "
+                "else is no longer the line pair's arm alone")
+
+            # And the pair itself reaches that else and survives it: no
+            # get_offsets() is read off a Line2D at the end of a plot
+            # that had already drawn.
+            graph = P.spacrGraph(frame, "grp", "val", graph_type="line")
+            graph.create_plot()
+            assert graph.fig is not None
+        finally:
+            P.plt.close("all")
 
 
 class TestMarkingTheTrimmedResults:

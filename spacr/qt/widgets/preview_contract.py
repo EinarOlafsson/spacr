@@ -170,7 +170,7 @@ def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
     except Exception:
         kwargs = {"gpu": False}
     kwargs.pop("device", None)
-    if gpu is not None:                     # an explicit caller still wins
+    if gpu is not None:
         kwargs["gpu"] = bool(gpu)
     return cp_models.CellposeModel(
         pretrained_model=_resolve_cellpose_pretrained(str(model_name)),
@@ -195,7 +195,6 @@ class LivePreviewContract:
     #: Sentence used when nothing is loaded. Panels override it.
     PREVIEW_SOURCE_HINT = "Load an image first."
 
-    # -- what the panel supplies ------------------------------------------
 
     def _preview_blocked_reason(self) -> str:
         """Hook: why a preview cannot run right now, or ``""``.
@@ -206,7 +205,6 @@ class LivePreviewContract:
         """
         return ""
 
-    # -- what every panel gets --------------------------------------------
 
     def preview_blocked_reason(self) -> str:
         """Say why the preview cannot run, or ``""`` when it can.
@@ -231,7 +229,6 @@ class LivePreviewContract:
         try:
             return bool(worker.isRunning())
         except RuntimeError:
-            # The C++ side is already gone; nothing is in flight.
             return False
 
     def preview_status(self) -> str:
@@ -257,8 +254,6 @@ class LivePreviewContract:
             from ..preferences import image_display_primaries
             return image_display_primaries()
         except Exception:
-            # No QSettings, no Qt: the untransformed image is the honest
-            # answer, and never worse than failing to draw one.
             return "rgb"
 
     def display_primaries_note(self) -> str:
@@ -345,7 +340,6 @@ class LivePreviewContract:
         self.set_preview_busy(True)
         return True
 
-    # -- optional: panels whose work is not a QThread ----------------------
 
     def _extra_work_in_flight(self) -> bool:
         """Hook for a panel whose pass runs somewhere other than ``_worker``."""

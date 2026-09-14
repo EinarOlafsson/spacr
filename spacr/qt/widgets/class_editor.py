@@ -20,11 +20,6 @@ from PySide6.QtWidgets import (
 )
 
 if TYPE_CHECKING:                    # pragma: no cover - typing only
-    # PANDAS IS NOT NEEDED TO RUN THIS FILE. Both mentions are annotations,
-    # and `from __future__ import annotations` above makes those strings --
-    # but the plain import still ran, and it cost 0.365 s of a 1.5 s main
-    # window, because the Home page reaches this module through the settings
-    # model. Nothing here calls pandas; nothing here should import it.
     import pandas as pd
 
 from ...classify_classes import (
@@ -134,7 +129,6 @@ class ClassChip(QWidget):
 
         self._close = QPushButton(self)
         self._close.setObjectName("ClassChipRemove")
-        # THE APPLICATION'S CLOSE MARK -- see `theme.apply_close_mark`.
         apply_close_mark(self._close,
                          tooltip=f"Remove the class {rule.name!r}")
         self._close.clicked.connect(self._on_removed)
@@ -199,12 +193,6 @@ class ClassEditorWidget(QWidget):
             "Choosing a column fills the table below with its values, one row "
             "per class. Choosing another column adds its values alongside — "
             "classes can be defined across more than one column.")
-        # EDITABLE, because the combo is filled from a LOADED TABLE and there
-        # is not always one. With no frame the list came back empty, the "Add
-        # values" button was disabled, and a non-editable empty combo left no
-        # way at all to name a column -- so no class could be added and the
-        # module could not be configured. Typing a name is the fallback; the
-        # SQL button below is the answer when a database is there to ask.
         self.column.setEditable(True)
         self.column.setInsertPolicy(QComboBox.NoInsert)
         picker.addWidget(self.column, 1)
@@ -214,12 +202,6 @@ class ClassEditorWidget(QWidget):
         self._picker_row = picker
         outer.addLayout(picker)
 
-        # TWO FIELDS, SIDE BY SIDE -- the gesture the maintainer asked for:
-        # "2 fields next to each other with class then value". Typing a class
-        # and its value and pressing Enter in either field adds one chip, so
-        # the whole interaction is two words and a keystroke, and it is the
-        # SAME in metadata mode and annotation mode. Only the columns the
-        # picker above offers differ between the two bases.
         entry = QHBoxLayout()
         entry.setContentsMargins(0, 0, 0, 0)
         entry.setSpacing(SPACING["xs"])
@@ -242,7 +224,6 @@ class ClassEditorWidget(QWidget):
         entry.addWidget(self._add_typed)
         outer.addLayout(entry)
 
-        # The bubbles themselves.
         self.chips_host = QWidget(self)
         self.chips_host.setObjectName("ClassChips")
         self._chips_layout = QVBoxLayout(self.chips_host)
@@ -250,9 +231,6 @@ class ClassEditorWidget(QWidget):
         self._chips_layout.setSpacing(SPACING["xs"])
         outer.addWidget(self.chips_host)
 
-        # The table stays, hidden, as the accessible/edit-a-name surface and
-        # because every existing test and integration reads `self.table`.
-        # Removing it would be a second change riding on this one.
         self.table = QTreeWidget(self)
         install_sorting(self.table)
         self.table.setVisible(False)
@@ -289,13 +267,9 @@ class ClassEditorWidget(QWidget):
 
         self.set_frame(frame)
         self.set_value(value)
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- what is on offer --------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
         """Offer this table's columns."""
         self._frame = frame
@@ -306,10 +280,6 @@ class ClassEditorWidget(QWidget):
         self.column.blockSignals(True)
         self.column.clear()
         self.column.addItems([str(c) for c in columns])
-        # A NAME TYPED OR PICKED STAYS PUT. `set_frame` runs again whenever
-        # the basis changes or a table is attached, and clearing the combo
-        # used to throw away a column the user had already named -- silently,
-        # because an empty combo looks the same as one nobody has touched.
         if current:
             self.column.setCurrentText(current)
         self.column.blockSignals(False)
@@ -356,7 +326,6 @@ class ClassEditorWidget(QWidget):
         self._basis = basis
         self.set_frame(self._frame)
 
-    # -- the value ---------------------------------------------------------
     def set_value(self, value: Any) -> None:
         """Show ``value``, whether it is the dict, the old list, or a string.
 
@@ -394,9 +363,6 @@ class ClassEditorWidget(QWidget):
                 except ClassDefinitionError:
                     LOG.debug("skipping malformed class %r", name)
         elif isinstance(value, (list, tuple)):
-            # The old shape: names with nothing saying what they select. Shown
-            # as named rows with no value, so the user can see what has to be
-            # filled in rather than finding the table empty.
             for name in value:
                 self._rules.append(ClassRule(name=str(name), column="?",
                                              value=None))
@@ -424,7 +390,6 @@ class ClassEditorWidget(QWidget):
         """
         return list(self._rules)
 
-    # -- editing -----------------------------------------------------------
     def populate_from_column(self) -> None:
         """Fill the table from the chosen column's distinct values.
 
@@ -446,8 +411,6 @@ class ClassEditorWidget(QWidget):
         for value in values:
             if (column, _key(value)) in known:
                 continue
-            # `_key` for the label too, so a float 1.0 reads as "1" -- the
-            # name is what the user sees in every report afterwards.
             self._rules.append(ClassRule(name=f"{column}={_key(value)}",
                                          column=column, value=value))
             added += 1
@@ -523,7 +486,6 @@ class ClassEditorWidget(QWidget):
             del self._rules[index]
             self._rebuild()
 
-    # -- plumbing ----------------------------------------------------------
     def _rebuild(self) -> None:
         """Redraw the chips and the hidden table from the current rules.
 
@@ -541,9 +503,6 @@ class ClassEditorWidget(QWidget):
                 labels = [rule.name, "" if rule.value is None else str(rule.value),
                           rule.column]
             item = tree_item(labels)
-            # Only the NAME is editable. The value and its column are facts
-            # about the table, and letting them be typed over would produce a
-            # class that selects nothing with no sign of why.
             item.setFlags(item.flags() | Qt.ItemIsEditable)
             self.table.addTopLevelItem(item)
         self.table.blockSignals(False)
@@ -566,8 +525,6 @@ class ClassEditorWidget(QWidget):
             return
         name = item.text(0).strip()
         if not name:
-            # A class with no name cannot be trained on or reported, so the
-            # old one is put back rather than accepted and failing later.
             self.table.blockSignals(True)
             item.setText(0, self._rules[index].name)
             self.table.blockSignals(False)
@@ -610,11 +567,6 @@ class ClassEditorWidget(QWidget):
         would rewrite the user's own column names and values word by word,
         so a class on ``control`` would report itself as ``Kontroll``.
         """
-        # Two things would otherwise rewrite this line on a language pass:
-        # the source a fixed sentence leaves behind, which would come back
-        # over this one, and the general label walk, which translates known
-        # words wherever it finds them. A fixed sentence set later still
-        # retranslates -- its template is consulted before the opt-out.
         self._hint.setProperty("_spacr_i18n_text_template", None)
         self._hint.setProperty("i18nSkipText", True)
         self._hint.setText(message)

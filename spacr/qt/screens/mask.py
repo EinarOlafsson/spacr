@@ -167,7 +167,6 @@ class _OfferedPreview(QObject):
                 self._host.card.setVisible(False)
             self._host.toggle.setVisible(on)
         except RuntimeError:
-            # Qt deleted the card under us; nothing left to offer.
             LOG.debug("the folded preview is gone", exc_info=True)
 
 
@@ -245,9 +244,6 @@ def mark_fold_sources(screen: QWidget) -> Dict[str, Tuple[str, ...]]:
     return marked
 
 
-# ---------------------------------------------------------------------------
-# The example plate
-# ---------------------------------------------------------------------------
 
 #: The folder the example plate is written into, under the same cache the
 #: example screen already uses, so one directory holds everything spaCR
@@ -363,9 +359,6 @@ def install_example_data_button(screen: QWidget):
             break
     if section is None:
         return None
-    # The English source, the way every other caption in the tool is
-    # written: the language pass walks the widget tree and renders it from
-    # the catalog, and a caption translated here would be rendered twice.
     button = QPushButton(EXAMPLE_BUTTON_TEXT)
     button.setToolTip(EXAMPLE_BUTTON_TOOLTIP)
     button.clicked.connect(lambda: load_the_example_images(screen))
@@ -374,9 +367,6 @@ def install_example_data_button(screen: QWidget):
     return button
 
 
-# ---------------------------------------------------------------------------
-# The OPS switch
-# ---------------------------------------------------------------------------
 
 #: The registry key of the page fold, so the switch and the declaration
 #: cannot drift apart.
@@ -429,7 +419,6 @@ class _OpsPage(QObject):
         self.page: Optional[QWidget] = None
         self._watching = False
 
-    # -- the switch ----------------------------------------------------
     def set_shown(self, on: bool) -> None:
         """Open or close the OPS page.
 
@@ -458,13 +447,10 @@ class _OpsPage(QObject):
             return
         try:
             if not hide_as_page(page, self.screen):
-                # Shown as a window instead, because this host had no page
-                # strip to put it on. Hidden, not closed: same screen back.
                 page.hide()
         except Exception:                                # noqa: BLE001
             LOG.debug("Could not close the %s page", OPS_KEY, exc_info=True)
 
-    # -- the page strip ------------------------------------------------
     def _watch_the_strip(self) -> None:
         """Follow the page's own close mark, once the strip exists.
 
@@ -494,7 +480,7 @@ class _OpsPage(QObject):
             return
         try:
             ours = pages.indexOf(self.page)
-        except RuntimeError:            # Qt deleted the page under us
+        except RuntimeError:
             ours = -1
         if ours not in (index, -1):
             return
@@ -539,7 +525,6 @@ def install_ops_switch(screen: QWidget, switch) -> Optional["_OpsPage"]:
         return existing
     page = _OpsPage(screen, switch)
     switch.toggled.connect(page.set_shown)
-    # The installation outlives this call only because the screen holds it.
     screen._ops_page = page
     return page
 
@@ -562,9 +547,6 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     """
     if getattr(screen, "app_key", None) != HOST_KEY:
         return None
-    # BEFORE the folds, and outside their guard: the example plate is what a
-    # user with no data of their own presses first, and a fold that cannot be
-    # mounted must not take it away.
     try:
         install_example_data_button(screen)
     except Exception:
@@ -592,16 +574,9 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
         LOG.debug("Could not build the fold strip for %s", HOST_KEY,
                   exc_info=True)
         return None
-    # The set outlives this call only because the screen holds it.
     screen._category_folds = folds
     screen._fold_strip = strip
-    # The panels the folded modules brought with them, offered by their
-    # own switches. After the strip is on the masthead: a preview that
-    # could not be built must not cost the switches.
     screen._fold_previews = _offer_fold_previews(screen, folds, strip)
-    # And the folded modules' icons, on the headings of the settings they
-    # became. After the strip, for the same reason the previews are: a
-    # mark that cannot be drawn must not cost the switches.
     mark_fold_sources(screen)
     return strip
 

@@ -139,9 +139,6 @@ _HIGH, _MEDIUM, _LOW = "high", "medium", "low"
 _LEVELS = (_HIGH, _MEDIUM, _LOW)
 
 
-# ---------------------------------------------------------------------------
-# result type
-# ---------------------------------------------------------------------------
 
 @dataclass
 class DiameterEstimate:
@@ -213,9 +210,6 @@ def _no_estimate(object_type: str, note: str, n_fields: int = 0) -> DiameterEsti
     )
 
 
-# ---------------------------------------------------------------------------
-# settings glue
-# ---------------------------------------------------------------------------
 
 def _as_channel_index(value: Any) -> Optional[int]:
     """Coerce a settings channel value to an int index, or None.
@@ -254,16 +248,13 @@ def channels_from_settings(settings: Dict[str, Any]) -> Dict[str, int]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# field discovery
-# ---------------------------------------------------------------------------
 
 @dataclass
 class _Source:
     """Where the sampled planes come from, and how to index a channel in them."""
 
-    kind: str = ""                              # 'array' | 'raw' | ''
-    where: str = ""                             # human-readable location
+    kind: str = ""
+    where: str = ""
     fields: List[Tuple[tuple, Any]] = _dc_field(default_factory=list)
     n_channels: Optional[int] = None
     channel_ids: List[str] = _dc_field(default_factory=list)
@@ -439,9 +430,6 @@ def _sample_indices(n_available: int, n_fields: int, random_state: Optional[int]
     return sorted(int(v) for v in rng.choice(n_available, size=n_fields, replace=False))
 
 
-# ---------------------------------------------------------------------------
-# plane loading
-# ---------------------------------------------------------------------------
 
 def _to_2d(arr: np.ndarray) -> np.ndarray:
     """Reduce a loaded image to a single 2-D plane.
@@ -505,9 +493,6 @@ def _load_raw_plane(paths: Sequence[str], max_slices: int = 16) -> np.ndarray:
     return np.max(np.stack(planes), axis=0)
 
 
-# ---------------------------------------------------------------------------
-# per-plane measurement
-# ---------------------------------------------------------------------------
 
 @dataclass
 class _PlaneResult:
@@ -613,13 +598,10 @@ def _analyse_plane(
     if min(h, w) < 16:
         return _PlaneResult(reason=f"plane is too small to measure ({h}x{w})")
 
-    # 1. flatten: denoise, then remove illumination with a sigma far larger
-    #    than any plausible object so the objects survive the subtraction.
     smooth = gaussian_filter(img, 1.0)
     sigma_bg = max(32.0, min(h, w) / 4.0)
     flat = smooth - _illumination(smooth, sigma_bg)
 
-    # 2. reject planes whose structure is indistinguishable from pixel noise.
     resid = img - smooth
     noise = 1.4826 * float(np.median(np.abs(resid - np.median(resid))))
     amplitude = float(np.percentile(flat, 99.0) - np.percentile(flat, 30.0))
@@ -631,14 +613,8 @@ def _analyse_plane(
             reason=f"structure/noise ratio {snr:.1f} is below {min_snr:g}: nothing but background"
         )
 
-    # 3. threshold, fill, label. threshold_otsu only raises on a single-valued
-    #    image, which the amplitude check above has already rejected.
     thr = float(threshold_otsu(flat))
     foreground = flat > thr
-    # Otsu always leaves at least the brightest pixel above the threshold and
-    # at least the dimmest below it, so there is no degenerate all-or-nothing
-    # case to guard here; a field whose split is useless falls out downstream
-    # as "no object survived the border and size filters".
     fg_fraction = float(foreground.mean())
     filled = binary_fill_holes(foreground)
 
@@ -646,32 +622,12 @@ def _analyse_plane(
     labels, n_labels = ndi_label(filled)
     thresh_diams = _region_diameters(labels, int(n_labels), min_object_diameter, max_area)
 
-    # 4. distance-transform cross-check: seed one marker per inscribed-circle
-    #    maximum and watershed the foreground apart again. Padding by one zero
-    #    pixel keeps objects at the image edge bounded instead of letting the
-    #    transform run off the array.
-    #
-    #    This runs on the UNFILLED foreground on purpose. Hole filling is right
-    #    for the area measurement above -- a dark nucleus inside a cell is part
-    #    of the cell -- but in a confluent packing the interstitial background
-    #    between touching objects is also an enclosed hole, and filling it
-    #    welds the whole field into one slab whose distance transform knows
-    #    nothing about individual objects. Those interstices are precisely the
-    #    signal that tells touching objects apart, so the transform keeps them.
-    #    The cost is that a genuinely hollow object (a membrane-only ring)
-    #    reads small here; when it does, the two measurements disagree, and
-    #    _aggregate downgrades the confidence and says so rather than picking
-    #    a winner silently.
     padded = np.pad(foreground, 1)
     edt = distance_transform_edt(padded)
     seed_floor = max(1.0, min_object_diameter / 2.0)
     coarse = peak_local_max(edt, min_distance=3, threshold_abs=seed_floor, exclude_border=False)
     split_diams = np.empty(0, np.float64)
     if coarse.size:
-        # Second pass: the coarse peaks set the suppression radius, so the
-        # refined pass keeps one seed per object instead of one per ripple.
-        # It cannot come back empty -- its threshold is no higher than the
-        # coarse pass's, so at least the global maximum survives.
         r_coarse = float(np.median(edt[tuple(coarse.T)]))
         coords = peak_local_max(
             edt,
@@ -712,9 +668,6 @@ def _measure(
         return _PlaneResult(reason=f"could not measure field: {type(exc).__name__}: {exc}")
 
 
-# ---------------------------------------------------------------------------
-# aggregation and confidence
-# ---------------------------------------------------------------------------
 
 def _demote(level: str, steps: int = 1) -> str:
     """Move a confidence level down the ladder, saturating at 'low'."""
@@ -750,27 +703,6 @@ def _aggregate(
     d_thresh = float(np.median(thresh)) if thresh.size else float("nan")
     d_split = float(np.median(split)) if split.size else float("nan")
 
-    # Fusion detection, i.e. when to stop believing the plain threshold.
-    #
-    # A confluent monolayer merges into one component that touches the border,
-    # gets dropped as truncated, and leaves only debris behind -- so `thresh`
-    # collapses to nothing, or to a handful of specks that would be reported as
-    # a tiny diameter. Both halves of that signature are required here:
-    #
-    #   * the threshold path kept nothing, or kept far fewer objects than the
-    #     distance transform resolves, AND
-    #   * the field is dense enough for fusion to be the explanation.
-    #
-    # Requiring both matters. The count disagreement ALONE is not evidence of
-    # fusion: a hollow, membrane-only object is one correct component by area
-    # but shatters into dozens of arc-shaped basins under the distance
-    # transform, so a ratio test on its own would throw away the right answer
-    # (60 px) in favour of the wall thickness (5 px) -- the same silent
-    # collapse this code exists to prevent, entered from the other side. A
-    # high foreground fraction alone is not evidence either: a dense but
-    # well-separated field can reach 30% foreground and still be measured
-    # correctly by thresholding. When only one signal fires, the threshold
-    # estimate is kept and the confidence is downgraded instead.
     confluent = fg >= fused_fraction
     collapsed = thresh.size == 0
     outnumbered = confluent and split.size >= 5 * max(thresh.size, 1)
@@ -804,7 +736,6 @@ def _aggregate(
     high = float(np.percentile(chosen, 90))
     n_objects = int(chosen.size)
 
-    # ---- confidence, and the reasons for every downgrade -------------------
     level = _HIGH
     notes: List[str] = []
 
@@ -815,10 +746,6 @@ def _aggregate(
         level = _demote(level)
         notes.append(f"only {n_objects} objects measured")
 
-    # Spread is measured 10th-to-90th rather than by the IQR: a field holding
-    # two populations (debris plus cells, say) can have a razor-thin IQR around
-    # whichever one is more numerous while the reported range spans five-fold.
-    # The IQR version scored exactly that case 'high'.
     spread = float((high - low) / diameter) if diameter > 0 else float("inf")
     if spread > 2.0:
         level = _demote(level, 2)
@@ -890,9 +817,6 @@ def _aggregate(
     )
 
 
-# ---------------------------------------------------------------------------
-# public entry points
-# ---------------------------------------------------------------------------
 
 def estimate_diameters(
     src: Any,
@@ -976,8 +900,6 @@ def estimate_diameters(
     n_available = len(source.fields)
     picks = _sample_indices(n_available, n_fields, random_state)
 
-    # Channel-range check up front, so an out-of-range index is reported as a
-    # problem rather than raised as an IndexError halfway through a sample.
     per_object: Dict[str, List[_PlaneResult]] = {}
     out_of_range: Dict[str, str] = {}
     for obj in order:
@@ -1014,7 +936,7 @@ def estimate_diameters(
                 out_of_range.setdefault(obj, str(exc))
                 per_object.pop(obj, None)
                 continue
-            except Exception as exc:                      # unreadable file, odd dtype
+            except Exception as exc:
                 per_object[obj].append(_PlaneResult(reason=f"could not read field: {exc}"))
                 continue
             per_object[obj].append(

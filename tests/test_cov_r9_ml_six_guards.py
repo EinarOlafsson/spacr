@@ -126,15 +126,55 @@ class TestTheColumnsTheLineAboveEnsured:
             "split below it can be skipped and the guide/gene assumption "
             "goes unstated")
 
-    def test_the_positional_split_is_documented_as_an_assumption(self):
-        """The comment is the substance: '<org>_<gene>_<guide>' is a
-        naming convention, not a fact about the data, and it is stated
-        and checked rather than removed."""
-        from spacr import ml as M
+    def test_the_positional_split_uses_the_middle_token_as_the_gene(self):
+        """The assumption APPLIED, on a real pooled-library name.
 
-        source = inspect.getsource(M.process_reads)
-        assert "This split IS positional, legitimately" in source
-        assert "TGGT1_GENEA_g1" in source
+        '<org>_<gene>_<guide>' is a naming convention: nothing in
+        'TGGT1_GENEA_g1' says which token is which, so the split is
+        positional -- the middle token is the gene and the guide keeps
+        the two that identify it.
+        """
+        from spacr.ml import process_reads
+
+        counts = pd.DataFrame({
+            "rowID": ["A01", "A01"], "columnID": ["c1", "c1"],
+            "grna": ["TGGT1_GENEA_g1", "TGGT1_GENEB_g2"],
+            "count": [10, 30]})
+
+        out = process_reads(counts, None, "plate1")
+
+        assert list(out["gene"]) == ["GENEA", "GENEB"], (
+            f"the gene came back as {list(out['gene'])}; the positional "
+            f"split no longer reads the middle token of "
+            f"'<org>_<gene>_<guide>'")
+        assert list(out["grna"]) == ["GENEA_g1", "GENEB_g2"]
+
+    def test_the_positional_split_is_documented_as_an_assumption(self, capsys):
+        """The assumption STATED and CHECKED, which is the half that
+        matters: it is a naming convention and not a fact about the
+        data, so a table whose names are not all three components is
+        refused the split outright -- and told which convention was
+        wanted -- rather than having it half-applied."""
+        from spacr.ml import process_reads
+
+        counts = pd.DataFrame({
+            "rowID": ["A01", "A01"], "columnID": ["c1", "c1"],
+            "grna": ["TGGT1_GENEA_g1", "GENEB_g2"],   # 3 components, then 2
+            "count": [10, 30]})
+
+        out = process_reads(counts, None, "plate1")
+        said = capsys.readouterr().out
+
+        assert "gene" not in out.columns, (
+            "a mixed-width table was split anyway, so the short name got "
+            "its GUIDE token read as its gene")
+        assert list(out["grna"]) == ["TGGT1_GENEA_g1", "GENEB_g2"], (
+            "the names were rewritten by a split that was refused")
+        assert "positional" in said and "'<org>_<gene>_<guide>'" in said, (
+            f"the refusal no longer states the convention it wanted, so the "
+            f"assumption is unstated again: {said!r}")
+        assert "TGGT1_GENEA_g1" in said, (
+            "the refusal does not name the value it could not read")
 
 
 class TestTheFoldCount:

@@ -109,9 +109,6 @@ def build_sheet(frame, *, width: str = "double", target: Optional[str] = None,
 
     target = target or theme_target()
     with figure_style(target):
-        # Draw once into a throwaway to find out which panels this table can
-        # support, so the grid is sized for what will actually appear rather
-        # than leaving holes.
         scratch = plt.figure()
         supported = []
         try:
@@ -154,8 +151,6 @@ def build_sheet(frame, *, width: str = "double", target: Optional[str] = None,
             drawn.append(panel)
 
         hide_unused(axes[len(drawn):])
-        # More space between panel groups than within them: the only
-        # hierarchy cue the published figures use.
         figure.subplots_adjust(left=.09, right=.98, top=.93, bottom=.09,
                                wspace=.42, hspace=.52)
         return Sheet(figure=figure, panels=drawn, skipped=skipped)
@@ -171,10 +166,6 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
     """
     import matplotlib.pyplot as plt
 
-    # `kind=key` is how the user's PER-GRAPH preference reaches this panel:
-    # the volcano's point size is not the heatmap's, which is the whole reason
-    # instruction 118 has a per-graph layer. A key that is not a known graph
-    # kind simply has no overrides, so this is safe for every panel.
     with figure_style(target or theme_target(), kind=key):
         figure = plt.figure(figsize=figsize)
         ax = figure.add_subplot(111)

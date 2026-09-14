@@ -130,26 +130,6 @@ _DIAMETER_OBJECTS: Tuple[str, ...] = ("cell", "nucleus", "pathogen")
 _PLACEHOLDERS = frozenset({"", "path", "/path", "/path/to/src"})
 
 
-# ---------------------------------------------------------------------------
-# Styling
-#
-# The block is registered at IMPORT time, at the bottom of this section, and
-# `spacr.qt.prerun` is listed in `theme.WIDGET_QSS_MODULES`. Both halves are
-# required and neither is optional -- see INVARIANTS 1.
-#
-# It used to be registered only from `register()`, which runs after app.py
-# has imported. The application stylesheet is built and applied before that,
-# so `QFrame#MeasureQCBanner` was not in the sheet when the sheet was made:
-# the panel fell through to the blanket `QWidget { background-color: bg }`
-# and `bg` is #000000 on the dark theme. The verdict text sat on a solid
-# black slab while every container around it was translucent -- which is
-# exactly the symptom INVARIANTS 1 describes, arrived at by a different
-# route.
-#
-# Measured on a fresh interpreter: 'MeasureQCBanner' in theme.stylesheet()
-# was False at launch and True only after
-# register_self_registering_modules().
-# ---------------------------------------------------------------------------
 
 def _qss(palette: Dict[str, Any], opacity: Any) -> str:
     """Both widgets' stylesheet for one palette.
@@ -161,28 +141,6 @@ def _qss(palette: Dict[str, Any], opacity: Any) -> str:
         page opacity.
     :param opacity: the user's page-opacity preference, passed through.
     """
-    # Straight off the palette, which is what a REGISTERED block is handed:
-    # `register_widget_qss` documents that `surface`, `surface_alt` and
-    # `surface_hi` arrive already rendered through the user's page opacity,
-    # so this is the value the built-in rules interpolate and the panel
-    # matches the app by construction.
-    #
-    # It used to call `pane_surface("surface_alt", palette.get("theme"),
-    # opacity)`. Two things were wrong with that and neither was visible
-    # while this block was missing from the sheet:
-    #
-    #   * the palette carries no "theme" key, so that argument was always
-    #     None, and `opacity` is None for a registered block -- so
-    #     pane_surface fell through to reading the LIVE preference. A
-    #     stylesheet that reads live preferences is the thing
-    #     `test_the_sheet_does_not_read_the_live_page_opacity` exists to
-    #     forbid;
-    #   * it emitted rgba() on the opaque themes, which have no scrim, so
-    #     the panel carried a translucency the theme never authorised
-    #     (`test_opaque_themes_still_emit_plain_hex`).
-    #
-    # Both tests were green only because the block was not reaching the
-    # sheet they inspect.
     surface = palette["surface_alt"]
     return f"""
     QFrame#{QC_OBJECT_NAME}, QFrame#{DIAMETER_OBJECT_NAME} {{
@@ -233,14 +191,9 @@ try:
     from .theme import register_widget_qss as _register_widget_qss
     _register_widget_qss(QSS_NAME, _qss, replace=True)
 except Exception:
-    # INVARIANTS 10: a stylesheet that cannot be registered costs this panel
-    # its background, not the Measure module its run.
     LOG.exception("could not register the pre-run stylesheet at import")
 
 
-# ---------------------------------------------------------------------------
-# Small shared helpers
-# ---------------------------------------------------------------------------
 
 class _ShowFilter(QObject):
     """Follow a watched widget's visible lifetime; consume nothing.
@@ -444,9 +397,6 @@ class _JobMixin:
             LOG.exception("no worker thread available")
             return False
         try:
-            # journal=False: this is read-only UI housekeeping, not an
-            # analysis run, and a reproducibility manifest per button press
-            # would bury the runs that are.
             thread, worker = make_thread(fn, box, app_key=app_key,
                                          journal=False,
                                          user_visible=user_visible,
@@ -481,9 +431,6 @@ class _JobMixin:
         self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
 
 
-# ---------------------------------------------------------------------------
-# The segmentation-QC banner
-# ---------------------------------------------------------------------------
 
 class SegQCBanner(_JobMixin, QFrame):
     """The segmentation verdict, on the Measure screen, before Measure runs.
@@ -576,16 +523,6 @@ class SegQCBanner(_JobMixin, QFrame):
         self._sub = _label("", "PrerunSub")
         column.addWidget(self._sub)
 
-        # Scaffolding, so it must paint nothing (INVARIANTS 3). A plain
-        # QWidget used as a layout container inherits the blanket
-        # `QWidget { background-color: bg }` rule, and `bg` is the WINDOW
-        # colour -- #000000 on the dark theme. The findings text sat on a
-        # solid black rectangle inside a panel that was otherwise a
-        # translucent surface, which is exactly what it looked like: a black
-        # box behind the text.
-        #
-        # The panel's own background already follows the page opacity
-        # (`pane_surface` in `_qss`); this is what lets it show through.
         self._findings_box = _transparent(QWidget(self))
         self._findings_layout = QVBoxLayout(self._findings_box)
         self._findings_layout.setContentsMargins(0, 2, 0, 2)
@@ -625,20 +562,9 @@ class SegQCBanner(_JobMixin, QFrame):
             screen.installEventFilter(self._show_filter)
         except Exception:
             LOG.exception("could not watch the Measure screen for show events")
-        # HIDDEN UNTIL THERE IS SOMETHING TO SAY. `install_qc_banner` now
-        # SCHEDULES the first read instead of doing it inline -- that is the
-        # freeze fix -- so for the 450 ms of the debounce the banner would
-        # otherwise sit in the layout visible and empty: a title, two buttons
-        # and no verdict, on every Measure screen build, appearing and
-        # vanishing. Measured against HEAD: with no src, HEAD had it hidden
-        # from the start and the working tree showed it for 1.2 s.
-        #
-        # Every path that has something to draw calls `show()` itself, so
-        # this only removes the flash.
         self.hide()
         self._wire_src()
 
-    # -- wiring -----------------------------------------------------------
 
     def _wire_src(self) -> None:
         """Re-read the verdict a beat after the source folder changes."""
@@ -665,7 +591,6 @@ class SegQCBanner(_JobMixin, QFrame):
         """
         self._timer.start()
 
-    # -- reading ----------------------------------------------------------
 
     def _read(self, src: Any):
         """Read the digest for ``src``. Injected in tests."""
@@ -749,9 +674,6 @@ class SegQCBanner(_JobMixin, QFrame):
             self.hide()
             self.refreshed.emit("")
             return
-        # Both cache fields are read HERE and compared on the worker. The job
-        # body may not read the banner's state: by the time it runs, the GUI
-        # thread may have changed it.
         box: Dict[str, Any] = {
             "src": src,
             "cache_key": self._cache_key,
@@ -767,20 +689,10 @@ class SegQCBanner(_JobMixin, QFrame):
             self._on_refreshed(box)
             return
         if self.busy:
-            # COALESCED -- neither dropped nor queued. Twenty keystrokes are
-            # twenty requests for one answer: a job each would ask the same
-            # question twenty times, and dropping them loses the last one,
-            # which is the only one that matters. `_pending_work` runs
-            # exactly one catch-up when the slot frees. This is
-            # `ChainingBar._refresh`'s `_resolve_again`, and it replaces a
-            # re-armed debounce that re-asked every 450 ms for as long as a
-            # sleeping mount took to answer.
             self._refresh_again = True
             return
         self._reading = True
         self._reading_gen = gen
-        # user_visible=False: nobody asked for this, and a job that claims a
-        # run banner would put "measure - running" on Home for a CSV read.
         if not self._start_job(self._refresh_job, box, self._on_refreshed,
                                QC_APP, user_visible=False,
                                capture_figures=False):
@@ -812,16 +724,6 @@ class SegQCBanner(_JobMixin, QFrame):
         self._reading = False
         try:
             if self._reading_gen != self._refresh_gen:
-                # THE ANSWER TO A QUESTION NOBODY IS ASKING. The src field
-                # has moved on since this read was issued, so painting it
-                # would put the previous source's verdict on screen under
-                # the current source's name -- and after a CLEARED field
-                # would un-hide a banner `refresh` had just hidden. The
-                # catch-up below asks what is actually outstanding.
-                #
-                # `_job_settled` is not generation-guarded and cannot be: it
-                # is shared with the diameter panel. The guard belongs here,
-                # where what was asked is known.
                 return
             key = box.get("key")
             if key is None:
@@ -833,8 +735,6 @@ class SegQCBanner(_JobMixin, QFrame):
                 self.refreshed.emit("")
                 return
             if "digest" not in box:
-                # The cards on disk are the ones already parsed. This is the
-                # whole point of the fingerprint: ten visits, one parse.
                 digest = self._digest
                 if digest is None:
                     self.refreshed.emit("")
@@ -874,7 +774,6 @@ class SegQCBanner(_JobMixin, QFrame):
             self._refresh_again = False
             self.refresh()
 
-    # -- drawing ----------------------------------------------------------
 
     @property
     def digest(self):
@@ -886,8 +785,6 @@ class SegQCBanner(_JobMixin, QFrame):
         digest = self._digest
         if digest is None:
             return
-        # A refreshed scorecard can point at a different set of fields.  Do
-        # not leave an already-open browser navigating the previous digest.
         self._close_field_browser()
         verdict = digest.verdict
         title = {
@@ -959,10 +856,6 @@ class SegQCBanner(_JobMixin, QFrame):
         self._findings_box.setVisible(True)
         shown = findings if self._expanded else findings[:_FINDINGS_COLLAPSED]
         for finding in shown:
-            # One per finding, and each is its own anonymous QWidget, so
-            # each needs tagging: making only the parent transparent left a
-            # black rectangle behind every finding's text -- which is what
-            # the first attempt at this fixed and what the user still saw.
             block = _transparent(QWidget(self._findings_box))
             layout = QVBoxLayout(block)
             layout.setContentsMargins(0, 0, 0, 0)
@@ -1106,7 +999,6 @@ class SegQCBanner(_JobMixin, QFrame):
         if self._digest is not None:
             self._draw_findings(self._digest)
 
-    # -- the one expensive path, and only on request -----------------------
 
     def _on_copy_clicked(self) -> None:
         """Put the whole report on the clipboard, for a lab notebook or an issue."""
@@ -1143,19 +1035,14 @@ class SegQCBanner(_JobMixin, QFrame):
         """
         src = _src_of(self._screen)
         if not _has_src(src):
-            # Includes a queued click whose source has since been cleared:
-            # put the button back rather than leave it disabled forever.
             self._score_again = False
             self._btn_score.setEnabled(True)
             return
         if self.busy:
             if not self._reading:
-                return          # a scoring pass is already running
+                return
             self._score_again = True
             self._btn_score.setEnabled(False)
-            # The caption the pass itself uses. Scoring is what happens next
-            # and it needs no further input, so a second wording for the
-            # same state would only be a second thing to read.
             self._title.setText("Segmentation QC — scoring the masks…")
             return
         self._score_again = False
@@ -1195,20 +1082,14 @@ class SegQCBanner(_JobMixin, QFrame):
                     "Segmentation QC — could not score these masks")
                 return
             self._digest = digest
-            self._cache_key = None      # the cards on disk have just changed
+            self._cache_key = None
             self._draw()
             self.show()
             self.refreshed.emit(digest.verdict)
         finally:
-            # A read asked for while this pass held the slot. It is worth
-            # running even now: `src` may have changed under the scoring
-            # pass, and this is what puts the current source back on screen.
             self._pending_work()
 
 
-# ---------------------------------------------------------------------------
-# The diameter estimator
-# ---------------------------------------------------------------------------
 
 class DiameterPanel(_JobMixin, QFrame):
     """A measured Cellpose ``diameter``, per object type, from the user's own fields.
@@ -1282,7 +1163,6 @@ class DiameterPanel(_JobMixin, QFrame):
             "PrerunSub")
         column.addWidget(self._sub)
 
-        # Same as the QC panel's findings box: scaffolding paints nothing.
         self._rows_box = _transparent(QWidget(self))
         self._rows_layout = QVBoxLayout(self._rows_box)
         self._rows_layout.setContentsMargins(0, 2, 0, 2)
@@ -1299,7 +1179,6 @@ class DiameterPanel(_JobMixin, QFrame):
             "PrerunAdvisory")
         column.addWidget(self._advisory)
 
-    # -- inputs -----------------------------------------------------------
 
     def _settings(self) -> Dict[str, Any]:
         """The settings the estimate should be made under.
@@ -1325,7 +1204,6 @@ class DiameterPanel(_JobMixin, QFrame):
             if obj in _DIAMETER_OBJECTS and f"{obj}_diameter" in widgets
         }
 
-    # -- measuring --------------------------------------------------------
 
     def _on_measure_clicked(self) -> None:
         """Measure object diameters on the current source."""
@@ -1404,7 +1282,6 @@ class DiameterPanel(_JobMixin, QFrame):
         self._status.setText(text)
         self._status.setVisible(bool(text))
 
-    # -- drawing ----------------------------------------------------------
 
     @property
     def estimates(self) -> Dict[str, Any]:
@@ -1438,9 +1315,6 @@ class DiameterPanel(_JobMixin, QFrame):
             if est.usable:
                 line.addWidget(_label(
                     f"{obj}: {est.diameter:.1f} px", "PrerunValue", wrap=False))
-                # The evidence, not just the number. A proposal whose object
-                # count is 3 is a different claim from one whose count is 800,
-                # and the user cannot tell them apart from the value alone.
                 line.addWidget(_label(
                     f"10th-90th percentile {est.low:.1f}-{est.high:.1f} px · "
                     f"measured on {est.n_objects} object(s) across "
@@ -1463,7 +1337,6 @@ class DiameterPanel(_JobMixin, QFrame):
             self._rows_layout.addWidget(row)
         self._rows_box.setVisible(bool(order))
 
-    # -- applying ---------------------------------------------------------
 
     def apply(self, object_type: str) -> bool:
         """Write one proposal into its ``<object>_diameter`` field.
@@ -1480,12 +1353,6 @@ class DiameterPanel(_JobMixin, QFrame):
             return False
         model = getattr(self._screen, "_settings_model", None)
         key = f"{object_type}_diameter"
-        # An int, because `spacr.settings.expected_types` declares these keys
-        # int and `collect()` hands a float straight back as the *string*
-        # "24.0" — which then reaches check_settings as a string. Sub-pixel
-        # precision is meaningless here anyway: the value's only effect is a
-        # 30/diameter rescale. The panel still SHOWS the measured value to a
-        # decimal, so nothing about the measurement is hidden.
         value = int(round(float(est.diameter)))
         setter = getattr(model, "set_value_for_key", None)
         if callable(setter):
@@ -1519,9 +1386,6 @@ class DiameterPanel(_JobMixin, QFrame):
                 f"{obj}_diameter" for obj in sorted(applied)) + ".")
 
 
-# ---------------------------------------------------------------------------
-# Installation
-# ---------------------------------------------------------------------------
 
 def qc_banner(screen) -> Optional[SegQCBanner]:
     """The banner installed on ``screen``, or None."""
@@ -1577,10 +1441,6 @@ def install_qc_banner(screen, *, reader=None,
             banner.deleteLater()
             return None
         screen._seg_qc_banner = banner
-        # SCHEDULED, NOT CALLED. This runs inside `MainWindow._build_screen`,
-        # which does not yield -- so anything done here is done before the
-        # screen can be painted, and until 2026-09-04 that included statting
-        # the user's src folder. See `SegQCBanner.refresh`.
         banner.schedule_refresh()
         return banner
     except Exception:
@@ -1602,7 +1462,6 @@ def install_diameter_panel(screen, *, estimator=None) -> Optional[DiameterPanel]
             return existing
         if not any(f"{obj}_diameter" in _widgets(screen)
                    for obj in _DIAMETER_OBJECTS):
-            # A screen with no diameter to set has no use for an estimate.
             return None
         panel = DiameterPanel(screen, estimator=estimator)
         if not _insert_above_actions(screen, panel):
@@ -1700,10 +1559,6 @@ def register() -> bool:
     from .app import APP_FACTORIES
 
     try:
-        # Already registered at import (see the Styling section). Repeated
-        # here because `teardown()` unregisters it, so a register/teardown/
-        # register cycle -- which the tests do -- has to put it back.
-        # `replace=True` makes the ordinary case a no-op.
         from .theme import register_widget_qss
         register_widget_qss(QSS_NAME, _qss, replace=True)
     except Exception:

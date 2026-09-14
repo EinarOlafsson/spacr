@@ -471,8 +471,6 @@ class SpaceEngine:
 
             set_num_threads(self.thread_count)
         except Exception:                                    # noqa: BLE001
-            # A thread cap that cannot be set is a slower frame, never a
-            # reason for the backdrop not to draw.
             pass
 
     def render(self, width: int, height: int, t: float, speed: float,

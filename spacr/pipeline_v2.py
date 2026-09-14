@@ -70,9 +70,6 @@ from .logging_util import Timer, timed
 LOG = logging.getLogger("spacr.pipeline_v2")
 
 
-# ---------------------------------------------------------------------------
-# Filename mapping
-# ---------------------------------------------------------------------------
 
 @dataclass
 class FilenameRecord:
@@ -121,7 +118,6 @@ class FilenameMapper:
         self.metadata_type = metadata_type
         self.regex = regex
 
-    # -- construction ------------------------------------------------------
     @classmethod
     def discover(cls, src: Path,
                   metadata_type: str = "auto",
@@ -172,9 +168,6 @@ class FilenameMapper:
                 z=int(g.get("sliceID") or g.get("z") or 1),
             ))
 
-        # Assign stable per-field ids so all channels of the same
-        # (plate, well, field, time, z) fall into one stack file.
-        # Sort keys: plate → well → field → time → z; then enumerate.
         keys = {}
         for r in recs:
             k = (r.plate, r.well, r.field, r.time, r.z)
@@ -186,7 +179,6 @@ class FilenameMapper:
                   len(recs), len(keys), chosen)
         return cls(recs, chosen, pattern)
 
-    # -- persistence -------------------------------------------------------
     def save_csv(self, path: Path) -> Path:
         """Write the mapping to ``path`` as a CSV that Excel opens
         cleanly. One row per (original image, resulting stack slot).
@@ -202,7 +194,6 @@ class FilenameMapper:
             w.writerow(cols)
             for r in self.records:
                 w.writerow([getattr(r, c) for c in cols])
-        # Sidecar with the regex used, so `spacr repro` can replay
         (path.with_suffix(".json")).write_text(json.dumps({
             "metadata_type": self.metadata_type,
             "regex":         self.regex,
@@ -234,7 +225,6 @@ class FilenameMapper:
                         meta.get("regex", ""))
         return cls(recs, "?", "")
 
-    # -- accessors ---------------------------------------------------------
     def by_field(self) -> Dict[str, List[FilenameRecord]]:
         """Group records by ``stack_field_id`` — one entry per field, with
         one record per channel inside."""
@@ -248,10 +238,6 @@ class FilenameMapper:
         return sorted(self.by_field().keys())
 
 
-# ---------------------------------------------------------------------------
-# Regex resolution — copy of spacr.utils._get_regex behaviour, kept local
-# so v2 doesn't import the whole spacr.utils stack at module scope.
-# ---------------------------------------------------------------------------
 
 _CELLVOYAGER = (
     r"(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)"
@@ -279,17 +265,15 @@ def _resolve_regex(metadata_type: str, files: List[Path],
         candidates.append((_CELLVOYAGER, "cellvoyager"))
     elif metadata_type == "yokogawa":
         candidates.append((_YOKOGAWA, "yokogawa"))
-    else:   # auto
+    else:
         candidates = [(_CELLVOYAGER, "cellvoyager"),
                       (_YOKOGAWA, "yokogawa")]
 
-    # Choose the first regex that matches EVERY file
     for pattern, name in candidates:
         rx = re.compile(pattern)
         if all(rx.match(f.name) for f in files):
             return pattern, name
 
-    # Last-ditch: choose the one that matches the MOST files
     best_pattern, best_name, best_hits = candidates[0][0], candidates[0][1], -1
     for pattern, name in candidates:
         rx = re.compile(pattern)
@@ -301,9 +285,6 @@ def _resolve_regex(metadata_type: str, files: List[Path],
     return best_pattern, best_name
 
 
-# ---------------------------------------------------------------------------
-# Pass 1 — stream originals into per-field npy stacks
-# ---------------------------------------------------------------------------
 
 @dataclass
 class StackFile:
@@ -321,8 +302,8 @@ class StackFile:
     """
     field_id:  str
     path:      Path
-    shape:     Tuple[int, int, int]   # (H, W, C) at write time
-    channels:  List[str]              # human names, in the same order
+    shape:     Tuple[int, int, int]
+    channels:  List[str]
 
 
 @timed
@@ -363,14 +344,8 @@ def stream_originals_to_stack(
     written: List[StackFile] = []
 
     for field_id, recs in by_field.items():
-        # Group by channel number for this field
         by_ch = {r.channel: r for r in recs}
 
-        # Determine the field's true plane shape/dtype from ANY present
-        # channel first, so a zero plane synthesised for a missing channel
-        # matches — even when the missing channel is the FIRST requested one
-        # (otherwise np.stack raises "all input arrays must have the same
-        # shape"). Cache the read so present planes aren't read twice.
         ref_shape = None
         ref_dtype = np.uint16
         read_cache: dict = {}
@@ -389,8 +364,6 @@ def stream_originals_to_stack(
         for ch in channels:
             rec = by_ch.get(ch)
             if rec is None:
-                # Missing channel — synthesise a zero plane matching the
-                # field's real shape so downstream tools don't crash.
                 LOG.warning("field %s missing channel %d — inserting zeros",
                              field_id, ch)
                 planes.append(np.zeros(ref_shape, dtype=ref_dtype))
@@ -408,14 +381,12 @@ def stream_originals_to_stack(
             channels=list(channel_names),
         ))
 
-    # Global sidecar describing the C axis
     (dst / "channel_order.json").write_text(json.dumps({
         "image_channels": list(channel_names),
-        "mask_channels":  [],   # filled in by stream_masks_from_stack
+        "mask_channels":  [],
         "shape_H_W_C":    "final shape is (H, W, C_image + C_mask)",
     }, indent=2))
 
-    # Save filename map at the plate root
     mapper.save_csv(src / "filename_map.csv")
     LOG.info("wrote %d field stacks under %s + filename_map.csv",
               len(written), dst)
@@ -426,8 +397,6 @@ def _record_cellpose_hash(model, model_name: str) -> None:
     """Best-effort — fingerprint the Cellpose checkpoint and record it
     on the currently-open :class:`spacr.run_journal.Run`, if any."""
     try:
-        # Cellpose's model object usually exposes `pretrained_model`
-        # (list of paths) or `.cp.pretrained_model`.
         ckpt_paths = []
         for attr in ("pretrained_model", "cp"):
             obj = getattr(model, attr, None)
@@ -442,14 +411,10 @@ def _record_cellpose_hash(model, model_name: str) -> None:
                         ckpt_paths.extend(nested)
                     else:
                         ckpt_paths.append(nested)
-        # Filter to real existing files
         ckpt_paths = [Path(p) for p in ckpt_paths
                        if p and Path(p).is_file()]
         if not ckpt_paths:
             return
-        # Push to the OPEN run journal, if any. We do this via a
-        # thread-local convenience — see spacr.run_journal for the
-        # active-run registry.
         try:
             from .run_journal import current_run
             run = current_run()
@@ -458,10 +423,6 @@ def _record_cellpose_hash(model, model_name: str) -> None:
             for ckpt in ckpt_paths:
                 run.record_model(model_name, ckpt)
         except Exception as exc:
-            # Provenance, not results — a journal that will not take the
-            # record must not stop the segmentation. But an unrecorded model
-            # is a run whose manifest cannot say which weights produced the
-            # masks, and that is exactly the question asked six months later.
             LOG.warning("model %r was not recorded in the run journal (%s); "
                         "this run's manifest will not name the weights it "
                         "used.", model_name, exc)
@@ -481,17 +442,11 @@ def _read_plane(path: str) -> np.ndarray:
     else:
         from PIL import Image
         arr = np.array(Image.open(str(p)))
-    # Reduce to 2-D (grayscale)
     if arr.ndim == 3:
-        # H, W, C → take the first channel (spacr's convention for
-        # single-channel writes)
         arr = arr[..., 0]
     return arr.astype(np.uint16, copy=False)
 
 
-# ---------------------------------------------------------------------------
-# Pass 2 — stream Cellpose masks back into the same stacks
-# ---------------------------------------------------------------------------
 
 
 def _as_hwc(arr: np.ndarray) -> np.ndarray:
@@ -587,9 +542,6 @@ def stream_masks_from_stack(
             "cellpose is required for v2 mask streaming"
         ) from e
 
-    # Resolve legacy names and fine-tuned checkpoint paths through the same
-    # adapter as V1. The old V2 branch silently loaded stock cpsam for every
-    # model_name, so a V1 run using a trained checkpoint could never match.
     import torch
     from .utils import _resolve_cellpose_pretrained
 
@@ -605,9 +557,6 @@ def stream_masks_from_stack(
         device=device,
     )
 
-    # Record the exact model checkpoint hash into the active run
-    # journal, if one is open. Downstream reviewers can then trace
-    # any mask back to the specific weights that produced it.
     _record_cellpose_hash(model, model_name)
 
     for batch_start in range(0, len(stacks), batch_fields):
@@ -618,17 +567,12 @@ def stream_masks_from_stack(
         ):
             loaded = [_as_hwc(np.load(s.path)) for s in batch]
 
-        # Optionally persist the batch as NPZ for debugging.
-        # Deleted after run unless keep_npz=True.
         npz_path = scratch / f"batch_{batch_start:04d}.npz"
         np.savez_compressed(
             npz_path,
             **{s.field_id: arr for s, arr in zip(batch, loaded)},
         )
 
-        # Prepare the same list-of-images batch V1 hands to Cellpose. Besides
-        # being faster, keeping the call boundary identical matters for exact
-        # V1/V2 reproducibility on CPSAM.
         selected_images: List[np.ndarray] = []
         for sf, arr in zip(batch, loaded):
             indices = _cellpose_channel_indices(
@@ -645,12 +589,6 @@ def stream_masks_from_stack(
                     sf.field_id, selected, context)
             selected_images.append(selected)
 
-        # V1 segments the percentile-normalised float batch under masks/*.npz,
-        # not the raw uint16 planes later retained in merged/.  V2 deliberately
-        # retains those raw planes, but must still present the same pixels to
-        # Cellpose or small synthetic fields produce materially different
-        # masks.  Reuse V1's normaliser with channel roles remapped onto this
-        # compact Cellpose input (object first, optional nucleus second).
         if postprocess_settings is not None:
             from .io import _normalize_img_batch
 
@@ -736,8 +674,6 @@ def stream_masks_from_stack(
                 batch_filenames=[stack.path.name for stack in batch],
             ))
 
-        # Append the mask channel to each stack file and update
-        # the StackFile bookkeeping.
         for sf, arr, mask in zip(batch, loaded, masks_per_field):
             mask = np.asarray(mask)[:arr.shape[0], :arr.shape[1]]
             combined = np.concatenate(
@@ -757,24 +693,17 @@ def stream_masks_from_stack(
                 pass
 
     if not keep_npz:
-        # Best-effort scratch cleanup
         try:
             shutil.rmtree(scratch, ignore_errors=True)
         except Exception:
             pass
 
-    # The empty case returned before Cellpose was loaded, so stacks[0] is
-    # available here without a second, unreachable emptiness check.
     sidecar = stacks[0].path.parent / "channel_order.json"
     try:
         meta = json.loads(sidecar.read_text())
         meta["mask_channels"] = [mask_channel_name]
         sidecar.write_text(json.dumps(meta, indent=2))
     except Exception as exc:
-        # The masks are written either way, so this does not fail the
-        # stage — but channel_order.json is what every later reader uses
-        # to know which plane is a mask, and a sidecar that silently did
-        # not get the entry makes the stack self-describing and wrong.
         LOG.warning("channel_order.json at %s was not updated with "
                     "mask_channels=%r (%s); readers of this stack will "
                     "not know which plane holds the mask.",
@@ -786,9 +715,6 @@ def stream_masks_from_stack(
     return stacks
 
 
-# ---------------------------------------------------------------------------
-# High-level one-call
-# ---------------------------------------------------------------------------
 
 def run_v2(
     src: Path,

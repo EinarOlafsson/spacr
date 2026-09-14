@@ -72,11 +72,6 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-# Both imported rather than re-derived. `_level_series` is how a NaN key
-# becomes a visible level instead of a dropped row, and `_sort_key` is why
-# plate 2 sorts before plate 10 — and the pivot's row order and the chart's
-# facet order have to be the same order, or pivoting by plate and then
-# plotting by plate would disagree about which plate is first.
 from .graph_spec import MISSING_LEVEL, _level_series, _sort_key
 
 __all__ = [
@@ -93,9 +88,6 @@ class PivotError(ValueError):
     """A pivot that cannot mean anything, with the reason in the message."""
 
 
-# ---------------------------------------------------------------------------
-# The aggregations
-# ---------------------------------------------------------------------------
 
 N = "n"
 MEAN = "mean"
@@ -167,9 +159,6 @@ def format_value(value: float, *, digits: int = 4) -> str:
     return f"{value:,.{digits}g}"
 
 
-# ---------------------------------------------------------------------------
-# The spec
-# ---------------------------------------------------------------------------
 
 def _clean(names: Optional[Sequence[str]]) -> Tuple[str, ...]:
     """De-duplicated, blank-free, order preserved."""
@@ -244,7 +233,6 @@ class PivotSpec:
                 f"{self.quantile}")
         object.__setattr__(self, "quantile", q)
 
-    # -- edits -----------------------------------------------------------
     def with_rows(self, rows: Sequence[str]) -> "PivotSpec":
         """A copy with a different set of row groupings.
 
@@ -308,7 +296,6 @@ class PivotSpec:
         """
         return _clean(tuple(self.rows) + tuple(self.cols) + tuple(self.values))
 
-    # -- serialisation ----------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
         """This spec as plain data.
 
@@ -367,9 +354,6 @@ class PivotSpec:
         return " · ".join(parts)
 
 
-# ---------------------------------------------------------------------------
-# The result
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class PivotResult:
@@ -401,7 +385,6 @@ class PivotResult:
     hidden_rows: int = 0
     notice: str = ""
 
-    # -- shape ------------------------------------------------------------
     @property
     def shape(self) -> Tuple[int, int]:
         """The table's size as ``(rows, columns)`` of DISPLAYED levels.
@@ -429,7 +412,6 @@ class PivotResult:
         """
         return self.spec.layers
 
-    # -- reading a cell ---------------------------------------------------
     def is_empty(self, row: int, col: int) -> bool:
         """No rows of the source frame landed here. Renders blank, not 0."""
         return not bool(self.present[row, col])
@@ -519,7 +501,6 @@ class PivotResult:
             parts.append(self.notice)
         return " · ".join(parts)
 
-    # -- frames -----------------------------------------------------------
     def to_long(self) -> pd.DataFrame:
         """One row per **non-empty** cell; one column per statistic.
 
@@ -582,9 +563,6 @@ class PivotResult:
         return path
 
 
-# ---------------------------------------------------------------------------
-# The computation
-# ---------------------------------------------------------------------------
 
 def _require_axis_column(frame: pd.DataFrame, key: str) -> None:
     """Refuse an axis key the frame does not carry, by name.
@@ -671,8 +649,6 @@ def pivot(frame: pd.DataFrame, spec: Optional[PivotSpec] = None) -> PivotResult:
     keys = tuple(spec.rows) + tuple(spec.cols)
     n_rows_keys = len(spec.rows)
     for key in keys:
-        # Before the label frame is built, not after: reading a missing key
-        # out of the frame is what turns a stale spec into a bare KeyError.
         _require_axis_column(frame, key)
     if keys:
         labels = pd.DataFrame(
@@ -691,8 +667,6 @@ def pivot(frame: pd.DataFrame, spec: Optional[PivotSpec] = None) -> PivotResult:
     col_levels, _col_cut = _axis_levels(
         frame, spec.cols, col_observed, MAX_COLS, notices, "column")
     while len(row_levels) * len(col_levels) > MAX_CELLS and len(row_levels) > 1:
-        # Trim rows, not columns: a column removed loses a whole series, a row
-        # removed loses one group, and the table is read down the page.
         row_levels = row_levels[:len(row_levels) - 1]
         notices.append(f"grid capped at {MAX_CELLS:,} cells")
 
@@ -709,9 +683,6 @@ def pivot(frame: pd.DataFrame, spec: Optional[PivotSpec] = None) -> PivotResult:
     for value in spec.values:
         numeric = pd.to_numeric(frame[value], errors="coerce")
         if n_source and not numeric.notna().any() and frame[value].notna().any():
-            # Text dropped on the values well. Every statistic would come out
-            # blank and every n zero, which reads as "no data" rather than as
-            # "you cannot average a gene name" — so it is said instead.
             notices.append(
                 f"{value!r} is not numeric, so there is nothing to aggregate; "
                 f"put it on rows or columns instead")
@@ -721,8 +692,6 @@ def pivot(frame: pd.DataFrame, spec: Optional[PivotSpec] = None) -> PivotResult:
         grouped = work.groupby(key_columns, dropna=False, sort=False,
                                observed=True)
     else:
-        # No keys at all: one cell, the whole frame. `groupby` on a constant
-        # is the same computation with the same code path below.
         work["__all"] = 0
         grouped = work.groupby(["__all"], dropna=False, sort=False,
                                observed=True)
@@ -730,22 +699,10 @@ def pivot(frame: pd.DataFrame, spec: Optional[PivotSpec] = None) -> PivotResult:
     group_sizes = grouped.size()
     group_index = group_sizes.index
     size_values = group_sizes.to_numpy()
-    # One numpy column per (value, agg), positionally aligned to the group
-    # index. Reindexed onto it rather than trusted to match, and read
-    # positionally rather than through `.loc` — a label lookup per group per
-    # value turns a 50 000-group pivot into a visible pause.
     columns: Dict[Tuple[str, str], np.ndarray] = {}
     for value in spec.values:
         wanted = [_PANDAS_NAMES[a] for a in spec.aggs if a in _PANDAS_NAMES]
         table = grouped[value].agg(wanted)
-        # NO Series BRANCH. `SeriesGroupBy.agg` returns a DataFrame for a
-        # LIST of function names however short the list is, and `wanted`
-        # is never empty: `PivotSpec.__post_init__` starts its agg list
-        # with `n` and appends the rest, so `n` survives even
-        # `aggs=()` and `with_aggs(())`, and `n` maps to pandas' `count`.
-        #
-        # Checked exhaustively -- all 256 subsets of the eight
-        # aggregations -- and `agg` returned a Series for none of them.
         if QUANTILE in spec.aggs:
             table = table.assign(
                 **{"__q": grouped[value].quantile(spec.quantile)})

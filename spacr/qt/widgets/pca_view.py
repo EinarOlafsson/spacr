@@ -65,10 +65,6 @@ from ..job_runner import JobRunner
 from ..theme import (RADIUS, SPACING, active_palette, font_px,
                      register_widget_qss)
 from .graph_spec import SCATTER, GraphSpec
-# `_canvas_class` is the owned-timer FigureCanvas fix — a matplotlib canvas
-# whose deferred draw cannot fire after Qt has deleted it, which is a segfault
-# on close. Imported rather than copied: two copies of a crash fix is one copy
-# too many, and the scree plot needs the same protection the scores plot has.
 from .graph_builder import (GraphCanvas, _canvas_class, _page_surface_axes,
                             categorical_colours)
 from .pca_model import (
@@ -147,9 +143,6 @@ def arrow_scale(result: PCAResult, kx: int, ky: int,
     return float(half * fill / longest)
 
 
-# ---------------------------------------------------------------------------
-# Picking features
-# ---------------------------------------------------------------------------
 
 class FeaturePicker(QWidget):
     """Which columns go into the decomposition.
@@ -173,9 +166,6 @@ class FeaturePicker(QWidget):
         super().__init__(parent)
         self.setObjectName("PCAFeaturePicker")
         self._all: Tuple[str, ...] = ()
-        # Per instance, not per class: a set on the class would be shared by
-        # every picker in the process, so opening a second PCA screen would
-        # silently retick the first one's features.
         self._checked: set = set()
 
         outer = QVBoxLayout(self)
@@ -212,7 +202,6 @@ class FeaturePicker(QWidget):
         self._count.setObjectName("PCAFeatureCount")
         outer.addWidget(self._count)
 
-    # -- data -----------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
         """Offer ``frame``'s continuous columns, all ticked."""
         self._all = () if frame is None else candidate_features(frame)
@@ -238,7 +227,6 @@ class FeaturePicker(QWidget):
         """
         return self._all
 
-    # -- buttons ---------------------------------------------------------
     def select_all(self) -> None:
         """Tick every offered feature."""
         self._checked |= set(self._visible())
@@ -255,7 +243,6 @@ class FeaturePicker(QWidget):
             self._checked ^= {name}
         self._refilter()
 
-    # -- internals -------------------------------------------------------
     def _visible(self) -> List[str]:
         """The features the search box is letting through.
 
@@ -297,9 +284,6 @@ class FeaturePicker(QWidget):
         self.changed.emit()
 
 
-# ---------------------------------------------------------------------------
-# Scree
-# ---------------------------------------------------------------------------
 
 class ScreePlot(QWidget):
     """Explained variance per component, with the cumulative line over it.
@@ -331,12 +315,7 @@ class ScreePlot(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(0)
-        # No `facecolor` and no inline `background:` — the canvas paints the
-        # page panel in its own `paintEvent` under a transparent figure patch.
         self._figure = Figure(figsize=(3.4, 2.4))
-        # `panel=False`: the scree plot sits inside `PCAShelf`, which is
-        # already a page surface, and a second panel under the figure would
-        # read 0.49 at a requested 30 % -- a shade the slider cannot reach.
         self._canvas = _canvas_class()(self._figure, panel=False)
         self._canvas.setMinimumHeight(150)
         outer.addWidget(self._canvas, 1)
@@ -360,7 +339,6 @@ class ScreePlot(QWidget):
         """
         palette = active_palette()
         self._figure.clear()
-        # `clear()` restores the rc facecolor and its alpha with it.
         self._figure.patch.set_alpha(0.0)
         ax = self._figure.add_subplot(111)
         _page_surface_axes(ax, palette)
@@ -422,9 +400,6 @@ class ScreePlot(QWidget):
             self.component_picked.emit(index)
 
 
-# ---------------------------------------------------------------------------
-# Scores, with arrows
-# ---------------------------------------------------------------------------
 
 class PCAScoresCanvas(GraphCanvas):
     """A :class:`~spacr.qt.widgets.graph_builder.GraphCanvas` that also draws
@@ -448,8 +423,6 @@ class PCAScoresCanvas(GraphCanvas):
     """
 
     def __init__(self, parent=None, *, link=None, source: str = "pca"):
-        # Before super().__init__: the base constructor wires a debounce timer
-        # to self.render_now, which is this class's override and reads these.
         """Build the scores plot and link it to the shared selection.
 
         :param parent: parent widget.
@@ -462,7 +435,6 @@ class PCAScoresCanvas(GraphCanvas):
         self._arrow_scale = 0.0
         super().__init__(parent, link=link, source=source)
 
-    # -- inputs ----------------------------------------------------------
     def set_result(self, result: Optional[PCAResult],
                    frame: Optional[pd.DataFrame]) -> None:
         """Point the canvas at a decomposition and its scores frame.
@@ -520,7 +492,6 @@ class PCAScoresCanvas(GraphCanvas):
             return None
         return kx, ky
 
-    # -- rendering -------------------------------------------------------
     def render_now(self) -> None:
         """Draw immediately rather than on the next idle turn."""
         super().render_now()
@@ -528,9 +499,6 @@ class PCAScoresCanvas(GraphCanvas):
         try:
             self._draw_arrows()
         except Exception:
-            # A DECORATION MUST NEVER TAKE THE CHART WITH IT. The scores
-            # are the plot; the loading arrows are an overlay on top of
-            # them, so a failure here costs the arrows and nothing else.
             LOG.debug("could not draw the loading arrows", exc_info=True)
 
     def _draw_arrows(self) -> None:
@@ -551,9 +519,6 @@ class PCAScoresCanvas(GraphCanvas):
         if not axes:
             return
 
-        # One scale for every panel, from the first one: faceted panels share
-        # their axes, and an arrow that changed length between panels would
-        # make two panels of the same PCA look like two different PCAs.
         first = axes[min(axes)]
         scale = arrow_scale(result, kx, ky, first.get_xlim(), first.get_ylim(),
                             count=self._arrow_count)
@@ -572,22 +537,6 @@ class PCAScoresCanvas(GraphCanvas):
                        zorder=3)
             ax.axvline(0.0, color=palette["border_soft"], linewidth=0.7,
                        zorder=3)
-            # THE FINITE CHECK IS FOR set_result's CALLERS, not for
-            # `pca()`. A result from `pca()` cannot carry a non-finite
-            # correlation -- it ends that block with
-            # `np.clip(np.nan_to_num(correlations), -1, 1)`, and 4,000
-            # adversarial frames (zero-variance columns, collinear pairs,
-            # 1e12 and 1e-12 magnitudes, NaN and infinite entries) never
-            # produced one.
-            #
-            # But `set_result` is public and takes any PCAResult, and the
-            # dataclass validates nothing. An arrow to a NaN is a line to
-            # nowhere on a plot the reader takes at face value, so the
-            # feature loses its arrow and the rest keep theirs.
-            #
-            # It carried a `no cover` pragma claiming it was unreachable.
-            # It was covered all along, by
-            # test_a_feature_whose_correlation_is_not_a_number_gets_no_arrow.
             for i in picked:
                 dx = float(result.correlations[i, kx]) * scale
                 dy = float(result.correlations[i, ky]) * scale
@@ -607,9 +556,6 @@ class PCAScoresCanvas(GraphCanvas):
         self._canvas.draw_idle()
 
 
-# ---------------------------------------------------------------------------
-# The whole surface
-# ---------------------------------------------------------------------------
 
 class PCAPanel(QWidget):
     """Feature picker, options, scree, scores + biplot, and the report.
@@ -770,13 +716,9 @@ class PCAPanel(QWidget):
         self._biplot.toggled.connect(self._on_view_changed)
         self._arrows.valueChanged.connect(self._on_view_changed)
         self.scree.component_picked.connect(self._on_scree_clicked)
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- data -------------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame], *,
                   compute: bool = True) -> None:
         """Point the panel at a table and (by default) decompose it."""
@@ -816,7 +758,6 @@ class PCAPanel(QWidget):
             scaling=self._scaling.currentData() or SCALE_ZSCORE,
             nan_policy=self._nan.currentData() or NAN_AUTO)
 
-    # -- computing ---------------------------------------------------------
     def recompute(self) -> Optional[PCAResult]:
         """Decompose and redraw. Refusals become a message, never a traceback.
 
@@ -853,8 +794,6 @@ class PCAPanel(QWidget):
             return None
         frame = self._frame
         spec = self.spec()
-        # A superseded fit must not paint over the one the user asked for:
-        # dragging the components spin box starts one per value.
         self._jobs.cancel()
 
         def _fit():
@@ -864,22 +803,11 @@ class PCAPanel(QWidget):
             except PCAError as exc:
                 return {"error": str(exc)}
             except Exception as exc:
-                # ANYTHING THAT IS NOT A PCAError. That one is the
-                # expected refusal and carries its own explanation; this
-                # is a fault inside the decomposition, and it runs on a
-                # worker where an escaping exception has nowhere to go.
-                # The 'PCA failed:' prefix is what tells the two apart.
                 LOG.info("PCA failed", exc_info=True)
                 return {"error": f"PCA failed: {exc}"}
-            # `scores_frame` is another pass over the table; it belongs on
-            # this side of the boundary with the fit, not on the GUI thread.
             return {"result": result, "scores": result.scores_frame(frame)}
 
         self._jobs.submit(_fit, self._on_fit_done)
-        # Unthreaded, `submit` has already run the fit and `_on_fit_done`, so
-        # `_result` is this call's result. Threaded, it is whatever was on
-        # screen before, and returning that would be a lie about which spec it
-        # came from.
         return None if self._threaded else self._result
 
     def _on_fit_done(self, outcome: dict) -> None:
@@ -918,7 +846,6 @@ class PCAPanel(QWidget):
         self.report.setText(message)
         self.failed.emit(message)
 
-    # -- the view ----------------------------------------------------------
     def _plane(self) -> Tuple[int, int]:
         """``(kx, ky)`` from the two pickers, defaulting to PC1 against PC2."""
         kx = component_index(self._pc_x.currentData() or "")
@@ -954,7 +881,6 @@ class PCAPanel(QWidget):
         colour = self._colour.currentData() or None
         spec = GraphSpec(x=component_name(kx), y=component_name(ky),
                          colour=colour, kind=SCATTER)
-        # Arrows first with render off, then the spec — one redraw per action.
         self.canvas.set_biplot(self._biplot.isChecked(),
                                count=self._arrows.value(), render=False)
         self.canvas.set_spec(spec)
@@ -1013,9 +939,6 @@ class PCAPanel(QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Styling, through the seam
-# ---------------------------------------------------------------------------
 
 def _pca_qss(palette, opacity) -> str:
     """Build the PCA panel's stylesheet.
@@ -1047,12 +970,4 @@ QLabel#PCAReport {{
 """
 
 
-# Registered at import of this module, which happens when the screen module
-# is imported — and the row that does that lives in ``app.py``'s
-# ``_SELF_REGISTERING_APPS``, whose loop runs while ``app.py`` itself is being
-# imported. That is before ``launch()`` calls ``stylesheet()``, which is the
-# deadline: a block registered after the stylesheet is built is missing from
-# the one the application was actually given. `spacr.qt.widgets.__init__`
-# imports `graph_builder` eagerly for exactly this reason; this module needs no
-# such entry only because its screen is imported earlier still.
 register_widget_qss("PCA", _pca_qss, replace=True)

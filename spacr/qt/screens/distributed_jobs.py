@@ -98,9 +98,6 @@ class ExecutionProfileDialog(QDialog):
         if profile is not None:
             self._load(profile)
         self._sync_backend()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
@@ -318,19 +315,9 @@ class ExecutionProfileDialog(QDialog):
         )
         label = QLabel(tr(source_label), self)
         label.setObjectName("SettingsLabel")
-        # Module first, then the setting: the dot beside this label was
-        # built with the arguments this way round and reached the module's
-        # own page, while the label's help -- given them the other way --
-        # named the help text as the module and landed on the documentation
-        # index. With the dot gone, the help is the only route to the page.
         attach_api_tooltip(
             label, "distributed_jobs", api_key, help_text
         )
-        # ``attach_api_tooltip`` deliberately expands the plain field help
-        # into structured HTML with an API link.  The generic retargeting
-        # pass therefore sees two *different* strings and conservatively
-        # keeps both.  This row created the richer label explicitly, so the
-        # plain duplicate on the editor is safe to remove here.
         field.setToolTip("")
         label.setCursor(Qt.WhatsThisCursor)
         label.setProperty("settingHelpLabel", True)
@@ -477,13 +464,8 @@ class DistributedJobsScreen(QWidget):
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.refresh)
         self._update_poll_interval()
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "distributed_jobs")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
@@ -621,15 +603,6 @@ class DistributedJobsScreen(QWidget):
         """Switch back to file mode when the user edits the path field."""
         self._settings_snapshot = None
 
-    # NOTE: a hand-rolled ``dragEnterEvent``/``dropEvent`` pair used to sit
-    # here, taking the first local ``.csv``/``.json`` and nothing else. The
-    # shared dropzone installed in ``__init__``
-    # (:class:`spacr.qt.dnd_handlers.SubmissionSettingsDropHandler`) takes the
-    # same files *and* a plate folder, resolving ``settings/*.csv`` inside it
-    # and asking which snapshot was meant when there is more than one.
-    # Keeping both would have been keeping one: an installed event filter sees
-    # the event before the widget's own handler, so these two could never have
-    # run again.
 
     def _reload_profiles(self, selected: str = "") -> None:
         """Reload the profile combo from persistent storage."""
@@ -696,8 +669,6 @@ class DistributedJobsScreen(QWidget):
         dialog = ExecutionProfileDialog(self, existing)
         if dialog.exec() == QDialog.Accepted:
             profile = dialog.profile()
-            # Persist the replacement first: a disk error must not erase the
-            # only usable profile merely because the user renamed it.
             try:
                 self.manager.profiles.save(profile)
                 if profile.name.casefold() != existing.name.casefold():
@@ -1007,8 +978,6 @@ class DistributedJobsScreen(QWidget):
         record = job.to_dict()
         log = record.pop("log_tail", "")
         profile = dict(record.get("profile") or {})
-        # Profiles never contain credentials, but avoid encouraging users to
-        # paste arbitrary custom command lines into public bug reports.
         for key in (
             "submit_command", "status_command", "cancel_command", "log_command",
         ):

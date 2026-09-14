@@ -158,7 +158,6 @@ class _OptionalNumbers(QWidget):
             layout.addWidget(spin)
             self._spins.append(spin)
         self._sync_enabled()
-        # Connected LAST, so building the widget is not a change to report.
         self._auto.toggled.connect(self._auto_toggled)
         for spin in self._spins:
             spin.valueChanged.connect(lambda _value: self.changed.emit())
@@ -209,9 +208,6 @@ class _OptionalNumbers(QWidget):
                 for spin, number in zip(self._spins, numbers):
                     spin.setValue(number)
             else:
-                # A value this control cannot express -- a pair where one
-                # number was wanted -- reads as automatic rather than as a
-                # number nobody typed.
                 self._auto.setChecked(True)
         finally:
             for widget, was in zip(widgets, blocked):
@@ -366,7 +362,6 @@ class VolcanoExplorer(QWidget):
         splitter = QSplitter(Qt.Horizontal, self)
         outer.addWidget(splitter)
 
-        # --- canvas -------------------------------------------------------
         from .graph_builder import _canvas_class
         from matplotlib.figure import Figure
 
@@ -375,19 +370,9 @@ class VolcanoExplorer(QWidget):
         self._canvas = _canvas_class()(self._figure)
         self._canvas.setMinimumSize(420, 320)
         self._canvas.mpl_connect("button_press_event", self._on_click)
-        # INSTRUCTION 108: RIGHT-CLICK THE FIGURE ITSELF. Every control this
-        # explorer offers is in the side panel, which is the right home for
-        # them -- but 108 is about reaching a figure's own style FROM the
-        # figure, and a matplotlib canvas had no menu at all. The entries are
-        # built from `dataclasses.fields(VolcanoStyle)` by the same two
-        # functions the pyqtgraph plots use, so a style that gains a field
-        # gains a menu entry here without anyone remembering to add one.
         self._canvas.setContextMenuPolicy(Qt.CustomContextMenu)
         self._canvas.customContextMenuRequested.connect(self._style_menu)
 
-        # THE EXPLANATION GOES UNDER THE PLOT. Not over it and not instead
-        # of it: a message that replaces the figure takes away the one thing
-        # the reader was looking at, over a single mistyped field.
         self._problem_line = QLabel("", self)
         self._problem_line.setObjectName("VolcanoProblems")
         self._problem_line.setWordWrap(True)
@@ -401,7 +386,6 @@ class VolcanoExplorer(QWidget):
         left_layout.addWidget(self._build_detail_panel())
         splitter.addWidget(left)
 
-        # --- controls -----------------------------------------------------
         scroll = QScrollArea(self)
         scroll.setWidgetResizable(True)
         scroll.setMinimumWidth(300)
@@ -413,13 +397,9 @@ class VolcanoExplorer(QWidget):
         self.setAcceptDrops(True)
         if not self._results.empty:
             self.refresh()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # ------------------------------------------------------------------ data
 
     def set_results(self, results: pd.DataFrame) -> None:
         """Plot a new fitted table, clearing any selection.
@@ -479,10 +459,6 @@ class VolcanoExplorer(QWidget):
 
         menu = QMenu(self)
         menu.setToolTipsVisible(True)
-        # ONE REDRAW PER CHANGE, and through `set_style` rather than
-        # `refresh`, so the side panel's controls follow the menu. Two ways to
-        # change one setting that disagree about what it now is would be worse
-        # than having only one of them.
         def changed(_name=None, _value=None):
             """Re-apply the style after any menu entry changes it."""
             self.set_style(self._style)
@@ -518,10 +494,6 @@ class VolcanoExplorer(QWidget):
             values = []
             for index in range(widget.count()):
                 data = widget.itemData(index)
-                # A "— none —" row carries `None` as its data, and `None` IS
-                # the value there -- it is how a colour-by column is taken
-                # back off -- so it stays on the offered list. Any other row
-                # with no data falls back to what it says.
                 if data is None and widget.itemText(index) != _NONE_ROW:
                     data = widget.itemText(index)
                 values.append(data)
@@ -585,8 +557,6 @@ class VolcanoExplorer(QWidget):
         if on is not None:
             key = on
         elif shared:
-            # The column that actually matches the most rows, not the first
-            # one that happens to share a name.
             key = max(shared, key=lambda c: self._results[c].astype(str).isin(
                 frame[c].astype(str)).sum())
         else:
@@ -598,10 +568,6 @@ class VolcanoExplorer(QWidget):
         new_columns = [c for c in incoming.columns if c not in self._results.columns]
         if not new_columns:
             return 0
-        # Join on the string form of the key, so 'TGGT1_225160' matches
-        # whatever dtype each side happened to be read as -- a numeric-looking
-        # guide id read as int on one side and str on the other would
-        # otherwise match nothing and silently annotate every row with NaN.
         merged = self._results.copy()
         lookup = incoming.set_index(incoming[key].astype(str))
         keys = self._results[key].astype(str)
@@ -612,7 +578,6 @@ class VolcanoExplorer(QWidget):
         self.refresh()
         return len(new_columns)
 
-    # -------------------------------------------------------------- controls
 
     def _build_controls(self) -> QWidget:
         """Build the volcano controls in four initially collapsed sections.
@@ -700,9 +665,6 @@ class VolcanoExplorer(QWidget):
                 ("color_vmax", self._optional(1, -1e9, 1e9, 4,
                                               "High end of the colour scale")),
                 ("shape_by", self._combo([], "Column that chooses each shape")),
-                # SEVERAL AT ONCE. Ticking two compartments asks one question
-                # about both, which is why this is a list of tick boxes and
-                # not a drop-down.
                 ("localizations", self._multi(
                     "Colour by localization \u2014 tick any combination")),
                 ("localization_column", self._combo(
@@ -812,11 +774,6 @@ class VolcanoExplorer(QWidget):
         """
         self._controls[key] = widget
         label = QLabel(str(widget.property("caption") or key), self)
-        # A CAPTION IS A SENTENCE HERE, not a word: "Multiplier applied to
-        # the rule above (the quantile itself when the method is
-        # 'quantile')" is one of them. Unwrapped, a form layout gives the
-        # name every pixel it asks for and pushes the field it names off the
-        # side of the panel, which is a control the user cannot reach.
         label.setWordWrap(True)
         label.setMaximumWidth(190)
         self._labels[key] = label
@@ -824,8 +781,6 @@ class VolcanoExplorer(QWidget):
             self._sections[key] = section
         return label
 
-    # Each factory stores the caption on the widget so _group can label it
-    # without a parallel table that can fall out of step.
     def _combo(self, options, caption: str, *, labels=None) -> QComboBox:
         """One labelled combo box in the style column.
 
@@ -962,7 +917,6 @@ class VolcanoExplorer(QWidget):
         box.setMaximumHeight(260)
         return box
 
-    # --------------------------------------------------------------- syncing
 
     def _repopulate_column_menus(self) -> None:
         """Refill the column dropdowns from whatever columns now exist."""
@@ -989,10 +943,6 @@ class VolcanoExplorer(QWidget):
                 if allow_none:
                     widget.addItem(_NONE_ROW, None)
                 for option in options:
-                    # pandas 3 normalizes a ``None`` column label to ``nan``.
-                    # Keep the menu contract stable: an unnamed column is
-                    # shown as "None" and, unlike the em-dash sentinel above,
-                    # falls back to that visible text in ``_style_choices``.
                     try:
                         missing = pd.isna(option)
                     except (TypeError, ValueError):
@@ -1057,8 +1007,6 @@ class VolcanoExplorer(QWidget):
         """Read every control back into a style object."""
         for key, widget in self._controls.items():
             if isinstance(widget, _ReadOnlyValue):
-                # Shown, not edited: reading a label back would write its
-                # printed form over the value it was printed from.
                 continue
             if isinstance(widget, _MultiSelect):
                 setattr(self._style, key, tuple(widget.values()))
@@ -1084,7 +1032,6 @@ class VolcanoExplorer(QWidget):
         self.refresh()
         self.style_changed.emit()
 
-    # -------------------------------------------------------------- painting
 
     def refresh(self) -> None:
         """Redraw the canvas, and name the settings that could not be used.
@@ -1119,10 +1066,6 @@ class VolcanoExplorer(QWidget):
             self._remember(candidate)
             break
         else:
-            # Nothing drew, not even the defaults: there has never been a
-            # good style to fall back to. An empty frame rather than an
-            # error over the plot -- the reasons are on the line under it,
-            # and they are the same reasons either way.
             self._figure.clear()
             axis = self._figure.add_subplot(111)
             axis.set_axis_off()
@@ -1175,7 +1118,6 @@ class VolcanoExplorer(QWidget):
                            for field in dataclasses.fields(style)}
         self._last_good_style = dataclasses.replace(style)
 
-    # -------------------------------------------------------- broken settings
 
     @staticmethod
     def _error_ink() -> str:
@@ -1233,7 +1175,6 @@ class VolcanoExplorer(QWidget):
             if not broken:
                 continue
             section = self._sections.get(name)
-            # A RED LABEL INSIDE A CLOSED SECTION IS A RED LABEL NOBODY SEES.
             if section is not None and not section.is_expanded():
                 section.set_expanded(True)
         lines = []
@@ -1271,7 +1212,6 @@ class VolcanoExplorer(QWidget):
             return -np.log10(np.clip(raw, np.finfo(float).tiny, None))
         return raw
 
-    # -------------------------------------------------------------- clicking
 
     def _on_click(self, event) -> None:
         """Select the point under the click and describe it.
@@ -1308,8 +1248,6 @@ class VolcanoExplorer(QWidget):
         if not np.isfinite(distance).any():
             return None
         index = int(np.nanargmin(distance))
-        # Ignore clicks on empty space: 5% of the diagonal is about the radius
-        # of a marker at default size.
         return index if distance[index] <= 0.05 else None
 
     def select_point(self, index: int) -> dict:
@@ -1344,7 +1282,6 @@ class VolcanoExplorer(QWidget):
         """
         return self._selected_index
 
-    # ---------------------------------------------------------------- export
 
     def export(self, fmt: str = "pdf", path: str | None = None) -> str | None:
         """Re-render at print size and write the file. Returns the path
@@ -1378,14 +1315,6 @@ class VolcanoExplorer(QWidget):
                 render_volcano(self._results, self._style, figure=figure,
                                save_path=path)
                 return path
-            # SVG IS OFFERED HERE AND THE ONE WRITER CANNOT KEEP IT. The
-            # renderer's `save_path` goes through `spacr.plot.save_figure`,
-            # which writes PNG and PDF and CORRECTS the file's extension to
-            # whichever it wrote -- so an .svg asked for here was written as a
-            # PDF beside it and this handed back the .svg path, naming a file
-            # that had never been created. `save_figure_as` is the writer that
-            # already answers for the vector formats, print rule included, and
-            # it reports the path it actually wrote.
             from .figure_settings import save_figure_as
 
             render_volcano(self._results, self._style, figure=figure)
@@ -1434,7 +1363,6 @@ class VolcanoExplorer(QWidget):
             f"Added {added} column{'s' if added != 1 else ''}. They are now "
             f"available under Colour & shape mapping.")
 
-    # ------------------------------------------------------------ drag/drop
 
     @staticmethod
     def _dropped_paths(event) -> list[str]:

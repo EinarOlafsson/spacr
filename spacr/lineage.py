@@ -176,7 +176,6 @@ class LineageNode:
     children: Tuple["LineageNode", ...] = ()
     row: Mapping[str, Any] = _field(default_factory=dict)
 
-    # -- identity ------------------------------------------------------------
     @property
     def node_id(self) -> str:
         """``'pathogen:plate1_r1_c1_f1_pathogen1'`` — the table, then the key.
@@ -190,7 +189,6 @@ class LineageNode:
         """
         return f"{self.table}{ID_SEPARATOR}{self.key}"
 
-    # -- walking ------------------------------------------------------------
     def walk(self, depth: int = 0) -> Iterable[Tuple[int, "LineageNode"]]:
         """This node then its descendants, depth-first, with their depth."""
         yield depth, self
@@ -317,7 +315,6 @@ def build_forest(frames: Mapping[str, pd.DataFrame], *,
             f"{sorted(frames)}. Load the parent table as well as the "
             f"children — a tree with no roots is a list.")
     parents = _normalise(frames[root], root)
-    # (field, label) -> the children hanging off it, table by table.
     by_parent: Dict[Tuple[str, str], List[LineageNode]] = {}
     for table in LINEAGE_TABLES:
         if table == root or table not in frames:
@@ -327,8 +324,6 @@ def build_forest(frames: Mapping[str, pd.DataFrame], *,
         if parent_column is None:
             continue
         rows = children.to_dict("records")
-        # Sorted by label so the tree is stable; `_object_label` normalises
-        # '7', 7 and 7.0 to one thing, and 'onone'/'omulti' to nothing.
         rows.sort(key=lambda r: _sort_label(r[schema.OBJECT_LABEL_KEY]))
         for row in rows:
             parent_label = _object_label(row.get(parent_column))
@@ -472,10 +467,6 @@ def orphans(frames: Mapping[str, pd.DataFrame], *,
         for row in children.to_dict("records"):
             parent_label = _object_label(row.get(parent_column))
             if not parent_label:
-                # No link at all is a different fact from a broken link: the
-                # row never claimed a parent. Reported too, with an empty
-                # parent_id, because a pathogen with no cell_id is also a
-                # pathogen nothing will ever show.
                 loose.append({**row, "table": table, "parent_id": ""})
             elif (field_key(row), parent_label) not in known:
                 loose.append({**row, "table": table,
@@ -560,9 +551,6 @@ def describe_forest(forest: Sequence[LineageNode]) -> str:
             f"nothing inside.")
 
 
-# ---------------------------------------------------------------------------
-# Reading — sqlite, and no Qt
-# ---------------------------------------------------------------------------
 
 def read_object_tables(db_path: str,
                        tables: Optional[Sequence[str]] = None,

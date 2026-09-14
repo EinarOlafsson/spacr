@@ -17,14 +17,6 @@ QSS_NAME = "TableChip"
 
 def _chip_qss(palette, opacity=None) -> str:
     """Return rounded chip styling using the supplied theme accent."""
-    # The theme's own text colour: white on the dark themes, as asked, and
-    # dark on the light ones without a second rule. It was the WINDOW colour
-    # before, which is black on dark -- black on a blue chip.
-    #
-    # Contrast maths would pick black here (a mid blue is bright enough that
-    # black scores higher), so it is deliberately not used: the ask was white
-    # on dark, and following the theme's text colour is what keeps that true
-    # in every theme rather than only this one.
     ink = palette["fg"]
     return f"""
     QWidget#TableChip {{
@@ -76,29 +68,13 @@ class TableChip(QWidget):
         label.setObjectName("TableChipName")
         row.addWidget(label)
 
-        # THE APPLICATION'S CLOSE MARK, not a chip-shaped one. Its glyph,
-        # its size and its two colours come from the theme; this chip only
-        # says what pressing it removes. See `theme.close_mark_button`.
         self._close = close_mark_button(
             self, tooltip=f"Remove {name} from the working set")
         self._close.setObjectName("TableChipClose")
         self._close.clicked.connect(lambda: self.removed.emit(self._name))
-        # The last table has no x: a gate editor with no table is a screen
-        # with nothing on it, and the user's next move would be to load the
-        # same table again.
         self._close.setVisible(removable)
         row.addWidget(self._close)
 
-        # THE MARK IS MEASURED, NOT GUESSED. The chip has to hold the name
-        # AND whatever box the close mark takes at the user's Zoom, or a
-        # larger mark would crop the name it belongs to.
-        #
-        # A widget inherits the application's QSS font only when Qt polishes
-        # it.  Measuring an unpolished chip therefore uses the platform
-        # default font, which can be narrower than the font drawn after
-        # ``show()`` (Ubuntu's fallback is one example).  Resolve the style
-        # first so this minimum describes the text the user will actually
-        # see, not the construction-time fallback.
         self.ensurePolished()
         metrics = self.fontMetrics()
         self.setMinimumHeight(

@@ -115,9 +115,6 @@ _LABELS: Dict[str, str] = {
     "transmembrane": "transmembrane",
     "n_transmembrane": "transmembrane helices",
     "hyperlopit": "compartment (hyperLOPIT/TAGM)",
-    # The seven screens bundled today, respelled but NOT interpreted: "PE"
-    # stays "PE" because expanding an abbreviation the source file does not
-    # expand is how a caption ends up asserting an experiment nobody ran.
     "fit_invitro_hff": "in vitro (HFF)",
     "fit_invivo_PE": "in vivo (PE)",
     "fit_invivo_lung": "in vivo (lung)",
@@ -208,9 +205,6 @@ def _show(column: str, value: Any) -> str:
     if isinstance(value, bool):
         return "yes" if value else "no"
     if isinstance(value, float) and value.is_integer():
-        # `n_transmembrane` and `signal_peptide_length` arrive as floats
-        # because their column has blanks in it. "7.0 helices" is a pandas
-        # detail leaking onto a figure caption.
         return f"{int(value):d}"
     if isinstance(value, (int, float)):
         return f"{value:g}"
@@ -485,11 +479,6 @@ def facts_for(values: Iterable[Any]) -> Dict[str, GeneFacts]:
 
     wanted = [gene for gene in genes if gene not in _CACHE]
     if wanted:
-        # `gene`, NOT `gene_nr`: `annotate` merges every source with
-        # right_on="gene_nr", so a left column of that name collides, pandas
-        # renames both halves, and the tidy-up then drops a column that is no
-        # longer there. Reported for a fix; avoided here so the tile does not
-        # have to wait for one.
         joined = annotation.annotate(pd.DataFrame({"gene": wanted}),
                                      key_column="gene", quiet=True)
         columns = [c for c in available() if c in joined.columns]

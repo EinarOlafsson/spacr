@@ -42,12 +42,9 @@ IMAGE_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
 #: here; nothing read it, and a stale "rows stop at P" list sitting next to
 #: code that deliberately counts past P is how the next 16-row bug gets
 #: written.
-WELL_COLS = list(range(1, 25))           # 1..24
+WELL_COLS = list(range(1, 25))
 
 
-# ---------------------------------------------------------------------------
-# Folder metadata detection
-# ---------------------------------------------------------------------------
 
 @dataclass
 class FolderTemplate:
@@ -64,15 +61,6 @@ class FolderTemplate:
     chan_from_filename: bool
 
 
-# Heuristic recognisers for common folder tokens.
-#
-# The well pattern is one or two letters then the column digits — the same
-# *shape* as ``plate_qc._WELL_RE`` and ``schema._WELL``, and deliberately so:
-# those two modules already agree that a row runs ``A``…``Z``, ``AA``…``AF``
-# (a 1536 plate has 32 of them), and a third opinion here is how "is this a
-# well?" comes to have two answers. It used to be ``[A-P]``, which is 16
-# rows — so every folder from ``Q01`` up, the whole bottom half of a 1536
-# plate, was not recognised as a well at all.
 _WELL_RX     = re.compile(r"^[A-Z]{1,2}\d{1,3}$", re.I)
 _FIELD_RX    = re.compile(r"^(?:F|field|fld|position)[_-]?(\d+)$", re.I)
 _CHANNEL_RX  = re.compile(r"^(?:C|ch|channel)[_-]?(\d+)$", re.I)
@@ -80,15 +68,6 @@ _PLATE_RX    = re.compile(r"^plate[_-]?\d*$", re.I)
 
 
 def _classify(token: str) -> Optional[str]:
-    # Order matters, and it matters more now that the well pattern reaches
-    # past P: the FIELD / CHANNEL / PLATE recognisers name their axis
-    # explicitly, so they are strictly more specific and are checked first
-    # — `F01`, `C01`, `ch1` and `plate2` still classify as themselves.
-    # What is left over (`Z01`, `S01`, `T01`) is genuinely ambiguous from a
-    # single token, and is read as a well, because on a plate that is what
-    # it is: row Z, row S, row T. A dataset that means a z slice, a site or
-    # a timepoint should spell it with a prefix the specific recognisers
-    # know.
     """Name the metadata axis a filename token belongs to.
 
     ORDER MATTERS. The field, channel and plate recognisers name their axis
@@ -134,7 +113,7 @@ def detect_folder_metadata(root: Path, max_probe: int = 30,
     matches: List[Tuple[Path, List[str]]] = []
     for p in probe:
         rel = p.relative_to(root)
-        parts = list(rel.parts[:-1])   # drop filename
+        parts = list(rel.parts[:-1])
         labels = [_classify(part) for part in parts]
         if any(labels):
             matches.append((p, [l for l in labels if l is not None]))
@@ -144,13 +123,11 @@ def detect_folder_metadata(root: Path, max_probe: int = 30,
     if not matches:
         return None
 
-    # Take the modal label sequence
     sequences: Dict[Tuple[str, ...], List[Path]] = {}
     for path, labels in matches:
         sequences.setdefault(tuple(labels), []).append(path)
     best_seq, sample = max(sequences.items(), key=lambda kv: len(kv[1]))
 
-    # Is the leaf filename encoding the channel?
     chan_from_filename = any(
         _CHANNEL_RX.match(p.stem) or "ch" in p.stem.lower()
         for p in sample[:5]
@@ -179,10 +156,6 @@ def iter_image_files(root: Path, cap: Optional[int] = None):
     root = Path(root)
     seen = 0
     for p in root.rglob("*"):
-        # Suffix before ``is_file()``, deliberately: the suffix test is a
-        # string compare, ``is_file()`` is a stat syscall. On a plate folder
-        # with 100 000 entries the stats are most of the cost of the walk,
-        # and directories almost never carry an image extension.
         if p.suffix.lower() in IMAGE_EXTS and p.is_file():
             yield p
             seen += 1
@@ -190,9 +163,6 @@ def iter_image_files(root: Path, cap: Optional[int] = None):
                 return
 
 
-# ---------------------------------------------------------------------------
-# Auto-generate missing well / field ids + write filename_map.csv
-# ---------------------------------------------------------------------------
 
 @dataclass
 class NameMapping:
@@ -262,7 +232,6 @@ def assign_missing_fields(
             canonical=canonical,
             plate=plate, well=well, field=fld, channel=chan,
         ))
-        # Advance
         if not have_field:
             field_idx += 1
             if field_idx > 999:

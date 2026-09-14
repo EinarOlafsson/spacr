@@ -135,9 +135,6 @@ def _stall_duration_ms(row: dict) -> float:
         ended_at = float(row["at"])
         return max(0.0, ended_at - started_at) * 1000.0
     except (KeyError, TypeError, ValueError):
-        # Compatibility for an in-memory diagnostic row made by an older
-        # caller.  Production watchdog rows always carry both timestamps and
-        # the release artifact validator rejects a row without them.
         try:
             return max(0.0, float(row.get("late_ms", 0.0)))
         except (TypeError, ValueError):
@@ -276,7 +273,6 @@ def _the_spacr_frame(path: str) -> str:
     if "/spacr/" not in path:
         return ""
     if _LIBRARY_DIRS and path.startswith(_LIBRARY_DIRS):
-        # The environment is merely NAMED spacr.
         return ""
     return path.split("/spacr/")[-1]
 
@@ -337,9 +333,6 @@ class _ImportTimer:
                 frame = frame.f_back
         except Exception:                                    # noqa: BLE001
             pass
-        # Let the real finders answer; we only time how long that takes and
-        # how long the module then takes to execute, which the next call
-        # into this finder for a submodule will nest under.
         self._pending = (fullname, started, caller)
         return None
 
@@ -597,13 +590,6 @@ def watch_interactive(
             return False
 
         def event_loop_started(self) -> None:
-            # A paint may have been delivered by show() before exec().  It is
-            # evidence about the widget, but not evidence for this contract:
-            # readiness begins only after the application event loop has
-            # actually dispatched a callback.  Discard every pre-loop paint
-            # before forcing another one, or an already-painted control plus
-            # the settle timer below could report a false ready state without
-            # a post-exec paint ever being observed.
             """Discard paints that arrived before the loop began.
 
             A paint delivered by ``show()`` before ``exec()`` is evidence about the
@@ -613,13 +599,6 @@ def watch_interactive(
             self.root_painted = False
             self.painted_controls.clear()
             try:
-                # QTableWidget and QListWidget overload ``update`` with a
-                # QModelIndex argument. Calling the bound method with no
-                # arguments therefore raises TypeError even though the
-                # QWidget repaint overload is the one this probe needs.
-                # Invoke QWidget's implementation explicitly for every
-                # subclass so readiness instrumentation cannot break the
-                # very table/list screens it is measuring.
                 QWidget.update(self.root)
                 for control in self.controls:
                     if control.isVisible():
@@ -675,13 +654,6 @@ def watch_interactive(
                 if id(control) in self.painted_controls
                 and self._usable(control)
             ]
-            # A transparent container legitimately receives no paint event of
-            # its own: Home is exactly such a widget under an ambient theme.
-            # A descendant control's completed paint is stronger evidence
-            # than forcing the root to repaint for the benchmark, and it is
-            # the state the contract asks for -- a control the user can see
-            # and operate.  Keep root_painted as factual diagnostic evidence,
-            # but do not invent a root paint where Qt optimised one away.
             if not root_usable or not painted_usable:
                 return
 
@@ -725,8 +697,6 @@ def watch_interactive(
                 try:
                     callback(dict(entry))
                 except Exception:                            # noqa: BLE001
-                    # Instrumentation may never make navigation fail.  The
-                    # benchmark controller records its own errors separately.
                     continue
 
         def _retire(self) -> None:
@@ -838,16 +808,12 @@ def _peak_rss_mb() -> Optional[float]:
         import resource
 
         value = float(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
-        # macOS reports bytes; Linux and the supported BSD runners report KiB.
         return value / (1024.0 * 1024.0 if sys.platform == "darwin" else 1024.0)
     except Exception:                                       # noqa: BLE001
         try:
             import psutil
 
             info = psutil.Process().memory_info()
-            # Windows exposes the process peak as peak_wset.  On a platform
-            # without that field, current RSS is explicitly the best
-            # available fallback rather than a fabricated peak.
             value = getattr(info, "peak_wset", None)
             if value is None:
                 value = info.rss
@@ -928,8 +894,6 @@ def _hardware_profile() -> dict:
 
 def snapshot() -> dict:
     """Return the complete timing state as a JSON-serialisable artifact."""
-    # Keep disabled timing stdlib-light: platform performs several imports,
-    # and snapshots exist only for an explicitly enabled diagnostic run.
     import platform
 
     with _LOCK:

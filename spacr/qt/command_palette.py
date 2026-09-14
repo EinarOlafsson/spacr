@@ -72,7 +72,6 @@ class CommandPalette(QDialog):
         self._window = window
         self.setWindowTitle(tr("spaCR — Command palette"))
         self.setModal(True)
-        # Frameless-ish look — big centred dialog on top of the app.
         from .preferences import scaled_px
         
         self.setMinimumWidth(scaled_px(560))
@@ -112,7 +111,6 @@ class CommandPalette(QDialog):
         self._input.returnPressed.connect(self._on_activate)
         self._list.itemActivated.connect(lambda _i: self._on_activate())
 
-    # -- collection --------------------------------------------------------
     def _collect_commands(self) -> None:
         """Gather everything the palette can run: modules, recent runs and actions.
 
@@ -125,22 +123,13 @@ class CommandPalette(QDialog):
             from .app import app_is_visible, app_stage, visible_apps
             apps = visible_apps()
         except Exception:
-            # `apps` is empty on this path, so the Apps loop below never runs
-            # and `app_stage` is never reached — only `app_is_visible` is,
-            # from the recent-runs loop, so only it needs a stand-in.
             apps = []
 
             def app_is_visible(_key):
                 """Fallback that treats every app as visible."""
                 return True
 
-        # Apps
         for key, name, desc, section in apps:
-            # The badge is the app's category — the same single grouping
-            # Home and the sidebar use, now that maturity is a colour
-            # rather than a second set of sections. How finished an app
-            # is is a KEYWORD instead: "alpha" is a useful thing to be
-            # able to type, and a useless thing to sort a list by.
             localized_name = tr(name)
             localized_section = tr(section)
             words = [
@@ -154,7 +143,6 @@ class CommandPalette(QDialog):
                 keywords=words,
             ))
 
-        # Home
         self._commands.append(Command(
             label=tr("Go to  {name}", name=tr("Home")),
             section=tr("Navigation"),
@@ -162,7 +150,6 @@ class CommandPalette(QDialog):
             keywords=["home", "start", "landing"],
         ))
 
-        # Preferences
         self._commands.append(Command(
             label=tr("Open Preferences…"),
             section=tr("Actions"),
@@ -171,7 +158,6 @@ class CommandPalette(QDialog):
                       "colour", "color", "accessibility"],
         ))
 
-        # Providers dialog
         self._commands.append(Command(
             label=tr("Open AI Providers…"),
             section=tr("Actions"),
@@ -180,7 +166,6 @@ class CommandPalette(QDialog):
                       "gemini", "llm"],
         ))
 
-        # Cheat sheet
         self._commands.append(Command(
             label=tr("Keyboard shortcuts…"),
             section=tr("Help"),
@@ -189,7 +174,6 @@ class CommandPalette(QDialog):
                       "hotkeys"],
         ))
 
-        # Recent runs
         try:
             from ..run_journal import recent_runs
             for r in recent_runs(limit=8):
@@ -208,20 +192,8 @@ class CommandPalette(QDialog):
         except Exception as e:
             LOG.debug("recent_runs unavailable: %s", e)
 
-        # Settings of the module on screen. Without these the palette
-        # answered "which app?" and nothing else, while the thing a user is
-        # most often hunting for is one setting among a hundred and ninety.
         self._collect_settings_commands()
 
-        # Menu bar actions.
-        #
-        # Menus are reached through `bar.findChildren(QMenu)`, not by
-        # walking `menuBar().actions()` and calling `QAction.menu()`: on
-        # PySide6 6.11 the QMenu wrapper the latter returns is only valid
-        # while the QAction wrapper it came off is alive, so it went stale
-        # as soon as this loop moved on — and every menu command in the
-        # palette raised "Internal C++ object already deleted" when
-        # triggered. `findChildren` hands back children the bar owns in C++.
         try:
             from PySide6.QtWidgets import QMenu
             bar = self._window.menuBar()
@@ -321,7 +293,6 @@ class CommandPalette(QDialog):
         except Exception:
             pass
 
-    # -- rendering ---------------------------------------------------------
     def _render(self, cmds: List[Command]) -> None:
         """Fill the list with commands, grouped under section headers.
 
@@ -344,7 +315,6 @@ class CommandPalette(QDialog):
             item.setData(Qt.UserRole, cmd)
             self._list.addItem(item)
         if self._list.count() > 1:
-            # Skip the first section header when auto-selecting
             for i in range(self._list.count()):
                 if self._list.item(i).flags() != Qt.NoItemFlags:
                     self._list.setCurrentRow(i); break
@@ -368,7 +338,6 @@ class CommandPalette(QDialog):
         ]
         self._render(filtered)
 
-    # -- activation --------------------------------------------------------
     def _on_activate(self) -> None:
         """Run the selected command and close the palette.
 
@@ -390,7 +359,6 @@ class CommandPalette(QDialog):
             LOG.warning("command failed: %s (%s)", cmd.label, e)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
-        # Arrow keys → move selection; everything else falls through
         """Move through the results, or run the highlighted command.
 
         :param event: the Qt key event.
@@ -409,7 +377,6 @@ class CommandPalette(QDialog):
             return
         super().keyPressEvent(event)
 
-    # -- actions -----------------------------------------------------------
     def _nav(self, key: str) -> None:
         """Navigate the window to a module.
 

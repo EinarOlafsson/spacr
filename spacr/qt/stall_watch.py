@@ -111,15 +111,6 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
     timer = QTimer(app)
     timer.timeout.connect(tick)
     timer.start(100)
-    # KEPT ON THE APPLICATION as well as parented to it: a local would be
-    # collected the moment this function returns, and a collected QTimer
-    # stops, which would leave the watcher reporting one endless stall.
-    #
-    # THE PREVIOUS ONE IS STOPPED FIRST, because this attribute is the only
-    # handle on it and assigning over it used to leave the old timer
-    # parented to the application and still firing every 100 ms with
-    # nothing left to read its heartbeat. Two installs meant two immortal
-    # timers; a test suite that installs one per test meant a pile.
     previous = getattr(app, "_spacr_stall_timer", None)
     if previous is not None:
         try:
@@ -131,13 +122,6 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
     _write(f"\n=== watching the GUI thread (pid {os.getpid()}), "
            f"stall > {limit}s ===\n")
 
-    # A SAMPLER THAT CANNOT BE SWITCHED OFF HAS NO BUSINESS INSIDE A
-    # TWO-THOUSAND-TEST SESSION. The watcher walks the GUI thread's live
-    # frames four times a second, which is a debugging liberty that is only
-    # safe while somebody is watching. Left running after the test that
-    # installed it, it kept walking frames the main thread was pushing and
-    # popping, and the interpreter segfaulted -- reproduced 3 times in 5,
-    # and 0 in 6 once the sampling was neutered.
     stopping = threading.Event()
 
     def watch() -> None:
@@ -157,26 +141,15 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
         """
         reported_for = -1
         while not stopping.is_set():
-            # `wait` rather than `sleep` so a stop is acted on immediately
-            # instead of after the poll interval. POLL_SECONDS is still read
-            # per iteration: the tests monkeypatch it.
             stopping.wait(POLL_SECONDS)
             if stopping.is_set():
                 break
             stalled = time.monotonic() - beat["at"]
             if stalled < limit:
-                # THE STALL IS OVER, so its summary is due now rather than
-                # when the next one starts. Waiting for the next one loses
-                # the last stall of every session, which is the only stall a
-                # process that wedges and dies ever has.
                 if samples:
                     _flush_samples()
                 continue
             if beat["n"] == reported_for:
-                # SAME STALL, ANOTHER SAMPLE. The first crossing writes the
-                # full stack; every later one only counts a frame, so a
-                # thirteen-second freeze is one readable report rather than
-                # fifty identical ones.
                 frame = sys._current_frames().get(main_thread.ident)
                 if frame is not None:
                     samples.append(_where(frame))
@@ -253,11 +226,6 @@ def watch_this_application(app, *, stall_seconds: Optional[float] = None,
 
     thread = threading.Thread(target=watch_and_flush, daemon=True,
                               name="spacr-gui-stall-watch")
-    # ATTACHED RATHER THAN RETURNED SEPARATELY, so the return stays a plain
-    # `threading.Thread` and this function keeps the signature and the
-    # documented return it already had. A new module-scope class or a
-    # changed docstring would move the published API surface, and the ten
-    # API catalogs pin every docstring by hash.
     thread.stop = stopping.set
     thread.start()
     return thread

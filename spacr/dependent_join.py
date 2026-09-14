@@ -167,10 +167,6 @@ def join(objects: pd.DataFrame, dependent: pd.DataFrame, *,
                 theirs_source["path"] = _from_paths(dependent)
                 mine_source["path"] = _from_paths(objects)
             theirs_frame = theirs_source["path"]
-            # THE OBJECT SIDE KEEPS ITS OWN COLUMNS WHEN IT HAS THEM. Only
-            # the dependent table is the one with something missing; making
-            # both sides go through the path would break a join that the ID
-            # columns would have made.
             mine_frame = objects if _key(objects, columns) is not None \
                 else mine_source["path"]
         else:

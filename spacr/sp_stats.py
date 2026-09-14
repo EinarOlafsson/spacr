@@ -22,14 +22,6 @@ from scipy.stats import chi2_contingency, fisher_exact
 import itertools
 from statsmodels.stats.multitest import multipletests
 
-# The engine names the tests for a figure legend; this module's callers write
-# them into screen CSVs and have done since before the engine existed. Mapped
-# rather than renamed, so every existing reader of ``Test Name`` keeps working
-# -- and mapped onto the spelling ``spacrGraph`` already prints, so the two
-# report vocabularies in this package agree. Pinned by
-# tests/test_one_engine_decides_which_test_applies.py, which asserts that
-# every test the engine can run is named here: a test the engine learns must
-# not arrive in a CSV under a name nobody chose.
 _ENGINE_TEST_NAMES = {
     "Student's t": 'T-test',
     "Welch's t": "Welch's T-test",
@@ -66,17 +58,16 @@ def choose_p_adjust_method(num_groups, num_data_points):
     :param num_data_points: Number of data points per group (balanced groups assumed).
     :returns: One of ``'holm'``, ``'fdr_bh'``, ``'sidak'``, or ``'bonferroni'``.
     """
-    num_comparisons = (num_groups * (num_groups - 1)) // 2  # Number of pairwise comparisons
+    num_comparisons = (num_groups * (num_groups - 1)) // 2
 
-    # Decision logic for choosing the adjustment method
     if num_comparisons <= 10 and num_data_points > 5:
-        return 'holm'  # Balanced between power and Type I error control
+        return 'holm'
     elif num_comparisons > 10 and num_data_points <= 5:
-        return 'fdr_bh'  # FDR control for large number of comparisons and small sample size
+        return 'fdr_bh'
     elif num_comparisons <= 10:
-        return 'sidak'  # Less conservative than Bonferroni, good for independent comparisons
+        return 'sidak'
     else:
-        return 'bonferroni'  # Very conservative, use for strict control of Type I errors
+        return 'bonferroni'
 
 def perform_normality_tests(df, grouping_column, data_columns):
     """Report per-group normality, and say when the check had no power.
@@ -118,7 +109,6 @@ def perform_normality_tests(df, grouping_column, data_columns):
             n_samples = int(data.size)
 
             if n_samples < 3:
-                # Shapiro-Wilk needs three points to have a statistic at all.
                 print(f"Skipping normality test for group '{group}' on column '{column}' - Not enough data.")
                 normality_results.append({
                     'Comparison': f'Normality test for {group} on {column}',
@@ -145,14 +135,9 @@ def perform_normality_tests(df, grouping_column, data_columns):
                 'Verdict': check.verdict,
             })
 
-        # The verdict is the engine's own, taken across the groups together --
-        # never re-derived from the per-group p-values above, because that
-        # would throw away the Bonferroni correction the check applies.
         column_verdicts.append(
             check_normality(list(groups.values())).passed)
 
-    # No column examined is not evidence of normality. `all([])` is True, and
-    # returning True there would license a parametric test off an empty call.
     is_normal = bool(column_verdicts) and all(column_verdicts)
     return is_normal, normality_results
 
@@ -221,17 +206,13 @@ def perform_statistical_tests(df, grouping_column, data_columns, paired=False):
     for column in data_columns:
         if paired:
             print("Performing paired tests (not implemented in this template).")
-            continue  # Extend as needed
+            continue
 
         groups = _grouped_values(df, grouping_column, column)
         counts = ' / '.join(str(int(values.size)) for values in groups.values())
         try:
             result = compare(groups)
         except ValueError as refusal:
-            # Fewer than two groups, or a group too small to test. Refusing is
-            # the engine's design: a comparison that could not be made is not a
-            # comparison with an unknown answer. Reported as a row rather than
-            # raised, because the caller is usually writing a CSV per column.
             test_results.append({
                 'Column': column,
                 'Test Name': 'not testable',
@@ -283,27 +264,25 @@ def perform_posthoc_tests(df, grouping_column, data_column, is_normal):
 
     if len(unique_groups) > 2:
         num_groups = len(unique_groups)
-        num_data_points = len(df[data_column].dropna()) // num_groups  # Assuming roughly equal data points per group
+        num_data_points = len(df[data_column].dropna()) // num_groups
         p_adjust_method = choose_p_adjust_method(num_groups, num_data_points)
 
         if is_normal:
-            # Tukey's HSD automatically adjusts p-values
             tukey_result = pairwise_tukeyhsd(df[data_column], df[grouping_column], alpha=0.05)
             for comparison, p_value in zip(tukey_result._results_table.data[1:], tukey_result.pvalues):
                 posthoc_results.append({
                     'Comparison': f"{comparison[0]} vs {comparison[1]}",
-                    'Original p-value': None,  # Tukey HSD does not provide raw p-values
+                    'Original p-value': None,
                     'Adjusted p-value': p_value,
                     'Adjusted Method': 'Tukey HSD',
                     'Test Name': 'Tukey HSD'
                 })
         else:
-            # Dunn's test with p-value adjustment
             raw_dunn_result = sp.posthoc_dunn(df, val_col=data_column, group_col=grouping_column, p_adjust=None)
             adjusted_dunn_result = sp.posthoc_dunn(df, val_col=data_column, group_col=grouping_column, p_adjust=p_adjust_method)
             for i, group_a in enumerate(adjusted_dunn_result.index):
                 for j, group_b in enumerate(adjusted_dunn_result.columns):
-                    if i < j:  # Only consider unique pairs
+                    if i < j:
                         posthoc_results.append({
                             'Comparison': f"{group_a} vs {group_b}",
                             'Original p-value': raw_dunn_result.iloc[i, j],
@@ -345,12 +324,11 @@ def chi_pairwise(raw_counts, verbose=False):
     columns = ['Group 1', 'Group 2', 'Test Name', 'p-value', 'p-value_adj',
                'adj', 'note']
     pairwise_results = []
-    groups = raw_counts.index.unique()  # Use index from raw_counts for group pairs
-    raw_p_values = []  # Store raw p-values for correction later
+    groups = raw_counts.index.unique()
+    raw_p_values = []
 
-    # Calculate the number of groups and average number of data points per group
     num_groups = len(groups)
-    num_data_points = raw_counts.sum(axis=1).mean()  # Average total data points per group
+    num_data_points = raw_counts.sum(axis=1).mean()
 
     if num_groups < 2:
         if verbose:
@@ -362,8 +340,6 @@ def chi_pairwise(raw_counts, verbose=False):
 
     for group1, group2 in itertools.combinations(groups, 2):
         pair = raw_counts.loc[[group1, group2]]
-        # A category neither group observed contributes nothing to this pair
-        # and is exactly what makes the expected frequency zero.
         kept = pair.loc[:, (pair != 0).any(axis=0)]
         contingency_table = kept.values
         note = ''
@@ -386,10 +362,10 @@ def chi_pairwise(raw_counts, verbose=False):
             raw_p_values.append(float('nan'))
             continue
 
-        if contingency_table.shape[1] == 2:  # Fisher's Exact Test for 2x2 tables
+        if contingency_table.shape[1] == 2:
             oddsratio, p_value = fisher_exact(contingency_table)
             test_name = "Fisher's Exact Test"
-        else:  # Chi-Square Test for larger tables
+        else:
             chi2_stat, p_value, _, _ = chi2_contingency(contingency_table)
             test_name = 'Pairwise Chi-Square Test'
 
@@ -402,9 +378,6 @@ def chi_pairwise(raw_counts, verbose=False):
         })
         raw_p_values.append(p_value)
 
-    # Apply p-value correction over the pairs that were actually testable.
-    # Correcting across untestable pairs would inflate the family size and
-    # penalise the real comparisons for tests that never ran.
     raw = np.asarray(raw_p_values, dtype=float)
     testable = ~np.isnan(raw)
     corrected_p_values = np.full(raw.shape, np.nan)
@@ -412,7 +385,6 @@ def chi_pairwise(raw_counts, verbose=False):
         corrected_p_values[testable] = multipletests(
             raw[testable], method=p_adjust_method)[1]
 
-    # Add corrected p-values to results
     for i, result in enumerate(pairwise_results):
         result['p-value_adj'] = corrected_p_values[i]
 
@@ -422,7 +394,6 @@ def chi_pairwise(raw_counts, verbose=False):
     pairwise_df = pairwise_df.reindex(columns=columns)
 
     if verbose:
-        # Print pairwise results
         print("\nPairwise Frequency Analysis Results:")
         print(pairwise_df.to_string(index=False))
 

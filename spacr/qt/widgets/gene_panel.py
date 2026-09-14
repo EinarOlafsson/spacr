@@ -99,9 +99,6 @@ def warm_annotation(features: Sequence[Any] = ()) -> Tuple[str, ...]:
     try:
         gene_tile.gene_tile(features[0] if len(features) else _WARMING_TERM)
     except Exception:                                          # noqa: BLE001
-        # The warm-up is an optimisation. A reference file this install does
-        # not have must not stop the panel from opening -- the click path
-        # says what it could not resolve, which is the answer either way.
         LOG.debug("gene panel: could not warm the gene_tile indices",
                   exc_info=True)
     return columns
@@ -167,8 +164,6 @@ class GenePanel(QWidget):
         self._known = QTextBrowser()
         self._known.setOpenLinks(False)
         self._known.setOpenExternalLinks(False)
-        # A gene id must survive translation intact: TGGT1_239740 is not a
-        # phrase, and a catalog that "translated" it would be renaming a gene.
         self._known.setProperty("i18nSkipText", True)
         self._known.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         split.addWidget(self._known)
@@ -205,16 +200,10 @@ class GenePanel(QWidget):
         self._shown = False
         #: The features a pending warm-up should cover, or () for all.
         self._pending_warm = ()
-        # BELT AND BRACES ON THE THREAD'S LIFETIME. Qt aborts the process if
-        # a running QThread is destroyed, and a panel can be dropped without
-        # ever being closed -- a tab rebuilt, a screen replaced, an
-        # interpreter shutting down. `closeEvent` covers the ordinary path;
-        # this covers the one where nobody closed anything.
         application = QApplication.instance()
         if application is not None:
             application.aboutToQuit.connect(self._shut_down_warming)
 
-    # ------------------------------------------------------------- warming up
 
     def showEvent(self, event):                                 # noqa: N802
         """Start annotation warm-up when the panel first becomes visible.
@@ -242,7 +231,6 @@ class GenePanel(QWidget):
                else warm_annotation)
         return bool(self._runner.submit(job, self._annotation_loaded))
 
-    # ------------------------------------------------------------------ state
 
     @property
     def tile(self):
@@ -278,7 +266,6 @@ class GenePanel(QWidget):
         self._say(LOADING_TEXT if not self._warm else IDLE_TEXT)
         self._update_topology_button()
 
-    # ------------------------------------------------------------------ warming
 
     def warm_for(self, frame) -> bool:
         """Warm the annotation for every gene in ``frame``. Call on load.
@@ -294,12 +281,6 @@ class GenePanel(QWidget):
         if not terms or terms == self._warmed:
             return False
         self._warmed = terms
-        # HELD UNTIL THE PANEL IS SHOWN. A frame can arrive before anybody
-        # looks at the tab -- the screen loads a run's results into every tab
-        # at once -- and starting a thread for a panel that is never shown is
-        # what aborted the process: Qt calls abort() when a running QThread
-        # is destroyed, and a panel that is never shown is never closed
-        # either, so neither `closeEvent` nor `aboutToQuit` ever fires.
         self._pending_warm = terms
         self._warming_started = False
         if not self._shown:
@@ -311,15 +292,12 @@ class GenePanel(QWidget):
         self._columns = tuple(columns or ())
         self._warm = True
         if self.summary.feature:
-            # A click that beat the warm-up is re-answered rather than left
-            # showing "loading" over a tile that is already on screen.
             self.show_feature(self.summary.feature)
         else:
             self._say(IDLE_TEXT)
         self._update_topology_button()
         self.annotation_ready.emit(len(self._columns))
 
-    # ------------------------------------------------------------------ slots
 
     def show_feature(self, key) -> None:
         """Build and show the tile for one clicked feature.
@@ -386,10 +364,6 @@ class GenePanel(QWidget):
         parts: List[str] = []
         for candidate, known in zip(tile.candidates, self._facts):
             if len(self._facts) > 1:
-                # Named per gene, because the whole point of the ambiguous
-                # case is that these blocks are alternatives and not one
-                # record: three products under one heading would read as one
-                # protein with three names.
                 parts.append("<h3 style='margin-bottom:0'>what spaCR knows "
                              f"about {_html.escape(candidate.name)}</h3>")
             parts.append(known.to_html())
@@ -404,7 +378,6 @@ class GenePanel(QWidget):
             f"<p style='color:#888'>{_html.escape(text)}</p>")
         self._status.setText("")
 
-    # ------------------------------------------------------------------ topology
 
     def topology_reason(self) -> str:
         """Why "Save topology CSV" cannot run, or ``""`` when it can.
@@ -479,7 +452,6 @@ class GenePanel(QWidget):
         else:
             self._status.setText(f"Topology written to {path}")
 
-    # ------------------------------------------------------------------ grid
 
     def to_pixmap(self, width: int = TILE_WIDTH) -> QPixmap:
         """The whole tile -- both halves -- as one ``QPixmap``.
@@ -501,7 +473,6 @@ class GenePanel(QWidget):
             painter.end()
         return out
 
-    # ------------------------------------------------------------------ close
 
     def _shut_down_warming(self) -> None:
         """Stop the warm-up. A BOUND METHOD, and that is the point.
@@ -514,8 +485,6 @@ class GenePanel(QWidget):
         try:
             self._runner.shutdown()
         except RuntimeError:
-            # The C++ half can already be gone when a whole window closes at
-            # once; there is nothing left to shut down and nothing to report.
             pass
 
     def closeEvent(self, event):                                # noqa: N802

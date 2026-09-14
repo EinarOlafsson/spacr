@@ -234,8 +234,6 @@ def points_in_polygon(x: np.ndarray, y: np.ndarray,
         for current in range(count):
             xi, yi = px[current], py[current]
             xj, yj = px[previous], py[previous]
-            # A horizontal edge never straddles the ray, so the division it
-            # would divide by zero for is masked out before it is used.
             straddles = (yi > y) != (yj > y)
             crossing = (xj - xi) * (y - yi) / (yj - yi) + xi
             inside ^= straddles & (x < crossing)
@@ -243,9 +241,6 @@ def points_in_polygon(x: np.ndarray, y: np.ndarray,
     return inside & np.isfinite(x) & np.isfinite(y)
 
 
-# ---------------------------------------------------------------------------
-# The three shapes
-# ---------------------------------------------------------------------------
 
 #: The visible axis limits: ``(x_low, x_high, y_low, y_high)``. Handles need
 #: them only to place anchors on sides a gate leaves unbounded.
@@ -302,7 +297,7 @@ class Gate:
                 f"another one, not inside itself")
 
     @property
-    def kind(self) -> str:  # overridden
+    def kind(self) -> str:
         """
         The shape's tag, as it appears in a saved gate set.
 
@@ -315,7 +310,7 @@ class Gate:
         raise NotImplementedError
 
     @property
-    def columns(self) -> Tuple[str, ...]:  # overridden
+    def columns(self) -> Tuple[str, ...]:
         """
         Which measured columns this gate reads.
 
@@ -371,7 +366,7 @@ class Gate:
             f"can be given "
             + (", ".join(self.thresholds()) or "no thresholds at all"))
 
-    def describe(self) -> str:  # overridden
+    def describe(self) -> str:
         """
         This gate in one line, for a person reading the hierarchy.
 
@@ -382,7 +377,7 @@ class Gate:
         """
         raise NotImplementedError
 
-    def to_dict(self) -> Dict[str, Any]:  # overridden
+    def to_dict(self) -> Dict[str, Any]:
         """
         This gate as plain data, for the saved set.
 
@@ -413,17 +408,6 @@ class Gate:
         """
         return replace(self, name=name)
 
-    # -- editing after the fact --------------------------------------------
-    #
-    # A gate you cannot adjust is a gate you redraw from scratch, which is
-    # the single biggest gap in this editor. Both operations return a NEW
-    # gate rather than mutating: these are frozen dataclasses, the GateSet
-    # holds them by name, and an in-place edit would change a gate that
-    # something else is already holding a reference to.
-    #
-    # Both are defined on the base so a caller can move ANY gate without
-    # knowing which kind it has -- which is what the canvas drag handler
-    # needs, since the user just clicks a shape.
 
     def translated(self, dx: float, dy: float) -> "Gate":
         """Return this gate moved by ``(dx, dy)`` in DATA units.
@@ -460,13 +444,6 @@ class Gate:
         """
         raise NotImplementedError
 
-    # -- anchor points ----------------------------------------------------
-    # Resizing is "pull a corner or a side", so every kind has to be able to
-    # say where its corners and sides ARE, and what it becomes when one is
-    # dragged. Both live here rather than in the canvas because they are
-    # geometry -- no axes, no pixels, no Qt -- and because a canvas that
-    # special-cased four gate kinds inside a mouse handler is how the drag
-    # code became unreadable the first time.
 
     def handles(self, view: "View") -> Tuple["Handle", ...]:
         """The draggable anchor points, in data units.
@@ -639,9 +616,6 @@ class ThresholdGate(Gate):
         :returns: ``(x, y)``, either of which may be None.
         """
         if self.low is None or self.high is None:
-            # Open-ended, so there is no middle. Reported rather than
-            # invented: a made-up centre would send the first resize
-            # somewhere arbitrary.
             return None, None
         return (float(self.low) + float(self.high)) / 2.0, None
 
@@ -682,9 +656,6 @@ class ThresholdGate(Gate):
         else:
             high = float(x)
         if low is not None and high is not None and low > high:
-            # Dragged past the other bound. Swapping beats refusing: the
-            # user's intent is unambiguous and a gate that will not invert
-            # feels stuck at exactly the moment they are trying to fix it.
             low, high = high, low
         return replace(self, low=low, high=high)
 
@@ -702,9 +673,6 @@ class ThresholdGate(Gate):
         _check_factor(factor)
         anchor = about[0] if about is not None else self.centre()[0]
         if anchor is None:
-            # Nothing to scale about, and nothing sensible to do. Returned
-            # unchanged rather than raising: the user dragged, and a
-            # half-open gate simply has no width to grow.
             return self
         return replace(self, low=_scale_bound(self.low, anchor, factor),
                        high=_scale_bound(self.high, anchor, factor))
@@ -954,9 +922,6 @@ class RectGate(Gate):
         for lo, hi in (("x_low", "x_high"), ("y_low", "y_high")):
             a, b = values[lo], values[hi]
             if a is not None and b is not None and a > b:
-                # Pulled through the opposite side. The user has turned the
-                # rectangle inside out, which they clearly meant; keeping it
-                # a rectangle is the only correction needed.
                 values[lo], values[hi] = b, a
         return replace(self, **values)
 
@@ -1021,18 +986,12 @@ class PolygonGate(Gate):
                 f"against itself")
         points = tuple((float(a), float(b)) for a, b in self.vertices)
         if len(points) > 1 and points[0] == points[-1]:
-            # A closing vertex is accepted and dropped: the polygon closes
-            # itself, and keeping the duplicate would make an edge of length 0.
             points = points[:-1]
         if len(points) < 3:
             raise GateError(
                 f"polygon gate {self.name!r} has {len(points)} vertices; a "
                 f"region needs at least three. Click three points, then close "
                 f"the shape")
-        # The shoelace area. Zero means the vertices are collinear (or all in
-        # one place), which is a *line*: it would select nothing, and a gate
-        # that selects nothing because of a slipped click is worth catching at
-        # the click rather than three screens later.
         xs = np.array([p[0] for p in points], dtype=float)
         ys = np.array([p[1] for p in points], dtype=float)
         area = 0.5 * abs(float(np.dot(xs, np.roll(ys, -1))
@@ -1242,9 +1201,6 @@ class EllipseGate(Gate):
         """
         x = _numeric(frame, self.x_column, f"ellipse gate {self.name!r}")
         y = _numeric(frame, self.y_column, f"ellipse gate {self.name!r}")
-        # Normalised radius: <= 1 is inside. Written this way rather than as
-        # a distance so the two axes keep their own scales -- the whole point
-        # of an ellipse over a circle on a two-measurement scatter.
         dx = (x - self.x_centre) / self.x_radius
         dy = (y - self.y_centre) / self.y_radius
         with np.errstate(invalid="ignore"):
@@ -1326,9 +1282,6 @@ class EllipseGate(Gate):
         if "y_radius" in parts:
             ry = abs(float(y) - float(self.y_centre))
         if rx <= 0 or ry <= 0:
-            # A zero radius is not an ellipse and EllipseGate refuses one.
-            # Handing back the gate unchanged makes the handle stop at the
-            # centre instead of the drag raising into a mouse handler.
             return self
         return replace(self, x_radius=rx, y_radius=ry)
 
@@ -1343,7 +1296,6 @@ class EllipseGate(Gate):
         _check_factor(factor)
         f = float(factor)
         if about is None:
-            # Grow in place: the centre is fixed and only the radii change.
             return replace(self, x_radius=self.x_radius * f,
                            y_radius=self.y_radius * f)
         ax, ay = float(about[0]), float(about[1])
@@ -1376,21 +1328,6 @@ _GATE_CLASSES = {THRESHOLD: ThresholdGate, RECTANGLE: RectGate,
 
 
 
-# ---------------------------------------------------------------------------
-# Density clustering
-#
-# DBSCAN, not k-means: a scatter of cells has dense populations of unequal
-# size sitting in sparse debris, which is exactly the shape DBSCAN was made
-# for and exactly the shape k-means is bad at. It also does not need to be
-# told how many populations there are, which is the number a user opening
-# this dialog does not yet know.
-#
-# Clusters become REAL GATES rather than a separate kind of selection. A
-# cluster is then editable, nestable, serialisable and usable as a
-# DataFilter clause -- everything a hand-drawn gate can do -- because it IS
-# one. A parallel "cluster selection" concept would have needed all of that
-# rebuilt beside it.
-# ---------------------------------------------------------------------------
 
 
 class ClusterError(GateError):
@@ -1423,7 +1360,6 @@ def _convex_hull(points: np.ndarray) -> np.ndarray:
         for point in sequence:
             while len(out) >= 2:
                 (x1, y1), (x2, y2) = out[-2], out[-1]
-                # Cross product of the last edge with the candidate edge.
                 cross = ((x2 - x1) * (point[1] - y1)
                          - (y2 - y1) * (point[0] - x1))
                 if cross > 0:
@@ -1685,9 +1621,6 @@ class BoxGate(Gate):
                    z_low=float(z0), z_high=float(z1))
 
 
-# Registered after the class rather than in the literal above: BoxGate is
-# defined further down the file, beside the volume it belongs to, and a
-# forward reference in the dict would be a NameError at import.
 _GATE_CLASSES[BOX] = BoxGate
 
 
@@ -1783,7 +1716,6 @@ class CylinderGate(Gate):
         axis = _numeric(frame, self.axis_column, what)
         keep = np.isfinite(u) & np.isfinite(v) & np.isfinite(axis)
         if not self.u_radius or not self.v_radius:
-            # A zero radius is an empty gate, not a division by zero.
             return np.zeros(len(frame), dtype=bool)
         with np.errstate(invalid="ignore"):
             inside = (((u - self.u_centre) / self.u_radius) ** 2
@@ -2235,9 +2167,6 @@ class CompositeGate(Gate):
             for extra in masks[1:]:
                 out &= extra
             return out
-        # subtract: the FIRST operand minus every other. Order matters, and
-        # it is the order the user listed them in -- A minus B is not B minus
-        # A, and a set that sorted its operands would silently change which.
         out = masks[0].copy()
         for extra in masks[1:]:
             out &= ~extra
@@ -2350,9 +2279,6 @@ def wand_select(frame: pd.DataFrame, x_column: str, y_column: str,
 
     px, py = float(x), float(y)
     if scale:
-        # Map each axis onto 0..1 across the DATA, not the view: a gate is a
-        # statement about measurements, and scaling by the visible window
-        # would make the same click give a different gate at a different zoom.
         sx, sy = _unit_scale(xs[finite]), _unit_scale(ys[finite])
         ux, uy = sx(xs), sy(ys)
         upx, upy = float(sx(np.array([px]))[0]), float(sy(np.array([py]))[0])
@@ -2369,9 +2295,6 @@ def wand_select(frame: pd.DataFrame, x_column: str, y_column: str,
             "no object is within the maximum distance of that click; click "
             "closer to a population, or raise the maximum distance")
 
-    # The seed is the nearest object to the click, NOT the click itself: the
-    # user points at a cloud, and a click landing in a gap between two of its
-    # objects must still start inside the cloud.
     seed = int(np.argmin(from_click))
 
     candidates = np.flatnonzero(reachable)
@@ -2385,7 +2308,6 @@ def wand_select(frame: pd.DataFrame, x_column: str, y_column: str,
     while frontier:
         current = local[frontier]
         frontier = []
-        # Distance from every unselected candidate to the newest selections.
         remaining = np.flatnonzero(~selected)
         if remaining.size == 0:
             break
@@ -2486,10 +2408,6 @@ def _cluster_matrix(frame: pd.DataFrame, x_column: str, y_column: str, *,
 
     raw = data.to_numpy(dtype=float)
     spread = raw.std(axis=0)
-    # A constant axis is refused rather than worked around. Every cluster on
-    # it is a straight line, every hull is collinear and has no area, and the
-    # honest result would be an empty list -- which reads as "clustering is
-    # broken" rather than "this measurement is the same for every object".
     flat = [column for column, sd in zip((x_column, y_column), spread)
             if sd == 0]
     if flat:
@@ -2583,9 +2501,6 @@ def cluster_walk_candidates(frame: pd.DataFrame, x_column: str,
         score = None
         if len(found) >= 2:
             keep = labels != -1
-            # Silhouette is defined on the CLUSTERED points only. Including
-            # noise as if it were one more cluster would reward runs that
-            # discard the awkward objects, which is the opposite of useful.
             try:
                 score = float(silhouette_score(work[keep], labels[keep]))
             except Exception:
@@ -2648,10 +2563,6 @@ def _fit_labels(work, *, method: str, eps: float, min_samples: int):
             raise ClusterError(
                 "HDBSCAN needs scikit-learn 1.3 or newer; choose DBSCAN or "
                 f"upgrade scikit-learn ({exc})") from exc
-        # `eps` becomes the floor below which HDBSCAN stops splitting, so the
-        # control keeps the meaning it has for DBSCAN -- larger merges. Zero
-        # (its own default) would make the setting inert, which is the defect
-        # this whole change is about.
         return HDBSCAN(min_cluster_size=max(2, int(min_samples)), copy=False,
                        cluster_selection_epsilon=float(eps)).fit_predict(work)
     raise ClusterError(
@@ -2703,16 +2614,12 @@ def cluster_gates(frame: pd.DataFrame, x_column: str, y_column: str, *,
             f"{max_clusters}. Raise eps to merge them, or raise "
             f"max_clusters if this is really what you meant.")
 
-    # Largest first, so the populations that matter are drawn and named
-    # before the specks.
     found.sort(key=lambda lab: int((labels == lab).sum()), reverse=True)
 
     gates: List[PolygonGate] = []
     for index, label in enumerate(found, start=1):
         hull = _convex_hull(raw[labels == label])
         if len(hull) < 3:
-            # A collinear cluster has no area. Skipped rather than widened
-            # into a fake polygon, which would select rows outside it.
             continue
         gates.append(PolygonGate(
             name=f"{name_prefix} {index}",
@@ -2754,9 +2661,6 @@ def gate_from_dict(payload: Mapping[str, Any]) -> Gate:
     return cls(**data)
 
 
-# ---------------------------------------------------------------------------
-# The clause every linked view honours
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class GateClause:
@@ -2824,9 +2728,6 @@ class GateClause:
         return f"gate {chain} ({self.gates[-1].describe()})"
 
 
-# ---------------------------------------------------------------------------
-# The hierarchy
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class GateStats:
@@ -2892,9 +2793,6 @@ class GateSet:
     gates: List[Gate] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        # Re-added one at a time through `add`, so a set built from a list —
-        # or read back from a file — gets the same parent and cycle checks a
-        # set built by clicking does.
         """Re-add every incoming gate through :meth:`add`.
 
         A set built from a list -- or read back from a file -- gets the same
@@ -2906,7 +2804,6 @@ class GateSet:
         for gate in incoming:
             self.add(gate)
 
-    # -- editing -----------------------------------------------------------
     def add(self, gate: Gate) -> "GateSet":
         """Add ``gate``, replacing any gate of the same name.
 
@@ -2927,8 +2824,6 @@ class GateSet:
         try:
             self.path(gate.name)
         except GateError:
-            # Put the set back exactly as it was. Re-drawing a gate into a
-            # cycle must not also delete the gate it was replacing.
             self.gates = before
             raise
         return self
@@ -2990,7 +2885,6 @@ class GateSet:
             f"there is no gate called {name!r}; the gates are "
             f"{', '.join(self.names) or '(none)'}")
 
-    # -- reading -----------------------------------------------------------
     @property
     def names(self) -> Tuple[str, ...]:
         """Every gate's name, in insertion order.
@@ -3068,7 +2962,6 @@ class GateSet:
         walk(None)
         return tuple(out)
 
-    # -- applying ----------------------------------------------------------
     def mask(self, frame: pd.DataFrame, name: str) -> np.ndarray:
         """The rows of ``frame`` inside ``name`` **and every gate above it**.
 
@@ -3106,9 +2999,6 @@ class GateSet:
                 raise GateError(
                     f"composite gate {gate.name!r} names {operand!r}, which "
                     f"no longer exists")
-            # Each operand carries its OWN ancestors, because a gate drawn
-            # inside another means the pair, and combining it as though it
-            # were the shape alone would include rows its parent excluded.
             lookup[operand] = self._mask_chain(
                 frame, operand, seen + (gate.name,))
         return gate.mask_with(frame, lookup)
@@ -3157,7 +3047,6 @@ class GateSet:
         head = f"{len(frame):,} objects"
         return "\n".join([head] + [row.describe() for row in rows])
 
-    # -- serialisation -----------------------------------------------------
     def to_dict(self) -> Dict[str, Any]:
         """The whole set as plain data.
 

@@ -14,6 +14,49 @@ import pytest
 
 from spacr import timelapse as T
 
+_XGB_PATHOGEN_CHAN = 1
+
+
+def _xgb_frame(n_per_class=18, wells=("A01", "A02"), n_frames=3, seed=3):
+    """A frame-level table with a clean infected/uninfected separation.
+
+    Shaped like the measurement table ``_infection_qc_xgboost`` reads:
+    one tracked object per spec, repeated over ``n_frames`` frames, with
+    an exact pathogen-channel p95 so the quartile thresholds are stable.
+    """
+    rng = np.random.default_rng(seed)
+    chan = _XGB_PATHOGEN_CHAN
+    rows = []
+    cell_id = 0
+    for well in wells:
+        for _ in range(n_per_class):
+            for infected, centre in ((True, 1000.0), (False, 300.0)):
+                cell_id += 1
+                intensity = float(rng.normal(centre, 120.0))
+                area = float(rng.uniform(200.0, 900.0)) + (
+                    300.0 if infected else 0.0)
+                solidity = float(rng.uniform(0.70, 0.99))
+                y0 = float(rng.uniform(10.0, 200.0))
+                x0 = float(rng.uniform(10.0, 200.0))
+                for frame_index in range(n_frames):
+                    rows.append({
+                        "plateID": "plate1", "wellID": well, "fieldID": "1",
+                        "cellID": cell_id, "frame": frame_index,
+                        "infected": bool(infected),
+                        "n_pathogens": 3 if infected else 0,
+                        f"cell_p95_intensity_ch{chan}": intensity,
+                        f"cell_mean_intensity_ch{chan}": intensity * 0.6,
+                        "cell_mean_intensity_ch0": float(
+                            rng.uniform(100.0, 200.0)),
+                        "cell_area": area,
+                        "cell_perimeter": 0.4 * area,
+                        "cell_solidity": solidity,
+                        "cell_centroid-0": y0 + 1.5 * frame_index,
+                        "cell_centroid-1": x0 + float(frame_index),
+                        "nucleus_area": float(rng.uniform(50.0, 200.0)),
+                    })
+    return pd.DataFrame(rows)
+
 
 class TestTheIouDenominator:
 
@@ -178,10 +221,44 @@ class TestCarryingTheFirstGroupsQcPayload:
             assert f'settings["{key}"]' in source[payload:], (
                 f"{key} is no longer carried out of the first group's payload")
 
-    def test_the_comment_says_which_group_it_is(self):
-        source = inspect.getsource(T._apply_infection_intensity_qc)
+    def test_the_payload_comes_from_the_first_group_not_the_last(
+            self, tmp_path, monkeypatch):
+        """WHICH group it is, driven rather than read.
 
-        assert "from the first processed group" in source
+        The QC panels describe ONE group. Keeping the FIRST processed
+        one is the choice made; keeping the last would mean the panel
+        changed depending on how the groups happened to be ordered.
+        """
+        processed = []
+
+        def _recording_qc(all_df, settings, infection_col, pathogen_chan,
+                          motility_dir):
+            plate = str(all_df["plateID"].iloc[0])
+            processed.append(plate)
+            settings["infection_hist_data"] = {"plate": plate}
+            settings["infection_intensity_qc_panel_type"] = plate
+            return all_df, infection_col
+
+        monkeypatch.setattr(T, "_infection_qc_histogram", _recording_qc)
+
+        # plateB FIRST in the frame and second alphabetically, so the
+        # first processed group is neither the last nor the sorted one.
+        frame = pd.DataFrame({
+            "plateID": ["plateB"] * 3 + ["plateA"] * 3,
+            "wellID": ["A01"] * 6,
+            "infected": [True, False, True, False, True, False]})
+        settings = {"infection_intensity_qc": True,
+                    "infection_intensity_strategy": "histogram",
+                    "infection_intensity_qc_scope": "plate"}
+
+        T._apply_infection_intensity_qc(
+            frame, settings, "infected", 1, str(tmp_path / "motility"))
+
+        assert processed == ["plateB", "plateA"]
+        assert settings["infection_hist_data"] == {"plate": "plateB"}, (
+            "the QC payload is no longer the first processed group's, so "
+            "which group the panel describes now depends on group order")
+        assert settings["infection_intensity_qc_panel_type"] == "plateB"
 
 
 class TestOptionalEmbeddingImports:
@@ -276,11 +353,66 @@ class TestTheXgboostQcPayloads:
         assert refusal < assignment < panel
         assert "if used_feature_cols:" not in source[assignment:panel]
 
-    def test_the_panel_matrix_is_owned_rather_than_viewed(self):
-        """The comment there is a pandas-3 trap worth keeping: a
-        homogeneous selection can return a READ-ONLY view, and the
-        display-only imputation below would fail on it."""
-        source = inspect.getsource(T._infection_qc_xgboost)
+    def test_the_panel_matrix_is_owned_rather_than_viewed(self, tmp_path):
+        """A pandas-3 trap worth keeping: a homogeneous selection can
+        return a READ-ONLY view, and the display-only imputation below
+        writes into the matrix it is given.
 
-        assert "copy=True" in source
-        assert "read-only view" in source
+        Driven on what owning it buys. The features carry a hole, so the
+        imputation has to run: on an owned matrix it fills the hole and
+        the PCA payload is produced, and on a read-only view it would
+        raise into the enclosing ``except`` and leave the panel empty.
+        The imputation is display-only either way -- the measurements
+        come back still carrying their hole.
+        """
+        # NARROWED TO THE STATEMENT, not the function. A bare
+        # `"copy=True" in source` over a seven-hundred-line body is
+        # satisfied forever by an unrelated `to_numpy(copy=True)` on the
+        # index arrays further up, so it stayed green with the copy removed
+        # from BOTH matrices. Slicing from the assignment is what makes it
+        # answer about this statement.
+        source = inspect.getsource(T._infection_qc_xgboost)
+        start = source.index("X_panel = cell_level[used_feature_cols]")
+        # To the end of the CALL, not the end of the line: the statement
+        # wraps, and `to_numpy(` sits on the first line with its arguments
+        # on the next.
+        panel_stmt = source[start:source.index(")", start) + 1]
+        assert "copy=True" in panel_stmt, panel_stmt
+
+        all_df = _xgb_frame()
+        holed = sorted(all_df["cellID"].unique())[::2]
+        all_df.loc[all_df["cellID"].isin(holed), "cell_solidity"] = np.nan
+        settings = {"tracked_object": "cell",
+                    "infection_xgb_n_estimators": 15,
+                    "infection_xgb_max_depth": 2,
+                    "infection_xgb_n_jobs": 1,
+                    "infection_intensity_mode": "relabel"}
+
+        # COPY-ON-WRITE ON, DELIBERATELY. The assertions below describe what
+        # owning the matrix buys, and they can only describe it in the mode
+        # where a selection returns a read-only view. This repository runs
+        # pandas 2.2.2 with copy-on-write OFF, where the imputation writes
+        # into a doomed temporary, nothing raises, and the payload appears
+        # whether the matrix was copied or not -- so without this the test
+        # passes with `copy=True` removed and guards nothing at all.
+        # Measured: with it, removing the copy fails on `payload is not
+        # None`; without it, removing the copy from both matrices passes.
+        with pd.option_context("mode.copy_on_write", True):
+            out, _ = T._infection_qc_xgboost(
+                all_df=all_df, settings=settings, infection_col="infected",
+                pathogen_chan=_XGB_PATHOGEN_CHAN,
+                motility_dir=str(tmp_path / "motility"))
+
+        payload = settings.get("infection_pca_data")
+        assert payload is not None, (
+            "the PCA panel payload was lost, which is what a read-only "
+            "panel matrix costs: the imputation raises into the enclosing "
+            "except and the run finishes with no panel")
+        assert np.isfinite(payload["coords"]).all(), (
+            "the imputation did not fill the hole it was there to fill")
+
+        survivors = out[out["cellID"].isin(holed)]
+        assert len(survivors) > 0
+        assert survivors["cell_solidity"].isna().all(), (
+            "the display-only imputation wrote back into the "
+            "measurements, so the matrix is a view of them after all")

@@ -124,10 +124,6 @@ def select(frame: pd.DataFrame, *, scope: str = "guides",
 
     guide = _column(frame, GUIDE_COLUMNS)
     if guide is None or not len(guides):
-        # NOT AN ERROR AND NOT SILENTLY EVERYTHING. With no guide column or
-        # no selection there is no "the chosen guides", so the honest answer
-        # is an empty population and a report that says why -- drawing the
-        # whole table instead would look like a selection nobody made.
         report["note"] = ("no gRNA was chosen, so there is no population to "
                           "draw; pick one or more points on the volcano")
         return frame.iloc[0:0], report
@@ -139,7 +135,6 @@ def select(frame: pd.DataFrame, *, scope: str = "guides",
         report.update(rows=int(len(out)), chosen=int(len(out)))
         return out, report
 
-    # scope == "wells"
     well = _column(frame, WELL_COLUMNS)
     if well is None:
         report["note"] = ("this table names no well, so the guides' "
@@ -152,7 +147,6 @@ def select(frame: pd.DataFrame, *, scope: str = "guides",
     report["wells"] = here
     inside = frame[well].astype(str).isin(set(here))
     out = frame[inside].copy()
-    # DISTINGUISHABLE ON THE PLOT, which is the whole point of this scope.
     out[MATE_COLUMN] = [CHOSEN if flag else MATE
                         for flag in chosen.reindex(out.index).fillna(False)]
     report.update(rows=int(len(out)),

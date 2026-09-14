@@ -21,10 +21,6 @@ from .schema import ALL_ROLES
 __all__ = ["convert_settings_dict_for_gui"]
 
 
-# Curated torchvision classification models for the `model_type` combo. Kept
-# static so opening a settings screen never triggers a slow `import
-# torchvision`. The pipeline validates/instantiates the real model by name at
-# train time.
 _TORCHVISION_MODELS_CURATED = [
     'resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152',
     'resnext50_32x4d', 'resnext101_32x8d', 'wide_resnet50_2',
@@ -146,11 +142,6 @@ def _cellpose_model_names():
 #: takes the ordinary path, so no module's existing widget changes shape.
 _VALUE_SPECIAL_CASES = {
     'level': (
-        # NAMED FOR WHAT THEY PRODUCE. 'grna'/'gene'/'both' are the keys the
-        # settings file and the API have always used and they do not change;
-        # what changes is that the panel says which analysis each one asks
-        # for, so a reader who wants gene effects can find them without
-        # knowing that `level` is the control that gives them.
         (('both', 'grna', 'gene'),
          ('combo', [('both', 'both — gRNA and gene effects, each corrected '
                              'as its own family'),
@@ -181,8 +172,6 @@ def _value_special_cases(key, value):
     for vocabulary, spec in table:
         if current in vocabulary:
             kind, options, _default = spec
-            # The panel's own value is the default, so opening a settings
-            # screen never rewrites the setting it was opened on.
             return (kind, list(options), current)
     return None
 
@@ -199,31 +188,12 @@ def convert_settings_dict_for_gui(settings):
         :func:`spacr.gui_utils.create_input_field` or for
         :meth:`spacr.qt.screens.settings_model.SettingsWidgets.build_sections`.
     """
-    # NOTE: we deliberately do NOT `import torchvision` here. Enumerating the
-    # torchvision model zoo pulls in torch + torchvision, a ~5 s import that
-    # made every FIRST module open sluggish. The classify pipeline still
-    # instantiates the real torchvision model by name at train time — the GUI
-    # combo just needs a list of valid names, so we use a curated static list
-    # (if torchvision happens to be imported already we extend it with the full
-    # zoo, for free).
     torchvision_models = _torchvision_model_names()
-    # Same bargain, for the same measured reason: `cellpose.models` pulls in
-    # torch (~2.5 s) and this runs while a settings page is being built, so
-    # the accessor reads the API only when Cellpose is already loaded and
-    # degrades to the shipped list otherwise. It is never empty.
     cellpose_models = _cellpose_model_names()
     chan_list = ['[0,1,2,3,4,5,6,7,8]','[0,1,2,3,4,5,6,7]','[0,1,2,3,4,5,6]','[0,1,2,3,4,5]','[0,1,2,3,4]','[0,1,2,3]', '[0,1,2]', '[0,1]', '[0]', '[0,0]']
 
     variables = {}
     special_cases = {
-        # Instruction 134: two valid values, and it was a free-text box in
-        # both front ends. Declared here rather than only in the Qt combo
-        # table so the two GUIs cannot offer different lists.
-        # THE LABELS READ, and the VALUES do not change (134's third point).
-        # 'guide_permutation' is what the settings key is called; what the
-        # dropdown shows is the sentence, the same way 132's model box
-        # explains what it fits. (value, label) pairs, so every settings file
-        # already written goes on meaning what it meant.
         'analysis_mode': ('combo',
                           [('regression', 'regression — fit every guide at '
                                           'once in the chosen model'),
@@ -232,26 +202,12 @@ def convert_settings_dict_for_gui(settings):
                                                  'wells reshuffled within '
                                                  'each plate')],
                           'regression'),
-        # Instruction 135, and the same argument as `analysis_mode` above:
-        # two valid values, and the RUN now has to agree with the volcano's
-        # right-click menu about which P value 'significant' meant. A
-        # free-text box lets a settings CSV say 'Adjusted' or 'bh' and be
-        # refused at the seam instead of picked from a list of two. Declared
-        # here rather than only in the Qt combo table so the Tk and Qt panels
-        # cannot offer different lists.
-        # OFFERED, NOT TYPED. Two spellings, and a free-text box lets a
-        # settings CSV say 'spearman' -- a reasonable guess for what
-        # 'rank' does -- and be refused at the seam rather than picked
-        # from a list of two.
         'grna_statistic': ('combo', ['pearson', 'rank'], 'pearson'),
         'p_threshold_kind': ('combo', ['adjusted', 'raw'], 'adjusted'),
         'metadata_type': ('combo', ['cellvoyager', 'cq1', 'auto', 'custom'], 'cellvoyager'),
         'channels': ('combo', chan_list, '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
         'channel_dims': ('combo', chan_list, '[0,1,2,3]'),
-        # io.generate_training_dataset dispatches on metadata|annotation|
-        # measurement and returns (None, None) for anything else. 'recruitment'
-        # was offered here and silently produced no dataset.
         'dataset_mode': ('combo', ['annotation', 'metadata'], 'metadata'),
         'cov_type': ('combo', ['HC0', 'HC1', 'HC2', 'HC3', None], None),
         'crop_mode': ('combo',
@@ -264,28 +220,7 @@ def convert_settings_dict_for_gui(settings):
         'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
         'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),
         'model_name': ('combo', cellpose_models, cellpose_models[0]),
-        # DEFAULT 'mixed' since 2026-08-17, matching
-        # settings.get_perform_regression_default_settings: "mixed answers
-        # the most central question best". A combo whose default differs
-        # from the settings default posts a different model than the one
-        # the panel was built for.
-        # READ FROM THE INVENTORY, NOT LISTED BY HAND. The hand-written
-        # list offered 'gls' -- which is in UNSUPPORTED_REGRESSION_TYPES and
-        # RAISES -- and omitted six families that fit: huber, beta,
-        # quasi_binomial, elasticnet, hinge and horseshoe. So the panel
-        # could pick a type that fails and could not reach a third of the
-        # ones that work.
-        # (value, label) PAIRS, GROUPED BY WHAT THEY ASSUME. Bare
-        # names in one alphabetical list hid the four families a user was
-        # looking for; the label says whether the fit is parametric,
-        # robust/semiparametric or rank-based and what it assumes. The
-        # stored values are unchanged, so every settings file already
-        # written goes on meaning what it meant.
         'regression_type': ('combo', _regression_type_choices(), 'mixed'),
-        # WHO fits it (instruction 141 A). Default 'statsmodels (CPU)' --
-        # every existing result was produced with it, and a default that
-        # changes the numbers under a user who changed nothing is not a
-        # default. The label is the value; see _regression_backend_choices.
         'regression_backend': ('combo', _regression_backend_choices(),
                                'statsmodels (CPU)'),
         'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
@@ -295,38 +230,20 @@ def convert_settings_dict_for_gui(settings):
         'optimizer_type': ('combo', ['adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta', 'asgd'], 'adamw'),
         'schedule': ('combo', ['cosine', 'cosine_warm_restarts', 'reduce_lr_on_plateau', 'step_lr', 'exponential', 'linear', 'none'], 'cosine'),
         'loss_type': ('combo', ['auto', 'cross_entropy', 'label_smoothing', 'focal_loss', 'ce_weighted', 'logit_adjust_ce', 'asl', 'binary_cross_entropy_with_logits'], 'auto'),
-        # io.CLASS_BALANCE_MODES / io.CV_GROUP_LEVELS — both raise ValueError
-        # on anything outside these lists, so free text is not usable here.
         'class_balance': ('combo', ['none', 'weighted_sampler', 'sqrt_weighted_sampler', 'weighted_loss'], 'none'),
         'cv_group_by': ('combo', ['cell', 'field', 'well', 'plate'], 'well'),
-        # spacr.seg_qc.MODES
         'seg_qc': ('combo', ['off', 'report', 'flag', 'stop'], 'report'),
-        # Three states, not two: None defers to SPACR_STRICT_ERRORS so a
-        # cluster can turn it on for a batch without editing every file.
         'strict_errors': ('combo', [None, True, False], None),
         'normalize_by': ('combo', ['fov', 'png'], 'png'),
         'agg_type': ('combo', ['mean', 'median'], 'mean'),
         'grouping': ('combo', ['mean', 'median'], 'mean'),
         'min_max': ('combo', ['allq', 'all'], 'allq'),
         'transform': ('combo', ['log', 'sqrt', 'square', 'beta', None], None),
-        # The four intercept modes, from spacr.ml.INTERCEPT_MODES. A combo
-        # rather than free text: each name selects a different construction
-        # of the design matrix, and an unrecognised one is refused at the
-        # door by prepare_formula rather than quietly fitted.
         'intercept': ('combo', ['fitted', 'zero', 'control', 'value'],
                       'fitted'),
-        # HOW MANY ORGANELLE SLOTS, as a closed list rather than a free
-        # number. The bound is real -- a slot's name is the prefix of its
-        # keys and the prefixes are lettered, so the alphabet runs out at
-        # twenty-six -- and a typed thirty would have to be clamped to a
-        # number the user did not ask for.
         'number_of_organelles': ('combo',
                                  list(range(MAX_ORGANELLES + 1)),
                                  DEFAULT_NUMBER_OF_ORGANELLES),
-        # The ONE visible organelle choice (instruction 72). A combo, not a
-        # free-text field: the nine names are a closed set, and
-        # `organelle_types.resolve_type` raises on anything else -- typing it
-        # by hand would turn a typo into a failed run instead of a pick.
         'organelle_type': ('combo', list(_ORGANELLE_TYPE_ORDER),
                            _ORGANELLE_TYPE_DEFAULT),
         'organelle_morphology': ('combo', ['spots', 'network', 'irregular', 'ring'], 'spots'),
@@ -340,12 +257,6 @@ def convert_settings_dict_for_gui(settings):
 
     }
 
-    # All slot-specific controls use the primary organelle widget contract.
-    # Generated for every slot `number_of_organelles` can name, not for the
-    # slots this run has: a settings file written at seven slots is opened by
-    # a session set to two, and its seventh slot's method must still arrive
-    # as the closed dropdown it is rather than as a free-text field whose
-    # every value fails validation.
     primary_widget_keys = tuple(
         key for key in special_cases if key.startswith('organelle_'))
     for role in _ORGANELLE_SLOT_ROLES[1:]:

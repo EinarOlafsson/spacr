@@ -215,9 +215,6 @@ def detect_wells(image: np.ndarray, weights: str, *,
             if well.width <= 0 or well.height <= 0:
                 continue
             if well.axis_ratio < float(min_axis_ratio):
-                # Reported, not silently dropped: a rejected well is a
-                # condition missing from the results, and a user who is not
-                # told will read that as "no plaques grew".
                 LOG.warning(
                     "well at (%d, %d) rejected: axis ratio %.2f is below %.2f, "
                     "so its diameter cannot be trusted as a scale",

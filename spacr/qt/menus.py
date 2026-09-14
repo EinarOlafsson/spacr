@@ -64,10 +64,6 @@ def set_menu_role(action: Any, role: str = "none") -> Any:
     try:
         action.setMenuRole(roles[key])
     except Exception:
-        # A binding that will not take the role. The menu still works,
-        # it is simply in the ordinary place rather than moved into the
-        # macOS application menu -- not a reason to fail building the
-        # action, which is what the caller wanted.
         pass
     return action
 
@@ -143,13 +139,6 @@ def name_the_macos_application_menu(name: str = APPLICATION_NAME) -> bool:
         if not info:
             return False
 
-        # THE ONE CHECK THAT CANNOT ITSELF FAIL. `object_getClassName` is a
-        # plain C call into the runtime -- no message is sent, so no
-        # Objective-C exception can be raised, and an uncaught one would
-        # abort the process rather than surface here as a Python error.
-        # `__NSCFDictionary` is the toll-free-bridged class CFBundle builds
-        # its info dictionary as; a frozen or immutable class name means
-        # this launch is not one where the key can be written.
         class_name = objc.object_getClassName(info) or b""
         if class_name != b"__NSCFDictionary":
             return False

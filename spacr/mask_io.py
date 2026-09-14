@@ -83,17 +83,12 @@ def save_mask(path: PathLike, mask: np.ndarray,
             f"mask holds object id {top}, which does not fit in uint16; "
             f"relabel it before saving to {p}")
 
-    # If path already has a recognised suffix, that wins over `fmt`.
     if p.suffix.lower() in (".tif", ".tiff", ".npy"):
         fmt = p.suffix.lower().lstrip(".")
 
     if fmt in ("tif", "tiff"):
         p = p.with_suffix(f".{fmt}")
         try:
-            # Resolve through sys.modules rather than the package attribute.
-            # Python leaves ``spacr.tiff_io`` attached to the parent package
-            # after its module-cache entry is removed, which could otherwise
-            # make an optional dependency look available after it vanished.
             write_tiff = import_module(".tiff_io", __package__).write_tiff
         except Exception:
             LOG.warning("tifffile missing — falling back to npy for %s", p)

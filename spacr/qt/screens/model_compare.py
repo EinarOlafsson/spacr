@@ -231,8 +231,6 @@ QLabel#{PREVIEW_NAME} {{
 """
 
 
-# ``replace=True``: this module owns the name, and a reimport must
-# re-register rather than raise and leave the panels unstyled.
 register_widget_qss(MODEL_PANEL_NAME, _model_panel_qss, replace=True)
 
 
@@ -387,18 +385,10 @@ class ModelCompareScreen(QWidget):
         self._report: Optional[mc.ComparisonReport] = None
         self._segment_fn: Optional[Callable] = None
         self._busy = False
-        # Ownership list for in-flight (QThread, worker) pairs — a QThread
-        # collected while still running takes the process down with it. Same
-        # idiom as AgreementScreen._jobs.
         self._jobs: List[tuple] = []
         self._pending: List[tuple] = []
         self.last_error: str = ""
 
-        # `app.py` imports this module inside the branch that builds the
-        # screen, which is long after the launch stylesheet was generated —
-        # so the block registered above is not in the sheet that is live and
-        # the panels open bare. That is why the fix measured correct in a
-        # test and was still black in the running app.
         ensure_widget_qss_applied(MODEL_PANEL_NAME, root=self)
 
         self._build_ui()
@@ -409,13 +399,9 @@ class ModelCompareScreen(QWidget):
             "Choose a folder of fields, configure both models, then Compare. "
             "Neither model is treated as ground truth.")
         self._update_controls()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out the source row, both model panels, the tables and the mask previews."""
@@ -438,7 +424,6 @@ class ModelCompareScreen(QWidget):
 
         outer.addWidget(Divider())
 
-        # ── source row ────────────────────────────────────────────────
         src_row = QHBoxLayout()
         src_row.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit(self)
@@ -463,7 +448,6 @@ class ModelCompareScreen(QWidget):
         src_row.addWidget(self._fields_box)
         outer.addLayout(src_row)
 
-        # ── the two model panels ──────────────────────────────────────
         panels = QHBoxLayout()
         panels.setSpacing(SPACING["md"])
         self._panel_a = _ModelPanel("Model A", self, diameter=30.0)
@@ -480,14 +464,12 @@ class ModelCompareScreen(QWidget):
         run_row.addWidget(self._btn_compare)
         outer.addLayout(run_row)
 
-        # ── warnings ──────────────────────────────────────────────────
         self._warnings = QLabel("", self)
         self._warnings.setWordWrap(True)
         self._warnings.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self._warnings.setVisible(False)
         outer.addWidget(self._warnings)
 
-        # ── resolved parameters ───────────────────────────────────────
         outer.addWidget(QLabel("Parameters that reached each model", self))
         self._param_table = QTableWidget(0, len(_PARAM_HEADERS), self)
         install_sorting(self._param_table)
@@ -496,7 +478,6 @@ class ModelCompareScreen(QWidget):
         self._param_table.setMaximumHeight(200)
         outer.addWidget(self._param_table)
 
-        # ── per-field metrics ─────────────────────────────────────────
         outer.addWidget(QLabel("Per-field comparison", self))
         self._row_table = QTableWidget(0, len(_ROW_HEADERS), self)
         install_sorting(self._row_table)
@@ -515,7 +496,6 @@ class ModelCompareScreen(QWidget):
 
         outer.addWidget(Divider())
 
-        # ── side-by-side masks ────────────────────────────────────────
         preview = QSplitter(Qt.Horizontal, self)
         self._preview_a, self._caption_a = self._build_preview(preview, "A")
         self._preview_b, self._caption_b = self._build_preview(preview, "B")
@@ -547,10 +527,6 @@ class ModelCompareScreen(QWidget):
         canvas.setAlignment(Qt.AlignCenter)
         canvas.setMinimumSize(PREVIEW_PX, PREVIEW_PX)
         canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # No inline stylesheet: it used to be
-        # `background: {active_palette()["bg"]}`, raw hex and the window
-        # colour, which is opaque by construction. The panel is a rule now
-        # (see `_model_panel_qss`), reached by this name.
         canvas.setObjectName(PREVIEW_NAME)
         layout.addWidget(canvas, 1)
         parent.addWidget(holder)
@@ -559,11 +535,6 @@ class ModelCompareScreen(QWidget):
     @staticmethod
     def _prepare_table(table: QTableWidget) -> None:
         """Common read-only look for every result table."""
-        # These two tables ARE the containers on this half of the page —
-        # nothing else is under them — so they keep a surface where a table
-        # sitting on a panel would show it through. The name is what the
-        # registered block reaches, and what outranks the transparent tag
-        # `clear_container_surfaces` puts on every scroll area.
         table.setObjectName(RESULT_TABLE_NAME)
         table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setAlternatingRowColors(True)
@@ -571,7 +542,6 @@ class ModelCompareScreen(QWidget):
         table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
         table.horizontalHeader().setStretchLastSection(True)
 
-    # -- status ------------------------------------------------------------
 
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Deliberately never a QMessageBox — a modal dialog
@@ -594,7 +564,6 @@ class ModelCompareScreen(QWidget):
         """The banner above the numbers, or ``''`` when there is nothing to say."""
         return self._warnings.text()
 
-    # -- source ------------------------------------------------------------
 
     def _pick_folder(self) -> None:
         """Ask for a folder of fields and load it."""
@@ -708,7 +677,6 @@ class ModelCompareScreen(QWidget):
         """
         self._segment_fn = fn
 
-    # -- run ---------------------------------------------------------------
 
     def model_configs(self):
         """``(config_a, config_b)`` as currently configured.
@@ -778,7 +746,6 @@ class ModelCompareScreen(QWidget):
         """The most recent :class:`~spacr.model_compare.ComparisonReport`."""
         return self._report
 
-    # -- rendering ---------------------------------------------------------
 
     def _clear_results(self) -> None:
         """Empty every result pane and both previews.
@@ -833,8 +800,6 @@ class ModelCompareScreen(QWidget):
             reason = mc.IGNORED_ARGUMENTS.get(
                 key, "every pre-SAM name resolves to cpsam: Cellpose 4 "
                      "ships one model")
-            # 'model' appears in both halves — what was asked for and what will
-            # load. Two rows with the same label would read as a contradiction.
             label = "model (requested)" if key == "model" else key
             rows.append([label, mc._value(ignored_a.get(key)),
                          mc._value(ignored_b.get(key)),
@@ -892,7 +857,6 @@ class ModelCompareScreen(QWidget):
         """The per-field table as plain strings."""
         return _table_rows(self._row_table)
 
-    # -- preview -----------------------------------------------------------
 
     def select_field(self, row: int) -> bool:
         """Draw field ``row``'s two masks side by side over the same image.
@@ -959,7 +923,6 @@ class ModelCompareScreen(QWidget):
         """``(a, b)`` caption strings under the two panels."""
         return (self._caption_a.text(), self._caption_b.text())
 
-    # -- job plumbing ------------------------------------------------------
 
     def _run_job(self, fn: Callable[[], Any],
                  on_done: Callable[[Any], None],
@@ -991,9 +954,6 @@ class ModelCompareScreen(QWidget):
         self._jobs.append((thread, worker))
         self._pending.append((box, on_done, operation))
         worker.error.connect(self._on_worker_error_text)
-        # Bound QWidget method: Qt queues this back onto the GUI thread.
-        # A closure is invoked directly on PipelineWorker's thread and must
-        # never update labels/tables.
         worker.finished.connect(self._on_job_settled)
         thread.finished.connect(self._retire_finished_jobs)
         self._busy = True
@@ -1084,7 +1044,6 @@ class ModelCompareScreen(QWidget):
         self._set_status(
             f"{operation.capitalize()} failed: {message}", error=True)
 
-    # -- enablement --------------------------------------------------------
 
     def _update_controls(self) -> None:
         """Enable the source controls and Compare to match what is loaded.
@@ -1100,7 +1059,6 @@ class ModelCompareScreen(QWidget):
         self._panel_a.set_enabled(not self._busy)
         self._panel_b.set_enabled(not self._busy)
 
-    # -- shutdown ----------------------------------------------------------
 
     def closeEvent(self, event):  # noqa: N802
         """Let every in-flight comparison thread finish before the widget dies."""
@@ -1114,9 +1072,6 @@ class ModelCompareScreen(QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# drawing helpers — plain numpy, so they are testable without a widget
-# ---------------------------------------------------------------------------
 
 def to_display_gray(image: Optional[np.ndarray], shape) -> np.ndarray:
     """Reduce any field to a uint8 grayscale of ``shape``, for a backdrop.

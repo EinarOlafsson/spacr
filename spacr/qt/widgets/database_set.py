@@ -238,13 +238,6 @@ class DatabaseSetWidget(QWidget):
         self._presence_jobs = JobRunner(
             self, threaded=threads,
             app_key="database set restore", user_visible=False)
-        # A JobRunner hands the result only to a job that SUCCEEDED, so a read
-        # that dies some other way would leave `_reading` true for the life of
-        # the widget -- every later change to the set would then coalesce into
-        # a read that is never going to run, freezing the summary on whatever
-        # it happened to say -- and would leave the "reading …" placeholder up
-        # for ever. `_read_settled` is what clears both; `job_failed` arrives
-        # first and carries the one line worth showing.
         self._jobs.job_failed.connect(self._read_failed)
         self._jobs.job_finished.connect(self._read_settled)
         #: Bumped every time the set changes, so an answer about the set as it
@@ -314,7 +307,6 @@ class DatabaseSetWidget(QWidget):
 
         self.set_value(value)
 
-    # -- the value ---------------------------------------------------------
     def get_value(self):
         """The chosen sources: a bare string for one, a list for several.
 
@@ -354,7 +346,6 @@ class DatabaseSetWidget(QWidget):
         """The last :class:`spacr.multi_database.MergePlan`, or ``None``."""
         return self._plan
 
-    # -- instruction 180: what this widget contributes to a saved run -------
 
     def workspace_state(self) -> dict:
         """The attached set, IN ORDER, and the databases behind it.
@@ -433,17 +424,10 @@ class DatabaseSetWidget(QWidget):
             return
         try:
             self.set_value(keep)
-            # SAID OUT LOUD, because the panel FOLLOWS the set: `settings_
-            # model` rebuilds the fields that offer columns and rows from
-            # these databases on `value_changed`. While this check was inline
-            # the pruning happened before the panel ever saw the set; now it
-            # happens after, so a silent prune would leave those fields
-            # offering the columns of a plate that has moved.
             self.value_changed.emit()
         except RuntimeError:
-            pass            # the widget went while the check was in flight
+            pass
 
-    # -- letting go --------------------------------------------------------
     def shutdown(self) -> None:
         """Stop reading; let no worker outlive the widget. Idempotent.
 
@@ -458,9 +442,6 @@ class DatabaseSetWidget(QWidget):
         PySide6 raises when a worker settles after its runner's C++ half has
         gone.
         """
-        # Cleared here as well as shut down, because `JobRunner.cancel`
-        # abandons what is pending WITHOUT emitting `job_finished` -- nothing
-        # would otherwise let go of the in-flight flag.
         self._reading = False
         self._read_again = False
         self._jobs.shutdown()
@@ -471,7 +452,6 @@ class DatabaseSetWidget(QWidget):
         self.shutdown()
         super().closeEvent(event)
 
-    # -- editing -----------------------------------------------------------
     def choose_sources(self) -> None:
         """Open the picker and ADD what comes back.
 
@@ -539,7 +519,6 @@ class DatabaseSetWidget(QWidget):
         self._rebuild()
         self.value_changed.emit()
 
-    # -- internals ---------------------------------------------------------
     @staticmethod
     def _clean(value) -> List[str]:
         """Normalise a stored value into a list of source paths.
@@ -555,9 +534,6 @@ class DatabaseSetWidget(QWidget):
             return []
         if isinstance(value, str):
             text = value.strip()
-            # 'path' is what spacr.settings ships as the "not chosen yet"
-            # placeholder for src. Rendering it as a chip would offer to merge
-            # a database called path.
             return [] if text in ("", "path", "/path", "/path/to/src") else [text]
         out: List[str] = []
         for item in value:
@@ -633,9 +609,6 @@ class DatabaseSetWidget(QWidget):
             self.summary.setText("")
             return
         if self._reading:
-            # Coalesced, not queued -- and the token goes up so that the
-            # answer already in flight, which is about a different set of
-            # files, is discarded rather than painted for a moment.
             self._summary_token += 1
             self._read_again = True
             return
@@ -650,12 +623,6 @@ class DatabaseSetWidget(QWidget):
             partial(_read_the_merge, tuple(paths), self._table),
             partial(self._summary_arrived, token))
         if not started and self._summary_token == token:
-            # Nothing is in flight, so the flag must not say there is. An
-            # unthreaded runner answers False when the read itself raised,
-            # having already reported it through `job_failed` -- and through
-            # `_read_settled`, which may by then have run the coalesced read
-            # this one was holding up. The token says whether that happened:
-            # clearing the flag unconditionally would abandon THAT read.
             self._reading = False
 
     def _read_failed(self, message: str) -> None:
@@ -690,7 +657,7 @@ class DatabaseSetWidget(QWidget):
                     f"could not read {self._reading_count} database(s) as "
                     f"'{self._table}': {detail}")
         except RuntimeError:
-            return          # the widget's C++ half went with the read
+            return
         finally:
             self._last_read_error = ""
         if again:
@@ -710,10 +677,6 @@ class DatabaseSetWidget(QWidget):
                     self.summary.setText(self._summary_text(payload))
                 elif kind == "missing":
                     missing, total = payload
-                    # Named, not swallowed. In folder mode the user picked a
-                    # plate folder and the database is two levels below it, so
-                    # "nothing happened" would be indistinguishable from "that
-                    # plate was never measured".
                     self.summary.setText(
                         f"{len(missing)} of {total} sources have no "
                         f"measurements database yet: "
@@ -725,14 +688,8 @@ class DatabaseSetWidget(QWidget):
                         f"could not read {total} database(s) as "
                         f"'{self._table}': {message}")
         except RuntimeError:
-            # The widget's C++ half went while the read was in flight. There
-            # is nothing left to paint on, and raising here would surface as
-            # an unhandled exception inside the Qt event loop.
             alive = False
         finally:
-            # In a `finally`, because the coalesced read is the set the user
-            # is actually looking at. Losing it to a bad answer for the
-            # PREVIOUS set would freeze the summary on the placeholder.
             if alive and again:
                 self._refresh_summary()
 

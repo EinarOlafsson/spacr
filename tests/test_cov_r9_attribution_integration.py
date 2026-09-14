@@ -25,10 +25,10 @@ class _TinyCNN(torch.nn.Module):
     """Small enough to attribute in milliseconds, real enough to have
     gradients that mean something."""
 
-    def __init__(self, classes: int = 2) -> None:
+    def __init__(self, classes: int = 2, channels: int = 1) -> None:
         super().__init__()
         self.features = torch.nn.Sequential(
-            torch.nn.Conv2d(1, 4, kernel_size=3, padding=1),
+            torch.nn.Conv2d(channels, 4, kernel_size=3, padding=1),
             torch.nn.ReLU(),
             torch.nn.Conv2d(4, 8, kernel_size=3, padding=1),
             torch.nn.ReLU(),
@@ -328,5 +328,45 @@ class TestTheSaliencyGenerator:
         assert "else:\n        cam_generator = SaliencyMapGenerator(model)" in source
         assert "else:\n            activation_maps, predicted_classes = " \
                "cam_generator.compute_saliency_and_predictions(inputs)" in source
-        assert "else:\n                # Handle each channel separately and save as RGB" \
-            in source
+        assert "else:\n                rgb_activation_map = np.zeros(" in source, (
+            "the third tail no longer assembles a per-channel RGB map, so a "
+            "saliency_channel run drops into the greyscale path above it")
+        assert "for c in range(min(activation_map.shape[0], 3)):" in source, (
+            "the tail no longer walks the channels one at a time")
+        assert "Image.fromarray(rgb_activation_map, mode='RGB')" in source, (
+            "the per-channel map is no longer saved as RGB")
+
+    def test_a_channel_map_is_one_plane_per_channel_and_never_greyscale(self):
+        """Why that third tail exists, driven rather than described.
+
+        ``saliency_channel`` keeps ONE MAP PER INPUT CHANNEL. Handing
+        that to the greyscale path above it is not a stylistic loss --
+        PIL refuses it outright -- and the planes differ, so collapsing
+        them throws away the one thing a channel map is asked for.
+        """
+        from PIL import Image
+
+        from spacr.utils import SaliencyMapGenerator
+
+        torch.manual_seed(0)
+        model = _TinyCNN(channels=3).eval()
+
+        image = torch.zeros((1, 3, 16, 16))
+        image[0, 0, 4:12, 4:12] = 0.9      # a square only channel 0 shows
+        image[0, 1, :, 6:10] = 0.6         # a stripe only channel 1 shows
+        image[0, 2] = 0.1                  # a flat channel
+
+        maps, _predicted = SaliencyMapGenerator(
+            model).compute_saliency_and_predictions(image)
+        activation_map = maps[0].detach().cpu().numpy()
+
+        assert activation_map.shape[0] == 3, (
+            f"the channel saliency came back with {activation_map.shape[0]} "
+            f"plane(s) for a 3-channel input, so there is nothing "
+            f"per-channel left for the RGB tail to lay out")
+        assert not np.allclose(activation_map[0], activation_map[1]), (
+            "every channel carries the same map, so the per-channel branch "
+            "would be three copies of one picture")
+
+        with pytest.raises(ValueError):
+            Image.fromarray((activation_map * 255).astype(np.uint8), mode='L')

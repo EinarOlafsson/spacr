@@ -58,17 +58,11 @@ class CurateScreen(QWidget):
         self._mask_path = ""
         self.brush: Optional[BrushPanel] = None
         self._build()
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "curate")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction --------------------------------------------------------
     def _build(self) -> None:
         """Lay out the mask and track source rows, the viewer and the tool tabs."""
         outer = QVBoxLayout(self)
@@ -145,7 +139,6 @@ class CurateScreen(QWidget):
         self.status.setWordWrap(True)
         outer.addWidget(self.status)
 
-    # -- the mask ------------------------------------------------------------
     def _choose_mask(self) -> None:
         """Ask for a label mask and open it."""
         path, _ = QFileDialog.getOpenFileName(
@@ -183,7 +176,6 @@ class CurateScreen(QWidget):
         self._brush_layout.insertWidget(0, self.brush)
         return self.brush
 
-    # -- the tracks ----------------------------------------------------------
     def _choose_tracks(self) -> None:
         """Ask for a tracks table and open it."""
         path, _ = QFileDialog.getOpenFileName(
@@ -233,9 +225,6 @@ class CurateScreen(QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Registration
-# ---------------------------------------------------------------------------
 
 APP_NAME = "Curate"
 APP_DESCRIPTION = (
@@ -271,14 +260,6 @@ def register(*, section: Optional[str] = None, stage: Optional[str] = None,
     if any(row[0] == key for row in APPS):
         return None
     return register_app(
-        # TOOLS, not Core. Curate fixes a mask by hand; Core is the pipeline
-        # you run, and a section that lists everything sorts nothing.
-        #
-        # It asked for SECTION_MODELS until 2026-09-03, which is still
-        # DEFINED and still described but was dropped from SECTION_ORDER when
-        # Home was restructured to Core / Data / Tools / Assays. So every
-        # call to this function raised "app 'curate' has unknown section
-        # 'Segmentation models'" and the screen could not register at all.
         key, APP_NAME, APP_DESCRIPTION, section or SECTION_TOOLS,
         factory=make_curate_screen,
         stage=STAGE_ALPHA if stage is None else stage,

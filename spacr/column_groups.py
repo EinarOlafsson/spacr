@@ -65,8 +65,6 @@ def classify(columns: Iterable[str]) -> Dict[str, Dict[str, List[str]]]:
             continue
         family = str(getattr(entry, "family", "unknown") or "unknown")
         if family in NON_FEATURE_FAMILIES:
-            # Not offered, and not silently deleted either: `meta` columns
-            # are still in the table and still selectable one by one.
             continue
         object_type = getattr(entry, "object_type", None)
         if object_type:

@@ -220,9 +220,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# The optional dependency
-# ---------------------------------------------------------------------------
 
 #: The ``setup.py`` extra that provides :mod:`anndata`.
 ANNDATA_EXTRA = "anndata"
@@ -280,9 +277,6 @@ def require_anndata():
     return anndata
 
 
-# ---------------------------------------------------------------------------
-# Vocabulary
-# ---------------------------------------------------------------------------
 
 #: The artifact kind an exported ``.h5ad`` registers under.
 #: :data:`spacr.ports.ALL_KINDS` is documented as the built-in vocabulary
@@ -339,9 +333,6 @@ _NON_FEATURE_NUMERIC = frozenset({"cluster"})
 _RESERVED_OBS = ("n_missing_features",)
 
 
-# ---------------------------------------------------------------------------
-# Result record
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class ExportResult:
@@ -472,9 +463,6 @@ class ExportResult:
         return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Reading
-# ---------------------------------------------------------------------------
 
 def _available_tables(db_path: Union[str, os.PathLike]) -> Tuple[str, ...]:
     """Return the tables present in ``db_path``, in ``sqlite_master`` order.
@@ -523,11 +511,6 @@ def _read_frame(db_path: str, tables: Sequence[str],
             frame = pd.read_sql(f'SELECT * FROM "{single_table}"', connection)
         finally:
             connection.close()
-        # The frame does not know which table it is; this function does, and
-        # `obs_names` is built from it. Without the stamp a per-table export
-        # of `nucleus` and one of `pathogen` index the same object two ways
-        # when the labels overlap -- and they always overlap, because each
-        # mask is labelled from 1 independently.
         return with_object_type(frame, single_table), (single_table,)
 
     wanted = [t for t in tables if t in present]
@@ -542,15 +525,8 @@ def _read_frame(db_path: str, tables: Sequence[str],
             f"{sorted(t for t in wanted if t in schema.OBJECT_TABLES)} "
             f"on its own.")
 
-    # Imported here, not at module scope: spacr.io pulls torch and cellpose,
-    # and this module must stay importable on a machine that cannot segment.
     from ..io import _read_and_join_tables
 
-    # `drop_redundant_identity=False` is documented to KEEP the join's
-    # suffixed identity copies. The reader now collapses agreeing duplicates
-    # by default (instruction 79), which would have made that option a no-op
-    # -- the columns were gone before this module ever saw them. Passed
-    # through so the documented choice is the one that happens.
     frame = _read_and_join_tables(
         db_path, list(wanted),
         collapse_duplicate_identity=collapse_duplicate_identity)
@@ -558,8 +534,6 @@ def _read_frame(db_path: str, tables: Sequence[str],
         raise ValueError(
             f"could not join {wanted} from {db_path}; the join returned "
             f"nothing. Run `spacr doctor --db {db_path}` for the diagnosis.")
-    # One row per CELL -- the join is anchored there and the children arrive
-    # as columns, not rows -- so that is the type of every observation.
     return with_object_type(frame, "cell"), tuple(wanted)
 
 
@@ -627,17 +601,8 @@ def _attach_png_labels(frame: pd.DataFrame, db_path: str, anchor: str,
     png[schema.OBJECT_LABEL_KEY] = labels.loc[png.index].astype("int64")
 
     try:
-        # `id_column` is the anchor's own id column, so these crops are
-        # anchor-typed. Both sides of the reindex below have to be keyed the
-        # same way or every attached label lands as NaN -- which is silent,
-        # and costs exactly the annotation columns this function exists for.
         keys = object_keys(png, timelapse=timelapse, object_type=anchor)
     except FilterError:
-        # A timelapse database whose png_list still spells the timepoint
-        # `time_id` (see spacr.schema.TIME_COLUMN_ALIASES) cannot be keyed
-        # against a `timeID` object table without guessing which frame a
-        # crop belongs to. Attaching nothing loses the labels; attaching the
-        # wrong frame's label loses the experiment.
         return frame, []
     subset = png[extra].copy()
     subset.index = pd.Index(keys)
@@ -674,9 +639,6 @@ def _measurement_units(frame: pd.DataFrame) -> Optional[str]:
     return str(values[0])
 
 
-# ---------------------------------------------------------------------------
-# The X / obs boundary
-# ---------------------------------------------------------------------------
 
 def _label_columns(frame: pd.DataFrame,
                    db_path: Optional[str]) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:
@@ -705,9 +667,6 @@ def _label_columns(frame: pd.DataFrame,
         try:
             guessed = annotation_columns(db_path, table=PNG_TABLE)
         except Exception:
-            # A database with no png_list, or an unreadable one. The export
-            # is still correct without the annotation hint; losing the whole
-            # export over a missing optional table would not be.
             guessed = []
         annotations = tuple(c for c in columns
                             if c in set(guessed) and c not in predictions)
@@ -889,9 +848,6 @@ def _build_obs(frame: pd.DataFrame, features: Sequence[str],
             mapping.get(str(value), CONDITION_FALLBACK)
             for value in frame[condition_column]]
 
-    # Low-cardinality text is stored categorical: it is what scanpy's
-    # groupby/plotting expects, and on a million-object export it is the
-    # difference between a 40 MB obs and a 4 MB one.
     categorical = list(OBJECT_KEY_COLUMNS[:-1]) + [
         schema.PRC_KEY, schema.PRCF_KEY, "condition", "cluster",
         "measurement_units", *annotations, *predictions]
@@ -903,9 +859,6 @@ def _build_obs(frame: pd.DataFrame, features: Sequence[str],
     return obs
 
 
-# ---------------------------------------------------------------------------
-# NaN handling
-# ---------------------------------------------------------------------------
 
 def _apply_nan_policy(matrix: np.ndarray, features: List[str],
                       policy: str) -> Tuple[np.ndarray, List[str], np.ndarray,
@@ -931,11 +884,6 @@ def _apply_nan_policy(matrix: np.ndarray, features: List[str],
     report: Dict[str, Any] = {
         "policy": policy,
         "n_missing": int(missing.sum()),
-        # The shape `n_missing` was counted over. Every count in this report
-        # is measured on the matrix as the policy received it, so the shape
-        # of that matrix has to be recorded with them: divide `n_missing` by
-        # the *written* shape instead and a dropping policy reports more than
-        # 100% missing.
         "n_objects_counted": int(matrix.shape[0]),
         "n_features_counted": int(matrix.shape[1]),
         "n_features_with_missing": int((missing.any(axis=0)).sum()),
@@ -964,17 +912,12 @@ def _apply_nan_policy(matrix: np.ndarray, features: List[str],
         report["worst_features"] = _worst_features(missing, features)
         return matrix[keep_rows], list(features), keep_rows, mask, report
 
-    # The two imputing policies. The mask is what keeps an imputed matrix
-    # distinguishable from a measured one.
     mask = missing
     report["imputed"] = True
     if policy == NAN_ZERO:
         matrix = np.where(missing, 0.0, matrix)
-    else:                                              # NAN_MEAN
+    else:
         with warnings.catch_warnings():
-            # An all-NaN column has no mean; numpy says so and returns NaN,
-            # which is then filled with 0.0 below. The warning is expected
-            # here and would be noise on every export of a sparse feature.
             warnings.simplefilter("ignore", category=RuntimeWarning)
             means = np.nanmean(matrix, axis=0)
         means = np.where(np.isfinite(means), means, 0.0)
@@ -999,9 +942,6 @@ def _worst_features(missing: np.ndarray, features: Sequence[str],
             if counts[i] > 0]
 
 
-# ---------------------------------------------------------------------------
-# Embeddings
-# ---------------------------------------------------------------------------
 
 def _obsm_name(name: str) -> str:
     """Normalise an embedding name to the scanpy ``X_*`` convention."""
@@ -1034,10 +974,6 @@ def _align_embedding(values: Any, keys: pd.Index,
                 f"numeric coordinate columns to go with them.")
         indexed = values.set_index(
             object_keys(values, timelapse=timelapse))[coordinate_columns]
-        # An embedding computed before object types existed, or by a caller
-        # that did not state one, keys its rows untyped. It still names the
-        # same objects, so it is resolved by dropping the type rather than
-        # reported as a population mismatch.
         wanted = [k if k in indexed.index else untyped_object_key(k)
                   for k in keys]
         missing = [k for k in wanted if k not in indexed.index]
@@ -1100,9 +1036,6 @@ def _compute_umap(matrix: np.ndarray, features: Sequence[str],
     return np.asarray(embedding, dtype=np.float32)
 
 
-# ---------------------------------------------------------------------------
-# uns
-# ---------------------------------------------------------------------------
 
 def _h5ad_safe(value: Any) -> Any:
     """Coerce ``value`` into something ``h5ad`` can store.
@@ -1192,9 +1125,6 @@ def _relationships(tables: Sequence[str], anchor: str,
     return record
 
 
-# ---------------------------------------------------------------------------
-# The build
-# ---------------------------------------------------------------------------
 
 def build_anndata(db_path: Union[str, os.PathLike],
                   *,
@@ -1281,10 +1211,6 @@ def build_anndata(db_path: Union[str, os.PathLike],
     anndata = require_anndata()
     db_path = os.path.abspath(os.path.expanduser(os.fspath(db_path)))
 
-    # `drop_redundant_identity=False` is documented to KEEP the join's
-    # suffixed identity copies. The reader collapses agreeing duplicates by
-    # default now (instruction 79), which would have made that option a
-    # no-op -- the columns were gone before this module saw them.
     frame, read_tables = _read_frame(
         db_path, tables, single_table,
         collapse_duplicate_identity=drop_redundant_identity)
@@ -1293,9 +1219,6 @@ def build_anndata(db_path: Union[str, os.PathLike],
     anchor = "cell" if joined else str(single_table)
     notes: List[str] = []
 
-    # Before filtering, so a filter may name an annotation column: "export
-    # the cells I called infected" is one of the two things this feature is
-    # for, and it cannot work if the label arrives after the mask.
     if attach_labels and "png_list" in _available_tables(db_path):
         frame, attached = _attach_png_labels(
             frame, db_path, anchor, timelapse=timelapse)
@@ -1366,11 +1289,6 @@ def build_anndata(db_path: Union[str, os.PathLike],
         frame = frame.loc[keep_rows].reset_index(drop=True)
     if nan_report["dropped_features"]:
         var = var.loc[features]
-    # `var` was built from the frame, i.e. before the policy ran. Keep those
-    # counts under `n_missing_raw` -- for an imputing policy they are the
-    # only remaining record that a value was invented -- and let `n_missing`
-    # describe the matrix that was actually written, which is what a reader
-    # inspecting `var` is asking about.
     var = var.copy()
     var["n_missing_raw"] = var["n_missing"].to_numpy()
     var["frac_missing_raw"] = var["frac_missing"].to_numpy()
@@ -1401,7 +1319,6 @@ def build_anndata(db_path: Union[str, os.PathLike],
     elif missing_layer:
         adata.layers["missing"] = np.isnan(np.asarray(matrix, dtype=float))
 
-    # ---- obsm -----------------------------------------------------------
     keys = pd.Index(adata.obs_names)
     obsm_notes: Dict[str, Any] = {}
     for name, values in dict(embeddings or {}).items():
@@ -1423,7 +1340,6 @@ def build_anndata(db_path: Union[str, os.PathLike],
                                  "X itself is untouched"),
             }
 
-    # ---- uns ------------------------------------------------------------
     from ..artifacts import material_settings, settings_hash
     from ..version import get_version
 
@@ -1448,11 +1364,6 @@ def build_anndata(db_path: Union[str, os.PathLike],
         "prediction_columns": list(predictions),
         "relationships": _relationships(read_tables, anchor, joined),
         "notes": list(notes),
-        # NOT an artifact id. The id is a hash *of this file's bytes* (see
-        # spacr.artifacts._artifact_id), so writing it inside the file would
-        # change the bytes it was computed from. What is stored instead is
-        # everything needed to look the record up, which is what somebody
-        # holding an orphaned .h5ad actually needs.
         "artifact": {
             "module": APP_KEY,
             "kind": ANNDATA_KIND,
@@ -1537,9 +1448,6 @@ def _run_id_from_db(db_path: str) -> str:
     return ""
 
 
-# ---------------------------------------------------------------------------
-# Writing
-# ---------------------------------------------------------------------------
 
 def export_anndata(db_path: Union[str, os.PathLike],
                    out_path: Union[str, os.PathLike],
@@ -1574,9 +1482,6 @@ def export_anndata(db_path: Union[str, os.PathLike],
     out_path = os.path.abspath(os.path.expanduser(os.fspath(out_path)))
     adata, result = build_anndata(db_path, settings=settings, **kwargs)
 
-    # `out_path` was made absolute just above, so its dirname is never
-    # empty -- at worst it is "/" -- and there is no falsy case for a guard
-    # to catch. `exist_ok` covers the directory already being there.
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
     adata.write_h5ad(out_path, compression=compression)
@@ -1586,9 +1491,6 @@ def export_anndata(db_path: Union[str, os.PathLike],
         artifact_id = _register(out_path, db_path, project, settings,
                                 result, adata)
 
-    # `replace` rather than a field-by-field copy: the copy silently dropped
-    # whichever field was added to ExportResult last, and a count that
-    # arrives as its default is indistinguishable from a real zero.
     return _dataclass_replace(result, path=out_path, artifact_id=artifact_id)
 
 
@@ -1725,9 +1627,6 @@ def _stamp_parent_file(child_path: str, parent_path: str,
             RuntimeWarning, stacklevel=2)
 
 
-# ---------------------------------------------------------------------------
-# Registration seams
-# ---------------------------------------------------------------------------
 
 def anndata_export_settings(settings: Optional[Mapping[str, Any]] = None
                             ) -> Dict[str, Any]:
@@ -1828,9 +1727,6 @@ def run_anndata_export(settings: Optional[Mapping[str, Any]] = None
 
     tables = resolved.get("anndata_tables") or list(DEFAULT_TABLES)
     if isinstance(tables, str):
-        # A settings.csv round trip spells a list as one comma-separated
-        # cell; taking it apart here means `--set anndata_tables=cell,nucleus`
-        # works and does not silently export a table called "cell,nucleus".
         tables = [part.strip() for part in tables.split(",") if part.strip()]
 
     row_limit = int(resolved.get("anndata_row_limit") or 0)
@@ -1937,23 +1833,4 @@ def register_anndata_settings(replace: bool = False) -> bool:
     return True
 
 
-# THE QT ROW IS GONE, AND THAT IS THE FOLD.
-#
-# This module used to register a sidebar tile of its own through
-# `spacr.qt.app.register_app`, with the nine translations of its name,
-# `entry=`, `defaults_module=` and `api_module=` riding along on the same
-# call. An export is the sentence after "measure this plate" rather than a
-# destination, so it is now a button on the Measure masthead
-# (`spacr.qt.screens.measure`) and opens as a page beside the measure
-# settings -- the same generic settings form, drawn from the defaults
-# registered above, with the same Run button running `run_anndata_export`.
-#
-# Nothing the row carried was dropped with it, only moved to a table that
-# outlives the tile: the Run button's entry point to
-# `spacr.qt.bridge.resolve_pipeline_entry`, the defaults module to
-# `settings_model._FOLDED_DEFAULTS_MODULES`, the API link to
-# `settings_model._APP_API_MODULE`, the header and blurb to
-# `app_screen.APP_TITLES` / `APP_INTROS`, and the translated name to
-# `spacr.qt.i18n`. `spacr-run anndata_export` never went through the row
-# at all and is untouched.
 register_anndata_settings()

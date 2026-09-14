@@ -143,10 +143,6 @@ class BatchScreen(QWidget):
         self.last_error: str = ""
         self.settled_thread: Optional[QThread] = None
 
-        # This signal is emitted by ``run_queue`` on its worker thread. Auto
-        # connections between two signals owned by the same QWidget can be
-        # treated as direct by PySide6 even when ``emit`` occurs elsewhere, so
-        # spell out the GUI-thread hop.
         self._progress_relayed.connect(
             self._on_progress, Qt.QueuedConnection)
 
@@ -159,21 +155,13 @@ class BatchScreen(QWidget):
         self._set_status("Add a job: pick a module and the settings file you "
                          "would run it with.")
 
-        # Elapsed time for the running job. Cheap, and only ever touches one
-        # cell, so it does not churn the table or the selection.
         self._tick = QTimer(self)
         self._tick.setInterval(1000)
         self._tick.timeout.connect(self._refresh_running_row)
         self._tick.start()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # ------------------------------------------------------------------
-    # construction
-    # ------------------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out the job editor, the queue toolbar, the run controls and the panes."""
@@ -200,7 +188,6 @@ class BatchScreen(QWidget):
 
         outer.addWidget(Divider())
 
-        # ── Job editor ────────────────────────────────────────────────
         edit = QHBoxLayout()
         edit.setSpacing(SPACING["sm"])
         edit.addWidget(QLabel("Module", self))
@@ -242,7 +229,6 @@ class BatchScreen(QWidget):
         edit2.addWidget(self._btn_add)
         outer.addLayout(edit2)
 
-        # ── Queue toolbar ─────────────────────────────────────────────
         bar = QHBoxLayout()
         bar.setSpacing(SPACING["sm"])
         self._btn_dup = QPushButton("Duplicate", self)
@@ -268,7 +254,6 @@ class BatchScreen(QWidget):
         bar.addStretch(1)
         outer.addLayout(bar)
 
-        # ── Run controls ──────────────────────────────────────────────
         run_row = QHBoxLayout()
         run_row.setSpacing(SPACING["sm"])
         run_row.addWidget(QLabel("On failure", self))
@@ -301,7 +286,6 @@ class BatchScreen(QWidget):
         self._progress.setFormat("%v / %m jobs")
         outer.addWidget(self._progress)
 
-        # ── Table + panes ─────────────────────────────────────────────
         split = QSplitter(Qt.Vertical, self)
 
         self._table = QTableWidget(self)
@@ -345,9 +329,6 @@ class BatchScreen(QWidget):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
-    # ------------------------------------------------------------------
-    # queue editing
-    # ------------------------------------------------------------------
 
     def queue(self) -> bt.Queue:
         """The live :class:`spacr.batch.Queue` this screen is editing."""
@@ -448,9 +429,6 @@ class BatchScreen(QWidget):
         self._set_status(message)
         self.validate_now(quiet=True)
 
-    # ------------------------------------------------------------------
-    # validation
-    # ------------------------------------------------------------------
 
     def validate_now(self, quiet: bool = False) -> List[bt.Problem]:
         """Validate the whole queue and show every problem inline at once.
@@ -485,9 +463,6 @@ class BatchScreen(QWidget):
         """True when the last validation found something that blocks the run."""
         return any(p.is_error for p in self._problems)
 
-    # ------------------------------------------------------------------
-    # the queue file
-    # ------------------------------------------------------------------
 
     def save_queue_to(self, path: str) -> bool:
         """Write the queue to ``path`` atomically. Errors land inline."""
@@ -522,9 +497,6 @@ class BatchScreen(QWidget):
         """The queue file this screen saves to and resumes from, or ``''``."""
         return self._path
 
-    # ------------------------------------------------------------------
-    # running
-    # ------------------------------------------------------------------
 
     def set_runner(self, runner: Optional[Callable[[Any, str, str], int]]) -> None:
         """Replace the per-job runner. None restores the subprocess default."""
@@ -591,9 +563,6 @@ class BatchScreen(QWidget):
             return ok
 
         thread, worker = make_thread(_job, box)
-        # Strong references: PySide6 will not keep the worker alive through the
-        # started→run connection alone, and a QThread garbage-collected while
-        # still running takes the whole process down with it.
         self._jobs.append((thread, worker))
         self._thread, self._worker = thread, worker
         self._pending.append(box)
@@ -619,7 +588,6 @@ class BatchScreen(QWidget):
                          "would leave a half-written result.")
         return True
 
-    # -- progress, on the worker thread ---------------------------------
 
     def _relay_progress(self, progress: "bt.Progress") -> None:
         """Relay a queue progress event onto the widget's owning thread.
@@ -653,14 +621,10 @@ class BatchScreen(QWidget):
                                                        bt.STATUS_SKIPPED))
         if progress.event == "job_started" and progress.job_id:
             self.select_job(progress.job_id)
-        # Keep the log pane live: the selected job's file is being written
-        # right now, and a pane that only updates on selection would show the
-        # previous job's output for the next seven hours.
         selected = self.selected_job()
         if selected is not None:
             self._load_log(selected)
 
-    # -- completion, back on the GUI thread ------------------------------
 
     def _on_queue_settled(self, ok: bool) -> None:
         """Finish the run. Always on the GUI thread — see the module docstring."""
@@ -734,9 +698,6 @@ class BatchScreen(QWidget):
         self._busy = False
         self._set_status(f"The queue runner failed: {line}", error=True)
 
-    # ------------------------------------------------------------------
-    # table
-    # ------------------------------------------------------------------
 
     def selected_job(self) -> Optional[bt.Job]:
         """The :class:`spacr.batch.Job` for the selected row, or None.
@@ -815,8 +776,6 @@ class BatchScreen(QWidget):
                 os.path.basename(job.log_path),
             )
             for col, text in enumerate(cells):
-                # A duration reads as "2m 05s" and sorts on the seconds
-                # behind it, or "2m" would land under "9s".
                 key = (job.elapsed_s if col == COLUMNS.index("Time")
                        else None)
                 item = table_item(text, key=key)
@@ -831,8 +790,6 @@ class BatchScreen(QWidget):
                 if col in (COLUMNS.index("Label"), COLUMNS.index("Status")) and job.error:
                     item.setToolTip(job.error)
                 if col == 0:
-                    # The row's identity, so a sorted table still knows which
-                    # job the user picked.
                     item.setData(Qt.UserRole, job.id)
                 self._table.setItem(row, col, item)
 
@@ -884,9 +841,6 @@ class BatchScreen(QWidget):
                 handle.seek(-min(size, _LOG_TAIL_BYTES), os.SEEK_END)
                 raw = handle.read(_LOG_TAIL_BYTES)
                 text = raw.decode("utf-8", errors="replace")
-                # Match text mode's universal-newline decoding. In particular,
-                # QPlainTextEdit returns LF, so an unchanged Windows log must
-                # not look different and reset the scroll position each tick.
                 text = text.replace("\r\n", "\n").replace("\r", "\n")
         except OSError as exc:
             text = f"(could not read {job.log_path}: {exc})"
@@ -899,9 +853,6 @@ class BatchScreen(QWidget):
         """The log pane (test/introspection helper)."""
         return self._log_view.toPlainText()
 
-    # ------------------------------------------------------------------
-    # small helpers
-    # ------------------------------------------------------------------
 
     def _on_add_clicked(self) -> None:
         """Add a job from the editor fields."""

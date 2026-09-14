@@ -69,10 +69,6 @@ class Flash:
         QTimer.singleShot(self._duration, self._end)
 
     def _end(self) -> None:
-        # The widget may have been destroyed between the trigger and the
-        # timeout -- a screen torn down mid-flash is ordinary, not an error.
-        # shiboken raises RuntimeError on a deleted C++ object, and there is
-        # nothing to repaint by then either way.
         """Clear the highlight and repaint, if the widget still exists.
 
         A screen torn down mid-flash is ordinary rather than an error: shiboken

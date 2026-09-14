@@ -107,9 +107,6 @@ def minimum_width_for(font_scale: float, policy: Optional[dict] = None
     at_or_above = [s for s in measured if s >= wanted]
     if at_or_above:
         return measured[min(at_or_above)]
-    # Above every measured scale: the largest requirement there is, which
-    # is the honest extrapolation -- it is a floor, and a floor from the
-    # widest thing measured is better than one invented above it.
     return measured[max(measured)]
 
 

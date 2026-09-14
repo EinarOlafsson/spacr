@@ -25,11 +25,6 @@ from typing import Dict, List
 #: ``None`` is admissible for every path-like and every "work it out" default,
 #: which is why those carry a tuple including ``type(None)``.
 OPS_TYPES: Dict[str, object] = {
-    # -- where the data is -------------------------------------------------
-    # `src` IS NOT HERE ON PURPOSE. It is already declared as (str, list) by
-    # another module, and `register_defaults` refuses a redeclaration --
-    # rightly, because two modules disagreeing about what a shared key may
-    # hold is a bug, not a preference. OPS uses the shared meaning.
     "dst_root": (str, type(None)),
     "genotype_source": (str, type(None)),
     "phenotype_source": (str, type(None)),
@@ -41,7 +36,6 @@ OPS_TYPES: Dict[str, object] = {
     "collision": str,
     "dry_run": bool,
     "do_organize": bool,
-    # -- how a filename is read -------------------------------------------
     "meta_regex": str,
     "well_group": str,
     "arr_axes": str,
@@ -51,7 +45,6 @@ OPS_TYPES: Dict[str, object] = {
     "mip": bool,
     "channel_index": int,
     "channel_indices": (list, tuple, type(None)),
-    # -- finding the overlap ----------------------------------------------
     "detector": str,
     "nfeatures": int,
     "max_keypoints": int,
@@ -63,7 +56,6 @@ OPS_TYPES: Dict[str, object] = {
     "pair_batch_size": int,
     "score_threshold": float,
     "all_scores": bool,
-    # -- building the mosaic ----------------------------------------------
     "stitch": bool,
     "mosaic": bool,
     "write_mosaic": bool,
@@ -76,7 +68,6 @@ OPS_TYPES: Dict[str, object] = {
     "out_png": (str, type(None)),
     "preview_downsample": int,
     "save_stitched_default": bool,
-    # -- placing the phenotype images -------------------------------------
     "relative_scale": float,
     "do_nuc_stitch": bool,
     "cellpose_model": str,
@@ -85,7 +76,6 @@ OPS_TYPES: Dict[str, object] = {
     "canny": (tuple, list),
     "blur_sigma": float,
     "dilate_ksize": int,
-    # -- what it draws for you to check -----------------------------------
     "save_qc": bool,
     "outline_alpha": float,
     "line_thickness": int,
@@ -93,11 +83,6 @@ OPS_TYPES: Dict[str, object] = {
     "n_workers": int,
     "n_workers_features": (int, type(None)),
     "opencv_threads": int,
-    # `ops_gpu` and not `gpu`: `gpu` is already declared by Image UMAP,
-    # where it means "use the RAPIDS cuML reducer". Two modules
-    # disagreeing about what one key means is the bug
-    # `register_defaults` refuses `src` to prevent, and a prefix costs
-    # nothing.
     "ops_gpu": bool,
     "max_ram_features": int,
     "feature_cache_mode": str,

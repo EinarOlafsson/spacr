@@ -184,9 +184,6 @@ PAGE_SIZE_RANGE = (25, 1000)
 AUTOSIZE_MAX_COLUMNS = 60
 
 
-# ---------------------------------------------------------------------------
-# Path resolution
-# ---------------------------------------------------------------------------
 
 def resolve_db_path(path: str) -> str:
     """Return the absolute path of the sqlite file ``path`` refers to.
@@ -223,15 +220,9 @@ def resolve_db_path(path: str) -> str:
 
 def _read_only_uri(path: str) -> str:
     """Return the ``file:…?mode=ro`` URI SQLite needs for a read-only open."""
-    # Percent-escape everything a URI would otherwise treat as syntax
-    # ('?', '#', '%') while leaving path separators and the Windows drive
-    # colon alone.
     return "file:" + _urlquote(str(path).replace("\\", "/"), safe="/:") + "?mode=ro"
 
 
-# ---------------------------------------------------------------------------
-# SQL construction — identifiers validated, values always bound
-# ---------------------------------------------------------------------------
 
 def quote_ident(name: str) -> str:
     """Double-quote a SQL identifier, escaping embedded quotes.
@@ -317,10 +308,6 @@ def build_where(column: str, op: str, value: Any,
     return sql, (transform(value) if transform else value,)
 
 
-# Statements that have no business inside a WHERE clause. The browsing
-# connection is read-only anyway, so this is a second line of defence —
-# it mostly stops a user pasting a whole script into the predicate box
-# and being confused by the error.
 _FORBIDDEN_RAW = re.compile(
     r"(?:^|[^A-Za-z_])"
     r"(insert|update|delete|drop|alter|create|replace|attach|detach|"
@@ -359,9 +346,6 @@ def validate_raw_predicate(text: str) -> str:
     return t
 
 
-# ---------------------------------------------------------------------------
-# Editing: types, coercion, and the one statement we are willing to run
-# ---------------------------------------------------------------------------
 
 class EditRefused(Exception):
     """An edit was rejected *before* anything was written.
@@ -446,8 +430,6 @@ def coerce_for_column(text: Any, decl_type: Optional[str],
             f"{s!r} is not a number, and {column!r} is declared {label}.")
     if affinity == "TEXT":
         return s
-    # NUMERIC, or a column with no declared type: mirror SQLite's own
-    # behaviour — store a number when it is one, text otherwise.
     if _INT_RE.match(stripped):
         return int(stripped)
     if _FLOAT_RE.match(stripped):
@@ -481,9 +463,6 @@ def build_update(table: str, column: str,
             f"WHERE {where}")
 
 
-# ---------------------------------------------------------------------------
-# Read-only sqlite access
-# ---------------------------------------------------------------------------
 
 class ReadOnlyDb:
     """A read-only handle on a sqlite database.
@@ -509,12 +488,9 @@ class ReadOnlyDb:
         self._tables: Optional[List[str]] = None
         self._row_keys: Dict[str, Tuple[str, List[str]]] = {}
         self._types: Dict[str, Dict[str, str]] = {}
-        # Probe now so "that file isn't a database" surfaces at open time
-        # rather than three clicks later.
         with self._con() as con:
             con.execute("SELECT name FROM sqlite_master LIMIT 1").fetchall()
 
-    # -- connections -------------------------------------------------------
 
     def connect(self) -> sqlite3.Connection:
         """Return a fresh read-only connection. The caller closes it."""
@@ -546,7 +522,6 @@ class ReadOnlyDb:
         self.last_sql = sql
         return con.execute(sql, tuple(params))
 
-    # -- schema ------------------------------------------------------------
 
     def tables(self, refresh: bool = False) -> List[str]:
         """Return the user tables and views alphabetically.
@@ -584,7 +559,6 @@ class ReadOnlyDb:
         self.check_table(table)
         with self._con() as con:
             # PRAGMA takes no bound parameters; `table` is schema-validated
-            # above and quoted here.
             return self._execute(
                 con, f"PRAGMA table_info({quote_ident(table)})").fetchall()
 
@@ -646,11 +620,6 @@ class ReadOnlyDb:
         if table in self._row_keys:
             return self._row_keys[table]
         key: Tuple[str, List[str]]
-        # A view has no intrinsic row address. Probing ``SELECT _rowid_`` is
-        # not portable discovery: newer SQLite releases may accept that
-        # expression on a view and return NULL, which made CI arm editing for
-        # a result set that no UPDATE can address uniquely. Determine the
-        # schema object kind first; only a real table gets the rowid probe.
         self.check_table(table)
         with self._con() as con:
             object_row = self._execute(
@@ -662,14 +631,6 @@ class ReadOnlyDb:
             key = ("", [])
             self._row_keys[table] = key
             return key
-        # SQLite identifiers are case-insensitive, and a table that DECLARES a
-        # column named `rowid` makes the bare name resolve to that column
-        # rather than to the implicit row id. png_list declares `rowID`, so
-        # this probe used to SUCCEED there and hand back 'r1' -- after which
-        # editing one cell issued `UPDATE png_list SET c = ? WHERE rowid =
-        # 'r1'` and rewrote every crop in that plate row, and keyset paging
-        # ordered a TEXT column as if it were the row id. Ask for an alias the
-        # table does not shadow.
         from ...predictions import _rowid_alias
         alias = _rowid_alias([str(r[1]) for r in self.table_info(table)])
         try:
@@ -685,7 +646,6 @@ class ReadOnlyDb:
         self._row_keys[table] = key
         return key
 
-    # -- queries -----------------------------------------------------------
 
     def select_sql(self, table: str, columns: Sequence[str],
                    where: Optional[str] = None) -> str:
@@ -702,8 +662,6 @@ class ReadOnlyDb:
             sql += f" WHERE {where}"
         key_kind, key_cols = self.row_key(table)
         if key_kind == "rowid":
-            # key_cols[0], not the literal "rowid" -- png_list declares a
-            # rowID column that shadows the bare name.
             sql += f" ORDER BY {quote_ident(key_cols[0])}"
         return sql
 
@@ -803,10 +761,6 @@ class ReadOnlyDb:
         _kind, key_cols = self.row_key(table)
         use_offset = len(key_cols) != 1
         if order_by is not None:
-            # Validated against the table's real columns, not merely quoted:
-            # this string reaches an ORDER BY clause, and check_columns is
-            # the same gate every other column name in this class goes
-            # through.
             self.check_columns(table, [order_by[0]])
         sql = self.chunk_sql(table, cols, key_cols, where,
                              after=after is not None, use_offset=use_offset,
@@ -928,9 +882,6 @@ class ReadOnlyDb:
         return written
 
 
-# ---------------------------------------------------------------------------
-# Read-write sqlite access — the opt-in edit path, and nothing else
-# ---------------------------------------------------------------------------
 
 class WritableDb:
     """A read-write handle used only by an armed edit mode.
@@ -999,10 +950,6 @@ class WritableDb:
         self.last_sql = sql
         con = self.connect()
         try:
-            # Validation and update share one write transaction. This closes
-            # the former check-then-write window where another connection
-            # could remove or replace the addressed row between COUNT and
-            # UPDATE.
             with transaction(con):
                 real = con.execute(
                     "SELECT name FROM sqlite_master WHERE type = 'table' "
@@ -1017,8 +964,6 @@ class WritableDb:
                 if column not in known:
                     raise EditRefused(
                         f"{table!r} has no column {column!r}.")
-                # All three implicit row-id spellings are legal here, not just
-                # "rowid": row_key() returns one the table does not shadow.
                 implicit = {"rowid", "oid", "_rowid_"}
                 missing = [
                     key for key in key_columns
@@ -1047,9 +992,6 @@ class WritableDb:
         return sql
 
 
-# ---------------------------------------------------------------------------
-# Table model
-# ---------------------------------------------------------------------------
 
 def _capture_result(fn: Callable[[], Any], payload: Dict[str, Any]) -> None:
     """Run ``fn`` and leave its return value in ``payload``.
@@ -1107,7 +1049,6 @@ class PreviewModel(QAbstractTableModel):
         self._fetch_hook: Optional[Callable[[], Any]] = None
         self._commit_hook: Optional[Callable[[int, str, Any], bool]] = None
 
-    # -- data ---------------------------------------------------------------
 
     def set_page(self, columns: Sequence[str], rows: Sequence[Sequence[Any]],
                  row_offset: int = 0,
@@ -1235,7 +1176,6 @@ class PreviewModel(QAbstractTableModel):
             self._visible = [i for i, c in enumerate(self._columns)
                              if needle in str(c).lower()]
 
-    # -- incremental fetching -----------------------------------------------
 
     def set_fetch_hook(self, hook: Optional[Callable[[], Any]]) -> None:
         """Set what :meth:`fetchMore` calls to ask for the next chunk.
@@ -1267,7 +1207,6 @@ class PreviewModel(QAbstractTableModel):
             return
         self._fetch_hook()
 
-    # -- editing ------------------------------------------------------------
 
     def set_commit_hook(self,
                         hook: Optional[Callable[[int, str, Any], bool]]) -> None:
@@ -1300,7 +1239,6 @@ class PreviewModel(QAbstractTableModel):
         """
         return self._editable
 
-    # -- QAbstractTableModel ------------------------------------------------
 
     def rowCount(self, parent=QModelIndex()) -> int:  # noqa: N802, B008
         """Return loaded rows for the root model and zero for children.
@@ -1344,9 +1282,6 @@ class PreviewModel(QAbstractTableModel):
         if isinstance(value, bytes):
             return f"<{len(value)} bytes>"
         if role == Qt.EditRole:
-            # The editor must start from the *exact* stored value, or a
-            # cell the user opens and closes without touching would be
-            # written back rounded.
             return repr(value) if isinstance(value, float) else str(value)
         if isinstance(value, float):
             return f"{value:.6g}"
@@ -1408,9 +1343,6 @@ class PreviewModel(QAbstractTableModel):
         self.endResetModel()
 
 
-# ---------------------------------------------------------------------------
-# Screen
-# ---------------------------------------------------------------------------
 
 class DbBrowserScreen(LinkedView, QWidget):
     """Browser for a spaCR measurements database — read-only by default.
@@ -1464,12 +1396,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         :param parent: parent widget.
         """
         super().__init__(parent)
-        # ITS OWN REGISTRY KEY. `install_folds_on` dispatches on this, so
-        # without it the folds declared at the foot of this module could
-        # never be handed to the screen that declares them. Passing
-        # `app_key` to `ModuleHeader` is not the same thing -- that tells
-        # the HEADER which module it titles; this tells the SCREEN what it
-        # is.
         self.app_key = "db_browser"
         self._threaded = bool(threaded)
         self._db: Optional[ReadOnlyDb] = None
@@ -1479,11 +1405,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._params: tuple = ()
         self._filter_label: str = ""
 
-        # -- incremental load state ---------------------------------------
-        # Every load carries a token. A result whose token is stale (the
-        # user switched table or database while it was in flight) is
-        # dropped instead of painted — that race is the reason async
-        # loading can otherwise feel *worse* than synchronous loading.
         self._token: int = 0
         #: ``(column, descending)`` while a header sort is active, else None.
         #: The sort happens in SQL over the WHOLE table, so it is correct
@@ -1501,35 +1422,19 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._estimate: Optional[int] = None
         self.auto_count: bool = True
 
-        # -- job state -----------------------------------------------------
         self._export_busy: bool = False
         self._load_jobs: int = 0
         self._chunk_jobs: int = 0
-        # job id -> (QThread, PipelineWorker) for every job that has been
-        # started and whose event loop has not yet exited. This is an
-        # ownership table, not a convenience: PySide6 destroys the C++
-        # QThread as soon as the last Python reference goes, and
-        # destroying a *running* QThread aborts the process. A single
-        # `self._thread` slot is not enough, because `worker.finished`
-        # (which lets the next job start) fires strictly before
-        # `thread.finished` (which retires the old one) — so two jobs
-        # legitimately overlap for a moment.
         self._jobs: Dict[int, tuple] = {}
-        self._thread = None     # most recent thread, for introspection
+        self._thread = None
         self._worker = None
-        # job id -> (result box, completion callback, kind). Keyed by id
-        # rather than FIFO because loads legitimately overlap: a chunk
-        # the user abandoned can settle *after* the one that replaced it.
         self._pending: Dict[int, tuple] = {}
-        # Jobs waiting for the single worker slot: (fn, on_done, kind,
-        # token). See _run_job for why only one runs at a time.
         self._queue: List[tuple] = []
         self._next_job_id: int = 0
         self._job_settled.connect(self._on_job_settled)
         self._thread_retired.connect(self._retire_job)
         self.last_error: str = ""
 
-        # -- edit state ----------------------------------------------------
         self._edit_mode: bool = False
         self._edit_path: str = ""
         self._explicit_path: str = ""
@@ -1537,12 +1442,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         self.last_edit_sql: str = ""
         self.confirm_edit_mode: Callable[[str], bool] = self._default_confirm
 
-        # -- linked selection state ----------------------------------------
-        # True while an incoming selection is being written into the view.
-        # Echo suppression stops this screen hearing its *own* publications,
-        # but not itself re-publishing what it was just told: the round trip
-        # would replace the shared selection with the part of it this page
-        # happens to have loaded, quietly narrowing a lasso to one chunk.
         self._syncing_selection: bool = False
         #: Model rows the shared filter hides, by row index.
         self._linked_hidden: set = set()
@@ -1551,9 +1450,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._linked_filter_note: str = ""
 
         self._build_ui()
-        # Match the pipeline screens: the database file, its measurements/
-        # folder, and the enclosing run folder can all be dropped anywhere on
-        # this screen.
         from ..dnd import install_dropzone
         from ..dnd_handlers import DatabaseDropHandler
         install_dropzone(self, DatabaseDropHandler(), self)
@@ -1561,16 +1457,10 @@ class DbBrowserScreen(LinkedView, QWidget):
             "Choose a measurements.db, or a run folder containing "
             "measurements/measurements.db.")
         self._update_controls()
-        # After the UI: both hooks paint into the view, and a filter can
-        # already be set by the time this screen opens.
         self.link_selection("db_browser")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out the table list, the preview grid and the action row."""
@@ -1579,12 +1469,6 @@ class DbBrowserScreen(LinkedView, QWidget):
                                  SPACING["lg"], SPACING["lg"])
         outer.setSpacing(SPACING["md"])
 
-        # A ModuleHeader RATHER THAN A BARE LABEL. It draws the same
-        # `DisplayHeading` this used to build by hand, and it is what
-        # every other module page wears -- but the reason for the change
-        # is `add_trailing`: the fold strip declared at the foot of this
-        # module is hung on a masthead, and a plain QLabel is not one, so
-        # Lineage and Tabulate had nowhere to appear.
         header = ModuleHeader(
             "Database Browser",
             description="Browse, filter and export tables from "
@@ -1604,7 +1488,6 @@ class DbBrowserScreen(LinkedView, QWidget):
 
         outer.addWidget(Divider())
 
-        # ── Source row ────────────────────────────────────────────────
         src_row = QHBoxLayout()
         src_row.setSpacing(SPACING["sm"])
         self._path_edit = QLineEdit(self)
@@ -1624,7 +1507,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         src_row.addWidget(self._btn_open)
         outer.addLayout(src_row)
 
-        # ── Edit-mode row ─────────────────────────────────────────────
         edit_row = QHBoxLayout()
         edit_row.setSpacing(SPACING["sm"])
         self._edit_check = Toggle("Edit mode", self)
@@ -1640,7 +1522,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         edit_row.addWidget(self._edit_note, 1)
         outer.addLayout(edit_row)
 
-        # ── Body splitter: tables | preview ───────────────────────────
         split = QSplitter(Qt.Horizontal, self)
 
         left = QWidget(split)
@@ -1676,34 +1557,18 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._model.set_fetch_hook(self.fetch_more)
         self._model.set_commit_hook(self.edit_cell)
         self._view = QTableView(right)
-        # Named so the sorting sweep can tell this one view apart: it is the
-        # only table in the application that must NOT take Qt's model sort,
-        # because it sorts in SQL over rows it has not loaded.
         self._view.setObjectName("DbBrowserPreview")
         self._view.setModel(self._model)
-        # Read-only in the UI as well as on the connection, until edit
-        # mode says otherwise.
         self._view.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._view.setSelectionBehavior(QAbstractItemView.SelectItems)
         self._view.setAlternatingRowColors(True)
-        # Sorting stays off while a table is partially loaded — see
-        # _update_sort_state().
         self._view.setSortingEnabled(False)
         header = self._view.horizontalHeader()
-        # Our own handler, not Qt's model sort: the sort runs in SQL over the
-        # whole table, so it is right however little of the table is loaded.
         header.setSectionsClickable(True)
         header.sectionClicked.connect(self._on_header_clicked)
         header.setSectionResizeMode(QHeaderView.Interactive)
-        # No stretch-last-section: with feature columns the last one would
-        # balloon to fill the window while its neighbours stay clipped.
         header.setStretchLastSection(False)
         header.setDefaultSectionSize(150)
-        # Publish whatever the user picks out, and re-hide the filtered rows
-        # whenever the row set moves under the view. `setRowHidden` is
-        # positional and Qt clears it on a model reset, so both signals are
-        # needed: `modelReset` for a new page, a column search or a sort, and
-        # `rowsInserted` for the chunks that arrive as the user scrolls.
         self._view.selectionModel().selectionChanged.connect(
             self._on_view_selection_changed)
         self._model.modelReset.connect(self._apply_linked_filter)
@@ -1741,7 +1606,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         split.setSizes([220, 900])
         outer.addWidget(split, 1)
 
-        # ── Filter + export row ───────────────────────────────────────
         filt_row = QHBoxLayout()
         filt_row.setSpacing(SPACING["sm"])
         filt_row.addWidget(QLabel("Filter", self))
@@ -1792,14 +1656,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._status.setTextInteractionFlags(Qt.TextSelectableByMouse)
         outer.addWidget(self._status)
 
-        # Wire the enablement-affecting signals last, once every widget
-        # _update_controls touches actually exists. Both signals carry an
-        # argument the slot doesn't want, hence the *_ lambdas.
         self._filter_op.currentTextChanged.connect(
             lambda *_: self._update_controls())
         self._raw_toggle.toggled.connect(lambda *_: self._update_controls())
 
-    # -- status ------------------------------------------------------------
 
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Deliberately never a QMessageBox — a modal dialog
@@ -1818,7 +1678,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         """The statement shown to the user before it runs (or ``''``)."""
         return self._sql_label.text()
 
-    # -- database selection ------------------------------------------------
 
     def _pick_database(self) -> None:
         """Ask for a database file and open it."""
@@ -1898,7 +1757,6 @@ class DbBrowserScreen(LinkedView, QWidget):
             f"Opened {db.path} (read-only) — {len(tables)} "
             f"table{'s' if len(tables) != 1 else ''}.")
         self.database_opened.emit(db.path)
-        # Selecting row 0 fires _on_table_selected, which loads the preview.
         self._table_list.setCurrentRow(0)
         self._update_controls()
         return True
@@ -1923,7 +1781,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         return [self._table_list.item(i).text()
                 for i in range(self._table_list.count())]
 
-    # -- table selection ---------------------------------------------------
 
     def _on_table_selected(self, current, _previous=None) -> None:
         """Load the first page of the selected table."""
@@ -1946,9 +1803,6 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._set_status(self._humanise(e, name), error=True)
             return False
         self._table = name
-        # A sort column from the previous table would land in this table's
-        # ORDER BY, where check_columns rejects it -- so the table would fail
-        # to load rather than merely come back unsorted.
         self._clear_sort()
         self._where, self._params, self._filter_label = None, (), ""
         self._raw_edit.clear()
@@ -1957,8 +1811,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._filter_col.clear()
         self._filter_col.addItems(self._all_columns)
         self._filter_col.blockSignals(False)
-        # Keep the current selection in the table list in sync when this
-        # was called programmatically.
         for i in range(self._table_list.count()):
             if self._table_list.item(i).text() == name:
                 if self._table_list.currentRow() != i:
@@ -1976,7 +1828,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         """
         return self._table
 
-    # -- column search -----------------------------------------------------
 
     def set_column_filter(self, text: str) -> None:
         """Narrow the displayed columns to those containing ``text``.
@@ -1989,7 +1840,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         """
         if self._col_search.text() != (text or ""):
             self._col_search.setText(text or "")
-            return   # textChanged re-enters with the same value
+            return
         self._model.set_column_filter(text or "")
         self._update_column_count()
         self._autosize_columns()
@@ -2026,7 +1877,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         else:
             self._col_count_label.setText(f"{shown} of {total} columns")
 
-    # -- loading -----------------------------------------------------------
 
     def page_size(self) -> int:
         """Rows fetched per chunk."""
@@ -2082,15 +1932,7 @@ class DbBrowserScreen(LinkedView, QWidget):
                 self.select_table(table)
         column = seed.get("column")
         if column:
-            # Scroll the column into view rather than sorting by it: arriving
-            # on a re-sorted table would hide which rows were just annotated,
-            # which is the thing the user came here to look at.
             if not self._scroll_column_into_view(column):
-                # No columns yet means the first chunk is still in flight,
-                # which is the normal case for a threaded browser: the seed
-                # is handled the moment the table is selected and the rows
-                # arrive later. Remember it and scroll when they do, or the
-                # scroll silently never happens.
                 if not self.visible_columns():
                     self._seed_column = str(column)
 
@@ -2152,8 +1994,6 @@ class DbBrowserScreen(LinkedView, QWidget):
             header.setSortIndicatorShown(False)
             header.setSortIndicator(-1, Qt.AscendingOrder)
         else:
-            # `refresh()` is how a header click re-reads the table, so it must
-            # not wipe the indicator that click just set.
             try:
                 section = self._model.visible_columns().index(self._sort[0])
             except ValueError:
@@ -2187,8 +2027,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         after = None if first else self._last_key
         loaded = 0 if first else self._loaded
         order_by = self._sort
-        # max(rowid) is only an estimate of the *table* size; with a
-        # filter in play it says nothing, so we don't pretend it does.
         want_estimate = first and not where
 
         def _job() -> Dict[str, Any]:
@@ -2207,7 +2045,7 @@ class DbBrowserScreen(LinkedView, QWidget):
     def _apply_chunk(self, result: Dict[str, Any]) -> None:
         """Paint a chunk — unless the user has moved on since it was asked for."""
         if not result or result.get("token") != self._token:
-            return                      # cancelled: a stale load's rows
+            return
         first = bool(result.get("first"))
         columns = result.get("columns", [])
         rows = result.get("rows", [])
@@ -2222,8 +2060,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         if keys and keys[-1] is not None:
             self._last_key = keys[-1]
         if len(rows) < limit:
-            # A short chunk is the end of the table — and it makes the
-            # count exact for free, no COUNT(*) needed.
             self._exhausted = True
             self._exact_count = self._loaded
         self._model.set_more(not self._exhausted)
@@ -2271,7 +2107,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         :param result: the finished count.
         """
         if not result or result.get("token") != self._token:
-            return                      # cancelled
+            return
         self._exact_count = int(result.get("count", 0))
         if self._loaded >= self._exact_count:
             self._exhausted = True
@@ -2313,8 +2149,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         hundred. Qt's model sort stays OFF -- the header click is handled by
         :meth:`_on_header_clicked` instead.
         """
-        # Never Qt's own: it would reorder the loaded slice underneath the
-        # SQL order and the two would disagree.
         self._view.setSortingEnabled(False)
         if self._sort is None:
             self._sort_note.setText(
@@ -2360,8 +2194,6 @@ class DbBrowserScreen(LinkedView, QWidget):
             header.setSortIndicator(
                 section, Qt.DescendingOrder if self._sort[1] else Qt.AscendingOrder)
 
-        # Reload from the top: rows already loaded are the wrong ones now,
-        # not merely in the wrong order.
         self.refresh()
 
     def _report_table_status(self) -> None:
@@ -2371,11 +2203,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         if self._filter_label:
             bits.append(f"filter: {self._filter_label}")
         bits.append("edit mode" if self._edit_mode else "read-only")
-        # A table quietly showing two thirds of its rows is how a count gets
-        # reported as the whole population.
         self._set_status(" · ".join(bits) + self._linked_filter_note)
 
-    # -- the shared filter and selection -----------------------------------
 
     def _linked_frame(self, columns: Sequence[str]) -> pd.DataFrame:
         """The loaded rows as a frame, indexed by model row number.
@@ -2437,10 +2266,6 @@ class DbBrowserScreen(LinkedView, QWidget):
                 note = f" · filter ignored ({exc.__class__.__name__})"
         previous, self._linked_hidden = self._linked_hidden, hidden
         if hidden or previous:
-            # Skipped entirely while nothing is filtered, and this runs once
-            # per chunk: a walk over every loaded row on each of the 4 000
-            # chunks of a 400 k-row table is the difference between scrolling
-            # and not scrolling.
             for row in range(total):
                 self._view.setRowHidden(row, row in hidden)
         changed = note != self._linked_filter_note
@@ -2465,7 +2290,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         return [row for row in range(self._model.rowCount())
                 if row not in self._linked_hidden]
 
-    # -- selection ---------------------------------------------------------
 
     def rows_for_selection(self, selection: Selection) -> List[int]:
         """The loaded rows ``selection`` names, ascending.
@@ -2537,8 +2361,6 @@ class DbBrowserScreen(LinkedView, QWidget):
             self.publish_selection(
                 self._linked_frame(OBJECT_KEY_COLUMNS).iloc[rows])
         except Exception:
-            # No object identity in this table; selecting a row in it is a
-            # local act, not something the other views can follow.
             return
 
     def on_linked_selection_changed(self, selection: Selection) -> None:
@@ -2553,9 +2375,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         if model is None or not self._model.columnCount():
             return
         rows = self.rows_for_selection(selection)
-        # Guarded, not merely echo-suppressed: this screen would otherwise
-        # re-publish what it was just told, replacing a selection of ninety
-        # thousand objects with the hundred of them this page has loaded.
         self._syncing_selection = True
         try:
             model.clearSelection()
@@ -2567,7 +2386,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         finally:
             self._syncing_selection = False
 
-    # -- filtering ---------------------------------------------------------
 
     def apply_filter(self) -> bool:
         """Read the filter row, validate it, and reload from the first chunk.
@@ -2610,7 +2428,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         _, nargs, _ = OPERATORS[op]
         value = self._filter_value.text()
         if nargs and not value.strip():
-            # Nothing typed: treat as "no filter" rather than an error.
             return None, (), ""
         where, params = build_where(column, op, value, self._all_columns)
         label = f"{column} {op}" + (f" {value}" if nargs else "")
@@ -2655,7 +2472,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         """The active WHERE fragment, or None."""
         return self._where
 
-    # -- edit mode ---------------------------------------------------------
 
     def editing_allowed_by_preference(self) -> bool:
         """Whether Preferences permits edit mode at all (read fresh)."""
@@ -2683,9 +2499,6 @@ class DbBrowserScreen(LinkedView, QWidget):
     def _confirmation_text(self) -> str:
         """The words the user has to agree to before edit mode arms."""
         table = self._table or "<table>"
-        # No table (a database with none) or no key (a view) still gets a
-        # statement to look at — the rowid shape, which is what an
-        # editable table would use.
         key_columns = self._db.row_key(self._table)[1] if self._table else []
         statement = build_update(table, "<column>", key_columns or ["rowid"])
         return (
@@ -2805,7 +2618,6 @@ class DbBrowserScreen(LinkedView, QWidget):
                              error=True)
             return False
         if self._edit_path != self._db.path:
-            # Belt and braces: edit mode is armed for one file only.
             self._set_status(
                 "Edit mode was armed for a different database — turning it "
                 "off.", error=True)
@@ -2873,9 +2685,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         """Keep the checkbox, the note and the view's edit triggers honest."""
         allowed = self.editing_allowed_by_preference()
         self._edit_check.setEnabled(self._db is not None and allowed)
-        # A table with no rowid and no primary key stays read-only even in
-        # edit mode: offering a cell editor that always refuses would be a
-        # lie told twice.
         writable = self._edit_mode and self._table_is_editable()
         self._model.set_editable(writable)
         self._view.setEditTriggers(
@@ -2908,7 +2717,6 @@ class DbBrowserScreen(LinkedView, QWidget):
                 "Read-only. Tick 'Edit mode' to write to this file; you will "
                 "be asked to confirm.")
 
-    # -- export ------------------------------------------------------------
 
     def _pick_export_path(self) -> None:
         """Ask where to write the exported table."""
@@ -2938,7 +2746,6 @@ class DbBrowserScreen(LinkedView, QWidget):
             return False
         db, table = self._db, self._table
         where, params = self._where, self._params
-        # Honour the column search: what you filtered down to is what you get.
         columns = self._model.visible_columns() or self._all_columns
 
         def _job() -> Dict[str, Any]:
@@ -2957,7 +2764,6 @@ class DbBrowserScreen(LinkedView, QWidget):
 
         return self._run_job(_job, _done, kind="export")
 
-    # -- job plumbing ------------------------------------------------------
 
     def _acquire(self, kind: str) -> None:
         """Take the database handle for a job, refusing a second one."""
@@ -3085,20 +2891,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         """
         box: Dict[str, Any] = {}
         thread, worker = make_thread(partial(_capture_result, fn), box)
-        # make_thread deliberately does not connect worker.deleteLater:
-        # Python owns this worker, and _retire_job releases its last strong
-        # reference on the GUI thread after the event loop exits. Do not try
-        # to "defensively" disconnect a slot that is absent — PySide emits a
-        # RuntimeWarning for every job, and signal mutation during native
-        # teardown is precisely the lifecycle race this ownership scheme
-        # avoids. See make_thread's ownership contract.
-        # Strong references: PySide6 will not keep the worker alive through
-        # the started→run connection alone, and a collected worker means the
-        # thread spins forever without ever calling run(). A QThread that
-        # loses its last Python reference while running takes the process
-        # down with it, so the pair is held until `thread.finished` says
-        # the event loop has exited. Same fix as AppScreen._on_run — but
-        # held per-job, keyed by job id.
         self._next_job_id += 1
         job_id = self._next_job_id
         self._jobs[job_id] = (thread, worker)
@@ -3107,17 +2899,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         worker.error.connect(self._on_worker_error_text)
         worker.finished.connect(
             lambda ok, jid=job_id: self._job_settled.emit(jid, bool(ok)))
-        # A BOUND METHOD, not a closure — and the contrast with the line
-        # above is the whole point. ``worker`` is moveToThread'd, so a
-        # closure on ITS signal runs on the worker thread and re-emitting a
-        # Signal is the only safe thing to do from one. ``thread`` is the
-        # opposite case: the QThread object is GUI-affine, so PySide6 makes
-        # it the receiver for a closure, and ``make_thread`` connects
-        # ``thread.finished -> thread.deleteLater`` FIRST. Slots run in
-        # connection order, so the DeferredDelete is posted ahead of the
-        # closure's metacall and Qt discards queued events for a destroyed
-        # receiver: the job was never retired and ``active_jobs()`` never
-        # returned to zero.
         thread.finished.connect(self._retire_finished_jobs)
         self._update_controls()
         thread.start()
@@ -3203,7 +2984,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         """True while any query, count or export job is queued or running."""
         return self._export_busy or self._load_jobs > 0
 
-    # -- enablement --------------------------------------------------------
 
     def _update_controls(self) -> None:
         """Enable each control only when it has something to act on."""
@@ -3222,13 +3002,9 @@ class DbBrowserScreen(LinkedView, QWidget):
             w.setEnabled(has_table and not self._export_busy)
         self._btn_more.setEnabled(
             has_table and not self._exhausted and not self._chunk_jobs)
-        # The table list stays live during a load on purpose: switching
-        # table mid-load has to be possible, and the token check makes it
-        # safe.
         self._table_list.setEnabled(has_db)
         self._update_edit_ui()
 
-    # -- shutdown ----------------------------------------------------------
 
     def closeEvent(self, event):  # noqa: N802
         """Let every in-flight query thread finish before the widget dies.
@@ -3244,7 +3020,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         try:
             self.unlink_selection()
         except (RuntimeError, TypeError):
-            # The process-wide link's C++ side is gone (interpreter teardown).
             pass
         for _fn, _on_done, kind, _token in self._queue:
             self._release(kind)
@@ -3259,9 +3034,6 @@ class DbBrowserScreen(LinkedView, QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Folded modules
-# ---------------------------------------------------------------------------
 
 HOST_KEY = "db_browser"
 
@@ -3275,9 +3047,6 @@ FOLDED_APPS: Tuple[str, ...] = ('lineage', 'tabulate')
 
 def _build_lineage(host_window: Optional[QWidget] = None) -> QWidget:
     """Lineage, as the window builds it."""
-    # IMPORTED HERE. This module used `build_registered_screen`
-    # without importing it, so every folded module it hosts raised
-    # NameError the moment its button was pressed.
     from .map_barcodes import build_registered_screen
 
     return build_registered_screen("lineage", host_window)

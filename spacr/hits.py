@@ -118,9 +118,6 @@ NUISANCE_TERMS = re.compile(
 )
 
 
-# ---------------------------------------------------------------------------
-# Parsing and statistics
-# ---------------------------------------------------------------------------
 
 
 def tested_family(features: Iterable[Any]) -> np.ndarray:
@@ -185,8 +182,6 @@ def family_labels(features: Iterable[Any]) -> np.ndarray:
     if series.empty:
         return np.zeros(0, dtype=object)
     tested = tested_family(series)
-    # Keep this vectorized for interactive plot restyling. Explicit term labels
-    # take precedence over the identifier suffix, matching ``guide_of``.
     token = series.str.extract(_BRACKET.pattern, expand=False)
     token = token.str.replace(r"^T\.", "", regex=True)
     explicit_gene = series.str.contains(
@@ -283,7 +278,6 @@ def gene_of(feature: Any) -> Optional[str]:
     return _gene_id_of(token)
 
 
-# Known VEuPathDB prefixes whose underscore is part of the gene accession.
 _GENE_ID_PREFIXES = ("TGGT1", "TGME49", "TGVEG", "TGRH88", "TGARI",
                      "TGCAST", "TGP89", "TGCOUG", "TGMAS", "TGFOU",
                      "PF3D7", "PBANKA", "PY17X", "PCHAS", "PKNH", "PVP01",
@@ -432,9 +426,6 @@ def grna_agreement(gene_effects: Mapping[str, float],
     return result
 
 
-# ---------------------------------------------------------------------------
-# Reading what a regression run wrote
-# ---------------------------------------------------------------------------
 
 def load_results(folder: Union[str, os.PathLike]) -> Dict[str, pd.DataFrame]:
     """Read the coefficient tables a regression results folder holds.
@@ -455,9 +446,6 @@ def load_results(folder: Union[str, os.PathLike]) -> Dict[str, pd.DataFrame]:
         path = os.path.join(root, name)
         if os.path.isfile(path):
             try:
-                # ONE READER, so a results CSV whose header says `column` is
-                # offered to the caller as `columnID` -- the name the joins
-                # in this module key on.
                 found[role] = tabular.read_table(path, report=None)
             except (pd.errors.EmptyDataError, pd.errors.ParserError):
                 continue
@@ -503,10 +491,6 @@ def load_gene_metadata(path: Union[str, os.PathLike], *,
     target = os.path.abspath(os.path.expanduser(os.fspath(path)))
     if not os.path.isfile(target):
         raise FileNotFoundError(f"no metadata file at {target}")
-    # canonicalise=False: `key` is the caller's column name in a curated
-    # third-party export ('Gene ID'), not spaCR metadata, and a header the
-    # vocabulary renamed out from under the caller would raise the KeyError
-    # below on a file that was fine.
     frame = tabular.read_table(target, canonicalise=False, report=None)
     if key not in frame.columns:
         raise KeyError(
@@ -517,9 +501,6 @@ def load_gene_metadata(path: Union[str, os.PathLike], *,
     frame = frame.copy()
     frame["gene"] = frame[key].map(
         lambda value: str(value).split("_")[1] if "_" in str(value) else None)
-    # A NaN key must never act as a join key: pandas treats NaN as equal to
-    # NaN, so every unparsable metadata row would fan out against every
-    # unparsable result row.
     unparsed = int(frame["gene"].isna().sum())
     frame = frame.dropna(subset=["gene"])
     if unparsed:
@@ -568,7 +549,7 @@ def join_metadata(frame: pd.DataFrame,
         joined = joined.merge(
             annotation, on="gene", how="left", validate="many_to_one",
             suffixes=("", f"_meta{index + 1}"))
-        if len(joined) != before:  # validate="many_to_one" already raises
+        if len(joined) != before:
             raise ValueError(
                 f"joining {os.path.basename(str(path))} changed the row count "
                 f"from {before} to {len(joined)}; the annotation is not one "
@@ -576,9 +557,6 @@ def join_metadata(frame: pd.DataFrame,
     return joined, notes
 
 
-# ---------------------------------------------------------------------------
-# The deliverable
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Hit:
@@ -818,7 +796,6 @@ class HitList:
             alpha=self.alpha, n_terms=self.n_terms, n_genes=self.n_genes,
             filters=filters, notes=self.notes)
 
-    # -- output -----------------------------------------------------------
 
     def columns(self) -> List[str]:
         """Column order for the table forms, annotation columns last."""
@@ -1030,9 +1007,6 @@ def _searchable(hit: Hit) -> str:
     return " ".join(parts).casefold()
 
 
-# ---------------------------------------------------------------------------
-# Building it
-# ---------------------------------------------------------------------------
 
 def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
                    *,
@@ -1100,11 +1074,6 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
                if str(regression_type).strip().lower() in NO_P_VALUE_TYPES
                else "q-value")
     if ranking == "selection-frequency" and float(alpha) == DEFAULT_ALPHA:
-        # The threshold means the opposite thing on this branch, so the
-        # default has to change with it: 0.05 as a SELECTION FREQUENCY is
-        # "chosen in one bootstrap in twenty", which would report almost the
-        # whole design as significant. An alpha the caller passed explicitly
-        # is theirs and is left alone.
         alpha = DEFAULT_SELECTION_THRESHOLD
     if ranking == "q-value":
         table["q_value"] = benjamini_hochberg(
@@ -1129,14 +1098,10 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
                                        key=metadata_key)
     notes.extend(join_notes)
     if toxoplasma:
-        # AFTER the user's files, deliberately. `annotate` leaves a column
-        # that is already there alone, so this order means a name the user
-        # supplied always wins over the bundle's -- which is the precedence
-        # anybody would expect from a file they passed by hand.
         from .annotation import annotate
         before, had = len(joined), set(joined.columns)
         joined = annotate(joined, key_column="gene", quiet=True)
-        if len(joined) != before:  # annotate's many_to_one join raises
+        if len(joined) != before:
             raise ValueError(
                 f"the Toxoplasma annotation changed the row count from "
                 f"{before} to {len(joined)}.")
@@ -1144,7 +1109,7 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
         notes.append(
             f"Bundled Toxoplasma annotation joined by gene number: "
             f"{len(gained)} column(s).")
-    if len(joined) != len(table):  # validate="many_to_one" already raises
+    if len(joined) != len(table):
         raise ValueError(
             f"the metadata join changed the row count from {len(table)} to "
             f"{len(joined)}; the annotation is not one row per gene.")

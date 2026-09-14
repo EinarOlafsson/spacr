@@ -203,9 +203,6 @@ class ProjectBrowserScreen(QWidget):
             "Pick a project to see its stages, what is stale and why, and "
             "what could run next.")
         split.addWidget(self._detail)
-        # All three regions of this screen ARE the page: there is no card and
-        # no tab pane behind any of them, so without this the sweep leaves
-        # them showing the backdrop straight through the text.
         mark_surface(self._root_list, self._table, self._detail)
         split.setStretchFactor(0, 3)
         split.setStretchFactor(1, 2)
@@ -214,17 +211,11 @@ class ProjectBrowserScreen(QWidget):
         self._refresh_root_list()
         if self._roots:
             self.rescan()
-        # Drop anywhere on this screen: the path is resolved through spaCR's
-        # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "project_browser")
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- the search folders -------------------------------------------------
     def roots(self) -> Tuple[str, ...]:
         """The folders that will be searched."""
         return tuple(self._roots)
@@ -235,21 +226,12 @@ class ProjectBrowserScreen(QWidget):
         if not path or path in self._roots:
             return False
         self._roots.append(path)
-        # Queue a background check on it, and throw the answer away: what is
-        # wanted is the CACHE ENTRY, so that `_start_directory` can offer this
-        # folder to the chooser on the next click -- it refuses a folder
-        # `path_probe` has never been asked about. `_start_directory` does ask
-        # for itself as well, but only once the user has clicked, which is one
-        # click too late to answer that click. Asking here is what makes a
-        # root added this session usable by the chooser at all.
         path_probe.isdir(path)
         self._refresh_root_list()
         try:
             from ..prefs import push_recent_source
             push_recent_source(APP_KEY, path)
         except Exception:
-            # Remembering the folder is a convenience; failing to remember it
-            # must not cost the scan the user asked for.
             LOG.debug("could not record the recent folder", exc_info=True)
         if scan:
             self.rescan()
@@ -267,19 +249,6 @@ class ProjectBrowserScreen(QWidget):
             self, "Search this folder for spaCR projects",
             self._start_directory())
         if path:
-            # The dialog only ever returns a folder it has just listed, so
-            # this is a fact already in hand rather than an excuse for another
-            # stat -- which is exactly what `path_probe.prime` is for. Primed
-            # under the SAME spelling `add_root` and `push_recent_source`
-            # store, because the cache is keyed on the string: priming
-            # `/data/plate/` would leave the `/data/plate` every other screen
-            # asks about still unknown, and the prime would buy nothing.
-            #
-            # `prime` records the "does it exist?" answer only; the "is it a
-            # directory?" answer that :meth:`_start_directory` reads has no
-            # priming entry point, and `add_root` queues a real probe for it
-            # one line down. That probe is cheap by construction -- the dialog
-            # has just listed the folder, so the kernel answers from cache.
             path = os.path.abspath(os.path.expanduser(str(path)))
             path_probe.prime(path, True)
             self.add_root(path)
@@ -325,9 +294,6 @@ class ProjectBrowserScreen(QWidget):
         a chooser at all is worse than any wait.
         """
         for root in reversed(self._roots):
-            # Asking is also how an unprobed root gets probed: `isdir` queues
-            # the check it cannot answer, so a "no" here is what makes the
-            # NEXT click a "yes". That is the whole recovery this gate needs.
             if path_probe.isdir(root):
                 return root
         return os.path.expanduser("~")
@@ -346,7 +312,6 @@ class ProjectBrowserScreen(QWidget):
         for path in self._roots:
             self._root_list.addItem(QListWidgetItem(path))
 
-    # -- scanning -----------------------------------------------------------
     def rescan(self) -> None:
         """Walk the search folders again, off the GUI thread."""
         roots = list(self._roots)
@@ -358,8 +323,6 @@ class ProjectBrowserScreen(QWidget):
             self.scanned.emit(0)
             return
         depth = int(self._depth.value())
-        # A second scan supersedes the first, so clicking Scan twice does not
-        # deliver two tables in whatever order the walks happen to finish.
         self._jobs.cancel()
         self._rescan.setEnabled(False)
         self._status.setText(
@@ -409,7 +372,6 @@ class ProjectBrowserScreen(QWidget):
         self._status.setText(message)
         self.failed.emit(message)
 
-    # -- the table ----------------------------------------------------------
     def _fill_table(self) -> None:
         """Fill the project table, one row per project found.
 
@@ -421,9 +383,6 @@ class ProjectBrowserScreen(QWidget):
         """
         from ...data_manager import human_bytes
 
-        # Sorting is switched off while rows are inserted: a sorted table
-        # re-orders on every setItem, and the row index the next call writes
-        # into is then not the row it just wrote.
         self._table.setSortingEnabled(False)
         self._table.setRowCount(len(self._summaries))
         for row, summary in enumerate(self._summaries):
@@ -440,9 +399,6 @@ class ProjectBrowserScreen(QWidget):
                 item = table_item(str(text))
                 if column == 0:
                     item.setToolTip(summary.root)
-                    # The root travels with the row so a re-sorted table still
-                    # selects the project the user clicked rather than the one
-                    # that happens to be at that index now.
                     item.setData(Qt.UserRole, summary.root)
                 elif column == 2:
                     item.setData(Qt.UserRole, int(summary.size_bytes))
@@ -520,7 +476,6 @@ class ProjectBrowserScreen(QWidget):
         self._detail.setPlainText(text)
         return text
 
-    # -- lifecycle ----------------------------------------------------------
     def is_busy(self) -> bool:
         """True while a scan is in flight."""
         return self._jobs.is_busy()
@@ -530,9 +485,6 @@ class ProjectBrowserScreen(QWidget):
         return self._jobs.active_jobs()
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
-        # Abandon in-flight work rather than let it outlive the screen: Qt
-        # aborts the process if a running QThread is destroyed, and a worker
-        # delivering into a closed widget is a use-after-free.
         """Stop background work and unlink before going away.
 
         :param event: the Qt close event.
@@ -603,20 +555,6 @@ def make_project_browser_screen(app_key: Optional[str] = None) -> QWidget:
         remembered = [os.path.dirname(p.rstrip(os.sep)) or p
                       for p in get_recent_sources(APP_KEY, limit=4)]
         remembered += get_recent_sources("mask", limit=2)
-        # This factory runs on the GUI thread -- `MainWindow._build_screen`
-        # calls it inline, because Qt forbids building widgets anywhere else
-        # -- and every path here is one the user typed at some other screen.
-        # `os.path.isdir` on the maintainer's remembered `/nas_mnt` root had
-        # not returned after TWENTY SECONDS on 2026-09-04, so this filter
-        # froze the whole window for as long as the automount slept, and
-        # opening the browser was reported as a crash with no traceback.
-        # `exists(..., want_dir=True)` answers from the probe cache instead,
-        # optimistically: `isdir()` would default to False and open the
-        # browser empty on the first run of every session, which is the one
-        # thing this seeding exists to prevent. Optimism costs nothing here
-        # because the seeded roots go straight to `rescan`, whose walk runs
-        # on a JobRunner worker -- a root that turns out to be gone is
-        # discovered off the GUI thread and simply lists no projects.
         roots = tuple(dict.fromkeys(
             p for p in remembered
             if p and path_probe.exists(p, default=True, want_dir=True)))
@@ -625,11 +563,6 @@ def make_project_browser_screen(app_key: Optional[str] = None) -> QWidget:
     return ProjectBrowserScreen(roots=roots)
 
 
-# The row this screen puts in the registry is declared in
-# `spacr.qt.app_catalog`, which is what lets the app be registered without
-# importing this module -- the launch reads the table, not the screen. These
-# read the same row back rather than restating it, so the name, the blurb and
-# the nine translations have one spelling and no second copy to drift from.
 _ROW = declared_app(APP_KEY)
 APP_NAME = _ROW.name
 APP_DESCRIPTION = _ROW.desc

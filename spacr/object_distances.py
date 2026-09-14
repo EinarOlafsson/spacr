@@ -253,9 +253,6 @@ def between_object_types(masks: Dict[str, "np.ndarray"], *,
     boundaries = _boundary_pixels(labelled)
     own_interior = interior_distance_transform(labelled, spacing)
 
-    # WHERE IT SITS IN ITSELF. The interior transform at the centroid is the
-    # centre's distance to its own rim; over the object's deepest point it
-    # is a shape-free 0-to-1 position that compares across sizes.
     own = _sample(own_interior, centroids)
     frame["distance_to_own_boundary"] = own
     deepest = np.array([
@@ -266,8 +263,6 @@ def between_object_types(masks: Dict[str, "np.ndarray"], *,
         frame["relative_radial_position"] = np.where(
             deepest > 0, 1.0 - (own / deepest), np.nan)
 
-    # HOW CLOSE TO THE EDGE OF THE FIELD. An object that touches it is
-    # clipped, and every measurement of it is of a fragment.
     edge = np.full(len(labels), np.inf, dtype=float)
     for axis, size in enumerate(labelled.shape):
         here = np.minimum(centroids[:, axis], size - 1 - centroids[:, axis])
@@ -287,9 +282,6 @@ def between_object_types(masks: Dict[str, "np.ndarray"], *,
             _min_over_boundary(to_other, boundaries.get(int(l)))
             for l in labels]
 
-        # CENTRE TO CENTRE, to the NEAREST object of the other type. The
-        # full N x M matrix is neither cheap nor something a one-row-per-
-        # object table can hold; the nearest is both.
         other_labels, other_centroids = _centroids(other_mask)
         if len(other_centroids):
             from scipy.spatial import cKDTree
@@ -302,7 +294,6 @@ def between_object_types(masks: Dict[str, "np.ndarray"], *,
         else:
             frame[f"centre_to_nearest_{other}_centre"] = np.inf
 
-        # OVERLAP, which is the answer when the distance is zero.
         overlap = []
         for label in labels:
             inside = labelled == label
@@ -354,10 +345,6 @@ def maxima_distances(masks: Dict[str, "np.ndarray"], images, *,
             counts.append(len(peaks))
             spreads.append(_pairwise_spread(peaks, spacing))
             if not len(peaks):
-                # NaN, NOT ZERO. An object with no peak has no distance
-                # from one; zero would read as "the peak is right here",
-                # which is the opposite of what happened. The count column
-                # beside it says why the row is empty.
                 for holder in (to_own, to_centre, *to_other.values()):
                     holder["min"].append(np.nan)
                     holder["mean"].append(np.nan)

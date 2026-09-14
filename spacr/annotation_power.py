@@ -120,9 +120,6 @@ def annotatable(fractions: Mapping[str, Mapping[str, float]], *,
                 reachable.add(str(guide))
                 best = max(best, value)
         if best > 0:
-            # An upper bound on the cells this well can yield: the largest
-            # clearing guide's share of it. Generous on purpose -- it is a
-            # CEILING, and a ceiling that flattered would be worthless.
             cells_reachable += int(round(size * best))
 
     return {
@@ -189,10 +186,7 @@ def screen_size_for(fractions: Mapping[str, Mapping[str, float]], *,
     coverage = float(np.mean(list(appearances.values()))) if appearances else 0.0
     now = float(np.median(per_well))
 
-    # For a typical guide to clear the floor its share must be at least
-    # `floor`, and in a well of `k` guides the typical share is about 1/k.
     needed_per_well = float(1.0 / floor) if floor > 0 else float("inf")
-    # Same library, same wells-per-guide, fewer guides in each well.
     needed_wells = (library * coverage / needed_per_well
                     if needed_per_well > 0 else float("inf"))
 
@@ -225,7 +219,6 @@ def _specificity_for(guides_per_well: float, sensitivity: float,
     t, se = float(decision), float(sensitivity)
     if pi <= 0 or t >= 1.0:
         return float("nan")
-    # Solve P(g|+) = t for (1 - sp).
     false_positive = pi * se * (1.0 - t) / (t * (1.0 - pi))
     return float(np.clip(1.0 - false_positive, 0.0, 1.0))
 

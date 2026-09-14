@@ -28,24 +28,16 @@ DEFAULT_SPEED = "balanced"
 #: argv fragments to append when invoking that provider's CLI.
 #: Empty tuple = provider uses its own default at that level.
 SPEED_MAP: Dict[str, Dict[str, tuple]] = {
-    # Claude Code CLI supports --model to pick between Haiku (fast) /
-    # Sonnet (balanced) / Opus (deep). Newer builds also honour
-    # ``--reasoning-effort low|medium|high`` — safest is model.
     "claude": {
         "fast":     ("--model", "haiku"),
         "balanced": ("--model", "sonnet"),
         "deep":     ("--model", "opus"),
     },
-    # Codex CLI: model picks fast (o4-mini) / balanced (o1-preview) /
-    # deep (o1). The exact model IDs may drift; provider falls back
-    # to CLI default if the flag is unrecognised.
     "codex": {
         "fast":     ("--model", "gpt-5-mini"),
         "balanced": ("--model", "gpt-5"),
         "deep":     ("--model", "gpt-5-pro"),
     },
-    # Gemini CLI: model picks flash (fast) / pro (balanced) / pro
-    # thinking (deep, via same model with --thinking flag).
     "gemini": {
         "fast":     ("--model", "gemini-2.5-flash"),
         "balanced": ("--model", "gemini-2.5-pro"),
@@ -62,9 +54,6 @@ def _settings() -> QSettings:
     return QSettings(_SETTINGS_ORG, _SETTINGS_APP)
 
 
-# ---------------------------------------------------------------------------
-# Response speed
-# ---------------------------------------------------------------------------
 
 def get_response_speed() -> str:
     """Return the validated response-speed preference.
@@ -116,9 +105,6 @@ def provider_args(provider_name: str) -> List[str]:
     return list(SPEED_MAP.get(provider_name, {}).get(speed, ()))
 
 
-# ---------------------------------------------------------------------------
-# System prompt override
-# ---------------------------------------------------------------------------
 
 def get_system_prompt() -> str:
     """Return the stored system-prompt override or the spaCR default.
@@ -162,9 +148,6 @@ def is_system_prompt_overridden() -> bool:
     return raw is not None and bool(str(raw).strip())
 
 
-# ---------------------------------------------------------------------------
-# Auto-file GitHub issue on error (opt-in)
-# ---------------------------------------------------------------------------
 
 def get_auto_file_issues() -> bool:
     """Return whether error explanations may offer GitHub issue filing.
@@ -189,7 +172,7 @@ def get_route_errors_through_ai() -> bool:
     The preference is effective only when an AI provider is configured. It
     defaults to ``True``.
     """
-    raw = _settings().value(_KEY_ROUTE_ERRORS, True)   # default ON
+    raw = _settings().value(_KEY_ROUTE_ERRORS, True)
     if isinstance(raw, bool):
         return raw
     return str(raw).lower() in ("true", "1", "yes")
@@ -207,7 +190,7 @@ def get_console_aware() -> bool:
     of context attached to each message and applies its own output-length and
     traceback retention rules.
     """
-    raw = _settings().value(_KEY_CONSOLE_AWARE, True)   # default ON
+    raw = _settings().value(_KEY_CONSOLE_AWARE, True)
     if isinstance(raw, bool):
         return raw
     return str(raw).lower() in ("true", "1", "yes")

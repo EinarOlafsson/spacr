@@ -32,11 +32,6 @@ _APP = "qt"
 _KEY_TOKEN = "github/pat"
 _EPHEMERAL_TOKEN = ""
 
-# The HTTP seam used by every GitHub API request.  Production leaves this at
-# the real stdlib transport.  Offline tests replace the seam itself, which is
-# materially different from setting an environment variable that says a real
-# write is allowed: the replacement is process-local, cannot be inherited by a
-# subprocess, and any late teardown call still lands in the fake transport.
 _REAL_HTTP_OPEN = urllib.request.urlopen
 _HTTP_OPEN = _REAL_HTTP_OPEN
 
@@ -49,9 +44,6 @@ def _settings() -> QSettings:
     return QSettings(_ORG, _APP)
 
 
-# ---------------------------------------------------------------------------
-# Token resolution
-# ---------------------------------------------------------------------------
 
 def get_stored_token() -> str:
     """Return a process-only token, after erasing insecure legacy storage."""
@@ -102,8 +94,6 @@ def _gh_cli_token() -> str:
 
 def resolve_token() -> Tuple[str, Optional[str]]:
     """Return ``(token, source)`` — source is 'token' | 'env' | 'gh' | None."""
-    # Calling this also erases a token left by an older spaCR build. The
-    # process-only value exists for API injection, never installer/UI login.
     tok = get_stored_token()
     if tok:
         return tok, "token"
@@ -126,9 +116,6 @@ def auth_source() -> Optional[str]:
     return resolve_token()[1]
 
 
-# ---------------------------------------------------------------------------
-# Issue creation
-# ---------------------------------------------------------------------------
 
 #: Fallback net for any rendering of the credential we didn't anticipate.
 _BEARER_RE = re.compile(r"(?i)(bearer\s+)[^\s'\"]{8,}")

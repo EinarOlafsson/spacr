@@ -216,9 +216,6 @@ _ROWID_ALIASES: Tuple[str, ...] = ("_rowid_", "oid", "rowid")
 _MISSING = object()
 
 
-# ---------------------------------------------------------------------------
-# small helpers
-# ---------------------------------------------------------------------------
 
 def _quote(identifier: str) -> str:
     """Return ``identifier`` quoted for SQLite.
@@ -280,8 +277,6 @@ def _sql_value(value, sql_type: str):
         if pd.isna(value):
             return None
     except (TypeError, ValueError):
-        # pd.isna of a list/array is elementwise, so `if` on it raises. Not a
-        # missing value; fall through and let the type handling below decide.
         pass
     if sql_type == "INTEGER":
         try:
@@ -388,8 +383,6 @@ def _prcfo_from_metadata(frame: pd.DataFrame) -> Optional[pd.Series]:
         parts.append(time_col)
     parts.append(object_col)
 
-    # A row missing any one component has no key at all -- an empty slot would
-    # make 'plate1_r1__f1_o3' collide with a genuinely different object.
     pieces = []
     valid = None
     for col in parts:
@@ -400,16 +393,6 @@ def _prcfo_from_metadata(frame: pd.DataFrame) -> Optional[pd.Series]:
     key = pieces[0].astype(str)
     for piece in pieces[1:]:
         key = key + "_" + piece.astype(str)
-    # THROUGH THE SAME NORMALISER THE STORED KEY GETS. A key rebuilt here and
-    # a key read from the `prcfo` column must be the same string or the join
-    # silently matches nothing, and the halves disagree exactly where
-    # `_clean_prcfo` says they do: an older run stamps the plate `pplate1`
-    # and everything computed since stamps it `plate1`. Normalising in one
-    # place is what stops the two builders drifting apart again.
-    # Construct the result as explicit object data.  Under pandas 3 string
-    # inference, ``where(..., other=None).map(...)`` promotes the Series to
-    # StringDtype and exposes a missing key as float ``nan``; callers use
-    # identity with ``None`` to distinguish an absent key from a real one.
     return pd.Series(
         (
             _clean_prcfo(value) if bool(is_valid) else None
@@ -464,19 +447,13 @@ def crop_name_metadata(names, timelapse: bool = False) -> pd.DataFrame:
         if base not in cache:
             parsed = tuple(_clean_key(v) for v in
                            _map_wells_png(base, timelapse=timelapse))
-            # 'error' in any position means the whole name failed to parse.
             cache[base] = empty if any(v is None for v in parsed) else parsed
         return cache[base]
 
     frame = pd.DataFrame([convert(v) for v in names], columns=columns,
                          index=names.index)
-    # object_label without the 'o': that is the spelling the object tables use.
     def bare_object_label(value):
         """Normalize a parsed object label and remove one leading ``o``."""
-        # pandas 3 may infer these parsed text columns as StringDtype and
-        # materialise a tuple's ``None`` as float ``nan``.  Normalize through
-        # the same missing-key boundary used everywhere else before asking a
-        # value for string methods.
         text = _clean_key(value)
         if text is None:
             return None
@@ -491,9 +468,6 @@ def _prcfo_from_names(names: pd.Series, timelapse: bool) -> pd.Series:
     return crop_name_metadata(names, timelapse=timelapse)["prcfo"]
 
 
-# ---------------------------------------------------------------------------
-# key construction
-# ---------------------------------------------------------------------------
 
 def _db_keys(kind: str, frame: pd.DataFrame) -> Optional[pd.Series]:
     """Build the ``kind`` key for rows already in the database."""
@@ -526,14 +500,6 @@ def _result_keys(kind: str, results: pd.DataFrame, timelapse: bool) -> Optional[
         name_col = _name_column(results)
         if name_col is not None:
             return _prcfo_from_names(results[name_col], timelapse)
-        # SAME FALLBACK `_db_keys` ALREADY HAD. A score table with no path
-        # column can still carry the metadata `prcfo` is built from, and an
-        # `ml_analysis` score CSV is exactly that: plate/row/column/field and
-        # an object id, under the plainer spellings that
-        # `schema.canonicalise_columns` resolves. Without this the two sides
-        # of the join were asymmetric -- the database could rebuild the key
-        # and the results frame could not -- so an XGBoost score file matched
-        # zero rows and read as "no per-object score".
         from .schema import canonicalise_columns
 
         try:
@@ -584,9 +550,6 @@ def _choose_key(results: pd.DataFrame, db_frame: pd.DataFrame,
     return best[1], best[2], best[3]
 
 
-# ---------------------------------------------------------------------------
-# report
-# ---------------------------------------------------------------------------
 
 @dataclass
 class MergeReport:
@@ -694,9 +657,6 @@ class MergeReport:
         return self.summary()
 
 
-# ---------------------------------------------------------------------------
-# migration
-# ---------------------------------------------------------------------------
 
 def _execute(cursor, sql: str) -> None:
     """Run one write statement.
@@ -779,9 +739,6 @@ def migrate_prediction_columns(db_path, table: str = PNG_TABLE,
     return repaired
 
 
-# ---------------------------------------------------------------------------
-# the merge
-# ---------------------------------------------------------------------------
 
 def _execute_updates(cursor, sql: str, updates: Sequence[Tuple]) -> None:
     """Apply the prepared UPDATE statements.
@@ -838,8 +795,6 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
     repaired = migrate_prediction_columns(db_path, table=table, verbose=False)
 
     con = sqlite3.connect(db_path, timeout=30)
-    # Explicit transaction control: ALTER TABLE would otherwise autocommit and
-    # an interrupted merge would leave a column added but no rows scored.
     con.isolation_level = None
     try:
         cur = con.cursor()
@@ -866,8 +821,6 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
     from .utils import _time_column
 
     quoted_table = _quote(table)
-    # Raises sqlite3.OperationalError('no such table: ...') -- the loud,
-    # correct failure for a database that was never measured.
     cur.execute(f"SELECT * FROM {quoted_table} LIMIT 0")
     table_columns = [d[0] for d in cur.description]
 
@@ -895,7 +848,6 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
                 f"Join key {kind!r} cannot be built: the results frame or "
                 f"{table} does not carry what it is made of.")
 
-    # -- collapse the results into key -> values, refusing collisions --
     value_frames = {db_col: results[src] for db_col, (src, _t) in spec.items()}
     types = {db_col: sql_type for db_col, (_src, sql_type) in spec.items()}
     order = list(spec)
@@ -903,11 +855,6 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
     lookup: Dict[str, Tuple] = {}
     conflicting: Dict[str, int] = {}
     unparsed = 0
-    # ``Series.map`` preserves ``None`` on pandas 2 object columns, while
-    # pandas 3's inferred StringDtype materialises the same missing key as
-    # float ``nan``.  Identity checks therefore changed the report from one
-    # unparsed row to one unmatched row.  Normalize both sides by value before
-    # counting or joining so the public merge report is version-independent.
     key_list = [_clean_key(value) for value in result_keys]
     db_key_list = [_clean_key(value) for value in db_keys]
     columns_by_row = [list(value_frames[db_col]) for db_col in order]
@@ -927,7 +874,6 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
     for row_key in conflicting:
         lookup.pop(row_key, None)
 
-    # -- add the columns we are about to write --
     added = []
     for db_col in order:
         if db_col not in table_columns:
@@ -935,7 +881,6 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
                         f"{_quote(db_col)} {types[db_col]}")
             added.append(db_col)
 
-    # -- match --
     updates = []
     matched_keys = set()
     for position, row_key in enumerate(db_key_list):
@@ -975,9 +920,6 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
     )
 
 
-# ---------------------------------------------------------------------------
-# the two callers
-# ---------------------------------------------------------------------------
 
 
 def attach_predictions(objects, results, *,
@@ -1014,11 +956,6 @@ def attach_predictions(objects, results, *,
         return objects, 0
 
     out = objects.copy()
-    # WHICHEVER NAME THE SCORE ARRIVED UNDER. `score_source` stays the first
-    # choice, so an explicit argument still wins; when the table does not
-    # carry it, the other names a score goes by are tried before giving up.
-    # Refusing here on the name alone is what made an XGBoost score CSV read
-    # as "no per-object score" while holding one.
     score_name = (str(score_source)
                   if str(score_source) in getattr(results, "columns", ())
                   else first_present(results, SCORE_SOURCE_COLUMNS))

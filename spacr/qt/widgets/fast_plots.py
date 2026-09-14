@@ -26,7 +26,7 @@ LOG = logging.getLogger(__name__)
 _MIN_PDF_RESOLUTION = 72
 _MAX_PDF_RESOLUTION = 2400
 
-try:  # exercised by the import guard test
+try:
     import pyqtgraph as pg
     from pyqtgraph import ScatterPlotItem
     HAVE_PYQTGRAPH = True
@@ -59,10 +59,6 @@ class _Absorbs:
         """Any call returns this same object, so chains keep working."""
         return self
 
-    # Chains have to survive whole, not one link at a time. The subclasses
-    # run `self.plot.scene().sigMouseClicked.connect(...)` in their own
-    # __init__ -- three links -- so returning a plain [] from the first call
-    # only moves the AttributeError one step along.
     def __iter__(self):
         """Iterates as empty -- the callers that iterate a result get nothing."""
         return iter(())
@@ -72,8 +68,6 @@ class _Absorbs:
         return 0
 
     def __bool__(self):
-        # `if self._highlight:` must read as "nothing is drawn", which is
-        # true, rather than as a live artist to remove.
         """False, so ``if self._highlight:`` reads as "nothing is drawn".
 
         Truthy by default, it would read as a live artist to remove, and the
@@ -87,12 +81,6 @@ class _Absorbs:
 
 
 if not HAVE_PYQTGRAPH:  # pragma: no cover - exercised by the absence test
-    # THE MODULE TOO, not only the widget. Thirty call sites in this file go
-    # through `pg.` -- mkBrush, mkPen, ScatterPlotItem, InfiniteLine -- and
-    # `pg = None` turns every one into an AttributeError the moment a table
-    # arrives. The panel would then BUILD and die on its first redraw, which
-    # is a worse failure than the original: the app looks fine until the user
-    # loads data.
     pg = _Absorbs()
 
 
@@ -283,18 +271,6 @@ GRAPH_SHAPE_MENU = "Graph shape"
 QWIDGET_SIZE_MAX = (1 << 24) - 1
 
 
-# One positionable thing on a plot, with the DATA coordinates it was handed.
-# Private on purpose: it is bookkeeping for the log transform, not a contract
-# anyone outside this module holds.
-#
-#   x, y     float arrays -- or None where the item does not move on that
-#            axis, as a horizontal reference line does not move in x.
-#   blocks   {axis: why this item can NEVER be logged on that axis}
-#   kind     "points", "bar", or "line" -- so a refusal can name what is in
-#            the way rather than quoting a count of anonymous "values".
-#   counts   {axis: (at or below zero, finite in total, the lowest of them)},
-#            measured once at registration rather than re-measured every time
-#            a menu opens.
 _Drawn = namedtuple("_Drawn", "item x y blocks kind counts")
 
 
@@ -376,14 +352,6 @@ def menu_reading_order(menu) -> list:
     return order
 
 
-# Which group of the right-click menu a style field belongs on, as
-# ``(group, name fragments)`` tried in order; anything unmatched is
-# Appearance. A plain module constant rather than a documented one, because
-# it is a layout table for this module's menu and not a contract anyone
-# outside it holds.
-#
-# ORDER IS THE ORDER OF USE, the same as `build_style_menu`: what changes what
-# the figure CLAIMS, then its axes, then how it looks, then how big it is.
 _STYLE_GROUPS = (
     ("Data", ("column", "threshold", "alpha", "control", "annotat",
               "label_top", "significant")),
@@ -398,9 +366,6 @@ _STYLE_GROUPS = (
 #: they can fix when a field name changes under them.
 STYLE_FILE_FILTER = "spaCR figure style (*.json);;All files (*)"
 
-# What a style field can be edited WITH. A field whose kind is "unsupported"
-# still gets an entry, greyed and saying so: a setting silently absent from
-# the menu is one the user is told exists and cannot find.
 STYLE_FIELD_KINDS = ("flag", "colour", "choice", "multi", "number", "pair",
                      "text", "unsupported")
 
@@ -427,10 +392,6 @@ def style_field_kind(name: str, value, choices=None, declared: str = "") -> str:
     """
     written = str(declared or "").replace(" ", "").lower()
     if choices:
-        # A CLOSED SET HELD IN A CONTAINER IS TICKED, NOT PICKED. "Dense
-        # granules and rhoptries 1" is one question rather than two, so a
-        # field whose value is a tuple of members of the offered list gets a
-        # submenu where any number of them can be on at once.
         if (isinstance(value, (tuple, list))
                 or "tuple[str" in written or "list[str" in written
                 or "sequence[str" in written):
@@ -449,9 +410,6 @@ def style_field_kind(name: str, value, choices=None, declared: str = "") -> str:
     if value is not None:
         return "unsupported"
     if "tuple[tuple" in written or "dict" in written or "list[" in written:
-        # A NESTED SHAPE HAS NO DIALOG. Offering the split axis's pair of
-        # pairs as one pair of numbers would write a value the renderer
-        # cannot read -- worse than saying it is not editable here.
         return "unsupported"
     if written.startswith("bool") or "bool|" in written:
         return "flag"
@@ -461,7 +419,6 @@ def style_field_kind(name: str, value, choices=None, declared: str = "") -> str:
         return "number"
     if "str" in written:
         return "colour" if str(name).endswith(("color", "colour")) else "text"
-    # Nothing declared and nothing held: the name is the only clue left.
     if str(name).endswith(("_lim", "_lims")):
         return "pair"
     if str(name).endswith(("color", "colour")):
@@ -516,9 +473,6 @@ def style_field_label(name: str, value, kind: str) -> str:
     if kind == "unsupported":
         return pretty
     if kind == "multi":
-        # WHAT IS TICKED, spelled out. A multi-select whose label said only
-        # its name would make "is anything selected?" a question the reader
-        # has to open the submenu to answer.
         chosen = [str(item) for item in (value or ())]
         return f"{pretty}: {', '.join(chosen)}" if chosen else f"{pretty}: none"
     if value is None:
@@ -767,10 +721,6 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
         try:
             changed = load_style(style, path, on_change)
         except ValueError as exc:
-            # NAMED, not swallowed. The two ways this fails -- a file that is
-            # not a style and a style of another kind -- are both things the
-            # user can act on, and a menu entry that silently does nothing is
-            # the one failure this module keeps being written to avoid.
             _say(f"Could not load that style: {exc}")
             return
         _say(f"Loaded {len(changed)} setting{'s' if len(changed) != 1 else ''}"
@@ -783,7 +733,7 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
             from ..preferences import set_figure_style_default
 
             set_figure_style_default(kind, style_as_dict(style))
-        except Exception:       # no settings store
+        except Exception:
             _say("There is no settings store to save a default into.")
             return
         _say(f"Every {kind} figure from now on starts from this style. "
@@ -795,7 +745,7 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
             from ..preferences import clear_figure_style_default
 
             cleared = clear_figure_style_default(kind)
-        except Exception:       # no settings store
+        except Exception:
             return
         _say(f"The saved {kind} default is gone; new figures use the "
              f"package's own." if cleared else
@@ -819,12 +769,9 @@ def add_style_file_entries(menu, style, on_change=None, *, parent=None,
         from ..preferences import get_figure_style_default
 
         has_default = bool(get_figure_style_default(kind))
-    except Exception:           # no settings store
+    except Exception:
         pass
     action = menu.addAction("Clear the default", _clear_default)
-    # Greyed when there is nothing to clear (106), and it doubles as the
-    # readout for "is a house style in force here?", which is the question a
-    # user arrives with when a figure does not look like the package's.
     action.setEnabled(has_default)
     if not has_default:
         action.setToolTip(f"No {kind} default is saved.")
@@ -846,7 +793,7 @@ def apply_default_style(style, on_change=None) -> list:
         from ..preferences import get_figure_style_default
 
         saved = get_figure_style_default(style_kind(style))
-    except Exception:           # no settings store
+    except Exception:
         return []
     return apply_style_dict(style, saved, on_change) if saved else []
 
@@ -862,9 +809,6 @@ def _add_style_entry(menu, style, name: str, on_change, choices, labels=None):
     declared = next((str(entry.type) for entry in dataclasses.fields(style)
                      if entry.name == name), "")
     kind = style_field_kind(name, value, options, declared)
-    # WHAT A VALUE IS CALLED, where that is not what it is. A marker stored
-    # as "o" and a line style stored as "--" are what a saved style file
-    # says and are not what a reader picks off a menu.
     named = dict((labels or {}).get(name) or {})
 
     def _shown(option):
@@ -894,8 +838,6 @@ def _add_style_entry(menu, style, name: str, on_change, choices, labels=None):
         menu.addMenu(submenu)
         chosen = tuple(value or ()) if kind == "multi" else ()
         for option in options:
-            # `None` is a real option -- it is how a colour-by column is taken
-            # back off -- and "None" is not what that reads as on a menu.
             entry = submenu.addAction(_shown(option))
             entry.setCheckable(True)
             if kind == "multi":
@@ -909,7 +851,6 @@ def _add_style_entry(menu, style, name: str, on_change, choices, labels=None):
                 entry.triggered.connect(
                     lambda _checked=False, picked=option:
                     _apply_style(style, name, picked, on_change))
-        # The GROUP's action is what a reader meets, so it carries the name.
         action = submenu.menuAction()
         action.setObjectName(name)
         return action
@@ -984,11 +925,6 @@ def _ask_style_value(parent, style, name, value, kind, on_change) -> None:
 
     pretty = str(name).replace("_", " ").strip().capitalize()
     if kind == "colour":
-        # A SEVENTH CALL SITE, which is the reason `pick_colour` exists.
-        # Instruction 151 counted six unguarded `QColorDialog.getColor` calls
-        # in the tree; this one -- the figure style's own colour fields -- was
-        # not among them, so the count was low and the flag would have been
-        # forgotten here even after the six were fixed.
         colour = pick_colour(parent, value or "#000000", pretty)
         if colour.isValid():
             _apply_style(style, name, colour.name(), on_change)
@@ -1012,9 +948,6 @@ def _ask_style_value(parent, style, name, value, kind, on_change) -> None:
         second, ok = QInputDialog.getDouble(parent, pretty, f"{pretty} to:",
                                             float(high), -1e12, 1e12, 4)
         if ok:
-            # CANCELLING THE SECOND ABANDONS THE FIRST, the same rule the
-            # axis-limit dialog follows: a half-set pair is a range nobody
-            # chose.
             _apply_style(style, name, (first, second), on_change)
         return
     text, ok = QInputDialog.getText(parent, pretty, f"{pretty}:",
@@ -1090,7 +1023,7 @@ def _figure_colors() -> tuple:
         from ..preferences import get_figure_colors
 
         return get_figure_colors()
-    except Exception:      # no settings store available
+    except Exception:
         return "none", _FALLBACK_FOREGROUND
 
 
@@ -1173,20 +1106,8 @@ def _violin_profile(values, half_width: float):
     bins = int(np.clip(np.sqrt(len(v)) * 2, 6, 24))
     counts, edges = np.histogram(v, bins=bins, range=(low, high))
     centres = (edges[:-1] + edges[1:]) / 2.0
-    # NO `peak <= 0` GUARD. The histogram's range IS the data's own min
-    # and max, and the guard above has already required both to be finite
-    # with high > low -- so every value of v lies inside the range and at
-    # least one bin is populated. `counts.max()` cannot be zero.
-    #
-    # NaN cannot sneak past either: `np.min` PROPAGATES NaN rather than
-    # ignoring it, so an array holding one fails the finite check above
-    # rather than arriving here with an empty histogram. Checked against
-    # 20,000 random finite arrays spanning twelve orders of magnitude --
-    # every one had a populated bin.
     peak = float(counts.max())
     density = counts.astype(float) / peak * float(half_width)
-    # Pinned shut at both ends, so the outline closes on the data's range
-    # instead of stopping mid-air at the first and last bin's width.
     centres = np.concatenate([[low], centres, [high]])
     density = np.concatenate([[0.0], density, [0.0]])
     return centres, density
@@ -1231,9 +1152,6 @@ class FastPlot(QWidget):
         #: False when pyqtgraph is absent. The widget still constructs, still
         #: lays out, and says why it is empty rather than raising.
         self.plots_available = HAVE_PYQTGRAPH
-        # BEFORE THE BRANCH, so both constructors have it: the hooks below
-        # fire on the very first setLabel, and the pyqtgraph-absent path
-        # still has to answer log_axes() without raising.
         self._init_axis_state()
         #: The level control that lives ON the plot rather than three clicks
         #: into a menu, and the sentence beside it. Born as None: a plot
@@ -1246,15 +1164,6 @@ class FastPlot(QWidget):
         if not HAVE_PYQTGRAPH:
             self._build_without_pyqtgraph(title)
             return
-        # BACKGROUND None IS TRANSPARENT, WHICH WAS ALREADY RIGHT. The ink was
-        # not: `foreground="k"` hardcoded BLACK axes, ticks and labels, so on
-        # a dark theme the plot drew black-on-transparent over a dark surface
-        # and the axes were invisible. The matplotlib path has resolved this
-        # correctly for a while via preferences.get_figure_colors(), which
-        # returns TRANSPARENT_FIGURE_BG plus theme-correct ink and honours an
-        # explicit colour the user has chosen; pyqtgraph simply never asked
-        # it. Same source for both renderers, so a theme switch cannot move
-        # one and not the other.
         self._background, self._foreground = _figure_colors()
         pg.setConfigOptions(antialias=True, background=None,
                             foreground=self._foreground)
@@ -1262,48 +1171,27 @@ class FastPlot(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
-        # ABOVE THE PLOT, BESIDE THE TITLE. Empty it costs no height, and it
-        # stays empty on every plot whose host offers no levels -- which is
-        # every plot but the volcano.
         self._header = QHBoxLayout()
         self._header.setContentsMargins(0, 0, 0, 0)
         self._header.setSpacing(6)
         layout.addLayout(self._header)
 
         self.plot = pg.PlotWidget(title=title or None)
-        # EVERY ITEM AND EVERY LABEL, CAUGHT ON THE WAY IN -- see
-        # :meth:`_install_axis_hooks`. It goes in before the first label is
-        # set, because the label is one of the two things it catches.
         self._install_axis_hooks()
-        # Modified left-drag selects a region (instruction 206). In here
-        # rather than in a subclass because the funnel every plot emits
-        # through is on this class, and a band that only some plots had
-        # would be a gesture the user cannot rely on.
         self._install_rubber_band()
         self.plot.setLabel("bottom", x_label)
         self.plot.setLabel("left", y_label)
         self.plot.showGrid(x=True, y=True, alpha=0.25)
         self.plot.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # A transparent pyqtgraph background is not enough on its own: the
-        # QWidget it lives in still paints the theme's `bg` under the blanket
-        # QWidget rule, so the plot sits on an opaque slab regardless. The
-        # theme's own helper is what every other transparent surface here
-        # uses -- see the hyperparam screen, which does exactly this.
         self.plot.setBackground(None)
         try:
             from ..theme import make_transparent
 
             make_transparent(self, self.plot, self.plot.viewport())
-        except Exception:                   # theme absent
+        except Exception:
             pass
         layout.addWidget(self.plot, 1)
 
-        # THE STRIP CARRIES WHAT IS PRESSED, NOT WHAT IS SET. Log x, log y
-        # and grid were checkboxes here and are entries on the right-click
-        # menu now (instruction 148 C): they are set once and then read off
-        # the axis, so a permanent row of them under every plot spent screen
-        # on three states nobody looks at twice. The legend stays, because it
-        # is the one a reader flicks on and off while looking at the figure.
         controls = QHBoxLayout()
         self._legend_box = QCheckBox("legend")
         self._legend_box.setEnabled(False)
@@ -1315,21 +1203,8 @@ class FastPlot(QWidget):
         controls.addStretch(1)
 
         reset = QPushButton("Reset view")
-        # `auto_range_axes`, NOT `plot.autoRange`: the bare call freezes the
-        # axes on today's points, so the NEXT redraw opens inside this run's
-        # window. See that method.
         reset.clicked.connect(self.auto_range_axes)
         controls.addWidget(reset)
-        # NO EXPORT BUTTON (187 D). Reported 2026-08-20: "the export button
-        # dosnt cause any errors but the exported figure is broken, with
-        # massive text and so on ... actually remove the export button, save
-        # styled is enough."
-        #
-        # TWO DOORS AND ONE OF THEM WROTE BLIND. `export` writes with no
-        # preview and no styling pass, so a page sized in millimetres got
-        # text scaled for the screen -- which is the massive text. Save
-        # styled shows what it is about to write, which is the difference,
-        # and it is the door that stays.
         save = QPushButton("Save figure…")
         save.setToolTip(
             "Preview the figure's colors, background, and dimensions before "
@@ -1355,18 +1230,10 @@ class FastPlot(QWidget):
 
         self._labels: Sequence[str] = ()
         self._legend_colours: dict = {}
-        # The other two layered channels' keys, set by `set_results` and
-        # read by the legend. Declared here so a plot that has never drawn
-        # still answers what its legend would say: nothing.
         self._shape_legend = None
         self._opacity_legend = None
         self._items: list = []
 
-        # THE KEY JOIN. Row-to-point highlighting is joined on the identifier
-        # the row carries, never on a position -- a table sorted by effect and
-        # a scatter drawn in input order are the same points in two orders,
-        # and joining them by index lights up the WRONG guide silently, in
-        # exactly the direction nobody questions, because something lit up.
         self._keys: Sequence[str] = ()
         self._key_rows: dict = {}
         self._row_xy: dict = {}
@@ -1428,7 +1295,6 @@ class FastPlot(QWidget):
         #: `_significance` crash, and it took the whole panel down at launch.
         self._refit = None
 
-        # Right-click to restyle, the same gesture the matplotlib figures use.
         self.plot.setContextMenuPolicy(Qt.CustomContextMenu)
         self.plot.customContextMenuRequested.connect(self._style_menu)
 
@@ -1488,7 +1354,6 @@ class FastPlot(QWidget):
         self._legend_box = QCheckBox("Legend")
         self._legend_box.setEnabled(False)
 
-    # ----------------------------------------------------------------- state
 
     def _reset_scene(self) -> None:
         """Empty the plot AND the bookkeeping that describes what was on it.
@@ -1509,13 +1374,8 @@ class FastPlot(QWidget):
         self._row_xy = {}
         self._highlight = None
         self._labels = ()
-        # The log transform's bookkeeping goes with the artists it described.
-        # THE SCALE ITSELF STAYS: a user who asked for a log axis has not
-        # unasked for it by filtering the table, and every item the redraw
-        # puts back is transformed as it arrives.
         self._drawn = []
 
-    # ------------------------------------------------------------- restyling
 
     def offer_refit(self, callback, label: str = "Re-fit with another model…"):
         """Add an action that CHANGES THE NUMBERS to the right-click menu.
@@ -1681,8 +1541,6 @@ class FastPlot(QWidget):
         try:
             curve = smooth(x, y, method=method)
         except ValueError as refusal:
-            # A refusal is the answer, not a failure: a Gaussian process
-            # asked for more rows than it can take says the number.
             return str(refusal)
         except Exception as problem:                          # noqa: BLE001
             return f"{method} could not be drawn: {problem}"
@@ -1777,9 +1635,6 @@ class FastPlot(QWidget):
                        self._level_note_label):
             widget.setVisible(showing)
         if showing:
-            # `activated` fires on a USER's choice only, so refilling cannot
-            # re-enter the callback -- blocked anyway, because a future
-            # currentIndexChanged here would, and silently.
             blocked = self._level_box.blockSignals(True)
             self._level_box.clear()
             current = 0
@@ -1850,7 +1705,6 @@ class FastPlot(QWidget):
         #: None on a plot that recorrects nothing.
         self._correction_writer = None
 
-    # ------------------------------------------------------- what is stylable
 
     def frame(self):
         """The table this plot was drawn from, or ``None``.
@@ -1913,7 +1767,7 @@ class FastPlot(QWidget):
         for name in frame.columns:
             try:
                 distinct = frame[name].astype(str).nunique(dropna=False)
-            except Exception:       # an unhashable cell
+            except Exception:
                 continue
             if 2 <= int(distinct) <= MAX_SHAPE_VALUES:
                 found.append(str(name))
@@ -1986,7 +1840,6 @@ class FastPlot(QWidget):
         return ("" if self._scatter_items()
                 else "nothing on this plot is drawn as points")
 
-    # ----------------------------------------------------- the log transform
 
     def _init_axis_state(self) -> None:
         """The axis bookkeeping, born before the first item can be drawn.
@@ -2058,13 +1911,9 @@ class FastPlot(QWidget):
         plot_item.setLabel = _label
         self.plot.addItem = _add
         self.plot.setLabel = _label
-        # A MOUSE DRAG FORGETS A TYPED LIMIT. Panning or zooming by hand is a
-        # user saying "not that window any more"; remembering the old one and
-        # snapping back to it the next time the scale changes would make the
-        # plot argue with the person driving it.
         try:
             plot_item.vb.sigRangeChangedManually.connect(self._forget_pins)
-        except Exception:               # no such signal
+        except Exception:
             pass
 
     def _forget_pins(self, *_args) -> None:
@@ -2075,7 +1924,6 @@ class FastPlot(QWidget):
         """
         self._pinned = {"x": None, "y": None}
 
-    # -- what is drawn, and what it says about being logged ------------------
 
     def _describe_item(self, item):
         """A :data:`_Drawn` record for ``item``, or ``None`` if it does not move.
@@ -2091,27 +1939,18 @@ class FastPlot(QWidget):
                           self._counts_of(x, y))
         if isinstance(item, pg.InfiniteLine):
             angle = float(getattr(item, "angle", 90.0)) % 180.0
-            # THE ANGLE IS ASKED FIRST, AND THAT ORDER IS THE POINT.
-            # `InfiniteLine.value()` answers with a scalar only for the two
-            # orthogonal angles; an oblique line answers with the whole
-            # ``[x, y]`` position, and `float()` of a list is a TypeError --
-            # so reading the value before the branch made adding a diagonal
-            # line to any plot in this module raise out of `addItem` instead
-            # of reaching the branch written to ignore it.
             if angle == 90.0:
                 x, y = np.array([float(item.value())]), None
             elif angle == 0.0:
                 x, y = None, np.array([float(item.value())])
-            else:                       # an oblique line moves on neither axis
+            else:
                 return None
             return _Drawn(item, x, y, blocks, "line", self._counts_of(x, y))
         if isinstance(item, pg.BarGraphItem):
             try:
                 edges = [np.atleast_1d(np.asarray(v, dtype="float64"))
                          for v in item._getNormalizedCoords()]
-            except Exception:           # an odd bar spec
-                # A BAR WE CANNOT READ IS A BAR WE CANNOT MOVE, and a scale
-                # that leaves one item behind is the bug this file is fixing.
+            except Exception:
                 blocks = {"x": "one of the bars cannot be re-measured",
                           "y": "one of the bars cannot be re-measured"}
                 return _Drawn(item, None, None, blocks, "bar",
@@ -2121,10 +1960,6 @@ class FastPlot(QWidget):
             x = np.vstack([x0, x1])
             y = np.vstack([y0, y1])
             if not np.any(y0 > 0):
-                # THE BASELINE IS THE POINT. A histogram's bars are measured
-                # from zero, and zero has no logarithm; saying that is a
-                # better answer than "50 of 100 values are at or below zero",
-                # which is true and tells the reader nothing they can act on.
                 blocks["y"] = ("the bars are measured from zero, which has "
                                "no logarithm")
                 y = None
@@ -2133,7 +1968,7 @@ class FastPlot(QWidget):
         if callable(getter):
             try:
                 data = getter()
-            except Exception:           # an empty curve
+            except Exception:
                 return None
             if not data or data[0] is None or data[1] is None:
                 return None
@@ -2163,10 +1998,6 @@ class FastPlot(QWidget):
         if entry is None:
             return
         self._drawn.append(entry)
-        # A REDRAW CAN MAKE A LIVE LOG SCALE IMPOSSIBLE. The level filter
-        # admits a coefficient of zero, a compartment's p-values reach 1 --
-        # and log10 of those is not a number, so the points would silently
-        # leave the plot. The scale comes off instead, and says so.
         refused = [axis for axis in ("x", "y")
                    if self._log[axis] and (axis in entry.blocks
                                            or entry.counts[axis][0])]
@@ -2197,12 +2028,9 @@ class FastPlot(QWidget):
         edge = "left" if axis == "y" else "bottom"
         try:
             named = getattr(self.plot.getAxis(edge), "_tickLevels", None)
-        except Exception:               # absent axis
+        except Exception:
             named = None
         if named:
-            # THE AXIS IS A LIST OF GROUPS. A control panel's x and an effect
-            # ranking's y carry names at hand-placed positions; a logarithm
-            # of a position that stands for "nc" is not a quantity.
             return (f"log {axis}: this axis names its groups rather than "
                     f"measuring a quantity")
         point_bad = point_total = 0
@@ -2217,9 +2045,6 @@ class FastPlot(QWidget):
             elif bad and (scenery is None or worst < scenery[1]):
                 scenery = (entry.kind, worst)
         if point_bad:
-            # THE SENTENCE INSTRUCTION 148 ASKED FOR, to the comma. A count
-            # and a total, because "some points cannot be logged" leaves the
-            # reader unable to judge whether the scale is worth having.
             return (f"log {axis}: {point_bad:,} of {point_total:,} points "
                     f"are at or below zero and have no logarithm")
         if scenery is not None:
@@ -2228,7 +2053,6 @@ class FastPlot(QWidget):
                     f"{scenery[1]:g}, which has no logarithm")
         return ""
 
-    # -- the scale itself ----------------------------------------------------
 
     def log_axes(self) -> tuple:
         """``(log x, log y)`` -- whether each axis is drawn logarithmically."""
@@ -2286,7 +2110,6 @@ class FastPlot(QWidget):
             value = float(self._expand(np.asarray([value], dtype="float64"))[0])
         return 10.0 ** value if self._log[axis] else value
 
-    # -- the y-axis split ----------------------------------------------------
 
     def y_split(self) -> Optional[tuple]:
         """``(low, high)`` of the hidden band IN DATA UNITS, or ``None``."""
@@ -2452,7 +2275,7 @@ class FastPlot(QWidget):
             return
         try:
             axis = self.plot.getAxis("left")
-        except Exception:                   # absent axis
+        except Exception:
             return
         original_values = axis.tickValues
         original_strings = axis.tickStrings
@@ -2539,10 +2362,6 @@ class FastPlot(QWidget):
                 item.setOpts(**options)
             return
         if isinstance(item, ScatterPlotItem):
-            # IN PLACE, not through setData. `ScatterPlotItem.setData` clears
-            # the item and re-adds the points, which drops the per-point row
-            # index every click on this plot is resolved through -- so the
-            # dots would move and stop identifying anything.
             if xs is not None:
                 item.data["x"] = xs
             if ys is not None:
@@ -2565,8 +2384,6 @@ class FastPlot(QWidget):
         kept = []
         for entry in self._drawn:
             if id(entry.item) not in live:
-                # Removed since it was registered -- the previous selection
-                # ring, a bar that was outlined and then was not.
                 continue
             kept.append(entry)
             self._place(entry)
@@ -2587,11 +2404,6 @@ class FastPlot(QWidget):
         """What the label on ``edge`` reads, given the scale it is drawn at."""
         base = self._base_labels.get(edge, "")
         axis = "x" if edge in ("bottom", "top") else "y"
-        # SAY IT WHERE THE AXIS IS. A tick on a menu nobody has open is not
-        # notice; "-log10(p)" was already this idea, and a logged axis owes
-        # the reader the same sentence. A SPLIT axis owes it more: its ruler
-        # is piecewise linear, and a reader measuring a distance on it
-        # without being told is measuring the wrong thing.
         notes = []
         if self._log.get(axis):
             notes.append("log scale")
@@ -2613,14 +2425,9 @@ class FastPlot(QWidget):
             base = self._base_labels.get(edge, "")
             split = axis == "y" and self._split.get("y") is not None
             if not base and not self._log[axis] and not split:
-                # AN UNLABELLED AXIS STAYS UNLABELLED. `setLabel` calls
-                # `showLabel()`, so writing the empty string onto the control
-                # panel's deliberately bare x-axis grows a blank strip there.
                 continue
             self.plot.setLabel(edge, base)
         if self._font_colour is not None or self._font_size is not None:
-            # `setLabel` takes the style with the text, so relabelling drops
-            # a font the user chose off the menu unless it is put back.
             self.apply_text_style()
 
     def _point_tip(self, x, y, data) -> str:
@@ -2635,7 +2442,6 @@ class FastPlot(QWidget):
                 f"y: {self._to_data(y, 'y'):.3g}\n"
                 f"data={data}")
 
-    # --------------------------------------------------------- axes and shape
 
     def _sync_auto_range(self) -> None:
         """Apply a pending pyqtgraph auto-range update before using the view.
@@ -2743,9 +2549,6 @@ class FastPlot(QWidget):
             if limits is None:
                 continue
             if self._log[axis] and min(limits) <= 0:
-                # The scale just changed under a limit that cannot survive
-                # it. Forgetting it is the honest answer -- the axis goes
-                # back to its data rather than to a bound nobody typed.
                 self._pinned[axis] = None
                 continue
             setter(self._to_drawn_value(limits[0], axis),
@@ -2762,17 +2565,6 @@ class FastPlot(QWidget):
         self._pinned = {"x": None, "y": None}
         box = self.plot.getViewBox()
         box.autoRange()
-        # ENABLED LAST, AND THAT ORDER IS THE WHOLE FIX. pyqtgraph's
-        # `autoRange()` ends in `setRange(..., disableAutoRange=True)`, so
-        # calling it turns auto-ranging OFF -- and this method, whose entire
-        # job is to give the axes back to the data, was leaving them frozen
-        # on whatever happened to be drawn at the moment it ran.
-        #
-        # The panel calls this between runs, BEFORE drawing the new table.
-        # Measured: run A spanning +-13 followed by run B spanning +-0.6
-        # opened run B inside run A's window, twenty times too wide, and
-        # "Reset view" -- which autoranges the points that are now there --
-        # put it right. That is exactly what was reported.
         box.enableAutoRange(x=True, y=True)
         self._sync_auto_range()
 
@@ -2794,7 +2586,6 @@ class FastPlot(QWidget):
             return
         box.setAspectLocked(True, ratio=float(ratio))
 
-    # ------------------------------------------------------------------ text
 
     def font_size(self) -> Optional[int]:
         """The point size the axes are drawn at, or None for the default."""
@@ -2842,7 +2633,7 @@ class FastPlot(QWidget):
         for name in ("bottom", "left"):
             try:
                 axis = self.plot.getAxis(name)
-            except Exception:           # absent axis
+            except Exception:
                 continue
             axis.setTextPen(pen)
             if size is not None:
@@ -2851,11 +2642,6 @@ class FastPlot(QWidget):
                 font = QFont()
                 font.setPointSize(int(size))
                 axis.setStyle(tickFont=font)
-            # AN AXIS WITH NO LABEL IS LEFT ALONE. `setLabel` calls
-            # `showLabel()`, so restyling the empty string would make the
-            # control panel -- whose x-axis is deliberately unlabelled,
-            # because its ticks already name the groups -- grow a blank strip
-            # under it the first time anyone changed the font.
             if axis.labelText:
                 style = {"color": colour}
                 if size is not None:
@@ -2868,21 +2654,13 @@ class FastPlot(QWidget):
                                    size=f"{int(size) + 2}pt")
             else:
                 self.plot.setTitle(title.text, color=colour)
-        # A THRESHOLD LINE'S CAPTION IS TEXT, NOT PART OF THE LINE. "p=0.05"
-        # and "FDR 5%" used to be recoloured by `set_line_style`, on the
-        # reasoning that a red word beside a green line looks wrong. The
-        # maintainer's decision (instruction 152 B) is the other way and it
-        # is the one that can be stated in a sentence: "a font color that
-        # controls the color of all font in the graph". A caption that
-        # followed the line would make "all font" untrue, and would be the
-        # one string on the figure the font control could not reach.
         for item in self.line_items():
             label = getattr(item, "label", None)
             if label is None:
                 continue
             try:
                 label.setColor(QColor(colour))
-            except Exception:       # not a labelled line
+            except Exception:
                 pass
         legend = getattr(self.plot.plotItem, "legend", None)
         if legend is not None:
@@ -2892,10 +2670,9 @@ class FastPlot(QWidget):
                     continue
                 try:
                     text.setText(text.text, color=colour)
-                except Exception:   # an odd legend item
+                except Exception:
                     pass
 
-    # ----------------------------------------------------------------- lines
 
     def line_items(self) -> list:
         """Every LINE on this plot, for a restyle to reach.
@@ -2935,7 +2712,7 @@ class FastPlot(QWidget):
         for edge in ("bottom", "left", "top", "right"):
             try:
                 axis = self.plot.getAxis(edge)
-            except Exception:           # absent axis
+            except Exception:
                 continue
             if axis is not None:
                 found.append(axis)
@@ -2980,10 +2757,6 @@ class FastPlot(QWidget):
         from PySide6.QtGui import QPen
 
         if not self.plots_available:
-            # NOTHING WAS DRAWN, so there is nothing to restyle. Answering
-            # zero is the honest reply; reaching into a plot that was never
-            # built is the half-built-widget trap `_build_without_pyqtgraph`
-            # exists to close.
             return 0
         theme = colour == "\0theme"
         if theme:
@@ -2992,10 +2765,6 @@ class FastPlot(QWidget):
         for item in self.line_items():
             existing = self._pen_of(item)
             pen = QPen(existing) if existing is not None else pg.mkPen(MUTED)
-            # THE COLOUR IT WAS DRAWN WITH, REMEMBERED ONCE. Without it
-            # "Follow the theme" has nothing to go back to and would have to
-            # invent a colour, which is the same class of mistake as
-            # persisting a resolved default.
             if not hasattr(item, "_spacr_base_colour"):
                 item._spacr_base_colour = QColor(pen.color()).name()
             if theme:
@@ -3011,17 +2780,10 @@ class FastPlot(QWidget):
             axis_pen = pg.mkPen(QColor(ink))
             for axis in self.axis_items():
                 axis.setPen(axis_pen)
-                # THE TICK MARKS, SEPARATELY. `setPen` paints the spine;
-                # pyqtgraph draws the little dashes with `tickPen` and falls
-                # back to the spine's pen only while none is set -- so an
-                # axis that has ever been given one keeps drawing its ticks
-                # in the old ink unless this line is here.
                 try:
                     axis.setTickPen(axis_pen)
-                except Exception:   # older pyqtgraph
+                except Exception:
                     pass
-        # THE CAPTIONS ARE NOT TOUCHED HERE. "p=0.05" is text and follows the
-        # font control -- see :meth:`apply_text_style`.
         return touched
 
     @staticmethod
@@ -3035,7 +2797,6 @@ class FastPlot(QWidget):
             return options.get("pen")
         return None
 
-    # ------------------------------------------------- a column onto a channel
 
     def colour_by_column(self, column: str, colormap: str = "viridis") -> int:
         """Colour every point by ``column`` through ``colormap``. Returns n.
@@ -3059,11 +2820,6 @@ class FastPlot(QWidget):
             raise ValueError(
                 f"{column!r} is not a continuous column, and a colour scale "
                 f"on a category invents an order the data does not have")
-        # ASKED BEFORE pyqtgraph IS. `pg.colormap.get` resolves a name by
-        # opening a file in its own package directory, so an unknown one
-        # raises FileNotFoundError naming a path inside site-packages -- a
-        # traceback about the library's install layout, in answer to a user
-        # picking a colour scale. Measured on 'jet'.
         if colormap not in COLORMAPS:
             raise ValueError(
                 f"unknown colormap {colormap!r}; this build offers "
@@ -3212,7 +2968,6 @@ class FastPlot(QWidget):
         item._spacr_point_style = (list(item.data["brush"]),
                                    list(item.data["symbol"]))
 
-    # ------------------------------------------------------------ dimensions
 
     def set_screen_size(self, width: int, height: int) -> None:
         """Set the plot's fixed on-screen size in pixels.
@@ -3399,11 +3154,6 @@ class FastPlot(QWidget):
         """
         if not reason:
             if callback is None:
-                # A CHECKABLE ENTRY WIRES ITSELF. `addAction(text, callable)`
-                # connects `triggered`, whose bool is dropped for a slot that
-                # does not ask for one -- so a checkable entry connected that
-                # way reports the state it had BEFORE the press, i.e. never
-                # turns anything on. Those connect `toggled` themselves.
                 return menu.addAction(label)
             return menu.addAction(label, callback)
         action = menu.addAction(f"{label}  —  {reason}")
@@ -3475,33 +3225,9 @@ class FastPlot(QWidget):
         from PySide6.QtWidgets import QMenu
 
         menu = QMenu(self)
-        # A DISABLED ENTRY'S REASON HAS TO BE READABLE. Qt hides action
-        # tooltips unless a menu asks for them, so without this the greyed
-        # entries would be exactly the "present but inert" control that
-        # instruction 106 forbids. Each group repeats it -- see `_group`.
         menu.setToolTipsVisible(True)
         menu.addAction("Reset view", self.auto_range_axes)
-        # ONE DOOR (187 D). There were two -- "Export…", which wrote the plot
-        # as it looked, and "Save styled", which opened the preview where
-        # ink, background, grid and text size are chosen FOR THE FILE. Export
-        # wrote with no preview and no styling pass, which is where the
-        # reported "massive text and a tiny misaligned graph" came from: the
-        # page is sized in millimetres and nothing scaled the text to it.
-        #
-        # A second door that produces a worse file is not a shortcut, so the
-        # remaining one shows what it will write. `export` itself stays as
-        # the API both paths and every test use.
         menu.addAction("Save figure…", lambda: self.save_styled())
-        # AND THE WHOLE THING (instruction 223). Beside "Save figure…" rather
-        # than replacing it: a user who wants a png for Slack should not have
-        # to take a folder of five files, and one who wants the figure
-        # checkable six months from now should not have to assemble it by
-        # hand. Two doors here is not the 187 D duplication -- they produce
-        # DIFFERENT things, and each says which.
-        # AND CHANGE WHAT KIND OF GRAPH IT IS. On the base class, so every
-        # plot that holds a spec gets it and no plot that does not shows an
-        # empty submenu. `_offer_graph_kinds` returns without adding
-        # anything when there is nothing to offer.
         self._offer_graph_kinds(menu)
 
         bundle = menu.addAction("Save",
@@ -3513,49 +3239,26 @@ class FastPlot(QWidget):
             "later the question is what the numbers were and whether the "
             "difference was tested, and a figure file answers neither.")
 
-        # ------------------------------------------------ what the plot CLAIMS
         claims = False
         if self._levels:
-            # WHICH ROWS, not how they look. First, because a filtered plot
-            # that looks like a restyled one is read as the whole screen.
             self._checkable(self._group(menu, "Show"), self._levels)
             claims = True
         if self._p_values:
-            # THE Y-AXIS ITSELF. Above the effect-size cut because it changes
-            # what the axis MEANS, while the cut changes where a line is
-            # drawn on it.
             self._checkable(self._group(menu, "p-value"), self._p_values)
             claims = True
         if self._corrections:
-            # WHICH MULTIPLE-TESTING CORRECTION IS DRAWN. Beside the p-value
-            # axis because the two are one question -- what the height and
-            # the colour MEAN -- and above the effect-size cut for the same
-            # reason the axis is.
             group = self._group(menu, "Correction")
             self._checkable(group, self._corrections)
             if self._correction_writer is not None:
-                # NOT LEFT AMBIGUOUS. A plot recorrected to something other
-                # than the run's is showing a different analysis from the
-                # results.csv beside it; the status line says so, and this is
-                # the other half of the answer -- the numbers on screen,
-                # written out, so the table and the figure can be made to
-                # agree rather than merely be known to differ.
                 group.addAction("Write this correction as a table…",
                                 self._correction_writer)
             claims = True
         if self._encodings:
-            # WHICH CHANNEL CARRIES THE FDR. Under the correction rather than
-            # beside "Colour by", because it changes what the picture MEANS
-            # and not how it looks -- and because two of its entries take the
-            # colour channel away from the colouring below.
             self._checkable(self._group(menu, "Show the FDR as"),
                             self._encodings)
             claims = True
         options, multiplier, on_multiplier = self._thresholds
         if options:
-            # It changes which points count as hits, so it belongs neither
-            # with the restyling below nor with the re-fit at the end -- it
-            # re-reads a fit that has already happened, like the baseline.
             cut = self._group(menu, "Effect-size cut")
             if multiplier is not None and on_multiplier is not None:
                 cut.addAction(
@@ -3565,15 +3268,10 @@ class FastPlot(QWidget):
             self._checkable(cut, options)
             claims = True
         if self._baselines:
-            # WHAT THE EFFECTS ARE MEASURED FROM. It moves the points and
-            # does NOT change the fit: it changes where zero is drawn on a
-            # fit that has already happened.
             self._checkable(self._group(menu, "Measured from"),
                             self._baselines)
             claims = True
         if self._smoothers is not None:
-            # NOT under a heading that could read as a choice of fit. These
-            # are drawn on top of one; the heading says which it is.
             self._checkable(
                 self._group(menu, "Diagnostic curve (decides no hit)"),
                 self._smoother_options())
@@ -3581,12 +3279,7 @@ class FastPlot(QWidget):
         if claims:
             menu.addSeparator()
 
-        # -------------------------------------------------- how it is DRAWN
         if self._marks:
-            # Every option is offered -- including the ones that mislead for
-            # the data on screen, because a menu that hides them cannot
-            # explain why -- and the plot says so in its status line once the
-            # choice is made.
             self._checkable(self._group(menu, "Draw as"), self._marks)
         points = self.point_reason()
         colour = self._group(menu, "Colour by")
@@ -3594,9 +3287,6 @@ class FastPlot(QWidget):
         self._gated(colour, "Colour by a column…", self._ask_colour_column,
                     self.colour_map_reason())
         if self._compartments:
-            # ITS OWN LIST, because this is the one that can be long -- and
-            # it holds only what this screen actually has, so a choice that
-            # would colour nothing is not offered at all.
             self._checkable(self._group(colour, "Colour by localisation"),
                             self._compartments)
         if self._colour_column or self._shape_column:
@@ -3607,26 +3297,14 @@ class FastPlot(QWidget):
         axes.addAction("Axis labels…", self._ask_labels)
         axes.addAction("Axis limits…", self._ask_axis_limits)
         axes.addAction("Axis limits: back to automatic", self.auto_range_axes)
-        # NAMED FOR WHAT IT DOES. It was "Aspect ratio", which everybody
-        # read as "make the figure square" -- and it is a statement about the
-        # DATA: one y unit drawn as n x units, which is what a Q-Q's
-        # 45-degree diagonal needs and is nothing to do with the page. The
-        # page is "Shape", under Appearance.
         axes.addAction("Lock axis scales (1 y unit = n x units)…",
                        self._ask_aspect_ratio)
-        # THE SPLIT, ASKED FOR BY NAME. Under Axes because it is a statement
-        # about the RULER: it takes an empty stretch out so the rest of the
-        # screen gets its height back. It does NOT make a stepped adjusted P
-        # continuous, and the status line it writes says so.
         axes.addAction("Split the y axis…", self._ask_y_split)
         if self.y_split() is not None:
             low, high = self.y_split()
             axes.addAction(f"Y axis split ({low:g}-{high:g}): remove",
                            self.clear_y_split)
         for axis in ("x", "y"):
-            # CHECKABLE, AND GATED. The tick is the state, and an axis that
-            # cannot be logged says why in the entry itself rather than
-            # sitting there live and doing nothing.
             reason = self.log_reason(axis)
             entry = self._gated(axes, f"Log {axis} axis", None, reason)
             entry.setCheckable(True)
@@ -3648,14 +3326,8 @@ class FastPlot(QWidget):
                 self.set_canvas_shape(which))
             entry.setCheckable(True)
             entry.setChecked(self._canvas_shape == name)
-            # The stored name travels with the entry, so a caller reading the
-            # menu back does not have to un-translate the label.
             entry.setData(name)
         look.addAction("Font size…", self._ask_font_size)
-        # EXACTLY TWO COLOUR CONTROLS, split by what a mark IS rather than by
-        # which part of the code draws it (instruction 152 B). Font colour is
-        # every piece of text, tick LABELS included; Line colour is every
-        # line, the axis spines and tick MARKS included.
         look.addAction("Font colour…", self._ask_font_colour)
         self._gated(look, "Line colour…", self._ask_line_colour,
                     self.line_colour_reason())
@@ -3673,10 +3345,6 @@ class FastPlot(QWidget):
             legend.setChecked(self._legend_box.isChecked())
             legend.toggled.connect(self._legend_box.setChecked)
 
-        # NAMED SEPARATELY BECAUSE THEY ARE DIFFERENT QUANTITIES. "Dimensions"
-        # as one entry is the misleading version: on the live plot it is the
-        # widget's size, on a saved figure it is the page, and a user who sets
-        # one and inspects the other finds nothing changed.
         size = self._group(menu, "Size")
         size.addAction("Size on screen…", self._ask_screen_size)
         size.addAction("Exported page size…", self._ask_export_size)
@@ -3684,23 +3352,14 @@ class FastPlot(QWidget):
                        self.clear_screen_size)
 
         if self._style is not None:
-            # THE FIGURE'S OWN SETTINGS, under one heading and below the
-            # plot's, because they belong to whoever supplied them and a
-            # reader has to be able to tell the two apart.
             style, on_change, choices = self._style
             group = self._group(menu, "Figure style")
             add_style_entries(group, style, on_change, choices=choices)
-            # SAVABLE, not only editable -- the half the maintainer restated
-            # on 2026-08-16 ("each figure should be editable and savable").
-            # A restyle the user cannot keep is a restyle they redo every
-            # time they need the picture.
             group.addSeparator()
             add_style_file_entries(group, style, on_change, parent=self,
                                    note=self.set_style_note)
         if self._refit is not None:
             callback, label = self._refit
-            # A SECTION, not another line in the list. Everything above
-            # restyles; below here the numbers change.
             menu.addSection("Re-runs the analysis")
             menu.addAction(label, callback)
         return menu
@@ -3854,9 +3513,6 @@ class FastPlot(QWidget):
                 else QColor(colour_for(0))
             colour.setAlpha(alphas[code] if code >= 0 else 255)
             out.append(pg.mkBrush(colour))
-        # A frame shorter than the drawn points leaves the rest untouched
-        # rather than dropping them: a missing level is not a reason for a
-        # point to vanish.
         out.extend(base[len(out):])
         return out
 
@@ -3997,27 +3653,6 @@ class FastPlot(QWidget):
         height = float(height_mm) if height_mm else width_mm * aspect
 
         writer = QPdfWriter(str(path))
-        # THE DEVICE SCALE MUST MATCH THE SCENE, and 600 was the bug.
-        #
-        # Reported 2026-08-20: "the png saving seems to work but the pdf still
-        # has ginormous text and on a tiny missaligned graph." Reproduced by
-        # rasterising the PDF beside the PNG: the tick labels came out several
-        # times the height of the plot and the axes sat off the page.
-        #
-        # WHY IT ONLY HITS THE PDF. `scene.render` maps the scene rect onto
-        # the page geometrically -- but pyqtgraph draws its tick labels with
-        # `ItemIgnoresTransformations`, which is what keeps them upright and
-        # legible while a user zooms. Those items render at the DEVICE's own
-        # scale, untouched by the mapping. At 600 dpi a 180 mm page is ~4250
-        # device units wide while the scene is ~900, so everything geometric
-        # was scaled 4.7x and the text was not -- it stayed device-sized and
-        # so came out 4.7x too big relative to everything around it. The PNG
-        # path never had this because ImageExporter renders at the item's own
-        # pixel size, 1:1.
-        #
-        # Resolution chosen so one scene unit is one device unit. A PDF is
-        # vector at any resolution -- this sets the coordinate scale, not the
-        # fidelity -- so the text stays text and the lines stay lines.
         writer.setResolution(cls._pdf_resolution(source.width(), width_mm))
         size = QPageSize(QSizeF(width_mm, height), QPageSize.Millimeter)
         writer.setPageSize(size)
@@ -4134,8 +3769,6 @@ class FastPlot(QWidget):
         """
         colour = pick_colour(self, PALETTE[0], "Point colour")
         if colour.isValid():
-            # One brush for everything: this is the deliberate override of a
-            # category colouring, and it is also the fastest path there is.
             brush = pg.mkBrush(colour)
             for item in self._scatter_items():
                 item.setBrush(brush)
@@ -4215,10 +3848,6 @@ class FastPlot(QWidget):
         from PySide6.QtWidgets import QInputDialog
 
         (x_from, x_to), (y_from, y_to) = self.axis_limits()
-        # THE DIALOG SAYS WHICH UNITS IT WANTS. They are always the data's
-        # own -- a logged axis is drawn in log10 and typed in the quantity --
-        # and a prompt that does not say so is a number the user has to guess
-        # the meaning of on the one axis where the two differ.
         units = {axis: (" in data units, not log10" if self._log[axis] else "")
                  for axis in ("x", "y")}
         asked = []
@@ -4435,7 +4064,7 @@ class FastPlot(QWidget):
             self.plot.plotItem.legend = None
             try:
                 self.plot.plotItem.scene().removeItem(legend)
-            except Exception:  # already detached
+            except Exception:
                 pass
 
     def set_status(self, text: str) -> None:
@@ -4546,35 +4175,14 @@ class FastPlot(QWidget):
         x = _finite(x)
         y = _finite(y)
         keep = ~(np.isnan(x) | np.isnan(y))
-        # Positions in the arrays as handed in: what indexes `colours` and
-        # `brush_list`, which are drawn up alongside x and y.
         drawn = np.nonzero(keep)[0]
-        # Indices into the ORIGINAL frame, so a click still identifies the
-        # right row after unplottable points have been dropped -- and, when
-        # `rows` says the arrays were reordered, after that too.
         original = drawn if rows is None else np.asarray(rows)[drawn]
-        # ONE numpy->Python conversion, not a loop of them. `.tolist()` is a
-        # C-level bulk convert; `[int(row) for row in original]` is 1,215
-        # interpreter round trips and measurably re-slowed the volcano the
-        # first time this was written that way.
         rows_drawn = original.tolist()
 
         brushes = None
         if brush_list is not None:
-            # Already one reusable brush per point; nothing to build.
             brushes = [brush_list[i] for i in drawn]
         elif colours is not None:
-            # ONE BRUSH PER DISTINCT COLOUR, REUSED -- not one per point.
-            #
-            # pg.mkBrush() per point builds 1,215 QBrush objects and defeats
-            # pyqtgraph's fast path completely. Measured on the real volcano:
-            #
-            #     a brush constructed per point      39.5 ms
-            #     27 brushes, indexed per point       3.5 ms
-            #     a single brush for everything       1.6 ms
-            #
-            # The colours themselves were never the problem; allocating them
-            # was. This is the whole of the lag on the last graph.
             colours = list(colours)
             cache: dict = {}
             brushes = []
@@ -4586,18 +4194,11 @@ class FastPlot(QWidget):
                     brush = cache[key] = pg.mkBrush(colour)
                 brushes.append(brush)
 
-        # `data` must go in with the points: calling setData afterwards ADDS
-        # points rather than annotating the ones already there.
         sizes = size
         if size_list is not None:
             sizes = np.asarray(size_list, dtype=float)[drawn]
         symbols = symbol
         if symbol_list is not None:
-            # SUBSET BY `drawn`, exactly as the sizes and the brushes are.
-            # A per-point array indexed in frame order against points that
-            # have been filtered is the same misalignment `rows` exists to
-            # prevent, and it would put the wrong shape on the right dot --
-            # silently, because something is drawn.
             symbols = [symbol_list[int(i)] for i in drawn]
         item = pg.ScatterPlotItem(
             x=x[keep], y=y[keep], size=sizes, symbol=symbols,
@@ -4608,15 +4209,12 @@ class FastPlot(QWidget):
         )
         item.sigClicked.connect(self._on_points_clicked)
         self.plot.addItem(item)
-        # Where each row ended up, so a selection arriving later can be drawn
-        # without re-deriving the transform that put it there.
         self._row_xy.update(zip(rows_drawn,
                                 zip(x[keep].tolist(), y[keep].tolist())))
         if labels is not None and len(labels):
             self._labels = labels
         return item
 
-    # ------------------------------------------------------------ selection
 
     def set_keys(self, keys) -> int:
         """Give each frame row its identifier. Returns the number of rows.
@@ -4633,11 +4231,6 @@ class FastPlot(QWidget):
         """
         if keys is None:
             keys = ()
-        # A MISSING KEY IS None, NOT THE STRING "nan". A frame column carries
-        # its blanks as float NaN, and str() turns every one of them into the
-        # same four characters -- which would make one bogus identifier that
-        # several unrelated rows answer to, i.e. exactly the collision this
-        # method's duplicate rule exists to prevent.
         self._keys = [None if key is None or key != key else str(key)
                       for key in keys]
         self._key_rows = {}
@@ -4674,14 +4267,12 @@ class FastPlot(QWidget):
         """
         key = None if key is None else str(key)
         self._selected_key = key
-        # Single-select REPLACES. Leaving the multi list alone here is how the
-        # count on screen and the list the consumers read drift apart.
         self._selected_keys = [] if key is None else [key]
         self._clear_extra_highlights()
         if self._highlight is not None:
             try:
                 self.plot.removeItem(self._highlight)
-            except Exception:               # already gone
+            except Exception:
                 pass
             self._highlight = None
         if key is None:
@@ -4702,8 +4293,6 @@ class FastPlot(QWidget):
         if position is None:
             return False
         x, y = position
-        # An open ring, not a filled dot: filling it would hide the point it
-        # is meant to identify, including its category colour.
         self._highlight = pg.ScatterPlotItem(
             x=[x], y=[y], symbol="o", size=20, brush=pg.mkBrush(None),
             pen=pg.mkPen(QColor(self._foreground), width=2.0))
@@ -4715,7 +4304,6 @@ class FastPlot(QWidget):
         """Drop the highlight, leaving the data as it is."""
         self.highlight_key(None)
 
-    # ------------------------------------------------------- multi-select
 
     def selected_keys(self) -> List[str]:
         """Return selected identifiers in pick order.
@@ -4742,7 +4330,7 @@ class FastPlot(QWidget):
         if self._highlight is not None:
             try:
                 self.plot.removeItem(self._highlight)
-            except Exception:               # already gone
+            except Exception:
                 pass
             self._highlight = None
         self._selected_keys = wanted
@@ -4750,8 +4338,6 @@ class FastPlot(QWidget):
         if not wanted:
             return 0
         drawn = 0
-        # The LAST picked one keeps `_highlight`, because that is the one a
-        # single-select consumer means by "the selection".
         for key in wanted[:-1]:
             row = self._key_rows.get(key)
             if row is not None and self._draw_extra_marker(row):
@@ -4851,8 +4437,6 @@ class FastPlot(QWidget):
             if not wanted or event.button() != Qt.LeftButton:
                 return original(event, axis)
             event.accept()
-            # The band is pyqtgraph's own scale box, so it looks exactly like
-            # the rectangle zoom the user already knows.
             box.updateScaleBox(event.buttonDownPos(), event.pos())
             if not event.isFinish():
                 return None
@@ -4876,11 +4460,10 @@ class FastPlot(QWidget):
         for ring in self._extra_highlights:
             try:
                 self.plot.removeItem(ring)
-            except Exception:               # already gone
+            except Exception:
                 pass
         self._extra_highlights = []
 
-    # ------------------------------------------------------- ranked bars
 
     #: Longest tick label a ranked-bar chart shows before it is elided.
     RANK_LABEL = 34
@@ -4940,11 +4523,6 @@ class FastPlot(QWidget):
         heights = heights[order]
         names = [names[int(i)] for i in order]
 
-        # LARGEST AT THE TOP, so `rank` counts DOWN the screen. pyqtgraph's
-        # y grows upward, so the first bar takes the highest number and the
-        # axis is inverted rather than the data being reversed -- the same
-        # picture, but the values stay in the order the caller can read off
-        # the frame they handed over.
         rows = np.arange(len(heights), dtype=float)
         accent = QColor(colour) if colour is not None else colour_for(0)
         grey = QColor(self._foreground)
@@ -4986,7 +4564,6 @@ class FastPlot(QWidget):
         return pd.DataFrame({"name": list(names),
                              "value": [float(v) for v in heights]})
 
-    # ------------------------------------------------------ curve + band
 
     def add_curve(self, x, y, *, colour=None, width: float = 2.0,
                   low=None, high=None, name: str = "") -> int:
@@ -5053,7 +4630,6 @@ class FastPlot(QWidget):
         return pd.DataFrame({"x": [float(v) for v in xs],
                              "y": [float(v) for v in ys]})
 
-    # --------------------------------------------------------- beeswarm
 
     #: Colour scale a beeswarm encodes the FEATURE VALUE on.
     BEESWARM_SCALE = "viridis"
@@ -5167,7 +4743,6 @@ class FastPlot(QWidget):
             rank = seen.get(int(slot), 0)
             seen[int(slot)] = rank + 1
             here = max(1, int(counts[int(slot)]))
-            # Centred: rank 0 in the middle, then alternating out.
             step = ((rank + 1) // 2) * (1 if rank % 2 else -1)
             offsets[index] = (step / max(1.0, here)) * \
                 (here / busiest) * FastPlot.BEESWARM_SPREAD
@@ -5208,7 +4783,6 @@ class FastPlot(QWidget):
                 rows.append({"feature": name, "contribution": float(value)})
         return pd.DataFrame(rows)
 
-    # ------------------------------------------------------------- radar
 
     #: Grid rings drawn behind a radar polygon.
     RADAR_RINGS = 4
@@ -5262,9 +4836,6 @@ class FastPlot(QWidget):
         radii = np.clip(radii, 0.0, None)
         outer = float(np.max(radii)) or 1.0
 
-        # CLOCKWISE FROM THE TOP, which is how every radar chart anybody has
-        # seen is laid out; counter-clockwise from the right is the maths
-        # convention and reads as a different chart.
         angles = np.array([math.pi / 2.0 - 2.0 * math.pi * i / len(names)
                            for i in range(len(names))])
 
@@ -5291,9 +4862,6 @@ class FastPlot(QWidget):
         self.plot.addItem(pg.PlotCurveItem(
             x=closed_x, y=closed_y, pen=pg.mkPen(ink, width=2.0),
             fillLevel=None, brush=None))
-        # THE FILL IS ITS OWN ITEM. `fillLevel` fills to a horizontal line,
-        # which on a closed polygon shades a half-moon rather than the
-        # inside -- so the interior is a second, brushed curve.
         area = pg.PlotDataItem(x=closed_x, y=closed_y,
                                pen=pg.mkPen(None), fillLevel=0,
                                brush=fill, connect="all")
@@ -5307,9 +4875,6 @@ class FastPlot(QWidget):
                         outer * label_pad * math.sin(angle))
             self.plot.addItem(text)
 
-        # A RADAR HAS NO AXES: the numbers live on the rings, and a pair of
-        # cartesian scales beside a polar chart is two coordinate systems on
-        # one picture.
         for side in ("left", "bottom"):
             self.plot.getAxis(side).setTicks([[]])
         self.plot.showGrid(x=False, y=False)
@@ -5335,13 +4900,8 @@ class FastPlot(QWidget):
                  style=Qt.DashLine, width: float = 1.5, label: str = ""):
         """A threshold line. ``x`` for vertical, ``y`` for horizontal."""
         if self._line_colour is not None:
-            # A LINE ADDED AFTER THE CONTROL WAS USED STILL OBEYS IT. A
-            # redraw puts new threshold lines on the plot, and without this
-            # they would arrive in the default red beside the ones the user
-            # recoloured.
             colour = self._line_colour
         pen = pg.mkPen(QColor(colour), width=width, style=style)
-        # THE CAPTION FOLLOWS THE FONT, NOT THE LINE (instruction 152 B).
         ink = self._font_colour or self._foreground
         line = pg.InfiniteLine(
             pos=(x if x is not None else y),
@@ -5352,7 +4912,6 @@ class FastPlot(QWidget):
         self.plot.addItem(line)
         return line
 
-    # ------------------------------------------------------------ group marks
 
     def add_group_mark(self, position: float, values, kind: str = "points", *,
                        colour=None, rows=None, width: float = 0.6,
@@ -5412,25 +4971,12 @@ class FastPlot(QWidget):
                 x = np.full(len(v), float(position))
             self.add_scatter(x, v, size=size, rows=picked,
                              colours=[ink] * len(v))
-            # THE SUMMARY LINE IS THE POINT OF "points". Bare points with no
-            # summary answer nothing; the rule this menu follows is
-            # "individual points WITH a mean line", and the line is the half
-            # that carries the comparison between the groups.
             level = float(np.median(v) if centre == "median" else np.mean(v))
             self.plot.plot([position - half, position + half], [level, level],
                            pen=pg.mkPen(QColor(self._foreground), width=2))
             return int(len(v))
 
         if kind in ("jitter_box", "jitter_bar"):
-            # THE SUMMARY FIRST, THE POINTS ON TOP. Drawn in that order so the
-            # observations are not hidden behind the shape that summarises
-            # them -- which is the whole reason a composite is a different
-            # request from either half.
-            #
-            # AND THE POINTS KEEP THEIR ROWS, so a composite stays CLICKABLE
-            # where the bare box and bar do not. That is what makes this the
-            # honest default: the reader sees the distribution and can still
-            # name any observation in it.
             self.add_group_mark(position, values,
                                 "box" if kind == "jitter_box" else "bar",
                                 colour=colour, rows=None, width=width,
@@ -5441,10 +4987,6 @@ class FastPlot(QWidget):
                                        size=size, seed=seed, centre=centre)
 
         if kind == "line":
-            # ONE POINT PER GROUP, and the JOINING is the caller's: this
-            # method draws one group at a time and cannot see its neighbours.
-            # The marker is what a line chart is made of, and `GroupedPlot`
-            # connects them once every group has been drawn.
             level = float(np.median(v) if centre == "median" else np.mean(v))
             self.add_scatter([float(position)], [level], size=max(6, size),
                              rows=None, colours=[ink])
@@ -5465,14 +5007,6 @@ class FastPlot(QWidget):
             self.plot.addItem(pg.BarGraphItem(
                 x=[position], height=[mean], width=width, brush=fill,
                 pen=pg.mkPen(ink)))
-            # THE SPREAD, ON THE BAR, AND THE USER SAYS WHICH ONE. A bar
-            # already hides every observation; one with no interval at all
-            # hides that there was any spread to hide, which is the version
-            # of this chart that gets published and then argued about.
-            #
-            # THROUGH `spacr.figures.spread`, which is the one vocabulary --
-            # a second definition of SEM here would let two screens draw
-            # whiskers sqrt(n) apart and label them identically.
             from ...figures.spread import SPREAD_NONE, spread_of
 
             if len(v) > 1 and str(spread or SPREAD_NONE) != SPREAD_NONE:
@@ -5500,10 +5034,6 @@ class FastPlot(QWidget):
                            [median, median], pen=pen)
             self.plot.plot([position, position], [q3, top], pen=pen)
             self.plot.plot([position, position], [bottom, q1], pen=pen)
-            # OUTLIERS STAY POINTS, and stay clickable. They are the rows a
-            # reader of a box plot actually wants to name, and they are
-            # individual observations, so the rule above lets them keep their
-            # rows.
             beyond = (v > top) | (v < bottom)
             if beyond.any():
                 self.add_scatter(np.full(int(beyond.sum()), float(position)),
@@ -5514,9 +5044,6 @@ class FastPlot(QWidget):
         if kind == "violin":
             centres, density = _violin_profile(v, half)
             if centres is None:
-                # Every value identical: a density has no width and the
-                # outline would be a vertical line pretending to be a shape.
-                # Fall back to the honest mark rather than drawing that.
                 return self.add_group_mark(position, values, "points",
                                            colour=colour, rows=rows,
                                            width=width, size=size, seed=seed,
@@ -5560,11 +5087,6 @@ class FastPlot(QWidget):
             self.set_status_note(text)
         key = self.key_for_row(index)
         if key is not None:
-            # THE PLATFORM GESTURE, NOT A BESPOKE MODE (instruction 206).
-            # Ctrl or Shift adds and removes; a plain click replaces. Read
-            # from the application rather than the event because pyqtgraph's
-            # click carries a scene event whose modifiers are not always
-            # populated on every platform.
             if self._adding_to_selection():
                 keys = self.toggle_key(key)
             else:
@@ -5619,11 +5141,6 @@ class FastPlot(QWidget):
                                  if not isinstance(value, str) else str(value))
             if parts:
                 return "   ".join(parts)
-        # THE IDENTIFIER IS ALREADY THE ANSWER. A diagnostic plot holds no
-        # frame -- it is handed an array of p-values -- so without this a
-        # click on the Q-Q reported an empty status line while quietly
-        # selecting the right row somewhere else. The key IS the guide's
-        # name; saying it costs one lookup and is what the user clicked for.
         key = self.key_for_row(index)
         return key or ""
 
@@ -5636,7 +5153,6 @@ class FastPlot(QWidget):
         """
         return ""
 
-    # ---------------------------------------------------------------- export
 
     def export(self, path: Optional[str] = None) -> Optional[str]:
         """Write the plot out: PDF, SVG or PNG, by the name given.
@@ -5647,18 +5163,6 @@ class FastPlot(QWidget):
         The page is :meth:`export_size`, which the right-click menu sets. It
         is independent of the widget's on-screen size.
         """
-        # `clicked` AND `triggered` BOTH CARRY A BOOL, and this method takes
-        # an optional first argument, so Qt hands the checked state straight
-        # into `path`. `False is None` is False, the dialog never opened, and
-        # `False` travelled all the way to QImage.save -- which is where the
-        # user saw it:
-        #
-        #     TypeError: 'QImage.save' called with wrong argument types:
-        #       QImage.save(bool)
-        #
-        # The connections below now pass no argument, but this stays: `export`
-        # is public, and the next person to wire a button to it should not
-        # have to know that Qt's signal has an argument it does not want.
         if isinstance(path, bool):
             path = None
         if path is None:
@@ -5673,21 +5177,8 @@ class FastPlot(QWidget):
 
         item = self.plot.plotItem
         width_mm, height_mm = self.export_size()
-        # INSTRUCTION 150. Around the WHOLE export and not around
-        # `_paint_scene`, which was the first attempt and reached only two of
-        # the three formats: PDF and SVG paint the scene themselves, and PNG
-        # goes through pyqtgraph's ImageExporter, which does not. A rule that
-        # covers two formats out of three is worse than none, because the one
-        # it misses is the default.
-        #
-        # AND NOT AROUND `snapshot()`, deliberately. That render is the tile
-        # in the gallery, which is the SCREEN version -- 139 C: the tile and
-        # the file differ on purpose and the difference is the point.
         restore = self._wear_the_print_look(item)
         try:
-            # THE SCENE TAKES THE SHAPE FIRST. `export_size` above has
-            # already put the shape on the PAGE; without this the page and
-            # the scene disagree and Qt letterboxes the difference.
             with self._held_at_the_page_shape():
                 self._write_export(item, path, width_mm, height_mm, exporters)
         finally:
@@ -5703,16 +5194,9 @@ class FastPlot(QWidget):
             self._export_svg(item, path, width_mm, height_mm)
         else:
             exporter = exporters.ImageExporter(item)
-            # THE PAGE THE SAVE ASKS FOR (150 B). Transparent was the old
-            # answer and it is only right for the `transparent` mode: dark ink
-            # on no background is still unreadable on a dark slide, and a
-            # figure going into a manuscript is going onto white. `print` --
-            # the default -- writes an explicit light page, `screen` keeps
-            # what is on screen, and `transparent` keeps the old behaviour for
-            # anyone compositing onto their own colour.
             try:
                 exporter.parameters()["background"] = self._export_ground()
-            except (KeyError, TypeError):   # older pyqtgraph
+            except (KeyError, TypeError):
                 pass
             self._shape_the_image(exporter, width_mm, height_mm)
             exporter.export(path)
@@ -5770,18 +5254,9 @@ class FastPlot(QWidget):
             box = self.plot.getViewBox()
             state = box.state.get("aspectLocked", False)
             before_aspect = float(state) if state else None
-        # THE PAGE, not just the scene. Restyling the scene colours what is
-        # DRAWN; the raster exporter fills the page behind it separately, and
-        # it reads `_export_ground`. Recording the choice here is what lets
-        # that method prefer it over the global look. Empty means the dialog
-        # said "transparent", which is not a colour and must not become one.
         before_ground = getattr(self, "_chosen_ground", "")
         try:
             if canvas_shape and canvas_shape in dict(CANVAS_SHAPES):
-                # THE STATE, NOT `set_canvas_shape`. That one re-lays the
-                # widget out on screen, and this styling is for the file:
-                # the scene is given the proportion by
-                # `_held_at_the_page_shape` around the render itself.
                 self._canvas_shape = str(canvas_shape)
             if dpi:
                 self._export_dpi = int(dpi)
@@ -5823,10 +5298,6 @@ class FastPlot(QWidget):
             if line_width and before_width:
                 self.set_line_style(width=before_width)
             if font_size:
-                # BACK TO WHAT IT WAS, INCLUDING None. `set_font_size` takes
-                # an int, so "no size of its own" -- the default state of
-                # every plot nobody has resized -- can only be restored by
-                # putting the attribute back and re-applying.
                 self._font_size = before_font
                 self.apply_text_style()
             if grid is not None:
@@ -5864,10 +5335,6 @@ class FastPlot(QWidget):
         raises an exception.
         """
         with self._dressed_for_the_file(ink, background, grid, **styling):
-            # THE PAGE THE FILE WOULD GET. `_export_ground` is what the
-            # raster exporter fills behind the scene when the file is
-            # written, so a preview that left it out showed a transparent
-            # page for a file that will not have one.
             return self.snapshot(width, ground=self._export_ground())
 
     def export_bundle(self, folder: Optional[str] = None,
@@ -5894,7 +5361,7 @@ class FastPlot(QWidget):
         also records the displayed data, statistical comparison, and relevant
         plot settings.
         """
-        if isinstance(folder, bool):        # a signal's checked state
+        if isinstance(folder, bool):
             folder = None
         if folder is None:
             from PySide6.QtWidgets import QFileDialog
@@ -5947,30 +5414,16 @@ class FastPlot(QWidget):
         described = dict(GRAPH_TYPES)
         current = str(getattr(spec, "kind", "") or "")
         for kind, caption, reason in rows:
-            # THE NAME ON THE ENTRY, THE DESCRIPTION IN THE TOOLTIP. A menu
-            # reading "one value per group" instead of "Bar" cannot be
-            # scanned, which is what a menu is for.
             action = show_as.addAction(str(GRAPH_NAMES.get(kind, kind)))
             action.setToolTip(reason or str(described.get(kind, caption)))
             action.setCheckable(True)
             action.setChecked(kind == current)
             if reason:
-                # GREYED WITH THE REASON, never absent: a list that silently
-                # shortens leaves the user wondering whether they
-                # misremembered (instruction 106).
                 action.setEnabled(False)
             else:
                 action.triggered.connect(
                     lambda _checked=False, k=kind: self._show_as_kind(k))
 
-        # AND A WAY TO MAKE IT THE STARTING POINT. Asked for 2026-08-28: the
-        # right-click menu was right, but it only ever changed the graph in
-        # front of you -- the next one of the same shape was drawn the old
-        # way again. This is the same choice, remembered.
-        #
-        # HERE, where the user is already choosing a graph type, rather than
-        # only in Preferences: the moment somebody decides they prefer a
-        # violin is the moment they are looking at one.
         if current:
             show_as.addSeparator()
             from ...graph_types import shape_of
@@ -6112,7 +5565,7 @@ class FastPlot(QWidget):
                 width, blockSignal=exporter.widthChanged)
             parameters.param("height").setValue(
                 height, blockSignal=exporter.heightChanged)
-        except Exception:       # a different exporter API
+        except Exception:
             pass
 
     def snapshot(self, width: int = SNAPSHOT_PX[0], *, ground=None):
@@ -6157,8 +5610,6 @@ class FastPlot(QWidget):
             with self._held_at_the_page_shape():
                 return self._render_snapshot(exporters, width, ground)
         except Exception:
-            # A picture is never worth taking the screen down for. The caller
-            # pins nothing, which is the same thing that happens before a run.
             return None
 
     def _render_snapshot(self, exporters, width: int, ground):
@@ -6174,30 +5625,16 @@ class FastPlot(QWidget):
         exporter.parameters()["width"] = int(width)
         ratio = self.canvas_ratio()
         if ratio is not None:
-            # THE SHAPE, IN THE PIXELS TOO. The scene is already held at the
-            # proportion, but the exporter's linked height is recomputed from
-            # the source rect it saw when the width was written -- so a
-            # preview could come back one pixel out of square, which is the
-            # difference between "the shape worked" and "nearly".
             try:
                 exporter.parameters().param("height").setValue(
                     max(1, int(round(int(width) * float(ratio)))),
                     blockSignal=exporter.heightChanged)
-            except Exception:           # other exporter
+            except Exception:
                 pass
         try:
-            # TRANSPARENT BY DEFAULT, like the tile behind it. The
-            # exporter otherwise uses pyqtgraph's configured background,
-            # and a tile painted onto an opaque slab is the "the graphs
-            # still have a black background" report all over again.
-            #
-            # A CALLER MAY ASK FOR THE PAGE, and the save dialog does:
-            # its preview is meant to be the file, and a file written
-            # onto white while its preview showed transparent is a
-            # preview of something else.
             exporter.parameters()["background"] = (
                 QColor(0, 0, 0, 0) if ground is None else ground)
-        except (KeyError, TypeError):   # old pyqtgraph
+        except (KeyError, TypeError):
             pass
         image = exporter.export(toBytes=True)
         if image is None or image.isNull():
@@ -6223,25 +5660,17 @@ class FastPlot(QWidget):
         for edge in ("bottom", "left", "top", "right"):
             try:
                 axis = self.plot.getAxis(edge)
-            except Exception:               # absent axis
+            except Exception:
                 continue
             axis.setPen(axis_pen)
             axis.setTextPen(axis_pen)
         title = getattr(self.plot.plotItem, "titleLabel", None)
         if title is not None and title.text:
             self.plot.setTitle(title.text, color=foreground)
-        # A THEME SWITCH MUST NOT UNDO A CHOICE THE USER MADE. The loop above
-        # has just painted the theme's ink over every axis; if the user set a
-        # font or a line colour off the menu, that is what they asked this
-        # plot to look like and it goes back on top.
         if self._line_colour is not None:
             self.set_line_style(colour=self._line_colour)
         if (self._font_colour is not None or self._font_size is not None
                 or self._line_colour is None):
-            # The captions are text and were just repainted with the axes'
-            # ink by nothing at all -- they are LabelItems, which the loop
-            # above does not reach. apply_text_style is what carries the
-            # theme to them, so it runs on a plain theme switch too.
             self.apply_text_style()
 
     def closeEvent(self, event) -> None:  # noqa: N802 - Qt override
@@ -6339,12 +5768,6 @@ class VolcanoPlot(FastPlot):
         super().__init__(title="Volcano",
                          x_label=self.EFFECT_LABELS["fitted"],
                          y_label="-log10(p)", parent=parent)
-        # NO SI PREFIX ON AN EFFECT SIZE. pyqtgraph factors a common power of
-        # ten out of the tick labels and states it once in the axis title, so
-        # a partial correlation running -0.06 to 0.50 was drawn as an axis
-        # reading -100 to 400 titled "coefficient (x0.001)". That is correct
-        # and unreadable: the number a reader wants to quote is 0.50, and
-        # they should not have to multiply it back themselves.
         self.plot.getAxis("bottom").enableAutoSIPrefix(False)
         #: Which of :data:`P_AXES` the height is. Raw by default.
         self._p_axis = "raw"
@@ -6386,7 +5809,6 @@ class VolcanoPlot(FastPlot):
         self._q_mark = "none"
         self._correction_writer = self._write_corrected_table
 
-    # -------------------------------------------------------- what is drawn
 
     def name_the_effect(self, path: str) -> str:
         """Title the horizontal axis for the analysis that produced it.
@@ -6415,16 +5837,6 @@ class VolcanoPlot(FastPlot):
         kind = str(kind)
         if kind not in self.P_AXES:
             raise ValueError(f"p axis must be one of {self.P_AXES}; got {kind!r}")
-        # THE RUN-TIME HALF OF THE GREYING RULE. The menu entry for the
-        # adjusted axis is DISABLED when no correction is in force -- because
-        # the adjusted p then IS the raw p, and the axis is the one above with
-        # a label that reads "adjusted p (None (raw P values))". But the menu
-        # is not the only way in: the host drives this axis directly and
-        # redraws on every level, baseline and compartment change, so a user
-        # who chose the adjusted axis on a CORRECTED run and then moved to an
-        # uncorrected one got exactly the label this instruction removed.
-        # Same shape as `ml._require_backend`: a rule that lives only in the
-        # widget that greys it is a rule with one entry point unguarded.
         if kind == "adjusted" and self.correction() in ("none", "", None):
             kind = "raw"
         self._p_axis = kind
@@ -6499,13 +5911,9 @@ class VolcanoPlot(FastPlot):
         logged = -np.log10(q[usable])
         low, high = float(logged.min()), float(logged.max())
         if high <= low:
-            # Every test on the plot holds the same q. Half way up, so the
-            # ramp is one colour and is honest about being one colour.
             strength[usable] = 0.5
         else:
             strength[usable] = (logged - low) / (high - low)
-        # A q of exactly zero underflowed; it is the strongest evidence
-        # there is, not a missing value.
         strength[np.isfinite(q) & (q <= 0)] = 1.0
         return strength
 
@@ -6545,12 +5953,9 @@ class VolcanoPlot(FastPlot):
         legend = {}
         finite = np.asarray(q, dtype=float)[np.isfinite(q)]
         if finite.size:
-            # The stops are named by the q they stand for, strongest first,
-            # so the key reads in the direction a volcano is read.
             for fraction in np.linspace(1.0, 0.0, self.Q_LEGEND_STOPS):
                 step = int(round(fraction * (self.Q_STOPS - 1)))
                 r, g, b, _a = (int(c) for c in lookup[step])
-                # The q at this stop, inverted back out of the log scale.
                 logged = -np.log10(np.clip(finite, 1e-300, 1.0))
                 low, high = float(logged.min()), float(logged.max())
                 value = 10 ** -(low + fraction * (high - low))
@@ -6586,7 +5991,7 @@ class VolcanoPlot(FastPlot):
             if brush_list is not None:
                 try:
                     base = QColor(brush_list[index].color())
-                except Exception:       # an odd brush
+                except Exception:
                     base = default
             value = strength[index] if index < len(strength) else np.nan
             fraction = 0.0 if np.isnan(value) else float(value)
@@ -6621,11 +6026,6 @@ class VolcanoPlot(FastPlot):
 
         self._correction = None if method is None else canonical_method(method)
         if self._correction == "none" and self._p_axis == "adjusted":
-            # Choosing "no correction" while the height IS the adjusted p
-            # would leave the axis labelled "-log10(adjusted p, none)" over
-            # numbers that are the raw p. The menu greys the adjusted entry
-            # for the same reason; this is the one path that can reach the
-            # state anyway, so it is unwound rather than left.
             self._p_axis = "raw"
         self.redraw()
 
@@ -6729,10 +6129,6 @@ class VolcanoPlot(FastPlot):
             self.set_status("No coefficients to plot.")
             return 0
 
-        # THE CALL IS REMEMBERED, NOT THE PICTURE. Switching the axis or the
-        # correction redraws from the table the host handed over, so neither
-        # costs a round trip through the host and neither can drift from what
-        # is on screen.
         self._results_call = (frame, dict(
             effect=effect, p_column=p_column, label_column=label_column,
             category_column=category_column, alpha=alpha,
@@ -6749,22 +6145,10 @@ class VolcanoPlot(FastPlot):
             if "multiple_testing_method" in columns:
                 seen = frame["multiple_testing_method"].dropna().unique()
                 run_method = str(seen[0]) if len(seen) else ""
-        # CANONICAL, so "bh" in an older table and "fdr_bh" in a new one are
-        # the same run method and the menu ticks the same entry for both.
         try:
             self._run_method = canonical_method(run_method) if run_method else ""
         except ValueError:
             self._run_method = str(run_method)
-        # A HOST STILL DRIVING THE AXIS THROUGH `p_column` IS HONOURED UNTIL
-        # THE USER SAYS OTHERWISE. `RegressionResultsPanel` switches
-        # raw/adjusted by handing over a different column, and reading that
-        # as "the host asked for the adjusted axis" keeps its control working
-        # while this plot owns the choice.
-        #
-        # A CHOICE MADE ON THE PLOT WINS FROM THEN ON, and that is not a
-        # nicety: the host redraws on every level change, baseline change and
-        # compartment change, so without this any one of them would silently
-        # put the axis back and the user would watch their choice undo itself.
         raw_column = _first_column(frame, ("p_value", "p", "pvalue"))
         if q_column and p_column == q_column:
             if not self._p_axis_chosen:
@@ -6773,20 +6157,6 @@ class VolcanoPlot(FastPlot):
         elif not self._p_axis_chosen and raw_column and p_column == raw_column:
             self._p_axis = "raw"
 
-        # NUISANCE TERMS ARE NOT HYPOTHESES, AND THEY OWN THE AXIS.
-        #
-        # The intercept and the plate row/column effects are covariates: they
-        # are fitted so the guide effects come out clean, not so anyone can
-        # ask whether they differ from zero. spacr.ml already draws that line
-        # -- it leaves them out of the multiple-testing family, which is why
-        # they leave a fit with q_value = NaN -- and plotting them draws a
-        # different experiment from the one the q-values describe.
-        #
-        # It is not a rounding error. On plate1_dv the intercept sits at
-        # -log10(p) = 45.5 against 12.5 for the strongest real hit and 2.3 at
-        # the 99th percentile, so ONE untestable row makes the y-axis 3.6x
-        # taller than the data and flattens the whole screen into the bottom
-        # of it. A fit carrying row and column terms has ~25 of them.
         untested = 0
         if drop_untested and "feature" in columns:
             from ...hits import tested_family
@@ -6807,14 +6177,6 @@ class VolcanoPlot(FastPlot):
         raw = _finite(frame[p_column]) if p_column in frame \
             else np.full(len(frame), np.nan)
 
-        # ------------------------------------------------ the correction
-        #
-        # RECOMPUTED, AND WITHIN THE RIGHT FAMILY. The correction applies
-        # within a LEVEL -- a run at level='both' fits twice and each fit is
-        # its own family (instruction 128 R) -- so pooling whatever happens
-        # to be on screen would change n and with it every q value, quietly
-        # and in the direction that makes the run look weaker than it is.
-        # `hits.family_labels` is the single statement of that split.
         method = self.correction()
         if "feature" in columns:
             from ...hits import family_labels
@@ -6827,11 +6189,6 @@ class VolcanoPlot(FastPlot):
         self._families = {}
         self._family_of = families
         self._raw_values = raw
-        # THE LOCAL FDR IS NOT COMPUTED UNLESS IT IS WANTED. Measured on the
-        # real screen's 1,215 coefficients: the mixture fit is 25 ms of a 40
-        # ms redraw -- more than drawing the plot -- and the default axis is
-        # the raw P, which does not use it. It is computed when the axis
-        # asks for it and when a click asks for it, once, and cached.
         self._lfdr_values = None
         for name in sorted({str(f) for f in families if f}):
             mask = families == name
@@ -6839,30 +6196,11 @@ class VolcanoPlot(FastPlot):
                                                alpha=self._alpha)
             q[mask] = fam_q
             called[mask] = fam_called
-            # THE CRITICAL RAW P, WHICH IS EXACT AND IS NOT ALPHA.
-            #
-            # Every correction here is monotone in the raw P within a family,
-            # so the set it calls is a lower set: there is a rank k with
-            # every p <= p_(k) called and everything above it not. For BH
-            # that is the textbook identity q_(i) <= alpha iff
-            # p_(i) <= alpha*i/n at the largest such i. One horizontal line
-            # at -log10(p_(k)) therefore divides this plot EXACTLY as the FDR
-            # does, on a continuous axis, with no steps anywhere.
-            #
-            # Drawing it at -log10(alpha) instead is the mistake this
-            # replaces: that is the UNCORRECTED threshold and it calls far
-            # too much of the screen.
             critical = (float(np.max(raw[mask][fam_called]))
                         if fam_called.any() else None)
             self._families[name] = (critical, int(fam_called.sum()),
                                     int(np.isfinite(raw[mask]).sum()))
         self._q_values, self._called = q, called
-        # IS THE RAW P ITSELF QUANTISED? The permutation path is discrete
-        # TWICE OVER and that is why it looks worst: a permutation p is
-        # (1 + #{null <= observed}) / (n + 1), so 1,000 permutations admit
-        # only 1,001 possible values and many guides already share one before
-        # BH ever runs. Saying so is the difference between a user raising
-        # `guide_permutations` and a user concluding the plot is broken.
         finite_raw = raw[np.isfinite(raw)]
         self._raw_resolution = None
         if finite_raw.size:
@@ -6873,10 +6211,6 @@ class VolcanoPlot(FastPlot):
                     distinct, int(finite_raw.size),
                     float(positive.min()) if positive.size else 0.0)
 
-        # DOES THE PLOT AGREE WITH THE TABLE BESIDE IT? results.csv carries
-        # the run's own q values; recomputing the run's own method on the
-        # run's own family has to reproduce them, and if it does not, the
-        # user is looking at two analyses and is entitled to know.
         agrees = None
         if q_column and q_column in columns:
             try:
@@ -6889,7 +6223,6 @@ class VolcanoPlot(FastPlot):
                 agrees = bool(both.any() and np.allclose(
                     stored[both], q[both], rtol=1e-6, atol=1e-12))
 
-        # ------------------------------------------------------ the height
         if self._p_axis == "adjusted":
             values = q
             axis_label = f"-log10(adjusted p, {method})"
@@ -6899,8 +6232,6 @@ class VolcanoPlot(FastPlot):
         else:
             values = raw
             axis_label = "-log10(p)"
-        # A p of exactly zero is a real result underflowing, not a mistake;
-        # clamping keeps it on the plot instead of sending it to infinity.
         smallest = np.nanmin(values[values > 0]) if np.any(values > 0) \
             else 1e-300
         #: The floor a zero is drawn at, shared with the threshold line so
@@ -6910,11 +6241,6 @@ class VolcanoPlot(FastPlot):
         self.plot.setLabel("left", axis_label)
 
         brush_list, legend = None, {}
-        # F.5 -- THE RAMP TAKES THE COLOUR CHANNEL, and what it takes it from
-        # is named. A dot cannot be coloured for its condition and for its q
-        # at once, so the colouring that would otherwise be in force is not
-        # drawn and the caption says which one it was. Silently dropping it
-        # is how a reader ends up reading a q ramp as a condition.
         ramp_on = self._q_colour == "ramp" and bool(np.isfinite(q).any())
         displaced = ""
         if ramp_on:
@@ -6926,15 +6252,6 @@ class VolcanoPlot(FastPlot):
             else:
                 displaced = "the called/not-called colouring"
         elif compartment and compartment == self._all_compartments():
-            # EVERY COMPARTMENT AT ONCE, asked for on 2026-08-20: "Colour by
-            # lets me color by a single location, all should be an option."
-            #
-            # ONE AT A TIME WAS A DECISION, NOT AN OVERSIGHT -- "everything is
-            # grey except what the sentence is about", and the 27-colour
-            # legend measured 40 ms of a 49 ms redraw. So this is offered
-            # BESIDE that, never instead of it, and it is built on the
-            # CATEGORICAL path below rather than a Python loop over brushes,
-            # which is where that 40 ms actually went.
             from ...localisation import of as compartment_of
 
             names = compartment_of(frame)
@@ -6942,9 +6259,6 @@ class VolcanoPlot(FastPlot):
                 labelled = names.replace("", "elsewhere")
                 brush_list, legend = self._categorical_brushes(labelled)
         elif compartment:
-            # ONE COMPARTMENT AGAINST GREY. Two brushes and a two-entry
-            # legend: the 27-colour version is what the house style forbids
-            # and, measured, its legend cost 40 ms of a 49 ms redraw.
             from ...localisation import mask as compartment_mask
 
             inside = compartment_mask(frame, compartment).to_numpy()
@@ -6955,72 +6269,33 @@ class VolcanoPlot(FastPlot):
                 legend = {f"{compartment} ({int(inside.sum())})": HIGHLIGHT,
                           f"{int((~inside).sum())} elsewhere": MUTED}
         elif category_column and category_column in frame:
-            # Categorical codes are computed in C; the alternative is a Python
-            # loop over 1,215 pandas values plus a QColor.rgba() per point,
-            # which cost 45 ms of the 48 ms this used to take.
             import pandas as _pd
 
             brush_list, legend = self._categorical_brushes(
                 frame[category_column])
 
-            # THE COUNT BESIDE EACH LABEL. Asked for 2026-08-17: "beside the
-            # label on the graph should be the count of each label".
-            #
-            # It is not decoration on a screen. `nc` and `pc` are three and
-            # twenty-four points among twelve hundred, and a legend that
-            # names them without saying so invites reading a two-point
-            # cluster as a group -- the same reason the compartment legend
-            # and the gene/guide menu already carry theirs.
-            #
-            # Counted with np.bincount over the CODES, not by grouping the
-            # frame -- see `_categorical_brushes`.
         elif called.any() or np.isfinite(q).any():
-            # THE FIELD'S OWN VOLCANO: continuous height, binary colour, and
-            # the colour carrying the claim. Only when nothing else has
-            # claimed the colour channel -- a dot cannot be coloured for its
-            # condition and for its q at once, and the legend says which is
-            # in force.
             here, elsewhere = pg.mkBrush(HIGHLIGHT), pg.mkBrush(MUTED)
             brush_list = [here if flag else elsewhere for flag in called]
             n_called = int(called.sum())
             legend = {f"called ({n_called})": HIGHLIGHT,
                       f"not called ({int(len(called) - n_called)})": MUTED}
 
-        # NO PER-POINT WORK BEFORE DRAWING.
-        #
-        # This used to build a label string for all 1,215 rows up front, three
-        # `frame[col].iloc[i]` lookups each. Pandas scalar indexing in a Python
-        # loop is ~3,600 lookups to draw a scatter plot, and it cost more than
-        # the drawing did. The frame is kept instead and a label is formatted
-        # for the ONE point that gets clicked -- which is the only one anybody
-        # ever reads.
         self._frame = frame
         self._label_column = label_column
         self._effect_column = effect
         self._p_column = p_column
         self._labels = ()
 
-        # `feature` is the design-matrix term name and is one-to-one with the
-        # row -- checked on the real screen: 1,213 rows, 1,213 distinct. `gene`
-        # and `grna` are NOT keys, because a gene has several guides and
-        # several rows, so joining on either highlights an arbitrary one.
         key = key_column or ("feature" if "feature" in frame.columns
                              else label_column)
         self.set_keys(frame[key] if key in frame.columns else frame.index)
 
-        # F.6 -- THE ENCODING THAT COMPOSES. Size and opacity are channels
-        # the colour is not using, so either can be on at the same time as
-        # any of the colourings above: a volcano coloured by condition with
-        # its marks sized by q says both things at once, which is exactly
-        # what the ramp cannot do.
         size_list = None
         if self._q_mark == "size":
             size_list = self._q_sizes(q)
         elif self._q_mark == "opacity":
             brush_list = self._q_opacity(brush_list, q, len(neglog))
-        # THE SECOND AND THIRD CHANNELS. Only when the FIRST is in force:
-        # a shape that means one thing beside a colour that means the q
-        # value is two claims on one dot with nothing saying which.
         symbol_list = None
         layered = bool(category_column) and not compartment
         if layered and symbol_column and symbol_column in frame:
@@ -7032,9 +6307,6 @@ class VolcanoPlot(FastPlot):
         if layered and opacity_column and opacity_column in frame:
             brush_list = self._categorical_opacity(
                 brush_list, frame[opacity_column], len(neglog))
-            # THE COLUMN AND ITS LEVELS, because a fade nobody can name is
-            # not an encoding. The legend draws them at the alphas the
-            # points got, from the same ramp.
             self._opacity_legend = (opacity_column,
                                     self._levels_of(frame[opacity_column]))
         else:
@@ -7050,23 +6322,7 @@ class VolcanoPlot(FastPlot):
             for sign in (-1, 1):
                 self.add_line(x=sign * abs(effect_threshold), colour="#8C8C8C")
 
-        # THE LEGEND IS OPT-IN, AND IT IS THE REASON WHY.
-        #
-        # Twenty-seven entries cost 40 ms of a 49 ms redraw -- each one builds
-        # a ScatterPlotItem and a LabelItem. It is the identical cost that made
-        # matplotlib's version 63 ms, so bringing it across unchanged would
-        # have carried the lag over to the new library and wasted the switch.
-        #
-        #     scatter alone, 1,215 points        3.4 ms
-        #     the same plus a 27-entry legend   43.7 ms
-        #
-        # So the plot draws without one and offers a checkbox. Colour still
-        # identifies the compartments; the legend only names them, and naming
-        # them is worth 40 ms when asked for and not before.
         self._legend_colours = legend
-        # THE OTHER TWO CHANNELS COUNT TOO. A volcano whose shape carries a
-        # column and whose legend can only be switched on when a COLOUR
-        # column is chosen is a picture with an unreachable key.
         entries = len(self._legend_entries())
         if entries:
             self._legend_box.setEnabled(True)
@@ -7076,9 +6332,6 @@ class VolcanoPlot(FastPlot):
         else:
             self._legend_box.setEnabled(False)
 
-        # A SELECTION SURVIVES A REDRAW. plot.clear() took the marker with it,
-        # so it goes back on -- otherwise changing the colouring, or any other
-        # setting, silently deselects whatever the user was looking at.
         if self._selected_key is not None:
             self.highlight_key(self._selected_key)
 
@@ -7090,8 +6343,6 @@ class VolcanoPlot(FastPlot):
             displaced=displaced)
         note = f"{plotted} coefficients."
         if untested:
-            # Reported, not silently removed: the difference between a filter
-            # and a lie.
             note += (f" {untested} nuisance "
                      f"term{'s' if untested != 1 else ''} not shown (not "
                      "tested, so no q-value).")
@@ -7102,8 +6353,6 @@ class VolcanoPlot(FastPlot):
         self.set_status(f"{note} {self._caption} Click a point for detail.")
         return plotted
 
-    # ------------------------------------------------------- the line and
-    #                                                          the sentence
 
     def _add_significance_lines(self, level: str) -> int:
         """Draw the threshold. Returns how many lines went on.
@@ -7114,7 +6363,6 @@ class VolcanoPlot(FastPlot):
         procedure never reached.
         """
         if self._p_axis != "raw":
-            # The corrected axis is the one place alpha IS the threshold.
             name = "q" if self._p_axis == "adjusted" else "lfdr"
             self.add_line(y=-np.log10(self._alpha),
                           label=f"{name}={self._alpha:g}")
@@ -7124,13 +6372,6 @@ class VolcanoPlot(FastPlot):
         if not criticals:
             return 0
         drawn = 0
-        # DEDUPED ON THE EXACT VALUE, not on a rounded one. `round(p, 15)`
-        # was here and it sent every P value below 1e-15 to zero -- so a
-        # screen whose critical P is 1.7e-20 drew its line at -log10(0), and
-        # pyqtgraph died on the infinity ("cannot convert float NaN to
-        # integer") rather than on anything a reader could act on. Rounding
-        # to DECIMAL places is never right for a P value; the two families'
-        # criticals are computed from the same array and compare exactly.
         distinct = sorted(set(criticals.values()))
         for value in distinct:
             if len(distinct) > 1:
@@ -7139,10 +6380,6 @@ class VolcanoPlot(FastPlot):
                 text = f"{level} ({who}): p<={value:.3g}"
             else:
                 text = f"{level}: p<={value:.3g}"
-            # THE LINE SITS ON THE SAME FLOOR THE POINTS DO. A P value that
-            # underflowed to zero is a real result, and the scatter already
-            # clamps it rather than sending it to infinity; a threshold line
-            # that did not use the same floor would leave the plot.
             self.add_line(y=-np.log10(max(value, self._y_floor)), label=text)
             drawn += 1
         return drawn
@@ -7170,10 +6407,6 @@ class VolcanoPlot(FastPlot):
             parts.append(f"Height is {height}.")
         if colour_is_the_call:
             parts.append(f"Colour is the call at {level}.")
-        # ONE SENTENCE PER FIGURE saying which encoding has which channel.
-        # A ramp that silently replaced a condition colouring, or a mark
-        # sized by q with nothing saying so, is a figure that shows one thing
-        # and is read as another.
         if self._q_colour == "ramp" and displaced:
             parts.append(f"Colour is a continuous ramp over q, brightest at "
                          f"the smallest q; {displaced} is off while it is.")
@@ -7195,15 +6428,6 @@ class VolcanoPlot(FastPlot):
                     if value[0] is not None)
                 parts.append(f"{level} ({thresholds}): {called} of {tested} "
                              f"called.")
-                # WHY THE LINE ALWAYS TOUCHES A POINT, said once, because it
-                # reads as a coincidence and is not one. The threshold is
-                # `max(p over the called tests)` -- an OBSERVED value, not a
-                # formula evaluated in the abstract -- so it is necessarily
-                # some test's own p, and the line therefore lands exactly on
-                # the last test it called. A reader who notices two genes
-                # sitting on the line is seeing the borderline, and asked
-                # whether those are in or out; `p<=` in the label answers it
-                # and this says which points those are.
                 parts.append(
                     "The threshold is itself an observed p, so the line lands "
                     "on the last test it called; points on the line are "
@@ -7239,7 +6463,6 @@ class VolcanoPlot(FastPlot):
                 f"and raising that count is what buys resolution here.")
         return " ".join(parts)
 
-    # ------------------------------------------------------------- the menu
 
     def _offer_p_axes(self, method: str, tested: int, minimum: int,
                       method_label) -> None:
@@ -7247,20 +6470,6 @@ class VolcanoPlot(FastPlot):
         too_small = ("" if tested >= minimum else
                      f"a family of {tested} is too small to read a density "
                      f"off; {minimum} are needed")
-        # NO CORRECTION MEANS THERE IS NO ADJUSTED AXIS. With
-        # `multiple_testing_method='none'` the q value written for every row
-        # EQUALS its raw p, so this entry offered a second copy of the axis
-        # above it under a name -- "adjusted p — None (raw P values)
-        # (stepped)" -- that promises a number the run never computed. A user
-        # who picks it sees an identical plot and concludes the correction
-        # made no difference, which is the reading this module exists to
-        # prevent.
-        #
-        # GREYED, NOT REMOVED (INVARIANTS 6), and it says why: the answer to
-        # "where is the adjusted axis" is "this run applied no correction",
-        # which a missing entry does not give. The condition is the
-        # correction IN FORCE and not the run's, because a plot recorrected
-        # from the menu has real q values whatever the run did.
         uncorrected = ("" if str(method) != "none" else
                        "this run applied no correction, so the adjusted p "
                        "IS the raw p and the axis would be the one above")
@@ -7308,9 +6517,6 @@ class VolcanoPlot(FastPlot):
         no_q = "" if has_q else "this fit has no corrected p to encode"
         flat = ""
         if has_q and np.unique(q[np.isfinite(q)]).size < 2:
-            # The staircase at its limit: one q for the whole screen. A ramp
-            # over it is one colour, and offering it live would be the
-            # present-but-inert control instruction 106 forbids.
             flat = ("every q on this plot is the same number, so a ramp "
                     "would be one colour")
         self.offer_encodings([
@@ -7431,9 +6637,6 @@ class EffectRankPlot(FastPlot):
         self._significance: np.ndarray = np.empty(0)
         self._significance_name = ""
         self._names: Sequence[str] = ()
-        # RANK 1 AT THE TOP. A ranked list is read downwards, and pyqtgraph's
-        # y-axis grows upwards, so without this the strongest effect sits at
-        # the bottom of the panel and the reader starts at the weakest.
         self.plot.getViewBox().invertY(True)
 
     def set_results(self, frame, *, effect: str = "coefficient",
@@ -7508,10 +6711,6 @@ class EffectRankPlot(FastPlot):
                         f"nuisance terms, which are fitted so the guide "
                         f"effects come out clean rather than to be ranked.")
                     return 0
-        # POSITIONAL FROM HERE ON. Every row index this method hands to
-        # `add_scatter`, and every index `_detail` is later asked about, is a
-        # position in THIS frame; a caller's filtered frame arrives with holes
-        # in its index and `.iloc` would then disagree with `.loc`.
         frame = frame.reset_index(drop=True)
         self._frame = frame
 
@@ -7538,24 +6737,14 @@ class EffectRankPlot(FastPlot):
                              label_column)
         self.set_keys(frame[key] if key in frame.columns else None)
 
-        # numpy puts NaN last under an ascending sort whatever its sign, so a
-        # coefficient that did not converge ranks below every one that did
-        # rather than at the top of the list.
         order = np.argsort(-np.abs(effects), kind="stable")
         ranks = np.arange(len(order), dtype="float64")
         x = effects[order]
         widths = half[order]
         called = cut[order] <= alpha
-        # 0 grey, 1 up, 2 down -- as a code array rather than a list of
-        # colours, so the intervals can be grouped by ink in three passes
-        # instead of one PlotCurveItem per coefficient.
         code = np.where(called, np.where(x > 0, 1, 2), 0)
         inks = (QColor(self.GREY), QColor(self.UP_INK), QColor(self.DOWN_INK))
 
-        # THE INTERVALS FIRST, so the dots sit on top of them. One curve per
-        # ink with `connect="pairs"` -- 1,213 disconnected segments in three
-        # items rather than 1,213 items, which is the difference between a
-        # plot that opens and one that hangs.
         usable = np.isfinite(x) & np.isfinite(widths) & (widths > 0)
         for value, ink in enumerate(inks):
             picked = np.nonzero(usable & (code == value))[0]
@@ -7572,11 +6761,6 @@ class EffectRankPlot(FastPlot):
                          colours=[inks[int(c)] for c in code])
         self.add_line(x=0.0, colour=REFERENCE, width=1.0)
 
-        # THE NAMES ARE Y-TICKS HERE AND ANNOTATIONS IN THE SAVED PANEL, and
-        # the difference is deliberate. A tick label is drawn outside the axes,
-        # so on a sheet a long gene id reaches into the cell to its left --
-        # which is why the static panel puts them inside. A tab has no
-        # neighbouring cell, and a tick is the axis a reader can then zoom.
         names = self._label_series(frame, label_column)
         self._names = names
         shown = min(len(order), self.LABELLED)
@@ -7587,10 +6771,6 @@ class EffectRankPlot(FastPlot):
             self.plot.setYRange(-0.6, shown - 0.4, padding=0.02)
 
         plotted = int(np.sum(np.isfinite(x)))
-        # COUNTED OVER WHAT IS ON THE PICTURE. `called` is computed over every
-        # row, and a coefficient that did not come out can still carry a
-        # q-value -- so counting one would put a number in the status line
-        # that no reader can reach by counting the coloured dots.
         self.set_status(self._sentence(plotted, len(order), shown, error,
                                        significance,
                                        int(np.sum(called & np.isfinite(x))),
@@ -7613,7 +6793,7 @@ class EffectRankPlot(FastPlot):
             from ...figures.panels import label_series
 
             return label_series(frame).to_numpy()
-        except Exception:              # figures unavailable
+        except Exception:
             if label_column in getattr(frame, "columns", ()):
                 return frame[label_column].astype(str).to_numpy()
             return np.array([str(i) for i in range(len(frame))])
@@ -7714,10 +6894,6 @@ class BinnedPlot(FastPlot):
         self._bin_rows: list = []
         self._row_bin: np.ndarray = np.empty(0, dtype="int64")
         self._values: np.ndarray = np.empty(0)
-        # A BAR IS NOT A POINT, so there is no sigClicked to connect to. The
-        # scene reports where the user pressed and the bin is worked out from
-        # the x coordinate, which is also the only definition of "which bar"
-        # that stays right when the axis is zoomed.
         self.plot.scene().sigMouseClicked.connect(self._on_scene_clicked)
 
     def _fill_bins(self, values, bins: int, span=None) -> np.ndarray:
@@ -7760,7 +6936,6 @@ class BinnedPlot(FastPlot):
         order = np.argsort(in_bin, kind="stable")
         cuts = np.cumsum(np.bincount(in_bin, minlength=bins))[:-1]
         self._bin_rows = list(np.split(members[order], cuts))
-        # Row -> its bar, as a dense array rather than a dict of thousands.
         self._row_bin = np.full(len(held_all), -1, dtype="int64")
         self._row_bin[members] = in_bin
         return held
@@ -7774,7 +6949,6 @@ class BinnedPlot(FastPlot):
         self.plot.addItem(bars)
         return bars
 
-    # ------------------------------------------------------------- clicking
 
     def bin_at(self, x) -> Optional[int]:
         """The bar under data coordinate ``x``, or ``None`` beyond the axis."""
@@ -7837,11 +7011,8 @@ class BinnedPlot(FastPlot):
             if not item.sceneBoundingRect().contains(position):
                 return
             point = item.vb.mapSceneToView(position)
-        except Exception:          # no viewbox to map into
+        except Exception:
             return
-        # THE BAR IS FOUND IN DATA UNITS. `mapSceneToView` answers in DRAWN
-        # units, which are log10 of the data while the x axis is logged, and
-        # a bin looked up with those lands in the wrong bar or in none.
         index = self.bin_at(self._to_data(point.x(), "x"))
         if index is not None:
             self.select_bin(index)
@@ -7855,12 +7026,8 @@ class BinnedPlot(FastPlot):
         if self._highlight is not None:
             try:
                 self.plot.removeItem(self._highlight)
-            except Exception:           # already gone
+            except Exception:
                 pass
-        # An OUTLINE, not a refill: the same reason the scatter marker is an
-        # open ring. A solid bar in the highlight colour would hide how tall
-        # it is against its neighbours, which is the only thing the panel is
-        # for.
         self._highlight = pg.BarGraphItem(
             x0=[self._edges[index]], x1=[self._edges[index + 1]],
             height=[self._counts[index]], brush=pg.mkBrush(None),
@@ -7923,11 +7090,6 @@ class PValueHistogram(BinnedPlot):
         """
         self._reset_scene()
         self.set_keys(keys)
-        # PINNED TO [0, 1], because that is what a p-value's axis MEANS. A
-        # histogram of p over the observed range would put its left edge at
-        # the smallest p in the screen, and the spike at zero -- the whole
-        # signal this panel exists to show -- would then be the first bar of
-        # every screen, calibrated or not.
         held = self._fill_bins(values, bins, span=(0.0, 1.0))
         if not len(held):
             self.set_status("No p-values.")
@@ -8088,7 +7250,6 @@ class QQPlot(FastPlot):
         self.set_keys(keys)
         p = _finite(values)
         self._p = p
-        # Frame rows, kept alongside their p-values through the sort.
         rows = np.nonzero(~np.isnan(p) & (p > 0))[0]
         if not len(rows):
             self.set_status("No usable p-values.")
@@ -8101,7 +7262,6 @@ class QQPlot(FastPlot):
         top = float(max(expected.max(), observed.max()))
         self.plot.plot([0, top], [0, top],
                        pen=pg.mkPen("#C44E52", width=1.5, style=Qt.DashLine))
-        # Genomic inflation: the ratio at the median. 1.0 is calibrated.
         chi = np.median(observed) / np.median(expected) if np.median(expected) else float("nan")
         note = (f"{n} tests. Inflation at the median is {chi:.2f} "
                 f"(1.00 is calibrated; well above it means the null is not "
@@ -8109,9 +7269,6 @@ class QQPlot(FastPlot):
         if self._has_usable_keys():
             note += " Click a point for its coefficient."
         self.set_status(note)
-        # A SELECTION SURVIVES A REDRAW, here for the same reason it does on
-        # the volcano: the user picked a guide, and reloading or recolouring
-        # is not them un-picking it.
         if self._selected_key is not None:
             self.highlight_key(self._selected_key)
         return n
@@ -8171,7 +7328,6 @@ class ResidualPlot(FastPlot):
         self.add_line(y=0.0, colour="#C44E52")
         good = ~(np.isnan(f) | np.isnan(r))
         if good.sum() > 2:
-            # A crude trend line: if this is not flat, the mean is wrong.
             slope, intercept = np.polyfit(f[good], r[good], 1)
             xs = np.array([np.nanmin(f), np.nanmax(f)])
             self.plot.plot(xs, slope * xs + intercept,
@@ -8179,8 +7335,6 @@ class ResidualPlot(FastPlot):
             said = (f"{int(good.sum())} residuals. Trend slope "
                     f"{slope:+.3g} -- far from zero means the mean model is "
                     f"missing something.")
-            # THE STRAIGHT LINE CAN BE FLAT WHILE THE RESIDUALS BEND, which
-            # is the case a slope cannot report and a smoother can.
             curve = self.add_smoother(f[good], r[good],
                                       method=self._smoother_chosen)
             self.set_status(f"{said} {curve}" if curve else said)
@@ -8311,9 +7465,6 @@ class InfluencePlot(FastPlot):
                 "No influence measures.")
             return 0
         n = int(good.sum())
-        # 4/n, the conventional screening rule and the one the saved report
-        # draws. The stricter D > 1 almost never fires on a few hundred wells,
-        # which makes it a rule that separates nothing.
         cut = 4.0 / n
         flagged = good & (d > cut)
         rows = np.arange(len(h))
@@ -8327,7 +7478,6 @@ class InfluencePlot(FastPlot):
                              colours=[QColor(colour)] * len(picked))
         self.add_line(y=0.0, colour=self.GREY)
         if n_params:
-            # 2p/n: the standard "this row has an unusual design" rule.
             self.add_line(x=2.0 * int(n_params) / n, colour="#DD8452",
                           label="2p/n")
         count = int(flagged.sum())
@@ -8410,8 +7560,6 @@ class GroupedPlot(FastPlot):
                 f"unknown mark {kind!r}; known marks: {', '.join(known)}")
         changed = kind != self._mark
         self._mark = kind
-        # The menu is rebuilt from scratch on every right-click, so the tick
-        # only moves if the stored list moves with it.
         self._offer_marks()
         self.redraw()
         if changed:
@@ -8538,8 +7686,6 @@ class ControlSeparation(GroupedPlot):
             self.set_status("No controls identified.")
             return 0
 
-        # One flat row space over every group, so a key means the same thing
-        # whichever group it came from.
         flat_keys: list = []
         columns: list = []
         base: dict = {}
@@ -8551,17 +7697,11 @@ class ControlSeparation(GroupedPlot):
                 flat_keys.extend([None] * len(v))
             else:
                 given = list(given)
-                # A short or long key list is a caller bug that would silently
-                # shift every row after it; pad rather than mis-join.
                 if len(given) != len(v):
                     given = [given[i] if i < len(given) else None
                              for i in range(len(v))]
                 flat_keys.extend(given)
             columns.append(v)
-            # WHICH GROUP A ROW IS IN, AS A SPAN RATHER THAN AS 1,186 DICT
-            # ENTRIES. Only the clicked point is ever asked, and the module's
-            # whole performance argument is that nothing is computed per point
-            # before a click. Three tuples answer it in a scan of three.
             self._spans.append((base[name], base[name] + len(v), name))
         self.set_keys(flat_keys if keys is not None else ())
         self._effects = np.concatenate(columns) if columns else np.empty(0)
@@ -8574,12 +7714,6 @@ class ControlSeparation(GroupedPlot):
             if not len(finite):
                 continue
             total += len(finite)
-            # THE MEDIAN IS THE SENTENCE OF THIS PANEL -- whether the classes
-            # separate is read off those lines -- so `MARK_CENTRE` keeps the
-            # summary line on the median whatever mark the user picks, and the
-            # line is drawn in the plot's own ink. It was hardcoded BLACK,
-            # which on every dark spaCR theme but one is a line nobody can
-            # see, and it is the one mark here that must be visible.
             self.add_group_mark(position, v[finite], self._mark, size=7,
                                 rows=base[name] + finite,
                                 colour=colour_for(position, 200),
@@ -8594,12 +7728,6 @@ class ControlSeparation(GroupedPlot):
                 line_points.append((float(position), centre))
         self._join_group_line(line_points)
         axis = self.plot.getAxis("bottom")
-        # THE COUNT BESIDE THE LABEL, not only in the note below the plot.
-        # Asked for 2026-08-17. "pc" and "nc" are three and twenty-four
-        # points, and a label that does not say so lets a three-point group
-        # be read as a group -- which is the same reason the mark advice
-        # exists. Taken from the SAME `sizes` the note and the advice use, so
-        # the axis cannot disagree with the sentence under it.
         axis.setTicks([[(i, f"{name}\n(n={size})")
                         for i, (name, size) in enumerate(
                             zip(groups, self.group_sizes()))]])
@@ -8735,10 +7863,6 @@ class GuideAgreementPlot(GroupedPlot):
             return 0
 
         frame = support.reset_index() if support.index.name else support
-        # THE TABLE THE RESTYLE MENU READS. It is the RESET frame, not the
-        # argument: the row indices carried into every scatter below are
-        # positions in this one, so a column mapped onto a colour or a shape
-        # has to be indexed the same way or it would shade the wrong genes.
         self._frame = frame
         if keys is None and key_column in getattr(frame, "columns", ()):
             keys = frame[key_column]
@@ -8751,23 +7875,8 @@ class GuideAgreementPlot(GroupedPlot):
         single = (np.asarray(frame["single_guide"], dtype=bool)
                   if "single_guide" in frame else counts <= 1)
 
-        # JITTERED, for the same reason the static panel is: guides per gene
-        # is a small integer and agreement is a handful of fractions, so
-        # several hundred genes stack into a dozen dots and the panel looks
-        # like it holds no data. Seeded, so the picture is the same every
-        # time, and recorded per row -- the ring a selection draws reads its
-        # coordinates back out of `_row_xy`, so it lands on the dot the user
-        # actually sees rather than on the un-jittered lattice point.
         rows = np.arange(len(frame))
         if self._mark in ("points", "jitter"):
-            # THE HOUSE-RULE COLOURING SURVIVES ONLY WHILE THE MARKS ARE
-            # POINTS. Grey for a gene its own guides corroborate, colour for
-            # one that rests on a single guide, which is the sentence this
-            # panel exists to make -- and a sentence about individual genes
-            # that a box plot cannot carry, because a box holds both kinds at
-            # once. So the point marks keep this path and the summarising
-            # marks take the grouped one below, rather than one path drawing
-            # a compromise neither picture wanted.
             spread = 0.22 if self._mark == "jitter" else 0.0
             rng = np.random.default_rng(0)
             x = counts + (rng.uniform(-spread, spread, len(frame))
@@ -8781,9 +7890,6 @@ class GuideAgreementPlot(GroupedPlot):
                                  rows=picked,
                                  colours=[QColor(colour)] * len(picked))
         else:
-            # ONE MARK PER GUIDE COUNT. The x-axis is already a small integer,
-            # so the groups are the counts themselves and no tick remapping is
-            # needed -- "3" on the axis still means three guides.
             x = counts
             line_points = []
             usable = ~(np.isnan(counts) | np.isnan(agree))
@@ -8806,19 +7912,6 @@ class GuideAgreementPlot(GroupedPlot):
 
         self.add_line(y=0.5, colour=self.GREY, label="chance")
 
-        # ONE GENE MUST NOT OWN THE AXIS. The library gives a gene two to four
-        # guides; the non-targeting control block parses as a single "gene"
-        # carrying all 24 of them, and on autorange that ONE point stretches
-        # the x-axis six times wider than the data and squashes all 388 real
-        # genes into the left fifth of the panel. It is the identical failure
-        # the intercept caused on the volcano, measured the same way.
-        #
-        # The volcano's answer was to DROP the offender, because a nuisance
-        # term is not a hypothesis. This one is different: an over-represented
-        # gene is still a gene, and dropping it would lose a real point. So it
-        # is drawn and merely left outside the OPENING view -- "Reset view"
-        # reaches it, and the status says it is out there rather than letting
-        # it disappear silently.
         beyond = 0
         finite = counts[np.isfinite(counts)]
         if len(finite):
@@ -8921,13 +8014,8 @@ class ResultsTable(QWidget):
         layout.addLayout(top)
 
         self.table = QTableWidget(0, 0)
-        # The application's one sorting contract: descending on the first
-        # click, ascending on the second, the frame's own order on the third.
         install_sorting(self.table)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        # EXTENDED, NOT SINGLE (instruction 206). A band over the volcano
-        # selects several guides, and a table that can only hold one of them
-        # would show a different guide from the plot that fed it.
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.setAlternatingRowColors(True)
@@ -8940,17 +8028,6 @@ class ResultsTable(QWidget):
         self._frame = None
         self._alpha = 0.05
         self._key_column: Optional[str] = None
-        # EVERY PIECE OF STATE _apply_filter READS IS BORN HERE.
-        #
-        # `_significance` was created only in set_frame, and the filter
-        # controls are connected in this constructor -- so any path that
-        # touched a control before the first frame arrived crashed the
-        # application on startup with AttributeError. configure() is one such
-        # path: it can uncheck "significant only", which emits toggled.
-        #
-        # A widget must be fully usable the moment it exists. Half-built state
-        # that only becomes valid after some other method has been called is
-        # how a constructor turns into a trap.
         self._significance: Optional[str] = None
         #: Identifiers the table has been narrowed to from a plot, or None.
         self._key_restriction: Optional[set] = None
@@ -8963,8 +8040,6 @@ class ResultsTable(QWidget):
 
         self._frame = frame
         self._alpha = alpha
-        # A new table is a new experiment: a set of keys chosen off the last
-        # one names nothing here, and leaving it on would hide every row.
         self._key_restriction = None
         self._key_column = key_column or (
             "feature" if frame is not None and "feature" in frame.columns
@@ -8976,8 +8051,6 @@ class ResultsTable(QWidget):
             return 0
 
         columns = list(frame.columns)
-        # Sorting must be off while filling: with it on, Qt re-sorts after
-        # every insert and the rows end up interleaved.
         self.table.setSortingEnabled(False)
         self.table.setColumnCount(len(columns))
         self.table.setHorizontalHeaderLabels(columns)
@@ -8986,7 +8059,6 @@ class ResultsTable(QWidget):
             for column, name in enumerate(columns):
                 value = frame.iloc[row][name]
                 item = table_item(value)
-                # The frame row, so a click still maps home after sorting.
                 item.setData(Qt.UserRole, row)
                 self.table.setItem(row, column, item)
         self.table.setSortingEnabled(True)
@@ -9031,9 +8103,6 @@ class ResultsTable(QWidget):
         """Show only the rows matching the filter box."""
         text = self._filter.text().strip().lower()
         hits_only = self._only_hits.isChecked()
-        # The significance cut needs the frame to find its column in. Without
-        # one there is nothing to cut on, and asking for the column would be
-        # the same crash one line further down.
         significance = self._significance if self._frame is not None else None
         shown = 0
         for row in range(self.table.rowCount()):
@@ -9064,8 +8133,6 @@ class ResultsTable(QWidget):
         if hits_only and significance:
             note += f" ({significance} <= {self._alpha:g})"
         if self._key_restriction is not None:
-            # Said out loud, because a table that has silently narrowed itself
-            # is indistinguishable from a table that has lost its rows.
             note += (f" — narrowed to {len(self._key_restriction)} chosen on "
                      f"a plot; type here to clear")
         self._count.setText(note)
@@ -9177,9 +8244,6 @@ class ResultsTable(QWidget):
             item = self.table.item(row, column)
             if item is None or item.text() not in wanted:
                 continue
-            # A hidden row is unhidden to select it, for the same reason
-            # `select_key` does: silently dropping the point the user just
-            # dragged over reads as a broken gesture.
             self.table.setRowHidden(row, False)
             if model is not None:
                 model.select(self.table.model().index(row, column), flags)

@@ -59,13 +59,7 @@ SETTING_ALIASES: Dict[str, str] = {
     "model_type_ml": "model_type",
     "test_size": "test_split",
     "cross_validation": "cross_validation_enabled",
-    # `png_type` was never a type. It is a substring that has to appear in a
-    # crop's path, so it is now called that. The old name is accepted because
-    # it is in every settings CSV a user has.
     "png_type": "path_string",
-    # `size` and `image_size` were the same number under two names, set by
-    # different helpers in the same module. image_size wins: it says what it
-    # measures.
     "size": "image_size",
 }
 
@@ -75,8 +69,6 @@ SETTING_ALIASES: Dict[str, str] = {
 #: user can edit that changes nothing.
 BASIS_SETTINGS: Dict[str, Tuple[str, ...]] = {
     "metadata": (
-        # `metadata_type_by` is gone: it named the column a class is defined
-        # by, which is the Classes editor's own column field.
         "class_metadata", "metadata_rules",
         "location_column", "positive_control_id", "negative_control_id",
     ),
@@ -110,9 +102,6 @@ def resolve_basis(settings: Mapping[str, Any]) -> str:
     if declared:
         basis = str(declared).strip().lower()
         if basis in RETIRED_BASES:
-            # A settings file older than the removal. It loads and runs; it
-            # does not raise, and it does not silently mean something else --
-            # the mapping is recorded above with the reason.
             return RETIRED_BASES[basis]
         if basis not in TRAINING_BASES:
             raise TrainingBasisError(

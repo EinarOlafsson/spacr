@@ -118,9 +118,6 @@ from ..theme import RADIUS, SPACING, palette_for
 from .colour_picker import pick_colour
 from .toggle import Toggle
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
 
 #: The whole alphabet. ATGC, uppercase, nothing else.
 BASES = ("A", "T", "G", "C")
@@ -254,9 +251,6 @@ HEAD_LIGHT_STEP = 0.45
 HEAD_MIN_SEPARATION = 0.20
 
 
-# ---------------------------------------------------------------------------
-# Colour helpers
-# ---------------------------------------------------------------------------
 
 def derive_head_color(base: QColor, background: QColor) -> QColor:
     """Return the leading-glyph colour for a trail colour of ``base``.
@@ -282,14 +276,10 @@ def derive_head_color(base: QColor, background: QColor) -> QColor:
     down = max(0.0, bl - HEAD_LIGHT_STEP)
     target = up if gain(up) >= gain(down) else down
     if gain(target) < HEAD_MIN_SEPARATION:
-        # A near-white trail over a mid-grey background has nowhere to
-        # go within one step: up hits the ceiling, down lands on the
-        # background. Give up on the step and take whichever end of the
-        # lightness axis is furthest from *both*.
         target = max((0.0, 1.0), key=gain)
     hue = base.hueF()
     sat = base.saturationF()
-    if hue < 0.0:          # achromatic: QColor reports hue -1
+    if hue < 0.0:
         hue, sat = 0.0, 0.0
     return QColor.fromHslF(hue, sat, target)
 
@@ -370,9 +360,6 @@ def _region_rects(region, fallback: QRect) -> List[QRect]:
     return rects or [fallback]
 
 
-# ---------------------------------------------------------------------------
-# Simulation
-# ---------------------------------------------------------------------------
 
 @dataclass
 class Column:
@@ -455,8 +442,6 @@ class DnaRainEngine:
         :param spacr_probability: how often a column splices in the word.
         """
         self._rng = random.Random(seed)
-        # Its own stream, offset from the seed so it is neither the same
-        # sequence nor correlated with it, and still reproducible.
         self._hue_rng = random.Random(
             None if seed is None else (int(seed) ^ 0x9E3779B9))
         self.seed = seed
@@ -471,7 +456,6 @@ class DnaRainEngine:
         self.columns: List[Column] = []
         self.relayout()
 
-    # -- geometry ------------------------------------------------------
     @property
     def cell_size(self) -> int:
         """Row height and column stride, in pixels."""
@@ -539,7 +523,6 @@ class DnaRainEngine:
         wanted = max(0, wanted)
         self.columns = [self._spawn(initial=True) for _ in range(wanted)]
 
-    # -- columns -------------------------------------------------------
     def _new_tokens(self, length: int) -> Tuple[List[str], int]:
         """Roll a string of bases, occasionally splicing in ``spaCR``.
 
@@ -584,14 +567,9 @@ class DnaRainEngine:
         speed = rng.uniform(MIN_SPEED_CELLS_PER_S, MAX_SPEED_CELLS_PER_S)
         tokens, word_index = self._new_tokens(length)
         if initial:
-            # Spread the initial heads over a whole life cycle so the
-            # field looks like it has been running, and so no two
-            # columns share a start time.
             head = rng.uniform(-(length + self.n_rows), float(self.n_rows))
         else:
             head = -1.0
-        # The highlighted run, clamped so it fits however short the
-        # string is.
         run = min(HIGHLIGHT_RUN_CELLS, length)
         hi_start = rng.randrange(0, length - run + 1)
         hi_end = hi_start + run
@@ -631,7 +609,6 @@ class DnaRainEngine:
         self._roll(column, initial=False)
         self.respawns += 1
 
-    # -- stepping ------------------------------------------------------
     def _y_px(self, column: "Column") -> int:
         """Top edge of ``column``'s strip in pixels, from its FRACTIONAL head.
 
@@ -668,17 +645,10 @@ class DnaRainEngine:
             new_row = int(math.floor(column.head))
             old_y = column.y_px
             new_y = self._y_px(column)
-            # Dirty on PIXEL movement, not cell movement. The old test — "did
-            # the integer row change" — is what made slow columns step: they
-            # were skipped for five frames out of six and then redrawn a whole
-            # glyph lower.
             if new_y == old_y and not respawned:
                 continue
             column.row = new_row
             column.y_px = new_y
-            # The span still has to be expressed in rows, so widen it by a
-            # cell on each side to cover a strip that now straddles a
-            # boundary.
             cell = max(1, self.cell_size)
             top = max(0, min(old_y, new_y) // cell - 1)
             bottom = min(rows - 1,
@@ -687,7 +657,6 @@ class DnaRainEngine:
                 dirty.append((index, top, bottom))
         return dirty
 
-    # -- introspection -------------------------------------------------
     def column_text(self, index: int) -> str:
         """The full string of column ``index``, tokens concatenated."""
         return "".join(self.columns[index].tokens)
@@ -725,9 +694,6 @@ def _hue_bucket(hue: float) -> int:
     return int(float(hue) * 360) % 360
 
 
-# ---------------------------------------------------------------------------
-# Widget
-# ---------------------------------------------------------------------------
 
 class DnaRainWidget(QWidget):
     """The live backdrop: paints :class:`DnaRainEngine` at a capped rate.
@@ -780,14 +746,11 @@ class DnaRainWidget(QWidget):
         palette = palette_for(theme or _effective_theme())
         self._bg = _as_color(background, QColor(palette["bg"]))
         self._bg.setAlpha(255)
-        # The shipped teal, NOT the theme accent: the accent is the Run
-        # button and the AI toggle, and a backdrop in it read as chrome.
         self._color = _as_color(color, QColor(DEFAULT_COLOR))
         self._opacity = max(0.0, min(1.0, float(opacity)))
         self._random_colors = bool(random_colors)
         self._backdrop: Optional[QPixmap] = _as_pixmap(backdrop)
 
-        # Never in front of, never in the way of, the real content.
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setAttribute(Qt.WA_OpaquePaintEvent, True)
         self.setFocusPolicy(Qt.NoFocus)
@@ -803,15 +766,7 @@ class DnaRainWidget(QWidget):
         self._trail_pens: List[QPen] = []
         self._head_pen = QPen()
         self._hi_pen = QPen()
-        # Per-hue pen sets for random-colour mode, quantised to whole
-        # degrees. Strips are already cached per column, so this is only
-        # ever hit on a respawn or a restyle — but a restyle re-renders
-        # every column at once, and 120 pen sets built one after another
-        # is the sort of thing that shows up in a frame budget of half a
-        # millisecond.
         self._hue_pens: dict = {}
-        # Pre-rendered opaque strip per column, keyed by
-        # (column generation, styling generation).
         self._strips: List[Optional[QPixmap]] = []
         self._strip_keys: List[Tuple[int, int]] = []
         self._style_gen = 0
@@ -834,7 +789,6 @@ class DnaRainWidget(QWidget):
         event.ignore()
         self.clearFocus()
 
-    # -- appearance ----------------------------------------------------
     def color(self) -> QColor:
         """Current trail colour."""
         return QColor(self._color)
@@ -896,9 +850,6 @@ class DnaRainWidget(QWidget):
         """
         if not self._random_colors:
             return QColor(self._color)
-        # Quantised exactly as the pen cache quantises it, so this
-        # reports the colour that is on screen rather than one a
-        # fraction of a degree away from it.
         return random_hue_color(self._color, _hue_bucket(column.hue) / 360.0)
 
     def set_color(self, color: Union[QColor, str]) -> None:
@@ -970,8 +921,6 @@ class DnaRainWidget(QWidget):
         widget sits inside it.
         """
         pixmap = self._backdrop
-        # `window()` is the widget itself when it has no parent, never
-        # None, so a parentless rain centres the image on itself.
         window = self.window()
         x = (window.width() - pixmap.width()) // 2
         y = (window.height() - pixmap.height()) // 2
@@ -1017,7 +966,6 @@ class DnaRainWidget(QWidget):
         self.set_background_color(palette["bg"])
         self.set_color(palette["accent"])
 
-    # -- simulation knobs ----------------------------------------------
     def font_size(self) -> int:
         """The engine's cell size, in pixels.
 
@@ -1073,7 +1021,6 @@ class DnaRainWidget(QWidget):
         """
         return self._engine
 
-    # -- run state -----------------------------------------------------
     def is_running(self) -> bool:
         """True while the animation timer is ticking."""
         return self._timer.isActive()
@@ -1110,7 +1057,6 @@ class DnaRainWidget(QWidget):
         else:
             self.stop()
 
-    # -- Qt events -----------------------------------------------------
     def showEvent(self, event):
         """Start animating, and follow the window this widget belongs to.
 
@@ -1175,7 +1121,6 @@ class DnaRainWidget(QWidget):
         if self._engine.resize(self.width(), self.height()):
             self._invalidate_strips()
 
-    # -- animation -----------------------------------------------------
     def _on_tick(self) -> None:
         """Advance the columns and repaint."""
         dt = self._clock.restart() / 1000.0
@@ -1226,10 +1171,6 @@ class DnaRainWidget(QWidget):
                                (bottom - top + 1) * cell))
 
         for index, span_top, span_bottom in spans:
-            # Every column is exactly one cell wide now. The spaCR splice used
-            # to make its column wider than its stride, because the word was
-            # drawn horizontally out of a single cell and bled over its
-            # neighbours; five one-letter cells cannot.
             over = 0
             if open_run and index == last_col + 1:
                 last_col = index
@@ -1246,7 +1187,6 @@ class DnaRainWidget(QWidget):
             close()
         return rects
 
-    # -- painting ------------------------------------------------------
     def _rebuild_font(self) -> None:
         """Rebuild the font and re-pitch the columns after a size change."""
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
@@ -1330,8 +1270,6 @@ class DnaRainWidget(QWidget):
         trail_pens, head_pen, hi_pen = self._pens_for_column(column)
         for i, token in enumerate(column.tokens):
             if len(token) > 1:
-                # The word is wider than a cell, so it is drawn live at
-                # full canvas width instead of baked into this strip.
                 continue
             if i == head_index:
                 painter.setPen(head_pen)
@@ -1371,40 +1309,21 @@ class DnaRainWidget(QWidget):
         cell = engine.cell_size
         rects = _region_rects(event.region(), event.rect())
 
-        # Pass 1: clear only the rectangles Qt asked for. Everything
-        # else in the backing store is still valid.
-        #
-        # One fillRect per region rectangle beats clearing per column
-        # around each string: at 120 columns the per-call overhead of
-        # 240 small fills costs about 2 ms more than the ~0.1 ms of
-        # pixels they save. Measured, twice, in both directions.
         touched = set()
         last = engine.n_columns - 1
         for rect in rects:
             self._clear(painter, rect)
-            # No left-hand margin needed. This used to reach extra columns
-            # leftward because a spaCR splice over there drew across into this
-            # one; the word is now confined to its own column.
             first = max(0, rect.left() // cell)
             touched.update(range(first, min(last, rect.right() // cell) + 1))
         if not touched or engine.n_rows <= 0:
             return
 
-        # Pass 2: blit each touched string. Qt has already clipped the
-        # painter to the region, so nothing outside it is written.
         order = sorted(touched)
         for index in order:
             column = engine.columns[index]
             painter.drawPixmap(index * cell, column.y_px,
                                self._strip_for(index))
 
-        # There is no second pass. The spaCR splice used to need one: the word
-        # lived in a single cell, was drawn horizontally, and had to clear a
-        # backing rectangle that ran across its neighbouring columns — so it
-        # had to come last, after every strip was down. Now it is five
-        # ordinary one-letter cells inside its own column's strip, so it is
-        # rendered by the loop above like any other glyph, cached like any
-        # other glyph, and cannot overdraw anything.
 
 
 def _effective_theme() -> str:
@@ -1416,9 +1335,6 @@ def _effective_theme() -> str:
         return "dark"
 
 
-# ---------------------------------------------------------------------------
-# Settings bar
-# ---------------------------------------------------------------------------
 
 class DnaRainSettingsBar(QWidget):
     """Colour / speed / visibility / font-size controls for a rain widget.
@@ -1471,10 +1387,6 @@ class DnaRainSettingsBar(QWidget):
         self._color = _as_color(color, QColor(DEFAULT_COLOR))
         self._rain: Optional[DnaRainWidget] = None
 
-        # The rain is painted behind this bar, and the global
-        # ``QWidget { background }`` rule does not reach a widget that
-        # has its own stylesheet — so give the bar an opaque surface of
-        # its own or its labels land on falling glyphs.
         self.setObjectName("DnaRainBar")
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.restyle_for_theme(theme)
@@ -1601,7 +1513,6 @@ class DnaRainSettingsBar(QWidget):
             grid.addWidget(control, row, 1)
             grid.addWidget(readout, row, 2)
 
-    # -- state ---------------------------------------------------------
     def color(self) -> QColor:
         """The colour currently chosen in the bar.
 
@@ -1653,7 +1564,6 @@ class DnaRainSettingsBar(QWidget):
         self._font_value.setText(f"{self.font_size()} px")
         self._opacity_value.setText(f"{round(self.opacity() * 100)}%")
 
-    # -- controls ------------------------------------------------------
     def set_color(self, color: Union[QColor, str]) -> None:
         """Set the colour and emit :attr:`color_changed`."""
         self._color = _as_color(color, self._color)
@@ -1662,8 +1572,6 @@ class DnaRainSettingsBar(QWidget):
 
     def pick_color(self) -> None:
         """Open the colour picker; keep the current colour on cancel."""
-        # Qt's own dialog, never the platform one -- see
-        # :mod:`spacr.qt.widgets.colour_picker`.
         chosen = pick_colour(self, self._color, "DNA rain colour")
         if chosen.isValid():
             self.set_color(chosen)
@@ -1730,7 +1638,6 @@ class DnaRainSettingsBar(QWidget):
         self._refresh_readouts()
         self.opacity_changed.emit(self.opacity())
 
-    # -- wiring --------------------------------------------------------
     def bind(self, rain: DnaRainWidget) -> None:
         """Drive ``rain`` from this bar, and seed the bar from the rain."""
         self._rain = rain
@@ -1769,9 +1676,6 @@ def _muted_label(text: str) -> QLabel:
     return label
 
 
-# ---------------------------------------------------------------------------
-# Integration
-# ---------------------------------------------------------------------------
 
 def install_dna_rain(host: QWidget, layout=None, *,
                      anchor: Optional[QWidget] = None,
@@ -1808,13 +1712,8 @@ def install_dna_rain(host: QWidget, layout=None, *,
     rain = DnaRainWidget(host, **kwargs)
     rain.follow_parent()
     rain.show()
-    # No parent: the popover adopts it. Parenting it to `host` first
-    # would flash a settings bar across the screen for one event loop.
     bar = DnaRainSettingsBar(None, theme=kwargs.get("theme"), vertical=True)
     bar.bind(rain)
-    # Imported here rather than at module scope: the popover module
-    # imports this one for the bar, so a top-level import either way
-    # round is a cycle.
     from .dna_rain_settings import DnaSettingsButton
     button = DnaSettingsButton(bar, parent=host)
     if not _place_beside(button, anchor or _find_ai_toggle(host)):
@@ -1870,6 +1769,5 @@ def _place_beside(button: QWidget, anchor: Optional[QWidget]) -> bool:
     try:
         layout.insertWidget(index, button)
     except AttributeError:
-        # Not a box layout — better beside nothing than not at all.
         layout.addWidget(button)
     return True

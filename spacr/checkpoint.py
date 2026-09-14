@@ -88,7 +88,6 @@ def json_safe(value: Any) -> Any:
     if isinstance(value, (set, frozenset)):
         converted = [json_safe(item) for item in value]
         return sorted(converted, key=lambda item: repr(item))
-    # NumPy scalar types expose item(); using it keeps this module NumPy-free.
     item = getattr(value, "item", None)
     if callable(item):
         try:
@@ -345,9 +344,6 @@ class CheckpointStore:
             candidate["meta"] = metadata
         candidate["status"] = "running"
         self._commit(candidate)
-        # The unit is now durable.  This is the earliest safe point at which
-        # a GUI Stop request may leave the workflow without losing or
-        # half-writing that unit.
         cancellation_checkpoint()
 
     def update(

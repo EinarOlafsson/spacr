@@ -52,9 +52,6 @@ _CATEGORY_OF: Optional[Dict[str, str]] = None
 _CATEGORY_ORDER: Tuple[str, ...] = ()
 
 
-# ---------------------------------------------------------------------------
-# Pure diff
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class DiffRow:
@@ -62,7 +59,7 @@ class DiffRow:
     key:   str
     a_val: Any
     b_val: Any
-    kind:  str   # "added" / "removed" / "changed" / "same"
+    kind:  str
 
     @property
     def category(self) -> str:
@@ -277,11 +274,6 @@ def _category_map() -> Dict[str, str]:
         for name, keys in dict(_categories).items():
             order.append(str(name))
             for key in keys or ():
-                # First bucket wins. `tests/test_settings_categories.py`
-                # forbids a key appearing twice, but a plugin merging its
-                # own categories in is not covered by that test, and a
-                # silent overwrite would move the key under a heading the
-                # settings panel does not put it under.
                 mapping.setdefault(str(key), str(name))
         _CATEGORY_OF = mapping
         _CATEGORY_ORDER = tuple(order)
@@ -334,15 +326,12 @@ def _normalize(v: Any) -> Any:
     """
     if isinstance(v, str):
         s = v.strip()
-        # Bool
         if s.lower() in ("true", "false"):
             return s.lower() == "true"
-        # Int
         try:
             return int(s)
         except (ValueError, TypeError):
             pass
-        # Float
         try:
             return float(s)
         except (ValueError, TypeError):
@@ -351,16 +340,12 @@ def _normalize(v: Any) -> Any:
     return v
 
 
-# ---------------------------------------------------------------------------
-# Dialog
-# ---------------------------------------------------------------------------
 
 class SettingsDiffDialog:
     """Deferred: real Qt dialog is built on demand so this module can
     be imported (and diff_settings called) without needing PySide6."""
 
     def __new__(cls, a, b, parent=None, a_label="A", b_label="B"):
-        # Lazy build of the Qt dialog when actually invoked in a GUI.
         """Build and return the settings-diff dialog.
 
         Qt is imported inside the call so the module can be used headlessly --
@@ -405,8 +390,6 @@ class SettingsDiffDialog:
         table.setAlternatingRowColors(True)
         table.setEditTriggers(QTableWidget.NoEditTriggers)
 
-        # Colour palette per kind — inline styles so it works in both
-        # light/dark themes without extra QSS.
         colours = {
             "added":   "#144d1e",
             "removed": "#4d1414",
@@ -416,9 +399,6 @@ class SettingsDiffDialog:
             tint = _qcolor(colours[r.kind])
             cells = (r.key, _render(r.a_val), _render(r.b_val), r.kind)
             for col, text in enumerate(cells):
-                # Built and coloured in one pass. Setting the four cells
-                # and then reading them back left a `table.item(...) is
-                # None` branch that could not happen and was never tested.
                 item = table_item(text)
                 item.setBackground(tint)
                 table.setItem(i, col, item)

@@ -121,9 +121,6 @@ _HIT_SCORE_COLUMNS: Tuple[str, ...] = (
 _SOURCE_KEYS: Tuple[str, ...] = ("src", "source", "dst")
 
 
-# ---------------------------------------------------------------------------
-# Findings
-# ---------------------------------------------------------------------------
 
 #: A finding that stops the comparison.
 BLOCKING = "blocking"
@@ -204,9 +201,6 @@ class Comparability:
         return lead + " " + " ".join(f.message for f in self.findings)
 
 
-# ---------------------------------------------------------------------------
-# Runs
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class RunRef:
@@ -306,8 +300,6 @@ def _run_from_artifacts(run_id: str, artifacts: Sequence[Any]) -> RunRef:
     if len(versions) == 1:
         version = versions.pop()
     elif versions:
-        # Two modules of one run produced by different spaCR versions is
-        # itself a finding — reporting the newest would hide it.
         version = "mixed"
     else:
         version = ""
@@ -403,9 +395,6 @@ def plates_of(settings: Optional[Mapping[str, Any]]) -> Tuple[str, ...]:
     return tuple(sorted(found))
 
 
-# ---------------------------------------------------------------------------
-# Comparability
-# ---------------------------------------------------------------------------
 
 def comparability(a: RunRef, b: RunRef, *,
                   a_plates: Optional[Sequence[str]] = None,
@@ -532,9 +521,6 @@ def _join(items: Iterable[str]) -> str:
     return ", ".join(items[:-1]) + " and " + items[-1]
 
 
-# ---------------------------------------------------------------------------
-# Counts
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class RunCounts:
@@ -703,11 +689,6 @@ def count_database(path: Union[str, os.PathLike, None]) -> RunCounts:
     except sqlite3.Error as exc:
         return RunCounts(path=target, note=f"could not open the database: {exc}")
     try:
-        # ``connect`` on a file that is not SQLite succeeds; the failure
-        # arrives on the first statement. So the whole read is guarded,
-        # not just the open — a truncated or half-written database is a
-        # thing the comparison has to *report*, and an exception here
-        # would take the screen down instead.
         present = _tables(connection)
         richest = ""
         for table in OBJECT_TABLES:
@@ -852,9 +833,6 @@ def _metric_order(present: Iterable[str]) -> List[str]:
     return ordered + sorted(present - set(ordered))
 
 
-# ---------------------------------------------------------------------------
-# Hit lists
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class Hit:
@@ -1071,8 +1049,6 @@ def read_hits(path: Union[str, os.PathLike, None], *,
     for row in rows:
         key = str(row.get(key_name, "") or "").strip()
         if not key or key in seen:
-            # A duplicated key would be ranked twice and then reported as
-            # having "moved" against itself.
             continue
         seen.add(key)
         entries.append((key, _as_float(row.get(score_name)) if score_name
@@ -1138,9 +1114,6 @@ def diff_hits(a: HitList, b: HitList) -> HitDiff:
     return HitDiff(changes=tuple(changes), a=a, b=b)
 
 
-# ---------------------------------------------------------------------------
-# The whole comparison
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class RunComparison:
@@ -1177,8 +1150,6 @@ class RunComparison:
         if self.comparability.warnings:
             lead.append(" ".join(f.message
                                  for f in self.comparability.warnings))
-        # `comparable` IS `settings is not None`, so re-testing it here
-        # would be a branch that cannot go the other way.
         lead.append(self.settings.summary())
         if self.counts is not None and self.counts.available:
             lead.append(self.counts.headline())
@@ -1207,12 +1178,6 @@ def compare_runs(a: RunRef, b: RunRef, *,
         :attr:`RunComparison.comparable` is False and the diffs are
         ``None``; ``comparability.blockers`` says why.
     """
-    # Counted first, and deliberately: the plate identity that decides
-    # comparability is in the database, not in the settings — ``src`` is
-    # cosmetic as far as the settings hash goes and the registry does not
-    # keep it. Counting is a handful of read-only COUNT queries, so
-    # paying for it before the verdict costs nothing and is the only way
-    # the "different plates" blocker fires on a registry-loaded run.
     a_counts = count_database(_database_of(a))
     b_counts = count_database(_database_of(b))
     verdict = comparability(a, b,

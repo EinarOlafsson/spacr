@@ -148,9 +148,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
 
 #: Extensions the scanner will pick up, in the order they are documented.
 IMAGE_EXTENSIONS: Tuple[str, ...] = (
@@ -252,8 +249,6 @@ _REQUIRED_MAP_COLUMNS: Tuple[str, ...] = (
 #: behind with this prefix is a crashed run, never a usable image.
 _TMP_PREFIX = '.spacr_convert_'
 
-# Filename token patterns. Each requires a separator in front so that a
-# stem like ``BC1`` is not read as channel 1.
 _CHANNEL_TOKEN = re.compile(r'(?i)(?<=[_\-. ])(?:ch|channel|c|w)[_\-]?(\d{1,3})(?=$|[_\-. ])')
 _Z_TOKEN = re.compile(r'(?i)(?<=[_\-. ])(?:z|zs|slice)[_\-]?(\d{1,4})(?=$|[_\-. ])')
 _T_TOKEN = re.compile(r'(?i)(?<=[_\-. ])(?:t|time|tp)[_\-]?(\d{1,5})(?=$|[_\-. ])')
@@ -265,9 +260,6 @@ _YOKO_NAME = re.compile(
     r'(?i)^.+_[A-Z]{1,2}\d{2,}_T\d{4}F\d{3}L\d{2}(A\d{2})?(Z\d{2})?C\d{2}$')
 
 
-# ---------------------------------------------------------------------------
-# Optional readers
-# ---------------------------------------------------------------------------
 
 def _module_available(name: str) -> bool:
     """True when ``name`` can be imported, without importing it.
@@ -348,9 +340,6 @@ def _import_reader(ext: str):
             f'{missing_reader_message(ext)} (import failed: {exc})') from exc
 
 
-# ---------------------------------------------------------------------------
-# Small helpers
-# ---------------------------------------------------------------------------
 
 def _natural_key(text: Any) -> Tuple[Tuple[int, str], ...]:
     """Sort key that orders ``C2`` before ``C10``.
@@ -454,8 +443,6 @@ def normalise_well(name: str, *, n_wells: Optional[int] = None) -> Optional[str]
         return None
     plate_format = schema.plate_format_for(row, column)
     if plate_format is None:
-        # Reads as a position (``ZZ99`` -> r702/c99) but no standard plate
-        # has it. See :func:`off_plate_reason`, which is what the plan says.
         return None
     if n_wells is not None and plate_format > n_wells:
         return None
@@ -505,8 +492,6 @@ def plate_format_for_names(n_names: int, wells: Sequence[str],
     needed = int(minimum)
     for well in wells:
         row, column = schema.parse_well(well)
-        # normalise_well is what produced these, so plate_format_for cannot
-        # come back None here.
         needed = max(needed, schema.plate_format_for(row, column))
     for n_wells in sorted(schema.PLATE_FORMATS):
         if n_wells >= needed and n_wells >= n_names:
@@ -553,8 +538,6 @@ def assign_wells(names: Sequence[str], *,
         plate_format = plate_format_for_names(len(unique), sorted(claimed))
         limit = max(schema.PLATE_FORMATS)
     else:
-        # well_sequence validates the format, so a non-standard n_wells is a
-        # ConfigurationError naming the known formats, not a KeyError.
         limit = len(well_sequence(n_wells))
         plate_format = n_wells if len(unique) <= limit else None
     if plate_format is None:
@@ -569,9 +552,6 @@ def assign_wells(names: Sequence[str], *,
     for name in unique:
         if name in assigned:
             continue
-        # plate_format_for_names sized the plate to len(unique), and every
-        # claimed id is one of the names being counted, so the sequence
-        # cannot run dry before the names do.
         assigned[name] = next(free)
     return assigned
 
@@ -615,9 +595,6 @@ def _well_ids(well: str) -> Tuple[str, str]:
         return text, text
 
 
-# ---------------------------------------------------------------------------
-# Data model
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class SourceImage:
@@ -740,9 +717,6 @@ class Mapping:
         """
         row_id, column_id = _well_ids(self.well)
         field_key = schema.field_id(self.field)
-        # Joined here rather than through schema.compose_prc: the plate token
-        # is a sanitised source folder name and must be allowed to be anything
-        # a conversion can produce, including a name schema would refuse.
         prc = schema.KEY_SEPARATOR.join([str(self.plate), row_id, column_id])
         return {
             'target': self.target,
@@ -975,9 +949,6 @@ class ConversionResult:
         return '\n'.join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Scanning
-# ---------------------------------------------------------------------------
 
 def _iter_files(src: str, extensions: Sequence[str]) -> List[Tuple[str, Tuple[str, ...]]]:
     """Yield ``(abs path, relative path parts)`` for every image under ``src``."""
@@ -1018,7 +989,7 @@ def _keys_for(parts: Tuple[str, ...], layout: str, src_name: str) -> Tuple[str, 
         plate = src_name
         well = dirs[0] if dirs else DEFAULT_WELL
         extra = dirs[1:]
-    else:  # plate_well
+    else:
         plate = dirs[0] if dirs else src_name
         well = dirs[1] if len(dirs) > 1 else DEFAULT_WELL
         extra = dirs[2:]
@@ -1044,9 +1015,6 @@ def _axes_dims(shape: Sequence[int], axes: str) -> Tuple[int, int, int, str]:
     n_c = int(sizes.get('C', 0) or 0)
     note = ''
     if not n_c and 'S' in sizes:
-        # 'S' is tifffile's "samples per pixel" — RGB-style interleaving.
-        # Treating those samples as separate spaCR channels is a decision,
-        # not a fact recorded in the file, so it gets said out loud.
         n_c = int(sizes['S'])
         note = (f"the file's {n_c} interleaved samples were read as channels; "
                 f'if that is an RGB rendering rather than {n_c} stains, '
@@ -1055,9 +1023,6 @@ def _axes_dims(shape: Sequence[int], axes: str) -> Tuple[int, int, int, str]:
     unknown = [(i, letter) for i, letter in enumerate(axes)
                if letter in ('Q', 'I', '?')]
     if unknown:
-        # Left-to-right: T, then Z. A single unknown axis of 4 or fewer
-        # planes reads as channels — the same heuristic io.py uses, but
-        # said out loud instead of applied in silence.
         if len(unknown) == 1 and not n_c and shape[unknown[0][0]] <= 4:
             n_c = int(shape[unknown[0][0]])
             note = (f'axes not recorded in the file; the leading axis of '
@@ -1273,9 +1238,6 @@ def scan(src: str, layout: str = 'auto',
     return sources
 
 
-# ---------------------------------------------------------------------------
-# Planning
-# ---------------------------------------------------------------------------
 
 def _channel_keys(source: SourceImage) -> List[str]:
     """Return the channel keys this source contributes.
@@ -1344,7 +1306,6 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
         result.notes.append('No readable images were found.')
         return result
 
-    # -- plate names ------------------------------------------------------
     plate_keys = sorted({s.plate for s in readable}, key=_natural_key)
     overrides = dict(plate_map or {})
     for index, key in enumerate(plate_keys, start=1):
@@ -1355,7 +1316,6 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
         else:
             result.plate_map[key] = _sanitise(key)
 
-    # -- wells, per plate -------------------------------------------------
     explicit_wells = dict(well_map or {})
     for plate_key in plate_keys:
         well_keys = {s.well for s in readable if s.plate == plate_key}
@@ -1374,12 +1334,6 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
             for well_key in pending:
                 result.well_map[(plate_key, well_key)] = assigned[well_key]
 
-            # A synthetic address is never handed out silently. A name that
-            # is a well keeps it (including Q01 and A25, which a 1536 plate
-            # has and a 384 does not); everything else is listed here by
-            # name, and a name that *looks* like a well but sits on no plate
-            # at all is a warning of its own — that is the case where a typo
-            # turns into a well id nobody can trace back.
             synthetic = [(key, assigned[key])
                          for key in sorted(pending, key=_natural_key)
                          if normalise_well(key) is None]
@@ -1399,7 +1353,6 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
                     f'{listed}. Only the map file\'s source_well column can '
                     f'take that back.')
 
-    # -- channels, per plate ----------------------------------------------
     for plate_key in plate_keys:
         keys = set()
         for source in readable:
@@ -1408,7 +1361,6 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
         for index, key in enumerate(sorted(keys, key=_natural_key), start=1):
             result.channel_map[(plate_key, key)] = index
 
-    # -- fields, per (plate, well) ----------------------------------------
     field_map: Dict[Tuple[str, str, str], int] = {}
     for plate_key in plate_keys:
         well_keys = sorted({s.well for s in readable if s.plate == plate_key},
@@ -1420,7 +1372,6 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
             for index, field_key in enumerate(fields, start=1):
                 field_map[(plate_key, well_key, field_key)] = index
 
-    # -- mappings ----------------------------------------------------------
     for source in sorted(readable, key=lambda s: (_natural_key(s.plate),
                                                   _natural_key(s.well),
                                                   _natural_key(s.field),
@@ -1433,10 +1384,6 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
         t_index = source.meta.get('t_index')
         series = int(source.meta.get('series', 0) or 0)
 
-        # A filename z/t token means the stack is spread over files: the
-        # token is the output index. A file that ALSO holds planes
-        # internally is ambiguous, and guessing which one wins is how
-        # planes silently overwrite each other, so it is an error.
         if z_index is not None and source.z > 1:
             result.errors.append(
                 f'{source.path}: the filename carries a Z{z_index} token but '
@@ -1476,7 +1423,7 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
                 z_values = [(i + 1, i, str(i + 1)) for i in range(source.z)]
         elif z_handling == Z_FIRST:
             z_values = [(1, 0, '1')]
-        else:  # Z_MAX
+        else:
             z_values = [(1, -1, f'max(1..{source.z})')]
 
         for t_out, t_in, t_src in t_values:
@@ -1508,7 +1455,6 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
                               'axes': source.meta.get('axes', ''),
                               'axes_assumed': source.meta.get('axes_assumed', '')}))
 
-    # -- collisions --------------------------------------------------------
     by_target: Dict[str, List[Mapping]] = {}
     for mapping in result.mappings:
         by_target.setdefault(mapping.target, []).append(mapping)
@@ -1523,7 +1469,6 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
                 f'into different well folders, or use plate_naming/well_map '
                 f'to separate them.')
 
-    # -- warnings and notes ------------------------------------------------
     stacked = [s for s in readable if s.z > 1]
     if stacked:
         planes = sum(s.z for s in stacked)
@@ -1570,9 +1515,6 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
     return result
 
 
-# ---------------------------------------------------------------------------
-# Reading pixels
-# ---------------------------------------------------------------------------
 
 def _to_5d(array: np.ndarray, axes: str, n_t: int, n_z: int, n_c: int) -> np.ndarray:
     """Reshape ``array`` into ``(T, Z, C, Y, X)``.
@@ -1589,8 +1531,6 @@ def _to_5d(array: np.ndarray, axes: str, n_t: int, n_z: int, n_c: int) -> np.nda
     known = (axes or '').upper()
     if len(known) == array.ndim and 'Y' in known and 'X' in known and \
             not ({'Q', 'I', '?'} & set(known)):
-        # Collapse any axis this module does not model (mosaic, block,
-        # view) to its first element.
         for index in range(array.ndim - 1, -1, -1):
             if known[index] not in 'TZCSYX':
                 array = np.take(array, 0, axis=index)
@@ -1598,7 +1538,6 @@ def _to_5d(array: np.ndarray, axes: str, n_t: int, n_z: int, n_c: int) -> np.nda
         if 'S' in known:
             index = known.index('S')
             if 'C' in known:
-                # Both present: 'S' is interleaved samples of a channel.
                 array = np.take(array, 0, axis=index)
                 known = known[:index] + known[index + 1:]
             else:
@@ -1609,7 +1548,6 @@ def _to_5d(array: np.ndarray, axes: str, n_t: int, n_z: int, n_c: int) -> np.nda
                 known = letter + known
         return np.transpose(array, [known.index(letter) for letter in 'TZCYX'])
 
-    # Unknown axes: fall back to the counts the describer resolved.
     total = int(np.prod(array.shape[:-2])) if array.ndim > 2 else 1
     n_t = max(int(n_t), 1)
     n_z = max(int(n_z), 1)
@@ -1745,9 +1683,6 @@ def _atomic_write(path: str, array: np.ndarray) -> None:
         raise
 
 
-# ---------------------------------------------------------------------------
-# Converting
-# ---------------------------------------------------------------------------
 
 def _conversion_field(mapping: Mapping) -> str:
     """Return a stable plate/well/field checkpoint id for one mapping."""
@@ -1806,12 +1741,6 @@ def _valid_converted_tiff(path: str) -> bool:
             shape = tuple(int(value) for value in handle.series[0].shape)
             return bool(shape) and all(value > 0 for value in shape)
     except Exception:
-        # This is a validity predicate used to decide whether a field may be
-        # resumed. tifffile has changed the public base class of
-        # ``TiffFileError`` across releases, so enumerating its exception
-        # hierarchy let truncated files escape in some supported
-        # environments. Any reader failure means the artifact is not valid
-        # enough to trust and must be rebuilt.
         return False
 
 
@@ -1888,8 +1817,6 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
     for mapping in conversion_plan.mappings:
         by_field.setdefault(_conversion_field(mapping), []).append(mapping)
 
-    # A JSON claim never outranks the artifact. Re-open TIFF headers before
-    # accepting a field, and re-queue it when one target is absent or corrupt.
     completed_fields = set()
     if checkpoint.resumed and not overwrite:
         for field_id in checkpoint.completed:
@@ -1900,8 +1827,6 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
                 completed_fields.add(field_id)
         result.resumed_fields = sorted(completed_fields)
 
-    # One read per (file, series): a six-scene CZI is opened once, not six
-    # times, and its scenes still land in six different fields.
     by_source: Dict[Tuple[str, int], List[Mapping]] = {}
     for mapping in conversion_plan.mappings:
         key = (mapping.source, int(mapping.meta.get('series', 0) or 0))
@@ -1953,8 +1878,6 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
                     result.failed.append(mapping)
             result.skipped.append((item, run.failures[-1].message))
 
-        # Mark only whole fields. A field spanning several source files is not
-        # accepted until every planned channel/z/t target validates.
         for field_id in {_conversion_field(mapping) for mapping in group}:
             mappings = by_field[field_id]
             if all(_valid_converted_tiff(os.path.join(dst, mapping.target))
@@ -1967,9 +1890,6 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
                     completed_fields.add(field_id)
 
     result.map_path = str(write_map(result, os.path.join(dst, map_name)))
-    # Stamp the map itself: a conversion_map.csv that lists 380 of 384
-    # wells looks exactly like a 380-well experiment until the sidecar
-    # says otherwise.
     run.finalize(artifact=result.map_path)
     checkpoint.finish(meta={
         'map_path': result.map_path,
@@ -1979,9 +1899,6 @@ def convert(conversion_plan: ConversionPlan, dst: str, overwrite: bool = False,
     return result
 
 
-# ---------------------------------------------------------------------------
-# The map file
-# ---------------------------------------------------------------------------
 
 def write_map(result: ConversionResult, path: str) -> Path:
     """Write the map file for ``result``.
@@ -2094,9 +2011,6 @@ def populate_db_from_map(db_path: str, map_path: str,
     return int(len(frame))
 
 
-# ---------------------------------------------------------------------------
-# The settings-dict entry point
-# ---------------------------------------------------------------------------
 
 def default_settings(settings: Optional[TMapping[str, Any]] = None) -> Dict[str, Any]:
     """Return the settings :func:`convert_folder` understands, with defaults.

@@ -50,8 +50,6 @@ def claim() -> None:
                 _RESTORE = sys.getswitchinterval()
                 sys.setswitchinterval(BUSY_INTERVAL)
             except Exception:                         # noqa: BLE001
-                # An interpreter without the knob is not a reason to fail a
-                # run; it is a reason for the window to be less smooth.
                 LOG.debug("could not lower the switch interval", exc_info=True)
                 _RESTORE = None
         _DEPTH += 1

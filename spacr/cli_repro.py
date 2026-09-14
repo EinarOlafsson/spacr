@@ -96,7 +96,6 @@ def main(argv=None) -> int:
 
     run_dir = Path(args.run_dir)
     if not run_dir.exists():
-        # Try under runs_root() by basename
         candidate = runs_root() / args.run_dir
         if candidate.exists():
             run_dir = candidate

@@ -58,23 +58,12 @@ class HintBar(QLabel):
         self._default = default
         self._hints: Dict[QWidget, str] = {}
         self.setObjectName(BAR_NAME)
-        # JUSTIFIED, like the tooltips it replaces. Asked for 2026-08-28.
-        # Centring is right for one short line and wrong for the three a
-        # paragraph takes: a centred block has two ragged edges instead of
-        # one, and reads as a caption rather than as prose.
         self.setAlignment(Qt.AlignJustify | Qt.AlignVCenter)
         self.setWordWrap(True)
-        # Tall enough for the sentence it will hold, so the window does not
-        # resize the moment the pointer touches a control.
         self.setMinimumHeight(max(28, self.sizeHint().height()))
-        # AND NO TALLER THAN THREE LINES. The strip took whatever height the
-        # longest help needed, so moving the pointer between two controls
-        # whose help differs in length made the whole dialog jump. A bounded
-        # strip elides instead, and the full text is still in the register.
         line = max(1, self.fontMetrics().lineSpacing())
         self.setMaximumHeight(line * 3 + 12)
 
-    # -- registration ----------------------------------------------------
 
     def explain(self, widget: QWidget, text: str = "") -> str:
         """Have ``widget`` write ``text`` here while the pointer is on it.
@@ -91,8 +80,6 @@ class HintBar(QLabel):
         if not sentence:
             return ""
         widget.setToolTip("")
-        # A screen reader reads neither the bar nor a tooltip that is gone,
-        # so the sentence is put where assistive technology looks for it.
         if not widget.accessibleDescription():
             widget.setAccessibleDescription(sentence)
         self._hints[widget] = sentence
@@ -107,7 +94,6 @@ class HintBar(QLabel):
         """How many controls report to this bar."""
         return len(self._hints)
 
-    # -- behaviour -------------------------------------------------------
 
     def reset(self) -> None:
         """Say the default again."""
@@ -139,10 +125,6 @@ class HintBar(QLabel):
             if sentence:
                 self.setText(self._translated(sentence))
         elif kind in (QEvent.Leave, QEvent.HoverLeave):
-            # ONLY IF THIS WIDGET IS THE ONE BEING SHOWN. Two controls side
-            # by side send Leave-then-Enter in that order often enough that
-            # blanking unconditionally makes the bar flicker to the default
-            # between neighbours.
             if self._hints.get(obj) and \
                     self.text() == self._translated(self._hints[obj]):
                 self.reset()

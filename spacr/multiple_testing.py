@@ -202,7 +202,6 @@ def canonical_method(method) -> str:
     key = _ALIASES.get(key, key)
     if key in METHODS:
         return key
-    # statsmodels spellings that are not already canonical keys.
     for spec in METHODS.values():
         if spec.statsmodels_name and key == spec.statsmodels_name.lower():
             return spec.key
@@ -245,11 +244,9 @@ def estimate_pi0(p_values, *, lambdas: Sequence[float] | None = None) -> float:
         lambdas = np.arange(0.05, 0.96, 0.05)
     grid = np.asarray([lam for lam in lambdas if 0.0 <= lam < 1.0], dtype=float)
     if grid.size == 0 or m < 20:
-        # Too few tests to read a null plateau off the histogram.
         return 1.0
     counts = np.asarray([(values > lam).sum() for lam in grid], dtype=float)
     pi0_grid = counts / (m * (1.0 - grid))
-    # Take the minimum of the tail estimates: stable, and never above 1.
     tail = pi0_grid[grid >= float(np.median(grid))]
     pi0 = float(np.min(tail)) if tail.size else float(pi0_grid[-1])
     if not np.isfinite(pi0) or pi0 <= 0:
@@ -279,7 +276,6 @@ def storey_qvalue(p_values, *, pi0: float | None = None):
     ranked = observed[order]
     ranks = np.arange(1, m + 1, dtype=float)
     raw = pi0 * m * ranked / ranks
-    # Enforce monotonicity from the largest P value downwards.
     q_sorted = np.minimum.accumulate(raw[::-1])[::-1]
     q_sorted = np.clip(q_sorted, 0.0, 1.0)
     q = np.empty(m, dtype=float)
@@ -332,8 +328,6 @@ def adjust_p_values(p_values, method="fdr_bh", alpha=0.05):
     call, corrected, _, _ = multipletests(
         observed, alpha=alpha, method=spec.statsmodels_name
     )
-    # fdr_tsbh returns adjusted values already scaled by the estimated null
-    # count; statsmodels' own rejection call is authoritative for every method.
     adjusted[finite] = corrected
     rejected[finite] = call
     return adjusted, rejected
@@ -412,9 +406,6 @@ def _beta_uniform_fit(p_values, *, iterations: int = 500,
     values = values[np.isfinite(values)]
     if values.size == 0:
         return 1.0, 1.0
-    # A P VALUE OF EXACTLY ZERO IS A REAL RESULT UNDERFLOWING, not a mistake,
-    # and log(0) would take the whole fit with it. Clamped to the smallest
-    # positive double, which is below any P value a screen can produce.
     values = np.clip(values, np.finfo(float).tiny, 1.0)
     logs = np.log(values)
     w, a = 0.5, 0.5
@@ -473,12 +464,6 @@ def local_fdr(p_values, *, pi0: float | None = None):
     if observed.size == 0:
         return out
     if observed.size < LOCAL_FDR_MIN_TESTS:
-        # TOO FEW TESTS TO READ A DENSITY OFF. Returning 1 everywhere says
-        # "nothing here is distinguishable from null", which is the
-        # conservative truth; returning a fitted curve would be showing the
-        # user a shape estimated from a dozen numbers as if it were the
-        # screen's. Callers gate the option on the same count -- see
-        # :data:`LOCAL_FDR_MIN_TESTS`.
         out[finite] = 1.0
         return out
     weight, shape = _beta_uniform_fit(observed)

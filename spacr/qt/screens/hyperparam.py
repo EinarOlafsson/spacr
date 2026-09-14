@@ -55,9 +55,6 @@ from ...hyperparam import (
 from ..theme import (active_palette, css_color, make_transparent,
                      set_a_sheeted_widgets_own_rule)
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib
-# only inside its own functions, so naming it here costs
-# nothing at import time.
 from ...figures.style import figure_style, theme_target
 from ..widgets.sortable_table import install_sorting, table_item
 
@@ -117,12 +114,6 @@ APP_PARAMS: Dict[str, Tuple[Tuple[str, str, str], ...]] = {
         ("epochs", "epochs", "int"),
         ("weight_decay", "weight_decay", "float"),
     ),
-    # THE MERGED SCREEN, which lost the search entirely when it took over
-    # from both classifiers -- its panel was None and there is no other
-    # door to the cross-validated search. The four Torch knobs come first
-    # because `classifier_family` defaults to the image classifier; the
-    # two gradient-boosting knobs follow, and a search that names one the
-    # selected family does not take simply leaves it at its setting.
     "classify_merged": (
         ("learning_rate", "learning_rate", "float"),
         ("dropout_rate", "dropout_rate", "float"),
@@ -137,9 +128,6 @@ APP_PARAMS: Dict[str, Tuple[Tuple[str, str, str], ...]] = {
         ("reg_alpha", "reg_alpha", "float"),
         ("reg_lambda", "reg_lambda", "float"),
     ),
-    # Activation sweeps the settings that change the MAP, not the model: which
-    # method, which layer it hooks, how much the input is smoothed, and the
-    # window / step counts the perturbation and path-integral methods take.
     "activation": (
         ("cam_type", "method", "str"),
         ("target_layer", "target_layer", "str"),
@@ -157,9 +145,6 @@ APP_PARAMS: Dict[str, Tuple[Tuple[str, str, str], ...]] = {
 MAX_PANELS = 12
 
 
-# ---------------------------------------------------------------------------
-# Pure helpers — no Qt, unit-testable without a display
-# ---------------------------------------------------------------------------
 
 def parse_values(text: str, kind: str, name: str) -> List[Any]:
     """Parse a comma-separated list of values for one parameter.
@@ -353,19 +338,12 @@ def build_panel_figure(
     if not ranked:
         return None
 
-    # Attribution sweeps first: the maps ARE the deliverable, and the four
-    # scores go in every title so the panel shows the criteria disagreeing
-    # rather than hiding it behind one ranking.
     attributed = [t for t in ranked
                   if t.extra_metrics.get("attribution") is not None]
     if attributed:
         shown = attributed[:max_panels]
         cols = min(4, len(shown))
         rows = (len(shown) + cols - 1) // cols
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             fig, axes = plt.subplots(rows, cols, figsize=(3.0 * cols, 3.2 * rows),
                                      squeeze=False)
@@ -401,10 +379,6 @@ def build_panel_figure(
         shown = embedded[:max_panels]
         cols = min(4, len(shown))
         rows = (len(shown) + cols - 1) // cols
-        # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-        # rcParams reach an artist when it is CREATED, so a
-        # context opened after `plt.subplots` would leave the
-        # spines, ticks and labels at the caller's globals.
         with figure_style(theme_target()):
             fig, axes = plt.subplots(rows, cols, figsize=(3.0 * cols, 3.0 * rows),
                                      squeeze=False)
@@ -431,10 +405,6 @@ def build_panel_figure(
             _apply_figure_theme(fig, palette)
             return fig
 
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(6.0, 3.2))
         xs = list(range(1, len(ranked) + 1))
@@ -458,9 +428,6 @@ def build_panel_figure(
         return fig
 
 
-# ---------------------------------------------------------------------------
-# Worker
-# ---------------------------------------------------------------------------
 
 @dataclass
 class SearchRequest:
@@ -562,7 +529,6 @@ def _search_figure_dir(settings, app_key: str):
             target.mkdir(parents=True, exist_ok=True)
             return target
         except Exception:
-            # An unwritable or missing src is not a reason to lose the run.
             pass
     try:
         return Path(tempfile.mkdtemp(prefix="spacr-search-"))
@@ -573,10 +539,8 @@ def _search_figure_dir(settings, app_key: str):
 class _SearchWorker(QThread):
     """Runs one sweep in the background, streaming trials as they complete."""
 
-    # (Trial, completed, total, png_path). The path is rendered HERE, on
-    # the worker thread, and is "" when the trial has no embedding.
     trial_ready = Signal(object, int, int, str)
-    search_done = Signal(object, str)        # (SearchResult or None, error)
+    search_done = Signal(object, str)
 
     def __init__(self, request: SearchRequest, search_fn=None, parent=None):
         """Store the request and the (optionally injected) search function.
@@ -598,9 +562,6 @@ class _SearchWorker(QThread):
         self._metric = str(getattr(request, "criterion", "score") or "score")
         self._figure_dir = _search_figure_dir(
             request.settings, getattr(request, "app_key", "") or "search")
-        # QThread.finished is the lifecycle boundary the panel must wait for.
-        # The result signal is emitted just before QThread.run() returns, so it
-        # is too early to drop the final Python reference to this object.
         self.result: Optional[SearchResult] = None
         self.error = ""
         self.completion_ready = False
@@ -620,8 +581,6 @@ class _SearchWorker(QThread):
                 if render_trial_figure(trial, self._metric, str(target)):
                     path = str(target)
         except Exception:
-            # A figure is decoration; a search that dies because a plot
-            # failed would lose hours of real work. INVARIANTS 10.
             LOG.debug("could not render trial %s", trial.index, exc_info=True)
         self.trial_ready.emit(trial, done, total, path)
 
@@ -645,8 +604,6 @@ class _SearchWorker(QThread):
             self.error = f"{type(exc).__name__}: {exc}"
         finally:
             self.completion_ready = True
-            # Kept for callers that use the private worker directly. The panel
-            # deliberately consumes the stored payload from ``finished``.
             self.search_done.emit(self.result, self.error)
 
 
@@ -673,9 +630,6 @@ def _default_search_fn(request: SearchRequest, on_trial, should_stop) -> SearchR
         resume=request.resume)
 
 
-# ---------------------------------------------------------------------------
-# Panel
-# ---------------------------------------------------------------------------
 
 
 def _parse_walk_start(name: str, text: Any) -> Any:
@@ -778,13 +732,9 @@ class HyperparamPanel(QWidget):
         self._displayed_trial: Optional[Trial] = None
         self._gpu_enabled = False
         self._build_ui()
-        # Hover help belongs on a setting's NAME, not on the field the user
-        # is about to type into (instruction 113). One post-pass rather than
-        # a convention every hand-built row has to remember.
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    # -- construction ------------------------------------------------------
 
     def _build_ui(self) -> None:
         """Lay out controls on the left, table + preview on the right."""
@@ -803,7 +753,6 @@ class HyperparamPanel(QWidget):
         settings_layout.setSpacing(6)
         root.addWidget(self._settings_panel)
 
-        # -- search space controls
         controls = QWidget()
         controls.setObjectName(
             "UmapHyperparamControls"
@@ -824,19 +773,6 @@ class HyperparamPanel(QWidget):
                 edit.setSizeAdjustPolicy(
                     QComboBox.AdjustToMinimumContentsLengthWithIcon)
                 edit.setMinimumContentsLength(12)
-                # THE SHORT LIST NOW, THE FULL ONE WHEN IT IS OPENED.
-                #
-                # `umap_metrics()` reads the metric names off the INSTALLED
-                # umap-learn, and touching that package makes numba compile
-                # pynndescent: 9.4 s of a 9.6 s screen construction, measured,
-                # spent so a dropdown nobody has clicked can be complete.
-                #
-                # Nothing is lost. The static names go in immediately so the
-                # control is usable at once, and the first time the list is
-                # opened it is completed from the installed library -- by
-                # which point a user choosing a metric is about to run UMAP
-                # and needs it loaded anyway. Anyone who never opens it never
-                # pays, which is most of the people opening this screen.
                 edit.addItems(UMAP_METRICS)
                 edit.setCurrentText("euclidean")
                 _complete_metrics_when_opened(edit)
@@ -856,9 +792,6 @@ class HyperparamPanel(QWidget):
             self._value_edits[key] = edit
         settings_layout.addWidget(controls)
 
-        # -- run controls. A grid keeps the settings dialog usable at normal
-        # laptop widths; the old single horizontal row forced the popup wider
-        # than the screen and made the first tab/title appear to overlap.
         run_grid = QGridLayout()
         run_grid.setContentsMargins(0, 0, 0, 0)
         run_grid.setHorizontalSpacing(6)
@@ -873,9 +806,6 @@ class HyperparamPanel(QWidget):
             "of structure.")
         self._criterion.currentTextChanged.connect(
             self._update_criterion_explanation)
-        # The header follows the criterion, so switching from
-        # trustworthiness to multi_objective re-labels the column the user
-        # is about to read rather than leaving it saying "score".
         self._criterion.currentTextChanged.connect(
             lambda _t: self._retitle_score_column())
         run_grid.addWidget(self._criterion, 0, 1)
@@ -888,11 +818,6 @@ class HyperparamPanel(QWidget):
             "the space with the seed below, which is reproducible.")
         run_grid.addWidget(self._mode, 0, 3)
 
-        # "Walk", not "Adaptive 2x2". One name for one idea, shared with
-        # the Gate Editor's clustering search -- a directional search
-        # through hyperparameter space is the same thing in both modules
-        # and was called two things. "2x2" was also a description of
-        # today's two-parameter special case rather than of the design.
         self._adaptive = Toggle("Walk")
         self._adaptive.setVisible(self.app_key == "umap")
         self._adaptive.setToolTip(
@@ -931,9 +856,6 @@ class HyperparamPanel(QWidget):
             "crops from one well never straddle a split.")
         run_grid.addWidget(self._n_folds, 1, 3)
         if self.app_key in ("umap", "activation"):
-            # Neither app cross-validates: UMAP fits one embedding per trial and
-            # Activation attributes an already-trained model, so a fold count
-            # would be a control that does nothing.
             self._n_folds_label.setVisible(False)
             self._n_folds.setVisible(False)
 
@@ -989,9 +911,6 @@ class HyperparamPanel(QWidget):
             "biological structure.")
         settings_layout.addWidget(self._criterion_help)
 
-        # Multi-objective UMAP controls. These stay visible in the Search tab
-        # so the composite is never a hidden formula, but are editable only
-        # while that criterion is selected.
         self._multi_objective_controls = QWidget(self)
         self._multi_objective_controls.setObjectName(
             "UmapHyperparamControls"
@@ -1071,7 +990,6 @@ class HyperparamPanel(QWidget):
         settings_layout.addWidget(self._multi_objective_controls)
         self._update_criterion_explanation(self._criterion.currentText())
 
-        # -- adaptive UMAP controls. Blank means the documented API default.
         adaptive_row = QHBoxLayout()
         adaptive_row.setSpacing(6)
         self._adaptive_controls = QWidget(self)
@@ -1143,8 +1061,6 @@ class HyperparamPanel(QWidget):
         self._plot_panel_controls.setVisible(self.app_key != "umap")
         settings_layout.addWidget(self._plot_panel_controls)
 
-        # Match Measure Live: keep the card focused on results and put the
-        # complete control set behind a settings button in a separate window.
         root.removeWidget(self._settings_panel)
         self._settings_panel.hide()
         compact_actions = QHBoxLayout()
@@ -1194,7 +1110,6 @@ class HyperparamPanel(QWidget):
         compact_actions.addStretch(1)
         root.insertLayout(0, compact_actions)
 
-        # -- results table + preview
         split = QSplitter(Qt.Horizontal)
         split.setChildrenCollapsible(False)
 
@@ -1203,9 +1118,6 @@ class HyperparamPanel(QWidget):
         self._table.setHorizontalHeaderLabels(list(self.COLUMNS))
         self._retitle_score_column()
         if self.app_key in self.NO_FOLD_APPS:
-            # Hidden rather than filled with a placeholder: a column of NA
-            # invites the reader to wonder what went wrong, when nothing
-            # did -- this app simply has no folds.
             self._table.setColumnHidden(self.COLUMNS.index("fold sd"), True)
         if self.app_key != "umap":
             self._table.setColumnHidden(self.COLUMNS.index("neighbors"), True)
@@ -1224,10 +1136,6 @@ class HyperparamPanel(QWidget):
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
         split.addWidget(self._table)
 
-        # UMAP owns an interactive coordinate viewer. The other search apps
-        # still use the generic static figure panel: attribution images and
-        # classifier score curves are figures, while a 3-D UMAP is a map the
-        # user needs to spin, recolour and cluster.
         self._preview_stack = QWidget(self)
         self._preview_stack.setObjectName("SearchPreviewStack")
         make_transparent(self._preview_stack)
@@ -1259,8 +1167,6 @@ class HyperparamPanel(QWidget):
             cluster_bar.addWidget(self._cluster_walk_btn)
             cluster_bar.addStretch(1)
             preview_column.addLayout(cluster_bar)
-            # Compatibility attribute for integrations that looked for the
-            # old label. It is not shown and never receives a static UMAP.
             self._preview = QLabel("", self._preview_stack)
             self._preview.hide()
         else:
@@ -1280,7 +1186,6 @@ class HyperparamPanel(QWidget):
         split.setStretchFactor(1, 4)
         root.addWidget(split, 1)
 
-        # -- status + caveats
         self._status = QLabel("")
         self._status.setWordWrap(True)
         self._status.setObjectName("HyperparamStatus")
@@ -1291,7 +1196,6 @@ class HyperparamPanel(QWidget):
         self._notes.setObjectName("HyperparamNotes")
         root.addWidget(self._notes)
 
-    # -- host integration --------------------------------------------------
 
     def set_apply_callback(self, cb: Optional[Callable[[Dict[str, Any]], Any]]) -> None:
         """Register the callback that writes a chosen config into the settings
@@ -1423,8 +1327,6 @@ class HyperparamPanel(QWidget):
         checked = bool(checked) and self.app_key == "umap"
         controls = getattr(self, "_adaptive_controls", None)
         if controls is not None:
-            # Keep labels and their API dots active even when adaptive search
-            # is off; only the value fields are unavailable.
             controls.setEnabled(True)
             for edit in (
                     self._adaptive_n_step, self._adaptive_d_step,
@@ -1528,10 +1430,8 @@ class HyperparamPanel(QWidget):
                 "minimum improvement must be zero or greater.")
         return rounds, n_step, d_step, improvement
 
-    # -- search space ------------------------------------------------------
 
 
-    # -- Walk axes ---------------------------------------------------------
 
     def walk_axes(self) -> Dict[str, Dict[str, Any]]:
         """The chosen Walk axes, ``{name: {'start', 'resolution'}}``.
@@ -1598,10 +1498,6 @@ class HyperparamPanel(QWidget):
                    and getattr(self, "_adaptive", None) is not None
                    and self._adaptive.isChecked())
         if walking and self._walk_axes:
-            # A Walk needs a starting POINT, so each chosen axis enters the
-            # space as exactly one value. Parameters that are not axes keep
-            # whatever the fields hold, which is how a fixed metric or a
-            # fixed n_components travels with the walk.
             for name, spec in self._walk_axes.items():
                 text = str(spec.get("start", "")).strip()
                 if not text:
@@ -1625,9 +1521,7 @@ class HyperparamPanel(QWidget):
                     f"{', '.join(multiple)}.")
         return SearchSpace(params)
 
-    # -- running -----------------------------------------------------------
 
-    # -- GPU ---------------------------------------------------------------
 
     def gpu_backend(self) -> str:
         """Which backend the next search will use: ``'cuml'`` or ``'cpu'``."""
@@ -1669,7 +1563,6 @@ class HyperparamPanel(QWidget):
             self._gpu_enabled = True
             self._set_status(f"GPU: {plan['message']}")
             return True
-        # Not ready, so the toggle must not stay down claiming it is.
         self._gpu_enabled = False
         self._set_status(f"GPU not available: {plan['message']}")
         explain(anchor if anchor is not None else self,
@@ -1828,8 +1721,6 @@ class HyperparamPanel(QWidget):
             self._preview.setPixmap(QPixmap())
         if self._figure_grid is not None:
             self._figure_grid.clear()
-            # Axes from the SPACE, set before the first figure lands, so the
-            # grid does not rearrange itself as results arrive.
             try:
                 self._figure_grid.set_parameters(list(space.params))
             except Exception:
@@ -1837,11 +1728,6 @@ class HyperparamPanel(QWidget):
             self._figure_grid.setVisible(True)
             self._preview.setVisible(False)
         if request.adaptive:
-            # Named for what it does now: a Walk over however many axes the
-            # user chose, not the two the first version could search.
-            # No axes chosen is the engine's own default pair, not every
-            # name in the space -- `metric` sits in the starting centre
-            # without being walked.
             walked = list(request.walk_parameters
                           or ("n_neighbors", "min_dist"))
             search_label = (
@@ -1856,13 +1742,6 @@ class HyperparamPanel(QWidget):
 
         worker = _SearchWorker(request, self._search_fn, self)
         worker.trial_ready.connect(self._on_trial_ready)
-        # NOT worker.deleteLater. `finished` is emitted from inside the worker
-        # thread, so scheduling the object's deletion there hands C++ a second
-        # owner for an object Python already owns, and the two race — see the
-        # measured account in spacr.qt.bridge.make_thread. The relay below is a
-        # bound method, so the connection keeps `self` alive rather than a
-        # lambda closure Qt cannot introspect, and the worker is freed when the
-        # panel drops its reference on the GUI thread.
         worker.finished.connect(self._on_worker_finished)
         self._worker = worker
         self._set_search_running(True)
@@ -1876,8 +1755,6 @@ class HyperparamPanel(QWidget):
             self._status.setText("No search is running.")
             return
         worker.request_stop()
-        # A stop request is asynchronous: keep the pressed negative button
-        # solid red and prevent repeat requests until the worker exits.
         from ..button_roles import set_button_busy
         sender = self.sender()
         for button in (self._stop_btn, self._compact_stop_btn):
@@ -1887,7 +1764,6 @@ class HyperparamPanel(QWidget):
             "Stopping after the trial in flight — the finished trials are "
             "kept and the result is marked partial.")
 
-    # -- signal handlers ---------------------------------------------------
 
     def _set_search_running(self, running: bool) -> None:
         """Synchronize every Run/Stop control, including the popup footer."""
@@ -1914,8 +1790,6 @@ class HyperparamPanel(QWidget):
         """
         sender = self.sender()
         worker = sender if isinstance(sender, _SearchWorker) else self._worker
-        # A stale completion must never re-enable controls belonging to a newer
-        # run. This is defensive now that starts are serialized at ``finished``.
         if worker is None or worker is not self._worker:
             return
         self._worker = None
@@ -1956,12 +1830,6 @@ class HyperparamPanel(QWidget):
             the GUI thread.
         """
         self._live_trials.append(trial)
-        # Running maximum. A Walk scores every NEIGHBOUR of its current
-        # centre, including the ones it then rejects, so the score column
-        # in arrival order legitimately goes up and down -- which reads as
-        # "the walk is not converging" when it is. Measured on a landscape
-        # with a known optimum: arrival order wandered while best-so-far
-        # climbed 0.663 -> 0.705 monotonically. This column shows the climb.
         if trial.score is not None:
             self._best_so_far = (float(trial.score) if self._best_so_far is None
                                  else max(self._best_so_far, float(trial.score)))
@@ -2069,7 +1937,6 @@ class HyperparamPanel(QWidget):
             self._draw_preview(result)
         self.search_finished.emit(result)
 
-    # -- table -------------------------------------------------------------
 
     @staticmethod
     def _fold_sd(trial: Trial) -> str:
@@ -2117,8 +1984,6 @@ class HyperparamPanel(QWidget):
                     item = _NumericTableItem(text, float(text))
                 except (TypeError, ValueError):
                     if col == self.COLUMNS.index("#"):
-                        # Ranked failures have no rank and belong after every
-                        # successful trial in the default ascending view.
                         item = _NumericTableItem(text, float("inf"))
             if col == 0:
                 item.setData(Qt.UserRole, dict(param_dict))
@@ -2191,7 +2056,6 @@ class HyperparamPanel(QWidget):
         value = None if item is None else item.data(Qt.UserRole + 2)
         return value if isinstance(value, Trial) else None
 
-    # -- apply -------------------------------------------------------------
 
     def apply_selected(self) -> bool:
         """Push the selected configuration into the host's settings panel.
@@ -2220,7 +2084,6 @@ class HyperparamPanel(QWidget):
         self._status.setText(msg)
         return True
 
-    # -- interactive UMAP -------------------------------------------------
 
     def show_trial(self, trial: Trial) -> bool:
         """Load one row's stored coordinates into the native 2-D/3-D view."""
@@ -2394,7 +2257,6 @@ class HyperparamPanel(QWidget):
             f"silhouette {chosen.silhouette:.3f}.")
         return True
 
-    # -- preview -----------------------------------------------------------
 
     def _open_trial_figure(self, index: int) -> None:
         """Open the clicked trial's figure in the desktop viewer.
@@ -2460,7 +2322,6 @@ class HyperparamPanel(QWidget):
             return
         self._preview.setPixmap(pm)
 
-    # -- lifecycle ---------------------------------------------------------
 
     @property
     def result(self) -> Optional[SearchResult]:
@@ -2484,9 +2345,6 @@ class HyperparamPanel(QWidget):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Tabbed settings window — mirrors Measure Live's CropSettingsDialog
-# ---------------------------------------------------------------------------
 
 class UmapSearchSettingsDialog(QDialog):
     """Tabbed search and UMAP-graph settings for :class:`HyperparamPanel`.
@@ -2520,9 +2378,6 @@ class UmapSearchSettingsDialog(QDialog):
         self._tabs.setObjectName("UmapSettingsTabs")
         outer.addWidget(self._tabs, 1)
 
-        # A group box cannot safely be the tab page itself: its title notch and
-        # frame share the tab pane's top-left origin. Put it on an ordinary
-        # padded page instead, matching Measure Live's settings dialogs.
         self._search_page = QWidget(self)
         self._search_page.setObjectName("UmapSearchPage")
         search_layout = QVBoxLayout(self._search_page)
@@ -2544,10 +2399,6 @@ class UmapSearchSettingsDialog(QDialog):
         if panel.app_key == "umap":
             self._build_umap_tabs()
 
-        # The popup has one action row at its foot. The copies embedded in the
-        # Search group were left over from when the panel itself was the whole
-        # window and produced two Runs and two Propagates plus an unnecessary
-        # middle Stop.
         panel._run_btn.hide()
         panel._stop_btn.hide()
         panel._apply_btn.hide()
@@ -2556,8 +2407,6 @@ class UmapSearchSettingsDialog(QDialog):
         close_button = buttons.button(QDialogButtonBox.Close)
         self._close_btn = close_button
         if close_button is not None:
-            # Some platform themes put a red X on the standard Close button.
-            # The semantic red outline/text already communicates the action.
             close_button.setIcon(QIcon())
         self._run_btn = QPushButton("Run search")
         self._run_btn.clicked.connect(panel.run_search)
@@ -2579,14 +2428,6 @@ class UmapSearchSettingsDialog(QDialog):
         field = palette["surface_alt"]
         fg = palette["fg"]
         border = palette["border"]
-        # Only this popup: every settings surface is the theme's black canvas;
-        # editable/value fields alone are lifted to dark gray. Do not alter the
-        # application palette.
-        # NOT `self.setStyleSheet`. A dialog is a window and therefore a
-        # sheet root, so a plain assignment here replaces the theme this
-        # dialog is carrying instead of adding to it -- measured as
-        # `#000000` text on the dark theme for as long as the dialog stays
-        # open, and the rule below lost at the next theme change.
         set_a_sheeted_widgets_own_rule(
             self,
             f"""
@@ -2705,9 +2546,6 @@ class UmapSearchSettingsDialog(QDialog):
             }}
             """
         )
-        # Some platform styles apply disabled/placeholder opacity after QSS.
-        # Pin every text palette role to white inside this dialog so labels and
-        # field text remain white even when an adaptive control is inactive.
         white = QColor(fg)
         for widget in self.findChildren(QWidget):
             widget_palette = widget.palette()
@@ -2741,8 +2579,6 @@ class UmapSearchSettingsDialog(QDialog):
             panel._cluster_weight: "umap_cluster_structure_weight",
             panel._max_panels: "max_panels",
         }
-        # No API link dots, matching the Live Preview panel and the main
-        # settings form -- both of which dropped them for the same reason.
         install_api_tooltips(self, panel.app_key, search_tooltips)
         self.resize(820, 760)
 
@@ -2800,10 +2636,6 @@ class UmapSearchSettingsDialog(QDialog):
             scroll.setFrameShape(QScrollArea.NoFrame)
             scroll.setWidget(page)
             self._tabs.addTab(scroll, tab_title)
-        # SettingsWidgets materializes every UMAP category with ``self`` as
-        # the initial parent. Remove anything not represented above entirely:
-        # merely hiding a compound control can leave a child eligible for a
-        # transient paint at (0, 0).
         for key, widget in list(self._module_model._widgets.items()):
             if key not in self._module_keys:
                 widget.hide()
@@ -2823,8 +2655,6 @@ class UmapSearchSettingsDialog(QDialog):
                 key: collected[key] for key in self._module_keys
                 if key in collected
             }
-        # One-value search fields are valid module settings. A selected result
-        # is more authoritative and therefore wins.
         for key, _label, kind in APP_PARAMS[self._panel.app_key]:
             try:
                 parsed = parse_values(
@@ -2851,9 +2681,6 @@ class UmapSearchSettingsDialog(QDialog):
         super().closeEvent(event)
 
 
-# ---------------------------------------------------------------------------
-# Host integration
-# ---------------------------------------------------------------------------
 
 
 def _complete_metrics_when_opened(combo) -> None:
@@ -2892,8 +2719,6 @@ def _complete_metrics_when_opened(combo) -> None:
             LOG.debug("could not complete the UMAP metric list",
                       exc_info=True)
         finally:
-            # Once, whatever happened: a list that cannot be completed must
-            # not try again on every click.
             self.showPopup = lambda: original(self)
         original(self)
 
@@ -3054,10 +2879,6 @@ class WalkAxesDialog(QDialog):
         bg = css_color(palette["bg"])
         fg = css_color(palette["fg"])
         muted = css_color(palette.get("muted", palette["fg"]))
-        # See `UmapSearchSettingsDialog` above: a plain assignment on a
-        # window replaces the sheet it carries. This docstring's own
-        # "after the application stylesheet has been composed" is exactly
-        # the moment that matters.
         set_a_sheeted_widgets_own_rule(self, f"""
             QDialog#WalkAxesDialog,
             QDialog#WalkAxesDialog QWidget#WalkAxesPage,
@@ -3105,8 +2926,6 @@ class WalkAxesDialog(QDialog):
             moves, full = walk_neighbourhood(axes, start)
             fits = len(moves)
         except (ValueError, KeyError):
-            # A half-typed starting value. Say nothing rather than a number
-            # that is wrong; the OK button validates properly.
             self._cost.setText(
                 f"{count} axes. Fill in a starting value for each to see "
                 "what a round will cost.")

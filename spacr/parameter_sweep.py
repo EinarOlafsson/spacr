@@ -45,9 +45,6 @@ from typing import Any, Callable, Mapping, Sequence
 import numpy as np
 import pandas as pd
 
-# THE HOUSE STYLE (136). `figures.style` imports matplotlib
-# only inside its own functions, so naming it here costs
-# nothing at import time.
 from .figures.style import figure_style, theme_target
 from .trial_metrics import METRIC_COLUMNS as _METRIC_COLUMNS
 from .trial_metrics import summarise_trial
@@ -83,29 +80,17 @@ PREPARATION_KEYS: tuple[str, ...] = (
 #: Values are the complete legal inventory where one exists, so a sweep covers
 #: the space rather than a sample someone once typed.
 DEFAULT_SWEEP_SPACE: dict[str, list] = {
-    # --- how the effect is estimated ---------------------------------------
     "regression_type": [
         "ols", "wls", "rlm", "glm", "poisson", "quasi_binomial", "beta",
         "logit", "probit", "quantile", "lasso", "ridge", "elasticnet",
     ],
-    # 'auto' cross-validates the penalty. The literal 1 is spaCR's default and
-    # is far larger than the scale of a fraction design -- it shrinks every
-    # coefficient to exactly zero -- so sweeping only the default would report
-    # the three penalised families as uniformly useless.
     "alpha": ["auto", 1],
     "inference": ["parametric", "nonparametric"],
-    # --- what one observation is -------------------------------------------
     "analysis_unit": ["well", "cell"],
     "agg_type": ["mean", "median", "quantile"],
     "transform": [None, "log"],
-    # --- nuisance structure: row, column and plate --------------------------
-    # False keeps rowID + columnID as FIXED effects in the formula; True moves
-    # them to random effects, which replaces the backend with a mixed model.
     "random_row_column_effects": [False, True],
-    # The plate effect. 'none' leaves plates alone; the rest remove a
-    # per-plate shift before fitting.
     "batch_correction": ["none", "center", "zscore"],
-    # --- what counts as significant -----------------------------------------
     "multiple_testing_method": [
         "none", "bonferroni", "sidak", "holm", "holm_sidak",
         "simes_hochberg", "hommel", "fdr_bh", "fdr_by", "fdr_tsbh",
@@ -114,7 +99,6 @@ DEFAULT_SWEEP_SPACE: dict[str, list] = {
     "fdr_alpha": [0.05],
     "threshold_method": ["std"],
     "threshold_multiplier": [2, 3],
-    # --- filtration ----------------------------------------------------------
     "fraction_threshold": [0.02],
     "min_cells_per_well": [100],
     "min_observations_per_hit": [0],
@@ -174,8 +158,6 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
         """Reject aggregation variants that a per-cell analysis ignores."""
         if trial.get("analysis_unit") == "cell" and \
                 trial.get("agg_type") not in (None, "mean"):
-            # agg_type is forced to None for a per-cell fit, so sweeping it
-            # would run the same analysis several times under different labels.
             return "analysis_unit='cell' ignores agg_type"
         return None
 
@@ -189,8 +171,6 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
 
     def permutation_ignores_the_family(trial):
         """Reject backend variants unused by nonparametric inference."""
-        # The permutation test is its own estimator: it does not read
-        # regression_type, and sweeping it would repeat one analysis 13 times.
         if trial.get("inference") == "nonparametric" and \
                 trial.get("regression_type") not in (None, "ols"):
             return "inference='nonparametric' does not use regression_type"
@@ -198,17 +178,6 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
 
     def permutation_at_cell_level_exhausts_memory(trial):
         """Reject the per-cell permutation fit measured to require 57 GiB."""
-        # THE COMBINATION THAT TOOK THE MACHINE DOWN.
-        #
-        # The permutation test builds `x_unit.T @ permuted_outcomes` in
-        # batches. At WELL level that is 606 rows and costs nothing. At CELL
-        # level it is ~116,000 rows against 200,000 permutations, and a single
-        # trial was measured holding 57 GB of resident memory before the host
-        # ran out -- one fit, on its own, with nothing running in parallel.
-        #
-        # Rejected rather than merely discouraged: there is no worker count,
-        # thread limit or nice level that makes it survivable, because the
-        # allocation happens inside one process regardless.
         if trial.get("inference") == "nonparametric" and \
                 trial.get("analysis_unit") == "cell":
             return ("inference='nonparametric' with analysis_unit='cell' "
@@ -225,9 +194,6 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
 
     def penalty_belongs_to_penalised_families(trial):
         """Reject non-default alpha values for families that never read them."""
-        # alpha is refused outright by every family that cannot read it, so
-        # sweeping it against them would turn one axis into a wall of
-        # identical rejections.
         if trial.get("alpha") not in (None, 1) and \
                 trial.get("regression_type") not in (
                     "lasso", "ridge", "elasticnet", "hinge"):
@@ -298,21 +264,6 @@ def build_trials(space: SweepSpace, *, mode: str = "grid",
     trials, rejected = [], []
     for combination in combinations:
         trial = dict(zip(names, combination))
-        # THE FIXED VALUES ARE PART OF THE TRIAL BEFORE IT IS JUDGED.
-        #
-        # This used to run AFTER accept(), which meant every filter decided on
-        # a half-built trial. The GUI pins each UNTICKED axis into `fixed`
-        # (qt/screens/parameter_sweep.py), so the settings a user did not vary
-        # were exactly the ones the filters could not see -- and
-        # `permutation_at_cell_level_exhausts_memory` read `analysis_unit` as
-        # None and passed.
-        #
-        # Reproduced with stock filters and nothing exotic: axes
-        # {"inference": ["parametric", "nonparametric"]} with
-        # fixed {"analysis_unit": "cell"} emitted the nonparametric x cell
-        # permutation, which is the ~57 GiB run. Unticking one checkbox was
-        # enough to schedule it, and the filter written to prevent exactly
-        # that was already in the default list.
         trial.update(space.fixed)
         reason = accept(trial)
         if reason:
@@ -378,8 +329,6 @@ def _named_control_rows(results: pd.DataFrame, names: Mapping[str, str]
         if effect_column:
             position = ranked_labels.str.contains(
                 str(needle), regex=False, na=False)
-            # ranked_labels is a permutation of labels, so a control present
-            # in labels is necessarily present here as well.
             row = ranked.loc[position].iloc[0]
             out[f"{alias}_rank"] = int(position.idxmax()) + 1
             out[f"{alias}_effect"] = float(row[effect_column])
@@ -443,10 +392,6 @@ def correction_rows(output: Mapping[str, Any], methods: Sequence[str],
     for method in methods:
         row = {"multiple_testing_method": method}
         try:
-            # (adjusted, reject). The reject mask is the METHOD'S OWN verdict:
-            # step-down procedures like holm and hommel do not reduce to
-            # "adjusted <= alpha" applied afterwards, so re-thresholding here
-            # would quietly report different hits than the method called.
             adjusted, reject = adjust_p_values(
                 p_values.to_numpy(), method=method, alpha=alpha)
             adjusted = pd.to_numeric(pd.Series(adjusted), errors="coerce")
@@ -498,11 +443,11 @@ def _recommended_worker_budget(*, measured_gib=None, requested=None) -> dict:
     try:
         import psutil
         available = psutil.virtual_memory().available / (1024 ** 3)
-    except Exception:  # psutil is a dependency, but be safe
+    except Exception:
         pass
     try:
         cores = max(len(os.sched_getaffinity(0)) - 2, 1)
-    except AttributeError:  # non-Linux
+    except AttributeError:
         cores = max((os.cpu_count() or 2) - 2, 1)
 
     if available is None:
@@ -648,28 +593,16 @@ def _pin_threads(count: int = 1) -> None:
     """
     for name in _THREAD_VARS:
         os.environ[name] = str(count)
-    # THE ENVIRONMENT ALONE IS NOT ENOUGH, and this is the part that bit.
-    #
-    # OpenBLAS reads OMP_NUM_THREADS once, when numpy first imports it, and
-    # sizes its pool from the core count if the variable is not set yet. Any
-    # module that imports numpy before this runs -- which is most of them --
-    # leaves the pool at 32 threads no matter what is put in os.environ
-    # afterwards. Measured: env-then-numpy gives 1 thread, numpy-then-env
-    # gives 32.
-    #
-    # threadpool_limits resizes the LIVE pool, so it works whatever the import
-    # order was. It is held open for the life of the process rather than used
-    # as a context manager, because the fitting happens after this returns.
     try:
         from threadpoolctl import threadpool_limits
         global _THREAD_LIMITS
         _THREAD_LIMITS = threadpool_limits(limits=count)
-    except Exception:  # threadpoolctl may be absent
+    except Exception:
         pass
     try:
         import torch
         torch.set_num_threads(count)
-    except Exception:  # torch may be absent
+    except Exception:
         pass
 
 
@@ -690,19 +623,15 @@ def be_polite() -> None:
     except (OSError, AttributeError):
         pass
     try:
-        # Linux only, and best effort: a container or a hardened kernel may
-        # refuse the write, which is not a reason to fail a sweep.
         with open(f"/proc/{os.getpid()}/oom_score_adj", "w") as handle:
             handle.write("800")
-    except OSError:  # not Linux, or not permitted
+    except OSError:
         pass
     try:
         import subprocess
-        # Linux idle I/O class: a sweep reads gigabytes of CSV and should
-        # yield the disk to anything interactive.
         subprocess.run(["ionice", "-c", "3", "-p", str(os.getpid())],
                        check=False, capture_output=True)
-    except Exception:  # best effort
+    except Exception:
         pass
 
 
@@ -735,7 +664,7 @@ def containment_available() -> bool:
              "-p", "MemoryMax=64M", "-p", "MemorySwapMax=0", "true"],
             capture_output=True, timeout=10)
         return probe.returncode == 0
-    except Exception:  # no user manager
+    except Exception:
         return False
 
 
@@ -783,7 +712,7 @@ def free_memory_gb() -> float:
             for line in handle:
                 if line.startswith("MemAvailable:"):
                     return int(line.split()[1]) / 1e6
-    except OSError:  # not Linux
+    except OSError:
         pass
     return float("inf")
 
@@ -826,10 +755,6 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
     import sys
     import tempfile
 
-    # The control ALIASES travel with the trial. Without them a contained row
-    # loses the `{alias}_rank` columns -- and `positive_rank` is one of the
-    # columns the sweep screen puts in its table, so containing a trial would
-    # have quietly emptied the one column the run is judged on.
     payload = {"settings": dict(settings), "trial_id": trial_id,
                "controls": dict(controls or {})}
     folder = settings.get("src") or tempfile.gettempdir()
@@ -848,8 +773,6 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
                    "-p", "TasksMax=64",
                    "nice", "-n", "19"] + child
     else:
-        # Say so rather than pretending the cap is there: an uncapped sweep is
-        # a decision the user should get to make knowingly.
         print("WARNING: systemd-run is unavailable, so this trial runs "
               "WITHOUT a memory cap. A runaway fit can take the machine "
               "down. Reduce the worker count and search space, or start the "
@@ -872,19 +795,13 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
         try:
             with open(out_path) as handle:
                 result = json.load(handle)
-        except Exception:  # truncated by a kill
+        except Exception:
             pass
         else:
-            # A pool worker must carry the stamp one hop farther to the real
-            # parent. A direct/main-process caller can register it now and
-            # must not expose a private transport column in its public row.
             import multiprocessing
             if multiprocessing.current_process().name == "MainProcess":
                 return _register_resource_workers(result)
             return result
-    # No result file: the child was killed before it could write one. The cap
-    # is the likeliest reason and worth naming, because "killed" and "crashed"
-    # want different responses from the user.
     return {"status": "timeout" if tail == "timed out" else "killed",
             "trial_id": trial_id,
             "error_type": "MemoryMax" if code not in (0, -1) else "Timeout",
@@ -906,39 +823,11 @@ def _trial_settings(base_settings, trial, destination, *, qc: bool = False):
     settings["src"] = folder
     settings.setdefault("verbose", False)
     settings.setdefault("Toxoplasma", False)
-    # THE QC SUITE IS OFF FOR A SWEEP UNLESS IT IS ASKED FOR.
-    #
-    # It costs ~5.8 s and writes ~19 figures plus a combined PDF per fit --
-    # right for one analysis, and roughly ten minutes and two thousand files
-    # across a hundred trials, almost none of which anyone will open. The
-    # SCALAR diagnostics that make a row judgeable are a different thing:
-    # summarise_trial computes them in ~150 ms and they are unaffected by
-    # this, so a sweep still sorts by control rank, inflation and R^2.
-    #
-    # ASSIGNED, NOT setdefault -- and this is the whole bug. `setdefault`
-    # does nothing when the key is already there, and EVERY base dict reaching
-    # here already carries it at True: the Tk panel, the Qt panel and
-    # `spacr-run` all build theirs from
-    # `get_perform_regression_default_settings`, which defaults it on.
-    # Measured 2026-08-18: `_trial_settings(get_perform_regression_default_settings({}), ...)`
-    # came back with regression_qc=True, so a sweep driven from the
-    # application paid the full suite on every trial -- roughly ten minutes
-    # and two thousand files per hundred trials -- while the comment above
-    # said it did not.
-    #
-    # `qc` is the caller's explicit say. A sweep that wants the pictures asks
-    # for them; reopening one interesting trial goes through
-    # settings_for_trial, which does not pass here, so the trial you choose to
-    # look at again is still fitted WITH the diagnostics.
     settings["regression_qc"] = bool(qc)
-    # Write the settings the way the GUI writes them, so a trial worth a
-    # second look can be opened straight in the regression module -- point it
-    # at the trial folder and press run. A sweep whose interesting rows cannot
-    # be reopened is only half an answer.
     try:
         from .utils import save_settings
         save_settings(dict(settings), name="regression", show=False)
-    except Exception:  # never lose a trial over its record
+    except Exception:
         pass
     return settings, folder
 
@@ -950,23 +839,11 @@ def _execute_trial(payload):
     worker imports spaCR itself: ``perform_regression`` pulls in torch and
     matplotlib, and a forked copy of those is not safe to reuse.
     """
-    # SIX OR FIVE. `qc` was appended on 2026-08-18 and this tuple is an
-    # internal, pickled, POSITIONAL contract -- growing it broke four
-    # tests that build a payload by hand, and would break any caller
-    # pickled by an older process mid-sweep. Reading it with a default
-    # costs one line and makes the addition backward compatible; the
-    # default is False, which is what a sweep wants.
     base_settings, trial, destination, controls, contained = payload[:5]
     qc = bool(payload[5]) if len(payload) > 5 else False
-    # Before anything expensive: this work yields to the user's machine.
     be_polite()
     _pin_threads()
 
-    # Returned through the existing future rather than a new IPC channel.
-    # The parent sampler may already have seen this PID; registering the
-    # creation-time stamp retroactively attaches the trial name to that
-    # process and to its eventual disappearance event without a PID-reuse
-    # race.
     from .fit_resources import _worker_stamp
     resource_workers = [
         _worker_stamp("parameter_sweep_pool", trial["trial_id"])
@@ -980,21 +857,6 @@ def _execute_trial(payload):
     began = time.time()
 
     if contained:
-        # THE CAP APPLIES TO THE SWEEP THE GUI ACTUALLY RUNS.
-        #
-        # run_sweep has been contained by default since the kernel-cap work;
-        # this path had not been, and this is the one the sweep screen calls.
-        # So every guarantee that work bought -- MemoryMax, MemorySwapMax=0,
-        # CPUQuota, TasksMax -- was absent from the only sweep a user starts
-        # by clicking Start, and what remained was recommended_workers() and
-        # the free-memory floor. Those are ACCOUNTING, and this module's own
-        # history is that accounting is not containment: every previous fix
-        # was a better estimate of what a trial would use, and each one was
-        # wrong in a way that took the desktop with it.
-        #
-        # The pool worker now only waits on the child, so it holds no design
-        # matrix of its own and the worker count stops being a memory
-        # multiplier as well.
         child = run_trial_contained(settings, trial_id=trial["trial_id"],
                                     controls=controls)
         child_stamp = child.pop("_resource_worker", None)
@@ -1013,14 +875,6 @@ def _execute_trial(payload):
         if isinstance(output, Mapping):
             row.update(_count_hits(output))
             row.update(_design_summary(output))
-            # THE SAME COLUMNS WHICHEVER WAY THE TRIAL RAN.
-            #
-            # This is the path the GUI uses (run_sweep_parallel), and it was
-            # the only one that never called summarise_trial: a contained
-            # trial got fit quality, residual tests, design rank and control
-            # recovery, and a trial run from the sweep screen got a hit count.
-            # Same sweep, same question, different table depending on which
-            # entry point produced it.
             row.update(summarise_trial(output, settings))
             results = output.get("results")
             if isinstance(results, pd.DataFrame):
@@ -1057,7 +911,6 @@ def _register_resource_workers(row: dict) -> dict:
                 if isinstance(stamp, Mapping):
                     context.register_worker(stamp)
     except Exception:                                           # noqa: BLE001
-        # Accounting must never change whether a trial is a result.
         pass
     return row
 
@@ -1126,14 +979,6 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
     torch and OpenMP runtimes. Only a bounded number of jobs are submitted at
     once, allowing new submissions to pause when available memory is low.
     """
-    # A CALLER WITHOUT A MAIN GUARD FORK-BOMBS ITSELF.
-    #
-    # This pool spawns rather than forks (torch and OpenMP are not safe to
-    # fork), and a spawned child re-imports the module it was launched from.
-    # If that module is a script whose sweep call sits at top level, every
-    # child starts its own sweep, which starts more children. What the user
-    # sees is "BrokenProcessPool: A child process terminated abruptly", which
-    # says nothing about the actual mistake.
     import multiprocessing
 
     if multiprocessing.current_process().name != "MainProcess":
@@ -1145,10 +990,6 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
 
     from concurrent.futures import ProcessPoolExecutor, as_completed
 
-    # Set here, in the parent, rather than in the worker: a spawned child
-    # inherits this environment at exec, whereas a pool initializer would run
-    # only AFTER the child has imported numpy and torch and they have already
-    # sized their thread pools from the core count.
     _pin_threads()
 
     space = space or SweepSpace()
@@ -1158,8 +999,6 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
     destination = os.path.abspath(os.path.expanduser(os.fspath(destination)))
     os.makedirs(destination, exist_ok=True)
 
-    # The worker count is a REQUEST, clamped to what the machine can afford.
-    # Honouring it literally is what killed the user's editor twice.
     n_jobs, reason = recommended_workers(requested=n_jobs)
     trials = build_trials(space, mode=mode, max_trials=max_trials, seed=seed)
     with open(os.path.join(destination, "sweep_trials.json"), "w",
@@ -1174,9 +1013,6 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
     rows: list[dict] = []
     started = time.time()
     results_path = os.path.join(destination, "sweep_results.csv")
-    # 'spawn', not the default fork: perform_regression imports torch, and a
-    # forked child that inherits a torch/OpenMP runtime deadlocks or segfaults
-    # rather than failing cleanly.
     context = multiprocessing.get_context("spawn")
     pending = list(payloads)
     done = 0
@@ -1205,9 +1041,6 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
 
         _fill()
         while futures:
-            # ``futures`` is non-empty here, so as_completed necessarily
-            # yields one item. Taking exactly one lets _fill recheck memory
-            # after every completion without an unreachable for-loop exit.
             future = next(as_completed(tuple(futures)))
             trial_id = futures.pop(future)
             done += 1
@@ -1309,10 +1142,6 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
         frame is also written to ``sweep_results.csv`` as trials finish.
     """
     if runner is None and contained:
-        # Each trial in its own kernel-capped process. This is the default
-        # because the alternative -- trusting this module's own accounting --
-        # took the user's machine down seven times, and every one of those
-        # was a fix to the accounting.
         runner = None
     elif runner is None:
         from .ml import perform_regression as runner  # noqa: PLC0415
@@ -1330,12 +1159,6 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
 
     rows: list[dict] = []
     started = time.time()
-    # A family that cannot fit this response fails the same way every time --
-    # 'poisson' needs integer counts, and a fractional score will never become
-    # one. Sampling would rediscover that hundreds of times at full cost, so
-    # after `learn_from_failures` identical failures the family is skipped and
-    # RECORDED as skipped. The finding is kept; only the repetition is
-    # dropped, and setting learn_from_failures=0 turns the shortcut off.
     exhausted: dict[tuple, dict] = {}
     for index, trial in enumerate(trials, start=1):
         signature = (trial.get("regression_type"), trial.get("inference"),
@@ -1352,19 +1175,12 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
                 "seconds": 0.0,
             })
             continue
-        # THE ONE HELPER, not a second copy of it. This branch had its own
-        # inline version of _trial_settings and had drifted from it: it never
-        # set `regression_qc` at all, so an in-process sweep paid the full
-        # ~5.8 s diagnostic suite and ~19 figures on every trial while the
-        # parallel branch was trying not to. Two copies of "build one trial's
-        # settings" is how a sweep ends up meaning two different things.
         settings, folder = _trial_settings(base_settings, trial, destination,
                                            qc=qc)
 
         row = {"trial_id": trial["trial_id"], "folder": folder,
                "preparation_key": _preparation_key(settings)}
         row.update({k: v for k, v in trial.items() if k != "trial_id"})
-        # Stop BEFORE the machine is in trouble, not once it is.
         if runner is None and contained and free_memory_gb() < memory_floor_gb:
             print(f"[sweep] stopping: {free_memory_gb():.0f} GB free is below "
                   f"the {memory_floor_gb:.0f} GB floor")
@@ -1376,7 +1192,6 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
         began = time.time()
         output = None
         if runner is None:
-            # Contained: the child returns a finished ROW, not a model.
             child = run_trial_contained(settings, trial_id=trial["trial_id"],
                                         controls=controls)
             _register_resource_workers(child)
@@ -1407,9 +1222,6 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
             row["status"] = "ok"
             if isinstance(output, Mapping):
                 row.update(_count_hits(output))
-                # The in-process path skipped the design summary as well as
-                # every diagnostic, so an uncontained sweep could not even say
-                # how many wells reached the fit.
                 row.update(_design_summary(output))
                 row.update(summarise_trial(output, settings))
                 results = output.get("results")
@@ -1431,9 +1243,6 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
             record["count"] += 1
         row["seconds"] = round(time.time() - began, 2)
         if corrections and row.get("status") == "ok" and isinstance(output, Mapping):
-            # One row per correction, all from this single fit. Each row still
-            # carries every setting, so it reproduces its own regression when
-            # the user opens it -- see settings_for_trial.
             for extra in correction_rows(output, corrections,
                                          alpha=float(settings.get("fdr_alpha", 0.05))):
                 merged = dict(row)
@@ -1452,10 +1261,6 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
                   f"({row['status']}), {done / 60:.1f} min elapsed, "
                   f"~{rate * (len(trials) - index) / 60:.1f} min left",
                   flush=True)
-        # Written every trial, so a sweep killed halfway still leaves a usable
-        # table rather than nothing. The file is a best-effort checkpoint: a
-        # full or disconnected results disk must not discard the in-memory
-        # rows the sweep can still return to its caller.
         try:
             pd.DataFrame(rows).to_csv(
                 os.path.join(destination, "sweep_results.csv"), index=False)
@@ -1497,7 +1302,6 @@ def rank_trials(results: pd.DataFrame, *, role: str = "positive"
     key = pd.to_numeric(frame[percentile], errors="coerce")
     if not key.notna().any():
         return results
-    # NaN last, and a failed trial never outranks one that ran.
     ran = (frame["status"] == "ok") if "status" in frame.columns else True
     frame["_sort_key"] = key.where(ran, other=np.nan)
     ordered = frame.sort_values(
@@ -1553,9 +1357,6 @@ def summarise_sweep(results: pd.DataFrame, *,
         if rank_column in ok.columns and ok[rank_column].notna().any():
             summary[f"{control}_median_rank"] = float(
                 ok[rank_column].median())
-    # THE ANSWER, WHEN THE SCREEN HAS A YARDSTICK. Stated before the hit
-    # counts, because a configuration that loses the positive control is not
-    # improved by reporting more hits.
     if "positive_control_rank" in ok.columns and len(ok):
         found = ok[pd.to_numeric(
             ok["positive_control_rank"], errors="coerce").notna()]
@@ -1572,9 +1373,6 @@ def summarise_sweep(results: pd.DataFrame, *,
         summary["hits_median"] = float(ok["n_below_alpha"].median())
         summary["hits_range"] = [int(ok["n_below_alpha"].min()),
                                  int(ok["n_below_alpha"].max())]
-        # The spread across settings IS the result: a screen whose hit count
-        # ranges from 2 to 400 depending on the correction has not been
-        # analysed, it has been chosen.
         for axis in ("multiple_testing_method", "regression_type",
                      "analysis_unit", "inference"):
             if axis in ok.columns:
@@ -1620,13 +1418,6 @@ def settings_for_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
     """
     import ast
 
-    # The control-alias columns cannot be listed in advance, because the
-    # aliases are the CALLER'S: run_sweep(controls={"gra14": "239740"}) makes
-    # gra14_rank, gra14_q and the rest. They are recoverable exactly, though,
-    # because _named_control_rows always writes `{alias}_present` for every
-    # alias whether or not it found one -- so the row names its own aliases and
-    # nothing has to be guessed from suffixes. Guessing would be wrong anyway:
-    # spaCR has twenty-two real settings ending in `_percentile`.
     aliases = [key[: -len("_present")] for key in row
                if isinstance(key, str) and key.endswith("_present")]
     alias_columns = {f"{alias}{suffix}" for alias in aliases
@@ -1642,14 +1433,11 @@ def settings_for_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
             try:
                 value = ast.literal_eval(value)
             except (ValueError, SyntaxError):
-                pass  # genuinely a string
+                pass
         settings[key] = value
 
     folder = destination or row.get("folder")
     if folder and not (isinstance(folder, float) and pd.isna(folder)):
-        # No mkdir here: this builds a settings dict and nothing else, so it
-        # stays callable from a test, a dry run or a preview without leaving
-        # directories behind. rerun_trial creates the folder it writes to.
         settings["src"] = str(folder)
     settings.setdefault("Toxoplasma", False)
     return settings
@@ -1671,7 +1459,6 @@ def rerun_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
     import matplotlib.pyplot as plt
 
     settings = settings_for_trial(base_settings, row, destination=destination)
-    # Plots are the entire reason for this call.
     settings["verbose"] = True
     folder = settings.get("src")
     if folder:
@@ -1681,10 +1468,6 @@ def rerun_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
     from .ml import perform_regression
 
     output = perform_regression(settings)
-    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS:
-    # rcParams reach an artist when it is CREATED, so a
-    # context opened after `plt.subplots` would leave the
-    # spines, ticks and labels at the caller's globals.
     with figure_style(theme_target()):
         figures = [plt.figure(number) for number in plt.get_fignums()
                    if number not in before]
