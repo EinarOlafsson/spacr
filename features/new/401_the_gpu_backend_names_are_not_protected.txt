@@ -1,0 +1,74 @@
+================================================================================
+CUDA IS PROTECTED AND METAL IS NOT, SO ONE GPU BACKEND SURVIVES TRANSLATION
+================================================================================
+
+Status:    OPEN, filed 2026-09-14. Not blocking. BLOCKED ON ONE OTHER FIX --
+           see THE ORDER MATTERS below. Measured, not estimated.
+Requested: not requested. Found when the work session ran
+           `--rebuild-readme` and it turned "Metal" into "metall" -- the
+           material -- in Swedish.
+Owner:     unassigned. `_PROTECTED_TERMS` in `tools/build_i18n_catalogs.py`.
+
+--------------------------------------------------------------------------------
+THE MEASUREMENT
+--------------------------------------------------------------------------------
+
+`CUDA` is in `_PROTECTED_TERMS`. None of the other accelerator backends are,
+and there is no line of reasoning that admits one and excludes the rest:
+
+    term            README   API   runtime   source
+    Metal              3       7       0       35
+    MPS                0       7       0       13
+    ROCm               2       6       0       12
+    Apple Silicon      3       1       0        5
+    DirectML           1       0       0        4
+    CUDA (protected)   3      61       2      187
+    OpenCL             0       0       0        0
+    Vulkan             0       0       0        9
+
+`Metal` is the case that proves it costs something: a Swedish reader was told
+about `metall`, the material.
+
+IT IS SAFE TO PROTECT, AND THAT IS NOT OBVIOUS. `Metal` is an ordinary English
+word, which is exactly the argument for NOT protecting the single-word screen
+names (`measure` appears 2,053 times in the API corpus). The difference is
+measurable: lowercase `metal`, the material, appears ZERO times in the README,
+the API corpus, the runtime corpus and the package source. Protection is
+case-sensitive, so capital `Metal` is unambiguous in this repository.
+
+`OpenCL` and `Vulkan` are deliberately excluded: zero prose occurrences, so
+protecting them would add two entries that can never match. A protected term
+that cannot fire is noise in a list whose length is already a cost.
+
+--------------------------------------------------------------------------------
+THE ORDER MATTERS -- DO NOT DO THIS FIRST
+--------------------------------------------------------------------------------
+
+Protecting these terms today would MANUFACTURE a false failure, because the
+protection check cannot see a term followed by a CJK or Hangul character:
+
+    re.search(r'(?<!\w)Apple Silicon(?!\w)', 'Apple Silicon에서')   -> None
+    re.search(r'(?<!\w)Apple Silicon(?!\w)', 'Apple Silicon 에서')  -> match
+
+`docs/i18n/reviewed/readme/ko/2026-08-26-nightly-merge.json`, record
+`performance-report-platform`, contains "Apple Silicon" verbatim and is
+CORRECT. Protect the term today and that record is reported as having dropped
+it, and the next person "repairs" a translation that was never broken.
+
+So: the `\w` lookaround fix lands FIRST (the work session is doing it -- it is
+the same root cause as their `\b` snake_case fix and the two hand-written
+records that needed spacing on 2026-09-13). Then protect. Blast radius after
+the lookaround is fixed: 1 reviewed record and 3 `REVIEWED_README_BLOCKS`
+entries, all re-checkable in one pass.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    python -c "import sys; sys.path.insert(0,'tools'); import build_i18n_catalogs as B; \
+      print([t for t in ('Metal','MPS','ROCm','DirectML','Apple Silicon') \
+             if t not in B._PROTECTED_TERMS])"
+
+Empty list, and both audits still exit 0. Adding a protected term does NOT
+move any source hash, so nothing regenerates -- only translations that
+already translated the term need repair.
