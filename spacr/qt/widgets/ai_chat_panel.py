@@ -49,7 +49,7 @@ from ..i18n import retranslate_widget_tree, set_translatable_text, tr
 def _current_system_prompt() -> str:
     """Delegate to ``ai_settings`` so a user override kicks in when set."""
     return ai_settings.get_system_prompt()
-from ..theme import SPACING, active_palette
+from ..theme import SPACING, active_palette, make_transparent
 from .divider import Divider
 from .empty_state import EmptyState
 
@@ -169,6 +169,13 @@ class _ProvidersDialog(QDialog):
         holder.setFrameShape(QScrollArea.NoFrame)
         holder.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         holder.setWidget(page)
+        # A SCROLL AREA IS TWO WIDGETS AND BOTH PAINT. Without this the
+        # viewport fills with its palette Base colour, which is a solid
+        # black rectangle over the backdrop the screen installed --
+        # reported against this panel on 2026-09-13. `make_transparent`
+        # tags the viewport as well as the area, which is the half that is
+        # easy to forget.
+        make_transparent(holder, page)
         return holder
 
     def _build_settings_tab(self) -> QWidget:
@@ -541,6 +548,7 @@ class AIChatPanel(QWidget):
         self._chat_layout.setSpacing(SPACING["sm"])
         self._chat_layout.addStretch(1)
         self._chat_scroll.setWidget(self._chat_holder)
+        make_transparent(self._chat_scroll, self._chat_holder)
 
         self._stack = QStackedWidget()
         self._stack.addWidget(self._empty_state)

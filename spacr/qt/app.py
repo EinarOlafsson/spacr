@@ -1203,28 +1203,28 @@ def app_stage(key: str) -> str:
 #: is enough". Only its TILE was asked for. A second entry here would put
 #: the same screen in the same menu twice.
 _HELP_MODULES: Tuple[Tuple[str, str, str], ...] = (
-    ("run_history", "Run history",
+    ("run_history", "Run History",
      "Search every recorded job -- its settings, hashed inputs and "
      "outputs, warnings, failures, versions and seeds."),
-    ("pipeline_graph", "Pipeline graph",
+    ("pipeline_graph", "Pipeline Graph",
      "How the modules feed one another, and what each one needs before "
      "it can run."),
-    ("project_browser", "Project browser",
+    ("project_browser", "Project Browser",
      "Every spaCR project this machine knows about, and what is in it."),
-    ("db_browser", "Database browser",
+    ("db_browser", "Database Browser",
      "Browse, filter and export tables from measurements.db."),
     ("report", "Report",
      "Generate a shareable HTML or PDF report of QC results, figures, "
      "statistics, settings and software versions."),
-    ("data_manager", "Data manager",
+    ("data_manager", "Data Manager",
      "Inspect project disk usage and remove derived data while keeping "
      "the source images."),
-    ("queue", "Plate queue",
+    ("queue", "Plate Queue",
      "Run the same processing pipeline across several plates."),
-    ("batch", "Batch runner",
+    ("batch", "Batch Runner",
      "Queue modules, plates and settings for unattended sequential "
      "execution."),
-    ("distributed_jobs", "Distributed jobs",
+    ("distributed_jobs", "Distributed Jobs",
      "Submit and monitor spaCR runs on SSH workstations, Slurm, or "
      "cloud and HPC commands."),
 )

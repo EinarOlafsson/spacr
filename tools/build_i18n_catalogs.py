@@ -307,6 +307,33 @@ _KNOWN_CONTAMINATION_MARKERS = (
     "en anglais seulement",
 )
 
+#: The screens the application actually shows, by the exact name on the
+#: tile and in the Help menu. Multi-word only -- see the note inside
+#: :data:`_PROTECTED_TERMS`.
+UI_SCREEN_NAMES: tuple[str, ...] = (
+    "Align & Stitch",
+    "Batch Runner",
+    "Data Manager",
+    "Database Browser",
+    "Distributed Jobs",
+    "External Masks",
+    "Format Converter",
+    "Graph Builder",
+    "Image UMAP",
+    "Invasion Assay",
+    "Make Masks",
+    "Map Barcodes",
+    "Pipeline Graph",
+    "Plaque Assay",
+    "Plate Queue",
+    "Plate Viewer",
+    "Project Browser",
+    "Replication Assay",
+    "Run History",
+    "Training Runs",
+)
+
+
 _PROTECTED_TERMS = tuple(sorted({
     "spaCR", "Cellpose", "PyTorch", "TensorBoard", "NumPy", "pandas",
     "SciPy", "scikit-image", "scikit-learn", "XGBoost", "LightGBM",
@@ -326,6 +353,27 @@ _PROTECTED_TERMS = tuple(sorted({
     "cellpose", "numpy", "scipy", "skimage", "umap", "python", "spacr",
     "PIL", "cv2", "TensorFlow", "Tk", "QThread", "ConsolePanel",
     "DirectConnection", "GUI", "UI", "DEBUG",
+    # THE SCREENS THE APPLICATION ACTUALLY SHOWS. A reader told to open
+    # 地图条形码 or `Karta Barkodum` cannot find it: the interface says
+    # "Map Barcodes" in every language. Measured 2026-09-13 before this
+    # list existed, the name survived in only 50 of 153 API blocks across
+    # the nine locales, and in NONE of the seventeen in Hindi or Korean --
+    # and every one of those blocks passed the audit, because the gate is
+    # fail-closed on "left in English" and blind to "translated a name that
+    # must not be translated".
+    #
+    # MULTI-WORD NAMES ONLY, DELIBERATELY. Sixteen screens are named with
+    # ordinary English words -- Mask, Measure, Classify, Annotate, Import,
+    # Report, Home, Regression -- and `measure` alone appears 2,053 times
+    # in the English API corpus. Protecting those would turn ordinary prose
+    # into untranslatable islands, which is the condition that stalls the
+    # checkpoints, so it would trade a naming defect for a much larger
+    # translation one. Their screens stay translatable; that is a known and
+    # accepted gap, not an oversight.
+    #
+    # Matching is case-sensitive, so "make masks" in prose is untouched
+    # while the screen "Make Masks" is held.
+    *UI_SCREEN_NAMES,
     "RSS", "Yokogawa", "MAD", "IQR", "Tukey", "SUM", "MIN", "MAX",
     "SUCCESS", "FAILED",
     "SKIPPED", "QUEUED", "RUNNING", "TODO", "TO-DO",
@@ -585,10 +633,31 @@ _FRAGMENT_PROTECT_RE = re.compile(
 # visible so a source-conditioned phrase can repair grammar around them (for
 # example ``GUI thread``), but code spans, quoted option values, CLI flags,
 # format fields, links and snake_case identifiers must never be rewritten.
+#: A screen name must survive the English sense expansion as well as the
+#: translation. The expansion exists to turn ambiguous English into something
+#: a model can render -- "job queue" into "software job list" -- and three of
+#: its rules rewrote a SCREEN NAME on the way past: `Plate Queue` became
+#: "Plate-processing list", `Pipeline Graph` became "Workflow Graph", and
+#: `Training Runs` became "Training processing sessions". Every locale then
+#: faithfully translated the renamed thing, so the docs sent a reader to a
+#: screen the application does not have -- the same defect the protection
+#: below exists to stop, arriving one stage earlier.
+#:
+#: Only the screen names are added here. Ordinary product names stay VISIBLE
+#: to the transforms on purpose, because a phrase has to be able to repair the
+#: grammar around them -- one of the `run` transforms lists `GUI` among its own
+#: alternatives, and masking it would silently stop that rule matching.
+_UI_SCREEN_NAME_RE = re.compile(
+    r"(?<!\w)(?:"
+    + "|".join(re.escape(name) for name in sorted(UI_SCREEN_NAMES, key=len,
+                                                  reverse=True))
+    + r")(?!\w)"
+)
+
 _CONTEXT_HARD_PROTECT_PATTERNS = tuple(
     pattern for pattern in _PROTECT_PATTERNS
     if pattern.pattern not in {r"\*\*", r"\*"}
-)
+) + (_UI_SCREEN_NAME_RE,)
 _CONTEXT_HARD_PROTECT_RE = re.compile(
     "|".join(
         f"(?:{pattern.pattern})"
@@ -3244,6 +3313,28 @@ def _looks_translatable(text: str) -> bool:
     return bool(re.search(r"[A-Za-zÀ-ÖØ-öø-ÿ]{2,}", source))
 
 
+def _has_prose_outside_protected_literals(text: str) -> bool:
+    """Is there anything in ``text`` a translator could actually change?
+
+    SEPARATE FROM :func:`_looks_translatable` ON PURPOSE, and the difference
+    matters. That predicate decides what ENTERS the inventory, so narrowing
+    it drops rows out -- and a row that leaves takes any reviewed record
+    written against it with it. Tried once: excluding all-protected strings
+    there orphaned a hand-written Swedish record for ``{location}: {path}``
+    and the build stopped with "stale reviewed runtime source".
+
+    This one answers a smaller question, asked only by the exact-English
+    audit: is demanding a translation for this row even satisfiable? For
+    ``Image UMAP…`` it is not. Both words are protected literals and the
+    rest is an ellipsis, so every locale correctly leaves it alone and the
+    audit then calls all nine of them untranslated.
+
+    :param text: the English source of one catalog row.
+    :returns: True when prose survives with the protected literals removed.
+    """
+    return bool(re.search(r"[A-Za-zÀ-ÖØ-öø-ÿ]{2,}", _PROTECT_RE.sub(" ", text)))
+
+
 def _indirect_runtime_ui_sources() -> set[str]:
     """Return presentation prose exposed through runtime data structures.
 
@@ -3291,8 +3382,53 @@ def _indirect_runtime_ui_sources() -> set[str]:
         MAX_SETS_TOOLTIP,
     )
 
+    # LOOKUP TABLES THE EXTRACTOR CANNOT SEE, found on 2026-09-13 by
+    # searching for the SHAPE rather than the name: every module-level
+    # collection in spacr/qt holding three or more human-readable strings,
+    # minus the committed inventory. Searching for the naming convention
+    # `*_UI_SOURCES` finds only what somebody already thought of as a UI
+    # source, and these are named nothing like it -- CATEGORY_TOOLTIPS is
+    # 169 settings tooltips that had never been translated into any of the
+    # nine languages.
+    #
+    # TWO COLLECTIONS THE SEARCH RETURNED ARE DELIBERATELY ABSENT:
+    # `methods_export.APP_TRANSLATIONS` holds SWEDISH, so it is a
+    # translation table rather than hidden source -- the same false
+    # positive as `i18n._row`, and the file holding translations is not a
+    # file hiding them. `terms.TERMS` is an end user licence agreement;
+    # machine translating it changes what a user agrees to, and that is a
+    # maintainer's decision rather than a gap to close quietly.
+    from spacr.qt.memory_budget import HARDWARE_NOTES
+    from spacr.qt.preferences import PERFORMANCE_NOTES
+    from spacr.qt.screens.app_screen import APP_TITLES
+    from spacr.qt.screens.settings_model import (
+        CATEGORY_TOOLTIPS,
+        CATEGORY_TOOLTIPS_BY_APP,
+        PATH_LIST_TITLES,
+    )
+    from spacr.qt.widgets.control_chart import (
+        ESTIMATOR_LABELS,
+        RULE_DETECTS,
+        RULE_NAMES,
+    )
+    from spacr.qt.widgets.formula import FUNCTION_HELP, _REJECTED
+    from spacr.qt.widgets.fractal_travel import PATTERN_LABELS
+    from spacr.qt.widgets.gate_editor import TOOL_LABELS
+    from spacr.qt.widgets.graph_builder import CHANNEL_HINTS
+
     found: set[str] = set(PREFERENCE_TIPS)
     found.update(_INDIRECT_CHROME_UI_SOURCES)
+    for _table in (CATEGORY_TOOLTIPS, PATH_LIST_TITLES, APP_TITLES,
+                   FUNCTION_HELP, TOOL_LABELS, RULE_NAMES, RULE_DETECTS,
+                   ESTIMATOR_LABELS, CHANNEL_HINTS, PATTERN_LABELS):
+        found.update(str(value) for value in _table.values()
+                     if str(value).strip())
+    for _per_app in CATEGORY_TOOLTIPS_BY_APP.values():
+        found.update(str(value) for value in _per_app.values()
+                     if str(value).strip())
+    for _sequence in (PERFORMANCE_NOTES, HARDWARE_NOTES, _REJECTED):
+        found.update(str(value) for value in _sequence
+                     if str(value).strip())
     found.update(map(str, PREFERENCE_TIPS.values()))
     found.update(map(str, MODE_LABELS.values()))
     found.update(map(str, MODE_NOTES.values()))
@@ -6433,6 +6569,9 @@ def audit(sources: Mapping[str, object], languages: Iterable[str]) -> int:
                 if (
                     str(value) == str(source_tables[name].get(key, key))
                     and _looks_translatable(
+                        str(source_tables[name].get(key, key))
+                    )
+                    and _has_prose_outside_protected_literals(
                         str(source_tables[name].get(key, key))
                     )
                     and _reviewed_translation(

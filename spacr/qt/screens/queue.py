@@ -181,7 +181,7 @@ class QueueScreen(QWidget):
         outer.setContentsMargins(24, 24, 24, 24)
         outer.setSpacing(12)
 
-        header = QLabel("Plate queue")
+        header = QLabel("Plate Queue")
         header.setObjectName("DisplayHeading")
         outer.addWidget(header)
 
