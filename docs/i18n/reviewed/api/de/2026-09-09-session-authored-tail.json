@@ -117,6 +117,8 @@
     {
       "context": "NONE RATHER THAN throwing: Qt probes past the end to discover where a layout stops, so an exception here is a crash during ordinary layout.",
       "label": "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.itemAt#1",
+      "retired": "2026-09-14",
+      "retired_reason": "2026-09-14: the shouted-emphasis lowering now reaches this clause. Widening the protected-term boundary from \\w to an ASCII class let the lowering keep the protected literals it used to break, so a run that previously had to stay in capitals is now lowered before translation -- which makes MORE blocks translatable and is the improvement. The review covered the shouted form.",
       "source": "NONE RATHER THAN RAISING: Qt probes past the end to discover where a layout stops, so an exception here is a crash during ordinary layout.",
       "source_sha256": "34754c6b4d444eea5f861073fe3d4411844e01844a5b5046100d2b691d2b977d",
       "translation": "NONE STATT EINER AUSNAHME: Qt tastet über das Ende hinaus, um herauszufinden, wo ein Layout aufhört, weshalb eine Ausnahme an dieser Stelle ein Absturz beim ganz gewöhnlichen Layouten wäre."
