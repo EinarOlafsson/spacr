@@ -91,6 +91,10 @@
     "candidate": "download/download_05.png",
     "sha256": "39da0afa5b144c6ef36c9e9e4d27917594660f436a559de8976fffdcc0b1f6db"
   },
+  "embeddings": {
+    "candidate": "qtawesome:fa5s.vector-square",
+    "sha256": "1650d968e646e3f1f02c4d70a4fd871a5c17665d4ca58fae2d0666e5a1d9f2ef"
+  },
   "experiment_design": {
     "candidate": "experiment_design/experiment_design_02.png",
     "sha256": "d579ed78bb78ddc73e86fa8de2afe6717e43df67963fc8312306559ca795cbb0"
