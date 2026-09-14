@@ -57,7 +57,17 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 #: case the assertion below distinguishes: the constant was the stale thing,
 #: not the catalog. A two-way message would have sent the reader to rebuild
 #: something already correct.
-REAL_SYMBOL_COUNT = 10_531  # 2026-09-14: +53 / -0, see test_docstring_correctness
+# 10,531 -> 10,533 on 2026-09-14: +2 / -0 by set difference --
+# spacr.embeddings.EmbeddingSpec.__post_init__ and
+# spacr.ops_store.Readiness.__bool__, two dunders that already existed
+# and were undocumented. Documenting them is what admits them.
+#
+# THIS NUMBER LIVES IN FOUR FILES: here, test_documentation_i18n,
+# test_api_i18n_extractor (twice) and test_docstring_correctness. It has
+# now been moved twice and BOTH TIMES some siblings were missed and found
+# a day later by a sweep. Grep the literal before believing one edit was
+# enough.
+REAL_SYMBOL_COUNT = 10_533
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

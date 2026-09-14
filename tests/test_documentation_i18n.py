@@ -137,7 +137,17 @@ TOOLS = ROOT / "tools"
 # A total that merely rose by 53 would look the same if 53 arrived and 53 of
 # something else quietly left, which is why the baseline set is differenced
 # rather than the counts subtracted.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_531
+# 10,531 -> 10,533 on 2026-09-14: +2 / -0 by set difference --
+# spacr.embeddings.EmbeddingSpec.__post_init__ and
+# spacr.ops_store.Readiness.__bool__, two dunders that already existed
+# and were undocumented. Documenting them is what admits them.
+#
+# THIS NUMBER LIVES IN FOUR FILES: here, test_documentation_i18n,
+# test_api_i18n_extractor (twice) and test_docstring_correctness. It has
+# now been moved twice and BOTH TIMES some siblings were missed and found
+# a day later by a sweep. Grep the literal before believing one edit was
+# enough.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_533
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

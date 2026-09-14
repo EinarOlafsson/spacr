@@ -51,17 +51,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,664 | Remainder | Reviewed API blocks | Of 10,531 | Remainder |
+| Language | Reviewed runtime records | Of 5,664 | Remainder | Reviewed API blocks | Of 10,533 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.08% | 5,546 | 468 | 4.44% | 10,063 |
-| German | 85 | 1.50% | 5,579 | 420 | 3.99% | 10,111 |
-| Spanish | 99 | 1.75% | 5,565 | 287 | 2.73% | 10,244 |
-| Simplified Chinese | 267 | 4.71% | 5,397 | 507 | 4.81% | 10,024 |
-| Portuguese | 99 | 1.75% | 5,565 | 446 | 4.24% | 10,085 |
-| Hindi | 128 | 2.26% | 5,536 | 460 | 4.37% | 10,071 |
-| Korean | 246 | 4.34% | 5,418 | 453 | 4.30% | 10,078 |
-| Icelandic | 151 | 2.67% | 5,513 | 1,021 | 9.70% | 9,510 |
-| French | 98 | 1.73% | 5,566 | 465 | 4.42% | 10,066 |
+| Swedish | 118 | 2.08% | 5,546 | 468 | 4.44% | 10,065 |
+| German | 85 | 1.50% | 5,579 | 420 | 3.99% | 10,113 |
+| Spanish | 99 | 1.75% | 5,565 | 287 | 2.72% | 10,246 |
+| Simplified Chinese | 267 | 4.71% | 5,397 | 507 | 4.81% | 10,026 |
+| Portuguese | 99 | 1.75% | 5,565 | 446 | 4.23% | 10,087 |
+| Hindi | 128 | 2.26% | 5,536 | 460 | 4.37% | 10,073 |
+| Korean | 246 | 4.34% | 5,418 | 453 | 4.30% | 10,080 |
+| Icelandic | 151 | 2.67% | 5,513 | 1,021 | 9.69% | 9,512 |
+| French | 98 | 1.73% | 5,566 | 465 | 4.41% | 10,068 |
 
 *Regenerated 2026-09-14. The API denominator moved 10,478 -> 10,531 as well:
 53 public symbols arrived and none left, set-differenced against the
