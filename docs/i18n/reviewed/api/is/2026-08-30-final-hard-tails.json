@@ -18,7 +18,7 @@
     },
     {
       "context": "optional explicit module name for run-history records.",
-      "label": "spacr.qt.bridge.PipelineWorker#10",
+      "label": "spacr.qt.bridge.PipelineWorker#16",
       "source": "optional explicit module name for run-history records.",
       "source_sha256": "9043c52584eb211b1ea3dae11e1f22212e45310a6242632606fb68b11ba01972",
       "translation": "valfrjálst skýrt heiti einingar fyrir færslur í keyrslusögu.",

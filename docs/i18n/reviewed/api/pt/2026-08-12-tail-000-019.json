@@ -91,7 +91,7 @@
     },
     {
       "context": "**A job whose dependency failed is SKIPPED, not executed.** Measure after a failed Mask produces a database that looks like a real result. ``skipped`` (deliberately not executed), ``failed`` and ``not_run`` (the software job list halted before reaching it) are three different things and stay that way.",
-      "label": "spacr.batch#6",
+      "label": "spacr.batch#7",
       "source": "**A job whose dependency failed is SKIPPED, not run.** Measure after a failed Mask produces a database that looks like a real result. ``skipped`` (deliberately not run), ``failed`` and ``not_run`` (the queue halted before reaching it) are three different things and stay that way.",
       "source_sha256": "e11ede0492c7d0e0d2ad04b9dd0e666c918c3273dfc7a9f6c401cd89f95db695",
       "translation": "**Uma tarefa cuja dependência falhou fica SKIPPED, em vez de ser executada.** Executar Measure depois de uma falha em Mask produz um banco de dados que parece um resultado verdadeiro. ``skipped`` (deliberadamente não executada), ``failed`` e ``not_run`` (a lista de tarefas de software foi interrompida antes de chegar a ela) são três estados distintos e continuam sendo tratados assim."

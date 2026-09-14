@@ -131,7 +131,7 @@
     },
     {
       "context": "the warnings *outside* the column mapping (unpaired masks, the join, z handling). They remain separate so :meth:`with_column_maps` can rebuild the mapping warnings without losing or duplicating them.",
-      "label": "spacr.foreign.ImportPlan#11",
+      "label": "spacr.foreign.ImportPlan#21",
       "retired": true,
       "retired_reason": "the English block this was reviewed against was rewritten on 2026-09-02/03 during the documentation pass; the translation is kept as evidence but is no longer compared against a docstring that no longer contains that sentence",
       "source": "the warnings that do *not* come from the column mapping (unpaired masks, the join, z handling). Kept apart so :meth:`with_column_maps` can rebuild the mapping's own warnings without losing them or duplicating them.",

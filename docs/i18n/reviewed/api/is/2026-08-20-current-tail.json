@@ -80,7 +80,7 @@
     },
     {
       "context": "an explicit ``(vmin, vmax)``, overriding ``min_max``. THIS IS WHAT MAKES ONE-PLATE-PER-FIGURE SAFE: a caller that wants a plate to a tile computes :func:`shared_limits` over every plate once and passes the same pair to each figure, so splitting the small multiple up does not silently give each plate its own scale again.",
-      "label": "spacr.figures.plates.build_plates#9",
+      "label": "spacr.figures.plates.build_plates#10",
       "retired": "2026-09-03",
       "retired_reason": "source block reworded after this review; the translation stands for the earlier wording and is no longer compared against the live docstring. Retired rather than deleted per the mechanism recorded at build_documentation_i18n.py:5798 -- a review that was given is not ours to discard because the sentence it covered changed.",
       "source": "an explicit ``(vmin, vmax)``, overriding ``min_max``. THIS IS WHAT MAKES ONE-PLATE-PER-FIGURE SAFE: a caller that wants a plate to a tile computes :func:`shared_limits` over every plate once and passes the same pair to each figure, so splitting the small multiple up does not silently give each plate its own scale again.",

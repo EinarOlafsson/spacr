@@ -59,7 +59,7 @@
     },
     {
       "context": "Each dictionary contains ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), and the raw ``manifest`` dictionary when available.",
-      "label": "spacr.run_journal.recent_runs#2",
+      "label": "spacr.run_journal.recent_runs#3",
       "source": "Each entry is a dict with keys ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), and the raw ``manifest`` (dict, best-effort).",
       "source_sha256": "db1a41a9e431850c8324c3d9e40ded89e3c253be7ce94399d2607ff3b4b86568",
       "translation": "हर dictionary में ``dir`` (Path प्रकार), ``app_key`` (str प्रकार), ``status`` (str प्रकार), ``start_utc`` (ISO वाला str), ``elapsed_s`` (float प्रकार), और उपलब्ध होने पर raw ``manifest`` dictionary होती है।",
