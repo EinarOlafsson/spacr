@@ -2,7 +2,7 @@
 
     "In settings there is a DEFAULT GRAPH TYPE -- Bar, Jitter, Bar+Jitter,
      Box, Violin, and so on -- and it decides which graph is drawn FIRST
-     [...] THE SAME BEHAVIOUR FOR EVERY GRAPH IN SPACR, not only
+     [...] THE SAME BEHAVIOUR FOR EVERY GRAPH IN spaCR, not only
      Regression: the setting chooses the initial form, and right-click
      still changes it afterwards."
 

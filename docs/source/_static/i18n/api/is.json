@@ -24215,10 +24215,10 @@
         "2d7472f9fecd09dcab254295c6df2f2b890dfc44dfcba49e4ddbcccf7c9c9453"
       ],
       "source_sha256": "b647b53abec94a7dc8eb5a195c041ef98c6d212546d18913dfe85f1ead4a6bad",
-      "text": "HIGH-WATER merkingu torch CUDA eða ``None``.\n\nAð innleiða það til að taka mæling myndi gera mælingurinn dyrasta hluti í skammtinu, og á setningarpanli það er innleiðingur þetta verkefni hefur tvö sinnum þurft að halda út (`tests/test_a_settings_panel_does_not_import_torch.py`).\n\nNotar ``max_memory_allocated`` en núverandi viðtalið vegna þess að viðbótar tensor geta þegar verið frelsað þegar stadið takmörk er skráður. High-water mark er kumulativ í gegnum ferli og því útskýra stærsta viðtala sem er náð í gegnum sekúnd af hliðum.",
+      "text": "HIGH-WATER merkingu torch CUDA eða ``None``.\n\nSpurning aðeins ef torch er nú þegar inn. Íhuga það til að taka mæling myndi gera mælingurinn dyrasta hluti í skammtinu, og á setting paneli það er inn þetta verkefni hefur tvö sinnum þurft að halda út (`tests/test_a_settings_panel_does_not_import_torch.py`).\n\nNotar ``max_memory_allocated`` en núverandi viðtalið vegna þess að viðbótar tensor geta þegar verið frelsað þegar stadið takmörk er skráður. High-water mark er kumulativ í gegnum ferli og því útskýra stærsta viðtala sem er náð í gegnum sekúnd af hliðum.",
       "translation_source_blocks_sha256": [
         "34893d1cd90b4e3c6346a215babb8b79b1e5cb3b4fea93abdd761aa6f9a9b31c",
-        "da70adb2490da05aa2afdbc4513ab8701ea26eec5be27c273f611d841888f4a3",
+        "2b6b53a57ee0ed7499a42f95fdfe50358aa3eb5436d19d7b6f42b0ce7f7376cd",
         "2d7472f9fecd09dcab254295c6df2f2b890dfc44dfcba49e4ddbcccf7c9c9453"
       ]
     },
@@ -48222,12 +48222,12 @@
         "40e1866ae386d33c8aa81e77f69ac4c1cdb1a19671c19109577cd5f63d126b2d"
       ],
       "source_sha256": "47c08255db5cc68dae00efe1e3a6cd0b97176d2facd1a6797db9c61c3d2840ac",
-      "text": "Þrír ferðir OPS er gert af, á hvaða hardwar sem er til staðar.\n\nVélbúnaðarspurningin á sér stutt svar, og það nefnir hvað eigi að setja á kortið: \"aflögun hvers glugga; leit að toppum og fylkjamargföldunin sem afblandar; skiptingu með cellpose, sem hefur þegar leið um GPU\" -- og, fyrir samrunann, \"ORB greining ásamt mátun Hamming-lýsinga\" og \"mátun frumna: gagnkvæmur nálægasti nágranni\". Sviptu nöfnunum burt og eftir standa þrjár frumaðgerðir: hámark yfir glugga, fylkjamargföldun og leit að nálægasta nágranna. Þær eru teknar saman hér fremur en stafaðar út á hverjum kallstað, svo að EINN staður viti af tækjum og einingarnar sem nota þær lesist áfram sem vísindin sem þær eru.\n\n    Backend orðin: PyTorch fyrst, CuPy annað, NumPy alltaf. Torch er þegar spaCR afhengingu í gegnum Cellpose, þannig að ekkert nýtt er sett og einn kóða leið er að ná CUDA, ROCm og Apple MPS.\n\nvirkni tekur og skilar NUMPY, þannig að enginn hringir lærir hvaða bakenda hljóp og engin hringir þarf að breyta þegar einn er bætt við.  hefur próf sem keyrir báðar leiðir á sama inntak og fullyrðir að þeir séu sammála - ekki \"GPU útgáfan stendurst eigin próf\", sem er hvernig fallback hljóðlega verður önnur framkvæmd sem enginn ber saman.\n\nOG HÚN GENGUR ALDREI ÚT FRÁ ÞVÍ AÐ KORTIÐ SÉ LAUST. Samnýtt GPU er venjan -- á þessu keyrir líka byggingarspá -- svo `ops_gpu=False` hafnar tæki sem er til staðar, og bakendi sem kastar villu á keyrslutíma (minnisþrot, rekill sem hvarf) fellur niður á þann næsta í stað þess að láta plötuna misheppnast.\n\n    CPU PATH er ekki mistök PATH. Það er það sem virkar á tölvupósti, í CI, og á vélinu sem kortin er uppsett, sem milli þeirra er flestum tíma þessi kóða mun alltaf virka.",
+      "text": "Þrír ferðir OPS er gert af, á hvaða hardwar sem er til staðar.\n\nThe hardware question has a short answer, and it names what to put on the card: \"the per-window affine warp; peak finding and the unmixing matrix multiply; cellpose segmentation, which already has a GPU path\" -- and, for the merge, \"ORB detect + Hamming descriptor matching\" and \"match cells: mutual nearest neighbour\". Strip the names away and that is three primitives: a windowed maximum, a matrix multiply, and a nearest-neighbour search. They are collected here rather than spelled out at each call site so there is ONE place that knows about devices, and the modules that use them go on reading as the science they are.\n\n    Backend orðin: PyTorch fyrst, CuPy annað, NumPy alltaf. Torch er þegar spaCR afhengingu í gegnum Cellpose, þannig að ekkert nýtt er sett og einn kóða leið er að ná CUDA, ROCm og Apple MPS.\n\nEvery function takes and returns numpy, so no caller learns which backend ran and no caller has to change when one is added. Every one has a test that runs BOTH paths on the same input and asserts they agree -- not \"the GPU version passes its own test\", which is how a fallback quietly becomes a second implementation nobody compares.\n\nAnd it never assumes the card is free. A shared GPU is the common case -- this one also runs structure prediction -- so `ops_gpu=False` refuses a device that exists, and a backend that raises at runtime (an out-of-memory, a driver that went away) falls through to the next rather than failing the plate.\n\n    CPU PATH er ekki mistök PATH. Það er það sem virkar á tölvupósti, í CI, og á vélinu sem kortin er uppsett, sem milli þeirra er flestum tíma þessi kóða mun alltaf virka.",
       "translation_source_blocks_sha256": [
         "6ec6cb9f1b1709a83405f6777fee3a9b5ec274d055983172cdb26681d3e86b12",
         "82d2c5e2de52245ea4daccc9a7dbc991b40c35e9f9754ddd60bf566d056ae204",
         "f629155cbc7f5728ecdcf49f81a21700b9d29b08dd9d35b298098ef9a845028e",
-        "ca338f4e91273b40cde20d1466147b2d89212d79a932aa13f75fbce434f47e3d",
+        "c7fdeeefffcd0369f480c13047caaf11d676b7b27ae2db496f0396df483469cc",
         "8e52e8b11f9226c71e0068ba512ef183fd5f1b5e9a782ea00c1c7da06a8d6d9c",
         "9bba0f23e6385bf641efb50d20480aed9e6be09d78b66833444dfb9e2d2268ac"
       ]
@@ -53001,10 +53001,10 @@
         "86c6c484556189a26f40a97ffb35619b8ec477678cc28a56bbb24a0a51285ea1"
       ],
       "source_sha256": "7e1af23c3cc59070b61568a3f20b15717726b4086be08434b345975e22c0c2aa",
-      "text": "``path`` með útbreytingu verður skrifar áætlun á tölvu.\n\nÞAÐ EINA STÆÐUR SEM EKKI MATPLOTLIB flutningsmaður getur spurt. ``save_figure`` endurskrifar viðbótina sjálfa, sem er ástæðan fyrir því að sérhver matplotlib vistun hefur virt valið í marga mánuði -- en pyqtgraph ákveður hvað það skrifar FRÁ NAFNINUM (``FastPlot.export`` greinar á ``.pdf`` / ``.svg`` / else), þannig að renderer sem er afhentur ``volcano.pdf`` skrifar PDF hvað sem notandinn velur. Nafnið þarf að gera upp áður en útflutningurinn sér það, og að gera það upp tvisvar í tveimur einingum er hvernig þeir tveir reka í sundur.\n\n:param path: Eitt áætlun, með eða án útgáfu.\n:param fmt: Unknown formats fall aftur til uppáhalds í stað þess að kasta: Run ætti ekki að missa tölvu yfir typo.\n:returns: Ráð sem ``str``.",
+      "text": "``path`` með útbreytingu verður skrifar áætlun á tölvu.\n\nEinn stað sem ekki-matplotlib renderer getur spyrja. ``save_figure`` endurskreyta útbreytingu sjálfan sig, sem er ástæðan fyrir því að hver matplotlib bragð hefur heyrt forritina í mánuði - en pyqtgraph ákveður hvað það er að skrifa frá nafni (``FastPlot.export`` gránir á ``.pdf`` / ``.svg`` / annarra), þannig að renderer sem er veitt ``volcano.pdf`` skrifa PDF hvað notandi hefur valið.\n\n:param path: Eitt áætlun, með eða án útgáfu.\n:param fmt: Unknown formats fall aftur til uppáhalds í stað þess að kasta: Run ætti ekki að missa tölvu yfir typo.\n:returns: Ráð sem ``str``.",
       "translation_source_blocks_sha256": [
         "c45a0fd44812033c17f00e3fdcb07fa6a97e063d444c8b55b12dfc0e27a1323b",
-        "3373e8946963e49c0ba1254c2bac4ea5e94f29c0e8bbba043be6369c9fce8c58",
+        "b45e2a2baba13e8a4ff2a3f4cb74cf3d5ebf016fa1099139fb9782310dd68b2b",
         "59180107370340f657b294bfb2def15e963412f21230393fbe8998cfc59d6e48",
         "5ee5240a19b2e6c8f620eeb9f626aaafe3cac32fca2b51aca1ef8e2a8c416b84",
         "86c6c484556189a26f40a97ffb35619b8ec477678cc28a56bbb24a0a51285ea1"
@@ -99578,10 +99578,10 @@
         "66134a7bcee03d1145e22cf7e63c6e8faa2ee2638468d96dcad3ffd887c4be41"
       ],
       "source_sha256": "9d183ceedce7eadeeeba4c62fb784013b0424c28d572de31f3861040c2f8fdf8",
-      "text": "Aðstoð á ``index``, eða None þegar út úr sviði.\n\nEnginn er betri en að kasta: Qt prófa yfir endinn til að finna hvar áætlun stendur, Þannig er útskýring hér er slys á venjulegum skipti.\n\n:param index: á stöðu.\n:returns: Þetta er hlutinn eða None.",
+      "text": "Aðstoð á ``index``, eða None þegar út úr sviði.\n\nNone í stað þess að kasta: Qt prófa yfir endinn til að finna hvar áætlun hættir, þannig að útskýrð hér er fljótur á tímanum áætlanum.\n\n:param index: á stöðu.\n:returns: Þetta er hlutinn eða None.",
       "translation_source_blocks_sha256": [
         "d3813509e2eefd75709d2304655131fb1e0b7f1682ed56360e1e9ea23349ff61",
-        "a5c29467533e369d808ff61b003e8e80f52c71b3cb59ad589a12ad2904190b98",
+        "4c6c48613b2bc3fb6df5db1428cb7db96dfd1b697a9e67f04ede97fe7b2d7559",
         "db9c651963da58f20502b45b29ef917587f2219679c53ca62b28fd833b739a69",
         "66134a7bcee03d1145e22cf7e63c6e8faa2ee2638468d96dcad3ffd887c4be41"
       ]
@@ -132299,10 +132299,10 @@
         "e2220841cf9cf8e9775f1c8ff7ff63a384d3cf4641bc03699e834b04b967e8c8"
       ],
       "source_sha256": "4086497eed8efcbf7fe18da186ac0b6b3a6e663a15dc0da90950045b793f7664",
-      "text": "``(usable, name)`` fyrir grafikkortin á vélinu.\n\nÞað er eina skilyrði sem skiptir máli hér: kort spaCR getur ekki hlaupið er ekki samkomulegt kort þó vel leiðandi segir það. Torch er spurður fyrst af þessu ástæðu, og NVML annað vegna þess að það nefnir kortina jafnvel þegar torch var byggð án CUDA - sem er tilfelli þess virði að segja út, þar sem svarið er \"install a CUDA build\", ekki \"buy a card\".\n\n:returns: ``(True, 'NVIDIA GeForce RTX 3090')`` þegar segmenningu getur farið á það; ``(False, name)`` þegar það getur ekki, með bestu nafn í boði; ``(False, '')`` þegar ekkert gæti verið þekkt.",
+      "text": "``(usable, name)`` fyrir grafikkortin á vélinu.\n\nNotað þýðir torch getur náð það, sem er eina skilyrði sem skiptir máli hér: kort spaCR ekki hægt að hlaupa er ekki samkomulegt kort þó vel leiðandi segir það. Torch er spurður fyrst af því, og NVML annað vegna þess að það nefnir kortina jafnvel þegar torch var byggð án CUDA - sem er til dæmis þess virði að segja út, þar sem svarið er \"install a CUDA build\", ekki \"buy a card\".\n\n:returns: ``(True, 'NVIDIA GeForce RTX 3090')`` þegar segmenningu getur farið á það; ``(False, name)`` þegar það getur ekki, með bestu nafn í boði; ``(False, '')`` þegar ekkert gæti verið þekkt.",
       "translation_source_blocks_sha256": [
         "a84df1b91109bfe64078174592a2620ec2a25f36f62838c6068561f87978f500",
-        "3ad61b8724109545b670e418b57fca1ac4d4f8d472a727de8e1a1b438ea5de15",
+        "73e1a7d5708610a3a47075368426b38a046819c5df4f51255588af82715b5eed",
         "e2220841cf9cf8e9775f1c8ff7ff63a384d3cf4641bc03699e834b04b967e8c8"
       ]
     },
@@ -139457,11 +139457,11 @@
         "acd83404be931212f684e1dbe243474eb3a9cbd40c35c2ea6fea9490c9cc8cfa"
       ],
       "source_sha256": "ba2014f3b21a6c00359c56a8635d75d6c7ae3578969161cf5e2e8c90a9eeb64e",
-      "text": "Ítalaðu spaCR samræmi þessa meðferð í eigin mappinn og snúa leiðinni.\n\nÞað skrifar faili :func:`spacr.qt.widgets.regression_results.find_summary_file` þegar lesa aftur, þannig að meðhöndla síða aftur opnuð frá skálum sýnir þetta samræmi með engin GUI breyting (þróun kenndi panelinn að lesa meðhald-session mappinn; þróun er um það að það sé eitthvað sem þess virði að lesa í henni).\n\nÞessar reglur eru undirbúað. ``ols`` og ``beta`` rúnir hafa þegar skrifað statsmodels texta í sama skálinn á þeim tíma sem þetta er kallað; það er tilbúinn aftur frá myndavélinu þar sem það getur verið, og annars lesa aftur úr skálinu, og hvort sem það er viðeigið UNCHANGED á lokum en ekki skipt. Allt texta er byggð í minningu fyrst, þannig að mismunandi hér yfirgefur núverandi skrá eins og það var.\n\n:param res_folder: meðferð-sessíu mappinn, í viðbót við ``results.csv``.\n:param model: Hugbúnaður eða ``None``.\n:param settings: Hægt er að setja upp aðsetningu key-value mapping.\n:param coef_df: Hugmyndin um korrigið samkeppni.\n:param regression_type: Fjölskyldan er í raun búinn.\n:returns: leiðin er skrifað, eða ``None`` þegar það var engin skjöl til að skrifa inn.",
+      "text": "Ítalaðu spaCR samræmi þessa meðferð í eigin mappinn og snúa leiðinni.\n\nÞað skrifar faili :func:`spacr.qt.widgets.regression_results.find_summary_file` þegar lesa aftur, þannig að meðhöndla síða aftur opnuð frá skálum sýnir þetta samræmi með engin GUI breyting (þróun kenndi panelinn að lesa meðhald-session mappinn; þróun er um það að það sé eitthvað sem þess virði að lesa í henni).\n\nstatsmodels samræmi er geymt. ``ols`` og ``beta`` rúnir hafa þegar skrifað statsmodels texta í sama skálinn á þeim tíma sem þetta er kallað; það er tilbúinn aftur frá myndavélinu þar sem það getur verið, og annars lesa aftur úr skálinu, og hvort sem það er viðeigið UNCHANGED á lokum en ekki skipt. Allt texta er byggð í minningu fyrst, þannig að mismunandi hér yfirgefur núverandi skrá eins og það var.\n\n:param res_folder: meðferð-sessíu mappinn, í viðbót við ``results.csv``.\n:param model: Hugbúnaður eða ``None``.\n:param settings: Hægt er að setja upp aðsetningu key-value mapping.\n:param coef_df: Hugmyndin um korrigið samkeppni.\n:param regression_type: Fjölskyldan er í raun búinn.\n:returns: leiðin er skrifað, eða ``None`` þegar það var engin skjöl til að skrifa inn.",
       "translation_source_blocks_sha256": [
         "0f0701ffa1ad940628f575671d5acd966dd055a167906f9178b454ce51df9d43",
         "fadf14236d188695a4e3f7b1bc669d6e161ae30bde2bfe5a0e89ce2ce7c6d499",
-        "45123eeed5446bcfa8f22df796dda769685c46a855f350e6328b8e7954801c47",
+        "e0613edc3f4546c361d664502d1f616ad4feee7e886b763bd5a3c38b48d2b441",
         "ae24b308a8ff7864cd9f2825fc4c1cb0549660e11a02311f8faa43bda672b711",
         "9dc0f6698f1eb7c2bc0b057e3411b31d9ae302640ac7f964e25182403d0149da",
         "be82b40cd0188ff6319f9488ec4148d269b900cd096b81713240daae486c0e0b",

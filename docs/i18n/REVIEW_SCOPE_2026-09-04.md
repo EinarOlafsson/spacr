@@ -54,13 +54,13 @@ table derives them from the same source the builders read.
 | Language | Reviewed runtime records | Of 5,664 | Remainder | Reviewed API blocks | Of 10,531 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
 | Swedish | 118 | 2.08% | 5,546 | 468 | 4.44% | 10,063 |
-| German | 85 | 1.50% | 5,579 | 422 | 4.01% | 10,109 |
+| German | 85 | 1.50% | 5,579 | 420 | 3.99% | 10,111 |
 | Spanish | 99 | 1.75% | 5,565 | 287 | 2.73% | 10,244 |
 | Simplified Chinese | 267 | 4.71% | 5,397 | 507 | 4.81% | 10,024 |
 | Portuguese | 99 | 1.75% | 5,565 | 446 | 4.24% | 10,085 |
-| Hindi | 128 | 2.26% | 5,536 | 461 | 4.38% | 10,070 |
+| Hindi | 128 | 2.26% | 5,536 | 460 | 4.37% | 10,071 |
 | Korean | 246 | 4.34% | 5,418 | 453 | 4.30% | 10,078 |
-| Icelandic | 151 | 2.67% | 5,513 | 1,022 | 9.70% | 9,509 |
+| Icelandic | 151 | 2.67% | 5,513 | 1,021 | 9.70% | 9,510 |
 | French | 98 | 1.73% | 5,566 | 465 | 4.42% | 10,066 |
 
 *Regenerated 2026-09-14. The API denominator moved 10,478 -> 10,531 as well:
@@ -191,6 +191,5 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 118, de 85, es 99, zh_CN 267, pt 99, hi 128, ko 246,
-is 151, fr 98 -- 1,291 runtime records across nine locales.
+Reviewed totals today: sv 118, de 85, es 99, zh_CN 267, pt 99, hi 128, ko 246, is 151, fr 98 -- 1,291 runtime records across nine locales.
 

@@ -4,7 +4,7 @@ DEFAULT GRAPH TYPE setting says.
     "Today Regression has most of this: it draws bar-with-jitter and the
      user can right-click to change it. The right-click menu is right; the
      starting point is not. The setting must dictate what is drawn from the
-     start. THE SAME BEHAVIOUR FOR EVERY GRAPH IN SPACR."
+     start. THE SAME BEHAVIOUR FOR EVERY GRAPH IN spaCR."
 
 `tests/test_the_default_graph_type_starts_every_graph.py` tests the
 mechanism in `spacr.graph_types`. This file tests the WIDGETS: that a live

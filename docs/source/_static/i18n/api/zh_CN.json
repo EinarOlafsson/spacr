@@ -24216,10 +24216,10 @@
         "2d7472f9fecd09dcab254295c6df2f2b890dfc44dfcba49e4ddbcccf7c9c9453"
       ],
       "source_sha256": "b647b53abec94a7dc8eb5a195c041ef98c6d212546d18913dfe85f1ead4a6bad",
-      "text": "torch 的 CUDA 分配,或 ``None`` 的 HIGH-WATER 标志。\n\n进口它来采取测量将使测量在阶段最昂贵的东西,并在设置面板上它是进口这个项目有两次必须保持(`tests/test_a_settings_panel_does_not_import_torch.py`)。\n\n使用 ``max_memory_allocated`` 而不是当前的分配,因为在记录一个阶段边界时可能已经释放合适的紧张器。",
+      "text": "torch 的 CUDA 分配,或 ``None`` 的 HIGH-WATER 标志。\n\n只问是否 torch 已经进口. 将其进口以进行测量将使测量成为该阶段最昂贵的东西,并且在设置面板上,这是该项目的进口必须保持两次(`tests/test_a_settings_panel_does_not_import_torch.py`)。\n\n使用 ``max_memory_allocated`` 而不是当前的分配,因为在记录一个阶段边界时可能已经释放合适的紧张器。",
       "translation_source_blocks_sha256": [
         "34893d1cd90b4e3c6346a215babb8b79b1e5cb3b4fea93abdd761aa6f9a9b31c",
-        "da70adb2490da05aa2afdbc4513ab8701ea26eec5be27c273f611d841888f4a3",
+        "2b6b53a57ee0ed7499a42f95fdfe50358aa3eb5436d19d7b6f42b0ce7f7376cd",
         "2d7472f9fecd09dcab254295c6df2f2b890dfc44dfcba49e4ddbcccf7c9c9453"
       ]
     },
@@ -48223,12 +48223,12 @@
         "40e1866ae386d33c8aa81e77f69ac4c1cdb1a19671c19109577cd5f63d126b2d"
       ],
       "source_sha256": "47c08255db5cc68dae00efe1e3a6cd0b97176d2facd1a6797db9c61c3d2840ac",
-      "text": "三行操作 OPS 是由,在任何硬件上。\n\n硬件问题有一个简短的答案,它命名什么放在卡上: \"窗口相似的瓦尔普;顶峰发现和不混合的矩阵倍数; cellpose 分裂,已经有一个 GPU 路径\" 但是,为了合并, \"ORB 检测 + Hamming 描述器匹配\" 和 \"比赛细胞:相互最接近的邻居\"提取名字,这是三个原始:一个窗口的最大,一个矩阵的复制,和一个最接近的搜索. 他们在这里收集而不是在每个呼叫网站上播放,所以有一个地方知道设备,使用它们的模块继续阅读,因为他们是科学。\n\n    Backend 命令: PyTorch 第一, CuPy 第二, NumPy 总是. Torch 已经是一个 spaCR 依赖通过 Cellpose,所以没有什么新安装,一个代码路径达到 CUDA, ROCm 和 Apple MPS。\n\n每个功能都取出并返回,所以没有召唤者知道哪个背端进行,并且没有召唤者需要改变,当一个被添加时,每个人都有一个测试,在相同的入口上进行BOTH路线,并声称他们同意 - 不 \"其它 GPU 版本通过自己的测试\",这就是如何一个落后静静地变成第二个实施,没有人比较。\n\n一个共享的 GPU 是常见的案例 - 这个也运行结构预测 - 所以 `ops_gpu=False` 拒绝一个存在的设备,并且在运行时间上升起的后端(一个离开记忆,一个离开的司机)落到下一个,而不是失败的微孔板。\n\n    CPU PATH 不是一个错误 PATH. 它是运行在笔记本电脑,在 CI,和机器,其卡忙碌,其中大部分时间这个代码将永远运行。",
+      "text": "三行操作 OPS 是由,在任何硬件上。\n\n硬件问题有一个简短的答案,它命名什么放在卡上: \"窗口相似的瓦尔普;顶峰发现和不混合的矩阵倍数; cellpose 分裂,已经有一个 GPU 路径\" 但是,为了合并, \"ORB 检测 + Hamming 描述器匹配\" 和 \"比赛细胞:相互最接近的邻居\"提取名字,这是三个原始:一个窗口的最大,一个矩阵的复制,和一个最接近的搜索. 他们在这里收集而不是在每个呼叫网站上播放,所以有一个地方知道设备,使用它们的模块继续阅读,因为他们是科学。\n\n    Backend 命令: PyTorch 第一, CuPy 第二, NumPy 总是. Torch 已经是一个 spaCR 依赖通过 Cellpose,所以没有什么新安装,一个代码路径达到 CUDA, ROCm 和 Apple MPS。\n\n每个功能都会采取和返回 numpy,所以没有召唤者会学到哪个后端进行,没有召唤者会在一个被添加时改变。 每个人都有一个测试,在同一个入口上进行BOTH路线,并表示他们同意 - 不是“GPU版本通过自己的测试”,这就是如何一个落后安静地成为第二个实施,没有人比较。\n\n一个共享的 GPU 是常见的案例 - 这个也运行结构预测 - 所以 `ops_gpu=False` 拒绝一个存在的设备,并且在运行时间上升起的后端(一个离开记忆,一个离开的司机)落到下一个,而不是失败的微孔板。\n\n    CPU PATH 不是一个错误 PATH. 它是运行在笔记本电脑,在 CI,和机器,其卡忙碌,其中大部分时间这个代码将永远运行。",
       "translation_source_blocks_sha256": [
         "6ec6cb9f1b1709a83405f6777fee3a9b5ec274d055983172cdb26681d3e86b12",
         "82d2c5e2de52245ea4daccc9a7dbc991b40c35e9f9754ddd60bf566d056ae204",
         "f629155cbc7f5728ecdcf49f81a21700b9d29b08dd9d35b298098ef9a845028e",
-        "ca338f4e91273b40cde20d1466147b2d89212d79a932aa13f75fbce434f47e3d",
+        "c7fdeeefffcd0369f480c13047caaf11d676b7b27ae2db496f0396df483469cc",
         "8e52e8b11f9226c71e0068ba512ef183fd5f1b5e9a782ea00c1c7da06a8d6d9c",
         "9bba0f23e6385bf641efb50d20480aed9e6be09d78b66833444dfb9e2d2268ac"
       ]
@@ -53002,10 +53002,10 @@
         "86c6c484556189a26f40a97ffb35619b8ec477678cc28a56bbb24a0a51285ea1"
       ],
       "source_sha256": "7e1af23c3cc59070b61568a3f20b15717726b4086be08434b345975e22c0c2aa",
-      "text": "``path`` 与扩展将图形格式偏好写入。\n\n是非 MATPLOTLIB 渲染器可以询问的唯一地方。  ``save_figure`` 重写扩展本身, ,这就是为什么每个 matplotlib 保存都尊重了几个月的首选项 — — 但 pyqtgraph 从名称决定它要写什么(``FastPlot.export`` 分支在 ``.pdf`` / ``.svg`` / else 上 ),  ``volcano.pdf`` 的渲染器会写入用户选择的任何 PDF。 在导出之前,这个名字必须被解决,并且在两个模块中两次解决是两者分离的原因。\n\n:param path: 一个目的地,有或没有延伸。\n:param fmt: 不知不觉的格式落后于偏好而不是扔掉:一个跑步不应该失去一个数字超过一个型号。\n:returns: 路径为 ``str``。",
+      "text": "``path`` 与扩展将图形格式偏好写入。\n\n一个地方,一个非matplotlib renderer 可以询问。 ``save_figure`` 重新编写扩展本身,这就是为什么每 matplotlib 存储每个月都荣誉了偏好 - 但 pyqtgraph 决定它从名称中写什么(``FastPlot.export`` 分支在 ``.pdf`` / ``.svg`` / 其他),因此交付的 ``volcano.pdf`` 播放器写 PDF 无论用户选择什么。 在出口看到它之前,该名称必须安排,并将其安排两次,就是两者如何分开。\n\n:param path: 一个目的地,有或没有延伸。\n:param fmt: 不知不觉的格式落后于偏好而不是扔掉:一个跑步不应该失去一个数字超过一个型号。\n:returns: 路径为 ``str``。",
       "translation_source_blocks_sha256": [
         "c45a0fd44812033c17f00e3fdcb07fa6a97e063d444c8b55b12dfc0e27a1323b",
-        "3373e8946963e49c0ba1254c2bac4ea5e94f29c0e8bbba043be6369c9fce8c58",
+        "b45e2a2baba13e8a4ff2a3f4cb74cf3d5ebf016fa1099139fb9782310dd68b2b",
         "59180107370340f657b294bfb2def15e963412f21230393fbe8998cfc59d6e48",
         "5ee5240a19b2e6c8f620eeb9f626aaafe3cac32fca2b51aca1ef8e2a8c416b84",
         "86c6c484556189a26f40a97ffb35619b8ec477678cc28a56bbb24a0a51285ea1"
@@ -99579,10 +99579,10 @@
         "66134a7bcee03d1145e22cf7e63c6e8faa2ee2638468d96dcad3ffd887c4be41"
       ],
       "source_sha256": "9d183ceedce7eadeeeba4c62fb784013b0424c28d572de31f3861040c2f8fdf8",
-      "text": "项目在 ``index`` 或 None 时,在范围之外。\n\n没有比投: Qt 试过尽头发现一个布局停在哪里,所以这里的一个例外是常规布局时的崩溃。\n\n:param index: 立场。\n:returns: 标题,或 None。",
+      "text": "项目在 ``index`` 或 None 时,在范围之外。\n\nNone 而不是扔: Qt 试验通过终点,以确定一个布局停在哪里,因此这里的一个例外是常规布局时的崩溃。\n\n:param index: 立场。\n:returns: 标题,或 None。",
       "translation_source_blocks_sha256": [
         "d3813509e2eefd75709d2304655131fb1e0b7f1682ed56360e1e9ea23349ff61",
-        "a5c29467533e369d808ff61b003e8e80f52c71b3cb59ad589a12ad2904190b98",
+        "4c6c48613b2bc3fb6df5db1428cb7db96dfd1b697a9e67f04ede97fe7b2d7559",
         "db9c651963da58f20502b45b29ef917587f2219679c53ca62b28fd833b739a69",
         "66134a7bcee03d1145e22cf7e63c6e8faa2ee2638468d96dcad3ffd887c4be41"
       ]
@@ -132300,10 +132300,10 @@
         "e2220841cf9cf8e9775f1c8ff7ff63a384d3cf4641bc03699e834b04b967e8c8"
       ],
       "source_sha256": "4086497eed8efcbf7fe18da186ac0b6b3a6e663a15dc0da90950045b793f7664",
-      "text": "``(usable, name)`` 为机器的图形卡。\n\n可用的方式可以找到它,这是唯一的意义在这里:一个卡 spaCR 不能运行不是一个兼容的卡,但司机报告它. Torch 首先是因为这个原因,而 NVML 第二,因为它命名卡,即使 torch 没有 CUDA - 这是事实值得分开,因为答案是 \"install a CUDA build\",而不是 \"buy a card\"。\n\n:returns: ``(True, 'NVIDIA GeForce RTX 3090')``当分区可以运行时; ``(False, name)``当它无法运行时,与最佳可用的名称; ``(False, '')``当什么都无法识别时。",
+      "text": "``(usable, name)`` 为机器的图形卡。\n\n可用的字符 torch 可以达到它,这就是唯一的意义在这里:一个卡 spaCR 不能运行不是一个兼容的卡,但司机报告它. Torch 首先是因为这个原因,而 NVML 第二,因为它命名卡,即使 torch 没有 CUDA - 这是事实值得分开,因为答案是 \"install a CUDA build\",而不是 \"buy a card\"。\n\n:returns: ``(True, 'NVIDIA GeForce RTX 3090')``当分区可以运行时; ``(False, name)``当它无法运行时,与最佳可用的名称; ``(False, '')``当什么都无法识别时。",
       "translation_source_blocks_sha256": [
         "a84df1b91109bfe64078174592a2620ec2a25f36f62838c6068561f87978f500",
-        "3ad61b8724109545b670e418b57fca1ac4d4f8d472a727de8e1a1b438ea5de15",
+        "73e1a7d5708610a3a47075368426b38a046819c5df4f51255588af82715b5eed",
         "e2220841cf9cf8e9775f1c8ff7ff63a384d3cf4641bc03699e834b04b967e8c8"
       ]
     },
@@ -139458,11 +139458,11 @@
         "acd83404be931212f684e1dbe243474eb3a9cbd40c35c2ea6fea9490c9cc8cfa"
       ],
       "source_sha256": "ba2014f3b21a6c00359c56a8635d75d6c7ae3578969161cf5e2e8c90a9eeb64e",
-      "text": "将此处理会议的 spaCR 总结写入自己的文件夹中,然后返回路径。\n\n它写了文件 :func:`spacr.qt.widgets.regression_results.find_summary_file` 已经重新阅读,所以从磁盘重新打开的处理会议显示了这个总结没有 GUI 变化(设计教板阅读处理会议文件夹;设计是关于有东西值得阅读在它)。\n\n``ols`` 和 ``beta`` 运行已经写了 statsmodels 文本到这个相同的文件,当它被称为时;它是从模型重新播放,在那里它可以,否则从文件中重新阅读,无论如何它是附加到最后而不是更换。\n\n:param res_folder: 处理会议文件夹,旁边 ``results.csv``。\n:param model: 固定模型,或 ``None``。\n:param settings: 处理会议的设置关键值地图。\n:param coef_df: 修正的指数表。\n:param regression_type: 事实上,这个家庭已经准备好了。\n:returns: 写的路径,或 ``None`` 如果没有文件夹可以写入。",
+      "text": "将此处理会议的 spaCR 总结写入自己的文件夹中,然后返回路径。\n\n它写了文件 :func:`spacr.qt.widgets.regression_results.find_summary_file` 已经重新阅读,所以从磁盘重新打开的处理会议显示了这个总结没有 GUI 变化(设计教板阅读处理会议文件夹;设计是关于有东西值得阅读在它)。\n\nstatsmodels 概述保留. ``ols`` 和 ``beta`` 行程已经写了 statsmodels 文本到这个相同的文件,当它被称为; 它是从模型重新播放,在那里它可以, 否则重新阅读文件, 无论如何它是添加到最后而不是更换。\n\n:param res_folder: 处理会议文件夹,旁边 ``results.csv``。\n:param model: 固定模型,或 ``None``。\n:param settings: 处理会议的设置关键值地图。\n:param coef_df: 修正的指数表。\n:param regression_type: 事实上,这个家庭已经准备好了。\n:returns: 写的路径,或 ``None`` 如果没有文件夹可以写入。",
       "translation_source_blocks_sha256": [
         "0f0701ffa1ad940628f575671d5acd966dd055a167906f9178b454ce51df9d43",
         "fadf14236d188695a4e3f7b1bc669d6e161ae30bde2bfe5a0e89ce2ce7c6d499",
-        "45123eeed5446bcfa8f22df796dda769685c46a855f350e6328b8e7954801c47",
+        "e0613edc3f4546c361d664502d1f616ad4feee7e886b763bd5a3c38b48d2b441",
         "ae24b308a8ff7864cd9f2825fc4c1cb0549660e11a02311f8faa43bda672b711",
         "9dc0f6698f1eb7c2bc0b057e3411b31d9ae302640ac7f964e25182403d0149da",
         "be82b40cd0188ff6319f9488ec4148d269b900cd096b81713240daae486c0e0b",

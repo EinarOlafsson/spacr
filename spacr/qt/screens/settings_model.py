@@ -699,7 +699,7 @@ def _image_source_the_panel_offers(value) -> str:
     first item (see ``_widget_for``), which is right for a free alphabet and
     wrong for this one: a settings CSV carrying ``'on_demand'`` put a THIRD
     entry, spelled in a retired vocabulary, in front of a user who is being
-    asked a two-way question. That is instruction 171's failure in the one
+    asked a two-way question. That is the two-name rule's failure in the one
     panel the whole migration was for.
 
     RESOLVED, NOT REFUSED, and resolved through the table the pipeline reads
@@ -709,7 +709,7 @@ def _image_source_the_panel_offers(value) -> str:
 
     ``'auto'`` comes back from that function as itself, because
     `crops.resolve_crop_source` still computes "what is available here". It
-    is NOT an answer a user is offered (instruction 171, rule E), so here it
+    is NOT an answer a user is offered -- it is an action, not a source -- so here it
     selects LOAD IMAGES -- rule A, the default is a named mode -- and rule
     B's fallback is what keeps a project with no ``data/`` drawing: LOAD
     IMAGES with nothing to load streams instead and says so. Anything else
