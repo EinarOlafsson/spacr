@@ -44,6 +44,11 @@ def promote(review, stage):
     translated = copy.deepcopy(english)
     for key in ('title', 'description', 'objectives', 'prerequisite'):
         translated[key] = review[key]
+    previous = next((item for item in target['lessons'] if item['id'] == english['id']), {})
+    if 'section' in review:
+        translated['section'] = review['section']
+    elif previous.get('section'):
+        translated['section'] = previous['section']
     for scene, narration in zip(translated['scenes'], review['scenes']):
         scene['narration'] = narration
         if language in SPOKEN:

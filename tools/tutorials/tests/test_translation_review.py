@@ -63,3 +63,16 @@ def test_rejects_invalid_review_before_overwriting_an_existing_catalog(project, 
         reviewer.promote(review, root)
     assert (root / 'catalog/lessons_es.json').read_bytes() == before
     assert not (root / 'production').exists()
+
+
+@pytest.mark.parametrize('explicit', [False, True])
+def test_section_heading_remains_translated(project, explicit):
+    root, english, retained, review = project
+    target = reviewer.read(root / 'catalog/lessons_es.json')
+    target['lessons'][0]['section'] = 'Módulos principales'
+    reviewer.write(root / 'catalog/lessons_es.json', target)
+    if explicit:
+        review['section'] = 'Datos'
+    reviewer.promote(review, root)
+    actual = reviewer.read(root / 'catalog/lessons_es.json')['lessons'][0]
+    assert actual['section'] == ('Datos' if explicit else 'Módulos principales')
