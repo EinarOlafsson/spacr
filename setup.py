@@ -805,6 +805,11 @@ setup(
             'spacr-plugins=spacr.cli_plugins:main',
             # Standalone classifier train/test leakage audit.
             'spacr-leakage=spacr.cli_leakage:main',
+            # Open Make Masks on a folder, as a resumable curation queue.
+            # The editor is mouse-driven, but choosing and ORDERING the work
+            # is not, and a curation session that cannot be pointed at a
+            # folder from a shell cannot be resumed on a second machine.
+            'spacr-make-masks=spacr.cli_make_masks:main',
             # SQLite health, integrity, locking, and reader/writer probe.
             'spacr-db-audit=spacr.cli_database:main',
             # Whole-installation diagnosis: which spacr is actually running

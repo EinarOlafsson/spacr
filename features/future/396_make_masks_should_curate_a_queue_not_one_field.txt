@@ -2,12 +2,60 @@
 MAKE MASKS SHOULD CURATE A QUEUE, NOT ONE FIELD AT A TIME
 ================================================================================
 
-Status:    FUTURE, filed 2026-09-12. Not blocking anything.
+Status:    BUILT 2026-09-14. The queue, the resumable status file, the four
+           orderings, the limit and the terminal entry point all exist and are
+           tested; 244 tests green across four files.
+             * `spacr/curation_queue.py` -- Qt-free and import-pure, enforced
+               by a test that imports it in a subprocess and asserts no
+               PySide6/numpy/skimage/torch lands in sys.modules. numpy enters
+               only inside the functions that read a draft.
+             * `spacr/cli_make_masks.py` -- `--folder`, `--order`
+               (easy|prob|value|name, default easy), `--limit`. A bad folder is
+               refused BEFORE any Qt import, so a curator over SSH with no
+               display gets a sentence rather than a Qt crash.
+             * The refusal at what is now `spacr/cli.py:674` no longer merely
+               refuses; it names how to open the editor on a folder.
+
+           ALL THREE LAYOUTS ARE ACCEPTED rather than one being chosen:
+           `<folder>` with `masks/` beneath, sibling `images/` and `masks/`,
+           and `*_seg.npy` bundles. The file below asks that this be settled
+           first and warns that "silently assuming one is how a folder full of
+           work gets loaded as empty" -- so a folder matching NO layout raises
+           and says what it found, and a folder matching none is never
+           reported as finished.
+
+           TWO CLAIMS IN THIS FILE WERE WRONG, both checked against the
+           external tool at toxoplasma_pv_model/code/tools/curate_masks_qt.py
+           rather than against memory:
+             * IT SAYS TWO STATES. There are THREE. `REVIEWED = {"done",
+               "skip", "recropped"}` at that tool's line 1234; `recropped`
+               records a bundle split into children and is a real state it
+               writes. Collapsing it loses the distinction the file itself
+               argues for one paragraph earlier.
+             * IT SAYS `curate_status.csv` IN THE QUEUE FOLDER. The external
+               tool writes a SIBLING, `<parent>/<name>_status.csv`, so that
+               two queues never share a progress file. The request's location
+               was followed, because inside-the-folder achieves the same
+               isolation and is what syncs with the images across machines --
+               but the file should not claim the tool does it that way.
+
+           SIX VACUOUS ASSERTIONS WERE FOUND AND FIXED after the build, by an
+           audit that ran 59 mutations against the new tests. The worst:
+           `STATUS_FILENAME` was only ever compared to itself, so renaming it
+           passed every test while silently reopening the maintainer's
+           measured 500-bundle, 366-done set as 0 done on the next machine.
+           Also `assert "prob" in printed`, which was satisfied by the word
+           "probabilities" already in the message and so never checked that
+           the fallback names the order that was asked for. Each fix was
+           verified by re-running the mutation it was written for.
+
+           WHAT IS NOT DONE: ordering by `prob` needs a scores CSV, which only
+           the plaque project currently produces.
 Requested: 2026-09-12, verbatim -- "wouldnt it be easier in the future if we
            just use spacr make masks module started from the trerminal to
            vurate the masks?"
 Owner:     unassigned. `spacr/qt/screens/make_masks.py` is the editor;
-           `spacr/cli.py:732` is the refusal to launch it from a terminal.
+           `spacr/cli.py:674` is the refusal, now rewritten.
 
 --------------------------------------------------------------------------------
 WHAT PROMPTED IT

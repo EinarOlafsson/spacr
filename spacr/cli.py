@@ -671,7 +671,19 @@ INTERACTIVE_ONLY: Dict[str, str] = {
                               "directly.",
     "annotate": "Annotate paints labels onto a grid of single-object images by hand; "
                 "run it in the GUI (spacr-qt) — there is no batch equivalent.",
-    "make_masks": "Make Masks is a manual mask editor; run it in the GUI (spacr-qt).",
+    "make_masks": "Make Masks is a manual mask editor -- the brush, the "
+                  "wand and the recrop are the whole feature, so there is "
+                  "nothing to batch -- but it does open on a folder from a "
+                  "terminal: 'spacr-make-masks --folder <dir>' builds a "
+                  "curation queue over that folder and opens the editor on "
+                  "it. --order easy|prob|value|name chooses what to offer "
+                  "first (easy by default), --limit N ends the session after "
+                  "N fields, and --dry-run prints the queue and its order "
+                  "with no display at all. Progress is kept in "
+                  "<dir>/curate_status.csv, so done and skip survive a "
+                  "restart and travel with the images between machines. "
+                  "From Python, spacr.curation_queue.build_queue(folder) "
+                  "returns the same session.",
     "queue": "Plate Queue is a GUI convenience that chains plates through another "
              "module. Headless, loop over plates in your batch script and call "
              "spacr-run once per plate.",

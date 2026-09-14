@@ -1717,6 +1717,11 @@ class MakeMasksScreen(QWidget):
         super().__init__(parent)
         self._folder: str = ""
         self._image_files: List[str] = []
+        #: The terminal-built session this screen is working through, or
+        #: ``None`` when the folder was opened from the file dialog. Set by
+        #: :meth:`open_queue`; what makes a save reach
+        #: ``curate_status.csv``.
+        self._queue = None
         self._current_index: int = 0
         self._history = engine.MaskHistory(capacity=25)
         #: The ledger for the field on screen, seeded from any sidecar
@@ -1757,6 +1762,96 @@ class MakeMasksScreen(QWidget):
             pass
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
+        self._take_any_terminal_queue()
+
+    def _take_any_terminal_queue(self) -> bool:
+        """Open the queue ``spacr-make-masks`` handed over, if there is one.
+
+        The terminal half of ledger item 396 ends here. ``spacr-make-masks``
+        reads the folder, builds the session and leaves it in
+        :mod:`spacr.cli_make_masks`; the first screen built in that process
+        takes it. The import is of a CLI module that pulls argparse and
+        :mod:`spacr.curation_queue` and no Qt, and it is done here rather
+        than at module scope so that a screen opened the ordinary way pays
+        for nothing.
+
+        :returns: whether a handed-over queue was opened.
+        """
+        try:
+            from ...cli_make_masks import take_handover
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no terminal queue handover available", exc_info=True)
+            return False
+        queue = take_handover()
+        if queue is None:
+            return False
+        return self.open_queue(queue)
+
+    def open_queue(self, queue) -> bool:
+        """Open the fields a curation session offers, in the order it offers.
+
+        The session decides WHICH fields and in WHAT ORDER -- reviewed ones
+        already dropped, ``--limit`` already applied -- and this screen shows
+        them. Only the nested layout is opened: this editor reads a draft
+        from ``<folder>/masks/<stem>.tif`` and saves back to the same place,
+        so a sibling or ``_seg.npy`` set would be read and written somewhere
+        other than where its masks are. ``spacr-make-masks`` refuses those
+        before Qt is imported; this is the second half of the same refusal,
+        for anything that reaches the screen another way.
+
+        :param queue: a :class:`spacr.curation_queue.CurationQueue`.
+        :returns: whether the editor is now on that session.
+        """
+        from ...curation_queue import LAYOUT_NESTED
+
+        if getattr(queue.layout, "kind", None) != LAYOUT_NESTED:
+            LOG.warning("Make Masks edits the nested layout; %s is %s",
+                        queue.folder, getattr(queue.layout, "kind", "unknown"))
+            return False
+        files = [item.image.name for item in queue.items
+                 if item.image is not None]
+        if not files:
+            LOG.info("%s has nothing left to curate", queue.folder)
+            return False
+        if not self._open_folder(str(queue.folder), files=files):
+            return False
+        self._queue = queue
+        self._src_label.setText(
+            f"{queue.folder}  --  {len(files)} to curate this session")
+        self._status_label.setText(queue.describe())
+        return True
+
+    def _note_curated(self, filename: str,
+                      n_objects: Optional[int] = None) -> None:
+        """Record a saved field as done in the session's resume record.
+
+        Only when the folder came from :meth:`open_queue`: a folder opened
+        from the file dialog is not a queue and must not grow a status file
+        it was never asked for. A record that cannot be written is logged
+        and swallowed, because the mask itself is already safely on disk and
+        losing the session's place is the smaller failure of the two.
+
+        :param filename: the image file that was just saved.
+        :param n_objects: how many objects the saved mask had, if known.
+        """
+        if self._queue is None:
+            return
+        from ...curation_queue import mark_state
+
+        stem = os.path.splitext(filename)[0]
+        # READ THE FOLDER OUTSIDE THE TRY. What is meant to be swallowed here
+        # is a FAILURE TO WRITE THE RECORD -- a full disk, a read-only sync
+        # folder -- because the mask is already safe and losing the session's
+        # place is the smaller loss. `self._queue.folder` is not that: if the
+        # guard above ever stops running, it raises AttributeError, and inside
+        # the try that error is logged as "could not record" and the screen
+        # carries on as though a queue it does not have had been updated.
+        folder = self._queue.folder
+        try:
+            mark_state(folder, stem, "done", n_objects=n_objects)
+        except Exception:                                    # noqa: BLE001
+            LOG.warning("could not record %s as done in the curation queue",
+                        stem, exc_info=True)
 
     def _build_ui(self):
         """Lay out the canvas, the tool panel and the navigation row."""
@@ -3345,15 +3440,25 @@ class MakeMasksScreen(QWidget):
             return
         self._open_folder(d)
 
-    def _open_folder(self, folder: str):
+    def _open_folder(self, folder: str,
+                     files: Optional[List[str]] = None) -> bool:
         """List the folder's images and load the first.
 
         :param folder: the folder to open.
+        :param files: the file names to offer, in the order to offer them.
+            ``None`` -- every caller but :meth:`open_queue` -- lists the
+            folder itself, which is what a file dialog or a dropped folder
+            means. A session built by ``spacr-make-masks`` passes its own
+            list, because the queue has already dropped what is reviewed and
+            sorted what is left.
+        :returns: whether a folder was opened. ``False`` means there was
+            nothing in it to edit, which the user has been told about.
         """
-        files = engine.list_images(folder)
+        files = list(files) if files is not None else engine.list_images(folder)
         if not files:
             self._warn("No images", f"Found no image files in: {folder}")
-            return
+            return False
+        self._queue = None
         self._folder = folder
         self._image_files = files
         self._current_index = 0
@@ -3362,6 +3467,7 @@ class MakeMasksScreen(QWidget):
         self._sync_button_states()
         prefs.push_recent_source("make_masks", folder)
         self._body_stack.setCurrentWidget(self._body_splitter)
+        return True
 
     def _load_current(self):
         """Show the current field and whatever mask it already has."""
@@ -3666,6 +3772,9 @@ class MakeMasksScreen(QWidget):
             return
         edits = len(self._log) if self._log is not None else 0
         note = f"  ({edits} edit(s) recorded)" if edits else ""
+        objects = int(np.count_nonzero(np.unique(self._canvas.mask)))
+        self._note_curated(self._image_files[self._current_index],
+                           n_objects=objects)
         self._status_label.setText(f"Saved → {path}{note}")
 
     def _apply_op(self, op, kind: str = "edit", **detail):
