@@ -5696,6 +5696,30 @@ class AppScreen(QWidget):
             self._refresh_usage()
         self._sync_hint_strip_height()
         self._sync_category_hint_height()
+        # ONCE, ON THE FIRST SHOW, AND THIS IS THE BLACK BOX.
+        # `_clear_page_surfaces` runs during construction, and it tags what
+        # exists THEN. Anything a screen builds afterwards -- a section that
+        # mounts on demand, a grid the preferences turn on -- is never
+        # tagged, inherits the blanket ``QWidget { background-color: bg }``
+        # rule, and paints the window colour as a solid rectangle over the
+        # backdrop.
+        #
+        # It looked intermittent because the repair was accidental:
+        # `refresh_ambient_background` re-tags, but only when the ambient
+        # preference actually CHANGED, and its docstring says so. Leaving
+        # the screen and coming back happened to take that path, so the box
+        # appeared on first open and was gone on the second -- which reads
+        # like a paint race and is not one.
+        #
+        # Guarded by a flag rather than run on every show: tagging walks
+        # every child and re-polishes it, and Mask carries 201 settings.
+        if not getattr(self, "_surfaces_cleared_on_show", False):
+            self._surfaces_cleared_on_show = True
+            try:
+                self._clear_page_surfaces()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not clear the page surfaces on first show",
+                          exc_info=True)
         self.refresh_ambient_background()
 
     def hideEvent(self, event) -> None:  # noqa: N802 - Qt override
