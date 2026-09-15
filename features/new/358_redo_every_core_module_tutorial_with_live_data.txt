@@ -736,3 +736,61 @@ GPU QUEUE, 04:27 UTC. The 07_mask preview capture has waited on the shared
     `narration`, never speech). New scene 1 / scene 6-8 wording therefore
     re-renders the affected tracks without --force. Do not add --force: it
     also re-synthesizes tracks whose speech did not change.
+
+07_MASK -- EXACT RESUME SEQUENCE (nothing below has run yet, except step 1,
+which is queued on the GPU lock). Reviewed OPS rows are committed at
+tools/tutorials/lessons/reviews/pending_07_mask_ops_rows.json. The pending_
+prefix keeps the file out of every `<lesson>.*.json` glob, so it cannot be
+read as a fourteenth language.
+
+  R=/mnt/firecuda2/Claude/repo/spacr-358       # or wherever wip/358-lessons is checked out
+  W=/mnt/firecuda2/Claude/toxoplasma_projects/tutorials; ST=$W/refresh_2026-09-09
+  V=$ST/.venv/bin/python; G=<shared gpu.lock>; M="$V $R/tools/run_memory_guarded.py --limit-gib 60 --"
+  export PYTHONPATH=$R:$R/tools/tutorials; cd $R/tools/tutorials
+  CAP=mask_preview_gpu_2026-09-15; COMP=mask_preview_and_explicit_overlay_2026-09-15
+
+  1 [GPU] capture. A failed run needs a NEW --capture-name; the private
+    state guard refuses a name that already has pins.
+      flock $G env PYTHONPATH=$R timeout 7200 xvfb-run -a -s '-screen 0 3840x2160x24' \
+        $M $V capture_refresh.py --module mask --stage $ST --download --preview \
+        --preview-variants --platform xcb --capture-name $CAP --timeout 5400
+    View 04_live_image, 05_live_settings and 07-12 before using the counts.
+  2 Recount independently:
+      $V -c "from mask_preview_evidence import inspect; print(inspect('$ST/captures/$CAP'))"
+  3 Compose (checks live_preview.py/preview_contract.py against $CAP's own commit):
+      $V compose_mask_capture.py --stage $ST --preview-capture $CAP --destination $COMP
+  4 English: in lessons/07_mask.json set scenes 6-8 and the prerequisite's
+    preview sentence from step 2's before/after/restored/minimum_area and
+    parameter_variant_objects, with live_variants.json's diameters. Numbers
+    come only from the measurement.
+  5 Stage: $V stage_lesson.py lessons/07_mask.json --capture-module $COMP --stage $ST
+  6 [GPU] Drafts: flock $G $M $V translate_refresh.py --stage $ST --lessons 07_mask --device cuda
+  7 Review, per language (13): start from lessons/reviews/07_mask.<lang>.json.
+    Apply the pending bundle's objectives[0] and scenes[0], and its exact
+    prerequisite sentence replacement (the old sentence must occur exactly
+    once). Write scenes[5..7] and the preview sentence by reading each
+    changed row's draft against the English; never take a draft wholesale
+    (the leftover draft renamed Home/Live/Time/Mask). Set english_sha256 to
+    the canonical hash of the STAGED 07_mask, then:
+      $V apply_translation_review.py lessons/reviews/07_mask.<lang>.json --stage $ST
+    Then `git diff` every review: only objectives[0], scenes[0], scenes[5-7]
+    and the prerequisite may differ. Delete the pending bundle once applied.
+  8 [GPU] Voices (no --force; changed speech re-renders by fingerprint):
+      flock $G env SPACR_TUTORIAL_WORKSPACE=$ST $M $V $W/tools/render_all_voices.py --lessons 7 --device cuda
+      $V verify_staged_audio.py --stage $ST --lesson 07_mask --languages en es fr hi it ja pt-BR zh-CN
+      $V -c "import subprocess,sys; from pathlib import Path; from check_completed_matrix import voice_matrix
+      m=voice_matrix(Path('$W/tools/render_all_voices.py')); run=lambda *a: subprocess.run([sys.executable,'verify_staged_lesson.py','--stage','$ST','--lesson','07_mask',*a],check=True)
+      [run('--language',l,'--voice',v[0]) for l,v in m.items()]; [run('--caption-language',c) for c in ('da','de','is','ko','nb','sv')]"
+  9 Back up production/07_mask/{video,poster.jpg,final-artifact-checks.json,
+    refresh-status.json} and web-renditions/07_mask to
+    production/07_mask/pre-2026-09-15/. Then:
+      $M $V $W/tools/render_visual_master.py $ST/production/07_mask/visual.json \
+        --timings $ST/production/07_mask/audio/en/af_heart.json --output $ST/production/07_mask/video/07_mask_silent.mp4
+      $V check_completed_matrix.py --stage $ST --lesson 07_mask
+ 10 Rendition (the library checkpoint route is not needed; same as 13_regression):
+      check() proof -> stage_web_renditions.stage_one(Path('$ST'), {'lesson':'07_mask',
+        'scope':'staged final bytes','reconciliation':proof}, publisher with
+        ENCODE_ARGS prefixed '-threads 2 -filter_threads 2')
+      $V verify_staged_lesson.py --stage $ST --lesson 07_mask --web-rendition
+ 11 Candidate: the build() call recorded above (model_promotions=set(MODELS),
+    barcode_promotion=True), then $V verify_release_candidate.py <new candidate>.
