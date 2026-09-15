@@ -1055,7 +1055,10 @@ def test_the_thread_is_joined_when_qt_frees_the_widget():
     import inspect
 
     body = inspect.getsource(F._make_cpu_widget)
-    assert "_join_on_destroy(self, self._thread)" in body
+    # The quit hook is handed over too, so a backdrop freed with its screen
+    # (which never runs `shutdown`) still takes it off `aboutToQuit`.
+    assert ("_join_on_destroy(self, self._thread, "
+            "quit_hook=self._app_quit_join)") in body
     assert "application.aboutToQuit.connect(self._app_quit_join)" in body
 
 
