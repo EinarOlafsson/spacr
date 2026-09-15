@@ -4934,6 +4934,24 @@ def advanced_object_of(key):
     return None
 
 
+def _advanced_lookup_sets(table):
+    """The two membership sets every family in ``table`` is matched against.
+
+    :param table: the category table being regrouped.
+    :returns: ``(spoken_for, filed)`` -- the keys an exempt category has
+        already claimed, and every key the table files anywhere.
+
+    SPLIT OUT BECAUSE `filed` IS THE WHOLE TABLE. spaCR files 37,165 keys
+    across 54 categories, and building that set is most of the cost of
+    matching one family. It was rebuilt for every family, so the regroup paid
+    for it six times over to get six identical answers.
+    """
+    spoken_for = {k for c in _ADVANCED_REGROUP_EXEMPT
+                  for k in table.get(c, ())}
+    filed = {key for members in table.values() for key in members}
+    return spoken_for, filed
+
+
 def _advanced_family_members(table, family_suffixes, family_prefixes=()):
     """Keys belonging to one family, ordered by object then by suffix.
 
@@ -4943,18 +4961,24 @@ def _advanced_family_members(table, family_suffixes, family_prefixes=()):
     last -- so a family is not split in half by spaCR's own inconsistency
     about which end the object name goes on.
     """
-    spoken_for = {k for c in _ADVANCED_REGROUP_EXEMPT
-                  for k in table.get(c, ())}
-    filed = {key for members in table.values() for key in members}
+    spoken_for, filed = _advanced_lookup_sets(table)
     found = []
+    # `seen` MIRRORS `found` ONLY TO BE ASKED. The list is the answer -- its
+    # order is the contract, object then suffix -- but `key in found` on a
+    # list is a linear scan, and this list grows to ~4,900 keys across 706
+    # objects. That made the duplicate check quadratic: ~12 million string
+    # comparisons to file one family, which was most of the regroup's cost
+    # and all of it invisible, because nothing here looks expensive.
+    seen = set()
     for obj in ADVANCED_OBJECT_ORDER:
         candidates = [f"{obj}_{suffix}" for suffix in family_suffixes]
         candidates += [f"{prefix}_{obj}" for prefix in family_prefixes]
         for key in candidates:
-            if key in spoken_for or key in found:
+            if key in spoken_for or key in seen:
                 continue
             if key in filed:
                 found.append(key)
+                seen.add(key)
     return found
 
 
@@ -4967,9 +4991,20 @@ def _regroup_advanced(table):
     is the guard.
     """
     out = dict(table)
+    # COMPUTED ONCE PER FAMILY, NOT TWICE. The pass below that empties the
+    # per-object categories needs the same three member lists the pass at the
+    # bottom files under the family headings, and `out` is not modified
+    # between them in any way that changes which keys match -- so the second
+    # set of calls returned exactly the answers the first had already found.
+    # Three families over 706 objects is ~137 ms of pure Python, and doing it
+    # twice was ~137 ms of it for nothing.
+    by_family = [
+        (heading, _advanced_family_members(out, suffixes, prefixes))
+        for heading, suffixes, prefixes in _ADVANCED_FAMILIES
+    ]
     moved = set()
-    for _heading, suffixes, prefixes in _ADVANCED_FAMILIES:
-        moved.update(_advanced_family_members(out, suffixes, prefixes))
+    for _heading, members in by_family:
+        moved.update(members)
 
     for category, keys in list(out.items()):
         if category in _ADVANCED_REGROUP_EXEMPT:
@@ -4979,8 +5014,7 @@ def _regroup_advanced(table):
         out[category] = [k for k in keys if k not in moved]
 
     family_headings = {heading for heading, _s, _p in _ADVANCED_FAMILIES}
-    for heading, suffixes, prefixes in _ADVANCED_FAMILIES:
-        members = _advanced_family_members(table, suffixes, prefixes)
+    for heading, members in by_family:
         if members:
             out[heading] = members
     return {k: v for k, v in out.items() if v or k in family_headings}
