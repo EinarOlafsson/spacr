@@ -2,6 +2,7 @@
 # Print this machine's memory every INTERVAL seconds until stopped.
 #
 #   tools/ci_memory_telemetry.sh INTERVAL SAMPLES_FILE
+#   tools/ci_memory_telemetry.sh --list-pytest-processes
 #
 # WHY (items 43 and 288, 2026-09-15). Qt shard 0 lost its GitHub runner twice
 # in one day -- "The runner has received a shutdown signal" at [83%] after 71
@@ -19,20 +20,60 @@
 # pytest process's RSS beside the guard's ceiling, and a pytest process that
 # is gone at the next sample is logged with the RSS it last had.
 #
+# EVERY COMMAND LINE IS READ IN FULL (`ps -ww`). Without it ps cuts `args` to
+# $COLUMNS whenever COLUMNS is set, even into a pipe, and a pytest-xdist
+# worker runs with COLUMNS=80. Behind the runner's 54-character interpreter
+# path (/opt/hostedtoolcache/Python/3.12.14/x64/bin/python) that cut falls
+# before "pytest" and before execnet's "sys.stdin.readline", so a sampler
+# started under xdist listed no pytest process at all: run 35012948690, "Fast /
+# Full suite control" and coverage shard 11, pytest_rss=[] beside two 1 GB
+# xdist workers.
+#
+# TEST SEAMS, both unset in CI. SPACR_TELEMETRY_PROCESS_TABLE names an
+# executable printing lines shaped like `ps -ww -eo pid=,rss=,comm=,args=`
+# (RSS in KiB), read in place of ps, so a test can hand the sampler a process
+# that ends without racing a real one. SPACR_TELEMETRY_MAX_SAMPLES stops after
+# that many samples; 0, the default, runs until SIGTERM.
+#
 # Reads /proc and procps only: no sudo, no Python, nothing to install. Stops
 # promptly on SIGTERM, taking its sleep with it, so it never holds the step's
 # output open after the step is done.
 set -u
 
+guard_gb=${SPACR_TEST_MEMORY_GB:-6}
+
+process_table() {
+  if [ -n "${SPACR_TELEMETRY_PROCESS_TABLE:-}" ]; then
+    "$SPACR_TELEMETRY_PROCESS_TABLE"
+  else
+    ps -ww -eo pid=,rss=,comm=,args=
+  fi
+}
+
+# pytest controllers and xdist workers, one "PID RSS_MiB" line each: a python
+# whose command line names pytest, or execnet's worker bootstrap
+# (sys.stdin.readline).
+pytest_processes() {
+  process_table 2>/dev/null |
+    awk '$3 ~ /^python/ && ($0 ~ /pytest/ || $0 ~ /sys\.stdin\.readline/) {
+           printf "%s %d\n", $1, $2 / 1024}'
+}
+
+if [ "${1:-}" = "--list-pytest-processes" ]; then
+  pytest_processes
+  exit 0
+fi
+
 interval=${1:?usage: ci_memory_telemetry.sh INTERVAL SAMPLES_FILE}
 samples=${2:?usage: ci_memory_telemetry.sh INTERVAL SAMPLES_FILE}
-guard_gb=${SPACR_TEST_MEMORY_GB:-6}
+max_samples=${SPACR_TELEMETRY_MAX_SAMPLES:-0}
 mkdir -p "$(dirname "$samples")"
 
 sleeper=""
 trap '[ -n "$sleeper" ] && kill "$sleeper" 2>/dev/null; exit 0' TERM INT
 
 declare -A previous=()
+taken=0
 
 while :; do
   now=$(date -u +%H:%M:%S)
@@ -49,18 +90,12 @@ while :; do
   largest=$(ps -eo rss=,pid=,comm= --sort=-rss 2>/dev/null | head -n 4 |
             awk '{printf "%s[%s]=%dMiB ", $3, $2, $1 / 1024}')
 
-  # pytest controllers and xdist workers: a python whose command line names
-  # pytest, or execnet's worker bootstrap (sys.stdin.readline).
   declare -A current=()
   pytest_rss=""
   while read -r pid rss; do
     current[$pid]=$rss
     pytest_rss+="${rss},"
-  done < <(
-    ps -eo pid=,rss=,comm=,args= 2>/dev/null |
-      awk '$3 ~ /^python/ && ($0 ~ /pytest/ || $0 ~ /sys\.stdin\.readline/) {
-             printf "%s %d\n", $1, $2 / 1024}'
-  )
+  done < <(pytest_processes)
   for pid in "${!previous[@]}"; do
     if [ -z "${current[$pid]+set}" ]; then
       echo "MEMORY $now pytest process $pid ended; last seen at" \
@@ -87,8 +122,12 @@ while :; do
     echo "=== $(date -u +%Y-%m-%dT%H:%M:%SZ)"
     free -m
     df -Pm / /tmp
-    ps -eo pid,rss,etimes,args --sort=-rss | head -n 13 | cut -c1-200
+    ps -ww -eo pid,rss,etimes,args --sort=-rss | head -n 13 | cut -c1-200
   } >> "$samples" 2>&1
+  taken=$((taken + 1))
+  if [ "$max_samples" -gt 0 ] && [ "$taken" -ge "$max_samples" ]; then
+    exit 0
+  fi
   sleep "$interval" &
   sleeper=$!
   wait "$sleeper"
