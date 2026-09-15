@@ -2172,7 +2172,8 @@ def font_px(role_or_px, scale: Optional[float] = None) -> int:
     :param scale: override the preference — used by :func:`stylesheet`,
         which is generating a sheet for a scale that may not be the
         saved one yet. ``None`` reads the preference.
-    :returns: at least 6 px, so a tiny scale cannot collapse text.
+    :returns: at least 1 px, because Qt refuses a pixel size of zero or
+        less; no larger floor is imposed.
     """
     base = FONT_SIZE.get(role_or_px) if isinstance(role_or_px, str) else None
     if base is None:

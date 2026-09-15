@@ -58,7 +58,7 @@ Values:
   uses neutral layered materials over a built-in light field. Legacy Space
   accessors remain for old settings, but Space is not a selectable theme.
 * ``space_seed``: int; retained for deterministic legacy Space backgrounds.
-* ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.75, 2.0].
+* ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].
 * ``figure_save_mode``: ``"print"`` | ``"screen"`` | ``"transparent"``
   (default ``"print"``). Controls the page and figure-element colours used
   for saved figures. ``SPACR_FIGURE_SAVE_MODE`` remains a process-local
