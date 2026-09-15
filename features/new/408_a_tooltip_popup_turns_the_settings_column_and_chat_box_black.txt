@@ -350,17 +350,70 @@ pointer focus -- which is why a screenshot and the steps before it are what
 is asked for.
 
 --------------------------------------------------------------------------------
-2026-09-15 -- THE ONE-BACKDROP RULE IS UNGUARDED IN THE DEFAULT TEST RUN
+2026-09-15 -- THE ONE-BACKDROP TESTS SKIP ONLY WHERE AMBIENT RESOLVES OFF
 --------------------------------------------------------------------------------
 
-Found by the work session's 60-file theme sweep and verified here:
-`tests/qt/test_one_backdrop_for_the_window.py` skips five of its tests with
-`if window.window_backdrop() is None: pytest.skip("the ambient backdrop is off
-in this configuration")` (lines 69, 94, 119, 157, 223). In the test sandbox
-the ambient preference is whatever the sandbox's defaults say, so on a machine
-or runner where it resolves off, the rule this whole item keeps returning to is
-never checked -- and the sweep recorded exactly that, 5 skips in that file.
+CORRECTED BEFORE PUSH. The first version of this note said the rule was
+"never checked" in the default test run. Measured, that is wrong:
 
-Not a bug in the rule; a hole in when it is checked. The fix is to give those
-tests the configuration they need (ambient forced on in the sandboxed
-preferences) rather than skipping when they do not get it.
+  * `tests/qt/test_one_backdrop_for_the_window.py` has five
+    `pytest.skip("the ambient backdrop is off in this configuration")`
+    guards, which fire only when the window has no shared backdrop.
+  * `DEFAULT_AMBIENT_ENABLED = True`, so a fresh test sandbox has it on.
+  * On the last completed CI Qt run, all four non-gui tests in that file
+    PASSED; none skipped.
+  * Locally, offscreen and xvfb, they pass -- and still pass when the
+    sandboxed preference is staged OFF at collection time, so the per-test
+    sandbox starts from the defaults again.
+
+So the rule is checked on CI and in a default run. The skips can fire only
+where the preference resolves off -- for example under the preset at
+spacr/qt/preferences.py:626, which sets `_KEY_AMBIENT_ENABLED: False` -- which
+was the obvious candidate for how the work session's sweep recorded them,
+and it is RULED OUT: safe mode is process-wide (`_SAFE_MODE`), but
+tests/qt/test_safespacr_gets_in_when_a_preference_breaks_it.py puts it back
+through monkeypatch, and running that file before the one-backdrop file in one
+process gives 9 passed, 0 skipped. The sweep's skips are therefore not
+reproduced by any mechanism tried here; the work session is asked for its -rs
+lines and invocation. A change that forces the preference on inside the
+file and fails instead of skipping is prepared, and verified to fail (not
+skip) with the window backdrop staged absent, but is held until the skips are
+reproduced, so it does not land on an unmeasured claim.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- FOUND BY THE WORK SESSION: A CROSS-FILE ENVIRONMENT LEAK
+--------------------------------------------------------------------------------
+
+The one-backdrop skips were real and could not be reproduced from one file,
+because the cause is another file. Verified here after the work session found
+it:
+
+    test_one_backdrop_for_the_window.py alone             5 passed, 0 skipped
+    test_crash_recovery_drops_the_backdrop.py first,
+      then that file, one process                          5 SKIPPED
+      (at :70, :95, :120, :158 and :223, all "the ambient backdrop is off")
+
+MECHANISM. `take_the_backdrop_out_of_this_launch` (spacr/qt/crash_recovery.py
+:141-142) writes SPACR_NO_GL and SPACR_NO_BACKDROP straight into os.environ,
+and `get_ambient_enabled()` reads the environment ahead of the stored
+preference. The crash-recovery test's "cleanup" is what keeps it: its
+`monkeypatch.delenv("SPACR_NO_BACKDROP")` runs while the variable EXISTS, so
+monkeypatch records the value and restores it at teardown. The work session
+also found that a function-scoped restore fixture cannot fix it (it snapshots
+pollution an earlier test in the same file already made); it has to be
+module-scoped. Fixed by the work session in 60386cf08.
+
+WHAT IT MEANT. The one-backdrop rule was checked when that file ran alone and
+on CI runs where xdist put the two files on different workers, and was
+silently unchecked -- green, asserting nothing -- in any process where the
+crash-recovery file ran first. This file leans on that rule, so the guard it
+cites was not always running.
+
+THE PREFERENCE-FORCING CHANGE PREPARED HERE WAS DISCARDED, and it would not
+have worked: forcing the stored preference on cannot beat an environment
+variable read ahead of it, so under the leak it would have turned five skips
+into five failures without fixing the cause.
+
+SAME SHAPE, UNCHECKED: `spacr/qt/laptop_mode.py:196` also writes
+SPACR_NO_BACKDROP into os.environ, and `spacr/qt/safespacr.py:31` writes
+SPACR_NO_GL. Whether their tests leak the same way has not been measured.
