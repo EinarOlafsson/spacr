@@ -55,6 +55,50 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 pytestmark = pytest.mark.qt
 
+
+@pytest.fixture(autouse=True)
+def _an_unstyled_application(qapp):
+    """Measure every canvas on an application with NO stylesheet.
+
+    The spaCR theme sheet opens with a blanket
+    ``QWidget { background-color: transparent; ... }``. While that sheet is
+    on the application, the style-sheet style paints no background for ANY
+    widget -- a stock ``FigureCanvasQTAgg`` included -- and a stock canvas
+    measures 98.0% ground instead of 0.0%. The ablations quoted in this file
+    were taken without it.
+
+    Nothing in this file applies that sheet, but the process-wide
+    application is shared with every Qt test that ran before it on the same
+    worker. ``tests/qt/conftest.py`` restores the canonical sheet whenever a
+    test changed it, and applies the restore at the START of the next
+    ``tests/qt`` test. So whether this file saw a styled application depended
+    on which files xdist scheduled ahead of it on the same worker: CI run
+    34961482728 (gw1) failed ``test_a_stock_matplotlib_canvas_is_the_opaque_one``
+    with exactly 98.0%, and that is the figure the theme sheet gives.
+
+    Clearing the sheet on the way IN, not only on the way out, is what makes
+    the answer this file's own. It is also the stricter rig: under the theme
+    sheet the transparency guards above would pass even if
+    ``show_live_canvas`` stopped clearing the canvas, because the sheet
+    would be doing that work for it.
+    """
+    from PySide6.QtCore import QEvent
+
+    before = qapp.styleSheet()
+    if before:
+        qapp.setStyleSheet("")
+    try:
+        yield
+    finally:
+        if before and qapp.styleSheet() != before:
+            # Re-styling while pytest-qt is still destroying this test's
+            # widgets dispatches events into half-dead objects, so drain
+            # the deferred deletions first -- as tests/qt/conftest.py does.
+            qapp.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+            qapp.processEvents()
+            qapp.setStyleSheet(before)
+
+
 @pytest.fixture(autouse=True)
 def _transparent_figure_preference(monkeypatch):
     """Make the transparent-background precondition explicit and isolated."""
