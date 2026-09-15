@@ -14,6 +14,37 @@ import pytest
 from spacr.qt import laptop_mode as LM
 
 
+@pytest.fixture(autouse=True)
+def _this_process_has_suppressed_nothing_yet():
+    """Start every test from "we have not turned the backdrop off".
+
+    `LM._suppressed_here` is a MODULE GLOBAL recording whether this process
+    suppressed the ambient backdrop, so that `apply` only ever restores what
+    it took away. That is right for the shipped code and it survives between
+    tests, which makes it inherited state in a suite.
+
+    IT IS A REAL CI RED AND NOT A HYPOTHETICAL. `spacr/qt/app.py:5495` applies
+    laptop mode while a MainWindow is built, and on a small runner -- two
+    cores, little memory -- that path sets this global True. Every later test
+    in the process then sees an `apply()` that reports "ambient backdrop
+    restored" when it asked for nothing of the kind. It cannot reproduce on a
+    large development machine, where laptop mode never turns on and the global
+    is never set, which is why
+    `test_apply_with_no_argument_measures_the_machine` was green here and red
+    on the runner.
+
+    The four tests below that set the flag by hand are left alone: saying the
+    precondition where it matters is documentation, and this fixture is the
+    floor under the ones that do not.
+    """
+    before = LM._suppressed_here
+    LM._suppressed_here = False
+    try:
+        yield
+    finally:
+        LM._suppressed_here = before
+
+
 def test_usable_cores_falls_back_to_cpu_count_without_scheduler_affinity(monkeypatch):
     """``os.sched_getaffinity`` is Linux-only; elsewhere the machine is still counted."""
     monkeypatch.delattr(os, "sched_getaffinity", raising=False)
