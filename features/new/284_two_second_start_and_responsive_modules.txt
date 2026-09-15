@@ -291,3 +291,156 @@ and loads torch, and a training run with a 110 GB watchdog was holding 56 GB
 at the time. Whoever picks this up should re-run
 `tools/spacr_startup_benchmark.py --offscreen --record-only` FIRST and get a
 current number, rather than optimising against this one.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- WHAT THE REMAINING STALLS ARE, AND IT IS ONE FUNCTION
+--------------------------------------------------------------------------------
+
+The note above leaves regression at 8,307 ms and mask at 5,469 ms and says
+they are "the screen-build cost every heavy module pays". THAT WAS TRUE AS FAR
+AS IT WENT AND IT WAS NOT THE END OF THE ROAD. Leave-one-out across the nine
+application-wide event filters names one of them:
+
+    spacr/qt/theme.py  _SheetsEveryWindowThatAppears.eventFilter
+        76.9% of mask's module open        2,717 ms
+        70.9% of regression's              3,783 ms
+
+THE MECHANISM IS NOT THE FILTER'S EXISTENCE. It is that QT CALLS A PARENTLESS
+WIDGET A WINDOW -- `QWidget::isWindow` is `window_flags & Qt::Window` and Qt
+forces that flag on when the parent is null. So a `QSpinBox()` built on its own
+line, one statement before `layout.addWidget(it)`, IS a window for as long as
+it takes to reach the next statement, and a filter installed on the
+QApplication hands it all ~49 KB of the composed sheet for a window it is
+about to stop being.
+
+    one offscreen registry sweep, 45 modules
+    the whole filter                                   10,518 ms
+    widgets that are windows only for want of a parent  3,817 ms
+
+and OVER HALF OF THAT IS ONE MODULE SCREEN SHEETED THREE TIMES, because a
+screen is built parentless and collects Polish events all through its own
+construction: 11 x 7 ms while it is still empty, then 11 x 255 ms and
+10 x 291 ms once it has grown ~1,500 widgets. The sheet is byte-identical all
+three times; what makes the repeat cost 255 ms rather than 7 ms is the widgets
+that arrived in between.
+
+FIXED in "A parentless widget is not a window, and 3,817 ms says so", which
+skips the Polish for a widget that is parentless, never shown, has no native
+handle and whose windowType is Window -- and skips NOTHING else. Menus,
+tooltips, dialogs and real windows all keep their Polish sheeting, and a
+module page is sheeted on its Show because `_a_page_joined_the_stack` marks it
+as a sheet target before it joins the stack.
+
+IT ALSO FIXED A BUG NOBODY HAD FILED. Qt resolves QSS from the NEAREST
+stylesheet first, so a copy of the sheet left on an intermediate widget beat a
+more specific rule on the screen root -- and those copies carry the GLOBAL
+sheet only, because `register_widget_qss` blocks live on the root alone. Every
+widget a registered block named was therefore painted the plain `fg`. 31
+widgets change colour with the copies gone, every one of them TO the colour
+its own block asks for, and 42 move because a label sized by its own block is
+a different height. No test held any of those colours in either direction;
+one does now.
+
+WHAT IS STILL OWED, unchanged from the note above and NOT closed by this:
+
+  * THE CLOSE-OUT MEASUREMENT. This file's own rule is that a re-measurement
+    decides, not an argument, and the numbers above are a sweep and a
+    leave-one-out rather than the benchmark this item closes against. The
+    run belongs AFTER the theme change lands, on a quiet machine, through
+    `tools/spacr_startup_benchmark.py`. Until then this item stays open and
+    the 2026-09-14 table above is the last word on the budgets.
+  * peak resident memory still has no threshold (`spacr_startup_benchmark.py`
+    asks only that it be "reported and positive").
+  * `MODULE_BUDGET = 20.0` in `tests/qt/test_opening_things_does_not_hang.py`
+    is still a hang detector rather than a performance gate.
+
+  The last two are deliberate and stay deliberate: a gate set at today's
+  numbers bakes in whatever regression is left.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE CLOSE-OUT MEASUREMENT. BUDGETS MET, STALL CEILING NOT.
+--------------------------------------------------------------------------------
+
+The note above promised this run and said the item stays open until it
+happens. It has happened. THE ITEM STILL DOES NOT CLOSE, and the reason is
+specific rather than general.
+
+WHAT WAS MEASURED, and under what conditions, because the conditions are the
+first thing to attack in a performance claim. Another session runs Qt test
+batches on this box continuously and I could not get a quiet machine at any
+point tonight. So the wall-clock below is PAIRED BUT CONTAMINATED -- both arms
+carried similar load, the deltas are indicative, THE ABSOLUTE NUMBERS ARE
+INFLATED. I ran an uncontaminatable measurement beside it rather than pretend
+otherwise.
+
+  THE COUNT, which load cannot move. Sheet applications during five module
+  opens, by wrapping `theme._sheet_one_window`:
+
+                      sheetings   orphan   QSS handed out
+      baseline run 1      3,483      353         240.6 MB
+      baseline run 2      3,355      281         231.7 MB
+      fixed    run 1      1,886        4         130.3 MB
+      fixed    run 2      1,886        4         130.3 MB
+
+      mask              645 ->   336     orphan 126 -> 1
+      measure           323 ->   171     orphan  41 -> 1
+      regression      1,581 ->   953     orphan  85 -> 1
+      classify_merged   931 ->   424     orphan 100 -> 1
+
+  44-46% OF ALL SHEET APPLICATIONS REMOVED, and the same share of the QSS
+  bytes handed out. Skipping ~300 orphan sheetings removes ~1,500 in total,
+  because each one re-polishes a subtree and generates more Polish events.
+
+  AND THE VARIANCE IS ITSELF THE BUG, which is the part worth keeping. The
+  baseline is NOT reproducible -- 3,483/353 then 3,355/281 from identical
+  code, because how many Polish events land while a widget is still parentless
+  depends on how the event loop interleaves with construction. The fixed arm
+  is IDENTICAL TO THE BYTE across runs. The change removes a RACE, not only
+  work: a number taken on the fixed code can be compared with another one, and
+  a baseline number could not be compared with itself.
+
+  THE WALL CLOCK, contaminated as described, one run each arm:
+
+      module            open before -> after     worst stall before -> after
+      regression          9.64 -> 6.88 s  -29%     8,932 -> 6,459 ms  -28%
+      mask                6.64 -> 4.85 s  -27%     6,062 -> 4,514 ms  -26%
+      classify_merged     6.50 -> 3.99 s  -39%     5,760 -> 3,591 ms  -38%
+      measure             3.97 -> 2.59 s  -35%     3,612 -> 2,412 ms  -33%
+      annotate            0.25 -> 0.28 s           253 ->   276 ms
+      __home__            2.84 -> 3.05 s           464 ->   519 ms
+
+  The last two moved the wrong way and ARE NOT REPORTED AS A REGRESSION:
+  under that load, on one run each, a 55 ms move across the 500 ms line is
+  noise. It is named only because it is the entire reason the violation count
+  went 47 -> 50, and a reader comparing those two totals deserves to know
+  that is all it was.
+
+WHAT THIS SETTLES
+
+  * THE BUDGETS IN THIS ITEM ARE MET, and met with room. 0 modules over
+    budget in BOTH arms -- before the change as well as after -- with the
+    worst module at 9.64 s against 10.0, and that measured UNDER ADVERSE
+    LOAD. A quiet machine can only be faster. The 2026-09-14 table above,
+    which had measure at 13.23 s and OVER, is superseded.
+
+WHAT THIS DOES NOT SETTLE, AND WHY THE ITEM STAYS OPEN
+
+  * THE 500 ms EVENT-LOOP STALL CEILING IS STILL BREACHED, and not
+    marginally. regression stalls 6,459 ms after the change; the ceiling is
+    500. That is thirteen times over, which no amount of load noise accounts
+    for. The acceptance bullet forbidding "a stopped animation or multi-second
+    GUI gap" is therefore STILL NOT MET, by regression, mask and
+    classify_merged.
+
+    The theme filter was 70-77% of those opens and this change removed the
+    parentless-Polish share of it. What is left is the rest of the screen
+    build, and it is a different piece of work from this one.
+
+  * peak resident memory still has no threshold, and `MODULE_BUDGET = 20.0`
+    in `tests/qt/test_opening_things_does_not_hang.py` is still a hang
+    detector. Both deliberate: a gate set at tonight's numbers bakes in a
+    13x stall.
+
+SO: the item's own budgets pass and its own acceptance text does not. It stays
+open on the stall ceiling alone, which is a smaller and much better-defined
+thing than what it was open on this morning.
