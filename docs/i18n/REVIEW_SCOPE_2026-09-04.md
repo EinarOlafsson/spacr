@@ -51,17 +51,28 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,835 | Remainder | Reviewed API blocks | Of 10,534 | Remainder |
+| Language | Reviewed runtime records | Of 5,845 | Remainder | Reviewed API blocks | Of 10,534 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 191 | 3.27% | 5,644 | 539 | 5.12% | 9,995 |
-| German | 154 | 2.64% | 5,681 | 497 | 4.72% | 10,037 |
-| Spanish | 163 | 2.79% | 5,672 | 378 | 3.59% | 10,156 |
-| Simplified Chinese | 477 | 8.17% | 5,358 | 648 | 6.15% | 9,886 |
-| Portuguese | 154 | 2.64% | 5,681 | 609 | 5.78% | 9,925 |
-| Hindi | 236 | 4.04% | 5,599 | 542 | 5.15% | 9,992 |
-| Korean | 373 | 6.39% | 5,462 | 615 | 5.84% | 9,919 |
-| Icelandic | 324 | 5.55% | 5,511 | 1,110 | 10.54% | 9,424 |
-| French | 169 | 2.90% | 5,666 | 538 | 5.11% | 9,996 |
+| Swedish | 201 | 3.44% | 5,644 | 539 | 5.12% | 9,995 |
+| German | 164 | 2.81% | 5,681 | 497 | 4.72% | 10,037 |
+| Spanish | 173 | 2.96% | 5,672 | 378 | 3.59% | 10,156 |
+| Simplified Chinese | 487 | 8.33% | 5,358 | 648 | 6.15% | 9,886 |
+| Portuguese | 164 | 2.81% | 5,681 | 609 | 5.78% | 9,925 |
+| Hindi | 246 | 4.21% | 5,599 | 542 | 5.15% | 9,992 |
+| Korean | 383 | 6.55% | 5,462 | 615 | 5.84% | 9,919 |
+| Icelandic | 334 | 5.71% | 5,511 | 1,110 | 10.54% | 9,424 |
+| French | 179 | 3.06% | 5,666 | 538 | 5.11% | 9,996 |
+
+*Regenerated 2026-09-15, fourth pass, on nightly b03e9740b, for 286's
+performance levels. The runtime denominator moved 5,835 -> 5,845: ten `ui`
+captions, the five level notes and the five hardware labels, which 89094e3c4
+catalogued together with a reviewed record for each in all nine locales
+(`docs/i18n/reviewed/runtime/<locale>/2026-09-15-performance-levels.json`).
+So EVERY REVIEWED RUNTIME COUNT IS THE THIRD PASS'S PLUS TEN: sv 191 -> 201,
+de 154 -> 164, es 163 -> 173, zh_CN 477 -> 487, pt 154 -> 164, hi 236 -> 246,
+ko 373 -> 383, is 324 -> 334, fr 169 -> 179 (2,241 -> 2,331 in all), and every
+runtime remainder is unchanged. No public symbol and no reviewed API record
+moved, so the API columns are the third pass's as they stood.*
 
 *Regenerated 2026-09-15, third pass, when local nightly (91ac88b51) was
 rebased onto the work session's batch (5fce82971). Neither parent's rows hold
