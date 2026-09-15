@@ -875,3 +875,27 @@ BRANCH BASE MOVED UNDER THIS WORK (measured 04:3x UTC). wip/358-lessons was
   including a literal "<src>" if that run was saved with the placeholder.
   Loading could prefer the shipped name for the example pack, or ignore a
   src that is still a <placeholder>.
+
+07_MASK CLEAN RECAPTURE mask_preview_gpu_2026-09-15b -- THE COUNTS OF RECORD.
+  GPU lock 04:43:23, exit 0 at 04:44:35. 1.5.0.7 at d73621b58, completed.
+  Stale settings removed beforehand (example settings folder = fresh
+  download, diff -r). Checked mid-run: Source =
+  /home/olafsson/.cache/spacr/example_data/plate1 (not <src>). The shipped
+  pack's legacy keys were migrated: cell/nucleus/pathogen_flow_threshold
+  100.0; cell and pathogen_cellprob_threshold -1.0, nucleus 0.0. The pack
+  sets no diameter, so Live used its 30 px default. The field came through
+  the Choose image… dialog (plate1 E01 F001).
+  Counts (live_variants.json / preview_outputs.json):
+    baseline 105 cell labels; minimum area 510 px (median area + 1) -> 52;
+    restored -> 105; diameter 30 -> 60 rerun -> 36 labels.
+  INDEPENDENT RECOUNT (mask_preview_evidence.inspect): 105 -> 52 at 510 ->
+  105, variant 36. Matches exactly.
+  OBJECT COMPARISON (baseline vs diameter-60 arrays): foreground IoU 0.832;
+  median object area 509 px at 30 vs 6,862 px at 60 (smallest 15 vs 151);
+  only 33 of the 105 baseline objects have a best-match IoU >= 0.9, and 66
+  have no overlapping partner. The 30 px default splits this field into
+  many small objects, and 60 px gives cell-sized ones. Scene 8's "fewer
+  labels do not establish a better model; compare boundaries with the
+  image" is exactly the right claim. No narration may rank either setting.
+  Old narration numbers (51 -> 25 -> 51 at 5,642; 42 after 30 -> 60) are
+  retired. The diameter step itself (30 -> 60) is unchanged.
