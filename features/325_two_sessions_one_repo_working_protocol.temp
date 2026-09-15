@@ -7579,3 +7579,27 @@ SearchThresholds, 5 stale docstrings); I catalogue them on it and we push
 together. Your ml.py dead-note removal (8254c5d13) also closes the gate's last
 real ml.py gap. spacr/ops_engine.py is a new module at 87.76% -- mine, being
 brought to 100% next.
+2026-09-15 — HOME (Claude, branch wip/288-ci-crash-tolerant): .github CLAIM FOR
+288 -- CRASH-TOLERANT COVERAGE GATE AND QT SHARD MEMORY TELEMETRY
+--------------------------------------------------------------------------------
+
+Claimed before the first workflow edit, on wip/288-ci-crash-tolerant off
+nightly d8b8f40d7 (not pushed; lands by cherry-pick):
+
+  .github/workflows/tests.yml
+    coverage-combine, step "Gate on the per-module coverage ratchet
+    baseline": add `--shard-integrity "$SPACR_COVERAGE_INPUT" --shard-count
+    12` (and that step's SPACR_COVERAGE_INPUT env), so a shard that lost a
+    crashed worker's coverage and could not recover it fails as an
+    INCOMPLETE MEASUREMENT (exit 3) instead of as thirteen false
+    regressions. qt job: pass `memory_telemetry_seconds: 30`.
+  .github/workflows/_pytest-suite.yml
+    new input `memory_telemetry_seconds` (default 0, so no other suite
+    changes); when > 0 the test step prints memory, swap, disk, OOM-kill
+    count and the top RSS processes into the live log every N seconds and
+    into a file that is uploaded as an artifact and printed on failure.
+
+No trigger, concurrency, timeout, matrix, worker count or deploy condition
+changes. The coverage shard step's command line is unchanged; its tool
+tools/run_coverage_batches.py and the gate tools/verify_module_coverage.py
+change with it. No edit to tools/coverage_baseline.json.
