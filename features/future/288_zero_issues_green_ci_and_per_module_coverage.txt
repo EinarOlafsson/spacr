@@ -3763,3 +3763,101 @@ loosening. A test also checks that the shard count agrees across the matrix,
 --shard-count and the check. `tests/test_module_coverage_ratchet.py` is
 updated for the v2 report. Together with test_ci_suite_classification and
 the other workflow tests, 95 passed.
+
+
+--------------------------------------------------------------------------------
+2026-09-15 -- A CRASHED WORKER DROPS ITS COVERAGE. THE GATE NOW RECOVERS IT, OR
+              SAYS "INCOMPLETE MEASUREMENT" -- NEVER "REGRESSION"
+--------------------------------------------------------------------------------
+
+Branch wip/288-ci-crash-tolerant off nightly d8b8f40d7, not pushed:
+3ddd933d1 (325 claim), 55b97f378 (recovery + gate), cf6acebc3 (Qt memory
+telemetry; see item 43).
+
+WHY. Dispatched tests run 34989909231 on 2a84d1d60: the ratchet failed 13
+modules, some impossible (spacr/qt/widgets/pivot_spec.py from 100% to 24
+uncovered statements), in a run where xdist workers segfaulted in coverage
+shard 0 (test_dnd_dropzone), shard 9 (the make-masks segmentation workbench)
+and twice in min-deps.
+
+THE MECHANISM, MEASURED. pytest-cov writes a process's data when its session
+FINISHES. Toy package, 2 workers, --dist loadfile, --cov-branch (spacr env:
+pytest-xdist 3.8.0, pytest-cov 7.1.0, coverage 7.15.4): test_alpha PASSED on
+gw0; gw0 then took os.kill(SIGSEGV) in a later test; xdist replaced it and
+re-ran the crashing test elsewhere; "1 failed, 9 passed". The combined data
+held alpha.py line 1 (the import-time def) of lines 1-4; the same run without
+the kill held 1-4. Every line a dead worker measured is gone, INCLUDING the
+tests it reported as passed, and the ratchet reads that as lost coverage.
+
+THE FIX.
+
+  RECOVER. tools/run_coverage_batches.py loads a controller-side plugin,
+  tools/pytest_plugins/xdist_coverage_ledger.py, in every batch. It records
+  per worker the files it reported, whether pytest-cov's cov_worker_node_id
+  came back (the only proof its data file was written), and a dead worker's
+  exit status (execnet's Popen handle). After the batch every file whose data
+  is missing -- a lost worker's files, the test it was running, collected
+  tests nobody reported, or ALL files if the batch left no ledger -- is re-run
+  ON ITS OWN, serially, with --cov-append and the same coverage options into
+  its own data file (.coverage.shard-NN.batch-NNN-recovery-NNN): 2 attempts,
+  1800 s each. One file per process, so a file that crashes again takes
+  nothing else with it. The outcome is written to
+  spacr-coverage-integrity.shard-NN.json after EVERY batch (a shard killed
+  part-way records "k of N") and uploads with the shard's data. Nothing is
+  hidden: the batch's exit status is still the job's, and an unrecovered file
+  fails the shard.
+
+  NAME WHAT CANNOT BE RECOVERED. Gate rule (f): the coverage-combine gate step
+  adds `--shard-integrity "$SPACR_COVERAGE_INPUT" --shard-count 12`. A shard
+  with no record, unfinished batches, an unrecovered file, or discarded
+  unreadable data no lost worker explains makes the run an INCOMPLETE
+  MEASUREMENT: exit 3 (never a pass), that headline, and every rise lost data
+  can cause (uncovered statements and branches) listed UNCONFIRMED instead of
+  ERROR. A pragma or excluded-line rise comes from the source, so it stays an
+  ERROR and exits 1. Recovered losses print RECOVERED and are judged normally.
+  Baseline writes refuse an incomplete measurement. Report schema v3.
+
+  NAME HOW THE WORKER ENDED (coordinator's addition). xdist logs a segfault and
+  tests/conftest.py's memory guard (os._exit(3) above SPACR_TEST_MEMORY_GB,
+  default 6) identically, "node down: Not properly terminated", and both lose
+  the data the same way. The exit status tells them apart and every loss line
+  says which -- "was killed by SIGSEGV (a segfault: the crash family of item
+  43)" or "was ended by the test memory guard (exit 3 ...)" -- with a tally on
+  the Shard integrity line. The first is item 43's; the second is a test or a
+  worker that needs more than 6 GB.
+
+TESTS. 132 passed together with test_ci_concurrency, test_ci_suite_
+classification, the hung/wedged-suite tests, test_quality_gate and both
+dependency-profile tests; 164 in the tools/features meta tests.
+  tests/test_coverage_ratchet_rules.py, rule (f). NEGATIVE CONTROL: a real
+  drop with every shard's record complete is still "ERROR: demo/logic.py:
+  uncovered statements rose from 1 to 2", exit 1, no UNCONFIRMED. Also: a
+  recovered crash beside a real drop is still a regression; an unrecovered
+  crash makes the rises UNCONFIRMED and exits 3, even with no count moved; a
+  missing, unfinished, unreadable or wrong-shard-count record is incomplete; a
+  new pragma is still an ERROR; an unexplained discard is incomplete; baseline
+  writes refuse; the two flags come together; the gate reads where the combine
+  job downloads; the shard count agrees in four places; the loss kind is named.
+  tests/test_a_crashed_coverage_worker_cannot_hide_lost_coverage.py: ledger
+  rules, exit-status naming, per-file recovery arguments (no -n,
+  --cov-append, own data file), a file that crashes again fails the shard, a
+  missing ledger re-runs everything, a shard stopped part-way is incomplete --
+  and REAL runs under xdist + pytest-cov: a worker segfaults after a test on
+  it PASSED; with recovery OFF (the control) alpha's body is missing and the
+  gate says incomplete, with it ON the lines are back and the gate says
+  complete. The same for a real exit-3 worker (named memory-guard), and a
+  healthy batch whose ledger shows both workers returned data and re-runs
+  nothing.
+
+WHAT THE NEXT RUN SHOULD SAY. A crash like shard 0's or 9's costs a serial
+re-run of that worker's files and prints RECOVERED; pivot_spec.py-style false
+regressions should go. What the ratchet still reports is then real, or
+UNCONFIRMED beside a named INCOMPLETE MEASUREMENT line. The job still fails
+while a coverage shard's TESTS fail, since the crash is still a failed test.
+
+OBSERVED, NOT FIXED. An xdist session can hang for good after a worker crash
+when the replacement worker arrives with no work left (repeatedly on a
+two-file toy, with and without the ledger plugin; CI's crashes today all had
+work left and finished). A coverage batch hung that way burns the job budget;
+its record then says "finished k of N" and the gate says INCOMPLETE, not
+regression. The toy tests pass --max-worker-restart=0 to stay deterministic.
