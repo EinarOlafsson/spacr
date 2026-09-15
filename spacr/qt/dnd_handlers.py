@@ -655,6 +655,21 @@ def _mask_drop_unknown() -> Dict[str, Any]:
             "accepted": True, "alternatives": []}
 
 
+def _mask_src_guess(path: Path) -> Path:
+    """Where ``src`` should point before the filesystem has answered.
+
+    A drop that cannot be classified inside the decision budget still fills
+    ``src`` at once, and the guess is corrected when the worker returns. A
+    path with a suffix is guessed to be a file, so ``src`` gets its folder:
+    the Mask pipeline reads a folder, and naming the file there would be
+    wrong for exactly as long as the worker takes.
+
+    :param path: the dropped path.
+    :returns: ``path.parent`` for a path with a suffix, else ``path``.
+    """
+    return path.parent if path.suffix else path
+
+
 def scan_mask_drop(path) -> Dict[str, Any]:
     """Everything a mask drop asks the filesystem about one path. Worker-safe.
 
@@ -866,8 +881,9 @@ class MaskDropHandler(DropHandler):
         if not facts.get("undecided"):
             self._apply_facts(path, screen, facts)
             return
-        _set_src_on(screen, str(path))
-        _log(screen, f"[drop] mask src = {path}\n")
+        guess = _mask_src_guess(path)
+        _set_src_on(screen, str(guess))
+        _log(screen, f"[drop] mask src = {guess}\n")
         _scan_then(
             screen,
             lambda: self._facts(path),
@@ -890,7 +906,7 @@ class MaskDropHandler(DropHandler):
             case does not log the same line twice.
         """
         src = path.parent if facts.get("is_file") else path
-        if not src_already_set or str(src) != str(path):
+        if not src_already_set or str(src) != str(_mask_src_guess(path)):
             _set_src_on(screen, str(src))
             _log(screen, f"[drop] mask src = {src}\n")
         if not facts.get("is_file"):
