@@ -263,3 +263,404 @@ def test_what_is_folded_is_remembered_for_the_next_visit(
     finally:
         third._magnifier.close()
         third.close_folded()
+
+
+# ---------------------------------------------------------------------------
+# 3. The model zoo's Cellpose models, and the Model zoo button
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def a_zoo(tmp_path, monkeypatch):
+    """A zoo with a local Cellpose model, a downloaded remote one, a remote
+    one not downloaded, and a detector that Cellpose cannot load."""
+    from spacr import model_zoo
+    from spacr.model_zoo import ModelEntry
+    from spacr.qt.widgets import model_zoo_picker
+
+    downloads = tmp_path / "downloads"
+    downloads.mkdir()
+    local = tmp_path / "lab_cells_v2.CP_model"
+    local.write_bytes(b"weights")
+    (downloads / "cpsam_plaque_r3").write_bytes(b"weights")
+    entries = [
+        ModelEntry(key="lab_cells_v2", name=local.name, kind="cellpose",
+                   source="local", path=str(local)),
+        ModelEntry(key="toxoplasma_plaque_v1", name="cpsam_plaque_r3",
+                   kind="cellpose", source="remote"),
+        ModelEntry(key="toxoplasma_pv_v1", name="cpsam_v2_toxo_r2",
+                   kind="cellpose", source="remote"),
+        ModelEntry(key="toxoplasma_well_detector_v1",
+                   name="yolo_welldetect_v3.pt", kind="detector",
+                   source="remote"),
+    ]
+    asked = []
+
+    def catalogue(**kwargs):
+        asked.append(kwargs)
+        return list(entries)
+
+    monkeypatch.setattr(model_zoo, "catalogue", catalogue)
+    monkeypatch.setattr(model_zoo_picker, "remembered_model_dir",
+                        lambda: str(downloads))
+    return {"local": str(local), "downloaded":
+            str(downloads / "cpsam_plaque_r3"), "asked": asked,
+            "downloads": downloads}
+
+
+def _rows(combo):
+    return [(combo.itemText(i), combo.itemData(i),
+             combo.model().item(i).isEnabled()) for i in range(combo.count())]
+
+
+def test_the_model_list_is_cpsam_and_every_cellpose_model_in_the_zoo(
+        qtbot, qt_theme_applied, a_zoo):
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        rows = _rows(made._cp_model)
+        assert rows[0] == ("cpsam", "cpsam", True), "stock cpsam first"
+        assert ("lab_cells_v2", a_zoo["local"], True) in rows
+        assert ("toxoplasma_plaque_v1", a_zoo["downloaded"], True) in rows, (
+            "a zoo model downloaded into the picker's folder is selectable")
+        assert ("toxoplasma_pv_v1 (not downloaded)", None, False) in rows, (
+            "one not downloaded is listed, greyed out, with no path to load")
+        assert not any("yolo" in text or "well_detector" in text
+                       for text, _data, _on in rows), (
+            "the zoo's YOLO detector is not a Cellpose model")
+        assert all(call.get("block") is False for call in a_zoo["asked"]), (
+            "building the screen never waits on the network")
+        assert made._cp_model.currentData() == "cpsam"
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_the_model_zoo_button_opens_the_cellpose_zoo_and_selects_the_pick(
+        qtbot, qt_theme_applied, a_zoo, monkeypatch):
+    from spacr.qt.widgets import model_zoo_picker
+
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        button = made._cp_model_zoo_btn
+        assert button.text() == "Model zoo…"
+        row = made._cp_model.parentWidget()
+        assert button.parentWidget() is row, "the button sits beside the list"
+        assert row.layout().indexOf(made._cp_model) == 0
+        assert row.layout().indexOf(button) == 1
+
+        opened = []
+        # The picker downloads the model the combo showed greyed out.
+        fetched = a_zoo["downloads"] / "cpsam_v2_toxo_r2"
+
+        def choose(parent=None, kinds=None):
+            opened.append((parent, kinds))
+            fetched.write_bytes(b"weights")
+            return str(fetched)
+
+        monkeypatch.setattr(model_zoo_picker, "choose_model", choose)
+        button.click()
+        assert opened == [(made, ("cellpose",))]
+        assert made._cp_model.currentData() == str(fetched)
+        assert made._cp_model.currentText() == "toxoplasma_pv_v1"
+        assert ("toxoplasma_pv_v1 (not downloaded)", None, False) not in _rows(
+            made._cp_model), "the greyed-out row became the downloaded model"
+        assert made._magnifier_context()["model_name"] == str(fetched)
+
+        elsewhere = a_zoo["downloads"].parent / "picked_elsewhere.CP_model"
+        elsewhere.write_bytes(b"weights")
+        monkeypatch.setattr(model_zoo_picker, "choose_model",
+                            lambda parent=None, kinds=None: str(elsewhere))
+        button.click()
+        assert made._cp_model.currentData() == str(elsewhere)
+        assert made._cp_model.currentText() == "picked_elsewhere.CP_model"
+
+        monkeypatch.setattr(model_zoo_picker, "choose_model",
+                            lambda parent=None, kinds=None: None)
+        button.click()
+        assert made._cp_model.currentData() == str(elsewhere), (
+            "cancelling the picker changes nothing")
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_a_zoo_that_cannot_be_read_leaves_the_installed_cellpose(
+        qtbot, qt_theme_applied, monkeypatch):
+    from spacr import model_zoo
+
+    def broken(**_kwargs):
+        raise OSError("the zoo is on a disk that went away")
+
+    monkeypatch.setattr(model_zoo, "catalogue", broken)
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        assert made._cp_model.findData("cpsam") >= 0
+        assert not any(made._cp_model.itemData(i, mm._ZOO_ROLE)
+                       for i in range(made._cp_model.count()))
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+# ---------------------------------------------------------------------------
+# 4 and 9. The Cellpose-SAM category is what the magnifier's detection uses
+# ---------------------------------------------------------------------------
+
+class _Spy:
+    """Stands in for :func:`make_masks.cellpose_detect`, with its signature."""
+
+    def __init__(self):
+        self.calls = []
+
+    def __call__(self, image, model, *, diameter=0, normalize=True,
+                 flow_threshold=mm.FLOW_THRESHOLD,
+                 cellprob_threshold=mm.CELLPROB_THRESHOLD, min_size=0):
+        self.calls.append((np.array(image, copy=True), model, dict(
+            diameter=diameter, normalize=normalize,
+            flow_threshold=flow_threshold,
+            cellprob_threshold=cellprob_threshold, min_size=min_size)))
+        return np.zeros(np.asarray(image).shape[:2], np.int32), None, None
+
+
+def test_the_spy_has_cellpose_detects_own_signature():
+    import inspect
+
+    real = inspect.signature(mm.cellpose_detect)
+    spy = inspect.signature(_Spy.__call__)
+    assert list(real.parameters) == list(spy.parameters)[1:]
+    for name, parameter in real.parameters.items():
+        assert spy.parameters[name].default == parameter.default
+        assert spy.parameters[name].kind == parameter.kind
+
+
+def _cellpose_on(screen):
+    index = screen._mag_mode.findData("cellpose")
+    if index >= 0:
+        screen._mag_mode.setCurrentIndex(index)
+    else:                   # no Cellpose on this machine: the mode, not the box
+        screen._on_magnifier_mode("cellpose")
+    assert screen._magnifier.mode == "cellpose"
+
+
+def test_the_cellpose_sam_values_are_exactly_what_the_detection_is_passed(
+        qtbot, screen, monkeypatch, tmp_path):
+    """One source of truth: the category's boxes reach the model call as set.
+
+    The box, the whole-image run and Cellpose-SAM detect are spied on in
+    turn, and all three are handed the same numbers.
+    """
+    from spacr.qt.widgets import model_zoo_picker
+
+    checkpoint = tmp_path / "fine_tuned.CP_model"
+    checkpoint.write_bytes(b"weights")
+    monkeypatch.setattr(model_zoo_picker, "choose_model",
+                        lambda parent=None, kinds=None: str(checkpoint))
+    screen._cp_model_zoo_btn.click()
+    model = object()
+    screen._cp_loaded[str(checkpoint)] = model
+    spy = _Spy()
+    monkeypatch.setattr(mm, "cellpose_detect", spy)
+
+    for control, value in ((screen._cp_flow, 0.85),
+                           (screen._cp_cellprob, -2.5),
+                           (screen._cp_diameter, 37)):
+        assert control.value() != value
+        control.setValue(value)
+    screen._cp_normalize.setChecked(False)
+    screen._min_area.setValue(5)
+    screen._mag_sensitivity.setValue(3.0)
+    wanted = dict(diameter=37, normalize=False, flow_threshold=0.85,
+                  cellprob_threshold=-2.5, min_size=5)
+
+    _cellpose_on(screen)
+    assert not screen._mag_sensitivity.isEnabled(), (
+        "Sensitivity is the classical mode's, so it is greyed out")
+    screen._btn_magnifier.setChecked(True)
+    hover(screen, 30, 30)
+    wait_for_result(qtbot, screen)
+    crop, used, kwargs = spy.calls[-1]
+    assert used is model, "the model chosen in the category"
+    assert kwargs == wanted
+    np.testing.assert_array_equal(crop, screen._canvas.image[14:46, 14:46])
+
+    screen._mag_scope.setCurrentIndex(screen._mag_scope.findData("image"))
+    qtbot.waitUntil(lambda: screen._magnifier._image_result is not None,
+                    timeout=10_000)
+    whole, used, kwargs = spy.calls[-1]
+    assert used is model and kwargs == wanted
+    np.testing.assert_array_equal(whole, screen._canvas.image)
+
+    before = len(spy.calls)
+    screen._cp_flow.setValue(1.2)
+    assert screen._magnifier._image_result is None, (
+        "a threshold changed in the category discards the whole-image objects")
+    qtbot.waitUntil(lambda: screen._magnifier._image_result is not None,
+                    timeout=10_000)
+    assert len(spy.calls) == before + 1
+    assert spy.calls[-1][2] == dict(wanted, flow_threshold=1.2)
+
+    screen._mag_scope.setCurrentIndex(screen._mag_scope.findData("region"))
+    screen.run_cellpose()
+    image, used, kwargs = spy.calls[-1]
+    assert used is model
+    assert kwargs == dict(wanted, flow_threshold=1.2), (
+        "Cellpose-SAM detect is handed the very same values")
+    np.testing.assert_array_equal(image, screen._canvas.image)
+
+
+def test_the_thresholds_live_in_the_cellpose_sam_category(screen):
+    categories = dict(screen._settings_categories)
+    cellpose = categories["Cellpose-SAM"]
+    for control in (screen._cp_model, screen._cp_model_zoo_btn,
+                    screen._cp_flow, screen._cp_cellprob,
+                    screen._cp_diameter, screen._cp_normalize,
+                    screen._otsu_correction):
+        assert cellpose.isAncestorOf(control)
+    assert screen._cp_flow.value() == pytest.approx(mm.FLOW_THRESHOLD)
+    assert screen._cp_cellprob.value() == pytest.approx(mm.CELLPROB_THRESHOLD)
+    # Cellpose's own GUI offers -6..6 and 0..3; both fit inside these.
+    assert screen._cp_cellprob.minimum() <= -6 and screen._cp_cellprob.maximum() >= 6
+    assert screen._cp_flow.minimum() == 0 and screen._cp_flow.maximum() >= 3
+    assert not categories["Live magnifier"].isAncestorOf(screen._cp_flow), (
+        "no second set of thresholds on the magnifier's own category")
+
+
+def test_a_ledger_entry_names_the_settings_the_objects_were_found_with(
+        qtbot, screen):
+    switch_on(screen, CodedStub({7: (20, 20, 26, 25)}))
+    screen._cp_flow.setValue(0.6)
+    screen._cp_cellprob.setValue(1.5)
+    screen._otsu_correction.setValue(1.25)
+    hover(screen, 30, 30)
+    wait_for_result(qtbot, screen)
+    from tests.qt.test_the_live_magnifier_segments_under_the_mouse import click
+
+    click(screen, 30, 30)
+    detail = screen._log.edits[-1].detail
+    assert detail["flow_threshold"] == pytest.approx(0.6)
+    assert detail["cellprob_threshold"] == pytest.approx(1.5)
+    assert detail["otsu_correction"] == pytest.approx(1.25)
+    assert detail["model"] == "cpsam"
+
+
+# ---------------------------------------------------------------------------
+# 7. Otsu's threshold correction
+# ---------------------------------------------------------------------------
+
+def soft_blobs(n: int = IMG_N) -> np.ndarray:
+    """Three disks with a 5 px ramp at the rim, so the cut sets their size.
+
+    Plateau disks, not Gaussian blobs, because the classical mode only cuts
+    at Otsu's level where a region is two clear populations. Measured before
+    this was written: Gaussian blobs (sigma 5) fall short of that, are cut at
+    the noise floor, and no correction moves them; these disks score 0.868
+    on the whole field and 0.863 in the 32 px box round (16, 16), against the
+    0.8 needed, and the rim ramp is what a correction moves the cut across.
+    """
+    rng = np.random.default_rng(5)
+    yy, xx = np.mgrid[0:n, 0:n]
+    img = np.full((n, n), 1000.0)
+    for cy, cx in ((16, 16), (16, 46), (46, 30)):
+        radius = np.hypot(yy - cy, xx - cx)
+        img += 3000.0 * np.clip((9.0 - radius) / 5.0, 0.0, 1.0)
+    img += rng.normal(0, 40, img.shape)
+    return np.clip(img, 0, 65535).astype(np.uint16)
+
+
+def test_the_correction_moves_the_classical_cut_and_1_is_otsu_itself():
+    from spacr.qt import mask_engine as engine
+
+    field = soft_blobs()
+    plain = engine._classical_region_labels(field, min_area=10)
+    same = engine._classical_region_labels(field, min_area=10, correction=1.0)
+    strict = engine._classical_region_labels(field, min_area=10,
+                                             correction=1.4)
+    loose = engine._classical_region_labels(field, min_area=10,
+                                            correction=0.7)
+    np.testing.assert_array_equal(plain, same)
+    assert plain.max() == strict.max() == loose.max() == 3
+    assert (strict > 0).sum() < (plain > 0).sum() < (loose > 0).sum()
+
+
+def test_the_correction_moves_otsu_detect_on_either_side(monkeypatch):
+    from spacr.qt import mask_engine as engine
+
+    field = soft_blobs()
+    np.testing.assert_array_equal(
+        engine._otsu_instances(field, min_area=4),
+        engine.otsu_instances(field, min_area=4))
+    area = {c: int((engine._otsu_instances(field, min_area=4,
+                                           correction=c) > 0).sum())
+            for c in (0.8, 1.0, 1.2)}
+    assert area[1.2] < area[1.0] < area[0.8]
+
+    dark = (5000 - field.astype(np.int32)).astype(np.uint16)
+    np.testing.assert_array_equal(
+        engine._otsu_instances(dark, bright=False, min_area=4),
+        engine.otsu_instances(dark, bright=False, min_area=4))
+    dark_area = {c: int((engine._otsu_instances(
+        dark, bright=False, min_area=4, correction=c) > 0).sum())
+        for c in (0.8, 1.0, 1.2)}
+    assert dark_area[1.2] < dark_area[1.0] < dark_area[0.8], (
+        "above 1 is stricter for dark objects too")
+
+    with pytest.raises(ValueError, match="greater than 0"):
+        engine._otsu_instances(field, correction=0)
+    with pytest.raises(ValueError, match="empty"):
+        engine._otsu_instances(np.zeros((0, 0), np.uint16), correction=1.5)
+
+
+@pytest.fixture
+def blob_screen(qtbot, qt_theme_applied, tmp_path):
+    folder = tmp_path / "blobs"
+    folder.mkdir()
+    imageio.imwrite(folder / "a.tif", soft_blobs())
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    assert made._open_folder(str(folder))
+    made._canvas.resize(CANVAS_W, CANVAS_H)
+    made._canvas.refresh()
+    assert made._canvas.pixmap().width() == PIXMAP_N
+    made._min_area.setValue(4)
+    made._mag_size.setValue(SIZE)
+    yield made
+    made._magnifier.close()
+    made.close_folded()
+
+
+def test_the_correction_set_in_the_category_changes_the_otsu_detect_mask(
+        blob_screen):
+    made = blob_screen
+    made._combine_mode.setCurrentIndex(made._combine_mode.findData("replace"))
+    made._on_detect_otsu()
+    at_one = made._canvas.mask.copy()
+    assert made._log.edits[-1].detail["otsu_correction"] == 1.0
+
+    made._otsu_correction.setValue(1.3)
+    made._on_detect_otsu()
+    corrected = made._canvas.mask.copy()
+    assert made._log.edits[-1].detail["otsu_correction"] == pytest.approx(1.3)
+    assert 0 < (corrected > 0).sum() < (at_one > 0).sum()
+
+
+def test_the_correction_set_in_the_category_changes_the_magnifiers_objects(
+        qtbot, blob_screen):
+    """The real classical mode, no stub: the box's objects shrink."""
+    made = blob_screen
+    magnifier = made._magnifier
+    made._btn_magnifier.setChecked(True)
+    assert magnifier.mode == "classical"
+    hover(made, 16, 16)
+    wait_for_result(qtbot, made)
+    at_one = int((magnifier._shown.labels > 0).sum())
+    assert at_one > 0
+    assert magnifier._shown.request.otsu_correction == 1.0
+
+    made._otsu_correction.setValue(1.3)
+    qtbot.waitUntil(lambda: magnifier._shown is not None
+                    and magnifier._shown.request.otsu_correction == 1.3
+                    and not magnifier.updating(), timeout=10_000)
+    corrected = int((magnifier._shown.labels > 0).sum())
+    assert 0 < corrected < at_one

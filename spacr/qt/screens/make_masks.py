@@ -1286,6 +1286,40 @@ def cellpose_intermediates(flows) -> tuple:
     return cellprob, rgb
 
 
+#: The item-data role marking a Model box row that came from the model zoo.
+_ZOO_ROLE = int(Qt.UserRole) + 17
+
+
+def _zoo_cellpose_models() -> List[tuple]:
+    """``(key, path or None)`` for every Cellpose model the model zoo lists.
+
+    ``path`` is where the model is on this machine -- the entry's own path,
+    or its file in the folder the Model zoo picker downloads into -- and None
+    for one not downloaded. Read without waiting on the network (the
+    community rows come from the zoo's cache), and never raises: a zoo that
+    cannot be read leaves the Model box with the Cellpose installed here.
+    """
+    try:
+        from ... import model_zoo
+        from ..widgets.model_zoo_picker import remembered_model_dir
+
+        entries = model_zoo.catalogue(remote=True, block=False)
+        folder = remembered_model_dir()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("the model zoo could not be read", exc_info=True)
+        return []
+    found = []
+    for entry in entries:
+        if getattr(entry, "kind", "") != "cellpose":
+            continue
+        path = str(getattr(entry, "path", "") or "")
+        if not (path and os.path.isfile(path)):
+            candidate = os.path.join(folder, str(entry.name))
+            path = candidate if os.path.isfile(candidate) else ""
+        found.append((str(entry.key or entry.name), path or None))
+    return found
+
+
 def load_cellpose_model(model_name: str):
     """Load a Cellpose model through spaCR's own resolver.
 
@@ -1439,6 +1473,21 @@ class _MagnifierRequest(NamedTuple):
     exclude_border: bool = True
     #: ``region`` for the box under the mouse, ``image`` for the whole field.
     scope: str = "region"
+    #: The Cellpose-SAM settings' flow threshold, cell-probability threshold
+    #: and normalization, which the models read (item 417).
+    flow_threshold: float = FLOW_THRESHOLD
+    cellprob_threshold: float = CELLPROB_THRESHOLD
+    normalize: bool = True
+    #: What Otsu's level is multiplied by in the classical mode.
+    otsu_correction: float = 1.0
+
+
+#: Everything a model reads, in the order :meth:`_LiveMagnifier._model_settings`
+#: gives it and a request key carries it after ``(field, box)``. The mode is
+#: first, which is what a key's ``[2]`` is read as.
+_MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
+                         "model_name", "diameter", "flow_threshold",
+                         "cellprob_threshold", "normalize", "otsu_correction")
 
 
 class _MagnifierResult(NamedTuple):
@@ -1463,18 +1512,25 @@ class _MagnifierResult(NamedTuple):
 
 
 def _classical_segmenter(request: _MagnifierRequest, load_model=None):
-    """Threshold and watershed the region; needs nothing installed."""
+    """Threshold and watershed the region; needs nothing installed.
+
+    Reads the Otsu threshold correction set under Cellpose-SAM, and the
+    magnifier's own sensitivity.
+    """
     return engine._classical_region_labels(
         request.crop, sensitivity=request.sensitivity,
-        bright=request.bright, min_area=request.min_area)
+        bright=request.bright, min_area=request.min_area,
+        correction=request.otsu_correction)
 
 
 def _cellpose_segmenter(request: _MagnifierRequest, load_model=None):
-    """Segment the region with the Cellpose model the screen has chosen.
+    """Segment the region with the Cellpose-SAM settings the screen has.
 
-    Sensitivity is Cellpose's cell-probability threshold with the sign
-    reversed, so raising the magnifier's sensitivity keeps MORE objects, as
-    the word says, where raising the threshold keeps fewer.
+    ONE SOURCE OF TRUTH (item 417): the model, the flow threshold, the
+    cell-probability threshold, the diameter and the normalization are the
+    Cellpose-SAM category's, exactly as Cellpose-SAM detect passes them, so
+    the box and the button cannot disagree about what Cellpose was asked. The
+    magnifier's own sensitivity is the classical mode's and is not read here.
     """
     loader = load_model or load_cellpose_model
     with _CELLPOSE_LOCK:
@@ -1482,9 +1538,9 @@ def _cellpose_segmenter(request: _MagnifierRequest, load_model=None):
         labels, _cellprob, _flow = cellpose_detect(
             request.crop, model,
             diameter=int(request.diameter),
-            normalize=True,
-            flow_threshold=FLOW_THRESHOLD,
-            cellprob_threshold=-float(request.sensitivity),
+            normalize=bool(request.normalize),
+            flow_threshold=float(request.flow_threshold),
+            cellprob_threshold=float(request.cellprob_threshold),
             min_size=int(request.min_area),
         )
     return labels
@@ -1761,8 +1817,10 @@ class _LiveMagnifier(QObject):
     :param load_model: ``name -> model`` for modes that need one; called on
         the worker thread.
     :param context: ``() -> dict`` of the screen's own settings a model reads
-        -- ``model_name``, ``diameter``, ``bright``, ``min_area`` -- read on
-        the GUI thread whenever a request is built.
+        -- ``model_name``, ``diameter``, ``bright``, ``min_area``,
+        ``flow_threshold``, ``cellprob_threshold``, ``normalize`` and
+        ``otsu_correction`` -- read on the GUI thread whenever a request is
+        built.
     """
 
     _delivered = Signal(object)
@@ -1998,14 +2056,18 @@ class _LiveMagnifier(QObject):
         self._worker.submit(request)
 
     def _model_settings(self) -> tuple:
-        """``(mode, sensitivity, bright, min_area, model_name, diameter)``.
+        """Everything a model reads, in :data:`_MODEL_SETTING_FIELDS` order.
 
-        Everything a model reads, as it would read it now: the screen's own
-        settings through ``context``, and classical in place of a mode that
-        has already failed to load.
+        As it would read it now: the screen's own settings through
+        ``context``, and classical in place of a mode that has already failed
+        to load. Every setting is here whichever mode is chosen, because a
+        model that cannot run hands the request to the classical mode, which
+        must then find its own settings in it.
         """
         context = {"model_name": "cpsam", "diameter": 0, "bright": True,
-                   "min_area": 0}
+                   "min_area": 0, "flow_threshold": FLOW_THRESHOLD,
+                   "cellprob_threshold": CELLPROB_THRESHOLD,
+                   "normalize": True, "otsu_correction": 1.0}
         if self._context is not None:
             context.update(self._context())
         model_name = str(context["model_name"])
@@ -2014,7 +2076,11 @@ class _LiveMagnifier(QObject):
             mode = "classical"
         return (mode, round(float(self.sensitivity), 4),
                 bool(context["bright"]), int(context["min_area"]),
-                model_name, int(context["diameter"]))
+                model_name, int(context["diameter"]),
+                round(float(context["flow_threshold"]), 4),
+                round(float(context["cellprob_threshold"]), 4),
+                bool(context["normalize"]),
+                round(float(context["otsu_correction"]), 4))
 
     @staticmethod
     def _accent() -> tuple:
@@ -2030,7 +2096,6 @@ class _LiveMagnifier(QObject):
                 or canvas.mask is None):
             return None
         settings = self._model_settings()
-        mode, sensitivity, bright, min_area, model_name, diameter = settings
         box = engine._magnifier_box(image.shape, self._cursor[0],
                                     self._cursor[1], self.size)
         x0, y0, x1, y1 = box
@@ -2040,14 +2105,9 @@ class _LiveMagnifier(QObject):
             crop=np.array(image[y0:y1, x0:x1], copy=True),
             box=box,
             shape=tuple(int(v) for v in image.shape[:2]),
-            mode=mode,
-            sensitivity=sensitivity,
-            bright=bright,
-            min_area=min_area,
-            model_name=model_name,
-            diameter=diameter,
             colour=self._accent(),
             exclude_border=exclude,
+            **dict(zip(_MODEL_SETTING_FIELDS, settings)),
         )
 
     def click(self) -> bool:
@@ -2152,16 +2212,14 @@ class _LiveMagnifier(QObject):
     def _start_image(self, key: tuple) -> None:
         """Hand a copy of the whole field to the image worker under ``key``."""
         image = self.canvas.image
-        mode, sensitivity, bright, min_area, model_name, diameter = key[2:]
         height, width = (int(v) for v in image.shape[:2])
         self._image_key = key
         self._image_halted = None
         self._image_worker.submit(_MagnifierRequest(
             key=key, crop=np.array(image, copy=True),
             box=(0, 0, width, height), shape=(height, width),
-            mode=mode, sensitivity=sensitivity, bright=bright,
-            min_area=min_area, model_name=model_name, diameter=diameter,
-            colour=self._accent(), exclude_border=False, scope="image"))
+            colour=self._accent(), exclude_border=False, scope="image",
+            **dict(zip(_MODEL_SETTING_FIELDS, key[2:]))))
         self._set_busy(True)
 
     def _stop_image(self) -> None:
@@ -3110,6 +3168,10 @@ class MakeMasksScreen(QWidget):
         self._settings_scroll.setWidget(self._build_tools_panel())
         for changed in (self._cp_model.currentIndexChanged,
                         self._cp_diameter.valueChanged,
+                        self._cp_flow.valueChanged,
+                        self._cp_cellprob.valueChanged,
+                        self._cp_normalize.toggled,
+                        self._otsu_correction.valueChanged,
                         self._otsu_bright.toggled,
                         self._min_area.valueChanged):
             changed.connect(self._on_magnifier_context_changed)
@@ -3972,7 +4034,8 @@ class MakeMasksScreen(QWidget):
         self._btn_otsu = QPushButton("Otsu detect")
         self._btn_otsu.setCursor(Qt.PointingHandCursor)
         self._btn_otsu.setToolTip(
-            "Threshold the image at Otsu's level and label what is left, "
+            "Threshold the image at Otsu's level, multiplied by the Otsu "
+            "threshold correction under Cellpose-SAM, and label what is left, "
             "honouring the minimum area above.")
         self._btn_otsu.clicked.connect(self._on_detect_otsu)
         detect_row.addWidget(self._btn_otsu)
@@ -4382,11 +4445,13 @@ class MakeMasksScreen(QWidget):
         if self._canvas.image is None or self._canvas.mask is None:
             return
         mode = self._combine_mode.currentData()
+        correction = float(self._otsu_correction.value())
         try:
-            detected = engine.otsu_instances(
+            detected = engine._otsu_instances(
                 self._canvas.image,
                 bright=self._otsu_bright.isChecked(),
                 min_area=int(self._min_area.value()),
+                correction=correction,
             )
         except Exception as exc:
             self._warn("Otsu detect failed", str(exc))
@@ -4408,7 +4473,8 @@ class MakeMasksScreen(QWidget):
         self._canvas.refresh()
         self._record("detect", mode, changed, method="otsu", n_objects=found,
                       bright=bool(self._otsu_bright.isChecked()),
-                      min_area=int(self._min_area.value()))
+                      min_area=int(self._min_area.value()),
+                      otsu_correction=correction)
         self._history.push(out)
         self._refresh_history_buttons()
         side = "bright" if self._otsu_bright.isChecked() else "dark"
@@ -4484,13 +4550,26 @@ class MakeMasksScreen(QWidget):
         self._cp_model = QComboBox()
         for name in cellpose_model_choices():
             self._cp_model.addItem(name, name)
+        self._fill_zoo_models()
         self._cp_model.setToolTip(
-            "Which weights segment this field. The list is read from the "
-            "Cellpose installed on this machine rather than hard-coded, so "
-            "a version that ships more models offers them here. A "
-            "fine-tuned checkpoint trained by Train Cellpose is applied by "
-            "running that module against the folder.")
-        form.addRow("Model", self._cp_model)
+            "Which weights segment this field, and the Live magnifier's box "
+            "in Cellpose mode. The list is the Cellpose installed on this "
+            "machine and every Cellpose model in the model zoo; a zoo model "
+            "not downloaded yet is greyed out until Model zoo… fetches it.")
+        model_row = QWidget()
+        model_row_layout = QHBoxLayout(model_row)
+        model_row_layout.setContentsMargins(0, 0, 0, 0)
+        model_row_layout.setSpacing(SPACING["xs"])
+        model_row_layout.addWidget(self._cp_model, 1)
+        self._cp_model_zoo_btn = QPushButton("Model zoo…", model_row)
+        self._cp_model_zoo_btn.setToolTip(
+            "Browse the model zoo, download a Cellpose model and segment with "
+            "it. The model chosen there is selected in the list beside this "
+            "button.")
+        self._cp_model_zoo_btn.clicked.connect(
+            lambda _checked=False: self._choose_cellpose_model_from_zoo())
+        model_row_layout.addWidget(self._cp_model_zoo_btn)
+        form.addRow("Model", model_row)
 
         self._cp_cellprob = QDoubleSpinBox()
         self._cp_cellprob.setDecimals(2)
@@ -4537,6 +4616,30 @@ class MakeMasksScreen(QWidget):
             "normalized upstream, where doing it twice changes the result.")
         card.body_layout.addWidget(self._cp_normalize)
 
+        otsu_form = QFormLayout()
+        self._otsu_correction = QDoubleSpinBox()
+        self._otsu_correction.setDecimals(2)
+        self._otsu_correction.setRange(0.1, 5.0)
+        self._otsu_correction.setSingleStep(0.05)
+        self._otsu_correction.setValue(1.0)
+        self._otsu_correction.setToolTip(
+            "A threshold correction factor: Otsu's level is multiplied by it "
+            "before it is used. Above 1 is stricter, so objects shrink and "
+            "faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's "
+            "own level. Otsu detect uses it, and so does the Live magnifier's "
+            "Classical mode wherever a region holds two clear populations.")
+        otsu_form.addRow("Otsu threshold correction", self._otsu_correction)
+        card.body_layout.addLayout(otsu_form)
+
+        drives = QLabel(
+            "The Live magnifier reads these settings too: Cellpose mode uses "
+            "the model, both thresholds, the diameter and the normalization, "
+            "DINOCell the cell probability, and Classical mode the Otsu "
+            "threshold correction.")
+        drives.setObjectName("CardSubtitle")
+        drives.setWordWrap(True)
+        card.body_layout.addWidget(drives)
+
         self._btn_cellpose = QPushButton("Cellpose-SAM detect")
         self._btn_cellpose.setIcon(iconset.icon("run"))
         self._btn_cellpose.setCursor(Qt.PointingHandCursor)
@@ -4580,6 +4683,69 @@ class MakeMasksScreen(QWidget):
         for name in cellpose_model_choices():
             if self._cp_model.findData(name) < 0:
                 self._cp_model.addItem(name, name)
+
+    def _fill_zoo_models(self) -> None:
+        """List every Cellpose model in the model zoo in the Model box.
+
+        A model on this machine is listed by its zoo key and carries its path,
+        which is what :func:`load_cellpose_model` loads. One that is not
+        downloaded is listed greyed out, with no path: a combo box is not
+        where a gigabyte download should start, and Model zoo… is. Called
+        again after the picker closes, the zoo rows are rebuilt -- so a model
+        just downloaded becomes selectable -- and the model chosen stays
+        chosen, without a change signal when it did not change.
+        """
+        from ..i18n import tr
+
+        combo = self._cp_model
+        chosen = combo.currentData()
+        combo.blockSignals(True)
+        try:
+            for index in reversed(range(combo.count())):
+                if combo.itemData(index, _ZOO_ROLE):
+                    combo.removeItem(index)
+            for key, path in _zoo_cellpose_models():
+                if path and combo.findData(path) >= 0:
+                    continue
+                if path:
+                    combo.addItem(key, path)
+                    combo.setItemData(combo.count() - 1, path, Qt.ToolTipRole)
+                else:
+                    combo.addItem(tr("{name} (not downloaded)", name=key))
+                    combo.model().item(combo.count() - 1).setEnabled(False)
+                combo.setItemData(combo.count() - 1, True, _ZOO_ROLE)
+            index = combo.findData(chosen) if chosen is not None else -1
+            combo.setCurrentIndex(max(index, 0))
+        finally:
+            combo.blockSignals(False)
+        if combo.currentData() != chosen:
+            combo.currentIndexChanged.emit(combo.currentIndex())
+
+    def _choose_cellpose_model_from_zoo(self) -> Optional[str]:
+        """Open the model zoo on its Cellpose models and select what is picked.
+
+        The same picker, and the same ``kinds=("cellpose",)`` rule, as the live
+        preview's Model zoo… button: the zoo also holds a YOLO well detector,
+        which Cellpose cannot load. A picked path the list does not hold is
+        added to it, under its file name.
+
+        :returns: the path chosen, or None when the picker was cancelled.
+        """
+        from ..widgets import model_zoo_picker
+
+        path = model_zoo_picker.choose_model(self, kinds=("cellpose",))
+        if not path:
+            return None
+        path = str(path)
+        self._fill_zoo_models()
+        index = self._cp_model.findData(path)
+        if index < 0:
+            self._cp_model.addItem(os.path.basename(path) or path, path)
+            self._cp_model.setItemData(self._cp_model.count() - 1, path,
+                                       Qt.ToolTipRole)
+            index = self._cp_model.count() - 1
+        self._cp_model.setCurrentIndex(index)
+        return path
 
     def _show_intermediates(self, cellprob, flow) -> None:
         """Put one run's probability map and flow field on their tabs."""
@@ -4684,10 +4850,12 @@ class MakeMasksScreen(QWidget):
         go here, with what is segmented (the region under the mouse or the
         whole image once), whether objects cut by the box are offered, and
         the progress and Cancel of a whole-image run. Cellpose mode reads its
-        model and diameter from the Cellpose-SAM card and classical mode
-        reads Bright and Min area from Object operations, so each of those
-        judgements is still made in one box. Nothing here persists between
-        sessions, like every other setting on this panel.
+        model, thresholds, diameter and normalization from the Cellpose-SAM
+        category, and classical mode reads Bright and Min area from Object
+        operations and the Otsu threshold correction from Cellpose-SAM, so
+        each of those judgements is still made in one box (item 417). No
+        value here persists between sessions, like every other setting on this
+        panel; only which categories are folded does.
         """
         magnifier = self._magnifier
         card = self._settings_category(
@@ -4710,11 +4878,16 @@ class MakeMasksScreen(QWidget):
             "Which model segments the region in the box. Classical thresholds "
             "the region at Otsu's level and splits touching objects with a "
             "watershed; it needs nothing installed, follows the Bright switch "
-            "and the Min area box under Object operations, and runs whenever "
-            "a model cannot be loaded. Cellpose uses the model and diameter "
-            "set in the Cellpose-SAM settings and is slow without a GPU.")
+            "and the Min area box under Object operations and the Otsu "
+            "threshold correction under Cellpose-SAM, and runs whenever a "
+            "model cannot be loaded. Cellpose uses the model, both thresholds, "
+            "the diameter and the normalization set under Cellpose-SAM, and "
+            "is slow without a GPU. DINOCell and SAMCell are offered once "
+            "installed; DINOCell reads the cell probability set under "
+            "Cellpose-SAM, and SAMCell uses its own thresholds.")
         self._mag_mode.currentIndexChanged.connect(
-            lambda _index: magnifier.set_mode(self._mag_mode.currentData()))
+            lambda _index: self._on_magnifier_mode(
+                self._mag_mode.currentData()))
         form.addRow("Mode", self._mag_mode)
 
         self._mag_scope = QComboBox()
@@ -4781,13 +4954,15 @@ class MakeMasksScreen(QWidget):
         self._mag_sensitivity.setSingleStep(0.25)
         self._mag_sensitivity.setValue(_MAGNIFIER_SENSITIVITY)
         self._mag_sensitivity.setToolTip(
-            "How readily an object is accepted. Raise it to take in dimmer or "
-            "less certain objects, lower it to keep only clear ones; 0 is each "
-            "model's own default. For Cellpose it is the cell probability "
-            "threshold with the sign reversed, so a sensitivity of 1.5 is a "
-            "threshold of -1.5.")
+            "How readily the Classical mode accepts an object. Raise it to "
+            "take in dimmer or less certain objects, lower it to keep only "
+            "clear ones; 0 is the default cut. The models read their "
+            "thresholds from the Cellpose-SAM settings instead, so this is "
+            "greyed out while another mode is chosen.")
         self._mag_sensitivity.valueChanged.connect(magnifier.set_sensitivity)
         form.addRow("Sensitivity", self._mag_sensitivity)
+        self._mag_sensitivity.setEnabled(
+            self._mag_mode.currentData() == "classical")
 
         self._mag_overlap = QComboBox()
         self._mag_overlap.addItem("Clip", "clip")
@@ -4832,13 +5007,27 @@ class MakeMasksScreen(QWidget):
         return card
 
     def _magnifier_context(self) -> dict:
-        """The settings the magnifier's models read from elsewhere on the panel."""
+        """The settings the magnifier's models read from elsewhere on the panel.
+
+        The Cellpose-SAM category's own controls, read the moment a request
+        is built: the detect button reads the same boxes, so there is one set
+        of Cellpose settings on the panel and not one per tool.
+        """
         return {
             "model_name": self._cp_model.currentData() or "cpsam",
             "diameter": int(self._cp_diameter.value()),
+            "flow_threshold": float(self._cp_flow.value()),
+            "cellprob_threshold": float(self._cp_cellprob.value()),
+            "normalize": bool(self._cp_normalize.isChecked()),
+            "otsu_correction": float(self._otsu_correction.value()),
             "bright": bool(self._otsu_bright.isChecked()),
             "min_area": self._detect_min_area(),
         }
+
+    def _on_magnifier_mode(self, mode) -> None:
+        """Choose the magnifier's model; Sensitivity is the classical mode's."""
+        self._mag_sensitivity.setEnabled(mode == "classical")
+        self._magnifier.set_mode(mode)
 
     def _on_magnifier_scope(self, scope) -> None:
         """Segment the region under the mouse or the whole image.
@@ -4934,6 +5123,11 @@ class MakeMasksScreen(QWidget):
                       mode=result.mode, overlap=overlap,
                       box=[int(v) for v in request.box],
                       sensitivity=float(request.sensitivity),
+                      model=str(request.model_name),
+                      flow_threshold=float(request.flow_threshold),
+                      cellprob_threshold=float(request.cellprob_threshold),
+                      diameter=int(request.diameter),
+                      otsu_correction=float(request.otsu_correction),
                       n_objects=len(added), scope=request.scope)
         self._history.push(out)
         self._refresh_history_buttons()
