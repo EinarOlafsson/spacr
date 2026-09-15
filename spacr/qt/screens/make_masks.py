@@ -133,8 +133,9 @@ from .. import prefs
 from .. import wand_rescue
 from ..hidpi import follow_device_ratio, logical_size, scaled_for
 from ..theme import SPACING, active_palette, mark_surface
-from ..widgets import Card, Divider, EmptyState
+from ..widgets import Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
+from ..widgets.section import Section
 from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.make_masks")
@@ -342,6 +343,11 @@ PERCENTILE_DECIMALS = 6
 #: put back at when the settings button turns it on again after a session
 #: that never dragged the splitter.
 SETTINGS_WIDTH = 380
+
+#: Where the settings panel's folded categories are remembered, as the titles
+#: folded away -- :func:`spacr.qt.preferences.get_section_layout` keyed by
+#: this name.
+_SETTINGS_LAYOUT_KEY = "make_masks/settings"
 
 
 class _MaskLoadWorker(QThread):
@@ -3614,8 +3620,17 @@ class MakeMasksScreen(QWidget):
         col = QVBoxLayout(wrap)
         col.setContentsMargins(0, 0, 0, 0)
         col.setSpacing(SPACING["md"])
+        self._settings_categories: List[tuple] = []
+        try:
+            from ..preferences import get_section_layout
 
-        brush_card = Card(title="Brush")
+            folded = get_section_layout(_SETTINGS_LAYOUT_KEY).get("folded")
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the folded categories", exc_info=True)
+            folded = None
+        self._folded_categories = {str(t) for t in (folded or ())}
+
+        brush_card = self._settings_category("Brush")
         brush_form = QFormLayout()
         self._brush_slider = QSlider(Qt.Horizontal)
         self._brush_slider.setRange(1, 100)
@@ -3637,7 +3652,7 @@ class MakeMasksScreen(QWidget):
         brush_card.body_layout.addLayout(brush_form)
         col.addWidget(brush_card)
 
-        wand_card = Card(title="Magic wand")
+        wand_card = self._settings_category("Magic wand")
         wand_form = QFormLayout()
         self._wand_relative = QCheckBox("Tolerance is % of image range")
         self._wand_relative.setChecked(True)
@@ -3842,7 +3857,7 @@ class MakeMasksScreen(QWidget):
 
         col.addWidget(wand_card)
 
-        norm_card = Card(title="Display")
+        norm_card = self._settings_category("Display")
         norm_form = QFormLayout()
         self._norm_lo = QDoubleSpinBox()
         self._norm_lo.setDecimals(PERCENTILE_DECIMALS)
@@ -3884,9 +3899,9 @@ class MakeMasksScreen(QWidget):
         norm_card.body_layout.addLayout(norm_form)
         col.addWidget(norm_card)
 
-        filter_card = Card(
-            title="Auto-filter objects",
-            subtitle="Applied when a field loads. 0 switches a bound off.",
+        filter_card = self._settings_category(
+            "Auto-filter objects",
+            "Applied when a field loads. 0 switches a bound off.",
         )
         filter_form = QFormLayout()
         self._filter_min_area = QSpinBox()
@@ -3923,7 +3938,7 @@ class MakeMasksScreen(QWidget):
         filter_card.body_layout.addWidget(self._btn_filter)
         col.addWidget(filter_card)
 
-        obj_card = Card(title="Object operations")
+        obj_card = self._settings_category("Object operations")
         ops_col = QVBoxLayout()
         ops_col.setSpacing(SPACING["xs"])
         for label, cb in (
@@ -3991,6 +4006,58 @@ class MakeMasksScreen(QWidget):
 
         col.addStretch(1)
         return wrap
+
+    def _settings_category(self, title: str, subtitle: str = "") -> Section:
+        """One settings category, folding the way the core applications' do.
+
+        The same :class:`~spacr.qt.widgets.section.Section` a core module's
+        settings panel is built from -- the chevron heading, the uppercase
+        title, the card it draws -- so a category here looks and folds like
+        one there. Its body is a plain vertical layout, which is what the
+        panel's controls were laid out in.
+
+        Categories START OPEN, unlike a core module's. This panel is the
+        editor's tool column, used between strokes, and a first visit that
+        showed seven closed headings would hide the brush radius behind a
+        click. What the user folds is remembered, per category, through
+        :func:`spacr.qt.preferences.set_section_layout`, and comes back
+        folded on the next visit.
+
+        :param title: the category's name, as written; the heading translates
+            and uppercases it.
+        :param subtitle: an optional sentence under the heading.
+        :returns: the category, with its layout as ``body_layout``.
+        """
+        section = Section(title, expanded=True)
+        body = QWidget(section)
+        body.setObjectName("MakeMasksCategoryBody")
+        layout = QVBoxLayout(body)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["sm"])
+        if subtitle:
+            note = QLabel(subtitle, body)
+            note.setObjectName("CardSubtitle")
+            note.setWordWrap(True)
+            layout.addWidget(note)
+        section.add_prose(body)
+        section.body_layout = layout
+        if title in self._folded_categories:
+            section.set_expanded(False)
+        section.toggled.connect(self._remember_folded_categories)
+        self._settings_categories.append((title, section))
+        return section
+
+    def _remember_folded_categories(self, *_args) -> None:
+        """Store which settings categories are folded away, by title."""
+        folded = [title for title, section in self._settings_categories
+                  if not section.is_expanded()]
+        self._folded_categories = set(folded)
+        try:
+            from ..preferences import set_section_layout
+
+            set_section_layout(_SETTINGS_LAYOUT_KEY, folded=folded)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not store the folded categories", exc_info=True)
 
     def _install_shortcuts(self):
         """Bind the keys that move through fields and undo edits.
@@ -4387,7 +4454,7 @@ class MakeMasksScreen(QWidget):
         self._flow_pane.clear_view()
         self._view_tabs.setCurrentIndex(0)
 
-    def _build_cellpose_card(self) -> Card:
+    def _build_cellpose_card(self) -> Section:
         """The Cellpose-SAM settings, and the detect button they drive.
 
         The settings are ON THE PANEL rather than assumed. Both
@@ -4407,10 +4474,10 @@ class MakeMasksScreen(QWidget):
         #: session runs it once per field.
         self._cp_loaded: dict = {}
 
-        card = Card(
-            title="Cellpose-SAM",
-            subtitle="Segments the open field. Both thresholds start at "
-                     "Cellpose's own defaults.",
+        card = self._settings_category(
+            "Cellpose-SAM",
+            "Segments the open field. Both thresholds start at "
+            "Cellpose's own defaults.",
         )
         form = QFormLayout()
 
@@ -4608,7 +4675,7 @@ class MakeMasksScreen(QWidget):
         """Toolbar handler for the Cellpose-SAM detect button."""
         self.run_cellpose()
 
-    def _build_magnifier_card(self) -> Card:
+    def _build_magnifier_card(self) -> Section:
         """The live magnifier's settings, and the toggle that turns it on.
 
         The toggle goes in the tool row beside Cellpose-SAM detect, because it
@@ -4623,11 +4690,11 @@ class MakeMasksScreen(QWidget):
         sessions, like every other setting on this panel.
         """
         magnifier = self._magnifier
-        card = Card(
-            title="Live magnifier",
-            subtitle="Segments the region under the mouse, or the whole image "
-                     "once, and shows its objects magnified. A click adds "
-                     "objects to the mask.",
+        card = self._settings_category(
+            "Live magnifier",
+            "Segments the region under the mouse, or the whole image "
+            "once, and shows its objects magnified. A click adds "
+            "objects to the mask.",
         )
         form = QFormLayout()
 

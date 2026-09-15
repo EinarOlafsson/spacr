@@ -167,3 +167,99 @@ def test_a_shift_wheel_step_is_proportional_and_at_least_a_pixel(
     assert magnifier.wheel_size(False) == 32
     screen._canvas.zoom_speed = 1.001
     assert magnifier.wheel_size(True) == 33, "never a notch that does nothing"
+
+
+# ---------------------------------------------------------------------------
+# 2. Every settings category folds like a core application's
+# ---------------------------------------------------------------------------
+
+CATEGORIES = ("Brush", "Magic wand", "Display", "Auto-filter objects",
+              "Object operations", "Cellpose-SAM", "Live magnifier")
+
+
+def _categories(made):
+    from spacr.qt.widgets.section import Section
+
+    found = [w for w in made._settings_scroll.findChildren(Section)
+             if w.parentWidget() is not None
+             and not isinstance(w.parentWidget().parentWidget(), Section)]
+    return {title: section for title, section in made._settings_categories
+            if section in found}
+
+
+def test_every_category_is_the_core_applications_folding_section(
+        qtbot, qt_theme_applied):
+    """The same widget, header and card a core module's settings use."""
+    from spacr.qt.widgets import Card
+    from spacr.qt.widgets.section import Section
+
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        categories = _categories(made)
+        assert tuple(categories) == CATEGORIES
+        assert not made._settings_scroll.findChildren(Card), (
+            "no unfoldable card is left on the panel")
+        owners = {
+            "Brush": made._brush_slider, "Magic wand": made._wand_pct,
+            "Display": made._norm_hi, "Auto-filter objects":
+                made._filter_min_area,
+            "Object operations": made._btn_otsu,
+            "Cellpose-SAM": made._cp_flow, "Live magnifier": made._mag_size,
+        }
+        for title, section in categories.items():
+            assert type(section) is Section
+            assert section.objectName() == "SectionCard"
+            assert section.header().objectName() == "SectionHeader"
+            assert section.header().text() == title.upper()
+            assert section.is_expanded(), f"{title} starts open"
+            assert section.isAncestorOf(owners[title])
+            assert owners[title].isVisibleTo(made._settings_scroll)
+
+            section.header().click()
+            assert not section.is_expanded()
+            assert not owners[title].isVisibleTo(made._settings_scroll), (
+                f"folding {title} hides what is in it")
+            section.header().click()
+            assert section.is_expanded()
+            assert owners[title].isVisibleTo(made._settings_scroll)
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_what_is_folded_is_remembered_for_the_next_visit(
+        qtbot, qt_theme_applied):
+    first = mm.MakeMasksScreen()
+    qtbot.addWidget(first)
+    try:
+        cats = _categories(first)
+        cats["Magic wand"].header().click()
+        cats["Live magnifier"].header().click()
+    finally:
+        first._magnifier.close()
+        first.close_folded()
+
+    second = mm.MakeMasksScreen()
+    qtbot.addWidget(second)
+    try:
+        cats = _categories(second)
+        shut = {title for title, section in cats.items()
+                if not section.is_expanded()}
+        assert shut == {"Magic wand", "Live magnifier"}
+        assert not second._wand_pct.isVisibleTo(second._settings_scroll)
+
+        cats["Magic wand"].set_expanded(True)
+    finally:
+        second._magnifier.close()
+        second.close_folded()
+
+    third = mm.MakeMasksScreen()
+    qtbot.addWidget(third)
+    try:
+        shut = {title for title, section in _categories(third).items()
+                if not section.is_expanded()}
+        assert shut == {"Live magnifier"}, "unfolding is remembered as well"
+    finally:
+        third._magnifier.close()
+        third.close_folded()

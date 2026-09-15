@@ -3398,6 +3398,10 @@ _HELPER_CAPTION_RULES: dict[
         ("screens/distributed_jobs.py", ((1, "source_label"),)),
     ("screens/hit_list.py", "_set_summary"):
         ("screens/hit_list.py", ((0, "text"),)),
+    # A settings category on the Make Masks panel: its heading and the
+    # sentence under it (item 417).
+    ("screens/make_masks.py", "_settings_category"):
+        ("screens/make_masks.py", ((0, "title"), (1, "subtitle"))),
     # A QPlainTextEdit, whose contents the language pass does not translate.
     ("screens/make_masks.py", "say"):
         ("screens/make_masks.py", ((0, "text"),)),
