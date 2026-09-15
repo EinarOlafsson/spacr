@@ -1134,3 +1134,8 @@ picked up cold:
     ~0.9 LU quieter than its neighbour. The trade is the same one Map's
     bm_fable made. For a listening review: that is why 07_mask/en/bm_fable
     sounds slightly softer.
+  ALL 50 VOICES RENDERED: "complete rendered=29 skipped=21", exit 0 at
+    08:00:06 (lock 07:53:03, ~7 min on the GPU). With the stopped first run
+    (21 tracks) that makes 50 tracks on the reviewed narration. Running the
+    post-voice chain now: narration check across all 50, full decode, 14
+    browser cases, master, matrix, 1440p rendition, web-rendition playback.
