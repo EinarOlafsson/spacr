@@ -417,3 +417,40 @@ into five failures without fixing the cause.
 SAME SHAPE, UNCHECKED: `spacr/qt/laptop_mode.py:196` also writes
 SPACR_NO_BACKDROP into os.environ, and `spacr/qt/safespacr.py:31` writes
 SPACR_NO_GL. Whether their tests leak the same way has not been measured.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE SCREENSHOT, AND THE LOAD-TEST-DATA REBUILD: STILL NOT REPRODUCED
+--------------------------------------------------------------------------------
+
+THE SCREENSHOT (the maintainer's, 22:39 local, Mask with the backdrop running)
+narrows the report to TWO WIDGETS, not the whole column: the AI chat input
+(`_ChatInput`, a QPlainTextEdit) and the body of the expanded per-object
+settings section (the `ObjectSettingsGrid` QTableView). Everything else --
+collapsed categories, the console pane above the chat -- shows the backdrop.
+Both are scroll areas whose viewports paint `QPalette.Base = #000000` at alpha
+255 unless the single `[spacrTransparent] { background: transparent }` rule
+reaches them; `make_transparent` tags the viewport explicitly for that reason.
+The screenshot also shows test data loaded (Source =
+~/.cache/spacr/example_data/plate1).
+
+MEASURED AND RULED OUT, in addition to everything above:
+  * Palette groups: Active and Inactive Base/Window are identical on both
+    viewports, and a WindowDeactivate, a focused popup, chat focus and a table
+    hover change nothing.
+  * Pseudo-state QSS: no :hover/:focus/:active rule sets a background on these
+    widget types.
+  * Load test data: `mask.load_the_example_images` REBUILDS the Mask screen
+    (a new AppScreen via _build_screen_timed -> _call_screen_factory ->
+    prerun -> base -> chained app screen). The new screen is swept, both
+    viewports are tagged, and no visible viewport is untagged -- after the
+    load, after a hover, and after Home and back.
+  * The reverted gate: the maintainer's running app started at 21:15 local,
+    before 3c50c6bab, so it carries the 7d27cdfd8 gate. The same load probe on
+    988a4fa7d (gate present) and on HEAD (gate reverted) is identical: 8 sweeps
+    on the rebuilt screen, both viewports tagged, 0 untagged.
+
+NEXT: measure in HIS session rather than reconstruct it. An in-session paint
+diagnostic (SPACR_PAINT_DIAG=1 at launch, a shortcut that dumps every visible
+widget's paint state and a presented screenshot to ~/.cache/spacr/) is being
+built, so the next time the box appears the state that produces it is
+recorded instead of guessed.
