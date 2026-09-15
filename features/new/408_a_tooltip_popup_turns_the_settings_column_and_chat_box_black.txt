@@ -3,10 +3,12 @@ A TOOLTIP POPUP TURNS THE SETTINGS COLUMN AND THE AI CHAT BOX BLACK UNTIL THE
 MODULE IS LEFT AND REOPENED
 ================================================================================
 
-Status:    OPEN, PRIORITY, filed 2026-09-15. Reproduction and regression test
-           with the home session; the fix is expected in spacr/qt/theme.py,
-           which the work session is editing tonight, so it is coordinated
-           there. See the dated notes below for the measured mechanism.
+Status:    OPEN, PRIORITY, filed 2026-09-15. HALF FIXED 2026-09-15: the
+           per-object table mounted by a Preferences save on a screen already
+           on show was never swept, and now is (4bd07819d, with a test red
+           before the fix). The AI chat input and the tooltip as trigger are
+           NOT reproduced; an in-session paint diagnostic (SPACR_PAINT_DIAG=1,
+           Ctrl+Alt+Shift+D) exists to record them. See the dated notes.
 Requested: 2026-09-15, by the maintainer, verbatim: "as soon as a tooltip (not
            for per object settings based tooltips that dont generate a popup)
            appears in mask, measure and probably the other moduals a black box
