@@ -235,8 +235,16 @@ POISONED_ANIMATION = "cells"
 #: repaired ordinary start is seen to build one rather than to skip it.
 REPAIRED_ANIMATION = "blobs"
 
-#: A preference the user set and never touches in safe mode.
-UNTOUCHED_FONT_SCALE = 1.25
+#: Preferences the user set and never touches in safe mode, one of each kind
+#: of control the dialog writes them from: a slider, a text dropdown, a
+#: number dropdown and a checkbox. None is the default, so a Save that wrote
+#: the defaults would show on every one of them.
+UNTOUCHED_PREFERENCES = {
+    "_KEY_FONT_SCALE": 1.25,
+    "_KEY_FIG_FORMAT": "png",
+    "_KEY_FIG_PNG_DPI": 600,
+    "_KEY_FIG_DYNAMIC": False,
+}
 
 #: Environment a developer's shell might carry that would change what an
 #: ordinary start does, cleared so the three launches see only the store.
@@ -471,7 +479,8 @@ def a_start_that_a_preference_broke(tmp_path_factory):
     store = QSettings(str(store_path), QSettings.IniFormat)
     store.setValue(preferences._KEY_AMBIENT_ENABLED, True)
     store.setValue(preferences._KEY_AMBIENT_THEME, POISONED_ANIMATION)
-    store.setValue(preferences._KEY_FONT_SCALE, UNTOUCHED_FONT_SCALE)
+    for name, value in UNTOUCHED_PREFERENCES.items():
+        store.setValue(getattr(preferences, name), value)
     store.sync()
     del store
 
@@ -489,10 +498,16 @@ def a_start_that_a_preference_broke(tmp_path_factory):
     def stored(key):
         return QSettings(str(store_path), QSettings.IniFormat).value(key)
 
+    def untouched():
+        return {name: stored(getattr(preferences, name))
+                for name in UNTOUCHED_PREFERENCES}
+
     broken = launch("normal", "broken")
+    before_safe = untouched()
     safe = launch("safe", "safe")
     after_safe = {"animation": stored(preferences._KEY_AMBIENT_THEME),
-                  "font_scale": stored(preferences._KEY_FONT_SCALE)}
+                  "untouched_before": before_safe,
+                  "untouched": untouched()}
     repaired = launch("normal", "repaired")
     return {"repo_root": str(repo_root), "broken": broken, "safe": safe,
             "after_safe": after_safe, "repaired": repaired}
@@ -528,9 +543,13 @@ def test_safespacr_opens_anyway_and_saves_the_repair(
     assert safe["returncode"] == 0, (
         f"safespacr did not get in:\n{safe['stderr']}")
     assert report.get("exit") == "returned" and report.get("rc") == 0
-    assert report.get("dialog_showed") != POISONED_ANIMATION, (
-        "the Preferences dialog showed the stored animation, so safe mode "
-        "read the value it exists to escape")
+    assert report.get("dialog_showed") == POISONED_ANIMATION, (
+        "the Preferences dialog did not show the stored animation. Safe mode "
+        "STARTS on defaults, but the dialog is where a value is repaired and "
+        "it must show what is stored: showing the default "
+        f"({report.get('dialog_showed')!r}) makes the broken value look "
+        "fixed already, and choosing the value on screen would change "
+        "nothing")
     assert report.get("saved") and report.get("preferences_closed")
     assert runs["after_safe"]["animation"] == REPAIRED_ANIMATION, (
         "Save in safe mode did not reach the real store")
@@ -625,14 +644,28 @@ def test_safespacr_does_not_import_the_backdrop_module(
 
 @pytest.mark.slow
 @pytest.mark.timeout(900)
-@pytest.mark.xfail(strict=True, reason=(
-    "296 gap, not fixed: the Preferences dialog shows safe mode's defaults "
-    "and Save writes every control, so a safe-mode Save resets every "
-    "preference the user did not touch. The fix belongs in "
-    "spacr/qt/preferences.py (PreferencesDialog), outside this change."))
-def test_a_safe_mode_save_keeps_the_preferences_it_did_not_change(
+def test_a_safe_mode_save_keeps_every_preference_it_did_not_change(
         a_start_that_a_preference_broke):
-    """Re-saving one value must not quietly reset the rest to defaults."""
-    stored = a_start_that_a_preference_broke["after_safe"]["font_scale"]
+    """Re-saving one value must not quietly reset the rest to defaults.
 
-    assert float(stored) == UNTOUCHED_FONT_SCALE
+    Safe mode exists to fix ONE bad preference. It used to open Preferences
+    on defaults, and Save writes every control, so repairing the animation
+    reset every other preference the dialog owns: a stored font scale of
+    1.25 came back as 1. Compared as the raw text in the store before and
+    after, so a value rewritten in another form fails as surely as one
+    that was lost.
+    """
+    after_safe = a_start_that_a_preference_broke["after_safe"]
+    before = after_safe["untouched_before"]
+    seeded = {name: (str(value).lower() if isinstance(value, bool)
+                     else str(value))
+              for name, value in UNTOUCHED_PREFERENCES.items()}
+
+    assert before == seeded, (
+        f"the store did not hold the seeded preferences to begin with: {before}")
+    changed = {name: (before[name], after_safe["untouched"][name])
+               for name in UNTOUCHED_PREFERENCES
+               if after_safe["untouched"][name] != before[name]}
+    assert changed == {}, (
+        "a safe-mode Save changed preferences the user never touched "
+        f"(before, after): {changed}")

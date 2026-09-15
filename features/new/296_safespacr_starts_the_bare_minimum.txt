@@ -1,12 +1,11 @@
 296 — `safespacr` starts the bare minimum
 
-Status:    AUDITED 2026-09-15, NOT CLOSED. The item's own verification now
-           runs for real and passes (a written preference kills `spacr`,
-           `safespacr` gets in, re-saves it, exits, and `spacr` starts).
-           Safe mode no longer imports vispy, starts the pre-warm thread,
-           or reads the real store for the tour and installer consent. Two
-           gaps remain, both in spacr/qt/preferences.py, each pinned by a
-           strict xfail. See the last section.
+Status:    AUDITED 2026-09-15; both preferences.py gaps CLOSED the same
+           day (see the last section). The item's own verification runs
+           for real and passes, and a safe-mode Save now keeps every
+           preference the user did not touch. One verdict stays PARTLY by
+           design rather than by defect: safe mode still loads the default
+           theme stylesheet and bundled fonts, not unstyled Qt widgets.
 
 Asked 2026-08-28, while spaCR was crashing on launch: "there should be a start
 spacr in safe mode triggered by safespacr that turns everything it can off and
@@ -160,3 +159,72 @@ owns that file):
      garbage, measured above) while the START keeps reading defaults, or
      Save writes only the controls that changed.
 Each has a strict xfail above that turns red once it is fixed.
+
+
+2026-09-15 -- THE TWO PREFERENCES.PY GAPS, CLOSED
+
+preferences.py came free after 286 landed. Branch wip/296-gaps from
+4a5916286, with the audit commit cherry-picked first.
+
+1. SAFE MODE NO LONGER IMPORTS THE BACKDROP MODULE. apply_ambient_preferences
+   imported spacr.qt.widgets.ambient to look for widgets to hide before it
+   asked whether the backdrop was on. It now returns first when the backdrop
+   is off and the module is not in sys.modules: no widget of a class whose
+   module was never imported can exist. test_safespacr_does_not_import_the_
+   backdrop_module is a plain test now. Negative control, early return
+   removed: it fails with the module back in the list.
+
+2. A SAFE-MODE SAVE KEEPS WHAT THE USER DID NOT TOUCH. The dialog now shows
+   the STORED values: PreferencesDialog.__new__ points the store the getters
+   read at the real one for the synchronous build only (the move
+   _reset_to_defaults makes towards an empty one) and puts the shadow back
+   afterwards. Untouched controls write back exactly what is stored. The
+   START still reads nothing from the store, and apply_preferences_to_app
+   after Save still reads defaults, so the running safe session never takes
+   on the stored values.
+
+   Why not "save only what changed" instead: with the dialog on defaults,
+   the repair in this very test (Cells back to the default, Blobs) is a
+   choice of the value already on screen, so it would have written nothing
+   and the next start would die again. And a dry-run of the save to find
+   what changed would push the stored theme, log levels, font weight and
+   performance level into the live safe process, because those setters
+   apply as well as store.
+
+   test_a_safe_mode_save_keeps_every_preference_it_did_not_change seeds four
+   untouched preferences, one per control kind -- font_scale 1.25 (slider),
+   figure_format png (text dropdown), figure_png_dpi 600 (number dropdown),
+   figure_dynamic false (checkbox), none of them a default -- and compares
+   their raw text in the store before and after the safe-mode repair.
+   test_safespacr_opens_anyway_and_saves_the_repair now requires the dialog
+   to show the stored animation ("cells"); it used to require the opposite.
+   Negative control, the build-time swap removed: both fail, with
+   {font_scale: 1.25 -> 1, figure_format: png -> pdf, figure_png_dpi:
+   600 -> 300, figure_dynamic: false -> true} and "showing the default
+   ('blobs')".
+
+MEASURED AGAIN, safespacr offscreen: the watched imports are down to
+spacr.qt.fractal_defaults (constants only); no backdrop module, no vispy, no
+OpenGL, no GPU runtime, no thread besides MainThread, no widget timer;
+SPACR_NO_GL and SPACR_NO_BACKDROP set; exit 0.
+
+TESTS. The 296 file: 13 passed, no xfail left. Neighbours: test_ambient_none,
+test_ambient_wiring, test_cov_s1_preferences_edges,
+test_the_backdrop_survives_a_run, test_preferences (178);
+test_spaceout_fractals_move_and_stay_in_budget (23); test_preferences_reset,
+test_cov_r5/r6_preferences, test_performance_logging_preference,
+test_spacr_mode and every test that turns safe mode on (270). No
+user-visible string was added, so there is no catalog commit. Reasons are
+in docs/notes/spacr/qt/preferences.md.
+
+VERDICTS NOW
+* No animated backdrop, no fractal, no OpenGL of any kind -- MET.
+* No preloading, no background import thread -- MET.
+* No verbose tracing (294) -- MET.
+* No GPU probe, no CUDA import -- MET.
+* Plain widgets, default font, no theme animation -- PARTLY, unchanged: the
+  default theme stylesheet and bundled fonts load. Not a preference fault
+  (nothing stored is read for them), and not asked for in this round.
+* Must not load the same preferences path as a normal start -- MET.
+* Reads settings, lets the user change and RE-SAVE them, exits -- MET.
+* Verification -- MET.

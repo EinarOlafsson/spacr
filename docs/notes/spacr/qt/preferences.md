@@ -48,6 +48,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_start_disk_report](#_start_disk_report) (2 entries)
 - [_start_disk_report.done](#_start_disk_reportdone) (2 entries)
 - [explain_every_row](#explain_every_row) (4 entries)
+- [PreferencesDialog.__new__](#preferencesdialog__new__) (1 entry)
 - [PreferencesDialog._build_the_dialog](#preferencesdialog_build_the_dialog) (54 entries)
 - [PreferencesDialog._build_the_dialog._reload_ambient_palettes](#preferencesdialog_build_the_dialog_reload_ambient_palettes) (2 entries)
 - [PreferencesDialog._build_the_dialog._percent_row._update](#preferencesdialog_build_the_dialog_percent_row_update) (1 entry)
@@ -952,6 +953,18 @@ A BUTTON SAYS WHAT PRESSING IT DOES, AND IT SAYS IT AT
 THE FOOT OF THE WINDOW. A tooltip appears over the button where the pointer already is, and where the user is about to click -- so the sentence covers the thing it describes. The bar is out of the way, holds a long sentence without hiding anything, and does not flicker as the pointer crosses a row of buttons. This is what the module tiles on Home already do.
 
 With no bar in the window the tooltip STAYS: a control that explains itself nowhere is worse than one that explains itself awkwardly.
+
+## PreferencesDialog.__new__
+
+### lines 4534-4542
+
+```python
+shadowed = _settings
+```
+
+IN SAFE MODE THE DIALOG SHOWS WHAT IS STORED, and only while it is being built (296). Safe mode STARTS on defaults so that a broken value cannot stop the window appearing, but this dialog is where a value is repaired. Built on defaults it showed every control at its default, and Save writes every control, so repairing one value reset every other preference it owns -- measured 2026-09-15, a stored font scale of 1.25 came back as 1. It also made the broken value look fixed already: the Animation dropdown showed Blobs over a stored Cells, and choosing Blobs, the one on screen, would have changed nothing.
+
+So the store the getters read is pointed at the real one for the build, the same move `_reset_to_defaults` makes towards an empty one, and put back afterwards whatever happens. Untouched controls then write back exactly what is stored. The build is synchronous, so nothing else in the process reads a preference while it runs; handlers that run later, and `apply_preferences_to_app` after Save, still read defaults, so the running safe session does not take on the stored values. Showing a value is not what kills a start: every getter returns rather than raises on garbage (115 keys x 5 kinds, measured), and the dialog builds no backdrop.
 
 ## PreferencesDialog._build_the_dialog
 

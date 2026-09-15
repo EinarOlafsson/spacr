@@ -4531,8 +4531,15 @@ class PreferencesDialog:
         :returns: the dialog, ready to ``exec``.
         """
         from .i18n import ui_language_resolved_once
-        with ui_language_resolved_once():
-            return cls._build_the_dialog(parent)
+        global _settings
+        shadowed = _settings
+        if _SAFE_MODE:
+            _settings = lambda: QSettings(_ORG, _APP)
+        try:
+            with ui_language_resolved_once():
+                return cls._build_the_dialog(parent)
+        finally:
+            _settings = shadowed
 
     @classmethod
     def _build_the_dialog(cls, parent=None):
