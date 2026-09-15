@@ -2,13 +2,6 @@
   "language": "zh_CN",
   "records": [
     {
-      "key": "Cellpose",
-      "source": "Cellpose",
-      "source_sha256": "c6eaca19f427c3706e7b900dd7ce33fd9b4fe5afb5d1e9b0933d40b04858452d",
-      "table": "ui",
-      "translation": "Cellpose"
-    },
-    {
       "key": "Classical",
       "source": "Classical",
       "source_sha256": "5550f80de667506a37a21ab31f601c8cf1d259c2759ff40d63ca92e7a3d446df",
