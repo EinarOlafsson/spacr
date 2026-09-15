@@ -1,0 +1,54 @@
+================================================================================
+THE STARTUP WINDOW'S TEXT IS BRIGHT IN DARK MODE
+================================================================================
+
+Status:    OPEN, filed 2026-09-15.
+Requested: 2026-09-15, by the maintainer, in these words (item 2 of three):
+           "the text in the startup needs to be bright if the mode is dark
+           mode."
+           Reported in the same message: "spacr is in white mode on windows and
+           the text is dark gray in the startup spacr window when in dark mode,
+           so it is not legable. when the app opens everything is fine so it is
+           just the startup window."
+Owner:     unassigned.
+
+--------------------------------------------------------------------------------
+WHAT IS KNOWN
+--------------------------------------------------------------------------------
+
+  * Seen on Windows. With spaCR in dark mode, the startup (loading) window
+    draws its text dark gray on its dark background -- unreadable. The main
+    window that replaces it is correct.
+  * The startup window is spacr/qt/widgets/loading_screen.py. Its colours come
+    from palette roles resolved through `spacr.qt.theme.palette_for()`:
+    `splash_bg` for the background (~133), `splash_ink` and `splash_ink_dim`
+    for the strap line's phases (~266-272), with white as the fallback.
+  * The report's "white mode on windows" may mean the Windows OS colour scheme
+    is light while spaCR's own theme is dark. If so, the likely shape is that
+    something at splash time resolves from the OS scheme, or from the default
+    theme before the stored preference is read, while the main window reads
+    the stored theme. NOT YET REPRODUCED -- a hypothesis to test first, not a
+    cause.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  * Reproduce first: Windows light OS scheme + spaCR dark theme (and the other
+    three combinations), and record the colour every text element on the
+    startup window is actually painted with.
+  * The startup window's text is bright whenever the theme spaCR is about to
+    open in is dark, whatever the OS scheme -- the same theme the main window
+    then shows, read from the same place.
+  * Light theme keeps dark text on a light background, so neither mode is
+    unreadable.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * On Windows, with the OS scheme light and spaCR dark, the startup text is
+    bright and readable; with both light, it is dark on light.
+  * A test builds the startup window under each OS-scheme x spaCR-theme
+    combination and requires a minimum contrast ratio between every text
+    colour it paints and its background.

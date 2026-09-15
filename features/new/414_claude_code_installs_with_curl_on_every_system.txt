@@ -1,0 +1,63 @@
+================================================================================
+CLAUDE CODE INSTALLS WITH CURL ON EVERY SYSTEM, WINDOWS INCLUDED
+================================================================================
+
+Status:    OPEN, filed 2026-09-15.
+Requested: 2026-09-15, by the maintainer, in these words (item 1 of three):
+           "the claud on all systems if possible code installation on windows
+           (just allways use curl)"
+           Reported in the same message, from a Windows machine: "nmd not
+           recognized on windows".
+Owner:     unassigned.
+
+--------------------------------------------------------------------------------
+WHAT IS THERE NOW
+--------------------------------------------------------------------------------
+
+The AI Console talks to vendor coding-agent CLIs, and the Providers dialog
+shows each one's install command. For Claude Code the command depends on the
+platform (spacr/qt/ai/providers.py, `ClaudeCliProvider.install_hint`, ~303-307):
+
+    Windows          npm install -g @anthropic-ai/claude-code
+    macOS / Linux    curl -fsSL https://claude.ai/install.sh | bash
+
+A Windows machine without Node.js has no `npm`, so the command fails with
+"'npm' is not recognized ...". The filer read the maintainer's "nmd not
+recognized" as exactly that, and the maintainer CONFIRMED the reading with the
+question tool on 2026-09-15: "Yes, Claude Code in spaCR" -- "Change the install
+command spaCR shows for Claude Code to curl on Windows too, in all nine
+languages."
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  * Claude Code's install hint uses curl on EVERY system, Windows included --
+    no Node.js prerequisite. Windows 10 (1803+) and 11 ship `curl.exe`.
+  * Use the vendor's CURRENT official native installer commands, checked
+    against Anthropic's Claude Code setup documentation at build time rather
+    than copied from here. At filing, the documented Windows forms were a CMD
+    command that downloads `install.cmd` with curl and a PowerShell `irm ...
+    install.ps1 | iex`; the request says curl, so the curl form is shown.
+  * The command must run in the shell the dialog tells the user to open (CMD
+    vs PowerShell differ: in PowerShell `curl` can resolve to an alias, so name
+    `curl.exe` explicitly or say which shell).
+  * Every place the command appears changes together: the Providers dialog,
+    the install-consent text, the AI Console empty state, tutorials and docs,
+    and their translations in all nine languages.
+
+Found beside it, NOT part of this request: the Codex and Gemini hints are
+npm-first on every system (providers.py ~341 and ~373). They fail the same way
+on a machine without Node.js.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * On a clean Windows machine with no Node.js, pasting the command from the
+    Providers dialog into the named shell installs `claude`, and `claude
+    --version` answers in a new terminal.
+  * The same on macOS and Linux.
+  * A test pins that no Claude Code install hint on any platform starts with
+    `npm`, and that the Windows hint names its shell.
+  * The runtime catalogs carry the new text in all nine languages.
