@@ -94,6 +94,7 @@ Write-Host "  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation 
 Write-Host "  $(Get-SpacrInstallerMessage 'resolver_guards'): $($ResolverGuards -join ', ')"
 
 if ($DryRun -or $env:SPACR_INSTALL_DRY_RUN -eq "1") {
+    Write-Host "DRY RUN: would find and remove every older spaCR installation first"
     Write-Host (Get-SpacrInstallerMessage "dry_download" @($UvInstallUrl))
     Write-Host (Get-SpacrInstallerMessage "dry_create" @($VenvDir))
     Write-Host (Get-SpacrInstallerMessage "dry_launcher" @($Launcher))
@@ -108,8 +109,10 @@ if ($drive.AvailableFreeSpace -lt 5GB) {
         (Get-SpacrInstallerMessage "available_space" @($available, $InstallRoot)))
 }
 
-New-Item -ItemType Directory -Force -Path $BootstrapDir, $PythonDir, $CacheDir | Out-Null
-$InstallerScript = Join-Path $env:TEMP ("spacr-uv-installer-" + $PID + ".ps1")
+New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
+$WorkDir = Join-Path $env:TEMP ("spacr-install-" + $PID)
+$WorkUv = Join-Path $WorkDir "bootstrap\uv.exe"
+$InstallerScript = Join-Path $WorkDir "uv-installer.ps1"
 $LogPath = Join-Path $InstallRoot "install.log"
 Start-Transcript -Path $LogPath -Append | Out-Null
 Write-Host (Get-SpacrInstallerMessage "detailed_log" @($LogPath))
@@ -127,21 +130,57 @@ function Invoke-Checked {
 
 try {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    New-Item -ItemType Directory -Force -Path $WorkDir | Out-Null
+
+    # find old spaCR files --> delete old spaCR files --> install new spaCR.
+    #
+    # uv and a private Python are fetched into a temporary folder first,
+    # outside every installation: a failed download stops the install here,
+    # before anything old is deleted, and the Python that runs the removal is
+    # not one of the files it removes. install_cleanup.py is the finder and
+    # remover the in-app update uses too, shipped beside this script. It never
+    # runs an old version's own Uninstall.exe, keeps the settings stored under
+    # the same registry key, and lists environments the user made without
+    # touching them.
     Write-Host (Get-SpacrInstallerMessage "downloading_uv") -ForegroundColor Cyan
     Invoke-WebRequest -UseBasicParsing -Uri $UvInstallUrl -OutFile $InstallerScript
 
-    $env:UV_UNMANAGED_INSTALL = $BootstrapDir
+    $env:UV_UNMANAGED_INSTALL = Join-Path $WorkDir "bootstrap"
     $env:UV_NO_MODIFY_PATH = "1"
     & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $InstallerScript
-    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $UvExe)) {
-        throw (Get-SpacrInstallerMessage "uv_missing" @($UvExe))
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $WorkUv)) {
+        throw (Get-SpacrInstallerMessage "uv_missing" @($WorkUv))
     }
 
+    $env:UV_SYSTEM_CERTS = "true"
+    $env:UV_PYTHON_CACHE_DIR = Join-Path $WorkDir "python-downloads"
+    $env:UV_PYTHON_INSTALL_DIR = Join-Path $WorkDir "python"
+    $env:UV_CACHE_DIR = Join-Path $WorkDir "cache"
+    Write-Host (Get-SpacrInstallerMessage "downloading_python" @($PythonVersion)) -ForegroundColor Cyan
+    Invoke-Checked $WorkUv python install $PythonVersion --managed-python --no-bin --no-registry
+    $CleanupPython = & $WorkUv python find $PythonVersion --managed-python | Select-Object -Last 1
+    if ($LASTEXITCODE -ne 0 -or -not $CleanupPython -or -not (Test-Path $CleanupPython.Trim())) {
+        throw (Get-SpacrInstallerMessage "command_failed" @($WorkUv, $LASTEXITCODE))
+    }
+    $CleanupPython = $CleanupPython.Trim()
+    $CleanupModule = Join-Path $PSScriptRoot "install_cleanup.py"
+    if (-not (Test-Path $CleanupModule)) {
+        $CleanupModule = Join-Path $PSScriptRoot "..\..\spacr\install_cleanup.py"
+    }
+    # The log of this install and the files the NSIS wrapper has already
+    # written for it are not old files.
+    & $CleanupPython -I $CleanupModule remove `
+        --keep $LogPath `
+        --keep (Join-Path $InstallRoot "spacr.ico") `
+        --keep (Join-Path $InstallRoot "nsis-bootstrap-status.txt")
+    if ($LASTEXITCODE -ne 0) {
+        throw "Installation stopped: an older spaCR could not be removed (see above). Close any running spaCR and run the installer again."
+    }
+
+    New-Item -ItemType Directory -Force -Path $BootstrapDir, $PythonDir, $CacheDir | Out-Null
+    Move-Item -Force $WorkUv $UvExe
     $env:UV_PYTHON_INSTALL_DIR = $PythonDir
     $env:UV_CACHE_DIR = $CacheDir
-    $env:UV_SYSTEM_CERTS = "true"
-
-    Write-Host (Get-SpacrInstallerMessage "downloading_python" @($PythonVersion)) -ForegroundColor Cyan
     Invoke-Checked $UvExe python install $PythonVersion --managed-python --no-bin --no-registry
 
     if (Test-Path $StageVenv) {
@@ -223,6 +262,6 @@ raise SystemExit(run())
     Remove-Item -Force -ErrorAction SilentlyContinue $StageProfile
     throw
 } finally {
-    Remove-Item -Force -ErrorAction SilentlyContinue $InstallerScript
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $WorkDir
     Stop-Transcript -ErrorAction SilentlyContinue | Out-Null
 }
