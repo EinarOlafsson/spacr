@@ -323,3 +323,123 @@ had "une des touches" (keyboard keys) where the sentence means dictionary keys,
 now "l'une des clés"; sv "till" became "i". A per-symbol key would have left
 the three old blocks wrong. When a rebuild moves symbols whose English did not
 change, check for a shared-source record before calling it collateral damage.
+
+2026-09-15 -- THE API LANE HAS THE SAME FAULT ONE LEVEL UP. A REWRITTEN
+ENGLISH MANIFEST ERASES THE HISTORY A REPAIR NEEDS.
+--------------------------------------------------------------------------------
+
+Found integrating wip/integ-0815. The runtime fault above was a cache that
+outranked a committed row. This one is the API lane's cousin: the committed
+translation is there, the builder has a path to carry it forward, and a
+routine earlier step makes that path prove nothing.
+
+WHAT HAPPENED
+
+Item 63 fixed inline markup in 42 docstrings. The batch then ran, in order:
+
+    03:00Z  build_documentation_i18n.py --sources-only       (rewrites en.json)
+    03:11Z  build_documentation_i18n.py --repair-api-blocks  (nine locales, cuda)
+
+Every locale printed `historical_reused=0` with `relaid_symbols=42`, and 17
+blocks came back exact English. ELEVEN OF THE SEVENTEEN HAD NOT CHANGED
+(zh_CN 1, pt 8, ko 2). They sit in a symbol where 63 edited a DIFFERENT
+block, and the audit of pt, ko and zh_CN at 8f4171fd9 exits 0 with them.
+
+THE MECHANISM, FROM THE CODE PATH
+
+`repair_api_translations` reuses a block in two ways:
+
+  * POSITIONALLY, when the translated record's `source_sha256` equals the
+    current English. A changed docstring fails this, by design.
+  * HISTORICALLY, for a changed docstring, through
+    `_historical_api_block_translations(english_record, translated_record)`.
+    It returns an unchanged paragraph's old translation only when the
+    English manifest's record and the translated record carry THE SAME
+    `source_sha256` -- the proof that the old paragraph was translated from
+    this very English.
+
+`english_record` is read from `docs/source/_static/i18n/api/en.json`, the
+working tree's manifest, taken to be the PREVIOUS English. `main()` keeps
+that true for its own run ("Keep the previous English manifest available
+until every locale has repaired") by writing en.json only after the last
+locale. Nothing else keeps it true. `--sources-only` had already written
+the NEW English there, so for all 42 symbols the manifest's hash was the
+new one, the catalog's was the old one, and the historical path returned
+nothing. What is left is the namespaced cache and the model.
+
+EVIDENCE, THE BUILDER'S OWN FUNCTIONS ON THE ELEVEN
+
+    old manifest (8f4171fd9's en.json)       11/11 blocks returned
+    manifest --sources-only wrote            0 blocks: {} for all 11 symbols
+    namespaced cache key for the block       absent for all 11
+    block index and block count              identical old/new, all 11
+
+So neither remaining route could carry them. The model got them again and
+failed the gates, and a failed decode stays English. The other paragraphs of
+the same 42 symbols survived only because they were in the cache
+(`cache_recovered` pt 437, ko 393, zh_CN 473).
+
+THE SAME FAULT HAS A SECOND DOOR. `--repair-api-blocks --languages <some>`
+writes en.json after those languages, which advances the manifest for the
+languages it did not repair.
+
+THE FIX (small, in the builder)
+
+`_committed_english_api_symbols()` reads `HEAD:./docs/source/_static/i18n/
+api/en.json` through git. For a changed symbol whose working-tree manifest
+does not match the translated record, `repair_api_translations` now offers
+the committed record as the second candidate, BOUND BY THE SAME HASH: a
+manifest describing any other English cannot match, and every reused block
+still passes the same gates. At the time of this batch HEAD's manifest was
+8f4171fd9's (d745347fb did not touch en.json), so the fallback had the
+right history. The summary line gains two counters:
+
+    history_from_head=N   symbols whose history came from the commit
+    history_unproven=N    stale symbols no manifest could prove
+
+`history_unproven` is the part that was silent before: a non-zero count
+means paragraphs of changed docstrings are going to the cache and model.
+
+    tests/test_documentation_i18n.py::
+        test_api_repair_recovers_history_after_the_manifest_was_rewritten
+
+A temporary git repo commits the old manifest and catalog, then the working
+tree gets the new manifest, as `--sources-only` did.
+
+    before the fix   RED: both paragraphs sent to the model,
+                     historical_reused=0 unresolved=1
+    after the fix    green; the three neighbouring historical/cache tests
+                     unchanged green
+
+REPLAYED ON THE REAL CATALOGS
+
+Working-tree en.json from 6c6938be0 (what --sources-only wrote); the
+translated catalog and the committed manifest from 8f4171fd9; the real cache,
+read and never written; NO reviewed records; the model stubbed to return
+nothing, so a block the builder cannot carry stays English.
+
+                  WITHOUT THE FALLBACK            WITH IT
+               historical  to the  the 11    historical  to the  the 11
+               reused      model   back      reused      model   back
+    zh_CN          0         24     0/1          562        9     1/1
+    ko             0         31     0/2          562       15     2/2
+    pt             0         35     0/8          561       14     8/8
+
+`history_unproven` goes 42 -> 0 and `history_from_head` 0 -> 42 in each
+locale. The builder alone would have carried all eleven, and 1,685
+paragraphs of changed docstrings in these three locales (562 + 562 + 561)
+that the batch had to find in the cache or leave to the model.
+
+WHAT IT DOES NOT FIX
+
+  * History that was never committed. Once a new en.json is COMMITTED (as it
+    is now, in this batch's catalog commit), HEAD no longer remembers the
+    old English, and `history_unproven` is the only witness.
+  * The eleven themselves. They are durable as reviewed records in
+    `docs/i18n/reviewed/api/{pt,ko,zh_CN}/2026-09-15-integration-restored.json`,
+    byte-identical to their 8f4171fd9 blocks and clean under the current
+    gates. CLEAN IS NOT GOOD: several are weak model output
+    (zh_CN `港口的`, "harbour", for "Port of", with a clause dropped; ko
+    `과장하는 것에 대하여`, "about exaggerating", for "override"; pt
+    "levanta terras" for "raises lands as"). They are restored as they
+    were, not reviewed as prose.

@@ -451,6 +451,96 @@ def test_historical_api_reuse_rejects_unverified_context_hashes():
     ) == {source: "Retorna o estado da tarefa."}
 
 
+def test_api_repair_recovers_history_after_the_manifest_was_rewritten(
+    tmp_path, monkeypatch,
+):
+    """A rewritten ``en.json`` must not cost a changed docstring its old paragraphs.
+
+    On 2026-09-15 ``--sources-only`` ran before ``--repair-api-blocks``, so
+    the working-tree manifest already held the NEW English. No paragraph of a
+    changed docstring could be proven unchanged (``historical_reused=0`` in
+    all nine locales), and eleven that had passed the audit the commit
+    before, and were in no cache, came back exact English. The committed
+    manifest still held the previous English; the repair now reads it as the
+    second candidate, bound by the same source hash.
+    """
+    import argparse
+    import shutil
+    import subprocess
+
+    import build_documentation_i18n as builder
+
+    if shutil.which("git") is None:
+        pytest.skip("git is not available")
+
+    key = "spacr.example"
+    old_source = "Return the task status.\n\nKeep the saved image."
+    old_target = "Retorna o estado da tarefa.\n\nMantém a imagem salva."
+    new_source = "Return the processing status.\n\nKeep the saved image."
+    new_block = "Return the processing status."
+    new_target = "Retorna o estado do processamento."
+    repo = tmp_path / "repo"
+    api_dir = repo / "api"
+    api_dir.mkdir(parents=True)
+    (api_dir / "en.json").write_text(
+        json.dumps(builder._english_manifest({key: old_source})),
+        encoding="utf-8",
+    )
+    (api_dir / "pt.json").write_text(
+        json.dumps({
+            "schema": 2,
+            "language": "pt",
+            "symbols": {key: {
+                "source_sha256": builder._source_hash(old_source),
+                "source_blocks_sha256":
+                    builder._source_block_hashes(old_source),
+                "translation_source_blocks_sha256":
+                    builder._translation_source_block_hashes(old_source),
+                "text": old_target,
+            }},
+        }),
+        encoding="utf-8",
+    )
+    git = [
+        "git", "-C", str(repo),
+        "-c", "user.name=spaCR test", "-c", "user.email=test@example.invalid",
+        "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null",
+    ]
+    subprocess.run([*git, "init", "-q"], check=True)
+    subprocess.run([*git, "add", "api"], check=True)
+    subprocess.run([*git, "commit", "-q", "-m", "previous English"], check=True)
+    # What --sources-only did first: the working tree now holds the NEW
+    # English, and only the commit remembers the old.
+    (api_dir / "en.json").write_text(
+        json.dumps(builder._english_manifest({key: new_source})),
+        encoding="utf-8",
+    )
+    reviewed = tmp_path / "reviewed"
+    reviewed.mkdir()
+    monkeypatch.setattr(builder, "ROOT", repo)
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+    captured = {}
+
+    def fake_translate(blocks, language, model_root, args, **kwargs):
+        captured["blocks"] = list(blocks)
+        return {new_block: new_target}
+
+    monkeypatch.setattr(builder, "_translate_blocks", fake_translate)
+    repaired = builder.repair_api_translations(
+        {key: new_source},
+        "pt",
+        tmp_path / "models",
+        argparse.Namespace(),
+    )
+    # Only the paragraph whose English changed goes to the model; the
+    # unchanged one is carried from the translated catalog.
+    assert captured["blocks"] == [new_block]
+    assert repaired == {
+        key: f"{new_target}\n\nMantém a imagem salva."
+    }
+
+
 def test_reviewed_api_blocks_are_exact_bound_accepted_only_evidence(
     tmp_path, monkeypatch,
 ):
