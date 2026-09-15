@@ -1,0 +1,126 @@
+================================================================================
+AN UPDATE REMOVES EVERY OLDER spaCR FIRST, ON EVERY SYSTEM
+================================================================================
+
+Status:    OPEN, filed 2026-09-15. BLOCKING USERS: upgrading from a 1.5.0.1
+           desktop install is currently impossible.
+Requested: 2026-09-15, by the maintainer, in these words (item 3 of three):
+           "when updating spacr, the updater must first remove the older
+           version of spacr, from all locations, on all operating systems, so
+           upgrading is not blocked, which it currently is for users on 1.5.0.1
+           and potentially other versions, when the desktop installer has been
+           used."
+           And in the same message: "also when spacr is updated or installed,
+           via the check for updates function, all older versions of spacr
+           need to be deleted. now i have an older version installed on a
+           computer and i am unable to update spacr because it cant be properly
+           uninstalled. so this needs to be taken into account when uppdating.
+           as the user might be updating from an old version."
+Owner:     unassigned.
+
+--------------------------------------------------------------------------------
+WHAT IS THERE NOW
+--------------------------------------------------------------------------------
+
+The updater (spacr/updater.py; Help -> "Check for updates") upgrades spaCR
+INSIDE the environment it is running from -- `uv pip install --upgrade
+--python sys.executable` on a desktop install (`find_uv`, `upgrade_command`),
+`python -m pip install --upgrade` otherwise. It never looks for, or removes,
+any other installation. A user whose old install cannot be uninstalled
+therefore cannot get past it, and the maintainer has such a machine now.
+
+WHERE OLD VERSIONS LIVE, read from the v1.5.0.1 installer scripts
+(packaging/ at tag v1.5.0.1) -- every later layout must be added to this list:
+
+  Windows, online installer (spacr_online_installer.nsi +
+  install_spacr_windows.ps1):
+      %LOCALAPPDATA%\SpaCR\         venv\, python\, bootstrap\uv.exe, cache\,
+                                    launch_spacr.pyw, spacr.cmd, install.log,
+                                    Uninstall.exe
+      Desktop\spaCR.lnk; Start Menu\Programs\spaCR\
+      HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\spaCR
+      HKCU\Software\spaCR
+  Windows, offline installer (build_windows.ps1):
+      %PROGRAMFILES%\SpaCR\          Start Menu SpaCR.lnk
+  macOS / Linux, online installer (install_spacr_unix.sh):
+      ${XDG_DATA_HOME:-~/.local/share}/spacr/   venv/, uninstall-spacr.sh
+      launcher ~/.local/bin/spacr (Linux) or /usr/local/bin/spacr (macOS)
+      ~/.local/share/applications/spacr.desktop (Linux)
+  macOS, offline: /Applications/SpaCR.app
+  Linux, offline: the `spacr` .deb package (build_debian.sh)
+  Any system: pip / conda environments that contain the `spacr` package.
+
+Preferences and user data (QSettings "spacr"/"qt"; ~/.spacr, ~/.cache/spacr,
+~/.local/state/spacr, ~/spacr-demos, ~/spacr-tutorials, Hugging Face model
+cache) are NOT an old version and are kept -- the 1.5.0.1 unix uninstaller
+already said "User-created data and preferences were left in place".
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  * Before an update or install completes, FIND every older spaCR
+    installation on the machine from the list above (and every later layout),
+    and remove it: files, launchers, shortcuts, menu entries and uninstall
+    registrations. Afterwards exactly one spaCR is installed, the new one.
+  * It must work from EVERY old version, 1.5.0.1 included, even when that
+    version's own uninstaller is missing or broken -- which is the case that
+    blocks the maintainer today. Removal cannot depend on the old version's
+    code.
+  * An install cannot delete itself while running (Windows locks open files).
+    The removal of the running environment belongs to a separate process or
+    the installer, which replaces the old install after spaCR has exited, and
+    restarts the new one.
+  * Keep preferences and user data unless the maintainer decides otherwise.
+  * User-created Python / conda environments that happen to contain spaCR are
+    not the installer's to delete wholesale -- see OPEN QUESTION.
+  * Report what was removed, where, in the console and the install log.
+
+THE SEQUENCE, in the maintainer's words (2026-09-15, a follow-up message):
+           "for 3 i need several new behaviours:
+
+           if  update spacer is activated in the spacr aplication, the sequence
+           should be:
+
+           find old spacr files --> delete old spacr files --> install new
+           spacr
+
+           if the installers are used the sequence of events should be :
+
+           find old spacr files --> delete old spacr files --> install new
+           spacr"
+
+  So there are TWO entry points with the SAME three steps, and the order is
+  the requirement -- find, then delete, then install; never install over or
+  beside an old copy:
+
+      in-app "Check for updates" -> update   the native installers
+      ---------------------------------------  ---------------------------------
+      1. find old spaCR files                  1. find old spaCR files
+      2. delete old spaCR files                2. delete old spaCR files
+      3. install new spaCR                     3. install new spaCR
+
+  Both entry points use ONE finder and ONE remover (one list of locations),
+  so a layout added for one is never missed by the other. In the in-app path
+  the running spaCR is itself an old copy, so steps 2-3 run in a separate
+  process after the app exits (see above), then start the new version.
+
+DECIDED (asked with the question tool, 2026-09-15): what the updater does with
+a pip or conda environment the USER created that contains spaCR. Answer,
+verbatim: "List them and ask (Recommended)" -- "Remove every installer-made
+copy automatically; for environments you made, show where they are and remove
+spaCR from each only if you tick it." The environment itself is never deleted;
+only the spacr package inside a ticked one is uninstalled.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * On Windows, macOS and Linux, with a 1.5.0.1 desktop install present (and
+    one broken so its uninstaller fails), running the update or the installer
+    leaves exactly one spaCR -- the new one -- with no stale shortcut, launcher,
+    menu entry or Apps-list registration, and preferences intact.
+  * Tests build each historical layout in a sandbox (fake %LOCALAPPDATA%,
+    HOME, registry via an abstraction) and require the finder to list it and
+    the remover to leave nothing behind but user data.
+  * The maintainer's own blocked machine updates.
