@@ -1094,7 +1094,7 @@ def test_reparenting_moves_the_window_watch(qtbot):
     widget = make_widget(qtbot)
     widget.show()
     qtbot.waitExposed(widget)
-    assert widget._watched is widget
+    assert widget._watched() is widget
 
     host = QWidget()
     qtbot.addWidget(host)
@@ -1103,7 +1103,7 @@ def test_reparenting_moves_the_window_watch(qtbot):
     host.resize(400, 300)
     host.show()
     qtbot.waitExposed(host)
-    assert widget._watched is host
+    assert widget._watched() is host
     assert widget.is_running()
 
     host.setWindowState(Qt.WindowMinimized)

@@ -661,9 +661,16 @@ class ShortcutOverlay(QWidget):
 
     def eventFilter(self, obj, event):
         """Track the window's size so the overlay stays full-bleed."""
-        if obj is self._window and event.type() == QEvent.Resize:
-            self.setGeometry(self._window.rect())
-        if obj is self._scroll.viewport() \
+        # getattr: the overlay and its window are a reference cycle, so the
+        # collector can clear this wrapper before the window's destructor
+        # reaches the filter.
+        window = getattr(self, "_window", None)
+        scroll = getattr(self, "_scroll", None)
+        if window is None or scroll is None:
+            return super().eventFilter(obj, event)
+        if obj is window and event.type() == QEvent.Resize:
+            self.setGeometry(window.rect())
+        if obj is scroll.viewport() \
                 and event.type() == QEvent.MouseButtonPress:
             self.dismiss()
             return True

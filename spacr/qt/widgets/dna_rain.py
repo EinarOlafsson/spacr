@@ -103,6 +103,7 @@ from __future__ import annotations
 
 import math
 import random
+import weakref
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
 
@@ -782,7 +783,9 @@ class DnaRainWidget(QWidget):
         self._timer.setTimerType(Qt.CoarseTimer)
         self._timer.setInterval(max(1, 1000 // self._fps))
         self._timer.timeout.connect(self._on_tick)
-        self._watched: Optional[QWidget] = None
+        # WEAK, or the window and this widget form a reference cycle; see
+        # docs/notes/spacr/qt/widgets/dna_rain.md for what the collector does.
+        self._watched: Optional[weakref.ReferenceType] = None
 
     def focusInEvent(self, event) -> None:  # noqa: N802 (Qt override)
         """Reject even programmatic focus; this widget is decorative only."""
@@ -1064,11 +1067,12 @@ class DnaRainWidget(QWidget):
         """
         super().showEvent(event)
         window = self.window()
-        if window is not None and window is not self._watched:
-            if self._watched is not None:
-                self._watched.removeEventFilter(self)
+        watched = self._watched() if self._watched is not None else None
+        if window is not None and window is not watched:
+            if watched is not None:
+                watched.removeEventFilter(self)
             window.installEventFilter(self)
-            self._watched = window
+            self._watched = weakref.ref(window)
         self._sync_size()
         self._sync_run_state()
 
@@ -1081,14 +1085,20 @@ class DnaRainWidget(QWidget):
         :param event: the Qt hide event.
         """
         super().hideEvent(event)
-        self.stop()
+        # Absent when the collector cleared this wrapper before its window
+        # was destroyed: nothing is left to stop.
+        if getattr(self, "_timer", None) is not None:
+            self.stop()
 
     def eventFilter(self, obj, event):
         """Follow the parent's size; pause when the window is minimised."""
         etype = event.type()
+        # getattr for the same teardown as hideEvent: nothing watched.
+        ref = getattr(self, "_watched", None)
+        watched = ref() if ref is not None else None
         if etype == QEvent.Resize and obj is self.parent():
             self.setGeometry(obj.rect())
-        elif obj is self._watched and etype in (
+        elif watched is not None and obj is watched and etype in (
                 QEvent.WindowStateChange, QEvent.Hide, QEvent.Show):
             self._sync_run_state()
         return super().eventFilter(obj, event)

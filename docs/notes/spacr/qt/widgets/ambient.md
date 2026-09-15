@@ -35,9 +35,10 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [FractalEngine.buds](#fractalenginebuds) (3 entries)
 - [FractalEngine._paint_field](#fractalengine_paint_field) (6 entries)
 - [_FrameProducer._run](#_frameproducer_run) (1 entry)
-- [AmbientWidget.__init__](#ambientwidget__init__) (6 entries)
+- [AmbientWidget.__init__](#ambientwidget__init__) (7 entries)
 - [AmbientWidget._rebuild_engine](#ambientwidget_rebuild_engine) (1 entry)
-- [AmbientWidget.eventFilter](#ambientwidgeteventfilter) (1 entry)
+- [AmbientWidget.hideEvent](#ambientwidgethideevent) (1 entry)
+- [AmbientWidget.eventFilter](#ambientwidgeteventfilter) (2 entries)
 - [AmbientWidget._on_tick](#ambientwidget_on_tick) (2 entries)
 - [AmbientWidget._backdrop_origin](#ambientwidget_backdrop_origin) (1 entry)
 - [AmbientWidget.paintEvent](#ambientwidgetpaintevent) (2 entries)
@@ -780,6 +781,14 @@ self._timer = QTimer(self)
 
 One timer for the life of the widget. Switching theme swaps the engine underneath it and never creates a second one.
 
+### line 4448
+
+```python
+self._watched: Optional[weakref.ReferenceType] = None
+```
+
+WEAK, NOT A PLAIN REFERENCE. The window owns this widget's wrapper, or is this widget when it has no parent, so a strong `_watched` made a reference cycle and the pair could be freed only by Python's cycle collector. The collector clears each wrapper's `__dict__` before the C++ objects are destroyed; the window's destructor then hides its children and notifies its filters, and both reached a widget with no `_watched` and no `_timer`. CI run 34989909231 (2a84d1d60) failed on exactly that, once per widget, in whichever test the collector happened to run. With a weak reference no cycle forms, and reference counting frees the window while every attribute is still there. Pinned by `tests/qt/test_a_backdrop_outlives_nothing_it_watches.py`.
+
 ## AmbientWidget._rebuild_engine
 
 ### lines 4947-4948
@@ -789,6 +798,16 @@ self._last_frame = None
 ```
 
 The old engine's last frame was drawn by the old engine; keeping it would blit the theme the user just switched away from.
+
+## AmbientWidget.hideEvent
+
+### line 4904
+
+```python
+if getattr(self, "_timer", None) is not None:
+```
+
+A window torn down after the collector emptied this wrapper still hides it. The weak watch removes the cycle this widget made, but any other cycle through the widget reopens the same path, so with no `_timer` there is nothing to stop and the event is simply passed on.
 
 ## AmbientWidget.eventFilter
 
@@ -801,6 +820,14 @@ self._follow_screen()
 The window was dragged, possibly onto another display — see
 
 `_follow_screen`. A move that stays on one screen finds the ceiling unchanged and returns without touching the engine.
+
+### line 4911
+
+```python
+ref = getattr(self, "_watched", None)
+```
+
+`getattr`, for the same teardown as `hideEvent`: the window's destructor notifies this filter after the collector cleared the wrapper. With no watch there is nothing to pause or resume. The same guard FigureQueue got for its `_view`.
 
 ## AmbientWidget._on_tick
 
