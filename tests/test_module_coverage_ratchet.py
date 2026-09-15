@@ -318,7 +318,12 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # the shipped set against 49c1189f7, which returns exactly those two.
     # The note above predicted this: a module landing moves counts in at
     # least three unrelated files. It moved four this time.
-    assert len(shipped) == 567
+    # 567 -> 568 on 2026-09-15, +1/-0: spacr/_segmentation_backends.py, the
+    # DINOCell/SAMCell seam behind `segmentation_backend` (404/405). Private
+    # and still shipped, like `_layout_policy`. Measured by diffing the shipped
+    # set against 8f4171fd9: now - base is exactly that file, base - now is
+    # empty, and removing it gives the 567-member set back unchanged.
+    assert len(shipped) == 568
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -580,7 +585,7 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     )
     assert "coverage combine --keep" in combine_script
     assert "coverage json --pretty-print" in combine_script
-    assert "--expected-file-count 567" in combine_script
+    assert "--expected-file-count 568" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
     assert "coverage-combine" in jobs["release-gate"]["needs"]

@@ -259,9 +259,37 @@ COMPACT_CAPTION_SHA256 = (
 # even though no count does. Catalogs first, ratchet second: all ten carry the
 # new 'gRNA' identity row and have lost the four `grna` rows and the chooser
 # caption before these numbers were touched.
+# MOVED 2026-09-15 for the 08:15 integration batch (wip/integ-0815), measured
+# by set difference against 8f4171fd9 -- the commit where every number in this
+# dict and the digest below still reproduce byte for byte -- not by accepting a
+# new total:
+#
+#   SETTING_LABELS    1054 -> 1055   +1 / -0   `segmentation_backend` (404/405)
+#   SETTING_TOOLTIPS  1049 -> 1050   +1 / -0   the same key's tooltip
+#   UI                3291 -> 3445   +154 / -0
+#   CATEGORY_HELP, MODULE_SUMMARIES  unchanged
+#
+# ALL 154 UI ADDITIONS ARE 394 (3d8a269f8), and none is a new string. 394 gave
+# the extractor keyed rules for captions passed through local helpers, so
+# these were on screen all along and read English in all nine locales. Every
+# one is already present at a83a0cfea, the merge of wip/63-394-source before
+# any other change of this batch, and neither setting row is. By the file
+# under spacr/qt that draws each one:
+#
+#   volcano_explorer 50, annotate 11, methods_export 9, fast_plots 9,
+#   prerun 8, preferences 6, annotation_strategy_panel 6,
+#   regression_results 6, hit_list 5, run_history 5, data_manager 4,
+#   map_barcodes 4, pipeline_graph 4, settings_search 4, gene_panel 4,
+#   percentile_pair 3, save_figure_dialog 3, app_screen 2, run_compare 2,
+#   formula_editor 2, hyperparam 1, make_masks 1, annotation_umap_tab 1,
+#   measurement_scan_panel 1, object_grid_binding 1, refit_dialog 1,
+#   sweep_runs 1
+#
+# Nothing left the table. The reverse check: removing these 156 identities
+# from the current set gives f576cb08... back exactly.
 EXTERNAL_SOURCE_COUNTS = {
-    "SETTING_LABELS": 1054,
-    "SETTING_TOOLTIPS": 1049,
+    "SETTING_LABELS": 1055,
+    "SETTING_TOOLTIPS": 1050,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
@@ -297,7 +325,14 @@ EXTERNAL_SOURCE_COUNTS = {
     # and each has a reviewed record in all nine languages except the name
     # 'Cellpose'. Five status TEMPLATES with values filled in are not
     # extracted at all; they are item 65's helper problem, not new rows.
-    "UI": 3308,
+    #
+    # 3,308 -> 3,462 on 2026-09-15, +154/-0, when wip/integ-0815 was rebased
+    # onto nightly 2d530a813: the 154 rows 394's keyed extractor rules found
+    # (enumerated in the note over this dict) join the 17 above. The two sets
+    # are DISJOINT, so the count is the plain sum -- and it was MEASURED, not
+    # added: canonical_sources() on the rebased tree returns 3,462, so 394's
+    # rules found nothing more in the magnifier's new code.
+    "UI": 3462,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -351,8 +386,20 @@ EXTERNAL_SOURCE_COUNTS = {
 # committed en.py before the rebuild. Nothing else arrived and nothing left;
 # the fourteen label corrections that rode with these records changed
 # translations of existing rows, which are values, not identities.
+# Moved again on 2026-09-15 with the counts above: 156 identities arrive and
+# none leave -- 154 UI rows from 394 and ('SETTING_LABELS',
+# 'segmentation_backend') / ('SETTING_TOOLTIPS', 'segmentation_backend').
+# Moved again on 2026-09-15 by the rebase of wip/integ-0815 onto nightly
+# 2d530a813, which joins the two moves above: 173 identities arrive (the 17
+# magnifier rows and the 156 of this batch) and none leave. PROVED BY
+# SUBTRACTION with this test's own formula over the rebased tree's identities:
+#
+#   all identities                     ba2a0af05393208f...  (the pin below)
+#   minus the 17 magnifier rows        dba7b70df0f039c3...  this batch's pin
+#   minus the 156 of this batch        dacb857799ad804e...  nightly's pin
+#   minus both                         f576cb08f184154f...  the 8f4171fd9 pin
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "dacb857799ad804ebaa98889bba0d4a639bbfc00d09c1ab219fe706e3df9c708"
+    "ba2a0af05393208fe9b234c89c63fb483ee1b441d1271b8ff88d5d3b0a833f92"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
