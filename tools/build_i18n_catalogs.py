@@ -2753,6 +2753,12 @@ MANUAL_UI: dict[str, dict[str, str]] = {
     # reviewed records, so it would override the zh_CN, hi, ko and is records
     # already written for this label.
     "Concentration": {"fr": "Concentration"},
+    # THE SAME DECISION FOR THE GRID'S "Doses" HEADER, in two locales: the
+    # plural of dose is "doses" in French and in Portuguese, so the correct
+    # header equals the English and the exact-English gate would refuse it.
+    # Per-locale for the same reason as the row above; the other seven locales
+    # carry reviewed records (2026-09-15-dose-response-grid.json).
+    "Doses": {"fr": "Doses", "pt": "Doses"},
     "Ft": {
         "sv": "Flödeströskel (FT)", "de": "Flussschwellenwert (FT)",
         "es": "Umbral de flujo (FT)", "zh_CN": "流场阈值（FT）",
