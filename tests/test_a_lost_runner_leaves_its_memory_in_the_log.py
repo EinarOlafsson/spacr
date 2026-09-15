@@ -14,6 +14,9 @@ samples when the run survives.
 from __future__ import annotations
 
 import os
+import re
+import shlex
+import shutil
 import subprocess
 import sys
 import time
@@ -132,6 +135,44 @@ def test_the_sampler_prints_one_memory_line_per_interval_and_stops_on_term(
     assert process.returncode == 0
 
 
+#: Rows shaped like ``ps -ww -eo pid=,rss=,comm=,args=`` (RSS in KiB). The
+#: worker's interpreter path is the GitHub runner's, 54 characters long.
+_CONTROLLER = "100 297000 python python -m pytest tests/ -n 4 --dist loadfile"
+_WORKER = (
+    "4242 4085760 python /opt/hostedtoolcache/Python/3.12.14/x64/bin/python"
+    " -c import sys;exec(eval(sys.stdin.readline()))"
+)
+_NOT_PYTEST = "777 51200 python python -m http.server 8000"
+_NOT_PYTHON = "888 4096 bash bash -c echo pytest"
+
+
+def _process_table(tmp_path, *snapshots):
+    """An executable standing in for ``ps``: call N prints snapshot N, and
+    every call after the last prints the last one again."""
+    for number, rows in enumerate(snapshots, start=1):
+        (tmp_path / f"snapshot_{number}.txt").write_text(
+            "".join(f"{row}\n" for row in rows), encoding="utf-8",
+        )
+    calls = shlex.quote(str(tmp_path / "calls"))
+    last = len(snapshots)
+    script = tmp_path / "process_table"
+    script.write_text(
+        "#!/usr/bin/env bash\n"
+        f"count=$(( $(cat {calls} 2>/dev/null || echo 0) + 1 ))\n"
+        f'echo "$count" > {calls}\n'
+        f'[ "$count" -le {last} ] || count={last}\n'
+        f'cat {shlex.quote(str(tmp_path))}/snapshot_"$count".txt\n',
+        encoding="utf-8",
+    )
+    script.chmod(0o755)
+    return script
+
+
+def _rss_list(line):
+    listed = re.search(r"pytest_rss=\[([^\]]*)\]MiB", line).group(1)
+    return sorted(int(value) for value in listed.split(",") if value)
+
+
 @pytest.mark.skipif(
     not Path("/proc/meminfo").exists(), reason="the sampler reads /proc",
 )
@@ -139,22 +180,88 @@ def test_the_sampler_names_a_pytest_process_that_ended_and_its_last_rss(tmp_path
     """The memory guard in tests/conftest.py ends a pytest process with exit 3
     at SPACR_TEST_MEMORY_GB; the sampler cannot see an exit status, so it
     logs each pytest process that disappears with the RSS it last had, next
-    to the guard's ceiling."""
-    worker = subprocess.Popen(
-        [sys.executable, "-c", "import time  # a pytest worker\ntime.sleep(2.2)"],
+    to the guard's ceiling.
+
+    THE PROCESS LIST AND THE CLOCK ARE INJECTED. This test used to start a
+    real 2.2-second python and sample the real ``ps`` every second for 4.5
+    seconds. It failed on CI in "Fast / Full suite control" and coverage shard
+    11 of run 35012948690 with pytest_rss=[] in every sample: under xdist,
+    COLUMNS=80 made ps cut the runner's long interpreter path before the word
+    the filter looks for, so the worker was never seen and could not be seen
+    to end. It fails the same way locally under ``-n 2`` and passes serially.
+    Here the table is two fixed snapshots and the sampler stops itself after
+    two samples, so nothing depends on how long a real process lives, when
+    a sample lands, or how wide ps thinks the terminal is.
+    """
+    table = _process_table(
+        tmp_path,
+        [_CONTROLLER, _WORKER, _NOT_PYTEST, _NOT_PYTHON],
+        [_CONTROLLER],
     )
-    environment = {**os.environ, "SPACR_TEST_MEMORY_GB": "6"}
-    sampler = subprocess.Popen(
-        ["bash", str(SAMPLER), "1", str(tmp_path / "samples.log")],
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-        env=environment,
+    environment = {
+        **os.environ,
+        "SPACR_TEST_MEMORY_GB": "6",
+        "SPACR_TELEMETRY_PROCESS_TABLE": str(table),
+        "SPACR_TELEMETRY_MAX_SAMPLES": "2",
+    }
+    result = subprocess.run(
+        ["bash", str(SAMPLER), "0", str(tmp_path / "telemetry" / "samples.log")],
+        capture_output=True, text=True, env=environment, timeout=60,
+    )
+    output = result.stdout + result.stderr
+
+    assert result.returncode == 0, output
+    assert (tmp_path / "calls").read_text(encoding="utf-8").strip() == "2"
+    lines = result.stdout.splitlines()
+    samples = [index for index, line in enumerate(lines) if " used=" in line]
+    ended = [index for index, line in enumerate(lines) if " ended; " in line]
+    assert len(samples) == 2, output
+
+    # Both pytest processes are listed; the http server and the shell whose
+    # arguments merely mention pytest are not.
+    assert _rss_list(lines[samples[0]]) == [290, 3990]
+    assert _rss_list(lines[samples[1]]) == [290]
+    assert "guard=6GB" in lines[samples[0]]
+
+    # Exactly one process ended, named with its last RSS, reported by the
+    # sample that no longer saw it; the ones that were never pytest are not.
+    assert len(ended) == 1, output
+    assert samples[0] < ended[0] < samples[1]
+    assert re.fullmatch(
+        r"MEMORY \d\d:\d\d:\d\d pytest process 4242 ended; last seen at "
+        r"3990MiB RSS \(tests/conftest\.py's memory guard ends a pytest "
+        r"process at 6 GB with exit 3 and says so on stderr\)",
+        lines[ended[0]],
+    ), lines[ended[0]]
+
+
+@pytest.mark.skipif(
+    shutil.which("ps") is None or not Path("/proc").is_dir(),
+    reason="the sampler lists processes with procps",
+)
+def test_a_command_line_wider_than_the_terminal_is_still_read_in_full():
+    """The cause of the CI failure above, against the real ``ps``.
+
+    A live process keeps "pytest" 200 characters into its command line, and
+    the sampler runs with COLUMNS=80, as it does under xdist. Popen returns
+    only after the child has exec'd, and the child outlives the listing, so
+    this does not race it.
+    """
+    padding = "x" * 200
+    child = subprocess.Popen(
+        [sys.executable, "-c", "import time; time.sleep(120)", padding, "pytest"],
+        stdin=subprocess.DEVNULL,
     )
     try:
-        time.sleep(4.5)
+        listing = subprocess.run(
+            ["bash", str(SAMPLER), "--list-pytest-processes"],
+            capture_output=True, text=True, timeout=60,
+            env={**os.environ, "COLUMNS": "80"},
+        )
     finally:
-        sampler.terminate()
-        output, _ = sampler.communicate(timeout=10)
-        worker.wait(timeout=10)
+        child.kill()
+        child.wait(timeout=10)
 
-    assert f"pytest process {worker.pid} ended; last seen at " in output, output
-    assert "guard=6GB" in output
+    assert listing.returncode == 0, listing.stderr
+    listed = {line.split()[0] for line in listing.stdout.splitlines()}
+    assert str(child.pid) in listed, listing.stdout
