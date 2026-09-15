@@ -53,15 +53,15 @@ table derives them from the same source the builders read.
 
 | Language | Reviewed runtime records | Of 5,679 | Remainder | Reviewed API blocks | Of 10,533 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 134 | 2.36% | 5,545 | 469 | 4.45% | 10,064 |
-| German | 101 | 1.78% | 5,578 | 426 | 4.04% | 10,107 |
-| Spanish | 115 | 2.03% | 5,564 | 287 | 2.72% | 10,246 |
-| Simplified Chinese | 368 | 6.48% | 5,311 | 517 | 4.91% | 10,016 |
-| Portuguese | 115 | 2.03% | 5,564 | 448 | 4.25% | 10,085 |
-| Hindi | 148 | 2.61% | 5,531 | 462 | 4.39% | 10,071 |
-| Korean | 265 | 4.67% | 5,414 | 454 | 4.31% | 10,079 |
-| Icelandic | 173 | 3.05% | 5,506 | 1,027 | 9.75% | 9,506 |
-| French | 116 | 2.04% | 5,563 | 466 | 4.42% | 10,067 |
+| Swedish | 134 | 2.36% | 5,545 | 473 | 4.49% | 10,060 |
+| German | 101 | 1.78% | 5,578 | 430 | 4.08% | 10,103 |
+| Spanish | 115 | 2.03% | 5,564 | 291 | 2.76% | 10,242 |
+| Simplified Chinese | 368 | 6.48% | 5,311 | 521 | 4.95% | 10,012 |
+| Portuguese | 115 | 2.03% | 5,564 | 452 | 4.29% | 10,081 |
+| Hindi | 148 | 2.61% | 5,531 | 466 | 4.42% | 10,067 |
+| Korean | 265 | 4.67% | 5,414 | 458 | 4.35% | 10,075 |
+| Icelandic | 173 | 3.05% | 5,506 | 1,031 | 9.79% | 9,502 |
+| French | 116 | 2.04% | 5,563 | 470 | 4.46% | 10,063 |
 
 *Regenerated 2026-09-15 for instruction 407's live magnifier in Make Masks.
 The runtime denominator moves 5,662 -> 5,679, +17/-0 and all UI: the tool-row

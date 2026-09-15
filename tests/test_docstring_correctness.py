@@ -2240,7 +2240,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # line changed, that one. Both fields carry defaults, so the required
     # sum below does not move -- the same asymmetry 372's `row_offsets`
     # produced, and the reason the two sums are counted apart.
-    assert sum(len(item.parameters) for item in callables) == 17_295
+    # 17,295 -> 17,296 on 2026-09-15, +1, and again NOT a new callable: 410
+    # adds the field `channel_scale` to the EXISTING
+    # `spacr.embeddings.EmbeddingSpec`. Line-differencing the digest below
+    # against 410's parent, 75dfdcae8: +0 / -0 symbols and exactly ONE
+    # existing line changed, that one. The field defaults to None, so the
+    # required sum below stays at 8,815.
+    assert sum(len(item.parameters) for item in callables) == 17_296
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2250,6 +2256,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # default, so they move the parameter sum above and not this one. That
     # asymmetry is the check: an optional parameter that moved this number
     # would be a required one, and a different event.
+    # Unmoved on 2026-09-15 by 410's `EmbeddingSpec.channel_scale`, which has
+    # a default -- measured, not assumed: 8,815 at 75dfdcae8 and after 410.
     assert sum(len(item.required_parameters) for item in callables) == 8_815
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
@@ -2294,7 +2302,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # that failed to match would have read as "something unexplained moved"
     # when what had actually moved was my reconstruction. Subtract using the
     # recorded baseline LINE, not a field-by-field rebuild of it.
-) == "3714f4a1486dd7880e795ecb31f5e7f1f690b7f7d3e50c84eaf1410cef32e018"
+) == "5b30fe1f26ac23704ab42d444ba8b2fa8b5ace5b0794119e7c8f06c5db24672e"
     # Moved 2026-09-14, and PROVED rather than assumed, the way this file
     # asks: the same digest recomputed over the tree at 49c1189f7 returns
     # 487529aa5a65... byte for byte, which is the value this line carried
@@ -2306,6 +2314,17 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # from 372. That is precisely what this digest exists to catch and no
     # count above reports it on its own: the parameter sum moves, the
     # required sum does not, and the symbol count cannot see it at all.
+    #
+    # Moved 2026-09-15 for 410, and PROVED by subtraction as above. The same
+    # digest recomputed over the tree at 75dfdcae8, 410's parent, returns
+    # 3714f4a1... byte for byte, the value this line carried before, so the
+    # apparatus is right. Line-level diff against it: +0 / -0 symbols and ONE
+    # existing line changed -- `spacr.embeddings.EmbeddingSpec` gaining
+    # `channel_scale` in `parameters` and `accepted_documented_parameters`
+    # but not in `required_parameters`. The current inventory recomputed with
+    # `channel_scale` taken back out of that one line returns 3714f4a1...
+    # again, byte for byte. So the whole move is one optional dataclass field
+    # and nothing else among 8,696 symbols changed.
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
