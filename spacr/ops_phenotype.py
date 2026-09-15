@@ -50,12 +50,11 @@ count of things attempted is not a measure of anything succeeding.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 
-if TYPE_CHECKING:  # pragma: no cover - annotations only
-    from .ops_layout import WellLayout
+from .ops_layout import WellLayout, round_well_layout
 
 __all__ = [
     "Alignment",
@@ -558,8 +557,6 @@ def _phenotype_layout(layout: Union["WellLayout", int]) -> "WellLayout":
         :func:`spacr.ops_layout.round_well_layout` at its default half tile,
         which raises ValueError for a count no round well holds.
     """
-    from .ops_layout import WellLayout, round_well_layout
-
     if isinstance(layout, WellLayout):
         return layout
     return round_well_layout(int(layout))
