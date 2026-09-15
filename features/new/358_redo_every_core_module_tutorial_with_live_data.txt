@@ -747,9 +747,14 @@ read as a fourteenth language.
   W=/mnt/firecuda2/Claude/toxoplasma_projects/tutorials; ST=$W/refresh_2026-09-09
   V=$ST/.venv/bin/python; G=<shared gpu.lock>; M="$V $R/tools/run_memory_guarded.py --limit-gib 60 --"
   export PYTHONPATH=$R:$R/tools/tutorials; cd $R/tools/tutorials
-  CAP=mask_preview_gpu_2026-09-15; COMP=mask_preview_and_explicit_overlay_2026-09-15
+  CAP=mask_preview_gpu_2026-09-15b; COMP=mask_preview_and_explicit_overlay_2026-09-15b
+  # NOT mask_preview_gpu_2026-09-15: that capture read a stale run-saved
+  # gen_mask_settings.csv (src=<src>, diameter 60) and is superseded; see below.
 
-  1 [GPU] capture. A failed run needs a NEW --capture-name; the private
+  1 [GPU] capture. FIRST confirm example_data/plate1/settings holds only the
+    shipped pack (gen_masks_settings.csv, crop_measure_settings.csv); a
+    run-saved gen_mask_settings.csv is read first and poisons the counts.
+    A failed run needs a NEW --capture-name; the private
     state guard refuses a name that already has pins.
       flock $G env PYTHONPATH=$R timeout 7200 xvfb-run -a -s '-screen 0 3840x2160x24' \
         $M $V capture_refresh.py --module mask --stage $ST --download --preview \
