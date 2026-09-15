@@ -63,7 +63,13 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # PROVED BY SUBTRACTION with the loader itself: the live count minus the
     # sources in those two files is 134, they share no source with each other,
     # and neither shares one with any other file.
-    assert len(reviewed) == 191
+    #
+    # 191 -> 197 on 2026-09-15, +6/-0: Make Masks' "Load test data…" tooltip
+    # and its five status strings (412), 412-make-masks-demo.json, written by
+    # hand so the button's first catalog build needed no model. The live
+    # count minus that file's six sources is 191, and none of the six is in
+    # any other file.
+    assert len(reviewed) == 197
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -144,7 +150,12 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     #       2026-09-15-integration-review.json
     # The live count minus the sources in those two files is 116, and they
     # share a source with no other file or with each other.
-    assert len(reviewed) == 169
+    #
+    # 169 -> 175 on 2026-09-15, +6/-0: Make Masks' "Load test data…" tooltip
+    # and its five status strings (412), 412-make-masks-demo.json. The live
+    # count minus that file's six sources is 169, and none of the six is in
+    # any other file.
+    assert len(reviewed) == 175
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

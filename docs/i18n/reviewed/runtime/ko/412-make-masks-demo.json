@@ -1,0 +1,48 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Download ten example images of Toxoplasma vacuoles (about 40 MB) and open the first one. Their curated masks come too, in the ground_truth_masks folder, which the editor does not read. Cached after the first download.",
+      "source": "Download ten example images of Toxoplasma vacuoles (about 40 MB) and open the first one. Their curated masks come too, in the ground_truth_masks folder, which the editor does not read. Cached after the first download.",
+      "source_sha256": "cd66089bdc3c8c08a6c5f8bb3cbdd91d8329acf11e6c1618820922c5a0f0e11b",
+      "table": "ui",
+      "translation": "Toxoplasma 액포 예시 이미지 열 장(약 40 MB)을 내려받고 첫 번째 이미지를 엽니다. 검수된 마스크도 함께 받으며, 편집기가 읽지 않는 ground_truth_masks 폴더에 들어갑니다. 처음 내려받은 뒤에는 캐시에 보관됩니다."
+    },
+    {
+      "key": "Downloading the Make Masks test data",
+      "source": "Downloading the Make Masks test data",
+      "source_sha256": "30890210ce2fac6ddab53381869d7390a2a2cb0b8f8f036f9cbb66974db64f17",
+      "table": "ui",
+      "translation": "Make Masks 테스트 데이터를 내려받는 중"
+    },
+    {
+      "key": "Test data not loaded",
+      "source": "Test data not loaded",
+      "source_sha256": "06a1b835e909884ca98d7fc79746e07678b5caa0bc4808e5a85d08a4af15bd53",
+      "table": "ui",
+      "translation": "테스트 데이터를 불러오지 못함"
+    },
+    {
+      "key": "The downloaded test data is incomplete: {path}",
+      "source": "The downloaded test data is incomplete: {path}",
+      "source_sha256": "35a349f2a762f0cafbd276506960b1e78107079a407a30ba79f79a0c02bae3ac",
+      "table": "ui",
+      "translation": "내려받은 테스트 데이터가 불완전합니다: {path}"
+    },
+    {
+      "key": "The test data could not be downloaded: {detail}",
+      "source": "The test data could not be downloaded: {detail}",
+      "source_sha256": "779577eebdc5bff56711933121a374fd99face05de9c10794195c86a3ed715cb",
+      "table": "ui",
+      "translation": "테스트 데이터를 내려받을 수 없습니다: {detail}"
+    },
+    {
+      "key": "The test data download was cancelled.",
+      "source": "The test data download was cancelled.",
+      "source_sha256": "19797bff78df21e90b51e8113d5b11f1370423d072eed26d1651166e60214b3a",
+      "table": "ui",
+      "translation": "테스트 데이터 내려받기가 취소되었습니다."
+    }
+  ],
+  "schema": 1
+}
