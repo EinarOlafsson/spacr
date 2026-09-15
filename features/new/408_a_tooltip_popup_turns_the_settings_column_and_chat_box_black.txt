@@ -112,12 +112,9 @@ TWO MEASUREMENT TRAPS, recorded so the next probe does not repeat them:
 
 WHAT IS LEFT, AND WHY IT NEEDS THE REAL DISPLAY. Nothing reachable from a
 test process changes when the popup appears, so the change the maintainer
-sees happens below Qt's widget layer: the platform/compositor. On Wayland a
-`Qt.ToolTip` window is a popup surface parented to the main window's surface,
-and presenting it can leave regions of the parent that Qt did not repaint
-composited as black until something forces a full repaint -- and leaving and
-re-entering a module is exactly a full repaint. xvfb has no compositor, so
-every probe above is structurally unable to see that.
+sees happens below Qt's widget layer, or in a state these probes do not
+reach. (An earlier draft of this paragraph blamed Wayland popup surfaces;
+the maintainer's session is X11 -- see the next note.)
 
 NEXT, in order:
   1. Establish the maintainer's session type (Wayland or X11) and the Qt
@@ -129,3 +126,50 @@ NEXT, in order:
      when the popup shows and when it hides, and pin it with a test that
      asserts the repaint is REQUESTED (the state), since no offscreen
      platform can show the pixels.
+
+--------------------------------------------------------------------------------
+2026-09-15, LATER -- MEASURED ON THE MAINTAINER'S REAL DISPLAY: NOT REPRODUCED
+--------------------------------------------------------------------------------
+
+THE PLATFORM, measured rather than assumed: X11 (Xorg + gnome-shell
+compositing), NVIDIA GeForce RTX 3090 on driver 580.173.02, DISPLAY :0, Qt
+platform xcb. Not Wayland.
+
+TWO MORE PROBES, now reading PRESENTED pixels -- what the X server holds for
+the window (`QScreen.grabWindow(winId)`) and the composited screen region
+(`grabWindow(0, x, y, w, h)`) -- instead of `QWidget.grab()`, which
+re-renders the tree and can never show a partial-repaint fault:
+
+  xvfb, presented pixels, forced partial repaint of the settings column,
+  popup up, popup gone: no darkening attributable to the popup.
+
+  THE MAINTAINER'S DISPLAY (:0, xcb, NVIDIA, compositor), his settings (dark,
+  ambient on, blobs, 60% panes), window shown without taking focus, popup
+  raised through the real `_ApiTooltipFilter` path:
+
+      phase          presented settings / chat      composited settings / chat
+      before         0.0% near-black, lum 33.0/29.8  0.0%, lum 33.0/29.8
+      popup up       0.0%, lum 32.7/29.8             0.0%, lum 32.7/29.8
+      popup gone     0.0%, lum 33.0/29.6             0.0%, lum 33.0/29.6
+      1.5 s later    0.0%, lum 33.0/29.8             0.0%, lum 33.0/29.8
+
+So the report does NOT reproduce in a fresh test-sandboxed window on the same
+machine, display, driver and settings. What differs from the maintainer's own
+session, and is where the next look belongs:
+
+  * WHICH spaCR HE RUNS. HANDOFF records that `import spacr` on this machine
+    once resolved to code four days old. An installed copy older than nightly
+    can carry a bug nightly no longer has.
+  * A LONG-RUNNING SESSION: preloaded torch holding the heavy-import lock,
+    several modules already visited, a populated AI chat panel, real mouse
+    hover with focus and activation changes (the probe's window deliberately
+    did not take focus).
+  * THE FIRST HOVER after the heavy lock releases -- the hand-off where the
+    window backdrop retires a screen's own backdrop and the screen installs
+    one again 60 ms later (seen in the startup trace above), which a test
+    that opens one module and hovers once cannot place under a real hover.
+
+ASKED OF THE MAINTAINER: a screenshot of the black box, and how he launches
+spaCR (this checkout or an installed copy). No speculative fix is committed:
+every candidate mechanism above was measured and none changes anything, so a
+"fix" today would be a guess with a green test attached.
