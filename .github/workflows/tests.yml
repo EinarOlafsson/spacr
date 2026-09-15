@@ -410,8 +410,20 @@ jobs:
           python -m coverage json --pretty-print \
             -o "$SPACR_COVERAGE_REPORT/coverage.json"
 
+      # A CRASH IS NOT A REGRESSION. A coverage worker killed by a signal
+      # never writes its data, so every module it exercised reads as less
+      # covered than it is: on dispatch 34989909231 two segfaulted workers
+      # became thirteen "regressions", pivot_spec.py among them at 24
+      # uncovered statements from 100%. tools/run_coverage_batches.py
+      # re-runs a lost worker's files serially and writes what it recovered
+      # into each shard's integrity record. --shard-integrity reads those
+      # records; a loss that was not recovered fails as an INCOMPLETE
+      # MEASUREMENT (exit 3) with the counts it may have raised marked
+      # UNCONFIRMED. It still fails, and says why. --shard-count must equal
+      # the matrix length.
       - name: Gate on the per-module coverage ratchet baseline
         env:
+          SPACR_COVERAGE_INPUT: ${{ runner.temp }}/spacr-coverage-input
           SPACR_COVERAGE_REPORT: ${{ runner.temp }}/spacr-coverage-report
         run: |
           python tools/verify_module_coverage.py \
@@ -419,6 +431,8 @@ jobs:
             --root . \
             --expected-file-count 568 \
             --baseline tools/coverage_baseline.json \
+            --shard-integrity "$SPACR_COVERAGE_INPUT" \
+            --shard-count 12 \
             --json-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.json" \
             --text-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.txt"
 
