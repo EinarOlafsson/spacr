@@ -1,0 +1,120 @@
+================================================================================
+A LIVE MAGNIFIER IN MAKE MASKS THAT SEGMENTS WHAT IS UNDER THE MOUSE
+================================================================================
+
+Status:    FUTURE, filed 2026-09-15. Not started. Not blocking.
+Requested: 2026-09-15, by the maintainer, in these words: "if the user flips
+           this on, then a box appears with the region around the mouse
+           slightly magnified, and in this region the square enhanced region
+           is passed through some lightweight model (there should be options)
+           and a mask for the objects in that region are shown live. if the
+           user clicks on the image the objects in the enhanced region are
+           saved on the image, so when the user toggles this feature off, or
+           clicks save, etc., the objects are in the mask for that image."
+Owner:     unassigned. `spacr/qt/screens/make_masks.py` (the screen),
+           `spacr/qt/mask_engine.py` (pure-Python mask editing and
+           persistence), and a new inference seam for the model.
+
+--------------------------------------------------------------------------------
+WHAT IS WANTED
+--------------------------------------------------------------------------------
+
+A toggle on the Make Masks editor. While it is on:
+
+  1. A square box follows the mouse over the image and shows the region
+     around the cursor, slightly MAGNIFIED.
+  2. That region -- the enhanced crop, not the whole image -- is passed
+     through a LIGHTWEIGHT segmentation model, and the objects it finds are
+     drawn over the box LIVE, as the mouse moves.
+  3. A CLICK commits the objects currently shown in the box into the
+     image's mask. They stay there when the toggle goes off, when the user
+     saves, when the user moves to the next field -- they are ordinary mask
+     objects from that moment on, editable and erasable like any other.
+
+Settings the maintainer asked for, by name:
+
+    mode          which lightweight model runs on the region ("there should
+                  be options")
+    size          the diameter, in image pixels, of the region of interest
+    zoom          the magnification -- and the MOUSE WHEEL CHANGES IT LIVE
+                  while the feature is on
+    sensitivity   the model's acceptance threshold, "like cellpose cell
+                  probability score"
+
+--------------------------------------------------------------------------------
+WHY
+--------------------------------------------------------------------------------
+
+Curation is where mask quality is actually decided, and today a missed
+object means drawing it by hand. This turns "the model missed three cells in
+the corner" into three clicks, with the model working at a magnification
+where small or dim objects are visible, and with the user choosing exactly
+which objects to accept. It is also the natural front end for the
+curation queue in 396: fields come from the queue, and missed objects are
+added here rather than by a full re-run.
+
+--------------------------------------------------------------------------------
+DESIGN NOTES -- NOT DECISIONS
+--------------------------------------------------------------------------------
+
+THE MODEL NEVER RUNS ON THE GUI THREAD. HANDOFF and 284 are unambiguous that
+a module screen must stay responsive; a model call on every mouse move is
+the fastest possible way to break that. Inference belongs on a worker, with
+only the NEWEST request kept -- a mouse that has moved on makes every queued
+region stale, so a request superseded before it starts is dropped, not run.
+
+THE REGION IS SMALL, WHICH IS WHAT MAKES "LIVE" POSSIBLE. A 128-256 px crop
+is a few milliseconds on a GPU for the models below and tolerable on a CPU.
+Throttle to the worker's own pace rather than to a fixed rate, and show the
+last completed result with a subtle "updating" mark rather than blanking.
+
+CANDIDATES FOR `mode`, all already adjacent to spaCR:
+
+    Cellpose (cyto / nuclei, the small models)  -- spaCR's existing path;
+        `sensitivity` maps directly onto cellprob_threshold
+    DINOCell            -- future item 404; predicts Cellpose-style flows, so
+                           the same post-processing applies
+    SAMCell / MobileSAM -- future item 405; prompt-free on a crop, and a
+                           natural fit for a click-to-accept interaction
+    classical           -- threshold + watershed, for machines with no model
+                           installed; also the fallback when a model import
+                           fails, so the feature never simply does nothing
+
+MAGNIFICATION IS FOR THE EYE AND POSSIBLY FOR THE MODEL, AND THOSE ARE TWO
+DIFFERENT SETTINGS. Upsampling the crop before inference helps small objects
+under models trained at a fixed object diameter; showing it magnified helps
+the user see them. `zoom` should control the view; whether the model sees the
+zoomed or the native-resolution crop needs measuring, not assuming.
+
+COMMITTING IS A MASK EDIT, AND IT SHOULD GO THROUGH `mask_engine`. New label
+ids must not collide with existing ones; an object overlapping an existing
+object needs a rule (skip, replace, or clip to background) -- and the rule
+should be a visible choice, not a hidden default. One click should be one
+undo step.
+
+COORDINATES. The box, the crop, the magnified view and the mask all live in
+different coordinate systems; every commit should be tested for an off-by-one
+at the crop edge and at the image border, where the region is clipped.
+
+--------------------------------------------------------------------------------
+OPEN QUESTIONS FOR THE MAINTAINER
+--------------------------------------------------------------------------------
+
+  * Which models must `mode` offer on day one, and which can wait?
+  * On a click, commit ALL objects in the box, or only the object under the
+    cursor? (The request says all; the second is a cheap addition.)
+  * Overlap with an existing object: skip, replace, or clip?
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * With the toggle on, moving the mouse never drops the Make Masks screen
+    below its responsiveness budget (the harness from 380 measures it).
+  * Clicking commits exactly the objects drawn in the box, at the right
+    pixels, including a box clipped by the image border -- a test with a
+    synthetic image and a stub model that returns known labels.
+  * The committed objects survive toggling off, saving, and reopening the
+    field.
+  * Removing every model leaves the classical mode working, rather than a
+    feature that silently does nothing.
