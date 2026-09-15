@@ -1171,3 +1171,14 @@ Minimum dependencies failed. Read from their logs:
   run of that workflow in the history read above, and the first run carrying
   32f701850's 70-minute step timeout. docs is SUCCESS on b740c741d as well, so
   docs has now passed on two consecutive nightly heads (bac9151d0, b740c741d).
+
+  A TRAP FOR RATCHETS, FOUND WHILE CATALOGUING mark_to_start_on (2026-09-15):
+  tests/test_api_i18n_extractor.py pinned the AutoAPI boundary as
+  `10_696 - len(docs) == 163`. Measured with `_is_rendered_autoapi_entry`
+  neutralised, the unfiltered inventory was already 10,751 on 2026-09-14 and
+  the pin still passed, because rendered symbols grew the pre-filter count and
+  len(docs) by the same amount while the note above it claimed "the autoapi
+  total is unchanged at 10,696". It is now `10_752 - len(docs) == 218`, with
+  the filtered buckets summed (116+59+16+16+5+4+1+1 = 218) and re-checked by
+  the work session. A test that pins the DIFFERENCE between two numbers can be
+  wrong on both sides and stay green: pin each side against a measurement.
