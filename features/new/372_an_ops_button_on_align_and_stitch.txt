@@ -4192,3 +4192,787 @@ the new engine and retire the old one. Nothing is retired before that
 validation, which is what this file already required ("nothing is deleted
 until Phases A and B land"). The measurements from 2026-09-15 (PART 14-L,
 appended separately) are the first half of that validation.
+
+--------------------------------------------------------------------------------
+PART 14-L -- THE MODULES ON THE PLATE, RUN BY THE SESSION THAT HAS IT.
+2026-09-14.
+--------------------------------------------------------------------------------
+
+Complete 2026-09-15 00:30: every validation line below has a result.
+
+================================================================================
+VALIDATION FOR THE SWITCH -- read this first
+================================================================================
+
+Maintainer decision 2026-09-14: "Validate, then switch". Phase B and C run on
+a full well with Cellpose nuclei and the channel-alignment fix; only then is
+the OPS button wired to the new engine and the old one retired. bridge.py,
+the button and spacrops.py were not touched. Each line is PASS, FAIL or
+PENDING, with its number and the section holding the evidence.
+
+  A2 STITCH
+  V1  numpy, well A1: 333/333 placed, 624/624 edges,    PASS      sec 1
+      residual 0.20/0.75 px, 135.5 s
+  V2  torch, well A1: 333/333, 624/624, 0.20/0.75 px,    PASS      sec 1
+      91.9 s (numpy 135.5 s under load); peak RSS 0.9 GB
+  V3  numpy and torch placements agree on the real      PASS      sec 1
+      well: max 0.00 px, tonight's two runs and against
+      the 09-10 torch run
+  V4  second well A2: 333/333, 624/624, 0.17/0.78 px    PASS      sec 1
+
+  A4 LAYOUT (the phenotype site map)
+  V5  shipped round_well_layout(1281) places measured   FAIL      sec 2b
+      fields: A1 257/478, A2 248/457
+  V6  MEASURED_PHENOTYPE_ROW_OFFSETS + _solve_row_      FAIL      sec 2, 2b
+      offsets: interiors right (37/37, 36/36), but
+      rim columns come back 0 and 21 of 478 junction
+      fields sit a column off
+  V7  tile-inside-circle rule (a = 0.5857,              PASS      sec 2b
+      R = 20.904): A1 478/478, A2 457/457, and the
+      sequencing well's 333 sites unchanged
+  V8  the same rule on A2 with its own 320 junction      PASS      sec 2b
+      sites held out: 457/457 fields at the exact grid
+      position (shipped circle 248/457); rule heights
+      == A1 measured heights
+  V8a phenotype_site_map's halving map (the tile an     FAIL      sec 2c
+      A4 window is centred on): exact tile A1 0.450
+      shipped / 0.567 with the record offsets / 0.584
+      with the rule heights (A2 0.462 / 0.595 / 0.606);
+      worst miss 1,916 / 1,284 / 650 px
+  V8b rule layout + a raster fitted on 6 anchor         PASS      sec 2c
+      fields: held-out centre error max 4.0 px (A1, 472
+      fields), 4.4 px (A2, 451); nearest sequencing
+      tile right 472/472 and 451/451
+
+  PHASE B (object map)
+  V9  compose -> Cellpose -> sew -> number -> store on  PASS*     sec 3
+      a 700 px patch: ids unique and contiguous, db
+      round trip 884 = 884, partitioned sew identical
+      to one sew() call. *number(strict=True) REFUSED
+      7 window-edge fragments (overlap 48 px, nucleus
+      ~11 px); strict=False drops them. Diagnosed on a
+      second patch (256 px windows, 32 px overlap, 295
+      observations -> 255 objects): the refused
+      fragment is 9 x 6 px, area 38, and its nearest
+      emitted object -- area 96, seen whole by the
+      NEIGHBOURING window -- is 3.1 px away against a
+      3.0 px tolerance. A centroid-only match on a
+      truncated mask, not an object wider than the
+      overlap; the error message names the wrong fix
+  V10 ops_objects cost at well scale: objects_in_       FAIL      sec 3
+      window 38.9 s per 2,048 px window, sew 4.1 s at
+      4,000 obs, both superlinear. The driver works
+      around both with public calls only
+  V11 full well A1, Cellpose (cpsam), 1,024 px windows  PASS      sec 3
+      / 96 px overlap: 1,280,002 objects, ids 1..N
+      unique and contiguous, db round trip equal,
+      objects_ready True, 593 s end to end (Cellpose
+      521 s on the RTX 3090). Seam density 2,347 vs
+      2,339 nuclei/Mpx elsewhere; overlap gain 1.154
+  V11a seam duplicates: 1,048 unsewn cross-window       FAIL      sec 3
+      pairs within 3 px (0.08 % of objects), all in
+      overlap bands; area ratio median 0.74 fails
+      sew's 0.8 test
+  V11b number(strict=True) at well scale: REFUSED       FAIL      sec 3
+      10,182 all-clipped groups (0.8 %); 10,154 lie
+      within 8 px of an emitted object from another
+      window (median 3.75 px vs 3.0 px tolerance);
+      largest 22 px against a 96 px overlap. The error
+      message's "raise the overlap" is the wrong fix
+  V11c UNIQUE(plate, well, object_id) in the schema     FAIL      sec 3
+      (PART 9 hole 3.4): ops_objects has no constraint
+      and no index; the ids are unique in fact only
+
+  PHASE C (decode and join)
+  V12 decode, 105 fields, channels aligned within       PASS      sec 4
+      cycle, median-normalised: 0.773 library-exact
+      (controls 0.003-0.006, chance 0.005)
+  V13 the same chain WITHOUT channel alignment (as      FAIL      sec 4
+      the modules stand): 0.028
+  V14 ops_sbs.call_reads default compensation: 0.581    FAIL      sec 4
+      against 0.773 for median normalisation
+  V15 sampling at nuclear centroids                     FAIL      sec 4
+      (ops_sample.sample_objects), the C1 design: 2 of
+      884 objects decode
+  V16 PART 9 containment gate at the default            FAIL      sec 4
+      nucleus+3 px: 0.674 < 0.8. nucleus+10 px: 0.981
+  V17 cells assigned (tile labels, +10 px): 160,274,    PASS      sec 4
+      95.0 % library
+  V18 unreadable inputs: 16 truncated TIFFs raise       FAIL      sec 4
+      ValueError, which PART 14-D's OSError rule does
+      not catch
+  V19 gpu=False keeps the decode on the CPU             FAIL      sec 4
+      (call_reads -> compensate_crosstalk has no gpu
+      pass-through)
+  V20 full well A1, all 333 fields, spots attributed    PASS      sec 4
+      to Phase B's Cellpose plate ids (+10 px): 455,347
+      objects assigned (36.0 % of 1,264,778), library
+      purity 0.950, 20,040 of 20,445 guides and all
+      5,050 genes seen, median 18 cells per guide.
+      ops_barcodes 455,347 rows; SQL JOIN ops_objects
+      455,347, 0 orphans, 0 duplicate ids. 3,289 s CPU,
+      peak RSS 4.6 GB
+  V20a a lost cycle costs the field: the 2 fields with   FAIL      sec 4
+      one truncated base file (10 of 11 cycles) got no
+      calls at all in this driver; PART 9 hole 1 says
+      a lost cycle must not cost the well
+
+READING IT: the geometry engine (V1-V4) is ready. A4 needs the layout rule
+(V7) in place of the offset table, and a site map made from that rule plus a
+six-anchor raster (V8b), not the halving map (V8a). Phase B and C work end to
+end on real data only with four changes the modules do not yet have:
+within-cycle channel alignment (V13), a better call normalisation (V14), spot
+attribution instead of centroid sampling (V15), and the wider footprint
+(V16). Plus the robustness fixes V10, V18, V19. Phase B on the full well is
+sound as a map (V11) but has three contract defects (V11a-c).
+
+WITH THOSE CHANGES MADE IN THE AD-HOC DRIVERS, WELL A1 RUNS END TO END ON
+REAL DATA. Stitch in 92 s, 1,280,002 plate ids in 593 s, and 455,347 barcoded
+objects joined to them in 3,289 s on CPU, at 95 % library purity. The switch
+is blocked on moving V7/V8b, V13-V16, V11a-c, V18-V20a into spacr/, not on
+the method.
+
+Reassigned to the session on the machine with /nas_mnt ("as it has the ops
+data"). Everything below ran against
+/nas_mnt/data/ops/OpticalPooledScreens_data/screenA/20200202_6W-LaC024A/
+-- NOTE the path: this file's /nas_mnt/data/ops/screenA/... is one level short.
+Read-only; ad-hoc drivers and outputs under scratchpad/ops372/. No edit to
+spacr/, tests/, docs/ or features/.
+
+--------------------------------------------------------------------------------
+1. A2 RE-CHECKED, BOTH BACKENDS
+--------------------------------------------------------------------------------
+
+    python tools/run_ops_a2.py --src <plate>/test_stitch_2 --well A1 --cycle 1 [--no-gpu]
+
+    backend  placed    edges     residual med/max   canvas            elapsed
+    numpy    333/333   624/624   0.20 / 0.75 px     26,855 x 26,865   135.5 s
+    torch    333/333   624/624   0.20 / 0.75 px     26,855 x 26,865    91.9 s
+
+The torch run held gpu.lock (RTX 3090, shared) and peaked at 893 MB RSS.
+Tonight's torch and numpy placements differ by max 0.00 px across all 333
+sites. A1's reference was 93.3 s on torch (PART 13-F); this is 91.9 s.
+
+The CPU run shared the box with a GPU translation job (load average ~15), so
+its time is an upper bound. Peak RSS 100 MB.
+
+THE TWO BACKENDS AGREE ON THE REAL WELL, TO THE PIXEL. The placements this
+numpy run wrote were compared with the torch run of 2026-09-10
+(scratchpad/a1_places.json, same driver): 333 sites, difference median
+0.00 px, max 0.00 px. They were also compared with the 09-10 A4 stitch at
+`overlap=148` instead of the driver's 213: max 0.01 px. So the overlap
+argument sets the expectation and not the answer, and PART 8 Phase E's "both
+backends run the same fixture and must agree" now holds on the plate too, not
+only on the fixture.
+
+AND A SECOND WELL, UNASKED: well A2 of the same cycle, from
+sequencing/images/input/c1 (the 5-plane stacks), same driver, no parameter
+changed:
+
+    A2 numpy  333/333   624/624   0.17 / 0.78 px     26,856 x 26,868   365.3 s
+
+The layout model was fitted on A1 alone. It places A2 with the same edge
+count and a smaller median residual -- the first confirmation on a well it
+never saw. (365 s is under a load average of ~50; not a speed number.)
+
+--------------------------------------------------------------------------------
+2. THE ROW-OFFSET SOLVER ON REAL CENTRES
+--------------------------------------------------------------------------------
+
+`spacr.ops_layout._solve_row_offsets` fed the 188 A4 centres of
+scratchpad/a4_transforms_4.json (the 2026-09-10 sweep). The raster steps were
+fitted WITHOUT trusting the layout's rows -- row step from within-column fits,
+where a constant per-column offset cancels; column step from the per-column
+origins:
+
+    row_step (633.51, 4.52)      col_step (-4.65, 633.79)
+    (PART 14-F: (633.52, 4.52) and (-4.60, 633.79))
+
+    columns with >= 3 agreeing fields    33 of 41
+    of those, equal to the record        33 of 33
+    largest spread inside a column       0.0030 rows
+    all 41 entries equal to the record   33 of 41
+
+THE EIGHT THAT DIFFER ARE PART 14-K ITEM 1, ON REAL DATA. Columns 0, 1, 13,
+16, 24, 27, 39, 40 hold 1, 1, 0, 0, 0, 0, 0, 1 fields; the solver returns 0
+for every one, and MEASURED_PHENOTYPE_ROW_OFFSETS holds -1, +2, -2, +2, -2,
++2, -2, +1 there -- every one non-zero. The tuple is the right length and
+plausible, and nothing in it says eight entries are not measurements. A
+raster refit through the solved table still has fields 1,261 px out.
+
+A FRESH A1 SWEEP, then THE SAME ON WELL A2 -- the first measurement of a
+second well. Every fourth field of 1,281, 8 CPU workers, scale 0.25069 (PART
+14-F's measured value), and a refused field retried at +/-3,200 px (PART
+14-H). Driver scratchpad/ops372/s2_sweep.py; solver input
+s2_solve.py; tables step2_A1_sweep.json, step2_A2_sweep.json.
+
+                              A1                    A2
+    sequencing stitch         (09-10 placements)    333/333, 624/624,
+                                                    0.17/0.78 px, 365 s CPU
+    sequencing nuclei         185,153               187,113 (182 s)
+    aligned                   280 of 321            264 of 321
+      needed the 3,200 window  93                    79
+    refused                    38                    53
+    no image / no tile       1 / 2                 2 / 2
+    wall time (8 workers)     967 s                 780 s
+    columns measured          37 of 41              36 of 41
+    equal to the A1 record    37 of 37              36 of 36
+    solved tuple              IDENTICAL IN BOTH WELLS
+
+A1 AGAINST ITSELF: 185 fields aligned in both the 09-10 run and this one;
+their centres differ by median 0.00 px, max 2.2 px.
+
+THE UNMEASURED COLUMNS ARE THE RIMS, AND THEIR FIELDS AGREE ANYWAY. A1 leaves
+columns 0, 1, 39, 40 unmeasured (2, 1, 2, 2 fields); A2 leaves 0, 1, 3, 39,
+40 (2, 1, 2, 2, 1). The solver returns 0 for each. Every one of those
+sub-threshold fields, in both wells, sits at exactly the record's integer
+(-1, +2, 0, -2, +1). So A2's per-field evidence matches all 41 of
+MEASURED_PHENOTYPE_ROW_OFFSETS, and its solved tuple is wrong in exactly the
+four rim columns where the record is non-zero -- PART 14-K item 1, now on
+two wells.
+
+[SUPERSEDED BY 2b -- the 41 integers turned out to be the signature of wrong
+column heights, and the paragraph below should not be acted on. Kept because
+it is what the interiors alone say.]
+
+WHAT IT MEANS FOR THE PLAN: the table is not an accident of well A1. Two
+wells of this plate give the same 41 integers, so it is a property of the
+acquisition raster; other plates are still unmeasured. A production A4
+cannot take the solver's tuple as it stands: the columns it leaves
+unmeasured are precisely the rim columns whose offsets are non-zero, so the
+caller needs the "not measured" channel 14-K asks for, or a per-plate prior
+to fall back on.
+
+    Raster, fitted robustly (gross outliers excluded):
+      A1  row (633.51, 4.52)   col (-4.60, 633.80)   residual median 0.67 px
+      A2  row (633.51, 4.00)   col (-4.51, 633.66)   residual median 0.42 px
+    Within-column spread of the solved row index, outliers excluded:
+      A1 0.0043 rows, A2 0.0042 rows.
+
+THE MODE EARNED ITS KEEP. The 3,200 px retry admitted four A1 fields that
+sit exactly one COLUMN away from the corrected layout: sites 344 (+1 col,
+-3 rows), 380 (+1 col), 900 (-1 col), 936 (-1 col, +3 rows). They are clean
+fits -- 84 to 126 inliers against a floor of 40, residual 1.3 to 1.6 px, scale
+0.2504 to 0.2508 -- so no threshold removes them. They skewed s2_solve's
+unrobust step fit to row (630.86, 4.78), 0.4 % short, and pushed the
+within-column spread to 0.17 rows. The per-column mode outvoted all four,
+and all 37 measured columns still came out right. A mean would not have.
+
+THOSE FOUR ARE NOT CHANCE AND NOT NOISE. Site 900 is one column out in A2 as
+well. The sites pair as s and 1280 - s (344 <-> 936, 380 <-> 900), mirror
+images through the well centre, and all four sit at a column's first or
+last field (index 36/37 of col 12, 35/37 of col 13, 1/37 of col 27, 0/37 of
+col 28). At the measured position the corrected layout holds NO site. A
+per-column row offset cannot express a field that belongs to the next
+column.
+
+EVERY SITE WITHIN FOUR OF EACH, IN BOTH WELLS (step2_A{1,2}_colends.json).
+Each entry is (d_col, d_row) against the record-corrected layout, "ok" when
+it lands on its own grid position, "-" when it did not align:
+
+    A1  340 ok  341 ok  342 ok  343 (+1,-1) 344 (+1,-3) | 345 ok  346 ok ...
+    A2  340 ok  341 ok  342 -   343 (+1,-1) 344 -       | 345 ok  ...
+    A1  377 ok  378 ok  379 -   380 (+1, 0) 381 (+1,+2) | 382 -   383 ok ...
+    A2  377 ok  378 ok  379 ok  380 -       381 (+1,+2) | 382 -   383 ok ...
+    A1  896 ok  897 ok  898 -   | 899 (-1,-2) 900 (-1, 0) 901 ok ...
+    A2  896 ok  897 ok  898 -   | 899 (-1,-2) 900 (-1, 0) 901 ok ...
+    A1  933 ok  934 -   935 ok  | 936 (-1,+3) 937 (-1,+1) 938 ok ...
+    A2  933 ok  934 ok  935 ok  | 936 -       937 (-1,+1) 938 ok ...
+
+TWO SITES AT EACH OF THESE FOUR JUNCTIONS BELONG TO THE NEIGHBOURING COLUMN,
+the same two in both wells wherever both aligned. The last two fields of
+columns 12 and 13 were acquired in columns 13 and 14; the first two of
+columns 27 and 28 were acquired in 26 and 27. Those are exactly the
+junctions where the record's offset swings by four rows (+2 -> -2 -> +2).
+So PART 14-G's reading -- "the heights are right and the ROW ORIGINS are
+wrong" -- was not tested at a column's ends. Sampling every fourth field
+almost never lands on the last two sites of a column, and the 3,200 px
+retry is what reached them.
+
+--------------------------------------------------------------------------------
+2b. THE HEIGHTS ARE WRONG, NOT THE ROW ORIGINS. THE 41 OFFSETS ARE AN ARTEFACT.
+--------------------------------------------------------------------------------
+
+Every site within four of all 40 column junctions of A1 was aligned: 320
+sites, 259 aligned, 582 s (step2_A1_junctions.json). Pooled with the sweep,
+478 distinct A1 fields have a measured grid position. Every one lands on an
+integer (col, row) to within 0.1 of a pitch. 21 of them sit in a different
+COLUMN from the one `round_well_layout(1281)` gives them, and they cluster at
+14 junctions: 0|1, 1|2, 11|12 ... 16|17, 24|25 ... 28|29, 38|39, 39|40. In
+each case a column ends one or two sites early or late.
+
+The boundary shifts imply these per-column heights. Four junctions had no
+aligned site and were filled by the well's mirror symmetry; the fit below
+tests them.
+
+    shipped circle  5 13 19 21 25 27 29 31 33 33 35 37 37 37 39 39 39 39 41 41 41
+                    41 41 39 39 39 39 37 37 37 35 33 33 31 29 27 25 21 19 13 5
+    measured        7 13 17 21 25 27 29 31 33 33 35 35 37 37 39 39 39 41 41 41 41
+                    41 41 41 39 39 39 37 37 35 35 33 33 31 29 27 25 21 17 13 7
+                    sum 1,281, symmetric
+
+WITH THOSE HEIGHTS, EVERY COLUMN CENTRED ON ONE ROW AND NO OFFSETS AT ALL,
+THE LAYOUT REPRODUCES EVERY MEASURED FIELD:
+
+    well A1   478 of 478 fields at the exact grid position (shipped circle: 257)
+    well A2   284 of 284, before its junctions were run     (shipped circle: 142)
+              -- and 457 of 457 with them, below
+
+One global gauge (0, -20) serves both wells. So PART 14-I's 41 integers --
+MEASURED_PHENOTYPE_ROW_OFFSETS, and the whole of PART 14-J's solver -- are
+what a wrong height table looks like when the grid is sampled only in column
+interiors. The alternating +/-2 bands are the cumulative index shift of
+columns that are two too tall or two too short.
+
+HELD OUT ON A2's JUNCTIONS. The height table above came from A1's junctions.
+All 320 junction sites of A2 were then aligned (step2_A2_junctions.json;
+step2_A2_heights.log), and A2 was scored with nothing refitted:
+
+    A2, 457 aligned fields (sweep + column ends + junctions)
+      shipped circle                        248 of 457 at the exact grid position
+      A1's measured heights, centred        457 of 457
+      tile-inside-circle rule               457 of 457   (gauge (0, -20), same as A1)
+
+The symmetry fill-ins for A1 junctions 1|2, 14|15, 15|16 and 23|24 are now
+directly observed in A2 at the filled values (+2, -2, -2, +2) wherever the
+moved sites aligned. Read per junction, A2 alone reproduces A1's shift at 35
+of 40 junctions. At the other five (0, 13, 14, 25, 39) the heuristic sees
+fewer moved sites than the full shift, because the rest did not align: it is
+a lower bound, not a disagreement. The layout test, which uses every field,
+matches all 457.
+
+AND THERE IS A CLOSED FORM, the one physical fact the shipped model leaves
+out: A SITE IS ACQUIRED WHEN THE WHOLE TILE LIES INSIDE THE WELL CIRCLE, not
+when its centre does. With the half-tile a measured in pitches, a site at
+grid (dx, dy) from the centre is kept iff (|dx| + a)^2 + (|dy| + a)^2 <= R^2:
+
+    sequencing 10X   a = 740 / 1267.1 px          = 0.5840   R 10.895 .. 11.092
+                     -> exactly the shipped 21 heights, 333 sites
+    phenotype 20X    a = 1480 * 0.25069 / 633.52  = 0.5857   R 20.896 .. 20.912
+                     -> exactly the measured 41 heights, 1,281 sites
+
+The centre rule (a = 0) fits the sequencing well, which is why PART 11-B
+confirmed it, and CANNOT produce the phenotype heights at any radius. No
+radius search was going to find this. `round_well_layout` found a circle
+(R 20.13 .. 20.22) that holds 1,281 sites with the wrong heights. The two
+radii in microns (10X pitch 1,280 um, 20X 640 um) are 13.9-14.2 mm and
+13.37-13.38 mm, so the two acquisitions did NOT use one physical radius. The
+rule is shared; R and a are per acquisition.
+
+WHAT THIS MEANS FOR THE PLAN:
+  * A4's layout wants the tile-footprint term in `round_well_layout` (a half
+    tile in pitches, measurable from tile size / registered pitch) rather
+    than a per-plate offset table. The 333-site sequencing model is
+    unchanged by it: same heights.
+  * `MEASURED_PHENOTYPE_ROW_OFFSETS` should not be applied, and neither should
+    the `_solve_row_offsets` path. They correct interiors and leave every
+    junction field misplaced by a column, which is 21 of 478 on A1.
+  * PART 14-K's three open items against the solver become moot if the
+    solver goes. Item 1 was seen on real data first (above).
+  * Nothing in spacr/ was changed. The constant is untouched, as instructed.
+
+--------------------------------------------------------------------------------
+2c. THE SITE MAP: THE HALVING MAP IS THE WEAK LINK, A SIX-ANCHOR RASTER IS EXACT
+--------------------------------------------------------------------------------
+
+The question A4 actually asks is "which sequencing tile does this phenotype
+field sit on". Truth for every aligned field is the sequencing tile whose
+stitched centre lies nearest the field's measured centre. Script output:
+step2_sitemap3.log. Both wells include their junction runs.
+
+                                  exact tile   centre inside    worst   no tile
+                                               predicted tile
+    A1, 478 fields
+      shipped circle                 0.450         0.757        1,916 px     0
+      circle + RECORD offsets        0.567         0.958        1,284 px    17
+      rule heights, halving map      0.584         0.987          650 px     6
+    A2, 457 fields
+      shipped circle                 0.462         0.755        1,918 px     0
+      circle + RECORD offsets        0.595         0.974        1,287 px     9
+      rule heights, halving map      0.606         0.989          653 px     5
+
+Even with the right layout, `phenotype_site_map`'s
+`round(s_col + (col - p_col) / ratio)` gets the exact tile only 0.58-0.61 of
+the time. A 20X grid at half the pitch has half its fields on or near a 10X
+tile boundary, and rounding a grid index cannot see where the boundary
+actually is. The +/-1,600 px window has been absorbing that, which is also why
+PART 14 needed a wide window at all.
+
+THE PRODUCTION-SHAPED ALTERNATIVE, measured. Take the rule layout's grid
+positions and fit origin + col_step + row_step (six numbers) on SIX fields,
+the nearest aligned ones to the reference's own `initial_sites` for this plate
+(1, 186, 548, 656, 887, 1279). Then predict every other field:
+
+    A1  anchors 1, 184, 548, 656, 888, 1279   held out 472
+        centre error median 1.2 px, p99 2.8, max 4.0
+        nearest sequencing tile correct 472 / 472
+        raster col (-4.62, 633.81)  row (633.58, 4.50)
+    A2  anchors 1, 184, 548, 656, 888, 1279   held out 451
+        centre error median 0.5 px, p99 2.2, max 4.4
+        nearest sequencing tile correct 451 / 451
+        (on the 284-field set before its junctions: raster col (-4.57,
+        633.82), row (633.51, 4.50), max 2.7 px, 278/278)
+
+So A4 can predict each phenotype field's well-frame centre to a few pixels
+from six alignments. The window then shrinks from +/-1,600 px to tens of
+pixels, which lowers the chance floor and removes the trial-count problem PART
+14-B/C spent a day on. The two wells' rasters agree to 0.07 px per step.
+
+
+--------------------------------------------------------------------------------
+3. PHASE B -- COST FINDINGS BEFORE THE RUN
+--------------------------------------------------------------------------------
+
+Timed on synthetic disks at a nuclear density above A1's, CPU only:
+
+    objects_in_window    512 px    131 labels    0.15 s   1.1 ms/label
+                        1024 px    524 labels    3.0 s    5.7 ms/label
+                        2048 px   2095 labels   38.9 s   18.6 ms/label
+    sew                 1,000 observations   0.18 s
+                        2,000                0.78 s
+                        4,000                4.08 s
+
+`objects_in_window` does `labels == value` over the WHOLE window per label,
+so its cost is labels x pixels: the 4096 px default window is about ten
+minutes of bookkeeping per window before any model runs. `sew` is
+quadratic-plus (each seed scans every remaining observation); extrapolated,
+a well's ~250,000 observations (an estimate, not yet counted) is hours. Neither is a correctness problem and both
+block a real well. The run below uses small windows and calls `sew` once per
+KD-tree component (a group can only hold observations within the tolerance,
+so this returns the groups one call would -- checked on a real subset).
+
+THE REFUSAL, DIAGNOSED (smoke_phaseb2/report.json). `number(strict=True)`
+says "The window overlap has to exceed the largest object; raise it and
+re-run". On real Cellpose output the refused group is a CLIP: 9 x 6 px, area
+38, 3.1 px from an emitted object of area 96 that the other window saw
+whole. `sew` matches a clipped observation on its centroid alone at
+DEFAULT_CENTROID_TOLERANCE = 3.0 px. A clip's centroid sits off the whole
+nucleus's centroid by roughly a third of the nuclear radius or more, so
+at 10X (radius ~5-6 px) a clip that cuts deep enough misses by just over 3
+px. Raising the overlap changes nothing; the tolerance for a clipped
+observation has to scale with how much of the object was cut. strict=False
+drops the fragment, which is the right outcome and the opposite of what the
+`number` docstring says ("the objects it then emits are fragments"). The code
+emits nothing for an all-clipped group.
+
+Also measured there: 4 centroid pairs closer than 6 px among 255 objects, 1
+of them across windows (areas 26 and 124, 5.2 px apart). That is a candidate
+duplicate the area-ratio test (>= 0.8) deliberately does not sew. The full
+well counts them.
+
+The process pool around `objects_in_window` works. Serial cost at 256 px
+windows is 6-18 ms per window, so the pool matters at 1,024 px and above.
+
+CELLPOSE ON A REAL COMPOSED WINDOW, GPU (s3_probe.log). cellpose 4.2.1.1,
+`cpsam`, constructed through `spacr.accelerator.cellpose_kwargs()`, on a
+1,024 x 1,024 window of A1's Hoechst composite at well (13000, 13000),
+coverage 1-4 samples per pixel:
+
+    diameter   objects   median area   p5 - p95     time
+    default     1,696       89 px       43 - 120    0.76 s
+    30          1,696       89 px       43 - 120    0.74 s
+    20          1,697       89 px       45 - 120    1.72 s
+    15          1,697       90 px       46 - 122    2.61 s
+
+The segmentation does not depend on the diameter hint here. The default is
+the fastest, so the full well runs at the default. A median of 89 px is an
+equivalent diameter of 10.6 px at 10X. The earlier stand-in's 59 px median
+was, as its note said, under-segmenting. (This window holds ~1,600 nuclei per
+Mpx. The well averages 2,340, and the full run below counts 1,280,002: seven
+times the 185,153 peaks the A4 cloud keeps, which caps each tile at 600.)
+
+WELL A1 END TO END, 2026-09-14 23:15-23:25. Driver s3_phaseb.py, report
+phaseb_A1/report.json, database phaseb_A1/measurements.db (92 MB).
+
+    ops_compose.windows_over(26,855 x 26,866, size 1,024, overlap 96)
+                                    841 windows, 160 empty, 681 segmented
+    compose_window + cpsam           Cellpose 521 s, compose 8.6 s
+    objects_in_window (16 procs)    27.6 s pooled. Serial probe: 7.5 s for
+                                    a 3,482-label window, so about 85 min
+                                    for the well in one process
+    observations                    1,570,113
+    sew, per KD-tree component      4.4 s -> 1,290,184 groups. One sew()
+                                    call on a 5,142-observation seam patch:
+                                    identical groups in 5.0 s. Scaled
+                                    quadratically to the well, that is days
+    number(strict=False)            1,280,002 objects, 6.5 s
+      seen by 1 / 2 / 3 / 4+ windows 1,028,888 / 237,113 / 109 / 13,892
+    ops_store.write_table           9.0 s; 1,280,002 rows = 1,280,002
+                                    distinct ids = read back; objects_ready
+                                    True
+    total                           593 s; peak RSS 5.1 GB main process
+                                    (PSS of the whole tree ~2.9 GB while
+                                    segmenting)
+
+    nuclear area                    median 95 px, p5-p95 57-127 px
+    B1 overlap gain                 1.154 area-weighted (PART 15: 1.15)
+
+PLATE-ID UNIQUENESS AT SEAMS:
+
+    ids                   1..1,280,002, unique, contiguous, raster ordered
+    density               2,346.8 nuclei/Mpx within window overlap bands,
+                          2,339.3 elsewhere (0.3 % apart)
+    objects in bands      19.5 % of objects, against 19.6 % of the area
+    unsewn near-twins     within 1 px: 736 pairs; within 3 px: 1,048 pairs
+                          -- ALL cross-window, ALL in an overlap band, none
+                          same-window. Area ratio median 0.74 (0.76 at 1 px)
+
+So the seams neither lose nuclei nor create a visible excess. There is one
+real defect: Cellpose segments the same nucleus with a different area in
+two windows (context at the window edge), and `sew`'s area-ratio test
+(DEFAULT_AREA_RATIO = 0.8) then keeps both. That is ~1,048 duplicate plate
+ids, 0.08 % of the well. A cross-window pair whose centroids agree to 1 px
+is one nucleus whatever its areas. Loosening the ratio for pairs that close
+would sew them.
+
+AND THE STRICT REFUSAL, AT WELL SCALE. `number(strict=True)` refused 10,182
+groups (0.8 % of objects), whose largest member spans 22 px against a 96 px
+overlap. Of them, 10,154 lie within 8 px of an emitted object, 10,176 of
+those nearest objects come from another window, and the distance median is
+3.75 px (p10 3.17, p90 4.69) against the 3.0 px centroid tolerance. These are
+the patch result's clips at scale, not nuclei larger than the overlap. With
+strict=False they are dropped, which is correct.
+
+UNIQUE(plate, well, object_id) IS NOT IN THE SCHEMA. PART 9 hole 3 item 4:
+"Uniqueness is a constraint, not a convention." `ops_store.write_table`
+creates ops_objects through `tabular.write_database` with plain columns, no
+constraint and no index. Tonight's ids are unique because `number` made them
+so. A second write that appended the same well would not fail.
+
+QC (downsampled, in phaseb_A1/):
+    qc_composite_thumb.png   the whole well at 1/16 with the window grid. The
+                             tile raster shows through as per-tile
+                             brightness fall-off: B1 has no flat-field
+                             correction, which the reference applies
+                             (apply_illumination_correction in its
+                             .smk). The equal seam density says
+                             segmentation did not suffer here.
+    qc_seam_crop.png         400 x 400 px at a four-window corner, outlines
+                             coloured per window, final objects marked;
+                             sewn objects (magenta) run straight through
+                             both seams with no doubled outlines.
+
+
+--------------------------------------------------------------------------------
+4. PHASE C -- THE FIRST REAL DECODE, AND THE STEP THE PLAN IS MISSING
+--------------------------------------------------------------------------------
+
+Driver scratchpad/ops372/s4_phasec.py. It reads BOTH layouts: c1 is one 5-plane
+stack, DAPI-CY3-A594-CY5-CY7; c2..c11 are four files per cycle, CY3, A594, CY5,
+CY7. The reference's own parameters for this plate come from
+/nas_mnt/data/ops/OpticalPooledScreens/paper/primary_fixed_cell_screen/
+20200202_6W-LaC024A/*_0_sbs.smk: BASES 'GTAC', THRESHOLD_READS 315, and the
+library pool10_design.csv (dialout 0/1, 20,445 11-base sgRNA prefixes).
+
+MEASURED ON TWO FIELDS FIRST (sites 166-167, CPU, Otsu stand-in nuclei):
+
+    exact 11-base match to the library, per detected spot
+                                            no channel     channels aligned
+                                            alignment      within each cycle
+    argmax, no compensation                   0.028            0.558
+    ops_sbs.call_reads (compensated)          0.020            0.412
+    median-normalised per cycle x channel     0.036            0.685
+      ... top quartile by quality                0.077            0.932
+    chance (20,445 / 4^11)                    0.005
+
+THE CHANNELS OF ONE CYCLE ARE NOT REGISTERED TO EACH OTHER, AND NOTHING IN
+THE PLAN DOES IT. Within-cycle channel shifts reach 14 px (66 of 66 accepted
+at tolerance 16). The reference does it by default -- `_align_SBS(...,
+align_within_cycle=True)` -- and ops_cycles registers only cycle against
+cycle. Without it the pipeline runs end to end and decodes noise at 6x
+chance: every base call, every table and every row count looks fine.
+Registration sign (corr 0.60 against 0.13 reversed) and base order (GTAC
+beats the best other permutation 4-5x) were checked and are right.
+
+`compensate_crosstalk` LOWERS THE MATCH RATE on this plate: 0.558 -> 0.412,
+and 0.685 -> 0.478 after normalisation. Per-cycle-per-channel median
+normalisation, the reference's family of correction, is the best of the
+three. The base frequencies drift toward C (CY7) with cycle number, reaching
+60-70 % by cycle 7 before normalisation.
+
+WHERE THE READS ARE (PART 9 hole 2), spots detected first over the whole
+field and attributed second, library-exact reads, two fields:
+
+    inside the nucleus                 0.27 of spots
+    nucleus dilated 3 px, unambiguous  0.70
+    within 3 px of two nuclei          0.03 (assigned to neither)
+    nucleus expanded 10 px             0.97
+    library-exact reads outside 10 px  0.01
+
+PART 9's default footprint `nucleus_dilated` at 3 px holds 0.70. That is below
+its own gate of 0.8, and the gate would say so, which is what it is for. The
+reads are perinuclear/cytoplasmic -- CROPseq transcripts -- as the reference's
+cell-level assignment implies. A 10 px expansion holds 0.97.
+
+AND SAMPLING AT THE NUCLEAR CENTROID DECODES NOTHING. `ops_sample.
+sample_objects` -> `decode_input` -> `barcode_rows` at the Phase B
+centroids, radius 1: 2 library matches from 884 objects, 0.23 %, below
+chance. A read is a punctate spot away from the centroid, so C1 as
+specified ("SEQUENCING CHANNELS, PER CYCLE, at the B4 coordinates") needs
+spot detection plus attribution: `ops_sbs.find_peaks` / `extract_bases` /
+`assign_reads_to_cells` keyed to the plate ids. A centroid sampler cannot do
+this job. Per cell, with median-normalised calls, `assign_reads_to_cells`
+gives 1,466 cells on the 3 px footprint (94 % library) and 2,080 on the 10 px
+one (94 % library).
+
+SIXTEEN SEQUENCING FILES ARE TRUNCATED, AND THEY RAISE ValueError, NOT
+OSError. The first 105-field run died at field ~51 on
+c8/10X_c8_A1_CY5_Site-172.tif: "failed to read 4380800 bytes, got 2578".
+PART 14-D's rule was "catch OSError rather than FileNotFoundError", and that
+does not cover this. tifffile raises ValueError on a short read. The
+lftp partial-download markers name 17 files. A size check shows 16
+truncated (0 to 4,096 bytes against 4,381,118), and one
+(c9 A2 A594 Site-321) at full size:
+
+    c11 A1 CY5 56    c11 A3 CY5 299   c11 B3 CY3 1     c2 A3 A594 14
+    c3 A3 A594 112   c3 B2 A594 59    c4 B3 CY3 59     c5 B2 A594 320
+    c6 B2 CY7 246    c7 B2 CY3 236    c7 B3 A594 284   c8 A1 CY5 172
+    c8 A3 CY3 131    c8 B3 CY7 274    c9 A2 CY3 225    c9 A3 CY5 242
+
+`os.path.isfile` passes on all of them, and so does a header read. The rule
+for the module becomes: catch (OSError, ValueError), and record "unreadable"
+per file as a third outcome beside "no image" and "not aligned". A truncated
+base channel loses one cycle of one field, which PART 9 hole 1 already says
+must not cost the well.
+
+`ops_gpu=False` CANNOT KEEP THE DECODE OFF THE CARD. `ops_sbs.call_reads`
+takes no `gpu` argument and calls `compensate_crosstalk(data, method=method)`,
+whose own default is `gpu=True`. `ops_sample.barcode_rows` goes through
+`call_reads` too (ops_sample.py:248). A run with every `gpu=` it could reach
+set False still put a process on the RTX 3090 (330 MiB, seen in
+nvidia-smi). PART 13-B's "`ops_gpu`, default True ... refused outright by
+gpu=False" holds for the stitch and not for the decode. On a shared card
+that is the difference between a CPU fallback and an unannounced tenant.
+The CPU run here was restarted under CUDA_VISIBLE_DEVICES="".
+
+105 FIELDS OF WELL A1 (sequencing columns 8-12, all 11 cycles), CPU with
+CUDA_VISIBLE_DEVICES="", Otsu stand-in nuclei. The spot numbers do not
+depend on the segmenter; the attribution numbers do.
+Report: phasec_A1_cpu2/report.json, per_field.csv.
+
+    fields processed          105 of 105; cycles used 1,154 of 1,155
+                              (the one lost is the truncated c8 A1 CY5 172)
+    channel shifts accepted   3,462 of 3,465
+    spots                     990,122
+
+    library exact rate, all spots
+      ops_sbs.call_reads (compensated)      0.581
+      argmax, no compensation               0.658
+      median-normalised, no compensation    0.773
+    library exact rate inside nucleus+3 px  0.744 (median-normalised)
+    1-mismatch correction, sample of 500    150 corrected
+
+    containment of all spots
+      nucleus                 0.248
+      nucleus + 3 px          0.674 (unambiguous)
+      within 3 px of two      0.033 (assigned to neither)
+      nucleus + 10 px         0.981
+    library-exact reads outside + 10 px     0.019
+
+    cells assigned by ops_sbs.assign_reads_to_cells (median-normalised)
+      footprint nucleus + 3 px    107,090 cells, 94.7 % with a library barcode
+      footprint nucleus + 10 px   160,274 cells, 95.0 %
+
+    time 909 s = registration 561 (cycles and channels, numpy), spots 190,
+    read 98, attribution/decode 49. Peak RSS 3.5 GB.
+
+THE SELF-CONTROL, because 0.77 is a claim about sequence and the file's
+lesson is to measure the null before believing a number. Same 14,208 calls
+from sites 166-167:
+
+    real cycle order, pool10 prefixes      0.685
+    cycle order scrambled                  0.0056
+    cycle order reversed                   0.0034
+    a random library of 20,399 11-mers     0.0041
+    analytic chance, 20,445 / 4^11         0.0049
+
+Every control collapses to chance, so the match comes from the ordered
+sequence of base calls and is not an artefact of base composition or of
+library size.
+
+WHAT IT SAYS FOR THE PLAN:
+  * The decode chain works on this plate once the channels within a cycle
+    are aligned. That step is missing from the modules, and without it the
+    same chain is at 3 %.
+  * The compensation that call_reads applies by default is the worst of the
+    three calls. A median normalisation per cycle x channel beats it by 19
+    points.
+  * `ops_read_footprint` = nucleus_dilated at 3 px holds 0.67 of spots, under
+    PART 9's own 0.8 gate. A 10 px expansion holds 0.98 and assigns 50 % more
+    cells at the same library purity. That is the evidence PART 9 hole 2
+    asked the first decode to produce: the default should be the wider
+    footprint, and the gate did its job.
+  * C1 cannot be a sampler at the object centroid. It needs detect -> call ->
+    attribute to the plate id (see the two-field result above).
+
+WHY PHASE C RAN ON THE CPU. Phase B released gpu.lock at 23:25. An i18n
+`--repair-api-blocks` job, queued on the lock for 16 minutes, took it at
+once. The standing rule makes every GPU step wait for that job (the previous
+one ran about an hour). V20 does not need the card. Its nuclei are Phase B's
+Cellpose objects, read from ops_objects through the objects_ready gate
+(True, 1,280,002 rows). The spots, channel alignment, cycle registration and
+calls all run in numpy, as the 105-field run did at ~8.7 s per field. The
+only GPU step in the driver is a per-tile Cellpose pass that feeds the
+tile-level containment table, already measured above; on this run the Otsu
+stand-in fills it and is labelled as such. The run: all 333 fields of A1,
+CUDA_VISIBLE_DEVICES="", started 23:28:22, PSS 3.4 GB at start, no OPS
+process on the GPU. The queued GPU chain was cancelled first, so it cannot
+later overwrite ops_barcodes in the same database.
+
+THE FULL WELL, ALL 333 FIELDS, JOINED TO PHASE B's PLATE IDS. CPU with
+CUDA_VISIBLE_DEVICES="", 23:28-00:23, report phasec_A1/report.json and
+per_field.csv. Nuclei are Phase B's 1,280,002 Cellpose objects from
+phaseb_A1/measurements.db, read after objects_ready (True, 1,280,002).
+
+    fields                    333 of 333; 331 with 11 cycles, 2 with 10
+                              (truncated c11 A1 CY5 56 and c8 A1 CY5 172)
+    channel shifts accepted   10,983
+    spots                     3,267,361
+    library exact, all spots  call_reads 0.593, no compensation 0.667,
+                              median-normalised 0.779 (0.748 within +3 px)
+    containment (tile stand-in nuclei)
+                              nucleus 0.247, +3 px 0.672, two nuclei 0.033,
+                              +10 px 0.980
+
+    spots attributed to Phase B plate ids, nearest nucleus boundary, a
+    boundary tie within 1 px left unassigned, an object assigned when >= 2
+    reads and >= 60 % of them agree:
+
+                            +3 px footprint     +10 px footprint
+    objects owned              1,264,778           1,264,778
+    with any read                981,528           1,051,484
+    assigned a barcode           355,953 (28.1 %)    455,347 (36.0 %)
+    library purity                 0.947               0.950
+    genes seen                     5,050               5,050 (all of pool10)
+
+    ops_barcodes (the +10 px set)
+      rows 455,347 = read back; object ids unique
+      SQL: ops_barcodes JOIN ops_objects ON object_id -> 455,347 rows,
+           0 orphans, 0 duplicate object_ids
+      mapped to a library guide 432,524; distinct guides 20,040 of 20,445;
+      cells per guide median 18 (p10 5, p90 43)
+    ops_reads  175,604 rows from the first three fields, to exercise the
+               write (the contract has no read id, see V15)
+
+    centroid sampling (the C1 design), same objects: 9,086 of 1,264,778
+    library-exact, 0.0072 against a chance of 0.0049
+
+    time 3,289 s: registration 1,657 (numpy), read 583, spots 565,
+    attribution and decode 452, store 3. Peak RSS 4.6 GB.
+
+WHAT IT MEANS. The join key works at plate scale: every barcoded object is a
+Phase B object, one row each, and 95 % of the assignments are library guides.
+That is the claim V20 had to make before the switch. Three things the numbers
+also show:
+
+  * THE WIDER FOOTPRINT PAYS AGAIN. +10 px assigns 99,394 more objects (28
+    % more) at slightly higher purity than +3 px. That is the full-well form
+    of V16.
+  * A THIRD OF THE WELL'S OBJECTS GET A BARCODE, and the 2-read /
+    60 % rule is the binding constraint: 1,051,484 objects have a read and
+    455,347 pass. Loosening it trades purity for coverage, a screen-level
+    decision this run only measures.
+  * A FIELD WITH ONE TRUNCATED FILE WAS NOT DECODED AT ALL. This driver calls
+    reads only when all 11 cycles registered, so two fields lost every call
+    to one missing base file. The modules must decode 10 of 11 and record
+    n_cycles = 10, which is what ops_barcodes.n_cycles is for (PART 9 hole 1).
