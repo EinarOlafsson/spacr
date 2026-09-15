@@ -870,3 +870,71 @@ WHAT THE STOCK SEED DOES NOT FIX
   per field and pooled (stock_seed_vs_truth: F1, Dice on matched objects, masks
   saved unchanged); read the outline rows beside it. Still open: the curation
   itself, the four same-field clusters, the v1 zoo row, placement, publishing.
+
+--------------------------------------------------------------------------------
+2026-09-15: THE PLAQUE HOLD-OUT QUEUE IS DURABLE, AND OPENS IN THE EDITOR
+--------------------------------------------------------------------------------
+
+The 2026-09-14 plaque queue lived in a session scratchpad under /tmp, which does
+not survive, and in the sibling layout, which spacr-make-masks refuses (the
+section above). It has been COPIED, not moved, into the plaque project in the
+nested layout. Nothing is curated, nothing is scored, nothing is published.
+
+WHERE (durable; af3 syncs it; the folder did not exist, no existing file written)
+  /mnt/wd4tb/af3/projects/automated_plaque_assay/curation/
+      plaque_literature_vanilla_queue_2026-09-14/                    109 MB
+    <stem>.<ext> x 105       the figures, byte-identical: 53 jpg, 45 png,
+                             4 tif, 3 tiff
+    masks/<stem>.tif x 105   the vanilla cpsam seeds, 4,792 objects; the
+                             editor overwrites these with the curated truth
+    queue_provenance.json    the as-built record (seed cpsam sha256
+                             e1440429..., eval, cellpose 4.2.1.1, the 8
+                             excluded figures) plus copied_from, layout,
+                             hash_check, build_queue_check, make_masks_check
+                             and a per-field list with hashes and counts
+    HOLDOUT_README.txt       the never-train rule and the commands below
+    provenance/              the three CSVs (plaque_unseen_curated_wells,
+                             plaque_literature_paper_overlap,
+                             plaque_seed_comparison), plaque_prep.py, the
+                             as-built queue_provenance.json verbatim, and
+                             copy_plaque_queue.py
+
+LAYOUT
+  <queue>/<stem>.<ext> + <queue>/masks/<stem>.tif, the PV stock queue's layout.
+  Images keep their own extension; every mask is .tif, which is where
+  mask_engine.mask_save_path writes and what load_image_and_mask finds for a
+  non-TIFF image.
+
+HASH CHECK
+  All 216 files (105 images, 105 masks, 6 provenance files) sha256-equal to
+  their source; 0 mismatches. Cross-checked as well: all 105 images equal
+  data/plaque_literature/images, and every seed's object count and shape
+  equal plaque_seed_comparison.csv (4,792 objects in total, as recorded on
+  2026-09-14). The scratch copy was left in place.
+
+CHECKS, THE SAME ONES THE PV QUEUE PASSED
+  build_queue(order="name", cache_counts=False): nested, 105 items, 105
+  remaining, 0 done, 0 missing masks; every draft is <queue>/masks/<stem>.tif;
+  nothing written.
+  spacr-make-masks with DISPLAY, WAYLAND_DISPLAY and QT_QPA_PLATFORM unset:
+  --dry-run lists 15 of 105 (exit 0); the editor run passes the layout check
+  and stops at "no display" (exit 1); neither wrote a file.
+
+HOW TO CURATE
+  Q=/mnt/wd4tb/af3/projects/automated_plaque_assay/curation/plaque_literature_vanilla_queue_2026-09-14
+  ~/anaconda3/envs/spacr/bin/spacr-make-masks --folder $Q --order name --limit 15
+
+  * Add --dry-run to see the session first. Over SSH, prefix the display, e.g.
+    env XDG_RUNTIME_DIR=/run/user/1000 QT_QPA_PLATFORM=xcb.
+  * Each save marks the figure done in $Q/curate_status.csv; the same command
+    resumes. Seven sessions of 15 cover the set. --order name keeps each
+    paper's figures together.
+  * DO NOT RECROP: the truth must stay the figure that was seeded and hashed.
+    Mark a figure that cannot be curated `skip`.
+  * THESE ARE HOLD-OUT LABELS. NEVER TRAIN ON THEM, and never copy them into
+    data/plaque, data/plaque_literature, curate_pmc, pmc_staged, curate_single
+    or any training split.
+
+  Still open: the curation itself, then toxoplasma_plaque_v1's scorecard on
+  the curated truth, placement and publishing. The scratchpad copy is now
+  redundant and goes when the scratchpad does.
