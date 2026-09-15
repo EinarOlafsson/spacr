@@ -117,40 +117,33 @@ def test_train_cellpose_writes_model(tmp_path):
 # apply_cellpose_model
 # ---------------------------------------------------------------------------
 
-#: What this test found the moment its ``except Exception: pytest.skip(
-#: "apply_cellpose_model bailed on synthetic imgs")`` came off.
+#: A RETIRED XFAIL, kept here as history so the next reader knows what this
+#: test guards.
 #:
-#: ``spacr/submodules.py:632`` calls ``model.eval(..., bsize=224)``. 224 was
-#: the Cellpose-3 default tile size; Cellpose-SAM's ViT carries a positional
-#: embedding of shape ``(1, 32, 32, 1024)`` -- a 256 px window at 8 px patches
-#: -- so a 224 px tile arrives as 28x28 patches and
-#: ``cellpose/vit_sam.py:61``'s ``x = x + self.encoder.pos_embed`` raises
-#: ``RuntimeError: The size of tensor a (28) must match the size of tensor b
-#: (32) at non-singleton dimension 2``.
+#: When this test's ``except Exception: pytest.skip(...)`` came off, it was
+#: pinned ``xfail(strict=True)``: ``apply_cellpose_model`` (and
+#: ``test_cellpose_model``) passed a hard-coded ``bsize=224`` -- the Cellpose-3
+#: tile -- to ``CellposeModel.eval``. Cellpose-SAM's ViT only accepts its
+#: 256 px window. On the Cellpose installed at the time,
+#: ``vit_sam.py:61`` raised ``RuntimeError: The size of tensor a (28) must
+#: match the size of tensor b (32)``. Cellpose 4.2.1.1 refuses up front with
+#: ``ValueError: bsize != 256 is not supported for cpsam``. Either way
+#: apply_cellpose_model could segment nothing on Cellpose 4.
 #:
-#: Confirmed directly against the installed Cellpose, independent of spaCR:
-#: the same eval call raises at ``bsize=224`` and succeeds at ``bsize=256``.
-#: It is not input-size dependent -- bsize is the tile fed to the net, so
-#: apply_cellpose_model cannot segment anything at all on Cellpose 4.x/SAM.
+#: FIXED in dc9b68e8a (2026-08-15), which dropped both kwargs from
+#: spacr/submodules.py and deleted this marker. Merge 4870083b9 (2026-09-10)
+#: brought the marker back from a parent that predated the fix, so it
+#: XPASSed(strict) on every GPU run after that. CI has no GPU and only ever
+#: skipped it.
 #:
-#: ``spacr/submodules.py:432`` (``test_cellpose_model``) has the identical
-#: hard-coded 224 and is the same bug.
-#:
-#: Product fix, not made here: drop the hard-coded bsize (let Cellpose choose)
-#: or set it to the backbone's window. strict=True fails this test the moment
-#: that lands, so the pin cannot outlive the bug.
-CELLPOSE_SAM_BSIZE_BUG = (
-    "spacr/submodules.py:632 (and :432) hard-code bsize=224 in "
-    "CellposeModel.eval; Cellpose-SAM's pos_embed is 32x32 patches (256 px), "
-    "so 224 gives 28x28 and vit_sam.py:61 raises RuntimeError: The size of "
-    "tensor a (28) must match the size of tensor b (32). Verified against the "
-    "installed cellpose: bsize=224 raises, bsize=256 works."
-)
+#: The test now asserts the fixed behaviour directly, and forcing
+#: ``bsize=224`` back into ``CellposeModel.eval`` turns it red. The GPU-free
+#: guard for the same contract is in test_cov_submodules_cellpose_apply.py,
+#: which checks that the eval call carries no ``bsize`` keyword.
 
 
 @pytest.mark.slow
 @pytest.mark.gpu
-@pytest.mark.xfail(strict=True, reason=CELLPOSE_SAM_BSIZE_BUG)
 def test_apply_cellpose_model_writes_results(tmp_path):
     _require_gpu_cellpose()
     from spacr.submodules import apply_cellpose_model
@@ -189,8 +182,8 @@ def test_apply_cellpose_model_writes_results(tmp_path):
         "verbose": False,
     }
     # Unguarded: the images above are sized for Cellpose-SAM's tiling on
-    # purpose, so a failure here is apply_cellpose_model's -- and it is. See
-    # CELLPOSE_SAM_BSIZE_BUG above.
+    # purpose, so a failure here is apply_cellpose_model's. The retired
+    # bsize=224 xfail above is the defect this line used to hit.
     apply_cellpose_model(settings)
     csvs = list((img_dir).rglob("*.csv"))
     assert csvs, "apply_cellpose_model wrote no result CSVs"

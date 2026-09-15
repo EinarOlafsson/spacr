@@ -17,6 +17,11 @@ Status:    filed 2026-08-15. THE ORIGINAL FIFTEEN ARE ALL FIXED (RESULT
            end for what survives, and for the two markers the re-audit never
            counted.
 
+           2026-09-15: ONE MARKER LEFT, NOT TWO. The cellpose marker at
+           tests/test_analysis_submodules_real_data.py:153 was STALE. It
+           recorded spaCR's own hard-coded bsize=224, which dc9b68e8a fixed,
+           and it has been retired. See 2026-09-15 at the end.
+
            Found while running the CI fast leg locally to pre-verify
            instruction 82.
 Requested: 2026-08-15 - "please look through the instructions list then take a
@@ -669,3 +674,55 @@ is not the only place a caller's app key meets `APP_ALIASES`. `ports.py:468`
 `APP_ALIASES.get(key, key)`, so a plugin's hyphenated alias resolves through
 validate and not through those three. Same defect, three call sites, in files
 outside this pass.
+
+--------------------------------------------------------------------------------
+2026-09-15 - THE CELLPOSE MARKER WAS STALE, NOT UPSTREAM. RETIRED. ONE MARKER
+LEFT IN THE WHOLE TREE.
+--------------------------------------------------------------------------------
+
+COUNT: 2 - 1 = 1. `grep -rn "mark\.xfail\|pytest\.xfail(" tests/` now finds
+only tests/test_cov_w3_8_dnd.py:143 (`_find_console`), which is unchanged and
+still open.
+
+WHAT WAS RETIRED. tests/test_analysis_submodules_real_data.py::
+test_apply_cellpose_model_writes_results, marked @gpu @slow, a strict xfail
+with reason CELLPOSE_SAM_BSIZE_BUG ("spacr/submodules.py:632 (and :432)
+hard-code bsize=224 in CellposeModel.eval").
+
+THE 2026-09-14 SECTION ABOVE MISREAD IT TWICE.
+  * It called the marker "an UPSTREAM cellpose defect" that "arguably EARNS
+    its xfail". The marker did not record a bug in a dependency. The kwarg was
+    spaCR's own, and the reason names spaCR's lines. Cellpose-SAM is right to
+    refuse a 224 px tile.
+  * The bug was already FIXED when that section was written. dc9b68e8a
+    (2026-08-15, "tests: fix the final pinned product defects") dropped both
+    bsize=224 kwargs from spacr/submodules.py AND deleted this marker. Merge
+    4870083b9 (2026-09-10, "Merge nightly into main: the Qt line becomes
+    main") took the test file from parent 880638e26, which predated the fix,
+    and took submodules.py from the fixed parent 6ac8285ed. That put the
+    marker back over code that no longer had the bug.
+
+EVIDENCE (cellpose 4.2.1.1, pytest 8.4.2, -p no:randomly):
+  * GPU hidden, as CI runs it: SKIPPED ("no CUDA device", tests/conftest.py).
+    CI could never have seen the XPASS. The gpu marker hid it from CI, just as
+    the 2026-09-14 section says it hid the marker from the re-audit.
+  * GPU visible, as committed: FAILED [XPASS(strict)].
+  * GPU visible, --runxfail: 1 passed, and apply_cellpose_model wrote its CSVs.
+  * NEGATIVE CONTROL, GPU visible: CellposeModel.eval was wrapped to force
+    bsize=224 back in (called once, with 224). Result: 1 failed, "ValueError:
+    bsize != 256 is not supported for cpsam". When the pin was written, the
+    installed Cellpose raised the pos_embed RuntimeError the reason quotes;
+    4.2 refuses the kwarg up front instead. Either way the test fails.
+
+WHAT CHANGED. The marker and the CELLPOSE_SAM_BSIZE_BUG constant are gone. The
+test keeps every assertion it had, and its comment now records the defect as
+history. It stays @gpu @slow, so CI still only skips it. A GPU-free guard for
+the same contract already exists: tests/test_cov_submodules_cellpose_apply.py
+checks the AST to confirm that apply_cellpose_model's eval call carries no
+bsize keyword.
+
+THE OTHER TWO FILES that a grep for bsize plus xfail turned up carry no marker.
+test_cov_submodules_cellpose_train_test.py asserts bsize == 256 against a CPU
+fake. Its module docstring still says one xfail is "still outstanding" in
+spacr.settings, but no such marker exists. test_cov_object_masks_sam.py only
+mentions xfails that were already retired.
