@@ -36,6 +36,8 @@ ORGANELLE_SLOT_ROLES = ALL_ORGANELLE_ROLES
 FEATURE_SELECTION_MORPHOLOGY = 'morphology'
 
 
+from . import graph_types as _graph_types
+
 def canonical_feature_selection(value):
     """Return ``channel_of_interest`` in the one form spaCR stores.
 
@@ -1026,7 +1028,13 @@ def set_default_plot_data_from_db(settings):
     settings.setdefault('pathogen_plate_metadata', None)
     settings.setdefault('treatments', None)
     settings.setdefault('treatment_plate_metadata', None)
-    settings.setdefault('graph_type', 'jitter_box')
+    # 293: the Default Graph Type setting decides what is drawn
+    # FIRST. The fallback is the literal this line used to
+    # hold, so a user who chose nothing sees what they saw.
+    settings.setdefault(
+        'graph_type',
+        _graph_types.mark_to_start_on(
+            'categorical_continuous', 'jitter_box')[0])
     settings.setdefault('theme', 'deep')
     settings.setdefault('save', True)
     settings.setdefault('y_lim', None)
@@ -5607,7 +5615,13 @@ def set_graph_importance_defaults(settings):
     settings.setdefault('csvs','list of paths')
     settings.setdefault('grouping_column','compartment')
     settings.setdefault('data_column','compartment_importance_sum')
-    settings.setdefault('graph_type','jitter_box')
+    # 293: the Default Graph Type setting decides what is drawn
+    # FIRST. The fallback is the literal this line used to
+    # hold, so a user who chose nothing sees what they saw.
+    settings.setdefault(
+        'graph_type',
+        _graph_types.mark_to_start_on(
+            'categorical_continuous', 'jitter_box')[0])
     settings.setdefault('save',False)
     return settings
 
@@ -5784,7 +5798,13 @@ def get_plot_data_from_csv_default_settings(settings):
     settings.setdefault('src','path')
     settings.setdefault('data_column','choose column')
     settings.setdefault('grouping_column','choose column')
-    settings.setdefault('graph_type','jitter_box')
+    # 293: the Default Graph Type setting decides what is drawn
+    # FIRST. The fallback is the literal this line used to
+    # hold, so a user who chose nothing sees what they saw.
+    settings.setdefault(
+        'graph_type',
+        _graph_types.mark_to_start_on(
+            'categorical_continuous', 'jitter_box')[0])
     settings.setdefault('save',False)
     settings.setdefault('y_lim',None)
     settings.setdefault('log_y',False)

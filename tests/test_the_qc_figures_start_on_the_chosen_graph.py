@@ -119,3 +119,61 @@ def test_a_choice_this_shape_cannot_take_is_not_a_choice_for_it(monkeypatch):
     assert note == "", (
         "nothing was overridden -- the choice was never applicable, which "
         "chosen_for handles before start_for sees it")
+
+
+# -- the pipeline figures, 293's second holdout -----------------------------
+
+def test_the_pipeline_defaults_start_on_the_chosen_graph(monkeypatch):
+    """`settings.py`'s three `setdefault('graph_type', 'jitter_box')` lines.
+
+    293's WHAT STILL DOES NOT list named these alongside the ml.py three.
+    Same shape -- a measurement grouped by a column -- and the same rule: the
+    setting decides what is drawn first, and the fallback is the literal the
+    line used to hold.
+    """
+    _choose(monkeypatch, "violin")
+    mark, _note = graph_types.mark_to_start_on("categorical_continuous",
+                                               "jitter_box")
+    assert mark == "violin"
+
+
+def test_setdefault_still_means_setdefault(monkeypatch):
+    """A CALLER WHO PASSED A TYPE KEEPS IT, which `setdefault` guarantees.
+
+    The preference decides the DEFAULT. A pipeline called with an explicit
+    `graph_type` has already been told what to draw, and a change that read
+    the setting with `settings['graph_type'] = ...` instead would silently
+    override every caller that passes one.
+    """
+    from spacr import settings as settings_module
+
+    _choose(monkeypatch, "violin")
+    given = {"graph_type": "bar"}
+    given.setdefault(
+        "graph_type",
+        graph_types.mark_to_start_on("categorical_continuous",
+                                     "jitter_box")[0])
+    assert given["graph_type"] == "bar", (
+        "an explicit graph_type was overridden by the preference")
+    assert hasattr(settings_module, "_graph_types"), (
+        "settings.py no longer reaches graph_types; the three setdefault "
+        "lines have gone back to a literal")
+
+
+def test_the_shared_helper_speaks_the_drawing_vocabulary():
+    """`mark_to_start_on` answers in MARK vocabulary, both directions.
+
+    It takes the caller's own fallback as a MARK -- 'jitter_box', what the
+    call site already had written down -- and must map it back to the
+    graph-type vocabulary internally to ask the setting. A helper that
+    compared 'jitter_box' against the graph_types table directly would find
+    nothing and fall through to the table default, moving every existing
+    view.
+    """
+    for fallback in ("jitter_box", "jitter_bar", "violin", "box"):
+        mark, note = graph_types.mark_to_start_on("categorical_continuous",
+                                                  fallback)
+        assert mark == fallback, (
+            f"with no preference stored, a caller passing {fallback!r} got "
+            f"{mark!r} back -- its existing view moved")
+        assert note == ""

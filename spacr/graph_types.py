@@ -287,6 +287,49 @@ def default_for(shape: str) -> str:
     return chosen_for(shape) or fallback
 
 
+def mark_to_start_on(shape: str, fallback_mark: str) -> Tuple[str, str]:
+    """What to draw FIRST, in the vocabulary the DRAWING code speaks.
+
+    :param shape: one of the keys of :data:`DATA_SHAPES`.
+    :param fallback_mark: what the caller drew BEFORE the setting existed, in
+        mark vocabulary -- ``'jitter_box'``, ``'jitter_bar'`` and so on.
+    :returns: ``(mark, note)``, the mark to draw and the sentence explaining
+        any fallback, empty when the choice was honoured.
+
+    TWO VOCABULARIES MEET HERE AND THEY ARE NOT THE SAME. This module stores
+    ``bar_jitter`` and ``box_jitter``; :class:`spacr.plot.spacrGraph` and the
+    live panels draw ``jitter_bar`` and ``jitter_box``. A caller that reads
+    the setting and forgets :func:`mark_for` hands matplotlib a name that
+    ``plot.py``'s own error message lists as unknown -- which is the mistake
+    this function exists to stop anyone making twice. Instruction 293 named
+    four call sites that had to do this two-step; they should all do it here.
+
+    THE FALLBACK IS THE CALLER'S OWN FORM, NOT THE TABLE'S DEFAULT, and it is
+    taken in MARK vocabulary because that is what a caller already has
+    written down. A preference nobody expressed must not move an existing
+    view, so a caller passing what it used to hardcode gets exactly that back
+    until someone chooses otherwise.
+
+    THE FALLBACK IS HANDED TO :func:`start_for` UNTRANSLATED, on purpose.
+    It looks like it needs mapping back to graph-type vocabulary first, and
+    the first version of this function did that with a reverse lookup over
+    :data:`MARKS`. A mutation test could not tell the two versions apart, and
+    reading `start_for` says why: with no preference stored it answers the
+    fallback AS GIVEN, without validating it, because "a widget knows what it
+    can draw". The reverse lookup was dead code.
+
+    IT WOULD STOP BEING DEAD the day a caller passes ``counts``. `start_for`
+    uses the fallback a second time on the too-thin-for-a-distribution path,
+    where `fits(shape, fallback)` decides between the caller's form and the
+    table default -- and a MARK spelling fails `fits`. No caller here has
+    counts: these are settings defaults, built before any data is read. If
+    one ever does, this function needs the mapping back and a test that
+    reaches that path.
+    """
+    chosen, note = start_for(str(shape), fallback=str(fallback_mark))
+    return mark_for(chosen, fallback=str(fallback_mark)), note
+
+
 def mark_for(graph_type: str, fallback: str = "") -> str:
     """The live-plot mark that draws ``graph_type``.
 

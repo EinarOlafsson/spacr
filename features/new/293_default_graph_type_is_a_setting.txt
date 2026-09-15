@@ -174,12 +174,12 @@ figures keep their own form.
 THE THREE THAT REMAIN
 --------------------------------------------------------------------------------
 
-  * `spacr/settings.py:1029,5613,5790` -- `setdefault('graph_type',
-    'jitter_box')` for the pipeline figures. NOT TAKEN TONIGHT: the other
-    session has settings.py open for a new key in the same window, and two
-    edits to one file across two sessions is the collision this protocol
-    exists to avoid. It is the same shape as the ml.py fix, with
-    `fallback='jitter_box'` to hold existing behaviour.
+  * `spacr/settings.py:1029,5613,5790` -- DONE, once the other session
+    confirmed they had nothing in that file. All three now read the setting
+    through `graph_types.mark_to_start_on('categorical_continuous',
+    'jitter_box')`, and `setdefault` still means setdefault: a caller who
+    passes an explicit `graph_type` keeps it, because the preference decides
+    the DEFAULT and not the answer.
   * `spacr/qt/widgets/graph_spec.py:455` `infer_kind` -- the Graph Builder
     infers BOX for one categorical against one continuous and never asks.
     Different in KIND from the other three: `infer_kind` answers "what kind of
@@ -190,3 +190,33 @@ THE THREE THAT REMAIN
   * `spacr/plot.py` `spacrGraph` -- takes whatever it is handed, which is
     correct for a drawing primitive. It is on the list as the place the
     vocabulary lands, not as a caller to change.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE TWO-STEP IS NOW ONE CALL, AND A MUTATION DELETED MY OWN CODE
+--------------------------------------------------------------------------------
+
+ml.py and settings.py both had to do the same two-step -- ask `start_for`, then
+translate with `mark_for` -- so it is one function now,
+`graph_types.mark_to_start_on(shape, fallback_mark)`. It takes the fallback in
+MARK vocabulary, because that is the spelling a call site already has written
+down, and answers in the same, so a caller never touches the other vocabulary
+at all. That is the whole reason 293's "one-line change" was not one line.
+
+AND THE MUTATION PASS DELETED CODE I HAD JUST WRITTEN. The first version
+reverse-looked-up the fallback through `MARKS` before handing it to
+`start_for`, on the reasoning that `start_for` speaks graph-type vocabulary.
+Reverting that loop changed no test result at all -- 11 passed either way --
+and reading `start_for` says why: with no preference stored it answers the
+fallback AS GIVEN, unvalidated, because "a widget knows what it can draw".
+The loop was dead.
+
+IT WOULD STOP BEING DEAD the day a caller passes `counts`. `start_for` uses
+the fallback a second time on the too-thin-for-a-distribution path, where
+`fits(shape, fallback)` chooses between the caller's form and the table
+default -- and a MARK spelling fails `fits`. No caller here has counts: these
+are settings defaults, built before any data is read. That is written into the
+function so whoever adds counts knows they are also adding the mapping back.
+
+A mutation that cannot tell two versions apart is not a weak test; it is an
+answer about the code. Deleting the loop was the honest response to it.
+

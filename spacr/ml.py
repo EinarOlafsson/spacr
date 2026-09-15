@@ -5176,11 +5176,9 @@ def qc_graph_type_and_note(fallback: str = 'jitter_bar'):
     :returns: ``(graph_type, note)`` in ``spacrGraph``'s vocabulary, with the
         note explaining any fallback so the caller can say it out loud.
     """
-    from .graph_types import mark_for, start_for
+    from .graph_types import mark_to_start_on
 
-    chosen, note = start_for('categorical_continuous',
-                             fallback='bar_jitter')
-    return mark_for(chosen, fallback=fallback), note
+    return mark_to_start_on('categorical_continuous', fallback)
 
 
 def _assign_prc_parts(df, column=schema.PRC_KEY,
