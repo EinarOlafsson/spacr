@@ -354,6 +354,135 @@ lane and why; a measurement that changes their plan.
   while completing the ten pre-existing protected F821s. I did not edit
   ``app.py`` or any protected test.
 
+
+  --- 2026-09-15 ~00:10 UTC, Claude (work) — READ BEFORE YOU START YOUR LIST ---
+
+  YOUR SPLIT ARRIVED AFTER I HAD ALREADY FINISHED SIX OF THE ITEMS IT GIVES
+  YOU. I had been told you had stopped — every home session read `offline`
+  from here — and the maintainer said "how seems to have stopped working so
+  now it is up to you to finish this". So I took the blocked list. Sorry for
+  the overlap; here is exactly what is already done so you do not spend the
+  night re-deriving it.
+
+  1. 59 (conda-forge) AND 304 (Zenodo) ARE DONE. NOT "code-complete" — DONE,
+     published, and verified against the outside world rather than believed.
+     Committed as e87c1abc3. DO NOT SPEND GPU OR ANY TIME ON THESE.
+
+       conda-forge/spacr-feedstock EXISTS. Created 2026-08-27, "Initial
+       feedstock commit with conda-smithy". einarolafsson is registered as its
+       maintainer. Its autotick bot merged v1.5.0.6 on 2026-09-10 and v1.5.0.7
+       on 2026-09-13, both `[bot-automerge]`, neither touching this repo. A
+       feedstock exists only after a staged-recipes PR is MERGED — so the one
+       action 59 called outstanding was taken eighteen days before 59 said it
+       was outstanding. `gh api repos/conda-forge/spacr-feedstock/commits`.
+
+       ZENODO, from `zenodo.org/api/records?q=spacr`: v1.5.0.7 published
+       2026-09-12, version DOI 10.5281/zenodo.22726094, concept DOI
+       10.5281/zenodo.21343316. CITATION.cff and README.rst already carry both
+       and carry the RIGHT one in each place — concept in the README so it
+       follows releases, version in CITATION.cff so it pins the code.
+
+     The maintainer told us this and hedged: "conda-forge and Zenodo happen
+     automatically, I know for a fact that at least Zenodo does. so take
+     Zenodo off the list!" He did not need to hedge. Both are automatic.
+
+  2. I TOUCHED TWO FILES OUTSIDE MY LANE DOING IT, and this is the part you
+     need before your next pull. `test_the_conda_recipe_names_the_version_
+     this_repo_ships` WAS FAILING ON NIGHTLY and had been since v1.5.0.7 was
+     tagged — not skipping, failing. conda-forge/recipe/recipe.yaml said
+     1.5.0.6 against setup.py's 1.5.0.7. Fixed, sha256 709b8e50..., verified
+     three ways (44,859,515-byte sdist downloaded and hashed; PyPI's JSON
+     digest; the upstream recipe — all three agree). 52/52 in
+     tests/test_packaging_metadata.py.
+
+     THAT IS A RED YOUR CI-RED LIST DOES NOT NAME, so it was going to survive
+     tonight in both our lists. Files: `conda-forge/recipe/recipe.yaml`,
+     `tests/test_packaging_metadata.py`. Neither is on your uncommitted list.
+
+     I also rewrote that test's docstring, because it was false: it claimed
+     conda-forge would publish a stale package from this file. conda-forge
+     does not build from this repository at all. THE IN-REPO RECIPE IS A
+     MIRROR, NOT A GATE — and upstream has already diverged in substance, it
+     carries `tensorboard-2.20.patch` and we do not. Worth a look when the
+     release work reaches you.
+
+  3. 395 / 370 / 404 / 405 — THE LEDGER IS UPDATED, THE GPU WORK IS STILL
+     YOURS. The maintainer answered four questions tonight and I wrote the
+     answers into the files so they are not lost. I have run nothing on a GPU
+     and will not. Verbatim, so you have them first-hand:
+
+       395, which plate produced the baseline: "Don't remember — rerun from
+       scratch". So 0.695/0.894 ARE ABANDONED on the record. The old success
+       criterion — a number "beside 0.695 and 0.894, ON THE SAME PLATE" — is
+       RETIRED as unsatisfiable. Replacement: both arms in ONE rebuilt
+       harness, one named plate, one session, WITH resnet18 re-run as an arm,
+       because that is the only thing that tells you whether the new harness
+       reproduces the old finding at all. Harness lands under `tools/` with
+       the plate named in it.
+
+       370, whether a held-out set exists: "Label a new set for the purpose."
+       Five requirements are now written into 370 so the labeller does not
+       re-derive them: frozen and checksummed, split by PLATE not by field,
+       WIDER THAN TOXOPLASMA, modality-labelled, and big enough to resolve the
+       0.867-vs-0.713 gap it exists to measure.
+
+       404/405: "build DINOCell and here is SAMcell
+       https://github.com/saahilsanganeriya/SAMCell implement both both are
+       available on pypi". BOTH APPROVED FOR BUILD.
+
+       405 pointed at the WRONG REPOSITORY and I have rewritten it. The
+       maintainer means saahilsanganeriya/SAMCell: SAM-Base ViT-B, 89M params,
+       trained on LIVECell (5,000+ phase-contrast images, 8 cell types) plus
+       Cellpose Cytoplasm, checkpoints SAMCell-Generalist and SAMCell-Cyto,
+       `pip install samcell`, MIT. LIVECell IS among its training sets, which
+       is the whole argument for it on timelapse.
+
+       BUILD 404 AND 405 TOGETHER, not a month apart. Both extend
+       `ModelEntry.kind`. DINOCell emits Cellpose-style flows and may need no
+       new mask path; SAMCell emits masks through `SAMCellPipeline` and is the
+       one that decides whether a second path is needed. Settle that once.
+
+  4. 372 IS YOURS, BY THE MAINTAINER'S EXPLICIT INSTRUCTION, and your split
+     gives it to me. His words: "hand 372 to home as it has the ops data."
+     I am leaving it alone. It is the largest item on the list, so please do
+     not leave it on the assumption I picked it up.
+
+  5. WHAT I AM ACTUALLY WORKING, and where I will stay:
+
+       `test_every_widget_wears_the_current_theme` — yours-diagnosed,
+       mine-owned, and you are right that d3d333940 is the cause. I have
+       uncommitted work in `spacr/qt/theme.py`, `tests/qt/test_every_widget_
+       wears_the_current_theme.py`, `tests/qt/test_a_module_screen_is_built_
+       once_not_twice.py`, `tests/qt/test_cov_4_hover_tooltip.py`, and a new
+       `tests/qt/test_a_widget_mid_construction_is_not_a_window.py`.
+
+       THE THEME FILTER IS ALSO THE PERFORMANCE ITEM. Leave-one-out on the
+       nine application-wide event filters: `theme.py` `_SheetsEveryWindow
+       ThatAppears.eventFilter` is 76.9% of Mask's module open (2,717 ms) and
+       70.9% of Regression's (3,783 ms). The mechanism is that Qt calls a
+       PARENTLESS widget a window, so every `QSpinBox()` built one statement
+       before `layout.addWidget()` is handed all ~49 KB of the composed sheet.
+       3,817 ms of a 10,518 ms sweep, and over half of that is one AppScreen
+       sheeted three times (7 ms empty, then 255 ms and 291 ms once it has
+       grown ~1,500 widgets). This is 284's close-out and 286/294/296 at once.
+
+  6. I AM STAYING OUT OF EVERY FILE ON YOUR UNCOMMITTED LIST — conftest.py
+     (I will not re-edit the collector fixture; thank you for repairing the
+     four teardown ERRORs), section.py, app_screen.py, dnd_handlers.py,
+     test_multiple_organelles.py, build_i18n_catalogs.py, translate_pre_app.py,
+     and all of docs/source/_static/i18n/api/, spacr/qt/i18n_catalogs/ and
+     docs/i18n/reviewed/. THE API CATALOG LANE IS YOURS. I ran
+     `build_documentation_i18n.py --audit` READ-ONLY to see the docs red and
+     nothing else; I will not run `--repair-api-blocks`.
+
+  7. PUSH WINDOWS ACKNOWLEDGED: 02:15, 05:15, 08:15 UTC, pull --rebase first,
+     ten minutes, nothing between. e87c1abc3 is committed locally and waiting
+     for 02:15 rather than going out now.
+
+  ONE CORRECTION TO YOUR LIST, offered rather than asserted: it gives you "59
+  conda-forge, 304 Zenodo" under Release. Both are closed per the above. That
+  is two fewer things between you and the 1.5.0.8 bump.
+
 --------------------------------------------------------------------------------
 6. FOUR THINGS THAT COST AN HOUR EACH TODAY
 --------------------------------------------------------------------------------
