@@ -10,6 +10,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 LOCALE_DIR = ROOT / "packaging" / "i18n"
 OUTPUT_DIR = ROOT / "packaging" / "online" / "generated"
+#: The finder and remover both installers run before they install, the same
+#: module the in-app update uses. A standalone Unix installer carries it.
+CLEANUP_MODULE = ROOT / "spacr" / "install_cleanup.py"
+CLEANUP_BEGIN = "# @SPACR_CLEANUP_MODULE_BEGIN@"
+CLEANUP_END = "# @SPACR_CLEANUP_MODULE_END@"
+CLEANUP_DELIMITER = "SPACR_CLEANUP_PY"
 LANGUAGES = ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 NSIS_LANGUAGE = {
     "en": "English", "sv": "Swedish", "de": "German", "es": "Spanish",
@@ -174,9 +180,39 @@ def embed_unix(source: Path, output: Path, version: str) -> None:
     # prove that no source surrounding the catalog was lost.
     embedded = f"{begin}\n{messages}\n{end}"
     rendered = text[:start] + embedded + text[finish:]
+    rendered = embed_cleanup_module(rendered)
     rendered = rendered.replace("@SPACR_VERSION@", version)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(rendered, encoding="utf-8")
+
+
+def embed_cleanup_module(text: str, module: Path | None = None) -> str:
+    """Put ``spacr/install_cleanup.py`` inside a Unix installer, verbatim.
+
+    Between the cleanup markers the source script copies the module from the
+    checkout; a standalone installer has no checkout, so the markers are
+    filled with a function that writes the module out of a quoted here-document.
+    Text without the markers is returned unchanged, and embedding twice gives
+    the same result as embedding once.
+    """
+    start = text.find(CLEANUP_BEGIN)
+    finish = text.find(CLEANUP_END)
+    if start < 0 and finish < 0:
+        return text
+    if start < 0 or finish < start:
+        raise ValueError("installer has unbalanced cleanup-module markers")
+    source = (module or CLEANUP_MODULE).read_text(encoding="utf-8")
+    if CLEANUP_DELIMITER in source.splitlines():
+        raise ValueError(f"{CLEANUP_DELIMITER} would end the here-document early")
+    body = (
+        "spacr_write_cleanup_module() {\n"
+        f"    cat > \"$1\" <<'{CLEANUP_DELIMITER}'\n"
+        f"{source.rstrip()}\n"
+        f"{CLEANUP_DELIMITER}\n"
+        "}"
+    )
+    finish += len(CLEANUP_END)
+    return f"{text[:start]}{CLEANUP_BEGIN}\n{body}\n{CLEANUP_END}{text[finish:]}"
 
 
 def main() -> int:

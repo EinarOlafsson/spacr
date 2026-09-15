@@ -93,6 +93,9 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   SetOutPath "$TEMP\spaCR-online-installer"
   File "install_spacr_windows.ps1"
   File /r "generated"
+  ; The finder and remover the bootstrap runs before it installs: the same
+  ; module the in-app update uses.
+  File "..\..\spacr\install_cleanup.py"
 
   StrCpy $1 "cpu"
   SectionGetFlags ${SecGpu} $2
@@ -156,6 +159,7 @@ Section "$(SPACR_NSIS_APPLICATION)" SecSpaCR
   CreateShortcut "$DESKTOP\spaCR.lnk" "$INSTDIR\venv\Scripts\pythonw.exe" '"$INSTDIR\launch_spacr.pyw"' "$INSTDIR\spacr.ico" 0
 
   Delete "$TEMP\spaCR-online-installer\install_spacr_windows.ps1"
+  Delete "$TEMP\spaCR-online-installer\install_cleanup.py"
   Delete "$TEMP\spaCR-online-installer\generated\installer_messages.ps1"
   RMDir "$TEMP\spaCR-online-installer\generated"
   RMDir "$TEMP\spaCR-online-installer"
@@ -171,6 +175,9 @@ Section "Uninstall"
   Delete "$DESKTOP\spaCR.lnk"
   RMDir /r "$SMPROGRAMS\spaCR"
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\spaCR"
-  DeleteRegKey HKCU "Software\spaCR"
+  ; Registry names ignore case, so this is also the key the settings live in
+  ; (Software\spacr\qt). Delete only what the installer wrote.
+  DeleteRegValue HKCU "Software\spaCR" "InstallRoot"
+  DeleteRegKey /ifempty HKCU "Software\spaCR"
   RMDir /r "$INSTDIR"
 SectionEnd
