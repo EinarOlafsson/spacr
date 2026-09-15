@@ -330,3 +330,62 @@ WHAT IS LEFT OF PART 3, precisely:
     whole e2e chain ran on defaults unnoticed. `PackReport.source` is now
     "" exactly in that case, so the guard can test it -- app.py was not this
     session's file either.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- A CACHED EXAMPLE LOADS THE USER'S OWN RUN SETTINGS, NOT THE PACK
+--------------------------------------------------------------------------------
+
+Found by the other session's 358 tutorial capture, which could not photograph
+the Mask form until it moved two stale settings files aside. The form was
+showing Source `<src>` and settings that were not the pack's -- flow_threshold
+100, cellprob -1/0, no diameter.
+
+THE MECHANISM IS WRITTEN DOWN IN THE CODE, as a feature.
+`AppScreen._EXAMPLE_SETTINGS_FILES` (app_screen.py:3528) lists the files an
+example may ship, "best first":
+
+    "mask": ("gen_mask_settings.csv", "gen_masks_settings.csv"),
+
+and the comment directly above it says, correctly:
+
+    a mask run saves `gen_mask_settings.csv`, the older pack shipped
+    `gen_masks_settings.csv`
+
+SO THE FIRST CANDIDATE IS THE NAME A RUN WRITES. `utils.save_settings` puts a
+completed run at `<src>/settings/<name>.csv` with `name='gen_mask_settings'`
+(core.py:344), which is the same folder shape and the same filename the
+example loader searches. On a FRESH download the pack is the only file there
+and everything works; once the user has run Mask on the example, their output
+sits in that folder under the preferred name and wins forever, because a
+cached example is never re-fetched.
+
+That is why it looks intermittent and why it only bites returning users: it
+cannot happen until you have actually used the thing once.
+
+WHAT MAKES IT AWKWARD TO FIX, and why this is recorded rather than patched
+tonight: you cannot tell the two apart by NAME. `settings_pack.PACK_FILES`
+lists `gen_mask_settings.csv` as a SHIPPED pack name too, so the published
+sets and the run outputs genuinely share a namespace. Reordering the tuple
+would only move the problem to whichever set uses the other spelling.
+
+THE OPTIONS, none of them one line:
+
+  * REMEMBER WHAT WAS DOWNLOADED. Record the pack's path when the example is
+    fetched and read that, rather than searching a folder by name. A shipped
+    file is known at download time; a run output is not.
+  * SEPARATE THE NAMESPACES. Put the shipped pack somewhere a run cannot
+    write -- `<dest>/example_settings/` rather than `<dest>/settings/`. This
+    changes what the published archives have to contain, so it is a decision
+    about the Hugging Face layout and not only about this code.
+  * PREFER THE OLDEST FILE, or the one whose `src` still points at the
+    publisher's machine before `reanchor_example_paths` rewrites it. Both are
+    heuristics and both will be wrong eventually.
+
+The first is the only one that stops guessing, and it is the one I would
+build. It needs the download path and the loader to agree on a record, which
+is more than a name-ordering change.
+
+NOT FIXED HERE. Recorded with the mechanism so the next session starts from
+the cause rather than from the symptom, and because "the settings are wrong
+after you have used it once" is the kind of report that otherwise gets chased
+as a settings-form bug for a day.
