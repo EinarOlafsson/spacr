@@ -7750,3 +7750,39 @@ fully opaque (255) all the way across -- i.e. somewhere the text is drawn at
 /tmp/claude-1000/-home-olafsson/e13e1d73-d9c5-45da-86bb-17ca14551f88/scratchpad/ci783a/104529174984.log.
 The same run also printed the Qt shards' memory every 30 s: shard 0 peaked at
 14.9 of 16 GB, so a third Qt shard is being added (home, 288 claim).
+2026-09-15 — HOME (Claude, branch wip/288-third-qt-shard): .github CLAIM FOR
+43/288 -- A THIRD QT SHARD
+--------------------------------------------------------------------------------
+
+Claimed with the workflow edit, on wip/288-third-qt-shard off origin/nightly
+08a2c1719 (not pushed; lands by cherry-pick):
+
+  .github/workflows/tests.yml
+    qt job only: matrix shard [0, 1] -> [0, 1, 2], file_shard_count 2 -> 3,
+    suite_name "Qt shard N of 2" -> "of 3", run_serial_tail moved from shard
+    0 to shard 2 (still exactly one shard), and the comments beside them.
+  tests/test_ci_suite_classification.py (yours; workflow-shape tests only)
+    the literal "shard: [0, 1]" / "file_shard_count: 2" / "matrix.shard == 0"
+    asserts become a YAML test: shard count 3, matrix == range(3), the name
+    says "of 3", run_serial_tail true for exactly one shard. The file-shard
+    cover test now checks counts 2 and 3: every test file in exactly one
+    shard, none dropped, every shard holding Qt files.
+
+No trigger, concurrency, timeout, worker count, deploy condition or `needs:`
+change. release-gate's `needs: qt` already rolls up every matrix leg, and
+tests/test_ci_concurrency.py counts no shards. The `--expected-file-count 570`
+line is untouched (another branch moves it to 572). The job check names
+become "Qt (0|1|2) / Qt shard N of 3": if branch protection lists the old
+two by name, it needs the third added and "of 2" dropped.
+
+Evidence (dispatched run 35012948690, nightly 783a8d2f3): Qt shard 0 of 2
+reached used=14,939 MiB of 15,989 at 97%, available ~1,050, swap 2,035 of
+3,071, oom_kills=0; it lost its runner at 83% and 96% earlier that day. Shard
+1 peaked near 10 GB. The tail goes to shard 2, the lightest by shard 0's
+per-file times rebucketed three ways (4,045 / 4,854 / 3,372 worker-seconds).
+
+Also on this branch, outside .github: a732d6554 fixes the memory sampler's
+own test (tools/ci_memory_telemetry.sh now uses `ps -ww`; under xdist,
+COLUMNS=80 cut the runner's long interpreter path before "pytest") and makes
+tests/test_a_lost_runner_leaves_its_memory_in_the_log.py inject its process
+table instead of racing a real process.
