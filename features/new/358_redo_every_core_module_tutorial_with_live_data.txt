@@ -1028,3 +1028,14 @@ FRESH-COPY RECAPTURE FAILED, AND IT HELD THE SHARED GPU LOCK FOR TWO IDLE HOURS.
   This is the HANDOFF rule measured: a model that confidently narrates
   "1500 cell labels" passes every automated gate here. Only reading each
   row against the measurement catches it.
+  APPLIED. For each of 13 languages: review_tool build (OPS bundle + count
+    bundle, every substring matched exactly once, english_sha256 re-pinned
+    to the staged d988500d) -> apply_translation_review.py (staged catalog
+    + production/07_mask/review.<lang>.json; speech_text regenerated and
+    gated for the 7 spoken languages) -> row diff against the pre-edit
+    snapshot. Every language: exactly prerequisite, objectives[0] and scenes
+    1/4/6/7/8 changed, no other key. git: 13 files x 8 lines (7 rows + pin).
+    Cross-check: 13/13 staged catalogs equal their review (narration,
+    prerequisite, objectives, speech_text present, production copy
+    identical). The two pending bundles are deleted now that they are
+    applied. Next: 50 voices on the GPU lock (no --force).
