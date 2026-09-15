@@ -1294,3 +1294,38 @@ Minimum dependencies failed. Read from their logs:
       compat     "3.15 installs, from wheels only": pandas publishes no 3.15
                  wheels. The cell is continue-on-error (informational), so it
                  does not decide the workflow.
+
+  THE DISPATCHED RUN'S VERDICT (tests 34989909231, compat-matrix 34989930732,
+  both on 2a84d1d60; recorded 2026-09-15 ~17:20 UTC, full-suite control still
+  running at the time):
+
+    compat-matrix   SUCCESS -- the only red cell is "3.15 installs, from wheels
+                    only" (pandas publishes no 3.15 wheels), continue-on-error.
+    tests           RED. Failures by kind:
+      * the work session's three, already fixed on its unpushed branch: tooltip
+        drift 667==666, stale notebooks, graph_type defaults;
+      * NEW, home session: tests/qt/test_no_backdrop_thread_outlives_a_test.py
+        (3 tests, "assert 4 == 1") and test_no_widget_hard_codes_a_font_size --
+        both being bisected against today's landings;
+      * the crash family, three more sites: shard 0 again in test_dnd_dropzone;
+        shard 9 in test_the_make_masks_segmentation_workbench; min-deps (py3.9)
+        "Fatal Python error: Aborted" in test_a_committed_row_outranks_the_
+        translation_cache and a segfault in test_cov_object_preprocess_segment;
+      * Qt shard 0 LOST ITS RUNNER AGAIN, at [96%] after 89 min (the first time
+        at [83%] after 71 min) -- a 180-minute budget, so not a timeout; memory
+        on the runner is the hypothesis being instrumented, not a finding.
+      * THE COVERAGE GATE FAILED ON 13 MODULES, and they are two different
+        things mixed together. REAL gaps from today's code (291's figure_font
+        tested only in child interpreters, the logging_util moveToThread branch,
+        286/296/413 in preferences, resource_cleanup's hook uninstaller, the
+        fractal hook fix, the FigureQueue guard) -- being covered with tests --
+        and ARTEFACTS: A WORKER KILLED BY A SIGNAL NEVER WRITES ITS COVERAGE
+        DATA, so every line it had covered vanishes from the report. pivot_spec
+        going from 100% to 24 uncovered statements in a run with three segfaulted
+        workers is that shape.
+
+  THE CONSEQUENCE FOR THE RELEASE GATE: while the crash family exists, a red
+  coverage gate does not by itself mean coverage was lost. Branch
+  wip/288-ci-crash-tolerant makes the collection recover a crashed worker's
+  files and makes the gate name an incomplete measurement as such -- still a
+  failure, never a silent pass.
