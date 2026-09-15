@@ -1394,3 +1394,31 @@ Minimum dependencies failed. Read from their logs:
   STALE STRICT XFAIL -- its reason (bsize) is gone from spacr/submodules.py.
   Candidates by grep: tests/test_cov_submodules_cellpose_train_test.py tests/test_analysis_submodules_real_data.py tests/test_cov_object_masks_sam.py . A strict xfail whose defect was
   fixed turns into an XPASS failure; retire it with the fix it recorded.
+
+2026-09-15 (evening) - THE gw1 "Fatal Python error: Aborted" IN RUN 34989909231 IS TORCH, NOT QT
+--------------------------------------------------------------------------------
+
+  Job "Minimum dependencies (ubuntu-24.04, py3.9)", worker gw1, in
+  test_a_committed_row_outranks_the_translation_cache.py::
+  test_a_repair_mode_retranslates_the_rows_it_targets. No Qt frame on the
+  faulthandler stack; the current thread ended in
+  tools/build_i18n_catalogs.py:5647 _translate_batches,
+  `torch.set_num_interop_threads(1)`. THIS SITE OF THE CRASH FAMILY IS A TORCH
+  INTER-OP-THREADS ABORT, not Qt, and counts for no Qt hypothesis.
+
+  Mechanism: torch sizes its inter-op pool once per process, and the helper
+  set it on every model-reaching call. The test before it in the same worker
+  had already reached the (stub) model. torch 2.13 raises RuntimeError on the
+  second call and an `except RuntimeError` swallowed it, so no local run could
+  see it. The min-deps pin, torch 2.1.0+cpu, lets the c10::Error escape the
+  binding: "terminate called after throwing an instance of 'c10::Error'",
+  SIGABRT, uncatchable.
+
+  Proof in a torch 2.1.0+cpu venv: that pair, serial in one process, aborts at
+  line 5647 on 8e26e209d and passes after the fix. Fix (wip/43-interop-threads):
+  _limit_torch_interop_threads asks torch at most once per process and not at
+  all when it already reports 1. Test:
+  tests/test_a_second_translation_call_does_not_abort_the_process.py (two calls
+  after a torch op, in a subprocess): before the fix -6/SIGABRT on 2.1.0 and a
+  second call counted on 2.13; after it, green on both. This was the only
+  set_num_interop_threads call in spacr/ and tools/.

@@ -34,6 +34,7 @@ import fcntl
 import hashlib
 import importlib.util
 import json
+import logging
 import os
 import pprint
 import re
@@ -5419,6 +5420,45 @@ def _rank_aligned_joins(
     return joined
 
 
+_LOG = logging.getLogger(__name__)
+
+#: Set once this process has asked torch to size its inter-op pool.
+_TORCH_INTEROP_POOL_REQUESTED = False
+
+
+def _limit_torch_interop_threads(torch_module, wanted: int) -> None:
+    """Ask torch for a ``wanted``-thread inter-op pool at most once per process.
+
+    torch sizes that pool once. A second ``set_num_interop_threads`` call, or
+    one after inter-op work has started, fails a C++ check: torch 2.13 raises
+    ``RuntimeError``, but torch 2.1.0 (the minimum-dependency pin) lets the
+    ``c10::Error`` escape the binding, so ``std::terminate`` aborts the whole
+    process and no ``except`` runs. That is how CI run 34989909231 lost a
+    pytest-xdist worker on its second model-reaching translation test
+    (item 43, 2026-09-15).
+
+    The pool size is only a performance hint, so the call is prevented rather
+    than recovered from: skip it when torch already reports ``wanted``, and
+    never make it a second time in this process.
+    """
+    global _TORCH_INTEROP_POOL_REQUESTED
+    if _TORCH_INTEROP_POOL_REQUESTED:
+        _LOG.debug("torch inter-op pool already requested in this process")
+        return
+    _TORCH_INTEROP_POOL_REQUESTED = True
+    current = torch_module.get_num_interop_threads()
+    if current == wanted:
+        _LOG.debug("torch inter-op pool is already %d threads", current)
+        return
+    try:
+        torch_module.set_num_interop_threads(wanted)
+    except RuntimeError as error:
+        # Not the abort guard (an abort never reaches here). A torch that
+        # raises instead of aborting lands here only when other code in this
+        # process started inter-op work first; the hint is then skipped.
+        _LOG.debug("torch inter-op pool left at %d threads: %s", current, error)
+
+
 def _translate_batches(
     strings: list[str],
     language: str,
@@ -5643,12 +5683,7 @@ def _translate_batches(
     from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
     torch.set_num_threads(max(1, threads))
-    try:
-        torch.set_num_interop_threads(1)
-    except RuntimeError:
-        # PyTorch permits setting the inter-op pool only before parallel work
-        # starts. A reused process has already fixed the same one-thread pool.
-        pass
+    _limit_torch_interop_threads(torch, 1)
     tokenizer = AutoTokenizer.from_pretrained(model_path, local_files_only=True)
     # Both OPUS and M2M can otherwise continue a high-probability word or CJK
     # character until ``max_new_tokens`` on terse technical labels.  These
