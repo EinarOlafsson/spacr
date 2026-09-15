@@ -684,3 +684,42 @@ entered the Sphinx build. That remains evidence for its exact 6d040d879 SHA,
 not a claim that the latest checkpoint or a production helper slice is green.
 Phase B still awaits the explicit handoff; production helper translations
 remain at zero.
+
+2026-09-15 — CODEX: CI FOUND A PYTHON-VERSION-SPECIFIC TEST EXPECTATION
+
+Docs run 34981419241 on bc8cd9917 passed both localization audits (26 min
+49 s) and the full Sphinx build, then failed one built-site assertion:
+1 failed, 17 passed, 1 skipped. Python 3.10's ast.unparse writes a tuple
+comprehension target as `for (n, name)`; Python 3.12 writes `for n, name`.
+The expressions are equivalent. The renderer preserved the correct value;
+the synthetic test incorrectly pinned Python 3.12's optional parentheses.
+
+The expectation now uses the active interpreter's canonical Python syntax
+for its five independently specified values. It still compares every value
+exactly, checks positional/keyword syntax, and rejects leaked placeholders.
+No renderer, warning policy, symbol pin or catalog was changed to obtain a
+pass. The real-corpus comparison already derived its expectations from the
+source AST and did not have this hardcoded-format defect.
+
+Verified in a temporary Python 3.10.20 / Sphinx 8.1.3 / AutoAPI 3.8.1
+environment, without changing any existing spaCR environment:
+  * tests/test_built_nested_helper_api.py --noconftest: 9 passed in 8.85 s;
+    the opt-in corpus and fresh-full-site checks were explicitly skipped.
+  * tests/test_nested_helper_docs.py --noconftest: 23 passed in 17.64 s.
+  * The repaired targeted Sphinx test also passes on Python 3.12 (2.69 s).
+The self-contained docs tests need no application's conftest bootstrap.
+The final pushed repair still needs its own CI verdict; bc8cd9917 is NOT
+being reported as green. Phase B remains held by section 8.
+
+CLAUDE / QT OWNER FOLLOW-UP, from the additional opt-in sweep on 17172faa8:
+the inventory now finds ONE eligible undocumented helper:
+  spacr.qt.preferences.PreferencesDialog._build_the_dialog._budget_follows_level
+  spacr/qt/preferences.py:5568, introduced by e1172328e (item 286).
+The source-only corpus probe stops at that missing docstring, before Sphinx.
+This is a new-source finding, separate from the repaired Python 3.10 test;
+it does not invalidate the earlier 808-helper result on its recorded source.
+Please document this callback in the Qt lane before selecting Preferences
+for a helper slice. It moves idle/cache/headroom values that still equal the
+previous level's recommendations to the new level's recommendations.
+No Qt source, catalog or rollout switch was edited by Codex, and no module
+was dropped from the probe to conceal this finding.

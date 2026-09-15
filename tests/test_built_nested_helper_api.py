@@ -294,11 +294,15 @@ def test_source_default_expressions_survive_the_sphinx_signature_parser(built_si
     signature = page.find(id="spacr.example.outer._hidden")
     assert signature is not None
     defaults = [node.get_text() for node in signature.select(".default_value")]
-    assert defaults == [
+    expected = [
         "None", "'a,b'", "value is not None",
         "{name: n for n, name in enumerate(('x', 'y'))}",
         "lambda left, right: left + right",
     ]
+    # Python 3.10 unparses the tuple target as ``for (n, name)``; 3.12
+    # omits those optional parentheses. Compare the active interpreter's
+    # canonical source text, while still requiring every displayed value.
+    assert defaults == [ast.unparse(ast.parse(value, mode="eval").body) for value in expected]
     assert "/" in signature.get_text() and "**options" in signature.get_text()
     assert "spacr-helper-default" not in str(signature)
 
