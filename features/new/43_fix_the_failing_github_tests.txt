@@ -1560,3 +1560,51 @@ VERDICT: CONFIRMED FOR ONE CRASH, NOT SHOWN FOR THE RECORDED CI SITES.
   * Harness option NOT taken: gc_policy in the test process (automatic GC off,
     GUI-thread collection at boundaries). It passed everything it was run on,
     but the serial A/B had no baseline crash to remove, so it is unproven.
+2026-09-15 (evening) - A DEAD WORKER TOOK ITS COVERAGE WITH IT; QT SHARD 0'S
+                       LOST RUNNER NOW LOGS MEMORY, AND LOCALLY IT NEARS 16 GB
+--------------------------------------------------------------------------------
+
+Branch wip/288-ci-crash-tolerant: 55b97f378, cf6acebc3 (claim 3ddd933d1).
+
+  COVERAGE (details in item 288). A worker killed by a signal, or by the
+  conftest memory guard (exit 3), never writes its coverage data; measured on a
+  toy, a PASSED test's lines vanished with its worker. That is how run
+  34989909231's shard-0 and shard-9 segfaults became thirteen false ratchet
+  regressions. Coverage batches now re-run a lost worker's files serially; an
+  unrecovered loss fails the gate as an INCOMPLETE MEASUREMENT (exit 3), named
+  by exit status: SIGSEGV (this item's crash family) or exit 3 (memory guard).
+  The crash still fails its shard; nothing here attributes it.
+
+  QT TELEMETRY. Input memory_telemetry_seconds (Qt: 30) runs
+  tools/ci_memory_telemetry.sh beside pytest: a MEMORY line every 30 s in the
+  LIVE log (used/available, swap, PSI, oom_kill count, free disk, every pytest
+  process's RSS beside guard=6GB, top 4 processes), a line for each pytest
+  process that vanished with its last RSS, and fuller samples uploaded and
+  printed on failure. A lost runner keeps the lines already streamed.
+
+  LOCAL EVIDENCE for the memory hypothesis (spacr env, CUDA hidden, the
+  CI-identical shard 0 command with -n 4, process-tree PSS every 15 s):
+
+      t (s)   shard   tree PSS MiB   tree RSS MiB
+        183     10%        8,711         10,343
+        381     26%        9,760         11,439
+        979     53%       14,297         15,979
+       1502    ~68%       15,091         16,813   peak; workers 4.2/3.8/3.7/3.1 GB PSS
+       1517     68%       11,410         12,632   gw1 segfaulted, 3 workers left
+
+  GitHub's standard public-repository Linux runner has 16 GB RAM. The pytest
+  tree alone reached 92% of 16 GiB by ~68%, still climbing; CI lost the runner
+  at 83% and 96%. Consistent with memory exhaustion, not proof (different
+  stack and CPU; PSS is not the VM's accounting); the next dispatched run's
+  MEMORY lines decide it.
+
+  NINTH CRASH SITE, LOCAL: that run's gw1 took "Fatal Python error:
+  Segmentation fault" in tests/qt/test_cov_2_data_manager.py::test_accepting_
+  the_archive_question_moves_and_leaves_the_record (path_probe workers alive),
+  and --max-worker-restart=0 ended the shard: 8,255 passed, 5 failed in 28:39.
+
+  PROPOSAL, NOT APPLIED. Each long-lived worker grew ~2.3 -> 4.2 GB over the
+  shard, so memory scales with workers x tests per worker. Three workers cut
+  the total by about a quarter but give each a third more tests (extrapolated
+  ~5.6 GB, against the 6 GB guard). A third Qt shard, or fresh-worker batches
+  as the coverage shards use, lowers both. Decide on one run's MEMORY lines.
