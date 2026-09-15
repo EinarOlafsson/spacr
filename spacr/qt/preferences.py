@@ -2605,10 +2605,17 @@ def set_laptop_mode(choice: str) -> None:
     if choice not in LAPTOP_MODE_CHOICES:
         raise ValueError(f"unknown laptop mode {choice!r}; "
                          f"expected one of {list(LAPTOP_MODE_CHOICES)}")
-    _settings().setValue(_KEY_LAPTOP_MODE, choice)
-    _settings().sync()
-    from .laptop_mode import apply as _apply, wanted
-    _apply(None if choice == "automatic" else choice == "on")
+    # 286: THE OLD WORDS WRITE THE ONE VALUE. This used to store the key the
+    # migration removes and apply a hardware measurement for "automatic",
+    # so a caller could set "on" and read "off" back from `get_laptop_mode`,
+    # or have a two-core reading override Workstation. "on" is the Laptop
+    # level; "off" leaves Laptop for the default level; "automatic" states no
+    # choice and leaves the level alone. This run's backdrop follows through
+    # `set_performance_level`.
+    if choice == "on":
+        set_performance_level("laptop")
+    elif choice == "off" and get_performance_level() == "laptop":
+        set_performance_level(DEFAULT_PERFORMANCE_LEVEL)
     return None
 
 
@@ -2726,13 +2733,49 @@ def get_performance_level() -> str:
     else:
         level = DEFAULT_PERFORMANCE_LEVEL
 
+    if _SAFE_MODE:
+        # Safe mode answers every read with a default and sends every write
+        # to the real store, so migrating here would "migrate" defaults and
+        # write Balanced over the user's real level. Answer and store
+        # nothing; the next ordinary start migrates the real values.
+        return level
+
     try:
         settings.setValue(_KEY_PERFORMANCE_LEVEL, level)
         settings.sync()
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not store the migrated performance level",
                   exc_info=True)
+        return level
+    if _level_is_durable(settings, level):
+        # The obsolete answers go only once the level has reached the store:
+        # until then they are the only record of what the user chose (286).
+        try:
+            settings.remove(_KEY_LAPTOP_MODE)
+            settings.remove(_KEY_SPACR_MODE)
+            settings.sync()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not remove the obsolete performance keys",
+                      exc_info=True)
     return level
+
+
+def _level_is_durable(settings, level: str) -> bool:
+    # Durable means the store reports no error after the sync AND reads the
+    # level back. QSettings keeps a written value in memory even when its
+    # file cannot be written, so the read-back alone would pass a store whose
+    # disk write failed; `status()` is what reports that.
+    status = getattr(settings, "status", None)
+    if callable(status):
+        try:
+            if status() != QSettings.Status.NoError:
+                return False
+        except Exception:                                    # noqa: BLE001
+            return False
+    try:
+        return str(settings.value(_KEY_PERFORMANCE_LEVEL, "") or "") == level
+    except Exception:                                        # noqa: BLE001
+        return False
 
 
 def set_performance_level(level: str) -> None:
@@ -2749,6 +2792,23 @@ def set_performance_level(level: str) -> None:
     settings = _settings()
     settings.setValue(_KEY_PERFORMANCE_LEVEL, level)
     settings.sync()
+    _backdrop_follows_the_level(level)
+
+
+def _backdrop_follows_the_level(level: str) -> None:
+    # 286: the level, not a second switch, decides this run's laptop
+    # constraint -- the same answer `launch` gives at startup. Laptop
+    # suppresses the backdrop for this process; any other level lifts only a
+    # suppression THIS process made (`laptop_mode._suppressed_here`), so
+    # crash recovery's variable and the user's stored answer are never
+    # touched. Nothing here is persisted.
+    try:
+        from .laptop_mode import apply as _apply
+
+        _apply(level == "laptop")
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not bring this run's backdrop in line with the "
+                  "performance level", exc_info=True)
 
 
 def spacr_mode_for_level(level: str) -> str:
@@ -2838,7 +2898,9 @@ def set_spacr_mode(mode: str) -> None:
                          f"Choose from {SPACR_MODES}.")
     previous = get_spacr_mode()
     settings = _settings()
-    settings.setValue(_KEY_SPACR_MODE, mode)
+    # ONE STORED VALUE (286). The posture is derived from the level, so the
+    # level is all that is written; the old `prefs/spacr_mode` copy was a
+    # second answer that only the migration ever read.
     settings.setValue(_KEY_PERFORMANCE_LEVEL, mode)
     settings.sync()
     if mode == "extra_performance" and previous != "extra_performance":
@@ -2881,8 +2943,17 @@ def mode_warning(mode: str) -> str:
 
 def _visual_snapshot() -> dict:
     """The five settings Extra Performance overrides, as they are now."""
+    # "ambient_enabled" is the STORED switch, read past SPACR_NO_BACKDROP.
+    # Restoring the animation goes through `set_ambient_animation`, which
+    # turns the backdrop on, so without it a user who had switched the
+    # backdrop off got it back by passing through Extra Performance or Laptop
+    # (286). The raw key and not `get_ambient_enabled()`, which answers False
+    # for a process-local suppression that must never be saved as a choice.
     return {
         "ambient_animation": get_ambient_animation(),
+        "ambient_enabled": _as_bool(
+            _settings().value(_KEY_AMBIENT_ENABLED, DEFAULT_AMBIENT_ENABLED),
+            DEFAULT_AMBIENT_ENABLED),
         "ambient_resolution": get_ambient_resolution(),
         "ambient_density": get_ambient_density(),
         "setting_animations": get_setting_animations_enabled(),
@@ -2951,6 +3022,11 @@ def _restore_visuals() -> bool:
             set_setting_animations_enabled(bool(stashed["setting_animations"]))
         if "field_fade" in stashed:
             set_field_fade_enabled(bool(stashed["field_fade"]))
+        # Last, because `set_ambient_animation` above switches the backdrop
+        # on. A stash written before 286 has no such entry and keeps the old
+        # behaviour.
+        if "ambient_enabled" in stashed:
+            set_ambient_enabled(_as_bool(stashed["ambient_enabled"], True))
     except Exception:
         LOG.debug("could not restore the stashed visuals", exc_info=True)
         return False
