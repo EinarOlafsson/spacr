@@ -1184,3 +1184,76 @@ RELEASE CANDIDATE WITH BOTH REFRESHED LESSONS: release-candidate-8738b_pd.
     module_navigation.js: only source_commit
   No other lesson's bytes or catalog text moved. verify_release_candidate.py
   is running on it.
+  VERIFIED: verify_release_candidate.py release-candidate-8738b_pd exit 0
+    (08:07:57 -> 08:12:14). 90 PASS: 14 Coming-soon language screens + 76
+    candidate playback cases, including 07_mask, 13_regression and
+    01_pypi_github (whose clock check failed twice on 09-11 under load).
+
+--------------------------------------------------------------------------------
+2026-09-15 08:13 UTC -- CLAUDE SESSION SUMMARY: WHAT WAS DONE, WHAT IS OWED
+--------------------------------------------------------------------------------
+
+BRANCH wip/358-lessons in /mnt/firecuda2/Claude/repo/spacr-358, NOT pushed.
+From 63f1d502b (nightly at 03:42). nightly was rebased under it at 04:17. The
+first 10 commits were replay-tested onto the rebased nightly and applied
+cleanly; later commits touch only tools/tutorials and this file. For the
+maintainer:
+    git tag 358-capture-base-63f1d502b 63f1d502b
+    git rebase --onto nightly 63f1d502b wip/358-lessons
+The commits touch only: this file, tests/conftest.py,
+tests/test_the_chaining_pin_store_is_sandboxed.py,
+tools/tutorials/{capture_refresh.py, compose_mask_capture.py,
+lessons/07_mask.json, lessons/reviews/07_mask.*.json (13),
+authoring/tools/render_all_voices.py}. None is on tonight's do-not-touch list.
+
+DONE
+  1 Capture hygiene. Root cause: chaining pins in XDG STATE storage
+    (~/.local/state/spacr/chaining/pins.json), covered by neither the tests'
+    nor the capture's XDG_CONFIG_HOME. Fixed in tests/conftest.py and
+    capture_refresh.py, plus 4 regression tests. Before: the stand-in store
+    received a /tmp/pytest mask pin; after: 0 files; 245 tests passed.
+  2 13_regression. Re-recorded on 1.5.0.7 with today's labels; 21 new
+    frames, master, matrix, 1440p copy, web playback.
+  3 07_mask. Fresh-copy GPU preview capture: 105 -> 52 at 510 px -> 105; 36
+    after 30 -> 60. The recount matches and the arrays are byte-identical
+    across two recordings. Composed; English changed on exactly 5 lines; 13
+    reviews applied (7 rows each, drafts read row by row); 50 voices (one
+    pinned -2 dB peak repair); decode, 14 browser checks, master, matrix,
+    rendition, web playback.
+  4 Candidate 8738b_pd holds both refreshed lessons; 90 PASS; the change is
+    confined to those two lessons.
+
+FOUND ON THE WAY (for owners of app code; not patched here)
+  * settings_pack.PACK_FILES["mask"] tries the run-saved gen_mask_settings.csv
+    before the shipped gen_masks_settings.csv. Load test data on a cached
+    example therefore returns the user's old run settings, including a
+    literal "<src>". (app_screen.py was another agent's tonight.)
+  * spacr/core.py's batch overlay loop still lists merged/ unfiltered, so
+    the plane-layout JSON is still plotted as an image. Scene 10 stays true.
+  * The maintainer's real ~/.local/state/spacr/chaining/pins.json still pins
+    Mask and Timelapse to deleted pytest folders. Safe to delete those two
+    entries; the file is his.
+  * The machine-translation drafts are not usable unread: 11 of 13 languages
+    got 105 wrong in at least one scene (150, 125, 1500, 15, ...); all
+    translated UI names.
+
+OWED
+  * 05_home scene 3 (Embeddings in the Data band). Not started; the brief
+    made it conditional. The exact edits and the sequence are in the
+    "05_HOME -- OWED" note above.
+  * Publication: the release hold, the Hugging Face media revision, Pages
+    from main, and the Home/Performance question. All the maintainer's.
+  * Native-speaker and listening review of the 07_mask rows (editorial
+    only). A listener will hear 07_mask/en/bm_fable about 0.9 LU softer.
+  * 09_annotate and the Classify lessons were not re-audited.
+
+RE-RUN COMMANDS FOR WHAT FAILED TONIGHT (all later succeeded)
+  * Mask preview capture on a cached example: remove any run-saved
+    settings/gen_mask_settings.* first, or use a fresh copy
+    (refresh_2026-09-15_cpu), and run under run_capture_guarded.sh (fixed
+    xvfb display, X11-break watchdog), never `xvfb-run -a` with a 2 h
+    timeout.
+  * Voice render stopped on a true peak: pin the track in
+    render_all_voices.mastering_config() (as ae4f80b00), in BOTH copies,
+    then re-run without --force.
+  * Library checkpoint: --held 71_investigate_hit, not all four HELD ids.
