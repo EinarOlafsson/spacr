@@ -1,0 +1,48 @@
+================================================================================
+THE FONT ZOOM FLOOR IS 10%, NOT 75%
+================================================================================
+
+Status:    IN PROGRESS, 2026-09-15 (Claude home session).
+Requested: 2026-09-15, by the maintainer, in these words:
+           "i would like to change the font zoom floor from 75% to 10%"
+Owner:     Claude home session.
+
+--------------------------------------------------------------------------------
+WHAT IS THERE NOW
+--------------------------------------------------------------------------------
+
+  spacr/qt/preferences.py:517    FONT_SCALE_MIN = 0.75   (FONT_SCALE_MAX = 2.00)
+
+  It is the floor for every path that sets the interface font scale: the
+  Preferences slider (range int(FONT_SCALE_MIN * 100) .. int(FONT_SCALE_MAX *
+  100), preferences.py ~4979), the stored value's clamp (~3358, ~3364), and the
+  live keyboard/wheel zoom (spacr/qt/live_zoom.py ~250-258). The module
+  docstring states the range as [0.75, 2.0] (preferences.py:61).
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  * The floor becomes 0.10 on every one of those paths, from one constant.
+  * THE FLOOR MUST BE REAL. Any second floor further down the pipeline -- a
+    minimum pixel size in the stylesheet, a clamp inside a widget -- that stops
+    10% rendering as 10% defeats the request. Where Qt itself needs a
+    positive size (a font of at least one pixel), that is the only floor left,
+    and it is stated where it is applied.
+  * THE APPLICATION MUST SURVIVE 10%: no exception, no zero-size font warning
+    flood, no layout that cannot be zoomed back out of. The user must always be
+    able to get back to 100% from 10% with the same controls.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * The Preferences slider goes down to 10, and a stored 0.10 survives a
+    restart as 0.10.
+  * Zooming out with the keyboard/wheel stops at 10%, not 75%.
+  * At 10% the main window, a module screen and Preferences build and paint
+    without errors, and zooming back to 100% restores the normal sizes.
+  * Tests pin the floor through the constant, and the old 0.75 pins moved by
+    meaning, not by copying a number.
+  * Docstring and any user-visible text that states the range say 10%, in all
+    nine languages.

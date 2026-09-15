@@ -226,3 +226,22 @@ FOUND ON THE WAY, NOT PART OF THIS ITEM:
     after" as a droplet; zh_CN/hi "Clear RAM" as transparent RAM.
   - formula._REJECTED has the same dict-keys defect: its refusal messages
     were never extracted for translation.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- MAINTAINER DECISION: NO MIGRATION NOTICE
+--------------------------------------------------------------------------------
+
+Asked with the question tool whether spaCR should tell the user when it
+converts an old Laptop mode / spaCR mode setting to the five-level selector
+(once, on the first start after updating). Answer, verbatim: "No notice
+(Recommended)" -- convert silently; the old values map one-to-one onto the
+levels and the selector shows the result.
+
+That closes bullet 6's open question: the five names and their tooltips are
+translated in all nine languages, and no migration message is wanted, so there
+is none to translate. Bullet 7 (the tutorials show the removed Laptop control)
+remains, and belongs to the tutorial lane.
+
+Found on landing: test_every_legacy_pair_migrates_and_the_obsolete_keys_go
+[balanced-] failed once in a 14-file serial run of the landed commits' tests
+and passes alone (28 passed) -- order-dependent, under investigation.
