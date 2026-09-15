@@ -17,6 +17,7 @@ import inspect
 import json
 import re
 import stat
+import subprocess
 import sys
 import tempfile
 import unicodedata
@@ -5937,6 +5938,54 @@ def _historical_api_block_translations(
     return candidates
 
 
+def _committed_english_api_symbols() -> dict[str, object]:
+    """The English API manifest as last committed, when git can say.
+
+    WHY A SECOND MANIFEST. ``repair_api_translations`` carries an unchanged
+    paragraph of a CHANGED docstring forward only when an English manifest
+    records the same source hash as the translated catalog does. It reads
+    that manifest from the working tree, which holds the previous English
+    only until something rewrites it -- and two ordinary steps do:
+    ``--sources-only``, and a ``--repair-api-blocks`` run over a subset of
+    languages, which writes the manifest for all nine. After either, the
+    working-tree manifest already describes the NEW English, no paragraph can
+    be proven unchanged, and every paragraph of a changed docstring that is
+    in no cache goes back to the model. On 2026-09-15 that left eleven
+    paragraphs exact English which had passed the audit one commit earlier
+    (item 406, the API-lane section).
+
+    The committed manifest is still the previous English in both cases. It
+    is only a second candidate: a record is used only when its
+    ``source_sha256`` equals the translated record's, so a manifest that
+    describes some other English cannot match, and every reused block still
+    passes the same gates.
+
+    :returns: the ``symbols`` of ``HEAD``'s manifest, or ``{}`` when the
+        manifest is outside this repository, git is missing, or the file is
+        not committed.
+    """
+    manifest = API_DIR / "en.json"
+    try:
+        relative = manifest.resolve().relative_to(Path(ROOT).resolve())
+    except ValueError:
+        return {}
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(ROOT), "show",
+             f"HEAD:./{relative.as_posix()}"],
+            capture_output=True, check=False,
+        )
+    except OSError:
+        return {}
+    if completed.returncode != 0:
+        return {}
+    try:
+        symbols = json.loads(completed.stdout.decode("utf-8")).get("symbols")
+    except (UnicodeDecodeError, json.JSONDecodeError, AttributeError):
+        return {}
+    return symbols if isinstance(symbols, dict) else {}
+
+
 def repair_api_translations(
     docs: Mapping[str, str], language: str, model_root: Path, args,
 ) -> dict[str, str]:
@@ -5972,13 +6021,37 @@ def repair_api_translations(
     reused_blocks = 0
     historical_reused_blocks = 0
     relaid_symbols = 0
+    committed_english_symbols: dict[str, object] | None = None
+    history_from_head = 0
+    history_unproven = 0
 
     for key, source in docs.items():
         source_blocks, source_layout = translatable_blocks(source)
         canonical_key = API_DOC_ALIASES.get(key, key)
         record = current_symbols.get(canonical_key, {})
+        english_record = old_english_symbols.get(canonical_key, {})
+        translated_hash = record.get("source_sha256")
+        if (
+            translated_hash
+            and str(record.get("text", "")).strip()
+            and translated_hash != _source_hash(source)
+            and english_record.get("source_sha256") != translated_hash
+        ):
+            # The working-tree manifest no longer describes the English this
+            # catalog was built from; see _committed_english_api_symbols.
+            if committed_english_symbols is None:
+                committed_english_symbols = _committed_english_api_symbols()
+            committed_record = committed_english_symbols.get(canonical_key, {})
+            if (
+                isinstance(committed_record, Mapping)
+                and committed_record.get("source_sha256") == translated_hash
+            ):
+                english_record = committed_record
+                history_from_head += 1
+            else:
+                history_unproven += 1
         historical = _historical_api_block_translations(
-            old_english_symbols.get(canonical_key, {}),
+            english_record,
             record,
             language,
         )
@@ -6183,7 +6256,9 @@ def repair_api_translations(
         f"generated={len(pending_sources)} unresolved={unresolved} "
         f"review_recovered={recovered_review} "
         f"cache_recovered={recovered_cache} "
-        f"decoded={len(translation_input)} relaid_symbols={relaid_symbols}",
+        f"decoded={len(translation_input)} relaid_symbols={relaid_symbols} "
+        f"history_from_head={history_from_head} "
+        f"history_unproven={history_unproven}",
         flush=True,
     )
     return repaired
