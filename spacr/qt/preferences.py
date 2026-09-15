@@ -2727,10 +2727,16 @@ def set_headroom_mb(megabytes: int) -> None:
 
 
 def _level_budget():
-    # (idle minutes, cache MB, headroom MB) for the current performance
-    # level. Falls back to the shipped defaults when the level cannot be
-    # read, because a background sweep with no user in front of it reads
-    # these and must not raise.
+    """The budget the current performance level recommends.
+
+    :returns: ``(idle minutes, cache MB, headroom MB)`` for the stored
+        level, or the shipped defaults when the level cannot be read.
+
+    The getters use this as the value of a budget nobody has typed, so an
+    untouched budget follows the level (286). It never raises: a background
+    budget sweep with no user in front of it reads these numbers, and an
+    unreadable store must cost that sweep a default rather than an exception.
+    """
     from .memory_budget import (DEFAULT_CACHE_CEILING_MB,
                                 DEFAULT_HEADROOM_MB, DEFAULT_IDLE_MINUTES,
                                 recommended_for)
@@ -2742,11 +2748,20 @@ def _level_budget():
 
 
 def _save_budget_for_level(level, idle_minutes, cache_mb, headroom_mb):
-    # What Preferences' Save writes (286). A number equal to the chosen
-    # level's own is stored as "follow the level" -- the key removed -- so a
-    # later level change still moves it; any other number is the user's and
-    # is kept at every level. Writing all three unconditionally, as Save did,
-    # froze the budget at whatever level was showing on the first Save.
+    """Store the three budget numbers Preferences' Save was given (286).
+
+    :param level: the performance level being saved beside them.
+    :param idle_minutes: the idle timeout shown in the dialog.
+    :param cache_mb: the cache ceiling shown in the dialog.
+    :param headroom_mb: the free-memory floor shown in the dialog.
+    :returns: None; the store is written and synced.
+
+    A number equal to ``level``'s own recommendation is stored as "follow
+    the level" -- its key removed -- so a later level change still moves
+    it; any other number is the user's and is kept at every level. Writing
+    all three unconditionally, as Save once did, froze the budget at
+    whatever level happened to be showing on the first Save.
+    """
     from .memory_budget import recommended_for
 
     own = recommended_for(level)
@@ -2760,6 +2775,36 @@ def _save_budget_for_level(level, idle_minutes, cache_mb, headroom_mb):
         else:
             settings.setValue(key, value)
     settings.sync()
+
+
+def _budget_follows_level(mode_combo, last_level, spins) -> None:
+    """Move each untouched budget spin box to the newly chosen level's value.
+
+    :param mode_combo: the Preferences dialog's Performance combo; its
+        current data is the level just chosen.
+    :param last_level: a one-item list holding the level the spin boxes were
+        last aligned to. It is updated in place, so the next change compares
+        against the level this one chose.
+    :param spins: the ``(idle minutes, cache MB, headroom MB)`` spin boxes,
+        in the order of :data:`memory_budget.RECOMMENDED`'s tuples.
+    :returns: None; the spin boxes are changed in place.
+
+    286: a number still equal to the previous level's recommendation was
+    never chosen by the user, so it moves with the level; a number the user
+    typed differs from it and stays where they put it. That keeps the dialog
+    agreeing with :func:`_save_budget_for_level`, which stores a number equal
+    to the level's own as "follow the level". An unknown level on either
+    side moves nothing, because there is no recommendation to compare with.
+    """
+    from .memory_budget import RECOMMENDED
+
+    new, old = mode_combo.currentData(), last_level[0]
+    last_level[0] = new
+    if new == old or new not in RECOMMENDED or old not in RECOMMENDED:
+        return
+    for index, spin in enumerate(spins):
+        if spin.value() == RECOMMENDED[old][index]:
+            spin.setValue(RECOMMENDED[new][index])
 
 
 def get_performance_level() -> str:
@@ -2821,10 +2866,21 @@ def get_performance_level() -> str:
 
 
 def _level_is_durable(settings, level: str) -> bool:
-    # Durable means the store reports no error after the sync AND reads the
-    # level back. QSettings keeps a written value in memory even when its
-    # file cannot be written, so the read-back alone would pass a store whose
-    # disk write failed; `status()` is what reports that.
+    """Whether a migrated performance level really reached the store.
+
+    :param settings: the QSettings (or stand-in) the level was written to.
+    :param level: the level that was written.
+    :returns: True only if the store reports no error after the sync AND
+        reads ``level`` back; False on any doubt, including an exception.
+
+    The migration in :func:`get_performance_level` deletes the obsolete
+    Laptop-mode and spaCR-mode answers only when this is True, because until
+    the level is durable those answers are the only record of the user's
+    choice. Both checks are needed: QSettings keeps a written value in
+    memory even when its file cannot be written, so a read-back alone would
+    pass a store whose disk write failed, and ``status()`` is what reports
+    that.
+    """
     status = getattr(settings, "status", None)
     if callable(status):
         try:
@@ -2856,12 +2912,19 @@ def set_performance_level(level: str) -> None:
 
 
 def _backdrop_follows_the_level(level: str) -> None:
-    # 286: the level, not a second switch, decides this run's laptop
-    # constraint -- the same answer `launch` gives at startup. Laptop
-    # suppresses the backdrop for this process; any other level lifts only a
-    # suppression THIS process made (`laptop_mode._suppressed_here`), so
-    # crash recovery's variable and the user's stored answer are never
-    # touched. Nothing here is persisted.
+    """Apply a newly set level's laptop constraint to this running process.
+
+    :param level: the performance level just stored.
+    :returns: None; a failure is logged at debug level and swallowed.
+
+    286: the level, not a second switch, decides this run's laptop
+    constraint -- the same answer ``launch`` gives at startup. Laptop
+    suppresses the animated backdrop for this process; any other level lifts
+    only a suppression THIS process made (``laptop_mode._suppressed_here``),
+    so crash recovery's variable and the user's stored answer are never
+    touched. Nothing here is persisted, and a failure must not stop the
+    level itself from being saved.
+    """
     try:
         from .laptop_mode import apply as _apply
 
@@ -5576,18 +5639,10 @@ class PreferencesDialog:
         # 286: a budget number still at the previous level's value moves with
         # the level; a number the user typed stays where they put it.
         _budget_level = [mode_combo.currentData()]
-
-        def _budget_follows_level(*_args):
-            new, old = mode_combo.currentData(), _budget_level[0]
-            _budget_level[0] = new
-            if new == old or new not in RECOMMENDED or old not in RECOMMENDED:
-                return
-            for spin, index in ((idle_spin, 0), (cache_spin, 1),
-                                (headroom_spin, 2)):
-                if spin.value() == RECOMMENDED[old][index]:
-                    spin.setValue(RECOMMENDED[new][index])
-
-        mode_combo.currentIndexChanged.connect(_budget_follows_level)
+        _budget_spins = (idle_spin, cache_spin, headroom_spin)
+        mode_combo.currentIndexChanged.connect(
+            lambda *_args: _budget_follows_level(
+                mode_combo, _budget_level, _budget_spins))
 
         font_weight = QComboBox()
         font_weight.setObjectName("InterfaceFontWeight")

@@ -1665,18 +1665,25 @@ def install_run_hook() -> bool:
 
 
 def _uninstall_process_hooks() -> None:
-    # THE INVERSE OF `register()`'S TWO INSTALLS, for a process that has to
-    # take them back: the test suite, where one QApplication outlives every
-    # test. `register()` parents a repeating QTimer to the application and
-    # connects `_on_registry_changed` to the run registry, and nothing ever
-    # removed either -- so the sweep ticked for the rest of the session and
-    # fired in whatever test next spun the event loop, reading (and since
-    # 286, migrating and SAVING) whatever preference store that test had put
-    # in place. tests/qt/conftest.py calls this before and after every test.
-    #
-    # `_LAUNCH_DONE` is deliberately left set: the launch cleanup is once per
-    # process by design, and resetting it would make every later launch in
-    # the suite drop caches again.
+    """Take back the budget sweep timer and the run-registry hook.
+
+    :returns: None; the timer is stopped and scheduled for deletion, every
+        ``_on_registry_changed`` connection is removed, and the install flags
+        are cleared so a later install starts clean.
+
+    THE INVERSE OF ``register()``'S TWO INSTALLS, for a process that has to
+    take them back: the test suite, where one QApplication outlives every
+    test. ``register()`` parents a repeating QTimer to the application and
+    connects ``_on_registry_changed`` to the run registry, and nothing ever
+    removed either -- so the sweep ticked for the rest of the session and
+    fired in whatever test next spun the event loop, reading (and since 286,
+    migrating and SAVING) whatever preference store that test had put in
+    place. tests/qt/conftest.py calls this before and after every test.
+
+    ``_LAUNCH_DONE`` is deliberately left set: the launch cleanup is once per
+    process by design, and resetting it would make every later launch in the
+    suite drop caches again.
+    """
     global _BUDGET_TIMER, _BUDGET_SWEEP_PENDING, _INSTALLED
     timer, _BUDGET_TIMER = _BUDGET_TIMER, None
     if timer is not None:
