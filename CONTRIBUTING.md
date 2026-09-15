@@ -91,6 +91,24 @@ the tree:
 To change a translated string, change its **English source** and the reviewed
 override, then rebuild. Never type a translation straight into a catalog.
 
+## Captions passed through a helper
+
+`tools/build_i18n_catalogs.py` finds user-facing text by reading the calls it
+knows — `setText("…")`, `QLabel("…")`, `tr("…")`. A local helper such as
+`self._say("Choose a folder first.")` hides that literal: the extractor sees
+the helper forwarding a parameter, records nothing, and the caption stays in
+English in every language.
+
+**Route a user-facing caption through a helper only if an extractor rule
+exists for it.** The rules are `_HELPER_CAPTION_RULES`, keyed by the calling
+module and the helper name, with the argument position that holds the
+caption. They are keyed rather than matched by name because the same helper
+name means different things in different modules: one `_say(text, state)` takes
+a style key as its second argument, and another shows data verbatim and must
+never be translated. Add the rule in the same change as the helper, then
+check that the parameter-position test in
+`tests/test_a_helper_does_not_hide_a_caption_from_the_catalog.py` passes.
+
 ## Adding a public module
 
 Two steps that are easy to miss and both turn CI red:
