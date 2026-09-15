@@ -87,9 +87,29 @@ BLOCKED: Dict[str, str] = {
     "44": "needs a macOS/Windows host",
     "45": "needs a macOS/Windows host",
     "53": "needs makensis + both other OSes",
-    "59": "needs the maintainer's accounts",
-    "81": "needs the reporter's `df -T` and a stack trace",
 }
+
+#: TWO CAME OFF `BLOCKED` ON 2026-09-14, AND NOT BY BEING GRANTED -- by being
+#: checked against the outside world, which nobody had done.
+#:
+#:   "59": "needs the maintainer's accounts"
+#:       conda-forge/spacr-feedstock has existed since 2026-08-27 with
+#:       einarolafsson registered as its maintainer, and its autotick bot
+#:       merged v1.5.0.6 and v1.5.0.7 by itself. A feedstock exists only
+#:       after a staged-recipes PR is MERGED, so the one action 59 called
+#:       outstanding had been taken eighteen days earlier.
+#:       `gh api repos/conda-forge/spacr-feedstock/commits`
+#:   "81": "needs the reporter's `df -T` and a stack trace"
+#:       0 open issues and 86 closed. #15 was closed 2026-08-14 and #72 on
+#:       08-12, so neither answer can still matter.
+#:       `gh issue list --repo EinarOlafsson/spacr --state open` -> 0
+#:
+#: THE LESSON, and it is why this comment is here rather than in a commit
+#: message nobody will read again: an item can be blocked on an outward-facing
+#: action, have that action taken by the person it was waiting for, and stay
+#: blocked in this dictionary for weeks because the dictionary is hand-written
+#: and nothing re-checks it. BEFORE ADDING A NUMBER HERE, and before trusting
+#: one that is here, spend the thirty seconds it takes to ask.
 
 #: The two the maintainer has scheduled at the end, in this order.
 LAST: Dict[str, str] = {
@@ -104,10 +124,19 @@ STAGE: Dict[str, str] = {
     # as not-started with all five parts shipped, 306 read as finished with
     # its ratchet red). Re-audit before trusting any figure here.
     "01": "100% of the code; blocked on publishing 1.5.0.5",
+    "59": "DONE -- published on conda-forge since 2026-08-27, and its "
+          "autotick bot keeps it current",
+    "81": "DONE -- 0 open issues, 86 closed",
     "05": "~40% -- mechanism verified at 1.5.0.4; needs one green SHA, then approval",
     "253": "0% by construction -- closes last",
     "288": "coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; zero open issues",
-    "304": "~60% -- metadata in place; needs the Zenodo toggle and the bump",
+    # Zenodo is live and automatic, verified 2026-09-14 from its REST API:
+    # v1.5.0.7 published 09-12, version DOI 10.5281/zenodo.22726094, concept
+    # DOI 10.5281/zenodo.21343316, and CITATION.cff and README.rst already
+    # carry the right one in each place. The item's own title is two releases
+    # stale and there is no version of it left to do.
+    "304": "CLOSED 2026-09-14 -- Zenodo is live and automatic; v1.5.0.7 "
+           "archived, DOI 10.5281/zenodo.22726094",
     "305": "~60% -- startup accepted from an installed wheel; sdist, GPU, matrix, profiles left",
     "315": "~75% -- 3a/3b/3c fixed; 3d now itemised into three named optimisations",
     "316": "READMEs delivered in all nine; lane triaged 2026-09-06, 26 red -> 19: 1,089 catalog rows blocked on OPUS models absent from this machine, 5 are 372's OPS tooltips, the rest are pins and two stale strings",
