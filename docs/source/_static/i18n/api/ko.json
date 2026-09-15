@@ -10171,14 +10171,22 @@
     "spacr.classify": {
       "source_blocks_sha256": [
         "3ec3ba4e3244804b8b4564d59e48dbc04478081c4321adad6d9761cf84d4f1aa",
+        "580dd8c91c0f25d59434190a62f707a78a5be8ab61221788c572139e9341e25e",
+        "127ccad0853606b1f61b30db3431fb1c812d12d89f503df9d82d9418af58c069",
+        "0edc8a01b335c43dfc27f5a7d8b61f0be7a45b8fbb70b2fea04ddb4cc6046082",
+        "43003a36df3b4999f9159e0d3ee5879cd7bf7bbf625131187b20de5d5e76c05d",
         "a9b3ccd1b5206fcc3e37d092d034f75d0b9ab7ab4a2e205eb24341359e9997a9",
         "6d3acd3c11e36ffa731baa2368128cc047b18dcc668a01cc3fbb8185a247bb67",
         "6424513cc3f4ea0cd1379842721cd14a9285292e42775f43d2717f9558a8b813"
       ],
-      "source_sha256": "dc8c306af95b1bd482b763090bd7f529dccf7332af13e065ad90ece51cc93399",
-      "text": "하나 기계 학습 분류 모델 두 가족에 대한 분류 입력 포인트.\n\n클래식 (CV)은 개체 추출 이미지 영역에 토치 모델을 훈련합니다. 클래스 (ML)는 측정 된 기능에 대한 그라디언트 강화 모델에 적합합니다. 그들은 같은 질문에 대답합니다 - *이 개체의 클래스는 무엇입니까* - 지금까지 그들은 두 개의 모듈이었고, 78 및 37에서 6 개의 설정 이름을 공유했습니다.\n\n:mod:`spacr.training_basis` 이미 통합 된 것은 클래스를 정의합니다.이 모듈은 실행되는 것을 통합합니다 : 하나의 설정을 키 가치 맵, 하나의 ``classifier_family`` 스위치, 하나를 호출합니다. 두 개의 원래 모듈이 정확히 그들이있는 방식으로 유지됩니다 - 그들을 제거하는 합성 화면은 저장 된 모든 설정을 CSV 및 그들의 입력 포인트를 수입하는 모든 노트북.\n\n**이곳에서 아무것도 작업 흐름을 재현하지 않습니다.** ``deep_spacr`` 및 ``generate_ml_scores``는 변함없는 것으로 불리며, 이것이 합병 된 모듈을 정직하게 만드는 것입니다 : 그것을 통해 처리 세션과 동일한 결과를 생성하기 위해 전송되는 모듈에 의해 처리 세이션.",
+      "source_sha256": "5446e94f13343861c800b17500301b2bac1acd8eedab674cd937186386a6ee7a",
+      "text": "하나 기계 학습 분류 모델 두 가족에 대한 분류 입력 포인트.\n\n**용도.** Classify 는 Mask, Measure, Annotate 다음에 오는 워크플로의 네 번째 단계입니다. 스크리닝의 점수 기준이 되는 클래스를 학습하고 모든 객체에 대해 이를 예측합니다. ``classifier_family`` 가 방식을 정합니다. ``cv`` 는 :func:`spacr.deep_spacr.deep_spacr` 를 통해 객체 크롭 이미지로 이미지 모델을 학습하고, ``ml`` 은 :func:`spacr.ml.generate_ml_scores` 를 통해 측정된 특징에 XGBoost, LightGBM 또는 랜덤 포레스트 같은 고전적 모델을 적합합니다.\n\n**필요한 것.** Mask 와 Measure 를 거쳐 ``measurements/measurements.db`` 와 객체 크롭 이미지가 존재하는 프로젝트, 그리고 클래스의 정의가 필요합니다. ``dataset_mode`` 가 두 계열 모두에 대해 이 정의를 정합니다. ``metadata`` 는 양성 및 음성 대조군 웰 같은 플레이트 메타데이터에서 클래스를 가져오고, ``annotation`` 은 Annotate 가 쓴 ``png_list`` 의 어노테이션 열에서 가져옵니다. CV 계열은 PNG 파일에서 크롭 이미지를 읽거나 ``merged`` 배열에서 잘라내며, 어느 쪽인지는 ``crop_source`` 가 선택합니다.\n\n**산출물.** CV 실행은 모델 체크포인트, ``DL_model_settings.csv``, 데이터셋 tar 파일, 각 클래스에서 가장 확신도가 높은 크롭 이미지를 담은 ``top_examples/`` 폴더, 그리고 보류 데이터 성능과 ``leakage.json`` 을 담은 평가 번들을 쓰고, 각 객체의 예측 클래스와 확률을 ``png_list`` 에 병합합니다. ML 실행은 객체별 예측, 특징 중요도 표와 순열 표, 플레이트 히트맵을 측정 데이터베이스 옆의 ``results/`` 에 씁니다.\n\n**다음 단계.** 예측을 신뢰하기 전에 보류 데이터 성능과 QC 화면의 누출 판정을 확인하십시오. 그런 다음 웰별 점수를 Regression 으로 가져가십시오. Regression 은 이 점수를 Map Barcodes 의 가이드 수와 짝지어 어떤 가이드와 유전자가 표현형을 설명하는지 추정합니다.\n\n클래식 (CV)은 개체 추출 이미지 영역에 토치 모델을 훈련합니다. 클래스 (ML)는 측정 된 기능에 대한 그라디언트 강화 모델에 적합합니다. 그들은 같은 질문에 대답합니다 - *이 개체의 클래스는 무엇입니까* - 지금까지 그들은 두 개의 모듈이었고, 78 및 37에서 6 개의 설정 이름을 공유했습니다.\n\n:mod:`spacr.training_basis` 이미 통합 된 것은 클래스를 정의합니다.이 모듈은 실행되는 것을 통합합니다 : 하나의 설정을 키 가치 맵, 하나의 ``classifier_family`` 스위치, 하나를 호출합니다. 두 개의 원래 모듈이 정확히 그들이있는 방식으로 유지됩니다 - 그들을 제거하는 합성 화면은 저장 된 모든 설정을 CSV 및 그들의 입력 포인트를 수입하는 모든 노트북.\n\n**이곳에서 아무것도 작업 흐름을 재현하지 않습니다.** ``deep_spacr`` 및 ``generate_ml_scores``는 변함없는 것으로 불리며, 이것이 합병 된 모듈을 정직하게 만드는 것입니다 : 그것을 통해 처리 세션과 동일한 결과를 생성하기 위해 전송되는 모듈에 의해 처리 세이션.",
       "translation_source_blocks_sha256": [
         "ade47c09eb3a71c8eac2320271292de55b1836b860cee6ae5817dd48310d17bb",
+        "20c1b257e40d6c2a0ec8f1fa98565424f840b4496c9965abf17c0f78b62619d9",
+        "42d07560b5e89e33e75897403291496e98611040d92afa0a2ce3ee158479cd9a",
+        "220f4b47eadc8b6fd6705a3f4fb1cb20eaa044382bade9c6add8012146aadc84",
+        "150ab6b0f30e24346e6155ebbee49209c130d006d44e123b5fd8109d58017eb3",
         "053f85ad3336db45d31968504df63a5d7952360dbe474f720c07cb162025896a",
         "f44f1bfc281f426d0a8f99a289dbf65e2a6325be1712409ef7f528d09b07ede0",
         "680cc758a8b68df38ebf222dcae770fb5e8b4ed6e42a39c3e47030afbe2dc64f"
@@ -74400,6 +74408,7 @@
       "source_blocks_sha256": [
         "7df3f68129ef9cf62bd088345acb3fb7c59b35e14b7aa49633c22da8f066be33",
         "be777aa4db4f2d686f5e6eda40045343ae537bc156fcd6f9e82d7f3e9c338eca",
+        "c09ba8afb320118e1dddfc9fcc0511196e79a17932bdf962cec0b383b38e16dd",
         "bd733a0e7d5e33a0e4dffba43b5fc9ad2b27d3c1489b2652f17fd483e8c82eb1",
         "536a879438f28892c517ab7f31ee4748e1ae144603f3548a5ca0b6d906b8d801",
         "5ed24a8ef8f81a224fb8b0b1a030650cd60b9f6cc4ce53c90272502d50fed852",
@@ -74410,11 +74419,12 @@
         "6859d4eda1bcd96d85890dc539fd093fa459e59ce59688f6ebb86ab9bc5aef61",
         "3431127e447551d49eaa5a26cb48b3420d3a7bb372518fd50b13fba532bea67e"
       ],
-      "source_sha256": "74438aea3048206e0f8b128d0b28da48945baf78d2430017173b7399afc06b58",
-      "text": "Qt 인터페이스에서 추출 된 이미지 영역을 표시하고 기록합니다.\n\n클릭할 수 있는 이미지 템플릿의 페이지화된 네트워크를 표시합니다. ``png_list`` 안에서 ``measurements/measurements.db``왼쪽 클릭은 값을 부여합니다 1, 오른쪽 클릭으로 값이 부여됩니다 2, 클릭하면 부여된 값은 다시 정리됩니다. :class:`spacr.qt.annotate_engine.SaveWorker`.\n\n키보드 - 단순히 빠른 메모 레이어는 같은 글쓰기 경로의 상단에 앉아있다 (보기 :meth:`AnnotateScreen.handle_key`): ``1``-``9`` 다음 표시되지 않은 추출 이미지 영역에 클래스와 자동 진전을 부여, ``0`` 클리어, 끈 / ``hjkl`` 이동 초점, ``Space``/``Backspace`` 단계 표시되지 않고, ``u`` undoes 및 ``Enter`` 페이지를 수행합니다.\n\n각 추출 된 이미지 지역은 2 개의 독립적 인 색상 밴드와 함께 둥근 평방으로 그려집니다 (보기 :class:`_Thumbnail`), 따라서 세 개의 국가가 서로를 과장하는 대신 함께 읽을 수 있도록 유지됩니다 :\n\n* **resting** — 그림을 덮는 얇은 회색 반지\n* **분류** - 클래스 색상에서 동일한 반지 (:func:`~spacr.qt.annotate_engine.label_to_hex`, 앱의 하나의 클래스를 →색상지도)\n* **현재** - *extra* 흰색 반지가 다음 클릭 또는 키스트로크에 단일 탭에서 그 밖으로 타격됩니다.\n\n코커와 키보드는 동일한 흐름을 움직인다 : 흐르는 흐르기를 입력하고, 열쇠가 그것을 멀리 옮깁니다. 다른 곳에서 지적 할 수있는 두 번째 \"hovered\" 고점이 없습니다.\n\nShift + 왼쪽 클릭은 추출 된 이미지 영역을 채우기 위해 네트워크의 컨테이너를 채우고, 그들을 다시 흐르는 대신에 막대기 앞에 끌어 (:class:`_ZoomOverlay`); 그 옆의 클릭, 또는 ``Escape``, 그것을 뒤로 덮습니다.\n\n애니메이터 계약은 이 응용 프로그램 뷰의 마스트 헤드에 붙어 있기보다는 자신의 테이블을 가지고있다 : κ 사이의 아니메이션 열은 라벨에 대한 질문이 응용 분야 뷰를 작성하고, 그들을 작성 한 사람에 의해 요청되며, 추출 된 이미지 영역은 여전히 그들 앞에 있습니다. 버튼은 모듈 자체 아이콘, 그것의 성숙한 색상에 빛나고, 그것은 그것의 위에 창이 아닌 네트워크 옆에 PAGE로 자신을 볼 계약 응용 프로그램을 열어 - 창은 폴드의 마지막 리소스이며, 여기에 아무것도 필요하지 않습니다. 참조 :data:`FOLDED_APPS`\n\nQt 응용 프로그램 보기에서는 현재 UMAP 창, 깊은 spaCR 훈련 시작기 또는 측정 경계 필터링을 제공하지 않습니다.",
+      "source_sha256": "1f071ba05c22a82134cdb607744338eafa76a1f135151f2b8e93cf37817d667e",
+      "text": "Qt 인터페이스에서 추출 된 이미지 영역을 표시하고 기록합니다.\n\n클릭할 수 있는 이미지 템플릿의 페이지화된 네트워크를 표시합니다. ``png_list`` 안에서 ``measurements/measurements.db``왼쪽 클릭은 값을 부여합니다 1, 오른쪽 클릭으로 값이 부여됩니다 2, 클릭하면 부여된 값은 다시 정리됩니다. :class:`spacr.qt.annotate_engine.SaveWorker`.\n\n**워크플로에서의 위치.** Annotate 는 파이프라인의 세 번째 단계입니다. Measure 가 ``png_list`` 에 나열한 크롭 이미지가 필요하며, 이 표의 어노테이션 열에 쓰는 레이블은 ``dataset_mode`` 가 ``annotation`` 일 때 Classify 가 학습에 사용하는 데이터입니다.\n\n키보드 - 단순히 빠른 메모 레이어는 같은 글쓰기 경로의 상단에 앉아있다 (보기 :meth:`AnnotateScreen.handle_key`): ``1``-``9`` 다음 표시되지 않은 추출 이미지 영역에 클래스와 자동 진전을 부여, ``0`` 클리어, 끈 / ``hjkl`` 이동 초점, ``Space``/``Backspace`` 단계 표시되지 않고, ``u`` undoes 및 ``Enter`` 페이지를 수행합니다.\n\n각 추출 된 이미지 지역은 2 개의 독립적 인 색상 밴드와 함께 둥근 평방으로 그려집니다 (보기 :class:`_Thumbnail`), 따라서 세 개의 국가가 서로를 과장하는 대신 함께 읽을 수 있도록 유지됩니다 :\n\n* **resting** — 그림을 덮는 얇은 회색 반지\n* **분류** - 클래스 색상에서 동일한 반지 (:func:`~spacr.qt.annotate_engine.label_to_hex`, 앱의 하나의 클래스를 →색상지도)\n* **현재** - *extra* 흰색 반지가 다음 클릭 또는 키스트로크에 단일 탭에서 그 밖으로 타격됩니다.\n\n코커와 키보드는 동일한 흐름을 움직인다 : 흐르는 흐르기를 입력하고, 열쇠가 그것을 멀리 옮깁니다. 다른 곳에서 지적 할 수있는 두 번째 \"hovered\" 고점이 없습니다.\n\nShift + 왼쪽 클릭은 추출 된 이미지 영역을 채우기 위해 네트워크의 컨테이너를 채우고, 그들을 다시 흐르는 대신에 막대기 앞에 끌어 (:class:`_ZoomOverlay`); 그 옆의 클릭, 또는 ``Escape``, 그것을 뒤로 덮습니다.\n\n애니메이터 계약은 이 응용 프로그램 뷰의 마스트 헤드에 붙어 있기보다는 자신의 테이블을 가지고있다 : κ 사이의 아니메이션 열은 라벨에 대한 질문이 응용 분야 뷰를 작성하고, 그들을 작성 한 사람에 의해 요청되며, 추출 된 이미지 영역은 여전히 그들 앞에 있습니다. 버튼은 모듈 자체 아이콘, 그것의 성숙한 색상에 빛나고, 그것은 그것의 위에 창이 아닌 네트워크 옆에 PAGE로 자신을 볼 계약 응용 프로그램을 열어 - 창은 폴드의 마지막 리소스이며, 여기에 아무것도 필요하지 않습니다. 참조 :data:`FOLDED_APPS`\n\nQt 응용 프로그램 보기에서는 현재 UMAP 창, 깊은 spaCR 훈련 시작기 또는 측정 경계 필터링을 제공하지 않습니다.",
       "translation_source_blocks_sha256": [
         "48bcb4f903deef031f7ef2f4b768a4ed0db2e72244e8911a0fba50c48a334767",
         "be777aa4db4f2d686f5e6eda40045343ae537bc156fcd6f9e82d7f3e9c338eca",
+        "ba17ededeebafc5299005bab66e61ea024f60591c956b153be9068dc08aa4157",
         "feb2984f3a8b53787d75b8fadd18fc3c58a72c8d10e32c97634e31f29d0b862b",
         "bf33557f5daccb40be17c3520d2a24de52a5038746e3d135732d3b8de1194a6b",
         "5ed24a8ef8f81a224fb8b0b1a030650cd60b9f6cc4ce53c90272502d50fed852",
@@ -79059,14 +79069,22 @@
         "ff4a955dff3528b48cca2dfdabd9b8764238f78fa411329bde89e21a99dc03fb",
         "9db9c7e04ad7cf0196afdd983317595b534dc18574c580bc34963e2e2a4d62da",
         "c75c1eba78c712166069c0d5810676a133eb8721d78a3027c855f44e04fa10e5",
+        "eba6eceda23475bb3733d2fd06511a1f018ed88ff1fe00609f10b267c3925bbb",
+        "341864ac8206f6cbdb45fbcf1b868f2de05113946f3bc0b3e56603a13e859343",
+        "1f04dd75d44041fb50a1d3548ce2e067880bb2ea84dc04db60747967e5441825",
+        "9251a11962fd0b1e49fb2e36933168e3ed4cd817f10eb3d9866c9f87af950991",
         "b169148e7c61b90495cdd0a9b666e6e3f5c613070e54dd7a27e92801cf9f90fb"
       ],
-      "source_sha256": "851ff381f676964d5af7f45d295d13bead714908f3f450ad6681a1aba36400a0",
-      "text": "그것을 구입하기 전에 플레이트를 설계하고 한 번 수출합니다.\n\n응용 프로그램의 절반을 볼 수 있습니다. :mod:`spacr.qt.widgets.plate_layout`그것은 실험실 마이크로 플레이트를 끌고, 레이아웃과 잘못된 것을 나열하고, 나머지 3 개의 파일을 작성합니다. spaCR 읽기 - 그래서 실험실 마이크로 플레이트 지도는 실험소 마이크를 처리하는 대신 한 번 인쇄되고 다시 입력됩니다. ``treatment_plate_metadata`` 데이터가 돌아올 때\n\n경고는 그림이 아닌 포인트입니다.그것을 보여주는 모든 발견은 인수 후 수리 할 수없는 무언가에 관한 것입니다 : 컨트롤은 실험실 마이크로 플레이트의 가장자리에만 앉아있다, 한 열에 제한 된 통제, 단일 복제가있는 상태.\n\n한 실험실 마이크로 플레이트 비지트 WHERE 하나가 될 수 있습니다. 평방, 그것이 묶여있는 일정과 라인 / 열 헤드러는 여기에서 두 번째로 선언되는 대신 :mod:`spacr.qt.widgets.plate_map_picker`에서 온다; 두 실험소 마이크로는 이미 한 번에 분리되었다. 공유 할 수없는 것은 베일 자체이며, 차이는 역사적이 아닌 현실적입니다 : 피커의 베일은 검사 할 수있는 ``QPushButton`` 상태가 선택되고 색상의 고정 쌍에서 자신을 그리는 동안이 ``QLabel``는 아래의 특성을 통해 주제에 의해 그려진 역할, 경계 표지, 이름 및 조건을 가지고있다 - 각각이 선택되었는지 여부보다 잘 지키는 것을 말하는 실험용 마이크 카드.",
+      "source_sha256": "3273b343fe960a6241b0a05d66629512520e4411e680dee65c0b1983652da6ff",
+      "text": "그것을 구입하기 전에 플레이트를 설계하고 한 번 수출합니다.\n\n응용 프로그램의 절반을 볼 수 있습니다. :mod:`spacr.qt.widgets.plate_layout`그것은 실험실 마이크로 플레이트를 끌고, 레이아웃과 잘못된 것을 나열하고, 나머지 3 개의 파일을 작성합니다. spaCR 읽기 - 그래서 실험실 마이크로 플레이트 지도는 실험소 마이크를 처리하는 대신 한 번 인쇄되고 다시 입력됩니다. ``treatment_plate_metadata`` 데이터가 돌아올 때\n\n경고는 그림이 아닌 포인트입니다.그것을 보여주는 모든 발견은 인수 후 수리 할 수없는 무언가에 관한 것입니다 : 컨트롤은 실험실 마이크로 플레이트의 가장자리에만 앉아있다, 한 열에 제한 된 통제, 단일 복제가있는 상태.\n\n**용도.** 플레이트를 이미징하기 전에 스크리닝의 첫 단계로 계획합니다. 이때는 레이아웃을 아직 바꿀 수 있고, 여기서 내보낸 플레이트 맵이 나중에 측정값과 결합되는 기준이 됩니다.\n\n**필요한 것.** 플레이트 식별자, 6 부터 1536 웰까지의 플레이트 형식, 그리고 조건 목록이 필요하며, 각 조건에는 반복 수와 역할(처리, 양성 대조군, 음성 대조군, 공백)이 있습니다. 레이아웃 ``random``, ``row``, ``column``, ``block`` 은 반복의 배치를 정하고, 가장자리 설정은 바깥쪽 웰 고리를 사용하거나 비워 두며, 시드는 무작위 레이아웃을 재현할 수 있게 합니다.\n\n**산출물.** 플레이트 맵 내보내기는 선택한 폴더에 파일 세 개를 씁니다. ``plate_map.csv`` 는 ``plateID``, ``rowID``, ``columnID`` 를 키로 하는 웰당 한 행의 표이고, ``plate_map.json`` 은 레이아웃을 다시 생성할 수 있도록 설계와 표시된 검사 결과를 담으며, ``plate_map_settings.json`` 은 분석에 쓸 ``treatments`` 와 ``treatment_plate_metadata`` 설정입니다. 무작위 레이아웃은 행 전체나 열 전체로 쓸 수 없으므로 그 경우 이 파일에는 대신 그 이유가 기록되고, ``plate_map.csv`` 가 기준 기록이 됩니다.\n\n**다음 단계.** 검사 결과를 해결한 뒤 플레이트를 이미징하십시오. 데이터가 돌아오면 ``plate_map.csv`` 가 변환 단계 없이 ``plateID``, ``rowID``, ``columnID`` 로 측정 표와 결합되고, 설정 파일은 분석의 처리 설정을 채웁니다.\n\n한 실험실 마이크로 플레이트 비지트 WHERE 하나가 될 수 있습니다. 평방, 그것이 묶여있는 일정과 라인 / 열 헤드러는 여기에서 두 번째로 선언되는 대신 :mod:`spacr.qt.widgets.plate_map_picker`에서 온다; 두 실험소 마이크로는 이미 한 번에 분리되었다. 공유 할 수없는 것은 베일 자체이며, 차이는 역사적이 아닌 현실적입니다 : 피커의 베일은 검사 할 수있는 ``QPushButton`` 상태가 선택되고 색상의 고정 쌍에서 자신을 그리는 동안이 ``QLabel``는 아래의 특성을 통해 주제에 의해 그려진 역할, 경계 표지, 이름 및 조건을 가지고있다 - 각각이 선택되었는지 여부보다 잘 지키는 것을 말하는 실험용 마이크 카드.",
       "translation_source_blocks_sha256": [
         "ff4a955dff3528b48cca2dfdabd9b8764238f78fa411329bde89e21a99dc03fb",
         "12c11e9c81a1d6fe963cf746013fa77280f8f0696f7f61f8f8a4208e47244c58",
         "aafd5294cba073e62365bd5566dfff1b79204271e10195a649c0afd00e7e8026",
+        "06783f7955729da07cfc08e4f36301ea81932a3fd3597be2930b84b3fd1a8913",
+        "1f1264e7004358d1e1ce0d496c811598edbdd69379221e7e378b214881664636",
+        "e6a8f9b8fca58b5c0c55dcc8d324433ce5640de67981584a026b994685cd39fe",
+        "9251a11962fd0b1e49fb2e36933168e3ed4cd817f10eb3d9866c9f87af950991",
         "31d3052fa9e66582f2adab39f1bf2e17f4fe015f264b485b4a5dbbaf4d1ddb0d"
       ]
     },
@@ -80008,20 +80026,28 @@
       "source_blocks_sha256": [
         "5802a5d8275282f0f72141bf1462df06a34d7b4f8269613b8f1ea2f34a83df9d",
         "b100953b648dee0da13118c718b50f3bbc6ec1848db3f4e790e8936ffa541e2d",
+        "18e88c1de632fb65b473bfc7400fad34a4ec90391d438e4706e8845d7725da7d",
+        "7ad8256125910d7c6e53f73988b70e80fc3d3bf0ce1fcc171194312a2b7da1c6",
+        "9a7a051375217ca9fe0ae5acab2dcd6b132a8f9f2b52abee0aa101d0a1485e67",
+        "777cec7724e961ebd556bc885987088c4853a206dd3f0bc9d57635416f42ba26",
         "f2e07f4c4f4a7b317bdd09396ec936f51f62be2a1767fa5e83d3227345627dc0",
-        "b6f874c89f3412fdea420db84f4785006f1ccb0a85a82cb0d6daf2fdbbb03d31",
+        "1f3de1f7408fc69b5b0d3e50c09aac04245ac1c893084fed33fe47ef75c13e51",
         "83775803759b01bce2a4dc2c359fd85e093d19fd13059ecc9af3b89677167e09",
         "5029e886f6d4dae46bbdcd276073bdb493c1c6438bd6e9ddc6efdae4753529f7",
         "d817afd7af7b2b1deda426695a25f7fce5a937cc99f330485cd202de72c28739",
         "c5d1b4df1d2e90149574a5a81b450c98d9605bab862161e8ed5fd0a340eebc8e"
       ],
-      "source_sha256": "96e8e96b24d99b6cbe9f8ac9f0f3704c79ac4d3c4252c5e10006fcb94f1bf95f",
-      "text": "V2 - 데이터 선택 경계 편집기 : 지역을 인쇄하고 이름을 지정하고 필터가됩니다.\n\nspaCR 측정 테이블에 흐름-시토메트리 행동을 적용하십시오. histogram에 한 줄을 끌거나 2 변수 스캐터에 폴리곤을 그리십시오. 이름을 지정한 후, 모양은 각 개방 시청에 의해 사용되는 :class:`spacr.selection.DataFilter`이됩니다. UMAP, 플레이트 지도, 식물 네트워크, Graph Builder, 그리고 작은 멀티.\n\n다음과 같은 구성 요소를 구성합니다 :\n\n* :class:`spacr.qt.widgets.gate_editor.GateEditorPanel` - 캔버스, 세 가지 도구 및 그 비율을 가진 계층;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` - 로컬 데이터 필터, 데이터 선택 경계는 대신 *onto*를 구성하는;\n* :class:`spacr.qt.widgets.formula_editor.FormulaPanel` - 따라서 데이터 선택 경계를 계산된 열에 끌어 올릴 수 있습니다.\n* 저장 / 충전, 데이터 선택 필터링 전략이 재사용 가능한 부분이기 때게이트에 : 데이터 선택 경계의 전체 점은 라소를 넘어서 다음 플레이트에 다시 적용됩니다.\n\n:func:`register`는 수입에 호출되지 않습니다; 그것의 문서 읽기.",
+      "source_sha256": "0f9a610811ebe1868e56031c2260f0233c40b688c22733bdf7d8b71da5ed516d",
+      "text": "V2 - 데이터 선택 경계 편집기 : 지역을 인쇄하고 이름을 지정하고 필터가됩니다.\n\nspaCR 측정 테이블에 흐름-시토메트리 행동을 적용하십시오. histogram에 한 줄을 끌거나 2 변수 스캐터에 폴리곤을 그리십시오. 이름을 지정한 후, 모양은 각 개방 시청에 의해 사용되는 :class:`spacr.selection.DataFilter`이됩니다. UMAP, 플레이트 지도, 식물 네트워크, Graph Builder, 그리고 작은 멀티.\n\n**용도.** Measure 실행 후 측정값으로 집단을 선택합니다. 예를 들어 강도 임계값을 넘는 세포나 두 특징 산점도의 한 군집입니다. 게이트는 다른 게이트 안에 둘 수 있으며, 각 게이트는 객체 수와 함께 상위 게이트 및 전체 표에 대한 비율을 모두 보여 줍니다.\n\n**필요한 것.** 측정 표 하나가 필요합니다. 객체 표가 먼저 제시되는 ``measurements.db`` 의 표 하나이거나 CSV 또는 TSV 파일입니다. 여러 데이터베이스를 하나의 표로 불러올 수 있으며, 서로 충돌하는 플레이트 식별자는 조용히 합쳐지지 않고 보고됩니다. 데이터베이스 표는 ``sample_fraction`` 으로 정한 표본으로 읽히고 ``max_points`` 로 상한이 정해지며, 둘 다 Gate Editor 설정에 있습니다.\n\n**산출물.** 한두 개의 측정값에 대한 임계값, 사각형, 타원, 다각형, 마술봉 게이트, 3D 보기의 상자, 원기둥, 프리즘 게이트, 그리고 다른 게이트의 조합입니다. 게이트를 게시하면 연결된 모든 보기가 그 집단으로 좁혀집니다. 게이팅 전략은 JSON 파일(기본값 ``gates.json``)에 저장되고 그 파일에서 불러와지므로 다음 플레이트도 같은 방식으로 게이팅됩니다. 내보내기는 각 게이트를 측정 데이터베이스의 ``filters`` 표의 열로 쓰고, 그래프는 PNG 또는 PDF 로 저장됩니다.\n\n**다음 단계.** Image UMAP, Graph Builder, 크롭 이미지 격자처럼 공유 필터를 따르는 보기에서 게이팅된 집단을 살펴보고, 저장한 게이팅 전략을 다음 플레이트에서 불러오십시오.\n\n다음과 같은 구성 요소를 구성합니다 :\n\n* :class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — 캔버스, 게이트 도구, 그리고 비율이 표시되는 계층 구조;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` - 로컬 데이터 필터, 데이터 선택 경계는 대신 *onto*를 구성하는;\n* :class:`spacr.qt.widgets.formula_editor.FormulaPanel` - 따라서 데이터 선택 경계를 계산된 열에 끌어 올릴 수 있습니다.\n* 저장 / 충전, 데이터 선택 필터링 전략이 재사용 가능한 부분이기 때게이트에 : 데이터 선택 경계의 전체 점은 라소를 넘어서 다음 플레이트에 다시 적용됩니다.\n\n:func:`register`는 수입에 호출되지 않습니다; 그것의 문서 읽기.",
       "translation_source_blocks_sha256": [
         "740e0290ac6c144d7fd7f75eee355746cf235ecd88ebb8a9f820d79c660bc75f",
         "edc813cb2281ae9793659f367abf0ef016830f2e3e96a603653e5976df158630",
+        "e3aeb042a5c4bc37a9d2b30c6924925397e1245f985defb0c1714096c3245538",
+        "fa1641b393c48a8589246f8f464bae1bb85949bf0b028e05d7ee8df2db2a8245",
+        "49920a4f8cd451e1e712075460d3ba450488cdfeb5f943cc1e9d48fa1fc877aa",
+        "f98cad71c1bed84ee991ca2b71ec012bfbf75a4c4f57f7b0860f83699556c4b0",
         "0ace819bd4198dc6a7c6e1422ce8927684ca8dd225bb5a342192a08f05b36b4d",
-        "b6f874c89f3412fdea420db84f4785006f1ccb0a85a82cb0d6daf2fdbbb03d31",
+        "f521d9b9fee9eb5adcc5b33c91bd5bdd566bd14f12d1da5a45077ef0b09f9feb",
         "705f15e10965f393bac6749a2b47165abc599227a0e3b90a0683787af87a2f9e",
         "be9715efc6df3be6771db1fadc2bcd35e765c872982f9d45d4e5c3dba16095ec",
         "ebb8956bf89b926f7319a282535561dc4e2c6497183668f620ffe404ca29eb49",
@@ -80491,17 +80517,25 @@
         "bd33dc4428a43118653d5839d0c5b8aa431b8626cf495b2e8e0090cc420433d8",
         "cabc431df0d30c8ac42cbb6fc69aaf169a26d1c976983dcb9917056e2be37f3e",
         "58885444c5041d11f4db3d30697030ab9510bcbc12246b05593ab29c6f9e372b",
+        "3ce9e834a6db422e060250c028dcb842b417026568f68837c116cc4fd4bb3926",
+        "9a684ad3c3b4869aa68a385cb90b086733f6e8d7a793033ff3ff492bd9d1a273",
+        "3a6684acc216fc722fce4a8dbaca2669c9e3215b99b2928bfe1bf88902336342",
+        "1fb2849ed26e00028887d9edfd4a71b8965f154677187d9305111e2b83c1bf3f",
         "697a6630e451b10bd5f3a7ad584628f3686d324f9e1f57a3d5fde723d7049a65",
         "2467d8cccdfa492084755e45f31089289753ecb25a34a02744b2ee0616c135ae"
       ],
-      "source_sha256": "f66613f9c7bdfc6c801f2cd0484d24b61f5c3d917f69b1c5368c0364b533f37c",
-      "text": "Graph Builder 스크리닝 - 테이블, 필터, 그리고 당신이 함께 끌고있는 차트.\n\n이미 하나의 표면에 존재하는 세 가지를 모으십시오 :\n\n* :class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` - 낙하산 및 낙하산의 낙하산;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` - 지역 데이터 필터는 변경되지 않았는데, *모든* 보기를 단축하는 필터가 이 차트를 단축하는 개인 필터보다 더 가치가 있기 때문입니다.\n* :mod:`spacr.qt.linked_selection` - 그래서 여기서 브러쉬는 동일한 세포를 강조합니다. UMAP 그리고 플레이트지도에, 그리고 거기에 라소는 여기에서 그들을 강조합니다.\n\n응용 프로그램 보기는 앱 레지스트리로 이동합니다. :func:`spacr.qt.app.register_app` 대신 내부 테이블에있는 일련을 통해 ``app.py``그리고 그녀의 스타일링은 지나간다. :func:`spacr.qt.theme.register_widget_qss`두 개의 세임이 존재하므로 다른 다섯 개와 동시에 구축된 응용 프로그램 시각은 2천 라인에 합병되는 대신 새로운 파일입니다.\n\n:func:`register` 그것은 **아니요** import에서 호출 - 왜, 그리고 하나의 라인 플러스 네 개의 측면 테이블 입력에 대한 그것의 도크 스트립을 읽어 와이어를 완료합니다. :func:`make_graph_builder_screen`그것에 프레임을 주고, 아래의 모든 것이 작동합니다.",
+      "source_sha256": "90f99a96fd4b9a39a7be00008e08899eec9d0527a814d19a1a66af09d8bd814f",
+      "text": "Graph Builder 스크리닝 - 테이블, 필터, 그리고 당신이 함께 끌고있는 차트.\n\n이미 하나의 표면에 존재하는 세 가지를 모으십시오 :\n\n* :class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` - 낙하산 및 낙하산의 낙하산;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` - 지역 데이터 필터는 변경되지 않았는데, *모든* 보기를 단축하는 필터가 이 차트를 단축하는 개인 필터보다 더 가치가 있기 때문입니다.\n* :mod:`spacr.qt.linked_selection` - 그래서 여기서 브러쉬는 동일한 세포를 강조합니다. UMAP 그리고 플레이트지도에, 그리고 거기에 라소는 여기에서 그들을 강조합니다.\n\n**용도.** 플롯 코드를 작성하지 않고 측정 표를 탐색합니다. 보통 Measure 나 Classify 이후에 사용하며, 열을 차트에 끌어다 놓을 때마다 차트가 다시 그려집니다.\n\n**필요한 것.** ``measurements.db`` 의 표 하나 또는 CSV 나 TSV 파일 하나를 표 불러오기 버튼으로 선택합니다. 객체 표와 ``png_list`` 가 먼저 제시되며, 데이터베이스의 다른 모든 표도 계속 사용할 수 있습니다.\n\n**산출물.** x, y, 색, 크기, 패싯 행, 패싯 열의 여섯 개 놓기 영역을 가진 차트입니다. 차트 유형은 x 와 y 만으로 정해집니다. 연속형 열 하나는 히스토그램, 범주형 열 하나는 개수 막대 차트, 연속형 열 두 개는 산점도, 각각 하나씩이면 상자 그림, 범주형 열 두 개는 개수 히트맵이 되며, 바이올린 그림과 선 그래프는 명시적으로 선택합니다. 브러시로 그린 사각형은 공유 선택이 되어 UMAP 과 플레이트 맵에서 강조 표시됩니다.\n\n**다음 단계.** Annotate 에서 선택 항목을 열어 브러시로 고른 객체를 크롭 이미지로 보거나, 차트 옆의 로컬 데이터 필터로 모든 보기를 좁히거나, 어떤 집단이 저장하고 다시 적용할 수 있는 이름 있는 게이트가 되어야 할 때는 Gate Editor 로 이동하십시오.\n\n응용 프로그램 보기는 앱 레지스트리로 이동합니다. :func:`spacr.qt.app.register_app` 대신 내부 테이블에있는 일련을 통해 ``app.py``그리고 그녀의 스타일링은 지나간다. :func:`spacr.qt.theme.register_widget_qss`두 개의 세임이 존재하므로 다른 다섯 개와 동시에 구축된 응용 프로그램 시각은 2천 라인에 합병되는 대신 새로운 파일입니다.\n\n:func:`register` 그것은 **아니요** import에서 호출 - 왜, 그리고 하나의 라인 플러스 네 개의 측면 테이블 입력에 대한 그것의 도크 스트립을 읽어 와이어를 완료합니다. :func:`make_graph_builder_screen`그것에 프레임을 주고, 아래의 모든 것이 작동합니다.",
       "translation_source_blocks_sha256": [
         "50846868223931deb5b33352a7424a53f20dc3ef3af8fd41c950b05edbc12980",
         "8bf304cdba591c363bc177f9ad24be9e89dde789abb65525322c42dd29e88620",
         "bd33dc4428a43118653d5839d0c5b8aa431b8626cf495b2e8e0090cc420433d8",
         "cabc431df0d30c8ac42cbb6fc69aaf169a26d1c976983dcb9917056e2be37f3e",
         "58885444c5041d11f4db3d30697030ab9510bcbc12246b05593ab29c6f9e372b",
+        "3ce9e834a6db422e060250c028dcb842b417026568f68837c116cc4fd4bb3926",
+        "9a684ad3c3b4869aa68a385cb90b086733f6e8d7a793033ff3ff492bd9d1a273",
+        "af784227fd828bab4d556c09c7f43ee404d0bdcc21a491417a5ec38cd277e373",
+        "27b7bd66bf7988c859ce6ea237947f992c311ccfc21ab72e93a85bc1454d1e06",
         "63bb73ae3547ba71e06eb5570b67a69b5b768a31519537f68f56a8befd297672",
         "457b8fdbffc0b21eb88f42e7ee83ba746ebf5c4f90ebf36b8a5e656c7dc953a5"
       ]
@@ -87486,14 +87520,22 @@
       "source_blocks_sha256": [
         "de803ca34eec04517844159197e3d896a93056b610c8a5239d8fd70f6f18bd71",
         "79d4478edd357790fa0a5f4d5809f8139dac536d346c957e8411623693b711b6",
+        "ae8693d6d97aeb6ea3475cbf705c72ac48317fa18a2c74c1b63a0c211214f3ee",
+        "746a001acee09eda8da304f5dc315f67af96023c2810a95b4d3a91c462cc9c8f",
+        "754239afae8b251857d86faa929d2648e01a7879167d415c8366c4cda341b22e",
+        "d71e9b428ed3a221a506ba634c7b076c212e211b239d55478397fa7d796555aa",
         "9c514dc3b9ed4d165efd02c38c2f2b5fb411ec1fe991c43101e3fd310abc4895",
         "dfdf67f41d1ddae3c4452266c4f299e646eceb69526098a3c4250321c24ea8cb"
       ],
-      "source_sha256": "c3e487fff0d5baa6d3500f00b914c7f9eaa6cf44fbaefa070c661391b1d050b1",
-      "text": "“이 실행이 사용 가능하십니까?”라고 대답하는 화면이 있습니다.\n\n응용 프로그램은 :mod:`spacr.qt.widgets.qc_summary`의 절반을 볼 수 있습니다.그것은 분할, 단위, 유출, 플레이트 효과 및 합의 판단을 측면에서 측면으로 표시하고, 그들이 추가 한 줄의 요약.\n\n그것 **reads**; 그것은 점수를하지 않습니다.이 규칙은 :mod:`spacr.qt.prerun`의, 그리고 그 모듈은 이유를 말한다 : 플레이트의 마스크를 열면 몇 초에서 몇 분이 걸리며, 각 방문에 응용 프로그램을 지불하는 응용 시선은 아무도 보관하지 않는다.\n\n여기서 아무것도 방해하지 않는다. ``Dashboard.blocks_run`` 그것은 끊임없는 False, 이 응용 프로그램 보기에는 데이터를 필터링하기 위해 실행 버튼이 없습니다. QC 일을 멈추는 판결은 끊어지고, 그것을 알려주는 사람은 읽는다.",
+      "source_sha256": "d407129611cd0107c1b9a22186ffed84df162ef5355e5c9154e8016a4eb7a914",
+      "text": "“이 실행이 사용 가능하십니까?”라고 대답하는 화면이 있습니다.\n\n응용 프로그램은 :mod:`spacr.qt.widgets.qc_summary`의 절반을 볼 수 있습니다.그것은 분할, 단위, 유출, 플레이트 효과 및 합의 판단을 측면에서 측면으로 표시하고, 그들이 추가 한 줄의 요약.\n\n**용도.** 프로젝트의 숫자를 사용하기 전에 프로젝트를 점검합니다. Mask 와 Measure 이후, 그리고 Classify 이후에 다시, QC 는 그 단계들이 이미 쓴 판정을 한곳에 모아 이 질문에 답하려고 화면 다섯 개를 열 필요가 없게 합니다.\n\n**필요한 것.** 찾아보기로 선택하거나 QC 에 끌어다 놓은 프로젝트 또는 플레이트 폴더가 필요합니다. 각 카드는 이미 디스크에 있는 파일을 읽습니다. Mask 실행이 쓰는 분할 점수표(``seg_qc``), Measure 가 ``measurements.db`` 의 모든 행에 찍는 단위 표시, 최신 Classify (CV) 평가 번들의 ``leakage.json``, 그리고 프로젝트 아래에 플레이트 효과 보고서나 주석자 간 일치도 보고서가 저장된 경우의 ``plate_qc.json`` 과 ``agreement.json`` 입니다.\n\n**산출물.** 디스크에는 아무것도 쓰지 않습니다. 각 카드는 ``ok``, ``missing``, ``warn``, ``fail``, ``error`` 중 하나의 판정과 함께 제목, 그 뒤의 세부 내용, 그리고 한 번도 실행되지 않은 검사라면 그것을 만들어 낼 단계를 보여 줍니다. 전체 판정은 그중 가장 나쁜 판정입니다. 입력보다 오래된 카드는 등급이 낮아지지 않고 오래됨으로 표시되며, ``missing`` 은 아무것도 문제가 없다는 뜻이 아니라 아무것도 검사하지 않았다는 뜻입니다.\n\n**다음 단계.** ``warn`` 또는 ``fail`` 카드가 가리키는 문제를 원인에서 고치고 그 단계를 다시 실행하십시오. 파일이 바뀌면 카드를 다시 읽습니다. Layer Viewer 는 실패한 검사 뒤의 이미지를 보여 주고, Control Charts 는 같은 검사를 시간에 따라 추적하며, Outliers 는 나머지와 다른 웰이나 객체를 찾습니다. 세 가지 모두 이 화면의 머리글 막대에서 열립니다.\n\n그것 **reads**; 그것은 점수를하지 않습니다.이 규칙은 :mod:`spacr.qt.prerun`의, 그리고 그 모듈은 이유를 말한다 : 플레이트의 마스크를 열면 몇 초에서 몇 분이 걸리며, 각 방문에 응용 프로그램을 지불하는 응용 시선은 아무도 보관하지 않는다.\n\n여기서 아무것도 방해하지 않는다. ``Dashboard.blocks_run`` 그것은 끊임없는 False, 이 응용 프로그램 보기에는 데이터를 필터링하기 위해 실행 버튼이 없습니다. QC 일을 멈추는 판결은 끊어지고, 그것을 알려주는 사람은 읽는다.",
       "translation_source_blocks_sha256": [
         "de803ca34eec04517844159197e3d896a93056b610c8a5239d8fd70f6f18bd71",
         "a67454ea1cb90c663913cdde4f4854ce337eebe2825de883169b53911bf87fdd",
+        "a9c12cd7a9648fc8f09f5243fca201e0c9e4a11cca059bf42d757dc14a140484",
+        "ae5678b1cf9022ba50d8a7ac338fc188f8d5b09800b92e13be84c15baa5db933",
+        "754239afae8b251857d86faa929d2648e01a7879167d415c8366c4cda341b22e",
+        "af99bac27666edaa5a6768eb3f933168592aa7c77cc90fc4f9cf17fa95a71e04",
         "61755ccced9e8b2b0fe07e2668e36f121b09d357c9db147354dc4d44175bce8b",
         "4ae482f8f54a932127617db653bca2dfc8897c37a2a8cd34a6eda5b3bb76bfc9"
       ]

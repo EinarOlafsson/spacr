@@ -10172,14 +10172,22 @@
     "spacr.classify": {
       "source_blocks_sha256": [
         "3ec3ba4e3244804b8b4564d59e48dbc04478081c4321adad6d9761cf84d4f1aa",
+        "580dd8c91c0f25d59434190a62f707a78a5be8ab61221788c572139e9341e25e",
+        "127ccad0853606b1f61b30db3431fb1c812d12d89f503df9d82d9418af58c069",
+        "0edc8a01b335c43dfc27f5a7d8b61f0be7a45b8fbb70b2fea04ddb4cc6046082",
+        "43003a36df3b4999f9159e0d3ee5879cd7bf7bbf625131187b20de5d5e76c05d",
         "a9b3ccd1b5206fcc3e37d092d034f75d0b9ab7ab4a2e205eb24341359e9997a9",
         "6d3acd3c11e36ffa731baa2368128cc047b18dcc668a01cc3fbb8185a247bb67",
         "6424513cc3f4ea0cd1379842721cd14a9285292e42775f43d2717f9558a8b813"
       ],
-      "source_sha256": "dc8c306af95b1bd482b763090bd7f529dccf7332af13e065ad90ece51cc93399",
-      "text": "1 分类输入点在机械学习分类模型家庭上。\n\nClassify(CV)在对象提取的图像区域上运行一个Torch模型。Classify (ML) 适用于测量特性的格拉迪特增强模型. 他们回答了相同的问题 - *什么类是这个对象* - 到目前为止,他们是两个模块,共享了六个设置名称的78和37 ,其中两个不同意他们的默认。\n\n:mod:`spacr.training_basis` 已经统一了什么定义了一个 CLASS. 这个模块统一了运行什么:一个设置的关键值地图,一个 ``classifier_family`` 交换器,一个呼叫. 两个原始模块保持正如它们一样 - 一个合并的筛选删除它们会打破每个保存的设置 CSV 和每个笔记本电脑进口他们的输入点。\n\n**这里没有任何重新实施工作流。** ``deep_spacr`` 和 ``generate_ml_scores`` 被称为不变,这就是使合并模块是诚实的:通过它进行处理会议,并通过它发送的模块进行处理,以产生相同的结果,因为它们是相同代码。",
+      "source_sha256": "5446e94f13343861c800b17500301b2bac1acd8eedab674cd937186386a6ee7a",
+      "text": "1 分类输入点在机械学习分类模型家庭上。\n\n**用途。** Classify 是工作流程的第四步，位于 Mask、Measure 和 Annotate 之后。它学习用来给一次筛选实验打分的类别，并为每个对象预测类别。``classifier_family`` 决定方式：``cv`` 通过 :func:`spacr.deep_spacr.deep_spacr` 在对象裁剪图像上训练图像模型，``ml`` 通过 :func:`spacr.ml.generate_ml_scores` 在测量特征上拟合 XGBoost、LightGBM 或随机森林等经典模型。\n\n**所需输入。** 一个已经完成 Mask 和 Measure 的项目，使 ``measurements/measurements.db`` 及其对象裁剪图像已经存在，以及类别的定义。``dataset_mode`` 为两个方法族设定这一定义：``metadata`` 从板的元数据中获取类别，例如阳性和阴性对照孔，``annotation`` 则从 ``png_list`` 的注释列中获取类别，即 Annotate 写入的列。CV 方法族从 PNG 文件读取裁剪图像，或从 ``merged`` 数组中切出裁剪图像，由 ``crop_source`` 选择。\n\n**输出内容。** 一次 CV 运行会写出模型检查点、``DL_model_settings.csv``、数据集 tar 包、包含每个类别中置信度最高的裁剪图像的 ``top_examples/`` 文件夹，以及含有留出数据性能和 ``leakage.json`` 的评估包，并把每个对象的预测类别和概率合并到 ``png_list`` 中。一次 ML 运行会把逐对象预测、特征重要性表和置换表以及板热图写入测量数据库旁边的 ``results/``。\n\n**下一步。** 在信任这些预测之前，先检查留出数据上的性能，以及 QC 界面上的泄漏判定。然后把每孔得分带入 Regression，它将这些得分与 Map Barcodes 得到的引导序列计数配对，以估计哪些引导序列和基因能够解释该表型。\n\nClassify(CV)在对象提取的图像区域上运行一个Torch模型。Classify (ML) 适用于测量特性的格拉迪特增强模型. 他们回答了相同的问题 - *什么类是这个对象* - 到目前为止,他们是两个模块,共享了六个设置名称的78和37 ,其中两个不同意他们的默认。\n\n:mod:`spacr.training_basis` 已经统一了什么定义了一个 CLASS. 这个模块统一了运行什么:一个设置的关键值地图,一个 ``classifier_family`` 交换器,一个呼叫. 两个原始模块保持正如它们一样 - 一个合并的筛选删除它们会打破每个保存的设置 CSV 和每个笔记本电脑进口他们的输入点。\n\n**这里没有任何重新实施工作流。** ``deep_spacr`` 和 ``generate_ml_scores`` 被称为不变,这就是使合并模块是诚实的:通过它进行处理会议,并通过它发送的模块进行处理,以产生相同的结果,因为它们是相同代码。",
       "translation_source_blocks_sha256": [
         "ade47c09eb3a71c8eac2320271292de55b1836b860cee6ae5817dd48310d17bb",
+        "20c1b257e40d6c2a0ec8f1fa98565424f840b4496c9965abf17c0f78b62619d9",
+        "42d07560b5e89e33e75897403291496e98611040d92afa0a2ce3ee158479cd9a",
+        "220f4b47eadc8b6fd6705a3f4fb1cb20eaa044382bade9c6add8012146aadc84",
+        "150ab6b0f30e24346e6155ebbee49209c130d006d44e123b5fd8109d58017eb3",
         "053f85ad3336db45d31968504df63a5d7952360dbe474f720c07cb162025896a",
         "f44f1bfc281f426d0a8f99a289dbf65e2a6325be1712409ef7f528d09b07ede0",
         "680cc758a8b68df38ebf222dcae770fb5e8b4ed6e42a39c3e47030afbe2dc64f"
@@ -74401,6 +74409,7 @@
       "source_blocks_sha256": [
         "7df3f68129ef9cf62bd088345acb3fb7c59b35e14b7aa49633c22da8f066be33",
         "be777aa4db4f2d686f5e6eda40045343ae537bc156fcd6f9e82d7f3e9c338eca",
+        "c09ba8afb320118e1dddfc9fcc0511196e79a17932bdf962cec0b383b38e16dd",
         "bd733a0e7d5e33a0e4dffba43b5fc9ad2b27d3c1489b2652f17fd483e8c82eb1",
         "536a879438f28892c517ab7f31ee4748e1ae144603f3548a5ca0b6d906b8d801",
         "5ed24a8ef8f81a224fb8b0b1a030650cd60b9f6cc4ce53c90272502d50fed852",
@@ -74411,11 +74420,12 @@
         "6859d4eda1bcd96d85890dc539fd093fa459e59ce59688f6ebb86ab9bc5aef61",
         "3431127e447551d49eaa5a26cb48b3420d3a7bb372518fd50b13fba532bea67e"
       ],
-      "source_sha256": "74438aea3048206e0f8b128d0b28da48945baf78d2430017173b7399afc06b58",
-      "text": "在 Qt 接口中显示和标记提取的图像区域。\n\n显示一个可点击的图像小组的页面网络,支持 ``png_list`` 在 ``measurements/measurements.db``. 左点击指定值 1, 右点击设置值 2, 然后再次点击所指定值清除它. 通知通过 :class:`spacr.qt.annotate_engine.SaveWorker` 持续。\n\n键盘单纯快速标记层位于同一写路的顶部(参见 :meth:`AnnotateScreen.handle_key`): ``1`` - ``9`` 将一个类和自动进展分配到下一个未标记的提取图像区域, ``0`` 点亮, 箭头 / ``hjkl`` 移动焦点, ``Space`` / ``Backspace`` 没有标记步骤, ``u`` 无线和 ``Enter`` 承诺页面。\n\n每个提取的图像区域都以两个独立的颜色带(:class:`_Thumbnail`)的圆形平方形描绘,因此其三个状态相同可阅读,而不是互相过写:\n\n* **resting** — 一个薄灰色戒指覆盖图像\n* **分类** - 类颜色中的相同戒指(:func:`~spacr.qt.annotate_engine.label_to_hex`,应用程序的单一级→颜色地图)\n* **当前** — *extra* 白色戒指在单条上,下一个命中或键打击\n\n路由器和键盘移动相同的流动线:输入一个线使它流动,而一个箭头键将它移动。 没有第二个 \"hovered\" 突出点可以指向其他地方。\n\nShift + 左点击将一个提取的图像区域推到填补网络的容器,拖在甲板前面而不是重新流动它们(:class:`_ZoomOverlay`);一个点击旁边,或 ``Escape``,将其返回。\n\nAnnotator Agreement 附上这个应用程序视图的头部,而不是携带一个单一的字符串: κ 在标签列之间是一个问题,关于标签这个申请视图写的,被写作的人问,而提取的图像区域仍然在他们面前。 按钮是模块本身的图标,在其成熟的颜色中闪烁,它打开协议应用程序本身看起来像一个网旁的页面,而不是一个窗户在它上面 - 一个窗口是最后一个字符串,这里没有什么需要一个。 看:data:`FOLDED_APPS`。\n\nQt 应用程序视图目前不提供 UMAP 窗口、深 spaCR 培训启动器或测量边界过滤器。",
+      "source_sha256": "1f071ba05c22a82134cdb607744338eafa76a1f135151f2b8e93cf37817d667e",
+      "text": "在 Qt 接口中显示和标记提取的图像区域。\n\n显示一个可点击的图像小组的页面网络,支持 ``png_list`` 在 ``measurements/measurements.db``. 左点击指定值 1, 右点击设置值 2, 然后再次点击所指定值清除它. 通知通过 :class:`spacr.qt.annotate_engine.SaveWorker` 持续。\n\n**在工作流程中的位置。** Annotate 是流程的第三步。它需要 Measure 在 ``png_list`` 中列出的裁剪图像，而它写入该表某个注释列的标签，正是 ``dataset_mode`` 为 ``annotation`` 时 Classify 用来训练的数据。\n\n键盘单纯快速标记层位于同一写路的顶部(参见 :meth:`AnnotateScreen.handle_key`): ``1`` - ``9`` 将一个类和自动进展分配到下一个未标记的提取图像区域, ``0`` 点亮, 箭头 / ``hjkl`` 移动焦点, ``Space`` / ``Backspace`` 没有标记步骤, ``u`` 无线和 ``Enter`` 承诺页面。\n\n每个提取的图像区域都以两个独立的颜色带(:class:`_Thumbnail`)的圆形平方形描绘,因此其三个状态相同可阅读,而不是互相过写:\n\n* **resting** — 一个薄灰色戒指覆盖图像\n* **分类** - 类颜色中的相同戒指(:func:`~spacr.qt.annotate_engine.label_to_hex`,应用程序的单一级→颜色地图)\n* **当前** — *extra* 白色戒指在单条上,下一个命中或键打击\n\n路由器和键盘移动相同的流动线:输入一个线使它流动,而一个箭头键将它移动。 没有第二个 \"hovered\" 突出点可以指向其他地方。\n\nShift + 左点击将一个提取的图像区域推到填补网络的容器,拖在甲板前面而不是重新流动它们(:class:`_ZoomOverlay`);一个点击旁边,或 ``Escape``,将其返回。\n\nAnnotator Agreement 附上这个应用程序视图的头部,而不是携带一个单一的字符串: κ 在标签列之间是一个问题,关于标签这个申请视图写的,被写作的人问,而提取的图像区域仍然在他们面前。 按钮是模块本身的图标,在其成熟的颜色中闪烁,它打开协议应用程序本身看起来像一个网旁的页面,而不是一个窗户在它上面 - 一个窗口是最后一个字符串,这里没有什么需要一个。 看:data:`FOLDED_APPS`。\n\nQt 应用程序视图目前不提供 UMAP 窗口、深 spaCR 培训启动器或测量边界过滤器。",
       "translation_source_blocks_sha256": [
         "48bcb4f903deef031f7ef2f4b768a4ed0db2e72244e8911a0fba50c48a334767",
         "be777aa4db4f2d686f5e6eda40045343ae537bc156fcd6f9e82d7f3e9c338eca",
+        "ba17ededeebafc5299005bab66e61ea024f60591c956b153be9068dc08aa4157",
         "feb2984f3a8b53787d75b8fadd18fc3c58a72c8d10e32c97634e31f29d0b862b",
         "bf33557f5daccb40be17c3520d2a24de52a5038746e3d135732d3b8de1194a6b",
         "5ed24a8ef8f81a224fb8b0b1a030650cd60b9f6cc4ce53c90272502d50fed852",
@@ -79060,14 +79070,22 @@
         "ff4a955dff3528b48cca2dfdabd9b8764238f78fa411329bde89e21a99dc03fb",
         "9db9c7e04ad7cf0196afdd983317595b534dc18574c580bc34963e2e2a4d62da",
         "c75c1eba78c712166069c0d5810676a133eb8721d78a3027c855f44e04fa10e5",
+        "eba6eceda23475bb3733d2fd06511a1f018ed88ff1fe00609f10b267c3925bbb",
+        "341864ac8206f6cbdb45fbcf1b868f2de05113946f3bc0b3e56603a13e859343",
+        "1f04dd75d44041fb50a1d3548ce2e067880bb2ea84dc04db60747967e5441825",
+        "9251a11962fd0b1e49fb2e36933168e3ed4cd817f10eb3d9866c9f87af950991",
         "b169148e7c61b90495cdd0a9b666e6e3f5c613070e54dd7a27e92801cf9f90fb"
       ],
-      "source_sha256": "851ff381f676964d5af7f45d295d13bead714908f3f450ad6681a1aba36400a0",
-      "text": "设计板在购买之前,然后一次出口。\n\n应用程式显示了一半的 :mod:`spacr.qt.widgets.plate_layout`. 它拉动实验室微板,列出与布局有什么错误,并写下剩下的三个档案 spaCR 阅读 - 因此实验院微板地图被打印一次而不是一次为实验馆微板处理器,然后再次进入 ``treatment_plate_metadata`` 当数据回来时。\n\n警告是点而不是绘画,每一个发现都表明的是在收购后无法修复的东西:控制只坐在实验室微板边缘,一个控制限于一个列,一个单一复制的状态。\n\n一个实验室微板 widget WHERE 可以有一个. 方形,它是固定在和序列 / 列头来自 :mod:`spacr.qt.widgets.plate_map_picker` 而不是被宣布第二次在这里; 两个实验室小板已经分开一次. 不能分享的是本,而差异是真实的,而不是历史的: 皮克的好是可验证的 ``QPushButton`` 其检查状态是选择的,并从固定一对颜色绘制自己,而这个是 ``QLabel`` 携带一个角色,一个边缘标志,一个名称和一个条件,由主题通过下面的属性绘制 - 实验室显板地图说,每个人都保持好,而不仅仅是选择。",
+      "source_sha256": "3273b343fe960a6241b0a05d66629512520e4411e680dee65c0b1983652da6ff",
+      "text": "设计板在购买之前,然后一次出口。\n\n应用程式显示了一半的 :mod:`spacr.qt.widgets.plate_layout`. 它拉动实验室微板,列出与布局有什么错误,并写下剩下的三个档案 spaCR 阅读 - 因此实验院微板地图被打印一次而不是一次为实验馆微板处理器,然后再次进入 ``treatment_plate_metadata`` 当数据回来时。\n\n警告是点而不是绘画,每一个发现都表明的是在收购后无法修复的东西:控制只坐在实验室微板边缘,一个控制限于一个列,一个单一复制的状态。\n\n**用途。** 在板成像之前规划板，作为一次筛选实验的第一步：此时布局仍可修改，而这里导出的板图就是之后测量结果要连接的对象。\n\n**所需输入。** 一个板标识符、6 到 1536 孔的板规格，以及条件列表，每个条件都有重复数和角色：处理、阳性对照、阴性对照或空白。布局 ``random``、``row``、``column`` 或 ``block`` 决定重复的摆放方式，边缘设置决定使用还是留空最外圈的孔，随机种子使随机布局可以复现。\n\n**输出内容。** 导出板图会在所选文件夹中写入三个文件：``plate_map.csv``，每孔一行，以 ``plateID``、``rowID`` 和 ``columnID`` 为键；``plate_map.json``，包含设计和当时显示的检查结果，以便重新生成布局；以及 ``plate_map_settings.json``，即用于分析的 ``treatments`` 和 ``treatment_plate_metadata`` 设置。随机布局无法写成整行或整列，因此该文件会改为记录原因，而 ``plate_map.csv`` 是权威记录。\n\n**下一步。** 先解决检查结果，再对板成像。数据返回后，``plate_map.csv`` 通过 ``plateID``、``rowID`` 和 ``columnID`` 与测量表连接，无需任何转换步骤，设置文件则填入分析的处理设置。\n\n一个实验室微板 widget WHERE 可以有一个. 方形,它是固定在和序列 / 列头来自 :mod:`spacr.qt.widgets.plate_map_picker` 而不是被宣布第二次在这里; 两个实验室小板已经分开一次. 不能分享的是本,而差异是真实的,而不是历史的: 皮克的好是可验证的 ``QPushButton`` 其检查状态是选择的,并从固定一对颜色绘制自己,而这个是 ``QLabel`` 携带一个角色,一个边缘标志,一个名称和一个条件,由主题通过下面的属性绘制 - 实验室显板地图说,每个人都保持好,而不仅仅是选择。",
       "translation_source_blocks_sha256": [
         "ff4a955dff3528b48cca2dfdabd9b8764238f78fa411329bde89e21a99dc03fb",
         "12c11e9c81a1d6fe963cf746013fa77280f8f0696f7f61f8f8a4208e47244c58",
         "aafd5294cba073e62365bd5566dfff1b79204271e10195a649c0afd00e7e8026",
+        "06783f7955729da07cfc08e4f36301ea81932a3fd3597be2930b84b3fd1a8913",
+        "1f1264e7004358d1e1ce0d496c811598edbdd69379221e7e378b214881664636",
+        "e6a8f9b8fca58b5c0c55dcc8d324433ce5640de67981584a026b994685cd39fe",
+        "9251a11962fd0b1e49fb2e36933168e3ed4cd817f10eb3d9866c9f87af950991",
         "31d3052fa9e66582f2adab39f1bf2e17f4fe015f264b485b4a5dbbaf4d1ddb0d"
       ]
     },
@@ -80009,20 +80027,28 @@
       "source_blocks_sha256": [
         "5802a5d8275282f0f72141bf1462df06a34d7b4f8269613b8f1ea2f34a83df9d",
         "b100953b648dee0da13118c718b50f3bbc6ec1848db3f4e790e8936ffa541e2d",
+        "18e88c1de632fb65b473bfc7400fad34a4ec90391d438e4706e8845d7725da7d",
+        "7ad8256125910d7c6e53f73988b70e80fc3d3bf0ce1fcc171194312a2b7da1c6",
+        "9a7a051375217ca9fe0ae5acab2dcd6b132a8f9f2b52abee0aa101d0a1485e67",
+        "777cec7724e961ebd556bc885987088c4853a206dd3f0bc9d57635416f42ba26",
         "f2e07f4c4f4a7b317bdd09396ec936f51f62be2a1767fa5e83d3227345627dc0",
-        "b6f874c89f3412fdea420db84f4785006f1ccb0a85a82cb0d6daf2fdbbb03d31",
+        "1f3de1f7408fc69b5b0d3e50c09aac04245ac1c893084fed33fe47ef75c13e51",
         "83775803759b01bce2a4dc2c359fd85e093d19fd13059ecc9af3b89677167e09",
         "5029e886f6d4dae46bbdcd276073bdb493c1c6438bd6e9ddc6efdae4753529f7",
         "d817afd7af7b2b1deda426695a25f7fce5a937cc99f330485cd202de72c28739",
         "c5d1b4df1d2e90149574a5a81b450c98d9605bab862161e8ed5fd0a340eebc8e"
       ],
-      "source_sha256": "96e8e96b24d99b6cbe9f8ac9f0f3704c79ac4d3c4252c5e10006fcb94f1bf95f",
-      "text": "V2 - 数据选择边界编辑器:绘制一个区域,命名它,它变成过滤器。\n\n将流量引导的动作应用到 spaCR 测量表中. 拖动一个边界在一个 histogram 或拖动一种聚合物在一个两个变量的分散器上. 命名后,形状变成一个 :class:`spacr.selection.DataFilter` 使用每个开放视图: UMAP,板地图,图像裁剪网, Graph Builder,和小多。\n\n构建下列组件:\n\n* :class:`spacr.qt.widgets.gate_editor.GateEditorPanel` - 管道,三种工具和其百分比的序列;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` 是本地数据过滤器,其数据选择边界构成 *onto* 而不是取代;\n* :class:`spacr.qt.widgets.formula_editor.FormulaPanel` - 因此可以在计算列上绘制数据选择边界;\n* 保存 / 加载,因为数据选择过滤策略是可重复使用的部分:数据选择边界的整个点在一个拉索上是它重新应用到下一个板。\n\n:func:`register`不被称为进口;请阅读其文本。",
+      "source_sha256": "0f9a610811ebe1868e56031c2260f0233c40b688c22733bdf7d8b71da5ed516d",
+      "text": "V2 - 数据选择边界编辑器:绘制一个区域,命名它,它变成过滤器。\n\n将流量引导的动作应用到 spaCR 测量表中. 拖动一个边界在一个 histogram 或拖动一种聚合物在一个两个变量的分散器上. 命名后,形状变成一个 :class:`spacr.selection.DataFilter` 使用每个开放视图: UMAP,板地图,图像裁剪网, Graph Builder,和小多。\n\n**用途。** 在 Measure 运行之后，按测量值选出一个群体：例如强度阈值以上的细胞，或双特征散点图中的一个簇。门控区域可以嵌套在其他门控区域内，每个门控区域都会显示其对象数，以及它占上级门控区域和整张表的百分比。\n\n**所需输入。** 一张测量表：``measurements.db`` 中的一张表（对象表会优先列出），或者一个 CSV 或 TSV 文件。多个数据库可以作为一张表加载；它们之间冲突的板标识符会被报告出来，而不会被悄悄合并。数据库表按 ``sample_fraction`` 抽样读取，并受 ``max_points`` 限制，二者都在 Gate Editor 的设置中。\n\n**输出内容。** 基于一个或两个测量值的阈值、矩形、椭圆、多边形和魔棒门控，3D 视图中的立方体、圆柱和棱柱门控，以及由其他门控组合而成的门控。发布一个门控会把每个联动视图限定到该群体。门控策略保存到 JSON 文件并可从中加载（默认为 ``gates.json``），使下一块板以同样方式设置门控；导出会把每个门控写成测量数据库中 ``filters`` 表的一列，图表可保存为 PNG 或 PDF。\n\n**下一步。** 在跟随共享过滤条件的视图中查看门控后的群体，例如 Image UMAP、Graph Builder 和裁剪图像网格，并在下一块板上加载保存的门控策略。\n\n构建下列组件:\n\n* :class:`spacr.qt.widgets.gate_editor.GateEditorPanel` — 画布、门控工具以及带百分比的层级结构；\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` 是本地数据过滤器,其数据选择边界构成 *onto* 而不是取代;\n* :class:`spacr.qt.widgets.formula_editor.FormulaPanel` - 因此可以在计算列上绘制数据选择边界;\n* 保存 / 加载,因为数据选择过滤策略是可重复使用的部分:数据选择边界的整个点在一个拉索上是它重新应用到下一个板。\n\n:func:`register`不被称为进口;请阅读其文本。",
       "translation_source_blocks_sha256": [
         "740e0290ac6c144d7fd7f75eee355746cf235ecd88ebb8a9f820d79c660bc75f",
         "edc813cb2281ae9793659f367abf0ef016830f2e3e96a603653e5976df158630",
+        "e3aeb042a5c4bc37a9d2b30c6924925397e1245f985defb0c1714096c3245538",
+        "fa1641b393c48a8589246f8f464bae1bb85949bf0b028e05d7ee8df2db2a8245",
+        "49920a4f8cd451e1e712075460d3ba450488cdfeb5f943cc1e9d48fa1fc877aa",
+        "f98cad71c1bed84ee991ca2b71ec012bfbf75a4c4f57f7b0860f83699556c4b0",
         "0ace819bd4198dc6a7c6e1422ce8927684ca8dd225bb5a342192a08f05b36b4d",
-        "b6f874c89f3412fdea420db84f4785006f1ccb0a85a82cb0d6daf2fdbbb03d31",
+        "f521d9b9fee9eb5adcc5b33c91bd5bdd566bd14f12d1da5a45077ef0b09f9feb",
         "705f15e10965f393bac6749a2b47165abc599227a0e3b90a0683787af87a2f9e",
         "be9715efc6df3be6771db1fadc2bcd35e765c872982f9d45d4e5c3dba16095ec",
         "ebb8956bf89b926f7319a282535561dc4e2c6497183668f620ffe404ca29eb49",
@@ -80492,17 +80518,25 @@
         "bd33dc4428a43118653d5839d0c5b8aa431b8626cf495b2e8e0090cc420433d8",
         "cabc431df0d30c8ac42cbb6fc69aaf169a26d1c976983dcb9917056e2be37f3e",
         "58885444c5041d11f4db3d30697030ab9510bcbc12246b05593ab29c6f9e372b",
+        "3ce9e834a6db422e060250c028dcb842b417026568f68837c116cc4fd4bb3926",
+        "9a684ad3c3b4869aa68a385cb90b086733f6e8d7a793033ff3ff492bd9d1a273",
+        "3a6684acc216fc722fce4a8dbaca2669c9e3215b99b2928bfe1bf88902336342",
+        "1fb2849ed26e00028887d9edfd4a71b8965f154677187d9305111e2b83c1bf3f",
         "697a6630e451b10bd5f3a7ad584628f3686d324f9e1f57a3d5fde723d7049a65",
         "2467d8cccdfa492084755e45f31089289753ecb25a34a02744b2ee0616c135ae"
       ],
-      "source_sha256": "f66613f9c7bdfc6c801f2cd0484d24b61f5c3d917f69b1c5368c0364b533f37c",
-      "text": "筛选 Graph Builder - 一个表,一个过滤器,和一个图表你拖在一起。\n\n它将三个已经存在的物体聚集在一个表面上:\n\n* :class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` - 降落区域和管道;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` - 地点数据过滤器,不变,因为缩短 *每个* 视图的过滤程序比这个图表缩短的私人过滤方案更有价值;\n* :mod:`spacr.qt.linked_selection` - 因此,这里的刷子在 UMAP 和板地图上突出相同的细胞,而这里的拉索则突出它们。\n\n应用程序视图通过 :func:`spacr.qt.app.register_app` 进入应用程序登记簿,而不是通过表中的一个序列在 ``app.py`` 中,其风格通过 :func:`spacr.qt.theme.register_widget_qss`. 两种参数都存在,因此与其他五种平行构建的应用程序图像是一个新的文件,而不仅仅是两千行中的合并冲突。\n\n:func:`register` 是 **not** 被称为进口 - 阅读其文本为何,以及为一行加上四侧表输入完成电缆。 应用程序视图本身是完整的:用 :func:`make_graph_builder_screen` 构建它,手持它一个框架,下面的一切都工作。",
+      "source_sha256": "90f99a96fd4b9a39a7be00008e08899eec9d0527a814d19a1a66af09d8bd814f",
+      "text": "筛选 Graph Builder - 一个表,一个过滤器,和一个图表你拖在一起。\n\n它将三个已经存在的物体聚集在一个表面上:\n\n* :class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` - 降落区域和管道;\n* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` - 地点数据过滤器,不变,因为缩短 *每个* 视图的过滤程序比这个图表缩短的私人过滤方案更有价值;\n* :mod:`spacr.qt.linked_selection` - 因此,这里的刷子在 UMAP 和板地图上突出相同的细胞,而这里的拉索则突出它们。\n\n**用途。** 无需编写绘图代码即可探索一张测量表，通常在 Measure 或 Classify 之后使用：把列拖到图表上，每放下一列图表就会重新绘制。\n\n**所需输入。** ``measurements.db`` 中的一张表，或者一个 CSV 或 TSV 文件，通过加载表格的按钮选择。对象表和 ``png_list`` 会优先列出；数据库中的其他所有表仍然可用。\n\n**输出内容。** 一个带有六个放置区的图表：x、y、颜色、大小、分面行和分面列。只有 x 和 y 决定图表类型：一个连续列生成直方图，一个分类列生成计数条形图，两个连续列生成散点图，一连续一分类生成箱线图，两个分类列生成计数热图；小提琴图和折线图需要明确选择。用画笔框出的矩形会成为共享选择，并在 UMAP 和板图上高亮显示。\n\n**下一步。** 在 Annotate 中打开所选内容，以裁剪图像的形式查看框选的对象；用图表旁边的本地数据过滤器缩小所有视图；或者当某个群体需要成为可保存、可重新应用的命名门控时，转到 Gate Editor。\n\n应用程序视图通过 :func:`spacr.qt.app.register_app` 进入应用程序登记簿,而不是通过表中的一个序列在 ``app.py`` 中,其风格通过 :func:`spacr.qt.theme.register_widget_qss`. 两种参数都存在,因此与其他五种平行构建的应用程序图像是一个新的文件,而不仅仅是两千行中的合并冲突。\n\n:func:`register` 是 **not** 被称为进口 - 阅读其文本为何,以及为一行加上四侧表输入完成电缆。 应用程序视图本身是完整的:用 :func:`make_graph_builder_screen` 构建它,手持它一个框架,下面的一切都工作。",
       "translation_source_blocks_sha256": [
         "50846868223931deb5b33352a7424a53f20dc3ef3af8fd41c950b05edbc12980",
         "8bf304cdba591c363bc177f9ad24be9e89dde789abb65525322c42dd29e88620",
         "bd33dc4428a43118653d5839d0c5b8aa431b8626cf495b2e8e0090cc420433d8",
         "cabc431df0d30c8ac42cbb6fc69aaf169a26d1c976983dcb9917056e2be37f3e",
         "58885444c5041d11f4db3d30697030ab9510bcbc12246b05593ab29c6f9e372b",
+        "3ce9e834a6db422e060250c028dcb842b417026568f68837c116cc4fd4bb3926",
+        "9a684ad3c3b4869aa68a385cb90b086733f6e8d7a793033ff3ff492bd9d1a273",
+        "af784227fd828bab4d556c09c7f43ee404d0bdcc21a491417a5ec38cd277e373",
+        "27b7bd66bf7988c859ce6ea237947f992c311ccfc21ab72e93a85bc1454d1e06",
         "63bb73ae3547ba71e06eb5570b67a69b5b768a31519537f68f56a8befd297672",
         "457b8fdbffc0b21eb88f42e7ee83ba746ebf5c4f90ebf36b8a5e656c7dc953a5"
       ]
@@ -87487,14 +87521,22 @@
       "source_blocks_sha256": [
         "de803ca34eec04517844159197e3d896a93056b610c8a5239d8fd70f6f18bd71",
         "79d4478edd357790fa0a5f4d5809f8139dac536d346c957e8411623693b711b6",
+        "ae8693d6d97aeb6ea3475cbf705c72ac48317fa18a2c74c1b63a0c211214f3ee",
+        "746a001acee09eda8da304f5dc315f67af96023c2810a95b4d3a91c462cc9c8f",
+        "754239afae8b251857d86faa929d2648e01a7879167d415c8366c4cda341b22e",
+        "d71e9b428ed3a221a506ba634c7b076c212e211b239d55478397fa7d796555aa",
         "9c514dc3b9ed4d165efd02c38c2f2b5fb411ec1fe991c43101e3fd310abc4895",
         "dfdf67f41d1ddae3c4452266c4f299e646eceb69526098a3c4250321c24ea8cb"
       ],
-      "source_sha256": "c3e487fff0d5baa6d3500f00b914c7f9eaa6cf44fbaefa070c661391b1d050b1",
-      "text": "一个筛选回答“这运行可用吗?”\n\n应用程式显示一半的 :mod:`spacr.qt.widgets.qc_summary`. 它显示分区、单位、漏洞、板效应和合意判定一边,并且他们添加的单线摘要。\n\n它 **阅读**;它不得分. 规则是 :mod:`spacr.qt.prerun`的,而该模块说为什么:打开磁盘的掩膜花费几秒钟,并且一个应用程序视图付出每次访问是应用程序的视图,没有人保留。\n\n这里没有什么可以阻止任何东西. ``Dashboard.blocks_run`` 是一个恒定的 False,并且这个应用程序视图没有运行按钮来过滤数据. 停止工作的 QC 判决被关闭; 通知它的人被阅读。",
+      "source_sha256": "d407129611cd0107c1b9a22186ffed84df162ef5355e5c9154e8016a4eb7a914",
+      "text": "一个筛选回答“这运行可用吗?”\n\n应用程式显示一半的 :mod:`spacr.qt.widgets.qc_summary`. 它显示分区、单位、漏洞、板效应和合意判定一边,并且他们添加的单线摘要。\n\n**用途。** 在使用项目的数据之前先检查它。在 Mask 和 Measure 之后，以及 Classify 之后再次，QC 把这些步骤已经写出的判定汇集到一处，这样回答这个问题就不必打开五个界面。\n\n**所需输入。** 一个项目或板文件夹，通过浏览选择或拖放到 QC 上。每张卡片读取一个已经存在于磁盘上的文件：Mask 运行写出的分割评分卡（``seg_qc``），Measure 在 ``measurements.db`` 每一行上加的单位标记，最新的 Classify (CV) 评估包中的 ``leakage.json``，以及在项目下保存了板效应或标注者一致性报告时的 ``plate_qc.json`` 和 ``agreement.json``。\n\n**输出内容。** 不向磁盘写入任何内容。每张卡片带有一个判定：``ok``、``missing``、``warn``、``fail`` 或 ``error``，并附有标题、背后的细节，对于从未运行过的检查，还会给出能产生它的步骤；总体判定取其中最差的判定。比其输入更旧的卡片会被标记为过期，而不是被降级；``missing`` 表示什么都没有检查，而不是什么都没有问题。\n\n**下一步。** 在源头修复 ``warn`` 或 ``fail`` 卡片指出的问题，然后重新运行该步骤；文件发生变化时卡片会被重新读取。Layer Viewer 显示失败检查背后的图像，Control Charts 跟踪同样的检查随时间的变化，Outliers 找出与其余不同的孔或对象；这三者都从该界面的标题栏打开。\n\n它 **阅读**;它不得分. 规则是 :mod:`spacr.qt.prerun`的,而该模块说为什么:打开磁盘的掩膜花费几秒钟,并且一个应用程序视图付出每次访问是应用程序的视图,没有人保留。\n\n这里没有什么可以阻止任何东西. ``Dashboard.blocks_run`` 是一个恒定的 False,并且这个应用程序视图没有运行按钮来过滤数据. 停止工作的 QC 判决被关闭; 通知它的人被阅读。",
       "translation_source_blocks_sha256": [
         "de803ca34eec04517844159197e3d896a93056b610c8a5239d8fd70f6f18bd71",
         "a67454ea1cb90c663913cdde4f4854ce337eebe2825de883169b53911bf87fdd",
+        "a9c12cd7a9648fc8f09f5243fca201e0c9e4a11cca059bf42d757dc14a140484",
+        "ae5678b1cf9022ba50d8a7ac338fc188f8d5b09800b92e13be84c15baa5db933",
+        "754239afae8b251857d86faa929d2648e01a7879167d415c8366c4cda341b22e",
+        "af99bac27666edaa5a6768eb3f933168592aa7c77cc90fc4f9cf17fa95a71e04",
         "61755ccced9e8b2b0fe07e2668e36f121b09d357c9db147354dc4d44175bce8b",
         "4ae482f8f54a932127617db653bca2dfc8897c37a2a8cd34a6eda5b3bb76bfc9"
       ]

@@ -10,7 +10,7 @@ steps already wrote into one place, so the question does not need five
 screens.
 
 **What it needs.** A project or plate folder, chosen with Browse or dropped
-onto the screen. Each card reads a file that is already on disk: the
+onto QC. Each card reads a file that is already on disk: the
 segmentation scorecards a Mask run writes (``seg_qc``), the units stamp
 Measure puts on every row of ``measurements.db``, ``leakage.json`` from the
 newest Classify (CV) evaluation bundle, and ``plate_qc.json`` and
@@ -20,7 +20,7 @@ saved under the project.
 **What it produces.** Nothing on disk. Each card carries a verdict --
 ``ok``, ``missing``, ``warn``, ``fail`` or ``error`` -- with a headline, the
 details behind it and, for a check that has never run, the step that would
-produce it; the screen's summary is the worst of them. A card older than its
+produce it; the overall verdict is the worst of them. A card older than its
 inputs is marked stale rather than downgraded, and ``missing`` means nothing
 was checked, not that nothing is wrong.
 

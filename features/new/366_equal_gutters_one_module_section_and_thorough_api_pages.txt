@@ -351,3 +351,130 @@ their own relevant function prose rather than merely sharing a module page.
 This closes the Codex-owned 366b subset. Instruction 366 itself remains open
 for its README editorial work and any final rendered-page review in the other
 session's lane.
+
+--------------------------------------------------------------------------------
+2026-09-15: THE REMAINING HALF. THE README ALREADY MET THE REQUEST; SIX API
+            PAGES DID NOT
+--------------------------------------------------------------------------------
+
+Branch `wip/366-readme-api`, worktree /mnt/firecuda2/Claude/repo/spacr-366.
+
+THE README NEEDED NO EDIT, AND THAT WAS MEASURED, NOT ASSUMED:
+
+* README headings intersected with the registry's own labels are exactly
+  {"Make Masks"}; `test_make_masks_is_the_only_module_with_a_section_of_its_
+  own` is green.
+* The only other per-module prose is the six-line "Core workflow" list, kept by
+  the 2026-09-02 ruling. "Model zoo" is not a registered module. The band notes
+  over Core/Data/Tools/Assays are generated from `SECTION_NOTES` and describe
+  bands, not modules.
+* Every claim in the Make Masks paragraph was checked on
+  `spacr.qt.screens.make_masks`, the page its tile opens: filed under Tools,
+  masthead opens the Cellpose workflows, nine tools in `TOOL_MODES` order,
+  Draw, Divide, Recrop. All present, so nothing had to move before removal.
+* OPEN READING, NOT RE-ASKED: the request also says "remove this text". Read
+  literally against the Make Masks section, that leaves an empty section. The
+  2026-09-02 reading stands -- keep the tool vocabulary, which
+  `test_the_readme_names_every_make_masks_tool` requires -- but it is a
+  reading. If the literal one was meant, the paragraph can go; its content is
+  all on the API page.
+
+THE API PAGES, MEASURED PER TILE (22) against five questions: what it is for,
+what it needs, what it produces, which settings matter, where it sits.
+Adequate already: Mask and Image UMAP (`spacr.core` plus anchors), Measure,
+Map Barcodes, Regression, Import, Align & Stitch, Power, Make Masks, Run
+Compare, Dose-Response, and the four assays. Thin, and fixed in 75272dcd9:
+
+    spacr.classify                       154 -> 406   no inputs/outputs/place
+    spacr.qt.screens.qc_dashboard        133 -> 373   no inputs, files, next
+    spacr.qt.screens.gate_editor         146 -> 384   no inputs; "three tools" stale
+    spacr.qt.screens.graph_builder       178 -> 373   architecture notes only
+    spacr.qt.screens.experiment_design   239 -> 461   inputs and the 3 files unnamed
+    spacr.qt.screens.annotate            384 -> 427   place in the workflow
+
+Each gained What it is for / needs / produces / to do next (Annotate: where it
+sits), INSERTED rather than rewritten so every existing paragraph keeps its
+translation. `test_each_repaired_module_answers_the_four_questions` now pins
+the five that use the headings. `spacr/classify.py` is Codex's lane: docstring
+only, announced in 325.
+
+NOT DONE: the Embeddings screen (307 words). `spacr/embeddings.py` is another
+agent's file tonight, and nothing in `spacr/` calls `EmbeddingsScreen.set_crops`
+-- the screen has no in-GUI way to load crops, so a "what it needs" paragraph
+would describe a path that does not exist yet.
+
+FOUND WHILE READING THE CODE, NOT FIXED (other files, other lanes):
+
+* Nothing in `spacr/` writes `plate_qc.json` or `agreement.json`. QC's Plate
+  effects and Annotator agreement cards read them, so both can only ever say
+  `missing`. The QC page says what the cards read without naming a producer.
+* `spacr.submodules._resolve_plaque_model` says `toxoplasma_plaque_v1` "is the
+  default" and, a paragraph later, "THE DEFAULT REMAINS 'bundled'". The code
+  defaults to `'bundled'`.
+* Translated READMEs: the Make Masks paragraph -- the one module section 366
+  keeps -- is still English in sv, de, es, fr, pt, zh_CN and ko, and the grid
+  caption is English in zh_CN and ko.
+
+I18N, DONE WITH THE WORK: 22 new or changed blocks x 9 locales = 198
+hand-written reviewed records in
+`docs/i18n/reviewed/api/<lang>/2026-09-15-module-landing-pages.json`, each
+accepted by `reviewed_api_block_translations`. Two Icelandic records moved
+index with the inserts (`graph_builder#6` -> `#10`, `experiment_design#3` ->
+`#7`) and were re-bound, not retired. The rebuild's pending set was exactly
+these six symbols in every locale, so no checkpoint was needed.
+
+TWO THINGS THE CATALOG BUILD DOES THAT ITS INSTRUCTIONS DO NOT SAY, both found
+by checking that the reviewed text is what ships -- 0/198 of it was, at first:
+
+1. THE PLAIN BUILD (`build_documentation_i18n.py`, no flags) DOES NOT READ
+   REVIEWED RECORDS FOR A CHANGED SYMBOL. Its pending blocks go straight to
+   `_translate_api_documents`; with no checkpoint loaded that published the
+   glossary-expanded ENGLISH context ("object extracted image regions") for
+   every new block in all nine locales, and its closing audit is what would
+   have caught it. Reviewed evidence is applied on the repair path
+   (`repair_api_translations`), AND THAT PATH NEEDS THE OLD `en.json` AND THE
+   OLD CATALOGS STILL IN PLACE: it reuses an unchanged paragraph only when both
+   prove the same historical source. Running `--sources-only` first destroys
+   that proof, and the repair then asks a model for paragraphs nobody changed.
+   What worked: restore `en.json` and the nine catalogs to the pre-edit
+   commit, then run the repair with every generation entry point patched to
+   raise (generated=0, historical_reused=37, review_recovered>=22 per locale).
+
+2. THE BUILDER RUNS `_contextualize` OVER REVIEWED TARGETS. It is a lexical
+   sense repair, and on three of these blocks it flipped a correct GUI
+   "screen" into the scientific one in six locales -- de Bildschirm ->
+   Screening, es pantalla -> cribado, pt tela -> triagem, fr écran ->
+   criblage, ko 화면 -> 스크리닝, hi स्क्रीन -> स्क्रीनिंग -- because the
+   sentence also said "plate". Fixed at the source rather than around it: the
+   three sentences no longer say "screen" ("in the Gate Editor settings",
+   "dropped onto QC", "the overall verdict"), which is also plainer English.
+   The four harmless rewrites (zh_CN 屏幕 -> 界面, ko 주석 -> 어노테이션) were
+   adopted into the records, so every record is now its own contextualized
+   form and what is reviewed is what ships. The rewrite is the real defect
+   and is recorded here, not patched: `tools/build_i18n_catalogs.py` is
+   another agent's file tonight.
+
+VERIFIED BEFORE COMMITTING, on the settled catalogs:
+
+* `tools/build_documentation_i18n.py --audit`: exit 0, "verified API catalogs:
+  languages=9 symbols=10533". The same audit on a pristine checkout of the
+  branch point (63f1d502b) was also exit 0, so nothing here was pre-existing.
+* In all ten API catalogs exactly six symbols moved -- these six -- and no
+  catalog header changed.
+* 198/198 reviewed translations are published verbatim; 333/333 unchanged
+  paragraphs of these six symbols keep their pre-edit translation; no block
+  was left in English.
+* `REVIEW_SCOPE_2026-09-04.md` rows re-derived from the test's own
+  derivation: reviewed API blocks +22 in every locale (sv 469 -> 491 ... is
+  1,027 -> 1,049), runtime columns unchanged.
+* 363 passed: test_documentation_i18n, test_i18n_coverage_audit,
+  test_docstring_correctness, test_readme_presentation,
+  test_the_readme_describes_the_build_that_ships,
+  test_every_module_lands_on_prose, test_api_i18n_extractor.
+* `sphinx-build -W -E` as docs.yml runs it: build succeeded, 0 warnings, and
+  every bold lead-in renders as <strong> on the six landing pages (built before
+  the three-sentence rewording, which added no markup).
+
+STILL OPEN under 366: the Embeddings landing page (blocked on a crop loader),
+the English Make Masks paragraph in seven translated READMEs, and the literal
+"remove this text" reading, which is the maintainer's call.

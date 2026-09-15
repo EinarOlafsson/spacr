@@ -53,15 +53,21 @@ table derives them from the same source the builders read.
 
 | Language | Reviewed runtime records | Of 5,679 | Remainder | Reviewed API blocks | Of 10,534 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 134 | 2.36% | 5,545 | 481 | 4.57% | 10,053 |
-| German | 101 | 1.78% | 5,578 | 438 | 4.16% | 10,096 |
-| Spanish | 115 | 2.03% | 5,564 | 299 | 2.84% | 10,235 |
-| Simplified Chinese | 368 | 6.48% | 5,311 | 529 | 5.02% | 10,005 |
-| Portuguese | 115 | 2.03% | 5,564 | 460 | 4.37% | 10,074 |
-| Hindi | 148 | 2.61% | 5,531 | 474 | 4.50% | 10,060 |
-| Korean | 265 | 4.67% | 5,414 | 466 | 4.42% | 10,068 |
-| Icelandic | 173 | 3.05% | 5,506 | 1,039 | 9.86% | 9,495 |
-| French | 116 | 2.04% | 5,563 | 478 | 4.54% | 10,056 |
+| Swedish | 134 | 2.36% | 5,545 | 503 | 4.78% | 10,031 |
+| German | 101 | 1.78% | 5,578 | 460 | 4.37% | 10,074 |
+| Spanish | 115 | 2.03% | 5,564 | 321 | 3.05% | 10,213 |
+| Simplified Chinese | 368 | 6.48% | 5,311 | 551 | 5.23% | 9,983 |
+| Portuguese | 115 | 2.03% | 5,564 | 482 | 4.58% | 10,052 |
+| Hindi | 148 | 2.61% | 5,531 | 496 | 4.71% | 10,038 |
+| Korean | 265 | 4.67% | 5,414 | 488 | 4.63% | 10,046 |
+| Icelandic | 173 | 3.05% | 5,506 | 1,061 | 10.07% | 9,473 |
+| French | 116 | 2.04% | 5,563 | 500 | 4.75% | 10,034 |
+
+*Regenerated 2026-09-15 for instruction 366's module landing pages, on top of
+407's pass below. Neither denominator moves: six existing docstrings grew
+paragraphs and no symbol arrived. Every reviewed API count rises by exactly
+22, the landing pages' new blocks, each carried by a hand-written record in
+all nine locales (198). No runtime count moves.*
 
 *Regenerated 2026-09-15, second pass, for `spacr.graph_types.mark_to_start_on`
 (293). The API denominator moves 10,533 -> 10,534, +1/-0 by set difference:
