@@ -203,10 +203,15 @@ identical with and without that change:
 
 Two facts in it are defects in their own right, independent of the popup:
 
-  * STARTUP INSTALLS TWICE. That is the one-backdrop-for-the-window rule
-    broken, and it matches the hand-off seen in this file's startup trace
-    (the window retires the screen's own backdrop, the screen installs one
-    again 60 ms later). Reproduced independently by both sessions.
+  * STARTUP INSTALLS TWO BACKDROPS AND RETIRES ONE. That is the designed
+    hand-off -- the window retires the screen's own backdrop once its shared
+    one exists -- and it nets to the single visible backdrop the rule
+    requires. CORRECTED 2026-09-15: an earlier version of this line called it
+    a one-backdrop-rule violation "reproduced independently by both
+    sessions". That was true of the CALL COUNT only. Measured against the
+    rule's own criterion, `len(_visible_backdrops(window)) == 1`, on a real
+    MainWindow with ambient on: one alive and one visible after startup,
+    after opening Mask and after opening Measure.
   * EVERY MODULE OPEN INSTALLS A BACKDROP AND IMMEDIATELY RETIRES IT, never
     starting it: install=1, stop=1, start=0 on the plain open path with
     ambient on. AT NO MEASURABLE COST -- the work session timed it at
@@ -343,3 +348,19 @@ The only variables left between this and the maintainer's report are his
 session's history -- time open, modules visited, a loaded AI chat, real
 pointer focus -- which is why a screenshot and the steps before it are what
 is asked for.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE ONE-BACKDROP RULE IS UNGUARDED IN THE DEFAULT TEST RUN
+--------------------------------------------------------------------------------
+
+Found by the work session's 60-file theme sweep and verified here:
+`tests/qt/test_one_backdrop_for_the_window.py` skips five of its tests with
+`if window.window_backdrop() is None: pytest.skip("the ambient backdrop is off
+in this configuration")` (lines 69, 94, 119, 157, 223). In the test sandbox
+the ambient preference is whatever the sandbox's defaults say, so on a machine
+or runner where it resolves off, the rule this whole item keeps returning to is
+never checked -- and the sweep recorded exactly that, 5 skips in that file.
+
+Not a bug in the rule; a hole in when it is checked. The fix is to give those
+tests the configuration they need (ambient forced on in the sandboxed
+preferences) rather than skipping when they do not get it.
