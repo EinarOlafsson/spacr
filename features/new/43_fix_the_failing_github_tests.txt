@@ -1166,3 +1166,8 @@ Minimum dependencies failed. Read from their logs:
   crash that needs one process to live long enough was invisible: "all Qt
   tests pass" has meant "every shard passed separately" for the life of this
   suite.
+
+  2026-09-15 (09:05 UTC) -- COMPAT-MATRIX SUCCESS ON b740c741d, the first green
+  run of that workflow in the history read above, and the first run carrying
+  32f701850's 70-minute step timeout. docs is SUCCESS on b740c741d as well, so
+  docs has now passed on two consecutive nightly heads (bac9151d0, b740c741d).
