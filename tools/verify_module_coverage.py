@@ -27,6 +27,20 @@ The run FAILS when:
   (e) anything cannot be measured: an unreadable coverage file, coverage
       without branch data, a shipped module with no valid coverage row, or
       a baseline this tool did not write.  "Checked N of M" must be M of M.
+  (f) the measurement is INCOMPLETE (only with ``--shard-integrity``): a
+      coverage shard left no integrity record, did not finish its batches,
+      or lost a worker's coverage data that ``tools/run_coverage_batches.py``
+      could not recover by re-running that worker's files.  A worker killed
+      by a signal never writes its data, so every module it exercised reads
+      as less covered than it is.  That is its OWN verdict, not a
+      regression: counts that such a loss can raise (uncovered statements
+      and branches) are reported UNCONFIRMED instead of as failures, and the
+      run exits 3.  A new pragma or excluded line is read from the source,
+      so it is still an ERROR and still exits 1.  Losses the runner DID
+      recover are listed as RECOVERED and judged normally.
+
+Exit status: 0 pass, 1 a confirmed failure, 2 the gate could not run, 3 an
+incomplete measurement with nothing confirmed.  3 is never a pass.
 
 It PASSES, and prints an improvement notice, when a module's counts fall.
 Every module not yet at 100% is listed on every run, with its baseline
@@ -90,7 +104,7 @@ from typing import Any, Mapping, Sequence
 
 from setuptools import find_packages
 
-REPORT_SCHEMA = "spacr.module-coverage-ratchet/v2"
+REPORT_SCHEMA = "spacr.module-coverage-ratchet/v3"
 BASELINE_SCHEMA = "spacr.module-coverage-baseline/v1"
 PRAGMA_NO_COVER = re.compile(r"#\s*pragma\s*:\s*no\s*cover\b", re.IGNORECASE)
 
@@ -106,6 +120,12 @@ COUNT_LABELS = {
     "pragma_no_cover": "pragma: no cover comments",
     "excluded_lines": "coverage-excluded lines",
 }
+#: The counts coverage data lost with a crashed worker can raise.  Pragma
+#: comments are read from the source and excluded lines follow from it.
+EXECUTION_FIELDS = ("uncovered_statements", "uncovered_branches")
+INTEGRITY_SCHEMA = "spacr.coverage-shard-integrity/v1"
+INTEGRITY_GLOB = "spacr-coverage-integrity.shard-*.json"
+INCOMPLETE_STATUS = 3
 BASELINE_ABOUT = (
     "Written only by tools/verify_module_coverage.py. Do not edit: the "
     "checksum covers every other key and the gate refuses a file it did not "
@@ -464,9 +484,195 @@ def measure(
     }
 
 
+def _integrity_record_problem(document: Any, shard_count: int) -> str | None:
+    """Why a shard integrity record cannot be trusted, or None."""
+    if not isinstance(document, dict) or document.get("schema") != INTEGRITY_SCHEMA:
+        return f"not a {INTEGRITY_SCHEMA} record"
+    index = document.get("shard_index")
+    if not _is_count(index) or index >= shard_count:
+        return f"shard_index {index!r} is not one of {shard_count} shards"
+    if document.get("shard_count") != shard_count:
+        return (
+            f"coverage shard {index} ran as one of "
+            f"{document.get('shard_count')!r} shards, not {shard_count}"
+        )
+    total = document.get("batches_total")
+    finished = document.get("batches_finished")
+    batches = document.get("batches")
+    if not (
+        _is_count(total) and _is_count(finished) and finished <= total
+        and isinstance(batches, list) and len(batches) == finished
+    ):
+        return f"coverage shard {index} has inconsistent batch counts"
+    for batch in batches:
+        if not isinstance(batch, dict) or not _is_count(batch.get("batch")):
+            return f"coverage shard {index} has a malformed batch entry"
+        lists = (
+            "lost", "lost_files", "recovered_files", "unrecovered_files",
+            "discarded_data_files",
+        )
+        if not all(isinstance(batch.get(key, []), list) for key in lists):
+            return f"coverage shard {index} batch {batch['batch']} is malformed"
+        outcomes = [
+            *batch.get("recovered_files", []), *batch.get("unrecovered_files", []),
+        ]
+        if not all(
+                isinstance(outcome, dict) and isinstance(outcome.get("file"), str)
+                for outcome in outcomes):
+            return (
+                f"coverage shard {index} batch {batch['batch']} has a "
+                "malformed recovery outcome"
+            )
+    return None
+
+
+def _describe_loss(reasons: Any) -> str:
+    """Name each lost process, HOW it ended, and what it was running.
+
+    xdist says "Not properly terminated" for a segfault and for the test
+    memory guard alike; the runner records the exit status that tells them
+    apart, and the words are rendered here (see ``describe_exit`` in
+    tools/run_coverage_batches.py).
+    """
+    parts: list[str] = []
+    for reason in reasons if isinstance(reasons, list) else []:
+        if not isinstance(reason, dict):
+            continue
+        who = f"worker {reason['worker']}" if reason.get("worker") else "the batch"
+        running = reason.get("running") or []
+        during = f" while running {', '.join(map(str, running))}" if running else ""
+        error = reason.get("error") or "lost its coverage data"
+        if reason.get("exit"):
+            parts.append(f"{who} {reason['exit']} [{error}]{during}")
+        else:
+            parts.append(f"{who}: {error}{during}")
+    return "; ".join(parts) or "coverage data was lost"
+
+
+def _attempts(outcomes: Sequence[Mapping[str, Any]]) -> str:
+    tried = [
+        f"{outcome['file']}: " + ", ".join(
+            str(attempt.get("exit") or attempt.get("exit_code"))
+            for attempt in outcome.get("attempts", [])
+            if isinstance(attempt, dict)
+        )
+        for outcome in outcomes if outcome.get("attempts")
+    ]
+    return f" (recovery attempts -- {'; '.join(tried)})" if tried else ""
+
+
+def _judge_batch(shard: int, batch: Mapping[str, Any]) -> tuple[list[str], list[str]]:
+    """Return (issues, recovered notes) for one batch of one shard."""
+    where = f"coverage shard {shard} batch {batch['batch']}"
+    cause = _describe_loss(batch.get("lost", []))
+    lost = {str(name) for name in batch.get("lost_files", [])}
+    recovered = [outcome["file"] for outcome in batch.get("recovered_files", [])]
+    unrecovered = [outcome["file"] for outcome in batch.get("unrecovered_files", [])]
+    issues: list[str] = []
+    notes: list[str] = []
+    if unrecovered:
+        issues.append(
+            f"{where}: {cause}; the coverage of {len(unrecovered)} test "
+            f"file(s) could not be recovered: {', '.join(unrecovered)}"
+            + _attempts(batch.get("unrecovered_files", []))
+        )
+    unaccounted = sorted(lost - set(recovered) - set(unrecovered))
+    if unaccounted:
+        issues.append(
+            f"{where}: {cause}; {len(unaccounted)} test file(s) lost their "
+            f"coverage and were never re-run: {', '.join(unaccounted)}"
+        )
+    if batch.get("discarded_data_files") and not lost:
+        issues.append(
+            f"{where}: unreadable coverage data was discarded "
+            f"({', '.join(map(str, batch['discarded_data_files']))}) and no "
+            "lost worker explains it"
+        )
+    if recovered:
+        notes.append(
+            f"{where}: {cause}; {len(recovered)} test file(s) re-run serially "
+            f"and their coverage recovered: {', '.join(recovered)}"
+        )
+    return issues, notes
+
+
+def check_shard_integrity(directory: Path, shard_count: int) -> dict[str, Any]:
+    """Read every coverage shard's integrity record and name what is missing.
+
+    ``tools/run_coverage_batches.py`` writes one record per shard and
+    rewrites it after every batch.  The measurement is complete only when
+    every one of ``shard_count`` shards left a record, finished all its
+    batches, and recovered every worker's lost coverage.
+    """
+    issues: list[str] = []
+    recovered: list[str] = []
+    kinds: dict[str, int] = {}
+    records: dict[int, Mapping[str, Any]] = {}
+    for path in sorted(Path(directory).rglob(INTEGRITY_GLOB)):
+        try:
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            issues.append(f"{path.name}: unreadable shard integrity record ({exc})")
+            continue
+        problem = _integrity_record_problem(document, shard_count)
+        if problem is not None:
+            issues.append(f"{path.name}: {problem}")
+        elif document["shard_index"] in records:
+            issues.append(
+                f"coverage shard {document['shard_index']} has more than one "
+                "integrity record"
+            )
+        else:
+            records[document["shard_index"]] = document
+    for shard in range(shard_count):
+        document = records.get(shard)
+        if document is None:
+            issues.append(
+                f"coverage shard {shard} left no integrity record, so nothing "
+                "shows that its batches all ran and every worker's coverage "
+                "data was saved"
+            )
+            continue
+        if document["batches_finished"] != document["batches_total"]:
+            issues.append(
+                f"coverage shard {shard} finished {document['batches_finished']} "
+                f"of {document['batches_total']} batches"
+            )
+        for batch in document["batches"]:
+            batch_issues, notes = _judge_batch(shard, batch)
+            issues.extend(batch_issues)
+            recovered.extend(notes)
+            for reason in batch.get("lost", []):
+                kind = reason.get("exit_kind") if isinstance(reason, dict) else None
+                if kind:
+                    kinds[kind] = kinds.get(kind, 0) + 1
+    return {
+        "checked": True,
+        "shard_count": shard_count,
+        "shards_with_records": len(records),
+        "status": "incomplete" if issues else "complete",
+        "issues": issues,
+        "recovered": recovered,
+        # How the lost processes ended, counted: "segfault" points at the
+        # crash family, "memory-guard" at a test needing more than
+        # SPACR_TEST_MEMORY_GB.
+        "loss_kinds": dict(sorted(kinds.items())),
+    }
+
+
+def _integrity_issues(measurement: Mapping[str, Any]) -> list[str]:
+    integrity = measurement.get("integrity") or {}
+    if integrity.get("status") != "incomplete":
+        return []
+    return list(integrity.get("issues", [])) or ["shard integrity is incomplete"]
+
+
 def measurement_is_complete(measurement: Mapping[str, Any]) -> bool:
-    """True when every shipped module was measured and nothing global failed."""
-    return not measurement["global_issues"] and (
+    """True when every shipped module was measured, nothing global failed,
+    and (when it was checked) no coverage shard lost data it did not recover."""
+    return not measurement["global_issues"] and not _integrity_issues(
+        measurement
+    ) and (
         measurement["modules_checked"]
         == measurement["inventory"]["shipped_file_count"]
     )
@@ -579,33 +785,44 @@ def write_baseline(path: Path, document: Mapping[str, Any]) -> None:
 
 def _judge_module(
     module: Mapping[str, Any], base: Mapping[str, Any] | None,
-) -> tuple[list[str], list[str]]:
-    """Return (failures, improvements) for one measured module."""
-    failures = list(module["measurement_errors"])
+) -> tuple[list[tuple[str, bool]], list[str]]:
+    """Return (failures, improvements) for one measured module.
+
+    Every failure carries whether coverage data lost with a crashed worker
+    could have produced it.  Only uncovered statements and branches can
+    rise that way; a measurement error is never explained away.
+    """
+    failures = [(error, False) for error in module["measurement_errors"]]
     improvements: list[str] = []
     counts = module["counts"]
     if counts is None or failures:
         return failures, improvements
     measured_full = not any(counts[field] for field in COUNT_FIELDS)
+    execution_only = not any(
+        counts[field] for field in COUNT_FIELDS if field not in EXECUTION_FIELDS
+    )
     if base is None:
         if not measured_full:
-            failures.append(
+            failures.append((
                 "new module is not at 100% and is not in the baseline: "
-                + _describe_counts(counts)
-            )
+                + _describe_counts(counts),
+                execution_only,
+            ))
         return failures, improvements
     if not any(base[field] for field in COUNT_FIELDS) and not measured_full:
-        failures.append(
+        failures.append((
             "was at 100% in the baseline and now has "
-            + _describe_counts(counts)
-        )
+            + _describe_counts(counts),
+            execution_only,
+        ))
         return failures, improvements
     for field in COUNT_FIELDS:
         label = COUNT_LABELS[field]
         if counts[field] > base[field]:
-            failures.append(
-                f"{label} rose from {base[field]} to {counts[field]}"
-            )
+            failures.append((
+                f"{label} rose from {base[field]} to {counts[field]}",
+                field in EXECUTION_FIELDS,
+            ))
         elif counts[field] < base[field]:
             improvements.append(
                 f"{label} fell from {base[field]} to {counts[field]}"
@@ -619,16 +836,32 @@ def evaluate(
     *,
     baseline_path: str | None = None,
 ) -> dict[str, Any]:
-    """Judge a measurement against a baseline (None: every module is new)."""
+    """Judge a measurement against a baseline (None: every module is new).
+
+    When the measurement's shard integrity check is INCOMPLETE, a failure
+    that lost coverage data could explain is reported as ``unconfirmed``
+    rather than as a failure, and the status is ``incomplete`` unless
+    something data loss cannot explain failed too.
+    """
     base_modules: Mapping[str, Mapping[str, Any]] = (
         baseline["modules"] if baseline is not None else {}
     )
+    integrity = dict(measurement.get("integrity") or {"checked": False})
+    incomplete = integrity.get("status") == "incomplete"
     shipped = set(measurement["inventory"]["files"])
     modules: list[dict[str, Any]] = []
     for measured in measurement["modules"]:
         entry = dict(measured)
         base = base_modules.get(entry["path"])
-        failures, improvements = _judge_module(entry, base)
+        judged, improvements = _judge_module(entry, base)
+        failures = [
+            message for message, explainable in judged
+            if not (incomplete and explainable)
+        ]
+        unconfirmed = [
+            message for message, explainable in judged
+            if incomplete and explainable
+        ]
         counts = entry["counts"]
         entry["baseline"] = dict(base) if base is not None else None
         entry["at_100_percent"] = (
@@ -637,8 +870,11 @@ def evaluate(
             and not any(counts[field] for field in COUNT_FIELDS)
         )
         entry["failures"] = failures
+        entry["unconfirmed"] = unconfirmed
         entry["improvements"] = improvements
-        entry["status"] = "fail" if failures else "pass"
+        entry["status"] = (
+            "fail" if failures else "unconfirmed" if unconfirmed else "pass"
+        )
         modules.append(entry)
     stale = sorted(path for path in base_modules if path not in shipped)
     failed = sum(module["status"] == "fail" for module in modules)
@@ -649,9 +885,11 @@ def evaluate(
         for module in modules
     )
     passed = not measurement["global_issues"] and failed == 0 and not stale
+    status = "fail" if not passed else "incomplete" if incomplete else "pass"
     return {
         "schema": REPORT_SCHEMA,
-        "status": "pass" if passed else "fail",
+        "status": status,
+        "measurement_integrity": integrity,
         "root": measurement["root"],
         "coverage": dict(measurement["coverage"]),
         "inventory": dict(measurement["inventory"]),
@@ -668,6 +906,10 @@ def evaluate(
             "modules_at_100_percent": sum(m["at_100_percent"] for m in modules),
             "modules_below_100_percent": measured_below,
             "failed_modules": failed,
+            "unconfirmed_modules": sum(
+                m["status"] == "unconfirmed" for m in modules
+            ),
+            "integrity_issue_count": len(integrity.get("issues", [])),
             "improved_modules": sum(bool(m["improvements"]) for m in modules),
             "stale_baseline_entries": len(stale),
             "global_issue_count": len(measurement["global_issues"]),
@@ -684,16 +926,17 @@ def build_report(
     coverage_data: Mapping[str, Any],
     expected_file_count: int | None = None,
     baseline: Mapping[str, Any] | None = None,
+    integrity: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Measure and judge in one call, without writing or exiting."""
-    return evaluate(
-        measure(
-            root=root,
-            coverage_data=coverage_data,
-            expected_file_count=expected_file_count,
-        ),
-        baseline,
+    measurement = measure(
+        root=root,
+        coverage_data=coverage_data,
+        expected_file_count=expected_file_count,
     )
+    if integrity is not None:
+        measurement["integrity"] = dict(integrity)
+    return evaluate(measurement, baseline)
 
 
 def history_entry(
@@ -722,7 +965,9 @@ def history_entry(
 
 def _require_complete(measurement: Mapping[str, Any], action: str) -> None:
     if not measurement_is_complete(measurement):
-        problems = "; ".join(measurement["global_issues"]) or "incomplete"
+        problems = "; ".join(
+            [*measurement["global_issues"], *_integrity_issues(measurement)]
+        ) or "incomplete"
         raise BaselineError(
             f"{action} refused: the measurement is incomplete ({problems})"
         )
@@ -901,13 +1146,40 @@ def retire_module(
 # -- rendering and CLI -----------------------------------------------------
 
 
+def _integrity_line(integrity: Mapping[str, Any]) -> str:
+    if not integrity.get("checked"):
+        return "Shard integrity: not checked (no --shard-integrity given)"
+    recovered = len(integrity["recovered"])
+    count = integrity["shard_count"]
+    kinds = integrity.get("loss_kinds") or {}
+    lost = (
+        "; lost processes by how they ended: "
+        + ", ".join(f"{kind} {number}" for kind, number in kinds.items())
+        if kinds else ""
+    )
+    if integrity["status"] == "complete":
+        return (
+            f"Shard integrity: complete ({count} of {count} shards finished; "
+            f"{recovered} batch(es) recovered a lost worker's coverage{lost})"
+        )
+    return (
+        f"Shard integrity: INCOMPLETE ({len(integrity['issues'])} problem(s); "
+        f"{recovered} batch(es) recovered a lost worker's coverage{lost})"
+    )
+
+
 def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
     """Render a concise human-readable twin of the JSON artifact."""
     summary = report["summary"]
     coverage = report["coverage"]
     baseline = report["baseline"]
+    integrity = report["measurement_integrity"]
+    headline = (
+        "INCOMPLETE MEASUREMENT" if report["status"] == "incomplete"
+        else str(report["status"]).upper()
+    )
     lines = [
-        f"spaCR shipped-module coverage ratchet: {str(report['status']).upper()}",
+        f"spaCR shipped-module coverage ratchet: {headline}",
         "Rule: no shipped module loses coverage, and no new module arrives "
         "below 100%.",
         f"Shipped modules: {summary['shipped_modules']}",
@@ -915,6 +1187,7 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
         f"{summary['shipped_modules']}",
         f"Coverage rows: {coverage['input_rows']} "
         f"({coverage['repository_rows']} inside repository)",
+        _integrity_line(integrity),
     ]
     if baseline["totals"] is None:
         lines.append("Baseline: none (every module must be at 100%)")
@@ -932,9 +1205,15 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
         "Modules not yet at 100% (100% per module is still the goal): "
         f"{summary['modules_below_100_percent']}",
         f"Modules failing the ratchet: {summary['failed_modules']}",
+        "Modules with unconfirmed rises (measurement incomplete): "
+        f"{summary['unconfirmed_modules']}",
         f"Modules improved: {summary['improved_modules']}",
         f"Stale baseline entries: {summary['stale_baseline_entries']}",
     ]
+    for issue in integrity.get("issues", []):
+        lines.append(f"INCOMPLETE MEASUREMENT: {issue}")
+    for note in integrity.get("recovered", []):
+        lines.append(f"RECOVERED: {note}")
     for issue in report["global_issues"]:
         lines.append(f"ERROR: {issue}")
     for path in report["stale_baseline_entries"]:
@@ -947,6 +1226,13 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
     for module in report["modules"]:
         for failure in module["failures"]:
             lines.append(f"ERROR: {module['path']}: {failure}")
+    for module in report["modules"]:
+        for failure in module["unconfirmed"]:
+            lines.append(
+                f"UNCONFIRMED: {module['path']}: {failure} (the measurement "
+                "is incomplete, so this may be coverage data lost with a "
+                "crashed worker rather than coverage the code lost)"
+            )
     for module in report["modules"]:
         for improvement in module["improvements"]:
             lines.append(
@@ -984,6 +1270,13 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
         lines.append(
             "No shipped module lost coverage and no new module arrived "
             "below 100%."
+        )
+    elif report["status"] == "incomplete":
+        lines.append(
+            "INCOMPLETE MEASUREMENT: coverage data was lost and not recovered, "
+            "so this run cannot say whether any module lost coverage. It "
+            "fails so the shards are re-run, not so a regression is chased; "
+            "every UNCONFIRMED line above is unproven."
         )
     return "\n".join(lines) + "\n"
 
@@ -1047,6 +1340,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--commit", default="",
         help="commit the coverage data came from (default: git HEAD of --root)",
+    )
+    parser.add_argument(
+        "--shard-integrity", type=Path,
+        help="directory holding every coverage shard's "
+        "spacr-coverage-integrity.shard-NN.json; a shard that lost coverage "
+        "data it did not recover makes the run an INCOMPLETE MEASUREMENT "
+        "(exit 3). Needs --shard-count; ignored by --retire-module, which "
+        "reads no coverage data",
+    )
+    parser.add_argument(
+        "--shard-count", type=int,
+        help="how many coverage shards must have left an integrity record",
     )
     parser.add_argument(
         "--json-out", type=Path,
@@ -1119,6 +1424,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     writing = args.update_baseline or args.reset_baseline
     if writing and args.baseline is None:
         parser.error("--update-baseline and --reset-baseline need --baseline")
+    if (args.shard_integrity is None) != (args.shard_count is None):
+        parser.error("--shard-integrity and --shard-count are given together")
+    if args.shard_count is not None and args.shard_count < 1:
+        parser.error("--shard-count must be at least 1")
     notes: list[str] = []
     try:
         coverage_data = json.loads(args.coverage_json.read_text(encoding="utf-8"))
@@ -1140,6 +1449,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             coverage_data=coverage_data,
             expected_file_count=args.expected_file_count,
         )
+        if args.shard_integrity is not None:
+            measurement["integrity"] = check_shard_integrity(
+                args.shard_integrity, args.shard_count,
+            )
         if writing:
             baseline, write_notes = _apply_write(args, measurement, baseline)
             notes.extend(write_notes)
@@ -1159,7 +1472,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     _write_report(args.json_out, json_text)
     _write_report(args.text_out, text_report)
     print(text_report, end="")
-    return 0 if report["status"] == "pass" else 1
+    return {"pass": 0, "fail": 1}.get(report["status"], INCOMPLETE_STATUS)
 
 
 if __name__ == "__main__":

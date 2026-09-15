@@ -61,6 +61,20 @@ def _load_coverage_runner():
     return runner
 
 
+def _write_clean_ledger(runner, env) -> None:
+    """What the ledger plugin writes when every worker returned its data."""
+    Path(env[runner.LEDGER_ENV]).write_text(
+        json.dumps({
+            "schema": runner.LEDGER_SCHEMA,
+            "exitstatus": 0,
+            "workers": {},
+            "crashes": [],
+            "unreported_files": [],
+        }),
+        encoding="utf-8",
+    )
+
+
 def _project(tmp_path: Path) -> Path:
     tmp_path.mkdir(parents=True)
     (tmp_path / "setup.py").write_text(
@@ -364,18 +378,21 @@ def test_cli_passes_only_at_exact_statement_and_branch_coverage(tmp_path):
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert report["schema"] == "spacr.module-coverage-ratchet/v2"
+    assert report["schema"] == "spacr.module-coverage-ratchet/v3"
     assert report["status"] == "pass"
     assert report["summary"] == {
         "failed_modules": 0,
         "global_issue_count": 0,
         "improved_modules": 0,
+        "integrity_issue_count": 0,
         "modules_at_100_percent": 2,
         "modules_below_100_percent": 0,
         "modules_checked": 2,
         "shipped_modules": 2,
         "stale_baseline_entries": 0,
+        "unconfirmed_modules": 0,
     }
+    assert report["measurement_integrity"] == {"checked": False}
     assert text.startswith("spaCR shipped-module coverage ratchet: PASS\n")
     assert result.stdout == text
 
@@ -509,6 +526,7 @@ def test_coverage_batches_use_unique_data_files_and_argument_lists(
 
     def fake_run(command, *, env, check):
         calls.append((command, env["COVERAGE_FILE"], check))
+        _write_clean_ledger(coverage_runner, env)
         return subprocess.CompletedProcess(command, 0)
 
     monkeypatch.chdir(project)
@@ -537,6 +555,18 @@ def test_coverage_batches_use_unique_data_files_and_argument_lists(
     assert calls[0][1] != calls[1][1]
     assert all(isinstance(command, list) and check is False
                for command, _data, check in calls)
+    # Every batch loads the ledger that says whose coverage came back, and
+    # the shard records that both batches ran and neither lost any.
+    assert all(
+        command[command.index("-p") + 1] == coverage_runner.PLUGIN
+        for command, _data, _check in calls
+    )
+    record = json.loads(
+        (data_dir / coverage_runner.integrity_record_name(0))
+        .read_text(encoding="utf-8")
+    )
+    assert (record["batches_finished"], record["batches_total"]) == (2, 2)
+    assert [batch["lost_files"] for batch in record["batches"]] == [[], []]
 
 
 def test_coverage_batches_discard_an_incomplete_child_database(
@@ -561,6 +591,7 @@ def test_coverage_batches_discard_an_incomplete_child_database(
         incomplete = basename.with_name(f"{basename.name}.incomplete")
         incomplete.write_bytes(b"SQLite format 3\x00")
         written.update(readable=readable, incomplete=incomplete)
+        _write_clean_ledger(coverage_runner, env)
         return subprocess.CompletedProcess(command, 0)
 
     monkeypatch.chdir(project)
@@ -586,6 +617,15 @@ def test_coverage_batches_discard_an_incomplete_child_database(
     output = capsys.readouterr().out
     assert "discarding unreadable coverage process data" in output
     assert written["incomplete"].name in output
+    # The discard is written down for the gate, which fails a discard that
+    # no lost worker explains as an incomplete measurement.
+    record = json.loads(
+        (data_dir / coverage_runner.integrity_record_name(0))
+        .read_text(encoding="utf-8")
+    )
+    assert record["batches"][0]["discarded_data_files"] == [
+        written["incomplete"].name
+    ]
 
 
 def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():

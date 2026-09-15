@@ -15,6 +15,7 @@ never rewrites the baseline.
 
 from __future__ import annotations
 
+import fnmatch
 import json
 import re
 import shutil
@@ -29,6 +30,7 @@ from tests.test_module_coverage_ratchet import (
     ROOT,
     SCRIPT,
     _coverage,
+    _load_coverage_runner,
     _project,
     _row,
     ratchet,
@@ -729,7 +731,7 @@ def test_the_coverage_job_gates_on_the_committed_baseline_and_says_so():
     assert "coverage-combine" in jobs["release-gate"]["needs"]
 
 
-def test_the_shard_count_has_one_value_in_three_places():
+def test_the_shard_count_has_one_value_in_four_places():
     jobs = _combine_job()
     shards = jobs["coverage-shards"]
     shard_script = "\n".join(step.get("run", "") for step in shards["steps"])
@@ -739,12 +741,20 @@ def test_the_shard_count_has_one_value_in_three_places():
         for step in jobs["coverage-combine"]["steps"]
         if "SPACR_COVERAGE_SHARD_COUNT" in step.get("env", {})
     )
+    gate_script = "\n".join(
+        step.get("run", "") for step in jobs["coverage-combine"]["steps"]
+    )
+    # The gate's integrity check counts the records it expects; a shard
+    # count lower than the matrix would let a whole shard's loss go unseen.
+    gated = re.search(r"--shard-count (\d+)", gate_script)
 
     assert declared is not None
+    assert gated is not None
     assert (
         len(shards["strategy"]["matrix"]["shard"])
         == int(declared.group(1))
         == int(checked)
+        == int(gated.group(1))
     )
 
 
@@ -779,3 +789,364 @@ def test_the_tool_path_is_the_one_the_workflow_runs():
         for step in _combine_job()["coverage-combine"]["steps"]
     )
     assert Path(SCRIPT).relative_to(ROOT).as_posix() in script
+
+
+# -- (f) a crashed worker is an INCOMPLETE MEASUREMENT, not a regression -----
+#
+# A coverage worker killed by a signal never writes its data (measured on a
+# toy package, 2026-09-15; see tests/test_a_crashed_coverage_worker_cannot_
+# hide_lost_coverage.py for the real segfault). tools/run_coverage_batches.py
+# writes one integrity record per shard; these records are hand-built here in
+# that shape so every rule is exercised without a crash.
+
+
+CRASHED = "tests/test_crashes.py"
+
+
+def _batch(number=1, *, lost=(), recovered=(), unrecovered=(), discarded=()):
+    """One batch entry as tools/run_coverage_batches.py writes it."""
+    reasons = [{
+        "worker": "gw0",
+        "error": "Not properly terminated",
+        "running": [f"{lost[0]}::test_crash"],
+        "files": list(lost),
+    }] if lost else []
+    return {
+        "batch": number,
+        "exit_code": 1 if lost else 0,
+        "ledger": f"spacr-xdist-ledger.shard-00.batch-{number:03d}.json",
+        "lost": reasons,
+        "lost_files": list(lost),
+        "recovered_files": [
+            {"file": name, "recovered": True, "attempts": []}
+            for name in recovered
+        ],
+        "unrecovered_files": [
+            {"file": name, "recovered": False, "attempts": []}
+            for name in unrecovered
+        ],
+        "discarded_data_files": list(discarded),
+    }
+
+
+def _shard_record(directory, shard=0, *, shard_count=1, batches=None, total=None):
+    """Write one shard's integrity record; return the gate's arguments."""
+    batches = [_batch()] if batches is None else batches
+    document = {
+        "schema": ratchet.INTEGRITY_SCHEMA,
+        "shard_index": shard,
+        "shard_count": shard_count,
+        "batches_total": len(batches) if total is None else total,
+        "batches_finished": len(batches),
+        "batches": batches,
+    }
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / f"spacr-coverage-integrity.shard-{shard:02d}.json").write_text(
+        json.dumps(document), encoding="utf-8",
+    )
+    return ("--shard-integrity", str(directory), "--shard-count", str(shard_count))
+
+
+def _unrecovered_crash(tmp_path):
+    return _shard_record(
+        tmp_path / "shards",
+        batches=[_batch(lost=[CRASHED], unrecovered=[CRASHED])],
+    )
+
+
+def test_negative_control_a_real_drop_with_every_shard_complete_is_a_regression(
+    tmp_path,
+):
+    """The crash handling must not soften the ratchet in front of it."""
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+    shards = _shard_record(tmp_path / "shards")
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(uncovered_statements=2), *shards,
+        baseline=baseline,
+    )
+
+    assert result.returncode == 1
+    assert report["status"] == "fail"
+    assert report["measurement_integrity"]["status"] == "complete"
+    logic = _module(report, "demo/logic.py")
+    assert logic["failures"] == ["uncovered statements rose from 1 to 2"]
+    assert logic["unconfirmed"] == []
+    assert "ERROR: demo/logic.py: uncovered statements rose from 1 to 2" in text
+    assert "Shard integrity: complete (1 of 1 shards finished" in text
+    assert "UNCONFIRMED" not in text
+    assert "INCOMPLETE MEASUREMENT" not in text
+
+
+def test_a_recovered_crash_is_named_and_a_real_drop_beside_it_is_a_regression(
+    tmp_path,
+):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+    shards = _shard_record(
+        tmp_path / "shards",
+        batches=[_batch(lost=[CRASHED], recovered=[CRASHED])],
+    )
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(uncovered_statements=2), *shards,
+        baseline=baseline,
+    )
+
+    assert result.returncode == 1
+    assert report["status"] == "fail"
+    assert _module(report, "demo/logic.py")["failures"] == [
+        "uncovered statements rose from 1 to 2"
+    ]
+    assert (
+        "RECOVERED: coverage shard 0 batch 1: worker gw0: Not properly "
+        f"terminated while running {CRASHED}::test_crash; 1 test file(s) "
+        f"re-run serially and their coverage recovered: {CRASHED}"
+    ) in text
+
+
+def test_an_unrecovered_crash_is_an_incomplete_measurement_not_a_regression(
+    tmp_path,
+):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+    shards = _unrecovered_crash(tmp_path)
+
+    result, report, text = _gate(
+        project, tmp_path,
+        _logic(uncovered_statements=2, uncovered_branches=1), *shards,
+        baseline=baseline,
+    )
+
+    assert result.returncode == ratchet.INCOMPLETE_STATUS == 3
+    assert report["status"] == "incomplete"
+    logic = _module(report, "demo/logic.py")
+    assert logic["status"] == "unconfirmed"
+    assert logic["failures"] == []
+    assert logic["unconfirmed"] == [
+        "uncovered statements rose from 1 to 2",
+        "uncovered branches rose from 0 to 1",
+    ]
+    assert report["summary"]["failed_modules"] == 0
+    assert report["summary"]["unconfirmed_modules"] == 1
+    assert text.startswith(
+        "spaCR shipped-module coverage ratchet: INCOMPLETE MEASUREMENT\n"
+    )
+    assert (
+        "INCOMPLETE MEASUREMENT: coverage shard 0 batch 1: worker gw0: Not "
+        f"properly terminated while running {CRASHED}::test_crash; the "
+        f"coverage of 1 test file(s) could not be recovered: {CRASHED}"
+    ) in text
+    assert (
+        "UNCONFIRMED: demo/logic.py: uncovered statements rose from 1 to 2"
+    ) in text
+    assert "ERROR: demo/logic.py" not in text
+
+
+@pytest.mark.parametrize(
+    ("kind", "words"),
+    [
+        ("segfault", "was killed by SIGSEGV (a segfault: the crash family of item 43)"),
+        (
+            "memory-guard",
+            "was ended by the test memory guard (exit 3: its RSS passed "
+            "SPACR_TEST_MEMORY_GB, default 6 GB)",
+        ),
+    ],
+)
+def test_the_report_names_how_the_worker_ended(tmp_path, kind, words):
+    """A segfault points at the crash family, a guard exit at a test that
+    needs more memory; xdist logs both as "Not properly terminated"."""
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+    batch = _batch(lost=[CRASHED], unrecovered=[CRASHED])
+    batch["lost"][0].update(exit_kind=kind, exit=words, exit_status=0)
+    shards = _shard_record(tmp_path / "shards", batches=[batch])
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(uncovered_statements=1), *shards,
+        baseline=baseline,
+    )
+
+    assert result.returncode == 3
+    assert report["measurement_integrity"]["loss_kinds"] == {kind: 1}
+    assert (
+        f"INCOMPLETE MEASUREMENT: coverage shard 0 batch 1: worker gw0 {words} "
+        f"[Not properly terminated] while running {CRASHED}::test_crash"
+    ) in text
+    assert f"lost processes by how they ended: {kind} 1" in text
+
+
+def test_an_unrecovered_crash_never_passes_even_when_every_count_held(tmp_path):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+
+    result, report, _text = _gate(
+        project, tmp_path, _logic(uncovered_statements=1),
+        *_unrecovered_crash(tmp_path), baseline=baseline,
+    )
+
+    assert result.returncode == 3
+    assert report["status"] == "incomplete"
+
+
+@pytest.mark.parametrize(
+    ("damage", "issue"),
+    [
+        ("missing", "coverage shard 1 left no integrity record"),
+        ("unfinished", "coverage shard 1 finished 1 of 3 batches"),
+        ("unreadable", "unreadable shard integrity record"),
+        ("other_shard_count", "coverage shard 1 ran as one of 3 shards, not 2"),
+    ],
+)
+def test_a_shard_that_cannot_vouch_for_its_data_makes_the_run_incomplete(
+    tmp_path, damage, issue,
+):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+    directory = tmp_path / "shards"
+    arguments = _shard_record(directory, 0, shard_count=2)
+    if damage == "unfinished":
+        _shard_record(directory, 1, shard_count=2, total=3)
+    elif damage == "unreadable":
+        (directory / "spacr-coverage-integrity.shard-01.json").write_text(
+            "{not json", encoding="utf-8",
+        )
+    elif damage == "other_shard_count":
+        _shard_record(directory, 1, shard_count=3)
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(uncovered_statements=1), *arguments,
+        baseline=baseline,
+    )
+
+    assert result.returncode == 3
+    assert report["status"] == "incomplete"
+    assert any(
+        issue in entry for entry in report["measurement_integrity"]["issues"]
+    ), report["measurement_integrity"]["issues"]
+    assert "INCOMPLETE MEASUREMENT: " in text
+
+
+def test_a_new_pragma_is_still_an_error_when_the_measurement_is_incomplete(
+    tmp_path,
+):
+    """Only the counts a lost worker can raise are downgraded."""
+    project = _project(tmp_path / "project")
+    logic = project / "demo" / "logic.py"
+    logic.write_text(
+        logic.read_text(encoding="utf-8") + "A = 1  # pragma: no cover\n",
+        encoding="utf-8",
+    )
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+    logic.write_text(
+        logic.read_text(encoding="utf-8") + "B = 2  # pragma: no cover\n",
+        encoding="utf-8",
+    )
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(uncovered_statements=2),
+        *_unrecovered_crash(tmp_path), baseline=baseline,
+    )
+
+    assert result.returncode == 1
+    assert report["status"] == "fail"
+    module = _module(report, "demo/logic.py")
+    assert module["failures"] == ["pragma: no cover comments rose from 1 to 2"]
+    assert module["unconfirmed"] == ["uncovered statements rose from 1 to 2"]
+    assert (
+        "ERROR: demo/logic.py: pragma: no cover comments rose from 1 to 2"
+    ) in text
+    assert "INCOMPLETE MEASUREMENT: coverage shard 0 batch 1" in text
+
+
+def test_discarded_data_no_lost_worker_explains_makes_the_run_incomplete(
+    tmp_path,
+):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+    shell = ".coverage.shard-00.batch-001.host.1.abc"
+    shards = _shard_record(
+        tmp_path / "shards", batches=[_batch(discarded=[shell])],
+    )
+
+    result, _report, text = _gate(
+        project, tmp_path, _logic(uncovered_statements=1), *shards,
+        baseline=baseline,
+    )
+
+    assert result.returncode == 3
+    assert (
+        f"unreadable coverage data was discarded ({shell}) and no lost "
+        "worker explains it"
+    ) in text
+
+
+def test_a_baseline_write_refuses_an_incomplete_measurement(tmp_path):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=2))
+    before = baseline.read_bytes()
+
+    result, _report, _text = _gate(
+        project, tmp_path, _logic(uncovered_statements=1),
+        *_unrecovered_crash(tmp_path),
+        "--update-baseline", "--reason", "covered a line", "--commit", "beef",
+        baseline=baseline,
+    )
+
+    assert result.returncode == 2
+    assert "refused: the measurement is incomplete" in result.stderr
+    assert "could not be recovered" in result.stderr
+    assert baseline.read_bytes() == before
+
+
+def test_shard_integrity_is_never_checked_without_a_shard_count(tmp_path):
+    project = _project(tmp_path / "project")
+
+    result, report, _text = _gate(
+        project, tmp_path, _logic(), "--shard-integrity", str(tmp_path),
+    )
+
+    assert result.returncode == 2
+    assert report is None
+    assert "--shard-integrity and --shard-count are given together" in result.stderr
+
+
+def test_the_gate_reads_the_records_where_the_combine_job_downloads_them():
+    jobs = _combine_job()
+    combine = jobs["coverage-combine"]
+    download = next(
+        step for step in combine["steps"]
+        if str(step.get("uses", "")).startswith("actions/download-artifact")
+    )
+    gate = next(
+        step for step in combine["steps"]
+        if "tools/verify_module_coverage.py" in step.get("run", "")
+    )
+    shards = jobs["coverage-shards"]
+    runs = next(
+        step for step in shards["steps"]
+        if "tools/run_coverage_batches.py" in step.get("run", "")
+    )
+    upload = next(
+        step for step in shards["steps"]
+        if step.get("uses") == "actions/upload-artifact@v7"
+    )
+
+    assert '--shard-integrity "$SPACR_COVERAGE_INPUT"' in gate["run"]
+    assert gate["env"]["SPACR_COVERAGE_INPUT"] == download["with"]["path"]
+    # The runner writes its records into --data-dir, which is what is uploaded.
+    assert (
+        runs["env"]["SPACR_COVERAGE_DATA_DIR"].rstrip("/")
+        == upload["with"]["path"].rstrip("/")
+    )
+
+
+def test_the_runner_writes_the_records_the_gate_reads():
+    runner = _load_coverage_runner()
+
+    assert runner.INTEGRITY_SCHEMA == ratchet.INTEGRITY_SCHEMA
+    assert fnmatch.fnmatch(runner.integrity_record_name(11), ratchet.INTEGRITY_GLOB)
+    # `coverage combine` reads every `.coverage.*` file in the input directory.
+    assert not runner.integrity_record_name(0).startswith(".coverage")
