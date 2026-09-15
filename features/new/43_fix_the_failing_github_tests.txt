@@ -1061,3 +1061,27 @@ Minimum dependencies failed. Read from their logs:
   one-time cost and would have passed a redraw that recomputed everything.
   Rule for this suite: no absolute wall-clock threshold in a test that runs
   on shared CI, and no timing assertion without a negative control run once.
+
+--------------------------------------------------------------------------------
+2026-09-15 (06:05 UTC) - DOCS IS GREEN ON bac9151d0; COMPAT-MATRIX WAS NEVER ABLE TO BE
+--------------------------------------------------------------------------------
+
+  docs on bac9151d0 (both sessions' batches): SUCCESS -- the first green docs
+  run since the API catalog lane went red, so both audit lanes hold in CI and
+  not only locally.
+
+  compat-matrix concluded "cancelled" on EVERY run from e3155389a through
+  bac9151d0, and not because a newer push displaced it. Read from the job and
+  step timings: in the macOS arm64 / py3.11 cell (experimental) every deciding
+  step passes within four minutes -- install, smoke, "Packaging + smoke
+  subset (decides this cell)" -- and then "Full suite (informational, never
+  decides)" runs until the 90-minute JOB timeout cancels it (04:27 -> 05:53 on
+  bac9151d0; 02:19 -> 03:49 on a5ef1cd7b; 23:14 -> 00:45 on 988a4fa7d). A job
+  cancellation bypasses continue-on-error, so the workflow is cancelled. The
+  step's own comment already knew this and added --maxfail=25 for the case of
+  a hung worker; nothing hangs, the sweep is just longer than the job.
+  FIXED in 32f701850: a 70-minute STEP timeout, which fails the step (honoured
+  by its continue-on-error) instead of cancelling the job.
+
+  The 3.15 wheels-only cell fails as designed (pandas has no cp315 wheel yet)
+  under continue-on-error; it is informational and does not decide the run.
