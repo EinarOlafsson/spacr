@@ -1,0 +1,105 @@
+================================================================================
+TOOLTIP POPUP BLACKS OUT THE SETTINGS CONTAINER AND AI CHAT BACKDROP
+================================================================================
+
+Status:    not started
+Requested: 2026-09-14 — "as soon as a tooltip (not for per object settings based
+           tooltips that dont generate a popup) appears in mask, measure and
+           probably the other moduals a black box apears as the background for
+           the settings container (the container to the left) and for the AI
+           chat box. then when i go out of the modual to home or another moduale
+           and back again the black box is gone. please add this to the new
+           features list and make it a priority to fix."
+Priority:  HIGH — asked to be made a priority; it is a visible render break on
+           the two most-used screens (Mask, Measure) every time a popup tooltip
+           is shown, and it reads as a crash.
+Owner:     Claude (spacr/qt)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Reported by the user, not yet reproduced in a debugger by the filer. The
+affected tooltip is the POPUP kind — the "tooltips box", gated by
+`get_tooltips_box_enabled` / `get_tooltips_bottom_enabled`
+(spacr/qt/preferences.py:3063, 3104) — NOT the inline per-object setting
+tooltips, which the user says are fine. When that box appears, a black
+rectangle shows up behind:
+  * the left settings container, and
+  * the AI Console (chat) box.
+Leaving to Home or another module and coming back rebuilds those screens and
+the black box is gone, so it is a live paint-state problem, not persisted.
+
+Both panels are deliberately backdrop-transparent so the animated backdrop
+shows through them: the settings container is tagged with `theme.make_transparent`
+(wrapped in spacr/qt/prerun.py:309-318), and the AI Console likewise. Their
+translucent, rounded fill is drawn by `theme.paint_panel` (spacr/qt/theme.py,
+def near line 2432), which COMPOSITES over the backdrop and only works while the
+widget stays `WA_TranslucentBackground` / unfilled.
+
+`paint_panel`'s own docstring names this exact failure mode (theme.py:2440-2450):
+an opaque `fillRect(self.rect(), surface)` — or the backdrop simply not reaching
+the widget — makes it "read as a bare dark hole punched through the page." The
+black box is that hole: for the duration the popup is up, these two panels stop
+compositing the backdrop and paint opaque black instead.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+It is in front of the user constantly. Mask and Measure are the most-used
+screens; the settings the user is reading and the chat they are typing into sit
+on a black slab the moment a tooltip pops, and stay there until they navigate
+away and back. It undermines the whole themed/backdrop look and reads as a
+render crash. Cheap symptom, high visibility.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Reproduce. Open Mask (or Measure), enable the tooltips box in preferences,
+   hover a setting whose description shows in the box, and watch the settings
+   container + AI Console background go black. Confirm the inline per-object
+   tooltips do NOT trigger it (user's distinction).
+
+2. Locate the tooltips-box show/hide path (the reader of
+   get_tooltips_box_enabled / get_tooltips_bottom_enabled). Decide which of two
+   mechanisms is at work:
+     (a) showing the popup raises / re-parents a top-level that pulls the
+         animated backdrop out from behind these panels, or
+     (b) the popup's appearance triggers a paintEvent on the panels that takes
+         an opaque fill path instead of `theme.paint_panel`.
+   A quick check: log the panels' testAttribute(WA_TranslucentBackground) and
+   autoFillBackground() before and during the popup.
+
+3. Fix (verify the mechanism first). Smallest safe change: when the tooltips box
+   shows/hides, re-assert the transparent-panel invariant on the affected panels
+   (WA_TranslucentBackground set, autoFillBackground off) and force a repaint of
+   the backdrop behind them (backdrop.update() + panel.update()). If the popup
+   is stealing the composited backdrop, the real fix is to stop the popup from
+   changing the panels' paint path at all. Put the change in spacr/qt (theme.py
+   and/or the tooltips-box widget and prerun.py) — this session's ownership.
+
+4. One fix should cover all modules. The user says "probably the other moduals":
+   the same make_transparent'd container is used across the module screens, so
+   confirm and fix once rather than per module.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+With the tooltips box enabled, hovering a setting in BOTH Mask and Measure shows
+the tooltip with NO black rectangle behind the settings container or the AI
+Console, and it stays correct without leaving the module. Verify in light and
+dark themes, and with the animated backdrop both on and off (crash_recovery can
+disable it) — the fix must not depend on the backdrop being present.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not yet reproduced in a debugger or patched by the filer — the mechanism above
+(paint_panel composite + make_transparent, disrupted while the popup is up) is
+the strongest lead from the code and must be confirmed before patching, so the
+fix targets the real paint path and not a symptom. No blind "repaint everything
+on a timer" workaround: that would mask the cause and cost frames on every hover.
