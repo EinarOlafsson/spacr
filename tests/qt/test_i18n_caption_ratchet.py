@@ -408,7 +408,13 @@ EXTERNAL_SOURCE_COUNTS = {
     # fifteen dialog strings and removal reasons (416), each with a reviewed
     # record in all nine locales. Nothing leaves. MEASURED:
     # canonical_sources() returns 3,527 = 3,506 + 21.
-    "UI": 3527,
+    # 3527 -> 3541 on 2026-09-15, +14/-0 by SET DIFFERENCE: the
+    # Dose-Response sources the work session added in 978092685 -- the
+    # two Z' plate verdicts (usable, refused), the pooled-EC50,
+    # selectivity-index and synergy-excess lines with their four
+    # refusal captions, the plates-disagree line, the axis words
+    # "concentration" and "response", and the whole-table note.
+    "UI": 3541,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -511,7 +517,7 @@ EXTERNAL_SOURCE_COUNTS = {
 # 6408b9e46d4b7478430257a6f632bbb12ec43a279df807213c4433b8e37d6a72, the
 # previous pin byte for byte.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "01ae52fc052a86e32edb21441d8700211b42169445e7a0338d6d957311d0985c"
+    "2f2e22a27d8763cee733db462033c11bfbfd869cc07500b8e5fc55b2c94e1fb8"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

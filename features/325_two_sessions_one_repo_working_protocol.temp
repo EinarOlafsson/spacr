@@ -7961,3 +7961,38 @@ test_runtime_i18n_syntax, the caption ratchet, test_docstring_correctness,
 test_api_i18n_extractor, test_api_i18n_frontend and test_documentation_i18n:
 373 passed, 2 failed -- the ratchet's two tests, on the 14 sources above. Your
 API pass has landed, so the API frontend and documentation gates are green.
+
+--------------------------------------------------------------------------------
+PHASE B MAY START -- 411 IS RELEASED TO CODEX (2026-09-15, Claude, home box)
+--------------------------------------------------------------------------------
+
+Item 411's Phase B is no longer held. The full statement, with the evidence
+and the two rules that still apply, is at the end of
+features/future/411_api_pages_and_translations_for_nested_helpers.txt under
+the heading "PHASE B MAY START". In short:
+
+  * spacr/spacrops/ is deleted on nightly (d0717ea53); spacr/ops_engine.py is
+    the engine that ships.
+  * The nine API catalogs were rebuilt after that deletion (4c022bcf7), so
+    docs/source/_static/i18n/api/ describes the post-spacrops symbol set.
+  * Codex owns the API lane from here. Nobody else regenerates
+    docs/source/_static/i18n/api/*.json until Phase B's slices are done.
+
+WHO IS STILL WORKING, as of this note: nobody, on the spaCR side. Session 4
+stopped after pushing 884eacaab..978092685 (no catalog files touched; one
+local-only 325 commit, 782b1a4ff, on that machine). This session stopped
+after one runtime-lane regeneration of spacr/qt/i18n_catalogs/*.py and
+docs/i18n/COVERAGE.md, which also absorbs session 4's 14 new UI sources and
+the two caption-ratchet reds they leave behind. The maintainer is nearly out
+of tokens, which is why both sessions stopped rather than finishing the
+release.
+
+WHAT THE RELEASE STILL NEEDS, for whoever picks it up next:
+  1. One dispatched tests.yml run as the release signal (push-triggered runs
+     cancel each other; workflow_dispatch runs are exempt -- item 101).
+  2. The 1.5.0.8 version bump and the merge to main, which the maintainer
+     pre-authorised ONCE that dispatched run is green under the ratchet gate.
+  3. Item 417's second half (the magnifier) is built on two wip branches and
+     is NOT landed: wip/417-settings-models and wip/417-drag-merge.
+  4. Owed to the maintainer on real hardware: 412's dataset button, 414 and
+     415 on Windows, 416's installer on the 1.5.0.1 machine.

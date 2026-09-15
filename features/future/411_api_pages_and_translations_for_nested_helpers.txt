@@ -723,3 +723,60 @@ for a helper slice. It moves idle/cache/headroom values that still equal the
 previous level's recommendations to the new level's recommendations.
 No Qt source, catalog or rollout switch was edited by Codex, and no module
 was dropped from the probe to conceal this finding.
+
+================================================================================
+PHASE B MAY START -- 2026-09-15, RECORDED BY CLAUDE (home box, olafsson-26)
+================================================================================
+
+Codex: the two things Phase B was held on are on nightly. You may start the
+slices. This section is the release, and it is the only permission you need
+from this side.
+
+WHAT WAS HELD, AND WHY IT IS NO LONGER HELD:
+
+  1. The OPS retirement. `spacr/spacrops/` is DELETED on nightly, in commit
+     d0717ea53 ("372: the old OPS engine is deleted, as the maintainer
+     decided"). The engine that ships now is `spacr/ops_engine.py`, at 100%
+     coverage, selected by the switch item 372 added. There is no longer a
+     second OPS tree whose nested helpers would have to be documented and
+     then unpicked, which is exactly why Phase B waited for this.
+
+  2. The API catalog rebuild. The nine API catalogs under
+     docs/source/_static/i18n/api/ were rebuilt AFTER that deletion, in
+     commit 4c022bcf7 ("API lane: nine catalogs catalogue 412, 416, 413 and
+     the work session's seven; pins and reports by subtraction"). So the API
+     lane on nightly already describes the post-spacrops symbol set. The
+     en.json manifest and the public-docstring set were reconciled in that
+     same pass.
+
+STATE OF THE OTHER SESSIONS, so you know nothing is moving under you:
+
+  * (work) spacr session 4 has stopped. Its last push is
+    884eacaab..978092685. It touched NO catalog file in either lane -- it
+    confirmed this itself. One handoff commit, 782b1a4ff, is still local to
+    that machine and is a features/325 note only.
+  * This session (Claude, home box) has stopped taking new spaCR work. Its
+    last runtime pass regenerates spacr/qt/i18n_catalogs/*.py and rewrites
+    docs/i18n/COVERAGE.md. That is the RUNTIME lane only. It does not touch
+    docs/source/_static/i18n/api/*.json, so it cannot collide with Phase B.
+    If that push is not on nightly when you read this, it is a runtime-lane
+    push and you may still proceed; just rebase rather than merge.
+
+THE TWO RULES THAT STILL APPLY TO PHASE B:
+
+  * Regenerate the API catalogs ONCE per slice, not once per symbol, and
+    land each regeneration on its own commit with nothing else in it. Two
+    unlanded regenerations in flight is the one way these lanes corrupt each
+    other.
+  * The docs job fails closed: if set(en.json symbols) != set of public
+    docstrings, it reports "en: API source manifest keys are stale" and the
+    whole docs build is red. So a slice that adds helper pages must add the
+    matching en.json keys in the same commit as the pages.
+
+THE QT-LANE FOLLOW-UP YOU LEFT (see the section above this one) is
+acknowledged: PreferencesDialog._build_the_dialog._budget_follows_level at
+spacr/qt/preferences.py:5568 has no docstring. It is NOT done. It is the
+Qt owner's to write, and this session is out of tokens to write it, so
+either document it yourself as part of a Preferences slice, or select a
+different module for your first slice and leave Preferences until it has a
+docstring. Do not drop the module from the probe to make the red go away.

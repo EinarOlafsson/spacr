@@ -51,17 +51,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,790 | Remainder | Reviewed API blocks | Of 10,539 | Remainder |
+| Language | Reviewed runtime records | Of 5,804 | Remainder | Reviewed API blocks | Of 10,539 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 284 | 4.91% | 5,506 | 717 | 6.80% | 9,822 |
-| German | 247 | 4.27% | 5,543 | 675 | 6.40% | 9,864 |
-| Spanish | 253 | 4.37% | 5,537 | 556 | 5.28% | 9,983 |
-| Simplified Chinese | 552 | 9.53% | 5,238 | 823 | 7.81% | 9,716 |
-| Portuguese | 243 | 4.20% | 5,547 | 787 | 7.47% | 9,752 |
-| Hindi | 333 | 5.75% | 5,457 | 715 | 6.78% | 9,824 |
-| Korean | 454 | 7.84% | 5,336 | 792 | 7.51% | 9,747 |
-| Icelandic | 401 | 6.93% | 5,389 | 1,286 | 12.20% | 9,253 |
-| French | 259 | 4.47% | 5,531 | 716 | 6.79% | 9,823 |
+| Swedish | 284 | 4.89% | 5,520 | 717 | 6.80% | 9,822 |
+| German | 247 | 4.26% | 5,557 | 675 | 6.40% | 9,864 |
+| Spanish | 253 | 4.36% | 5,551 | 556 | 5.28% | 9,983 |
+| Simplified Chinese | 552 | 9.51% | 5,252 | 823 | 7.81% | 9,716 |
+| Portuguese | 243 | 4.19% | 5,561 | 787 | 7.47% | 9,752 |
+| Hindi | 333 | 5.74% | 5,471 | 715 | 6.78% | 9,824 |
+| Korean | 454 | 7.82% | 5,350 | 792 | 7.51% | 9,747 |
+| Icelandic | 401 | 6.91% | 5,403 | 1,286 | 12.20% | 9,253 |
+| French | 259 | 4.46% | 5,545 | 716 | 6.79% | 9,823 |
 
 *Regenerated 2026-09-15 on nightly 08a2c1719, on top of runtime pass A, for
 the API lane pass that lands items 412, 416 and 413 and catalogues the work
