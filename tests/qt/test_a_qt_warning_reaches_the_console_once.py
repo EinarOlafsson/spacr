@@ -76,6 +76,44 @@ def test_a_qt_warning_is_rendered_once_not_twice(sinks):
         + "\n  ".join(f"[{who}] {text}" for who, text in out))
 
 
+def test_a_sink_built_off_the_gui_thread_still_reaches_the_console(qapp):
+    """The other way to get zero lines: a sink that was born on a worker.
+
+    `get_signal_handler` builds the root sink lazily, and the verbose
+    forwarder's filter asks for it from whatever thread logged. When a worker
+    asked first, the sink's relay lived on that worker, and a GUI-thread slot
+    connected to `record_ready` never ran -- not twice, not once. That is how
+    `test_a_qt_warning_is_rendered_once_not_twice` failed in CI run
+    34961482728 with ``assert 0 == 1``: the only sink in the process had been
+    built on "Dummy-1".
+    """
+    import threading
+
+    from spacr.qt.logging_util import QtLogHandler
+
+    built = {}
+    maker = threading.Thread(
+        target=lambda: built.setdefault("sink", QtLogHandler()))
+    maker.start()
+    maker.join()
+    sink = built["sink"]
+    sink.setLevel(logging.WARNING)
+
+    out = []
+    sink.record_ready.connect(lambda text, lvl: out.append(text))
+    logger = logging.getLogger("tests.qt.a_sink_built_off_the_gui_thread")
+    logger.addHandler(sink)
+    try:
+        logger.warning("built on a worker, read on the GUI thread")
+        qapp.processEvents()
+    finally:
+        logger.removeHandler(sink)
+
+    assert len(out) == 1, (
+        "a sink built on a worker thread delivered "
+        f"{len(out)} line(s) to a GUI-thread slot instead of one")
+
+
 def test_verbose_only_detail_below_the_root_sink_still_arrives(sinks):
     """The de-duplication must not cost verbose mode its reason to exist.
 
