@@ -211,6 +211,22 @@ def _normalize_app(app_key: Any) -> str:
     return APP_ALIASES.get(folded, key)
 
 
+#: The public name for :func:`_normalize_app`, for callers outside this module.
+#:
+#: THREE OF THEM WERE DOING IT BY HAND AND GETTING IT WRONG. `ports.py:468`,
+#: `ports.py:556` and `chaining.py:427` each wrote `APP_ALIASES.get(key, key)`,
+#: which skips the hyphen fold -- so a caller who writes `barcode-mapping`
+#: reaches `map_barcodes` through `validate` and reaches nothing at all
+#: through `module_ports`, whose own docstring promises "every alias
+#: APP_ALIASES accepts". Instruction 100 recorded that as a residual of an
+#: earlier pass: "same defect, three call sites, in files outside this pass".
+#:
+#: Exported rather than left private so the next caller has something to reach
+#: for. A private helper that three modules need is a public one that has not
+#: been named yet.
+canonical_app_key = _normalize_app
+
+
 
 _KNOWN_KEYS_CACHE: Optional[frozenset] = None
 

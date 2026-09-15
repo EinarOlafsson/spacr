@@ -58,7 +58,8 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 from .resume import read_npy_header
-from .validate import (ALT_SRC_KEYS, APP_ALIASES, DB_APPS, ERROR,
+from .validate import (ALT_SRC_KEYS, APP_ALIASES, canonical_app_key,
+                       DB_APPS, ERROR,
                        IMAGE_EXTENSIONS, WARNING, Problem)
 
 __all__ = [
@@ -465,7 +466,7 @@ def module_ports(module: str) -> ModulePorts:
     :raises UnknownModule: when nothing is declared for it.
     """
     key = str(module).strip().lower()
-    key = APP_ALIASES.get(key, key)
+    key = canonical_app_key(key)
     if key not in PORTS:
         raise UnknownModule(
             f"no ports declared for {module!r}; known: "
@@ -553,7 +554,7 @@ def project_root(settings_or_src: Union[str, Mapping[str, Any], None],
         return ""
     if isinstance(settings_or_src, Mapping):
         key = str(module).strip().lower()
-        key = APP_ALIASES.get(key, key)
+        key = canonical_app_key(key)
         source_key = ROOT_KEYS.get(key) or ALT_SRC_KEYS.get(key, "src")
         value: Any = settings_or_src.get(source_key)
     else:

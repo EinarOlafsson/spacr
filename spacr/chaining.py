@@ -67,7 +67,7 @@ from .artifacts import (
     Staleness,
 )
 from .ports import Port, Readiness, ResolvedPort
-from .validate import ALT_SRC_KEYS, APP_ALIASES
+from .validate import ALT_SRC_KEYS, APP_ALIASES, canonical_app_key
 
 __all__ = [
     "BINDINGS",
@@ -422,9 +422,14 @@ def register_binding(binding: Binding, *, overwrite: bool = False) -> Binding:
 
 
 def _canonical(module: str) -> str:
-    """Return the canonical module key for ``module`` or an alias of it."""
-    key = str(module).strip().lower()
-    return APP_ALIASES.get(key, key)
+    """Return the canonical module key for ``module`` or an alias of it.
+
+    Through `validate.canonical_app_key` rather than a bare `APP_ALIASES`
+    lookup: plugin aliases are REGISTERED with "-" folded to "_", so a
+    caller who writes the hyphenated spelling reaches nothing without the
+    fold. Instruction 100 named this as one of three sites doing it by hand.
+    """
+    return canonical_app_key(str(module))
 
 
 def source_key(module: str) -> str:
