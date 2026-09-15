@@ -664,3 +664,139 @@ def test_the_correction_set_in_the_category_changes_the_magnifiers_objects(
                     and not magnifier.updating(), timeout=10_000)
     corrected = int((magnifier._shown.labels > 0).sum())
     assert 0 < corrected < at_one
+
+
+# ---------------------------------------------------------------------------
+# 10. DINOCell and SAMCell as magnifier detectors
+# ---------------------------------------------------------------------------
+
+def _modes(made):
+    return [made._mag_mode.itemData(i) for i in range(made._mag_mode.count())]
+
+
+def test_dinocell_and_samcell_are_offered_where_installed(
+        qtbot, qt_theme_applied, monkeypatch):
+    present = {"cellpose", "dinocell", "samcell"}
+    monkeypatch.setattr(mm, "find_spec",
+                        lambda name: object() if name in present else None)
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        assert _modes(made) == ["classical", "cellpose", "dinocell", "samcell"]
+        assert [made._mag_mode.itemText(i) for i in range(4)][2:] == [
+            "DINOCell", "SAMCell"]
+        assert all(note.isHidden()
+                   for note in made._mag_install_notes.values())
+        made._mag_mode.setCurrentIndex(made._mag_mode.findData("samcell"))
+        assert made._magnifier.mode == "samcell"
+        assert not made._mag_sensitivity.isEnabled()
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_where_not_installed_the_panel_says_how_to_install_them(
+        qtbot, qt_theme_applied, monkeypatch):
+    monkeypatch.setattr(mm, "find_spec",
+                        lambda name: object() if name == "cellpose" else None)
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        assert _modes(made) == ["classical", "cellpose"]
+        notes = made._mag_install_notes
+        assert not notes["dinocell"].isHidden()
+        assert not notes["samcell"].isHidden()
+        assert 'pip install "spacr[dinocell]"' in notes["dinocell"].text()
+        assert 'pip install "spacr[samcell]"' in notes["samcell"].text()
+        magnifier_category = dict(made._settings_categories)["Live magnifier"]
+        assert magnifier_category.isAncestorOf(notes["dinocell"])
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def _stub_backend_class(backends):
+    """A real ``_PlaneBackend`` subclass that labels one known rectangle."""
+    class StubPlane(backends._PlaneBackend):
+        built = []
+
+        def __init__(self, device=None, **options):
+            super().__init__(device="cpu")
+            type(self).built.append(dict(options, device=device))
+            self.seen = []
+
+        def _segment_plane(self, image, cellprob_threshold=None):
+            self.seen.append((image.dtype, image.shape, cellprob_threshold))
+            labels = np.zeros(image.shape, np.int32)
+            labels[4:10, 5:12] = 3
+            return labels, [image, None, None, None]
+
+    return StubPlane
+
+
+def test_the_stand_in_backend_keeps_the_real_backends_signatures():
+    import inspect
+
+    from spacr import _segmentation_backends as backends
+
+    stub = _stub_backend_class(backends)
+    for real in (backends._DinoCellBackend, backends._SamCellBackend):
+        assert (list(inspect.signature(real._segment_plane).parameters)
+                == list(inspect.signature(stub._segment_plane).parameters))
+        assert "device" in inspect.signature(real.__init__).parameters
+    assert stub.eval is backends._PlaneBackend.eval, (
+        "the batch call is the real one, not the stand-in's")
+
+
+@pytest.mark.parametrize("mode", ["dinocell", "samcell"])
+def test_a_backend_segments_the_box_through_the_real_backend_seam(
+        qtbot, screen, monkeypatch, mode):
+    """The real _load_backend, the real eval and the real cellpose_detect."""
+    from spacr import _segmentation_backends as backends
+    from tests.qt.test_the_live_magnifier_segments_under_the_mouse import click
+
+    stub = _stub_backend_class(backends)
+    monkeypatch.setitem(backends._BACKEND_CLASSES, mode, stub)
+    monkeypatch.setattr(mm, "_BACKEND_MODELS", {})
+    screen._cp_cellprob.setValue(-1.5)
+    screen._on_magnifier_mode(mode)
+    screen._btn_magnifier.setChecked(True)
+
+    hover(screen, 30, 30)
+    wait_for_result(qtbot, screen)
+    shown = screen._magnifier._shown
+    assert shown.mode == mode and shown.note == ""
+    hover(screen, 31, 30)
+    wait_for_result(qtbot, screen)
+    assert len(stub.built) == 1, "the model is built once, not per move"
+    model = mm._BACKEND_MODELS[mode]
+    dtype, shape, cellprob = model.seen[0]
+    assert dtype == np.uint8 and shape == (32, 32)
+    assert cellprob == -1.5, "the Cellpose-SAM cell probability reaches it"
+
+    click(screen, 31, 30)
+    expected = np.zeros((IMG_N, IMG_N), bool)
+    box = screen._magnifier._shown.request.box
+    expected[box[1] + 4:box[1] + 10, box[0] + 5:box[0] + 12] = True
+    np.testing.assert_array_equal(screen._canvas.mask > 0, expected)
+    assert screen._log.edits[-1].detail["mode"] == mode
+
+
+@pytest.mark.parametrize("mode, extra", [("dinocell", "spacr[dinocell]"),
+                                         ("samcell", "spacr[samcell]")])
+def test_a_backend_that_is_not_installed_falls_back_and_says_how_to_install(
+        qtbot, screen, monkeypatch, mode, extra):
+    import sys
+
+    monkeypatch.setitem(sys.modules, mode, None)
+    monkeypatch.setattr(mm, "_BACKEND_MODELS", {})
+    screen._on_magnifier_mode(mode)
+    screen._btn_magnifier.setChecked(True)
+    hover(screen, 30, 30)
+    wait_for_result(qtbot, screen)
+    assert screen._magnifier._shown.mode == "classical"
+    status = screen._status_label.text()
+    assert f"{mode} could not run" in status
+    assert f'pip install "{extra}"' in status
+    assert mode not in mm._BACKEND_MODELS, "a failed build is not kept"
+    assert screen._magnifier.build_request().mode == "classical"

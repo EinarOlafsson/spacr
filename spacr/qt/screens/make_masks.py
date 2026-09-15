@@ -1546,14 +1546,68 @@ def _cellpose_segmenter(request: _MagnifierRequest, load_model=None):
     return labels
 
 
+#: The optional models the magnifier runs through
+#: :mod:`spacr._segmentation_backends` (items 404 and 405): ``mode -> the
+#: package that must be installed``. The Mode box offers each only where its
+#: package is found, and says how to install the ones that are not.
+_MAGNIFIER_BACKENDS = {"dinocell": "dinocell", "samcell": "samcell"}
+
+#: Loaded DINOCell and SAMCell models, by backend name, for the life of the
+#: process. Building one loads a ViT checkpoint, and the box asks on every
+#: move; a backend that fails to build is not kept, so it is tried again.
+_BACKEND_MODELS: dict = {}
+
+
+def _backend_model(name: str):
+    """The DINOCell or SAMCell model called ``name``, built once.
+
+    Built by :func:`spacr._segmentation_backends._load_backend`, the same
+    loader the mask pipeline's ``segmentation_backend`` setting uses.
+
+    :raises ImportError: naming the pip extra, when the package is missing.
+    """
+    with _CELLPOSE_LOCK:
+        model = _BACKEND_MODELS.get(name)
+        if model is None:
+            from ... import _segmentation_backends
+
+            model = _segmentation_backends._load_backend(name)
+            _BACKEND_MODELS[name] = model
+        return model
+
+
+def _backend_segmenter(request: _MagnifierRequest, load_model=None):
+    """Segment the region with DINOCell or SAMCell (item 417, part 10).
+
+    A backend answers ``CellposeModel.eval``'s own call, so the region goes
+    through :func:`cellpose_detect` with the Cellpose-SAM settings exactly as
+    Cellpose's does: DINOCell reads the cell-probability threshold (through
+    the logistic function, so 0 is its own 0.5) and SAMCell uses its own
+    thresholds. ``load_model`` is the CELLPOSE loader and is not used: a
+    backend name handed to it would load stock cpsam without a word.
+    """
+    with _CELLPOSE_LOCK:
+        model = _backend_model(request.mode)
+        labels, _cellprob, _flow = cellpose_detect(
+            request.crop, model,
+            diameter=int(request.diameter),
+            normalize=bool(request.normalize),
+            flow_threshold=float(request.flow_threshold),
+            cellprob_threshold=float(request.cellprob_threshold),
+            min_size=int(request.min_area),
+        )
+    return labels
+
+
 #: ``mode -> segmenter``, in the order the Mode box offers them. A segmenter
 #: takes ``(request, load_model)`` and returns labels shaped like
-#: ``request.crop``. ADDING A MODEL IS ONE FUNCTION AND ONE LINE HERE --
-#: DINOCell or SAMCell would be ``"dinocell": _dinocell_segmenter`` -- and
+#: ``request.crop``. ADDING A MODEL IS ONE FUNCTION AND ONE LINE HERE, and
 #: :func:`_segment_region` gives it the classical fallback for nothing.
 _MAGNIFIER_SEGMENTERS = {
     "classical": _classical_segmenter,
     "cellpose": _cellpose_segmenter,
+    "dinocell": _backend_segmenter,
+    "samcell": _backend_segmenter,
 }
 
 
@@ -4628,7 +4682,8 @@ class MakeMasksScreen(QWidget):
             "faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's "
             "own level. Otsu detect uses it, and so does the Live magnifier's "
             "Classical mode wherever a region holds two clear populations.")
-        otsu_form.addRow("Otsu threshold correction", self._otsu_correction)
+        otsu_form.addRow(QLabel("Otsu threshold correction"),
+                         self._otsu_correction)
         card.body_layout.addLayout(otsu_form)
 
         drives = QLabel(
@@ -4866,14 +4921,20 @@ class MakeMasksScreen(QWidget):
         )
         form = QFormLayout()
 
+        def installed(package: str) -> bool:
+            try:
+                return find_spec(package) is not None
+            except (ImportError, ValueError):
+                return False
+
         self._mag_mode = QComboBox()
         self._mag_mode.addItem("Classical", "classical")
-        try:
-            has_cellpose = find_spec("cellpose") is not None
-        except (ImportError, ValueError):
-            has_cellpose = False
-        if has_cellpose:
+        if installed("cellpose"):
             self._mag_mode.addItem("Cellpose", "cellpose")
+        if installed(_MAGNIFIER_BACKENDS["dinocell"]):
+            self._mag_mode.addItem("DINOCell", "dinocell")
+        if installed(_MAGNIFIER_BACKENDS["samcell"]):
+            self._mag_mode.addItem("SAMCell", "samcell")
         self._mag_mode.setToolTip(
             "Which model segments the region in the box. Classical thresholds "
             "the region at Otsu's level and splits touching objects with a "
@@ -4889,6 +4950,22 @@ class MakeMasksScreen(QWidget):
             lambda _index: self._on_magnifier_mode(
                 self._mag_mode.currentData()))
         form.addRow("Mode", self._mag_mode)
+
+        #: ``mode -> the sentence saying how to install it``, shown only for a
+        #: backend that is not installed, so a missing model is explained on
+        #: the panel rather than simply absent from the Mode box.
+        self._mag_install_notes = {
+            "dinocell": QLabel('DINOCell appears in Mode once installed: '
+                               'pip install "spacr[dinocell]"'),
+            "samcell": QLabel('SAMCell appears in Mode once installed: '
+                              'pip install "spacr[samcell]"'),
+        }
+        for mode, note in self._mag_install_notes.items():
+            note.setObjectName("CardSubtitle")
+            note.setWordWrap(True)
+            note.setTextInteractionFlags(Qt.TextSelectableByMouse)
+            note.setVisible(self._mag_mode.findData(mode) < 0)
+            form.addRow(note)
 
         self._mag_scope = QComboBox()
         self._mag_scope.addItem("Region under the mouse", "region")
