@@ -1374,3 +1374,23 @@ Minimum dependencies failed. Read from their logs:
   of its tests segfaulted pytest itself. Whether GC-freed Qt cycles explain the
   unattributed worker segfaults is the hypothesis -- not a finding until a
   forced-GC run reproduces a recorded site and the fix removes it.
+
+  THE GPU-MACHINE DEVICE LEAK, FIXED (90176bb03). The work session's report
+  was right about the leak and partly wrong about its victims. The main
+  polluter was tests/conftest.py itself: it cached the machine's real cuda:0
+  once per session and restored it after every test, so the victims failed even
+  alone on a GPU machine; test_cellpose4_model_story.py was a second polluter.
+  Real victims: test_cov_object_preprocess_segment::test_load_unet_model_loads_on
+  _cpu_in_eval_mode and three in test_cov_object_organelle_sam (the 'cuda:0' ==
+  'cpu' message is organelle_sam's -- the w3_7 CLI attribution was wrong, and a
+  grep for "cuda.is_available" misses organelle_sam). Fix: a private
+  spacr.accelerator._reset_device_cache(), called by the fixture before and
+  after each test only if the module is already imported. Proof: the polluter
+  order fails 4 on nightly, passes after, fails again with the fixture off;
+  1,552 non-Qt and 251 Qt pass with and without a GPU. CI has no GPU, so CI
+  never saw any of it -- a local-only red, but it cost a work-session run.
+
+  NOT THIS LEAK, AND STILL OPEN: the analysis_submodules cellpose test is a
+  STALE STRICT XFAIL -- its reason (bsize) is gone from spacr/submodules.py.
+  Candidates by grep: tests/test_cov_submodules_cellpose_train_test.py tests/test_analysis_submodules_real_data.py tests/test_cov_object_masks_sam.py . A strict xfail whose defect was
+  fixed turns into an XPASS failure; retire it with the fix it recorded.
