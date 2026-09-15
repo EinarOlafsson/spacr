@@ -1,0 +1,20 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "segmentation_backend",
+      "source": "Segmentation backend",
+      "source_sha256": "55d5430ab2ef3b4362493fe29d111b90f9aeea3e3161c05910d77a00677b752f",
+      "table": "setting_labels",
+      "translation": "विभाजन बैकएंड"
+    },
+    {
+      "key": "segmentation_backend",
+      "source": "Which model segments cells, nuclei and pathogens. 'cellpose' (default) runs the Cellpose model that each object's model name selects. 'dinocell' (DINOCell) and 'samcell' (SAMCell, trained partly on the label-free LIVECell set) are optional 2-D models for live-cell and label-free images: they read only the object's own channel, ignore diameter and flow_threshold, and refuse z_stack and t_stack runs. 'samcell' needs pip install \"spacr[samcell]\". 'dinocell' needs the dinocell package, whose published release pins versions that conflict with spaCR's, so it currently needs an environment of its own. Their masks are not comparable with Cellpose's. Default 'cellpose'.",
+      "source_sha256": "67fbf9c38c8f479478634626512c12642bb097f6d534af509018dde33d76773d",
+      "table": "setting_tooltips",
+      "translation": "(str) - कौन-सा मॉडल कोशिकाओं, केंद्रकों और रोगजनकों का विभाजन करता है। 'cellpose' (डिफ़ॉल्ट) वह Cellpose मॉडल चलाता है जिसे हर ऑब्जेक्ट का मॉडल नाम चुनता है। 'dinocell' (DINOCell) और 'samcell' (SAMCell, जो आंशिक रूप से बिना लेबल वाले LIVECell संग्रह पर प्रशिक्षित है) जीवित कोशिकाओं और बिना लेबल वाली छवियों के लिए वैकल्पिक 2-D मॉडल हैं: ये केवल ऑब्जेक्ट का अपना चैनल पढ़ते हैं, diameter और flow_threshold को अनदेखा करते हैं, और z_stack तथा t_stack वाले रन अस्वीकार करते हैं। 'samcell' के लिए pip install \"spacr[samcell]\" चाहिए। 'dinocell' के लिए dinocell पैकेज चाहिए, जिसका प्रकाशित संस्करण ऐसे संस्करण बाँधता है जो spaCR से टकराते हैं, इसलिए अभी इसके लिए अलग वातावरण चाहिए। इनके मास्क Cellpose के मास्क से तुलनीय नहीं हैं। डिफ़ॉल्ट 'cellpose'।"
+    }
+  ],
+  "schema": 1
+}

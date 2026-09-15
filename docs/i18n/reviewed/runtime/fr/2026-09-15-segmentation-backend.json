@@ -1,0 +1,20 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "segmentation_backend",
+      "source": "Segmentation backend",
+      "source_sha256": "55d5430ab2ef3b4362493fe29d111b90f9aeea3e3161c05910d77a00677b752f",
+      "table": "setting_labels",
+      "translation": "Moteur de segmentation"
+    },
+    {
+      "key": "segmentation_backend",
+      "source": "Which model segments cells, nuclei and pathogens. 'cellpose' (default) runs the Cellpose model that each object's model name selects. 'dinocell' (DINOCell) and 'samcell' (SAMCell, trained partly on the label-free LIVECell set) are optional 2-D models for live-cell and label-free images: they read only the object's own channel, ignore diameter and flow_threshold, and refuse z_stack and t_stack runs. 'samcell' needs pip install \"spacr[samcell]\". 'dinocell' needs the dinocell package, whose published release pins versions that conflict with spaCR's, so it currently needs an environment of its own. Their masks are not comparable with Cellpose's. Default 'cellpose'.",
+      "source_sha256": "67fbf9c38c8f479478634626512c12642bb097f6d534af509018dde33d76773d",
+      "table": "setting_tooltips",
+      "translation": "(str) - Quel modèle segmente les cellules, les noyaux et les pathogènes. 'cellpose' (par défaut) exécute le modèle Cellpose que choisit le nom de modèle de chaque objet. 'dinocell' (DINOCell) et 'samcell' (SAMCell, entraîné en partie sur le jeu sans marquage LIVECell) sont des modèles 2-D facultatifs destinés aux images de cellules vivantes et sans marquage : ils ne lisent que le canal propre à l'objet, ignorent diameter et flow_threshold et refusent les exécutions avec z_stack et t_stack. 'samcell' nécessite pip install \"spacr[samcell]\". 'dinocell' nécessite le paquet dinocell, dont la version publiée fige des versions incompatibles avec celles de spaCR ; il lui faut donc pour l'instant un environnement à part. Leurs masques ne sont pas comparables à ceux de Cellpose. Par défaut 'cellpose'."
+    }
+  ],
+  "schema": 1
+}

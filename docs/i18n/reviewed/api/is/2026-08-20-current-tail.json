@@ -673,6 +673,8 @@
     {
       "context": "**The frame has one and ``screen`` was given.** The caller is looking at the files and has said which screen this is, so it wins — but only because they said so. ``overwrite=False`` (the default) still fills *blank* values only; pass ``overwrite=True`` to restamp every row.",
       "label": "spacr.schema.add_screen_column#4",
+      "retired": "2026-09-15",
+      "retired_reason": "markup-only change from item 63; re-bound in 2026-09-15-rebound-63.json",
       "source": "**The frame has one and ``screen`` was given.** The caller is looking at the files and has said which screen this is, so it wins — but only because they said so. ``overwrite=False`` (the default) still fills *blank* values only; pass ``overwrite=True`` to restamp every row.",
       "source_sha256": "850b3dfb2a72018e4d5ed582ad817d95d30c660a705ef33b0e6c23961374e856",
       "translation": "**Ramminn er með einn og ``screen`` var gefinn.** Sá sem hringir er að skoða skrárnar og hefur sagt hvaða skimun þetta er, svo hann vinnur - en aðeins vegna þess að hann sagði það. ``overwrite=False`` (sjálfgefið) fyllir samt aðeins *auð* gildi; framhjá ``overwrite=True`` til að endurstimpla hverja röð."
@@ -708,6 +710,8 @@
     {
       "context": "**Not the generator's own ``touches`` flag.** That flag is the thing under test; a check that classifies objects by it validates the generator against itself and reported \"all correct\" on the assets that shipped the bug. The microplate sample position edge is recovered from the drawn pixels.",
       "label": "spacr.setting_animations.measure_border_object_removal#3",
+      "retired": "2026-09-15",
+      "retired_reason": "markup-only change from item 63; re-bound in 2026-09-15-rebound-63.json",
       "source": "**Not the generator's own ``touches`` flag.** That flag is the thing under test; a check that classifies objects by it validates the generator against itself and reported \"all correct\" on the assets that shipped the bug. The well edge is recovered from the drawn pixels.",
       "source_sha256": "c69fcfa756fa69b08d8c0720da1d41eedd7e2ca0d111a9432274871feffe1597",
       "translation": "**Ekki eigin ``touches`` fána rafalans.** Sá fáni er hluturinn sem verið er að prófa; ávísun sem flokkar hluti eftir honum staðfestir raalinn gegn sjálfum sér og tilkynnti \"all correct\" um eignirnar sem sendu villuna. Staðsetningarbrún örplötusýnis er endurheimt úr dregnum pixlum."
