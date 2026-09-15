@@ -756,9 +756,10 @@ read as a fourteenth language.
     run-saved gen_mask_settings.csv is read first and poisons the counts.
     A failed run needs a NEW --capture-name; the private
     state guard refuses a name that already has pins.
-      flock $G env PYTHONPATH=$R timeout 7200 xvfb-run -a -s '-screen 0 3840x2160x24' \
-        $M $V capture_refresh.py --module mask --stage $ST --download --preview \
-        --preview-variants --platform xcb --capture-name $CAP --timeout 5400
+      # Use a FRESH example copy (refresh_2026-09-15_cpu: TIFFs + shipped pack only);
+      # never `xvfb-run -a` or a 2 h timeout under the lock (see the 06:52 failure):
+      flock $G run_capture_guarded.sh <fresh stage> <new capture name> <log> 358
+      # (fixed display, own process group, X11-break watchdog, --timeout 900, whole run 1500)
     View 04_live_image, 05_live_settings and 07-12 before using the counts.
   2 Recount independently:
       $V -c "from mask_preview_evidence import inspect; print(inspect('$ST/captures/$CAP'))"
@@ -923,3 +924,27 @@ BRANCH BASE MOVED UNDER THIS WORK (measured 04:3x UTC). wip/358-lessons was
     output or extra settings file is present. Expect the counts to reproduce
     105/52/105/36. The capture directory will be copied into
     refresh_2026-09-09/captures with hashes intact for composition.
+
+FRESH-COPY RECAPTURE FAILED, AND IT HELD THE SHARED GPU LOCK FOR TWO IDLE HOURS.
+  mask_preview_gpu_fresh_2026-09-15 (refresh_2026-09-15_cpu, guard passed:
+  208 TIFFs, shipped settings only) took the lock at 04:52:27 and recorded
+  00-03 plus 04a_choose_image. The Source check mid-run was correct (real
+  path; flow 100, cellprob -1). The log then reads "The X11 connection broke
+  (error 1). Did the X11 server die?" and nothing more. The Qt process did not
+  exit; `timeout 7200` killed it at 06:52:27 (exit 124). The GPU was idle, but
+  the lock was held the whole time: two other sessions' GPU jobs waited
+  2h01m and 1h34m behind it. No processes of this run were left over, and the
+  example folder was unchanged (0 extras).
+  CAUSE (probable, not proven): an `xvfb-run -a` display-number race. Another
+  session's Xvfb has held :99 for four days, and other sessions keep starting
+  `xvfb-run -a` pytest runs (one on :100 at 06:53). The stage was ruled out:
+  the two stages' Mask qt.conf differ only in [recent] mask\last and
+  figure_color_scale.
+  RULE FOR EVERY FUTURE GPU CAPTURE UNDER THE LOCK: never `xvfb-run -a`, and
+  never a long timeout around a GUI run. Use a fixed display checked free
+  first, run the capture in its own process group, and kill the group on "X11
+  connection broke". Keep the timeouts short (recorder --timeout 900, whole
+  run 1500; a GPU preview capture takes ~70 s). A copy of the wrapper is at
+  <scratchpad>/358_mask/run_capture_guarded.sh.
+  RETRY QUEUED: mask_preview_gpu_fresh2_2026-09-15 on display :358 with that
+  watchdog. Same guard, same fresh stage.
