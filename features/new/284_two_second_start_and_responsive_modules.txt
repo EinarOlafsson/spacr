@@ -510,3 +510,38 @@ reason -- what is left is the rest of the screen build, and the profile says
 ~1.0 s of the remaining 1.33 s is IMPORTS pulled in on the click path. That is
 the next thing to look at, and it is a question about WHEN those imports
 happen rather than about making them faster.
+
+WHAT CHASING THE IMPORTS SHOWED, and it is the most useful thing here.
+
+  After `_outlier_criteria` stopped importing pandas, the profile said
+  `spacr.stream_dataset` imported it. After that was fixed, it said
+  `spacr.settings_advisor`. After that, `spacr.cell_montage`. Each fix was
+  correct and none of them stopped pandas loading, because a regression
+  screen open imports 729 MODULES and several of them genuinely need it.
+
+  THE MODULE COUNT DOES NOT MOVE: 729 before and after all three fixes. So
+  what those commits bought is a LIBRARY property rather than a wall-clock
+  one -- a settings default now answers a question about names and values
+  without loading machinery, proved in a child interpreter by
+  `tests/test_a_settings_default_does_not_import_the_world.py`. That matters
+  for the headless paths, the CLI and the queue validator. It is not the
+  answer to the stall.
+
+  THE ANSWER TO THE STALL IS ABOUT THE 729, not about which module is
+  unlucky enough to be first. Two directions, and the next session should
+  pick one deliberately rather than resume whack-a-mole:
+
+    1. IMPORT FEWER MODULES PER SCREEN. A regression screen should not need
+       729 modules to draw a form. Most arrive through module-level imports
+       in widgets the screen builds but the user has not touched.
+    2. MOVE THE IMPORTS OFF THE CLICK. Python imports are thread-safe, and
+       these are pure-Python and data modules with no Qt objects, so they can
+       be warmed on a BACKGROUND thread after launch. This does not make the
+       work smaller; it takes it off the main thread, which is exactly and
+       only what the 500 ms ceiling measures.
+
+  Direction 2 is the one that matches the acceptance text. The ceiling
+  forbids a multi-second GUI gap, not a multi-second total.
+
+  DO NOT MEASURE ANY OF THIS FROM A SCRIPT OUTSIDE THE WORKTREE. See the
+  harness note above.
