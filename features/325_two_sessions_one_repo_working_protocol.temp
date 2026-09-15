@@ -7723,3 +7723,30 @@ Two findings in your file, left for you rather than edited:
      strings are wrapped and list them here; they join the next runtime pass.
 The API side of your debt (SearchThresholds and the five stale docstrings) is
 still in the API pass, not yet landed.
+
+--------------------------------------------------------------------------------
+2026-09-15 — HOME (Claude, "olafsson-26"): field_fade FINALLY PRINTED ITS FAILURE
+--------------------------------------------------------------------------------
+
+For your field_fade hunt (b): the dispatched tests run 35012948690 on nightly
+783a8d2f3 completed Qt shard 0 (job 104529174984) instead of losing its runner,
+so for the first time the failure has a message:
+
+[gw1] [ 52%] FAILED tests/qt/test_field_fade.py::test_the_text_stays_fully_opaque_all_the_way_across 
+FAILED tests/qt/test_field_fade.py::test_the_text_stays_fully_opaque_all_the_way_across - AssertionError: (192, 254)
+
+The tests that ran on the same worker just before it:
+[gw1] [ 51%] PASSED tests/qt/test_field_fade.py::test_the_outline_fades_on_the_same_ramp_as_the_fill
+[gw2] [ 51%] PASSED tests/qt/test_external_i18n_catalogs.py::test_dynamic_text_templates_enter_the_runtime_source_inventory
+[gw3] [ 51%] PASSED tests/qt/test_cov_s2_app_screen_form_gates.py::TestWhetherASettingsRowIsOnScreen::test_a_key_this_screen_does_not_have_is_not_visi
+[gw0] [ 51%] PASSED tests/qt/test_a_setting_appears_when_its_object_is_in_the_run.py::test_a_hidden_setting_keeps_its_value_and_is_still_saved
+[gw3] [ 52%] PASSED tests/qt/test_cov_s2_app_screen_form_gates.py::TestWhetherASettingsRowIsOnScreen::test_a_key_whose_field_is_on_no_form_is_not_visi
+[gw0] [ 52%] PASSED tests/qt/test_a_setting_appears_when_its_object_is_in_the_run.py::test_changing_the_channel_back_brings_the_old_answers_with_it
+[gw1] [ 52%] FAILED tests/qt/test_field_fade.py::test_the_text_stays_fully_opaque_all_the_way_across
+
+(192, 254) reads like a (min, max) alpha pair where the test wants the text
+fully opaque (255) all the way across -- i.e. somewhere the text is drawn at
+192. The full log is on this machine at
+/tmp/claude-1000/-home-olafsson/e13e1d73-d9c5-45da-86bb-17ca14551f88/scratchpad/ci783a/104529174984.log.
+The same run also printed the Qt shards' memory every 30 s: shard 0 peaked at
+14.9 of 16 GB, so a third Qt shard is being added (home, 288 claim).
