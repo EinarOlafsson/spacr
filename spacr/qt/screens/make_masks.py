@@ -924,7 +924,7 @@ class _MaskCanvas(QLabel):
         if (event.button() == Qt.LeftButton and self.magnifier is not None
                 and self.magnifier.enabled):
             self.magnifier.hover(event.position())
-            self.magnifier.click()
+            self.magnifier.press()
             self.update()
             return
 
@@ -995,6 +995,8 @@ class _MaskCanvas(QLabel):
             return
         if self.magnifier is not None and self.magnifier.enabled:
             self.magnifier.hover(event.position())
+            if event.buttons() & Qt.LeftButton:
+                self.magnifier.drag()
             self.update()
             return
         if self.mode in (MODE_ZOOM, MODE_RECROP) \
@@ -1041,7 +1043,10 @@ class _MaskCanvas(QLabel):
             self.unsetCursor()
             return
         if (event.button() == Qt.LeftButton and self.magnifier is not None
-                and self.magnifier.enabled):
+                and (self.magnifier.enabled
+                     or self.magnifier._stroke is not None)):
+            self.magnifier.release()
+            self.update()
             return
         if (event.button() == Qt.RightButton and self.magnifier is not None
                 and self.magnifier.enabled
@@ -1739,6 +1744,9 @@ class _LiveMagnifier(QObject):
     remove_requested = Signal(int, int)
     #: A whole-image run started (True) or ended (False).
     busy_changed = Signal(bool)
+    #: A press-and-drag's objects (item 417) as ``(outcome, final)``: shown
+    #: while the button is down, committed once when ``final``.
+    drag_ready = Signal(object)
 
     def __init__(self, canvas, parent=None, *, load_model=None, context=None):
         """Build a magnifier that is off and holds no thread."""
@@ -1783,6 +1791,7 @@ class _LiveMagnifier(QObject):
         self._image_worker = _NewestRequestWorker(
             self._run, self._hand_over, name="spacr-magnifier-image")
         self._delivered.connect(self._on_delivered, Qt.QueuedConnection)
+        self._init_stroke()
 
     # -- settings ---------------------------------------------------------
 
@@ -2144,6 +2153,167 @@ class _LiveMagnifier(QObject):
         self.set_zoom(self.zoom * speed if up else self.zoom / speed)
         self.zoom_changed.emit(self.zoom)
         return self.zoom
+
+    # -- press and drag (item 417, parts 5 and 6) ---------------------------
+
+    def _init_stroke(self) -> None:
+        """Hold no press, and add every object in the box as item 407 did."""
+        from PySide6.QtCore import QTimer
+
+        from .._magnifier_drag import _PREVIEW_MS
+
+        #: Which objects a click or a drag adds: ``zoom``, every object in the
+        #: box, or ``touching``, only the objects under the mouse.
+        self.save_mode = "zoom"
+        #: The press in progress -- a ``_DragStroke`` -- with where and on
+        #: which field it started, and whether it has moved far enough to be
+        #: a drag.
+        self._stroke = None
+        self._stroke_from: Optional[tuple] = None
+        self._stroke_moved = False
+        self._stroke_timer = QTimer(self)
+        self._stroke_timer.setSingleShot(True)
+        self._stroke_timer.setInterval(_PREVIEW_MS)
+        self._stroke_timer.timeout.connect(self._stroke_show)
+        self._delivered.connect(self._stroke_delivered, Qt.QueuedConnection)
+
+    def press(self) -> bool:
+        """Start a stroke under the mouse: what a left press does while on.
+
+        Nothing is added on the press. A release that has not moved is a
+        click -- :meth:`click`, as item 407 built it -- except that with only
+        objects touching the mouse it adds just the object under the cursor.
+        A press that pulls is a drag; what a drag adds is
+        :mod:`spacr.qt._magnifier_drag`'s to say. Under Whole image a drag
+        reads the objects already found and asks no model; before they are
+        found a press starts nothing, and its release is a click that says so.
+
+        :returns: False when no stroke started.
+        """
+        from .._magnifier_drag import _DragStroke, _frame_step
+
+        self._stroke = None
+        canvas = self.canvas
+        if (not self.enabled or self._cursor is None or canvas.image is None
+                or canvas.mask is None):
+            return False
+        whole = self.scope == "image"
+        found = self._image_result
+        if whole and (found is None
+                      or found.request.key != self._image_key_now()):
+            return False
+        stroke = _DragStroke(
+            canvas.image.shape, self._cursor,
+            step=0 if whole else _frame_step(self.size),
+            keep_untouched=not whole and self.save_mode != "touching")
+        self._stroke = stroke
+        self._stroke_from = (QPointF(self._anchor), self._field)
+        self._stroke_moved = False
+        if whole:
+            stroke.expect("image")
+            stroke.deliver("image", found.labels, found.request.box)
+        else:
+            self._stroke_frame(self._cursor)
+        return True
+
+    def drag(self) -> None:
+        """Follow the pressed mouse: extend the stroke and ask for its frames.
+
+        Called on every move with the button down, and cheap. The press must
+        first travel the platform's drag distance, so a hand that shakes
+        during a click still clicks; after that a move adds a line of pixels
+        and, every quarter box, one pinned request on the region worker. The
+        model never runs here, and the mask is repainted at most every
+        ``_PREVIEW_MS``.
+        """
+        stroke = self._stroke
+        if stroke is None or self._cursor is None:
+            return
+        if not self._stroke_moved:
+            travel = (self._anchor - self._stroke_from[0]).manhattanLength()
+            if travel < QApplication.startDragDistance():
+                return
+            self._stroke_moved = True
+        for centre in stroke.extend(self._cursor):
+            self._stroke_frame(centre)
+        self._stroke_dirty()
+
+    def release(self) -> bool:
+        """End a press: a click if it never moved, otherwise commit the stroke.
+
+        The commit waits for any frame still on the worker, then reaches the
+        screen once through :attr:`drag_ready` -- one edit, one undo step.
+        """
+        from ..i18n import tr
+
+        stroke = self._stroke
+        touching_click = bool(stroke is not None and stroke.step
+                              and not stroke.keep_untouched)
+        if stroke is None or not (self._stroke_moved or touching_click):
+            self._stroke = None
+            return self.click()
+        stroke.release()
+        if stroke.waiting():
+            self.status.emit(tr(
+                "Magnifier: segmenting the last regions — the objects are "
+                "added as soon as they are done."))
+        self._stroke_finish()
+        return True
+
+    def _stroke_frame(self, centre) -> None:
+        """Ask for the box centred on ``centre`` as one of the stroke's frames.
+
+        The box on screen, when it is that box, is taken at once; any other is
+        pinned on the region worker, so later moves cannot supersede it.
+        """
+        cursor, self._cursor = self._cursor, centre
+        request = self.build_request()
+        self._cursor = cursor
+        self._stroke.expect(request.key)
+        shown = self._shown
+        if shown is not None and shown.request.key == request.key:
+            self._stroke.deliver(request.key, shown.labels, request.box)
+        else:
+            self._worker.submit(request, pin=True)
+
+    def _stroke_delivered(self, payload) -> None:
+        """Give the stroke a box it waits for; commit it if that was the last."""
+        request, result, error = payload
+        stroke = self._stroke
+        if stroke is None:
+            return
+        if error is not None:
+            stroke.drop(request.key)
+        elif stroke.deliver(request.key, result.labels, request.box):
+            self._stroke_dirty()
+        self._stroke_finish()
+
+    def _stroke_dirty(self) -> None:
+        """Show what the stroke adds soon, unless a showing is already due."""
+        if self._stroke.dirty and not self._stroke_timer.isActive():
+            self._stroke_timer.start()
+
+    def _stroke_finish(self) -> None:
+        """Commit the stroke once the button is up and its last frame is in."""
+        if self._stroke is not None and self._stroke.ready():
+            self._stroke_show(final=True)
+
+    def _stroke_show(self, final: bool = False) -> None:
+        """Hand what the stroke adds to the screen: to show, or to commit.
+
+        A stroke whose field has gone -- the user moved on while it waited --
+        is dropped without a word: its objects were for a mask no longer on
+        screen.
+        """
+        stroke = self._stroke
+        if stroke is None:
+            return
+        gone = self._stroke_from[1] != self._field
+        if final or gone:
+            self._stroke = None
+            self._stroke_timer.stop()
+        if not gone:
+            self.drag_ready.emit((stroke.outcome(), bool(final)))
 
     # -- the worker ---------------------------------------------------------
 
@@ -3026,6 +3196,9 @@ class MakeMasksScreen(QWidget):
         self._canvas.magnifier = self._magnifier
         self._magnifier.commit_ready.connect(self._commit_magnifier_result)
         self._magnifier.remove_requested.connect(self._remove_magnifier_object)
+        self._magnifier.drag_ready.connect(self._apply_magnifier_drag)
+        #: The mask a magnifier drag pastes onto, and the last one it showed.
+        self._drag_base = self._drag_shown = None
         self._magnifier.status.connect(
             lambda text: self._status_label.setText(text))
         self._body_splitter.addWidget(self._build_view_tabs())
@@ -4621,6 +4794,7 @@ class MakeMasksScreen(QWidget):
             "object.")
         self._mag_exclude_border.toggled.connect(magnifier.set_exclude_border)
         form.addRow(self._mag_exclude_border)
+        self._build_magnifier_save_mode(form)
 
         self._mag_zoom = QDoubleSpinBox()
         self._mag_zoom.setDecimals(2)
@@ -4691,6 +4865,30 @@ class MakeMasksScreen(QWidget):
         self._btn_magnifier.toggled.connect(self._on_toggle_magnifier)
         self.add_toolbar_action(self._btn_magnifier)
         return card
+
+    def _build_magnifier_save_mode(self, form: QFormLayout) -> None:
+        """Item 417, part 6: which objects a click or a drag adds.
+
+        A method of its own with one call from the Live magnifier card, so the
+        card can be rearranged without rewriting this row. The choice is read
+        when the button goes down, so changing it mid-drag applies to the next
+        press.
+        """
+        box = self._mag_save = QComboBox()
+        box.addItem("All objects in the zoom area", "zoom")
+        box.addItem("Only objects touching the mouse", "touching")
+        box.setToolTip(
+            "Which objects a click or a drag adds. All objects in the zoom "
+            "area adds every object the box outlines. Only objects touching "
+            "the mouse adds just the object under the cursor and leaves the "
+            "rest of the box out. Press and drag to keep adding along the "
+            "path: the objects the cursor passes over become one object, "
+            "joined from the pieces found in each box where they lie in the "
+            "image. Whole image always adds only the objects under the mouse.")
+        box.currentIndexChanged.connect(
+            lambda _index: setattr(self._magnifier, "save_mode",
+                                   box.currentData()))
+        form.addRow(QLabel("Objects added"), box)
 
     def _magnifier_context(self) -> dict:
         """The settings the magnifier's models read from elsewhere on the panel."""
@@ -4835,6 +5033,59 @@ class MakeMasksScreen(QWidget):
         self._status_label.setText(tr(
             "Magnifier removed object {label} — Ctrl+Z to undo", label=label))
         return label
+
+    def _apply_magnifier_drag(self, payload) -> List[int]:
+        """Show a magnifier drag's objects in the mask, or commit them (417).
+
+        While the button is down the mask shows the drag's objects pasted onto
+        the mask the drag started from, and nothing is recorded. The final
+        paste is ONE edit -- one ``magnifier`` ledger entry marked
+        ``drag=True`` and one undo step -- through the Overlap rule and Min
+        area, as a click's objects go in. A mask another edit put on screen
+        during the drag becomes the mask it pastes onto.
+
+        :param payload: ``(outcome, final)`` from
+            :attr:`_LiveMagnifier.drag_ready`.
+        :returns: the ids the final paste added; empty for a preview.
+        """
+        from ..i18n import tr
+
+        found, final = payload
+        canvas = self._canvas
+        if canvas.mask is not self._drag_shown:
+            self._drag_base = canvas.mask
+        base = out = self._drag_base
+        overlap = self._mag_overlap.currentData() or "clip"
+        added: List[int] = []
+        if base is not None and found is not None and found.objects:
+            pasted, added = engine._paste_region_objects(
+                base, found.labels, found.origin, overlap=overlap,
+                min_area=self._detect_min_area())
+            out = pasted if added else base
+        canvas.mask = out
+        canvas.refresh()
+        self._drag_shown = None if final else out
+        if not final:
+            return []
+        if not added:
+            self._status_label.setText(tr(
+                "Magnifier: nothing was added — there was no object under the "
+                "mouse, or the Overlap rule or Min area left nothing of it."))
+            return []
+        height, width = found.labels.shape[:2]
+        x0, y0 = found.origin
+        self._record("magnifier", list(added), self._pixels_changed(out),
+                     mode=self._magnifier.mode, overlap=overlap,
+                     box=[x0, y0, x0 + width, y0 + height],
+                     sensitivity=float(self._magnifier.sensitivity),
+                     n_objects=len(added), scope=self._magnifier.scope,
+                     drag=True, save=self._magnifier.save_mode,
+                     frames=found.frames, merged=found.merged)
+        self._history.push(out)
+        self._refresh_history_buttons()
+        self._status_label.setText(tr(
+            "Magnifier added {n} object(s) — Ctrl+Z to undo", n=len(added)))
+        return added
 
     def _warn(self, title: str, text: str) -> None:
         """Report a non-fatal failure to the user.

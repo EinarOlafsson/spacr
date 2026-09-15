@@ -85,3 +85,143 @@ HOW TO KNOW IT WORKED
   * DINOCell (and SAMCell) are selectable detectors where installed, with a
     clear message where not; YOLO is either added or recorded here with why not.
   * New labels and tooltips are translated in all nine languages.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- PARTS 5-6 BUILT: DRAG-TO-MERGE AND WHAT IS SAVED
+--------------------------------------------------------------------------------
+
+Branch wip/417-drag-merge, cut from nightly 884eacaab, not pushed. Parts 1-4
+and 7-10 are another agent's, on their own branch; nothing here touches the
+detection call, and the settings panel gains one line (below).
+
+WHAT IT DOES
+
+  * PRESS AND DRAG (part 5). With the magnifier on, a left press starts a
+    stroke and adds nothing yet. Once the mouse has travelled the platform's
+    drag distance (10 px) it is a drag: every quarter of a box of travel
+    (Size 128 -> every 32 image px) the box there is segmented, on the
+    existing region worker and pinned so later moves cannot supersede it. A
+    long jump between two mouse events asks for a box at every quarter-box
+    along the line, so no stretch of the path goes unseen. What the stroke
+    adds is pasted onto the mask LIVE, at most every 40 ms, and the model
+    never runs on the GUI thread.
+  * THE OBJECTS THE CURSOR PASSES OVER BECOME ONE OBJECT, from every box along
+    the drag. On release the stroke waits for any box still on the worker
+    ("Magnifier: segmenting the last regions ..."), then goes in as ONE edit:
+    one undo step and one "magnifier" ledger entry with drag=True, save,
+    frames and merged (pieces joined into the object under the path). The
+    Overlap rule and Min area apply exactly as for a click.
+  * WHAT IS SAVED (part 6): "Objects added" on the Live magnifier card,
+    "All objects in the zoom area" (the default, 407's behaviour) or "Only
+    objects touching the mouse". With the second, a click adds just the
+    object under the cursor and a drag adds just the object(s) under the
+    path; objects elsewhere in the box are not saved.
+  * A PRESS THAT DOES NOT MOVE IS STILL 407's CLICK, now on release rather
+    than on press, under "All objects in the zoom area" and under Whole
+    image. Under Whole image a drag merges the already-found objects the path
+    passes over and asks no model.
+  * RIGHT BUTTON: unchanged. Under Region under the mouse a right drag still
+    sweep-deletes every object it passes over as one undo step; under Whole
+    image a right press still removes the one object under it and does not
+    sweep.
+  * Moving to another field mid-drag drops the stroke without adding to
+    either field; a box that cannot be segmented is dropped from the stroke
+    rather than holding it up; a stroke that adds nothing says so and leaves
+    no undo step.
+
+HOW "MERGE ALL OBJECT FRAMES INTO ONE OBJECT OVER THE CENTER OF THE ROI" WAS READ
+
+  The magnifier's ROI is always centred on the cursor, so "the object over
+  the centre of the ROI" is the object under the cursor, and its "frames" are
+  the pieces of it that the successive boxes along the drag each found. They
+  are merged by UNION AT THEIR TRUE IMAGE POSITIONS: nothing is moved or
+  re-centred. The rules, in spacr/qt/_magnifier_drag.py:
+    1. every piece the path passes over, in any box, goes into one object;
+    2. a piece sharing at least half of the smaller of the two with an object
+       already gathered (counted inside the new box) is that object seen
+       again and joins it -- so a piece the path did not cross still joins
+       the object it belongs to, while neighbours whose outlines disagree by
+       a few pixels stay apart;
+    3. other objects are added separately under "All objects in the zoom
+       area" and left out under "Only objects touching the mouse";
+    4. a pixel two objects both claim stays with the first.
+
+  EXAMPLE. Size 128, Only objects touching the mouse, border option unticked.
+  A cell 300 px long lies along a row; press on its left end and pull to its
+  right end. A box is taken every 32 px; each sees the part of the cell inside
+  it, cut by the box's edges. The pieces overlap, so they become ONE object
+  covering the whole cell, exactly where the cell is, and a neighbouring cell
+  visible at the side of every box is not saved.
+
+  THE BORDER OPTION KEEPS ITS 407 MEANING IN EVERY BOX. With "Exclude objects
+  touching the box border" ticked (the default) a piece the box cuts is not
+  offered, so an object LARGER than the box contributes nothing and is not
+  added; untick it to assemble such objects from their pieces. An object
+  smaller than half the box is never cut under the cursor, so the default
+  works for it, and the successive boxes' outlines of it are merged into one.
+
+WHERE THE CODE IS
+
+  * spacr/qt/_magnifier_drag.py (new, private, no Qt): the stroke state
+    machine -- path, frame spacing, rules 1-4, the label image to paste.
+  * spacr/qt/screens/make_masks.py, +253/-2 (166 code, 61 docstring, 26
+    comment or blank): three canvas hooks (press starts, move drags, release
+    commits); on _LiveMagnifier a drag_ready signal, one line in __init__,
+    and press/drag/release with six private helpers; on the screen
+    _apply_magnifier_drag, four wiring lines, and the save-mode row as its
+    own method _build_magnifier_save_mode(form), called by ONE line in
+    _build_magnifier_card after the border checkbox.
+
+EVIDENCE
+
+  * tests/qt/test_the_magnifier_drag_merges_what_the_cursor_passes_over.py,
+    25 passed, stand-in model, offscreen: a drag across two adjacent cells is
+    one label and one undo step; objects show while the button is down with
+    no undo step; "only touching" drops an object never under the cursor and
+    "all in zoom area" keeps it; the pieces of an object longer than the box
+    merge into one label, with the path along it and beside it; a press with
+    one pixel of jitter is still 407's click; a touching click adds just the
+    object under the cursor; a 0.5 s-per-box model: slowest move measured
+    0.0002 s against a 0.4 s bound, the model never on the GUI thread, the
+    event loop ticking while the stroke waits; whole-image drag with one model call; the right-button
+    sweep; field change, a failed box, background; and nine tests of the
+    state machine on plain arrays.
+  * spacr/qt/_magnifier_drag.py at 100% statements and branches under that
+    file alone (155 statements, 40 branches).
+  * The Make Masks suites (23 files matching make_masks, magnifier and
+    mask_engine; none matches curation_queue): 580 passed, 1 skipped (the
+    opt-in real-Cellpose test), 1 failed -- the panel's exact-catalog-row
+    test, on the new tooltip, which goes green when the catalogs are
+    regenerated.
+  * Strings: 6 new captions (the row label, its two choices, its tooltip,
+    two status lines) x 9 languages, hand-written in
+    docs/i18n/reviewed/runtime/<lang>/2026-09-15-magnifier-round-two-drag.json;
+    tools/check_reviewed_runtime_evidence.py clean (3090 records). The
+    Swedish and French reviewed-record pins moved 284 -> 290 and 259 -> 265.
+    The drag's success line reuses 407's "Magnifier added {n} object(s)".
+    No existing caption was reworded.
+  * No public symbol added. ruff clean on the new files; make_masks.py has
+    the same 7 findings as before.
+
+OWED AT LANDING (catalogs not regenerated on this branch, as instructed)
+
+  * tests/qt/test_i18n_caption_ratchet.py: UI 3527 -> 3533 (the six captions)
+    and its digest, and the source-hash test, until the runtime catalogs are
+    rebuilt; test_make_masks_settings_explain_themselves's catalog-row test
+    likewise.
+  * tests/test_docstring_correctness.py's callable boundary 10539 -> 10540:
+    the one entry is the private module spacr.qt._magnifier_drag's docstring,
+    which the documentation inventory counts; its API-lane catalog entry is
+    owed.
+  * Not mine: the two test_user_facing_docstrings task-history tests, on
+    spacr/qt/make_masks_demo.py line 1 ("maintainer"). MEASURED on a clean
+    checkout of nightly 884eacaab: those two fail there and the other five
+    named above pass, so the five are this branch's and these two are not.
+    With the sv/fr pins moved, this branch's own file and those two pins run
+    27 passed.
+
+NOT DONE
+
+  * The box does not yet preview the save mode (outline only the object under
+    the cursor under "only touching"), nor the stroke's own objects.
+  * Not measured with a real model, nor under the 380 responsiveness harness.
