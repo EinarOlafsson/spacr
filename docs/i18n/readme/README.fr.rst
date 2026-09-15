@@ -212,15 +212,15 @@ La deuxième ligne n'est nécessaire que lorsque les dépendances ou les points 
 Installer à partir de la source (lumière)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Les contributeurs ont besoin de l'historique; pour exécuter seulement spaCR, prenez l'un d'eux, mesuré 2026-09-14 par ``packaging/measure_clone_forms.sh``::
+Les contributeurs ont besoin de l'historique; pour exécuter seulement spaCR, prenez l'un d'eux, mesuré 2026-09-15 par ``packaging/measure_clone_forms.sh``::
 
-    # One commit instead of every version: 595 MB downloaded, 31 s.
+    # One commit instead of every version: 540 MB downloaded, 69 s.
     # No history, so no git log, no git blame and no git bisect.
     # git pull still works, but stays shallow until git fetch --unshallow.
     git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
     cd spacr && pip install -e .
 
-    # Only the files spaCR runs from: 86 MB on disk, 5 s. No history
+    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
     # either, and no docs, tests, tools or example data.
     # --with-docs, --with-tests and --with-translations put those back;
     # --dir, --branch, --no-install and --help do the obvious things.
@@ -228,7 +228,7 @@ Les contributeurs ont besoin de l'historique; pour exécuter seulement spaCR, pr
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Le clone complet télécharge 5,8 Go pour une caisse de 941 Mo. Ajouter ``--filter=blob:none`` à ce clone ne sauve rien: la caisse récupère les blobs de toute façon.
+Le clone complet télécharge 5,8 Go pour une caisse de 1186 Mo. Ajouter ``--filter=blob:none`` à ce clone ne sauve rien: la caisse récupère les blobs de toute façon.
 
 
 Points d’entrée en ligne de commande
