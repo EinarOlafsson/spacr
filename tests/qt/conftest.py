@@ -15,6 +15,7 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 _PENDING_STYLESHEET = None
+_PENDING_FONT = None
 
 # Skipping while this conftest is imported aborts collection of the entire
 # repository on pytest 7, leaving pytest with exit code 5 ("no tests
@@ -215,6 +216,46 @@ def _restore_font_scale(deferred_deletions_flushed):
                     _PENDING_STYLESHEET = _canonical()
                 except Exception:                            # noqa: BLE001
                     _PENDING_STYLESHEET = None
+
+
+@pytest.fixture(autouse=True)
+def _the_application_font_is_left_as_it_was_found(deferred_deletions_flushed):
+    """Put the application font back the way the test found it.
+
+    ``spacr.qt.app.apply_interface_font`` sets the font APPLICATION-WIDE,
+    and both ``MainWindow`` and a Preferences Save reach it. Once the
+    bundled Open Sans is registered, a Save leaves the whole process drawing
+    in Open Sans at the interface weight -- Light by default -- and nothing
+    here put it back, so every later test measured type in a font no
+    assertion had asked for.
+
+    Measured on dispatch 35012948690, Qt shard 1's third worker:
+    ``test_the_setup_is_a_sequence_of_slides`` registered the bundled faces,
+    ``test_preferences_tabs::test_saving_from_one_tab_still_writes_the_others``
+    clicked Save, and a few files later
+    ``test_one_close_mark::test_the_glyph_is_drawn_larger_than_the_mark_it_replaces``
+    found no nearly-opaque pixel in a 13 px Open Sans Light close glyph
+    ("nothing was drawn"). Either file alone ahead of it leaves the font
+    unregistered or untouched, and passes; the worker's order with the font
+    put back passes.
+
+    Restored at the NEXT test's setup, after its deleteLater queue has been
+    flushed, for the reason ``_restore_font_scale`` gives for the style
+    sheet: an application-wide font change visits every live widget, and at
+    teardown some of them are part-way through being destroyed.
+    """
+    global _PENDING_FONT
+
+    from PySide6.QtGui import QFont
+
+    app = deferred_deletions_flushed
+    if _PENDING_FONT is not None:
+        app.setFont(_PENDING_FONT)
+        _PENDING_FONT = None
+    original = QFont(app.font())
+    yield
+    if app.font() != original:
+        _PENDING_FONT = original
 
 
 @pytest.fixture(autouse=True)
