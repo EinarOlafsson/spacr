@@ -1239,3 +1239,27 @@ Minimum dependencies failed. Read from their logs:
   tests/qt/test_dnd_dropzone.py::test_dropping_a_settings_csv_imports_it_and_accepts_the_drop.
   As with the six before it, the site names where the worker died, not what
   killed it; nothing in that test is attributed.
+
+  THE QT SHARDS ON 3f27b926a (same run). Seven failures between them:
+
+      shard 1 (62 min; 5 failed, 11,567 passed) -- home session, branch
+      wip/43-qt-reds-3f27
+        test_chaining_gui::test_a_blank_downstream_screen_finds_the_plate_the_upstream_ran_on
+        test_cov_r8_fractal_app_hooks::TestShuttingDown::test_the_disconnect_guard_is_belt_and_braces_and_why
+        test_the_white_band_in_the_live_canvas::test_a_stock_matplotlib_canvas_is_the_opaque_one
+        test_a_qt_warning_reaches_the_console_once::test_a_qt_warning_is_rendered_once_not_twice
+        test_laptop_mode_uncovered_paths::test_apply_with_no_argument_measures_the_machine
+          (offered to the work session)
+      shard 0 (lost at [83%]; offered to the work session)
+        test_cov_w2_2_availability_panel::test_explaining_nothing_opens_nothing
+          -- also red on b740c741d
+        test_field_fade::test_the_text_stays_fully_opaque_all_the_way_across
+          -- red AGAIN after the fee40b72a-era fix
+
+  SHARD 0 WAS NOT A TIMEOUT, and it is recorded here because it was first
+  misread as one. The Qt job's budget is 180 minutes (tests.yml, raised from
+  120). Shard 0 ran 11:16 -> 12:27, 71 minutes, and was at [83%] when "The
+  runner has received a shutdown signal" arrived: a lost runner, reported like
+  a cancellation. Shard durations vary widely (b740c741d: shard 0 130 min,
+  shard 1 23 min; 3f27b926a: shard 1 62 min), so a duration alone does not say
+  whether a shard was cut short. Read the last lines.
