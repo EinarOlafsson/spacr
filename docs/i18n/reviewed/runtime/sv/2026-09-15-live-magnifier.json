@@ -1,0 +1,125 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "Cellpose",
+      "source": "Cellpose",
+      "source_sha256": "c6eaca19f427c3706e7b900dd7ce33fd9b4fe5afb5d1e9b0933d40b04858452d",
+      "table": "ui",
+      "translation": "Cellpose"
+    },
+    {
+      "key": "Classical",
+      "source": "Classical",
+      "source_sha256": "5550f80de667506a37a21ab31f601c8cf1d259c2759ff40d63ca92e7a3d446df",
+      "table": "ui",
+      "translation": "Klassisk"
+    },
+    {
+      "key": "Clip",
+      "source": "Clip",
+      "source_sha256": "82337888d76466b26eeef984735aa945a1ab2ac99c46c87e994189c940c0b95e",
+      "table": "ui",
+      "translation": "Beskär"
+    },
+    {
+      "key": "How many times larger than the canvas the box draws its region. The mouse wheel changes it while the magnifier is on. It changes only what you see: the model always segments the region at the image's own resolution.",
+      "source": "How many times larger than the canvas the box draws its region. The mouse wheel changes it while the magnifier is on. It changes only what you see: the model always segments the region at the image's own resolution.",
+      "source_sha256": "af61776b26183018ce604f1b865ad31a9eee7a949770738a5f09da3e2034b776",
+      "table": "ui",
+      "translation": "Hur många gånger större än arbetsytan rutan ritar sitt område. Mushjulet ändrar det medan förstoringsglaset är på. Det ändrar bara vad du ser: modellen segmenterar alltid området i bildens egen upplösning."
+    },
+    {
+      "key": "How readily an object is accepted. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is each model's own default. For Cellpose it is the cell probability threshold with the sign reversed, so a sensitivity of 1.5 is a threshold of -1.5.",
+      "source": "How readily an object is accepted. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is each model's own default. For Cellpose it is the cell probability threshold with the sign reversed, so a sensitivity of 1.5 is a threshold of -1.5.",
+      "source_sha256": "b7e9d723bde23a65da1855459ff252d52ab64ad5f991717378adb759707565b6",
+      "table": "ui",
+      "translation": "Hur lätt ett objekt godtas. Höj den för att ta med svagare eller osäkrare objekt, sänk den för att bara behålla tydliga; 0 är varje modells egen standard. För Cellpose är det tröskeln för cellsannolikhet med omvänt tecken, så en känslighet på 1.5 motsvarar en tröskel på -1.5."
+    },
+    {
+      "key": "Live magnifier",
+      "source": "Live magnifier",
+      "source_sha256": "886ee4e35e283ff0705084c59eb144aab13bc0b5f9f2b6efff3b05a11c268ba8",
+      "table": "ui",
+      "translation": "Live-förstoringsglas"
+    },
+    {
+      "key": "Magnifier",
+      "source": "Magnifier",
+      "source_sha256": "b3a4c2cd1daea7f8ee7b0924c30154618e8541289bfee8c4867b221e48ac8ecb",
+      "table": "ui",
+      "translation": "Förstoringsglas"
+    },
+    {
+      "key": "Magnifier off. The objects it added stay in the mask.",
+      "source": "Magnifier off. The objects it added stay in the mask.",
+      "source_sha256": "ab2959dd7d3bb4b084cb34e241affbc8aaff770060f1a319c12d2b44043369f4",
+      "table": "ui",
+      "translation": "Förstoringsglaset av. Objekten det lade till finns kvar i masken."
+    },
+    {
+      "key": "Magnifier on: a click adds the objects outlined in the box; the mouse wheel changes its zoom.",
+      "source": "Magnifier on: a click adds the objects outlined in the box; the mouse wheel changes its zoom.",
+      "source_sha256": "1bd2cdea1990127e09484704cd3ffef3e48b1f339d9f9c9aafd68b0f5dbd3ff4",
+      "table": "ui",
+      "translation": "Förstoringsglaset på: ett klick lägger till objekten som är markerade i rutan; mushjulet ändrar förstoringen."
+    },
+    {
+      "key": "Magnifier: nothing to add — the box outlines no object, or every object it outlines overlaps one already in the mask.",
+      "source": "Magnifier: nothing to add — the box outlines no object, or every object it outlines overlaps one already in the mask.",
+      "source_sha256": "c046b887a7c710b4307da11cb9c16a97ef1fbfc0b3d4357b7f9365e53ebd9ffd",
+      "table": "ui",
+      "translation": "Förstoringsglas: inget att lägga till — rutan markerar inget objekt, eller så överlappar varje markerat objekt ett som redan finns i masken."
+    },
+    {
+      "key": "Replace",
+      "source": "Replace",
+      "source_sha256": "95e154398a4bc0091aa4d6b607472ac5a89e41fbc84a3a49f823314d6de9eebc",
+      "table": "ui",
+      "translation": "Ersätt"
+    },
+    {
+      "key": "Segments the region under the mouse. A click adds the objects the box outlines to the mask.",
+      "source": "Segments the region under the mouse. A click adds the objects the box outlines to the mask.",
+      "source_sha256": "114638e88e0c750723557e1c7163ab729d4994f72734884410a3c7d81ed44b7d",
+      "table": "ui",
+      "translation": "Segmenterar området under muspekaren. Ett klick lägger till objekten som rutan markerar i masken."
+    },
+    {
+      "key": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined, live. A click adds the outlined objects to the mask as new objects, one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
+      "source": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined, live. A click adds the outlined objects to the mask as new objects, one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
+      "source_sha256": "5a3ffd2ed19534b0fdea1911fff4bb67a63378f790b1d574dc82a706192ab77e",
+      "table": "ui",
+      "translation": "Visa en ruta under muspekaren med området runt den förstorat och de objekt en modell hittar där markerade, i realtid. Ett klick lägger till de markerade objekten i masken som nya objekt, ett ångra-steg per klick. Medan den är på ändrar mushjulet rutans förstoring i stället för vyns."
+    },
+    {
+      "key": "Side of the square region the model segments, in image pixels. Objects cut by the edge of the box are not offered, so make it wider than the largest object you want to add.",
+      "source": "Side of the square region the model segments, in image pixels. Objects cut by the edge of the box are not offered, so make it wider than the largest object you want to add.",
+      "source_sha256": "1e82df23c587a6d4626d9f64ea229c45cabbe7e2732e932edaf7465994e5687a",
+      "table": "ui",
+      "translation": "Sidan på det kvadratiska område som modellen segmenterar, i bildpixlar. Objekt som skärs av rutans kant erbjuds inte, så gör den bredare än det största objekt du vill lägga till."
+    },
+    {
+      "key": "Updating…",
+      "source": "Updating…",
+      "source_sha256": "dfe40efe921fe88e332575a3516f4e8cd6bbb71437cf260b2bb9b947c65d1484",
+      "table": "ui",
+      "translation": "Uppdaterar…"
+    },
+    {
+      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers.",
+      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers.",
+      "source_sha256": "0217cb326bbd11f699df8e270e0b72e5618e0dd2050c9b54debfc96412fd88f3",
+      "table": "ui",
+      "translation": "Vad ett nytt objekt gör där masken redan har ett objekt. Beskär behåller bara dess omärkta pixlar, så inget befintligt objekt förlorar en pixel. Hoppa över utelämnar varje objekt som rör ett befintligt. Ersätt låter det nya objektet ta varje pixel det täcker."
+    },
+    {
+      "key": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations, and runs whenever a model cannot be loaded. Cellpose uses the model and diameter set in the Cellpose-SAM settings and is slow without a GPU.",
+      "source": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations, and runs whenever a model cannot be loaded. Cellpose uses the model and diameter set in the Cellpose-SAM settings and is slow without a GPU.",
+      "source_sha256": "010df707916a267a57b3d01639d05180c78f7c613a13b0ab1c40986ece0101ce",
+      "table": "ui",
+      "translation": "Vilken modell som segmenterar området i rutan. Klassisk tröskelvärdesätter området på Otsu-nivån och delar objekt som rör varandra med en vattendelare; den kräver inget installerat, följer reglaget Ljus och rutan Min area under Objektåtgärder, och körs när en modell inte kan laddas. Cellpose använder modellen och diametern som ställts in i Cellpose-SAM-inställningarna och är långsam utan GPU."
+    }
+  ],
+  "schema": 1
+}

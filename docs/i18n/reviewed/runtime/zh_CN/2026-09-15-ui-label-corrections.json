@@ -1,0 +1,27 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "Bright",
+      "source": "Bright",
+      "source_sha256": "e4378e9c551f7f9cc15393265d53a4bc5d7a08d8605d115c60b6e4cf0bafb8b5",
+      "table": "ui",
+      "translation": "明亮"
+    },
+    {
+      "key": "Overlap",
+      "source": "Overlap",
+      "source_sha256": "38b163f9be7c4f3be3d8ef89a23beff832e8dd9ed0a28308a47cefabca0e1c00",
+      "table": "ui",
+      "translation": "重叠"
+    },
+    {
+      "key": "objects",
+      "source": "objects",
+      "source_sha256": "e4cd302972b0cf4e227de8277f328e7631b1cd98655ebf610b401514d47338f7",
+      "table": "ui",
+      "translation": "对象"
+    }
+  ],
+  "schema": 1
+}

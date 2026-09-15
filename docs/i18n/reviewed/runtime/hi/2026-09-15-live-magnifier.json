@@ -1,0 +1,125 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Cellpose",
+      "source": "Cellpose",
+      "source_sha256": "c6eaca19f427c3706e7b900dd7ce33fd9b4fe5afb5d1e9b0933d40b04858452d",
+      "table": "ui",
+      "translation": "Cellpose"
+    },
+    {
+      "key": "Classical",
+      "source": "Classical",
+      "source_sha256": "5550f80de667506a37a21ab31f601c8cf1d259c2759ff40d63ca92e7a3d446df",
+      "table": "ui",
+      "translation": "पारंपरिक"
+    },
+    {
+      "key": "Clip",
+      "source": "Clip",
+      "source_sha256": "82337888d76466b26eeef984735aa945a1ab2ac99c46c87e994189c940c0b95e",
+      "table": "ui",
+      "translation": "काटें"
+    },
+    {
+      "key": "How many times larger than the canvas the box draws its region. The mouse wheel changes it while the magnifier is on. It changes only what you see: the model always segments the region at the image's own resolution.",
+      "source": "How many times larger than the canvas the box draws its region. The mouse wheel changes it while the magnifier is on. It changes only what you see: the model always segments the region at the image's own resolution.",
+      "source_sha256": "af61776b26183018ce604f1b865ad31a9eee7a949770738a5f09da3e2034b776",
+      "table": "ui",
+      "translation": "बॉक्स अपने क्षेत्र को कैनवास से कितने गुना बड़ा बनाता है। आवर्धक चालू रहने पर माउस व्हील इसे बदलता है। यह केवल वही बदलता है जो आप देखते हैं: मॉडल हमेशा क्षेत्र को छवि के अपने रिज़ॉल्यूशन पर सेगमेंट करता है।"
+    },
+    {
+      "key": "How readily an object is accepted. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is each model's own default. For Cellpose it is the cell probability threshold with the sign reversed, so a sensitivity of 1.5 is a threshold of -1.5.",
+      "source": "How readily an object is accepted. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is each model's own default. For Cellpose it is the cell probability threshold with the sign reversed, so a sensitivity of 1.5 is a threshold of -1.5.",
+      "source_sha256": "b7e9d723bde23a65da1855459ff252d52ab64ad5f991717378adb759707565b6",
+      "table": "ui",
+      "translation": "किसी ऑब्जेक्ट को कितनी आसानी से स्वीकार किया जाता है। धुंधले या कम निश्चित ऑब्जेक्ट शामिल करने के लिए इसे बढ़ाएँ, केवल स्पष्ट ऑब्जेक्ट रखने के लिए घटाएँ; 0 हर मॉडल का अपना डिफ़ॉल्ट है। Cellpose के लिए यह उलटे चिह्न वाली सेल प्रायिकता सीमा है, इसलिए 1.5 की संवेदनशीलता -1.5 की सीमा के बराबर है।"
+    },
+    {
+      "key": "Live magnifier",
+      "source": "Live magnifier",
+      "source_sha256": "886ee4e35e283ff0705084c59eb144aab13bc0b5f9f2b6efff3b05a11c268ba8",
+      "table": "ui",
+      "translation": "लाइव आवर्धक"
+    },
+    {
+      "key": "Magnifier",
+      "source": "Magnifier",
+      "source_sha256": "b3a4c2cd1daea7f8ee7b0924c30154618e8541289bfee8c4867b221e48ac8ecb",
+      "table": "ui",
+      "translation": "आवर्धक"
+    },
+    {
+      "key": "Magnifier off. The objects it added stay in the mask.",
+      "source": "Magnifier off. The objects it added stay in the mask.",
+      "source_sha256": "ab2959dd7d3bb4b084cb34e241affbc8aaff770060f1a319c12d2b44043369f4",
+      "table": "ui",
+      "translation": "आवर्धक बंद है। इसके जोड़े गए ऑब्जेक्ट मास्क में बने रहते हैं।"
+    },
+    {
+      "key": "Magnifier on: a click adds the objects outlined in the box; the mouse wheel changes its zoom.",
+      "source": "Magnifier on: a click adds the objects outlined in the box; the mouse wheel changes its zoom.",
+      "source_sha256": "1bd2cdea1990127e09484704cd3ffef3e48b1f339d9f9c9aafd68b0f5dbd3ff4",
+      "table": "ui",
+      "translation": "आवर्धक चालू: एक क्लिक बॉक्स में रेखांकित ऑब्जेक्ट जोड़ता है; माउस व्हील उसका ज़ूम बदलता है।"
+    },
+    {
+      "key": "Magnifier: nothing to add — the box outlines no object, or every object it outlines overlaps one already in the mask.",
+      "source": "Magnifier: nothing to add — the box outlines no object, or every object it outlines overlaps one already in the mask.",
+      "source_sha256": "c046b887a7c710b4307da11cb9c16a97ef1fbfc0b3d4357b7f9365e53ebd9ffd",
+      "table": "ui",
+      "translation": "आवर्धक: जोड़ने को कुछ नहीं — बॉक्स में कोई ऑब्जेक्ट रेखांकित नहीं है, या हर रेखांकित ऑब्जेक्ट मास्क में पहले से मौजूद किसी ऑब्जेक्ट से ओवरलैप करता है।"
+    },
+    {
+      "key": "Replace",
+      "source": "Replace",
+      "source_sha256": "95e154398a4bc0091aa4d6b607472ac5a89e41fbc84a3a49f823314d6de9eebc",
+      "table": "ui",
+      "translation": "बदलें"
+    },
+    {
+      "key": "Segments the region under the mouse. A click adds the objects the box outlines to the mask.",
+      "source": "Segments the region under the mouse. A click adds the objects the box outlines to the mask.",
+      "source_sha256": "114638e88e0c750723557e1c7163ab729d4994f72734884410a3c7d81ed44b7d",
+      "table": "ui",
+      "translation": "माउस के नीचे के क्षेत्र को सेगमेंट करता है। एक क्लिक बॉक्स में रेखांकित ऑब्जेक्ट को मास्क में जोड़ता है।"
+    },
+    {
+      "key": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined, live. A click adds the outlined objects to the mask as new objects, one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
+      "source": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined, live. A click adds the outlined objects to the mask as new objects, one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
+      "source_sha256": "5a3ffd2ed19534b0fdea1911fff4bb67a63378f790b1d574dc82a706192ab77e",
+      "table": "ui",
+      "translation": "माउस के नीचे एक बॉक्स दिखाएँ, जिसमें आसपास का क्षेत्र बड़ा दिखे और मॉडल को उसमें मिले ऑब्जेक्ट लाइव रेखांकित हों। एक क्लिक रेखांकित ऑब्जेक्ट को नए ऑब्जेक्ट के रूप में मास्क में जोड़ता है, हर क्लिक पर एक पूर्ववत चरण। इसके चालू रहने पर माउस व्हील दृश्य के बजाय बॉक्स का ज़ूम बदलता है।"
+    },
+    {
+      "key": "Side of the square region the model segments, in image pixels. Objects cut by the edge of the box are not offered, so make it wider than the largest object you want to add.",
+      "source": "Side of the square region the model segments, in image pixels. Objects cut by the edge of the box are not offered, so make it wider than the largest object you want to add.",
+      "source_sha256": "1e82df23c587a6d4626d9f64ea229c45cabbe7e2732e932edaf7465994e5687a",
+      "table": "ui",
+      "translation": "मॉडल जिस वर्गाकार क्षेत्र को सेगमेंट करता है उसकी भुजा, छवि पिक्सेल में। बॉक्स के किनारे से कटे ऑब्जेक्ट पेश नहीं किए जाते, इसलिए इसे जोड़े जाने वाले सबसे बड़े ऑब्जेक्ट से चौड़ा रखें।"
+    },
+    {
+      "key": "Updating…",
+      "source": "Updating…",
+      "source_sha256": "dfe40efe921fe88e332575a3516f4e8cd6bbb71437cf260b2bb9b947c65d1484",
+      "table": "ui",
+      "translation": "अपडेट हो रहा है…"
+    },
+    {
+      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers.",
+      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers.",
+      "source_sha256": "0217cb326bbd11f699df8e270e0b72e5618e0dd2050c9b54debfc96412fd88f3",
+      "table": "ui",
+      "translation": "जहाँ मास्क में पहले से कोई ऑब्जेक्ट है, वहाँ नया ऑब्जेक्ट क्या करता है। काटें केवल उसके बिना लेबल वाले पिक्सेल रखता है, इसलिए किसी मौजूदा ऑब्जेक्ट का कोई पिक्सेल नहीं जाता। छोड़ें किसी मौजूदा ऑब्जेक्ट को छूने वाले हर ऑब्जेक्ट को छोड़ देता है। बदलें नए ऑब्जेक्ट को उसके ढके हर पिक्सेल को लेने देता है।"
+    },
+    {
+      "key": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations, and runs whenever a model cannot be loaded. Cellpose uses the model and diameter set in the Cellpose-SAM settings and is slow without a GPU.",
+      "source": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations, and runs whenever a model cannot be loaded. Cellpose uses the model and diameter set in the Cellpose-SAM settings and is slow without a GPU.",
+      "source_sha256": "010df707916a267a57b3d01639d05180c78f7c613a13b0ab1c40986ece0101ce",
+      "table": "ui",
+      "translation": "बॉक्स के क्षेत्र को कौन-सा मॉडल सेगमेंट करता है। पारंपरिक विधि क्षेत्र पर Otsu स्तर पर थ्रेशोल्ड लगाती है और छूते ऑब्जेक्ट को वॉटरशेड से अलग करती है; इसे कुछ भी इंस्टॉल करने की ज़रूरत नहीं, यह ऑब्जेक्ट संचालन के अंतर्गत चमकीला स्विच और Min area बॉक्स का पालन करती है, और जब भी कोई मॉडल लोड न हो सके तब चलती है। Cellpose, Cellpose-SAM सेटिंग्स में तय मॉडल और व्यास का उपयोग करता है और GPU के बिना धीमा है।"
+    }
+  ],
+  "schema": 1
+}
