@@ -173,13 +173,38 @@ def settle(bar, *, timeout: float = 15.0) -> None:
     """
     from PySide6.QtWidgets import QApplication
 
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        QApplication.processEvents()
+    from spacr.qt import path_probe
+
+    def quiet():
         # `_resolve_again` is the coalesced follow-up: a refresh that arrived
         # while one was in flight. Waiting only on `_resolving` would return
         # between the two and read a half-settled strip.
-        if not bar._resolving and not getattr(bar, "_resolve_again", False):
+        return not bar._resolving and not getattr(bar, "_resolve_again", False)
+
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        QApplication.processEvents()
+        if not quiet():
+            continue
+        # THE SECOND ASYNCHRONOUS HALF: the candidate roots. `search_roots`
+        # asks `path_probe.isdir` without waiting, so a folder the probe has
+        # never seen -- every `tmp_path` plate -- answers False at first and
+        # is statted on a probe worker. Its answer comes back as
+        # `probes.answered`, which the strip turns into another refresh, and
+        # only THAT resolution finds the plate. A strip that is quiet while a
+        # probe is still out has not finished.
+        #
+        # CI run 34961482728 read the field in that gap: "assert 'path' ==
+        # .../plateA", the placeholder, on a runner whose probe answers came
+        # late. Reproduced here by making every probe answer 1.5 s late.
+        #
+        # `unfinished_tasks` drops in `task_done`, after the worker has
+        # posted `answered`, so once it is zero the one `processEvents` below
+        # delivers every answer, and a refresh it starts is waited on above.
+        if path_probe._queue.unfinished_tasks:
+            continue
+        QApplication.processEvents()
+        if quiet():
             return
     raise AssertionError("the chaining strip never finished resolving")
 
