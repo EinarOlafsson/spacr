@@ -65,3 +65,67 @@ over a settings row, and assert zero pure-black samples down the settings
 column AND the AI chat panel, while the tooltip is visible and after it
 hides -- without leaving the module. And the test must be seen to FAIL on the
 current code first.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- MEASURED, AND NOT REPRODUCED OFF THE MAINTAINER'S DISPLAY
+--------------------------------------------------------------------------------
+
+Five instrumented probes on a real `MainWindow`, all under xvfb, with the
+maintainer's settings (dark, ambient on, blobs, 60% panes) and the popup
+raised through the settings label's REAL path -- `_ApiTooltipFilter` on
+`QEvent.Enter`, which calls `refresh_api_tooltips` and then
+`HoverTooltip.show_for` (verified: popup visible, 114x38 in the work session's
+run). Both sessions measured independently and agree.
+
+RULED OUT, each by measurement rather than reading:
+
+  * THE THEME FILTER. With `_sheet_one_window` instrumented, the popup is
+    the ONLY root sheeted (1-2 calls, root type HoverTooltip) -- never
+    MainWindow, never the screen. The work session's reading of
+    `_a_window_for_want_of_a_parent` agrees: a `Qt.ToolTip` window is not
+    `Qt.Window`, so its change cannot reach this either.
+  * ANY SURFACE CHANGE INSIDE THE WINDOW. Wrapping setStyleSheet,
+    setAutoFillBackground, setPalette, setAttribute, setProperty, hide and
+    setVisible for the whole hover: every call lands on the popup itself.
+    Inside the window, only a banner's hide and a spinner's tooltip text.
+    The transparent-tag count stays at 104; screen QSS length is unchanged.
+  * THE BACKDROP. Zero calls to refresh_ambient_background, _install_ambient,
+    _clear_page_surfaces or AmbientWidget start/stop/hide during a hover.
+    The window backdrop covers the screen exactly (1400x895 at the same
+    origin) and keeps painting (frame count rising throughout).
+  * GL CONTEXT SHARING. The popup's animation is a QLabel playing pixmaps;
+    blobs is a CPU engine; only the fractal backdrop uses vispy.
+  * 385's POPUP HOLD. `a_popup_is_on_screen()` has one caller, the fractal
+    backdrop; blobs has no popup hold.
+
+TWO MEASUREMENT TRAPS, recorded so the next probe does not repeat them:
+
+  * `screen.grab()` renders the screen's subtree only. The window backdrop is
+    a sibling BEHIND the screen, so every pixel where the page correctly
+    defers to it comes out black in a screen grab. A "37% black" reading
+    from that was an artefact; grab the WINDOW.
+  * Counting exact (0,0,0) misses the black the eye sees. Measured with
+    max(r,g,b) <= 16 instead, with the maintainer's settings and NO tooltip:
+    the settings column is ~39% near-black (mean luminance 14) and the chat
+    panel ~63%. That is the dark blobs backdrop showing through 60% panes,
+    and it does not change when the popup appears.
+
+WHAT IS LEFT, AND WHY IT NEEDS THE REAL DISPLAY. Nothing reachable from a
+test process changes when the popup appears, so the change the maintainer
+sees happens below Qt's widget layer: the platform/compositor. On Wayland a
+`Qt.ToolTip` window is a popup surface parented to the main window's surface,
+and presenting it can leave regions of the parent that Qt did not repaint
+composited as black until something forces a full repaint -- and leaving and
+re-entering a module is exactly a full repaint. xvfb has no compositor, so
+every probe above is structurally unable to see that.
+
+NEXT, in order:
+  1. Establish the maintainer's session type (Wayland or X11) and the Qt
+     platform plugin spaCR actually runs with on it.
+  2. Measure ON THAT DISPLAY through the compositor (`QScreen.grabWindow`,
+     not `QWidget.grab`) before, during and after a popup. A screenshot of
+     the black box from the maintainer settles it equally well.
+  3. If it is the compositor: force a full repaint of the anchor's window
+     when the popup shows and when it hides, and pin it with a test that
+     asserts the repaint is REQUESTED (the state), since no offscreen
+     platform can show the pixels.
