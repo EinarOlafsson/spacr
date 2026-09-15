@@ -558,3 +558,52 @@ The tests cover four things:
     the chat input and the table with the tags they really carry;
   * a staged untagged, self-filling chat viewport comes out as a suspect;
   * a failing part is named in `errors` and the rest is still written.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- HALF OF IT REPRODUCED AND FIXED: A TABLE MOUNTED ON A SCREEN
+ALREADY ON SHOW WAS NEVER SWEPT
+--------------------------------------------------------------------------------
+
+The work session pointed at the showEvent comment ("anything a screen builds
+afterwards ... is never tagged"). Measured on HEAD, offscreen, it is real for
+the per-object table:
+
+  * Mask opened with the object grid OFF, then switched ON the way a
+    Preferences save does it (`preferences._tell_the_screens_the_object_grid_
+    changed` -> `AppScreen.apply_object_grid_preference`): the new QTableView
+    viewport and both QHeaderView viewports came out UNTAGGED, with
+    autoFillBackground -- they paint `QPalette.Base`, opaque #000000, over the
+    backdrop. Same screen instance, `_surfaces_cleared_on_show` True.
+  * A popup (HoverTooltip.show_for) does not change it.
+  * Home and back HEALS it, and not through the one-shot flag:
+    showEvent -> refresh_ambient_background -> _install_ambient -> the window
+    backdrop is shared -> _clear_page_surfaces. That path runs on EVERY show
+    while the window backdrop is shared. So the rule is "mounted while visible
+    stays untagged until the next show", which is exactly "gone after I leave
+    the module and come back".
+  * The in-session paint diagnostic (11e881263) finds the same three views.
+
+FIX: `_mount_the_object_grid` tags the subtree it just mounted
+(`clear_container_surfaces(section)`), not the whole screen -- the full sweep
+re-polishes 201 settings. On the construction path the screen's own sweep
+comes later and tags the same widgets, so both paths now end identical.
+TEST: tests/qt/test_the_object_grid_can_be_switched_on.py::
+test_a_table_switched_on_live_does_not_paint_the_window_colour -- RED before
+the fix (the table and both headers listed), green after.
+
+NOT EXPLAINED YET, AND THIS ITEM STAYS OPEN FOR IT:
+  * THE CHAT INPUT. It is tagged at build and stays tagged through a real
+    QEnterEvent on a setting label (the screen's eventFilter, popup shown),
+    which builds 0 new widgets. Nothing measured so far rebuilds or untags it.
+  * THE TOOLTIP AS TRIGGER. The grid half needs a Preferences save, not a
+    tooltip; if the maintainer's box appears on hover alone, something else
+    is also at work. The diagnostic exists for this: launch with
+    SPACR_PAINT_DIAG=1 and press Ctrl+Alt+Shift+D while the box is on screen
+    (instructions in the section above).
+  * SAME SHAPE ELSEWHERE, found by the work session in 289: a later pass
+    undoing an earlier one on widgets that arrived or changed in between
+    (`_refresh_setting_dependencies` put tooltips back two event-loop turns
+    after `retarget_field_tooltips` moved them). Any other widget a screen
+    builds after its first show -- the diagnostic's probe also saw a console
+    output block added after the sweep untagged (named, so its own
+    transparent rule covers it) -- is a candidate for the chat-input half.

@@ -206,6 +206,38 @@ def test_asking_twice_changes_nothing_the_second_time(qtbot, qt_theme_applied,
     assert screen.apply_object_grid_preference() is False
 
 
+def test_a_table_switched_on_live_does_not_paint_the_window_colour(
+        qtbot, qt_theme_applied, grid_preference):
+    """Item 408: a table mounted on a screen already shown was never swept.
+
+    The screen tags its containers while it is built and again when it is
+    shown, so a table built with the switch already on is transparent. One
+    mounted by a Preferences save, on a screen already on show, came after
+    both sweeps: its viewport kept ``autoFillBackground`` and painted
+    ``QPalette.Base`` -- opaque black -- over the backdrop until the user
+    left the module and came back, which is the next show.
+    """
+    from PySide6.QtWidgets import QAbstractScrollArea, QApplication
+
+    from spacr.qt.theme import TRANSPARENT_PROPERTY, is_surface
+
+    screen = _screen(qtbot, grid_preference, False)
+    screen.show()
+    QApplication.processEvents()
+    grid_preference.set_object_grid_enabled(True)
+
+    assert screen.apply_object_grid_preference() is True
+
+    grid = screen._object_grid
+    views = [v for v in grid.findChildren(QAbstractScrollArea)
+             if not is_surface(v)]
+    assert views, "the grid holds no view to check"
+    untagged = [type(v).__name__ for v in views
+                if not v.viewport().property(TRANSPARENT_PROPERTY)]
+    assert untagged == [], (
+        f"mounted live, these views still paint the window colour: {untagged}")
+
+
 def test_the_table_lands_above_the_trailing_stretch(qtbot, qt_theme_applied,
                                                     grid_preference):
     """Mounted late, it must not be appended below the spring.

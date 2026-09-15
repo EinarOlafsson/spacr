@@ -2098,6 +2098,15 @@ class AppScreen(QWidget):
                                 section)
             self._settings_sections.append(section)
             section.set_expanded(True)
+            # TAG WHAT WAS JUST MOUNTED (item 408). While the panel is being
+            # built the screen's own sweep comes later and covers this, but a
+            # Preferences save mounts it on a screen already on show, after
+            # every sweep: the table's viewport then painted `QPalette.Base`,
+            # opaque black, over the backdrop until the next show. Only this
+            # subtree -- the whole-screen sweep re-polishes 201 settings.
+            from ..theme import clear_container_surfaces
+
+            clear_container_surfaces(section)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not mount the per-object grid", exc_info=True)
 
