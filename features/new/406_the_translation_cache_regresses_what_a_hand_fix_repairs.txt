@@ -324,6 +324,7 @@ now "l'une des clés"; sv "till" became "i". A per-symbol key would have left
 the three old blocks wrong. When a rebuild moves symbols whose English did not
 change, check for a shared-source record before calling it collateral damage.
 
+--------------------------------------------------------------------------------
 2026-09-15 -- THE API LANE HAS THE SAME FAULT ONE LEVEL UP. A REWRITTEN
 ENGLISH MANIFEST ERASES THE HISTORY A REPAIR NEEDS.
 --------------------------------------------------------------------------------
