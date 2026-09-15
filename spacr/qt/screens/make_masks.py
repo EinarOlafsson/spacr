@@ -113,6 +113,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QMessageBox,
     QPlainTextEdit,
+    QProgressBar,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -891,10 +892,20 @@ class _MaskCanvas(QLabel):
         Two gestures are checked before the tool, because they work from
         *any* tool: the right button sweep-deletes, and Shift/Alt + left
         pans. Both are things you want mid-edit without putting the brush
-        down and picking it up again.
+        down and picking it up again. With the magnifier on in whole-image
+        scope the right button removes the one object under it instead of
+        sweeping.
         """
         if self.mask is None:
             return super().mousePressEvent(event)
+
+        if (event.button() == Qt.RightButton and self.magnifier is not None
+                and self.magnifier.enabled
+                and self.magnifier.scope == "image"):
+            self.magnifier.hover(event.position())
+            self.magnifier.remove()
+            self.update()
+            return
 
         if event.button() == Qt.RightButton:
             self._sweeping = True
@@ -1031,6 +1042,10 @@ class _MaskCanvas(QLabel):
             return
         if (event.button() == Qt.LeftButton and self.magnifier is not None
                 and self.magnifier.enabled):
+            return
+        if (event.button() == Qt.RightButton and self.magnifier is not None
+                and self.magnifier.enabled
+                and self.magnifier.scope == "image"):
             return
         if self.mode in (MODE_ZOOM, MODE_RECROP) \
                 and self._zoom_drag_start is not None \
@@ -1349,6 +1364,12 @@ _MAGNIFIER_ZOOM_RANGE = (1.0, 8.0)
 _MAGNIFIER_SENSITIVITY = 0.0
 _MAGNIFIER_SENSITIVITY_RANGE = (-6.0, 6.0)
 
+#: What the magnifier segments, in the order the Segment box offers them.
+#: ``region`` runs the model on the box as the mouse moves; ``image`` runs it
+#: once on the whole field in the background, and the box then reads those
+#: objects instead of asking the model again.
+_MAGNIFIER_SCOPES = ("region", "image")
+
 #: Serialises every use of a Cellpose model between the magnifier's worker
 #: thread and the screen's own detect button, which share the loaded models.
 #: Re-entrant, because the detect button loads a model inside the same hold.
@@ -1361,8 +1382,9 @@ class _MagnifierRequest(NamedTuple):
     Copied rather than referenced: the worker reads it on another thread
     while the GUI thread goes on editing the mask and moving the box.
     ``key`` is what makes two requests the same request -- the field, the box
-    and every setting a model reads -- and it is what a click is matched to
-    its result by.
+    (or ``"image"`` for the whole field), every setting a model reads and,
+    for a region, whether cut objects are left out -- and it is what a click
+    is matched to its result by.
     """
 
     key: tuple
@@ -1376,23 +1398,31 @@ class _MagnifierRequest(NamedTuple):
     model_name: str
     diameter: int
     colour: tuple
+    #: Whether the objects the box's own edge cuts are left out of the answer.
+    exclude_border: bool = True
+    #: ``region`` for the box under the mouse, ``image`` for the whole field.
+    scope: str = "region"
 
 
 class _MagnifierResult(NamedTuple):
     """The objects found for one request, in that request's CROP coordinates.
 
-    ``labels`` has already lost the objects the box edge cut
-    (:func:`spacr.qt.mask_engine._drop_cut_objects`), so it is exactly what
-    the box outlines and exactly what a click commits. ``mode`` is the mode
-    that actually ran and ``note`` says why when that is not the one asked
-    for; ``overlay`` is the RGBA picture of the outlines.
+    ``labels`` is exactly what the box outlines and exactly what a click
+    commits: unless the request keeps them, it has already lost the objects
+    the box edge cut (:func:`spacr.qt.mask_engine._drop_cut_objects`). A
+    whole-image request's crop is the whole field, so nothing in it is cut.
+    ``mode`` is the mode that actually ran and ``note`` says why when that is
+    not the one asked for; ``overlay`` is the RGBA picture of the outlines,
+    or None for a whole-image result, whose box draws its own slice of it;
+    ``count`` is how many objects ``labels`` holds.
     """
 
     request: _MagnifierRequest
     labels: np.ndarray
     mode: str
     note: str
-    overlay: np.ndarray
+    overlay: Optional[np.ndarray]
+    count: int = 0
 
 
 def _classical_segmenter(request: _MagnifierRequest, load_model=None):
@@ -1484,6 +1514,33 @@ def _rgba_qimage(rgba: np.ndarray) -> QImage:
                   QImage.Format_RGBA8888).copy()
 
 
+def _object_count(labels: np.ndarray) -> int:
+    """How many distinct objects a label image holds."""
+    return int(np.count_nonzero(np.unique(np.asarray(labels))))
+
+
+def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
+    """One object of a whole-image result, as a result of its own.
+
+    Cut to the object's bounding box, so a commit pastes that small window at
+    its corner rather than the whole field. Every pixel of the object goes
+    in, including any part outside the box on screen: the whole image was
+    segmented, so nothing cut it.
+
+    :param result: a whole-image result.
+    :param label: an id present in ``result.labels``.
+    """
+    body = np.asarray(result.labels) == int(label)
+    rows = np.flatnonzero(body.any(axis=1))
+    cols = np.flatnonzero(body.any(axis=0))
+    y0, y1 = int(rows[0]), int(rows[-1]) + 1
+    x0, x1 = int(cols[0]), int(cols[-1]) + 1
+    labels = np.where(body[y0:y1, x0:x1], int(label), 0).astype(np.int32)
+    request = result.request._replace(box=(x0, y0, x1, y1))
+    return result._replace(request=request, labels=labels, overlay=None,
+                           count=1)
+
+
 class _NewestRequestWorker:
     """Runs requests one at a time on a background thread, newest first.
 
@@ -1565,6 +1622,17 @@ class _NewestRequestWorker:
         with self._lock:
             return self._thread is None
 
+    def drop_waiting(self) -> int:
+        """Drop every request not yet started; one already running finishes.
+
+        :returns: how many requests were dropped.
+        """
+        with self._lock:
+            dropped = len(self._pinned) + (self._pending is not None)
+            self._pending = None
+            self._pinned.clear()
+        return int(dropped)
+
     def close(self, timeout: float = 2.0) -> bool:
         """Drop what is waiting and wait up to ``timeout`` for what is running.
 
@@ -1643,6 +1711,14 @@ class _LiveMagnifier(QObject):
     click's request is pinned on the worker -- later mouse movement cannot
     supersede it -- and it goes in when it arrives.
 
+    WHOLE-IMAGE SCOPE runs the model ONCE on the entire field, on a second
+    worker, and the box then draws its slice of those objects with no model
+    call per move. A click commits only the object under it, and a
+    right-click asks the screen to remove the mask object under it. A change
+    to any setting the model reads discards those objects and starts a new
+    run; a run that was cancelled or failed is not started again until a
+    click, or a setting, asks for it.
+
     :param canvas: the canvas the box is drawn over.
     :param parent: owning QObject.
     :param load_model: ``name -> model`` for modes that need one; called on
@@ -1659,6 +1735,10 @@ class _LiveMagnifier(QObject):
     zoom_changed = Signal(float)
     #: A sentence for the status line.
     status = Signal(str)
+    #: The mask object under the mouse should go; carries image ``(x, y)``.
+    remove_requested = Signal(int, int)
+    #: A whole-image run started (True) or ended (False).
+    busy_changed = Signal(bool)
 
     def __init__(self, canvas, parent=None, *, load_model=None, context=None):
         """Build a magnifier that is off and holds no thread."""
@@ -1672,6 +1752,8 @@ class _LiveMagnifier(QObject):
         self.size = _MAGNIFIER_SIZE
         self.zoom = _MAGNIFIER_ZOOM
         self.sensitivity = _MAGNIFIER_SENSITIVITY
+        self.scope = "region"
+        self.exclude_border = True
         #: ``request -> labels`` or ``(labels, mode_used, note)``, run on the
         #: worker thread. Replaceable, which is how a test puts a stub in.
         self.segment = partial(_segment_region, load_model=load_model)
@@ -1684,15 +1766,38 @@ class _LiveMagnifier(QObject):
         self._shown_image: Optional[QImage] = None
         self._waiting: set = set()
         self._unavailable: dict = {}
+        #: ``(model key, labels, mode, note)`` for the last region the model
+        #: answered. Read and written only on the region worker's thread, so
+        #: a setting that only filters the answer does not ask again.
+        self._raw: Optional[tuple] = None
+        #: The key of the whole-image run on its way, or None.
+        self._image_key: Optional[tuple] = None
+        #: The objects of the last whole-image run, whole-field labels.
+        self._image_result: Optional[_MagnifierResult] = None
+        #: The key of a run cancelled or failed, not started again by itself.
+        self._image_halted: Optional[tuple] = None
+        #: ``(result, (box, object under the mouse), picture)`` last drawn.
+        self._image_view: Optional[tuple] = None
+        self._busy = False
         self._worker = _NewestRequestWorker(self._run, self._hand_over)
+        self._image_worker = _NewestRequestWorker(
+            self._run, self._hand_over, name="spacr-magnifier-image")
         self._delivered.connect(self._on_delivered, Qt.QueuedConnection)
 
     # -- settings ---------------------------------------------------------
 
     def set_enabled(self, on: bool) -> None:
-        """Turn the box on or off; objects already committed are untouched."""
+        """Turn the box on or off; objects already committed are untouched.
+
+        Turning it on in whole-image scope starts a run for the field on
+        screen, unless its objects are already found. Turning it off leaves
+        a run in progress going, so its objects are ready when it comes back.
+        """
         self.enabled = bool(on)
-        if not self.enabled:
+        if self.enabled:
+            self._image_halted = None
+            self.refresh()
+        else:
             self._cursor = None
             self._anchor = None
         self.canvas.update()
@@ -1701,6 +1806,36 @@ class _LiveMagnifier(QObject):
         """Choose the model, and forget which models failed to run."""
         self.mode = str(mode or "classical")
         self._unavailable.clear()
+        self.refresh()
+        self.canvas.update()
+
+    def set_scope(self, scope: str) -> None:
+        """Choose between segmenting the box's region and the whole image.
+
+        Leaving whole-image scope drops a run still waiting and ignores one
+        still running. Objects already found are kept, and are offered again
+        on coming back if no setting the model reads has changed since.
+        """
+        scope = str(scope or "region")
+        if scope not in _MAGNIFIER_SCOPES:
+            scope = "region"
+        if scope == self.scope:
+            return
+        self.scope = scope
+        self._image_halted = None
+        self._image_view = None
+        if scope == "region":
+            self._stop_image()
+        self.refresh()
+        self.canvas.update()
+
+    def set_exclude_border(self, on: bool) -> None:
+        """Choose whether objects the box's own edge cuts are offered.
+
+        Only the answer is filtered again: the model's answer for the region
+        is kept on the worker, so the model is not asked a second time.
+        """
+        self.exclude_border = bool(on)
         self.refresh()
         self.canvas.update()
 
@@ -1731,15 +1866,29 @@ class _LiveMagnifier(QObject):
         self._shown_image = None
         self._waiting.clear()
         self._requested_key = None
+        self._stop_image()
+        self._image_result = None
+        self._image_view = None
+        self._image_halted = None
 
     def close(self) -> bool:
-        """Stop the worker, waiting briefly for a model call in flight."""
-        return self._worker.close()
+        """Stop both workers, waiting briefly for a model call in flight."""
+        region = self._worker.close()
+        image = self._image_worker.close()
+        return region and image
 
     # -- the mouse ----------------------------------------------------------
 
     def updating(self) -> bool:
-        """Whether the objects on screen are not yet for the region asked for."""
+        """Whether the objects on screen are not yet for the region asked for.
+
+        In whole-image scope: whether the objects for the field and the
+        settings now are not found yet.
+        """
+        if self.scope == "image":
+            result = self._image_result
+            return (result is None
+                    or result.request.key != self._image_key_now())
         return (self._shown is None
                 or self._shown.request.key != self._requested_key)
 
@@ -1757,7 +1906,15 @@ class _LiveMagnifier(QObject):
             self.refresh()
 
     def refresh(self) -> None:
-        """Ask for the region under the mouse, unless it is already shown."""
+        """Ask for the region under the mouse, unless it is already shown.
+
+        In whole-image scope, ask for the whole field instead -- and only
+        when its objects for the settings now are neither found, on their
+        way, nor cancelled.
+        """
+        if self.scope == "image":
+            self._refresh_image()
+            return
         request = self.build_request()
         if request is None:
             return
@@ -1766,13 +1923,13 @@ class _LiveMagnifier(QObject):
             return
         self._worker.submit(request)
 
-    def build_request(self) -> Optional[_MagnifierRequest]:
-        """The request for the region under the mouse now, or None."""
-        canvas = self.canvas
-        image = canvas.image
-        if (not self.enabled or self._cursor is None or image is None
-                or canvas.mask is None):
-            return None
+    def _model_settings(self) -> tuple:
+        """``(mode, sensitivity, bright, min_area, model_name, diameter)``.
+
+        Everything a model reads, as it would read it now: the screen's own
+        settings through ``context``, and classical in place of a mode that
+        has already failed to load.
+        """
         context = {"model_name": "cpsam", "diameter": 0, "bright": True,
                    "min_area": 0}
         if self._context is not None:
@@ -1781,17 +1938,31 @@ class _LiveMagnifier(QObject):
         mode = self.mode
         if (mode, model_name) in self._unavailable:
             mode = "classical"
+        return (mode, round(float(self.sensitivity), 4),
+                bool(context["bright"]), int(context["min_area"]),
+                model_name, int(context["diameter"]))
+
+    @staticmethod
+    def _accent() -> tuple:
+        """The theme's accent colour as ``(red, green, blue)``."""
+        accent = QColor(active_palette()["accent"])
+        return (accent.red(), accent.green(), accent.blue())
+
+    def build_request(self) -> Optional[_MagnifierRequest]:
+        """The request for the region under the mouse now, or None."""
+        canvas = self.canvas
+        image = canvas.image
+        if (not self.enabled or self._cursor is None or image is None
+                or canvas.mask is None):
+            return None
+        settings = self._model_settings()
+        mode, sensitivity, bright, min_area, model_name, diameter = settings
         box = engine._magnifier_box(image.shape, self._cursor[0],
                                     self._cursor[1], self.size)
         x0, y0, x1, y1 = box
-        sensitivity = round(float(self.sensitivity), 4)
-        bright = bool(context["bright"])
-        min_area = int(context["min_area"])
-        diameter = int(context["diameter"])
-        accent = QColor(active_palette()["accent"])
+        exclude = bool(self.exclude_border)
         return _MagnifierRequest(
-            key=(self._field, box, mode, sensitivity, bright, min_area,
-                 model_name, diameter),
+            key=(self._field, box) + settings + (exclude,),
             crop=np.array(image[y0:y1, x0:x1], copy=True),
             box=box,
             shape=tuple(int(v) for v in image.shape[:2]),
@@ -1801,15 +1972,21 @@ class _LiveMagnifier(QObject):
             min_area=min_area,
             model_name=model_name,
             diameter=diameter,
-            colour=(accent.red(), accent.green(), accent.blue()),
+            colour=self._accent(),
+            exclude_border=exclude,
         )
 
     def click(self) -> bool:
         """Commit the objects for the region under the mouse.
 
+        In whole-image scope, commit only the object under the mouse; see
+        :meth:`_pick`.
+
         :returns: False when there is no region to commit -- the magnifier is
             off, the mouse is off the image, or no field is open.
         """
+        if self.scope == "image":
+            return self._pick()
         request = self.build_request()
         if request is None:
             return False
@@ -1824,6 +2001,143 @@ class _LiveMagnifier(QObject):
             "soon as the box is up to date.")
         return True
 
+    def remove(self) -> bool:
+        """Ask the screen to remove the mask object under the mouse.
+
+        Whole-image scope's right click. Any object in the mask qualifies,
+        whatever put it there; the screen owns the mask, the undo history and
+        the ledger, and says so when there is nothing under the mouse.
+
+        :returns: False when the magnifier is off or the mouse is off the
+            image.
+        """
+        if (not self.enabled or self._cursor is None
+                or self.canvas.mask is None):
+            return False
+        self.remove_requested.emit(int(self._cursor[0]),
+                                   int(self._cursor[1]))
+        return True
+
+    def cancel_image(self) -> bool:
+        """Stop waiting for the whole-image run and throw its answer away.
+
+        A model call already running cannot be interrupted: it finishes on
+        its worker and its objects are discarded when they arrive. Moving the
+        mouse does not start the run again; a click, or a change to a setting
+        the model reads, does.
+
+        :returns: False when no run was on its way.
+        """
+        from ..i18n import tr
+
+        key = self._image_key
+        if key is None:
+            return False
+        self._stop_image()
+        self._image_halted = key
+        self.status.emit(tr(
+            "Magnifier: whole-image segmentation cancelled. Click the image "
+            "to start it again."))
+        self.canvas.update()
+        return True
+
+    def _image_key_now(self) -> Optional[tuple]:
+        """The key a whole-image run for the field and settings now has."""
+        canvas = self.canvas
+        if canvas.image is None or canvas.mask is None:
+            return None
+        return (self._field, "image") + self._model_settings()
+
+    def _refresh_image(self) -> None:
+        """Start a whole-image run, unless one for the settings now is found,
+        on its way, or was cancelled."""
+        from ..i18n import tr
+
+        if not self.enabled:
+            return
+        key = self._image_key_now()
+        if key is None:
+            return
+        result = self._image_result
+        if result is not None and result.request.key == key:
+            return
+        if key in (self._image_key, self._image_halted):
+            return
+        replaced = result is not None or self._image_key is not None
+        self._image_result = None
+        self._image_view = None
+        self._start_image(key)
+        if replaced:
+            self.status.emit(tr(
+                "Magnifier: the settings changed, so the whole-image objects "
+                "were discarded. Segmenting the whole image again…"))
+        else:
+            self.status.emit(tr("Magnifier: segmenting the whole image…"))
+        self.canvas.update()
+
+    def _start_image(self, key: tuple) -> None:
+        """Hand a copy of the whole field to the image worker under ``key``."""
+        image = self.canvas.image
+        mode, sensitivity, bright, min_area, model_name, diameter = key[2:]
+        height, width = (int(v) for v in image.shape[:2])
+        self._image_key = key
+        self._image_halted = None
+        self._image_worker.submit(_MagnifierRequest(
+            key=key, crop=np.array(image, copy=True),
+            box=(0, 0, width, height), shape=(height, width),
+            mode=mode, sensitivity=sensitivity, bright=bright,
+            min_area=min_area, model_name=model_name, diameter=diameter,
+            colour=self._accent(), exclude_border=False, scope="image"))
+        self._set_busy(True)
+
+    def _stop_image(self) -> None:
+        """Forget the whole-image run on its way, dropping it if not started."""
+        self._image_key = None
+        self._image_worker.drop_waiting()
+        self._set_busy(False)
+
+    def _set_busy(self, busy: bool) -> None:
+        """Say that a whole-image run started or ended, once each."""
+        busy = bool(busy)
+        if busy != self._busy:
+            self._busy = busy
+            self.busy_changed.emit(busy)
+
+    def _pick(self) -> bool:
+        """Commit the whole-image object under the mouse, if there is one.
+
+        Before the objects for the settings now are found nothing is
+        committed and nothing is pinned: a run can take minutes, and an
+        object going in long after the click that asked for it would be a
+        surprise. A click while no run is on its way starts one.
+        """
+        from ..i18n import tr
+
+        canvas = self.canvas
+        if (not self.enabled or self._cursor is None or canvas.image is None
+                or canvas.mask is None):
+            return False
+        key = self._image_key_now()
+        result = self._image_result
+        if result is None or result.request.key != key:
+            if key is not None and key == self._image_key:
+                self.status.emit(tr(
+                    "Magnifier: the whole image is still being segmented — "
+                    "nothing was added."))
+            else:
+                self._image_halted = None
+                self._refresh_image()
+            return True
+        x, y = self._cursor
+        label = int(result.labels[y, x])
+        if label <= 0:
+            self.status.emit(tr(
+                "Magnifier: there is no object under the click — nothing was "
+                "added."))
+            return True
+        self.commit_ready.emit(_single_object(result, label))
+        return True
+
     def wheel(self, up: bool) -> float:
         """Step the zoom one wheel notch, at the canvas's own zoom per notch."""
         speed = max(1.001, float(getattr(self.canvas, "zoom_speed", 1.15)))
@@ -1834,7 +2148,31 @@ class _LiveMagnifier(QObject):
     # -- the worker ---------------------------------------------------------
 
     def _run(self, request: _MagnifierRequest) -> _MagnifierResult:
-        """Segment one request. Runs on the worker thread, never the GUI's."""
+        """Segment one request. Runs on a worker thread, never the GUI's.
+
+        A region asked for again with only the border option changed reuses
+        the model's last answer, which is kept here on the region worker.
+        """
+        if request.scope == "image":
+            labels, used, note = self._segment_now(request)
+            return _MagnifierResult(request, labels, used, note, None,
+                                    _object_count(labels))
+        model_key = request.key[:-1]
+        cached = self._raw
+        if cached is not None and cached[0] == model_key:
+            _key, labels, used, note = cached
+        else:
+            labels, used, note = self._segment_now(request)
+            self._raw = (model_key, labels, used, note)
+        if request.exclude_border:
+            labels = engine._drop_cut_objects(labels, request.box,
+                                              request.shape)
+        return _MagnifierResult(request, labels, used, note,
+                                _candidate_overlay(labels, request.colour),
+                                _object_count(labels))
+
+    def _segment_now(self, request: _MagnifierRequest) -> tuple:
+        """Ask the model: ``(int32 labels shaped like the crop, mode, note)``."""
         outcome = self.segment(request)
         if isinstance(outcome, tuple):
             labels, used, note = outcome
@@ -1845,10 +2183,7 @@ class _LiveMagnifier(QObject):
             raise ValueError(
                 f"{used} returned labels shaped {labels.shape} for a region "
                 f"shaped {request.crop.shape[:2]}")
-        labels = engine._drop_cut_objects(
-            labels.astype(np.int32, copy=False), request.box, request.shape)
-        return _MagnifierResult(request, labels, str(used), str(note),
-                                _candidate_overlay(labels, request.colour))
+        return labels.astype(np.int32, copy=False), str(used), str(note)
 
     def _hand_over(self, request, result, error) -> None:
         """Pass a finished request to the GUI thread. Runs on the worker."""
@@ -1859,6 +2194,9 @@ class _LiveMagnifier(QObject):
         request, result, error = payload
         if request.key[0] != self._field:
             return
+        if request.scope == "image":
+            self._on_image_delivered(request, result, error)
+            return
         if error is not None:
             self._waiting.discard(request.key)
             LOG.warning("magnifier could not segment %s: %s",
@@ -1866,19 +2204,62 @@ class _LiveMagnifier(QObject):
             self.status.emit(
                 f"Magnifier could not segment this region: {error}")
             return
-        if result.mode != request.mode:
-            marker = (request.mode, request.model_name)
-            if marker not in self._unavailable:
-                self._unavailable[marker] = result.note
-                self.status.emit(
-                    f"Magnifier: {request.mode} could not run "
-                    f"({result.note}); the classical mode is segmenting "
-                    f"instead.")
+        self._note_fallback(request, result)
         self._shown = result
         self._shown_image = _rgba_qimage(result.overlay)
         if request.key in self._waiting:
             self._waiting.discard(request.key)
             self.commit_ready.emit(result)
+        self.canvas.update()
+
+    def _note_fallback(self, request, result) -> bool:
+        """Say, once per model, that it could not run and classical stood in.
+
+        :returns: True when this call said it.
+        """
+        if result.mode == request.mode:
+            return False
+        marker = (request.mode, request.model_name)
+        if marker in self._unavailable:
+            return False
+        self._unavailable[marker] = result.note
+        self.status.emit(
+            f"Magnifier: {request.mode} could not run "
+            f"({result.note}); the classical mode is segmenting "
+            f"instead.")
+        return True
+
+    def _on_image_delivered(self, request, result, error) -> None:
+        """Keep a finished whole-image run, unless it is no longer wanted."""
+        from ..i18n import tr
+
+        if request.key != self._image_key:
+            return
+        self._image_key = None
+        self._set_busy(False)
+        if error is not None:
+            self._image_halted = request.key
+            LOG.warning("magnifier could not segment the whole image: %s",
+                        error)
+            self.status.emit(tr(
+                "Magnifier could not segment the whole image: {error}",
+                error=error))
+            return
+        noted = self._note_fallback(request, result)
+        stored = request._replace(crop=None)
+        key = self._image_key_now()
+        if (key is not None and key[2] == result.mode
+                and key[:2] + key[3:] == request.key[:2] + request.key[3:]):
+            # A model that could not load was just marked so, and the key the
+            # settings now give names the classical mode that stood in.
+            stored = stored._replace(key=key)
+        self._image_result = result._replace(request=stored)
+        self._image_view = None
+        if not noted:
+            self.status.emit(tr(
+                "Magnifier: {n} object(s) found in the whole image. Click one "
+                "to add it; right-click an object in the mask to remove it.",
+                n=result.count))
         self.canvas.update()
 
     # -- drawing ------------------------------------------------------------
@@ -1920,6 +2301,10 @@ class _LiveMagnifier(QObject):
         that is behind the mouse is offset rather than wrong, and the frame
         turns dashed with an "Updating…" mark until the result for this
         region arrives -- the box never blanks while it waits.
+
+        In whole-image scope the box draws its slice of the whole-image
+        objects instead, with the object a click would add filled more
+        strongly, and the frame is dashed while a run is on its way.
         """
         geometry = self.lens_geometry()
         if geometry is None:
@@ -1940,16 +2325,22 @@ class _LiveMagnifier(QObject):
         painter.setRenderHint(QPainter.SmoothPixmapTransform, False)
         painter.setClipRect(lens)
         painter.drawImage(lens, picture)
-        shown = self._shown
-        if shown is not None and self._shown_image is not None:
-            sx0, sy0, sx1, sy1 = shown.request.box
-            painter.drawImage(
-                QRectF(lens.left() + (sx0 - x0) * scale,
-                       lens.top() + (sy0 - y0) * scale,
-                       (sx1 - sx0) * scale, (sy1 - sy0) * scale),
-                self._shown_image)
+        if self.scope == "image":
+            view = self._image_slice(box)
+            if view is not None:
+                painter.drawImage(lens, view)
+            updating = self._image_key is not None
+        else:
+            shown = self._shown
+            if shown is not None and self._shown_image is not None:
+                sx0, sy0, sx1, sy1 = shown.request.box
+                painter.drawImage(
+                    QRectF(lens.left() + (sx0 - x0) * scale,
+                           lens.top() + (sy0 - y0) * scale,
+                           (sx1 - sx0) * scale, (sy1 - sy0) * scale),
+                    self._shown_image)
+            updating = self.updating()
         painter.setClipping(False)
-        updating = self.updating()
         pen = QPen(QColor(palette["accent"]))
         pen.setWidth(2)
         if updating:
@@ -1971,6 +2362,33 @@ class _LiveMagnifier(QObject):
             painter.setPen(QPen(QColor(palette["fg"])))
             painter.drawText(badge, Qt.AlignCenter, caption)
         painter.restore()
+
+    def _image_slice(self, box) -> Optional[QImage]:
+        """The whole-image objects inside ``box``, outlined, as a picture.
+
+        The object under the mouse is filled more strongly than the rest. The
+        picture is kept until the box, that object or the objects themselves
+        change, so repainting without moving recomputes nothing -- and
+        nothing here calls a model.
+        """
+        result = self._image_result
+        if result is None or self._cursor is None:
+            return None
+        x0, y0, x1, y1 = (int(v) for v in box)
+        cx, cy = self._cursor
+        under = int(result.labels[cy, cx])
+        where = ((x0, y0, x1, y1), under)
+        cached = self._image_view
+        if cached is not None and cached[0] is result and cached[1] == where:
+            return cached[2]
+        crop = result.labels[y0:y1, x0:x1]
+        rgba = _candidate_overlay(crop, result.request.colour)
+        if under > 0:
+            focus = (crop == under) & (rgba[..., 3] < 140)
+            rgba[focus, 3] = 140
+        picture = _rgba_qimage(rgba)
+        self._image_view = (result, where, picture)
+        return picture
 
 
 class _FlowPane(QLabel):
@@ -2607,6 +3025,7 @@ class MakeMasksScreen(QWidget):
             context=self._magnifier_context)
         self._canvas.magnifier = self._magnifier
         self._magnifier.commit_ready.connect(self._commit_magnifier_result)
+        self._magnifier.remove_requested.connect(self._remove_magnifier_object)
         self._magnifier.status.connect(
             lambda text: self._status_label.setText(text))
         self._body_splitter.addWidget(self._build_view_tabs())
@@ -2615,6 +3034,11 @@ class MakeMasksScreen(QWidget):
         self._settings_scroll.setWidgetResizable(True)
         self._settings_scroll.setFrameShape(QScrollArea.NoFrame)
         self._settings_scroll.setWidget(self._build_tools_panel())
+        for changed in (self._cp_model.currentIndexChanged,
+                        self._cp_diameter.valueChanged,
+                        self._otsu_bright.toggled,
+                        self._min_area.valueChanged):
+            changed.connect(self._on_magnifier_context_changed)
         self._body_splitter.addWidget(self._settings_scroll)
         self._body_splitter.setStretchFactor(0, 3)
         self._body_splitter.setStretchFactor(1, 1)
@@ -4120,17 +4544,20 @@ class MakeMasksScreen(QWidget):
         The toggle goes in the tool row beside Cellpose-SAM detect, because it
         has to stay reachable with the settings hidden; the four settings the
         request named -- mode, size, zoom, sensitivity -- and the overlap rule
-        go here. Cellpose mode reads its model and diameter from the
-        Cellpose-SAM card and classical mode reads Bright and Min area from
-        Object operations, so each of those judgements is still made in one
-        box. Nothing here persists between sessions, like every other
-        setting on this panel.
+        go here, with what is segmented (the region under the mouse or the
+        whole image once), whether objects cut by the box are offered, and
+        the progress and Cancel of a whole-image run. Cellpose mode reads its
+        model and diameter from the Cellpose-SAM card and classical mode
+        reads Bright and Min area from Object operations, so each of those
+        judgements is still made in one box. Nothing here persists between
+        sessions, like every other setting on this panel.
         """
         magnifier = self._magnifier
         card = Card(
             title="Live magnifier",
-            subtitle="Segments the region under the mouse. A click adds the "
-                     "objects the box outlines to the mask.",
+            subtitle="Segments the region under the mouse, or the whole image "
+                     "once, and shows its objects magnified. A click adds "
+                     "objects to the mask.",
         )
         form = QFormLayout()
 
@@ -4153,16 +4580,45 @@ class MakeMasksScreen(QWidget):
             lambda _index: magnifier.set_mode(self._mag_mode.currentData()))
         form.addRow("Mode", self._mag_mode)
 
+        self._mag_scope = QComboBox()
+        self._mag_scope.addItem("Region under the mouse", "region")
+        self._mag_scope.addItem("Whole image", "image")
+        self._mag_scope.setToolTip(
+            "What the model segments. Region under the mouse runs it on the "
+            "box as the mouse moves, and a click adds every object the box "
+            "outlines. Whole image runs it once on the entire image in the "
+            "background; the box then shows those objects, a click adds the "
+            "object under it, and a right-click removes the mask object under "
+            "it. Changing a setting the model reads discards the whole-image "
+            "objects and segments the image again.")
+        self._mag_scope.currentIndexChanged.connect(
+            lambda _index: self._on_magnifier_scope(
+                self._mag_scope.currentData()))
+        form.addRow(QLabel("Segment"), self._mag_scope)
+
         self._mag_size = QSpinBox()
         self._mag_size.setRange(*_MAGNIFIER_SIZE_RANGE)
         self._mag_size.setSingleStep(16)
         self._mag_size.setValue(_MAGNIFIER_SIZE)
         self._mag_size.setToolTip(
-            "Side of the square region the model segments, in image pixels. "
-            "Objects cut by the edge of the box are not offered, so make it "
-            "wider than the largest object you want to add.")
+            "Side of the square box, in image pixels. Under Region under the "
+            "mouse it is also the region the model segments, so make it wider "
+            "than the largest object you want to add.")
         self._mag_size.valueChanged.connect(magnifier.set_size)
         form.addRow("Size (px)", self._mag_size)
+
+        self._mag_exclude_border = QCheckBox(
+            "Exclude objects touching the box border")
+        self._mag_exclude_border.setChecked(True)
+        self._mag_exclude_border.setToolTip(
+            "When ticked, an object that touches an edge of the box inside the "
+            "image is not offered, because the box may have cut it off. Untick "
+            "it to offer and add such objects too, as far as the box sees "
+            "them. Objects at the image border are offered either way. It "
+            "applies to Region under the mouse; Whole image never cuts an "
+            "object.")
+        self._mag_exclude_border.toggled.connect(magnifier.set_exclude_border)
+        form.addRow(self._mag_exclude_border)
 
         self._mag_zoom = QDoubleSpinBox()
         self._mag_zoom.setDecimals(2)
@@ -4205,6 +4661,20 @@ class MakeMasksScreen(QWidget):
         form.addRow("Overlap", self._mag_overlap)
         card.body_layout.addLayout(form)
 
+        progress = QHBoxLayout()
+        self._mag_progress = QProgressBar()
+        self._mag_progress.setRange(0, 0)
+        self._mag_progress.setTextVisible(False)
+        self._mag_progress.hide()
+        self._mag_cancel = QPushButton("Cancel")
+        self._mag_cancel.hide()
+        self._mag_cancel.clicked.connect(
+            lambda _checked=False: magnifier.cancel_image())
+        progress.addWidget(self._mag_progress, 1)
+        progress.addWidget(self._mag_cancel)
+        card.body_layout.addLayout(progress)
+        magnifier.busy_changed.connect(self._on_magnifier_busy)
+
         self._btn_magnifier = QPushButton("Magnifier")
         self._btn_magnifier.setIcon(iconset.icon("search"))
         self._btn_magnifier.setCheckable(True)
@@ -4212,10 +4682,10 @@ class MakeMasksScreen(QWidget):
         self._btn_magnifier.setCursor(Qt.PointingHandCursor)
         self._btn_magnifier.setToolTip(
             "Show a box under the mouse with the region around it magnified "
-            "and the objects a model finds in it outlined, live. A click adds "
-            "the outlined objects to the mask as new objects, one undo step "
-            "per click. While it is on, the mouse wheel changes the box's "
-            "zoom rather than the view's.")
+            "and the objects a model finds in it outlined. A click adds them "
+            "to the mask as new objects — under Whole image, only the object "
+            "clicked — one undo step per click. While it is on, the mouse "
+            "wheel changes the box's zoom rather than the view's.")
         self._btn_magnifier.toggled.connect(self._on_toggle_magnifier)
         self.add_toolbar_action(self._btn_magnifier)
         return card
@@ -4229,19 +4699,52 @@ class MakeMasksScreen(QWidget):
             "min_area": self._detect_min_area(),
         }
 
+    def _on_magnifier_scope(self, scope) -> None:
+        """Segment the region under the mouse or the whole image.
+
+        The border option is greyed out for the whole image, whose objects
+        the box never cuts.
+        """
+        self._mag_exclude_border.setEnabled(scope != "image")
+        self._magnifier.set_scope(scope)
+
+    def _on_magnifier_busy(self, busy: bool) -> None:
+        """Show the whole-image run's progress and Cancel while it runs."""
+        self._mag_progress.setVisible(bool(busy))
+        self._mag_cancel.setVisible(bool(busy))
+
+    def _on_magnifier_context_changed(self, *_args) -> None:
+        """A setting a magnifier model reads changed elsewhere on the panel.
+
+        Whole-image objects found under the old value are discarded at once,
+        and the status line says so, rather than on the next mouse move.
+        """
+        self._magnifier.refresh()
+
     def _on_toggle_magnifier(self, on: bool) -> None:
-        """Turn the live magnifier on or off from the tool row."""
-        self._magnifier.set_enabled(on)
-        if on:
-            if self._canvas.underMouse():
-                where = self._canvas.mapFromGlobal(QCursor.pos())
-                self._magnifier.hover(QPointF(where))
+        """Turn the live magnifier on or off from the tool row.
+
+        The status line is written before the magnifier is switched, so a
+        whole-image run the switch starts has the last word on it.
+        """
+        from ..i18n import tr
+
+        if on and self._magnifier.scope == "image":
+            self._status_label.setText(tr(
+                "Magnifier on: a click adds the object under it and a "
+                "right-click removes the mask object under it; the mouse "
+                "wheel changes its zoom."))
+        elif on:
             self._status_label.setText(
                 "Magnifier on: a click adds the objects outlined in the box; "
                 "the mouse wheel changes its zoom.")
         else:
             self._status_label.setText(
                 "Magnifier off. The objects it added stay in the mask.")
+        self._magnifier.set_enabled(on)
+        if on and self._canvas.underMouse():
+            where = self._canvas.mapFromGlobal(QCursor.pos())
+            self._magnifier.hover(QPointF(where))
         self._canvas.update()
 
     def _commit_magnifier_result(self, result) -> List[int]:
@@ -4253,8 +4756,13 @@ class MakeMasksScreen(QWidget):
         Min area by the rule is not added -- see
         :func:`spacr.qt.mask_engine._paste_region_objects`.
 
+        A whole-image click arrives as that one object, cut to its bounding
+        box, and is recorded with ``scope="image"``.
+
         :returns: the ids added; empty when nothing was.
         """
+        from ..i18n import tr
+
         mask = self._canvas.mask
         request = result.request
         if mask is None or tuple(mask.shape[:2]) != tuple(request.shape):
@@ -4268,6 +4776,11 @@ class MakeMasksScreen(QWidget):
             self._status_label.setText(
                 f"Magnifier could not add objects: {exc}")
             return []
+        if not added and request.scope == "image":
+            self._status_label.setText(tr(
+                "Magnifier: nothing was added — the Overlap rule or Min area "
+                "leaves nothing of the object under the click."))
+            return []
         if not added:
             self._status_label.setText(
                 "Magnifier: nothing to add — the box outlines no object, or "
@@ -4280,12 +4793,46 @@ class MakeMasksScreen(QWidget):
                       mode=result.mode, overlap=overlap,
                       box=[int(v) for v in request.box],
                       sensitivity=float(request.sensitivity),
-                      n_objects=len(added))
+                      n_objects=len(added), scope=request.scope)
         self._history.push(out)
         self._refresh_history_buttons()
-        self._status_label.setText(
-            f"Magnifier added {len(added)} object(s) — Ctrl+Z to undo")
+        self._status_label.setText(tr(
+            "Magnifier added {n} object(s) — Ctrl+Z to undo", n=len(added)))
         return added
+
+    def _remove_magnifier_object(self, x: int, y: int) -> int:
+        """Remove the mask object at image ``(x, y)``: a whole-image right click.
+
+        Any object qualifies, whatever put it in the mask. One removal is one
+        edit: a ``delete`` ledger entry naming the id, with
+        ``tool="magnifier"``, and one undo step. A click on background
+        changes nothing and records nothing.
+
+        :returns: the id removed, or 0.
+        """
+        from ..i18n import tr
+
+        mask = self._canvas.mask
+        if mask is None:
+            return 0
+        height, width = mask.shape[:2]
+        label = (int(mask[y, x]) if 0 <= y < height and 0 <= x < width
+                 else 0)
+        if label <= 0:
+            self._status_label.setText(tr(
+                "Magnifier: there is no mask object under the click — nothing "
+                "was removed."))
+            return 0
+        out = engine.erase_object_at(mask, x, y)
+        changed = self._pixels_changed(out)
+        self._canvas.mask = out
+        self._canvas.refresh()
+        self._record("delete", label, changed, tool="magnifier")
+        self._history.push(out)
+        self._refresh_history_buttons()
+        self._status_label.setText(tr(
+            "Magnifier removed object {label} — Ctrl+Z to undo", label=label))
+        return label
 
     def _warn(self, title: str, text: str) -> None:
         """Report a non-fatal failure to the user.
@@ -4498,6 +5045,7 @@ class MakeMasksScreen(QWidget):
             f"({self._current_index + 1}/{len(self._image_files)})"
         )
         self.apply_object_filter(on_load=True)
+        self._magnifier.refresh()
 
     def _open_ledger(self, filename: str) -> CurationLog:
         """The ledger for one field, ready to be appended to.
