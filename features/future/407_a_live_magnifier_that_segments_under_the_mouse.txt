@@ -234,3 +234,121 @@ WHAT THAT ASKS FOR:
      shows those precomputed objects as the user moves over the image; a
      left-click ADDS the object(s) clicked, a right-click REMOVES the clicked
      object from the mask.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE ANSWER BUILT: A BORDER OPTION AND A WHOLE-IMAGE MODE
+--------------------------------------------------------------------------------
+
+Branch wip/407-whole-image, first cut from nightly a08ea44a9 and rebased onto
+nightly df1216b3f: code and tests first, reviewed records, ratchets and this
+note next, and the runtime catalogs regenerated on the new base in their own
+final commit. Not pushed.
+
+WHAT EACH PART OF THE ANSWER DOES NOW
+
+  1. KEPT. Under "Region under the mouse" (still the default) a left click
+     adds every object the box outlines, one undo step, one "magnifier"
+     ledger entry.
+  2. "Exclude objects touching the box border", a checkbox on the Live
+     magnifier card, ticked by default (the old behaviour). Unticked, an
+     object the box's INNER edge cuts is offered and added as far as the box
+     saw it. Objects at the IMAGE border are offered either way. Toggling it
+     does not call the model again: the region worker keeps the model's last
+     answer for the region and only re-filters it.
+  3. "Segment: Whole image", a new row beside Mode. The chosen model runs ONCE
+     on the entire field, on a second newest-only worker, with a busy bar and
+     a Cancel button on the card. The box then draws its slice of those
+     objects (the object under the cursor filled more strongly) with no model
+     call per move.
+       LEFT CLICK adds the one object whose label covers the clicked pixel,
+       through the Overlap rule, as one undo step and a "magnifier" ledger
+       entry with scope="image". A click on no object adds nothing and the
+       status line says so.
+       RIGHT CLICK removes the mask object under the click, whatever put it
+       there, as its own undo step and a "delete" ledger entry with
+       tool="magnifier". A right click on background changes nothing,
+       records nothing, and says so.
+       Changing a setting the model reads (Mode, Sensitivity, the Cellpose-SAM
+       model and diameter, Bright, Min area) discards the whole-image objects
+       at once, says so, and starts a new run. Size, Zoom and Overlap do not.
+
+DECISIONS THAT HAD TO BE MADE
+
+  * A whole-image click adds the WHOLE object, including any part outside
+    the box: the whole image was segmented, so nothing cut it. The border
+    checkbox is greyed out under Whole image for that reason.
+  * A right click under Whole image removes one object at the press and does
+    not sweep, so it removes exactly what was clicked.
+  * A click before the run finishes adds nothing and is NOT pinned, unlike
+    the region mode. A run can take minutes on a CPU, and an object going in
+    long after the click would be a surprise.
+  * Progress is an indeterminate busy bar. Neither classical nor Cellpose
+    reports steps, and tiling the field to get real progress would cut
+    objects at tile seams.
+  * Cancel cannot interrupt a model call already running. It drops a waiting
+    run and discards a running run's answer when it arrives. Moving the mouse
+    does not restart a cancelled or failed run; a click or a setting change
+    does.
+  * A setting change restarts the run automatically. The worker keeps only
+    the newest request, so a burst of changes costs at most one extra run.
+  * Turning the magnifier off leaves a run going, so its objects are ready
+    when it comes back on. Leaving Whole image for the region mode drops the
+    run; objects already found are kept and offered again if nothing the
+    model reads has changed.
+  * A field change drops the whole-image objects and segments the new field
+    when it loads. Coming back to a field segments it again.
+  * Three existing captions became untrue and were reworded: the card
+    subtitle, the Size tooltip and the Magnifier button tooltip. Their nine
+    old reviewed records were retired (deleted, as the runtime lane requires).
+  * "Magnifier added {n} object(s)" moved from an f-string to a tr() template
+    so it is catalogued. It is shared by both modes.
+
+EVIDENCE
+
+  * tests/qt/test_the_live_magnifier_segments_under_the_mouse.py: 12 new
+    tests, all red before the change (12 failed, 21 passed), 33 passed
+    after. The border option on and off with an object the box edge cuts;
+    image-border objects either way and no model call on toggle; Whole image
+    segments once and never per move; a left click adds exactly the clicked
+    object and a click on background adds nothing; a right click removes
+    exactly one object and undo restores it; sensitivity and Min area discard
+    the map while size, zoom and overlap do not; a 1 s stub model never
+    blocks switching on or 26 moves (slowest well under 0.5 s), off the GUI
+    thread; Cancel discards and a click restarts; save and field change; and
+    the worker's drop_waiting.
+  * Make Masks suites (42 files): 762 passed, 1 failed before the catalogs
+    (the panel's exact-catalog-row test, expected until the rows exist).
+  * 21 new captions x 9 languages, hand-written and accepted by the builder's
+    gates through tools/write_reviewed_api_record.py
+    (2026-09-15-magnifier-whole-image.json); evidence checker clean.
+  * With the catalogs in, the full Make Masks suite (the 22 files named for
+    make_masks, magnifier or mask_engine, serial, offscreen): 561 passed,
+    1 skipped (the opt-in real-Cellpose detect test), 0 failed.
+  * REAL CELLPOSE, MEASURED on a training field (plate1_A02_12, 1994x1994,
+    outside every round-3 hold-out; cross-validation fold 3), on the RTX 3090
+    under the GPU lock, driven through the screen itself (Cellpose mode,
+    Whole image, magnifier on). 39 s for the whole script, lock wait
+    included:
+        stock cpsam        48 objects  10.3 s with model load
+        cpsam_v2_toxo_r2   37 objects   7.7 s with model load
+    A Sensitivity change discarded the objects at once and re-ran in 3.9 s
+    and 3.7 s with the model cached (48 and 38 objects). A left click on
+    the largest object added exactly it (5,050 px), a right click removed
+    it, and undo restored it; the ledger held one "magnifier" and one
+    "delete" entry.
+  * THE GUI STALL, CHECKED. Turning the magnifier on returned in 2 ms. The
+    longest gap between event-loop ticks during a run was 0.47 s, once,
+    while the first model loaded (the worker's first import of torch and
+    Cellpose); every other run stayed at 15-23 ms.
+
+WHAT IS LEFT
+
+  * The region mode's other f-string status lines (could not segment this
+    region, the classical fallback note) are still not catalogued.
+  * Not run: the 380 responsiveness harness with Whole image on, and
+    whole-image Cellpose on a CPU, where a field this size would take far
+    longer than on the GPU.
+  * The busy bar has no ETA. The whole-image objects are not cached per
+    field, so revisiting a field re-segments it.
+  * Still open from the second pass above: previewing the Overlap rule inside
+    the box, and a keyboard shortcut for the toggle.

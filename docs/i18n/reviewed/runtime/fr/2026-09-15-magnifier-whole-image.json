@@ -1,0 +1,153 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "Exclude objects touching the box border",
+      "source": "Exclude objects touching the box border",
+      "source_sha256": "03bb8f4fd736ec938c23ab4d7817750a0a60e04a625b3d2ac3969bb1641b5659",
+      "table": "ui",
+      "translation": "Exclure les objets qui touchent le bord du cadre"
+    },
+    {
+      "key": "Magnifier added {n} object(s) — Ctrl+Z to undo",
+      "source": "Magnifier added {n} object(s) — Ctrl+Z to undo",
+      "source_sha256": "9c3a2c9b5b058197132a18eb5977bc0d38890fcd1ec702429086422cf1da9403",
+      "table": "ui",
+      "translation": "La loupe a ajouté {n} objet(s) — Ctrl+Z pour annuler"
+    },
+    {
+      "key": "Magnifier could not segment the whole image: {error}",
+      "source": "Magnifier could not segment the whole image: {error}",
+      "source_sha256": "03c3c396ca5c571747290a3e64c25c66f7a273d2bbe3aeed79c0ee4ccc8468d4",
+      "table": "ui",
+      "translation": "La loupe n'a pas pu segmenter l'image entière : {error}"
+    },
+    {
+      "key": "Magnifier on: a click adds the object under it and a right-click removes the mask object under it; the mouse wheel changes its zoom.",
+      "source": "Magnifier on: a click adds the object under it and a right-click removes the mask object under it; the mouse wheel changes its zoom.",
+      "source_sha256": "1f6d5c5ffffe854f28342359003a6dd787ac114a15487b0cdb6b9000dd2fa4c5",
+      "table": "ui",
+      "translation": "Loupe activée : un clic ajoute l'objet situé dessous et un clic droit retire l'objet du masque situé dessous ; la molette de la souris change son zoom."
+    },
+    {
+      "key": "Magnifier removed object {label} — Ctrl+Z to undo",
+      "source": "Magnifier removed object {label} — Ctrl+Z to undo",
+      "source_sha256": "069fee658e51ecfd73558dce2987f1be32556ccf1778fa3856614b9ba451fce2",
+      "table": "ui",
+      "translation": "La loupe a retiré l'objet {label} — Ctrl+Z pour annuler"
+    },
+    {
+      "key": "Magnifier: nothing was added — the Overlap rule or Min area leaves nothing of the object under the click.",
+      "source": "Magnifier: nothing was added — the Overlap rule or Min area leaves nothing of the object under the click.",
+      "source_sha256": "50a7df9fb220f2f28663092861fd13785cadcbbdc53bc55333baebe3b379b817",
+      "table": "ui",
+      "translation": "Loupe : rien n'a été ajouté — la règle de Chevauchement ou Min area ne laisse rien de l'objet sous le clic."
+    },
+    {
+      "key": "Magnifier: segmenting the whole image…",
+      "source": "Magnifier: segmenting the whole image…",
+      "source_sha256": "7ee95d1161b68b04d363b452c92352573eaf2ccf73c4458089795630ca155b7f",
+      "table": "ui",
+      "translation": "Loupe : segmentation de l'image entière…"
+    },
+    {
+      "key": "Magnifier: the settings changed, so the whole-image objects were discarded. Segmenting the whole image again…",
+      "source": "Magnifier: the settings changed, so the whole-image objects were discarded. Segmenting the whole image again…",
+      "source_sha256": "dca2a0d70887cd5e10c051c7f3b034832776e4422322fa36779ec4f7e2e572fb",
+      "table": "ui",
+      "translation": "Loupe : les réglages ont changé, les objets de l'image entière ont donc été écartés. Nouvelle segmentation de l'image entière…"
+    },
+    {
+      "key": "Magnifier: the whole image is still being segmented — nothing was added.",
+      "source": "Magnifier: the whole image is still being segmented — nothing was added.",
+      "source_sha256": "1e63c00283d7ac637b35d42b845825e952afdb7d4fdca0a6f9039e72d5ae2230",
+      "table": "ui",
+      "translation": "Loupe : l'image entière est encore en cours de segmentation — rien n'a été ajouté."
+    },
+    {
+      "key": "Magnifier: there is no mask object under the click — nothing was removed.",
+      "source": "Magnifier: there is no mask object under the click — nothing was removed.",
+      "source_sha256": "ed84f5d3610e78a512d1392d494504ca8433a4c850b3d60cb86a761e7a4c5d05",
+      "table": "ui",
+      "translation": "Loupe : il n'y a aucun objet du masque sous le clic — rien n'a été retiré."
+    },
+    {
+      "key": "Magnifier: there is no object under the click — nothing was added.",
+      "source": "Magnifier: there is no object under the click — nothing was added.",
+      "source_sha256": "0829cb8a51727da6556e97143c6a285152c47ad2bdce4f6243eff3944875b158",
+      "table": "ui",
+      "translation": "Loupe : il n'y a aucun objet sous le clic — rien n'a été ajouté."
+    },
+    {
+      "key": "Magnifier: whole-image segmentation cancelled. Click the image to start it again.",
+      "source": "Magnifier: whole-image segmentation cancelled. Click the image to start it again.",
+      "source_sha256": "ecbc07077466bfc5ba51ce5fbeb57a9f4d72da6e324d84279888e22c16ed2989",
+      "table": "ui",
+      "translation": "Loupe : segmentation de l'image entière annulée. Cliquez sur l'image pour la relancer."
+    },
+    {
+      "key": "Magnifier: {n} object(s) found in the whole image. Click one to add it; right-click an object in the mask to remove it.",
+      "source": "Magnifier: {n} object(s) found in the whole image. Click one to add it; right-click an object in the mask to remove it.",
+      "source_sha256": "7d981517e126b57b34d875680482291fd0bb8e79d331b8e99b524f33c62a432f",
+      "table": "ui",
+      "translation": "Loupe : {n} objet(s) trouvé(s) dans l'image entière. Cliquez sur l'un d'eux pour l'ajouter ; faites un clic droit sur un objet du masque pour le retirer."
+    },
+    {
+      "key": "Region under the mouse",
+      "source": "Region under the mouse",
+      "source_sha256": "c3f6da21b7160833a34a097f59e265209a2676b79bf37f073424edf25023f3df",
+      "table": "ui",
+      "translation": "Région sous la souris"
+    },
+    {
+      "key": "Segment",
+      "source": "Segment",
+      "source_sha256": "29ee089ccecadf9d4eaccb22512a3eece8cb15230412bda3b5d648c92abe154e",
+      "table": "ui",
+      "translation": "Segmenter"
+    },
+    {
+      "key": "Segments the region under the mouse, or the whole image once, and shows its objects magnified. A click adds objects to the mask.",
+      "source": "Segments the region under the mouse, or the whole image once, and shows its objects magnified. A click adds objects to the mask.",
+      "source_sha256": "305ef8dbbae81aa47d7372285d0d122ae200668b667ae3aaef6c8ba53a3f9463",
+      "table": "ui",
+      "translation": "Segmente la région sous la souris, ou l'image entière une fois, et en montre les objets agrandis. Un clic ajoute des objets au masque."
+    },
+    {
+      "key": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined. A click adds them to the mask as new objects — under Whole image, only the object clicked — one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
+      "source": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined. A click adds them to the mask as new objects — under Whole image, only the object clicked — one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
+      "source_sha256": "0cf8a38d7718560fe01ac862c439cf51776cbbe84a5d07b3f25bfc63b5955076",
+      "table": "ui",
+      "translation": "Affiche sous la souris un cadre où la région environnante est agrandie et où les objets qu'un modèle y trouve sont délimités. Un clic les ajoute au masque comme nouveaux objets — avec Image entière, seulement l'objet cliqué —, une étape d'annulation par clic. Tant qu'elle est activée, la molette de la souris change le zoom du cadre plutôt que celui de la vue."
+    },
+    {
+      "key": "Side of the square box, in image pixels. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add.",
+      "source": "Side of the square box, in image pixels. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add.",
+      "source_sha256": "eeb419a0b5364ac04176caacff804eb2eff0fe302e21212d7ebb7efca5c68369",
+      "table": "ui",
+      "translation": "Côté du cadre carré, en pixels de l'image. Avec Région sous la souris, c'est aussi la région que le modèle segmente : choisissez-le plus large que le plus grand objet à ajouter."
+    },
+    {
+      "key": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
+      "source": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
+      "source_sha256": "1a3b29a22afd721b9ed4ec028eeb151a0c21281c1e85aecde24a31f4b427c332",
+      "table": "ui",
+      "translation": "Ce que le modèle segmente. Région sous la souris l'exécute sur le cadre pendant que la souris se déplace, et un clic ajoute chaque objet que le cadre délimite. Image entière l'exécute une fois sur toute l'image, en arrière-plan ; le cadre montre ensuite ces objets, un clic ajoute l'objet situé dessous et un clic droit retire l'objet du masque situé dessous. Modifier un réglage que lit le modèle écarte les objets de l'image entière et segmente de nouveau l'image."
+    },
+    {
+      "key": "When ticked, an object that touches an edge of the box inside the image is not offered, because the box may have cut it off. Untick it to offer and add such objects too, as far as the box sees them. Objects at the image border are offered either way. It applies to Region under the mouse; Whole image never cuts an object.",
+      "source": "When ticked, an object that touches an edge of the box inside the image is not offered, because the box may have cut it off. Untick it to offer and add such objects too, as far as the box sees them. Objects at the image border are offered either way. It applies to Region under the mouse; Whole image never cuts an object.",
+      "source_sha256": "4908e03ee7d3a4857a3a7dc2dde24d286abbb071bf688a8063494ef6eb0ca87c",
+      "table": "ui",
+      "translation": "Cochée, un objet qui touche un bord du cadre à l'intérieur de l'image n'est pas proposé, car le cadre a pu le couper. Décochez-la pour proposer et ajouter aussi ces objets, jusqu'où le cadre les voit. Les objets au bord de l'image sont proposés dans tous les cas. Elle s'applique à Région sous la souris ; Image entière ne coupe jamais un objet."
+    },
+    {
+      "key": "Whole image",
+      "source": "Whole image",
+      "source_sha256": "7b823236b6caba32faa641d11967fc10592879baa2dde60d077dca08ee57c3d3",
+      "table": "ui",
+      "translation": "Image entière"
+    }
+  ],
+  "schema": 1
+}

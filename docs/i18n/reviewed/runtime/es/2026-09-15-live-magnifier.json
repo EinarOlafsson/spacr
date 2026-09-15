@@ -72,27 +72,6 @@
       "translation": "Reemplazar"
     },
     {
-      "key": "Segments the region under the mouse. A click adds the objects the box outlines to the mask.",
-      "source": "Segments the region under the mouse. A click adds the objects the box outlines to the mask.",
-      "source_sha256": "114638e88e0c750723557e1c7163ab729d4994f72734884410a3c7d81ed44b7d",
-      "table": "ui",
-      "translation": "Segmenta la región bajo el ratón. Un clic añade a la máscara los objetos que delinea el recuadro."
-    },
-    {
-      "key": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined, live. A click adds the outlined objects to the mask as new objects, one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
-      "source": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined, live. A click adds the outlined objects to the mask as new objects, one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
-      "source_sha256": "5a3ffd2ed19534b0fdea1911fff4bb67a63378f790b1d574dc82a706192ab77e",
-      "table": "ui",
-      "translation": "Muestra bajo el ratón un recuadro con la región circundante ampliada y, en directo, los objetos que un modelo encuentra en ella delineados. Un clic añade los objetos delineados a la máscara como objetos nuevos, un paso de deshacer por clic. Mientras está activada, la rueda del ratón cambia el zoom del recuadro en lugar del de la vista."
-    },
-    {
-      "key": "Side of the square region the model segments, in image pixels. Objects cut by the edge of the box are not offered, so make it wider than the largest object you want to add.",
-      "source": "Side of the square region the model segments, in image pixels. Objects cut by the edge of the box are not offered, so make it wider than the largest object you want to add.",
-      "source_sha256": "1e82df23c587a6d4626d9f64ea229c45cabbe7e2732e932edaf7465994e5687a",
-      "table": "ui",
-      "translation": "Lado de la región cuadrada que segmenta el modelo, en píxeles de imagen. Los objetos cortados por el borde del recuadro no se ofrecen, así que hágalo más ancho que el objeto más grande que quiera añadir."
-    },
-    {
       "key": "Updating…",
       "source": "Updating…",
       "source_sha256": "dfe40efe921fe88e332575a3516f4e8cd6bbb71437cf260b2bb9b947c65d1484",

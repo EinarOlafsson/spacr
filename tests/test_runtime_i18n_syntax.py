@@ -70,7 +70,16 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # the runtime extractor iterated the two dicts and collected their keys.
     # All ten sources are new wording, so the file shares no source with any
     # other, and the live count minus its ten is 191.
-    assert len(reviewed) == 201
+    #
+    # 201 -> 219 on 2026-09-15, +21/-3, for the magnifier's border option and
+    # whole-image mode (407), rebased onto nightly df1216b3f. The 21 are
+    # 2026-09-15-magnifier-whole-image.json; the 3 left
+    # 2026-09-15-live-magnifier.json with the card subtitle, the Size tooltip
+    # and the Magnifier-button tooltip, whose English was reworded because the
+    # whole-image mode made it untrue. PROVED BY SUBTRACTION with the loader:
+    # 201 + 21 - 3 = 219 is the live count, the live count minus that file's
+    # sources is 198 (201 - 3), and the file shares no source with any other.
+    assert len(reviewed) == 219
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -155,7 +164,13 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 169 -> 179 on 2026-09-15, +10/-0, for item 286: the same ten
     # performance-level strings as the Swedish note above, in
     # 2026-09-15-performance-levels.json. The live count minus its ten is 169.
-    assert len(reviewed) == 179
+    #
+    # 179 -> 197 on 2026-09-15, +21/-3, for the magnifier's border option and
+    # whole-image mode (407): the same 21 new records and the same 3 retired
+    # wordings as Swedish. 179 + 21 - 3 = 197 is the live count, the live
+    # count minus the new file's sources is 176 (179 - 3), and the file shares
+    # no source with any other.
+    assert len(reviewed) == 197
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

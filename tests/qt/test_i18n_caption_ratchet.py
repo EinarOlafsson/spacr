@@ -359,7 +359,20 @@ EXTERNAL_SOURCE_COUNTS = {
     # no other row in any catalog.
     # 3,472 -> 3,466 when the old OPS engine was deleted (372): its six category
     # explanations, which also count under CATEGORY_HELP.
-    "UI": 3466,
+    #
+    # 3,466 -> 3,484 on 2026-09-15, +21/-3, and only UI moved: the magnifier's
+    # border option and whole-image mode (407), rebased onto nightly
+    # df1216b3f. ARRIVING: the Exclude-objects-touching-the-box-border
+    # checkbox and its tooltip, the Segment row label with its choices 'Region
+    # under the mouse' and 'Whole image' and their tooltip, the new card
+    # subtitle, the reworded Size and Magnifier-button tooltips, and eleven
+    # status lines -- four of them TEMPLATES ({n}, {error}, {label}) that
+    # reach the extractor because they are written as tr("...", n=...) rather
+    # than as f-strings. LEAVING: the previous wordings of that subtitle and
+    # those two tooltips, which the whole-image mode made untrue. 'Cancel' is
+    # a compact row and is not counted here. MEASURED, not added:
+    # canonical_sources() on the rebased tree returns 3,484 = 3,466 + 21 - 3.
+    "UI": 3484,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -434,8 +447,16 @@ EXTERNAL_SOURCE_COUNTS = {
 # identities leave and none arrive, the same set the counts above name.
 # PROVED BY SUBTRACTION the same way: nightly's identities (119746de...)
 # minus those 116 give this pin byte for byte.
+# Moved again on 2026-09-15 with the UI count above, for the magnifier's
+# border option and whole-image mode (407), rebased onto nightly df1216b3f:
+# 24 identities change, 21 arriving and 3 leaving, all UI, enumerated in the
+# note over EXTERNAL_SOURCE_COUNTS. PROVED BY SUBTRACTION with this test's own
+# formula over the rebased tree: today's identities (520f3df5...) minus the
+# 21 arrivals plus the 3 retired wordings give
+# 3bc7769a7d287175045d24611bbd962d16623d68f52ae9101aa59602d57669e3, the base's
+# pin byte for byte.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "3bc7769a7d287175045d24611bbd962d16623d68f52ae9101aa59602d57669e3"
+    "520f3df55c474bd389fd55228c322edcade652d3318069e78539593c39458da3"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
