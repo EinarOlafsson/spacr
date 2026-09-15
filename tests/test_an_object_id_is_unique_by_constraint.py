@@ -149,3 +149,60 @@ def test_reads_may_repeat_an_object(tmp_path):
                           "base": list("ACGT")})
 
     assert write_table(path, "ops_reads", reads) == 4
+
+
+@pytest.mark.parametrize("wrapped", [False, True],
+                         ids=["raised-bare", "raised-from-DatabaseError"])
+def test_a_refused_append_names_its_keys_whichever_way_pandas_raises(
+        tmp_path, monkeypatch, wrapped):
+    """pandas 3 raises SQLite's refusal from ``DatabaseError``; pandas 2 bare.
+
+    Both spellings are driven here whatever pandas is installed, because the
+    installed one only ever produces its own: catching only the bare error
+    passed every test on pandas 2 and let each refused append escape as
+    "Execution failed" on CI's pandas 3.0.5.
+    """
+    import spacr.tabular as tabular
+
+    path = str(tmp_path / "measurements.db")
+    write_table(path, OBJECTS_TABLE, _objects(5))
+    refusal = sqlite3.IntegrityError(
+        "UNIQUE constraint failed: ops_objects.plate, ops_objects.well, "
+        "ops_objects.object_id")
+
+    def refuse(*_args, **_kwargs):
+        if not wrapped:
+            raise refusal
+        raise pd.errors.DatabaseError("Execution failed") from refusal
+
+    monkeypatch.setattr(tabular, "write_database", refuse)
+    with pytest.raises(StoreError, match="already holds 5 of the 5") as caught:
+        write_table(path, OBJECTS_TABLE, _objects(5), if_exists="append")
+
+    assert "object_id=1" in str(caught.value)
+    assert row_count(path, OBJECTS_TABLE) == 5
+
+
+def test_a_write_that_fails_for_another_reason_is_not_called_a_collision(
+        tmp_path, monkeypatch):
+    """Only the constraint refusal becomes a StoreError naming keys.
+
+    A locked or unwritable database reaches the caller as what it is; naming
+    object ids for it would send the operator after duplicates that do not
+    exist.
+    """
+    import spacr.tabular as tabular
+
+    path = str(tmp_path / "measurements.db")
+
+    def fail(*_args, **_kwargs):
+        raise pd.errors.DatabaseError("Execution failed") from (
+            sqlite3.OperationalError("database is locked"))
+
+    monkeypatch.setattr(tabular, "write_database", fail)
+    with pytest.raises(pd.errors.DatabaseError) as caught:
+        write_table(path, OBJECTS_TABLE, _objects(3))
+
+    assert not isinstance(caught.value, StoreError)
+    assert isinstance(caught.value.__cause__, sqlite3.OperationalError)
+    assert row_count(path, OBJECTS_TABLE) is None

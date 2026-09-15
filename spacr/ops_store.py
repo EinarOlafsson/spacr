@@ -122,11 +122,12 @@ def write_table(db_path: str, table: str, frame, *,
     try:
         write_database(frame, db_path, table, if_exists=if_exists,
                        canonicalise=False, index=False)
-    except sqlite3.IntegrityError as failure:
-        if not key:
+    except Exception as failure:                       # noqa: BLE001
+        refusal = _uniqueness_refusal(failure)
+        if not key or refusal is None:
             raise
         raise StoreError(_collision_message(
-            db_path, table, frame, key, failure)) from failure
+            db_path, table, frame, key, refusal)) from failure
     if key:
         _constrain(db_path, table, key, created=not appending)
     stored = row_count(db_path, table)
@@ -156,6 +157,26 @@ def write_table(db_path: str, table: str, frame, *,
             f"database has {stored}. The cache has been removed so reads "
             f"fall back to the authority rather than to the disagreement.")
     return stored
+
+
+def _uniqueness_refusal(
+        failure: BaseException) -> Optional[sqlite3.IntegrityError]:
+    """SQLite's constraint refusal behind a failed write, or ``None``.
+
+    pandas 2 lets ``to_sql`` raise :class:`sqlite3.IntegrityError` as it is;
+    pandas 3 raises ``pandas.errors.DatabaseError("Execution failed")`` from
+    it. Catching only the first let every refused append on pandas 3 escape
+    as "Execution failed", where the store names the keys the append shared
+    with the table.
+
+    :param failure: what the write raised.
+    :returns: the IntegrityError itself, the one ``failure`` was raised
+        from, or ``None`` when the write failed for another reason.
+    """
+    if isinstance(failure, sqlite3.IntegrityError):
+        return failure
+    cause = failure.__cause__
+    return cause if isinstance(cause, sqlite3.IntegrityError) else None
 
 
 _ONE_ROW_PER_OBJECT = ("ops_objects", "ops_barcodes")
