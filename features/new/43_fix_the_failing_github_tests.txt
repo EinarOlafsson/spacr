@@ -1182,3 +1182,30 @@ Minimum dependencies failed. Read from their logs:
   the filtered buckets summed (116+59+16+16+5+4+1+1 = 218) and re-checked by
   the work session. A test that pins the DIFFERENCE between two numbers can be
   wrong on both sides and stay green: pin each side against a measurement.
+
+  CRASH RATE, MEASURED BY THE WORK SESSION (2026-09-15, 10:25 UTC). Serial
+  `pytest tests/qt -q -p no:randomly`, same tree and machine, counting ONLY runs
+  that reached or passed the crash point (7%):
+
+      original (skip on)        crashed at 7%
+      skip off                  clean to 13%
+      skip on, confirmation     clean to 23%
+      rate run 1                clean to 8%
+      rate run 2                clean to 8%
+      rate run 3                crashed at 7%
+
+      2 crashes in 6 qualifying runs -- roughly one in three.
+
+  Both crashes are at 7%, in `_restore_font_scale -> app.setStyleSheet`: the
+  SITE is deterministic and the OCCURRENCE is not, which is the shape of a
+  teardown race, not of a bad line. At a one-in-three base rate, the original
+  "crash with the skip, clean without" was a coin flip that two runs could never
+  have separated.
+
+  THE MORE USEFUL LESSON: the first attempt at a rate was six runs reporting
+  "0 crashes", and it measured NOTHING -- every run hit a 600 s cap at 6%, short
+  of the 7% crash point, while competing for CPU. A probe that never reaches the
+  event cannot report its rate. The second attempt's own summary then mislabelled
+  the crashing run as "short of 7%" because it keyed on reaching 8%, and a crash
+  stops a run at 7%: a crash is the event regardless of depth. Report reached
+  depth beside every crash count.
