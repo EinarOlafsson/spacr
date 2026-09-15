@@ -301,8 +301,8 @@ def mark_to_start_on(shape: str, fallback_mark: str) -> Tuple[str, str]:
     live panels draw ``jitter_bar`` and ``jitter_box``. A caller that reads
     the setting and forgets :func:`mark_for` hands matplotlib a name that
     ``plot.py``'s own error message lists as unknown -- which is the mistake
-    this function exists to stop anyone making twice. Instruction 293 named
-    four call sites that had to do this two-step; they should all do it here.
+    this function exists to stop anyone making twice. Every call site that
+    reads the setting and then draws should come through here.
 
     THE FALLBACK IS THE CALLER'S OWN FORM, NOT THE TABLE'S DEFAULT, and it is
     taken in MARK vocabulary because that is what a caller already has

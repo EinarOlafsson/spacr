@@ -218,8 +218,7 @@ def _normalize_app(app_key: Any) -> str:
 #: which skips the hyphen fold -- so a caller who writes `barcode-mapping`
 #: reaches `map_barcodes` through `validate` and reaches nothing at all
 #: through `module_ports`, whose own docstring promises "every alias
-#: APP_ALIASES accepts". Instruction 100 recorded that as a residual of an
-#: earlier pass: "same defect, three call sites, in files outside this pass".
+#: APP_ALIASES accepts".
 #:
 #: Exported rather than left private so the next caller has something to reach
 #: for. A private helper that three modules need is a public one that has not

@@ -5634,13 +5634,12 @@ def _help_lives_on_the_label(control) -> bool:
     and leaves `apiTooltipHtml` on the field as the SOURCE the label's copy
     was made from -- not as a tooltip the field should be showing. A caller
     that reads `apiTooltipHtml` and calls `setToolTip` with it puts the help
-    back on the editor and undoes instruction 289 for that row.
+    back on the editor, so the name stops being the hover target for that row.
 
     Measured on regression and classify_merged before this existed: the
     retarget moved 28 and 27 rows at screen-open, and two event-loop turns
-    later `_refresh_setting_dependencies` had put every one of them back --
-    so the maintainer, who has asked for this "i dont know how many times",
-    still met the help on the field on both screens.
+    later `_refresh_setting_dependencies` had put every one of them back, so
+    the help was on the field again on both screens.
 
     :param control: the editor widget the note is about.
     :returns: True when its help belongs to its name label now.

@@ -5148,11 +5148,9 @@ def _name_deeper_key(parts):
 def qc_graph_type_and_note(fallback: str = 'jitter_bar'):
     """The graph type the regression QC figures should start on.
 
-    INSTRUCTION 293: the DEFAULT GRAPH TYPE setting decides what is drawn
-    FIRST, and the instruction says so "for EVERY graph in spaCR, not only
-    Regression". The three QC figures below hardcoded ``'jitter_bar'`` and
-    were named in 293's own WHAT STILL DOES NOT list, alongside the three
-    ``settings.py`` defaults and the Graph Builder's ``infer_kind``.
+    The DEFAULT GRAPH TYPE setting decides what is drawn FIRST, for every
+    graph in spaCR and not only for Regression. The three QC figures below
+    hardcoded ``'jitter_bar'`` and ignored it.
 
     THE FALLBACK IS THE OLD LITERAL, deliberately. :func:`graph_types.
     start_for` answers the CALLER'S OWN starting form when the user has

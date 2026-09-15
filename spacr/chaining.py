@@ -427,7 +427,7 @@ def _canonical(module: str) -> str:
     Through `validate.canonical_app_key` rather than a bare `APP_ALIASES`
     lookup: plugin aliases are REGISTERED with "-" folded to "_", so a
     caller who writes the hyphenated spelling reaches nothing without the
-    fold. Instruction 100 named this as one of three sites doing it by hand.
+    fold.
     """
     return canonical_app_key(str(module))
 

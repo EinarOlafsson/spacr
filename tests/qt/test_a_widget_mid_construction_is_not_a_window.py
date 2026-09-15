@@ -374,3 +374,68 @@ def test_the_block_probe_can_tell_the_two_colours_apart(sheeted_app, qtbot):
             "exist and the test above proves nothing")
     finally:
         theme.unregister_widget_qss("TheOneTheBlockNames")
+
+
+# -- the contract a renderer has to know about ------------------------------
+
+def test_an_unshown_orphan_renders_without_the_sheet_and_that_is_the_deal(
+        sheeted_app, qtbot):
+    """THE BEHAVIOUR CHANGE, STATED, because it cost a bisect to rediscover.
+
+    The skip's premise is that a widget which is neither shown nor parented
+    is not rendered by anything. `QWidget.render()` DISPROVES THAT: a test,
+    a thumbnailer or a report generator can render an orphan directly, and
+    it now renders with no stylesheet at all.
+
+    `tests/qt/test_field_fade.py` did exactly that -- built a bare
+    `QLineEdit()`, never shown, never parented, and rendered it -- and
+    twelve of its assertions read a flat 255 where they expected a fade.
+    Nothing about fields had changed; the widget simply had no sheet. It was
+    found by bisect, from the other session, hours after the change landed.
+
+    MEASURED, all three shapes:
+
+        parentless and never shown   left 255  right 255   no fade
+        parented into a shown window left 255  right  10   fades
+        parentless but shown         left 255  right  10   fades
+
+    So the application is unaffected -- every field a user sees is parented
+    into a form, or shown, or both -- and the only shape that loses the
+    sheet is one no screen builds.
+
+    THE RULE, for whoever renders a widget next: SHOW IT OR PARENT IT. One
+    line, either one, and the sheet arrives. This test exists so that rule
+    is discoverable by grep instead of by bisect.
+    """
+    orphan = QLabel("x")
+    qtbot.addWidget(orphan)
+    orphan.ensurePolished()
+    assert not _wears_the_sheet(orphan), (
+        "an unshown orphan carries a sheet, so the skip is not applying and "
+        "this test no longer describes the code")
+
+    orphan.show()
+    QApplication.instance().processEvents()
+    assert _wears_the_sheet(orphan), (
+        "showing an orphan did not sheet it -- the escape route this "
+        "contract promises does not work, which is worse than the skip")
+
+
+def test_parenting_is_the_other_escape_route(sheeted_app, qtbot):
+    """The second half of "show it or parent it", so both are held.
+
+    A parented widget is a descendant of a window that carries the sheet,
+    and QSS reaches descendants -- so it needs no sheet of its own. Asserting
+    the RESOLVED colour rather than `styleSheet()` is the point: the widget
+    is styled without carrying anything.
+    """
+    window = QWidget()
+    qtbot.addWidget(window)
+    window.show()
+    QApplication.instance().processEvents()
+
+    late = QLabel("x", window)
+    QApplication.instance().processEvents()
+    assert _resolved(late) == SHEET_HEX, (
+        "a label parented into a sheeted window did not resolve to the "
+        "sheet's colour, so parenting is not an escape route after all")

@@ -541,8 +541,8 @@ def function_trace_enabled() -> bool:
 #:
 #: At a conservative ten thousand calls a second in a Qt application that is
 #: roughly a quarter of a core spent resolving the same few hundred paths
-#: over and over, which is exactly what instruction 294 means by "verbose
-#: logging must be cheap before it can be the default".
+#: over and over, which is what keeps verbose logging too expensive to leave
+#: switched on.
 #:
 #: UNBOUNDED ON PURPOSE, and safe: the key space is the set of Python source
 #: files the process actually executes, which is a few hundred, fixed after

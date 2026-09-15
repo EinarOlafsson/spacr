@@ -20,7 +20,8 @@ import gc
 import pytest
 from PySide6.QtCore import QEvent, QPoint, QSettings
 from PySide6.QtGui import QColor, QImage, QPainter, QRegion
-from PySide6.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QSpinBox, QWidget
+from PySide6.QtWidgets import (QApplication, QComboBox, QDoubleSpinBox,
+                               QLineEdit, QSpinBox, QWidget)
 from shiboken6 import isValid
 
 from spacr.qt import preferences as prefs
@@ -82,13 +83,38 @@ def _render(widget) -> QImage:
 
 
 def _field(qtbot, factory=QLineEdit, width=240, height=32, css=""):
+    """A field built the way the application builds one, then measured.
+
+    IT IS SHOWN, AND THAT IS LOAD-BEARING. A widget that is parentless AND
+    has never been shown is not a widget any screen contains -- Qt calls it
+    a window, and `theme._a_window_for_want_of_a_parent` deliberately leaves
+    it unsheeted until it is parented or shown, because sheeting every
+    mid-construction widget cost 46% of all sheet applications.
+
+    An unshown orphan therefore renders with NO stylesheet at all, so every
+    fade assertion below reads a flat 255 and the failure looks like the
+    fade being broken. Measured: parentless-and-unshown does not fade;
+    parented-into-a-window and parentless-but-shown both do.
+
+    So this calls `show()` rather than parenting into a container: it is the
+    smaller change, it matches the real lifecycle, and it keeps each field
+    isolated, which is what makes the profile below readable.
+    """
     widget = factory()
     if isinstance(widget, QComboBox):
         widget.addItem("chosen option")
     if css:
         widget.setStyleSheet(css)
     qtbot.addWidget(widget)
+    widget.show()
+    QApplication.processEvents()
+    # AND IT IS NOT FOCUSED. Showing a field makes it the focus widget, and
+    # a focused field paints the accent ring instead of the resting border
+    # -- `#4a9eff` where this file asserts `border`. Every measurement here
+    # is of a field at rest, which is the state a form full of them is in.
+    widget.clearFocus()
     widget.resize(width, height)
+    QApplication.processEvents()
     return widget
 
 
