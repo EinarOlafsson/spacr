@@ -2,10 +2,9 @@
 AN OBJECT'S EMBEDDING DEPENDS ON WHICH OTHER CROPS SHARE ITS BATCH
 ================================================================================
 
-Status:    OPEN, filed 2026-09-15. A correctness defect in a public function,
-           found by the item-395 benchmark run. Not fixed here: the fix
-           changes what `EmbeddingSpec(normalize=True)` means, so it needs a
-           decision and a nine-language re-translation of its docstring.
+Status:    DECIDED 2026-09-15: FIXED SCALE PER PLATE. Implementation in
+           progress on a branch; lands with its nine-language docstring
+           translations. Filed 2026-09-15.
 Requested: not requested. Found while building the 395 retrieval harness.
 Numbered: filed as 409 and renumbered 410 the same night, because the work
            session's 409 (the theme sweep is one widget from red) was pushed
@@ -78,3 +77,15 @@ A test that embeds one crop alone and the same crop inside two differently
 composed batches, with the default spec, and asserts the scaled input and the
 embedding are identical across all three -- and that fails on the current
 code first.
+
+--------------------------------------------------------------------------------
+2026-09-15 -- THE MAINTAINER CHOSE A FIXED SCALE PER PLATE
+--------------------------------------------------------------------------------
+
+Asked through the question tool with the three options above. Chosen: "Fixed
+scale per plate -- estimate one scale per channel from a random sample of the
+plate, store it with the run, apply it to every crop. Keeps relative
+brightness, removes the batch dependence." This is option (b), and it is what
+the 395 benchmark harness already did (85, 79 and 198 for channels 0-2 from
+2,048 random crops). Building it on its own branch; the batch-independence
+test above is the acceptance check.

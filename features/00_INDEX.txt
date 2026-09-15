@@ -18,15 +18,6 @@ resolved; item 398 holds what becomes of the ledger ones. Where the number
 a name here opens with also has a row below, 398 measured this top-level
 copy as the staler of the two -- and it is the one a reader reaches first.
 
-  01_pip_upgrade_is_broken_for_installed_builds.txt
-  02_multi_fov_loader_for_the_timelapse_movie.txt
-  03_five_order_dependent_qt_failures.txt
-  04_font_scale_default_disagrees_with_the_tests.txt
-  05_version_bump_and_github_actions.txt
-  06_module_overlap_and_merge_candidates.txt
-  07_known_bugs_not_fixed.txt
-  08_flowview_pipeline_visualisation.txt
-  31_gate_editor_redesign.txt
   segmentation_qc_field_browser.txt
   TEMPLATE.txt
   update_tutorials_README.txt
@@ -43,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-395 in features/new, 10 in features/future. NEITHER LIST BLOCKS A RELEASE.
+396 in features/new, 10 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -483,3 +474,4 @@ NEW FEATURES
   402  Status:    FIXED 2026-09-14. `tests/conftest.py` carries an autouse fixture
   406  THE TRANSLATION CACHE OUTLIVES A HAND FIX, AND A PLAIN BUILD PUTS THE BAD ROW
   408  A TOOLTIP POPUP TURNS THE SETTINGS COLUMN AND THE AI CHAT BOX BLACK UNTIL THE
+  410  AN OBJECT'S EMBEDDING DEPENDS ON WHICH OTHER CROPS SHARE ITS BATCH
