@@ -1,0 +1,20 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "**It looks *back over* rounds, not *at* the last one.** A single round that happened to land flat is noise; the question is whether the last fifty labels — however they were divided up — bought anything.",
+      "label": "spacr.active_learning.should_stop#4",
+      "source": "**It looks *back over* rounds, not *at* the last one.** A single round that happened to land flat is noise; the question is whether the last fifty labels — however they were divided up — bought anything.",
+      "source_sha256": "3c24c2892e56e7be15cdbc389a7be002d03818d077a4d08ec00d5df5b4a85ad1",
+      "translation": "**그것은 보인다 *다시 위로* 라운드가 아니고 *에 대 한* 마지막 하나 입니다.** 땅에 일어난 단일 라운드는 소음입니다; 질문은 지난 50 개의 라벨이 - 그들이 분열되었지만 - 무엇이든 구입했는지 여부입니다."
+    },
+    {
+      "context": "**The chunks.** Default is 1 along t and c (a viewer draws one channel of one timepoint), :data:`DEFAULT_TILE` on y and x, and :data:`DEFAULT_Z_CHUNK` on any other space axis — about 2 MiB per chunk for uint16. Pass ``chunks=`` to override.",
+      "label": "spacr.ome_zarr.write_ome_zarr#4",
+      "source": "**The chunks.** Default is 1 along t and c (a viewer draws one channel of one timepoint), :data:`DEFAULT_TILE` on y and x, and :data:`DEFAULT_Z_CHUNK` on any other space axis — about 2 MiB per chunk for uint16. Pass ``chunks=`` to override.",
+      "source_sha256": "ae69ae397e8a845c86dabde07f649d702d55bc10136303fb012533f9afd4dad7",
+      "translation": "**그 덩어리들** 기본은 t와 c를 따라 1입니다 (시청자는 1 시간 포인트의 한 채널을 끌어), :data:`DEFAULT_TILE` Y와 X, 그리고 :data:`DEFAULT_Z_CHUNK` 다른 공간 좌석에서 - uint16에 대 한 chunk 당 약 2 MiB. ``chunks=`` 과장하는 것에 대하여"
+    }
+  ],
+  "schema": 1
+}
