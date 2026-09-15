@@ -1,0 +1,59 @@
+================================================================================
+A TEN-IMAGE TOXO PV TEST DATASET THAT OPENS IN MAKE MASKS
+================================================================================
+
+Status:    IN PROGRESS, 2026-09-15 (Claude home session).
+Requested: 2026-09-15, by the maintainer, in these words:
+           "also based on 10 images in the toxo PV training set uploade these
+           images to huggingface and make a small test dataset for make masks,
+           then add a button for loading this dataset which automatically
+           triggers opening the first image with make masks."
+Owner:     Claude home session.
+
+--------------------------------------------------------------------------------
+WHAT IS ASKED -- THREE PARTS
+--------------------------------------------------------------------------------
+
+  1. TEN IMAGES from the Toxoplasma PV training set
+     (/mnt/wd4tb/af3/projects/toxoplasma_pv_model/data/), uploaded to Hugging
+     Face under the maintainer's account (einarolafsson).
+  2. A SMALL TEST DATASET FOR MAKE MASKS: laid out the way Make Masks opens a
+     folder (the nested layout, `<stem>.<ext>`, with `masks/` beside the
+     images), with a dataset card that states where the images came from.
+  3. A BUTTON that loads the dataset and then opens its FIRST image in Make
+     Masks by itself, with no second click and no folder picker.
+
+--------------------------------------------------------------------------------
+DEFAULTS TAKEN (each a reversible choice, stated so it can be overruled)
+--------------------------------------------------------------------------------
+
+  * IN-HOUSE IMAGES ONLY. The training set mixes the lab's own acquisitions
+    (data/toxoplasma_pv) with figures harvested from published papers
+    (data/toxoplasma_pv_literature). Publishers' figures are not ours to
+    re-publish, so the ten come from the in-house manifest, and each one's
+    provenance row travels with it.
+  * NEVER A HELD-OUT IMAGE. Nothing from holdout_round3/, the 11 held-out
+    in-house wells, or any curation hold-out queue, even though publishing
+    would not train on them: a demo image copied into a scorecard later would
+    quietly break the never-train rule.
+  * THE IMAGES OPEN UNSEGMENTED; the curated masks ship beside them. The
+    training masks go in `ground_truth_masks/`, a folder Make Masks does not
+    read, so the editor opens on raw fields (the live magnifier of item 407
+    has something to do) and the truth is there to compare against.
+  * THE SAME HOSTING PATTERN AS THE EXISTING TEST DATA. The dataset lives
+    where, and is fetched how, the other "Load test data" packs are. Cached
+    after the first download, off the GUI thread.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * The Hugging Face dataset page lists ten images, their masks, and a card
+    naming each image's in-house source.
+  * On a machine with an empty cache, pressing the button downloads the
+    dataset, and Make Masks shows the first image (by name order) with no
+    further input. A second press opens from the cache without a download.
+  * The button's label and tooltip are translated in all nine languages.
+  * Tests prove the load-then-open sequence with the download mocked (no
+    network in tests), and prove the button does nothing harmful offline:
+    it says why, rather than failing silently.

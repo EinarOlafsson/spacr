@@ -1,50 +1,439 @@
 ================================================================================
-API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS
+API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS -- ASSIGNED TO CODEX
 ================================================================================
 
-Status:    FUTURE, filed 2026-09-15. Not started. NOT BLOCKING, by the
-           maintainer's instruction: do not work on it now.
-Requested: 2026-09-15, by the maintainer. First, asked with the question tool
-           whether the nested helpers documented in the source but absent from
-           the API pages (item 368's unbuilt phase) should get pages: "Build
-           API pages for them". Then, shown the measured size, in these words:
-           "Add this as a non blocking future feature and don't work on it
-           now".
-Owner:     split agreed between the two sessions when it is picked up:
-           rendering (autoapi templates, the inventory and the ratchets that
-           decide what counts as rendered) by the work session; the nine
-           translation catalogs by the home session.
+Status:    ASSIGNED TO CODEX, 2026-09-15, by the maintainer. Not started.
+           Still NOT BLOCKING the 1.5.0.8 release: the release is not held for
+           it, and it must not turn a release gate red while it is built.
+           Filed as FUTURE the same day ("don't work on it now"), then handed
+           to Codex; the file stays under features/future/ so item 368's
+           pointer to it keeps working.
+Requested: 2026-09-15, by the maintainer, in these words, in this order:
+             1. Asked with the question tool whether the nested helpers
+                documented in the source but absent from the API pages (item
+                368's unbuilt phase) should get pages: "Build API pages for
+                them".
+             2. Shown the measured size: "Add this as a non blocking future
+                feature and don't work on it now".
+             3. "Could I put codex on the api?"
+             4. "Great add as much detail as you can for codex to the list
+                item and I'll tell codex to read the list an d find the item
+                assigned to it"
+             5. Asked with the question tool whether helpers whose names start
+                with an underscore are included: "All of them".
+Owner:     THE ROOT CODEX SESSION, working in /mnt/firecuda2/codex/repo/spacr.
+           This replaces the split first recorded here (rendering by the Claude
+           work session, catalogs by the Claude home session). NEITHER CLAUDE
+           SESSION STARTS 411 WORK. They will answer questions and review.
 
---------------------------------------------------------------------------------
-THE MEASURED SIZE (work session, 2026-09-15, ast over spacr/, docstrings split
-the way the API extractor splits them: paragraphs plus :param:/:returns:/
-:raises: lines)
---------------------------------------------------------------------------------
+CODEX: THIS WHOLE FILE IS YOUR BRIEF. Read it top to bottom before the first
+edit, then features/HANDOFF.md and
+features/325_two_sessions_one_repo_working_protocol.temp. Every file:line below
+was read on nightly at a2e11294e (2026-09-15). Re-check a line before you rely
+on it; line numbers drift.
 
-    nested functions                  901   (the earlier "844" was stale)
-    documented                        901
-    blocks they would add           1,682
-    x 9 languages                  15,138 translation records
-    today's API surface            10,534 symbols
+================================================================================
+1. WHAT "DONE" MEANS
+================================================================================
 
-Rendering them grows the translated API surface by roughly 16%, and 15,138
-records is about four times the 5,538 reviewed records published in the whole
-2026-09-15 batch.
+  (a) Every documented nested helper under spacr/ that is not in an
+      AutoAPI-ignored tree has an API entry that is RENDERED on the live docs
+      site. That includes helpers whose names start with "_" (decision 5
+      above), on its parent's module page, with its own anchor.
+  (b) Every block of every such helper is translated into all nine languages
+      (sv de es zh_CN pt hi ko is fr; tools/build_i18n_catalogs.py:76). Each
+      translation is a reviewed record that a human-grade read has checked
+      against the English. None is an unread machine draft.
+  (c) The docs job is green on nightly: sphinx -W builds, and both i18n audits
+      pass with NO exemption left in force (section 6).
+  (d) Every pin that counts symbols, blocks or callables has moved by exactly
+      what was added, and each move is shown by subtraction in the commit that
+      made it (section 7).
+  (e) The SLICE LOG at the end of this file has one line per landed slice, and
+      the Status line above reads DONE, with the evidence.
 
---------------------------------------------------------------------------------
-HOW IT MUST BE DONE WHEN IT IS PICKED UP
---------------------------------------------------------------------------------
+  NOT in scope: top-level functions whose names start with "_". The existing
+  rule that hides them is unchanged. Decision 5 covers nested helpers only.
+  Don't turn on AutoAPI's `private-members` globally to get there: that would
+  also publish every private top-level function (see 3.2).
 
-  * IN SLICES, BY MODULE. Each slice is rendered, then its blocks are
-    translated and reviewed, before the next slice. A bad slice is reverted
-    alone.
-  * NO REPAIR RUN AS THE TRANSLATION. The 2026-09-15 GPU pass was 78% wrong on
-    API blocks (615 of 788; inserted parliamentary transcripts, "beef" for a
-    digest, inverted negations). Machine draft, then read every block against
-    its English, then author reviewed records -- the only order that ends with
-    something true.
-  * THE DOCS AUDIT FAILS CLOSED ON BLOCKS LEFT IN ENGLISH. Rendering a slice
-    before its translations exist turns docs red unless the slice carries an
-    explicit, dated exemption that the audit prints on every run.
-  * Every pin that counts rendered symbols moves with each slice, proved by
-    subtraction (the AutoAPI pre-filter constant among them).
+================================================================================
+2. THE SIZE -- TWO COUNTS THAT DISAGREE, AND YOUR STEP 0
+================================================================================
+
+    counted by                     functions   after AutoAPI   blocks
+                                                 ignores
+    work session, 2026-09-15          901          --          1,682
+    home session, 2026-09-15          863          842         1,517
+
+  The home count uses the counter in tests/test_nested_functions_are_documented.py
+  (~222-243), then drops the `autoapi_ignore` globs in docs/source/conf.py, then
+  splits blocks with the extractor's own `translatable_blocks()`. It gives 842
+  helpers in 182 modules; 453 of them start with "_". The work session's
+  method isn't recorded well enough to rerun. The difference, 38 functions and
+  165 blocks, is unexplained. Candidates: helpers inside nested classes,
+  lambdas, ignored trees, or tests counted.
+
+  STEP 0, BEFORE ANY RENDERING: write ONE committed inventory function (see
+  3.3) and make it the only source of the count. Print what it includes and
+  excludes, reconcile it with both rows above, and write the reconciled numbers
+  into this file under a dated heading. Every later pin derives from that
+  function, never from either row above.
+
+  spacr/spacrops.py holds 24 of the 842. It is BEING DELETED (item 372; the
+  maintainer answered "Delete it now" on 2026-09-15, and the Claude home
+  session is landing the deletion). Leave it out of every slice.
+
+  Top 25 modules by nested documented helpers (home count, after ignores):
+
+      utils.py 52                        plot.py 50
+      qt/widgets/fractal_travel.py 45    ml.py 41
+      qt/widgets/figure_settings.py 35   qt/preferences.py 33
+      io.py 31                           submodules.py 26
+      qt/screens/parameter_sweep.py 24   spacrops.py 24 (being deleted)
+      timelapse.py 16                    qt/widgets/fast_plots.py 14
+      measure.py 13                      qt/screens/app_screen.py 13
+      hyperparam.py 11                   settings.py 11
+      qt/timing.py 10                    crashreport.py 9
+      parameter_sweep.py 9               qt/app.py 9
+      sequencing.py 9                    attribution.py 8
+      qt/bridge.py 8                     qt/widgets/gate_editor.py 8
+      deep_spacr.py 7
+
+  Scale: 842 x 9 languages = ~7,600 helpers' worth of blocks (~13,650
+  block-translations at 1,517 blocks). That is well over twice the 5,538
+  reviewed records the whole 2026-09-15 catalog batch published. Plan for weeks
+  of slices, not one push.
+
+================================================================================
+3. RENDERING -- WHY NESTED HELPERS HAVE NO PAGE TODAY, AND WHAT MUST CHANGE
+================================================================================
+
+3.1 THE ROOT CAUSE IS AUTOAPI'S PARSER, NOT A SETTING.
+  * Pages come from sphinx-autoapi (docs/source/conf.py:66; 3.8.0 locally, and
+    CI installs it unpinned, docs.yml:134).
+  * `autoapi/_parser.py` `parse_functiondef` (~273-344) returns a function with
+    no `children`. The only place it looks inside a body is `__init__`, for
+    `self.` assignments. NO option, skip hook or template edit alone makes a
+    nested def appear, because AutoAPI never parsed it.
+  * `autoapi_options` (conf.py:105-109) is members, show-inheritance,
+    show-module-summary. The skip hook `_skip_implementation_data`
+    (conf.py:243-253) only hides lowercase data/attribute members.
+  * The repo's own templates are docs/source/_autoapi_templates/python/module.rst
+    and package.rst. `function.rst` and `method.rst` are AutoAPI's defaults,
+    which have no child loop.
+  * Functions are not own-page types (module.rst:136-158): a function is an
+    anchor on api/spacr/<module>/index. A nested helper should be an anchor on
+    the SAME page, inside or directly under its parent's entry.
+
+3.2 PRIVATE NAMES. AutoAPI hides "_" names without `private-members`, and
+  turning that on globally would publish every private TOP-LEVEL function as
+  well, which nobody asked for. The helpers must come from your own inventory
+  (3.3) and be emitted by your template, so the private-member rule for
+  top-level objects stays exactly as it is.
+
+3.3 A DESIGN THAT FITS THE EXISTING MACHINERY (a proposal, not a decree; if
+  you find a better one, write why here before building it):
+  * ONE SOURCE-DERIVED INVENTORY: an ast walk yielding
+    (parent_id, helper_name, qualified_key, signature, docstring, lineno) for
+    every nested def with a docstring. Keys are `spacr.mod.outer.inner`, and
+    `spacr.mod.Class.method.inner` for helpers inside methods. Put it where
+    both conf.py and the extractor can import it without importing spacr, so
+    the docs build stays import-free: e.g. a module under tools/, or a small
+    standalone file under docs/source/.
+  * THE SLICE SWITCH: one committed list of modules whose helpers render,
+    read by BOTH conf.py and tools/build_documentation_i18n.py. Add a test
+    that the two see the same list, the way
+    tests/test_api_i18n_extractor.py:1150-1172 pins AUTOAPI_IGNORE against
+    conf.py's `autoapi_ignore`. A module in the list renders AND is extracted;
+    one not in it does neither. Rendering and translation can never disagree
+    about what exists.
+  * THE TEMPLATE: hand the inventory to the Jinja environment (AutoAPI's
+    `autoapi_prepare_jinja_env` hook in conf.py) and override
+    python/function.rst and python/method.rst to emit a `.. py:function::`
+    per helper under the parent. Only modules in the slice list emit.
+  * ANCHORS MUST EQUAL KEYS. Sphinx's Python domain does not prefix a nested
+    py:function with its parent function's name (only classes push a prefix).
+    Emit the qualified name explicitly, then check it in the BUILT site
+    (objects.inv, or the HTML ids) against the extractor keys. Write that
+    check as a test that runs under SPACR_DOCS_BUILT=1, next to
+    tests/test_tooltip_api_links_resolve.py.
+  * DUPLICATES: the same helper name defined twice under one parent (in
+    if/else branches, or redefined) gives two identical anchors. docs.yml:171
+    builds with `-W`, so a duplicate object description FAILS the docs job.
+    Decide a rule, e.g. the first definition renders and later ones are listed
+    under it, or a `-2` suffix. Record it here and pin it with a test that
+    uses a real duplicate from spacr/ if one exists.
+  * THE BROWSER-SIDE LANGUAGE SWITCH finds a symbol's DOM node from its key
+    (tests/test_api_i18n_frontend.py, `REAL_SYMBOL_COUNT` at :74, used at 555,
+    585, 589, 665). Confirm that a nested key resolves to the nested anchor
+    and not to its parent, with a real catalog, before slice 1 lands.
+
+================================================================================
+4. THE TRANSLATION EXTRACTOR -- WHAT MUST CHANGE
+================================================================================
+
+  * `public_docstrings()` (tools/build_documentation_i18n.py ~4071-4147) walks
+    spacr/**/*.py with ast. It never enters a function body:
+    `_module_scope_nodes` (~3925-3943) descends only into If/Try/With/Match,
+    and classes get one level of methods (~4121-4131).
+  * `_is_visible_function_name` (~3987-4000) drops "_" names apart from
+    dunders. For helpers from the inventory in slice-listed modules, "_" names
+    are INCLUDED (decision 5); for top-level names the rule is unchanged.
+  * Keys today are `f"{module}.{node.name}"` (~4110) and
+    `f"{key}.{child.name}"` (~4127). Nested keys must be the inventory's
+    qualified keys, identical to the rendered anchors.
+  * Blocks: `translatable_blocks()` (~4185); the field-line regex (~3823);
+    `_split_long` at 1,000 characters (~4150). Field lists become their own
+    blocks, so a label's `#n` counts BLOCKS, not paragraphs
+    (tools/write_reviewed_api_record.py:30-33).
+
+================================================================================
+5. TRANSLATING A SLICE -- TOOLS, THEN THE TRAPS THAT BIT ON 2026-09-15
+================================================================================
+
+5.1 TOOLS
+  * tools/write_reviewed_api_record.py (flags ~208-217): --language (required);
+    --label <symbol>#<n>; exactly one of --translation / --translation-file;
+    --name (the record file, default `hand-written`; use e.g.
+    `411-<module-slug>`); --show prints the English block and exits. It writes
+    `context` and `source_sha256` itself and merges into
+    docs/i18n/reviewed/api/<lang>/<name>.json.
+  * Record layout (e.g. docs/i18n/reviewed/api/fr/2026-08-14-current-final-000-019.json):
+      {"schema": 1, "language": "fr", "records": [{"label": "spacr.align.save_coordinates#4",
+       "source_sha256": ..., "source": ..., "context": ..., "translation": ...}]}
+  * tools/check_reviewed_api_evidence.py (main ~38-86): reports MOVED (re-bind
+    the label) and STALE (retire with "retired" + "retired_reason"), and exits
+    1 on either. IT SILENTLY SKIPS a record whose symbol is not in
+    `public_docstrings()` (~54-55). A record written BEFORE the extractor emits
+    its key is never checked, so write records only after the slice's keys
+    exist.
+  * `python tools/build_documentation_i18n.py --audit` is the gate; see 6.
+  * Rebuilding a catalog: `--repair-api-blocks`, ONE LOCALE AT A TIME. All
+    nine at once ran out of CUDA memory (comment at
+    tests/test_documentation_i18n.py ~2807-2813).
+
+5.2 TRAPS, EACH MEASURED ON THIS REPO
+  1. A PLAIN API BUILD RE-DECODES UNCHANGED PARAGRAPHS of any symbol whose
+     source changed. Use the no-generation repair path; generation raises by
+     design. Diff the catalog after every build: a slice may change its own
+     blocks and nothing else.
+  2. A PLAIN BUILD ONCE IGNORED REVIEWED RECORDS entirely (fixed in
+     b8666d24d, item 410). After a build, confirm your reviewed text is in the
+     catalog; don't assume it.
+  3. REVIEWED RECORDS ARE KEYED BY SOURCE TEXT, NOT BY SYMBOL. A record for a
+     shared line such as ":param shape: ..." lands on EVERY symbol carrying
+     that exact English. A French record meant for one function changed
+     "touches" to "clés" in another (item 406). Before authoring, search en.json
+     for the exact source text and read every symbol it will land on. Helpers
+     repeat their parents' :param: lines constantly, so this will happen often.
+  4. `_contextualize` REWRITES A REVIEWED TARGET, then the closing audit
+     rejects the rewrite and English ships. Portuguese "poço" became "bem" in
+     spacr.qt.widgets.outlier_model #27; Spanish ops_objects #7 did the same.
+     When the audit rejects a reviewed block, restore the committed entry. Don't
+     loosen the audit (item 406 records the defect).
+  5. `--sources-only` REWRITES en.json. A repair after it must still reuse
+     unchanged blocks; the fix is on nightly since 3f27b926a. Confirm your base
+     has it.
+  6. MACHINE DRAFTS ARE MOSTLY WRONG ON API TEXT. 615 of 788 API blocks (78%)
+     from the 2026-09-15 GPU repair were bad: inserted parliamentary
+     transcripts, "beef" for a digest, inverted negations. Draft however you
+     like, then read EVERY block against its English before it becomes a
+     record. Identifiers, parameter names, code literals, units and negations
+     are where the drafts failed; check those first.
+  7. ICELANDIC (is) AND HINDI (hi) HAVE NO NATIVE PROOFREADER YET. Write them
+     to the same standard, but never label them native-reviewed. The maintainer
+     holds that proofread.
+  8. A DOCSTRING EDIT IN spacr/ MOVES THE CATALOGS: the hash test goes stale
+     and all nine languages owe the changed block. If a helper's docstring is
+     WRONG, fix it in its own commit, before its slice, and say so. Never edit
+     a docstring to make a translation easier.
+
+================================================================================
+6. THE DOCS JOB AND THE AUDIT -- WHAT KEEPS NIGHTLY GREEN
+================================================================================
+
+  * .github/workflows/docs.yml runs on push to main and nightly, and on
+    workflow_dispatch. Steps:
+      pip install -e ".[qt,dev]" + sphinx, furo, sphinx-design, sphinx-autoapi
+      python tools/build_documentation_i18n.py --audit      (API lane)
+      python tools/build_i18n_catalogs.py --audit           (runtime lane)
+      sphinx-build -W -E -b html --keep-going docs/source docs/_build/html
+      SPACR_DOCS_BUILT=1 pytest tests/test_tooltip_api_links_resolve.py
+                                tests/test_built_constructor_api.py
+    The job has `timeout-minutes: 60`, and the audit alone was measured at 24.2
+    minutes. Helpers add roughly 8-9% more symbols. MEASURE THE AUDIT TIME
+    AFTER EVERY SLICE, and if the job passes 45 minutes, stop and write it
+    here before the next slice. A job timeout shows as "cancelled" and
+    bypasses continue-on-error.
+  * Docs deploy only from main or a manually dispatched nightly run, so
+    nothing you push to nightly publishes by itself.
+  * The docs job has been green on three nightly heads in a row
+    (bac9151d0, b740c741d, 3f27b926a). Keep it that way: a slice that turns it
+    red is reverted alone, at once.
+  * THE AUDIT FAILS CLOSED ON BLOCKS LEFT IN ENGLISH:
+    `audit()` (~6267) reports stale manifest keys ("en: API source manifest
+    keys are stale", ~6351) and "{language}: N API prose blocks remain exact
+    English outside the hash allowlist" (~6497-6562), then exits 1. A pass
+    prints `verified API catalogs: languages=9 symbols=N` (~6674).
+  * THERE IS NO DATED EXEMPTION MECHANISM YET. The allowlists today are
+    narrow and undated: API_EXACT_TEXT_ALLOWLIST (~105),
+    API_EXACT_BLOCK_SHA256_ALLOWLIST (~187), _ENGLISH_RESIDUE_ALLOWLIST (~5041),
+    API_SHARED_PHRASE_ALLOWLIST (~5079). PREFER SLICES THAT LAND ALREADY
+    TRANSLATED, which need no exemption. If one ever can't, build the mechanism
+    first, as its own commit with tests: per module, a start date and a
+    reason; PRINTED on every audit run, pass or fail; a test that fails when
+    an exemption names a module that is fully translated or not in the slice
+    list; a hard expiry. Never an undated or silent allowlist entry.
+
+================================================================================
+7. THE PINS THAT MOVE -- EVERY ONE, AND HOW TO MOVE THEM
+================================================================================
+
+  Rule: count BEFORE the slice, count AFTER, and the difference must equal the
+  helpers or blocks the slice added, from the inventory. Put that arithmetic in
+  the commit message. NEVER copy the number a failing test prints into its
+  constant. A pin that is the DIFFERENCE of two constants can be stale on both
+  sides and stay green (item 43), so pin each side against a measurement.
+
+    tests/test_documentation_i18n.py:158 (asserted ~2831)
+        DOCUMENTATION_API_SYMBOL_COUNT_RATCHET: len(public_docstrings()) plus
+        catalog hashes
+    tests/test_api_i18n_extractor.py ~1084, ~1119
+        len(docs) - aliases, and len(docs) == expected + len(API_DOC_ALIASES)
+    tests/test_api_i18n_extractor.py ~1391
+        the non-rendered AutoAPI boundary: 10_753 - len(docs) == 219. The
+        21 helpers in ignored trees (863 - 842) may move 10_753, depending on
+        how the pre-filter applies; derive it, don't assume
+    tests/test_api_i18n_extractor.py ~1150-1172
+        AUTOAPI_IGNORE == conf.py autoapi_ignore; the NON_RENDERED sets match
+    tests/test_api_i18n_frontend.py:74 (REAL_SYMBOL_COUNT; used ~555-665)
+        English catalog symbol count; each language renders them
+    tests/test_docstring_correctness.py ~2788, ~2816
+        len(docs) == 10_534; rendered documented callables == 8_692
+    tests/test_docstring_correctness.py ~2022, ~2138, ~2277, ~2293
+        8,697 callables, 8,704 variants, 17,300 parameters, 8,817 required
+        parameters. These move only if `_public_callables()` is taught about
+        nested helpers; decide whether it should be, and write why here
+    tests/test_i18n_coverage_audit.py ~159
+        reads len(docs); no literal, but re-run it
+  The tests themselves warn that the symbol count "LIVES IN FOUR FILES"
+  (test_api_i18n_frontend.py ~65-67; test_docstring_correctness.py ~2776-2781).
+  Move all of them in the same commit.
+
+  THE PINS ARE ALREADY MOVING UNDER YOU, so re-derive before slice 1:
+    * the Claude work session's four new public symbols (item 403) took the
+      live count from 10,536 to 10,538 against a pin of 10,534. That was left
+      stale on purpose, for the pre-release catalog rebuild;
+    * three test_docstring_correctness tests were red at 3f27b926a
+      (public callable inventory, callable boundary cross-check, undocumented
+      required parameters). The Claude home session fixes them after the
+      spacrops.py deletion lands;
+    * the spacrops.py deletion (item 372) removes that module's public symbols
+      and its 24 helpers.
+
+================================================================================
+8. WORKING RULES -- TREE, OWNERSHIP, GIT, MACHINE
+================================================================================
+
+  TREE. Work only in /mnt/firecuda2/codex/repo/spacr. The Claude tree is
+  /mnt/firecuda2/Claude/repo/spacr. Run `git worktree list` before the first
+  commit, and if you are in the wrong tree, stop (325 section 1). In any
+  ad-hoc check, assert the tree you imported:
+      import spacr; assert "/codex/repo/spacr/" in spacr.__file__, spacr.__file__
+  (HANDOFF section 3 explains why a check that trusts its invocation lied
+  four times.)
+
+  OWNERSHIP FOR 411. 325 gives docs/** (templates, conf.py, reviewed records)
+  to the Claude sessions, and makes tools/** claim-before-edit. FOR THIS ITEM
+  ONLY, the maintainer's assignment gives you these paths:
+      docs/source/conf.py                     (the slice switch, the Jinja hook)
+      docs/source/_autoapi_templates/**       (function.rst, method.rst)
+      docs/i18n/reviewed/api/**               (records)
+      docs/source/_static/i18n/api/**         (the API catalogs)
+      tools/build_documentation_i18n.py       (extractor, audit, exemptions)
+      tools/write_reviewed_api_record.py, tools/check_reviewed_api_evidence.py
+      a new inventory module of your choosing
+      tests/test_documentation_i18n.py, tests/test_api_i18n_extractor.py,
+      tests/test_api_i18n_frontend.py, tests/test_docstring_correctness.py,
+      tests/test_nested_functions_are_documented.py,
+      tests/test_i18n_coverage_audit.py, and new tests you add
+  Before the first edit, write the claim in 325 section 5 (date, "411", these
+  paths). .github/** is shared: announce there before touching docs.yml.
+
+  DON'T TOUCH, because others are editing them now:
+      spacr/spacrops.py and the OPS settings/tests      (item 372, Claude home)
+      spacr/qt/i18n_catalogs/** and docs/i18n/reviewed/runtime/**
+                                                         (runtime lane, Claude home)
+      spacr/settings.py, spacr/qt/screens/settings_model.py, barcode_search.py,
+      file_list.py, spacr/core.py                        (item 403, Claude work)
+      tutorials and their catalogs                       (items 48, 83, 358)
+      docstrings anywhere in spacr/, except as 5.2(8) allows
+
+  WHEN TO START WHAT.
+    PHASE A, start now: step 0 (the inventory and reconciled count), the slice
+      switch with an EMPTY list, template and extractor support, the anchor
+      and front-end checks, the duplicate rule, and the exemption mechanism if
+      you want one. All of it with tests. With the slice list empty, NO pinned
+      count may move and no catalog may change; that is Phase A's own
+      acceptance test.
+    PHASE B, slices, AFTER BOTH of these are on origin/nightly: the Claude home
+      session's spacrops.py deletion (item 372), and its pre-release API
+      catalog rebuild for 1.5.0.8. Both rewrite the same nine catalog files a
+      slice writes, and interleaving them has already nearly reverted 92
+      translated paragraphs once. The home session writes a dated "PHASE B MAY
+      START" line in this file and in 325 section 5 when both have landed.
+      Until you see it, keep to Phase A.
+
+  SLICE ORDER. Start with ONE small module (2-4 helpers) to prove the whole
+  path end to end: render, extract, translate x9, audit, build, deploy check.
+  Then go in whatever order keeps each slice reviewable, roughly 30-60 helpers.
+  Split utils.py, plot.py, fractal_travel.py and ml.py by parent function if
+  needed.
+
+  PER SLICE, IN ORDER:
+     1. git pull --rebase on nightly; re-run the inventory; note the counts.
+     2. Add the module(s) to the slice list.
+     3. Build English sources; confirm ONLY this slice's keys appeared.
+     4. Draft, then read every block, then write reviewed records x9
+        (--name 411-<slice>), after checking trap 3 for every shared line.
+     5. No-generation repair, one locale at a time; diff each catalog, which
+        may change only this slice's keys.
+     6. check_reviewed_api_evidence.py: 0 MOVED, 0 STALE.
+     7. build_documentation_i18n.py --audit and build_i18n_catalogs.py
+        --audit: both pass; write down the audit time.
+     8. sphinx-build -W -E -b html --keep-going docs/source docs/_build/html;
+        then SPACR_DOCS_BUILT=1 pytest the two built-site tests plus your
+        anchor test.
+     9. Move every pin in section 7 by subtraction; run every test file named
+        there plus tests/test_instruction_index.py.
+    10. Commit with EXPLICIT PATHS (HANDOFF 0c: `git commit -F -` without
+        paths commits whatever is in the index); pull --rebase; push. Never
+        --force or --force-with-lease on nightly. On a rebase conflict, stop
+        and write it in 325 section 5.
+    11. Add a SLICE LOG line below, and watch the docs job on that push to the
+        end. If it is red, revert the slice.
+
+  COMMITS: author Einar Olafsson only. No AI attribution: no Co-Authored-By,
+  no "Generated with" (325; HANDOFF section 6).
+
+  MACHINE. The box has 125 GB of RAM, shared with two Claude sessions and the
+  maintainer's desktop. The maintainer's rule: nothing may take the machine
+  past 110 GB, so kill your own process if it would. tools/run_memory_guarded.py
+  --limit-gib N wraps a command with that guard. BEFORE ANY GPU JOB, check
+  `nvidia-smi` for other spaCR processes. The Claude home session serialises
+  its GPU jobs with
+      flock /tmp/claude-1000/-home-olafsson/e13e1d73-d9c5-45da-86bb-17ca14551f88/scratchpad/gpu.lock <command>
+  Use the same lock while that path exists.
+
+  QUESTIONS for the maintainer go in this file under a dated QUESTIONS
+  heading, and to the maintainer directly. Don't guess a scope decision:
+  decision 5 was asked for exactly that reason.
+
+================================================================================
+9. SLICE LOG
+================================================================================
+
+  date | module(s) | helpers | blocks | records (x9) | audit time | commit | docs job
+
+  (none yet)
