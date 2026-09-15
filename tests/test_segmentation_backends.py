@@ -394,6 +394,61 @@ def test_labels_come_back_sequential_in_cellposes_dtype():
     assert SB._as_label_image(many).dtype == np.uint32
 
 
+def test_a_field_with_no_objects_is_an_empty_mask_in_cellposes_dtype():
+    """An empty field is a real result that spaCR saves and counts as zero
+    objects, so it must come back in Cellpose's dtype with nothing
+    relabelled -- including a zero-size array, which has no maximum."""
+    empty = SB._as_label_image(np.zeros((4, 5), np.int32))
+    assert empty.dtype == np.uint16 and empty.shape == (4, 5)
+    assert not empty.any()
+    assert SB._as_label_image(np.zeros((0, 0), np.int64)).dtype == np.uint16
+
+
+def test_a_plane_with_no_finite_pixel_stretches_to_black_not_to_garbage():
+    """A field of NaN or inf has no range to stretch, and casting a
+    non-finite float to uint8 is undefined; the backend must get zeros."""
+    for plane in (np.full((3, 3), np.nan), np.array([[np.inf, -np.inf]])):
+        out = SB._to_uint8(plane)
+        assert out.dtype == np.uint8 and out.shape == plane.shape
+        assert not out.any()
+
+
+def test_resampling_labels_to_their_own_shape_leaves_them_untouched():
+    """The common case -- a plane already at the model's size -- must hand
+    back the label image itself, not an indexed copy."""
+    labels = _known_labels((24, 24))
+    assert SB._resize_nearest(labels, (24, 24)) is labels
+
+
+def test_a_2d_image_is_its_own_plane_and_a_batch_of_one(stub_backends):
+    """A single-channel field arrives as ``(H, W)``: it is the object's
+    plane as it stands, and ``eval`` given one bare 2-D array segments it as
+    one image rather than iterating over its rows. For ``(H, W, C)`` the
+    first channel along the axis ``eval`` was told is the plane."""
+    plane = np.arange(576.0).reshape(24, 24)
+    assert SB._object_plane(plane) is plane
+    channels_first = np.stack([plane, plane + 1000.0])
+    np.testing.assert_array_equal(
+        SB._object_plane(channels_first, channel_axis=0), plane)
+    np.testing.assert_array_equal(
+        SB._object_plane(np.moveaxis(channels_first, 0, -1),
+                         channel_axis=None), plane)
+
+    model = SB._load_backend("dinocell")
+    masks, flows, _styles = model.eval(plane)
+    assert len(masks) == len(flows) == 1
+    assert masks[0].shape == (24, 24)
+    [seen] = model.planes
+    np.testing.assert_array_equal(seen, SB._to_uint8(plane))
+
+
+def test_a_backend_without_a_segmenter_fails_loudly():
+    """``_PlaneBackend`` is only the batch half of a backend. A subclass
+    that forgets ``_segment_plane`` must raise, not return an empty mask."""
+    with pytest.raises(NotImplementedError):
+        SB._PlaneBackend(device="cpu").eval([np.zeros((4, 4, 1), np.float32)])
+
+
 # ===========================================================================
 # 6. Lazy imports and packaging
 # ===========================================================================
