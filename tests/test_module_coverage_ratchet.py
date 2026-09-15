@@ -368,8 +368,7 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # and remover for older installs), both at 100% under their own tests.
     # Measured by diffing the shipped set against origin/nightly dca970671:
     # now - base is exactly those two files and base - now is empty. The
-    # workflow's --expected-file-count below still says 570; .github is
-    # outside this branch, so that line and its pin move in their own commit.
+    # workflow's --expected-file-count and its pin below move with it.
     assert len(shipped) == 572
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
@@ -670,7 +669,11 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     assert "coverage json --pretty-print" in combine_script
     # 568 -> 569 with `spacr/ops_engine.py` (372), the same +1 as `shipped`,
     # and back to 568 when the old OPS engine's module was deleted, the same -1.
-    assert "--expected-file-count 570" in combine_script
+    # 570 -> 572 on 2026-09-15 with spacr/qt/make_masks_demo.py (412) and
+    # spacr/install_cleanup.py (416), the same +2 as `shipped`; the gate's own
+    # inventory, verify_module_coverage.discover_shipped_python_files, returns
+    # 572.
+    assert "--expected-file-count 572" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
