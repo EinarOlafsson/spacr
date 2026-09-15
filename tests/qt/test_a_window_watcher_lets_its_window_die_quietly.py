@@ -96,3 +96,8 @@ def test_it_still_follows_the_size_of_the_window_it_watches(qtbot, make):
     window.resize(640, 520)
     qtbot.waitUntil(lambda: window.height() == 520)
     qtbot.waitUntil(lambda: watcher.height() == window.height())
+    # waitUntil raises on a timeout but is not an assertion, so the hygiene
+    # ratchet could not see what this test proves: the watcher took the
+    # window's new height.
+    assert window.height() == 520
+    assert watcher.height() == window.height()
