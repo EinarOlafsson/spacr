@@ -1965,7 +1965,7 @@ Read by ``_get_cellpose_channels``.
 cellpose_diameter
 -----------------
 
-Expected nucleus diameter in pixels for the segmentation used to align acquisitions. Empty lets Cellpose estimate it, which is usually right and occasionally very wrong on a sparse field; setting it removes that variance. Default None.
+Expected nucleus diameter in pixels for the segmentation of each stitched well. When set, each window is rescaled so that this diameter becomes the 30 pixels the model expects; empty segments the windows at their own scale. Default None.
 
 | :py:func:`~spacr.ops_engine.run_ops`
 |     ``_objects`` **-- reads it**
@@ -1978,7 +1978,7 @@ Read by ``_objects``, :py:func:`~spacr.ops_settings.ops_defaults`.
 cellpose_model
 --------------
 
-Which Cellpose model segments the nuclei that the phenotype- to-genotype alignment matches on. Changing it changes which objects are found, and so which points the alignment is solved from. Default 'cpsam'.
+Which Cellpose model segments the nuclei of each stitched well. 'cpsam' runs the default model of the installed Cellpose; any other name is loaded as that model. Changing it changes which objects are found, and so which nuclei the reads are attributed to. Default 'cpsam'.
 
 | :py:func:`~spacr.ops_engine.run_ops`
 |     ``_objects``
@@ -4210,7 +4210,7 @@ Read by :py:func:`~spacr.align.align_folder`, :py:func:`~spacr.annotation_datase
 dst_root
 --------
 
-Where the organised wells, mosaics and reports are written. Empty writes beside the source, which mixes outputs with inputs and makes a second run ambiguous about what it is reading. Default None.
+Where measurements.db and each well's ops_report.json are written. Empty writes them into the source folder, which mixes outputs with inputs. Default None.
 
 | :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
@@ -5056,7 +5056,7 @@ Read by :py:func:`~spacr.deep_spacr.deep_spacr`, ``_check_required_paths``.
 genotype_source
 ---------------
 
-The folder holding the low-magnification acquisition that carries the barcodes. This is the one that gets stitched into per-well mosaics; the phenotype images are placed onto its output. Default None.
+The folder holding the low-magnification sequencing acquisition that carries the barcodes. Its subfolders are searched too, for tiles named like 10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif: magnification, cycle, well, channels and site. Every well found is stitched, segmented and decoded. Default None.
 
 | :py:func:`~spacr.ops_engine.run_ops` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
@@ -14910,7 +14910,7 @@ Read by :py:func:`~spacr.seg_qc.thresholds_from_settings`.
 segmentation_backend
 --------------------
 
-(str) - Which model segments cells, nuclei and pathogens. 'cellpose' (default) runs the Cellpose model that each object's model name selects. 'dinocell' (DINOCell) and 'samcell' (SAMCell, trained partly on the label-free LIVECell set) are optional 2-D models for live-cell and label-free images: they read only the object's own channel, ignore diameter and flow_threshold, and refuse z_stack and t_stack runs. 'samcell' needs pip install "spacr[samcell]". 'dinocell' needs the dinocell package, whose published release pins versions that conflict with spaCR's, so it currently needs an environment of its own. Their masks are not comparable with Cellpose's. Default 'cellpose'.
+(str) - Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs the model each object's model name selects. 'samcell' (trained partly on LIVECell) and 'dinocell' are optional 2-D models for live-cell and label-free images: they read only the object's own channel, ignore diameter and flow_threshold, and refuse z_stack and t_stack runs. 'samcell' needs pip install "spacr[samcell]"; 'dinocell' needs an environment of its own, because its release pins versions that conflict with spaCR's. Default 'cellpose'.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`

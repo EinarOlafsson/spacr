@@ -36,6 +36,15 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
     current_values.update(sources["ui"])
+    # EVERY TABLE A RECORD MAY BIND TO, not three of the five. The loader
+    # validates module_summaries and categories records against
+    # canonical_sources() exactly as it does the others, but this set left
+    # them out, which went unnoticed while no Swedish or French record used
+    # them. cdbb41cbd's Dose-Response summary and runtime pass A's OPS fold
+    # sentence are module_summaries records, so the set now matches the
+    # loader's own tables; the assertion below is unchanged.
+    current_values.update(sources["module_summaries"].values())
+    current_values.update(sources["categories"])
 
     # THE NUMBER FOLLOWS THE EVIDENCE, not the other way round. These count
     # the records under docs/i18n/reviewed/runtime/<lang>, and they last moved
@@ -86,7 +95,18 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # +4 more on 2026-09-15, from 387's checkerboard scoring: "Second
     # compound", its tooltip, "Bliss independence" and "Loewe
     # additivity", in 2026-09-15-dose-response-combination.json.
-    assert len(reviewed) == 225
+    # 225 -> 263 on 2026-09-15, +38/-0, for runtime pass A on nightly
+    # 5a9c4563a: 11 Dose-Response terms and Cache ceiling
+    # (2026-09-15-dose-response-terms.json, 2026-09-15-performance-terms.json,
+    # 12), the rewritten OPS captions (2026-09-15-ops-engine-captions.json, 10),
+    # "Controls" (2026-09-15-controls-experimental.json, 1) and the
+    # Dose-Response grid's unrecorded captions (2026-09-15-dose-response-grid.json,
+    # 15). Swedish had no record for the retired OPS wording, and the
+    # segmentation_backend tooltip record was replaced in place. PROVED BY
+    # SUBTRACTION with the loader: 225 + 38 = 263 is the live count, the live
+    # count minus those five files' 38 sources is 225, and none of the five
+    # shares a source with any other file.
+    assert len(reviewed) == 263
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -110,6 +130,15 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
     current_values.update(sources["ui"])
+    # EVERY TABLE A RECORD MAY BIND TO, not three of the five. The loader
+    # validates module_summaries and categories records against
+    # canonical_sources() exactly as it does the others, but this set left
+    # them out, which went unnoticed while no Swedish or French record used
+    # them. cdbb41cbd's Dose-Response summary and runtime pass A's OPS fold
+    # sentence are module_summaries records, so the set now matches the
+    # loader's own tables; the assertion below is unchanged.
+    current_values.update(sources["module_summaries"].values())
+    current_values.update(sources["categories"])
 
     # THE NUMBER FOLLOWS THE EVIDENCE, not the other way round. These count
     # the records under docs/i18n/reviewed/runtime/<lang>, and they last moved
@@ -184,7 +213,13 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # +4 more on 2026-09-15, from 387's checkerboard scoring: "Second
     # compound", its tooltip, "Bliss independence" and "Loewe
     # additivity", in 2026-09-15-dose-response-combination.json.
-    assert len(reviewed) == 203
+    # 203 -> 238 on 2026-09-15, +35/-0, for runtime pass A: 10 Dose-Response
+    # terms, 10 OPS captions, "Controls" and 14 grid captions, in the same
+    # files as the Swedish note above. French "Concentration" and "Doses" are
+    # MANUAL_UI identity rows in the builder, not records, so neither counts
+    # here. 203 + 35 = 238 is the live count, the live count minus the four
+    # files' 35 sources is 203, and they share no source with any other file.
+    assert len(reviewed) == 238
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

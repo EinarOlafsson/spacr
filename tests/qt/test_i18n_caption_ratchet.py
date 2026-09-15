@@ -387,7 +387,21 @@ EXTERNAL_SOURCE_COUNTS = {
     # for the pre-release catalog pass, so the English-catalog equality below
     # stays red until it runs. MEASURED, not added: canonical_sources() on the
     # rebased tree returns 3,505, and 3,484 on nightly 160380b8c.
-    "UI": 3505,
+    #
+    # 3,505 -> 3,506 on 2026-09-15, +4/-3, for runtime pass A on nightly
+    # 5a9c4563a, which is also the catalog pass the note above waits for: the
+    # catalogs are regenerated with it, so the English-catalog equality below
+    # is green again. ARRIVING: OPS_TOGGLE_TOOLTIP, Mask Generation's OPS
+    # switch help, in no catalog until now because AppScreen passes it to
+    # AiToggleLabel by a name imported from `mask` (it joins the two toggles
+    # built the same way in _indirect_runtime_ui_sources), and the rewritten
+    # OPS INPUT / ALIGNMENT / PERFORMANCE explanations. LEAVING: those three
+    # explanations' mosaic-era wording, which described the deleted engine.
+    # The same three swap under CATEGORY_HELP, so its count stays 194; the
+    # other seven OPS strings rewritten with them are keyed by setting or
+    # module name and move no identity. MEASURED: canonical_sources() returns
+    # 3,506 = 3,505 + 4 - 3.
+    "UI": 3506,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -475,8 +489,16 @@ EXTERNAL_SOURCE_COUNTS = {
 # all UI, named in the note over EXTERNAL_SOURCE_COUNTS. PROVED BY
 # SUBTRACTION with this test's own formula: today's identities minus those
 # 21 give 520f3df5..., the previous pin byte for byte.
+# Moved again on 2026-09-15 for runtime pass A on nightly 5a9c4563a, with the
+# UI count above: 13 identities change, 7 arriving (UI: the OPS toggle tooltip
+# and the three rewritten OPS category explanations; CATEGORY_HELP: the same
+# three) and 6 leaving (their mosaic-era wordings, under both tables). PROVED
+# BY SUBTRACTION with this test's own formula: today's identities
+# (6408b9e4...) minus the 7 arrivals plus the 6 leavers give
+# b334316a64fc5ca9f34d6f5b73836b704834d19f88734a962e2ede181d32bd54, the
+# previous pin byte for byte.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "b334316a64fc5ca9f34d6f5b73836b704834d19f88734a962e2ede181d32bd54"
+    "6408b9e46d4b7478430257a6f632bbb12ec43a279df807213c4433b8e37d6a72"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

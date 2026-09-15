@@ -51,17 +51,37 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,747 | Remainder | Reviewed API blocks | Of 10,521 | Remainder |
+| Language | Reviewed runtime records | Of 5,769 | Remainder | Reviewed API blocks | Of 10,523 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 219 | 3.81% | 5,528 | 616 | 5.85% | 9,905 |
-| German | 183 | 3.18% | 5,564 | 574 | 5.46% | 9,947 |
-| Spanish | 192 | 3.34% | 5,555 | 455 | 4.32% | 10,066 |
-| Simplified Chinese | 482 | 8.39% | 5,265 | 722 | 6.86% | 9,799 |
-| Portuguese | 180 | 3.13% | 5,567 | 686 | 6.52% | 9,835 |
-| Hindi | 263 | 4.58% | 5,484 | 614 | 5.84% | 9,907 |
-| Korean | 384 | 6.68% | 5,363 | 691 | 6.57% | 9,830 |
-| Icelandic | 329 | 5.72% | 5,418 | 1,185 | 11.26% | 9,336 |
-| French | 197 | 3.43% | 5,550 | 615 | 5.85% | 9,906 |
+| Swedish | 263 | 4.56% | 5,506 | 616 | 5.85% | 9,907 |
+| German | 226 | 3.92% | 5,543 | 574 | 5.45% | 9,949 |
+| Spanish | 232 | 4.02% | 5,537 | 455 | 4.32% | 10,068 |
+| Simplified Chinese | 531 | 9.20% | 5,238 | 722 | 6.86% | 9,801 |
+| Portuguese | 222 | 3.85% | 5,547 | 686 | 6.52% | 9,837 |
+| Hindi | 311 | 5.39% | 5,458 | 614 | 5.83% | 9,909 |
+| Korean | 432 | 7.49% | 5,337 | 691 | 6.57% | 9,832 |
+| Icelandic | 379 | 6.57% | 5,390 | 1,185 | 11.26% | 9,338 |
+| French | 238 | 4.13% | 5,531 | 615 | 5.84% | 9,908 |
+
+*Regenerated 2026-09-15 for runtime pass A on nightly 5a9c4563a, which
+carries 387's Dose-Response work, on top of the pass below. The runtime
+denominator moves 5,747 -> 5,769: +21 UI for 387's Dose-Response captions,
+which nightly added without this report, and +1 for this pass -- UI +4/-3
+(Mask Generation's OPS switch tooltip, catalogued for the first time, and the
+three rewritten OPS category explanations replacing their mosaic-era wording)
+and CATEGORY_HELP +3/-3 for the same three. Reviewed runtime records, from
+nightly's live counts (sv 225, de 189, es 198, zh_CN 488, pt 186, hi 269,
+ko 390, is 335, fr 203; 2,483, which is 407's 2,429 plus the work session's
+six in each locale): +131 Dose-Response terms and Cache ceiling
+(cdbb41cbd), +99 for the new OPS English and "Controls", +133 for the fifteen
+Dose-Response grid captions the work session left unrecorded (fr and pt
+"Doses" are MANUAL_UI identity rows, not records), and -12 retired OPS
+records whose English is gone. sv 263, de 226, es 232, zh_CN 531, pt 222,
+hi 311, ko 432, is 379, fr 238: 2,483 + 363 - 12 = 2,834. The API side does
+not move for this pass: no public symbol changed here. Its denominator
+reads 10,523, not 10,521, because nightly's own public surface grew by two
+(d57d0d657, "Public surface back to +2"); every reviewed API count is
+unchanged and only the percentages and remainders follow.*
 
 *Regenerated 2026-09-15 for the magnifier's border option and whole-image
 mode (407), rebased onto nightly df1216b3f, on top of the pass below. The
