@@ -58,29 +58,31 @@ table derives them from the same source the builders read.
 | Spanish | 253 | 4.37% | 5,537 | 556 | 5.28% | 9,983 |
 | Simplified Chinese | 552 | 9.53% | 5,238 | 823 | 7.81% | 9,716 |
 | Portuguese | 243 | 4.20% | 5,547 | 787 | 7.47% | 9,752 |
-| Hindi | 332 | 5.73% | 5,458 | 715 | 6.78% | 9,824 |
-| Korean | 453 | 7.82% | 5,337 | 792 | 7.51% | 9,747 |
-| Icelandic | 400 | 6.91% | 5,390 | 1,286 | 12.20% | 9,253 |
+| Hindi | 333 | 5.75% | 5,457 | 715 | 6.78% | 9,824 |
+| Korean | 454 | 7.84% | 5,336 | 792 | 7.51% | 9,747 |
+| Icelandic | 401 | 6.93% | 5,389 | 1,286 | 12.20% | 9,253 |
 | French | 259 | 4.47% | 5,531 | 716 | 6.79% | 9,823 |
 
 *Regenerated 2026-09-15 on nightly 08a2c1719, on top of runtime pass A, for
 the API lane pass that lands items 412, 416 and 413 and catalogues the work
-session's seven symbols (wip/api-pass-412-416-413), with the test's own
-derivation. The API denominator moves 10,523 -> 10,539, +16/-0:
-`spacr.qt.make_masks_demo` and its seven public functions (412), and
-`spacr.install_cleanup` with its seven public symbols (416); 413 rewrote two
-existing docstrings and added none, and the work session's `SearchThresholds`
-pair was already in 10,523. Every reviewed API count rises by exactly 101, all
-of it `docs/i18n/reviewed/api/<locale>/2026-09-15-api-pass-412-416-413.json`:
-88 records for 412, 416 and 413, and 13 for the new or edited blocks of the
-work session's seven symbols, none of whose sources is in any other record.
+session's seven symbols, and for runtime pass B on the same branch
+(wip/api-pass-412-416-413), with the test's own derivation. The API
+denominator moves 10,523 -> 10,539, +16/-0: `spacr.qt.make_masks_demo` and its
+seven public functions (412), and `spacr.install_cleanup` with its seven public
+symbols (416); 413 rewrote two existing docstrings and added none, and the
+work session's `SearchThresholds` pair was already in 10,523. Every reviewed
+API count rises by exactly 101, all of it
+`docs/i18n/reviewed/api/<locale>/2026-09-15-api-pass-412-416-413.json`: 88
+records for 412, 416 and 413, and 13 for the new or edited blocks of the work
+session's seven symbols, none of whose sources is in any other record.
 The runtime denominator moves 5,769 -> 5,790, +21/-0: 412's tooltip and five
 status strings and 416's fifteen update-dialog strings, which are exactly the
-live-minus-nightly source set. Every runtime count rises by the same 21
+live-minus-nightly source set. Every runtime count rises by those 21
 (`412-make-masks-demo.json` and `2026-09-15-update-removes-old-installs.json`,
-sources in no other file), so each runtime Remainder is unchanged:
-2,834 + 9 x 21 = 3,023. The runtime catalogs are regenerated for those 21 in
-runtime pass B on the same branch.*
+sources in no other file), and Hindi, Korean and Icelandic by one more, the
+reviewed "Apply" record in `2026-09-15-apply-terms.json`, whose source was
+already counted. So every Remainder is unchanged except those three, which
+fall by one. Totals: 2,834 + 9 x 21 + 3 = 3,026.*
 
 *Regenerated 2026-09-15 for runtime pass A on nightly 5a9c4563a, which
 carries 387's Dose-Response work, on top of the pass below. The runtime
@@ -375,5 +377,5 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 284, de 247, es 253, zh_CN 552, pt 243, hi 332, ko 453, is 400, fr 259 -- 3,023 runtime records across nine locales.
+Reviewed totals today: sv 284, de 247, es 253, zh_CN 552, pt 243, hi 333, ko 454, is 401, fr 259 -- 3,026 runtime records across nine locales.
 

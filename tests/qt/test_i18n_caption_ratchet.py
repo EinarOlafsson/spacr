@@ -401,7 +401,14 @@ EXTERNAL_SOURCE_COUNTS = {
     # other seven OPS strings rewritten with them are keyed by setting or
     # module name and move no identity. MEASURED: canonical_sources() returns
     # 3,506 = 3,505 + 4 - 3.
-    "UI": 3506,
+    #
+    # 3,506 -> 3,527 on 2026-09-15, +21/-0, for runtime pass B on nightly
+    # 08a2c1719 (wip/api-pass-412-416-413): Make Masks' "Load test data…"
+    # tooltip and its five status strings (412) and the in-app update's
+    # fifteen dialog strings and removal reasons (416), each with a reviewed
+    # record in all nine locales. Nothing leaves. MEASURED:
+    # canonical_sources() returns 3,527 = 3,506 + 21.
+    "UI": 3527,
     "MODULE_SUMMARIES": 68,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -497,8 +504,14 @@ EXTERNAL_SOURCE_COUNTS = {
 # (6408b9e4...) minus the 7 arrivals plus the 6 leavers give
 # b334316a64fc5ca9f34d6f5b73836b704834d19f88734a962e2ede181d32bd54, the
 # previous pin byte for byte.
+# Moved again on 2026-09-15 for runtime pass B on nightly 08a2c1719, with the
+# UI count above: 21 identities arrive, all UI (412's six and 416's fifteen
+# captions), and none leave. PROVED BY SUBTRACTION with this test's own
+# formula: today's identities (01ae52fc...) minus those 21 give
+# 6408b9e46d4b7478430257a6f632bbb12ec43a279df807213c4433b8e37d6a72, the
+# previous pin byte for byte.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "6408b9e46d4b7478430257a6f632bbb12ec43a279df807213c4433b8e37d6a72"
+    "01ae52fc052a86e32edb21441d8700211b42169445e7a0338d6d957311d0985c"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
