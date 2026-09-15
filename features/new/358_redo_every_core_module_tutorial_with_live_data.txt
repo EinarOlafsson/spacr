@@ -1139,3 +1139,18 @@ picked up cold:
     (21 tracks) that makes 50 tracks on the reviewed narration. Running the
     post-voice chain now: narration check across all 50, full decode, 14
     browser cases, master, matrix, 1440p rendition, web-rendition playback.
+  POST-VOICE CHAIN, STEPS 0-4 PASSED (<scratchpad>/358_mask/post_voice_chain.sh):
+    0 narration: 50/50 tracks' render_inputs carry the reviewed staged
+      narration; none stale from the stopped run.
+    1 verify_staged_audio.py (en es fr hi it pt-BR ja zh-CN): passed, 50
+      tracks fully decoded, 0 errors. It rewrote the single 09-11-named
+      report; no second report was left behind.
+    2 verify_staged_lesson.py: 14/14 browser cases (first voice of the 8
+      spoken languages + da de is ko nb sv captions).
+    3 render_visual_master.py: master c9135f6f..., 336.700 s, 10,101
+      frames, 20,010,129 bytes (old 3c34e9f7..., 335.000 s, 10,050 frames).
+      The +1.7 s is the longer spoken counts.
+    4 check_completed_matrix.py: "07_mask: 50 final tracks, 14 browser
+      checks, matching sources".
+    Steps 5-6 (1440p rendition, web-rendition playback) running; then the
+    release candidate.
