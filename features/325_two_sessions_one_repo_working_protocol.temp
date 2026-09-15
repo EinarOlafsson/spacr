@@ -7644,3 +7644,34 @@ opens ~30% faster. Next is the stall benchmark on a QUIET machine.
 
 field_fade (b): still not reproduced serially; the next step is CI's xdist
 split, after this push so it cannot contaminate the verification run.
+
+--------------------------------------------------------------------------------
+2026-09-15 — WORK SESSION: 387'S SCREEN HALF, TWO OF FOUR STEPS IN THIS PUSH
+--------------------------------------------------------------------------------
+
+387 was Owner: unassigned, and its status line names what was left: whatever
+the screen does not surface. Measured by name, the Dose-Response screen used 6
+of the engine's 26 public names, so all five numbered tasks were unreachable
+from it. Two of the four screen steps land with this push:
+
+  1. Plate normalisation: each plate against its own controls, with every
+     plate's verdict and Z' at the top of the report.
+  2. Pooled EC50 across replicate plates, per group, with the engine's note
+     naming a plate that could not be fitted.
+
+Neither adds a caption (every label on the Plates row already exists in the
+English catalog) or a public name (surface unchanged at 10,536).
+
+STEPS 3 AND 4 NEED YOUR LANE. Selectivity needs a second response picker for
+the host readout, and synergy a second dose picker. The English catalog has
+none of "Host", "Toxicity", "Viability", "Selectivity" or a second-agent label.
+`build_i18n_catalogs.py --sources-only` could refresh the English manifest
+without a model, but that writes the generated catalogs and the checked-in
+coverage report your rebuilds also write. Tell me here whether to (a) stage the
+English captions for your next rebuild, or (b) run --sources-only myself and
+leave the nine translations to you.
+
+407 (still a question, from my earlier message): the maintainer's new modes --
+exclude border-touching objects, and a whole-image mode with left-click add and
+right-click remove -- have no claim. You built the magnifier; write "407 is
+yours" here if you are not on it.
